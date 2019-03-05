@@ -2,8 +2,8 @@
 Contributors: fredericktownes
 Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
-Tested up to: 4.9.5
-Stable tag: 0.9.7.1
+Tested up to: 5.0.3
+Stable tag: 0.9.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -11,9 +11,9 @@ Search Engine (SEO) &amp; Performance Optimization (WPO) via caching. Integrated
 
 == Description ==
 
-W3 Total Cache improves the SEO and user experience of your site by increasing website performance, reducing download times via features like content delivery network (CDN) integration.
+W3 Total Cache improves the SEO and user experience of your site by increasing website performance, reducing load times via features like content delivery network (CDN) integration and the latest best practices.
 
-The **only** web host agnostic WordPress Performance Optimization (WPO) framework recommended by countless web developers and web hosts. Trusted by numerous companies like: AT&T, stevesouders.com, mattcutts.com, mashable.com, smashingmagazine.com, makeuseof.com, kiss925.com, pearsonified.com, lockergnome.com, johnchow.com, ilovetypography.com, webdesignerdepot.com, css-tricks.com and tens of thousands of others.
+The **only** web host agnostic Web Performance Optimization (WPO) framework for WordPress trusted by millions of publishers, web developers, and web hosts worldwide for more than a decade.
 
 An inside look:
 
@@ -73,7 +73,7 @@ Speed is among the most significant success factors web sites face. In fact, you
 
 A thousandth of a second is not a long time, yet the impact is quite significant. Even if you're not a large company (or just hope to become one), a loss is still a loss. However, there is a solution to this problem, take advantage.
 
-Many of the other consequences of poor performance were discovered and documented more than two decades ago:
+Many of the other consequences of poor performance were discovered more than a decade ago:
 
 * Lower perceived credibility (Fogg et al. 2001)
 * Lower perceived quality (Bouch, Kuchinsky, and Bhatti 2000)
@@ -270,6 +270,12 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 0.9.7.2 =
+* Fixed fatal error during media file upload with CDN module active
+* Fixed removal of empty values, JSON encoded string in attribute, trailing quote at end of tag, and the handling of anchors in HTML minify 
+* Fixed undefined index warning
+* Fixed fatal error when purging CDN using full site delivery
+
 = 0.9.7.1 =
 * Fixed undefined variable notice
 * Fixed "No such file or directory" warning
@@ -287,14 +293,19 @@ Please reach out to all of these people and support their projects if you're so 
 * Fixed double slash with ABSPATH if file exists
 * Fixed setting max-age and expires header simultaneously
 * Fixed SASL detection for PECL Memcached
+* Fixed handling of manually entered objects to be purged on CDN
+* Fixed query string handling in Nginx
 * Improved error handling with Cloudfront
 * Improved page cache logging
 * Improved multi-tenant support for memory-based caching engines
 * Improved CSS minification
+* Improved purge behavior for changed media objects when using CDN
+* Improved compatibility with sitemap plugins
 * Added support for Memcached for Nginx
 * Added support for caching webm files
 * Added Brotli HTTP compression support
 * Added StackPath full site delivery support
+* Added _wc_session_ to the list of ignored query stems for improved WooCommerce compatibility
 
 = 0.9.7 =
 * Fixed minified files not being hosted by CDN when enabled if "host minified files" is disabled
@@ -312,7 +323,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Improved handling for /*<![CDATA[*/ in HTML minify engine
 * Imporved garbage collection for basic disk caching
 * Improved HSTS support (via Dave Welsh)
-* Improved reliability of CSS embed options
+* Improved reliabilty of CSS embed options
 * Improved New Relic requirements in compatibility test
 * Added StackPath CDN integration (including full site delivery)
 * Added support for page cache priming via WP-CLI via prime function
@@ -337,7 +348,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Improved Full Site Delivery configuration user flow on the General and CDN settings screens
 * Improved content type matching and cache hits as a result
 * Improved minify file locking logic
-* Improved visual language of the compatibility test (via Furniel)
+* Improved visual langage of the compatibility test (via Furniel)
 * Improved configuration file management
 * Improved MaxCDN set up wizard
 * Improved page cache's accepted query string handling to handle optional values and add support for disk enhanced mode (via amiga-500, nigrosimone)
