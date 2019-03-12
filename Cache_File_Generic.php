@@ -106,7 +106,9 @@ class Cache_File_Generic extends Cache_File {
 				if ( !empty( $links) ) {
 					$rules .= "<IfModule mod_headers.c>\n";
 					$rules .= "    Header unset Link\n";
+					$rules .= "    <FilesMatch \"\.(html|html_gzip|html_br)$\">\n";
 					$rules .= $links;
+					$rules .= "    </FilesMatch>\n";
 					$rules .= "</IfModule>\n";
 				}
 			}
