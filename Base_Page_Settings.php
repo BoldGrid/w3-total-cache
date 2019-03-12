@@ -155,8 +155,8 @@ class Base_Page_Settings {
 			echo '<input type="hidden" name="' . $name . '" value="0" />';
 
 		echo '<label>';
-		echo '<input class="enabled" type="checkbox" name="' . $name .
-			'" value="1" ';
+		echo '<input class="enabled" type="checkbox" id="' . $name .
+			'" name="' . $name . '" value="1" ';
 		checked( $this->_config->get_boolean( $option_id ), true );
 
 		if ( $disabled )
