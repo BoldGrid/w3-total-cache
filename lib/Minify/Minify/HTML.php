@@ -138,22 +138,28 @@ class Minify_HTML {
 		$this->_html = preg_replace('/^\\s+|\\s+$/m', '', $this->_html);
 
 		// remove ws around block/undisplayed elements
-		$this->_html = preg_replace('/\\s+(<\\/?(?:area|base(?:font)?|blockquote|body'
-			.'|caption|center|col(?:group)?|dd|dir|div|dl|dt|fieldset|form'
-			.'|frame(?:set)?|h[1-6]|head|hr|html|legend|li|link|map|menu|meta'
-			.'|ol|opt(?:group|ion)|p|param|t(?:able|body|head|d|h||r|foot|itle)'
-			.'|ul)\\b[^>]*>)/i', '$1', $this->_html);
+		$this->_html = preg_replace('/\\s+(<\\/?(?:area|article|aside|base(?:font)?|blockquote|body'
+			.'|canvas|caption|center|col(?:group)?|dd|dir|div|dl|dt|fieldset|figcaption|figure|footer|form'
+			.'|frame(?:set)?|h[1-6]|head|header|hgroup|hr|html|legend|li|link|main|map|menu|meta|nav'
+			.'|ol|opt(?:group|ion)|output|p|param|section|t(?:able|body|head|d|h||r|foot|itle)'
+			.'|ul|video)\\b[^>]*>)/iu', '$1', $this->_html);
 
-		// remove ws outside of all elements
+		// remove whitespaces outside of all elements
 		$this->_html = preg_replace(
-			'/(^|>)\\s+\\b([^<]+)\\b\\s+?(<|$)/'
-			,'$1 $2 $3'
+			'/>((\\s)(?:\\s*))?([^<]+?)((\\s)(?:\\s*))?</u'
+			,'>$2$3$5<'
 			,$this->_html);
 
-		// remove ws before end of all empty elements
+		// remove whitespaces before end of all empty elements
 		$this->_html = preg_replace(
 			'/\\s*\\/>/'
 			,'/>'
+			,$this->_html);
+
+		// remove trailing slash from void elements
+		$this->_html = preg_replace(
+			'~<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)([^>]*?)\\s*[/]?>~i'
+			,'<$1$2>'
 			,$this->_html);
 
 		// use newlines before 1st attribute in open tags (to limit line lengths)
@@ -177,12 +183,6 @@ class Minify_HTML {
 			,array_values($this->_placeholders)
 			,$this->_html
 		);
-
-		// remove trailing slash from void elements
-		$this->_html = preg_replace(
-			'/<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)([^>]+)\\s*\\/>/i'
-			,'<$1$2>'
-			,$this->_html);
 
 		// in HTML5, type attribute is unnecessary for JavaScript resources
 		// in HTML5, type attribute for style element is not needed and should be omitted
