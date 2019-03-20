@@ -343,6 +343,12 @@ class Cache_Redis extends Cache_Base {
 							null, null, $this->_instance_id . '_' . $this->_dbid );
 					else
 						$accessor->connect( trim( substr( $server, 5 ) ) );
+				} elseif ( strpos( $server, ':' ) === false ) {
+					if ( $this->_persistent )
+						$accessor->pconnect( trim( $server ),
+							null, null, $this->_instance_id . '_' . $this->_dbid );
+					else
+						$accessor->connect( trim( $server ) );
 				} else {
 					list( $ip, $port ) = explode( ':', $server );
 
