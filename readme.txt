@@ -273,6 +273,7 @@ Please reach out to all of these people and support their projects if you're so 
 = 0.9.7.3 =
 * Fixed caching of redirect responses based on empty response body.
 * Improved transports, unix: prefix not required.
+* Improved minify html.
 
 = 0.9.7.2 =
 * Fixed fatal error during media file upload with CDN module active
