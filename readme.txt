@@ -3,7 +3,7 @@ Contributors: fredericktownes
 Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.1
-Stable tag: 0.9.7.2
+Stable tag: 0.9.7.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -269,6 +269,10 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.9.7.3 =
+* Fixed caching of redirect responses based on empty response body.
+* Improved transports, unix: prefix not required.
 
 = 0.9.7.2 =
 * Fixed fatal error during media file upload with CDN module active
