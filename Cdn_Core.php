@@ -79,7 +79,12 @@ class Cdn_Core {
 			$file = $this->normalize_attachment_file( $file );
 
 			$local_file = $upload_info['basedir'] . '/' . $file;
-			$remote_file = ltrim( $upload_info['baseurlpath'] . $file, '/' );
+
+			$parsed = parse_url( rtrim( $upload_info['baseurl'], '/' ) .
+				'/' . $file );
+			$local_uri = $parsed['path'];
+			$remote_uri = $this->uri_to_cdn_uri( $local_uri );
+			$remote_file = ltrim( $remote_uri, '/' );
 
 			$files[] = $this->build_file_descriptor( $local_file, $remote_file );
 		}
@@ -713,8 +718,11 @@ class Cdn_Core {
 			!Util_Environment::is_wpmu_subdomain() &&
 			Util_Environment::is_using_master_config() &&
 			Cdn_Util::is_engine_push( $engine ) ) {
-			// in common config files are uploaded for network home url
+			// in common config mode files are uploaded for network home url
 			// so mirror will not contain /subblog/ path in uri
+			//
+			// since upload process is not blog-specific and
+			// wp-content/plugins/../*.jpg files are common
 			$home = trim( home_url( '', 'relative' ), '/' ) . '/';
 			$network_home = trim( network_home_url( '', 'relative' ), '/' ) . '/';
 
