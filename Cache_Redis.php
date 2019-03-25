@@ -178,8 +178,10 @@ class Cache_Redis extends Cache_Base {
 	 */
 	function flush( $group = '' ) {
 		$this->_get_key_version( $group );   // initialize $this->_key_version
-		$this->_key_version[$group]++;
-		$this->_set_key_version( $this->_key_version[$group], $group );
+		if (isset($this->_key_version[$group])) {
+			$this->_key_version[$group]++;
+			$this->_set_key_version( $this->_key_version[$group], $group );
+		}
 
 		return true;
 	}
