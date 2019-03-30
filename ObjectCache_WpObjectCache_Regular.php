@@ -383,9 +383,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return boolean
 	 */
 	function reset() {
-		global $_wp_using_ext_object_cache;
-
-		$_wp_using_ext_object_cache = $this->_caching;
+		$this->cache = array();
 
 		return true;
 	}
