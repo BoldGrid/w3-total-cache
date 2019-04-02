@@ -79,11 +79,11 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	private $can_cache_once_per_request_result = null;
 
 	/*
-     * @param string $dbuser
-     * @param string $dbpassword
-     * @param string $dbname
-     * @param string $dbhost
-     */
+	 * @param string $dbuser
+	 * @param string $dbpassword
+	 * @param string $dbname
+	 * @param string $dbhost
+	 */
 	function __construct() {
 		$c = Dispatcher::config();
 		$this->_config = $c;
@@ -220,6 +220,10 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 	function _escape( $data ) {
 		return $this->next_injection->_escape( $data );
+	}
+
+	function prepare( $query, $args ) {
+		return $this->next_injection->prepare( $query, $args );
 	}
 
 	/**
@@ -635,7 +639,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 				'singletables' => '*' );
 			break;
 		// options are updated on each second request,
-	    // ignore by default probability that SELECTs with joins with options
+		// ignore by default probability that SELECTs with joins with options
 		// are critical and don't flush "remaining".
 		// That can be changed by w3tc_dbcache_get_flush_groups filter
 		case 'options':

@@ -28,8 +28,8 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 			if ( Util_Environment::is_dbcluster() ) {
 				// dbcluster use mysqli only since other is obsolete now
 				if ( !defined( 'WP_USE_EXT_MYSQL' ) ) {
-                    define( 'WP_USE_EXT_MYSQL', false );
-                }
+					define( 'WP_USE_EXT_MYSQL', false );
+				}
 
 				$processors[] = new Enterprise_Dbcache_WpdbInjection_Cluster();
 			}
@@ -62,8 +62,8 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 	private $request_time_start = 0;
 
 	/*
-     * @param boolean $call_default_constructor
-     */
+	 * @param boolean $call_default_constructor
+	 */
 	public function __construct( $processors = null ) {
 		// required to initialize $use_mysqli which is private
 		parent::__construct( '', '', '', '' );
@@ -87,7 +87,7 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 	 * Called by Root_Loader when all w3tc plugins loaded,
 	 * i.e. later that object instantiated
 	 */
-	function on_w3tc_plugins_loaded() {
+	public function on_w3tc_plugins_loaded() {
 		$o = $this;
 
 		if ( $this->debug ) {
@@ -101,14 +101,14 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 
 	}
 
-	function w3tc_footer_comment( $strings ) {
+	public function w3tc_footer_comment( $strings ) {
 		foreach ( $this->processors as $processor )
 			$strings = $processor->w3tc_footer_comment( $strings );
 
 		return $strings;
 	}
 
-	function debug_shutdown() {
+	public function debug_shutdown() {
 		$strings = array();
 		foreach ( $this->processors as $processor )
 			$strings = $processor->w3tc_footer_comment( $strings );
@@ -124,12 +124,12 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 		@file_put_contents( $filename, $data, FILE_APPEND );
 	}
 
-	function w3tc_usage_statistics_of_request( $storage ) {
+	public function w3tc_usage_statistics_of_request( $storage ) {
 		foreach ( $this->processors as $processor )
 			$processor->w3tc_usage_statistics_of_request( $storage );
 	}
 
-	function flush_cache( $extras = array() ) {
+	public function flush_cache( $extras = array() ) {
 		$v = true;
 
 		foreach ( $this->processors as $processor )
@@ -138,7 +138,7 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 		return $v;
 	}
 
-	function db_connect( $allow_bail = true ) {
+	public function db_connect( $allow_bail = true ) {
 		if ( empty( $this->dbuser ) ) {
 			// skip connection - called from constructor
 		} else
@@ -148,14 +148,14 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 	/**
 	 * Initializes object after processors configured. Called from instance() only
 	 */
-	function initialize() {
+	public function initialize() {
 		return $this->active_processor->initialize();
 	}
 
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function insert( $table, $data, $format = null ) {
+	public function insert( $table, $data, $format = null ) {
 		do_action( 'w3tc_db_insert', $table, $data, $format );
 		return $this->active_processor->insert( $table, $data, $format );
 	}
@@ -163,18 +163,33 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function query( $query ) {
+	public function query( $query ) {
 		return $this->active_processor->query( $query );
 	}
 
-	function _escape( $data ) {
+	public function _escape( $data ) {
 		return $this->active_processor->_escape( $data );
 	}
 
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function replace( $table, $data, $format = null ) {
+	public function prepare( $query, $args ) {
+		$args = func_get_args();
+		array_shift( $args );
+
+		// If args were passed as an array (as in vsprintf), move them up
+		if ( isset( $args[0] ) && is_array($args[0]) ) {
+			$args = $args[0];
+		}
+
+		return $this->active_processor->prepare( $query, $args );
+	}
+
+	/**
+	 * Overriten logic of wp_db by processor.
+	 */
+	public function replace( $table, $data, $format = null ) {
 		do_action( 'w3tc_db_replace', $table, $data, $format );
 		return $this->active_processor->replace( $table, $data, $format );
 	}
@@ -182,7 +197,7 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function update( $table, $data, $where, $format = null, $where_format = null ) {
+	public function update( $table, $data, $where, $format = null, $where_format = null ) {
 		do_action( 'w3tc_db_update', $table, $data, $where, $format,
 			$where_format );
 		return $this->active_processor->update( $table, $data, $where, $format, $where_format );
@@ -191,7 +206,7 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function delete( $table, $where, $where_format = null ) {
+	public function delete( $table, $where, $where_format = null ) {
 		do_action( 'w3tc_db_delete', $table, $where, $where_format );
 		return $this->active_processor->delete( $table, $where, $where_format );
 	}
@@ -199,151 +214,158 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function init_charset() {
+	public function init_charset() {
 		return $this->active_processor->init_charset();
 	}
 
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function set_charset( $dbh, $charset = null, $collate = null ) {
+	public function set_charset( $dbh, $charset = null, $collate = null ) {
 		return $this->active_processor->set_charset( $dbh, $charset, $collate );
 	}
 
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function flush() {
+	public function flush() {
 		return $this->active_processor->flush();
 	}
 
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function check_database_version( $dbh_or_table = false ) {
+	public function check_database_version( $dbh_or_table = false ) {
 		return $this->active_processor->check_database_version( $dbh_or_table );
 	}
 
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function supports_collation( $dbh_or_table = false ) {
+	public function supports_collation( $dbh_or_table = false ) {
 		return $this->active_processor->supports_collation( $dbh_or_table );
 	}
 
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function has_cap( $db_cap, $dbh_or_table = false ) {
+	public function has_cap( $db_cap, $dbh_or_table = false ) {
 		return $this->active_processor->has_cap( $db_cap, $dbh_or_table );
 	}
 
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
-	function db_version( $dbh_or_table = false ) {
+	public function db_version( $dbh_or_table = false ) {
 		return $this->active_processor->db_version( $dbh_or_table );
 	}
 
 	/**
 	 * Default initialization method, calls wp_db apropriate method
 	 */
-	function default_initialize() {
+	public function default_initialize() {
 		parent::__construct( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_insert( $table, $data, $format = null ) {
+	public function default_insert( $table, $data, $format = null ) {
 		return parent::insert( $table, $data, $format );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_query( $query ) {
+	public function default_query( $query ) {
 		return parent::query( $query );
 	}
 
-	function default__escape( $data ) {
+	public function default__escape( $data ) {
 		return parent::_escape( $data );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_replace( $table, $data, $format = null ) {
+	public function default_prepare( $query, $args ) {
+		return parent::prepare( $query, $args );
+	}
+
+	/**
+	 * Default implementation, calls wp_db apropriate method
+	 */
+	public function default_replace( $table, $data, $format = null ) {
 		return parent::replace( $table, $data, $format );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_update( $table, $data, $where, $format = null, $where_format = null ) {
+	public function default_update( $table, $data, $where, $format = null, $where_format = null ) {
 		return parent::update( $table, $data, $where, $format, $where_format );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_delete( $table, $where, $where_format = null ) {
+	public function default_delete( $table, $where, $where_format = null ) {
 		return parent::delete( $table, $where, $where_format );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_init_charset() {
+	public function default_init_charset() {
 		return parent::init_charset();
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_set_charset( $dbh, $charset = null, $collate = null ) {
+	public function default_set_charset( $dbh, $charset = null, $collate = null ) {
 		return parent::set_charset( $dbh, $charset, $collate );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_flush() {
+	public function default_flush() {
 		return parent::flush();
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_check_database_version( $dbh_or_table = false ) {
+	public function default_check_database_version( $dbh_or_table = false ) {
 		return parent::check_database_version( $dbh_or_table );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_supports_collation( $dbh_or_table = false ) {
+	public function default_supports_collation( $dbh_or_table = false ) {
 		return parent::supports_collation( $dbh_or_table );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_has_cap( $db_cap, $dbh_or_table = false ) {
+	public function default_has_cap( $db_cap, $dbh_or_table = false ) {
 		return parent::has_cap( $db_cap, $dbh_or_table );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function default_db_version( $dbh_or_table = false ) {
+	public function default_db_version( $dbh_or_table = false ) {
 		return parent::db_version( $dbh_or_table );
 	}
 
 	/**
 	 * Default implementation, calls wp_db apropriate method
 	 */
-	function switch_active_processor( $offset ) {
+	public function switch_active_processor( $offset ) {
 		$new_processor_number = $this->active_processor_number + $offset;
 		if ( $new_processor_number <= 0 ) {
 			$new_processor_number = 0;
@@ -428,6 +450,23 @@ class _CallUnderlying {
 
 		try {
 			$r = $this->wpdb_mixin->_escape( $data );
+
+			$this->wpdb_mixin->switch_active_processor( -$switched );
+			return $r;
+		} catch ( \Exception $e ) {
+			$this->wpdb_mixin->switch_active_processor( -$switched );
+			throw $e;
+		}
+	}
+
+	/**
+	 * Calls underlying processor's aproptiate method of wp_db
+	 */
+	function prepare( $query, $args ) {
+		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
+
+		try {
+			$r = $this->wpdb_mixin->prepare( $query, $args );
 
 			$this->wpdb_mixin->switch_active_processor( -$switched );
 			return $r;

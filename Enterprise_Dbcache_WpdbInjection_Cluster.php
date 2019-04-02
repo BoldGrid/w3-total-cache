@@ -452,11 +452,11 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	}
 
 	/*
-     * Checks if this is our zone
-     *
-     * @param $zone array
-     * @return boolean
-     */
+	 * Checks if this is our zone
+	 *
+	 * @param $zone array
+	 * @return boolean
+	 */
 	function _is_current_zone( $zone ) {
 		// obsolete
 		if ( isset( $zone['SERVER_NAME'] ) ) {
@@ -480,10 +480,10 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	}
 
 	/*
-     * Tries to reuse opened connection
-     *
-     * @return resource
-     */
+	 * Tries to reuse opened connection
+	 *
+	 * @return resource
+	 */
 	function _db_connect_reuse_connection() {
 		$dbhname = $this->dbhname;
 
@@ -638,6 +638,17 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		}
 
 		return $this->wpdb_mixin->default__escape( $data );
+	}
+
+	/**
+	 * Prepare calls escape, so database connection required
+	 **/
+	function prepare( $query, $args ) {
+		if ( !$this->wpdb_mixin->dbh ) {
+			$this->db_connect( $query );
+		}
+
+		return $this->wpdb_mixin->default_prepare( $query, $args );
 	}
 
 	/**
