@@ -21,7 +21,10 @@ class Generic_AdminActions_Flush {
 	}
 
 	function w3tc_flush_current_page() {
-		$url = $_SERVER['HTTP_REFERER'];
+		$url = filter_input( INPUT_GET, 'url', FILTER_SANITIZE_URL );
+		if ( empty( $url ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
+			$url = $_SERVER['HTTP_REFERER'];
+		}
 		w3tc_flush_url( $url );
 
 		?>
