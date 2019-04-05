@@ -75,9 +75,8 @@ abstract class Mobile_Base {
 		$theme = $this->get_theme();
 
 		if ( $theme ) {
-			list( , $stylesheet ) = explode( '/', $theme );
-
-			return $stylesheet;
+			$v = explode( '/', $theme );
+			return isset( $v[1] ) ? $v[1] : '';
 		}
 
 		return false;
