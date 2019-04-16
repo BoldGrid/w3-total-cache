@@ -419,12 +419,14 @@ class Minify_Plugin {
 		$home_url_regexp = Util_Environment::home_url_regexp();
 
 		$path = '';
-		if ( Util_Environment::is_wpmu() && !Util_Environment::is_wpmu_subdomain() )
-			$path = ltrim( Util_Environment::home_url_uri(), '/' );
+		if ( Util_Environment::is_wpmu() && !Util_Environment::is_wpmu_subdomain() ) {
+			$path = ltrim( Util_Environment::network_home_url_uri(), '/' );
+		}
 
 		foreach ( $files as $file ) {
-			if ( $path && strpos( $file, $path ) === 0 )
+			if ( $path && strpos( $file, $path ) === 0 ) {
 				$file = substr( $file, strlen( $path ) );
+			}
 
 			$this->replaced_scripts[] = $file;
 
@@ -434,8 +436,12 @@ class Minify_Plugin {
 			} else {
 				// local JS files
 				$file = ltrim( $file, '/' );
-				if ( home_url() == site_url() && ltrim( Util_Environment::site_url_uri(), '/' ) && strpos( $file, ltrim( Util_Environment::site_url_uri(), '/' ) ) === 0 )
+				if ( home_url() == site_url() &&
+						ltrim( Util_Environment::site_url_uri(), '/' ) &&
+						strpos( $file, ltrim( Util_Environment::site_url_uri(), '/' ) ) === 0 ) {
 					$file = str_replace( ltrim( Util_Environment::site_url_uri(), '/' ), '', $file );
+				}
+
 				$file = ltrim( preg_replace( '~' . $home_url_regexp . '~i', '', $file ), '/\\' );
 				$regexps[] = '(' . $home_url_regexp . ')?/?' . Util_Environment::preg_quote( $file );
 			}
