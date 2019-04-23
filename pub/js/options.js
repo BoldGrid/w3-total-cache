@@ -329,7 +329,7 @@ function w3tc_csp_reference() {
 		width: 890,
 		height: 460,
 		url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
-    		'&w3tc_action=browsercache_quick_reference',
+			'&w3tc_action=browsercache_quick_reference',
 	});
 	jQuery('div#overlay,.lightbox-content').click(function() {
 		W3tc_Lightbox.close();
@@ -1458,25 +1458,25 @@ jQuery(function() {
 		jQuery('.w3tc_error').each(function() {
 			var id = jQuery(this).attr('id');
 			var text = jQuery(this).text();
-			if (id)
+			if (id && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'w3tc_error', id, text);
 		});
 		jQuery('.w3tc_note').each(function() {
 			var id = jQuery(this).attr('id');
 			var text = jQuery(this).text();
-			if (id)
+			if (id && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'w3tc_note', id, text);
 		});
 
 		jQuery('body').on('click', 'a', function() {
 			var url = jQuery(this).attr('href');
-			if (url)
+			if (url && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'anchor', 'click', url, {useBeacon: true});
 		});
 
 		jQuery('body').on('click', 'input[type="button"]', function() {
 			var name = jQuery(this).attr('name');
-			if (name)
+			if (name && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'button', 'click', name, {useBeacon: true});
 		});
 		jQuery('body').on('click', 'input[type="submit"]', function() {
@@ -1485,7 +1485,7 @@ jQuery(function() {
 			if (!id)
 				id = name;
 
-			if (name)
+			if (name && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'button', id, name, {useBeacon: true});
 		});
 
@@ -1493,7 +1493,7 @@ jQuery(function() {
 			var name = jQuery(this).attr('name');
 			var action = jQuery(this).is(':checked') ? 'check' : 'uncheck';
 
-			if (name)
+			if (name && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'checkbox', action, name);
 		});
 
@@ -1501,7 +1501,7 @@ jQuery(function() {
 			var name = jQuery(this).attr('name');
 			var value = jQuery(this).val();
 
-			if (name && value)
+			if (name && value && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'select', value, name);
 		});
 	}
