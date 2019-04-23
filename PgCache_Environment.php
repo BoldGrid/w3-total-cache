@@ -773,13 +773,6 @@ class PgCache_Environment {
 			"    RewriteCond %{ENV:W3TC_QUERY_STRING} =\"\"\n";
 
 		/**
-		 * Check permalink structure trailing slash
-		 */
-		if ( substr( $permalink_structure, -1 ) == '/' ) {
-			$use_cache_rules .= "    RewriteCond %{REQUEST_URI} \\/$\n";
-		}
-
-		/**
 		 * Check for rejected cookies
 		 */
 		$use_cache_rules .= "    RewriteCond %{HTTP_COOKIE} !(" . implode( '|',
@@ -811,6 +804,16 @@ class PgCache_Environment {
 
 		foreach ( $exts as $ext ) {
 			$rules .= $use_cache_rules;
+
+			if ( $ext == '.html' ) {
+				/**
+				 * Check permalink structure trailing slash
+				 */
+				if ( substr( $permalink_structure, -1 ) == '/' ) {
+					$rules .= "    RewriteCond %{REQUEST_URI} \\/$\n";
+				}
+			}
+
 			$rules .= "    RewriteCond \"" . $document_root . $uri_prefix . $ext .
 				$env_W3TC_ENC . "\"" . $switch . "\n";
 			$rules .= "    RewriteRule .* \"" . $uri_prefix . $ext .
@@ -1144,7 +1147,7 @@ class PgCache_Environment {
 		}
 
 		if ( $config->get_boolean( 'browsercache.enabled' ) &&
-		     $config->get_boolean( 'browsercache.html.brotli' ) ) {
+			 $config->get_boolean( 'browsercache.html.brotli' ) ) {
 			$rules .= "set \$w3tc_enc \"\";\n";
 
 			$rules .= "if (\$http_accept_encoding ~ br) {\n";
@@ -1239,23 +1242,23 @@ class PgCache_Environment {
 			$cache_dir );
 
 		$rules .= 'location ~ ".*(?<!php)$" {' . "\n";
-        $rules .= '  set $memcached_key "$http_host$request_uri_noslash/' .
-        	$key_postfix . $env_w3tc_enc . '";' . "\n";
+		$rules .= '  set $memcached_key "$http_host$request_uri_noslash/' .
+			$key_postfix . $env_w3tc_enc . '";' . "\n";
 
 		if ( $config->get_boolean( 'browsercache.enabled' ) &&
 			$config->get_boolean( 'browsercache.html.compression' ) ) {
-        	$rules .= '  memcached_gzip_flag 65536;' . "\n";
-       	}
+			$rules .= '  memcached_gzip_flag 65536;' . "\n";
+		   }
 
-        $rules .= '  default_type text/html;' . "\n";
-        $rules .= '  if ($w3tc_rewrite = 1) {' . "\n";
-        $rules .= '    memcached_pass localhost:11211;' . "\n";
+		$rules .= '  default_type text/html;' . "\n";
+		$rules .= '  if ($w3tc_rewrite = 1) {' . "\n";
+		$rules .= '    memcached_pass localhost:11211;' . "\n";
 		$rules .= "  }\n";
-        $rules .= '  error_page     404 502 504 = @fallback;' . "\n";
+		$rules .= '  error_page     404 502 504 = @fallback;' . "\n";
 		$rules .= "}\n";
 
-        $rules .= 'location @fallback {' . "\n";
-        $rules .= '  try_files $uri $uri/ $uri.html /index.php?$args;' . "\n";
+		$rules .= 'location @fallback {' . "\n";
+		$rules .= '  try_files $uri $uri/ $uri.html /index.php?$args;' . "\n";
 		$rules .= "}\n";
 
 		return $rules;
