@@ -108,10 +108,10 @@ class Util_Environment {
 	}
 
 	/*
-     * Returns URL from filename/dirname
-     *
-     * @return string
-     */
+	 * Returns URL from filename/dirname
+	 *
+	 * @return string
+	 */
 	static public function filename_to_url( $filename, $use_site_url = false ) {
 		// using wp-content instead of document_root as known dir since dirbased
 		// multisite wp adds blogname to the path inside site_url
@@ -953,8 +953,13 @@ class Util_Environment {
 		if ( isset( $rel['scheme'] ) || isset( $rel['host'] ) )
 			return $relative_url;
 
-		if ( !isset( $rel['host'] ) )
-			$rel['host'] = parse_url( get_home_url(), PHP_URL_HOST );
+		if ( !isset( $rel['host'] ) ) {
+			$home_parsed = parse_url( get_home_url() );
+			$rel['host'] = $home_parsed['host'];
+			if ( isset( $home_parsed['port'] ) ) {
+				$rel['port'] = $home_parsed['port'];
+			}
+		}
 
 		$scheme = isset( $rel['scheme'] ) ? $rel['scheme'] . '://' : '//';
 		$host = isset( $rel['host'] ) ? $rel['host'] : '';
@@ -1069,15 +1074,15 @@ class Util_Environment {
 	 */
 	static public function is_w3tc_pro( $config = null ) {
 		if ( defined( 'W3TC_PRO' ) && W3TC_PRO )
-		    return true;
+			return true;
 		if ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE )
-		    return true;
+			return true;
 
 		if ( is_object( $config ) ) {
-		    $plugin_type = $config->get_string( 'plugin.type' );
+			$plugin_type = $config->get_string( 'plugin.type' );
 
-		    if ( $plugin_type == 'pro' || $plugin_type == 'pro_dev' )
-		        return true;
+			if ( $plugin_type == 'pro' || $plugin_type == 'pro_dev' )
+				return true;
 		}
 
 		return false;
