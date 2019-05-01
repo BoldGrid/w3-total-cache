@@ -83,18 +83,6 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 	}
 
 	/**
-	 * Reloads/compiles a PHP file.
-	 *
-	 * @param string  $filename
-	 * @return mixed
-	 */
-	function opcache_flush_file( $filename ) {
-		return $this->_prepare_message( array(
-				'action' => 'opcache_flush_file',
-				'filename' => $filename ) );
-	}
-
-	/**
 	 * Purges/Flushes post page
 	 *
 	 * @param unknown $post_id

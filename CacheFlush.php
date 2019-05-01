@@ -116,16 +116,6 @@ class CacheFlush {
 	}
 
 	/**
-	 * Reloads/compiles a PHP file.
-	 *
-	 * @param string  $filename
-	 * @return mixed
-	 */
-	function opcache_flush_file( $filename ) {
-		return $this->_executor->opcache_flush_file( $filename );
-	}
-
-	/**
 	 * Purges/Flushes post page
 	 */
 	function flush_post( $post_id, $extras = null ) {

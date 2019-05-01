@@ -38,17 +38,13 @@ if ( hash_equals( wp_hash( $uri ), $nonce ) ) {
 	case 'flush':
 		$result = $w3_cache->opcache_flush();
 		break;
-	case 'flush_file':
-		$file = \W3TC\Util_Request::get_string( 'file' );
-		$result = $w3_cache->opcache_flush_file( $file );
-		break;
 	}
 	if ( $result ) {
 		header( $_SERVER["SERVER_PROTOCOL"] . " 200 OK" );
 		die( 'Success' );
 	} else {
 		header( $_SERVER["SERVER_PROTOCOL"] . " 500 OK" );
-		die( $command . ' could not be executed' );
+		die( 'command could not be executed' );
 	}
 
 } else {

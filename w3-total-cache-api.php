@@ -515,45 +515,6 @@ function w3tc_opcache_flush( $http = false ) {
 }
 
 /**
- * deprecated
- * Reloads files.
- *
- * @param string[] $files list of files supports, fullpath, from root, wp-content
- * @param bool    $http  if delete request should be made over http to current site. Default false.
- * @return mixed
- */
-function w3tc_opcache_flush_file( $file, $http = false ) {
-	if ( !$http ) {
-		$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-		return $o->opcache_flush_file( $file );
-	} else {
-		$url = WP_PLUGIN_URL . '/' . dirname( W3TC_FILE ) . '/pub/opcache.php';
-		$path = parse_url( $url, PHP_URL_PATH );
-
-		$post = array(
-			'method' => 'POST',
-			'timeout' => 45,
-			'redirection' => 5,
-			'httpversion' => '1.0',
-			'blocking' => true,
-			'body' => array(
-				'nonce' => wp_hash( $path ),
-				'command' => 'flush_file',
-				'file' => $file
-			),
-		);
-		$result = wp_remote_post( $url, $post );
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		} elseif ( $result['response']['code'] != '200' ) {
-			return $result['response']['code'];
-		}
-
-		return true;
-	}
-}
-
-/**
  * Deprecated. Retained for 3rd parties that used it. see w3tc_config()
  *
  * Some plugins make incorrect decisions based on configuration

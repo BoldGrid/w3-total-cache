@@ -148,17 +148,6 @@ class CacheFlush_Locally {
 	}
 
 	/**
-	 * Reload/compile a PHP file
-	 *
-	 * @param unknown $filename
-	 * @return bool
-	 */
-	function opcache_flush_file( $filename ) {
-		$o = Dispatcher::component( 'SystemOpCache_Core' );
-		return $o->flush_file( $filename );
-	}
-
-	/**
 	 * Purges/Flushes post from page cache, varnish and cdn cache
 	 */
 	function flush_post( $post_id, $extras = null ) {
