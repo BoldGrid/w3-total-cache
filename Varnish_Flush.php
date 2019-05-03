@@ -99,96 +99,99 @@ class Varnish_Flush {
      *
      * @param $url string
      */
-	function _request( $varnish_server, $url ) {
-		$parse_url = @parse_url( $url );
+    function _request($varnish_server, $url)
+    {
+        $parse_url = @parse_url($url);
 
-		if ( !$parse_url || !isset( $parse_url['host'] ) )
-			return new \WP_Error( 'http_request_failed', 'Unrecognized URL format ' . $url );
+        if (!$parse_url || !isset($parse_url['host']))
+            return new \WP_Error('http_request_failed', 'Unrecognized URL format ' . $url);
 
-		$host = $parse_url['host'];
-		$port = ( isset( $parse_url['port'] ) ? (int) $parse_url['port'] : 80 );
-		$path = ( !empty( $parse_url['path'] ) ? $parse_url['path'] : '/' );
-		$query = ( isset( $parse_url['query'] ) ? $parse_url['query'] : '' );
-		$request_uri = $path . ( $query != '' ? '?' . $query : '' );
+        $host = $parse_url['host'];
+        $port = (isset($parse_url['port']) ? (int)$parse_url['port'] : 80);
+        $path = (!empty($parse_url['path']) ? $parse_url['path'] : '/');
+        $query = (isset($parse_url['query']) ? $parse_url['query'] : '');
+        $request_uri = $path . ($query != '' ? '?' . $query : '');
 
-		$varnish_scheme = null;
+        $varnish_url = @parse_url($varnish_server);
+        $varnish_scheme = (isset($varnish_url['scheme']) ? $varnish_url['scheme'] : 'tcp');
+        $varnish_host = (isset($varnish_url['host']) ? $varnish_url['host'] : null);
+        $varnish_path = (!empty($varnish_url['path']) ? $varnish_url['path'] : '/');
+        $varnish_port = (isset($varnish_url['port']) ? (int)$varnish_url['port'] : 80);
 
-		if ( strpos( $varnish_server, ':' ) ) {
-			$bits = explode( ':', $varnish_server );
-			$varnish_scheme = $bits[0];
-			$varnish_host = ltrim( $bits[count( $bits ) - 2], '/' );
-			$varnish_port = $bits[count( $bits ) - 1];
-		}
-		else {
-			$varnish_host = $varnish_server;
-			$varnish_port = 80;
-		}
+        if (is_null($varnish_host)) {
+            $this->_log($url, sprintf('Varnish server url is missing'));
 
-		// if url host is the same as varnish server - we can use regular
-		// wordpress http infrastructure, otherwise custom request should be
-		// sent using fsockopen, since we send request to other server than
-		// specified by $url
-		if ( $host == $varnish_host && $port == $varnish_port )
-			return Util_Http::request( $url, array( 'method' => 'PURGE' ) );
+            return new \WP_Error(
+                'varnish_purge',
+                'Varnish server url is empty'
+            );
+        }
 
-		$request_headers_array = array(
-			sprintf( 'PURGE %s HTTP/1.1', $request_uri ),
-			sprintf( 'Host: %s', $host ),
-			sprintf( 'User-Agent: %s', W3TC_POWERED_BY )
-		);
+        // if url host is the same as varnish server - we can use regular
+        // wordpress http infrastructure, otherwise custom request should be
+        // sent using fsockopen, since we send request to other server than
+        // specified by $url
+        if ($host == $varnish_host && $port == $varnish_port)
+            return Util_Http::request($url, array('method' => 'PURGE'));
 
-		if (!empty(trim($this->_purge_key))) {
-			$request_headers_array[] = sprintf( '%s: %s', $this->_purge_key_header, $this->_purge_key );
-		}
+        $request_headers_array = array(
+            sprintf('PURGE %s HTTP/1.1', $request_uri),
+            sprintf('Host: %s', $host),
+            sprintf('User-Agent: %s', W3TC_POWERED_BY)
+        );
 
-		$request_headers_array[] = 'Connection: close';
+        if (!empty(trim($this->_purge_key))) {
+            $request_headers_array[] = sprintf('%s: %s', $this->_purge_key_header, $this->_purge_key);
+        }
 
-		$request_headers = implode( "\r\n", $request_headers_array );
-		$request = $request_headers . "\r\n\r\n";
+        $request_headers_array[] = 'Connection: close';
 
-		// log what we are about to do
-		$this->_log( $url, sprintf( 'Connecting to %s ...', $varnish_host ) );
-		$this->_log( $url, sprintf( 'PURGE %s HTTP/1.1', $request_uri ) );
-		$this->_log( $url, sprintf( 'Host: %s', $host ) );
+        $request_headers = implode("\r\n", $request_headers_array);
+        $request = $request_headers . "\r\n\r\n";
 
-		if ( ! is_null( $varnish_scheme ) ) {
-			$varnish_host = $varnish_scheme . '://' . $varnish_host;
-	    }
+        // log what we are about to do
+        $this->_log($url, sprintf('Connecting to %s ...', $varnish_host));
+        $this->_log($url, sprintf('PURGE %s HTTP/1.1', $request_uri));
+        $this->_log($url, sprintf('Host: %s', $host));
 
-		$errno = null;
-		$errstr = null;
-		$fp = @fsockopen( $varnish_host, $varnish_port, $errno, $errstr, 10 );
-		if ( !$fp )
-			return new \WP_Error( 'http_request_failed', $errno . ': ' . $errstr );
+        $varnish_host = $varnish_scheme . '://' . $varnish_host . ':' . $varnish_port . $varnish_path;
 
-		@stream_set_timeout( $fp, 60 );
+        $errno = null;
+        $errstr = null;
+        $fp = @fsockopen($varnish_host, $varnish_port, $errno, $errstr, 10);
+        if (!$fp)
+            return new \WP_Error('http_request_failed', $errno . ': ' . $errstr);
 
-		@fputs( $fp, $request );
+        @stream_set_timeout($fp, 60);
 
-		$response = '';
-		while ( !@feof( $fp ) )
-			$response .= @fgets( $fp, 4096 );
+        @fputs($fp, $request);
 
-		@fclose( $fp );
+        $response = '';
+        while (!@feof($fp))
+            $response .= @fgets($fp, 4096);
 
-		list( $response_headers, $contents ) = explode( "\r\n\r\n", $response, 2 );
-		$matches = null;
-		if ( preg_match( '~^HTTP/1.[01] (\d+)~', $response_headers, $matches ) ) {
-			$code = (int)$matches[1];
-			$a = explode( "\n", $response_headers );
-			$status = ( count( $a ) >= 1 ? $a[0] : '' );
-			$return = array(
-				'response' => array(
-					'code' => $code,
-					'status' => $status
-				)
-			);
-			return $return;
-		}
+        @fclose($fp);
 
-		return new \WP_Error( 'http_request_failed',
-			'Unrecognized response header' . $response_headers );
-	}
+        list($response_headers, $contents) = explode("\r\n\r\n", $response, 2);
+        $matches = null;
+        if (preg_match('~^HTTP/1.[01] (\d+)~', $response_headers, $matches)) {
+            $code = (int)$matches[1];
+            $a = explode("\n", $response_headers);
+            $status = (count($a) >= 1 ? $a[0] : '');
+            $return = array(
+                'response' => array(
+                    'code' => $code,
+                    'status' => $status
+                )
+            );
+            return $return;
+        }
+
+        return new \WP_Error(
+            'http_request_failed',
+            'Unrecognized response header' . $response_headers
+        );
+    }
 
 	/**
 	 * Write log entry
