@@ -20,6 +20,13 @@ class Varnish_Flush {
 	var $_servers = array();
 
 	/**
+	 * Varnish purge key
+	 *
+	 * @var string
+	 */
+	var $_purge_key = '';
+
+	/**
 	 * Operation timeout
 	 *
 	 * @var int
@@ -48,6 +55,7 @@ class Varnish_Flush {
 		$this->_debug = $this->_config->get_boolean( 'varnish.debug' );
 		$this->_servers = $this->_config->get_array( 'varnish.servers' );
 		$this->_timeout = $this->_config->get_integer( 'timelimit.varnish_purge' );
+		$this->_purge_key = $this->_config->get_string( 'varnish.purge_key' );
 	}
 
 	/**
@@ -95,8 +103,14 @@ class Varnish_Flush {
 		$query = ( isset( $parse_url['query'] ) ? $parse_url['query'] : '' );
 		$request_uri = $path . ( $query != '' ? '?' . $query : '' );
 
-		if ( strpos( $varnish_server, ':' ) )
-			list( $varnish_host, $varnish_port ) = explode( ':', $varnish_server );
+		$varnish_scheme = null;
+
+		if ( strpos( $varnish_server, ':' ) ) {
+			$bits = explode( ':', $varnish_server );
+			$varnish_scheme = $bits[0];
+			$varnish_host = ltrim( $bits[count( $bits ) - 2], '/' );
+			$varnish_port = $bits[count( $bits ) - 1];
+		}
 		else {
 			$varnish_host = $varnish_server;
 			$varnish_port = 80;
@@ -112,9 +126,14 @@ class Varnish_Flush {
 		$request_headers_array = array(
 			sprintf( 'PURGE %s HTTP/1.1', $request_uri ),
 			sprintf( 'Host: %s', $host ),
-			sprintf( 'User-Agent: %s', W3TC_POWERED_BY ),
-			'Connection: close'
+			sprintf( 'User-Agent: %s', W3TC_POWERED_BY )
 		);
+
+		if (!empty(trim($this->_purge_key))) {
+			$request_headers_array[] = sprintf( 'X-W3TC-Purge-Key: %s', $this->_purge_key );
+		}
+
+		$request_headers_array[] = 'Connection: close';
 
 		$request_headers = implode( "\r\n", $request_headers_array );
 		$request = $request_headers . "\r\n\r\n";
@@ -123,6 +142,10 @@ class Varnish_Flush {
 		$this->_log( $url, sprintf( 'Connecting to %s ...', $varnish_host ) );
 		$this->_log( $url, sprintf( 'PURGE %s HTTP/1.1', $request_uri ) );
 		$this->_log( $url, sprintf( 'Host: %s', $host ) );
+
+		if ( ! is_null( $varnish_scheme ) ) {
+			$varnish_host = $varnish_scheme . '://' . $varnish_host;
+	    }
 
 		$errno = null;
 		$errstr = null;
