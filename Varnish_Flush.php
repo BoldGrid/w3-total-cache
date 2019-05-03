@@ -20,6 +20,13 @@ class Varnish_Flush {
 	var $_servers = array();
 
 	/**
+	 * Varnish purge key header
+	 *
+	 * @var string
+	 */
+	var $_purge_key_header = '';
+
+	/**
 	 * Varnish purge key
 	 *
 	 * @var string
@@ -55,6 +62,7 @@ class Varnish_Flush {
 		$this->_debug = $this->_config->get_boolean( 'varnish.debug' );
 		$this->_servers = $this->_config->get_array( 'varnish.servers' );
 		$this->_timeout = $this->_config->get_integer( 'timelimit.varnish_purge' );
+		$this->_purge_key_header = $this->_config->get_string( 'varnish.purge_key_header' );
 		$this->_purge_key = $this->_config->get_string( 'varnish.purge_key' );
 	}
 
@@ -130,7 +138,7 @@ class Varnish_Flush {
 		);
 
 		if (!empty(trim($this->_purge_key))) {
-			$request_headers_array[] = sprintf( 'X-W3TC-Purge-Key: %s', $this->_purge_key );
+			$request_headers_array[] = sprintf( '%s: %s', $this->_purge_key_header, $this->_purge_key );
 		}
 
 		$request_headers_array[] = 'Connection: close';
