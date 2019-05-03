@@ -1607,6 +1607,10 @@ $keys = array(
 		'type' => 'array',
 		'default' => array()
 	),
+	'varnish.purge_key_header' => array(
+		'type' => 'string',
+		'default' => 'X-W3TC-Purge-Key'
+	),
 	'varnish.purge_key' => array(
 		'type' => 'string',
 		'default' => ''
