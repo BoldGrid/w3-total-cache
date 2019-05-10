@@ -228,6 +228,13 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 	/**
 	 * Overriten logic of wp_db by processor.
 	 */
+	public function set_sql_mode( $modes = array() ) {
+		return $this->active_processor->set_sql_mode( $modes );
+	}
+
+	/**
+	 * Overriten logic of wp_db by processor.
+	 */
 	public function flush() {
 		return $this->active_processor->flush();
 	}
@@ -325,6 +332,13 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 	 */
 	public function default_set_charset( $dbh, $charset = null, $collate = null ) {
 		return parent::set_charset( $dbh, $charset, $collate );
+	}
+
+	/**
+	 * Default implementation, calls wp_db apropriate method
+	 */
+	public function default_set_sql_mode( $modes = array() ) {
+		return parent::set_sql_mode( $modes );
 	}
 
 	/**

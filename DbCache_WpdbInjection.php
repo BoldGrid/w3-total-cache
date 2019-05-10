@@ -114,6 +114,14 @@ class DbCache_WpdbInjection {
 	 * Placeholder for apropriate wp_db method replacement.
 	 * By default calls wp_db implementation
 	 */
+	function set_sql_mode( $modes = array() ) {
+		return $this->wpdb_mixin->default_set_sql_mode( $modes );
+	}
+
+	/**
+	 * Placeholder for apropriate wp_db method replacement.
+	 * By default calls wp_db implementation
+	 */
 	function flush() {
 		return $this->wpdb_mixin->default_flush();
 	}

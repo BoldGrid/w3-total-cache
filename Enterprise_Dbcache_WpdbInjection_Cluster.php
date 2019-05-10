@@ -447,6 +447,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		$dbh = $this->_connections[$dbhname]['dbh'];
 		$this->wpdb_mixin->dbh = $dbh; // needed by $wpdb->_real_escape()
 		$this->set_charset( $dbh, $this->charset, $this->collate );
+		$this->set_sql_mode();
 
 		return $dbh;
 	}
