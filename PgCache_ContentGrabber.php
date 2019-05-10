@@ -121,7 +121,7 @@ class PgCache_ContentGrabber {
 		$this->_config = Dispatcher::config();
 		$this->_debug = $this->_config->get_boolean( 'pgcache.debug' );
 
-		$request_host = Util_Environment::host();
+		$request_host = Util_Environment::host_port();
 		$this->_request_host = $request_host;
 
 		$this->_request_uri = $_SERVER['REQUEST_URI'];
@@ -1318,6 +1318,8 @@ class PgCache_ContentGrabber {
 		if ( $request_url ) {
 			$parts = parse_url( $request_url );
 			$key = $parts['host'] .
+
+				( isset( $parts['port'] ) ? ':' . $parts['port'] : '' ) .
 				( isset( $parts['path'] ) ? $parts['path'] : '' ) .
 				( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
 		} else {
