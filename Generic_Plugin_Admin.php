@@ -296,13 +296,6 @@ class Generic_Plugin_Admin {
 
 ?>
 		<style type="text/css" media="screen">
-		#toplevel_page_w3tc_dashboard .wp-menu-image {
-			background: url(<?php echo plugins_url( 'pub/img/w3tc-sprite.png', W3TC_FILE )?>) no-repeat 0 -32px !important;
-		}
-		#toplevel_page_w3tc_dashboard:hover .wp-menu-image,
-		#toplevel_page_w3tc_dashboard.wp-has-current-submenu .wp-menu-image {
-			background-position:0 0 !important;
-		}
 		#icon-edit.icon32-posts-casestudy {
 			background: url(<?php echo plugins_url( 'pub/img/w3tc-sprite.png', W3TC_FILE ) ?>) no-repeat;
 		}
@@ -313,15 +306,6 @@ class Generic_Plugin_Admin {
 		(-o-min-device-pixel-ratio: 5/4),
 		(-webkit-min-device-pixel-ratio: 1.25),
 		(min-resolution: 120dpi) {
-
-			#toplevel_page_w3tc_dashboard .wp-menu-image {
-				background-image: url(<?php echo plugins_url( 'pub/img/w3tc-sprite-retina.png', W3TC_FILE )?>) !important;
-				background-size: 30px 64px !important;
-			}
-			#toplevel_page_w3tc_dashboard:hover .wp-menu-image,
-			#toplevel_page_w3tc_dashboard.wp-has-current-submenu .wp-menu-image {
-				background-position:0 0 !important;
-			}
 			#icon-edit.icon32-posts-casestudy {
 				background-image: url(<?php echo plugins_url( 'pub/img/w3tc-sprite-retina.png', W3TC_FILE ) ?>) !important;
 				background-size: 30px 64px !important;
