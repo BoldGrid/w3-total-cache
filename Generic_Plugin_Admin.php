@@ -311,6 +311,12 @@ class Generic_Plugin_Admin {
 				background-size: 30px 64px !important;
 			}
 		}
+
+		.toplevel_page_w3tc_dashboard .wp-menu-image:before{
+			content:'\0041';
+			top: 2px;
+			font-family: 'w3tc';
+		}
 		</style>
 		<?php
 	}
