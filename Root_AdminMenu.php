@@ -125,7 +125,7 @@ class Root_AdminMenu {
 			__( 'Performance', 'w3-total-cache' ),
 			apply_filters( 'w3tc_capability_menu_w3tc_dashboard',
 				$base_capability ),
-			'w3tc_dashboard', '', 'div' );
+			'w3tc_dashboard', '', 'none' );
 
 		$submenu_pages = array();
 		$is_master = ( is_network_admin() || !Util_Environment::is_wpmu() );

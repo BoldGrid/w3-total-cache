@@ -36,6 +36,10 @@ class Generic_Plugin {
 				$this,
 				'admin_bar_menu'
 			), 150 );
+		add_action( 'admin_bar_init', array(
+				$this,
+				'admin_bar_init'
+			) );
 
 		if ( isset( $_REQUEST['w3tc_theme'] ) && isset( $_SERVER['HTTP_USER_AGENT'] ) &&
 			stristr( $_SERVER['HTTP_USER_AGENT'], W3TC_POWERED_BY ) !== false ) {
@@ -233,6 +237,27 @@ class Generic_Plugin {
 		}
 	}
 
+	public function admin_bar_init() {
+		$font_base = plugins_url( 'pub/fonts/w3tc', W3TC_FILE );
+		$css = "
+			@font-face {
+				font-family: 'w3tc';
+			src: url('$font_base.eot');
+			src: url('$font_base.eot?#iefix') format('embedded-opentype'),
+				 url('$font_base.woff') format('woff'),
+				 url('$font_base.ttf') format('truetype'),
+				 url('$font_base.svg#w3tc') format('svg');
+			font-weight: normal;
+			font-style: normal;
+		}
+		.w3tc-icon:before{
+			content:'\\0041'; top: 2px;
+			font-family: 'w3tc';
+		}";
+
+		wp_add_inline_style( 'admin-bar', $css);
+	}
+
 	/**
 	 * Admin bar menu
 	 *
@@ -259,12 +284,10 @@ class Generic_Plugin {
 
 			$menu_items['00010.generic'] = array(
 				'id' => 'w3tc',
-				'title' =>
-				'<img src="' .
-				plugins_url( 'pub/img/w3tc-sprite-admin-bar.png', W3TC_FILE ) .
-				'" style="vertical-align:middle; margin-right:5px; width: 29px; height: 29px" />' .
-				__( 'Performance', 'w3-total-cache' ) .
-				$menu_postfix,
+				'title' => sprintf(
+					'<span class="w3tc-icon ab-icon"></span><span class="ab-label">%s</span>' .
+					$menu_postfix,
+					__( 'Performance', 'w3-total-cache' ) ),
 				'href' => network_admin_url( 'admin.php?page=w3tc_dashboard' )
 			);
 
