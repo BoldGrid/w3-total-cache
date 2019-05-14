@@ -202,7 +202,7 @@ Util_Ui::config_item( array(
                         <option value="cache_validation"<?php selected( $value, 'cache_validation' ); ?>><?php _e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
                         <option value="cache_maxage"<?php selected( $value, 'cache_maxage' ); disabled( $is_nginx && $cssjs_expires ); ?>><?php _e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
                         <option value="cache_noproxy"<?php selected( $value, 'cache_noproxy' ); ?>><?php _e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
-                        <option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php _e( 'no-cache ("max-age=0, private, no-store, no-cache, must-revalidate")', 'w3-total-cache' ); ?></option>
+                        <option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php _e( 'don\'t cache ("max-age=0, private, no-store, no-cache, must-revalidate")', 'w3-total-cache' ); ?></option>
                     </select>
 	                <?php if ( $is_nginx && $cssjs_expires ) : ?>
 		                <br /><span class="description"><?php _e( 'The Expires header already sets the max-age.', 'w3-total-cache' ); ?></span>
