@@ -240,21 +240,61 @@ class Generic_Plugin {
 	public function admin_bar_init() {
 		$font_base = plugins_url( 'pub/fonts/w3tc', W3TC_FILE );
 		$css = "
-			@font-face {
-				font-family: 'w3tc';
-			src: url('$font_base.eot');
-			src: url('$font_base.eot?#iefix') format('embedded-opentype'),
-				 url('$font_base.woff') format('woff'),
-				 url('$font_base.ttf') format('truetype'),
-				 url('$font_base.svg#w3tc') format('svg');
+		@font-face {
+			font-family: 'w3tc';
+			src: url('$font_base.eot?nsw1az');
+			src: url('$font_base.eot?nsw1az#iefix') format('embedded-opentype'),
+				url('$font_base.ttf?nsw1az') format('truetype'),
+				url('$font_base.woff?nsw1az') format('woff'),
+				url('$font_base.svg?nsw1az#w3tc') format('svg');
 			font-weight: normal;
 			font-style: normal;
 		}
-		.w3tc-icon:before{
-			content:'\\0041'; top: 2px;
-			font-family: 'w3tc';
-		}";
-
+		.w3tc-icon {
+			top:2px;
+		}
+		.w3tc-icon span {
+			font-family: 'w3tc' !important;
+			speak: none;
+			font-style: normal;
+			font-weight: normal;
+			font-variant: normal;
+			text-transform: none;
+		}
+		.w3tc-icon * {
+			font-size: inherit !important;
+			line-height: inherit !important;
+			-webkit-font-smoothing: antialiased !important;
+			-moz-osx-font-smoothing: grayscale !important;
+		}
+		.w3tc-icon span:first-child:before {
+			font-family: 'w3tc' !important;
+			content: '\\1f4e6';
+			color: inherit;
+			opacity: 0.75;
+		}
+		.w3tc-icon span:first-child:after {
+			font-family: 'w3tc' !important;
+			content: '\\1f4e7';
+			margin-left: -1em;
+			color: inherit;
+			opacity: 0.5;
+		}
+		.w3tc-icon span:last-child:before {
+			font-family: 'w3tc' !important;
+			content: '\\1f4e8';
+			margin-left: -1em;
+			color: #000;
+			opacity: 0.1;
+		}
+		.w3tc-icon span:last-child:after {
+			font-family: 'w3tc' !important;
+			content: '\\1f4e9';
+			margin-left: -1em;
+			color: inherit;
+			opacity:1;
+		}
+		";
 		wp_add_inline_style( 'admin-bar', $css);
 	}
 
