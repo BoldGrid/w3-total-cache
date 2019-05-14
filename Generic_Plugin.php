@@ -389,13 +389,13 @@ class Generic_Plugin {
 			'?action=w3tc_monitoring_score&' . md5( $_SERVER['REQUEST_URI'] );
 
 ?>
-        <script type= "text/javascript">
-        var w3tc_monitoring_score = document.createElement('script');
-        w3tc_monitoring_score.type = 'text/javascript';
-        w3tc_monitoring_score.src = '<?php echo $url ?>';
-        document.getElementsByTagName('HEAD')[0].appendChild(w3tc_monitoring_score);
-        </script>
-        <?php
+		<script type= "text/javascript">
+		var w3tc_monitoring_score = document.createElement('script');
+		w3tc_monitoring_score.type = 'text/javascript';
+		w3tc_monitoring_score.src = '<?php echo $url ?>';
+		document.getElementsByTagName('HEAD')[0].appendChild(w3tc_monitoring_score);
+		</script>
+		<?php
 	}
 
 	/**
@@ -524,25 +524,25 @@ class Generic_Plugin {
 				if ( Util_Environment::is_preview_mode() )
 					$buffer .= "\r\n<!-- W3 Total Cache used in preview mode -->";
 
-                $strings = array();
+				$strings = array();
 
-                if ( $this->_config->get_string( 'common.support' ) == '' &&
-                    !$this->_config->get_boolean( 'common.tweeted' ) ) {
-                    $strings[] = 'Performance optimized by W3 Total Cache. Learn more: https://www.w3-edge.com/products/';
-                	$strings[] = '';
-                }
+				if ( $this->_config->get_string( 'common.support' ) == '' &&
+					!$this->_config->get_boolean( 'common.tweeted' ) ) {
+					$strings[] = 'Performance optimized by W3 Total Cache. Learn more: https://www.w3-edge.com/products/';
+					$strings[] = '';
+				}
 
-                $strings = apply_filters( 'w3tc_footer_comment', $strings );
+				$strings = apply_filters( 'w3tc_footer_comment', $strings );
 
-                if ( count( $strings ) ) {
-                	$strings[] = '';
-                	$strings[] = sprintf( "Served from: %s @ %s by W3 Total Cache",
-                            Util_Content::escape_comment( $host ), $date );
+				if ( count( $strings ) ) {
+					$strings[] = '';
+					$strings[] = sprintf( "Served from: %s @ %s by W3 Total Cache",
+							Util_Content::escape_comment( $host ), $date );
 
-                    $buffer .= "\r\n<!--\r\n" .
-                    	Util_Content::escape_comment( implode( "\r\n", $strings ) ) .
-                    	"\r\n-->";
-                }
+					$buffer .= "\r\n<!--\r\n" .
+						Util_Content::escape_comment( implode( "\r\n", $strings ) ) .
+						"\r\n-->";
+				}
 			}
 
 			$buffer = Util_Bus::do_ob_callbacks(
@@ -658,12 +658,12 @@ class Generic_Plugin {
 
 	function popup_script() {
 ?>
-        <script type="text/javascript">
-            function w3tc_popupadmin_bar(url) {
-                return window.open(url, '', 'width=800,height=600,status=no,toolbar=no,menubar=no,scrollbars=yes');
-            }
-        </script>
-            <?php
+		<script type="text/javascript">
+			function w3tc_popupadmin_bar(url) {
+				return window.open(url, '', 'width=800,height=600,status=no,toolbar=no,menubar=no,scrollbars=yes');
+			}
+		</script>
+			<?php
 	}
 
 	private function is_debugging() {

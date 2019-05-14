@@ -117,7 +117,7 @@ class Root_AdminMenu {
 		$pages = $this->generate_menu_array();
 
 		uasort( $pages, function($a, $b) {
-    			return ($a['order'] - $b['order']);
+				return ($a['order'] - $b['order']);
 			}
 		);
 
@@ -167,8 +167,8 @@ class Root_AdminMenu {
 			$this->_page = 'w3tc_dashboard';
 
 		/*
-         * Hidden pages
-         */
+		 * Hidden pages
+		 */
 		if ( isset( $_REQUEST['w3tc_dbcluster_config'] ) ) {
 			$options_dbcache = new DbCache_Page();
 			$options_dbcache->dbcluster_config();
