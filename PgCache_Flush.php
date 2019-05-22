@@ -200,27 +200,31 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 * @param unknown $cache
 	 * @param unknown $mobile_groups
 	 * @param unknown $referrer_groups
+	 * @param unknown $cookies
 	 * @param unknown $encryptions
 	 * @param unknown $compressions
 	 */
 	function _flush_url( $url, $cache, $mobile_groups, $referrer_groups,
-		$encryptions, $compressions ) {
+		$cookies, $encryptions, $compressions ) {
 		foreach ( $mobile_groups as $mobile_group ) {
 			foreach ( $referrer_groups as $referrer_group ) {
-				foreach ( $encryptions as $encryption ) {
-					foreach ( $compressions as $compression ) {
-						$page_keys = array();
-						$page_keys[] = $this->_get_page_key( array(
-								'useragent' => $mobile_group,
-								'referrer' => $referrer_group,
-								'encryption' => $encryption,
-								'compression' => $compression ),
-							$url );
-						$page_keys = apply_filters(
-							'w3tc_pagecache_flush_url_keys', $page_keys );
+				foreach ( $cookies as $cookie ) {
+					foreach ( $encryptions as $encryption ) {
+						foreach ( $compressions as $compression ) {
+							$page_keys = array();
+							$page_keys[] = $this->_get_page_key( array(
+									'useragent' => $mobile_group,
+									'referrer' => $referrer_group,
+									'cookie' => $cookie,
+									'encryption' => $encryption,
+									'compression' => $compression ),
+								$url );
+							$page_keys = apply_filters(
+								'w3tc_pagecache_flush_url_keys', $page_keys );
 
-						foreach ( $page_keys as $page_key )
-							$cache->delete( $page_key );
+							foreach ( $page_keys as $page_key )
+								$cache->delete( $page_key );
+						}
 					}
 				}
 			}
@@ -233,7 +237,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 * @param unknown $url
 	 */
 	function flush_url( $url ) {
-		static $cache, $mobile_groups, $referrer_groups, $encryptions;
+		static $cache, $mobile_groups, $referrer_groups, $cookies, $encryptions;
 		static $compressions;
 
 		if ( !isset( $cache ) )
@@ -242,12 +246,14 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 			$mobile_groups  = $this->_get_mobile_groups();
 		if ( !isset( $referrer_groups ) )
 			$referrer_groups = $this->_get_referrer_groups();
+		if ( !isset( $cookies ) )
+			$cookies = $this->_get_cookies();
 		if ( !isset( $encryptions ) )
 			$encryptions = $this->_get_encryptions();
 		if ( !isset( $compressions ) )
 			$compressions = $this->_get_compressions();
 		$this->_flush_url( $url, $cache, $mobile_groups, $referrer_groups,
-			$encryptions, $compressions );
+			$cookies, $encryptions, $compressions );
 	}
 
 	/**
@@ -290,12 +296,13 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 				$cache = $this->_get_cache();
 				$mobile_groups = $this->_get_mobile_groups();
 				$referrer_groups = $this->_get_referrer_groups();
+				$cookies = $this->_get_cookies();
 				$encryptions = $this->_get_encryptions();
 				$compressions = $this->_get_compressions();
 
 				foreach ( $this->queued_urls as $url => $flag ) {
 					$this->_flush_url( $url, $cache, $mobile_groups,
-						$referrer_groups, $encryptions, $compressions );
+						$referrer_groups, $cookies, $encryptions, $compressions );
 				}
 
 				// Purge sitemaps if a sitemap option has a regex
@@ -341,6 +348,19 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		}
 
 		return $referrer_groups;
+	}
+
+	/**
+	 * Returns array of cookies
+	 *
+	 * @return array
+	 */
+	function _get_cookies() {
+		$cookies = array( '' );
+
+		$cookies = array_merge( $cookies, array_keys( $this->_config->get_array( 'pgcache.cookiegroups.groups' ) ) );
+
+		return $cookies;
 	}
 
 	/**
