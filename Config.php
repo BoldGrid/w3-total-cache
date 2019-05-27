@@ -7,16 +7,16 @@ namespace W3TC;
  */
 class Config {
 	/*
-     * blog id of loaded config
-     * @var integer
-     */
+	 * blog id of loaded config
+	 * @var integer
+	 */
 	private $_blog_id;
 	private $_is_master;
 
 	/*
-     * Is this preview config
-     * @var boolean
-     */
+	 * Is this preview config
+	 * @var boolean
+	 */
 	private $_preview;
 
 	private $_md5;
@@ -71,9 +71,9 @@ class Config {
 
 
 	/*
-     * Returns config filename
-     * Stored in this class to limit class loading
-     */
+	 * Returns config filename
+	 * Stored in this class to limit class loading
+	 */
 	static public function util_config_filename( $blog_id, $preview ) {
 		$postfix = ( $preview ? '-preview' : '' ) . '.php';
 
@@ -86,10 +86,10 @@ class Config {
 
 
 	/*
-     * Returns config filename
-     * Stored in this class to limit class loading
-     * v = 0.9.5 - 0.9.5.1
-     */
+	 * Returns config filename
+	 * Stored in this class to limit class loading
+	 * v = 0.9.5 - 0.9.5.1
+	 */
 	static public function util_config_filename_legacy_v2( $blog_id, $preview ) {
 		$postfix = ( $preview ? '-preview' : '' ) . '.json';
 

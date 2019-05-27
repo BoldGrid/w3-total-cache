@@ -1,17 +1,18 @@
 <?php
 
 $message = file_get_contents( 'php://input' );
+
 // switch blog before any action
 try {
-	$message_object = json_decode( $message );
+	$message_object = json_decode( $message, true );
 } catch ( \Exception $e ) {
-	echo 'SNS listener';
+	echo 'Failed to parse message';
 	exit();
 }
 
-if ( isset( $message_object->Type ) && isset( $message_object->Message ) ) {
-	if ( $message_object->Type == 'Notification' ) {
-		$w3tc_message = $message_object->Message;
+if ( isset( $message_object['Type'] ) && isset( $message_object['Message'] ) ) {
+	if ( $message_object['Type'] == 'Notification' ) {
+		$w3tc_message = $message_object['Message'];
 		$w3tc_message_object = json_decode( $w3tc_message );
 
 		if ( isset( $w3tc_message_object->blog_id ) ) {
@@ -22,7 +23,7 @@ if ( isset( $message_object->Type ) && isset( $message_object->Message ) ) {
 			$_SERVER['HTTP_HOST'] = $w3tc_message_object->host;
 		}
 	}
-	else if ( $message_object->Type != 'SubscriptionConfirmation' ) {
+	else if ( $message_object['Type'] != 'SubscriptionConfirmation' ) {
 			echo 'Unsupported message type';
 			exit();
 		}
@@ -54,6 +55,4 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 require_once W3TC_DIR . '/w3-total-cache-api.php';
 
 $server = \W3TC\Dispatcher::component( 'Enterprise_SnsServer' );
-$server->process_message();
-
-?>
+$server->process_message( $message_object );

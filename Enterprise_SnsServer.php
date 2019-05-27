@@ -4,13 +4,6 @@ namespace W3TC;
 /**
  * Purge using AmazonSNS object
  */
-
-require_once W3TC_LIB_DIR . '/SNS/services/MessageValidator/Message.php';
-require_once W3TC_LIB_DIR . '/SNS/services/MessageValidator/MessageValidator.php';
-
-/**
- * class Sns
- */
 class Enterprise_SnsServer extends Enterprise_SnsBase {
 
 	/**
@@ -18,24 +11,24 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	 *
 	 * @throws Exception
 	 */
-	function process_message() {
+	function process_message( $message ) {
 		$this->_log( 'Received message' );
 
 		try {
-			$message = \Message::fromRawPostData();
-			$validator = new \MessageValidator();
+			$message = new \Aws\Sns\Message( $message );
+			$validator = new \Aws\Sns\MessageValidator();
 			$error = '';
 			if ( $validator->isValid( $message ) ) {
 				$topic_arn = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
 
-				if ( empty( $topic_arn ) || $topic_arn != $message->get( 'TopicArn' ) )
-					throw new \Exception ( 'Not my Topic. Request came from ' .
-						$message->get( 'TopicArn' ) );
+				if ( empty( $topic_arn ) || $topic_arn != $message['TopicArn'] )
+					throw new \Exception( 'Not my Topic. Request came from ' .
+						$message['TopicArn'] );
 
-				if ( $message->get( 'Type' ) == 'SubscriptionConfirmation' )
+				if ( $message['Type'] == 'SubscriptionConfirmation' )
 					$this->_subscription_confirmation( $message );
-				elseif ( $message->get( 'Type' ) == 'Notification' )
-					$this->_notification( $message->get( 'Message' ) );
+				elseif ( $message['Type'] == 'Notification' )
+					$this->_notification( $message['Message'] );
 			} else {
 				$this->_log( 'Error processing message it was not valid.' );
 			}
@@ -55,10 +48,12 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 		$this->_log( 'Issuing confirm_subscription' );
 		$topic_arn = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
 
-		$response = $this->_get_api()->confirm_subscription(
-			$topic_arn, $message->get( 'Token' ) );
+		$response = $this->_get_api()->confirmSubscription( array(
+			'Token' => $message['Token'],
+			'TopicArn' => $topic_arn
+		) );
 		$this->_log( 'Subscription confirmed: ' .
-			( $response->isOK() ? 'OK' : 'Error' ) );
+			( $response['@metadata']['statusCode'] == 200 ? 'OK' : 'Error' ) );
 	}
 
 	/**

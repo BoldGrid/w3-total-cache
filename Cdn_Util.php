@@ -58,6 +58,7 @@ class Cdn_Util {
 	static public function can_purge_all( $engine ) {
 		return in_array( $engine, array(
 				'att',
+				'cf2',
 				'cotendo',
 				'edgecast',
 				'highwinds',

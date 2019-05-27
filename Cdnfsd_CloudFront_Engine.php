@@ -1,6 +1,10 @@
 <?php
 namespace W3TC;
 
+if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
+	require_once W3TC_LIB_DIR . '/Aws/aws-autoloader.php';
+}
+
 
 
 class Cdnfsd_CloudFront_Engine {
@@ -10,7 +14,7 @@ class Cdnfsd_CloudFront_Engine {
 
 
 
-	function __construct( $config = array() ) {
+	public function __construct( $config = array() ) {
 		$this->access_key = $config['access_key'];
 		$this->secret_key = $config['secret_key'];
 		$this->distribution_id = $config['distribution_id'];
@@ -18,12 +22,9 @@ class Cdnfsd_CloudFront_Engine {
 
 
 
-	function flush_urls( $urls ) {
-		if ( empty( $this->access_key ) || empty( $this->secret_key ) ||
-			empty( $this->distribution_id ) )
-			throw new \Exception( __( 'Access key not specified.', 'w3-total-cache' ) );
+	public function flush_urls( $urls ) {
+		$api = $this->_api();
 
-		$api = new Cdnfsd_CloudFront_Api( $this->access_key, $this->secret_key );
 		$uris = array();
 		foreach ( $urls as $url ) {
 			$parsed = parse_url( $url );
@@ -33,7 +34,17 @@ class Cdnfsd_CloudFront_Engine {
 			$uris[] = $relative_url;
 		}
 
-		$api->invalidation_create( $this->distribution_id, $uris );
+		$api->createInvalidation( array(
+				'DistributionId' => $this->distribution_id,
+				'InvalidationBatch' => array(
+					'CallerReference' => 'w3tc-' . 	microtime(),
+					'Paths' => array(
+						'Items' => $uris,
+						'Quantity' => count( $uris ),
+					),
+				)
+			)
+		);
 	}
 
 
@@ -41,14 +52,38 @@ class Cdnfsd_CloudFront_Engine {
 	/**
 	 * Flushes CDN completely
 	 */
-	function flush_all() {
+	public function flush_all() {
+		$api = $this->_api();
+		$uris = array( '/*' );
+
+		$api->createInvalidation( array(
+				'DistributionId' => $this->distribution_id,
+				'InvalidationBatch' => array(
+					'CallerReference' => 'w3tc-' . 	microtime(),
+					'Paths' => array(
+						'Items' => $uris,
+						'Quantity' => count( $uris ),
+					),
+				)
+			)
+		);
+	}
+
+
+
+	private function _api() {
 		if ( empty( $this->access_key ) || empty( $this->secret_key ) ||
 			empty( $this->distribution_id ) )
 			throw new \Exception( __( 'Access key not specified.', 'w3-total-cache' ) );
 
-		$api = new Cdnfsd_CloudFront_Api( $this->access_key, $this->secret_key );
-		$uris = array( '/*' );
+		$credentials = new \Aws\Credentials\Credentials(
+			$this->access_key, $this->secret_key );
 
-		$api->invalidation_create( $this->distribution_id, $uris );
+		return new \Aws\CloudFront\CloudFrontClient( array(
+				'credentials' => $credentials,
+				'region' => 'us-east-1',
+				'version' => '2018-11-05'
+			)
+		);
 	}
 }

@@ -5,8 +5,8 @@ namespace W3TC;
  * Amazon S3 CDN engine
  */
 
-if ( !class_exists( 'S3' ) ) {
-	require_once W3TC_LIB_DIR . '/S3.php';
+if ( !class_exists( 'S3Compatible' ) ) {
+	require_once W3TC_LIB_DIR . '/S3Compatible.php';
 }
 
 /**
@@ -31,7 +31,7 @@ class CdnEngine_S3_Compatible extends CdnEngine_Base {
 				'cname' => array(),
 			), $config );
 
-		$this->_s3 = new \S3( $config['key'], $config['secret'], false,
+		$this->_s3 = new \S3Compatible( $config['key'], $config['secret'], false,
 			$config['api_host'] );
 		$this->_s3->setSignatureVersion( 'v2' );
 
@@ -133,7 +133,7 @@ class CdnEngine_S3_Compatible extends CdnEngine_Base {
 		$this->_set_error_handler();
 		$result = @$this->_s3->putObjectFile( $local_path,
 			$this->_config['bucket'], $remote_path,
-			\S3::ACL_PUBLIC_READ, array(), $headers );
+			\S3Compatible::ACL_PUBLIC_READ, array(), $headers );
 		$this->_restore_error_handler();
 
 		if ( $result ) {
@@ -199,7 +199,7 @@ class CdnEngine_S3_Compatible extends CdnEngine_Base {
 
 		$this->_set_error_handler();
 		$result = @$this->_s3->putObjectString( $data, $this->_config['bucket'],
-			$remote_path, \S3::ACL_PUBLIC_READ, array(), $headers );
+			$remote_path, \S3Compatible::ACL_PUBLIC_READ, array(), $headers );
 		$this->_restore_error_handler();
 
 		if ( $result )
@@ -280,7 +280,7 @@ class CdnEngine_S3_Compatible extends CdnEngine_Base {
 		$this->_set_error_handler();
 
 		if ( !@$this->_s3->putObjectString( $string, $this->_config['bucket'],
-				$string, \S3::ACL_PUBLIC_READ ) ) {
+				$string, \S3Compatible::ACL_PUBLIC_READ ) ) {
 			$error = sprintf( 'Unable to put object (%s).',
 				$this->_get_last_error() );
 

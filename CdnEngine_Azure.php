@@ -336,27 +336,24 @@ class CdnEngine_Azure extends CdnEngine_Base {
 	/**
 	 * Creates bucket
 	 *
-	 * @param string  $container_id
 	 * @param string  $error
 	 * @return boolean
 	 */
-	function create_container( &$container_id, &$error ) {
+	function create_container() {
 		if ( !$this->_init( $error ) ) {
-			return false;
+			throw new \Exception( $error );
 		}
 
 		try {
 			$containers = $this->_client->listContainers();
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to list containers (%s).', $exception->getMessage() );
-
-			return false;
+			throw new \Exception( $error );
 		}
 
 		if ( in_array( $this->_config['container'], (array) $containers ) ) {
 			$error = sprintf( 'Container already exists: %s.', $this->_config['container'] );
-
-			return false;
+			throw new \Exception( $error );
 		}
 
 		try {
@@ -367,11 +364,8 @@ class CdnEngine_Azure extends CdnEngine_Base {
 			$this->_client->createContainer( $this->_config['container'], $createContainerOptions );
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to create container: %s (%s)', $this->_config['container'], $exception->getMessage() );
-
-			return false;
+			throw new \Exception( $error );
 		}
-
-		return true;
 	}
 
 	/**

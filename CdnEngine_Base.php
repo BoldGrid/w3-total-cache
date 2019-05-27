@@ -126,15 +126,9 @@ class CdnEngine_Base {
 
 	/**
 	 * Create bucket / container for some CDN engines
-	 *
-	 * @param string  $container_id
-	 * @param string  $error
-	 * @return boolean
 	 */
-	function create_container( &$container_id, &$error ) {
-		$error = 'Not implemented.';
-
-		return false;
+	function create_container() {
+		throw new \Exception( 'Not implemented.' );
 	}
 
 	/**

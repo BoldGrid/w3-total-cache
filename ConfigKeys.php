@@ -2260,10 +2260,6 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 300
 	),
-	'timelimit.cdn_container_create' => array(
-		'type' => 'integer',
-		'default' => 300
-	),
 	'timelimit.domain_rename' => array(
 		'type' => 'integer',
 		'default' => 120

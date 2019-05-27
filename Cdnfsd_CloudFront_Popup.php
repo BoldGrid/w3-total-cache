@@ -1,6 +1,10 @@
 <?php
 namespace W3TC;
 
+if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
+	require_once W3TC_LIB_DIR . '/Aws/aws-autoloader.php';
+}
+
 
 
 class Cdnfsd_CloudFront_Popup {
@@ -44,7 +48,6 @@ class Cdnfsd_CloudFront_Popup {
 		$access_key = $_REQUEST['access_key'];
 		$secret_key = $_REQUEST['secret_key'];
 
-		$api = new Cdnfsd_CloudFront_Api( $access_key, $secret_key );
 		if ( empty( $access_key ) || empty( $secret_key ) ) {
 			$this->render_intro( array(
 					'error_message' => 'Can\'t authenticate: Access Key or Secret not valid'
@@ -53,7 +56,13 @@ class Cdnfsd_CloudFront_Popup {
 		}
 
 		try {
-			$distributions = $api->distributions_list();
+			$api = $this->_api( $access_key, $secret_key );
+			$distributions = $api->listDistributions();
+		} catch ( \Aws\Exception\AwsException $ex ) {
+			$this->render_intro( array(
+					'error_message' => 'Can\'t authenticate: ' .
+						$ex->getAwsErrorMessage() ) );
+			exit();
 		} catch ( \Exception $ex ) {
 			$error_message = 'Can\'t authenticate: ' . $ex->getMessage();
 
@@ -65,12 +74,14 @@ class Cdnfsd_CloudFront_Popup {
 
 		$items = array();
 
-		if ( isset( $distributions['Items']['DistributionSummary'] ) ) {
-			foreach ( $distributions['Items']['DistributionSummary'] as $i ) {
-				if ( empty( $i['Comment'] ) )
+		if ( isset( $distributions['DistributionList']['Items'] ) ) {
+			foreach ( $distributions['DistributionList']['Items'] as $i ) {
+				if ( empty( $i['Comment'] ) ) {
 					$i['Comment'] = $i['DomainName'];
-				if ( isset( $i['Origins']['Items']['Origin'] ) )
-					$i['Origin_DomainName'] = $i['Origins']['Items']['Origin'][0]['DomainName'];
+				}
+				if ( isset( $i['Origins']['Items'][0]['DomainName'] ) ) {
+					$i['Origin_DomainName'] = $i['Origins']['Items'][0]['DomainName'];
+				}
 
 				$items[] = $i;
 			}
@@ -109,9 +120,6 @@ class Cdnfsd_CloudFront_Popup {
 			),
 			'forward_host' => array(
 				'new' => true
-			),
-			'alias' => array(
-				'new' => Util_Environment::home_url_host()
 			)
 		);
 
@@ -119,10 +127,13 @@ class Cdnfsd_CloudFront_Popup {
 			// create new zone mode
 			$details['distribution_comment'] = Util_Request::get( 'comment_new' );
 		} else {
-			$api = new Cdnfsd_CloudFront_Api( $access_key, $secret_key );
+
 
 			try {
-				$distribution = $api->distribution_get( $distribution_id );
+				$api = $this->_api( $access_key, $secret_key );
+				$distribution = $api->getDistribution(
+					array( 'Id' => $distribution_id )
+				);
 			} catch ( \Exception $ex ) {
 				$this->render_intro( array(
 						'error_message' => 'Can\'t obtain zone: ' . $ex->getMessage()
@@ -130,8 +141,8 @@ class Cdnfsd_CloudFront_Popup {
 				exit();
 			}
 
-			if ( isset( $distribution['DistributionConfig'] ) )
-				$c = $distribution['DistributionConfig'];
+			if ( isset( $distribution['Distribution']['DistributionConfig'] ) )
+				$c = $distribution['Distribution']['DistributionConfig'];
 			else
 				$c = array();
 
@@ -157,9 +168,6 @@ class Cdnfsd_CloudFront_Popup {
 			$details['forward_cookies']['current'] =
 				( isset( $b['Cookies'] ) && isset( $b['Cookies']['Forward'] ) &&
 				$b['Cookies']['Forward'] == 'all' );
-
-			if ( isset( $c['Aliases']['Items']['CNAME'][0] ) )
-				$details['alias']['current'] = $c['Aliases']['Items']['CNAME'][0];
 
 			$details['forward_host']['current'] = false;
 			if ( isset( $b['Headers']['Items']['Name'] ) ) {
@@ -247,78 +255,84 @@ class Cdnfsd_CloudFront_Popup {
 		$origin_id = rand();
 
 		$distribution = array(
-			'Comment' => Util_Request::get( 'distribution_comment' ),
-			'Origins' => array(
-				'Quantity' => 1,
-				'Items' => array(
-					'Origin' => array(
-						'Id' => $origin_id,
-						'DomainName' => Util_Request::get( 'origin' ),
-						'OriginPath' => '',
-						'CustomOriginConfig' => array(
-							'HTTPPort' => 80,
-							'HTTPSPort' => 443,
-							'OriginProtocolPolicy' => 'match-viewer'
-						)
-					)
-				)
-			),
-			'Aliases' => array(
-				'Quantity' => 1,
-				'Items' => array(
-					'CNAME' => Util_Request::get( 'alias' )
-				)
-			),
-			'DefaultCacheBehavior' => array(
-				'TargetOriginId' => $origin_id,
-				'ForwardedValues' => array(
-					'QueryString' => 'true',
-					'Cookies' => array(
-						'Forward' => 'all'
-					),
-					'Headers' => array(
-						'Quantity' => 1,
-						'Items' => array(
-							'Name' => 'Host'
-						)
-					)
-				),
-				'AllowedMethods' => array(
-					'Quantity' => 7,
-					'Items' => array(
-						'Method' => array(
-							'GET', 'HEAD', 'OPTIONS', 'PUT', 'POST', 'PATCH',
-							'DELETE'
-						)
-					),
-					'CachedMethods' => array(
+			'DistributionConfig' => array(
+				'CallerReference' => $origin_id,
+				'Comment' => Util_Request::get( 'distribution_comment' ),
+				'DefaultCacheBehavior' => array(
+					'AllowedMethods' => array(
+						'CachedMethods' => array(
+							'Items' => array( 'HEAD', 'GET' ),
+							'Quantity' => 2,
+						),
+						'Items' => array( 'HEAD', 'GET' ),
 						'Quantity' => 2,
-						'Items' => array(
-							'Method' => array(
-								'GET', 'HEAD'
+					),
+					'Compress' => true,
+					'DefaultTTL' => 86400,
+					'FieldLevelEncryptionId' => '',
+					'ForwardedValues' => array(
+						'Cookies' => array(
+							'Forward' => 'all',
+						),
+						'Headers' => array(
+							'Quantity' => 1,
+							'Items' => array(
+								'Name' => 'Host'
 							)
-						)
-					)
+						),
+						'QueryString' => true,
+						'QueryStringCacheKeys' => array(
+							'Quantity' => 0,
+						),
+					),
+					'LambdaFunctionAssociations' => array( 'Quantity' => 0),
+					'MinTTL' => 0,
+					'SmoothStreaming' => false,
+					'TargetOriginId' => $origin_id,
+					'TrustedSigners' => array(
+						'Enabled' => false,
+						'Quantity' => 0,
+					),
+					'ViewerProtocolPolicy' => 'allow-all',
 				),
-				'MinTTL' => 0,
+				'Enabled' => true,
+				'Origins' => array(
+					'Items' => array(
+						array(
+							'DomainName' => Util_Request::get( 'origin' ),
+							'Id' => $origin_id,
+							'OriginPath' => '',
+							'CustomHeaders' => array( 'Quantity' => 0 ),
+							'CustomOriginConfig' => array(
+								'HTTPPort' => 80,
+								'HTTPSPort' => 443,
+								'OriginProtocolPolicy' => 'match-viewer'
+							),
+						),
+					),
+					'Quantity' => 1,
+				),
+				'Aliases' => array(
+					'Quantity' => 0
+				)
 			)
 		);
 
 		try {
-			$api = new Cdnfsd_CloudFront_Api( $access_key, $secret_key );
+			$api = $this->_api( $access_key, $secret_key );
 			if ( empty( $distribution_id ) ) {
-				$distribution['DefaultCacheBehavior']['TrustedSigners'] = array(
-					'Enabled' => 'false',
-					'Quantity' => 0
-				);
-				$distribution['DefaultCacheBehavior']['ViewerProtocolPolicy'] =
-					'allow-all';
 
-				$response = $api->distribution_create( $distribution );
-				$distribution_id = $response['Id'];
+				$response = $api->createDistribution( $distribution );
+				$distribution_id = $response['Distribution']['Id'];
 			} else {
-				$response = $api->distribution_update( $distribution_id, $distribution );
+				$distribution['Id'] = $distribution_id;
+				$response = $api->UpdateDistribution( $distribution );
 			}
+		} catch ( \Aws\Exception\AwsException $ex ) {
+			$this->render_intro( array(
+					'error_message' => 'Unable to create distribution: ' .
+						$ex->getAwsErrorMessage() ) );
+			exit();
 		} catch ( \Exception $ex ) {
 			$this->render_intro( array(
 					'error_message' => 'Failed to configure distribution: ' . $ex->getMessage()
@@ -326,17 +340,18 @@ class Cdnfsd_CloudFront_Popup {
 			exit();
 		}
 
-		$distribution_domain = $response['DomainName'];
+		$distribution_domain = $response['Distribution']['DomainName'];
 
 		$c = Dispatcher::config();
 		$c->set( 'cdnfsd.cloudfront.access_key', $access_key );
 		$c->set( 'cdnfsd.cloudfront.secret_key', $secret_key );
 		$c->set( 'cdnfsd.cloudfront.distribution_id', $distribution_id );
 		$c->set( 'cdnfsd.cloudfront.distribution_domain', $distribution_domain );
+
 		$c->save();
 
 		$details = array(
-			'name' => $distribution['Comment'],
+			'name' => $distribution['DistributionConfig']['Comment'],
 			'home_domain' => Util_Environment::home_url_host(),
 			'dns_cname_target' => $distribution_domain,
 		);
@@ -355,8 +370,10 @@ class Cdnfsd_CloudFront_Popup {
 		$origin_id = rand();
 
 		try {
-			$api = new Cdnfsd_CloudFront_Api( $access_key, $secret_key );
-			$distribution = $api->distribution_get( $distribution_id );
+			$api = $this->_api( $access_key, $secret_key );
+			$distribution = $api->getDistribution(
+				array( 'Id' => $distribution_id )
+			);
 		} catch ( \Exception $ex ) {
 			$this->render_intro( array(
 					'error_message' => 'Failed to configure distribution: ' . $ex->getMessage()
@@ -364,8 +381,8 @@ class Cdnfsd_CloudFront_Popup {
 			exit();
 		}
 
-		if ( isset( $distribution['DomainName'] ) )
-			$distribution_domain = $distribution['DomainName'];
+		if ( isset( $distribution['Distribution']['DomainName'] ) )
+			$distribution_domain = $distribution['Distribution']['DomainName'];
 		else
 			$distribution_domain = 'n/a';
 
@@ -377,12 +394,26 @@ class Cdnfsd_CloudFront_Popup {
 		$c->save();
 
 		$details = array(
-			'name' => $distribution['Comment'],
+			'name' => $distribution['Distribution']['Comment'],
 			'home_domain' => Util_Environment::home_url_host(),
 			'dns_cname_target' => $distribution_domain,
 		);
 
 		include  W3TC_DIR . '/Cdnfsd_CloudFront_Popup_View_Success.php';
 		exit();
+	}
+
+
+
+	private function _api( $access_key, $secret_key ) {
+		$credentials = new \Aws\Credentials\Credentials(
+			$access_key, $secret_key );
+
+		return new \Aws\CloudFront\CloudFrontClient( array(
+				'credentials' => $credentials,
+				'region' => 'us-east-1',
+				'version' => '2018-11-05'
+			)
+		);
 	}
 }

@@ -1,31 +1,17 @@
 <?php
 namespace W3TC;
 
-/**
- * Amazon S3 CDN engine
- */
-
-if ( !class_exists( 'S3' ) ) {
-	require_once W3TC_LIB_DIR . '/S3.php';
+if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
+	require_once W3TC_LIB_DIR . '/Aws/aws-autoloader.php';
 }
 
 /**
- * class CdnEngine_S3
+ * CDN engine for S3 push type
  */
 class CdnEngine_S3 extends CdnEngine_Base {
-	/**
-	 * S3 object
-	 *
-	 * @var S3
-	 */
-	var $_s3 = null;
+	private $api;
 
-	/**
-	 * PHP5 Constructor
-	 *
-	 * @param array   $config
-	 */
-	function __construct( $config = array() ) {
+	public function __construct( $config = array() ) {
 		$config = array_merge( array(
 				'key' => '',
 				'secret' => '',
@@ -39,9 +25,6 @@ class CdnEngine_S3 extends CdnEngine_Base {
 
 	/**
 	 * Formats URL
-	 *
-	 * @param string  $path
-	 * @return string
 	 */
 	function _format_url( $path ) {
 		$domain = $this->get_domain( $path );
@@ -65,40 +48,33 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 * @param string  $error
 	 * @return boolean
 	 */
-	function _init( &$error ) {
-		if ( empty( $this->_config['key'] ) ) {
-			$error = 'Empty access key.';
+	public function _init() {
+		if ( !is_null( $this->api ) ) {
+			return;
+		}
 
-			return false;
+		if ( empty( $this->_config['key'] ) ) {
+			throw new \Exception( 'Empty access key.' );
 		}
 
 		if ( empty( $this->_config['secret'] ) ) {
-			$error = 'Empty secret key.';
-
-			return false;
+			throw new \Exception( 'Empty secret key.' );
 		}
 
 		if ( empty( $this->_config['bucket'] ) ) {
-			$error = 'Empty bucket.';
-
-			return false;
+			throw new \Exception( 'Empty bucket.' );
 		}
 
-		if ( empty( $this->_config['bucket_location'] ) ) {
-			$region = '';
-			$endpoint = 's3.amazonaws.com';
-		} else {
-			$region = $this->_config['bucket_location'];
-			$endpoint = 's3.dualstack.' . $region . '.amazonaws.com';
-		}
+		$credentials = new \Aws\Credentials\Credentials(
+			$this->_config['key'],
+			$this->_config['secret'] );
 
-		$this->_s3 = new \S3( $this->_config['key'], $this->_config['secret'],
-			false, $endpoint, $region );
-		if ( empty( $region ) ) {
-			$this->_s3->setSignatureVersion( 'v2' );
-		}
-
-		return true;
+		$this->api = new \Aws\S3\S3Client( array(
+				'credentials' => $credentials,
+				'region' => $this->_config['bucket_location'],
+				'version' => '2006-03-01'
+			)
+		);
 	}
 
 	/**
@@ -109,13 +85,14 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 * @param boolean $force_rewrite
 	 * @return boolean
 	 */
-	function upload( $files, &$results, $force_rewrite = false,
+	public function upload( $files, &$results, $force_rewrite = false,
 		$timeout_time = NULL ) {
 		$error = null;
 
-		if ( !$this->_init( $error ) ) {
-			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, $error );
-
+		try {
+			$this->_init();
+		} catch ( \Exception $ex ) {
+			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, $ex->getMessage() );
 			return false;
 		}
 
@@ -148,7 +125,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 * @param boolean $force_rewrite
 	 * @return array
 	 */
-	function _upload( $file, $force_rewrite = false ) {
+	private function _upload( $file, $force_rewrite = false ) {
 		$local_path = $file['local_path'];
 		$remote_path = $file['remote_path'];
 
@@ -157,52 +134,51 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				W3TC_CDN_RESULT_ERROR, 'Source file not found.', $file );
 		}
 
-		if ( !$force_rewrite ) {
-			$this->_set_error_handler();
-			$info = @$this->_s3->getObjectInfo( $this->_config['bucket'], $remote_path );
-			$this->_restore_error_handler();
+		try {
+			if ( !$force_rewrite ) {
+				try {
+					$info = $this->api->headObject( array(
+						'Bucket' => $this->_config['bucket'],
+						'Key' => $remote_path )
+					);
 
-			if ( $info ) {
-				$hash = @md5_file( $local_path );
-				$s3_hash = ( isset( $info['hash'] ) ? $info['hash'] : '' );
+					$hash = '"' . @md5_file( $local_path ) . '"';
+					$s3_hash = ( isset( $info['ETag'] ) ? $info['ETag'] : '' );
 
-				if ( $hash === $s3_hash ) {
-					return $this->_get_result( $local_path, $remote_path,
-						W3TC_CDN_RESULT_OK, 'Object up-to-date.', $file );
+					if ( $hash === $s3_hash ) {
+						return $this->_get_result( $local_path, $remote_path,
+							W3TC_CDN_RESULT_OK, 'Object up-to-date.', $file );
+					}
+				} catch ( \Aws\Exception\AwsException $ex ) {
+					if ( $ex->getAwsErrorCode() == 'NotFound' ) {
+					} else {
+						throw $ex;
+					}
 				}
 			}
-		}
 
-		$headers = $this->_get_headers( $file );
+			$headers = $this->_get_headers( $file );
+			$result = $this->_put_object( array(
+					'Key' => $remote_path,
+					'SourceFile' => $local_path,
+					'Metadata' => $headers
+				)
+			);
 
-		$this->_set_error_handler();
-		$result = @$this->_s3->putObjectFile( $local_path, $this->_config['bucket'], $remote_path, \S3::ACL_PUBLIC_READ, array(), $headers );
-		$this->_restore_error_handler();
-
-		if ( $result ) {
 			return $this->_get_result( $local_path, $remote_path,
 				W3TC_CDN_RESULT_OK, 'OK', $file );
-		}
+		} catch ( \Exception $ex ) {
+			$error = sprintf( 'Unable to put object (%s).', $ex->getMessage() );
 
-		if ( strpos( $this->_get_last_error(), 'AWS4-HMAC-SHA256' ) !== false ) {
-			$error = "Bucket location region is incorrect. Please select the right one.";
-		} else {
-			$error = sprintf( 'Unable to put object (%s).', $this->_get_last_error() );
+			return $this->_get_result( $local_path, $remote_path,
+				W3TC_CDN_RESULT_ERROR, $error, $file );
 		}
-
-		return $this->_get_result( $local_path, $remote_path,
-			W3TC_CDN_RESULT_ERROR, $error, $file );
 	}
 
 	/**
 	 * Uploads gzip version of file
-	 *
-	 * @param string  $local_path
-	 * @param string  $remote_path
-	 * @param boolean $force_rewrite
-	 * @return array
 	 */
-	function _upload_gzip( $file, $force_rewrite = false ) {
+	private function _upload_gzip( $file, $force_rewrite = false ) {
 		$local_path = $file['local_path'];
 		$remote_path = $file['remote_path_gzip'];
 
@@ -225,45 +201,70 @@ class CdnEngine_S3 extends CdnEngine_Base {
 
 		$data = gzencode( $contents );
 
-		if ( !$force_rewrite ) {
-			$this->_set_error_handler();
-			$info = @$this->_s3->getObjectInfo( $this->_config['bucket'], $remote_path );
-			$this->_restore_error_handler();
+		try {
+			if ( !$force_rewrite ) {
+				try {
+					$info = $this->api->headObject( array(
+						'Bucket' => $this->_config['bucket'],
+						'Key' => $remote_path )
+					);
 
-			if ( $info ) {
-				$hash = md5( $data );
-				$s3_hash = ( isset( $info['hash'] ) ? $info['hash'] : '' );
+					$hash = '"' . md5( $data ) . '"';
+					$s3_hash = ( isset( $info['ETag'] ) ? $info['ETag'] : '' );
 
-				if ( $hash === $s3_hash ) {
-					return $this->_get_result( $local_path, $remote_path,
-						W3TC_CDN_RESULT_OK, 'Object up-to-date.', $file );
+					if ( $hash === $s3_hash ) {
+						return $this->_get_result( $local_path, $remote_path,
+							W3TC_CDN_RESULT_OK, 'Object up-to-date.', $file );
+					}
+				} catch ( \Aws\Exception\AwsException $ex ) {
+					if ( $ex->getAwsErrorCode() == 'NotFound' ) {
+					} else {
+						throw $ex;
+					}
 				}
 			}
-		}
 
-		$headers = $this->_get_headers( $file );
-		$headers = array_merge( $headers, array(
-				'Vary' => 'Accept-Encoding',
-				'Content-Encoding' => 'gzip'
-			) );
+			$headers = $this->_get_headers( $file );
+			$headers = array_merge( $headers, array(
+					'Vary' => 'Accept-Encoding',
+					'Content-Encoding' => 'gzip'
+				) );
 
-		$this->_set_error_handler();
-		$result = @$this->_s3->putObjectString( $data, $this->_config['bucket'], $remote_path, \S3::ACL_PUBLIC_READ, array(), $headers );
-		$this->_restore_error_handler();
+			$result = $this->_put_object( array(
+					'Key' => $remote_path,
+					'Body' => $data,
+					'Metadata' => $headers
+				)
+			);
 
-		if ( $result ) {
 			return $this->_get_result( $local_path, $remote_path,
 				W3TC_CDN_RESULT_OK, 'OK', $file );
+		} catch ( \Exception $ex ) {
+			$error = sprintf( 'Unable to put object (%s).', $ex->getMessage() );
+
+			return $this->_get_result( $local_path, $remote_path,
+				W3TC_CDN_RESULT_ERROR, $error, $file );
+		}
+	}
+
+	/**
+	 * Wrapper to set headers well
+	 */
+	private function _put_object( $data ) {
+		$data['ACL'] = 'public-read';
+		$data['Bucket'] = $this->_config['bucket'];
+
+		if ( isset( $data['Metadata']['Content-Type'] ) ) {
+			$data['ContentType'] = $data['Metadata']['Content-Type'];
+		}
+		if ( isset( $data['Metadata']['Content-Encoding'] ) ) {
+			$data['ContentEncoding'] = $data['Metadata']['Content-Encoding'];
+		}
+		if ( isset( $data['Metadata']['Cache-Control'] ) ) {
+			$data['CacheControl'] = $data['Metadata']['Cache-Control'];
 		}
 
-		if ( strpos( $this->_get_last_error(), 'AWS4-HMAC-SHA256' ) !== false ) {
-			$error = "Bucket location region is incorrect. Please select the right one.";
-		} else {
-			$error = sprintf( 'Unable to put object (%s).', $this->_get_last_error() );
-		}
-
-		return $this->_get_result( $local_path, $remote_path,
-			W3TC_CDN_RESULT_ERROR, $error, $file );
+		return $this->api->putObject( $data );
 	}
 
 	/**
@@ -273,12 +274,13 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 * @param array   $results
 	 * @return boolean
 	 */
-	function delete( $files, &$results ) {
+	public function delete( $files, &$results ) {
 		$error = null;
 
-		if ( !$this->_init( $error ) ) {
-			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, $error );
-
+		try {
+			$this->_init();
+		} catch ( \Exception $ex ) {
+			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, $ex->getMessage() );
 			return false;
 		}
 
@@ -286,36 +288,36 @@ class CdnEngine_S3 extends CdnEngine_Base {
 			$local_path = $file['local_path'];
 			$remote_path = $file['remote_path'];
 
-			$this->_set_error_handler();
-			$result = @$this->_s3->deleteObject( $this->_config['bucket'], $remote_path );
-			$this->_restore_error_handler();
-
-			if ( $result ) {
+			try {
+				$this->api->deleteObject( array(
+						'Bucket' => $this->_config['bucket'],
+						'Key' => $remote_path
+					) );
 				$results[] = $this->_get_result( $local_path, $remote_path,
 					W3TC_CDN_RESULT_OK, 'OK', $file );
-			} else {
+			} catch ( \Exception $ex ) {
 				$results[] = $this->_get_result( $local_path, $remote_path,
 					W3TC_CDN_RESULT_ERROR,
 					sprintf( 'Unable to delete object (%s).',
-						$this->_get_last_error() ),
+						$ex->getMessage() ),
 					$file );
 			}
 
 			if ( $this->_config['compression'] ) {
 				$remote_path_gzip = $remote_path . $this->_gzip_extension;
 
-				$this->_set_error_handler();
-				$result = @$this->_s3->deleteObject( $this->_config['bucket'], $remote_path_gzip );
-				$this->_restore_error_handler();
-
-				if ( $result ) {
-					$results[] = $this->_get_result( $local_path,
-						$remote_path_gzip, W3TC_CDN_RESULT_OK, 'OK', $file );
-				} else {
-					$results[] = $this->_get_result( $local_path,
-						$remote_path_gzip, W3TC_CDN_RESULT_ERROR,
+				try {
+					$this->api->deleteObject( array(
+							'Bucket' => $this->_config['bucket'],
+							'Key' => $remote_path_gzip
+						) );
+					$results[] = $this->_get_result( $local_path, $remote_path_gzip,
+						W3TC_CDN_RESULT_OK, 'OK', $file );
+				} catch ( \Exception $ex ) {
+					$results[] = $this->_get_result( $local_path, $remote_path_gzip,
+						W3TC_CDN_RESULT_ERROR,
 						sprintf( 'Unable to delete object (%s).',
-							$this->_get_last_error() ),
+							$ex->getMessage() ),
 						$file );
 				}
 			}
@@ -325,80 +327,57 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	}
 
 	/**
-	 * Tests S3
-	 *
-	 * @param string  $error
-	 * @return boolean
+	 * Test CDN connectivity works
 	 */
-	function test( &$error ) {
+	public function test( &$error ) {
 		if ( !parent::test( $error ) ) {
 			return false;
 		}
 
-		$string = 'test_s3_' . md5( time() );
+		$key = 'test_s3_' . md5( time() );
 
-		if ( !$this->_init( $error ) ) {
-			return false;
-		}
+		$this->_init();
+		$buckets = $this->api->listBuckets();
 
-		$this->_set_error_handler();
-
-		$buckets = @$this->_s3->listBuckets();
-
-		if ( $buckets === false ) {
-			$error = sprintf( 'Unable to list buckets (%s).', $this->_get_last_error() );
-
-			$this->_restore_error_handler();
-
-			return false;
-		}
-
-		if ( !in_array( $this->_config['bucket'], (array) $buckets ) ) {
-			$error = sprintf( 'Bucket doesn\'t exist: %s.', $this->_config['bucket'] );
-
-			$this->_restore_error_handler();
-
-			return false;
-		}
-
-		if ( !@$this->_s3->putObjectString( $string, $this->_config['bucket'], $string, \S3::ACL_PUBLIC_READ ) ) {
-			if ( strpos( $this->_get_last_error(), 'AWS4-HMAC-SHA256' ) !== false ) {
-				$error = "Bucket location region is incorrect. Please select the right one.";
-			} else {
-				$error = sprintf( 'Unable to put object (%s).', $this->_get_last_error() );
+		$bucket_found = false;
+		foreach ( $buckets['Buckets'] as $bucket ) {
+			if ( $bucket['Name'] == $this->_config['bucket'] ) {
+				$bucket_found = true;
 			}
-
-			$this->_restore_error_handler();
-
-			return false;
 		}
 
-		if ( !( $object = @$this->_s3->getObject( $this->_config['bucket'], $string ) ) ) {
-			$error = sprintf( 'Unable to get object (%s).', $this->_get_last_error() );
-
-			$this->_restore_error_handler();
-
-			return false;
+		if ( !$bucket_found ) {
+			throw new \Exception( 'Bucket doesn\'t exist: %s.', $this->_config['bucket'] );
 		}
 
-		if ( $object->body != $string ) {
+		$result = $this->api->putObject( array(
+				'ACL' => 'public-read',
+				'Bucket' => $this->_config['bucket'],
+				'Key' => $key,
+				'Body' => $key
+			)
+		);
+
+		$object = $this->api->getObject( array(
+				'Bucket' => $this->_config['bucket'],
+				'Key' => $key
+			) );
+
+		if ( $object['Body'] != $key ) {
 			$error = 'Objects are not equal.';
 
-			@$this->_s3->deleteObject( $this->_config['bucket'], $string );
-			$this->_restore_error_handler();
+			$this->api->deleteObject( array(
+					'Bucket' => $this->_config['bucket'],
+					'Key' => $key
+				) );
 
 			return false;
 		}
 
-		if ( !@$this->_s3->deleteObject( $this->_config['bucket'], $string ) ) {
-			$error = sprintf( 'Unable to delete object (%s).', $this->_get_last_error() );
-
-			$this->_restore_error_handler();
-
-			return false;
-		}
-
-		$this->_restore_error_handler();
+		$this->api->deleteObject( array(
+				'Bucket' => $this->_config['bucket'],
+				'Key' => $key
+			) );
 
 		return true;
 	}
@@ -408,7 +387,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 *
 	 * @return array
 	 */
-	function get_domains() {
+	public function get_domains() {
 		if ( !empty( $this->_config['cname'] ) ) {
 			return (array) $this->_config['cname'];
 		} elseif ( !empty( $this->_config['bucket'] ) ) {
@@ -427,61 +406,35 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 *
 	 * @return string
 	 */
-	function get_via() {
+	public function get_via() {
 		return sprintf( 'Amazon Web Services: S3: %s', parent::get_via() );
 	}
 
 	/**
 	 * Creates bucket
-	 *
-	 * @param string  $container_id
-	 * @param string  $error
-	 * @return boolean
 	 */
-	function create_container( &$container_id, &$error ) {
-		if ( !$this->_init( $error ) ) {
-			return false;
+	public function create_container() {
+		$this->_init();
+
+		try {
+			$buckets = $this->api->listBuckets();
+		} catch ( \Exception $ex ) {
+			throw new \Exception( 'Unable to list buckets: ' . $ex->getMessage() );
 		}
 
-		$this->_set_error_handler();
-
-		$buckets = @$this->_s3->listBuckets();
-
-		if ( $buckets === false ) {
-			$error = sprintf( 'Unable to list buckets (%s).', $this->_get_last_error() );
-
-			$this->_restore_error_handler();
-
-			return false;
+		foreach ( $buckets['Buckets'] as $bucket ) {
+			if ( $bucket['Name'] == $this->_config['bucket'] ) {
+				throw new \Exception( 'Bucket already exists: ' . $this->_config['bucket'] );
+			}
 		}
 
-		if ( in_array( $this->_config['bucket'], (array) $buckets ) ) {
-			$error = sprintf( 'Bucket already exists: %s.', $this->_config['bucket'] );
-
-			$this->_restore_error_handler();
-
-			return false;
+		try {
+			$result = $this->api->createBucket( array(
+				'Bucket' => $this->_config['bucket'],
+			) );
+		} catch ( \Exception $e) {
+			throw new \Exception( 'Failed to create bucket: ' . $ex->getMessage() );
 		}
-
-		if ( empty( $this->_config['bucket_acl'] ) ) {
-			$this->_config['bucket_acl'] = \S3::ACL_PRIVATE;
-		}
-
-		if ( !isset( $this->_config['bucket_location'] ) ) {
-			$this->_config['bucket_location'] = \S3::LOCATION_US;
-		}
-
-		if ( !@$this->_s3->putBucket( $this->_config['bucket'], $this->_config['bucket_acl'], $this->_config['bucket_location'] ) ) {
-			$error = sprintf( 'Unable to create bucket: %s (%s).', $this->_config['bucket'], $this->_get_last_error() );
-
-			$this->_restore_error_handler();
-
-			return false;
-		}
-
-		$this->_restore_error_handler();
-
-		return true;
 	}
 
 	/**
@@ -489,7 +442,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 *
 	 * @return string W3TC_CDN_HEADER_NONE, W3TC_CDN_HEADER_UPLOADABLE, W3TC_CDN_HEADER_MIRRORING
 	 */
-	function headers_support() {
+	public function headers_support() {
 		return W3TC_CDN_HEADER_UPLOADABLE;
 	}
 }

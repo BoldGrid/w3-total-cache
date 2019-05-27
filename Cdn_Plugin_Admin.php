@@ -212,7 +212,7 @@ class Cdn_Plugin_Admin {
 		);
 		$engine_values['cf'] = array(
 			'disabled' => ( !Util_Installed::curl() ? true : null ),
-			'label' => __( 'Amazon CloudFront', 'w3-total-cache' ),
+			'label' => __( 'Amazon CloudFront Over S3', 'w3-total-cache' ),
 			'optgroup' => $optgroup_push
 		);
 		$engine_values['s3'] = array(

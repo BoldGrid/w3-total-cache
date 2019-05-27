@@ -423,12 +423,17 @@ class Cdn_AdminActions {
 
 			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) );
 
-			if ( $w3_cdn->test( $error ) ) {
-				$result = true;
-				$error = __( 'Test passed', 'w3-total-cache' );
-			} else {
+			try {
+				if ( $w3_cdn->test( $error ) ) {
+					$result = true;
+					$error = __( 'Test passed', 'w3-total-cache' );
+				} else {
+					$result = false;
+					$error = sprintf( __( 'Error: %s', 'w3-total-cache' ), $error );
+				}
+			} catch ( \Exception $ex ) {
 				$result = false;
-				$error = sprintf( __( 'Error: %s', 'w3-total-cache' ), $error );
+				$error = sprintf( __( 'Error: %s', 'w3-total-cache' ), $ex->getMessage() );
 			}
 		}
 
@@ -454,8 +459,6 @@ class Cdn_AdminActions {
 				'debug' => false
 			) );
 
-		$result = false;
-		$error = __( 'Incorrect type.', 'w3-total-cache' );
 		$container_id = '';
 
 		switch ( $engine ) {
@@ -463,22 +466,24 @@ class Cdn_AdminActions {
 		case 'cf':
 		case 'cf2':
 		case 'azure':
-			$result = true;
-			break;
-		}
-
-		if ( $result ) {
 			$w3_cdn = CdnEngine::instance( $engine, $config );
 
-			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_container_create' ) );
+			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) );
 
-			if ( $w3_cdn->create_container( $container_id, $error ) ) {
+			$result = false;
+			try {
+				$container_id = $w3_cdn->create_container();
 				$result = true;
 				$error = __( 'Created successfully.', 'w3-total-cache' );
-			} else {
-				$result = false;
-				$error = sprintf( __( 'Error: %s', 'w3-total-cache' ), $error );
+			} catch ( \Exception $ex ) {
+				$error = sprintf( __( 'Error: %s', 'w3-total-cache' ),
+					$ex->getMessage() );
 			}
+
+			break;
+		default:
+			$result = false;
+			$error = __( 'Incorrect type.', 'w3-total-cache' );
 		}
 
 		$response = array(
