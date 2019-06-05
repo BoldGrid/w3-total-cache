@@ -574,6 +574,9 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Upgrade Notice ==
 
+= 0.9.7.5 =
+Users running Cloudflare CDN may experience issues beginning June 6th. Please upgrade to W3 Total Cache 0.9.7.5 for the latest Cloudflare patches.
+
 = 0.9.5.3 =
 Thanks for using W3 Total Cache! This release includes compatibility fixes that have been reported. In addition, numerous other improvements are now yours!
 
