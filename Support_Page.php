@@ -22,11 +22,14 @@ class Support_Page {
 			'w3tc_support_home_url', $url );
 		wp_localize_script( 'w3tc-options',
 			'w3tc_support_email', get_bloginfo( 'admin_email' ) );
+		
 		$u = wp_get_current_user();
-		wp_localize_script( 'w3tc-options',
-			'w3tc_support_first_name', $u->first_name );
-		wp_localize_script( 'w3tc-options',
-			'w3tc_support_last_name', $u->last_name );
+
+		$u_first_name = empty( $u->first_name ) ? array() : $u->first_name;
+		wp_localize_script( 'w3tc-options', 'w3tc_support_first_name', $u_first_name );
+
+		$u_last_name = empty( $u->last_name ) ? array() : $u->last_name;
+		wp_localize_script( 'w3tc-options', 'w3tc_support_last_name', $u_last_name );
 
 		// values from widget
 		$w3tc_support_form_hash = 'm5pom8z0qy59rm';
@@ -51,11 +54,14 @@ class Support_Page {
 
 		wp_localize_script( 'w3tc-options', 'w3tc_support_form_hash',
 			$w3tc_support_form_hash );
-		wp_localize_script( 'w3tc-options', 'w3tc_support_field_name',
-			$w3tc_support_field_name );
-		wp_localize_script( 'w3tc-options', 'w3tc_support_field_value',
-			$w3tc_support_field_value );
+
+		$w3tc_support_field_name = empty( $w3tc_support_field_name ) ? array() : $w3tc_support_field_name;
+		wp_localize_script( 'w3tc-options', 'w3tc_support_field_name', $w3tc_support_field_name );
+
+		$w3tc_support_field_value = empty( $w3tc_support_field_value ) ? array() : $w3tc_support_field_value;
+		wp_localize_script( 'w3tc-options', 'w3tc_support_field_value', $w3tc_support_field_value );
 	}
+
 	/**
 	 * Support tab
 	 *
