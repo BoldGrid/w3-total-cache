@@ -11,22 +11,6 @@ class Support_Page {
 			$url = substr( $url, 7 );
 		elseif ( substr( $url, 0, 8 ) == 'https://' )
 			$url = substr( $url, 8 );
-		// aw3tc-options script is already queued so attach to it
-		// just to make vars printed (while it's not related by semantics)
-		wp_localize_script( 'w3tc-options',
-			'w3tc_support_postprocess', urlencode( urlencode(
-					Util_Ui::admin_url(
-						wp_nonce_url( 'admin.php', 'w3tc' ) . '&page=w3tc_support&done'
-					) ) ) );
-		wp_localize_script( 'w3tc-options',
-			'w3tc_support_home_url', $url );
-		wp_localize_script( 'w3tc-options',
-			'w3tc_support_email', get_bloginfo( 'admin_email' ) );
-		$u = wp_get_current_user();
-		wp_localize_script( 'w3tc-options',
-			'w3tc_support_first_name', $u->first_name );
-		wp_localize_script( 'w3tc-options',
-			'w3tc_support_last_name', $u->last_name );
 
 		// values from widget
 		$w3tc_support_form_hash = 'm5pom8z0qy59rm';
@@ -49,12 +33,25 @@ class Support_Page {
 			}
 		}
 
-		wp_localize_script( 'w3tc-options', 'w3tc_support_form_hash',
-			$w3tc_support_form_hash );
-		wp_localize_script( 'w3tc-options', 'w3tc_support_field_name',
-			$w3tc_support_field_name );
-		wp_localize_script( 'w3tc-options', 'w3tc_support_field_value',
-			$w3tc_support_field_value );
+		$u = wp_get_current_user();
+
+		// w3tc-options script is already queued so attach to it
+		// just to make vars printed (while it's not related by semantics)
+		wp_localize_script( 'w3tc-options', 'w3tc_support_data',
+			array(
+				'home_url' => $url,
+				'email' => get_bloginfo( 'admin_email' ),
+				'first_name' => $u->first_name,
+				'last_name' => $u->last_name,
+				'form_hash' => $w3tc_support_form_hash,
+				'field_name' => $w3tc_support_field_name,
+				'field_value' => $w3tc_support_field_value,
+				'postprocess' => urlencode( urlencode(
+					Util_Ui::admin_url(
+						wp_nonce_url( 'admin.php', 'w3tc' ) . '&page=w3tc_support&done'
+					) ) )
+			)
+		);
 	}
 	/**
 	 * Support tab

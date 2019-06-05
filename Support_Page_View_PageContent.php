@@ -7,25 +7,25 @@
 var s = d.createElement(t);
 var options = {
 	'userName':'w3edge',
-	'formHash': w3tc_support_form_hash,
+	'formHash': w3tc_support_data.form_hash,
 	'autoResize':true,
 	'height':'1145',
 	'async':true,
 	'host':'wufoo.com',
 	'header':'show',
 	'defaultValues':
-		'field221=' + encodeURI(w3tc_support_postprocess) +
-		'&field6=' + encodeURI(w3tc_support_first_name) +
-		'&field7=' + encodeURI(w3tc_support_last_name) +
-		'&field8=' + encodeURI(w3tc_support_home_url) +
-		'&field9=' + encodeURI(w3tc_support_email),
+		'field221=' + encodeURI(w3tc_support_data.postprocess) +
+		'&field6=' + encodeURI(w3tc_support_data.first_name) +
+		'&field7=' + encodeURI(w3tc_support_data.last_name) +
+		'&field8=' + encodeURI(w3tc_support_data.home_url) +
+		'&field9=' + encodeURI(w3tc_support_data.email),
 	'ssl':true
 };
 
-if (w3tc_support_field_name.length > 0)
-	options.defaultValues += '&' + 
-		encodeURI(w3tc_support_field_name) + '=' + 
-		encodeURI(w3tc_support_field_value);
+if (w3tc_support_data.field_name.length > 0)
+	options.defaultValues += '&' +
+		encodeURI(w3tc_support_data.field_name) + '=' +
+		encodeURI(w3tc_support_data.field_value);
 
 
 s.src = ('https:' == d.location.protocol ? 'https://' : 'http://') + 'www.wufoo.com/scripts/embed/form.js';
