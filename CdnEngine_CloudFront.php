@@ -48,8 +48,19 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	 * Formats URL
 	 */
 	function _format_url( $path ) {
-		// the same limitation as S3 has
-		return $this->s3->_format_url( $path );
+		$domain = $this->get_domain( $path );
+
+		if ( $domain ) {
+			$scheme = $this->_get_scheme();
+
+			// it does not support '+', requires '%2B'
+			$path = str_replace( '+', '%2B', $path );
+			$url = sprintf( '%s://%s/%s', $scheme, $domain, $path );
+
+			return $url;
+		}
+
+		return false;
 	}
 
 	/**
