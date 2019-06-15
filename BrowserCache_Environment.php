@@ -123,6 +123,7 @@ class BrowserCache_Environment {
 		unset( $other_compression['png'] );
 		unset( $other_compression['ra|ram'] );
 		unset( $other_compression['tar'] );
+		unset( $other_compression['webp'] );
 		unset( $other_compression['wma'] );
 		unset( $other_compression['zip'] );
 
