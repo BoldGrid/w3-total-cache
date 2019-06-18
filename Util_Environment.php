@@ -712,8 +712,9 @@ class Util_Environment {
 				'%BLOG_ID%',
 				'%HOST%'
 			), array(
-				( isset( $GLOBALS['blog_id'] ) ? (int) $GLOBALS['blog_id'] : 0 ),
-				( isset( $GLOBALS['post_id'] ) ? (int) $GLOBALS['post_id'] : 0 ),
+				( isset( $GLOBALS['blog_id'] ) && is_numeric( $GLOBALS['blog_id'] ) ? (int) $GLOBALS['blog_id'] : 0 ),
+				( isset( $GLOBALS['post_id'] ) && is_numeric( $GLOBALS['post_id'] ) ?
+					(int) $GLOBALS['post_id'] : 0 ),
 				Util_Environment::blog_id(),
 				Util_Environment::host()
 			), $path );
