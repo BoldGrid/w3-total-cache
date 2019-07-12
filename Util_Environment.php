@@ -994,12 +994,14 @@ class Util_Environment {
 	 *
 	 * @return string
 	 */
-	static public function redirect_temp( $url = '', $params = array() ) {
+	static public function safe_redirect_temp( $url = '', $params = array(),
+			$safe_redirect = false ) {
 		$url = Util_Environment::url_format( $url, $params );
-		if ( function_exists( 'do_action' ) )
+		if ( function_exists( 'do_action' ) ) {
 			do_action( 'w3tc_redirect' );
+		}
 
-		$status_code = 301;
+		$status_code = 302;
 
 		$protocol = $_SERVER["SERVER_PROTOCOL"];
 		if ( 'HTTP/1.1' === $protocol ) {
@@ -1011,9 +1013,17 @@ class Util_Environment {
 			$status_header = "$protocol $status_code $text";
 			@header( $status_header, true, $status_code );
 		}
+
+		add_action( 'wp_safe_redirect_fallback', array(
+			'\W3TC\Util_Environment', 'wp_safe_redirect_fallback' ) );
+
 		@header( 'Cache-Control: no-cache' );
-		@header( 'Location: ' . $url, true, $status_code );
+		wp_safe_redirect( $url, $status_code );
 		exit();
+	}
+
+	static public function wp_safe_redirect_fallback( $url ) {
+		return home_url( '?w3tc_repeat=invalid' );
 	}
 
 	/**

@@ -204,10 +204,10 @@ class Generic_Plugin {
 			// so need to redirect to something a bit different
 			if ( $do_redirect ) {
 				if ( strpos( $_SERVER['REQUEST_URI'], '?' ) === false )
-					Util_Environment::redirect_temp( $_SERVER['REQUEST_URI'] . '?repeat=w3tc' );
+					Util_Environment::safe_redirect_temp( $_SERVER['REQUEST_URI'] . '?repeat=w3tc' );
 				else {
 					if ( strpos( $_SERVER['REQUEST_URI'], 'repeat=w3tc' ) === false )
-						Util_Environment::redirect_temp( $_SERVER['REQUEST_URI'] . '&repeat=w3tc' );
+						Util_Environment::safe_redirect_temp( $_SERVER['REQUEST_URI'] . '&repeat=w3tc' );
 				}
 			}
 		}
