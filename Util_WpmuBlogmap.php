@@ -112,7 +112,7 @@ class Util_WpmuBlogmap {
 		if ( isset( $blog_ids[$blog_home_url] ) )
 			return false;
 		$data = $config->get_boolean( 'common.force_master' ) ? 'm' : 'c';
-		$blog_home_url = preg_replace( '/[^a-zA-Z0-9\+\.%~!()\/\-\_]/', '', $blog_home_url );
+		$blog_home_url = preg_replace( '/[^a-zA-Z0-9\+\.%~!:()\/\-\_]/', '', $blog_home_url );
 		$blog_ids[$blog_home_url] = $data . $GLOBALS['current_blog']->blog_id;
 
 		$data = json_encode( $blog_ids );
