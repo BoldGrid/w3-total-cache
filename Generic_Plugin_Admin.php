@@ -296,7 +296,7 @@ class Generic_Plugin_Admin {
 
 ?>
 		<style type="text/css" media="screen">
-		.toplevel_page_w3tc_dashboard .wp-menu-image:before{
+		li.toplevel_page_w3tc_dashboard .wp-menu-image:before{
 			content:'\0041';
 			top: 2px;
 			font-family: 'w3tc';
