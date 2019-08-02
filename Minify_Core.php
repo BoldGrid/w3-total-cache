@@ -70,11 +70,11 @@ class Minify_Core {
 						continue;
 
 					if ( !$external_regexp &&
-						preg_match( '~^' . Util_Environment::get_url_regexp( $ext ) . '~', $file ) && 
+						preg_match( '~^' . Util_Environment::get_url_regexp( $ext ) . '~', $file ) &&
 						!$verified ) {
 						$verified = true;
 					}
-					if ( $external_regexp && 
+					if ( $external_regexp &&
 						preg_match( '~' . $ext . '~', $file ) && !$verified ) {
 						$verified = true;
 					}
@@ -115,7 +115,7 @@ class Minify_Core {
 			return Util_Environment::filename_to_url( $filename );
 		}
 
-		return network_site_url( '?w3tc_minify=' . $minify_filename );
+		return home_url( '?w3tc_minify=' . $minify_filename );
 	}
 
 
