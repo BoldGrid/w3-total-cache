@@ -10,7 +10,7 @@ class Util_Content {
 	 */
 	static public function is_html( $content ) {
 		$content = Util_Content::_is_html_prepare( $content );
-		return stripos( $content, '<html' ) === 0 || 
+		return stripos( $content, '<html' ) === 0 ||
 			stripos( $content, '<!DOCTYPE' ) === 0;
 	}
 
@@ -22,8 +22,8 @@ class Util_Content {
 	 */
 	static public function is_html_xml( $content ) {
 		$content = Util_Content::_is_html_prepare( $content );
-		return stripos( $content, '<?xml' ) === 0 || 
-			stripos( $content, '<html' ) === 0 || 
+		return stripos( $content, '<?xml' ) === 0 ||
+			stripos( $content, '<html' ) === 0 ||
 			stripos( $content, '<!DOCTYPE' ) === 0;
 	}
 
@@ -50,18 +50,6 @@ class Util_Content {
 		if ( function_exists( 'apply_filters' ) )
 			return apply_filters( 'w3tc_can_print_comment', Util_Content::is_html_xml( $buffer ) && !defined( 'DOING_AJAX' ) );
 		return Util_Content::is_html_xml( $buffer ) && !defined( 'DOING_AJAX' );
-	}
-
-
-
-	/**
-	 * Check if there was database error
-	 *
-	 * @param string  $content
-	 * @return boolean
-	 */
-	static public function is_database_error( &$content ) {
-		return stristr( $content, '<title>Database Error</title>' ) !== false;
 	}
 
 	/**

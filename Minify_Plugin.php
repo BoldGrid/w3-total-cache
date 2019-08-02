@@ -895,15 +895,6 @@ class Minify_Plugin {
 	 */
 	function can_minify2( $buffer ) {
 		/**
-		 * Check for database error
-		 */
-		if ( Util_Content::is_database_error( $buffer ) ) {
-			$this->minify_reject_reason = 'Database Error occurred';
-
-			return false;
-		}
-
-		/**
 		 * Check for DONOTMINIFY constant
 		 */
 		if ( defined( 'DONOTMINIFY' ) && DONOTMINIFY ) {

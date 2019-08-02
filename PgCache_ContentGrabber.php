@@ -589,15 +589,6 @@ class PgCache_ContentGrabber {
 		}
 
 		/**
-		 * Check for database error
-		 */
-		if ( Util_Content::is_database_error( $buffer ) ) {
-			$this->cache_reject_reason = 'Database error occurred';
-
-			return false;
-		}
-
-		/**
 		 * Check for DONOTCACHEPAGE constant
 		 */
 		if ( defined( 'DONOTCACHEPAGE' ) && DONOTCACHEPAGE ) {

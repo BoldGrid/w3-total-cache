@@ -5,11 +5,8 @@ namespace W3TC;
  * W3 Total Cache plugin
  */
 class Generic_Plugin {
-
+	private $is_wp_die = false;
 	private $_translations = array();
-	/**
-	 * Config
-	 */
 	private $_config = null;
 
 	function __construct() {
@@ -86,11 +83,22 @@ class Generic_Plugin {
 		}
 
 		if ( $this->can_ob() ) {
+			add_filter( 'wp_die_xml_handler', array( $this, 'wp_die_handler' ) );
+			add_filter( 'wp_die_handler', array( $this, 'wp_die_handler' ) );
+
 			ob_start( array(
 					$this,
 					'ob_callback'
 				) );
 		}
+	}
+
+	/**
+	 * Marks wp_die was called so response is system message
+	 **/
+	public function wp_die_handler( $v ) {
+		$this->is_wp_die = true;
+		return $v;
 	}
 
 	/**
@@ -509,7 +517,7 @@ class Generic_Plugin {
 			return $buffer;
 		}
 
-		if ( Util_Content::is_database_error( $buffer ) ) {
+		if ( $this->is_wp_die ) {
 			status_header( 503 );
 		} else {
 			$buffer = apply_filters( 'w3tc_process_content', $buffer );

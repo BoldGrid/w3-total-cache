@@ -571,15 +571,6 @@ class Cdn_Plugin {
 	 */
 	function can_cdn2( $buffer ) {
 		/**
-		 * Check for database error
-		 */
-		if ( Util_Content::is_database_error( $buffer ) ) {
-			$this->cdn_reject_reason = 'Database Error occurred';
-
-			return false;
-		}
-
-		/**
 		 * Check for DONOTCDN constant
 		 */
 		if ( defined( 'DONOTCDN' ) && DONOTCDN ) {

@@ -211,12 +211,6 @@ class PgCache_Plugin {
 		}
 	}
 
-	/**
-	 *
-	 *
-	 * @param integer $lifetime
-	 * @return integer
-	 */
 	function comment_cookie_lifetime( $lifetime ) {
 		$l = $this->_config->get_integer( 'pgcache.comment_cookie_ttl' );
 		if ( $l != -1 )
