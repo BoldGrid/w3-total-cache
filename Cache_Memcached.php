@@ -59,6 +59,9 @@ class Cache_Memcached extends Cache_Base {
 		if ( defined( '\Memcached::OPT_REMOVE_FAILED_SERVERS' ) ) {
 			$this->_memcache->setOption( \Memcached::OPT_REMOVE_FAILED_SERVERS, true );
 		}
+		if ( defined( '\Memcached::OPT_BINARY_PROTOCOL' ) ) {
+			$this->_memcache->setOption( \Memcached::OPT_BINARY_PROTOCOL, true );
+		}
 
 		if ( isset( $config['aws_autodiscovery'] ) &&
 			$config['aws_autodiscovery'] &&
@@ -370,7 +373,7 @@ class Cache_Memcached extends Cache_Base {
 			return true;
 
 		$storage_key = $this->get_item_key( $key );
-		$r = @$this->_memcache->increment( $storage_key, $value );
+		$r = $this->_memcache->increment( $storage_key, $value, 0, 3600 );
 		if ( !$r )   // it doesnt initialize counter by itself
 			$this->counter_set( $key, 0 );
 
