@@ -28,38 +28,27 @@ class ObjectCache_WpObjectCache_Regular {
 
 	/**
 	 * Total count of calls
-	 *
-	 * @var integer
 	 */
 	var $cache_total = 0;
 
 	/**
 	 * Cache hits count
-	 *
-	 * @var integer
 	 */
 	var $cache_hits = 0;
-
 	/**
-	 * Cache misses count
-	 *
-	 * @var integer
+	 * Number of flushes
 	 */
-	var $cache_misses = 0;
+	private $cache_flushes = 0;
+	private $cache_sets = 0;
 
 	/**
-	 * Total time
+	 * Total time (microsecs)
 	 *
 	 * @var integer
 	 */
 	var $time_total = 0;
 
-	/**
-	 * Store debug information of w3tc using
-	 *
-	 * @var array
-	 */
-	var $debug_info = array();
+	private $log_filehandle = false;
 
 	/**
 	 * Blog id of cache
@@ -113,6 +102,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @var boolean
 	 */
 	var $_debug = false;
+	private $stats_enabled = false;
 
 	/**
 	 * PHP5 style constructor
@@ -125,6 +115,7 @@ class ObjectCache_WpObjectCache_Regular {
 		$this->global_groups = $this->_config->get_array( 'objectcache.groups.global' );
 		$this->nonpersistent_groups = $this->_config->get_array(
 			'objectcache.groups.nonpersistent' );
+		$this->stats_enabled = $this->_config->get_boolean( 'stats.enabled' );
 
 		$this->_blog_id = Util_Environment::blog_id();
 	}
@@ -137,13 +128,20 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return mixed
 	 */
 	function get( $id, $group = 'default', $force = false, &$found = null ) {
-		if ( $this->_debug ) {
+		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
+		}
+
+		if ( empty( $group ) ) {
+			$group = 'default';
 		}
 
 		$key = $this->_get_cache_key( $id, $group );
 		$in_incall_cache = isset( $this->cache[$key] );
 		$fallback_used = false;
+
+		$cache_total_inc = 0;
+		$cache_hits_inc = 0;
 
 		if ( $in_incall_cache && !$force ) {
 			$found = true;
@@ -162,16 +160,15 @@ class ObjectCache_WpObjectCache_Regular {
 					json_encode($a);
 			*/
 
-			$this->cache_total++;
+			$cache_total_inc = 1;
 
 			if ( is_array( $v ) && isset( $v['content'] ) ) {
 				$found = true;
 				$value = $v['content'];
-				$this->cache_hits++;
+				$cache_hits_inc = 1;
 			} else {
 				$found = false;
 				$value = false;
-				$this->cache_misses++;
 			}
 		} else {
 			$found = false;
@@ -203,39 +200,40 @@ class ObjectCache_WpObjectCache_Regular {
 		/**
 		 * Add debug info
 		 */
-		if ( $this->_debug ) {
+		if ( !$in_incall_cache && ( $this->_debug || $this->stats_enabled ) ) {
 			$time = Util_Debug::microtime() - $time_start;
 			$this->time_total += $time;
+			$this->cache_total += $cache_total_inc;
+			$this->cache_hits += $cache_hits_inc;
 
-			if ( !$group ) {
-				$group = 'default';
-			}
-
-			if ( $fallback_used ) {
-				if ( !$found )
-					$returned = 'not in db';
-				else
-					$returned = 'from db fallback';
-			} else {
-				if ( !$found )
-					$returned = 'not in cache';
-				else {
-					if ( $in_incall_cache )
-						$returned = 'from in-call cache';
-					else
+			if ( $this->_debug ) {
+				if ( $fallback_used ) {
+					if ( !$found ) {
+						$returned = 'not in db';
+					} else {
+						$returned = 'from db fallback';
+					}
+				} else {
+					if ( !$found ) {
+						if ( $cache_total_inc <= 0 ) {
+							$returned = 'not tried cache';
+						} else {
+							$returned = 'not in cache';
+						}
+					} else {
 						$returned = 'from persistent cache';
+					}
 				}
-			}
 
-			if ( !$in_incall_cache ) {
-				$this->debug_info[] = array(
-					'id' => $id,
-					'group' => $group,
-					'operation' => 'get',
-					'returned' => $returned,
-					'data_size' => ( $value ? strlen( serialize( $value ) ) : '' ),
-					'time' => $time
-				);
+				$this->log_call( array(
+					date( 'r' ),
+					'get',
+					$group,
+					$id,
+					$returned,
+					( $value ? strlen( serialize( $value ) ) : 0 ),
+					(int)($time * 1000000)
+				) );
 			}
 		}
 
@@ -252,6 +250,14 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return boolean
 	 */
 	function set( $id, $data, $group = 'default', $expire = 0 ) {
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time_start = Util_Debug::microtime();
+		}
+
+		if ( empty( $group ) ) {
+			$group = 'default';
+		}
+
 		$key = $this->_get_cache_key( $id, $group );
 
 		if ( is_object( $data ) ) {
@@ -260,7 +266,8 @@ class ObjectCache_WpObjectCache_Regular {
 
 		$this->cache[$key] = $data;
 		$return = true;
-		$ext_return = false;
+		$ext_return = NULL;
+		$cache_sets_inc = 0;
 
 		if ( $this->_caching &&
 			!in_array( $group, $this->nonpersistent_groups ) &&
@@ -278,6 +285,7 @@ class ObjectCache_WpObjectCache_Regular {
 			}
 
 			$v = array( 'content' => $data );
+			$cache_sets_inc = 1;
 			$ext_return = $cache->set( $key, $v,
 				( $expire ? $expire : $this->_lifetime ) );
 			$return = $ext_return;
@@ -288,15 +296,31 @@ class ObjectCache_WpObjectCache_Regular {
 			$this->_transient_fallback_set( $id, $data, $group, $expire );
 		}
 
-		if ( $this->_debug ) {
-			$this->debug_info[] = array(
-				'id' => $id,
-				'group' => $group,
-				'operation' => 'set',
-				'returned' => ( $ext_return ? 'put in cache' : 'discarded' ),
-				'data_size' => ( $data ? strlen( serialize( $data ) ) : '' ),
-				'time' => 0
-			);
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time = Util_Debug::microtime() - $time_start;
+
+			$this->cache_sets += $cache_sets_inc;
+			$this->time_total += $time;
+
+			if ( $this->_debug ) {
+				if ( is_null( $ext_return ) ) {
+					$reason = 'not set ' . $this->cache_reject_reason;
+				} else if ( $ext_return ) {
+					 $reason = 'put in cache';
+				} else {
+					$reason = 'failed';
+				}
+
+				$this->log_call( array(
+					date( 'r' ),
+					'set',
+					$group,
+					$id,
+					$reason,
+					( $data ? strlen( serialize( $data ) ) : 0 ),
+					(int)($time * 1000000)
+				) );
+			}
 		}
 
 		return $return;
@@ -330,14 +354,15 @@ class ObjectCache_WpObjectCache_Regular {
 		}
 
 		if ( $this->_debug ) {
-			$this->debug_info[] = array(
-				'id' => $id,
-				'group' => $group,
-				'operation' => 'delete',
-				'returned' => ( $return ? 'deleted' : 'discarded' ),
-				'data_size' => 0,
-				'time' => 0
-			);
+			$this->log_call( array(
+				date( 'r' ),
+				'delete',
+				$group,
+				$id,
+				( $return ? 'deleted' : 'discarded' ),
+				0,
+				0
+			) );
 		}
 
 		return $return;
@@ -394,6 +419,10 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return boolean
 	 */
 	function flush( $reason = '' ) {
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time_start = Util_Debug::microtime();
+		}
+
 		$this->cache = array();
 
 		global $w3_multisite_blogs;
@@ -410,15 +439,23 @@ class ObjectCache_WpObjectCache_Regular {
 			$cache->flush();
 		}
 
-		if ( $this->_debug ) {
-			$this->debug_info[] = array(
-				'id' => '',
-				'group' => '',
-				'operation' => 'flush',
-				'returned' => $reason,
-				'data_size' => 0,
-				'time' => 0
-			);
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time = Util_Debug::microtime() - $time_start;
+
+			$this->cache_flushes++;
+			$this->time_total += $time;
+
+			if ( $this->_debug ) {
+				$this->log_call( array(
+					date( 'r' ),
+					'flush',
+					'',
+					'',
+					$reason,
+					0,
+					(int)($time * 1000000)
+				) );
+			}
 		}
 
 		return true;
@@ -603,53 +640,6 @@ class ObjectCache_WpObjectCache_Regular {
 					update_site_option( $transient_timeout, time() + $expiration );
 				$result = update_site_option( $option, $value );
 			}
-		}
-	}
-
-	/**
-	 * Print Object Cache stats
-	 *
-	 * @return void
-	 */
-	function stats() {
-		echo '<h2>Summary</h2>';
-		echo '<p>';
-		echo '<strong>Engine</strong>: ' . Cache::engine_name(
-			$this->_config->get_string( 'objectcache.engine' ) ) . '<br />';
-		echo '<strong>Caching</strong>: ' .
-			( $this->_caching ? 'enabled' : 'disabled' ) . '<br />';
-
-		if ( !$this->_caching ) {
-			echo '<strong>Reject reason</strong>: ' .
-				$this->get_reject_reason() . '<br />';
-		}
-
-		echo '<strong>Total calls</strong>: ' . $this->cache_total . '<br />';
-		echo '<strong>Cache hits</strong>: ' . $this->cache_hits . '<br />';
-		echo '<strong>Cache misses</strong>: ' . $this->cache_misses . '<br />';
-		echo '<strong>Total time</strong>: '. round( $this->time_total, 4 ) . 's';
-		echo '</p>';
-
-		echo '<h2>Cache info</h2>';
-
-		if ( $this->_debug ) {
-			echo '<table cellpadding="0" cellspacing="3" border="1">';
-			echo '<tr><td>#</td><td>Operation</td><td>Returned</td><td>Data size (b)</td><td>Query time (s)</td><td>ID:Group</td></tr>';
-
-			foreach ( $this->debug_info as $index => $debug ) {
-				echo '<tr>';
-				echo '<td>' . ( $index + 1 ) . '</td>';
-				echo '<td>' . $debug['operation'] . '</td>';
-				echo '<td>' . $debug['returned'] . '</td>';
-				echo '<td>' . $debug['data_size'] . '</td>';
-				echo '<td>' . round( $debug['time'], 4 ) . '</td>';
-				echo '<td>' . sprintf( '%s:%s', $debug['id'], $debug['group'] ) . '</td>';
-				echo '</tr>';
-			}
-
-			echo '</table>';
-		} else {
-			echo '<p>Enable debug mode.</p>';
 		}
 	}
 
@@ -863,38 +853,23 @@ class ObjectCache_WpObjectCache_Regular {
 
 			$strings[] = sprintf( "%s%d", str_pad( 'Total calls: ', 20 ), $this->cache_total );
 			$strings[] = sprintf( "%s%d", str_pad( 'Cache hits: ', 20 ), $this->cache_hits );
-			$strings[] = sprintf( "%s%d", str_pad( 'Cache misses: ', 20 ), $this->cache_misses );
 			$strings[] = sprintf( "%s%.4f", str_pad( 'Total time: ', 20 ), $this->time_total );
 
-			$strings[] = "W3TC Object Cache info:";
-			$strings[] = sprintf( "%s | %s | %s | %s | %s | %s | %s",
-				str_pad( '#', 5, ' ', STR_PAD_LEFT ),
-				str_pad( 'Op', 5, ' ', STR_PAD_BOTH ),
-				str_pad( 'Returned', 25, ' ', STR_PAD_BOTH ),
-				str_pad( 'Data size (b)', 13, ' ', STR_PAD_LEFT ),
-				str_pad( 'Query time (s)', 14, ' ', STR_PAD_LEFT ),
-				str_pad( 'Group', 15, ' ', STR_PAD_LEFT ),
-				'ID' );
-
-			foreach ( $this->debug_info as $index => $debug ) {
-				$strings[] = sprintf( "%s | %s | %s | %s | %s | %s | %s",
-					str_pad( $index + 1, 5, ' ', STR_PAD_LEFT ),
-					str_pad( $debug['operation'], 5, ' ', STR_PAD_BOTH ),
-					str_pad( $debug['returned'], 25, ' ', STR_PAD_BOTH ),
-					str_pad( $debug['data_size'], 13, ' ', STR_PAD_LEFT ),
-					str_pad( round( $debug['time'], 4 ), 14, ' ', STR_PAD_LEFT ),
-					str_pad( $debug['group'], 15, ' ', STR_PAD_LEFT ),
-					$debug['id'] );
+			if ( $this->log_filehandle ) {
+				fclose( $this->log_filehandle );
+				$this->log_filehandle = false;
 			}
-			$strings[] = '';
 		}
 
 		return $strings;
 	}
 
 	public function w3tc_usage_statistics_of_request( $storage ) {
-		$storage->counter_add( 'objectcache_calls_total', $this->cache_total );
-		$storage->counter_add( 'objectcache_calls_hits', $this->cache_hits );
+		$storage->counter_add( 'objectcache_get_total', $this->cache_total );
+		$storage->counter_add( 'objectcache_get_hits', $this->cache_hits );
+		$storage->counter_add( 'objectcache_sets', $this->cache_sets );
+		$storage->counter_add( 'objectcache_flushes', $this->cache_flushes );
+		$storage->counter_add( 'objectcache_time_ms', (int)($this->time_total * 1000) );
 	}
 
 	public function get_reject_reason() {
@@ -921,5 +896,16 @@ class ObjectCache_WpObjectCache_Regular {
 		default:
 			return '';
 		}
+	}
+
+
+
+	private function log_call( $line ) {
+		if ( !$this->log_filehandle ) {
+			$filename = Util_Debug::log_filename( 'objectcache-calls' );
+			$this->log_filehandle = fopen( $filename, 'a' );
+		}
+
+		fputcsv ( $this->log_filehandle, $line, "\t" );
 	}
 }

@@ -30,7 +30,7 @@ class Extension_Genesis_Plugin_Admin {
 				'Optimizes "Genesis Framework" version >= 1.9.0, which is not active';
 
 		if ( empty( $requirements ) && !Util_Environment::is_w3tc_pro( $config ) )
-			$requirements[] = 'Available after <a href="#" class="button-buy-plugin">upgrade</a>';
+			$requirements[] = 'Available after <a href="#" class="button-buy-plugin" data-src="genesis_requirements">upgrade</a>';
 
 		if ( !$config->is_extension_active( 'fragmentcache' ) )
 			$requirements[] = 'Activate "Fragment Cache" extension first';

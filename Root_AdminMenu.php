@@ -228,6 +228,11 @@ class Root_AdminMenu {
 			$options_cdn->options();
 			break;
 
+		case 'w3tc_stats':
+			$p = new UsageStatistics_Page();
+			$p->render();
+			break;
+
 		case 'w3tc_support':
 			$options_support = new Support_Page();
 			$options_support->options();

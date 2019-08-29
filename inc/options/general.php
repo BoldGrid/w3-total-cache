@@ -400,7 +400,7 @@ foreach ( $custom_areas as $area )
 							<input id="plugin_license_key_verify" type="button" class="button" value="<?php _e( 'Verify license key', 'w3-total-cache' ) ?>"/>
 							<span class="w3tc_license_verification"></span>
 							<br />
-							<span class="description"><?php printf( __( 'Please enter the license key provided after %s.', 'w3-total-cache' ), '<a class="button-buy-plugin" href="#">' . __( 'upgrading', 'w3-total-cache' ) . '</a>' )?></span>
+							<span class="description"><?php printf( __( 'Please enter the license key provided after %s.', 'w3-total-cache' ), '<a class="button-buy-plugin"  data-src="generic_license" href="#">' . __( 'upgrading', 'w3-total-cache' ) . '</a>' )?></span>
 						</td>
 					</tr>
 
@@ -489,8 +489,6 @@ Util_Ui::config_item( array(
 		'style' => '2'
 	) );
 ?>
-
-			<?php do_action( 'w3tc_settings_general_boxarea_miscellaneous_content' ); ?>
 		</table>
 
 		<?php Util_Ui::button_config_save( 'general_misc' ); ?>

@@ -13,6 +13,14 @@ class UsageStatistics_Plugin {
 				$this, 'w3tc_usage_statistics_of_request' ), 10, 1 );
 		add_filter( 'w3tc_usage_statistics_metrics', array(
 				$this, 'w3tc_usage_statistics_metrics' ) );
+		add_filter( 'w3tc_usage_statistics_metric_values', array(
+				'\W3TC\UsageStatistics_Sources',
+				'w3tc_usage_statistics_metric_values' ) );
+		add_filter( 'w3tc_usage_statistics_history_set', array(
+				'\W3TC\UsageStatistics_Sources',
+				'w3tc_usage_statistics_history_set' ) );
+
+		UsageStatistics_Source_Wpdb::init();
 	}
 
 
@@ -22,6 +30,15 @@ class UsageStatistics_Plugin {
 
 		$storage->counter_add( 'php_memory_100kb', $used_100kb );
 		$storage->counter_add( 'php_requests', 1 );
+
+/* keep for mode when pagecache not enabled, otherwise it shows own stats similar to that
+		if ( defined( 'WP_ADMIN' ) ) {
+			$storage->counter_add( 'php_requests_wp_admin', 1 );
+		}
+		if ( defined( 'DOING_AJAX' ) ) {
+			$storage->counter_add( 'php_requests_ajax', 1 );
+		}
+*/
 	}
 
 

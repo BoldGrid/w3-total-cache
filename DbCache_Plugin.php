@@ -108,6 +108,8 @@ class DbCache_Plugin {
 		// usage statistics handling
 		add_filter( 'w3tc_usage_statistics_metrics', array(
 				$this, 'w3tc_usage_statistics_metrics' ) );
+		add_filter( 'w3tc_usage_statistics_sources', array(
+				$this, 'w3tc_usage_statistics_sources' ) );
 	}
 
 	/**
@@ -162,10 +164,13 @@ class DbCache_Plugin {
 		static $flushed = false;
 
 		if ( !$flushed ) {
-			if ( is_null( $post ) )
+			if ( is_null( $post ) ) {
 				$post = $post_id;
+			}
 
-			if ( $post_id>0 && !Util_Environment::is_flushable_post( $post, 'dbcache', $this->_config ) ) {
+			if ( $post_id > 0 &&
+					!Util_Environment::is_flushable_post(
+						$post, 'dbcache', $this->_config ) ) {
 				return;
 			}
 
@@ -219,13 +224,49 @@ class DbCache_Plugin {
 		return $menu_items;
 	}
 
+
+
 	public function w3tc_usage_statistics_of_request( $storage ) {
 		$o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
 		$o->w3tc_usage_statistics_of_request( $storage );
 	}
 
+
+
 	public function w3tc_usage_statistics_metrics( $metrics ) {
 		return array_merge( $metrics, array(
-				'dbcache_calls_total', 'dbcache_calls_hits' ) );
+				'dbcache_calls_total',
+				'dbcache_calls_hits',
+				'dbcache_flushes',
+				'dbcache_time_ms'
+			) );
+	}
+
+
+
+	public function w3tc_usage_statistics_sources( $sources ) {
+		$c = Dispatcher::config();
+		if ( $c->get_string( 'dbcache.engine' ) == 'apc' ) {
+			$sources['apc_servers']['dbcache'] = array(
+				'name' => __( 'Database Cache', 'w3-total-cache' )
+			);
+		} elseif ( $c->get_string( 'dbcache.engine' ) == 'memcached' ) {
+			$sources['memcached_servers']['dbcache'] = array(
+				'servers' => $c->get_array( 'dbcache.memcached.servers' ),
+				'username' => $c->get_string( 'dbcache.memcached.username' ),
+				'password' => $c->get_string( 'dbcache.memcached.password' ),
+				'name' => __( 'Database Cache', 'w3-total-cache' )
+			);
+		} elseif ( $c->get_string( 'dbcache.engine' ) == 'redis' ) {
+			$sources['redis_servers']['dbcache'] = array(
+				'servers' => $c->get_array( 'dbcache.redis.servers' ),
+				'username' => $c->get_boolean( 'dbcache.redis.username' ),
+				'dbid' => $c->get_integer( 'dbcache.redis.dbid' ),
+				'password' => $c->get_string( 'dbcache.redis.password' ),
+				'name' => __( 'Database Cache', 'w3-total-cache' )
+			);
+		}
+
+		return $sources;
 	}
 }

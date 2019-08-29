@@ -428,50 +428,6 @@ class Extension_FragmentCache_WpObjectCache {
 	}
 
 	/**
-	 * Print Fragment Cache stats
-	 *
-	 * @return void
-	 */
-	function stats() {
-		echo '<h2>Summary</h2>';
-		echo '<p>';
-		echo '<strong>Engine</strong>: ' . Cache::engine_name( $this->_config->get_string( array( 'fragmentcache', 'engine' ) ) ) . '<br />';
-		echo '<strong>Caching</strong>: ' . ( $this->_caching ? 'enabled' : 'disabled' ) . '<br />';
-
-		if ( !$this->_caching ) {
-			echo '<strong>Reject reason</strong>: ' . $this->cache_reject_reason . '<br />';
-		}
-
-		echo '<strong>Total calls</strong>: ' . $this->cache_total . '<br />';
-		echo '<strong>Cache hits</strong>: ' . $this->cache_hits . '<br />';
-		echo '<strong>Cache misses</strong>: ' . $this->cache_misses . '<br />';
-		echo '<strong>Total time</strong>: '. round( $this->time_total, 4 ) . 's';
-		echo '</p>';
-
-		echo '<h2>Cache info</h2>';
-
-		if ( $this->_debug ) {
-			echo '<table cellpadding="0" cellspacing="3" border="1">';
-			echo '<tr><td>#</td><td>Status</td><td>Source</td><td>Data size (b)</td><td>Query time (s)</td><td>ID:Group</td></tr>';
-
-			foreach ( $this->debug_info as $index => $debug ) {
-				echo '<tr>';
-				echo '<td>' . ( $index + 1 ) . '</td>';
-				echo '<td>' . ( $debug['cached'] ? 'cached' : 'not cached' ) . '</td>';
-				echo '<td>' . ( $debug['internal'] ? 'internal' : 'persistent' ) . '</td>';
-				echo '<td>' . $debug['data_size'] . '</td>';
-				echo '<td>' . round( $debug['time'], 4 ) . '</td>';
-				echo '<td>' . sprintf( '%s:%s', $debug['id'], $debug['group'] ) . '</td>';
-				echo '</tr>';
-			}
-
-			echo '</table>';
-		} else {
-			echo '<p>Enable debug mode.</p>';
-		}
-	}
-
-	/**
 	 * Switches context to another blog
 	 *
 	 * @param integer $blog_id

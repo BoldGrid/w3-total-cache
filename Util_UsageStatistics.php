@@ -26,10 +26,13 @@ class Util_UsageStatistics {
 
 
 	static public function percent( $v1, $v2 ) {
-		if ( $v2 == 0 )
+		if ( $v2 == 0 ) {
 			return '0 %';
-		else
+		} elseif ($v1 > $v2 ) {
+			return '100 %';
+		} else {
 			return sprintf( '%d', $v1 / $v2 * 100 ) . ' %';
+		}
 	}
 
 
@@ -48,10 +51,49 @@ class Util_UsageStatistics {
 	static public function sum( $history, $property ) {
 		$v = 0;
 		foreach ( $history as $i ) {
-			if ( !empty( $i[$property] ) )
-				$v += $i[$property];
+			$item_value = self::v3( $i, $property );
+			if ( !empty( $item_value ) ) {
+				$v += $item_value;
+			}
 		}
 		return $v;
+	}
+
+
+
+	static public function avg( $history, $property ) {
+		$v = 0;
+		$count = 0;
+		foreach ( $history as $i ) {
+			$item_value = self::v3( $i, $property );
+			if ( !empty( $item_value ) ) {
+				$v += $item_value;
+				$count++;
+			}
+		}
+		return ( $count <= 0 ? 0 : $v / $count );
+	}
+
+
+
+	/**
+	 * Sum up all positive metric values which names start with specified prefix
+	 **/
+	static public function sum_by_prefix_positive( &$output, $history, $property_prefix ) {
+		$property_prefix_len = strlen( $property_prefix );
+
+		foreach ( $history as $i ) {
+			foreach ( $i as $key => $value ) {
+				if ( substr( $key, 0, $property_prefix_len ) == $property_prefix &&
+					$value > 0 ) {
+					if ( !isset( $output[$key] ) ) {
+						$output[$key] = 0;
+					}
+
+					$output[$key] += $value;
+				}
+			}
+		}
 	}
 
 
@@ -64,6 +106,16 @@ class Util_UsageStatistics {
 
 	static public function integer( $v ) {
 		return number_format( $v );
+	}
+
+
+
+	static public function integer_divideby( $v, $divide_by ) {
+		if ( $divide_by == 0 ) {
+			return 'n/a';
+		}
+
+		return self::integer( $v / $divide_by );
 	}
 
 
@@ -95,6 +147,27 @@ class Util_UsageStatistics {
 			return null;
 
 		return $v[$p3];
+	}
+
+
+
+	static public function v3( $a, $p ) {
+		if ( !is_array( $p ) ) {
+			$p = array( $p );
+		}
+
+		$actual = &$a;
+		for ( $i = 0; $i < count( $p ); $i++) {
+			$property = $p[$i];
+
+			if ( !isset( $actual[$property] ) ) {
+				return null;
+			}
+
+			$actual = &$actual[$property];
+		}
+
+		return $actual;
 	}
 
 

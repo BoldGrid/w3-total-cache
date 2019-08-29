@@ -13,7 +13,7 @@ class Extension_FragmentCache_Plugin_Admin {
 	static public function w3tc_extensions( $extensions, $config ) {
 		$requirements = array();
 		if ( !Util_Environment::is_w3tc_pro( $config ) )
-			$requirements[] = 'Available after <a href="#" class="button-buy-plugin">upgrade</a>';
+			$requirements[] = 'Available after <a href="#" class="button-buy-plugin" data-src="fc_requirements">upgrade</a>';
 
 		$extensions['fragmentcache'] = array (
 			'name' => 'Fragment Cache',
@@ -71,8 +71,9 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_objectcache_addin_required( $addin_required ) {
-		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) )
+		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) ) {
 			return true;
+		}
 
 		return $addin_required;
 	}
@@ -142,6 +143,10 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_usage_statistics_summary_from_history( $summary, $history ) {
+		if ( !$this->_config->is_extension_active_frontend( 'fragmentcache' ) ) {
+			return $summary;
+		}
+
 		// memcached servers
 		$c = Dispatcher::config();
 		if ( $c->get_string( array( 'fragmentcache', 'engine' ) ) == 'memcached' ) {
