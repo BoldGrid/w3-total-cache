@@ -161,8 +161,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 			$result = $this->_put_object( array(
 					'Key' => $remote_path,
 					'SourceFile' => $local_path,
-					'Metadata' => $headers
-				)
+				), $headers
 			);
 
 			return $this->_get_result( $local_path, $remote_path,
@@ -232,9 +231,8 @@ class CdnEngine_S3 extends CdnEngine_Base {
 
 			$result = $this->_put_object( array(
 					'Key' => $remote_path,
-					'Body' => $data,
-					'Metadata' => $headers
-				)
+					'Body' => $data
+				), $headers
 			);
 
 			return $this->_get_result( $local_path, $remote_path,
@@ -250,18 +248,18 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	/**
 	 * Wrapper to set headers well
 	 */
-	private function _put_object( $data ) {
+	private function _put_object( $data, $headers ) {
 		$data['ACL'] = 'public-read';
 		$data['Bucket'] = $this->_config['bucket'];
 
-		if ( isset( $data['Metadata']['Content-Type'] ) ) {
-			$data['ContentType'] = $data['Metadata']['Content-Type'];
+		if ( isset( $headers['Content-Type'] ) ) {
+			$data['ContentType'] = $headers['Content-Type'];
 		}
-		if ( isset( $data['Metadata']['Content-Encoding'] ) ) {
-			$data['ContentEncoding'] = $data['Metadata']['Content-Encoding'];
+		if ( isset( $headers['Content-Encoding'] ) ) {
+			$data['ContentEncoding'] = $headers['Content-Encoding'];
 		}
-		if ( isset( $data['Metadata']['Cache-Control'] ) ) {
-			$data['CacheControl'] = $data['Metadata']['Cache-Control'];
+		if ( isset( $headers['Cache-Control'] ) ) {
+			$data['CacheControl'] = $headers['Cache-Control'];
 		}
 
 		return $this->api->putObject( $data );
@@ -429,8 +427,21 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		}
 
 		try {
-			$result = $this->api->createBucket( array(
+			$this->api->createBucket( array(
 				'Bucket' => $this->_config['bucket'],
+			) );
+
+			$this->api->putBucketCors( array(
+				'Bucket' => $this->_config['bucket'],
+				'CORSConfiguration' => array(
+					'CORSRules' => array(
+						array(
+							'AllowedHeaders' => array( '*' ),
+							'AllowedMethods' => array( 'GET' ),
+							'AllowedOrigins' => array( '*' )
+						)
+					)
+				)
 			) );
 		} catch ( \Exception $e) {
 			throw new \Exception( 'Failed to create bucket: ' . $ex->getMessage() );
