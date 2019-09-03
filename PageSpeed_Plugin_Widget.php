@@ -129,6 +129,10 @@ class PageSpeed_Plugin_Widget {
 
 
 	public function w3tc_monitoring_score( $score ) {
+		if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
+			return 'n/a';
+		}
+		
 		$url = $_SERVER['HTTP_REFERER'];
 
 		$config = Dispatcher::config();
