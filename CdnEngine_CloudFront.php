@@ -345,9 +345,12 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 
 		$items = $dists['DistributionList']['Items'];
 		foreach ( $items as $dist ) {
-			if ( isset( $dist['Origins']['Items'][0]['DomainName'] ) &&
-				 $dist['Origins']['Items'][0]['DomainName'] == $origin ) {
-				return $dist;
+			if ( isset( $dist['Origins']['Items'] ) ) {
+				foreach ( $dist['Origins']['Items'] as $o ) {
+					if ( isset( $o['DomainName'] ) && $o['DomainName'] == $origin ) {
+						return $dist;
+					}
+				}
 			}
 		}
 
