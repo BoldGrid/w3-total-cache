@@ -271,9 +271,10 @@ fieldset[disabled] .btn {
 .w3tc-overlay .btn.secure:active,
 .w3tc-overlay .btn.secure.active,
 .w3tc-overlay .btn.secure {
-    background-position: 10px 5px;  /* equivalent to 'top left' */
-    padding:5px 10px 5px 37px;
-    background-image: url(../img/overlay/save-close.png);
+	background-position: 10px 5px;  /* equivalent to 'top left' */
+	padding:5px 10px 5px 37px;
+	background-image: url(../img/overlay/save-close.png);
+	text-decoration: none;
 }
 
 .w3tc-overlay btn.palette-turquoise {

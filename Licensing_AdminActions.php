@@ -17,9 +17,7 @@ class Licensing_AdminActions {
 	 *  test action
 	 */
 	function w3tc_licensing_buy_plugin() {
-		$state = Dispatcher::config_state_master();
-		$iframe_url = W3TC_PURCHASE_URL .
-			'?install_date=' . esc_attr( $state->get_integer( 'common.install' ) );
+		$iframe_url = Licensing_Core::purchase_url();
 
 		include W3TC_INC_DIR . '/lightbox/purchase.php';
 	}

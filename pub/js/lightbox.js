@@ -398,6 +398,13 @@ function w3tc_lightbox_upgrade(nonce) {
 			lightbox.close();
 			w3tc_lightbox_buy_plugin(nonce);
 		});
+		jQuery('#w3tc-purchase-link', lightbox.container).click(function() {
+			lightbox.close();
+
+			jQuery([document.documentElement, document.body]).animate({
+				scrollTop: jQuery("#licensing").offset().top
+			}, 2000);
+		});
 		lightbox.resize();
 	}
   });

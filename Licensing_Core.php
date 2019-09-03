@@ -119,4 +119,12 @@ class Licensing_Core {
 			// not called in this mode
 		}
 	}
+
+
+
+	static public function purchase_url() {
+		$state = Dispatcher::config_state_master();
+		return W3TC_PURCHASE_URL .
+			'?install_date=' . esc_attr( $state->get_integer( 'common.install' ) );
+	}
 }
