@@ -11,6 +11,31 @@ if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
 class CdnEngine_S3 extends CdnEngine_Base {
 	private $api;
 
+	static public function regions_list() {
+		return array(
+			'us-east-1' => __( 'US East (N. Virginia)', 'w3-total-cache' ),
+			'us-east-2' => __( 'US East (Ohio)', 'w3-total-cache' ),
+			'us-west-1' => __( 'US-West (N. California)', 'w3-total-cache' ),
+			'us-west-2' => __( 'US-West (Oregon)', 'w3-total-cache' ),
+			'ap-east-1' => __( 'Asia Pacific (Hong Kong)', 'w3-total-cache' ),
+			'ap-northeast-1'=> __( 'Asia Pacific (Tokyo)', 'w3-total-cache' ),
+			'ap-northeast-2' => __( 'Asia Pacific (Seoul)', 'w3-total-cache' ),
+			'ap-northeast-3' => __( 'Asia Pacific (Osaka-Local)', 'w3-total-cache' ),
+			'ap-south-1' => __( 'Asia Pacific (Mumbai)', 'w3-total-cache' ),
+			'ap-southeast-1' => __( 'Asia Pacific (Singapore)', 'w3-total-cache' ),
+			'ap-southeast-2' => __( 'Asia Pacific (Sydney)', 'w3-total-cache' ),
+			'ca-central-1' => __( 'Canada (Central)', 'w3-total-cache' ),
+			'cn-northwest-1.cn' => __( 'China (Ningxia)', 'w3-total-cache' ),
+			'eu-central-1' => __( 'EU (Frankfurt)', 'w3-total-cache' ),
+			'eu-north-1' => __( 'EU (Stockholm)', 'w3-total-cache' ),
+			'eu-west-1' => __( 'EU (Ireland)', 'w3-total-cache' ),
+			'eu-west-2' => __( 'EU (London)', 'w3-total-cache' ),
+			'eu-west-3' => __( 'EU (Paris)', 'w3-total-cache' ),
+			'me-south-1' => __( 'Middle East (Bahrain)', 'w3-total-cache' ),
+			'sa-east-1' => __( 'South America (São Paulo)', 'w3-total-cache' ),
+		);
+	}
+
 	public function __construct( $config = array() ) {
 		$config = array_merge( array(
 				'key' => '',
