@@ -56,7 +56,12 @@ class UsageStatistics_Sources {
 
 		// access log data
 		if ( $c->get_boolean( 'stats.access_log.enabled' ) ) {
-			$o = new UsageStatistics_Source_AccessLog();
+			$o = new UsageStatistics_Source_AccessLog( array(
+				'webserver' => $c->get_string( 'stats.access_log.webserver' ),
+				'filename' => $c->get_string( 'stats.access_log.filename' ),
+				'format' => $c->get_string( 'stats.access_log.format' )
+			) );
+
 			$summary = $o->w3tc_usage_statistics_summary_from_history(
 				$summary, $history );
 		}
@@ -111,7 +116,12 @@ class UsageStatistics_Sources {
 		$c = Dispatcher::config();
 		if ( $c->get_boolean( 'stats.access_log.enabled' ) ) {
 			// read access log
-			$o = new UsageStatistics_Source_AccessLog();
+			$o = new UsageStatistics_Source_AccessLog( array(
+				'webserver' => $c->get_string( 'stats.access_log.webserver' ),
+				'filename' => $c->get_string( 'stats.access_log.filename' ),
+				'format' => $c->get_string( 'stats.access_log.format' )
+			) );
+
 			$history = $o->w3tc_usage_statistics_history_set( $history );
 		}
 

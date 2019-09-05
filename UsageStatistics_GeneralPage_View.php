@@ -27,6 +27,7 @@ Util_Ui::config_item( array(
 		'key' => 'stats.slot_seconds',
 		'label' => __( 'Slot time (seconds):', 'w3-total-cache' ),
 		'control' => 'textbox',
+		'textbox_type' => 'number',
 		'description' =>
 		'The duration of time in seconds to collect statistics per interval.'
 	) );
@@ -34,6 +35,7 @@ Util_Ui::config_item( array(
 		'key' => 'stats.slots_count',
 		'label' => __( 'Slots collected:', 'w3-total-cache' ),
 		'control' => 'textbox',
+		'textbox_type' => 'number',
 		'description' =>
 		'The number of intervals that are represented in the graph.'
 	) );
@@ -52,14 +54,6 @@ Util_Ui::config_item( array(
 		'description' => __( 'Enable collecting statistics from an Access Log.  This provides much more precise statistics.', 'w3-total-cache' )
 	) );
 Util_Ui::config_item( array(
-		'key' => 'stats.access_log.filename',
-		'label' => __( 'Access Log Filename:', 'w3-total-cache' ),
-		'control' => 'textbox',
-		'textbox_size' => 60,
-		'description' =>
-		'Where your access log is located.'
-	) );
-Util_Ui::config_item( array(
 		'key' => 'stats.access_log.webserver',
 		'label' => __( 'Webserver:', 'w3-total-cache' ),
 		'control' => 'selectbox',
@@ -67,8 +61,16 @@ Util_Ui::config_item( array(
 			'apache' => 'Apache',
 			'nginx' => 'Nginx'
 		),
-		'description' =>
-		'Webserver type generating access logs.'
+		'description' => 'Webserver type generating access logs.'
+	) );
+Util_Ui::config_item( array(
+		'key' => 'stats.access_log.filename',
+		'label' => __( 'Access Log Filename:', 'w3-total-cache' ),
+		'control' => 'textbox',
+		'textbox_size' => 60,
+		'description' => 'Where your access log is located.',
+		'control_after' =>
+			'<input type="button" class="button" id="ustats_access_log_test" value="Test" /><span id="ustats_access_log_test_result" style="padding-left: 20px"></span>'
 	) );
 Util_Ui::config_item( array(
 		'key' => 'stats.access_log.format',
@@ -99,5 +101,20 @@ jQuery('#ustats_access_log_format_reset').click(function() {
 		v = '%h %l %u %t \\"%r\\" %>s %O \\"%{Referer}i\\" \\"%{User-Agent}i\\"';
 	}
 	jQuery('#stats__access_log__format').val(v);
+});
+
+jQuery('#ustats_access_log_test').click(function() {
+	var params = {
+		action: 'w3tc_ajax',
+		_wpnonce: w3tc_nonce,
+		w3tc_action: 'ustats_access_log_test',
+		filename: jQuery('#stats__access_log__filename').val()
+	};
+
+	jQuery.post(ajaxurl, params, function(data) {
+		jQuery('#ustats_access_log_test_result').text(data);
+	}).fail(function() {
+		jQuery('#ustats_access_log_test_result').text('Check failed');
+	});
 });
 </script>

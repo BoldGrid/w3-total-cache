@@ -81,7 +81,10 @@ include W3TC_INC_DIR . '/options/common/header.php';
 			);
 			$this->summary_item(
 				'php_php_requests_pagecache_miss',
-				'Not cached'
+				'Not cached',
+				false,
+				'',
+				'#990000'
 			);
 			echo '<div class="ustats_php_php_requests_pagecache_miss_level2_wrap">';
 			$this->summary_item(
@@ -328,6 +331,8 @@ include W3TC_INC_DIR . '/options/common/header.php';
 			<div class="ustats_dbcache_time_ms">
 				Time taken: <span></span> ms
 			</div>
+
+			<a href="?page=w3tc_stats&view=db_requests">Slowest requests (in debug mode only)</a>
 		</div>
 		<div class="ustats_block_chart">
 			Time taken for database activity
@@ -346,8 +351,6 @@ include W3TC_INC_DIR . '/options/common/header.php';
 			<div class="ustats_wpdb_calls_per_second">
 				Calls/sec: <span></span>
 			</div>
-
-			<a href="?page=w3tc_stats&view=db_requests">Slowest requests (in debug mode only)</a>
 		</div>
 		<div class="ustats_block_chart">
 			Requests

@@ -48,6 +48,17 @@ class UsageStatistics_StorageWriter {
 
 
 
+	public function reset() {
+		if ( !is_null( $this->cache_storage ) ) {
+			$this->cache_storage->set( 'hotspot_endtime', 0 );
+		}
+
+		update_site_option( 'w3tc_stats_hotspot_start', time() );
+		update_site_option( 'w3tc_stats_history', '' );
+	}
+
+
+
 	public function counter_add( $metric, $value ) {
 		if ( !is_null( $this->cache_storage ) ) {
 			$this->cache_storage->counter_add( $metric, $value );

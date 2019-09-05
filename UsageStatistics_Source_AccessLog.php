@@ -67,15 +67,18 @@ class UsageStatistics_Source_AccessLog {
 
 
 
-	public function __construct() {
-		$c = Dispatcher::config();
-		$accesslog_format = $c->get_string( 'stats.access_log.format' );
-		$webserver = $c->get_string( 'stats.access_log.webserver' );
+	/**
+	 * array( 'webserver', 'format', 'filename' )
+	 */
+	public function __construct( $data ) {
+		$format = $data['format'];
+		$webserver = $data['webserver'];
+		$this->accesslog_filename = str_replace( '://', '/', $data['filename'] );
 
 		if ( $webserver == 'nginx' ) {
-			$line_regexp = $this->logformat_to_regexp_nginx( $accesslog_format );
+			$line_regexp = $this->logformat_to_regexp_nginx( $format );
 		} else {
-			$line_regexp = $this->logformat_to_regexp_apache( $accesslog_format );
+			$line_regexp = $this->logformat_to_regexp_apache( $format );
 		}
 
 		$this->line_regexp = apply_filters( 'w3tc_ustats_access_log_format_regexp',
@@ -92,14 +95,10 @@ class UsageStatistics_Source_AccessLog {
 		}
 
 		$this->history = $history;
-
+		$this->min_time = time();
 		$this->setup_history_item( count( $history ) - 1 );
 
-		$c = Dispatcher::config();
-		$accesslog_filename = $c->get_string( 'stats.access_log.filename' );
-		$this->min_time = time();
-
-		$h = @fopen( $accesslog_filename, 'rb' );
+		$h = @fopen( $this->accesslog_filename, 'rb' );
 		if ( !$h ) {
 			error_log( 'Failed to open access log for usage statisics collection' );
 			return $history;

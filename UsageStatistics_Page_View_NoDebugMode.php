@@ -10,7 +10,7 @@ include W3TC_INC_DIR . '/options/common/header.php';
 	<?php Util_Ui::postbox_header( __( 'Usage Statistics', 'w3-total-cache' ) ); ?>
 
 	<p>
-		That data are collected only when Debug Mode enabled.
+		Usage Statistics is collected only when Debug Mode is enabled.
 	</p>
 
 	<a href="admin.php?page=w3tc_general#debug" class="button-primary">Enable it here</a>

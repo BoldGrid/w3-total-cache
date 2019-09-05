@@ -47,7 +47,8 @@ class Root_AdminActions {
 				'licensing' => 'Licensing_AdminActions',
 				'extensions' => 'Extensions_AdminActions',
 				'default' => 'Generic_AdminActions_Default',
-				'support' => 'Support_AdminActions'
+				'support' => 'Support_AdminActions',
+				'ustats' => 'UsageStatistics_AdminActions'
 			);
 			$handlers = apply_filters( 'w3tc_admin_actions', $handlers );
 		}

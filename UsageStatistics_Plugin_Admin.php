@@ -9,6 +9,8 @@ class UsageStatistics_Plugin_Admin {
 
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
 		add_action( 'w3tc_ajax_ustats_get', array( $this, 'w3tc_ajax_ustats_get' ) );
+		add_action( 'w3tc_ajax_ustats_access_log_test',
+			array( $this, 'w3tc_ajax_ustats_access_log_test' ) );
 
 		add_filter( 'w3tc_usage_statistics_summary_from_history', array(
 				'W3TC\UsageStatistics_Sources',
@@ -33,7 +35,24 @@ class UsageStatistics_Plugin_Admin {
 				'admin_print_scripts_w3tc_stats'
 			) );
 
+		add_action( 'w3tc_config_ui_save', array(
+				$this,
+				'w3tc_config_ui_save'
+			), 10, 2 );
+
 		add_filter( 'w3tc_notes', array( $this, 'w3tc_notes' ) );
+	}
+
+#
+
+
+	public function w3tc_config_ui_save( $config, $old_config ) {
+		if ( $config->get( 'stats.slot_seconds' ) !=
+				$old_config->get( 'stats.slot_seconds' ) ) {
+			// flush all stats otherwise will be inconsistent
+			$storage = new UsageStatistics_StorageWriter();
+			$storage->reset();
+		}
 	}
 
 
@@ -45,8 +64,13 @@ class UsageStatistics_Plugin_Admin {
 		if ( $c->get_boolean( 'stats.enabled' ) &&
 				!$state_master->get_boolean( 'common.hide_note_stats_enabled' ) ) {
 			$notes['stats_enabled'] = sprintf(
-				__( 'You’re running stats, it’s using Resources and not recommend to run continuously. %s',
+				__( 'W3 Total Cache: Statistics collection is currently enabled. This consumes additional resources, and is not recommended to be run continuously. %s %s',
 					'w3-total-cache' ),
+				Util_Ui::button_link(
+					__( 'Disable statistics', 'w3-total-cache' ),
+					Util_Ui::url( array( 'w3tc_ustats_note_disable' => 'y' ) ),
+					false, 'button',
+					'w3tc_note_stats_disable' ),
 				Util_Ui::button_hide_note2( array(
 						'w3tc_default_config_state_master' => 'y',
 						'key' => 'common.hide_note_stats_enabled',
@@ -81,6 +105,21 @@ class UsageStatistics_Plugin_Admin {
 		}
 
 		echo json_encode( $summary );
+		exit();
+	}
+
+
+
+	public function w3tc_ajax_ustats_access_log_test() {
+		$filename = $_REQUEST['filename'];
+
+		$filename = str_replace( '://', '/', $filename );
+		$h = @fopen( $filename, 'rb' );
+		if ( !$h ) {
+			echo 'Failed to open file ' . $filename;
+		} else {
+			echo 'Success';
+		}
 		exit();
 	}
 }

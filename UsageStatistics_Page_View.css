@@ -94,5 +94,10 @@ td.ustats_td_value {
 }
 .ustats_php_php_requests_pagecache_miss_level2 {
 	width: 50%;
-	white-space: nowrap;
+}
+
+@media (max-width: 1500px) {
+	.ustats_php_php_requests_pagecache_miss_level2 {
+		width: 100%
+	}
 }
