@@ -250,20 +250,25 @@ class Dispatcher {
 		static $cache = null;
 		if ( is_null( $cache ) ) {
 			$c = Dispatcher::config();
-			if ( $c->get_boolean( 'objectcache.enabled' ) )
+			$engineConfig = null;
+			if ( $c->get_boolean( 'objectcache.enabled' ) ) {
 				$provider = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
-			else if ( $c->get_boolean( 'dbcache.enabled' ) )
-					$provider = Dispatcher::component( 'DbCache_Core' );
-				else if ( $c->get_boolean( 'pgcache.enabled' ) )
-						$provider = Dispatcher::component( 'PgCache_ContentGrabber' );
-					else if ( $c->get_boolean( 'minify.enabled' ) )
-							$provider = Dispatcher::component( 'Minify_Core' );
-						else
-							return null;
+			} else if ( $c->get_boolean( 'dbcache.enabled' ) ) {
+				$provider = Dispatcher::component( 'DbCache_Core' );
+			} else if ( $c->get_boolean( 'pgcache.enabled' ) ) {
+				$provider = Dispatcher::component( 'PgCache_ContentGrabber' );
+			} else if ( $c->get_boolean( 'minify.enabled' ) ) {
+				$provider = Dispatcher::component( 'Minify_Core' );
+			} else {
+				$engineConfig = array( 'engine' => 'file' );
+			}
 
-						$engineConfig = $provider->get_usage_statistics_cache_config();
-					$engineConfig['module'] = 'stats';
-				$engineConfig['blog_id'] = 0;   // count wpmu-wide stats
+			if ( is_null( $engineConfig ) ) {
+				$engineConfig = $provider->get_usage_statistics_cache_config();
+			}
+
+			$engineConfig['module'] = 'stats';
+			$engineConfig['blog_id'] = 0;   // count wpmu-wide stats
 
 			if ( $engineConfig['engine'] == 'file' ) {
 				$engineConfig['cache_dir'] = Util_Environment::cache_dir( 'stats' );
@@ -285,8 +290,9 @@ class Dispatcher {
 	static public function usage_statistics_apply_before_init_and_exit(
 		$metrics_function ) {
 		$c = Dispatcher::config();
-		if ( !$c->get_boolean( 'stats.enabled' ) )
+		if ( !$c->get_boolean( 'stats.enabled' ) ) {
 			exit();
+		}
 
 		$core = Dispatcher::component( 'UsageStatistics_Core' );
 		$core->apply_metrics_before_init_and_exit( $metrics_function );

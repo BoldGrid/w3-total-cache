@@ -7,8 +7,9 @@ namespace W3TC;
  *
  */
 class UsageStatistics_StorageWriter {
-	public static $slot_interval_secs = 60;
-	private $keep_history_interval_secs = 600;
+	private $slot_interval_seconds;
+	private $slots_count;
+	private $keep_history_interval_seconds;
 
 	private $cache_storage;
 
@@ -35,20 +36,44 @@ class UsageStatistics_StorageWriter {
 
 	public function __construct() {
 		$this->cache_storage = Dispatcher::get_usage_statistics_cache();
+
+		$c = Dispatcher::config();
+		$this->slot_interval_seconds = $c->get_integer( 'stats.slot_seconds' );
+
+		$this->keep_history_interval_seconds =
+			$c->get_integer( 'stats.slots_count' ) *
+			$this->slot_interval_seconds;
+		$this->slots_count = $c->get_integer( 'stats.slots_count' );
+	}
+
+
+
+	public function reset() {
+		if ( !is_null( $this->cache_storage ) ) {
+			$this->cache_storage->set( 'hotspot_endtime', 0 );
+		}
+
+		update_site_option( 'w3tc_stats_hotspot_start', time() );
+		update_site_option( 'w3tc_stats_history', '' );
 	}
 
 
 
 	public function counter_add( $metric, $value ) {
-		if ( !is_null( $this->cache_storage ) )
+		if ( !is_null( $this->cache_storage ) ) {
 			$this->cache_storage->counter_add( $metric, $value );
+		}
 	}
 
 
 
 	public function get_hotspot_end() {
-		$option_storage = $this->get_option_storage();
-		return $option_storage->get_hotspot_end();
+		if ( is_null( $this->hotspot_endtime ) ) {
+			$v = $this->cache_storage->get( 'hotspot_endtime' );
+			$this->hotspot_endtime = ( isset( $v['content'] ) ? $v['content'] : 0 );
+		}
+
+		return $this->hotspot_endtime;
 	}
 
 
@@ -78,32 +103,29 @@ class UsageStatistics_StorageWriter {
 	 * at the same time when hotspot time ended.
 	 */
 	public function begin_flush_hotspot_data() {
-		if ( is_null( $this->hotspot_endtime ) ) {
+		$hotspot_endtime = $this->get_hotspot_end();
+		if ( is_null( $hotspot_endtime ) ) {
 			// if cache not recognized - means nothing is cached at all
 			// so stats not collected
-			if ( is_null( $this->cache_storage ) )
-				return 'not_needed';
-
-			$v = $this->cache_storage->get( 'hotspot_endtime' );
-			$this->hotspot_endtime = ( isset( $v['content'] ) ? $v['content'] : 0 );
+			return 'not_needed';
 		}
 
-		$hotspot_endtime_int = (int)$this->hotspot_endtime;
+		$hotspot_endtime_int = (int)$hotspot_endtime;
 		$this->now = time();
 
 		if ( $hotspot_endtime_int <= 0 ) {
 			$this->flush_state = 'require_db';
-		} else if ( $this->now < $hotspot_endtime_int ) {
-				$this->flush_state = 'not_needed';
-			} else {
+		} elseif ( $this->now < $hotspot_endtime_int ) {
+			$this->flush_state = 'not_needed';
+		} else {
 			// rand value makes value unique for each process,
 			// so as a result next replace works as a lock
 			// passing only single process further
-			$this->new_hotspot_endtime = $this->now + self::$slot_interval_secs +
+			$this->new_hotspot_endtime = $this->now + $this->slot_interval_seconds +
 				( rand( 1, 9999 ) / 10000.0 );
 
 			$succeeded = $this->cache_storage->set_if_maybe_equals( 'hotspot_endtime',
-				array( 'content' => $this->hotspot_endtime ),
+				array( 'content' => $hotspot_endtime ),
 				array( 'content' => $this->new_hotspot_endtime ) );
 			$this->flush_state =
 				( $succeeded ? 'flushing_began_by_cache' : 'not_needed' );
@@ -136,7 +158,7 @@ class UsageStatistics_StorageWriter {
 		}
 		if ( $this->new_hotspot_endtime <= 0 )
 			$this->new_hotspot_endtime = $this->now +
-				self::$slot_interval_secs +
+				$this->slot_interval_seconds +
 				( rand( 1, 9999 ) / 10000.0 );
 
 		if ( $hotspot_endtime_int <= 0 ) {
@@ -178,6 +200,9 @@ class UsageStatistics_StorageWriter {
 			$this->cache_storage->counter_set( $metric, 0 );
 		}
 
+		$metric_values = apply_filters( 'w3tc_usage_statistics_metric_values',
+			$metric_values );
+
 		$history_encoded = get_site_option( 'w3tc_stats_history' );
 		$history = null;
 		if ( !empty( $history_encoded ) )
@@ -185,14 +210,14 @@ class UsageStatistics_StorageWriter {
 		if ( !is_array( $history ) )
 			$history = array();
 
-		$time_keep_border = time() - $this->keep_history_interval_secs;
+		$time_keep_border = time() - $this->keep_history_interval_seconds;
 
 		if ( $hotspot_endtime_int < $time_keep_border )
 			$history = array(
 				array(
 					'timestamp_start' => $time_keep_border,
 					'timestamp_end' => (int)$this->new_hotspot_endtime -
-					self::$slot_interval_secs - 1
+					$this->slot_interval_seconds - 1
 				)
 			);   // this was started too much time from now
 		else {
@@ -205,7 +230,7 @@ class UsageStatistics_StorageWriter {
 					'timestamp_start' => $metric_values['timestamp_end']
 				);
 				$metric_values['timestamp_end'] =
-					$metric_values['timestamp_start'] + self::$slot_interval_secs;
+					$metric_values['timestamp_start'] + $this->slot_interval_seconds;
 				if ( $metric_values['timestamp_end'] < $this->now )
 					$history[] = $metric_values;
 				else
@@ -213,7 +238,7 @@ class UsageStatistics_StorageWriter {
 			}
 
 			// make sure we have at least one value in history
-			for ( ;count( $history ) > 1; ) {
+			for ( ;count( $history ) > $this->slots_count; ) {
 				if ( !isset( $history[0]['timestamp_end'] ) ||
 					$history[0]['timestamp_end'] < $time_keep_border )
 					array_shift( $history );
@@ -221,6 +246,9 @@ class UsageStatistics_StorageWriter {
 					break;
 			}
 		}
+
+		$history = apply_filters(
+			'w3tc_usage_statistics_history_set', $history );
 
 		update_site_option( 'w3tc_stats_hotspot_start', $this->now );
 		update_site_option( 'w3tc_stats_history', json_encode( $history ) );

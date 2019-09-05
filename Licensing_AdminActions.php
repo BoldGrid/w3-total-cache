@@ -28,6 +28,11 @@ class Licensing_AdminActions {
 	 * Self test action
 	 */
 	function w3tc_licensing_upgrade() {
+		$data_src = '';
+		if ( isset( $_REQUEST['data_src'] ) ) {
+			$data_src = preg_replace( '/[^0-9a-z_]/', '', $_REQUEST['data_src'] );
+		}
+
 		include W3TC_INC_DIR . '/lightbox/upgrade.php';
 	}
 

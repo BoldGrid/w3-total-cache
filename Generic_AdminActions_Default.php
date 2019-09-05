@@ -268,7 +268,7 @@ class Generic_AdminActions_Default {
 		 */
 		if ( $this->_page == 'w3tc_minify' ) {
 			if ( ( $this->_config->get_boolean( 'minify.js.http2push' ) && ! $config->get_boolean( 'minify.js.http2push' ) ) ||
-			     ( $this->_config->get_boolean( 'minify.css.http2push' ) && ! $config->get_boolean( 'minify.css.http2push' ) ) ) {
+				( $this->_config->get_boolean( 'minify.css.http2push' ) && ! $config->get_boolean( 'minify.css.http2push' ) ) ) {
 				if ( $config->get_string( 'pgcache.engine' ) == 'file_generic' ) {
 					$cache_dir = Util_Environment::cache_blog_dir( 'page_enhanced' );
 					$this->_deleteAllHtaccessFiles( $cache_dir );
@@ -807,13 +807,18 @@ class Generic_AdminActions_Default {
 				$config->set( $key, $request_value );
 			} elseif ( array_key_exists( $key, $keys ) ) {
 				$descriptor = $keys[$key];
-				if ( isset( $descriptor['type'] ) &&
-					$descriptor['type'] == 'array' ) {
-					if ( is_array( $request_value ) ) {
-						$request_value = implode( "\n", $request_value );
+				if ( isset( $descriptor['type'] ) ) {
+					if ( $descriptor['type'] == 'array' ) {
+						if ( is_array( $request_value ) ) {
+							$request_value = implode( "\n", $request_value );
+						}
+						$request_value = explode( "\n",
+							str_replace( "\r\n", "\n", $request_value ) );
+					} elseif ( $descriptor['type'] == 'boolean' ) {
+						$request_value = ( $request_value == '1' );
+					} elseif ( $descriptor['type'] == 'integer' ) {
+						$request_value = (int)$request_value;
 					}
-					$request_value = explode( "\n",
-						str_replace( "\r\n", "\n", $request_value ) );
 				}
 
 				$config->set( $key, $request_value );

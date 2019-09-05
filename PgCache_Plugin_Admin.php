@@ -314,76 +314,98 @@ class PgCache_Plugin_Admin {
 	}
 
 	public function w3tc_usage_statistics_summary_from_history( $summary, $history ) {
-		// memcached servers
-		if ( $this->_config->get_string( 'pgcache.engine' ) == 'memcached' ) {
-			$summary['memcached_servers']['pgcache'] = array(
-				'servers' => $this->_config->get_array( 'pgcache.memcached.servers' ),
-				'username' => $this->_config->get_string( 'pgcache.memcached.username' ),
-				'password' => $this->_config->get_string( 'pgcache.memcached.password' ),
-				'name' => __( 'Page Cache', 'w3-total-cache' )
-			);
-		} elseif ( $this->_config->get_string( 'pgcache.engine' ) == 'redis' ) {
-			$summary['redis_servers']['pgcache'] = array(
-				'servers' => $this->_config->get_array( 'pgcache.redis.servers' ),
-				'dbid' => $this->_config->get_integer( 'pgcache.redis.dbid' ),
-				'password' => $this->_config->get_string( 'pgcache.redis.password' ),
-				'name' => __( 'Page Cache', 'w3-total-cache' )
-			);
-		}
-
 		// total size
 		$g = Dispatcher::component( 'PgCache_ContentGrabber' );
 		$pagecache = array();
 
 		$e = $this->_config->get_string( 'pgcache.engine' );
-		$pagecache['size_visible'] = ( $e == 'file_generic' );
-		$pagecache['requests_visible'] = ( $e != 'file_generic' );
+		$pagecache['engine_name'] = Cache::engine_name( $e );
+		$file_generic = ( $e == 'file_generic' );
 
 
-		if ( isset( $summary['period']['timestamp_end'] ) ) {
-			// need to return cache size
-			if ( $pagecache['size_visible'] ) {
-				list( $v, $should_count ) =
-					Util_UsageStatistics::get_or_init_size_transient(
-					'w3tc_ustats_pagecache_size', $summary );
-				if ( $should_count ) {
-					$size = $g->get_cache_stats_size( $summary['timeout_time'] );
-					$v['size_used'] = Util_UsageStatistics::bytes_to_size2(
-						$size, 'bytes' );
-					$v['items'] = Util_UsageStatistics::integer2(
-						$size, 'items' );
-
-					set_transient( 'w3tc_ustats_pagecache_size', $v, 120 );
-				}
-
-				if ( isset( $v['size_used'] ) ) {
-					$pagecache['size_used'] = $v['size_used'];
-					$pagecache['items'] = $v['items'];
-				}
-			}
-
-			// counters
-			$requests_total = Util_UsageStatistics::sum( $history,
-				'pagecache_requests_total' );
-			$requests_time_ms = Util_UsageStatistics::sum( $history,
-				'pagecache_requests_time_10ms' ) * 10;
-			$requests_hits = Util_UsageStatistics::sum( $history,
-				'pagecache_requests_hits' );
-
-			$pagecache['requests_total'] = Util_UsageStatistics::integer(
-				$requests_total );
-			$pagecache['request_time_ms'] =
-				Util_UsageStatistics::value_per_period_seconds(
-				$requests_time_ms, $summary );
-			$pagecache['requests_per_second'] =
-				Util_UsageStatistics::value_per_period_seconds(
-				$requests_total, $summary );
-			$pagecache['hit_rate'] = Util_UsageStatistics::percent(
-				$requests_hits, $requests_total );
-
+		// build metrics in php block
+		if ( !isset( $summary['php'] ) ) {
+			$summary['php'] = array();
 		}
 
+		Util_UsageStatistics::sum_by_prefix_positive( $summary['php'],
+			$history, 'php_requests_pagecache' );
+
+		// need to return cache size
+		if ( $file_generic ) {
+			list( $v, $should_count ) =
+				Util_UsageStatistics::get_or_init_size_transient(
+				'w3tc_ustats_pagecache_size', $summary );
+			if ( $should_count ) {
+				$size = $g->get_cache_stats_size( $summary['timeout_time'] );
+				$v['size_used'] = Util_UsageStatistics::bytes_to_size2(
+					$size, 'bytes' );
+				$v['items'] = Util_UsageStatistics::integer2(
+					$size, 'items' );
+
+				set_transient( 'w3tc_ustats_pagecache_size', $v, 55 );
+			}
+
+			if ( isset( $v['size_used'] ) ) {
+				$pagecache['size_used'] = $v['size_used'];
+				$pagecache['items'] = $v['items'];
+			}
+
+			if ( isset( $summary['access_log'] ) ) {
+				$pagecache['requests'] = $summary['access_log']['dynamic_requests_total_v'];
+				$pagecache['requests_hit'] = $pagecache['requests'] - $summary['php']['php_requests_v'];
+				if ($pagecache['requests_hit'] < 0) {
+					$pagecache['requests_hit'] = 0;
+				}
+			}
+		} else {
+			// all request counts data available
+			$pagecache['requests'] = $summary['php']['php_requests_v'];
+			$pagecache['requests_hit'] =
+				isset( $summary['php']['php_requests_pagecache_hit'] ) ?
+				$summary['php']['php_requests_pagecache_hit'] : 0;
+
+			$requests_time_ms = Util_UsageStatistics::sum( $history,
+				'pagecache_requests_time_10ms' ) * 10;
+			$php_requests = Util_UsageStatistics::sum( $history,
+				'php_requests' );
+
+			if ( $php_requests > 0 ) {
+				$pagecache['request_time_ms'] = Util_UsageStatistics::integer(
+					$requests_time_ms / $php_requests );
+			}
+		}
+
+		if ( $e == 'memcached' ) {
+			$pagecache['size_percent'] = $summary['memcached']['size_percent'];
+		}
+		if ( isset($pagecache['requests_hit'] ) ) {
+			$pagecache['requests_hit_rate'] = Util_UsageStatistics::percent(
+				$pagecache['requests_hit'], $pagecache['requests'] );
+		}
+
+		if ( !isset( $summary['php']['php_requests_pagecache_hit'] ) ) {
+			$summary['php']['php_requests_pagecache_hit'] = 0;
+		}
+
+		if ( isset( $summary['php']['php_requests_v'] ) ) {
+			$v = $summary['php']['php_requests_v'] -
+				$summary['php']['php_requests_pagecache_hit'];
+			if ( $v < 0 ) {
+				$v = 0;
+			}
+
+			$summary['php']['php_requests_pagecache_miss'] = $v;
+		}
+
+		if ( isset( $pagecache['requests'] ) ) {
+			$pagecache['requests_per_second'] =
+				Util_UsageStatistics::value_per_period_seconds( $pagecache['requests'], $summary );
+		}
+
+
 		$summary['pagecache'] = $pagecache;
+
 		return $summary;
 	}
 }

@@ -103,6 +103,8 @@ class ConfigCompiler {
 			$this->_data[$key] = $value['default'];
 
 		$this->_data['version'] = W3TC_VERSION;
+
+		$this->set_dynamic_defaults();
 	}
 
 
@@ -209,12 +211,24 @@ class ConfigCompiler {
 
 
 
+	private function set_dynamic_defaults() {
+		if ( empty( $this->_data['stats.access_log.webserver'] ) ) {
+			if ( Util_Environment::is_nginx() ) {
+				$this->_data['stats.access_log.webserver'] = 'nginx';
+				$this->_data['stats.access_log.format'] = '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"';
+			} else {
+				$this->_data['stats.access_log.webserver'] = 'apache';
+			}
+		}
+
+	}
 	/**
 	 * Apply new default values when version changes
 	 */
 	private function upgrade( $file_data ) {
-		if ( !isset( $file_data['version'] ) )
+		if ( !isset( $file_data['version'] ) ) {
 			$file_data['version'] = '0.0.0';
+		}
 
 		if ( !function_exists( 'bb2_start' ) ) {
 			$file_data['pgcache.bad_behavior_path'] = '';

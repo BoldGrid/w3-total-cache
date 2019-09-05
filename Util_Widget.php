@@ -52,7 +52,7 @@ class Util_Widget {
 	 * Registers widget
 	 */
 	static public function add( $widget_id, $widget_name, $callback,
-		$control_callback = null, $location = 'normal' ) {
+		$control_callback = null, $location = 'normal', $header_text = null ) {
 		$screen = get_current_screen();
 		global $w3tc_dashboard_control_callbacks;
 
@@ -63,9 +63,13 @@ class Util_Widget {
 		// it's url
 		if ( $control_callback && current_user_can( 'edit_dashboard' ) &&
 			is_string( $control_callback ) ) {
+			if ( !$header_text ) {
+				$header_text = __( 'Configure' );
+			}
+
 			$widget_name .= ' <div class="w3tc-widget-configure postbox-title-action">' .
 				'<a href="' . esc_url( $control_callback ) .
-				'" class="edit-box open-box">' . __( 'Configure' ) .
+				'" class="edit-box open-box">' . $header_text .
 				'</a></span>';
 		}
 

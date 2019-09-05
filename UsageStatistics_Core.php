@@ -59,16 +59,19 @@ class UsageStatistics_Core {
 	public function apply_metrics_before_init_and_exit( $metrics_function ) {
 		// plugin already loaded, metrics will be added normal way
 		// by shutdown
-		if ( $this->shutdown_handler_added )
+
+		if ( $this->shutdown_handler_added ) {
 			return;
+		}
 
 		$this->hotspot_flushing_state_on_exit_attempt =
 			$this->storage->begin_flush_hotspot_data();
 
 		// flush wants to happen in that process, need to pass through whole
 		// wp request processing further
-		if ( $this->hotspot_flushing_state_on_exit_attempt != 'not_needed' )
+		if ( $this->hotspot_flushing_state_on_exit_attempt != 'not_needed' ) {
 			return;
+		}
 
 		call_user_func( $metrics_function, $this->storage );
 		exit();

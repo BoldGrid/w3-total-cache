@@ -12,6 +12,6 @@ $is_pro = Util_Environment::is_w3tc_pro( $this->_config );
 <?php $this->checkbox( 'minify.css.embed', !$is_pro, 'csse_', true, ( $is_pro ? null : false ) ) ?> Eliminate render-blocking <acronym title="Cascading Style Sheet">CSS</acronym> by moving it to <acronym title="Hypertext Markup Language">HTTP</acronym> body</label>
 <?php
 if ( !$is_pro )
-	echo ' (Available after <a href="#" class="button-buy-plugin">upgrade</a>)';
+	echo ' (Available after <a href="#" class="button-buy-plugin" data-src="minify_css_renderblocking">upgrade</a>)';
 ?>
 <br />

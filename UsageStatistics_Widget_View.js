@@ -1,72 +1,208 @@
 jQuery(document).ready(function($) {
-    function w3tc_ustats_load() {
-        top_object = $('.ustats_top');
-        $('.ustats_loading').removeClass('w3tc_hidden');
-        $('.ustats_content').addClass('w3tc_hidden');
-        $('.ustats_error').addClass('w3tc_none');
-        $('.ustats_nodata').addClass('w3tc_none');
+	var lastData;
 
-        $.getJSON(ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + 
+
+
+	function load() {
+        $.getJSON(ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
             '&w3tc_action=ustats_get',
             function(data) {
-                w3tc_ustats_set_values(data, 'ustats_');
-                
-                if (data.period.seconds)
-                    $('.ustats_content').removeClass('w3tc_hidden');
-                else
-                    $('.ustats_nodata').removeClass('w3tc_none');
+				lastData = data;
 
-                $('.ustats_loading').addClass('w3tc_hidden');
-
-                w3tc_ustats_set_refresh(
-                    (data && data.period ? data.period.to_update_secs : 0));
+                setValues(data, 'w3tcuw_');
+				setChart(data);
             }
         ).fail(function() {
-            $('.ustats_error').removeClass('w3tc_none');
-            $('.ustats_content').addClass('w3tc_hidden');
-            $('.ustats_loading').addClass('w3tc_hidden');
+			console.log('failed to load widget data');
         });
     }
 
 
 
-    function w3tc_ustats_set_values(data, css_class_prefix) {
+	//
+	// chart commons
+	//
+	var chartOptions = {
+		//aspectRatio: 4,
+		maintainAspectRatio: false,
+		height: '200px',
+		legend: false,
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero: true
+				}
+			}]
+		}
+	};
+
+
+
+	var chartDateLabels = [];
+	var chartGraphValues = {};
+	var chartObject;
+
+
+
+	function setChart(data) {
+		var ctx = $('#w3tcuw_chart');
+		chartObject = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: chartDateLabels,
+			},
+			options: chartOptions
+		});
+
+		// collect functors that prepare data for their own chart
+		var datasetTemplates = [];
+		datasetTemplates.push(setChartsDbCache());
+		datasetTemplates.push(setChartsObjectCache());
+		datasetTemplates.push(setChartsPageCache());
+
+		// prepare collections
+		var datasets = [];
+
+		for (var i = 0; i < datasetTemplates.length; i++) {
+			var datasetTemplate = datasetTemplates[i];
+			var datasetName = datasetTemplate.name;
+
+			chartGraphValues[datasetName] = [];
+			datasets.push({
+				label: datasetTemplate.label,
+				data: chartGraphValues[datasetName],
+				borderColor: datasetTemplate.borderColor,
+				fill: false
+			});
+		}
+
+		chartObject.data.datasets = datasets;
+
+		// collect data for charts
+		var history = data.history;
+		chartDateLabels.length = 0;
+		var averagesToCollect = Math.floor(history.length / 10);
+		if (averagesToCollect <= 1) {
+			averagesToCollect = 1;
+		}
+
+		var averages = {};
+		var averagesCollected = 0;
+
+		for (var i = 0; i < history.length; i++) {
+			var historyItem = history[i];
+
+			// collect metrics for graphs
+			for (var i2 = 0; i2 < datasetTemplates.length; i2++) {
+				var c = datasetTemplates[i2];
+				var v = c.valueFunctor(historyItem) * 100;
+				averages[i2] = (!averages[i2] ? 0 : averages[i2]) + v;
+			}
+
+			averagesCollected++;
+			if (averagesCollected >= averagesToCollect) {
+				var dateFormatted = '';
+				if (history[i].timestamp_start) {
+					var d = new Date(parseInt(history[i].timestamp_start) * 1000);
+					dateFormatted = dateFormat(d);
+				}
+
+				chartDateLabels.push(dateFormatted);
+
+				for (var i2 = 0; i2 < datasetTemplates.length; i2++) {
+					var c = datasetTemplates[i2];
+					var v = (averages[i2] / averagesCollected).toFixed(2);
+					chartGraphValues[c.name].push(v);
+				}
+
+				averages = {};
+				averagesCollected = 0;
+			}
+		}
+
+		// visualize
+		chartObject.update();
+	}
+
+
+
+	//
+	// chart data
+	//
+	function setChartsDbCache() {
+		return {
+			label: 'Database cache',
+			name: 'dbcache_hit_rate',
+			valueFunctor: function(i) {
+				return i.dbcache_calls_total == 0 ? 0 :
+					i.dbcache_calls_hits / i.dbcache_calls_total;
+			},
+			borderColor: '#0073aa'
+		};
+	}
+
+
+
+	function setChartsObjectCache() {
+		return {
+			label: 'Object cache',
+			name: 'objectcache_hit_rate',
+			valueFunctor: function(i) {
+				return i.objectcache_get_total == 0 ? 0 :
+					i.objectcache_get_hits / i.objectcache_get_total;
+			},
+			borderColor: 'green'
+		};
+	}
+
+
+
+	function setChartsPageCache() {
+		return {
+			label: 'Page cache',
+			name: 'pagecache_hit_rate',
+			valueFunctor: function(i) {
+				return i.php_requests == 0 ? 0 :
+					i.php_requests_pagecache_hit / i.php_requests;
+			},
+			borderColor: 'blue'
+		};
+	}
+
+
+
+	//
+	// Utils
+	//
+	function startsWith(s, prefix) {
+		return s.substr(0, prefix.length) == prefix;
+	}
+
+
+
+	function dateFormat(d) {
+		return ("0" + d.getUTCHours()).slice(-2) + ":" +
+			("0" + d.getUTCMinutes()).slice(-2);
+	}
+
+
+
+	function setValues(data, css_class_prefix) {
         for (p in data) {
             var v = data[p];
             if (typeof(v) != 'string' && typeof(v) != 'number')
-                w3tc_ustats_set_values(v, css_class_prefix + p + '_');
+                setValues(v, css_class_prefix + p + '_');
             else {
-                jQuery('.' + css_class_prefix + p).html(v);
+                jQuery('.' + css_class_prefix + p + ' .w3tcuw_value').html(v);
+				jQuery('.' + css_class_prefix + p).css('display', 'block');
             }
         }
     }
 
 
 
-    var seconds_timer_id;
-    function w3tc_ustats_set_refresh(new_seconds_till_refresh) {
-        clearTimeout(seconds_timer_id);
-        var seconds_till_refresh = new_seconds_till_refresh;
-
-        seconds_timer_id = setInterval(function() {
-            seconds_till_refresh--;
-            if (seconds_till_refresh <= 0) {
-                jQuery('.ustats_reload').text('Refresh');
-                clearTimeout(seconds_timer_id);
-                seconds_timer_id = null;
-                return;
-            }
-
-            jQuery('.ustats_reload').text('Will be recalculated in ' + 
-                seconds_till_refresh + ' second' + 
-                (seconds_till_refresh > 1 ? 's' : ''));
-        }, 1000);
-    }
-
-    w3tc_ustats_load();
-
-    $('.ustats_reload').click(function(e) {
-        event.preventDefault();
-        w3tc_ustats_load();
-    })
+	//
+	// Main entry
+	//
+    load();
 });

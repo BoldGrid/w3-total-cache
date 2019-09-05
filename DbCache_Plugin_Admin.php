@@ -17,39 +17,29 @@ class DbCache_Plugin_Admin {
 
 
 	public function w3tc_usage_statistics_summary_from_history( $summary, $history ) {
-		// memcached servers
-		$c = Dispatcher::config();
-		if ( $c->get_string( 'dbcache.engine' ) == 'memcached' ) {
-			$summary['memcached_servers']['dbcache'] = array(
-				'servers' => $c->get_array( 'dbcache.memcached.servers' ),
-				'username' => $c->get_string( 'dbcache.memcached.username' ),
-				'password' => $c->get_string( 'dbcache.memcached.password' ),
-				'name' => __( 'Database Cache', 'w3-total-cache' )
-			);
-		} elseif ( $c->get_string( 'dbcache.engine' ) == 'redis' ) {
-			$summary['redis_servers']['dbcache'] = array(
-				'servers' => $c->get_array( 'dbcache.redis.servers' ),
-				'username' => $c->get_boolean( 'dbcache.redis.username' ),
-				'dbid' => $c->get_integer( 'dbcache.redis.dbid' ),
-				'password' => $c->get_string( 'dbcache.redis.password' ),
-				'name' => __( 'Database Cache', 'w3-total-cache' )
-			);
-		}
-
-
 		// counters
 		$dbcache_calls_total = Util_UsageStatistics::sum( $history,
 			'dbcache_calls_total' );
 		$dbcache_calls_hits = Util_UsageStatistics::sum( $history,
 			'dbcache_calls_hits' );
+		$dbcache_flushes = Util_UsageStatistics::sum( $history,
+			'dbcache_flushes' );
+		$dbcache_time_ms = Util_UsageStatistics::sum( $history,
+			'dbcache_time_ms' );
+
+		$c = Dispatcher::config();
+		$e = $c->get_string( 'dbcache.engine' );
 
 		$summary['dbcache'] = array(
 			'calls_total' => Util_UsageStatistics::integer(
 				$dbcache_calls_total ),
 			'calls_per_second' => Util_UsageStatistics::value_per_period_seconds(
 				$dbcache_calls_total, $summary ),
+			'flushes' => Util_UsageStatistics::integer( $dbcache_flushes ),
+			'time_ms' => Util_UsageStatistics::integer( $dbcache_time_ms ),
 			'hit_rate' => Util_UsageStatistics::percent(
-				$dbcache_calls_total, $dbcache_calls_total )
+				$dbcache_calls_hits, $dbcache_calls_total ),
+			'engine_name' => Cache::engine_name( $e )
 		);
 
 		return $summary;
