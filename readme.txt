@@ -3,7 +3,7 @@ Contributors: fredericktownes
 Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.2
-Stable tag: 0.9.7.5
+Stable tag: 0.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -269,6 +269,22 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.10.0 =
+* Improved Statistics component for pro users
+* Improved support for CloudFront distributions with multiple origins
+* Improved redirects by using safter wp_safe redirect
+* Improved .htaccess usage when pagecache does not require it
+* Improved protection of unexpected values in global variables
+* Added more Amazon S3 regions
+* Added support for memcached binary protocol when available
+* Added caching for webp MIME type
+* Updated S3 bucket creation by settings CORS policy
+* Updated blogmap to allow urls with custom ports
+* Fixed usage of base url with minify
+* Fixed mixing content of sync & async scripts with minify
+
+* Fixed S3 + CloudFront urls when CNAMEs not used
 
 = 0.9.7.5 =
 * Updated AWS library
