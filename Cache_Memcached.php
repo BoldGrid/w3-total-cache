@@ -59,8 +59,9 @@ class Cache_Memcached extends Cache_Base {
 		if ( defined( '\Memcached::OPT_REMOVE_FAILED_SERVERS' ) ) {
 			$this->_memcache->setOption( \Memcached::OPT_REMOVE_FAILED_SERVERS, true );
 		}
-		if ( defined( '\Memcached::OPT_BINARY_PROTOCOL' ) ) {
+		if ( defined( '\Memcached::OPT_BINARY_PROTOCOL' ) && defined( '\Memcached::OPT_TCP_NODELAY' ) ) {
 			$this->_memcache->setOption( \Memcached::OPT_BINARY_PROTOCOL, true );
+			$this->_memcache->setOption( \Memcached::OPT_TCP_NODELAY, true );
 		}
 
 		if ( isset( $config['aws_autodiscovery'] ) &&
