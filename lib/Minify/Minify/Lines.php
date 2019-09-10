@@ -95,7 +95,7 @@ class Minify_Lines {
     private static function _eolInComment($line, $inComment)
     {
         // crude way to avoid things like // */
-        $line = preg_replace('~//.*?(\\*/|/\\*).*~', '', $line);
+        $line = preg_replace('~(?<!:)//.*?(\\*/|/\\*).*~', '', $line);
 
         while (strlen($line)) {
             $search = $inComment
