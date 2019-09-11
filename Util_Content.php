@@ -75,4 +75,14 @@ class Util_Content {
 
 		return $comment;
 	}
+
+
+
+	/**
+	 * Deprecated. Added to prevent loading-order errors during upgrades
+	 * from older w3tc plugin versions
+	 **/
+	static public function is_database_error() {
+		return false;
+	}
 }
