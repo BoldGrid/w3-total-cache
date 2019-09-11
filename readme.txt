@@ -3,7 +3,7 @@ Contributors: fredericktownes
 Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.2
-Stable tag: 0.10.0
+Stable tag: 0.10.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Caching of database objects in memory or on disk
 * Caching of objects in memory or on disk
 * Caching of fragments in memory or on disk
+* Caching methods include local Disk, Redis, Memcached, APC, APCu, eAccelerator, XCache, and WinCache
 * Minification of posts and pages and feeds
 * Minification of inline, embedded or 3rd party JavaScript (with automated updates)
 * Minification of inline, embedded or 3rd party CSS (with automated updates)
@@ -269,6 +270,11 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.10.1 =
+* Fixed slowdown in memcached engine
+* Fixed Purge Cache menu links so they flush current blog in WPMU
+* Updated Redis cache engine to avoid "Function Redis::delete() is deprecated" warning
 
 = 0.10.0 =
 * Improved Statistics component for pro users
