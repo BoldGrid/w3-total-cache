@@ -272,7 +272,7 @@ class ObjectCache_Plugin {
 			'id' => 'w3tc_flush_objectcache',
 			'parent' => 'w3tc_flush',
 			'title' => __( 'Object Cache', 'w3-total-cache' ),
-			'href' => wp_nonce_url( network_admin_url(
+			'href' => wp_nonce_url( admin_url(
 					'admin.php?page=w3tc_dashboard&amp;w3tc_flush_objectcache' ), 'w3tc' )
 		);
 

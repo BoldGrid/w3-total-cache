@@ -779,7 +779,7 @@ class Cdn_Plugin {
 				'id' => 'w3tc_cdn_flush_all',
 				'parent' => 'w3tc_flush',
 				'title' => __( 'CDN: All', 'w3-total-cache' ),
-				'href' => wp_nonce_url( network_admin_url(
+				'href' => wp_nonce_url( admin_url(
 						'admin.php?page=w3tc_cdn&amp;w3tc_flush_cdn' ),
 					'w3tc' )
 			);
@@ -790,7 +790,7 @@ class Cdn_Plugin {
 				'id' => 'w3tc_cdn_flush',
 				'parent' => 'w3tc_flush',
 				'title' => __( 'CDN: Manual Purge', 'w3-total-cache' ),
-				'href' => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_cdn&amp;w3tc_cdn_purge' ), 'w3tc' ),
+				'href' => wp_nonce_url( admin_url( 'admin.php?page=w3tc_cdn&amp;w3tc_cdn_purge' ), 'w3tc' ),
 				'meta' => array( 'onclick' => "w3tc_popupadmin_bar(this.href); return false" )
 			);
 		}
