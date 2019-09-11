@@ -86,12 +86,14 @@ class Cache_Redis extends Cache_Base {
 		$v = $accessor->get( $storage_key );
 		$v = @unserialize( $v );
 
-		if ( !is_array( $v ) || !isset( $v['key_version'] ) )
+		if ( !is_array( $v ) || !isset( $v['key_version'] ) ) {
 			return array( null, $has_old_data );
+		}
 
 		$key_version = $this->_get_key_version( $group );
-		if ( $v['key_version'] == $key_version )
+		if ( $v['key_version'] == $key_version ) {
 			return array( $v, $has_old_data );
+		}
 
 		if ( $v['key_version'] > $key_version ) {
 			$this->_set_key_version( $v['key_version'], $group );
@@ -152,7 +154,8 @@ class Cache_Redis extends Cache_Base {
 				return true;
 			}
 		}
-		return $accessor->delete( $storage_key );
+
+		return $accessor->setex( $storage_key, 1, '' );
 	}
 
 	/**
@@ -167,7 +170,7 @@ class Cache_Redis extends Cache_Base {
 		if ( is_null( $accessor ) )
 			return false;
 
-		return $accessor->delete( $storage_key );
+		return $accessor->setex( $storage_key, 1, '' );
 	}
 
 	/**
