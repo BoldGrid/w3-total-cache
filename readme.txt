@@ -274,6 +274,7 @@ Please reach out to all of these people and support their projects if you're so 
 = 0.10.1 =
 * Fixed slowdown in memcached engine
 * Fixed Purge Cache menu links so they flush current blog in WPMU
+* Fixed error during upgrade, "Call to undefined method W3TC\Util_Content::is_database_error"
 * Updated Redis cache engine to avoid "Function Redis::delete() is deprecated" warning
 
 = 0.10.0 =
