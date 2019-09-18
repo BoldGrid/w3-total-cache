@@ -347,9 +347,9 @@ class Cdn_Core {
 	 * Returns CDN object
 	 */
 	function get_cdn() {
-		static $cdn = array();
+		static $cdn = null;
 
-		if ( !isset( $cdn[0] ) ) {
+		if ( is_null( $cdn ) ) {
 			$c = $this->_config;
 			$engine = $c->get_string( 'cdn.engine' );
 			$compression = ( $c->get_boolean( 'browsercache.enabled' ) && $c->get_boolean( 'browsercache.html.compression' ) );
@@ -610,21 +610,14 @@ class Cdn_Core {
 			}
 
 			$engine_config = array_merge( $engine_config, array(
-					'debug' => $c->get_boolean( 'cdn.debug' )
+					'debug' => $c->get_boolean( 'cdn.debug' ),
+					'headers' => apply_filters( 'w3tc_cdn_config_headers', array() )
 				) );
 
-			$cdn[0] = CdnEngine::instance( $engine, $engine_config );
-
-			/**
-			 * Set cache config for CDN
-			 */
-			if ( $this->_config->get_boolean( 'browsercache.enabled' ) ) {
-				$w3_plugin_browsercache = Dispatcher::component( 'BrowserCache_Plugin' );
-				$cdn[0]->cache_config = $w3_plugin_browsercache->get_cache_config();
-			}
+			$cdn = CdnEngine::instance( $engine, $engine_config );
 		}
 
-		return $cdn[0];
+		return $cdn;
 	}
 
 	/**

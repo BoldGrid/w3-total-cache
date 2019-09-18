@@ -23,13 +23,6 @@ class CdnEngine_Base {
 	var $_config = array();
 
 	/**
-	 * Cache config
-	 *
-	 * @var array
-	 */
-	var $cache_config = array();
-
-	/**
 	 * gzip extension
 	 *
 	 * @var string
@@ -52,7 +45,8 @@ class CdnEngine_Base {
 		$this->_config = array_merge( array(
 				'debug' => false,
 				'ssl' => 'auto',
-				'compression' => false
+				'compression' => false,
+				'headers' => array()
 			), $config );
 	}
 
@@ -370,89 +364,38 @@ class CdnEngine_Base {
 	 * Returns headers for file
 	 *
 	 * @param array   $file CDN file array
+	 * @param array   $whitelist which expensive headers to calculate
 	 * @return array
 	 */
-	function _get_headers( $file, $block_expires = false ) {
-
+	function get_headers_for_file( $file, $whitelist = array() ) {
 		$local_path = $file['local_path'];
 		$mime_type = Util_Mime::get_mime_type( $local_path );
-		$last_modified = time();
 
 		$link = $file['original_url'];
 
 		$headers = array(
 			'Content-Type' => $mime_type,
-			'Last-Modified' => Util_Content::http_date( $last_modified ),
+			'Last-Modified' => Util_Content::http_date( time() ),
 			'Access-Control-Allow-Origin' => '*',
 			'Link' => '<' . $link  .'>; rel="canonical"'
 		);
 
-		if ( isset( $this->cache_config[$mime_type] ) ) {
-			if ( $this->cache_config[$mime_type]['etag'] ) {
+		$section = Util_Mime::mime_type_to_section( $mime_type );
+
+		if ( isset( $this->_config['headers'][$section] ) ) {
+			$hc = $this->_config['headers'][$section];
+
+			if ( isset( $whitelist['ETag'] ) && $hc['etag'] ) {
 				$headers['ETag'] = '"' . @md5_file( $local_path ) . '"';
 			}
 
-			if ( $this->cache_config[$mime_type]['w3tc'] ) {
-				$headers['X-Powered-By'] =
-					Util_Environment::w3tc_header();
-			}
-
-
-			$expires_set = false;
-			if ( !$block_expires &&
-				$this->cache_config[$mime_type]['expires'] ) {
+			if ( $hc['expires'] ) {
 				$headers['Expires'] = Util_Content::http_date( time() +
-					$this->cache_config[$mime_type]['lifetime'] );
+					$hc['lifetime'] );
 				$expires_set = true;
 			}
 
-			switch ( $this->cache_config[$mime_type]['cache_control'] ) {
-			case 'cache':
-				$headers = array_merge( $headers, array(
-						'Pragma' => 'public',
-						'Cache-Control' => 'public'
-					) );
-				break;
-
-			case 'cache_public_maxage':
-				$headers = array_merge( $headers, array(
-						'Pragma' => 'public',
-						'Cache-Control' => ( $expires_set ? '' : 'max-age=' .
-							$this->cache_config[$mime_type]['lifetime'] .', ' ) .
-						'public'
-					) );
-				break;
-
-			case 'cache_validation':
-				$headers = array_merge( $headers, array(
-						'Pragma' => 'public',
-						'Cache-Control' => 'public, must-revalidate, proxy-revalidate'
-					) );
-				break;
-
-			case 'cache_noproxy':
-				$headers = array_merge( $headers, array(
-						'Pragma' => 'public',
-						'Cache-Control' => 'private, must-revalidate'
-					) );
-				break;
-
-			case 'cache_maxage':
-				$headers = array_merge( $headers, array(
-						'Pragma' => 'public',
-						'Cache-Control' => ( $expires_set ? '' : 'max-age=' .
-							$this->cache_config[$mime_type]['lifetime'] .', ' ) .
-						'public, must-revalidate, proxy-revalidate'
-					) );
-				break;
-
-			case 'no_cache':
-				$headers = array_merge( $headers, array(
-						'Pragma' => 'no-cache',
-						'Cache-Control' => 'max-age=0, private, no-store, no-cache, must-revalidate'
-					) );
-				break;
-			}
+			$headers = array_merge( $headers, $hc['static'] );
 		}
 
 		return $headers;

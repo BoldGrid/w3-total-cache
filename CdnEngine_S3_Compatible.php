@@ -128,7 +128,7 @@ class CdnEngine_S3_Compatible extends CdnEngine_Base {
 			}
 		}
 
-		$headers = $this->_get_headers( $file );
+		$headers = $this->get_headers_for_file( $file, array( 'ETag' => '*' ) );
 
 		$this->_set_error_handler();
 		$result = @$this->_s3->putObjectFile( $local_path,
@@ -191,7 +191,7 @@ class CdnEngine_S3_Compatible extends CdnEngine_Base {
 			}
 		}
 
-		$headers = $this->_get_headers( $file );
+		$headers = $this->get_headers_for_file( $file, array( 'ETag' => '*' ) );
 		$headers = array_merge( $headers, array(
 				'Vary' => 'Accept-Encoding',
 				'Content-Encoding' => 'gzip'

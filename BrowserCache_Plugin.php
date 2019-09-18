@@ -52,21 +52,23 @@ class BrowserCache_Plugin {
 			}
 		}
 
-        $v = $this->_config->get_string( 'browsercache.security.session.cookie_httponly' );
-        if ( !empty( $v ) ) {
-            @ini_set( 'session.cookie_httponly', $v == 'on' ? '1': '0' );
-        }
-        $v = $this->_config->get_string( 'browsercache.security.session.cookie_secure' );
-        if ( !empty( $v ) ) {
-            @ini_set( 'session.cookie_secure', $v == 'on' ? '1': '0' );
-        }
-        $v = $this->_config->get_string( 'browsercache.security.session.use_only_cookies' );
-        if ( !empty( $v ) ) {
-            @ini_set( 'session.use_only_cookies', $v == 'on' ? '1': '0' );
-        }
+		$v = $this->_config->get_string( 'browsercache.security.session.cookie_httponly' );
+		if ( !empty( $v ) ) {
+			@ini_set( 'session.cookie_httponly', $v == 'on' ? '1': '0' );
+		}
+		$v = $this->_config->get_string( 'browsercache.security.session.cookie_secure' );
+		if ( !empty( $v ) ) {
+			@ini_set( 'session.cookie_secure', $v == 'on' ? '1': '0' );
+		}
+		$v = $this->_config->get_string( 'browsercache.security.session.use_only_cookies' );
+		if ( !empty( $v ) ) {
+			@ini_set( 'session.use_only_cookies', $v == 'on' ? '1': '0' );
+		}
 
 		add_filter( 'w3tc_minify_http2_preload_url',
 			array( $this, 'w3tc_minify_http2_preload_url' ), 4000 );
+		add_filter( 'w3tc_cdn_config_headers',
+			array( $this, 'w3tc_cdn_config_headers' ) );
 	}
 
 	private function url_clean_enabled() {
@@ -362,57 +364,68 @@ class BrowserCache_Plugin {
 	}
 
 	/**
-	 * Returns cache config for CDN
-	 *
-	 * @return array
+	 * Returns headers config for CDN
 	 */
-	function get_cache_config() {
-		$config = array();
-
-		$e = Dispatcher::component( 'BrowserCache_Environment' );
-		$mime_types = $e->get_mime_types();
-
-		foreach ( $mime_types as $type => $extensions )
-			$this->_get_cache_config( $config, $extensions, $type );
+	function w3tc_cdn_config_headers( $config ) {
+		$sections = Util_Mime::sections_to_mime_types_map();
+		foreach ( $sections as $section => $v ) {
+			$config[$section] = $this->w3tc_cdn_config_headers_section( $section );
+		}
 
 		return $config;
 	}
 
-	/**
-	 * Writes cache config
-	 *
-	 * @param string  $config
-	 * @param array   $mime_types
-	 * @param array   $section
-	 * @return void
-	 */
-	function _get_cache_config( &$config, $mime_types, $section ) {
-		$expires = $this->_config->get_boolean( 'browsercache.' . $section . '.expires' );
-		$lifetime = $this->_config->get_integer( 'browsercache.' . $section . '.lifetime' );
-		$cache_control = $this->_config->get_boolean( 'browsercache.' . $section . '.cache.control' );
-		$cache_policy = $this->_config->get_string( 'browsercache.' . $section . '.cache.policy' );
-		$etag = $this->_config->get_boolean( 'browsercache.' . $section . '.etag' );
-		$w3tc = $this->_config->get_boolean( 'browsercache.' . $section . '.w3tc' );
+	private function w3tc_cdn_config_headers_section( $section ) {
+		$c = $this->_config;
+		$prefix = 'browsercache.' . $section;
+		$lifetime = $c->get_integer( $prefix . '.lifetime' );
 
-		foreach ( $mime_types as $mime_type ) {
-			if ( is_array( $mime_type ) ) {
-				foreach ( $mime_type as $mime_type2 )
-					$config[$mime_type2] = array(
-						'etag' => $etag,
-						'w3tc' => $w3tc,
-						'lifetime' => $lifetime,
-						'expires' => $expires,
-						'cache_control' => ( $cache_control ? $cache_policy : false )
-					);
-			} else
-				$config[$mime_type] = array(
-					'etag' => $etag,
-					'w3tc' => $w3tc,
-					'lifetime' => $lifetime,
-					'expires' => $expires,
-					'cache_control' => ( $cache_control ? $cache_policy : false )
-				);
+		$headers = array();
+
+		if ( $c->get_boolean( $prefix . '.w3tc' ) ) {
+			$headers['X-Powered-By'] = Util_Environment::w3tc_header();
 		}
+
+		if ( $c->get_boolean( $prefix . '.cache.control' ) ) {
+			switch ( $c->get_string( $prefix . '.cache.policy' ) ) {
+			case 'cache':
+				$headers['Pragma'] = 'public';
+				$headers['Cache-Control'] = 'public';
+				break;
+
+			case 'cache_public_maxage':
+				$headers['Pragma'] = 'public';
+				$headers['Cache-Control'] = "max-age=$lifetime, public";
+				break;
+
+			case 'cache_validation':
+				$headers['Pragma'] = 'public';
+				$headers['Cache-Control'] = 'public, must-revalidate, proxy-revalidate';
+				break;
+
+			case 'cache_noproxy':
+				$headers['Pragma'] = 'public';
+				$headers['Cache-Control'] = 'private, must-revalidate';
+				break;
+
+			case 'cache_maxage':
+				$headers['Pragma'] = 'public';
+				$headers['Cache-Control'] = "max-age=$lifetime, public, must-revalidate, proxy-revalidate";
+				break;
+
+			case 'no_cache':
+				$headers['Pragma'] = 'no-cache';
+				$headers['Cache-Control'] = 'max-age=0, private, no-store, no-cache, must-revalidate';
+				break;
+			}
+		}
+
+		return array(
+			'etag' => $c->get_boolean( $prefix . 'etag' ),
+			'expires' => $c->get_boolean( $prefix . '.expires' ),
+			'lifetime' => $lifetime,
+			'static' => $headers
+		);
 	}
 
 	/**

@@ -182,7 +182,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				}
 			}
 
-			$headers = $this->_get_headers( $file );
+			$headers = $this->get_headers_for_file( $file );
 			$result = $this->_put_object( array(
 					'Key' => $remote_path,
 					'SourceFile' => $local_path,
@@ -248,11 +248,8 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				}
 			}
 
-			$headers = $this->_get_headers( $file );
-			$headers = array_merge( $headers, array(
-					'Vary' => 'Accept-Encoding',
-					'Content-Encoding' => 'gzip'
-				) );
+			$headers = $this->get_headers_for_file( $file );
+			$headers['Content-Encoding'] = 'gzip';
 
 			$result = $this->_put_object( array(
 					'Key' => $remote_path,
@@ -277,9 +274,8 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		$data['ACL'] = 'public-read';
 		$data['Bucket'] = $this->_config['bucket'];
 
-		if ( isset( $headers['Content-Type'] ) ) {
-			$data['ContentType'] = $headers['Content-Type'];
-		}
+		$data['ContentType'] = $headers['Content-Type'];
+
 		if ( isset( $headers['Content-Encoding'] ) ) {
 			$data['ContentEncoding'] = $headers['Content-Encoding'];
 		}

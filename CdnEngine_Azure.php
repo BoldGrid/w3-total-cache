@@ -142,20 +142,14 @@ class CdnEngine_Azure extends CdnEngine_Base {
 			}
 		}
 
-		$headers = $this->_get_headers( $file );
+		$headers = $this->get_headers_for_file( $file );
 
 		try {
 			// $headers
 			$options = new \MicrosoftAzure\Storage\Blob\Models\CreateBlobOptions();
 			$options->setBlobContentMD5( $content_md5 );
-			if ( isset( $headers['Content-Length'] ) )
-				$options->setBlobContentLength( $headers['Content-Length'] );
 			if ( isset( $headers['Content-Type'] ) )
 				$options->setBlobContentType( $headers['Content-Type'] );
-			if ( isset( $headers['Content-Encoding'] ) )
-				$options->setBlobContentEncoding( $headers['Content-Encoding'] );
-			if ( isset( $headers['Content-Language'] ) )
-				$options->setBlobContentLanguage( $headers['Content-Language'] );
 			if ( isset( $headers['Cache-Control'] ) )
 				$options->setBlobCacheControl( $headers['Cache-Control'] );
 
@@ -357,9 +351,9 @@ class CdnEngine_Azure extends CdnEngine_Base {
 		}
 
 		try {
-    		$createContainerOptions = new \MicrosoftAzure\Storage\Blob\Models\CreateContainerOptions();
-    		$createContainerOptions->setPublicAccess(
-    			\MicrosoftAzure\Storage\Blob\Models\PublicAccessType::CONTAINER_AND_BLOBS );
+			$createContainerOptions = new \MicrosoftAzure\Storage\Blob\Models\CreateContainerOptions();
+			$createContainerOptions->setPublicAccess(
+				\MicrosoftAzure\Storage\Blob\Models\PublicAccessType::CONTAINER_AND_BLOBS );
 
 			$this->_client->createContainer( $this->_config['container'], $createContainerOptions );
 		} catch ( \Exception $exception ) {

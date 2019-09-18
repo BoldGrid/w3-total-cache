@@ -77,4 +77,41 @@ class Util_Mime {
 
 		return $cache[$file];
 	}
+
+
+
+	static public function sections_to_mime_types_map() {
+		static $sections_to_mime_types_array = null;
+
+		if ( is_null( $sections_to_mime_types_array ) ) {
+			$sections_to_mime_types_array = array(
+				'cssjs' => include W3TC_INC_DIR . '/mime/cssjs.php',
+				'html' => include W3TC_INC_DIR . '/mime/html.php',
+				'other' => include W3TC_INC_DIR . '/mime/other.php'
+			);
+		}
+
+		return $sections_to_mime_types_array;
+	}
+
+
+
+	static public function mime_type_to_section( $mime_type ) {
+		static $mime_type_to_section_array = null;
+
+		if ( is_null( $mime_type_to_section_array ) ) {
+			$sections = self::sections_to_mime_types_map();
+
+			$mime_type_to_section_array = array();
+
+			foreach ( $sections as $section => $mime_types ) {
+				foreach ( $mime_types as $mime_type ) {
+					$mime_type_to_section_array[$mime_type] = $section;
+				}
+			}
+		}
+
+		return isset( $mime_type_to_section_array[$mime_type] ) ?
+			$mime_type_to_section_array[$mime_type] : null;
+	}
 }
