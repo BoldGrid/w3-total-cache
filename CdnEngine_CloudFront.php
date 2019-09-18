@@ -8,8 +8,7 @@ if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
 /**
  * Amazon CloudFront (S3 origin) CDN engine
  */
-class CdnEngine_CloudFront extends CdnEngine_Base {
-	private $s3;
+class CdnEngine_CloudFront extends CdnEngine_S3 {
 	private $api;
 
 	function __construct( $config = array() ) {
@@ -18,14 +17,14 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 			), $config );
 
 		parent::__construct( $config );
-
-		$this->s3 = new CdnEngine_S3( $config );
 	}
 
 	/**
 	 * Initialize
 	 */
 	function _init() {
+        parent::_init();
+
 		if ( !is_null( $this->api ) ) {
 			return;
 		}
@@ -63,30 +62,6 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 		return false;
 	}
 
-	/**
-	 * Upload files
-	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @param boolean $force_rewrite
-	 * @return boolean
-	 */
-	function upload( $files, &$results, $force_rewrite = false,
-		$timeout_time = NULL ) {
-		return $this->s3->upload( $files, $results, $force_rewrite,
-			$timeout_time );
-	}
-
-	/**
-	 * Delete files from CDN
-	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @return boolean
-	 */
-	function delete( $files, &$results ) {
-		return $this->s3->delete( $files, $results );
-	}
 
 	/**
 	 * Purge files from CDN
@@ -96,7 +71,7 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	 * @return boolean
 	 */
 	function purge( $files, &$results ) {
-		if ( !$this->s3->upload( $files, $results, true ) ) {
+		if ( !$this->upload( $files, $results, true ) ) {
 			return false;
 		}
 
@@ -168,7 +143,7 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	 */
 	function test( &$error ) {
 		$this->_init();
-		if ( !$this->s3->test( $error ) ) {
+		if ( !parent::test( $error ) ) {
 			return false;
 		}
 
@@ -232,7 +207,7 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	 */
 	function create_container() {
 		$this->_init();
-		$this->s3->create_container();
+		parent::create_container();
 
 		// plugin cant set CNAMEs list since it CloudFront requires
 		// certificate to be specified associated with it
