@@ -109,6 +109,9 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 			$executor->minifycache_flush();
 		elseif ( $action == 'browsercache_flush' )
 			$executor->browsercache_flush();
+		elseif ( $action == 'cdn_purge_all' )
+			$executor->cdn_purge_all(
+				isset( $m['extras'] ) ? $m['extras'] : null );
 		elseif ( $action == 'cdn_purge_files' )
 			$executor->cdn_purge_files( $m['purgefiles'] );
 		elseif ( $action == 'pgcache_cleanup' )

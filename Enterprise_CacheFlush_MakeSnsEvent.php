@@ -58,6 +58,12 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 		$this->_prepare_message( array( 'action' => 'browsercache_flush' ) );
 	}
 
+	function cdn_purge_all( $extras = null ) {
+		return $this->_prepare_message( array(
+			'action' => 'cdn_purge_all',
+			'extras' => $extras ) );
+	}
+
 	/**
 	 * Purges Files from Varnish (If enabled) and CDN
 	 *
