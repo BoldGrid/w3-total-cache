@@ -29,7 +29,7 @@ $licensing_visible = ( ( !Util_Environment::is_wpmu() || is_network_admin() ) &&
 			array( 'id' => 'database_cache', 'text' => __( 'Database Cache', 'w3-total-cache' ) ),
 			array( 'id' => 'object_cache', 'text' => __( 'Object Cache', 'w3-total-cache' ) ) );
 		if ( Util_Environment::is_w3tc_pro( $config ) )
-			$anchors[] = array( 'id' => 'fragment_cache', 'text' => __( 'Fragment Cache', 'w3-total-cache' ) );
+			$anchors[] = array( 'id' => 'fragmentcache', 'text' => __( 'Fragment Cache', 'w3-total-cache' ) );
 
 		$anchors = array_merge( $anchors, array(
 				array( 'id' => 'browser_cache', 'text' => __( 'Browser Cache', 'w3-total-cache' ) ),
@@ -161,7 +161,7 @@ $licensing_visible = ( ( !Util_Environment::is_wpmu() || is_network_admin() ) &&
 					<a href="#rules"><?php _e( 'Rewrite Rules', 'w3-total-cache' ); ?></a> |
 				<?php endif ?>
 				<?php if ( count( $other_areas ) ): ?>
-			        <a href="#other"><?php _e( 'Other', 'w3-total-cache' ); ?></a> |
+					<a href="#other"><?php _e( 'Other', 'w3-total-cache' ); ?></a> |
 				<?php endif ?>
 				<a href="#additional"><?php _e( 'Services', 'w3-total-cache' ); ?></a> |
 				<a href="#modules"><?php _e( '<acronym title="Hypertext Preprocessor">PHP</acronym> Modules', 'w3-total-cache' ); ?></a>

@@ -4,7 +4,7 @@ namespace W3TC;
 if ( !defined( 'W3TC' ) )
 	die();
 
-Util_Ui::postbox_header( 'Fragment Cache', '', 'fragment_cache' );
+Util_Ui::postbox_header( 'Fragment Cache', '', 'fragmentcache' );
 ?>
 <p>Enable fragment caching reduce execution time for common operations.</p>
 
