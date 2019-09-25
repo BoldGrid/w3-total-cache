@@ -685,7 +685,8 @@ class ObjectCache_WpObjectCache_Regular {
 				'persistent' => $this->_config->get_boolean( 'objectcache.memcached.persistent' ),
 				'aws_autodiscovery' => $this->_config->get_boolean( 'objectcache.memcached.aws_autodiscovery' ),
 				'username' => $this->_config->get_string( 'objectcache.memcached.username' ),
-				'password' => $this->_config->get_string( 'objectcache.memcached.password' )
+				'password' => $this->_config->get_string( 'objectcache.memcached.password' ),
+				'binary_protocol' => $this->_config->get_boolean( 'objectcache.memcached.binary_protocol' )
 			);
 			break;
 
@@ -732,7 +733,8 @@ class ObjectCache_WpObjectCache_Regular {
 						'objectcache.memcached.persistent' ),
 					'aws_autodiscovery' => $this->_config->get_boolean( 'objectcache.memcached.aws_autodiscovery' ),
 					'username' => $this->_config->get_string( 'objectcache.memcached.username' ),
-					'password' => $this->_config->get_string( 'objectcache.memcached.password' )
+					'password' => $this->_config->get_string( 'objectcache.memcached.password' ),
+					'binary_protocol' => $this->_config->get_boolean( 'objectcache.memcached.binary_protocol' )
 				);
 				break;
 

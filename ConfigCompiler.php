@@ -387,6 +387,8 @@ class ConfigCompiler {
 			'fragmentcache', 'memcached.username' );
 		$this->_set_if_exists( $file_data, 'fragmentcache.memcached.password',
 			'fragmentcache', 'memcached.password' );
+		$this->_set_if_exists( $file_data, 'fragmentcache.memcached.binary_protocol',
+			'fragmentcache', 'memcached.binary_protocol' );
 		$this->_set_if_exists( $file_data, 'fragmentcache.redis.persistent',
 			'fragmentcache', 'redis.persistent' );
 		$this->_set_if_exists( $file_data, 'fragmentcache.redis.servers',

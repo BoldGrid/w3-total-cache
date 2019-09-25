@@ -651,7 +651,8 @@ class Minify_MinifiedFileRequestHandler {
 					'persistent' => $this->_config->get_boolean( 'minify.memcached.persistent' ),
 					'aws_autodiscovery' => $this->_config->get_boolean( 'minify.memcached.aws_autodiscovery' ),
 					'username' => $this->_config->get_string( 'minify.memcached.username' ),
-					'password' => $this->_config->get_string( 'minify.memcached.password' )
+					'password' => $this->_config->get_string( 'minify.memcached.password' ),
+					'binary_protocol' => $this->_config->get_boolean( 'minify.memcached.binary_protocol' )
 				);
 				if ( class_exists( 'Memcached' ) ) {
 					$inner_cache = new Cache_Memcached( $config );

@@ -758,7 +758,8 @@ class PgCache_ContentGrabber {
 				'persistent' => $this->_config->get_boolean( 'pgcache.memcached.persistent' ),
 				'aws_autodiscovery' => $this->_config->get_boolean( 'pgcache.memcached.aws_autodiscovery' ),
 				'username' => $this->_config->get_string( 'pgcache.memcached.username' ),
-				'password' => $this->_config->get_string( 'pgcache.memcached.password' )
+				'password' => $this->_config->get_string( 'pgcache.memcached.password' ),
+				'binary_protocol' => $this->_config->get_boolean( 'pgcache.memcached.binary_protocol' )
 			);
 			break;
 
@@ -802,7 +803,8 @@ class PgCache_ContentGrabber {
 					'persistent' => $this->_config->get_boolean( 'pgcache.memcached.persistent' ),
 					'aws_autodiscovery' => $this->_config->get_boolean( 'pgcache.memcached.aws_autodiscovery' ),
 					'username' => $this->_config->get_string( 'pgcache.memcached.username' ),
-					'password' => $this->_config->get_string( 'pgcache.memcached.password' )
+					'password' => $this->_config->get_string( 'pgcache.memcached.password' ),
+					'binary_protocol' => $this->_config->get_boolean( 'pgcache.memcached.binary_protocol' )
 				);
 				break;
 
