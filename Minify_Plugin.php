@@ -643,8 +643,8 @@ class Minify_Plugin {
 			return "<style media=\"all\">@import url(\"" . $url . "\");</style>\r\n";
 		} elseif ( $import && !$use_style ) {
 			return "@import url(\"" . $url . "\");\r\n";
-		}else {
-			return "<link rel=\"stylesheet\" href=\"" . str_replace( '&', '&amp;', $url ) . "\" media=\"all\" />\r\n";
+		} else {
+			return "<link rel=\"prefetch stylesheet\" href=\"" . str_replace( '&', '&amp;', $url ) . "\" media=\"all\" />\r\n";
 		}
 	}
 
@@ -1228,7 +1228,7 @@ class _W3_MinifyHelpers {
 					$files, 'css' );
 				if ( !is_null( $return['url'] ) ) {
 					$return['body'] =
-						"<link rel=\"stylesheet\" href=\"" .
+						"<link rel=\"prefetch stylesheet\" href=\"" .
 						str_replace( '&', '&amp;', $return['url'] ) .
 						"\" media=\"all\" />\r\n";
 				}
