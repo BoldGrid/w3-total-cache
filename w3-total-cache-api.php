@@ -127,6 +127,10 @@ if ( !defined( 'W3TC_EXTENSION_DIR' ) ) {
 if ( !defined( 'W3TC_WP_JSON_URI' ) ) {
 	define( 'W3TC_WP_JSON_URI', '/wp-json/' );
 }
+if ( !defined( 'W3TC_FEED_REGEXP' ) ) {
+	define( 'W3TC_FEED_REGEXP', '~/feed(/|$)~' );
+}
+
 
 @ini_set( 'pcre.backtrack_limit', 4194304 );
 @ini_set( 'pcre.recursion_limit', 4194304 );

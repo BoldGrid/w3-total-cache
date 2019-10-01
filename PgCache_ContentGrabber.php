@@ -1432,6 +1432,13 @@ class PgCache_ContentGrabber {
 			$key = ltrim( $key, '/' );
 			$key = rtrim( $key, '/' ) . '/';
 		} else {
+			if ( $this->_config->get_boolean( 'pgcache.cache.feed' ) ) {
+				// normalize feed url, it can be both /feed/ and /feed
+				if ( preg_match( W3TC_FEED_REGEXP, $request_url ) ) {
+					$key = rtrim( $key, '/' );
+				}
+			}
+
 			if ( isset( $page_key_extension['querystring.processing'] ) &&
 				$page_key_extension['querystring.processing'] == 'include' ) {
 				// include querystring in key
@@ -1464,7 +1471,7 @@ class PgCache_ContentGrabber {
 					$page_key_extension['content_type'] : '';
 
 				if ( @preg_match( "~(text/xml|text/xsl|application/rdf\+xml|application/rss\+xml|application/atom\+xml)~i", $content_type ) ||
-					preg_match( "~/feed(/|$)~", $request_url ) ||
+				preg_match( W3TC_FEED_REGEXP, $request_url ) ||
 					strpos( $request_url, ".xsl" ) !== false ) {
 					$key_postfix = '.xml';
 				}
