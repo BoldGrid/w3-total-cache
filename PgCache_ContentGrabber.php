@@ -381,7 +381,7 @@ class PgCache_ContentGrabber {
 		}
 
 		echo $content;
-		Util_Debug::log('pagecache', 'r3');
+
 		Dispatcher::usage_statistics_apply_before_init_and_exit( array( $this,
 				'w3tc_usage_statistics_of_request' ) );
 	}
