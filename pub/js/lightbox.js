@@ -16,7 +16,7 @@ var W3tc_Lightbox = {
 			display: 'none'
 		});
 
-		jQuery('#w3tc').append(this.container);
+		jQuery('body').append(this.container);
 		me.resize();
 		this.window.resize(function() {
 			me.resize();
@@ -383,6 +383,7 @@ function w3tc_lightbox_self_test(nonce) {
 }
 
 function w3tc_lightbox_upgrade(nonce, data_src) {
+
   W3tc_Lightbox.open({
 	id: 'w3tc-overlay',
 	close: '',
@@ -486,7 +487,12 @@ jQuery(function() {
 
 	jQuery('.button-buy-plugin').click(function() {
 		var data_src = jQuery(this).attr('data-src');
-		w3tc_lightbox_upgrade(w3tc_nonce, data_src);
+		var nonce = jQuery(this).attr('data-nonce');
+		if (!nonce) {
+			nonce = w3tc_nonce;
+		}
+
+		w3tc_lightbox_upgrade(nonce, data_src);
 		jQuery('#w3tc-license-instruction').show();
 		return false;
 	});
