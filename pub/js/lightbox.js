@@ -382,7 +382,7 @@ function w3tc_lightbox_self_test(nonce) {
 	});
 }
 
-function w3tc_lightbox_upgrade(nonce, data_src) {
+function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 
   W3tc_Lightbox.open({
 	id: 'w3tc-overlay',
@@ -390,7 +390,8 @@ function w3tc_lightbox_upgrade(nonce, data_src) {
 	width: 800,
 	height: 350,
 	url: 'admin.php?page=w3tc_dashboard&w3tc_licensing_upgrade&_wpnonce=' +
-		encodeURIComponent(nonce) + '&data_src=' + encodeURIComponent(data_src),
+		encodeURIComponent(nonce) + '&data_src=' + encodeURIComponent(data_src) +
+		(renew_key ? '&renew_key=' + encodeURIComponent(renew_key) : ''),
 	callback: function(lightbox) {
 		lightbox.options.height = jQuery('#w3tc-upgrade').height() - 57;
 		jQuery('.button-primary', lightbox.container).click(function() {
@@ -491,8 +492,9 @@ jQuery(function() {
 		if (!nonce) {
 			nonce = w3tc_nonce;
 		}
+		var renew_key = jQuery(this).attr('data-renew-key');
 
-		w3tc_lightbox_upgrade(nonce, data_src);
+		w3tc_lightbox_upgrade(nonce, data_src, renew_key);
 		jQuery('#w3tc-license-instruction').show();
 		return false;
 	});

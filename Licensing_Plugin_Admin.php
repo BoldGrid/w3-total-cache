@@ -163,7 +163,10 @@ class Licensing_Plugin_Admin {
 		} elseif ( $status == 'no_key' ) {
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
 			$message = sprintf( __( 'It looks like your W3 Total Cache Pro License has expired. %s to continue using the Pro Features', 'w3-total-cache' ),
-				'<input type="button" class="button-primary button-buy-plugin" data-nonce="'. wp_create_nonce( 'w3tc' ) . '" data-src="licensing_expired" value="'.__( 'Renew Now', 'w3-total-cache' ) . '" />' );
+				'<input type="button" class="button-primary button-buy-plugin"' .
+				' data-nonce="'. wp_create_nonce( 'w3tc' ) . '"' .
+				' data-renew-key="' . esc_attr( $this->get_license_key() ) . '"' .
+				' data-src="licensing_expired" value="'.__( 'Renew Now', 'w3-total-cache' ) . '" />' );
 		} elseif ( $this->_status_is( $status, 'invalid' ) ) {
 			$message = __( 'The W3 Total Cache license key you entered is not valid.', 'w3-total-cache' ) .
 				'<a href="' . ( is_network_admin() ? network_admin_url( 'admin.php?page=w3tc_general#licensing' ):

@@ -32,6 +32,10 @@ class Licensing_AdminActions {
 		if ( isset( $_REQUEST['data_src'] ) ) {
 			$data_src = preg_replace( '/[^0-9a-z_]/', '', $_REQUEST['data_src'] );
 		}
+		$renew_key = '';
+		if ( isset( $_REQUEST['renew_key'] ) ) {
+			$renew_key = preg_replace( '/[^0-9a-zA-Z_]/', '', $_REQUEST['renew_key'] );
+		}
 
 		include W3TC_INC_DIR . '/lightbox/upgrade.php';
 	}
