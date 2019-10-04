@@ -13,7 +13,7 @@ if ( !defined( 'W3TC' ) )
 	</div>
 	<div class="w3tc_overlay_content"></div>
 	<div class="w3tc_overlay_footer">
-		<?php if ( \W3TC\Util_Environment::is_https() || 1): ?>
+		<?php if ( \W3TC\Util_Environment::is_https() ): ?>
 			<input id="w3tc-purchase" type="button"
 				class="btn w3tc-size image btn-default palette-turquoise secure"
 				value="<?php _e( 'Subscribe to Go Faster Now', 'w3-total-cache' ) ?> " />
