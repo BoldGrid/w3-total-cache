@@ -122,12 +122,13 @@ class Licensing_Core {
 
 
 
-	static public function purchase_url( $data_src = '', $renew_key = '' ) {
+	static public function purchase_url( $data_src = '', $renew_key = '', $client_id = '' ) {
 		$state = Dispatcher::config_state_master();
 		return W3TC_PURCHASE_URL .
 			( strpos( W3TC_PURCHASE_URL, '?' ) === FALSE ? '?' : '&' ) .
 			'install_date=' . urlencode( $state->get_integer( 'common.install' ) ) .
 			( empty( $data_src ) ? '' : '&data_src=' . urlencode( $data_src ) ) .
-			( empty( $renew_key ) ? '' : '&renew_key=' . urlencode( $renew_key ) );
+			( empty( $renew_key ) ? '' : '&renew_key=' . urlencode( $renew_key ) ) .
+			( empty( $client_id ) ? '' : '&client_id=' . urlencode( $client_id ) );
 	}
 }

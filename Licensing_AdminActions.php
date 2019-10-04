@@ -17,25 +17,30 @@ class Licensing_AdminActions {
 	 *  test action
 	 */
 	function w3tc_licensing_buy_plugin() {
-		$iframe_url = Licensing_Core::purchase_url();
+		$data_src = $this->param( 'data_src' );
+		$renew_key = $this->param( 'renew_key' );
+		$client_id = $this->param( 'client_id' );
+
+		$iframe_url = Licensing_Core::purchase_url( $data_src, $renew_key,
+			$client_id );
 
 		include W3TC_INC_DIR . '/lightbox/purchase.php';
 	}
 
 
 
+	private function param( $name ) {
+		return preg_replace( '/[^0-9a-zA-Z._\-]/', '',
+			isset( $_REQUEST[$name] ) ? $_REQUEST[$name] : '' );
+	}
+
 	/**
 	 * Self test action
 	 */
 	function w3tc_licensing_upgrade() {
-		$data_src = '';
-		if ( isset( $_REQUEST['data_src'] ) ) {
-			$data_src = preg_replace( '/[^0-9a-z_]/', '', $_REQUEST['data_src'] );
-		}
-		$renew_key = '';
-		if ( isset( $_REQUEST['renew_key'] ) ) {
-			$renew_key = preg_replace( '/[^0-9a-zA-Z_]/', '', $_REQUEST['renew_key'] );
-		}
+		$data_src = $this->param( 'data_src' );
+		$renew_key = $this->param( 'renew_key' );
+		$client_id = $this->param( 'client_id' );
 
 		include W3TC_INC_DIR . '/lightbox/upgrade.php';
 	}
