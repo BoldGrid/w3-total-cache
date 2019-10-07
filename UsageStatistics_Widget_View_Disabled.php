@@ -27,7 +27,7 @@ if ( !defined( 'W3TC' ) )
 
 </style>
 <p class="w3tcuw_inactive">
-	<?php if ( !Util_Environment::is_w3tc_pro( $c ) ): ?>
+	<?php if ( !Util_Environment::is_w3tc_pro( Dispatcher::config() ) ): ?>
 		<input type="button"
 			class="button-primary button-buy-plugin {nonce: '<?php echo wp_create_nonce( 'w3tc' ) ?>'}"  data-src="usagestatistics_widget" value="<?php _e( 'Upgrade to Pro', 'w3-total-cache' ) ?>" />
 	<?php else: ?>
