@@ -46,7 +46,7 @@ class Licensing_Plugin_Admin {
 
 		if ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) {
 			$menu_items['90040.licensing'] = array(
-				'id' => 'w3tc_overlay_upgrade',
+				'id' => 'w3tc_debug_overlay_upgrade',
 				'parent' => 'w3tc_debug_overlays',
 				'title' => __( 'Upgrade', 'w3-total-cache' ),
 				'href' => wp_nonce_url( network_admin_url(
@@ -66,7 +66,7 @@ class Licensing_Plugin_Admin {
 ?>
 		<script type="text/javascript">
 		jQuery(function() {
-			w3tc_lightbox_upgrade(w3tc_nonce, 'test');
+			w3tc_lightbox_upgrade(w3tc_nonce, 'topbar_performance');
 			jQuery('#w3tc-license-instruction').show();
 		});
 		   </script>
