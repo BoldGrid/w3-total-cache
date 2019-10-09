@@ -145,6 +145,7 @@ class Root_AdminMenu {
 
 				if ( isset( $titles['redirect_faq'] ) ) {
 					add_action( 'load-' . $hook, array( $this, 'redirect_faq' ) );
+					add_action( 'admin_head', array( $this, 'faq_target_blank') );
 				}
 			}
 		}
@@ -154,6 +155,16 @@ class Root_AdminMenu {
 	public function redirect_faq() {
 		wp_redirect( W3TC_FAQ_URL );
 		exit;
+	}
+
+	public function faq_target_blank(){
+?>
+		<script type="text/javascript">
+	        jQuery(document).ready( function($) {   
+	            $('#toplevel_page_w3tc_dashboard ul li').find('a[href*="w3tc_faq"]').prop('target','_blank');  
+	        });
+    	</script>
+		<?php
 	}
 
 	/**

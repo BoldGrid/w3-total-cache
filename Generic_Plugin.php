@@ -342,7 +342,8 @@ class Generic_Plugin {
 				'id' => 'w3tc_settings_faq',
 				'parent' => 'w3tc',
 				'title' => __( 'FAQ', 'w3-total-cache' ),
-				'href' => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_faq' ), 'w3tc' )
+				'href' => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_faq' ), 'w3tc' ),
+				'meta' => array( 'target' => '_blank' )
 			);
 
 			$menu_items['60010.generic'] = array(
