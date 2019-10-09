@@ -358,7 +358,10 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	function _get_cookies() {
 		$cookies = array( '' );
 
-		$cookies = array_merge( $cookies, array_keys( $this->_config->get_array( 'pgcache.cookiegroups.groups' ) ) );
+		if ( $this->_config->get_boolean( 'pgcache.cookiegroups.enabled' ) ) {
+			$cookies = array_merge( $cookies,
+				array_keys( $this->_config->get_array( 'pgcache.cookiegroups.groups' ) ) );
+		}
 
 		return $cookies;
 	}
