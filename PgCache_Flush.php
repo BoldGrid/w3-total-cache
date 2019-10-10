@@ -7,31 +7,24 @@ namespace W3TC;
 class PgCache_Flush extends PgCache_ContentGrabber {
 	/**
 	 * Array of urls to flush
-	 *
-	 * @var array
 	 */
 	private $queued_urls = array();
 	private $queued_groups = array();
 	private $flush_all_operation_requested = false;
 
-	/**
-	 * PHP5 Constructor
-	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
 	}
 
 	/**
 	 * Flushes all caches
-	 *
-	 * @return boolean
 	 */
-	function flush() {
+	public function flush() {
 		$this->flush_all_operation_requested = true;
 		return true;
 	}
 
-	function flush_group( $group ) {
+	public function flush_group( $group ) {
 		$this->queued_groups[$group] = '*';
 	}
 
@@ -39,9 +32,8 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 * Flushes post cache
 	 *
 	 * @param integer $post_id
-	 * @return boolean
 	 */
-	function flush_post( $post_id = null ) {
+	public function flush_post( $post_id = null ) {
 		if ( !$post_id ) {
 			$post_id = Util_Environment::detect_post_id();
 		}
@@ -69,9 +61,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 		$front_page = get_option( 'show_on_front' );
 
-		/**
-		 * Home (Frontpage) URL
-		 */
+		// Home (Frontpage) URL
 		if ( ( $this->_config->get_boolean( 'pgcache.purge.home' ) &&
 				$front_page == 'posts' ) ||
 			$this->_config->get_boolean( 'pgcache.purge.front_page' ) ) {
@@ -79,76 +69,58 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 				Util_PageUrls::get_frontpage_urls( $limit_post_pages ) );
 		}
 
-		/**
-		 * Home (Post page) URL
-		 */
+		// Home (Post page) URL
 		if ( $this->_config->get_boolean( 'pgcache.purge.home' ) &&
 			$front_page != 'posts' ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_postpage_urls( $limit_post_pages ) );
 		}
 
-		/**
-		 * Post URL
-		 */
+		// Post URL
 		if ( $this->_config->get_boolean( 'pgcache.purge.post' ) ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_post_urls( $post_id ) );
 		}
 
-		/**
-		 * Post comments URLs
-		 */
+		// Post comments URLs
 		if ( $this->_config->get_boolean( 'pgcache.purge.comments' ) &&
 			function_exists( 'get_comments_pagenum_link' ) ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_post_comments_urls( $post_id ) );
 		}
 
-		/**
-		 * Post author URLs
-		 */
+		// Post author URLs
 		if ( $this->_config->get_boolean( 'pgcache.purge.author' ) && $post ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_post_author_urls( $post->post_author,
 					$limit_post_pages ) );
 		}
 
-		/**
-		 * Post terms URLs
-		 */
+		// Post terms URLs
 		if ( $this->_config->get_boolean( 'pgcache.purge.terms' ) ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_post_terms_urls( $terms, $limit_post_pages ) );
 		}
 
-		/**
-		 * Daily archive URLs
-		 */
+		// Daily archive URLs
 		if ( $this->_config->get_boolean( 'pgcache.purge.archive.daily' ) && $post ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_daily_archive_urls( $post, $limit_post_pages ) );
 		}
 
-		/**
-		 * Monthly archive URLs
-		 */
+		// Monthly archive URLs
 		if ( $this->_config->get_boolean( 'pgcache.purge.archive.monthly' ) && $post ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_monthly_archive_urls( $post, $limit_post_pages ) );
 		}
 
-		/**
-		 * Yearly archive URLs
-		 */
+		// Yearly archive URLs
 		if ( $this->_config->get_boolean( 'pgcache.purge.archive.yearly' ) && $post ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_yearly_archive_urls( $post, $limit_post_pages ) );
 		}
 
-		/**
-		 * Feed URLs
-		 */
+		// Feed URLs
 		if ( $this->_config->get_boolean( 'pgcache.purge.feed.blog' ) ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_feed_urls( $feeds, null ) );
@@ -169,9 +141,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 				Util_PageUrls::get_feed_terms_urls( $terms, $feeds ) );
 		}
 
-		/**
-		 * Purge selected pages
-		 */
+		// Purge selected pages
 		if ( $this->_config->get_array( 'pgcache.purge.pages' ) ) {
 			$pages = $this->_config->get_array( 'pgcache.purge.pages' );
 			$full_urls = array_merge( $full_urls,
@@ -182,9 +152,8 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		$full_urls = Util_PageUrls::complement_with_mirror_urls( $full_urls );
 		$full_urls = apply_filters( 'pgcache_flush_post_queued_urls',
 			$full_urls );
-		/**
-		 * Queue flush
-		 */
+
+		// Queue flush
 		if ( count( $full_urls ) ) {
 			foreach ( $full_urls as $url )
 				$this->queued_urls[$url] = '*';
@@ -195,17 +164,91 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 	/**
 	 * Flush a single url
-	 *
-	 * @param unknown $url
-	 * @param unknown $cache
-	 * @param unknown $mobile_groups
-	 * @param unknown $referrer_groups
-	 * @param unknown $cookies
-	 * @param unknown $encryptions
-	 * @param unknown $compressions
 	 */
-	function _flush_url( $url, $cache, $mobile_groups, $referrer_groups,
-		$cookies, $encryptions, $compressions ) {
+	public function flush_url( $url ) {
+		$parts = parse_url( $url );
+		$uri = ( isset( $parts['path'] ) ? $parts['path'] : '' ) .
+			( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
+		$group = $this->get_cache_group_by_uri( $uri );
+
+		$this->queued_urls[$url] = ( empty( $group ) ? '*' : $group );
+	}
+
+	/**
+	 * Performs the actual flush at the end of request processing.
+	 * Duplicate flushes avoided that way.
+	 */
+	public function flush_post_cleanup() {
+		if ( $this->flush_all_operation_requested ) {
+			if ( $this->_config->get_boolean( 'pgcache.debug' ) ) {
+				self::log( 'flush all' );
+			}
+
+			$cache = $this->_get_cache();
+			$cache->flush();
+
+			$count = 999;
+			$this->flush_all_operation_requested = false;
+			$this->queued_urls = array();
+		} else {
+			$count = 0;
+			if ( count( $this->queued_groups ) > 0 ) {
+				$count += count( $this->queued_urls );
+				foreach ( $this->queued_groups as $group => $flag ) {
+					if ( $this->_config->get_boolean( 'pgcache.debug' ) ) {
+						self::log( 'pgcache flush "' . $group . '" group' );
+					}
+
+					$cache = $this->_get_cache( $group );
+					$cache->flush( $group );
+				}
+			}
+
+			if ( count( $this->queued_urls ) > 0 ) {
+				if ( $this->_config->get_boolean( 'pgcache.debug' ) ) {
+					self::log( 'pgcache flush ' . $count . ' urls' );
+				}
+
+				$mobile_groups = $this->_get_mobile_groups();
+				$referrer_groups = $this->_get_referrer_groups();
+				$cookies = $this->_get_cookies();
+				$encryptions = $this->_get_encryptions();
+				$compressions = $this->_get_compressions();
+
+				$caches = array(
+					'*' => $this->_get_cache()
+				);
+
+				foreach ( $this->queued_urls as $url => $group ) {
+					if ( !isset( $caches[$group] ) ) {
+						$caches[$group] = $this->_get_cache( $group );
+					}
+					$this->_flush_url( $url, $caches[$group], $mobile_groups,
+						$referrer_groups, $cookies, $encryptions, $compressions,
+						$group );
+				}
+
+				$count += count( $this->queued_urls );
+
+				// Purge sitemaps if a sitemap option has a regex
+				if ( $this->_config->get_string( 'pgcache.purge.sitemap_regex' ) ) {
+					$cache = $this->_get_cache( 'sitemaps' );
+					$cache->flush( 'sitemaps' );
+					$count++;
+				}
+
+				$this->queued_urls = array();
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Does the actual job - flushing of a single url cache entries
+	 */
+	private function _flush_url( $url, $cache, $mobile_groups, $referrer_groups,
+		$cookies, $encryptions, $compressions, $group ) {
 		foreach ( $mobile_groups as $mobile_group ) {
 			foreach ( $referrer_groups as $referrer_group ) {
 				foreach ( $cookies as $cookie ) {
@@ -219,11 +262,12 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 									'encryption' => $encryption,
 									'compression' => $compression ),
 								$url );
+
 							$page_keys = apply_filters(
 								'w3tc_pagecache_flush_url_keys', $page_keys );
 
 							foreach ( $page_keys as $page_key )
-								$cache->delete( $page_key );
+								$cache->delete( $page_key, $group );
 						}
 					}
 				}
@@ -232,98 +276,9 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	}
 
 	/**
-	 * Flush a single url
-	 *
-	 * @param unknown $url
-	 */
-	function flush_url( $url ) {
-		static $cache, $mobile_groups, $referrer_groups, $cookies, $encryptions;
-		static $compressions;
-
-		if ( !isset( $cache ) )
-			$cache = $this->_get_cache();
-		if ( !isset( $mobile_groups ) )
-			$mobile_groups  = $this->_get_mobile_groups();
-		if ( !isset( $referrer_groups ) )
-			$referrer_groups = $this->_get_referrer_groups();
-		if ( !isset( $cookies ) )
-			$cookies = $this->_get_cookies();
-		if ( !isset( $encryptions ) )
-			$encryptions = $this->_get_encryptions();
-		if ( !isset( $compressions ) )
-			$compressions = $this->_get_compressions();
-		$this->_flush_url( $url, $cache, $mobile_groups, $referrer_groups,
-			$cookies, $encryptions, $compressions );
-	}
-
-	/**
-	 * Flushes global and repeated urls
-	 *
-	 * @return count of elements it has flushed
-	 */
-	function flush_post_cleanup() {
-		if ( $this->flush_all_operation_requested ) {
-			if ( $this->_config->get_boolean( 'pgcache.debug' ) ) {
-				self::log( 'flush all' );
-			}
-
-			$cache = $this->_get_cache();
-			$cache->flush();
-
-			$count = 999;
-			$this->flush_all_operation_requested = false;
-			$this->queued_urls = array();
-		} else {
-			if ( count( $this->queued_groups ) > 0 ) {
-				$cache = $this->_get_cache();
-
-				foreach ( $this->queued_groups as $group => $flag ) {
-					if ( $this->_config->get_boolean( 'pgcache.debug' ) ) {
-						self::log( 'pgcache flush "' . $group . '" group' );
-					}
-
-					$cache->flush( $group );
-				}
-			}
-
-			$count = count( $this->queued_urls );
-
-			if ( $count > 0 ) {
-				if ( $this->_config->get_boolean( 'pgcache.debug' ) ) {
-					self::log( 'pgcache flush ' . $count . ' urls' );
-				}
-
-				$cache = $this->_get_cache();
-				$mobile_groups = $this->_get_mobile_groups();
-				$referrer_groups = $this->_get_referrer_groups();
-				$cookies = $this->_get_cookies();
-				$encryptions = $this->_get_encryptions();
-				$compressions = $this->_get_compressions();
-
-				foreach ( $this->queued_urls as $url => $flag ) {
-					$this->_flush_url( $url, $cache, $mobile_groups,
-						$referrer_groups, $cookies, $encryptions, $compressions );
-				}
-
-				// Purge sitemaps if a sitemap option has a regex
-				if ( $this->_config->get_string( 'pgcache.purge.sitemap_regex' ) ) {
-					$cache = $this->_get_cache();
-					$cache->flush( 'sitemaps' );
-				}
-
-				$this->queued_urls = array();
-			}
-		}
-
-		return $count;
-	}
-
-	/**
 	 * Returns array of mobile groups
-	 *
-	 * @return array
 	 */
-	function _get_mobile_groups() {
+	private function _get_mobile_groups() {
 		$mobile_groups = array( '' );
 
 		if ( $this->_mobile ) {
@@ -336,10 +291,8 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 	/**
 	 * Returns array of referrer groups
-	 *
-	 * @return array
 	 */
-	function _get_referrer_groups() {
+	private function _get_referrer_groups() {
 		$referrer_groups = array( '' );
 
 		if ( $this->_referrer ) {
@@ -352,10 +305,8 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 	/**
 	 * Returns array of cookies
-	 *
-	 * @return array
 	 */
-	function _get_cookies() {
+	private function _get_cookies() {
 		$cookies = array( '' );
 
 		if ( $this->_config->get_boolean( 'pgcache.cookiegroups.enabled' ) ) {
@@ -368,10 +319,8 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 	/**
 	 * Returns array of encryptions
-	 *
-	 * @return array
 	 */
-	function _get_encryptions() {
+	private function _get_encryptions() {
 		$is_https = ( substr( get_home_url(), 0, 5 ) == 'https' );
 
 		$encryptions = array();
@@ -383,8 +332,6 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 		return $encryptions;
 	}
-
-
 
 	private function _append_parent_terms( $terms, $terms_to_check_parents ) {
 		$terms_to_check_parents = $terms;

@@ -95,10 +95,12 @@ class Cache_File_Generic extends Cache_File {
 				$links = '';
 
 				foreach ( $var['headers'] as $h ) {
-					if ( isset($h['n']) && isset($h['v']) && $h['n'] == 'Link' ) {
-						$value = $h['v'];
-						if ( false !== strpos( $value, 'rel=preload' ) ) {
-							$links .= "    Header add Link '" . trim($value) . "'\n";
+					if ( isset( $h['n'] ) && isset( $h['v'] ) ) {
+						if ( $h['n'] == 'Link' && false !== strpos( $h['v'], 'rel=preload' ) ) {
+							$links .= "    Header add Link '" . trim( $h['v'] ) . "'\n";
+						}
+						if ( substr( $h['n'], 0, 2 ) == 'W-' ) {
+							$links .= "    Header add " . $h['n'] . " '" . trim( $h['v'] ) . "'\n";
 						}
 					}
 				}
