@@ -225,7 +225,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 					}
 					$this->_flush_url( $url, $caches[$group], $mobile_groups,
 						$referrer_groups, $cookies, $encryptions, $compressions,
-						$group );
+						$group == '*' ? '' : $group );
 				}
 
 				$count += count( $this->queued_urls );
@@ -266,8 +266,9 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 							$page_keys = apply_filters(
 								'w3tc_pagecache_flush_url_keys', $page_keys );
 
-							foreach ( $page_keys as $page_key )
+							foreach ( $page_keys as $page_key ) {
 								$cache->delete( $page_key, $group );
+							}
 						}
 					}
 				}
