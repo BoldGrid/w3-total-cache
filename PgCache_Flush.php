@@ -184,8 +184,18 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 				self::log( 'flush all' );
 			}
 
-			$cache = $this->_get_cache();
-			$cache->flush();
+			$groups_to_flush = array( '' );
+			if ( $this->_config->get_string( 'pgcache.rest' ) == 'cache' ) {
+				$groups_to_flush[] = 'rest';
+			}
+
+			$groups_to_flush = apply_filters(
+				'w3tc_pagecache_flush_all_groups', $groups_to_flush );
+
+			foreach ( $groups_to_flush as $group ) {
+				$cache = $this->_get_cache( $group );
+				$cache->flush( $group );
+			}
 
 			$count = 999;
 			$this->flush_all_operation_requested = false;
@@ -255,12 +265,15 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 					foreach ( $encryptions as $encryption ) {
 						foreach ( $compressions as $compression ) {
 							$page_keys = array();
-							$page_keys[] = $this->_get_page_key( array(
+							$page_keys[] = $this->_get_page_key(
+								array(
 									'useragent' => $mobile_group,
 									'referrer' => $referrer_group,
 									'cookie' => $cookie,
 									'encryption' => $encryption,
-									'compression' => $compression ),
+									'compression' => $compression,
+									'group' => $group
+								),
 								$url );
 
 							$page_keys = apply_filters(

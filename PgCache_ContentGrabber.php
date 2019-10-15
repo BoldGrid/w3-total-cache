@@ -1417,7 +1417,7 @@ class PgCache_ContentGrabber {
 		if ( Util_Environment::is_preview_mode() )
 			$key .= '_preview';
 
-		if ( $this->_enhanced_mode ) {
+		if ( $this->_enhanced_mode && empty( $page_key_extension['group'] ) ) {
 			$key_postfix = '.html';
 			if ( $this->_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 				$content_type = isset( $page_key_extension['content_type'] ) ?
@@ -1438,6 +1438,7 @@ class PgCache_ContentGrabber {
 		 */
 		if ( $page_key_extension['compression'] )
 			$key .= '_' . $page_key_extension['compression'];
+
 		return $key;
 	}
 
