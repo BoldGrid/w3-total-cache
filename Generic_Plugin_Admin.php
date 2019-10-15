@@ -41,6 +41,9 @@ class Generic_Plugin_Admin {
 		add_action( 'admin_init_w3tc_dashboard', array(
 				'\W3TC\Generic_WidgetServices',
 				'admin_init_w3tc_dashboard' ) );
+		add_action( 'admin_init_w3tc_dashboard', array(
+				'\W3TC\Generic_WidgetBoldGrid',
+				'admin_init_w3tc_dashboard' ) );
 
 		add_action( 'admin_enqueue_scripts', array(
 				$this,

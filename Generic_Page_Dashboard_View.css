@@ -107,6 +107,14 @@
     float: left;
 }
 
+.w3tc-widget-boldgrid-logo {
+	width: 70%;
+    height: 100%;
+    background: url("Generic_WidgetBoldGrid_Logo.svg") 0 0px no-repeat;
+    float: left;
+	margin-right: 10px;
+}
+
 #normal-sortables .postbox {
     float:left;
     margin-right:10px;

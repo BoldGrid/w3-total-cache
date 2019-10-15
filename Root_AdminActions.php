@@ -39,15 +39,16 @@ class Root_AdminActions {
 		static $handlers = null;
 		if ( is_null( $handlers ) ) {
 			$handlers = array(
-				'flush' => 'Generic_AdminActions_Flush',
+				'boldgrid' => 'Generic_WidgetBoldGrid_AdminActions',
 				'cdn_google_drive' => 'Cdn_GoogleDrive_AdminActions',
 				'cdn' => 'Cdn_AdminActions',
 				'config' => 'Generic_AdminActions_Config',
-				'test' => 'Generic_AdminActions_Test',
-				'licensing' => 'Licensing_AdminActions',
-				'extensions' => 'Extensions_AdminActions',
 				'default' => 'Generic_AdminActions_Default',
+				'extensions' => 'Extensions_AdminActions',
+				'flush' => 'Generic_AdminActions_Flush',
+				'licensing' => 'Licensing_AdminActions',
 				'support' => 'Support_AdminActions',
+				'test' => 'Generic_AdminActions_Test',
 				'ustats' => 'UsageStatistics_AdminActions'
 			);
 			$handlers = apply_filters( 'w3tc_admin_actions', $handlers );
