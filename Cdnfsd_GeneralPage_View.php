@@ -11,7 +11,7 @@ if ( !defined( 'W3TC' ) )
 <?php endif ?>
 </p>
 <table class="form-table">
-    <?php
+	<?php
 Util_Ui::config_item( array(
 		'key' => 'cdnfsd.enabled',
 		'label' => __( '<acronym title="Full Site Delivery">FSD</acronym> <acronym title="Content Delivery Network">CDN</acronym>:', 'w3-total-cache' ),
@@ -19,8 +19,8 @@ Util_Ui::config_item( array(
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
 		'disabled' => ( $is_pro ? null : true ),
 		'description' => __( 'The entire website will load quickly for site visitors.',
-			'w3-total-cache' ) .
-			( $is_pro ? '' : __( ' <strong>Available after upgrade.</strong>', 'w3-total-cache' ) )
+			'w3-total-cache' ),
+		'pro_feature' => true
 	) );
 
 Util_Ui::config_item( array(

@@ -469,3 +469,33 @@ th.w3tc_extensions_manage_column_check {
 .w3tcbc_qrf td code {
 	white-space: nowrap;
 }
+
+.w3tc-gopro {
+	background: #fbfbfb;
+	border-left: 4px solid #46b450;
+	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+	padding: 5px;
+	grid-template-columns: 3fr 1fr;
+	display: grid;
+	grid-gap: 10px;
+	align-items: center;
+}
+
+/* For pro features in a table, ensure the checkboxes / etc remained aligned. */
+.form-table .w3tc-gopro {
+	margin-left: -9px;
+}
+
+.button.w3tc-gopro-button {
+	border-color: darkgreen;
+	box-shadow: 0 1px 0 darkgreen;
+	background: green;
+	color: #fff;
+}
+.button.w3tc-gopro-button:hover,
+.button.w3tc-gopro-button:focus {
+	border-color: green;
+	box-shadow: 0 1px 0 green;
+	background: #009900;
+	color: #fff;
+}

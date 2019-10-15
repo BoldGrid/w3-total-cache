@@ -29,9 +29,6 @@ class Extension_Genesis_Plugin_Admin {
 			$requirements[] =
 				'Optimizes "Genesis Framework" version >= 1.9.0, which is not active';
 
-		if ( empty( $requirements ) && !Util_Environment::is_w3tc_pro( $config ) )
-			$requirements[] = 'Available after <a href="#" class="button-buy-plugin" data-src="genesis_requirements">upgrade</a>';
-
 		if ( !$config->is_extension_active( 'fragmentcache' ) )
 			$requirements[] = 'Activate "Fragment Cache" extension first';
 
@@ -42,6 +39,7 @@ class Extension_Genesis_Plugin_Admin {
 			'author_uri' => 'https://www.w3-edge.com/',
 			'extension_uri' => 'https://www.w3-edge.com/',
 			'extension_id' => 'genesis.theme',
+			'pro_feature' => true,
 			'settings_exists' => true,
 			'version' => '0.1',
 			'enabled' => empty( $requirements ),

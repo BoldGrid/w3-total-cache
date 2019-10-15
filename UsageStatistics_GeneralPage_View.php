@@ -20,8 +20,8 @@ Util_Ui::config_item( array(
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
 		'disabled' => ( $is_pro ? null : true ),
 		'description' => __( 'Enable statistics collection. Note that this consumes additional resources and is not recommended to be run continuously.',
-			'w3-total-cache' ) .
-			( $is_pro ? '' : __( ' <strong>Available after <a href="#" class="button-buy-plugin" data-src="stats_requirements">upgrade</a>.</strong>', 'w3-total-cache' ) )
+			'w3-total-cache' ),
+		'pro_feature' => true
 	) );
 Util_Ui::config_item( array(
 		'key' => 'stats.slot_seconds',

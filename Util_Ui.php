@@ -458,15 +458,22 @@ class Util_Ui {
 			$label = '';
 			$item_disabled = false;
 			$postfix = '';
+			$pro_feature = false;
 
 			if ( !is_array( $label_or_array ) ) {
 				$label = $label_or_array;
 			} else {
 				$label = $label_or_array['label'];
 				$item_disabled = $label_or_array['disabled'];
-				$postfix = $label_or_array['postfix'];
+				$postfix = isset( $label_or_array['postfix'] ) ?
+					$label_or_array['postfix'] : '';
+				$pro_feature = isset( $label_or_array['pro_feature'] ) ?
+					$label_or_array['pro_feature'] : false;
 			}
 
+			if ( $pro_feature ) {
+				Util_Ui::pro_wrap_maybe_start();
+			}
 			echo '<label><input type="radio" id="' . esc_attr( $name . '__' . $key )  .
 				'" name="' . esc_attr( $name )  .
 				'" value="' . esc_attr( $key ) . '"';
@@ -475,6 +482,9 @@ class Util_Ui {
 			echo ' />';
 			echo $label;
 			echo '</label>' . $postfix . "\n";
+			if ( $pro_feature ) {
+				Util_Ui::pro_wrap_maybe_end( $name . '__' . $key );
+			}
 		}
 	}
 
@@ -575,6 +585,10 @@ class Util_Ui {
 			echo "</th>\n<td>\n";
 		}
 
+		if ( isset( $a['pro_feature'] ) && $a['pro_feature'] ) {
+			Util_Ui::pro_wrap_maybe_start();
+		}
+
 		foreach ( $a as $key => $e ) {
 			if ( $key == 'checkbox' )
 				Util_Ui::checkbox( $id,
@@ -603,6 +617,10 @@ class Util_Ui {
 			elseif ( $key == 'textarea' )
 				Util_Ui::textarea( $id, $e['name'], $e['value'],
 					( isset( $e['disabled'] ) ? $e['disabled'] : false ) );
+		}
+
+		if ( isset( $a['pro_feature'] ) && $a['pro_feature'] ) {
+			Util_Ui::pro_wrap_maybe_end( $id );
 		}
 
 		if ( isset( $a['style'] ) )
@@ -704,11 +722,15 @@ class Util_Ui {
 				);
 			}
 
-		if ( isset( $a['control_after'] ) )
+		if ( isset( $a['control_after'] ) ) {
 			$table_tr['html'] = $a['control_after'];
-
-		if ( isset( $a['description'] ) )
+		}
+		if ( isset( $a['description'] ) ) {
 			$table_tr['description'] = $a['description'];
+		}
+		if ( isset( $a['pro_feature'] ) ) {
+			$table_tr['pro_feature'] = $a['pro_feature'];
+		}
 
 		Util_Ui::table_tr( $table_tr );
 	}
@@ -772,6 +794,68 @@ class Util_Ui {
 					__( 'Multiple Servers:', 'w3-total-cache' )
 				),
 			) );
+	}
+
+
+
+	static public function pro_wrap_maybe_start() {
+		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return;
+		}
+
+		?>
+		<div class="w3tc-gopro">
+			<div>
+		<?php
+	}
+
+
+
+	static public function pro_wrap_maybe_end( $button_data_src ) {
+		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return;
+		}
+
+		?>
+			</div>
+			<div style="text-align:right">
+				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ) ?>">
+					Unlock Feature
+				</button>
+			</div>
+		</div>
+		<?php
+	}
+
+
+
+	static public function pro_wrap_maybe_start2() {
+		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return;
+		}
+
+		?>
+		<div class="updated w3tc_note" id="licensing_terms" style="display: flex; align-items: center">
+			<p style="flex-grow: 1">
+		<?php
+	}
+
+
+
+	static public function pro_wrap_maybe_end2( $button_data_src ) {
+		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			return;
+		}
+
+		?>
+			</p>
+			<div style="text-align: right">
+				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ) ?>">
+					Unlock Feature
+				</button>
+			</div>
+		</div>
+		<?php
 	}
 
 

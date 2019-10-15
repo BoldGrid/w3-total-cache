@@ -4,6 +4,8 @@ namespace W3TC;
 if ( !defined( 'W3TC' ) )
 	die();
 
+$engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
+
 ?>
 <p id="w3tc-options-menu">
 	Jump to:
@@ -13,22 +15,31 @@ if ( !defined( 'W3TC' ) )
 	<a href="#advanced"><?php _e( 'Advanced', 'w3-total-cache' ); ?></a>
 </p>
 <p>
-	Fragment caching via <strong><?php
-echo Cache::engine_name( $config->get_string( array( 'fragmentcache', 'engine' ) ) )
-?></strong> is currently <?php
-if ( $config->is_extension_active_frontend( 'fragmentcache' ) )
-	echo '<span class="w3tc-enabled">enabled</span>';
-else {
-	echo '<span class="w3tc-disabled">disabled</span>';
-	$ext = Extensions_Util::get_extension( $config, 'fragmentcache' );
+	<?php Util_Ui::pro_wrap_maybe_start2() ?>
 
-	if ( !empty( $ext['requirements'] ) ) {
-		echo ' (<span class="description">' .
-			$ext['requirements'] .
-			'</span>)';
-	}
-}
-?>.
+	Fragment caching
+	<?php if ( !empty( $engine ) ): ?>
+		via
+		<strong><?php echo Cache::engine_name( $engine ) ?>?></strong>
+	<?php endif ?>
+
+	is currently
+	<?php if ( $config->is_extension_active_frontend( 'fragmentcache' ) ): ?>
+		<span class="w3tc-enabled">enabled</span>
+	<?php else: ?>
+		<span class="w3tc-disabled">disabled</span>
+		<?php
+		$ext = Extensions_Util::get_extension( $config, 'fragmentcache' );
+		if ( !empty( $ext['requirements'] ) ) {
+			echo ' (<span class="description">' .
+				$ext['requirements'] .
+				'</span>)';
+		}
+		?>
+	<?php endif ?>
+	.
+
+	<?php Util_Ui::pro_wrap_maybe_end2('fragmentcache_header') ?>
 <p>
 
 <form action="admin.php?page=w3tc_fragmentcache" method="post">

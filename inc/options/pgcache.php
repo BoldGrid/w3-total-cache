@@ -260,8 +260,7 @@ Util_Ui::postbox_header( __( 'Purge Policy: ', 'w3-total-cache' ) . implode( ', 
 						'cache' => array(
 							'label' => "Cache",
 							'disabled' => !Util_Environment::is_w3tc_pro( $this->_config ),
-							'postfix' => ( Util_Environment::is_w3tc_pro( $this->_config ) ? '' :
-								'&nbsp;&nbsp;&nbsp;(<a href="#" class="button-buy-plugin" data-src="pagecache_rest">Upgrade</a> now to enable)')
+							'pro_feature' => true
 						),
 						'disable' => 'Disable <acronym title="REpresentational State Transfer">REST</acronym> <acronym title="Application Programming Interface">API</acronym>',
 					),

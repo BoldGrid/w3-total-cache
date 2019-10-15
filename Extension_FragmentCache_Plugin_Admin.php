@@ -12,8 +12,6 @@ class Extension_FragmentCache_Plugin_Admin {
 	 */
 	static public function w3tc_extensions( $extensions, $config ) {
 		$requirements = array();
-		if ( !Util_Environment::is_w3tc_pro( $config ) )
-			$requirements[] = 'Available after <a href="#" class="button-buy-plugin" data-src="fc_requirements">upgrade</a>';
 
 		$extensions['fragmentcache'] = array (
 			'name' => 'Fragment Cache',
@@ -22,6 +20,7 @@ class Extension_FragmentCache_Plugin_Admin {
 			'author_uri' => 'https://www.w3-edge.com/',
 			'extension_uri' => 'https://www.w3-edge.com/',
 			'extension_id' => 'fragmentcache',
+			'pro_feature' => true,
 			'settings_exists' => true,
 			'version' => '1.0',
 			'enabled' => empty( $requirements ),
