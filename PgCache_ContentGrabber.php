@@ -829,7 +829,7 @@ class PgCache_ContentGrabber {
 						'cache_dir' =>
 							W3TC_CACHE_PAGE_ENHANCED_DIR .
 							DIRECTORY_SEPARATOR .
-							Util_Environment::host(),
+							Util_Environment::host_port(),
 						'flush_parent' => ( Util_Environment::blog_id() == 0 ),
 						'locking' => $this->_config->get_boolean( 'pgcache.file.locking' ),
 						'flush_timelimit' => $this->_config->get_integer( 'timelimit.cache_flush' )
