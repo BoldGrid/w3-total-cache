@@ -10,6 +10,8 @@ class Generic_WidgetBoldGrid {
 			array( $o, 'wp_dashboard_setup' ), 5000 );
 
 		add_thickbox();
+		wp_enqueue_script( 'plugin-install' );
+
 		wp_enqueue_script( 'w3tc-boldgrid-widget',
 			plugins_url( 'Generic_WidgetBoldGrid_View.js', W3TC_FILE ),
 			array( 'thickbox' ), W3TC_VERSION );
@@ -29,7 +31,7 @@ class Generic_WidgetBoldGrid {
 			self_admin_url(
 				'plugin-install.php?tab=plugin-information&amp;plugin=boldgrid-backup' .
 				'&amp;TB_iframe=true&amp;width=772&amp;height=550'
-			), 'normal', __( 'View Details' ), 'thickbox' );
+			), 'normal', __( 'View Details' ), 'thickbox open-plugin-details-modal' );
 	}
 
 

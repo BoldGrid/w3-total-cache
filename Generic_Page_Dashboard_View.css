@@ -196,13 +196,3 @@ only screen and (                min-resolution: 2dppx)  {
     }
 }
 */
-
-.toplevel_page_w3tc_dashboard #TB_closeWindowButton {
-    left: auto;
-    right: -30px;
-    color: #eee;
-}
-.toplevel_page_w3tc_dashboard #TB_closeWindowButton:focus .tb-close-icon {
-	-webkit-box-shadow: none;
-	box-shadow: none;
-}
