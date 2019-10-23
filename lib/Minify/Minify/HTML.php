@@ -343,12 +343,32 @@ class Minify_HTML {
 	}
 
 	protected function _removeAttributeQuotes($m) {
-		$m[2] = preg_replace( '/([a-z0-9]=)\'([^"\'\\s=]+)\'(\\s(?!\\/)|>)/i', '$1$2$3', $m[2] );
-		$m[2] = preg_replace( '/([a-z0-9]=)"([^"\'\\s=]+)"(\\s(?!\\/)|>)/i', '$1$2$3', $m[2] );
-		$m[2] = preg_replace( '/([a-z0-9]=)\'([^\'\\s=]+)\'\\//i', '$1$2 /', $m[2] );
-		$m[2] = preg_replace( '/([a-z0-9]=)"([^"\\s=]+)"\\//i', '$1$2 /', $m[2] );
-		$m[2] = preg_replace( '/([a-z0-9])=\'\'/i', '$1', $m[2] );
-		$m[2] = preg_replace( '/([a-z0-9])=""/i', '$1', $m[2] );
+		$m[2] = preg_replace_callback( '~([a-z0-9\\-])=(?<quote>[\'"])([^"\'\\s=]*)\k<quote>(\\s|>|/>)~i',
+			array( $this, '_removeAttributeQuotesCallback'), $m[2] );
+
 		return $m[1] . $m[2];
+	}
+
+
+
+	public function _removeAttributeQuotesCallback( $m ) {
+		// empty tag values like <div data-value=""> to <div data-value
+		if ( empty( $m[3] ) ) {
+			return $m[1] . $m[4];
+		}
+
+		// 1. <a href=bla/>hi</a> is sometimes (XHTML? HTML5 specs doesnt allow that)
+		// parsed as <a href=bla></a>hi</a> by browsers
+		// avoid that by turning it to <a href=bla/ >hi</a>
+
+		// 2. auto-closing tags without space at the end e.g. <div data-value="aa"/>
+		// should have space after value <div data-value=aa />
+		// otherwise some browsers assume data-value="aa/"
+		if ( /* 1 */ $m[4] == '/>' ||
+			/* 2 */ ( $m[4] == '>' && substr( $m[3], -1, 1 ) == '/' ) ) {
+			return $m[1] . '=' . $m[3] . ' ' . $m[4];
+		}
+
+		return $m[1] . '=' . $m[3] . $m[4];
 	}
 }
