@@ -41,6 +41,12 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		if ( !$post_id )
 			return false;
 
+		global $wp_rewrite;   // required by many Util_PageUrls methods
+		if ( empty( $wp_rewrite ) ) {
+			error_log('Post was modified before wp_rewrite initialization. Cant flush cache.');
+			return false;
+		}
+
 		$full_urls = array();
 		$post = get_post( $post_id );
 		$terms = array();
