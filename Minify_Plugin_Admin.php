@@ -188,6 +188,7 @@ class Minify_Plugin_Admin {
 				'servers' => $c->get_array( 'minify.memcached.servers' ),
 				'username' => $c->get_string( 'minify.memcached.username' ),
 				'password' => $c->get_string( 'minify.memcached.password' ),
+				'binary_protocol' => $c->get_boolean( 'minify.memcached.binary_protocol' ),
 				'name' => __( 'Minification', 'w3-total-cache' )
 			);
 		} elseif ( $c->get_string( 'minify.engine' ) == 'redis' ) {

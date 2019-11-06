@@ -274,6 +274,7 @@ class PgCache_Plugin {
 				'servers' => $c->get_array( 'pgcache.memcached.servers' ),
 				'username' => $c->get_string( 'pgcache.memcached.username' ),
 				'password' => $c->get_string( 'pgcache.memcached.password' ),
+				'binary_protocol' => $c->get_boolean( 'pgcache.memcached.binary_protocol' ),
 				'name' => __( 'Page Cache', 'w3-total-cache' )
 			);
 		} elseif ( $c->get_string( 'pgcache.engine' ) == 'redis' ) {

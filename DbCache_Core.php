@@ -16,7 +16,8 @@ class DbCache_Core {
 				'persistent' => $c->get_boolean( 'dbcache.memcached.persistent' ),
 				'aws_autodiscovery' => $c->get_boolean( 'dbcache.memcached.aws_autodiscovery' ),
 				'username' => $c->get_string( 'dbcache.memcached.username' ),
-				'password' => $c->get_string( 'dbcache.memcached.password' )
+				'password' => $c->get_string( 'dbcache.memcached.password' ),
+				'binary_protocol' => $c->get_boolean( 'dbcache.memcached.binary_protocol' )
 			);
 			break;
 

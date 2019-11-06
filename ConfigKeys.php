@@ -83,6 +83,10 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
+	'dbcache.memcached.binary_protocol' => array(
+		'type' => 'boolean',
+		'default' => true
+	),
 	'dbcache.redis.persistent' => array(
 		'type' => 'boolean',
 		'default' => true
@@ -207,6 +211,10 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
+	'objectcache.memcached.binary_protocol' => array(
+		'type' => 'boolean',
+		'default' => true
+	),
 	'objectcache.redis.persistent' => array(
 		'type' => 'boolean',
 		'default' => true
@@ -315,6 +323,10 @@ $keys = array(
 	'pgcache.memcached.password' => array(
 		'type' => 'string',
 		'default' => ''
+	),
+	'pgcache.memcached.binary_protocol' => array(
+		'type' => 'boolean',
+		'default' => true
 	),
 	'pgcache.redis.persistent' => array(
 		'type' => 'boolean',
@@ -681,6 +693,10 @@ $keys = array(
 	'minify.memcached.password' => array(
 		'type' => 'string',
 		'default' => ''
+	),
+	'minify.memcached.binary_protocol' => array(
+		'type' => 'boolean',
+		'default' => true
 	),
 	'minify.redis.persistent' => array(
 		'type' => 'boolean',

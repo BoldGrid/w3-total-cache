@@ -314,6 +314,7 @@ class ObjectCache_Plugin {
 				'servers' => $c->get_array( 'objectcache.memcached.servers' ),
 				'username' => $c->get_string( 'objectcache.memcached.username' ),
 				'password' => $c->get_string( 'objectcache.memcached.password' ),
+				'binary_protocol' => $c->get_boolean( 'objectcache.memcached.binary_protocol' ),
 				'name' => __( 'Object Cache', 'w3-total-cache' )
 			);
 		} elseif ( $c->get_string( 'objectcache.engine' ) == 'redis' ) {

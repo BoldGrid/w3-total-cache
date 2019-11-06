@@ -45,6 +45,13 @@ else
 		</span>
 	</td>
 </tr>
+<tr>
+	<th><label><?php _e( 'Use binary protocol:', 'w3-total-cache' ); ?></label></th>
+	<td>
+		<?php $this->checkbox( $module . '.memcached.binary_protocol' ) ?> <?php echo Util_ConfigLabel::get( 'memcached.binary_protocol' ) ?></label><br />
+		<span class="description"><?php _e( 'Using binary protocol can increase throughput.', 'w3-total-cache' ); ?></span>
+	</td>
+</tr>
 
 <tr>
 	<th><label for="memcached_username"><?php echo Util_ConfigLabel::get( 'memcached.username' ) ?></label></th>
