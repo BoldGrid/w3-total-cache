@@ -17,7 +17,7 @@ class Extension_NewRelic_Plugin_Admin {
 		$extensions['newrelic'] = array (
 			'name' => 'New Relic',
 			'author' => 'W3 EDGE',
-			'description' =>  __( 'New Relic is software analytics platform offering app performance management and mobile monitoring solutions.', 'w3-total-cache' ),
+			'description' =>  __( 'Legacy: New Relic is software analytics platform offering app performance management and mobile monitoring solutions.', 'w3-total-cache' ),
 			'author_uri' => 'https://www.w3-edge.com/',
 			'extension_uri' => 'https://www.w3-edge.com/',
 			'extension_id' => 'newrelic',
