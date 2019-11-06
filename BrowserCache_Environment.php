@@ -506,10 +506,6 @@ class BrowserCache_Environment {
 		$rules = '';
 		$headers_rules = '';
 
-		if ( $section == 'html' ) {
-			$headers_rules .= "        Header append Vary User-Agent env=!dont-vary\n";
-		}
-
 		if ( $cache_control ) {
 			$cache_policy = $config->get_string( 'browsercache.' . $section . '.cache.policy' );
 
