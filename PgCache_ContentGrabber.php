@@ -1432,13 +1432,6 @@ class PgCache_ContentGrabber {
 			$key = ltrim( $key, '/' );
 			$key = rtrim( $key, '/' ) . '/';
 		} else {
-			if ( $this->_config->get_boolean( 'pgcache.cache.feed' ) ) {
-				// normalize feed url, it can be both /feed/ and /feed
-				if ( preg_match( W3TC_FEED_REGEXP, $request_url ) ) {
-					$key = rtrim( $key, '/' );
-				}
-			}
-
 			if ( isset( $page_key_extension['querystring.processing'] ) &&
 				$page_key_extension['querystring.processing'] == 'include' ) {
 				// include querystring in key
