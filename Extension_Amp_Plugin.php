@@ -11,6 +11,8 @@ class Extension_Amp_Plugin {
 			array( $this, 'w3tc_minify_jscss_enable' ) );
 		add_filter( 'w3tc_minify_css_enable',
 			array( $this, 'w3tc_minify_jscss_enable' ) );
+		add_filter( 'w3tc_lazyload_can_process',
+			array( $this, 'w3tc_lazyload_can_process' ) );
 		add_filter( 'w3tc_footer_comment',
 			array( $this, 'w3tc_footer_comment' ) );
 		add_filter( 'w3tc_newrelic_should_disable_auto_rum',
@@ -19,7 +21,6 @@ class Extension_Amp_Plugin {
 			array( $this, 'x_flush_post_queued_urls' ) );
 		add_filter( 'varnish_flush_post_queued_urls',
 			array( $this, 'x_flush_post_queued_urls' ) );
-
 	}
 
 
@@ -27,10 +28,12 @@ class Extension_Amp_Plugin {
 	private function is_amp_endpoint() {
 		// support for different plugins defining those own functions
 		if ( is_null( $this->is_amp_endpoint ) ) {
-			if ( function_exists('is_amp_endpoint') ) {
+			if ( function_exists( 'is_amp_endpoint' ) ) {
 				$this->is_amp_endpoint = is_amp_endpoint();
-			} elseif ( function_exists('ampforwp_is_amp_endpoint') ) {
+			} elseif ( function_exists( 'ampforwp_is_amp_endpoint' ) ) {
 				$this->is_amp_endpoint = ampforwp_is_amp_endpoint();
+			} elseif ( function_exists( 'is_better_amp' ) ) {
+				$this->is_amp_endpoint = is_better_amp();
 			}
 		}
 
@@ -60,6 +63,19 @@ class Extension_Amp_Plugin {
 		}
 
 		return $reject_reason;
+	}
+
+
+
+	public function w3tc_lazyload_can_process( $can_process ) {
+		$is_amp_endpoint = $this->is_amp_endpoint();
+
+		if ( !is_null( $is_amp_endpoint ) && $is_amp_endpoint ) {
+			$can_process['enabled'] = false;
+			$can_process['reason'] = 'AMP endpoint';
+		}
+
+		return $can_process;
 	}
 
 

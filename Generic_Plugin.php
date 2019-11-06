@@ -554,8 +554,15 @@ class Generic_Plugin {
 			}
 
 			$buffer = Util_Bus::do_ob_callbacks(
-				array( 'swarmify', 'minify', 'newrelic', 'cdn', 'browsercache', 'pagecache' ),
-				$buffer );
+				array(
+					'swarmify',
+					'lazyload',
+					'minify',
+					'newrelic',
+					'cdn',
+					'browsercache',
+					'pagecache'
+				), $buffer );
 
 			$buffer = apply_filters( 'w3tc_processed_content', $buffer );
 		}

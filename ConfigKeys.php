@@ -157,6 +157,48 @@ $keys = array(
 		)
 	),
 
+	'lazyload.enabled' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
+	'lazyload.process_img' => array(
+		'type' => 'boolean',
+		'default' => true
+	),
+	'lazyload.process_background' => array(
+		'type' => 'boolean',
+		'default' => true
+	),
+	'lazyload.exclude' => array(
+		'type' => 'array',
+		'default' => array(
+			'avia-bg-style-fixed',
+			'data-bgposition=',
+			'data-envira-src=',
+			'data-large_image=',
+			'data-lazy-original=',
+			'data-lazy-src=',
+			'data-lazyload=',
+			'data-lazysrc=',
+			'data-no-lazy=',
+			'data-src=',
+			'data-srcset=',
+			'fullurl=',
+			'lazy-slider-img=',
+			'loading="eager"',
+			'no-lazy',
+			'soliloquy-image',
+			'swatch-img',
+			'w3-total-cache',
+			'woocommerce/assets/images/placeholder.png',
+			'wpcf7_captcha',
+		)
+	),
+	'lazyload.embed_method' => array(
+		'type' => 'string',
+		'default' => 'async_head'
+	),
+
 	'objectcache.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
