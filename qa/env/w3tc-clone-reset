@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# code
+if [ -e ./working/w3tc ]; then
+	cd ./working/w3tc
+	git reset --hard
+	cd ../..
+fi

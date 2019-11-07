@@ -1,0 +1,20 @@
+#! /usr/bin/env ruby
+
+def run
+    if ENV['W3D_BOX_NAME'].nil?
+        abort('environment variables not present')
+    end
+
+    Dir.chdir('/root/w3tcqa')
+
+    ret = system '/share/scripts/w3test generic/box-valid.js'
+    if ret
+        puts 'boxValidSuccess'
+    else
+        puts 'boxValidFailure'
+    end
+end
+
+
+
+run

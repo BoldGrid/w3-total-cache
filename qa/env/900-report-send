@@ -1,0 +1,41 @@
+#!/bin/bash
+
+echo 'sending report'
+export SUBJECT=`cat ./working/reports/summary_subject`
+export BODY="./working/reports/summary.html"
+export ATTACHMENTS=`cat ./working/reports/summary_attachments`
+export MAILPART=`uuidgen` ## Generates Unique ID
+export MAILPART_BODY=`uuidgen` ## Generates Unique ID
+
+(
+	echo "From: $MAILFROM"
+	echo "To: $MAILTO"
+	echo "Subject: $SUBJECT"
+	echo "MIME-Version: 1.0"
+	echo "Content-Type: multipart/mixed; boundary=\"$MAILPART\""
+	echo ""
+	echo "--$MAILPART"
+	echo "Content-Type: multipart/alternative; boundary=\"$MAILPART_BODY\""
+	echo ""
+	echo "--$MAILPART_BODY"
+	echo "Content-Type: text/plain; charset=ISO-8859-1"
+	echo "You need to enable HTML option for email"
+	echo "--$MAILPART_BODY"
+	echo "Content-Type: text/html; charset=ISO-8859-1"
+	echo "Content-Disposition: inline"
+	cat $BODY
+	echo "--$MAILPART_BODY--"
+
+ 	for ATTACH in $ATTACHMENTS ; do
+ 		echo "--$MAILPART"
+ 		echo 'Content-Type: text/plain; name="'$(basename $ATTACH)'"'
+ 		echo "Content-Transfer-Encoding: uuencode"
+ 		echo 'Content-Disposition: attachment; filename="'$(basename $ATTACH)'"'
+ 		echo ""
+ 		#uuencode -m $ATTACH $(basename $ATTACH)
+ 		uuencode $ATTACH $(basename $ATTACH)
+	done
+	echo "--$MAILPART--"
+) | /usr/sbin/sendmail $MAILTO
+
+echo 'report sent'

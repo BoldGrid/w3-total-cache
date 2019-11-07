@@ -1,2 +1,10 @@
 nbproject
+
 .DS_Store
+/qa/env/000-environment
+/qa/env/200-ami-build
+/qa/env/amis/*
+/qa/env/boxes/*
+/qa/env/key-aws-w3tcqa.pem
+/qa/env/lib/*.pyc
+/qa/env/working/*

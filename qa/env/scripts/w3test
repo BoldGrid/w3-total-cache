@@ -1,0 +1,273 @@
+#! /usr/bin/env ruby
+
+require 'timeout'
+
+
+
+def run
+    test_to_run = ''
+    environment = nil
+    output_path = nil
+
+    ARGV.each{|arg|
+        if arg.start_with?('--output=')
+            output_path = arg[9..-1]
+        elsif arg.start_with?('--environment=')
+            environment = arg[14..-1]
+        elsif arg.start_with?('-e=')
+            environment = arg[3..-1]
+        else
+            test_to_run = arg
+        end
+    }
+
+    environments = {}
+    begin
+        environments = get_required_environments(test_to_run)
+    rescue
+        if !output_path.nil?
+            print_filename = test_to_run[0..-4] + '@all'
+            log_filename = output_path + print_filename.gsub(/\//, '-') + '.log'
+            system 'echo "get_required_environments failed" >' + log_filename
+            system 'echo testResultFailed >>' + log_filename
+            return
+        end
+    end
+
+    if !environment.nil?
+        limited = {}
+        limited[environment] = environments[environment]
+        environments = limited
+    end
+
+    run_file_against_environments(environments, test_to_run, output_path)
+end
+
+
+
+# take the list of environments required for test from its source
+def get_required_environments(filename)
+    content = IO.read(filename)
+    r = Regexp.new('/\*\*environments:\s*([^*]+)\*\/')
+    m = r.match(content)
+
+    if m.nil?
+        environments = {'none' => []}
+    else
+        environments = eval(m[1])
+    end
+end
+
+
+
+# used by eval in get_required_environments
+def environments(starts_with)
+    environments = {}
+
+    Dir.foreach('/share/environments') {|filename|
+        if filename.start_with?(starts_with + '-')
+            name = filename[0..-4]
+            environments[name] = ['/share/environments/' + filename]
+        end
+    }
+
+    return environments
+end
+
+
+
+# multiplies lists of environments
+def multiply(e1, e2)
+    if e1.empty?
+        return e2
+    end
+    if e2.empty?
+        return e1
+    end
+
+    output = {}
+
+    e1.each{|key1, item1|
+        e2.each{|key2, item2|
+            result_item = []
+            result_item = result_item.concat(item1)
+            result_item = result_item.concat(item2)
+
+            output[key1 + '-' + key2] = result_item
+        }
+    }
+
+    return output
+end
+
+
+
+def variable_equals(name, values, environments)
+    if values.include?(ENV[name])
+        return environments
+    else
+        return {}
+    end
+end
+
+
+
+def variable_not_equals(name, values, environments)
+    if values.include?(ENV[name])
+        return {}
+    else
+        return environments
+    end
+end
+
+
+
+def run_file_against_environments(environments, filename, output_path)
+    if environments.length <= 0
+        return
+    end
+
+    names = environments.keys.sort
+    names.each{|environment_name|
+        environment_files = environments[environment_name]
+
+        command_prefix = environment_files.map{|v| '. ' + v}.join(';') +
+            (environment_files.length > 0 ? ';' : '')
+
+        success = run_file(filename, environment_name, command_prefix, output_path)
+        if !success and !output_path.nil?
+            # try 2nd time, functional tests fail time to time due to
+            # external problems
+            run_file(filename, environment_name, command_prefix, output_path)
+        end
+    }
+end
+
+
+
+def run_file(filename, environment_name, command_prefix, output_path)
+    print_filename = filename[0..-4] +
+        (environment_name.empty? ? '': '@' + environment_name)
+    if !output_path.nil?
+        log_filename = output_path + print_filename.gsub(/\//, '-') + '.log'
+        errlog_filename = log_filename + 'err'
+        command_postfix =  ' >>' + log_filename + ' ' + '2>>' + errlog_filename
+
+        if File.exist?(log_filename)
+            File.delete(log_filename)
+        end
+        if File.exist?(errlog_filename)
+            File.delete(errlog_filename)
+        end
+    else
+        command_postfix = ''
+    end
+
+    puts ENV['W3D_BOX_NAME'] + ': start   ' + print_filename
+
+    # cleanup
+    success = true
+    http_errlog_filename = ENV['W3D_HTTP_SERVER_ERROR_LOG_FILENAME']
+    if !File.exists?(http_errlog_filename)
+        if output_path.nil?
+            puts 'no http server error log found'
+        else
+            system 'no http server error log found >>' + log_filename
+        end
+
+        success = false
+    end
+    File.open(http_errlog_filename, 'w') {}
+
+    # do the work
+    if success
+        success = repeated_attempt command_prefix, command_postfix, filename
+    end
+
+    http_errlog_content = `/share/scripts/http-server-error-log-read.sh`
+    http_errlog_content.strip!
+    if !http_errlog_content.empty?
+        puts 'not empty'
+        success = false
+    end
+
+
+    if output_path.nil?
+        puts http_errlog_content
+    else
+        system 'cat ' + errlog_filename + ' >>' + log_filename
+
+        if File.exist?(errlog_filename)
+            File.delete(errlog_filename)
+        end
+
+        if !http_errlog_content.empty?
+            system 'echo "http server error log entries found" >>' + log_filename
+            File.open(log_filename, 'a') {|f|
+                f.puts http_errlog_content
+            }
+        elsif !success
+            # workaround for the case when phantomJS crashed after successful
+            # test's pass
+            content = IO.read(log_filename)
+            r = Regexp.new('PASS (\d+) tests executed in (.*) 0 failed')
+            m = r.match(content)
+            if !m.nil?
+                success = true
+            end
+        end
+
+        if success
+            system 'echo testResultPassed >>' + log_filename
+        else
+            system 'echo testResultFailed >>' + log_filename
+        end
+    end
+
+    puts ENV['W3D_BOX_NAME'] + ': ' +
+        (success ? 'succeed ' : 'failed  ') + print_filename
+    if output_path.nil? and !success
+        abort 'Failed on ' + environment_name
+    end
+
+    return success
+end
+
+
+
+def repeated_attempt(command_prefix, command_postfix, filename)
+    n = 0
+    while n <= 3
+        begin
+            Timeout::timeout(300) {
+                test_command = 'mocha -b ' + File.basename(filename)
+
+                path = File.dirname(File.expand_path(filename))
+                command = 'cd ' + path + ';' + command_prefix +
+                    test_command +
+                    command_postfix
+                ret = system command
+                return ret
+            }
+        rescue Timeout::Error
+          system 'killall phantomjs --signal KILL'
+          puts 'timeout executing ' + filename
+        end
+
+        n += 1
+    end
+    return false
+end
+
+
+
+def system_assert(command)
+    ret = system command
+    if !ret
+        abort 'failed to execute ' + command
+    end
+end
+
+
+
+run

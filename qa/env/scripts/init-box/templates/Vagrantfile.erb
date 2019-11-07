@@ -1,0 +1,19 @@
+ip       = '192.168.100.100'
+ram      = '1024'
+
+Vagrant.configure('2') do |config|
+  config.vm.box = '<%= vagrant_box %>'
+  config.vm.box_version = '<%= vagrant_box_version %>'
+  config.vm.box_download_insecure = true
+
+  config.vm.provider :virtualbox do |vb|
+    config.vm.network 'private_network', ip: ip
+    vb.customize [ "modifyvm", :id, "--memory", ram ]
+  end
+
+  config.vm.synced_folder '../../scripts/', '/share/scripts'
+  config.vm.synced_folder '../../working/w3tc', '/share/w3tc'
+  config.vm.synced_folder './', '/share/vagrant'
+
+  config.vm.provision :shell, path: 'vagrant-init.sh'
+end

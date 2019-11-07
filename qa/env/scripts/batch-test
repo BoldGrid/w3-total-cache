@@ -1,0 +1,41 @@
+#! /usr/bin/env ruby
+
+def run
+    if ENV['W3D_BOX_NAME'].nil?
+        abort('environment variables not present')
+    end
+
+    Dir.chdir('/root/w3tcqa')
+
+    run_dir ''
+end
+
+
+
+def run_dir(folder)
+    filenames = []
+    folder_for_dir = (folder.empty? ? '.' : folder);
+
+    Dir.foreach(folder_for_dir) {|filename|
+        filenames.push(filename)
+    }
+
+    filenames.sort!
+
+    filenames.each{|filename|
+        new_filename = (folder.empty? ? '' : folder + '/') + filename
+
+        if filename != '.' and filename != '..' and
+                File.directory?(new_filename)
+            run_dir new_filename
+        end
+
+        if filename.end_with?('.js')
+            system '/share/scripts/w3test --output=/share/reports/ ' + new_filename
+        end
+    }
+end
+
+
+
+run

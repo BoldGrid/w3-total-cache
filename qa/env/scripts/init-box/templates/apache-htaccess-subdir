@@ -1,0 +1,17 @@
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase ${W3D_WP_HOME_URI}
+RewriteRule ^index\.php${D} - [L]
+
+# add a trailing slash to /wp-admin
+RewriteRule ^([_0-9a-zA-Z-]+/)?wp-admin$ ${D}1wp-admin/ [R=301,L]
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^([_0-9a-zA-Z-]+${W3TC_SITE_TO_HOME_URI})(wp-(content|admin|includes).*) $w3d_wp_site_uri${D}2 [L]
+RewriteRule ^([_0-9a-zA-Z-]+${W3TC_SITE_TO_HOME_URI})?(.*\.php)${D} ${W3D_WP_SITE_URI}${D}2 [L]
+RewriteRule . index.php [L]
+</IfModule>
+# END WordPress

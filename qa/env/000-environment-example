@@ -1,0 +1,18 @@
+pkill ssh-agent
+eval `ssh-agent -s`
+
+ssh-add ./key-aws-w3tcqa.pem
+ssh-add ~/.ssh/id_rsa
+
+export W3TCQA_GIT_URL=git@github.com:W3EDGE/w3-total-cache.git
+export W3TCQA_GIT_URL2=git@github.com:W3EDGE/w3-total-cache.git
+
+export W3TCQA_S3_BUCKET=mybucket
+export W3TCQA_S3_URL=https://s3-us-region.amazonaws.com/mybucket/
+export W3TCQA_EC2_INSTANCE_TYPE=t3.medium
+export W3TCQA_EC2_KEY_NAME=aws-w3tcqa
+export W3TCQA_EC2_SECURITY_GROUP_ID=sg-xxx
+
+# for reporting
+export MAILFROM="me@host.com"
+export MAILTO="me@host.com"

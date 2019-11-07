@@ -1,0 +1,7 @@
+. ./000-environment
+./w3tc-clone
+./300-boxes-destroy
+./350-upload-w3tc
+./400-run-tests >./1.log 2>./2.log
+./800-report-generate
+./900-report-send
