@@ -1,0 +1,208 @@
+#!/usr/bin/python -u
+
+import os
+import sys
+import time
+import threading
+
+
+sys.path.append('./lib')
+import aws
+import shell
+import box
+import pid
+
+
+def run():
+	box_instances_per_box = int(sys.argv[1])
+	threads_number = int(sys.argv[2])
+
+
+	shell.shell2('rm -f ./working/*.zip')
+	shell.shell2('rm -rf ./working/pid_*')
+	shell.shell(['rm', '-rf', './working/reports'])
+	shell.shell(['mkdir', './working/reports'])
+	shell.shell(['rm', '-rf', './working/reports-by-test'])
+	shell.shell(['mkdir', './working/reports-by-test'])
+	shell.shell(['rm', '-rf', './working/hosts'])
+	pid.create_file()
+
+	root_dir = os.path.dirname(os.path.abspath(__file__))
+	aws_semaphore = threading.Semaphore(5)
+
+	# collect boxes
+	boxes = []
+	for box in os.listdir(root_dir + '/boxes'):
+		if box == '.' or box == '..':
+			pass
+		elif os.path.isdir(root_dir + '/boxes/' + box):
+			shell.shell(['rm', '-rf', './working/reports/' + box + '/*'])
+			boxes.append(box)
+
+	boxes.sort()
+
+	# collect tests
+	tests = []
+	collect_tests(tests, '')
+	tests.sort()
+
+	# for testing
+	# boxes = ["apache-php70-wp52-single"]
+	# tests = ['browsercache/basic.js']
+
+	# make instance descriptors
+	box_instances = []
+	tests_by_box = {}
+
+	for box in boxes:
+		shell.shell(['mkdir', './working/reports/' + box])
+
+		tests_by_box[box] = []
+		for test in tests:
+			tests_by_box[box].append(test)
+
+		for n in range(box_instances_per_box):
+			o = {
+				'box': box,
+				'box_instance_name': box + '-' + ('%02i' % n),
+				'tests': tests_by_box[box],
+				'aws_semaphore': aws_semaphore
+			}
+			box_instances.append(o)
+
+
+	threads = []
+	while len(box_instances) > 0:
+		if not pid.is_file_exists():
+			eprint('no pid file - exiting')
+			break
+
+		if len(threads) < threads_number:
+			box_instance = box_instances.pop(0)
+			t = threading.Thread(target = thread_run, kwargs={'box_instance': box_instance})
+			t.start()
+			threads.append(t)
+		else:
+			time.sleep(5)
+			threads = [t for t in threads if t.is_alive()]
+
+	# final wait
+	eprint('waiting for threads to finish ' + str(len(threads)))
+
+	for t in threads:
+		t.join()
+
+	if not pid.is_file_exists():
+		eprint('no pid file - exiting')
+
+	eprint('exit test process')
+
+
+
+def collect_tests(tests, dir):
+	root = './working/w3tc/qa/tests/' + dir
+	for filename in os.listdir(root):
+		if filename == '.' or filename == '..':
+			None
+		elif os.path.isdir(root + filename):
+			collect_tests(tests, dir + filename + '/')
+		elif filename.endswith('.js'):
+			tests.append(dir + filename)
+
+
+
+def thread_run(box_instance):
+	success = False
+	for attempt in [1,2,3]:
+		try:
+			start_box(box_instance)
+			run_tests_in_box(box_instance)
+			success = True
+		except BaseException as e:
+			eprint('!!! instance ' + box_instance['box_instance_name'] + ' FAILED')
+			eprint(e)
+
+		try:
+			stop_box(box_instance)
+		except BaseException as e:
+			eprint('!!! stop instance ' + box_instance['box_instance_name'] + ' FAILED')
+			eprint(e)
+
+		if success:
+			break
+
+	eprint('exit thread ' + box_instance['box_instance_name'])
+
+
+
+def start_box(instance):
+	eprint(instance['box_instance_name'] + ': start box')
+
+	with instance['aws_semaphore']:
+		data = box.start(instance['box'], instance['box_instance_name'])
+
+	ip = data['ip']
+	instance['aws_instance_id'] = data['aws_instance_id']
+
+	aws.ec2_wait_ready(ip)
+	box.init(ip, instance['box'], instance['box_instance_name'])
+
+	ssh_credentials = 'root@' + ip
+	instance['ssh_credentials'] = ssh_credentials
+
+	box_test_output = shell.ssh(ssh_credentials, 'sudo -E /share/scripts/box-valid-check')
+
+	print(box_test_output)
+	if box_test_output.find('boxValidSuccess') >= 0:
+		print('box validation passed well')
+	else:
+		print('invalid box, skip')
+		raise Exception("ERROR: invalid box, skip " + instance['box_instance_name'])
+
+
+
+def run_tests_in_box(instance):
+	eprint(instance['box_instance_name'] + ': run tests in a box')
+
+ 	tests = instance['tests']
+	count = 0
+	while len(tests) > 0:
+		if not pid.is_file_exists():
+			eprint('no pid file - exiting')
+			break
+
+		test = tests.pop(0)
+		count = count + 1
+
+		print(instance['box_instance_name'] + ': ' + test + ', remaining ' + str(len(tests)))
+		shell.ssh(instance['ssh_credentials'], \
+			"cd /root/w3tcqa && /share/scripts/w3test " + test + " --output=/share/reports/")
+
+	eprint(instance['box_instance_name'] + ': ' + str(count) + ' tests executed')
+
+
+
+def stop_box(instance):
+	eprint(instance['box_instance_name'] + ': stop box')
+
+	if 'ssh_credentials' in instance:
+		shell.ssh(instance['ssh_credentials'], 'cd /share && zip -q -r -j reports.zip ./reports')
+
+		shell.scp(instance['ssh_credentials'], '/share/reports.zip', \
+			'', './working/' + instance['box_instance_name'] + '.zip')
+
+		shell.shell2('cd ./working/reports/' + instance['box'] + ' && ' + \
+			'unzip -o -q ../../' + instance['box_instance_name'] + '.zip && ' + \
+			'cd -')
+
+	aws.ec2_stop(instance['aws_instance_id'])
+
+
+
+def eprint(v):
+	print(v)
+	sys.stderr.write(str(v) + "\n")
+
+
+
+run()

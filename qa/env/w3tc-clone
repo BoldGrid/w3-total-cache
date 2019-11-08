@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ ! -e ./working ]; then
+	mkdir ./working
+fi
+
+# reports
+if [ ! -e ./working/reports ]; then
+	mkdir ./working/reports
+fi
+
+chmod 777 ./working/reports
+
+# code
+if [ ! -e ./working/w3tc ]; then
+	mkdir ./working/w3tc
+	git clone $W3TCQA_GIT_URL -b $W3TCQA_GIT_BRANCH ./working/w3tc
+else
+	# new git -C can do it, but not everyone has new version installed
+	cd ./working/w3tc
+	git pull
+	cd ../..
+fi
+
+if [ ! -z "$W3TCQA_GIT_URL2" ]; then
+	if [ ! -e ./working/w3tc2 ]; then
+		mkdir ./working/w3tc2
+		git clone $W3TCQA_GIT_URL2 -b master ./working/w3tc2
+	else
+		# new git -C can do it, but not everyone has new version installed
+		cd ./working/w3tc2
+		git pull
+		cd ../..
+	fi
+
+	cp -fR ./working/w3tc2/* ./working/w3tc
+fi

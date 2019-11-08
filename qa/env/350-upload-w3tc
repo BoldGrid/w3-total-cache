@@ -1,0 +1,11 @@
+#puts 'cloning repos'
+#system_assert './clone-reset'
+#system_assert './clone'
+FILENAME="w3tc_$(date +%Y%m%d_%H%M%S).zip"
+echo $FILENAME
+echo "W3D_W3TC_ZIP_URL: $W3TCQA_S3_URL$FILENAME" >./working/w3tc_zip_url.yml
+rm -f ./working/*.zip
+cd ./working && zip -r -q ./w3tc.zip ./w3tc -x *.git* && cd -
+
+aws s3 cp ./working/w3tc.zip s3://$W3TCQA_S3_BUCKET/$FILENAME
+aws s3api put-object-acl --bucket $W3TCQA_S3_BUCKET --key $FILENAME --acl public-read

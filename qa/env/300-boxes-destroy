@@ -1,0 +1,18 @@
+#!/usr/bin/python -u
+
+import sys
+
+sys.path.append('./lib')
+import aws
+
+
+
+def run():
+	aws_instance_ids = aws.ec2_list_aws_instance_ids()
+
+	for aws_instance_id in aws_instance_ids:
+		aws.ec2_stop(aws_instance_id)
+
+
+
+run()

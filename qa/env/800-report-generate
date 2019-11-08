@@ -1,0 +1,166 @@
+#! /usr/bin/env ruby
+
+require 'fileutils'
+
+def run
+    puts 'generating summary report'
+    test_box_status = {}
+    failed_tests = 0
+    total_tests = 0
+    attachments = {}
+
+	if !File.directory?('./working/reports-by-test')
+	  Dir.mkdir('./working/reports-by-test')
+	end
+
+    Dir.foreach('./working/reports') {|box|
+		if box == '.' or box == '..'
+
+        elsif File.directory?('./working/reports/' + box)
+			exists = false
+
+            Dir.foreach('./working/reports/' + box) {|filename|
+                if filename.end_with?('.log')
+					exists = true
+                    test_subenv = File.basename(filename)
+                    test, subenv = test_subenv.split('@', 2)
+                    subenv = (subenv.nil? ? '': subenv[0..-5])
+
+                    if test_box_status[test].nil?
+                        test_box_status[test] = {}
+                    end
+
+                    log_filename = './working/reports/' + box + '/' + filename
+                    status = {
+                        'log_filename' => log_filename
+                    }
+
+                    content = IO.read(log_filename)
+                    if content.include?('testResultFailed')
+                        status['code'] = 'fail'
+
+                        failed_tests += 1
+                        total_tests += 1
+                        attachments[test] = log_filename
+                    elsif content.include?('testResultSkipped')
+                        status['code'] = 'skip'
+                    elsif content.include?('testResultPassed')
+                        status['code'] = 'pass'
+                        total_tests += 1
+                    else
+                        status['code'] = 'fail'
+                    end
+
+					if !File.directory?('./working/reports-by-test/' + test)
+					  Dir.mkdir('./working/reports-by-test/' + test)
+					end
+
+					FileUtils.cp('./working/reports/' + box + '/' + filename,
+						'./working/reports-by-test/' + test + '/' +
+						status['code'] + '-' + box + '@' + subenv)
+
+                    test_box_status[test][box + ' ' + subenv] = status
+                end
+            }
+
+			if not exists
+				status = {
+					'log_filename' => 'none',
+					'code' => 'fail'
+				}
+
+				if test_box_status['none-executed'].nil?
+					test_box_status['none-executed'] = {}
+				end
+				test_box_status['none-executed'][box] = status
+			end
+        end
+    }
+
+    # build html
+    File.open('./working/reports/summary.html', 'w'){|r|
+        r.puts '<h1>Failed tests</h1>'
+        tests = test_box_status.keys
+        tests.sort!
+
+        tests.each{|test|
+            boxes = test_box_status[test].keys
+            boxes.sort!
+
+            content = ''
+            boxes.each{|box|
+                if test_box_status[test][box]['code'] == 'fail'
+                    content += '  <li>' + box +
+                        ' <a href="' +
+                        test_box_status[test][box]['log_filename'] +
+                        '">*</a>' +
+                        "</li>\n"
+                end
+            }
+
+            if !content.empty?
+                r.puts '<p>'
+                r.puts test
+                r.puts '<ul>'
+                r.puts content
+                r.puts '</ul>'
+                r.puts '</p>'
+            end
+        }
+
+
+        r.puts '<h1>All tests</h1>'
+        tests = test_box_status.keys
+        tests.sort!
+
+        tests.each{|test|
+            r.puts '<p>'
+            r.puts test
+            r.puts '<ul>'
+
+            boxes = test_box_status[test].keys
+            boxes.sort!
+
+            boxes.each{|box|
+                status = test_box_status[test][box]['code']
+                style = ''
+                if status == 'pass'
+                    style = 'color: green'
+                elsif status == 'fail'
+                    style = 'color: red'
+                end
+
+                r.puts '<li style="' + style + '">' + box + ' ' + status + '</li>'
+            }
+
+            r.puts '</ul>'
+            r.puts '</p>'
+        }
+    }
+
+    File.open('./working/reports/summary_subject', 'w'){|r|
+        if failed_tests > 0
+            r.puts 'w3tc test results (' + failed_tests.to_s + ' / ' +
+                total_tests.to_s + ' failed)'
+        else
+            r.puts 'w3tc test results (success)'
+        end
+    }
+
+    attachments_string = ''
+    count = 0
+    attachments.each{|key, value|
+        if count < 10
+            attachments_string += ' ' + value
+            count += 1
+        end
+    }
+
+    File.open('./working/reports/summary_attachments', 'w'){|r|
+        r.puts attachments_string
+    }
+end
+
+
+
+run

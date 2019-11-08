@@ -1,0 +1,5 @@
+#!/bin/bash
+
+rm -rf ./working/w3tc
+rm -rf ./working/w3tc2
+./w3tc-clone

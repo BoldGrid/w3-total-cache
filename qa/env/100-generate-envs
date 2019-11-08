@@ -1,0 +1,716 @@
+#! /usr/bin/env ruby
+require 'erb'
+require 'ostruct'
+
+def run
+	puts 'Generating AMIs'
+
+	image_descriptors = generate_image_descriptors
+	image_descriptors = expand_image_specifics(image_descriptors)
+
+	system 'rm -rf ./amis'
+	system 'mkdir ./amis'
+	system 'rm ./200-ami-build'
+
+	image_descriptors.each{|name, variables|
+		generate_ami(name, variables)
+		system 'echo "./dev-ami-build ' + name + '" >> ./200-ami-build'
+	}
+
+	system 'chmod 700 ./200-ami-build'
+
+	# build box descriptors
+	system 'rm -rf ./boxes'
+	system 'mkdir ./boxes'
+
+	image_descriptors.each{|image_name, image_variables|
+		box_descriptors = generate_box_descriptors(image_name)
+		box_descriptors.each{|box_name, box_variables|
+			r = generate_box_subenvironments(image_variables, box_variables)
+			subenvironments = r['subenvironments']
+			variables = r['box_variables']
+			variables['AWS_AMI_NAME'] = image_name
+
+			generate_box(image_name + '-' + box_name, variables, subenvironments, image_variables)
+		}
+	}
+
+end
+
+
+
+# build list of boxes we going to generate
+def generate_image_descriptors
+	# default settings
+	image_descriptors = {
+		'' => {
+			'HTTP_SERVER_PORT' => '80',
+			'HTTP_SERVER_SCHEME' => 'http',
+			'WP_MAYBE_COLON_PORT' => ''   # derived from HTTP_SERVER_PORT
+		}
+	}
+
+	# http servers used
+	image_descriptors = multiply(image_descriptors, {
+		'nginx' => {
+			'HTTP_SERVER' => 'nginx',
+			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/nginx/wp.sandbox.error.log'
+		},
+		'apache' => {
+			'HTTP_SERVER' => 'apache',
+			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/apache2/wp.sandbox_error.log'
+		}
+	})
+
+	# multiply by php
+	image_descriptors = multiply(image_descriptors, php_list = {
+		'php73' => {
+			'PHP_VERSION' => '7.3',
+			'OS' => 'xenial',
+			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+			'MEMCACHE' => 'memcached',
+			'REDIS' => 'redis'
+		},
+		'php70' => {
+			'PHP_VERSION' => '7.0',
+			'OS' => 'xenial',
+			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+			'MEMCACHE' => 'memcached',
+			'REDIS' => 'redis'
+		},
+		# php 5.6 is not available in trusty anymore - use xenial if required
+		#
+		#'php56' => {
+		#	'PHP_VERSION' => '5.6',
+		#	'OS' => 'trusty',
+		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+		#	'MEMCACHE' => 'memcached',
+		#	'REDIS' => 'redis'
+		#},
+		'php55' => {
+			'PHP_VERSION' => '5.5',
+			'OS' => 'trusty',
+			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+			'MEMCACHE' => 'memcached',
+			'REDIS' => 'redis'
+		}
+		# puppeteer not available for this version
+		#,
+		#'php53' => {
+		#	'PHP_VERSION' => '5.3',
+		#	'OS' => 'precise',
+		#	'MEMCACHE' => 'memcached'
+		#}
+	})
+
+	php_last = php_list.keys.sort[-1]
+
+	# add special memory caches
+	image_descriptors = add_single(image_descriptors, 'php55', {
+		'xcache' => {
+			'APC' => '',   # remove apc from environment
+			'XCACHE' => 'xcache',
+			'FILESYSTEM' => 'no',
+			'MEMCACHE' => 'memcache'   # use old "memcache" extension instead of "memcached"
+		}}
+	)
+
+	# add special path configurations
+	image_descriptors = multiply_selected(image_descriptors,
+		php_last,
+		{
+			'8080' => {
+				'HTTP_SERVER_PORT' => '8080',
+				'WP_MAYBE_COLON_PORT' => ':8080'   # derived from HTTP_SERVER_PORT
+			},
+			'https' => {
+				'HTTP_SERVER_PORT' => '443',
+				'HTTP_SERVER_SCHEME' => 'https',
+				'WP_MAYBE_COLON_PORT' => ''
+			},
+			#'varnish' => {
+			#	'HTTP_SERVER_PORT' => '8080',
+			#	'WP_MAYBE_COLON_PORT' => '',
+			#	'VARNISH' => 'varnish'
+			#}
+		}
+	)
+
+	return image_descriptors
+end
+
+
+
+def generate_box_descriptors(image_name)
+	wpl = 'wp52'
+
+	box_descriptors = {
+		'' => {
+			'WP_PATH' => '/var/www/wp-sandbox/',
+			'WP_HOME_PATH' => '/var/www/wp-sandbox/',   # what get_home_path() returns
+			'WP_HOST' => 'wp.sandbox',
+			'WP_HOME_URI' => '/',
+			'WP_SITE_URI' => '/',
+			'WP_CONTENT_PATH' => '/var/www/wp-sandbox/wp-content/',
+			'WP_CONTENT_URI' => '/wp-content/',
+			'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/wp-content/plugins/',
+			'WP_PLUGINS_URI' => '/wp-content/plugins/'
+		}
+	}
+
+	box_descriptors = multiply(box_descriptors, {
+		# 4.0
+		'wp431' => {
+			'WP_VERSION' => '4.3.1',
+			'_except_name_contains' => [
+				'php70', 'php71', 'php73',   # many stuff gone deprecated
+				'varnish'
+			]
+		},
+		# 4.5.3
+		# 4.6
+		# 4.7
+		'wp47' => {
+			'WP_VERSION' => '4.7',
+			'_except_name_contains' => [
+				'php53', 'php55', 'php56', 'php71', 'php73',   # no reason to use for all php versions
+				'varnish',
+				'https'
+			]
+		},
+		# 4.7.2
+		# 4.8
+		'wp49' => {
+			'WP_VERSION' => '4.9.4',
+			'_except_name_contains' => [
+				'varnish',
+				'php53', 'php55',
+				'php73',   # cause a lot of PHP warnings
+			]
+		},
+		# 5.0.3
+		'wp51' => {
+			'WP_VERSION' => '5.1'
+		},
+		'wp52' => {
+			'WP_VERSION' => '5.2',
+			'_except_name_contains' => [
+				'php55'   # wp5.2 requires php>=5.6
+			]
+		}
+	}, image_name)
+
+	wp_last = box_descriptors.keys.sort[-1]
+
+	box_descriptors = multiply_selected(box_descriptors,
+		wp_last,
+		{
+			'pathmoved' => {
+				'WP_PATH' => '/var/www/wp-sandbox/wp/',
+				'WP_HOME_PATH' => '/var/www/wp-sandbox/',
+				'WP_HOME_URI' => '/',
+				'WP_SITE_URI' => '/wp/',
+				'WP_CONTENT_PATH' => '/var/www/wp-sandbox/moved-folders/moved-content/',
+				'WP_CONTENT_URI' => '/moved-folders/moved-content/',
+				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/moved-folders/moved-plugins/',
+				'WP_PLUGINS_URI' => '/moved-folders/moved-plugins/',
+				'_except_name_contains' => [
+					'xcache'
+				]
+			},
+			# add wp in /wp/ uri, subdomains are not supported by wp in that configuration
+			'pathwp' => {
+				'WP_PATH' => '/var/www/wp-sandbox/wp/',
+				'WP_HOME_PATH' => '/var/www/wp-sandbox/wp/',
+				'WP_HOME_URI' => '/wp/',
+				'WP_SITE_URI' => '/wp/',
+				'WP_CONTENT_PATH' => '/var/www/wp-sandbox/wp/wp-content/',
+				'WP_CONTENT_URI' => '/wp/wp-content/',
+				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/wp/wp-content/plugins/',
+				'WP_PLUGINS_URI' => '/wp/wp-content/plugins/',
+				'_except_name_contains' => [
+					'xcache'
+				]
+			},
+			# some people enter home/siteurl captialized
+			'captial' => {
+				'WP_HOST' => 'Wp.SandBox',
+				'_except_name_contains' => [
+					'xcache'
+				]
+
+			}
+		},
+		image_name
+	)
+
+	# multiply by wpmu
+	box_descriptors = multiply(box_descriptors, {
+		'single' => {
+			'WP_NETWORK' => 'single'
+		},
+		'subdomain' => {
+			'WP_NETWORK' => 'subdomain',
+			'_except_name_contains' => [
+				# wp doesnt allow to create subdomain network when wp is in /wp/ folder
+				'pathwp',
+				# wp doesnt allow networks on non-default ports
+				'8080',
+				'captial',   # no reason to test subdomain, single enough
+				'xcache-wp431',
+				'xcache-wp47',
+				'xcache-wp48',
+			]
+		},
+		'subdir' => {
+			'WP_NETWORK' => 'subdir',
+			'_except_name_contains' => [
+				# under wpmu subdir wp-content word is used in rules so exact
+				# structure is expected.
+				# it makes it difficult to match all possible cases under moved folders.
+				# leaving unsupported until explicitly required
+				'pathmoved',
+				# wp doesnt allow networks on non-default ports
+				'8080',
+				'captial',   # no reason to test subdomain, single enough
+				'xcache-wp431',
+				'xcache-wp47',
+				'xcache-wp48',
+			]
+		}
+	}, image_name)
+
+	return box_descriptors
+end
+
+
+
+# build list of subenviornments that box will contain
+def generate_box_subenvironments(image_variables, box_variables)
+	subenvironments = {}
+
+	#
+	# cache engines
+	#
+
+	# if strictly not disabled - add usual file engines for testing
+	if image_variables['FILESYSTEM'] != 'no'
+		subenvironments['cache-file'] = {
+			'CACHE_ENGINE_LABEL' => 'file',
+			'CACHE_ENGINE_NAME' => 'disk'
+
+		}
+		subenvironments['pagecache-file'] = {
+			'CACHE_ENGINE_LABEL' => 'file',
+			'CACHE_ENGINE_NAME' => 'disk'
+
+		}
+		subenvironments['pagecache-file_generic'] = {
+			'CACHE_ENGINE_LABEL' => 'file_generic',
+			'CACHE_ENGINE_NAME' => 'disk: enhanced'
+		}
+	end
+
+	if image_variables['APC'] == 'apc' or image_variables['APC'] == 'apcu'
+		subenvironments['cache-apc'] = {
+			'CACHE_ENGINE_LABEL' => 'apc',
+			'CACHE_ENGINE_NAME' => 'apc'
+		}
+		subenvironments['pagecache-apc'] = {
+			'CACHE_ENGINE_LABEL' => 'apc',
+			'CACHE_ENGINE_NAME' => 'apc'
+		}
+	end
+
+	if image_variables['MEMCACHE'] == 'memcache' or
+			image_variables['MEMCACHE'] == 'memcached'
+		subenvironments['cache-memcached'] = {
+			'CACHE_ENGINE_LABEL' => 'memcached',
+			'CACHE_ENGINE_NAME' => 'memcache'
+		}
+		subenvironments['pagecache-memcached'] = {
+			'CACHE_ENGINE_LABEL' => 'memcached',
+			'CACHE_ENGINE_NAME' => 'memcache'
+		}
+	end
+
+	if image_variables['REDIS'] == 'redis'
+		subenvironments['cache-redis'] = {
+			'CACHE_ENGINE_LABEL' => 'redis',
+			'CACHE_ENGINE_NAME' => 'redis'
+		}
+		subenvironments['pagecache-redis'] = {
+			'CACHE_ENGINE_LABEL' => 'redis',
+			'CACHE_ENGINE_NAME' => 'redis'
+		}
+	end
+
+	if image_variables['XCACHE'] == 'xcache'
+		subenvironments['cache-xcache'] = {
+			'CACHE_ENGINE_LABEL' => 'xcache',
+			'CACHE_ENGINE_NAME' => 'xcache'
+		}
+		subenvironments['pagecache-xcache'] = {
+			'CACHE_ENGINE_LABEL' => 'xcache',
+			'CACHE_ENGINE_NAME' => 'xcache'
+		}
+	end
+
+
+	#
+	# minify engines
+	#
+	subenvironments['minify-js-jsmin'] = {
+		'MINIFY_JS_ENGINE_LABEL' => 'js'
+	}
+	subenvironments['minify-js-jsminplus'] = {
+		'MINIFY_JS_ENGINE_LABEL' => 'jsminplus'
+	}
+	subenvironments['minify-js-googleccjs'] = {
+		'MINIFY_JS_ENGINE_LABEL' => 'googleccjs'
+	}
+	subenvironments['minify-js-yuijs'] = {
+		'MINIFY_JS_ENGINE_LABEL' => 'yuijs'
+	}
+	subenvironments['minify-js-ccjs'] = {
+		'MINIFY_JS_ENGINE_LABEL' => 'ccjs'
+	}
+	subenvironments['minify-css-css'] = {
+		'MINIFY_CSS_ENGINE_LABEL' => 'css'
+	}
+	subenvironments['minify-css-cssmin'] = {
+		'MINIFY_CSS_ENGINE_LABEL' => 'cssmin'
+	}
+	subenvironments['minify-css-yuicss'] = {
+		'MINIFY_CSS_ENGINE_LABEL' => 'yuicss'
+	}
+	subenvironments['minify-css-csstidy'] = {
+		'MINIFY_CSS_ENGINE_LABEL' => 'csstidy'
+	}
+
+
+	#
+	# blogs
+	#
+	scheme = image_variables['HTTP_SERVER_SCHEME']
+	wp_host = box_variables['WP_HOST']
+	maybe_port = image_variables['WP_MAYBE_COLON_PORT']
+
+	if box_variables['WP_NETWORK'] == 'subdomain'
+		# due to problem in wp network-admin is based on home url, not site url
+		box_variables['WPADMIN_NETWORK_URL'] = scheme + '://' + wp_host +
+			maybe_port + box_variables['WP_HOME_URI'] + 'wp-admin/network/'
+
+		subenvironments['blog-1'] = {
+			'WP_BLOG_ID' => '1',
+			'WP_BLOG_HOST' => wp_host,
+			'WP_BLOG_ADMIN_URL' => scheme + '://' + wp_host + maybe_port +
+				box_variables['WP_SITE_URI'] + 'wp-admin/',
+			'WP_BLOG_HOME_URI' => box_variables['WP_HOME_URI'],
+			'WP_BLOG_HOME_URL' => scheme + '://' + wp_host + maybe_port +
+				box_variables['WP_HOME_URI'],
+			'WP_BLOG_SITE_URI' => box_variables['WP_SITE_URI']
+		}
+		subenvironments['blog-2'] = {
+			'WP_BLOG_ID' => '2',
+			'WP_BLOG_HOST' => 'b2.' + wp_host,
+			'WP_BLOG_ADMIN_URL' => scheme + '://b2.' + wp_host + maybe_port +
+				box_variables['WP_SITE_URI'] + 'wp-admin/',
+			'WP_BLOG_HOME_URI' => box_variables['WP_HOME_URI'],
+			'WP_BLOG_HOME_URL' => scheme + '://b2.' + wp_host + maybe_port +
+				box_variables['WP_HOME_URI'],
+			'WP_BLOG_SITE_URI' => box_variables['WP_SITE_URI']
+		}
+	elsif box_variables['WP_NETWORK'] == 'subdir'
+		# due to problem in wp network-admin is based on home url, not site url
+		box_variables['WPADMIN_NETWORK_URL'] = scheme + '://' + wp_host + maybe_port +
+			box_variables['WP_HOME_URI'] + 'wp-admin/network/'
+
+		if box_variables['WP_HOME_URI'] != box_variables['WP_SITE_URI']
+			b2_wpadmin_url = scheme + '://' + wp_host + maybe_port +
+				box_variables['WP_HOME_URI'] +
+				'b2' + box_variables['WP_SITE_URI'] + 'wp-admin/'
+			b2_site_uri = box_variables['WP_HOME_URI'] +
+				'b2' + box_variables['WP_SITE_URI']
+		else
+			b2_wpadmin_url = scheme + '://' + wp_host + maybe_port +
+				box_variables['WP_HOME_URI'] +
+				'b2/wp-admin/'
+			b2_site_uri = box_variables['WP_HOME_URI'] + 'b2/'
+		end
+
+		subenvironments['blog-1'] = {
+			'WP_BLOG_ID' => '1',
+			'WP_BLOG_HOST' => wp_host,
+			'WP_BLOG_ADMIN_URL' => scheme + '://' + wp_host + maybe_port +
+				box_variables['WP_SITE_URI'] + 'wp-admin/',
+			'WP_BLOG_HOME_URI' => box_variables['WP_HOME_URI'],
+			'WP_BLOG_HOME_URL' => scheme + '://' + wp_host + maybe_port +
+				box_variables['WP_HOME_URI'],
+			'WP_BLOG_SITE_URI' => box_variables['WP_SITE_URI']
+		}
+		subenvironments['blog-2'] = {
+			'WP_BLOG_ID' => '2',
+			'WP_BLOG_HOST' => wp_host,
+			'WP_BLOG_ADMIN_URL' => b2_wpadmin_url,
+			'WP_BLOG_HOME_URI' => box_variables['WP_HOME_URI'] + 'b2/',
+			'WP_BLOG_HOME_URL' => scheme + '://' + wp_host + maybe_port +
+				box_variables['WP_HOME_URI'] + 'b2/',
+			'WP_BLOG_SITE_URI' => b2_site_uri
+		}
+	else
+		box_variables['WPADMIN_NETWORK_URL'] = scheme + '://' + wp_host +
+			maybe_port + box_variables['WP_SITE_URI'] + 'wp-admin/'
+
+		subenvironments['blog-0'] = {
+			'WP_BLOG_ID' => '0',
+			'WP_BLOG_HOST' => wp_host,
+			'WP_BLOG_ADMIN_URL' => scheme + '://' + wp_host + maybe_port +
+				box_variables['WP_SITE_URI'] + 'wp-admin/',
+			'WP_BLOG_HOME_URI' => box_variables['WP_HOME_URI'],
+			'WP_BLOG_HOME_URL' => scheme + '://' + wp_host + maybe_port +
+				box_variables['WP_HOME_URI'],
+			'WP_BLOG_SITE_URI' => box_variables['WP_SITE_URI']
+		}
+	end
+
+	return {
+		'subenvironments' => subenvironments,
+		'box_variables' =>  box_variables
+	}
+end
+
+
+
+# adds vagrant-provider's specific variables
+def expand_image_specifics(image_descriptors)
+	vagrant_oses = {
+		'trusty' => {
+			'AWS_ZONE' => 'us-west-2',
+			'AWS_AMI' => 'ami-064460a18d75afc81',
+			'OS_VERSION' => 'Ubuntu 14.04 LTE 64Bit',
+			'vagrant_box' => 'ubuntu/trusty64',
+			'vagrant_box_version' => '20190429.0.0'
+		},
+		'xenial' => {
+			'AWS_ZONE' => 'us-west-2',
+			'AWS_AMI' => 'ami-08f21f7b6d9013a08',
+			'OS_VERSION' => 'Ubuntu 16.04 LTE 64Bit',
+			'vagrant_box' => 'ubuntu/xenial64',
+			'vagrant_box_version' => '20190501.0.0'
+		},
+
+		# puppeteer not available for this version
+		#'precise' => {
+		#	'AWS_ZONE' => 'us-west-2',
+		#	'AWS_AMI' => 'ami-830c94e3',
+		#	'OS_VERSION' => 'Ubuntu 12.04 LTE 64Bit',
+		#	'vagrant_box' => 'precise64',
+        #    'vagrant_box_url' => 'https://vagrantcloud.com/ubuntu/boxes/precise64/versions/12.04.4/providers/virtualbox.box'
+		#}
+	}
+
+	output = {}
+
+	names = image_descriptors.keys.sort
+	names.each{|name|
+		box_variables = image_descriptors[name]
+		vagrant_os = box_variables['OS']
+		new_variables = box_variables.merge(vagrant_oses[vagrant_os])
+		output[name] = new_variables
+	}
+
+	return output
+end
+
+
+
+# multiply existing environments added new postfixes to each of it
+# so that "apache, nginx" multiplied by "php5, php6" will create
+# "apache_php5, apache_php6, nginx_php5, nginx_php6"
+def multiply(input, by_what, base_name = '')
+	output = {}
+
+	input.each{|original_name, original_variables|
+		by_what.each{|postfix, postfix_variables|
+			apply = true
+			if ! postfix_variables['_except_name_contains'].nil?
+				postfix_variables['_except_name_contains'].each{|contains|
+					apply = apply && !(base_name + original_name).include?(contains)
+				}
+			end
+
+			if apply
+				new_variables = original_variables.merge(postfix_variables)
+				if postfix.empty?
+					new_name = original_name
+				elsif original_name.empty?
+					new_name = postfix
+				else
+					new_name = original_name + '-' + postfix
+				end
+
+				output[new_name] = new_variables
+			end
+		}
+	}
+
+	return output
+end
+
+
+
+# add boxes by multiplying only selected boxes
+def multiply_selected(input, name_regexp, by_what, base_name = '')
+	output = {}
+
+	multipled = false
+
+	input.each{|original_name, original_variables|
+	  original_name.match(name_regexp) {
+		multipled = true
+		by_what.each{|postfix, postfix_variables|
+			apply = true
+			if ! postfix_variables['_except_name_contains'].nil?
+				postfix_variables['_except_name_contains'].each{|contains|
+					apply = apply && !(base_name + original_name).include?(contains)
+				}
+			end
+
+			if apply
+				new_variables = original_variables.merge(postfix_variables)
+				if postfix.empty?
+					new_name = original_name
+				elsif original_name.empty?
+					new_name = postfix
+				else
+					new_name = original_name + '-' + postfix
+				end
+
+				output[new_name] = new_variables
+			end
+		}
+	  }
+
+	  output[original_name] = original_variables
+	}
+
+	if ! multipled
+		raise 'none matched expression ' + name_regexp
+	end
+
+	return output
+end
+
+
+
+# creates one more environment based on last one in the list, matching name
+def add_single(input, name_contains, by_what)
+	found_name = nil
+	found_variables = nil
+
+	input.each{|original_name, original_variables|
+	  original_name.match(name_contains) {
+		found_name = original_name
+		found_variables = original_variables
+	  }
+	}
+
+	if found_name.nil?
+		raise 'none matched name ' + name_contains
+	end
+
+	found_variables = found_variables.merge({})
+
+	by_what.each{|postfix, postfix_variables|
+		new_variables = found_variables.merge(postfix_variables)
+		input[found_name + '-' + postfix] = new_variables
+	}
+
+	return input
+end
+
+
+
+def generate_ami(name, variables)
+	puts 'generating ' + name
+
+	system 'mkdir ./amis/' + name
+
+	File.open('./amis/' + name + '/export.sh', 'w'){|fh|
+		fh.puts 'export W3D_AMI_NAME="' + name + '"'
+		fh.puts 'export D="$"'
+
+		variables.each{|name, value|
+			if name[0] != '_'
+				fh.puts 'export W3D_' + name + '="' + value + '"'
+			end
+		}
+	}
+
+	File.open('./amis/' + name + '/vars.yml', 'w'){|fh|
+		fh.puts 'W3D_AMI_NAME: "' + name + '"'
+		fh.puts 'D: "$"'
+
+		variables.each{|name, value|
+			if name[0] != '_'
+				fh.puts 'W3D_' + name + ': "' + value + '"'
+			end
+		}
+	}
+end
+
+
+
+def generate_box(name, variables, subenvironments, image_variables)
+	puts 'generating ' + name
+
+	system 'mkdir ./boxes/' + name
+
+	File.open('./boxes/' + name + '/export.sh', 'w'){|fh|
+		fh.puts 'export W3D_BOX_NAME="' + name + '"'
+		fh.puts 'export D="$"'
+
+		variables.each{|name, value|
+			if name[0] != '_'
+				fh.puts 'export W3D_' + name + '="' + value + '"'
+			end
+		}
+	}
+
+	v_filename = 'Vagrantfile.erb'
+	template = File.new("./scripts/init-box/templates/Vagrantfile.erb").read
+
+	File.open('./boxes/' + name + '/Vagrantfile', "w+") do |f|
+    	f.write(ERB.new(template).result(OpenStruct.new(image_variables).instance_eval { binding }))
+	end
+
+	system 'cp ./amis/' + variables['AWS_AMI_NAME'] + '/export.sh ' +
+		'./boxes/' + name + '/vagrant-ami-export.sh'
+
+	system 'cp ./scripts/init-box/templates/vagrant-init.sh ./boxes/' + name + '/'
+
+	system 'mkdir ./boxes/' + name + '/environments/'
+
+	subenvironments.each{|env_name, variables|
+		File.open('./boxes/' + name + '/environments/' + env_name + '.sh', 'w'){|fh|
+			variables.each{|name, value|
+				fh.puts 'export W3D_' + name + '="' + value + '"'
+			}
+		}
+	}
+
+	File.open('./boxes/' + name + '/vars.yml', 'w'){|fh|
+		fh.puts 'W3D_BOX_NAME: "' + name + '"'
+		fh.puts 'D: "$"'
+
+		variables.each{|name, value|
+			if name[0] != '_'
+				fh.puts 'W3D_' + name + ': "' + value + '"'
+			end
+		}
+	}
+end
+
+
+run
