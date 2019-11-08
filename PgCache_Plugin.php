@@ -36,6 +36,9 @@ class PgCache_Plugin {
 		add_action( 'w3tc_flush_url',
 			array( $this, 'w3tc_flush_url' ),
 			1100, 1 );
+
+		add_filter( 'w3tc_pagecache_set_header',
+			array( $this, 'w3tc_pagecache_set_header' ), 10, 3 );
 		add_filter( 'w3tc_admin_bar_menu',
 			array( $this, 'w3tc_admin_bar_menu' ) );
 
@@ -362,5 +365,19 @@ class PgCache_Plugin {
 		$v = $pgcacheflush->flush_url( $url );
 
 		return $v;
+	}
+
+
+
+	/**
+	 * By default headers are not cached by file_generic
+	 */
+	public function w3tc_pagecache_set_header( $header, $header_original,
+			$pagecache_engine ) {
+		if ( $pagecache_engine == 'file_generic' ) {
+			return null;
+		}
+
+		return $header;
 	}
 }
