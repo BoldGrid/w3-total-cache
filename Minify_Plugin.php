@@ -199,7 +199,7 @@ class Minify_Plugin {
 					$this->remove_styles_group( $buffer, 'include' );
 				}
 
-				if ( $this->_config->get_boolean( 'minify.css.http2push' ) ) {
+				if ( $this->_config->getf_boolean( 'minify.css.http2push' ) ) {
 					$this->minify_helpers->http2_header_add( $style['url'],
 						'style' );
 				}
@@ -207,7 +207,7 @@ class Minify_Plugin {
 
 			if ( $js_enable ) {
 				$embed_type = $this->_config->get_string( 'minify.js.header.embed_type' );
-				$http2push = $this->_config->get_boolean( 'minify.js.http2push' );
+				$http2push = $this->_config->getf_boolean( 'minify.js.http2push' );
 
 				$script = $this->get_script_group( 'include', $embed_type );
 

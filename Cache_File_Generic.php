@@ -99,16 +99,14 @@ class Cache_File_Generic extends Cache_File {
 						if ( $h['n'] == 'Link' && false !== strpos( $h['v'], 'rel=preload' ) ) {
 							$links .= "    Header add Link '" . trim( $h['v'] ) . "'\n";
 						}
-						if ( substr( $h['n'], 0, 2 ) == 'W-' ) {
-							$links .= "    Header add " . $h['n'] . " '" . trim( $h['v'] ) . "'\n";
-						}
 					}
 				}
 
 				if ( !empty( $links) ) {
+					// Link header doesnt apply to .xml assets
 					$rules .= "<IfModule mod_headers.c>\n";
 					$rules .= "    Header unset Link\n";
-					$rules .= "    <FilesMatch \"\.(html|html_gzip|html_br)$\">\n";
+					$rules .= "    <FilesMatch \"\.html[_a-z]*$\">\n";
 					$rules .= $links;
 					$rules .= "    </FilesMatch>\n";
 					$rules .= "</IfModule>\n";

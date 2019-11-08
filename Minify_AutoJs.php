@@ -301,7 +301,7 @@ class Minify_AutoJs {
 				$data );
 			$this->buffer = $data['buffer'];
 
-			if ( $this->config->get_boolean( 'minify.js.http2push' ) ) {
+			if ( $this->config->getf_boolean( 'minify.js.http2push' ) ) {
 				$this->minify_helpers->http2_header_add(
 					$data['script_to_embed_url'], 'script' );
 			}
