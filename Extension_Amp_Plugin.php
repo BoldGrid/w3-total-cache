@@ -21,6 +21,8 @@ class Extension_Amp_Plugin {
 			array( $this, 'x_flush_post_queued_urls' ) );
 		add_filter( 'varnish_flush_post_queued_urls',
 			array( $this, 'x_flush_post_queued_urls' ) );
+		add_filter( 'w3tc_pagecache_set',
+			array( $this, 'w3tc_pagecache_set' ) );
 	}
 
 
@@ -37,15 +39,13 @@ class Extension_Amp_Plugin {
 			}
 		}
 
-		return $this->is_amp_endpoint;
+		return is_null( $this->is_amp_endpoint ) ? false : $this->is_amp_endpoint;
 	}
 
 
 
 	public function w3tc_minify_jscss_enable( $enabled ) {
-		$is_amp_endpoint = $this->is_amp_endpoint();
-
-		if ( !is_null( $is_amp_endpoint ) && $is_amp_endpoint ) {
+		if ( $this->is_amp_endpoint() ) {
 			// amp has own rules for CSS and JS files, don't touch them by default
 			return false;
 		}
@@ -56,9 +56,7 @@ class Extension_Amp_Plugin {
 
 
 	public function w3tc_newrelic_should_disable_auto_rum( $reject_reason ) {
-		$is_amp_endpoint = $this->is_amp_endpoint();
-
-		if ( !is_null( $is_amp_endpoint ) && $is_amp_endpoint ) {
+		if ( $this->is_amp_endpoint() ) {
 			return 'AMP endpoint';
 		}
 
@@ -68,9 +66,7 @@ class Extension_Amp_Plugin {
 
 
 	public function w3tc_lazyload_can_process( $can_process ) {
-		$is_amp_endpoint = $this->is_amp_endpoint();
-
-		if ( !is_null( $is_amp_endpoint ) && $is_amp_endpoint ) {
+		if ( $this->is_amp_endpoint() ) {
 			$can_process['enabled'] = false;
 			$can_process['reason'] = 'AMP endpoint';
 		}
@@ -94,13 +90,53 @@ class Extension_Amp_Plugin {
 
 
 	public function w3tc_footer_comment( $strings ) {
-		$is_amp_endpoint = $this->is_amp_endpoint();
-
-		if ( !is_null( $is_amp_endpoint ) && $is_amp_endpoint ) {
+		if ( $this->is_amp_endpoint() ) {
 			$strings[] = 'AMP page, minification is limited';
 		}
 
 		return $strings;
+	}
+
+
+
+	public function w3tc_pagecache_set( $data ) {
+		if ( $this->is_amp_endpoint() ) {
+			// workaround to prevent Link headers from parent page
+			// to appear in amp page coming from it's .htaccess
+			$c = Dispatcher::config();
+			if ( $c->getf_boolean( 'minify.css.http2push' ) ||
+					$c->getf_boolean( 'minify.js.http2push' ) ) {
+				$data['headers'][] = array(
+					'n' => 'Link', 'v' => '', 'files_match' => '\\.html[_a-z]*$' );
+
+				$this->w3tc_pagecache_set_header_register_once();
+			}
+		}
+
+		return $data;
+	}
+
+
+
+	private function w3tc_pagecache_set_header_register_once() {
+		static $registered = false;
+
+		if ( !$registered ) {
+			add_filter( 'w3tc_pagecache_set_header',
+				array( $this, 'w3tc_pagecache_set_header' ), 20, 2 );
+		}
+	}
+
+
+
+	public function w3tc_pagecache_set_header( $header, $header_original ) {
+		if ( $header_original['n'] == 'Link' && empty( $header_original['v'] ) ) {
+			// forces removal of Link header for file_generic when its set by
+			// parent .htaccess
+			return $header_original;
+		}
+
+		return $header;
 	}
 }
 
