@@ -78,11 +78,11 @@ class Varnish_Flush {
 	}
 
 	/*
-     * Sends purge request. Cannt use default wp HTTP implementation
-     * if we send request to different host than specified in $url
-     *
-     * @param $url string
-     */
+	 * Sends purge request. Cannt use default wp HTTP implementation
+	 * if we send request to different host than specified in $url
+	 *
+	 * @param $url string
+	 */
 	function _request( $varnish_server, $url ) {
 		$parse_url = @parse_url( $url );
 
@@ -95,12 +95,8 @@ class Varnish_Flush {
 		$query = ( isset( $parse_url['query'] ) ? $parse_url['query'] : '' );
 		$request_uri = $path . ( $query != '' ? '?' . $query : '' );
 
-		if ( strpos( $varnish_server, ':' ) )
-			list( $varnish_host, $varnish_port ) = explode( ':', $varnish_server );
-		else {
-			$varnish_host = $varnish_server;
-			$varnish_port = 80;
-		}
+		list( $varnish_host, $varnish_port ) =
+			Util_Content::endpoint_to_host_port( $server, 80 );
 
 		// if url host is the same as varnish server - we can use regular
 		// wordpress http infrastructure, otherwise custom request should be
@@ -205,14 +201,14 @@ class Varnish_Flush {
 
 			// If WPMU Domain Mapping plugin is installed and active
 			if ( defined( 'SUNRISE_LOADED' ) && SUNRISE_LOADED && isset( $wpdb->dmtable ) && !empty( $wpdb->dmtable ) ) {
-				$blogs = $wpdb->get_results( "SELECT {$wpdb->blogs}.domain, {$wpdb->blogs}.path, {$wpdb->dmtable}.domain AS mapped_domain
-                                    FROM {$wpdb->dmtable}
-                                    RIGHT JOIN {$wpdb->blogs} ON {$wpdb->dmtable}.blog_id = {$wpdb->blogs}.blog_id
-                                    WHERE site_id = {$wpdb->siteid}
-                                    AND spam = 0
-                                    AND deleted = 0
-                                    AND archived = '0'
-                                   " );
+				$blogs = $wpdb->get_results( "
+					SELECT {$wpdb->blogs}.domain, {$wpdb->blogs}.path, {$wpdb->dmtable}.domain AS mapped_domain
+					FROM {$wpdb->dmtable}
+					RIGHT JOIN {$wpdb->blogs} ON {$wpdb->dmtable}.blog_id = {$wpdb->blogs}.blog_id
+					WHERE site_id = {$wpdb->siteid}
+					AND spam = 0
+					AND deleted = 0
+					AND archived = '0'" );
 				foreach ( $blogs as $blog ) {
 					if ( !isset( $blog->mapped_domain ) )
 						$url = $protocall . $blog->domain . ( strlen( $blog->path )>1? '/' . trim( $blog->path, '/' ) : '' ) . '/.*';
@@ -226,13 +222,12 @@ class Varnish_Flush {
 					$this->_purge( get_home_url().'/.*' );
 				} else {
 					$blogs = $wpdb->get_results( "
-                                        SELECT domain, path
-                                        FROM {$wpdb->blogs}
-                                        WHERE site_id = '{$wpdb->siteid}'
-                                        AND spam = 0
-                                        AND deleted = 0
-                                        AND archived = '0'
-                                    " );
+						SELECT domain, path
+						FROM {$wpdb->blogs}
+						WHERE site_id = '{$wpdb->siteid}'
+						AND spam = 0
+						AND deleted = 0
+						AND archived = '0'" );
 
 					foreach ( $blogs as $blog ) {
 						$url = $protocall . $blog->domain . ( strlen( $blog->path )>1? '/' . trim( $blog->path, '/' ) : '' ) . '/.*';

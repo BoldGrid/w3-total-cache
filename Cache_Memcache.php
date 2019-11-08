@@ -33,12 +33,8 @@ class Cache_Memcache extends Cache_Base {
 			$persistent = isset( $config['persistent'] ) ? (boolean) $config['persistent'] : false;
 
 			foreach ( (array) $config['servers'] as $server ) {
-				if ( substr( $server, 0, 5 ) == 'unix:' || strpos( $server, ':' ) === false ) {
-					$this->_memcache->addServer( trim( $server ), 0, $persistent );
-				} else {
-					list( $ip, $port ) = explode( ':', $server );
-					$this->_memcache->addServer( trim( $ip ), (integer) trim( $port ), $persistent );
-				}
+				list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server );
+				$this->_memcache->addServer( $ip, $port, $persistent );
 			}
 		} else {
 			return false;

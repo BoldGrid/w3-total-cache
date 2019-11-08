@@ -85,4 +85,26 @@ class Util_Content {
 	static public function is_database_error() {
 		return false;
 	}
+
+
+
+	/**
+	 * Converts
+	 * 127.0.0.1:1234 to ( '123.0.0.1', 1234 )
+	 * tls://127.0.0.1:1234 to ( 'tls://123.0.0.1', 1234 )
+	 * unix:/my/pipe to ( 'unix:/my/pipe', 0 )
+	 *
+	 * Doesnt fit to that class perfectly but selected due to common usage
+	 * of loaded classes
+	 */
+	static public function endpoint_to_host_port( $server, $port_default = 0 ) {
+		$p = strrpos( $server, ':' );
+		if ( substr( $server, 0, 5 ) == 'unix:' || $p === false ) {
+			return array( trim( $server ), $port_default );
+		}
+
+		return array(
+			trim( substr( $server, 0, $p ) ),
+			(int)substr( $server, $p + 1 ) );
+	}
 }
