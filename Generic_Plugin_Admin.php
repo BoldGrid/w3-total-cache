@@ -305,6 +305,13 @@ class Generic_Plugin_Admin {
 			font-family: 'w3tc';
 		}
 		</style>
+		<script>
+		jQuery(document).ready( function($) {
+			$('#toplevel_page_w3tc_dashboard ul li').find('a[href*="w3tc_faq"]')
+				.prop('target','_blank')
+				.prop('href', <?php echo json_encode(W3TC_FAQ_URL) ?>);
+		});
+		</script>
 		<?php
 	}
 
