@@ -9,6 +9,9 @@ export W3TCQA_EC2_INSTANCE_TYPE=t3.medium
 export W3TCQA_EC2_KEY_NAME=aws-w3tcqa
 export W3TCQA_EC2_SECURITY_GROUP_ID=sg-xxx
 
+export W3TCQA_INTESITY_INSTANCES_PER_BOX=3
+export W3TCQA_INTESITY_THREADS_NUMBER=110
+
 # for reporting
 export MAILFROM="me@host.com"
 export MAILTO="me@host.com"
