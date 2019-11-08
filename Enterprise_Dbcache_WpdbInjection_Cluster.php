@@ -392,12 +392,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			extract( $this->_cluster_servers[$dataset][$operation][$zone][$index], EXTR_OVERWRITE );
 
 			// Split host:port into $host and $port
-			if ( strpos( $host, ':' ) )
-				list( $host, $port ) = explode( ':', $host );
-
-			// Make sure there's always a port number
-			if ( empty( $port ) )
-				$port = 3306;
+			list( $host, $port ) = Util_Content::endpoint_to_host_port( $host, 3306 );
 
 			$this->wpdb_mixin->timer_start();
 
