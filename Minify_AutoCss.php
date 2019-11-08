@@ -290,7 +290,7 @@ class Minify_AutoCss {
 				$data );
 			$this->buffer = $data['buffer'];
 
-			if ( $this->config->get_boolean( 'minify.css.http2push' ) ) {
+			if ( $this->config->getf_boolean( 'minify.css.http2push' ) ) {
 				$this->minify_helpers->http2_header_add(
 					$data['style_to_embed_url'], 'style' );
 			}

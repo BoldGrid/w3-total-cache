@@ -211,6 +211,52 @@ class Config {
 
 
 	/**
+	 * Returns config value with ability to hook it.
+	 * Should be called only when filters already loaded and
+	 * call doesn't repeat too many times
+	 */
+	public function getf( $key, $default = null ) {
+		$v = $this->get( $key, $default );
+		return apply_filters( 'w3tc_config_item_' . $key, $v );
+	}
+
+	/**
+	 * Returns string value with ability to hook it
+	 */
+	public function getf_string( $key, $default = '', $trim = true ) {
+		$value = (string)$this->getf( $key, $default );
+
+		return $trim ? trim( $value ) : $value;
+	}
+
+	/**
+	 * Returns integer value with ability to hook it
+	 */
+	public function getf_integer( $key, $default = 0 ) {
+		return (integer)$this->getf( $key, $default );
+	}
+
+
+
+	/**
+	 * Returns boolean value ability to hook it
+	 */
+	public function getf_boolean( $key, $default = false ) {
+		return (boolean)$this->getf( $key, $default );
+	}
+
+
+
+	/**
+	 * Returns array value ability to hook it
+	 */
+	public function getf_array( $key, $default = array() ) {
+		return (array)$this->getf( $key, $default );
+	}
+
+
+
+	/**
 	 * Check if an extension is active
 	 */
 	public function is_extension_active( $extension ) {
