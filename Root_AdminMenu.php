@@ -142,18 +142,9 @@ class Root_AdminMenu {
 					array( $this, 'options' )
 				);
 				$submenu_pages[] = $hook;
-
-				if ( isset( $titles['redirect_faq'] ) ) {
-					add_action( 'load-' . $hook, array( $this, 'redirect_faq' ) );
-				}
 			}
 		}
 		return $submenu_pages;
-	}
-
-	public function redirect_faq() {
-		wp_redirect( W3TC_FAQ_URL );
-		exit;
 	}
 
 	/**
