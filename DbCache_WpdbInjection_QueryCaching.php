@@ -339,7 +339,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 					'aws_autodiscovery' => $this->_config->get_boolean( 'dbcache.memcached.aws_autodiscovery' ),
 					'username' => $this->_config->get_string( 'dbcache.memcached.username' ),
 					'password' => $this->_config->get_string( 'dbcache.memcached.password' ),
-					'binary_protocol' => $c->get_boolean( 'dbcache.memcached.binary_protocol' )
+					'binary_protocol' => $this->_config->get_boolean( 'dbcache.memcached.binary_protocol' )
 				);
 				break;
 
