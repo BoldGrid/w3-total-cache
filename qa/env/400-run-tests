@@ -14,8 +14,8 @@ import pid
 
 
 def run():
-	box_instances_per_box = sys.argv[1]
-	threads_number = sys.argv[2]
+	box_instances_per_box = int(sys.argv[1])
+	threads_number = int(sys.argv[2])
 
 
 	shell.shell2('rm -f ./working/*.zip')
