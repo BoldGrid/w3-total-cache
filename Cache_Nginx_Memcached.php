@@ -57,12 +57,8 @@ class Cache_Nginx_Memcached extends Cache_Base {
 				\Memcached::DYNAMIC_CLIENT_MODE );
 
 		foreach ( (array)$config['servers'] as $server ) {
-			if ( substr( $server, 0, 5 ) == 'unix:' || strpos( $server, ':' ) === false ) {
-				$this->_memcache->addServer( trim( $server ), 0 );
-			} else {
-				list( $ip, $port ) = explode( ':', $server );
-				$this->_memcache->addServer( trim( $ip ), (integer) trim( $port ) );
-			}
+			list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server );
+			$this->_memcache->addServer( $ip, $port );
 		}
 
 		if ( isset( $config['username'] ) && !empty( $config['username'] ) &&

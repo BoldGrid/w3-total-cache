@@ -38,11 +38,9 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 			'docroot' => ''
 		), $config );
 
-		$host_port = explode( ':', $config['host'] );
-		if ( sizeof( $host_port ) == 2 ) {
-			$config['host'] = $host_port[0];
-			$config['port'] = $host_port[1];
-		}
+		list( $ip, $port ) = Util_Content::endpoint_to_host_port( $config['host'], 21 );
+		$config['host'] = $ip;
+		$config['port'] = $port;
 
 		if ( $config['type'] == 'sftp' && $config['default_keys'] ) {
 			$config['pubkey'] = $_SERVER['HOME'] . '/.ssh/id_rsa.pub';
@@ -63,10 +61,6 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 			$error = 'Empty host.';
 
 			return false;
-		}
-
-		if ( empty( $this->_config['port'] ) ) {
-			$this->_config['port'] = 21;
 		}
 
 		$this->_set_error_handler();
