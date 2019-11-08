@@ -8,3 +8,4 @@ nbproject
 /qa/env/key-aws-w3tcqa.pem
 /qa/env/lib/*.pyc
 /qa/env/working/*
+/qa/node_modules/*
