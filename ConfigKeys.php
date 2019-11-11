@@ -187,6 +187,7 @@ $keys = array(
 			'lazy-slider-img=',
 			'loading="eager"',
 			'no-lazy',
+			'rev-slidebg',
 			'soliloquy-image',
 			'swatch-img',
 			'w3-total-cache',
