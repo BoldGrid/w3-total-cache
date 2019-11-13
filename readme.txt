@@ -2,8 +2,8 @@
 Contributors: fredericktownes
 Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
-Tested up to: 5.2
-Stable tag: 0.10.1
+Tested up to: 5.3
+Stable tag: 0.10.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -270,6 +270,9 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.10.2 =
+* Fixed compatibility with wpdb::prepare in WordPress 5.3
 
 = 0.10.1 =
 * Fixed slowdown in memcached engine
