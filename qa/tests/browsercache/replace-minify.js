@@ -77,16 +77,21 @@ describe('', function() {
 		await page.goto(env.homeUrl, {waitUntil: 'domcontentloaded'});
 		let scripts = await dom.listScriptSrc(page);
 
-		var id = scripts[0].match(/.+\.(.+?)\.js$/);
-		console.log(scripts[0]);
-		var urlReg = new RegExp('^https?:\\/\\/.+\\.' + id[1] + '\\.js$');
+		let id = scripts[0].match(/.+\.(x[0-9]{5})\.js/);
+		log.log('url has unique-id ' + id);
+		let urlReg = new RegExp('^https?:\\/\\/.+\\.' + id[1] + '\\.js$');
 
+		let foundScript = '';
 		scripts.forEach(function(url) {
-			log.log('checking ' + url);
-			expect(url).matches(urlReg);
+			if (url.indexOf('/minify/') > 0) {
+				log.log('checking ' + url + ' to have unique-id');
+				expect(url).matches(urlReg);
+				foundScript = url;
+			}
 		});
 
-		let response = await page.goto(scripts[0], {waitUntil: 'domcontentloaded'});
+		expect(foundScript).not.empty;
+		let response = await page.goto(foundScript, {waitUntil: 'domcontentloaded'});
 		expect(response.status() < 400);
 	});
 });
