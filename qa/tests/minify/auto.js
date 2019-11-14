@@ -56,7 +56,7 @@ describe('', function() {
 
 	it('scripts minified', async() => {
 		await page.goto(testPageUrl);
-		let scripts = await dom.listScriptSrc(page);
+		let scripts = await dom.listScriptSrcSync(page);
 		for (let url of scripts) {
 			log.log('Minify presence expected in ' + url);
 			expect(url).contains('cache/minify');
