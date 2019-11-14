@@ -10,7 +10,7 @@ if ( !defined( 'W3TC' ) )
 	<p>
 		<strong>
 			Protect your WordPress site from data loss by installing the FREE
-			BoldGrid Backup plugin.
+			Total Upkeep plugin.
 		</strong>
 	</p>
 
