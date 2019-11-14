@@ -37,9 +37,9 @@ class Generic_WidgetBoldGrid {
 
 
 	/**
-	 * Determine whether or not we should show the BoldGrid Backup widget.
+	 * Determine whether or not we should show the backup widget.
 	 *
-	 * We will only recommend the BoldGrid Backup plugin if we detect that the user is not already
+	 * We will only recommend the backup plugin if we detect that the user is not already
 	 * running a popular WordPress backup plugin.
 	 *
 	 * @since 0.11.0
