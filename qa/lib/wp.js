@@ -383,7 +383,7 @@ async function postUpdateWP5(pPage, data) {
 	log.log('update page - waiting for published state');
 
 	let noticeText;
-	if (parseFloat(env.wpVersion) < 5.2) {
+	if (parseFloat(env.wpVersion) < 5.3) {
 		await pPage.waitForSelector('.components-notice', {timeout: 5000});
 		noticeText = await pPage.$eval('.components-notice__content',
 			(e) => e.innerHTML);
