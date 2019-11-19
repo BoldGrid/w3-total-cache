@@ -297,6 +297,9 @@ Please reach out to all of these people and support their projects if you're so 
 * Fixed path for file_generic REST caching on non-default port
 * Fixed test minify button with Closure Compiler engine
 
+= 0.10.2 =
+* Fixed compatibility with wpdb::prepare in WordPress 5.3
+
 = 0.10.1 =
 * Fixed slowdown in memcached engine
 * Fixed Purge Cache menu links so they flush current blog in WPMU
