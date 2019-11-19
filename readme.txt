@@ -1,5 +1,5 @@
 === Plugin Name ===
-Contributors: boldgrid, fredericktownes, gidomanders, bwmarkle
+Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle
 Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.3
