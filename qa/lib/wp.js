@@ -485,8 +485,15 @@ async function userSignUpSingle(pPage, data) {
 	}
 
 	await pPage.click('.wp-generate-pw');
-	await pPage.waitFor('#pass1-text', {visible: true});
-	let password = await pPage.$eval('#pass1-text', (e) => e.value);
+
+	let password;
+	if (parseFloat(env.wpVersion) < 5.3) {
+		await pPage.waitFor('#pass1-text', {visible: true});
+		password = await pPage.$eval('#pass1-text', (e) => e.value);
+	} else {
+		await pPage.waitFor('#pass1', {visible: true});
+		password = await pPage.$eval('#pass1', (e) => e.value);
+	}
 
 	await Promise.all([
 		pPage.click('#createusersub'),
