@@ -82,38 +82,17 @@ class Generic_Plugin_WidgetNews {
 		$items = array();
 		$items_count = $this->_config->get_integer( 'widget.latest_news.items' );
 
-		if ( $wp_version >= 2.8 ) {
-			include_once ABSPATH . WPINC . '/feed.php';
-			$feed = fetch_feed( W3TC_NEWS_FEED_URL );
+		include_once ABSPATH . WPINC . '/feed.php';
+		$feed = fetch_feed( W3TC_NEWS_FEED_URL );
 
-			if ( !is_wp_error( $feed ) ) {
-				$feed_items = $feed->get_items( 0, $items_count );
+		if ( !is_wp_error( $feed ) ) {
+			$feed_items = $feed->get_items( 0, $items_count );
 
-				foreach ( $feed_items as $feed_item ) {
-					$items[] = array(
-						'link' => $feed_item->get_link(),
-						'title' => $feed_item->get_title(),
-						'description' => $feed_item->get_description()
-					);
-				}
-			}
-		} else {
-			include_once ABSPATH . WPINC . '/rss.php';
-			$rss = fetch_rss( W3TC_NEWS_FEED_URL );
-
-			if ( is_object( $rss ) ) {
-				$items = array_slice( $rss->items, 0, $items_count );
-			}
-		}
-
-		// Removes feedburner tracking images when site is https
-		if ( Util_Environment::is_https() ) {
-			$total = sizeof( $items );
-			for ( $i = 0; $i < $total; $i++ ) {
-				if ( isset( $items[$i]['description'] ) ) {
-					$items[$i]['description'] = preg_replace( '/<img[^>]+src[^>]+W3TOTALCACHE[^>]+>/',
-						'', $items[$i]['description'] );
-				}
+			foreach ( $feed_items as $feed_item ) {
+				$items[] = array(
+					'link' => $feed_item->get_link(),
+					'title' => htmlspecialchars_decode( $feed_item->get_title() )
+				);
 			}
 		}
 
