@@ -225,6 +225,8 @@ async function postCreateWP5(pPage, data) {
 	    	hours = d.getHours(),
 	    	year = d.getFullYear();
 		month = (month <= 9 ? '0' : '') + month;
+		minutes = (minutes <= 9 ? '0' : '') + minutes;   // looks like otherwise unstable
+
 
 		await sys.repeatOnFailure(pPage, async() => {
 			log.log('click .edit-post-post-schedule__toggle');
