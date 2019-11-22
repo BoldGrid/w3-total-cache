@@ -49,7 +49,7 @@ get_header(); ?>
 		content
 	</div>
 
-	<div id="quoted-attribute2" data-test-quote1="" data-test-quote2=''>
+	<div id="quoted-attribute2" data-test-quote1="" data-test-quote2='' data-test-quote3='0' data-test-quote4=' '>
 		with empty content
 	</div>
 
