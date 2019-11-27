@@ -17,6 +17,14 @@ class Generic_Page_General extends Base_Page_Settings {
 	 * @return void
 	 */
 	function view() {
+		if ( isset( $_REQUEST['view'] ) && $_REQUEST['view'] == 'purge_log' &&
+				isset( $_REQUEST['module'] ) &&
+				in_array( $_REQUEST['module'], array( 'pagecache', 'objectcache', 'dbcache' ) ) ) {
+			$lines = Util_DebugPurgeLog_Reader::read( $_REQUEST['module'] );
+
+			require( __DIR__ . '/Generic_Page_General_View_PurgeLog.php' );
+			exit;
+		}
 
 		$current_user = wp_get_current_user();
 		$config_master = $this->_config_master;

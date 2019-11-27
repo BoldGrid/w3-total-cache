@@ -512,8 +512,21 @@ Util_Ui::config_item( array(
 					<?php $this->checkbox_debug( 'cdnfsd.debug' ) ?> <?php Util_Ui::e_config_label( 'cdnfsd.debug' ) ?></label><br />
 					<?php $this->checkbox_debug( 'varnish.debug' ) ?> <?php Util_Ui::e_config_label( 'varnish.debug' ) ?></label><br />
 					<?php if ( Util_Environment::is_w3tc_pro() ): ?>
-					<?php $this->checkbox_debug( 'cluster.messagebus.debug' ) ?> <?php Util_Ui::e_config_label( 'cluster.messagebus.debug' ) ?></label><br />
-					<?php endif; ?>
+						<?php $this->checkbox_debug( 'cluster.messagebus.debug' ) ?> <?php Util_Ui::e_config_label( 'cluster.messagebus.debug' ) ?></label><br />
+					<?php endif ?>
+
+					<?php $this->checkbox_debug( 'pgcache.debug_purge' ) ?>
+					Page Cache Purge Log (<a href="?page=w3tc_general&view=purge_log&module=pagecache">view log</a>)</label>
+					<br />
+
+					<?php $this->checkbox_debug( 'dbcache.debug_purge' ) ?>
+					Database Cache Purge Log (<a href="?page=w3tc_general&view=purge_log&module=dbcache">view log</a>)</label>
+					<br />
+
+					<?php $this->checkbox_debug( 'objectcache.debug_purge' ) ?>
+					Object Cache Purge Log (<a href="?page=w3tc_general&view=purge_log&module=objectcache">view log</a>)</label>
+					<br />
+
 					<span class="description"><?php _e( 'If selected, detailed caching information will appear at the end of each page in a <acronym title="Hypertext Markup Language">HTML</acronym> comment. View a page\'s source code to review.', 'w3-total-cache' ); ?></span>
 				</td>
 			</tr>
