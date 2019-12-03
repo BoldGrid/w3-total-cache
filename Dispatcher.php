@@ -136,23 +136,30 @@ class Dispatcher {
 	}
 
 	/**
-	 * Generates canonical header code for nginx if browsercache plugin has
-	 * to generate it
-	 *
-	 * @param Config  $config
-	 * @param boolean $cdnftp  if CDN FTP is used
-	 * @param string  $section
-	 * @return string
+	 * Returns common rules used by nginx for files belonging to browsercache
+	 * section
 	 */
-	static public function on_browsercache_rules_generation_for_section( $config, $cdnftp,
-		$section, $add_header_rules ) {
-		if ( $section != 'other' )
-			return '';
-		if ( self::canonical_generated_by( $config, $cdnftp ) != 'browsercache' )
-			return '';
+	static public function nginx_rules_for_browsercache_section( $config, $section,
+			$extra_add_headers_set = false ) {
+		$rules = array(
+			'other' => array(),
+			'add_header' => array()
+		);
+		if ( $config->get_boolean( 'browsercache.enabled' ) ) {
+			$o = new BrowserCache_Environment_Nginx();
+			$rules = $o->section_rules( $config, $section, $extra_add_headers_set );
+		}
 
-		return Util_RuleSnippet::canonical_without_location( $cdnftp,
-			$add_header_rules, $config->get_boolean( 'cdn.cors_header') );
+		if ( !empty( $rules['add_header'] ) &&
+				$config->get_boolean( 'cdn.enabled' ) ) {
+			$rule = Cdn_Environment_Nginx::generate_canonical( $config );
+
+			if ( !empty( $rule ) ) {
+				$rules['add_header'][] = $rule;
+			}
+		}
+
+		return array_merge( $rules['other'], $rules['add_header'] );
 	}
 
 	/**
@@ -167,67 +174,6 @@ class Dispatcher {
 				$file = $m[1] . $m[3];
 		}
 		return $file;
-	}
-
-	/**
-	 * Checks whether canonical should be generated or not by browsercache plugin
-	 *
-	 * @param Config  $config
-	 * @param boolean $cdnftp
-	 * @return string|null
-	 */
-	static public function canonical_generated_by( $config, $cdnftp = false ) {
-		if ( !self::_should_canonical_be_generated( $config, $cdnftp ) )
-			return null;
-
-		if ( Util_Environment::is_nginx() ) {
-			// in nginx - browsercache generates canonical if its enabled,
-			// since it does not allow multiple location tags
-			if ( $config->get_boolean( 'browsercache.enabled' ) )
-				return 'browsercache';
-		}
-
-		if ( $config->get_boolean( 'cdn.enabled' ) )
-			return 'cdn';
-
-		return null;
-	}
-
-	/**
-	 * Basic check if canonical generation should be done
-	 *
-	 * @param Config  $config
-	 * @param boolean $cdnftp
-	 * @return bool
-	 */
-	static private function _should_canonical_be_generated( $config, $cdnftp ) {
-		if ( !$config->get_boolean( 'cdn.canonical_header' ) )
-			return false;
-
-		$cdncommon = Dispatcher::component( 'Cdn_Core' );
-
-		$cdn = $cdncommon->get_cdn();
-		return ( ( $config->get_string( 'cdn.engine' ) != 'ftp' || $cdnftp ) &&
-			$cdn->headers_support() == W3TC_CDN_HEADER_MIRRORING );
-	}
-
-	/**
-	 * If BrowserCache should generate rules specific for CDN. Used with CDN FTP
-	 *
-	 * @param Config  $config
-	 * @return boolean;
-	 */
-	static public function should_browsercache_generate_rules_for_cdn( $config ) {
-		if ( $config->get_boolean( 'cdn.enabled' ) &&
-			$config->get_string( 'cdn.engine' ) == 'ftp' ) {
-			$cdncommon = Dispatcher::component( 'Cdn_Core' );
-			$cdn = $cdncommon->get_cdn();
-			$domain = $cdn->get_domain();
-
-			if ( $domain )
-				return true;
-		}
-		return false;
 	}
 
 	/**

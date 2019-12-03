@@ -1516,84 +1516,16 @@ class PgCache_Environment {
 		$browsercache = $config->get_boolean( 'browsercache.enabled' );
 		$brotli = ( $browsercache && $config->get_boolean( 'browsercache.html.brotli' ) );
 		$compression = ( $browsercache && $config->get_boolean( 'browsercache.html.compression' ) );
-		$expires = ( $browsercache && $config->get_boolean( 'browsercache.html.expires' ) );
-		$lifetime = ( $browsercache ? $config->get_integer( 'browsercache.html.lifetime' ) : 0 );
-		$cache_control = ( $browsercache && $config->get_boolean( 'browsercache.html.cache.control' ) );
-		$w3tc = ( $browsercache && $config->get_integer( 'browsercache.html.w3tc' ) );
-		$hsts = ( $browsercache && $config->get_boolean( 'browsercache.hsts' ) );
 
+		$common_rules_a = Dispatcher::nginx_rules_for_browsercache_section(
+			$config, 'html', true );
 		$common_rules = '';
-
-		if ( $expires ) {
-			$common_rules .= "    expires modified " . $lifetime . "s;\n";
-		}
-
-		if ( $w3tc ) {
-			$common_rules .= "    add_header X-Powered-By \"" .
-				Util_Environment::w3tc_header() . "\";\n";
-		}
-
-		if ( $hsts ) {
-			$common_rules .= " add_header Strict-Transport-Security \"max-age=31536000; preload\";\n";
-		}
-		if ( $expires ) {
-			$common_rules .= "    add_header Vary \"Accept-Encoding, Cookie\";\n";
-		}
-
-		if ( $cache_control ) {
-			$cache_policy = $config->get_string( 'browsercache.html.cache.policy' );
-
-			switch ( $cache_policy ) {
-			case 'cache':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-				$common_rules .= "    add_header Cache-Control \"public\";\n";
-				break;
-
-			case 'cache_public_maxage':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-
-				if ( $expires ) {
-					$common_rules .= "    add_header Cache-Control \"public\";\n";
-				} else {
-					$common_rules .= "    add_header Cache-Control \"max-age=" . $lifetime . ", public\";\n";
-				}
-				break;
-
-			case 'cache_validation':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-				$common_rules .= "    add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";\n";
-				break;
-
-			case 'cache_noproxy':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-				$common_rules .= "    add_header Cache-Control \"private, must-revalidate\";\n";
-				break;
-
-			case 'cache_maxage':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-
-				if ( $expires ) {
-					$common_rules .= "    add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";\n";
-				} else {
-					$common_rules .= "    add_header Cache-Control \"max-age=" . $lifetime . ", public, must-revalidate, proxy-revalidate\";\n";
-				}
-				break;
-
-			case 'no_cache':
-				$common_rules .= "    add_header Pragma \"no-cache\";\n";
-				$common_rules .= "    add_header Cache-Control \"max-age=0, private, no-store, no-cache, must-revalidate\";\n";
-				break;
-			}
+		if ( !empty( $common_rules_a ) ) {
+			$common_rules = '    ' . implode( "\n    ", $common_rules_a ) . "\n";
 		}
 
 		$rules = '';
 		$rules .= W3TC_MARKER_BEGIN_PGCACHE_CACHE . "\n";
-
-		if ( !empty( $common_rules ) ) {
-			$rules .= "location ~ " . $cache_dir . ".*html$ {\n";
-			$rules .= $common_rules;
-			$rules .= "}\n";
-		}
 
 		if ( $brotli ) {
 			$maybe_xml = '';
@@ -1607,8 +1539,8 @@ class PgCache_Environment {
 			$rules .= "    brotli off;\n";
 			$rules .= "    types {" . $maybe_xml . "}\n";
 			$rules .= "    default_type text/html;\n";
-			$rules .= $common_rules;
 			$rules .= "    add_header Content-Encoding br;\n";
+			$rules .= $common_rules;
 			$rules .= "}\n";
 		}
 
@@ -1624,8 +1556,8 @@ class PgCache_Environment {
 			$rules .= "    gzip off;\n";
 			$rules .= "    types {" . $maybe_xml . "}\n";
 			$rules .= "    default_type text/html;\n";
-			$rules .= $common_rules;
 			$rules .= "    add_header Content-Encoding gzip;\n";
+			$rules .= $common_rules;
 			$rules .= "}\n";
 		}
 

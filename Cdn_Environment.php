@@ -189,34 +189,34 @@ class Cdn_Environment {
 			$charset_collate .= " COLLATE $wpdb->collate";
 
 		$sql = "CREATE TABLE IF NOT EXISTS `$tablename_queue` (
-            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-            `local_path` varchar(500) NOT NULL DEFAULT '',
-            `remote_path` varchar(500) NOT NULL DEFAULT '',
-            `command` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - Upload, 2 - Delete, 3 - Purge',
-            `last_error` varchar(150) NOT NULL DEFAULT '',
-            `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-            PRIMARY KEY (`id`),
-            KEY `date` (`date`)
-        ) $charset_collate;";
+			`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+			`local_path` varchar(500) NOT NULL DEFAULT '',
+			`remote_path` varchar(500) NOT NULL DEFAULT '',
+			`command` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - Upload, 2 - Delete, 3 - Purge',
+			`last_error` varchar(150) NOT NULL DEFAULT '',
+			`date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+			PRIMARY KEY (`id`),
+			KEY `date` (`date`)
+		) $charset_collate;";
 
 		$wpdb->query( $sql );
 		if ( !$wpdb->result )
 			throw new Util_Environment_Exception( 'Can\'t create table ' .
 				$tablename_queue );
 
-        $sql = "
-            CREATE TABLE IF NOT EXISTS `$tablename_map` (
-                -- Relative file path.
-                -- For reference, not actually used for finding files.
-                path TEXT NOT NULL,
-                -- MD5 hash of remote path, used for finding files.
-                path_hash VARCHAR(32) CHARACTER SET ascii NOT NULL,
-                type tinyint(1) NOT NULL DEFAULT '0',
-                -- Google Drive: document identifier
-                remote_id VARCHAR(200) CHARACTER SET ascii,
-                PRIMARY KEY (path_hash),
-                KEY `remote_id` (`remote_id`)
-            ) $charset_collate";
+		$sql = "
+			CREATE TABLE IF NOT EXISTS `$tablename_map` (
+				-- Relative file path.
+				-- For reference, not actually used for finding files.
+				path TEXT NOT NULL,
+				-- MD5 hash of remote path, used for finding files.
+				path_hash VARCHAR(32) CHARACTER SET ascii NOT NULL,
+				type tinyint(1) NOT NULL DEFAULT '0',
+				-- Google Drive: document identifier
+				remote_id VARCHAR(200) CHARACTER SET ascii,
+				PRIMARY KEY (path_hash),
+				KEY `remote_id` (`remote_id`)
+			) $charset_collate";
 
 		$wpdb->query( $sql );
 		if ( !$wpdb->result )
@@ -237,15 +237,15 @@ class Cdn_Environment {
 
 		$sql = sprintf( 'DROP TABLE IF EXISTS `%s%s`;', $wpdb->base_prefix, W3TC_CDN_TABLE_QUEUE );
 		$sql .= "\n" . sprintf( "CREATE TABLE IF NOT EXISTS `%s%s` (
-            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-            `local_path` varchar(500) NOT NULL DEFAULT '',
-            `remote_path` varchar(500) NOT NULL DEFAULT '',
-            `command` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - Upload, 2 - Delete, 3 - Purge',
-            `last_error` varchar(150) NOT NULL DEFAULT '',
-            `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-            PRIMARY KEY (`id`),
-            KEY `date` (`date`)
-        ) $charset_collate;", $wpdb->base_prefix, W3TC_CDN_TABLE_QUEUE );
+			`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+			`local_path` varchar(500) NOT NULL DEFAULT '',
+			`remote_path` varchar(500) NOT NULL DEFAULT '',
+			`command` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - Upload, 2 - Delete, 3 - Purge',
+			`last_error` varchar(150) NOT NULL DEFAULT '',
+			`date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+			PRIMARY KEY (`id`),
+			KEY `date` (`date`)
+		) $charset_collate;", $wpdb->base_prefix, W3TC_CDN_TABLE_QUEUE );
 
 		return $sql;
 	}
@@ -323,20 +323,30 @@ class Cdn_Environment {
 	 * @return string
 	 */
 	private function rules_generate( $config, $cdnftp = false ) {
+		if ( Util_Environment::is_nginx() ) {
+			return Cdn_Environment_Nginx::generate( $config, $cdnftp );
+		} else {
+			return rules_generate_apache( $config, $cdnftp );
+		}
+	}
+
+	private function rules_generate_apache( $config, $cdnftp ) {
 		$rules = '';
-		if ( Dispatcher::canonical_generated_by( $config, $cdnftp ) == 'cdn' )
+		if ( $config->get_boolean( 'cdn.canonical_header' ) ) {
 			$rules .= Util_RuleSnippet::canonical( $cdnftp,
 				$config->get_boolean( 'cdn.cors_header') );
+		}
 
 		if ( $config->get_boolean( 'cdn.cors_header') ) {
 			$rules .= $this->allow_origin( $cdnftp );
 		}
 
-		if ( strlen( $rules ) > 0 )
+		if ( strlen( $rules ) > 0 ) {
 			$rules =
 				W3TC_MARKER_BEGIN_CDN . "\n" .
 				$rules .
 				W3TC_MARKER_END_CDN . "\n";
+		}
 
 		return $rules;
 	}

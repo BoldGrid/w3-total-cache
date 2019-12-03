@@ -27,27 +27,6 @@ class Util_RuleSnippet {
 			$rules .= '      Header set Link "<%{CANONICAL}e>; rel=\"canonical\""' . "\n";
 			$rules .= "   </IfModule>\n";
 			break;
-
-		case Util_Environment::is_nginx():
-			$home = ( $cdnftp ) ? Util_Environment::home_url_host() : '$host';
-			// nginx overrides all add_header directives when context inherited
-			// so add_header rules has to be repeated
-			$link_header = '    add_header Link "<$scheme://' .
-				$home . '$uri>; rel=\"canonical\"";' . "\n";
-
-			$rules .= $link_header;
-
-			if ( $cors_header ) {
-				$rules .=
-				'    if ($request_uri ~ ^[^?]*\\.(ttf|ttc|otf|eot|woff|woff2|font.css)(\\?|$)) {' .
-				"\n    " . $link_header .
-				"    " .
-				str_replace( "\n", "\n    ", $add_header_rules ) .
-				"    add_header Access-Control-Allow-Origin \"*\";\n" .
-				"    }\n";
-			}
-
-			break;
 		}
 
 		return $rules;
