@@ -28,5 +28,8 @@ fi
 
 envsubst </share/scripts/init-box/templates/nginx-vhost-wp-sandbox-3.conf >>/etc/nginx/sites-available/wp-sandbox-include.conf
 
+touch ${W3D_WP_HOME_PATH}nginx.conf
+chown www-data:www-data ${W3D_WP_HOME_PATH}nginx.conf
+
 # restart
 /etc/init.d/nginx restart
