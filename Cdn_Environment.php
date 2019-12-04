@@ -326,7 +326,7 @@ class Cdn_Environment {
 		if ( Util_Environment::is_nginx() ) {
 			return Cdn_Environment_Nginx::generate( $config, $cdnftp );
 		} else {
-			return rules_generate_apache( $config, $cdnftp );
+			return $this->rules_generate_apache( $config, $cdnftp );
 		}
 	}
 
