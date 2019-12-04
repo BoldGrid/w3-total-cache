@@ -4,6 +4,9 @@ function requireRoot(p) {
 
 const expect = require('chai').expect;
 const log = require('mocha-logger');
+const util = require('util');
+const fs = require('fs');
+fs.unlinkAsync = util.promisify(fs.unlink);
 
 const dom = requireRoot('lib/dom');
 const env = requireRoot('lib/environment');
@@ -42,7 +45,9 @@ describe('', function() {
 		await w3tc.setOptions(adminPage, 'w3tc_browsercache', {
 			browsercache__cssjs__etag: false,
 			browsercache__cssjs__expires: false,
-			browsercache__cssjs__last_modified: false
+			browsercache__cssjs__last_modified: false,
+			browsercache__cssjs__replace: true,
+			browsercache__rewrite: true
 		});
 
 		await sys.afterRulesChange();
@@ -67,6 +72,7 @@ describe('', function() {
 		let scripts = await dom.listScriptSrc(page);
 		scripts.forEach(function(url) {
 			if (url.indexOf('/cache/minify/') > 0) {
+				expect(url).contains('.x');
 				minifyUrls.push(url);
 			}
 		});
@@ -76,6 +82,7 @@ describe('', function() {
 		let cssPresent = false;
 		linkHrefs.forEach(function(url) {
 			if (url.indexOf('/cache/minify/') > 0) {
+				expect(url).contains('.x');
 				minifyUrls.push(url);
 				cssPresent = true;
 			}
@@ -85,7 +92,7 @@ describe('', function() {
 
 
 
-	it('check headers', async() => {
+	it('check headers 2nd load', async() => {
 		await testUrlHeaders(false);
 	});
 
@@ -104,17 +111,44 @@ describe('', function() {
 	it('check headers', async() => {
 		await testUrlHeaders(true);
 	});
+
+
+
+	it('remove gzip version and check that php loaded', async() => {
+		let path = env.wpContentPath + 'cache/minify/';
+		let filenames = fs.readdirSync(path);
+		for (let filename of filenames) {
+			if (filename.substr(-5) == '_gzip') {
+				console.log('removing ' + filename);
+				await fs.unlinkAsync(path + filename);
+			}
+		}
+
+
+		// rules should stop working when gzip version of cache removed
+		// and request will be handed by php.
+		// that gives a signal that rules work well.
+		await testUrlHeaders(true, true);
+	});
 });
 
 
 
 
-async function testUrlHeaders(expectExpires) {
+async function testUrlHeaders(expectExpires, expectPhp) {
 	for (let url of minifyUrls) {
 		log.log('checking ' + url);
 		let response = await page.goto(url, {waitUntil: 'domcontentloaded'});
 		let headers = response.headers();
 		expect(response.status()).eq(200);
+
+		// first page load also loads assets, so all remaining should go without php
+		let phpFound = (headers['w3tc_php'] != null);
+		if (expectPhp) {
+			expect(phpFound).true;
+		} else {
+			expect(phpFound).false;
+		}
 
 		let expiresFound = (headers['expires'] != null);
 
