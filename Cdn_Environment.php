@@ -5,6 +5,11 @@ namespace W3TC;
  * class Cdn_Environment
  */
 class Cdn_Environment {
+	public function __construct() {
+		add_filter( 'w3tc_browsercache_rules_section_extensions',
+			array( $this, 'w3tc_browsercache_rules_section_extensions' ),
+			10, 3 );
+	}
 
 	/**
 	 * Fixes environment in each wp-admin request
@@ -324,7 +329,8 @@ class Cdn_Environment {
 	 */
 	private function rules_generate( $config, $cdnftp = false ) {
 		if ( Util_Environment::is_nginx() ) {
-			return Cdn_Environment_Nginx::generate( $config, $cdnftp );
+			$o = new Cdn_Environment_Nginx( $config );
+			return $o->generate( $cdnftp );
 		} else {
 			return $this->rules_generate_apache( $config, $cdnftp );
 		}
@@ -333,7 +339,7 @@ class Cdn_Environment {
 	private function rules_generate_apache( $config, $cdnftp ) {
 		$rules = '';
 		if ( $config->get_boolean( 'cdn.canonical_header' ) ) {
-			$rules .= Util_RuleSnippet::canonical( $cdnftp,
+			$rules .= $this->canonical( $cdnftp,
 				$config->get_boolean( 'cdn.cors_header') );
 		}
 
@@ -351,26 +357,65 @@ class Cdn_Environment {
 		return $rules;
 	}
 
+
+
+	private function canonical( $cdnftp = false, $cors_header ) {
+		$rules = '';
+
+		$mime_types = include W3TC_INC_DIR . '/mime/other.php';
+		$extensions = array_keys( $mime_types );
+
+		$extensions_lowercase = array_map( 'strtolower', $extensions );
+		$extensions_uppercase = array_map( 'strtoupper', $extensions );
+		$rules .= "<FilesMatch \"\\.(" . implode( '|',
+			array_merge( $extensions_lowercase, $extensions_uppercase ) ) . ")$\">\n";
+
+		$host = ( $cdnftp ? Util_Environment::home_url_host() : '%{HTTP_HOST}' );
+		$rules .= "   <IfModule mod_rewrite.c>\n";
+		$rules .= "      RewriteEngine On\n";
+		$rules .= "      RewriteCond %{HTTPS} !=on\n";
+		$rules .= "      RewriteRule .* - [E=CANONICAL:http://$host%{REQUEST_URI},NE]\n";
+		$rules .= "      RewriteCond %{HTTPS} =on\n";
+		$rules .= "      RewriteRule .* - [E=CANONICAL:https://$host%{REQUEST_URI},NE]\n";
+		$rules .= "   </IfModule>\n";
+		$rules .= "   <IfModule mod_headers.c>\n";
+		$rules .= '      Header set Link "<%{CANONICAL}e>; rel=\"canonical\""' . "\n";
+		$rules .= "   </IfModule>\n";
+
+		$rules .= "</FilesMatch>\n";
+
+		return $rules;
+	}
+
+
+
 	/**
 	 * Returns allow-origin rules
 	 */
 	private function allow_origin( $cdnftp = false ) {
-		switch ( true ) {
-		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
-			$r  = "<IfModule mod_headers.c>\n";
-			$r .= "    Header set Access-Control-Allow-Origin \"*\"\n";
-			$r .= "</IfModule>\n";
+		$r  = "<IfModule mod_headers.c>\n";
+		$r .= "    Header set Access-Control-Allow-Origin \"*\"\n";
+		$r .= "</IfModule>\n";
 
-			if ( !$cdnftp )
-				return $r;
-			else
-				return
-				"<FilesMatch \"\.(ttf|ttc|otf|eot|woff|woff2|font.css)$\">\n" .
-					$r .
-					"</FilesMatch>\n";
+		if ( !$cdnftp )
+			return $r;
+		else
+			return
+			"<FilesMatch \"\.(ttf|ttc|otf|eot|woff|woff2|font.css)$\">\n" .
+				$r .
+				"</FilesMatch>\n";
+	}
+
+
+
+	public function w3tc_browsercache_rules_section_extensions(
+			$extensions, $config, $section ) {
+		if ( Util_Environment::is_nginx() ) {
+			$o = new Cdn_Environment_Nginx( $config );
+			$extensions = $o->w3tc_browsercache_rules_section_extensions(
+				$extensions, $section );
 		}
 
-		return '';
+		return $extensions;
 	}
 }

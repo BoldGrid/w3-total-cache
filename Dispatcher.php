@@ -20,9 +20,13 @@ class Dispatcher {
 		return $v;
 	}
 
+
+
 	static public function config() {
 		return self::component( 'Config' );
 	}
+
+
 
 	static public function config_master() {
 		static $config_master = null;
@@ -33,6 +37,8 @@ class Dispatcher {
 
 		return $config_master;
 	}
+
+
 
 	static public function config_state() {
 		if ( Util_Environment::blog_id() <= 0 )
@@ -46,6 +52,8 @@ class Dispatcher {
 		return $config_state;
 	}
 
+
+
 	static public function config_state_master() {
 		static $config_state = null;
 
@@ -54,6 +62,8 @@ class Dispatcher {
 
 		return $config_state;
 	}
+
+
 
 	static public function config_state_note() {
 		static $o = null;
@@ -64,6 +74,8 @@ class Dispatcher {
 
 		return $o;
 	}
+
+
 
 	/**
 	 * Checks if specific local url is uploaded to CDN
@@ -83,6 +95,8 @@ class Dispatcher {
 		// supported only for minify-based urls, futher is not needed now
 		return false;
 	}
+
+
 
 	/**
 	 * Creates file for CDN upload.
@@ -113,6 +127,8 @@ class Dispatcher {
 		}
 	}
 
+
+
 	/**
 	 * Called on successful file upload to CDN
 	 *
@@ -135,6 +151,8 @@ class Dispatcher {
 		}
 	}
 
+
+
 	/**
 	 * Returns common rules used by nginx for files belonging to browsercache
 	 * section
@@ -146,13 +164,14 @@ class Dispatcher {
 			'add_header' => array()
 		);
 		if ( $config->get_boolean( 'browsercache.enabled' ) ) {
-			$o = new BrowserCache_Environment_Nginx();
-			$rules = $o->section_rules( $config, $section, $extra_add_headers_set );
+			$o = new BrowserCache_Environment_Nginx( $config );
+			$rules = $o->section_rules( $section, $extra_add_headers_set );
 		}
 
 		if ( !empty( $rules['add_header'] ) &&
 				$config->get_boolean( 'cdn.enabled' ) ) {
-			$rule = Cdn_Environment_Nginx::generate_canonical( $config );
+			$o = new Cdn_Environment_Nginx( $config );
+			$rule = $o->generate_canonical();
 
 			if ( !empty( $rule ) ) {
 				$rules['add_header'][] = $rule;
@@ -161,6 +180,8 @@ class Dispatcher {
 
 		return array_merge( $rules['other'], $rules['add_header'] );
 	}
+
+
 
 	/**
 	 * Called when minify going to process request of some minified file
@@ -176,17 +197,7 @@ class Dispatcher {
 		return $file;
 	}
 
-	/**
-	 * Returns the domain used with the cdn.
-	 *
-	 * @param string
-	 * @return string
-	 */
-	static public function get_cdn_domain( $path = '' ) {
-		$cdncommon = Dispatcher::component( 'Cdn_Core' );
-		$cdn = $cdncommon->get_cdn();
-		return $cdn->get_domain( $path );
-	}
+
 
 	/**
 	 * Usage statistics uses one of other module's cache
@@ -226,6 +237,8 @@ class Dispatcher {
 
 		return $cache;
 	}
+
+
 
 	/**
 	 * In a case request processing has been finished before WP initialized,

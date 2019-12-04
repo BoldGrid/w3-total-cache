@@ -183,9 +183,9 @@ class BrowserCache_Environment {
 			return $this->rules_cache_generate_apache( $config );
 
 		case Util_Environment::is_nginx():
-			$generator_nginx = new BrowserCache_Environment_Nginx();
+			$generator_nginx = new BrowserCache_Environment_Nginx( $config );
 			$mime_types = $this->get_mime_types();
-			return $generator_nginx->generate( $config, $mime_types, $cdnftp );
+			return $generator_nginx->generate( $mime_types, $cdnftp );
 		}
 		return '';
 	}
@@ -485,12 +485,14 @@ class BrowserCache_Environment {
 		$set_last_modified = $config->get_boolean( 'browsercache.' . $section . '.last_modified' );
 		$compatibility = $config->get_boolean( 'pgcache.compatibility' );
 
-		$extensions = array_keys( $mime_types );
+		$mime_types2 = apply_filters( 'w3tc_browsercache_rules_section_extensions',
+			$mime_types, $config, $section );
+		$extensions = array_keys( $mime_types2 );
 
 		// Remove ext from filesmatch if its the same as permalink extension
 		$pext = strtolower( pathinfo( get_option( 'permalink_structure' ), PATHINFO_EXTENSION ) );
 		if ( $pext ) {
-			$extensions = $this->_remove_extension_from_list( $extensions, $pext );
+			$extensions = Util_Rule::remove_extension_from_list( $extensions, $pext );
 		}
 
 		$extensions_lowercase = array_map( 'strtolower', $extensions );
@@ -713,41 +715,5 @@ class BrowserCache_Environment {
 		$rules .= W3TC_MARKER_END_BROWSERCACHE_NO404WP . "\n";
 
 		return $rules;
-	}
-
-	/**
-	 * Returns the apache, nginx version
-	 *
-	 * @return string
-	 */
-	private function _get_server_version() {
-		$sig= explode( '/', $_SERVER['SERVER_SOFTWARE'] );
-		$temp = isset( $sig[1] ) ? explode( ' ', $sig[1] ) : array( '0' );
-		$version = $temp[0];
-		return $version;
-	}
-
-	/**
-	 * Takes an array of extensions single per row and/or extensions delimited by |
-	 *
-	 * @param unknown $extensions
-	 * @param unknown $ext
-	 * @return array
-	 */
-	private function _remove_extension_from_list( $extensions, $ext ) {
-		for ( $i = 0; $i < sizeof( $extensions ); $i++ ) {
-			if ( $extensions[$i] == $ext ) {
-				unset( $extensions[$i] );
-				return $extensions;
-			} elseif ( strpos( $extensions[$i], $ext ) !== false &&
-				strpos( $extensions[$i], '|' ) !== false ) {
-				$exts = explode( '|', $extensions[$i] );
-				$key = array_search( $ext, $exts );
-				unset( $exts[$key] );
-				$extensions[$i] = implode( '|', $exts );
-				return $extensions;
-			}
-		}
-		return $extensions;
 	}
 }
