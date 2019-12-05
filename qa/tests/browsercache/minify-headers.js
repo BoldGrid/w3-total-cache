@@ -123,6 +123,9 @@ describe('', function() {
 
 	it('remove gzip version and check that php loaded', async() => {
 		let path = env.wpContentPath + 'cache/minify/';
+		if (env.blogId > 0) {
+			path += env.blogId + '/';
+		}
 		let filenames = fs.readdirSync(path);
 		for (let filename of filenames) {
 			if (filename.substr(-5) == '_gzip') {
