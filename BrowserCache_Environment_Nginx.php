@@ -30,17 +30,39 @@ class BrowserCache_Environment_Nginx {
 
 		if ( $this->c->get_boolean( 'browsercache.rewrite' ) ) {
 			$core = Dispatcher::component( 'BrowserCache_Core' );
-			$extensions = $core->get_replace_extensions( $config );
+			$extensions = $core->get_replace_extensions( $this->c );
 
 			$exts = implode( '|', $extensions );
 
 			$rules .= "set \$w3tcbc_rewrite_filename '';\n";
-			$rules .= "if (\$request_uri ~ '^(?<w3tcbc_base>.+)\.(x[0-9]{5})" .
-				"(?<w3tcbc_ext>\.($exts))(\\?|$)') {\n";
+			$rules .= "set \$w3tcbc_rewrite_uri '';\n";
+			$rules .= "if (\$uri ~ '^(?<w3tcbc_base>.+)\.(x[0-9]{5})" .
+				"(?<w3tcbc_ext>\.($exts))$') {\n";
 			$rules .= "    set \$w3tcbc_rewrite_filename \$document_root\$w3tcbc_base\$w3tcbc_ext;\n";
+			$rules .= "    set \$w3tcbc_rewrite_uri \$w3tcbc_base\$w3tcbc_ext;\n";
 			$rules .= "}\n";
+
+			if ( Util_Environment::is_wpmu() &&
+				!Util_Environment::is_wpmu_subdomain() ) {
+				// WPMU subdir extra rewrite
+
+				if ( defined( 'W3TC_HOME_URI' ) ) {
+					$home_uri = W3TC_HOME_URI;
+				} else {
+					$primary_blog_id = get_network()->site_id;
+					$home_uri = parse_url( get_home_url( $primary_blog_id ),
+						PHP_URL_PATH );
+					$home_uri = rtrim( $home_uri, '/' );
+				}
+
+				$rules .= "if (\$uri ~ '^$home_uri/[_0-9a-zA-Z-]+(?<w3tcbc_base>/wp-.+)\.(x[0-9]{5})(?<w3tcbc_ext>\.($exts))$') {\n";
+				$rules .= "    set \$w3tcbc_rewrite_filename \$document_root$home_uri\$w3tcbc_base\$w3tcbc_ext;\n";
+				$rules .= "    set \$w3tcbc_rewrite_uri $home_uri\$w3tcbc_base\$w3tcbc_ext;\n";
+				$rules .= "}\n";
+			}
+
 			$rules .= "if (-f \$w3tcbc_rewrite_filename) {\n";
-			$rules .= "    rewrite .* \$w3tcbc_base\$w3tcbc_ext;\n";
+			$rules .= "    rewrite .* \$w3tcbc_rewrite_uri;\n";
 			$rules .= "}\n";
 		}
 
