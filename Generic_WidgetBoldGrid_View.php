@@ -15,7 +15,7 @@ if ( !defined( 'W3TC' ) )
 	</p>
 
 	<p>
-		It's easy to set up and manage, backups up your entire WordPress site, has automated fault protection if an update fails and provides easy site migration options.
+		It's easy to set up and manage, backs up your entire WordPress site, has automated fault protection if an update fails, and provides easy site migration options.
 	</p>
 
 	<a href="<?php echo esc_url( $install_url ) ?>" id="w3tc-boldgrid-install"
