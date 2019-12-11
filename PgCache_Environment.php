@@ -604,7 +604,9 @@ class PgCache_Environment {
 		/**
 		 * Set accept query strings
 		 */
-		$w3tc_query_strings = $config->get_array( 'pgcache.accept.qs' );
+		$w3tc_query_strings = apply_filters(
+			'w3tc_pagecache_rules_apache_accept_qs',
+			$config->get_array( 'pgcache.accept.qs' ) );
 		Util_Rule::array_trim( $w3tc_query_strings );
 
 		if ( !empty( $w3tc_query_strings ) ) {
@@ -614,10 +616,21 @@ class PgCache_Environment {
 			$rules .= "    RewriteRule ^ - [E=W3TC_QUERY_STRING:%{QUERY_STRING}]\n";
 
 			foreach ( $w3tc_query_strings as $query ) {
-				$query .=  ( strpos( $query, '=' ) === false ? '=.*?' : '' );
-				$rules .= "    RewriteCond %{ENV:W3TC_QUERY_STRING} ^(.*?&|)" .
-					$query . "(&.*|)$ [NC]\n";
-				$rules .= "    RewriteRule ^ - [E=W3TC_QUERY_STRING:%1%2]\n";
+				$query_rules = array();
+				if  ( strpos( $query, '=' ) === false ) {
+					$query_rules[] = 'RewriteCond %{ENV:W3TC_QUERY_STRING} ^(.*?&|)' .
+						$query . '(=[^&]*)?(&.*|)$ [NC]';
+					$query_rules[] = 'RewriteRule ^ - [E=W3TC_QUERY_STRING:%1%3]';
+				} else {
+					$query_rules[] = 'RewriteCond %{ENV:W3TC_QUERY_STRING} ^(.*?&|)' .
+						$query . '(&.*|)$ [NC]';
+					$query_rules[] = 'RewriteRule ^ - [E=W3TC_QUERY_STRING:%1%2]';
+				}
+
+				$query_rules = apply_filters(
+					'w3tc_pagecache_rules_apache_accept_qs_rules',
+					$query_rules, $query );
+				$rules .= '    ' . implode( "\n    ", $query_rules ) . "\n";
 			}
 
 			$rules .= "    RewriteCond %{ENV:W3TC_QUERY_STRING} ^&+$\n";
@@ -793,6 +806,9 @@ class PgCache_Environment {
 		$uri_prefix =  $cache_path . '/%{HTTP_HOST}/%{REQUEST_URI}/' .
 			'_index' . $env_W3TC_UA . $env_W3TC_REF . $env_W3TC_COOKIE .
 			$env_W3TC_SSL . $env_W3TC_PREVIEW;
+		$uri_prefix = apply_filters( 'w3tc_pagecache_rules_apache_uri_prefix',
+			$uri_prefix );
+
 		$switch = " -" . ( $config->get_boolean( 'pgcache.file.nfs' ) ? 'F' : 'f' );
 
 		$document_root = Util_Rule::apache_docroot_variable();

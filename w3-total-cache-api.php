@@ -631,3 +631,55 @@ function w3tc_er( $key, $default_value ) {
 
 	return $default_value;
 }
+
+
+
+$w3tc_actions = array();
+
+
+
+/**
+ * add_action alternative used by W3TC when WP core is not available
+ */
+function w3tc_add_action( $hook, $callback ) {
+	global $w3tc_actions;
+	if ( !isset( $w3tc_actions[$hook] ) ) {
+		$w3tc_actions[$hook] = array();
+	}
+
+	$w3tc_actions[$hook][] = $callback;
+}
+
+
+
+/**
+ * do_action alternative used by W3TC when WP core is not available
+ */
+function w3tc_do_action( $hook ) {
+	global $w3tc_actions;
+	if (!empty($w3tc_actions[$hook])) {
+		foreach ( $w3tc_actions[$hook] as $callback ) {
+			call_user_func_array( $callback, array() );
+		}
+	}
+}
+
+
+
+/**
+ * do_action alternative used by W3TC when WP core is not available
+ */
+function w3tc_apply_filters( $hook, $value ) {
+	$args = func_get_args();
+	array_shift( $args );
+
+	global $w3tc_actions;
+	if (!empty($w3tc_actions[$hook])) {
+		foreach ( $w3tc_actions[$hook] as $callback ) {
+			$value = call_user_func_array( $callback, $args );
+			$args[0] = $value;
+		}
+	}
+
+	return $value;
+}

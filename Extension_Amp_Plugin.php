@@ -6,23 +6,48 @@ class Extension_Amp_Plugin {
 
 
 
-	public function run() {
+	static public function wp_loaded() {
+		add_action( 'w3tc_extension_load', array(
+			'\W3TC\Extension_Amp_Plugin',
+			'w3tc_extension_load'
+		) );
+		add_action( 'w3tc_extension_load_admin', array(
+			'\W3TC\Extension_Amp_Plugin_Admin',
+			'w3tc_extension_load_admin'
+		) );
+	}
+
+
+
+	static public function w3tc_extension_load() {
+		$o = new Extension_Amp_Plugin();
+
 		add_filter( 'w3tc_minify_js_enable',
-			array( $this, 'w3tc_minify_jscss_enable' ) );
+			array( $o, 'w3tc_minify_jscss_enable' ) );
 		add_filter( 'w3tc_minify_css_enable',
-			array( $this, 'w3tc_minify_jscss_enable' ) );
+			array( $o, 'w3tc_minify_jscss_enable' ) );
 		add_filter( 'w3tc_lazyload_can_process',
-			array( $this, 'w3tc_lazyload_can_process' ) );
+			array( $o, 'w3tc_lazyload_can_process' ) );
 		add_filter( 'w3tc_footer_comment',
-			array( $this, 'w3tc_footer_comment' ) );
+			array( $o, 'w3tc_footer_comment' ) );
 		add_filter( 'w3tc_newrelic_should_disable_auto_rum',
-			array( $this, 'w3tc_newrelic_should_disable_auto_rum' ) );
+			array( $o, 'w3tc_newrelic_should_disable_auto_rum' ) );
 		add_filter( 'pgcache_flush_post_queued_urls',
-			array( $this, 'x_flush_post_queued_urls' ) );
+			array( $o, 'x_flush_post_queued_urls' ) );
 		add_filter( 'varnish_flush_post_queued_urls',
-			array( $this, 'x_flush_post_queued_urls' ) );
+			array( $o, 'x_flush_post_queued_urls' ) );
 		add_filter( 'w3tc_pagecache_set',
-			array( $this, 'w3tc_pagecache_set' ) );
+			array( $o, 'w3tc_pagecache_set' ) );
+		add_filter( 'w3tc_config_default_values',
+			array( $o, 'w3tc_config_default_values' ) );
+
+		// rules generation
+		add_filter( 'w3tc_pagecache_rules_apache_accept_qs',
+			array( $o, 'w3tc_pagecache_rules_apache_accept_qs' ) );
+		add_filter( 'w3tc_pagecache_rules_apache_accept_qs_rules',
+			array( $o, 'w3tc_pagecache_rules_apache_accept_qs_rules' ), 10, 2 );
+		add_filter( 'w3tc_pagecache_rules_apache_uri_prefix',
+			array( $o, 'w3tc_pagecache_rules_apache_uri_prefix' ) );
 	}
 
 
@@ -138,14 +163,88 @@ class Extension_Amp_Plugin {
 
 		return $header;
 	}
+
+
+
+	public function w3tc_config_default_values( $default_values ) {
+		$default_values['amp'] = array(
+			'url_type' => 'tag',
+			'url_postfix' => 'amp'
+		);
+
+		return $default_values;
+	}
+
+
+
+	static public function pagecache_extract_accept_qs( $query_strings ) {
+		$c = Dispatcher::config();
+
+		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' ) {
+			$query_strings[] = $c->get_string( array( 'amp', 'url_postfix' ) );
+		}
+
+		return $query_strings;
+	}
+
+
+
+	static public function pagecache_page_key( $page_key, $url, $page_key_extension ) {
+		$c = Dispatcher::config();
+
+		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' ) {
+			$url_postfix = $c->get_string( array( 'amp', 'url_postfix' ) );
+			if ( preg_match( "~(\\?|&)$url_postfix(&|$)~", $url ) ) {
+				$page_key[1] .= '_amp';
+			}
+		}
+
+		return $page_key;
+	}
+
+
+
+	public function w3tc_pagecache_rules_apache_accept_qs( $query_strings ) {
+		$c = Dispatcher::config();
+
+		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' ) {
+			$query_strings[] = $c->get_string( array( 'amp', 'url_postfix' ) );
+		}
+
+		return $query_strings;
+	}
+
+
+
+	public function w3tc_pagecache_rules_apache_accept_qs_rules( $query_rules, $query ) {
+		$c = Dispatcher::config();
+
+		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' &&
+			$query == $c->get_string( array( 'amp', 'url_postfix' ) ) ) {
+			$query_rules[1] = str_replace( '[E=', '[E=W3TC_AMP:_amp,E=', $query_rules[1] );
+		}
+
+		return $query_rules;
+	}
+
+
+
+	public function w3tc_pagecache_rules_apache_uri_prefix( $uri_prefix ) {
+		$c = Dispatcher::config();
+
+		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' ) {
+			$uri_prefix .= '%{ENV:W3TC_AMP}';
+		}
+
+		return $uri_prefix;
+	}
 }
 
 
 
-$p = new Extension_Amp_Plugin();
-$p->run();
-
-if ( is_admin() ) {
-	$p = new Extension_Amp_Plugin_Admin();
-	$p->run();
-}
+w3tc_add_action( 'pagecache_extract_accept_qs',
+	array( '\W3TC\Extension_Amp_Plugin', 'pagecache_extract_accept_qs' ) );
+w3tc_add_action( 'pagecache_page_key',
+	array( '\W3TC\Extension_Amp_Plugin', 'pagecache_page_key' ) );
+w3tc_add_action( 'wp_loaded',
+	array( '\W3TC\Extension_Amp_Plugin', 'wp_loaded' ) );
