@@ -397,102 +397,24 @@ class PgCache_Environment {
 	 * returns true if modifications has been made
 	 */
 	private function rules_core_add( $config, $exs ) {
-		$path = Util_Rule::get_pgcache_rules_core_path();
-		if ( $path === false )
-			return;
-
-		$original_data = @file_get_contents( $path );
-		if ( $original_data === false )
-			$original_data = '';
-
-		$data = $original_data;
-
-		if ( $has_wpsc = Util_Rule::has_rules( $data, W3TC_MARKER_BEGIN_PGCACHE_WPSC, W3TC_MARKER_END_PGCACHE_WPSC ) )
-			$data = Util_Rule::erase_rules( $data, W3TC_MARKER_BEGIN_PGCACHE_WPSC, W3TC_MARKER_END_PGCACHE_WPSC );
-
-		$rules = $this->rules_core_generate( $config );
-		$rules_missing = ( strstr( Util_Rule::clean_rules( $data ), Util_Rule::clean_rules( $rules ) ) === false );
-
-
-		if ( !$has_wpsc && !$rules_missing )
-			return;   // modification of file not required
-
-
-		$replace_start = strpos( $data, W3TC_MARKER_BEGIN_PGCACHE_CORE );
-		$replace_end = strpos( $data, W3TC_MARKER_END_PGCACHE_CORE );
-
-		if ( $replace_start !== false && $replace_end !== false && $replace_start < $replace_end ) {
-			$replace_length = $replace_end - $replace_start +
-				strlen( W3TC_MARKER_END_PGCACHE_CORE ) + 1;
-		} else {
-			$replace_start = false;
-			$replace_length = 0;
-
-			$search = array(
+		Util_Rule::add_rules( $exs, Util_Rule::get_pgcache_rules_core_path(),
+			$this->rules_core_generate( $config ),
+			W3TC_MARKER_BEGIN_PGCACHE_CORE,
+			W3TC_MARKER_END_PGCACHE_CORE,
+			array(
 				W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP => 0,
 				W3TC_MARKER_BEGIN_WORDPRESS => 0,
 				W3TC_MARKER_END_MINIFY_CORE =>
-				strlen( W3TC_MARKER_END_MINIFY_CORE ) + 1,
+					strlen( W3TC_MARKER_END_MINIFY_CORE ) + 1,
 				W3TC_MARKER_END_BROWSERCACHE_CACHE =>
-				strlen( W3TC_MARKER_END_BROWSERCACHE_CACHE ) + 1,
+					strlen( W3TC_MARKER_END_BROWSERCACHE_CACHE ) + 1,
 				W3TC_MARKER_END_PGCACHE_CACHE =>
-				strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
+					strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
 				W3TC_MARKER_END_MINIFY_CACHE =>
-				strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
-			);
-
-			foreach ( $search as $string => $length ) {
-				$replace_start = strpos( $data, $string );
-
-				if ( $replace_start !== false ) {
-					$replace_start += $length;
-					break;
-				}
-			}
-		}
-
-		if ( $replace_start !== false ) {
-			$data = Util_Rule::trim_rules( substr_replace( $data, $rules,
-					$replace_start, $replace_length ) );
-		} else {
-			$data = Util_Rule::trim_rules( $data . $rules );
-		}
-
-		try {
-			Util_WpFile::write_to_file( $path, $data );
-		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
-			if ( $has_wpsc )
-				$exs->push( new Util_WpFile_FilesystemModifyException(
-						$ex->getMessage(), $ex->credentials_form(),
-						sprintf( __( 'Edit file <strong>%s</strong> and remove all lines between and including
-								<strong>%s</strong> and <strong>%s</strong> markers.', 'w3-total-cache' )
-							, $path
-							, W3TC_MARKER_BEGIN_PGCACHE_WPSC
-							, W3TC_MARKER_END_PGCACHE_WPSC
-						), $path ) );
-
-			if ( $rules_missing ) {
-				if ( strpos( $data, W3TC_MARKER_BEGIN_PGCACHE_CORE ) !== false )
-					$exs->push( new Util_WpFile_FilesystemModifyException(
-							$ex->getMessage(), $ex->credentials_form(),
-							sprintf( __( 'Edit file <strong>%s</strong> and replace all lines between and including
-									<strong>%s</strong> and <strong>%s</strong> markers with:', 'w3-total-cache' )
-								, $path
-								, W3TC_MARKER_BEGIN_PGCACHE_CORE
-								, W3TC_MARKER_END_PGCACHE_CORE
-							), $path, $rules ) );
-				else
-					$exs->push( new Util_WpFile_FilesystemModifyException(
-							$ex->getMessage(), $ex->credentials_form(),
-							sprintf( __( 'Edit file <strong>%s</strong> and add the following rules above the WordPress
-									directives:' )
-								, $path
-							), $path, $rules ) );
-			}
-			return;
-		}
-
-		Util_Rule::after_rules_modified();
+					strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
+			),
+			true
+		);
 	}
 
 	/**
