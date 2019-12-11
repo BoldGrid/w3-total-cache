@@ -5,6 +5,11 @@ namespace W3TC;
  * class Cdn_Environment
  */
 class Cdn_Environment {
+	public function __construct() {
+		add_filter( 'w3tc_browsercache_rules_section_extensions',
+			array( $this, 'w3tc_browsercache_rules_section_extensions' ),
+			10, 3 );
+	}
 
 	/**
 	 * Fixes environment in each wp-admin request
@@ -189,34 +194,34 @@ class Cdn_Environment {
 			$charset_collate .= " COLLATE $wpdb->collate";
 
 		$sql = "CREATE TABLE IF NOT EXISTS `$tablename_queue` (
-            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-            `local_path` varchar(500) NOT NULL DEFAULT '',
-            `remote_path` varchar(500) NOT NULL DEFAULT '',
-            `command` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - Upload, 2 - Delete, 3 - Purge',
-            `last_error` varchar(150) NOT NULL DEFAULT '',
-            `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-            PRIMARY KEY (`id`),
-            KEY `date` (`date`)
-        ) $charset_collate;";
+			`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+			`local_path` varchar(500) NOT NULL DEFAULT '',
+			`remote_path` varchar(500) NOT NULL DEFAULT '',
+			`command` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - Upload, 2 - Delete, 3 - Purge',
+			`last_error` varchar(150) NOT NULL DEFAULT '',
+			`date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+			PRIMARY KEY (`id`),
+			KEY `date` (`date`)
+		) $charset_collate;";
 
 		$wpdb->query( $sql );
 		if ( !$wpdb->result )
 			throw new Util_Environment_Exception( 'Can\'t create table ' .
 				$tablename_queue );
 
-        $sql = "
-            CREATE TABLE IF NOT EXISTS `$tablename_map` (
-                -- Relative file path.
-                -- For reference, not actually used for finding files.
-                path TEXT NOT NULL,
-                -- MD5 hash of remote path, used for finding files.
-                path_hash VARCHAR(32) CHARACTER SET ascii NOT NULL,
-                type tinyint(1) NOT NULL DEFAULT '0',
-                -- Google Drive: document identifier
-                remote_id VARCHAR(200) CHARACTER SET ascii,
-                PRIMARY KEY (path_hash),
-                KEY `remote_id` (`remote_id`)
-            ) $charset_collate";
+		$sql = "
+			CREATE TABLE IF NOT EXISTS `$tablename_map` (
+				-- Relative file path.
+				-- For reference, not actually used for finding files.
+				path TEXT NOT NULL,
+				-- MD5 hash of remote path, used for finding files.
+				path_hash VARCHAR(32) CHARACTER SET ascii NOT NULL,
+				type tinyint(1) NOT NULL DEFAULT '0',
+				-- Google Drive: document identifier
+				remote_id VARCHAR(200) CHARACTER SET ascii,
+				PRIMARY KEY (path_hash),
+				KEY `remote_id` (`remote_id`)
+			) $charset_collate";
 
 		$wpdb->query( $sql );
 		if ( !$wpdb->result )
@@ -237,15 +242,15 @@ class Cdn_Environment {
 
 		$sql = sprintf( 'DROP TABLE IF EXISTS `%s%s`;', $wpdb->base_prefix, W3TC_CDN_TABLE_QUEUE );
 		$sql .= "\n" . sprintf( "CREATE TABLE IF NOT EXISTS `%s%s` (
-            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-            `local_path` varchar(500) NOT NULL DEFAULT '',
-            `remote_path` varchar(500) NOT NULL DEFAULT '',
-            `command` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - Upload, 2 - Delete, 3 - Purge',
-            `last_error` varchar(150) NOT NULL DEFAULT '',
-            `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-            PRIMARY KEY (`id`),
-            KEY `date` (`date`)
-        ) $charset_collate;", $wpdb->base_prefix, W3TC_CDN_TABLE_QUEUE );
+			`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+			`local_path` varchar(500) NOT NULL DEFAULT '',
+			`remote_path` varchar(500) NOT NULL DEFAULT '',
+			`command` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 - Upload, 2 - Delete, 3 - Purge',
+			`last_error` varchar(150) NOT NULL DEFAULT '',
+			`date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+			PRIMARY KEY (`id`),
+			KEY `date` (`date`)
+		) $charset_collate;", $wpdb->base_prefix, W3TC_CDN_TABLE_QUEUE );
 
 		return $sql;
 	}
@@ -323,44 +328,94 @@ class Cdn_Environment {
 	 * @return string
 	 */
 	private function rules_generate( $config, $cdnftp = false ) {
+		if ( Util_Environment::is_nginx() ) {
+			$o = new Cdn_Environment_Nginx( $config );
+			return $o->generate( $cdnftp );
+		} else {
+			return $this->rules_generate_apache( $config, $cdnftp );
+		}
+	}
+
+	private function rules_generate_apache( $config, $cdnftp ) {
 		$rules = '';
-		if ( Dispatcher::canonical_generated_by( $config, $cdnftp ) == 'cdn' )
-			$rules .= Util_RuleSnippet::canonical( $cdnftp,
+		if ( $config->get_boolean( 'cdn.canonical_header' ) ) {
+			$rules .= $this->canonical( $cdnftp,
 				$config->get_boolean( 'cdn.cors_header') );
+		}
 
 		if ( $config->get_boolean( 'cdn.cors_header') ) {
 			$rules .= $this->allow_origin( $cdnftp );
 		}
 
-		if ( strlen( $rules ) > 0 )
+		if ( strlen( $rules ) > 0 ) {
 			$rules =
 				W3TC_MARKER_BEGIN_CDN . "\n" .
 				$rules .
 				W3TC_MARKER_END_CDN . "\n";
+		}
 
 		return $rules;
 	}
+
+
+
+	private function canonical( $cdnftp = false, $cors_header ) {
+		$rules = '';
+
+		$mime_types = include W3TC_INC_DIR . '/mime/other.php';
+		$extensions = array_keys( $mime_types );
+
+		$extensions_lowercase = array_map( 'strtolower', $extensions );
+		$extensions_uppercase = array_map( 'strtoupper', $extensions );
+		$rules .= "<FilesMatch \"\\.(" . implode( '|',
+			array_merge( $extensions_lowercase, $extensions_uppercase ) ) . ")$\">\n";
+
+		$host = ( $cdnftp ? Util_Environment::home_url_host() : '%{HTTP_HOST}' );
+		$rules .= "   <IfModule mod_rewrite.c>\n";
+		$rules .= "      RewriteEngine On\n";
+		$rules .= "      RewriteCond %{HTTPS} !=on\n";
+		$rules .= "      RewriteRule .* - [E=CANONICAL:http://$host%{REQUEST_URI},NE]\n";
+		$rules .= "      RewriteCond %{HTTPS} =on\n";
+		$rules .= "      RewriteRule .* - [E=CANONICAL:https://$host%{REQUEST_URI},NE]\n";
+		$rules .= "   </IfModule>\n";
+		$rules .= "   <IfModule mod_headers.c>\n";
+		$rules .= '      Header set Link "<%{CANONICAL}e>; rel=\"canonical\""' . "\n";
+		$rules .= "   </IfModule>\n";
+
+		$rules .= "</FilesMatch>\n";
+
+		return $rules;
+	}
+
+
 
 	/**
 	 * Returns allow-origin rules
 	 */
 	private function allow_origin( $cdnftp = false ) {
-		switch ( true ) {
-		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
-			$r  = "<IfModule mod_headers.c>\n";
-			$r .= "    Header set Access-Control-Allow-Origin \"*\"\n";
-			$r .= "</IfModule>\n";
+		$r  = "<IfModule mod_headers.c>\n";
+		$r .= "    Header set Access-Control-Allow-Origin \"*\"\n";
+		$r .= "</IfModule>\n";
 
-			if ( !$cdnftp )
-				return $r;
-			else
-				return
-				"<FilesMatch \"\.(ttf|ttc|otf|eot|woff|woff2|font.css)$\">\n" .
-					$r .
-					"</FilesMatch>\n";
+		if ( !$cdnftp )
+			return $r;
+		else
+			return
+			"<FilesMatch \"\.(ttf|ttc|otf|eot|woff|woff2|font.css)$\">\n" .
+				$r .
+				"</FilesMatch>\n";
+	}
+
+
+
+	public function w3tc_browsercache_rules_section_extensions(
+			$extensions, $config, $section ) {
+		if ( Util_Environment::is_nginx() ) {
+			$o = new Cdn_Environment_Nginx( $config );
+			$extensions = $o->w3tc_browsercache_rules_section_extensions(
+				$extensions, $section );
 		}
 
-		return '';
+		return $extensions;
 	}
 }

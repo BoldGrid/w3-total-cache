@@ -437,4 +437,30 @@ class Util_Rule {
 		else
 			return '%{DOCUMENT_ROOT}';
 	}
+
+
+
+	/**
+	 * Takes an array of extensions single per row and/or extensions delimited by |
+	 *
+	 * @param unknown $extensions
+	 * @param unknown $ext
+	 * @return array
+	 */
+	static public function remove_extension_from_list( $extensions, $ext ) {
+		for ( $i = 0; $i < sizeof( $extensions ); $i++ ) {
+			if ( $extensions[$i] == $ext ) {
+				unset( $extensions[$i] );
+				return $extensions;
+			} elseif ( strpos( $extensions[$i], $ext ) !== false &&
+				strpos( $extensions[$i], '|' ) !== false ) {
+				$exts = explode( '|', $extensions[$i] );
+				$key = array_search( $ext, $exts );
+				unset( $exts[$key] );
+				$extensions[$i] = implode( '|', $exts );
+				return $extensions;
+			}
+		}
+		return $extensions;
+	}
 }
