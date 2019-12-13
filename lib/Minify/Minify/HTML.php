@@ -353,7 +353,7 @@ class Minify_HTML {
 
 	public function _removeAttributeQuotesCallback( $m ) {
 		// empty tag values like <div data-value=""> to <div data-value
-		if ( empty( $m[3] ) ) {
+		if ( $m[3] === '' ) {
 			return $m[1] . $m[4];
 		}
 

@@ -1,9 +1,9 @@
 === Plugin Name ===
-Contributors: fredericktownes
+Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle
 Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
-Tested up to: 5.2
-Stable tag: 0.10.1
+Tested up to: 5.3
+Stable tag: 0.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -270,6 +270,35 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.11.0 =
+* Added recommendation for BoldGrid's Total Upkeep plugin
+* Added new lazy loading feature
+* Removed New Relic extension by default for new installations
+* Updated usage of html minification and quote removal
+* Improved memcached config and added optional binary protocol setting
+* Improved process of renewing expired licenses
+* Improved page cache purging
+* Improved FAQ link by opening in new window
+* Improved detection of detect_post_id
+* Improved REST caching in relation to cache headers like X-WP-*
+* Improved Vary User-Agent header usage
+* Improved various features with AMP pages and HTTP2
+* Improved redis connection string to allow for tls://host:port format
+* Fixed file headers for Cloudfront S3 CDN
+* Fixed fatal error on with flush / SNS
+* Fixed comments with URLs within minify debug mode
+* Fixed ObjectCache statistics within footer
+* Fixed temporary hotfix with wp_die and regular output
+* Fixed fragment cache header link
+* Fixed flushing of /feed and /feed/ cache
+* Fixed js error in widget
+* Fixed fatal cache flush error caused by empty $wp_rewrite
+* Fixed path for file_generic REST caching on non-default port
+* Fixed test minify button with Closure Compiler engine
+
+= 0.10.2 =
+* Fixed compatibility with wpdb::prepare in WordPress 5.3
 
 = 0.10.1 =
 * Fixed slowdown in memcached engine
