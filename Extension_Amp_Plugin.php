@@ -110,9 +110,17 @@ class Extension_Amp_Plugin {
 
 	public function x_flush_post_queued_urls( $queued_urls ) {
 		$amp_urls = array();
+		$c = Dispatcher::config();
+		$url_postfix = $c->get_string( array( 'amp', 'url_postfix' ) );
 
-		foreach ( $queued_urls as $url ) {
-			$amp_urls[] = trailingslashit( $url ) . 'amp';
+		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' ) {
+			foreach ( $queued_urls as $url ) {
+				$amp_urls[] = $url . '?' . $url_postfix;
+			}
+		} else {
+			foreach ( $queued_urls as $url ) {
+				$amp_urls[] = trailingslashit( $url ) . $url_postfix;
+			}
 		}
 
 		$queued_urls = array_merge( $queued_urls, $amp_urls );

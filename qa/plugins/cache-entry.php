@@ -5,6 +5,7 @@ define('DONOTCACHEPAGE', true);
 $blog_id = $_REQUEST['blog_id'];
 $url = $_REQUEST['url'];
 $wp_content_path = $_REQUEST['wp_content_path'];
+$page_key_postfix = $_REQUEST['page_key_postfix'];
 
 $parsed = parse_url($url);
 $scheme = $parsed['scheme'];
@@ -20,6 +21,7 @@ if ($engine == 'file_generic') {
 	$cache_path =  $wp_content_path . 'cache/page_enhanced/' . $host_port . $path .
 		'_index' .
 		($scheme == 'https' ? '_ssl' : '') .
+		$page_key_postfix .
 		'.html';
 	$content = 'Test of cache' . file_get_contents($cache_path);
 	$success = file_put_contents($cache_path, $content);
@@ -31,6 +33,7 @@ if ($engine == 'file_generic') {
 $cache_key = md5($host_port . $path);
 if ($scheme == 'https')
 	$cache_key .= '_ssl';
+$cache_key .= $page_key_postfix;
 
 echo 'checking ' . $host_port . $path . ' blog ' . $blog_id . ' cache key ' . $cache_key;
 

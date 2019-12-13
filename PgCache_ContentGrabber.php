@@ -214,7 +214,6 @@ class PgCache_ContentGrabber {
 				$this->_page_key_extension['cache_reject_reason'];
 		}
 
-
 		if ( $this->_caching && !$this->_late_caching ) {
 			$this->_cached_data = $this->_extract_cached_page( false );
 			if ( $this->_cached_data ) {
@@ -556,7 +555,7 @@ class PgCache_ContentGrabber {
 		/**
 		 * Skip if there is query in the request uri
 		 */
-		if ( !$this->_is_ignored_query_string() ) {
+		if ( !$this->_is_ignored_query_string( $this->_request_uri ) ) {
 			$should_reject_qs =
 				( !$this->_config->get_boolean( 'pgcache.cache.query' ) ||
 				$this->_config->get_string( 'pgcache.engine' ) == 'file_generic' );
@@ -1501,7 +1500,7 @@ class PgCache_ContentGrabber {
 			}
 		}
 
-		if ( $this->_is_ignored_query_string() ) {
+		if ( $this->_is_ignored_query_string( $key ) ) {
 			// remove query string
 			$key = preg_replace( '~\?.*$~', '', $key );
 		}
@@ -1921,7 +1920,7 @@ class PgCache_ContentGrabber {
 		return in_array( $content_type, $cache_headers );
 	}
 
-	private function _is_ignored_query_string() {
+	private function _is_ignored_query_string( $uri ) {
 		$ignore_qs = $this->_config->get_array( 'pgcache.accept.qs' );
 		$ignore_qs = w3tc_apply_filters( 'pagecache_extract_accept_qs', $ignore_qs );
 		Util_Rule::array_trim( $ignore_qs );
@@ -1930,20 +1929,29 @@ class PgCache_ContentGrabber {
 			return false;
 		}
 
-		foreach ( $ignore_qs as &$val ) {
-			$val = Util_Environment::preg_quote( str_replace( '+', ' ', $val ) );
-			$val .= ( strpos( $val, '=' ) === false ? '=.*' : '' );
+		$p = strpos( $uri, '?' );
+		if ( $p === false ) {
+			return false;
 		}
+		$uri = substr( $uri, $p + 1 );
 
-		$ignore_qs = implode( '|', $ignore_qs );
+		foreach ( $ignore_qs as $qs ) {
+			$m = null;
+			if ( strpos( $qs, '=' ) === false ) {
+				$regexp = Util_Environment::preg_quote( str_replace( '+', ' ', $qs ) );
+				if ( @preg_match( "~(^|&)($regexp(=[^&]*)?)(&|$)~i", $uri, $m ) ) {
+					$uri = $m[1] . $m[3];
+				}
+			} else {
+				$regexp = Util_Environment::preg_quote( str_replace( '+', ' ', $qs ) );
 
-		foreach ( $_GET as $key => $value ) {
-			if ( !@preg_match( "~^($ignore_qs)$~i", $key . "=$value" ) ) {
-				return false;
+				if ( @preg_match( "~(^|&)($regexp)(&|$)~i", $uri, $m ) ) {
+					$uri = $m[1] . $m[1];
+				}
 			}
 		}
 
-		return true;
+		return preg_match( "~^[&]*$~", $uri );
 	}
 
 	/**

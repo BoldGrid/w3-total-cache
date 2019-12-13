@@ -107,6 +107,21 @@ exports.setOptions = async function(pPage, queryPage, values) {
 
 
 
+exports.setOptionInternal = async function(pPage, name, value) {
+	let r = await exec('cp ../../plugins/w3tc-set-option-internal.php ' +
+		env.wpPath + 'w3tc-set-option-internal.php');
+
+	let controlUrl = env.blogSiteUrl + 'w3tc-set-option-internal.php?blog_id=' +
+		env.blogId +
+		'&name=' + encodeURIComponent(JSON.stringify(name)) + '&value=' +
+		encodeURIComponent(JSON.stringify(value));
+	await pPage.goto(controlUrl, {waitUntil: 'domcontentloaded'});
+	let html = await pPage.content();
+	expect(html).contains('ok');
+}
+
+
+
 exports.activateExtension = async function(pPage, extenstion_id) {
 	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions');
 	let isActive = await pPage.$('#' + extenstion_id + ' .deactivate');
@@ -116,7 +131,7 @@ exports.activateExtension = async function(pPage, extenstion_id) {
 	}
 
 	await Promise.all([
-		pPage.click('#' + id + ' .activate a'),
+		pPage.click('#' + extenstion_id + ' .activate a'),
 		pPage.waitForNavigation()
 	]);
 
@@ -211,7 +226,7 @@ exports.expectPageCachingMethod = function(pageContent, cacheEngineName) {
 
 
 
-exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngineName, url) {
+exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngineName, url, pageKeyPostfix) {
 	if (cacheEngineLabel == null) {
 		cacheEngineLabel = env.cacheEngineLabel;
 	}
@@ -221,10 +236,14 @@ exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngi
 	if (url == null) {
 		url = env.homeUrl;
 	}
+	if (url == pageKeyPostfix) {
+		pageKeyPostfix = '';
+	}
 
 	await pPage.goto(env.blogSiteUrl + 'cache-entry.php?blog_id=' + env.blogId +
 		'&wp_content_path=' + env.wpContentPath +
 		'&url=' + encodeURIComponent(url) +
+		'&page_key_postfix=' + pageKeyPostfix +
 		'&engine=' + cacheEngineLabel);
 	expect(await pPage.content()).contains('Page Caching using ' + cacheEngineName);
 }

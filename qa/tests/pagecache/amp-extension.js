@@ -32,6 +32,10 @@ describe('', function() {
 
 
 	it('set options', async() => {
+		await w3tc.activateExtension(adminPage, 'amp');
+		await w3tc.setOptionInternal(adminPage, ['amp', 'url_type'], 'querystring');
+		await w3tc.setOptionInternal(adminPage, ['amp', 'url_postfix'], 'amp');
+
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
 			pgcache__enabled: true,
 			browsercache__enabled: false,
@@ -60,11 +64,12 @@ describe('', function() {
 	it('check amp page', async() => {
 		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
 		expect(await page.content()).contains('!regular-page!');
+		log.log('check ' + testPageAmpUrl);
 		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageAmpUrl);
 		expect(await page.content()).contains('!amp-page!');
 
 		// trying to write a dummy word into the cached file
-		await w3tc.pageCacheEntryChange(page, null, null, testPageAmpUrl);
+		await w3tc.pageCacheEntryChange(page, null, null, testPageUrl, '_amp');
 		//box.onPageChangedOutside(test);
 
 		// checking if the file was not regenerated again
@@ -72,7 +77,7 @@ describe('', function() {
 		await page.goto(testPageAmpUrl);
 		expect(await page.content()).contains('Test of cache');
 
-		await w3tc.pageCacheEntryChange(page, null, null, testPageAmpUrl);
+		await w3tc.pageCacheEntryChange(page, null, null, testPageUrl, '_amp');
 
 		log.log('Going2 to the homepage to check if the file has "test of cache" text...');
 		//box.onPageChangedOutside(test);

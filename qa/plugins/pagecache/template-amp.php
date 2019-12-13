@@ -22,11 +22,12 @@ get_header(); ?>
 						get_template_part( 'content', 'intro' );
 				?>
 
+				<?php the_content() ?>
 				<?php endwhile; ?>
 
 				<?php
 
-				if (!empty($_REQUEST['amp'])) {
+				if (isset($_REQUEST['amp'])) {
 					echo '!amp-page!';
 				} else {
 					echo '!regular-page!';
