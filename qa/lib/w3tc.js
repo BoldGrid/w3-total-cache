@@ -211,16 +211,20 @@ exports.expectPageCachingMethod = function(pageContent, cacheEngineName) {
 
 
 
-exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngineName) {
+exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngineName, url) {
 	if (cacheEngineLabel == null) {
 		cacheEngineLabel = env.cacheEngineLabel;
 	}
 	if (cacheEngineName == null) {
 		cacheEngineName = env.cacheEngineName;
 	}
+	if (url == null) {
+		url = env.homeUrl;
+	}
 
 	await pPage.goto(env.blogSiteUrl + 'cache-entry.php?blog_id=' + env.blogId +
-		'&wp_content_path=' + env.wpContentPath + '&url=' + env.homeUrl +
+		'&wp_content_path=' + env.wpContentPath +
+		'&url=' + encodeURIComponent(url) +
 		'&engine=' + cacheEngineLabel);
 	expect(await pPage.content()).contains('Page Caching using ' + cacheEngineName);
 }
