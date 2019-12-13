@@ -60,6 +60,12 @@ class Cdnfsd_CacheFlush {
 			}
 		}
 
+		global $wp_rewrite;   // required by many Util_PageUrls methods
+		if ( empty( $wp_rewrite ) ) {
+			error_log('Post was modified before wp_rewrite initialization. Cant flush cache.');
+			return false;
+		}
+
 		$full_urls = array();
 		$post = null;
 		$terms = array();

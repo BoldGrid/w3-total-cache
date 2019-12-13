@@ -56,7 +56,7 @@ describe('', function() {
 
 	it('scripts minified', async() => {
 		await adminPage.goto(testPageUrl);
-		let scripts = await dom.listScriptSrc(adminPage);
+		let scripts = await dom.listScriptSrcSync(adminPage);
 		for (let url of scripts) {
 			log.log('Minify presence expected in ' + url);
 			expect(url).contains('cache/minify');
@@ -75,7 +75,7 @@ describe('', function() {
 
 	it('scripts not minified', async() => {
 		await adminPage.goto(testPageUrl);
-		let scripts = await dom.listScriptSrc(adminPage);
+		let scripts = await dom.listScriptSrcSync(adminPage);
 		for (let url of scripts) {
 			log.log('Minify presence not expected in ' + url);
 			expect(url).not.contains('cache/minify');
