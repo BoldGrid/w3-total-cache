@@ -43,11 +43,18 @@ class Extension_Amp_Plugin {
 
 		// rules generation
 		add_filter( 'w3tc_pagecache_rules_apache_accept_qs',
-			array( $o, 'w3tc_pagecache_rules_apache_accept_qs' ) );
+			array( $o, 'w3tc_pagecache_rules_x_accept_qs' ) );
 		add_filter( 'w3tc_pagecache_rules_apache_accept_qs_rules',
 			array( $o, 'w3tc_pagecache_rules_apache_accept_qs_rules' ), 10, 2 );
 		add_filter( 'w3tc_pagecache_rules_apache_uri_prefix',
 			array( $o, 'w3tc_pagecache_rules_apache_uri_prefix' ) );
+
+		add_filter( 'w3tc_pagecache_rules_nginx_accept_qs',
+			array( $o, 'w3tc_pagecache_rules_x_accept_qs' ) );
+		add_filter( 'w3tc_pagecache_rules_nginx_accept_qs_rules',
+			array( $o, 'w3tc_pagecache_rules_nginx_accept_qs_rules' ), 10, 2 );
+		add_filter( 'w3tc_pagecache_rules_nginx_uri_prefix',
+			array( $o, 'w3tc_pagecache_rules_nginx_uri_prefix' ) );
 	}
 
 
@@ -204,7 +211,7 @@ class Extension_Amp_Plugin {
 
 
 
-	public function w3tc_pagecache_rules_apache_accept_qs( $query_strings ) {
+	public function w3tc_pagecache_rules_x_accept_qs( $query_strings ) {
 		$c = Dispatcher::config();
 
 		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' ) {
@@ -220,7 +227,7 @@ class Extension_Amp_Plugin {
 		$c = Dispatcher::config();
 
 		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' &&
-			$query == $c->get_string( array( 'amp', 'url_postfix' ) ) ) {
+				$query == $c->get_string( array( 'amp', 'url_postfix' ) ) ) {
 			$query_rules[1] = str_replace( '[E=', '[E=W3TC_AMP:_amp,E=', $query_rules[1] );
 		}
 
@@ -234,6 +241,32 @@ class Extension_Amp_Plugin {
 
 		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' ) {
 			$uri_prefix .= '%{ENV:W3TC_AMP}';
+		}
+
+		return $uri_prefix;
+	}
+
+
+
+	public function w3tc_pagecache_rules_nginx_accept_qs_rules( $query_rules, $query ) {
+		$c = Dispatcher::config();
+
+		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' &&
+				$query == $c->get_string( array( 'amp', 'url_postfix' ) ) ) {
+			array_splice( $query_rules, 1, 0, '    set $w3tc_amp "_amp";' );
+			array_unshift( $query_rules, 'set $w3tc_amp "";' );
+		}
+
+		return $query_rules;
+	}
+
+
+
+	public function w3tc_pagecache_rules_nginx_uri_prefix( $uri_prefix ) {
+		$c = Dispatcher::config();
+
+		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' ) {
+			$uri_prefix .= '$w3tc_amp';
 		}
 
 		return $uri_prefix;

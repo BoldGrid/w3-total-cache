@@ -841,7 +841,10 @@ class PgCache_Environment {
 		/**
 		 * Set accept query strings
 		 */
-		$w3tc_query_strings = $config->get_array( 'pgcache.accept.qs' );
+		$w3tc_query_strings = apply_filters(
+			'w3tc_pagecache_rules_nginx_accept_qs',
+			$config->get_array( 'pgcache.accept.qs' ) );
+
 		Util_Rule::array_trim( $w3tc_query_strings );
 
 		if ( !empty( $w3tc_query_strings ) ) {
@@ -851,10 +854,21 @@ class PgCache_Environment {
 			$rules .= "set \$w3tc_query_string \$query_string;\n";
 
 			foreach ( $w3tc_query_strings as $query ) {
-				$query .=  ( strpos( $query, '=' ) === false ? '=.*?' : '' );
-				$rules .= "if (\$w3tc_query_string ~* \"^(.*?&|)" . $query . "(&.*|)$\") {\n";
-				$rules .= "    set \$w3tc_query_string $1$2;\n";
-				$rules .= "}\n";
+				$query_rules = array();
+				if ( strpos( $query, '=' ) === false ) {
+					$query_rules[] = 'if ($w3tc_query_string ~* "^(.*?&|)' . $query . '(=[^&]*)?(&.*|)$") {';
+					$query_rules[] = '    set $w3tc_query_string $1$3;';
+					$query_rules[] = '}';
+				} else {
+					$query_rules[] = 'if ($w3tc_query_string ~* "^(.*?&|)' . $query . '(&.*|)$") {';
+					$query_rules[] = '    set $w3tc_query_string $1$2;';
+					$query_rules[] = '}';
+				}
+
+				$query_rules = apply_filters(
+					'w3tc_pagecache_rules_nginx_accept_qs_rules',
+					$query_rules, $query );
+				$rules .= implode( "\n", $query_rules ) . "\n";
 			}
 
 			$rules .= "if (\$w3tc_query_string ~ ^[?&]+$) {\n";
@@ -1130,8 +1144,9 @@ class PgCache_Environment {
 
 		$cache_path = str_replace( Util_Environment::document_root(), '',
 			$cache_dir );
-		$uri_prefix = $cache_path . "/\$http_host/$env_request_uri/_index" .
-			$key_postfix;
+		$uri_prefix = "$cache_path/\$http_host/$env_request_uri/_index$key_postfix";
+		$uri_prefix = apply_filters( 'w3tc_pagecache_rules_nginx_uri_prefix',
+			$uri_prefix );
 
 		if ( !$config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 			$env_w3tc_ext = '.html';
