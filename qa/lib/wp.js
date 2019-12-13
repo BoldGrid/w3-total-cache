@@ -167,7 +167,12 @@ async function postCreateWP4(pPage, data) {
 
 async function postCreateWP5(pPage, data) {
 	log.log('create page - switch to code editor')
-	await pPage.click('button[aria-label="Show more tools & options"]');
+
+	if (parseFloat(env.wpVersion) < 5.3) {
+		await pPage.click('button[aria-label="Show more tools & options"]');
+	} else {
+		await pPage.click('button[aria-label="More tools & options"]');
+	}
 
 	if (parseFloat(env.wpVersion) < 5.2) {
 		await pPage.click('button[aria-label="Code Editor"]');
@@ -220,6 +225,8 @@ async function postCreateWP5(pPage, data) {
 	    	hours = d.getHours(),
 	    	year = d.getFullYear();
 		month = (month <= 9 ? '0' : '') + month;
+		minutes = (minutes <= 9 ? '0' : '') + minutes;   // looks like otherwise unstable
+
 
 		await sys.repeatOnFailure(pPage, async() => {
 			log.log('click .edit-post-post-schedule__toggle');
@@ -344,7 +351,12 @@ async function postUpdateWP4(pPage, data) {
 
 async function postUpdateWP5(pPage, data) {
 	log.log('update page - switch to code editor')
-	await pPage.click('button[aria-label="Show more tools & options"]');
+
+	if (parseFloat(env.wpVersion) < 5.3) {
+		await pPage.click('button[aria-label="Show more tools & options"]');
+	} else {
+		await pPage.click('button[aria-label="More tools & options"]');
+	}
 
 	if (parseFloat(env.wpVersion) < 5.2) {
 		await pPage.click('button[aria-label="Code Editor"]');
@@ -371,9 +383,17 @@ async function postUpdateWP5(pPage, data) {
 	log.log('update page - click publish button')
 	await pPage.click('.editor-post-publish-button');
 	log.log('update page - waiting for published state');
-	await pPage.waitForSelector('.components-notice', {timeout: 5000});
-	let noticeText = await pPage.$eval('.components-notice__content',
-		(e) => e.innerHTML);
+
+	let noticeText;
+	if (parseFloat(env.wpVersion) < 5.3) {
+		await pPage.waitForSelector('.components-notice', {timeout: 5000});
+		noticeText = await pPage.$eval('.components-notice__content',
+			(e) => e.innerHTML);
+	} else {
+		await pPage.waitForSelector('.components-snackbar-list__notice-container', {timeout: 5000});
+		noticeText = await pPage.$eval('.components-snackbar-list__notice-container',
+			(e) => e.innerHTML);
+	}
 	expect(noticeText).contains('Post updated');
 
 	log.log('post updated');
@@ -467,8 +487,15 @@ async function userSignUpSingle(pPage, data) {
 	}
 
 	await pPage.click('.wp-generate-pw');
-	await pPage.waitFor('#pass1-text', {visible: true});
-	let password = await pPage.$eval('#pass1-text', (e) => e.value);
+
+	let password;
+	if (parseFloat(env.wpVersion) < 5.3) {
+		await pPage.waitFor('#pass1-text', {visible: true});
+		password = await pPage.$eval('#pass1-text', (e) => e.value);
+	} else {
+		await pPage.waitFor('#pass1', {visible: true});
+		password = await pPage.$eval('#pass1', (e) => e.value);
+	}
 
 	await Promise.all([
 		pPage.click('#createusersub'),
