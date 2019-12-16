@@ -150,9 +150,16 @@ describe('minify html', function() {
 		let e2q2 = await page.$eval('#quoted-attribute2',
 			(e) => e.getAttribute('data-test-quote2'));
 		expect(e2q2).empty;
+		// spaces, zeroes not removed
+		let e2q3 = await page.$eval('#quoted-attribute2',
+			(e) => e.getAttribute('data-test-quote3'));
+		expect(e2q3).equals('0');
+		let e2q4 = await page.$eval('#quoted-attribute2',
+			(e) => e.getAttribute('data-test-quote4'));
+		expect(e2q4).equals(' ');
 
 		// html view is correct - no value
-		expect(testPageHtml).contains('id=quoted-attribute2 data-test-quote1 data-test-quote2>');
+		expect(testPageHtml).contains("id=quoted-attribute2 data-test-quote1 data-test-quote2 data-test-quote3=0 data-test-quote4=' '>");
 
 
 		let e3q1 = await page.$eval('#quoted-attribute3',

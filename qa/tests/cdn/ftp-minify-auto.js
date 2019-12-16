@@ -77,7 +77,7 @@ describe('', function() {
 
 		await page.goto(testPageUrl, {waitUntil: 'domcontentloaded'});
 
-		let scripts = await dom.listScriptSrc(page);
+		let scripts = await dom.listScriptSrcSync(page);
 		scripts.forEach(function(url) {
 			log.log('testing ' + url);
 			expect(url).contains('cache/minify');
