@@ -23,6 +23,9 @@ class LazyLoad_Plugin {
 
 		add_filter( 'wp_get_attachment_url',
 			array( $this, 'wp_get_attachment_url' ), 10, 2 );
+		add_filter( 'w3tc_footer_comment',
+			array( $this, 'w3tc_footer_comment' ) );
+
 	}
 
 
@@ -37,8 +40,22 @@ class LazyLoad_Plugin {
 			'buffer' => $buffer,
 			'reason' => null
 		);
+
 		$can_process = $this->can_process( $can_process );
 		$can_process = apply_filters( 'w3tc_lazyload_can_process', $can_process );
+
+		// set reject reason in comment
+		if ( $can_process['enabled'] ) {
+			$reject_reason = '';
+		} else {
+			$reject_reason = empty( $can_process['reason'] ) ?
+				' (not specified)' : ' (' . $can_process['reason'] . ')';
+		}
+
+		$buffer = str_replace( '{w3tc_lazyload_reject_reason}',
+			$reject_reason, $buffer );
+
+		// processing
 		if ( !$can_process['enabled'] ) {
 			return $buffer;
 		}
@@ -90,7 +107,21 @@ class LazyLoad_Plugin {
 			return $can_process;
 		}
 
+		if ( function_exists( 'is_feed' ) && is_feed() ) {
+			$can_process['enabled'] = false;
+			$can_process['reason'] = 'feed';
+
+			return $can_process;
+		}
+
 		return $can_process;
+	}
+
+
+
+	public function w3tc_footer_comment( $strings ) {
+		$strings[] = __( 'Lazy Loading', 'w3-total-cache' ) . '{w3tc_lazyload_reject_reason}';
+		return $strings;
 	}
 
 
