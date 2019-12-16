@@ -236,7 +236,7 @@ exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngi
 	if (url == null) {
 		url = env.homeUrl;
 	}
-	if (url == pageKeyPostfix) {
+	if (pageKeyPostfix == null) {
 		pageKeyPostfix = '';
 	}
 

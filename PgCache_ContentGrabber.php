@@ -1939,14 +1939,14 @@ class PgCache_ContentGrabber {
 			$m = null;
 			if ( strpos( $qs, '=' ) === false ) {
 				$regexp = Util_Environment::preg_quote( str_replace( '+', ' ', $qs ) );
-				if ( @preg_match( "~(^|&)($regexp(=[^&]*)?)(&|$)~i", $uri, $m ) ) {
+				if ( @preg_match( "~^(.*?&|)$regexp(=[^&]*)?(&.*|)$~i", $uri, $m ) ) {
 					$uri = $m[1] . $m[3];
 				}
 			} else {
 				$regexp = Util_Environment::preg_quote( str_replace( '+', ' ', $qs ) );
 
-				if ( @preg_match( "~(^|&)($regexp)(&|$)~i", $uri, $m ) ) {
-					$uri = $m[1] . $m[1];
+				if ( @preg_match( "~^(.*?&|)$regexp(&.*|)$~i", $uri, $m ) ) {
+					$uri = $m[1] . $m[2];
 				}
 			}
 		}
