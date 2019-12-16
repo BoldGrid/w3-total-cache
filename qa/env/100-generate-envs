@@ -142,7 +142,7 @@ end
 
 
 def generate_box_descriptors(image_name)
-	wpl = 'wp52'
+	wpl = 'wp53'
 
 	box_descriptors = {
 		'' => {
@@ -196,6 +196,12 @@ def generate_box_descriptors(image_name)
 			'WP_VERSION' => '5.2',
 			'_except_name_contains' => [
 				'php55'   # wp5.2 requires php>=5.6
+			]
+		},
+		'wp53' => {
+			'WP_VERSION' => '5.3',
+			'_except_name_contains' => [
+				'php55'   # wp5.3 requires php>=5.6
 			]
 		}
 	}, image_name)

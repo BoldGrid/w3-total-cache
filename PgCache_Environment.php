@@ -397,102 +397,24 @@ class PgCache_Environment {
 	 * returns true if modifications has been made
 	 */
 	private function rules_core_add( $config, $exs ) {
-		$path = Util_Rule::get_pgcache_rules_core_path();
-		if ( $path === false )
-			return;
-
-		$original_data = @file_get_contents( $path );
-		if ( $original_data === false )
-			$original_data = '';
-
-		$data = $original_data;
-
-		if ( $has_wpsc = Util_Rule::has_rules( $data, W3TC_MARKER_BEGIN_PGCACHE_WPSC, W3TC_MARKER_END_PGCACHE_WPSC ) )
-			$data = Util_Rule::erase_rules( $data, W3TC_MARKER_BEGIN_PGCACHE_WPSC, W3TC_MARKER_END_PGCACHE_WPSC );
-
-		$rules = $this->rules_core_generate( $config );
-		$rules_missing = ( strstr( Util_Rule::clean_rules( $data ), Util_Rule::clean_rules( $rules ) ) === false );
-
-
-		if ( !$has_wpsc && !$rules_missing )
-			return;   // modification of file not required
-
-
-		$replace_start = strpos( $data, W3TC_MARKER_BEGIN_PGCACHE_CORE );
-		$replace_end = strpos( $data, W3TC_MARKER_END_PGCACHE_CORE );
-
-		if ( $replace_start !== false && $replace_end !== false && $replace_start < $replace_end ) {
-			$replace_length = $replace_end - $replace_start +
-				strlen( W3TC_MARKER_END_PGCACHE_CORE ) + 1;
-		} else {
-			$replace_start = false;
-			$replace_length = 0;
-
-			$search = array(
+		Util_Rule::add_rules( $exs, Util_Rule::get_pgcache_rules_core_path(),
+			$this->rules_core_generate( $config ),
+			W3TC_MARKER_BEGIN_PGCACHE_CORE,
+			W3TC_MARKER_END_PGCACHE_CORE,
+			array(
 				W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP => 0,
 				W3TC_MARKER_BEGIN_WORDPRESS => 0,
 				W3TC_MARKER_END_MINIFY_CORE =>
-				strlen( W3TC_MARKER_END_MINIFY_CORE ) + 1,
+					strlen( W3TC_MARKER_END_MINIFY_CORE ) + 1,
 				W3TC_MARKER_END_BROWSERCACHE_CACHE =>
-				strlen( W3TC_MARKER_END_BROWSERCACHE_CACHE ) + 1,
+					strlen( W3TC_MARKER_END_BROWSERCACHE_CACHE ) + 1,
 				W3TC_MARKER_END_PGCACHE_CACHE =>
-				strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
+					strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
 				W3TC_MARKER_END_MINIFY_CACHE =>
-				strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
-			);
-
-			foreach ( $search as $string => $length ) {
-				$replace_start = strpos( $data, $string );
-
-				if ( $replace_start !== false ) {
-					$replace_start += $length;
-					break;
-				}
-			}
-		}
-
-		if ( $replace_start !== false ) {
-			$data = Util_Rule::trim_rules( substr_replace( $data, $rules,
-					$replace_start, $replace_length ) );
-		} else {
-			$data = Util_Rule::trim_rules( $data . $rules );
-		}
-
-		try {
-			Util_WpFile::write_to_file( $path, $data );
-		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
-			if ( $has_wpsc )
-				$exs->push( new Util_WpFile_FilesystemModifyException(
-						$ex->getMessage(), $ex->credentials_form(),
-						sprintf( __( 'Edit file <strong>%s</strong> and remove all lines between and including
-								<strong>%s</strong> and <strong>%s</strong> markers.', 'w3-total-cache' )
-							, $path
-							, W3TC_MARKER_BEGIN_PGCACHE_WPSC
-							, W3TC_MARKER_END_PGCACHE_WPSC
-						), $path ) );
-
-			if ( $rules_missing ) {
-				if ( strpos( $data, W3TC_MARKER_BEGIN_PGCACHE_CORE ) !== false )
-					$exs->push( new Util_WpFile_FilesystemModifyException(
-							$ex->getMessage(), $ex->credentials_form(),
-							sprintf( __( 'Edit file <strong>%s</strong> and replace all lines between and including
-									<strong>%s</strong> and <strong>%s</strong> markers with:', 'w3-total-cache' )
-								, $path
-								, W3TC_MARKER_BEGIN_PGCACHE_CORE
-								, W3TC_MARKER_END_PGCACHE_CORE
-							), $path, $rules ) );
-				else
-					$exs->push( new Util_WpFile_FilesystemModifyException(
-							$ex->getMessage(), $ex->credentials_form(),
-							sprintf( __( 'Edit file <strong>%s</strong> and add the following rules above the WordPress
-									directives:' )
-								, $path
-							), $path, $rules ) );
-			}
-			return;
-		}
-
-		Util_Rule::after_rules_modified();
+					strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
+			),
+			true
+		);
 	}
 
 	/**
@@ -1516,84 +1438,16 @@ class PgCache_Environment {
 		$browsercache = $config->get_boolean( 'browsercache.enabled' );
 		$brotli = ( $browsercache && $config->get_boolean( 'browsercache.html.brotli' ) );
 		$compression = ( $browsercache && $config->get_boolean( 'browsercache.html.compression' ) );
-		$expires = ( $browsercache && $config->get_boolean( 'browsercache.html.expires' ) );
-		$lifetime = ( $browsercache ? $config->get_integer( 'browsercache.html.lifetime' ) : 0 );
-		$cache_control = ( $browsercache && $config->get_boolean( 'browsercache.html.cache.control' ) );
-		$w3tc = ( $browsercache && $config->get_integer( 'browsercache.html.w3tc' ) );
-		$hsts = ( $browsercache && $config->get_boolean( 'browsercache.hsts' ) );
 
+		$common_rules_a = Dispatcher::nginx_rules_for_browsercache_section(
+			$config, 'html', true );
 		$common_rules = '';
-
-		if ( $expires ) {
-			$common_rules .= "    expires modified " . $lifetime . "s;\n";
-		}
-
-		if ( $w3tc ) {
-			$common_rules .= "    add_header X-Powered-By \"" .
-				Util_Environment::w3tc_header() . "\";\n";
-		}
-
-		if ( $hsts ) {
-			$common_rules .= " add_header Strict-Transport-Security \"max-age=31536000; preload\";\n";
-		}
-		if ( $expires ) {
-			$common_rules .= "    add_header Vary \"Accept-Encoding, Cookie\";\n";
-		}
-
-		if ( $cache_control ) {
-			$cache_policy = $config->get_string( 'browsercache.html.cache.policy' );
-
-			switch ( $cache_policy ) {
-			case 'cache':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-				$common_rules .= "    add_header Cache-Control \"public\";\n";
-				break;
-
-			case 'cache_public_maxage':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-
-				if ( $expires ) {
-					$common_rules .= "    add_header Cache-Control \"public\";\n";
-				} else {
-					$common_rules .= "    add_header Cache-Control \"max-age=" . $lifetime . ", public\";\n";
-				}
-				break;
-
-			case 'cache_validation':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-				$common_rules .= "    add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";\n";
-				break;
-
-			case 'cache_noproxy':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-				$common_rules .= "    add_header Cache-Control \"private, must-revalidate\";\n";
-				break;
-
-			case 'cache_maxage':
-				$common_rules .= "    add_header Pragma \"public\";\n";
-
-				if ( $expires ) {
-					$common_rules .= "    add_header Cache-Control \"public, must-revalidate, proxy-revalidate\";\n";
-				} else {
-					$common_rules .= "    add_header Cache-Control \"max-age=" . $lifetime . ", public, must-revalidate, proxy-revalidate\";\n";
-				}
-				break;
-
-			case 'no_cache':
-				$common_rules .= "    add_header Pragma \"no-cache\";\n";
-				$common_rules .= "    add_header Cache-Control \"max-age=0, private, no-store, no-cache, must-revalidate\";\n";
-				break;
-			}
+		if ( !empty( $common_rules_a ) ) {
+			$common_rules = '    ' . implode( "\n    ", $common_rules_a ) . "\n";
 		}
 
 		$rules = '';
 		$rules .= W3TC_MARKER_BEGIN_PGCACHE_CACHE . "\n";
-
-		if ( !empty( $common_rules ) ) {
-			$rules .= "location ~ " . $cache_dir . ".*html$ {\n";
-			$rules .= $common_rules;
-			$rules .= "}\n";
-		}
 
 		if ( $brotli ) {
 			$maybe_xml = '';
@@ -1607,8 +1461,8 @@ class PgCache_Environment {
 			$rules .= "    brotli off;\n";
 			$rules .= "    types {" . $maybe_xml . "}\n";
 			$rules .= "    default_type text/html;\n";
-			$rules .= $common_rules;
 			$rules .= "    add_header Content-Encoding br;\n";
+			$rules .= $common_rules;
 			$rules .= "}\n";
 		}
 
@@ -1624,8 +1478,8 @@ class PgCache_Environment {
 			$rules .= "    gzip off;\n";
 			$rules .= "    types {" . $maybe_xml . "}\n";
 			$rules .= "    default_type text/html;\n";
-			$rules .= $common_rules;
 			$rules .= "    add_header Content-Encoding gzip;\n";
+			$rules .= $common_rules;
 			$rules .= "}\n";
 		}
 

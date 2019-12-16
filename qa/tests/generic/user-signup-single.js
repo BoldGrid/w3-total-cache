@@ -102,8 +102,8 @@ describe('', function() {
 		if (passwordMath != null) {
 			// before wp4.3
 			testUserPassword = passwordMath[0].split(' ')[1];
-		} else {
-			// after wp4.3 - follow url
+		} else if (parseFloat(env.wpVersion) < 5.3) {
+			// before wp5.3 - follow url
 			let m = mail.match(/visit the following address:\s*<(http[^>]+)>/m);
 			let followUrl = m[1];
 
@@ -115,6 +115,26 @@ describe('', function() {
 			});
 
 			testUserPassword = await page.$eval('#pass1-text', (e) => e.value);
+
+			log.log('got password ' + testUserPassword);
+			await Promise.all([
+				page.click('#wp-submit'),
+				page.waitForNavigation()
+			]);
+
+			expect(await page.content()).contains('Your password has been reset');
+		} else {
+			let m = mail.match(/visit the following address:\s*<(http[^>]+)>/m);
+			let followUrl = m[1];
+
+			log.log('found ' + followUrl);
+			await page.goto(followUrl);
+			await page.waitFor(function() {
+				return document.getElementById('pass1') &&
+					document.getElementById('pass1').value != '';
+			});
+
+			testUserPassword = await page.$eval('#pass1', (e) => e.value);
 
 			log.log('got password ' + testUserPassword);
 			await Promise.all([

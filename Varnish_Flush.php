@@ -96,7 +96,7 @@ class Varnish_Flush {
 		$request_uri = $path . ( $query != '' ? '?' . $query : '' );
 
 		list( $varnish_host, $varnish_port ) =
-			Util_Content::endpoint_to_host_port( $server, 80 );
+			Util_Content::endpoint_to_host_port( $varnish_server, 80 );
 
 		// if url host is the same as varnish server - we can use regular
 		// wordpress http infrastructure, otherwise custom request should be
