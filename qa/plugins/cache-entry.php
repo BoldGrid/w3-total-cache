@@ -5,7 +5,7 @@ define('DONOTCACHEPAGE', true);
 $blog_id = $_REQUEST['blog_id'];
 $url = $_REQUEST['url'];
 $wp_content_path = $_REQUEST['wp_content_path'];
-$page_key_postfix = $_REQUEST['page_key_postfix'];
+$page_key_postfix = isset($_REQUEST['page_key_postfix']) ? $_REQUEST['page_key_postfix'] : '';
 
 $parsed = parse_url($url);
 $scheme = $parsed['scheme'];
