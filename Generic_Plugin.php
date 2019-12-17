@@ -75,13 +75,6 @@ class Generic_Plugin {
 				), 0, 5 );
 		}
 
-		if ( $this->_config->get_string( 'common.support' ) == 'footer' ) {
-			add_action( 'wp_footer', array(
-					$this,
-					'footer'
-				) );
-		}
-
 		if ( $this->can_ob() ) {
 			add_filter( 'wp_die_xml_handler', array( $this, 'wp_die_handler' ) );
 			add_filter( 'wp_die_handler', array( $this, 'wp_die_handler' ) );
@@ -495,15 +488,6 @@ class Generic_Plugin {
 	}
 
 	/**
-	 * Footer plugin action
-	 *
-	 * @return void
-	 */
-	function footer() {
-		echo '<div style="text-align: center;"><a href="https://www.w3-edge.com/products/" rel="external">Optimization WordPress Plugins &amp; Solutions by W3 EDGE</a></div>';
-	}
-
-	/**
 	 * Output buffering callback
 	 *
 	 * @param string  $buffer
@@ -534,8 +518,7 @@ class Generic_Plugin {
 
 				$strings = array();
 
-				if ( $this->_config->get_string( 'common.support' ) == '' &&
-					!$this->_config->get_boolean( 'common.tweeted' ) ) {
+				if ( !$this->_config->get_boolean( 'common.tweeted' ) ) {
 					$strings[] = 'Performance optimized by W3 Total Cache. Learn more: https://www.w3-edge.com/products/';
 					$strings[] = '';
 				}

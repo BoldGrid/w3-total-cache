@@ -616,11 +616,6 @@ class Util_Admin {
 		$environment->fix_on_event( $new_config, 'config_change', $old_config );
 
 		/**
-		 * Update support us option
-		 */
-		Generic_AdminLinks::link_update( $current_config );
-
-		/**
 		 * Auto upload browsercache files to CDN
 		 */
 		if ( $new_config->get_boolean( 'cdn.enabled' ) && $new_config->get_string( 'cdn.engine' ) == 'ftp' ) {

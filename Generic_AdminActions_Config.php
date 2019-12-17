@@ -157,11 +157,9 @@ class Generic_AdminActions_Config {
 	 * @return void
 	 */
 	function w3tc_config_save_support_us() {
-		$support = Util_Request::get_string( 'support' );
 		$tweeted = Util_Request::get_boolean( 'tweeted' );
 		$signmeup = Util_Request::get_boolean( 'signmeup' );
 		$accept_terms = Util_Request::get_boolean( 'accept_terms' );
-		$this->_config->set( 'common.support', $support );
 		$this->_config->set( 'common.tweeted', $tweeted );
 
 		$state_master = Dispatcher::config_state_master();
@@ -182,8 +180,6 @@ class Generic_AdminActions_Config {
 				) );
 		}
 		$this->_config->save();
-
-		Generic_AdminLinks::link_update( $this->_config );
 
 		Util_Admin::redirect( array(
 				'w3tc_note' => 'config_save'
