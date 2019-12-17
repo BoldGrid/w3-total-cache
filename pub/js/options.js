@@ -1454,7 +1454,7 @@ jQuery(function() {
 	});
 
 	// google analytics events
-	if (typeof ga != 'undefined') {
+	if (typeof w3tc_ga != 'undefined') {
 		jQuery('.w3tc_error').each(function() {
 			var id = jQuery(this).attr('id');
 			var text = jQuery(this).text();
