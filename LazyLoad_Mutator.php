@@ -22,23 +22,28 @@ class LazyLoad_Mutator {
 		$this->excludes = apply_filters( 'w3tc_lazyload_excludes',
 			$this->config->get_array( 'lazyload.exclude' ) );
 
+		$unmutable = new LazyLoad_Mutator_Unmutable();
+		$buffer = $unmutable->remove_unmutable( $buffer );
+
 		if ( $this->config->get_boolean( 'lazyload.process_img' ) ) {
 			$buffer = preg_replace_callback(
-				'~<picture(\s[^>]+)*>(.*?)</picture>~im',
+				'~<picture(\s[^>]+)*>(.*?)</picture>~is',
 				array( $this, 'tag_picture' ), $buffer
 			);
 			$buffer = preg_replace_callback(
-				'~<img\s[^>]+>~i',
+				'~<img\s[^>]+>~is',
 				array( $this, 'tag_img' ), $buffer
 			);
 		}
 
 		if ( $this->config->get_boolean( 'lazyload.process_background' ) ) {
 			$buffer = preg_replace_callback(
-				'~<[^>]+background:\s*url[^>]+>~i',
+				'~<[^>]+background:\s*url[^>]+>~is',
 				array( $this, 'tag_with_background' ), $buffer
 			);
 		}
+
+		$buffer = $unmutable->restore_unmutable( $buffer );
 
 		return $buffer;
 	}
@@ -84,12 +89,12 @@ class LazyLoad_Mutator {
 	public function tag_img_content_replace( $content, $dim ) {
 		// do replace
 		$count = 0;
-		$content = preg_replace( '~(\s)src=~i',
+		$content = preg_replace( '~(\s)src=~is',
 			'$1src="' . $this->placeholder( $dim['w'], $dim['h'] ) .
 			'" data-src=', $content, -1, $count );
 
 		if ( $count > 0 ) {
-			$content = preg_replace( '~(\s)(srcset|sizes)=~i',
+			$content = preg_replace( '~(\s)(srcset|sizes)=~is',
 				'$1data-$2=', $content );
 
 			$content = $this->add_class_lazy( $content );
@@ -107,17 +112,17 @@ class LazyLoad_Mutator {
 	public function tag_get_dimensions( $content ) {
 		$dim = array( 'w' => 1, 'h' => 1 );
 		$m = null;
-		if ( preg_match( '~\swidth=[\s\'"]*([0-9]+)~i', $content, $m ) ) {
+		if ( preg_match( '~\swidth=[\s\'"]*([0-9]+)~is', $content, $m ) ) {
 			$dim['h'] = $dim['w'] = (int)$m[1];
 
-			if ( preg_match( '~\sheight=[\s\'"]*([0-9]+)~i', $content, $m ) ) {
+			if ( preg_match( '~\sheight=[\s\'"]*([0-9]+)~is', $content, $m ) ) {
 				$dim['h'] = (int)$m[1];
 				return $dim;
 			}
 		}
 
 		// if not in attributes - try to find via url
-		if ( !preg_match( '~\ssrc=(\'([^\']*)\'|"([^"]*)"|([^\'"][^\\s]*))~i',
+		if ( !preg_match( '~\ssrc=(\'([^\']*)\'|"([^"]*)"|([^\'"][^\\s]*))~is',
 				$content, $m ) ) {
 			return $dim;
 		}
@@ -144,7 +149,7 @@ class LazyLoad_Mutator {
 		}
 
 		if ( substr( $url, 0, strlen( $base_url ) ) == $base_url &&
-				 preg_match( '~(.+)-(\\d+)x(\\d+)(\\.[a-z0-9]+)$~i', $url, $m ) ) {
+				 preg_match( '~(.+)-(\\d+)x(\\d+)(\\.[a-z0-9]+)$~is', $url, $m ) ) {
 			$dim['w'] = (int)$m[2];
 			$dim['h'] = (int)$m[3];
 		}
@@ -162,14 +167,14 @@ class LazyLoad_Mutator {
 		}
 
 		$quote_match = null;
-		if ( !preg_match( '~\s+style\s*=\s*([\"\'])~', $content, $quote_match ) ) {
+		if ( !preg_match( '~\s+style\s*=\s*([\"\'])~is', $content, $quote_match ) ) {
 			return $content;
 		}
 		$quote = $quote_match[1];
 
 		$count = 0;
 		$content = preg_replace_callback(
-			'~(\s+)(style\s*=\s*[' . $quote . '])(.*?)([' . $quote . '])~',
+			'~(\s+)(style\s*=\s*[' . $quote . '])(.*?)([' . $quote . '])~is',
 			array( $this, 'style_offload_background' ), $content, -1, $count
 		);
 
@@ -186,8 +191,8 @@ class LazyLoad_Mutator {
 	public function style_offload_background( $matches ) {
 		list( $match, $v1, $v2, $v, $quote ) = $matches;
 		$url_match = null;
-		preg_match( '~background:\s*(url\([^>]+\))~', $v, $url_match );
-		$v = preg_replace( '~background:\s*url\([^>]+\)[;]?\s*~', '', $v );
+		preg_match( '~background:\s*(url\([^>]+\))~is', $v, $url_match );
+		$v = preg_replace( '~background:\s*url\([^>]+\)[;]?\s*~is', '', $v );
 
 		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . $url_match[1] . $quote;
 	}
@@ -197,13 +202,13 @@ class LazyLoad_Mutator {
 	private function add_class_lazy( $content ) {
 		$count = 0;
 		$content = preg_replace_callback(
-			'~(\s+)(class=)([\"\'])(.*?)([\"\'])~',
+			'~(\s+)(class=)([\"\'])(.*?)([\"\'])~is',
 			array( $this, 'class_process' ), $content, -1, $count
 		);
 
 		if ( $count <= 0) {
 			$content = preg_replace(
-				'~<(\S+)(\s+)~', '<$1$2class="lazy" ', $content
+				'~<(\S+)(\s+)~is', '<$1$2class="lazy" ', $content
 			);
 		}
 
@@ -214,7 +219,7 @@ class LazyLoad_Mutator {
 
 	public function class_process( $matches ) {
 		list( $match, $v1, $v2, $quote, $v ) = $matches;
-		if ( preg_match( '~(^|\\s)lazy(\\s|$)~', $v ) ) {
+		if ( preg_match( '~(^|\\s)lazy(\\s|$)~is', $v ) ) {
 			return $match;
 		}
 
