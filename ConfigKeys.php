@@ -41,6 +41,10 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false
 	),
+	'dbcache.debug_purge' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
 	'dbcache.enabled' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -212,6 +216,10 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false
 	),
+	'objectcache.debug_purge' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
 	'objectcache.enabled_for_wp_admin' => array(
 		'type' => 'boolean',
 		'default' => true
@@ -322,6 +330,10 @@ $keys = array(
 		'default' => 1800
 	),
 	'pgcache.debug' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
+	'pgcache.debug_purge' => array(
 		'type' => 'boolean',
 		'default' => false
 	),
@@ -2367,7 +2379,9 @@ $keys = array(
 
 	'extensions.active' => array(
 		'type' => 'array',
-		'default' => array()
+		'default' => array(
+			'fragmentcache' => 'w3-total-cache/Extension_FragmentCache_Plugin.php'
+		)
 	),
 	'extensions.active_frontend' => array(
 		'type' => 'array',
