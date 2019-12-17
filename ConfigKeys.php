@@ -2279,10 +2279,6 @@ $keys = array(
 	),
 
 
-	'common.support' => array(
-		'type' => 'string',
-		'default' => ''
-	),
 	'common.track_usage' => array(
 		'type' => 'boolean',
 		'default' => false
