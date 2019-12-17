@@ -39,8 +39,6 @@ class Root_AdminActivation {
 			$config = Dispatcher::config();
 			$e->fix_on_event( $config, 'activate' );
 
-			Generic_AdminLinks::link_update( $config );
-
 			// try to save config file if needed, optional thing so exceptions
 			// hidden
 			if ( !ConfigUtil::is_item_exists( 0, false ) ) {
@@ -74,8 +72,6 @@ class Root_AdminActivation {
 		try {
 			$e = Dispatcher::component( 'Root_Environment' );
 			$e->fix_after_deactivation();
-
-			Generic_AdminLinks::link_delete();
 		} catch ( Util_Environment_Exceptions $exs ) {
 			$r = Util_Activation::parse_environment_exceptions( $exs );
 

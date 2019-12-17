@@ -68,19 +68,6 @@ echo Util_Ui::hidden(
 	'0' ) ?>
 					</label>
 				</li>
-				<li>
-					<label>
-						Link to us: <br />
-						<div class="styled-select">
-							<select name="support" class="w3tc-size select">
-								<option value=""><?php esc_attr_e( 'select location', 'w3-total-cache' ); ?></option>
-								<?php foreach ( $supports as $support_id => $support_name ): ?>
-									<option value="<?php echo esc_attr( $support_id ); ?>"<?php echo selected( $this->_config->get_string( 'common.support' ), $support_id ); ?>><?php echo htmlspecialchars( $support_name ); ?></option>
-								<?php endforeach; ?>
-							</select>
-						</div>
-					</label>
-				</li>
 			</ul>
 			<p>
 			<label class="w3tc_signup_email" for="email">Don't forget to join our newsletter:<br />
