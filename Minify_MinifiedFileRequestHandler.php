@@ -55,8 +55,8 @@ class Minify_MinifiedFileRequestHandler {
 				echo 'error storing';
 			} else {
 				if ( ( function_exists( 'brotli_compress' ) &&
-				       $this->_config->get_boolean( 'browsercache.enabled' ) &&
-				       $this->_config->get_boolean( 'browsercache.cssjs.brotli' ) ) )
+					   $this->_config->get_boolean( 'browsercache.enabled' ) &&
+					   $this->_config->get_boolean( 'browsercache.cssjs.brotli' ) ) )
 					if ( !$cache->store( basename( $file ) . '_br',
 						array( 'content' => brotli_compress( 'content ok' ) ) ) ) {
 						echo 'error storing';
@@ -143,8 +143,8 @@ class Minify_MinifiedFileRequestHandler {
 				'encodeOutput' => ( $browsercache &&
 					!defined( 'W3TC_PAGECACHE_OUTPUT_COMPRESSION_OFF' ) &&
 					!$quiet &&
-                    ( $this->_config->get_boolean( 'browsercache.cssjs.compression' ) ||
-                    $this->_config->get_boolean( 'browsercache.cssjs.brotli' ) ) ),
+					( $this->_config->get_boolean( 'browsercache.cssjs.compression' ) ||
+					$this->_config->get_boolean( 'browsercache.cssjs.brotli' ) ) ),
 				'bubbleCssImports' => ( $this->_config->get_string( 'minify.css.imports' ) == 'bubble' ),
 				'processCssImports' => ( $this->_config->get_string( 'minify.css.imports' ) == 'process' ),
 				'cacheHeaders' => array(
@@ -225,9 +225,11 @@ class Minify_MinifiedFileRequestHandler {
 			return $this->finish_with_error( 'Nothing to minify', $quiet, false );
 		}
 
-		/**
-		 * Minify!
-		 */
+		// Minify
+		$serve_options = apply_filters(
+			'w3tc_minify_file_handler_minify_options',
+			$serve_options );
+
 		$return = array();
 		try {
 			$return = \Minify0_Minify::serve( 'MinApp', $serve_options );
