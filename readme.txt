@@ -281,7 +281,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Improved lazyload handling of feeds
 * Improved printing tags coming from feeds
 * Improved handling of modified posts before wp_rewrite initialized
-* Improved Nginx Browser Cache rules specific to location
+* Nginx rules changed a lot to avoid "location" block conflicts. That change may cause problems on some systems using non-default WordPress rules - keep a backup of your original rules
 * Improved handling of .htaccess files in regard to EOF
 * Fixed Varnish purging
 * Fixed html minification of data tags equaling 0
