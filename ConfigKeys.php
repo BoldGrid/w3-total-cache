@@ -2371,6 +2371,10 @@ $keys = array(
 		'type' => 'array',
 		'default' => array()
 	),
+	'extensions.active_dropin' => array(
+		'type' => 'array',
+		'default' => array()
+	),
 	'plugin.license_key' => array(
 		'type' => 'string',
 		'default' => '',
