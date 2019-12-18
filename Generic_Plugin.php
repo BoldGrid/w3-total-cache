@@ -501,7 +501,8 @@ class Generic_Plugin {
 			return $buffer;
 		}
 
-		if ( $this->is_wp_die ) {
+		if ( $this->is_wp_die &&
+				!apply_filters( 'w3tc_process_wp_die', false, $buffer ) ) {
 			// wp_die is dynamic output (usually fatal errors), dont process it
 		} else {
 			$buffer = apply_filters( 'w3tc_process_content', $buffer );
