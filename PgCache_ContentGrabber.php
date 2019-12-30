@@ -420,9 +420,10 @@ class PgCache_ContentGrabber {
 
 		$compression = false;
 		$has_dynamic = $this->_has_dynamic( $buffer );
+		$response_headers = $this->_get_response_headers();
 
 		// TODO: call modifies object state, rename method at least
-		$original_can_cache = $this->_can_cache2( $buffer );
+		$original_can_cache = $this->_can_cache2( $buffer, $response_headers );
 		$can_cache = apply_filters( 'w3tc_can_cache', $original_can_cache, $this, $buffer );
 		if ( $can_cache != $original_can_cache ) {
 			$this->cache_reject_reason = 'Third-party plugin has modified caching activity';
@@ -441,7 +442,7 @@ class PgCache_ContentGrabber {
 			$buffer );
 
 		if ( $can_cache ) {
-			$buffer = $this->_maybe_save_cached_result( $buffer, $has_dynamic );
+			$buffer = $this->_maybe_save_cached_result( $buffer, $response_headers, $has_dynamic );
 		} else {
 			if ( $has_dynamic ) {
 				// send common headers since output will be compressed
@@ -636,7 +637,7 @@ class PgCache_ContentGrabber {
 	 * @param string  $buffer
 	 * @return boolean
 	 */
-	private function _can_cache2( $buffer ) {
+	private function _can_cache2( $buffer, $response_headers ) {
 		/**
 		 * Skip if caching is disabled
 		 */
@@ -745,6 +746,31 @@ class PgCache_ContentGrabber {
 			if ( $this->_passed_reject_custom_fields() ) {
 				$this->cache_reject_reason = 'Page using a rejected custom field';
 				$this->process_status = 'miss_configuration';
+				return false;
+			}
+		}
+
+		if ( !empty( $response_headers['kv']['Content-Encoding'] ) ) {
+			$this->cache_reject_reason = 'Response is compressed';
+			$this->process_status = 'miss_compressed';
+			return false;
+		}
+
+		if ( empty( $buffer ) && empty( $response_headers['kv']['Location'] ) ) {
+			$this->cache_reject_reason = 'Empty response';
+			$this->process_status = 'miss_empty_response';
+			return false;
+		}
+
+		if ( isset( $response_headers['kv']['Location'] ) ) {
+			// dont cache query-string normalization redirects
+			// (e.g. from wp core)
+			// when cache key is normalized, since that cause redirect loop
+
+			if ( $this->_get_page_key( $this->_page_key_extension ) ==
+					$this->_get_page_key( $page_key_extension, $response_headers['kv']['Location'] ) ) {
+				$this->cache_reject_reason = 'Normalization redirect';
+				$this->process_status = 'miss_normalization_redirect';
 				return false;
 			}
 		}
@@ -1317,8 +1343,8 @@ class PgCache_ContentGrabber {
 				foreach ( $headers_list as $header ) {
 					$pos = strpos( $header, ':' );
 					if ( $pos ) {
-						$header_name = substr( $header, 0, $pos );
-						$header_value = substr( $header, $pos + 1 );
+						$header_name = trim( substr( $header, 0, $pos ) );
+						$header_value = trim( substr( $header, $pos + 1 ) );
 					} else {
 						$header_name = $header;
 						$header_value = '';
@@ -1981,7 +2007,7 @@ class PgCache_ContentGrabber {
 		}
 	}
 
-	private function _maybe_save_cached_result( $buffer, $has_dynamic ) {
+	private function _maybe_save_cached_result( $buffer, $response_headers, $has_dynamic ) {
 		$mobile_group = $this->_page_key_extension['useragent'];
 		$referrer_group = $this->_page_key_extension['referrer'];
 		$encryption = $this->_page_key_extension['encryption'];
@@ -2002,18 +2028,7 @@ class PgCache_ContentGrabber {
 			( $has_dynamic ? false : $compression_header );
 
 		$is_404 = ( function_exists( 'is_404' ) ? is_404() : false );
-		$response_headers = $this->_get_response_headers();
 		$headers = $this->_get_cached_headers( $response_headers['plain'] );
-
-		if ( !empty( $response_headers['kv']['Content-Encoding'] ) ) {
-			$this->cache_reject_reason = 'Response is compressed';
-			return $buffer;
-		}
-
-		if ( empty( $buffer ) && empty( $response_headers['kv']['Location'] ) ) {
-			$this->cache_reject_reason = 'Empty response';
-			return $buffer;
-		}
 
 		if ( $this->_enhanced_mode ) {
 			// redirect issued, if we have some old cache entries
