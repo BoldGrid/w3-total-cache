@@ -22,7 +22,7 @@ class Util_Request {
 		if ( isset( $request[$key] ) ) {
 			$value = $request[$key];
 
-			if ( defined( 'TEMPLATEPATH' ) || get_magic_quotes_gpc() ) {
+			if ( defined( 'TEMPLATEPATH' ) ) {
 				$value = Util_Environment::stripslashes( $value );
 			}
 
