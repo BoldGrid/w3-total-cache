@@ -162,12 +162,13 @@ class BrowserCache_Environment_Nginx {
 		$rules = [];
 
 		if ( $this->c->get_boolean( 'browsercache.hsts' ) ||
-			 $this->c->get_boolean( 'browsercache.security.xfo' )  ||
-			 $this->c->get_boolean( 'browsercache.security.xss' )  ||
+			 $this->c->get_boolean( 'browsercache.security.xfo' ) ||
+			 $this->c->get_boolean( 'browsercache.security.xss' ) ||
 			 $this->c->get_boolean( 'browsercache.security.xcto' ) ||
-			 $this->c->get_boolean( 'browsercache.security.pkp' )  ||
-			 $this->c->get_boolean( 'browsercache.security.referrer.policy' )  ||
-			 $this->c->get_boolean( 'browsercache.security.csp' )
+			 $this->c->get_boolean( 'browsercache.security.pkp' ) ||
+			 $this->c->get_boolean( 'browsercache.security.referrer.policy' ) ||
+			 $this->c->get_boolean( 'browsercache.security.csp' ) ||
+			 $this->c->get_boolean( 'browsercache.security.fp' )
 		   ) {
 			$lifetime = $this->c->get_integer( 'browsercache.other.lifetime' );
 
@@ -241,6 +242,23 @@ class BrowserCache_Environment_Nginx {
 
 				if ( !empty( $dir ) ) {
 					$rules[] = "add_header Content-Security-Policy \"$dir\";";
+				}
+			}
+
+			if ( $this->c->get_boolean( 'browsercache.security.fp' ) ) {
+				$fp_values = $this->c->get_array( 'browsercache.security.fp.values' );
+
+				$v = array();
+				foreach ( $fp_values as $key => $value ) {
+					$value = str_replace( '"', "'", $value );
+					if ( !empty( $value ) ) {
+						$v[] = "$key $value";
+					}
+				}
+
+				if ( !empty( $v ) ) {
+					$rules[] = 'add_header Feature-Policy "' .
+						implode( ';', $v ) . "\";\n";
 				}
 			}
 		}

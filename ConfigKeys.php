@@ -1994,7 +1994,14 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
-
+	'browsercache.security.fp' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
+	'browsercache.security.fp.values' => array(
+		'type' => 'array',
+		'default' => array()
+	),
 
 
 	'mobile.configuration_overloaded' => array(

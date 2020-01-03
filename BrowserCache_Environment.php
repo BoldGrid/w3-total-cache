@@ -362,12 +362,13 @@ class BrowserCache_Environment {
 				$extensions, $type );
 
 		if ( $config->get_boolean( 'browsercache.hsts' ) ||
-			 $config->get_boolean( 'browsercache.security.xfo' )  ||
-			 $config->get_boolean( 'browsercache.security.xss' )  ||
+			 $config->get_boolean( 'browsercache.security.xfo' ) ||
+			 $config->get_boolean( 'browsercache.security.xss' ) ||
 			 $config->get_boolean( 'browsercache.security.xcto' ) ||
-			 $config->get_boolean( 'browsercache.security.pkp' )  ||
-			 $config->get_boolean( 'browsercache.security.referrer.policy' )  ||
-			 $config->get_boolean( 'browsercache.security.csp' )
+			 $config->get_boolean( 'browsercache.security.pkp' ) ||
+			 $config->get_boolean( 'browsercache.security.referrer.policy' ) ||
+			 $config->get_boolean( 'browsercache.security.csp' ) ||
+			 $config->get_boolean( 'browsercache.security.fp' )
 		   ) {
 			$lifetime = $config->get_integer( 'browsercache.other.lifetime' );
 
@@ -444,6 +445,23 @@ class BrowserCache_Environment {
 
 				if ( !empty( $dir ) ) {
 					$rules .= "    Header set Content-Security-Policy \"$dir\"\n";
+				}
+			}
+
+			if ( $config->get_boolean( 'browsercache.security.fp' ) ) {
+				$fp_values = $config->get_array( 'browsercache.security.fp.values' );
+
+				$v = array();
+				foreach ( $fp_values as $key => $value ) {
+					$value = str_replace( '"', "'", $value );
+					if ( !empty( $value ) ) {
+						$v[] = "$key $value";
+					}
+				}
+
+				if ( !empty( $v ) ) {
+					$rules .= '    Header set Feature-Policy "' .
+						implode( ';', $v ) . "\"\n";
 				}
 			}
 
