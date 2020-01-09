@@ -276,12 +276,27 @@ class Config {
 	public function set_extension_active_frontend( $extension,
 		$is_active_frontend ) {
 		$a = $this->get_array( 'extensions.active_frontend' );
-		if ( !$is_active_frontend )
+		if ( !$is_active_frontend ) {
 			unset( $a[$extension] );
-		else
+		} else {
 			$a[$extension] = '*';
+		}
 
 		$this->set( 'extensions.active_frontend', $a );
+	}
+
+
+
+	public function set_extension_active_dropin( $extension,
+		$is_active_dropin ) {
+		$a = $this->get_array( 'extensions.active_dropin' );
+		if ( !$is_active_dropin ) {
+			unset( $a[$extension] );
+		} else {
+			$a[$extension] = '*';
+		}
+
+		$this->set( 'extensions.active_dropin', $a );
 	}
 
 

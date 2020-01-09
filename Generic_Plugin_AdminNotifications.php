@@ -60,7 +60,6 @@ class Generic_Plugin_AdminNotifications {
 			( time() - $day7 ) ) &&
 			( $state->get_integer( 'common.next_support_us_invitation' ) <
 			time() ) &&
-			$this->_config->get_string( 'common.support' ) == '' &&
 			!$this->_config->get_boolean( 'common.tweeted' );
 
 		if ( $support_reminder ) {
@@ -93,30 +92,10 @@ class Generic_Plugin_AdminNotifications {
 
 
 	public function w3tc_ajax_generic_support_us() {
-		$supports = $this->get_supports();
 		$current_user = wp_get_current_user();
 		wp_get_current_user();
 		$email = $current_user->user_email;
 		include W3TC_INC_DIR . '/lightbox/support_us.php';
-	}
-
-
-
-	private function get_supports() {
-		$supports = array(
-			'footer' => 'page footer'
-		);
-
-		$link_categories = get_terms( 'link_category', array(
-				'hide_empty' => 0
-			) );
-
-		foreach ( $link_categories as $link_category ) {
-			$supports['link_category_' . $link_category->term_id] =
-				strtolower( $link_category->name );
-		}
-
-		return $supports;
 	}
 
 

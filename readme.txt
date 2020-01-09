@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle
 Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.3
-Stable tag: 0.11.0
+Stable tag: 0.12.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -270,6 +270,21 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.12.0 =
+* Added querystring based URL structures for AMP pages
+* Added filter of minify options
+* Added lazyload picture tag support
+* Removed footer link "Support Us" option
+* Improved wp_die handling
+* Improved lazyload handling of content in script tags
+* Improved lazyload handling of feeds
+* Improved printing tags coming from feeds
+* Improved handling of modified posts before wp_rewrite initialized
+* Nginx rules changed a lot to avoid "location" block conflicts. That change may cause problems on some systems using non-default WordPress rules - keep a backup of your original rules
+* Improved handling of .htaccess files in regard to EOF
+* Fixed Varnish purging
+* Fixed html minification of data tags equaling 0
 
 = 0.11.0 =
 * Added recommendation for BoldGrid's Total Upkeep plugin
