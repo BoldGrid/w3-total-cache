@@ -11,18 +11,21 @@ class Generic_Page_General extends Base_Page_Settings {
 	 */
 	protected $_page = 'w3tc_general';
 
+	private function to_human($bytes, $decimals = 2) {
+		$size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
+		$factor = floor((strlen($bytes) - 1) / 3);
+		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
+	}
+
 	/**
 	 * General tab
 	 *
 	 * @return void
 	 */
 	function view() {
-		if ( isset( $_REQUEST['view'] ) && $_REQUEST['view'] == 'purge_log' &&
-				isset( $_REQUEST['module'] ) &&
-				in_array( $_REQUEST['module'], array( 'pagecache', 'objectcache', 'dbcache' ) ) ) {
-			$lines = Util_DebugPurgeLog_Reader::read( $_REQUEST['module'] );
-
-			require( __DIR__ . '/Generic_Page_General_View_PurgeLog.php' );
+		if ( isset( $_REQUEST['view'] ) && $_REQUEST['view'] == 'purge_log' ) {
+			$p = new Generic_Page_PurgeLog();
+			$p->render_content();
 			exit;
 		}
 

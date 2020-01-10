@@ -94,12 +94,33 @@ class Util_DebugPurgeLog_Reader {
 			return;
 		}
 
+		// split secondary lines to urls and backtrace
+		$postfix = array();
+		$backtrace = array();
+		$username = '';
+		foreach ( $this->current_item as $item ) {
+			$item = trim( $item );
+			if ( preg_match( '~^(#[^ ]+) ([^:]+): (.*)~', $item, $m ) ) {
+				$backtrace[] = array(
+					'number' => $m[1],
+					'filename' => $m[2],
+					'function' => $m[3]
+				);
+			} elseif ( preg_match( '~^username:(.*)~', $item, $m ) ) {
+				$username = $m[1];
+			} else {
+				$postfix[] = $item;
+			}
+		}
+
 		$m = null;
 		if ( preg_match( '~\\[([^\\]]+)\\] (.*)~', $line, $m ) ) {
 			$this->lines[] = array(
 				'date' => $m[1],
 				'message' => $m[2],
-				'backtrace' => $this->current_item
+				'username' => $username,
+				'postfix' => $postfix,
+				'backtrace' => $backtrace
 			);
 		}
 

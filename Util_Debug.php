@@ -94,6 +94,11 @@ class Util_Debug {
 		if ( !is_null( $parameters ) ) {
 			$message .= Util_Debug::encode_params( $parameters );
 		}
+
+		$user = function_exists( 'wp_get_current_user' ) ? wp_get_current_user() : null;
+		$username = ( empty( $user ) ? 'anonymous' : $user->user_login );
+		$message .= "\n\tusername:$username";
+
 		if ( is_array( $explicit_postfix ) ) {
 			$message .= "\n\t" . implode( "\n\t", $explicit_postfix );
 		}
