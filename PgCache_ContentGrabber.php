@@ -1771,7 +1771,7 @@ class PgCache_ContentGrabber {
 	 */
 	function _check_match( $etag ) {
 		if ( !empty( $_SERVER['HTTP_IF_NONE_MATCH'] ) ) {
-			$if_none_match = ( get_magic_quotes_gpc() ? stripslashes( $_SERVER['HTTP_IF_NONE_MATCH'] ) : $_SERVER['HTTP_IF_NONE_MATCH'] );
+			$if_none_match = $_SERVER['HTTP_IF_NONE_MATCH'] ;
 			$client_etags = explode( ',', $if_none_match );
 
 			foreach ( $client_etags as $client_etag ) {
