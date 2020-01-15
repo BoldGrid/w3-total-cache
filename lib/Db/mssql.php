@@ -519,10 +519,6 @@ class DbCache_WpdbBase extends \SQL_Translations {
                 // The TDS library and the ntwdblib.dll can't be speaking two different protocols.
                 putenv("TDSVER=70");
 
-                if (get_magic_quotes_gpc()) {
-                        $dbhost = trim(str_replace("\\\\", "\\", $dbhost));
-                }
-
                 $this->dbh = sqlsrv_connect($dbhost,array("Database"=>$dbname,"UID"=>$dbuser,"PWD"=>$dbpassword));
 
                 if ( !$this->dbh ) {

@@ -209,8 +209,15 @@ class Extension_Amp_Plugin {
 
 		if ( $c->get_string( array( 'amp', 'url_type' ) ) == 'querystring' ) {
 			$url_postfix = $c->get_string( array( 'amp', 'url_postfix' ) );
-			if ( preg_match( "~(\\?|&)$url_postfix(&|$)~", $url ) ) {
-				$page_key[1] .= '_amp';
+
+			if ( strpos( $url_postfix, '=' ) === false ) {
+				if ( preg_match( "~(\\?|&)$url_postfix(=[^&]*)?(&|$)~", $url ) ) {
+					$page_key[1] .= '_amp';
+				}
+			} else {
+				if ( preg_match( "~(\\?|&)$url_postfix(&|$)~", $url ) ) {
+					$page_key[1] .= '_amp';
+				}
 			}
 		}
 

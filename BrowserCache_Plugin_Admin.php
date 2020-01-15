@@ -9,5 +9,30 @@ class BrowserCache_Plugin_Admin {
 
 		add_action( 'w3tc_ajax',
 			array( '\W3TC\BrowserCache_Page', 'w3tc_ajax' ) );
+
+		add_action( 'w3tc_config_ui_save-w3tc_browsercache',
+			array( $this, 'w3tc_config_ui_save_w3tc_browsercache' ),
+			10, 2 );
+	}
+
+
+
+	public function w3tc_config_ui_save_w3tc_browsercache( $config, $old_config ) {
+		$prefix = 'browsercache__security__fp__values__keyvalues__';
+		$prefixl = strlen( $prefix );
+
+		$fp_values = array();
+
+		foreach ( $_REQUEST as $key => $value ) {
+			$value = stripslashes( $value );    // wp core add slashes
+			if ( substr( $key, 0, $prefixl ) == $prefix ) {
+				$k = substr( $key, $prefixl );
+				if ( !empty( $value ) ) {
+					$fp_values[$k] = $value;
+				}
+			}
+		}
+
+		$config->set( 'browsercache.security.fp.values', $fp_values );
 	}
 }

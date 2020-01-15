@@ -13,7 +13,7 @@ const wp = requireRoot('lib/wp');
 /**environments: multiply(environments('blog'), environments('pagecache')) */
 
 let testPageUrl;
-let testPageAmpUrl;
+let testPageAmpUrls;
 
 describe('', function() {
 	this.timeout(sys.suiteTimeout);
@@ -55,8 +55,12 @@ describe('', function() {
 	        template: 'qa/template-amp.php'
 	    });
 	    testPageUrl = testPage.url;
-		testPageAmpUrl = testPage.url + '?amp';
-		log.log('amp page ' + testPageAmpUrl);
+		testPageAmpUrls = [
+			testPage.url + '?amp',
+			testPage.url + '?amp=',
+			testPage.url + '?amp=1'
+		];
+		log.log('amp page ' + testPageAmpUrls);
 	});
 
 
@@ -64,6 +68,8 @@ describe('', function() {
 	it('check amp page', async() => {
 		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageUrl);
 		expect(await page.content()).contains('!regular-page!');
+
+		let testPageAmpUrl = testPageAmpUrls[0];
 		log.log('check ' + testPageAmpUrl);
 		await w3tc.gotoWithPotentialW3TCRepeat(page, testPageAmpUrl);
 		expect(await page.content()).contains('!amp-page!');
@@ -85,17 +91,25 @@ describe('', function() {
 		let html = await page.content();
 		expect(html.match(/Test of cache/g).length).equals(2);
 
-		if (env.cacheEngineLabel == 'file_generic') {
-			log.log('make sure not passed to PHP fallback and handled by rules');
-			let headers = response.headers();
+		for (testPageAmpUrl2 of testPageAmpUrls) {
+			log.log('check alternative amp ' + testPageAmpUrl2);
+			let response = await page.goto(testPageAmpUrl2);
+			let html = await page.content();
+			expect(html).contains('!amp-page!');
+			expect(html).contains('Test of cache');
 
-			console.log(headers);
-			phpResponse = (headers['w3tc_php'] != null);
+			if (env.cacheEngineLabel == 'file_generic') {
+				log.log('make sure not passed to PHP fallback and handled by rules');
+				let headers = response.headers();
 
-			if (env.boxName.indexOf('php55') >= 0) {
-				log.error('php handled here in apache 2.4.7 - skip it since its apache bug');
-			} else {
-				expect(phpResponse).is.false;
+				console.log(headers);
+				phpResponse = (headers['w3tc_php'] != null);
+
+				if (env.boxName.indexOf('php55') >= 0) {
+					log.error('php handled here in apache 2.4.7 - skip it since its apache bug');
+				} else {
+					expect(phpResponse).is.false;
+				}
 			}
 		}
 
