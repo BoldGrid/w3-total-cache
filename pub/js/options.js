@@ -1453,6 +1453,20 @@ jQuery(function() {
 		});
 	});
 
+	// gopro block
+	jQuery('.w3tc-gopro-more').click(function(e) {
+		e.preventDefault();
+		if (!jQuery(this).attr('data-expanded')) {
+			jQuery(this).attr('data-expanded', '1');
+			jQuery(this).html('Show Less &#x2BC5;');
+			jQuery(this).parent().find('.w3tc-gopro-description').css('max-height', '300px');
+		} else {
+			jQuery(this).attr('data-expanded', '');
+			jQuery(this).html('Show More &#x2BC6;');
+			jQuery(this).parent().find('.w3tc-gopro-description').css('max-height', '');
+		}
+	});
+
 	// google analytics events
 	if (typeof w3tc_ga != 'undefined') {
 		jQuery('.w3tc_error').each(function() {

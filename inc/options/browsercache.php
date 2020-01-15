@@ -145,7 +145,7 @@ $security_session_values = array(
 					'control' => 'checkbox',
 					'checkbox_label' => __( 'Rewrite <acronym title="Universal Resource Locator">URL</acronym> structure of objects', 'w3-total-cache' ),
 					'description' => __( 'Generate unique <acronym title="Universal Resource Indicator">URI</acronym> for each file protected from caching by browser.', 'w3-total-cache' ),
-					'style' => '2'
+					'label_class' => 'w3tc_single_column'
 				) );
 			?>
 		</table>

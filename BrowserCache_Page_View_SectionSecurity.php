@@ -447,7 +447,7 @@ $feature_policies = array(
 			'control' => 'checkbox',
 			'checkbox_label' => __( 'Feature-Policy', 'w3-total-cache' ),
 			'description' => __( 'Allows you to control which origins can use which features.', 'w3-total-cache' ),
-			'style' => '2'
+			'label_class' => 'w3tc_single_column'
 		) )
 	?>
 
