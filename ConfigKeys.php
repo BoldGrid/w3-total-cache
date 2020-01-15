@@ -188,6 +188,7 @@ $keys = array(
 			'loading="eager"',
 			'no-lazy',
 			'rev-slidebg',
+			'skip-lazy',
 			'soliloquy-image',
 			'swatch-img',
 			'w3-total-cache',

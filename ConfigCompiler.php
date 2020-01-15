@@ -247,6 +247,19 @@ class ConfigCompiler {
 		}
 
 		//
+		// changes in 0.13
+		//
+		if ( version_compare( $file_data['version'], '0.12.0', '<=' ) ) {
+			if ( empty( $file_data['lazyload.exclude'] ) ) {
+				$file_data['lazyload.exclude'] = array();
+			}
+
+			if ( !in_array( 'skip_lazy', $file_data['lazyload.exclude'] ) ) {
+				$file_data['lazyload.exclude'][] = 'skip_lazy';
+			}
+		}
+
+		//
 		// changes in 0.9.7
 		//
 		if ( isset( $file_data['cdnfsd.enabled'] ) &&
