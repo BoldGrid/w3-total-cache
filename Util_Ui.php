@@ -490,6 +490,9 @@ class Util_Ui {
 			echo $label;
 			echo '</label>' . $postfix . "\n";
 			if ( $pro_feature ) {
+				Util_Ui::pro_wrap_description( $label_or_array['pro_excerpt'],
+					$label_or_array['pro_description'] );
+
 				Util_Ui::pro_wrap_maybe_end( $name . '__' . $key );
 			}
 		}
@@ -750,13 +753,15 @@ class Util_Ui {
 	static public function config_item_pro( $a ) {
 		$a = Util_Ui::config_item_preprocess( $a );
 
-		echo '<tr><th class="' . $a['label_class'] . '">';
+		if ( $a['label_class'] != 'w3tc_no_trtd' ) {
+			echo '<tr><th class="' . $a['label_class'] . '">';
 
-		if ( !empty( $a['label'] ) ) {
-			Util_Ui::label( $a['control_name'], $a['label'] );
+			if ( !empty( $a['label'] ) ) {
+				Util_Ui::label( $a['control_name'], $a['label'] );
+			}
+
+			echo "</th>\n<td>\n";
 		}
-
-		echo "</th>\n<td>\n";
 
 		Util_Ui::pro_wrap_maybe_start();
 
@@ -765,25 +770,14 @@ class Util_Ui {
 		if ( isset( $a['control_after'] ) ) {
 			echo $a['control_after'];
 		}
-		if ( isset( $a['excerpt'] ) ) {
-			echo '<span class="description w3tc-gopro-excerpt">' . $a['excerpt'] . '</span>';
-		}
-		if ( isset( $a['description'] ) ) {
-			$d = array_map(
-				function($e) {
-					return "<p>$e</p>";
-				},
-			   $a['description']
-			);
 
-			echo '<span class="description w3tc-gopro-description">' . implode( "\n", $d ) . '</span>';
-			echo '<a href="#" class="w3tc-gopro-more">Show More &#x2BC6;</a>';
-		}
-
+		Util_Ui::pro_wrap_description( $a['excerpt'], $a['description'] );
 		Util_Ui::pro_wrap_maybe_end( $a['control_name'] );
 
-		echo ( isset( $a['style'] ) ? "</th>" : "</td>" );
-		echo "</tr>\n";
+		if ( $a['label_class'] != 'w3tc_no_trtd' ) {
+			echo "</th>";
+			echo "</tr>\n";
+		}
 	}
 
 
@@ -891,6 +885,22 @@ class Util_Ui {
 		<div class="w3tc-gopro">
 			<div>
 		<?php
+	}
+
+
+
+	static public function pro_wrap_description( $excerpt, $description ) {
+		echo '<span class="description w3tc-gopro-excerpt">' . $excerpt . '</span>';
+
+		$d = array_map(
+			function($e) {
+				return "<p>$e</p>";
+			},
+		   $description
+		);
+
+		echo '<span class="description w3tc-gopro-description">' . implode( "\n", $d ) . '</span>';
+		echo '<a href="#" class="w3tc-gopro-more">Show More &#x2BC6;</a>';
 	}
 
 

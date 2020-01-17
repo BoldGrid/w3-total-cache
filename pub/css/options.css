@@ -502,6 +502,12 @@ th.w3tc_extensions_manage_column_check {
 .w3tc-gopro-more {
 	display: block;
 }
+
+.w3tc-gopro-more:focus {
+	box-shadow: none;
+    outline: none;
+}
+
 .w3tc-gopro-description {
 	max-height: 0px;
 	transition: max-height 0.5s ease-out;
