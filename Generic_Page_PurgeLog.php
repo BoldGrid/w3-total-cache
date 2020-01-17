@@ -31,6 +31,34 @@ class Generic_Page_PurgeLog {
 
 		$lines = Util_DebugPurgeLog_Reader::read( $module );
 
+		$purgelog_modules = array();
+		$c = Dispatcher::config();
+		if ( $c->get_boolean( 'pgcache.debug_purge' ) ) {
+			$purgelog_modules[] = array(
+				'label' => 'pagecache',
+				'name' => 'Page Cache',
+				'postfix' => ''
+			);
+		}
+		if ( $c->get_boolean( 'dbcache.debug_purge' ) ) {
+			$purgelog_modules[] = array(
+				'label' => 'dbcache',
+				'name' => 'Database Cache',
+				'postfix' => ''
+			);
+		}
+		if ( $c->get_boolean( 'objectcache.debug_purge' ) ) {
+			$purgelog_modules[] = array(
+				'label' => 'objectcache',
+				'name' => 'Object Cache',
+				'postfix' => ''
+			);
+		}
+
+		for ( $n = 0; $n < count( $purgelog_modules ) - 1; $n++ ) {
+			$purgelog_modules[$n]['postfix'] = '|';
+		}
+
 		require( __DIR__ . '/Generic_Page_PurgeLog_View.php' );
 	}
 

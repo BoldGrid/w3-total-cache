@@ -66,6 +66,13 @@ include W3TC_INC_DIR . '/options/common/header.php';
 
 
 <p>
+	Available logs:
+	<?php foreach ( $purgelog_modules as $module ): ?>
+		<a href="admin.php?page=w3tc_general&view=purge_log&module=<?php echo esc_attr( $module['label'] ) ?>"><?php echo esc_html( $module['name'] ) ?></a>
+		<?php echo esc_html( $module['postfix'] ) ?>
+	<?php endforeach ?>
+</p>
+<p>
 	Filename: <?php echo esc_html( $log_filename ) ?> (<?php echo esc_html( $log_filefize ) ?>)
 </p>
 
