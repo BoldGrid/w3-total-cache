@@ -9,7 +9,7 @@ if ( !defined( 'W3TC' ) )
 <div id="w3tc-upgrade">
 	<div class="w3tc-overlay-logo"></div>
 	<div class="w3tc_overlay_upgrade_header">
-		<iframe src="https://www.w3-edge.com/checkout-ad3/?data_src=<?php echo esc_attr( $data_src ) ?>&client_id=<?php echo esc_attr( $client_id ) ?>" width="100%" height="420px"></iframe>
+		<iframe src="https://www.w3-edge.com/checkout-ad/?data_src=<?php echo esc_attr( $data_src ) ?>&client_id=<?php echo esc_attr( $client_id ) ?>" width="100%" height="420px"></iframe>
 	</div>
 	<div class="w3tc_overlay_content"></div>
 	<div class="w3tc_overlay_footer">
