@@ -114,12 +114,10 @@ if ( $links ) {
 					<p>
 						<?php if ( isset( $meta['pro_feature'] ) && $meta['pro_feature'] ): ?>
 							<?php Util_Ui::pro_wrap_maybe_start() ?>
-						<?php endif ?>
-
-						<?php _e( $meta['description'] ) ?>
-
-						<?php if ( isset( $meta['pro_feature'] ) && $meta['pro_feature'] ): ?>
+							<?php Util_Ui::pro_wrap_description( $meta['pro_excerpt'], $meta['pro_description'] ) ?>
 							<?php Util_Ui::pro_wrap_maybe_end( "extension_$extension" ) ?>
+						<?php else: ?>
+							<?php _e( $meta['description'] ) ?>
 						<?php endif ?>
 
 						<?php if ( !empty( $meta['requirements'] ) ): ?>

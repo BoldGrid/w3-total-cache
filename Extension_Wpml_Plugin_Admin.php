@@ -53,6 +53,10 @@ class Extension_Wpml_Plugin_Admin {
 			'extension_uri' => 'https://www.w3-edge.com/',
 			'extension_id' => 'wpml',
 			'pro_feature' => true,
+			'pro_excerpt' => __( 'Improve the caching performance of websites localized by WPML.', 'w3-total-cache'),
+			'pro_description' => array(
+				__( 'Localization is a type of personalization that makes websites more difficult to scale. This extension reduces the response time of websites localized by WPML.', 'w3-total-cache')
+			),
 			'settings_exists' => false,
 			'version' => '0.1',
 			'enabled' => $enabled,
