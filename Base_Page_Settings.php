@@ -157,7 +157,7 @@ class Base_Page_Settings {
 		echo '<label>';
 		echo '<input class="enabled" type="checkbox" id="' . $name .
 			'" name="' . $name . '" value="1" ';
-		checked( $this->_config->get_boolean( $option_id ), true );
+		checked( $this->_config->get_boolean( $option_id ) && $section_enabled, true );
 
 		if ( $disabled )
 			echo 'disabled="disabled" ';
