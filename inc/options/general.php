@@ -523,23 +523,32 @@ Util_Ui::config_item( array(
 				<td>
 					<?php \W3TC\Util_Ui::pro_wrap_maybe_start() ?>
 
-					<?php $this->checkbox_debug( 'pgcache.debug_purge' ) ?>
-					Page Cache Purge Log (<a href="?page=w3tc_general&view=purge_log&module=pagecache">view log</a>)</label>
+					<?php
+					$this->checkbox_debug_pro( 'pgcache.debug_purge',
+						'Page Cache Purge Log',
+						' (<a href="?page=w3tc_general&view=purge_log&module=pagecache">view log</a>)' )
+					?>
 					<br />
 
-					<?php $this->checkbox_debug( 'dbcache.debug_purge' ) ?>
-					Database Cache Purge Log (<a href="?page=w3tc_general&view=purge_log&module=dbcache">view log</a>)</label>
+					<?php
+					$this->checkbox_debug_pro( 'dbcache.debug_purge',
+						'Database Cache Purge Log',
+						' (<a href="?page=w3tc_general&view=purge_log&module=dbcache">view log</a>)' )
+					?>
 					<br />
 
-					<?php $this->checkbox_debug( 'objectcache.debug_purge' ) ?>
-					Object Cache Purge Log (<a href="?page=w3tc_general&view=purge_log&module=objectcache">view log</a>)</label>
+					<?php
+					$this->checkbox_debug_pro( 'objectcache.debug_purge',
+						'Object Cache Purge Log',
+						' (<a href="?page=w3tc_general&view=purge_log&module=objectcache">view log</a>)' )
+					?>
 					<br />
 
 					<?php
 					\W3TC\Util_Ui::pro_wrap_description(
 						__( 'Purge Logs provide information on when your cache has been purged and what triggered it.', 'w3-total-cache' ),
 						array(
-							__( 'If you are troubleshooting are complex issue in which you are not sure why your cache is being cleared, Purge Logs can tell you why', 'w3-total-cache' )
+							__( 'If you are troubleshooting a complex issue in which you are not sure why your cache is being cleared, Purge Logs can tell you why', 'w3-total-cache' )
 						)
 					);
 					?>
