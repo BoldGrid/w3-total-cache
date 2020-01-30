@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle
 Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.3
-Stable tag: 0.12.0
+Stable tag: 0.13.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -270,6 +270,14 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.13.0 =
+* Added new Pro feature, Debug - Purge Stack Trace
+* Added "Feature Policy" security header
+* Removed deprecated get_magic_quotes_gpc()
+* Improved AMP Extension by ignoring value of amp querystring marker in request if passed without value in config
+* Improved lazyload by not processing elements with skip-lazy class or data-skip-lazy attribute
+* Fixed caching of query-string normalization redirects, no longer cached when cache key is normalized by accept querystring arguments, caused redirect loop
 
 = 0.12.0 =
 * Added querystring based URL structures for AMP pages
