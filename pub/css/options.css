@@ -481,13 +481,6 @@ th.w3tc_extensions_manage_column_check {
 	align-items: flex-start;
 }
 
-.w3tc-gopro .description {
-	display: block;
-}
-
-.form-table td .w3tc-gopro p {
-	font-size: 13px;
-}
 .w3tc-gopro-action strong,
 .w3tc-gopro-action i {
 	display: block;
@@ -508,7 +501,17 @@ th.w3tc_extensions_manage_column_check {
     outline: none;
 }
 
+.w3tc-gopro-more .dashicons {
+	display: inline;
+	font-size: inherit;
+	line-height: inherit;
+}
+
+.w3tc-gopro-excerpt {
+	display: block;
+}
 .w3tc-gopro-description {
+	display: block;
 	max-height: 0px;
 	transition: max-height 0.5s ease-out;
 	overflow: hidden;

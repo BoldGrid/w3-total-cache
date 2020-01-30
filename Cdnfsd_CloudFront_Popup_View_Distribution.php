@@ -21,15 +21,15 @@ Util_Ui::hidden( '', 'distribution_comment', $details['distribution_comment'] );
 			</tr>
 			<tr>
 				<th>Origin:</th>
-				<td><?php $this->render_zone_ip_change( $details, 'origin' ) ?><br />
-					<span class="description">
+				<td><?php $this->render_zone_ip_change( $details, 'origin' ) ?>
+					<p class="description">
 						Create an apex <acronym title="Domain Name System">DNS</acronym> record pointing to your WordPress host <acronym title="Internet Protocol">IP</acronym>.
 						CloudFront will use this host to mirror your site.
 
 						Tip: If your real domain name is domain.com, then the host
 						for the apex record should be origin.domain.com with the host
 						<acronym title="Internet Protocol">IP</acronym> of domain.com, e.g.:
-					</span>
+					</p>
 				</td>
 			</tr>
 			<tr>

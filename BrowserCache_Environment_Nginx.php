@@ -392,7 +392,7 @@ class BrowserCache_Environment_Nginx {
 		}
 
 		if ( $this->c->get_boolean( "browsercache.$section.w3tc" ) ) {
-			$add_header_rules[] = 'add_header X-Powered-y "' .
+			$add_header_rules[] = 'add_header X-Powered-By "' .
 				Util_Environment::w3tc_header() . '";';
 		}
 

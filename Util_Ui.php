@@ -676,7 +676,7 @@ class Util_Ui {
 					( isset( $e['disabled'] ) ? $e['disabled'] : false ),
 					( isset( $e['label'] ) ? $e['label'] : null ) );
 			elseif ( $key == 'description' )
-				echo '<br /><span class="description">' . $e . '</span>';
+				echo '<p class="description">' . $e . '</p>';
 			elseif ( $key == 'hidden' )
 				Util_Ui::hidden( '', $e['name'], $e['value'] );
 			elseif ( $key == 'html' )
@@ -741,7 +741,7 @@ class Util_Ui {
 			echo $a['control_after'];
 		}
 		if ( isset( $a['description'] ) ) {
-			echo '<br /><span class="description">' . $a['description'] . '</span>';
+			echo '<p class="description">' . $a['description'] . '</p>';
 		}
 
 		echo ( isset( $a['style'] ) ? "</th>" : "</td>" );
@@ -890,17 +890,19 @@ class Util_Ui {
 
 
 	static public function pro_wrap_description( $excerpt, $description ) {
-		echo '<span class="description w3tc-gopro-excerpt">' . $excerpt . '</span>';
+		echo '<p class="description w3tc-gopro-excerpt">' . $excerpt . '</p>';
 
-		$d = array_map(
-			function($e) {
-				return "<p>$e</p>";
-			},
-		   $description
-		);
+		if ( !empty( $description ) ) {
+			$d = array_map(
+				function($e) {
+					return "<p class='description'>$e</p>";
+				},
+			   $description
+			);
 
-		echo '<span class="description w3tc-gopro-description">' . implode( "\n", $d ) . '</span>';
-		echo '<a href="#" class="w3tc-gopro-more">Show More &#x2BC6;</a>';
+			echo '<div class="w3tc-gopro-description">' . implode( "\n", $d ) . '</div>';
+			echo '<a href="#" class="w3tc-gopro-more">Show More <span class="dashicons dashicons-arrow-down-alt2"></span></a>';
+		}
 	}
 
 
@@ -913,7 +915,6 @@ class Util_Ui {
 		?>
 			</div>
 			<div class="w3tc-gopro-action">
-				<strong>W3 Total Cache</strong>
 				<i>Pro Feature!</i>
 				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ) ?>">
 					Learn more about Pro
