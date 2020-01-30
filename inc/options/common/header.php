@@ -21,6 +21,9 @@ $licensing_visible = ( ( !Util_Environment::is_wpmu() || is_network_admin() ) &&
 	<?php
 	switch ( $page ) {
 	case 'w3tc_general':
+		if ( !empty( $_REQUEST['view'] ) ) {
+			break;
+		}
 		$anchors = array(
 			array( 'id' => 'general', 'text' => __( 'General', 'w3-total-cache' ) ),
 			array( 'id' => 'page_cache', 'text' => __( 'Page Cache', 'w3-total-cache' ) ),

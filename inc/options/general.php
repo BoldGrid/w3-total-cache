@@ -517,6 +517,44 @@ Util_Ui::config_item( array(
 					<p class="description"><?php _e( 'If selected, detailed caching information will appear at the end of each page in a <acronym title="Hypertext Markup Language">HTML</acronym> comment. View a page\'s source code to review.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
+			<tr>
+				<th><?php _e( 'Purge Logs:', 'w3-total-cache' ); ?></th>
+				<td>
+					<?php \W3TC\Util_Ui::pro_wrap_maybe_start() ?>
+
+					<?php
+					$this->checkbox_debug_pro( 'pgcache.debug_purge',
+						'Page Cache Purge Log',
+						' (<a href="?page=w3tc_general&view=purge_log&module=pagecache">view log</a>)' )
+					?>
+					<br />
+
+					<?php
+					$this->checkbox_debug_pro( 'dbcache.debug_purge',
+						'Database Cache Purge Log',
+						' (<a href="?page=w3tc_general&view=purge_log&module=dbcache">view log</a>)' )
+					?>
+					<br />
+
+					<?php
+					$this->checkbox_debug_pro( 'objectcache.debug_purge',
+						'Object Cache Purge Log',
+						' (<a href="?page=w3tc_general&view=purge_log&module=objectcache">view log</a>)' )
+					?>
+					<br />
+
+					<?php
+					\W3TC\Util_Ui::pro_wrap_description(
+						__( 'Purge Logs provide information on when your cache has been purged and what triggered it.', 'w3-total-cache' ),
+						array(
+							__( 'If you are troubleshooting a complex issue in which you are not sure why your cache is being cleared, Purge Logs can tell you why', 'w3-total-cache' )
+						)
+					);
+					?>
+					<?php \W3TC\Util_Ui::pro_wrap_maybe_end( 'debug_purge' ) ?>
+				</td>
+			</tr>
+
 		</table>
 
 		<?php Util_Ui::button_config_save( 'general_debug' ); ?>
