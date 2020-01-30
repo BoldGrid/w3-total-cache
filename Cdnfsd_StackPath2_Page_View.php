@@ -43,13 +43,11 @@ _e( 'Specify account credentials:',
 					<label><?php _e( '<acronym title="Content Delivery Network">CDN</acronym> <acronym title="Canonical Name">CNAME</acronym>:', 'w3-total-cache' ); ?></label>
 				</th>
 				<td class="w3tc_config_value_text">
-					<?php
-echo implode( ', ', $config->get_array( 'cdnfsd.stackpath2.domain' ) )
-?><br />
-					<span class="description">
+					<?php echo implode( ', ', $config->get_array( 'cdnfsd.stackpath2.domain' ) ) ?>
+					<p class="description">
 						The website domain must <acronym title="Canonical Name">CNAME</acronym> point to the
 						<acronym title="Content Delivery Network">CDN</acronym> domain
-					</span>
+					</p>
 				</td>
 			</tr>
 			<?php endif ?>

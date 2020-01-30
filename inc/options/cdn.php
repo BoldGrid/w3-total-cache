@@ -65,13 +65,13 @@ $upload_blogfiles_enabled = $cdn_mirror || !is_network_admin() ||
 $this->checkbox( 'cdn.uploads.enable', !$upload_blogfiles_enabled, '',
 	true, $force_value );
 ?>
-					<?php Util_Ui::e_config_label( 'cdn.uploads.enable' ) ?></label><br />
-					<span class="description"><?php
+					<?php Util_Ui::e_config_label( 'cdn.uploads.enable' ) ?></label>
+					<p class="description"><?php
 _e( 'If checked, all attachments will be hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' );
 if ( !$upload_blogfiles_enabled )
 	_e( '<br />To enable that, switch off "Use single network configuration file for all sites" option at General settings page and use specific settings for each blog.', 'w3-total-cache' );
 ?>
-					</span>
+</p>
 				</th>
 				<?php if ( ! $cdn_mirror ): ?>
 				<td>
@@ -83,8 +83,8 @@ if ( !$upload_blogfiles_enabled )
 			</tr>
 			<tr>
 				<th<?php if ( $cdn_mirror ): ?> colspan="2"<?php endif; ?>>
-					<?php $this->checkbox( 'cdn.includes.enable' ) ?> <?php Util_Ui::e_config_label( 'cdn.includes.enable' ) ?></label><br />
-					<span class="description"><?php _e( 'If checked, WordPress static core file types specified in the "wp-includes file types to upload" field below will be hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></span>
+					<?php $this->checkbox( 'cdn.includes.enable' ) ?> <?php Util_Ui::e_config_label( 'cdn.includes.enable' ) ?></label>
+					<p class="description"><?php _e( 'If checked, WordPress static core file types specified in the "wp-includes file types to upload" field below will be hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></p>
 				</th>
 				<?php if ( ! $cdn_mirror ): ?>
 				<td>
@@ -96,8 +96,8 @@ if ( !$upload_blogfiles_enabled )
 			</tr>
 			<tr>
 				<th<?php if ( $cdn_mirror ): ?> colspan="2"<?php endif; ?>>
-					<?php $this->checkbox( 'cdn.theme.enable' ) ?> <?php Util_Ui::e_config_label( 'cdn.theme.enable' ) ?></label><br />
-					<span class="description"><?php _e( 'If checked, all theme file types specified in the "theme file types to upload" field below will be hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></span>
+					<?php $this->checkbox( 'cdn.theme.enable' ) ?> <?php Util_Ui::e_config_label( 'cdn.theme.enable' ) ?></label>
+					<p class="description"><?php _e( 'If checked, all theme file types specified in the "theme file types to upload" field below will be hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></p>
 				</th>
 				<?php if ( ! $cdn_mirror ): ?>
 				<td>
@@ -109,8 +109,8 @@ if ( !$upload_blogfiles_enabled )
 			</tr>
 			<tr>
 				<th<?php if ( $cdn_mirror ): ?> colspan="2"<?php endif; ?>>
-					<?php $this->checkbox( 'cdn.minify.enable', !$minify_enabled ) ?> <?php Util_Ui::e_config_label( 'cdn.minify.enable' ) ?></label><br />
-					<span class="description"><?php _e( 'If checked, minified <acronym>CSS</acronym> and <acronym>JS</acronym> files will be hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></span>
+					<?php $this->checkbox( 'cdn.minify.enable', !$minify_enabled ) ?> <?php Util_Ui::e_config_label( 'cdn.minify.enable' ) ?></label>
+					<p class="description"><?php _e( 'If checked, minified <acronym>CSS</acronym> and <acronym>JS</acronym> files will be hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></p>
 				</th>
 				<?php if ( ! $cdn_mirror ): ?>
 				<td>
@@ -122,11 +122,11 @@ if ( !$upload_blogfiles_enabled )
 			</tr>
 			<tr>
 				<th<?php if ( $cdn_mirror ): ?> colspan="2"<?php endif; ?>>
-					<?php $this->checkbox( 'cdn.custom.enable' ) ?> <?php Util_Ui::e_config_label( 'cdn.custom.enable' ) ?></label><br />
-					<span class="description">
+					<?php $this->checkbox( 'cdn.custom.enable' ) ?> <?php Util_Ui::e_config_label( 'cdn.custom.enable' ) ?></label>
+					<p class="description">
 						<?php echo sprintf( __( 'If checked, any file names or paths specified in the "custom file list" field below will be hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ),
-					 	'https://api.w3-edge.com/v1/redirects/faq/usage/regexp-support' ); ?>
-					</span>
+						 'https://api.w3-edge.com/v1/redirects/faq/usage/regexp-support' ); ?>
+					</p>
 				</th>
 				<?php if ( ! $cdn_mirror ): ?>
 				<td>
@@ -139,8 +139,8 @@ if ( !$upload_blogfiles_enabled )
 			<?php if ( ! $cdn_mirror ): ?>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'cdn.force.rewrite' ) ?> <?php Util_Ui::e_config_label( 'cdn.force.rewrite' ) ?></label><br />
-					<span class="description"><?php _e( 'If modified files are not always detected and replaced, use this option to over-write them.', 'w3-total-cache' ) ?></span>
+					<?php $this->checkbox( 'cdn.force.rewrite' ) ?> <?php Util_Ui::e_config_label( 'cdn.force.rewrite' ) ?></label>
+					<p class="description"><?php _e( 'If modified files are not always detected and replaced, use this option to over-write them.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<?php endif; ?>
@@ -148,8 +148,8 @@ if ( !$upload_blogfiles_enabled )
 			<?php if ( $cdn_supports_header ): ?>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'cdn.canonical_header' ) ?> <?php Util_Ui::e_config_label( 'cdn.canonical_header' ) ?></label><br />
-					<span class="description"><?php _e( 'Adds canonical <acronym title="Hypertext Transfer Protocol">HTTP</acronym> header to assets files.', 'w3-total-cache' ) ?></span>
+					<?php $this->checkbox( 'cdn.canonical_header' ) ?> <?php Util_Ui::e_config_label( 'cdn.canonical_header' ) ?></label>
+					<p class="description"><?php _e( 'Adds canonical <acronym title="Hypertext Transfer Protocol">HTTP</acronym> header to assets files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<?php endif; ?>
@@ -187,34 +187,34 @@ if ( $cdn_engine == 'google_drive' ||
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'cdn.flush_manually' ) ?>
-					<?php _e( 'Only purge <acronym title="Content Delivery Network">CDN</acronym> manually', 'w3-total-cache' ) ?></label><br />
-					<span class="description"><?php _e( 'Purge <acronym title="Content Delivery Network">CDN</acronym> only if explicit purge button is clicked.', 'w3-total-cache' ) ?></span>
+					<?php _e( 'Only purge <acronym title="Content Delivery Network">CDN</acronym> manually', 'w3-total-cache' ) ?></label>
+					<p class="description"><?php _e( 'Purge <acronym title="Content Delivery Network">CDN</acronym> only if explicit purge button is clicked.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'cdn.reject.ssl' ) ?> <?php Util_Ui::e_config_label( 'cdn.reject.ssl' ) ?></label><br />
-					<span class="description">When <acronym title="Secure Sockets Layer">SSL</acronym> pages are returned no <acronym title="Content Delivery Network">CDN</acronym> <acronym title="Uniform Resource Indicator">URL</acronym>s will appear in HTML pages.</span>
+					<?php $this->checkbox( 'cdn.reject.ssl' ) ?> <?php Util_Ui::e_config_label( 'cdn.reject.ssl' ) ?></label>
+					<p class="description">When <acronym title="Secure Sockets Layer">SSL</acronym> pages are returned no <acronym title="Content Delivery Network">CDN</acronym> <acronym title="Uniform Resource Indicator">URL</acronym>s will appear in HTML pages.</p>
 				</th>
 			</tr>
 			<tr>
 				 <th colspan="2">
-					 <?php $this->checkbox( 'cdn.admin.media_library' ) ?> <?php Util_Ui::e_config_label( 'cdn.admin.media_library' ) ?></label><br />
-					<span class="description">All Media Library content will use <acronym title="Content Delivery Network">CDN</acronym> links on administration pages.</span>
+					 <?php $this->checkbox( 'cdn.admin.media_library' ) ?> <?php Util_Ui::e_config_label( 'cdn.admin.media_library' ) ?></label>
+					<p class="description">All Media Library content will use <acronym title="Content Delivery Network">CDN</acronym> links on administration pages.</p>
 				</th>
 			 </tr>
 			<tr>
 				 <th colspan="2">
-					 <?php $this->checkbox( 'cdn.cors_header' ) ?> Add <acronym title="Access-Control-Allow-Origin">CORS</acronym> header</label><br />
-					<span class="description">Add <acronym title="Access-Control-Allow-Origin">CORS</acronym> headers to allow cross-domain assets usage.</span>
+					 <?php $this->checkbox( 'cdn.cors_header' ) ?> Add <acronym title="Access-Control-Allow-Origin">CORS</acronym> header</label>
+					<p class="description">Add <acronym title="Access-Control-Allow-Origin">CORS</acronym> headers to allow cross-domain assets usage.</p>
 				</th>
 			 </tr>
 
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'cdn.reject.logged_roles' ) ?> <?php Util_Ui::e_config_label( 'cdn.reject.logged_roles' ) ?></label><br />
-					<span class="description"><?php _e( 'Select user roles that will use the origin server exclusively:', 'w3-total-cache' ) ?></span>
+					<?php $this->checkbox( 'cdn.reject.logged_roles' ) ?> <?php Util_Ui::e_config_label( 'cdn.reject.logged_roles' ) ?></label>
+					<p class="description"><?php _e( 'Select user roles that will use the origin server exclusively:', 'w3-total-cache' ) ?></p>
 
 					<div id="cdn_reject_roles" class="w3tc_reject_roles">
 						<?php $saved_roles = $this->_config->get_array( 'cdn.reject.roles' ); ?>
@@ -232,14 +232,14 @@ if ( $cdn_engine == 'google_drive' ||
 				<td>
 					<textarea id="cdn_reject_uri" name="cdn__reject__uri"
 						<?php Util_Ui::sealing_disabled( 'cdn.' ) ?>
-							  cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'cdn.reject.uri' ) ) ); ?></textarea><br />
-					<span class="description"><?php echo sprintf( __( 'Always ignore the specified pages / directories. Supports regular expression (See <a href="%s"><acronym title="Frequently Asked Questions">FAQ</acronym></a>)' ), network_admin_url( 'admin.php?page=w3tc_faq' ) ) ?></span>
+							  cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'cdn.reject.uri' ) ) ); ?></textarea>
+					<p class="description"><?php echo sprintf( __( 'Always ignore the specified pages / directories. Supports regular expression (See <a href="%s"><acronym title="Frequently Asked Questions">FAQ</acronym></a>)' ), network_admin_url( 'admin.php?page=w3tc_faq' ) ) ?></p>
 				</td>
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'minify.upload', $this->_config->get_boolean( 'minify.auto' ) ) ?> <?php  _e( 'Automatically upload minify files', 'w3-total-cache' ) ?></label><br />
-					<span class="description"><?php _e( 'If <acronym title="Content Delivery Network">CDN</acronym> is enabled (and not using the origin pull method), your minified files will be automatically uploaded.', 'w3-total-cache' ) ?></span>
+					<?php $this->checkbox( 'minify.upload', $this->_config->get_boolean( 'minify.auto' ) ) ?> <?php  _e( 'Automatically upload minify files', 'w3-total-cache' ) ?></label>
+					<p class="description"><?php _e( 'If <acronym title="Content Delivery Network">CDN</acronym> is enabled (and not using the origin pull method), your minified files will be automatically uploaded.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -256,8 +256,8 @@ if ( $this->_config->get_string( 'cdn.engine' ) == 'google_drive' ) {
 $this->checkbox( 'cdn.autoupload.enabled', $disabled, '',
 	true, $force_value );
 ?>
-					<?php Util_Ui::e_config_label( 'cdn.autoupload.enabled' ) ?></label><br />
-					<span class="description"><?php _e( 'Automatically attempt to find and upload changed files.', 'w3-total-cache' ) ?></span>
+					<?php Util_Ui::e_config_label( 'cdn.autoupload.enabled' ) ?></label>
+					<p class="description"><?php _e( 'Automatically attempt to find and upload changed files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -266,8 +266,8 @@ $this->checkbox( 'cdn.autoupload.enabled', $disabled, '',
 					<input id="cdn_autoupload_interval" type="text"
 					   name="cdn__autoupload__interval"
 					   <?php Util_Ui::sealing_disabled( 'cdn.' ) ?>
-					   value="<?php esc_attr_e( $this->_config->get_integer( 'cdn.autoupload.interval' ) ); ?>" size="8" /> <?php _e( 'seconds', 'w3-total-cache' ) ?><br />
-					<span class="description"><?php _e( 'Specify the interval between upload of changed files.', 'w3-total-cache' ) ?></span>
+					   value="<?php esc_attr_e( $this->_config->get_integer( 'cdn.autoupload.interval' ) ); ?>" size="8" /> <?php _e( 'seconds', 'w3-total-cache' ) ?>
+					<p class="description"><?php _e( 'Specify the interval between upload of changed files.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -275,8 +275,8 @@ $this->checkbox( 'cdn.autoupload.enabled', $disabled, '',
 				<td>
 					<input id="cdn_limit_interval" type="text"
 					   <?php Util_Ui::sealing_disabled( 'cdn.' ) ?>
-					   name="cdn__queue__interval" value="<?php esc_attr_e( $this->_config->get_integer( 'cdn.queue.interval' ) ); ?>" size="10" /> <?php _e( 'seconds', 'w3-total-cache' ) ?><br />
-					<span class="description"><?php _e( 'The number of seconds to wait before upload attempt.', 'w3-total-cache' ) ?></span>
+					   name="cdn__queue__interval" value="<?php esc_attr_e( $this->_config->get_integer( 'cdn.queue.interval' ) ); ?>" size="10" /> <?php _e( 'seconds', 'w3-total-cache' ) ?>
+					<p class="description"><?php _e( 'The number of seconds to wait before upload attempt.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -284,8 +284,8 @@ $this->checkbox( 'cdn.autoupload.enabled', $disabled, '',
 				<td>
 					<input id="cdn_limit_queue" type="text"
 					   <?php Util_Ui::sealing_disabled( 'cdn.' ) ?>
-					   name="cdn__queue__limit" value="<?php esc_attr_e( $this->_config->get_integer( 'cdn.queue.limit' ) ); ?>" size="10" /><br />
-					<span class="description"><?php _e( 'Number of files processed per upload attempt.', 'w3-total-cache' ) ?></span>
+					   name="cdn__queue__limit" value="<?php esc_attr_e( $this->_config->get_integer( 'cdn.queue.limit' ) ); ?>" size="10" />
+					<p class="description"><?php _e( 'Number of files processed per upload attempt.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<?php endif ?>
@@ -294,8 +294,8 @@ $this->checkbox( 'cdn.autoupload.enabled', $disabled, '',
 				<td>
 					<input id="cdn_includes_files" type="text"
 					   <?php Util_Ui::sealing_disabled( 'cdn.' ) ?>
-					   name="cdn__includes__files" value="<?php esc_attr_e( $this->_config->get_string( 'cdn.includes.files' ) ); ?>" size="100" /><br />
-					<span class="description"><?php _e( 'Specify the file types within the WordPress core to host with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></span>
+					   name="cdn__includes__files" value="<?php esc_attr_e( $this->_config->get_string( 'cdn.includes.files' ) ); ?>" size="100" />
+					<p class="description"><?php _e( 'Specify the file types within the WordPress core to host with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -303,8 +303,8 @@ $this->checkbox( 'cdn.autoupload.enabled', $disabled, '',
 				<td>
 					<input id="cdn_theme_files" type="text" name="cdn__theme__files"
 					   <?php Util_Ui::sealing_disabled( 'cdn.' ) ?>
-					   value="<?php esc_attr_e( $this->_config->get_string( 'cdn.theme.files' ) ); ?>" size="100" /><br />
-					<span class="description"><?php _e( 'Specify the file types in the active theme to host with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></span>
+					   value="<?php esc_attr_e( $this->_config->get_string( 'cdn.theme.files' ) ); ?>" size="100" />
+					<p class="description"><?php _e( 'Specify the file types in the active theme to host with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -312,8 +312,8 @@ $this->checkbox( 'cdn.autoupload.enabled', $disabled, '',
 				<td>
 					<input id="cdn_import_files" type="text" name="cdn__import__files"
 					   <?php Util_Ui::sealing_disabled( 'cdn.' ) ?>
-					   value="<?php esc_attr_e( $this->_config->get_string( 'cdn.import.files' ) ); ?>" size="100" /><br />
-					<span class="description"><?php _e( 'Automatically import files hosted with 3rd parties of these types (if used in your posts / pages) to your media library.', 'w3-total-cache' ) ?></span>
+					   value="<?php esc_attr_e( $this->_config->get_string( 'cdn.import.files' ) ); ?>" size="100" />
+					<p class="description"><?php _e( 'Automatically import files hosted with 3rd parties of these types (if used in your posts / pages) to your media library.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -321,29 +321,29 @@ $this->checkbox( 'cdn.autoupload.enabled', $disabled, '',
 				<td>
 					<textarea id="cdn_custom_files" name="cdn__custom__files"
 						<?php Util_Ui::sealing_disabled( 'cdn.' ) ?> cols="40"
-						rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'cdn.custom.files' ) ) ); ?></textarea><br />
-					<span class="description"><?php _e( 'Specify any files outside of theme or other common directories to host with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?>
+						rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'cdn.custom.files' ) ) ); ?></textarea>
+					<p class="description"><?php _e( 'Specify any files outside of theme or other common directories to host with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?>
 						<?php if ( Util_Environment::is_wpmu() ): ?>
 						<br />
 						<?php _e( 'To upload files in blogs.dir for current blog write wp-content/&lt;currentblog&gt;/.', 'w3-total-cache' ) ?>
 						<?php endif ?>
-					</span>
+					</p>
 				</td>
 			</tr>
 			<tr>
 				<th><label for="cdn_reject_ua"><?php Util_Ui::e_config_label( 'cdn.reject.ua' ) ?></label></th>
 				<td>
 					<textarea id="cdn_reject_ua" name="cdn__reject__ua" cols="40"
-						<?php Util_Ui::sealing_disabled( 'cdn.' ) ?> rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'cdn.reject.ua' ) ) ); ?></textarea><br />
-					<span class="description"><?php _e( 'Specify user agents that should not access files hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></span>
+						<?php Util_Ui::sealing_disabled( 'cdn.' ) ?> rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'cdn.reject.ua' ) ) ); ?></textarea>
+					<p class="description"><?php _e( 'Specify user agents that should not access files hosted with the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<tr>
 				<th><label for="cdn_reject_files"><?php Util_Ui::e_config_label( 'cdn.reject.files' ) ?></label></th>
 				<td>
 					<textarea id="cdn_reject_files" name="cdn__reject__files"
-						<?php Util_Ui::sealing_disabled( 'cdn.' ) ?> cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'cdn.reject.files' ) ) ); ?></textarea><br />
-					<span class="description"><?php _e( 'Specify the path of files that should not use the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></span>
+						<?php Util_Ui::sealing_disabled( 'cdn.' ) ?> cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'cdn.reject.files' ) ) ); ?></textarea>
+					<p class="description"><?php _e( 'Specify the path of files that should not use the <acronym title="Content Delivery Network">CDN</acronym>.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -352,7 +352,7 @@ $this->checkbox( 'cdn.autoupload.enabled', $disabled, '',
 					<input type="hidden" name="set_cookie_domain_new" value="0" />
 					<label><input type="checkbox" name="set_cookie_domain_new"
 						<?php Util_Ui::sealing_disabled( 'cdn.' ) ?> value="1"<?php checked( $set_cookie_domain, true ); ?> /> <?php printf( __( 'Set cookie domain to &quot;%s&quot', 'w3-tota-cachel' ),  htmlspecialchars( $cookie_domain ) ) ?></label>
-					<br /><span class="description"><?php _e( 'If using subdomain for <acronym title="Content Delivery Network">CDN</acronym> functionality, this setting helps prevent new users from sending cookies in requests to the <acronym title="Content Delivery Network">CDN</acronym> subdomain.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'If using subdomain for <acronym title="Content Delivery Network">CDN</acronym> functionality, this setting helps prevent new users from sending cookies in requests to the <acronym title="Content Delivery Network">CDN</acronym> subdomain.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 		</table>

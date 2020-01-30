@@ -54,8 +54,8 @@ jQuery('#w3tc_cookiegroup_add').click(function() {
 					'<tr>' +
 					'<th><label for="cookiegroups_' + group + '_cookies">Cookies:</label></th>' +
 					'<td><textarea id="cookiegroups_' + group + '_cookies" name="cookiegroups[' +
-					group + '][cookies]" rows="10" cols="50"></textarea><br />' +
-					'<span class="description">Specify the cookies for this group. Values like \'cookie\', \'cookie=value\', and cookie[a-z]+=value[a-z]+are supported. Remember to escape special characters like spaces, dots or dashes with a backslash. Regular expressions are also supported.</span></td></tr>' +
+					group + '][cookies]" rows="10" cols="50"></textarea>' +
+					'<p class="description">Specify the cookies for this group. Values like \'cookie\', \'cookie=value\', and cookie[a-z]+=value[a-z]+are supported. Remember to escape special characters like spaces, dots or dashes with a backslash. Regular expressions are also supported.</p></td></tr>' +
 					'</table></li>');
 				var select = li.find('select');
 

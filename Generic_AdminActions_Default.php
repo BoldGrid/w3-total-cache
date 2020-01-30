@@ -123,6 +123,20 @@ class Generic_AdminActions_Default {
 		Util_Admin::redirect( array(), true );
 	}
 
+	public function w3tc_default_purgelog_clear() {
+		$module = Util_Request::get_label( 'module' );
+		$log_filename = Util_Debug::log_filename( $module . '-purge' );
+		if ( file_exists( $log_filename ) ) {
+			unlink( $log_filename );
+		}
+
+		Util_Admin::redirect( array(
+			'page' => 'w3tc_general',
+			'view' => 'purge_log',
+			'module' => $module
+		), true );
+	}
+
 	/**
 	 *
 	 */

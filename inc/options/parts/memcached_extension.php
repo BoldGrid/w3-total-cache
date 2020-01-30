@@ -20,7 +20,7 @@ $config = Dispatcher::config();
 			<?php Util_Ui::sealing_disabled( $module ) ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span id="memcached_test_status" class="w3tc-status w3tc-process"></span>
-		<br /><span class="description"><?php _e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122', 'w3-total-cache' ); ?></span>
+		<p class="description"><?php _e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <?php

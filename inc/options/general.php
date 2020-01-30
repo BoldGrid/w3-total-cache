@@ -23,11 +23,11 @@ echo sprintf( 'The plugin is currently %1$s If an option is disabled it means th
 					<?php if ( $this->_config->is_preview() ): ?>
 						<input type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php _e( 'Disable', 'w3-total-cache' ); ?>" />
 						<?php echo Util_Ui::button_link( __( 'Deploy', 'w3-total-cache' ), wp_nonce_url( sprintf( 'admin.php?page=%s&w3tc_config_preview_deploy', $this->_page ), 'w3tc' ) ); ?>
-						<br /><span class="description"> <?php printf( __( 'To preview any changed settings (without deploying): %s', 'w3-total-cache' ), Util_Ui::preview_link() ) ?> </span>
+						<p class="description"> <?php printf( __( 'To preview any changed settings (without deploying): %s', 'w3-total-cache' ), Util_Ui::preview_link() ) ?> </p>
 					<?php else: ?>
 						<input type="submit" name="w3tc_config_preview_enable" class="button-primary" value="<?php _e( 'Enable', 'w3-total-cache' ); ?>" />
 					<?php endif; ?>
-					<br /><span class="description"><?php _e( 'Use preview mode to test configuration scenarios prior to releasing them (deploy) on the actual site. Preview mode remains active even after deploying settings until the feature is disabled.', 'w3-total-cache' ); ?></span>
+					<p class="description"><?php _e( 'Use preview mode to test configuration scenarios prior to releasing them (deploy) on the actual site. Preview mode remains active even after deploying settings until the feature is disabled.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 		</table>
@@ -311,8 +311,8 @@ echo sprintf(
 				 <th><label for="pgcache_varnish_servers"><?php Util_Ui::e_config_label( 'varnish.servers' ) ?></label></th>
 				 <td>
 					<textarea id="pgcache_varnish_servers" name="varnish__servers"
-						  cols="40" rows="5" <?php Util_Ui::sealing_disabled( 'varnish.' ); ?>><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'varnish.servers' ) ) ); ?></textarea><br />
-					<span class="description"><?php _e( 'Specify the IP addresses of your varnish instances above. The <acronym title="Varnish Configuration Language">VCL</acronym>\'s <acronym title="Access Control List">ACL</acronym> must allow this request.', 'w3-total-cache' ); ?></span>
+						  cols="40" rows="5" <?php Util_Ui::sealing_disabled( 'varnish.' ); ?>><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'varnish.servers' ) ) ); ?></textarea>
+					<p class="description"><?php _e( 'Specify the IP addresses of your varnish instances above. The <acronym title="Varnish Configuration Language">VCL</acronym>\'s <acronym title="Access Control List">ACL</acronym> must allow this request.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 		</table>
@@ -344,8 +344,8 @@ Util_Ui::button_config_save( 'general_varnish',
 					<input id="cluster_messagebus_sns_region"
 						class="w3tc-ignore-change" type="text"
 						name="cluster__messagebus__sns__region"
-						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.region' ) ); ?>" size="60" /><br />
-					<span class="description"><?php _e( 'Specify the Amazon <acronym title="Simple Notification Service">SNS</acronym> service endpoint hostname. If empty, then default "sns.us-east-1.amazonaws.com" will be used.', 'w3-total-cache' ); ?></span>
+						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.region' ) ); ?>" size="60" />
+					<p class="description"><?php _e( 'Specify the Amazon <acronym title="Simple Notification Service">SNS</acronym> service endpoint hostname. If empty, then default "sns.us-east-1.amazonaws.com" will be used.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -354,8 +354,8 @@ Util_Ui::button_config_save( 'general_varnish',
 					<input id="cluster_messagebus_sns_api_key"
 						class="w3tc-ignore-change" type="text"
 						name="cluster__messagebus__sns__api_key"
-						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.api_key' ) ); ?>" size="60" /><br />
-					<span class="description"><?php _e( 'Specify the <acronym title="Application Programming Interface">API</acronym> Key.', 'w3-total-cache' ); ?></span>
+						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.api_key' ) ); ?>" size="60" />
+					<p class="description"><?php _e( 'Specify the <acronym title="Application Programming Interface">API</acronym> Key.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -364,8 +364,8 @@ Util_Ui::button_config_save( 'general_varnish',
 					<input id="cluster_messagebus_sns_api_secret"
 						class="w3tc-ignore-change" type="text"
 						name="cluster__messagebus__sns__api_secret"
-						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.api_secret' ) ); ?>" size="60" /><br />
-					<span class="description"><?php _e( 'Specify the <acronym title="Application Programming Interface">API</acronym> secret.', 'w3-total-cache' ); ?></span>
+						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.api_secret' ) ); ?>" size="60" />
+					<p class="description"><?php _e( 'Specify the <acronym title="Application Programming Interface">API</acronym> secret.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -374,8 +374,8 @@ Util_Ui::button_config_save( 'general_varnish',
 					<input id="cluster_messagebus_sns_topic_arn"
 						class="w3tc-ignore-change" type="text"
 						name="cluster__messagebus__sns__topic_arn"
-						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' ) ); ?>" size="60" /><br />
-					<span class="description"><?php _e( 'Specify the <acronym title="Simple Notification Service">SNS</acronym> topic.', 'w3-total-cache' ); ?></span>
+						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' ) ); ?>" size="60" />
+					<p class="description"><?php _e( 'Specify the <acronym title="Simple Notification Service">SNS</acronym> topic.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 		</table>
@@ -399,8 +399,7 @@ foreach ( $custom_areas as $area )
 							<input id="plugin_license_key" name="plugin__license_key" type="text" value="<?php echo esc_attr( $this->_config->get_string( 'plugin.license_key' ) )?>" size="45"/>
 							<input id="plugin_license_key_verify" type="button" class="button" value="<?php _e( 'Verify license key', 'w3-total-cache' ) ?>"/>
 							<span class="w3tc_license_verification"></span>
-							<br />
-							<span class="description"><?php printf( __( 'Please enter the license key provided after %s.', 'w3-total-cache' ), '<a class="button-buy-plugin"  data-src="generic_license" href="#">' . __( 'upgrading', 'w3-total-cache' ) . '</a>' )?></span>
+							<p class="description"><?php printf( __( 'Please enter the license key provided after %s.', 'w3-total-cache' ), '<a class="button-buy-plugin"  data-src="generic_license" href="#">' . __( 'upgrading', 'w3-total-cache' ) . '</a>' )?></p>
 						</td>
 					</tr>
 
@@ -417,21 +416,21 @@ Util_Ui::config_item( array(
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Enable Google Page Speed dashboard widget', 'w3-total-cache' ),
 		'description' => __( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
-		'style' => '2'
+		'label_class' => 'w3tc_single_column'
 	) );
 ?>
 			<tr>
 				<th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key' ) ?></label></th>
 				<td>
-					<input id="widget_pagespeed_key" type="text" name="widget__pagespeed__key" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key' ) ); ?>" <?php Util_Ui::sealing_disabled( 'common.' ) ?> size="60" /><br />
-					<span class="description"><?php _e( 'Learn more about obtaining a <a href="https://support.google.com/cloud/answer/6158862" target="_blank"><acronym title="Application Programming Interface">API</acronym> key here</a>.', 'w3-total-cache' ); ?></span>
+					<input id="widget_pagespeed_key" type="text" name="widget__pagespeed__key" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key' ) ); ?>" <?php Util_Ui::sealing_disabled( 'common.' ) ?> size="60" />
+					<p class="description"><?php _e( 'Learn more about obtaining a <a href="https://support.google.com/cloud/answer/6158862" target="_blank"><acronym title="Application Programming Interface">API</acronym> key here</a>.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			 <tr>
 				 <th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key.restrict.referrer', 'general' ) ?></label></th>
 				 <td>
-					 <input id="widget_pagespeed_key_restrict_referrer" type="text" name="widget__pagespeed__key__restrict__referrer" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key.restrict.referrer' ) ); ?>" size="60" /><br>
-					 <span class="description">Although not required, to prevent unauthorized use and quota theft, you have the option to restrict your key using a designated HTTP referrer. If you decide to use it, you will need to set this referrer within the API Console's "Http Referrers (web sites)" key restriction area (under Credentials).</span>
+					 <input id="widget_pagespeed_key_restrict_referrer" type="text" name="widget__pagespeed__key__restrict__referrer" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key.restrict.referrer' ) ); ?>" size="60" />
+					 <p class="description">Although not required, to prevent unauthorized use and quota theft, you have the option to restrict your key using a designated HTTP referrer. If you decide to use it, you will need to set this referrer within the API Console's "Http Referrers (web sites)" key restriction area (under Credentials).</p>
 				 </td>
 			</tr>
 			<?php
@@ -439,7 +438,7 @@ Util_Ui::config_item( array(
 		'key' => 'widget.pagespeed.show_in_admin_bar',
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Show page rating in admin bar', 'w3-total-cache' ),
-		'style' => '2'
+		'label_class' => 'w3tc_single_column'
 	) );
 ?>
 
@@ -447,7 +446,7 @@ Util_Ui::config_item( array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'common.force_master' ) ?> <?php Util_Ui::e_config_label( 'common.force_master' ) ?></label>
-					<br /><span class="description"><?php _e( 'Only one configuration file for whole network will be created and used. Recommended if all sites have the same configuration.', 'w3-total-cache' ); ?></span>
+					<p class="description"><?php _e( 'Only one configuration file for whole network will be created and used. Recommended if all sites have the same configuration.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<?php endif; ?>
@@ -456,7 +455,7 @@ Util_Ui::config_item( array(
 				<th><?php Util_Ui::e_config_label( 'config.path' ) ?></th>
 				<td>
 					<input type="text" name="config__path" value="<?php echo esc_attr( $this->_config->get_string( 'config.path' ) ); ?>" size="80" <?php Util_Ui::sealing_disabled( 'common.' ) ?>/>
-					<br /><span class="description"><?php _e( 'If empty the default path will be used..', 'w3-total-cache' ); ?></span>
+					<p class="description"><?php _e( 'If empty the default path will be used..', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<?php endif; ?>
@@ -464,21 +463,21 @@ Util_Ui::config_item( array(
 				<th colspan="2">
 					<input type="hidden" name="config__check" value="0" <?php Util_Ui::sealing_disabled( 'common.' ) ?> />
 					<label><input type="checkbox" name="config__check" value="1"<?php checked( $this->_config->get_boolean( 'config.check' ), true ); Util_Ui::sealing_disabled( 'common.' ); ?> /> <?php Util_Ui::e_config_label( 'config.check' ) ?></label>
-					<br /><span class="description"><?php _e( 'Notify of server configuration errors, if this option is disabled, the server configuration for active settings can be found on the <a href="admin.php?page=w3tc_install">install</a> tab.', 'w3-total-cache' ); ?></span>
+					<p class="description"><?php _e( 'Notify of server configuration errors, if this option is disabled, the server configuration for active settings can be found on the <a href="admin.php?page=w3tc_install">install</a> tab.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<input type="hidden" name="file_locking" value="0"<?php Util_Ui::sealing_disabled( 'common.' ) ?>  />
 					<label><input type="checkbox" name="file_locking" value="1"<?php checked( $file_locking, true ); Util_Ui::sealing_disabled( 'common.' ) ?>  /> <?php _e( 'Enable file locking', 'w3-total-cache' ); ?></label>
-					<br /><span class="description"><?php _e( 'Not recommended for <acronym title="Network File System">NFS</acronym> systems.', 'w3-total-cache' ); ?></span>
+					<p class="description"><?php _e( 'Not recommended for <acronym title="Network File System">NFS</acronym> systems.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<input type="hidden" name="file_nfs" value="0" <?php Util_Ui::sealing_disabled( 'common.' ) ?> />
 					<label><input type="checkbox" name="file_nfs" value="1"<?php checked( $file_nfs, true ); Util_Ui::sealing_disabled( 'common.' ); ?> /> <?php _e( 'Optimize disk enhanced page and minify disk caching for <acronym title="Network File System">NFS</acronym>', 'w3-total-cache' ); ?></label>
-					<br /><span class="description"><?php _e( 'Try this option if your hosting environment uses a network based file system for a possible performance improvement.', 'w3-total-cache' ); ?></span>
+					<p class="description"><?php _e( 'Try this option if your hosting environment uses a network based file system for a possible performance improvement.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<?php
@@ -486,7 +485,7 @@ Util_Ui::config_item( array(
 		'key' => 'common.track_usage',
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Anonymously track usage to improve product quality', 'w3-total-cache' ),
-		'style' => '2'
+		'label_class' => 'w3tc_single_column'
 	) );
 ?>
 		</table>
@@ -510,13 +509,52 @@ Util_Ui::config_item( array(
 					<?php endif; ?>
 					<?php $this->checkbox_debug( 'cdn.debug' ) ?> <?php Util_Ui::e_config_label( 'cdn.debug' ) ?></label><br />
 					<?php $this->checkbox_debug( 'cdnfsd.debug' ) ?> <?php Util_Ui::e_config_label( 'cdnfsd.debug' ) ?></label><br />
-					<?php $this->checkbox_debug( 'varnish.debug' ) ?> <?php Util_Ui::e_config_label( 'varnish.debug' ) ?></label><br />
+					<?php $this->checkbox_debug( 'varnish.debug' ) ?> <?php Util_Ui::e_config_label( 'varnish.debug' ) ?></label>
 					<?php if ( Util_Environment::is_w3tc_pro() ): ?>
-					<?php $this->checkbox_debug( 'cluster.messagebus.debug' ) ?> <?php Util_Ui::e_config_label( 'cluster.messagebus.debug' ) ?></label><br />
-					<?php endif; ?>
-					<span class="description"><?php _e( 'If selected, detailed caching information will appear at the end of each page in a <acronym title="Hypertext Markup Language">HTML</acronym> comment. View a page\'s source code to review.', 'w3-total-cache' ); ?></span>
+						<br />
+						<?php $this->checkbox_debug( 'cluster.messagebus.debug' ) ?> <?php Util_Ui::e_config_label( 'cluster.messagebus.debug' ) ?></label>
+					<?php endif ?>
+					<p class="description"><?php _e( 'If selected, detailed caching information will appear at the end of each page in a <acronym title="Hypertext Markup Language">HTML</acronym> comment. View a page\'s source code to review.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
+			<tr>
+				<th><?php _e( 'Purge Logs:', 'w3-total-cache' ); ?></th>
+				<td>
+					<?php \W3TC\Util_Ui::pro_wrap_maybe_start() ?>
+
+					<?php
+					$this->checkbox_debug_pro( 'pgcache.debug_purge',
+						'Page Cache Purge Log',
+						' (<a href="?page=w3tc_general&view=purge_log&module=pagecache">view log</a>)' )
+					?>
+					<br />
+
+					<?php
+					$this->checkbox_debug_pro( 'dbcache.debug_purge',
+						'Database Cache Purge Log',
+						' (<a href="?page=w3tc_general&view=purge_log&module=dbcache">view log</a>)' )
+					?>
+					<br />
+
+					<?php
+					$this->checkbox_debug_pro( 'objectcache.debug_purge',
+						'Object Cache Purge Log',
+						' (<a href="?page=w3tc_general&view=purge_log&module=objectcache">view log</a>)' )
+					?>
+					<br />
+
+					<?php
+					\W3TC\Util_Ui::pro_wrap_description(
+						__( 'Purge Logs provide information on when your cache has been purged and what triggered it.', 'w3-total-cache' ),
+						array(
+							__( 'If you are troubleshooting a complex issue in which you are not sure why your cache is being cleared, Purge Logs can tell you why', 'w3-total-cache' )
+						)
+					);
+					?>
+					<?php \W3TC\Util_Ui::pro_wrap_maybe_end( 'debug_purge' ) ?>
+				</td>
+			</tr>
+
 		</table>
 
 		<?php Util_Ui::button_config_save( 'general_debug' ); ?>
@@ -534,21 +572,21 @@ Util_Ui::config_item( array(
 				<td>
 					<input type="file" name="config_file" />
 					<input type="submit" name="w3tc_config_import" class="w3tc-button-save button" value="<?php _e( 'Upload', 'w3-total-cache' ); ?>" />
-					<br /><span class="description"><?php _e( 'Upload and replace the active settings file.', 'w3-total-cache' ); ?></span>
+					<p class="description"><?php _e( 'Upload and replace the active settings file.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<tr>
 				<th><?php _e( 'Export configuration:', 'w3-total-cache' ); ?></th>
 				<td>
 					<input type="submit" name="w3tc_config_export" class="button" value="<?php _e( 'Download', 'w3-total-cache' ); ?>" />
-					<br /><span class="description"><?php _e( 'Download the active settings file.', 'w3-total-cache' ); ?></span>
+					<p class="description"><?php _e( 'Download the active settings file.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<tr>
 				<th><?php _e( 'Reset configuration:', 'w3-total-cache' ); ?></th>
 				<td>
 					<input type="submit" name="w3tc_config_reset" class="button" value="<?php _e( 'Restore Default Settings', 'w3-total-cache' ); ?>" />
-					<br /><span class="description"><?php _e( 'Revert all settings to the defaults. Any settings staged in preview mode will not be modified.', 'w3-total-cache' ); ?></span>
+					<p class="description"><?php _e( 'Revert all settings to the defaults. Any settings staged in preview mode will not be modified.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 		</table>
