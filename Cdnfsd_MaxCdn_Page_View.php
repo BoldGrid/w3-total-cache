@@ -9,10 +9,10 @@ $authorized = !empty( $key );
 
 ?>
 <form id="cdn_form" action="admin.php?page=w3tc_cdn" method="post">
-    <div class="metabox-holder">
-        <?php Util_Ui::postbox_header( __( 'Configuration: Full-Site Delivery', 'w3-total-cache' ),
+	<div class="metabox-holder">
+		<?php Util_Ui::postbox_header( __( 'Configuration: Full-Site Delivery', 'w3-total-cache' ),
 	'', 'configuration' ); ?>
-        <table class="form-table">
+		<table class="form-table">
 			<tr>
 				<th style="width: 300px;">
 					<label>
@@ -43,19 +43,17 @@ _e( 'Specify account credentials:',
 					<label><?php _e( '<acronym title="Content Delivery Network">CDN</acronym> <acronym title="Canonical Name">CNAME</acronym>:', 'w3-total-cache' ); ?></label>
 				</th>
 				<td class="w3tc_config_value_text">
-					<?php
-echo $config->get_string( 'cdnfsd.maxcdn.zone_domain' )
-?><br />
-					<span class="description">
+					<?php echo $config->get_string( 'cdnfsd.maxcdn.zone_domain' ) ?>
+					<p class="description">
 						The website domain must <acronym title="Canonical Name">CNAME</acronym> point to the
 						<acronym title="Content Delivery Network">CDN</acronym> domain
-					</span>
+					</p>
 				</td>
 			</tr>
 			<?php endif ?>
-        </table>
+		</table>
 
-        <?php Util_Ui::button_config_save( 'cdn_configuration' ); ?>
-        <?php Util_Ui::postbox_footer(); ?>
-    </div>
+		<?php Util_Ui::button_config_save( 'cdn_configuration' ); ?>
+		<?php Util_Ui::postbox_footer(); ?>
+	</div>
 </form>

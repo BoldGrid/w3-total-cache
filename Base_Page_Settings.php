@@ -157,12 +157,45 @@ class Base_Page_Settings {
 		echo '<label>';
 		echo '<input class="enabled" type="checkbox" id="' . $name .
 			'" name="' . $name . '" value="1" ';
-		checked( $this->_config->get_boolean( $option_id ), true );
+		checked( $this->_config->get_boolean( $option_id ) && $section_enabled, true );
 
 		if ( $disabled )
 			echo 'disabled="disabled" ';
 
 		echo ' />';
+	}
+
+	protected function checkbox_debug_pro( $option_id, $label, $label_pro ) {
+		if ( is_array( $option_id ) ) {
+			$section = $option_id[0];
+			$section_enabled = $this->_config->is_extension_active_frontend( $section );
+		} else {
+			$section = substr( $option_id, 0, strrpos( $option_id, '.' ) );
+			$section_enabled = $this->_config->get_boolean( $section . '.enabled' );
+		}
+
+		$is_pro = Util_Environment::is_w3tc_pro( $this->_config );
+		$disabled = $this->_config->is_sealed( $option_id ) || !$section_enabled ||
+			!$is_pro;
+		$name = Util_Ui::config_key_to_http_name( $option_id );
+
+		if ( !$disabled )
+			echo '<input type="hidden" name="' . $name . '" value="0" />';
+
+		echo '<label>';
+		echo '<input class="enabled" type="checkbox" id="' . $name .
+			'" name="' . $name . '" value="1" ';
+		checked( $this->_config->get_boolean( $option_id ) && $is_pro, true );
+
+		if ( $disabled )
+			echo 'disabled="disabled" ';
+
+		echo ' />';
+		echo esc_html( $label );
+		if ( $is_pro ) {
+			echo $label_pro;
+		}
+		echo '</label>';
 	}
 
 	protected function value_with_disabled( $option_id, $disabled,

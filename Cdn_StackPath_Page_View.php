@@ -10,8 +10,7 @@ if ( !defined( 'W3TC' ) )
 		<th style="width: 300px;"><label><?php _e( 'Create account:', 'w3-total-cache' )?></label></th>
 		<td>
 			<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL ) ?>" target="_blank" id="netdna-stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath.signUpAndSave', 'Sign Up Now and save!' ) ?></a>
-			<br />
-			<span class="description"><?php w3tc_e( 'cdn.stackpath.signUpAndSave.description', 'StackPath is a service that lets you speed up your site even more with W3 Total Cache. Sign up now and save!' )?></span>
+			<p class="description"><?php w3tc_e( 'cdn.stackpath.signUpAndSave.description', 'StackPath is a service that lets you speed up your site even more with W3 Total Cache. Sign up now and save!' )?></p>
 		</td>
 	</tr>
 <?php endif ?>
@@ -46,11 +45,11 @@ if ( !defined( 'W3TC' ) )
 		<label><?php _e( '<acronym title="Content Delivery Network">CDN</acronym> <acronym title="HyperText Transfer Protocol">HTTP</acronym> <acronym title="Canonical Name">CNAME</acronym>:', 'w3-total-cache' ); ?></label>
 	</th>
 	<td class="w3tc_config_value_text">
-		<?php echo htmlspecialchars( $http_domain ) ?><br />
-		<span class="description">
+		<?php echo htmlspecialchars( $http_domain ) ?>
+		<p class="description">
 			This website domain has to be <acronym title="Canonical Name">CNAME</acronym> pointing to this
 			<acronym title="Content Delivery Network">CDN</acronym> domain for <acronym title="HyperText Transfer Protocol">HTTP</acronym> requests
-		</span>
+		</p>
 	</td>
 </tr>
 <?php endif ?>
@@ -60,11 +59,11 @@ if ( !defined( 'W3TC' ) )
 		<label><?php _e( '<acronym title="Content Delivery Network">CDN</acronym> <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym> <acronym title="Canonical Name">CNAME</acronym>:', 'w3-total-cache' ); ?></label>
 	</th>
 	<td class="w3tc_config_value_text">
-		<?php echo htmlspecialchars( $https_domain ) ?><br />
-		<span class="description">
+		<?php echo htmlspecialchars( $https_domain ) ?>
+		<p class="description">
 			This website domain has to be <acronym title="Canonical Name">CNAME</acronym> pointing to this
 			<acronym title="Content Delivery Network">CDN</acronym> domain for <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym> requests
-		</span>
+		</p>
 	</td>
 </tr>
 <?php endif ?>
@@ -77,14 +76,14 @@ if ( !defined( 'W3TC' ) )
 			<option value="enabled"<?php selected( $config->get_string( 'cdn.stackpath.ssl' ), 'enabled' ); ?>><?php _e( 'Enabled (always use <acronym title="Secure Sockets Layer">SSL</acronym>)', 'w3-total-cache' )?></option>
 			<option value="disabled"<?php selected( $config->get_string( 'cdn.stackpath.ssl' ), 'disabled' ); ?>><?php _e( 'Disabled (always use <acronym title="HyperText Transfer Protocol">HTTP</acronym>)', 'w3-total-cache' )?></option>
 		</select>
-		<br /><span class="description"><?php _e( 'Some <acronym title="Content Delivery Network">CDN</acronym> providers may or may not support <acronym title="Secure Sockets Layer">SSL</acronym>, contact your vendor for more information.', 'w3-total-cache' )?></span>
+		<p class="description"><?php _e( 'Some <acronym title="Content Delivery Network">CDN</acronym> providers may or may not support <acronym title="Secure Sockets Layer">SSL</acronym>, contact your vendor for more information.', 'w3-total-cache' )?></p>
 	</td>
 </tr>
 <tr>
 	<th><?php _e( 'Replace site\'s hostname with:', 'w3-total-cache' )?></th>
 	<td>
 		<?php $cnames = $config->get_array( 'cdn.stackpath.domain' ); include W3TC_INC_DIR . '/options/cdn/common/cnames.php'; ?>
-		<br /><span class="description"><?php _e( 'Enter the hostname provided by your <acronym title="Content Delivery Network">CDN</acronym> provider, this value will replace your site\'s hostname in the <acronym title="Hypertext Markup Language">HTML</acronym>.', 'w3-total-cache' )?></span>
+		<p class="description"><?php _e( 'Enter the hostname provided by your <acronym title="Content Delivery Network">CDN</acronym> provider, this value will replace your site\'s hostname in the <acronym title="Hypertext Markup Language">HTML</acronym>.', 'w3-total-cache' )?></p>
 	</td>
 </tr>
 <tr>

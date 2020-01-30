@@ -46,6 +46,11 @@ class Util_Request {
 		return ( $trim ) ? trim( $value ) : $value;
 	}
 
+	static function get_label( $key, $default = '' ) {
+		$v = self::get_string( $key, $default);
+		return preg_replace('/[^A-Za-z0-9_\\-]/', '', $v);
+	}
+
 	/**
 	 * Returns integer value
 	 *

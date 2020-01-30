@@ -6,16 +6,16 @@ if ( !defined( 'W3TC' ) )
 
 ?>
 <p id="w3tc-options-menu">
-    Jump to:
-    <a href="admin.php?page=w3tc_general"><?php _e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-    <a href="admin.php?page=w3tc_extensions"><?php _e( 'Extensions', 'w3-total-cache' ); ?></a> |
-    <a href="#header"><?php _e( 'Header', 'w3-total-cache' ); ?></a> |
-    <a href="#content"><?php _e( 'Content', 'w3-total-cache' ); ?></a> |
-    <a href="#sidebar"><?php _e( 'Sidebar', 'w3-total-cache' ); ?></a> |
-    <a href="#exclusions"><?php _e( 'Exclusions', 'w3-total-cache' ); ?></a>
+	Jump to:
+	<a href="admin.php?page=w3tc_general"><?php _e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+	<a href="admin.php?page=w3tc_extensions"><?php _e( 'Extensions', 'w3-total-cache' ); ?></a> |
+	<a href="#header"><?php _e( 'Header', 'w3-total-cache' ); ?></a> |
+	<a href="#content"><?php _e( 'Content', 'w3-total-cache' ); ?></a> |
+	<a href="#sidebar"><?php _e( 'Sidebar', 'w3-total-cache' ); ?></a> |
+	<a href="#exclusions"><?php _e( 'Exclusions', 'w3-total-cache' ); ?></a>
 </p>
 <p>
-    Genesis extension is currently <?php
+	Genesis extension is currently <?php
 if ( $config->is_extension_active_frontend( 'genesis.theme' ) )
 	echo '<span class="w3tc-enabled">enabled</span>';
 else
@@ -24,9 +24,9 @@ else
 <p>
 
 <div class="metabox-holder">
-    <?php Util_Ui::postbox_header( __( 'Header', 'w3-total-cache' ), '', 'header' ); ?>
-    <table class="form-table">
-        <?php
+	<?php Util_Ui::postbox_header( __( 'Header', 'w3-total-cache' ), '', 'header' ); ?>
+	<table class="form-table">
+		<?php
 Util_Ui::config_item( array(
 		'key' => array( 'genesis.theme', 'wp_head' ),
 		'control' => 'checkbox',
@@ -57,15 +57,15 @@ Util_Ui::config_item( array(
 	) );
 
 ?>
-    </table>
-    <?php Util_Ui::button_config_save( 'extension_genesis_header' ); ?>
-    <?php Util_Ui::postbox_footer(); ?>
+	</table>
+	<?php Util_Ui::button_config_save( 'extension_genesis_header' ); ?>
+	<?php Util_Ui::postbox_footer(); ?>
 
 
 
-    <?php Util_Ui::postbox_header( __( 'Content', 'w3-total-cache' ), '', 'content' ); ?>
-    <table class="form-table">
-        <?php
+	<?php Util_Ui::postbox_header( __( 'Content', 'w3-total-cache' ), '', 'content' ); ?>
+	<table class="form-table">
+		<?php
 Util_Ui::config_item( array(
 		'key' => array( 'genesis.theme', 'loop_front_page' ),
 		'control' => 'checkbox',
@@ -121,15 +121,15 @@ Util_Ui::config_item( array(
 		'description' => __( 'Caches the ping loop, pagination is supported. One per line.', 'w3-total-cache' )
 	) );
 ?>
-    </table>
-    <?php Util_Ui::button_config_save( 'extension_genesis_content' ); ?>
-    <?php Util_Ui::postbox_footer(); ?>
+	</table>
+	<?php Util_Ui::button_config_save( 'extension_genesis_content' ); ?>
+	<?php Util_Ui::postbox_footer(); ?>
 
 
 
-    <?php Util_Ui::postbox_header( __( 'Sidebar', 'w3-total-cache' ), '', 'sidebar' ); ?>
-    <table class="form-table">
-        <?php
+	<?php Util_Ui::postbox_header( __( 'Sidebar', 'w3-total-cache' ), '', 'sidebar' ); ?>
+	<table class="form-table">
+		<?php
 Util_Ui::config_item( array(
 		'key' => array( 'genesis.theme', 'sidebar' ),
 		'control' => 'checkbox',
@@ -144,15 +144,15 @@ Util_Ui::config_item( array(
 		'description' => __( 'List of pages that should not have sidebar cached. Specify one page / post per line. This area supports regular expressions.', 'w3-total-cache' )
 	) );
 ?>
-    </table>
-    <?php Util_Ui::button_config_save( 'extension_genesis_sidebar' ); ?>
-    <?php Util_Ui::postbox_footer(); ?>
+	</table>
+	<?php Util_Ui::button_config_save( 'extension_genesis_sidebar' ); ?>
+	<?php Util_Ui::postbox_footer(); ?>
 
 
 
-    <?php Util_Ui::postbox_header( __( 'Footer', 'w3-total-cache' ) ); ?>
-    <table class="form-table">
-        <?php
+	<?php Util_Ui::postbox_header( __( 'Footer', 'w3-total-cache' ) ); ?>
+	<table class="form-table">
+		<?php
 Util_Ui::config_item( array(
 		'key' => array( 'genesis.theme', 'genesis_footer' ),
 		'control' => 'checkbox',
@@ -175,17 +175,17 @@ Util_Ui::config_item( array(
 		'description' => 'Don\'t use fragment cache with the following hooks and for the specified user roles.'
 	) );
 ?>
-    </table>
-    <?php Util_Ui::button_config_save( 'extension_genesis_footer' ); ?>
-    <?php Util_Ui::postbox_footer(); ?>
+	</table>
+	<?php Util_Ui::button_config_save( 'extension_genesis_footer' ); ?>
+	<?php Util_Ui::postbox_footer(); ?>
 
 
-    <?php Util_Ui::postbox_header( __( 'Exclusions', 'w3-total-cache' ), '', 'exclusions' ); ?>
-    <table class="form-table">
-        <tr>
-            <td><?php _e( 'Select hooks', 'w3-total-cache' ) ?></td>
-            <td>
-                <?php
+	<?php Util_Ui::postbox_header( __( 'Exclusions', 'w3-total-cache' ), '', 'exclusions' ); ?>
+	<table class="form-table">
+		<tr>
+			<td><?php _e( 'Select hooks', 'w3-total-cache' ) ?></td>
+			<td>
+				<?php
 
 $saved_hooks = $config->get_array( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
 $name = Util_Ui::config_key_to_http_name( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
@@ -203,47 +203,45 @@ $hooks = array(
 );
 ?>
 
-                <input <?php disabled( $config->is_sealed( 'genesis.theme' ) ) ?>
-                    type="hidden" name="<?php echo esc_attr( $name )?>" value="" />
-                <?php foreach ( $hooks as $hook => $hook_label ) : ?>
-                    <input <?php disabled( $config->is_sealed( 'genesis.theme' ) ) ?>
-                        type="checkbox" name="<?php echo esc_attr( $name )?>[]"
-                        value="<?php echo $hook ?>"
-                        <?php checked( in_array( $hook, $saved_hooks ) ) ?>
-                        id="role_<?php echo $hook ?>" />
-                    <label for="role_<?php echo $hook ?>"><?php echo $hook_label ?></label><br />
-                <?php endforeach; ?>
+				<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ) ?>
+					type="hidden" name="<?php echo esc_attr( $name )?>" value="" />
+				<?php foreach ( $hooks as $hook => $hook_label ) : ?>
+					<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ) ?>
+						type="checkbox" name="<?php echo esc_attr( $name )?>[]"
+						value="<?php echo $hook ?>"
+						<?php checked( in_array( $hook, $saved_hooks ) ) ?>
+						id="role_<?php echo $hook ?>" />
+					<label for="role_<?php echo $hook ?>"><?php echo $hook_label ?></label><br />
+				<?php endforeach; ?>
 
-                <br />
-                <span class="description">
-                    <?php _e( 'Select hooks from the list that should not be cached if user belongs to any of the roles selected below.', 'w3-total-cache' ) ?>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td><?php _e( 'Select roles:', 'w3-total-cache' ) ?></td>
-            <td>
-                <?php
+				<p class="description">
+					<?php _e( 'Select hooks from the list that should not be cached if user belongs to any of the roles selected below.', 'w3-total-cache' ) ?>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td><?php _e( 'Select roles:', 'w3-total-cache' ) ?></td>
+			<td>
+				<?php
 $saved_roles = $config->get_array( array( 'genesis.theme', 'reject_roles' ) );
 $name = Util_Ui::config_key_to_http_name( array( 'genesis.theme', 'reject_roles' ) );
 
 ?>
-                <input type="hidden" name="<?php echo esc_attr( $name )?>" value="" />
-                <?php foreach ( get_editable_roles() as $role_name => $role_data ) : ?>
-                    <input <?php disabled( $config->is_sealed( 'genesis.theme' ) ) ?>
-                        type="checkbox"
-                        name="<?php echo esc_attr( $name )?>[]"
-                        value="<?php echo $role_name ?>" <?php checked( in_array( $role_name, $saved_roles ) ) ?> id="role_<?php echo $role_name ?>" />
-                    <label for="role_<?php echo $role_name ?>"><?php echo $role_data['name'] ?></label>
-                <?php endforeach; ?>
-                <br />
-                <span class="description">
-                    <?php _e( 'Select user roles that should not use the fragment cache.', 'w3-total-cache' ) ?>
-                </span>
-            </td>
-        </tr>
-    </table>
-    <?php Util_Ui::button_config_save( 'extension_genesis_exclusions' ); ?>
-    <?php Util_Ui::postbox_footer(); ?>
+				<input type="hidden" name="<?php echo esc_attr( $name )?>" value="" />
+				<?php foreach ( get_editable_roles() as $role_name => $role_data ) : ?>
+					<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ) ?>
+						type="checkbox"
+						name="<?php echo esc_attr( $name )?>[]"
+						value="<?php echo $role_name ?>" <?php checked( in_array( $role_name, $saved_roles ) ) ?> id="role_<?php echo $role_name ?>" />
+					<label for="role_<?php echo $role_name ?>"><?php echo $role_data['name'] ?></label>
+				<?php endforeach; ?>
+				<p class="description">
+					<?php _e( 'Select user roles that should not use the fragment cache.', 'w3-total-cache' ) ?>
+				</p>
+			</td>
+		</tr>
+	</table>
+	<?php Util_Ui::button_config_save( 'extension_genesis_exclusions' ); ?>
+	<?php Util_Ui::postbox_footer(); ?>
 
 </div>
