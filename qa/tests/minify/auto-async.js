@@ -82,8 +82,5 @@ describe('', function() {
 		await page.waitForFunction(() => {
 			return document.querySelector('#js5').textContent == 'passed'
 		});
-		await page.waitForFunction(() => {
-			return document.querySelector('#js6').textContent == 'passed'
-		});
 	});
 });
