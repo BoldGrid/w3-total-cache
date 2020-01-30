@@ -74,10 +74,9 @@ if ( !defined( 'W3TC' ) )
 							<textarea id="cookiegroup_<?php echo esc_attr( $group ); ?>_cookies"
 								name="cookiegroups[<?php echo esc_attr( $group ); ?>][cookies]"
 								rows="10" cols="50" <?php disabled( $groups['disabled'] ) ?>><?php echo esc_textarea( implode( "\r\n", (array) $group_config['cookies'] ) ); ?></textarea>
-							<br />
-							<span class="description">
+							<p class="description">
 								<?php _e( 'Specify the cookies for this group. Values like \'cookie\', \'cookie=value\', and cookie[a-z]+=value[a-z]+ are supported. Remember to escape special characters like spaces, dots or dashes with a backslash. Regular expressions are also supported.', 'w3-total-cache' ); ?>
-							</span>
+							</p>
 						</td>
 					</tr>
 				</table>

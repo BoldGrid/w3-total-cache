@@ -7,7 +7,7 @@ if ( !defined( 'W3TC' ) )
 ?>
 <tr>
 	<th colspan="2">
-		<span class="description"><?php _e( 'We recommend that you use <a href="http://docs.amazonwebservices.com/IAM/latest/UserGuide/AccessPolicyLanguage_KeyConcepts.html" target="_blank"><acronym title="AWS Identity and Access Management">IAM</acronym></a> to create a new policy for <acronym title="Amazon Web Services">AWS</acronym> services that have limited permissions. A helpful tool: <a href="http://awspolicygen.s3.amazonaws.com/policygen.html" target="_blank"><acronym title="Amazon Web Services">AWS</acronym> Policy Generator</a>', 'w3-total-cache' ); ?></span>
+		<p class="description"><?php _e( 'We recommend that you use <a href="http://docs.amazonwebservices.com/IAM/latest/UserGuide/AccessPolicyLanguage_KeyConcepts.html" target="_blank"><acronym title="AWS Identity and Access Management">IAM</acronym></a> to create a new policy for <acronym title="Amazon Web Services">AWS</acronym> services that have limited permissions. A helpful tool: <a href="http://awspolicygen.s3.amazonaws.com/policygen.html" target="_blank"><acronym title="Amazon Web Services">AWS</acronym> Policy Generator</a>', 'w3-total-cache' ); ?></p>
 	</th>
 </tr>
 <tr>
@@ -41,7 +41,7 @@ if ( !defined( 'W3TC' ) )
 			<option value="enabled"<?php selected( $this->_config->get_string( 'cdn.cf2.ssl' ), 'enabled' ); ?>><?php _e( 'Enabled (always use SSL)', 'w3-total-cache' ); ?></option>
 			<option value="disabled"<?php selected( $this->_config->get_string( 'cdn.cf2.ssl' ), 'disabled' ); ?>><?php _e( 'Disabled (always use HTTP)', 'w3-total-cache' ); ?></option>
 		</select>
-		<br /><span class="description"><?php _e( 'Some <acronym title="Content Delivery Network">CDN</acronym> providers may or may not support <acronym title="Secure Sockets Layer">SSL</acronym>, contact your vendor for more information.', 'w3-total-cache' ); ?></span>
+		<p class="description"><?php _e( 'Some <acronym title="Content Delivery Network">CDN</acronym> providers may or may not support <acronym title="Secure Sockets Layer">SSL</acronym>, contact your vendor for more information.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>
@@ -50,7 +50,7 @@ if ( !defined( 'W3TC' ) )
 		<input id="cdn_cf2_id" type="text" name="cdn__cf2__id"
 					   <?php Util_Ui::sealing_disabled( 'cdn.' ) ?> value="<?php echo esc_attr( $this->_config->get_string( 'cdn.cf2.id' ) ); ?>" size="18" style="text-align: right;" />.cloudfront.net or <acronym title="Canonical Name">CNAME</acronym>:
 		<?php $cnames = $this->_config->get_array( 'cdn.cf2.cname' ); include W3TC_INC_DIR . '/options/cdn/common/cnames.php'; ?>
-		<br /><span class="description"><?php _e( 'If you have already added a <a href="http://docs.amazonwebservices.com/AmazonCloudFront/latest/DeveloperGuide/index.html?CNAMEs.html" target="_blank"><acronym title="Canonical Name">CNAME</acronym></a> to your <acronym title="Domain Name System">DNS</acronym> Zone, enter it here.', 'w3-total-cache' ); ?></span>
+		<p class="description"><?php _e( 'If you have already added a <a href="http://docs.amazonwebservices.com/AmazonCloudFront/latest/DeveloperGuide/index.html?CNAMEs.html" target="_blank"><acronym title="Canonical Name">CNAME</acronym></a> to your <acronym title="Domain Name System">DNS</acronym> Zone, enter it here.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>
