@@ -1,19 +1,19 @@
 === Plugin Name ===
-Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle
-Tags: seo, cache, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
+Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221
+Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.3
 Stable tag: 0.13.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Search Engine (SEO) &amp; Performance Optimization (WPO) via caching. Integrated caching: CDN, Minify, Page, Object, Fragment, Database support.
+Search Engine (SEO) &amp; Performance Optimization (WPO) via caching. Integrated caching: CDN, Page, Minify, Object, Fragment, Database support. 
 
 == Description ==
 
-W3 Total Cache improves the SEO and user experience of your site by increasing website performance, reducing load times via features like content delivery network (CDN) integration and the latest best practices.
+W3 Total Cache (W3TC) improves the SEO and user experience of your site by increasing website performance and reducing load times by leveraging features like content delivery network (CDN) integration and the latest best practices.
 
-The **only** web host agnostic Web Performance Optimization (WPO) framework for WordPress trusted by millions of publishers, web developers, and web hosts worldwide for more than a decade.
+W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framework for WordPress trusted by millions of publishers, web developers, and web hosts worldwide for more than a decade. It is the total performance solution for optimizing your WordPress Website. 
 
 An inside look:
 
@@ -28,7 +28,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Optimized progressive render: pages start rendering quickly and can be interacted with more quickly
 * Reduced page load time: increased visitor time on site; visitors view more pages
 * Improved web server performance; sustain high traffic periods
-* Up to 80% bandwidth savings via minify and HTTP compression of HTML, CSS, JavaScript and feeds
+* Up to 80% bandwidth savings when you minify HTML, minify CSS and minify JS files. 
 
 *KEY FEATURES*
 
@@ -45,20 +45,24 @@ https://youtu.be/7AsNSSrZq4Y
 * Caching of objects in memory or on disk
 * Caching of fragments in memory or on disk
 * Caching methods include local Disk, Redis, Memcached, APC, APCu, eAccelerator, XCache, and WinCache
-* Minification of posts and pages and feeds
-* Minification of inline, embedded or 3rd party JavaScript (with automated updates)
-* Minification of inline, embedded or 3rd party CSS (with automated updates)
+* Minify CSS, Minify JavaScript and Minify HTML with granular control
+* Minification of posts and pages and RSS feeds
+* Minification of inline, embedded or 3rd party JavaScript with automated updates to assets
+* Minification of inline, embedded or 3rd party CSS with automated updates to assets
+* Defer non critical CSS and Javascript for rendering pages faster than ever before
+* Defer offscreen images using Lazy Load to improve the user experience
 * Browser caching using cache-control, future expire headers and entity tags (ETag) with "cache-busting"
 * JavaScript grouping by template (home page, post page etc) with embed location control
 * Non-blocking JavaScript embedding
 * Import post attachments directly into the Media Library (and CDN)
+* Leverage our multiple CDN integrations to optimize images
 * WP-CLI support for cache purging, query string updating and more
-* Various security features
-* Caching statistics for performance insights
-* Extension framework for customization or extensibility e.g. New Relic, Cloudflare, WPML and more
+* Various security features to help ensure website safety
+* Caching statistics for performance insights of any enabled feature
+* Extension framework for customization or extensibility for Cloudflare, WPML and much more
 * Reverse proxy integration via Nginx or Varnish
 
-Improve the user experience for your readers without having to change WordPress, your theme, your plugins or how you produce your content.
+Speed up your site tremendously, and improve the user experience for your readers without having to change WordPress, your theme, your plugins or how you produce your content. 
 
 == Frequently Asked Questions ==
 
