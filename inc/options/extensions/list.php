@@ -121,8 +121,7 @@ if ( $links ) {
 						<?php endif ?>
 
 						<?php if ( !empty( $meta['requirements'] ) ): ?>
-							<br />
-							<span class="description"><?php printf( __( 'Requirements: %s', 'w3-total-cache' ), apply_filters( "w3tc_extension_requirements-{$extension}", $meta['requirements'] ) ) ?></span>
+							<p class="description"><?php printf( __( 'Requirements: %s', 'w3-total-cache' ), apply_filters( "w3tc_extension_requirements-{$extension}", $meta['requirements'] ) ) ?></p>
 							<?php do_action( "w3tc_extension_requirements-{$extension}" ) ?>
 						<?php endif ?>
 					</p>

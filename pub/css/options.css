@@ -501,11 +501,15 @@ th.w3tc_extensions_manage_column_check {
     outline: none;
 }
 
+.w3tc-gopro-more .dashicons {
+	display: inline;
+	font-size: inherit;
+}
+
 .w3tc-gopro-excerpt {
 	display: block;
 }
 .w3tc-gopro-description {
-	font-size: 13px;
 	display: block;
 	max-height: 0px;
 	transition: max-height 0.5s ease-out;

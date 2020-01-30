@@ -41,9 +41,7 @@ class Extension_Genesis_Plugin_Admin {
 			'extension_id' => 'genesis.theme',
 			'pro_feature' => true,
 			'pro_excerpt' => __( 'Increase the performance of themes powered by the Genesis Theme Framework by up to 60%.', 'w3-total-cache'),
-			'pro_description' => array(
-				__( 'Reduce the response time of themes powered by the Genesis Theme Framework by up to 60%.', 'w3-total-cache')
-			),
+			'pro_description' => array(),
 			'settings_exists' => true,
 			'version' => '0.1',
 			'enabled' => empty( $requirements ),
