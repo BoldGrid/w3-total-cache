@@ -283,8 +283,13 @@ class Minify_AutoJs {
 		}
 
 		// build minified script tag
-		$embed_type = ( $sync_type == 'sync' ?
-			$this->embed_type[$this->group_type] : $sync_type );
+		if ( $sync_type == 'sync' ) {
+			$embed_type = $this->embed_type[$this->group_type];
+		} elseif ( $sync_type == 'async' ) {
+			$embed_type = 'nb-async';
+		} elseif ( $sync_type == 'defer' ) {
+			$embed_type = 'nb-defer';
+		}
 
 		$data = array(
 			'files_to_minify' => $this->files_to_minify[$sync_type]['files'],
@@ -320,6 +325,12 @@ class Minify_AutoJs {
 			// replace
 			$this->buffer = substr_replace( $this->buffer,
 				$data['script_to_embed_body'], $data['embed_pos'], 0 );
+
+			foreach ( $this->files_to_minify as $key => $i ) {
+				if ( $key != $sync_type && $i['embed_pos'] >= $data['embed_pos'] ) {
+					$this->files_to_minify[$key]['embed_pos'] += strlen( $data['script_to_embed_body'] );
+				}
+			}
 		}
 
 		$this->files_to_minify[$sync_type] = array(
