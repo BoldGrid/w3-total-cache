@@ -504,6 +504,7 @@ th.w3tc_extensions_manage_column_check {
 .w3tc-gopro-more .dashicons {
 	display: inline;
 	font-size: inherit;
+	line-height: inherit;
 }
 
 .w3tc-gopro-excerpt {
