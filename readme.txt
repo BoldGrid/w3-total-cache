@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.3
-Stable tag: 0.12.0
+Stable tag: 0.13.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
