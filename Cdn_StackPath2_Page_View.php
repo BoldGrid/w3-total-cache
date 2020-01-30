@@ -9,7 +9,18 @@ if ( !defined( 'W3TC' ) )
 	<tr>
 		<th style="width: 300px;"><label><?php _e( 'Create account:', 'w3-total-cache' )?></label></th>
 		<td>
-			<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL )?>" target="_blank" id="netdna-stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave', 'Sign Up Now and save!' ) ?></a>
+			<p class="notice notice-error">
+				<?php w3tc_e( 'cdn.stackpath.widget.v2.no_cdn',
+				'W3 Total Cache has detected that you do not have a <acronym title="Content Delivery Network">CDN</acronym> configured' ) ?>
+			</p>
+
+			<p>
+				Enhance your website Performance with StackPath's CDN services. StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $10 a month.
+			</p>
+			<p>New customers are eligible for a free trial.</p>
+			<p>
+				<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL )?>" target="_blank" id="netdna-stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave', 'Sign Up Now and save!' ) ?></a>
+			</p>
 			<p class="description"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave.description', 'StackPath is a service that lets you speed up your site even more with W3 Total Cache. Sign up now to recieve a special offer!' ) ?></p>
 		</td>
 	</tr>
@@ -24,17 +35,25 @@ if ( !defined( 'W3TC' ) )
 		</label>
 	</th>
 	<td>
-		<?php if ( $authorized ): ?>
-			<input class="w3tc_cdn_stackpath2_authorize button-primary"
-				type="button"
-				value="<?php _e( 'Reauthorize', 'w3-total-cache' ); ?>"
-				/>
-		<?php else: ?>
-			<input class="w3tc_cdn_stackpath2_authorize button-primary"
-				type="button"
-				value="<?php _e( 'Authorize', 'w3-total-cache' ); ?>"
-				/>
-		<?php endif ?>
+		<p>
+			If you're an existing StackPath customer, enable CDN and Authorize.
+			If you need help configuring your CDN, we also offer Premium Services to assist you.
+		</p>
+
+		<p>
+			<?php if ( $authorized ): ?>
+				<input class="w3tc_cdn_stackpath2_authorize button-primary"
+					type="button"
+					value="<?php _e( 'Reauthorize', 'w3-total-cache' ); ?>"
+					/>
+			<?php else: ?>
+				<input class="w3tc_cdn_stackpath2_authorize button-primary"
+					type="button"
+					value="<?php _e( 'Authorize', 'w3-total-cache' ); ?>"
+					/>
+			<?php endif ?>
+			<a class="button" href="<?php echo wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), 'w3tc' )?>"><?php _e( 'Premium Services', 'w3-total-cache' )?></a>
+		</p>
 	</td>
 </tr>
 
