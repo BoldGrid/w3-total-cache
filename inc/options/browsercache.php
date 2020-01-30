@@ -38,7 +38,7 @@ $security_session_values = array(
 					<input id="browsercache_last_modified" type="checkbox" name="expires"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 						   value="1"<?php checked( $browsercache_last_modified, true ) ?> /> <?php _e( 'Set Last-Modified header', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -47,14 +47,14 @@ $security_session_values = array(
 						<input id="browsercache_expires" type="checkbox" name="expires"
 							<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 							value="1"<?php checked( $browsercache_expires, true ) ?> /> <?php _e( 'Set expires header', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<label><input id="browsercache_cache_control" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?> name="cache_control" value="1"<?php checked( $browsercache_cache_control, true ) ?> /> <?php _e( 'Set cache control header', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -62,14 +62,14 @@ $security_session_values = array(
 					<label><input id="browsercache_etag" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 						name="etag" value="1"<?php checked( $browsercache_etag, true ) ?> /> <?php _e( 'Set entity tag (ETag)', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<label><input id="browsercache_w3tc" type="checkbox" name="w3tc"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?> value="1" <?php checked( $browsercache_w3tc, true ) ?> /> <?php _e( 'Set W3 Total Cache header', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -77,7 +77,7 @@ $security_session_values = array(
 					<label><input id="browsercache_compression" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 						name="compression"<?php checked( $browsercache_compression, true ) ?> value="1" /> <?php _e( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (gzip) compression', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -86,7 +86,7 @@ $security_session_values = array(
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 						<?php if ( !function_exists( 'brotli_compress' ) ) echo 'disabled="disabled"' ?>
 						name="compression"<?php checked( $browsercache_brotli, true ) ?> value="1" /> <?php _e( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> (brotli) compression', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -94,7 +94,7 @@ $security_session_values = array(
 					<label><input id="browsercache_replace" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 						name="replace" value="1"<?php checked( $browsercache_replace, true ) ?> /> <?php _e( 'Prevent caching of objects after settings change', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -102,7 +102,7 @@ $security_session_values = array(
 					<label><input id="browsercache_querystring" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 						name="querystring" value="1"<?php checked( $browsercache_querystring, true ) ?> /> <?php _e( 'Remove query strings from static resources', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Resources with a "?" in the <acronym title="Uniform Resource Locator">URL</acronym> are not cached by some proxy caching servers.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Resources with a "?" in the <acronym title="Uniform Resource Locator">URL</acronym> are not cached by some proxy caching servers.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -110,8 +110,8 @@ $security_session_values = array(
 				<td>
 					<textarea id="browsercache_replace_exceptions"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
-							  name="browsercache__replace__exceptions" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'browsercache.replace.exceptions' ) ) ) ?></textarea><br />
-					<span class="description"><?php _e( 'Do not add the prevent caching query string to the specified <acronym title="Uniform Resource Identifier">URI</acronym>s. Supports regular expressions.', 'w3-total-cache' ) ?></span>
+							  name="browsercache__replace__exceptions" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'browsercache.replace.exceptions' ) ) ) ?></textarea>
+					<p class="description"><?php _e( 'Do not add the prevent caching query string to the specified <acronym title="Uniform Resource Identifier">URI</acronym>s. Supports regular expressions.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -119,14 +119,14 @@ $security_session_values = array(
 					<label><input id="browsercache_nocookies" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 						name="nocookies" value="1"<?php checked( $browsercache_nocookies, true ) ?> /> <?php _e( "Don't set cookies for static files", 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Removes Set-Cookie header for responses.' ) ?></span>
+					<p class="description"><?php _e( 'Removes Set-Cookie header for responses.' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.no404wp', !Util_Rule::can_check_rules() ) ?> <?php Util_Ui::e_config_label( 'browsercache.no404wp' ) ?></label>
-					<br /><span class="description"><?php _e( 'Reduce server load by allowing the web server to handle 404 (not found) errors for static files (images etc).', 'w3-total-cache' ) ?></span>
-					<br /><span class="description"><?php _e( 'If enabled - you may get 404 File Not Found response for some files generated on-the-fly by WordPress plugins. You may add those file <acronym title="Uniform Resource Identifier">URI</acronym>s to 404 error exception list below to avoid that.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Reduce server load by allowing the web server to handle 404 (not found) errors for static files (images etc).', 'w3-total-cache' ) ?></p>
+					<p class="description"><?php _e( 'If enabled - you may get 404 File Not Found response for some files generated on-the-fly by WordPress plugins. You may add those file <acronym title="Uniform Resource Identifier">URI</acronym>s to 404 error exception list below to avoid that.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -134,8 +134,8 @@ $security_session_values = array(
 				<td>
 					<textarea id="browsercache_no404wp_exceptions"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
-						name="browsercache__no404wp__exceptions" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'browsercache.no404wp.exceptions' ) ) ) ?></textarea><br />
-					<span class="description"><?php _e( 'Never process 404 (not found) events for the specified <acronym title="Uniform Resource Identifier">URI</acronym>s.', 'w3-total-cache' ) ?></span>
+						name="browsercache__no404wp__exceptions" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'browsercache.no404wp.exceptions' ) ) ) ?></textarea>
+					<p class="description"><?php _e( 'Never process 404 (not found) events for the specified <acronym title="Uniform Resource Identifier">URI</acronym>s.', 'w3-total-cache' ) ?></p>
 				</td>
 			</tr>
 			<?php
@@ -145,7 +145,7 @@ $security_session_values = array(
 					'control' => 'checkbox',
 					'checkbox_label' => __( 'Rewrite <acronym title="Universal Resource Locator">URL</acronym> structure of objects', 'w3-total-cache' ),
 					'description' => __( 'Generate unique <acronym title="Universal Resource Indicator">URI</acronym> for each file protected from caching by browser.', 'w3-total-cache' ),
-					'style' => '2'
+					'label_class' => 'w3tc_single_column'
 				) );
 			?>
 		</table>
@@ -160,13 +160,13 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.last_modified' ) ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.last_modified' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.expires' ) ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.expires' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -182,7 +182,7 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.cache.control' ) ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.cache.control' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -205,50 +205,50 @@ $security_session_values = array(
 						<option value="no_cache"<?php selected( $value, 'no_cache' ) ?>><?php _e( 'don\'t cache ("max-age=0, private, no-store, no-cache, must-revalidate")', 'w3-total-cache' ) ?></option>
 					</select>
 					<?php if ( $is_nginx && $cssjs_expires ) : ?>
-						<br /><span class="description"><?php _e( 'The Expires header already sets the max-age.', 'w3-total-cache' ) ?></span>
+						<p class="description"><?php _e( 'The Expires header already sets the max-age.', 'w3-total-cache' ) ?></p>
 					<?php endif; ?>
 				</td>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.etag' ) ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.etag' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.w3tc' ) ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.w3tc' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.compression' ) ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.compression' ) ?>  </label>
-					<br /><span class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.brotli', !function_exists( 'brotli_compress' ) ) ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.brotli' ) ?>  </label>
-					<br /><span class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.replace' ) ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.replace' ) ?></label>
-					<br /><span class="description"><?php _e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.querystring' ) ?> <?php _e( 'Remove query strings from static resources', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Resources with a "?" in the <acronym title="Uniform Resource Locator">URL</acronym> are not cached by some proxy caching servers.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Resources with a "?" in the <acronym title="Uniform Resource Locator">URL</acronym> are not cached by some proxy caching servers.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.nocookies' ) ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.nocookies' ) ?></label>
-					<br /><span class="description"><?php _e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 		</table>
@@ -263,13 +263,13 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.last_modified' ) ?> <?php Util_Ui::e_config_label( 'browsercache.html.last_modified' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.expires' ) ?> <?php Util_Ui::e_config_label( 'browsercache.html.expires' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -286,7 +286,7 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.cache.control' ) ?> <?php Util_Ui::e_config_label( 'browsercache.html.cache.control' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -308,32 +308,32 @@ $security_session_values = array(
 						<option value="no_cache"<?php selected( $value, 'no_cache' ) ?>><?php _e( 'no-cache ("max-age=0, private, no-store, no-cache, must-revalidate")', 'w3-total-cache' ) ?></option>
 					</select>
 					<?php if ( $is_nginx && $html_expires ) : ?>
-						<br /><span class="description"><?php _e( 'The Expires header already sets the max-age.', 'w3-total-cache' ) ?></span>
+						<p class="description"><?php _e( 'The Expires header already sets the max-age.', 'w3-total-cache' ) ?></p>
 					<?php endif; ?>
 				</td>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.etag' ) ?> <?php Util_Ui::e_config_label( 'browsercache.html.etag' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.w3tc' ) ?> <?php Util_Ui::e_config_label( 'browsercache.html.w3tc' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.compression' ) ?> <?php Util_Ui::e_config_label( 'browsercache.html.compression' ) ?></label>
-					<br /><span class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.html.brotli', !function_exists( 'brotli_compress' ) ) ?> <?php Util_Ui::e_config_label( 'browsercache.html.brotli' ) ?></label>
-					<br /><span class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 		</table>
@@ -346,13 +346,13 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.last_modified' ) ?> <?php Util_Ui::e_config_label( 'browsercache.other.last_modified' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the Last-Modified header to enable 304 Not Modified response.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.expires' ) ?> <?php Util_Ui::e_config_label( 'browsercache.other.expires' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the expires header to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -368,7 +368,7 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.cache.control' ) ?> <?php Util_Ui::e_config_label( 'browsercache.other.cache.control' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set pragma and cache-control headers to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -391,50 +391,50 @@ $security_session_values = array(
 						<option value="no_cache"<?php selected( $value, 'no_cache' ) ?>><?php _e( 'no-cache ("max-age=0, private, no-store, no-cache, must-revalidate")', 'w3-total-cache' ) ?></option>
 					</select>
 					<?php if ( $is_nginx && $other_expires ) : ?>
-						<br /><span class="description"><?php _e( 'The Expires header already sets the max-age.', 'w3-total-cache' ) ?></span>
+						<p class="description"><?php _e( 'The Expires header already sets the max-age.', 'w3-total-cache' ) ?></p>
 					<?php endif; ?>
 				</td>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.etag' ) ?> <?php Util_Ui::e_config_label( 'browsercache.other.etag' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set the ETag header to encourage browser caching of files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.w3tc' ) ?> <?php Util_Ui::e_config_label( 'browsercache.other.w3tc' ) ?></label>
-					<br /><span class="description"><?php _e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Set this header to assist in identifying optimized files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.compression' ) ?> <?php Util_Ui::e_config_label( 'browsercache.other.compression' ) ?>
-					<br /><span class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.brotli', !function_exists( 'brotli_compress' ) ) ?> <?php Util_Ui::e_config_label( 'browsercache.other.brotli' ) ?>
-					<br /><span class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Reduce the download time for text-based files.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.replace' ) ?> <?php Util_Ui::e_config_label( 'browsercache.other.replace' ) ?></label>
-					<br /><span class="description"><?php _e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.querystring' ) ?> <?php _e( 'Remove query strings from static resources', 'w3-total-cache' ) ?></label>
-					<br /><span class="description"><?php _e( 'Resources with a "?" in the <acronym title="Uniform Resource Locator">URL</acronym> are not cached by some proxy caching servers.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Resources with a "?" in the <acronym title="Uniform Resource Locator">URL</acronym> are not cached by some proxy caching servers.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.other.nocookies' ) ?> <?php Util_Ui::e_config_label( 'browsercache.other.nocookies' ) ?></label>
-					<br /><span class="description"><?php _e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ) ?></span>
+					<p class="description"><?php _e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ) ?></p>
 				</th>
 			</tr>
 		</table>

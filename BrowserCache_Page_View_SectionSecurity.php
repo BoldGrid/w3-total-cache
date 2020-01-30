@@ -128,7 +128,7 @@ $feature_policies = array(
 	<tr>
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.hsts' ) ?> <?php Util_Ui::e_config_label( 'browsercache.hsts' ) ?></label>
-			<br /><span class="description"><?php _e( '<acronym title="Hypertext Transfer Protocol">HTTP</acronym> Strict-Transport-Security (<acronym title="HTTP Strict Transport Security">HSTS</acronym>) enforces secure (<acronym title="Hypertext Transfer Protocol">HTTP</acronym> over <acronym title="Secure Sockets Layer">SSL</acronym>/<acronym title="Transport Layer Security">TLS</acronym>) connections to the server. This can help mitigate adverse effects caused by bugs and session leaks through cookies and links. It also helps defend against man-in-the-middle attacks.  If there are <acronym title="Secure Sockets Layer">SSL</acronym> negotiation warnings then users will not be permitted to ignore them.', 'w3-total-cache' ) ?></span>
+			<p class="description"><?php _e( '<acronym title="Hypertext Transfer Protocol">HTTP</acronym> Strict-Transport-Security (<acronym title="HTTP Strict Transport Security">HSTS</acronym>) enforces secure (<acronym title="Hypertext Transfer Protocol">HTTP</acronym> over <acronym title="Secure Sockets Layer">SSL</acronym>/<acronym title="Transport Layer Security">TLS</acronym>) connections to the server. This can help mitigate adverse effects caused by bugs and session leaks through cookies and links. It also helps defend against man-in-the-middle attacks.  If there are <acronym title="Secure Sockets Layer">SSL</acronym> negotiation warnings then users will not be permitted to ignore them.', 'w3-total-cache' ) ?></p>
 		</th>
 	</tr>
 	<tr>
@@ -151,7 +151,7 @@ $feature_policies = array(
 	<tr>
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.security.xfo' ) ?> <?php Util_Ui::e_config_label( 'browsercache.security.xfo' ) ?></label>
-			<br /><span class="description"><?php _e( 'This tells the browser if it is permitted to render a page within a frame-like tag (i.e., &lt;frame&gt;, &lt;iframe&gt; or &lt;object&gt;). This is useful for preventing clickjacking attacks.', 'w3-total-cache' ) ?></span>
+			<p class="description"><?php _e( 'This tells the browser if it is permitted to render a page within a frame-like tag (i.e., &lt;frame&gt;, &lt;iframe&gt; or &lt;object&gt;). This is useful for preventing clickjacking attacks.', 'w3-total-cache' ) ?></p>
 		</th>
 	</tr>
 	<tr>
@@ -175,7 +175,7 @@ $feature_policies = array(
 	<tr>
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.security.xss' ) ?> <?php Util_Ui::e_config_label( 'browsercache.security.xss' ) ?></label>
-			<br /><span class="description"><?php _e( 'This header enables the <acronym title="Cross-Site Scripting">XSS</acronym> filter. It helps to stop malicious scripts from being injected into your website. Although this is already built into and enabled by default in most browsers today it is made available here to enforce its reactivation if it was disabled within the user\'s browser.', 'w3-total-cache' ) ?></span>
+			<p class="description"><?php _e( 'This header enables the <acronym title="Cross-Site Scripting">XSS</acronym> filter. It helps to stop malicious scripts from being injected into your website. Although this is already built into and enabled by default in most browsers today it is made available here to enforce its reactivation if it was disabled within the user\'s browser.', 'w3-total-cache' ) ?></p>
 		</th>
 	</tr>
 	<tr>
@@ -197,13 +197,13 @@ $feature_policies = array(
 	<tr>
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.security.xcto' ) ?> <?php Util_Ui::e_config_label( 'browsercache.security.xcto' ) ?></label>
-			<br /><span class="description"><?php _e( 'This instructs the browser to not MIME-sniff a response outside its declared content-type. It helps to reduce drive-by download attacks and stops sites from serving malevolent content that could masquerade as an executable or dynamic HTML file.', 'w3-total-cache' ) ?></span>
+			<p class="description"><?php _e( 'This instructs the browser to not MIME-sniff a response outside its declared content-type. It helps to reduce drive-by download attacks and stops sites from serving malevolent content that could masquerade as an executable or dynamic HTML file.', 'w3-total-cache' ) ?></p>
 		</th>
 	</tr>
 	<tr>
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.security.pkp' ) ?> <?php Util_Ui::e_config_label( 'browsercache.security.pkp' ) ?></label>
-			<br /><span class="description"><?php _e( '<acronym title="Hypertext Transfer Protocol">HTTP</acronym> Public Key Pinning (<acronym title="HTTP Public Key Pinning">HPKP</acronym>) is a security feature for <acronym title="Hypertext Transfer Protocol">HTTP</acronym>S websites that can prevent fraudulently issued certificates from being used to impersonate existing secure websites.' ) ?></span>
+			<p class="description"><?php _e( '<acronym title="Hypertext Transfer Protocol">HTTP</acronym> Public Key Pinning (<acronym title="HTTP Public Key Pinning">HPKP</acronym>) is a security feature for <acronym title="Hypertext Transfer Protocol">HTTP</acronym>S websites that can prevent fraudulently issued certificates from being used to impersonate existing secure websites.' ) ?></p>
 		</th>
 	</tr>
 	<tr>
@@ -269,7 +269,7 @@ $feature_policies = array(
 	<tr>
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.security.referrer.policy' ) ?> <?php Util_Ui::e_config_label( 'browsercache.security.referrer.policy' ) ?></label>
-			<br /><span class="description"><?php _e( 'This header restricts the values of the referer header in outbound links.' ) ?></span>
+			<p class="description"><?php _e( 'This header restricts the values of the referer header in outbound links.' ) ?></p>
 		</th>
 	</tr>
 	<tr>
@@ -297,7 +297,7 @@ $feature_policies = array(
 	<tr>
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.security.csp' ) ?> <?php Util_Ui::e_config_label( 'browsercache.security.csp' ) ?></label>
-			<br /><span class="description"><?php _e( 'The Content Security Policy (<acronym title="Content Security Policy">CSP</acronym>) header reduces the risk of <acronym title="Cross-Site Scripting">XSS</acronym> attacks by allowing you to define where resources can be retrieved from, preventing browsers from loading data from any other locations. This makes it harder for an attacker to inject malicious code into your site.' ) ?></span>
+			<p class="description"><?php _e( 'The Content Security Policy (<acronym title="Content Security Policy">CSP</acronym>) header reduces the risk of <acronym title="Cross-Site Scripting">XSS</acronym> attacks by allowing you to define where resources can be retrieved from, preventing browsers from loading data from any other locations. This makes it harder for an attacker to inject malicious code into your site.' ) ?></p>
 		</th>
 	</tr>
 	<tr>
@@ -447,7 +447,7 @@ $feature_policies = array(
 			'control' => 'checkbox',
 			'checkbox_label' => __( 'Feature-Policy', 'w3-total-cache' ),
 			'description' => __( 'Allows you to control which origins can use which features.', 'w3-total-cache' ),
-			'style' => '2'
+			'label_class' => 'w3tc_single_column'
 		) )
 	?>
 
