@@ -301,6 +301,10 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 				'flushing based on sqlquery group ' . $group .
 				' with extras ' . json_encode( $extras ) );
 		}
+		if ( $this->_config->get_boolean( 'dbcache.debug_purge' ) ) {
+			Util_Debug::log_purge( 'dbcache', '_flush_cache_for_sql_group',
+				array( $group, $extras ) );
+		}
 
 		$cache = $this->_get_cache();
 		$flush_groups = $this->_get_flush_groups( $group, $extras );

@@ -61,7 +61,7 @@ class UsageStatistics_Source_ObjectCacheLog {
 				'count_get_hit' => $data['count_get_hit'],
 				'count_set' => $data['count_set'],
 				'sum_size' => $data['sum_size'],
-				'avg_size' => (int)( $data['sum_size'] / $data['count_total'] ),
+				'avg_size' => $data['count_total'] ? (int)( $data['sum_size'] / $data['count_total'] ) : 0,
 				'sum_time_ms' => (int)$data['sum_time_ms']
 			);
 		}
@@ -122,7 +122,7 @@ class UsageStatistics_Source_ObjectCacheLog {
 		$id = $matches[3];
 		$reason = $matches[4];
 		$size = (int)$matches[5];
-		$time_taken_ms = (float)$matches[6] / 1000;
+		$time_taken_ms = isset( $matches[6] ) ? (float)$matches[6] / 1000 : 0;
 
 		$time = strtotime($date_string);
 
