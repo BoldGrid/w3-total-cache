@@ -768,7 +768,7 @@ class PgCache_ContentGrabber {
 			// when cache key is normalized, since that cause redirect loop
 
 			if ( $this->_get_page_key( $this->_page_key_extension ) ==
-					$this->_get_page_key( $page_key_extension, $response_headers['kv']['Location'] ) ) {
+					$this->_get_page_key( $this->_page_key_extension, $response_headers['kv']['Location'] ) ) {
 				$this->cache_reject_reason = 'Normalization redirect';
 				$this->process_status = 'miss_normalization_redirect';
 				return false;
@@ -1439,8 +1439,15 @@ class PgCache_ContentGrabber {
 		// key url part
 		if ( $request_url ) {
 			$parts = parse_url( $request_url );
-			$key_urlpart = $parts['host'] .
-				( isset( $parts['port'] ) ? ':' . $parts['port'] : '' ) .
+
+			if ( isset( $parts['host'] ) ) {
+				$key_urlpart = $parts['host'] .
+					( isset( $parts['port'] ) ? ':' . $parts['port'] : '' );
+			} else {
+				$key_urlpart = $this->_request_host;
+			}
+
+			$key_urlpart .=
 				( isset( $parts['path'] ) ? $parts['path'] : '' ) .
 				( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
 		} else {
