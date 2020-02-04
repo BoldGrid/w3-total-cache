@@ -1,15 +1,13 @@
 <?php
 namespace W3TC;
 
-
-
-class LazyLoad_Plugin_Admin {
+class UserExperience_Plugin_Admin {
 	function run() {
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
 		add_action( 'w3tc_settings_page-w3tc_userexperience',
 			array( $this, 'w3tc_settings_page_w3tc_userexperience' ) );
 		add_action( 'admin_init_w3tc_general',
-			array( '\W3TC\LazyLoad_GeneralPage', 'admin_init_w3tc_general' ) );
+			array( '\W3TC\UserExperience_GeneralPage', 'admin_init_w3tc_general' ) );
 	}
 
 
@@ -30,7 +28,7 @@ class LazyLoad_Plugin_Admin {
 
 
 	public function w3tc_settings_page_w3tc_userexperience() {
-		$v = new LazyLoad_Page();
+		$v = new UserExperience_Page();
 		$v->render_content();
 	}
 }

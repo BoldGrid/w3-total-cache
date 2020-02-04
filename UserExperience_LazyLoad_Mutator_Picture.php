@@ -1,9 +1,7 @@
 <?php
 namespace W3TC;
 
-
-
-class LazyLoad_Mutator_Picture {
+class UserExperience_LazyLoad_Mutator_Picture {
 	private $common;
 
 
