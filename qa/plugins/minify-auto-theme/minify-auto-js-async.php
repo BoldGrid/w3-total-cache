@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: Minify Auto JS Test Template
+ * Template Name: minify-auto-js-async
  * Description: A Page Template for testing minify auto js split
  *
  * @package W3TC
