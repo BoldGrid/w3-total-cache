@@ -1,7 +1,7 @@
 <?php
 namespace W3TC;
 
-class UserExperience_Embed_Plugin {
+class UserExperience_OEmbed_Extension {
 	public function run() {
 		add_action( 'wp_footer', array( $this, 'wp_footer' ) );
 	}
@@ -12,3 +12,8 @@ class UserExperience_Embed_Plugin {
 		wp_deregister_script( 'wp-embed' );
 	}
 }
+
+
+
+$o = new UserExperience_OEmbed_Extension();
+$o->run();

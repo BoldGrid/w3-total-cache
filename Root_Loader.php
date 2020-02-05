@@ -33,10 +33,6 @@ class Root_Loader {
 			$plugins[] = new Cdnfsd_Plugin();
 		if ( $c->get_boolean( 'lazyload.enabled' ) )
 			$plugins[] = new UserExperience_LazyLoad_Plugin();
-		if ( $c->get_boolean( 'noemoji.enabled' ) )
-			$plugins[] = new UserExperience_Emoji_Plugin();
-		if ( $c->get_boolean( 'nooembed.enabled' ) )
-			$plugins[] = new UserExperience_Embed_Plugin();
 		if ( $c->get_boolean( 'browsercache.enabled' ) )
 			$plugins[] = new BrowserCache_Plugin();
 		if ( $c->get_boolean( 'minify.enabled' ) )

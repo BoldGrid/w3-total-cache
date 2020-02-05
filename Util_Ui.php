@@ -750,6 +750,26 @@ class Util_Ui {
 
 
 
+	static public function config_item_extension_enabled( $a ) {
+		echo "<tr><th class=''></th>\n<td>\n";
+
+		$c = Dispatcher::config();
+		Util_Ui::checkbox2( array(
+			'name' => 'extension__' . Util_Ui::config_key_to_http_name( $a['extension_id'] ),
+			'value' => $c->is_extension_active_frontend( $a['extension_id'] ),
+			'label' => $a['checkbox_label']
+		) );
+
+		if ( isset( $a['description'] ) ) {
+			echo '<p class="description">' . $a['description'] . '</p>';
+		}
+
+		echo "</td>";
+		echo "</tr>\n";
+	}
+
+
+
 	static public function config_item_pro( $a ) {
 		$a = Util_Ui::config_item_preprocess( $a );
 

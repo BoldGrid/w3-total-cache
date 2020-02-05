@@ -205,16 +205,6 @@ $keys = array(
 		'default' => 'async_head'
 	),
 
-	'noemoji.enabled' => array(
-		'type' => 'boolean',
-		'default' => false
-	),
-
-	'nooembed.enabled' => array(
-		'type' => 'boolean',
-		'default' => false
-	),
-
 	'objectcache.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false

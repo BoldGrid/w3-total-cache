@@ -8,6 +8,11 @@ class UserExperience_Plugin_Admin {
 			array( $this, 'w3tc_settings_page_w3tc_userexperience' ) );
 		add_action( 'admin_init_w3tc_general',
 			array( '\W3TC\UserExperience_GeneralPage', 'admin_init_w3tc_general' ) );
+		add_filter( 'w3tc_extensions', array(
+				'\W3TC\UserExperience_Plugin_Admin',
+				'w3tc_extensions' ),
+			10, 2 );
+
 	}
 
 
@@ -23,6 +28,23 @@ class UserExperience_Plugin_Admin {
 		);
 
 		return $menu;
+	}
+
+
+
+	static public function w3tc_extensions( $extensions, $config ) {
+		$extensions['user-experience-emoji'] = array(
+			'public' => false,
+			'extension_id' => 'user-experience-emoji',
+			'path' => 'w3-total-cache/UserExperience_Emoji_Extension.php'
+		);
+		$extensions['user-experience-oembed'] = array(
+			'public' => false,
+			'extension_id' => 'user-experience-oembed',
+			'path' => 'w3-total-cache/UserExperience_OEmbed_Extension.php'
+		);
+
+		return $extensions;
 	}
 
 

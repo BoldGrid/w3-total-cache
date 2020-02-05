@@ -1,7 +1,7 @@
 <?php
 namespace W3TC;
 
-class UserExperience_Emoji_Plugin {
+class UserExperience_Emoji_Extension {
 	public function run() {
 		remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
 		remove_action( 'wp_print_styles', 'print_emoji_styles' );
@@ -47,3 +47,8 @@ class UserExperience_Emoji_Plugin {
 		);
 	}
 }
+
+
+
+$o = new UserExperience_Emoji_Extension();
+$o->run();

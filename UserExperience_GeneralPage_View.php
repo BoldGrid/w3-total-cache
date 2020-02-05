@@ -23,18 +23,16 @@ Util_Ui::config_overloading_button( array(
 	) );
 	?>
 	<?php
-	Util_Ui::config_item( array(
-			'key' => 'noemoji.enabled',
-			'control' => 'checkbox',
+	Util_Ui::config_item_extension_enabled( array(
+			'extension_id' => 'user-experience-emoji',
 			'checkbox_label' => __( 'Disable Emoji', 'w3-total-cache' ),
 			'description' => __( 'Remove emojis support from your website.',
 				'w3-total-cache' )
 	) );
 	?>
 	<?php
-	Util_Ui::config_item( array(
-			'key' => 'nooembed.enabled',
-			'control' => 'checkbox',
+	Util_Ui::config_item_extension_enabled( array(
+			'extension_id' => 'user-experience-oembed',
 			'checkbox_label' => __( 'Disable wp-embed script', 'w3-total-cache' ),
 			'description' => __( 'Remove wp-embed.js script from your website. oEmbed functionality still works but you will not be able to embed other WordPress posts on your pages.',
 				'w3-total-cache' )

@@ -57,6 +57,10 @@ $cb_id = 0;
 foreach ( $extension_keys as $extension ):
 	$meta = $extensions[$extension];
 	$meta = $this->default_meta( $meta );
+	if (!$meta['public']) {
+		continue;
+	}
+
 $cb_id++;
 ?>
 			<?php do_action( "w3tc_extension_before_row-{$extension}" ) ?>
