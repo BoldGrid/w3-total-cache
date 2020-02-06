@@ -813,13 +813,12 @@ class Generic_AdminActions_Default {
 				array_map( 'stripslashes_deep', $request_value );
 			} else {
 				$request_value = stripslashes( $request_value );
+
+				if ( strpos( $request_key, 'memcached__servers' ) || strpos( $request_key, 'redis__servers' ) ) {
+					$request_value = explode( ',', $request_value );
+				}
 			}
-			if ( strpos( $request_key, 'memcached__servers' ) || strpos( $request_key, 'redis__servers' ) ) {
-				$request_value = explode( ',', $request_value );
-			}
-			if ( strpos( $request_key, 'memcached__servers' ) || strpos( $request_key, 'redis__servers' ) ) {
-				$request_value = explode( ',', $request_value );
-			}
+
 			if ( substr( $request_key, 0, 11 ) == 'extension__' ) {
 				$extension_id = Util_Ui::config_key_from_http_name(
 					substr( $request_key, 11 ) );
