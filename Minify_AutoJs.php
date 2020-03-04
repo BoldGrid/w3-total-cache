@@ -43,7 +43,7 @@ class Minify_AutoJs {
 	private $debug_minified_urls = array();
 
 	/**
-	 * Current list of async script files to minify
+	 * Current list of script files to minify
 	 */
 	private $files_to_minify;
 
