@@ -1465,6 +1465,12 @@ jQuery(function() {
 			jQuery(this).html('Show More <span class="dashicons dashicons-arrow-down-alt2"></span>');
 			jQuery(this).parent().find('.w3tc-gopro-description').css('max-height', '');
 		}
+
+		if (window.w3tc_ga) {
+			w3tc_ga('send', 'event', 'anchor', 'click',
+				jQuery(this).attr('data-href'));
+		}
+
 	});
 
 	// google analytics events

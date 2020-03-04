@@ -394,6 +394,7 @@ if ( $this->_config->get_string( 'pgcache.engine' ) == 'memcached' ||
 				<th><label for="pgcache_reject_uri"><?php Util_Ui::e_config_label( 'pgcache.reject.uri' ) ?></label></th>
 				<td>
 					<textarea id="pgcache_reject_uri" name="pgcache__reject__uri"
+						w3tc-data-validator="regexps"
 						<?php Util_Ui::sealing_disabled( 'pgcache.' ) ?>
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.reject.uri' ) ) ); ?></textarea>
 					<p class="description">
@@ -447,6 +448,7 @@ if ( $this->_config->get_string( 'pgcache.engine' ) == 'memcached' ||
 				<th><label for="pgcache_accept_files"><?php Util_Ui::e_config_label( 'pgcache.accept.files' ) ?></label></th>
 				<td>
 					<textarea id="pgcache_accept_files" name="pgcache__accept__files"
+						w3tc-data-validator="regexps"
 						<?php Util_Ui::sealing_disabled( 'pgcache.' ) ?>
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.accept.files' ) ) ); ?></textarea>
 					<p class="description"><?php echo sprintf( __( 'Cache the specified pages / directories even if listed in the "never cache the following pages" field. Supports regular expression (See <a href="%s"><acronym title="Frequently Asked Questions">FAQ</acronym></a>)', 'w3-total-cache' ), network_admin_url( 'admin.php?page=w3tc_faq' ) ); ?></p>
@@ -457,6 +459,7 @@ if ( $this->_config->get_string( 'pgcache.engine' ) == 'memcached' ||
 				<th><label for="pgcache_accept_uri"><?php Util_Ui::e_config_label( 'pgcache.accept.uri' ) ?></label></th>
 				<td>
 					<textarea id="pgcache_accept_uri" name="pgcache__accept__uri"
+						w3tc-data-validator="regexps"
 						<?php Util_Ui::sealing_disabled( 'pgcache.' ) ?>
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.accept.uri' ) ) ); ?></textarea>
 					<p class="description"><?php _e( 'Cache the specified pages even if they don\'t have tailing slash.', 'w3-total-cache' ); ?></p>

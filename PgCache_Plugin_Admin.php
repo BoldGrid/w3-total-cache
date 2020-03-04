@@ -36,8 +36,14 @@ class PgCache_Plugin_Admin {
 					$this, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
 		}
 
-		// cookie groups
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
+
+		add_action( 'admin_print_scripts-performance_page_w3tc_pgcache', array(
+				'\W3TC\PgCache_Page',
+				'admin_print_scripts_w3tc_pgcache'
+			) );
+
+		// cookie groups
 		add_action( 'admin_init_w3tc_pgcache_cookiegroups',	array(
 				'\W3TC\PgCache_Page_CookieGroups',
 				'admin_init_w3tc_pgcache_cookiegroups'

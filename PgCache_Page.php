@@ -4,6 +4,14 @@ namespace W3TC;
 
 
 class PgCache_Page extends Base_Page_Settings {
+	static public function admin_print_scripts_w3tc_pgcache() {
+		wp_enqueue_script( 'w3tc-options-validator',
+			plugins_url( 'pub/js/options-validator.js', W3TC_FILE ),
+			array(), W3TC_VERSION );
+	}
+
+
+
 	/**
 	 * Current page
 	 *

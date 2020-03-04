@@ -491,7 +491,7 @@ class Util_Ui {
 			echo '</label>' . $postfix . "\n";
 			if ( $pro_feature ) {
 				Util_Ui::pro_wrap_description( $label_or_array['pro_excerpt'],
-					$label_or_array['pro_description'] );
+					$label_or_array['pro_description'], $name . '__' . $key );
 
 				Util_Ui::pro_wrap_maybe_end( $name . '__' . $key );
 			}
@@ -791,7 +791,7 @@ class Util_Ui {
 			echo $a['control_after'];
 		}
 
-		Util_Ui::pro_wrap_description( $a['excerpt'], $a['description'] );
+		Util_Ui::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
 		Util_Ui::pro_wrap_maybe_end( $a['control_name'] );
 
 		if ( $a['label_class'] != 'w3tc_no_trtd' ) {
@@ -909,7 +909,7 @@ class Util_Ui {
 
 
 
-	static public function pro_wrap_description( $excerpt, $description ) {
+	static public function pro_wrap_description( $excerpt, $description, $data_href ) {
 		echo '<p class="description w3tc-gopro-excerpt">' . $excerpt . '</p>';
 
 		if ( !empty( $description ) ) {
@@ -921,7 +921,7 @@ class Util_Ui {
 			);
 
 			echo '<div class="w3tc-gopro-description">' . implode( "\n", $d ) . '</div>';
-			echo '<a href="#" class="w3tc-gopro-more">Show More <span class="dashicons dashicons-arrow-down-alt2"></span></a>';
+			echo '<a href="#" class="w3tc-gopro-more" data-href="w3tc-gopro-more-' . $data_href . '">Show More <span class="dashicons dashicons-arrow-down-alt2"></span></a>';
 		}
 	}
 

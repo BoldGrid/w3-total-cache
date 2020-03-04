@@ -44,7 +44,7 @@ class Cache_File_Generic extends Cache_File {
 		$dir = dirname( $path );
 
 		if ( !@is_dir( $dir ) ) {
-			if ( !Util_File::mkdir_from_safe( $dir, W3TC_CACHE_DIR ) )
+			if ( !Util_File::mkdir_from_safe( $dir, dirname( W3TC_CACHE_DIR ) ) )
 				return false;
 		}
 
