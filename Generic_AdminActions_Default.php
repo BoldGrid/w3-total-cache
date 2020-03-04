@@ -809,12 +809,26 @@ class Generic_AdminActions_Default {
 		include W3TC_DIR . '/ConfigKeys.php';   // define $keys
 
 		foreach ( $request as $request_key => $request_value ) {
-			if  ( is_array( $request_value ) )
+			if  ( is_array( $request_value ) ) {
 				array_map( 'stripslashes_deep', $request_value );
-			else
+			} else {
 				$request_value = stripslashes( $request_value );
-			if ( strpos( $request_key, 'memcached__servers' ) || strpos( $request_key, 'redis__servers' ) )
-				$request_value = explode( ',', $request_value );
+
+				if ( strpos( $request_key, 'memcached__servers' ) || strpos( $request_key, 'redis__servers' ) ) {
+					$request_value = explode( ',', $request_value );
+				}
+			}
+
+			if ( substr( $request_key, 0, 11 ) == 'extension__' ) {
+				$extension_id = Util_Ui::config_key_from_http_name(
+					substr( $request_key, 11 ) );
+
+				if ( $request_value == '1' ) {
+					Extensions_Util::activate_extension( $extension_id, $config, true );
+				} else {
+					Extensions_Util::deactivate_extension( $extension_id, $config, true );
+				}
+			}
 
 			$key = Util_Ui::config_key_from_http_name( $request_key );
 			if ( is_array( $key ) ) {

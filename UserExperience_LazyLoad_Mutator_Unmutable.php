@@ -1,9 +1,7 @@
 <?php
 namespace W3TC;
 
-
-
-class LazyLoad_Mutator_Unmutable {
+class UserExperience_LazyLoad_Mutator_Unmutable {
 	private $placeholders = array();
 
 
