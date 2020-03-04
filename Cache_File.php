@@ -445,7 +445,7 @@ class Cache_File extends Cache_Base {
 		$dir = dirname( $path );
 
 		if ( !@is_dir( $dir ) ) {
-			if ( !Util_File::mkdir_from( $dir, W3TC_CACHE_DIR ) )
+			if ( !Util_File::mkdir_from( $dir, dirname( W3TC_CACHE_DIR ) ) )
 				return false;
 		}
 
