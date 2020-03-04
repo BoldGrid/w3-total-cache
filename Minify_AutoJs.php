@@ -270,7 +270,7 @@ class Minify_AutoJs {
 	}
 
 	/**
-	 * Minifies collected sync scripts
+	 * Minifies collected scripts
 	 */
 	private function flush_collected( $sync_type, $last_script_tag ) {
 		if ( count( $this->files_to_minify[$sync_type]['files'] ) <= 0 ) {
