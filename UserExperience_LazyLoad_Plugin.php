@@ -1,9 +1,7 @@
 <?php
 namespace W3TC;
 
-
-
-class LazyLoad_Plugin {
+class UserExperience_LazyLoad_Plugin {
 	private $config;
 	private $posts_by_url = array();
 
@@ -57,7 +55,7 @@ class LazyLoad_Plugin {
 			return $buffer;
 		}
 
-		$mutator = new LazyLoad_Mutator( $this->config, $this->posts_by_url );
+		$mutator = new UserExperience_LazyLoad_Mutator( $this->config, $this->posts_by_url );
 		$buffer = $mutator->run( $buffer );
 
 		// embed lazyload script

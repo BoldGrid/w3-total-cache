@@ -191,5 +191,6 @@ class ConfigState {
 
 	private function apply_defaults() {
 		$this->set( 'common.install', time() );
+		$this->set( 'common.install_version', W3TC_VERSION );
 	}
 }

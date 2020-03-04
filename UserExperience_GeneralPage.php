@@ -1,14 +1,12 @@
 <?php
 namespace W3TC;
 
-
-
-class LazyLoad_GeneralPage {
+class UserExperience_GeneralPage {
 	/**
 	 * W3TC General settings page modifications
 	 */
 	static public function admin_init_w3tc_general() {
-		$o = new LazyLoad_GeneralPage();
+		$o = new UserExperience_GeneralPage();
 
 		add_filter( 'w3tc_settings_general_anchors',
 			array( $o, 'w3tc_settings_general_anchors' ) );
@@ -29,6 +27,6 @@ class LazyLoad_GeneralPage {
 	public function w3tc_settings_general_boxarea_userexperience() {
 		$config = Dispatcher::config();
 
-		include  W3TC_DIR . '/LazyLoad_GeneralPage_View.php';
+		include  W3TC_DIR . '/UserExperience_GeneralPage_View.php';
 	}
 }
