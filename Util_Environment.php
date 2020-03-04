@@ -1038,7 +1038,7 @@ class Util_Environment {
 			return $post_ID;
 		} elseif ( $comment_post_ID ) {
 			return $comment_post_ID;
-		} elseif ( ( is_single() || is_page() ) && isset( $posts[0]->ID ) ) {
+		} elseif ( ( is_single() || is_page() ) && is_array( $posts ) && isset( $posts[0]->ID ) ) {
 			return $posts[0]->ID;
 		} elseif ( isset( $posts->ID ) ) {
 			return $posts->ID;
