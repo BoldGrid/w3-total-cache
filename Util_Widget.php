@@ -2,6 +2,8 @@
 namespace W3TC;
 
 class Util_Widget {
+	static $w3tc_dashboard_widgets = array();
+
 	/**
 	 * Registers dashboard widgets.
 	 *
@@ -48,11 +50,32 @@ class Util_Widget {
 		do_action( 'do_meta_boxes', $screen->id, 'side', '' );
 	}
 
+	static public function add2( $widget_id, $priority, $widget_name, $callback,
+			$control_callback = null, $location = 'normal', $header_text = null,
+			$header_class = '') {
+		$o = new _Util_Widget_Postponed( array(
+				'widget_id' => $widget_id,
+				'widget_name' => $widget_name,
+				'callback' => $callback,
+				'control_callback' => $control_callback,
+				'location' => $location,
+				'header_text' => $header_text,
+				'header_class' => $header_class
+			) );
+
+		add_action( 'w3tc_widget_setup',
+			array( $o, 'wp_dashboard_setup' ), $priority );
+		add_action( 'w3tc_network_dashboard_setup',
+			array( $o, 'wp_dashboard_setup' ), $priority );
+		self::$w3tc_dashboard_widgets[$widget_id] = '*';
+	}
+
 	/**
 	 * Registers widget
 	 */
 	static public function add( $widget_id, $widget_name, $callback,
-		$control_callback = null, $location = 'normal', $header_text = null, $header_class = '') {
+			$control_callback = null, $location = 'normal', $header_text = null,
+			$header_class = '') {
 		$screen = get_current_screen();
 		global $w3tc_dashboard_control_callbacks;
 
@@ -103,7 +126,6 @@ class Util_Widget {
 		add_meta_box( $widget_id, $widget_name, $callback, $screen, $location, $priority );
 	}
 
-
 	/* Dashboard Widgets Controls */
 	static public function _dashboard_control_callback( $dashboard, $meta_box ) {
 		echo '<form action="" method="post" class="dashboard-widget-control-form">';
@@ -112,6 +134,10 @@ class Util_Widget {
 		echo '<input type="hidden" name="widget_id" value="' . esc_attr( $meta_box['id'] ) . '" />';
 		submit_button( __( 'Submit' ) );
 		echo '</form>';
+	}
+
+	static public function list() {
+		return implode(',', array_keys(self::$w3tc_dashboard_widgets));
 	}
 
 	/**
@@ -127,5 +153,28 @@ class Util_Widget {
 		if ( is_scalar( $widget_control_id ) && $widget_control_id && isset( $w3tc_dashboard_control_callbacks[$widget_control_id] ) && is_callable( $w3tc_dashboard_control_callbacks[$widget_control_id] ) ) {
 			call_user_func( $w3tc_dashboard_control_callbacks[$widget_control_id], '', array( 'id' => $widget_control_id, 'callback' => $w3tc_dashboard_control_callbacks[$widget_control_id] ) );
 		}
+	}
+}
+
+
+
+class _Util_Widget_Postponed {
+	private $data = array();
+
+	public function __construct( $data ) {
+		$this->data = $data;
+	}
+
+
+	public function wp_dashboard_setup() {
+		Util_Widget::add(
+			$this->data['widget_id'],
+			$this->data['widget_name'],
+			$this->data['callback'],
+			$this->data['control_callback'],
+			$this->data['location'],
+			$this->data['header_text'],
+			$this->data['header_class']
+		);
 	}
 }
