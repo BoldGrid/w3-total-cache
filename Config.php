@@ -77,10 +77,19 @@ class Config {
 	static public function util_config_filename( $blog_id, $preview ) {
 		$postfix = ( $preview ? '-preview' : '' ) . '.php';
 
-		if ( $blog_id <= 0 )
-			return W3TC_CONFIG_DIR . '/master' . $postfix;
-		else
-			return W3TC_CONFIG_DIR . '/' . sprintf( '%06d', $blog_id ) . $postfix;
+		if ( $blog_id <= 0 ) {
+			$filename = W3TC_CONFIG_DIR . '/master' . $postfix;
+		} else {
+			$filename = W3TC_CONFIG_DIR . '/' . sprintf( '%06d', $blog_id ) . $postfix;
+		}
+
+		$d = w3tc_apply_filters( 'config_filename', array(
+			'blog_id' => $blog_id,
+			'preview' => $preview,
+			'filename' => $filename
+		) );
+
+		return $d['filename'];
 	}
 
 
