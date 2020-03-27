@@ -92,17 +92,7 @@ abstract class W3tcOAuthSignatureMethod {
       return false;
     }
 
-    if (strlen($built) != strlen($signature)) {
-      return false;
-    }
-
-    // Avoid a timing leak with a (hopefully) time insensitive compare
-    $result = 0;
-    for ($i = 0; $i < strlen($signature); $i++) {
-      $result |= ord($built{$i}) ^ ord($signature{$i});
-    }
-
-    return $result == 0;
+	return $built == $signature;
   }
 }
 
