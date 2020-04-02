@@ -8,16 +8,10 @@ class Cdn_StackPath2_Widget {
 			array( $o, 'admin_print_styles' ) );
 		add_action( 'admin_print_scripts',
 			array( $o, 'admin_print_scripts' ) );
-		add_action( 'w3tc_widget_setup',
-			array( $o, 'w3tc_widget_setup' ), 2000 );
-	}
 
-
-
-	public function w3tc_widget_setup() {
-		Util_Widget::add( 'w3tc_stackpath',
+		Util_Widget::add2( 'w3tc_stackpath', 2000,
 			'<div class="w3tc-widget-stackpath2-logo"></div>',
-			array( $this, 'widget_form' ),
+			array( $o, 'widget_form' ),
 			Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ),
 			'normal' );
 	}
