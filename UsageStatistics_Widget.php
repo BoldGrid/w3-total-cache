@@ -19,16 +19,7 @@ class UsageStatistics_Widget {
 
 
 	public function init() {
-		add_action( 'w3tc_widget_setup', array(
-				$this,
-				'w3tc_widget_setup'
-			), 1000 );
-	}
-
-
-
-	public function w3tc_widget_setup() {
-		Util_Widget::add( 'w3tc_usage_statistics',
+		Util_Widget::add2( 'w3tc_usage_statistics', 1000,
 			'<div class="w3tc-widget-w3tc-logo"></div>' .
 			'<div class="w3tc-widget-text">' .
 			__( 'Caching Statistics', 'w3-total-cache' ) .
