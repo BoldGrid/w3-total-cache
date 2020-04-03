@@ -7,13 +7,13 @@ Stable tag: 0.13.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Search Engine (SEO) &amp; Performance Optimization (WPO) via caching. Integrated caching: CDN, Page, Minify, Object, Fragment, Database support. 
+Search Engine (SEO) &amp; Performance Optimization (WPO) via caching. Integrated caching: CDN, Page, Minify, Object, Fragment, Database support.
 
 == Description ==
 
 W3 Total Cache (W3TC) improves the SEO and user experience of your site by increasing website performance and reducing load times by leveraging features like content delivery network (CDN) integration and the latest best practices.
 
-W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framework for WordPress trusted by millions of publishers, web developers, and web hosts worldwide for more than a decade. It is the total performance solution for optimizing your WordPress Website. 
+W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framework for WordPress trusted by millions of publishers, web developers, and web hosts worldwide for more than a decade. It is the total performance solution for optimizing your WordPress Website.
 
 An inside look:
 
@@ -28,7 +28,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Optimized progressive render: pages start rendering quickly and can be interacted with more quickly
 * Reduced page load time: increased visitor time on site; visitors view more pages
 * Improved web server performance; sustain high traffic periods
-* Up to 80% bandwidth savings when you minify HTML, minify CSS and minify JS files. 
+* Up to 80% bandwidth savings when you minify HTML, minify CSS and minify JS files.
 
 *KEY FEATURES*
 
@@ -62,7 +62,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Extension framework for customization or extensibility for Cloudflare, WPML and much more
 * Reverse proxy integration via Nginx or Varnish
 
-Speed up your site tremendously, and improve the user experience for your readers without having to change WordPress, your theme, your plugins or how you produce your content. 
+Speed up your site tremendously, and improve the user experience for your readers without having to change WordPress, your theme, your plugins or how you produce your content.
 
 == Frequently Asked Questions ==
 
@@ -248,7 +248,7 @@ Install the plugin to read the full FAQ on the plugins FAQ tab.
 1. *Recommended:* If you already have a content delivery network (CDN) provider, proceed to the "Content Delivery Network" tab and populate the fields and set your preferences. If you do not use the Media Library, you will need to import your images etc into the default locations. Use the Media Library Import Tool on the "Content Delivery Network" tab to perform this task. If you do not have a CDN provider, you can still improve your site's performance using the "Self-hosted" method. On your own server, create a subdomain and matching DNS Zone record; e.g. static.domain.com and configure FTP options on the "Content Delivery Network" tab accordingly. Be sure to FTP upload the appropriate files, using the available upload buttons.
 1. *Optional:* On the "Database Cache" tab, the recommended settings are preset. If using a shared hosting account use the "disk" method with caution, the response time of the disk may not be fast enough, so this option is disabled by default. Try object caching instead for shared hosting.
 1. *Optional:* On the "Object Cache" tab, all of the recommended settings are preset. If using a shared hosting account use the "disk" method with caution, the response time of the disk may not be fast enough, so this option is disabled by default. Test this option with and without database cache to ensure that it provides a performance increase.
-1. *Optional:* On the "User Agent Groups" tab, specify any user agents, like mobile phones if a mobile theme is used. 
+1. *Optional:* On the "User Agent Groups" tab, specify any user agents, like mobile phones if a mobile theme is used.
 
 == What users have to say: ==
 
@@ -274,6 +274,9 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.13.2 =
+* Updated informational URL on page cache static page comments.
 
 = 0.13.1 =
 * Fixed php warnings in PgCache_ContentGrabber.php
@@ -381,7 +384,7 @@ Please reach out to all of these people and support their projects if you're so 
 
 = 0.9.7.2 =
 * Fixed fatal error during media file upload with CDN module active
-* Fixed removal of empty values, JSON encoded string in attribute, trailing quote at end of tag, and the handling of anchors in HTML minify 
+* Fixed removal of empty values, JSON encoded string in attribute, trailing quote at end of tag, and the handling of anchors in HTML minify
 * Fixed undefined index warning
 * Fixed fatal error when purging CDN using full site delivery
 
