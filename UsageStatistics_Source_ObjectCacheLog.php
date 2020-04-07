@@ -26,7 +26,7 @@ class UsageStatistics_Source_ObjectCacheLog {
 	/**
 	 * Lists entries from log
 	 **/
-	public function list() {
+	public function list_entries() {
 		$log_filename = Util_Debug::log_filename( 'objectcache-calls' );
 		$h = @fopen( $log_filename, 'rb' );
 		if ( !$h ) {
