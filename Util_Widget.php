@@ -136,7 +136,7 @@ class Util_Widget {
 		echo '</form>';
 	}
 
-	static public function list() {
+	static public function list_widgets() {
 		return implode(',', array_keys(self::$w3tc_dashboard_widgets));
 	}
 
