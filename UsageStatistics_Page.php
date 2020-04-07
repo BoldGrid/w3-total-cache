@@ -50,7 +50,7 @@ class UsageStatistics_Page {
 
 			$reader = new UsageStatistics_Source_DbQueriesLog( $timestamp_start,
 				$sort_column );
-			$items = $reader->list();
+			$items = $reader->list_entries();
 
 			$result = array(
 				'date_min' =>
@@ -80,7 +80,7 @@ class UsageStatistics_Page {
 
 			$reader = new UsageStatistics_Source_ObjectCacheLog( $timestamp_start,
 				$sort_column );
-			$items = $reader->list();
+			$items = $reader->list_entries();
 
 			$result = array(
 				'date_min' =>
@@ -110,7 +110,7 @@ class UsageStatistics_Page {
 
 			$reader = new UsageStatistics_Source_PageCacheLog( $timestamp_start,
 				$_REQUEST['status'], $sort_column );
-			$items = $reader->list();
+			$items = $reader->list_entries();
 
 			$result = array(
 				'date_min' =>

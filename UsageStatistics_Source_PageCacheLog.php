@@ -28,7 +28,7 @@ class UsageStatistics_Source_PageCacheLog {
 	/**
 	 * Lists entries from log with specified cache reject reason code
 	 **/
-	public function list() {
+	public function list_entries() {
 		$log_filename = Util_Debug::log_filename( 'pagecache' );
 		$h = @fopen( $log_filename, 'rb' );
 		if ( !$h ) {
