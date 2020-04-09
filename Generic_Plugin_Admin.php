@@ -290,7 +290,6 @@ class Generic_Plugin_Admin {
 					'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ) ?>',
 					'dimension10': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ) ?>',
 					'dimension11': '<?php echo esc_attr( Util_Widget::list_widgets() ) ?>',
-					'userId': '<?php echo $current_user->user_email ?>',
 					'page': '<?php echo $page ?>'
 				});
 
