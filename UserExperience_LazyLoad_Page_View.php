@@ -4,6 +4,12 @@ namespace W3TC;
 if ( !defined( 'W3TC' ) )
 	die();
 
+$c = Dispatcher::config();
+$is_pro = Util_Environment::is_w3tc_pro( $c );
+
+$plugins = get_option( 'active_plugins' );
+$is_wpgooglemaps = ( in_array( 'wp-google-maps/wpGoogleMaps.php', $plugins ) );
+
 ?>
 <?php Util_Ui::postbox_header( __( 'Lazy Loading', 'w3-total-cache' ), '', 'application' ); ?>
 <table class="form-table">
@@ -23,6 +29,16 @@ if ( !defined( 'W3TC' ) )
 			'description' => __( 'Process <code>background</code> styles',
 				'w3-total-cache' )
 	) );
+
+	Util_Ui::config_item_pro( array(
+			'key' => 'lazyload.googlemaps_wpgooglemaps',
+			'control' => 'checkbox',
+			'disabled' => ( $is_pro ? !$is_wpgooglemaps : true ),
+			'checkbox_label' => __( 'Process Google Maps (WP Google Maps plugin)', 'w3-total-cache' ),
+			'excerpt' => __( 'Lazy load google map', 'w3-total-cache' ),
+			'description' => array( __( 'Lazy load google map', 'w3-total-cache' ) )
+	) );
+
 
 	Util_Ui::config_item( array(
 			'key' => 'lazyload.exclude',

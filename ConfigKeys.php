@@ -173,6 +173,10 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => true
 	),
+	'lazyload.googlemaps_wpgooglemaps' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
 	'lazyload.exclude' => array(
 		'type' => 'array',
 		'default' => array(
