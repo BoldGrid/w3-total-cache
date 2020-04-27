@@ -135,6 +135,10 @@ describe('minify html', function() {
 		let e6img = await page.$eval('#void6image', (e) => e.alt);
 		expect(e6img).equals('b/');
 		expect(testPageHtml).contains('id=void-elements6>\n<img\nid=void6image src=a/ alt=b/ >');
+
+		let e7img = await page.$eval('#void7image', (e) => e.alt);
+		expect(e7img).equals('svg-test');
+		expect(testPageHtml).contains('id=void-elements7>\n<img alt="svg-test" aria-hidden="true" class="test-svg" id="testing-svg" role="test" src="data:image/svg+xml;charset=utf-8,<svg height=&quot;75&quot; width=&quot;75&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot;/>" >');
 	});
 
 
