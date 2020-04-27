@@ -158,7 +158,7 @@ class Minify_HTML {
 
 		// remove trailing slash from void elements
 		$this->_html = preg_replace(
-			'~<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)([^>]*?)\\s*[/]?>~i'
+			'~<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)(([^\'">]|\"[^\"]*\"|\'[^\']*\'|)*?)\\s*[/]?>~i'
 			,'<$1$2>'
 			,$this->_html);
 
