@@ -37,6 +37,10 @@ get_header(); ?>
 		<input type="text" value="5" />
 	</div>
 
+	<div id="void-elements6">
+		<img id="void6image" src='a/' alt="b/" />
+	</div>
+
 	<div id="auto-closed6">
 		<div data-value="6"/>
 	</div>

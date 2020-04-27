@@ -131,6 +131,10 @@ describe('minify html', function() {
 			(e) => e.type);
 		expect(e5input).equals('text');
 		expect(testPageHtml).contains('id=void-elements5>\n<input\ntype=text value=5></div>');
+
+		let e6img = await page.$eval('#void6image', (e) => e.alt);
+		expect(e6img).equals('b/');
+		expect(testPageHtml).contains('id=void-elements6>\n<img\nid=void6image src=a/ alt=b/ >');
 	});
 
 
