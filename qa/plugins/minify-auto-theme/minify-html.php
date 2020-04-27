@@ -42,7 +42,7 @@ get_header(); ?>
 	</div>
 
 	<div id="void-elements7">
-		<img alt="svg-test" aria-hidden="true" class="test-svg" id="testing-svg" role="test" src="data:image/svg+xml;charset=utf-8,<svg height=&quot;75&quot; width=&quot;75&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot;/>" />
+		<img alt="svg-test" aria-hidden="true" class="test-svg" id="void7image" role="test" src="data:image/svg+xml;charset=utf-8,<svg height=&quot;75&quot; width=&quot;75&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot;/>" />
 	</div>
 
 	<div id="auto-closed6">
