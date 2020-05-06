@@ -16,11 +16,17 @@ class UserExperience_LazyLoad_Plugin {
 		Util_Bus::add_ob_callback( 'lazyload', array( $this, 'ob_callback' ) );
 		$this->metaslider_hooks();
 
-		if ( $this->config->get_boolean( 'lazyload.googlemaps_wpgooglemaps' ) ) {
+		if ( $this->config->get_boolean( 'lazyload.googlemaps.wp_google_maps' ) ) {
 			add_filter( 'w3tc_lazyload_mutator_before', array(
 				new UserExperience_LazyLoad_GoogleMaps_WPGoogleMaps(),
 				'w3tc_lazyload_mutator_before'
 			) );
+		}
+		if ( $this->config->get_boolean( 'lazyload.googlemaps.wp_google_map_plugin' ) ) {
+			$p = new UserExperience_LazyLoad_GoogleMaps_WPGoogleMapPlugin();
+
+			add_filter( 'w3tc_lazyload_mutator_before',
+				array( $p, 'w3tc_lazyload_mutator_before' ) );
 		}
 
 		add_filter( 'wp_get_attachment_url',

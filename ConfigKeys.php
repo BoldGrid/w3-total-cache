@@ -173,7 +173,11 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => true
 	),
-	'lazyload.googlemaps_wpgooglemaps' => array(
+	'lazyload.googlemaps.wp_google_maps' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
+	'lazyload.googlemaps.wp_google_map_plugin' => array(
 		'type' => 'boolean',
 		'default' => false
 	),
