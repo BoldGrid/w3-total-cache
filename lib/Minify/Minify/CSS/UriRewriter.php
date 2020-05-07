@@ -380,11 +380,11 @@ class Minify_CSS_UriRewriter {
             && '/' !== substr($uri, 0, 1)    // root-relative
             && false === strpos($uri, '//')  // protocol (non-data)
             && 0 !== strpos($uri, 'data:')   // data protocol
+            && 0 !== strpos( $uri, '%' )     // URL-encoded entity.
         ) {
             // URI is file-relative: rewrite depending on options
             if (self::$_prependPath === null) {
                 $uri = self::rewriteRelative($uri, self::$_currentDir, self::$_docRoot, self::$_symlinks);
-
                 if (self::$_prependAbsolutePath) {
                     $prependAbsolutePath = self::$_prependAbsolutePath;
                 } elseif (self::$_prependAbsolutePathCallback) {
