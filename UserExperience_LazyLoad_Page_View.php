@@ -10,6 +10,7 @@ $is_pro = Util_Environment::is_w3tc_pro( $c );
 $plugins = get_option( 'active_plugins' );
 $is_wp_google_maps = ( in_array( 'wp-google-maps/wpGoogleMaps.php', $plugins ) );
 $is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugin.php', $plugins ) );
+$is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 
 ?>
 <?php Util_Ui::postbox_header( __( 'Lazy Loading', 'w3-total-cache' ), '', 'application' ); ?>
@@ -44,6 +45,14 @@ $is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugi
 			'control' => 'checkbox',
 			'disabled' => ( $is_pro ? !$is_wp_google_map_plugin : true ),
 			'checkbox_label' => __( 'Process Google Maps (<a href="https://wordpress.org/plugins/wp-google-map-plugin/" target="_blank">WP Google Map Plugin</a> plugin)', 'w3-total-cache' ),
+			'excerpt' => __( 'Lazy load google map', 'w3-total-cache' ),
+			'description' => array( __( 'Lazy load google map', 'w3-total-cache' ) )
+	) );
+	Util_Ui::config_item_pro( array(
+			'key' => 'lazyload.googlemaps.google_maps_easy',
+			'control' => 'checkbox',
+			'disabled' => ( $is_pro ? !$is_google_maps_easy : true ),
+			'checkbox_label' => __( 'Process Google Maps (<a href="https://wordpress.org/plugins/google-maps-easy/" target="_blank">Google Maps Easy</a> plugin)', 'w3-total-cache' ),
 			'excerpt' => __( 'Lazy load google map', 'w3-total-cache' ),
 			'description' => array( __( 'Lazy load google map', 'w3-total-cache' ) )
 	) );
