@@ -380,7 +380,7 @@ class Minify_CSS_UriRewriter {
             && '/' !== substr($uri, 0, 1) // Root-relative (/) and protocol/non-data (//).
             && 'data:' !== substr( $uri, 0, 5 ) // Data protocol.
             && '%' !== substr( $uri, 0, 1 ) // URL-encoded entity.
-            && '%' !== substr( $uri, 0, 1 ) // URL fragment.
+            && '#' !== substr( $uri, 0, 1 ) // URL fragment.
         ) {
             // URI is file-relative: rewrite depending on options
             if (self::$_prependPath === null) {
