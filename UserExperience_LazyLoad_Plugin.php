@@ -16,6 +16,25 @@ class UserExperience_LazyLoad_Plugin {
 		Util_Bus::add_ob_callback( 'lazyload', array( $this, 'ob_callback' ) );
 		$this->metaslider_hooks();
 
+		if ( $this->config->get_boolean( 'lazyload.googlemaps.google_maps_easy' ) ) {
+			$p = new UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy();
+
+			add_filter( 'w3tc_lazyload_mutator_before',
+				array( $p, 'w3tc_lazyload_mutator_before' ) );
+		}
+		if ( $this->config->get_boolean( 'lazyload.googlemaps.wp_google_maps' ) ) {
+			add_filter( 'w3tc_lazyload_mutator_before', array(
+				new UserExperience_LazyLoad_GoogleMaps_WPGoogleMaps(),
+				'w3tc_lazyload_mutator_before'
+			) );
+		}
+		if ( $this->config->get_boolean( 'lazyload.googlemaps.wp_google_map_plugin' ) ) {
+			$p = new UserExperience_LazyLoad_GoogleMaps_WPGoogleMapPlugin();
+
+			add_filter( 'w3tc_lazyload_mutator_before',
+				array( $p, 'w3tc_lazyload_mutator_before' ) );
+		}
+
 		add_filter( 'wp_get_attachment_url',
 			array( $this, 'wp_get_attachment_url' ), 10, 2 );
 		add_filter( 'w3tc_footer_comment',
@@ -114,22 +133,36 @@ class UserExperience_LazyLoad_Plugin {
 		$fireEvent = 'function(t){var e;try{e=new CustomEvent("w3tc_lazyload_loaded",{detail:{e:t}})}catch(a){(e=document.createEvent("CustomEvent")).initCustomEvent("w3tc_lazyload_loaded",!1,!1,{e:t})}window.dispatchEvent(e)}';
 		$config = '{elements_selector:".lazy",callback_loaded:' . $fireEvent . '}';
 
+		$on_initialized_javascript = apply_filters( 'w3tc_lazyload_on_initialized_javascript', '' );
+
 		if ( $method == 'async_head' ) {
+			$on_initialized_javascript_wrapped = '';
+			if ( !empty( $on_initialized_javascript ) ) {
+				// LazyLoad::Initialized fired just before making LazyLoad global
+				// so next execution cycle have it
+				$on_initialized_javascript_wrapped =
+					'window.addEventListener("LazyLoad::Initialized", function(){' .
+						'setTimeout(function() {' .
+							$on_initialized_javascript .
+						'}, 1);' .
+					'});';
+			}
+
 			$embed_script =
-				'<script>window.w3tc_lazyload=1,window.lazyLoadOptions=' . $config . '</script>' .
 				'<style>img.lazy{min-height:1px}</style>' .
-				'<script async src="' . $js_url . '"></script>';
+				'<link rel="preload" href="' . esc_url( $js_url ) . '" as="script">';
 
 			$buffer = preg_replace( '~<head(\s+[^>]*)*>~Ui',
 				'\\0' . $embed_script, $buffer, 1 );
 
-			// add protection to footer if async script executed too early
+			// load lazyload in footer to make sure DOM is ready at the moment of initialization
 			$footer_script =
 				'<script>' .
-				'document.addEventListener("DOMContentLoaded",function() {' .
-				'if (typeof LazyLoad !== "undefined") {' .
-				'window.w3tc_lazyload=new LazyLoad(window.lazyLoadOptions)' .
-				'}})</script>';
+					$on_initialized_javascript_wrapped .
+					'window.w3tc_lazyload=1,' .
+					'window.lazyLoadOptions=' . $config .
+				'</script>' .
+				'<script async src="' . esc_url( $js_url ) . '"></script>';
 			$buffer = preg_replace( '~</body(\s+[^>]*)*>~Ui',
 				$footer_script . '\\0', $buffer, 1 );
 
@@ -138,18 +171,23 @@ class UserExperience_LazyLoad_Plugin {
 				'<style>img.lazy{min-height:1px}</style>' .
 				'<script>' .
 				file_get_contents( W3TC_DIR . '/pub/js/lazyload.min.js' ) .
-				'window.w3tc_lazyload=new LazyLoad(' . $config . ')</script>';
+				'window.w3tc_lazyload=new LazyLoad(' . $config . ');' .
+				$on_initialized_javascript .
+				'</script>';
 			$buffer = preg_replace( '~</body(\s+[^>]*)*>~Ui',
 				$footer_script . '\\0', $buffer, 1 );
 		} else {   // 'sync_head'
 			$head_script =
 				'<style>img.lazy{min-height:1px}</style>' .
-				'<script src="' . $js_url . '"></script>';
+				'<script src="' . esc_url( $js_url ) . '"></script>';
 			$buffer = preg_replace( '~<head(\s+[^>]*)*>~Ui',
 				'\\0' . $head_script, $buffer, 1 );
 
 			$footer_script =
-				'<script>window.w3tc_lazyload=new LazyLoad(' . $config . ')</script>';
+				'<script>' .
+					'window.w3tc_lazyload=new LazyLoad(' . $config . ');' .
+					$on_initialized_javascript .
+				'</script>';
 			$buffer = preg_replace( '~</body(\s+[^>]*)*>~Ui',
 				$footer_script . '\\0', $buffer, 1 );
 		}
