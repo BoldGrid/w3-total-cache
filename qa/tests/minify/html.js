@@ -131,6 +131,14 @@ describe('minify html', function() {
 			(e) => e.type);
 		expect(e5input).equals('text');
 		expect(testPageHtml).contains('id=void-elements5>\n<input\ntype=text value=5></div>');
+
+		let e6img = await page.$eval('#void6image', (e) => e.alt);
+		expect(e6img).equals('b/');
+		expect(testPageHtml).contains('id=void-elements6>\n<img\nid=void6image src=a/ alt=b/ >');
+
+		let e7img = await page.$eval('#void7image', (e) => e.alt);
+		expect(e7img).equals('svg-test');
+		expect(testPageHtml).contains('<img\nalt=svg-test aria-hidden=true class=test-svg id=void7image role=test src="data:image/svg+xml;charset=utf-8,<svg height=&quot;75&quot; width=&quot;75&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot;/>">');
 	});
 
 

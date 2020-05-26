@@ -20,7 +20,7 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 	Fragment caching
 	<?php if ( !empty( $engine ) ): ?>
 		via
-		<strong><?php echo Cache::engine_name( $engine ) ?>?></strong>
+		<strong><?php echo Cache::engine_name( $engine ); ?></strong>
 	<?php endif ?>
 
 	is currently
