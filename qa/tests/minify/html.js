@@ -138,7 +138,7 @@ describe('minify html', function() {
 
 		let e7img = await page.$eval('#void7image', (e) => e.alt);
 		expect(e7img).equals('svg-test');
-		expect(testPageHtml).contains('<img\nalt=svg-test aria-hidden=true class=test-svg id=void7image role=test src="data:image/svg+xml;charset=utf-8,<svg height=&quot;75&quot; width=&quot;75&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot;/>">');
+		expect(testPageHtml).contains('id=void-elements7>\n<img alt="svg-test" aria-hidden="true" class="test-svg" id="void7image" role="test" src="data:image/svg+xml;charset=utf-8,<svg height=&quot;75&quot; width=&quot;75&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot;/>" >');
 	});
 
 
