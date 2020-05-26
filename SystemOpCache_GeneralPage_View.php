@@ -30,15 +30,15 @@ Util_Ui::config_item( array(
 		),
 	) );
 
-Util_Ui::config_item( array(
-		'key' => 'opcache.validate_timestamps',
-		'label' => 'Validate timestamps:',
-		'control' => 'checkbox',
-		'disabled' => true,
-		'value' => $validate_timestamps,
+	$validate_timestamps = '';
+	Util_Ui::config_item( array(
+		'key'            => 'opcache.validate_timestamps',
+		'label'          => 'Validate timestamps:',
+		'control'        => 'checkbox',
+		'disabled'       => true,
+		'value'          => $validate_timestamps,
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-		'description' => __( 'Once enabled, each file request will update the cache with the latest version.'
-			. 'When this setting is off, the Opcode Cache will not check, instead PHP must be restarted in order for setting changes to be reflected.', 'w3-total-cache' )
+		'description'    => __( 'Once enabled, each file request will update the cache with the latest version. When this setting is off, the Opcode Cache will not check, instead PHP must be restarted in order for setting changes to be reflected.', 'w3-total-cache' )
 	) );
 ?>
 

@@ -5,7 +5,7 @@ if ( !defined( 'ABSPATH' ) ) {
 }
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '0.13.2' );
+define( 'W3TC_VERSION', '0.13.3' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -601,6 +601,7 @@ function w3tc_e( $key, $default_value ) {
 
 
 function w3tc_er( $key, $default_value ) {
+	$default_value = __( $default_value , 'w3-total-cache' );
 	$v = get_site_option( 'w3tc_generic_widgetservices' );
 	try {
 		$v = json_decode( $v, true );
