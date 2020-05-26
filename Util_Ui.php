@@ -805,7 +805,7 @@ class Util_Ui {
 
 
 
-	static private function config_item_preprocess( $a ) {
+	static public function config_item_preprocess( $a ) {
 		$c = Dispatcher::config();
 
 		if ( !isset( $a['value'] ) || is_null( $a['value'] ) ) {
