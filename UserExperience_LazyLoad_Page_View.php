@@ -87,7 +87,7 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 						'key' => 'lazyload.googlemaps.wp_google_maps',
 						'control' => 'checkbox',
 						'disabled' => ( $is_pro ? !$is_wp_google_maps : true ),
-						'checkbox_label' => __( 'Process Google Maps (<a href="https://wordpress.org/plugins/wp-google-maps/" target="_blank">WP Google Maps</a> plugin)', 'w3-total-cache' ),
+						'checkbox_label' => __( '<a href="https://wordpress.org/plugins/wp-google-maps/" target="_blank">WP Google Maps</a> plugin', 'w3-total-cache' ),
 						'label_class' => 'w3tc_no_trtd'
 				) ) );
 				?>
