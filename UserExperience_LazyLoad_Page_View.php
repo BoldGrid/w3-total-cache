@@ -32,15 +32,6 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 				'w3-total-cache' )
 	) );
 
-	Util_Ui::config_item_pro( array(
-			'key' => 'lazyload.googlemaps.wp_google_maps',
-			'control' => 'checkbox',
-			'disabled' => ( $is_pro ? !$is_wp_google_maps : true ),
-			'checkbox_label' => __( 'Process Google Maps (<a href="https://wordpress.org/plugins/wp-google-maps/" target="_blank">WP Google Maps</a> plugin)', 'w3-total-cache' ),
-			'excerpt' => __( 'Lazy load google map', 'w3-total-cache' ),
-			'description' => array( __( 'Lazy load google map', 'w3-total-cache' ) )
-	) );
-
 	Util_Ui::config_item( array(
 			'key' => 'lazyload.exclude',
 			'label' => 'Exclude words:',
@@ -66,29 +57,42 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 	<tr>
 		<th>Google Maps</th>
 		<td>
+			<?php Util_Ui::pro_wrap_maybe_start(); ?>
 			<p class="description w3tc-gopro-excerpt" style="padding-bottom: 10px">Lazy load google map</p>
 			<div>
 				<?php
-				Util_Ui::config_item_pro( array(
+				Util_Ui::control2( Util_Ui::config_item_preprocess( array(
 						'key' => 'lazyload.googlemaps.wp_google_map_plugin',
 						'control' => 'checkbox',
 						'disabled' => ( $is_pro ? !$is_wp_google_map_plugin : true ),
 						'checkbox_label' => __( '<a href="https://wordpress.org/plugins/wp-google-map-plugin/" target="_blank">WP Google Map Plugin</a> plugin', 'w3-total-cache' ),
 						'label_class' => 'w3tc_no_trtd'
-				) );
+				) ) );
 				?>
 			</div>
 			<div>
 				<?php
-				Util_Ui::config_item_pro( array(
+				Util_Ui::control2( Util_Ui::config_item_preprocess( array(
 						'key' => 'lazyload.googlemaps.google_maps_easy',
 						'control' => 'checkbox',
 						'disabled' => ( $is_pro ? !$is_google_maps_easy : true ),
 						'checkbox_label' => __( '<a href="https://wordpress.org/plugins/google-maps-easy/" target="_blank">Google Maps Easy</a> plugin', 'w3-total-cache' ),
 						'label_class' => 'w3tc_no_trtd'
-				) );
+				) ) );
 				?>
 			</div>
+			<div>
+				<?php
+				Util_Ui::control2( Util_Ui::config_item_preprocess( array(
+						'key' => 'lazyload.googlemaps.wp_google_maps',
+						'control' => 'checkbox',
+						'disabled' => ( $is_pro ? !$is_wp_google_maps : true ),
+						'checkbox_label' => __( 'Process Google Maps (<a href="https://wordpress.org/plugins/wp-google-maps/" target="_blank">WP Google Maps</a> plugin)', 'w3-total-cache' ),
+						'label_class' => 'w3tc_no_trtd'
+				) ) );
+				?>
+			</div>
+			<?php Util_Ui::pro_wrap_maybe_end( 'lazyload_googlemaps' ); ?>
 		</td>
 	</tr>
 </table>
