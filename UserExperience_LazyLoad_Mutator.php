@@ -20,6 +20,13 @@ class UserExperience_LazyLoad_Mutator {
 		$this->excludes = apply_filters( 'w3tc_lazyload_excludes',
 			$this->config->get_array( 'lazyload.exclude' ) );
 
+		$r = apply_filters( 'w3tc_lazyload_mutator_before', array(
+			'buffer' => $buffer,
+			'modified' => $this->modified
+		) );
+		$buffer = $r['buffer'];
+		$this->modified = $r['modified'];
+
 		$unmutable = new UserExperience_LazyLoad_Mutator_Unmutable();
 		$buffer = $unmutable->remove_unmutable( $buffer );
 

@@ -182,9 +182,11 @@ class Util_Environment {
 				$result = true;
 			} else {
 				$blog_data = Util_WpmuBlogmap::get_current_blog_data();
-				if ( is_null( $blog_data ) )
+				if ( is_null( $blog_data ) ) {
 					$result = true;
-				$result = ( $blog_data[0] == 'm' );
+				} else {
+					$result = ( $blog_data[0] == 'm' );
+				}
 			}
 		}
 
@@ -332,10 +334,11 @@ class Util_Environment {
 
 
 		$blog_data = Util_WpmuBlogmap::get_current_blog_data();
-		if ( !is_null( $blog_data ) )
+		if ( !is_null( $blog_data ) ) {
 			$w3_current_blog_id = substr( $blog_data, 1 );
-		else
+		} else {
 			$w3_current_blog_id = 0;
+		}
 
 		return $w3_current_blog_id;
 	}

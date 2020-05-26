@@ -791,7 +791,10 @@ class Util_Ui {
 			echo $a['control_after'];
 		}
 
-		Util_Ui::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
+		if ( isset( $a['description'] ) ) {
+			Util_Ui::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
+		}
+
 		Util_Ui::pro_wrap_maybe_end( $a['control_name'] );
 
 		if ( $a['label_class'] != 'w3tc_no_trtd' ) {
@@ -802,7 +805,7 @@ class Util_Ui {
 
 
 
-	static private function config_item_preprocess( $a ) {
+	static public function config_item_preprocess( $a ) {
 		$c = Dispatcher::config();
 
 		if ( !isset( $a['value'] ) || is_null( $a['value'] ) ) {
