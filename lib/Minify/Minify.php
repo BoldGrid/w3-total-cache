@@ -613,6 +613,9 @@ class Minify0_Minify {
         if ($type === self::TYPE_CSS && false !== strpos($content, '@import')) {
             $content = self::_handleCssImports($content);
         }
+        if ( $type === self::TYPE_CSS ) {
+            $content = apply_filters( 'w3tc_minify_css_content', $content, null, null );
+        }
 
         // do any post-processing (esp. for editing build URIs)
         if (self::$_options['postprocessorRequire']) {

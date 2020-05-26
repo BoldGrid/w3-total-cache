@@ -601,6 +601,7 @@ function w3tc_e( $key, $default_value ) {
 
 
 function w3tc_er( $key, $default_value ) {
+	$default_value = __( $default_value , 'w3-total-cache' );
 	$v = get_site_option( 'w3tc_generic_widgetservices' );
 	try {
 		$v = json_decode( $v, true );
