@@ -377,7 +377,8 @@ class Minify_CSS_UriRewriter {
         }
         // analyze URI
         if ( !empty($uri)
-            && '/' !== substr($uri, 0, 1) // Root-relative (/) and protocol/non-data (//).
+            && '/' !== substr($uri, 0, 1) // Root-relative (/).
+            && false === strpos( $uri, '//' )  // Protocol/non-data (//).
             && 'data:' !== substr( $uri, 0, 5 ) // Data protocol.
             && '%' !== substr( $uri, 0, 1 ) // URL-encoded entity.
             && '#' !== substr( $uri, 0, 1 ) // URL fragment.
