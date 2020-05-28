@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.4
-Stable tag: 0.13.3
+Stable tag: 0.14.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -275,13 +275,25 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 0.14.1 =
+* Fixed CSS minify URL rewrite logic that affected some lazy loading and CSS URL addresses using protocols
+
+= 0.14.0 =
+* Added lazy loading for Google Maps
+* Added a filter w3tc_minify_css_content for minified contents
+* Fixed a minify regex issue in non-Unicode websites
+* Fixed a PHP notice in WPMU: accessing array offset on null
+* Fixed a minify issue where embedded CSS URL fragments were converted incorrectly
+* i18n improvement
+* Changed default to disabled for wp-admin requests in the object cache
+
 = 0.13.3 =
-* Fixed HTML minification of img elements containing embedded SVG strings.
-* Removed an identifying value for GDPR.
+* Fixed HTML minification of img elements containing embedded SVG strings
+* Removed an identifying value for GDPR
 
 = 0.13.2 =
-* Fix: Dont store content of HEAD requests.
-* Updated informational URL on page cache static page comments.
+* Fix: Dont store content of HEAD requests
+* Updated informational URL on page cache static page comments
 
 = 0.13.1 =
 * Fixed php warnings in PgCache_ContentGrabber.php
