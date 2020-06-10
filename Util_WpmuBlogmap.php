@@ -94,23 +94,49 @@ class Util_WpmuBlogmap {
 	/**
 	 * Registers new blog url in url=>blog mapfile
 	 */
-	static public function register_new_item( $blog_home_url, $config ) {
-		if ( !isset( $GLOBALS['current_blog'] ) )
+	static public function register_new_item( $config ) {
+		if ( !isset( $GLOBALS['current_blog'] ) ) {
 			return false;
-
-		$filename = Util_WpmuBlogmap::blogmap_filename_by_home_url( $blog_home_url );
-
-		if ( !@file_exists( $filename ) )
-			$blog_ids = array();
-		else {
-			$data = @file_get_contents( $filename );
-			$blog_ids = @json_decode( $data, true );
-			if ( !is_array( $blog_ids ) )
-				$blog_ids = array();
 		}
 
-		if ( isset( $blog_ids[$blog_home_url] ) )
+
+		// find blog_home_url
+		if ( Util_Environment::is_wpmu_subdomain() ) {
+			$blog_home_url = $GLOBALS['w3tc_blogmap_register_new_item'];
+		} else {
+			$home_url = rtrim( get_home_url(), '/' );
+			if ( substr( $home_url, 0, 7 ) == 'http://' ) {
+				$home_url = substr( $home_url, 7 );
+			} else if ( substr( $home_url, 0, 8 ) == 'https://' ) {
+				$home_url = substr( $home_url, 8 );
+			}
+
+			if ( substr( $GLOBALS['w3tc_blogmap_register_new_item'], 0,
+					strlen( $home_url ) ) == $home_url ) {
+				$blog_home_url = $home_url;
+			} else {
+				$blog_home_url = $GLOBALS['w3tc_blogmap_register_new_item'];
+			}
+		}
+
+
+		// write contents
+		$filename = Util_WpmuBlogmap::blogmap_filename_by_home_url( $blog_home_url );
+
+		if ( !@file_exists( $filename ) ) {
+			$blog_ids = array();
+		} else {
+			$data = @file_get_contents( $filename );
+			$blog_ids = @json_decode( $data, true );
+			if ( !is_array( $blog_ids ) ) {
+				$blog_ids = array();
+			}
+		}
+
+		if ( isset( $blog_ids[$blog_home_url] ) ) {
 			return false;
+		}
+
 		$data = $config->get_boolean( 'common.force_master' ) ? 'm' : 'c';
 		$blog_home_url = preg_replace( '/[^a-zA-Z0-9\+\.%~!:()\/\-\_]/', '', $blog_home_url );
 		$blog_ids[$blog_home_url] = $data . $GLOBALS['current_blog']->blog_id;
@@ -124,6 +150,7 @@ class Util_WpmuBlogmap {
 		}
 
 		unset( self::$content_by_filename[$filename] );
+		unset( $GLOBALS['w3tc_blogmap_register_new_item'] );
 
 		return true;
 	}

@@ -5,18 +5,18 @@ namespace W3TC;
  * Interplugin communication
  */
 class Dispatcher {
+	static private $instances = array();
+
 	/**
 	 * return component instance
 	 */
 	static public function component( $class ) {
-		static $instances = array();
-
-		if ( !isset( $instances[$class] ) ) {
+		if ( !isset( self::$instances[$class] ) ) {
 			$full_class = '\\W3TC\\' . $class;
-			$instances[$class] = new $full_class();
+			self::$instances[$class] = new $full_class();
 		}
 
-		$v = $instances[$class];   // Don't return reference
+		$v = self::$instances[$class];   // Don't return reference
 		return $v;
 	}
 
@@ -24,6 +24,12 @@ class Dispatcher {
 
 	static public function config() {
 		return self::component( 'Config' );
+	}
+
+
+
+	static public function reset_config() {
+		unset(self::$instances['Config']);
 	}
 
 

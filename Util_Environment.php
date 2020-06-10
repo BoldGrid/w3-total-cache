@@ -173,24 +173,25 @@ class Util_Environment {
 		return $wpmu;
 	}
 
+	static private $is_using_master_config = null;
+
 	static public function is_using_master_config() {
-		static $result = null;
-		if ( is_null( $result ) ) {
+		if ( is_null( self::$is_using_master_config ) ) {
 			if ( !Util_Environment::is_wpmu() ) {
-				$result = true;
+				self::$is_using_master_config = true;
 			} elseif ( is_network_admin() ) {
-				$result = true;
+				self::$is_using_master_config = true;
 			} else {
 				$blog_data = Util_WpmuBlogmap::get_current_blog_data();
 				if ( is_null( $blog_data ) ) {
-					$result = true;
+					self::$is_using_master_config = true;
 				} else {
-					$result = ( $blog_data[0] == 'm' );
+					self::$is_using_master_config = ( $blog_data[0] == 'm' );
 				}
 			}
 		}
 
-		return $result;
+		return self::$is_using_master_config;
 	}
 
 	/**
@@ -1243,5 +1244,12 @@ class Util_Environment {
 		// in case when called before constant is set
 		// wp filters are not available in that case
 		return preg_match( '~' . W3TC_WP_JSON_URI . '~', $url );
+	}
+
+	static public function reset_microcache() {
+		global $w3_current_blog_id;
+		$w3_current_blog_id = null;
+
+		self::$is_using_master_config = null;
 	}
 }
