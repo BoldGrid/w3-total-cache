@@ -14,15 +14,15 @@ class Minify_IgnoredCommentPreserver {
     }
 
     public function search($html) {
-        $html = preg_replace_callback('/<!--[\\s\\S]*?-->/', 
-            array($this, '_callback'), 
+        $html = preg_replace_callback('/<!--[\\s\\S]*?-->/',
+            array($this, '_callback'),
             $html);
         return $html;
     }
 
     public function replace($html) {
-        $html = str_replace(array_keys($this->_placeholders), 
-            array_values($this->_placeholders), 
+        $html = str_replace(array_keys($this->_placeholders),
+            array_values($this->_placeholders),
             $html);
         return $html;
     }
@@ -39,7 +39,7 @@ class Minify_IgnoredCommentPreserver {
 
     protected function _isIgnoredComment(&$comment) {
         foreach ($this->_ignoredComments as $ignoredComment) {
-            if (stristr($comment, $ignoredComment) !== false) {
+            if ( ! empty( $ignoredComment ) && stristr($comment, $ignoredComment ) !== false) {
                 return true;
             }
         }
