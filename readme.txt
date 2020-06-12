@@ -275,6 +275,11 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 0.14.2 =
+* Fixed WP-CLI rediect issue in multisite.
+* Fix: Avoid PREG_JIT_STACKLIMIT_ERROR in minify.
+* Fix: Prevent empty needle PHP warning.
+
 = 0.14.1 =
 * Fixed CSS minify URL rewrite logic that affected some lazy loading and CSS URL addresses using protocols
 
