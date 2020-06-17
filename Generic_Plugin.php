@@ -163,7 +163,6 @@ class Generic_Plugin {
 		}
 
 		if ( isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {
-			echo "\ngeneric_plugin reset\n";
 			$do_redirect = Util_WpmuBlogmap::register_new_item( $this->_config );
 
 			// reset cache of blog_id
