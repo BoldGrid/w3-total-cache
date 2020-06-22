@@ -10,12 +10,12 @@ $c = Dispatcher::config();
 $is_pro = Util_Environment::is_w3tc_pro( $c );
 
 ?>
-<p>Cache usage statistics.</p>
 
-<table class="form-table">
+<table class="form-table w3tc-pro-feature">
 	<?php
 Util_Ui::config_item_pro( array(
 		'key' => 'stats.enabled',
+		'label' => esc_html__( 'Cache usage statistics' ),
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
 		'disabled' => ( $is_pro ? null : true ),

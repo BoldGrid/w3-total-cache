@@ -10,7 +10,7 @@ if ( !defined( 'W3TC' ) )
 <?php printf( __( ' If you do not have a <acronym title="Content Delivery Network">CDN</acronym> provider try StackPath. <a href="%s" target="_blank">Sign up now to enjoy a special offer!</a>.', 'w3-total-cache' ), wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_maxcdn_signup' ), 'w3tc' ) ); ?>
 <?php endif ?>
 </p>
-<table class="form-table">
+<table class="form-table w3tc-pro-feature">
 	<?php
 	Util_Ui::config_item_pro( array(
 			'key' => 'cdnfsd.enabled',

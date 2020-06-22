@@ -938,7 +938,6 @@ class Util_Ui {
 		?>
 			</div>
 			<div class="w3tc-gopro-action">
-				<i>Pro Feature!</i>
 				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ) ?>">
 					Learn more about Pro
 				</button>

@@ -54,6 +54,8 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 	);
 
 	?>
+</table>
+<table class="form-table w3tc-pro-feature">
 	<tr>
 		<th>Google Maps</th>
 		<td>
