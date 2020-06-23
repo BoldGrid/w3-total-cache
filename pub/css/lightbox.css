@@ -340,18 +340,6 @@ fieldset[disabled] .btn {
     background-image: url(../img/overlay/ceo.png);
 }
 
-.w3tc-overlay #w3tc-upgrade ul {
-    width: 480px;
-    float: right;
-    margin-right: 20px;
-}
-.w3tc-overlay #w3tc-upgrade li {
-    background: url(../img/overlay/list-check.png) no-repeat 0px 3px;
-    color: #444;
-    list-style-type: none;
-    padding: 0 0 1px 20px;
-}
-
 .w3tc-overlay #w3tc-support-us header h2, header h3 {
     margin:0;padding:0;
 }
@@ -485,11 +473,6 @@ padding: 10px 20px 20px 20px;
     .w3tc_overlay_upgrade_content_r {
         width: inherit;
         padding: none;
-        float: none;
-    }
-
-    .w3tc-overlay #w3tc-upgrade ul {
-        width: inherit;
         float: none;
     }
 }
