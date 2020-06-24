@@ -19,9 +19,8 @@ Util_Ui::config_item_pro( array(
 		'label_class' => 'w3tc_no_trtd',
 		'excerpt' => __( 'Website visitors cannot navigate your website until a given page is ready - reduce the wait time with this feature.', 'w3-total-cache' ),
 		'description' => array(
-			__( 'Opportunities to improve user experience exist in nearly every aspect of your website. Once the components are delivered to the web browser there’s an opportunity to improve the performance of how a given page is painted in the browser. Enable, this feature to reduce wait times and ensure that users can interact with your website as quickly as possible.', 'w3-total-cache' ),
-
-			__( 'Faster paint time is a key last step in lowering bounce rates even for repeat page views.', 'w3-total-cache' )
+			__( 'Faster paint time is a key last step in lowering bounce rates even for repeat page views. Enable this feature to significantly enhance your website’s user experience by reducing wait times and ensuring that users can interact with your website as quickly as possible.', 'w3-total-cache' ),
+			__( 'Need help? Take a look at our premium support, customization and audit services.', 'w3-total-cache' ),
 		)
 	) );
 ?>

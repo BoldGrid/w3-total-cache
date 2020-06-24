@@ -20,9 +20,8 @@ if ( !defined( 'W3TC' ) )
 			'disabled' => ( $is_pro ? null : true ),
 			'excerpt' => __( 'Deliver visitors the lowest possible response and load times for all site content including HTML, media (e.g. images or fonts), CSS, and JavaScript.', 'w3-total-cache' ),
 			'description' => array(
-				__( 'Without Full Site Delivery, the HTML of your website is not delivered with the lowest latency possible. A small change to DNS settings means that every component of your website is delivered to visitors using a worldwide network of servers. The net result is more resources for content creation or for authenticated users to post comments or browser personalized experiences like e-commerce and membership sites etc.', 'w3-total-cache' ),
-				__( 'For even better performance, combine FSD with other powerful features like Browser Cache, Minify, Fragment caching, or Lazy Load!', 'w3-total-cache' ),
-				__( 'Contact support for any help maximizing your performance scores or troubleshooting.', 'w3-total-cache' )
+				__( 'Want even faster speeds? The full site delivery Content Delivery Network will speed up your website by over 60% to increase conversions, revenue and reach your website visitors globally. With a Full Site Content Delivery Network (CDN), your website and all its assets will be available instantly to your visitors all over the world at blazing fast speeds.', 'w3-total-cache' ),
+				__( 'For even better performance, combine FSD with other powerful features like Browser Cache, Minify, Fragment caching, or Lazy Load! Did you know that we offer premium support, customization and audit services? Click here for more information.', 'w3-total-cache' ),
 			)
 		) )
 	?>

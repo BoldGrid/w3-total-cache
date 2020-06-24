@@ -547,7 +547,7 @@ Util_Ui::config_item( array(
 					\W3TC\Util_Ui::pro_wrap_description(
 						__( 'Purge Logs provide information on when your cache has been purged and what triggered it.', 'w3-total-cache' ),
 						array(
-							__( 'If you are troubleshooting a complex issue in which you are not sure why your cache is being cleared, Purge Logs can tell you why', 'w3-total-cache' )
+							__( 'Sometimes, you\'ll encounter a complex issue involving your cache being purged for an unknown reason. The Purge Logs functionality can help you easily resolve those issues.', 'w3-total-cache' )
 						),
 						'general-purge-log'
 					);

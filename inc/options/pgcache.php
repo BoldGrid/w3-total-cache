@@ -263,9 +263,7 @@ Util_Ui::postbox_header( __( 'Purge Policy: ', 'w3-total-cache' ) . implode( ', 
 							'pro_feature' => true,
 							'pro_excerpt' => __( 'If you’re using the WordPress API make sure to use caching to scale performance.', 'w3-total-cache'),
 							'pro_description' => array(
-								__( 'If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver.', 'w3-total-cache'),
-
-								__( 'Note: If WordPress is not used as a backend, for additional security, the API can be disabled completely.', 'w3-total-cache')
+								__( 'If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely.', 'w3-total-cache'),
 							)
 						),
 						'disable' => 'Disable <acronym title="REpresentational State Transfer">REST</acronym> <acronym title="Application Programming Interface">API</acronym>',
