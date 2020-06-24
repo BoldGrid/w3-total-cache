@@ -65,7 +65,12 @@ class PgCache_ContentGrabber {
 	 *
 	 * @var string
 	 */
-	var $_request_uri = '';
+	private $_request_uri;
+
+	// filled by _preprocess_request_uri
+	private $_request_uri_without_querystring;
+	// filled by _preprocess_request_uri
+	private $_request_uri_querystring;
 
 	/**
 	 * Page key
@@ -556,7 +561,8 @@ class PgCache_ContentGrabber {
 		/**
 		 * Skip if there is query in the request uri
 		 */
-		if ( !$this->_is_ignored_query_string( $this->_request_uri ) ) {
+		$this->_preprocess_request_uri();
+		if ( !empty( $this->_request_uri_querystring ) ) {
 			$should_reject_qs =
 				( !$this->_config->get_boolean( 'pgcache.cache.query' ) ||
 				$this->_config->get_string( 'pgcache.engine' ) == 'file_generic' );
@@ -567,7 +573,7 @@ class PgCache_ContentGrabber {
 				$should_reject_qs = false;
 			}
 
-			if ( $should_reject_qs && strstr( $this->_request_uri, '?' ) !== false ) {
+			if ( $should_reject_qs ) {
 				$this->cache_reject_reason = 'Requested URI contains query';
 				$this->process_status = 'miss_query_string';
 
@@ -1455,9 +1461,13 @@ class PgCache_ContentGrabber {
 
 			$key_urlpart .=
 				( isset( $parts['path'] ) ? $parts['path'] : '' ) .
-				( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
+				( isset( $parts['query'] ) ?
+					$this->_normalize_querystring( '?' . $parts['query'] ) :
+					'' );
 		} else {
-			$request_url = $this->_request_host . $this->_request_uri;
+			$request_url = $this->_request_host .
+				$this->_request_uri_without_querystring .
+				$this->_request_uri_querystring;
 			$key_urlpart = $request_url;
 		}
 
@@ -1537,11 +1547,6 @@ class PgCache_ContentGrabber {
 
 				return $key . '_index';
 			}
-		}
-
-		if ( $this->_is_ignored_query_string( $key ) ) {
-			// remove query string
-			$key = preg_replace( '~\?.*$~', '', $key );
 		}
 
 		return md5( $key );
@@ -1959,38 +1964,51 @@ class PgCache_ContentGrabber {
 		return in_array( $content_type, $cache_headers );
 	}
 
-	private function _is_ignored_query_string( $uri ) {
+	/**
+	 * Fills $_request_uri_without_querystring, $_request_uri_querystring
+	 * with cache-related normalized values
+	 */
+	private function _preprocess_request_uri() {
+		$p = explode( '?', $this->_request_uri, 2 );
+
+		$this->_request_uri_without_querystring = $p[0];
+		$this->_request_uri_querystring = empty( $p[1] ) ? '' :
+			$this->_normalize_querystring( '?' . $p[1] );
+	}
+
+
+
+	private function _normalize_querystring( $querystring ) {
 		$ignore_qs = $this->_config->get_array( 'pgcache.accept.qs' );
 		$ignore_qs = w3tc_apply_filters( 'pagecache_extract_accept_qs', $ignore_qs );
 		Util_Rule::array_trim( $ignore_qs );
 
-		if ( empty( $ignore_qs ) ) {
-			return false;
+		if ( empty( $ignore_qs ) || empty( $querystring ) ) {
+			return $querystring;
 		}
 
-		$p = strpos( $uri, '?' );
-		if ( $p === false ) {
-			return false;
-		}
-		$uri = substr( $uri, $p + 1 );
+		$querystring_naked = substr( $querystring, 1 );
 
 		foreach ( $ignore_qs as $qs ) {
 			$m = null;
 			if ( strpos( $qs, '=' ) === false ) {
 				$regexp = Util_Environment::preg_quote( str_replace( '+', ' ', $qs ) );
-				if ( @preg_match( "~^(.*?&|)$regexp(=[^&]*)?(&.*|)$~i", $uri, $m ) ) {
-					$uri = $m[1] . $m[3];
+				if ( @preg_match( "~^(.*?&|)$regexp(=[^&]*)?(&.*|)$~i", $querystring_naked, $m ) ) {
+					$querystring_naked = $m[1] . $m[3];
 				}
 			} else {
 				$regexp = Util_Environment::preg_quote( str_replace( '+', ' ', $qs ) );
 
-				if ( @preg_match( "~^(.*?&|)$regexp(&.*|)$~i", $uri, $m ) ) {
-					$uri = $m[1] . $m[2];
+				if ( @preg_match( "~^(.*?&|)$regexp(&.*|)$~i", $querystring_naked, $m ) ) {
+					$querystring_naked = $m[1] . $m[2];
 				}
 			}
 		}
 
-		return preg_match( "~^[&]*$~", $uri );
+		$querystring_naked = preg_replace( '~[&]+~', '&', $querystring_naked );
+		$querystring_naked = trim( $querystring_naked, '&' );
+
+		return empty( $querystring_naked ) ? '' : '?' . $querystring_naked;
 	}
 
 	/**
