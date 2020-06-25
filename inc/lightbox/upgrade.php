@@ -16,7 +16,7 @@ if ( !defined( 'W3TC' ) )
 		</div>
 
 		<div>
-			<?php if ( true ): ?>
+			<?php if ( \W3TC\Util_Environment::is_https() ): ?>
 				<input id="w3tc-purchase" type="button"
 					class="btn w3tc-size w3tc-palette-tp w3tc-gauge-tp"
 					value="<?php _e( 'Go Faster With Pro', 'w3-total-cache' ) ?> " />
