@@ -3,28 +3,37 @@ namespace W3TC;
 
 if ( !defined( 'W3TC' ) )
 	die();
-
-
 ?>
 <div id="w3tc-upgrade">
-	<div class="w3tc-overlay-logo"></div>
+
+	<div id="w3tc_upgrade_header">
+
+		<div>
+			<div>
+				<strong>W3 TOTAL CACHE</strong><br />
+				<span style="font-size:16px;"><?php esc_html_e( 'Unlock more performance options', 'w3-total-cache' ); ?></span>
+			</div>
+		</div>
+
+		<div>
+			<?php if ( \W3TC\Util_Environment::is_https() ): ?>
+				<input id="w3tc-purchase" type="button"
+					class="btn w3tc-size w3tc-palette-tp w3tc-gauge-tp"
+					value="<?php _e( 'Go Faster With Pro', 'w3-total-cache' ) ?> " />
+			<?php else: ?>
+				<a id="w3tc-purchase-link"
+					href="<?php echo \W3TC\Licensing_Core::purchase_url( $data_src, $renew_key, $client_id ) ?>"
+					target="_blank"
+					class="btn w3tc-size w3tc-palette-tp w3tc-gauge-tp">
+					<?php _e( 'Go Faster With Pro', 'w3-total-cache' ) ?>
+				</a>
+			<?php endif ?>
+		</div>
+
+	</div>
+
 	<div class="w3tc_overlay_upgrade_header">
-		<iframe src="https://www.w3-edge.com/checkout-ad/?data_src=<?php echo esc_attr( $data_src ) ?>&client_id=<?php echo esc_attr( $client_id ) ?>" width="100%" height="420px"></iframe>
+		<iframe src="https://www.w3-edge.com/checkout-ad/?data_src=<?php echo esc_attr( $data_src ) ?>&client_id=<?php echo esc_attr( $client_id ) ?>" width="100%" height="410px"></iframe>
 	</div>
-	<div class="w3tc_overlay_content"></div>
-	<div class="w3tc_overlay_footer">
-		<?php if ( \W3TC\Util_Environment::is_https() ): ?>
-			<input id="w3tc-purchase" type="button"
-				class="btn w3tc-size image btn-default palette-turquoise secure"
-				value="<?php _e( 'Subscribe to Go Faster Now', 'w3-total-cache' ) ?> " />
-		<?php else: ?>
-			<a id="w3tc-purchase-link"
-				href="<?php echo \W3TC\Licensing_Core::purchase_url( $data_src, $renew_key, $client_id ) ?>"
-				target="_blank"
-				class="btn w3tc-size image btn-default palette-turquoise secure">
-				<?php _e( 'Subscribe to Go Faster Now', 'w3-total-cache' ) ?>
-			</a>
-		<?php endif ?>
-	</div>
-	<div style="clear: both"></div>
+
 </div>
