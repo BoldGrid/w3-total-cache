@@ -132,7 +132,7 @@ class UserExperience_LazyLoad_Mutator {
 			return $dim;
 		}
 
-		$url = ( !empty( $m[4] ) ? $m[4] : ( ( !empty( $m[3] ) ? $m[3] : $m2 ) ) );
+		$url = ( !empty( $m[4] ) ? $m[4] : ( ( !empty( $m[3] ) ? $m[3] : $m[2] ) ) );
 
 		// full url found
 		if ( isset( $this->posts_by_url[$url] ) ) {
