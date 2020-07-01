@@ -10,7 +10,8 @@ const env = requireRoot('lib/environment');
 const sys = requireRoot('lib/sys');
 const w3tc = requireRoot('lib/w3tc');
 
-/**environments: multiply(environments('blog'), environments('pagecache')) */
+// doesnt support disk-enhanced
+/**environments: multiply(environments('blog'), environments('cache')) */
 
 describe('', function() {
 	this.timeout(sys.suiteTimeout);
