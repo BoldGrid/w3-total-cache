@@ -276,7 +276,7 @@ Please reach out to all of these people and support their projects if you're so 
 == Changelog ==
 
 = 0.14.2 =
-* Fixed WP-CLI rediect issue in multisite
+* Fixed WP-CLI redirect issue in multisite
 * Fix: Avoid PREG_JIT_STACKLIMIT_ERROR in minify
 * Fix: Prevent empty needle PHP warning
 * Update: Allow to specify URIs with a query string in Additional Pages

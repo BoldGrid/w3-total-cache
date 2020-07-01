@@ -101,11 +101,17 @@ class Root_AdminMenu {
 				'visible_always' => false,
 				'order' => 2200
 			),
+			'w3tc_setup_guide' => array(
+				'page_title' => __( 'Setup Guide', 'w3-total-cache' ),
+				'menu_text' => __( 'Setup Guide', 'w3-total-cache' ),
+				'visible_always' => false,
+				'order' => 2300
+			),
 			'w3tc_about' => array(
 				'page_title' => __( 'About', 'w3-total-cache' ),
 				'menu_text' => __( 'About', 'w3-total-cache' ),
 				'visible_always' => true,
-				'order' => 2300
+				'order' => 2400
 			)
 		);
 		$pages = apply_filters( 'w3tc_admin_menu', $pages, $this->_config );
@@ -232,6 +238,11 @@ class Root_AdminMenu {
 		case 'w3tc_install':
 			$options_install = new Generic_Page_Install();
 			$options_install->options();
+			break;
+
+		case 'w3tc_setup_guide':
+			$setup_guide = new SetupGuide_Plugin_Admin();
+			$setup_guide->load();
 			break;
 
 		case 'w3tc_about':

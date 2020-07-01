@@ -103,4 +103,52 @@ class Util_Http {
 
 		return $upload_info;
 	}
+
+	/**
+	 * Test the time to first byte.
+	 *
+	 * @param string $url URL address.
+	 * @param bool   $nocache Whether or not to request no cache response, by sending a Cache-Control header.
+	 * @return float|false Time in seconds until the first byte is about to be transferred or false on error.
+	 */
+	public static function ttfb( $url, $nocache = false ) {
+		$ch   = curl_init( esc_url( $url ) );
+		$pass = (bool) $ch;
+		$ttfb = false;
+		$opts = array(
+			CURLOPT_FORBID_REUSE   => 1,
+			CURLOPT_FRESH_CONNECT  => 1,
+			CURLOPT_HEADER         => 0,
+			CURLOPT_RETURNTRANSFER => 0,
+			CURLOPT_NOBODY         => 1,
+			CURLOPT_FOLLOWLOCATION => 0,
+			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
+		);
+
+		if ( $nocache ) {
+			$opts[ CURLOPT_HTTPHEADER ] = array( 'Cache-Control: no-cache' );
+		}
+
+		if ( $ch ) {
+			$pass = curl_setopt_array( $ch, $opts );
+		}
+
+		if ( $pass ) {
+			$pass = curl_exec( $ch );
+		}
+
+		if ( $pass ) {
+			$info = curl_getinfo( $ch );
+		}
+
+		if ( isset( $info['starttransfer_time'] ) ) {
+			$ttfb = $info['starttransfer_time'];
+		}
+
+		if ( $ch ) {
+			curl_close( $ch );
+		}
+
+		return $ttfb;
+	}
 }

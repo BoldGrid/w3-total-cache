@@ -246,6 +246,12 @@ class Generic_Plugin_Admin {
 
 	// Define icon styles for the custom post type
 	function admin_head() {
+		$page = isset( $_GET['page'] ) ? $_GET['page'] : null;
+
+		if ( strstr( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
+			wp_redirect( esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+		}
+
 		if ( isset( $_GET['page'] ) && $_GET['page'] == 'w3tc_dashboard' ) {
 ?>
 			<script type="text/javascript">
