@@ -126,7 +126,15 @@ class Util_Http {
 		);
 
 		if ( $nocache ) {
-			$opts[ CURLOPT_HTTPHEADER ] = array( 'Cache-Control: no-cache' );
+			$opts[ CURLOPT_HTTPHEADER ] = array(
+				'Cache-Control: no-cache',
+				'Pragma: no-cache',
+			);
+
+			$qs_arr = explode( '&', parse_url( $url, PHP_URL_QUERY ) );
+			array_push( $qs_arr, 'time=' . microtime( true ) );
+
+			$opts[ CURLOPT_URL ] = $url . '?' . implode( '&', $qs_arr );
 		}
 
 		if ( $ch ) {
@@ -138,11 +146,7 @@ class Util_Http {
 		}
 
 		if ( $pass ) {
-			$info = curl_getinfo( $ch );
-		}
-
-		if ( isset( $info['starttransfer_time'] ) ) {
-			$ttfb = $info['starttransfer_time'];
+			$ttfb = curl_getinfo( $ch, CURLINFO_STARTTRANSFER_TIME );
 		}
 
 		if ( $ch ) {
@@ -150,5 +154,50 @@ class Util_Http {
 		}
 
 		return $ttfb;
+	}
+
+	/**
+	 * Retrieve HTTP headers.
+	 *
+	 * @param  string $url URL address.
+	 * @return array
+	 */
+	public static function get_headers( $url ) {
+		$ch      = curl_init( esc_url( $url ) );
+		$pass    = (bool) $ch;
+		$headers = array();
+		$opts    = array(
+			CURLOPT_FORBID_REUSE   => 1,
+			CURLOPT_FRESH_CONNECT  => 1,
+			CURLOPT_HEADER         => 1,
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_NOBODY         => 1,
+			CURLOPT_FOLLOWLOCATION => 0,
+			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
+		);
+
+		if ( $ch ) {
+			$pass = curl_setopt_array( $ch, $opts );
+		}
+
+		if ( $pass ) {
+			foreach ( explode( "\r\n", curl_exec( $ch ) ) as $index => $line ) {
+				if ( 0 === $index ) {
+					$headers['http_code'] = $line;
+					$http_code_arr        = explode( ' ', $line );
+					$headers['protocol']  = $http_code_arr[0];
+					$headers['status']    = $http_code_arr[1];
+				} elseif ( ! empty( $line ) ) {
+					list ( $key, $value ) = explode( ': ', $line );
+					$headers[ $key ]      = $value;
+				}
+			}
+		}
+
+		if ( $ch ) {
+			curl_close( $ch );
+		}
+
+		return $headers;
 	}
 }

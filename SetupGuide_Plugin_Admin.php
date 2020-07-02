@@ -148,6 +148,33 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
+	 * Admin-Ajax: Test URL addreses for Browser Cache header.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\Util_Http::get_headers()
+	 */
+	public function test_browsercache() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$results = array();
+			$urls    = array( site_url() );
+
+			foreach ( $urls as $url ) {
+				$headers = Util_Http::get_headers( $url );
+
+				$results[] = array(
+					'url'    => $url,
+					'header' => empty( $headers['max-age'] ) ? 'Missing!' : $headers['max-age'],
+				);
+			}
+
+			wp_send_json_success( $results );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
 	 * Get configuration.
 	 *
 	 * @since  X.X.X
@@ -209,6 +236,13 @@ class SetupGuide_Plugin_Admin {
 						'config_pagecache',
 					),
 				),
+				array(
+					'tag'           => 'wp_ajax_w3tc_test_browsercache',
+					'function'      => array(
+						$this,
+						'test_browsercache',
+					),
+				),
 			),
 			'steps'        => array(
 				array(
@@ -265,8 +299,7 @@ class SetupGuide_Plugin_Admin {
 									esc_html__( 'Change', 'w3-total-cache' ) . '</th>
 								</tr>
 							</thead>
-							<tbody>
-							</tbody>
+							<tbody></tbody>
 						</table>
 					</p>' .
 					( $pgcache_enabled ? '<div class="notice notice-info inline"><p>' . esc_html__( 'Page Cache is already enabled.' ) . '</p></div>' : '' ),
@@ -314,8 +347,7 @@ class SetupGuide_Plugin_Admin {
 							esc_html__( 'Change', 'w3-total-cache' ) . '</th>
 						</tr>
 						</thead>
-						<tbody>
-						</tbody>
+						<tbody></tbody>
 						</table>
 						</p>',
 				),
@@ -350,24 +382,11 @@ class SetupGuide_Plugin_Admin {
 						<tr>
 							<th>File</th>
 							<th>' . esc_html__( 'Cache-Control header', 'w3-total-cache' ) .
-							'<br /><span>' . esc_html__( 'Before', 'w3-total-cache' ) . '</span><span>' .
+							'<br /><span>' . esc_html__( 'Before', 'w3-total-cache' ) . '</span> <span>' .
 							esc_html__( 'After', 'w3-total-cache' ) . '</span></th>
 						</tr>
 						</thead>
-						<tbody>
-						<tr>
-							<td>https://example.com/file.css</td>
-							<td><span>' . esc_html__( 'Missing', 'w3-total-cache' ) . '</span><span></span></td>
-						</tr>
-						<tr>
-							<td>https://example.com/file.js</td>
-							<td><span>' . esc_html__( 'Missing', 'w3-total-cache' ) . '</span><span></span></td>
-						</tr>
-						<tr>
-							<td>https://example.com/file.png</td>
-							<td><span>' . esc_html__( 'Missing', 'w3-total-cache' ) . '</span><span></span></td>
-						</tr>
-						</tbody>
+						<tbody></tbody>
 						</table>
 						</p>',
 				),
