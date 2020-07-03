@@ -157,10 +157,16 @@ class Minify_HTML {
 			,$this->_html);
 
 		// remove trailing slash from void elements
-		$this->_html = preg_replace(
+		$_html = preg_replace(
 			'~<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)(([^\'">]|\"[^\"]*\"|\'[^\']*\'|)*?)\\s*[/]?>~i'
 			,'<$1$2>'
 			,$this->_html);
+
+		// Avoid PREG_JIT_STACKLIMIT_ERROR.  Thanks @ericek111 for https://github.com/W3EDGE/w3-total-cache/issues/190.
+		if ( preg_last_error() === PREG_NO_ERROR ) {
+			$this->_html = $_html;
+		}
+		unset( $_html );
 
 		// use newlines before 1st attribute in open tags (to limit line lengths)
 		$this->_html = preg_replace('/(<[a-z\\-]+)\\s+([^>]+>)/i', "$1\n$2", $this->_html);
