@@ -22,13 +22,18 @@ Util_Ui::config_item_pro( array(
 		'excerpt' => __( 'Enable statistics collection. Note that this consumes additional resources and is not recommended to be run continuously.',
 			'w3-total-cache' ),
 		'description' => array(
-			__( 'Statistics provide transparency into the behavior of your caching performance. Without statistics, it’s challenging to identify opportunities for improvement or ensure operations are working as expected consistently. Metrics like cache sizes, object lifetimes, hit vs miss ratio, etc across every caching method configured in your settings.', 'w3-total-cache' ),
-
+			__( 'Statistics provides near-complete transparency into the behavior of your caching performance, allowing you to identify opportunities to further improve your website speed and ensure operations are working as expected. Includes metrics like cache sizes, object lifetimes, hit vs miss ratio, etc across every caching method configured in your settings.', 'w3-total-cache' ),
 			__( 'Some statistics are available directly on your Performance Dashboard, however, the comprehensive suite of statistics are available on the Statistics screen. Web server logs created by Nginx or Apache can be analyzed if accessible.', 'w3-total-cache' ),
-
-			__( 'Use the caching statistics to compare the performance of different configurations like caching methods, object lifetimes and so on. Contact support for any help optimizing performance metrics or troubleshooting.',
-				'w3-total-cache' )
-		)
+			wp_kses(
+				sprintf(
+					// translators: 1 The opening anchor tag linking to our support page, 2 its closing tag.
+					__( 'Use the caching statistics to compare the performance of different configurations like caching methods, object lifetimes and so on. Did you know that we offer premium support, customization and audit services? %1$sClick here for more information%2$s.', 'w3-total-cache' ),
+					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
+				array( 'a' => array( 'href' => array() ) )
+			),
+		),
 	) );
 Util_Ui::config_item( array(
 		'key' => 'stats.slot_seconds',
