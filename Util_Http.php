@@ -163,7 +163,7 @@ class Util_Http {
 	 * @return array
 	 */
 	public static function get_headers( $url ) {
-		$ch      = curl_init( esc_url( $url ) );
+		$ch      = curl_init();
 		$pass    = (bool) $ch;
 		$headers = array();
 		$opts    = array(
@@ -174,7 +174,16 @@ class Util_Http {
 			CURLOPT_NOBODY         => 1,
 			CURLOPT_FOLLOWLOCATION => 0,
 			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
+			CURLOPT_HTTPHEADER     => array(
+				'Cache-Control: no-cache',
+				'Pragma: no-cache',
+			),
 		);
+
+		$qs_arr = explode( '&', parse_url( esc_url( $url ), PHP_URL_QUERY ) );
+		array_push( $qs_arr, 'time=' . microtime( true ) );
+
+		$opts[ CURLOPT_URL ] = $url . '?' . implode( '&', $qs_arr );
 
 		if ( $ch ) {
 			$pass = curl_setopt_array( $ch, $opts );
