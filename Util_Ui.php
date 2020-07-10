@@ -640,6 +640,8 @@ class Util_Ui {
 				'value' => $a['value'],
 				'disabled' => $a['disabled']
 			) );
+		} elseif ( $a['control'] === 'none' ) {
+			esc_html_e( $a['none_label'] );
 		}
 	}
 
