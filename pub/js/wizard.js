@@ -60,8 +60,6 @@
 		var $currentSlide = $container.find( '.w3tc-wizard-slides:visible' ),
 			$nextSlide = $currentSlide.next( '.w3tc-wizard-slides' );
 
-		console.log( $currentSlide, $nextSlide );
-
 		if ( $skipButton.is( ':visible' ) ) {
 			$skipButton.closest( 'span' ).hide();
 			$previousButton.closest( 'span' ).show();

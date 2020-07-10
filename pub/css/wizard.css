@@ -130,6 +130,11 @@
 	padding-left: 150px;
 }
 
+#w3tc-browsercache-table span:first-of-type,
+#w3tc-browsercache-table2 span:first-of-type {
+	float: left;
+}
+
 /* Spinner */
 .spinner.inline {
 	float: none;

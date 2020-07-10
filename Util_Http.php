@@ -122,6 +122,7 @@ class Util_Http {
 			CURLOPT_RETURNTRANSFER => 0,
 			CURLOPT_NOBODY         => 1,
 			CURLOPT_FOLLOWLOCATION => 0,
+			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
 		);
 
@@ -131,7 +132,7 @@ class Util_Http {
 				'Pragma: no-cache',
 			);
 
-			$qs_arr = explode( '&', parse_url( $url, PHP_URL_QUERY ) );
+			$qs_arr = explode( '&', wp_parse_url( $url, PHP_URL_QUERY ) );
 			array_push( $qs_arr, 'time=' . microtime( true ) );
 
 			$opts[ CURLOPT_URL ] = $url . '?' . implode( '&', $qs_arr );
@@ -163,7 +164,7 @@ class Util_Http {
 	 * @return array
 	 */
 	public static function get_headers( $url ) {
-		$ch      = curl_init( esc_url( $url ) );
+		$ch      = curl_init( $url );
 		$pass    = (bool) $ch;
 		$headers = array();
 		$opts    = array(
@@ -171,17 +172,24 @@ class Util_Http {
 			CURLOPT_FRESH_CONNECT  => 1,
 			CURLOPT_HEADER         => 1,
 			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_NOBODY         => 1,
-			CURLOPT_FOLLOWLOCATION => 0,
+			CURLOPT_FOLLOWLOCATION => 1,
+			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
 		);
 
-		if ( $ch ) {
+		if ( $pass ) {
 			$pass = curl_setopt_array( $ch, $opts );
 		}
 
 		if ( $pass ) {
-			foreach ( explode( "\r\n", curl_exec( $ch ) ) as $index => $line ) {
+			$response = curl_exec( $ch );
+		}
+
+		if ( $response ) {
+			$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE );
+			$header      = substr( $response, 0, $header_size );
+
+			foreach ( explode( "\r\n", $header ) as $index => $line ) {
 				if ( 0 === $index ) {
 					$headers['http_code'] = $line;
 					$http_code_arr        = explode( ' ', $line );
