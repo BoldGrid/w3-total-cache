@@ -11,7 +11,7 @@ $is_pro = Util_Environment::is_w3tc_pro( $c );
 
 ?>
 
-<table class="form-table w3tc-pro-feature">
+<table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">
 	<?php
 Util_Ui::config_item_pro( array(
 		'key' => 'stats.enabled',
@@ -36,7 +36,8 @@ Util_Ui::config_item( array(
 		'control' => 'textbox',
 		'textbox_type' => 'number',
 		'description' =>
-		'The duration of time in seconds to collect statistics per interval.'
+		'The duration of time in seconds to collect statistics per interval.',
+		'show_in_free' => false,
 	) );
 Util_Ui::config_item( array(
 		'key' => 'stats.slots_count',
@@ -44,21 +45,24 @@ Util_Ui::config_item( array(
 		'control' => 'textbox',
 		'textbox_type' => 'number',
 		'description' =>
-		'The number of intervals that are represented in the graph.'
+		'The number of intervals that are represented in the graph.',
+		'show_in_free' => false,
 	) );
 
 Util_Ui::config_item( array(
 		'key' => 'stats.cpu.enabled',
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Use the system reported averages of CPU resource usage.', 'w3-total-cache' ),
-		'description' => __( 'Collect CPU usage', 'w3-total-cache' )
+		'description' => __( 'Collect CPU usage', 'w3-total-cache' ),
+		'show_in_free' => false,
 	) );
 Util_Ui::config_item( array(
 		'key' => 'stats.access_log.enabled',
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Parse server access log', 'w3-total-cache' ),
 		'disabled' => ( $is_pro ? null : true ),
-		'description' => __( 'Enable collecting statistics from an Access Log.  This provides much more precise statistics.', 'w3-total-cache' )
+		'description' => __( 'Enable collecting statistics from an Access Log.  This provides much more precise statistics.', 'w3-total-cache' ),
+		'show_in_free' => false,
 	) );
 Util_Ui::config_item( array(
 		'key' => 'stats.access_log.webserver',
@@ -68,7 +72,8 @@ Util_Ui::config_item( array(
 			'apache' => 'Apache',
 			'nginx' => 'Nginx'
 		),
-		'description' => 'Webserver type generating access logs.'
+		'description' => 'Webserver type generating access logs.',
+		'show_in_free' => false,
 	) );
 Util_Ui::config_item( array(
 		'key' => 'stats.access_log.filename',
@@ -77,7 +82,8 @@ Util_Ui::config_item( array(
 		'textbox_size' => 60,
 		'description' => 'Where your access log is located.',
 		'control_after' =>
-			'<input type="button" class="button" id="ustats_access_log_test" value="Test" /><span id="ustats_access_log_test_result" style="padding-left: 20px"></span>'
+			'<input type="button" class="button" id="ustats_access_log_test" value="Test" /><span id="ustats_access_log_test_result" style="padding-left: 20px"></span>',
+		'show_in_free' => false,
 	) );
 Util_Ui::config_item( array(
 		'key' => 'stats.access_log.format',
@@ -87,7 +93,8 @@ Util_Ui::config_item( array(
 		'description' =>
 		'Format of your access log from webserver configuration.',
 		'control_after' =>
-			'<input type="button" class="button" id="ustats_access_log_format_reset" value="Reset to Default" />'
+			'<input type="button" class="button" id="ustats_access_log_format_reset" value="Reset to Default" />',
+		'show_in_free' => false,
 	) );
 ?>
 </table>

@@ -506,7 +506,7 @@ th.w3tc_extensions_manage_column_check {
 	color: #fff;
 }
 
-.w3tc-community table:not(.w3tc-pro-feature) .w3tc-gopro {
+table:not(.w3tc-pro-feature) .w3tc-gopro {
 	border-left: 3px solid green;
 	margin: 5px -20px 5px -13px;
 	box-shadow: 0 5px 5px -3px #888;
@@ -518,7 +518,7 @@ th.w3tc_extensions_manage_column_check {
 }
 
 /* Pro features on the Extensions page. */
-.w3tc-community #the-list .w3tc-gopro {
+#the-list .w3tc-gopro {
 	margin-right: -10px;
 	padding-right: 196px;
 }
@@ -528,7 +528,7 @@ th.w3tc_extensions_manage_column_check {
  * A Table for a pro feature.
  */
 
-.w3tc-community .inside table.w3tc-pro-feature {
+table.w3tc-pro-feature {
 	box-shadow: 0 5px 5px -3px #888;
 	margin-left: -10px;
 	margin-bottom: 45px;
@@ -537,8 +537,8 @@ th.w3tc_extensions_manage_column_check {
 	position: relative;
 }
 
-.w3tc-community table.w3tc-pro-feature:after,
-.w3tc-community table:not(.w3tc-pro-feature) .w3tc-gopro:after {
+table.w3tc-pro-feature:after,
+table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 	background-image: url("../img/transparent-comet.png");
 	background-repeat: no-repeat;
 	background-position: top right;
@@ -551,8 +551,8 @@ th.w3tc_extensions_manage_column_check {
 	right: 0;
 }
 
-.w3tc-community table.w3tc-pro-feature th,
-.w3tc-community table.w3tc-pro-feature td {
+table.w3tc-pro-feature th,
+table.w3tc-pro-feature td {
 	display: block;
 	box-sizing: border-box;
 	clear: both;
@@ -560,44 +560,40 @@ th.w3tc_extensions_manage_column_check {
 	margin: 0;
 }
 
-.w3tc-community table.w3tc-pro-feature th {
+table.w3tc-pro-feature th {
 	background: #294149;
 	color: #fff;
 	border-bottom: 5px solid #65bbbd;
 	width: 100%;
 }
 
-.w3tc-community table.w3tc-pro-feature td {
+table.w3tc-pro-feature td {
 	background-image: linear-gradient( to right, #f1f1f1, #f1f1f1, #f1f1f1, #e7f3f3, #56bec1, #16252c );
 	padding-right: 401.25px;
 }
 
-.w3tc-community table.w3tc-pro-feature > tbody > tr:not(:first-of-type) {
-	display: none;
-}
-
-/* Site of comet background for pro features not in a pro table. */
-.w3tc-community table:not(.w3tc-pro-feature) .w3tc-gopro:after {
+/* Size of comet background for pro features not in a pro table. */
+table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 	width: 280px;
 	height: 152px;
 }
 
 /* Size of comet background for pro features on Extensions page. */
-.w3tc-community #the-list .plugin-description .w3tc-gopro:after {
+#the-list .plugin-description .w3tc-gopro:after {
 	width: 196px;
 	height: 106px;
 }
 
 @media ( max-width: 782px ) {
-	.w3tc-community table.w3tc-pro-feature:after {
+	table.w3tc-pro-feature:after {
 		background-image: none;
 	}
 
-	.w3tc-community table.w3tc-pro-feature td {
+	table.w3tc-pro-feature td {
 		background-image: none;
 	}
 
-	.w3tc-community table.w3tc-pro-feature td {
+	table.w3tc-pro-feature td {
 		padding: 12px;
 	}
 }

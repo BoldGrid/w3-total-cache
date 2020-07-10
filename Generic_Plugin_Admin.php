@@ -111,8 +111,6 @@ class Generic_Plugin_Admin {
 		add_filter( 'w3tc_notes', array( $admin_notes, 'w3tc_notes' ) );
 		add_filter( 'w3tc_errors', array( $admin_notes, 'w3tc_errors' ), 1000 );
 
-		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
-
 		add_action( 'w3tc_ajax_faq', array(
 				$this,
 				'w3tc_ajax_faq'
@@ -221,18 +219,6 @@ class Generic_Plugin_Admin {
 
 		if ( isset( $_REQUEST['page'] ) )
 			do_action( 'admin_init_' . $_REQUEST['page'] );
-	}
-
-	/**
-	 * Filter the admin body class.
-	 *
-	 * @since SINCEVERSION
-	 *
-	 * @param string Space-separated list of CSS classes.
-	 * @return string
-	 */
-	function admin_body_class( $classes ) {
-		return $classes . ' w3tc-' . ( Util_Environment::is_w3tc_pro() ? 'pro' : 'community' );
 	}
 
 	function admin_enqueue_scripts() {

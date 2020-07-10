@@ -643,7 +643,25 @@ class Util_Ui {
 		}
 	}
 
+	/**
+	 * Get table classes for tables including pro features.
+	 *
+	 * When on the free version, tables with pro features have additional classes added to help highlight
+	 * the premium feature. If the user is on pro, this class is omitted.
+	 *
+	 * @since 0.14.3
+	 *
+	 * @return string
+	 */
+	public static function table_class() {
+		$table_class[] = 'form-table';
 
+		if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			$table_class[] = 'w3tc-pro-feature';
+		}
+
+		return implode( ' ', $table_class );
+	}
 
 	/**
 	 * Renders <tr> element with controls
@@ -721,6 +739,17 @@ class Util_Ui {
 	 *   description => description shown to the user below
 	 */
 	static public function config_item( $a ) {
+		/*
+		 * Some items we do not want shown in the free edition.
+		 *
+		 * By default, they will show in free, unless 'show_in_free' is specifically passed in as false.
+		 */
+		$is_w3tc_free = ! Util_Environment::is_w3tc_pro( Dispatcher::config() );
+		$show_in_free = ! isset( $a['show_in_free'] ) || (bool) $a['show_in_free'];
+		if ( ! $show_in_free && $is_w3tc_free ) {
+			return;
+		}
+
 		$a = Util_Ui::config_item_preprocess( $a );
 
 		if ( $a['label_class'] == 'w3tc_single_column' ) {
