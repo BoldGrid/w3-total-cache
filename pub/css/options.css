@@ -595,7 +595,8 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 
 	table.w3tc-pro-feature td {
 		padding: 12px;
-=======
+	}
+}
 
 /**
  * Banner ad on dashboard.
