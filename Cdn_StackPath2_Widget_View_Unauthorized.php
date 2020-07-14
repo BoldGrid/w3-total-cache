@@ -17,7 +17,7 @@ if ( !defined( 'W3TC' ) )
 		<?php w3tc_e( 'cdn.stackpath.widget.v2.header',
 		"Enhance your website performance by adding StackPath's (<acronym title='Content Delivery Network'>CDN</acronym>) service to your site." ) ?>
 	</p>
-	<h4 class="w3tcstackpath_signup_h4"><?php _e( 'New customer? Sign up now for a free trial!', 'w3-total-cache' )?></h4>
+	<h4 class="w3tcstackpath_signup_h4"><?php _e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' )?></h4>
 
 	<p>
 		<?php w3tc_e( 'cdn.stackpath2.widget.v2.works_magically',
