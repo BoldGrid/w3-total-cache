@@ -606,13 +606,13 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 	margin-right: 200px;
 }
 
-#w3tc_dashboard_banner .inside {
+#w3tc #w3tc_dashboard_banner .inside {
 	background-image: url("../img/transparent-comet-moon.png"), linear-gradient( to right, #fff 60%, #56bec1 100% );
 	background-repeat: no-repeat;
 	background-position: top right;
 	background-size: contain;
 	margin: 0;
-	padding-right: 250px;
+	padding: 0 250px 12px 12px;
 }
 
 #w3tc_dashboard_banner .inside > p:first-of-type {
