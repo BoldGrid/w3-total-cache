@@ -175,6 +175,10 @@ class Util_Http {
 			CURLOPT_FOLLOWLOCATION => 1,
 			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
+			CURLOPT_HTTPHEADER     => array(
+				'Cache-Control: no-cache',
+				'Pragma: no-cache',
+			),
 		);
 
 		if ( $pass ) {
