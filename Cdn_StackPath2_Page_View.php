@@ -17,7 +17,6 @@ if ( !defined( 'W3TC' ) )
 			<p>
 				Enhance your website Performance with StackPath's CDN services. StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $10 a month.
 			</p>
-			<p>New customers are eligible for a free trial.</p>
 			<p>
 				<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL )?>" target="_blank" id="netdna-stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave', 'Sign Up Now and save!' ) ?></a>
 			</p>

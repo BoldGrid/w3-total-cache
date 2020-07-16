@@ -163,52 +163,35 @@ class Generic_Plugin {
 		}
 
 		if ( isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {
-			$do_redirect = false;
-			// true value is a sign to just generate config cache
-			if ( $GLOBALS['w3tc_blogmap_register_new_item'] != 'cache_options' ) {
-				if ( Util_Environment::is_wpmu_subdomain() )
-					$blog_home_url = $GLOBALS['w3tc_blogmap_register_new_item'];
-				else {
-					$home_url = rtrim( get_home_url(), '/' );
-					if ( substr( $home_url, 0, 7 ) == 'http://' )
-						$home_url = substr( $home_url, 7 );
-					else if ( substr( $home_url, 0, 8 ) == 'https://' )
-							$home_url = substr( $home_url, 8 );
+			$do_redirect = Util_WpmuBlogmap::register_new_item( $this->_config );
 
-						if ( substr( $GLOBALS['w3tc_blogmap_register_new_item'], 0,
-								strlen( $home_url ) ) == $home_url )
-							$blog_home_url = $home_url;
-						else
-							$blog_home_url = $GLOBALS['w3tc_blogmap_register_new_item'];
-				}
+			// reset cache of blog_id
+			Util_Environment::reset_microcache();
+			Dispatcher::reset_config();
 
+			// change config to actual blog, it was master before
+			$this->_config = new Config();
 
-				$do_redirect = Util_WpmuBlogmap::register_new_item( $blog_home_url,
-					$this->_config );
-
-				// reset cache of blog_id
-				global $w3_current_blog_id;
-				$w3_current_blog_id = null;
-
-				// change config to actual blog, it was master before
-				$this->_config = new Config();
-
-				// fix environment, potentially it's first request to a specific blog
-				$environment = Dispatcher::component( 'Root_Environment' );
-				$environment->fix_on_event( $this->_config, 'first_frontend',
-					$this->_config );
-			}
+			// fix environment, potentially it's first request to a specific blog
+			$environment = Dispatcher::component( 'Root_Environment' );
+			$environment->fix_on_event( $this->_config, 'first_frontend',
+				$this->_config );
 
 			// need to repeat request processing, since we was not able to realize
 			// blog_id before so we are running with master config now.
 			// redirect to the same url causes "redirect loop" error in browser,
 			// so need to redirect to something a bit different
 			if ( $do_redirect ) {
-				if ( strpos( $_SERVER['REQUEST_URI'], '?' ) === false )
-					Util_Environment::safe_redirect_temp( $_SERVER['REQUEST_URI'] . '?repeat=w3tc' );
-				else {
-					if ( strpos( $_SERVER['REQUEST_URI'], 'repeat=w3tc' ) === false )
-						Util_Environment::safe_redirect_temp( $_SERVER['REQUEST_URI'] . '&repeat=w3tc' );
+				if ( ( defined( 'WP_CLI' ) && WP_CLI ) || php_sapi_name() == 'cli' ) {
+					// command-line mode, no real requests made,
+					// try to switch context in-request
+				} else {
+					if ( strpos( $_SERVER['REQUEST_URI'], '?' ) === false )
+						Util_Environment::safe_redirect_temp( $_SERVER['REQUEST_URI'] . '?repeat=w3tc' );
+					else {
+						if ( strpos( $_SERVER['REQUEST_URI'], 'repeat=w3tc' ) === false )
+							Util_Environment::safe_redirect_temp( $_SERVER['REQUEST_URI'] . '&repeat=w3tc' );
+					}
 				}
 			}
 		}
