@@ -517,6 +517,8 @@ Util_Ui::config_item( array(
 					<p class="description"><?php _e( 'If selected, detailed caching information will appear at the end of each page in a <acronym title="Hypertext Markup Language">HTML</acronym> comment. View a page\'s source code to review.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
+		</table>
+		<table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">
 			<tr>
 				<th><?php _e( 'Purge Logs:', 'w3-total-cache' ); ?></th>
 				<td>
