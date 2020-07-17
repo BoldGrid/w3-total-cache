@@ -634,12 +634,16 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 }
 
 @media screen and (max-width: 960px) {
-	#w3tc_dashboard_banner .inside {
+	#w3tc #w3tc_dashboard_banner {
+		margin: 45px auto auto auto;
+	}
+
+	#w3tc #w3tc_dashboard_banner .inside {
 		background: none;
 		padding: 12px;
 	}
 
-	#w3tc_dashboard_banner .inside > p:first-of-type {
+	#w3tc #w3tc_dashboard_banner .inside > p:first-of-type {
 		padding-top: initial;
 	}
 }
