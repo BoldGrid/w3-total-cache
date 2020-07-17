@@ -596,6 +596,16 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 	table.w3tc-pro-feature td {
 		padding: 12px;
 	}
+
+	/* Pro features that aren't a <table>. A <tr> for example - User Experience > Lazy Load Google Maps. */
+	table:not(.w3tc-pro-feature) .w3tc-gopro {
+		padding-right: initial;
+		background: #efefef;
+	}
+
+	table:not(.w3tc-pro-feature) .w3tc-gopro:after {
+		background: none;
+	}
 }
 
 /**
