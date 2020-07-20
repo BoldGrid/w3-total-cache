@@ -470,46 +470,17 @@ th.w3tc_extensions_manage_column_check {
 	white-space: nowrap;
 }
 
-.w3tc-gopro {
-	background: #fbfbfb;
-	border-left: 4px solid #46b450;
-	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
-	padding: 5px;
-	grid-template-columns: 1fr auto;
-	display: grid;
-	grid-gap: 30px;
-	align-items: flex-start;
-}
 
-.w3tc-gopro-action strong,
-.w3tc-gopro-action i {
-	display: block;
-	text-align: center;
-}
-
-.w3tc-gopro-action i {
-	margin-top: 2px;
-	margin-bottom: 10px;
-}
-
-.w3tc-gopro-more {
-	display: block;
-}
-
-.w3tc-gopro-more:focus {
-	box-shadow: none;
-    outline: none;
-}
+/**
+ * Go pro features.
+ */
 
 .w3tc-gopro-more .dashicons {
-	display: inline;
-	font-size: inherit;
-	line-height: inherit;
+	font-size: 1em;
+	margin-left: -3px;
+	vertical-align: baseline;
 }
 
-.w3tc-gopro-excerpt {
-	display: block;
-}
 .w3tc-gopro-description {
 	display: block;
 	max-height: 0px;
@@ -517,9 +488,8 @@ th.w3tc_extensions_manage_column_check {
 	overflow: hidden;
 }
 
-/* For pro features in a table, ensure the checkboxes / etc remained aligned. */
-.form-table .w3tc-gopro {
-	margin-left: -9px;
+.w3tc-gopro-action {
+	margin-top: 15px;
 }
 
 .button.w3tc-gopro-button {
@@ -534,4 +504,156 @@ th.w3tc_extensions_manage_column_check {
 	box-shadow: 0 1px 0 green;
 	background: #009900;
 	color: #fff;
+}
+
+table:not(.w3tc-pro-feature) .w3tc-gopro {
+	border-left: 3px solid green;
+	margin: 5px -20px 5px -13px;
+	box-shadow: 0 5px 5px -3px #888;
+	background: #efefef;
+	padding: 10px;
+	background-image: linear-gradient( to right, #f1f1f1, #f1f1f1, #f1f1f1, #f1f1f1, #e7f3f3, #56bec1, #16252c );
+	position: relative;
+	padding-right: 280px;
+}
+
+/* Pro features on the Extensions page. */
+#the-list .w3tc-gopro {
+	margin-right: -10px;
+	padding-right: 196px;
+}
+
+
+/**
+ * A Table for a pro feature.
+ */
+
+table.w3tc-pro-feature {
+	box-shadow: 0 5px 5px -3px #888;
+	margin-left: -10px;
+	margin-bottom: 45px;
+	width: calc(100% + 20px);
+	background: #fff;
+	position: relative;
+}
+
+table.w3tc-pro-feature:after,
+table:not(.w3tc-pro-feature) .w3tc-gopro:after {
+	background-image: url("../img/transparent-comet.png");
+	background-repeat: no-repeat;
+	background-position: top right;
+	background-size: 100% 100%;
+	content:"";
+	width: 321px;
+	height: 174px;
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+table.w3tc-pro-feature th,
+table.w3tc-pro-feature td {
+	display: block;
+	box-sizing: border-box;
+	clear: both;
+	padding: 12px;
+	margin: 0;
+}
+
+table.w3tc-pro-feature th {
+	background: #294149;
+	color: #fff;
+	border-bottom: 5px solid #65bbbd;
+	width: 100%;
+}
+
+table.w3tc-pro-feature td {
+	background-image: linear-gradient( to right, #f1f1f1, #f1f1f1, #f1f1f1, #e7f3f3, #56bec1, #16252c );
+	padding-right: 401.25px;
+}
+
+/* Size of comet background for pro features not in a pro table. */
+table:not(.w3tc-pro-feature) .w3tc-gopro:after {
+	width: 280px;
+	height: 152px;
+}
+
+/* Size of comet background for pro features on Extensions page. */
+#the-list .plugin-description .w3tc-gopro:after {
+	width: 196px;
+	height: 106px;
+}
+
+@media ( max-width: 782px ) {
+	table.w3tc-pro-feature:after {
+		background-image: none;
+	}
+
+	table.w3tc-pro-feature td {
+		background-image: none;
+	}
+
+	table.w3tc-pro-feature td {
+		padding: 12px;
+	}
+
+	/* Pro features that aren't a <table>. A <tr> for example - User Experience > Lazy Load Google Maps. */
+	table:not(.w3tc-pro-feature) .w3tc-gopro {
+		padding-right: initial;
+		background: #efefef;
+	}
+
+	table:not(.w3tc-pro-feature) .w3tc-gopro:after {
+		background: none;
+	}
+}
+
+/**
+ * Banner ad on dashboard.
+ */
+
+#w3tc_dashboard_banner {
+	margin-right: 200px;
+}
+
+#w3tc #w3tc_dashboard_banner .inside {
+	background-image: url("../img/transparent-comet-moon.png"), linear-gradient( to right, #fff 60%, #56bec1 100% );
+	background-repeat: no-repeat;
+	background-position: top right;
+	background-size: contain;
+	margin: 0;
+	padding: 0 250px 12px 12px;
+}
+
+#w3tc_dashboard_banner .inside > p:first-of-type {
+	margin-top: 0;
+    padding-top: 1em;
+}
+
+#w3tc_dashboard_banner .hndle {
+	background: #eee;
+	border-bottom: 3px solid #65bbbd;
+}
+
+#w3tc_dashboard_banner .w3tc-postbox-ad {
+	position: absolute;
+	top: 13px;
+	right: 10px;
+	font-size: 12px;
+	max-width: calc( 100% - 200px );
+}
+
+@media screen and (max-width: 960px) {
+	#w3tc #w3tc_dashboard_banner {
+		margin: 45px auto auto auto;
+	}
+
+	#w3tc #w3tc_dashboard_banner .inside {
+		background: none;
+		padding: 12px;
+	}
+
+	#w3tc #w3tc_dashboard_banner .inside > p:first-of-type {
+		padding-top: initial;
+	}
 }

@@ -54,6 +54,8 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 	);
 
 	?>
+</table>
+<table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">
 	<tr>
 		<th>Google Maps</th>
 		<td>

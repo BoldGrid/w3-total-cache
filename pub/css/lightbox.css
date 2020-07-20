@@ -340,18 +340,6 @@ fieldset[disabled] .btn {
     background-image: url(../img/overlay/ceo.png);
 }
 
-.w3tc-overlay #w3tc-upgrade ul {
-    width: 480px;
-    float: right;
-    margin-right: 20px;
-}
-.w3tc-overlay #w3tc-upgrade li {
-    background: url(../img/overlay/list-check.png) no-repeat 0px 3px;
-    color: #444;
-    list-style-type: none;
-    padding: 0 0 1px 20px;
-}
-
 .w3tc-overlay #w3tc-support-us header h2, header h3 {
     margin:0;padding:0;
 }
@@ -432,14 +420,10 @@ padding: 10px 20px 20px 20px;
     padding: 10px 10px 10px 10px;
 }
 .w3tc_overlay_upgrade_header {
-    padding: 10px 10px 10px 10px;
     background-color: #f3f3f3;
     color: #cacaca;
-    border-bottom: dashed 1px #c0c0c0;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    -webkit-border-top-left-radius: 6px;
-    -webkit-border-top-right-radius: 6px;
+    height: calc(100% - 80px);
+    box-sizing: border-box;
 }
 
 .w3tc_overlay_upgrade_content_l {
@@ -491,9 +475,82 @@ padding: 10px 20px 20px 20px;
         padding: none;
         float: none;
     }
+}
 
-    .w3tc-overlay #w3tc-upgrade ul {
-        width: inherit;
-        float: none;
-    }
+
+/**
+ * Colors.
+ */
+
+/* "tp" is Turquoise Pearl, courtesty of https://hexcolor.co/hex/30bec4. */
+input.w3tc-palette-tp,
+a.w3tc-palette-tp {
+	background-color: #30bec4;
+	color: #fff;
+}
+
+/* A button with an icon gauge to the right. */
+#w3tc_upgrade_header .w3tc-gauge-tp {
+	background-image: url(../img/overlay/gauge-bg-tp.png);
+	background-position: calc(100% - 15px) center;
+	background-repeat: no-repeat;
+	text-decoration: none;
+	padding: 7px 60px 7px 12px;
+}
+
+
+/**
+ * Upgrade modal.
+ */
+ 
+#w3tc-upgrade {
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+/* The close button will be different for the upgrade modal. */
+.w3tc-overlay-upgrade .lightbox-close {
+	border-radius: 50%;
+	padding: 0;
+	background-position: 8px;
+	margin: 0;
+	top: -12px;
+	right: -12px;
+	width: 25px;
+	height: 25px;
+}
+
+#w3tc_upgrade_header {
+	display: flex;
+	background: #000;
+	border-bottom: 5px solid #30bec4;
+	color: #fff;
+	height: 75px;
+	position: relative;
+}
+ 
+#w3tc_upgrade_header > div {
+	flex: 1;
+}
+ 
+#w3tc_upgrade_header > div:first-child div {
+	position: absolute;
+	top: 17px;
+	left: 90px;
+	font-size: 20px;
+	line-height: 20px;
+}
+ 
+/* Go faster now button. It could be an anchor or an input. */
+#w3tc_upgrade_header > div:nth-child(2) > *:first-child {
+	position: absolute;
+	top: 20px;
+	right: 90px;
+}
+
+/* Ensure a consistent background with the iframe and the modal elements. */
+.w3tc-overlay-upgrade,
+.w3tc_overlay_upgrade_header,
+.w3tc-overlay-upgrade .lightbox-close {
+	background-color: #f1f1f1;
 }
