@@ -40,7 +40,7 @@ Util_Ui::config_overloading_button( array(
 					'href' => array(),
 				),
 				'strong' => array(),
-			),
+			)
 		),
 		'description' => array(),
 	) );
