@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.4
-Stable tag: 0.14.2
+Stable tag: 0.14.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -274,6 +274,12 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.14.3 =
+* Fix: Take "Accepted Query Strings" into account when "Cache query strings" enabled
+* Fix: Fix typo in variable for lazy loading
+* Update: Add lazy load Google Maps reference to the general settings page
+* Update: Support background-image: together with background: for lazy loading
 
 = 0.14.2 =
 * Fixed WP-CLI redirect issue in multisite
