@@ -128,7 +128,7 @@ class Template {
 			'all'
 		);
 
-		if ( isset( $this->config['styles'] ) && is_array( $this->config['styles']) ) {
+		if ( isset( $this->config['styles'] ) && is_array( $this->config['styles'] ) ) {
 			foreach ( $this->config['styles'] as $style ) {
 				wp_enqueue_style(
 					$style['handle'],
@@ -190,7 +190,7 @@ class Template {
 <div id="w3tc-wizard-container">
 
 	<div id="w3tc_wizard_header">
-		<img id="w3tc_wizard_icon" src="<?php echo esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png') ); ?>" />
+		<img id="w3tc_wizard_icon" src="<?php echo esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ); ?>" />
 		<div id="w3tc_wizard_title">
 			<span>TOTAL</span> <span>CACHE</span><span>:</span> <span><?php echo esc_html( $this->config['title'] ); ?></span>
 		</div>
@@ -216,7 +216,7 @@ class Template {
 		foreach ( $this->config['slides'] as $number => $slide ) {
 			$number++;
 			?>
-			<div id="w3tc-wizard-slide-<?php echo esc_attr( $number ); ?>" class="w3tc-wizard-slides<?php echo $hidden; ?>">
+			<div id="w3tc-wizard-slide-<?php echo esc_attr( $number ); ?>" class="w3tc-wizard-slides<?php echo esc_attr( $hidden ); ?>">
 				<h3><?php echo wp_kses( $slide['headline'], $allowed_html ); ?></h3>
 				<?php echo wp_kses( $slide['markup'], $allowed_html ); ?>
 			</div>
@@ -239,7 +239,7 @@ class Template {
 		</div>
 	</div>
 
-	<?php wp_nonce_field( 'w3tc_wizard' ); ?>
+		<?php wp_nonce_field( 'w3tc_wizard' ); ?>
 	<div id="test-results" class="hidden"></div>
 </div>
 
