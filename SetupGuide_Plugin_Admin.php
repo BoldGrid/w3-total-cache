@@ -321,7 +321,7 @@ class SetupGuide_Plugin_Admin {
 						) . '</p>
 						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong>
 						' . esc_html__(
-							'provides many options to help you website preform faster.  While the ideal settings vary for every website, there are a few settings we recommend that you enable now.',
+							'provides many options to help your website perform faster.  While the ideal settings vary for every website, there are a few settings we recommend that you enable now.',
 							'w3-total-cache'
 						) . '</p>',
 				),
