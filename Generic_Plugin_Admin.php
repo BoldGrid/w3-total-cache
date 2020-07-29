@@ -252,10 +252,16 @@ class Generic_Plugin_Admin {
 		$page = isset( $_GET['page'] ) ? $_GET['page'] : null;
 
 		if ( strstr( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
-			wp_redirect( esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+			$config               = new Config();
+			$pgcache_enabled      = $config->get_boolean( 'pgcache.enabled' );
+			$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
+
+			if ( ! $pgcache_enabled && ! $browsercache_enabled ) {
+				wp_redirect( esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+			}
 		}
 
-		if ( isset( $_GET['page'] ) && $_GET['page'] == 'w3tc_dashboard' ) {
+		if ( 'w3tc_dashboard' === $page ) {
 ?>
 			<script type="text/javascript">
 			jQuery(function() {
