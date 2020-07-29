@@ -340,7 +340,13 @@ class SetupGuide_Plugin_Admin {
 					esc_html__( 'can help you speed up', 'w3-total-cache' ) .
 					' <em>' . esc_html__( 'Time to First Byte.', 'w3-total-cache' ) . '</em> ' .
 					esc_html__( 'Before we do, let\'s get a baseline and take a measurement.', 'w3-total-cache' ) .
-					'</p><p><span class="spinner inline"></span>' . esc_html__( 'Measuring', 'w3-total-cache' ) .
+					'</p>
+					<p>
+					<input class="w3tc-test-pagecache button-primary" type="button" value="' .
+					esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
+					</p>
+					<p class="hidden"><span class="spinner inline"></span>' .
+					esc_html__( 'Measuring', 'w3-total-cache' ) .
 					'<em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;</p>',
 				),
 				array( // 3.
@@ -381,10 +387,10 @@ class SetupGuide_Plugin_Admin {
 							'</em>'
 						) . '</p>
 					<p>
-						<input id="w3tc-test-pagecache" class="button-primary" type="button" value="' .
+						<input class="w3tc-test-pagecache button-primary" type="button" value="' .
 						esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
 					</p>
-					<p id="w3tc-testing-pagecache" class="hidden"><span class="spinner inline"></span>' .
+					<p class="hidden"><span class="spinner inline"></span>' .
 						esc_html__( 'Measuring', 'w3-total-cache' ) .
 						'<em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;
 					</p>',

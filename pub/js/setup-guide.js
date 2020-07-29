@@ -21,42 +21,45 @@ function w3tc_wizard_actions( $slide ) {
 
 	switch ( slideId ) {
 		case 'w3tc-wizard-slide-2':
-			// Test TTFB and then advance to the next slide.
-			$navButtonsEnabled.attr( 'disabled', 'disabled' );
+			// Test TTFB on button click and then advance to the next slide.
+			jQuery( '#w3tc-wizard-next' ).attr( 'disabled', 'disabled' );
 			jQuery( '#w3tc-wizard-step-1' ).addClass( 'is-active' );
 			$slide.find( '.notice' ).remove();
 			jQuery( '#w3tc-ttfb-table tbody' ).empty();
-			$slide.find( '.spinner' ).addClass( 'is-active' ).closest( 'p' ).show();
-			jQuery.ajax({
-				method: 'POST',
-				url: ajaxurl,
-				data: {
-					_wpnonce: jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val(),
-					action: 'w3tc_test_ttfb',
-					nocache: true
-				}
-			})
-			.done(function( response ) {
-				var results = '';
-				response.data.forEach(function( item ) {
-					results += '<tr><td>' + item.url + '</td><td>' +
-						parseInt( item.ttfb * 1000 ) +
-						'ms | ?? | ??</td></tr>';
+			$slide.find( '.w3tc-test-pagecache' ).unbind().on('click', function () {
+				jQuery( '#w3tc-wizard-previous' ).attr( 'disabled', 'disabled' );
+				$slide.find( '.spinner' ).addClass( 'is-active' ).closest( 'p' ).show();
+				jQuery.ajax({
+					method: 'POST',
+					url: ajaxurl,
+					data: {
+						_wpnonce: jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val(),
+						action: 'w3tc_test_ttfb',
+						nocache: true
+					}
+				})
+				.done(function( response ) {
+					var results = '';
+					response.data.forEach(function( item ) {
+						results += '<tr><td>' + item.url + '</td><td>' +
+							parseInt( item.ttfb * 1000 ) +
+							'ms | ?? | ??</td></tr>';
+					});
+					jQuery( '#test-results' ).data( 'ttfb', response.data );
+					$slide.append( '<p class="notice notice-info">' + W3TC_SetupGuide.test_complete_msg + ' <span class="spinner inline is-active"></span></p>' );
+					$navButtonsEnabled.removeAttr( 'disabled' );
+					jQuery( '#w3tc-ttfb-table tbody' ).append( results );
+					jQuery( '#w3tc-wizard-next' ).click();
+				})
+				.fail(function() {
+					$slide.append( '<p class="notice notice-error"><strong>' + W3TC_SetupGuide.test_error_msg + '</strong></p>' );
+					jQuery( '#w3tc-wizard-next' ).closest( 'span' ).hide();
+					jQuery( '#w3tc-wizard-previous' ).closest( 'span' ).hide();
+					jQuery( '#w3tc-wizard-skip' ).closest( 'span' ).show();
+				})
+				.complete(function() {
+					$slide.find( '.spinner' ).removeClass( 'is-active' ).closest( 'p' ).hide();
 				});
-				jQuery( '#test-results' ).data( 'ttfb', response.data );
-				$slide.append( '<p class="notice notice-info">' + W3TC_SetupGuide.test_complete_msg + ' <span class="spinner inline is-active"></span></p>' );
-				$navButtonsEnabled.removeAttr( 'disabled' );
-				jQuery( '#w3tc-ttfb-table tbody' ).append( results );
-				jQuery( '#w3tc-wizard-next' ).click();
-			})
-			.fail(function() {
-				$slide.append( '<p class="notice notice-error"><strong>' + W3TC_SetupGuide.test_error_msg + '</strong></p>' );
-				jQuery( '#w3tc-wizard-next' ).closest( 'span' ).hide();
-				jQuery( '#w3tc-wizard-previous' ).closest( 'span' ).hide();
-				jQuery( '#w3tc-wizard-skip' ).closest( 'span' ).show();
-			})
-			.complete(function() {
-				$slide.find( '.spinner' ).removeClass( 'is-active' ).closest( 'p' ).hide();
 			});
 			break;
 		case 'w3tc-wizard-slide-4':
@@ -66,7 +69,7 @@ function w3tc_wizard_actions( $slide ) {
 			jQuery( '#w3tc-ttfb-table2 tbody' ).empty();
 			$slide.find( '.spinner' ).removeClass( 'is-active' ).closest( 'p' ).hide();
 
-			$slide.find( '#w3tc-test-pagecache' ).unbind().on('click', function () {
+			$slide.find( '.w3tc-test-pagecache' ).unbind().on('click', function () {
 				var $enabled = jQuery( 'input:checkbox[name=enable_pagecache]' );
 
 				jQuery( '#w3tc-wizard-previous' ).attr( 'disabled', 'disabled' );
