@@ -275,6 +275,16 @@ function w3tc_wizard_actions( $slide ) {
 				'%)';
 
 			jQuery( '#w3tc-ttfb-diff-avg' ).html( html );
+
+			jQuery.ajax({
+				method: 'POST',
+				url: ajaxurl,
+				data: {
+					_wpnonce: jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val(),
+					action: "w3tc_wizard_skip"
+				}
+			});
+
 			break;
 		default:
 			break;
