@@ -420,7 +420,11 @@ class SetupGuide_Plugin_Admin {
 							'can help ensure browsers are properly caching your assets.  Before making any changes, let\'s first review your current browser cache settings.',
 							'w3-total-cache'
 						) . '</p>
-						<p><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
+						<p>
+						<input class="w3tc-test-browsercache button-primary" type="button" value="' .
+						esc_html__( 'Test Browser Cache', 'w3-total-cache' ) . '">
+						</p>
+						<p class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
 						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;</p>',
 				),
 				array( // 7.
@@ -469,10 +473,10 @@ class SetupGuide_Plugin_Admin {
 							'</em>'
 						) . '</p>
 					<p>
-						<input id="w3tc-test-browsercache" class="button-primary" type="button" value="' .
+						<input class="w3tc-test-browsercache button-primary" type="button" value="' .
 						esc_html__( 'Test Browser Cache', 'w3-total-cache' ) . '">
 					</p>
-					<p id="w3tc-testing-browsercache" class="hidden"><span class="spinner inline"></span>' .
+					<p class="hidden"><span class="spinner inline"></span>' .
 						esc_html__( 'Testing', 'w3-total-cache' ) .
 						'<em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;
 					</p>',

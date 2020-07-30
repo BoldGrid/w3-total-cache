@@ -113,7 +113,7 @@
 }
 
 /* Next button. */
-#w3tc-wizard-next {
+#w3tc-wizard-next:enabled {
 	background-color: #825772;
 	color: #fff;
 }
