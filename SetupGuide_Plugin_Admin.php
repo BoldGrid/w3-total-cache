@@ -518,7 +518,7 @@ class SetupGuide_Plugin_Admin {
 							esc_html__(
 								'%1$sBrowser Cache%2$s headers are ' .
 								( $browsercache_enabled ? 'now' : '%1$sNOT%2$s' ) .
-								' being set for your JavaScript, CSS, and images!',
+								' being set for your JavaScript, CSS, and images.',
 								'w3-total-cache',
 							),
 							'<strong>',
