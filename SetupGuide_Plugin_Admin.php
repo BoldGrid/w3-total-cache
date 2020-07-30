@@ -402,8 +402,13 @@ class SetupGuide_Plugin_Admin {
 								</tr>
 							</thead>
 							<tbody></tbody>
-						</table>' .
-					( $pgcache_enabled ? '<div class="notice notice-info inline"><p>' . esc_html__( 'Page Cache is already enabled.', 'w3-total-cache' ) . '</p></div>' : '' ),
+						</table>' . (
+						$pgcache_enabled ?
+							'<div class="notice notice-info inline"><p>' .
+							esc_html__( 'Page Cache is already enabled.  This initial test bypasses the cache.', 'w3-total-cache' ) .
+							'</p></div>' :
+							''
+					),
 				),
 				array( // 4.
 					'headline'  => __( 'Time to First Byte', 'w3-total-cache' ),
