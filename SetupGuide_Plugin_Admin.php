@@ -263,6 +263,13 @@ class SetupGuide_Plugin_Admin {
 					),
 				),
 			),
+			'styles'       => array(
+				array(
+					'handle'    => 'setup-guide',
+					'src'       => esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/setup-guide.css' ),
+					'version'   => W3TC_VERSION,
+				),
+			),
 			'actions'      => array(
 				array(
 					'tag'           => 'wp_ajax_w3tc_wizard_skip',
@@ -351,13 +358,13 @@ class SetupGuide_Plugin_Admin {
 				),
 				array( // 3.
 					'headline'  => __( 'Time to First Byte', 'w3-total-cache' ),
-					'markup'    => '<table id="w3tc-ttfb-table">
+					'markup'    => '<table id="w3tc-ttfb-table" class="w3tc-setupguide-table">
 							<thead>
 								<tr>
-									<th>'. esc_html__( 'URL', 'w3-total-cache' ) . '</th>
-									<th>'. esc_html__( 'Before', 'w3-total-cache' ) . ' | '.
-									esc_html__( 'After', 'w3-total-cache' ) . ' | '.
-									esc_html__( 'Change', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Change', 'w3-total-cache' ) . '</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
@@ -375,8 +382,8 @@ class SetupGuide_Plugin_Admin {
 						'<em>',
 						'</em>'
 					) . '</p>
-					<p><input type="checkbox" name="enable_pagecache" value="1" checked> ' .
-						esc_html__( 'Page Cache', 'w3-total-cache' ) . '</p>
+					<p><input type="checkbox" name="enable_pagecache" id="enable_pagecache" value="1" checked> <label for="enable_pagecache">' .
+						esc_html__( 'Page Cache', 'w3-total-cache' ) . '</label></p>
 					<p>' . sprintf(
 							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 							esc_html__(
@@ -397,13 +404,13 @@ class SetupGuide_Plugin_Admin {
 				),
 				array( // 5.
 					'headline'  => __( 'Time to First Byte', 'w3-total-cache' ),
-					'markup'    => '<table id="w3tc-ttfb-table2">
+					'markup'    => '<table id="w3tc-ttfb-table2" class="w3tc-setupguide-table">
 						<thead>
 						<tr>
-							<th>'. esc_html__( 'URL', 'w3-total-cache' ) . '</th>
-							<th>'. esc_html__( 'Before', 'w3-total-cache' ) . ' | '.
-							esc_html__( 'After', 'w3-total-cache' ) . ' | '.
-							esc_html__( 'Change', 'w3-total-cache' ) . '</th>
+							<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
+							<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
+							<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
+							<th>' . esc_html__( 'Change', 'w3-total-cache' ) . '</th>
 						</tr>
 						</thead>
 						<tbody></tbody>
@@ -438,12 +445,12 @@ class SetupGuide_Plugin_Admin {
 						'<em>',
 						'</em>'
 						) . '</p>
-						<table id="w3tc-browsercache-table">
+						<table id="w3tc-browsercache-table" class="w3tc-setupguide-table">
 						<thead>
 						<tr>
 							<th>File</th>
-							<th><span>' . esc_html__( 'Before', 'w3-total-cache' ) . '</span> | <span>' .
-							esc_html__( 'After', 'w3-total-cache' ) . '</span></th>
+							<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
+							<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
 						</tr>
 						</thead>
 						<tbody></tbody>
@@ -461,8 +468,8 @@ class SetupGuide_Plugin_Admin {
 						'<em>',
 						'</em>'
 						) . '</p>
-						<p><input type="checkbox" name="enable_browsercache" value="1" checked> ' .
-						esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</p>
+						<p><input type="checkbox" name="enable_browsercache" id="enable_browsercache" value="1" checked> <label for="enable_browsercache">' .
+						esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</label></p>
 						<p>' . sprintf(
 							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 							esc_html__(
@@ -483,12 +490,12 @@ class SetupGuide_Plugin_Admin {
 				),
 				array( // 9.
 					'headline'  => __( 'Browser Cache', 'w3-total-cache' ),
-					'markup'    => '<table id="w3tc-browsercache-table2">
+					'markup'    => '<table id="w3tc-browsercache-table2" class="w3tc-setupguide-table">
 						<thead>
 						<tr>
 							<th>' . esc_html__( 'File', 'w3-total-cache' ) . '</th>
-							<th><span>' . esc_html__( 'Before', 'w3-total-cache' ) . '</span> | <span>' .
-							esc_html__( 'After', 'w3-total-cache' ) . '</span></th>
+							<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
+							<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
 						</tr>
 						</thead>
 						<tbody></tbody>

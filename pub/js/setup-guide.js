@@ -42,8 +42,8 @@ function w3tc_wizard_actions( $slide ) {
 					var results = '';
 					response.data.forEach(function( item ) {
 						results += '<tr><td>' + item.url + '</td><td>' +
-							parseInt( item.ttfb * 1000 ) +
-							'ms | ?? | ??</td></tr>';
+							( item.ttfb * 1000 ).toFixed( 2 ) +
+							'ms</td><td>??</td><td>??</td></tr>';
 					});
 					jQuery( '#test-results' ).data( 'ttfb', response.data );
 					$slide.append( '<p class="notice notice-info">' + W3TC_SetupGuide.test_complete_msg + ' <span class="spinner inline is-active"></span></p>' );
@@ -117,12 +117,12 @@ function w3tc_wizard_actions( $slide ) {
 								diffTotal += diff;
 								diffPercentTotal += diffPercent;
 							results += '<tr><td>' + item.url + '</td><td>' +
-								parseInt( before ) +
-								'ms | ' +
-								parseInt( after ) +
-								'ms | ' +
+								before.toFixed( 2 ) +
+								'ms</td><td>' +
+								after.toFixed( 2 ) +
+								'ms</td><td>' +
 								( diff > 0 ? '+' : '' ) +
-								parseInt( diff ) +
+								parseInt( diff ).toFixed( 2 ) +
 								' ms (' +
 								diffPercent.toFixed( 2 ) +
 								'%)</td></tr>';
@@ -174,7 +174,7 @@ function w3tc_wizard_actions( $slide ) {
 					response.data.forEach(function( item ) {
 						results += '<tr><td>' + item.url + '</td><td>' +
 							item.header +
-							' | ??</td></tr>';
+							'</td><td>??</td></tr>';
 					});
 					jQuery( '#test-results' ).data( 'bc', response.data );
 					$slide.append( '<p class="notice notice-info">' + W3TC_SetupGuide.test_complete_msg + ' <span class="spinner inline is-active"></span></p>' );
@@ -194,7 +194,7 @@ function w3tc_wizard_actions( $slide ) {
 			});
 			break;
 		case 'w3tc-wizard-slide-8':
-			// Display TTFB result and wait for user to click to enable Page Cache; then test and advance to next slide.
+			// Display Browser Cache result and wait for user to click to enable Page Cache; then test and advance to next slide.
 			jQuery( '#w3tc-wizard-next' ).attr( 'disabled', 'disabled' );
 			$slide.find( '.notice' ).remove();
 			jQuery( '#w3tc-browsercache-table2 tbody' ).empty();
@@ -239,7 +239,7 @@ function w3tc_wizard_actions( $slide ) {
 								after = item.header;
 							results += '<tr><td>' + item.url + '</td><td>' +
 								before +
-								' | ' +
+								'</td><td>' +
 								after +
 								'</td></tr>';
 						});

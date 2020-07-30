@@ -166,6 +166,9 @@ class Template {
 				'type'    => array(),
 				'value'   => array(),
 			),
+			'label'  => array(
+				'for' => array(),
+			),
 			'p'      => array(
 				'class' => array(),
 				'id'    => array(),
@@ -176,7 +179,8 @@ class Template {
 			),
 			'strong' => array(),
 			'table'  => array(
-				'id' => array(),
+				'class' => array(),
+				'id'    => array(),
 			),
 			'tbody'  => array(),
 			'td'     => array(),
