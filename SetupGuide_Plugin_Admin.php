@@ -81,10 +81,37 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
+	 * Abbreviate a URL for display in a small space.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	public function abbreviate_url( $url ) {
+		$url = untrailingslashit( str_replace(
+			array(
+				'https://',
+				'http://',
+				'www.',
+			),
+			'',
+			$url
+		) );
+
+		if ( strlen( $url ) > 35 ) {
+			$url = substr( $url, 0, 10 ) . '&hellip;' . substr( $url, -20 );
+		}
+
+		return $url;
+	}
+
+	/**
 	 * Admin-Ajax: Test URL addreses for Time To First Byte (TTFB).
 	 *
 	 * @since  X.X.X
 	 *
+	 * @see self::abbreviate_url()
 	 * @see \W3TC\Util_Http::ttfb()
 	 */
 	public function test_ttfb() {
@@ -94,7 +121,10 @@ class SetupGuide_Plugin_Admin {
 			$urls    = array( site_url() );
 
 			foreach ( $urls as $index => $url ) {
-				$results[ $index ] = array( 'url' => $url );
+				$results[ $index ] = array(
+					'url'      => $url,
+					'urlshort' => $this->abbreviate_url( $url ),
+				);
 
 				// If "nocache" was not requested, then prime URLs if Page Cache is enabled.
 				if ( ! $nocache ) {
@@ -136,9 +166,9 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success(
 				array(
-					'enable'                 => $enable,
-					'pgcache_enabled'        => $config->get_boolean( 'pgcache.enabled' ),
-					'pgcache_previous'       => $pgcache_enabled,
+					'enable'           => $enable,
+					'pgcache_enabled'  => $config->get_boolean( 'pgcache.enabled' ),
+					'pgcache_previous' => $pgcache_enabled,
 				)
 			);
 		} else {
@@ -157,18 +187,22 @@ class SetupGuide_Plugin_Admin {
 	public function test_browsercache() {
 		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
 			$results = array();
-			$urls    = array( trailingslashit( site_url() ) );
+			$urls    = array(
+				trailingslashit( site_url() ) . 'index.php',
+				esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/setup-guide.css' ),
+				esc_url( plugin_dir_url( __FILE__ ) . 'pub/js/setup-guide.js' ),
+			);
 			$flusher = new CacheFlush();
 			$flusher->flush_all();
 
 			foreach ( $urls as $url ) {
-				//$flusher->flush_url( $url );
 				$headers = Util_Http::get_headers( $url );
 
 				$results[] = array(
-					'url'     => $url,
-					'header'  => empty( $headers['cache-control'] ) ? 'Missing!' : $headers['cache-control'],
-					'headers' => empty( $headers ) || ! is_array( $headers ) ? array() : $headers,
+					'url'       => $url,
+					'filename'  => basename( $url ),
+					'header'    => empty( $headers['cache-control'] ) ? 'Missing!' : $headers['cache-control'],
+					'headers'   => empty( $headers ) || ! is_array( $headers ) ? array() : $headers,
 				);
 			}
 

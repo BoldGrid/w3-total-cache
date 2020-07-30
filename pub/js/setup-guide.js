@@ -41,7 +41,11 @@ function w3tc_wizard_actions( $slide ) {
 				.done(function( response ) {
 					var results = '';
 					response.data.forEach(function( item ) {
-						results += '<tr><td>' + item.url + '</td><td>' +
+						results += '<tr><td><a target="_blank" href="' +
+							item.url +
+							'">' +
+							item.urlshort +
+							'</a></td><td>' +
 							( item.ttfb * 1000 ).toFixed( 2 ) +
 							'ms</td><td>??</td><td>??</td></tr>';
 					});
@@ -116,7 +120,11 @@ function w3tc_wizard_actions( $slide ) {
 								diffCount++;
 								diffTotal += diff;
 								diffPercentTotal += diffPercent;
-							results += '<tr><td>' + item.url + '</td><td>' +
+							results += '<tr><td><a target="_blank" href="' +
+								item.url +
+								'">' +
+								item.urlshort +
+								'</a></td><td>' +
 								before.toFixed( 2 ) +
 								'ms</td><td>' +
 								after.toFixed( 2 ) +
@@ -172,7 +180,11 @@ function w3tc_wizard_actions( $slide ) {
 				.done(function( response ) {
 					var results = '';
 					response.data.forEach(function( item ) {
-						results += '<tr><td>' + item.url + '</td><td>' +
+						results += '<tr><td><a target="_blank" href="' +
+							item.url +
+							'">' +
+							item.filename +
+							'</a></td><td>' +
 							item.header +
 							'</td><td>??</td></tr>';
 					});
@@ -237,7 +249,11 @@ function w3tc_wizard_actions( $slide ) {
 						response.data.forEach(function( item, index ) {
 							var before = $testResults.data( 'bc' )[ index ].header,
 								after = item.header;
-							results += '<tr><td>' + item.url + '</td><td>' +
+							results += '<tr><td><a target="_blank" href="' +
+								item.url +
+								'">' +
+								item.filename +
+								'</a></td><td>' +
 								before +
 								'</td><td>' +
 								after +
