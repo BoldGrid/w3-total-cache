@@ -44,10 +44,10 @@
 		if ( $previousSlide.length ) {
 			$currentSlide.hide();
 			$previousSlide.show();
-			$nextButton.removeAttr( 'disabled' );
+			$nextButton.removeProp( 'disabled' );
 		}
 
-		// Remove the previous button and add the skip button on the first slide.
+		// Hide the previous button and show the skip button on the first slide.
 		if ( 0 === $previousSlide.prev( '.w3tc-wizard-slides' ).length ) {
 			$previousButton.closest( 'span' ).hide();
 			$skipButton.closest( 'span' ).show();
@@ -72,7 +72,7 @@
 
 		// Disable the next button on the last slide.
 		if ( 0 === $nextSlide.next( '.w3tc-wizard-slides' ).length ) {
-			jQuery( this ).attr( 'disabled', 'disabled' );
+			jQuery( this ).prop( 'disabled', 'disabled' );
 		}
 
 		w3tc_wizard_actions( $nextSlide );

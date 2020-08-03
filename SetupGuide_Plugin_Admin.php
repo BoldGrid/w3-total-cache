@@ -282,7 +282,7 @@ class SetupGuide_Plugin_Admin {
 						'object_name' => 'W3TC_SetupGuide',
 						'data'      => array(
 							'test_complete_msg' => __(
-								'Testing complete.  Advancing to the next section...',
+								'Testing complete.  Click Next to advance to the section and see the results.',
 								'w3-total-cache'
 							),
 							'test_error_msg' => __(
@@ -382,10 +382,6 @@ class SetupGuide_Plugin_Admin {
 					' <em>' . esc_html__( 'Time to First Byte.', 'w3-total-cache' ) . '</em> ' .
 					esc_html__( 'Before we do, let\'s get a baseline and take a measurement.', 'w3-total-cache' ) .
 					'</p>
-					<p>
-					<input class="w3tc-test-pagecache button-primary" type="button" value="' .
-					esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
-					</p>
 					<p class="hidden"><span class="spinner inline"></span>' .
 					esc_html__( 'Measuring', 'w3-total-cache' ) .
 					'<em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;</p>',
@@ -466,10 +462,6 @@ class SetupGuide_Plugin_Admin {
 							'can help ensure browsers are properly caching your assets.  Before making any changes, let\'s first review your current browser cache settings.',
 							'w3-total-cache'
 						) . '</p>
-						<p>
-						<input class="w3tc-test-browsercache button-primary" type="button" value="' .
-						esc_html__( 'Test Browser Cache', 'w3-total-cache' ) . '">
-						</p>
 						<p class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
 						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;</p>',
 				),
