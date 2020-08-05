@@ -79,51 +79,39 @@ class PageSpeed_Plugin_Widget {
 
 
 	public function w3tc_ajax_pagespeed_widgetdata() {
+		$api_response = null;
 		if ( Util_Request::get( 'cache' ) != 'no' ) {
-			$response = get_transient( 'w3tc_pagespeed_widgetdata' );
-			$response = @json_decode( $response, true );
-			if ( is_array( $response ) && isset( $response['time'] ) &&
-				$response['time'] >= time() - 60 ) {
-				echo json_encode( $response );
-				return;
+			$r = get_transient( 'w3tc_pagespeed_widgetdata' );
+			$r = @json_decode( $r, true );
+			if ( is_array( $r ) && isset( $r['time'] ) &&
+					$r['time'] >= time() - 3600 ) {
+				$api_response = $r;
 			}
 		}
 
-		$config = Dispatcher::config();
-		$key = $config->get_string( 'widget.pagespeed.key' );
-		$ref = $config->get_string( 'widget.pagespeed.key.restrict.referrer' );
+		if ( is_null( $api_response ) ) {
+			$config = Dispatcher::config();
+			$key = $config->get_string( 'widget.pagespeed.key' );
+			$ref = $config->get_string( 'widget.pagespeed.key.restrict.referrer' );
 
- 		$w3_pagespeed = new PageSpeed_Api( $key, $ref );
-		$r = $w3_pagespeed->analyze( get_home_url() );
+			$w3_pagespeed = new PageSpeed_Api( $key, $ref );
+			$api_response = $w3_pagespeed->analyze( get_home_url() );
 
-		if ( !$r ) {
-			echo json_encode( array( 'error' => 'API call failed' ) );
-			return;
+			if ( !$api_response ) {
+				echo json_encode( array( 'error' => 'API call failed' ) );
+				return;
+			}
+
+			$api_response['time'] = time();
+			set_transient( 'w3tc_pagespeed_widgetdata', json_encode( $api_response ), 3600 );
 		}
 
-		$details = '<ul class="w3tc-widget-ps-rules">';
-		foreach ( $r['rules'] as $index => $rule ) {
-			if ( $index >= 5 )
-				break;
+		ob_start();
+		include W3TC_DIR . '/PageSpeed_Widget_View_FromApi.php';
+		$content = ob_get_contents();
+		ob_end_clean();
 
-			$details .=
-				'<li class="w3tc-widget-ps-rule w3tc-widget-ps-priority-' .
-				$rule['priority'] . '">' .
-				'<div class="w3tc-widget-ps-icon"><div></div></div>' .
-				'<p>' . $rule['name'] . '</p>' .
-				'</li>';
-		}
-
-		$details .= '</ul>';
-
-		$response = array(
-			'score' => $r['score'] . ' / 100',
-			'details' => $details,
-			'time' => time()
-		);
-
-		set_transient( 'w3tc_pagespeed_widgetdata', json_encode( $response ), 60 );
-		echo json_encode( $response );
+		echo json_encode( array( '.w3tcps_content' => $content ) );
 	}
 
 
@@ -132,7 +120,7 @@ class PageSpeed_Plugin_Widget {
 		if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
 			return 'n/a';
 		}
-		
+
 		$url = $_SERVER['HTTP_REFERER'];
 
 		$config = Dispatcher::config();
@@ -140,10 +128,11 @@ class PageSpeed_Plugin_Widget {
 		$ref = $config->get_string( 'widget.pagespeed.key.restrict.referrer' );
 		$w3_pagespeed = new PageSpeed_Api( $key, $ref );
 
-		$r = $w3_pagespeed->analyze( $url );
+		$r = $w3_pagespeed->get_page_score( $url );
 
-		if ( $r )
-			$score .= $r['score'] . ' / 100';
+		if ( !is_null( $r ) ) {
+			$score .= (int)((float)$r * 100) . ' / 100';
+		}
 
 		return $score;
 	}
