@@ -203,8 +203,8 @@ class Generic_Plugin_Admin {
 		$score = apply_filters( 'w3tc_monitoring_score', $score );
 
 		header( "Content-Type: application/x-javascript; charset=UTF-8" );
-		echo 'document.getElementById("w3tc_monitoring_score").innerHTML = "' .
-			strtr( $score, '"', '.' ) . '";';
+		echo 'document.getElementById("w3tc_monitoring_score") && ( document.getElementById("w3tc_monitoring_score").innerHTML = "' .
+			strtr( $score, '"', '.' ) . '" );';
 
 		exit();
 	}
