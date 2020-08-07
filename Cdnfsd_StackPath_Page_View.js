@@ -24,7 +24,7 @@ jQuery(function($) {
         		'&w3tc_action=cdn_stackpath_fsd_list_zones';
 
 			var v = $('.w3tc_popup_form').find('input').each(function(i) {
-				var name = $(this).attr('name');
+				var name = $(this).prop('name');
 				if (name)
 					url += '&' + encodeURIComponent(name) + '=' +
 						encodeURIComponent($(this).val());
@@ -40,8 +40,8 @@ jQuery(function($) {
         		'&w3tc_action=cdn_stackpath_fsd_view_zone';
 
 			var v = $('.w3tc_popup_form').find('input').each(function(i) {
-				var name = $(this).attr('name');
-				var type = $(this).attr('type');
+				var name = $(this).prop('name');
+				var type = $(this).prop('type');
 				if (type == 'radio') {
 					if (!$(this).prop('checked'))
 						return;
@@ -62,7 +62,7 @@ jQuery(function($) {
         		'&w3tc_action=cdn_stackpath_fsd_configure_zone';
 
 			var v = $('.w3tc_popup_form').find('input').each(function(i) {
-				var name = $(this).attr('name');
+				var name = $(this).prop('name');
 				if (name)
 					url += '&' + encodeURIComponent(name) + '=' +
 						encodeURIComponent($(this).val());
@@ -78,7 +78,7 @@ jQuery(function($) {
         		'&w3tc_action=cdn_stackpath_fsd_configure_zone_skip';
 
 			var v = $('.w3tc_popup_form').find('input').each(function(i) {
-				var name = $(this).attr('name');
+				var name = $(this).prop('name');
 				if (name)
 					url += '&' + encodeURIComponent(name) + '=' +
 						encodeURIComponent($(this).val());

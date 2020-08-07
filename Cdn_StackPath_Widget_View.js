@@ -18,7 +18,7 @@ function w3tcstackpath_load() {
 			for (p in data) {
 				var v = data[p];
 				if (p.substr(0, 4) == 'url_')
-					jQuery('.w3tcstackpath_href_' + p.substr(4)).attr('href', v);
+					jQuery('.w3tcstackpath_href_' + p.substr(4)).prop('href', v);
 				else
 					jQuery('.w3tcstackpath_' + p).html(v);
 			}

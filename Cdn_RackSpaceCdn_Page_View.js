@@ -138,7 +138,7 @@ jQuery(function($) {
         		'&w3tc_action=cdn_rackspace_configure_domains_done';
 
 			var v = $('.w3tc_cdn_rackspace_form').find('input').each(function(i) {
-				var name = $(this).attr('name');
+				var name = $(this).prop('name');
 
 				if (name)
 					url += '&' + encodeURIComponent(name) + '=' +

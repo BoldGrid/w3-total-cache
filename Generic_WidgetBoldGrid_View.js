@@ -8,10 +8,12 @@ jQuery( document ).ready( function( $ ) {
 			return;
 		}
 
-		try {
-			message = $.parseJSON( originalEvent.data );
-		} catch ( e ) {
-			return;
+		if ( originalEvent.data ) {
+			try {
+				message = $.parseJSON( originalEvent.data );
+			} catch ( e ) {
+				return;
+			}
 		}
 
 		if ( ! message || 'undefined' === typeof message.action ) {
@@ -19,7 +21,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 
 		if (message.action == 'install-plugin') {
-			window.location = $('#w3tc-boldgrid-install').attr('href');
+			window.location = $('#w3tc-boldgrid-install').prop('href');
 		}
 	});
 });

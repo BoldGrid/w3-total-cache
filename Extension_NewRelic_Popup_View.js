@@ -26,8 +26,8 @@ jQuery(function($) {
             var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
                 '&w3tc_action=newrelic_apply_configuration';
             $('.w3tcnr_form').find('input').each(function(i) {
-                var name = $(this).attr('name');
-                var type = $(this).attr('type');
+                var name = $(this).prop('name');
+                var type = $(this).prop('type');
                 if (type == 'radio') {
                     if (!$(this).prop('checked'))
                         return;
@@ -38,7 +38,7 @@ jQuery(function($) {
                         encodeURIComponent($(this).val());
             });
             $('.w3tcnr_form').find('select').each(function(i) {
-                var name = $(this).attr('name');
+                var name = $(this).prop('name');
                 url += '&' + encodeURIComponent(name) + '=' +
                     encodeURIComponent($(this).val());
             });

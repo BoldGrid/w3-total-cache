@@ -24,7 +24,7 @@ jQuery(function($) {
         		'&w3tc_action=cdn_limelight_save';
 
 			var v = $('.w3tc_popup_form').find('input').each(function(i) {
-				var name = $(this).attr('name');
+				var name = $(this).prop('name');
 				if (name)
 					url += '&' + encodeURIComponent(name) + '=' +
 						encodeURIComponent($(this).val());
