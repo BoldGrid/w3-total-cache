@@ -2419,7 +2419,7 @@ $keys = array(
 	),
 	'jquerymigrate.disabled' => array(
 		'type' => 'boolean',
-		'default' => version_compare( get_bloginfo( 'version' ), '5.4', '>' ),
+		'default' => false,
 	),
 
 	// extensions keys:

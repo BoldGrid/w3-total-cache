@@ -59,6 +59,15 @@ Util_Ui::config_overloading_button( array(
 			'description' => __( 'Remove wp-embed.js script from your website. oEmbed functionality still works but you will not be able to embed other WordPress posts on your pages.',
 				'w3-total-cache' )
 	) );
+
+	Util_Ui::config_item(
+		array(
+			'key'            => 'jquerymigrate.disabled',
+			'control'        => 'checkbox',
+			'checkbox_label' => __( 'Disable jquery-migrate on the front-end', 'w3-total-cache' ),
+			'description'    => __( 'Remove jquery-migrate support from your website front-end.', 'w3-total-cache' ),
+		)
+	);
 	?>
 </table>
 

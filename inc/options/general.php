@@ -481,17 +481,6 @@ Util_Ui::config_item( array(
 				</th>
 			</tr>
 			<?php
-			if ( version_compare( get_bloginfo( 'version' ), '5.5', '<' ) ) {
-				Util_Ui::config_item(
-					array(
-						'key'            => 'jquerymigrate.disabled',
-						'control'        => 'checkbox',
-						'checkbox_label' => __( 'Disable jquery-migrate on the front-end', 'w3-total-cache' ),
-						'label_class'    => 'w3tc_single_column',
-					)
-				);
-			}
-
 Util_Ui::config_item( array(
 		'key' => 'common.track_usage',
 		'control' => 'checkbox',
