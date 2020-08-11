@@ -160,13 +160,7 @@ def generate_box_descriptors(image_name)
 
 	box_descriptors = multiply(box_descriptors, {
 		# 4.0
-		'wp431' => {
-			'WP_VERSION' => '4.3.1',
-			'_except_name_contains' => [
-				'php70', 'php71', 'php73',   # many stuff gone deprecated
-				'varnish'
-			]
-		},
+		# 4.3.1
 		# 4.5.3
 		# 4.6
 		# 4.7
@@ -202,6 +196,12 @@ def generate_box_descriptors(image_name)
 			'WP_VERSION' => '5.3',
 			'_except_name_contains' => [
 				'php55'   # wp5.3 requires php>=5.6
+			]
+		},
+		'wp55' => {
+			'WP_VERSION' => '5.5-RC1',
+			'_except_name_contains' => [
+				'php55'   # wp5.5 requires php>=5.6
 			]
 		}
 	}, image_name)
