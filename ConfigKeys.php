@@ -2417,7 +2417,10 @@ $keys = array(
 		'default' => '',
 		'master_only' => true
 	),
-
+	'jquerymigrate.disabled' => array(
+		'type' => 'boolean',
+		'default' => version_compare( get_bloginfo( 'version' ), '5.4', '>' ),
+	),
 
 	// extensions keys:
 	//
