@@ -1,6 +1,6 @@
 jQuery(function($) {
     $('.w3tc_cloudflare_ip_check').click(function(e) {
-        var href = $(this).attr('href');
+        var href = $(this).prop('href');
         if (href.substr(0, 4) != '#ip=')
             return;
 
@@ -17,9 +17,9 @@ jQuery(function($) {
 
         ip_span.empty();
         $('<img>')
-            .attr('class', 'cloudflare_ip_check_img')
-            .attr('src', 'images/wpspin_light.gif')
-            .attr('alt', 'Resolving IP ' + ip)
+            .prop('class', 'cloudflare_ip_check_img')
+            .prop('src', 'images/wpspin_light.gif')
+            .prop('alt', 'Resolving IP ' + ip)
             .appendTo(ip_span);
 
         jQuery.post(ajaxurl, {

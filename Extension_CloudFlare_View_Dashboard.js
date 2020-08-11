@@ -1,6 +1,6 @@
 jQuery(function() {
     jQuery('#w3tc_dashboard [type=submit]').bind('click', function(){
-        jQuery(this).attr('was_clicked','yes');
+        jQuery(this).prop('was_clicked','yes');
     });
 
     jQuery('#w3tc_dashboard').submit(function(event) {

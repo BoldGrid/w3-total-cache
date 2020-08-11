@@ -24,7 +24,7 @@ jQuery(function($) {
         		'&w3tc_action=cdn_highwinds_select_host';
 
 			var v = $('.w3tc_cdn_highwinds_form').find('input').each(function(i) {
-				var name = $(this).attr('name');
+				var name = $(this).prop('name');
 				if (name)
 					url += '&' + encodeURIComponent(name) + '=' +
 						encodeURIComponent($(this).val());
@@ -40,8 +40,8 @@ jQuery(function($) {
         		'&w3tc_action=cdn_highwinds_configure_host';
 
 			var v = $('.w3tc_cdn_highwinds_form').find('input').each(function(i) {
-				var name = $(this).attr('name');
-				var type = $(this).attr('type');
+				var name = $(this).prop('name');
+				var type = $(this).prop('type');
 				if (type == 'radio') {
 					if (!$(this).prop('checked'))
 						return;
@@ -79,7 +79,7 @@ jQuery(function($) {
         		'&w3tc_action=cdn_highwinds_configure_cnames';
 
 			var v = $('.w3tc_cdn_highwinds_form').find('input').each(function(i) {
-				var name = $(this).attr('name');
+				var name = $(this).prop('name');
 
 				if (name)
 					url += '&' + encodeURIComponent(name) + '=' +

@@ -36,15 +36,15 @@ jQuery(function() {
         jQuery('.w3tc_generic_widgetservice_radio').click(function () {
             var o = jQuery(this);
 
-            jQuery('#w3tc_generic_widgetservices_name').val(o.attr('data-name'));
-            jQuery('#w3tc_generic_widgetservices_value').val(o.attr('data-value'));
-            jQuery('#w3tc_generic_widgetservices_form_hash').val(o.attr('data-form_hash'));
+            jQuery('#w3tc_generic_widgetservices_name').val(o.prop('data-name'));
+            jQuery('#w3tc_generic_widgetservices_value').val(o.prop('data-value'));
+            jQuery('#w3tc_generic_widgetservices_form_hash').val(o.prop('data-form_hash'));
         });
 
 		jQuery('#buy-w3-service-cancel').on('click', function () {
             jQuery('input:radio[name=service]:checked').prop('checked', false);
             jQuery('#buy-w3-service-area').empty();
-            jQuery('#buy-w3-service').attr("disabled", "disabled");
+            jQuery('#buy-w3-service').prop("disabled", "disabled");
         });
     });
 });

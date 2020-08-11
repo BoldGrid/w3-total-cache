@@ -33,7 +33,7 @@ jQuery(function($) {
 
 
 		.on('click', '.w3tc_cloudflare_zone_page', function() {
-			var page = jQuery(this).attr('data-page');
+			var page = jQuery(this).prop('data-page');
 			jQuery('input[name="w3tc_action"]').val('extension_cloudflare_intro_done');
 			jQuery('input[name="page"]').val(page);
 			
