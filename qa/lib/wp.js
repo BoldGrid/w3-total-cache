@@ -172,20 +172,41 @@ async function postCreateWP5(pPage, data) {
 		await pPage.click('button[aria-label="Show more tools & options"]');
 	} else {
 		await pPage.click('button[aria-label="More tools & options"]');
+
+		try {
+			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+				timeout: 3000
+			});
+		} catch (e) {
+			log.error('click failed, repeating');
+
+			await pPage.click('button[aria-label="More tools & options"]');
+
+			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+				timeout: 5000
+			});
+		}
 	}
 
 	if (parseFloat(env.wpVersion) < 5.2) {
 		await pPage.click('button[aria-label="Code Editor"]');
 	} else {
+		await pPage.waitForSelector('.components-dropdown-menu__popover', {
+			visible: true
+		});
+
 		let clicked = await pPage.evaluate(() => {
 			let elements = document.getElementsByClassName('components-menu-item__button');
 			for (let element of elements) {
-				if (element.innerHTML.indexOf('Code Editor') >= 0) {
+				if (element.innerHTML.toLowerCase().indexOf('code editor') >= 0) {
 					element.click();
 					return 'clicked';
 				}
 			}
+
+			return 'code editor button notfound';
 		});
+
 		expect(clicked).equals('clicked');
 	}
 
@@ -270,14 +291,33 @@ async function postCreateWP5(pPage, data) {
 	await pPage.click('.editor-post-publish-button');
 	log.log('create page - waiting for published state');
 	try {
-		await pPage.waitForSelector('.editor-post-publish-panel__header-published', {timeout: 5000});
+		if (parseFloat(env.wpVersion) < 5.5) {
+			await pPage.waitForSelector('.editor-post-publish-panel__header-published', {
+				timeout: 5000
+			});
+		} else {
+			await pPage.waitForSelector('.post-publish-panel__postpublish-header', {
+				timeout: 5000
+			});
+		}
+
 	} catch (e) {
 		log.error('failed');
 
 		log.log('click2');
 		await pPage.click('.editor-post-publish-button');
 		log.log('create page - waiting for published state2');
-		await pPage.waitForSelector('.editor-post-publish-panel__header-published', {timeout: 5000});
+
+		if (parseFloat(env.wpVersion) < 5.5) {
+			await pPage.waitForSelector('.editor-post-publish-panel__header-published', {
+				timeout: 5000
+			});
+		} else {
+			await pPage.waitForSelector('.post-publish-panel__postpublish-header', {
+				timeout: 5000
+			});
+		}
+
 		log.log('now seems ok');
 	}
 
@@ -356,20 +396,41 @@ async function postUpdateWP5(pPage, data) {
 		await pPage.click('button[aria-label="Show more tools & options"]');
 	} else {
 		await pPage.click('button[aria-label="More tools & options"]');
+
+		try {
+			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+				timeout: 3000
+			});
+		} catch (e) {
+			log.error('click failed, repeating');
+
+			await pPage.click('button[aria-label="More tools & options"]');
+
+			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+				timeout: 5000
+			});
+		}
 	}
 
 	if (parseFloat(env.wpVersion) < 5.2) {
 		await pPage.click('button[aria-label="Code Editor"]');
 	} else {
+		await pPage.waitForSelector('.components-dropdown-menu__popover', {
+			visible: true
+		});
+
 		let clicked = await pPage.evaluate(() => {
 			let elements = document.getElementsByClassName('components-menu-item__button');
 			for (let element of elements) {
-				if (element.innerHTML.indexOf('Code Editor') >= 0) {
+				if (element.innerHTML.toLowerCase().indexOf('code editor') >= 0) {
 					element.click();
 					return 'clicked';
 				}
 			}
+
+			return 'code editor button notfound';
 		});
+
 		expect(clicked).equals('clicked');
 	}
 

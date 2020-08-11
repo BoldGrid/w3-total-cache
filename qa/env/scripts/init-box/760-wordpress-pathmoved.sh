@@ -15,6 +15,7 @@ sed -i "2idefine( \"WP_CONTENT_DIR\", rtrim( \"$W3D_WP_CONTENT_PATH\", \"/\" ) )
 
 cd /var/www/wp-sandbox${W3D_WP_HOME_URI}
 sed -i "s%dirname( __FILE__ )%\"${W3D_WP_PATH}\"%" index.php
+sed -i "s%__DIR__%\"${W3D_WP_PATH}\"%" index.php
 
 if [ "$W3D_HTTP_SERVER" = 'apache' ]; then
 	mv ${W3D_WP_PATH}.htaccess /var/www/wp-sandbox/
