@@ -85,8 +85,8 @@ class Generic_Plugin {
 				) );
 		}
 
-		// If WP < 5.5, disable jquery-migrate on the front-end, if configured.
-		if ( ! is_admin() && version_compare( get_bloginfo( 'version' ), '5.5', '<' ) && $this->_config->get_boolean( 'jquerymigrate.disabled' ) ) {
+		// Disable jquery-migrate on the front-end, if configured.
+		if ( ! is_admin() && $this->_config->get_boolean( 'jquerymigrate.disabled' ) ) {
 			add_action( 'wp_default_scripts', array( $this, 'disable_jquery_migrate' ) );
 		}
 	}
