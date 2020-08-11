@@ -240,6 +240,9 @@ class Util_WpFile {
 			$url = $_SERVER['REQUEST_URI'];
 		$url = preg_replace( "/&w3tc_note=([^&]+)/", '', $url );
 
+		// Ensure request_filesystem_credentials() is available.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/template.php';
 
 		$success = true;
 		ob_start();
@@ -281,6 +284,10 @@ class Util_WpFile {
 	 */
 	static private function get_filesystem_credentials_form( $method = '', $url = '',
 		$context = false ) {
+		// Ensure request_filesystem_credentials() is available.
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+
 		ob_start();
 		// If first check failed try again and show error message
 		request_filesystem_credentials( $url, $method, true, false, array() );
