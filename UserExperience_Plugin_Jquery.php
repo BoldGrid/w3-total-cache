@@ -1,6 +1,6 @@
 <?php
 /**
- * File: UserExperience_Plugin.php
+ * File: UserExperience_Plugin_Jquery.php
  *
  * @since 0.14.4
  *
@@ -10,11 +10,11 @@
 namespace W3TC;
 
 /**
- * Class: UserExperience_Plugin
+ * Class: UserExperience_Plugin_Jquery
  *
  * @since 0.14.4
  */
-class UserExperience_Plugin {
+class UserExperience_Plugin_Jquery {
 	/**
 	 * Config class object.
 	 *
