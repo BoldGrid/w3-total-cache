@@ -285,6 +285,15 @@ input.w3tc-error, textarea.w3tc-error {
 
 #w3tc .postbox .hndle {
 	cursor: auto;
+	border-bottom: 1px solid #ccd0d4; /* WP 5.5 */
+}
+
+#w3tc .postbox-header {
+	border-bottom: 0; /* WP 5.5 */
+}
+
+#w3tc .postbox .handlediv {
+	float: right; /* WP 5.5 */
 }
 
 #pgcache_reject_roles label, #newrelic_accept_roles label, #cdn_reject_roles label  {
@@ -630,7 +639,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
     padding-top: 1em;
 }
 
-#w3tc_dashboard_banner .hndle {
+#w3tc_dashboard_banner .postbox .hndle {
 	background: #eee;
 	border-bottom: 3px solid #65bbbd;
 }
