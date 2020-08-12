@@ -20,7 +20,6 @@ class Root_Loader {
 
 		$plugins = array();
 		$plugins[] = new Generic_Plugin();
-		$plugins[] = new UserExperience_Plugin();
 
 		if ( $c->get_boolean( 'dbcache.enabled' ) )
 			$plugins[] = new DbCache_Plugin();
@@ -76,6 +75,10 @@ class Root_Loader {
 			$plugins[] = new Extensions_Plugin_Admin();
 			$plugins[] = new Generic_Plugin_AdminNotifications();
 			$plugins[] = new UsageStatistics_Plugin_Admin();
+		} else {
+			if ( $c->get_boolean( 'jquerymigrate.disabled' ) ) {
+				$plugins[] = new UserExperience_Plugin_Jquery();
+			}
 		}
 
 		$this->_loaded_plugins = $plugins;
