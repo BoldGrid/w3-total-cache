@@ -150,8 +150,8 @@ var W3tc_Lightbox = {
 	load_form: function(url, form_selector, callback) {
 		data = {}
 		var v = jQuery(form_selector).find('input').each(function(i) {
-			var name = jQuery(this).prop('name');
-			var type = jQuery(this).prop('type');
+			var name = jQuery(this).attr('name');
+			var type = jQuery(this).attr('type');
 			if (type == 'radio' || type == 'checkbox' ) {
 				if (!jQuery(this).prop('checked'))
 					return;
@@ -287,7 +287,7 @@ function w3tc_lightbox_minify_recommendations(nonce) {
 						var checkbox = jQuery(this).parents('li').find(':checkbox');
 
 						if (w3tc_minify_recommendations_checked[theme][hash]) {
-							checkbox.prop('checked', 'checked');
+							checkbox.attr('checked', 'checked');
 						} else {
 							checkbox.removeAttr('checked');
 						}
@@ -314,7 +314,7 @@ function w3tc_lightbox_minify_recommendations(nonce) {
 				if (jQuery('#recom_js_files :checkbox:checked').size()) {
 					jQuery('#recom_js_files :checkbox').removeAttr('checked');
 				} else {
-					jQuery('#recom_js_files :checkbox').prop('checked', 'checked');
+					jQuery('#recom_js_files :checkbox').attr('checked', 'checked');
 				}
 
 				return false;
@@ -324,7 +324,7 @@ function w3tc_lightbox_minify_recommendations(nonce) {
 				if (jQuery('#recom_css_files :checkbox:checked').size()) {
 					jQuery('#recom_css_files :checkbox').removeAttr('checked');
 				} else {
-					jQuery('#recom_css_files :checkbox').prop('checked', 'checked');
+					jQuery('#recom_css_files :checkbox').attr('checked', 'checked');
 				}
 
 				return false;
@@ -334,13 +334,13 @@ function w3tc_lightbox_minify_recommendations(nonce) {
 				var theme = jQuery('#recom_theme').val();
 
 				jQuery('#js_files li').each(function() {
-					if (jQuery(this).find(':text').prop('name').indexOf('js_files[' + theme + ']') != -1) {
+					if (jQuery(this).find(':text').attr('name').indexOf('js_files[' + theme + ']') != -1) {
 						jQuery(this).remove();
 					}
 				});
 
 				jQuery('#css_files li').each(function() {
-					if (jQuery(this).find(':text').prop('name').indexOf('css_files[' + theme + ']') != -1) {
+					if (jQuery(this).find(':text').attr('name').indexOf('css_files[' + theme + ']') != -1) {
 						jQuery(this).remove();
 					}
 				});
@@ -458,7 +458,7 @@ function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
 					}
 
 					w3tc_lightbox_save_licence_key(data[1], nonce, function() {
-						jQuery('#buy_frame').prop('src', data[3]);
+						jQuery('#buy_frame').attr('src', data[3]);
 					});
 				}
 			}
@@ -503,12 +503,12 @@ jQuery(function() {
 	});
 
 	jQuery('.button-buy-plugin').click(function() {
-		var data_src = jQuery(this).prop('data-src');
-		var nonce = jQuery(this).prop('data-nonce');
+		var data_src = jQuery(this).data('src');
+		var nonce = jQuery(this).data('nonce');
 		if (!nonce) {
 			nonce = w3tc_nonce;
 		}
-		var renew_key = jQuery(this).prop('data-renew-key');
+		var renew_key = jQuery(this).data('renew-key');
 
 		w3tc_lightbox_upgrade(nonce, data_src, renew_key);
 		jQuery('#w3tc-license-instruction').show();

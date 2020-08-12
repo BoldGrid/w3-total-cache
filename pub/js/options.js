@@ -15,17 +15,17 @@ function w3tc_input_enable(input, enabled) {
 		if (enabled) {
 			me.removeAttr('disabled');
 		} else {
-			me.prop('disabled', 'disabled');
+			me.attr('disabled', 'disabled');
 		}
 
 		if (enabled) {
 			me.next('[type=hidden]').remove();
 		} else {
-			var t = me.prop('type');
+			var t = me.attr('type');
 			if ((t != 'radio' && t != 'checkbox') || me.is(':checked')) {
-				me.after(jQuery('<input />').prop({
+				me.after(jQuery('<input />').attr({
 					type: 'hidden',
-					name: me.prop('name')
+					name: me.attr('name')
 				}).val(me.val()));
 			}
 		}
@@ -93,7 +93,7 @@ function w3tc_minify_js_theme(theme) {
 	jQuery('#js_themes').val(theme);
 	jQuery('#js_files :text').each(function() {
 		var input = jQuery(this);
-		if (input.prop('name').indexOf('js_files[' + theme + ']') != 0) {
+		if (input.attr('name').indexOf('js_files[' + theme + ']') != 0) {
 			input.parents('li').hide();
 		} else {
 			input.parents('li').show();
@@ -106,7 +106,7 @@ function w3tc_minify_css_theme(theme) {
 	jQuery('#css_themes').val(theme);
 	jQuery('#css_files :text').each(function() {
 		var input = jQuery(this);
-		if (input.prop('name').indexOf('css_files[' + theme + ']') != 0) {
+		if (input.attr('name').indexOf('css_files[' + theme + ']') != 0) {
 			input.parents('li').hide();
 		} else {
 			input.parents('li').show();
@@ -196,7 +196,7 @@ function w3tc_toggle(name, check) {
 		});
 
 		if (checked) {
-			jQuery(id).prop('checked', 'checked');
+			jQuery(id).attr('checked', 'checked');
 		} else {
 			jQuery(id).removeAttr('checked');
 		}
@@ -206,7 +206,7 @@ function w3tc_toggle(name, check) {
 		var checked = jQuery(this).is(':checked');
 		jQuery(cls).each(function() {
 			if (checked) {
-				jQuery(this).prop('checked', 'checked');
+				jQuery(this).attr('checked', 'checked');
 			} else {
 				jQuery(this).removeAttr('checked');
 			}
@@ -230,7 +230,7 @@ function w3tc_toggle2(name, dependent_ids) {
 		});
 
 		if (total_checked) {
-			jQuery(id).prop('checked', 'checked');
+			jQuery(id).attr('checked', 'checked');
 		} else {
 			jQuery(id).removeAttr('checked');
 		}
@@ -240,7 +240,7 @@ function w3tc_toggle2(name, dependent_ids) {
 		var checked = jQuery(this).is(':checked');
 		jQuery(dependants).each(function() {
 			if (checked) {
-				jQuery(this).prop('checked', 'checked');
+				jQuery(this).attr('checked', 'checked');
 			} else {
 				jQuery(this).removeAttr('checked');
 			}
@@ -302,8 +302,8 @@ function w3tc_security_headers() {
 
 	jQuery('#browsercache_security_hsts_directive,#browsercache_security_xfo_directive,#browsercache_security_xss_directive,#browsercache_security_pkp_extra,#browsercache_security_pkp_report_only').change(
 	function() {
-		jQuery('#' + jQuery(this).prop('id') + '_description').html('<i>' + directive_description[jQuery(this).prop('id')][jQuery(this).val()] + '</i>');
-			if (jQuery(this).prop('id') == 'browsercache_security_xfo_directive') {
+		jQuery('#' + jQuery(this).attr('id') + '_description').html('<i>' + directive_description[jQuery(this).attr('id')][jQuery(this).val()] + '</i>');
+			if (jQuery(this).attr('id') == 'browsercache_security_xfo_directive') {
 				if (jQuery(this).val() == 'allow') {
 					jQuery('#browsercache_security_xfo_allow').show();
 				}else {
@@ -380,11 +380,11 @@ jQuery(function() {
 	});
 
 	if(jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-		jQuery('#pgcache__cache__nginx_handle_xml').prop('checked',jQuery('#pgcache__cache__feed').is(':checked'));
+		jQuery('#pgcache__cache__nginx_handle_xml').attr('checked',jQuery('#pgcache__cache__feed').is(':checked'));
 
 	jQuery('#pgcache__cache__feed').change(function(){
 		if(jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-			jQuery('#pgcache__cache__nginx_handle_xml').prop('checked',this.checked);
+			jQuery('#pgcache__cache__nginx_handle_xml').attr('checked',this.checked);
 	});
 
 	// browsercache page
@@ -454,15 +454,15 @@ jQuery(function() {
 	});
 
 	jQuery('.js_file_template').on('change', function () {
-		jQuery(this).parents('li').find(':text').prop('name', 'js_files[' + jQuery('#js_themes').val() + '][' + jQuery(this).val() + '][' + jQuery(this).parents('li').find('.js_file_location').val() + '][]');
+		jQuery(this).parents('li').find(':text').attr('name', 'js_files[' + jQuery('#js_themes').val() + '][' + jQuery(this).val() + '][' + jQuery(this).parents('li').find('.js_file_location').val() + '][]');
 	});
 
 	jQuery('.css_file_template').on('change', function () {
-		jQuery(this).parents('li').find(':text').prop('name', 'css_files[' + jQuery('#css_themes').val() + '][' + jQuery(this).val() + '][include][]');
+		jQuery(this).parents('li').find(':text').attr('name', 'css_files[' + jQuery('#css_themes').val() + '][' + jQuery(this).val() + '][include][]');
 	});
 
 	jQuery('.js_file_location').on('change', function () {
-		jQuery(this).parents('li').find(':text').prop('name', 'js_files[' + jQuery('#js_themes').val() + '][' + jQuery(this).parents('li').find('.js_file_template').val() + '][' + jQuery(this).val() + '][]');
+		jQuery(this).parents('li').find(':text').attr('name', 'js_files[' + jQuery('#js_themes').val() + '][' + jQuery(this).parents('li').find('.js_file_template').val() + '][' + jQuery(this).val() + '][]');
 	});
 
 	jQuery('.js_file_delete').on('click', function () {
@@ -507,7 +507,7 @@ jQuery(function() {
 		var js = [], css = [], invalid_js = [], invalid_css = [], duplicate = false, query_js = [], query_css = [];
 
 		jQuery('#js_files :text').each(function() {
-			var v = jQuery(this).val(), n = jQuery(this).prop('name'), c = v + n, g = '';
+			var v = jQuery(this).val(), n = jQuery(this).attr('name'), c = v + n, g = '';
 			var match = /js_files\[([a-z0-9_\/]+)\]/.exec(n);
 			if (match) {
 				g = '[' + jQuery('#js_themes option[value=' + match[1] + ']').text() + '] ' + v;
@@ -535,7 +535,7 @@ jQuery(function() {
 		});
 
 		jQuery('#css_files :text').each(function() {
-			var v = jQuery(this).val(), n = jQuery(this).prop('name'), c = v + n, g = '';
+			var v = jQuery(this).val(), n = jQuery(this).attr('name'), c = v + n, g = '';
 			var match = /css_files\[([a-z0-9_\/]+)\]/.exec(n);
 			if (match) {
 				g = '[' + jQuery('#css_themes option[value=' + match[1] + ']').text() + '] ' + v;
@@ -1408,7 +1408,7 @@ jQuery(function() {
 
 
 	jQuery('.contextual-help-tabs ul li a').click(function() {
-		var id = jQuery(this).prop('aria-controls');
+		var id = jQuery(this).attr('aria-controls');
 		var i = jQuery('#' + id + ' .w3tchelp_content');
 		w3tc_load_faq_section(i);
 	});
@@ -1420,7 +1420,7 @@ jQuery(function() {
 
 	var w3tchelp_loaded = {};
 	function w3tc_load_faq_section(i) {
-		var section = i.prop('data-section');
+		var section = i.data('section');
 
 		if (w3tchelp_loaded[section])
 			return;
@@ -1456,19 +1456,19 @@ jQuery(function() {
 	// gopro block
 	jQuery('.w3tc-gopro-more').click(function(e) {
 		e.preventDefault();
-		if (!jQuery(this).prop('data-expanded')) {
-			jQuery(this).prop('data-expanded', '1');
+		if (!jQuery(this).data('expanded')) {
+			jQuery(this).data('expanded', '1');
 			jQuery(this).html('Show Less <span class="dashicons dashicons-arrow-up-alt2"></span>');
 			jQuery(this).parent().find('.w3tc-gopro-description').css('max-height', '300px');
 		} else {
-			jQuery(this).prop('data-expanded', '');
+			jQuery(this).data('expanded', '');
 			jQuery(this).html('Show More <span class="dashicons dashicons-arrow-down-alt2"></span>');
 			jQuery(this).parent().find('.w3tc-gopro-description').css('max-height', '');
 		}
 
 		if (window.w3tc_ga) {
 			w3tc_ga('send', 'event', 'anchor', 'click',
-				jQuery(this).prop('data-href'));
+				jQuery(this).data('href'));
 		}
 
 	});
@@ -1476,32 +1476,32 @@ jQuery(function() {
 	// google analytics events
 	if (typeof w3tc_ga != 'undefined') {
 		jQuery('.w3tc_error').each(function() {
-			var id = jQuery(this).prop('id');
+			var id = jQuery(this).attr('id');
 			var text = jQuery(this).text();
 			if (id && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'w3tc_error', id, text);
 		});
 		jQuery('.w3tc_note').each(function() {
-			var id = jQuery(this).prop('id');
+			var id = jQuery(this).attr('id');
 			var text = jQuery(this).text();
 			if (id && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'w3tc_note', id, text);
 		});
 
 		jQuery('body').on('click', 'a', function() {
-			var url = jQuery(this).prop('href');
+			var url = jQuery(this).attr('href');
 			if (url && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'anchor', 'click', url, {useBeacon: true});
 		});
 
 		jQuery('body').on('click', 'input[type="button"]', function() {
-			var name = jQuery(this).prop('name');
+			var name = jQuery(this).attr('name');
 			if (name && window.w3tc_ga)
 				w3tc_ga('send', 'event', 'button', 'click', name, {useBeacon: true});
 		});
 		jQuery('body').on('click', 'input[type="submit"]', function() {
-			var name = jQuery(this).prop('name');
-			var id = jQuery(this).prop('id');
+			var name = jQuery(this).attr('name');
+			var id = jQuery(this).attr('id');
 			if (!id)
 				id = name;
 
@@ -1510,7 +1510,7 @@ jQuery(function() {
 		});
 
 		jQuery('body').on('click', 'input[type="checkbox"]', function() {
-			var name = jQuery(this).prop('name');
+			var name = jQuery(this).attr('name');
 			var action = jQuery(this).is(':checked') ? 'check' : 'uncheck';
 
 			if (name && window.w3tc_ga)
@@ -1518,7 +1518,7 @@ jQuery(function() {
 		});
 
 		jQuery('body').on('change', 'select', function() {
-			var name = jQuery(this).prop('name');
+			var name = jQuery(this).attr('name');
 			var value = jQuery(this).val();
 
 			if (name && value && window.w3tc_ga)
