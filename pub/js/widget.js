@@ -44,7 +44,7 @@ jQuery(function() {
 		jQuery('#buy-w3-service-cancel').on('click', function () {
             jQuery('input:radio[name=service]:checked').prop('checked', false);
             jQuery('#buy-w3-service-area').empty();
-            jQuery('#buy-w3-service').prop("disabled", "disabled");
+            jQuery('#buy-w3-service').attr("disabled", "disabled");
         });
     });
 });
