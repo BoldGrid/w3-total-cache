@@ -333,15 +333,15 @@ jQuery(document).ready(function($) {
 		var phpRequestsDatasets = [];
 		$('.w3tcus_chart_check').each(function() {
 			if ($(this).is(':checked')) {
-				var dataColumn = $(this).prop('data-column');
-				var backgroundColor = $(this).prop('data-background');
+				var dataColumn = $(this).data('column');
+				var backgroundColor = $(this).data('background');
 				if (!backgroundColor) {
 					backgroundColor = '#0073aa';
 				}
 
 				if (startsWith(dataColumn, 'php_php_requests')) {
 					phpRequestsDatasets.push({
-						label: $(this).prop('data-name'),
+						label: $(this).data('name'),
 						dataColumn: dataColumn.substr(4),
 						backgroundColor: backgroundColor
 					});

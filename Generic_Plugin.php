@@ -84,31 +84,6 @@ class Generic_Plugin {
 					'ob_callback'
 				) );
 		}
-
-		// Disable jquery-migrate on the front-end, if configured.
-		if ( ! is_admin() && $this->_config->get_boolean( 'jquerymigrate.disabled' ) ) {
-			add_action( 'wp_default_scripts', array( $this, 'disable_jquery_migrate' ) );
-		}
-	}
-
-	/**
-	 * Disable jquery-migrate.
-	 *
-	 * @since 0.14.4
-	 *
-	 * @link https://developer.wordpress.org/reference/hooks/wp_default_scripts/
-	 * @link https://core.trac.wordpress.org/browser/tags/5.4/src/wp-includes/class.wp-dependencies.php
-	 *
-	 * @param WP_Scripts $scripts WP_Scripts instance.
-	 */
-	public function disable_jquery_migrate( $scripts ) {
-		if ( isset( $scripts->registered['jquery'] ) ) {
-			$script = $scripts->registered['jquery'];
-
-			if ( $script->deps ) {
-				$script->deps = array_diff( $script->deps, array( 'jquery-migrate' ) );
-			}
-		}
 	}
 
 	/**

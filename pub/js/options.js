@@ -1420,7 +1420,7 @@ jQuery(function() {
 
 	var w3tchelp_loaded = {};
 	function w3tc_load_faq_section(i) {
-		var section = i.prop('data-section');
+		var section = i.data('section');
 
 		if (w3tchelp_loaded[section])
 			return;
@@ -1456,19 +1456,19 @@ jQuery(function() {
 	// gopro block
 	jQuery('.w3tc-gopro-more').click(function(e) {
 		e.preventDefault();
-		if (!jQuery(this).prop('data-expanded')) {
-			jQuery(this).prop('data-expanded', '1');
+		if (!jQuery(this).data('expanded')) {
+			jQuery(this).data('expanded', '1');
 			jQuery(this).html('Show Less <span class="dashicons dashicons-arrow-up-alt2"></span>');
 			jQuery(this).parent().find('.w3tc-gopro-description').css('max-height', '300px');
 		} else {
-			jQuery(this).prop('data-expanded', '');
+			jQuery(this).data('expanded', '');
 			jQuery(this).html('Show More <span class="dashicons dashicons-arrow-down-alt2"></span>');
 			jQuery(this).parent().find('.w3tc-gopro-description').css('max-height', '');
 		}
 
 		if (window.w3tc_ga) {
 			w3tc_ga('send', 'event', 'anchor', 'click',
-				jQuery(this).prop('data-href'));
+				jQuery(this).data('href'));
 		}
 
 	});

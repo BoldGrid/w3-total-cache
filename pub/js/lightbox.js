@@ -503,12 +503,12 @@ jQuery(function() {
 	});
 
 	jQuery('.button-buy-plugin').click(function() {
-		var data_src = jQuery(this).prop('data-src');
-		var nonce = jQuery(this).prop('data-nonce');
+		var data_src = jQuery(this).data('src');
+		var nonce = jQuery(this).data('nonce');
 		if (!nonce) {
 			nonce = w3tc_nonce;
 		}
-		var renew_key = jQuery(this).prop('data-renew-key');
+		var renew_key = jQuery(this).data('renew-key');
 
 		w3tc_lightbox_upgrade(nonce, data_src, renew_key);
 		jQuery('#w3tc-license-instruction').show();
