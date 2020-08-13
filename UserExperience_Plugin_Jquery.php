@@ -63,5 +63,7 @@ class UserExperience_Plugin_Jquery {
 				$script->deps = array_diff( $script->deps, array( 'jquery-migrate' ) );
 			}
 		}
+
+		unset( $scripts->registered['jquery-migrate'] );
 	}
 }

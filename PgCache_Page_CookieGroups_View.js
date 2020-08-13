@@ -2,7 +2,7 @@ jQuery(function() {
 
 
 function w3tc_cookiegroups_clear() {
-	if (!jQuery('#cookiegroups li').size()) {
+	if (!jQuery('#cookiegroups li').length) {
 		jQuery('#cookiegroups_empty').show();
 	} else {
 		jQuery('#cookiegroups_empty').hide();
@@ -36,7 +36,7 @@ jQuery('#w3tc_cookiegroup_add').click(function() {
 					'<table class="form-table">' +
 					'<tr>' +
 					'<th>Group name:</th>' +
-					'<td><span class="cookiegroup_number">' + (jQuery('#cookiegroups li').size() + 1) + '.</span> ' +
+					'<td><span class="cookiegroup_number">' + (jQuery('#cookiegroups li').length + 1) + '.</span> ' +
 					'<span class="cookiegroup_name">' + group + '</span> ' +
 					'<input type="button" class="button cookiegroup_delete" value="Delete group" /></td>' +
 					'</tr>' +
