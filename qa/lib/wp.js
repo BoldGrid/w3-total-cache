@@ -191,9 +191,15 @@ async function postCreateWP5(pPage, data) {
 	if (parseFloat(env.wpVersion) < 5.2) {
 		await pPage.click('button[aria-label="Code Editor"]');
 	} else {
-		await pPage.waitForSelector('.components-dropdown-menu__popover', {
-			visible: true
-		});
+		if (parseFloat(env.wpVersion) < 5.5) {
+			await pPage.waitForSelector('.components-popover__content', {
+				visible: true
+			});
+		} else {
+			await pPage.waitForSelector('.components-dropdown-menu__popover', {
+				visible: true
+			});
+		}
 
 		let clicked = await pPage.evaluate(() => {
 			let elements = document.getElementsByClassName('components-menu-item__button');
@@ -415,9 +421,15 @@ async function postUpdateWP5(pPage, data) {
 	if (parseFloat(env.wpVersion) < 5.2) {
 		await pPage.click('button[aria-label="Code Editor"]');
 	} else {
-		await pPage.waitForSelector('.components-dropdown-menu__popover', {
-			visible: true
-		});
+		if (parseFloat(env.wpVersion) < 5.5) {
+			await pPage.waitForSelector('.components-popover__content', {
+				visible: true
+			});
+		} else {
+			await pPage.waitForSelector('.components-dropdown-menu__popover', {
+				visible: true
+			});
+		}
 
 		let clicked = await pPage.evaluate(() => {
 			let elements = document.getElementsByClassName('components-menu-item__button');
