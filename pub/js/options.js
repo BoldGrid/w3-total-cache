@@ -33,7 +33,7 @@ function w3tc_input_enable(input, enabled) {
 }
 
 function w3tc_minify_js_file_clear() {
-	if (!jQuery('#js_files :visible').size()) {
+	if (!jQuery('#js_files :visible').length) {
 		jQuery('#js_files_empty').show();
 	} else {
 		jQuery('#js_files_empty').hide();
@@ -41,7 +41,7 @@ function w3tc_minify_js_file_clear() {
 }
 
 function w3tc_minify_css_file_clear() {
-	if (!jQuery('#css_files :visible').size()) {
+	if (!jQuery('#css_files :visible').length) {
 		jQuery('#css_files_empty').show();
 	} else {
 		jQuery('#css_files_empty').hide();
@@ -49,7 +49,7 @@ function w3tc_minify_css_file_clear() {
 }
 
 function w3tc_mobile_groups_clear() {
-	if (!jQuery('#mobile_groups li').size()) {
+	if (!jQuery('#mobile_groups li').length) {
 		jQuery('#mobile_groups_empty').show();
 	} else {
 		jQuery('#mobile_groups_empty').hide();
@@ -57,7 +57,7 @@ function w3tc_mobile_groups_clear() {
 }
 
 function w3tc_referrer_groups_clear() {
-	if (!jQuery('#referrer_groups li').size()) {
+	if (!jQuery('#referrer_groups li').length) {
 		jQuery('#referrer_groups_empty').show();
 	} else {
 		jQuery('#referrer_groups_empty').hide();
@@ -65,7 +65,7 @@ function w3tc_referrer_groups_clear() {
 }
 
 function w3tc_minify_js_file_add(theme, template, location, file) {
-	var append = jQuery('<li><table><tr><th>&nbsp;</th><th>File URI:</th><th>Template:</th><th colspan="3">Embed Location:</th></tr><tr><td>' + (jQuery('#js_files li').size() + 1) + '.</td><td><input class="js_enabled" type="text" name="js_files[' + theme + '][' + template + '][' + location + '][]" value="" size="70" \/></td><td><select class="js_file_template js_enabled"></select></td><td><select class="js_file_location js_enabled"><option value="include">Embed in &lt;head&gt;</option><option value="include-body">Embed after &lt;body&gt;</option><option value="include-footer">Embed before &lt;/body&gt;</option></select></td><td><input class="js_file_delete js_enabled button" type="button" value="Delete" /> <input class="js_file_verify js_enabled button" type="button" value="Verify URI" /></td></tr></table><\/li>');
+	var append = jQuery('<li><table><tr><th>&nbsp;</th><th>File URI:</th><th>Template:</th><th colspan="3">Embed Location:</th></tr><tr><td>' + (jQuery('#js_files li').length + 1) + '.</td><td><input class="js_enabled" type="text" name="js_files[' + theme + '][' + template + '][' + location + '][]" value="" size="70" \/></td><td><select class="js_file_template js_enabled"></select></td><td><select class="js_file_location js_enabled"><option value="include">Embed in &lt;head&gt;</option><option value="include-body">Embed after &lt;body&gt;</option><option value="include-footer">Embed before &lt;/body&gt;</option></select></td><td><input class="js_file_delete js_enabled button" type="button" value="Delete" /> <input class="js_file_verify js_enabled button" type="button" value="Verify URI" /></td></tr></table><\/li>');
 	append.find('input:text').val(file);
 	var select = append.find('.js_file_template');
 	for (var i in minify_templates[theme]) {
@@ -78,7 +78,7 @@ function w3tc_minify_js_file_add(theme, template, location, file) {
 }
 
 function w3tc_minify_css_file_add(theme, template, file) {
-	var append = jQuery('<li><table><tr><th>&nbsp;</th><th>File URI:</th><th colspan="2">Template:</th></tr><tr><td>' + (jQuery('#css_files li').size() + 1) + '.</td><td><input class="css_enabled" type="text" name="css_files[' + theme + '][' + template + '][include][]" value="" size="70" \/></td><td><select class="css_file_template css_enabled"></select></td><td><input class="css_file_delete css_enabled button" type="button" value="Delete" /></td><td><input class="css_file_verify css_enabled button" type="button" value="Verify URI" /></td></tr></table><\/li>');
+	var append = jQuery('<li><table><tr><th>&nbsp;</th><th>File URI:</th><th colspan="2">Template:</th></tr><tr><td>' + (jQuery('#css_files li').length + 1) + '.</td><td><input class="css_enabled" type="text" name="css_files[' + theme + '][' + template + '][include][]" value="" size="70" \/></td><td><select class="css_file_template css_enabled"></select></td><td><input class="css_file_delete css_enabled button" type="button" value="Delete" /></td><td><input class="css_file_verify css_enabled button" type="button" value="Verify URI" /></td></tr></table><\/li>');
 	append.find('input:text').val(file);
 	var select = append.find('.css_file_template');
 	for (var i in minify_templates[theme]) {
@@ -140,7 +140,7 @@ function w3tc_cdn_get_cnames() {
 }
 
 function w3tc_cdn_cnames_assign() {
-	var li = jQuery('#cdn_cnames li'), size = li.size();
+	var li = jQuery('#cdn_cnames li'), size = li.length;
 
 	if (size > 1) {
 		li.eq(0).find('.cdn_cname_delete').show();
@@ -374,9 +374,9 @@ jQuery(function() {
 	});
 
 	// pagecache page
-	w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').size());
+	w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
 	jQuery('#pgcache__reject__logged_roles').on('click', function () {
-		w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').size());
+		w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
 	});
 
 	if(jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
@@ -419,9 +419,9 @@ jQuery(function() {
 	w3tc_security_headers();
 
 	// minify page
-	w3tc_input_enable('.html_enabled', jQuery('#minify__html__enable:checked').size());
-	w3tc_input_enable('.js_enabled', jQuery('#minify__js__enable:checked').size());
-	w3tc_input_enable('.css_enabled', jQuery('#minify__css__enable:checked').size());
+	w3tc_input_enable('.html_enabled', jQuery('#minify__html__enable:checked').length);
+	w3tc_input_enable('.js_enabled', jQuery('#minify__js__enable:checked').length);
+	w3tc_input_enable('.css_enabled', jQuery('#minify__css__enable:checked').length);
 
 	w3tc_minify_js_theme(jQuery('#js_themes').val());
 	w3tc_minify_css_theme(jQuery('#css_themes').val());
@@ -562,7 +562,7 @@ jQuery(function() {
 			}
 		});
 
-		if (jQuery('#js_enabled:checked').size()) {
+		if (jQuery('#js_enabled:checked').length) {
 			if (invalid_js.length && !confirm('The following files have invalid JS file extension:\r\n\r\n' + invalid_js.join('\r\n') + '\r\n\r\nAre you confident these files contain valid JS code?')) {
 				return false;
 			}
@@ -573,7 +573,7 @@ jQuery(function() {
 			}
 		}
 
-		if (jQuery('#css_enabled:checked').size()) {
+		if (jQuery('#css_enabled:checked').length) {
 			if (invalid_css.length && !confirm('The following files have invalid CSS file extension:\r\n\r\n' + invalid_css.join('\r\n') + '\r\n\r\nAre you confident these files contain valid CSS code?')) {
 				return false;
 			}
@@ -598,9 +598,9 @@ jQuery(function() {
 		jQuery(this.rel).show();
 	});
 
-	w3tc_input_enable('#cdn_reject_roles input[type=checkbox]', jQuery('#cdn__reject__logged_roles:checked').size());
+	w3tc_input_enable('#cdn_reject_roles input[type=checkbox]', jQuery('#cdn__reject__logged_roles:checked').length);
 	jQuery('#cdn__reject__logged_roles').on('click', function () {
-		w3tc_input_enable('#cdn_reject_roles input[type=checkbox]', jQuery('#cdn__reject__logged_roles:checked').size());
+		w3tc_input_enable('#cdn_reject_roles input[type=checkbox]', jQuery('#cdn__reject__logged_roles:checked').length);
 	});
 
 	jQuery('#cdn_export_library').click(function() {
@@ -658,8 +658,8 @@ jQuery(function() {
 					'config[user]': jQuery('#cdn_ftp_user').val(),
 					'config[path]': jQuery('#cdn_ftp_path').val(),
 					'config[pass]': jQuery('#cdn_ftp_pass').val(),
-					'config[pasv]': jQuery('#cdn_ftp_pasv:checked').size(),
-					'config[default_keys]': jQuery('#cdn__ftp__default_keys:checked').size(),
+					'config[pasv]': jQuery('#cdn_ftp_pasv:checked').length,
+					'config[default_keys]': jQuery('#cdn__ftp__default_keys:checked').length,
 					'config[pubkey]': jQuery('#cdn_ftp_pubkey').val(),
 					'config[privkey]': jQuery('#cdn_ftp_privkey').val()
 				});
@@ -947,7 +947,7 @@ jQuery(function() {
 			status.addClass(data.result ? 'w3tc-success' : 'w3tc-error');
 			status.html(data.error);
 
-			if (container_id && container_id.size() && data.container_id) {
+			if (container_id && container_id.length && data.container_id) {
 				container_id.val(data.container_id);
 			}
 		}, 'json').fail(function() {
@@ -1091,14 +1091,14 @@ jQuery(function() {
 		var error = false;
 
 		jQuery('#mobile_groups li').each(function() {
-			if (jQuery(this).find(':checked').size()) {
+			if (jQuery(this).find(':checked').length) {
 				var group = jQuery(this).find('.mobile_group').text();
 				var theme = jQuery(this).find(':selected').val();
 				var redirect = jQuery(this).find('input[type=text]').val();
 				var agents = jQuery.trim(jQuery(this).find('textarea').val()).split("\n");
 
 				jQuery('#mobile_groups li').each(function() {
-					if (jQuery(this).find(':checked').size()) {
+					if (jQuery(this).find(':checked').length) {
 						var compare_group = jQuery(this).find('.mobile_group').text();
 						if (compare_group != group) {
 							var compare_theme = jQuery(this).find(':selected').val();
@@ -1160,7 +1160,7 @@ jQuery(function() {
 				});
 
 				if (!exists) {
-					var li = jQuery('<li id="mobile_group_' + group + '"><table class="form-table"><tr><th>Group name:</th><td><span class="mobile_group_number">' + (jQuery('#mobile_groups li').size() + 1) + '.</span> <span class="mobile_group">' + group + '</span> <input type="button" class="button mobile_delete" value="Delete group" /></td></tr><tr><th><label for="mobile_groups_' + group + '_enabled">Enabled:</label></th><td><input type="hidden" name="mobile_groups[' + group + '][enabled]" value="0" /><input id="mobile_groups_' + group + '_enabled" type="checkbox" name="mobile_groups[' + group + '][enabled]" value="1" checked="checked" /></td></tr><tr><th><label for="mobile_groups_' + group + '_theme">Theme:</label></th><td><select id="mobile_groups_' + group + '_theme" name="mobile_groups[' + group + '][theme]"><option value="">-- Pass-through --</option></select><p class="description">Assign this group of user agents to a specific them. Leaving this option "Active Theme" allows any plugins you have (e.g. mobile plugins) to properly handle requests for these user agents. If the "redirect users to" field is not empty, this setting is ignored.</p></td></tr><tr><th><label for="mobile_groups_' + group + '_redirect">Redirect users to:</label></th><td><input id="mobile_groups_' + group + '_redirect" type="text" name="mobile_groups[' + group + '][redirect]" value="" size="60" /><p class="description">A 302 redirect is used to send this group of users to another hostname (domain); recommended if a 3rd party service provides a mobile version of your site.</p></td></tr><tr><th><label for="mobile_groups_' + group + '_agents">User agents:</label></th><td><textarea id="mobile_groups_' + group + '_agents" name="mobile_groups[' + group + '][agents]" rows="10" cols="50"></textarea><p class="description">Specify the user agents for this group.</p></td></tr></table></li>');
+					var li = jQuery('<li id="mobile_group_' + group + '"><table class="form-table"><tr><th>Group name:</th><td><span class="mobile_group_number">' + (jQuery('#mobile_groups li').length + 1) + '.</span> <span class="mobile_group">' + group + '</span> <input type="button" class="button mobile_delete" value="Delete group" /></td></tr><tr><th><label for="mobile_groups_' + group + '_enabled">Enabled:</label></th><td><input type="hidden" name="mobile_groups[' + group + '][enabled]" value="0" /><input id="mobile_groups_' + group + '_enabled" type="checkbox" name="mobile_groups[' + group + '][enabled]" value="1" checked="checked" /></td></tr><tr><th><label for="mobile_groups_' + group + '_theme">Theme:</label></th><td><select id="mobile_groups_' + group + '_theme" name="mobile_groups[' + group + '][theme]"><option value="">-- Pass-through --</option></select><p class="description">Assign this group of user agents to a specific them. Leaving this option "Active Theme" allows any plugins you have (e.g. mobile plugins) to properly handle requests for these user agents. If the "redirect users to" field is not empty, this setting is ignored.</p></td></tr><tr><th><label for="mobile_groups_' + group + '_redirect">Redirect users to:</label></th><td><input id="mobile_groups_' + group + '_redirect" type="text" name="mobile_groups[' + group + '][redirect]" value="" size="60" /><p class="description">A 302 redirect is used to send this group of users to another hostname (domain); recommended if a 3rd party service provides a mobile version of your site.</p></td></tr><tr><th><label for="mobile_groups_' + group + '_agents">User agents:</label></th><td><textarea id="mobile_groups_' + group + '_agents" name="mobile_groups[' + group + '][agents]" rows="10" cols="50"></textarea><p class="description">Specify the user agents for this group.</p></td></tr></table></li>');
 					var select = li.find('select');
 
 					jQuery.each(mobile_themes, function(index, value) {
@@ -1193,14 +1193,14 @@ jQuery(function() {
 		var error = false;
 
 		jQuery('#referrer_groups li').each(function() {
-			if (jQuery(this).find(':checked').size()) {
+			if (jQuery(this).find(':checked').length) {
 				var group = jQuery(this).find('.referrer_group').text();
 				var theme = jQuery(this).find(':selected').val();
 				var redirect = jQuery(this).find('input[type=text]').val();
 				var agents = jQuery.trim(jQuery(this).find('textarea').val()).split("\n");
 
 				jQuery('#referrer_groups li').each(function() {
-					if (jQuery(this).find(':checked').size()) {
+					if (jQuery(this).find(':checked').length) {
 						var compare_group = jQuery(this).find('.referrer_group').text();
 						if (compare_group != group) {
 							var compare_theme = jQuery(this).find(':selected').val();
@@ -1262,7 +1262,7 @@ jQuery(function() {
 				});
 
 				if (!exists) {
-					var li = jQuery('<li id="referrer_group_' + group + '"><table class="form-table"><tr><th>Group name:</th><td><span class="referrer_group_number">' + (jQuery('#referrer_groups li').size() + 1) + '.</span> <span class="referrer_group">' + group + '</span> <input type="button" class="button referrer_delete" value="Delete group" /></td></tr><tr><th><label for="referrer_groups_' + group + '_enabled">Enabled:</label></th><td><input type="hidden" name="referrer_groups[' + group + '][enabled]" value="0" /><input id="referrer_groups_' + group + '_enabled" type="checkbox" name="referrer_groups[' + group + '][enabled]" value="1" checked="checked" /></td></tr><tr><th><label for="referrer_groups_' + group + '_theme">Theme:</label></th><td><select id="referrer_groups_' + group + '_theme" name="referrer_groups[' + group + '][theme]"><option value="">-- Pass-through --</option></select><p class="description">Assign this group of referrers to a specific them. Leaving this option "Active Theme" allows any plugins you have (e.g. referrer plugins) to properly handle requests for these referrers. If the "redirect users to" field is not empty, this setting is ignored.</p></td></tr><tr><th><label for="referrer_groups_' + group + '_redirect">Redirect users to:</label></th><td><input id="referrer_groups_' + group + '_redirect" type="text" name="referrer_groups[' + group + '][redirect]" value="" size="60" /><p class="description">A 302 redirect is used to send this group of users to another hostname (domain); recommended if a 3rd party service provides a referrer version of your site.</p></td></tr><tr><th><label for="referrer_groups_' + group + '_referrers">Referrers:</label></th><td><textarea id="referrer_groups_' + group + '_referrers" name="referrer_groups[' + group + '][referrers]" rows="10" cols="50"></textarea><p class="description">Specify the referrers for this group.</p></td></tr></table></li>');
+					var li = jQuery('<li id="referrer_group_' + group + '"><table class="form-table"><tr><th>Group name:</th><td><span class="referrer_group_number">' + (jQuery('#referrer_groups li').length + 1) + '.</span> <span class="referrer_group">' + group + '</span> <input type="button" class="button referrer_delete" value="Delete group" /></td></tr><tr><th><label for="referrer_groups_' + group + '_enabled">Enabled:</label></th><td><input type="hidden" name="referrer_groups[' + group + '][enabled]" value="0" /><input id="referrer_groups_' + group + '_enabled" type="checkbox" name="referrer_groups[' + group + '][enabled]" value="1" checked="checked" /></td></tr><tr><th><label for="referrer_groups_' + group + '_theme">Theme:</label></th><td><select id="referrer_groups_' + group + '_theme" name="referrer_groups[' + group + '][theme]"><option value="">-- Pass-through --</option></select><p class="description">Assign this group of referrers to a specific them. Leaving this option "Active Theme" allows any plugins you have (e.g. referrer plugins) to properly handle requests for these referrers. If the "redirect users to" field is not empty, this setting is ignored.</p></td></tr><tr><th><label for="referrer_groups_' + group + '_redirect">Redirect users to:</label></th><td><input id="referrer_groups_' + group + '_redirect" type="text" name="referrer_groups[' + group + '][redirect]" value="" size="60" /><p class="description">A 302 redirect is used to send this group of users to another hostname (domain); recommended if a 3rd party service provides a referrer version of your site.</p></td></tr><tr><th><label for="referrer_groups_' + group + '_referrers">Referrers:</label></th><td><textarea id="referrer_groups_' + group + '_referrers" name="referrer_groups[' + group + '][referrers]" rows="10" cols="50"></textarea><p class="description">Specify the referrers for this group.</p></td></tr></table></li>');
 					var select = li.find('select');
 
 					jQuery.each(referrer_themes, function(index, value) {
@@ -1392,7 +1392,7 @@ jQuery(function() {
 	// check for unsaved changes
 	jQuery('#w3tc input,#w3tc select,#w3tc textarea').on('change', function () {
 		var ignore = false;
-		jQuery(this).parents().andSelf().each(function() {
+		jQuery(this).parents().addBack().each(function() {
 			if (jQuery(this).hasClass('w3tc-ignore-change') || jQuery(this).hasClass('lightbox')) {
 				ignore = true;
 				return false;
@@ -1420,7 +1420,7 @@ jQuery(function() {
 
 	var w3tchelp_loaded = {};
 	function w3tc_load_faq_section(i) {
-		var section = i.attr('data-section');
+		var section = i.data('section');
 
 		if (w3tchelp_loaded[section])
 			return;
@@ -1456,19 +1456,19 @@ jQuery(function() {
 	// gopro block
 	jQuery('.w3tc-gopro-more').click(function(e) {
 		e.preventDefault();
-		if (!jQuery(this).attr('data-expanded')) {
-			jQuery(this).attr('data-expanded', '1');
+		if (!jQuery(this).data('expanded')) {
+			jQuery(this).data('expanded', '1');
 			jQuery(this).html('Show Less <span class="dashicons dashicons-arrow-up-alt2"></span>');
 			jQuery(this).parent().find('.w3tc-gopro-description').css('max-height', '300px');
 		} else {
-			jQuery(this).attr('data-expanded', '');
+			jQuery(this).data('expanded', '');
 			jQuery(this).html('Show More <span class="dashicons dashicons-arrow-down-alt2"></span>');
 			jQuery(this).parent().find('.w3tc-gopro-description').css('max-height', '');
 		}
 
 		if (window.w3tc_ga) {
 			w3tc_ga('send', 'event', 'anchor', 'click',
-				jQuery(this).attr('data-href'));
+				jQuery(this).data('href'));
 		}
 
 	});

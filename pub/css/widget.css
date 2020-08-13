@@ -64,6 +64,14 @@
     border-radius: 0;
 }
 
+#w3tc-dashboard-widgets .handle-actions {
+	display: none; /* WP 5.5 - Dashboard widget reordering not working, so disable. */
+}
+
+#w3tc-dashboard-widgets .hndle {
+	display: block; /* WP 5.5 */
+}
+
 #postbox-container-right {
     width: 196px;
     white-space: nowrap;

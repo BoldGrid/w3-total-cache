@@ -333,15 +333,15 @@ jQuery(document).ready(function($) {
 		var phpRequestsDatasets = [];
 		$('.w3tcus_chart_check').each(function() {
 			if ($(this).is(':checked')) {
-				var dataColumn = $(this).attr('data-column');
-				var backgroundColor = $(this).attr('data-background');
+				var dataColumn = $(this).data('column');
+				var backgroundColor = $(this).data('background');
 				if (!backgroundColor) {
 					backgroundColor = '#0073aa';
 				}
 
 				if (startsWith(dataColumn, 'php_php_requests')) {
 					phpRequestsDatasets.push({
-						label: $(this).attr('data-name'),
+						label: $(this).data('name'),
 						dataColumn: dataColumn.substr(4),
 						backgroundColor: backgroundColor
 					});
@@ -731,7 +731,7 @@ jQuery(document).ready(function($) {
 	// Utils
 	//
 	function startsWith(s, prefix) {
-		return s.substr(0, prefix.length) == prefix;
+		return s && s.substr(0, prefix.length) == prefix;
 	}
 
 
