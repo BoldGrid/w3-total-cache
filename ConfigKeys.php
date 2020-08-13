@@ -2417,7 +2417,10 @@ $keys = array(
 		'default' => '',
 		'master_only' => true
 	),
-
+	'jquerymigrate.disabled' => array(
+		'type' => 'boolean',
+		'default' => false,
+	),
 
 	// extensions keys:
 	//

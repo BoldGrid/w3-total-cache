@@ -391,11 +391,11 @@ var W3tc_Popup_Cdn_Import_Library = {
     },
 
     is_redirect_permanent: function() {
-        return (jQuery('#cdn_import_library_redirect_permanent:checked').size() > 0);
+        return (jQuery('#cdn_import_library_redirect_permanent:checked').length > 0);
     },
 
     is_redirect_cdn: function() {
-        return (jQuery('#cdn_import_library_redirect_cdn:checked').size() > 0);
+        return (jQuery('#cdn_import_library_redirect_cdn:checked').length > 0);
     },
 
     add_log: function(path, result, error) {

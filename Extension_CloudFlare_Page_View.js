@@ -33,10 +33,10 @@ jQuery(function($) {
 
 
 		.on('click', '.w3tc_cloudflare_zone_page', function() {
-			var page = jQuery(this).attr('data-page');
+			var page = jQuery(this).data('page');
 			jQuery('input[name="w3tc_action"]').val('extension_cloudflare_intro_done');
 			jQuery('input[name="page"]').val(page);
-			
+
 			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce;
 
 	    	W3tc_Lightbox.load_form(url, '.w3tc_extension_cloudflare_form',
