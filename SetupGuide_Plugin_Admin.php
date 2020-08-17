@@ -516,7 +516,7 @@ class SetupGuide_Plugin_Admin {
 					</p>
 					<p class="hidden"><span class="spinner inline"></span>' .
 						esc_html__( 'Testing', 'w3-total-cache' ) .
-						'<em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;
+						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;
 					</p>',
 				),
 				array( // 9.
@@ -559,7 +559,7 @@ class SetupGuide_Plugin_Admin {
 						<p>' . sprintf(
 							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag, 3: HTML break tag, 4: Anchor/link open tag, 5: Anchor/link close tag.
 							esc_html__(
-								'Your website\'s performance can still be improved by configuring %1$sminify%2$s settings, setting up a %1$sCDN%2$s, and more!%3$sPlease visit your %4$sW3TC Dashboard%5$s to learn more about these features.',
+								'Your website\'s performance can still be improved by configuring %1$sminify%2$s settings, setting up a %1$sCDN%2$s, and more! %3$sPlease visit your %4$sW3TC Dashboard%5$s to learn more about these features.',
 								'w3-total-cache',
 							),
 							'<strong>',
