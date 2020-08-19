@@ -38,8 +38,6 @@ class Template {
 	 * @since X.X.X
 	 *
 	 * @see self::add_hooks();
-	 * @see self::enqueue_scripts()
-	 * @see self::enqueue_styles()
 	 *
 	 * @param array $config Configuration.
 	 */
@@ -50,101 +48,12 @@ class Template {
 	}
 
 	/**
-	 * Add hooks.
-	 *
-	 * @since X.X.X
-	 */
-	private function add_hooks() {
-		if ( isset( $this->config['actions'] ) && is_array( $this->config['actions'] ) ) {
-			foreach ( $this->config['actions'] as $action ) {
-				add_action(
-					$action['tag'],
-					$action['function'],
-					empty( $action['priority'] ) ? 10 : $action['priority'],
-					empty( $action['accepted_args'] ) ? 1 : $action['accepted_args'],
-				);
-			}
-		}
-
-		if ( isset( $this->config['filters'] ) && is_array( $this->config['filters'] ) ) {
-			foreach ( $this->config['filters'] as $filter ) {
-				add_filter(
-					$filter['tag'],
-					$filter['function'],
-					empty( $filter['priority'] ) ? 10 : $filter['priority'],
-					empty( $filter['accepted_args'] ) ? 1 : $filter['accepted_args'],
-				);
-			}
-		}
-	}
-
-	/**
-	 * Rnqueue scripts.
-	 *
-	 * @since X.X.X
-	 */
-	private function enqueue_scripts() {
-		wp_enqueue_script(
-			'w3tc_wizard',
-			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/js/wizard.js' ),
-			array( 'jquery' ),
-			W3TC_VERSION,
-			false
-		);
-
-		if ( isset( $this->config['scripts'] ) && is_array( $this->config['scripts'] ) ) {
-			foreach ( $this->config['scripts'] as $script ) {
-				wp_register_script(
-					$script['handle'],
-					$script['src'],
-					is_array( $script['deps'] ) ? $script['deps'] : array(),
-					empty( $script['version'] ) ? date( 'YmdHm' ) : $script['version'],
-					! empty( $script['in_footer'] )
-				);
-
-				if ( isset( $script['localize'] ) && is_array( $script['localize'] ) ) {
-					wp_localize_script(
-						$script['handle'],
-						$script['localize']['object_name'],
-						$script['localize']['data']
-					);
-				}
-
-				wp_enqueue_script( $script['handle'] );
-			}
-		}
-	}
-
-	/**
-	 * Enqueue styles.
-	 *
-	 * @since X.X.X
-	 */
-	private function enqueue_styles() {
-		wp_enqueue_style(
-			'w3tc_wizard',
-			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/css/wizard.css' ),
-			array(),
-			'all'
-		);
-
-		if ( isset( $this->config['styles'] ) && is_array( $this->config['styles'] ) ) {
-			foreach ( $this->config['styles'] as $style ) {
-				wp_enqueue_style(
-					$style['handle'],
-					$style['src'],
-					is_array( $style['deps'] ) ? $style['deps'] : array(),
-					! empty( $style['version'] ) ? $style['version'] : date( 'YmdHm' ),
-					! empty( $style['media'] ) ? $style['media'] : 'all'
-				);
-			}
-		}
-	}
-
-	/**
 	 * Render the wizard.
 	 *
 	 * @since X.X.X
+	 *
+	 * @see self::enqueue_scripts()
+	 * @see self::enqueue_styles()
 	 */
 	public function render() {
 		$this->enqueue_scripts();
@@ -249,5 +158,98 @@ class Template {
 
 		<?php
 		require W3TC_INC_DIR . '/options/common/footer.php';
+	}
+
+	/**
+	 * Add hooks.
+	 *
+	 * @since X.X.X
+	 */
+	private function add_hooks() {
+		if ( isset( $this->config['actions'] ) && is_array( $this->config['actions'] ) ) {
+			foreach ( $this->config['actions'] as $action ) {
+				add_action(
+					$action['tag'],
+					$action['function'],
+					empty( $action['priority'] ) ? 10 : $action['priority'],
+					empty( $action['accepted_args'] ) ? 1 : $action['accepted_args'],
+				);
+			}
+		}
+
+		if ( isset( $this->config['filters'] ) && is_array( $this->config['filters'] ) ) {
+			foreach ( $this->config['filters'] as $filter ) {
+				add_filter(
+					$filter['tag'],
+					$filter['function'],
+					empty( $filter['priority'] ) ? 10 : $filter['priority'],
+					empty( $filter['accepted_args'] ) ? 1 : $filter['accepted_args'],
+				);
+			}
+		}
+	}
+
+	/**
+	 * Rnqueue scripts.
+	 *
+	 * @since X.X.X
+	 */
+	private function enqueue_scripts() {
+		wp_enqueue_script(
+			'w3tc_wizard',
+			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/js/wizard.js' ),
+			array( 'jquery' ),
+			W3TC_VERSION,
+			false
+		);
+
+		if ( isset( $this->config['scripts'] ) && is_array( $this->config['scripts'] ) ) {
+			foreach ( $this->config['scripts'] as $script ) {
+				wp_register_script(
+					$script['handle'],
+					$script['src'],
+					is_array( $script['deps'] ) ? $script['deps'] : array(),
+					empty( $script['version'] ) ? date( 'YmdHm' ) : $script['version'],
+					! empty( $script['in_footer'] )
+				);
+
+				if ( isset( $script['localize'] ) && is_array( $script['localize'] ) ) {
+					wp_localize_script(
+						$script['handle'],
+						$script['localize']['object_name'],
+						$script['localize']['data']
+					);
+				}
+
+				wp_enqueue_script( $script['handle'] );
+			}
+		}
+	}
+
+	/**
+	 * Enqueue styles.
+	 *
+	 * @since X.X.X
+	 */
+	private function enqueue_styles() {
+		wp_enqueue_style(
+			'w3tc_wizard',
+			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/css/wizard.css' ),
+			array(),
+			'all'
+		);
+
+		if ( isset( $this->config['styles'] ) && is_array( $this->config['styles'] ) ) {
+			foreach ( $this->config['styles'] as $style ) {
+				wp_enqueue_style(
+					$style['handle'],
+					$style['src'],
+					isset( $style['deps'] ) && is_array( $style['deps'] ) ?
+						$style['deps'] : array(),
+					! empty( $style['version'] ) ? $style['version'] : date( 'YmdHm' ),
+					! empty( $style['media'] ) ? $style['media'] : 'all'
+				);
+			}
+		}
 	}
 }
