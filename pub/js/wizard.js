@@ -12,6 +12,8 @@
 		$nextButton = $container.find( '#w3tc-wizard-next '),
 		$previousButton = $container.find( '#w3tc-wizard-previous ');
 
+	jQuery( '.button-buy-plugin' ).parent().remove();
+
 	$skipButton.click(function() {
 		var $this = jQuery( this );
 

@@ -141,3 +141,9 @@
 .spinner.spinner-left {
 	margin-left: 5px;
 }
+
+/* Notices */
+.w3tc_note {
+	display: none;
+	visibility: hidden;
+}
