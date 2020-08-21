@@ -404,7 +404,9 @@ class SetupGuide_Plugin_Admin {
 							esc_html__( 'Page Cache is already enabled.  This initial test bypasses the cache.', 'w3-total-cache' ) .
 							'</p></div>' :
 							''
-					),
+						) . '<div>' .
+						esc_html__( 'This test only measures the performance of your homepage. Other pages on your site, such as a store or a forum, may have higher or lower load times. Stay tuned for future releases to include more tests!', 'w3-total-cache' ) .
+						'</div>',
 				),
 				array( // 4.
 					'headline'  => __( 'Time to First Byte', 'w3-total-cache' ),
