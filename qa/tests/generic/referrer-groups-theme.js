@@ -18,8 +18,10 @@ else if (parseFloat(env.wpVersion) < 4.7)
 	otherTheme = 'twentyfourteen/twentyfourteen';
 else if (parseFloat(env.wpVersion) < 5.0)
 	otherTheme = 'twentyfifteen/twentyfifteen';
-else
+else if (parseFloat(env.wpVersion) < 5.5)
 	otherTheme = 'twentysixteen/twentysixteen';
+else
+	otherTheme = 'twentynineteen/twentynineteen';
 
 let pluginUrl = env.blogSiteUrl.replace(/(b2\.)?wp\.sandbox/i, 'for-tests.wp.sandbox') +
 	'referrer-groups.php?path=' + env.blogSiteUrl;
@@ -96,6 +98,9 @@ describe('', function() {
 				(e) => e.getAttribute('href'));
 		} else if (theme[0] == 'twentysixteen') {
 		 	css = await page.$eval('#twentysixteen-style-css',
+				(e) => e.getAttribute('href'));
+		} else if (theme[0] == 'twentynineteen') {
+			css = await page.$eval('#twentynineteen-style-css',
 				(e) => e.getAttribute('href'));
 		} else {
 			css = await page.$eval('link[type="text/css"]',
