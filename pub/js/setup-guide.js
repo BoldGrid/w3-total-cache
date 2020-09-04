@@ -23,12 +23,44 @@ function w3tc_wizard_actions( $slide ) {
 
 	switch ( slideId ) {
 		case 'w3tc-wizard-slide-2':
-			// Test TTFB on button click.
+			// Test TTFB.
 			jQuery( '#w3tc-wizard-step-1' ).addClass( 'is-active' );
 			$nextButton.prop( 'disabled', 'disabled' );
 			$prevButton.prop( 'disabled', 'disabled' );
 			$slide.find( '.notice' ).remove();
 			$slide.find( '.spinner' ).addClass( 'is-active' ).closest( 'p' ).show();
+
+			// DEV TEST: Test database cache.
+			jQuery.ajax({
+				method: 'POST',
+				url: ajaxurl,
+				data: {
+					_wpnonce: jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val(),
+					action: 'w3tc_test_dbcache',
+					nocache: true
+				}
+			})
+			.done(function( response ) {
+				jQuery( '#test-results' ).data( 'dbc1', response.data );
+
+				jQuery.ajax({
+					method: 'POST',
+					url: ajaxurl,
+					data: {
+						_wpnonce: jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val(),
+						action: 'w3tc_test_dbcache'
+					}
+				})
+				.done(function( response ) {
+					jQuery( '#test-results' ).data( 'dbc2', response.data );
+					console.log(
+						jQuery( '#test-results' ).data( 'dbc1' ).elapsed * 1000,
+						jQuery( '#test-results' ).data( 'dbc2' ).elapsed * 1000,
+						( jQuery( '#test-results' ).data( 'dbc2' ).elapsed - jQuery( '#test-results' ).data( 'dbc1' ).elapsed ) * 1000
+					);
+				});
+			});
+
 			jQuery.ajax({
 				method: 'POST',
 				url: ajaxurl,

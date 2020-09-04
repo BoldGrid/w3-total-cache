@@ -66,6 +66,21 @@
 	z-index: 26;
 }
 
+.w3tc-wizard-steps-left {
+	border: 1px solid #000;
+	border-radius: 0;
+	display: table-cell;
+	left: -150px;
+	margin: 0px;
+	position: relative;
+    top: 7px;
+}
+
+#w3tc-options-menu {
+	display: inline-grid;
+	position: absolute;
+}
+
 /* Active step number */
 .w3tc-wizard-step-numbers.is-active {
 	background-color: #30bec3;

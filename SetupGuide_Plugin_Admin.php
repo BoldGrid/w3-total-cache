@@ -116,7 +116,7 @@ class SetupGuide_Plugin_Admin {
 	 */
 	public function test_ttfb() {
 		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$nocache =  ! empty( $_POST['nocache'] );
+			$nocache = ! empty( $_POST['nocache'] );
 			$results = array();
 			$urls    = array( site_url() );
 
@@ -257,6 +257,52 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
+	 * Test database cache.
+	 *
+	 * @since X.X.X
+	 *
+	 * @global $wpdb WordPress database object.
+	 */
+	public function test_dbcache() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$results = array();
+			$nocache = ! empty( $_POST['nocache'] );
+
+			global $wpdb;
+
+			if ( $nocache ) {
+				$wpdb->flush();
+				$flusher = Dispatcher::component( 'CacheFlush' );
+				$flusher->dbcache_flush();
+			}
+
+			$query = $wpdb->prepare(
+				'SELECT * FROM ' . $wpdb->users . ' JOIN ' . $wpdb->usermeta .
+				' ON ' . $wpdb->users . '.`ID` = ' . $wpdb->usermeta . '.`user_id`;'
+			);
+
+			if ( ! $nocache ) {
+				$wpdb->query( $query, ARRAY_N );
+			}
+
+			$wpdb->timer_start();
+
+			$result = $wpdb->get_results( $query, ARRAY_N );
+
+			$results = array(
+				'nocache' => $nocache,
+				'query'   => $query,
+				'result'  => print_r( $result, true ),
+				'elapsed' => $wpdb->timer_stop(),
+			);
+
+			wp_send_json_success( $results );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
 	 * Get configuration.
 	 *
 	 * @since  X.X.X
@@ -270,8 +316,8 @@ class SetupGuide_Plugin_Admin {
 		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
 
 		return array(
-			'title'        => esc_html__( 'Setup Guide', 'w3-total-cache' ),
-			'scripts'      => array(
+			'title'          => esc_html__( 'Setup Guide', 'w3-total-cache' ),
+			'scripts'        => array(
 				array(
 					'handle'    => 'setup-guide',
 					'src'       => esc_url( plugin_dir_url( __FILE__ ) . 'pub/js/setup-guide.js' ),
@@ -297,65 +343,82 @@ class SetupGuide_Plugin_Admin {
 					),
 				),
 			),
-			'styles'       => array(
+			'styles'         => array(
 				array(
-					'handle'    => 'setup-guide',
-					'src'       => esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/setup-guide.css' ),
-					'version'   => W3TC_VERSION,
+					'handle'  => 'setup-guide',
+					'src'     => esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/setup-guide.css' ),
+					'version' => W3TC_VERSION,
 				),
 			),
-			'actions'      => array(
+			'actions'        => array(
 				array(
-					'tag'           => 'wp_ajax_w3tc_wizard_skip',
-					'function'      => array(
+					'tag'      => 'wp_ajax_w3tc_wizard_skip',
+					'function' => array(
 						$this,
 						'skip',
 					),
 				),
 				array(
-					'tag'           => 'wp_ajax_w3tc_test_ttfb',
-					'function'      => array(
+					'tag'      => 'wp_ajax_w3tc_test_ttfb',
+					'function' => array(
 						$this,
 						'test_ttfb',
 					),
 				),
 				array(
-					'tag'           => 'wp_ajax_w3tc_config_pagecache',
-					'function'      => array(
+					'tag'      => 'wp_ajax_w3tc_config_pagecache',
+					'function' => array(
 						$this,
 						'config_pagecache',
 					),
 				),
 				array(
-					'tag'           => 'wp_ajax_w3tc_test_browsercache',
-					'function'      => array(
+					'tag'      => 'wp_ajax_w3tc_test_dbcache',
+					'function' => array(
+						$this,
+						'test_dbcache',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_test_browsercache',
+					'function' => array(
 						$this,
 						'test_browsercache',
 					),
 				),
 				array(
-					'tag'           => 'wp_ajax_w3tc_config_browsercache',
-					'function'      => array(
+					'tag'      => 'wp_ajax_w3tc_config_browsercache',
+					'function' => array(
 						$this,
 						'config_browsercache',
 					),
 				),
 			),
-			'steps'        => array(
+			'steps_location' => 'left',
+			'steps'          => array(
 				array(
-					'text'   => __( 'Page Cache', 'w3-total-cache' ),
+					'text' => __( 'Page Cache', 'w3-total-cache' ),
 				),
 				array(
-					'text'   => __( 'Browser Cache', 'w3-total-cache' ),
+					'text' => __( 'Database Cache', 'w3-total-cache' ),
 				),
 				array(
-					'text'   => __( 'More Caching Options', 'w3-total-cache' ),
+					'text' => __( 'Object Cache', 'w3-total-cache' ),
+				),
+				array(
+					'text' => __( 'Browser Cache', 'w3-total-cache' ),
+				),
+				array(
+					'text' => __( 'Lazy Load', 'w3-total-cache' ),
+				),
+				array(
+					'text' => __( 'More Caching Options', 'w3-total-cache' ),
 				),
 			),
-			'slides' => array(
-				array( // 1.
-					'headline'  => __( 'Welcome to the W3 Total Cache Setup Guide!', 'w3-total-cache' ),
-					'markup'    => '<p>' .
+			'slides'         => array(
+				array( // 1: Welcome.
+					'headline' => __( 'Welcome to the W3 Total Cache Setup Guide!', 'w3-total-cache' ),
+					'markup'   => '<p>' .
 						esc_html__(
 							'You have selected the Performance Suite that professionals have consistently ranked #1 for options and speed improvements.',
 							'w3-total-cache'
@@ -366,9 +429,9 @@ class SetupGuide_Plugin_Admin {
 							'w3-total-cache'
 						) . '</p>',
 				),
-				array( // 2.
-					'headline'  => __( 'Time to First Byte', 'w3-total-cache' ),
-					'markup'    => '<p>' . sprintf(
+				array( // 2: Page Cache: TTFB: Intro and initial test.
+					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
+					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
 							'When users visit your website, their browser must connect to your server, wait for your server to respond with the web page, and then display it.  The time it takes between your browser requesting the web page and the receiving of the very first byte of that web page is referred to as %1$sTime to First Byte%2$s.',
@@ -386,9 +449,9 @@ class SetupGuide_Plugin_Admin {
 					esc_html__( 'Measuring', 'w3-total-cache' ) .
 					'<em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;</p>',
 				),
-				array( // 3.
-					'headline'  => __( 'Time to First Byte', 'w3-total-cache' ),
-					'markup'    => '<table id="w3tc-ttfb-table" class="w3tc-setupguide-table">
+				array( // 3: Page Cache: TTFB: Initial test results.
+					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
+					'markup'   => '<table id="w3tc-ttfb-table" class="w3tc-setupguide-table">
 							<thead>
 								<tr>
 									<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
@@ -408,9 +471,9 @@ class SetupGuide_Plugin_Admin {
 						esc_html__( 'This test only measures the performance of your homepage. Other pages on your site, such as a store or a forum, may have higher or lower load times. Stay tuned for future releases to include more tests!', 'w3-total-cache' ) .
 						'</div>',
 				),
-				array( // 4.
-					'headline'  => __( 'Time to First Byte', 'w3-total-cache' ),
-					'markup'    => '<p>' . sprintf(
+				array( // 4: Page Cache: TTFB: Enable and test.
+					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
+					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
 							'To improve %1$sTime to First Byte%2$s, we recommend enabling %1$sPage Cache%2$s.',
@@ -439,9 +502,9 @@ class SetupGuide_Plugin_Admin {
 						'<em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;
 					</p>',
 				),
-				array( // 5.
-					'headline'  => __( 'Time to First Byte', 'w3-total-cache' ),
-					'markup'    => '<table id="w3tc-ttfb-table2" class="w3tc-setupguide-table">
+				array( // 5: Page Cache: TTFB: Compare test results.
+					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
+					'markup'   => '<table id="w3tc-ttfb-table2" class="w3tc-setupguide-table">
 						<thead>
 						<tr>
 							<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
@@ -453,9 +516,9 @@ class SetupGuide_Plugin_Admin {
 						<tbody></tbody>
 						</table>',
 				),
-				array( // 6.
-					'headline'  => __( 'Browser Cache', 'w3-total-cache' ),
-					'markup'    => '<p>' . esc_html__(
+				array( // 6: Browser Cache: Initial test.
+					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
+					'markup'   => '<p>' . esc_html__(
 						'To render your website, browsers must download many different types of assets, including javascript files, CSS stylesheets, images, and more.  For most assets, once a browser has downloaded them, they shouldn\'t have to download them again.',
 						'w3-total-cache'
 						) . '</p>
@@ -467,9 +530,9 @@ class SetupGuide_Plugin_Admin {
 						<p class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
 						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;</p>',
 				),
-				array( // 7.
-					'headline'  => __( 'Browser Cache', 'w3-total-cache' ),
-					'markup'    => '<p>' . sprintf(
+				array( // 7: Browser Cache: Initial test results.
+					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
+					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
 							'The %1$sCache-Control%2$s header tells your browser how it should cache specific files.  The %1$smax-age%2$s setting tells your browser how long, in seconds, it should use its cached version of a file before requesting an updated one.',
@@ -490,9 +553,9 @@ class SetupGuide_Plugin_Admin {
 						</table>' .
 						( $browsercache_enabled ? '<div class="notice notice-info inline"><p>' . esc_html__( 'Browser Cache is already enabled.', 'w3-total-cache' ) . '</p></div>' : '' ),
 				),
-				array( // 8.
-					'headline'  => __( 'Browser Cache', 'w3-total-cache' ),
-					'markup'    => '<p>' . sprintf(
+				array( // 8: Browser Cache: Enable and test.
+					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
+					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
 							'To improve %1$sBrowser Cache%2$s, we recommend enabling %1$sBrowser Cache%2$s setting.',
@@ -521,9 +584,9 @@ class SetupGuide_Plugin_Admin {
 						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;
 					</p>',
 				),
-				array( // 9.
-					'headline'  => __( 'Browser Cache', 'w3-total-cache' ),
-					'markup'    => '<table id="w3tc-browsercache-table2" class="w3tc-setupguide-table">
+				array( // 9: Browser Cache: Compare test results.
+					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
+					'markup'   => '<table id="w3tc-browsercache-table2" class="w3tc-setupguide-table">
 						<thead>
 						<tr>
 							<th>' . esc_html__( 'File', 'w3-total-cache' ) . '</th>
@@ -534,9 +597,9 @@ class SetupGuide_Plugin_Admin {
 						<tbody></tbody>
 						</table>',
 				),
-				array( // 10.
-					'headline'  => __( 'Setup Complete!', 'w3-total-cache' ),
-					'markup'    => '<p>' . sprintf(
+				array( // 10: Setup complete.
+					'headline' => __( 'Setup Complete!', 'w3-total-cache' ),
+					'markup'   => '<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
 							esc_html__(
 								'%1$sTime to First Byte%2$s has change an average of %3$s!',

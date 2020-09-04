@@ -115,10 +115,18 @@ class Template {
 		<?php
 		foreach ( $this->config['steps'] as $number => $step ) {
 			$number++;
-			?>
-			<span id="w3tc-wizard-step-<?php echo esc_attr( $number ); ?>" class="w3tc-wizard-step-numbers"><?php echo esc_html( $number ); ?></span>
-			<span id="w3tc-wizard-step-<?php echo esc_attr( $number ); ?>-text"><?php echo esc_html( $step['text'] ); ?></span>
-			<?php
+			if ( isset( $this->config['steps_location'] ) && 'left' === $this->config['steps_location'] ) {
+				?>
+				<span id="w3tc-wizard-step-<?php echo esc_attr( $number ); ?>" class="w3tc-wizard-step-numbers w3tc-wizard-steps-left">
+					<?php echo esc_html( $step['text'] ); ?>
+			</span>
+				<?php
+			} else {
+				?>
+				<span id="w3tc-wizard-step-<?php echo esc_attr( $number ); ?>" class="w3tc-wizard-step-numbers"><?php echo esc_html( $number ); ?></span>
+				<span id="w3tc-wizard-step-<?php echo esc_attr( $number ); ?>-text"><?php echo esc_html( $step['text'] ); ?></span>
+				<?php
+			}
 		}
 		?>
 		</p>
