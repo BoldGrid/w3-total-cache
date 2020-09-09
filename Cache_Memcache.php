@@ -176,7 +176,7 @@ class Cache_Memcache extends Cache_Base {
 	 * @return boolean
 	 */
 	function flush( $group = '' ) {
-        $this->_increment_key_version($group);
+		$this->_increment_key_version( $group );
 		return true;
 	}
 
@@ -222,18 +222,18 @@ class Cache_Memcache extends Cache_Base {
 		@$this->_memcache->set( $this->_get_key_version_key( $group ), $v, false, 0 );
 	}
 
-    /**
-     * Increments key version
-     *
-     * @param string  $group Used to differentiate between groups of cache values
-     */
-    private function _increment_key_version( $group = '' ) {
-        $r = @$this->_memcache->increment( $this->_get_key_version_key( $group ), 1 );
-        if ( !$r ) {
-            //it doesn't initialize the key if it doesn't exist
-            $this->_set_key_version(0, $group);
-        }
-    }
+	/**
+	 * Increments key version
+	 *
+	 * @param string  $group Used to differentiate between groups of cache values
+	 */
+	private function _increment_key_version( $group = '' ) {
+		$r = @$this->_memcache->increment( $this->_get_key_version_key( $group ), 1 );
+		if ( !$r ) {
+			// it doesn't initialize the key if it doesn't exist
+			$this->_set_key_version( 0 , $group );
+		}
+	}
 
 	/**
 	 * Returns size used by cache
