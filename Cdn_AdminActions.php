@@ -410,6 +410,7 @@ class Cdn_AdminActions {
 				$engine == 'limelight' ||
 				$engine == 'maxcdn' ||
 				$engine == 'stackpath' ||
+				$engine == 'transparentcdn' ||
 				$engine == 'stackpath2' ||
 				$engine == 'rackspace_cdn' ||
 				$engine == 'rscf' ||

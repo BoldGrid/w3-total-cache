@@ -214,57 +214,19 @@ if ( !defined( 'W3TC' ) )
 
         <?php
 if ( Util_Environment::is_apache() ):
+	$apache_modules = ( function_exists( 'apache_get_modules' ) ? apache_get_modules() : false );
 
-    $modules = array(
-        'mod_deflate',
-        'mod_env',
-        'mod_expires',
-        'mod_filter',
-        'mod_ext_filter',
-        'mod_headers',
-        'mod_mime',
-        'mod_rewrite',
-        'mod_setenvif'
-    );
-
-    if ( function_exists( 'apache_get_modules' ) ) {
-        // apache_get_modules only works when PHP is installed as an Apache module
-        $apache_modules = apache_get_modules();
-
-    } elseif ( function_exists( 'exec' )) {
-        // alternative modules capture for php CGI
-        exec( 'apache2 -t -D DUMP_MODULES', $output, $status);
-
-        if ( $status !== 0 ) {
-            exec( 'httpd -t -D DUMP_MODULES', $output, $status);
-        }
-
-        if ( $status === 0 && count($output > 0) ) {
-            $apache_modules = [];
-
-            foreach ($output as $line) {
-                if ( preg_match('/^\s(\S+)\s\((\S+)\)$/', $line, $matches) === 1) {
-                    $apache_modules[] = $matches[1];
-                }
-            }
-        }
-
-        // modules have slightly different names
-        $modules = array(
-            'deflate_module',
-            'env_module',
-            'expires_module',
-            'filter_module',
-            'ext_filter_module',
-            'headers_module',
-            'mime_module',
-            'rewrite_module',
-            'setenvif_module'
-        );
-    } else {
-        $apache_modules = false;
-    }
-
+$modules = array(
+	'mod_deflate',
+	'mod_env',
+	'mod_expires',
+	'mod_filter',
+	'mod_ext_filter',
+	'mod_headers',
+	'mod_mime',
+	'mod_rewrite',
+	'mod_setenvif'
+);
 ?>
             <?php foreach ( $modules as $module ): ?>
                 <li>
