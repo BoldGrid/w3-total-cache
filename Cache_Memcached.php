@@ -286,15 +286,17 @@ class Cache_Memcached extends Cache_Base {
 	}
 
 	/**
-	 * Increments key version
+	 * Increments key version.
 	 *
-	 * @param string  $group Used to differentiate between groups of cache values
+	 * @since 0.14.5
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
 	 */
 	private function _increment_key_version( $group = '' ) {
 		$r = @$this->_memcache->increment( $this->_get_key_version_key( $group ), 1 );
-		if ( !$r ) {
-			// it doesn't initialize the key if it doesn't exist
-			$this->_set_key_version( 0 , $group );
+		if ( ! $r ) {
+			// it doesn't initialize the key if it doesn't exist.
+			$this->_set_key_version( 0, $group );
 		}
 	}
 
