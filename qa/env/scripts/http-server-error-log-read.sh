@@ -12,7 +12,9 @@ cat $W3D_HTTP_SERVER_ERROR_LOG_FILENAME |\
   grep -v "script '/var/www/wp-sandbox/wp-signup.php' not found or unable to stat" |\
   grep -v "wp-admin/includes/dashboard.php on line 1227" |\
   grep -v "WP_Community_Events::maybe_log_events_response" |\
-  grep -v "wp-includes/Requests/Transport/cURL.php:422"
+  grep -v "wp-includes/Requests/Transport/cURL.php:422" |\
+  grep -v "Undefined index: recommended_version in /var/www/.*/class-wp-site-health.php" |\
+  grep -v "Undefined index: no_update in /var/www/.*/update.php"
 
 if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 	cat "${W3D_WP_CONTENT_PATH}debug.log" |\
@@ -27,7 +29,9 @@ if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 	grep -v "script '/var/www/wp-sandbox/wp-signup.php' not found or unable to stat" |\
 	grep -v "wp-admin/includes/dashboard.php on line 1227" |\
 	grep -v "WP_Community_Events::maybe_log_events_response" |\
-	grep -v "wp-includes/Requests/Transport/cURL.php:422"
+	grep -v "wp-includes/Requests/Transport/cURL.php:422" |\
+    grep -v "Undefined index: recommended_version in /var/www/.*/class-wp-site-health.php" |\
+    grep -v "Undefined index: no_update in /var/www/.*/update.php"
 fi
 # esc_attr in eval - pagecache/late-init test
 # in php7.0-fpm call stack is printed so should be eliminated

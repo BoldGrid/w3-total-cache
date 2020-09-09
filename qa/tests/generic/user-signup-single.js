@@ -125,6 +125,9 @@ describe('', function() {
 			expect(await page.content()).contains('Your password has been reset');
 		} else {
 			let m = mail.match(/visit the following address:\s*<(http[^>]+)>/m);
+			if (m == null) {
+				m = mail.match(/visit the following address:\s*(http[^\s]+)/m);
+			}
 			let followUrl = m[1];
 
 			log.log('found ' + followUrl);
