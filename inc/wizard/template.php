@@ -115,16 +115,17 @@ class Template {
 		<?php
 		foreach ( $this->config['steps'] as $number => $step ) {
 			$number++;
+			$element_id = 'w3tc-wizard-step-' . ( isset( $step['id'] ) ? $step['id'] : $number );
 			if ( isset( $this->config['steps_location'] ) && 'left' === $this->config['steps_location'] ) {
 				?>
-				<span id="w3tc-wizard-step-<?php echo esc_attr( $number ); ?>" class="w3tc-wizard-step-numbers w3tc-wizard-steps-left">
+				<span id="<?php echo esc_attr( $element_id ); ?>" class="w3tc-wizard-steps w3tc-wizard-steps-left">
 					<?php echo esc_html( $step['text'] ); ?>
 			</span>
 				<?php
 			} else {
 				?>
-				<span id="w3tc-wizard-step-<?php echo esc_attr( $number ); ?>" class="w3tc-wizard-step-numbers"><?php echo esc_html( $number ); ?></span>
-				<span id="w3tc-wizard-step-<?php echo esc_attr( $number ); ?>-text"><?php echo esc_html( $step['text'] ); ?></span>
+				<span id="<?php echo esc_attr( $element_id ); ?>" class="w3tc-wizard-steps"><?php echo esc_html( $number ); ?></span>
+				<span id="<?php echo esc_attr( $element_id ); ?>-text"><?php echo esc_html( $step['text'] ); ?></span>
 				<?php
 			}
 		}
@@ -132,16 +133,19 @@ class Template {
 		</p>
 
 		<?php
+		// The first slide is visible.
 		$hidden = '';
 
 		foreach ( $this->config['slides'] as $number => $slide ) {
 			$number++;
+			$element_id = 'w3tc-wizard-slide-' . ( isset( $slide['id'] ) ? $slide['id'] : $number );
 			?>
-			<div id="w3tc-wizard-slide-<?php echo esc_attr( $number ); ?>" class="w3tc-wizard-slides<?php echo esc_attr( $hidden ); ?>">
+			<div id="<?php echo esc_attr( $element_id ); ?>" class="w3tc-wizard-slides<?php echo esc_attr( $hidden ); ?>">
 				<h3><?php echo wp_kses( $slide['headline'], $allowed_html ); ?></h3>
 				<?php echo wp_kses( $slide['markup'], $allowed_html ); ?>
 			</div>
 			<?php
+			// All subsequent slides are hidden.
 			$hidden = ' hidden';
 		}
 

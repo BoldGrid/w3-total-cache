@@ -22,44 +22,19 @@ function w3tc_wizard_actions( $slide ) {
 		$skipButton = jQuery( '#w3tc-wizard-skip' );
 
 	switch ( slideId ) {
-		case 'w3tc-wizard-slide-2':
+		case 'w3tc-wizard-slide-welcome':
+			jQuery( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+
+			break;
+
+		case 'w3tc-wizard-slide-pc1':
 			// Test TTFB.
-			jQuery( '#w3tc-wizard-step-1' ).addClass( 'is-active' );
+			jQuery( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			jQuery( '#w3tc-wizard-step-pagecache' ).addClass( 'is-active' );
 			$nextButton.prop( 'disabled', 'disabled' );
 			$prevButton.prop( 'disabled', 'disabled' );
 			$slide.find( '.notice' ).remove();
 			$slide.find( '.spinner' ).addClass( 'is-active' ).closest( 'p' ).show();
-
-			// DEV TEST: Test database cache.
-			jQuery.ajax({
-				method: 'POST',
-				url: ajaxurl,
-				data: {
-					_wpnonce: jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val(),
-					action: 'w3tc_test_dbcache',
-					nocache: true
-				}
-			})
-			.done(function( response ) {
-				jQuery( '#test-results' ).data( 'dbc1', response.data );
-
-				jQuery.ajax({
-					method: 'POST',
-					url: ajaxurl,
-					data: {
-						_wpnonce: jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val(),
-						action: 'w3tc_test_dbcache'
-					}
-				})
-				.done(function( response ) {
-					jQuery( '#test-results' ).data( 'dbc2', response.data );
-					console.log(
-						jQuery( '#test-results' ).data( 'dbc1' ).elapsed * 1000,
-						jQuery( '#test-results' ).data( 'dbc2' ).elapsed * 1000,
-						( jQuery( '#test-results' ).data( 'dbc2' ).elapsed - jQuery( '#test-results' ).data( 'dbc1' ).elapsed ) * 1000
-					);
-				});
-			});
 
 			jQuery.ajax({
 				method: 'POST',
@@ -107,7 +82,7 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
-		case 'w3tc-wizard-slide-4':
+		case 'w3tc-wizard-slide-pc3':
 			// Display TTFB result and wait for user to click to enable Page Cache; then test and advance to next slide.
 			if ( ! jQuery( '#test-results' ).data( 'ttfb2' ) ) {
 				$nextButton.prop( 'disabled', 'disabled' );
@@ -214,20 +189,106 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
-		case 'w3tc-wizard-slide-5':
+		case 'w3tc-wizard-slide-pc4':
 			// TTFB results slide.
-			jQuery( '#w3tc-wizard-step-2' ).removeClass( 'is-active' );
-			jQuery( '#w3tc-wizard-step-1' ).addClass( 'is-active' );
+			jQuery( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			jQuery( '#w3tc-wizard-step-pagecache' ).addClass( 'is-active' );
 
 			break;
 
-		case 'w3tc-wizard-slide-6':
-			// Test Browser Cache header.
+		case 'w3tc-wizard-slide-dbc1':
+			// Test database cache.
 			$nextButton.prop( 'disabled', 'disabled' );
-			jQuery( '#w3tc-wizard-step-1' ).removeClass( 'is-active' );
-			jQuery( '#w3tc-wizard-step-2' ).addClass( 'is-active' );
+
+			jQuery( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			jQuery( '#w3tc-wizard-step-dbcache' ).addClass( 'is-active' );
+
 			$slide.find( '.notice' ).remove();
 			$slide.find( '.spinner' ).addClass( 'is-active' ).closest( 'p' ).show();
+
+			// Test database cache with nocache option.
+			jQuery.ajax({
+				method: 'POST',
+				url: ajaxurl,
+				data: {
+					_wpnonce: jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val(),
+					action: 'w3tc_test_dbcache',
+					nocache: true
+				}
+			})
+			.done(function( response ) {
+				var results = '';
+				response.data.forEach(function( item ) {
+					results += '<tr><td><a target="_blank" href="' +
+						item.url +
+						'">' +
+						item.urlshort +
+						'</a></td><td>' +
+						( item.ttfb * 1000 ).toFixed( 2 ) +
+						'ms</td><td>??</td><td>??</td></tr>';
+				});
+				jQuery( '#test-results' ).data( 'dbc1', response.data );
+
+				// Test database cache with cache primed.
+				jQuery.ajax({
+					method: 'POST',
+					url: ajaxurl,
+					data: {
+						_wpnonce: jQuery( '#w3tc-wizard-container [name="_wpnonce"]' ).val(),
+						action: 'w3tc_test_dbcache'
+					}
+				})
+				.done(function( response ) {
+					jQuery( '#test-results' ).data( 'dbc2', response.data );
+					console.log(
+						jQuery( '#test-results' ).data( 'dbc1' ).elapsed * 1000,
+						jQuery( '#test-results' ).data( 'dbc2' ).elapsed * 1000,
+						( jQuery( '#test-results' ).data( 'dbc2' ).elapsed - jQuery( '#test-results' ).data( 'dbc1' ).elapsed ) * 1000
+					);
+				});
+
+				$slide.append(
+					'<div class="notice notice-success"><p>' +
+					W3TC_SetupGuide.test_complete_msg +
+					'</p></div>'
+				);
+				jQuery( '#w3tc-ttfb-table tbody' ).html( results );
+
+				$prevButton.removeProp( 'disabled' );
+				$nextButton.removeProp( 'disabled' );
+			})
+			.fail(function() {
+				$slide.append(
+					'<p class="notice notice-error"><strong>' +
+					W3TC_SetupGuide.test_error_msg +
+					'</strong></p>'
+				);
+				$nextButton.closest( 'span' ).hide();
+				$prevButton.closest( 'span' ).hide();
+				$skipButton.closest( 'span' ).show();
+			})
+			.complete(function() {
+				$slide.find( '.spinner' ).removeClass( 'is-active' ).closest( 'p' ).hide();
+			});
+
+			break;
+
+		case 'w3tc-wizard-slide-oc1':
+			jQuery( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			jQuery( '#w3tc-wizard-step-objectcache' ).addClass( 'is-active' );
+
+			break;
+
+		case 'w3tc-wizard-slide-bc1':
+			// Test Browser Cache header.
+			$nextButton.prop( 'disabled', 'disabled' );
+
+			jQuery( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			jQuery( '#w3tc-wizard-step-browsercache' ).addClass( 'is-active' );
+
+			$slide.find( '.notice' ).remove();
+			$slide.find( '.spinner' ).addClass( 'is-active' ).closest( 'p' ).show();
+
 			jQuery.ajax({
 				method: 'POST',
 				url: ajaxurl,
@@ -276,7 +337,7 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
-		case 'w3tc-wizard-slide-8':
+		case 'w3tc-wizard-slide-bc3':
 			// Display Browser Cache result and wait for user to click to enable Page Cache; then test and advance to next slide.
 			if ( ! jQuery( '#test-results' ).data( 'bc2' ) ) {
 				$nextButton.prop( 'disabled', 'disabled' );
@@ -369,19 +430,25 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
-		case 'w3tc-wizard-slide-9':
-			jQuery( '#w3tc-wizard-step-3' ).removeClass( 'is-active' );
-			jQuery( '#w3tc-wizard-step-2' ).addClass( 'is-active' );
+		case 'w3tc-wizard-slide-bc4':
+			jQuery( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			jQuery( '#w3tc-wizard-step-browsercache' ).addClass( 'is-active' );
 
 			break;
 
-		case 'w3tc-wizard-slide-10':
+		case 'w3tc-wizard-slide-ll1':
+			jQuery( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			jQuery( '#w3tc-wizard-step-lazyload' ).addClass( 'is-active' );
+
+			break;
+
+		case 'w3tc-wizard-slide-complete':
 			var html,
 				diffAvg = jQuery( '#test-results' ).data( 'ttfb2' ).diffAvg,
 				diffPercentAvg = jQuery( '#test-results' ).data( 'ttfb2' ).diffPercentAvg;
 
-			jQuery( '#w3tc-wizard-step-2' ).removeClass( 'is-active' );
-			jQuery( '#w3tc-wizard-step-3' ).addClass( 'is-active' );
+			jQuery( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			jQuery( '#w3tc-wizard-step-more' ).addClass( 'is-active' );
 
 			html = ( diffAvg > 0 ? '+' : '' ) +
 				diffAvg.toFixed( 2 ) +

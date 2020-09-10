@@ -397,27 +397,34 @@ class SetupGuide_Plugin_Admin {
 			'steps_location' => 'left',
 			'steps'          => array(
 				array(
+					'id'   => 'pagecache',
 					'text' => __( 'Page Cache', 'w3-total-cache' ),
 				),
 				array(
+					'id'   => 'dbcache',
 					'text' => __( 'Database Cache', 'w3-total-cache' ),
 				),
 				array(
+					'id'   => 'objectcache',
 					'text' => __( 'Object Cache', 'w3-total-cache' ),
 				),
 				array(
+					'id'   => 'browsercache',
 					'text' => __( 'Browser Cache', 'w3-total-cache' ),
 				),
 				array(
+					'id'   => 'lazyload',
 					'text' => __( 'Lazy Load', 'w3-total-cache' ),
 				),
 				array(
+					'id'   => 'more',
 					'text' => __( 'More Caching Options', 'w3-total-cache' ),
 				),
 			),
 			'slides'         => array(
-				array( // 1: Welcome.
+				array( // Welcome.
 					'headline' => __( 'Welcome to the W3 Total Cache Setup Guide!', 'w3-total-cache' ),
+					'id'       => 'welcome',
 					'markup'   => '<p>' .
 						esc_html__(
 							'You have selected the Performance Suite that professionals have consistently ranked #1 for options and speed improvements.',
@@ -429,8 +436,9 @@ class SetupGuide_Plugin_Admin {
 							'w3-total-cache'
 						) . '</p>',
 				),
-				array( // 2: Page Cache: TTFB: Intro and initial test.
+				array( // Page Cache: TTFB: Intro and initial test.
 					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
+					'id'       => 'pc1',
 					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
@@ -449,8 +457,9 @@ class SetupGuide_Plugin_Admin {
 					esc_html__( 'Measuring', 'w3-total-cache' ) .
 					'<em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;</p>',
 				),
-				array( // 3: Page Cache: TTFB: Initial test results.
+				array( // Page Cache: TTFB: Initial test results.
 					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
+					'id'       => 'pc2',
 					'markup'   => '<table id="w3tc-ttfb-table" class="w3tc-setupguide-table">
 							<thead>
 								<tr>
@@ -471,8 +480,9 @@ class SetupGuide_Plugin_Admin {
 						esc_html__( 'This test only measures the performance of your homepage. Other pages on your site, such as a store or a forum, may have higher or lower load times. Stay tuned for future releases to include more tests!', 'w3-total-cache' ) .
 						'</div>',
 				),
-				array( // 4: Page Cache: TTFB: Enable and test.
+				array( // Page Cache: TTFB: Enable and test.
 					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
+					'id'       => 'pc3',
 					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
@@ -502,8 +512,9 @@ class SetupGuide_Plugin_Admin {
 						'<em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;
 					</p>',
 				),
-				array( // 5: Page Cache: TTFB: Compare test results.
+				array( // Page Cache: TTFB: Compare test results.
 					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
+					'id'       => 'pc4',
 					'markup'   => '<table id="w3tc-ttfb-table2" class="w3tc-setupguide-table">
 						<thead>
 						<tr>
@@ -516,8 +527,33 @@ class SetupGuide_Plugin_Admin {
 						<tbody></tbody>
 						</table>',
 				),
-				array( // 6: Browser Cache: Initial test.
+				array( // Database cache.
+					'headline' => __( 'Database Cache', 'w3-total-cache' ),
+					'id'       => 'dbc1',
+					'markup'   => '<p>' . esc_html__(
+						'Many database queries are made in every dynamic page request.  A database cache may speed-up generation of dynamic pages.',
+						'w3-total-cache'
+						) . '</p>
+						<p class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
+						' <em>' . esc_html__( 'Database Cache', 'w3-total-cache' ) . '</em>&hellip;</p>',
+				),
+				array( // Object cache.
+					'headline' => __( 'Object Cache', 'w3-total-cache' ),
+					'id'       => 'oc1',
+					'markup'   => '<p>' . esc_html__(
+						'WordPress caches objects used to build pages, but does not reuse them for future page requests.',
+						'w3-total-cache'
+						) . '</p>
+						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
+						esc_html__( 'can help you speed up dynamic pages by persistently storing objects.', 'w3-total-cache' ) .
+						esc_html__( 'Let\'s test to get a baseline measurement.', 'w3-total-cache' ) .
+						'</p>
+						<p class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
+						' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;</p>',
+				),
+				array( // Browser Cache: Initial test.
 					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
+					'id'       => 'bc1',
 					'markup'   => '<p>' . esc_html__(
 						'To render your website, browsers must download many different types of assets, including javascript files, CSS stylesheets, images, and more.  For most assets, once a browser has downloaded them, they shouldn\'t have to download them again.',
 						'w3-total-cache'
@@ -530,8 +566,9 @@ class SetupGuide_Plugin_Admin {
 						<p class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
 						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;</p>',
 				),
-				array( // 7: Browser Cache: Initial test results.
+				array( // Browser Cache: Initial test results.
 					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
+					'id'       => 'bc2',
 					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
@@ -553,8 +590,9 @@ class SetupGuide_Plugin_Admin {
 						</table>' .
 						( $browsercache_enabled ? '<div class="notice notice-info inline"><p>' . esc_html__( 'Browser Cache is already enabled.', 'w3-total-cache' ) . '</p></div>' : '' ),
 				),
-				array( // 8: Browser Cache: Enable and test.
+				array( // Browser Cache: Enable and test.
 					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
+					'id'       => 'bc3',
 					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
@@ -584,8 +622,9 @@ class SetupGuide_Plugin_Admin {
 						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;
 					</p>',
 				),
-				array( // 9: Browser Cache: Compare test results.
+				array( // Browser Cache: Compare test results.
 					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
+					'id'       => 'bc4',
 					'markup'   => '<table id="w3tc-browsercache-table2" class="w3tc-setupguide-table">
 						<thead>
 						<tr>
@@ -597,8 +636,17 @@ class SetupGuide_Plugin_Admin {
 						<tbody></tbody>
 						</table>',
 				),
-				array( // 10: Setup complete.
+				array( // Lazy load.
+					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
+					'id'       => 'll1',
+					'markup'   => '<p>' . esc_html__(
+						'Pages containing iamges and other objects can have their load time reduced by deferring the loading the items until they are needed.  For example, images can be loaded when a visitor scrolls down the page to make them visible.',
+						'w3-total-cache'
+						) . '</p>',
+				),
+				array( // Setup complete.
 					'headline' => __( 'Setup Complete!', 'w3-total-cache' ),
+					'id'       => 'complete',
 					'markup'   => '<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
 							esc_html__(

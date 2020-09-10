@@ -47,9 +47,8 @@
     left: -2px;
 }
 
-
 /* Step numbers */
-.w3tc-wizard-step-numbers {
+.w3tc-wizard-steps {
 	display: inline-block;
 	vertical-align: top;
 	box-sizing: border-box;
@@ -81,8 +80,8 @@
 	position: absolute;
 }
 
-/* Active step number */
-.w3tc-wizard-step-numbers.is-active {
+/* Active step */
+.w3tc-wizard-steps.is-active {
 	background-color: #30bec3;
 	color: #fff;
 }
@@ -101,6 +100,7 @@
 	background-size:
 		auto,
 		auto 100%;
+	min-height: 255px;
 	padding-bottom: 70px;
 	padding-right: 160px;
 }
