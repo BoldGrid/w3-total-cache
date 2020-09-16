@@ -1053,6 +1053,8 @@ class _W3_MinifyHelpers {
 		$url = Minify_Core::minified_url( $minify_filename );
 		$url = Util_Environment::url_to_maybe_https( $url );
 
+		$url = apply_filters( 'w3tc_minify_url_for_files', $url, $files, $type );
+
 		return $url;
 	}
 
