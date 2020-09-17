@@ -9,7 +9,11 @@ class Cdnfsd_TransparentCDN_Page {
 		wp_enqueue_script( 'w3tc_cdn_transparentcdn_fsd',
 			plugins_url( 'Cdnfsd_TransparentCDN_Page_View.js', W3TC_FILE ),
 			array( 'jquery' ), '1.0' );
+		wp_enqueue_script( 'w3tc_cdn_transparentcdn_fsd_test_params',
+			plugins_url( 'Cdnfsd_TransparentCDN_Page_View_TestParams.js', W3TC_FILE),
+			array( 'javascript' ), '1.0');
 	}
+		
 
 
 

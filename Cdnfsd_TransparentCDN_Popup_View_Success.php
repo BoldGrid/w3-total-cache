@@ -10,7 +10,7 @@ if ( !defined( 'W3TC' ) )
 	__( 'Succeeded', 'w3-total-cache' ) ); ?>
 
         <div style="text-align: center">
-            Site was successfully configured.<br />
+            <?php __("Site was successfully configured.") ?> <br />
         </div>
 
         <p class="submit">

@@ -16,7 +16,7 @@ class Cdn_TransparentCDN_Api {
      *
      * @param array $config
      */
-    function __construct($config = array()) {
+    function __construct( $config = array() ) {
         $config = array_merge(array(
             'company_id' => '',
             'client_id' => '',
@@ -26,7 +26,7 @@ class Cdn_TransparentCDN_Api {
     }
 
     function _debuglog($s) {
-        file_put_contents("/tmp/kk", $s, FILE_APPEND);
+        file_put_contents('/tmp/kk', $s, FILE_APPEND);
     }
     /**
      * Purges URL
@@ -49,11 +49,13 @@ class Cdn_TransparentCDN_Api {
         $this->_get_token();
 
 		$invalidation_urls = array();
-		//print_r($urls);
-		foreach($urls as $url){ //Oh array_map+lambdas, how I miss u...
+		
+		foreach($urls as $url) { //Oh array_map+lambdas, how I miss u...
 			 $invalidation_urls[] = $url;
         }
-        if(count($invalidation_urls)==0 ) $invalidation_urls[] = "";
+        if(count($invalidation_urls)==0 ) {
+            $invalidation_urls[] = "";
+        }
 
 
         if ($this->_purge_content($invalidation_urls, $error)) {
@@ -63,7 +65,7 @@ class Cdn_TransparentCDN_Api {
         }
 
 		return $results;
-        //return !$this->_is_error($results);
+        
     }
    /**
      * Purge content
@@ -101,7 +103,7 @@ class Cdn_TransparentCDN_Api {
                 if(is_array($body->urls_to_send) && count($body->urls_to_send)>0 ){
                     return true; //hemos invalidado al menos una URL.
                 }
-                else if(count($files) > 0 && $files[0] != ""){ //HACK!!!
+                else if( 0 < count($files) && "" !== $files[0] ){ //HACK!!!
                     $error = __('Invalid Request URL', 'w3-total-cache');
                     return false;
                 }
@@ -138,7 +140,6 @@ class Cdn_TransparentCDN_Api {
      */
     function purge_all(&$results) {
         //TODO: Implementar mediante bans el * ? 
-        //return $this->purge(array(array('local_path'=>'*', 'remote_path'=> '*')), $results);
         return false;
     }
 

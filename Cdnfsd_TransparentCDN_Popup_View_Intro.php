@@ -14,7 +14,9 @@ if ( isset( $details['error_message'] ) )
 	__( 'Your TransparentCDN Account credentials', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<td>Company ID:</td>
+				<td>
+					<?php	__("Company ID:") ?>
+				</td>
 				<td>
 					<input name="company_id" type="text" class="w3tc-ignore-change"
 						style="width: 550px"
@@ -22,7 +24,9 @@ if ( isset( $details['error_message'] ) )
 				</td>
 			</tr>
 			<tr>
-				<td>API Client ID:</td>
+				<td>
+					<?php __("API Client ID:") ?>
+				</td>
 				<td>
 					<input name="client_id" type="text" class="w3tc-ignore-change"
 						style="width: 550px"
@@ -30,14 +34,16 @@ if ( isset( $details['error_message'] ) )
 				</td>
 			</tr>
 			<tr>
-				<td>API Client Secret:</td>
+				<td>
+					<?php __("API Client Secret:") ?>
+				</td>
 				<td>
 					<input name="client_secret" type="text" class="w3tc-ignore-change"
 						style="width: 550px"
 						value="<?php echo esc_attr( $details['client_secret'] ) ?>" />
 					<br />
 					<span class="description">
-						You can get every detail about your account in the dashboard at <a href="https://app.transparentcdn.com">https://app.transparentcdn.com</a>
+						<?php __("You can get every detail about your account in the dashboard at") ?> <a href="https://app.transparentcdn.com">https://app.transparentcdn.com</a>
 					</span>
 				</td>
 			</tr>
