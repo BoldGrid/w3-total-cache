@@ -3,3 +3,11 @@
 .w3tc-setupguide-table td {
 	text-align: left;
 }
+
+.w3tc-dbc-table th {
+	white-space: nowrap;
+}
+
+.w3tc-option-disabled {
+	color: darkgray;
+}

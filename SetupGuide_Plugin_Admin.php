@@ -181,7 +181,7 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @since  X.X.X
 	 *
-	 * @see \W3TC\CacheFlush::flush_url()
+	 * @see \W3TC\CacheFlush::browsercache_flush()
 	 * @see \W3TC\Util_Http::get_headers()
 	 */
 	public function test_browsercache() {
@@ -192,8 +192,9 @@ class SetupGuide_Plugin_Admin {
 				esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/setup-guide.css' ),
 				esc_url( plugin_dir_url( __FILE__ ) . 'pub/js/setup-guide.js' ),
 			);
-			$flusher = new CacheFlush();
-			$flusher->flush_all();
+
+			$f = Dispatcher::component( 'CacheFlush' );
+			$f->browsercache_flush();
 
 			foreach ( $urls as $url ) {
 				$headers = Util_Http::get_headers( $url );
@@ -221,6 +222,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::set()
 	 * @see \W3TC\Config::save()
+	 * @see \W3TC\CacheFlush::browsercache_flush()
 	 *
 	 * @uses $_POST['browsercache']
 	 */
@@ -241,7 +243,7 @@ class SetupGuide_Plugin_Admin {
 				$config->save();
 
 				$f = Dispatcher::component( 'CacheFlush' );
-				$f->flush_all();
+				$f->browsercache_flush();
 			}
 
 			wp_send_json_success(
@@ -257,49 +259,190 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
-	 * Test database cache.
+	 * Admin-Ajax: Test database cache.
 	 *
 	 * @since X.X.X
 	 *
 	 * @global $wpdb WordPress database object.
+	 *
+	 * @see \W3TC\SetupGuide_Plugin_Admin::config_dbcache()
 	 */
 	public function test_dbcache() {
 		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
 			$results = array();
-			$nocache = ! empty( $_POST['nocache'] );
 
 			global $wpdb;
-
-			if ( $nocache ) {
-				$wpdb->flush();
-				$flusher = Dispatcher::component( 'CacheFlush' );
-				$flusher->dbcache_flush();
-			}
 
 			$query = $wpdb->prepare(
 				'SELECT * FROM ' . $wpdb->users . ' JOIN ' . $wpdb->usermeta .
 				' ON ' . $wpdb->users . '.`ID` = ' . $wpdb->usermeta . '.`user_id`;'
 			);
 
-			if ( ! $nocache ) {
-				$wpdb->query( $query, ARRAY_N );
+			$engines = array(
+				array(
+					'key'    => 'none',
+					'label'  => __( 'None', 'w3-total-cache' ),
+					'enable' => false,
+					'engine' => '',
+				),
+				array(
+					'key'    => 'file',
+					'label'  => __( 'Disk', 'w3-total-cache' ),
+					'enable' => true,
+					'engine' => 'file',
+				),
+				array(
+					'key'    => 'redis',
+					'label'  => __( 'Redis', 'w3-total-cache' ),
+					'enable' => true,
+					'engine' => 'redis',
+				),
+				array(
+					'key'    => 'memcached',
+					'label'  => __( 'Memcached', 'w3-total-cache' ),
+					'enable' => true,
+					'engine' => 'memcached',
+				),
+				array(
+					'key'    => 'apc',
+					'label'  => __( 'APC', 'w3-total-cache' ),
+					'enable' => true,
+					'engine' => 'apc',
+				),
+				array(
+					'key'    => 'eaccelerator',
+					'label'  => __( 'eAccelerator', 'w3-total-cache' ),
+					'enable' => true,
+					'engine' => 'eaccelerator',
+				),
+				array(
+					'key'    => 'xcache',
+					'label'  => __( 'XCache', 'w3-total-cache' ),
+					'enable' => true,
+					'engine' => 'xcache',
+				),
+				array(
+					'key'    => 'wincache',
+					'label'  => __( 'WinCache', 'w3-total-cache' ),
+					'enable' => true,
+					'engine' => 'wincache',
+				),
+			);
+
+			$wpdb->flush();
+
+			foreach ( $engines as $index => $config ) {
+				$results[ $index ] = array(
+					'key'     => $config['key'],
+					'label'   => $config['label'],
+					'config'  => $this->config_dbcache( $config['enable'], $config['engine'] ),
+					'query'   => null,
+					'elapsed' => null,
+				);
+
+				if ( $results[ $index ]['config']['success'] ) {
+					if ( ! $config['enable'] || empty( $config['engine'] ) ) {
+						$wpdb->query( $query, ARRAY_N );
+					}
+
+					$wpdb->timer_start();
+					$wpdb->get_results( $query, ARRAY_N );
+					$results[ $index ]['elapsed'] = $wpdb->timer_stop();
+					$results[ $index ]['query']   = $query;
+				}
 			}
 
-			$wpdb->timer_start();
-
-			$result = $wpdb->get_results( $query, ARRAY_N );
-
-			$results = array(
-				'nocache' => $nocache,
-				'query'   => $query,
-				'result'  => print_r( $result, true ),
-				'elapsed' => $wpdb->timer_stop(),
+			// Change back to the original settings observed on the first test.
+			$this->config_dbcache(
+				$results[0]['config']['previous_enabled'],
+				$results[0]['config']['previous_engine']
 			);
 
 			wp_send_json_success( $results );
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
+	}
+
+	/**
+	 * Configure the database cache settings.
+	 *
+	 * @since  X.X.X
+	 * @access private
+	 *
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::set()
+	 * @see \W3TC\Config::save()
+	 * @see \W3TC\CacheFlush::dbcache_flush()
+	 *
+	 * @param  bool   $enable Enable the database cache.
+	 * @param  string $engine Cache storage engine. Optional.
+	 * @return array
+	 */
+	private function config_dbcache( $enable, $engine = '' ) {
+		$is_updating       = false;
+		$success           = false;
+		$config            = new Config();
+		$dbcache_enabled   = $config->get_boolean( 'dbcache.enabled' );
+		$dbcache_engine    = $config->get_string( 'dbcache.engine' );
+		$enable            = (bool) $enable;
+		$engine            = trim( $engine );
+		$allowed_engines   = array(
+			'',
+			'file',
+			'redis',
+			'memcached',
+			'apc',
+			'eaccelerator',
+			'xcache',
+			'wincache',
+		);
+		$is_allowed_engine = in_array( $engine, $allowed_engines, true );
+
+		if ( $is_allowed_engine ) {
+			if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
+				if ( $dbcache_enabled !== $enable ) {
+					$config->set( 'dbcache.enabled', $enable );
+					$is_updating = true;
+				}
+
+				if ( ! empty( $engine ) && $dbcache_engine !== $engine ) {
+					$config->set( 'dbcache.engine', $engine );
+					$is_updating = true;
+				}
+
+				if ( $is_updating ) {
+					$config->save();
+
+					$f = Dispatcher::component( 'CacheFlush' );
+					$f->dbcache_flush();
+				}
+
+				if ( $config->get_boolean( 'dbcache.enabled' ) === $enable &&
+					( ! $enabled || $config->get_string( 'dbcache.engine' ) === $engine ) ) {
+						$success = true;
+						$message = __( 'Settings updated', 'w3-total-cache' );
+				} else {
+					$message = __( 'Settings not updated', 'w3-total-cache' );
+				}
+			} else {
+				$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+			}
+		} elseif ( ! $is_allowed_engine ) {
+			$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
+		}
+
+		return array(
+			'success'           => $success,
+			'message'           => $message,
+			'enable'            => $enable,
+			'engine'            => $engine,
+			'current_enabled'   => $config->get_boolean( 'dbcache.enabled' ),
+			'current_engine'    => $config->get_string( 'dbcache.engine' ),
+			'previous_enabled'  => $dbcache_enabled,
+			'previous_engine'   => $dbcache_engine,
+		);
 	}
 
 	/**
@@ -312,7 +455,6 @@ class SetupGuide_Plugin_Admin {
 	 */
 	private function get_config() {
 		$config               = new Config();
-		$pgcache_enabled      = $config->get_boolean( 'pgcache.enabled' );
 		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
 
 		return array(
@@ -339,6 +481,7 @@ class SetupGuide_Plugin_Admin {
 								'Could not update configuration.  Please reload the page to try again or click skip button to abort the setup guide.',
 								'w3-total-cache'
 							),
+							'unavailable_text' => __( 'Unavailable', 'w3-total-cache' ),
 						),
 					),
 				),
@@ -448,41 +591,39 @@ class SetupGuide_Plugin_Admin {
 						'<em>',
 						'</em>'
 					) . '</p>
-					<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
-					esc_html__( 'can help you speed up', 'w3-total-cache' ) .
-					' <em>' . esc_html__( 'Time to First Byte.', 'w3-total-cache' ) . '</em> ' .
-					esc_html__( 'Before we do, let\'s get a baseline and take a measurement.', 'w3-total-cache' ) .
+					<p>
+						<strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
+						esc_html__( 'can help you speed up', 'w3-total-cache' ) .
+						' <em>' . esc_html__( 'Time to First Byte.', 'w3-total-cache' ) . '</em> ' .
+						esc_html__( 'Before we do, let\'s get a baseline and take a measurement.', 'w3-total-cache' ) .
 					'</p>
-					<p class="hidden"><span class="spinner inline"></span>' .
-					esc_html__( 'Measuring', 'w3-total-cache' ) .
-					'<em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;</p>',
+					<p>
+						<input class="w3tc-test-pagecache button-primary" type="button" value="' .
+						esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
+						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Measuring', 'w3-total-cache' ) .
+						' <em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;
+						</span>
+					</p>
+					<table id="w3tc-ttfb-table" class="w3tc-setupguide-table hidden">
+						<thead>
+							<tr>
+								<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'Change', 'w3-total-cache' ) . '</th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+					<div>
+						<p>' .
+						esc_html__( 'This test only measures the performance of your homepage. Other pages on your site, such as a store or a forum, may have higher or lower load times. Stay tuned for future releases to include more tests!', 'w3-total-cache' ) .
+						'</p>
+					</div>',
 				),
-				array( // Page Cache: TTFB: Initial test results.
+				array( // Page Cache: TTFB: Enable, test, and compare results.
 					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
 					'id'       => 'pc2',
-					'markup'   => '<table id="w3tc-ttfb-table" class="w3tc-setupguide-table">
-							<thead>
-								<tr>
-									<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
-									<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
-									<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
-									<th>' . esc_html__( 'Change', 'w3-total-cache' ) . '</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>' . (
-						$pgcache_enabled ?
-							'<div class="notice notice-info inline"><p>' .
-							esc_html__( 'Page Cache is already enabled.  This initial test bypasses the cache.', 'w3-total-cache' ) .
-							'</p></div>' :
-							''
-						) . '<div>' .
-						esc_html__( 'This test only measures the performance of your homepage. Other pages on your site, such as a store or a forum, may have higher or lower load times. Stay tuned for future releases to include more tests!', 'w3-total-cache' ) .
-						'</div>',
-				),
-				array( // Page Cache: TTFB: Enable and test.
-					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
-					'id'       => 'pc3',
 					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
@@ -506,26 +647,21 @@ class SetupGuide_Plugin_Admin {
 					<p>
 						<input class="w3tc-test-pagecache button-primary" type="button" value="' .
 						esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
+						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Measuring', 'w3-total-cache' ) .
+						' <em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;
+						</span>
 					</p>
-					<p class="hidden"><span class="spinner inline"></span>' .
-						esc_html__( 'Measuring', 'w3-total-cache' ) .
-						'<em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;
-					</p>',
-				),
-				array( // Page Cache: TTFB: Compare test results.
-					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
-					'id'       => 'pc4',
-					'markup'   => '<table id="w3tc-ttfb-table2" class="w3tc-setupguide-table">
+					<table id="w3tc-ttfb-table2" class="w3tc-setupguide-table hidden">
 						<thead>
-						<tr>
-							<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
-							<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
-							<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
-							<th>' . esc_html__( 'Change', 'w3-total-cache' ) . '</th>
-						</tr>
+							<tr>
+								<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'Change', 'w3-total-cache' ) . '</th>
+							</tr>
 						</thead>
 						<tbody></tbody>
-						</table>',
+					</table>',
 				),
 				array( // Database cache.
 					'headline' => __( 'Database Cache', 'w3-total-cache' ),
@@ -534,8 +670,28 @@ class SetupGuide_Plugin_Admin {
 						'Many database queries are made in every dynamic page request.  A database cache may speed-up generation of dynamic pages.',
 						'w3-total-cache'
 						) . '</p>
-						<p class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
-						' <em>' . esc_html__( 'Database Cache', 'w3-total-cache' ) . '</em>&hellip;</p>',
+						<p>' . esc_html__(
+							'Database Cache serves query results directly from a storage engine.  By default, this feature is disabled.  We recommend using Redis or Memcached, otherwise leave this feature disabled as the server database engine may be faster than using disk caching.',
+							'w3-total-cache'
+						) . '</p>
+						<p>
+						<input class="w3tc-test-dbcache button-primary" type="button" value="' .
+						esc_html__( 'Test Database Cache', 'w3-total-cache' ) . '">
+						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
+						' <em>' . esc_html__( 'Database Cache', 'w3-total-cache' ) . '</em>&hellip;
+						</span>
+						</p>
+						<table id="w3tc-dbc-table" class="w3tc-setupguide-table hidden">
+							<thead>
+								<tr>
+									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Storage Engine', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Time (ms)', 'w3-total-cache' ) . '</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+						<p id="w3tc-test-dbc-query"></p>',
 				),
 				array( // Object cache.
 					'headline' => __( 'Object Cache', 'w3-total-cache' ),

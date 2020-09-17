@@ -100,7 +100,7 @@
 	background-size:
 		auto,
 		auto 100%;
-	min-height: 255px;
+	min-height: 412px;
 	padding-bottom: 70px;
 	padding-right: 160px;
 }
@@ -149,7 +149,7 @@
 .spinner.inline {
 	float: none;
 	visibility: visible;
-	vertical-align: bottom;
+	vertical-align: top;
 	margin-left: 0px;
 }
 
