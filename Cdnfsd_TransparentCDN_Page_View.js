@@ -68,5 +68,5 @@ jQuery(function($) {
 	    .on('click', '.w3tc_cdn_stackpath2_fsd_done', function() {
 			// refresh page
 	    	window.location = window.location + '&';
-	    })
+			})
 });
