@@ -273,9 +273,19 @@ class SetupGuide_Plugin_Admin {
 
 			global $wpdb;
 
+			/*
 			$query = $wpdb->prepare(
 				'SELECT * FROM ' . $wpdb->users . ' JOIN ' . $wpdb->usermeta .
 				' ON ' . $wpdb->users . '.`ID` = ' . $wpdb->usermeta . '.`user_id`;'
+			);
+			*/
+
+			$query = $wpdb->prepare(
+				'SELECT BENCHMARK( %d, AES_ENCRYPT( MD5( %s ), UNHEX( SHA2( %s, %d ) ) ) );',
+				9999,
+				'Test123',
+				'NotASecretBut',
+				512
 			);
 
 			$engines = array(
@@ -337,16 +347,18 @@ class SetupGuide_Plugin_Admin {
 					'label'   => $config['label'],
 					'config'  => $this->config_dbcache( $config['enable'], $config['engine'] ),
 					'query'   => null,
+					'primed'  => false,
 					'elapsed' => null,
 				);
 
 				if ( $results[ $index ]['config']['success'] ) {
-					if ( ! $config['enable'] || empty( $config['engine'] ) ) {
-						$wpdb->query( $query, ARRAY_N );
+					if ( $config['enable'] ) {
+						$wpdb->query( $query );
+						$results[ $index ]['primed'] = true;
 					}
 
 					$wpdb->timer_start();
-					$wpdb->get_results( $query, ARRAY_N );
+					$wpdb->query( $query );
 					$results[ $index ]['elapsed'] = $wpdb->timer_stop();
 					$results[ $index ]['query']   = $query;
 				}
