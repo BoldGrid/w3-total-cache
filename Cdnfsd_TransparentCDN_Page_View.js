@@ -18,8 +18,6 @@ jQuery(function($) {
 		    });
 		})
 
-
-
 		.on('click', '.w3tc_cdn_stackpath2_fsd_list_stacks', function() {
 			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
         		'&w3tc_action=cdn_stackpath2_fsd_list_stacks';

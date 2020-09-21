@@ -61,6 +61,10 @@ class Cdnfsd_Plugin_Admin {
 			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
 				'\W3TC\Cdnfsd_TransparentCDN_Page',
 				'admin_print_scripts_performance_page_w3tc_cdn' ) );
+			add_action ('init', array(
+				'\W3TC\Cdnfsd_TransparentCDN_Page',
+				'print_dummy_text'
+			));
 			add_action( 'w3tc_ajax', array(
 				'\W3TC\Cdnfsd_TransparentCDN_Popup',
 				'w3tc_ajax' ) );

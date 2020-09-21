@@ -36,6 +36,17 @@ $authorized = !empty( $key );
                 <?php Util_Ui::sealing_disabled( 'cdnfsd.transparentcdn.client_secret' ) ?> type="text" name="cdnfsd__transparentcdn__client_secret" value="<?php echo esc_attr( $config->get_string( 'cdnfsd.transparentcdn.client_secret' ) ); ?>" size="60" />
             </td>
         </tr>
+        <tr>
+            <td>
+                <span id="transparentcdn_test" class="button {type: 'transparentcdn', nonce: '<?php echo wp_create_nonce( 'w3tc' ); ?>'}">
+                    <?php _e( 'Test TransparentCDN', 'w3-total-cache' ); ?>
+                </span>
+            </td>
+            <td colspan="1">
+                <span id="tcdn_test_status" class="w3tc-status w3tc-process">
+                </span>
+            </td>
+        </tr>
     </table>
 		<?php Util_Ui::button_config_save( 'cdn_configuration' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
