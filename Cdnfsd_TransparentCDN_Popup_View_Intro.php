@@ -15,7 +15,7 @@ if ( isset( $details['error_message'] ) )
 		<table class="form-table">
 			<tr>
 				<td>
-					<?php	__("Company ID:") ?>
+					<?php	__('Company ID:', 'w3-total-cache') ?>
 				</td>
 				<td>
 					<input name="company_id" type="text" class="w3tc-ignore-change"
@@ -43,7 +43,7 @@ if ( isset( $details['error_message'] ) )
 						value="<?php echo esc_attr( $details['client_secret'] ) ?>" />
 					<br />
 					<span class="description">
-						<?php __("You can get every detail about your account in the dashboard at") ?> <a href="https://app.transparentcdn.com">https://app.transparentcdn.com</a>
+						<?php __('You can get every detail about your account in the dashboard at' , 'w3-total-cache') ?> <a href="https://app.transparentcdn.com">https://app.transparentcdn.com</a>
 					</span>
 				</td>
 			</tr>

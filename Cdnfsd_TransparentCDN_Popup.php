@@ -69,7 +69,7 @@ class Cdnfsd_StackPath2_Popup {
 					'client_id' => $api_config['client_id'],
 					'client_secret' => $api_config['client_secret'],
 					'stack_id' => $api_config['stack_id'],
-					'error_message' => 'Can\'t obtain site: ' . $ex->getMessage()
+					'error_message' => __('Can\'t obtain site: ') . $ex->getMessage()
 				) );
 			exit();
 		}
