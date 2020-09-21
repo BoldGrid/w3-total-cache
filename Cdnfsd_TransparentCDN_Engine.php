@@ -127,7 +127,7 @@ class Cdn_TransparentCDN_Api {
                 return false;
         }
 
-        $error = 'Unknown error';
+        $error = __('Unknown error');
 
         return false;
     }
@@ -193,11 +193,11 @@ class Cdnfsd_TransparentCDN_Engine {
 
 		try {
 			$result = $api->purge( $urls );
-			throw new \Exception("Problem purging");
+			throw new \Exception(__('Problem purging'));
 			
 		} catch ( \Exception $ex ) {
-			if ( $ex->getMessage() == 'Validation Failure: Purge url must contain one of your hostnames' ) {
-				throw new \Exception('CDN site is not configured correctly: Delivery Domain must match your site domain');
+			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
+				throw new \Exception(__('CDN site is not configured correctly: Delivery Domain must match your site domain'));
 			} else {
 				throw $ex;
 			}
@@ -224,8 +224,8 @@ class Cdnfsd_TransparentCDN_Engine {
 		try {
 			$r = $api->purge( array( 'items' => $items ) );
 		} catch ( \Exception $ex ) {
-			if ( $ex->getMessage() == 'Validation Failure: Purge url must contain one of your hostnames' ) {
-				throw new \Exception('CDN site is not configured correctly: Delivery Domain must match your site domain');
+			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
+				throw new \Exception(__('CDN site is not configured correctly: Delivery Domain must match your site domain'));
 			} else {
 				throw $ex;
 			}
