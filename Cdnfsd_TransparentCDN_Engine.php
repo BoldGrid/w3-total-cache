@@ -32,7 +32,6 @@ class Cdn_TransparentCDN_Api {
      * Purges URL
      *
      * @param array $urls
-     * @param array $results
      * @return boolean
      */
     function purge($urls) {
@@ -70,8 +69,7 @@ class Cdn_TransparentCDN_Api {
    /**
      * Purge content
      *
-     * @param string $path
-     * @param int $type
+     * @param string $files
      * @param string $error
      * @return boolean
      */
@@ -127,7 +125,7 @@ class Cdn_TransparentCDN_Api {
                 return false;
         }
 
-        $error = __('Unknown error');
+        $error = __('Unknown error', 'w3-total-cache');
 
         return false;
     }
@@ -193,11 +191,11 @@ class Cdnfsd_TransparentCDN_Engine {
 
 		try {
 			$result = $api->purge( $urls );
-			throw new \Exception(__('Problem purging'));
+			throw new \Exception(__('Problem purging', 'w3-total-cache'));
 			
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
-				throw new \Exception(__('CDN site is not configured correctly: Delivery Domain must match your site domain'));
+				throw new \Exception(__('CDN site is not configured correctly: Delivery Domain must match your site domain', 'w3-total-cache'));
 			} else {
 				throw $ex;
 			}
@@ -225,7 +223,7 @@ class Cdnfsd_TransparentCDN_Engine {
 			$r = $api->purge( array( 'items' => $items ) );
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
-				throw new \Exception(__('CDN site is not configured correctly: Delivery Domain must match your site domain'));
+				throw new \Exception(__('CDN site is not configured correctly: Delivery Domain must match your site domain', 'w3-total-cache'));
 			} else {
 				throw $ex;
 			}

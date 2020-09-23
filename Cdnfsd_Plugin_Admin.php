@@ -58,13 +58,9 @@ class Cdnfsd_Plugin_Admin {
 					'\W3TC\Cdnfsd_StackPath2_Page',
 					'w3tc_settings_box_cdnfsd' ) );
 		} elseif ( $cdnfsd_engine == 'transparentcdn'){
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
+			add_action( 'init', array(
 				'\W3TC\Cdnfsd_TransparentCDN_Page',
-				'admin_print_scripts_performance_page_w3tc_cdn' ) );
-			add_action ('init', array(
-				'\W3TC\Cdnfsd_TransparentCDN_Page',
-				'print_dummy_text'
-			));
+				'admin_test_api_parameters_transparentcdn' ) );
 			add_action( 'w3tc_ajax', array(
 				'\W3TC\Cdnfsd_TransparentCDN_Popup',
 				'w3tc_ajax' ) );
