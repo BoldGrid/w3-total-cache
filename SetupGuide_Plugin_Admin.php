@@ -273,21 +273,6 @@ class SetupGuide_Plugin_Admin {
 
 			global $wpdb;
 
-			/*
-			$query = $wpdb->prepare(
-				'SELECT * FROM ' . $wpdb->users . ' JOIN ' . $wpdb->usermeta .
-				' ON ' . $wpdb->users . '.`ID` = ' . $wpdb->usermeta . '.`user_id`;'
-			);
-			*/
-
-			$query = $wpdb->prepare(
-				'SELECT BENCHMARK( %d, AES_ENCRYPT( MD5( %s ), UNHEX( SHA2( %s, %d ) ) ) );',
-				9999,
-				'Test123',
-				'NotASecretBut',
-				512
-			);
-
 			$engines = array(
 				array(
 					'key'    => 'none',
@@ -339,6 +324,14 @@ class SetupGuide_Plugin_Admin {
 				),
 			);
 
+			$query = $wpdb->prepare(
+				'SELECT BENCHMARK( %d, AES_ENCRYPT( MD5( %s ), UNHEX( SHA2( %s, %d ) ) ) );',
+				9999,
+				'Test123',
+				'NotASecretBut',
+				512
+			);
+
 			$wpdb->flush();
 
 			foreach ( $engines as $index => $config ) {
@@ -346,7 +339,6 @@ class SetupGuide_Plugin_Admin {
 					'key'     => $config['key'],
 					'label'   => $config['label'],
 					'config'  => $this->config_dbcache( $config['enable'], $config['engine'] ),
-					'query'   => null,
 					'primed'  => false,
 					'elapsed' => null,
 				);
@@ -357,10 +349,50 @@ class SetupGuide_Plugin_Admin {
 						$results[ $index ]['primed'] = true;
 					}
 
+					$start_time = microtime( true );
 					$wpdb->timer_start();
+
 					$wpdb->query( $query );
-					$results[ $index ]['elapsed'] = $wpdb->timer_stop();
-					$results[ $index ]['query']   = $query;
+
+					// Test insert, get, and delete 200 records.
+					$table  = $wpdb->prefix . 'options';
+					$option = 'w3tc_test_dbcache_';
+
+					for ( $x=0; $x < 200; $x++ ) {
+						$wpdb->insert(
+							$table,
+							array(
+								'option_name'  => $option . $x,
+								'option_value' => 'blah',
+							)
+						);
+
+						$select = $wpdb->prepare(
+							'SELECT `option_value` FROM `' . $table . '` WHERE `option_name` = %s AND `option_name` NOT LIKE %s',
+							$option . $x,
+							'NotAnOption'
+						);
+
+						$wpdb->get_var( $select );
+
+						$wpdb->flush();
+
+						$wpdb->get_var( $select );
+
+						$wpdb->update(
+							$table,
+							array( 'option_name' => $option . $x ),
+							array( 'option_value' => 'This is a dummy test.' )
+						);
+
+						$wpdb->delete( $table, array( 'option_name' => $option . $x ) );
+					}
+
+					$wpdb->query( $query );
+
+					$results[ $index ]['wpdb_time'] = $wpdb->timer_stop();
+					$results[ $index ]['exec_time'] = microtime( true ) - $start_time;
+					$results[ $index ]['elapsed']   = $results[ $index ]['wpdb_time'];
 				}
 			}
 
@@ -432,7 +464,7 @@ class SetupGuide_Plugin_Admin {
 				}
 
 				if ( $config->get_boolean( 'dbcache.enabled' ) === $enable &&
-					( ! $enabled || $config->get_string( 'dbcache.engine' ) === $engine ) ) {
+					( ! $enable || $config->get_string( 'dbcache.engine' ) === $engine ) ) {
 						$success = true;
 						$message = __( 'Settings updated', 'w3-total-cache' );
 				} else {
