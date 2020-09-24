@@ -19,14 +19,14 @@ class Cdnfsd_Core {
 			case 'cloudflare':
 				$engine_object = null;   // extension handles everything
 				break;
-			case 'transparentcdn':
+
+				case 'transparentcdn':
 					$engine_object = new Cdnfsd_TransparentCDN_Engine( array(
-						'company_id' => $c->get_string( 'cdnfsd.transparentcdn.company_id' ),
-						'client_id' => $c->get_string( 'cdnfsd.transparentcdn.client_id' ),
+						'company_id'    => $c->get_string( 'cdnfsd.transparentcdn.company_id' ),
+						'client_id'     => $c->get_string( 'cdnfsd.transparentcdn.client_id' ),
 						'client_secret' => $c->get_string( 'cdnfsd.transparentcdn.client_secret' )
 					) );
 				break;
-
 
 			case 'cloudfront':
 				$engine_object = new Cdnfsd_CloudFront_Engine( array(
