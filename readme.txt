@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.5
-Stable tag: 0.14.4
+Stable tag: 0.15.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,7 +104,7 @@ It's in every web site owner's best interest is to make sure that the performanc
 
 = Which WordPress versions are supported? =
 
-To use all features in the suite, a minimum of version WordPress 2.8 with PHP 5.3 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
+To use all features in the suite, a minimum of version WordPress 3.2 with PHP 5.3 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
 
 = Why doesn't minify work for me? =
 
@@ -274,6 +274,14 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 0.15.0 =
+* Feature: Added TransparentCDN full-site delivery option
+* Fix: Update settings on activation in a changed environment
+* Fix: Fixed a compatibility check for Apache when PHP is running as CGI
+* Fix: Always set HSTS headers in Apache; not only for 2xx HTTP codes
+* Fix: Implemented anatomic incrementing of key version in Memcache(d)
+* Update: Allow filtering of w3tc_minify_url_for_files Minify URL for files
 
 = 0.14.4 =
 * Fix: Cleanup widget and postbox display for WordPress 5.5
