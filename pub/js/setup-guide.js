@@ -16,11 +16,58 @@
   * @param object $slide The div of the slide displayed.
   */
 function w3tc_wizard_actions( $slide ) {
-	var slideId = $slide.prop( 'id' ),
+	var configSuccess = false,
+		slideId = $slide.prop( 'id' ),
 		$container = jQuery( '#w3tc-wizard-container' ),
+		nonce = $container.find( '[name="_wpnonce"]' ).val(),
 		$nextButton = $container.find( '#w3tc-wizard-next' ),
 		$prevButton = $container.find( '#w3tc-wizard-previous' ),
 		$skipButton = $container.find( '#w3tc-wizard-skip' );
+
+	/**
+	 * Configure Database cache.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param bool   enable Enable database cache.
+	 * @param string engine Database cache storage engine.
+	 */
+	function config_dbcache( enable, engine = '' ) {
+		var $jqXHR = jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_config_dbcache',
+				enable: enable,
+				engine: engine
+			}
+		});
+
+		configSuccess = null;
+
+		$jqXHR.done(function( response ) {
+			configSuccess = response.data.success;
+		});
+
+		return $jqXHR;
+	}
+
+	/**
+	 * Test database cache.
+	 *
+	 * @since X.X.X
+	 */
+	function test_dbcache() {
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_test_dbcache'
+			}
+		});
+	}
 
 	switch ( slideId ) {
 		case 'w3tc-wizard-slide-welcome':
@@ -49,7 +96,7 @@ function w3tc_wizard_actions( $slide ) {
 					method: 'POST',
 					url: ajaxurl,
 					data: {
-						_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
+						_wpnonce: nonce,
 						action: 'w3tc_test_ttfb',
 						nocache: true
 					}
@@ -110,7 +157,7 @@ function w3tc_wizard_actions( $slide ) {
 					method: 'POST',
 					url: ajaxurl,
 					data: {
-						_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
+						_wpnonce: nonce,
 						action: 'w3tc_config_pagecache',
 						pagecache: $enabled.prop( 'checked' )
 					}
@@ -133,7 +180,7 @@ function w3tc_wizard_actions( $slide ) {
 						method: 'POST',
 						url: ajaxurl,
 						data: {
-							_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
+							_wpnonce: nonce,
 							action: 'w3tc_test_ttfb',
 						}
 					})
@@ -204,77 +251,262 @@ function w3tc_wizard_actions( $slide ) {
 			}
 
 			$slide.find( '.w3tc-test-dbcache' ).unbind().on('click', function () {
-				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent();
+				var dbcacheEnabled = !! $slide.find( '#w3tc-dbcache-enabled' ).val(),
+					dbcacheEngine = $slide.find( '#w3tc-dbcache-engine' ).val(),
+					$spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent();
 
 				$slide.find( '.notice' ).remove();
 
 				$spinnerParent.show();
 
-				// Test database cache for all available engines.
-				jQuery.ajax({
-					method: 'POST',
-					url: ajaxurl,
-					data: {
-						_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
-						action: 'w3tc_test_dbcache'
-					}
-				})
-				.done(function( response ) {
-					var results;
+				/**
+				 * Test database cache engine: none / disabled.
+				 *
+				 * @since X.X.X
+				 *
+				 * @param {*} data       Data.
+				 * @param {*} textStatus textStatus.
+				 * @param {*} jqXHR      jqXHR.
+				 *
+				 * return jqXHR
+				 */
+				function testNone( data, textStatus, jqXHR ) {
+					return test_dbcache()
+						.done(function( testResponse ) {
+							var results;
+							$container.find( '#test-results' ).data( 'dbc-none', testResponse.data );
+							results = '<tr';
+							if ( ! configSuccess ) {
+								results += ' class="w3tc-option-disabled"';
+							}
+							results += '><td><input type="radio" name="dbc_engine" value="none"';
+							if ( ! configSuccess ) {
+								results += ' disabled="disabled"';
+							}
+							if ( ! dbcacheEnabled ) {
+								results += ' checked';
+							}
+							results += '></td><td>' +
+								W3TC_SetupGuide.none +
+								'</td><td>';
+							if ( testResponse.success ) {
+								results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+							} else {
+								results += W3TC_SetupGuide.unavailable_text;
+							}
+							results += '</td></tr>';
 
-					$container.find( '#test-results' ).data( 'dbc', response.data );
+							$container.find( '#w3tc-dbc-table tbody' ).html( results );
+							$container.find( '#w3tc-dbc-table' ).show();
+						})
+						.fail(function() {
+							$slide.append(
+								'<p class="notice notice-error"><strong>' +
+								W3TC_SetupGuide.test_error_msg +
+								'</strong></p>'
+							);
+							$nextButton.closest( 'span' ).hide();
+							$prevButton.closest( 'span' ).hide();
+							$skipButton.closest( 'span' ).show();
+						});
+				}
 
-					response.data.forEach(function( item, index ) {
-						results += '<tr';
+				/**
+				 * Test database cache engine: file.
+				 *
+				 * @since X.X.X
+				 *
+				 * @param {*} data       Data.
+				 * @param {*} textStatus textStatus.
+				 * @param {*} jqXHR      jqXHR.
+				 *
+				 * return jqXHR
+				 */
+				function testFile( data, textStatus, jqXHR ) {
+					return test_dbcache()
+						.done(function( testResponse ) {
+							var results;
+							$container.find( '#test-results' ).data( 'dbc-file', testResponse.data );
+							results = '<tr';
+							if ( ! configSuccess ) {
+								results += ' class="w3tc-option-disabled"';
+							}
+							results += '><td><input type="radio" name="dbc_engine" value="file"';
+							if ( ! configSuccess ) {
+								results += ' disabled="disabled"';
+							}
+							if ( dbcacheEnabled && 'file' === dbcacheEngine ) {
+								results += ' checked';
+							}
+							results += '></td><td>' +
+								W3TC_SetupGuide.disk +
+								'</td><td>';
+							if ( configSuccess ) {
+								results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+							} else {
+								results += W3TC_SetupGuide.unavailable_text;
+							}
+							results += '</td></tr>';
+							$container.find( '#w3tc-dbc-table tbody' ).append( results );
+						});
+				}
 
-						if ( ! item.config.success ) {
-							results += ' class="w3tc-option-disabled"';
-						}
+				/**
+				 * Test database cache engine: redis.
+				 *
+				 * @since X.X.X
+				 *
+				 * @param {*} data       Data.
+				 * @param {*} textStatus textStatus.
+				 * @param {*} jqXHR      jqXHR.
+				 *
+				 * return jqXHR
+				 */
+				function testRedis( data, textStatus, jqXHR ) {
+					return test_dbcache()
+						.done(function( testResponse ) {
+							var results;
+							$container.find( '#test-results' ).data( 'dbc-redis', testResponse.data );
+							results = '<tr';
+							if ( ! configSuccess ) {
+								results += ' class="w3tc-option-disabled"';
+							}
+							results += '><td><input type="radio" name="dbc_engine" value="redis"';
+							if ( ! configSuccess ) {
+								results += ' disabled="disabled"';
+							}
+							if ( dbcacheEnabled && 'redis' === dbcacheEngine ) {
+								results += ' checked';
+							}
+							results += '></td><td>Redis</td><td>';
+							if ( configSuccess ) {
+								results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+							} else {
+								results += W3TC_SetupGuide.unavailable_text;
+							}
+							results += '</td></tr>';
+							$container.find( '#w3tc-dbc-table tbody' ).append( results );
+						});
+				}
 
-						results += '><td><input type="radio" name="dbc_engine" id="dbc-engine" value="' +
-							item.key +
-							'"';
+				/**
+				 * Test database cache engine: memcached.
+				 *
+				 * @since X.X.X
+				 *
+				 * @param {*} data       Data.
+				 * @param {*} textStatus textStatus.
+				 * @param {*} jqXHR      jqXHR.
+				 *
+				 * return jqXHR
+				 */
+				function testMemcached( data, textStatus, jqXHR ) {
+					return test_dbcache()
+						.done(function( testResponse ) {
+							var results;
+							$container.find( '#test-results' ).data( 'dbc-memcached', testResponse.data );
+							results = '<tr';
+							if ( ! configSuccess ) {
+								results += ' class="w3tc-option-disabled"';
+							}
+							results += '><td><input type="radio" name="dbc_engine" value="memcached"';
+							if ( ! configSuccess ) {
+								results += ' disabled="disabled"';
+							}
+							if ( dbcacheEnabled && 'memcached' === dbcacheEngine ) {
+								results += ' checked';
+							}
+							results += '></td><td>Memcached</td><td>';
+							if ( configSuccess ) {
+								results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+							} else {
+								results += W3TC_SetupGuide.unavailable_text;
+							}
+							results += '</td></tr>';
+							$container.find( '#w3tc-dbc-table tbody' ).append( results );
+						});
+				}
 
-						if ( ! item.config.success ) {
-							results += ' disabled="disabled"';
-						}
+				/**
+				 * Test database cache engine: apc.
+				 *
+				 * @since X.X.X
+				 *
+				 * @param {*} data       Data.
+				 * @param {*} textStatus textStatus.
+				 * @param {*} jqXHR      jqXHR.
+				 *
+				 * return jqXHR
+				 */
+				function testApc( data, textStatus, jqXHR ) {
+					return test_dbcache()
+						.done(function( testResponse ) {
+							var results;
+							$container.find( '#test-results' ).data( 'dbc-apc', testResponse.data );
+							results = '<tr';
+							if ( ! configSuccess ) {
+								results += ' class="w3tc-option-disabled"';
+							}
+							results += '><td><input type="radio" name="dbc_engine" value="apc"';
+							if ( ! configSuccess ) {
+								results += ' disabled="disabled"';
+							}
+							if ( dbcacheEnabled && 'apc' === dbcacheEngine ) {
+								results += ' checked';
+							}
+							results += '></td><td>APC</td><td>';
+							if ( configSuccess ) {
+								results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+							} else {
+								results += W3TC_SetupGuide.unavailable_text;
+							}
+							results += '</td></tr>';
+							$container.find( '#w3tc-dbc-table tbody' ).append( results );
+						});
+				}
 
-						if ( 0 === index ) {
-							results += ' checked';
-						}
+				// Run config and tests.
+				config_dbcache( 0 )
+					.fail(function() {
+						// Config failed.
+						$slide.append(
+							'<p class="notice notice-error"><strong>' +
+							W3TC_SetupGuide.test_error_msg +
+							'</strong></p>'
+						);
+						$nextButton.closest( 'span' ).hide();
+						$prevButton.closest( 'span' ).hide();
+						$skipButton.closest( 'span' ).show();
+					})
+					.then( testNone )
+					.then( config_dbcache( 1, 'file' ) )
+					.then( testFile )
+					.then( config_dbcache( 1, 'redis' ) )
+					.then( testRedis )
+					.then( config_dbcache( 1, 'memcached' ) )
+					.then( testMemcached )
+					.then( config_dbcache( 1, 'apc' ) )
+					.then( testApc )
+					.done(function(){
+						// Restore the disabled buttons.
+						$prevButton.removeProp( 'disabled' );
+						$nextButton.removeProp( 'disabled' );
+					})
+					.complete(function() {
+						$spinnerParent.hide();
 
-						results += '></td><td>' +
-							item.label +
-							'</td><td>';
-
-						if ( item.config.success ) {
-							results += ( item.elapsed * 1000 ).toFixed( 2 );
-						} else {
-							results += W3TC_SetupGuide.unavailable_text;
-						}
-
-						results += '</td></tr>';
+						// Restore the original database cache settings.
+						jQuery.ajax({
+							method: 'POST',
+							url: ajaxurl,
+							data: {
+								_wpnonce: nonce,
+								action: 'w3tc_config_dbcache',
+								enable: dbcacheEnabled ? 1 : 0,
+								engine: dbcacheEngine
+							}
+						});
 					});
-
-					$container.find( '#w3tc-dbc-table tbody' ).html( results );
-					$container.find( '#w3tc-dbc-table' ).show();
-
-					$prevButton.removeProp( 'disabled' );
-					$nextButton.removeProp( 'disabled' );
-				})
-				.fail(function() {
-					$slide.append(
-						'<p class="notice notice-error"><strong>' +
-						W3TC_SetupGuide.test_error_msg +
-						'</strong></p>'
-					);
-					$nextButton.closest( 'span' ).hide();
-					$prevButton.closest( 'span' ).hide();
-					$skipButton.closest( 'span' ).show();
-				})
-				.complete(function() {
-					$spinnerParent.hide();
-				});
 			});
 
 			break;
@@ -301,7 +533,7 @@ function w3tc_wizard_actions( $slide ) {
 				method: 'POST',
 				url: ajaxurl,
 				data: {
-					_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
+					_wpnonce: nonce,
 					action: 'w3tc_test_browsercache'
 				}
 			})
@@ -366,7 +598,7 @@ function w3tc_wizard_actions( $slide ) {
 					method: 'POST',
 					url: ajaxurl,
 					data: {
-						_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
+						_wpnonce: nonce,
 						action: 'w3tc_config_browsercache',
 						browsercache: $enabled.prop( 'checked' )
 					}
@@ -389,7 +621,7 @@ function w3tc_wizard_actions( $slide ) {
 						method: 'POST',
 						url: ajaxurl,
 						data: {
-							_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
+							_wpnonce: nonce,
 							action: 'w3tc_test_browsercache',
 						}
 					})
@@ -473,7 +705,7 @@ function w3tc_wizard_actions( $slide ) {
 					method: 'POST',
 					url: ajaxurl,
 					data: {
-						_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
+						_wpnonce: nonce,
 						action: "w3tc_wizard_skip"
 					}
 				})

@@ -263,66 +263,24 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @global $wpdb WordPress database object.
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
 	 *
-	 * @see \W3TC\SetupGuide_Plugin_Admin::config_dbcache()
+	 * @global $wpdb WordPress database object.
 	 */
 	public function test_dbcache() {
 		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$results = array();
+			$config  = new Config();
+			$results = array(
+				'enabled' => $config->get_boolean( 'dbcache.enabled' ),
+				'engine'  => $config->get_string( 'dbcache.engine' ),
+				'primed'  => false,
+				'elapsed' => null,
+			);
 
 			global $wpdb;
 
-			$engines = array(
-				array(
-					'key'    => 'none',
-					'label'  => __( 'None', 'w3-total-cache' ),
-					'enable' => false,
-					'engine' => '',
-				),
-				array(
-					'key'    => 'file',
-					'label'  => __( 'Disk', 'w3-total-cache' ),
-					'enable' => true,
-					'engine' => 'file',
-				),
-				array(
-					'key'    => 'redis',
-					'label'  => __( 'Redis', 'w3-total-cache' ),
-					'enable' => true,
-					'engine' => 'redis',
-				),
-				array(
-					'key'    => 'memcached',
-					'label'  => __( 'Memcached', 'w3-total-cache' ),
-					'enable' => true,
-					'engine' => 'memcached',
-				),
-				array(
-					'key'    => 'apc',
-					'label'  => __( 'APC', 'w3-total-cache' ),
-					'enable' => true,
-					'engine' => 'apc',
-				),
-				array(
-					'key'    => 'eaccelerator',
-					'label'  => __( 'eAccelerator', 'w3-total-cache' ),
-					'enable' => true,
-					'engine' => 'eaccelerator',
-				),
-				array(
-					'key'    => 'xcache',
-					'label'  => __( 'XCache', 'w3-total-cache' ),
-					'enable' => true,
-					'engine' => 'xcache',
-				),
-				array(
-					'key'    => 'wincache',
-					'label'  => __( 'WinCache', 'w3-total-cache' ),
-					'enable' => true,
-					'engine' => 'wincache',
-				),
-			);
+			$wpdb->flush();
 
 			$query = $wpdb->prepare(
 				'SELECT BENCHMARK( %d, AES_ENCRYPT( MD5( %s ), UNHEX( SHA2( %s, %d ) ) ) );',
@@ -332,75 +290,55 @@ class SetupGuide_Plugin_Admin {
 				512
 			);
 
-			$wpdb->flush();
-
-			foreach ( $engines as $index => $config ) {
-				$results[ $index ] = array(
-					'key'     => $config['key'],
-					'label'   => $config['label'],
-					'config'  => $this->config_dbcache( $config['enable'], $config['engine'] ),
-					'primed'  => false,
-					'elapsed' => null,
-				);
-
-				if ( $results[ $index ]['config']['success'] ) {
-					if ( $config['enable'] ) {
-						$wpdb->query( $query );
-						$results[ $index ]['primed'] = true;
-					}
-
-					$start_time = microtime( true );
-					$wpdb->timer_start();
-
-					$wpdb->query( $query );
-
-					// Test insert, get, and delete 200 records.
-					$table  = $wpdb->prefix . 'options';
-					$option = 'w3tc_test_dbcache_';
-
-					for ( $x=0; $x < 200; $x++ ) {
-						$wpdb->insert(
-							$table,
-							array(
-								'option_name'  => $option . $x,
-								'option_value' => 'blah',
-							)
-						);
-
-						$select = $wpdb->prepare(
-							'SELECT `option_value` FROM `' . $table . '` WHERE `option_name` = %s AND `option_name` NOT LIKE %s',
-							$option . $x,
-							'NotAnOption'
-						);
-
-						$wpdb->get_var( $select );
-
-						$wpdb->flush();
-
-						$wpdb->get_var( $select );
-
-						$wpdb->update(
-							$table,
-							array( 'option_name' => $option . $x ),
-							array( 'option_value' => 'This is a dummy test.' )
-						);
-
-						$wpdb->delete( $table, array( 'option_name' => $option . $x ) );
-					}
-
-					$wpdb->query( $query );
-
-					$results[ $index ]['wpdb_time'] = $wpdb->timer_stop();
-					$results[ $index ]['exec_time'] = microtime( true ) - $start_time;
-					$results[ $index ]['elapsed']   = $results[ $index ]['wpdb_time'];
-				}
+			if ( $results['enabled'] ) {
+				$wpdb->query( $query );
+				$results['primed'] = true;
 			}
 
-			// Change back to the original settings observed on the first test.
-			$this->config_dbcache(
-				$results[0]['config']['previous_enabled'],
-				$results[0]['config']['previous_engine']
-			);
+			$start_time = microtime( true );
+			$wpdb->timer_start();
+
+			$wpdb->query( $query );
+/*
+			// Test insert, get, and delete 200 records.
+			$table  = $wpdb->prefix . 'options';
+			$option = 'w3tc_test_dbcache_';
+
+			for ( $x=0; $x < 200; $x++ ) {
+				$wpdb->insert(
+					$table,
+					array(
+						'option_name'  => $option . $x,
+						'option_value' => 'blah',
+					)
+				);
+
+				$select = $wpdb->prepare(
+					'SELECT `option_value` FROM `' . $table . '` WHERE `option_name` = %s AND `option_name` NOT LIKE %s',
+					$option . $x,
+					'NotAnOption'
+				);
+
+				$wpdb->get_var( $select );
+
+				//$wpdb->flush();
+
+				$wpdb->get_var( $select );
+
+				$wpdb->update(
+					$table,
+					array( 'option_name' => $option . $x ),
+					array( 'option_value' => 'This is a dummy test.' )
+				);
+
+				$wpdb->delete( $table, array( 'option_name' => $option . $x ) );
+			}
+
+			$wpdb->query( $query );
+*/
+			$results['wpdb_time'] = $wpdb->timer_stop();
+			$results['exec_time'] = microtime( true ) - $start_time;
+			$results['elapsed']   = $results['wpdb_time'];
 
 			wp_send_json_success( $results );
 		} else {
@@ -409,84 +347,84 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
-	 * Configure the database cache settings.
+	 * Admin-Ajax: Configure the database cache settings.
 	 *
 	 * @since  X.X.X
-	 * @access private
 	 *
 	 * @see \W3TC\Dispatcher::component()
 	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 * @see \W3TC\Util_Installed::$engine()
 	 * @see \W3TC\Config::set()
 	 * @see \W3TC\Config::save()
 	 * @see \W3TC\CacheFlush::dbcache_flush()
-	 *
-	 * @param  bool   $enable Enable the database cache.
-	 * @param  string $engine Cache storage engine. Optional.
-	 * @return array
 	 */
-	private function config_dbcache( $enable, $engine = '' ) {
-		$is_updating       = false;
-		$success           = false;
-		$config            = new Config();
-		$dbcache_enabled   = $config->get_boolean( 'dbcache.enabled' );
-		$dbcache_engine    = $config->get_string( 'dbcache.engine' );
-		$enable            = (bool) $enable;
-		$engine            = trim( $engine );
-		$allowed_engines   = array(
-			'',
-			'file',
-			'redis',
-			'memcached',
-			'apc',
-			'eaccelerator',
-			'xcache',
-			'wincache',
-		);
-		$is_allowed_engine = in_array( $engine, $allowed_engines, true );
+	public function config_dbcache() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$enable          = ! empty( $_POST['enable'] );
+			$engine          = empty( $_POST['engine'] ) ? '' : esc_attr( trim( $_POST['engine'] ) );
+			$is_updating     = false;
+			$success         = false;
+			$config          = new Config();
+			$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
+			$dbcache_engine  = $config->get_string( 'dbcache.engine' );
+			$allowed_engines = array(
+				'',
+				'file',
+				'redis',
+				'memcached',
+				'apc',
+				'eaccelerator',
+				'xcache',
+				'wincache',
+			);
 
-		if ( $is_allowed_engine ) {
-			if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
-				if ( $dbcache_enabled !== $enable ) {
-					$config->set( 'dbcache.enabled', $enable );
-					$is_updating = true;
-				}
+			if ( in_array( $engine, $allowed_engines, true ) ) {
+				if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
+					if ( $dbcache_enabled !== $enable ) {
+						$config->set( 'dbcache.enabled', $enable );
+						$is_updating = true;
+					}
 
-				if ( ! empty( $engine ) && $dbcache_engine !== $engine ) {
-					$config->set( 'dbcache.engine', $engine );
-					$is_updating = true;
-				}
+					if ( ! empty( $engine ) && $dbcache_engine !== $engine ) {
+						$config->set( 'dbcache.engine', $engine );
+						$is_updating = true;
+					}
 
-				if ( $is_updating ) {
-					$config->save();
+					if ( $is_updating ) {
+						$config->save();
 
-					$f = Dispatcher::component( 'CacheFlush' );
-					$f->dbcache_flush();
-				}
+						$f = Dispatcher::component( 'CacheFlush' );
+						$f->dbcache_flush();
+					}
 
-				if ( $config->get_boolean( 'dbcache.enabled' ) === $enable &&
-					( ! $enable || $config->get_string( 'dbcache.engine' ) === $engine ) ) {
-						$success = true;
-						$message = __( 'Settings updated', 'w3-total-cache' );
+					if ( $config->get_boolean( 'dbcache.enabled' ) === $enable &&
+						( ! $enable || $config->get_string( 'dbcache.engine' ) === $engine ) ) {
+							$success = true;
+							$message = __( 'Settings updated', 'w3-total-cache' );
+					} else {
+						$message = __( 'Settings not updated', 'w3-total-cache' );
+					}
 				} else {
-					$message = __( 'Settings not updated', 'w3-total-cache' );
+					$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
 				}
-			} else {
-				$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+			} elseif ( ! $is_allowed_engine ) {
+				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 			}
-		} elseif ( ! $is_allowed_engine ) {
-			$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
-		}
 
-		return array(
-			'success'           => $success,
-			'message'           => $message,
-			'enable'            => $enable,
-			'engine'            => $engine,
-			'current_enabled'   => $config->get_boolean( 'dbcache.enabled' ),
-			'current_engine'    => $config->get_string( 'dbcache.engine' ),
-			'previous_enabled'  => $dbcache_enabled,
-			'previous_engine'   => $dbcache_engine,
-		);
+			wp_send_json_success( array(
+				'success'           => $success,
+				'message'           => $message,
+				'enable'            => $enable,
+				'engine'            => $engine,
+				'current_enabled'   => $config->get_boolean( 'dbcache.enabled' ),
+				'current_engine'    => $config->get_string( 'dbcache.engine' ),
+				'previous_enabled'  => $dbcache_enabled,
+				'previous_engine'   => $dbcache_engine,
+			) );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
 	}
 
 	/**
@@ -500,6 +438,8 @@ class SetupGuide_Plugin_Admin {
 	private function get_config() {
 		$config               = new Config();
 		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
+		$dbcache_enabled      = $config->get_boolean( 'dbcache.enabled' );
+		$dbcache_engine       = $config->get_string( 'dbcache.engine' );
 
 		return array(
 			'title'          => esc_html__( 'Setup Guide', 'w3-total-cache' ),
@@ -526,6 +466,8 @@ class SetupGuide_Plugin_Admin {
 								'w3-total-cache'
 							),
 							'unavailable_text' => __( 'Unavailable', 'w3-total-cache' ),
+							'none'             => __( 'None', 'w3-total-cache' ),
+							'disk'             => __( 'Disk', 'w3-total-cache' ),
 						),
 					),
 				),
@@ -564,6 +506,13 @@ class SetupGuide_Plugin_Admin {
 					'function' => array(
 						$this,
 						'test_dbcache',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_config_dbcache',
+					'function' => array(
+						$this,
+						'config_dbcache',
 					),
 				),
 				array(
@@ -735,7 +684,9 @@ class SetupGuide_Plugin_Admin {
 							</thead>
 							<tbody></tbody>
 						</table>
-						<p id="w3tc-test-dbc-query"></p>',
+						<p id="w3tc-test-dbc-query"></p>
+						<input type="hidden" id="w3tc-dbcache-enabled" value="' . ( $dbcache_enabled ? 1 : 0 ) . '" />
+						<input type="hidden" id="w3tc-dbcache-engine" value="' . esc_attr( $dbcache_engine ) . '" />',
 				),
 				array( // Object cache.
 					'headline' => __( 'Object Cache', 'w3-total-cache' ),
