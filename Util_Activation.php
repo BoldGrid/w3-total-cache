@@ -54,7 +54,7 @@ class Util_Activation {
 		$reactivate_button = sprintf( '%1$sre-activate plugin', '<input type="button" value="' ) .
 			sprintf( '" onclick="top.location.href = \'%s\'" />', addslashes( $reactivate_url ) );
 
-		self::_error( sprintf( __( '%s<br />then %s.', 'w3-total-cache' ), $e->getMessage(), $reactivate_button ) );
+		self::_error( sprintf( __( '%s<br />then %s.', 'w3-total-cache' ), $e->getCombinedMessage(), $reactivate_button ) );
 	}
 
 	/**
