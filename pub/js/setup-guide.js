@@ -231,7 +231,7 @@ function w3tc_wizard_actions( $slide ) {
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-dbcache' ).addClass( 'is-active' );
 
-			if ( ! $container.find( '#test-results' ).data( 'dbc' ) ) {
+			if ( ! $container.find( '#test-results' ).data( 'dbc-none' ) ) {
 				$nextButton.prop( 'disabled', 'disabled' );
 			}
 
@@ -415,6 +415,19 @@ function w3tc_wizard_actions( $slide ) {
 			break;
 
 		case 'w3tc-wizard-slide-oc1':
+			// Save the database cache engine setting from the previous slide.
+			var dbcEngine = $container.find( 'input:checked[name="dbc_engine"]' ).val();
+
+			configDbcache( ( 'none' === dbcEngine ? 0 : 1 ), 'none' === dbcEngine ? '' : dbcEngine )
+				.fail( function() {
+					$slide.append(
+						'<p class="notice notice-error"><strong>' +
+						W3TC_SetupGuide.config_error_msg +
+						'</strong></p>'
+					);
+				});
+
+			// Present the Object Cache slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-objectcache' ).addClass( 'is-active' );
 
