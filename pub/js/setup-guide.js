@@ -238,8 +238,10 @@ function w3tc_wizard_actions( $slide ) {
 			$slide.find( '.w3tc-test-dbcache' ).unbind().on('click', function () {
 				var dbcacheEnabled = !! $slide.find( '#w3tc-dbcache-enabled' ).val(),
 					dbcacheEngine = $slide.find( '#w3tc-dbcache-engine' ).val(),
-					$spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent();
+					$spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
+					$this = jQuery( this );
 
+				$this.prop( 'disabled', 'disabled' );
 				$slide.find( '.notice' ).remove();
 				$container.find( '#w3tc-dbc-table tbody' ).empty();
 
@@ -351,64 +353,63 @@ function w3tc_wizard_actions( $slide ) {
 
 				// Run config and tests.
 				configDbcache( 0 )
-					.fail( configFailed )
 					.then( function() {
 						return testDbcache( 'none', W3TC_SetupGuide.none );
-					}, testFailed )
+					}, configFailed )
 					.then( function() {
 						return configDbcache( 1, 'file' );
-					} , configFailed )
+					} , testFailed )
 					.then( function() {
 						return testDbcache( 'file', W3TC_SetupGuide.disk );
-					}, testFailed )
+					}, configFailed )
 					.then( function() {
 						return configDbcache( 1, 'redis' );
-					}, configFailed )
+					}, testFailed )
 					.then( function() {
 						return testDbcache( 'redis', 'Redis' );
-					}, testFailed )
+					}, configFailed )
 					.then( function() {
 						return configDbcache( 1, 'memcached' );
-					}, configFailed )
+					}, testFailed )
 					.then( function() {
 						return testDbcache( 'memcached', 'Memcached' );
-					}, testFailed )
+					}, configFailed )
 					.then( function() {
 						return configDbcache( 1, 'apc' );
-					}, configFailed )
+					}, testFailed )
 					.then( function() {
 						return testDbcache( 'apc', 'APC' );
-					}, testFailed )
+					}, configFailed )
 					.then( function() {
 						return configDbcache( 1, 'eaccelerator' );
-					}, configFailed )
+					}, testFailed )
 					.then( function() {
 						return testDbcache( 'eaccelerator', 'eAccelerator' );
-					}, testFailed )
+					}, configFailed )
 					.then( function() {
 						return configDbcache( 1, 'xcache' );
-					}, configFailed )
+					}, testFailed )
 					.then( function() {
 						return testDbcache( 'xcache', 'XCache' );
-					}, testFailed )
-					.then( function() {
-						return configDbcache( 1, 'wincache' );
 					}, configFailed )
 					.then( function() {
-						return testDbcache( 'wincache', 'WinCache' );
+						return configDbcache( 1, 'wincache' );
 					}, testFailed )
-					.done(function(){
-						// Restore the disabled buttons.
-						$prevButton.removeProp( 'disabled' );
-						$nextButton.removeProp( 'disabled' );
-					})
+					.then( function() {
+						return testDbcache( 'wincache', 'WinCache' );
+					}, configFailed )
 					.then(function() {
 						$spinnerParent.hide();
-					})
+						$this.removeProp( 'disabled' );
+						$prevButton.removeProp( 'disabled' );
+						$nextButton.removeProp( 'disabled' );
+						return true;
+					}, testFailed )
 					// Restore the original database cache settings.
 					.then( function() {
 						return configDbcache( ( dbcacheEnabled ? 1 : 0 ), dbcacheEngine );
-					}, configFailed );
+					})
+					.fail( configFailed );
 			});
 
 			break;

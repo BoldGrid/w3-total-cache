@@ -274,7 +274,6 @@ class SetupGuide_Plugin_Admin {
 			$results = array(
 				'enabled' => $config->get_boolean( 'dbcache.enabled' ),
 				'engine'  => $config->get_string( 'dbcache.engine' ),
-				'primed'  => false,
 				'elapsed' => null,
 			);
 
@@ -282,23 +281,8 @@ class SetupGuide_Plugin_Admin {
 
 			$wpdb->flush();
 
-			$query = $wpdb->prepare(
-				'SELECT BENCHMARK( %d, AES_ENCRYPT( MD5( %s ), UNHEX( SHA2( %s, %d ) ) ) );',
-				9999,
-				'Test123',
-				'NotASecretBut',
-				512
-			);
-
-			if ( $results['enabled'] ) {
-				$wpdb->query( $query );
-				$results['primed'] = true;
-			}
-
 			$start_time = microtime( true );
 			$wpdb->timer_start();
-
-			$wpdb->query( $query );
 
 			// Test insert, get, and delete 200 records.
 			$table  = $wpdb->prefix . 'options';
@@ -333,8 +317,6 @@ class SetupGuide_Plugin_Admin {
 
 				$wpdb->delete( $table, array( 'option_name' => $option . $x ) );
 			}
-
-			$wpdb->query( $query );
 
 			$results['wpdb_time'] = $wpdb->timer_stop();
 			$results['exec_time'] = microtime( true ) - $start_time;
