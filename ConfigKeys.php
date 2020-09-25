@@ -832,7 +832,8 @@ $keys = array(
 		'type' => 'array',
 		'default' => array(
 			'google_ad_',
-			'RSPEAK_'
+			'RSPEAK_',
+			'mfunc'
 		)
 	),
 	'minify.css.combine' => array(
@@ -1701,6 +1702,18 @@ $keys = array(
 	'cdnfsd.stackpath2.ssl' => array(
 		'type' => 'string',
 		'default' => 'auto'
+	),
+	'cdnfsd.transparentcdn.client_id' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'cdnfsd.transparentcdn.client_secret' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'cdnfsd.transparentcdn.company_id' => array(
+		'type' => 'string',
+		'default' => ''
 	),
 
 	'varnish.configuration_overloaded' => array(
