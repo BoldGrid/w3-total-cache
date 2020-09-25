@@ -299,7 +299,7 @@ class SetupGuide_Plugin_Admin {
 			$wpdb->timer_start();
 
 			$wpdb->query( $query );
-/*
+
 			// Test insert, get, and delete 200 records.
 			$table  = $wpdb->prefix . 'options';
 			$option = 'w3tc_test_dbcache_';
@@ -335,7 +335,7 @@ class SetupGuide_Plugin_Admin {
 			}
 
 			$wpdb->query( $query );
-*/
+
 			$results['wpdb_time'] = $wpdb->timer_stop();
 			$results['exec_time'] = microtime( true ) - $start_time;
 			$results['elapsed']   = $results['wpdb_time'];
