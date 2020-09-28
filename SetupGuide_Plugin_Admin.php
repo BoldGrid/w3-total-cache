@@ -128,7 +128,8 @@ class SetupGuide_Plugin_Admin {
 
 				// If "nocache" was not requested, then prime URLs if Page Cache is enabled.
 				if ( ! $nocache ) {
-					Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
+					//Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
+					Util_Http::ttfb( $url, $nocache );
 				}
 
 				$results[ $index ]['ttfb'] = Util_Http::ttfb( $url, $nocache );
@@ -329,16 +330,37 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
+	 * Admin-Ajax: Get the database cache settings.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 */
+	public function get_dbcache_settings() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$config = new Config();
+
+			wp_send_json_success( array(
+				'enabled' => $config->get_boolean( 'dbcache.enabled' ),
+				'engine'  => $config->get_string( 'dbcache.engine' ),
+			) );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
 	 * Admin-Ajax: Configure the database cache settings.
 	 *
 	 * @since  X.X.X
 	 *
-	 * @see \W3TC\Dispatcher::component()
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
 	 * @see \W3TC\Util_Installed::$engine()
 	 * @see \W3TC\Config::set()
 	 * @see \W3TC\Config::save()
+	 * @see \W3TC\Dispatcher::component()
 	 * @see \W3TC\CacheFlush::dbcache_flush()
 	 */
 	public function config_dbcache() {
@@ -420,8 +442,6 @@ class SetupGuide_Plugin_Admin {
 	private function get_config() {
 		$config               = new Config();
 		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
-		$dbcache_enabled      = $config->get_boolean( 'dbcache.enabled' );
-		$dbcache_engine       = $config->get_string( 'dbcache.engine' );
 
 		return array(
 			'title'          => esc_html__( 'Setup Guide', 'w3-total-cache' ),
@@ -481,6 +501,13 @@ class SetupGuide_Plugin_Admin {
 					'function' => array(
 						$this,
 						'config_pagecache',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_get_dbcache_settings',
+					'function' => array(
+						$this,
+						'get_dbcache_settings',
 					),
 				),
 				array(
@@ -666,9 +693,7 @@ class SetupGuide_Plugin_Admin {
 							</thead>
 							<tbody></tbody>
 						</table>
-						<p id="w3tc-test-dbc-query"></p>
-						<input type="hidden" id="w3tc-dbcache-enabled" value="' . ( $dbcache_enabled ? 1 : 0 ) . '" />
-						<input type="hidden" id="w3tc-dbcache-engine" value="' . esc_attr( $dbcache_engine ) . '" />',
+						<p id="w3tc-test-dbc-query"></p>',
 				),
 				array( // Object cache.
 					'headline' => __( 'Object Cache', 'w3-total-cache' ),

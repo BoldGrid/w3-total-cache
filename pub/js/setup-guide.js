@@ -17,6 +17,10 @@
   */
 function w3tc_wizard_actions( $slide ) {
 	var configSuccess = false,
+		dbcacheSettings = {
+			enaled: null,
+			engine: null
+		},
 		slideId = $slide.prop( 'id' ),
 		$container = jQuery( '#w3tc-wizard-container' ),
 		nonce = $container.find( '[name="_wpnonce"]' ).val(),
@@ -52,6 +56,27 @@ function w3tc_wizard_actions( $slide ) {
 		});
 
 		return $jqXHR;
+	}
+
+	/**
+	 * Get database cache settings.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return jqXHR
+	 */
+	function getDbcacheSettings() {
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_get_dbcache_settings'
+			}
+		})
+		.done(function( response ) {
+			dbcacheSettings = response.data;
+		});
 	}
 
 	switch ( slideId ) {
@@ -132,7 +157,7 @@ function w3tc_wizard_actions( $slide ) {
 			$slide.find( '.notice' ).remove();
 
 			$slide.find( '.w3tc-test-pagecache' ).unbind().on('click', function () {
-				var $enabled = $container.find( 'input:checkbox[name=enable_pagecache]' ),
+				var enabled = $container.find( 'input:checked[name=enable_pagecache]' ).val(),
 					$spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent();
 
 				$prevButton.prop( 'disabled', 'disabled' );
@@ -144,7 +169,7 @@ function w3tc_wizard_actions( $slide ) {
 					data: {
 						_wpnonce: nonce,
 						action: 'w3tc_config_pagecache',
-						pagecache: $enabled.prop( 'checked' )
+						pagecache: enabled
 					}
 				})
 				.fail(function() {
@@ -236,9 +261,7 @@ function w3tc_wizard_actions( $slide ) {
 			}
 
 			$slide.find( '.w3tc-test-dbcache' ).unbind().on('click', function () {
-				var dbcacheEnabled = !! $slide.find( '#w3tc-dbcache-enabled' ).val(),
-					dbcacheEngine = $slide.find( '#w3tc-dbcache-engine' ).val(),
-					$spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
+				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
 					$this = jQuery( this );
 
 				$this.prop( 'disabled', 'disabled' );
@@ -271,7 +294,7 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' disabled="disabled"';
 					}
 
-					if ( ( ! dbcacheEnabled && 'none' === engine ) || dbcacheEngine === engine ) {
+					if ( ( ! dbcacheSettings.enabled && 'none' === engine ) || dbcacheSettings.engine === engine ) {
 						results += ' checked';
 					}
 
@@ -352,7 +375,10 @@ function w3tc_wizard_actions( $slide ) {
 				}
 
 				// Run config and tests.
-				configDbcache( 0 )
+				getDbcacheSettings()
+					.then( function() {
+						return configDbcache( 0 );
+					}, configFailed )
 					.then( function() {
 						return testDbcache( 'none', W3TC_SetupGuide.none );
 					}, configFailed )
@@ -407,7 +433,7 @@ function w3tc_wizard_actions( $slide ) {
 					}, testFailed )
 					// Restore the original database cache settings.
 					.then( function() {
-						return configDbcache( ( dbcacheEnabled ? 1 : 0 ), dbcacheEngine );
+						return configDbcache( ( dbcacheSettings.enabled ? 1 : 0 ), dbcacheSettings.engine );
 					})
 					.fail( configFailed );
 			});
