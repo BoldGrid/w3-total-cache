@@ -121,7 +121,7 @@ class Util_Http {
 			CURLOPT_HEADER         => 0,
 			CURLOPT_RETURNTRANSFER => 0,
 			CURLOPT_NOBODY         => 1,
-			CURLOPT_FOLLOWLOCATION => 0,
+			CURLOPT_FOLLOWLOCATION => 1,
 			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
 		);
