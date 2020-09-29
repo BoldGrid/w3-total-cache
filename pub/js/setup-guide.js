@@ -280,7 +280,9 @@ function w3tc_wizard_actions( $slide ) {
 				 * @param string label        Text label for the engine.
 				 */
 				function addResultRow( testResponse, engine, label ) {
-					var results = '<tr';
+					var baseline,
+						diffPercent,
+						results = '<tr';
 
 					if ( ! configSuccess ) {
 						results += ' class="w3tc-option-disabled"';
@@ -304,6 +306,12 @@ function w3tc_wizard_actions( $slide ) {
 
 					if ( testResponse.success ) {
 						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+						if ( 'none' !== engine ) {
+							baseline = $container.find( '#test-results' ).data( 'dbc-none' ).elapsed;
+								results += ' ('+
+								( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 ) +
+								'%)';
+						}
 					} else {
 						results += W3TC_SetupGuide.unavailable_text;
 					}
