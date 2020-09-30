@@ -107,35 +107,52 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
-	 * Admin-Ajax: Test URL addreses for Time To First Byte (TTFB).
+	 * Admin-Ajax: Test Page Cache.
 	 *
 	 * @since  X.X.X
 	 *
 	 * @see self::abbreviate_url()
 	 * @see \W3TC\Util_Http::ttfb()
 	 */
-	public function test_ttfb() {
+	public function test_pgcache() {
 		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
 			$nocache = ! empty( $_POST['nocache'] );
-			$results = array();
-			$urls    = array( site_url() );
+			$url     = site_url();
+			$results = array(
+				'url'      => $url,
+				'urlshort' => $this->abbreviate_url( $url ),
+			);
 
-			foreach ( $urls as $index => $url ) {
-				$results[ $index ] = array(
-					'url'      => $url,
-					'urlshort' => $this->abbreviate_url( $url ),
-				);
-
-				// If "nocache" was not requested, then prime URLs if Page Cache is enabled.
-				if ( ! $nocache ) {
-					//Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
-					Util_Http::ttfb( $url, $nocache );
-				}
-
-				$results[ $index ]['ttfb'] = Util_Http::ttfb( $url, $nocache );
+			// If "nocache" was not requested, then prime URLs if Page Cache is enabled.
+			if ( ! $nocache ) {
+				//Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
+				Util_Http::ttfb( $url, $nocache );
 			}
 
+			$results['ttfb'] = Util_Http::ttfb( $url, $nocache );
+
 			wp_send_json_success( $results );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Get the page cache settings.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 */
+	public function get_pgcache_settings() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$config = new Config();
+
+			wp_send_json_success( array(
+				'enabled' => $config->get_boolean( 'pgcache.enabled' ),
+				'engine'  => $config->get_string( 'pgcache.engine' ),
+			) );
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -146,32 +163,82 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @since  X.X.X
 	 *
-	 * @see \W3TC\Dispatcher::component()
 	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 * @see \W3TC\Util_Installed::$engine()
 	 * @see \W3TC\Config::set()
 	 * @see \W3TC\Config::save()
-	 *
-	 * @uses $_POST['pagecache']
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\CacheFlush::flush_posts()
 	 */
-	public function config_pagecache() {
+	public function config_pgcache() {
 		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$enable          = ! empty( $_POST['pagecache'] );
+			$enable          = ! empty( $_POST['enable'] );
+			$engine          = empty( $_POST['engine'] ) ? '' : esc_attr( trim( $_POST['engine'] ) );
+			$is_updating     = false;
+			$success         = false;
 			$config          = new Config();
 			$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
+			$pgcache_engine  = $config->get_string( 'pgcache.engine' );
+			$allowed_engines = array(
+				'',
+				'file',
+				'file_generic',
+				'redis',
+				'memcached',
+				'nginx_memcached',
+				'apc',
+				'eaccelerator',
+				'xcache',
+				'wincache',
+			);
 
-			if ( $pgcache_enabled !== $enable ) {
-				$config->set( 'pgcache.enabled', $enable );
-				$config->set( 'pgcache.engine', 'file_generic' );
-				$config->save();
+			if ( in_array( $engine, $allowed_engines, true ) ) {
+				if ( empty( $engine ) || 'file' === $engine || 'file_generic' === $engine || Util_Installed::$engine() ) {
+					if ( $pgcache_enabled !== $enable ) {
+						$config->set( 'pgcache.enabled', $enable );
+						$is_updating = true;
+					}
+
+					if ( ! empty( $engine ) && $pgcache_engine !== $engine ) {
+						$config->set( 'pgcache.engine', $engine );
+						$is_updating = true;
+					}
+
+					if ( $is_updating ) {
+						$config->save();
+
+						$f = Dispatcher::component( 'CacheFlush' );
+						$f->flush_posts();
+
+						$e = Dispatcher::component( 'PgCache_Environment' );
+						$e->fix_on_wpadmin_request( $config, true );
+					}
+
+					if ( $config->get_boolean( 'pgcache.enabled' ) === $enable &&
+						( ! $enable || $config->get_string( 'pgcache.engine' ) === $engine ) ) {
+							$success = true;
+							$message = __( 'Settings updated', 'w3-total-cache' );
+					} else {
+						$message = __( 'Settings not updated', 'w3-total-cache' );
+					}
+				} else {
+					$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+				}
+			} elseif ( ! $is_allowed_engine ) {
+				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 			}
 
-			wp_send_json_success(
-				array(
-					'enable'           => $enable,
-					'pgcache_enabled'  => $config->get_boolean( 'pgcache.enabled' ),
-					'pgcache_previous' => $pgcache_enabled,
-				)
-			);
+			wp_send_json_success( array(
+				'success'           => $success,
+				'message'           => $message,
+				'enable'            => $enable,
+				'engine'            => $engine,
+				'current_enabled'   => $config->get_boolean( 'pgcache.enabled' ),
+				'current_engine'    => $config->get_string( 'pgcache.engine' ),
+				'previous_enabled'  => $pgcache_enabled,
+				'previous_engine'   => $pgcache_engine,
+			) );
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -470,6 +537,8 @@ class SetupGuide_Plugin_Admin {
 							'unavailable_text' => __( 'Unavailable', 'w3-total-cache' ),
 							'none'             => __( 'None', 'w3-total-cache' ),
 							'disk'             => __( 'Disk', 'w3-total-cache' ),
+							'disk_basic'       => __( 'Disk: Basic', 'w3-total-cache' ),
+							'disk_enhanced'    => __( 'Disk: Enhanced', 'w3-total-cache' ),
 						),
 					),
 				),
@@ -490,17 +559,24 @@ class SetupGuide_Plugin_Admin {
 					),
 				),
 				array(
-					'tag'      => 'wp_ajax_w3tc_test_ttfb',
+					'tag'      => 'wp_ajax_w3tc_get_pgcache_settings',
 					'function' => array(
 						$this,
-						'test_ttfb',
+						'get_pgcache_settings',
 					),
 				),
 				array(
-					'tag'      => 'wp_ajax_w3tc_config_pagecache',
+					'tag'      => 'wp_ajax_w3tc_test_pgcache',
 					'function' => array(
 						$this,
-						'config_pagecache',
+						'test_pgcache',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_config_pgcache',
+					'function' => array(
+						$this,
+						'config_pgcache',
 					),
 				),
 				array(
@@ -542,7 +618,7 @@ class SetupGuide_Plugin_Admin {
 			'steps_location' => 'left',
 			'steps'          => array(
 				array(
-					'id'   => 'pagecache',
+					'id'   => 'pgcache',
 					'text' => __( 'Page Cache', 'w3-total-cache' ),
 				),
 				array(
@@ -581,8 +657,8 @@ class SetupGuide_Plugin_Admin {
 							'w3-total-cache'
 						) . '</p>',
 				),
-				array( // Page Cache: TTFB: Intro and initial test.
-					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
+				array( // Page Cache.
+					'headline' => __( 'Page Cache', 'w3-total-cache' ),
 					'id'       => 'pc1',
 					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
@@ -600,19 +676,21 @@ class SetupGuide_Plugin_Admin {
 						esc_html__( 'Before we do, let\'s get a baseline and take a measurement.', 'w3-total-cache' ) .
 					'</p>
 					<p>
-						<input class="w3tc-test-pagecache button-primary" type="button" value="' .
+						<input class="w3tc-test-pgcache button-primary" type="button" value="' .
 						esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
 						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Measuring', 'w3-total-cache' ) .
 						' <em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;
 						</span>
 					</p>
-					<table id="w3tc-ttfb-table" class="w3tc-setupguide-table hidden">
+					<p class="hidden">
+						' . esc_html__( 'Test URL:', 'w3-total-cache' ) .' <span id="w3tc-test-url"></span>
+					</p>
+					<table id="w3tc-pgcache-table" class="w3tc-setupguide-table hidden">
 						<thead>
 							<tr>
-								<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
-								<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
-								<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
-								<th>' . esc_html__( 'Change', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'Storage Engine', 'w3-total-cache' ) . '</th>
+								<th>' . esc_html__( 'Time (ms)', 'w3-total-cache' ) . '</th>
 							</tr>
 						</thead>
 						<tbody></tbody>
@@ -623,49 +701,7 @@ class SetupGuide_Plugin_Admin {
 						'</p>
 					</div>',
 				),
-				array( // Page Cache: TTFB: Enable, test, and compare results.
-					'headline' => __( 'Time to First Byte', 'w3-total-cache' ),
-					'id'       => 'pc2',
-					'markup'   => '<p>' . sprintf(
-						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-						esc_html__(
-							'To improve %1$sTime to First Byte%2$s, we recommend enabling %1$sPage Cache%2$s.',
-							'w3-total-cache',
-						),
-						'<em>',
-						'</em>'
-					) . '</p>
-					<p><input type="checkbox" name="enable_pagecache" id="enable_pagecache" value="1" checked> <label for="enable_pagecache">' .
-						esc_html__( 'Page Cache', 'w3-total-cache' ) . '</label></p>
-					<p>' . sprintf(
-							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-							esc_html__(
-								'Click %1$sTest Page Cache%2$s to enable Page Cache and test again.',
-								'w3-total-cache'
-							),
-							'<em>',
-							'</em>'
-						) . '</p>
-					<p>
-						<input class="w3tc-test-pagecache button-primary" type="button" value="' .
-						esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
-						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Measuring', 'w3-total-cache' ) .
-						' <em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;
-						</span>
-					</p>
-					<table id="w3tc-ttfb-table2" class="w3tc-setupguide-table hidden">
-						<thead>
-							<tr>
-								<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>
-								<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
-								<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
-								<th>' . esc_html__( 'Change', 'w3-total-cache' ) . '</th>
-							</tr>
-						</thead>
-						<tbody></tbody>
-					</table>',
-				),
-				array( // Database cache.
+				array( // Database Cache.
 					'headline' => __( 'Database Cache', 'w3-total-cache' ),
 					'id'       => 'dbc1',
 					'markup'   => '<p>' . esc_html__(
@@ -695,7 +731,7 @@ class SetupGuide_Plugin_Admin {
 						</table>
 						<p id="w3tc-test-dbc-query"></p>',
 				),
-				array( // Object cache.
+				array( // Object Cache.
 					'headline' => __( 'Object Cache', 'w3-total-cache' ),
 					'id'       => 'oc1',
 					'markup'   => '<p>' . esc_html__(

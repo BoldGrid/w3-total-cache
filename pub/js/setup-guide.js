@@ -17,6 +17,10 @@
   */
 function w3tc_wizard_actions( $slide ) {
 	var configSuccess = false,
+		pgcacheSettings = {
+			enaled: null,
+			engine: null
+		},
 		dbcacheSettings = {
 			enaled: null,
 			engine: null
@@ -29,7 +33,58 @@ function w3tc_wizard_actions( $slide ) {
 		$skipButton = $container.find( '#w3tc-wizard-skip' );
 
 	/**
-	 * Configure Database cache.
+	 * Configure Page Cache.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param bool   enable Enable Page Cache.
+	 * @param string engine Page Cache storage engine.
+	 * @return jqXHR
+	 */
+	function configPgcache( enable, engine = '' ) {
+		var $jqXHR = jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_config_pgcache',
+				enable: enable,
+				engine: engine
+			}
+		});
+
+		configSuccess = null;
+
+		$jqXHR.done(function( response ) {
+			configSuccess = response.data.success;
+		});
+
+		return $jqXHR;
+	}
+
+	/**
+	 * Get Page Cache settings.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return jqXHR
+	 */
+	function getPgcacheSettings() {
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_get_pgcache_settings'
+			}
+		})
+		.done(function( response ) {
+			pgcacheSettings = response.data;
+		});
+	}
+
+	/**
+	 * Configure Database Cache.
 	 *
 	 * @since X.X.X
 	 *
@@ -59,7 +114,7 @@ function w3tc_wizard_actions( $slide ) {
 	}
 
 	/**
-	 * Get database cache settings.
+	 * Get Database Cache settings.
 	 *
 	 * @since X.X.X
 	 *
@@ -79,6 +134,38 @@ function w3tc_wizard_actions( $slide ) {
 		});
 	}
 
+	/**
+	 * Configuration failed.
+	 *
+	 * @since X.X.X
+	 */
+	function configFailed() {
+		$slide.append(
+			'<p class="notice notice-error"><strong>' +
+			W3TC_SetupGuide.config_error_msg +
+			'</strong></p>'
+		);
+		$nextButton.closest( 'span' ).hide();
+		$prevButton.closest( 'span' ).hide();
+		$skipButton.closest( 'span' ).show();
+	}
+
+	/**
+	 * Test failed.
+	 *
+	 * @since X.X.X
+	 */
+	function testFailed() {
+		$slide.append(
+			'<p class="notice notice-error"><strong>' +
+			W3TC_SetupGuide.test_error_msg +
+			'</strong></p>'
+		);
+		$nextButton.closest( 'span' ).hide();
+		$prevButton.closest( 'span' ).hide();
+		$skipButton.closest( 'span' ).show();
+	}
+
 	switch ( slideId ) {
 		case 'w3tc-wizard-slide-welcome':
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
@@ -86,167 +173,172 @@ function w3tc_wizard_actions( $slide ) {
 			break;
 
 		case 'w3tc-wizard-slide-pc1':
-			// Test TTFB.
+			// Test Page Cache.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
-			$container.find( '#w3tc-wizard-step-pagecache' ).addClass( 'is-active' );
+			$container.find( '#w3tc-wizard-step-pgcache' ).addClass( 'is-active' );
 
-			if ( ! $container.find( '#test-results' ).data( 'ttfb' ) ) {
+			if ( ! $container.find( '#test-results' ).data( 'pgcache-none' ) ) {
 				$nextButton.prop( 'disabled', 'disabled' );
 			}
 
-			$slide.find( '.notice' ).remove();
+			$slide.find( '.w3tc-test-pgcache' ).unbind().on('click', function () {
+				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
+					$this = jQuery( this );
 
-			$slide.find( '.w3tc-test-pagecache' ).unbind().on('click', function () {
-				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent();
+				$this.prop( 'disabled', 'disabled' );
+				$slide.find( '.notice' ).remove();
+				$container.find( '#w3tc-pgcache-table tbody' ).empty();
 
-				$prevButton.prop( 'disabled', 'disabled' );
 				$spinnerParent.show();
 
-				jQuery.ajax({
-					method: 'POST',
-					url: ajaxurl,
-					data: {
-						_wpnonce: nonce,
-						action: 'w3tc_test_ttfb',
-						nocache: true
+				/**
+				 * Add a test result table row.
+				 *
+				 * @since X.X.X
+				 *
+				 * @param object testResponse Data.
+				 * @param string engine       Cache storage engine.
+				 * @param string label        Text label for the engine.
+				 */
+				function addResultRow( testResponse, engine, label ) {
+					var baseline,
+						diffPercent,
+						results = '<tr';
+
+					if ( ! configSuccess ) {
+						results += ' class="w3tc-option-disabled"';
 					}
-				})
-				.done(function( response ) {
-					var results = '';
-					response.data.forEach(function( item ) {
-						results += '<tr><td><a target="_blank" href="' +
-							item.url +
-							'">' +
-							item.urlshort +
-							'</a></td><td>' +
-							( item.ttfb * 1000 ).toFixed( 2 ) +
-							'ms</td><td>??</td><td>??</td></tr>';
-					});
-					$container.find( '#test-results' ).data( 'ttfb', response.data );
-					$slide.find( '#w3tc-ttfb-table tbody' ).html( results );
-					$slide.find( '#w3tc-ttfb-table' ).show();
-					$prevButton.removeProp( 'disabled' );
-					$nextButton.removeProp( 'disabled' );
-				})
-				.fail(function() {
-					$slide.append(
-						'<p class="notice notice-error"><strong>' +
-						W3TC_SetupGuide.test_error_msg +
-						'</strong></p>'
-					);
-					$nextButton.closest( 'span' ).hide();
-					$prevButton.closest( 'span' ).hide();
-					$skipButton.closest( 'span' ).show();
-				})
-				.complete(function() {
-					$spinnerParent.hide();
-				});
-			});
 
-			break;
+					results += '><td><input type="radio" name="pgcache_engine" value="' +
+						engine +
+						'"';
 
-		case 'w3tc-wizard-slide-pc2':
-			// Display TTFB result and wait for user to click to enable Page Cache; then test and advance to next slide.
-			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
-			$container.find( '#w3tc-wizard-step-pagecache' ).addClass( 'is-active' );
-
-			if ( ! $container.find( '#test-results' ).data( 'ttfb2' ) ) {
-				$nextButton.prop( 'disabled', 'disabled' );
-			}
-
-			$slide.find( '.notice' ).remove();
-
-			$slide.find( '.w3tc-test-pagecache' ).unbind().on('click', function () {
-				var enabled = $container.find( 'input:checked[name=enable_pagecache]' ).val(),
-					$spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent();
-
-				$prevButton.prop( 'disabled', 'disabled' );
-				$spinnerParent.show();
-
-				jQuery.ajax({
-					method: 'POST',
-					url: ajaxurl,
-					data: {
-						_wpnonce: nonce,
-						action: 'w3tc_config_pagecache',
-						pagecache: enabled
+					if ( ! configSuccess ) {
+						results += ' disabled="disabled"';
 					}
-				})
-				.fail(function() {
-					$slide.append(
-						'<p class="notice notice-error"><strong>' +
-						W3TC_SetupGuide.config_error_msg +
-						'</strong></p>'
-					);
 
-					$nextButton.closest( 'span' ).hide();
-					$prevButton.closest( 'span' ).hide();
-					$skipButton.closest( 'span' ).show();
+					if ( ( ! pgcacheSettings.enabled && 'none' === engine ) || pgcacheSettings.engine === engine ) {
+						results += ' checked';
+					}
 
-					return false;
-				})
-				.done(function() {
-					jQuery.ajax({
-						method: 'POST',
-						url: ajaxurl,
-						data: {
-							_wpnonce: nonce,
-							action: 'w3tc_test_ttfb',
+					results += '></td><td>' +
+						label +
+						'</td><td>';
+
+					if ( testResponse.success ) {
+						results += ( testResponse.data.ttfb * 1000 ).toFixed( 2 );
+						if ( 'none' !== engine ) {
+							baseline = $container.find( '#test-results' ).data( 'pgcache-none' ).ttfb;
+								results += ' ('+
+								( ( testResponse.data.ttfb - baseline ) / baseline * 100 ).toFixed( 2 ) +
+								'%)';
 						}
-					})
-					.done(function( response ) {
-						var results = '',
-							diffCount = 0,
-							diffTotal = 0,
-							diffPercentTotal = 0,
-							$testResults = $container.find( '#test-results' );
+					} else {
+						results += W3TC_SetupGuide.unavailable_text;
+					}
 
-						response.data.forEach(function( item, index ) {
-							var before = $testResults.data( 'ttfb' )[ index ].ttfb * 1000,
-								after = item.ttfb * 1000,
-								diff = after - before,
-								diffPercent = diff / before * 100;
+					results += '</td></tr>';
 
-							diffCount++;
-							diffTotal += diff;
-							diffPercentTotal += diffPercent;
-							results += '<tr><td><a target="_blank" href="' +
-								item.url +
-								'">' +
-								item.urlshort +
-								'</a></td><td>' +
-								before.toFixed( 2 ) +
-								'ms</td><td>' +
-								after.toFixed( 2 ) +
-								'ms</td><td>' +
-								( diff > 0 ? '+' : '' ) +
-								parseInt( diff ).toFixed( 2 ) +
-								' ms (' +
-								diffPercent.toFixed( 2 ) +
-								'%)</td></tr>';
+					$container.find( '#w3tc-pgcache-table tbody' ).append( results );
+					$container.find( '#w3tc-pgcache-table' ).show();
+				}
+
+				/**
+				 * Test Page Cache.
+				 *
+				 * @since X.X.X
+				 *
+				 * @param string engine Cache storage engine.
+				 * @param string label  Text label for the engine.
+				 * @return jqXHR
+				 */
+				function testPgcache( engine, label ) {
+					if ( configSuccess ) {
+						return jQuery.ajax({
+							method: 'POST',
+							url: ajaxurl,
+							data: {
+								_wpnonce: nonce,
+								action: 'w3tc_test_pgcache'
+							}
+						})
+						.done(function( testResponse ) {
+							$container.find( '#test-results' ).data( 'pgcache-' + engine, testResponse.data );
+							addResultRow( testResponse, engine, label );
 						});
-						response.data.diffAvg = diffTotal / diffCount;
-						response.data.diffPercentAvg = diffPercentTotal / diffCount;
-						$testResults.data( 'ttfb2', response.data );
-						$slide.find( '#w3tc-ttfb-table2 tbody' ).html( results );
-						$slide.find( '#w3tc-ttfb-table2' ).show();
+					} else {
+						addResultRow( [ success => false ], engine, label );
+					}
+				}
+
+				// Run config and tests.
+				getPgcacheSettings()
+					.then( function() {
+						return configPgcache( 0 );
+					}, configFailed )
+					.then( function() {
+						return testPgcache( 'none', W3TC_SetupGuide.none );
+					}, configFailed )
+					.then( function() {
+						return configPgcache( 1, 'file' );
+					} , testFailed )
+					.then( function() {
+						return testPgcache( 'file', W3TC_SetupGuide.disk_basic );
+					}, configFailed )
+					.then( function() {
+						return configPgcache( 1, 'file_generic' );
+					} , testFailed )
+					.then( function() {
+						return testPgcache( 'file_generic', W3TC_SetupGuide.disk_enhanced );
+					}, configFailed )
+					.then( function() {
+						return configPgcache( 1, 'redis' );
+					}, testFailed )
+					.then( function() {
+						return testPgcache( 'redis', 'Redis' );
+					}, configFailed )
+					.then( function() {
+						return configPgcache( 1, 'memcached' );
+					}, testFailed )
+					.then( function() {
+						return testPgcache( 'memcached', 'Memcached' );
+					}, configFailed )
+					.then( function() {
+						return configPgcache( 1, 'apc' );
+					}, testFailed )
+					.then( function() {
+						return testPgcache( 'apc', 'APC' );
+					}, configFailed )
+					.then( function() {
+						return configPgcache( 1, 'eaccelerator' );
+					}, testFailed )
+					.then( function() {
+						return testPgcache( 'eaccelerator', 'eAccelerator' );
+					}, configFailed )
+					.then( function() {
+						return configPgcache( 1, 'xcache' );
+					}, testFailed )
+					.then( function() {
+						return testPgcache( 'xcache', 'XCache' );
+					}, configFailed )
+					.then( function() {
+						return configPgcache( 1, 'wincache' );
+					}, testFailed )
+					.then( function() {
+						return testPgcache( 'wincache', 'WinCache' );
+					}, configFailed )
+					.then(function() {
+						$spinnerParent.hide();
+						$this.removeProp( 'disabled' );
 						$prevButton.removeProp( 'disabled' );
 						$nextButton.removeProp( 'disabled' );
+						return true;
+					}, testFailed )
+					// Restore the original database cache settings.
+					.then( function() {
+						return configPgcache( ( pgcacheSettings.enabled ? 1 : 0 ), pgcacheSettings.engine );
 					})
-					.fail(function() {
-						$slide.append(
-							'<p class="notice notice-error"><strong>' +
-							W3TC_SetupGuide.test_error_msg +
-							'</strong></p>'
-						);
-						$nextButton.closest( 'span' ).hide();
-						$prevButton.closest( 'span' ).hide();
-						$skipButton.closest( 'span' ).show();
-					})
-				})
-				.complete(function() {
-					$spinnerParent.hide();
-				});
+					.fail( configFailed );
 			});
 
 			break;
@@ -348,38 +440,6 @@ function w3tc_wizard_actions( $slide ) {
 					} else {
 						addResultRow( [ success => false ], engine, label );
 					}
-				}
-
-				/**
-				 * Configuration failed.
-				 *
-				 * @since X.X.X
-				 */
-				function configFailed() {
-						$slide.append(
-							'<p class="notice notice-error"><strong>' +
-							W3TC_SetupGuide.config_error_msg +
-							'</strong></p>'
-						);
-						$nextButton.closest( 'span' ).hide();
-						$prevButton.closest( 'span' ).hide();
-						$skipButton.closest( 'span' ).show();
-				}
-
-				/**
-				 * Test failed.
-				 *
-				 * @since X.X.X
-				 */
-				function testFailed() {
-					$slide.append(
-						'<p class="notice notice-error"><strong>' +
-						W3TC_SetupGuide.test_error_msg +
-						'</strong></p>'
-					);
-					$nextButton.closest( 'span' ).hide();
-					$prevButton.closest( 'span' ).hide();
-					$skipButton.closest( 'span' ).show();
 				}
 
 				// Run config and tests.
