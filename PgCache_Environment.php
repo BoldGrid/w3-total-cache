@@ -127,7 +127,8 @@ class PgCache_Environment {
 	private function are_rules_present( $c ) {
 		$e = $c->get_string( 'pgcache.engine' );
 
-		return ( $e == 'file_generic' || $e == 'nginx_memcached' );
+		return $c->get_boolean( 'pgcache.enabled' ) &&
+			( 'file_generic' === $e || 'nginx_memcached' === $e );
 	}
 
 	/**
