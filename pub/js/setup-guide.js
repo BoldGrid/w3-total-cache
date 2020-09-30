@@ -188,6 +188,8 @@ function w3tc_wizard_actions( $slide ) {
 				$this.prop( 'disabled', 'disabled' );
 				$slide.find( '.notice' ).remove();
 				$container.find( '#w3tc-pgcache-table tbody' ).empty();
+				$prevButton.prop( 'disabled', 'disabled' );
+				$nextButton.prop( 'disabled', 'disabled' );
 
 				$spinnerParent.show();
 
@@ -337,8 +339,11 @@ function w3tc_wizard_actions( $slide ) {
 					// Restore the original database cache settings.
 					.then( function() {
 						return configPgcache( ( pgcacheSettings.enabled ? 1 : 0 ), pgcacheSettings.engine );
-					})
-					.fail( configFailed );
+					},
+					function() {
+						$spinnerParent.hide();
+						return configFailed();
+					});
 			});
 
 			break;
@@ -359,6 +364,8 @@ function w3tc_wizard_actions( $slide ) {
 				$this.prop( 'disabled', 'disabled' );
 				$slide.find( '.notice' ).remove();
 				$container.find( '#w3tc-dbc-table tbody' ).empty();
+				$prevButton.prop( 'disabled', 'disabled' );
+				$nextButton.prop( 'disabled', 'disabled' );
 
 				$spinnerParent.show();
 
@@ -502,8 +509,11 @@ function w3tc_wizard_actions( $slide ) {
 					// Restore the original database cache settings.
 					.then( function() {
 						return configDbcache( ( dbcacheSettings.enabled ? 1 : 0 ), dbcacheSettings.engine );
-					})
-					.fail( configFailed );
+					},
+					function() {
+						$spinnerParent.hide();
+						return configFailed();
+					});
 			});
 
 			break;

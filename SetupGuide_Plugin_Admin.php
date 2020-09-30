@@ -123,10 +123,8 @@ class SetupGuide_Plugin_Admin {
 				'urlshort' => $this->abbreviate_url( $url ),
 			);
 
-			// If "nocache" was not requested, then prime URLs if Page Cache is enabled.
 			if ( ! $nocache ) {
-				//Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
-				Util_Http::ttfb( $url, $nocache );
+				Util_Http::get( $url, array( 'user-agent' => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ) ) );
 			}
 
 			$results['ttfb'] = Util_Http::ttfb( $url, $nocache );
