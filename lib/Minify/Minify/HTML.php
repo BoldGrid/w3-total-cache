@@ -201,7 +201,7 @@ class Minify_HTML {
 
 		// unquote attribute values without spaces
 		$this->_html = preg_replace_callback(
-			'/(<[a-z\\-]+\\s)\\s*([^>]+>)/m'
+			'/(<([a-z\\-]+)\\s)\\s*([^>]+>)/m'
 			,array($this, '_removeAttributeQuotes')
 			,$this->_html);
 
@@ -349,10 +349,13 @@ class Minify_HTML {
 	}
 
 	protected function _removeAttributeQuotes($m) {
-		$m[2] = preg_replace_callback( '~([a-z0-9\\-])=(?<quote>[\'"])([^"\'\\s=]*)\k<quote>(\\s|>|/>)~i',
-			array( $this, '_removeAttributeQuotesCallback'), $m[2] );
+		// whatsapp/fb bots dont read meta tags without quotes well
+		if (strtolower($m[2]) != 'meta') {
+			$m[3] = preg_replace_callback( '~([a-z0-9\\-])=(?<quote>[\'"])([^"\'\\s=]*)\k<quote>(\\s|>|/>)~i',
+				array( $this, '_removeAttributeQuotesCallback'), $m[3] );
+		}
 
-		return $m[1] . $m[2];
+		return $m[1] . $m[3];
 	}
 
 
