@@ -460,7 +460,7 @@ if ( $this->_config->get_string( 'pgcache.engine' ) == 'memcached' ||
 						w3tc-data-validator="regexps"
 						<?php Util_Ui::sealing_disabled( 'pgcache.' ) ?>
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.accept.uri' ) ) ); ?></textarea>
-					<p class="description"><?php _e( 'Cache the specified pages even if they don\'t have tailing slash.', 'w3-total-cache' ); ?></p>
+					<p class="description"><?php _e( 'Cache the specified pages even if they don\'t have trailing slash.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<?php endif; ?>
