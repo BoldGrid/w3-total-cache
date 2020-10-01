@@ -283,6 +283,7 @@ class Cache_Memcached extends Cache_Base {
 		// expiration has to be as long as possible since
 		// all cache data expires when key version expires
 		@$this->_memcache->set( $this->_get_key_version_key( $group ), $v, 0 );
+		$this->_key_version[$group] = $v;
 	}
 
 	/**
@@ -294,9 +295,12 @@ class Cache_Memcached extends Cache_Base {
 	 */
 	private function _increment_key_version( $group = '' ) {
 		$r = @$this->_memcache->increment( $this->_get_key_version_key( $group ), 1 );
-		if ( ! $r ) {
+
+		if ( $r ) {
+			$this->_key_version[$group] = $r;
+		} else {
 			// it doesn't initialize the key if it doesn't exist.
-			$this->_set_key_version( 0, $group );
+			$this->_set_key_version( 2, $group );
 		}
 	}
 
