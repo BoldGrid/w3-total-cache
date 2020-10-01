@@ -27,7 +27,7 @@ class PgCache_Environment {
 		$this->fix_folders( $config, $exs );
 
 		if ( $config->get_boolean( 'config.check' ) || $force_all_checks ) {
-			if ( $this->are_rules_present( $config ) ) {
+			if ( $this->is_rules_required( $config ) ) {
 				$this->rules_core_add( $config, $exs );
 				$this->rules_cache_add( $config, $exs );
 			} else {
@@ -124,10 +124,19 @@ class PgCache_Environment {
 			throw $exs;
 	}
 
-	private function are_rules_present( $c ) {
+	/**
+	 * Are rewrite rules required?.
+	 *
+	 * @since 0.9.7.3
+	 *
+	 * @param  Config $c Configuration.
+	 * @return bool
+	 */
+	private function is_rules_required( $c ) {
 		$e = $c->get_string( 'pgcache.engine' );
 
-		return ( $e == 'file_generic' || $e == 'nginx_memcached' );
+		return $c->get_boolean( 'pgcache.enabled' ) &&
+			( 'file_generic' === $e || 'nginx_memcached' === $e );
 	}
 
 	/**
@@ -137,7 +146,7 @@ class PgCache_Environment {
 	 * @return array
 	 */
 	public function get_required_rules( $config ) {
-		if ( !$this->are_rules_present( $config ) ) {
+		if ( !$this->is_rules_required( $config ) ) {
 			return null;
 		}
 
