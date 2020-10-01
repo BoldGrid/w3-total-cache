@@ -54,6 +54,7 @@ class Root_AdminActivation {
 				} catch ( \Exception $ex ) {
 				}
 			}
+		} catch ( Util_Environment_Exceptions $e ) {
 		} catch ( \Exception $e ) {
 			Util_Activation::error_on_exception( $e );
 		}
