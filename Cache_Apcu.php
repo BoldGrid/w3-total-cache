@@ -42,7 +42,7 @@ class Cache_Apcu extends Cache_Base {
 		$var['key_version'] = $this->_get_key_version( $group );
 
 		$storage_key = $this->get_item_key( $key );
-		return apcu_store( $storage_key, serialize( $var ), $expire );
+		return apcu_store( $storage_key, $var, $expire );
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Cache_Apcu extends Cache_Base {
 		$has_old_data = false;
 		$storage_key = $this->get_item_key( $key );
 
-		$v = @unserialize( apcu_fetch( $storage_key ) );
+		$v = apcu_fetch( $storage_key );
 		if ( !is_array( $v ) || !isset( $v['key_version'] ) )
 			return array( null, $has_old_data );
 
@@ -78,7 +78,7 @@ class Cache_Apcu extends Cache_Base {
 		$expires_at = isset( $v['expires_at'] ) ? $v['expires_at'] : null;
 		if ( $expires_at == null || time() > $expires_at ) {
 			$v['expires_at'] = time() + 30;
-			apcu_store( $storage_key, serialize( $v ), 0 );
+			apcu_store( $storage_key, $v, 0 );
 			$has_old_data = true;
 
 			return array( null, $has_old_data );
@@ -117,10 +117,10 @@ class Cache_Apcu extends Cache_Base {
 		$storage_key = $this->get_item_key( $key );
 
 		if ( $this->_use_expired_data ) {
-			$v = @unserialize( apcu_fetch( $storage_key ) );
+			$v = apcu_fetch( $storage_key );
 			if ( is_array( $v ) ) {
 				$v['key_version'] = 0;
-				apcu_store( $storage_key, serialize( $v ), 0 );
+				apcu_store( $storage_key, $v, 0 );
 				return true;
 			}
 		}
