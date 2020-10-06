@@ -380,6 +380,7 @@ class Util_Admin {
 			if ( $new_config->get_boolean( 'minify.css.enable' ) && ( $new_config->get_boolean( 'minify.auto' ) || count( $new_config->get_array( 'minify.css.groups' ) ) ) ) {
 				$minify_dependencies = array_merge( $minify_dependencies, array(
 						'minify.css.engine',
+						'minify.css.method',
 						'minify.css.combine',
 						'minify.css.strip.comments',
 						'minify.css.strip.crlf',
@@ -411,6 +412,7 @@ class Util_Admin {
 			if ( $new_config->get_boolean( 'minify.js.enable' ) && ( $new_config->get_boolean( 'minify.auto' ) || count( $new_config->get_array( 'minify.js.groups' ) ) ) ) {
 				$minify_dependencies = array_merge( $minify_dependencies, array(
 						'minify.js.engine',
+						'minify.js.method',
 						'minify.js.combine.header',
 						'minify.js.combine.body',
 						'minify.js.combine.footer',

@@ -836,10 +836,6 @@ $keys = array(
 			'mfunc'
 		)
 	),
-	'minify.css.combine' => array(
-		'type' => 'boolean',
-		'default' => false
-	),
 	'minify.css.enable' => array(
 		'type' => 'boolean',
 		'default' => true
@@ -847,6 +843,14 @@ $keys = array(
 	'minify.css.engine' => array(
 		'type' => 'string',
 		'default' => 'css'
+	),
+	'minify.css.method' => array(
+		'type' => 'string',
+		'default' => 'both'
+	),
+	'minify.css.combine' => array(
+		'type' => 'boolean',
+		'default' => false
 	),
 	'minify.css.http2push' => array(
 		'type' => 'boolean',
@@ -883,6 +887,10 @@ $keys = array(
 	'minify.js.engine' => array(
 		'type' => 'string',
 		'default' => 'js'
+	),
+	'minify.js.method' => array(
+		'type' => 'string',
+		'default' => 'both'
 	),
 	'minify.js.combine.header' => array(
 		'type' => 'boolean',
