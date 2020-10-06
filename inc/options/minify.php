@@ -208,7 +208,13 @@ if ( file_exists( $html_engine_file2 ) ) {
 					<?php if ( $auto ): ?>
 						<p>
 							<?php $this->radio( 'minify.js.combine.header', false, false, 'js_' ) ?> <?php _e( 'Minify', 'w3-total-cache' ); ?> </label> <?php $this->radio( 'minify.js.combine.header', true, false, 'js_' ) ?> <?php Util_Ui::e_config_label( 'minify.js.combine.header' ) ?></label>
+							<select id="minify__js__method" name="minify__js__method" class="js_enabled">
+								<option value="both" <?php selected( 'both' , $this->_config->get_string( 'minify.js.method' ) ) ?>><?php _e( 'Combine & Minify', 'w3-total-cache' ); ?></option>
+								<option value="minify" <?php selected( 'minify' , $this->_config->get_string( 'minify.js.method' ) ) ?>><?php _e( 'Minify only', 'w3-total-cache' ); ?></option>
+								<option value="combine" <?php selected( 'combine' , $this->_config->get_string( 'minify.js.method' ) ) ?>><?php _e( 'Combine only', 'w3-total-cache' ); ?></option>
+							</select>
 						</p>
+						<br />
 					<?php endif; ?>
 
 					<?php
@@ -332,7 +338,15 @@ Util_Ui::config_item( array(
 			<tr>
 				<th><?php _e( '<acronym title="Cascading Style Sheet">CSS</acronym> minify settings:', 'w3-total-cache' ); ?></th>
 				<td>
-					<?php $this->checkbox( 'minify.css.enable' ) ?> <?php Util_Ui::e_config_label( 'minify.css.enable' ) ?></label><br />
+					<p>
+						<?php $this->checkbox( 'minify.css.enable' ) ?> <?php Util_Ui::e_config_label( 'minify.css.enable' ) ?></label><br />
+						<select id="minify__css__method" name="minify__css__method" class="css_enabled">
+							<option value="both" <?php selected( 'both' , $this->_config->get_string( 'minify.css.method' ) ) ?>><?php _e( 'Combine & Minify', 'w3-total-cache' ); ?></option>
+							<option value="minify" <?php selected( 'minify' , $this->_config->get_string( 'minify.css.method' ) ) ?>><?php _e( 'Minify only', 'w3-total-cache' ); ?></option>
+							<option value="combine" <?php selected( 'combine' , $this->_config->get_string( 'minify.css.method' ) ) ?>><?php _e( 'Combine only', 'w3-total-cache' ); ?></option>
+						</select>
+					</p>
+					<br />
 					<?php $this->checkbox( 'minify.css.combine', false, 'css_' ) ?> <?php Util_Ui::e_config_label( 'minify.css.combine' ) ?></label><br />
 					<?php
 $css_engine_file = '';
