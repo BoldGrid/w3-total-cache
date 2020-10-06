@@ -177,7 +177,7 @@ class Minify_MinifiedFileRequestHandler {
 			$minifier_type = 'application/x-javascript';
 
 			switch ( true ) {
-			case ( ( $hash || $location == 'include' ) && $this->_config->get_boolean( 'minify.js.combine.header' ) ):
+			case ( ( $hash || $location == 'include' ) && ( $this->_config->get_boolean( 'minify.js.combine.header' || $this->_config->get_string( 'minify.js.method' ) == 'combine' ) ) ):
 			case ( $location == 'include-body' && $this->_config->get_boolean( 'minify.js.combine.body' ) ):
 			case ( $location == 'include-footer' && $this->_config->get_boolean( 'minify.js.combine.footer' ) ):
 				$engine = 'combinejs';
@@ -195,7 +195,7 @@ class Minify_MinifiedFileRequestHandler {
 		} elseif ( $type == 'css' ) {
 			$minifier_type = 'text/css';
 
-			if ( ( $hash || $location == 'include' ) && $this->_config->get_boolean( 'minify.css.combine' ) ) {
+			if ( ( $hash || $location == 'include' ) && ( $this->_config->get_boolean( 'minify.css.combine' ) || $this->_config->get_string( 'minify.css.method' ) == 'combine' ) ) {
 				$engine = 'combinecss';
 			} else {
 				$engine = $this->_config->get_string( 'minify.css.engine' );
