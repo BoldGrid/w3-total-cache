@@ -418,7 +418,7 @@ class PgCache_ContentGrabber {
 
 		$compression = false;
 		$has_dynamic = $this->_has_dynamic( $buffer );
-		$response_headers = $this->_get_response_headers();
+		$response_headers = Util_Http::get_response_headers();
 
 		// TODO: call modifies object state, rename method at least
 		$original_can_cache = $this->_can_write_cache( $buffer, $response_headers );
@@ -1335,42 +1335,6 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
-	 * Returns array of response headers
-	 *
-	 * @return array
-	 */
-	function _get_response_headers() {
-		$headers_kv = array();
-		$headers_plain = array();
-
-		if ( function_exists( 'headers_list' ) ) {
-			$headers_list = headers_list();
-			if ( $headers_list ) {
-				foreach ( $headers_list as $header ) {
-					$pos = strpos( $header, ':' );
-					if ( $pos ) {
-						$header_name = trim( substr( $header, 0, $pos ) );
-						$header_value = trim( substr( $header, $pos + 1 ) );
-					} else {
-						$header_name = $header;
-						$header_value = '';
-					}
-					$headers_kv[$header_name] = $header_value;
-					$headers_plain[] = array(
-						'name' => $header_name,
-						'value' => $header_value
-					);
-				}
-			}
-		}
-
-		return array(
-			'kv' => $headers_kv,
-			'plain' => $headers_plain
-		);
-	}
-
-	/**
 	 * Checks for buggy IE6 that doesn't support compression
 	 *
 	 * @return boolean
@@ -1582,7 +1546,7 @@ class PgCache_ContentGrabber {
 
 			$strings[] = sprintf( "%s%.3fs", str_pad( 'Creation Time: ', 20 ), time() );
 
-			$headers = $this->_get_response_headers();
+			$headers = Util_Http::get_response_headers();;
 
 			if ( count( $headers['plain'] ) ) {
 				$strings[] = "Header info:";
@@ -1947,15 +1911,12 @@ class PgCache_ContentGrabber {
 	 */
 	private function _is_cacheable_content_type() {
 		$content_type = '';
-		$headers = headers_list();
-		foreach ( $headers as $header ) {
-			$header = strtolower( $header );
-			$m = null;
-			if ( preg_match( '~\s*content-type\s*:([^;]+)~', $header, $m ) ) {
-				$content_type = trim( $m[1] );
-			}
+		
+		$headers = Util_Http::get_response_headers();
+		if ( isset ( $headers['kv']['content-type'] ) ) {
+			$content_type = $headers['kv']['content-type'];
 		}
-
+		
 		$cache_headers = apply_filters( 'w3tc_is_cacheable_content_type',
 			array(
 				'' /* redirects, they have only Location header set */,

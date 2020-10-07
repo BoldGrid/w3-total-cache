@@ -103,4 +103,47 @@ class Util_Http {
 
 		return $upload_info;
 	}
+	
+	/**
+	 * Returns array of response headers
+	 *
+	 * @return array
+	 */
+	static public function get_response_headers() {
+		$headers_kv = array();
+		$headers_plain = array();
+		
+		$headers_list = null;
+		// headers_list() will return an empty array for CLI environments, grab them like this for PHPUnit testing env.
+		if (php_sapi_name() === 'cli' && function_exists( 'xdebug_get_headers' ) ) {
+			$headers_list = xdebug_get_headers();
+		} else if ( function_exists( 'headers_list' ) ) {
+			$headers_list = headers_list();
+		}
+		
+		if ( $headers_list ) {
+			foreach ( $headers_list as $header ) {
+				$pos = strpos( $header, ':' );
+				if ( $pos ) {
+					$header_name = trim( substr( $header, 0, $pos ) );
+					$header_value = trim( substr( $header, $pos + 1 ) );
+					$header_name = strtolower( $header_name );
+				} else {
+					$header_name = $header;
+					$header_value = '';
+				}
+				$headers_kv[$header_name] = $header_value;
+				$headers_plain[] = array(
+					'name' => $header_name,
+					'value' => $header_value
+				);
+			}
+		}
+		
+		return array(
+			'kv' => $headers_kv,
+			'plain' => $headers_plain
+		);
+	}
+	
 }

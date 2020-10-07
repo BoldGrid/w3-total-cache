@@ -26,6 +26,29 @@ class Util_Content {
 			stripos( $content, '<html' ) === 0 ||
 			stripos( $content, '<!DOCTYPE' ) === 0;
 	}
+	
+	/**
+	 * Checks HTTP headers sent (or ready to be sent) by the server and returns true
+	 * if the content-type is SGML-y (text/html, text/xml, RSS feeds and similar)
+	 *
+	 * @return bool
+	 */
+	static public function is_html_xml_content_type() {
+		$content_type = '';
+		
+		$headers = Util_Http::get_response_headers();
+		if ( isset ( $headers['kv']['content-type'] ) ) {
+			$content_type = $headers['kv']['content-type'];
+		}
+		
+		$sgml_types = array(
+			'text/html', 'text/xml', 'text/xsl',
+			'application/xhtml+xml', 'application/rss+xml',
+			'application/atom+xml', 'application/rdf+xml'
+		);
+		
+		return in_array( $content_type, $sgml_types );
+	}
 
 	static private function _is_html_prepare( $content ) {
 		if ( strlen( $content ) > 1000 ) {
