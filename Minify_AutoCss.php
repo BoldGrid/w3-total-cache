@@ -253,7 +253,7 @@ class Minify_AutoCss {
 			$this->embed_pos = $tag_pos;
 		$this->files_to_minify[] = $file;
 
-		if ( $this->config->get_boolean( 'minify.js.method' ) == 'minify' )
+		if ( $this->config->get_string( 'minify.css.method' ) == 'minify' )
 			$this->flush_collected( '' );
 	}
 

@@ -144,10 +144,10 @@ if ( file_exists( $html_engine_file2 ) ) {
 			<?php
 			if ( $auto ):
 				Util_Ui::config_item( array(
-				'key' => 'minify.js.method',
-				'label' => 'Minify method:',
-				'control' => 'selectbox',
-				'selectbox_values' => array(
+					'key' => 'minify.js.method',
+					'label' => 'Minify method:',
+					'control' => 'selectbox',
+					'selectbox_values' => array(
 						'both' => array(
 							'label' => __( 'Combine & Minify', 'w3-total-cache' )
 						),
@@ -161,7 +161,6 @@ if ( file_exists( $html_engine_file2 ) ) {
 				) );
 			endif; 
 			?>
-			<!-- <?php $this->radio( 'minify.js.combine.header', false, false, 'js_' ) ?> <?php _e( 'Minify', 'w3-total-cache' ); ?> </label> <?php $this->radio( 'minify.js.combine.header', true, false, 'js_' ) ?> <?php Util_Ui::e_config_label( 'minify.js.combine.header' ) ?></label> -->
 			<tr>
 				<th><?php _e( 'Minify engine settings:', 'w3-total-cache' ); ?></th>
 				<td>
@@ -362,10 +361,10 @@ Util_Ui::config_item( array(
 			?>
 			<?php
 			Util_Ui::config_item( array(
-			'key' => 'minify.css.method',
-			'label' => 'Minify method:',
-			'control' => 'selectbox',
-			'selectbox_values' => array(
+				'key' => 'minify.css.method',
+				'label' => 'Minify method:',
+				'control' => 'selectbox',
+				'selectbox_values' => array(
 					'both' => array(
 						'label' => __( 'Combine & Minify', 'w3-total-cache' )
 					),
@@ -378,7 +377,6 @@ Util_Ui::config_item( array(
 				)
 			) );
 			?>
-			<!-- <?php $this->checkbox( 'minify.css.combine', false, 'css_' ) ?> <?php Util_Ui::e_config_label( 'minify.css.combine' ) ?></label><br /> -->
 			<tr>
 				<th><?php _e( 'Minify engine settings:', 'w3-total-cache' ); ?></th>
 				<td>

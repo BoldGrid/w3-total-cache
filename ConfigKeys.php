@@ -848,10 +848,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => 'both'
 	),
-	'minify.css.combine' => array(
-		'type' => 'boolean',
-		'default' => false
-	),
 	'minify.css.http2push' => array(
 		'type' => 'boolean',
 		'default' => false

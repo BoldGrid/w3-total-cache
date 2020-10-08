@@ -381,7 +381,6 @@ class Util_Admin {
 				$minify_dependencies = array_merge( $minify_dependencies, array(
 						'minify.css.engine',
 						'minify.css.method',
-						'minify.css.combine',
 						'minify.css.strip.comments',
 						'minify.css.strip.crlf',
 						'minify.css.imports',
