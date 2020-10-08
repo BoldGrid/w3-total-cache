@@ -858,12 +858,10 @@ class Minify_MinifiedFileRequestHandler {
 			'minify.symlinks',
 		);
 
-		$auto = $this->_config->get_boolean( 'minify.auto' );
-
 		if ( $type == 'js' ) {
 			$engine = $this->_config->get_string( 'minify.js.engine' );
 
-			if ( $auto ) {
+			if ( $this->_config->get_boolean( 'minify.auto' ) ) {
 				$keys[] = 'minify.js.method';
 			} else {
 				array_merge(
