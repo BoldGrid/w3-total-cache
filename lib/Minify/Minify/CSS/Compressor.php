@@ -118,12 +118,12 @@ class Minify_CSS_Compressor {
         $css = preg_replace_callback('/
                 (?:              # non-capture
                     \\s*
-                    [^~>+,\\s]+  # selector part
+                    [^{}~>+,\\s]+  # selector part
                     \\s*
                     [,>+~]       # combinators
                 )+
                 \\s*
-                [^~>+,\\s]+      # selector part
+                [^{}~>+,\\s]+      # selector part
                 {                # open declaration block
             /x'
             ,array($this, '_selectorsCB'), $css);
