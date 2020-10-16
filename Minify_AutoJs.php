@@ -267,6 +267,9 @@ class Minify_AutoJs {
 		}
 
 		$this->files_to_minify[$sync_type]['files'][] = $file;
+
+		if ( $this->config->get_string( 'minify.js.method' ) == 'minify' )
+			$this->flush_collected( $sync_type, '' );
 	}
 
 	/**
