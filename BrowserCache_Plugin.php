@@ -168,6 +168,15 @@ class BrowserCache_Plugin {
 					$this,
 					'link_replace_callback'
 				), $buffer );
+
+			// without quotes
+			$buffer = preg_replace_callback(
+				'~(href|src|action|extsrc|asyncsrc)=((' .
+				$domain_url_regexp .
+				')?(/[^\\s>][^\\s>]*\.([a-z-_]+)([\?#][^\\s>]*)?))([\\s>])~Ui', array(
+					$this,
+					'link_replace_callback_noquote'
+				), $buffer );
 		}
 
 		return $buffer;
@@ -191,6 +200,24 @@ class BrowserCache_Plugin {
 		if ( $attr != 'w3tc_load_js(' )
 			return $attr . '=' . $quote . $url . $quote;
 		return sprintf( '%s\'%s\'', $attr, $url );
+	}
+
+	/**
+	 * Link replace callback when no quote arount attribute value
+	 *
+	 * @param string  $matches
+	 * @return string
+	 */
+	function link_replace_callback_noquote( $matches ) {
+		list ( $match, $attr, $url, , , , , $extension, , $delimiter ) = $matches;
+
+		$ops = $this->_get_url_mutation_operations( $url, $extension );
+		if ( is_null( $ops ) )
+			return $match;
+
+		$url = $this->mutate_url( $url, $ops, !$this->browsercache_rewrite );
+
+		return $attr . '=' . $url . $delimiter;
 	}
 
 	/**
