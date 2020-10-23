@@ -27,7 +27,6 @@ class Minify_ConfigLabels {
 				'minify.js.footer.embed_type' => __( 'Before <span class="html-tag">&lt;/body&gt;</span>', 'w3-total-cache' ),
 				'minify.js.combine.footer' => __( 'Combine only', 'w3-total-cache' ),
 				'minify.css.enable' => __( 'Enable', 'w3-total-cache' ),
-				'minify.css.combine' => __( 'Combine only', 'w3-total-cache' ),
 				'minify.css.imports' => __( '@import handling:', 'w3-total-cache' ),
 				'minify.lifetime' => __( 'Update external files every:', 'w3-total-cache' ),
 				'minify.file.gc' => __( 'Garbage collection interval:', 'w3-total-cache' ),
