@@ -25,6 +25,10 @@ function w3tc_wizard_actions( $slide ) {
 			enaled: null,
 			engine: null
 		},
+		objcacheSettings = {
+			enaled: null,
+			engine: null
+		},
 		slideId = $slide.prop( 'id' ),
 		$container = jQuery( '#w3tc-wizard-container' ),
 		nonce = $container.find( '[name="_wpnonce"]' ).val(),
@@ -135,6 +139,57 @@ function w3tc_wizard_actions( $slide ) {
 	}
 
 	/**
+	 * Configure Object Cache.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param bool   enable Enable cache.
+	 * @param string engine Cache storage engine.
+	 * @return jqXHR
+	 */
+	function configObjcache( enable, engine = '' ) {
+		var $jqXHR = jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_config_objcache',
+				enable: enable,
+				engine: engine
+			}
+		});
+
+		configSuccess = null;
+
+		$jqXHR.done(function( response ) {
+			configSuccess = response.data.success;
+		});
+
+		return $jqXHR;
+	}
+
+	/**
+	 * Get Object Cache settings.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return jqXHR
+	 */
+	function getObjcacheSettings() {
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_get_objcache_settings'
+			}
+		})
+		.done(function( response ) {
+			objcacheSettings = response.data;
+		});
+	}
+
+	/**
 	 * Configuration failed.
 	 *
 	 * @since X.X.X
@@ -231,8 +286,10 @@ function w3tc_wizard_actions( $slide ) {
 						results += ( testResponse.data.ttfb * 1000 ).toFixed( 2 );
 						if ( 'none' !== engine ) {
 							baseline = $container.find( '#test-results' ).data( 'pgcache-none' ).ttfb;
-								results += ' ('+
-								( ( testResponse.data.ttfb - baseline ) / baseline * 100 ).toFixed( 2 ) +
+							diffPercent = ( ( testResponse.data.ttfb - baseline ) / baseline * 100 ).toFixed( 2 );
+							$container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + engine, diffPercent );
+							results += ' ('+
+								diffPercent +
 								'%)';
 						}
 					} else {
@@ -349,7 +406,19 @@ function w3tc_wizard_actions( $slide ) {
 			break;
 
 		case 'w3tc-wizard-slide-dbc1':
-			// Test database cache.
+			// Save the page cache engine setting from the previous slide.
+			var pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ).val();
+
+			configPgcache( ( 'none' === pgcacheEngine ? 0 : 1 ), 'none' === pgcacheEngine ? '' : pgcacheEngine )
+				.fail( function() {
+					$slide.append(
+						'<p class="notice notice-error"><strong>' +
+						W3TC_SetupGuide.config_error_msg +
+						'</strong></p>'
+					);
+				});
+
+			// Present the Database Cache slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-dbcache' ).addClass( 'is-active' );
 
@@ -380,7 +449,6 @@ function w3tc_wizard_actions( $slide ) {
 				 */
 				function addResultRow( testResponse, engine, label ) {
 					var baseline,
-						diffPercent,
 						results = '<tr';
 
 					if ( ! configSuccess ) {
@@ -534,6 +602,168 @@ function w3tc_wizard_actions( $slide ) {
 			// Present the Object Cache slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-objectcache' ).addClass( 'is-active' );
+
+			if ( ! $container.find( '#test-results' ).data( 'oc-none' ) ) {
+				$nextButton.prop( 'disabled', 'disabled' );
+			}
+
+			$slide.find( '.w3tc-test-objcache' ).unbind().on('click', function () {
+				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
+					$this = jQuery( this );
+
+				$this.prop( 'disabled', 'disabled' );
+				$slide.find( '.notice' ).remove();
+				$container.find( '#w3tc-objcache-table tbody' ).empty();
+				$prevButton.prop( 'disabled', 'disabled' );
+				$nextButton.prop( 'disabled', 'disabled' );
+
+				$spinnerParent.show();
+
+				/**
+				 * Add a test result table row.
+				 *
+				 * @since X.X.X
+				 *
+				 * @param object testResponse Data.
+				 * @param string engine       Cache storage engine.
+				 * @param string label        Text label for the engine.
+				 */
+				function addResultRow( testResponse, engine, label ) {
+					var baseline,
+						results = '<tr';
+
+					if ( ! configSuccess ) {
+						results += ' class="w3tc-option-disabled"';
+					}
+
+					results += '><td><input type="radio" name="dbc_engine" value="' +
+						engine +
+						'"';
+
+					if ( ! configSuccess ) {
+						results += ' disabled="disabled"';
+					}
+
+					if ( ( ! objcacheSettings.enabled && 'none' === engine ) || objcacheSettings.engine === engine ) {
+						results += ' checked';
+					}
+
+					results += '></td><td>' +
+						label +
+						'</td><td>';
+
+					if ( testResponse.success ) {
+						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+						if ( 'none' !== engine ) {
+							baseline = $container.find( '#test-results' ).data( 'oc-none' ).elapsed;
+								results += ' ('+
+								( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 ) +
+								'%)';
+						}
+					} else {
+						results += W3TC_SetupGuide.unavailable_text;
+					}
+
+					results += '</td></tr>';
+
+					$container.find( '#w3tc-objcache-table tbody' ).append( results );
+					$container.find( '#w3tc-objcache-table' ).show();
+				}
+
+				/**
+				 * Test objcache cache.
+				 *
+				 * @since X.X.X
+				 *
+				 * @param string engine Cache storage engine.
+				 * @param string label  Text label for the engine.
+				 * @return jqXHR
+				 */
+				function testObjcache( engine, label ) {
+					if ( configSuccess ) {
+						return jQuery.ajax({
+							method: 'POST',
+							url: ajaxurl,
+							data: {
+								_wpnonce: nonce,
+								action: 'w3tc_test_objcache'
+							}
+						})
+						.done(function( testResponse ) {
+							$container.find( '#test-results' ).data( 'oc-' + engine, testResponse.data );
+							addResultRow( testResponse, engine, label );
+						});
+					} else {
+						addResultRow( [ success => false ], engine, label );
+					}
+				}
+
+				// Run config and tests.
+				getObjcacheSettings()
+					.then( function() {
+						return configObjcache( 0 );
+					}, configFailed )
+					.then( function() {
+						return testObjcache( 'none', W3TC_SetupGuide.none );
+					}, configFailed )
+					.then( function() {
+						return configObjcache( 1, 'file' );
+					} , testFailed )
+					.then( function() {
+						return testObjcache( 'file', W3TC_SetupGuide.disk );
+					}, configFailed )
+					.then( function() {
+						return configObjcache( 1, 'redis' );
+					}, testFailed )
+					.then( function() {
+						return testObjcache( 'redis', 'Redis' );
+					}, configFailed )
+					.then( function() {
+						return configObjcache( 1, 'memcached' );
+					}, testFailed )
+					.then( function() {
+						return testObjcache( 'memcached', 'Memcached' );
+					}, configFailed )
+					.then( function() {
+						return configObjcache( 1, 'apc' );
+					}, testFailed )
+					.then( function() {
+						return testObjcache( 'apc', 'APC' );
+					}, configFailed )
+					.then( function() {
+						return configObjcache( 1, 'eaccelerator' );
+					}, testFailed )
+					.then( function() {
+						return testObjcache( 'eaccelerator', 'eAccelerator' );
+					}, configFailed )
+					.then( function() {
+						return configObjcache( 1, 'xcache' );
+					}, testFailed )
+					.then( function() {
+						return testObjcache( 'xcache', 'XCache' );
+					}, configFailed )
+					.then( function() {
+						return configObjcache( 1, 'wincache' );
+					}, testFailed )
+					.then( function() {
+						return testObjcache( 'wincache', 'WinCache' );
+					}, configFailed )
+					.then(function() {
+						$spinnerParent.hide();
+						$this.removeProp( 'disabled' );
+						$prevButton.removeProp( 'disabled' );
+						$nextButton.removeProp( 'disabled' );
+						return true;
+					}, testFailed )
+					// Restore the original object cache settings.
+					.then( function() {
+						return configObjcache( ( objcacheSettings.enabled ? 1 : 0 ), objcacheSettings.engine );
+					},
+					function() {
+						$spinnerParent.hide();
+						return configFailed();
+					});
+			});
 
 			break;
 
@@ -706,19 +936,17 @@ function w3tc_wizard_actions( $slide ) {
 
 		case 'w3tc-wizard-slide-complete':
 			var html,
-				diffAvg = $container.find( '#test-results' ).data( 'ttfb2' ).diffAvg,
-				diffPercentAvg = $container.find( '#test-results' ).data( 'ttfb2' ).diffPercentAvg;
+				pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ).val();
+				pgcacheDiffPercent = $container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + pgcacheEngine );
 
-				$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
-				$container.find( '#w3tc-wizard-step-more' ).addClass( 'is-active' );
+			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-wizard-step-more' ).addClass( 'is-active' );
 
-			html = ( diffAvg > 0 ? '+' : '' ) +
-				diffAvg.toFixed( 2 ) +
-				' ms (' +
-				diffPercentAvg.toFixed( 2 ) +
-				'%)';
+			html = ( pgcacheDiffPercent > 0 ? '+' : '' ) +
+				pgcacheDiffPercent +
+				'%';
 
-				$container.find( '#w3tc-ttfb-diff-avg' ).html( html );
+			$container.find( '#w3tc-ttfb-diff' ).html( html );
 
 			if ( ! jQuery( '#test-results' ).data( 'completed' ) ) {
 				jQuery.ajax({

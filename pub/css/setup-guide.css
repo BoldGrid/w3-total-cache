@@ -4,7 +4,8 @@
 	text-align: left;
 }
 
-.w3tc-dbc-table th {
+.w3tc-dbc-table th,
+.w3tc-objcache-table th {
 	white-space: nowrap;
 }
 

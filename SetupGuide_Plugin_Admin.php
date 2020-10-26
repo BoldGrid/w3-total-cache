@@ -119,6 +119,7 @@ class SetupGuide_Plugin_Admin {
 			$nocache = ! empty( $_POST['nocache'] );
 			$url     = site_url();
 			$results = array(
+				'nocache'  => $nocache,
 				'url'      => $url,
 				'urlshort' => $this->abbreviate_url( $url ),
 			);
@@ -435,8 +436,8 @@ class SetupGuide_Plugin_Admin {
 			$is_updating     = false;
 			$success         = false;
 			$config          = new Config();
-			$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
-			$dbcache_engine  = $config->get_string( 'dbcache.engine' );
+			$old_enabled     = $config->get_boolean( 'dbcache.enabled' );
+			$old_engine      = $config->get_string( 'dbcache.engine' );
 			$allowed_engines = array(
 				'',
 				'file',
@@ -450,12 +451,12 @@ class SetupGuide_Plugin_Admin {
 
 			if ( in_array( $engine, $allowed_engines, true ) ) {
 				if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
-					if ( $dbcache_enabled !== $enable ) {
+					if ( $old_enabled !== $enable ) {
 						$config->set( 'dbcache.enabled', $enable );
 						$is_updating = true;
 					}
 
-					if ( ! empty( $engine ) && $dbcache_engine !== $engine ) {
+					if ( ! empty( $engine ) && $old_engine !== $engine ) {
 						$config->set( 'dbcache.engine', $engine );
 						$is_updating = true;
 					}
@@ -488,8 +489,146 @@ class SetupGuide_Plugin_Admin {
 				'engine'            => $engine,
 				'current_enabled'   => $config->get_boolean( 'dbcache.enabled' ),
 				'current_engine'    => $config->get_string( 'dbcache.engine' ),
-				'previous_enabled'  => $dbcache_enabled,
-				'previous_engine'   => $dbcache_engine,
+				'previous_enabled'  => $old_enabled,
+				'previous_engine'   => $old_engine,
+			) );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Test object cache.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 */
+	public function test_objcache() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$config  = new Config();
+			$results = array(
+				'enabled' => $config->get_boolean( 'objectcache.enabled' ),
+				'engine'  => $config->get_string( 'objectcache.engine' ),
+				'elapsed' => null,
+			);
+
+
+			$start_time = microtime( true );
+
+			$posts = get_posts( array(
+				'post_type' => array(
+					'page',
+					'post',
+				),
+			) );
+
+			$results['elapsed'] = microtime( true ) - $start_time;
+			$results['post_ct'] = count( $posts );
+
+			wp_send_json_success( $results );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Get the object cache settings.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 */
+	public function get_objcache_settings() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$config = new Config();
+
+			wp_send_json_success( array(
+				'enabled' => $config->get_boolean( 'objectcache.enabled' ),
+				'engine'  => $config->get_string( 'objectcache.engine' ),
+			) );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Configure the object cache settings.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 * @see \W3TC\Util_Installed::$engine()
+	 * @see \W3TC\Config::set()
+	 * @see \W3TC\Config::save()
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\CacheFlush::objcache_flush()
+	 */
+	public function config_objcache() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$enable          = ! empty( $_POST['enable'] );
+			$engine          = empty( $_POST['engine'] ) ? '' : esc_attr( trim( $_POST['engine'] ) );
+			$is_updating     = false;
+			$success         = false;
+			$config          = new Config();
+			$old_enabled     = $config->get_boolean( 'objectcache.enabled' );
+			$old_engine      = $config->get_string( 'objectcache.engine' );
+			$allowed_engines = array(
+				'',
+				'file',
+				'redis',
+				'memcached',
+				'apc',
+				'eaccelerator',
+				'xcache',
+				'wincache',
+			);
+
+			if ( in_array( $engine, $allowed_engines, true ) ) {
+				if ( empty( $engine ) || 'file' === $engine || Util_Installed::$engine() ) {
+					if ( $old_enabled !== $enable ) {
+						$config->set( 'objectcache.enabled', $enable );
+						$is_updating = true;
+					}
+
+					if ( ! empty( $engine ) && $old_engine !== $engine ) {
+						$config->set( 'objectcache.engine', $engine );
+						$is_updating = true;
+					}
+
+					if ( $is_updating ) {
+						$config->save();
+
+						$f = Dispatcher::component( 'CacheFlush' );
+						$f->objectcache_flush();
+					}
+
+					if ( $config->get_boolean( 'objectcache.enabled' ) === $enable &&
+						( ! $enable || $config->get_string( 'objectcache.engine' ) === $engine ) ) {
+							$success = true;
+							$message = __( 'Settings updated', 'w3-total-cache' );
+					} else {
+						$message = __( 'Settings not updated', 'w3-total-cache' );
+					}
+				} else {
+					$message = __( 'Requested cache storage engine is not available', 'w3-total-cache' );
+				}
+			} elseif ( ! $is_allowed_engine ) {
+				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
+			}
+
+			wp_send_json_success( array(
+				'success'           => $success,
+				'message'           => $message,
+				'enable'            => $enable,
+				'engine'            => $engine,
+				'current_enabled'   => $config->get_boolean( 'objectcache.enabled' ),
+				'current_engine'    => $config->get_string( 'objectcache.engine' ),
+				'previous_enabled'  => $old_enabled,
+				'previous_engine'   => $old_engine,
 			) );
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
@@ -596,6 +735,27 @@ class SetupGuide_Plugin_Admin {
 					'function' => array(
 						$this,
 						'config_dbcache',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_get_objcache_settings',
+					'function' => array(
+						$this,
+						'get_objcache_settings',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_test_objcache',
+					'function' => array(
+						$this,
+						'test_objcache',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_config_objcache',
+					'function' => array(
+						$this,
+						'config_objcache',
 					),
 				),
 				array(
@@ -738,10 +898,24 @@ class SetupGuide_Plugin_Admin {
 						) . '</p>
 						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__( 'can help you speed up dynamic pages by persistently storing objects.', 'w3-total-cache' ) .
-						esc_html__( 'Let\'s test to get a baseline measurement.', 'w3-total-cache' ) .
 						'</p>
-						<p class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
-						' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;</p>',
+						<p>
+						<input class="w3tc-test-objcache button-primary" type="button" value="' .
+						esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">
+						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
+						' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
+						</span>
+						</p>
+						<table id="w3tc-objcache-table" class="w3tc-setupguide-table hidden">
+							<thead>
+								<tr>
+									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Storage Engine', 'w3-total-cache' ) . '</th>
+									<th>' . esc_html__( 'Time (ms)', 'w3-total-cache' ) . '</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>',
 				),
 				array( // Browser Cache: Initial test.
 					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
@@ -842,12 +1016,12 @@ class SetupGuide_Plugin_Admin {
 					'markup'   => '<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
 							esc_html__(
-								'%1$sTime to First Byte%2$s has change an average of %3$s!',
+								'%1$sTime to First Byte%2$s has change by %3$s!',
 								'w3-total-cache',
 							),
 							'<strong>',
 							'</strong>',
-							'<span id="w3tc-ttfb-diff-avg">0 ms (0%)</span>'
+							'<span id="w3tc-ttfb-diff">0%</span>'
 						) . '</p>
 						<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
