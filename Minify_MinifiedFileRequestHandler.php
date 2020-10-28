@@ -177,7 +177,8 @@ class Minify_MinifiedFileRequestHandler {
 			$minifier_type = 'application/x-javascript';
 
 			switch ( true ) {
-			case ( ( $hash || $location == 'include' ) && $this->_config->get_boolean( 'minify.js.combine.header' ) ):
+			case ( $hash && $this->_config->get_string( 'minify.js.method' ) == 'combine' ):
+			case ( $location == 'include' && $this->_config->get_boolean( 'minify.js.combine.header' ) ):
 			case ( $location == 'include-body' && $this->_config->get_boolean( 'minify.js.combine.body' ) ):
 			case ( $location == 'include-footer' && $this->_config->get_boolean( 'minify.js.combine.footer' ) ):
 				$engine = 'combinejs';
@@ -195,7 +196,7 @@ class Minify_MinifiedFileRequestHandler {
 		} elseif ( $type == 'css' ) {
 			$minifier_type = 'text/css';
 
-			if ( ( $hash || $location == 'include' ) && $this->_config->get_boolean( 'minify.css.combine' ) ) {
+			if ( ( $hash || $location == 'include' ) && $this->_config->get_string( 'minify.css.method' ) == 'combine' ) {
 				$engine = 'combinecss';
 			} else {
 				$engine = $this->_config->get_string( 'minify.css.engine' );
@@ -860,12 +861,22 @@ class Minify_MinifiedFileRequestHandler {
 		if ( $type == 'js' ) {
 			$engine = $this->_config->get_string( 'minify.js.engine' );
 
-			switch ( $engine ) {
-			case 'js':
-				$keys = array_merge( $keys, array(
+			if ( $this->_config->get_boolean( 'minify.auto' ) ) {
+				$keys[] = 'minify.js.method';
+			} else {
+				array_merge(
+					$keys,
+					array(
 						'minify.js.combine.header',
 						'minify.js.combine.body',
 						'minify.js.combine.footer',
+					)
+				);
+			}
+
+			switch ( $engine ) {
+			case 'js':
+				$keys = array_merge( $keys, array(
 						'minify.js.strip.comments',
 						'minify.js.strip.crlf',
 					) );
@@ -889,11 +900,11 @@ class Minify_MinifiedFileRequestHandler {
 			}
 		} elseif ( $type == 'css' ) {
 			$engine = $this->_config->get_string( 'minify.css.engine' );
+			$keys[] = 'minify.css.method';
 
 			switch ( $engine ) {
 			case 'css':
 				$keys = array_merge( $keys, array(
-						'minify.css.combine',
 						'minify.css.strip.comments',
 						'minify.css.strip.crlf',
 						'minify.css.imports',
