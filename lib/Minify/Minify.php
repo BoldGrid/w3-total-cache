@@ -616,6 +616,9 @@ class Minify0_Minify {
         if ( $type === self::TYPE_CSS ) {
             $content = apply_filters( 'w3tc_minify_css_content', $content, null, null );
         }
+	if ( $type === self::TYPE_JS ) {
+	    $content = apply_filters( 'w3tc_minify_js_content', $content, null, null );
+	}
 
         // do any post-processing (esp. for editing build URIs)
         if (self::$_options['postprocessorRequire']) {
