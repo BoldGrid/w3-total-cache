@@ -244,88 +244,6 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
-	 * Admin-Ajax: Test URL addreses for Browser Cache header.
-	 *
-	 * @since  X.X.X
-	 *
-	 * @see \W3TC\CacheFlush::browsercache_flush()
-	 * @see \W3TC\Util_Http::get_headers()
-	 */
-	public function test_browsercache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$results = array();
-			$urls    = array(
-				trailingslashit( site_url() ) . 'index.php',
-				esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/setup-guide.css' ),
-				esc_url( plugin_dir_url( __FILE__ ) . 'pub/js/setup-guide.js' ),
-			);
-
-			$f = Dispatcher::component( 'CacheFlush' );
-			$f->browsercache_flush();
-
-			foreach ( $urls as $url ) {
-				$headers = Util_Http::get_headers( $url );
-
-				$results[] = array(
-					'url'       => $url,
-					'filename'  => basename( $url ),
-					'header'    => empty( $headers['cache-control'] ) ? 'Missing!' : $headers['cache-control'],
-					'headers'   => empty( $headers ) || ! is_array( $headers ) ? array() : $headers,
-				);
-			}
-
-			wp_send_json_success( $results );
-		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
-		}
-	}
-
-	/**
-	 * Admin-Ajax: Configure the browser cache settings.
-	 *
-	 * @since  X.X.X
-	 *
-	 * @see \W3TC\Dispatcher::component()
-	 * @see \W3TC\Config::get_boolean()
-	 * @see \W3TC\Config::set()
-	 * @see \W3TC\Config::save()
-	 * @see \W3TC\CacheFlush::browsercache_flush()
-	 *
-	 * @uses $_POST['browsercache']
-	 */
-	public function config_browsercache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$enable               = ! empty( $_POST['browsercache'] );
-			$config               = new Config();
-			$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
-
-			if ( $browsercache_enabled !== $enable ) {
-				$config->set( 'browsercache.enabled', $enable );
-				$config->set( 'browsercache.cssjs.cache.control', true );
-				$config->set( 'browsercache.cssjs.cache.policy', 'cache_public_maxage' );
-				$config->set( 'browsercache.html.cache.control', true );
-				$config->set( 'browsercache.html.cache.policy', 'cache_public_maxage' );
-				$config->set( 'browsercache.other.cache.control', true );
-				$config->set( 'browsercache.other.cache.policy', 'cache_public_maxage' );
-				$config->save();
-
-				$f = Dispatcher::component( 'CacheFlush' );
-				$f->browsercache_flush();
-			}
-
-			wp_send_json_success(
-				array(
-					'enable'                 => $enable,
-					'browsercache_enabled'   => $config->get_boolean( 'browsercache.enabled' ),
-					'browsercache_previous'  => $browsercache_enabled,
-				)
-			);
-		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
-		}
-	}
-
-	/**
 	 * Admin-Ajax: Test database cache.
 	 *
 	 * @since X.X.X
@@ -636,6 +554,114 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
+	 * Admin-Ajax: Test URL addreses for Browser Cache header.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\CacheFlush::browsercache_flush()
+	 * @see \W3TC\Util_Http::get_headers()
+	 */
+	public function test_browsercache() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$results = array();
+			$urls    = array(
+				trailingslashit( site_url() ) . 'index.php',
+				esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/setup-guide.css' ),
+				esc_url( plugin_dir_url( __FILE__ ) . 'pub/js/setup-guide.js' ),
+			);
+
+			$f = Dispatcher::component( 'CacheFlush' );
+			$f->browsercache_flush();
+
+			foreach ( $urls as $url ) {
+				$headers = Util_Http::get_headers( $url );
+
+				$results[] = array(
+					'url'       => $url,
+					'filename'  => basename( $url ),
+					'header'    => empty( $headers['cache-control'] ) ? 'Missing!' : $headers['cache-control'],
+					'headers'   => empty( $headers ) || ! is_array( $headers ) ? array() : $headers,
+				);
+			}
+
+			wp_send_json_success( $results );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Get the browser cache settings.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 */
+	public function get_browsercache_settings() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$config = new Config();
+
+			wp_send_json_success( array(
+				'enabled'             => $config->get_boolean( 'browsercache.enabled' ),
+				'cssjs.cache.control' => $config->get_boolean( 'browsercache.cssjs.cache.control' ),
+				'cssjs.cache.policy'  => $config->get_string( 'browsercache.cssjs.cache.policy' ),
+				'html.cache.control'  => $config->get_boolean( 'browsercache.html.cache.control' ),
+				'html.cache.policy'   => $config->get_string( 'browsercache.html.cache.policy' ),
+				'other.cache.control' => $config->get_boolean( 'browsercache.other.cache.control' ),
+				'other.cache.policy'  => $config->get_string( 'browsercache.other.cache.policy' )
+			) );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Configure the browser cache settings.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::set()
+	 * @see \W3TC\Config::save()
+	 * @see \W3TC\CacheFlush::browsercache_flush()
+	 *
+	 * @uses $_POST['enable']
+	 */
+	public function config_browsercache() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$enable               = ! empty( $_POST['enable'] );
+			$config               = new Config();
+			$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
+
+			if ( $browsercache_enabled !== $enable ) {
+				$config->set( 'browsercache.enabled', $enable );
+				$config->set( 'browsercache.cssjs.cache.control', true );
+				$config->set( 'browsercache.cssjs.cache.policy', 'cache_public_maxage' );
+				$config->set( 'browsercache.html.cache.control', true );
+				$config->set( 'browsercache.html.cache.policy', 'cache_public_maxage' );
+				$config->set( 'browsercache.other.cache.control', true );
+				$config->set( 'browsercache.other.cache.policy', 'cache_public_maxage' );
+				$config->save();
+
+				$f = Dispatcher::component( 'CacheFlush' );
+				$f->browsercache_flush();
+			}
+
+			wp_send_json_success(
+				array(
+					'enable'                 => $enable,
+					'browsercache_enabled'   => $config->get_boolean( 'browsercache.enabled' ),
+					'browsercache_previous'  => $browsercache_enabled,
+				)
+			);
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
 	 * Get configuration.
 	 *
 	 * @since  X.X.X
@@ -676,6 +702,7 @@ class SetupGuide_Plugin_Admin {
 							'disk'             => __( 'Disk', 'w3-total-cache' ),
 							'disk_basic'       => __( 'Disk: Basic', 'w3-total-cache' ),
 							'disk_enhanced'    => __( 'Disk: Enhanced', 'w3-total-cache' ),
+							'enabled'          => __( 'Enabled', 'w3-total-cache' ),
 						),
 					),
 				),
@@ -759,6 +786,13 @@ class SetupGuide_Plugin_Admin {
 					),
 				),
 				array(
+					'tag'      => 'wp_ajax_w3tc_get_browsercache_settings',
+					'function' => array(
+						$this,
+						'get_browsercache_settings',
+					),
+				),
+				array(
 					'tag'      => 'wp_ajax_w3tc_test_browsercache',
 					'function' => array(
 						$this,
@@ -834,7 +868,7 @@ class SetupGuide_Plugin_Admin {
 						esc_html__( 'Before we do, let\'s get a baseline and take a measurement.', 'w3-total-cache' ) .
 					'</p>
 					<p>
-						<input class="w3tc-test-pgcache button-primary" type="button" value="' .
+						<input id="w3tc-test-pgcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
 						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Measuring', 'w3-total-cache' ) .
 						' <em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>&hellip;
@@ -871,7 +905,7 @@ class SetupGuide_Plugin_Admin {
 							'w3-total-cache'
 						) . '</p>
 						<p>
-						<input class="w3tc-test-dbcache button-primary" type="button" value="' .
+						<input id="w3tc-test-dbcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Database Cache', 'w3-total-cache' ) . '">
 						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
 						' <em>' . esc_html__( 'Database Cache', 'w3-total-cache' ) . '</em>&hellip;
@@ -900,7 +934,7 @@ class SetupGuide_Plugin_Admin {
 						esc_html__( 'can help you speed up dynamic pages by persistently storing objects.', 'w3-total-cache' ) .
 						'</p>
 						<p>
-						<input class="w3tc-test-objcache button-primary" type="button" value="' .
+						<input id="w3tc-test-objcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">
 						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
 						' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
@@ -917,7 +951,7 @@ class SetupGuide_Plugin_Admin {
 							<tbody></tbody>
 						</table>',
 				),
-				array( // Browser Cache: Initial test.
+				array( // Browser Cache.
 					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
 					'id'       => 'bc1',
 					'markup'   => '<p>' . esc_html__(
@@ -929,69 +963,31 @@ class SetupGuide_Plugin_Admin {
 							'can help ensure browsers are properly caching your assets.  Before making any changes, let\'s first review your current browser cache settings.',
 							'w3-total-cache'
 						) . '</p>
-						<p class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
-						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;</p>',
-				),
-				array( // Browser Cache: Initial test results.
-					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
-					'id'       => 'bc2',
-					'markup'   => '<p>' . sprintf(
-						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-						esc_html__(
-							'The %1$sCache-Control%2$s header tells your browser how it should cache specific files.  The %1$smax-age%2$s setting tells your browser how long, in seconds, it should use its cached version of a file before requesting an updated one.',
-							'w3-total-cache'
-						),
-						'<em>',
-						'</em>'
-						) . '</p>
-						<table id="w3tc-browsercache-table" class="w3tc-setupguide-table">
-						<thead>
-						<tr>
-							<th>File</th>
-							<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
-							<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
-						</tr>
-						</thead>
-						<tbody></tbody>
-						</table>' .
-						( $browsercache_enabled ? '<div class="notice notice-info inline"><p>' . esc_html__( 'Browser Cache is already enabled.', 'w3-total-cache' ) . '</p></div>' : '' ),
-				),
-				array( // Browser Cache: Enable and test.
-					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
-					'id'       => 'bc3',
-					'markup'   => '<p>' . sprintf(
-						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-						esc_html__(
-							'To improve %1$sBrowser Cache%2$s, we recommend enabling %1$sBrowser Cache%2$s setting.',
-							'w3-total-cache',
-						),
-						'<em>',
-						'</em>'
-						) . '</p>
-						<p><input type="checkbox" name="enable_browsercache" id="enable_browsercache" value="1" checked> <label for="enable_browsercache">' .
-						esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</label></p>
 						<p>' . sprintf(
 							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 							esc_html__(
-								'Click %1$sTest Browser Cache%2$s to enable Browser Cache and test again.',
+								'The %1$sCache-Control%2$s header tells your browser how it should cache specific files.  The %1$smax-age%2$s setting tells your browser how long, in seconds, it should use its cached version of a file before requesting an updated one.',
 								'w3-total-cache'
 							),
 							'<em>',
 							'</em>'
 						) . '</p>
-					<p>
-						<input class="w3tc-test-browsercache button-primary" type="button" value="' .
+						<p>' . sprintf(
+							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
+							esc_html__(
+								'To improve %1$sBrowser Cache%2$s, we recommend enabling %1$sBrowser Cache%2$s setting.',
+								'w3-total-cache',
+							),
+							'<em>',
+							'</em>'
+						) . '</p>
+						<input id="w3tc-test-browsercache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Browser Cache', 'w3-total-cache' ) . '">
-					</p>
-					<p class="hidden"><span class="spinner inline"></span>' .
-						esc_html__( 'Testing', 'w3-total-cache' ) .
+						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
 						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;
-					</p>',
-				),
-				array( // Browser Cache: Compare test results.
-					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
-					'id'       => 'bc4',
-					'markup'   => '<table id="w3tc-browsercache-table2" class="w3tc-setupguide-table">
+						</span>
+						</p>
+						<table id="w3tc-browsercache-table" class="w3tc-setupguide-table hidden">
 						<thead>
 						<tr>
 							<th>' . esc_html__( 'File', 'w3-total-cache' ) . '</th>

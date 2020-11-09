@@ -199,7 +199,7 @@ class Util_Http {
 					$http_code_arr        = explode( ' ', $line );
 					$headers['protocol']  = $http_code_arr[0];
 					$headers['status']    = $http_code_arr[1];
-				} elseif ( ! empty( $line ) ) {
+				} elseif ( ! empty( $line ) && false !== strpos( $line, ':' ) ) {
 					list ( $key, $value ) = explode( ': ', $line );
 					$headers[ $key ]      = $value;
 				}
