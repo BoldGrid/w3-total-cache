@@ -565,7 +565,7 @@ class SetupGuide_Plugin_Admin {
 		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
 			$results = array();
 			$urls    = array(
-				trailingslashit( site_url() ) . 'index.php',
+				trailingslashit( site_url() ),
 				esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/setup-guide.css' ),
 				esc_url( plugin_dir_url( __FILE__ ) . 'pub/js/setup-guide.js' ),
 			);
@@ -573,13 +573,15 @@ class SetupGuide_Plugin_Admin {
 			$f = Dispatcher::component( 'CacheFlush' );
 			$f->browsercache_flush();
 
+			$header_missing = esc_html__( 'Not present', 'w3-total-cache' );
+
 			foreach ( $urls as $url ) {
 				$headers = Util_Http::get_headers( $url );
 
 				$results[] = array(
 					'url'       => $url,
 					'filename'  => basename( $url ),
-					'header'    => empty( $headers['cache-control'] ) ? 'Missing!' : $headers['cache-control'],
+					'header'    => empty( $headers['cache-control'] ) ? $header_missing : $headers['cache-control'],
 					'headers'   => empty( $headers ) || ! is_array( $headers ) ? array() : $headers,
 				);
 			}
@@ -647,10 +649,16 @@ class SetupGuide_Plugin_Admin {
 
 				$f = Dispatcher::component( 'CacheFlush' );
 				$f->browsercache_flush();
+
+				$e = Dispatcher::component( 'BrowserCache_Environment' );
+				$e->fix_on_wpadmin_request( $config, true );
 			}
+
+			$is_enabled = $config->get_boolean( 'browsercache.enabled' );
 
 			wp_send_json_success(
 				array(
+					'success'                => $is_enabled === $enable,
 					'enable'                 => $enable,
 					'browsercache_enabled'   => $config->get_boolean( 'browsercache.enabled' ),
 					'browsercache_previous'  => $browsercache_enabled,
@@ -864,9 +872,13 @@ class SetupGuide_Plugin_Admin {
 					<p>
 						<strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__( 'can help you speed up', 'w3-total-cache' ) .
-						' <em>' . esc_html__( 'Time to First Byte.', 'w3-total-cache' ) . '</em> ' .
-						esc_html__( 'Before we do, let\'s get a baseline and take a measurement.', 'w3-total-cache' ) .
-					'</p>
+						' <em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>.
+					</p>
+					<p>' .
+					esc_html__(
+						'This test only measures the performance of your homepage. Other pages on your site, such as a store or a forum, may have higher or lower load times. Stay tuned for future releases to include more tests!',
+						'w3-total-cache'
+					) . '</p>
 					<p>
 						<input id="w3tc-test-pgcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Page Cache', 'w3-total-cache' ) . '">
@@ -886,12 +898,7 @@ class SetupGuide_Plugin_Admin {
 							</tr>
 						</thead>
 						<tbody></tbody>
-					</table>
-					<div>
-						<p>' .
-						esc_html__( 'This test only measures the performance of your homepage. Other pages on your site, such as a store or a forum, may have higher or lower load times. Stay tuned for future releases to include more tests!', 'w3-total-cache' ) .
-						'</p>
-					</div>',
+					</table>',
 				),
 				array( // Database Cache.
 					'headline' => __( 'Database Cache', 'w3-total-cache' ),
@@ -990,9 +997,10 @@ class SetupGuide_Plugin_Admin {
 						<table id="w3tc-browsercache-table" class="w3tc-setupguide-table hidden">
 						<thead>
 						<tr>
+							<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
+							<th>' . esc_html__( 'Setting', 'w3-total-cache' ) . '</th>
 							<th>' . esc_html__( 'File', 'w3-total-cache' ) . '</th>
-							<th>' . esc_html__( 'Before', 'w3-total-cache' ) . '</th>
-							<th>' . esc_html__( 'After', 'w3-total-cache' ) . '</th>
+							<th>' . esc_html__( 'Cache-Control Header', 'w3-total-cache' ) . '</th>
 						</tr>
 						</thead>
 						<tbody></tbody>

@@ -201,7 +201,9 @@ function w3tc_wizard_actions( $slide ) {
 	 * @return jqXHR
 	 */
 	function configBrowsercache( enable ) {
-		var $jqXHR = jQuery.ajax({
+		configSuccess = null;
+
+		return jQuery.ajax({
 			method: 'POST',
 			url: ajaxurl,
 			data: {
@@ -209,15 +211,10 @@ function w3tc_wizard_actions( $slide ) {
 				action: 'w3tc_config_browsercache',
 				enable: enable
 			}
-		});
-
-		configSuccess = null;
-
-		$jqXHR.done(function( response ) {
+		})
+		.done(function( response ) {
 			configSuccess = response.data.success;
 		});
-
-		return $jqXHR;
 	}
 
 	/**
@@ -861,7 +858,8 @@ function w3tc_wizard_actions( $slide ) {
 				 *
 				 * @since X.X.X
 				 *
-				 * @param object testResponse Data.
+				 * @param object testResponse An object (success, data) containing a data array of objects
+				 * 	                          (url, filename, header, headers).
 				 */
 				function addResultRow( testResponse ) {
 					var label = bcEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none,
@@ -885,24 +883,32 @@ function w3tc_wizard_actions( $slide ) {
 
 					results += '></td><td>' +
 						label +
-						'</td><td>';
+						'</td>';
 
 					if ( testResponse.success ) {
-						results += '<a href="' +
-							testResponse.data.url
-							+
+						results += '<td>';
+
+						testResponse.data.forEach( function( item, index ) {
+							results += '<a href="' +
+							item.url +
 							'">' +
-							testResponse.data.filename +
+							item.filename +
 							'</a></td><td>' +
-							testResponse.data.header;
+							item.header +
+							'</td></tr>';
+
+							// If not the last entry, then start the next row.
+							if ( index !== ( testResponse.data.length - 1 ) ) {
+								results += '<tr><td colspan="2"></td><td>';
+							}
+						} );
 					} else {
-						results += W3TC_SetupGuide.unavailable_text +
-							'</td><td>';
+						results = '<td colspan="2">' +
+							W3TC_SetupGuide.test_error_msg +
+							'</td></tr>';
 					}
 
-					results += '</td></tr>';
-
-					$container.find( '#w3tc-browsercache-table tbody' ).append( results );
+					$container.find( '#w3tc-browsercache-table > tbody' ).append( results );
 					$container.find( '#w3tc-browsercache-table' ).show();
 				}
 
@@ -966,6 +972,19 @@ function w3tc_wizard_actions( $slide ) {
 			break;
 
 		case 'w3tc-wizard-slide-ll1':
+			// Save the browser cache engine setting from the previous slide.
+			var browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val();
+
+			configBrowsercache( ( '1' === browsercacheEnabled ? 1 : 0 ) )
+				.fail( function() {
+					$slide.append(
+						'<p class="notice notice-error"><strong>' +
+						W3TC_SetupGuide.config_error_msg +
+						'</strong></p>'
+					);
+				});
+
+			// Present the Lazy Load slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-lazyload' ).addClass( 'is-active' );
 

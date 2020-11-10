@@ -4,11 +4,16 @@
 	text-align: left;
 }
 
-.w3tc-dbc-table th,
-.w3tc-objcache-table th {
+#w3tc-dbc-table th,
+#w3tc-objcache-table th,
+#w3tc-browsercache-table td {
 	white-space: nowrap;
 }
 
 .w3tc-option-disabled {
 	color: darkgray;
+}
+
+#w3tc-browsercache-table tr {
+	vertical-align: top;
 }
