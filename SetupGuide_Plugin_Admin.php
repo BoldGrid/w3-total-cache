@@ -628,6 +628,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::set()
 	 * @see \W3TC\Config::save()
 	 * @see \W3TC\CacheFlush::browsercache_flush()
+	 * @see \W3TC\BrowserCache_Environment::fix_on_wpadmin_request()
 	 *
 	 * @uses $_POST['enable']
 	 */
@@ -662,6 +663,80 @@ class SetupGuide_Plugin_Admin {
 					'enable'                 => $enable,
 					'browsercache_enabled'   => $config->get_boolean( 'browsercache.enabled' ),
 					'browsercache_previous'  => $browsercache_enabled,
+				)
+			);
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Get the lazy load settings.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::get_string()
+	 * @see \W3TC\Config::get_array()
+	 */
+	public function get_lazyload_settings() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$config = new Config();
+
+			wp_send_json_success( array(
+				'enabled'            => $config->get_boolean( 'lazyload.enabled' ),
+				'process_img'        => $config->get_boolean( 'lazyload.process_img' ),
+				'process_background' => $config->get_boolean( 'lazyload_process_background' ),
+				'exclude'            => $config->get_array( 'lazyload.exclude' ),
+				'embed_method'       => $config->get_string( 'lazyload.embed_method' ),
+			) );
+		} else {
+			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Configure lazy load.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::set()
+	 * @see \W3TC\Config::save()
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\CacheFlush::flush_posts()
+	 *
+	 * @uses $_POST['enable']
+	 */
+	public function config_lazyload() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+			$enable               = ! empty( $_POST['enable'] );
+			$config               = new Config();
+			$lazyload_enabled = $config->get_boolean( 'lazyload.enabled' );
+
+			if ( $lazyload_enabled !== $enable ) {
+				$config->set( 'lazyload.enabled', $enable );
+				$config->set( 'lazyload.process_img', true );
+				$config->set( 'lazyload_process_background', true );
+				$config->set( 'lazyload.embed_method', 'async_head' );
+				$config->save();
+
+				$f = Dispatcher::component( 'CacheFlush' );
+				$f->flush_posts();
+
+				$e = Dispatcher::component( 'PgCache_Environment' );
+				$e->fix_on_wpadmin_request( $config, true );
+			}
+
+			$is_enabled = $config->get_boolean( 'lazyload.enabled' );
+
+			wp_send_json_success(
+				array(
+					'success'                => $is_enabled === $enable,
+					'enable'                 => $enable,
+					'lazyload_enabled'   => $config->get_boolean( 'lazyload.enabled' ),
+					'lazyload_previous'  => $lazyload_enabled,
 				)
 			);
 		} else {
@@ -814,6 +889,20 @@ class SetupGuide_Plugin_Admin {
 						'config_browsercache',
 					),
 				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_get_lazyload_settings',
+					'function' => array(
+						$this,
+						'get_lazyload_settings',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_config_lazyload',
+					'function' => array(
+						$this,
+						'config_lazyload',
+					),
+				),
 			),
 			'steps_location' => 'left',
 			'steps'          => array(
@@ -857,6 +946,7 @@ class SetupGuide_Plugin_Admin {
 							'w3-total-cache'
 						) . '</p>',
 				),
+/*
 				array( // Page Cache.
 					'headline' => __( 'Page Cache', 'w3-total-cache' ),
 					'id'       => 'pc1',
@@ -1006,13 +1096,17 @@ class SetupGuide_Plugin_Admin {
 						<tbody></tbody>
 						</table>',
 				),
+*/
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
 					'id'       => 'll1',
 					'markup'   => '<p>' . esc_html__(
 						'Pages containing iamges and other objects can have their load time reduced by deferring the loading the items until they are needed.  For example, images can be loaded when a visitor scrolls down the page to make them visible.',
 						'w3-total-cache'
-						) . '</p>',
+						) . '</p>
+						<p>
+						<input type="checkbox" id="lazyload-enable" name="lazyload_enable" value="1" /> <label for="lazyload-enable">' .
+						esc_html__( 'Lazy Load Images', 'w3-total-cache' ) . '</label></p>',
 				),
 				array( // Setup complete.
 					'headline' => __( 'Setup Complete!', 'w3-total-cache' ),

@@ -32,6 +32,9 @@ function w3tc_wizard_actions( $slide ) {
 		browsercacheSettings = {
 			enaled: null
 		},
+		lazyloadSettings = {
+			enaled: null
+		},
 		slideId = $slide.prop( 'id' ),
 		$container = jQuery( '#w3tc-wizard-container' ),
 		nonce = $container.find( '[name="_wpnonce"]' ).val(),
@@ -235,6 +238,52 @@ function w3tc_wizard_actions( $slide ) {
 		})
 		.done(function( response ) {
 			browsercacheSettings = response.data;
+		});
+	}
+
+	/**
+	 * Configure Lazy Load.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int enable Enable lazyload.
+	 * @return jqXHR
+	 */
+	function configLazyload( enable ) {
+		configSuccess = null;
+
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_config_lazyload',
+				enable: enable
+			}
+		})
+		.done(function( response ) {
+			configSuccess = response.data.success;
+		});
+	}
+
+	/**
+	 * Get Lazt Load settings.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return jqXHR
+	 */
+	function getLazyloadSettings() {
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_get_lazyload_settings'
+			}
+		})
+		.done(function( response ) {
+			lazyloadSettings = response.data;
 		});
 	}
 
@@ -972,7 +1021,7 @@ function w3tc_wizard_actions( $slide ) {
 			break;
 
 		case 'w3tc-wizard-slide-ll1':
-			// Save the browser cache engine setting from the previous slide.
+			// Save the browser cache setting from the previous slide.
 			var browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val();
 
 			configBrowsercache( ( '1' === browsercacheEnabled ? 1 : 0 ) )
@@ -988,13 +1037,32 @@ function w3tc_wizard_actions( $slide ) {
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-lazyload' ).addClass( 'is-active' );
 
+			// Update the lazy load eanble chackbox from saved config.
+			getLazyloadSettings()
+				.then( function() {
+					$container.find( 'input#lazyload-enable' ).prop( 'checked', lazyloadSettings.enabled );
+				}, configFailed );
+
 			break;
 
 		case 'w3tc-wizard-slide-complete':
 			var html,
 				pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ).val();
-				pgcacheDiffPercent = $container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + pgcacheEngine );
+				pgcacheDiffPercent = $container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + pgcacheEngine ),
+				browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val();
+				lazyloadEnabled = $container.find( 'input:checked#lazyload-enable' ).val();
 
+			// Save the lazyload setting from the previous slide.
+			configLazyload( ( '1' === lazyloadEnabled ? 1 : 0 ) )
+			.fail( function() {
+				$slide.append(
+					'<p class="notice notice-error"><strong>' +
+					W3TC_SetupGuide.config_error_msg +
+					'</strong></p>'
+				);
+			});
+
+			// Present the Setup Complete slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-more' ).addClass( 'is-active' );
 
