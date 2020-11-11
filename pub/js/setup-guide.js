@@ -364,7 +364,9 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' class="w3tc-option-disabled"';
 					}
 
-					results += '><td><input type="radio" name="pgcache_engine" value="' +
+					results += '><td><input type="radio" id="pgcache-engine-' +
+						engine +
+						'" name="pgcache_engine" value="' +
 						engine +
 						'"';
 
@@ -377,9 +379,11 @@ function w3tc_wizard_actions( $slide ) {
 							results += ' checked';
 					}
 
-					results += '></td><td>' +
+					results += '></td><td><label for="pgcache-engine-' +
+						engine +
+						'">' +
 						label +
-						'</td><td>';
+						'</label></td><td>';
 
 					if ( testResponse.success ) {
 						results += ( testResponse.data.ttfb * 1000 ).toFixed( 2 );
@@ -554,7 +558,9 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' class="w3tc-option-disabled"';
 					}
 
-					results += '><td><input type="radio" name="dbc_engine" value="' +
+					results += '><td><input type="radio" id="dbcache-engine-' +
+						engine +
+						'" name="dbcache_engine" value="' +
 						engine +
 						'"';
 
@@ -567,9 +573,11 @@ function w3tc_wizard_actions( $slide ) {
 							results += ' checked';
 					}
 
-					results += '></td><td>' +
+					results += '></td><td><label for="dbcache-engine-' +
+						engine +
+						'">' +
 						label +
-						'</td><td>';
+						'</label></td><td>';
 
 					if ( testResponse.success ) {
 						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
@@ -688,7 +696,7 @@ function w3tc_wizard_actions( $slide ) {
 
 		case 'w3tc-wizard-slide-oc1':
 			// Save the database cache engine setting from the previous slide.
-			var dbcEngine = $container.find( 'input:checked[name="dbc_engine"]' ).val();
+			var dbcEngine = $container.find( 'input:checked[name="dbcache_engine"]' ).val();
 
 			configDbcache( ( 'none' === dbcEngine ? 0 : 1 ), 'none' === dbcEngine ? '' : dbcEngine )
 				.fail( function() {
@@ -736,7 +744,9 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' class="w3tc-option-disabled"';
 					}
 
-					results += '><td><input type="radio" name="objcache_engine" value="' +
+					results += '><td><input type="radio" id="objcache-engine-' +
+						engine +
+						'" name="objcache_engine" value="' +
 						engine +
 						'"';
 
@@ -749,9 +759,11 @@ function w3tc_wizard_actions( $slide ) {
 							results += ' checked';
 					}
 
-					results += '></td><td>' +
+					results += '></td><td><label for="objcache-engine-' +
+						engine +
+						'">' +
 						label +
-						'</td><td>';
+						'</label></td><td>';
 
 					if ( testResponse.success ) {
 						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
@@ -918,7 +930,9 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' class="w3tc-option-disabled"';
 					}
 
-					results += '><td><input type="radio" name="browsercache_enable" value="' +
+					results += '><td><input type="radio" id="browsercache-enable-' +
+						label +
+						'" name="browsercache_enable" value="' +
 						bcEnabled +
 						'"';
 
@@ -926,13 +940,15 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' disabled="disabled"';
 					}
 
-					if ( ! bcEnabled ) {
+					if ( bcEnabled == browsercacheSettings.enabled ) {
 						results += ' checked';
 					}
 
-					results += '></td><td>' +
+					results += '></td><td><label for="browsercache-enable-' +
 						label +
-						'</td>';
+						'">' +
+						label +
+						'</label></td>';
 
 					if ( testResponse.success ) {
 						results += '<td>';
@@ -1037,7 +1053,7 @@ function w3tc_wizard_actions( $slide ) {
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-lazyload' ).addClass( 'is-active' );
 
-			// Update the lazy load eanble chackbox from saved config.
+			// Update the lazy load enable chackbox from saved config.
 			getLazyloadSettings()
 				.then( function() {
 					$container.find( 'input#lazyload-enable' ).prop( 'checked', lazyloadSettings.enabled );
@@ -1049,7 +1065,13 @@ function w3tc_wizard_actions( $slide ) {
 			var html,
 				pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ).val();
 				pgcacheDiffPercent = $container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + pgcacheEngine ),
-				browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val();
+				dbcacheEngine = $container.find( 'input:checked[name="dbcache_engine"]' ).val(),
+				dbcacheEngineLabel = $container.find( 'input:checked[name="dbcache_engine"]' )
+					.closest('td').next('td').text(),
+				objcacheEngine = $container.find( 'input:checked[name="objcache_engine"]' ).val(),
+				objcacheEngineLabel = $container.find( 'input:checked[name="objcache_engine"]' )
+					.closest('td').next('td').text(),
+				browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val(),
 				lazyloadEnabled = $container.find( 'input:checked#lazyload-enable' ).val();
 
 			// Save the lazyload setting from the previous slide.
@@ -1071,6 +1093,18 @@ function w3tc_wizard_actions( $slide ) {
 				'%';
 
 			$container.find( '#w3tc-ttfb-diff' ).html( html );
+
+			$container.find( '#w3tc-dbcache-engine' ).html( dbcacheEngineLabel );
+
+			$container.find( '#w3tc-objcache-engine' ).html( objcacheEngineLabel );
+
+			$container.find( '#w3tc-browsercache-setting' ).html(
+				browsercacheEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
+			);
+
+			$container.find( '#w3tc-lazyload-setting' ).html(
+				lazyloadEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
+			);
 
 			if ( ! jQuery( '#test-results' ).data( 'completed' ) ) {
 				jQuery.ajax({

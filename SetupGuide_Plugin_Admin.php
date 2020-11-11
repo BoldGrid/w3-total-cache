@@ -1103,7 +1103,7 @@ class SetupGuide_Plugin_Admin {
 						'w3-total-cache'
 						) . '</p>
 						<p>
-						<input type="checkbox" id="lazyload-enable" name="lazyload_enable" value="1" /> <label for="lazyload-enable">' .
+						<input type="checkbox" id="lazyload-enable" value="1" /> <label for="lazyload-enable">' .
 						esc_html__( 'Lazy Load Images', 'w3-total-cache' ) . '</label></p>',
 				),
 				array( // Setup complete.
@@ -1120,15 +1120,44 @@ class SetupGuide_Plugin_Admin {
 							'<span id="w3tc-ttfb-diff">0%</span>'
 						) . '</p>
 						<p>' . sprintf(
-							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
+							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
-								'%1$sBrowser Cache%2$s headers are ' .
-								( $browsercache_enabled ? 'now' : '%1$sNOT%2$s' ) .
-								' being set for your JavaScript, CSS, and images.',
+								'%1$sDatabase Cache%2$s engine set to %1$s%3$s%2$s',
 								'w3-total-cache',
 							),
 							'<strong>',
-							'</strong>'
+							'</strong>',
+							'<span id="w3tc-dbcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+						) . '</p>
+						<p>' . sprintf(
+							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
+							esc_html__(
+								'%1$sObject Cache%2$s engine set to %1$s%3$s%2$s',
+								'w3-total-cache',
+							),
+							'<strong>',
+							'</strong>',
+							'<span id="w3tc-objcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+						) . '</p>
+						<p>' . sprintf(
+							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
+							esc_html__(
+								'%1$sBrowser Cache%2$s headers set for JavaScript, CSS, and images? %1$s%3$s%2$s',
+								'w3-total-cache',
+							),
+							'<strong>',
+							'</strong>',
+							'<span id="w3tc-browsercache-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+						) . '</p>
+						<p>' . sprintf(
+							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
+							esc_html__(
+								'%1$sLazy Load%2$s images? %1$s%3$s%2$s',
+								'w3-total-cache',
+							),
+							'<strong>',
+							'</strong>',
+							'<span id="w3tc-lazyload-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
 						) . '</p>
 						<h3>' . esc_html__( 'What\'s Next?', 'w3-total-cache' ) . '</h3>
 						<p>' . sprintf(
