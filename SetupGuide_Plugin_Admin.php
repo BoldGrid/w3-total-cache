@@ -946,7 +946,6 @@ class SetupGuide_Plugin_Admin {
 							'w3-total-cache'
 						) . '</p>',
 				),
-/*
 				array( // Page Cache.
 					'headline' => __( 'Page Cache', 'w3-total-cache' ),
 					'id'       => 'pc1',
@@ -1096,7 +1095,6 @@ class SetupGuide_Plugin_Admin {
 						<tbody></tbody>
 						</table>',
 				),
-*/
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
 					'id'       => 'll1',
