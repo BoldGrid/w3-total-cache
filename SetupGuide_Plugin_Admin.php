@@ -961,7 +961,7 @@ class SetupGuide_Plugin_Admin {
 					<p>
 						<strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__( 'can help you speed up', 'w3-total-cache' ) .
-						' <em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em>.
+						' <em>' . esc_html__( 'Time to First Byte', 'w3-total-cache' ) . '</em> by using Page Cache.
 					</p>
 					<p>' .
 					esc_html__(
@@ -993,7 +993,7 @@ class SetupGuide_Plugin_Admin {
 					'headline' => __( 'Database Cache', 'w3-total-cache' ),
 					'id'       => 'dbc1',
 					'markup'   => '<p>' . esc_html__(
-						'Many database queries are made in every dynamic page request.  A database cache may speed-up generation of dynamic pages.',
+						'Many database queries are made in every dynamic page request.  A database cache may speed up the generation of dynamic pages.',
 						'w3-total-cache'
 						) . '</p>
 						<p>' . esc_html__(
