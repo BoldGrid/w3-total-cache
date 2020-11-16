@@ -923,7 +923,7 @@ function w3tc_wizard_actions( $slide ) {
 				 * 	                          (url, filename, header, headers).
 				 */
 				function addResultRow( testResponse ) {
-					var label = bcEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none,
+					var label = bcEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.notEnabled,
 						results = '<tr';
 
 					if ( ! configSuccess ) {
@@ -944,7 +944,7 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' checked';
 					}
 
-					results += '></td><td><label for="browsercache-enable-' +
+					results += '> <label for="browsercache-enable-' +
 						label +
 						'">' +
 						label +

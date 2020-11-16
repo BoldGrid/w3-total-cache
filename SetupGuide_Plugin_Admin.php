@@ -786,6 +786,7 @@ class SetupGuide_Plugin_Admin {
 							'disk_basic'       => __( 'Disk: Basic', 'w3-total-cache' ),
 							'disk_enhanced'    => __( 'Disk: Enhanced', 'w3-total-cache' ),
 							'enabled'          => __( 'Enabled', 'w3-total-cache' ),
+							'notEnabled'       => __( 'Not Enabled', 'w3-total-cache' ),
 						),
 					),
 				),
@@ -1086,7 +1087,6 @@ class SetupGuide_Plugin_Admin {
 						<table id="w3tc-browsercache-table" class="w3tc-setupguide-table hidden">
 						<thead>
 						<tr>
-							<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
 							<th>' . esc_html__( 'Setting', 'w3-total-cache' ) . '</th>
 							<th>' . esc_html__( 'File', 'w3-total-cache' ) . '</th>
 							<th>' . esc_html__( 'Cache-Control Header', 'w3-total-cache' ) . '</th>
@@ -1099,7 +1099,7 @@ class SetupGuide_Plugin_Admin {
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
 					'id'       => 'll1',
 					'markup'   => '<p>' . esc_html__(
-						'Pages containing iamges and other objects can have their load time reduced by deferring the loading the items until they are needed.  For example, images can be loaded when a visitor scrolls down the page to make them visible.',
+						'Pages containing images and other objects can have their load time reduced by deferring the loading the items until they are needed.  For example, images can be loaded when a visitor scrolls down the page to make them visible.',
 						'w3-total-cache'
 						) . '</p>
 						<p>
