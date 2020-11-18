@@ -964,7 +964,7 @@ function w3tc_wizard_actions( $slide ) {
 
 							// If not the last entry, then start the next row.
 							if ( index !== ( testResponse.data.length - 1 ) ) {
-								results += '<tr><td colspan="2"></td><td>';
+								results += '<tr><td></td><td>';
 							}
 						} );
 					} else {
