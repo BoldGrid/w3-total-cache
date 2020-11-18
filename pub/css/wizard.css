@@ -158,7 +158,8 @@
 }
 
 /* Notices */
-.w3tc_note {
+.w3tc_note,
+#setting-error-tgmpa {
 	display: none;
 	visibility: hidden;
 }
