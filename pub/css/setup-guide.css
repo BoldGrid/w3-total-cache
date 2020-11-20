@@ -17,3 +17,7 @@
 #w3tc-browsercache-table tr {
 	vertical-align: top;
 }
+
+.w3tc-option-recommended {
+	font-size: 0.9em;
+}

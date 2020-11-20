@@ -91,6 +91,7 @@
 	background-image:
 		url(../img/moon-bottom-left.png),
 		url(../img/moon-bottom-right.png);
+	background-size: 15% !Important;
 	background-repeat:
 		no-repeat,
 		no-repeat;
@@ -100,7 +101,7 @@
 	background-size:
 		auto,
 		auto 60%;
-	min-height: 471px;
+	min-height: 607px;
 	padding-bottom: 70px;
 	padding-right: 160px;
 }
@@ -162,4 +163,12 @@
 #setting-error-tgmpa {
 	display: none;
 	visibility: hidden;
+}
+
+.w3tc-notice-recommended {
+	padding-top: 5px;
+}
+
+.w3tc-notice-recommended .dashicons-lightbulb {
+	color: #00a0d2;
 }

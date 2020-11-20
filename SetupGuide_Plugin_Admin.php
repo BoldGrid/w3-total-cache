@@ -980,7 +980,7 @@ class SetupGuide_Plugin_Admin {
 					'markup'   => '<p>' . sprintf(
 						// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 						esc_html__(
-							'When users visit your website, their browser must connect to your server, wait for your server to respond with the web page, and then display it.  The time it takes between your browser requesting the web page and the receiving of the very first byte of that web page is referred to as %1$sTime to First Byte%2$s.',
+							'The time it takes between a visitor\'s browser page request and receiving the first byte of a response is referred to as %1$sTime to First Byte%2$s.',
 							'w3-total-cache'
 						),
 						'<em>',
@@ -993,7 +993,7 @@ class SetupGuide_Plugin_Admin {
 					</p>
 					<p>' .
 					esc_html__(
-						'This test only measures the performance of your homepage. Other pages on your site, such as a store or a forum, may have higher or lower load times. Stay tuned for future releases to include more tests!',
+						'We\'ll test the your homepage with Page Cache disabled and then with several storage engines.  You should review the test results and choose the best for your website',
 						'w3-total-cache'
 					) . '</p>
 					<p>
@@ -1006,7 +1006,7 @@ class SetupGuide_Plugin_Admin {
 					<p class="hidden">
 						' . esc_html__( 'Test URL:', 'w3-total-cache' ) . ' <span id="w3tc-test-url"></span>
 					</p>
-					<table id="w3tc-pgcache-table" class="w3tc-setupguide-table hidden">
+					<table id="w3tc-pgcache-table" class="w3tc-setupguide-table widefat striped hidden">
 						<thead>
 							<tr>
 								<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
@@ -1022,13 +1022,16 @@ class SetupGuide_Plugin_Admin {
 					'id'       => 'dbc1',
 					'markup'   => '<p>' .
 						esc_html__(
-							'Many database queries are made in every dynamic page request.  A database cache may speed up the generation of dynamic pages.',
+							'Many database queries are made in every dynamic page request.  A database cache may speed up the generation of dynamic pages.  Database Cache serves query results directly from a storage engine.',
 							'w3-total-cache'
 						) . '</p>
-						<p>' . esc_html__(
+						<div class="notice notice-info inline">
+						<div class="w3tc-notice-recommended"><span class="dashicons dashicons-lightbulb"></span> Recommended</div>
+						<div><p>' . esc_html__(
 							'Database Cache serves query results directly from a storage engine.  By default, this feature is disabled.  We recommend using Redis or Memcached, otherwise leave this feature disabled as the server database engine may be faster than using disk caching.',
 							'w3-total-cache'
-						) . '</p>
+						) . '</p></div>
+						</div>
 						<p>
 						<input id="w3tc-test-dbcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Database Cache', 'w3-total-cache' ) . '">
@@ -1036,7 +1039,7 @@ class SetupGuide_Plugin_Admin {
 						' <em>' . esc_html__( 'Database Cache', 'w3-total-cache' ) . '</em>&hellip;
 						</span>
 						</p>
-						<table id="w3tc-dbc-table" class="w3tc-setupguide-table hidden">
+						<table id="w3tc-dbc-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
 									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
@@ -1066,7 +1069,7 @@ class SetupGuide_Plugin_Admin {
 						' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
 						</span>
 						</p>
-						<table id="w3tc-objcache-table" class="w3tc-setupguide-table hidden">
+						<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
 									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
@@ -1114,7 +1117,7 @@ class SetupGuide_Plugin_Admin {
 						' <em>' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</em>&hellip;
 						</span>
 						</p>
-						<table id="w3tc-browsercache-table" class="w3tc-setupguide-table hidden">
+						<table id="w3tc-browsercache-table" class="w3tc-setupguide-table widefat striped hidden">
 						<thead>
 						<tr>
 							<th>' . esc_html__( 'Setting', 'w3-total-cache' ) . '</th>

@@ -339,7 +339,7 @@ function w3tc_wizard_actions( $slide ) {
 					$this = jQuery( this );
 
 				$this.prop( 'disabled', 'disabled' );
-				$slide.find( '.notice' ).remove();
+				$slide.find( '.notice-error' ).remove();
 				$container.find( '#w3tc-pgcache-table tbody' ).empty();
 				$prevButton.prop( 'disabled', 'disabled' );
 				$nextButton.prop( 'disabled', 'disabled' );
@@ -377,6 +377,10 @@ function w3tc_wizard_actions( $slide ) {
 					if ( ( ! pgcacheSettings.enabled && 'none' === engine ) ||
 						( pgcacheSettings.enabled && pgcacheSettings.engine === engine ) ) {
 							results += ' checked';
+					}
+
+					if ( configSuccess && 'file_generic' === engine ) {
+						label += '<br /><span class="w3tc-option-recommended">(Recommended)</span>';
 					}
 
 					results += '></td><td><label for="pgcache-engine-' +
@@ -534,7 +538,7 @@ function w3tc_wizard_actions( $slide ) {
 					$this = jQuery( this );
 
 				$this.prop( 'disabled', 'disabled' );
-				$slide.find( '.notice' ).remove();
+				$slide.find( '.notice-error' ).remove();
 				$container.find( '#w3tc-dbc-table tbody' ).empty();
 				$prevButton.prop( 'disabled', 'disabled' );
 				$nextButton.prop( 'disabled', 'disabled' );
@@ -720,7 +724,7 @@ function w3tc_wizard_actions( $slide ) {
 					$this = jQuery( this );
 
 				$this.prop( 'disabled', 'disabled' );
-				$slide.find( '.notice' ).remove();
+				$slide.find( '.notice-error' ).remove();
 				$container.find( '#w3tc-objcache-table tbody' ).empty();
 				$prevButton.prop( 'disabled', 'disabled' );
 				$nextButton.prop( 'disabled', 'disabled' );
@@ -907,7 +911,7 @@ function w3tc_wizard_actions( $slide ) {
 					$this = jQuery( this );
 
 				$this.prop( 'disabled', 'disabled' );
-				$slide.find( '.notice' ).remove();
+				$slide.find( '.notice-error' ).remove();
 				$container.find( '#w3tc-browsercache-table tbody' ).empty();
 				$prevButton.prop( 'disabled', 'disabled' );
 				$nextButton.prop( 'disabled', 'disabled' );
