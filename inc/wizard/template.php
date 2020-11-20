@@ -184,7 +184,7 @@ class Template {
 					$action['tag'],
 					$action['function'],
 					empty( $action['priority'] ) ? 10 : $action['priority'],
-					empty( $action['accepted_args'] ) ? 1 : $action['accepted_args'],
+					empty( $action['accepted_args'] ) ? 1 : $action['accepted_args']
 				);
 			}
 		}
@@ -195,7 +195,7 @@ class Template {
 					$filter['tag'],
 					$filter['function'],
 					empty( $filter['priority'] ) ? 10 : $filter['priority'],
-					empty( $filter['accepted_args'] ) ? 1 : $filter['accepted_args'],
+					empty( $filter['accepted_args'] ) ? 1 : $filter['accepted_args']
 				);
 			}
 		}
