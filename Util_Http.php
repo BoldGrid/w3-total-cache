@@ -112,7 +112,7 @@ class Util_Http {
 	 * @return float|false Time in seconds until the first byte is about to be transferred or false on error.
 	 */
 	public static function ttfb( $url, $nocache = false ) {
-		$ch   = curl_init( esc_url( $url ) );
+		$ch   = curl_init( esc_url( $url ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		$pass = (bool) $ch;
 		$ttfb = false;
 		$opts = array(
@@ -138,19 +138,19 @@ class Util_Http {
 		}
 
 		if ( $ch ) {
-			$pass = curl_setopt_array( $ch, $opts );
+			$pass = curl_setopt_array( $ch, $opts ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		}
 
 		if ( $pass ) {
-			$pass = (bool) curl_exec( $ch );
+			$pass = (bool) curl_exec( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		}
 
 		if ( $pass ) {
-			$ttfb = curl_getinfo( $ch, CURLINFO_STARTTRANSFER_TIME );
+			$ttfb = curl_getinfo( $ch, CURLINFO_STARTTRANSFER_TIME ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		}
 
 		if ( $ch ) {
-			curl_close( $ch );
+			curl_close( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		}
 
 		return $ttfb;
@@ -163,7 +163,7 @@ class Util_Http {
 	 * @return array
 	 */
 	public static function get_headers( $url ) {
-		$ch      = curl_init( $url );
+		$ch      = curl_init( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		$pass    = (bool) $ch;
 		$headers = array();
 		$opts    = array(
@@ -181,7 +181,7 @@ class Util_Http {
 		);
 
 		if ( $pass ) {
-			$pass = curl_setopt_array( $ch, $opts );
+			$pass = curl_setopt_array( $ch, $opts ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		}
 
 		if ( $pass ) {
@@ -189,7 +189,7 @@ class Util_Http {
 		}
 
 		if ( $response ) {
-			$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE );
+			$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 			$header      = substr( $response, 0, $header_size );
 
 			foreach ( explode( "\r\n", $header ) as $index => $line ) {
@@ -206,7 +206,7 @@ class Util_Http {
 		}
 
 		if ( $ch ) {
-			curl_close( $ch );
+			curl_close( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		}
 
 		return $headers;

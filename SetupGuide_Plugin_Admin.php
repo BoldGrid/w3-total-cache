@@ -23,7 +23,7 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @var string
 	 */
-	protected $_page = 'w3tc_setup_guide';
+	protected $_page = 'w3tc_setup_guide'; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Wizard template.
@@ -72,7 +72,7 @@ class SetupGuide_Plugin_Admin {
 	 * @since X.X.X
 	 */
 	public function skip() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			update_site_option( 'w3tc_setupguide_completed', time() );
 			wp_send_json_success();
 		} else {
@@ -85,19 +85,21 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @param string $url
+	 * @param  string $url URL.
 	 * @return string
 	 */
 	public function abbreviate_url( $url ) {
-		$url = untrailingslashit( str_replace(
-			array(
-				'https://',
-				'http://',
-				'www.',
-			),
-			'',
-			$url
-		) );
+		$url = untrailingslashit(
+			str_replace(
+				array(
+					'https://',
+					'http://',
+					'www.',
+				),
+				'',
+				$url
+			)
+		);
 
 		if ( strlen( $url ) > 35 ) {
 			$url = substr( $url, 0, 10 ) . '&hellip;' . substr( $url, -20 );
@@ -115,8 +117,8 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Util_Http::ttfb()
 	 */
 	public function test_pgcache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$nocache = ! empty( $_POST['nocache'] );
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$nocache = ! empty( $_POST['nocache'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$url     = site_url();
 			$results = array(
 				'nocache'  => $nocache,
@@ -145,13 +147,15 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_pgcache_settings() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$config = new Config();
 
-			wp_send_json_success( array(
-				'enabled' => $config->get_boolean( 'pgcache.enabled' ),
-				'engine'  => $config->get_string( 'pgcache.engine' ),
-			) );
+			wp_send_json_success(
+				array(
+					'enabled' => $config->get_boolean( 'pgcache.enabled' ),
+					'engine'  => $config->get_string( 'pgcache.engine' ),
+				)
+			);
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -171,9 +175,9 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\CacheFlush::flush_posts()
 	 */
 	public function config_pgcache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$enable          = ! empty( $_POST['enable'] );
-			$engine          = empty( $_POST['engine'] ) ? '' : esc_attr( trim( $_POST['engine'] ) );
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$enable          = ! empty( $_POST['enable'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$engine          = empty( $_POST['engine'] ) ? '' : esc_attr( trim( $_POST['engine'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$is_updating     = false;
 			$success         = false;
 			$config          = new Config();
@@ -228,16 +232,18 @@ class SetupGuide_Plugin_Admin {
 				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 			}
 
-			wp_send_json_success( array(
-				'success'          => $success,
-				'message'          => $message,
-				'enable'           => $enable,
-				'engine'           => $engine,
-				'current_enabled'  => $config->get_boolean( 'pgcache.enabled' ),
-				'current_engine'   => $config->get_string( 'pgcache.engine' ),
-				'previous_enabled' => $pgcache_enabled,
-				'previous_engine'  => $pgcache_engine,
-			) );
+			wp_send_json_success(
+				array(
+					'success'          => $success,
+					'message'          => $message,
+					'enable'           => $enable,
+					'engine'           => $engine,
+					'current_enabled'  => $config->get_boolean( 'pgcache.enabled' ),
+					'current_engine'   => $config->get_string( 'pgcache.engine' ),
+					'previous_enabled' => $pgcache_enabled,
+					'previous_engine'  => $pgcache_engine,
+				)
+			);
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -254,7 +260,7 @@ class SetupGuide_Plugin_Admin {
 	 * @global $wpdb WordPress database object.
 	 */
 	public function test_dbcache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$config  = new Config();
 			$results = array(
 				'enabled' => $config->get_boolean( 'dbcache.enabled' ),
@@ -273,7 +279,9 @@ class SetupGuide_Plugin_Admin {
 			$table  = $wpdb->prefix . 'options';
 			$option = 'w3tc_test_dbcache_';
 
-			for ( $x=0; $x < 200; $x++ ) {
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery
+
+			for ( $x = 0; $x < 200; $x++ ) {
 				$wpdb->insert(
 					$table,
 					array(
@@ -282,17 +290,21 @@ class SetupGuide_Plugin_Admin {
 					)
 				);
 
+				/*
+				 * @see https://developer.wordpress.org/reference/classes/wpdb/prepare/
+				 * I had to use %1$s as the method does not encapsulate the value with quotes,
+				 * which would be a syntax error.
+				 */
 				$select = $wpdb->prepare(
-					'SELECT `option_value` FROM `' . $table . '` WHERE `option_name` = %s AND `option_name` NOT LIKE %s',
+					'SELECT `option_value` FROM `%1$s` WHERE `option_name` = %s AND `option_name` NOT LIKE %s', // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
+					$table,
 					$option . $x,
 					'NotAnOption'
 				);
 
-				$wpdb->get_var( $select );
+				$wpdb->get_var( $select ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-				//$wpdb->flush();
-
-				$wpdb->get_var( $select );
+				$wpdb->get_var( $select ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 				$wpdb->update(
 					$table,
@@ -302,6 +314,8 @@ class SetupGuide_Plugin_Admin {
 
 				$wpdb->delete( $table, array( 'option_name' => $option . $x ) );
 			}
+
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery
 
 			$results['wpdb_time'] = $wpdb->timer_stop();
 			$results['exec_time'] = microtime( true ) - $start_time;
@@ -322,13 +336,15 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_dbcache_settings() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$config = new Config();
 
-			wp_send_json_success( array(
-				'enabled' => $config->get_boolean( 'dbcache.enabled' ),
-				'engine'  => $config->get_string( 'dbcache.engine' ),
-			) );
+			wp_send_json_success(
+				array(
+					'enabled' => $config->get_boolean( 'dbcache.enabled' ),
+					'engine'  => $config->get_string( 'dbcache.engine' ),
+				)
+			);
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -348,9 +364,9 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\CacheFlush::dbcache_flush()
 	 */
 	public function config_dbcache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$enable          = ! empty( $_POST['enable'] );
-			$engine          = empty( $_POST['engine'] ) ? '' : esc_attr( trim( $_POST['engine'] ) );
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$enable          = ! empty( $_POST['enable'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$engine          = empty( $_POST['engine'] ) ? '' : esc_attr( trim( $_POST['engine'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$is_updating     = false;
 			$success         = false;
 			$config          = new Config();
@@ -400,16 +416,18 @@ class SetupGuide_Plugin_Admin {
 				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 			}
 
-			wp_send_json_success( array(
-				'success'          => $success,
-				'message'          => $message,
-				'enable'           => $enable,
-				'engine'           => $engine,
-				'current_enabled'  => $config->get_boolean( 'dbcache.enabled' ),
-				'current_engine'   => $config->get_string( 'dbcache.engine' ),
-				'previous_enabled' => $old_enabled,
-				'previous_engine'  => $old_engine,
-			) );
+			wp_send_json_success(
+				array(
+					'success'          => $success,
+					'message'          => $message,
+					'enable'           => $enable,
+					'engine'           => $engine,
+					'current_enabled'  => $config->get_boolean( 'dbcache.enabled' ),
+					'current_engine'   => $config->get_string( 'dbcache.engine' ),
+					'previous_enabled' => $old_enabled,
+					'previous_engine'  => $old_engine,
+				)
+			);
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -424,7 +442,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function test_objcache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$config  = new Config();
 			$results = array(
 				'enabled' => $config->get_boolean( 'objectcache.enabled' ),
@@ -432,15 +450,16 @@ class SetupGuide_Plugin_Admin {
 				'elapsed' => null,
 			);
 
-
 			$start_time = microtime( true );
 
-			$posts = get_posts( array(
-				'post_type' => array(
-					'page',
-					'post',
-				),
-			) );
+			$posts = get_posts(
+				array(
+					'post_type' => array(
+						'page',
+						'post',
+					),
+				)
+			);
 
 			$results['elapsed'] = microtime( true ) - $start_time;
 			$results['post_ct'] = count( $posts );
@@ -460,13 +479,15 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_objcache_settings() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$config = new Config();
 
-			wp_send_json_success( array(
-				'enabled' => $config->get_boolean( 'objectcache.enabled' ),
-				'engine'  => $config->get_string( 'objectcache.engine' ),
-			) );
+			wp_send_json_success(
+				array(
+					'enabled' => $config->get_boolean( 'objectcache.enabled' ),
+					'engine'  => $config->get_string( 'objectcache.engine' ),
+				)
+			);
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -486,9 +507,9 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\CacheFlush::objcache_flush()
 	 */
 	public function config_objcache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$enable          = ! empty( $_POST['enable'] );
-			$engine          = empty( $_POST['engine'] ) ? '' : esc_attr( trim( $_POST['engine'] ) );
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$enable          = ! empty( $_POST['enable'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$engine          = empty( $_POST['engine'] ) ? '' : esc_attr( trim( $_POST['engine'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$is_updating     = false;
 			$success         = false;
 			$config          = new Config();
@@ -538,16 +559,18 @@ class SetupGuide_Plugin_Admin {
 				$message = __( 'Requested cache storage engine is invalid', 'w3-total-cache' );
 			}
 
-			wp_send_json_success( array(
-				'success'          => $success,
-				'message'          => $message,
-				'enable'           => $enable,
-				'engine'           => $engine,
-				'current_enabled'  => $config->get_boolean( 'objectcache.enabled' ),
-				'current_engine'   => $config->get_string( 'objectcache.engine' ),
-				'previous_enabled' => $old_enabled,
-				'previous_engine'  => $old_engine,
-			) );
+			wp_send_json_success(
+				array(
+					'success'          => $success,
+					'message'          => $message,
+					'enable'           => $enable,
+					'engine'           => $engine,
+					'current_enabled'  => $config->get_boolean( 'objectcache.enabled' ),
+					'current_engine'   => $config->get_string( 'objectcache.engine' ),
+					'previous_enabled' => $old_enabled,
+					'previous_engine'  => $old_engine,
+				)
+			);
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -562,7 +585,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Util_Http::get_headers()
 	 */
 	public function test_browsercache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$results = array();
 			$urls    = array(
 				trailingslashit( site_url() ),
@@ -601,18 +624,20 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_browsercache_settings() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$config = new Config();
 
-			wp_send_json_success( array(
-				'enabled'             => $config->get_boolean( 'browsercache.enabled' ),
-				'cssjs.cache.control' => $config->get_boolean( 'browsercache.cssjs.cache.control' ),
-				'cssjs.cache.policy'  => $config->get_string( 'browsercache.cssjs.cache.policy' ),
-				'html.cache.control'  => $config->get_boolean( 'browsercache.html.cache.control' ),
-				'html.cache.policy'   => $config->get_string( 'browsercache.html.cache.policy' ),
-				'other.cache.control' => $config->get_boolean( 'browsercache.other.cache.control' ),
-				'other.cache.policy'  => $config->get_string( 'browsercache.other.cache.policy' )
-			) );
+			wp_send_json_success(
+				array(
+					'enabled'             => $config->get_boolean( 'browsercache.enabled' ),
+					'cssjs.cache.control' => $config->get_boolean( 'browsercache.cssjs.cache.control' ),
+					'cssjs.cache.policy'  => $config->get_string( 'browsercache.cssjs.cache.policy' ),
+					'html.cache.control'  => $config->get_boolean( 'browsercache.html.cache.control' ),
+					'html.cache.policy'   => $config->get_string( 'browsercache.html.cache.policy' ),
+					'other.cache.control' => $config->get_boolean( 'browsercache.other.cache.control' ),
+					'other.cache.policy'  => $config->get_string( 'browsercache.other.cache.policy' ),
+				)
+			);
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -633,8 +658,8 @@ class SetupGuide_Plugin_Admin {
 	 * @uses $_POST['enable']
 	 */
 	public function config_browsercache() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$enable               = ! empty( $_POST['enable'] );
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$enable               = ! empty( $_POST['enable'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$config               = new Config();
 			$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
 
@@ -680,16 +705,18 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_array()
 	 */
 	public function get_lazyload_settings() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$config = new Config();
 
-			wp_send_json_success( array(
-				'enabled'            => $config->get_boolean( 'lazyload.enabled' ),
-				'process_img'        => $config->get_boolean( 'lazyload.process_img' ),
-				'process_background' => $config->get_boolean( 'lazyload_process_background' ),
-				'exclude'            => $config->get_array( 'lazyload.exclude' ),
-				'embed_method'       => $config->get_string( 'lazyload.embed_method' ),
-			) );
+			wp_send_json_success(
+				array(
+					'enabled'            => $config->get_boolean( 'lazyload.enabled' ),
+					'process_img'        => $config->get_boolean( 'lazyload.process_img' ),
+					'process_background' => $config->get_boolean( 'lazyload_process_background' ),
+					'exclude'            => $config->get_array( 'lazyload.exclude' ),
+					'embed_method'       => $config->get_string( 'lazyload.embed_method' ),
+				)
+			);
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
 		}
@@ -710,7 +737,7 @@ class SetupGuide_Plugin_Admin {
 	 * @uses $_POST['enable']
 	 */
 	public function config_lazyload() {
-		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$enable           = ! empty( $_POST['enable'] );
 			$config           = new Config();
 			$lazyload_enabled = $config->get_boolean( 'lazyload.enabled' );
@@ -767,26 +794,26 @@ class SetupGuide_Plugin_Admin {
 					'in_footer' => false,
 					'localize'  => array(
 						'object_name' => 'W3TC_SetupGuide',
-						'data'      => array(
+						'data'        => array(
 							'test_complete_msg' => __(
 								'Testing complete.  Click Next to advance to the section and see the results.',
 								'w3-total-cache'
 							),
-							'test_error_msg' => __(
+							'test_error_msg'    => __(
 								'Could not perform this test.  Please reload the page to try again or click skip button to abort the setup guide.',
 								'w3-total-cache'
 							),
-							'config_error_msg' => __(
+							'config_error_msg'  => __(
 								'Could not update configuration.  Please reload the page to try again or click skip button to abort the setup guide.',
 								'w3-total-cache'
 							),
-							'unavailable_text' => __( 'Unavailable', 'w3-total-cache' ),
-							'none'             => __( 'None', 'w3-total-cache' ),
-							'disk'             => __( 'Disk', 'w3-total-cache' ),
-							'disk_basic'       => __( 'Disk: Basic', 'w3-total-cache' ),
-							'disk_enhanced'    => __( 'Disk: Enhanced', 'w3-total-cache' ),
-							'enabled'          => __( 'Enabled', 'w3-total-cache' ),
-							'notEnabled'       => __( 'Not Enabled', 'w3-total-cache' ),
+							'unavailable_text'  => __( 'Unavailable', 'w3-total-cache' ),
+							'none'              => __( 'None', 'w3-total-cache' ),
+							'disk'              => __( 'Disk', 'w3-total-cache' ),
+							'disk_basic'        => __( 'Disk: Basic', 'w3-total-cache' ),
+							'disk_enhanced'     => __( 'Disk: Enhanced', 'w3-total-cache' ),
+							'enabled'           => __( 'Enabled', 'w3-total-cache' ),
+							'notEnabled'        => __( 'Not Enabled', 'w3-total-cache' ),
 						),
 					),
 				),
@@ -977,7 +1004,7 @@ class SetupGuide_Plugin_Admin {
 						</span>
 					</p>
 					<p class="hidden">
-						' . esc_html__( 'Test URL:', 'w3-total-cache' ) .' <span id="w3tc-test-url"></span>
+						' . esc_html__( 'Test URL:', 'w3-total-cache' ) . ' <span id="w3tc-test-url"></span>
 					</p>
 					<table id="w3tc-pgcache-table" class="w3tc-setupguide-table hidden">
 						<thead>
@@ -993,9 +1020,10 @@ class SetupGuide_Plugin_Admin {
 				array( // Database Cache.
 					'headline' => __( 'Database Cache', 'w3-total-cache' ),
 					'id'       => 'dbc1',
-					'markup'   => '<p>' . esc_html__(
-						'Many database queries are made in every dynamic page request.  A database cache may speed up the generation of dynamic pages.',
-						'w3-total-cache'
+					'markup'   => '<p>' .
+						esc_html__(
+							'Many database queries are made in every dynamic page request.  A database cache may speed up the generation of dynamic pages.',
+							'w3-total-cache'
 						) . '</p>
 						<p>' . esc_html__(
 							'Database Cache serves query results directly from a storage engine.  By default, this feature is disabled.  We recommend using Redis or Memcached, otherwise leave this feature disabled as the server database engine may be faster than using disk caching.',
@@ -1023,9 +1051,10 @@ class SetupGuide_Plugin_Admin {
 				array( // Object Cache.
 					'headline' => __( 'Object Cache', 'w3-total-cache' ),
 					'id'       => 'oc1',
-					'markup'   => '<p>' . esc_html__(
-						'WordPress caches objects used to build pages, but does not reuse them for future page requests.',
-						'w3-total-cache'
+					'markup'   => '<p>' .
+						esc_html__(
+							'WordPress caches objects used to build pages, but does not reuse them for future page requests.',
+							'w3-total-cache'
 						) . '</p>
 						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__( 'can help you speed up dynamic pages by persistently storing objects.', 'w3-total-cache' ) .
@@ -1051,9 +1080,10 @@ class SetupGuide_Plugin_Admin {
 				array( // Browser Cache.
 					'headline' => __( 'Browser Cache', 'w3-total-cache' ),
 					'id'       => 'bc1',
-					'markup'   => '<p>' . esc_html__(
-						'To render your website, browsers must download many different types of assets, including javascript files, CSS stylesheets, images, and more.  For most assets, once a browser has downloaded them, they shouldn\'t have to download them again.',
-						'w3-total-cache'
+					'markup'   => '<p>' .
+						esc_html__(
+							'To render your website, browsers must download many different types of assets, including javascript files, CSS stylesheets, images, and more.  For most assets, once a browser has downloaded them, they shouldn\'t have to download them again.',
+							'w3-total-cache'
 						) . '</p>
 						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__(
@@ -1098,9 +1128,10 @@ class SetupGuide_Plugin_Admin {
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
 					'id'       => 'll1',
-					'markup'   => '<p>' . esc_html__(
-						'Pages containing images and other objects can have their load time reduced by deferring the loading the items until they are needed.  For example, images can be loaded when a visitor scrolls down the page to make them visible.',
-						'w3-total-cache'
+					'markup'   => '<p>' .
+						esc_html__(
+							'Pages containing images and other objects can have their load time reduced by deferring the loading the items until they are needed.  For example, images can be loaded when a visitor scrolls down the page to make them visible.',
+							'w3-total-cache'
 						) . '</p>
 						<p>
 						<input type="checkbox" id="lazyload-enable" value="1" /> <label for="lazyload-enable">' .
@@ -1109,7 +1140,8 @@ class SetupGuide_Plugin_Admin {
 				array( // Setup complete.
 					'headline' => __( 'Setup Complete!', 'w3-total-cache' ),
 					'id'       => 'complete',
-					'markup'   => '<p>' . sprintf(
+					'markup'   => '<p>' .
+						sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
 							esc_html__(
 								'%1$sTime to First Byte%2$s has change by %3$s!',
@@ -1119,7 +1151,8 @@ class SetupGuide_Plugin_Admin {
 							'</strong>',
 							'<span id="w3tc-ttfb-diff">0%</span>'
 						) . '</p>
-						<p>' . sprintf(
+						<p>' .
+						sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
 								'%1$sDatabase Cache%2$s engine set to %1$s%3$s%2$s',
@@ -1129,7 +1162,8 @@ class SetupGuide_Plugin_Admin {
 							'</strong>',
 							'<span id="w3tc-dbcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
 						) . '</p>
-						<p>' . sprintf(
+						<p>' .
+						sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
 								'%1$sObject Cache%2$s engine set to %1$s%3$s%2$s',
@@ -1139,7 +1173,8 @@ class SetupGuide_Plugin_Admin {
 							'</strong>',
 							'<span id="w3tc-objcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
 						) . '</p>
-						<p>' . sprintf(
+						<p>' .
+						sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
 								'%1$sBrowser Cache%2$s headers set for JavaScript, CSS, and images? %1$s%3$s%2$s',
@@ -1160,7 +1195,8 @@ class SetupGuide_Plugin_Admin {
 							'<span id="w3tc-lazyload-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
 						) . '</p>
 						<h3>' . esc_html__( 'What\'s Next?', 'w3-total-cache' ) . '</h3>
-						<p>' . sprintf(
+						<p>' .
+						sprintf(
 							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag, 3: HTML break tag, 4: Anchor/link open tag, 5: Anchor/link close tag.
 							esc_html__(
 								'Your website\'s performance can still be improved by configuring %1$sminify%2$s settings, setting up a %1$sCDN%2$s, and more! %3$sPlease visit your %4$sW3TC Dashboard%5$s to learn more about these features.',
