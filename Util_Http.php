@@ -119,8 +119,7 @@ class Util_Http {
 			CURLOPT_FORBID_REUSE   => 1,
 			CURLOPT_FRESH_CONNECT  => 1,
 			CURLOPT_HEADER         => 0,
-			CURLOPT_RETURNTRANSFER => 0,
-			CURLOPT_NOBODY         => 1,
+			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_FOLLOWLOCATION => 1,
 			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
@@ -143,7 +142,7 @@ class Util_Http {
 		}
 
 		if ( $pass ) {
-			$pass = curl_exec( $ch );
+			$pass = (bool) curl_exec( $ch );
 		}
 
 		if ( $pass ) {
@@ -186,7 +185,7 @@ class Util_Http {
 		}
 
 		if ( $pass ) {
-			$response = curl_exec( $ch );
+			$response = curl_exec( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		}
 
 		if ( $response ) {
