@@ -229,14 +229,14 @@ class SetupGuide_Plugin_Admin {
 			}
 
 			wp_send_json_success( array(
-				'success'           => $success,
-				'message'           => $message,
-				'enable'            => $enable,
-				'engine'            => $engine,
-				'current_enabled'   => $config->get_boolean( 'pgcache.enabled' ),
-				'current_engine'    => $config->get_string( 'pgcache.engine' ),
-				'previous_enabled'  => $pgcache_enabled,
-				'previous_engine'   => $pgcache_engine,
+				'success'          => $success,
+				'message'          => $message,
+				'enable'           => $enable,
+				'engine'           => $engine,
+				'current_enabled'  => $config->get_boolean( 'pgcache.enabled' ),
+				'current_engine'   => $config->get_string( 'pgcache.engine' ),
+				'previous_enabled' => $pgcache_enabled,
+				'previous_engine'  => $pgcache_engine,
 			) );
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
@@ -401,14 +401,14 @@ class SetupGuide_Plugin_Admin {
 			}
 
 			wp_send_json_success( array(
-				'success'           => $success,
-				'message'           => $message,
-				'enable'            => $enable,
-				'engine'            => $engine,
-				'current_enabled'   => $config->get_boolean( 'dbcache.enabled' ),
-				'current_engine'    => $config->get_string( 'dbcache.engine' ),
-				'previous_enabled'  => $old_enabled,
-				'previous_engine'   => $old_engine,
+				'success'          => $success,
+				'message'          => $message,
+				'enable'           => $enable,
+				'engine'           => $engine,
+				'current_enabled'  => $config->get_boolean( 'dbcache.enabled' ),
+				'current_engine'   => $config->get_string( 'dbcache.engine' ),
+				'previous_enabled' => $old_enabled,
+				'previous_engine'  => $old_engine,
 			) );
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
@@ -539,14 +539,14 @@ class SetupGuide_Plugin_Admin {
 			}
 
 			wp_send_json_success( array(
-				'success'           => $success,
-				'message'           => $message,
-				'enable'            => $enable,
-				'engine'            => $engine,
-				'current_enabled'   => $config->get_boolean( 'objectcache.enabled' ),
-				'current_engine'    => $config->get_string( 'objectcache.engine' ),
-				'previous_enabled'  => $old_enabled,
-				'previous_engine'   => $old_engine,
+				'success'          => $success,
+				'message'          => $message,
+				'enable'           => $enable,
+				'engine'           => $engine,
+				'current_enabled'  => $config->get_boolean( 'objectcache.enabled' ),
+				'current_engine'   => $config->get_string( 'objectcache.engine' ),
+				'previous_enabled' => $old_enabled,
+				'previous_engine'  => $old_engine,
 			) );
 		} else {
 			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
@@ -579,10 +579,10 @@ class SetupGuide_Plugin_Admin {
 				$headers = Util_Http::get_headers( $url );
 
 				$results[] = array(
-					'url'       => $url,
-					'filename'  => basename( $url ),
-					'header'    => empty( $headers['cache-control'] ) ? $header_missing : $headers['cache-control'],
-					'headers'   => empty( $headers ) || ! is_array( $headers ) ? array() : $headers,
+					'url'      => $url,
+					'filename' => basename( $url ),
+					'header'   => empty( $headers['cache-control'] ) ? $header_missing : $headers['cache-control'],
+					'headers'  => empty( $headers ) || ! is_array( $headers ) ? array() : $headers,
 				);
 			}
 
@@ -659,10 +659,10 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success(
 				array(
-					'success'                => $is_enabled === $enable,
-					'enable'                 => $enable,
-					'browsercache_enabled'   => $config->get_boolean( 'browsercache.enabled' ),
-					'browsercache_previous'  => $browsercache_enabled,
+					'success'               => $is_enabled === $enable,
+					'enable'                => $enable,
+					'browsercache_enabled'  => $config->get_boolean( 'browsercache.enabled' ),
+					'browsercache_previous' => $browsercache_enabled,
 				)
 			);
 		} else {
@@ -711,8 +711,8 @@ class SetupGuide_Plugin_Admin {
 	 */
 	public function config_lazyload() {
 		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) {
-			$enable               = ! empty( $_POST['enable'] );
-			$config               = new Config();
+			$enable           = ! empty( $_POST['enable'] );
+			$config           = new Config();
 			$lazyload_enabled = $config->get_boolean( 'lazyload.enabled' );
 
 			if ( $lazyload_enabled !== $enable ) {
@@ -733,10 +733,10 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success(
 				array(
-					'success'                => $is_enabled === $enable,
-					'enable'                 => $enable,
-					'lazyload_enabled'   => $config->get_boolean( 'lazyload.enabled' ),
-					'lazyload_previous'  => $lazyload_enabled,
+					'success'           => $is_enabled === $enable,
+					'enable'            => $enable,
+					'lazyload_enabled'  => $config->get_boolean( 'lazyload.enabled' ),
+					'lazyload_previous' => $lazyload_enabled,
 				)
 			);
 		} else {
