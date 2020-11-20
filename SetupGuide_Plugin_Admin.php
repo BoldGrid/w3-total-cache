@@ -1090,7 +1090,7 @@ class SetupGuide_Plugin_Admin {
 						) . '</p>
 						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__(
-							'can help ensure browsers are properly caching your assets.  Before making any changes, let\'s first review your current browser cache settings.',
+							'can help ensure browsers are properly caching your assets.',
 							'w3-total-cache'
 						) . '</p>
 						<p>' . sprintf(
