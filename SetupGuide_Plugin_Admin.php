@@ -1073,7 +1073,7 @@ class SetupGuide_Plugin_Admin {
 							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 							esc_html__(
 								'To improve %1$sBrowser Cache%2$s, we recommend enabling %1$sBrowser Cache%2$s setting.',
-								'w3-total-cache',
+								'w3-total-cache'
 							),
 							'<em>',
 							'</em>'
@@ -1113,7 +1113,7 @@ class SetupGuide_Plugin_Admin {
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
 							esc_html__(
 								'%1$sTime to First Byte%2$s has change by %3$s!',
-								'w3-total-cache',
+								'w3-total-cache'
 							),
 							'<strong>',
 							'</strong>',
@@ -1123,7 +1123,7 @@ class SetupGuide_Plugin_Admin {
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
 								'%1$sDatabase Cache%2$s engine set to %1$s%3$s%2$s',
-								'w3-total-cache',
+								'w3-total-cache'
 							),
 							'<strong>',
 							'</strong>',
@@ -1133,7 +1133,7 @@ class SetupGuide_Plugin_Admin {
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
 								'%1$sObject Cache%2$s engine set to %1$s%3$s%2$s',
-								'w3-total-cache',
+								'w3-total-cache'
 							),
 							'<strong>',
 							'</strong>',
@@ -1143,7 +1143,7 @@ class SetupGuide_Plugin_Admin {
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
 								'%1$sBrowser Cache%2$s headers set for JavaScript, CSS, and images? %1$s%3$s%2$s',
-								'w3-total-cache',
+								'w3-total-cache'
 							),
 							'<strong>',
 							'</strong>',
@@ -1153,7 +1153,7 @@ class SetupGuide_Plugin_Admin {
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
 								'%1$sLazy Load%2$s images? %1$s%3$s%2$s',
-								'w3-total-cache',
+								'w3-total-cache'
 							),
 							'<strong>',
 							'</strong>',
@@ -1164,7 +1164,7 @@ class SetupGuide_Plugin_Admin {
 							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag, 3: HTML break tag, 4: Anchor/link open tag, 5: Anchor/link close tag.
 							esc_html__(
 								'Your website\'s performance can still be improved by configuring %1$sminify%2$s settings, setting up a %1$sCDN%2$s, and more! %3$sPlease visit your %4$sW3TC Dashboard%5$s to learn more about these features.',
-								'w3-total-cache',
+								'w3-total-cache'
 							),
 							'<strong>',
 							'</strong>',
