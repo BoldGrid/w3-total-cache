@@ -1133,7 +1133,7 @@ class SetupGuide_Plugin_Admin {
 					'id'       => 'll1',
 					'markup'   => '<p>' .
 						esc_html__(
-							'Pages containing images and other objects can have their load time reduced by deferring the loading the items until they are needed.  For example, images can be loaded when a visitor scrolls down the page to make them visible.',
+							'Pages containing images and other objects can have their load time reduced by deferring them until they are needed.  For example, images can be loaded when a visitor scrolls down the page to make them visible.',
 							'w3-total-cache'
 						) . '</p>
 						<p>
@@ -1200,15 +1200,33 @@ class SetupGuide_Plugin_Admin {
 						<h3>' . esc_html__( 'What\'s Next?', 'w3-total-cache' ) . '</h3>
 						<p>' .
 						sprintf(
-							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag, 3: HTML break tag, 4: Anchor/link open tag, 5: Anchor/link close tag.
+							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 							esc_html__(
-								'Your website\'s performance can still be improved by configuring %1$sminify%2$s settings, setting up a %1$sCDN%2$s, and more! %3$sPlease visit your %4$sW3TC Dashboard%5$s to learn more about these features.',
+								'Your website\'s performance can still be improved by configuring %1$sminify%2$s settings, setting up a %1$sCDN%2$s, and more!',
 								'w3-total-cache'
 							),
 							'<strong>',
-							'</strong>',
-							'<br />',
+							'</strong>'
+						) . '</p>
+						<p>' .
+						sprintf(
+							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
+							esc_html__(
+								'Please visit your %1$sW3TC Dashboard%2$s to learn more about these features.',
+								'w3-total-cache'
+							),
 							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_dashboard' ) ) . '">',
+							'</a>'
+						) . '</p>
+						<h3>' . esc_html__( 'Need help?', 'w3-total-cache' ) . '</h3>
+						<p>' .
+						sprintf(
+							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
+							esc_html__(
+								'We\'re here to help you!  Visit our %1$sSupport Center%2$s for helpful information and to ask questions.',
+								'w3-total-cache'
+							),
+							'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/' ) . '" target="_blank">',
 							'</a>'
 						) . '</p>',
 				),
