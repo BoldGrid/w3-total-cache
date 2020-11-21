@@ -525,6 +525,10 @@ function w3tc_wizard_actions( $slide ) {
 					);
 				});
 
+			if ( ! jQuery( '#w3tc-wizard-step-pgcache .dashicons-yes' ).length ) {
+				jQuery( '#w3tc-wizard-step-pgcache' ).append( '<span class="dashicons dashicons-yes"></span>' );
+			}
+
 			// Present the Database Cache slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-dbcache' ).addClass( 'is-active' );
@@ -710,6 +714,10 @@ function w3tc_wizard_actions( $slide ) {
 						'</strong></p>'
 					);
 				});
+
+			if ( ! jQuery( '#w3tc-wizard-step-dbcache .dashicons-yes' ).length ) {
+				jQuery( '#w3tc-wizard-step-dbcache' ).append( '<span class="dashicons dashicons-yes"></span>' );
+			}
 
 			// Present the Object Cache slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
@@ -897,6 +905,10 @@ function w3tc_wizard_actions( $slide ) {
 					);
 				});
 
+			if ( ! jQuery( '#w3tc-wizard-step-objectcache .dashicons-yes' ).length ) {
+				jQuery( '#w3tc-wizard-step-objectcache' ).append( '<span class="dashicons dashicons-yes"></span>' );
+			}
+
 			// Present the Browser Cache slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-browsercache' ).addClass( 'is-active' );
@@ -1053,6 +1065,10 @@ function w3tc_wizard_actions( $slide ) {
 					);
 				});
 
+			if ( ! jQuery( '#w3tc-wizard-step-browsercache .dashicons-yes' ).length ) {
+				jQuery( '#w3tc-wizard-step-browsercache' ).append( '<span class="dashicons dashicons-yes"></span>' );
+			}
+
 			// Present the Lazy Load slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-lazyload' ).addClass( 'is-active' );
@@ -1087,6 +1103,10 @@ function w3tc_wizard_actions( $slide ) {
 					'</strong></p>'
 				);
 			});
+
+			if ( ! jQuery( '#w3tc-wizard-step-lazyload .dashicons-yes' ).length ) {
+				jQuery( '#w3tc-wizard-step-lazyload' ).append( '<span class="dashicons dashicons-yes"></span>' );
+			}
 
 			// Present the Setup Complete slide.
 			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );

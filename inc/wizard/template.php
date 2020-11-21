@@ -62,6 +62,10 @@ class Template {
 		require W3TC_INC_DIR . '/options/common/header.php';
 
 		$allowed_html = array(
+			'a'      => array(
+				'href'   => array(),
+				'target' => array(),
+			),
 			'br'     => array(),
 			'div'    => array(
 				'class' => array(),
