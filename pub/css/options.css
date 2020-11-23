@@ -666,3 +666,25 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 		padding-top: initial;
 	}
 }
+
+
+/**
+ * Labels.
+ */
+
+.w3tc-label {
+	color: #fff;
+	padding: 0px 4px;
+	border-radius: 5px;
+	display: inline-block;
+	font-size: 11px;
+}
+
+.w3tc-label-success {
+	background: green;
+}
+
+.w3tc-label-danger {
+	/* Same color as "update plugin count" in WP Dashboard left nav. */
+	background: #ca4a1f;;
+}
