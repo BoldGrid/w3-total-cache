@@ -321,13 +321,13 @@ function w3tc_wizard_actions( $slide ) {
 
 	switch ( slideId ) {
 		case 'w3tc-wizard-slide-welcome':
-			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 
 			break;
 
 		case 'w3tc-wizard-slide-pc1':
 			// Test Page Cache.
-			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-pgcache' ).addClass( 'is-active' );
 
 			if ( ! $container.find( '#test-results' ).data( 'pgcache-none' ) ) {
@@ -530,7 +530,7 @@ function w3tc_wizard_actions( $slide ) {
 			}
 
 			// Present the Database Cache slide.
-			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-dbcache' ).addClass( 'is-active' );
 
 			if ( ! $container.find( '#test-results' ).data( 'dbc-none' ) ) {
@@ -720,7 +720,7 @@ function w3tc_wizard_actions( $slide ) {
 			}
 
 			// Present the Object Cache slide.
-			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-objectcache' ).addClass( 'is-active' );
 
 			if ( ! $container.find( '#test-results' ).data( 'oc-none' ) ) {
@@ -910,7 +910,7 @@ function w3tc_wizard_actions( $slide ) {
 			}
 
 			// Present the Browser Cache slide.
-			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-browsercache' ).addClass( 'is-active' );
 
 			if ( ! $container.find( '#test-results' ).data( 'bc-off' ) ) {
@@ -1070,7 +1070,7 @@ function w3tc_wizard_actions( $slide ) {
 			}
 
 			// Present the Lazy Load slide.
-			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-lazyload' ).addClass( 'is-active' );
 
 			// Update the lazy load enable chackbox from saved config.
@@ -1109,8 +1109,8 @@ function w3tc_wizard_actions( $slide ) {
 			}
 
 			// Present the Setup Complete slide.
-			$container.find( '.w3tc-wizard-steps' ).removeClass( 'is-active' );
-			$container.find( '#w3tc-wizard-step-more' ).addClass( 'is-active' );
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-options-menu li' ).last().addClass( 'is-active' );
 
 			html = ( pgcacheDiffPercent > 0 ? '+' : '' ) +
 				pgcacheDiffPercent +

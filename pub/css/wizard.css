@@ -47,35 +47,33 @@
     left: -2px;
 }
 
-/* Step numbers */
-.w3tc-wizard-steps {
-	display: inline-block;
-	vertical-align: top;
-	box-sizing: border-box;
-	margin: 0 0 -1px 2px;
-	padding: 5px;
-	min-width: 18px;
-	border-radius: 9px;
-	font-size: 11px;
-	text-align: center;
-}
 
-.w3tc-wizard-steps-left {
-	border: 1px solid #ccd0d4;
-	border-radius: 0;
-	left: -150px;
-	position: relative;
-    top: 7px;
-}
+/**
+ * Left nav / steps.
+ */
 
-#w3tc-options-menu {
-	display: inline-grid;
+ul#w3tc-options-menu {
 	position: absolute;
+	left: 0;
+	top: 30px;
+	margin: 0;
+}
+
+#w3tc-options-menu li {
+	display: block;
+	padding: 5px;
+	margin: 0;
+	border: 1px solid #ddd;
+	border-bottom: 0;
+}
+
+#w3tc-options-menu li:last-of-type {
+	border-bottom: 1px solid #ddd;
 }
 
 /* Active step */
-.w3tc-wizard-steps.is-active {
-	background-color: #30bec3;
+#w3tc-options-menu li.is-active {
+	background-color: #0073aa;
 	color: #fff;
 }
 
@@ -97,6 +95,7 @@
 	min-height: 607px;
 	padding-bottom: 70px;
 	padding-right: 160px;
+	position: relative;
 }
 
 /* Footer */
@@ -136,7 +135,7 @@
 /* Miscellaneous */
 #w3tc_wizard_title,
 #w3tc_wizard_content {
-	padding-left: 150px;
+	padding-left: 160px;
 }
 
 /* Spinner */
