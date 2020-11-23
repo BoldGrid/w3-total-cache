@@ -226,7 +226,7 @@ class Template {
 					$script['handle'],
 					$script['src'],
 					is_array( $script['deps'] ) ? $script['deps'] : array(),
-					empty( $script['version'] ) ? date( 'YmdHm' ) : $script['version'],
+					empty( $script['version'] ) ? gmdate( 'YmdHm' ) : $script['version'],
 					! empty( $script['in_footer'] )
 				);
 
@@ -263,7 +263,7 @@ class Template {
 					$style['src'],
 					isset( $style['deps'] ) && is_array( $style['deps'] ) ?
 						$style['deps'] : array(),
-					! empty( $style['version'] ) ? $style['version'] : date( 'YmdHm' ),
+					! empty( $style['version'] ) ? $style['version'] : gmdate( 'YmdHm' ),
 					! empty( $style['media'] ) ? $style['media'] : 'all'
 				);
 			}
