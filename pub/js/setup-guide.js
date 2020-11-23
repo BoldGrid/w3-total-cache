@@ -357,8 +357,10 @@ function w3tc_wizard_actions( $slide ) {
 				 */
 				function addResultRow( testResponse, engine, label ) {
 					var baseline,
-						diffPercent,
 						results = '<tr',
+						percentChange,
+						changeLabelType,
+						changeLabel,
 						isCurrentSetting = ( ! pgcacheSettings.enabled && 'none' === engine ) ||
 							( pgcacheSettings.enabled && pgcacheSettings.engine === engine );
 
@@ -394,11 +396,12 @@ function w3tc_wizard_actions( $slide ) {
 						results += ( testResponse.data.ttfb * 1000 ).toFixed( 2 );
 						if ( 'none' !== engine ) {
 							baseline = $container.find( '#test-results' ).data( 'pgcache-none' ).ttfb;
-							diffPercent = ( ( testResponse.data.ttfb - baseline ) / baseline * 100 ).toFixed( 2 );
-							$container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + engine, diffPercent );
-							results += ' ('+
-								diffPercent +
-								'%)';
+							percentChange = ( ( testResponse.data.ttfb - baseline ) / baseline * 100 ).toFixed( 2 );
+							changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
+							changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+
+							$container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + engine, percentChange );
+							results += ' ' + changeLabel;
 						}
 					} else {
 						results += W3TC_SetupGuide.unavailable_text;
@@ -561,7 +564,10 @@ function w3tc_wizard_actions( $slide ) {
 				 */
 				function addResultRow( testResponse, engine, label ) {
 					var baseline,
-						results = '<tr';
+						results = '<tr',
+						percentChange,
+						changeLabelType,
+						changeLabel;
 
 					if ( ! configSuccess ) {
 						results += ' class="w3tc-option-disabled"';
@@ -590,11 +596,14 @@ function w3tc_wizard_actions( $slide ) {
 
 					if ( testResponse.success ) {
 						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
+
 						if ( 'none' !== engine ) {
 							baseline = $container.find( '#test-results' ).data( 'dbc-none' ).elapsed;
-								results += ' ('+
-								( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 ) +
-								'%)';
+							percentChange = ( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 );
+							changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
+							changeLabel = '<span class="w3tc-label ' + changeLabelType + '">'+ percentChange + '%</span>';
+
+							results += ' ' + changeLabel;
 						}
 					} else {
 						results += W3TC_SetupGuide.unavailable_text;
@@ -751,7 +760,10 @@ function w3tc_wizard_actions( $slide ) {
 				 */
 				function addResultRow( testResponse, engine, label ) {
 					var baseline,
-						results = '<tr';
+						results = '<tr',
+						percentChange,
+						changeLabelType,
+						changeLabel;
 
 					if ( ! configSuccess ) {
 						results += ' class="w3tc-option-disabled"';
@@ -782,9 +794,11 @@ function w3tc_wizard_actions( $slide ) {
 						results += ( testResponse.data.elapsed * 1000 ).toFixed( 2 );
 						if ( 'none' !== engine ) {
 							baseline = $container.find( '#test-results' ).data( 'oc-none' ).elapsed;
-								results += ' ('+
-								( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 ) +
-								'%)';
+							percentChange = ( ( testResponse.data.elapsed - baseline ) / baseline * 100 ).toFixed( 2 );
+							changeLabelType = percentChange < 0 ? 'w3tc-label-success' : 'w3tc-label-danger';
+							changeLabel = '<span class="w3tc-label ' + changeLabelType + '">' + percentChange + '%</span>';
+
+							results += ' ' + changeLabel;
 						}
 					} else {
 						results += W3TC_SetupGuide.unavailable_text;
