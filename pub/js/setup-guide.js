@@ -358,7 +358,9 @@ function w3tc_wizard_actions( $slide ) {
 				function addResultRow( testResponse, engine, label ) {
 					var baseline,
 						diffPercent,
-						results = '<tr';
+						results = '<tr',
+						isCurrentSetting = ( ! pgcacheSettings.enabled && 'none' === engine ) ||
+							( pgcacheSettings.enabled && pgcacheSettings.engine === engine );
 
 					if ( ! configSuccess ) {
 						results += ' class="w3tc-option-disabled"';
@@ -374,9 +376,8 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' disabled="disabled"';
 					}
 
-					if ( ( ! pgcacheSettings.enabled && 'none' === engine ) ||
-						( pgcacheSettings.enabled && pgcacheSettings.engine === engine ) ) {
-							results += ' checked';
+					if ( isCurrentSetting ) {
+						results += ' checked';
 					}
 
 					if ( configSuccess && 'file_generic' === engine ) {
