@@ -116,26 +116,26 @@ class Template {
 
 	<div id="w3tc_wizard_content">
 
-		<p id="w3tc-options-menu">
+		<ul id="w3tc-options-menu">
 		<?php
 		foreach ( $this->config['steps'] as $number => $step ) {
 			$number++;
 			$element_id = 'w3tc-wizard-step-' . ( isset( $step['id'] ) ? $step['id'] : $number );
 			if ( isset( $this->config['steps_location'] ) && 'left' === $this->config['steps_location'] ) {
 				?>
-				<span id="<?php echo esc_attr( $element_id ); ?>" class="w3tc-wizard-steps w3tc-wizard-steps-left">
+				<li id="<?php echo esc_attr( $element_id ); ?>">
 					<?php echo esc_html( $step['text'] ); ?>
-			</span>
+			</li>
 				<?php
 			} else {
 				?>
-				<span id="<?php echo esc_attr( $element_id ); ?>" class="w3tc-wizard-steps"><?php echo esc_html( $number ); ?></span>
-				<span id="<?php echo esc_attr( $element_id ); ?>-text"><?php echo esc_html( $step['text'] ); ?></span>
+				<li id="<?php echo esc_attr( $element_id ); ?>"><?php echo esc_html( $number ); ?></li>
+				<li id="<?php echo esc_attr( $element_id ); ?>-text"><?php echo esc_html( $step['text'] ); ?></li>
 				<?php
 			}
 		}
 		?>
-		</p>
+		</ul>
 
 		<?php
 		// The first slide is visible.
