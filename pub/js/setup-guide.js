@@ -1169,10 +1169,6 @@ function w3tc_wizard_actions( $slide ) {
 			$nextButton.closest( 'span' ).hide();
 			$dashboardButton.closest( 'span' ).show();
 
-			$container.find('#w3tc-wizard-dashboard').unbind().on('click', function () {
-				document.location = W3TC_SetupGuide.dashboardUrl;
-			});
-
 			break;
 
 		default:

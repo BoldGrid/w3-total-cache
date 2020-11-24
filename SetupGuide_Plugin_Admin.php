@@ -973,6 +973,16 @@ class SetupGuide_Plugin_Admin {
 						' . esc_html__(
 							'provides many options to help your website perform faster.  While the ideal settings vary for every website, there are a few settings we recommend that you enable now.',
 							'w3-total-cache'
+						) . '</p>
+						<p>' .
+						sprintf(
+							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
+							esc_html__(
+								'If you want to change your settings later, you can %1$sskip this setup guide%2$s.',
+								'w3-total-cache'
+							),
+							'<a id="w3tc-wizard-skip-link" href="#">',
+							'</a>'
 						) . '</p>',
 				),
 				array( // Page Cache.
@@ -994,7 +1004,7 @@ class SetupGuide_Plugin_Admin {
 					</p>
 					<p>' .
 					esc_html__(
-						'We\'ll test the your homepage with Page Cache disabled and then with several storage engines.  You should review the test results and choose the best for your website',
+						'We\'ll test your homepage with Page Cache disabled and then with several storage engines.  You should review the test results and choose the best for your website.',
 						'w3-total-cache'
 					) . '</p>
 					<p>
@@ -1047,7 +1057,7 @@ class SetupGuide_Plugin_Admin {
 						<div class="w3tc-notice-recommended"><span class="dashicons dashicons-lightbulb"></span> Recommended</div>
 						<div><p>' .
 						esc_html__(
-							'Database Cache serves query results directly from a storage engine.  By default, this feature is disabled.  We recommend using Redis or Memcached, otherwise leave this feature disabled as the server database engine may be faster than using disk caching.',
+							'By default, this feature is disabled.  We recommend using Redis or Memcached, otherwise leave this feature disabled as the server database engine may be faster than using disk caching.',
 							'w3-total-cache'
 						) . '</p></div>
 						</div>',
@@ -1106,7 +1116,7 @@ class SetupGuide_Plugin_Admin {
 						<p>' . sprintf(
 							// translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 							esc_html__(
-								'To improve %1$sBrowser Cache%2$s, we recommend enabling %1$sBrowser Cache%2$s setting.',
+								'To improve %1$sBrowser Cache%2$s, we recommend enabling %1$sBrowser Cache%2$s.',
 								'w3-total-cache'
 							),
 							'<em>',
@@ -1213,10 +1223,10 @@ class SetupGuide_Plugin_Admin {
 						sprintf(
 							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
 							esc_html__(
-								'Please visit your %1$sW3TC Dashboard%2$s to learn more about these features.',
+								'Please visit %1$sGeneral Settings%2$s to learn more about these features.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_dashboard' ) ) . '">',
+							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
 							'</a>'
 						) . '</p>
 						<h3>' . esc_html__( 'Need help?', 'w3-total-cache' ) . '</h3>

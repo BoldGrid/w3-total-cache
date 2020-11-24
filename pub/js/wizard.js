@@ -8,18 +8,38 @@
 
  jQuery(function() {
 	var $container = jQuery( '#w3tc-wizard-container'),
+		$skipLink = $container.find( '#w3tc-wizard-skip-link '),
 		$skipButton = $container.find( '#w3tc-wizard-skip '),
 		$nextButton = $container.find( '#w3tc-wizard-next '),
 		$previousButton = $container.find( '#w3tc-wizard-previous ');
 
 	jQuery( '.button-buy-plugin' ).parent().remove();
 
-	$skipButton.click(function() {
-		var $this = jQuery( this );
+	$skipLink.click( skipFunction );
+	$skipButton.click( skipFunction );
 
-		$this.attr( 'disabled', 'disabled' )
-			.css( 'color', '#000' )
-			.text( 'Skipping...' );
+	// Listen for clicks to go to the W3TC Dashboard.
+	$container.find( '#w3tc-wizard-dashboard' ).on( 'click', function () {
+		jQuery( window ).off( 'beforeunload' );
+		document.location = W3TC_SetupGuide.dashboardUrl;
+	});
+
+	/**
+	 * Process the skip action.
+	 *
+	 * Saves and option to mark the wizard completed.
+	 *
+	 * @since 2.0.0
+	 */
+	function skipFunction() {
+		var $this = jQuery( this ),
+			nodeName = $this.prop('nodeName');
+
+		if ( 'BUTTON' === nodeName ) {
+			$this.attr( 'disabled', 'disabled' )
+				.css( 'color', '#000' )
+				.text( 'Skipping...' );
+		}
 
 		jQuery.ajax({
 			method: 'POST',
@@ -30,14 +50,20 @@
 			}
 		})
 			.done(function( response ) {
-				$this.text( 'Redirecting...' );
+				if ( 'BUTTON' === nodeName ) {
+					$this.text( 'Redirecting...' );
+				}
+
 				window.location.replace( location.href.replace(/page=.+$/, 'page=w3tc_dashboard') );
 			})
 			.fail(function() {
-				$this.text( 'Error with Ajax; reloading page...' );
+				if ( 'BUTTON' === nodeName ) {
+					$this.text( 'Error with Ajax; reloading page...' );
+				}
+
 				location.reload();
 			});
-	});
+	};
 
 	$previousButton.click(function() {
 		var $currentSlide = $container.find( '.w3tc-wizard-slides:visible' ),
