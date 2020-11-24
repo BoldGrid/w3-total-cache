@@ -40,7 +40,8 @@ function w3tc_wizard_actions( $slide ) {
 		nonce = $container.find( '[name="_wpnonce"]' ).val(),
 		$nextButton = $container.find( '#w3tc-wizard-next' ),
 		$prevButton = $container.find( '#w3tc-wizard-previous' ),
-		$skipButton = $container.find( '#w3tc-wizard-skip' );
+		$skipButton = $container.find( '#w3tc-wizard-skip' ),
+		$dashboardButton = $container.find( '#w3tc-wizard-dashboard' );
 
 	/**
 	 * Configure Page Cache.
@@ -548,6 +549,7 @@ function w3tc_wizard_actions( $slide ) {
 				$this.prop( 'disabled', 'disabled' );
 				$slide.find( '.notice-error' ).remove();
 				$container.find( '#w3tc-dbc-table tbody' ).empty();
+				$container.find( '#w3tc-dbcache-recommended' ).hide();
 				$prevButton.prop( 'disabled', 'disabled' );
 				$nextButton.prop( 'disabled', 'disabled' );
 
@@ -700,8 +702,9 @@ function w3tc_wizard_actions( $slide ) {
 						$nextButton.removeProp( 'disabled' );
 						return true;
 					}, testFailed )
-					// Restore the original database cache settings.
 					.then( function() {
+						$container.find( '#w3tc-dbcache-recommended' ).show();
+						// Restore the original database cache settings.
 						return configDbcache( ( dbcacheSettings.enabled ? 1 : 0 ), dbcacheSettings.engine );
 					},
 					function() {
@@ -1087,11 +1090,15 @@ function w3tc_wizard_actions( $slide ) {
 			// Present the Lazy Load slide.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-lazyload' ).addClass( 'is-active' );
+			$dashboardButton.closest( 'span' ).hide();
+			$nextButton.closest( 'span' ).show();
+			$nextButton.prop( 'disabled', 'disabled' );
 
 			// Update the lazy load enable chackbox from saved config.
 			getLazyloadSettings()
 				.then( function() {
 					$container.find( 'input#lazyload-enable' ).prop( 'checked', lazyloadSettings.enabled );
+					$nextButton.removeProp( 'disabled' );
 				}, configFailed );
 
 			break;
@@ -1158,6 +1165,13 @@ function w3tc_wizard_actions( $slide ) {
 					$container.find( '#test-results' ).data( 'completed', true );
 				});
 			}
+
+			$nextButton.closest( 'span' ).hide();
+			$dashboardButton.closest( 'span' ).show();
+
+			$container.find('#w3tc-wizard-dashboard').unbind().on('click', function () {
+				document.location = W3TC_SetupGuide.dashboardUrl;
+			});
 
 			break;
 

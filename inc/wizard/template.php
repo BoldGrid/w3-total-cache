@@ -69,6 +69,7 @@ class Template {
 			'br'     => array(),
 			'div'    => array(
 				'class' => array(),
+				'id'    => array(),
 			),
 			'em'     => array(),
 			'h3'     => array(),
@@ -164,8 +165,15 @@ class Template {
 			<span>
 				<button id="w3tc-wizard-skip" class="w3tc-wizard-buttons"><?php esc_html_e( 'SKIP', 'w3-total-cache' ); ?></button>
 			</span>
-			<span style="display:none;"><button id="w3tc-wizard-previous" class="w3tc-wizard-buttons"><?php esc_html_e( 'PREVIOUS', 'w3-total-cache' ); ?></button></span>
-			<span><button id="w3tc-wizard-next"class="w3tc-wizard-buttons"><?php esc_html_e( 'NEXT', 'w3-total-cache' ); ?></button></span>
+			<span id="w3tc-wizard-previous-span" class="hidden">
+				<button id="w3tc-wizard-previous" class="w3tc-wizard-buttons"><?php esc_html_e( 'PREVIOUS', 'w3-total-cache' ); ?></button>
+			</span>
+			<span>
+				<button id="w3tc-wizard-next" class="w3tc-wizard-buttons"><?php esc_html_e( 'NEXT', 'w3-total-cache' ); ?></button>
+			</span>
+			<span id="w3tc-wizard-dashboard-span" class="hidden">
+				<button id="w3tc-wizard-dashboard" class="w3tc-wizard-buttons"><?php esc_html_e( 'DASHBOARD', 'w3-total-cache' ); ?></button>
+			</span>
 		</div>
 	</div>
 

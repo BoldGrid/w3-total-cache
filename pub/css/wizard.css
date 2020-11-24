@@ -120,8 +120,9 @@ ul#w3tc-options-menu {
 	cursor: pointer;
 }
 
-/* Next button. */
-#w3tc-wizard-next:enabled {
+/* Next and Dashboard buttons. */
+#w3tc-wizard-next:enabled,
+#w3tc-wizard-dashboard {
 	background-color: #825772;
 	color: #fff;
 }

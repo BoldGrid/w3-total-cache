@@ -814,6 +814,7 @@ class SetupGuide_Plugin_Admin {
 							'disk_enhanced'     => __( 'Disk: Enhanced', 'w3-total-cache' ),
 							'enabled'           => __( 'Enabled', 'w3-total-cache' ),
 							'notEnabled'        => __( 'Not Enabled', 'w3-total-cache' ),
+							'dashboardUrl'      => esc_url( admin_url( 'admin.php?page=w3tc_dashboard' ) ),
 						),
 					),
 				),
@@ -1025,13 +1026,6 @@ class SetupGuide_Plugin_Admin {
 							'Many database queries are made in every dynamic page request.  A database cache may speed up the generation of dynamic pages.  Database Cache serves query results directly from a storage engine.',
 							'w3-total-cache'
 						) . '</p>
-						<div class="notice notice-info inline">
-						<div class="w3tc-notice-recommended"><span class="dashicons dashicons-lightbulb"></span> Recommended</div>
-						<div><p>' . esc_html__(
-							'Database Cache serves query results directly from a storage engine.  By default, this feature is disabled.  We recommend using Redis or Memcached, otherwise leave this feature disabled as the server database engine may be faster than using disk caching.',
-							'w3-total-cache'
-						) . '</p></div>
-						</div>
 						<p>
 						<input id="w3tc-test-dbcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Database Cache', 'w3-total-cache' ) . '">
@@ -1049,7 +1043,13 @@ class SetupGuide_Plugin_Admin {
 							</thead>
 							<tbody></tbody>
 						</table>
-						<p id="w3tc-test-dbc-query"></p>',
+						<div id="w3tc-dbcache-recommended" class="notice notice-info inline hidden">
+						<div class="w3tc-notice-recommended"><span class="dashicons dashicons-lightbulb"></span> Recommended</div>
+						<div><p>' . esc_html__(
+							'Database Cache serves query results directly from a storage engine.  By default, this feature is disabled.  We recommend using Redis or Memcached, otherwise leave this feature disabled as the server database engine may be faster than using disk caching.',
+							'w3-total-cache'
+						) . '</p></div>
+						</div>',
 				),
 				array( // Object Cache.
 					'headline' => __( 'Object Cache', 'w3-total-cache' ),
