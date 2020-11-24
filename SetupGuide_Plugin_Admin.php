@@ -978,7 +978,7 @@ class SetupGuide_Plugin_Admin {
 						sprintf(
 							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
 							esc_html__(
-								'If you want to change your settings later, you can %1$sskip this setup guide%2$s.',
+								'If you want to change your settings, you can %1$sskip this setup guide%2$s.',
 								'w3-total-cache'
 							),
 							'<a id="w3tc-wizard-skip-link" href="#">',
