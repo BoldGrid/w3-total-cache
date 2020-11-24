@@ -3,7 +3,7 @@
  *
  * JavaScript for the wizard.
  *
- * @since X.X.X
+ * @since 2.0.0
  */
 
  jQuery(function() {

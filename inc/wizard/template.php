@@ -2,7 +2,7 @@
 /**
  * File: template.php
  *
- * @since X.X.X
+ * @since 2.0.0
  *
  * @package    W3TC
  * @subpackage W3TC\Wizard
@@ -19,13 +19,13 @@ if ( ! defined( 'W3TC' ) ) {
  *
  * Wizard template class.
  *
- * @since X.X.X
+ * @since 2.0.0
  */
 class Template {
 	/**
 	 * Configuration.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @var array
 	 */
@@ -35,7 +35,7 @@ class Template {
 	/**
 	 * Constructor.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @see self::add_hooks();
 	 *
@@ -50,7 +50,7 @@ class Template {
 	/**
 	 * Render the wizard.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @see self::enqueue_scripts()
 	 * @see self::enqueue_styles()
@@ -188,7 +188,7 @@ class Template {
 	/**
 	 * Add hooks.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 */
 	private function add_hooks() {
 		if ( isset( $this->config['actions'] ) && is_array( $this->config['actions'] ) ) {
@@ -217,7 +217,7 @@ class Template {
 	/**
 	 * Rnqueue scripts.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 */
 	private function enqueue_scripts() {
 		wp_enqueue_script(
@@ -254,7 +254,7 @@ class Template {
 	/**
 	 * Enqueue styles.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 */
 	private function enqueue_styles() {
 		wp_enqueue_style(

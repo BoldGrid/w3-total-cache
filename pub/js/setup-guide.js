@@ -3,7 +3,7 @@
  *
  * JavaScript for the Setup Guide page.
  *
- * @since X.X.X
+ * @since 2.0.0
  *
  * @global W3TC-setup-guide Localized array variable.
  */
@@ -11,7 +11,7 @@
  /**
   * Wizard actions.
   *
-  * @since X.X.X
+  * @since 2.0.0
   *
   * @param object $slide The div of the slide displayed.
   */
@@ -46,7 +46,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Configure Page Cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @param int    enable Enable Page Cache.
 	 * @param string engine Page Cache storage engine.
@@ -76,7 +76,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Get Page Cache settings.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @return jqXHR
 	 */
@@ -97,7 +97,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Configure Database Cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @param int    enable Enable database cache.
 	 * @param string engine Database cache storage engine.
@@ -127,7 +127,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Get Database Cache settings.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @return jqXHR
 	 */
@@ -148,7 +148,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Configure Object Cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @param int    enable Enable cache.
 	 * @param string engine Cache storage engine.
@@ -178,7 +178,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Get Object Cache settings.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @return jqXHR
 	 */
@@ -199,7 +199,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Configure Browser Cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @param int enable Enable browser cache.
 	 * @return jqXHR
@@ -224,7 +224,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Get Browser Cache settings.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @return jqXHR
 	 */
@@ -245,7 +245,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Configure Lazy Load.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @param int enable Enable lazyload.
 	 * @return jqXHR
@@ -270,7 +270,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Get Lazt Load settings.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @return jqXHR
 	 */
@@ -291,7 +291,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Configuration failed.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 */
 	function configFailed() {
 		$slide.append(
@@ -307,7 +307,7 @@ function w3tc_wizard_actions( $slide ) {
 	/**
 	 * Test failed.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 */
 	function testFailed() {
 		$slide.append(
@@ -350,7 +350,7 @@ function w3tc_wizard_actions( $slide ) {
 				/**
 				 * Add a test result table row.
 				 *
-				 * @since X.X.X
+				 * @since 2.0.0
 				 *
 				 * @param object testResponse Data.
 				 * @param string engine       Cache storage engine.
@@ -417,7 +417,7 @@ function w3tc_wizard_actions( $slide ) {
 				/**
 				 * Test Page Cache.
 				 *
-				 * @since X.X.X
+				 * @since 2.0.0
 				 *
 				 * @param string engine Cache storage engine.
 				 * @param string label  Text label for the engine.
@@ -558,7 +558,7 @@ function w3tc_wizard_actions( $slide ) {
 				/**
 				 * Add a test result table row.
 				 *
-				 * @since X.X.X
+				 * @since 2.0.0
 				 *
 				 * @param object testResponse Data.
 				 * @param string engine       Cache storage engine.
@@ -620,7 +620,7 @@ function w3tc_wizard_actions( $slide ) {
 				/**
 				 * Test database cache.
 				 *
-				 * @since X.X.X
+				 * @since 2.0.0
 				 *
 				 * @param string engine Cache storage engine.
 				 * @param string label  Text label for the engine.
@@ -755,7 +755,7 @@ function w3tc_wizard_actions( $slide ) {
 				/**
 				 * Add a test result table row.
 				 *
-				 * @since X.X.X
+				 * @since 2.0.0
 				 *
 				 * @param object testResponse Data.
 				 * @param string engine       Cache storage engine.
@@ -816,7 +816,7 @@ function w3tc_wizard_actions( $slide ) {
 				/**
 				 * Test object cache cache.
 				 *
-				 * @since X.X.X
+				 * @since 2.0.0
 				 *
 				 * @param string engine Cache storage engine.
 				 * @param string label  Text label for the engine.
@@ -951,7 +951,7 @@ function w3tc_wizard_actions( $slide ) {
 				/**
 				 * Add a Browser Cache test result table row.
 				 *
-				 * @since X.X.X
+				 * @since 2.0.0
 				 *
 				 * @param object testResponse An object (success, data) containing a data array of objects
 				 * 	                          (url, filename, header, headers).
@@ -1014,7 +1014,7 @@ function w3tc_wizard_actions( $slide ) {
 				/**
 				 * Test browser cache.
 				 *
-				 * @since X.X.X
+				 * @since 2.0.0
 				 *
 				 * @return jqXHR
 				 */

@@ -2,7 +2,7 @@
 /**
  * File: SetupGuide_Plugin_Admin.php
  *
- * @since X.X.X
+ * @since 2.0.0
  *
  * @package W3TC
  */
@@ -12,13 +12,13 @@ namespace W3TC;
 /**
  * Class: SetupGuide_Plugin_Admin
  *
- * @since X.X.X
+ * @since 2.0.0
  */
 class SetupGuide_Plugin_Admin {
 	/**
 	 * Current page.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 * @access protected
 	 *
 	 * @var string
@@ -35,7 +35,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Constructor.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 */
 	public function __construct() {
 		require_once W3TC_INC_DIR . '/wizard/template.php';
@@ -50,7 +50,7 @@ class SetupGuide_Plugin_Admin {
 	 *
 	 * Needed by the Root_Loader.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 */
 	public function run() {
 	}
@@ -58,7 +58,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Display the setup guide.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @see \W3TC\Wizard\Template::render()
 	 */
@@ -69,7 +69,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Set option to skip the setup guide.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 */
 	public function skip() {
 		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
@@ -83,7 +83,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Abbreviate a URL for display in a small space.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @param  string $url URL.
 	 * @return string
@@ -111,7 +111,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Test Page Cache.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see self::abbreviate_url()
 	 * @see \W3TC\Util_Http::ttfb()
@@ -141,7 +141,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Get the page cache settings.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -164,7 +164,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Configure the page cache settings.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -252,7 +252,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Test database cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -330,7 +330,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Get the database cache settings.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -353,7 +353,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Configure the database cache settings.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -436,7 +436,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Test object cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -473,7 +473,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Get the object cache settings.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -496,7 +496,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Configure the object cache settings.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -579,7 +579,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Test URL addreses for Browser Cache header.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\CacheFlush::browsercache_flush()
 	 * @see \W3TC\Util_Http::get_headers()
@@ -618,7 +618,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Get the browser cache settings.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -646,7 +646,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Configure the browser cache settings.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Dispatcher::component()
 	 * @see \W3TC\Config::get_boolean()
@@ -698,7 +698,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Get the lazy load settings.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Config::get_boolean()
 	 * @see \W3TC\Config::get_string()
@@ -725,7 +725,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Admin-Ajax: Configure lazy load.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 *
 	 * @see \W3TC\Dispatcher::component()
 	 * @see \W3TC\Config::get_boolean()
@@ -774,7 +774,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Get configuration.
 	 *
-	 * @since  X.X.X
+	 * @since  2.0.0
 	 * @access private
 	 *
 	 * @return array
@@ -1045,7 +1045,8 @@ class SetupGuide_Plugin_Admin {
 						</table>
 						<div id="w3tc-dbcache-recommended" class="notice notice-info inline hidden">
 						<div class="w3tc-notice-recommended"><span class="dashicons dashicons-lightbulb"></span> Recommended</div>
-						<div><p>' . esc_html__(
+						<div><p>' .
+						esc_html__(
 							'Database Cache serves query results directly from a storage engine.  By default, this feature is disabled.  We recommend using Redis or Memcached, otherwise leave this feature disabled as the server database engine may be faster than using disk caching.',
 							'w3-total-cache'
 						) . '</p></div>
