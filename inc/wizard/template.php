@@ -59,8 +59,6 @@ class Template {
 		$this->enqueue_scripts();
 		$this->enqueue_styles();
 
-		require W3TC_INC_DIR . '/options/common/header.php';
-
 		$allowed_html = array(
 			'a'      => array(
 				'href'   => array(),
