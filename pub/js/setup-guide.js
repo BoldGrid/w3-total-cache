@@ -8,6 +8,10 @@
  * @global W3TC-setup-guide Localized array variable.
  */
 
+jQuery( '#w3tc-wizard-step-welcome' )
+	.addClass( 'is-active' )
+	.append( '<span class="dashicons dashicons-yes"></span>' );
+
  /**
   * Wizard actions.
   *
@@ -323,6 +327,7 @@ function w3tc_wizard_actions( $slide ) {
 	switch ( slideId ) {
 		case 'w3tc-wizard-slide-welcome':
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-wizard-step-welcome' ).addClass( 'is-active' );
 
 			break;
 

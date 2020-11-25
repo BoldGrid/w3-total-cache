@@ -936,6 +936,10 @@ class SetupGuide_Plugin_Admin {
 			'steps_location' => 'left',
 			'steps'          => array(
 				array(
+					'id'   => 'welcome',
+					'text' => __( 'Welcome', 'w3-total-cache' ),
+				),
+				array(
 					'id'   => 'pgcache',
 					'text' => __( 'Page Cache', 'w3-total-cache' ),
 				),
