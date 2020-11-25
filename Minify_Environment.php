@@ -607,8 +607,8 @@ class Minify_Environment {
 		if ( $expires ) {
 			$rules .= "<IfModule mod_expires.c>\n";
 			$rules .= "    ExpiresActive On\n";
-			$rules .= "    ExpiresByType text/css M" . $lifetime . "\n";
-			$rules .= "    ExpiresByType application/x-javascript M" . $lifetime . "\n";
+			$rules .= "    ExpiresByType text/css A" . $lifetime . "\n";
+			$rules .= "    ExpiresByType application/x-javascript A" . $lifetime . "\n";
 			$rules .= "</IfModule>\n";
 		}
 
