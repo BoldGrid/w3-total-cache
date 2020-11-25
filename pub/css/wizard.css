@@ -47,7 +47,6 @@
     left: -2px;
 }
 
-
 /**
  * Left nav / steps.
  */
@@ -92,7 +91,7 @@ ul#w3tc-options-menu {
 	background-size:
 		auto,
 		auto 60%;
-	min-height: 607px;
+	min-height: 540px;
 	padding-bottom: 70px;
 	padding-right: 160px;
 	position: relative;
@@ -158,4 +157,9 @@ ul#w3tc-options-menu {
 
 .w3tc-notice-recommended .dashicons-lightbulb {
 	color: #00a0d2;
+}
+
+.widefat thead th,
+.widefat td {
+	line-height: 1em;
 }
