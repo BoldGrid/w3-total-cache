@@ -299,9 +299,9 @@ function w3tc_wizard_actions( $slide ) {
 	 */
 	function configFailed() {
 		$slide.append(
-			'<p class="notice notice-error"><strong>' +
+			'<div class="notice notice-error"><p><strong>' +
 			W3TC_SetupGuide.config_error_msg +
-			'</strong></p>'
+			'</strong></p></div>'
 		);
 		$nextButton.closest( 'span' ).hide();
 		$prevButton.closest( 'span' ).hide();
@@ -315,9 +315,9 @@ function w3tc_wizard_actions( $slide ) {
 	 */
 	function testFailed() {
 		$slide.append(
-			'<p class="notice notice-error"><strong>' +
-			W3TC_SetupGuide.test_error_msg +
-			'</strong></p>'
+			'<div class="notice notice-error"><p><strong>' +
+			W3TC_SetupGuide.config_error_msg +
+			'</strong></p></div>'
 		);
 		$nextButton.closest( 'span' ).hide();
 		$prevButton.closest( 'span' ).hide();
@@ -529,9 +529,9 @@ function w3tc_wizard_actions( $slide ) {
 			configPgcache( ( 'none' === pgcacheEngine ? 0 : 1 ), 'none' === pgcacheEngine ? '' : pgcacheEngine )
 				.fail( function() {
 					$slide.append(
-						'<p class="notice notice-error"><strong>' +
+						'<div class="notice notice-error"><p><strong>' +
 						W3TC_SetupGuide.config_error_msg +
-						'</strong></p>'
+						'</strong></p></div>'
 					);
 				});
 
@@ -727,9 +727,9 @@ function w3tc_wizard_actions( $slide ) {
 			configDbcache( ( 'none' === dbcEngine ? 0 : 1 ), 'none' === dbcEngine ? '' : dbcEngine )
 				.fail( function() {
 					$slide.append(
-						'<p class="notice notice-error"><strong>' +
+						'<div class="notice notice-error"><p><strong>' +
 						W3TC_SetupGuide.config_error_msg +
-						'</strong></p>'
+						'</strong></p></div>'
 					);
 				});
 
@@ -922,9 +922,9 @@ function w3tc_wizard_actions( $slide ) {
 			configObjcache( ( 'none' === objcacheEngine ? 0 : 1 ), 'none' === objcacheEngine ? '' : objcacheEngine )
 				.fail( function() {
 					$slide.append(
-						'<p class="notice notice-error"><strong>' +
+						'<div class="notice notice-error"><p><strong>' +
 						W3TC_SetupGuide.config_error_msg +
-						'</strong></p>'
+						'</strong></p></div>'
 					);
 				});
 
@@ -1082,9 +1082,9 @@ function w3tc_wizard_actions( $slide ) {
 			configBrowsercache( ( '1' === browsercacheEnabled ? 1 : 0 ) )
 				.fail( function() {
 					$slide.append(
-						'<p class="notice notice-error"><strong>' +
+						'<div class="notice notice-error"><p><strong>' +
 						W3TC_SetupGuide.config_error_msg +
-						'</strong></p>'
+						'</strong></p></div>'
 					);
 				});
 
@@ -1125,9 +1125,9 @@ function w3tc_wizard_actions( $slide ) {
 			configLazyload( ( '1' === lazyloadEnabled ? 1 : 0 ) )
 			.fail( function() {
 				$slide.append(
-					'<p class="notice notice-error"><strong>' +
+					'<div class="notice notice-error"><p><strong>' +
 					W3TC_SetupGuide.config_error_msg +
-					'</strong></p>'
+					'</strong></p></div>'
 				);
 			});
 
