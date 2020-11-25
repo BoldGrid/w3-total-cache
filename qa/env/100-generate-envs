@@ -159,21 +159,14 @@ def generate_box_descriptors(image_name)
 	}
 
 	box_descriptors = multiply(box_descriptors, {
-		# 4.0
-		# 4.3.1
-		# 4.5.3
-		# 4.6
-		# 4.7
-		'wp47' => {
-			'WP_VERSION' => '4.7',
-			'_except_name_contains' => [
-				'php53', 'php55', 'php56', 'php71', 'php73',   # no reason to use for all php versions
-				'varnish',
-				'https'
-			]
-		},
-		# 4.7.2
-		# 4.8
+		#'wp47' => {
+		#	'WP_VERSION' => '4.7',
+		#	'_except_name_contains' => [
+		#		'php53', 'php55', 'php56', 'php71', 'php73',   # no reason to use for all php versions
+		#		'varnish',
+		#		'https'
+		#	]
+		#},
 		'wp49' => {
 			'WP_VERSION' => '4.9.4',
 			'_except_name_contains' => [
@@ -182,26 +175,31 @@ def generate_box_descriptors(image_name)
 				'php73',   # cause a lot of PHP warnings
 			]
 		},
-		# 5.0.3
-		'wp51' => {
-			'WP_VERSION' => '5.1'
-		},
-		'wp52' => {
-			'WP_VERSION' => '5.2',
-			'_except_name_contains' => [
-				'php55'   # wp5.2 requires php>=5.6
-			]
-		},
-		'wp53' => {
-			'WP_VERSION' => '5.3',
-			'_except_name_contains' => [
-				'php55'   # wp5.3 requires php>=5.6
-			]
-		},
+		#'wp51' => {
+		#	'WP_VERSION' => '5.1'
+		#},
+		#'wp52' => {
+		#	'WP_VERSION' => '5.2',
+		#	'_except_name_contains' => [
+		#		'php55'   # wp5.2 requires php>=5.6
+		#	]
+		#},
+		#'wp53' => {
+		#	'WP_VERSION' => '5.3',
+		#	'_except_name_contains' => [
+		#		'php55'   # wp5.3 requires php>=5.6
+		#	]
+		#},
 		'wp55' => {
 			'WP_VERSION' => '5.5-RC1',
 			'_except_name_contains' => [
 				'php55'   # wp5.5 requires php>=5.6
+			]
+		},
+		'wp56' => {
+			'WP_VERSION' => '5.6-RC1',
+			'_except_name_contains' => [
+				'php55'   # wp5.6 requires php>=5.6
 			]
 		}
 	}, image_name)
