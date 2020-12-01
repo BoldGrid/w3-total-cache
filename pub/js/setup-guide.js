@@ -392,7 +392,13 @@ function w3tc_wizard_actions( $slide ) {
 						label += '<br /><span class="w3tc-option-recommended">(Recommended)</span>';
 					}
 
-					results += '></td><td><label for="pgcache-engine-' +
+					results += '>';
+
+					if ( isCurrentSetting ) {
+						results += '<span class="dashicons dashicons-admin-settings" title="Current setting"></span>';
+					}
+
+					results += '</td><td><label for="pgcache-engine-' +
 						engine +
 						'">' +
 						label +
@@ -574,7 +580,9 @@ function w3tc_wizard_actions( $slide ) {
 						results = '<tr',
 						percentChange,
 						changeLabelType,
-						changeLabel;
+						changeLabel,
+						isCurrentSetting = ( ! dbcacheSettings.enabled && 'none' === engine ) ||
+							( dbcacheSettings.enabled && dbcacheSettings.engine === engine );
 
 					if ( ! configSuccess ) {
 						results += ' class="w3tc-option-disabled"';
@@ -590,12 +598,17 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' disabled="disabled"';
 					}
 
-					if ( ( ! dbcacheSettings.enabled && 'none' === engine ) ||
-						( dbcacheSettings.enabled && dbcacheSettings.engine === engine ) ) {
+					if ( isCurrentSetting ) {
 							results += ' checked';
 					}
 
-					results += '></td><td><label for="dbcache-engine-' +
+					results += '>';
+
+					if ( isCurrentSetting ) {
+						results += '<span class="dashicons dashicons-admin-settings" title="Current setting"></span>';
+					}
+
+					results += '</td><td><label for="dbcache-engine-' +
 						engine +
 						'">' +
 						label +
@@ -771,7 +784,9 @@ function w3tc_wizard_actions( $slide ) {
 						results = '<tr',
 						percentChange,
 						changeLabelType,
-						changeLabel;
+						changeLabel,
+						isCurrentSetting = ( ! objcacheSettings.enabled && 'none' === engine ) ||
+							( objcacheSettings.enabled && objcacheSettings.engine === engine );
 
 					if ( ! configSuccess ) {
 						results += ' class="w3tc-option-disabled"';
@@ -787,12 +802,17 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' disabled="disabled"';
 					}
 
-					if ( ( ! objcacheSettings.enabled && 'none' === engine ) ||
-						( objcacheSettings.enabled && objcacheSettings.engine === engine ) ) {
+					if ( isCurrentSetting ) {
 							results += ' checked';
 					}
 
-					results += '></td><td><label for="objcache-engine-' +
+					results += '>';
+
+					if ( isCurrentSetting ) {
+						results += '<span class="dashicons dashicons-admin-settings" title="Current setting"></span>';
+					}
+
+					results += '</td><td><label for="objcache-engine-' +
 						engine +
 						'">' +
 						label +
@@ -963,7 +983,8 @@ function w3tc_wizard_actions( $slide ) {
 				 */
 				function addResultRow( testResponse ) {
 					var label = bcEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.notEnabled,
-						results = '<tr';
+						results = '<tr',
+						isCurrentSetting = bcEnabled == browsercacheSettings.enabled;
 
 					if ( ! configSuccess ) {
 						results += ' class="w3tc-option-disabled"';
@@ -979,7 +1000,7 @@ function w3tc_wizard_actions( $slide ) {
 						results += ' disabled="disabled"';
 					}
 
-					if ( bcEnabled == browsercacheSettings.enabled ) {
+					if ( isCurrentSetting ) {
 						results += ' checked';
 					}
 
@@ -987,7 +1008,13 @@ function w3tc_wizard_actions( $slide ) {
 						label +
 						'">' +
 						label +
-						'</label></td>';
+						'</label>';
+
+					if ( isCurrentSetting ) {
+						results += ' <span class="dashicons dashicons-admin-settings" title="Current setting"></span>';
+					}
+
+					results += '</td>';
 
 					if ( testResponse.success ) {
 						results += '<td>';

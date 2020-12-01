@@ -158,6 +158,11 @@ ul#w3tc-options-menu {
 	color: #00a0d2;
 }
 
+#w3tc-dbcache-recommended {
+	margin: 10px 0px;
+}
+
+/* Tables */
 .widefat thead th,
 .widefat td {
 	line-height: 1em;
