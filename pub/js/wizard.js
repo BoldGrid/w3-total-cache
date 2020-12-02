@@ -72,7 +72,7 @@
 		if ( $previousSlide.length ) {
 			$currentSlide.hide();
 			$previousSlide.show();
-			$nextButton.removeProp( 'disabled' );
+			$nextButton.prop( 'disabled', false );
 		}
 
 		// Hide the previous button and show the skip button on the first slide.

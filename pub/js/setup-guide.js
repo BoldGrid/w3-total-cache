@@ -511,9 +511,9 @@ function w3tc_wizard_actions( $slide ) {
 					}, configFailed )
 					.then(function() {
 						$spinnerParent.hide();
-						$this.removeProp( 'disabled' );
-						$prevButton.removeProp( 'disabled' );
-						$nextButton.removeProp( 'disabled' );
+						$this.prop( 'disabled', false );
+						$prevButton.prop( 'disabled', false );
+						$nextButton.prop( 'disabled', false );
 						return true;
 					}, testFailed )
 					// Restore the original database cache settings.
@@ -715,9 +715,9 @@ function w3tc_wizard_actions( $slide ) {
 					}, configFailed )
 					.then(function() {
 						$spinnerParent.hide();
-						$this.removeProp( 'disabled' );
-						$prevButton.removeProp( 'disabled' );
-						$nextButton.removeProp( 'disabled' );
+						$this.prop( 'disabled', false );
+						$prevButton.prop( 'disabled', false );
+						$nextButton.prop( 'disabled', false );
 						return true;
 					}, testFailed )
 					.then( function() {
@@ -918,9 +918,9 @@ function w3tc_wizard_actions( $slide ) {
 					}, configFailed )
 					.then(function() {
 						$spinnerParent.hide();
-						$this.removeProp( 'disabled' );
-						$prevButton.removeProp( 'disabled' );
-						$nextButton.removeProp( 'disabled' );
+						$this.prop( 'disabled', false );
+						$prevButton.prop( 'disabled', false );
+						$nextButton.prop( 'disabled', false );
 						return true;
 					}, testFailed )
 					// Restore the original object cache settings.
@@ -1085,9 +1085,9 @@ function w3tc_wizard_actions( $slide ) {
 					.then( testBrowsercache, configFailed )
 					.then(function() {
 						$spinnerParent.hide();
-						$this.removeProp( 'disabled' );
-						$prevButton.removeProp( 'disabled' );
-						$nextButton.removeProp( 'disabled' );
+						$this.prop( 'disabled', false );
+						$prevButton.prop( 'disabled', false );
+						$nextButton.prop( 'disabled', false );
 						return true;
 					}, testFailed )
 					// Restore the original browser cache settings.
@@ -1130,7 +1130,7 @@ function w3tc_wizard_actions( $slide ) {
 			getLazyloadSettings()
 				.then( function() {
 					$container.find( 'input#lazyload-enable' ).prop( 'checked', lazyloadSettings.enabled );
-					$nextButton.removeProp( 'disabled' );
+					$nextButton.prop( 'disabled', false );
 				}, configFailed );
 
 			break;
