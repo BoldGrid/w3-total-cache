@@ -340,7 +340,7 @@ function w3tc_wizard_actions( $slide ) {
 				$nextButton.prop( 'disabled', 'disabled' );
 			}
 
-			$slide.find( '#w3tc-test-pgcache' ).unbind().on('click', function () {
+			$slide.find( '#w3tc-test-pgcache' ).off('click').on('click', function () {
 				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
 					$this = jQuery( this );
 
@@ -553,7 +553,7 @@ function w3tc_wizard_actions( $slide ) {
 				$nextButton.prop( 'disabled', 'disabled' );
 			}
 
-			$slide.find( '#w3tc-test-dbcache' ).unbind().on('click', function () {
+			$slide.find( '#w3tc-test-dbcache' ).off('click').on('click', function () {
 				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
 					$this = jQuery( this );
 
@@ -758,7 +758,7 @@ function w3tc_wizard_actions( $slide ) {
 				$nextButton.prop( 'disabled', 'disabled' );
 			}
 
-			$slide.find( '#w3tc-test-objcache' ).unbind().on('click', function () {
+			$slide.find( '#w3tc-test-objcache' ).off('click').on('click', function () {
 				var $spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
 					$this = jQuery( this );
 
@@ -960,7 +960,7 @@ function w3tc_wizard_actions( $slide ) {
 				$nextButton.prop( 'disabled', 'disabled' );
 			}
 
-			$slide.find( '#w3tc-test-browsercache' ).unbind().on('click', function () {
+			$slide.find( '#w3tc-test-browsercache' ).off('click').on('click', function () {
 				var bcEnabled,
 					$spinnerParent = $slide.find( '.spinner' ).addClass( 'is-active' ).parent(),
 					$this = jQuery( this );

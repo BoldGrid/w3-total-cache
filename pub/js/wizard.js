@@ -15,8 +15,8 @@
 
 	jQuery( '.button-buy-plugin' ).parent().remove();
 
-	$skipLink.click( skipFunction );
-	$skipButton.click( skipFunction );
+	$skipLink.on( 'click', skipFunction );
+	$skipButton.on( 'click', skipFunction );
 
 	// Listen for clicks to go to the W3TC Dashboard.
 	$container.find( '#w3tc-wizard-dashboard' ).on( 'click', function () {
@@ -65,7 +65,7 @@
 			});
 	};
 
-	$previousButton.click(function() {
+	$previousButton.on( 'click', function() {
 		var $currentSlide = $container.find( '.w3tc-wizard-slides:visible' ),
 			$previousSlide = $currentSlide.prev( '.w3tc-wizard-slides' );
 
@@ -84,7 +84,7 @@
 		w3tc_wizard_actions( $previousSlide );
 	});
 
-	$nextButton.click(function() {
+	$nextButton.on( 'click', function() {
 		var $currentSlide = $container.find( '.w3tc-wizard-slides:visible' ),
 			$nextSlide = $currentSlide.next( '.w3tc-wizard-slides' );
 
