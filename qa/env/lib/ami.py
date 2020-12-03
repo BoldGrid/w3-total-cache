@@ -21,7 +21,10 @@ def generate(name):
 	init(name, ip)
 
 	aws.ami_create(ec2['aws_instance_id'], ami_name)
-	aws.ec2_stop(ec2['aws_instance_id'])
+
+	# box should be left running, otherwise AWS starts well,
+	# but fails to build AMI
+	# aws.ec2_stop(ec2['aws_instance_id'])
 
 
 
