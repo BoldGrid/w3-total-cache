@@ -185,6 +185,9 @@ async function postCreateWP5(pPage, data) {
 	if (parseFloat(env.wpVersion) < 5.3) {
 		await pPage.click(moreButtonSelector);
 	} else {
+		await pPage.waitForSelector(moreButtonSelector, {
+			timeout: 3000
+		});
 		await pPage.click(moreButtonSelector);
 
 		try {
@@ -427,6 +430,9 @@ async function postUpdateWP5(pPage, data) {
 	if (parseFloat(env.wpVersion) < 5.3) {
 		await pPage.click(moreButtonSelector);
 	} else {
+		await pPage.waitForSelector(moreButtonSelector, {
+			timeout: 3000
+		});
 		await pPage.click(moreButtonSelector);
 
 		try {
