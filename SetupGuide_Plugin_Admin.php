@@ -900,7 +900,7 @@ class SetupGuide_Plugin_Admin {
 							'php_version'       => phpversion(),
 							'w3tc_version'      => W3TC_VERSION,
 							'server_software'   => isset( $_SERVER['SERVER_SOFTWARE'] ) ?
-								sanitize_text_field( $_SERVER['SERVER_SOFTWARE'] ) : null,
+								sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : null,
 							'db_version'        => $wpdb->db_version(),
 							'home_url_host'     => Util_Environment::home_url_host(),
 							'install_version'   => esc_attr( $state->get_string( 'common.install_version' ) ),

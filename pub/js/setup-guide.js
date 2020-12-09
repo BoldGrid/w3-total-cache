@@ -16,7 +16,7 @@ jQuery(function() {
 	// GA.
 	if ( 'accept' === W3TC_SetupGuide.tos_choice ) {
 		w3tc_ga( 'create', W3TC_SetupGuide.ga_profile, 'auto' );
-		w3tc_ga( 'send', 'event', 'button', 'setup-guide', 'w3tc-wizard-step-welcome', {transport: 'beacon'} );
+		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', 'w3tc-wizard-step-welcome' );
 	}
 
 	// Handle the terms of service notice.
@@ -398,7 +398,7 @@ function w3tc_wizard_actions( $slide ) {
 
 	// GA.
 	if ( 'accept' === W3TC_SetupGuide.tos_choice ) {
-		w3tc_ga( 'send', 'event', 'button', 'setup-guide', slideId, {transport: 'beacon'} );
+		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', slideId );
 	}
 
 	switch ( slideId ) {

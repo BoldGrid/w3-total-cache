@@ -33,7 +33,8 @@
 	 */
 	function skipFunction() {
 		var $this = jQuery( this ),
-			nodeName = $this.prop('nodeName');
+			nodeName = $this.prop('nodeName'),
+			page = location.href.replace(/^.+page=/, '' );
 
 		if ( 'BUTTON' === nodeName ) {
 			$this
@@ -41,6 +42,9 @@
 				.css( 'color', '#000' )
 				.text( 'Skipping...' );
 		}
+
+		// GA.
+		w3tc_ga( 'send', 'event', 'button', page, 'skip' );
 
 		jQuery.ajax({
 			method: 'POST',
