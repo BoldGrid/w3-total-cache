@@ -808,23 +808,18 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
-	 * Display the terms of service dialog if needed.
+	 * Get the terms of service choice.
 	 *
-	 * @since  2.0.0
-	 * @access private
+	 * @since 2.0.0
 	 *
 	 * @see \W3TC\Util_Environment::is_w3tc_pro()
 	 * @see \W3TC\Dispatcher::config_state()
 	 * @see \W3TC\Dispatcher::config_state_master()
 	 * @see \W3TC\ConfigState::get_string()
 	 *
-	 * @return bool
+	 * @return string
 	 */
-	private function maybe_ask_tos() {
-		if ( defined( 'W3TC_PRO' ) ) {
-			return false;
-		}
-
+	private function get_tos_choice() {
 		$config = new Config();
 
 		if ( Util_Environment::is_w3tc_pro( $config ) ) {
@@ -835,6 +830,26 @@ class SetupGuide_Plugin_Admin {
 			$terms        = $state_master->get_string( 'license.community_terms' );
 		}
 
+		return $terms;
+	}
+
+	/**
+	 * Display the terms of service dialog if needed.
+	 *
+	 * @since  2.0.0
+	 * @access private
+	 *
+	 * @see self::get_tos_choice()
+	 *
+	 * @return bool
+	 */
+	private function maybe_ask_tos() {
+		if ( defined( 'W3TC_PRO' ) ) {
+			return false;
+		}
+
+		$terms = $this->get_tos_choice();
+
 		return 'accept' !== $terms && 'decline' !== $terms && 'postpone' !== $terms;
 	}
 
@@ -844,11 +859,29 @@ class SetupGuide_Plugin_Admin {
 	 * @since  2.0.0
 	 * @access private
 	 *
+	 * @global $wp_version WordPress version string.
+	 * @global $wpdb       WordPress database connection.
+	 *
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Util_Request::get_string()
+	 * @see \W3TC\Dispatcher::config_state()
+	 * @see \W3TC\Util_Environment::home_url_host()
+	 * @see \W3TC\Util_Environment::w3tc_edition()
+	 * @see \W3TC\Util_Widget::list_widgets()
+	 *
 	 * @return array
 	 */
 	private function get_config() {
+		global $wp_version, $wpdb;
+
 		$config               = new Config();
 		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
+		$page                 = Util_Request::get_string( 'page' );
+		$state                = Dispatcher::config_state();
+
+		if ( 'w3tc_extensions' === $page ) {
+			$page = 'extensions/' . Util_Request::get_string( 'extension' );
+		}
 
 		return array(
 			'title'          => esc_html__( 'Setup Guide', 'w3-total-cache' ),
@@ -862,6 +895,19 @@ class SetupGuide_Plugin_Admin {
 					'localize'  => array(
 						'object_name' => 'W3TC_SetupGuide',
 						'data'        => array(
+							'page'              => $page,
+							'wp_version'        => $wp_version,
+							'php_version'       => phpversion(),
+							'w3tc_version'      => W3TC_VERSION,
+							'server_software'   => isset( $_SERVER['SERVER_SOFTWARE'] ) ?
+								sanitize_text_field( $_SERVER['SERVER_SOFTWARE'] ) : null,
+							'db_version'        => $wpdb->db_version(),
+							'home_url_host'     => Util_Environment::home_url_host(),
+							'install_version'   => esc_attr( $state->get_string( 'common.install_version' ) ),
+							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $config ) ),
+							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
+							'ga_profile'        => ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) ? 'UA-2264433-7' : 'UA-2264433-8',
+							'tos_choice'        => $this->get_tos_choice(),
 							'test_complete_msg' => __(
 								'Testing complete.  Click Next to advance to the section and see the results.',
 								'w3-total-cache'
@@ -1076,8 +1122,8 @@ class SetupGuide_Plugin_Admin {
 							'</a>'
 						) . '</p>
 						<p>
-						<input type="button" class="button" data-choice="accept" value="' . esc_html( 'Accept', 'w3-total-cache' ) . '" /> &nbsp;
-						<input type="button" class="button" data-choice="decline" value="' . esc_html( 'Decline', 'w3-total-cache' ) . '" />
+						<input type="button" class="button" data-choice="accept" value="' . esc_html__( 'Accept', 'w3-total-cache' ) . '" /> &nbsp;
+						<input type="button" class="button" data-choice="decline" value="' . esc_html__( 'Decline', 'w3-total-cache' ) . '" />
 						</p>
 						</div>' : '' ),
 				),

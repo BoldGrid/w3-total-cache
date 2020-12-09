@@ -13,13 +13,20 @@ jQuery(function() {
 		$nextButton = $container.find( '#w3tc-wizard-next '),
 		$tosNotice = $container.find( '#w3tc-licensing-terms' );
 
+	// GA.
+	if ( 'accept' === W3TC_SetupGuide.tos_choice ) {
+		w3tc_ga( 'create', W3TC_SetupGuide.ga_profile, 'auto' );
+		w3tc_ga( 'send', 'event', 'button', 'setup-guide', 'w3tc-wizard-step-welcome', {transport: 'beacon'} );
+	}
+
 	// Handle the terms of service notice.
 	if ( $tosNotice.length ) {
 		$nextButton.prop( 'disabled', true );
 		$container.find( '.dashicons-yes' ).hide();
 
 		$tosNotice.find( '.button' ).on( 'click', function() {
-			$this = jQuery( this );
+			var $this = jQuery( this ),
+				choice = $this.data( 'choice' );
 
 			jQuery.ajax({
 				method: 'POST',
@@ -27,7 +34,7 @@ jQuery(function() {
 				data: {
 					_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
 					action: "w3tc_tos_choice",
-					choice: $this.data( 'choice' )
+					choice: choice
 				}
 			})
 				.done(function( response ) {
@@ -41,6 +48,34 @@ jQuery(function() {
 
 					location.reload();
 				});
+
+			if ( 'accept' === choice ) {
+				W3TC_SetupGuide.tos_choice = choice;
+
+				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+					(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+					m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+					})(window,document,'script','https://api.w3-edge.com/v1/analytics','w3tc_ga');
+
+				if (window.w3tc_ga) {
+					w3tc_ga( 'create', W3TC_SetupGuide.ga_profile, 'auto' );
+					w3tc_ga( 'set', {
+						'dimension1': 'w3-total-cache',
+						'dimension2': W3TC_SetupGuide.w3tc_version,
+						'dimension3': W3TC_SetupGuide.wp_version,
+						'dimension4': W3TC_SetupGuide.php_version,
+						'dimension5': W3TC_SetupGuide.server_software,
+						'dimension6': W3TC_SetupGuide.db_version,
+						'dimension7': W3TC_SetupGuide.home_url_host,
+						'dimension9': W3TC_SetupGuide.install_version,
+						'dimension10': W3TC_SetupGuide.w3tc_edition,
+						'dimension11': W3TC_SetupGuide.list_widgets,
+						'page': W3TC_SetupGuide.page
+					});
+
+					w3tc_ga( 'send', 'pageview' );
+				}
+			}
 		});
 	}
 });
@@ -359,6 +394,11 @@ function w3tc_wizard_actions( $slide ) {
 		$nextButton.closest( 'span' ).hide();
 		$prevButton.closest( 'span' ).hide();
 		$skipButton.closest( 'span' ).show();
+	}
+
+	// GA.
+	if ( 'accept' === W3TC_SetupGuide.tos_choice ) {
+		w3tc_ga( 'send', 'event', 'button', 'setup-guide', slideId, {transport: 'beacon'} );
 	}
 
 	switch ( slideId ) {
