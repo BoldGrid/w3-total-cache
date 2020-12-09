@@ -36,7 +36,8 @@
 			nodeName = $this.prop('nodeName');
 
 		if ( 'BUTTON' === nodeName ) {
-			$this.attr( 'disabled', 'disabled' )
+			$this
+				.prop( 'disabled', true )
 				.css( 'color', '#000' )
 				.text( 'Skipping...' );
 		}
