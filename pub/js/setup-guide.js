@@ -8,6 +8,43 @@
  * @global W3TC-setup-guide Localized array variable.
  */
 
+jQuery(function() {
+	var $container = jQuery( '#w3tc-wizard-container'),
+		$nextButton = $container.find( '#w3tc-wizard-next '),
+		$tosNotice = $container.find( '#w3tc-licensing-terms' );
+
+	// Handle the terms of service notice.
+	if ( $tosNotice.length ) {
+		$nextButton.prop( 'disabled', true );
+		$container.find( '.dashicons-yes' ).hide();
+
+		$tosNotice.find( '.button' ).on( 'click', function() {
+			$this = jQuery( this );
+
+			jQuery.ajax({
+				method: 'POST',
+				url: ajaxurl,
+				data: {
+					_wpnonce: $container.find( '[name="_wpnonce"]' ).val(),
+					action: "w3tc_tos_choice",
+					choice: $this.data( 'choice' )
+				}
+			})
+				.done(function( response ) {
+					$tosNotice.hide();
+					$nextButton.prop( 'disabled', false );
+					$container.find( '#w3tc-welcome' ).show();
+					$container.find( '.dashicons-yes' ).show();
+				})
+				.fail(function() {
+					$this.text( 'Error with Ajax; reloading page...' );
+
+					location.reload();
+				});
+		});
+	}
+});
+
 jQuery( '#w3tc-wizard-step-welcome' )
 	.addClass( 'is-active' )
 	.append( '<span class="dashicons dashicons-yes"></span>' );

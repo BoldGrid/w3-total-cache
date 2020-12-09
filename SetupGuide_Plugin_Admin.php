@@ -76,7 +76,43 @@ class SetupGuide_Plugin_Admin {
 			update_site_option( 'w3tc_setupguide_completed', time() );
 			wp_send_json_success();
 		} else {
-			wp_send_json_error( 'Security violation', 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Set the terms of service choice.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @uses $_POST['choice'] TOS choice: accept/decline.
+	 */
+	public function set_tos_choice() {
+		if ( wp_verify_nonce( $_POST['_wpnonce'], 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			$choice          = empty( $_POST['choice'] ) ? null : sanitize_key( $_POST['choice'] );
+			$allowed_choices = array(
+				'accept',
+				'decline',
+			);
+
+			if ( in_array( $choice, $allowed_choices, true ) ) {
+				$config = new Config();
+
+				if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+					$state_master = Dispatcher::config_state_master();
+					$state_master->set( 'license.community_terms', $choice );
+					$state_master->save();
+
+					$config->set( 'common.track_usage', ( 'accept' === $choice ) );
+					$config->save();
+				}
+
+				wp_send_json_success();
+			} else {
+				wp_send_json_error( __( 'Invalid choice', 'w3-total-cache' ), 400 );
+			}
+		} else {
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -134,7 +170,7 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success( $results );
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -157,7 +193,7 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -245,7 +281,7 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -323,7 +359,7 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success( $results );
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -346,7 +382,7 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -429,7 +465,7 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -466,7 +502,7 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success( $results );
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -489,7 +525,7 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -572,7 +608,7 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -611,7 +647,7 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success( $results );
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -639,7 +675,7 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -691,7 +727,7 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
@@ -718,14 +754,14 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
 	}
 
 	/**
 	 * Admin-Ajax: Configure lazy load.
 	 *
-	 * @since  2.0.0
+	 * @since 2.0.0
 	 *
 	 * @see \W3TC\Dispatcher::component()
 	 * @see \W3TC\Config::get_boolean()
@@ -767,8 +803,39 @@ class SetupGuide_Plugin_Admin {
 				)
 			);
 		} else {
-			wp_send_json_error( esc_html__( 'Security violation', 'w3-total-cache' ), 403 );
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
 		}
+	}
+
+	/**
+	 * Display the terms of service dialog if needed.
+	 *
+	 * @since  2.0.0
+	 * @access private
+	 *
+	 * @see \W3TC\Util_Environment::is_w3tc_pro()
+	 * @see \W3TC\Dispatcher::config_state()
+	 * @see \W3TC\Dispatcher::config_state_master()
+	 * @see \W3TC\ConfigState::get_string()
+	 *
+	 * @return bool
+	 */
+	private function maybe_ask_tos() {
+		if ( defined( 'W3TC_PRO' ) ) {
+			return false;
+		}
+
+		$config = new Config();
+
+		if ( Util_Environment::is_w3tc_pro( $config ) ) {
+			$state = Dispatcher::config_state();
+			$terms = $state->get_string( 'license.terms' );
+		} else {
+			$state_master = Dispatcher::config_state_master();
+			$terms        = $state_master->get_string( 'license.community_terms' );
+		}
+
+		return 'accept' !== $terms && 'decline' !== $terms && 'postpone' !== $terms;
 	}
 
 	/**
@@ -832,6 +899,13 @@ class SetupGuide_Plugin_Admin {
 					'function' => array(
 						$this,
 						'skip',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_tos_choice',
+					'function' => array(
+						$this,
+						'set_tos_choice',
 					),
 				),
 				array(
@@ -968,7 +1042,8 @@ class SetupGuide_Plugin_Admin {
 				array( // Welcome.
 					'headline' => __( 'Welcome to the W3 Total Cache Setup Guide!', 'w3-total-cache' ),
 					'id'       => 'welcome',
-					'markup'   => '<p>' .
+					'markup'   => '<div id="w3tc-welcome"' . ( $this->maybe_ask_tos() ? ' class="hidden"' : '' ) . '>
+						<p>' .
 						esc_html__(
 							'You have selected the Performance Suite that professionals have consistently ranked #1 for options and speed improvements.',
 							'w3-total-cache'
@@ -978,7 +1053,7 @@ class SetupGuide_Plugin_Admin {
 							'provides many options to help your website perform faster.  While the ideal settings vary for every website, there are a few settings we recommend that you enable now.',
 							'w3-total-cache'
 						) . '</p>
-						<p>' .
+						' .
 						sprintf(
 							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
 							esc_html__(
@@ -987,7 +1062,24 @@ class SetupGuide_Plugin_Admin {
 							),
 							'<a id="w3tc-wizard-skip-link" href="#">',
 							'</a>'
-						) . '</p>',
+						) . '</p>
+						</div>' . ( $this->maybe_ask_tos() ?
+						'<div id="w3tc-licensing-terms" class="notice notice-info inline">
+						<p>' .
+						sprintf(
+							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
+							esc_html__(
+								'Thanks for using W3 Total Cache!  Please review the latest %1$sterms of use and privacy policy%2$s, and accept them.',
+								'w3-total-cache'
+							),
+							'<a target="_blank" href="' . esc_url( 'https://api.w3-edge.com/v1/redirects/policies-terms' ) . '">',
+							'</a>'
+						) . '</p>
+						<p>
+						<input type="button" class="button" data-choice="accept" value="' . esc_html( 'Accept', 'w3-total-cache' ) . '" /> &nbsp;
+						<input type="button" class="button" data-choice="decline" value="' . esc_html( 'Decline', 'w3-total-cache' ) . '" />
+						</p>
+						</div>' : '' ),
 				),
 				array( // Page Cache.
 					'headline' => __( 'Page Cache', 'w3-total-cache' ),
