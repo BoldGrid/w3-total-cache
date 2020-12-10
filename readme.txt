@@ -276,7 +276,8 @@ Please reach out to all of these people and support their projects if you're so 
 == Changelog ==
 
 = 2.0.0 =
-* Feature: Added the Setup Guide wizard for onboarding.
+* Feature: Added the Setup Guide wizard for onboarding
+* Update: Updated jQuery compatibility and methods deprecated in WordPress 5.6
 
 = 0.15.2 =
 * Fix: Minify: Do not remove quotes around meta tags
