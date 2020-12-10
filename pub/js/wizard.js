@@ -44,7 +44,9 @@
 		}
 
 		// GA.
-		w3tc_ga( 'send', 'event', 'button', page, 'skip' );
+		if ( window.w3tc_ga ) {
+			w3tc_ga( 'send', 'event', 'button', page, 'skip' );
+		}
 
 		jQuery.ajax({
 			method: 'POST',
