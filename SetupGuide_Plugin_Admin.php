@@ -1115,7 +1115,7 @@ class SetupGuide_Plugin_Admin {
 						sprintf(
 							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
 							esc_html__(
-								'Thanks for using W3 Total Cache!  Please review the latest %1$sterms of use and privacy policy%2$s, and accept them.',
+								'By allowing us to collect data about how W3 Total Cache is used, we can improve our features and experience for everyone. This data will not include any personally identifiable information.  Feel free to review our %1$sterms of use and privacy policy%2$s.',
 								'w3-total-cache'
 							),
 							'<a target="_blank" href="' . esc_url( 'https://api.w3-edge.com/v1/redirects/policies-terms' ) . '">',
