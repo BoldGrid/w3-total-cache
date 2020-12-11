@@ -29,7 +29,7 @@ $LIMITED wp option set time_format "H:i"
 sed -i '2idefine( \"AUTOMATIC_UPDATER_DISABLED\", true );' wp-config.php
 
 # add header mark showing PHP was executed
-sed -i '1i<?php header( \"w3tc_php: executed\" ); ?>' index.php
+sed -i '2iheader( \"w3tc_php: executed\" );' wp-config.php
 
 # disable all api calls to check for updates
 cp /share/scripts/init-box/templates/disable-wp-updates.php ./disable-wp-updates.php
