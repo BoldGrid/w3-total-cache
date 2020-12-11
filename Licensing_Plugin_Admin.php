@@ -258,7 +258,7 @@ class Licensing_Plugin_Admin {
 					),
 					'<br />',
 					'<a target="_blank" href="' . esc_url( W3TC_TERMS_URL ) . '">',
-					'</a>',
+					'</a>'
 				) .
 					$buttons;
 			}
