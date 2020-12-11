@@ -23,7 +23,14 @@ describe('Check if box is valid', function() {
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_dashboard');
 		let html = await adminPage.content();
 
-		expect(html).contains('Thanks for choosing W3TC');
+		expect(html).contains('Setup Guide');
+
+		await Promise.all([
+			adminPage.click('#w3tc-wizard-skip'),
+			adminPage.waitForNavigation()
+		]);
+
+		expect(await adminPage.content()).contains('Thanks for choosing W3TC');
 	})
 
 
