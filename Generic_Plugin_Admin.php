@@ -252,9 +252,10 @@ class Generic_Plugin_Admin {
 		$page = isset( $_GET['page'] ) ? $_GET['page'] : null;
 
 		if ( false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
-			$config          = new Config();
+			$config       = new Config();
+			$state_master = Dispatcher::config_state_master();
 
-			if ( ! $config->get_boolean( 'pgcache.enabled' ) ) {
+			if ( ! $config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
 				wp_redirect( esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
 			}
 		}
