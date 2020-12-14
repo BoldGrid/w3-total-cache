@@ -359,7 +359,7 @@ class Cdn_Environment {
 
 
 
-	private function canonical( $cdnftp = false, $cors_header ) {
+	private function canonical( $cdnftp = false, $cors_header = true ) {
 		$rules = '';
 
 		$mime_types = include W3TC_INC_DIR . '/mime/other.php';
