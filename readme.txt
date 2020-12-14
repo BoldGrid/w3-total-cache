@@ -278,6 +278,7 @@ Please reach out to all of these people and support their projects if you're so 
 = 2.0.0 =
 * Feature: Added the Setup Guide wizard for onboarding
 * Update: Updated jQuery compatibility and methods deprecated in WordPress 5.6
+* Fix: Browser Cache: Fixed ExpiresByType code; changed from modified time to client access time
 
 = 0.15.2 =
 * Fix: Minify: Do not remove quotes around meta tags
