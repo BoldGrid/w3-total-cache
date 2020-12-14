@@ -416,7 +416,7 @@ class Generic_Plugin_Admin {
 
 		if ( $this->is_w3tc_page ) {
 			wp_localize_script( 'w3tc-options', 'w3tc_nonce',
-				wp_create_nonce( 'w3tc' ) );
+				array( wp_create_nonce( 'w3tc' ) ) );
 		}
 
 

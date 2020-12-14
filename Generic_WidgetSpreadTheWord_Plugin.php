@@ -62,10 +62,10 @@ class Generic_WidgetSpreadTheWord_Plugin {
 			array( 'jquery' ), '1.0' );
 
 		wp_localize_script( 'w3tc_spread_the_word',
-			'w3tc_spread_the_word_product_url', W3TC_SUPPORT_US_PRODUCT_URL );
+			'w3tc_spread_the_word_product_url', array( W3TC_SUPPORT_US_PRODUCT_URL ) );
 		wp_localize_script( 'w3tc_spread_the_word',
-			'w3tc_spread_the_word_tweet', W3TC_SUPPORT_US_TWEET );
+			'w3tc_spread_the_word_tweet', array( W3TC_SUPPORT_US_TWEET ) );
 		wp_localize_script( 'w3tc_spread_the_word',
-			'w3tc_spread_the_word_rate_url', W3TC_SUPPORT_US_RATE_URL );
+			'w3tc_spread_the_word_rate_url', array( W3TC_SUPPORT_US_RATE_URL ) );
 	}
 }

@@ -242,7 +242,7 @@ class Template {
 					wp_localize_script(
 						$script['handle'],
 						$script['localize']['object_name'],
-						$script['localize']['data']
+						(array) $script['localize']['data']
 					);
 				}
 
