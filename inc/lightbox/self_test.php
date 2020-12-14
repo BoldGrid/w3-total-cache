@@ -269,7 +269,7 @@ if ( Util_Environment::is_apache() ):
             <?php foreach ( $modules as $module ): ?>
                 <li>
                     <?php echo $module; ?>:
-                    <?php if ( $apache_modules ): ?>
+                    <?php if ( ! empty( $apache_modules ) ): ?>
                         <?php if ( in_array( $module, $apache_modules ) ): ?>
                         <span style="background-color: #33cc33"><?php _e( 'Installed', 'w3-total-cache' ); ?></span>
                         <?php else: ?>
