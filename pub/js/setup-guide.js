@@ -94,22 +94,22 @@ jQuery( '#w3tc-wizard-step-welcome' )
 function w3tc_wizard_actions( $slide ) {
 	var configSuccess = false,
 		pgcacheSettings = {
-			enaled: null,
+			enabled: null,
 			engine: null
 		},
 		dbcacheSettings = {
-			enaled: null,
+			enabled: null,
 			engine: null
 		},
 		objcacheSettings = {
-			enaled: null,
+			enabled: null,
 			engine: null
 		},
 		browsercacheSettings = {
-			enaled: null
+			enabled: null
 		},
 		lazyloadSettings = {
-			enaled: null
+			enabled: null
 		},
 		slideId = $slide.prop( 'id' ),
 		$container = jQuery( '#w3tc-wizard-container' ),
