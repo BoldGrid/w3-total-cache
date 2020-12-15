@@ -118,7 +118,7 @@ describe('', function() {
 
 
 
-	it('it contains fonts.googleapis.com content', async() => {
+	it('it contains fonts.googleapis.com or fonts.gstatic.com content', async() => {
 		log.log('opening minified css ' + minifiedLinkWithFonts);
 		let m = minifiedLinkWithFonts.match(/sandbox(:\d+)?(.*)$/i);
 		let filename = '/var/www/wp-sandbox' + m[2].replace("/b2/", "/");
@@ -126,8 +126,9 @@ describe('', function() {
 
 		let content = await fs.readFileAsync(filename);
 		expect(
-			content.indexOf("fonts-googleapis") >= 0 ||
-			content.indexOf("https://fonts.gstatic.com/s/") >= 0).true;
+			content.indexOf('fonts-googleapis') >= 0 ||
+			content.indexOf('//fonts.gstatic.com/s/') >= 0
+		).true;
 		log.success('css contains fonts content');
 	});
 });
