@@ -19,11 +19,18 @@ async function setOptions_loadPage(pPage, queryPage) {
 
 		// Skip the Setup Guide wizard.
 		if (await pPage.$('#w3tc-wizard-skip') != null) {
-			await Promise.all([
+			log.log('encountered the Setup Guide wizard; skipping...');
+
+			let skipped = await Promise.all([
 				pPage.click('#w3tc-wizard-skip'),
 				pPage.waitForNavigation({timeout:0}),
 			]);
+
+			expect(skipped).is.not.null;
 		}
+
+		await pPage.goto(env.networkAdminUrl + 'admin.php?page=' + queryPage,
+			{waitUntil: 'domcontentloaded'});
 
 		let nonce = await pPage.$eval('input[name=_wpnonce]', (e) => e.value);
 		expect(nonce).not.empty;
