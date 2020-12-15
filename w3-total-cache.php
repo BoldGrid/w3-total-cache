@@ -1,9 +1,9 @@
 <?php
-/*
+/**
  * Plugin Name:       W3 Total Cache
  * Plugin URI:        https://www.boldgrid.com/totalcache/
  * Description:       The highest rated and most complete WordPress performance plugin. Dramatically improve the speed and user experience of your site. Add browser, page, object and database caching as well as minify and content delivery network (CDN) to WordPress.
- * Version:           2.0.0-rc.1
+ * Version:           2.0.0
  * Requires at least: 3.2
  * Requires PHP:      5.3
  * Author:            BoldGrid
@@ -12,6 +12,8 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       w3-total-cache
  * Network:           True
+ *
+ * phpcs:disable Squiz.Commenting.FileComment.MissingPackageTag
  */
 
 /*
@@ -47,28 +49,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
 
-/**
- * Abort W3TC loading if WordPress is upgrading.
- */
+// Abort W3TC loading if WordPress is upgrading.
 if ( defined( 'WP_INSTALLING' ) && WP_INSTALLING ) {
 	return;
 }
 
-if ( version_compare( PHP_VERSION, '5.3.0', '<') ) {
+if ( version_compare( PHP_VERSION, '5.3.0', '<' ) ) {
 	require_once dirname( __FILE__ ) . '/w3-total-cache-old-php.php';
 	register_activation_hook( __FILE__, 'w3tc_old_php_activate' );
 	return;
 }
 
 if ( ! defined( 'W3TC_IN_MINIFY' ) ) {
-	/**
-	 * Require plugin configuration.
-	 */
+	// Require plugin configuration.
 	require_once dirname( __FILE__ ) . '/w3-total-cache-api.php';
 
 	// Load the wp cli command - if run from wp-cli.
-	if ( defined( 'WP_CLI' ) && WP_CLI )
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		require_once W3TC_DIR . '/Cli.php';
+	}
 
 	// Include to prevent syntax error for older php.
 	require_once dirname( __FILE__ ) . '/Root_Loader.php';
