@@ -19,7 +19,7 @@ async function setOptions_loadPage(pPage, queryPage) {
 
 		// Skip the Setup Guide wizard.
 		if (await pPage.$('#w3tc-wizard-skip') != null) {
-			log.log('encountered the Setup Guide wizard; skipping...');
+			log.log('Encountered the Setup Guide wizard; skipping...');
 
 			let skipped = await Promise.all([
 				pPage.click('#w3tc-wizard-skip'),
@@ -346,6 +346,21 @@ exports.commentTimestamp = async function(pPage, cacheEngineName) {
 
 exports.flushAll = async function(pPage) {
 	await sys.repeatOnFailure(pPage, async() => {
+		await pPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
+			{waitUntil: 'domcontentloaded'});
+
+		// Skip the Setup Guide wizard.
+		if (await pPage.$('#w3tc-wizard-skip') != null) {
+			log.log('Encountered the Setup Guide wizard; skipping...');
+
+			let skipped = await Promise.all([
+				pPage.click('#w3tc-wizard-skip'),
+				pPage.waitForNavigation({timeout:0}),
+			]);
+
+			expect(skipped).is.not.null;
+		}
+
 		await pPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
 			{waitUntil: 'domcontentloaded'});
 
