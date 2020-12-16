@@ -21,6 +21,20 @@ describe('', function() {
 
 	it('compatibility page', async() => {
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_dashboard');
+
+		// Skip the Setup Guide wizard.
+		if (await adminPage.$('#w3tc-wizard-skip') != null) {
+			log.log('Encountered the Setup Guide wizard; skipping...');
+
+			let skipped = await Promise.all([
+				adminPage.click('#w3tc-wizard-skip'),
+				adminPage.waitForNavigation({timeout:0}),
+			]);
+
+			expect(skipped).is.not.null;
+		}
+
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_dashboard');
 		await adminPage.click('input[value="compatibility check"]');
 
 		await adminPage.waitFor(() => {

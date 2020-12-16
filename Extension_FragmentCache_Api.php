@@ -87,7 +87,7 @@ function w3tc_fragmentcache_start( $id, $group = '', $hook = '' ) {
  * @param mixed   $data  the data returned by the filter
  * @return mixed
  */
-function w3tc_fragmentcache_filter_start( $id, $group = '', $hook = '', $data ) {
+function w3tc_fragmentcache_filter_start( $id, $group = '', $hook = '', $data = null ) {
 	_w3tc_caching_fragment( $id, $group );
 	$fragment = w3tc_fragmentcache_get( $id, $group );
 	if ( false !== $fragment ) {
@@ -125,7 +125,7 @@ function w3tc_fragmentcache_end( $id, $group = '', $debug = false ) {
  * @param mixed   $data
  * @return mixed
  */
-function w3tc_fragmentcache_filter_end( $id, $group = '', $data ) {
+function w3tc_fragmentcache_filter_end( $id, $group = '', $data = null ) {
 	if ( w3tc_is_caching_fragment( $id, $group ) ) {
 		w3tc_fragmentcache_store( $id, $group, $data );
 	}
@@ -139,7 +139,7 @@ function w3tc_fragmentcache_filter_end( $id, $group = '', $data ) {
  * @param string  $group
  * @param string  $content
  */
-function w3tc_fragmentcache_store( $id, $group = '', $content ) {
+function w3tc_fragmentcache_store( $id, $group = '', $content = '' ) {
 	set_transient( "{$group}{$id}", $content,
 		1000 /* default expiration in a case its not catched by fc plugin */ );
 }

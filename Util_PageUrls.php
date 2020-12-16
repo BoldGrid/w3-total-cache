@@ -440,7 +440,6 @@ class Util_PageUrls {
 			}
 			$pages_urls[$key] = $full_urls;
 		}
-
 		return $pages_urls[$key];
 	}
 

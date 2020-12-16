@@ -166,7 +166,7 @@ async function postCreateWP4(pPage, data) {
 
 
 async function postCreateWP5(pPage, data) {
-	log.log('create page - switch to code editor')
+	log.log('create page - wp5 (' + parseFloat(env.wpVersion) + ') - switch to code editor')
 
 	if (parseFloat(env.wpVersion) < 5.3) {
 		await pPage.click('button[aria-label="Show more tools & options"]');
@@ -224,7 +224,7 @@ async function postCreateWP5(pPage, data) {
 	await pPage.keyboard.type(data.content);
 
 	if (data.template) {
-		log.log('create page - set template')
+		log.log('create page - set template (' + data.template + ')')
 		let templateControlId = await pPage.evaluate(() => {
 			let elements = document.getElementsByClassName('components-panel__body-toggle');
 			for (let element of elements) {
