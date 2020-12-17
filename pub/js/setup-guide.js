@@ -14,7 +14,7 @@ jQuery(function() {
 		$tosNotice = $container.find( '#w3tc-licensing-terms' );
 
 	// GA.
-	if ( 'accept' === W3TC_SetupGuide.tos_choice ) {
+	if ( 'accept' === W3TC_SetupGuide.tos_choice && window.w3tc_ga ) {
 		w3tc_ga( 'create', W3TC_SetupGuide.ga_profile, 'auto' );
 		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', 'w3tc-wizard-step-welcome' );
 	}
@@ -397,7 +397,7 @@ function w3tc_wizard_actions( $slide ) {
 	}
 
 	// GA.
-	if ( 'accept' === W3TC_SetupGuide.tos_choice ) {
+	if ( 'accept' === W3TC_SetupGuide.tos_choice && window.w3tc_ga ) {
 		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', slideId );
 	}
 
