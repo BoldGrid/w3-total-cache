@@ -44,7 +44,7 @@ switch ($action) {
 			break;
 
 			case 'apc':
-				$cacheInstance = new \W3TC\Cache_Apc(array(
+				$cacheInstance = new \W3TC\Cache_Apcu(array(
 					'section' => 'db',
 					'blog_id' => $blog_id,
 					'module' => 'dbcache',

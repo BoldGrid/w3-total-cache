@@ -35,7 +35,7 @@ if ($scheme == 'https')
 	$cache_key .= '_ssl';
 
 if ($engine == 'apc')
-	$cache = new \W3TC\Cache_Apc(array(
+	$cache = new \W3TC\Cache_Apcu(array(
 		'section' => 'page',
 		'blog_id' => $blog_id,
 		'module' => 'pgcache',

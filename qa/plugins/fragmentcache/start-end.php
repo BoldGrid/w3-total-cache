@@ -69,7 +69,7 @@ function set_fragment_in_cache() {
 					break;
 
 				case 'apc':
-					$cacheInstance = new \W3TC\Cache_Apc(array(
+					$cacheInstance = new \W3TC\Cache_Apcu(array(
 						'section' => 'fragment',
 						'blog_id' => $blog_id,
 						'module' => 'fragmentcache',
