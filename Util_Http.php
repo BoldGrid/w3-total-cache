@@ -103,4 +103,112 @@ class Util_Http {
 
 		return $upload_info;
 	}
+
+	/**
+	 * Test the time to first byte.
+	 *
+	 * @param string $url URL address.
+	 * @param bool   $nocache Whether or not to request no cache response, by sending a Cache-Control header.
+	 * @return float|false Time in seconds until the first byte is about to be transferred or false on error.
+	 */
+	public static function ttfb( $url, $nocache = false ) {
+		$ch   = curl_init( esc_url( $url ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		$pass = (bool) $ch;
+		$ttfb = false;
+		$opts = array(
+			CURLOPT_FORBID_REUSE   => 1,
+			CURLOPT_FRESH_CONNECT  => 1,
+			CURLOPT_HEADER         => 0,
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_FOLLOWLOCATION => 1,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
+		);
+
+		if ( $nocache ) {
+			$opts[ CURLOPT_HTTPHEADER ] = array(
+				'Cache-Control: no-cache',
+				'Pragma: no-cache',
+			);
+
+			$qs_arr = explode( '&', wp_parse_url( $url, PHP_URL_QUERY ) );
+			array_push( $qs_arr, 'time=' . microtime( true ) );
+
+			$opts[ CURLOPT_URL ] = $url . '?' . implode( '&', $qs_arr );
+		}
+
+		if ( $ch ) {
+			$pass = curl_setopt_array( $ch, $opts ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		}
+
+		if ( $pass ) {
+			$pass = (bool) curl_exec( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		}
+
+		if ( $pass ) {
+			$ttfb = curl_getinfo( $ch, CURLINFO_STARTTRANSFER_TIME ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		}
+
+		if ( $ch ) {
+			curl_close( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		}
+
+		return $ttfb;
+	}
+
+	/**
+	 * Retrieve HTTP headers.
+	 *
+	 * @param  string $url URL address.
+	 * @return array
+	 */
+	public static function get_headers( $url ) {
+		$ch      = curl_init( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		$pass    = (bool) $ch;
+		$headers = array();
+		$opts    = array(
+			CURLOPT_FORBID_REUSE   => 1,
+			CURLOPT_FRESH_CONNECT  => 1,
+			CURLOPT_HEADER         => 1,
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_FOLLOWLOCATION => 1,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_USERAGENT      => 'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' ),
+			CURLOPT_HTTPHEADER     => array(
+				'Cache-Control: no-cache',
+				'Pragma: no-cache',
+			),
+		);
+
+		if ( $pass ) {
+			$pass = curl_setopt_array( $ch, $opts ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		}
+
+		if ( $pass ) {
+			$response = curl_exec( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		}
+
+		if ( $response ) {
+			$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+			$header      = substr( $response, 0, $header_size );
+
+			foreach ( explode( "\r\n", $header ) as $index => $line ) {
+				if ( 0 === $index ) {
+					$headers['http_code'] = $line;
+					$http_code_arr        = explode( ' ', $line );
+					$headers['protocol']  = $http_code_arr[0];
+					$headers['status']    = $http_code_arr[1];
+				} elseif ( ! empty( $line ) && false !== strpos( $line, ':' ) ) {
+					list ( $key, $value ) = explode( ': ', $line );
+					$headers[ $key ]      = $value;
+				}
+			}
+		}
+
+		if ( $ch ) {
+			curl_close( $ch ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		}
+
+		return $headers;
+	}
 }

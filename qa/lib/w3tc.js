@@ -17,6 +17,21 @@ async function setOptions_loadPage(pPage, queryPage) {
 		await pPage.goto(env.networkAdminUrl + 'admin.php?page=' + queryPage,
 			{waitUntil: 'domcontentloaded'});
 
+		// Skip the Setup Guide wizard.
+		if (await pPage.$('#w3tc-wizard-skip') != null) {
+			log.log('Encountered the Setup Guide wizard; skipping...');
+
+			let skipped = await Promise.all([
+				pPage.click('#w3tc-wizard-skip'),
+				pPage.waitForNavigation({timeout:0}),
+			]);
+
+			expect(skipped).is.not.null;
+		}
+
+		await pPage.goto(env.networkAdminUrl + 'admin.php?page=' + queryPage,
+			{waitUntil: 'domcontentloaded'});
+
 		let nonce = await pPage.$eval('input[name=_wpnonce]', (e) => e.value);
 		expect(nonce).not.empty;
 	});
@@ -123,6 +138,20 @@ exports.setOptionInternal = async function(pPage, name, value) {
 
 
 exports.activateExtension = async function(pPage, extenstion_id) {
+	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions');
+
+	// Skip the Setup Guide wizard.
+	if (await pPage.$('#w3tc-wizard-skip') != null) {
+		log.log('Encountered the Setup Guide wizard; skipping...');
+
+		let skipped = await Promise.all([
+			pPage.click('#w3tc-wizard-skip'),
+			pPage.waitForNavigation({timeout:0}),
+		]);
+
+		expect(skipped).is.not.null;
+	}
+
 	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions');
 	let isActive = await pPage.$('#' + extenstion_id + ' .deactivate');
 	if (isActive != null) {
@@ -331,6 +360,21 @@ exports.commentTimestamp = async function(pPage, cacheEngineName) {
 
 exports.flushAll = async function(pPage) {
 	await sys.repeatOnFailure(pPage, async() => {
+		await pPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
+			{waitUntil: 'domcontentloaded'});
+
+		// Skip the Setup Guide wizard.
+		if (await pPage.$('#w3tc-wizard-skip') != null) {
+			log.log('Encountered the Setup Guide wizard; skipping...');
+
+			let skipped = await Promise.all([
+				pPage.click('#w3tc-wizard-skip'),
+				pPage.waitForNavigation({timeout:0}),
+			]);
+
+			expect(skipped).is.not.null;
+		}
+
 		await pPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
 			{waitUntil: 'domcontentloaded'});
 

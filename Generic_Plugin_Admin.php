@@ -249,7 +249,22 @@ class Generic_Plugin_Admin {
 
 	// Define icon styles for the custom post type
 	function admin_head() {
-		if ( isset( $_GET['page'] ) && $_GET['page'] == 'w3tc_dashboard' ) {
+		$page = isset( $_GET['page'] ) ? $_GET['page'] : null;
+
+		if ( false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
+			$config       = new Config();
+			$state_master = Dispatcher::config_state_master();
+
+			if ( ! $config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
+				if ( is_multisite() ) {
+					wp_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				} else {
+					wp_redirect( esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				}
+			}
+		}
+
+		if ( 'w3tc_dashboard' === $page ) {
 ?>
 			<script type="text/javascript">
 			jQuery(function() {
@@ -405,7 +420,7 @@ class Generic_Plugin_Admin {
 
 		if ( $this->is_w3tc_page ) {
 			wp_localize_script( 'w3tc-options', 'w3tc_nonce',
-				wp_create_nonce( 'w3tc' ) );
+				array( wp_create_nonce( 'w3tc' ) ) );
 		}
 
 

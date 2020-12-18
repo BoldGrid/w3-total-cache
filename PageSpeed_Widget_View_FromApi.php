@@ -45,9 +45,9 @@ function w3tcps_bar($r, $metric, $name) {
 
 ?>
 <div class="w3tcps_scores">
-	<section title="Mobile"><?php echo esc_html( $rm['score'] ) ?></section>
+	<section title="Mobile"><?php echo ( isset( $rm['score'] ) ? esc_html( $rm['score'] ) : '' ); ?></section>
 	<p>|</p>
-	<section title="Desktop"><?php echo esc_html( $rd['score'] ) ?></section>
+	<section title="Desktop"><?php echo ( isset( $rd['score'] ) ? esc_html( $rd['score'] ) : '' ); ?></section>
 </div>
 
 <div>
