@@ -70,6 +70,12 @@ case "${W3D_PHP_VERSION}" in
         apt-get install -y php7.3-common php7.3-cli php7.3-mysql php7.3-curl php7.3-xml
 		php_ondrej_common
         ;;
+	"8.0") echo "Installing PHP 8.0"
+		add-apt-repository -y ppa:ondrej/php
+		apt-get update
+        apt-get install -y php8.0-common php8.0-cli php8.0-mysql php8.0-curl php8.0-xml
+		php_ondrej_common
+        ;;
     *)
         echo "W3D_PHP_VERSION not met conditions, do nothing..... ${W3D_PHP_VERSION}"
         ;;

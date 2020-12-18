@@ -12,7 +12,7 @@ cd /var/www/
 rm -rf backup-w3tc-inactive-wp-sandbox
 cp -r wp-sandbox backup-w3tc-inactive-wp-sandbox
 /share/scripts/w3tc-mount.sh
-mysqldump --all-databases --add-drop-database --skip-comments >backup-w3tc-inactive.sql
+mysqldump --databases wordpress --add-drop-database --skip-comments >backup-w3tc-inactive.sql
 
 # mount w3tc
 mkdir -p ${W3D_WP_PLUGINS_PATH}w3-total-cache/
@@ -44,4 +44,4 @@ cd /var/www/
 rm -rf backup-final-wp-sandbox
 cp -r wp-sandbox backup-final-wp-sandbox
 /share/scripts/w3tc-mount.sh
-mysqldump --all-databases --add-drop-database --skip-comments >backup-final.sql
+mysqldump --databases wordpress --add-drop-database --skip-comments >backup-final.sql
