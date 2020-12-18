@@ -131,6 +131,10 @@ ul#w3tc-options-menu {
 	padding-left: 160px;
 }
 
+.w3tc-overlay {
+	display: none;
+}
+
 /* Spinner */
 .spinner.inline {
 	float: none;
