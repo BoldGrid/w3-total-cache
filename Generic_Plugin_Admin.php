@@ -255,10 +255,12 @@ class Generic_Plugin_Admin {
 			$config       = new Config();
 			$state_master = Dispatcher::config_state_master();
 
-			if ( is_multisite() ) {
-				wp_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
-			} else {
-				wp_redirect( esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+			if ( ! $config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
+				if ( is_multisite() ) {
+					wp_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				} else {
+					wp_redirect( esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				}
 			}
 		}
 
