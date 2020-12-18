@@ -8,13 +8,15 @@
  * @global W3TC-setup-guide Localized array variable.
  */
 
+var w3tc_enable_ga = ( 'accept' === W3TC_SetupGuide.tos_choice && W3TC_SetupGuide.track_usage && window.w3tc_ga );
+
 jQuery(function() {
 	var $container = jQuery( '#w3tc-wizard-container'),
 		$nextButton = $container.find( '#w3tc-wizard-next '),
 		$tosNotice = $container.find( '#w3tc-licensing-terms' );
 
 	// GA.
-	if ( 'accept' === W3TC_SetupGuide.tos_choice && window.w3tc_ga ) {
+	if ( w3tc_enable_ga ) {
 		w3tc_ga( 'create', W3TC_SetupGuide.ga_profile, 'auto' );
 		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', 'w3tc-wizard-step-welcome' );
 	}
@@ -397,7 +399,7 @@ function w3tc_wizard_actions( $slide ) {
 	}
 
 	// GA.
-	if ( 'accept' === W3TC_SetupGuide.tos_choice && window.w3tc_ga ) {
+	if ( w3tc_enable_ga ) {
 		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', slideId );
 	}
 

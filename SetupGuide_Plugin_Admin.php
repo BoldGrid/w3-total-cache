@@ -908,6 +908,7 @@ class SetupGuide_Plugin_Admin {
 							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
 							'ga_profile'        => ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) ? 'UA-2264433-7' : 'UA-2264433-8',
 							'tos_choice'        => $this->get_tos_choice(),
+							'track_usage'       => $config->get_boolean( 'common.track_usage' ),
 							'test_complete_msg' => __(
 								'Testing complete.  Click Next to advance to the section and see the results.',
 								'w3-total-cache'
