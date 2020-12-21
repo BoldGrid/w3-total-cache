@@ -551,7 +551,7 @@ class Util_PageUrls {
 	 * @param int     $day
 	 * @return int
 	 */
-	static public function get_archive_posts_count( $year = 0, $month = 0, $day = 0, $post_type/* = 'post'*/ ) {
+	static public function get_archive_posts_count( $year, $month, $day, $post_type ) {
 		global $wpdb;
 
 		$filters = array(
