@@ -1301,7 +1301,7 @@ class SetupGuide_Plugin_Admin {
 						sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
 							esc_html__(
-								'%1$sTime to First Byte%2$s has change by %3$s!',
+								'%1$sTime to First Byte%2$s has changed by %3$s!',
 								'w3-total-cache'
 							),
 							'<strong>',
