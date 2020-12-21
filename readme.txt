@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
 Tested up to: 5.6
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -274,6 +274,10 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.0.1 =
+* Fix: Corrected redirection logic for the new Setup Guide
+* Fix: Fixed JavaScript w3tc_ga error
 
 = 2.0.0 =
 * Feature: Added the Setup Guide wizard for onboarding
