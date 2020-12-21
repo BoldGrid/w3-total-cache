@@ -1244,6 +1244,9 @@ function w3tc_wizard_actions( $slide ) {
 				jQuery( '#w3tc-wizard-step-lazyload' ).append( '<span class="dashicons dashicons-yes"></span>' );
 			}
 
+			// Prevent leave page alert.
+			jQuery( window ).off( 'beforeunload' );
+
 			// Present the Setup Complete slide.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-options-menu li' ).last().addClass( 'is-active' );

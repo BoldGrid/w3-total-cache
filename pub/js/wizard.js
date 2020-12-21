@@ -18,6 +18,10 @@
 	$skipLink.on( 'click', skipFunction );
 	$skipButton.on( 'click', skipFunction );
 
+	jQuery( window ).on( 'beforeunload', function() {
+		return W3TC_Wizard.beforeunloadText;
+	});
+
 	// Listen for clicks to go to the W3TC Dashboard.
 	$container.find( '#w3tc-wizard-dashboard' ).on( 'click', function () {
 		jQuery( window ).off( 'beforeunload' );
@@ -35,6 +39,8 @@
 		var $this = jQuery( this ),
 			nodeName = $this.prop('nodeName'),
 			page = location.href.replace(/^.+page=/, '' );
+
+		jQuery( window ).off( 'beforeunload' );
 
 		if ( 'BUTTON' === nodeName ) {
 			$this

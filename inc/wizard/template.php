@@ -220,13 +220,23 @@ class Template {
 	 * @since 2.0.0
 	 */
 	private function enqueue_scripts() {
-		wp_enqueue_script(
+		wp_register_script(
 			'w3tc_wizard',
 			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/js/wizard.js' ),
 			array( 'jquery' ),
 			W3TC_VERSION,
 			false
 		);
+
+		wp_localize_script(
+			'w3tc_wizard',
+			'W3TC_Wizard',
+			array(
+				'beforeunloadText' => __( 'Are you sure that you want to leve this page?', 'w3-total-cache' ),
+			)
+		);
+
+		wp_enqueue_script( 'w3tc_wizard' );
 
 		if ( isset( $this->config['scripts'] ) && is_array( $this->config['scripts'] ) ) {
 			foreach ( $this->config['scripts'] as $script ) {
