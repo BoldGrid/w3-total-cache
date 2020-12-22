@@ -721,27 +721,33 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 	public function w3tc_footer_comment( $strings ) {
 		$reject_reason = $this->get_reject_reason();
-		$append = ( $reject_reason ? sprintf( ' (%s)', $reject_reason ) : '' );
+		$append        = empty( $reject_reason ) ? '' : sprintf( ' (%1$s)', $reject_reason );
 
 		if ( $this->query_hits ) {
 			$strings[] = sprintf(
-				__( 'Database Caching %d/%d queries in %.3f seconds using %s%s', 'w3-total-cache' ),
-				$this->query_hits, $this->query_total, $this->time_total,
+				// translators: 1: Query hits, 2: Total queries, 3: Total time, 4: Engine name, 5: Reject reason.
+				__( 'Database Caching %1$d/%2$d queries in %3$.3f seconds using %4$s%5$s', 'w3-total-cache' ),
+				$this->query_hits,
+				$this->query_total,
+				$this->time_total,
 				Cache::engine_name( $this->_config->get_string( 'dbcache.engine' ) ),
-				$append );
+				$append
+			);
 		} else {
 			$strings[] = sprintf(
-				__( 'Database Caching using %s%s', 'w3-total-cache' ),
+				// translators: 1: Engine name, 2: Reject reason.
+				__( 'Database Caching using %1$s%2$s', 'w3-total-cache' ),
 				Cache::engine_name( $this->_config->get_string( 'dbcache.engine' ) ),
-				$append );
+				$append
+			);
 		}
 
 		if ( $this->debug ) {
 			$strings[] = '';
-			$strings[] = "Db cache debug info:";
-			$strings[] = sprintf( "%s%d", str_pad( 'Total queries: ', 20 ), $this->query_total );
-			$strings[] = sprintf( "%s%d", str_pad( 'Cached queries: ', 20 ), $this->query_hits );
-			$strings[] = sprintf( "%s%.4f", str_pad( 'Total query time: ', 20 ), $this->time_total );
+			$strings[] = 'Db cache debug info:';
+			$strings[] = sprintf( "%1$s%2$d", str_pad( 'Total queries: ', 20 ), $this->query_total );
+			$strings[] = sprintf( "%1$s%2$d", str_pad( 'Cached queries: ', 20 ), $this->query_hits );
+			$strings[] = sprintf( "%1$s%2$.4f", str_pad( 'Total query time: ', 20 ), $this->time_total );
 		}
 
 		if ( $this->log_filehandle ) {
