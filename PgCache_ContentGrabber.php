@@ -1566,10 +1566,12 @@ class PgCache_ContentGrabber {
 	 */
 	public function w3tc_footer_comment( $strings ) {
 		$strings[] = sprintf(
-			__( 'Page Caching using %s%s%s', 'w3-total-cache' ),
+			// translators: 1: Engine name, 2: Reject reason placeholder, 3: Page key extension.
+			__( 'Page Caching using %1$s%2$s%3$s', 'w3-total-cache' ),
 			Cache::engine_name( $this->_config->get_string( 'pgcache.engine' ) ),
 			'{w3tc_pagecache_reject_reason}',
-			isset($this->_page_key_extension['cookie']) ? ' ' . $this->_page_key_extension['cookie'] : '' );
+			isset( $this->_page_key_extension['cookie'] ) ? ' ' . $this->_page_key_extension['cookie'] : ''
+		);
 
 
 		if ( $this->_debug ) {
