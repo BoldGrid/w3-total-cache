@@ -61,9 +61,6 @@ class Cdnfsd_Plugin_Admin {
 			add_action( 'init', array(
 				'\W3TC\Cdnfsd_TransparentCDN_Page',
 				'admin_test_api_parameters_transparentcdn' ) );
-			add_action( 'w3tc_ajax', array(
-				'\W3TC\Cdnfsd_TransparentCDN_Popup',
-				'w3tc_ajax' ) );
 			add_action( 'w3tc_settings_box_cdnfsd', array(
 				'\W3TC\Cdnfsd_TransparentCDN_Page',
 				'w3tc_settings_box_cdnfsd' ) );

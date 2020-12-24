@@ -62,8 +62,13 @@ class Cache_Redis extends Cache_Base {
 
 		$storage_key = $this->get_item_key( $key );
 		$accessor = $this->_get_accessor( $storage_key );
-		if ( is_null( $accessor ) )
+		if ( is_null( $accessor ) ) {
 			return false;
+		}
+
+		if ( ! $expire ) {
+			return $accessor->set( $storage_key, serialize( $value ) );
+		}
 
 		return $accessor->setex( $storage_key, $expire, serialize( $value ) );
 	}

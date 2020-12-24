@@ -845,13 +845,16 @@ class ObjectCache_WpObjectCache_Regular {
 
 	public function w3tc_footer_comment( $strings ) {
 		$reason = $this->get_reject_reason();
-		$append = ( $reason != '' ? sprintf( ' (%s)', $reason ) : '' );
+		$append = empty( $reason ) ? '' : sprintf( ' (%1$s)', $reason );
 
 		$strings[] = sprintf(
-			__( 'Object Caching %d/%d objects using %s%s', 'w3-total-cache' ),
-			$this->cache_hits, $this->cache_total,
+			// translators: 1: Cache hits, 2: Cache total cache objects, 3: Engine anme, 4: Reason.
+			__( 'Object Caching %1$d/%2$d objects using %3$s%4$s', 'w3-total-cache' ),
+			$this->cache_hits,
+			$this->cache_total,
 			Cache::engine_name( $this->_config->get_string( 'objectcache.engine' ) ),
-			$append );
+			$append
+		);
 
 		if ( $this->_config->get_boolean( 'objectcache.debug' ) ) {
 			$strings[] = '';
