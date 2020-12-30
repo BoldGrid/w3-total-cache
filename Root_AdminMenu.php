@@ -64,17 +64,11 @@ class Root_AdminMenu {
 				'visible_always' => false,
 				'order' => 700
 			),
-			'w3tc_mobile' => array(
-				'page_title' => __( 'User Agent Groups', 'w3-total-cache' ),
-				'menu_text' => __( 'User Agent Groups', 'w3-total-cache' ),
+			'w3tc_cachegroups' => array(
+				'page_title'     => __( 'Cache Groups', 'w3-total-cache' ),
+				'menu_text'      => __( 'Cache Groups', 'w3-total-cache' ),
 				'visible_always' => false,
-				'order' => 800
-			),
-			'w3tc_referrer' => array(
-				'page_title' => __( 'Referrer Groups', 'w3-total-cache' ),
-				'menu_text' => __( 'Referrer Groups', 'w3-total-cache' ),
-				'visible_always' => false,
-				'order' => 900
+				'order'          => 800
 			),
 			'w3tc_cdn' => array(
 				'page_title' => __( 'Content Delivery Network', 'w3-total-cache' ),
@@ -210,14 +204,9 @@ class Root_AdminMenu {
 			$options_browsercache->options();
 			break;
 
-		case 'w3tc_mobile':
-			$options_mobile = new Mobile_Page_UserAgentGroups();
-			$options_mobile->options();
-			break;
-
-		case 'w3tc_referrer':
-			$options_referrer = new Mobile_Page_ReferrerGroups();
-			$options_referrer->options();
+		case 'w3tc_cachegroups':
+			$options_cachegroups = new CacheGroups_Plugin_Admin();
+			$options_cachegroups->options();
 			break;
 
 		case 'w3tc_cdn':

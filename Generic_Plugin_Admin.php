@@ -426,8 +426,17 @@ class Generic_Plugin_Admin {
 
 		switch ( $this->_page ) {
 		case 'w3tc_minify':
-		case 'w3tc_mobile':
-		case 'w3tc_referrer':
+		case 'w3tc_cachegroups':
+			wp_enqueue_script(
+				'w3tc_cachegroups',
+				plugins_url( 'CacheGroups_Plugin_Admin_View.js', W3TC_FILE ),
+				array(
+					'jquery',
+					'jquery-ui-sortable',
+				),
+				W3TC_VERSION,
+				true
+			);
 		case 'w3tc_cdn':
 			wp_enqueue_script( 'jquery-ui-sortable' );
 			break;
