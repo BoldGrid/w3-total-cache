@@ -6,6 +6,10 @@
  *
  * @package W3TC
  *
+ * @uses $useragent_groups
+ * @uses $useragent_themes
+ * @uses $referrer_groups
+ * @uses $referrer_themes
  * @uses $cookie_groups
  */
 

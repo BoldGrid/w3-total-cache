@@ -181,7 +181,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 
 			if ( $group ) {
 				$theme     = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
-				$enabled   = isset( $group_config['enabled'] ) ? (boolean) $group_config['enabled'] : true;
+				$enabled   = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
 				$redirect  = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
 				$referrers = isset( $group_config['referrers'] ) ? explode( "\r\n", trim( $group_config['referrers'] ) ) : array();
 
