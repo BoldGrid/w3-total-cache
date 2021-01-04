@@ -261,7 +261,7 @@ class Template {
 			'w3tc_wizard',
 			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/css/wizard.css' ),
 			array(),
-			'all'
+			W3TC_VERSION
 		);
 
 		if ( isset( $this->config['styles'] ) && is_array( $this->config['styles'] ) ) {
