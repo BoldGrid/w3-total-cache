@@ -69,7 +69,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 		$cookie_groups = apply_filters( 'w3tc_ui_config_item_pgcache.cookiegroups.groups', $cookie_groups ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 
 		// Load view.
-		include W3TC_DIR . '/CacheGroups_Plugin_Admin_View.php';
+		require W3TC_DIR . '/CacheGroups_Plugin_Admin_View.php';
 
 		// Footer.
 		require W3TC_INC_DIR . '/options/common/footer.php';

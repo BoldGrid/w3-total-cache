@@ -1,0 +1,51 @@
+.w3tc-card-container {
+    display: grid;
+    grid-gap: 2em;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    margin: 2em 0;
+}
+
+.w3tc-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.w3tc-card-title {
+    height: 2em;
+}
+
+.w3tc-card-footer {
+    flex-grow: 10;
+}
+
+.w3tc-card-title,
+.w3tc-card-footer {
+    padding: 10px 10px 15px 10px;
+}
+
+.w3tc-card-icon {
+    border-top: 3px solid #000;
+    border-bottom: 1px solid #ddd;
+    height: 60px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.w3tc-card-icon-inactive {
+    border-top-color: #aaa;
+}
+
+.w3tc-card-icon img {
+    max-height: 60px;
+}
+
+.w3tc-card-links {
+    align-items: baseline;
+    display: flex;
+    flex-grow: 1;
+    justify-content: flex-end;
+    padding: 10px 10px 15px 10px;
+}

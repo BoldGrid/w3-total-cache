@@ -101,11 +101,17 @@ class Root_AdminMenu {
 				'visible_always' => false,
 				'order' => 2300
 			),
+			'w3tc_feature_showcase' => array(
+				'page_title' => __( 'Feature Showcase', 'w3-total-cache' ),
+				'menu_text' => __( 'Feature Showcase', 'w3-total-cache' ),
+				'visible_always' => false,
+				'order' => 2400
+			),
 			'w3tc_about' => array(
 				'page_title' => __( 'About', 'w3-total-cache' ),
 				'menu_text' => __( 'About', 'w3-total-cache' ),
 				'visible_always' => true,
-				'order' => 2400
+				'order' => 2500
 			)
 		);
 		$pages = apply_filters( 'w3tc_admin_menu', $pages, $this->_config );
