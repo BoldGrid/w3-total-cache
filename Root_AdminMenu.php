@@ -240,6 +240,11 @@ class Root_AdminMenu {
 			$setup_guide->load();
 			break;
 
+		case 'w3tc_feature_showcase':
+			$feature_showcase = new FeatureShowcase_Plugin_Admin();
+			$feature_showcase->load();
+			break;
+
 		case 'w3tc_about':
 			$options_about = new Generic_Page_About();
 			$options_about->options();
