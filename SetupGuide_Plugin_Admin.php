@@ -38,10 +38,14 @@ class SetupGuide_Plugin_Admin {
 	 * @since 2.0.0
 	 */
 	public function __construct() {
-		require_once W3TC_INC_DIR . '/wizard/template.php';
+		$page = Util_Request::get_string( 'page' );
 
-		if ( is_null( self::$template ) ) {
-			self::$template = new Wizard\Template( $this->get_config() );
+		if ( 'w3tc_setup_guide' === $page ) {
+			require_once W3TC_INC_DIR . '/wizard/template.php';
+
+			if ( is_null( self::$template ) ) {
+				self::$template = new Wizard\Template( $this->get_config() );
+			}
 		}
 	}
 
