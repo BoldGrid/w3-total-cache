@@ -183,7 +183,10 @@ def generate_box_descriptors(image_name)
 			]
 		},
 		'wp51' => {   # dont comment out - last env using PHP55
-			'WP_VERSION' => '5.1'
+			'WP_VERSION' => '5.1',
+			'_except_name_contains' => [
+				'php80'  # not compatible, {} in script-loader fatal
+			]
 		},
 		#'wp52' => {
 		#	'WP_VERSION' => '5.2',
@@ -200,7 +203,8 @@ def generate_box_descriptors(image_name)
 		'wp55' => {
 			'WP_VERSION' => '5.5',
 			'_except_name_contains' => [
-				'php55'   # wp5.5 requires php>=5.6
+				'php55',   # wp5.5 requires php>=5.6
+				'php80'  # not compatible, WP_Feed_Cache::create() fatal
 			]
 		},
 		'wp56' => {
