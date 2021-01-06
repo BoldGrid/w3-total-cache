@@ -68,9 +68,12 @@ class FeatureShowcase_Plugin_Admin {
 	 */
 	public function load() {
 		$config = Dispatcher::config();
-		$cards  = $this->get_cards();
+		$cards  = self::get_cards();
 
 		require W3TC_DIR . '/FeatureShowcase_Plugin_Admin_View.php';
+
+		// Mark unseen new features as seen.
+		$this->mark_seen();
 	}
 
 	/**
@@ -88,15 +91,76 @@ class FeatureShowcase_Plugin_Admin {
 	}
 
 	/**
+	 * Mark all new features as seen.
+	 *
+	 * @since X.X.X
+	 */
+	public function mark_seen() {
+		$config        = Dispatcher::config();
+		$features_seen = $config->get_array( 'features_seen' );
+
+		foreach ( self::get_cards() as $key => $card ) {
+			if ( ! empty( $card['is_new'] ) ) {
+				$features_seen[] = $key;
+			}
+		}
+
+		$config->set( 'features_seen', array_unique( $features_seen ) );
+
+		$config->save();
+	}
+
+
+	/**
+	 * Get the new feature unseen count.
+	 *
+	 * @since X.X.X
+	 *
+	 * @static
+	 *
+	 * @return int
+	 */
+	public static function get_unseen_count() {
+		$config       = Dispatcher::config();
+		$new_count    = self::get_new_count();
+		$seen_count   = count( $config->get_array( 'features_seen' ) );
+		$unseen_count = $new_count - $seen_count;
+
+		return $unseen_count < 0 ? 0 : $unseen_count;
+	}
+
+	/**
+	 * Get the new feature count.
+	 *
+	 * @since X.X.X
+	 *
+	 * @static
+	 *
+	 * @return int
+	 */
+	public static function get_new_count() {
+		$count = 0;
+
+		foreach ( self::get_cards() as $card ) {
+			if ( ! empty( $card['is_new'] ) ) {
+				$count++;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
 	 * Get the feature cards.
 	 *
 	 * @since X.X.X
 	 *
 	 * @access private
+	 * @static
 	 *
 	 * @return array
 	 */
-	private function get_cards() {
+	private static function get_cards() {
 		return array(
 			'page_cache'          => array(
 				'title'      => esc_html__( 'Page Cache', 'w3-total-cache' ),
@@ -106,6 +170,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) .
 					'">' . __( 'Settings', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
+				'is_new'     => false,
 			),
 			'setup_guide'         => array(
 				'title'      => esc_html__( 'Setup Guide Wizard', 'w3-total-cache' ),
@@ -115,6 +180,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) .
 					'">' . __( 'Launch Wizard', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
+				'is_new'     => true,
 			),
 			'cdn_fsd'             => array(
 				'title'      => esc_html__( 'Full Site Delivery via CDN', 'w3-total-cache' ),
@@ -124,6 +190,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
 					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
 			),
 			'fragment_cache'      => array(
 				'title'      => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
@@ -133,6 +200,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
 					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
 			),
 			'rest_api_cache'      => array(
 				'title'      => esc_html__( 'Rest API Caching', 'w3-total-cache' ),
@@ -142,6 +210,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
 					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
 			),
 			'render_blocking_css' => array(
 				'title'      => esc_html__( 'Eliminate Render Blocking CSS', 'w3-total-cache' ),
@@ -151,6 +220,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
 					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
 			),
 			'extension_framework' => array(
 				'title'      => esc_html__( 'Extension Framework', 'w3-total-cache' ),
@@ -160,6 +230,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
 					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
 			),
 			'caching_stats'       => array(
 				'title'      => esc_html__( 'Caching Statistics', 'w3-total-cache' ),
@@ -169,6 +240,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
 					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
 			),
 			'purge_logs'          => array(
 				'title'      => esc_html__( 'Purge Logs', 'w3-total-cache' ),
@@ -178,6 +250,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
 					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
 			),
 			'ticket_support'      => array(
 				'title'      => esc_html__( 'Ticket Support', 'w3-total-cache' ),
@@ -187,6 +260,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
 					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
 			),
 			'premium_support'     => array(
 				'title'      => esc_html__( 'Premium Support', 'w3-total-cache' ),
@@ -196,6 +270,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
 					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
 			),
 		);
 	}

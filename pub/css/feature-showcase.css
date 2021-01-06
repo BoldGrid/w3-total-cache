@@ -69,10 +69,10 @@
 }
 
 .w3tc-card-upgrade {
-    background: #ccc;
+    background: #e7e7e7;
 }
 
-.w3tc-card-ribbon {
+.w3tc-card-ribbon-pro {
     height: 75px;
     overflow: hidden;
     position: absolute;
@@ -82,39 +82,102 @@
     z-index: 1;
  }
 
- .w3tc-card-ribbon span {
+ .w3tc-card-ribbon-pro span {
     background: #30bec380;
-    background: linear-gradient(#89d1d480 0%, #30bec380 100%);
+    background: linear-gradient(#89d1d4c0 0%, #30bec380 100%);
     box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 0.5);
     color: #fff;
+    display: block;
     font-size: 12px;
-    font-weight: bold; line-height: 20px;
+    font-weight: bold;
+    line-height: 20px;
     position: absolute;
+    right: -21px;
     text-transform: uppercase;
     text-align: center;
-    top: 19px; right: -21px;
+    top: 19px;
     transform: rotate(45deg);
     -webkit-transform: rotate(45deg); /* Needed for Safari */
-    width: 100px; display: block;
+    width: 100px;
  }
 
- .w3tc-card-ribbon span::before {
-    content: '';
-    position: absolute;
-    left: 0px; top: 100%;
-    z-index: -1;
+ .w3tc-card-ribbon-pro span::before {
     border-left: 3px solid #30bec3;
     border-right: 3px solid transparent;
     border-bottom: 3px solid transparent;
     border-top: 3px solid #30bec3;
- }
- .w3tc-card-ribbon span::after {
     content: '';
+    left: 0px;
     position: absolute;
-    right: 0%; top: 100%;
+    top: 100%;
     z-index: -1;
+ }
+
+ .w3tc-card-ribbon-pro span::after {
     border-right: 3px solid #30bec3;
     border-left: 3px solid transparent;
     border-bottom: 3px solid transparent;
     border-top: 3px solid #30bec3;
+    content: '';
+    position: absolute;
+    right: 0%;
+    top: 100%;
+    z-index: -1;
+ }
+
+ .w3tc-card-ribbon-new {
+    bottom: -5px;
+    height: 75px;
+    left: -5px;
+    overflow: hidden;
+    position: absolute;
+    text-align: right;
+    width: 75px;
+    z-index: 1;
+ }
+
+ .w3tc-card-ribbon-new span {
+    background: #825772bf;
+    background: linear-gradient(#82577280 0%, #825772bf 100%);
+    bottom: 19px;
+    box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 0.5);
+    color: #fff;
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    left: -21px;
+    line-height: 20px;
+    position: absolute;
+    text-transform: uppercase;
+    text-align: center;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg); /* Needed for Safari */
+    width: 100px;
+ }
+
+ .w3tc-card-ribbon-new span::before {
+    border-left: 3px solid #30bec3;
+    border-right: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-top: 3px solid #30bec3;
+    bottom: 100%;
+    content: '';
+    position: absolute;
+    left: 0px;
+    z-index: -1;
+ }
+
+ .w3tc-card-ribbon-new span::after {
+    border-right: 3px solid #30bec3;
+    border-left: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-top: 3px solid #30bec3;
+    content: '';
+    position: absolute;
+    right: 0%; top: 100%;
+    z-index: -1;
+ }
+
+ .w3tc-card-button .button {
+    margin-left: 10px;
  }
