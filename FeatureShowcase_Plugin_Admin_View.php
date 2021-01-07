@@ -34,7 +34,7 @@ $is_pro = Util_Environment::is_w3tc_pro( $config );
 	<div class="w3tc-card-container">
 <?php
 
-foreach ( $cards as $key => $card ) {
+foreach ( $cards as $feature_id => $card ) {
 	$classes    = 'w3tc-card';
 	$is_premium = ! empty( $card['is_premium'] );
 	$is_new     = ! empty( $card['is_new'] );
@@ -48,7 +48,7 @@ foreach ( $cards as $key => $card ) {
 	}
 
 	?>
-		<div class="<?php echo $classes; ?>" id="<?php echo esc_html( $key ); ?>">
+		<div class="<?php echo $classes; ?>" id="w3tc-feature-<?php echo esc_attr( $feature_id ); ?>">
 	<?php
 
 	if ( $is_premium ) {

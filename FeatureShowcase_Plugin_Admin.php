@@ -94,20 +94,32 @@ class FeatureShowcase_Plugin_Admin {
 	 * Mark all new features as seen.
 	 *
 	 * @since X.X.X
+	 *
+	 * @global $current_user WordPress current user.
+	 *
+	 * @see self::get_cards()
 	 */
 	public function mark_seen() {
-		$config        = Dispatcher::config();
-		$features_seen = $config->get_array( 'features_seen' );
+		global $current_user;
 
-		foreach ( self::get_cards() as $key => $card ) {
-			if ( ! empty( $card['is_new'] ) ) {
-				$features_seen[] = $key;
+		$features_seen = (array) get_user_meta( $current_user->ID, 'w3tc_features_seen', true );
+		$cards         = self::get_cards();
+		$updated       = false;
+
+		foreach ( $cards as $id => $card ) {
+			if ( ! empty( $card['is_new'] ) && ! in_array( $id, $features_seen, true ) ) {
+				$features_seen[] = $id;
+				$updated         = true;
 			}
 		}
 
-		$config->set( 'features_seen', array_unique( $features_seen ) );
+		if ( $updated ) {
+			sort( $features_seen );
 
-		$config->save();
+			$features_seen = array_unique( array_filter( $features_seen ) );
+
+			update_user_meta( $current_user->ID, 'w3tc_features_seen', $features_seen );
+		}
 	}
 
 
@@ -118,36 +130,27 @@ class FeatureShowcase_Plugin_Admin {
 	 *
 	 * @static
 	 *
+	 * @global $current_user WordPress current user.
+	 *
+	 * @see self::get_cards()
+	 *
 	 * @return int
 	 */
 	public static function get_unseen_count() {
-		$config       = Dispatcher::config();
-		$new_count    = self::get_new_count();
-		$seen_count   = count( $config->get_array( 'features_seen' ) );
-		$unseen_count = $new_count - $seen_count;
+		global $current_user;
 
-		return $unseen_count < 0 ? 0 : $unseen_count;
-	}
+		$unseen_count  = 0;
+		$features_seen = (array) get_user_meta( $current_user->ID, 'w3tc_features_seen', true );
+		$cards         = self::get_cards();
 
-	/**
-	 * Get the new feature count.
-	 *
-	 * @since X.X.X
-	 *
-	 * @static
-	 *
-	 * @return int
-	 */
-	public static function get_new_count() {
-		$count = 0;
-
-		foreach ( self::get_cards() as $card ) {
-			if ( ! empty( $card['is_new'] ) ) {
-				$count++;
+		// Iterate through the new features and check if already seen.
+		foreach ( $cards as $id => $card ) {
+			if ( ! empty( $card['is_new'] ) && ! in_array( $id, $features_seen, true ) ) {
+				$unseen_count++;
 			}
 		}
 
-		return $count;
+		return $unseen_count;
 	}
 
 	/**
