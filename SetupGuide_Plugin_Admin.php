@@ -38,9 +38,11 @@ class SetupGuide_Plugin_Admin {
 	 * @since 2.0.0
 	 */
 	public function __construct() {
-		$page = Util_Request::get_string( 'page' );
+		$page         = Util_Request::get_string( 'page' );
+		$is_w3tc_ajax = defined( 'DOING_AJAX' ) && DOING_AJAX &&
+			isset( $_POST['action'] ) && 0 === strpos( $_POST['action'], 'w3tc_' );
 
-		if ( 'w3tc_setup_guide' === $page ) {
+		if ( 'w3tc_setup_guide' === $page || $is_w3tc_ajax ) {
 			require_once W3TC_INC_DIR . '/wizard/template.php';
 
 			if ( is_null( self::$template ) ) {
