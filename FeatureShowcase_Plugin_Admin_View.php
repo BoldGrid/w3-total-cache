@@ -35,27 +35,23 @@ $is_pro = Util_Environment::is_w3tc_pro( $config );
 <?php
 
 foreach ( $cards as $feature_id => $card ) {
-	$classes    = 'w3tc-card';
-	$is_premium = ! empty( $card['is_premium'] );
-	$is_new     = ! empty( $card['is_new'] );
+	$card_classes  = 'w3tc-card';
+	$title_classes = 'w3tc-card-title';
+	$is_premium    = ! empty( $card['is_premium'] );
+	$is_new        = ! empty( $card['is_new'] );
 
 	if ( $is_premium ) {
-		$classes .= ' w3tc-card-premium';
+		$card_classes  .= ' w3tc-card-premium';
+		$title_classes .= ' w3tc-card-premium';
 	}
 
 	if ( $is_premium && ! $is_pro ) {
-		$classes .= ' w3tc-card-upgrade';
+		$card_classes .= ' w3tc-card-upgrade';
 	}
 
 	?>
-		<div class="<?php echo $classes; ?>" id="w3tc-feature-<?php echo esc_attr( $feature_id ); ?>">
+		<div class="<?php echo $card_classes; ?>" id="w3tc-feature-<?php echo esc_attr( $feature_id ); ?>">
 	<?php
-
-	if ( $is_premium ) {
-		?>
-			<div class="w3tc-card-ribbon-pro"><span>PRO</span></div>
-		<?php
-	}
 
 	if ( $is_new ) {
 		?>
@@ -64,9 +60,18 @@ foreach ( $cards as $feature_id => $card ) {
 	}
 
 	?>
-			<div class="w3tc-card-title"><p><?php echo $card['title']; ?></p></div>
+			<div class="<?php echo $title_classes; ?>">
+				<p><?php echo $card['title']; ?></p>
+	<?php
+	if ( $is_premium ) {
+		?>
+				<p class="w3tc-card-pro"><?php echo __( 'PRO FEATURE', 'w3-total-cache' ); ?></p>
+		<?php
+	}
+	?>
+			</div>
 			<div class="w3tc-card-icon"><span class="dashicons <?php echo $card['icon']; ?>"></span></div>
-			<div class="w3tc-card-footer"><p><?php echo $card['text']; ?></p></div>
+			<div class="w3tc-card-body"><p><?php echo $card['text']; ?></p></div>
 			<div class="w3tc-card-button">
 	<?php
 
