@@ -1,7 +1,7 @@
 === Plugin Name ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
-Requires at least: 3.2
+Requires at least: 3.8
 Tested up to: 5.6
 Stable tag: 2.0.1
 License: GPLv2 or later
