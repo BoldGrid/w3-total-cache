@@ -434,8 +434,11 @@ class Generic_Plugin_Admin {
 		wp_enqueue_script( 'w3tc-lightbox' );
 
 		if ( $this->is_w3tc_page ) {
-			wp_localize_script( 'w3tc-options', 'w3tc_nonce',
-				array( wp_create_nonce( 'w3tc' ) ) );
+			wp_localize_script(
+				'w3tc-options',
+				'w3tc_nonce',
+				array( wp_create_nonce( 'w3tc' ) )
+			);
 		}
 
 		switch ( $this->_page ) {

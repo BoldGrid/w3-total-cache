@@ -1212,7 +1212,7 @@ jQuery(function() {
 
 		jQuery.getJSON(ajaxurl, {
 			action: 'w3tc_ajax',
-			_wpnonce: w3tc_nonce,
+			_wpnonce: w3tc_nonce[0],
 			w3tc_action: 'faq',
 			section: section
 		}, function(data) {
