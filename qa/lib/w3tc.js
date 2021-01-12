@@ -161,6 +161,18 @@ exports.expectW3tcErrors = async function(pPage, ifShouldExist) {
 	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general',
 		{waitUntil: 'domcontentloaded'});
 
+	// Skip the Setup Guide wizard.
+	if (await pPage.$('#w3tc-wizard-skip') != null) {
+		log.log('Encountered the Setup Guide wizard; skipping...');
+
+		let skipped = await Promise.all([
+			pPage.click('#w3tc-wizard-skip'),
+			pPage.waitForNavigation({timeout:0}),
+		]);
+
+		expect(skipped).is.not.null;
+	}
+
 	let errorExists = (await pPage.$('.w3tc_error') != null);
 	if (ifShouldExist) {
 		expect(errorExists).true;
