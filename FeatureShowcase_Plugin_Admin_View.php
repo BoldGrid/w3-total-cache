@@ -28,6 +28,10 @@ namespace W3TC;
 
 $is_pro = Util_Environment::is_w3tc_pro( $config );
 
+if ( ! $is_pro ) {
+	require W3TC_INC_DIR . '/options/parts/dashboard_banner.php';
+}
+
 ?>
 
 <div class="w3tc-page-container">
@@ -72,20 +76,21 @@ foreach ( $cards as $feature_id => $card ) {
 			</div>
 			<div class="w3tc-card-icon"><span class="dashicons <?php echo $card['icon']; ?>"></span></div>
 			<div class="w3tc-card-body"><p><?php echo $card['text']; ?></p></div>
-			<div class="w3tc-card-button">
+			<div class="w3tc-card-footer">
+				<div class="w3tc-card-button">
 	<?php
 
-	if ( ! empty( $card['button'] ) ) {
-		echo $card['button'];
-	} elseif ( $is_premium && ! $is_pro ) {
+	if ( $is_premium && ! $is_pro ) {
 		?>
-				<button class="button w3tc-gopro-button button-buy-plugin" data-src="feature_showcase">Unlock Feature</button>
+					<button class="button w3tc-gopro-button button-buy-plugin" data-src="feature_showcase">Unlock Feature</button>
 		<?php
+	} elseif ( ! empty( $card['button'] ) ) {
+		echo $card['button'];
 	}
 
 	?>
+				</div><div class="w3tc-card-links"><?php echo $card['link']; ?></div>
 			</div>
-			<div class="w3tc-card-links"><?php echo $card['link']; ?></div>
 		</div>
 	<?php
 }

@@ -165,23 +165,15 @@ class FeatureShowcase_Plugin_Admin {
 	 */
 	private static function get_cards() {
 		return array(
-			'page_cache'          => array(
-				'title'      => esc_html__( 'Page Cache', 'w3-total-cache' ),
-				'icon'       => 'dashicons-format-aside',
-				'text'       => esc_html__( 'Page caching decreases the website response time, making pages load faster.', 'w3-total-cache' ),
-				'button'     => '',
-				'link'       => '<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) .
-					'">' . __( 'Settings', 'w3-total-cache' ) . '</a>',
-				'is_premium' => false,
-				'is_new'     => false,
-			),
 			'setup_guide'         => array(
 				'title'      => esc_html__( 'Setup Guide Wizard', 'w3-total-cache' ),
 				'icon'       => 'dashicons-superhero',
 				'text'       => esc_html__( 'The Setup Guide wizard quickly walks you through configuring W3 Total Cache.', 'w3-total-cache' ),
-				'button'     => '',
-				'link'       => '<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) .
-					'">' . __( 'Launch Wizard', 'w3-total-cache' ) . '</a>',
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) . '\'">' .
+					__( 'Launch', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => true,
 			),
@@ -191,27 +183,7 @@ class FeatureShowcase_Plugin_Admin {
 				'text'       => esc_html__( 'Provide the best user experience possible by enhancing by hosting HTML pages and RSS feeds with (supported) CDN\'s high speed global networks.', 'w3-total-cache' ),
 				'button'     => '',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
-					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
-				'is_premium' => true,
-				'is_new'     => false,
-			),
-			'fragment_cache'      => array(
-				'title'      => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
-				'icon'       => 'dashicons-chart-pie',
-				'text'       => esc_html__( 'Unlocking the fragment caching module delivers enhanced performance for plugins and themes that use the WordPress Transient API.', 'w3-total-cache' ),
-				'button'     => '',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
-					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
-				'is_premium' => true,
-				'is_new'     => false,
-			),
-			'rest_api_cache'      => array(
-				'title'      => esc_html__( 'Rest API Caching', 'w3-total-cache' ),
-				'icon'       => 'dashicons-embed-generic',
-				'text'       => esc_html__( 'Save server resources or add scale and performance by caching the WordPress Rest API with W3TC Pro.', 'w3-total-cache' ),
-				'button'     => '',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
-					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
 			),
@@ -221,7 +193,7 @@ class FeatureShowcase_Plugin_Admin {
 				'text'       => esc_html__( 'Render blocking CSS delays a webpage from being visible in a timely manner. Eliminate this easily with the click of a button in W3 Total Cache Pro.', 'w3-total-cache' ),
 				'button'     => '',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
-					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
 			),
@@ -231,7 +203,27 @@ class FeatureShowcase_Plugin_Admin {
 				'text'       => esc_html__( 'Improve the performance of your Genesis, WPML powered site, and much more. StudioPress\' Genesis Framework is up to 60% faster with W3TC Pro.', 'w3-total-cache' ),
 				'button'     => '',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
-					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
+				'is_premium' => true,
+				'is_new'     => false,
+			),
+			'fragment_cache'      => array(
+				'title'      => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
+				'icon'       => 'dashicons-chart-pie',
+				'text'       => esc_html__( 'Unlocking the fragment caching module delivers enhanced performance for plugins and themes that use the WordPress Transient API.', 'w3-total-cache' ),
+				'button'     => '',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
+				'is_premium' => true,
+				'is_new'     => false,
+			),
+			'rest_api_cache'      => array(
+				'title'      => esc_html__( 'Rest API Caching', 'w3-total-cache' ),
+				'icon'       => 'dashicons-embed-generic',
+				'text'       => esc_html__( 'Save server resources or add scale and performance by caching the WordPress Rest API with W3TC Pro.', 'w3-total-cache' ),
+				'button'     => '',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
 			),
@@ -241,7 +233,7 @@ class FeatureShowcase_Plugin_Admin {
 				'text'       => esc_html__( 'Analytics for your WordPress and Server cache that allow you to track the size, time and hit/miss ratio of each type of cache, giving you the information needed to gain maximum performance.', 'w3-total-cache' ),
 				'button'     => '',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
-					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
 			),
@@ -251,7 +243,7 @@ class FeatureShowcase_Plugin_Admin {
 				'text'       => esc_html__( 'Purge Logs provide information on when your cache has been purged and what triggered it. If you are troubleshooting an issue with your cache being cleared, Purge Logs can tell you why.', 'w3-total-cache' ),
 				'button'     => '',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
-					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
 			),
@@ -261,7 +253,7 @@ class FeatureShowcase_Plugin_Admin {
 				'text'       => esc_html__( 'Do not want to post your issue on a public forum? Pro users can submit a ticket to have questions answered by our performance experts, right in your WordPress Dashboard.', 'w3-total-cache' ),
 				'button'     => '',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
-					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
 			),
@@ -271,8 +263,80 @@ class FeatureShowcase_Plugin_Admin {
 				'text'       => esc_html__( 'Submit a ticket to have your W3 Total Cache configuration and consultation to improve your WordPress Performance, right in your WordPress Dashboard. ', 'w3-total-cache' ),
 				'button'     => '',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
-					'">' . __( 'More Information', 'w3-total-cache' ) . '</a>',
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
+				'is_new'     => false,
+			),
+			'page_cache'          => array(
+				'title'      => esc_html__( 'Page Cache', 'w3-total-cache' ),
+				'icon'       => 'dashicons-format-aside',
+				'text'       => esc_html__( 'Page caching decreases the website response time, making pages load faster.', 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
+				'is_premium' => false,
+				'is_new'     => false,
+			),
+			'minify'              => array(
+				'title'      => esc_html__( 'Minify', 'w3-total-cache' ),
+				'icon'       => 'dashicons-media-text',
+				'text'       => esc_html__( 'Reduce load time by decreasing the size and number of CSS and JS files.', 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( admin_url( 'admin.php?page=w3tc_general#minify' ) ) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
+				'is_premium' => false,
+				'is_new'     => false,
+			),
+			'db_cache'            => array(
+				'title'      => esc_html__( 'Database Cache', 'w3-total-cache' ),
+				'icon'       => 'dashicons-database-view',
+				'text'       => esc_html__( 'Persistently store data to reduce post, page and feed creation time.', 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( admin_url( 'admin.php?page=w3tc_general#database_cache' ) ) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
+				'is_premium' => false,
+				'is_new'     => false,
+			),
+			'object_cache'        => array(
+				'title'      => esc_html__( 'Object Cache', 'w3-total-cache' ),
+				'icon'       => 'dashicons-archive',
+				'text'       => esc_html__( 'Persistently store objects to reduce execution time for common operations.', 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( admin_url( 'admin.php?page=w3tc_general#object_cache' ) ) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
+				'is_premium' => false,
+				'is_new'     => false,
+			),
+			'browser_cache'       => array(
+				'title'      => esc_html__( 'Browser Cache', 'w3-total-cache' ),
+				'icon'       => 'dashicons-welcome-widgets-menus',
+				'text'       => esc_html__( 'Reduce server load and decrease response time by using the cache available in site visitor\'s web browser.', 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( admin_url( 'admin.php?page=w3tc_general#browser_cache' ) ) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
+				'is_premium' => false,
+				'is_new'     => false,
+			),
+			'lazyload'            => array(
+				'title'      => esc_html__( 'Lazy Load Images', 'w3-total-cache' ),
+				'icon'       => 'dashicons-format-image',
+				'text'       => esc_html__( 'Defer loading offscreen images, making pages load faster.', 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
+				'is_premium' => false,
 				'is_new'     => false,
 			),
 		);
