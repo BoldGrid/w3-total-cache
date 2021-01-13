@@ -28,7 +28,9 @@ namespace W3TC;
 
 $is_pro = Util_Environment::is_w3tc_pro( $config );
 
-if ( ! $is_pro ) {
+if ( $is_pro ) {
+	require W3TC_INC_DIR . '/options/common/header.php';
+} else {
 	require W3TC_INC_DIR . '/options/parts/dashboard_banner.php';
 }
 
