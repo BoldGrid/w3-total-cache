@@ -177,6 +177,18 @@ class FeatureShowcase_Plugin_Admin {
 				'is_premium' => false,
 				'is_new'     => true,
 			),
+			'lazyload_gmaps'      => array(
+				'title'      => esc_html__( 'Lazy Load Google Maps', 'w3-total-cache' ),
+				'icon'       => 'dashicons-admin-site',
+				'text'       => esc_html__( 'Defer loading offscreen Google Maps, making pages load faster.', 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( admin_url( 'admin.php?page=w3tc_userexperience' ) ) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/lazy-load-google-maps/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_lazyload_googlemaps' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
+				'is_premium' => true,
+				'is_new'     => true,
+			),
 			'cdn_fsd'             => array(
 				'title'      => esc_html__( 'Full Site Delivery via CDN', 'w3-total-cache' ),
 				'icon'       => 'dashicons-networking',
