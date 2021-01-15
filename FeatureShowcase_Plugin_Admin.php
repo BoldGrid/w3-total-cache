@@ -172,7 +172,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) . '\'">' .
 					__( 'Launch', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/setup-guide-wizard/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/setup-guide-wizard/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=setup_guide' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => true,
@@ -184,7 +184,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/cdn-full-site-delivery/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/cdn-full-site-delivery/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_cdn_fsd' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
@@ -196,7 +196,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_minify_CSS' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
@@ -208,7 +208,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_extensions' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/extension-framework-pro/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/extension-framework-pro/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_extensions' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
@@ -220,7 +220,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#fragmentcache' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-a-fragment-caching-method-for-w3-total-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-a-fragment-caching-method-for-w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_fragment_cache' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
@@ -232,7 +232,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_pgcache#rest' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/achieve-ultimate-wordpress-performance-with-w3-total-cache-pro/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/achieve-ultimate-wordpress-performance-with-w3-total-cache-pro/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_rest_api_caching' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
@@ -244,7 +244,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_stats' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-w3-total-cache-statistics-to-give-detailed-information-about-your-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-w3-total-cache-statistics-to-give-detailed-information-about-your-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_stats' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
@@ -256,7 +256,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#debug' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/purge-cache-log/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/purge-cache-log/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_purge_logs' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
@@ -266,7 +266,7 @@ class FeatureShowcase_Plugin_Admin {
 				'icon'       => 'dashicons-sos',
 				'text'       => esc_html__( 'Do not want to post your issue on a public forum? Pro users can submit a ticket to have questions answered by our performance experts, right in your WordPress Dashboard.', 'w3-total-cache' ),
 				'button'     => '',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_ticket_support' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
@@ -278,7 +278,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_support' ) ) . '\'">' .
 					__( 'Support', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_premium_support' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => true,
 				'is_new'     => false,
@@ -290,7 +290,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-page-caching-in-w3-total-cache-for-shared-hosting/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-page-caching-in-w3-total-cache-for-shared-hosting/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=page_cache' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
@@ -302,7 +302,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#minify' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-a-minification-method-for-w3-total-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-a-minification-method-for-w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=minify' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
@@ -314,7 +314,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-lazy-loading-for-your-wordpress-website-with-w3-total-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-lazy-loading-for-your-wordpress-website-with-w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=lazyload' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
@@ -326,7 +326,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-w3-total-cache-with-stackpath-for-cdn-objects/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-w3-total-cache-with-stackpath-for-cdn-objects/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=cdn' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
@@ -338,7 +338,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#system_opcache' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-an-opcode-caching-method-with-w3-total-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-an-opcode-caching-method-with-w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=opcode_cache' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
@@ -350,7 +350,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#database_cache' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-a-database-caching-method-in-w3-total-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-a-database-caching-method-in-w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=database_cache' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
@@ -362,7 +362,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#object_cache' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-object-caching-methods-in-w3-total-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-object-caching-methods-in-w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=object_cache' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
@@ -374,7 +374,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_general#browser_cache' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=browser_cache' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
@@ -386,7 +386,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_extensions' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/extension-framework/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/extension-framework/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=extensions' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
@@ -398,7 +398,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( admin_url( 'admin.php?page=w3tc_cachegroups' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/cache-groups/' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/cache-groups/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=cache_groups' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
 				'is_premium' => false,
 				'is_new'     => false,
