@@ -2,7 +2,7 @@
 /**
  * File: CacheGroups_Plugin_Admin.php
  *
- * @since X.X.X
+ * @since 2.1.0
  *
  * @package W3TC
  */
@@ -12,7 +12,7 @@ namespace W3TC;
 /**
  * Class: CacheGroups_Plugin_Admin
  *
- * @since X.X.X
+ * @since 2.1.0
  */
 class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 	/**
@@ -25,7 +25,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 	/**
 	 * Cache groups settings view.
 	 *
-	 * @since X.X.X
+	 * @since 2.1.0
 	 */
 	public function view() {
 		$c = Dispatcher::config();
@@ -78,7 +78,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 	/**
 	 * Save settings.
 	 *
-	 * @since X.X.X
+	 * @since 2.1.0
 	 *
 	 * @static
 	 *

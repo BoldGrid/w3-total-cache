@@ -1,7 +1,7 @@
 /**
  * File: CacheGroups_Plugin_Admin_View.js
  *
- * @since X.X.X
+ * @since 2.1.0
  *
  * @package W3TC
  */

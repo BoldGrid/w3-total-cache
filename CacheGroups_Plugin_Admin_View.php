@@ -2,7 +2,7 @@
 /**
  * File: CacheGroups_Plugin_Admin_View.php
  *
- * @since X.X.X
+ * @since 2.1.0
  *
  * @package W3TC
  *

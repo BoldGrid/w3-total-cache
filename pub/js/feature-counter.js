@@ -3,7 +3,7 @@
  *
  * JavaScript for feature counters.
  *
- * @since X.X.X
+ * @since 2.1.0
  *
  * @global W3TCFeatureShowcaseData
  */

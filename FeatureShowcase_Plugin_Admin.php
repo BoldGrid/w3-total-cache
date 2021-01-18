@@ -2,7 +2,7 @@
 /**
  * File: FeatureShowcase_Plugin_Admin.php
  *
- * @since X.X.X
+ * @since 2.1.0
  *
  * @package W3TC
  */
@@ -12,13 +12,13 @@ namespace W3TC;
 /**
  * Class: FeatureShowcase_Plugin_Admin
  *
- * @since X.X.X
+ * @since 2.1.0
  */
 class FeatureShowcase_Plugin_Admin {
 	/**
 	 * Current page.
 	 *
-	 * @since  X.X.X
+	 * @since  2.1.0
 	 * @access private
 	 *
 	 * @var string
@@ -28,7 +28,7 @@ class FeatureShowcase_Plugin_Admin {
 	/**
 	 * Constructor.
 	 *
-	 * @since X.X.X
+	 * @since 2.1.0
 	 *
 	 * @see Util_Request::get_string()
 	 * @see self::enqueue_styles()
@@ -53,7 +53,7 @@ class FeatureShowcase_Plugin_Admin {
 	 *
 	 * Run by Root_Loader.
 	 *
-	 * @since X.X.X
+	 * @since 2.1.0
 	 */
 	public function run() {
 	}
@@ -61,7 +61,7 @@ class FeatureShowcase_Plugin_Admin {
 	/**
 	 * Render the page.
 	 *
-	 * @since X.X.X
+	 * @since 2.1.0
 	 *
 	 * @see Dispatcher::config()
 	 * @see self::get_cards()
@@ -79,7 +79,7 @@ class FeatureShowcase_Plugin_Admin {
 	/**
 	 * Enqueue styles.
 	 *
-	 * @since X.X.X
+	 * @since 2.1.0
 	 */
 	public function enqueue_styles() {
 		wp_enqueue_style(
@@ -93,7 +93,7 @@ class FeatureShowcase_Plugin_Admin {
 	/**
 	 * Mark all new features as seen.
 	 *
-	 * @since X.X.X
+	 * @since 2.1.0
 	 *
 	 * @global $current_user WordPress current user.
 	 *
@@ -126,7 +126,7 @@ class FeatureShowcase_Plugin_Admin {
 	/**
 	 * Get the new feature unseen count.
 	 *
-	 * @since X.X.X
+	 * @since 2.1.0
 	 *
 	 * @static
 	 *
@@ -156,7 +156,7 @@ class FeatureShowcase_Plugin_Admin {
 	/**
 	 * Get the feature cards.
 	 *
-	 * @since X.X.X
+	 * @since 2.1.0
 	 *
 	 * @access private
 	 * @static

@@ -275,6 +275,16 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.1.0 =
+* Feature: Added a Feature Showcase to highlight new and existing features
+* Update: Consolidated cache groups settings pages
+* Update: Replaced deprecated jQuery method for WordPress 5.6
+* Fix: PHP warnings for sprintf placeholders in PHP 8
+* Fix: PHP deprecated warnings in PHP 8
+* Fix: Browser Cache Quick Reference Chart link
+* Fix: Bad nonce in help
+* Fix: Google Drive CDN JavaScript
+
 = 2.0.1 =
 * Fix: Corrected redirection logic for the new Setup Guide
 * Fix: Fixed JavaScript w3tc_ga error
