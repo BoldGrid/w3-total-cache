@@ -38,7 +38,7 @@ $cache_key .= $page_key_postfix;
 echo 'checking ' . $host_port . $path . ' blog ' . $blog_id . ' cache key ' . $cache_key;
 
 if ($engine == 'apc')
-	$cache = new \W3TC\Cache_Apc(array(
+	$cache = new \W3TC\Cache_Apcu(array(
 			'section' => 'page',
 			'blog_id' => $blog_id,
 			'module' => 'pgcache',

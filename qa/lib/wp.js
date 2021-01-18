@@ -165,24 +165,41 @@ async function postCreateWP4(pPage, data) {
 
 
 
+function postCreateWP5MoreButtonSelector() {
+	if (parseFloat(env.wpVersion) < 5.3) {
+		return 'button[aria-label="Show more tools & options"]';
+	} else if (parseFloat(env.wpVersion) < 5.6) {
+		return 'button[aria-label="More tools & options"]';
+	}
+
+	return 'button[aria-label="Options"]';
+}
+
+
+
 async function postCreateWP5(pPage, data) {
 	log.log('create page - wp5 (' + parseFloat(env.wpVersion) + ') - switch to code editor')
 
+	let moreButtonSelector = postCreateWP5MoreButtonSelector();
+
 	if (parseFloat(env.wpVersion) < 5.3) {
-		await pPage.click('button[aria-label="Show more tools & options"]');
+		await pPage.click(moreButtonSelector);
 	} else {
-		await pPage.click('button[aria-label="More tools & options"]');
+		await pPage.waitForSelector(moreButtonSelector, {
+			timeout: 3000
+		});
+		await pPage.click(moreButtonSelector);
 
 		try {
-			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+			await pPage.waitForSelector(moreButtonSelector + '[aria-expanded="true"]', {
 				timeout: 3000
 			});
 		} catch (e) {
 			log.error('click failed, repeating');
 
-			await pPage.click('button[aria-label="More tools & options"]');
+			await pPage.click(moreButtonSelector);
 
-			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+			await pPage.waitForSelector(moreButtonSelector + '[aria-expanded="true"]', {
 				timeout: 5000
 			});
 		}
@@ -237,7 +254,17 @@ async function postCreateWP5(pPage, data) {
 					return element.getAttribute('for');
 				}
 			}
+
+			labels = document.querySelectorAll('label.components-input-control__label');
+			for (let element of labels) {
+				if (element.innerHTML == 'Template:') {
+					return element.getAttribute('for');
+				}
+			}
+
+			return x;
 		});
+		console.log(templateControlId);
 		expect(templateControlId).not.empty;
 
 		await pPage.select('#' + templateControlId, data.template);
@@ -398,21 +425,26 @@ async function postUpdateWP4(pPage, data) {
 async function postUpdateWP5(pPage, data) {
 	log.log('update page - switch to code editor')
 
+	let moreButtonSelector = postCreateWP5MoreButtonSelector();
+
 	if (parseFloat(env.wpVersion) < 5.3) {
-		await pPage.click('button[aria-label="Show more tools & options"]');
+		await pPage.click(moreButtonSelector);
 	} else {
-		await pPage.click('button[aria-label="More tools & options"]');
+		await pPage.waitForSelector(moreButtonSelector, {
+			timeout: 3000
+		});
+		await pPage.click(moreButtonSelector);
 
 		try {
-			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+			await pPage.waitForSelector(moreButtonSelector + '[aria-expanded="true"]', {
 				timeout: 3000
 			});
 		} catch (e) {
 			log.error('click failed, repeating');
 
-			await pPage.click('button[aria-label="More tools & options"]');
+			await pPage.click(moreButtonSelector);
 
-			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+			await pPage.waitForSelector(moreButtonSelector + '[aria-expanded="true"]', {
 				timeout: 5000
 			});
 		}

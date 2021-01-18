@@ -9,7 +9,8 @@ chown -R www-data:www-data ${W3D_WP_PATH}
 
 mysql -uroot <<SQL
 CREATE DATABASE wordpress;
-GRANT USAGE ON *.* TO wordpress@localhost IDENTIFIED BY 'wordpress';
+CREATE USER wordpress@localhost IDENTIFIED BY 'wordpress';
+GRANT USAGE ON *.* TO wordpress@localhost;
 GRANT ALL PRIVILEGES ON wordpress.* TO wordpress@localhost;
 FLUSH PRIVILEGES;
 SQL

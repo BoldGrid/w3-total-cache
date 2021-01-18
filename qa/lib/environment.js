@@ -6,7 +6,7 @@ exports.blogId = process.env['W3D_WP_BLOG_ID'];
 exports.adminLogin = 'admin';
 exports.adminPassword = '1';
 exports.wpSiteUri = process.env['W3D_WP_SITE_URI'];
-
+exports.phpVersion = process.env['W3D_PHP_VERSION'];
 exports.ftpHost = '';
 exports.ftpUsername = '';
 exports.ftpPassword = '';

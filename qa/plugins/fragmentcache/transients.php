@@ -35,18 +35,18 @@ function check_simple_fragment() {
 		switch($_REQUEST['engine']) {
 			case 'file':
 				$cacheInstance = new \W3TC\Cache_File(array(
-                    'section' => 'fragment',
-                    'locking' => false,
-                    'flush_timelimit' => 100,
-		            'blog_id' => $blog_id,
-		            'module' => 'fragmentcache',
-		            'host' => \W3TC\Util_Environment::host(),
-		            'instance_id' => \W3TC\Util_Environment::instance_id(),
-		        ));
+					'section' => 'fragment',
+					'locking' => false,
+					'flush_timelimit' => 100,
+					'blog_id' => $blog_id,
+					'module' => 'fragmentcache',
+					'host' => \W3TC\Util_Environment::host(),
+					'instance_id' => \W3TC\Util_Environment::instance_id(),
+				));
 			break;
 
 			case 'apc':
-				$cacheInstance = new \W3TC\Cache_Apc(array(
+				$cacheInstance = new \W3TC\Cache_Apcu(array(
 					'section' => 'fragment',
 					'blog_id' => $blog_id,
 					'module' => 'fragmentcache',
