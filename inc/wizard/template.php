@@ -241,6 +241,16 @@ class Template {
 			false
 		);
 
+		wp_localize_script(
+			'w3tc_wizard',
+			'W3TC_Wizard',
+			array(
+				'beforeunloadText' => __( 'Are you sure that you want to leve this page?', 'w3-total-cache' ),
+			)
+		);
+
+		wp_enqueue_script( 'w3tc_wizard' );
+
 		if ( isset( $this->config['scripts'] ) && is_array( $this->config['scripts'] ) ) {
 			foreach ( $this->config['scripts'] as $script ) {
 				wp_register_script(

@@ -1305,9 +1305,20 @@ class SetupGuide_Plugin_Admin {
 					'id'       => 'complete',
 					'markup'   => '<p>' .
 						sprintf(
+							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
+							esc_html__(
+								'%1$sPage Cache%2$s engine set to %1$s%3$s%2$s',
+								'w3-total-cache'
+							),
+							'<strong>',
+							'</strong>',
+							'<span id="w3tc-pgcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+						) . '</p>
+						<p>' .
+						sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
 							esc_html__(
-								'%1$sTime to First Byte%2$s has change by %3$s!',
+								'%1$sTime to First Byte%2$s has changed by %1$s%3$s%2$s',
 								'w3-total-cache'
 							),
 							'<strong>',

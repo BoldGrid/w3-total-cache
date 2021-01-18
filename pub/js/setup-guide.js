@@ -1216,8 +1216,11 @@ function w3tc_wizard_actions( $slide ) {
 
 		case 'w3tc-wizard-slide-complete':
 			var html,
-				pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ).val();
-				pgcacheDiffPercent = $container.find( '#test-results' ).data( 'pgcacheDiffPercent-' + pgcacheEngine ),
+				pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ).val(),
+				pgcacheEngineLabel = $container.find( 'input:checked[name="pgcache_engine"]' )
+					.closest('td').next('td').text(),
+				pgcacheDiffPercent = $container.find( '#test-results' )
+					.data( 'pgcacheDiffPercent-' + pgcacheEngine ),
 				dbcacheEngine = $container.find( 'input:checked[name="dbcache_engine"]' ).val(),
 				dbcacheEngineLabel = $container.find( 'input:checked[name="dbcache_engine"]' )
 					.closest('td').next('td').text(),
@@ -1241,15 +1244,21 @@ function w3tc_wizard_actions( $slide ) {
 				jQuery( '#w3tc-wizard-step-lazyload' ).append( '<span class="dashicons dashicons-yes"></span>' );
 			}
 
+			// Prevent leave page alert.
+			jQuery( window ).off( 'beforeunload' );
+
 			// Present the Setup Complete slide.
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-options-menu li' ).last().addClass( 'is-active' );
 
-			html = ( pgcacheDiffPercent > 0 ? '+' : '' ) +
-				pgcacheDiffPercent +
-				'%';
+			html = pgcacheDiffPercent !== undefined ?
+				( pgcacheDiffPercent > 0 ? '+' : '' ) +
+				parseFloat( pgcacheDiffPercent ).toFixed( 2 ) +
+				'%' : '0.00%';
 
 			$container.find( '#w3tc-ttfb-diff' ).html( html );
+
+			$container.find( '#w3tc-pgcache-engine' ).html( pgcacheEngineLabel );
 
 			$container.find( '#w3tc-dbcache-engine' ).html( dbcacheEngineLabel );
 

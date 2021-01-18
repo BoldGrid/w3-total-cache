@@ -237,7 +237,7 @@ function w3tc_beforeupload_bind() {
 }
 
 function w3tc_beforeupload_unbind() {
-	jQuery(window).unbind('beforeunload', w3tc_beforeunload);
+	jQuery(window).off('beforeunload', w3tc_beforeunload);
 }
 
 function w3tc_beforeunload() {
