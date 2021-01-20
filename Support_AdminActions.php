@@ -173,7 +173,6 @@ class Support_AdminActions {
 				'home_url_host' => Util_Environment::home_url_host(),
 				'home_url_uri' => Util_Environment::home_url_uri(),
 				'network_home_url_uri' => Util_Environment::network_home_url_uri(),
-				'host_port' => Util_Environment::host_port(),
 				'host' => Util_Environment::host(),
 				'wp_config_path' => Util_Environment::wp_config_path()
 			),

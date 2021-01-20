@@ -27,7 +27,7 @@ if ( !defined( 'W3TC' ) )
 <tr>
 	<th><?php _e( 'Origin:', 'w3-total-cache' ); ?></th>
 	<td>
-		<?php echo Util_Environment::host_port(); ?>
+		<?php echo Util_Environment::host(); ?>
 		<input id="cdn_create_container"
 					   <?php Util_Ui::sealing_disabled( 'cdn.' ) ?> class="button {type: 'cf2', nonce: '<?php echo wp_create_nonce( 'w3tc' ); ?>'}" type="button" value="<?php _e( 'Create distribution', 'w3-total-cache' ); ?>" />
 		<span id="cdn_create_container_status" class="w3tc-status w3tc-process"></span>

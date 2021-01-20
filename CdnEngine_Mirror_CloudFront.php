@@ -49,7 +49,7 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 	 * @return string
 	 */
 	function _get_origin() {
-		return Util_Environment::host_port();
+		return Util_Environment::host();
 	}
 
 	/**
