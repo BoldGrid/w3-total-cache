@@ -273,16 +273,6 @@ class FeatureShowcase_Plugin_Admin {
 				'is_premium' => true,
 				'is_new'     => false,
 			),
-			'ticket_support'      => array(
-				'title'      => esc_html__( 'Ticket Support', 'w3-total-cache' ),
-				'icon'       => 'dashicons-sos',
-				'text'       => esc_html__( 'Do not want to post your issue on a public forum? Pro users can submit a ticket to have questions answered by our performance experts, right in your WordPress Dashboard.', 'w3-total-cache' ),
-				'button'     => '',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_ticket_support' ) .
-					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
-				'is_premium' => false,
-				'is_new'     => false,
-			),
 			'page_cache'          => array(
 				'title'      => esc_html__( 'Page Cache', 'w3-total-cache' ),
 				'icon'       => 'dashicons-format-aside',
