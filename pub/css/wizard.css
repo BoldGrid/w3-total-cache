@@ -18,7 +18,7 @@
 #w3tc_wizard_title {
 	color: #fff;
 	position: absolute;
-    bottom: 0;
+	bottom: 0;
 }
 
 /* Title text: "TOTAL CACHE:" */
@@ -42,8 +42,8 @@
 /* Wizard icon (w3 cube with shadow) */
 #w3tc_wizard_icon {
 	position: absolute;
-    top: 10px;
-    left: -2px;
+	top: 10px;
+	left: -2px;
 }
 
 /**

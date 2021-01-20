@@ -641,7 +641,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 
 #w3tc_dashboard_banner .inside > p:first-of-type {
 	margin-top: 0;
-    padding-top: 1em;
+	padding-top: 1em;
 }
 
 #w3tc_dashboard_banner .postbox .hndle {
