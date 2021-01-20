@@ -35,7 +35,7 @@ if ($scheme == 'https')
 	$cache_key .= '_ssl';
 
 if ($engine == 'apc')
-	$cache = new \W3TC\Cache_Apc(array(
+	$cache = new \W3TC\Cache_Apcu(array(
 		'section' => 'page',
 		'blog_id' => $blog_id,
 		'module' => 'pgcache',
@@ -87,7 +87,7 @@ else if ($engine == 'xcache')
 	));
 
 $v = $cache->get($cache_key);
-echo !is_null( $v['content'] ) ? 'plain found ' : 'plain not found ';
+echo !empty( $v['content'] ) ? 'plain found ' : 'plain not found ';
 
 $v_gzip = $cache->get($cache_key . '_gzip');
-echo !is_null( $v_gzip['content'] ) ? 'gzip found ' : 'gzip not found ';
+echo !empty( $v_gzip['content'] ) ? 'gzip found ' : 'gzip not found ';

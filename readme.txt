@@ -1,9 +1,9 @@
 === Plugin Name ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
-Requires at least: 3.2
+Requires at least: 3.8
 Tested up to: 5.6
-Stable tag: 2.0.1
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -274,6 +274,16 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.1.0 =
+* Feature: Added a Feature Showcase to highlight new and existing features
+* Update: Consolidated cache groups settings pages
+* Update: Replaced deprecated jQuery method for WordPress 5.6
+* Fix: PHP warnings for sprintf placeholders in PHP 8
+* Fix: PHP deprecated warnings in PHP 8
+* Fix: Browser Cache Quick Reference Chart link
+* Fix: Bad nonce in help
+* Fix: Google Drive CDN JavaScript
 
 = 2.0.1 =
 * Fix: Corrected redirection logic for the new Setup Guide

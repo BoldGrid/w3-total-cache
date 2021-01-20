@@ -55,7 +55,7 @@ describe('', function() {
 
 
 	it('add referrer group', async() => {
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_referrer');
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups');
 		adminPage.on('dialog', async dialog => {
   			log.log('fill prompt');
   			await dialog.accept('test_group');

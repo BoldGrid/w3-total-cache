@@ -224,7 +224,10 @@ class Generic_Plugin_Admin {
 			do_action( 'admin_init_' . $_REQUEST['page'] );
 	}
 
-	function admin_enqueue_scripts() {
+	/**
+	 * Enqueue admin scripts.
+	 */
+	public function admin_enqueue_scripts() {
 		wp_register_style( 'w3tc-options', plugins_url( 'pub/css/options.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-lightbox', plugins_url( 'pub/css/lightbox.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-widget', plugins_url( 'pub/css/widget.css', W3TC_FILE ), array(), W3TC_VERSION );
@@ -235,6 +238,20 @@ class Generic_Plugin_Admin {
 		wp_register_script( 'w3tc-widget', plugins_url( 'pub/js/widget.js', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_script( 'w3tc-jquery-masonry', plugins_url( 'pub/js/jquery.masonry.min.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION );
 
+		// New feature count for the Feature Showcase.
+		wp_register_script( 'w3tc-feature-counter', plugins_url( 'pub/js/feature-counter.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+
+		wp_localize_script(
+			'w3tc-feature-counter',
+			'W3TCFeatureShowcaseData',
+			array(
+				'unseenCount' => FeatureShowcase_Plugin_Admin::get_unseen_count(),
+			)
+		);
+
+		wp_enqueue_script( 'w3tc-feature-counter' );
+
+		// Messages.
 		if ( !is_null( $this->w3tc_message ) &&
 			isset( $this->w3tc_message['actions'] ) &&
 			is_array( $this->w3tc_message['actions'] ) ) {
@@ -409,9 +426,7 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Print scripts
-	 *
-	 * @return void
+	 * Print scripts.
 	 */
 	function admin_print_scripts() {
 		wp_enqueue_script( 'w3tc-metadata' );
@@ -419,15 +434,26 @@ class Generic_Plugin_Admin {
 		wp_enqueue_script( 'w3tc-lightbox' );
 
 		if ( $this->is_w3tc_page ) {
-			wp_localize_script( 'w3tc-options', 'w3tc_nonce',
-				array( wp_create_nonce( 'w3tc' ) ) );
+			wp_localize_script(
+				'w3tc-options',
+				'w3tc_nonce',
+				array( wp_create_nonce( 'w3tc' ) )
+			);
 		}
-
 
 		switch ( $this->_page ) {
 		case 'w3tc_minify':
-		case 'w3tc_mobile':
-		case 'w3tc_referrer':
+		case 'w3tc_cachegroups':
+			wp_enqueue_script(
+				'w3tc_cachegroups',
+				plugins_url( 'CacheGroups_Plugin_Admin_View.js', W3TC_FILE ),
+				array(
+					'jquery',
+					'jquery-ui-sortable',
+				),
+				W3TC_VERSION,
+				true
+			);
 		case 'w3tc_cdn':
 			wp_enqueue_script( 'jquery-ui-sortable' );
 			break;

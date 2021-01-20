@@ -145,7 +145,8 @@ input.w3tc-error, textarea.w3tc-error {
 	-moz-border-radius: 11px;
 }
 
-#w3tc fieldset .submit {
+#w3tc fieldset .submit,
+#cachegroups_form .submit {
 	margin: 1em 0 0 0;
 	padding: 0;
 }
@@ -202,7 +203,7 @@ input.w3tc-error, textarea.w3tc-error {
 #mobile_groups td,
 #referrer_groups td,
 .w3tc_cachegroups td,
- {
+#cachegroups_form .form-table th {
 	padding: 10px 10px 10px 15px;
 }
 
@@ -441,6 +442,10 @@ td.w3tc_config_value_text {
 	color: #ddd;
 }
 
+#toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"] {
+	color: red;
+}
+
 .w3tc_popup_form {
 	padding: 20px;
 }
@@ -636,7 +641,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 
 #w3tc_dashboard_banner .inside > p:first-of-type {
 	margin-top: 0;
-    padding-top: 1em;
+	padding-top: 1em;
 }
 
 #w3tc_dashboard_banner .postbox .hndle {

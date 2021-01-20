@@ -30,6 +30,11 @@ case "${W3D_PHP_VERSION}" in
 		cp -f /share/scripts/init-image/templates/php-fpm-pool-www.conf /etc/php/7.3/fpm/pool.d/www.conf
 		service php7.3-fpm restart
         ;;
+	"8.0")
+		apt-get install -y php8.0-fpm
+		cp -f /share/scripts/init-image/templates/php-fpm-pool-www.conf /etc/php/8.0/fpm/pool.d/www.conf
+		service php8.0-fpm restart
+        ;;
     *)
         echo "W3D_PHP_VERSION not met conditions, do nothing....."
         ;;

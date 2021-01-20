@@ -51,14 +51,8 @@ class Template {
 	 * Render the wizard.
 	 *
 	 * @since 2.0.0
-	 *
-	 * @see self::enqueue_scripts()
-	 * @see self::enqueue_styles()
 	 */
 	public function render() {
-		$this->enqueue_scripts();
-		$this->enqueue_styles();
-
 		$allowed_html = array(
 			'a'      => array(
 				'href'   => array(),
@@ -189,8 +183,27 @@ class Template {
 	 * Add hooks.
 	 *
 	 * @since 2.0.0
+	 *
+	 * @see self::enqueue_scripts()
+	 * @see self::enqueue_styles()
 	 */
-	private function add_hooks() {
+	public function add_hooks() {
+		add_action(
+			'admin_enqueue_scripts',
+			array(
+				$this,
+				'enqueue_scripts',
+			)
+		);
+
+		add_action(
+			'admin_enqueue_scripts',
+			array(
+				$this,
+				'enqueue_styles',
+			)
+		);
+
 		if ( isset( $this->config['actions'] ) && is_array( $this->config['actions'] ) ) {
 			foreach ( $this->config['actions'] as $action ) {
 				add_action(
@@ -219,7 +232,7 @@ class Template {
 	 *
 	 * @since 2.0.0
 	 */
-	private function enqueue_scripts() {
+	public function enqueue_scripts() {
 		wp_enqueue_script(
 			'w3tc_wizard',
 			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/js/wizard.js' ),
@@ -227,6 +240,16 @@ class Template {
 			W3TC_VERSION,
 			false
 		);
+
+		wp_localize_script(
+			'w3tc_wizard',
+			'W3TC_Wizard',
+			array(
+				'beforeunloadText' => __( 'Are you sure that you want to leve this page?', 'w3-total-cache' ),
+			)
+		);
+
+		wp_enqueue_script( 'w3tc_wizard' );
 
 		if ( isset( $this->config['scripts'] ) && is_array( $this->config['scripts'] ) ) {
 			foreach ( $this->config['scripts'] as $script ) {
@@ -256,12 +279,12 @@ class Template {
 	 *
 	 * @since 2.0.0
 	 */
-	private function enqueue_styles() {
+	public function enqueue_styles() {
 		wp_enqueue_style(
 			'w3tc_wizard',
 			esc_url( plugin_dir_url( dirname( dirname( __FILE__ ) ) ) . 'pub/css/wizard.css' ),
 			array(),
-			'all'
+			W3TC_VERSION
 		);
 
 		if ( isset( $this->config['styles'] ) && is_array( $this->config['styles'] ) ) {

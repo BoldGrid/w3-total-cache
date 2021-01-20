@@ -35,7 +35,7 @@ $cache_key1 = get_cache_key($path, $host_port, 'test1');
 $cache_key2 = get_cache_key($path, $host_port, '');
 
 if ($engine == 'apc')
-	$cache = new \W3TC\Cache_Apc(array(
+	$cache = new \W3TC\Cache_Apcu(array(
 			'section' => 'page',
 			'blog_id' => $blog_id,
 			'module' => 'pgcache',

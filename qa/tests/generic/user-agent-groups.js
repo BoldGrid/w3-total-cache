@@ -51,7 +51,7 @@ describe('', function() {
 
 
 	it('add user agent group', async() => {
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_mobile');
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups');
 		adminPage.on('dialog', async dialog => {
   			log.log('fill prompt');
   			await dialog.accept('test1');

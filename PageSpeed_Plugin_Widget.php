@@ -107,7 +107,7 @@ class PageSpeed_Plugin_Widget {
 		}
 
 		ob_start();
-		include W3TC_DIR . '/PageSpeed_Widget_View_FromApi.php';
+		include __DIR__ . '/PageSpeed_Widget_View_FromApi.php';
 		$content = ob_get_contents();
 		ob_end_clean();
 

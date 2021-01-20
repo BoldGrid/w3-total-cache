@@ -52,7 +52,7 @@ function check_fragment_groups() {
 				break;
 
 			case 'apc':
-				$cacheInstance = new \W3TC\Cache_Apc(array(
+				$cacheInstance = new \W3TC\Cache_Apcu(array(
 					'section' => 'fragment',
 					'blog_id' => $blog_id,
 					'module' => 'fragmentcache',
