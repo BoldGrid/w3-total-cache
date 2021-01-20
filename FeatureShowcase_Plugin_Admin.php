@@ -278,21 +278,9 @@ class FeatureShowcase_Plugin_Admin {
 				'icon'       => 'dashicons-sos',
 				'text'       => esc_html__( 'Do not want to post your issue on a public forum? Pro users can submit a ticket to have questions answered by our performance experts, right in your WordPress Dashboard.', 'w3-total-cache' ),
 				'button'     => '',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_ticket_support' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_ticket_support' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
-				'is_premium' => true,
-				'is_new'     => false,
-			),
-			'premium_support'     => array(
-				'title'      => esc_html__( 'Premium Support', 'w3-total-cache' ),
-				'icon'       => 'dashicons-admin-users',
-				'text'       => esc_html__( 'Submit a ticket to have your W3 Total Cache configuration and consultation to improve your WordPress Performance, right in your WordPress Dashboard. ', 'w3-total-cache' ),
-				'button'     => '<button class="button" onclick="window.location=\'' .
-					esc_url( admin_url( 'admin.php?page=w3tc_support' ) ) . '\'">' .
-					__( 'Support', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_premium_support' ) .
-					'">' . __( 'More info', 'w3-total-cache' ) . '</a>',
-				'is_premium' => true,
+				'is_premium' => false,
 				'is_new'     => false,
 			),
 			'page_cache'          => array(
