@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 
 class Minify_CSSTidy {
     public static function minify($css, $options = array()) {
