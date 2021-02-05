@@ -1,20 +1,21 @@
 <?php
+namespace W3TCL\Minify;
 /**
- * Class Minify_Controller_MinApp  
+ * Class Minify_Controller_MinApp
  * @package Minify
  */
 
 /**
  * Controller class for requests to /min/index.php
- * 
+ *
  * @package Minify
  * @author Stephen Clay <steve@mrclay.org>
  */
 class Minify_Controller_MinApp extends Minify_Controller_Base {
-    
+
     /**
      * Set up groups of files as sources
-     * 
+     *
      * @param array $options controller and Minify options
      *
      * @return array Minify options
@@ -89,7 +90,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                 if ($sources) {
                     try {
                         $this->checkType($sources[0]);
-                    } catch (Exception $e) {
+                    } catch (\Exception $e) {
                         $this->log($e->getMessage());
                         return $options;
                     }
@@ -107,7 +108,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                     && false === strpos($_GET['b'], '..')
                     && $_GET['b'] !== '.') {
                     // valid base
-                    $base = "/{$_GET['b']}/";       
+                    $base = "/{$_GET['b']}/";
                 } else {
                     $this->log("GET param 'b' invalid (see MinApp.php line 84)");
                     return $options;
@@ -143,7 +144,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                 try {
                     parent::checkNotHidden($realpath);
                     parent::checkAllowDirs($realpath, $allowDirs, $uri);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $this->log($e->getMessage());
                     return $options;
                 }
@@ -162,7 +163,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                     // should not cause cache invalidation
                     ,'lastModified' => 0
                     // due to caching, filename is unreliable.
-                    ,'content' => "/* Minify: at least one missing file. See " . Minify0_Minify::URL_DEBUG . " */\n"
+                    ,'content' => "/* Minify: at least one missing file. See " . Minify::URL_DEBUG . " */\n"
                     ,'minifier' => ''
                 )));
             }
@@ -205,9 +206,9 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
     public function checkType($sourceOrExt)
     {
         if ($sourceOrExt === 'js') {
-            $type = Minify0_Minify::TYPE_JS;
+            $type = Minify::TYPE_JS;
         } elseif ($sourceOrExt === 'css') {
-            $type = Minify0_Minify::TYPE_CSS;
+            $type = Minify::TYPE_CSS;
         } elseif ($sourceOrExt->contentType !== null) {
             $type = $sourceOrExt->contentType;
         } else {
@@ -216,7 +217,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
         if ($this->_type === null) {
             $this->_type = $type;
         } elseif ($this->_type !== $type) {
-            throw new Exception('Content-Type mismatch');
+            throw new \Exception('Content-Type mismatch');
         }
     }
 }

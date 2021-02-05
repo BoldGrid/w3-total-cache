@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 /**
  * Class Minify_Lines
  * @package Minify

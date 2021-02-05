@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 
 if (!defined('W3TC')) {
     die();
