@@ -64,6 +64,13 @@ def generate_image_descriptors
 
 	# multiply by php
 	image_descriptors = multiply(image_descriptors, php_list = {
+		'php80' => {
+			'PHP_VERSION' => '8.0',
+			'OS' => 'focal',
+			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+			'MEMCACHE' => 'memcached',
+			'REDIS' => 'redis'
+		},
 		'php73' => {
 			'PHP_VERSION' => '7.3',
 			'OS' => 'xenial',
@@ -172,12 +179,15 @@ def generate_box_descriptors(image_name)
 			'_except_name_contains' => [
 				'varnish',
 				'php53', 'php55',
-				'php73',   # cause a lot of PHP warnings
+				'php73', 'php80'  # cause a lot of PHP warnings
 			]
 		},
-		#'wp51' => {
-		#	'WP_VERSION' => '5.1'
-		#},
+		'wp51' => {   # dont comment out - last env using PHP55
+			'WP_VERSION' => '5.1',
+			'_except_name_contains' => [
+				'php80'  # not compatible, {} in script-loader fatal
+			]
+		},
 		#'wp52' => {
 		#	'WP_VERSION' => '5.2',
 		#	'_except_name_contains' => [
@@ -193,11 +203,12 @@ def generate_box_descriptors(image_name)
 		'wp55' => {
 			'WP_VERSION' => '5.5',
 			'_except_name_contains' => [
-				'php55'   # wp5.5 requires php>=5.6
+				'php55',   # wp5.5 requires php>=5.6
+				'php80'  # not compatible, WP_Feed_Cache::create() fatal
 			]
 		},
 		'wp56' => {
-			'WP_VERSION' => '5.6-RC1',
+			'WP_VERSION' => '5.6',
 			'_except_name_contains' => [
 				'php55'   # wp5.6 requires php>=5.6
 			]
@@ -502,6 +513,13 @@ def expand_image_specifics(image_descriptors)
 			'OS_VERSION' => 'Ubuntu 16.04 LTE 64Bit',
 			'vagrant_box' => 'ubuntu/xenial64',
 			'vagrant_box_version' => '20190501.0.0'
+		},
+		'focal' => {
+			'AWS_ZONE' => 'us-west-2',
+			'AWS_AMI' => 'ami-0c007ac192ba0744b',
+			'OS_VERSION' => 'Ubuntu 20.04 LTE 64Bit',
+			'vagrant_box' => 'ubuntu/focal64',
+			'vagrant_box_version' => '20201210.0.0'
 		},
 
 		# puppeteer not available for this version
