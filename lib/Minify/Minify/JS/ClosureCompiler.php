@@ -15,7 +15,7 @@ namespace W3TCL\Minify;
  * @todo can use a stream wrapper to unit test this?
  */
 class Minify_JS_ClosureCompiler {
-	const URL = 'http://closure-compiler.appspot.com/compile';
+	const URL = 'https://closure-compiler.appspot.com/compile';
 
 	/**
 	 * Minify Javascript code via HTTP request to the Closure Compiler API
