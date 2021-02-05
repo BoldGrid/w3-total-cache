@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 
 class Minify_IgnoredCommentPreserver {
     protected $_replacementHash = '';

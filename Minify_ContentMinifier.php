@@ -20,25 +20,25 @@ class Minify_ContentMinifier {
 	 * @var array
 	 */
 	var $_minifiers = array(
-		'combinejs' => array( 'Minify_CombineOnly', 'minify' ),
-		'combinecss' => array( 'Minify_CombineOnly', 'minify' ),
+		'combinejs' => array( '\W3TCL\Minify\Minify_CombineOnly', 'minify' ),
+		'combinecss' => array( '\W3TCL\Minify\Minify_CombineOnly', 'minify' ),
 
-		'js' => array( 'Minify0_JSMin', 'minify' ),
-		'yuijs' => array( 'Minify_YUICompressor', 'minifyJs' ),
-		'ccjs' => array( 'Minify_ClosureCompiler', 'minify' ),
-		'jsminplus' => array( 'Minify0_JSMinPlus', 'minify' ),
-		'googleccjs' => array( 'Minify_JS_ClosureCompiler', 'minify' ),
+		'js' => array( '\W3TCL\Minify\JSMin', 'minify' ),
+		'yuijs' => array( '\W3TCL\Minify\Minify_YUICompressor', 'minifyJs' ),
+		'ccjs' => array( '\W3TCL\Minify\Minify_ClosureCompiler', 'minify' ),
+		'jsminplus' => array( '\W3TCL\Minify\JSMinPlus', 'minify' ),
+		'googleccjs' => array( '\W3TCL\Minify\Minify_JS_ClosureCompiler', 'minify' ),
 
-		'css' => array( 'Minify_CSS', 'minify' ),
-		'yuicss' => array( 'Minify_YUICompressor', 'minifyCss' ),
-		'cssmin' => array( 'w3tc_tubalmartin\CssMin\Minifier', 'minify' ),
-		'csstidy' => array( 'Minify_CSSTidy', 'minify' ),
+		'css' => array( '\W3TCL\Minify\Minify_CSS', 'minify' ),
+		'yuicss' => array( '\W3TCL\Minify\Minify_YUICompressor', 'minifyCss' ),
+		'cssmin' => array( '\W3TCL\YuiCssMin\Minifier', 'minify_static' ),
+		'csstidy' => array( '\W3TCL\Minify\Minify_CSSTidy', 'minify' ),
 
-		'html' => array( 'Minify_HTML', 'minify' ),
-		'htmlxml' => array( 'Minify_HTML', 'minify' ),
+		'html' => array( '\W3TCL\Minify\Minify_HTML', 'minify' ),
+		'htmlxml' => array( '\W3TCL\Minify\Minify_HTML', 'minify' ),
 
-		'htmltidy' => array( 'Minify_HTMLTidy', 'minifyXhtml' ),
-		'htmltidyxml' => array( 'Minify_HTMLTidy', 'minifyXml' )
+		'htmltidy' => array( '\W3TCL\Minify\Minify_HTMLTidy', 'minifyXhtml' ),
+		'htmltidyxml' => array( '\W3TCL\Minify\Minify_HTMLTidy', 'minifyXml' )
 	);
 
 	/**
@@ -115,21 +115,21 @@ class Minify_ContentMinifier {
 	function init( $engine ) {
 		switch ( $engine ) {
 		case 'yuijs':
-			\Minify_YUICompressor::$tempDir = Util_File::create_tmp_dir();
-			\Minify_YUICompressor::$javaExecutable = $this->_config->get_string( 'minify.yuijs.path.java' );
-			\Minify_YUICompressor::$jarFile = $this->_config->get_string( 'minify.yuijs.path.jar' );
+			\W3TCL\Minify\Minify_YUICompressor::$tempDir = Util_File::create_tmp_dir();
+			\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $this->_config->get_string( 'minify.yuijs.path.java' );
+			\W3TCL\Minify\Minify_YUICompressor::$jarFile = $this->_config->get_string( 'minify.yuijs.path.jar' );
 			break;
 
 		case 'yuicss':
-			\Minify_YUICompressor::$tempDir = Util_File::create_tmp_dir();
-			\Minify_YUICompressor::$javaExecutable = $this->_config->get_string( 'minify.yuicss.path.java' );
-			\Minify_YUICompressor::$jarFile = $this->_config->get_string( 'minify.yuicss.path.jar' );
+			\W3TCL\Minify\Minify_YUICompressor::$tempDir = Util_File::create_tmp_dir();
+			\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $this->_config->get_string( 'minify.yuicss.path.java' );
+			\W3TCL\Minify\Minify_YUICompressor::$jarFile = $this->_config->get_string( 'minify.yuicss.path.jar' );
 			break;
 
 		case 'ccjs':
-			\Minify_ClosureCompiler::$tempDir = Util_File::create_tmp_dir();
-			\Minify_ClosureCompiler::$javaExecutable = $this->_config->get_string( 'minify.ccjs.path.java' );
-			\Minify_ClosureCompiler::$jarFile = $this->_config->get_string( 'minify.ccjs.path.jar' );
+			\W3TCL\Minify\Minify_ClosureCompiler::$tempDir = Util_File::create_tmp_dir();
+			\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $this->_config->get_string( 'minify.ccjs.path.java' );
+			\W3TCL\Minify\Minify_ClosureCompiler::$jarFile = $this->_config->get_string( 'minify.ccjs.path.jar' );
 			break;
 		}
 	}
