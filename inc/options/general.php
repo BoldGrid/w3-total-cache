@@ -130,36 +130,63 @@ Util_Ui::config_overloading_button( array(
 
 		<table class="form-table">
 			<?php
-Util_Ui::config_item( array(
-		'key' => 'minify.enabled',
-		'control' => 'checkbox',
+Util_Ui::config_item(
+	array(
+		'key'            => 'minify.enabled',
+		'control'        => 'checkbox',
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-		'description' => __( 'Minification can decrease file size of <acronym title="Hypertext Markup Language">HTML</acronym>, <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym> and feeds respectively by ~10% on average.', 'w3-total-cache' )
-	) );
-Util_Ui::config_item( array(
-		'key' => 'minify.auto',
-		'value' => ( $this->_config->get_boolean( 'minify.auto' ) ? 1 : 0 ),
-		'control' => 'radiogroup',
+		'description'    => __( 'Minification can decrease file size of <acronym title="Hypertext Markup Language">HTML</acronym>, <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym> and feeds respectively by ~10% on average.', 'w3-total-cache' ),
+		'control_after'  => ' <a target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/w3-total-cache-minify-faq/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_faq" title="' .
+			__('Minify frequently asked questions', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
+			'<span class="dashicons dashicons-external"></span></a>',
+	)
+);
+
+Util_Ui::config_item(
+	array(
+		'key'               => 'minify.auto',
+		'value'             => ( $this->_config->get_boolean( 'minify.auto' ) ? 1 : 0 ),
+		'control'           => 'radiogroup',
 		'radiogroup_values' => array(
 			'1' => __( 'Auto', 'w3-total-cache' ),
-			'0' => __( 'Manual', 'w3-total-cache' )
+			'0' => __( 'Manual', 'w3-total-cache' ),
 		),
-		'description' => __( 'Select manual mode to use fields on the minify settings tab to specify files to be minified, otherwise files will be minified automatically.', 'w3-total-cache' )
-	) );
-Util_Ui::config_item_engine( array(
-		'key' => 'minify.engine'
-	) );
-Util_Ui::config_item( array(
-		'key' => 'minify.html.engine',
-		'control' => 'selectbox',
+		'description'       => __(
+			'Select manual mode to use fields on the minify settings tab to specify files to be minified, otherwise files will be minified automatically.',
+			'w3-total-cache'
+		),
+		'control_after'     => ' <a target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=manual_minify" title="'
+			. __( 'How to use manual minify', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
+			'<span class="dashicons dashicons-external"></span></a>',
+	)
+);
+
+Util_Ui::config_item_engine(
+	array(
+		'key'           => 'minify.engine',
+		'control_after' => ' <a target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/choosing-a-minification-method-for-w3-total-cache/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_engine" title="' .
+			__('Choosing a minification method', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
+			'<span class="dashicons dashicons-external"></span></a>',
+	)
+);
+
+Util_Ui::config_item(
+	array(
+		'key'              => 'minify.html.engine',
+		'control'          => 'selectbox',
 		'selectbox_values' => array(
-			'html' => __( 'Minify (default)', 'w3-total-cache' ),
+			'html'     => __( 'Minify (default)', 'w3-total-cache' ),
 			'htmltidy' => array(
 				'disabled' => !Util_Installed::tidy(),
-				'label' => __( 'HTML Tidy', 'w3-total-cache' )
-			)
-		)
-	) );
+				'label'    => __( 'HTML Tidy', 'w3-total-cache' ),
+			),
+		),
+		'control_after'     => ' <a target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/minify/html-minify-or-tidy/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_html" title="' .
+			__('How to use minify HTML', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
+			'<span class="dashicons dashicons-external"></span></a>',
+	)
+);
+
 Util_Ui::config_item( array(
 		'key' => 'minify.js.engine',
 		'control' => 'selectbox',
