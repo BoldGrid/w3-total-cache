@@ -374,7 +374,7 @@ input.w3tc-error, textarea.w3tc-error {
 	display:none;
 }
 
-#cdn_netdna_authorization_key, #cdn_maxcdn_authorization_key, {
+#cdn_netdna_authorization_key, #cdn_maxcdn_authorization_key {
 	margin-bottom: 3px;
 }
 
