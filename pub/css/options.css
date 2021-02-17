@@ -699,7 +699,10 @@ a > span.dashicons-external {
 	text-decoration: none;
 }
 
-.w3tc-control-after,
-.w3tc-control-after > span {
+.w3tc-control-after {
 	vertical-align: middle;
+}
+
+td .w3tc-control-after span {
+	vertical-align: text-top;
 }
