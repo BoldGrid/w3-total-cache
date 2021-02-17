@@ -697,5 +697,9 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 /* Learn more links */
 a > span.dashicons-external {
 	text-decoration: none;
-	vertical-align: text-top;
+}
+
+.w3tc-control-after,
+.w3tc-control-after > span {
+	vertical-align: middle;
 }
