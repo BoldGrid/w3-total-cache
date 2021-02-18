@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.8
 Tested up to: 5.6
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -274,6 +274,15 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.1.1 =
+* Fix: Move Minify library to a namespace to avoid conflicts with other plugins
+* Fix: Check for AWS before loading functions
+* Fix: Update Minify ClosureCompiler base URL; use HTTPS
+* Fix: Corrected getting the network siteurl
+* Fix: Prevent PHP warning in CurlFactory
+* Update: Added information links to general minify options
+* Update: Added video/ogg support for browser caching
 
 = 2.1.0 =
 * Feature: Added a Feature Showcase to highlight new and existing features
