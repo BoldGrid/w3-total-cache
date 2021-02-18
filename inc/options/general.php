@@ -155,7 +155,7 @@ Util_Ui::config_item(
 			'Select manual mode to use fields on the minify settings tab to specify files to be minified, otherwise files will be minified automatically.',
 			'w3-total-cache'
 		),
-		'control_after'     => ' <a class="w3tc-control-after" target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=manual_minify" title="'
+		'control_after'     => ' <a class="w3tc-control-after" target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=manual_minify#difference-between-auto-and-manual-minify" title="'
 			. __( 'How to use manual minify', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
 			'<span class="dashicons dashicons-external"></span></a>',
 	)
@@ -181,7 +181,7 @@ Util_Ui::config_item(
 				'label'    => __( 'HTML Tidy', 'w3-total-cache' ),
 			),
 		),
-		'control_after'     => ' <a class="w3tc-control-after" target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/minify/html-minify-or-tidy/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_html" title="' .
+		'control_after'     => ' <a class="w3tc-control-after" target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/minify/html-minify-or-tidy/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_html#minify-default" title="' .
 			__('How to use minify HTML', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
 			'<span class="dashicons dashicons-external"></span></a>',
 	)
