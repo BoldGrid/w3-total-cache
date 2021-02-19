@@ -167,7 +167,8 @@ Util_Ui::config_item( array(
 $modules = array();
 if ( $pgcache_enabled ) $modules[] = 'Page Cache';
 if ( $varnish_enabled ) $modules [] = 'Reverse Proxy';
-if ( $cdnfsd_enabled ) $modules[] = 'CDN';
+$modules = apply_filters( 'w3tc_pagecache_purge_modules', $modules );
+
 Util_Ui::postbox_header( __( 'Purge Policy: ', 'w3-total-cache' ) . implode( ', ', $modules ), '', 'purge_policy' ); ?>
 		<table class="form-table">
 			<tr>

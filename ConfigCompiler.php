@@ -6,7 +6,6 @@ class ConfigCompiler {
 	private $_preview;
 
 	private $_data;
-	private $_keys;
 
 
 
@@ -96,10 +95,9 @@ class ConfigCompiler {
 		$this->_preview = $preview;
 
 		include W3TC_DIR . '/ConfigKeys.php';
-		$this->_keys = $keys;
 
-		// move _date to initial state
-		foreach ( $this->_keys as $key => $value )
+		// move _data to initial state
+		foreach ( $keys as $key => $value )
 			$this->_data[$key] = $value['default'];
 
 		$this->_data['version'] = W3TC_VERSION;

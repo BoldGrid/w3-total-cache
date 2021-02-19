@@ -181,8 +181,8 @@ class Generic_AdminNotes {
 			$c->get_boolean( 'pgcache.debug' ) ||
 			$c->get_boolean( 'minify.debug' ) ||
 			$c->get_boolean( 'cdn.debug' ) ||
-			$c->get_boolean( 'cdnfsd.debug' ) ||
 			$c->get_boolean( 'varnish.debug' );
+		$is_debug = apply_filters( 'w3tc_generic_is_debug', $is_debug );
 
 		if ( $is_debug && !$state_master->get_boolean( 'common.hide_note_debug_enabled' ) ) {
 			$notes['debug_enabled'] = sprintf(

@@ -179,7 +179,7 @@ if ( $cdn_engine == 'google_drive' ||
 		<?php Util_Ui::button_config_save( 'cdn_configuration' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php do_action( 'w3tc_settings_box_cdnfsd' ); ?>
+		<?php do_action( 'w3tc_settings_box_cdn' ); ?>
 
 		<?php Util_Ui::postbox_header( __( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
 		<table class="form-table">

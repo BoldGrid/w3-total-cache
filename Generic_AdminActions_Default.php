@@ -655,6 +655,7 @@ class Generic_AdminActions_Default {
 		$request = Util_Request::get_request();
 
 		include W3TC_DIR . '/ConfigKeys.php';   // define $keys
+		$keys = apply_filters( 'w3tc_config_keys', $keys );
 
 		foreach ( $request as $request_key => $request_value ) {
 			if  ( is_array( $request_value ) ) {

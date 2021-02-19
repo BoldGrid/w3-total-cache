@@ -28,8 +28,8 @@ class Extension_CloudFlare_Plugin_Admin {
 			'name' => 'CloudFlare',
 			'author' => 'W3 EDGE',
 			'description' =>  sprintf( __( 'CloudFlare protects and accelerates websites. <a href="%s" target="_blank">Sign up now for free</a> to get started,
-            or if you have an account simply log in to obtain your <abbr title="Application Programming Interface">API</abbr> key from the <a target="_blank" href="https://www.cloudflare.com/my-account">account page</a> to enter it on the General Settings box that appears after plugin activation.
-            Contact the CloudFlare <a href="http://www.cloudflare.com/help.html" target="_blank">support team</a> with any questions.', 'w3-total-cache' ), 'https://www.cloudflare.com/sign-up.html?affiliate=w3edge&amp;seed_domain=' . Util_Environment::host() . '&amp;email=' . htmlspecialchars( $cloudflare_signup_email ) . '&amp;username=' . htmlspecialchars( $cloudflare_signup_user ) ),
+			or if you have an account simply log in to obtain your <abbr title="Application Programming Interface">API</abbr> key from the <a target="_blank" href="https://www.cloudflare.com/my-account">account page</a> to enter it on the General Settings box that appears after plugin activation.
+			Contact the CloudFlare <a href="http://www.cloudflare.com/help.html" target="_blank">support team</a> with any questions.', 'w3-total-cache' ), 'https://www.cloudflare.com/sign-up.html?affiliate=w3edge&amp;seed_domain=' . Util_Environment::host() . '&amp;email=' . htmlspecialchars( $cloudflare_signup_email ) . '&amp;username=' . htmlspecialchars( $cloudflare_signup_user ) ),
 			'author_uri' => 'https://www.w3-edge.com/',
 			'extension_uri' => 'https://www.w3-edge.com/',
 			'extension_id' => 'cloudflare',
@@ -101,9 +101,9 @@ class Extension_CloudFlare_Plugin_Admin {
 		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
 
 		if ( empty( $cdnfsd_engine ) || $cdnfsd_engine == 'cloudflare' ) {
-			add_action( 'w3tc_settings_box_cdnfsd', array(
+			add_action( 'w3tc_settings_box_cdn', array(
 					'\W3TC\Extension_CloudFlare_Page',
-					'w3tc_settings_box_cdnfsd'
+					'w3tc_settings_box_cdn'
 				) );
 			add_action( 'admin_print_scripts-performance_page_w3tc_cdn',
 				array( '\W3TC\Extension_CloudFlare_Page',
@@ -143,8 +143,8 @@ class Extension_CloudFlare_Plugin_Admin {
 		if ( array_key_exists( 'cloudflare/cloudflare.php', $plugins ) && $this->_config->get_boolean( 'notes.cloudflare_plugin' ) ) {
 
 			echo sprintf( '<div class="error"><p>%s %s</p></div>', __( 'CloudFlare plugin detected. We recommend removing the
-            plugin as it offers no additional capabilities when W3 Total Cache is installed. This message will disappear
-            when CloudFlare is removed.', 'w3-total-cache' ),
+			plugin as it offers no additional capabilities when W3 Total Cache is installed. This message will disappear
+			when CloudFlare is removed.', 'w3-total-cache' ),
 				Util_Ui::button_hide_note( 'Hide this message', 'cloudflare_plugin' )
 			);
 		}

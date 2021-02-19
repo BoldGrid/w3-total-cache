@@ -29,8 +29,6 @@ class Root_Loader {
 			$plugins[] = new PgCache_Plugin();
 		if ( $c->get_boolean( 'cdn.enabled' ) )
 			$plugins[] = new Cdn_Plugin();
-		if ( $c->get_boolean( 'cdnfsd.enabled' ) )
-			$plugins[] = new Cdnfsd_Plugin();
 		if ( $c->get_boolean( 'lazyload.enabled' ) )
 			$plugins[] = new UserExperience_LazyLoad_Plugin();
 		if ( $c->get_boolean( 'browsercache.enabled' ) )
@@ -56,7 +54,6 @@ class Root_Loader {
 			$plugins[] = new SystemOpCache_Plugin_Admin();
 
 			$plugins[] = new Cdn_Plugin_Admin();
-			$plugins[] = new Cdnfsd_Plugin_Admin();
 			$cdn_engine = $c->get_string( 'cdn.engine' );
 			if ( $cdn_engine == 'maxcdn' ) {
 				$plugins[] = new Cdn_Plugin_WidgetMaxCdn();
@@ -77,6 +74,7 @@ class Root_Loader {
 			$plugins[] = new UsageStatistics_Plugin_Admin();
 			$plugins[] = new SetupGuide_Plugin_Admin();
 			$plugins[] = new FeatureShowcase_Plugin_Admin();
+			$plugins[] = new ProAd_Plugin_Admin();
 		} else {
 			if ( $c->get_boolean( 'jquerymigrate.disabled' ) ) {
 				$plugins[] = new UserExperience_Plugin_Jquery();

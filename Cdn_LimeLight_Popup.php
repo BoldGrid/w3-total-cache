@@ -3,9 +3,9 @@ namespace W3TC;
 
 
 
-class Cdnfsd_LimeLight_Popup {
+class Cdn_LimeLight_Popup {
 	static public function w3tc_ajax() {
-		$o = new Cdnfsd_LimeLight_Popup();
+		$o = new Cdn_LimeLight_Popup();
 
 		add_action( 'w3tc_ajax_cdn_limelight_intro',
 			array( $o, 'w3tc_ajax_cdn_limelight_intro' ) );
@@ -42,7 +42,7 @@ class Cdnfsd_LimeLight_Popup {
 		$domain = $_REQUEST['domain'];
 
 		try {
-			$api = new Cdnfsd_LimeLight_Api( $short_name, $username, $api_key );
+			$api = new Cdn_LimeLight_Api( $short_name, $username, $api_key );
 			$url = ( Util_Environment::is_https() ? 'https://' : 'http://' ) . $domain . '/test';
 
 			$items = array(

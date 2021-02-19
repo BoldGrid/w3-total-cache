@@ -42,7 +42,7 @@ class CdnEngine_Mirror_LimeLight extends CdnEngine_Mirror {
 			empty( $this->api_key ) )
 			throw new \Exception( __( 'Credentials are not specified.', 'w3-total-cache' ) );
 
-		$api = new Cdnfsd_LimeLight_Api( $this->short_name, $this->username, $this->api_key );
+		$api = new Cdn_LimeLight_Api( $this->short_name, $this->username, $this->api_key );
 
 		$results = array();
 		try {
@@ -93,7 +93,7 @@ class CdnEngine_Mirror_LimeLight extends CdnEngine_Mirror {
 			empty( $this->api_key ) )
 			throw new \Exception( __( 'Access key not specified.', 'w3-total-cache' ) );
 
-		$api = new Cdnfsd_LimeLight_Api( $this->short_name, $this->username, $this->api_key );
+		$api = new Cdn_LimeLight_Api( $this->short_name, $this->username, $this->api_key );
 
 		$results = array();
 		try {

@@ -17,30 +17,22 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;"
 
 #: Cdn_MaxCdn_Popup_View_Zones.php:12 Cdn_StackPath_Popup_View_Zones.php:12
-#: Cdnfsd_StackPath_Popup_View_Zones.php:12
-#: Cdnfsd_MaxCdn_Popup_View_Zones.php:12
 msgid "Select zone to use"
 msgstr ""
 
 #: Cdn_MaxCdn_Popup_View_Zones.php:49
 #: Cdn_Highwinds_Popup_View_ConfigureCnamesForm.php:20
 #: Extension_NewRelic_Popup_View_ListApplications.php:58
-#: Cdnfsd_CloudFront_Popup_View_Distributions.php:50
 #: Cdn_Highwinds_Popup_View_SelectHost.php:46
 #: Cdn_RackSpaceCdn_Popup_View_Services.php:49
-#: Cdn_MaxCdn_Popup_View_Zone.php:70 Cdnfsd_StackPath_Popup_View_Zone.php:51
+#: Cdn_MaxCdn_Popup_View_Zone.php:70
 #: Cdn_StackPath2_Popup_View_Stacks.php:47
 #: Cdn_RackSpaceCdn_Popup_View_ConfigureDomains.php:20
 #: Extension_NewRelic_Popup_View_Intro.php:33
-#: Cdnfsd_StackPath2_Popup_View_Sites.php:50
 #: Cdn_StackPath_Popup_View_Zones.php:49
-#: Cdnfsd_CloudFront_Popup_View_Distribution.php:52
-#: Cdnfsd_StackPath2_Popup_View_Stacks.php:46
 #: Cdn_RackSpaceCdn_Popup_View_Service_Actualize.php:44
 #: Cdn_GoogleDrive_Popup_AuthReturn_View.php:41
-#: Cdnfsd_StackPath_Popup_View_Zones.php:49
-#: Cdn_StackPath2_Popup_View_Sites.php:50 Cdnfsd_MaxCdn_Popup_View_Zones.php:49
-#: Cdnfsd_MaxCdn_Popup_View_Zone.php:51 Cdn_StackPath_Popup_View_Zone.php:38
+#: Cdn_StackPath2_Popup_View_Sites.php:50
 #: Cdn_RackSpaceCloudFiles_Popup_View_Containers.php:49
 msgid "Apply"
 msgstr ""
@@ -102,25 +94,19 @@ msgid ""
 "questions below:"
 msgstr ""
 
-#: Cdnfsd_LimeLight_Popup_View_Intro.php:14
 #: Cdn_LimeLight_Popup_View_Intro.php:14
 msgid "Your LimeLight Account credentials"
 msgstr ""
 
-#: Cdnfsd_LimeLight_Popup_View_Intro.php:45
 #: Cdn_RackSpaceCdn_Popup_View_Regions.php:41
-#: Cdnfsd_StackPath_Popup_View_Intro.php:34
 #: Cdn_StackPath_Popup_View_Intro.php:34 Cdn_StackPath2_Popup_View_Intro.php:42
-#: Cdnfsd_StackPath2_Popup_View_Intro.php:42
 #: Cdn_RackSpaceCdn_Popup_View_Service_Create.php:90
 #: Extension_CloudFlare_Popup_View_Intro.php:38
 #: Extension_CloudFlare_Popup_View_Zones.php:57
-#: Cdnfsd_CloudFront_Popup_View_Intro.php:37
 #: Cdn_LimeLight_Popup_View_Intro.php:53 Cdn_Highwinds_Popup_View_Intro.php:28
 #: Cdn_RackSpaceCloudFiles_Popup_View_Regions.php:41
 #: Cdn_RackSpaceCloudFiles_Popup_View_Intro.php:39
 #: Cdn_RackSpaceCdn_Popup_View_Intro.php:38
-#: Cdnfsd_MaxCdn_Popup_View_Intro.php:34 Cdn_MaxCdn_Popup_View_Intro.php:34
 msgid "Next"
 msgstr ""
 
@@ -152,7 +138,7 @@ msgstr ""
 #: Extension_Genesis_Page_View.php:99 Extension_Genesis_Page_View.php:112
 #: Extension_Genesis_Page_View.php:119 Extension_Genesis_Page_View.php:136
 #: Extension_Genesis_Page_View.php:159 Extension_Genesis_Page_View.php:166
-#: Extension_Genesis_Page_View.php:173 Cdnfsd_GeneralPage_View.php:19
+#: Extension_Genesis_Page_View.php:173
 #: PgCache_ConfigLabels.php:40 inc/options/general.php:28
 #: inc/options/general.php:52 inc/options/general.php:136
 #: inc/options/general.php:213 inc/options/general.php:248
@@ -198,12 +184,7 @@ msgstr ""
 msgid "Yes, remove it for me"
 msgstr ""
 
-#: Cdnfsd_MaxCdn_Popup_View_Success.php:10
-#: Cdnfsd_LimeLight_Popup_View_Success.php:10
 #: Cdn_RackSpaceCdn_Popup_View_Service_Created.php:22
-#: Cdnfsd_CloudFront_Popup_View_Success.php:10
-#: Cdnfsd_StackPath2_Popup_View_Success.php:10
-#: Cdnfsd_StackPath_Popup_View_Success.php:10
 #: Cdn_MaxCdn_Popup_View_Success.php:10
 #: Cdn_StackPath2_Popup_View_Success.php:10
 #: Cdn_LimeLight_Popup_View_Success.php:10
@@ -211,12 +192,7 @@ msgstr ""
 msgid "Succeeded"
 msgstr ""
 
-#: Cdnfsd_MaxCdn_Popup_View_Success.php:22
-#: Cdnfsd_LimeLight_Popup_View_Success.php:18
 #: Cdn_RackSpaceCdn_Popup_View_Service_Created.php:52
-#: Cdnfsd_CloudFront_Popup_View_Success.php:21
-#: Cdnfsd_StackPath2_Popup_View_Success.php:19
-#: Cdnfsd_StackPath_Popup_View_Success.php:22
 #: Cdn_MaxCdn_Popup_View_Success.php:19
 #: Cdn_StackPath2_Popup_View_Success.php:19
 #: Cdn_LimeLight_Popup_View_Success.php:18
@@ -224,9 +200,6 @@ msgstr ""
 msgid "Done"
 msgstr ""
 
-#: Cdnfsd_StackPath_Engine.php:21 Cdnfsd_StackPath_Engine.php:43
-#: Cdnfsd_MaxCdn_Engine.php:21 Cdnfsd_MaxCdn_Engine.php:46
-#: Cdnfsd_StackPath2_Engine.php:19 Cdnfsd_StackPath2_Engine.php:49
 msgid "API key not specified."
 msgstr ""
 
@@ -440,7 +413,6 @@ msgstr ""
 msgid "Select Application"
 msgstr ""
 
-#: Cdnfsd_Plugin.php:62
 #, php-format
 msgid "Content Delivery Network Full Site Delivery via %s"
 msgstr ""
@@ -450,33 +422,32 @@ msgstr ""
 msgid "Create account:"
 msgstr ""
 
-#: Cdn_StackPath_Page_View.php:23 Cdnfsd_MaxCdn_Page_View.php:20
-#: Cdnfsd_StackPath_Page_View.php:20 Cdnfsd_StackPath2_Page_View.php:20
-#: Extension_CloudFlare_Page_View.php:40 Cdnfsd_LimeLight_Page_View.php:20
-#: Cdn_StackPath2_Page_View.php:34 Cdnfsd_CloudFront_Page_View.php:20
+#: Cdn_StackPath_Page_View.php:23
+#: Extension_CloudFlare_Page_View.php:40
+#: Cdn_StackPath2_Page_View.php:34
 #: Cdn_MaxCdn_Page_View.php:23
 msgid "Specify account credentials:"
 msgstr ""
 
-#: Cdn_StackPath_Page_View.php:30 Cdnfsd_MaxCdn_Page_View.php:29
-#: Cdnfsd_StackPath_Page_View.php:29 Cdn_LimeLight_Page_View.php:17
-#: Cdnfsd_StackPath2_Page_View.php:29 Cdn_Highwinds_Page_View.php:17
+#: Cdn_StackPath_Page_View.php:30
+#: Cdn_LimeLight_Page_View.php:17
+#: Cdn_Highwinds_Page_View.php:17
 #: Cdn_GoogleDrive_Page_View.php:18 Cdn_RackSpaceCdn_Page_View.php:13
-#: Extension_CloudFlare_Page_View.php:49 Cdnfsd_LimeLight_Page_View.php:29
-#: Cdn_StackPath2_Page_View.php:47 Cdnfsd_CloudFront_Page_View.php:29
+#: Extension_CloudFlare_Page_View.php:49
+#: Cdn_StackPath2_Page_View.php:47
 #: Cdn_RackSpaceCloudFiles_Page_View.php:16 Cdn_MaxCdn_Page_View.php:30
 msgid "Reauthorize"
 msgstr ""
 
-#: Cdn_StackPath_Page_View.php:35 Cdnfsd_MaxCdn_Page_View.php:34
+#: Cdn_StackPath_Page_View.php:35
 #: Cdn_Plugin_WidgetMaxCdn_View_Unauthorized.php:16
-#: Cdnfsd_StackPath_Page_View.php:34 Cdn_LimeLight_Page_View.php:14
-#: Cdnfsd_StackPath2_Page_View.php:34 Cdn_Highwinds_Page_View.php:14
+#: Cdn_LimeLight_Page_View.php:14
+#: Cdn_Highwinds_Page_View.php:14
 #: Cdn_GoogleDrive_Page_View.php:15
 #: Cdn_StackPath2_Widget_View_Unauthorized.php:31
 #: Cdn_RackSpaceCdn_Page_View.php:16 Extension_CloudFlare_Page_View.php:54
-#: Cdnfsd_LimeLight_Page_View.php:34 Cdn_StackPath2_Page_View.php:52
-#: Cdnfsd_CloudFront_Page_View.php:34 Cdn_RackSpaceCloudFiles_Page_View.php:13
+#: Cdn_StackPath2_Page_View.php:52
+#: Cdn_RackSpaceCloudFiles_Page_View.php:13
 #: Cdn_MaxCdn_Page_View.php:35 Cdn_StackPath_Widget_View_Unauthorized.php:16
 msgid "Authorize"
 msgstr ""
@@ -639,17 +610,8 @@ msgstr ""
 msgid "Upgrade your New Relic account to enable more metrics."
 msgstr ""
 
-#: Cdnfsd_MaxCdn_Page_View.php:13 Cdnfsd_StackPath_Page_View.php:13
-#: Cdnfsd_StackPath2_Page_View.php:13 Extension_CloudFlare_Cdn_Page_View.php:10
-#: Cdnfsd_LimeLight_Page_View.php:13 Cdnfsd_CloudFront_Page_View.php:13
+#: Extension_CloudFlare_Cdn_Page_View.php:10
 msgid "Configuration: Full-Site Delivery"
-msgstr ""
-
-#: Cdnfsd_MaxCdn_Page_View.php:43 Cdnfsd_StackPath_Page_View.php:43
-#: Cdnfsd_StackPath2_Page_View.php:43 Cdnfsd_CloudFront_Page_View.php:43
-msgid ""
-"<acronym title=\"Content Delivery Network\">CDN</acronym> <acronym "
-"title=\"Canonical Name\">CNAME</acronym>:"
 msgstr ""
 
 #: Root_AdminMenu.php:26 Root_AdminMenu.php:27 inc/options/dashboard.php:42
@@ -765,27 +727,19 @@ msgstr ""
 msgid "Invalid engine."
 msgstr ""
 
-#: Cdnfsd_Plugin_Admin.php:81 Cdn_Plugin_Admin.php:169
+#: Cdn_Plugin_Admin.php:169
 msgid "Amazon CloudFront"
 msgstr ""
 
-#: Cdnfsd_Plugin_Admin.php:84
-msgid "CloudFlare (extension not activated)"
-msgstr ""
-
-#: Cdnfsd_Plugin_Admin.php:88
-msgid "Limelight"
-msgstr ""
-
-#: Cdnfsd_Plugin_Admin.php:91 Cdn_Plugin_Admin.php:194
+#: Cdn_Plugin_Admin.php:194
 msgid "MaxCDN"
 msgstr ""
 
-#: Cdnfsd_Plugin_Admin.php:94 Cdn_Plugin_Admin.php:206
+#: Cdn_Plugin_Admin.php:206
 msgid "StackPath SecureCDN (Legacy)"
 msgstr ""
 
-#: Cdnfsd_Plugin_Admin.php:97 Cdn_Plugin_Admin.php:202
+#: Cdn_Plugin_Admin.php:202
 msgid "StackPath (recommended)"
 msgstr ""
 
@@ -894,10 +848,6 @@ msgstr ""
 
 #: Extension_NewRelic_Widget.php:77
 msgid "view visualizations"
-msgstr ""
-
-#: Cdnfsd_CloudFront_Popup_View_Distributions.php:13
-msgid "Select distribution to use"
 msgstr ""
 
 #: Cdn_StackPath_Widget_View_Authorized.php:18
@@ -1176,17 +1126,14 @@ msgstr ""
 msgid "Legend"
 msgstr ""
 
-#: Cdnfsd_StackPath_Popup_View_Intro.php:14
 #: Cdn_StackPath_Popup_View_Intro.php:14 Cdn_StackPath2_Popup_View_Intro.php:14
-#: Cdnfsd_StackPath2_Popup_View_Intro.php:14
 msgid "Your StackPath Account credentials"
 msgstr ""
 
-#: Cdnfsd_LimeLight_Engine.php:26 CdnEngine_Mirror_LimeLight.php:43
+#: CdnEngine_Mirror_LimeLight.php:43
 msgid "Credentials are not specified."
 msgstr ""
 
-#: Cdnfsd_LimeLight_Engine.php:65 Cdnfsd_CloudFront_Engine.php:77
 #: CdnEngine_Mirror_LimeLight.php:94
 msgid "Access key not specified."
 msgstr ""
@@ -1239,13 +1186,13 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
-#: Cdnfsd_Page_View_Header.php:11 Cdn_Page_View_Header.php:12
+#: Cdn_Page_View_Header.php:12
 #: inc/options/cdn.php:25
 #, php-format
 msgid "Content Delivery Network support via %1$s is currently %2$s."
 msgstr ""
 
-#: Cdnfsd_Page_View_Header.php:13 Cdn_Page_View_Header.php:14
+#: Cdn_Page_View_Header.php:14
 #: inc/options/dbcache.php:12 inc/options/cdn.php:27 inc/options/general.php:12
 #: inc/options/dashboard.php:13 inc/options/extensions.php:10
 #: inc/options/objectcache.php:15 inc/options/browsercache.php:18
@@ -1253,7 +1200,7 @@ msgstr ""
 msgid "enabled"
 msgstr ""
 
-#: Cdnfsd_Page_View_Header.php:13 Cdn_Page_View_Header.php:14
+#: Cdn_Page_View_Header.php:14
 #: inc/options/dbcache.php:12 inc/options/cdn.php:27 inc/options/general.php:12
 #: inc/options/dashboard.php:13 inc/options/objectcache.php:15
 #: inc/options/browsercache.php:18 inc/options/minify.php:22
@@ -1655,8 +1602,8 @@ msgstr ""
 msgid "Select service to use"
 msgstr ""
 
-#: Cdn_MaxCdn_Popup_View_Zone.php:15 Cdnfsd_StackPath_Popup_View_Zone.php:15
-#: Cdnfsd_MaxCdn_Popup_View_Zone.php:15 Cdn_StackPath_Popup_View_Zone.php:15
+#: Cdn_MaxCdn_Popup_View_Zone.php:15
+#: Cdn_StackPath_Popup_View_Zone.php:15
 msgid "Configure zone"
 msgstr ""
 
@@ -1692,12 +1639,6 @@ msgstr ""
 
 #: UsageStatistics_Page_View.php:399
 msgid "Cache Storage"
-msgstr ""
-
-#: Cdnfsd_StackPath_Popup_View_Zone.php:54
-#: Cdnfsd_CloudFront_Popup_View_Distribution.php:56
-#: Cdnfsd_MaxCdn_Popup_View_Zone.php:54
-msgid "Don't reconfigure, I know what I'm doing"
 msgstr ""
 
 #: ObjectCache_Page_View_PurgeLog.php:13
@@ -2015,7 +1956,6 @@ msgid ""
 msgstr ""
 
 #: Cdn_StackPath2_Popup_View_Stacks.php:12
-#: Cdnfsd_StackPath2_Popup_View_Stacks.php:12
 msgid "Select stack to use"
 msgstr ""
 
@@ -2428,7 +2368,7 @@ msgstr ""
 msgid "Buy now"
 msgstr ""
 
-#: Cdn_GeneralPage_View.php:14 Cdnfsd_GeneralPage_View.php:10
+#: Cdn_GeneralPage_View.php:14
 #, php-format
 msgid ""
 " If you do not have a <acronym title=\"Content Delivery Network\">"
@@ -2443,7 +2383,7 @@ msgid ""
 "will quickly for site visitors."
 msgstr ""
 
-#: Cdn_GeneralPage_View.php:32 Cdnfsd_GeneralPage_View.php:38
+#: Cdn_GeneralPage_View.php:32
 msgid ""
 "Select the <acronym title=\"Content Delivery Network\">CDN</acronym> type "
 "you wish to use."
@@ -2864,12 +2804,6 @@ msgstr ""
 msgid "CDN module: Required Database SQL"
 msgstr ""
 
-#: Cdnfsd_CloudFront_Popup_View_Intro.php:14
-msgid ""
-"Your <acronym title=\"Amazon Web Services\">AWS</acronym> CloudFront Account "
-"Credentials"
-msgstr ""
-
 #: Extension_CloudFlare_GeneralPage_View.php:8
 msgid "Network Performance &amp; Security powered by CloudFlare"
 msgstr ""
@@ -2925,7 +2859,6 @@ msgstr ""
 msgid "Adds compatibility for accelerated mobile pages (AMP) to minify."
 msgstr ""
 
-#: Cdnfsd_StackPath2_Popup_View_Sites.php:12
 #: Cdn_StackPath2_Popup_View_Sites.php:12
 msgid "Select site to use"
 msgstr ""
@@ -3242,50 +3175,6 @@ msgstr ""
 
 #: Cdn_AdminActions.php:486
 msgid "Incorrect type."
-msgstr ""
-
-#: Cdnfsd_CloudFront_Popup_View_Distribution.php:16
-msgid "Configure distribution"
-msgstr ""
-
-#: Cdnfsd_GeneralPage_View.php:17
-msgid ""
-"<acronym title=\"Full Site Delivery\">FSD</acronym> <acronym title=\"Content "
-"Delivery Network\">CDN</acronym>:"
-msgstr ""
-
-#: Cdnfsd_GeneralPage_View.php:21
-msgid ""
-"Deliver visitors the lowest possible response and load times for all site "
-"content including HTML, media (e.g. images or fonts), CSS, and JavaScript."
-msgstr ""
-
-#: Cdnfsd_GeneralPage_View.php:23
-msgid ""
-"Without Full Site Delivery, the HTML of your website is not delivered with "
-"the lowest latency possible. A small change to DNS settings means that every "
-"component of your website is delivered to visitors using a worldwide network "
-"of servers. The net result is more resources for content creation or for "
-"authenticated users to post comments or browser personalized experiences "
-"like e-commerce and membership sites etc."
-msgstr ""
-
-#: Cdnfsd_GeneralPage_View.php:24
-msgid ""
-"For even better performance, combine FSD with other powerful features like "
-"Browser Cache, Minify, Fragment caching, or Lazy Load!"
-msgstr ""
-
-#: Cdnfsd_GeneralPage_View.php:25
-msgid ""
-"Contact support for any help maximizing your performance scores or "
-"troubleshooting."
-msgstr ""
-
-#: Cdnfsd_GeneralPage_View.php:33
-msgid ""
-"<acronym title=\"Full Site Delivery\">FSD</acronym> <acronym title=\"Content "
-"Delivery Network\">CDN</acronym> Type:"
 msgstr ""
 
 #: PageSpeed_Plugin_Widget.php:55
@@ -4861,7 +4750,7 @@ msgstr ""
 msgid "Clear Log"
 msgstr ""
 
-#: Cdnfsd_MaxCdn_Popup_View_Intro.php:14 Cdn_MaxCdn_Popup_View_Intro.php:14
+#: Cdn_MaxCdn_Popup_View_Intro.php:14
 msgid "Your MaxCDN Account credentials"
 msgstr ""
 

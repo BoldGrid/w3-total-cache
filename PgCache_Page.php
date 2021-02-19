@@ -41,7 +41,7 @@ class PgCache_Page extends Base_Page_Settings {
 		$permalink_structure = get_option( 'permalink_structure' );
 
 		$varnish_enabled = $this->_config->get_boolean( 'varnish.enabled' );
-		$cdnfsd_enabled = $this->_config->get_boolean( 'cdnfsd.enabled' );
+
 		include W3TC_INC_DIR . '/options/pgcache.php';
 	}
 }
