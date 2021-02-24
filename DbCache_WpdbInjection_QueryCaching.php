@@ -745,9 +745,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		if ( $this->debug ) {
 			$strings[] = '';
 			$strings[] = 'Db cache debug info:';
-			$strings[] = sprintf( "%1$s%2$d", str_pad( 'Total queries: ', 20 ), $this->query_total );
-			$strings[] = sprintf( "%1$s%2$d", str_pad( 'Cached queries: ', 20 ), $this->query_hits );
-			$strings[] = sprintf( "%1$s%2$.4f", str_pad( 'Total query time: ', 20 ), $this->time_total );
+			$strings[] = sprintf( '%1$s%2$d', str_pad( 'Total queries: ', 20 ), $this->query_total );
+			$strings[] = sprintf( '%1$s%2$d', str_pad( 'Cached queries: ', 20 ), $this->query_hits );
+			$strings[] = sprintf( '%1$s%2$.4f', str_pad( 'Total query time: ', 20 ), $this->time_total );
 		}
 
 		if ( $this->log_filehandle ) {
