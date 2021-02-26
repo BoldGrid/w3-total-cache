@@ -32,16 +32,6 @@ class Extensions_Plugin_Admin {
 				'w3tc_extensions' ),
 			10, 2 );
 		add_filter( 'w3tc_extensions', array(
-				'\W3TC\Extension_Genesis_Plugin_Admin',
-				'w3tc_extensions' ),
-			10, 2 );
-		add_filter( 'w3tc_extensions_hooks', array(
-				'\W3TC\Extension_Genesis_Plugin_Admin',
-				'w3tc_extensions_hooks' ) );
-		add_filter( 'w3tc_notes_genesis_theme', array(
-				'\W3TC\Extension_Genesis_Plugin_Admin',
-				'w3tc_notes_genesis_theme' ) );
-		add_filter( 'w3tc_extensions', array(
 				'\W3TC\Extension_NewRelic_Plugin_Admin',
 				'w3tc_extensions' ),
 			10, 2 );
@@ -60,19 +50,9 @@ class Extensions_Plugin_Admin {
 				'\W3TC\Extension_WordPressSeo_Plugin_Admin',
 				'w3tc_notes_wordpress_seo' ) );
 		add_filter( 'w3tc_extensions', array(
-				'\W3TC\Extension_Wpml_Plugin_Admin',
-				'w3tc_extensions' ),
-			10, 2 );
-		add_filter( 'w3tc_extensions', array(
 				'\W3TC\Extension_Amp_Plugin_Admin',
 				'w3tc_extensions' ),
 			10, 2 );
-		add_filter( 'w3tc_extensions_hooks', array(
-				'\W3TC\Extension_Wpml_Plugin_Admin',
-				'w3tc_extensions_hooks' ) );
-		add_action( 'w3tc_notes_wpml', array(
-				'\W3TC\Extension_Wpml_Plugin_Admin',
-				'w3tc_notes_wpml' ) );
 
 		add_action( 'admin_init', array( $this, 'admin_init' ), 1 );
 		add_filter( 'pre_update_option_active_plugins', array(
@@ -90,6 +70,21 @@ class Extensions_Plugin_Admin {
 				add_action( 'admin_init', array( $this, 'change_extensions_status' ) );
 			}
 		}
+
+		if ( !Util_Environment::is_w3tc_pro( $this->_config ) ) {
+			add_filter( 'w3tc_extensions',
+				array( '\W3TC\ProAd_Extension_Wpml', 'w3tc_extensions' ),
+				10, 2 );
+			add_filter( 'w3tc_notes',
+				array( '\W3TC\ProAd_Extension_Wpml', 'w3tc_notes' ) );
+
+			add_filter( 'w3tc_extensions',
+				array( '\W3TC\ProAd_Extension_Genesis', 'w3tc_extensions' ),
+				10, 2 );
+			add_filter( 'w3tc_notes',
+				array( '\W3TC\ProAd_Extension_Genesis', 'w3tc_notes' ) );
+		}
+
 	}
 
 	/**
