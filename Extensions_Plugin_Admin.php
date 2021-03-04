@@ -28,10 +28,6 @@ class Extensions_Plugin_Admin {
 				'w3tc_extensions' ),
 			10, 2 );
 		add_filter( 'w3tc_extensions', array(
-				'\W3TC\Extension_FragmentCache_Plugin_Admin',
-				'w3tc_extensions' ),
-			10, 2 );
-		add_filter( 'w3tc_extensions', array(
 				'\W3TC\Extension_NewRelic_Plugin_Admin',
 				'w3tc_extensions' ),
 			10, 2 );
@@ -73,16 +69,21 @@ class Extensions_Plugin_Admin {
 
 		if ( !Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			add_filter( 'w3tc_extensions',
-				array( '\W3TC\ProAd_Extension_Wpml', 'w3tc_extensions' ),
+				array( '\W3TC\ProAd_Extension_FragmentCache', 'w3tc_extensions' ),
 				10, 2 );
-			add_filter( 'w3tc_notes',
-				array( '\W3TC\ProAd_Extension_Wpml', 'w3tc_notes' ) );
 
 			add_filter( 'w3tc_extensions',
 				array( '\W3TC\ProAd_Extension_Genesis', 'w3tc_extensions' ),
 				10, 2 );
 			add_filter( 'w3tc_notes',
 				array( '\W3TC\ProAd_Extension_Genesis', 'w3tc_notes' ) );
+
+			add_filter( 'w3tc_extensions',
+				array( '\W3TC\ProAd_Extension_Wpml', 'w3tc_extensions' ),
+				10, 2 );
+			add_filter( 'w3tc_notes',
+				array( '\W3TC\ProAd_Extension_Wpml', 'w3tc_notes' ) );
+
 		}
 
 	}
