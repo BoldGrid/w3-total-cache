@@ -324,16 +324,10 @@ async function postCreateWP5(pPage, data) {
 	await pPage.click('.editor-post-publish-button');
 	log.log('create page - waiting for published state');
 	try {
-		if (parseFloat(env.wpVersion) < 5.5) {
-			await pPage.waitForSelector('.editor-post-publish-panel__header-published', {
-				timeout: 5000
-			});
-		} else {
-			await pPage.waitForSelector('.post-publish-panel__postpublish-header', {
-				timeout: 5000
-			});
-		}
-
+		await pPage.waitFor(function() {
+			let v = document.querySelector('.editor-post-publish-button');
+			return v.innerHTML == 'Update';
+		}, {timeout: 5000});
 	} catch (e) {
 		log.error('failed');
 
@@ -341,15 +335,10 @@ async function postCreateWP5(pPage, data) {
 		await pPage.click('.editor-post-publish-button');
 		log.log('create page - waiting for published state2');
 
-		if (parseFloat(env.wpVersion) < 5.5) {
-			await pPage.waitForSelector('.editor-post-publish-panel__header-published', {
-				timeout: 5000
-			});
-		} else {
-			await pPage.waitForSelector('.post-publish-panel__postpublish-header', {
-				timeout: 5000
-			});
-		}
+		await pPage.waitFor(function() {
+			let v = document.querySelector('.editor-post-publish-button');
+			return v.innerHTML == 'Update';
+		}, {timeout: 5000});
 
 		log.log('now seems ok');
 	}
@@ -357,7 +346,11 @@ async function postCreateWP5(pPage, data) {
 	log.log('create page - get url')
 	let url = null;
 	if (!data.date_publish_offset_seconds) {
-		url = await pPage.$eval('.post-publish-panel__postpublish-buttons a', (e) => e.href);
+		if (await pPage.$('.post-publish-panel__postpublish-buttons a') !== null) {
+			url = await pPage.$eval('.post-publish-panel__postpublish-buttons a', (e) => e.href);
+		} else {
+			url = await postCreateWP5_getUrl(pPage);
+		}
 	}
 
 	let pageUrl = pPage.url();
@@ -382,6 +375,38 @@ async function postCreateWP5_setValue(pPage, selector, value) {
 	await pPage.keyboard.press('Delete');
 	await pPage.keyboard.press('Delete');
 	await pPage.keyboard.type('' + value);
+}
+
+
+
+// get url of the edited wordpress page
+async function postCreateWP5_getUrl(pPage) {
+	log.log('opening permalink tab');
+	let clicked = await pPage.evaluate(() => {
+		let elements = document.querySelectorAll('.components-panel__body button');
+		for (let element of elements) {
+			if (element.innerHTML.toLowerCase().indexOf('permalink') >= 0) {
+				element.click();
+				return 'clicked';
+			}
+		}
+
+		return 'permalink tab notfound';
+	});
+
+	expect(clicked).equals('clicked');
+
+	log.log('waiting permalink tab to open');
+	try {
+		await pPage.waitForSelector('a.edit-post-post-link__link', {
+			timeout: 5000
+		});
+	} catch (e) {
+		await pPage.screenshot({path: '/var/www/wp-sandbox/01-b.png'});
+		throw 'failed';
+	}
+
+	return await pPage.$eval('a.edit-post-post-link__link', (e) => e.href);
 }
 
 
