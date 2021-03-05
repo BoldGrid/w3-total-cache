@@ -43,10 +43,18 @@ exports.beforeDefault = async function() {
 	await adminPage.setCacheEnabled(false);
 	await wp.login(adminPage);
 
+	await adminPage.on("dialog", async (dialog) => {
+		await dialog.accept();
+	});
+
 	const context = await browser.createIncognitoBrowserContext();
 	global.page = await context.newPage();
 	page.setViewport({width: 1187, height: 1000});
 	await page.setCacheEnabled(false);
+
+	await page.on("dialog", async (dialog) => {
+		await dialog.accept();
+	});
 }
 
 
