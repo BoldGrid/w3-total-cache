@@ -214,7 +214,7 @@ def generate_box_descriptors(image_name)
 			]
 		},
 		'wp57' => {
-			'WP_VERSION' => '5.7-RC1',
+			'WP_VERSION' => '5.7-RC2',
 			'_except_name_contains' => [
 				'php55'   # wp5.7 requires php>=5.6
 			]
