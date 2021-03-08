@@ -44,6 +44,7 @@ exports.beforeDefault = async function() {
 	await wp.login(adminPage);
 
 	await adminPage.on("dialog", async (dialog) => {
+		log.log('modal dialog appears');
 		await dialog.accept();
 	});
 
@@ -53,6 +54,7 @@ exports.beforeDefault = async function() {
 	await page.setCacheEnabled(false);
 
 	await page.on("dialog", async (dialog) => {
+		log.log('modal dialog appears');
 		await dialog.accept();
 	});
 }

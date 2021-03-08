@@ -185,9 +185,26 @@ async function postCreateWP5(pPage, data) {
 	if (parseFloat(env.wpVersion) < 5.3) {
 		await pPage.click(moreButtonSelector);
 	} else {
-		await pPage.waitForSelector(moreButtonSelector, {
-			timeout: 3000
-		});
+		try {
+			await pPage.waitForSelector(moreButtonSelector, {
+				timeout: 3000
+			});
+		} catch (e) {
+			log.log('close welcome guide shit');
+			if (await pPage.$('.edit-post-welcome-guide__heading') !== null) {
+				log.log('found modal');
+				await pPage.waitForSelector('button[aria-label="Close dialog"]', {
+					timeout: 3000
+				});
+				log.log('found modal close button');
+				await pPage.click('button[aria-label="Close dialog"]');
+			}
+
+			await pPage.waitForSelector(moreButtonSelector, {
+				timeout: 3000
+			});
+		}
+
 		await pPage.click(moreButtonSelector);
 
 		try {
