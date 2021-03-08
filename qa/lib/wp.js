@@ -398,32 +398,37 @@ async function postCreateWP5_setValue(pPage, selector, value) {
 
 // get url of the edited wordpress page
 async function postCreateWP5_getUrl(pPage) {
-	log.log('opening permalink tab');
-	let clicked = await pPage.evaluate(() => {
-		let elements = document.querySelectorAll('.components-panel__body button');
-		for (let element of elements) {
-			if (element.innerHTML.toLowerCase().indexOf('permalink') >= 0) {
-				element.click();
-				return 'clicked';
+	for (let n = 0; n < 3; n++) {
+		log.log('opening permalink tab');
+		let clicked = await pPage.evaluate(() => {
+			let elements = document.querySelectorAll('.components-panel__body button');
+			for (let element of elements) {
+				if (element.innerHTML.toLowerCase().indexOf('permalink') >= 0) {
+					element.click();
+					return 'clicked';
+				}
 			}
+
+			return 'permalink tab notfound';
+		});
+
+		expect(clicked).equals('clicked');
+
+		log.log('waiting permalink tab to open');
+		try {
+			await pPage.waitForSelector('a.edit-post-post-link__link', {
+				timeout: 5000
+			});
+		} catch (e) {
+			await pPage.screenshot({path: '/var/www/wp-sandbox/01-b.png'});
+			log.log('failed, retrying');
+			continue;
 		}
 
-		return 'permalink tab notfound';
-	});
-
-	expect(clicked).equals('clicked');
-
-	log.log('waiting permalink tab to open');
-	try {
-		await pPage.waitForSelector('a.edit-post-post-link__link', {
-			timeout: 5000
-		});
-	} catch (e) {
-		await pPage.screenshot({path: '/var/www/wp-sandbox/01-b.png'});
-		throw 'failed';
+		return await pPage.$eval('a.edit-post-post-link__link', (e) => e.href);
 	}
 
-	return await pPage.$eval('a.edit-post-post-link__link', (e) => e.href);
+	throw 'failed';
 }
 
 
