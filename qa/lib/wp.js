@@ -343,7 +343,7 @@ async function postCreateWP5(pPage, data) {
 	try {
 		await pPage.waitFor(function() {
 			let v = document.querySelector('.editor-post-publish-button');
-			return v.innerHTML == 'Update';
+			return v.innerHTML == 'Update' || v.innerHTML == 'Schedule';
 		}, {timeout: 5000});
 	} catch (e) {
 		log.error('failed');
@@ -354,7 +354,7 @@ async function postCreateWP5(pPage, data) {
 
 		await pPage.waitFor(function() {
 			let v = document.querySelector('.editor-post-publish-button');
-			return v.innerHTML == 'Update';
+			return v.innerHTML == 'Update' || v.innerHTML == 'Schedule';
 		}, {timeout: 5000});
 
 		log.log('now seems ok');
