@@ -44,8 +44,11 @@ exports.beforeDefault = async function() {
 	await wp.login(adminPage);
 
 	await adminPage.on("dialog", async (dialog) => {
-		log.log('modal dialog appears');
-		await dialog.accept();
+		log.log('adminPage modal dialog appears');
+		if (!adminPage._overwriteSystemDialogPrompt) {
+			log.log('accept');
+			await dialog.accept();
+		}
 	});
 
 	const context = await browser.createIncognitoBrowserContext();
@@ -54,8 +57,11 @@ exports.beforeDefault = async function() {
 	await page.setCacheEnabled(false);
 
 	await page.on("dialog", async (dialog) => {
-		log.log('modal dialog appears');
-		await dialog.accept();
+		log.log('regular page modal dialog appears');
+		if (!page._overwriteSystemDialogPrompt) {
+			log.log('accept');
+			await dialog.accept();
+		}
 	});
 }
 
