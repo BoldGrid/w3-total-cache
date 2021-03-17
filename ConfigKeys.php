@@ -316,7 +316,6 @@ $keys = array(
 	'objectcache.groups.nonpersistent' => array(
 		'type' => 'array',
 		'default' => array(
-			'comment',
 			'counts',
 			'plugins'
 		)
