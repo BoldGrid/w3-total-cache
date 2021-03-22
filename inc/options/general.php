@@ -508,6 +508,17 @@ Util_Ui::config_item( array(
 				</th>
 			</tr>
 			<?php
+
+				Util_Ui::config_item(
+					array(
+						'key'            => 'docroot_fix.enable',
+						'control'        => 'checkbox',
+						'checkbox_label' => __( 'Fix document root path', 'w3-total-cache' ),
+						'label_class'    => 'w3tc_single_column',
+						'description'    => __( 'Fix incorrect server document root path.  Uses ABSPATH.', 'w3-total-cache' ),
+					)
+				);
+
 Util_Ui::config_item( array(
 		'key' => 'common.track_usage',
 		'control' => 'checkbox',
