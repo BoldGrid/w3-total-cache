@@ -515,7 +515,11 @@ Util_Ui::config_item( array(
 						'control'        => 'checkbox',
 						'checkbox_label' => __( 'Fix document root path', 'w3-total-cache' ),
 						'label_class'    => 'w3tc_single_column',
-						'description'    => __( 'Fix incorrect server document root path.  Uses ABSPATH.', 'w3-total-cache' ),
+						'description'    => sprintf(
+							__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
+							esc_html( $_SERVER['DOCUMENT_ROOT'] ),
+							esc_html( untrailingslashit( ABSPATH ) )
+						),
 					)
 				);
 
