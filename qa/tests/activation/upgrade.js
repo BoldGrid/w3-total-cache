@@ -61,7 +61,7 @@ describe('', function() {
 			content: "'0.9.5'"
 		};
 
-		if (env.phpVersion >= 8) {
+		if (env.phpVersion >= 8 || parseFloat(env.wpVersion) >= 5.7) {
 			old = {
 				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.0.1.zip',
 			 	output: '/share/w3tc-2-0-1.zip',
