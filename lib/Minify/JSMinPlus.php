@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 
 /**
  * JSMinPlus version 1.4
@@ -172,7 +173,7 @@ define('KEYWORD_WHILE', 'while');
 define('KEYWORD_WITH', 'with');
 
 
-class Minify0_JSMinPlus
+class JSMinPlus
 {
 	private $parser;
 	private $reserved = array(
@@ -202,7 +203,7 @@ class Minify0_JSMinPlus
 
 		// this is a singleton
 		if(!$instance)
-			$instance = new Minify0_JSMinPlus();
+			$instance = new JSMinPlus();
 
 		return $instance->min($js, $filename);
 	}
@@ -214,7 +215,7 @@ class Minify0_JSMinPlus
 			$n = $this->parser->parse($js, $filename, 1);
 			return $this->parseTree($n);
 		}
-		catch(Exception $e)
+		catch(\Exception $e)
 		{
 			echo $e->getMessage() . "\n";
 		}
@@ -462,7 +463,7 @@ class Minify0_JSMinPlus
 			break;
 
 			case KEYWORD_DEBUGGER:
-				throw new Exception('NOT IMPLEMENTED: DEBUGGER');
+				throw new \Exception('NOT IMPLEMENTED: DEBUGGER');
 			break;
 
 			case TOKEN_CONDCOMMENT_START:
@@ -654,7 +655,7 @@ class Minify0_JSMinPlus
 			break;
 
 			default:
-				throw new Exception('UNKNOWN TOKEN TYPE: ' . $n->type);
+				throw new \Exception('UNKNOWN TOKEN TYPE: ' . $n->type);
 		}
 
 		return $s;
@@ -921,10 +922,10 @@ class JSParser
 			return $n;
 
 			case KEYWORD_WHILE:
-			        $n = new JSNode($this->t);
-			        $n->isLoop = true;
-			        $n->condition = $this->ParenExpression($x);
-			        $n->body = $this->nest($x, $n);
+					$n = new JSNode($this->t);
+					$n->isLoop = true;
+					$n->condition = $this->ParenExpression($x);
+					$n->body = $this->nest($x, $n);
 			return $n;
 
 			case KEYWORD_DO:
@@ -1044,7 +1045,7 @@ class JSParser
 
 			case KEYWORD_VAR:
 			case KEYWORD_CONST:
-			        $n = $this->Variables($x);
+					$n = $this->Variables($x);
 			break;
 
 			case TOKEN_CONDCOMMENT_START:
@@ -1463,7 +1464,7 @@ class JSParser
 
 				case OP_RIGHT_CURLY:
 					if (!$this->t->scanOperand && $x->curlyLevel != $cl)
-						throw new Exception('PANIC: right curly botch');
+						throw new \Exception('PANIC: right curly botch');
 				break 2;
 
 				case OP_LEFT_PAREN:
@@ -1785,7 +1786,7 @@ class JSTokenizer
 
 	public function mustMatch($tt)
 	{
-	        if (!$this->match($tt))
+			if (!$this->match($tt))
 			throw $this->newSyntaxError('Unexpected token; token ' . $tt . ' expected');
 
 		return $this->currentToken();
@@ -2072,7 +2073,7 @@ class JSTokenizer
 
 	public function newSyntaxError($m)
 	{
-		return new Exception('Parse error: ' . $m . ' in file \'' . $this->filename . '\' on line ' . $this->lineno);
+		return new \Exception('Parse error: ' . $m . ' in file \'' . $this->filename . '\' on line ' . $this->lineno);
 	}
 }
 

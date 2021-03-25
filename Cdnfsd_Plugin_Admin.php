@@ -57,13 +57,10 @@ class Cdnfsd_Plugin_Admin {
 			add_action( 'w3tc_settings_box_cdnfsd', array(
 					'\W3TC\Cdnfsd_StackPath2_Page',
 					'w3tc_settings_box_cdnfsd' ) );
-		} elseif ( $cdnfsd_engine == 'transparentcdn'){
+		} elseif ( 'transparentcdn' === $cdnfsd_engine ){
 			add_action( 'init', array(
 				'\W3TC\Cdnfsd_TransparentCDN_Page',
 				'admin_test_api_parameters_transparentcdn' ) );
-			add_action( 'w3tc_ajax', array(
-				'\W3TC\Cdnfsd_TransparentCDN_Popup',
-				'w3tc_ajax' ) );
 			add_action( 'w3tc_settings_box_cdnfsd', array(
 				'\W3TC\Cdnfsd_TransparentCDN_Page',
 				'w3tc_settings_box_cdnfsd' ) );
@@ -109,6 +106,9 @@ class Cdnfsd_Plugin_Admin {
 		);
 		$cdnfsd_engine_values['stackpath2'] = array(
 			'label' => __( 'StackPath (recommended)', 'w3-total-cache' ),
+		);
+		$cdnfsd_engine_values['transparentcdn'] = array(
+			'label' => __( 'TransparentCDN', 'w3-total-cache' ),
 		);
 
 		$tag = '';

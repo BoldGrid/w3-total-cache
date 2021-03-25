@@ -302,6 +302,10 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 */
 	private function _flush_url( $url, $cache, $mobile_groups, $referrer_groups,
 		$cookies, $encryptions, $compressions, $group ) {
+		if ( empty( $url ) ) {
+			return;
+		}
+
 		foreach ( $mobile_groups as $mobile_group ) {
 			foreach ( $referrer_groups as $referrer_group ) {
 				foreach ( $cookies as $cookie ) {

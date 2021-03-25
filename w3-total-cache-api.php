@@ -5,7 +5,7 @@ if ( !defined( 'ABSPATH' ) ) {
 }
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '0.14.4' );
+define( 'W3TC_VERSION', '2.1.1' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -144,18 +144,29 @@ $w3_late_init = false;
  * @param string  $class Classname
  */
 function w3tc_class_autoload( $class ) {
-	$base = null;
-
 	// some php pass classes with slash
-	if ( substr( $class, 0, 1 ) == "\\" )
+	if ( substr( $class, 0, 1 ) == "\\" ) {
 		$class = substr( $class, 1 );
+	}
 
-	if ( substr( $class, 0, 5 ) == 'HTTP_' || substr( $class, 0, 7 ) == 'Minify_' ) {
-		$base = W3TC_LIB_DIR . DIRECTORY_SEPARATOR . 'Minify' . DIRECTORY_SEPARATOR;
-	} elseif ( substr( $class, 0, 8 ) == 'Minify0_' ) {
-		$base = W3TC_LIB_DIR . DIRECTORY_SEPARATOR . 'Minify' . DIRECTORY_SEPARATOR;
-		$class = substr( $class, 8 );
-	} elseif ( substr( $class, 0, 13 ) == 'W3TCG_Google_' &&
+	// try core w3tc classes first
+	if ( substr( $class, 0, 5 ) == 'W3TC\\' ) {
+		$filename = W3TC_DIR . DIRECTORY_SEPARATOR . substr( $class, 5 ) . '.php';
+
+		if ( file_exists( $filename ) ) {
+			require $filename;
+			return;
+		} else {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				echo 'Attempt to create object of class ' .
+					$class . ' has been made, but file ' .
+					$filename . ' doesnt exists';
+				debug_print_backtrace();
+			}
+		}
+	}
+
+	if ( substr( $class, 0, 13 ) == 'W3TCG_Google_' &&
 		( !defined( 'W3TC_GOOGLE_LIBRARY' ) || W3TC_GOOGLE_LIBRARY ) ) {
 		// Google library
 		$classPath = explode( '_', substr( $class, 6 ) );
@@ -170,31 +181,18 @@ function w3tc_class_autoload( $class ) {
 		if ( file_exists( $filePath ) )
 			require $filePath;
 		return;
-	} elseif ( substr( $class, 0, 24 ) == 'w3tc_tubalmartin\\CssMin\\' ) {
-		$base = W3TC_LIB_DIR . DIRECTORY_SEPARATOR . 'Minify' . DIRECTORY_SEPARATOR .
-			'YUI-CSS-compressor-PHP-port-4.1.0' . DIRECTORY_SEPARATOR;
-			$class = substr( $class, 24 );
 	}
 
-	if ( !is_null( $base ) ) {
+	if ( substr( $class, 0, 6 ) == 'W3TCL\\' ) {
+		$base = W3TC_LIB_DIR . DIRECTORY_SEPARATOR;
+		$class = substr( $class, 6 );
+
+		// psr loader
 		$file = $base . strtr( $class, "\\_",
 			DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR ) . '.php';
 		if ( file_exists( $file ) )
 			require_once $file;
-	} else if ( substr( $class, 0, 5 ) == 'W3TC\\' ) {
-			$filename = W3TC_DIR . DIRECTORY_SEPARATOR . substr( $class, 5 ) . '.php';
-
-			if ( file_exists( $filename ) ) {
-				require $filename;
-			} else {
-				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo 'Attempt to create object of class ' .
-						$class . ' has been made, but file ' .
-						$filename . ' doesnt exists';
-					debug_print_backtrace();
-				}
-			}
-		}
+	}
 }
 
 spl_autoload_register( 'w3tc_class_autoload' );

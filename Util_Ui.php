@@ -932,6 +932,7 @@ class Util_Ui {
 					__( 'Dedicated / Virtual Server:', 'w3-total-cache' ),
 					__( 'Multiple Servers:', 'w3-total-cache' )
 				),
+				'control_after' => isset( $a['control_after'] ) ? $a['control_after'] : null,
 			) );
 	}
 

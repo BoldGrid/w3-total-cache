@@ -176,9 +176,7 @@ class Cache_Memcache extends Cache_Base {
 	 * @return boolean
 	 */
 	function flush( $group = '' ) {
-		$this->_get_key_version( $group );   // initialize $this->_key_version
-		$this->_key_version[$group]++;
-		$this->_set_key_version( $this->_key_version[$group], $group );
+		$this->_increment_key_version( $group );
 		return true;
 	}
 
@@ -222,6 +220,25 @@ class Cache_Memcache extends Cache_Base {
 		// expiration has to be as long as possible since
 		// all cache data expires when key version expires
 		@$this->_memcache->set( $this->_get_key_version_key( $group ), $v, false, 0 );
+		$this->_key_version[$group] = $v;
+	}
+
+	/**
+	 * Increments key version.
+	 *
+	 * @since 0.14.5
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 */
+	private function _increment_key_version( $group = '' ) {
+		$r = @$this->_memcache->increment( $this->_get_key_version_key( $group ), 1 );
+
+		if ( $r ) {
+			$this->_key_version[$group] = $r;
+		} else {
+			// it doesn't initialize the key if it doesn't exist.
+			$this->_set_key_version( 2, $group );
+		}
 	}
 
 	/**

@@ -251,8 +251,15 @@ class Licensing_Plugin_Admin {
 					$buttons;
 			} else {
 				$notes['licensing_terms'] = sprintf(
-					__( 'Thanks for using W3 Total Cache! Please review the latest <a href="%s" target="blank">terms of use and privacy policy</a>, and accept them.', 'w3-total-cache' ),
-						W3TC_TERMS_URL ) .
+					// translators: 1: HTML break tag, 2: Anchor/link open tag, 3: Anchor/link close tag.
+					esc_html__(
+						'By allowing us to collect data about how W3 Total Cache is used, we can improve our features and experience for everyone. This data will not include any personally identifiable information.%1$sFeel free to review our %2$sterms of use and privacy policy%3$s.',
+						'w3-total-cache'
+					),
+					'<br />',
+					'<a target="_blank" href="' . esc_url( W3TC_TERMS_URL ) . '">',
+					'</a>'
+				) .
 					$buttons;
 			}
 		}

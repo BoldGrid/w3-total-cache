@@ -364,6 +364,19 @@ class Minify_Environment {
 		return '';
 	}
 
+	private function site_uri() {
+		$site_uri = rtrim( network_site_url( '', 'relative' ), '/' ) . '/';
+
+		/* There is a bug in WP where network_home_url can return
+		 * a non-relative URI even though scheme is set to relative.
+		 */
+		if ( Util_Environment::is_url( $site_uri ) ) {
+			$site_uri = parse_url( $site_uri, PHP_URL_PATH );
+		}
+
+		return $site_uri;
+	}
+
 	/**
 	 * Generates rules
 	 *
@@ -373,7 +386,14 @@ class Minify_Environment {
 	function rules_core_generate_apache( $config ) {
 		$cache_uri = Util_Environment::url_to_uri(
 			Util_Environment::filename_to_url( W3TC_CACHE_MINIFY_DIR ) ) . '/';
-		$site_uri = rtrim( network_site_url( '', 'relative' ), '/' ) . '/';
+		$site_uri = $this->site_uri();
+
+		/* There is a bug in WP where network_home_url can return
+		 * a non-relative URI even though scheme is set to relative.
+		 */
+		if ( Util_Environment::is_url( $site_uri ) ) {
+			$site_uri = parse_url( $site_uri, PHP_URL_PATH );
+		}
 
 		$engine = $config->get_string( 'minify.engine' );
 		$browsercache = $config->get_boolean( 'browsercache.enabled' );
@@ -439,7 +459,7 @@ class Minify_Environment {
 			$first_regex_var = '$2';
 		}
 
-		$minify_uri = rtrim( network_site_url( '', 'relative' ), '/' ) . '/';
+		$minify_uri = $this->site_uri();
 
 		$engine = $config->get_string( 'minify.engine' );
 		$browsercache = $config->get_boolean( 'browsercache.enabled' );
@@ -607,8 +627,8 @@ class Minify_Environment {
 		if ( $expires ) {
 			$rules .= "<IfModule mod_expires.c>\n";
 			$rules .= "    ExpiresActive On\n";
-			$rules .= "    ExpiresByType text/css M" . $lifetime . "\n";
-			$rules .= "    ExpiresByType application/x-javascript M" . $lifetime . "\n";
+			$rules .= "    ExpiresByType text/css A" . $lifetime . "\n";
+			$rules .= "    ExpiresByType application/x-javascript A" . $lifetime . "\n";
 			$rules .= "</IfModule>\n";
 		}
 

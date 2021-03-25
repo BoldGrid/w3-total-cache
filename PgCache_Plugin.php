@@ -45,6 +45,10 @@ class PgCache_Plugin {
 		add_filter( 'cron_schedules',
 			array( $this, 'cron_schedules' ) );
 
+		add_action( 'w3tc_config_save',
+			array( $this, 'w3tc_config_save' ),
+			10, 1 );
+
 		$o = Dispatcher::component( 'PgCache_ContentGrabber' );
 
 		add_filter( 'w3tc_footer_comment',
@@ -380,4 +384,14 @@ class PgCache_Plugin {
 
 		return $header;
 	}
+
+
+
+	public function w3tc_config_save( $config ) {
+		// frontend activity
+		if ( $config->get_boolean( 'pgcache.cache.feed' ) ) {
+			$config->set( 'pgcache.cache.nginx_handle_xml', true );
+		}
+	}
+
 }

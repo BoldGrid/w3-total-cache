@@ -106,6 +106,7 @@ class BrowserCache_Environment {
 		unset( $other_compression['mov|qt'] );
 		unset( $other_compression['mp3|m4a'] );
 		unset( $other_compression['mp4|m4v'] );
+		unset( $other_compression['ogv'] );
 		unset( $other_compression['mpeg|mpg|mpe'] );
 		unset( $other_compression['png'] );
 		unset( $other_compression['ra|ram'] );
@@ -376,7 +377,7 @@ class BrowserCache_Environment {
 
 			if ( $config->get_boolean( 'browsercache.hsts' ) ) {
 				$dir = $config->get_string( 'browsercache.security.hsts.directive' );
-				$rules .= "    Header set Strict-Transport-Security \"max-age=$lifetime" . ( strpos( $dir,"inc" ) ? "; includeSubDomains" : "" ) . ( strpos( $dir, "pre" ) ? "; preload" : "" ) . "\"\n";
+				$rules .= "    Header always set Strict-Transport-Security \"max-age=$lifetime" . ( strpos( $dir,"inc" ) ? "; includeSubDomains" : "" ) . ( strpos( $dir, "pre" ) ? "; preload" : "" ) . "\"\n";
 			}
 
 			if ( $config->get_boolean( 'browsercache.security.xfo' ) ) {

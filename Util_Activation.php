@@ -76,14 +76,15 @@ class Util_Activation {
 				( file_exists( $path ) ? $path : dirname( $path ) ) );
 		}
 		if ( Util_File::check_open_basedir( $path ) ) {
-			$error = sprintf( __( '<strong>%s</strong> could not be created, please run following command:<br />%s',
-					'w3-total-cache' ), $path,
-				$chmods );
+			$error = sprintf(
+				__( '<strong>%s</strong> could not be created, please run following command:<br />%s',
+					'w3-total-cache' ),
+				$path, $chmods );
 		} else {
-			$error = sprintf( __( '<strong>%s</strong> could not be created, <strong>open_basedir
-                        </strong> restriction in effect, please check your php.ini settings:<br />
-                        <strong style="color: #f00;">open_basedir = "%s"</strong>', 'w3-total-cache' ), $path,
-				ini_get( 'open_basedir' ) );
+			$error = sprintf(
+				__( '<strong>%s</strong> could not be created, <strong>open_basedir</strong> restriction in effect, please check your php.ini settings:<br /><strong style="color: #f00;">open_basedir = "%s"</strong>',
+					'w3-total-cache' ),
+				$path, ini_get( 'open_basedir' ) );
 		}
 
 		throw new \Exception( $error );
@@ -135,9 +136,10 @@ class Util_Activation {
 						$operation_error_already_shown = true;
 					}
 					if ( $ex instanceof Util_WpFile_FilesystemWriteException ) {
-						$required_changes .=
-							sprintf( __( 'Create the <strong>%s</strong> file and paste the following text into it:
-                        <textarea>%s</textarea> <br />', 'w3-total-cache' ), $ex->filename(), esc_textarea( $ex->file_contents() ) );
+						$required_changes .= sprintf(
+							__( 'Create the <strong>%s</strong> file and paste the following text into it: <textarea>%s</textarea> <br />',
+								'w3-total-cache' ),
+							$ex->filename(), esc_textarea( $ex->file_contents() ) );
 					} else if ( $ex instanceof Util_WpFile_FilesystemModifyException ) {
 							$modification_content = $ex->file_contents();
 							if ( strlen( $modification_content ) > 0 )
@@ -222,26 +224,32 @@ class Util_Activation {
 				$ftp_form = str_replace( '</fieldset>', '', $ftp_form );
 				$ftp_form = str_replace( 'id="upgrade" class="button"',
 					'id="upgrade" class="button w3tc-button-save"', $ftp_form );
-				$error = sprintf( __( '<strong>W3 Total Cache Error:</strong>
-                                Files and directories could not be automatically
-                                deleted.
-                                <table>
-                                <tr>
-                                <td>Please execute commands manually</td>
-                                <td>
-                                    %s
-                                </td>
-                                </tr>
-                                <tr>
-                                <td>or use FTP form to allow
-                                <strong>W3 Total Cache</strong> make it automatically.
-                                </td>
-                                <td>
-                                    %s
-                                </td>
-                                </tr></table>', 'w3-total-cache' ),
-					Util_Ui::button( __( 'View required changes', 'w3-total-cache' ), '', 'w3tc-show-required-changes' ),
-					Util_Ui::button( __( 'Update via FTP', 'w3-total-cache' ), '', 'w3tc-show-ftp-form' )
+
+				$error = sprintf( '
+					%s
+					<table>
+					<tr>
+					<td>%s</td>
+					<td>%s</td>
+					</tr>
+					<tr>
+					<td>%s</td>
+					<td>%s</td>
+					</tr></table>',
+					__( '<strong>W3 Total Cache Error:</strong> Files and directories could not be automatically deleted.' , 'w3-total-cache' ),
+					__( 'Please execute commands manually' , 'w3-total-cache' ),
+					__( 'or use FTP form to allow <strong>W3 Total Cache</strong> make it automatically.' ,
+						'w3-total-cache' ),
+					Util_Ui::button(
+						__( 'View required changes', 'w3-total-cache' ),
+						'',
+						'w3tc-show-required-changes'
+					),
+					Util_Ui::button(
+						__( 'Update via FTP', 'w3-total-cache' ),
+						'',
+						'w3tc-show-ftp-form'
+					)
 				) . '<div class="w3tc-required-changes" style="' .
 					$changes_style . '">' . $r['required_changes'] . '</div>' .
 					'<div class="w3tc-ftp-form" style="' . $ftp_style . '">' .

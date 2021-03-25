@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 
 class Minify_CSSTidy {
     public static function minify($css, $options = array()) {
@@ -26,7 +27,7 @@ class Minify_CSSTidy {
 
         require_once 'class.csstidy.php';
 
-        $csstidy = new csstidy();
+        $csstidy = new \csstidy();
 
         foreach ($options as $option => $value) {
             $csstidy->set_cfg($option, $value);

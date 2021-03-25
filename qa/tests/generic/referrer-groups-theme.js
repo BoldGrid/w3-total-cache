@@ -18,8 +18,10 @@ else if (parseFloat(env.wpVersion) < 4.7)
 	otherTheme = 'twentyfourteen/twentyfourteen';
 else if (parseFloat(env.wpVersion) < 5.0)
 	otherTheme = 'twentyfifteen/twentyfifteen';
-else
+else if (parseFloat(env.wpVersion) < 5.5)
 	otherTheme = 'twentysixteen/twentysixteen';
+else
+	otherTheme = 'twentynineteen/twentynineteen';
 
 let pluginUrl = env.blogSiteUrl.replace(/(b2\.)?wp\.sandbox/i, 'for-tests.wp.sandbox') +
 	'referrer-groups.php?path=' + env.blogSiteUrl;
@@ -47,10 +49,12 @@ describe('', function() {
 
 
 	it('add referrer group', async() => {
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_referrer');
-		adminPage.on('dialog', async dialog => {
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups');
+		adminPage._overwriteSystemDialogPrompt = true;
+		adminPage.once('dialog', async dialog => {
   			log.log('fill prompt');
   			await dialog.accept('test_group');
+			adminPage._overwriteSystemDialogPrompt = false;
 		});
 
 		await adminPage.click('#referrer_add');
@@ -96,6 +100,9 @@ describe('', function() {
 				(e) => e.getAttribute('href'));
 		} else if (theme[0] == 'twentysixteen') {
 		 	css = await page.$eval('#twentysixteen-style-css',
+				(e) => e.getAttribute('href'));
+		} else if (theme[0] == 'twentynineteen') {
+			css = await page.$eval('#twentynineteen-style-css',
 				(e) => e.getAttribute('href'));
 		} else {
 			css = await page.$eval('link[type="text/css"]',

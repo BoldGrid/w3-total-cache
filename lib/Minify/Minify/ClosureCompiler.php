@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 /**
  * Class Minify_ClosureCompiler
  * @package Minify
@@ -33,111 +34,111 @@
  */
 class Minify_ClosureCompiler {
 
-    /**
-     * Filepath of the Closure Compiler jar file. This must be set before
-     * calling minifyJs().
-     *
-     * @var string
-     */
-    public static $jarFile = null;
+	/**
+	 * Filepath of the Closure Compiler jar file. This must be set before
+	 * calling minifyJs().
+	 *
+	 * @var string
+	 */
+	public static $jarFile = null;
 
-    /**
-     * Writable temp directory. This must be set before calling minifyJs().
-     *
-     * @var string
-     */
-    public static $tempDir = null;
+	/**
+	 * Writable temp directory. This must be set before calling minifyJs().
+	 *
+	 * @var string
+	 */
+	public static $tempDir = null;
 
-    /**
-     * Filepath of "java" executable (may be needed if not in shell's PATH)
-     *
-     * @var string
-     */
-    public static $javaExecutable = 'java';
+	/**
+	 * Filepath of "java" executable (may be needed if not in shell's PATH)
+	 *
+	 * @var string
+	 */
+	public static $javaExecutable = 'java';
 
-    /**
-     * Minify a Javascript string
-     *
-     * @param string $js
-     *
-     * @param array $options (verbose is ignored)
-     *
-     * @see https://code.google.com/p/closure-compiler/source/browse/trunk/README
-     *
-     * @return string
-     */
-    public static function minify($js, $options = array())
-    {
-        self::_prepare();
-        if (! ($tmpFile = tempnam(self::$tempDir, 'cc_'))) {
-            throw new Exception('Minify_ClosureCompiler : could not create temp file.');
-        }
-        file_put_contents($tmpFile, $js);
-        exec(self::_getCmd($options, $tmpFile), $output, $result_code);
-        unlink($tmpFile);
-        if ($result_code != 0) {
-            throw new Exception('Minify_ClosureCompiler : Closure Compiler execution failed.');
-        }
-        return implode("\n", $output);
-    }
+	/**
+	 * Minify a Javascript string
+	 *
+	 * @param string $js
+	 *
+	 * @param array $options (verbose is ignored)
+	 *
+	 * @see https://code.google.com/p/closure-compiler/source/browse/trunk/README
+	 *
+	 * @return string
+	 */
+	public static function minify($js, $options = array())
+	{
+		self::_prepare();
+		if (! ($tmpFile = tempnam(self::$tempDir, 'cc_'))) {
+			throw new \Exception('Minify_ClosureCompiler : could not create temp file.');
+		}
+		file_put_contents($tmpFile, $js);
+		exec(self::_getCmd($options, $tmpFile), $output, $result_code);
+		unlink($tmpFile);
+		if ($result_code != 0) {
+			throw new \Exception('Minify_ClosureCompiler : Closure Compiler execution failed.');
+		}
+		return implode("\n", $output);
+	}
 
-    private static function _getCmd($userOptions, $tmpFile)
-    {
-        $o = array_merge(
-            array(
-                'charset' => 'utf-8',
-                'compilation_level' => 'SIMPLE_OPTIMIZATIONS',
-            ),
-            $userOptions
-        );
+	private static function _getCmd($userOptions, $tmpFile)
+	{
+		$o = array_merge(
+			array(
+				'charset' => 'utf-8',
+				'compilation_level' => 'SIMPLE_OPTIMIZATIONS',
+			),
+			$userOptions
+		);
 
- 		$javaExecutable = self::$javaExecutable;
+		 $javaExecutable = self::$javaExecutable;
 
-        if ( false !== strpos(trim($javaExecutable), ' ') ) {
-      		$javaExecutable = '"'.$javaExecutable.'"';
-        }
+		if ( false !== strpos(trim($javaExecutable), ' ') ) {
+			  $javaExecutable = '"'.$javaExecutable.'"';
+		}
 
-        $cmd = $javaExecutable . ' -jar ' . escapeshellarg(self::$jarFile)
-             . (preg_match('/^[\\da-zA-Z0-9\\-]+$/', $o['charset'])
-                ? " --charset {$o['charset']}"
-                : '');
+		$cmd = $javaExecutable . ' -jar ' . escapeshellarg(self::$jarFile)
+			 . (preg_match('/^[\\da-zA-Z0-9\\-]+$/', $o['charset'])
+				? " --charset {$o['charset']}"
+				: '');
 
-        foreach (array('compilation_level') as $opt) {
-            if ($o[$opt]) {
-                $cmd .= " --{$opt} ". escapeshellarg($o[$opt]);
-            }
-        }
-        return $cmd . ' ' . escapeshellarg($tmpFile);
-    }
+		foreach (array('compilation_level') as $opt) {
+			if ($o[$opt]) {
+				$cmd .= " --{$opt} ". escapeshellarg($o[$opt]);
+			}
+		}
+		return $cmd . ' ' . escapeshellarg($tmpFile);
+	}
 
-    private static function _prepare()
-    {
-        if (! is_file(self::$jarFile)) {
-            throw new Exception('Minify_ClosureCompiler : $jarFile('.self::$jarFile.') is not a valid file.');
-        }
-        if (! is_readable(self::$jarFile)) {
-            throw new Exception('Minify_ClosureCompiler : $jarFile('.self::$jarFile.') is not readable.');
-        }
-        if (! is_dir(self::$tempDir)) {
-            throw new Exception('Minify_ClosureCompiler : $tempDir('.self::$tempDir.') is not a valid direcotry.');
-        }
-        if (! is_writable(self::$tempDir)) {
-            throw new Exception('Minify_ClosureCompiler : $tempDir('.self::$tempDir.') is not writable.');
-        }
-    }
+	private static function _prepare()
+	{
+		if (! is_file(self::$jarFile)) {
+			throw new \Exception('Minify_ClosureCompiler : $jarFile('.self::$jarFile.') is not a valid file.');
+		}
+		if (! is_readable(self::$jarFile)) {
+			throw new \Exception('Minify_ClosureCompiler : $jarFile('.self::$jarFile.') is not readable.');
+		}
+		if (! is_dir(self::$tempDir)) {
+			throw new \Exception('Minify_ClosureCompiler : $tempDir('.self::$tempDir.') is not a valid direcotry.');
+		}
+		if (! is_writable(self::$tempDir)) {
+			throw new \Exception('Minify_ClosureCompiler : $tempDir('.self::$tempDir.') is not writable.');
+		}
+	}
 
-    public static function test(&$error) {
-        try {
-            self::minify('alert("ok");');
-            $error = 'OK';
+	public static function test(&$error) {
+		try {
+			self::minify('alert("ok");');
+			$error = 'OK';
 
-            return true;
-        } catch (Exception $exception) {
-            $error = $exception->getMessage();
+			return true;
+		} catch (\Exception $exception) {
+			$error = $exception->getMessage();
 
-            return false;
-        }
-    }
+			return false;
+		}
+	}
 }
 
 /* vim:ts=4:sw=4:et */

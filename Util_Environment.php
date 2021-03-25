@@ -512,12 +512,22 @@ class Util_Environment {
 		$home_path = ABSPATH;
 		if ( ! empty( $home ) && 0 !== strcasecmp( $home, $siteurl ) ) {
 			$wp_path_rel_to_home = str_ireplace( $home, '', $siteurl ); /* $siteurl - $home */
-			$pos = strripos( str_replace( '\\', '/', $_SERVER['SCRIPT_FILENAME'] ), trailingslashit( $wp_path_rel_to_home ) );
 			// fix of get_home_path, used when index.php is moved outside of
 			// wp folder.
+			$pos = strripos(
+				str_replace( '\\', '/', $_SERVER['SCRIPT_FILENAME'] ),
+				trailingslashit( $wp_path_rel_to_home ) );
 			if ( $pos !== false ) {
 				$home_path = substr( $_SERVER['SCRIPT_FILENAME'], 0, $pos );
 				$home_path = trailingslashit( $home_path );
+			} else if ( defined( 'WP_CLI' ) ) {
+				$pos = strripos(
+					str_replace( '\\', '/', ABSPATH ),
+					trailingslashit( $wp_path_rel_to_home ) );
+				if ( $pos !== false ) {
+					$home_path = substr( ABSPATH, 0, $pos );
+					$home_path = trailingslashit( $home_path );
+				}
 			}
 		}
 

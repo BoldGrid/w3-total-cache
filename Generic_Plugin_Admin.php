@@ -224,7 +224,10 @@ class Generic_Plugin_Admin {
 			do_action( 'admin_init_' . $_REQUEST['page'] );
 	}
 
-	function admin_enqueue_scripts() {
+	/**
+	 * Enqueue admin scripts.
+	 */
+	public function admin_enqueue_scripts() {
 		wp_register_style( 'w3tc-options', plugins_url( 'pub/css/options.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-lightbox', plugins_url( 'pub/css/lightbox.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-widget', plugins_url( 'pub/css/widget.css', W3TC_FILE ), array(), W3TC_VERSION );
@@ -235,6 +238,20 @@ class Generic_Plugin_Admin {
 		wp_register_script( 'w3tc-widget', plugins_url( 'pub/js/widget.js', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_script( 'w3tc-jquery-masonry', plugins_url( 'pub/js/jquery.masonry.min.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION );
 
+		// New feature count for the Feature Showcase.
+		wp_register_script( 'w3tc-feature-counter', plugins_url( 'pub/js/feature-counter.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+
+		wp_localize_script(
+			'w3tc-feature-counter',
+			'W3TCFeatureShowcaseData',
+			array(
+				'unseenCount' => FeatureShowcase_Plugin_Admin::get_unseen_count(),
+			)
+		);
+
+		wp_enqueue_script( 'w3tc-feature-counter' );
+
+		// Messages.
 		if ( !is_null( $this->w3tc_message ) &&
 			isset( $this->w3tc_message['actions'] ) &&
 			is_array( $this->w3tc_message['actions'] ) ) {
@@ -249,7 +266,22 @@ class Generic_Plugin_Admin {
 
 	// Define icon styles for the custom post type
 	function admin_head() {
-		if ( isset( $_GET['page'] ) && $_GET['page'] == 'w3tc_dashboard' ) {
+		$page = isset( $_GET['page'] ) ? $_GET['page'] : null;
+
+		if ( false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
+			$config       = new Config();
+			$state_master = Dispatcher::config_state_master();
+
+			if ( ! $config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
+				if ( is_multisite() ) {
+					wp_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				} else {
+					wp_redirect( esc_url( admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+				}
+			}
+		}
+
+		if ( 'w3tc_dashboard' === $page ) {
 ?>
 			<script type="text/javascript">
 			jQuery(function() {
@@ -394,9 +426,7 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Print scripts
-	 *
-	 * @return void
+	 * Print scripts.
 	 */
 	function admin_print_scripts() {
 		wp_enqueue_script( 'w3tc-metadata' );
@@ -404,15 +434,26 @@ class Generic_Plugin_Admin {
 		wp_enqueue_script( 'w3tc-lightbox' );
 
 		if ( $this->is_w3tc_page ) {
-			wp_localize_script( 'w3tc-options', 'w3tc_nonce',
-				wp_create_nonce( 'w3tc' ) );
+			wp_localize_script(
+				'w3tc-options',
+				'w3tc_nonce',
+				array( wp_create_nonce( 'w3tc' ) )
+			);
 		}
-
 
 		switch ( $this->_page ) {
 		case 'w3tc_minify':
-		case 'w3tc_mobile':
-		case 'w3tc_referrer':
+		case 'w3tc_cachegroups':
+			wp_enqueue_script(
+				'w3tc_cachegroups',
+				plugins_url( 'CacheGroups_Plugin_Admin_View.js', W3TC_FILE ),
+				array(
+					'jquery',
+					'jquery-ui-sortable',
+				),
+				W3TC_VERSION,
+				true
+			);
 		case 'w3tc_cdn':
 			wp_enqueue_script( 'jquery-ui-sortable' );
 			break;
