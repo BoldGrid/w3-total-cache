@@ -82,7 +82,7 @@ class Cdn_TransparentCDN_Api {
 
 		$invalidation_urls = array();
 		//Included a regex filter because some of our clients reported receiving urls as "True" or "False"
-		$url_pattern = "/https?:\/\/(www\.)?[-a-zA-Z0-9]{1,256}\.?[a-zA-Z0-9]{1,256}\.[a-zA-Z0-9()]{1,6}/";
+		$url_pattern = "/https?:\/\/(www\.)?[-a-zA-Z0-9]{1,256}\.?[a-zA-Z0-9]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/";
 		foreach ( $urls as $url ) {
 			//Oh array_map+lambdas, how I miss u...
 			if (\preg_match($url_pattern, $url)){
