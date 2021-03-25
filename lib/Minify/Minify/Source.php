@@ -1,5 +1,12 @@
 <?php
+/**
+ * File: Source.php
+ *
+ * NOTE: Fixes have been included in this file; look for "W3TC FIX".
+ */
+
 namespace W3TCL\Minify;
+
 /**
  * Class Minify_Source
  * @package Minify
@@ -58,7 +65,10 @@ class Minify_Source {
     {
         if (isset($spec['filepath'])) {
             if (0 === strpos($spec['filepath'], '//')) {
-                $spec['filepath'] = $_SERVER['DOCUMENT_ROOT'] . substr($spec['filepath'], 1);
+                // W3TC FIX: Override $_SERVER['DOCUMENT_ROOT'] if enabled in settings.
+                $docroot = \W3TC\Util_Environment::document_root();
+
+                $spec['filepath'] = $docroot . substr($spec['filepath'], 1);
             }
             $segments = explode('.', $spec['filepath']);
             $ext = strtolower(array_pop($segments));

@@ -17,7 +17,7 @@ class Minify_HTMLTidy {
             'tidy-mark' => false
         ));
 
-        $tidy = new tidy();
+        $tidy = new \tidy();
         $tidy->parseString($content, $options);
         $tidy->cleanRepair();
 
