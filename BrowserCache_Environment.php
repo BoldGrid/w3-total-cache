@@ -97,6 +97,8 @@ class BrowserCache_Environment {
 		$other_compression = $a['other'];
 		unset( $other_compression['asf|asx|wax|wmv|wmx'] );
 		unset( $other_compression['avi'] );
+		unset( $other_compression['avif'] );
+		unset( $other_compression['avifs'] );
 		unset( $other_compression['divx'] );
 		unset( $other_compression['gif'] );
 		unset( $other_compression['br'] );
