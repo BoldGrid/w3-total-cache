@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 
 abstract class Minify_Inline {
     protected $_tag = '';

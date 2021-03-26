@@ -2,6 +2,10 @@ curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 case "${W3D_OS}" in
+	"focal") echo "Installing for focal"
+		apt install -y libnss3-dev libnss3 libxss-dev
+		apt install -y cups libasound-dev libpangocairo-1.0-0 libx11-xcb-dev libxcomposite-dev libxcursor-dev libxdamage-dev libxi-dev libxtst-dev libxrandr-dev libgtk-3-0
+		;;
     "xenial") echo "Installing for xenial"
 		apt install -y libnss3-dev libnss3 libxss-dev
 		apt install -y cups libasound-dev libpangocairo-1.0-0 libx11-xcb-dev libxcomposite-dev libxcursor-dev libxdamage-dev libxi-dev libxtst-dev libxrandr-dev libgtk-3-0

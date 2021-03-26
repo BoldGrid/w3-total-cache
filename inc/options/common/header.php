@@ -134,23 +134,14 @@ $licensing_visible = ( ( !Util_Environment::is_wpmu() || is_network_admin() ) &&
 		break;
 ?>
 	<?php
-	case 'w3tc_mobile':
+	case 'w3tc_cachegroups':
 ?>
 				<p id="w3tc-options-menu">
 					<?php _e( 'Jump to: ', 'w3-total-cache' ); ?>
 					<a href="#toplevel_page_w3tc_general"><?php _e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-					<a href="#manage"><?php _e( 'Manage User Agent Groups', 'w3-total-cache' ); ?></a>
-				</p>
-	<?php
-		break;
-?>
-	<?php
-	case 'w3tc_referrer':
-?>
-				<p id="w3tc-options-menu">
-					<?php _e( 'Jump to: ', 'w3-total-cache' ); ?>
-					<a href="#toplevel_page_w3tc_general"><?php _e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-					<a href="#manage"><?php _e( 'Manage Referrer Groups', 'w3-total-cache' ); ?></a>
+					<a href="#manage-uag"><?php _e( 'Manage User Agent Groups', 'w3-total-cache' ); ?></a> |
+					<a href="#manage-rg"><?php _e( 'Manage Referrer Groups', 'w3-total-cache' ); ?></a> |
+					<a href="#manage-cg"><?php _e( 'Manage Cookie Groups', 'w3-total-cache' ); ?></a>
 				</p>
 	<?php
 		break;

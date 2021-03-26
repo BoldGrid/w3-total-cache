@@ -513,7 +513,7 @@ class Minify_Plugin {
 		$ignored_comments = $this->_config->get_array( 'minify.html.comments.ignore' );
 
 		if ( count( $ignored_comments ) ) {
-			$ignored_comments_preserver = new \Minify_IgnoredCommentPreserver();
+			$ignored_comments_preserver = new \W3TCL\Minify\Minify_IgnoredCommentPreserver();
 			$ignored_comments_preserver->setIgnoredComments( $ignored_comments );
 
 			$html = $ignored_comments_preserver->search( $html );
@@ -531,7 +531,7 @@ class Minify_Plugin {
 
 			$w3_minifier->init( $js_engine );
 
-			$html = \Minify_Inline_JavaScript::minify( $html, $js_minifier, $js_options );
+			$html = \W3TCL\Minify\Minify_Inline_JavaScript::minify( $html, $js_minifier, $js_options );
 		}
 
 		if ( $this->_config->get_boolean( 'minify.html.inline.css' ) ) {
@@ -546,7 +546,7 @@ class Minify_Plugin {
 
 			$w3_minifier->init( $css_engine );
 
-			$html = \Minify_Inline_CSS::minify( $html, $css_minifier, $css_options );
+			$html = \W3TCL\Minify\Minify_Inline_CSS::minify( $html, $css_minifier, $css_options );
 		}
 
 		$engine = $this->_config->get_string( 'minify.html.engine' );

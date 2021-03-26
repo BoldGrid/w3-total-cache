@@ -106,6 +106,7 @@ class BrowserCache_Environment {
 		unset( $other_compression['mov|qt'] );
 		unset( $other_compression['mp3|m4a'] );
 		unset( $other_compression['mp4|m4v'] );
+		unset( $other_compression['ogv'] );
 		unset( $other_compression['mpeg|mpg|mpe'] );
 		unset( $other_compression['png'] );
 		unset( $other_compression['ra|ram'] );

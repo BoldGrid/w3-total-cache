@@ -112,10 +112,17 @@ class Generic_AdminNotes {
 						'w3-total-cache' ),
 					Util_Ui::button_link(
 						__( 'minify settings', 'w3-total-cache' ),
-						Util_Ui::url( array(
+						Util_Ui::url(
+							array(
 								'w3tc_default_config_state_note' => 'y',
-								'key' => 'common.show_note.plugins_updated',
-								'value' => 'false' ) ) ) );
+								'key'                            => 'common.show_note.plugins_updated',
+								'value'                          => 'false',
+								'page'                           => 'w3tc_minify',
+								'redirect'                       => esc_url( admin_url( 'admin.php?page=w3tc_minify' ) ),
+							)
+						)
+					)
+				);
 			}
 
 			if ( count( $texts ) ) {

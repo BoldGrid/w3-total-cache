@@ -1,26 +1,19 @@
 <?php
 namespace W3TC;
 
-
-
 class BrowserCache_Page extends Base_Page_Settings {
 	protected $_page = 'w3tc_browsercache';
 
-
-	static public function w3tc_ajax() {
+	public static function w3tc_ajax() {
 		add_action( 'w3tc_ajax_browsercache_quick_reference', array(
 			'\W3TC\BrowserCache_Page',
 			'w3tc_ajax_browsercache_quick_reference' ) );
 	}
 
-
-
-	public function w3tc_ajax_browsercache_quick_reference() {
+	public static function w3tc_ajax_browsercache_quick_reference() {
 		include  W3TC_DIR . '/BrowserCache_Page_View_QuickReference.php';
 		exit();
 	}
-
-
 
 	function view() {
 		$browsercache_enabled = $this->_config->get_boolean( 'browsercache.enabled' );

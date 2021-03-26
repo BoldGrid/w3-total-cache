@@ -36,6 +36,7 @@ return array(
 	'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
 	'odt' => 'application/vnd.oasis.opendocument.text',
 	'ogg' => 'audio/ogg',
+	'ogv' => 'video/ogg',
 	'pdf' => 'application/pdf',
 	'png' => 'image/png',
 	'pot|pps|ppt|pptx' => 'application/vnd.ms-powerpoint',

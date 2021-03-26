@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 
 class Minify_HTMLTidy {
     public static function minify($content, $options = array()) {

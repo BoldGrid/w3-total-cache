@@ -145,7 +145,8 @@ input.w3tc-error, textarea.w3tc-error {
 	-moz-border-radius: 11px;
 }
 
-#w3tc fieldset .submit {
+#w3tc fieldset .submit,
+#cachegroups_form .submit {
 	margin: 1em 0 0 0;
 	padding: 0;
 }
@@ -202,7 +203,7 @@ input.w3tc-error, textarea.w3tc-error {
 #mobile_groups td,
 #referrer_groups td,
 .w3tc_cachegroups td,
- {
+#cachegroups_form .form-table th {
 	padding: 10px 10px 10px 15px;
 }
 
@@ -373,7 +374,7 @@ input.w3tc-error, textarea.w3tc-error {
 	display:none;
 }
 
-#cdn_netdna_authorization_key, #cdn_maxcdn_authorization_key, {
+#cdn_netdna_authorization_key, #cdn_maxcdn_authorization_key {
 	margin-bottom: 3px;
 }
 
@@ -439,6 +440,10 @@ td.w3tc_config_value_text {
 
 .w3tc_menu_item_pro:hover {
 	color: #ddd;
+}
+
+#toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"] {
+	color: red;
 }
 
 .w3tc_popup_form {
@@ -636,7 +641,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 
 #w3tc_dashboard_banner .inside > p:first-of-type {
 	margin-top: 0;
-    padding-top: 1em;
+	padding-top: 1em;
 }
 
 #w3tc_dashboard_banner .postbox .hndle {
@@ -687,4 +692,17 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 .w3tc-label-danger {
 	/* Same color as "update plugin count" in WP Dashboard left nav. */
 	background: #ca4a1f;;
+}
+
+/* Learn more links */
+a > span.dashicons-external {
+	text-decoration: none;
+}
+
+.w3tc-control-after {
+	vertical-align: middle;
+}
+
+td .w3tc-control-after span {
+	vertical-align: text-top;
 }

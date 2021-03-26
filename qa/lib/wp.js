@@ -165,24 +165,58 @@ async function postCreateWP4(pPage, data) {
 
 
 
+function postCreateWP5MoreButtonSelector() {
+	if (parseFloat(env.wpVersion) < 5.3) {
+		return 'button[aria-label="Show more tools & options"]';
+	} else if (parseFloat(env.wpVersion) < 5.6) {
+		return 'button[aria-label="More tools & options"]';
+	}
+
+	return 'button[aria-label="Options"]';
+}
+
+
+
 async function postCreateWP5(pPage, data) {
 	log.log('create page - wp5 (' + parseFloat(env.wpVersion) + ') - switch to code editor')
 
+	let moreButtonSelector = postCreateWP5MoreButtonSelector();
+
 	if (parseFloat(env.wpVersion) < 5.3) {
-		await pPage.click('button[aria-label="Show more tools & options"]');
+		await pPage.click(moreButtonSelector);
 	} else {
-		await pPage.click('button[aria-label="More tools & options"]');
+		try {
+			await pPage.waitForSelector(moreButtonSelector, {
+				timeout: 3000
+			});
+		} catch (e) {
+			log.log('close welcome guide shit');
+			if (await pPage.$('.edit-post-welcome-guide__heading') !== null) {
+				log.log('found modal');
+				await pPage.waitForSelector('button[aria-label="Close dialog"]', {
+					timeout: 3000
+				});
+				log.log('found modal close button');
+				await pPage.click('button[aria-label="Close dialog"]');
+			}
+
+			await pPage.waitForSelector(moreButtonSelector, {
+				timeout: 3000
+			});
+		}
+
+		await pPage.click(moreButtonSelector);
 
 		try {
-			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+			await pPage.waitForSelector(moreButtonSelector + '[aria-expanded="true"]', {
 				timeout: 3000
 			});
 		} catch (e) {
 			log.error('click failed, repeating');
 
-			await pPage.click('button[aria-label="More tools & options"]');
+			await pPage.click(moreButtonSelector);
 
-			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+			await pPage.waitForSelector(moreButtonSelector + '[aria-expanded="true"]', {
 				timeout: 5000
 			});
 		}
@@ -237,7 +271,17 @@ async function postCreateWP5(pPage, data) {
 					return element.getAttribute('for');
 				}
 			}
+
+			labels = document.querySelectorAll('label.components-input-control__label');
+			for (let element of labels) {
+				if (element.innerHTML == 'Template:') {
+					return element.getAttribute('for');
+				}
+			}
+
+			return x;
 		});
+		console.log(templateControlId);
 		expect(templateControlId).not.empty;
 
 		await pPage.select('#' + templateControlId, data.template);
@@ -297,16 +341,10 @@ async function postCreateWP5(pPage, data) {
 	await pPage.click('.editor-post-publish-button');
 	log.log('create page - waiting for published state');
 	try {
-		if (parseFloat(env.wpVersion) < 5.5) {
-			await pPage.waitForSelector('.editor-post-publish-panel__header-published', {
-				timeout: 5000
-			});
-		} else {
-			await pPage.waitForSelector('.post-publish-panel__postpublish-header', {
-				timeout: 5000
-			});
-		}
-
+		await pPage.waitFor(function() {
+			let v = document.querySelector('.editor-post-publish-button');
+			return v.innerHTML == 'Update' || v.innerHTML == 'Schedule';
+		}, {timeout: 5000});
 	} catch (e) {
 		log.error('failed');
 
@@ -314,15 +352,10 @@ async function postCreateWP5(pPage, data) {
 		await pPage.click('.editor-post-publish-button');
 		log.log('create page - waiting for published state2');
 
-		if (parseFloat(env.wpVersion) < 5.5) {
-			await pPage.waitForSelector('.editor-post-publish-panel__header-published', {
-				timeout: 5000
-			});
-		} else {
-			await pPage.waitForSelector('.post-publish-panel__postpublish-header', {
-				timeout: 5000
-			});
-		}
+		await pPage.waitFor(function() {
+			let v = document.querySelector('.editor-post-publish-button');
+			return v.innerHTML == 'Update' || v.innerHTML == 'Schedule';
+		}, {timeout: 5000});
 
 		log.log('now seems ok');
 	}
@@ -330,7 +363,11 @@ async function postCreateWP5(pPage, data) {
 	log.log('create page - get url')
 	let url = null;
 	if (!data.date_publish_offset_seconds) {
-		url = await pPage.$eval('.post-publish-panel__postpublish-buttons a', (e) => e.href);
+		if (await pPage.$('.post-publish-panel__postpublish-buttons a') !== null) {
+			url = await pPage.$eval('.post-publish-panel__postpublish-buttons a', (e) => e.href);
+		} else {
+			url = await postCreateWP5_getUrl(pPage);
+		}
 	}
 
 	let pageUrl = pPage.url();
@@ -355,6 +392,43 @@ async function postCreateWP5_setValue(pPage, selector, value) {
 	await pPage.keyboard.press('Delete');
 	await pPage.keyboard.press('Delete');
 	await pPage.keyboard.type('' + value);
+}
+
+
+
+// get url of the edited wordpress page
+async function postCreateWP5_getUrl(pPage) {
+	for (let n = 0; n < 3; n++) {
+		log.log('opening permalink tab');
+		let clicked = await pPage.evaluate(() => {
+			let elements = document.querySelectorAll('.components-panel__body button');
+			for (let element of elements) {
+				if (element.innerHTML.toLowerCase().indexOf('permalink') >= 0) {
+					element.click();
+					return 'clicked';
+				}
+			}
+
+			return 'permalink tab notfound';
+		});
+
+		expect(clicked).equals('clicked');
+
+		log.log('waiting permalink tab to open');
+		try {
+			await pPage.waitForSelector('a.edit-post-post-link__link', {
+				timeout: 5000
+			});
+		} catch (e) {
+			await pPage.screenshot({path: '/var/www/wp-sandbox/01-b.png'});
+			log.log('failed, retrying');
+			continue;
+		}
+
+		return await pPage.$eval('a.edit-post-post-link__link', (e) => e.href);
+	}
+
+	throw 'failed';
 }
 
 
@@ -398,21 +472,26 @@ async function postUpdateWP4(pPage, data) {
 async function postUpdateWP5(pPage, data) {
 	log.log('update page - switch to code editor')
 
+	let moreButtonSelector = postCreateWP5MoreButtonSelector();
+
 	if (parseFloat(env.wpVersion) < 5.3) {
-		await pPage.click('button[aria-label="Show more tools & options"]');
+		await pPage.click(moreButtonSelector);
 	} else {
-		await pPage.click('button[aria-label="More tools & options"]');
+		await pPage.waitForSelector(moreButtonSelector, {
+			timeout: 3000
+		});
+		await pPage.click(moreButtonSelector);
 
 		try {
-			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+			await pPage.waitForSelector(moreButtonSelector + '[aria-expanded="true"]', {
 				timeout: 3000
 			});
 		} catch (e) {
 			log.error('click failed, repeating');
 
-			await pPage.click('button[aria-label="More tools & options"]');
+			await pPage.click(moreButtonSelector);
 
-			await pPage.waitForSelector('button[aria-label="More tools & options"][aria-expanded="true"]', {
+			await pPage.waitForSelector(moreButtonSelector + '[aria-expanded="true"]', {
 				timeout: 5000
 			});
 		}

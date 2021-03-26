@@ -49,10 +49,12 @@ describe('', function() {
 
 
 	it('add referrer group', async() => {
-		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_referrer');
-		adminPage.on('dialog', async dialog => {
+		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups');
+		adminPage._overwriteSystemDialogPrompt = true;
+		adminPage.once('dialog', async dialog => {
   			log.log('fill prompt');
   			await dialog.accept('test_group');
+			adminPage._overwriteSystemDialogPrompt = false;
 		});
 
 		await adminPage.click('#referrer_add');

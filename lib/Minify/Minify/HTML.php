@@ -1,4 +1,6 @@
 <?php
+namespace W3TCL\Minify;
+
 /**
  * Class Minify_HTML
  * @package Minify

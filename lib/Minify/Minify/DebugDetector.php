@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 
 /**
  * Detect whether request should be debugged
