@@ -935,10 +935,7 @@ class SetupGuide_Plugin_Admin {
 							'disk_enhanced'     => __( 'Disk: Enhanced', 'w3-total-cache' ),
 							'enabled'           => __( 'Enabled', 'w3-total-cache' ),
 							'notEnabled'        => __( 'Not Enabled', 'w3-total-cache' ),
-							'dashboardUrl'      => esc_url(
-								is_network_admin() ?
-								network_admin_url( 'admin.php?page=w3tc_dashboard' ) : admin_url( 'admin.php?page=w3tc_dashboard' )
-							),
+							'dashboardUrl'      => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard' ) ),
 						),
 					),
 				),
