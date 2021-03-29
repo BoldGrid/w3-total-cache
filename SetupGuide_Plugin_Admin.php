@@ -934,7 +934,7 @@ class SetupGuide_Plugin_Admin {
 							'disk_enhanced'     => __( 'Disk: Enhanced', 'w3-total-cache' ),
 							'enabled'           => __( 'Enabled', 'w3-total-cache' ),
 							'notEnabled'        => __( 'Not Enabled', 'w3-total-cache' ),
-							'dashboardUrl'      => esc_url( admin_url( 'admin.php?page=w3tc_dashboard' ) ),
+							'dashboardUrl'      => esc_url( network_admin_url( 'admin.php?page=w3tc_dashboard' ) ),
 						),
 					),
 				),
@@ -1386,7 +1386,7 @@ class SetupGuide_Plugin_Admin {
 								'Please visit %1$sGeneral Settings%2$s to learn more about these features.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
+							'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
 							'</a>'
 						) . '</p>
 						<h3>' . esc_html__( 'Need help?', 'w3-total-cache' ) . '</h3>
