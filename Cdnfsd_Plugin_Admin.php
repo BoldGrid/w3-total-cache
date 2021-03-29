@@ -84,10 +84,6 @@ class Cdnfsd_Plugin_Admin {
 		$cdnfsd_engine_values[''] = array(
 			'label' => 'Select a provider',
 		);
-		$cdnfsd_engine_values['transparentcdn'] = array(
-			'label' => __( 'TransparentCDN', 'w3-total-cache' ),
-		);
-
 		$cdnfsd_engine_values['cloudfront'] = array(
 			'label' => __( 'Amazon CloudFront', 'w3-total-cache' ),
 		);
