@@ -275,6 +275,17 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.1.2 =
+* Fix: Skip removing spaces around "<li>" tags in HTML Minify
+* Fix: Updated admin URL logic for multisite installations
+* Fix: TransparentCDN purge URL validation
+* Fix: Added an option to use ABSPATH as the document root for Minify
+* Fix: Database cache debug message
+* Update: Added regions for AWS S3
+* Update: Added MIME types AVIF and AVIFS for Browser Cache rules
+* Update: Enhanced "get_pagenum_link" filter
+* Update: Removed "comment" from the non-persistent object cache group
+
 = 2.1.1 =
 * Fix: Move Minify library to a namespace to avoid conflicts with other plugins
 * Fix: Check for AWS before loading functions
