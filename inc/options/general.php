@@ -508,6 +508,22 @@ Util_Ui::config_item( array(
 				</th>
 			</tr>
 			<?php
+
+				Util_Ui::config_item(
+					array(
+						'key'            => 'docroot_fix.enable',
+						'control'        => 'checkbox',
+						'checkbox_label' => __( 'Fix document root path', 'w3-total-cache' ),
+						'label_class'    => 'w3tc_single_column',
+						'description'    => sprintf(
+							// translators: 1: WordPress ABSPATH value, 2: Server document root value.
+							__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
+							esc_html( untrailingslashit( ABSPATH ) ),
+							esc_html( $_SERVER['DOCUMENT_ROOT'] )
+						),
+					)
+				);
+
 Util_Ui::config_item( array(
 		'key' => 'common.track_usage',
 		'control' => 'checkbox',

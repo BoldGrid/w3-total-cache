@@ -1,4 +1,9 @@
 <?php
+/**
+ * File: Version1.php
+ *
+ * NOTE: Fixes have been included in this file; look for "W3TC FIX".
+ */
 namespace W3TCL\Minify;
 /**
  * Class Minify_Controller_Version1
@@ -61,10 +66,13 @@ class Minify_Controller_Version1 extends Minify_Controller_Base {
             return $options;
         }
 
+        // W3TC FIX: Override $_SERVER['DOCUMENT_ROOT'] if enabled in settings.
+        $docroot = \W3TC\Util_Environment::document_root();
+
         // strings for prepending to relative/absolute paths
         $prependRelPaths = dirname($_SERVER['SCRIPT_FILENAME'])
             . DIRECTORY_SEPARATOR;
-        $prependAbsPaths = $_SERVER['DOCUMENT_ROOT'];
+        $prependAbsPaths = $docroot;
 
         $goodFiles = array();
         $hasBadSource = false;
@@ -103,8 +111,11 @@ class Minify_Controller_Version1 extends Minify_Controller_Base {
 
     private static function _setupDefines()
     {
+        // W3TC FIX: Override $_SERVER['DOCUMENT_ROOT'] if enabled in settings.
+        $docroot = \W3TC\Util_Environment::document_root();
+
         $defaults = array(
-            'MINIFY_BASE_DIR' => realpath($_SERVER['DOCUMENT_ROOT'])
+            'MINIFY_BASE_DIR' => realpath($docroot)
             ,'MINIFY_ENCODING' => 'utf-8'
             ,'MINIFY_MAX_FILES' => 16
             ,'MINIFY_REWRITE_CSS_URLS' => true
