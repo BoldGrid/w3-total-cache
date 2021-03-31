@@ -81,10 +81,12 @@ class Cdn_TransparentCDN_Api {
 		$this->_get_token();
 
 		$invalidation_urls = array();
-
+		//Included a regex filter because some of our clients reported receiving urls as "True" or "False"
 		foreach ( $urls as $url ) {
 			//Oh array_map+lambdas, how I miss u...
-			$invalidation_urls[] = $url;
+			if ( filter_var( $url, FILTER_VALIDATE_URL ) ) {
+				$invalidation_urls[] = $url;
+			}
 		}
 
 		if ( count( $invalidation_urls ) === 0 ) {
