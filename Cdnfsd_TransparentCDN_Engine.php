@@ -84,7 +84,7 @@ class Cdn_TransparentCDN_Api {
 		//Included a regex filter because some of our clients reported receiving urls as "True" or "False"
 		foreach ( $urls as $url ) {
 			//Oh array_map+lambdas, how I miss u...
-			if ( filter_var( $url, FILTER_VALIDATE_URL ) ){
+			if ( filter_var( $url, FILTER_VALIDATE_URL ) ) {
 				$invalidation_urls[] = $url;
 			}
 		}
