@@ -281,7 +281,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: TransparentCDN purge URL validation
 * Fix: Added an option to use ABSPATH as the document root for Minify
 * Fix: Database cache debug message
-* Update: Added regions for AWS S3
+* Update: Added regions for AWS S3 (af-south-1, cn-north-1, cn-northwest-1, eu-south-1)
 * Update: Added MIME types AVIF and AVIFS for Browser Cache rules
 * Update: Enhanced "get_pagenum_link" filter
 * Update: Removed "comment" from the non-persistent object cache group
