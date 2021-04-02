@@ -1203,7 +1203,7 @@ final class S3Request
 			elseif ($header == 'content-type')
 				$this->response->headers['type'] = $value;
 			elseif ($header == 'etag')
-				$this->response->headers['hash'] = $value{0} == '"' ? substr($value, 1, -1) : $value;
+				$this->response->headers['hash'] = $value[0] == '"' ? substr($value, 1, -1) : $value;
 			elseif (preg_match('/^x-amz-meta-.*$/', $header))
 				$this->response->headers[$header] = $value;
 		}
