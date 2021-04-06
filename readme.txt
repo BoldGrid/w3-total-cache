@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.8
-Tested up to: 5.6
-Stable tag: 2.1.1
+Tested up to: 5.7
+Stable tag: 2.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -274,6 +274,17 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.1.2 =
+* Fix: Skip removing spaces around "<li>" tags in HTML Minify
+* Fix: Updated admin URL logic for multisite installations
+* Fix: TransparentCDN purge URL validation
+* Fix: Added an option to use ABSPATH as the document root for Minify
+* Fix: Database cache debug message
+* Update: Added regions for AWS S3 (af-south-1, cn-north-1, cn-northwest-1, eu-south-1)
+* Update: Added MIME types AVIF and AVIFS for Browser Cache rules
+* Update: Enhanced "get_pagenum_link" filter
+* Update: Removed "comment" from the non-persistent object cache group
 
 = 2.1.1 =
 * Fix: Move Minify library to a namespace to avoid conflicts with other plugins
