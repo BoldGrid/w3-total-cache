@@ -109,7 +109,7 @@ class Util_Theme {
 			'(image|video|text|audio|application).*',
 			'attachment',
 			'single(-.*)?',
-			'page(-.*)?',
+			'page((-|_).*)?',
 			'category(-.*)?',
 			'tag(-.*)?',
 			'author(-.*)?',
