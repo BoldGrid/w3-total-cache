@@ -23,11 +23,7 @@ class Generic_Page_General extends Base_Page_Settings {
 	 * @return void
 	 */
 	function view() {
-		if ( isset( $_REQUEST['view'] ) && $_REQUEST['view'] == 'purge_log' ) {
-			$p = new Generic_Page_PurgeLog();
-			$p->render_content();
-			exit;
-		}
+		do_action( 'w3tc_generic_page_view' );
 
 		$current_user = wp_get_current_user();
 		$config_master = $this->_config_master;

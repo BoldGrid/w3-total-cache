@@ -12,30 +12,23 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	private $queued_groups = array();
 	private $queued_post_ids = array();
 	private $flush_all_operation_requested = false;
-	private $debug_purge = false;
 
 	public function __construct() {
 		parent::__construct();
-		$this->debug_purge = $this->_config->get_boolean( 'pgcache.debug_purge' );
 	}
 
 	/**
 	 * Flushes all caches
 	 */
 	public function flush() {
-		if ( $this->debug_purge ) {
-			Util_Debug::log_purge( 'pagecache', 'flush_all' );
-		}
+		do_action( 'w3tc_pgcache_purge', 'flush_all' );
 
 		$this->flush_all_operation_requested = true;
 		return true;
 	}
 
 	public function flush_group( $group ) {
-		if ( $this->debug_purge ) {
-			Util_Debug::log_purge( 'pagecache', 'flush_group', $group );
-		}
-
+		do_action( 'w3tc_pgcache_purge', 'flush_group', $group );
 		$this->queued_groups[$group] = '*';
 	}
 
@@ -55,12 +48,10 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 		global $wp_rewrite;   // required by many Util_PageUrls methods
 		if ( empty( $wp_rewrite ) ) {
-			if ( $this->debug_purge ) {
-				Util_Debug::log_purge( 'pagecache', 'flush_post', array(
-					'post_id' => $post_id,
-					'error' => 'Post flush attempt before wp_rewrite initialization. Cant flush cache.'
+			do_action( 'w3tc_pgcache_purge', 'flush_post', array(
+					$post_id,
+					'Post flush attempt before wp_rewrite initialization. Cant flush cache.'
 				) );
-			}
 
 			error_log('Post flush attempt before wp_rewrite initialization. Cant flush cache.');
 			return false;
@@ -186,10 +177,9 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		$full_urls = apply_filters( 'pgcache_flush_post_queued_urls',
 			$full_urls );
 
-		if ( $this->debug_purge ) {
-			Util_Debug::log_purge( 'pagecache', 'flush_post', $post_id,
-				$full_urls );
-		}
+		do_action( 'w3tc_pgcache_purge', 'flush_post', array(
+				$post_id, '', $full_urls
+			) );
 
 		// Queue flush
 		if ( count( $full_urls ) ) {
@@ -209,10 +199,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 			( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
 		$group = $this->get_cache_group_by_uri( $uri );
 
-		if ( $this->debug_purge ) {
-			Util_Debug::log_purge( 'pagecache', 'flush_url', array(
-				$url, $group ) );
-		}
+		do_action( 'w3tc_pgcache_purge', 'flush_url', array( $url, $group ) );
 
 		$this->queued_urls[$url] = ( empty( $group ) ? '*' : $group );
 	}
