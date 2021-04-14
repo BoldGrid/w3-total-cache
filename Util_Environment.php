@@ -549,6 +549,14 @@ class Util_Environment {
 		if ( !is_null( $document_root ) )
 			return $document_root;
 
+		$c = Dispatcher::config();
+		$docroot_fix = $c->get_boolean( 'docroot_fix.enable' );
+
+		if ( $docroot_fix ) {
+			$document_root = untrailingslashit( ABSPATH );
+			return $document_root;
+		}
+
 		if ( !empty( $_SERVER['SCRIPT_FILENAME'] ) &&
 			!empty( $_SERVER['PHP_SELF'] ) ) {
 			$script_filename = Util_Environment::normalize_path(

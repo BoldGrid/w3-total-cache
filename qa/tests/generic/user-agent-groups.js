@@ -52,9 +52,11 @@ describe('', function() {
 
 	it('add user agent group', async() => {
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cachegroups');
-		adminPage.on('dialog', async dialog => {
+		adminPage._overwriteSystemDialogPrompt = true;
+		adminPage.once('dialog', async dialog => {
   			log.log('fill prompt');
   			await dialog.accept('test1');
+			adminPage._overwriteSystemDialogPrompt = false;
 		});
 
 		await adminPage.click('#mobile_add');

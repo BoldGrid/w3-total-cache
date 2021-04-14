@@ -78,13 +78,13 @@ def generate_image_descriptors
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis'
 		},
-		'php70' => {
-			'PHP_VERSION' => '7.0',
-			'OS' => 'xenial',
-			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
-			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
-		},
+		#'php70' => {
+		#	'PHP_VERSION' => '7.0',
+		#	'OS' => 'xenial',
+		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+		#	'MEMCACHE' => 'memcached',
+		#	'REDIS' => 'redis'
+		#},
 		# php 5.6 is not available in trusty anymore - use xenial if required
 		#
 		#'php56' => {
@@ -174,14 +174,14 @@ def generate_box_descriptors(image_name)
 		#		'https'
 		#	]
 		#},
-		'wp49' => {
-			'WP_VERSION' => '4.9.4',
-			'_except_name_contains' => [
-				'varnish',
-				'php53', 'php55',
-				'php73', 'php80'  # cause a lot of PHP warnings
-			]
-		},
+		#'wp49' => {
+		#	'WP_VERSION' => '4.9.4',
+		#	'_except_name_contains' => [
+		#		'varnish',
+		#		'php53', 'php55',
+		#		'php73', 'php80'  # cause a lot of PHP warnings
+		#	]
+		#},
 		'wp51' => {   # dont comment out - last env using PHP55
 			'WP_VERSION' => '5.1',
 			'_except_name_contains' => [
@@ -211,6 +211,12 @@ def generate_box_descriptors(image_name)
 			'WP_VERSION' => '5.6',
 			'_except_name_contains' => [
 				'php55'   # wp5.6 requires php>=5.6
+			]
+		},
+		'wp57' => {
+			'WP_VERSION' => '5.7',
+			'_except_name_contains' => [
+				'php55'   # wp5.7 requires php>=5.6
 			]
 		}
 	}, image_name)

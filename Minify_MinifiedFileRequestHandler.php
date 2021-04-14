@@ -532,7 +532,7 @@ class Minify_MinifiedFileRequestHandler {
 				} else {
 					$path = Util_Environment::docroot_to_full_filename( $docroot_filename );
 
-					if ( file_exists( $path ) ) {
+					if ( @file_exists( $path ) ) {
 						$result[] = $file;
 					} else {
 						Minify_Core::debug_error( sprintf( 'File "%s" doesn\'t exist', $file ) );

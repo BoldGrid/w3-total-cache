@@ -40,7 +40,7 @@ class SetupGuide_Plugin_Admin {
 	public function __construct() {
 		$page         = Util_Request::get_string( 'page' );
 		$is_w3tc_ajax = defined( 'DOING_AJAX' ) && DOING_AJAX &&
-			isset( $_POST['action'] ) && 0 === strpos( $_POST['action'], 'w3tc_' );
+			isset( $_POST['action'] ) && 0 === strpos( $_POST['action'], 'w3tc_' ); // phpcs:ignore
 
 		if ( 'w3tc_setup_guide' === $page || $is_w3tc_ajax ) {
 			require_once W3TC_INC_DIR . '/wizard/template.php';
@@ -884,6 +884,7 @@ class SetupGuide_Plugin_Admin {
 		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
 		$page                 = Util_Request::get_string( 'page' );
 		$state                = Dispatcher::config_state();
+		$force_master_config  = $config->get_boolean( 'common.force_master' );
 
 		if ( 'w3tc_extensions' === $page ) {
 			$page = 'extensions/' . Util_Request::get_string( 'extension' );
@@ -934,7 +935,7 @@ class SetupGuide_Plugin_Admin {
 							'disk_enhanced'     => __( 'Disk: Enhanced', 'w3-total-cache' ),
 							'enabled'           => __( 'Enabled', 'w3-total-cache' ),
 							'notEnabled'        => __( 'Not Enabled', 'w3-total-cache' ),
-							'dashboardUrl'      => esc_url( admin_url( 'admin.php?page=w3tc_dashboard' ) ),
+							'dashboardUrl'      => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard' ) ),
 						),
 					),
 				),
@@ -1386,7 +1387,10 @@ class SetupGuide_Plugin_Admin {
 								'Please visit %1$sGeneral Settings%2$s to learn more about these features.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
+							'<a href="' . esc_url(
+								$force_master_config || is_network_admin() ?
+								network_admin_url( 'admin.php?page=w3tc_general' ) : admin_url( 'admin.php?page=w3tc_general' )
+							) . '">',
 							'</a>'
 						) . '</p>
 						<h3>' . esc_html__( 'Need help?', 'w3-total-cache' ) . '</h3>

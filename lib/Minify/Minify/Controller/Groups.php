@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Groups.php
+ *
+ * NOTE: Fixes have been included in this file; look for "W3TC FIX".
+ */
+
 namespace W3TCL\Minify;
 /**
  * Class Minify_Controller_Groups
@@ -65,13 +71,17 @@ class Minify_Controller_Groups extends Minify_Controller_Base {
         } elseif (! is_array($files)) {
             $files = (array)$files;
         }
+
+        // W3TC FIX: Override $_SERVER['DOCUMENT_ROOT'] if enabled in settings.
+        $docroot = \W3TC\Util_Environment::document_root();
+
         foreach ($files as $file) {
             if ($file instanceof Minify_Source) {
                 $sources[] = $file;
                 continue;
             }
             if (0 === strpos($file, '//')) {
-                $file = $_SERVER['DOCUMENT_ROOT'] . substr($file, 1);
+                $file = $docroot . substr($file, 1);
             }
             $realPath = realpath($file);
             if (is_file($realPath)) {

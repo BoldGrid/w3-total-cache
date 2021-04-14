@@ -511,7 +511,7 @@ class Util_PageUrls {
 		}
 
 		$result = $base . $request . $query_string;
-		$result = apply_filters( 'get_pagenum_link', $result );
+		$result = apply_filters( 'get_pagenum_link', $result, $pagenum );
 		return $result;
 	}
 

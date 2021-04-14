@@ -159,7 +159,7 @@ if ( file_exists( $html_engine_file2 ) ) {
 						)
 					)
 				) );
-			endif; 
+			endif;
 			?>
 			<tr>
 				<th><?php _e( 'Minify engine settings:', 'w3-total-cache' ); ?></th>

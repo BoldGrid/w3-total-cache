@@ -38,6 +38,9 @@ class Minify_Controller_Files extends Minify_Controller_Base {
      * 'files': (required) array of complete file paths, or a single path
      */
     public function setupSources($options) {
+        // W3TC FIX: Override $_SERVER['DOCUMENT_ROOT'] if enabled in settings.
+        $docroot = \W3TC\Util_Environment::document_root();
+
         // strip controller options
 
         $files = $options['files'];
@@ -59,7 +62,7 @@ class Minify_Controller_Files extends Minify_Controller_Base {
             	if ( is_file( ABSPATH . substr($file, 1) ) ) {
 		            $file = ABSPATH . substr( $file, 1 );
 	            } else {
-		            $file = $_SERVER['DOCUMENT_ROOT'] . substr( $file, 1 );
+		            $file = $docroot . substr( $file, 1 );
 	            }
             }
             $realPath = realpath($file);
