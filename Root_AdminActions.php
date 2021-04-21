@@ -7,7 +7,9 @@ class Root_AdminActions {
 
 	public function execute( $action ) {
 		$handler_class = $this->_get_handler( $action );
-		$handler_class_fullname = '\\W3TC\\' . $handler_class;
+		$handler_class_fullname =
+			( substr( $handler_class, 0, 1 ) != '\\' ? '\\W3TC\\' : '' ) .
+			$handler_class;
 		$handler_object = new $handler_class_fullname;
 
 		$action_details = explode( '~', $action );
@@ -48,8 +50,7 @@ class Root_AdminActions {
 				'flush' => 'Generic_AdminActions_Flush',
 				'licensing' => 'Licensing_AdminActions',
 				'support' => 'Support_AdminActions',
-				'test' => 'Generic_AdminActions_Test',
-				'ustats' => 'UsageStatistics_AdminActions'
+				'test' => 'Generic_AdminActions_Test'
 			);
 			$handlers = apply_filters( 'w3tc_admin_actions', $handlers );
 		}

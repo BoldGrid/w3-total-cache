@@ -21,7 +21,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	 * Flushes all caches
 	 */
 	public function flush() {
-		do_action( 'w3tc_pgcache_purge', 'flush_all' );
+		do_action( 'w3tc_pgcache_purge', 'flush_all', '' );
 
 		$this->flush_all_operation_requested = true;
 		return true;

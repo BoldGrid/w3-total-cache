@@ -13,6 +13,18 @@ class ProAd_Plugin_Admin {
 
 		add_action( 'w3tc_settings_general_boxarea_debug',
 			array( $this, 'w3tc_settings_general_boxarea_debug' ) );
+
+		$widget = new ProAd_UsageStatistics_Widget();
+		$widget->init();
+
+		add_action( 'w3tc_settings_general_boxarea_stats',
+			array( $this, 'w3tc_settings_general_boxarea_stats' ) );
+	}
+
+
+
+	public function w3tc_settings_general_boxarea_stats() {
+		include  __DIR__ . '/ProAd_UsageStatistics_GeneralPage_View.php';
 	}
 
 

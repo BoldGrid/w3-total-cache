@@ -243,23 +243,4 @@ class Dispatcher {
 
 		return $cache;
 	}
-
-
-
-	/**
-	 * In a case request processing has been finished before WP initialized,
-	 * but usage statistics metrics should be counted.
-	 * To work properly $metrics_function has to be added also by plugin
-	 * when add_action is available.
-	 */
-	static public function usage_statistics_apply_before_init_and_exit(
-		$metrics_function ) {
-		$c = Dispatcher::config();
-		if ( !$c->get_boolean( 'stats.enabled' ) ) {
-			exit();
-		}
-
-		$core = Dispatcher::component( 'UsageStatistics_Core' );
-		$core->apply_metrics_before_init_and_exit( $metrics_function );
-	}
 }

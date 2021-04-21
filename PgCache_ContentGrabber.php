@@ -396,8 +396,10 @@ class PgCache_ContentGrabber {
 
 		echo $content;
 
-		Dispatcher::usage_statistics_apply_before_init_and_exit( array( $this,
-				'w3tc_usage_statistics_of_request' ) );
+		if ( class_exists( '\W3TCP\UsageStatistics_Core' ) ) {
+			\W3TCP\UsageStatistics_Core::usage_statistics_apply_before_init_and_exit(
+				array( $this, 'w3tc_usage_statistics_of_request' ) );
+		}
 	}
 
 	/**

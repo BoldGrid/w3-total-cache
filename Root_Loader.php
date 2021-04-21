@@ -37,8 +37,6 @@ class Root_Loader {
 			$plugins[] = new Minify_Plugin();
 		if ( $c->get_boolean( 'varnish.enabled' ) )
 			$plugins[] = new Varnish_Plugin();
-		if ( $c->get_boolean( 'stats.enabled' ) )
-			$plugins[] = new UsageStatistics_Plugin();
 
 		if ( is_admin() ) {
 			$plugins[] = new Generic_Plugin_Admin();
@@ -71,7 +69,6 @@ class Root_Loader {
 
 			$plugins[] = new Extensions_Plugin_Admin();
 			$plugins[] = new Generic_Plugin_AdminNotifications();
-			$plugins[] = new UsageStatistics_Plugin_Admin();
 			$plugins[] = new SetupGuide_Plugin_Admin();
 			$plugins[] = new FeatureShowcase_Plugin_Admin();
 			$plugins[] = new ProAd_Plugin_Admin();
