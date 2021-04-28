@@ -1059,31 +1059,6 @@ class _W3_MinifyHelpers {
 	}
 
 	/**
-	 * Returns minified content
-	 *
-	 * @param array   $files
-	 * @param string  $type
-	 * @return array
-	 */
-	function get_minified_content_for_files( $files, $type ) {
-		$minify_filename =
-			Minify_Core::urls_for_minification_to_minify_filename(
-			$files, $type );
-		if ( is_null( $minify_filename ) )
-			return null;
-		$minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
-
-		$m = $minify->process( $minify_filename, true );
-		if ( !isset( $m['content'] ) )
-			return null;
-		if ( empty( $m['content'] ) )
-			return null;
-
-		$style = $m['content'];
-		return "<style media=\"all\">$style</style>\r\n";
-	}
-
-	/**
 	 * Prints script tag
 	 *
 	 * @param string  $url
@@ -1237,13 +1212,8 @@ class _W3_MinifyHelpers {
 		);
 
 		if ( count( $files ) ) {
-			if ( $embed_to_html ) {
-				$body = $this->get_minified_content_for_files(
-					$files, 'css' );
-				if ( !is_null( $body ) ) {
-					$return['body'] = $body;
-				}
-			}
+			$return = apply_filters( 'w3tc_minify_generate_css_style_tag',
+				$return, $files, $embed_to_html );
 
 			if ( empty( $return['body'] ) ) {
 				$return['url'] = $this->get_minify_url_for_files(
