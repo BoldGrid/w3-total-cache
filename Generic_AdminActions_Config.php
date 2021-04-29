@@ -129,29 +129,6 @@ class Generic_AdminActions_Config {
 
 
 	/**
-	 * Save dbcluster config action
-	 *
-	 * @return void
-	 */
-	function w3tc_config_dbcluster_config_save() {
-		$params = array( 'page' => 'w3tc_general' );
-
-		if ( !file_put_contents( W3TC_FILE_DB_CLUSTER_CONFIG,
-				stripslashes( $_REQUEST['newcontent'] ) ) ) {
-			try {
-				Util_Activation::throw_on_write_error( W3TC_FILE_DB_CLUSTER_CONFIG );
-			} catch ( \Exception $e ) {
-				$error = $e->getMessage();
-				Util_Admin::redirect_with_custom_messages( $params, array(
-						'dbcluster_save_failed' => $error ) );
-			}
-		}
-
-		Util_Admin::redirect_with_custom_messages( $params, null,
-			array( 'dbcluster_save' => __( 'Database Cluster configuration file has been successfully saved', 'w3-total-cache' ) ) );
-	}
-
-	/**
 	 * Save support us action
 	 *
 	 * @return void

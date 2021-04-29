@@ -245,9 +245,7 @@ Util_Ui::config_item_engine( array(
 	) );
 ?>
 
-			<?php if ( Util_Environment::is_w3tc_pro() && is_network_admin() ): ?>
-			<?php include W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster_general_section.php' ?>
-			<?php endif; ?>
+<?php do_action( 'w3tc_settings_general_boxarea_dbcache' ) ?>
 		</table>
 
 		<?php

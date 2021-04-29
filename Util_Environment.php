@@ -135,9 +135,6 @@ class Util_Environment {
 	 * @return boolean
 	 */
 	static public function is_dbcluster() {
-		if ( !defined( 'W3TC_PRO' ) || !W3TC_PRO )
-			return false;
-
 		if ( isset( $GLOBALS['w3tc_dbcluster_config'] ) )
 			return true;
 

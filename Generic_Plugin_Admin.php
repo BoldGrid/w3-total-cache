@@ -143,10 +143,20 @@ class Generic_Plugin_Admin {
 	 * @return void
 	 */
 	function load() {
+		// v2 actions
+		if ( !empty( $_REQUEST['w3tc_ui_action'] ) ) {
+			if ( !wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+				wp_nonce_ays( 'w3tc' );
+			}
+
+			do_action( 'w3tc_ui_action_' . $_REQUEST['w3tc_ui_action'] );
+			exit();
+		}
+
 		$this->add_help_tabs();
 		$this->_page = Util_Admin::get_current_page();
 
-		// run plugin action
+		// run plugin v1 action
 		$action = false;
 		foreach ( $_REQUEST as $key => $value ) {
 			if ( substr( $key, 0, 5 ) == 'w3tc_' ) {

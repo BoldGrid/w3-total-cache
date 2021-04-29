@@ -25,13 +25,14 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 			if ( !$is_installing && $config->get_boolean( 'dbcache.enabled' ) ) {
 				$processors[] = new DbCache_WpdbInjection_QueryCaching();
 			}
+
 			if ( Util_Environment::is_dbcluster() ) {
 				// dbcluster use mysqli only since other is obsolete now
 				if ( !defined( 'WP_USE_EXT_MYSQL' ) ) {
 					define( 'WP_USE_EXT_MYSQL', false );
 				}
 
-				$processors[] = new Enterprise_Dbcache_WpdbInjection_Cluster();
+				$processors[] = new Dbcache_WpdbInjection_Cluster();
 			}
 
 			$processors[] = new DbCache_WpdbInjection();

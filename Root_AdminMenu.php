@@ -206,14 +206,6 @@ class Root_AdminMenu {
 			$this->_page = 'w3tc_dashboard';
 		}
 
-		/*
-		 * Hidden pages.
-		 */
-		if ( isset( $_REQUEST['w3tc_dbcluster_config'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$options_dbcache = new DbCache_Page();
-			$options_dbcache->dbcluster_config();
-		}
-
 		/**
 		 * Show tab.
 		 */

@@ -5,7 +5,7 @@ namespace W3TC;
  * class Enterprise_Dbcache_WpdbInjection_Cluster
  * Support of database cluster
  */
-class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
+class Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	/**
 	 * Whether to check with fsockopen prior to mysqli_connect.
 	 *
@@ -870,9 +870,12 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		if ( !mysqli_select_db( $this->wpdb_mixin->dbh, DB_NAME ) )
 			return $this->wpdb_mixin->bail( "We were unable to select the database." );
 		if ( !empty( $this->wpdb_mixin->charset ) ) {
-			$collation_query = "SET NAMES '$this->wpdb_mixin->charset'";
-			if ( !empty( $this->wpdb_mixin->collate ) )
-				$collation_query .= " COLLATE '$this->wpdb_mixin->collate'";
+			$charset = $this->wpdb_mixin->charset;
+			$collation_query = "SET NAMES '$charset'";
+			if ( !empty( $this->wpdb_mixin->collate ) ) {
+				$collate = $this->wpdb_mixin->collate;
+				$collation_query .= " COLLATE '$collate'";
+			}
 			mysqli_query( $this->wpdb_mixin->dbh, $collation_query );
 		}
 
