@@ -2,7 +2,7 @@
 namespace W3TC;
 
 if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
-	require_once W3TC_LIB_DIR . '/Aws/aws-autoloader.php';
+	require_once W3TC_DIR . '/vendor/autoload.php';
 }
 
 /**
@@ -107,7 +107,8 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		$this->api = new \Aws\S3\S3Client( array(
 				'credentials' => $credentials,
 				'region' => $this->_config['bucket_location'],
-				'version' => '2006-03-01'
+				'version' => '2006-03-01',
+				'use_arn_region' => true,
 			)
 		);
 	}
