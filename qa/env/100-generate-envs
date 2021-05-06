@@ -87,20 +87,21 @@ def generate_image_descriptors
 		#},
 		# php 5.6 is not available in trusty anymore - use xenial if required
 		#
-		#'php56' => {
-		#	'PHP_VERSION' => '5.6',
-		#	'OS' => 'trusty',
-		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
-		#	'MEMCACHE' => 'memcached',
-		#	'REDIS' => 'redis'
-		#},
-		'php55' => {
-			'PHP_VERSION' => '5.5',
+		'php56' => {
+			'PHP_VERSION' => '5.6',
 			'OS' => 'trusty',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis'
 		}
+		# The updated AWS library has a dependency that requires PHP 5.6 or higher.
+		#'php55' => {
+		#	'PHP_VERSION' => '5.5',
+		#	'OS' => 'trusty',
+		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+		#	'MEMCACHE' => 'memcached',
+		#	'REDIS' => 'redis'
+		#}
 		# puppeteer not available for this version
 		#,
 		#'php53' => {
