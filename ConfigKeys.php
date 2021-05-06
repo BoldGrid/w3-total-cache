@@ -8,31 +8,6 @@
  */
 
 $keys = array(
-	'cluster.messagebus.debug' => array(
-		'type' => 'boolean',
-		'default' => false
-	),
-	'cluster.messagebus.enabled' => array(
-		'type' => 'boolean',
-		'default' => false
-	),
-	'cluster.messagebus.sns.region' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-	'cluster.messagebus.sns.api_key' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-	'cluster.messagebus.sns.api_secret' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-	'cluster.messagebus.sns.topic_arn' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-
 	'dbcache.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false

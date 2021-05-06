@@ -14,7 +14,7 @@ class CacheFlush {
 		$sns = $this->_config->get_boolean( 'cluster.messagebus.enabled' );
 
 		if ( $sns )
-			$this->_executor = new Enterprise_CacheFlush_MakeSnsEvent();
+			$this->_executor = \W3TCP\Sns_CacheFlush_MakeSnsEvent::instance();
 		else
 			$this->_executor = new CacheFlush_Locally();
 

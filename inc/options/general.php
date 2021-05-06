@@ -343,72 +343,15 @@ echo sprintf(
 		</table>
 
 		<?php
-Util_Ui::button_config_save( 'general_varnish',
-	'<input type="submit" name="w3tc_flush_varnish" value="' .
-	__( 'Purge cache', 'w3-total-cache' ) . '"' .
-	( $varnish_enabled ? '' : ' disabled="disabled" ' ) .
-	' class="button" />' );
-?>
+		Util_Ui::button_config_save( 'general_varnish',
+			'<input type="submit" name="w3tc_flush_varnish" value="' .
+			__( 'Purge cache', 'w3-total-cache' ) . '"' .
+			( $varnish_enabled ? '' : ' disabled="disabled" ' ) .
+			' class="button" />' );
+		?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php if ( $is_pro ): ?>
-		<?php Util_Ui::postbox_header( 'Message Bus', '', 'amazon_sns' ); ?>
-		<p>
-			Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then syncronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared.
-		</p>
-		<table class="form-table">
-			<tr>
-				<th colspan="2">
-					<input type="hidden" name="cluster__messagebus__enabled" value="0" />
-					<label><input class="enabled" type="checkbox" name="cluster__messagebus__enabled" value="1"<?php checked( $this->_config->get_boolean( 'cluster.messagebus.enabled' ), true ); ?> /> <?php Util_Ui::e_config_label( 'cluster.messagebus.enabled' ) ?></label><br />
-				</th>
-			</tr>
-			<tr>
-				<th><label for="cluster_messagebus_sns_region"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.region' ) ?></label></th>
-				<td>
-					<input id="cluster_messagebus_sns_region"
-						class="w3tc-ignore-change" type="text"
-						name="cluster__messagebus__sns__region"
-						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.region' ) ); ?>" size="60" />
-					<p class="description"><?php _e( 'Specify the Amazon <acronym title="Simple Notification Service">SNS</acronym> service endpoint hostname. If empty, then default "sns.us-east-1.amazonaws.com" will be used.', 'w3-total-cache' ); ?></p>
-				</td>
-			</tr>
-			<tr>
-				<th><label for="cluster_messagebus_sns_api_key"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.api_key' ) ?></label></th>
-				<td>
-					<input id="cluster_messagebus_sns_api_key"
-						class="w3tc-ignore-change" type="text"
-						name="cluster__messagebus__sns__api_key"
-						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.api_key' ) ); ?>" size="60" />
-					<p class="description"><?php _e( 'Specify the <acronym title="Application Programming Interface">API</acronym> Key.', 'w3-total-cache' ); ?></p>
-				</td>
-			</tr>
-			<tr>
-				<th><label for="cluster_messagebus_sns_api_secret"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.api_secret' ) ?></label></th>
-				<td>
-					<input id="cluster_messagebus_sns_api_secret"
-						class="w3tc-ignore-change" type="text"
-						name="cluster__messagebus__sns__api_secret"
-						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.api_secret' ) ); ?>" size="60" />
-					<p class="description"><?php _e( 'Specify the <acronym title="Application Programming Interface">API</acronym> secret.', 'w3-total-cache' ); ?></p>
-				</td>
-			</tr>
-			<tr>
-				<th><label for="cluster_messagebus_sns_topic_arn"><?php Util_Ui::e_config_label( 'cluster.messagebus.sns.topic_arn' ) ?></label></th>
-				<td>
-					<input id="cluster_messagebus_sns_topic_arn"
-						class="w3tc-ignore-change" type="text"
-						name="cluster__messagebus__sns__topic_arn"
-						value="<?php echo esc_attr( $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' ) ); ?>" size="60" />
-					<p class="description"><?php _e( 'Specify the <acronym title="Simple Notification Service">SNS</acronym> topic.', 'w3-total-cache' ); ?></p>
-				</td>
-			</tr>
-		</table>
-
-		<?php Util_Ui::button_config_save( 'general_dbcluster' ); ?>
-		<?php Util_Ui::postbox_footer(); ?>
-		<?php endif; ?>
-
+		<?php do_action( 'w3tc_settings_general_boxarea_sns' ) ?>
 		<?php
 foreach ( $custom_areas as $area )
 	do_action( "w3tc_settings_general_boxarea_{$area['id']}" );
@@ -553,7 +496,7 @@ Util_Ui::config_item( array(
 					<?php $this->checkbox_debug( 'varnish.debug' ) ?> <?php Util_Ui::e_config_label( 'varnish.debug' ) ?></label>
 					<?php if ( Util_Environment::is_w3tc_pro() ): ?>
 						<br />
-						<?php $this->checkbox_debug( 'cluster.messagebus.debug' ) ?> <?php Util_Ui::e_config_label( 'cluster.messagebus.debug' ) ?></label>
+						<?php $this->checkbox_debug( 'cluster.messagebus.debug' ) ?> <?php _e( 'Message Bus', 'w3-total-cache' ) ?></label>
 					<?php endif ?>
 					<p class="description"><?php _e( 'If selected, detailed caching information will appear at the end of each page in a <acronym title="Hypertext Markup Language">HTML</acronym> comment. View a page\'s source code to review.', 'w3-total-cache' ); ?></p>
 				</td>

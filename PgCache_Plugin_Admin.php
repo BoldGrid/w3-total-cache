@@ -71,7 +71,7 @@ class PgCache_Plugin_Admin {
 	 * Will trigger notifications to be sent to the cluster to 'order' them to clean their page cache.
 	 */
 	function cleanup_cluster() {
-		$sns_client = Dispatcher::component( 'Enterprise_CacheFlush_MakeSnsEvent' );
+		$sns_client = \W3TCP\Sns_CacheFlush_MakeSnsEvent::instance();
 		$sns_client->pgcache_cleanup();
 	}
 
