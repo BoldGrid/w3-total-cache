@@ -114,14 +114,14 @@ def generate_image_descriptors
 	php_last = php_list.keys.sort[-1]
 
 	# add special memory caches
-	image_descriptors = add_single(image_descriptors, 'php55', {
-		'xcache' => {
-			'APC' => '',   # remove apc from environment
-			'XCACHE' => 'xcache',
-			'FILESYSTEM' => 'no',
-			'MEMCACHE' => 'memcache'   # use old "memcache" extension instead of "memcached"
-		}}
-	)
+	#image_descriptors = add_single(image_descriptors, 'php55', {
+	#	'xcache' => {
+	#		'APC' => '',   # remove apc from environment
+	#		'XCACHE' => 'xcache',
+	#		'FILESYSTEM' => 'no',
+	#		'MEMCACHE' => 'memcache'   # use old "memcache" extension instead of "memcached"
+	#	}}
+	#)
 
 	# add special path configurations
 	image_descriptors = multiply_selected(image_descriptors,
