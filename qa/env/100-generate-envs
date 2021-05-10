@@ -183,12 +183,12 @@ def generate_box_descriptors(image_name)
 		#		'php73', 'php80'  # cause a lot of PHP warnings
 		#	]
 		#},
-		'wp51' => {   # dont comment out - last env using PHP55
-			'WP_VERSION' => '5.1',
-			'_except_name_contains' => [
-				'php80'  # not compatible, {} in script-loader fatal
-			]
-		},
+		#'wp51' => {   # dont comment out - last env using PHP55 # Stopped using php55.
+		#	'WP_VERSION' => '5.1',
+		#	'_except_name_contains' => [
+		#		'php80'  # not compatible, {} in script-loader fatal
+		#	]
+		#},
 		#'wp52' => {
 		#	'WP_VERSION' => '5.2',
 		#	'_except_name_contains' => [
@@ -201,13 +201,13 @@ def generate_box_descriptors(image_name)
 		#		'php55'   # wp5.3 requires php>=5.6
 		#	]
 		#},
-		'wp55' => {
-			'WP_VERSION' => '5.5',
-			'_except_name_contains' => [
-				'php55',   # wp5.5 requires php>=5.6
-				'php80'  # not compatible, WP_Feed_Cache::create() fatal
-			]
-		},
+		#'wp55' => {
+		#	'WP_VERSION' => '5.5',
+		#	'_except_name_contains' => [
+		#		'php55',   # wp5.5 requires php>=5.6
+		#		'php80'  # not compatible, WP_Feed_Cache::create() fatal
+		#	]
+		#},
 		'wp56' => {
 			'WP_VERSION' => '5.6',
 			'_except_name_contains' => [
