@@ -275,6 +275,10 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.1.3 =
+* Update: AWS library version 1.180.1
+* Update: Minify: Include theme template files using page_* filenames
+
 = 2.1.2 =
 * Fix: Skip removing spaces around "<li>" tags in HTML Minify
 * Fix: Updated admin URL logic for multisite installations
