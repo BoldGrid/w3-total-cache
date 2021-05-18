@@ -510,23 +510,23 @@ def expand_image_specifics(image_descriptors)
 		'trusty' => {
 			'AWS_ZONE' => 'us-west-2',
 			'AWS_AMI' => 'ami-064460a18d75afc81',
-			'OS_VERSION' => 'Ubuntu 14.04 LTE 64Bit',
+			'OS_VERSION' => 'Ubuntu 14.04 LTS 64Bit',
 			'vagrant_box' => 'ubuntu/trusty64',
 			'vagrant_box_version' => '20190429.0.0'
 		},
 		'xenial' => {
 			'AWS_ZONE' => 'us-west-2',
-			'AWS_AMI' => 'ami-08f21f7b6d9013a08',
-			'OS_VERSION' => 'Ubuntu 16.04 LTE 64Bit',
+			'AWS_AMI' => 'ami-0dd273d94ed0540c0',
+			'OS_VERSION' => 'Ubuntu 16.04 LTS 64Bit',
 			'vagrant_box' => 'ubuntu/xenial64',
-			'vagrant_box_version' => '20190501.0.0'
+			'vagrant_box_version' => '20210429.0.0'
 		},
 		'focal' => {
 			'AWS_ZONE' => 'us-west-2',
-			'AWS_AMI' => 'ami-0c007ac192ba0744b',
-			'OS_VERSION' => 'Ubuntu 20.04 LTE 64Bit',
+			'AWS_AMI' => 'ami-03d5c68bab01f3496',
+			'OS_VERSION' => 'Ubuntu 20.04 LTS 64Bit',
 			'vagrant_box' => 'ubuntu/focal64',
-			'vagrant_box_version' => '20201210.0.0'
+			'vagrant_box_version' => '20210510.0.0'
 		},
 
 		# puppeteer not available for this version
