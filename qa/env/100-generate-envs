@@ -89,7 +89,7 @@ def generate_image_descriptors
 		#
 		'php56' => {
 			'PHP_VERSION' => '5.6',
-			'OS' => 'trusty',
+			'OS' => 'xenial',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis'
