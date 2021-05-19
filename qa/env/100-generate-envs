@@ -87,20 +87,21 @@ def generate_image_descriptors
 		#},
 		# php 5.6 is not available in trusty anymore - use xenial if required
 		#
-		#'php56' => {
-		#	'PHP_VERSION' => '5.6',
-		#	'OS' => 'trusty',
-		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
-		#	'MEMCACHE' => 'memcached',
-		#	'REDIS' => 'redis'
-		#},
-		'php55' => {
-			'PHP_VERSION' => '5.5',
-			'OS' => 'trusty',
+		'php56' => {
+			'PHP_VERSION' => '5.6',
+			'OS' => 'xenial',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis'
 		}
+		# The updated AWS library has a dependency that requires PHP 5.6 or higher.
+		#'php55' => {
+		#	'PHP_VERSION' => '5.5',
+		#	'OS' => 'trusty',
+		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+		#	'MEMCACHE' => 'memcached',
+		#	'REDIS' => 'redis'
+		#}
 		# puppeteer not available for this version
 		#,
 		#'php53' => {
@@ -113,14 +114,14 @@ def generate_image_descriptors
 	php_last = php_list.keys.sort[-1]
 
 	# add special memory caches
-	image_descriptors = add_single(image_descriptors, 'php55', {
-		'xcache' => {
-			'APC' => '',   # remove apc from environment
-			'XCACHE' => 'xcache',
-			'FILESYSTEM' => 'no',
-			'MEMCACHE' => 'memcache'   # use old "memcache" extension instead of "memcached"
-		}}
-	)
+	#image_descriptors = add_single(image_descriptors, 'php55', {
+	#	'xcache' => {
+	#		'APC' => '',   # remove apc from environment
+	#		'XCACHE' => 'xcache',
+	#		'FILESYSTEM' => 'no',
+	#		'MEMCACHE' => 'memcache'   # use old "memcache" extension instead of "memcached"
+	#	}}
+	#)
 
 	# add special path configurations
 	image_descriptors = multiply_selected(image_descriptors,
@@ -182,12 +183,12 @@ def generate_box_descriptors(image_name)
 		#		'php73', 'php80'  # cause a lot of PHP warnings
 		#	]
 		#},
-		'wp51' => {   # dont comment out - last env using PHP55
-			'WP_VERSION' => '5.1',
-			'_except_name_contains' => [
-				'php80'  # not compatible, {} in script-loader fatal
-			]
-		},
+		#'wp51' => {   # dont comment out - last env using PHP55 # Stopped using php55.
+		#	'WP_VERSION' => '5.1',
+		#	'_except_name_contains' => [
+		#		'php80'  # not compatible, {} in script-loader fatal
+		#	]
+		#},
 		#'wp52' => {
 		#	'WP_VERSION' => '5.2',
 		#	'_except_name_contains' => [
@@ -200,13 +201,13 @@ def generate_box_descriptors(image_name)
 		#		'php55'   # wp5.3 requires php>=5.6
 		#	]
 		#},
-		'wp55' => {
-			'WP_VERSION' => '5.5',
-			'_except_name_contains' => [
-				'php55',   # wp5.5 requires php>=5.6
-				'php80'  # not compatible, WP_Feed_Cache::create() fatal
-			]
-		},
+		#'wp55' => {
+		#	'WP_VERSION' => '5.5',
+		#	'_except_name_contains' => [
+		#		'php55',   # wp5.5 requires php>=5.6
+		#		'php80'  # not compatible, WP_Feed_Cache::create() fatal
+		#	]
+		#},
 		'wp56' => {
 			'WP_VERSION' => '5.6',
 			'_except_name_contains' => [
@@ -509,23 +510,23 @@ def expand_image_specifics(image_descriptors)
 		'trusty' => {
 			'AWS_ZONE' => 'us-west-2',
 			'AWS_AMI' => 'ami-064460a18d75afc81',
-			'OS_VERSION' => 'Ubuntu 14.04 LTE 64Bit',
+			'OS_VERSION' => 'Ubuntu 14.04 LTS 64Bit',
 			'vagrant_box' => 'ubuntu/trusty64',
 			'vagrant_box_version' => '20190429.0.0'
 		},
 		'xenial' => {
 			'AWS_ZONE' => 'us-west-2',
-			'AWS_AMI' => 'ami-08f21f7b6d9013a08',
-			'OS_VERSION' => 'Ubuntu 16.04 LTE 64Bit',
+			'AWS_AMI' => 'ami-0dd273d94ed0540c0',
+			'OS_VERSION' => 'Ubuntu 16.04 LTS 64Bit',
 			'vagrant_box' => 'ubuntu/xenial64',
-			'vagrant_box_version' => '20190501.0.0'
+			'vagrant_box_version' => '20210429.0.0'
 		},
 		'focal' => {
 			'AWS_ZONE' => 'us-west-2',
-			'AWS_AMI' => 'ami-0c007ac192ba0744b',
-			'OS_VERSION' => 'Ubuntu 20.04 LTE 64Bit',
+			'AWS_AMI' => 'ami-03d5c68bab01f3496',
+			'OS_VERSION' => 'Ubuntu 20.04 LTS 64Bit',
 			'vagrant_box' => 'ubuntu/focal64',
-			'vagrant_box_version' => '20201210.0.0'
+			'vagrant_box_version' => '20210510.0.0'
 		},
 
 		# puppeteer not available for this version

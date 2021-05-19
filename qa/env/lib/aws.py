@@ -43,6 +43,7 @@ def ami_name2id(ami_name):
 def ec2_list_aws_instance_ids():
 	v = shell.shell_json(['aws', 'ec2', 'describe-instances',
 		'--filters', 'Name=tag:Type,Values=w3tcqa-box',
+		'--filters', 'Name=instance-state-code,Values=0,16',
 		'--query', 'Reservations[].Instances[].InstanceId'])
 	return v
 
