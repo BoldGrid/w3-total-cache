@@ -6,7 +6,7 @@ case "${W3D_PHP_VERSION}" in
 		apt-get install -y apache2 libapache2-mod-php5
         ;;
     "5.6")
-		apt-get install -y apache2 libapache2-mod-php5
+		apt-get install -y apache2 libapache2-mod-php5.6
         ;;
     "7.0")
 		apt-get install -y apache2 libapache2-mod-php7.0
