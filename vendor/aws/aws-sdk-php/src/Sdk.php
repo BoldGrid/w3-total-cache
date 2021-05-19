@@ -30,12 +30,16 @@ namespace Aws;
  * @method \Aws\MultiRegionClient createMultiRegionAppMesh(array $args = [])
  * @method \Aws\AppRegistry\AppRegistryClient createAppRegistry(array $args = [])
  * @method \Aws\MultiRegionClient createMultiRegionAppRegistry(array $args = [])
+ * @method \Aws\AppRunner\AppRunnerClient createAppRunner(array $args = [])
+ * @method \Aws\MultiRegionClient createMultiRegionAppRunner(array $args = [])
  * @method \Aws\AppSync\AppSyncClient createAppSync(array $args = [])
  * @method \Aws\MultiRegionClient createMultiRegionAppSync(array $args = [])
  * @method \Aws\Appflow\AppflowClient createAppflow(array $args = [])
  * @method \Aws\MultiRegionClient createMultiRegionAppflow(array $args = [])
  * @method \Aws\ApplicationAutoScaling\ApplicationAutoScalingClient createApplicationAutoScaling(array $args = [])
  * @method \Aws\MultiRegionClient createMultiRegionApplicationAutoScaling(array $args = [])
+ * @method \Aws\ApplicationCostProfiler\ApplicationCostProfilerClient createApplicationCostProfiler(array $args = [])
+ * @method \Aws\MultiRegionClient createMultiRegionApplicationCostProfiler(array $args = [])
  * @method \Aws\ApplicationDiscoveryService\ApplicationDiscoveryServiceClient createApplicationDiscoveryService(array $args = [])
  * @method \Aws\MultiRegionClient createMultiRegionApplicationDiscoveryService(array $args = [])
  * @method \Aws\ApplicationInsights\ApplicationInsightsClient createApplicationInsights(array $args = [])
@@ -539,7 +543,7 @@ namespace Aws;
  */
 class Sdk
 {
-    const VERSION = '3.181.0';
+    const VERSION = '3.183.0';
 
     /** @var array Arguments for creating clients */
     private $args;

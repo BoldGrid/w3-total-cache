@@ -1,6 +1,7 @@
 {
     "require": {
         "aws/aws-sdk-php": "^3.180",
+        "guzzlehttp/guzzle": "6.*",
         "symfony/polyfill-mbstring" : "1.20.*"
     }
 }
