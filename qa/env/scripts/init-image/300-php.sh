@@ -2,7 +2,7 @@
 
 # Functions
 php_5x () {
-    apt-get install -y php5.6-cli php5.6-mysql php5.6-curl
+    apt-get install -y php5.6-cli php5.6-mysql php5.6-curl php5.6-xml
 
     if [ "$W3D_APC" = "apc" ]; then
         apt-get install -y php5.6-apcu
