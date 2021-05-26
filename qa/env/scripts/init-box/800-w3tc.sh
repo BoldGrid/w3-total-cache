@@ -27,6 +27,19 @@ npm link mocha
 npm link mocha-logger
 npm link chai
 
+# mount w3tc pro
+mkdir -p ${W3D_WP_PLUGINS_PATH}w3-total-cache-pro/
+chmod 750 ${W3D_WP_PLUGINS_PATH}w3-total-cache-pro/
+chown www-data:www-data ${W3D_WP_PLUGINS_PATH}w3-total-cache-pro/
+/share/scripts/w3tc-pro-mount.sh
+
+cd /share/w3tc-pro/qa
+npm link puppeteer
+npm link mocha
+npm link mocha-logger
+npm link chai
+ln -s /share/w3tc/qa/lib ./lib
+
 # activate w3tc
 ACTIVATE_OPTIONS=""
 if [ "$W3D_WP_NETWORK" = "subdomain" ]; then
