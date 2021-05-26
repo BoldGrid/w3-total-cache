@@ -6,7 +6,9 @@ def run
     end
 
     Dir.chdir('/root/w3tcqa')
+    run_dir ''
 
+    Dir.chdir('/root/w3tcqa-pro')
     run_dir ''
 end
 

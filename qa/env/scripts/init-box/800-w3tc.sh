@@ -1,5 +1,6 @@
 # w3tcQA Symlinks
 ln -s /share/w3tc/qa/tests/ /root/w3tcqa
+ln -s /share/w3tc-pro/qa/tests/ /root/w3tcqa-pro
 echo "alias w3test=\"/share/scripts/w3test \"" >> /root/.bash_aliases
 
 # ask w3tc to use debug GA profile

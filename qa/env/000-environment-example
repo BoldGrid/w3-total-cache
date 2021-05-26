@@ -1,7 +1,8 @@
 export W3TCQA_GIT_URL=git@github.com:W3EDGE/w3-total-cache.git
 export W3TCQA_GIT_BRANCH=master
 
-# export W3TCQA_GIT_URL2=git@github.com:W3EDGE/w3-total-cache.git
+# export W3TCQA_PRO_GIT_URL=git@github.com:W3EDGE/w3-total-cache.git
+# export W3TCQA_PRO_GIT_BRANCH=master
 
 export W3TCQA_S3_BUCKET=mybucket
 export W3TCQA_S3_URL=https://s3-us-region.amazonaws.com/mybucket/

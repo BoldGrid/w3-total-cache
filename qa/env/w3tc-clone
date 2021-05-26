@@ -22,16 +22,16 @@ else
 	cd ../..
 fi
 
-if [ ! -z "$W3TCQA_GIT_URL2" ]; then
-	if [ ! -e ./working/w3tc2 ]; then
-		mkdir ./working/w3tc2
-		git clone $W3TCQA_GIT_URL2 -b master ./working/w3tc2
+if [ ! -z "$W3TCQA_PRO_GIT_URL" ]; then
+	if [ ! -e ./working/w3tc-pro ]; then
+		mkdir ./working/w3tc-pro
+		git clone $W3TCQA_PRO_GIT_URL -b $W3TCQA_PRO_GIT_BRANCH ./working/w3tc-pro
 	else
 		# new git -C can do it, but not everyone has new version installed
-		cd ./working/w3tc2
+		cd ./working/w3tc-pro
 		git pull
 		cd ../..
 	fi
-
-	cp -fR ./working/w3tc2/* ./working/w3tc
+else
+	mkdir ./working/w3tc-pro
 fi

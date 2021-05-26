@@ -55,8 +55,8 @@ def init(ip, box_name, box_instance_name):
 #		root_ip, '/share/scripts/w3test')
 
 	shell.ssh(root_ip, 'cd /share && wget ' + vars['W3D_W3TC_ZIP_URL'] + ' -q -O ./w3tc.zip')
-
 	shell.ssh(root_ip, 'cd /share && unzip -q /share/w3tc.zip')
+
 	shell.ssh(root_ip, '/share/scripts/init-box/400-http-server.sh')
 	shell.ssh(root_ip, '/share/scripts/init-box/600-wp-cli.sh')
 	shell.ssh(root_ip, '/share/scripts/init-box/700-wordpress.sh')

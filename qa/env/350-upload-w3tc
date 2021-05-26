@@ -9,3 +9,11 @@ cd ./working && zip -r -q ./w3tc.zip ./w3tc -x *.git* && cd -
 
 aws s3 cp ./working/w3tc.zip s3://$W3TCQA_S3_BUCKET/$FILENAME
 aws s3api put-object-acl --bucket $W3TCQA_S3_BUCKET --key $FILENAME --acl public-read
+
+FILENAME_PRO="w3tc_pro_$(date +%Y%m%d_%H%M%S).zip"
+echo $FILENAME_PRO
+echo "W3D_W3TC_PRO_ZIP_URL: $W3TCQA_S3_URL$FILENAME_PRO" >./working/w3tc_zip_url.yml
+cd ./working && zip -r -q ./w3tc-pro.zip ./w3tc-pro -x *.git* && cd -
+
+aws s3 cp ./working/w3tc-pro.zip s3://$W3TCQA_S3_BUCKET/$FILENAME_PRO
+aws s3api put-object-acl --bucket $W3TCQA_S3_BUCKET --key $FILENAME_PRO --acl public-read

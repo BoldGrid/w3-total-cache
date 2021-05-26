@@ -1,5 +1,5 @@
 #!/bin/bash
 
 rm -rf ./working/w3tc
-rm -rf ./working/w3tc2
+rm -rf ./working/w3tc-pro
 ./w3tc-clone
