@@ -277,7 +277,7 @@ Please reach out to all of these people and support their projects if you're so 
 
 = 2.1.3 =
 * Fix: Authenticated Persistent XSS & XFS in CDN admin page
-* Update: AWS library version 1.180.0
+* Update: AWS library version 3.183.0
 * Update: Minify: Include theme template files using page_* filenames
 
 = 2.1.2 =
