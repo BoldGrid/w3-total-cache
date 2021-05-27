@@ -62,7 +62,7 @@ if ( !defined( 'W3TC' ) )
 			&lt;bucket&gt;.s3.amazonaws.com
 		<?php endif; ?> <?php _e( 'or CNAME:', 'w3-total-cache' ); ?>
 		<?php $cnames = $this->_config->get_array( 'cdn.s3.cname' ); include W3TC_INC_DIR . '/options/cdn/common/cnames.php'; ?>
-		<p class="description"><?php _e( 'If you have already added a <a href="http://docs.amazonwebservices.com/AmazonS3/latest/DeveloperGuide/VirtualHosting.html#VirtualHostingCustomURLs" target="_blank">CNAME</a> to your <acronym title="Domain Name System">DNS</acronym> Zone, enter it here.', 'w3-total-cache' ); ?></p>
+		<p class="description"><?php _e( 'If you have already added a <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#VirtualHostingCustomURLs" target="_blank">CNAME</a> to your <acronym title="Domain Name System">DNS</acronym> Zone, enter it here.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>
