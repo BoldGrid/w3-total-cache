@@ -237,8 +237,10 @@ class UserExperience_LazyLoad_Mutator {
 
 	private function is_content_excluded( $content ) {
 		foreach ( $this->excludes as $w ) {
-			if ( strpos( $content, $w ) !== FALSE ) {
-				return true;
+			if ( !empty($w) ) {
+				if ( strpos( $content, $w ) !== FALSE ) {
+					return true;
+				}
 			}
 		}
 
