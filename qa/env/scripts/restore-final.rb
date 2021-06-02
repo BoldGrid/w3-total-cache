@@ -5,11 +5,13 @@ def run
 	system 'echo $W3D_INSTANCE_ID'
 	system 'cat /etc/hostname'
 	system_assert '/share/scripts/w3tc-umount.sh'
+	system_assert '/share/scripts/w3tc-pro-umount.sh'
 
 	system 'rm -rf /var/www/wp-sandbox'
 	system 'rm -rf /var/www/for-tests-sandbox/*'
 	system_assert 'cp -r /var/www/backup-final-wp-sandbox /var/www/wp-sandbox'
 	system_assert '/share/scripts/w3tc-mount.sh'
+	system_assert '/share/scripts/w3tc-pro-mount.sh'
 	system_assert 'chown -R www-data:www-data /var/www/wp-sandbox'
 	system_assert 'mysql </var/www/backup-final.sql'
 
