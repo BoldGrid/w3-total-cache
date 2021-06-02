@@ -53,6 +53,9 @@ def init(ip, box_name, box_instance_name):
 	shell.scp( \
 		'', './scripts/*', \
 		root_ip, '/share/scripts')
+	shell.scp( \
+		'', './scripts/init-box/*.sh', \
+		root_ip, '/share/scripts/init-box')
 
 	shell.ssh(root_ip, 'cd /share && wget ' + vars['W3D_W3TC_ZIP_URL'] + ' -q -O ./w3tc.zip')
 	shell.ssh(root_ip, 'cd /share && unzip -q /share/w3tc.zip')
