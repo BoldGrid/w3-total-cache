@@ -2417,7 +2417,8 @@ $keys = array(
 	'extensions.active' => array(
 		'type' => 'array',
 		'default' => array(
-			'fragmentcache' => 'w3-total-cache/Extension_FragmentCache_Plugin.php'
+			'fragmentcache' => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
+			'optimager'     => 'w3-total-cache/Extension_ImageOptimizer_Plugin.php',
 		)
 	),
 	'extensions.active_frontend' => array(
@@ -2441,6 +2442,12 @@ $keys = array(
 	'jquerymigrate.disabled' => array(
 		'type' => 'boolean',
 		'default' => false,
+	),
+	'optimager' => array(
+		'type' => 'array',
+		'default' => array(
+			'compression' => 'lossless',
+		),
 	),
 
 	// extensions keys:

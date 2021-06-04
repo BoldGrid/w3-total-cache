@@ -348,6 +348,8 @@ class ConfigCompiler {
 				'w3-total-cache/Extension_NewRelic_Plugin.php';
 			$file_data['extensions.active']['fragmentcache'] =
 				'w3-total-cache/Extension_FragmentCache_Plugin.php';
+			$file_data['extensions.active']['optimager'] =
+			'w3-total-cache/Extension_ImageOptimizer_Plugin.php';
 
 		}
 

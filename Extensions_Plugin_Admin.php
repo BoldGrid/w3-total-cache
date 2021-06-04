@@ -74,6 +74,14 @@ class Extensions_Plugin_Admin {
 				'\W3TC\Extension_Wpml_Plugin_Admin',
 				'w3tc_notes_wpml' ) );
 
+		add_filter(
+			'w3tc_extensions',
+			array(
+				'\W3TC\Extension_ImageOptimizer_Plugin_Admin',
+				'w3tc_extensions',
+			), 10, 2
+		);
+
 		add_action( 'admin_init', array( $this, 'admin_init' ), 1 );
 		add_filter( 'pre_update_option_active_plugins', array(
 				$this, 'pre_update_option_active_plugins' ) );
