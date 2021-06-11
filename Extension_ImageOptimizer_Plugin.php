@@ -1,5 +1,19 @@
 <?php
+/**
+ * File: Extension_ImageOptimizer_Plugin.php
+ *
+ * @since X.X.X
+ *
+ * @package W3TC
+ *
+ * phpcs:disable WordPress.WP.CronInterval
+ */
+
 namespace W3TC;
+
+if ( ! defined( 'W3TC' ) ) {
+	die();
+}
 
 /**
  * Extension_ImageOptimizer_Plugin
@@ -21,6 +35,27 @@ class Extension_ImageOptimizer_Plugin {
 				'w3tc_extension_load_admin',
 			)
 		);
+
+		// Cron event handling.
+		require_once __DIR__ . '/Extension_ImageOptimizer_Cron.php';
+
+		add_action(
+			'w3tc_optimager_cron',
+			array(
+				'\W3TC\Extension_ImageOptimizer_Cron',
+				'run',
+			)
+		);
+
+		add_filter(
+			'cron_schedules',
+			array(
+				'\W3TC\Extension_ImageOptimizer_Cron',
+				'add_schedule',
+			)
+		);
+
+		Extension_ImageOptimizer_Cron::add_cron();
 	}
 }
 

@@ -3,6 +3,10 @@
  * File: Extension_ImageOptimizer_Plugin_Admin.php
  *
  * @since X.X.X
+ *
+ * @package W3TC
+ *
+ * phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen, Squiz.PHP.EmbeddedPhp.ContentAfterEnd
  */
 
 namespace W3TC;
@@ -14,9 +18,25 @@ namespace W3TC;
  */
 class Extension_ImageOptimizer_Plugin_Admin {
 	/**
+	 * Image MIME types available for optimization.
+	 *
+	 * @since X.X.X
+	 * @static
+	 *
+	 * @var array
+	 */
+	public static $mime_types = array(
+		'gif'  => 'image/gif',
+		'jpeg' => 'image/jpeg',
+		'jpg'  => 'image/jpg',
+		'png'  => 'image/png',
+	);
+
+	/**
 	 * Configuration.
 	 *
 	 * @since X.X.X
+	 * @access private
 	 *
 	 * @var Config
 	 */
@@ -26,17 +46,18 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * Image Optimizer API class object.
 	 *
 	 * @since X.X.X
+	 * @access private
 	 *
 	 * @var Extension_ImageOptimizer_API
 	 */
-	 private $api;
+	private $api;
 
 	/**
 	 * Constructor.
 	 *
 	 * @since X.X.X
 	 */
-	function __construct() {
+	public function __construct() {
 		$this->config = Dispatcher::config();
 	}
 
@@ -75,13 +96,17 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	/**
 	 * Load the admin extension.
 	 *
+	 * Runs on the "wp_loaded" action.
+	 *
 	 * @since X.X.X
 	 * @static
 	 */
-	static public function w3tc_extension_load_admin() {
+	public static function w3tc_extension_load_admin() {
 		$o = new Extension_ImageOptimizer_Plugin_Admin();
 
 		add_action( 'w3tc_extension_page_optimager', array( $o, 'w3tc_extension_page_optimager' ) );
+
+		add_action( 'admin_enqueue_scripts', array( $o, 'admin_enqueue_scripts' ) );
 
 		/**
 		 * Filters the Media list table columns.
@@ -93,6 +118,62 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		 *                                to any posts. Default true.
 		 */
 		add_filter( 'manage_media_columns', array( $o, 'add_media_column' ) );
+
+		/**
+		 * Fires for each custom column in the Media list table.
+		 *
+		 * Custom columns are registered using the {@see 'manage_media_columns'} filter.
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param string $column_name Name of the custom column.
+		 * @param int    $post_id     Attachment ID.
+		 */
+		add_action( 'manage_media_custom_column', array( $o, 'media_column_row' ), 10, 2 );
+
+		// AJAX hooks.
+		add_action( 'wp_ajax_w3tc_optimager_submit', array( $o, 'ajax_submit' ) );
+		add_action( 'wp_ajax_w3tc_optimager_postmeta', array( $o, 'ajax_get_postmeta' ) );
+
+		/**
+		 * Filters whether the current image is displayable in the browser.
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param bool   $result Whether the image can be displayed. Default true.
+		 * @param string $path   Path to the image.
+		 */
+		add_filter(
+			'file_is_displayable_image',
+			function( $result, $path ) {
+				// Display webp images.
+				if ( '.webp' === strtolower( substr( $path, -5 ) ) ) {
+					return true;
+				}
+
+				return $result;
+			},
+			10,
+			2
+		);
+
+		/**
+		 * Ensure all network sites include WebP support.
+		 *
+		 * @link https://make.wordpress.org/core/2021/06/07/wordpress-5-8-adds-webp-support/
+		 */
+		add_filter(
+			'site_option_upload_filetypes',
+			function ( $filetypes ) {
+				$filetypes = explode( ' ', $filetypes );
+				if ( ! in_array( 'webp', $filetypes, true ) ) {
+					$filetypes[] = 'webp';
+					$filetypes   = implode( ' ', $filetypes );
+				}
+
+				return $filetypes;
+			}
+		);
 	}
 
 	/**
@@ -107,7 +188,58 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
+	 * Enqueue scripts and styles for admin pages.
+	 *
+	 * Runs on the "admin_enqueue_scripts" action.
+	 *
+	 * @since X.X.X
+	 */
+	public function admin_enqueue_scripts() {
+		// Enqueue JavaScript for the Media Library (upload) admin page.
+		if ( 'upload' === get_current_screen()->id ) {
+			wp_register_script(
+				'w3tc-optimager',
+				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_ImageOptimizer_Plugin_Admin.js' ),
+				array( 'jquery' ),
+				W3TC_VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'w3tc-optimager',
+				'w3tcData',
+				array(
+					'nonces' => array(
+						'submit'   => wp_create_nonce( 'w3tc_optimager_submit' ),
+						'postmeta' => wp_create_nonce( 'w3tc_optimager_postmeta' ),
+					),
+					'lang'   => array(
+						'optimize'   => __( 'Optimize', 'w3-total_cache' ),
+						'sending'    => __( 'Sending', 'w3-total_cache' ),
+						'processing' => __( 'Processing', 'w3-total_cache' ),
+						'optimized'  => __( 'Optimized', 'w3-total_cache' ),
+						'error'      => __( 'Error', 'w3-total_cache' ),
+						'jobid'      => __( 'Queued Job ID: ', 'w3-total_cache' ),
+					),
+				)
+			);
+
+			wp_enqueue_script( 'w3tc-optimager' );
+
+			wp_enqueue_style(
+				'w3tc-optimager',
+				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_ImageOptimizer_Plugin_Admin.css' ),
+				array(),
+				W3TC_VERSION,
+				'all'
+			);
+		}
+	}
+
+	/**
 	 * Add image optimization controls to the Media Library table in list view.
+	 *
+	 * Runs on the "manage_media_columns" filter.
 	 *
 	 * @since X.X.X
 	 *
@@ -116,8 +248,202 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *                                to any posts. Default true.
 	 */
 	public function add_media_column( $posts_columns, $detached = true ) {
-
+		$posts_columns['optimager'] = '<span class="w3tc-optimize"></span> Total Optimizer';
 
 		return $posts_columns;
+	}
+
+	/**
+	 * Fires for each custom column in the Media list table.
+	 *
+	 * Custom columns are registered using the {@see 'manage_media_columns'} filter.
+	 * Runs on the "manage_media_custom_column" action.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @param string $column_name Name of the custom column.
+	 * @param int    $post_id     Attachment ID.
+	 */
+	public function media_column_row( $column_name, $post_id ) {
+		if ( 'optimager' === $column_name ) {
+			$post = get_post( $post_id );
+
+			if ( in_array( $post->post_mime_type, self::$mime_types, true ) ) {
+				$filepath      = get_attached_file( $post_id );
+				$optimage_data = get_post_meta( $post_id, 'w3tc_optimager', true );
+				$status        = isset( $optimage_data['status'] ) ? $optimage_data['status'] : null;
+
+				?>
+				<span class="w3tc-optimize<?php
+				if ( 'optimized' === $status ) {
+					echo ' w3tc-optimized';
+				}
+				?>"></span>
+				<input type="submit" id="w3tc-<?php echo esc_attr( $post_id ); ?>-optimize" class="button w3tc-optimize" value="<?php
+				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+				switch ( $status ) {
+					case 'sending':
+						esc_attr_e( 'Sending', 'w3-total-cache' );
+						break;
+					case 'processing':
+						esc_attr_e( 'Processing', 'w3-total-cache' );
+						break;
+					case 'optimized':
+						esc_attr_e( 'Optimized', 'w3-total-cache' );
+						break;
+					default:
+						esc_attr_e( 'Optimize', 'w3-total-cache' );
+						break;
+				}
+				?>" data-post-id="<?php echo esc_attr( $post_id ); ?>" data-status="<?php echo esc_attr( $status ); ?>"
+				<?php
+				if ( 'processing' === $status ) {
+					?>disabled="disabled"<?php
+				}
+				?> />
+				<?php
+				// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+			} elseif ( 'w3tc-' === substr( $post->post_name, 0, 5 ) ) {
+				// W3TC optimized image.
+				?>
+				<span class="w3tc-optimize w3tc-optimized"></span>
+				<?php
+				echo esc_html__( 'Attachment id: ', 'w3-total-cache' ) . esc_html( $post->post_parent );
+			}
+		}
+	}
+
+	/**
+	 * Update postmeta.
+	 *
+	 * @since X.X.X
+	 * @static
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/update_post_meta/
+	 *
+	 * @param int   $post_id  Post id.
+	 * @param array $data Postmeta data.
+	 * @return int|bool Meta ID if the key didn't exist, true on successful update, false on failure or if the value
+	 *                  passed to the function is the same as the one that is already in the database.
+	 */
+	public static function update_postmeta( $post_id, array $data ) {
+		$postmeta = (array) get_post_meta( $post_id, 'w3tc_optimager', true );
+		$postmeta = array_merge( $postmeta, $data );
+
+		return update_post_meta( $post_id, 'w3tc_optimager', $postmeta );
+	}
+
+	/**
+	 * Copy postmeta from one post to another.
+	 *
+	 * @since X.X.X
+	 * @static
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/update_post_meta/
+	 *
+	 * @param int $post_id_1 Post id 1.
+	 * @param int $post_id_2 Post id 2.
+	 * @return int|bool Meta ID if the key didn't exist, true on successful update, false on failure or if the value
+	 *                  passed to the function is the same as the one that is already in the database.
+	 */
+	public static function copy_postmeta( $post_id_1, $post_id_2 ) {
+		$postmeta = (array) get_post_meta( $post_id_1, 'w3tc_optimager', true );
+
+		return update_post_meta( $post_id_2, 'w3tc_optimager', $postmeta );
+	}
+
+	/**
+	 * AJAX: Submit an image for processing.
+	 *
+	 * @since X.X.X
+	 *
+	 * @uses $_POST['post_id']
+	 */
+	public function ajax_submit() {
+		check_ajax_referer( 'w3tc_optimager_submit' );
+
+		// Check for post id.
+		$post_id = isset( $_POST['post_id'] ) ? (int) sanitize_key( $_POST['post_id'] ) : null;
+
+		if ( ! $post_id ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'Missing input post id.', 'w3-total-cache' ),
+				),
+				400
+			);
+		}
+
+		// Verify the image file exists.
+		$filepath = get_attached_file( $post_id );
+
+		if ( ! file_exists( $filepath ) ) {
+			wp_send_json_error(
+				array(
+					'error' => sprintf(
+						// translators: 1: Image filepath.
+						__( 'File "%1$s" does not exist.', 'w3-total-cache' ),
+						$filepath
+					),
+				),
+				412
+			);
+		}
+
+		// Submit the job request.
+		require_once __DIR__ . '/Extension_ImageOptimizer_Api.php';
+
+		$api      = new Extension_ImageOptimizer_Api();
+		$response = $api->convert( $filepath );
+
+		// Check for WP Error.
+		if ( isset( $response['error'] ) ) {
+			wp_send_json_error(
+				$response,
+				417
+			);
+		}
+
+		// Check for valid response data.
+		if ( empty( $response['job_id'] ) || empty( $response['signature'] ) ) {
+			wp_send_json_error(
+				array(
+					'error' => __( 'Invalid API response.', 'w3-total-cache' ),
+				),
+				417
+			);
+		}
+
+		// Save the job info.
+		$postmeta['status']     = 'processing';
+		$postmeta['processing'] = $response;
+
+		self::update_postmeta( $post_id, $postmeta );
+
+		wp_send_json_success( $response );
+	}
+
+	/**
+	 * AJAX: Get the status of an image, from postmeta.
+	 *
+	 * @since X.X.X
+	 *
+	 * @uses $_POST['post_id']
+	 */
+	public function ajax_get_postmeta() {
+		check_ajax_referer( 'w3tc_optimager_postmeta' );
+
+		$post_id = isset( $_POST['post_id'] ) ? (int) sanitize_key( $_POST['post_id'] ) : null;
+
+		if ( $post_id ) {
+			wp_send_json_success( (array) get_post_meta( $post_id, 'w3tc_optimager', true ) );
+		} else {
+			wp_send_json_error(
+				array(
+					'error' => __( 'Missing input post id.', 'w3-total-cache' ),
+				),
+				400
+			);
+		}
 	}
 }

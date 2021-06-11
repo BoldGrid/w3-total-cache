@@ -100,5 +100,9 @@ class Root_AdminActivation {
 			Util_Activation::disable_maintenance_mode();
 		} catch ( \Exception $ex ) {
 		}
+
+		// Delete cron events.
+		require_once __DIR__ . '/Extension_ImageOptimizer_Cron.php';
+		Extension_ImageOptimizer_Cron::delete_cron();
 	}
 }

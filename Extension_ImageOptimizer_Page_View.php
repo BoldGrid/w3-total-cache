@@ -5,12 +5,15 @@
  * Page view for the image optimizer extension settings.
  *
  * @since X.X.X
+ *
+ * @package W3TC
  */
 
 namespace W3TC;
 
-if ( !defined( 'W3TC' ) )
+if ( ! defined( 'W3TC' ) ) {
 	die();
+}
 
 ?>
 <p>
@@ -23,7 +26,7 @@ if ( !defined( 'W3TC' ) )
 	} else {
 		?>
 		<span class="w3tc-disabled">disabled</span>
-	<?php
+		<?php
 	}
 	?>
 	.
@@ -31,10 +34,11 @@ if ( !defined( 'W3TC' ) )
 
 <form action="admin.php?page=w3tc_extensions&amp;extension=optimager&amp;action=view" method="post">
 <div class="metabox-holder">
-	<?php Util_Ui::postbox_header( __( 'Configuration', 'w3-total-cache' ), '', '' ) ?>
+	<?php Util_Ui::postbox_header( __( 'Configuration', 'w3-total-cache' ), '', '' ); ?>
 	<table class="form-table">
 		<?php
-		Util_Ui::config_item( array(
+		Util_Ui::config_item(
+			array(
 				'key'               => array(
 					'optimager',
 					'compression',

@@ -1,0 +1,19 @@
+span.w3tc-optimize:before {
+	content:'\0041';
+	display: inline-block;
+	font-family: 'w3tc';
+	font-size: x-large;
+	margin-top: 5px;
+}
+
+th > span.w3tc-optimize:before {
+	vertical-align: text-bottom;
+}
+
+td > span.w3tc-optimize:before {
+	color: gray;
+}
+
+td > span.w3tc-optimized:before {
+	color: green;
+}
