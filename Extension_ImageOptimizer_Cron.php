@@ -127,12 +127,14 @@ class Extension_ImageOptimizer_Cron {
 					}
 
 					// Save the file.
+					$original_filepath = get_attached_file( $post->ID );
+					$original_size     = wp_getimagesize( $original_filepath );
 					$original_filename = basename( get_attached_file( $post->ID ) );
+					$original_filedir  = str_replace( '/' . $original_filename, '', $original_filepath );
 					$extension         = isset( $headers['X-Mime-Type-Out'] ) ?
 						str_replace( 'image/', '', $headers['X-Mime-Type-Out'] ) : 'webp';
-					$new_filename      = 'w3tc-' . microtime( true ) . '-' .
-						preg_replace( '/\.[^.]+$/', '', $original_filename ) . '.' . $extension;
-					$new_filepath      = $wp_upload_dir['path'] . '/' . $new_filename;
+					$new_filename      = preg_replace( '/\.[^.]+$/', '', $original_filename ) . '.' . $extension;
+					$new_filepath      = $original_filedir . '/' . $new_filename;
 
 					if ( is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
 						$wp_filesystem->put_contents( $new_filepath, wp_remote_retrieve_body( $response ) );
@@ -143,7 +145,7 @@ class Extension_ImageOptimizer_Cron {
 					// Insert as attachment post.
 					$post_id = wp_insert_attachment(
 						array(
-							'guid'           => $wp_upload_dir['url'] . '/' . $new_filename,
+							'guid'           => $new_filepath,
 							'post_mime_type' => $headers['x-mime-type-out'],
 							'post_title'     => preg_replace( '/\.[^.]+$/', '', $new_filename ),
 							'post_content'   => '',
@@ -169,7 +171,9 @@ class Extension_ImageOptimizer_Cron {
 					);
 
 					// Generate the metadata for the attachment, and update the database record.
-					$attach_data = wp_generate_attachment_metadata( $post_id, $new_filename );
+					$attach_data           = wp_generate_attachment_metadata( $post_id, $new_filepath );
+					$attach_data['width']  = $original_size[0];
+					$attach_data['height'] = $original_size[1];
 					wp_update_attachment_metadata( $post_id, $attach_data );
 				} elseif ( isset( $response['status'] ) && 'complete' === $response['status'] ) {
 					// Update the status to "error".
