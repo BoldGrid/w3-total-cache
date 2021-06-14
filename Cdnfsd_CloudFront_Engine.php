@@ -54,7 +54,7 @@ class Cdnfsd_CloudFront_Engine {
 	 */
 	public function flush_all() {
 		$api = $this->_api();
-		$uris = array( '/*' );
+		$uris = apply_filters( 'w3tc_cdn_cf_flush_all_uris', array( '/*' ) );
 
 		$api->createInvalidation( array(
 				'DistributionId' => $this->distribution_id,
