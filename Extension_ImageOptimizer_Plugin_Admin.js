@@ -10,6 +10,7 @@
 
 (function( $ ) {
 	var checkitemInterval,
+		isCheckingItems = false,
 		$buttons = $( 'input.button.w3tc-optimize' );
 
 	/**
@@ -21,6 +22,7 @@
 		$buttons.each( function() {
 			var $this = $( this );
 
+			// If marked as processing, then check for status change an update status on screen.
 			if ( 'processing' === $this.data( 'status' ) ) {
 				$.ajax({
 					method: 'POST',
@@ -46,16 +48,33 @@
 		});
 	};
 
-	// Check status and update every 5 seconds.
-	checkitemInterval = setInterval( checkItemsProcessing, 5000 );
+	/**
+	 * Start checking processing items.
+	 *
+	 * @since X.X.X
+	 */
+	 function startCheckItems() {
+		if ( isCheckingItems ) {
+			return;
+		}
 
-	// Stop checking after 5 minutes.
-	setTimeout(
-		function() {
-			clearInterval( checkitemInterval );
-		},
-		60 * 5 * 1000
-	);
+		isCheckingItems= true;
+
+		// Check status and update every 5 seconds.
+		checkitemsInterval = setInterval( checkItemsProcessing, 5000 );
+
+		// Stop checking after 5 minutes.
+		setTimeout(
+			function() {
+				clearInterval( checkitemsInterval );
+				isCheckingItems = false;
+			},
+			60 * 5 * 1000
+		);
+	}
+
+	// Trigger checking items.
+	startCheckItems();
 
 	$buttons.on( 'click', function( e ) {
 		var $this = $( this );
@@ -83,6 +102,8 @@
 						response.data.job_id +
 						'</div>'
 					);
+					$this.data( 'status', 'processing' );
+					startCheckItems();
 				} else if ( response.data.error ) {
 					$this.val( w3tcData.lang.error );
 					$this.parent().append(
@@ -90,8 +111,10 @@
 						response.data.error +
 						'</div>'
 					);
+					$this.data( 'status', 'error' );
 				} else {
 					$this.val( w3tcData.lang.error );
+					$this.data( 'status', 'error' );
 				}
 			})
 			.fail( function( jqXHR ) {

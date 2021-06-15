@@ -126,6 +126,11 @@ class Extension_ImageOptimizer_Cron {
 						continue;
 					}
 
+					// If an optimized file already exists, then trash it before saving the new file.
+					if ( isset( $postmeta['post_child'] ) ) {
+						wp_delete_attachment( $postmeta['post_child'], false );
+					}
+
 					// Save the file.
 					$original_filepath = get_attached_file( $post->ID );
 					$original_size     = wp_getimagesize( $original_filepath );
@@ -165,15 +170,19 @@ class Extension_ImageOptimizer_Cron {
 					// Save the new post id.
 					Extension_ImageOptimizer_Plugin_Admin::update_postmeta(
 						$post->ID,
-						array(
-							'post_child' => $post_id,
-						)
+						array( 'post_child' => $post_id )
+					);
+
+					// Mark the downloaded file as the optimized one.
+					Extension_ImageOptimizer_Plugin_Admin::update_postmeta(
+						$post_id,
+						array( 'is_optimized_file' => true )
 					);
 
 					// Generate the metadata for the attachment, and update the database record.
 					$attach_data           = wp_generate_attachment_metadata( $post_id, $new_filepath );
-					$attach_data['width']  = $original_size[0];
-					$attach_data['height'] = $original_size[1];
+					$attach_data['width']  = isset( $attach_data['width'] ) ? $attach_data['width'] : $original_size[0];
+					$attach_data['height'] = isset( $attach_data['height'] ) ? $attach_data['height'] : $original_size[1];
 					wp_update_attachment_metadata( $post_id, $attach_data );
 				} elseif ( isset( $response['status'] ) && 'complete' === $response['status'] ) {
 					// Update the status to "error".

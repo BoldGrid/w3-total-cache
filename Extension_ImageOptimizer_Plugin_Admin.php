@@ -266,12 +266,22 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 */
 	public function media_column_row( $column_name, $post_id ) {
 		if ( 'optimager' === $column_name ) {
-			$post = get_post( $post_id );
+			$post          = get_post( $post_id );
+			$optimage_data = get_post_meta( $post_id, 'w3tc_optimager', true );
 
 			if ( in_array( $post->post_mime_type, self::$mime_types, true ) ) {
-				$filepath      = get_attached_file( $post_id );
-				$optimage_data = get_post_meta( $post_id, 'w3tc_optimager', true );
-				$status        = isset( $optimage_data['status'] ) ? $optimage_data['status'] : null;
+				$filepath = get_attached_file( $post_id );
+				$status   = isset( $optimage_data['status'] ) ? $optimage_data['status'] : null;
+
+				// Check if image still has the optimized file.  It could have been deleted.
+				if ( 'optimized' === $status && isset( $optimage_data['post_child'] ) ) {
+					$child_data = get_post_meta( $optimage_data['post_child'], 'w3tc_optimager', true );
+
+					if ( empty( $child_data['is_optimized_file'] ) ) {
+						$status = null;
+						delete_post_meta( $post_id, 'w3tc_optimager' );
+					}
+				}
 
 				?>
 				<span class="w3tc-optimize<?php
@@ -303,7 +313,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				?> />
 				<?php
 				// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-			} elseif ( 'w3tc-' === substr( $post->post_name, 0, 5 ) ) {
+			} elseif ( isset( $optimage_data['is_optimized_file'] ) && $optimage_data['is_optimized_file'] ) {
 				// W3TC optimized image.
 				?>
 				<span class="w3tc-optimize w3tc-optimized"></span>
@@ -348,6 +358,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 */
 	public static function copy_postmeta( $post_id_1, $post_id_2 ) {
 		$postmeta = (array) get_post_meta( $post_id_1, 'w3tc_optimager', true );
+
+		// Do not copy "post_child".
+		unset( $postmeta['post_child'] );
 
 		return update_post_meta( $post_id_2, 'w3tc_optimager', $postmeta );
 	}
