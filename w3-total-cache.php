@@ -68,11 +68,6 @@ if ( ! defined( 'W3TC_IN_MINIFY' ) ) {
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		require_once W3TC_DIR . '/Cli.php';
 	}
-	
-	// Set W3TC_REDIS_CLUSTER to true if using Redis in cluster mode 
-	if ( ! defined ( 'W3TC_REDIS_CLUSTER' ) ) {
-		define( 'W3TC_REDIS_CLUSTER', false );
-	}
 
 	// Include to prevent syntax error for older php.
 	require_once dirname( __FILE__ ) . '/Root_Loader.php';

@@ -47,7 +47,7 @@ class Generic_AdminActions_Test {
 		else {
 			$success = true;
 
-			if ( W3TC_REDIS_CLUSTER === true ) {
+			if ( defined( 'W3TC_REDIS_CLUSTER' ) && W3TC_REDIS_CLUSTER ) {
 				
 				$config = array(
 					'servers' => $servers,
