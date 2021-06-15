@@ -48,7 +48,6 @@ class Generic_AdminActions_Test {
 			$success = true;
 
 			if ( defined( 'W3TC_REDIS_CLUSTER' ) && W3TC_REDIS_CLUSTER ) {
-				
 				$config = array(
 					'servers' => $servers,
 					'persistent' => false,
@@ -71,8 +70,7 @@ class Generic_AdminActions_Test {
 				if ( $test_value['content'] != $test_string ) {
 					$success = false;
 				}
-			}
-			else {
+			}	else {
 				foreach ( $servers as $server ) {
 					@$cache = Cache::instance( 'redis', array(
 							'servers' => $server,
