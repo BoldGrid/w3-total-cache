@@ -39,7 +39,7 @@ class Extensions_Page extends Base_Page_Settings {
 		}
 
 		if ( isset( $_GET['extension'] ) ) {
-			$extension = $_GET['extension'];
+			$extension = esc_attr( $_GET['extension'] );
 		}
 
 		$view = ( isset( $_GET['action'] ) && $_GET['action'] == 'view' );
