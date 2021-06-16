@@ -346,8 +346,7 @@ class Cache_Redis extends Cache_Base {
 			try {
 				if ( defined( 'W3TC_REDIS_CLUSTER' ) && W3TC_REDIS_CLUSTER ) {
 					$accessor = new \RedisCluster(NULL, $this->_servers, 1.5, 1.5, $this->_persistent, $this->_password);
-				}
-				else {
+				} else {
 					
 					$server = $this->_servers[$index];
 					$accessor = new \Redis();
