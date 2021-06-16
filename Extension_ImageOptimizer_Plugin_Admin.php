@@ -143,6 +143,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		 * @param bool   $result Whether the image can be displayed. Default true.
 		 * @param string $path   Path to the image.
 		 */
+		/*
 		add_filter(
 			'file_is_displayable_image',
 			function( $result, $path ) {
@@ -156,6 +157,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			10,
 			2
 		);
+		*/
 
 		/**
 		 * Ensure all network sites include WebP support.
