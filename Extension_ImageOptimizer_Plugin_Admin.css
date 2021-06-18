@@ -6,14 +6,22 @@ span.w3tc-optimize:before {
 	margin-top: 5px;
 }
 
-th > span.w3tc-optimize:before {
+th span.w3tc-optimize:before {
 	vertical-align: text-bottom;
 }
 
-td > span.w3tc-optimize:before {
+td span.w3tc-optimize:before {
 	color: gray;
 }
 
-td > span.w3tc-optimized:before {
+td span.w3tc-optimized:before {
 	color: green;
+}
+
+.w3tc-optimized-reduced {
+	color: green;
+}
+
+.w3tc-optimized-increased {
+	color: red;
 }

@@ -179,6 +179,9 @@ class Extension_ImageOptimizer_Cron {
 						array( 'is_optimized_file' => true )
 					);
 
+					// In order to filter/hide optimized files in the media list, add a meta key.
+					update_post_meta( $post_id, 'w3tc_optimager_file', $extension );
+
 					// Generate the metadata for the attachment, and update the database record.
 					$attach_data           = wp_generate_attachment_metadata( $post_id, $new_filepath );
 					$attach_data['width']  = isset( $attach_data['width'] ) ? $attach_data['width'] : $original_size[0];

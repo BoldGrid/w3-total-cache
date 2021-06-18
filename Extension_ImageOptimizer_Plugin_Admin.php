@@ -134,30 +134,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		// AJAX hooks.
 		add_action( 'wp_ajax_w3tc_optimager_submit', array( $o, 'ajax_submit' ) );
 		add_action( 'wp_ajax_w3tc_optimager_postmeta', array( $o, 'ajax_get_postmeta' ) );
-
-		/**
-		 * Filters whether the current image is displayable in the browser.
-		 *
-		 * @since 2.5.0
-		 *
-		 * @param bool   $result Whether the image can be displayed. Default true.
-		 * @param string $path   Path to the image.
-		 */
-		/*
-		add_filter(
-			'file_is_displayable_image',
-			function( $result, $path ) {
-				// Display webp images.
-				if ( '.webp' === strtolower( substr( $path, -5 ) ) ) {
-					return true;
-				}
-
-				return $result;
-			},
-			10,
-			2
-		);
-		*/
+		add_action( 'wp_ajax_w3tc_optimager_revert', array( $o, 'ajax_revert' ) );
 
 		/**
 		 * Ensure all network sites include WebP support.
@@ -174,6 +151,53 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				}
 
 				return $filetypes;
+			}
+		);
+
+		// Hide optimized media.
+		add_action(
+			'pre_get_posts',
+			function( $query ) {
+				if ( ! $query->is_main_query() ) {
+					return;
+				}
+
+				$screen = get_current_screen();
+
+				if ( ! $screen || 'upload' !== $screen->id || 'attachment' !== $screen->post_type ) {
+					return;
+				}
+
+				$query->set(
+					'meta_query',
+					array(
+						array(
+							'key'     => 'w3tc_optimager_file',
+							'compare' => 'NOT EXISTS',
+						),
+					)
+				);
+
+				return;
+			}
+		);
+
+		add_filter(
+			'ajax_query_attachments_args',
+			function( $args ) {
+				if ( ! is_admin() ) {
+					return;
+				}
+
+				// Modify the query.
+				$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'     => 'w3tc_optimager_file',
+						'compare' => 'NOT EXISTS',
+					),
+				);
+
+				return $args;
 			}
 		);
 	}
@@ -214,14 +238,17 @@ class Extension_ImageOptimizer_Plugin_Admin {
 					'nonces' => array(
 						'submit'   => wp_create_nonce( 'w3tc_optimager_submit' ),
 						'postmeta' => wp_create_nonce( 'w3tc_optimager_postmeta' ),
+						'revert'   => wp_create_nonce( 'w3tc_optimager_revert' ),
 					),
 					'lang'   => array(
 						'optimize'   => __( 'Optimize', 'w3-total_cache' ),
 						'sending'    => __( 'Sending', 'w3-total_cache' ),
 						'processing' => __( 'Processing', 'w3-total_cache' ),
 						'optimized'  => __( 'Optimized', 'w3-total_cache' ),
+						'reoptimize' => __( 'Reoptimize', 'w3-total_cache' ),
+						'reverting'  => __( 'Reverting', 'w3-total_cache' ),
+						'revert'     => __( 'Revert', 'w3-total_cache' ),
 						'error'      => __( 'Error', 'w3-total_cache' ),
-						'jobid'      => __( 'Queued Job ID: ', 'w3-total_cache' ),
 					),
 				)
 			);
@@ -268,16 +295,16 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 */
 	public function media_column_row( $column_name, $post_id ) {
 		if ( 'optimager' === $column_name ) {
-			$post          = get_post( $post_id );
-			$optimage_data = get_post_meta( $post_id, 'w3tc_optimager', true );
+			$post           = get_post( $post_id );
+			$optimager_data = get_post_meta( $post_id, 'w3tc_optimager', true );
 
 			if ( in_array( $post->post_mime_type, self::$mime_types, true ) ) {
 				$filepath = get_attached_file( $post_id );
-				$status   = isset( $optimage_data['status'] ) ? $optimage_data['status'] : null;
+				$status   = isset( $optimager_data['status'] ) ? $optimager_data['status'] : null;
 
 				// Check if image still has the optimized file.  It could have been deleted.
-				if ( 'optimized' === $status && isset( $optimage_data['post_child'] ) ) {
-					$child_data = get_post_meta( $optimage_data['post_child'], 'w3tc_optimager', true );
+				if ( 'optimized' === $status && isset( $optimager_data['post_child'] ) ) {
+					$child_data = get_post_meta( $optimager_data['post_child'], 'w3tc_optimager', true );
 
 					if ( empty( $child_data['is_optimized_file'] ) ) {
 						$status = null;
@@ -301,12 +328,13 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						esc_attr_e( 'Processing', 'w3-total-cache' );
 						break;
 					case 'optimized':
-						esc_attr_e( 'Optimized', 'w3-total-cache' );
+						esc_attr_e( 'Reoptimize', 'w3-total-cache' );
 						break;
 					default:
 						esc_attr_e( 'Optimize', 'w3-total-cache' );
 						break;
 				}
+				// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 				?>" data-post-id="<?php echo esc_attr( $post_id ); ?>" data-status="<?php echo esc_attr( $status ); ?>"
 				<?php
 				if ( 'processing' === $status ) {
@@ -314,8 +342,33 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				}
 				?> />
 				<?php
-				// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-			} elseif ( isset( $optimage_data['is_optimized_file'] ) && $optimage_data['is_optimized_file'] ) {
+
+				// If optimized, then show revert button and information.
+				if ( 'optimized' === $status ) {
+					?>
+					&nbsp; <input type="submit" id="w3tc-<?php echo esc_attr( $post_id ); ?>-unoptimize" class="button w3tc-unoptimize"
+						value="<?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?>" \>
+					<?php
+
+					$optimized_percent = isset( $optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] ) ?
+						$optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] : null;
+					$reduced_percent   = isset( $optimager_data['download']["\0*\0data"]['x-filesize-reduced'] ) ?
+						$optimager_data['download']["\0*\0data"]['x-filesize-reduced'] : null;
+
+					if ( $optimized_percent ) {
+						$optimized_class = rtrim( $optimized_percent, '%' ) > 100 ? 'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
+						?>
+						<div class="<?php echo esc_attr( $optimized_class ); ?>">
+						<?php
+						echo esc_html(
+							$optimized_percent . ' (' . __( 'Changed: ', 'w3-total-cache' ) . $reduced_percent . ')'
+						);
+						?>
+						</div>
+						<?php
+					}
+				}
+			} elseif ( isset( $optimager_data['is_optimized_file'] ) && $optimager_data['is_optimized_file'] ) {
 				// W3TC optimized image.
 				?>
 				<span class="w3tc-optimize w3tc-optimized"></span>
@@ -372,7 +425,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @uses $_POST['post_id']
+	 * @uses $_POST['post_id'] Post id.
 	 */
 	public function ajax_submit() {
 		check_ajax_referer( 'w3tc_optimager_submit' );
@@ -443,7 +496,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @uses $_POST['post_id']
+	 * @uses $_POST['post_id'] Post id.
 	 */
 	public function ajax_get_postmeta() {
 		check_ajax_referer( 'w3tc_optimager_postmeta' );
@@ -452,6 +505,53 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 		if ( $post_id ) {
 			wp_send_json_success( (array) get_post_meta( $post_id, 'w3tc_optimager', true ) );
+		} else {
+			wp_send_json_error(
+				array(
+					'error' => __( 'Missing input post id.', 'w3-total-cache' ),
+				),
+				400
+			);
+		}
+	}
+
+	/**
+	 * AJAX: Revert an optimization.
+	 *
+	 * @since X.X.X
+	 *
+	 * @uses $_POST['post_id'] Parent post id.
+	 */
+	public function ajax_revert() {
+		check_ajax_referer( 'w3tc_optimager_revert' );
+
+		$post_id = isset( $_POST['post_id'] ) ? (int) sanitize_key( $_POST['post_id'] ) : null;
+
+		if ( $post_id ) {
+			// Get child post id.
+			$postmeta = (array) get_post_meta( $post_id, 'w3tc_optimager', true );
+			$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
+
+			if ( $child_id ) {
+				// CLear status and post child id on the parent attachment.
+				self::update_postmeta(
+					$post_id,
+					array(
+						'status'     => null,
+						'post_child' => null,
+					)
+				);
+
+				// Delete optimization.
+				wp_send_json_success( wp_delete_attachment( $child_id, false ) );
+			} else {
+				wp_send_json_error(
+					array(
+						'error' => __( 'Missing optimized attachment id.', 'w3-total-cache' ),
+					),
+					410
+				);
+			}
 		} else {
 			wp_send_json_error(
 				array(

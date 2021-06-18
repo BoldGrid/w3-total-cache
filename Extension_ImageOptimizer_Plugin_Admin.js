@@ -11,7 +11,8 @@
 (function( $ ) {
 	var checkitemInterval,
 		isCheckingItems = false,
-		$buttons = $( 'input.button.w3tc-optimize' );
+		$buttonsOptimize = $( 'input.button.w3tc-optimize' ),
+		$buttonsUnoptimize = $( 'input.button.w3tc-unoptimize' );
 
 	/**
 	 * Check processing items.
@@ -19,8 +20,9 @@
 	 * @since X.X.X
 	 */
 	function checkItemsProcessing() {
-		$buttons.each( function() {
-			var $this = $( this );
+		$buttonsOptimize.each( function() {
+			var $this = $( this ),
+				$itemTd = $this.closest( 'td' );
 
 			// If marked as processing, then check for status change an update status on screen.
 			if ( 'processing' === $this.data( 'status' ) ) {
@@ -35,10 +37,21 @@
 				})
 					.done( function( response ) {
 						if ( 'optimized' === response.data.status ) {
-							$this.val( w3tcData.lang.optimized );
-							$this.data( 'status', 'optimized' );
-							$this.prop( 'disabled', false );
-							$this.closest( 'td' ).find( 'span' ).addClass( 'w3tc-optimized' );
+							$this.val( w3tcData.lang.optimized ); // Mark as optimized.
+							$this.data( 'status', 'optimized' ); // Update status.
+							$this.prop( 'disabled', false ); // Enable button.
+							$itemTd.find( 'span' ).addClass( 'w3tc-optimized' ); // Mark icon as optimized.
+
+							// Add revert button.
+							$itemTd.append(
+								'&nbsp; <input type="submit" class="button w3tc-unoptimize" value="' +
+								w3tcData.lang.revert +
+								'" \>'
+							);
+
+							// Update global unoptimize buttons.
+							$buttonsUnoptimize = $( 'input.button.w3tc-unoptimize' );
+							$buttonsUnoptimize.unbind().on( 'click', unoptimize );
 						}
 					})
 					.fail( function( jqXHR ) {
@@ -76,7 +89,7 @@
 	// Trigger checking items.
 	startCheckItems();
 
-	$buttons.on( 'click', function( e ) {
+	$buttonsOptimize.on( 'click', function( e ) {
 		var $this = $( this );
 
 		e.preventDefault();
@@ -96,12 +109,6 @@
 			.done( function( response ) {
 				if ( response.success ) {
 					$this.val( w3tcData.lang.processing );
-					$this.parent().append(
-						'<div class="notice notice-success inline">' +
-						w3tcData.lang.jobid +
-						response.data.job_id +
-						'</div>'
-					);
 					$this.data( 'status', 'processing' );
 					startCheckItems();
 				} else if ( response.data.error ) {
@@ -131,4 +138,70 @@
 
 		return false;
 	});
+
+	/**
+	 * Unoptimize/revert.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param {*} e Event.
+	 * @returns false
+	 */
+	function unoptimize( e ) {
+		var $this = $( this ),
+			$itemTd = $this.closest( 'td' ),
+			$optimizeButton = $itemTd.find( 'input.w3tc-optimize' );
+
+		e.preventDefault();
+
+		$this.prop( 'disabled', true );
+		$optimizeButton.prop( 'disabled', true );
+		$this.val( w3tcData.lang.reverting );
+
+		$.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: w3tcData.nonces.revert,
+				action: 'w3tc_optimager_revert',
+				post_id: $optimizeButton.data( 'post-id' )
+			}
+		})
+			.done( function( response ) {
+				if ( response.success ) {
+					$this.remove(); // Remove the revert button.
+					$itemTd.find( 'div' ).remove(); // Remove optimization info.
+					$itemTd.find( 'span' ).removeClass( 'w3tc-optimized' ); // Unmark icon.
+					$optimizeButton.val( w3tcData.lang.optimize );
+					$optimizeButton.prop( 'disabled', false );
+					$optimizeButton.data( 'status', null );
+				} else if ( response.data.error ) {
+					$this.val( w3tcData.lang.error );
+					$this.parent().append(
+						'<div class="notice notice-error inline">' +
+						response.data.error +
+						'</div>'
+					);
+					$this.data( 'status', 'error' );
+				} else {
+					$this.val( w3tcData.lang.error );
+					$this.data( 'status', 'error' );
+				}
+			})
+			.fail( function( jqXHR ) {
+				$this.val( w3tcData.lang.error );
+
+				if ( 'responseJSON' in jqXHR && 'data' in jqXHR.responseJSON && 'error' in jqXHR.responseJSON.data ) {
+					$this.parent().append(
+						'<div class="notice notice-error inline">' +
+						jqXHR.responseJSON.data.error +
+						'</div>'
+					);
+				}
+			});
+
+		return false;
+	};
+
+	$buttonsUnoptimize.on( 'click', unoptimize );
 })( jQuery );
