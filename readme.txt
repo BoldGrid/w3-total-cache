@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.8
 Tested up to: 5.7
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -275,8 +275,10 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
-= 2.1.4 =
+= 2.1.5 =
 * Fix: Sanitize extension argument
+
+= 2.1.4 =
 * Fix: Use Memcached server from config for Nginx rules instead of localhost
 * Fix: Allow more characters in CDN hostname sanitization
 * Fix: Added missing textdomains for Browser Cache settings
