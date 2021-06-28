@@ -1218,7 +1218,7 @@ class PgCache_Environment {
 		$memcached_pass = !empty( $memcached_servers ) ? array_values( $memcached_servers )[0] : 'localhost:11211';
 
 		$rules .= '  if ($w3tc_rewrite = 1) {' . "\n";
-		$rules .= '    memcached_pass' . $memcached_pass . ';' . "\n";
+		$rules .= '    memcached_pass ' . $memcached_pass . ';' . "\n";
 		$rules .= "  }\n";
 		$rules .= '  error_page     404 502 504 = @fallback;' . "\n";
 		$rules .= "}\n";
