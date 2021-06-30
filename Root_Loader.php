@@ -20,6 +20,7 @@ class Root_Loader {
 
 		$plugins = array();
 		$plugins[] = new Generic_Plugin();
+		$plugins[] = new Update_Plugin();
 
 		if ( $c->get_boolean( 'dbcache.enabled' ) )
 			$plugins[] = new DbCache_Plugin();
