@@ -36,22 +36,48 @@
 					}
 				})
 					.done( function( response ) {
+						var infoClass;
+
 						if ( 'optimized' === response.data.status ) {
 							$this.val( w3tcData.lang.optimized ); // Mark as optimized.
 							$this.data( 'status', 'optimized' ); // Update status.
 							$this.prop( 'disabled', false ); // Enable button.
 							$itemTd.find( 'span' ).addClass( 'w3tc-optimized' ); // Mark icon as optimized.
 
-							// Add revert button.
-							$itemTd.append(
-								'&nbsp; <input type="submit" class="button w3tc-unoptimize" value="' +
-								w3tcData.lang.revert +
-								'" \>'
-							);
+							// Add revert button, if not already present.
+							if ( ! $itemTd.find( '.w3tc-unoptimize' ).length ) {
+								$itemTd.append(
+									'&nbsp; <input type="submit" class="button w3tc-unoptimize" value="' +
+									w3tcData.lang.revert +
+									'" \>'
+								);
 
-							// Update global unoptimize buttons.
-							$buttonsUnoptimize = $( 'input.button.w3tc-unoptimize' );
-							$buttonsUnoptimize.unbind().on( 'click', unoptimize );
+								// Update global unoptimize buttons.
+								$buttonsUnoptimize = $( 'input.button.w3tc-unoptimize' );
+								$buttonsUnoptimize.unbind().on( 'click', unoptimize );
+							}
+						}
+
+						// Remove any previous optimization information.
+						$itemTd.find( '.w3tc-optimized-reduced' ).remove();
+						$itemTd.find( '.w3tc-optimized-increased' ).remove();
+
+						// Add optimization information.
+						if ( response.data.download && response.data.download["\u0000*\u0000data"] ) {
+							infoClass = response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] > 0 ?
+								'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
+
+							$itemTd.append(
+								'<div class="' +
+								infoClass +
+								'">' +
+								response.data.download["\u0000*\u0000data"]['x-filesize-out-percent'] +
+								' (' +
+								w3tcData.lang.changed +
+								': ' +
+								response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
+								')</div>'
+							);
 						}
 					})
 					.fail( function( jqXHR ) {
