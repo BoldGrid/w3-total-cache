@@ -249,6 +249,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'reverting'  => __( 'Reverting', 'w3-total_cache' ),
 						'revert'     => __( 'Revert', 'w3-total_cache' ),
 						'error'      => __( 'Error', 'w3-total_cache' ),
+						'changed'    => __( 'Changed', 'w3-total_cache' ),
 					),
 				)
 			);
@@ -533,14 +534,8 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
 
 			if ( $child_id ) {
-				// CLear status and post child id on the parent attachment.
-				self::update_postmeta(
-					$post_id,
-					array(
-						'status'     => null,
-						'post_child' => null,
-					)
-				);
+				// Delete postmeta.
+				delete_post_meta( $post_id, 'w3tc_optimager' );
 
 				// Delete optimization.
 				wp_send_json_success( wp_delete_attachment( $child_id, false ) );
