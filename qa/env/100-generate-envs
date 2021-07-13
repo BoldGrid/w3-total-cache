@@ -209,16 +209,13 @@ def generate_box_descriptors(image_name)
 		#	]
 		#},
 		'wp56' => {
-			'WP_VERSION' => '5.6',
-			'_except_name_contains' => [
-				'php55'   # wp5.6 requires php>=5.6
-			]
+			'WP_VERSION' => '5.6'
 		},
 		'wp57' => {
-			'WP_VERSION' => '5.7',
-			'_except_name_contains' => [
-				'php55'   # wp5.7 requires php>=5.6
-			]
+			'WP_VERSION' => '5.7'
+		},
+		'wp58' => {
+			'WP_VERSION' => '5.8-RC2'
 		}
 	}, image_name)
 
