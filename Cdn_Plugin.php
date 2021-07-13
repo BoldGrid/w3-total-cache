@@ -967,8 +967,10 @@ class _Cdn_Plugin_ContentFilter {
 			Util_Environment::cache_blog_minify_dir()
 		);
 		$matches = null;
-		if ( !preg_match( '~((https?://)?([^/]+))(.+)~i', $minify_base_url, $matches ) )
+		if ( !preg_match( '~((https?://)?([^/]+))(.+)~i', $minify_base_url, $matches ) ) {
+			error_log( 'cant find minification base url, make sure minification folder sits inside WP_CONTENT_DIR and DOCUMENT_ROOT is set correctly' );
 			return '';
+		}
 
 		$protocol_domain_regexp = Util_Environment::get_url_regexp( $matches[1] );
 		$path_regexp = Util_Environment::preg_quote( $matches[4] );
