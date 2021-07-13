@@ -874,22 +874,24 @@ class _Cdn_Plugin_ContentFilter {
 
 		if ( $this->_config->get_boolean( 'cdn.minify.enable' ) ) {
 			if ( $this->_config->get_boolean( 'minify.auto' ) ) {
-				$regexp = '~(["\'(=])\s*' .
-					$this->minify_url_regexp( '/[a-zA-Z0-9-_]+\.(css|js)' ) .
-					'~U';
-				if ( Cdn_Util::is_engine_mirror( $this->_config->get_string( 'cdn.engine' ) ) )
+				$minify_url_regexp = $this->minify_url_regexp( '/[a-zA-Z0-9-_]+\.(css|js)' );
+
+				if ( Cdn_Util::is_engine_mirror( $this->_config->get_string( 'cdn.engine' ) ) ) {
 					$processor = array( $this, '_link_replace_callback' );
-				else
+				} else {
 					$processor = array( $this, '_minify_auto_pushcdn_link_replace_callback' );
+				}
 			} else {
-				$regexp = '~(["\'(=])\s*' .
-					$this->minify_url_regexp(
-					'/[a-z0-9]+\..+\.include(-(footer|body))?(-nb)?\.[a-f0-9]+\.(css|js)' )
-					.'~U';
+				$minify_url_regexp = $this->minify_url_regexp(
+					'/[a-z0-9]+\..+\.include(-(footer|body))?(-nb)?\.[a-f0-9]+\.(css|js)' );
+
 				$processor = array( $this, '_link_replace_callback' );
 			}
 
-			$buffer = preg_replace_callback( $regexp, $processor, $buffer );
+			if ( !empty( $minify_url_regexp ) ) {
+				$regexp = '~(["\'(=])\s*' . $minify_url_regexp .'~U';
+				$buffer = preg_replace_callback( $regexp, $processor, $buffer );
+			}
 		}
 
 		$buffer = $this->replace_placeholders( $buffer );
