@@ -172,7 +172,8 @@ class Root_Environment {
 			new BrowserCache_Environment(),
 			new ObjectCache_Environment(),
 			new DbCache_Environment(),
-			new Cdn_Environment()
+			new Cdn_Environment(),
+			new Extension_ImageOptimizer_Environment(),
 		);
 
 		return $a;
