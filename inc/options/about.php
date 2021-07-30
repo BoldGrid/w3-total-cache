@@ -8,7 +8,7 @@ if ( !defined( 'W3TC' ) )
 <?php include W3TC_INC_DIR . '/options/common/header.php'; ?>
 
 <div id="about">
-    <p><?php _e( 'User experience is an important aspect of every web site and all web sites can benefit from effective caching and file size reduction. We have applied web site optimization methods typically used with high traffic sites and simplified their implementation. Coupling these methods either <a href="http://memcached.org/" target="_blank">memcached</a> and/or opcode caching and the <acronym title="Content Delivery Network">CDN</acronym> of your choosing to provide the following features and benefits:' ) ?></p>
+    <p><?php _e( 'User experience is an important aspect of every web site and all web sites can benefit from effective caching and file size reduction. We have applied web site optimization methods typically used with high traffic sites and simplified their implementation. Coupling these methods either <a href="http://memcached.org/" target="_blank">memcached</a> and/or opcode caching and the <acronym title="Content Delivery Network">CDN</acronym> of your choosing to provide the following features and benefits:', 'w3-total-cache') ?></p>
 
     <ul>
 		<li><?php _e( 'Improved Google search engine ranking', 'w3-total-cache' ); ?></li>
