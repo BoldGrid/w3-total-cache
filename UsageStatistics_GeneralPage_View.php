@@ -15,7 +15,7 @@ $is_pro = Util_Environment::is_w3tc_pro( $c );
 	<?php
 Util_Ui::config_item_pro( array(
 		'key' => 'stats.enabled',
-		'label' => esc_html__( 'Cache usage statistics' ),
+		'label' => esc_html__( 'Cache usage statistics', 'w3-total-cache' ),
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
 		'disabled' => ( $is_pro ? null : true ),
