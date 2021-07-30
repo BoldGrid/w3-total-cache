@@ -281,7 +281,14 @@ async function postCreateWP5(pPage, data) {
 					}
 				}
 
-				return x1;
+				let dropdowns = document.querySelectorAll('.components-select-control__input');
+				for (let dropdown of dropdowns) {
+						if (dropdown.outerHTML.indexOf('>Default template<') > 0) {
+								return dropdown.id;
+						}
+				}
+
+				return x1;   // fail here means something wrong with DOM structure
 			});
 		} else {
 			templateControlId = await pPage.evaluate(() => {
