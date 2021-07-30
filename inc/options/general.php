@@ -126,7 +126,7 @@ Util_Ui::config_overloading_button( array(
 		'key' => 'minify.configuration_overloaded'
 	) );
 ?>
-		<p><?php w3tc_e( 'minify.general.header', 'Reduce load time by decreasing the size and number of <acronym title="Cascading Style Sheet">CSS</acronym> and <acronym title="JavaScript">JS</acronym> files. Automatically remove unnecessary data from <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym>, feed, page and post <acronym title="Hypertext Markup Language">HTML</acronym>.' ) ?></p>
+		<p><?php w3tc_e( 'minify.general.header', 'Reduce load time by decreasing the size and number of <acronym title="Cascading Style Sheet">CSS</acronym> and <acronym title="JavaScript">JS</acronym> files. Automatically remove unnecessary data from <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym>, feed, page and post <acronym title="Hypertext Markup Language">HTML</acronym>.', 'w3-total-cache' ) ?></p>
 
 		<table class="form-table">
 			<?php
@@ -323,7 +323,7 @@ Util_Ui::config_overloading_button( array(
 		<p>
 			<?php
 echo sprintf(
-	w3tc_er( 'reverseproxy.general.header', 'A reverse proxy adds scale to an server by handling requests before WordPress does. Purge settings are set on the <a href="%s">Page Cache settings</a> page and <a href="%s">Browser Cache settings</a> are set on the browser cache settings page.' ),
+	w3tc_er( 'reverseproxy.general.header', 'A reverse proxy adds scale to an server by handling requests before WordPress does. Purge settings are set on the <a href="%s">Page Cache settings</a> page and <a href="%s">Browser Cache settings</a> are set on the browser cache settings page.', 'w3-total-cache' ),
 	self_admin_url( 'admin.php?page=w3tc_pgcache' ),
 	self_admin_url( 'admin.php?page=w3tc_browsercache' ) );
 ?>
