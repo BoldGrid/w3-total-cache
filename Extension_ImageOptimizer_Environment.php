@@ -98,7 +98,7 @@ class Extension_ImageOptimizer_Environment {
 			case Util_Environment::is_apache():
 			case Util_Environment::is_litespeed():
 				return '
-# W3TC_MARKER_BEGIN_WEBP
+# BEGIN W3TC WEBP
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{HTTP_ACCEPT} image/webp
@@ -113,12 +113,13 @@ class Extension_ImageOptimizer_Environment {
     </FilesMatch>
 </IfModule>
 AddType image/webp .webp
-# W3TC_MARKER_END_WEBP
+# END W3TC WEBP
+
 ';
 
 			case Util_Environment::is_nginx():
 				return '
-# W3TC_MARKER_BEGIN_WEBP
+# BEGIN W3TC WEBP
 map $http_accept $webp_ext {
     default "";
     "~*webp" ".webp";
@@ -129,7 +130,8 @@ location ~* ^(.+)\.(png|jpg)$ {
     add_header Vary Accept;
     try_files $img_path$webp_ext $uri =404;
 }
-# W3TC_MARKER_END_WEBP
+# END W3TC WEBP
+
 ';
 
 			default:
@@ -149,7 +151,7 @@ location ~* ^(.+)\.(png|jpg)$ {
 	private function rules_remove( $exs ) {
 		Util_Rule::remove_rules(
 			$exs,
-			Util_Rule::get_browsercache_rules_cache_path(),
+			Util_Rule::get_pgcache_rules_core_path(),
 			W3TC_MARKER_BEGIN_WEBP,
 			W3TC_MARKER_END_WEBP
 		);
