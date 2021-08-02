@@ -49,7 +49,7 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 				'sync_head' => 'sync (to head)',
 				'inline_footer' => 'inline'
 			),
-			'description' => 'Use <code>inline</code> method only when your website has just a few pages'
+			'description' => __( 'Use <code>inline</code> method only when your website has just a few pages', 'w3-total-cache' ),
 		)
 	);
 
@@ -60,7 +60,7 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 		<th>Google Maps</th>
 		<td>
 			<?php Util_Ui::pro_wrap_maybe_start(); ?>
-			<p class="description w3tc-gopro-excerpt" style="padding-bottom: 10px">Lazy load google map</p>
+			<p class="description w3tc-gopro-excerpt" style="padding-bottom: 10px">( 'Lazy load google map', 'w3-total-cache' )</p>
 			<div>
 				<?php
 				Util_Ui::control2( Util_Ui::config_item_preprocess( array(
