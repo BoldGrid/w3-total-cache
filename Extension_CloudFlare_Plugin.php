@@ -134,7 +134,7 @@ class Extension_CloudFlare_Plugin {
 						array( 'cloudflare', 'timelimit.api_request' ) )
 				)
 			);
-			
+
 			try {
 				$api->external_event( 'WP_SPAM', json_encode( $value ) );
 			} catch ( \Exception $ex ) {

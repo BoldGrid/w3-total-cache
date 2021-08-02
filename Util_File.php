@@ -335,7 +335,7 @@ class Util_File {
 			if ( !is_dir( W3TC_CACHE_TMP_DIR ) || !is_writable( W3TC_CACHE_TMP_DIR ) ) {
 				$e = error_get_last();
 				$description = ( isset( $e['message'] ) ? $e['message'] : '' );
-				
+
 				throw new \Exception( 'Can\'t create folder <strong>' .
 					W3TC_CACHE_TMP_DIR . '</strong>: ' . $description );
 			}
