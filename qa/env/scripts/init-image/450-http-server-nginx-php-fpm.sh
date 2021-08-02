@@ -11,9 +11,9 @@ case "${W3D_PHP_VERSION}" in
 		service php5-fpm restart
         ;;
     "5.6")
-		apt-get install -y php5-fpm
+		apt-get install -y php5.6-fpm
 		cp -f /share/scripts/init-image/templates/php-fpm-pool-www.conf /etc/php5/fpm/pool.d/www.conf
-		service php5-fpm restart
+		service php5.6-fpm restart
         ;;
     "7.0")
 		apt-get install -y php7.0-fpm
