@@ -34,14 +34,20 @@ class Enterprise_SnsBase {
 	 */
 	protected function _get_api() {
 		if ( is_null( $this->_api ) ) {
-			if ( $this->_api_key == '' )
-				throw new \Exception( 'API Key is not configured' );
-			if ( $this->_api_secret == '' )
-				throw new \Exception( 'API Secret is not configured' );
+			if ( empty( $this->_api_key ) && empty( $this->_api_secret ) ) {
+				$credentials = \Aws\Credentials\CredentialProvider::defaultProvider();
+			} else {
+				if ( empty( $this->_api_key ) ) {
+					throw new \Exception( 'API Key is not configured' );
+				}
 
+				if ( empty( $this->_api_secret ) ) {
+					throw new \Exception( 'API Secret is not configured' );
+				}
 
-			$credentials = new \Aws\Credentials\Credentials(
-				$this->_api_key, $this->_api_secret );
+				$credentials = new \Aws\Credentials\Credentials(
+					$this->_api_key, $this->_api_secret );
+			}
 
 			$this->_api = new \Aws\Sns\SnsClient( array(
 				'credentials' => $credentials,
