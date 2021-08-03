@@ -78,7 +78,7 @@ if ( $this->_config->get_string( 'objectcache.engine' ) == 'memcached' ) {
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'objectcache.fallback_transients' ) ?>( ' Store transients in database', 'w3-total-cache' )</label>
+					<?php $this->checkbox( 'objectcache.fallback_transients' ) ?><?php _e( 'Store transients in database', 'w3-total-cache' ); ?></label>
 					<p class="description"><?php _e( 'Use that to store transients in database even when external cache is used. That allows transient values to survive object cache cleaning / expiration', 'w3-total-cache' )?></p>
 				</th>
 			</tr>
