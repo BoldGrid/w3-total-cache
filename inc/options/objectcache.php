@@ -72,7 +72,7 @@ if ( $this->_config->get_string( 'objectcache.engine' ) == 'memcached' ) {
 
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'objectcache.enabled_for_wp_admin' ) ?>( ' Enable caching for wp-admin requests', 'w3-total-cache' )</label>
+					<?php $this->checkbox( 'objectcache.enabled_for_wp_admin' ) ?><?php _e( 'Enable caching for wp-admin requests', 'w3-total-cache' ); ?></label>
 					<p class="description"><?php _e( 'Enabling this option will increase wp-admin performance, but may cause side-effects', 'w3-total-cache' )?></p>
 				</th>
 			</tr>
