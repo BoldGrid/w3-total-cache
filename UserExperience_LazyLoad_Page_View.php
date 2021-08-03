@@ -60,7 +60,7 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 		<th>Google Maps</th>
 		<td>
 			<?php Util_Ui::pro_wrap_maybe_start(); ?>
-			<p class="description w3tc-gopro-excerpt" style="padding-bottom: 10px">( 'Lazy load google map', 'w3-total-cache' )</p>
+			<p class="description w3tc-gopro-excerpt" style="padding-bottom: 10px"><?php _e( 'Lazy load google map', 'w3-total-cache' ); ?></p>
 			<div>
 				<?php
 				Util_Ui::control2( Util_Ui::config_item_preprocess( array(
