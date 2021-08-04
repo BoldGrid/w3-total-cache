@@ -126,8 +126,18 @@ Util_Ui::config_overloading_button( array(
 		'key' => 'minify.configuration_overloaded'
 	) );
 ?>
-		<p><?php w3tc_e( 'minify.general.header', 'Reduce load time by decreasing the size and number of <acronym title="Cascading Style Sheet">CSS</acronym> and <acronym title="JavaScript">JS</acronym> files. Automatically remove unnecessary data from <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym>, feed, page and post <acronym title="Hypertext Markup Language">HTML</acronym>.', 'w3-total-cache' ) ?></p>
-
+		<p>
+			<?php
+				printf  ( 
+    			// translators: 1: CSS acronym open tag, 2: CSS acronym close tag, 3: JS acronym open tag, 4: JS acronym close tag, 5: HTML acronym open tag, 6: HTML acronym and close tag.
+    			 __( w3tc_e ( 'minify.general.header', 'Reduce load time by decreasing the size and number of %1$sCascading Style Sheet%2$s and  %1$sJavaScript%3$s files. Automatically remove unnecessary data from %1$sCascading Style Sheet%2$s, %1$sJavaScript%3$s, feed, page and post %1$sHypertext Markup Language%4$s.', 'w3-total-cache' )
+     			'<acronym title="',
+     			'">CSS</acronym>'
+     			'">JS</acronym>'
+     			'">HTML</acronym>'
+				); 
+			?>
+		</p>
 		<table class="form-table">
 			<?php
 Util_Ui::config_item(
