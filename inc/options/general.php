@@ -333,7 +333,7 @@ Util_Ui::config_overloading_button( array(
 		<p>
 			<?php
 echo sprintf(
-	w3tc_er( 'reverseproxy.general.header', 'A reverse proxy adds scale to an server by handling requests before WordPress does. Purge settings are set on the <a href="%s">Page Cache settings</a> page and <a href="%s">Browser Cache settings</a> are set on the browser cache settings page.', 'w3-total-cache' ),
+	w3tc_er( 'reverseproxy.general.header', 'A reverse proxy adds scale to an server by handling requests before WordPress does. Purge settings are set on the <a href="%s">Page Cache settings</a> page and <a href="%s">Browser Cache settings</a> are set on the browser cache settings page.' ),
 	self_admin_url( 'admin.php?page=w3tc_pgcache' ),
 	self_admin_url( 'admin.php?page=w3tc_browsercache' ) );
 ?>
