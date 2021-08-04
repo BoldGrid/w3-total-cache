@@ -119,7 +119,7 @@ $security_session_values = array(
 					<label><input id="browsercache_nocookies" type="checkbox"
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 						name="nocookies" value="1"<?php checked( $browsercache_nocookies, true ) ?> /> <?php _e( "Don't set cookies for static files", 'w3-total-cache' ) ?></label>
-					<p class="description"><?php _e( 'Removes Set-Cookie header for responses.' ) ?></p>
+					<p class="description"><?php _e( 'Removes Set-Cookie header for responses.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<tr>
