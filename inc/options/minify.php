@@ -136,7 +136,11 @@ if ( file_exists( $html_engine_file2 ) ) {
 			<?php
 			Util_Ui::config_item( array(
 				'key' => 'minify.js.enable',
-				'label' => '<acronym title="JavaScript">JS</acronym> minify settings:',
+				'label' => sprintf(
+				// translators: 1: JS acronym open tag, 2: JS acronym and close tag 
+				__( '%1$sJavaScript%2$s minify settings:', 'w3-total-cache' ),
+				'<acronym title="', 
+				'">JS</acronym>' ), 
 				'control' => 'checkbox',
 				'checkbox_label' => __( 'Enable', 'w3-total-cache' )
 			) );
@@ -145,7 +149,7 @@ if ( file_exists( $html_engine_file2 ) ) {
 			if ( $auto ):
 				Util_Ui::config_item( array(
 					'key' => 'minify.js.method',
-					'label' => 'Minify method:',
+					'label' => __( 'Minify method:', 'w3-total-cache' ),
 					'control' => 'selectbox',
 					'selectbox_values' => array(
 						'both' => array(
@@ -339,7 +343,7 @@ Util_Ui::config_item( array(
 		'label' => '<acronym title="Hypertext Markup Language">HTTP</acronym>/2 push',
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-		'description' => __( 'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Markup Language">HTTP</acronym>/2 protocol.',
+		'description' => __( 'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Transfer Protocol">HTTP</acronym>/2 protocol.',
 			'w3-total-cache' ) .
 			( $this->_config->get_string( 'pgcache.engine' ) != 'file_generic' ? '' :
 				__( ' <br /><b>Not supported by "Disk: Enhanced" page cache method for Nginx</b>', 'w3-total-cache' ) )
@@ -354,7 +358,7 @@ Util_Ui::config_item( array(
 			<?php
 			Util_Ui::config_item( array(
 				'key' => 'minify.css.enable',
-				'label' => '<acronym title="Cascading Style Sheet">CSS</acronym> minify settings:',
+				'label' => __( '<acronym title="Cascading Style Sheet">CSS</acronym> minify settings:', 'w3-total-cache' ),
 				'control' => 'checkbox',
 				'checkbox_label' => __( 'Enable', 'w3-total-cache' )
 			) );
@@ -488,7 +492,7 @@ Util_Ui::config_item( array(
 		'label' => '<acronym title="Hypertext Markup Language">HTTP</acronym>/2 push',
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-		'description' => __( 'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Markup Language">HTTP</acronym>/2 protocol.',
+		'description' => __( 'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Transfer Protocol">HTTP</acronym>/2 protocol.',
 			'w3-total-cache' ) .
 			( $this->_config->get_string( 'pgcache.engine' ) != 'file_generic' ? '' :
 				__( ' <br /><b>Not supported by "Disk: Enhanced" page cache method for Nginx</b>', 'w3-total-cache' ) )

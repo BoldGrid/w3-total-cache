@@ -15,7 +15,7 @@ $is_pro = Util_Environment::is_w3tc_pro( $c );
 	<?php
 Util_Ui::config_item_pro( array(
 		'key' => 'stats.enabled',
-		'label' => esc_html__( 'Cache usage statistics' ),
+		'label' => esc_html__( 'Cache usage statistics', 'w3-total-cache' ),
 		'control' => 'checkbox',
 		'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
 		'disabled' => ( $is_pro ? null : true ),
@@ -40,8 +40,7 @@ Util_Ui::config_item( array(
 		'label' => __( 'Slot time (seconds):', 'w3-total-cache' ),
 		'control' => 'textbox',
 		'textbox_type' => 'number',
-		'description' =>
-		'The duration of time in seconds to collect statistics per interval.',
+		'description' => __( 'The duration of time in seconds to collect statistics per interval.', 'w3-total-cache' ),
 		'show_in_free' => false,
 	) );
 Util_Ui::config_item( array(
@@ -49,8 +48,7 @@ Util_Ui::config_item( array(
 		'label' => __( 'Slots collected:', 'w3-total-cache' ),
 		'control' => 'textbox',
 		'textbox_type' => 'number',
-		'description' =>
-		'The number of intervals that are represented in the graph.',
+		'description' => __( 'The number of intervals that are represented in the graph.', 'w3-total-cache' ),
 		'show_in_free' => false,
 	) );
 
@@ -77,7 +75,7 @@ Util_Ui::config_item( array(
 			'apache' => 'Apache',
 			'nginx' => 'Nginx'
 		),
-		'description' => 'Webserver type generating access logs.',
+		'description' =>  __( 'Webserver type generating access logs.' ,'w3-total-cache' ),
 		'show_in_free' => false,
 	) );
 Util_Ui::config_item( array(
@@ -85,7 +83,7 @@ Util_Ui::config_item( array(
 		'label' => __( 'Access Log Filename:', 'w3-total-cache' ),
 		'control' => 'textbox',
 		'textbox_size' => 60,
-		'description' => 'Where your access log is located.',
+		'description' => __( 'Where your access log is located.', 'w3-total-cache' ),
 		'control_after' =>
 			'<input type="button" class="button" id="ustats_access_log_test" value="Test" /><span id="ustats_access_log_test_result" style="padding-left: 20px"></span>',
 		'show_in_free' => false,
@@ -95,8 +93,7 @@ Util_Ui::config_item( array(
 		'label' => __( 'Access Log Format:', 'w3-total-cache' ),
 		'control' => 'textbox',
 		'textbox_size' => 60,
-		'description' =>
-		'Format of your access log from webserver configuration.',
+		'description' =>  __( 'Format of your access log from webserver configuration.', 'w3-total-cache' ),
 		'control_after' =>
 			'<input type="button" class="button" id="ustats_access_log_format_reset" value="Reset to Default" />',
 		'show_in_free' => false,
