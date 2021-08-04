@@ -138,9 +138,9 @@ if ( file_exists( $html_engine_file2 ) ) {
 				'key' => 'minify.js.enable',
 				'label' => sprintf(
 				// translators: 1: JS acronym open tag, 2: JS acronym and close tag 
-				__(  '%1$sJavaScript%2$s minify settings:', 'w3-total-cache' ))
+				__( '%1$sJavaScript%2$s minify settings:', 'w3-total-cache' ),
 				'<acronym title="', 
-				'">JS</acronym>' 
+				'">JS</acronym>' ), 
 				'control' => 'checkbox',
 				'checkbox_label' => __( 'Enable', 'w3-total-cache' )
 			) );
