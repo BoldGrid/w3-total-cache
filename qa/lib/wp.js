@@ -259,28 +259,51 @@ async function postCreateWP5(pPage, data) {
 
 	if (data.template) {
 		log.log('create page - set template (' + data.template + ')')
-		let templateControlId = await pPage.evaluate(() => {
-			let elements = document.getElementsByClassName('components-panel__body-toggle');
-			for (let element of elements) {
-				element.click();
-			}
-
-			let labels = document.querySelectorAll('label.components-base-control__label');
-			for (let element of labels) {
-				if (element.innerHTML == 'Template:') {
-					return element.getAttribute('for');
+		let templateControlId;
+		if (parseFloat(env.wpVersion) < 5.8) {
+			templateControlId = await pPage.evaluate(() => {
+				let elements = document.getElementsByClassName('components-panel__body-toggle');
+				for (let element of elements) {
+					element.click();
 				}
-			}
 
-			labels = document.querySelectorAll('label.components-input-control__label');
-			for (let element of labels) {
-				if (element.innerHTML == 'Template:') {
-					return element.getAttribute('for');
+				let labels = document.querySelectorAll('label.components-base-control__label');
+				for (let element of labels) {
+					if (element.innerHTML == 'Template:') {
+						return element.getAttribute('for');
+					}
 				}
-			}
 
-			return x;
-		});
+				labels = document.querySelectorAll('label.components-input-control__label');
+				for (let element of labels) {
+					if (element.innerHTML == 'Template:') {
+						return element.getAttribute('for');
+					}
+				}
+
+				let dropdowns = document.querySelectorAll('.components-select-control__input');
+				for (let dropdown of dropdowns) {
+						if (dropdown.outerHTML.indexOf('>Default template<') > 0) {
+								return dropdown.id;
+						}
+				}
+
+				return x1;   // fail here means something wrong with DOM structure
+			});
+		} else {
+			templateControlId = await pPage.evaluate(() => {
+				let elements = document.getElementsByClassName('components-panel__body-toggle');
+				for (let element of elements) {
+					if (element.innerText.indexOf("Template") >= 0) {
+						element.click();
+						let block = element.closest('.components-panel__body');
+						return block.querySelector('select').getAttribute('id');
+					}
+				}
+
+				return x2;
+			});
+		}
 		console.log(templateControlId);
 		expect(templateControlId).not.empty;
 

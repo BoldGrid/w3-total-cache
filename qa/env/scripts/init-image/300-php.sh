@@ -47,12 +47,12 @@ export | grep LANG
 case "${W3D_PHP_VERSION}" in
 	# php7.0-xml required by wordpress, fails otherwise on pings
 
-    "5.3") echo "Installing PHP 5.3"
-        php_5x
-        ;;
-    "5.5") echo "Installing PHP 5.5"
-        php_5x
-        ;;
+    #"5.3") echo "Installing PHP 5.3"
+    #    php_5x
+    #    ;;
+    #"5.5") echo "Installing PHP 5.5"
+    #    php_5x
+    #    ;;
     "5.6") echo "Installing PHP 5.6"
         add-apt-repository -y ppa:ondrej/php
         apt-get update
