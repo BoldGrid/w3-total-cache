@@ -1,9 +1,9 @@
 === Plugin Name ===
-Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto
+Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.8
 Tested up to: 5.8
-Stable tag: 2.1.5
+Stable tag: 2.1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -274,6 +274,16 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.1.6 =
+* Fix: JS minify issue with template literal backticks
+* Fix: Do not redirect when using WP-CLI
+* Fix: Missing whitespace in Memcached Nginx configuration
+* Fix: Setting for CDN over passive FTP
+* Fix: Updated CDN Minify regex
+* Fix: Added missing text domains and fixed translations
+* Enhancement: Allow default AWS credentials provider
+* Enhancement: Added error logging when minification base URL is not found
 
 = 2.1.5 =
 * Fix: Sanitize extension argument
