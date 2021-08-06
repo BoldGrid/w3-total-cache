@@ -2446,7 +2446,7 @@ $keys = array(
 	'optimager' => array(
 		'type' => 'array',
 		'default' => array(
-			'compression' => 'lossless',
+			'compression' => 'lossy',
 		),
 	),
 
