@@ -102,10 +102,10 @@ class Extension_ImageOptimizer_Environment {
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{HTTP_ACCEPT} image/webp
-    RewriteCond %{REQUEST_FILENAME} (.*)\.(jpe?g|png|gif)$
-    RewriteCond %{REQUEST_FILENAME}\.webp -f
+    RewriteCond %{REQUEST_FILENAME} (.+)\.(jpe?g|png|gif)$
+    RewriteCond %1\.webp -f
     RewriteCond %{QUERY_STRING} !type=original
-    RewriteRule (.+)\.(?:jpe?g|png)$ $1.webp [NC,T=image/webp,E=webp,L]
+    RewriteRule (.+)\.(jpe?g|png)$ $1.webp [NC,T=image/webp,E=webp,L]
 </IfModule>
 <IfModule mod_headers.c>
     <FilesMatch "\.(jpe?g|png|gif)$">
