@@ -194,15 +194,17 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'revert'   => wp_create_nonce( 'w3tc_optimager_revert' ),
 					),
 					'lang'   => array(
-						'optimize'   => __( 'Optimize', 'w3-total_cache' ),
-						'sending'    => __( 'Sending', 'w3-total_cache' ),
-						'processing' => __( 'Processing', 'w3-total_cache' ),
-						'optimized'  => __( 'Optimized', 'w3-total_cache' ),
-						'reoptimize' => __( 'Reoptimize', 'w3-total_cache' ),
-						'reverting'  => __( 'Reverting', 'w3-total_cache' ),
-						'revert'     => __( 'Revert', 'w3-total_cache' ),
-						'error'      => __( 'Error', 'w3-total_cache' ),
-						'changed'    => __( 'Changed', 'w3-total_cache' ),
+						'optimize'      => __( 'Optimize', 'w3-total_cache' ),
+						'sending'       => __( 'Sending', 'w3-total_cache' ),
+						'processing'    => __( 'Processing', 'w3-total_cache' ),
+						'optimized'     => __( 'Optimized', 'w3-total_cache' ),
+						'reoptimize'    => __( 'Reoptimize', 'w3-total_cache' ),
+						'reverting'     => __( 'Reverting', 'w3-total_cache' ),
+						'revert'        => __( 'Revert', 'w3-total_cache' ),
+						'error'         => __( 'Error', 'w3-total_cache' ),
+						'changed'       => __( 'Changed', 'w3-total_cache' ),
+						'notchanged'    => __( 'Not changed', 'w3-total_cache' ),
+						'notoptimized'  => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
 					),
 				)
 			);
@@ -231,7 +233,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *                                to any posts. Default true.
 	 */
 	public function add_media_column( $posts_columns, $detached = true ) {
-		$posts_columns['optimager'] = '<span class="w3tc-optimize"></span> Total Optimizer';
+		$posts_columns['optimager'] = '<span class="w3tc-optimize"></span> Total Optimizer <a href="' .
+			esc_url( admin_url( 'admin.php?page=w3tc_extensions&extension=optimager&action=view' ) ) . '" title="' .
+			esc_html__( 'Settings', 'w3-total-cache' ) .
+			'"><span id="w3tc-optimager-settings" class="dashicons dashicons-admin-generic"></span></a>';
 
 		return $posts_columns;
 	}
@@ -269,7 +274,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				?>
 				<span class="w3tc-optimize<?php
 				if ( 'optimized' === $status ) {
-					echo ' w3tc-optimized';
+					?> w3tc-optimized<?php
+				} elseif ( 'notoptimized' === $status ) {
+					?> w3tc-notoptimized<?php
 				}
 				?>"></span>
 				<input type="submit" id="w3tc-<?php echo esc_attr( $post_id ); ?>-optimize" class="button w3tc-optimize" value="<?php
@@ -294,13 +301,13 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				if ( 'processing' === $status ) {
 					?>disabled="disabled"<?php
 				}
-				?> />
+				?> /> &nbsp;
 				<?php
 
 				// If optimized, then show revert button and information.
 				if ( 'optimized' === $status ) {
 					?>
-					&nbsp; <input type="submit" id="w3tc-<?php echo esc_attr( $post_id ); ?>-unoptimize" class="button w3tc-unoptimize"
+					<input type="submit" id="w3tc-<?php echo esc_attr( $post_id ); ?>-unoptimize" class="button w3tc-unoptimize"
 						value="<?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?>" \>
 					<?php
 
@@ -316,6 +323,28 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						<?php
 						echo esc_html(
 							$optimized_percent . ' (' . __( 'Changed: ', 'w3-total-cache' ) . $reduced_percent . ')'
+						);
+						?>
+						</div>
+						<?php
+					}
+				} elseif ( 'notoptimized' === $status ) {
+					$optimized_percent = isset( $optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] ) ?
+						$optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] : null;
+					$reduced_percent   = isset( $optimager_data['download']["\0*\0data"]['x-filesize-reduced'] ) ?
+						$optimager_data['download']["\0*\0data"]['x-filesize-reduced'] : null;
+
+					if ( $optimized_percent ) {
+						$optimized_class = rtrim( $optimized_percent, '%' ) > 100 ? 'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
+						?>
+						<div class="<?php echo esc_attr( $optimized_class ); ?>">
+						<?php
+						printf(
+							// transaltors: 1: Optimized percentage, 2: Reduced percentage, 3: HTML break
+							esc_html__( '%1$s (Not changed: %2$s)%3$sNot optimized; image would be larger.', 'w3-total-cache' ),
+							$optimized_percent,
+							$reduced_percent,
+							'<br />'
 						);
 						?>
 						</div>
@@ -491,7 +520,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				delete_post_meta( $post_id, 'w3tc_optimager' );
 
 				// Delete optimization.
-				wp_send_json_success( wp_delete_attachment( $child_id, false ) );
+				wp_send_json_success( wp_delete_attachment( $child_id, true ) );
 			} else {
 				wp_send_json_error(
 					array(

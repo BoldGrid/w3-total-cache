@@ -108,21 +108,35 @@ class Extension_ImageOptimizer_Cron {
 				// Check if image is ready for pickup/download.
 				if ( isset( $response['status'] ) && 'pickup' === $response['status'] ) {
 					// Download image.
-					$response = $api->download( $postmeta['processing']['job_id'], $postmeta['processing']['signature'] );
-					$headers  = wp_remote_retrieve_headers( $response );
-					$is_error = isset( $response['error'] );
+					$response   = $api->download( $postmeta['processing']['job_id'], $postmeta['processing']['signature'] );
+					$headers    = wp_remote_retrieve_headers( $response );
+					$is_error   = isset( $response['error'] );
+					$is_reduced = ! $is_error && isset( $headers['x-filesize-reduced'] ) &&
+						rtrim( $headers['x-filesize-reduced'], '%' ) > 0;
+
+					switch ( true ) {
+						case $is_error:
+							$status = 'error';
+							break;
+						case $is_reduced:
+							$status = 'optimized';
+							break;
+						default:
+							$status = 'notoptimized';
+							break;
+					}
 
 					// Save the download headers or error.
 					Extension_ImageOptimizer_Plugin_Admin::update_postmeta(
 						$post->ID,
 						array(
 							'download' => $is_error ? $response['error'] : (array) $headers,
-							'status'   => $is_error ? 'error' : 'optimized',
+							'status'   => $status,
 						)
 					);
 
-					// Skip error responses.
-					if ( $is_error ) {
+					// Skip error responses or if optimized image is larger.
+					if ( $is_error || ! $is_reduced ) {
 						continue;
 					}
 
