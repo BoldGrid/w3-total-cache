@@ -415,6 +415,34 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
+	 * Remove optimizations.
+	 *
+	 * @since X.X.X
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/wp_delete_attachment/
+	 *
+	 * @param int $post_id Parent post id.
+	 * @return WP_Post|false|null Post data on success, false or null on failure.
+	 */
+	public function remove_optimizations( $post_id ) {
+		$result = null;
+
+		// Get child post id.
+		$postmeta = (array) get_post_meta( $post_id, 'w3tc_optimager', true );
+		$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
+
+		if ( $child_id ) {
+			// Delete optimization.
+			$result = wp_delete_attachment( $child_id, true );
+		}
+
+		// Delete postmeta.
+		delete_post_meta( $post_id, 'w3tc_optimager' );
+
+		return $result;
+	}
+
+	/**
 	 * AJAX: Submit an image for processing.
 	 *
 	 * @since X.X.X
@@ -476,6 +504,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			);
 		}
 
+		// Remove old optimizations.
+		$this->remove_optimizations( $post_id );
+
 		// Save the job info.
 		$postmeta['status']     = 'processing';
 		$postmeta['processing'] = $response;
@@ -522,16 +553,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		$post_id = isset( $_POST['post_id'] ) ? (int) sanitize_key( $_POST['post_id'] ) : null;
 
 		if ( $post_id ) {
-			// Get child post id.
-			$postmeta = (array) get_post_meta( $post_id, 'w3tc_optimager', true );
-			$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
+			$result = $this->remove_optimizations( $post_id );
 
-			if ( $child_id ) {
-				// Delete postmeta.
-				delete_post_meta( $post_id, 'w3tc_optimager' );
-
-				// Delete optimization.
-				wp_send_json_success( wp_delete_attachment( $child_id, true ) );
+			if ( $result ) {
+				wp_send_json_success( $result );
 			} else {
 				wp_send_json_error(
 					array(
