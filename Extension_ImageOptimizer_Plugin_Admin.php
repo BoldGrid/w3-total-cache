@@ -137,6 +137,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_optimager_revert', array( $o, 'ajax_revert' ) );
 		add_action( 'wp_ajax_w3tc_optimager_compression', array( $o, 'ajax_set_compression' ) );
 
+		// Notices.
+		add_action( 'admin_notices', array( $o, 'w3tc_optimager_submitted' ) );
+
 		/**
 		 * Ensure all network sites include WebP support.
 		 *
@@ -154,6 +157,28 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				return $filetypes;
 			}
 		);
+
+		// Add bulk actions.
+		add_filter( 'bulk_actions-upload', array( $o, 'add_bulk_actions' ) );
+
+		/**
+		 * Fires when a custom bulk action should be handled.
+		 *
+		 * The redirect link should be modified with success or failure feedback
+		 * from the action to be used to display feedback to the user.
+		 *
+		 * The dynamic portion of the hook name, `$screen`, refers to the current screen ID.
+		 *
+		 * @since 4.7.0
+		 *
+		 * @link https://core.trac.wordpress.org/browser/tags/5.8/src/wp-admin/upload.php#L206
+		 *
+		 * @param string $sendback The redirect URL.
+		 * @param string $doaction The action being taken.
+		 * @param array  $items    The items to take the action on. Accepts an array of IDs of posts,
+		 *                         comments, terms, links, plugins, attachments, or users.
+		 */
+		add_filter( 'handle_bulk_actions-upload', array( $o, 'handle_bulk_actions' ), 10, 3 );
 	}
 
 	/**
@@ -373,6 +398,157 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
+	 * Add bulk actions.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $actions Bulk actions.
+	 * @return array
+	 */
+	public function add_bulk_actions( array $actions ) {
+		$actions['w3tc_optimager_optimize'] = 'W3 Total Optimize';
+		$actions['w3tc_optimager_revert'] = 'W3 Total Optimize Revert';
+
+		return $actions;
+	}
+
+	/**
+	 * Handle bulk actions.
+	 *
+	 * @since X.X.X
+	 *
+	 * @link https://developer.wordpress.org/reference/hooks/handle_bulk_actions-screen/
+	 * @link https://make.wordpress.org/core/2016/10/04/custom-bulk-actions/
+	 * @link https://core.trac.wordpress.org/browser/tags/5.8/src/wp-admin/upload.php#L206
+	 *
+	 * @since WordPress 4.7.0
+	 *
+	 * @param string $location The redirect URL.
+	 * @param string $doaction The action being taken.
+	 * @param array  $post_ids The items to take the action on. Accepts an array of IDs of attachments.
+	 * @return string
+	 */
+	public function handle_bulk_actions( $location, $doaction, array $post_ids ) {
+		// Remove custom query args.
+		$location = remove_query_arg( array( 'w3tc_optimager_submitted', 'w3tc_optimager_reverted' ), $location );
+
+		switch ( $doaction ) {
+			case 'w3tc_optimager_optimize':
+				require_once __DIR__ . '/Extension_ImageOptimizer_Api.php';
+				$api        = new Extension_ImageOptimizer_Api();
+				$skipped    = 0;
+				$submitted  = 0;
+				$successful = 0;
+				$errored    = 0;
+				$invalid    = 0;
+
+				foreach ( $post_ids as $post_id ) {
+					// Skip silently (do not count) if not an allowed MIME type.
+					if ( ! in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
+						continue;
+					}
+
+					$filepath = get_attached_file( $post_id );
+
+					// Skip if attachment file does not exist.
+					if ( ! file_exists( $filepath ) ) {
+						$skipped++;
+						continue;
+					}
+
+					// Submit current image.
+					$response = $api->convert( $filepath );
+					$submitted++;
+
+					if ( isset( $response['error'] ) ) {
+						$errored++;
+						continue;
+					}
+
+					if ( empty( $response['job_id'] ) || empty( $response['signature'] ) ) {
+						$invalid++;
+						continue;
+					}
+
+					// Remove old optimizations.
+					$this->remove_optimizations( $post_id );
+
+					// Save the job info.
+					self::update_postmeta(
+						$post_id,
+						array(
+							'status'     => 'processing',
+							'processing' => $response,
+						)
+					);
+
+					$successful++;
+				}
+
+				$location = add_query_arg(
+					array(
+						'w3tc_optimager_submitted'  => $submitted,
+						'w3tc_optimager_successful' => $successful,
+						'w3tc_optimager_skipped'    => $skipped,
+						'w3tc_optimager_errored'    => $errored,
+						'w3tc_optimager_invalid'    => $invalid,
+					),
+					$location
+				);
+
+				break;
+			case 'w3tc_optimager_revert':
+				break;
+			default:
+				break;
+		}
+
+		return $location;
+	}
+
+	/**
+	 * Display bulk optimization results notice.
+	 *
+	 * @since X.X.X
+	 *
+	 * @uses $_GET['w3tc_optimager_submitted']  Number of submittions.
+	 * @uses $_GET['w3tc_optimager_successful'] Number of successful submissions.
+	 * @uses $_GET['w3tc_optimager_skipped']    Number of skipped submissions.
+	 * @uses $_GET['w3tc_optimager_errored']    Number of errored submissions.
+	 * @uses $_GET['w3tc_optimager_invalid']    Number of invalid submissions.
+	 */
+	public function w3tc_optimager_submitted() {
+		if ( isset( $_GET['w3tc_optimager_submitted'] ) ) {
+			$submitted  = intval( $_GET['w3tc_optimager_submitted'] );
+			$successful = isset( $_GET['w3tc_optimager_successful'] ) ? intval( $_GET['w3tc_optimager_successful'] ) : 0;
+			$skipped    = isset( $_GET['w3tc_optimager_skipped'] ) ? intval( $_GET['w3tc_optimager_skipped'] ) : 0;
+			$errored    = isset( $_GET['w3tc_optimager_errored'] ) ? intval( $_GET['w3tc_optimager_errored'] ) : 0;
+			$invalid    = isset( $_GET['w3tc_optimager_invalid'] ) ? intval( $_GET['w3tc_optimager_invalid'] ) : 0;
+
+			printf(
+				'<div class="updated notice notice-success is-dismissible"><p>W3 Total Optimizer</p><p>' .
+				// translators: 1: Submissions.
+				_n(
+					'Submitted %1$u image for processing.',
+					'Submitted %1$u images for processing.',
+					$submitted,
+					'w3-total-cache'
+				) . '</p><p>' .
+				// translators: 2: Successes, 3: Skipped, 4: Errored, 5: Invalid.
+				__(
+					'Successful: %2$u | Skipped: %3$u | Errored: %4$u | Invalid: %5$u',
+					'w3-total-cache'
+				) . '</p></div>',
+				$submitted,
+				$successful,
+				$skipped,
+				$errored,
+				$invalid
+			);
+		}
+	}
+
+	/**
 	 * Update postmeta.
 	 *
 	 * @since X.X.X
@@ -508,10 +684,13 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		$this->remove_optimizations( $post_id );
 
 		// Save the job info.
-		$postmeta['status']     = 'processing';
-		$postmeta['processing'] = $response;
-
-		self::update_postmeta( $post_id, $postmeta );
+		self::update_postmeta(
+			$post_id,
+			array(
+				'status'     => 'processing',
+				'processing' => $response,
+			)
+		);
 
 		wp_send_json_success( $response );
 	}
