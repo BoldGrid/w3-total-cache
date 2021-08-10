@@ -9,8 +9,8 @@
  */
 
 (function( $ ) {
-	var checkitemInterval,
-		isCheckingItems = false,
+	var isCheckingItems = false,
+		currentCompression = $( '[name="w3tc_optimager_compression"]:checked' ).attr( 'value' ),
 		$buttonsOptimize = $( 'input.button.w3tc-optimize' ),
 		$buttonsUnoptimize = $( 'input.button.w3tc-unoptimize' );
 
@@ -261,4 +261,45 @@
 	};
 
 	$buttonsUnoptimize.on( 'click', unoptimize );
+
+	// Setting controls: Compression.
+	$( '[name="w3tc_optimager_compression"]' ).on( 'click', function() {
+		var $this = $( this ),
+			value = $this.attr( 'value' );
+
+		// Abort if the value is not changing.
+		if ( value === currentCompression ) {
+			return false;
+		}
+
+		// Clear result indicator.
+		$( '#w3tc-controls-result' ).remove();
+
+		// Save the new setting.
+		$.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: w3tcData.nonces.control,
+				action: 'w3tc_optimager_compression',
+				value: value
+			}
+		})
+			.done( function( response ) {
+				if ( response.success ) {
+					// Success.
+					currentCompression = value;
+					$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-yes"></span>' );
+				} else {
+					// Reported failure.
+					$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
+					return false;
+				}
+			})
+			.fail( function( jqXHR ) {
+				// Ajax failure.
+				$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
+				return false;
+			});
+	});
 })( jQuery );

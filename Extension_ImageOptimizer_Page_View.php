@@ -46,8 +46,8 @@ if ( ! defined( 'W3TC' ) ) {
 				'label'             => __( 'Compression type:', 'w3-total-cache' ),
 				'control'           => 'radiogroup',
 				'radiogroup_values' => array(
-					'lossless' => 'Lossless',
 					'lossy'    => 'Lossy',
+					'lossless' => 'Lossless',
 				),
 				'description'       => __( 'Image compression type', 'w3-total-cache' ),
 			)

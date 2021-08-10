@@ -23,11 +23,23 @@ td span.w3tc-notoptimized:before {
 	color: yellow;
 }
 
-.w3tc-optimized-reduced {
+.w3tc-optimized-reduced,
+#w3tc-optimager-control .dashicons-yes {
 	color: green;
 }
 
 .w3tc-optimized-increased,
-.w3tc-optimize-error {
+.w3tc-optimize-error,
+#w3tc-optimager-control .dashicons-no {
 	color: red;
+}
+
+#w3tc-optimager-control {
+	background: none repeat scroll 0 0 #fefefe;
+	padding: 10px;
+	position: absolute;
+}
+
+span#w3tc-optimager-controls:hover div#w3tc-optimager-control {
+	display:block;
 }
