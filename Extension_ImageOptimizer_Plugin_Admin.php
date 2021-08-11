@@ -138,7 +138,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_optimager_compression', array( $o, 'ajax_set_compression' ) );
 
 		// Notices.
-		add_action( 'admin_notices', array( $o, 'w3tc_optimager_submitted' ) );
+		add_action( 'admin_notices', array( $o, 'w3tc_optimager_notices' ) );
 
 		/**
 		 * Ensure all network sites include WebP support.
@@ -417,6 +417,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
+	 * @see self::submit_images()
+	 * @see self::revert_optimizations()
+	 *
 	 * @link https://developer.wordpress.org/reference/hooks/handle_bulk_actions-screen/
 	 * @link https://make.wordpress.org/core/2016/10/04/custom-bulk-actions/
 	 * @link https://core.trac.wordpress.org/browser/tags/5.8/src/wp-admin/upload.php#L206
@@ -434,78 +437,22 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 		switch ( $doaction ) {
 			case 'w3tc_optimager_optimize':
-				require_once __DIR__ . '/Extension_ImageOptimizer_Api.php';
-				$api        = new Extension_ImageOptimizer_Api();
-				$skipped    = 0;
-				$submitted  = 0;
-				$successful = 0;
-				$errored    = 0;
-				$invalid    = 0;
-
-				foreach ( $post_ids as $post_id ) {
-					// Skip silently (do not count) if not an allowed MIME type.
-					if ( ! in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
-						continue;
-					}
-
-					$filepath = get_attached_file( $post_id );
-
-					// Skip if attachment file does not exist.
-					if ( ! file_exists( $filepath ) ) {
-						$skipped++;
-						continue;
-					}
-
-					// Submit current image.
-					$response = $api->convert( $filepath );
-					$submitted++;
-
-					if ( isset( $response['error'] ) ) {
-						$errored++;
-						continue;
-					}
-
-					if ( empty( $response['job_id'] ) || empty( $response['signature'] ) ) {
-						$invalid++;
-						continue;
-					}
-
-					// Remove old optimizations.
-					$this->remove_optimizations( $post_id );
-
-					// Save the job info.
-					self::update_postmeta(
-						$post_id,
-						array(
-							'status'     => 'processing',
-							'processing' => $response,
-						)
-					);
-
-					$successful++;
-				}
+				$stats = $this->submit_images( $post_ids );
 
 				$location = add_query_arg(
 					array(
-						'w3tc_optimager_submitted'  => $submitted,
-						'w3tc_optimager_successful' => $successful,
-						'w3tc_optimager_skipped'    => $skipped,
-						'w3tc_optimager_errored'    => $errored,
-						'w3tc_optimager_invalid'    => $invalid,
+						'w3tc_optimager_submitted'  => $stats['submitted'],
+						'w3tc_optimager_successful' => $stats['successful'],
+						'w3tc_optimager_skipped'    => $stats['skipped'],
+						'w3tc_optimager_errored'    => $stats['errored'],
+						'w3tc_optimager_invalid'    => $stats['invalid'],
 					),
 					$location
 				);
 
 				break;
 			case 'w3tc_optimager_revert':
-				foreach ( $post_ids as $post_id ) {
-					// Skip if not an allowed MIME type.
-					if ( ! in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
-						continue;
-					}
-
-					$this->remove_optimizations( $post_id );
-				}
+				$this->revert_optimizations( $post_ids );
 
 				$location = add_query_arg( 'w3tc_optimager_reverted', 1, $location );
 
@@ -518,7 +465,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
-	 * Display bulk optimization results notice.
+	 * Display bulk action results admin notice.
 	 *
 	 * @since X.X.X
 	 *
@@ -528,7 +475,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @uses $_GET['w3tc_optimager_errored']    Number of errored submissions.
 	 * @uses $_GET['w3tc_optimager_invalid']    Number of invalid submissions.
 	 */
-	public function w3tc_optimager_submitted() {
+	public function w3tc_optimager_notices() {
 		if ( isset( $_GET['w3tc_optimager_submitted'] ) ) {
 			$submitted  = intval( $_GET['w3tc_optimager_submitted'] );
 			$successful = isset( $_GET['w3tc_optimager_successful'] ) ? intval( $_GET['w3tc_optimager_successful'] ) : 0;
@@ -544,21 +491,116 @@ class Extension_ImageOptimizer_Plugin_Admin {
 					'Submitted %1$u images for processing.',
 					$submitted,
 					'w3-total-cache'
-				) . '</p><p>' .
-				// translators: 2: Successes, 3: Skipped, 4: Errored, 5: Invalid.
-				__(
-					'Successful: %2$u | Skipped: %3$u | Errored: %4$u | Invalid: %5$u',
-					'w3-total-cache'
-				) . '</p></div>',
-				$submitted,
-				$successful,
-				$skipped,
-				$errored,
-				$invalid
+				) . '</p>',
+				$submitted
 			);
+
+			// Print extra stats if debug is on.
+			if ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) {
+				printf(
+					'<p>' .
+					// translators: 1: Successes, 2: Skipped, 3: Errored, 4: Invalid.
+					__(
+						'Successful: %1$u | Skipped: %2$u | Errored: %3$u | Invalid: %4$u',
+						'w3-total-cache'
+					) . '</p>',
+					$successful,
+					$skipped,
+					$errored,
+					$invalid
+				);
+			}
+
+			echo '</div>';
+
 		} elseif ( isset( $_GET['w3tc_optimager_reverted'] ) ) {
 			echo '<div class="updated notice notice-success is-dismissible"><p>W3 Total Optimizer</p><p>' .
 				__( 'All selected optimizations have been reverted.', 'w3-total-cache' ) . '</p></div>';
+		}
+	}
+
+	/**
+	 * Submit images to the API for processing.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $post_ids
+	 * @return array
+	 */
+	public function submit_images( array $post_ids ) {
+		require_once __DIR__ . '/Extension_ImageOptimizer_Api.php';
+
+		$api = new Extension_ImageOptimizer_Api();
+
+		$stats = array(
+			'skipped'    => 0,
+			'submitted'  => 0,
+			'successful' => 0,
+			'errored'    => 0,
+			'invalid'    => 0,
+		);
+
+		foreach ( $post_ids as $post_id ) {
+			// Skip silently (do not count) if not an allowed MIME type.
+			if ( ! in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
+				continue;
+			}
+
+			$filepath = get_attached_file( $post_id );
+
+			// Skip if attachment file does not exist.
+			if ( ! file_exists( $filepath ) ) {
+				$stats['skipped']++;
+				continue;
+			}
+
+			// Submit current image.
+			$response = $api->convert( $filepath );
+			$stats['submitted']++;
+
+			if ( isset( $response['error'] ) ) {
+				$stats['errored']++;
+				continue;
+			}
+
+			if ( empty( $response['job_id'] ) || empty( $response['signature'] ) ) {
+				$stats['invalid']++;
+				continue;
+			}
+
+			// Remove old optimizations.
+			$this->remove_optimizations( $post_id );
+
+			// Save the job info.
+			self::update_postmeta(
+				$post_id,
+				array(
+					'status'     => 'processing',
+					'processing' => $response,
+				)
+			);
+
+			$stats['successful']++;
+		}
+
+		return $stats;
+	}
+
+	/**
+	 * Revert optimizations of images.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $post_ids Attachment post ids.
+	 */
+	public function revert_optimizations( array $post_ids ) {
+		foreach ( $post_ids as $post_id ) {
+			// Skip if not an allowed MIME type.
+			if ( ! in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
+				continue;
+			}
+
+			$this->remove_optimizations( $post_id );
 		}
 	}
 
