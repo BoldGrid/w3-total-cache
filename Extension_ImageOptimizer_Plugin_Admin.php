@@ -498,6 +498,17 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 				break;
 			case 'w3tc_optimager_revert':
+				foreach ( $post_ids as $post_id ) {
+					// Skip if not an allowed MIME type.
+					if ( ! in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
+						continue;
+					}
+
+					$this->remove_optimizations( $post_id );
+				}
+
+				$location = add_query_arg( 'w3tc_optimager_reverted', 1, $location );
+
 				break;
 			default:
 				break;
@@ -545,6 +556,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				$errored,
 				$invalid
 			);
+		} elseif ( isset( $_GET['w3tc_optimager_reverted'] ) ) {
+			echo '<div class="updated notice notice-success is-dismissible"><p>W3 Total Optimizer</p><p>' .
+				__( 'All selected optimizations have been reverted.', 'w3-total-cache' ) . '</p></div>';
 		}
 	}
 
