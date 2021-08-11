@@ -64,6 +64,9 @@ class Minifier
 
 	public static function minify_static($css, $options = array()) {
 		$m = new Minifier();
+
+		$css = \W3TCL\Minify\Minify_CSS_UriRewriter::rewrite($css, $options);
+
 		return $m->run($css);
 	}
 
