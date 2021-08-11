@@ -161,6 +161,8 @@ class Licensing_Plugin_Admin {
 
 		if ( defined( 'W3TC_PRO' ) ) {
 		} elseif ( $status == 'no_key' ) {
+		} elseif ( $this->_status_is( $status, 'no_pro_plugin' ) ) {
+			$message = __( 'You need to install W3 Total Cache Pro plugin in order to obtain PRO functionality', 'w3-total-cache' );
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
 			$message = sprintf( __( 'It looks like your W3 Total Cache Pro License has expired. %s to continue using the Pro Features', 'w3-total-cache' ),
 				'<input type="button" class="button-primary button-buy-plugin"' .
@@ -295,7 +297,11 @@ class Licensing_Plugin_Admin {
 				$status = $license->license_status;
 				$terms = $license->license_terms;
 				if ( $this->_status_is( $status, 'active' ) ) {
-					$plugin_type = 'pro';
+					if ( !defined( 'W3TC_PRO_FILE' ) ) {
+						$status = 'no_pro_plugin';
+					} else {
+						$plugin_type = 'pro';
+					}
 				} elseif ( $this->_status_is( $status, 'inactive.by_rooturi' ) &&
 					Util_Environment::is_w3tc_pro_dev() ) {
 					$status = 'valid';
