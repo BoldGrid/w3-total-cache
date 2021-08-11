@@ -41,6 +41,14 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 	) );
 
 	Util_Ui::config_item( array(
+			'key' => 'lazyload.threshold',
+			'control' => 'textbox',
+			'label' => __( 'Threshold', 'w3-total-cache' ),
+			'description' => __( 'The outer distance off the scrolling area from which to start loading the elements (example: 100px, 10%).',
+				'w3-total-cache' )
+	) );
+
+	Util_Ui::config_item( array(
 			'key' => 'lazyload.embed_method',
 			'label' => __( 'Script Embed method:', 'w3-total-cache' ),
 			'control' => 'selectbox',
