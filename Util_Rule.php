@@ -135,12 +135,28 @@ class Util_Rule {
 		return false;
 	}
 
+	/**
+	 * Returns path of pagecache core rules file for new relic.
+	 *
+	 * @return string
+	 */
 	static public function get_new_relic_rules_core_path() {
 		return Util_Rule::get_pgcache_rules_core_path();
 	}
 
 	/**
-	 * Returns true if we can modify rules
+	 * Returns path of robots.txt.
+	 *
+	 * @since 2.1.7
+	 * 
+	 * @return string
+	 */
+	static public function get_robots_rules_path() {
+		return Util_Environment::site_path() . 'robots.txt';
+	}
+
+	/**
+	 * Returns true if we can modify rules.
 	 *
 	 * @param string  $path
 	 * @return boolean
