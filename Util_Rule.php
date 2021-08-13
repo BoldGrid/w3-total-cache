@@ -136,7 +136,7 @@ class Util_Rule {
 	}
 
 	/**
-	 * Returns path of pagecache core rules file for new relic
+	 * Returns path of pagecache core rules file for new relic.
 	 *
 	 * @return string
 	 */
@@ -145,7 +145,7 @@ class Util_Rule {
 	}
 
 	/**
-	 * Returns path of robots.txt
+	 * Returns path of robots.txt.
 	 *
 	 * @since 2.1.7
 	 * 
@@ -156,7 +156,7 @@ class Util_Rule {
 	}
 
 	/**
-	 * Returns true if we can modify rules
+	 * Returns true if we can modify rules.
 	 *
 	 * @param string  $path
 	 * @return boolean
