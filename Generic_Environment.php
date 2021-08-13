@@ -232,7 +232,7 @@ class Generic_Environment {
 	}
 
 	/**
-	 * Generate robots.txt directives
+	 * Generate robots.txt directives.
 	 *
 	 * @since 2.1.7
 	 *
