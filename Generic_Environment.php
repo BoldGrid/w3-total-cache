@@ -248,7 +248,7 @@ Disallow: /wp-content/cache/
 	}
 
 	/**
-	 * Removes robots.txt directives
+	 * Removes robots.txt directives.
 	 *
 	 * @since 2.1.7
 	 *
