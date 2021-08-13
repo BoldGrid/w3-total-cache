@@ -16,7 +16,7 @@ class Generic_Environment {
 		$exs = new Util_Environment_Exceptions();
 		// create add-ins
 		$this->create_required_files( $config, $exs );
-		$this->robots_add_directive();
+		$this->robots_rules_add( $config, $exs );
 
 		// create folders
 		$this->create_required_folders( $exs );
@@ -59,7 +59,7 @@ class Generic_Environment {
 		$exs = new Util_Environment_Exceptions();
 
 		$this->delete_required_files( $exs );
-		$this->robots_remove_directive();
+		$this->robots_rules_remove( $exs );
 
 		if ( count( $exs->exceptions() ) > 0 )
 			throw $exs;
@@ -211,85 +211,57 @@ class Generic_Environment {
 	}
 
 	/**
-	 * Enables crawling blocker for cache directory
+	 * Write robots.txt directives to prevent crawl of cache directory.
 	 *
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
-	 */
-	private function robots_add_directive() {
-		$robots_path = Util_Environment::site_path() . 'robots.txt';
-
-		$robots_content = @file_get_contents( $robots_path );
-		if ( $robots_content === false )
-			return;
-
-		$new_robots_content = $this->robots_remove_from_content( $robots_content );
-		$new_robots_content = $new_robots_content . $this->robots_addon();
-
-		if ( $new_robots_content != $robots_content ) {
-			try {
-				Util_WpFile::write_to_file( $robots_path, $new_robots_content );
-			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
-				throw new Util_WpFile_FilesystemModifyException(
-					$ex->getMessage(), $ex->credentials_form(),
-					'Edit file <strong>' . $robots_path .
-					'</strong> and add next lines:', $robots_path,
-					$this->robots_addon() );
-			}
-		}
-		// that file was in opcache for sure and it may take time to
-		// start execution of new modified now version
-		$o = Dispatcher::component( 'SystemOpCache_Core' );
-		$o->flush();
-	}
-	
-	/**
-	 * Disables crawling blocker for cache directory
+	 * @since 2.1.7
 	 *
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
-	 */
-	private function robots_remove_directive() {
-		$robots_path = Util_Environment::site_path() . 'robots.txt';
-
-		$robots_content = @file_get_contents( $robots_path );
-		if ( $robots_content === false )
-			return;
-
-		$new_robots_content = $this->robots_remove_from_content( $robots_content );
-		if ( $new_robots_content != $robots_content ) {
-			try {
-				Util_WpFile::write_to_file( $robots_path, $new_robots_content );
-			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
-				throw new Util_WpFile_FilesystemModifyException(
-					$ex->getMessage(), $ex->credentials_form(),
-					'Edit file <strong>' . $robots_path .
-					'</strong> and remove next lines:',
-					$robots_path,  $this->robots_addon() );
-			}
-		}
-	}
-	
-	/**
-	 * Returns string to block crawling of cache directory via robot.txt
-	 */
-	private function robots_addon() {
-		return "\r\n\r\n# W3TC prevent indexing of cache directory\r\nUser-agent: *\r\nDisallow: /wp-content/cache/\r\n";
-	}
-	
-	/**
-	 * Disables crawling blocker for cache directory
+	 * @param Config $config Configuration.
+	 * @param Util_Environment_Exceptions $exs Exceptions.
 	 *
-	 * @param string  $robots_content robots.txt content
+	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials.
+	 */
+	private function robots_rules_add( $config, $exs ) {
+		Util_Rule::add_rules(
+			$exs,
+			Util_Rule::get_robots_rules_path(),
+			$this->robots_rules_generate(),
+			W3TC_MARKER_BEGIN_ROBOTS,
+			W3TC_MARKER_END_ROBOTS,
+			array()
+		);
+	}
+
+	/**
+	 * Generate robots.txt directives
+	 *
+	 * @since 2.1.7
+	 *
 	 * @return string
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
 	 */
-	private function robots_remove_from_content( $robots_content ) {
-		$robots_content = preg_replace(
-			"~(\r\n|\r|\n)+\\# W3TC prevent indexing of cache directory(\r\n|\r|\n)+User-agent\\: \\*(\r\n|\r|\n)+Disallow\\: \\/wp\\-content\\/cache\\/(\r\n|\r|\n)+~s",
-			'', $robots_content );
-		/*$robots_content = preg_replace(
-			"~(\r\n|\r|\n)+\# W3TC prevent indexing of cache directory(\r\n|\r|\n)+User-agent\: \*(\r\n|\r|\n)+Disallow\: \/wp\-content\/cache\/(\r\n|\r|\n)+~s",
-			'', $robots_content );*/
+	private function robots_rules_generate() {
+		return '
+# BEGIN W3TC ROBOTS
+User-agent: *
+Disallow: /wp-content/cache/
+# END W3TC ROBOTS
+';
+	}
 
-		return $robots_content;
+	/**
+	 * Removes robots.txt directives
+	 *
+	 * @since 2.1.7
+	 *
+	 * @param Util_Environment_Exceptions $exs Exceptions.
+	 *
+	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials.
+	 */
+	private function robots_rules_remove( $exs ) {
+		Util_Rule::remove_rules(
+			$exs,
+			Util_Environment::site_path() . 'robots.txt',
+			W3TC_MARKER_BEGIN_ROBOTS,
+			W3TC_MARKER_END_ROBOTS
+		);
 	}
 }
