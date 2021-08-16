@@ -534,7 +534,7 @@ $feature_policies = array(
 				'control'             => 'textbox',
 				'label'               => $i['label'],
 				'textbox_size'        => '50',
-				'textbox_placeholder' => "One of: 'self' 'src' 'none' *.domain.com",
+				'textbox_placeholder' => "One of: * 'self' 'src' 'none' <origins(s)>",
 				'description'         => $i['description'],
 			)
 		);
