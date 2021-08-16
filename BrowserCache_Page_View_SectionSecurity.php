@@ -19,111 +19,143 @@ $fp_values = $c->get_array( 'browsercache.security.fp.values' );
 $feature_policies = array(
 	array(
 		'label'       => 'accelerometer',
-		'description' => __( 'controls whether the current document is allowed to gather information about the acceleration of the device through the Accelerometer interface', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to gather information about the acceleration of the device through the Accelerometer interface.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'ambient-light-sensor',
-		'description' => __( 'controls whether the current document is allowed to gather information about the amount of light in the environment around the device through the AmbientLightSensor interface', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to gather information about the amount of light in the environment around the device through the AmbientLightSensor interface.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'autoplay',
-		'description' => __( 'controls whether the current document is allowed to autoplay media requested through the HTMLMediaElement interface', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to autoplay media requested through the HTMLMediaElement interface.', 'w3-total-cache' ),
+	),
+	array(
+		'label'       => 'battery',
+		'description' => __( 'Controls whether the use of the Battery Status API is allowed. When this policy is disabled, the Promise returned by Navigator.getBattery() will reject with a NotAllowedError DOMException.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'camera',
-		'description' => __( 'controls whether the current document is allowed to use video input devices', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use video input devices.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'display-capture',
-		'description' => __( 'controls whether or not the document is permitted to use Screen Capture API', 'w3-total-cache' ),
+		'description' => __( 'Controls whether or not the document is permitted to use Screen Capture API.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'document-domain',
-		'description' => __( 'controls whether the current document is allowed to set document.domain', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to set document.domain.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'encrypted-media',
-		'description' => __( 'controls whether the current document is allowed to use the Encrypted Media Extensions API (EME)', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use the Encrypted Media Extensions API (EME).', 'w3-total-cache' ),
+	),
+	array(
+		'label'       => 'execution-while-not-rendered',
+		'description' => __( 'Controls whether tasks should execute in frames while they\'re not being rendered (e.g. if an iframe is hidden or display: none).', 'w3-total-cache' ),
+	),
+	array(
+		'label'       => 'execution-while-out-of-viewport',
+		'description' => __( 'Controls whether tasks should execute in frames while they\'re outside of the visible viewport.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'fullscreen',
-		'description' => __( 'controls whether the current document is allowed to use Element.requestFullScreen()', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use Element.requestFullScreen().', 'w3-total-cache' ),
+	),
+	array(
+		'label'       => 'gamepad',
+		'description' => __( 'Controls whether the current document is allowed to use the Gamepad API. When this policy is disabled, calls to Navigator.getGamepads() will throw a SecurityError DOMException, and the gamepadconnected and gamepaddisconnected events will not fire.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'geolocation',
-		'description' => __( 'controls whether the current document is allowed to use the Geolocation Interface', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use the Geolocation Interface.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'gyroscope',
-		'description' => __( 'controls whether the current document is allowed to gather information about the orientation of the device through the Gyroscope interface', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to gather information about the orientation of the device through the Gyroscope interface.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'layout-animations',
-		'description' => __( 'controls whether the current document is allowed to show layout animations', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to show layout animations.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'legacy-image-formats',
-		'description' => __( 'controls whether the current document is allowed to display images in legacy formats', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to display images in legacy formats.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'magnetometer',
-		'description' => __( 'controls whether the current document is allowed to gather information about the orientation of the device through the Magnetometer interface', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to gather information about the orientation of the device through the Magnetometer interface.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'microphone',
-		'description' => __( 'controls whether the current document is allowed to use audio input devices', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use audio input devices.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'midi',
-		'description' => __( 'controls whether the current document is allowed to use the Web MIDI API', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use the Web MIDI API.', 'w3-total-cache' ),
+	),
+	array(
+		'label'       => 'navigation-override',
+		'description' => __( 'Controls the availability of mechanisms that enables the page author to take control over the behavior of spatial navigation, or to cancel it outright.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'oversized-images',
-		'description' => __( 'controls whether the current document is allowed to download and display large images', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to download and display large images.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'payment',
-		'description' => __( 'controls whether the current document is allowed to use the Payment Request API', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use the Payment Request API.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'picture-in-picture',
-		'description' => __( 'controls whether the current document is allowed to play a video in a Picture-in-Picture mode via the corresponding API', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to play a video in a Picture-in-Picture mode via the corresponding API.', 'w3-total-cache' ),
 	),
 	array(
-		'label'       => 'publickey-credentials',
-		'description' => __( 'controls whether the current document is allowed to access Web Authentcation API', 'w3-total-cache' ),
+		'label'       => 'publickey-credentials-get',
+		'description' => __( 'Controls whether the current document is allowed to use the Web Authentication API to retrieve already stored public-key credentials, i.e. via navigator.credentials.get({publicKey: ..., ...}).', 'w3-total-cache' ),
+	),
+	array(
+		'label'       => 'screen-wake-lock',
+		'description' => __( 'Controls whether the current document is allowed to use Screen Wake Lock API to indicate that device should not turn off or dim the screen.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'speaker',
-		'description' => __( 'controls whether the current document is allowed to play audio via any methods', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to play audio via any methods.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'sync-xhr',
-		'description' => __( 'controls whether the current document is allowed to make synchronous XMLHttpRequest requests', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to make synchronous XMLHttpRequest requests.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'unoptimized-images',
-		'description' => __( 'controls whether the current document is allowed to download and display unoptimized images', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to download and display unoptimized images.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'unsized-media',
-		'description' => __( 'controls whether the current document is allowed to change the size of media elements after the initial layout is complete', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to change the size of media elements after the initial layout is complete.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'usb',
-		'description' => __( 'controls whether the current document is allowed to use the WebUSB API', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use the WebUSB API.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'vibrate',
-		'description' => __( 'directive controls whether the current document is allowed to trigger device vibrations via Vibration API', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to trigger device vibrations via Navigator.vibrate() method of Vibration API.', 'w3-total-cache' ),
+	),
+	array(
+		'label'       => 'vr',
+		'description' => __( 'Controls whether the current document is allowed to use the WebVR API. When this policy is disabled, the Promise returned by Navigator.getVRDisplays() will reject with a DOMException. Keep in mind that the WebVR standard is in the process of being replaced with WebXR.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'wake-lock',
-		'description' => __( 'controls whether the current document is allowed to use Wake Lock API to indicate that device should not enter power-saving mode', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use Wake Lock API to indicate that device should not enter power-saving mode.', 'w3-total-cache' ),
+	),
+	array(
+		'label'       => 'web-share',
+		'description' => __( 'Controls whether or not the current document is allowed to use the Navigator.share() of Web Share API to share text, links, images, and other content to arbitrary destinations of user\'s choice, e.g. mobile apps.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'xr-spatial-tracking',
-		'description' => __( 'controls whether the current document is allowed to use the WebXR Device API.', 'w3-total-cache' ),
+		'description' => __( 'Controls whether the current document is allowed to use the WebXR Device API.', 'w3-total-cache' ),
 	),
 );
 
@@ -502,7 +534,7 @@ $feature_policies = array(
 				'control'             => 'textbox',
 				'label'               => $i['label'],
 				'textbox_size'        => '50',
-				'textbox_placeholder' => "One of: 'self' 'src' 'none' *.domain.com",
+				'textbox_placeholder' => "One of: * 'self' 'src' 'none' *.domain.com",
 				'description'         => $i['description'],
 			)
 		);
