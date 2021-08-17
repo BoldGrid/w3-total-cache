@@ -2447,6 +2447,7 @@ $keys = array(
 		'type' => 'array',
 		'default' => array(
 			'compression' => 'lossy',
+			'auto'        => 'enabled',
 		),
 	),
 

@@ -104,8 +104,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	public static function w3tc_extension_load_admin() {
 		$o = new Extension_ImageOptimizer_Plugin_Admin();
 
+		// Settings page.
 		add_action( 'w3tc_extension_page_optimager', array( $o, 'w3tc_extension_page_optimager' ) );
 
+		// Enqueue scripts.
 		add_action( 'admin_enqueue_scripts', array( $o, 'admin_enqueue_scripts' ) );
 
 		/**
@@ -179,6 +181,20 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		 *                         comments, terms, links, plugins, attachments, or users.
 		 */
 		add_filter( 'handle_bulk_actions-upload', array( $o, 'handle_bulk_actions' ), 10, 3 );
+
+		/**
+		 * Handle auto-optimization on upload.
+		 *
+		 * @link https://core.trac.wordpress.org/browser/tags/5.8/src/wp-includes/post.php#L4401
+		 * @link https://developer.wordpress.org/reference/hooks/add_attachment/
+		 *
+		 * Fires once an attachment has been added.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param int $post_ID Attachment ID.
+		 */
+		add_action( 'add_attachment', array( $o, 'auto_optimize' ) );
 	}
 
 	/**
@@ -672,6 +688,22 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		delete_post_meta( $post_id, 'w3tc_optimager' );
 
 		return $result;
+	}
+
+	/**
+	 * Handle auto-optimization on image upload.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int $post_id Post id.
+	 */
+	public function auto_optimize( $post_id ) {
+		$settings = $this->config->get_array( 'optimager' );
+		$enabled  = isset( $settings['auto'] ) && 'enabled' === $settings['auto'];
+
+		if ( $enabled && in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
+			$this->submit_images( array( $post_id ) );
+		}
 	}
 
 	/**

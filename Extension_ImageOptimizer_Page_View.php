@@ -52,6 +52,22 @@ if ( ! defined( 'W3TC' ) ) {
 				'description'       => __( 'Image compression type', 'w3-total-cache' ),
 			)
 		);
+
+		Util_Ui::config_item(
+			array(
+				'key'               => array(
+					'optimager',
+					'auto',
+				),
+				'label'             => __( 'Auto-optimize:', 'w3-total-cache' ),
+				'control'           => 'radiogroup',
+				'radiogroup_values' => array(
+					'enabled'  => 'Enabled',
+					'disabled' => 'Disabled',
+				),
+				'description'       => __( 'Auto-optimize images on upload', 'w3-total-cache' ),
+			)
+		);
 		?>
 	</table>
 	<?php Util_Ui::button_config_save( 'extension_optimager_configuration' ); ?>
