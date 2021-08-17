@@ -138,6 +138,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_optimager_postmeta', array( $o, 'ajax_get_postmeta' ) );
 		add_action( 'wp_ajax_w3tc_optimager_revert', array( $o, 'ajax_revert' ) );
 		add_action( 'wp_ajax_w3tc_optimager_compression', array( $o, 'ajax_set_compression' ) );
+		add_action( 'wp_ajax_w3tc_optimager_all', array( $o, 'ajax_optimize_all' ) );
 
 		// Notices.
 		add_action( 'admin_notices', array( $o, 'w3tc_optimager_notices' ) );
@@ -214,6 +215,55 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
+	 * Get all images with postmeta key "w3tc_optimager".
+	 *
+	 * @since X.X.X
+	 * @static
+	 *
+	 * @link https://developer.wordpress.org/reference/classes/wp_query/
+	 *
+	 * @return
+	 */
+	public static function get_optimager_attachments() {
+		return new \WP_Query(
+			array(
+				'post_type'           => 'attachment',
+				'post_status'         => 'inherit',
+				'post_mime_type'      => self::$mime_types,
+				'posts_per_page'      => -1,
+				'ignore_sticky_posts' => true,
+				'suppress_filters'    => true,
+				'meta_key'            => 'w3tc_optimager', // phpcs:ignore WordPress.DB.SlowDBQuery
+			)
+		);
+	}
+
+	/**
+	 * Get all images without postmeta key "w3tc_optimager".
+	 *
+	 * @since X.X.X
+	 * @static
+	 *
+	 * @link https://developer.wordpress.org/reference/classes/wp_query/
+	 *
+	 * @return
+	 */
+	public static function get_eligible_attachments() {
+		return new \WP_Query(
+			array(
+				'post_type'           => 'attachment',
+				'post_status'         => 'inherit',
+				'post_mime_type'      => self::$mime_types,
+				'posts_per_page'      => -1,
+				'ignore_sticky_posts' => true,
+				'suppress_filters'    => true,
+				'meta_key'            => 'w3tc_optimager', // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_compare'        => 'NOT EXISTS',
+			)
+		);
+	}
+
+	/**
 	 * Load the extension settings page view.
 	 *
 	 * @since X.X.X
@@ -232,8 +282,11 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @since X.X.X
 	 */
 	public function admin_enqueue_scripts() {
-		// Enqueue JavaScript for the Media Library (upload) admin page.
-		if ( 'upload' === get_current_screen()->id ) {
+		// Enqueue JavaScript for the Media Library (upload) and extension settings admin pages.
+		$is_settings_page = isset( $_GET['extension'] ) && 'optimager' === $_GET['extension'];
+		$is_media_page    = 'upload' === get_current_screen()->id;
+
+		if ( $is_settings_page || $is_media_page ) {
 			wp_register_script(
 				'w3tc-optimager',
 				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_ImageOptimizer_Plugin_Admin.js' ),
@@ -917,5 +970,29 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				400
 			);
 		}
+	}
+
+	/**
+	 * AJAX: Optimize all images.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see self::get_eligible_attachments()
+	 * @see self::submit_images()
+	 */
+	public function ajax_optimize_all() {
+		check_ajax_referer( 'w3tc_optimager_submit' );
+
+		$results = $this->get_eligible_attachments();
+
+		$post_ids = array();
+
+		foreach ( $results->posts as $post ) {
+			$post_ids[] = $post->ID;
+		}
+
+		$stats = $this->submit_images( $post_ids );
+
+		wp_send_json_success( $stats );
 	}
 }

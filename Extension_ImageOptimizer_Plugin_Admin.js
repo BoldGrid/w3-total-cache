@@ -302,4 +302,50 @@
 				return false;
 			});
 	});
+
+	// Optimize all images.
+	$( 'th.w3tc-optimager-all' ).parent().find( 'td button' ).on( 'click', function( e ) {
+		var $this = $( this );
+
+		e.preventDefault();
+
+		$this.prop( 'disabled', true );
+		$this.text( w3tcData.lang.sending );
+
+		$.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: w3tcData.nonces.submit,
+				action: 'w3tc_optimager_all'
+			}
+		})
+			.done( function( response ) {
+				if ( response.success ) {
+					$this.text( w3tcData.lang.processing );
+				} else if ( response.data.error ) {
+					$this.text( w3tcData.lang.error );
+					$this.parent().append(
+						'<div class="notice notice-error inline">' +
+						response.data.error +
+						'</div>'
+					);
+				} else {
+					$this.text( w3tcData.lang.error );
+				}
+			})
+			.fail( function( jqXHR ) {
+				$this.text( w3tcData.lang.error );
+
+				if ( 'responseJSON' in jqXHR && 'data' in jqXHR.responseJSON && 'error' in jqXHR.responseJSON.data ) {
+					$this.parent().append(
+						'<div class="notice notice-error inline">' +
+						jqXHR.responseJSON.data.error +
+						'</div>'
+					);
+				}
+			});
+
+		return false;
+	});
 })( jQuery );

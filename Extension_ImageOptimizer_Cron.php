@@ -60,21 +60,13 @@ class Extension_ImageOptimizer_Cron {
 	 *
 	 * @since X.X.X
 	 *
+	 * @see Extension_ImageOptimizer_Plugin_Admin::get_optimager_attachments()
+	 *
 	 * @global $wp_filesystem WP_Filesystem.
 	 */
 	public static function run() {
 		// Get all images with postmeta key "w3tc_optimager".
-		$results = new \WP_Query(
-			array(
-				'post_type'           => 'attachment',
-				'post_status'         => 'inherit',
-				'post_mime_type'      => Extension_ImageOptimizer_Plugin_Admin::$mime_types,
-				'posts_per_page'      => -1,
-				'ignore_sticky_posts' => true,
-				'suppress_filters'    => true,
-				'meta_key'            => 'w3tc_optimager', // phpcs:ignore WordPress.DB.SlowDBQuery
-			)
-		);
+		$results = Extension_ImageOptimizer_Plugin_Admin::get_optimager_attachments();
 
 		// If there are matches, then load dependencies before use.
 		if ( $results->have_posts() ) {

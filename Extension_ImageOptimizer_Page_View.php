@@ -49,7 +49,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'lossy'    => 'Lossy',
 					'lossless' => 'Lossless',
 				),
-				'description'       => __( 'Image compression type', 'w3-total-cache' ),
+				'description'       => __( 'Image compression type.', 'w3-total-cache' ),
 			)
 		);
 
@@ -65,12 +65,29 @@ if ( ! defined( 'W3TC' ) ) {
 					'enabled'  => 'Enabled',
 					'disabled' => 'Disabled',
 				),
-				'description'       => __( 'Auto-optimize images on upload', 'w3-total-cache' ),
+				'description'       => __( 'Auto-optimize images on upload.', 'w3-total-cache' ),
 			)
 		);
 		?>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_optimager_configuration' ); ?>
-	<?php Util_Ui::postbox_footer(); ?>
+	<?php
+	Util_Ui::button_config_save( 'extension_optimager_configuration' );
+	Util_Ui::postbox_footer();
+	Util_Ui::postbox_header( __( 'Tools', 'w3-total-cache' ), '', '' );
+	?>
+	<table class="form-table">
+	<?php
+		Util_Ui::config_item(
+			array(
+				'key'         => null,
+				'label'       => __( 'Optimize all images:', 'w3-total-cache' ),
+				'label_class' => 'w3tc-optimager-all',
+				'control'     => 'button',
+				'none_label'  => 'Optimize All',
+				'description' => __( 'Optimize all images in the media library.', 'w3-total-cache' ),
+			)
+		);
+	?>
+	</table>
 </div>
 </form>
