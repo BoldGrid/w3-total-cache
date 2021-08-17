@@ -195,6 +195,22 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		 * @param int $post_ID Attachment ID.
 		 */
 		add_action( 'add_attachment', array( $o, 'auto_optimize' ) );
+
+		/**
+		 * Delete optimizations on parent image delation.
+		 *
+		 * @link https://core.trac.wordpress.org/browser/tags/5.8/src/wp-includes/post.php#L6134
+		 * @link https://developer.wordpress.org/reference/hooks/pre_delete_attachment/
+		 *
+		 * Filters whether an attachment deletion should take place.
+		 *
+		 * @since 5.5.0
+		 *
+		 * @param bool|null $delete       Whether to go forward with deletion.
+		 * @param WP_Post   $post         Post object.
+		 * @param bool      $force_delete Whether to bypass the Trash.
+		 */
+		add_filter( 'pre_delete_attachment', array( $o, 'cleanup_optimizations' ), 10, 3 );
 	}
 
 	/**
@@ -704,6 +720,26 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		if ( $enabled && in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
 			$this->submit_images( array( $post_id ) );
 		}
+	}
+
+	/**
+	 * Delete optimizations on parent image delation.
+	 *
+	 * Does not filter the WordPress operation.  We use this as an action trigger.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param bool|null $delete       Whether to go forward with deletion.
+	 * @param WP_Post   $post         Post object.
+	 * @param bool      $force_delete Whether to bypass the Trash.
+	 * @return null
+	 */
+	public function cleanup_optimizations( $delete, $post, $force_delete ) {
+		if ( $force_delete ) {
+			$this->remove_optimizations( $post->ID );
+		}
+
+		return null;
 	}
 
 	/**
