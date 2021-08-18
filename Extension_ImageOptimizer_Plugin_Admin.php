@@ -139,6 +139,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_optimager_revert', array( $o, 'ajax_revert' ) );
 		add_action( 'wp_ajax_w3tc_optimager_compression', array( $o, 'ajax_set_compression' ) );
 		add_action( 'wp_ajax_w3tc_optimager_all', array( $o, 'ajax_optimize_all' ) );
+		add_action( 'wp_ajax_w3tc_optimager_revertall', array( $o, 'ajax_revert_all' ) );
 
 		// Notices.
 		add_action( 'admin_notices', array( $o, 'w3tc_optimager_notices' ) );
@@ -271,6 +272,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	public function w3tc_extension_page_optimager() {
 		$c = $this->config;
 
+		$optimized_count   = self::get_optimager_attachments()->post_count;
+		$unoptimized_count = self::get_eligible_attachments()->post_count;
+		$total_count       = $optimized_count + $unoptimized_count;
+
 		require W3TC_DIR . '/Extension_ImageOptimizer_Page_View.php';
 	}
 
@@ -312,6 +317,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'optimized'     => __( 'Optimized', 'w3-total_cache' ),
 						'reoptimize'    => __( 'Reoptimize', 'w3-total_cache' ),
 						'reverting'     => __( 'Reverting', 'w3-total_cache' ),
+						'reverted'      => __( 'Reverted', 'w3-total_cache' ),
 						'revert'        => __( 'Revert', 'w3-total_cache' ),
 						'error'         => __( 'Error', 'w3-total_cache' ),
 						'changed'       => __( 'Changed', 'w3-total_cache' ),
@@ -987,6 +993,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 		$post_ids = array();
 
+		// Allow plenty of time to complete.
+		ignore_user_abort( true );
+		set_time_limit(0);
+
 		foreach ( $results->posts as $post ) {
 			$post_ids[] = $post->ID;
 		}
@@ -994,5 +1004,33 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		$stats = $this->submit_images( $post_ids );
 
 		wp_send_json_success( $stats );
+	}
+
+	/**
+	 * AJAX: Revert all optimized images.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see self::get_optimager_attachments()
+	 * @see self::remove_optimizations()
+	 */
+	public function ajax_revert_all() {
+		check_ajax_referer( 'w3tc_optimager_submit' );
+
+		$results = $this->get_optimager_attachments();
+
+		$revert_count = 0;
+
+		// Allow plenty of time to complete.
+		ignore_user_abort( true );
+		set_time_limit(0);
+
+		foreach ( $results->posts as $post ) {
+			if ( $this->remove_optimizations( $post->ID ) ) {
+				$revert_count++;
+			}
+		}
+
+		wp_send_json_success( array( 'revert_count' => $revert_count ) );
 	}
 }
