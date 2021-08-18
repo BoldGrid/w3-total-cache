@@ -64,6 +64,23 @@ class Extension_ImageOptimizer_Environment {
 	}
 
 	/**
+	 * Returns required rules for module.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Config $config Configuration object.
+	 * @return array
+	 */
+	public function get_required_rules( $config ) {
+		return array(
+			array(
+				'filename' => Util_Rule::get_browsercache_rules_cache_path(),
+				'content'  => $this->rules_generate(),
+			),
+		);
+	}
+
+	/**
 	 * Write rewrite rules.
 	 *
 	 * @since X.X.X
