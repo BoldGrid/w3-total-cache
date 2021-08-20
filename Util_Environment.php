@@ -1209,6 +1209,34 @@ class Util_Environment {
 
 
 	/**
+	 * Checks if post is a custom post type
+	 *
+	 * @since 2.1.7
+	 * 
+	 * @param unknown $post
+	 *
+	 * @return bool
+	 */
+	static public function is_custom_post_type( $post ) {
+		$all_custom_post_types = get_post_types( array ( '_builtin' => FALSE ) );
+
+		// there are no custom post types
+		if ( empty ( $all_custom_post_types ) )
+			return FALSE;
+
+		$custom_types = array_keys( $all_custom_post_types );
+		$current_post_type = get_post_type( $post );
+
+		// could not detect current type
+		if ( ! $current_post_type )
+			return FALSE;
+
+		return in_array( $current_post_type, $custom_types );
+	}
+
+
+
+	/**
 	 * Converts value to boolean
 	 *
 	 * @param mixed   $value
@@ -1246,7 +1274,7 @@ class Util_Environment {
 	 * @return string
 	 */
 	static public function get_server_version() {
-		$sig= explode( '/', $_SERVER['SERVER_SOFTWARE'] );
+		$sig = explode( '/', $_SERVER['SERVER_SOFTWARE'] );
 		$temp = isset( $sig[1] ) ? explode( ' ', $sig[1] ) : array( '0' );
 		$version = $temp[0];
 		return $version;
