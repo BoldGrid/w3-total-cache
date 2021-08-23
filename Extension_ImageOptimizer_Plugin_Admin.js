@@ -168,7 +168,7 @@
 					$this.val( w3tcData.lang.processing );
 					$this.data( 'status', 'processing' );
 					startCheckItems();
-				} else if ( response.data.error ) {
+				} else if ( response.data && response.data.hasOwnProperty(error) ) {
 					$this.val( w3tcData.lang.error );
 					$this.parent().append(
 						'<div class="notice notice-error inline">' +
