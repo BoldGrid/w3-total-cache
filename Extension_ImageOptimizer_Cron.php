@@ -36,7 +36,7 @@ class Extension_ImageOptimizer_Cron {
 	public static function add_schedule() {
 		$schedules['ten_seconds'] = array(
 			'interval' => 10,
-			'display'  => esc_html__( 'Every Ten Seconds' ),
+			'display'  => esc_html__( 'Every Ten Seconds', 'w3-total-cache' ),
 		);
 		return $schedules;
 	}
