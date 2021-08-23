@@ -91,7 +91,7 @@ class Extension_ImageOptimizer_Api {
 			$this->home_url    = network_home_url();
 			$this->item_name   = W3TC_PURCHASE_PRODUCT_NAME;
 		} else {
-			$this->license_key = md5( network_home_url() );
+			$this->home_url = md5( network_home_url() );
 		}
 	}
 
