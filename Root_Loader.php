@@ -131,9 +131,9 @@ class Root_Loader {
 	 */
 	function run_extensions() {
 		$c = Dispatcher::config();
+		$extensions = $c->get_array( 'extensions.active' );
 
 		$frontend = $c->get_array( 'extensions.active_frontend' );
-
 		foreach ( $frontend as $extension => $nothing ) {
 			if ( isset( $extensions[$extension] ) ) {
 				$path = $extensions[$extension];
@@ -147,7 +147,6 @@ class Root_Loader {
 		}
 
 		if ( is_admin() ) {
-			$extensions = $c->get_array( 'extensions.active' );
 			foreach ( $extensions as $extension => $path ) {
 				$filename = W3TC_EXTENSION_DIR . '/' .
 					str_replace( '..', '', trim( $path, '/' ) );
