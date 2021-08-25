@@ -131,9 +131,9 @@ class Root_Loader {
 	 */
 	function run_extensions() {
 		$c = Dispatcher::config();
-		$extensions = $c->get_array( 'extensions.active' );
 
 		$frontend = $c->get_array( 'extensions.active_frontend' );
+
 		foreach ( $frontend as $extension => $nothing ) {
 			if ( isset( $extensions[$extension] ) ) {
 				$path = $extensions[$extension];
