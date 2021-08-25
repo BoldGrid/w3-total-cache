@@ -2419,11 +2419,13 @@ $keys = array(
 		'default' => array(
 			'fragmentcache' => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
 			'optimager'     => 'w3-total-cache/Extension_ImageOptimizer_Plugin.php',
-		)
+		),
 	),
 	'extensions.active_frontend' => array(
 		'type' => 'array',
-		'default' => array()
+		'default' => array(
+			'optimager' => '*',
+		),
 	),
 	'extensions.active_dropin' => array(
 		'type' => 'array',
