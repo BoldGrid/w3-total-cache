@@ -178,7 +178,25 @@ class FeatureShowcase_Plugin_Admin {
 	 * @return array
 	 */
 	private static function get_cards() {
+		$c                     = Dispatcher::config();
+		$extensions            = $c->get_array( 'extensions.active' );
+		$is_optimager_active   = isset( $extensions['optimager'] );
+		$optimager_button_text = $is_optimager_active ? __( 'Settings', 'w3-total-cache' ) : __( 'Activate', 'w3-total-cache' );
+		$optimager_button_link = $is_optimager_active ?
+			'admin.php?page=w3tc_extensions&extension=optimager&action=view' : 'admin.php?page=w3tc_extensions&action=activate&extension=optimager';
+
 		return array(
+			'optimager'           => array(
+				'title'      => esc_html__( 'Image Optimizer Service', 'w3-total-cache' ),
+				'icon'       => 'dashicons-embed-photo',
+				'text'       => esc_html( $optimager_button_text ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( Util_Ui::admin_url( $optimager_button_link ) ) . '\'">' . $optimager_button_text . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-optimizer-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=optimager' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+				'is_premium' => false,
+				'is_new'     => true,
+			),
 			'setup_guide'         => array(
 				'title'      => esc_html__( 'Setup Guide Wizard', 'w3-total-cache' ),
 				'icon'       => 'dashicons-superhero',
