@@ -35,17 +35,13 @@ class FeatureShowcase_Plugin_Admin {
 	 * @see self::set_config()
 	 */
 	public function __construct() {
-		$page = Util_Request::get_string( 'page' );
-
-		if ( 'w3tc_feature_showcase' === $page ) {
-			add_action(
-				'admin_enqueue_scripts',
-				array(
-					$this,
-					'enqueue_styles',
-				)
-			);
-		}
+		add_action(
+			'admin_enqueue_scripts',
+			array(
+				$this,
+				'enqueue_styles',
+			)
+		);
 	}
 
 	/**
@@ -82,12 +78,23 @@ class FeatureShowcase_Plugin_Admin {
 	 * @since 2.1.0
 	 */
 	public function enqueue_styles() {
+		$page = Util_Request::get_string( 'page' );
+
 		wp_enqueue_style(
-			'w3tc_feature_showcase',
-			esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/feature-showcase.css' ),
+			'w3tc_feature_counter',
+			esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/feature-counter.css' ),
 			array(),
 			W3TC_VERSION
 		);
+
+		if ( 'w3tc_feature_showcase' === $page ) {
+			wp_enqueue_style(
+				'w3tc_feature_showcase',
+				esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/feature-showcase.css' ),
+				array(),
+				W3TC_VERSION
+			);
+		}
 	}
 
 	/**
