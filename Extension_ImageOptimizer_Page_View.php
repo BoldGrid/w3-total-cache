@@ -17,7 +17,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 ?>
 <p>
-	Image Optimizer service is currently
+	W3 Image Service is currently
 	<?php
 	if ( $c->is_extension_active( 'optimager' ) ) {
 		?>

@@ -187,11 +187,11 @@ class FeatureShowcase_Plugin_Admin {
 
 		return array(
 			'optimager'           => array(
-				'title'      => esc_html__( 'Image Optimizer Service', 'w3-total-cache' ),
+				'title'      => esc_html__( 'Image Service', 'w3-total-cache' ),
 				'icon'       => 'dashicons-embed-photo',
-				'text'       => esc_html( $optimager_button_text ),
+				'text'       => esc_html__( 'Adds image service options to optimize performance of images.', 'w3-total-cache' ),
 				'button'     => '<button class="button" onclick="window.location=\'' .
-					esc_url( Util_Ui::admin_url( $optimager_button_link ) ) . '\'">' . $optimager_button_text . '</button>',
+					esc_url( Util_Ui::admin_url( $optimager_button_link ) ) . '\'">' . esc_html( $optimager_button_text ) . '</button>',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-optimizer-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=optimager' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => false,

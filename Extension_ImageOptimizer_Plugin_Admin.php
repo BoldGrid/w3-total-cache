@@ -73,10 +73,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 */
 	public static function w3tc_extensions( $extensions, $config ) {
 		$extensions['optimager'] = array(
-			'name'             => 'Image Optimizer Service',
+			'name'             => 'Image Service',
 			'author'           => 'W3 EDGE',
 			'description'      => __(
-				'Adds image optimization service options to the media library.',
+				'Adds image service options to optimize performance of images.',
 				'w3-total-cache'
 			),
 			'author_uri'       => 'https://www.w3-edge.com/',
@@ -88,6 +88,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			'disabled_message' => '',
 			'requirements'     => '',
 			'path'             => 'w3-total-cache/Extension_ImageOptimizer_Plugin.php',
+			'extra_links'      => array(
+				'<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">' .
+					esc_html__( 'Media Library', 'w3-total-cache' ) . '</a>',
+			),
 		);
 
 		return $extensions;
@@ -354,7 +358,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		$settings    = $this->config->get_array( 'optimager' );
 		$compression = ! empty( $settings['compression'] ) ? $settings['compression'] : 'lossy'; // Default: "lossy".
 
-		$posts_columns['optimager'] = '<span class="w3tc-optimize"></span> Total Optimizer <span id="w3tc-optimager-controls"><a href="' .
+		$posts_columns['optimager'] = '<span class="w3tc-optimize"></span> Image Service <span id="w3tc-optimager-controls"><a href="' .
 			esc_url( admin_url( 'admin.php?page=w3tc_extensions&extension=optimager&action=view' ) ) . '" title="' .
 			esc_html__( 'Settings', 'w3-total-cache' ) .
 			'"><span id="w3tc-optimager-settings" class="dashicons dashicons-admin-generic"></span></a>' .
@@ -575,7 +579,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			$invalid    = isset( $_GET['w3tc_optimager_invalid'] ) ? intval( $_GET['w3tc_optimager_invalid'] ) : 0;
 
 			printf(
-				'<div class="updated notice notice-success is-dismissible"><p>W3 Total Optimizer</p><p>' .
+				'<div class="updated notice notice-success is-dismissible"><p>W3 Image Service</p><p>' .
 				// translators: 1: Submissions.
 				_n(
 					'Submitted %1$u image for processing.',
@@ -605,7 +609,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			echo '</div>';
 
 		} elseif ( isset( $_GET['w3tc_optimager_reverted'] ) ) {
-			echo '<div class="updated notice notice-success is-dismissible"><p>W3 Total Optimizer</p><p>' .
+			echo '<div class="updated notice notice-success is-dismissible"><p>W3 Image Service</p><p>' .
 				__( 'All selected optimizations have been reverted.', 'w3-total-cache' ) . '</p></div>';
 		}
 	}
