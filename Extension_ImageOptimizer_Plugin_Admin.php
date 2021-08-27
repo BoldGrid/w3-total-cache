@@ -217,6 +217,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		 * @param bool      $force_delete Whether to bypass the Trash.
 		 */
 		add_filter( 'pre_delete_attachment', array( $o, 'cleanup_optimizations' ), 10, 3 );
+
+		// Add settings submenu to Media top-level menu.
+		add_action( 'admin_menu', array( $o, 'admin_menu' ) );
 	}
 
 	/**
@@ -281,6 +284,21 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		$total_count       = $optimized_count + $unoptimized_count;
 
 		require W3TC_DIR . '/Extension_ImageOptimizer_Page_View.php';
+	}
+
+	/**
+	 * Add admin menu items.
+	 *
+	 * @since X.X.X
+	 */
+	public function admin_menu() {
+		add_submenu_page(
+			'upload.php',
+			esc_html__( 'W3 Image Service', 'w3-total-cache' ),
+			esc_html__( 'W3 Image Service', 'w3-total-cache' ),
+			'edit_posts',
+			'admin.php?page=w3tc_extensions&extension=optimager&action=view'
+		);
 	}
 
 	/**
