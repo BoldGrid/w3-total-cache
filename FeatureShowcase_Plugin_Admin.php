@@ -219,7 +219,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/lazy-load-google-maps/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_lazyload_googlemaps' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => true,
-				'is_new'     => true,
+				'is_new'     => false,
 			),
 			'cdn_fsd'             => array(
 				'title'      => esc_html__( 'Full Site Delivery via CDN', 'w3-total-cache' ),
