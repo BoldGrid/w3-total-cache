@@ -597,7 +597,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			$invalid    = isset( $_GET['w3tc_optimager_invalid'] ) ? intval( $_GET['w3tc_optimager_invalid'] ) : 0;
 
 			printf(
-				'<div class="updated notice notice-success is-dismissible"><p>W3 Image Service</p><p>' .
+				'<div class="updated notice notice-success is-dismissible"><p><span class="w3tc-optimize"></span> Image Service</p><p>' .
 				// translators: 1: Submissions.
 				_n(
 					'Submitted %1$u image for processing.',
@@ -628,7 +628,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 		} elseif ( isset( $_GET['w3tc_optimager_reverted'] ) ) {
 			?>
-			<div class="updated notice notice-success is-dismissible"><p>W3 Image Service</p>
+			<div class="updated notice notice-success is-dismissible"><p><span class="w3tc-optimize"></span> Image Service</p>
 				<p><?php _e( 'All selected optimizations have been reverted.', 'w3-total-cache' ); ?></p>
 			</div>
 			<?php
@@ -640,7 +640,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			// If not in list mode, then print a notice to switch to it.
 			if ( 'list' !== $mode ) {
 				?>
-				<div class="notice notice-warning is-dismissible"><p>W3 Image Service</p>
+				<div class="notice notice-warning is-dismissible"><p><span class="w3tc-optimize"></span> Image Service</p>
 					<p>
 				<?php
 						printf(

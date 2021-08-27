@@ -3,7 +3,6 @@ span.w3tc-optimize:before {
 	display: inline-block;
 	font-family: 'w3tc';
 	font-size: x-large;
-	margin-top: 5px;
 }
 
 th span.w3tc-optimize:before,
@@ -13,6 +12,7 @@ th #w3tc-optimager-settings {
 
 td span.w3tc-optimize:before {
 	color: gray;
+	margin-top: 5px;
 }
 
 td span.w3tc-optimized:before {
