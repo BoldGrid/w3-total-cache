@@ -145,7 +145,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_optimager_all', array( $o, 'ajax_optimize_all' ) );
 		add_action( 'wp_ajax_w3tc_optimager_revertall', array( $o, 'ajax_revert_all' ) );
 
-		// Notices.
+		// Admin notices.
 		add_action( 'admin_notices', array( $o, 'w3tc_optimager_notices' ) );
 
 		/**
@@ -218,7 +218,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		 */
 		add_filter( 'pre_delete_attachment', array( $o, 'cleanup_optimizations' ), 10, 3 );
 
-		// Add settings submenu to Media top-level menu.
+		// Add admin menu items.
 		add_action( 'admin_menu', array( $o, 'admin_menu' ) );
 	}
 
@@ -292,6 +292,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @since X.X.X
 	 */
 	public function admin_menu() {
+		// Add settings submenu to Media top-level menu.
 		add_submenu_page(
 			'upload.php',
 			esc_html__( 'W3 Image Service', 'w3-total-cache' ),
@@ -627,9 +628,35 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			echo '</div>';
 
 		} elseif ( isset( $_GET['w3tc_optimager_reverted'] ) ) {
-			echo '<div class="updated notice notice-success is-dismissible"><p>W3 Image Service</p><p>' .
-				__( 'All selected optimizations have been reverted.', 'w3-total-cache' ) . '</p></div>';
+			?>
+			<div class="updated notice notice-success is-dismissible"><p>W3 Image Service</p>
+				<p><?php _e( 'All selected optimizations have been reverted.', 'w3-total-cache' ); ?></p>
+			</div>
+			<?php
+		} elseif ( 'upload' === get_current_screen()->id ) {
+			// Media Library: Get the display mode.
+			$mode  = get_user_option( 'media_library_mode', get_current_user_id() ) ?
+				get_user_option( 'media_library_mode', get_current_user_id() ) : 'grid';
+
+			// If not in list mode, then print a notice to switch to it.
+			if ( 'list' !== $mode ) {
+				?>
+				<div class="notice notice-warning is-dismissible"><p>W3 Image Service</p>
+					<p>
+				<?php
+						printf(
+							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+							__( 'Switch to %1$slist mode%2$s for image service controls.', 'w3-total-cache' ),
+							'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
+							'</a>'
+						);
+				?>
+					</p>
+				</div>
+    			<?php
+			}
 		}
+
 	}
 
 	/**
