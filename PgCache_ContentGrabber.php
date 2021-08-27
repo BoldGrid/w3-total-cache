@@ -1963,7 +1963,8 @@ class PgCache_ContentGrabber {
 				'' /* redirects, they have only Location header set */,
 				'application/json', 'text/html', 'text/xml', 'text/xsl',
 				'application/xhtml+xml', 'application/rss+xml',
-				'application/atom+xml', 'application/rdf+xml'
+				'application/atom+xml', 'application/rdf+xml',
+				'application/xml'
 			)
 		);
 		return in_array( $content_type, $cache_headers );
