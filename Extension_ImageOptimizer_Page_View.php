@@ -7,6 +7,9 @@
  * @since X.X.X
  *
  * @package W3TC
+ *
+ * @uses Config $c      Configuration object.
+ * @uses array  $counts Optimager counts.
  */
 
 namespace W3TC;
@@ -114,20 +117,28 @@ if ( ! defined( 'W3TC' ) ) {
 
 	<table class="form-table">
 		<tr>
-			<th><?php esc_html_e( 'Optimizations:', 'w3-total-cache' ); ?></th>
+			<th><?php esc_html_e( 'Counts by status:', 'w3-total-cache' ); ?></th>
 			<td>
-				<table>
+				<table id="w3tc-optimager-counts">
 					<tr>
 						<td><?php esc_html_e( 'Total:', 'w3-total-cache' ); ?></td>
-						<td><?php echo $total_count; ?></td>
+						<td><?php echo $counts['total']; ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Optimized:', 'w3-total-cache' ); ?></td>
-						<td><?php echo $optimized_count; ?></td>
+						<td><?php echo $counts['optimized']; ?></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Sending:', 'w3-total-cache' ); ?></td>
+						<td><?php echo $counts['sending']; ?></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Processing:', 'w3-total-cache' ); ?></td>
+						<td><?php echo $counts['processing']; ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Unoptimized:', 'w3-total-cache' ); ?></td>
-						<td><?php echo $unoptimized_count; ?></td>
+						<td><?php echo $counts['unoptimized']; ?></td>
 					</tr>
 				</table>
 			</td>

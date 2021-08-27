@@ -43,3 +43,7 @@ td span.w3tc-notoptimized:before {
 span#w3tc-optimager-controls:hover div#w3tc-optimager-control {
 	display:block;
 }
+
+#w3tc-optimager-counts td {
+	padding: 1px 10px;
+}

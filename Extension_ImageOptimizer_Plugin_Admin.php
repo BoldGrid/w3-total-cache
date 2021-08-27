@@ -272,16 +272,60 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
+	 * Get image counts by status.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see self::get_optimager_attachments()
+	 * @see self::get_eligible_attachments()
+	 *
+	 * @return
+	 */
+	public function get_optimager_counts() {
+		$counts          = array(
+			'sending'     => 0,
+			'processing'  => 0,
+			'optimized'   => 0,
+			'unoptimized' => self::get_eligible_attachments()->post_count,
+			'total'       => 0,
+		);
+		$optimager_posts = self::get_optimager_attachments()->posts;
+
+		foreach ( $optimager_posts as $post ) {
+			$optimager_data = get_post_meta( $post->ID, 'w3tc_optimager', true );
+			$status         = isset( $optimager_data['status'] ) ? $optimager_data['status'] : null;
+
+			switch ( $status ) {
+				case 'sending':
+					$counts['sending']++;
+					break;
+				case 'processing':
+					$counts['processing']++;
+					break;
+				case 'optimized':
+					$counts['optimized']++;
+					break;
+				case 'unoptimized':
+					$counts['unoptimized']++;
+					break;
+				default:
+					break;
+			}
+		}
+
+		$counts['total'] = array_sum( $counts );
+
+		return $counts;
+	}
+
+	/**
 	 * Load the extension settings page view.
 	 *
 	 * @since X.X.X
 	 */
 	public function w3tc_extension_page_optimager() {
-		$c = $this->config;
-
-		$optimized_count   = self::get_optimager_attachments()->post_count;
-		$unoptimized_count = self::get_eligible_attachments()->post_count;
-		$total_count       = $optimized_count + $unoptimized_count;
+		$c      = $this->config;
+		$counts = $this->get_optimager_counts();
 
 		require W3TC_DIR . '/Extension_ImageOptimizer_Page_View.php';
 	}
