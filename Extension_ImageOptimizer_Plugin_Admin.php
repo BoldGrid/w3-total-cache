@@ -338,7 +338,6 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'sending'       => __( 'Sending', 'w3-total_cache' ),
 						'processing'    => __( 'Processing', 'w3-total_cache' ),
 						'optimized'     => __( 'Optimized', 'w3-total_cache' ),
-						'reoptimize'    => __( 'Reoptimize', 'w3-total_cache' ),
 						'reverting'     => __( 'Reverting', 'w3-total_cache' ),
 						'reverted'      => __( 'Reverted', 'w3-total_cache' ),
 						'revert'        => __( 'Revert', 'w3-total_cache' ),
@@ -439,7 +438,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						esc_attr_e( 'Processing', 'w3-total-cache' );
 						break;
 					case 'optimized':
-						esc_attr_e( 'Reoptimize', 'w3-total-cache' );
+						esc_attr_e( 'Optimized', 'w3-total-cache' );
 						break;
 					default:
 						esc_attr_e( 'Optimize', 'w3-total-cache' );
