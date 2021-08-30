@@ -30,6 +30,8 @@ td span.w3tc-notoptimized:before {
 
 .w3tc-optimized-increased,
 .w3tc-optimize-error,
+td span.w3tc-optimize-error:before,
+.w3tc-optimager-error,
 #w3tc-optimager-control .dashicons-no {
 	color: red;
 }

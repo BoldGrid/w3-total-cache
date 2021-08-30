@@ -389,6 +389,8 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'changed'       => __( 'Changed', 'w3-total_cache' ),
 						'notchanged'    => __( 'Not changed', 'w3-total_cache' ),
 						'notoptimized'  => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
+						'AjaxFail'      => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
+						'ApiError'      => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
 					),
 				)
 			);

@@ -102,9 +102,16 @@
 							);
 						}
 					})
-					.fail( function( jqXHR ) {
+					.fail( function() {
 						$this.val( w3tcData.lang.error );
 						$itemTd.find( 'span' ).addClass( 'w3tc-optimize-error' ); // Mark icon as error.
+						$itemTd.find( '.w3tc-optimager-error' ).remove();
+						$itemTd.append(
+							'<div class="notice notice-error inline w3tc-optimager-error">' +
+							w3tcData.lang.AjaxFail +
+							'</div>'
+						);
+						$this.data( 'status', null );
 					});
 			}
 		});
@@ -170,7 +177,7 @@
 					startCheckItems();
 				} else if ( response.data && response.data.hasOwnProperty(error) ) {
 					$this.val( w3tcData.lang.error );
-					$this.parent().append(
+					$itemTd.append(
 						'<div class="notice notice-error inline">' +
 						response.data.error +
 						'</div>'
@@ -178,19 +185,23 @@
 					$this.data( 'status', 'error' );
 				} else {
 					$this.val( w3tcData.lang.error );
+					$itemTd.append(
+						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						w3tcData.lang.ApiError +
+						'</div>'
+					);
 					$this.data( 'status', 'error' );
 				}
 			})
-			.fail( function( jqXHR ) {
+			.fail( function() {
 				$this.val( w3tcData.lang.error );
-
-				if ( 'responseJSON' in jqXHR && 'data' in jqXHR.responseJSON && 'error' in jqXHR.responseJSON.data ) {
-					$this.parent().append(
-						'<div class="notice notice-error inline">' +
-						jqXHR.responseJSON.data.error +
-						'</div>'
-					);
-				}
+				$itemTd.find( 'span' ).addClass( 'w3tc-optimize-error' ); // Mark icon as error.
+				$itemTd.append(
+					'<div class="notice notice-error inline w3tc-optimager-error">' +
+					w3tcData.lang.AjaxFail +
+					'</div>'
+				);
+				$this.data( 'status', 'error' );
 			});
 
 		return false;
@@ -232,7 +243,7 @@
 					$optimizeButton.val( w3tcData.lang.optimize );
 					$optimizeButton.prop( 'disabled', false );
 					$optimizeButton.data( 'status', null );
-				} else if ( response.data.error ) {
+				} else if ( response.data && response.data.hasOwnProperty(error) ) {
 					$this.val( w3tcData.lang.error );
 					$this.parent().append(
 						'<div class="notice notice-error inline">' +
@@ -242,19 +253,23 @@
 					$this.data( 'status', 'error' );
 				} else {
 					$this.val( w3tcData.lang.error );
+					$itemTd.append(
+						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						w3tcData.lang.ApiError +
+						'</div>'
+					);
 					$this.data( 'status', 'error' );
 				}
 			})
-			.fail( function( jqXHR ) {
+			.fail( function() {
 				$this.val( w3tcData.lang.error );
-
-				if ( 'responseJSON' in jqXHR && 'data' in jqXHR.responseJSON && 'error' in jqXHR.responseJSON.data ) {
-					$this.parent().append(
-						'<div class="notice notice-error inline">' +
-						jqXHR.responseJSON.data.error +
-						'</div>'
-					);
-				}
+				$itemTd.find( 'span' ).addClass( 'w3tc-optimize-error' ); // Mark icon as error.
+				$itemTd.append(
+					'<div class="notice notice-error inline w3tc-optimager-error">' +
+					w3tcData.lang.AjaxFail +
+					'</div>'
+				);
+				$this.data( 'status', 'error' );
 			});
 
 		return false;
@@ -332,18 +347,20 @@
 					);
 				} else {
 					$this.text( w3tcData.lang.error );
-				}
-			})
-			.fail( function( jqXHR ) {
-				$this.text( w3tcData.lang.error );
-
-				if ( 'responseJSON' in jqXHR && 'data' in jqXHR.responseJSON && 'error' in jqXHR.responseJSON.data ) {
 					$this.parent().append(
-						'<div class="notice notice-error inline">' +
-						jqXHR.responseJSON.data.error +
+						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						w3tcData.lang.ApiError +
 						'</div>'
 					);
 				}
+			})
+			.fail( function() {
+				$this.text( w3tcData.lang.error );
+				$this.parent().append(
+					'<div class="notice notice-error inline w3tc-optimager-error">' +
+					w3tcData.lang.AjaxFail +
+					'</div>'
+				);
 			});
 
 		return false;
@@ -378,18 +395,20 @@
 					);
 				} else {
 					$this.text( w3tcData.lang.error );
-				}
-			})
-			.fail( function( jqXHR ) {
-				$this.text( w3tcData.lang.error );
-
-				if ( 'responseJSON' in jqXHR && 'data' in jqXHR.responseJSON && 'error' in jqXHR.responseJSON.data ) {
 					$this.parent().append(
-						'<div class="notice notice-error inline">' +
-						jqXHR.responseJSON.data.error +
+						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						w3tcData.lang.ApiError +
 						'</div>'
 					);
 				}
+			})
+			.fail( function() {
+				$this.text( w3tcData.lang.error );
+				$this.parent().append(
+					'<div class="notice notice-error inline w3tc-optimager-error">' +
+					w3tcData.lang.AjaxFail +
+					'</div>'
+				);
 			});
 
 		return false;
