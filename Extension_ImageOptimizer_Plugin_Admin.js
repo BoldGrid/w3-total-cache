@@ -12,7 +12,27 @@
 	var isCheckingItems = false,
 		currentCompression = $( '[name="w3tc_optimager_compression"]:checked' ).attr( 'value' ),
 		$buttonsOptimize = $( 'input.button.w3tc-optimize' ),
-		$buttonsUnoptimize = $( 'input.button.w3tc-unoptimize' );
+		$buttonsUnoptimize = $( 'input.button.w3tc-unoptimize' ),
+		$optimizeAllButton = $( 'th.w3tc-optimager-all' ).parent().find( 'td button' ),
+		$revertAllButton = $( 'th.w3tc-optimager-revertall' ).parent().find( 'td button' );
+
+	// Disable ineligible buttons.
+	toggleButtons();
+
+	/**
+	 * Toggle buttons based on eligibility.
+	 *
+	 * @since X.X.X
+	 */
+	function toggleButtons() {
+		if ( $optimizeAllButton.length && $( '#w3tc-optimager-unoptimized' ).text() < 1 ) {
+			$optimizeAllButton.prop( 'disabled', true );
+		}
+
+		if ( $revertAllButton.length && $( '#w3tc-optimager-optimized' ).text() < 1 ) {
+			$revertAllButton.prop( 'disabled', true );
+		}
+	}
 
 	/**
 	 * Check processing items.
@@ -319,7 +339,7 @@
 	});
 
 	// Optimize all images.
-	$( 'th.w3tc-optimager-all' ).parent().find( 'td button' ).on( 'click', function( e ) {
+	$optimizeAllButton.on( 'click', function( e ) {
 		var $this = $( this );
 
 		e.preventDefault();
@@ -367,7 +387,7 @@
 	});
 
 	// Revert all optimized images.
-	$( 'th.w3tc-optimager-revertall' ).parent().find( 'td button' ).on( 'click', function( e ) {
+	$revertAllButton.on( 'click', function( e ) {
 		var $this = $( this );
 
 		e.preventDefault();

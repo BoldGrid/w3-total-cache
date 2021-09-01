@@ -122,23 +122,23 @@ if ( ! defined( 'W3TC' ) ) {
 				<table id="w3tc-optimager-counts">
 					<tr>
 						<td><?php esc_html_e( 'Total:', 'w3-total-cache' ); ?></td>
-						<td><?php echo $counts['total']; ?></td>
+						<td id="w3tc-optimager-total"><?php echo $counts['total']; ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Optimized:', 'w3-total-cache' ); ?></td>
-						<td><?php echo $counts['optimized']; ?></td>
+						<td id="w3tc-optimager-optimized"><?php echo $counts['optimized']; ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Sending:', 'w3-total-cache' ); ?></td>
-						<td><?php echo $counts['sending']; ?></td>
+						<td id="w3tc-optimager-sending"><?php echo $counts['sending']; ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Processing:', 'w3-total-cache' ); ?></td>
-						<td><?php echo $counts['processing']; ?></td>
+						<td id="w3tc-optimager-processing"><?php echo $counts['processing']; ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Unoptimized:', 'w3-total-cache' ); ?></td>
-						<td><?php echo $counts['unoptimized']; ?></td>
+						<td id="w3tc-optimager-unoptimized"><?php echo $counts['unoptimized']; ?></td>
 					</tr>
 				</table>
 			</td>
