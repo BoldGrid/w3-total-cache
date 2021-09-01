@@ -49,3 +49,7 @@ span#w3tc-optimager-controls:hover div#w3tc-optimager-control {
 #w3tc-optimager-counts td {
 	padding: 1px 10px;
 }
+
+#w3tc_default_save_and_flush_extension_optimager_configuration {
+	display: none;
+}

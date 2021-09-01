@@ -35,12 +35,12 @@ if ( ! defined( 'W3TC' ) ) {
 	.
 </p>
 
-<form action="admin.php?page=w3tc_extensions&amp;extension=optimager&amp;action=view" method="post">
+<form id="w3tc-optimager-settings" action="admin.php?page=w3tc_extensions&amp;extension=optimager&amp;action=view" method="post">
 <div class="metabox-holder">
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', '' ); ?>
 
-	<table class="form-table">
+	<table class="form-table" id="w3tc-optimager-config">
 		<?php
 		Util_Ui::config_item(
 			array(
@@ -83,7 +83,7 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', '' );
 	?>
 
-	<table class="form-table">
+	<table class="form-table" id="w3tc-optimager-tools">
 	<?php
 		Util_Ui::config_item(
 			array(
@@ -115,7 +115,7 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::postbox_header( esc_html__( 'Statistics', 'w3-total-cache' ), '', '' );
 	?>
 
-	<table class="form-table">
+	<table class="form-table" id="w3tc-optimager-stats">
 		<tr>
 			<th><?php esc_html_e( 'Counts by status:', 'w3-total-cache' ); ?></th>
 			<td>
