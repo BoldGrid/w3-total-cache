@@ -12,12 +12,36 @@
 	var isCheckingItems = false,
 		currentCompression = $( '[name="w3tc_optimager_compression"]:checked' ).attr( 'value' ),
 		$buttonsOptimize = $( 'input.button.w3tc-optimize' ),
-		$buttonsUnoptimize = $( 'input.button.w3tc-unoptimize' ),
+		$buttonsUnoptimize = $( 'input.button.w3tc-revert' ),
 		$optimizeAllButton = $( 'th.w3tc-optimager-all' ).parent().find( 'td button' ),
 		$revertAllButton = $( 'th.w3tc-optimager-revertall' ).parent().find( 'td button' );
 
+	/* On page load. */
+
+	// Start checking items that are in the processing status.
+	startCheckItems();
+
 	// Disable ineligible buttons.
 	toggleButtons();
+
+	/* Events. */
+
+	// Clicked optimize button.
+	$buttonsOptimize.on( 'click', optimizeItem );
+
+	// Clicked revert button.
+	$buttonsUnoptimize.on( 'click', revertItem );
+
+	// Clicked setting control: Compression.
+	$( '[name="w3tc_optimager_compression"]' ).on( 'click', setCompression );
+
+	// Optimize all images.
+	$optimizeAllButton.on( 'click', optimizeItems );
+
+	// Revert all optimized images.
+	$revertAllButton.on( 'click', revertItems );
+
+	/* Functions. */
 
 	/**
 	 * Toggle buttons based on eligibility.
@@ -35,114 +59,13 @@
 	}
 
 	/**
-	 * Check processing items.
+	 * Start checking items that are in the processing status.
 	 *
 	 * @since X.X.X
-	 */
-	function checkItemsProcessing() {
-		$buttonsOptimize.each( function() {
-			var $this = $( this ),
-				$itemTd = $this.closest( 'td' );
-
-			// If marked as processing, then check for status change an update status on screen.
-			if ( 'processing' === $this.data( 'status' ) ) {
-				$itemTd.find( 'span' ).removeClass( 'w3tc-optimized w3tc-notoptimized w3tc-optimize-error' ); // Unmark icon.
-
-				$.ajax({
-					method: 'POST',
-					url: ajaxurl,
-					data: {
-						_wpnonce: w3tcData.nonces.postmeta,
-						action: 'w3tc_optimager_postmeta',
-						post_id: $this.data( 'post-id' )
-					}
-				})
-					.done( function( response ) {
-						var infoClass;
-
-						// Remove any previous optimization information.
-						$itemTd.find( '.w3tc-optimized-reduced' ).remove();
-						$itemTd.find( '.w3tc-optimized-increased' ).remove();
-
-						// Remove the revert button.
-						$itemTd.find( 'input.w3tc-unoptimize' ).remove();
-
-						if ( 'optimized' === response.data.status ) {
-							$this.val( w3tcData.lang.optimized ); // Mark as optimized.
-							$this.data( 'status', 'optimized' ); // Update status.
-							$this.prop( 'disabled', false ); // Enable button.
-							$itemTd.find( 'span' ).addClass( 'w3tc-optimized' ); // Mark icon as optimized.
-
-							// Add revert button, if not already present.
-							if ( ! $itemTd.find( '.w3tc-unoptimize' ).length ) {
-								$itemTd.append(
-									'<input type="submit" class="button w3tc-unoptimize" value="' +
-									w3tcData.lang.revert +
-									'" \>'
-								);
-
-								// Update global unoptimize buttons.
-								$buttonsUnoptimize = $( 'input.button.w3tc-unoptimize' );
-								$buttonsUnoptimize.unbind().on( 'click', unoptimize );
-							}
-						} else if ( 'notoptimized' === response.data.status ) {
-							$this.val( w3tcData.lang.optimize ); // Mark ready to optimize.
-							$this.data( 'status', 'notoptimized' ); // Update status.
-							$this.prop( 'disabled', false ); // Enable button.
-							$itemTd.find( 'span' ).addClass( 'w3tc-notoptimized' ); // Mark icon as not optimized.
-
-							$itemTd.append(
-								'<div class="w3tc-optimized-increased">' +
-								response.data.download["\u0000*\u0000data"]['x-filesize-out-percent'] +
-								' (' +
-								w3tcData.lang.notchanged +
-								': ' +
-								response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
-								')<br />' +
-								w3tcData.lang.notoptimized +
-								'</div>'
-							);
-						}
-
-						// Add optimization information.
-						if ( 'notoptimized' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
-							infoClass = response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] > 0 ?
-								'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
-
-							$itemTd.append(
-								'<div class="' +
-								infoClass +
-								'">' +
-								response.data.download["\u0000*\u0000data"]['x-filesize-out-percent'] +
-								' (' +
-								w3tcData.lang.changed +
-								': ' +
-								response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
-								')</div>'
-							);
-						}
-					})
-					.fail( function() {
-						$this.val( w3tcData.lang.error );
-						$itemTd.find( 'span' ).addClass( 'w3tc-optimize-error' ); // Mark icon as error.
-						$itemTd.find( '.w3tc-optimager-error' ).remove();
-						$itemTd.append(
-							'<div class="notice notice-error inline w3tc-optimager-error">' +
-							w3tcData.lang.AjaxFail +
-							'</div>'
-						);
-						$this.data( 'status', null );
-					});
-			}
-		});
-	};
-
-	/**
-	 * Start checking processing items.
 	 *
-	 * @since X.X.X
+	 * @see checkItemsProcessing()
 	 */
-	 function startCheckItems() {
+	function startCheckItems() {
 		if ( isCheckingItems ) {
 			return;
 		}
@@ -162,14 +85,131 @@
 		);
 	}
 
-	// Trigger checking items.
-	startCheckItems();
+	/**
+	 * Check processing items.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see checkItemProcessing()
+	 */
+	function checkItemsProcessing() {
+		$buttonsOptimize.each( checkItemProcessing );
+	};
 
-	$buttonsOptimize.on( 'click', function( e ) {
+
+	/**
+	 * Callback: Check processing item.
+	 *
+	 * @since X.X.X
+	 */
+	 function checkItemProcessing() {
 		var $this = $( this ),
 			$itemTd = $this.closest( 'td' );
 
-		e.preventDefault();
+		// If marked as processing, then check for status change an update status on screen.
+		if ( 'processing' === $this.data( 'status' ) ) {
+			$itemTd.find( 'span' ).removeClass( 'w3tc-optimized w3tc-notoptimized w3tc-optimize-error' ); // Unmark icon.
+
+			$.ajax({
+				method: 'POST',
+				url: ajaxurl,
+				data: {
+					_wpnonce: w3tcData.nonces.postmeta,
+					action: 'w3tc_optimager_postmeta',
+					post_id: $this.data( 'post-id' )
+				}
+			})
+				.done( function( response ) {
+					var infoClass;
+
+					// Remove any previous optimization information.
+					$itemTd.find( '.w3tc-optimized-reduced' ).remove();
+					$itemTd.find( '.w3tc-optimized-increased' ).remove();
+
+					// Remove the revert button.
+					$itemTd.find( 'input.w3tc-revert' ).remove();
+
+					if ( 'optimized' === response.data.status ) {
+						$this.val( w3tcData.lang.optimized ); // Mark as optimized.
+						$this.data( 'status', 'optimized' ); // Update status.
+						$this.prop( 'disabled', false ); // Enable button.
+						$itemTd.find( 'span' ).addClass( 'w3tc-optimized' ); // Mark icon as optimized.
+
+						// Add revert button, if not already present.
+						if ( ! $itemTd.find( '.w3tc-revert' ).length ) {
+							$itemTd.append(
+								'<input type="submit" class="button w3tc-revert" value="' +
+								w3tcData.lang.revert +
+								'" \>'
+							);
+
+							// Update global revert buttons.
+							$buttonsUnoptimize = $( 'input.button.w3tc-revert' );
+							$buttonsUnoptimize.unbind().on( 'click', revertItem );
+						}
+					} else if ( 'notoptimized' === response.data.status ) {
+						$this.val( w3tcData.lang.optimize ); // Mark ready to optimize.
+						$this.data( 'status', 'notoptimized' ); // Update status.
+						$this.prop( 'disabled', false ); // Enable button.
+						$itemTd.find( 'span' ).addClass( 'w3tc-notoptimized' ); // Mark icon as not optimized.
+
+						$itemTd.append(
+							'<div class="w3tc-optimized-increased">' +
+							response.data.download["\u0000*\u0000data"]['x-filesize-out-percent'] +
+							' (' +
+							w3tcData.lang.notchanged +
+							': ' +
+							response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
+							')<br />' +
+							w3tcData.lang.notoptimized +
+							'</div>'
+						);
+					}
+
+					// Add optimization information.
+					if ( 'notoptimized' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
+						infoClass = response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] > 0 ?
+							'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
+
+						$itemTd.append(
+							'<div class="' +
+							infoClass +
+							'">' +
+							response.data.download["\u0000*\u0000data"]['x-filesize-out-percent'] +
+							' (' +
+							w3tcData.lang.changed +
+							': ' +
+							response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
+							')</div>'
+						);
+					}
+				})
+				.fail( function() {
+					$this.val( w3tcData.lang.error );
+					$itemTd.find( 'span' ).addClass( 'w3tc-optimize-error' ); // Mark icon as error.
+					$itemTd.find( '.w3tc-optimager-error' ).remove();
+					$itemTd.append(
+						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						w3tcData.lang.AjaxFail +
+						'</div>'
+					);
+					$this.data( 'status', null );
+				});
+		}
+	}
+
+	/* Event callback functions */
+
+	/**
+	 * Event callback: Optimize an item.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param event e Event object.
+	 */
+	 function optimizeItem() {
+		var $this = $( this ),
+			$itemTd = $this.closest( 'td' );
 
 		$this.prop( 'disabled', true );
 		$this.val( w3tcData.lang.sending );
@@ -179,7 +219,7 @@
 		$itemTd.find( '.w3tc-optimized-increased' ).remove();
 
 		// Remove the revert button.
-		$itemTd.find( 'input.w3tc-unoptimize' ).remove();
+		$itemTd.find( 'input.w3tc-revert' ).remove();
 
 		$.ajax({
 			method: 'POST',
@@ -225,22 +265,64 @@
 			});
 
 		return false;
-	});
+	}
 
 	/**
-	 * Unoptimize/revert.
+	 * Event callback: Set compression setting.
+	 *
+	 * @since X.X.X
+	 */
+	 function setCompression() {
+		var $this = $( this ),
+			value = $this.attr( 'value' );
+
+		// Abort if the value is not changing.
+		if ( value === currentCompression ) {
+			return false;
+		}
+
+		// Clear result indicator.
+		$( '#w3tc-controls-result' ).remove();
+
+		// Save the new setting.
+		$.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: w3tcData.nonces.control,
+				action: 'w3tc_optimager_compression',
+				value: value
+			}
+		})
+			.done( function( response ) {
+				if ( response.success ) {
+					// Success.
+					currentCompression = value;
+					$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-yes"></span>' );
+				} else {
+					// Reported failure.
+					$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
+					return false;
+				}
+			})
+			.fail( function( jqXHR ) {
+				// Ajax failure.
+				$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
+				return false;
+			});
+	}
+
+	/**
+	 * Event callback: Revert item.
 	 *
 	 * @since X.X.X
 	 *
-	 * @param {*} e Event.
-	 * @returns false
+	 * @param event e Event object.
 	 */
-	function unoptimize( e ) {
+	function revertItem() {
 		var $this = $( this ),
 			$itemTd = $this.closest( 'td' ),
 			$optimizeButton = $itemTd.find( 'input.w3tc-optimize' );
-
-		e.preventDefault();
 
 		$this.prop( 'disabled', true );
 		$optimizeButton.prop( 'disabled', true );
@@ -295,54 +377,13 @@
 		return false;
 	};
 
-	$buttonsUnoptimize.on( 'click', unoptimize );
-
-	// Setting controls: Compression.
-	$( '[name="w3tc_optimager_compression"]' ).on( 'click', function() {
-		var $this = $( this ),
-			value = $this.attr( 'value' );
-
-		// Abort if the value is not changing.
-		if ( value === currentCompression ) {
-			return false;
-		}
-
-		// Clear result indicator.
-		$( '#w3tc-controls-result' ).remove();
-
-		// Save the new setting.
-		$.ajax({
-			method: 'POST',
-			url: ajaxurl,
-			data: {
-				_wpnonce: w3tcData.nonces.control,
-				action: 'w3tc_optimager_compression',
-				value: value
-			}
-		})
-			.done( function( response ) {
-				if ( response.success ) {
-					// Success.
-					currentCompression = value;
-					$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-yes"></span>' );
-				} else {
-					// Reported failure.
-					$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
-					return false;
-				}
-			})
-			.fail( function( jqXHR ) {
-				// Ajax failure.
-				$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
-				return false;
-			});
-	});
-
-	// Optimize all images.
-	$optimizeAllButton.on( 'click', function( e ) {
+	/**
+	 * Optimize items.
+	 *
+	 * @since X.X.X
+	 */
+	 function optimizeItems() {
 		var $this = $( this );
-
-		e.preventDefault();
 
 		$this.prop( 'disabled', true );
 		$this.text( w3tcData.lang.sending );
@@ -384,13 +425,15 @@
 			});
 
 		return false;
-	});
+	}
 
-	// Revert all optimized images.
-	$revertAllButton.on( 'click', function( e ) {
+	/**
+	 * Revert items.
+	 *
+	 * @since X.X.X
+	 */
+	 function revertItems() {
 		var $this = $( this );
-
-		e.preventDefault();
 
 		$this.prop( 'disabled', true );
 		$this.text( w3tcData.lang.reverting );
@@ -432,5 +475,5 @@
 			});
 
 		return false;
-	});
+	}
 })( jQuery );

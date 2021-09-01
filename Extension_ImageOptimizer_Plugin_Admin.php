@@ -502,7 +502,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				// If optimized, then show revert button and information.
 				if ( 'optimized' === $status ) {
 					?>
-					<input type="submit" id="w3tc-<?php echo esc_attr( $post_id ); ?>-unoptimize" class="button w3tc-unoptimize"
+					<input type="submit" id="w3tc-<?php echo esc_attr( $post_id ); ?>-revert" class="button w3tc-revert"
 						value="<?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?>" \>
 					<?php
 
