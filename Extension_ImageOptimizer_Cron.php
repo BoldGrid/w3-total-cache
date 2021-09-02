@@ -132,9 +132,9 @@ class Extension_ImageOptimizer_Cron {
 						continue;
 					}
 
-					// If an optimized file already exists, then trash it before saving the new file.
+					// If an optimized file already exists, then delete it before saving the new file.
 					if ( isset( $postmeta['post_child'] ) ) {
-						wp_delete_attachment( $postmeta['post_child'], false );
+						wp_delete_attachment( $postmeta['post_child'], true );
 					}
 
 					// Save the file.
