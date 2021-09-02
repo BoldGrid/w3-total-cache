@@ -735,10 +735,15 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
+	 * @global $wp_filesystem
+	 *
 	 * @param array $post_ids
 	 * @return array
 	 */
 	public function submit_images( array $post_ids ) {
+		WP_Filesystem();
+		global $wp_filesystem;
+
 		require_once __DIR__ . '/Extension_ImageOptimizer_Api.php';
 
 		$api = new Extension_ImageOptimizer_Api();
@@ -760,7 +765,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			$filepath = get_attached_file( $post_id );
 
 			// Skip if attachment file does not exist.
-			if ( ! file_exists( $filepath ) ) {
+			if ( ! $wp_filesystem->exists( $filepath ) ) {
 				$stats['skipped']++;
 				continue;
 			}
@@ -926,10 +931,15 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
+	 * @global $wp_filesystem
+	 *
 	 * @uses $_POST['post_id'] Post id.
 	 */
 	public function ajax_submit() {
 		check_ajax_referer( 'w3tc_optimager_submit' );
+
+		WP_Filesystem();
+		global $wp_filesystem;
 
 		// Check for post id.
 		$post_id = isset( $_POST['post_id'] ) ? (int) sanitize_key( $_POST['post_id'] ) : null;
@@ -946,7 +956,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		// Verify the image file exists.
 		$filepath = get_attached_file( $post_id );
 
-		if ( ! file_exists( $filepath ) ) {
+		if ( ! $wp_filesystem->exists( $filepath ) ) {
 			wp_send_json_error(
 				array(
 					'error' => sprintf(
