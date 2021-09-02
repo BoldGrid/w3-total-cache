@@ -222,12 +222,34 @@
 			}
 		})
 			.done( function( response ) {
+				var $total, $optimized, $sending, $processing, $unoptimized;
+
 				if ( response.data && response.data.hasOwnProperty( 'total' ) ) {
-					$countsTable.find( '#w3tc-optimager-total' ).text( response.data.total );
-					$countsTable.find( '#w3tc-optimager-optimized' ).text( response.data.optimized );
-					$countsTable.find( '#w3tc-optimager-sending' ).text( response.data.sending );
-					$countsTable.find( '#w3tc-optimager-processing' ).text( response.data.processing );
-					$countsTable.find( '#w3tc-optimager-unoptimized' ).text( response.data.unoptimized );
+					$total = $countsTable.find( '#w3tc-optimager-total' );
+					$optimized = $countsTable.find( '#w3tc-optimager-optimized' );
+					$sending = $countsTable.find( '#w3tc-optimager-sending' );
+					$processing = $countsTable.find( '#w3tc-optimager-processing' );
+					$unoptimized = $countsTable.find( '#w3tc-optimager-unoptimized' );
+
+					if ( parseInt( $total.text() ) !== response.data.total ) {
+						$total.text( response.data.total ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
+					}
+
+					if ( parseInt( $optimized.text() ) !== response.data.optimized ) {
+						$optimized.text( response.data.optimized ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
+					}
+
+					if ( parseInt( $sending.text() ) !== response.data.sending ) {
+						$sending.text( response.data.sending ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
+					}
+
+					if ( parseInt( $processing.text() ) !== response.data.processing ) {
+						$processing.text( response.data.processing ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
+					}
+
+					if ( parseInt( $unoptimized.text() ) !== response.data.unoptimized ) {
+						$unoptimized.text( response.data.unoptimized ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
+					}
 				}
 
 				// Stop spinning the update icon.

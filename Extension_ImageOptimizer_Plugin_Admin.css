@@ -93,3 +93,40 @@ span#w3tc-optimager-controls:hover div#w3tc-optimager-control {
 	-o-animation: w3tc-animation-rotating 2s linear infinite;
 	animation: w3tc-animation-rotating 2s linear infinite;
 }
+
+@-webkit-keyframes w3tc-highlight {
+	0% {
+		background: #fefefe;
+	}
+
+	50% {
+		background: gray;
+	}
+
+	to {
+		background: #fefefe;
+	}
+}
+
+@keyframes w3tc-highlight {
+	0% {
+		background: #fefefe;
+	}
+
+	50% {
+		background: gray;
+	}
+
+	to {
+		background: #fefefe;
+	}
+}
+
+.w3tc-highlight {
+	-webkit-animation: w3tc-highlight 1s linear;
+	-o-animation: w3tc-highlight 1s linear;
+	animation: w3tc-highlight 1s linear;
+	-webkit-animation-iteration-count: 1;
+	-o-animation-iteration-count: 1;
+	animation-iteration-count: 1;
+}
