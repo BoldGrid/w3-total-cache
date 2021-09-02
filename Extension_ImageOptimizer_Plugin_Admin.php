@@ -144,6 +144,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_optimager_compression', array( $o, 'ajax_set_compression' ) );
 		add_action( 'wp_ajax_w3tc_optimager_all', array( $o, 'ajax_optimize_all' ) );
 		add_action( 'wp_ajax_w3tc_optimager_revertall', array( $o, 'ajax_revert_all' ) );
+		add_action( 'wp_ajax_w3tc_optimager_counts', array( $o, 'ajax_get_counts' ) );
 
 		// Admin notices.
 		add_action( 'admin_notices', array( $o, 'w3tc_optimager_notices' ) );
@@ -279,7 +280,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @see self::get_optimager_attachments()
 	 * @see self::get_eligible_attachments()
 	 *
-	 * @return
+	 * @return array
 	 */
 	public function get_optimager_counts() {
 		$counts          = array(
@@ -1126,5 +1127,18 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		}
 
 		wp_send_json_success( array( 'revert_count' => $revert_count ) );
+	}
+
+	/**
+	 * AJAX: Get image counts by status.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see get_optimager_counts()
+	 */
+	public function ajax_get_counts() {
+		check_ajax_referer( 'w3tc_optimager_submit' );
+
+		wp_send_json_success( $this->get_optimager_counts() );
 	}
 }

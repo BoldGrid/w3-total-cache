@@ -112,7 +112,11 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php
 	Util_Ui::postbox_footer();
 
-	Util_Ui::postbox_header( esc_html__( 'Statistics', 'w3-total-cache' ), '', '' );
+	Util_Ui::postbox_header(
+		esc_html__( 'Statistics', 'w3-total-cache' ) . ' <span class="dashicons dashicons-update"></span>',
+		'',
+		'w3tc-optimager-statistics'
+	);
 	?>
 
 	<table class="form-table" id="w3tc-optimager-stats">

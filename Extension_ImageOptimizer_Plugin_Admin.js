@@ -14,7 +14,8 @@
 		$buttonsOptimize = $( 'input.button.w3tc-optimize' ),
 		$buttonsUnoptimize = $( 'input.button.w3tc-revert' ),
 		$optimizeAllButton = $( 'th.w3tc-optimager-all' ).parent().find( 'td button' ),
-		$revertAllButton = $( 'th.w3tc-optimager-revertall' ).parent().find( 'td button' );
+		$revertAllButton = $( 'th.w3tc-optimager-revertall' ).parent().find( 'td button' ),
+		$refreshStatsIcon = $( '#w3tc-optimager-statistics .dashicons-update' );
 
 	/* On page load. */
 
@@ -40,6 +41,9 @@
 
 	// Revert all optimized images.
 	$revertAllButton.on( 'click', revertItems );
+
+	// Refresh statistics when the update icon is clicked.
+	$refreshStatsIcon.on( 'click', refreshStats );
 
 	/* Functions. */
 
@@ -198,6 +202,49 @@
 		}
 	}
 
+	/**
+	 * Refresh statistics/counts.
+	 *
+	 * @since X.X.X
+	 */
+	function refreshStats() {
+		var $countsTable = $( 'table#w3tc-optimager-counts' );
+
+		// Spin the update icon.
+		$refreshStatsIcon.addClass( 'w3tc-rotating' );
+
+		$.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: w3tcData.nonces.submit,
+				action: 'w3tc_optimager_counts'
+			}
+		})
+			.done( function( response ) {
+				if ( response.data && response.data.hasOwnProperty( 'total' ) ) {
+					$countsTable.find( '#w3tc-optimager-total' ).text( response.data.total );
+					$countsTable.find( '#w3tc-optimager-optimized' ).text( response.data.optimized );
+					$countsTable.find( '#w3tc-optimager-sending' ).text( response.data.sending );
+					$countsTable.find( '#w3tc-optimager-processing' ).text( response.data.processing );
+					$countsTable.find( '#w3tc-optimager-unoptimized' ).text( response.data.unoptimized );
+				}
+
+				// Stop spinning the update icon.
+				$refreshStatsIcon.removeClass( 'w3tc-rotating' );
+			})
+			.fail( function() {
+				$countsTable.append(
+					'<div class="notice notice-error inline w3tc-optimager-error">' +
+					w3tcData.lang.AjaxFail +
+					'</div>'
+				);
+
+				// Stop spinning the update icon.
+				$refreshStatsIcon.removeClass( 'w3tc-rotating' );
+			});
+	}
+
 	/* Event callback functions */
 
 	/**
@@ -235,7 +282,7 @@
 					$this.val( w3tcData.lang.processing );
 					$this.data( 'status', 'processing' );
 					startCheckItems();
-				} else if ( response.data && response.data.hasOwnProperty(error) ) {
+				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
 					$this.val( w3tcData.lang.error );
 					$itemTd.append(
 						'<div class="notice notice-error inline">' +
@@ -263,8 +310,6 @@
 				);
 				$this.data( 'status', 'error' );
 			});
-
-		return false;
 	}
 
 	/**
@@ -278,7 +323,7 @@
 
 		// Abort if the value is not changing.
 		if ( value === currentCompression ) {
-			return false;
+			return;
 		}
 
 		// Clear result indicator.
@@ -302,13 +347,11 @@
 				} else {
 					// Reported failure.
 					$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
-					return false;
 				}
 			})
 			.fail( function( jqXHR ) {
 				// Ajax failure.
 				$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
-				return false;
 			});
 	}
 
@@ -345,7 +388,7 @@
 					$optimizeButton.val( w3tcData.lang.optimize );
 					$optimizeButton.prop( 'disabled', false );
 					$optimizeButton.data( 'status', null );
-				} else if ( response.data && response.data.hasOwnProperty(error) ) {
+				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
 					$this.val( w3tcData.lang.error );
 					$this.parent().append(
 						'<div class="notice notice-error inline">' +
@@ -373,14 +416,14 @@
 				);
 				$this.data( 'status', 'error' );
 			});
-
-		return false;
 	};
 
 	/**
-	 * Optimize items.
+	 * Event callback: Optimize items.
 	 *
 	 * @since X.X.X
+	 *
+	 * @see refreshStats()
 	 */
 	 function optimizeItems() {
 		var $this = $( this );
@@ -399,6 +442,7 @@
 			.done( function( response ) {
 				if ( response.success ) {
 					$this.text( w3tcData.lang.processing );
+					refreshStats();
 				} else if ( response.data.error ) {
 					$this.text( w3tcData.lang.error );
 					$this.parent().append(
@@ -423,14 +467,14 @@
 					'</div>'
 				);
 			});
-
-		return false;
 	}
 
 	/**
-	 * Revert items.
+	 * Event callback: Revert items.
 	 *
 	 * @since X.X.X
+	 *
+	 * @see refreshStats()
 	 */
 	 function revertItems() {
 		var $this = $( this );
@@ -449,6 +493,7 @@
 			.done( function( response ) {
 				if ( response.success ) {
 					$this.text( w3tcData.lang.reverted );
+					refreshStats();
 				} else if ( response.data.error ) {
 					$this.text( w3tcData.lang.error );
 					$this.parent().append(
@@ -473,7 +518,5 @@
 					'</div>'
 				);
 			});
-
-		return false;
 	}
 })( jQuery );
