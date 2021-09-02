@@ -147,6 +147,21 @@ if ( ! defined( 'W3TC' ) ) {
 				</table>
 			</td>
 		</tr>
+		<tr>
+			<th><?php esc_html_e( 'Filesizes (bytes):', 'w3-total-cache' ); ?></th>
+			<td>
+				<table id="w3tc-optimager-counts">
+					<tr>
+						<td><?php esc_html_e( 'Total:', 'w3-total-cache' ); ?></td>
+						<td id="w3tc-optimager-totalbytes"><?php echo $counts['total_bytes']; ?></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Optimized:', 'w3-total-cache' ); ?></td>
+						<td id="w3tc-optimager-optimizedbytes"><?php echo $counts['optimized_bytes']; ?></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
 	<?php
 	?>
 	</table>

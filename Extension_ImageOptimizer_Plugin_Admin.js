@@ -213,6 +213,9 @@
 		// Spin the update icon.
 		$refreshStatsIcon.addClass( 'w3tc-rotating' );
 
+		// Remove any error notices.
+		$countsTable.find( '.w3tc-optimager-error' ).remove();
+
 		$.ajax({
 			method: 'POST',
 			url: ajaxurl,
@@ -230,6 +233,8 @@
 					$sending = $countsTable.find( '#w3tc-optimager-sending' );
 					$processing = $countsTable.find( '#w3tc-optimager-processing' );
 					$unoptimized = $countsTable.find( '#w3tc-optimager-unoptimized' );
+					$totalBytes = $countsTable.find( '#w3tc-optimager-totalbytes' );
+					$optimizedBytes = $countsTable.find( '#w3tc-optimager-optimizedbytes' );
 
 					if ( parseInt( $total.text() ) !== response.data.total ) {
 						$total.text( response.data.total ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
@@ -249,6 +254,14 @@
 
 					if ( parseInt( $unoptimized.text() ) !== response.data.unoptimized ) {
 						$unoptimized.text( response.data.unoptimized ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
+					}
+
+					if ( parseInt( $totalBytes.text() ) !== response.data.total_bytes ) {
+						$totalBytes.text( response.data.total_bytes ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
+					}
+
+					if ( parseInt( $optimizedBytes.text() ) !== response.data.optimized_bytes ) {
+						$optimizedBytes.text( response.data.optimized_bytes ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
 					}
 				}
 

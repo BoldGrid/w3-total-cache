@@ -277,24 +277,36 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
+	 * @global $wp_filesystem
+	 *
 	 * @see self::get_optimager_attachments()
 	 * @see self::get_eligible_attachments()
 	 *
 	 * @return array
 	 */
 	public function get_optimager_counts() {
-		$counts          = array(
-			'sending'     => 0,
-			'processing'  => 0,
-			'optimized'   => 0,
-			'unoptimized' => self::get_eligible_attachments()->post_count,
-			'total'       => 0,
+		WP_Filesystem();
+		global $wp_filesystem;
+
+		$unoptimized_posts = self::get_eligible_attachments();
+		$counts            = array(
+			'sending'         => 0,
+			'processing'      => 0,
+			'optimized'       => 0,
+			'unoptimized'     => $unoptimized_posts->post_count,
+			'total'           => 0,
 		);
-		$optimager_posts = self::get_optimager_attachments()->posts;
+		$optimized_bytes   = 0;
+		$total_bytes       = 0;
+		$optimager_posts   = self::get_optimager_attachments()->posts;
 
 		foreach ( $optimager_posts as $post ) {
 			$optimager_data = get_post_meta( $post->ID, 'w3tc_optimager', true );
 			$status         = isset( $optimager_data['status'] ) ? $optimager_data['status'] : null;
+			$filesize_in    = isset( $optimager_data['download']["\0*\0data"]['x-filesize-in'] ) ?
+				$optimager_data['download']["\0*\0data"]['x-filesize-in'] : 0;
+			$filesize_out   = isset( $optimager_data['download']["\0*\0data"]['x-filesize-out'] ) ?
+				$optimager_data['download']["\0*\0data"]['x-filesize-out'] : 0;
 
 			switch ( $status ) {
 				case 'sending':
@@ -305,6 +317,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 					break;
 				case 'optimized':
 					$counts['optimized']++;
+					$optimized_bytes += $filesize_in - $filesize_out;
 					break;
 				case 'unoptimized':
 					$counts['unoptimized']++;
@@ -312,9 +325,21 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				default:
 					break;
 			}
+
+			$total_bytes += $filesize_in - $filesize_out;
 		}
 
-		$counts['total'] = array_sum( $counts );
+		foreach ( $unoptimized_posts->posts as $post ) {
+			$filepath = get_attached_file( $post->ID );
+
+			if ( $wp_filesystem->exists( $filepath ) ) {
+				$total_bytes += $wp_filesystem->size( $filepath );
+			}
+		}
+
+		$counts['total']           = array_sum( $counts );
+		$counts['total_bytes']     = $total_bytes;
+		$counts['optimized_bytes'] = $optimized_bytes;
 
 		return $counts;
 	}
