@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.8
 Tested up to: 5.8
-Stable tag: 2.1.6
+Stable tag: 2.1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -274,6 +274,13 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.1.7 =
+* Fix: Corrected relative paths used in the JS minify YUI Compressor
+* Fix: Disallow crawling of cache directory
+* Fix: Responsive display for the dashboard
+* Enhancement: Added lazy load threshold setting
+* Enhancement: Added feature policy security headers to settings
 
 = 2.1.6 =
 * Fix: JS minify issue with template literal backticks
