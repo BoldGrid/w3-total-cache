@@ -85,9 +85,12 @@ class Generic_Plugin {
 				) );
 		}
 
-		// if robots_block is enabled modify robots.txt
+		/*
+		 * @link https://developer.wordpress.org/reference/hooks/robots_txt/
+		 * if robots_block is enabled modify robots.txt
+		 */
 		if ( $this->_config->get_boolean( 'robots_block.enable' ) && !Util_WpFile::file_exists( Util_Environment::site_path() . 'robots.txt' ) ) {
-			add_filter( 'robots_txt', array( $this, 'robots_rules_generate' ), 10,  2);
+			add_filter( 'robots_txt', array( $this, 'robots_rules_generate' ) );
 		}
 	}
 
@@ -674,7 +677,7 @@ class Generic_Plugin {
 		echo '<!-- W3 Total Cache is currently running in Pro version Development mode. --><div style="border:2px solid red;text-align:center;font-size:1.2em;color:red"><p><strong>W3 Total Cache is currently running in Pro version Development mode.</strong></p></div>';
 	}
 
-	public function robots_rules_generate( $content, $public ) {
+	public function robots_rules_generate( $content ) {
 		$content .= Generic_Environment::robots_rules_generate();
 		return $content;
 	}
