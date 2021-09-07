@@ -4,7 +4,6 @@ namespace W3TC;
 
 
 class Generic_Environment {
-
 	/**
 	 * Fixes environment
 	 *
@@ -16,7 +15,14 @@ class Generic_Environment {
 		$exs = new Util_Environment_Exceptions();
 		// create add-ins
 		$this->create_required_files( $config, $exs );
-		$this->robots_rules_add( $config, $exs );
+
+		if ( Util_WpFile::file_exists( Util_Environment::site_path() . 'robots.txt' ) ) {
+			if ( $config->get_boolean( 'robots_block.enable' ) ) {
+				$this->robots_rules_add( $config, $exs );
+			} else {
+				$this->robots_rules_remove( $exs );
+			}
+		}
 
 		// create folders
 		$this->create_required_folders( $exs );
@@ -59,8 +65,9 @@ class Generic_Environment {
 		$exs = new Util_Environment_Exceptions();
 
 		$this->delete_required_files( $exs );
-		$this->robots_rules_remove( $exs );
 
+		$this->robots_rules_remove( $exs );
+		
 		if ( count( $exs->exceptions() ) > 0 )
 			throw $exs;
 	}
@@ -213,22 +220,22 @@ class Generic_Environment {
 	/**
 	 * Write robots.txt directives to prevent crawl of cache directory.
 	 *
-	 * @since 2.1.7
-	 *
-	 * @param Config $config Configuration.
-	 * @param Util_Environment_Exceptions $exs Exceptions.
-	 *
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials.
-	 */
-	private function robots_rules_add( $config, $exs ) {
-		Util_Rule::add_rules(
-			$exs,
-			Util_Rule::get_robots_rules_path(),
-			$this->robots_rules_generate(),
-			W3TC_MARKER_BEGIN_ROBOTS,
-			W3TC_MARKER_END_ROBOTS,
-			array()
-		);
+     * @since 2.1.7
+     *
+     * @param Config $config Configuration.
+     * @param Util_Environment_Exceptions $exs Exceptions.
+     *
+     * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials.
+     */
+    private function robots_rules_add( $config, $exs ) {
+	    Util_Rule::add_rules(
+	        $exs,
+	        Util_Rule::get_robots_rules_path(),
+	        $this->robots_rules_generate(),
+	        W3TC_MARKER_BEGIN_ROBOTS,
+	        W3TC_MARKER_END_ROBOTS,
+	        array()
+	    );
 	}
 
 	/**
@@ -238,8 +245,8 @@ class Generic_Environment {
 	 *
 	 * @return string
 	 */
-	private function robots_rules_generate() {
-		return '
+	public static function robots_rules_generate() {
+	    return '
 # BEGIN W3TC ROBOTS
 User-agent: *
 Disallow: /wp-content/cache/
@@ -257,11 +264,20 @@ Disallow: /wp-content/cache/
 	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials.
 	 */
 	private function robots_rules_remove( $exs ) {
-		Util_Rule::remove_rules(
-			$exs,
-			Util_Environment::site_path() . 'robots.txt',
-			W3TC_MARKER_BEGIN_ROBOTS,
-			W3TC_MARKER_END_ROBOTS
-		);
+		$robots_path = Util_Environment::site_path() . 'robots.txt';
+
+	    Util_Rule::remove_rules(
+	        $exs,
+	        $robots_path,
+	        W3TC_MARKER_BEGIN_ROBOTS,
+	        W3TC_MARKER_END_ROBOTS
+	    );
+
+		WP_Filesystem();
+		global $wp_filesystem;
+
+		if ( empty( trim( $wp_filesystem->get_contents( $robots_path ) ) ) ) {
+			Util_WpFile::delete_file( $robots_path );
+		}
 	}
 }

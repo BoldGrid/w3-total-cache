@@ -524,13 +524,20 @@ Util_Ui::config_item( array(
 					)
 				);
 
-Util_Ui::config_item( array(
-		'key' => 'common.track_usage',
-		'control' => 'checkbox',
-		'checkbox_label' => __( 'Anonymously track usage to improve product quality', 'w3-total-cache' ),
-		'label_class' => 'w3tc_single_column'
-	) );
-?>
+				Util_Ui::config_item( array(
+					'key' => 'common.track_usage',
+					'control' => 'checkbox',
+					'checkbox_label' => __( 'Anonymously track usage to improve product quality', 'w3-total-cache' ),
+					'label_class' => 'w3tc_single_column'
+				) );
+
+				Util_Ui::config_item( array(
+					'key' => 'robots_block.enable',
+					'control' => 'checkbox',
+					'checkbox_label' => __( 'Enable robots.txt blocking for cache directory', 'w3-total-cache' ),
+					'label_class' => 'w3tc_single_column'
+				) );
+			?>
 		</table>
 
 		<?php Util_Ui::button_config_save( 'general_misc' ); ?>
