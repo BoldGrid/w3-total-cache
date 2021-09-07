@@ -16,7 +16,7 @@ class Generic_Environment {
 		// create add-ins
 		$this->create_required_files( $config, $exs );
 
-		if(Util_WpFile::file_exists( Util_Environment::site_path() . 'robots.txt' ) ) {
+		if( Util_WpFile::file_exists( Util_Environment::site_path() . 'robots.txt' ) ) {
 			if ( $config->get_boolean( 'robots_block.enable' ) )
 				$this->robots_rules_add( $config, $exs );
 			elseif( !$config->get_boolean( 'robots_block.enable' ) )
