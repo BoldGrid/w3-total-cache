@@ -17,10 +17,12 @@ class Generic_Environment {
 		$this->create_required_files( $config, $exs );
 
 		if( Util_WpFile::file_exists( Util_Environment::site_path() . 'robots.txt' ) ) {
-			if ( $config->get_boolean( 'robots_block.enable' ) )
+			if ( $config->get_boolean( 'robots_block.enable' ) ) {
 				$this->robots_rules_add( $config, $exs );
-			elseif( !$config->get_boolean( 'robots_block.enable' ) )
+			}
+			else {
 				$this->robots_rules_remove( $exs );
+			}
 		}
 
 		// create folders
