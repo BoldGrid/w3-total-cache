@@ -16,11 +16,10 @@ class Generic_Environment {
 		// create add-ins
 		$this->create_required_files( $config, $exs );
 
-		if( Util_WpFile::file_exists( Util_Environment::site_path() . 'robots.txt' ) ) {
+		if ( Util_WpFile::file_exists( Util_Environment::site_path() . 'robots.txt' ) ) {
 			if ( $config->get_boolean( 'robots_block.enable' ) ) {
 				$this->robots_rules_add( $config, $exs );
-			}
-			else {
+			} else {
 				$this->robots_rules_remove( $exs );
 			}
 		}
@@ -276,7 +275,8 @@ Disallow: /wp-content/cache/
 
 		WP_Filesystem();
 		global $wp_filesystem;
-		if( empty( trim( $wp_filesystem->get_contents( $robots_path ) ) ) ) {
+
+		if ( empty( trim( $wp_filesystem->get_contents( $robots_path ) ) ) ) {
 			Util_WpFile::delete_file( $robots_path );
 		}
 	}
