@@ -227,6 +227,38 @@ class Util_WpFile {
 	}
 
 	/**
+	 * Checks if file exists
+	 *
+	 * @since 2.1.8
+	 *
+	 * @param string  $filename path to file
+	 * @throws Util_WpFile_FilesystemOperationException
+	 * @return boolean
+	 */
+	static public function file_exists( $filename ) {
+		error_log(print_r(@file_exists( $filename ),true));
+		if ( @file_exists( $filename ) === true || @file_exists( $filename ) === false )
+			return @file_exists( $filename );
+
+		try {
+			self::request_filesystem_credentials();
+		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
+			throw new Util_WpFile_FilesystemOperationException( $ex->getMessage(),
+				$ex->credentials_form() );
+		}
+
+		global $wp_filesystem;
+		if ( $wp_filesystem->exists( $filename ) === true || $wp_filesystem->exists( $filename ) === false ) {
+			return $wp_filesystem->exists( $filename );
+		}
+		else {
+			throw new Util_WpFile_FilesystemOperationException(
+				'FTP credentials don\'t allow to check file existence for <strong>' .
+				$filename . '</strong>', self::get_filesystem_credentials_form() );
+		}
+	}
+
+	/**
 	 * Get WordPress filesystems credentials. Required for WP filesystem usage.
 	 *
 	 * @param string  $method  Which method to use when creating
