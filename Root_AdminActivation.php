@@ -58,6 +58,9 @@ class Root_AdminActivation {
 		} catch ( \Exception $e ) {
 			Util_Activation::error_on_exception( $e );
 		}
+
+		// Set transients for displaying activation notices.
+		set_transient( 'w3tc_activation_optimager', true, DAY_IN_SECONDS );
 	}
 
 	/**

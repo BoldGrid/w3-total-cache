@@ -353,6 +353,8 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		$c      = $this->config;
 		$counts = $this->get_optimager_counts();
 
+		delete_transient( 'w3tc_activation_optimager' );
+
 		require W3TC_DIR . '/Extension_ImageOptimizer_Page_View.php';
 	}
 
@@ -475,6 +477,8 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 */
 	public function media_column_row( $column_name, $post_id ) {
 		if ( 'optimager' === $column_name ) {
+			delete_transient( 'w3tc_activation_optimager' );
+
 			$post           = get_post( $post_id );
 			$optimager_data = get_post_meta( $post_id, 'w3tc_optimager', true );
 
@@ -725,6 +729,44 @@ class Extension_ImageOptimizer_Plugin_Admin {
 					</p>
 				</div>
     			<?php
+			}
+		} elseif (1|| get_transient( 'w3tc_activation_optimager' ) ) {
+			// Activation notice.
+			$skip_pages = array(
+				'w3tc_setup_guide',
+				'w3tc_extensions',
+			);
+
+			if ( ! in_array( $_GET['page'], $skip_pages, true ) ) {
+				?>
+				<div class="updated notice notice-success is-dismissible">
+					<p>
+						<?php
+						printf(
+							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
+							__( 'Thank you for activating %1$sW3 Total Cache%2$s and choosing to increase your website performance.', 'w3-total-cache' ),
+							'<strong>',
+							'</strong>'
+						);
+						?>
+					</p>
+					<p>
+				<?php
+				printf(
+					// translators: 1: HTML anchor open tag (Settings page link), 2: HTML anchor close tag, 3: HTML anchor open tag (Media Library link), 4: HTML anchor open tag (dismiss notice).
+					__(
+						'We now offer an image conversion service to support the latest WEBP image format.  Configure your settings and convert all of your images now using our %1$sbulk tools%2$s, select images to convert in your %3$sMedia Library%2$s, or %4$shide this notice%2$s.',
+						'w3-total-cache'
+					),
+					'<a href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=optimager&action=view' ) ) . '">',
+					'</a>',
+					'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
+					'<a id="w3tc-dismiss-activation-optimager" href="#">'
+				);
+				?>
+					</p>
+				</div>
+				<?php
 			}
 		}
 
