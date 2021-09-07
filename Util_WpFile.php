@@ -227,6 +227,28 @@ class Util_WpFile {
 	}
 
 	/**
+	 * Checks if file exists
+	 *
+	 * @since 2.1.8
+	 *
+	 * @param string  $filename path to file
+	 * @throws Util_WpFile_FilesystemOperationException
+	 * @return boolean
+	 */
+	static public function file_exists( $filename ) {
+		try {
+			self::request_filesystem_credentials();
+		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
+			throw new Util_WpFile_FilesystemOperationException( $ex->getMessage(),
+				$ex->credentials_form() );
+		}
+
+		global $wp_filesystem;
+
+		return $wp_filesystem->exists( $filename );
+	}
+
+	/**
 	 * Get WordPress filesystems credentials. Required for WP filesystem usage.
 	 *
 	 * @param string  $method  Which method to use when creating
