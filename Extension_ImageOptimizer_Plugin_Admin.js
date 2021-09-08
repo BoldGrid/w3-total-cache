@@ -36,13 +36,13 @@
 	// Clicked setting control: Compression.
 	$( '[name="w3tc_optimager_compression"]' ).on( 'click', setCompression );
 
-	// Optimize all images.
+	// Clicked optimize all images button.
 	$optimizeAllButton.on( 'click', optimizeItems );
 
-	// Revert all optimized images.
+	// Clicked revert all optimized images button.
 	$revertAllButton.on( 'click', revertItems );
 
-	// Refresh statistics when the update icon is clicked.
+	// Clicked the refresh icon for statistics.
 	$refreshStatsIcon.on( 'click', refreshStats );
 
 	/* Functions. */
@@ -554,4 +554,5 @@
 				);
 			});
 	}
+
 })( jQuery );
