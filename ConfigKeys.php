@@ -2323,10 +2323,7 @@ $keys = array(
 		)
 	),
 
-	'robots_block.enable' => array(
-		'type' => 'boolean',
-		'default' => false
-	),
+
 	'common.track_usage' => array(
 		'type' => 'boolean',
 		'default' => false

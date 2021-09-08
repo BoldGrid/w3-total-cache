@@ -104,7 +104,6 @@ define( 'W3TC_MARKER_BEGIN_MINIFY_CORE', '# BEGIN W3TC Minify core' );
 define( 'W3TC_MARKER_BEGIN_MINIFY_CACHE', '# BEGIN W3TC Minify cache' );
 define( 'W3TC_MARKER_BEGIN_MINIFY_LEGACY', '# BEGIN W3TC Minify' );
 define( 'W3TC_MARKER_BEGIN_CDN', '# BEGIN W3TC CDN' );
-define( 'W3TC_MARKER_BEGIN_ROBOTS', '# BEGIN W3TC ROBOTS' );
 define( 'W3TC_MARKER_BEGIN_WEBP', '# BEGIN W3TC WEBP' );
 
 define( 'W3TC_MARKER_END_WORDPRESS', '# END WordPress' );
@@ -119,7 +118,6 @@ define( 'W3TC_MARKER_END_MINIFY_CACHE', '# END W3TC Minify cache' );
 define( 'W3TC_MARKER_END_MINIFY_LEGACY', '# END W3TC Minify' );
 define( 'W3TC_MARKER_END_CDN', '# END W3TC CDN' );
 define( 'W3TC_MARKER_END_NEW_RELIC_CORE', '# END W3TC New Relic core' );
-define( 'W3TC_MARKER_END_ROBOTS', '# END W3TC ROBOTS' );
 define( 'W3TC_MARKER_END_WEBP', '# END W3TC WEBP' );
 
 if ( !defined( 'W3TC_EXTENSION_DIR' ) ) {
