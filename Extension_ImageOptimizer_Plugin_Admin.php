@@ -730,14 +730,27 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				</div>
     			<?php
 			}
-		} elseif (1|| get_transient( 'w3tc_activation_optimager' ) ) {
+		} elseif ( isset( $_GET['w3tc_optimager_action'] ) && 'dismiss_activation_notice' === $_GET['w3tc_optimager_action'] ) {
+			delete_transient( 'w3tc_activation_optimager' );
+			wp_redirect( remove_query_arg( 'w3tc_optimager_action' ) );
+		} elseif ( get_transient( 'w3tc_activation_optimager' ) ) {
 			// Activation notice.
+			$page       = isset( $_GET['page'] ) ? $_GET['page'] : null;
 			$skip_pages = array(
 				'w3tc_setup_guide',
 				'w3tc_extensions',
 			);
 
-			if ( ! in_array( $_GET['page'], $skip_pages, true ) ) {
+			/**
+			 * Accept filtering for skipped pages.
+			 *
+			 * @since X.X.X
+			 *
+			 * @param array $skip_pages Skip any array values if matching $_GET['page'].
+			 */
+			$skip_pages = apply_filters( 'w3tc_activation_notice_skip_pages', $skip_pages );
+
+			if ( ! in_array( $page, $skip_pages, true ) ) {
 				?>
 				<div class="updated notice notice-success is-dismissible">
 					<p>
@@ -761,7 +774,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 					'<a href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=optimager&action=view' ) ) . '">',
 					'</a>',
 					'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
-					'<a id="w3tc-dismiss-activation-optimager" href="#">'
+					'<a href="' . esc_attr( add_query_arg( 'w3tc_optimager_action', 'dismiss_activation_notice' ) ) . '">'
 				);
 				?>
 					</p>
