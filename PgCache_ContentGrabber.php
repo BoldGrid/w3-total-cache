@@ -2077,8 +2077,14 @@ class PgCache_ContentGrabber {
 		$compression_of_returned_content =
 			( $has_dynamic ? false : $compression_header );
 
-		$is_404 = ( function_exists( 'is_404' ) ? is_404() : false );
 		$headers = $this->_get_cached_headers( $response_headers['plain'] );
+		if ( !empty( $headers['Status-Code'] ) ) {
+			$is_404 = ( $headers['Status-Code'] == 404 );
+		} elseif ( function_exists( 'is_404' ) ) {
+			$is_404 = is_404();
+		} else {
+			$is_404 = false;
+		}
 
 		if ( $this->_enhanced_mode ) {
 			// redirect issued, if we have some old cache entries
