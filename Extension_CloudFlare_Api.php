@@ -169,45 +169,12 @@ class Extension_CloudFlare_Api {
 								" . $datetime_filter . "
 							}
 							sum {
-								browserMap {
-									pageViews
-									uaBrowserFamily
-								}
 								bytes
 								cachedBytes
 								cachedRequests
-								contentTypeMap {
-									bytes
-									requests
-									edgeResponseContentTypeName
-								}
-								clientSSLMap {
-									requests
-									clientSSLProtocol
-								}
-								countryMap {
-									bytes
-									requests
-									threats
-									clientCountryName
-								}
-								encryptedBytes
-								encryptedRequests
-								ipClassMap {
-									requests
-									ipType
-								}
 								pageViews
 								requests
-								responseStatusMap {
-									requests
-									edgeResponseStatus
-								}
 								threats
-								threatPathingMap {
-									requests
-									threatPathingName
-								}
 							}
 							uniq {
 								uniques
