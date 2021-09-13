@@ -159,12 +159,6 @@
 
 						$itemTd.append(
 							'<div class="w3tc-optimized-increased">' +
-							response.data.download["\u0000*\u0000data"]['x-filesize-out-percent'] +
-							' (' +
-							w3tcData.lang.notchanged +
-							': ' +
-							response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
-							')<br />' +
 							w3tcData.lang.notoptimized +
 							'</div>'
 						);
@@ -179,12 +173,10 @@
 							'<div class="' +
 							infoClass +
 							'">' +
-							response.data.download["\u0000*\u0000data"]['x-filesize-out-percent'] +
-							' (' +
-							w3tcData.lang.changed +
-							': ' +
+							w3tcData.lang.reduced +
+							' ' +
 							response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
-							')</div>'
+							'</div>'
 						);
 					}
 				})

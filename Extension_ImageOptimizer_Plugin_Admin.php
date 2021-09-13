@@ -414,8 +414,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'reverted'      => __( 'Reverted', 'w3-total_cache' ),
 						'revert'        => __( 'Revert', 'w3-total_cache' ),
 						'error'         => __( 'Error', 'w3-total_cache' ),
-						'changed'       => __( 'Changed', 'w3-total_cache' ),
-						'notchanged'    => __( 'Not changed', 'w3-total_cache' ),
+						'reduced'       => __( 'Reduced', 'w3-total_cache' ),
 						'notoptimized'  => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
 						'AjaxFail'      => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
 						'ApiError'      => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
@@ -546,8 +545,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						?>
 						<div class="<?php echo esc_attr( $optimized_class ); ?>">
 						<?php
-						echo esc_html(
-							$optimized_percent . ' (' . __( 'Changed: ', 'w3-total-cache' ) . $reduced_percent . ')'
+						printf(
+							esc_html__( 'Reduced %1$s', 'w3-total-cache' ),
+							$reduced_percent
 						);
 						?>
 						</div>
@@ -564,13 +564,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						?>
 						<div class="<?php echo esc_attr( $optimized_class ); ?>">
 						<?php
-						printf(
-							// transaltors: 1: Optimized percentage, 2: Reduced percentage, 3: HTML break
-							esc_html__( '%1$s (Not changed: %2$s)%3$sNot optimized; image would be larger.', 'w3-total-cache' ),
-							$optimized_percent,
-							$reduced_percent,
-							'<br />'
-						);
+							esc_html_e( 'Not optimized; image would be larger.', 'w3-total-cache' );
 						?>
 						</div>
 						<?php
