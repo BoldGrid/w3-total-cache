@@ -136,7 +136,7 @@ $security_session_values = array(
 					<input id="browsercache_no404wp_response_cssjs" type="text"
 					   <?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 					   name="browsercache__no404wp__response__cssjs" value="<?php echo esc_attr( ( $this->_config->get_integer( 'browsercache.no404wp.response.cssjs' ) ? $this->_config->get_integer( 'browsercache.no404wp.response.cssjs' ) : '' ) ) ?>" size="8" />
-					   <p class="description">Mime Types : <?php echo implode(" / ",array_keys(Util_Mime::sections_to_mime_types_map()['cssjs'])); ?></p>
+					   <p class="description">Mime Types : <?php echo implode( " / ", array_keys( Util_Mime::sections_to_mime_types_map()['cssjs'] ) ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -145,7 +145,7 @@ $security_session_values = array(
 					<input id="browsercache_no404wp_response_html" type="text"
 					   <?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 					   name="browsercache__no404wp__response__html" value="<?php echo esc_attr( ( $this->_config->get_integer( 'browsercache.no404wp.response.html' ) ? $this->_config->get_integer( 'browsercache.no404wp.response.html' ) : '' ) ) ?>" size="8" />
-					   <p class="description">Mime Types : <?php echo implode(" / ",array_keys(Util_Mime::sections_to_mime_types_map()["html"])); ?></p>
+					   <p class="description">Mime Types : <?php echo implode( " / ", array_keys( Util_Mime::sections_to_mime_types_map()["html"] ) ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -154,7 +154,7 @@ $security_session_values = array(
 					<input id="browsercache_no404wp_response_other" type="text"
 					   <?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 					   name="browsercache__no404wp__response__other" value="<?php echo esc_attr( ( $this->_config->get_integer( 'browsercache.no404wp.response.other' ) ? $this->_config->get_integer( 'browsercache.no404wp.response.other' ) : '' ) ) ?>" size="8" />
-					   <p class="description">Mime Types : <?php echo implode(" / ",array_keys(Util_Mime::sections_to_mime_types_map()["other"])); ?></p>
+					   <p class="description">Mime Types : <?php echo implode( " / ", array_keys( Util_Mime::sections_to_mime_types_map()["other"] ) ); ?></p>
 				</td>
 			</tr>
 			<tr>
