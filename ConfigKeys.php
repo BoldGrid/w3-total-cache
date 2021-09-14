@@ -1761,12 +1761,28 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false
 	),
+	'browsercache.no404wp.response.cssjs' => array(
+		'type' => 'integer',
+		'default' => ''
+	),
+	'browsercache.no404wp.response.html' => array(
+		'type' => 'integer',
+		'default' => ''
+	),
+	'browsercache.no404wp.response.other' => array(
+		'type' => 'integer',
+		'default' => ''
+	),
 	'browsercache.no404wp.exceptions' => array(
 		'type' => 'array',
 		'default' => array(
 			'robots\.txt',
 			'[a-z0-9_\-]*sitemap[a-z0-9_\.\-]*\.(xml|xsl|html)(\.gz)?'
 		)
+	),
+	'browsercache.no404wp.response.exceptions' => array(
+		'type' => 'integer',
+		'default' => ''
 	),
 	'browsercache.cssjs.last_modified' => array(
 		'type' => 'boolean',

@@ -7,13 +7,9 @@ namespace W3TC;
 class BrowserCache_Environment_Nginx {
 	private $c;
 
-
-
 	public function __construct( $config ) {
 		$this->c = $config;
 	}
-
-
 
 	/**
 	 * Returns cache rules
@@ -131,12 +127,14 @@ class BrowserCache_Environment_Nginx {
 
 			$impoloded = implode( '|', $exceptions );
 			if ( !empty( $impoloded ) ) {
-				$wp_uri = network_home_url( '', 'relative' );
-				$wp_uri = rtrim( $wp_uri, '/' );
+				$file_code = rtrim( network_home_url( '', 'relative' ), '/' ) . '/index.php?$args;';
+
+				if( $this->c->get_integer( 'browsercache.no404wp.response.exceptions' ) ){
+					$file_code = "=" . $this->c->get_integer( 'browsercache.no404wp.response.exceptions' );
+				}
 
 				$rules .= "location ~ (" . $impoloded . ") {\n";
-				$rules .= '    try_files $uri $uri/ ' . $wp_uri .
-					'/index.php?$args;' . "\n";
+				$rules .= '    try_files $uri $uri/ ' . $file_code . "\n";
 				$rules .= "}\n";
 			}
 		}
@@ -152,8 +150,6 @@ class BrowserCache_Environment_Nginx {
 
 		return $rules;
 	}
-
-
 
 	/**
 	 * Returns security header directives
@@ -266,8 +262,6 @@ class BrowserCache_Environment_Nginx {
 		return $rules;
 	}
 
-
-
 	/**
 	 * Adds cache rules for type to &$rules
 	 *
@@ -302,18 +296,18 @@ class BrowserCache_Environment_Nginx {
 				$this->c, $section );
 			$rules .= '    ' . implode( "\n    ", $subrules ) . "\n";
 
-			if ( !$this->c->get_boolean( 'browsercache.no404wp' ) ) {
-				$wp_uri = network_home_url( '', 'relative' );
-				$wp_uri = rtrim( $wp_uri, '/' );
+			if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+				$file_code = rtrim( network_home_url( '', 'relative' ), '/' ) . '/index.php?$args;';
 
-				$rules .= '    try_files $uri $uri/ ' . $wp_uri .
-					'/index.php?$args;' . "\n";
+				if( $this->c->get_integer( 'browsercache.no404wp.response.' . $section ) ){
+					$file_code = "=" . $this->c->get_integer( 'browsercache.no404wp.response.' . $section );
+				}
+
+				$rules .= '    try_files $uri $uri/ ' . $file_code . "\n";
 			}
 			$rules .= "}\n";
 		}
 	}
-
-
 
 	/**
 	 * Returns directives plugin applies to files of specific section

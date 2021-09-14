@@ -126,8 +126,36 @@ $security_session_values = array(
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.no404wp', !Util_Rule::can_check_rules() ) ?> <?php Util_Ui::e_config_label( 'browsercache.no404wp' ) ?></label>
 					<p class="description"><?php _e( 'Reduce server load by allowing the web server to handle 404 (not found) errors for static files (images etc).', 'w3-total-cache' ) ?></p>
+					<p class="description"><?php _e( 'If enabled - the default behavior for missing static objects and exception URIs is a 301 redirect to index.php. To disable the redirect and set your own response code(s), use the fields below.', 'w3-total-cache' ) ?></p>
 					<p class="description"><?php _e( 'If enabled - you may get 404 File Not Found response for some files generated on-the-fly by WordPress plugins. You may add those file <acronym title="Uniform Resource Identifier">URI</acronym>s to 404 error exception list below to avoid that.', 'w3-total-cache' ) ?></p>
 				</th>
+			</tr>
+			<tr>
+				<th><label for="browsercache_no404wp_response_cssjs"><?php Util_Ui::e_config_label( 'browsercache.no404wp.response.cssjs' ) ?></label></th>
+				<td>
+					<input id="browsercache_no404wp_response_cssjs" type="text"
+					   <?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
+					   name="browsercache__no404wp__response__cssjs" value="<?php echo esc_attr( ( $this->_config->get_integer( 'browsercache.no404wp.response.cssjs' ) ? $this->_config->get_integer( 'browsercache.no404wp.response.cssjs' ) : '' ) ) ?>" size="8" />
+					   <p class="description">Mime Types : <?php echo implode(" / ",array_keys(Util_Mime::sections_to_mime_types_map()['cssjs'])); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th><label for="browsercache_no404wp_response_html"><?php Util_Ui::e_config_label( 'browsercache.no404wp.response.html' ) ?></label></th>
+				<td>
+					<input id="browsercache_no404wp_response_html" type="text"
+					   <?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
+					   name="browsercache__no404wp__response__html" value="<?php echo esc_attr( ( $this->_config->get_integer( 'browsercache.no404wp.response.html' ) ? $this->_config->get_integer( 'browsercache.no404wp.response.html' ) : '' ) ) ?>" size="8" />
+					   <p class="description">Mime Types : <?php echo implode(" / ",array_keys(Util_Mime::sections_to_mime_types_map()["html"])); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th><label for="browsercache_no404wp_response_other"><?php Util_Ui::e_config_label( 'browsercache.no404wp.response.other' ) ?></label></th>
+				<td>
+					<input id="browsercache_no404wp_response_other" type="text"
+					   <?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
+					   name="browsercache__no404wp__response__other" value="<?php echo esc_attr( ( $this->_config->get_integer( 'browsercache.no404wp.response.other' ) ? $this->_config->get_integer( 'browsercache.no404wp.response.other' ) : '' ) ) ?>" size="8" />
+					   <p class="description">Mime Types : <?php echo implode(" / ",array_keys(Util_Mime::sections_to_mime_types_map()["other"])); ?></p>
+				</td>
 			</tr>
 			<tr>
 				<th><label for="browsercache_no404wp_exceptions"><?php Util_Ui::e_config_label( 'browsercache.no404wp.exceptions' ) ?></label></th>
@@ -136,6 +164,14 @@ $security_session_values = array(
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
 						name="browsercache__no404wp__exceptions" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'browsercache.no404wp.exceptions' ) ) ) ?></textarea>
 					<p class="description"><?php _e( 'Never process 404 (not found) events for the specified <acronym title="Uniform Resource Identifier">URI</acronym>s.', 'w3-total-cache' ) ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th><label for="browsercache_no404wp_response_exceptions"><?php Util_Ui::e_config_label( 'browsercache.no404wp.response.exceptions' ) ?></label></th>
+				<td>
+					<input id="browsercache_no404wp_response_exceptions" type="text"
+					   <?php Util_Ui::sealing_disabled( 'browsercache.' ) ?>
+					   name="browsercache__no404wp__response__exceptions" value="<?php echo esc_attr( ( $this->_config->get_integer( 'browsercache.no404wp.response.exceptions' ) ? $this->_config->get_integer( 'browsercache.no404wp.response.exceptions' ) : '' ) ) ?>" size="8" />
 				</td>
 			</tr>
 			<?php
