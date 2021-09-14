@@ -67,18 +67,37 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @since X.X.X
 	 * @static
 	 *
+	 * @global $wp_version WordPress core version.
+	 *
 	 * @param  array $extensions Extensions.
 	 * @param  array $config Configuration.
 	 * @return array
 	 */
 	public static function w3tc_extensions( $extensions, $config ) {
+		global $wp_version;
+
+		$description = __(
+			'Adds the ability to convert images into the modern WEBP format for better performance.',
+			'w3-total-cache'
+		);
+
+		if ( version_compare( $wp_version, '5.8', '<' ) ) {
+			$description .= sprintf(
+				__(
+					'%1$sThis extension works best in WordPress version 5.8 and higher.  You are running WordPress version %2$s.  Please %3$supdate now%4$s to benefit from this feature.',
+					'w3-total-cache'
+				),
+				'<br />',
+				$wp_version,
+				'<a href="' . esc_url( admin_url( 'update-core.php' ) ) . '">',
+				'</a>'
+			);
+		}
+
 		$extensions['optimager'] = array(
 			'name'             => 'Image Service',
 			'author'           => 'W3 EDGE',
-			'description'      => __(
-				'Adds image service options to optimize performance of images.',
-				'w3-total-cache'
-			),
+			'description'      => esc_html( $description ),
 			'author_uri'       => 'https://www.w3-edge.com/',
 			'extension_uri'    => 'https://www.w3-edge.com/',
 			'extension_id'     => 'optimager',
