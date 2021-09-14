@@ -175,6 +175,8 @@ class FeatureShowcase_Plugin_Admin {
 	 * @access private
 	 * @static
 	 *
+	 * @global $wp_version WordPress core version.
+	 *
 	 * @return array
 	 */
 	private static function get_cards() {
@@ -185,11 +187,32 @@ class FeatureShowcase_Plugin_Admin {
 		$optimager_button_link = $is_optimager_active ?
 			'admin.php?page=w3tc_extensions&extension=optimager&action=view' : 'admin.php?page=w3tc_extensions&action=activate&extension=optimager';
 
+		global $wp_version;
+
+		$optimager_description = __(
+			'Adds the ability to convert images into the modern WEBP format for better performance.',
+			'w3-total-cache'
+		);
+
+		if ( version_compare( $wp_version, '5.8', '<' ) ) {
+			$optimager_description .= sprintf(
+				__(
+					'%1$sThis feature works best in WordPress version 5.8 and higher.  You are running WordPress version %2$s.  Please %3$supdate now%4$s to benefit from this feature.%5$s',
+					'w3-total-cache'
+				),
+				'<p>',
+				$wp_version,
+				'<a href="' . esc_url( admin_url( 'update-core.php' ) ) . '">',
+				'</a>',
+				'</p>'
+			);
+		}
+
 		return array(
 			'optimager'           => array(
 				'title'      => esc_html__( 'Image Service', 'w3-total-cache' ),
 				'icon'       => 'dashicons-embed-photo',
-				'text'       => esc_html__( 'Adds image service options to optimize performance of images.', 'w3-total-cache' ),
+				'text'       => esc_html( $optimager_description ),
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( Util_Ui::admin_url( $optimager_button_link ) ) . '\'">' . esc_html( $optimager_button_text ) . '</button>',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-optimizer-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=optimager' ) .
