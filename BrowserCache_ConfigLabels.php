@@ -11,7 +11,7 @@ class BrowserCache_ConfigLabels {
 				'browsercache.no404wp.response.html' => __( '404 replacement response code for HTML mime types', 'w3-total-cache' ),
 				'browsercache.no404wp.response.other' => __( '404 replacement response code for Other mime types', 'w3-total-cache' ),
 				'browsercache.no404wp.response.exceptions' => __( '404 replacement response code for Exceptions URIs', 'w3-total-cache' ),
-				'browsercache.no404wp.exceptions' => __( '404 exception list:', 'w3-total-cache' ),
+				'browsercache.no404wp.exceptions' => __( '404 error exception list:', 'w3-total-cache' ),
 				'browsercache.cssjs.last_modified' => __( 'Set Last-Modified header', 'w3-total-cache' ),
 				'browsercache.cssjs.expires' => __( 'Set expires header', 'w3-total-cache' ),
 				'browsercache.cssjs.lifetime' => __( 'Expires header lifetime:', 'w3-total-cache' ),

@@ -677,40 +677,64 @@ class BrowserCache_Environment {
 	 * @return string
 	 */
 	private function rules_no404wp_generate_apache( $config ) {
-		$a = $this->get_mime_types();
-		$cssjs_types = $a['cssjs'];
-		$html_types = $a['html'];
-		$other_types = $a['other'];
+		$mime_types = $this->get_mime_types();
+		$rules = '';
 
-		$extensions = array_merge( array_keys( $cssjs_types ),
-			array_keys( $html_types ), array_keys( $other_types ) );
+		unset($mime_types['other_compression']);
+
+		//$cssjs_types = array_keys( $a['cssjs'] );
+		//$html_types = array_keys( $a['html'] );
+		//$other_types = array_keys( $a['other'] );
+
+		//$extensions = array_merge( array_keys( $cssjs_types ),
+		//	array_keys( $html_types ), array_keys( $other_types ) );
 
 		$permalink_structure = get_option( 'permalink_structure' );
 		$permalink_structure_ext = ltrim( strrchr( $permalink_structure, '.' ),
 			'.' );
 
 		if ( $permalink_structure_ext != '' ) {
-			foreach ( $extensions as $index => $extension ) {
+			foreach ( $mime_types as $mime_type ) {
+				foreach ( $mime_type as $extension => $desc ) {
+					if ( strstr( $extension, $permalink_structure_ext ) !== false ) {
+						$new_key = preg_replace( '~\|?' . 
+							Util_Environment::preg_quote( $permalink_structure_ext ) . 
+							'\|?~', '', $extension );
+						$mime_types[$mime_type][$new_key] = $desc;
+						unset($mime_types[$mime_type][$extension]);
+					}
+				}
+			}
+
+
+			/*foreach ( $extensions as $index => $extension ) {
 				if ( strstr( $extension, $permalink_structure_ext ) !== false ) {
 					$extensions[$index] = preg_replace( '~\|?' .
 						Util_Environment::preg_quote( $permalink_structure_ext ) .
 						'\|?~', '', $extension );
 				}
-			}
+			}*/
 		}
 
-		$exceptions = $config->get_array( 'browsercache.no404wp.exceptions' );
 		$wp_uri = network_home_url( '', 'relative' );
 		$wp_uri = rtrim( $wp_uri, '/' );
 
-		$rules = '';
 		$rules .= W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP . "\n";
 		$rules .= "<IfModule mod_rewrite.c>\n";
 		$rules .= "    RewriteEngine On\n";
+		$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
+		$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
+
+		$exceptions = implode( '|', $config->get_array( 'browsercache.no404wp.exceptions' ) );
+		if ( !empty( $exceptions ) ) {
+			//$rules .= "    RewriteCond %{REQUEST_URI} !(" . $exceptions. ")\n";
+			//$rules .= "    RewriteRule .* - [L]\n";
+		}
 
 		// in subdir - rewrite theme files and similar to upper folder if file exists
 		if ( Util_Environment::is_wpmu() &&
 			!Util_Environment::is_wpmu_subdomain() ) {
+			/*
 			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
 			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
 			$rules .= "    RewriteCond %{REQUEST_URI} ^$wp_uri/([_0-9a-zA-Z-]+/)(.*\.)(" .
@@ -719,22 +743,40 @@ class BrowserCache_Environment {
 			$rules .= '    RewriteCond "' . $document_root . $wp_uri .
 				'/%2%3" -f' . "\n";
 			$rules .= "    RewriteRule .* $wp_uri/%2%3 [L]\n\n";
+			*/
+
+			$document_root = Util_Rule::apache_docroot_variable();
+
+			$file_code = $wp_uri . '/index.php - [RL]';
+			foreach ( $mime_types as $section => $mime_type ) {
+				$extensions = implode( '|', array_keys( $mime_types[ $section ] ) );
+				if ( !empty( $extensions ) ) {
+					if( $config->get_integer( 'browsercache.no404wp.response.' . $section ) ){
+						$file_code = "- [R=" . $config->get_integer( 'browsercache.no404wp.response.' . $section ) . ",NC,L]";
+					}
+					$rules .= "    RewriteCond %{REQUEST_URI} ^$wp_uri/([_0-9a-zA-Z-]+/)(.*\.)(" . $extensions . ")$ [NC]\n";
+					$rules .= '    RewriteCond "' . $document_root . $wp_uri . '/%2%3" -f' . "\n";
+					$rules .= "    RewriteRule .* $file_code\n\n";
+				}
+			}
 		}
 
+		$file_code = '/index.php - [L]';
+		foreach ( $mime_types as $section => $mime_type ) {
+			$extensions = implode( '|', array_keys( $mime_types[ $section ] ) );
+			if ( !empty( $extensions ) ) {
+				if( $config->get_integer( 'browsercache.no404wp.response.' . $section ) ){
+					$file_code = "- [R=" . $config->get_integer( 'browsercache.no404wp.response.' . $section ) . ",NC,L]";
+				}
+				$rules .= "    RewriteCond %{REQUEST_URI} \\.(" . $extensions . ")$ [NC]\n";
+				$rules .= "    RewriteRule . $file_code\n";
+			}
+		}
 
-		$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
-		$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
-
-		$imploded = implode( '|', $exceptions );
-		if ( !empty( $imploded ) )
-			$rules .= "    RewriteCond %{REQUEST_URI} !(" . $imploded. ")\n";
-
-		$rules .= "    RewriteCond %{REQUEST_URI} \\.(" .
-			implode( '|', $extensions ) . ")$ [NC]\n";
-		$rules .= "    RewriteRule .* - [L]\n";
 		$rules .= "</IfModule>\n";
 		$rules .= W3TC_MARKER_END_BROWSERCACHE_NO404WP . "\n";
 
+		error_log(print_r($rules,true));
 		return $rules;
 	}
 }

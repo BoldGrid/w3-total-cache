@@ -122,15 +122,15 @@ class BrowserCache_Environment_Nginx {
 				implode( ' ', array_unique( $compression_types ) ) . ";\n";
 		}
 
-		if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+		if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
 			$exceptions = $this->c->get_array( 'browsercache.no404wp.exceptions' );
 
 			$impoloded = implode( '|', $exceptions );
 			if ( !empty( $impoloded ) ) {
 				$file_code = rtrim( network_home_url( '', 'relative' ), '/' ) . '/index.php?$args;';
 
-				if( $this->c->get_integer( 'browsercache.no404wp.response.exceptions' ) ){
-					$file_code = "=" . $this->c->get_integer( 'browsercache.no404wp.response.exceptions' );
+				if ( $this->c->get_integer( 'browsercache.no404wp.response.exceptions' ) ){
+					$file_code = '=' . $this->c->get_integer( 'browsercache.no404wp.response.exceptions' );
 				}
 
 				$rules .= "location ~ (" . $impoloded . ") {\n";
@@ -296,10 +296,10 @@ class BrowserCache_Environment_Nginx {
 				$this->c, $section );
 			$rules .= '    ' . implode( "\n    ", $subrules ) . "\n";
 
-			if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+			if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
 				$file_code = rtrim( network_home_url( '', 'relative' ), '/' ) . '/index.php?$args;';
 
-				if( $this->c->get_integer( 'browsercache.no404wp.response.' . $section ) ){
+				if ( $this->c->get_integer( 'browsercache.no404wp.response.' . $section ) ){
 					$file_code = "=" . $this->c->get_integer( 'browsercache.no404wp.response.' . $section );
 				}
 
