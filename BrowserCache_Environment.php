@@ -727,8 +727,8 @@ class BrowserCache_Environment {
 
 		$exceptions = implode( '|', $config->get_array( 'browsercache.no404wp.exceptions' ) );
 		if ( !empty( $exceptions ) ) {
-			//$rules .= "    RewriteCond %{REQUEST_URI} !(" . $exceptions. ")\n";
-			//$rules .= "    RewriteRule .* - [L]\n";
+			$rules .= "    RewriteCond %{REQUEST_URI} !(" . $exceptions. ") [NC]\n";
+			$rules .= "    RewriteRule .* - [L]\n";
 		}
 
 		// in subdir - rewrite theme files and similar to upper folder if file exists
@@ -769,7 +769,7 @@ class BrowserCache_Environment {
 					$file_code = "- [R=" . $config->get_integer( 'browsercache.no404wp.response.' . $section ) . ",NC,L]";
 				}
 				$rules .= "    RewriteCond %{REQUEST_URI} \\.(" . $extensions . ")$ [NC]\n";
-				$rules .= "    RewriteRule . $file_code\n";
+				$rules .= "    RewriteRule .* $file_code\n";
 			}
 		}
 
