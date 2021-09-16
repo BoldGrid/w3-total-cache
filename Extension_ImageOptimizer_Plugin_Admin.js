@@ -10,9 +10,8 @@
 
 (function( $ ) {
 	var isCheckingItems = false,
-		currentCompression = $( '[name="w3tc_optimager_compression"]:checked' ).attr( 'value' ),
-		$buttonsOptimize = $( 'input.button.w3tc-optimize' ),
-		$buttonsUnoptimize = $( 'input.button.w3tc-revert' ),
+		$optimizeLinks = $( 'a.w3tc-optimize' ),
+		$unoptimizeLinks = $( '.w3tc-revert > a' ),
 		$optimizeAllButton = $( 'th.w3tc-optimager-all' ).parent().find( 'td button' ),
 		$revertAllButton = $( 'th.w3tc-optimager-revertall' ).parent().find( 'td button' ),
 		$refreshStatsIcon = $( '#w3tc-optimager-statistics .dashicons-update' );
@@ -27,14 +26,11 @@
 
 	/* Events. */
 
-	// Clicked optimize button.
-	$buttonsOptimize.on( 'click', optimizeItem );
+	// Clicked optimize link.
+	$optimizeLinks.on( 'click', optimizeItem );
 
-	// Clicked revert button.
-	$buttonsUnoptimize.on( 'click', revertItem );
-
-	// Clicked setting control: Compression.
-	$( '[name="w3tc_optimager_compression"]' ).on( 'click', setCompression );
+	// Clicked revert link.
+	$unoptimizeLinks.on( 'click', revertItem );
 
 	// Clicked optimize all images button.
 	$optimizeAllButton.on( 'click', optimizeItems );
@@ -54,11 +50,11 @@
 	 */
 	function toggleButtons() {
 		if ( $optimizeAllButton.length && $( '#w3tc-optimager-unoptimized' ).text() < 1 ) {
-			$optimizeAllButton.prop( 'disabled', true );
+			$optimizeAllButton.prop( 'disabled', true ).prop( 'aria-disabled', 'true' ); // Disable button.
 		}
 
 		if ( $revertAllButton.length && $( '#w3tc-optimager-optimized' ).text() < 1 ) {
-			$revertAllButton.prop( 'disabled', true );
+			$revertAllButton.prop( 'disabled', true ).prop( 'aria-disabled', 'true' ); // Disable button.
 		}
 	}
 
@@ -97,7 +93,7 @@
 	 * @see checkItemProcessing()
 	 */
 	function checkItemsProcessing() {
-		$buttonsOptimize.each( checkItemProcessing );
+		$optimizeLinks.each( checkItemProcessing );
 	};
 
 
@@ -112,8 +108,6 @@
 
 		// If marked as processing, then check for status change an update status on screen.
 		if ( 'processing' === $this.data( 'status' ) ) {
-			$itemTd.find( 'span' ).removeClass( 'w3tc-optimized w3tc-notoptimized w3tc-optimize-error' ); // Unmark icon.
-
 			$.ajax({
 				method: 'POST',
 				url: ajaxurl,
@@ -126,36 +120,51 @@
 				.done( function( response ) {
 					var infoClass;
 
-					// Remove any previous optimization information.
-					$itemTd.find( '.w3tc-optimized-reduced' ).remove();
-					$itemTd.find( '.w3tc-optimized-increased' ).remove();
+					// Remove any previous optimization information and the revert link.
+					$itemTd.find( '.w3tc-optimized-reduced, .w3tc-optimized-increased, .w3tc-revert' ).remove();
 
-					// Remove the revert button.
-					$itemTd.find( 'input.w3tc-revert' ).remove();
+					// Add optimization information.
+					if ( 'notoptimized' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
+						infoClass = response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] > 0 ?
+							'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
+
+						$itemTd.prepend(
+							'<div class="' +
+							infoClass +
+							'">' +
+							sizeFormat( response.data.download["\u0000*\u0000data"]['x-filesize-in'] ) +
+							' &#8594; ' +
+							sizeFormat( response.data.download["\u0000*\u0000data"]['x-filesize-out'] ) +
+							' (' +
+							response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
+							')</div>'
+						);
+					}
 
 					if ( 'optimized' === response.data.status ) {
-						$this.val( w3tcData.lang.optimized ); // Mark as optimized.
-						$this.data( 'status', 'optimized' ); // Update status.
-						$this.prop( 'disabled', false ); // Enable button.
-						$itemTd.find( 'span' ).addClass( 'w3tc-optimized' ); // Mark icon as optimized.
+						$this
+							.text( w3tcData.lang.optimized )
+							.data( 'status', 'optimized' )
+							.prop( 'aria-disabled', false )
+							.closest( 'span' ).removeClass( 'w3tc-disabled' );
 
-						// Add revert button, if not already present.
+						// Add revert link, if not already present.
 						if ( ! $itemTd.find( '.w3tc-revert' ).length ) {
 							$itemTd.append(
-								'<input type="submit" class="button w3tc-revert" value="' +
+								'<span class="w3tc-revert"> | <a href="#">' +
 								w3tcData.lang.revert +
-								'" \>'
+								'</a></span>'
 							);
 
-							// Update global revert buttons.
-							$buttonsUnoptimize = $( 'input.button.w3tc-revert' );
-							$buttonsUnoptimize.unbind().on( 'click', revertItem );
+							// Update global revert link.
+							$( '.w3tc-revert > a' ).unbind().on( 'click', revertItem );
 						}
 					} else if ( 'notoptimized' === response.data.status ) {
-						$this.val( w3tcData.lang.optimize ); // Mark ready to optimize.
-						$this.data( 'status', 'notoptimized' ); // Update status.
-						$this.prop( 'disabled', false ); // Enable button.
-						$itemTd.find( 'span' ).addClass( 'w3tc-notoptimized' ); // Mark icon as not optimized.
+						$this
+							.text( w3tcData.lang.optimize )
+							.data( 'status', 'notoptimized' )
+							.prop( 'aria-disabled', false )
+							.closest( 'span' ).removeClass( 'w3tc-disabled' );
 
 						$itemTd.append(
 							'<div class="w3tc-optimized-increased">' +
@@ -163,33 +172,17 @@
 							'</div>'
 						);
 					}
-
-					// Add optimization information.
-					if ( 'notoptimized' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
-						infoClass = response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] > 0 ?
-							'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
-
-						$itemTd.append(
-							'<div class="' +
-							infoClass +
-							'">' +
-							w3tcData.lang.reduced +
-							' ' +
-							response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] +
-							'</div>'
-						);
-					}
 				})
 				.fail( function() {
-					$this.val( w3tcData.lang.error );
-					$itemTd.find( 'span' ).addClass( 'w3tc-optimize-error' ); // Mark icon as error.
+					$this
+						.text( w3tcData.lang.error )
+						.data( 'status', null );
 					$itemTd.find( '.w3tc-optimager-error' ).remove();
 					$itemTd.append(
 						'<div class="notice notice-error inline w3tc-optimager-error">' +
 						w3tcData.lang.AjaxFail +
 						'</div>'
 					);
-					$this.data( 'status', null );
 				});
 		}
 	}
@@ -272,6 +265,29 @@
 			});
 	}
 
+	/**
+	 * Convert number of bytes largest unit bytes will fit into.
+	 *
+	 * Similar to size_format(), but in JavaScript.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int size     Size in bytes.
+	 * @param int decimals Number of decimal places.
+	 * @return string
+	 */
+	function sizeFormat( size, decimals = 0 ) {
+		var units = [ 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ],
+			i = 0;
+
+		while ( size >= 1024 ) {
+			size /= 1024;
+			++i;
+		}
+
+		return size.toFixed( decimals ) + ' ' + units[ i ];
+	}
+
 	/* Event callback functions */
 
 	/**
@@ -285,15 +301,13 @@
 		var $this = $( this ),
 			$itemTd = $this.closest( 'td' );
 
-		$this.prop( 'disabled', true );
-		$this.val( w3tcData.lang.sending );
+		$this
+			.text( w3tcData.lang.sending )
+			.prop( 'aria-disabled' , 'true')
+			.closest( 'span' ).addClass( 'w3tc-disabled' );
 
-		// Remove any previous optimization information.
-		$itemTd.find( '.w3tc-optimized-reduced' ).remove();
-		$itemTd.find( '.w3tc-optimized-increased' ).remove();
-
-		// Remove the revert button.
-		$itemTd.find( 'input.w3tc-revert' ).remove();
+		// Remove any previous optimization information, revert link, and error notices.
+		$itemTd.find( '.w3tc-optimized-reduced, .w3tc-optimized-increased, .w3tc-revert, .w3tc-optimager-error' ).remove();
 
 		$.ajax({
 			method: 'POST',
@@ -306,36 +320,42 @@
 		})
 			.done( function( response ) {
 				if ( response.success ) {
-					$this.val( w3tcData.lang.processing );
-					$this.data( 'status', 'processing' );
+					$this
+						.text( w3tcData.lang.processing )
+						.data( 'status', 'processing' );
+
 					startCheckItems();
 				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
-					$this.val( w3tcData.lang.error );
+					$this
+						.text( w3tcData.lang.error )
+						.data( 'status', 'error' );
+
 					$itemTd.append(
 						'<div class="notice notice-error inline">' +
 						response.data.error +
 						'</div>'
 					);
-					$this.data( 'status', 'error' );
 				} else {
-					$this.val( w3tcData.lang.error );
+					$this
+						.text( w3tcData.lang.error )
+						.data( 'status', 'error' );
+
 					$itemTd.append(
 						'<div class="notice notice-error inline w3tc-optimager-error">' +
 						w3tcData.lang.ApiError +
 						'</div>'
 					);
-					$this.data( 'status', 'error' );
 				}
 			})
 			.fail( function() {
-				$this.val( w3tcData.lang.error );
-				$itemTd.find( 'span' ).addClass( 'w3tc-optimize-error' ); // Mark icon as error.
+				$this
+					.val( w3tcData.lang.error )
+					.data( 'status', 'error' );
 				$itemTd.append(
 					'<div class="notice notice-error inline w3tc-optimager-error">' +
 					w3tcData.lang.AjaxFail +
 					'</div>'
 				);
-				$this.data( 'status', 'error' );
 			});
 	}
 
@@ -349,11 +369,19 @@
 	function revertItem() {
 		var $this = $( this ),
 			$itemTd = $this.closest( 'td' ),
-			$optimizeButton = $itemTd.find( 'input.w3tc-optimize' );
+			$optimizeLink = $itemTd.find( 'a.w3tc-optimize' );
 
-		$this.prop( 'disabled', true );
-		$optimizeButton.prop( 'disabled', true );
-		$this.val( w3tcData.lang.reverting );
+		$this
+			.text( w3tcData.lang.reverting )
+			.prop( 'aria-disabled', 'true' )
+			.closest( 'span' ).addClass( 'w3tc-disabled' );
+
+		$optimizeLink
+			.prop( 'aria-disabled', 'true' )
+			.closest( 'span' ).addClass( 'w3tc-disabled' );
+
+		// Remove error notices.
+		$itemTd.find( '.w3tc-optimager-error' ).remove();
 
 		$.ajax({
 			method: 'POST',
@@ -361,59 +389,72 @@
 			data: {
 				_wpnonce: w3tcData.nonces.revert,
 				action: 'w3tc_optimager_revert',
-				post_id: $optimizeButton.data( 'post-id' )
+				post_id: $optimizeLink.data( 'post-id' )
 			}
 		})
 			.done( function( response ) {
 				if ( response.success ) {
-					$this.remove(); // Remove the revert button.
+					$this.closest( 'span' ).remove(); // Remove the revert link.
 					$itemTd.find( 'div' ).remove(); // Remove optimization info.
-					$itemTd.find( 'span' ).removeClass( 'w3tc-optimized w3tc-notoptimized' ); // Unmark icon.
-					$optimizeButton.val( w3tcData.lang.optimize );
-					$optimizeButton.prop( 'disabled', false );
-					$optimizeButton.data( 'status', null );
+
+					$optimizeLink
+						.text( w3tcData.lang.optimize )
+						.prop( 'aria-disabled', false )
+						.data( 'status', null )
+						.closest( 'span' ).removeClass( 'w3tc-disabled' );
 				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
-					$this.val( w3tcData.lang.error );
-					$this.parent().append(
+					$this
+						.text( w3tcData.lang.error )
+						.data( 'status', 'error' );
+
+					$itemTd.parent().append(
 						'<div class="notice notice-error inline">' +
 						response.data.error +
 						'</div>'
 					);
-					$this.data( 'status', 'error' );
 				} else {
-					$this.val( w3tcData.lang.error );
+					$this
+						.text( w3tcData.lang.error )
+						.data( 'status', 'error' );
+
 					$itemTd.append(
 						'<div class="notice notice-error inline w3tc-optimager-error">' +
 						w3tcData.lang.ApiError +
 						'</div>'
 					);
-					$this.data( 'status', 'error' );
 				}
 			})
 			.fail( function() {
-				$this.val( w3tcData.lang.error );
-				$itemTd.find( 'span' ).addClass( 'w3tc-optimize-error' ); // Mark icon as error.
+				$this
+					.text( w3tcData.lang.error )
+					.data( 'status', 'error' );
+
 				$itemTd.append(
 					'<div class="notice notice-error inline w3tc-optimager-error">' +
 					w3tcData.lang.AjaxFail +
 					'</div>'
 				);
-				$this.data( 'status', 'error' );
 			});
 	};
 
 	/**
-	 * Event callback: Optimize items.
+	 * Event callback: Optimize all items.
 	 *
 	 * @since X.X.X
 	 *
 	 * @see refreshStats()
 	 */
 	 function optimizeItems() {
-		var $this = $( this );
+		var $this = $( this ),
+			$parent = $this.parent();
 
-		$this.prop( 'disabled', true );
-		$this.text( w3tcData.lang.sending );
+		$this
+			.text( w3tcData.lang.sending )
+			.prop( 'disabled', true )
+			.prop( 'aria-disabled', 'true' );
+
+		// Remove error notices.
+		$parent.find( '.w3tc-optimager-error' ).remove();
 
 		$.ajax({
 			method: 'POST',
@@ -427,16 +468,16 @@
 				if ( response.success ) {
 					$this.text( w3tcData.lang.processing );
 					refreshStats();
-				} else if ( response.data.error ) {
+				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
 					$this.text( w3tcData.lang.error );
-					$this.parent().append(
+					$parent.append(
 						'<div class="notice notice-error inline">' +
 						response.data.error +
 						'</div>'
 					);
 				} else {
 					$this.text( w3tcData.lang.error );
-					$this.parent().append(
+					$parent.append(
 						'<div class="notice notice-error inline w3tc-optimager-error">' +
 						w3tcData.lang.ApiError +
 						'</div>'
@@ -445,7 +486,7 @@
 			})
 			.fail( function() {
 				$this.text( w3tcData.lang.error );
-				$this.parent().append(
+				$parent.append(
 					'<div class="notice notice-error inline w3tc-optimager-error">' +
 					w3tcData.lang.AjaxFail +
 					'</div>'
@@ -454,7 +495,7 @@
 	}
 
 	/**
-	 * Event callback: Revert items.
+	 * Event callback: Revert all items.
 	 *
 	 * @since X.X.X
 	 *
@@ -463,8 +504,9 @@
 	 function revertItems() {
 		var $this = $( this );
 
-		$this.prop( 'disabled', true );
-		$this.text( w3tcData.lang.reverting );
+		$this.text( w3tcData.lang.reverting )
+			.prop( 'disabled', true )
+			.prop( 'aria-disabled', 'true' );
 
 		$.ajax({
 			method: 'POST',
@@ -478,30 +520,32 @@
 				if ( response.success ) {
 					$this.text( w3tcData.lang.reverted );
 					refreshStats();
-				} else if ( response.data.error ) {
-					$this.text( w3tcData.lang.error );
-					$this.parent().append(
-						'<div class="notice notice-error inline">' +
-						response.data.error +
-						'</div>'
-					);
+				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
+					$this
+						.text( w3tcData.lang.error )
+						.parent().append(
+							'<div class="notice notice-error inline">' +
+							response.data.error +
+							'</div>'
+						);
 				} else {
-					$this.text( w3tcData.lang.error );
-					$this.parent().append(
-						'<div class="notice notice-error inline w3tc-optimager-error">' +
-						w3tcData.lang.ApiError +
-						'</div>'
-					);
+					$this
+						.text( w3tcData.lang.error )
+						.parent().append(
+							'<div class="notice notice-error inline w3tc-optimager-error">' +
+							w3tcData.lang.ApiError +
+							'</div>'
+						);
 				}
 			})
 			.fail( function() {
-				$this.text( w3tcData.lang.error );
-				$this.parent().append(
-					'<div class="notice notice-error inline w3tc-optimager-error">' +
-					w3tcData.lang.AjaxFail +
-					'</div>'
-				);
+				$this
+					.text( w3tcData.lang.error )
+					.parent().append(
+						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						w3tcData.lang.AjaxFail +
+						'</div>'
+					);
 			});
 	}
-
 })( jQuery );

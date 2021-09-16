@@ -425,10 +425,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 					),
 					'lang'   => array(
 						'optimize'      => __( 'Optimize', 'w3-total_cache' ),
-						'sending'       => __( 'Sending', 'w3-total_cache' ),
-						'processing'    => __( 'Processing', 'w3-total_cache' ),
+						'sending'       => __( 'Sending...', 'w3-total_cache' ),
+						'processing'    => __( 'Processing...', 'w3-total_cache' ),
 						'optimized'     => __( 'Optimized', 'w3-total_cache' ),
-						'reverting'     => __( 'Reverting', 'w3-total_cache' ),
+						'reverting'     => __( 'Reverting...', 'w3-total_cache' ),
 						'reverted'      => __( 'Reverted', 'w3-total_cache' ),
 						'revert'        => __( 'Revert', 'w3-total_cache' ),
 						'error'         => __( 'Error', 'w3-total_cache' ),
@@ -477,6 +477,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since 2.5.0
 	 *
+	 * @see self::remove_optimizations()
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/size_format/
+	 *
 	 * @param string $column_name Name of the custom column.
 	 * @param int    $post_id     Attachment ID.
 	 */
@@ -487,6 +491,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			$post           = get_post( $post_id );
 			$optimager_data = get_post_meta( $post_id, 'w3tc_optimager', true );
 
+			// Display controls and info for eligible images.
 			if ( in_array( $post->post_mime_type, self::$mime_types, true ) ) {
 				$filepath = get_attached_file( $post_id );
 				$status   = isset( $optimager_data['status'] ) ? $optimager_data['status'] : null;
@@ -497,54 +502,20 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 					if ( empty( $child_data['is_optimized_file'] ) ) {
 						$status = null;
-						delete_post_meta( $post_id, 'w3tc_optimager' );
+						$this->remove_optimizations( $post_id );
 					}
 				}
 
-				?>
-				<span class="w3tc-optimize<?php
+				// If processed, then show information.
 				if ( 'optimized' === $status ) {
-					?> w3tc-optimized<?php
-				} elseif ( 'notoptimized' === $status ) {
-					?> w3tc-notoptimized<?php
-				}
-				?>"></span>
-				<input type="submit" id="w3tc-<?php echo esc_attr( $post_id ); ?>-optimize" class="button w3tc-optimize" value="<?php
-				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-				switch ( $status ) {
-					case 'sending':
-						esc_attr_e( 'Sending', 'w3-total-cache' );
-						break;
-					case 'processing':
-						esc_attr_e( 'Processing', 'w3-total-cache' );
-						break;
-					case 'optimized':
-						esc_attr_e( 'Optimized', 'w3-total-cache' );
-						break;
-					default:
-						esc_attr_e( 'Optimize', 'w3-total-cache' );
-						break;
-				}
-				// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-				?>" data-post-id="<?php echo esc_attr( $post_id ); ?>" data-status="<?php echo esc_attr( $status ); ?>"
-				<?php
-				if ( 'processing' === $status ) {
-					?>disabled="disabled"<?php
-				}
-				?> /> &nbsp;
-				<?php
-
-				// If optimized, then show revert button and information.
-				if ( 'optimized' === $status ) {
-					?>
-					<input type="submit" id="w3tc-<?php echo esc_attr( $post_id ); ?>-revert" class="button w3tc-revert"
-						value="<?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?>" \>
-					<?php
-
 					$optimized_percent = isset( $optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] ) ?
 						$optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] : null;
 					$reduced_percent   = isset( $optimager_data['download']["\0*\0data"]['x-filesize-reduced'] ) ?
 						$optimager_data['download']["\0*\0data"]['x-filesize-reduced'] : null;
+					$filesize_in       = isset( $optimager_data['download']["\0*\0data"]['x-filesize-in'] ) ?
+						$optimager_data['download']["\0*\0data"]['x-filesize-in'] : null;
+					$filesize_out      = isset( $optimager_data['download']["\0*\0data"]['x-filesize-out'] ) ?
+						$optimager_data['download']["\0*\0data"]['x-filesize-out'] : null;
 
 					if ( $optimized_percent ) {
 						$optimized_class = rtrim( $optimized_percent, '%' ) > 100 ? 'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
@@ -552,7 +523,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						<div class="<?php echo esc_attr( $optimized_class ); ?>">
 						<?php
 						printf(
-							esc_html__( 'Reduced %1$s', 'w3-total-cache' ),
+							'%1$s &#8594; %2$s (%3$s)',
+							size_format( $filesize_in ),
+							size_format( $filesize_out ),
 							$reduced_percent
 						);
 						?>
@@ -560,21 +533,54 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						<?php
 					}
 				} elseif ( 'notoptimized' === $status ) {
-					$optimized_percent = isset( $optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] ) ?
-						$optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] : null;
-					$reduced_percent   = isset( $optimager_data['download']["\0*\0data"]['x-filesize-reduced'] ) ?
-						$optimager_data['download']["\0*\0data"]['x-filesize-reduced'] : null;
+					?>
+					<div class="w3tc-optimized-increased"><?php esc_html_e( 'Not optimized; image would be larger.', 'w3-total-cache' ); ?></div>
+					<?php
+				}
 
-					if ( $optimized_percent ) {
-						$optimized_class = rtrim( $optimized_percent, '%' ) > 100 ? 'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
-						?>
-						<div class="<?php echo esc_attr( $optimized_class ); ?>">
-						<?php
-							esc_html_e( 'Not optimized; image would be larger.', 'w3-total-cache' );
-						?>
-						</div>
-						<?php
-					}
+				// Determine classes.
+				$link_classes   = 'w3tc-optimize';
+				$disabled_class = '';
+				$aria_attr = 'false';
+
+				if ( 'processing' === $status ) {
+					$link_classes  .= ' w3tc-optimize-processing';
+					$disabled_class = 'w3tc-disabled';
+					$aria_attr = 'true';
+				}
+
+				// Print action links.
+				?>
+				<span class="<?php echo esc_attr( $disabled_class ); ?>">
+					<a href="#" class="<?php echo esc_attr( $link_classes ); ?>" data-post-id="<?php echo esc_attr( $post_id ); ?>"
+						data-status="<?php echo esc_attr( $status ); ?>" aria-disabled="<?php echo esc_attr( $aria_attr ); ?>">
+				<?php
+				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+				switch ( $status ) {
+					case 'sending':
+						esc_html_e( 'Sending...', 'w3-total-cache' );
+						break;
+					case 'processing':
+						esc_html_e( 'Processing...', 'w3-total-cache' );
+						break;
+					case 'optimized':
+						esc_html_e( 'Optimized', 'w3-total-cache' );
+						break;
+					default:
+						esc_html_e( 'Optimize', 'w3-total-cache' );
+						break;
+				}
+				// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+				?>
+					</a>
+				</span>
+				<?php
+
+				// If optimized, then show revert link.
+				if ( 'optimized' === $status ) {
+					?>
+					<span class="w3tc-revert"> | <a href="#"><?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?></a></span>
+					<?php
 				}
 			} elseif ( isset( $optimager_data['is_optimized_file'] ) && $optimager_data['is_optimized_file'] ) {
 				// W3TC optimized image.
