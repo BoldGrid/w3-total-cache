@@ -160,7 +160,6 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_optimager_submit', array( $o, 'ajax_submit' ) );
 		add_action( 'wp_ajax_w3tc_optimager_postmeta', array( $o, 'ajax_get_postmeta' ) );
 		add_action( 'wp_ajax_w3tc_optimager_revert', array( $o, 'ajax_revert' ) );
-		add_action( 'wp_ajax_w3tc_optimager_compression', array( $o, 'ajax_set_compression' ) );
 		add_action( 'wp_ajax_w3tc_optimager_all', array( $o, 'ajax_optimize_all' ) );
 		add_action( 'wp_ajax_w3tc_optimager_revertall', array( $o, 'ajax_revert_all' ) );
 		add_action( 'wp_ajax_w3tc_optimager_counts', array( $o, 'ajax_get_counts' ) );
@@ -454,7 +453,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
-	 * Add image optimization controls to the Media Library table in list view.
+	 * Add image service controls to the Media Library table in list view.
 	 *
 	 * Runs on the "manage_media_columns" filter.
 	 *
@@ -465,19 +464,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *                                to any posts. Default true.
 	 */
 	public function add_media_column( $posts_columns, $detached = true ) {
-		$settings    = $this->config->get_array( 'optimager' );
-		$compression = ! empty( $settings['compression'] ) ? $settings['compression'] : 'lossy'; // Default: "lossy".
-
-		$posts_columns['optimager'] = '<span class="w3tc-optimize"></span> Image Service <span id="w3tc-optimager-controls"><a href="' .
-			esc_url( admin_url( 'admin.php?page=w3tc_extensions&extension=optimager&action=view' ) ) . '" title="' .
-			esc_html__( 'Settings', 'w3-total-cache' ) .
-			'"><span id="w3tc-optimager-settings" class="dashicons dashicons-admin-generic"></span></a>' .
-			'<div id="w3tc-optimager-control" class="hidden"><form><span>' . esc_html__( 'Compression:', 'w3-total-cache' ) . '</span>' .
-			' <span><input type="radio" name="w3tc_optimager_compression" value="lossy"' . ( 'lossy' === $compression ? ' checked' : '' ) . '> ' .
-			esc_html__( 'Lossy', 'w3-total-cache' ) . '</span>' .
-			' <span><input type="radio" name="w3tc_optimager_compression" value="lossless"' . ( 'lossless' === $compression ? ' checked' : '' ) . '> ' .
-			esc_html__( 'Lossless', 'w3-total-cache' ) .
-			'</span></form></div></span>';
+		$posts_columns['optimager'] = '<span class="w3tc-optimize"></span> ' . esc_html__( 'Image Service', 'w3-total-cache' );
 
 		return $posts_columns;
 	}
@@ -1129,47 +1116,6 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			wp_send_json_error(
 				array(
 					'error' => __( 'Missing input post id.', 'w3-total-cache' ),
-				),
-				400
-			);
-		}
-	}
-
-	/**
-	 * AJAX: Set compression setting.
-	 *
-	 * @since X.X.X
-	 *
-	 * @uses $_POST['value'] Setting value.
-	 */
-	public function ajax_set_compression() {
-		check_ajax_referer( 'w3tc_optimager_control' );
-
-		$value = isset( $_POST['value'] ) ? sanitize_key( $_POST['value'] ) : null;
-
-		if ( $value ) {
-			$settings     = $this->config->get_array( 'optimager' );
-			$settings_old = $settings;
-			$compression  = ! empty( $settings['compression'] ) ? $settings['compression'] : 'lossy'; // Default: "lossy".
-
-			// Save if changed.
-			if ( $value !== $compression ) {
-				$settings['compression'] = $value;
-				$this->config->set( 'optimager', $settings );
-				$this->config->save();
-			}
-
-			wp_send_json_success(
-				array(
-					'input_value'  => $value,
-					'settings_old' => $settings_old,
-					'settings_new' => $settings,
-				)
-			);
-		} else {
-			wp_send_json_error(
-				array(
-					'error' => __( 'Missing input value.', 'w3-total-cache' ),
 				),
 				400
 			);

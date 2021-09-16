@@ -23,28 +23,18 @@ td span.w3tc-notoptimized:before {
 	color: yellow;
 }
 
-.w3tc-optimized-reduced,
-#w3tc-optimager-control .dashicons-yes {
+.w3tc-optimized-reduced {
 	color: green;
 }
 
 .w3tc-optimized-increased,
 .w3tc-optimize-error,
 td span.w3tc-optimize-error:before,
-.w3tc-optimager-error,
-#w3tc-optimager-control .dashicons-no {
+.w3tc-optimager-error {
 	color: red;
 }
 
-#w3tc-optimager-control {
-	background: none repeat scroll 0 0 #fefefe;
-	padding: 10px;
-	position: absolute;
-}
-
-span#w3tc-optimager-controls:hover div#w3tc-optimager-control {
-	display:block;
-}
+/* Statistics section on the extension settings page. */
 
 #w3tc-optimager-counts td {
 	padding: 1px 10px;

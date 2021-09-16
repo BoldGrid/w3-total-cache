@@ -340,49 +340,6 @@
 	}
 
 	/**
-	 * Event callback: Set compression setting.
-	 *
-	 * @since X.X.X
-	 */
-	 function setCompression() {
-		var $this = $( this ),
-			value = $this.attr( 'value' );
-
-		// Abort if the value is not changing.
-		if ( value === currentCompression ) {
-			return;
-		}
-
-		// Clear result indicator.
-		$( '#w3tc-controls-result' ).remove();
-
-		// Save the new setting.
-		$.ajax({
-			method: 'POST',
-			url: ajaxurl,
-			data: {
-				_wpnonce: w3tcData.nonces.control,
-				action: 'w3tc_optimager_compression',
-				value: value
-			}
-		})
-			.done( function( response ) {
-				if ( response.success ) {
-					// Success.
-					currentCompression = value;
-					$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-yes"></span>' );
-				} else {
-					// Reported failure.
-					$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
-				}
-			})
-			.fail( function( jqXHR ) {
-				// Ajax failure.
-				$this.closest( 'div' ).prepend( '<span id="w3tc-controls-result" class="dashicons dashicons-no"></span>' );
-			});
-	}
-
-	/**
 	 * Event callback: Revert item.
 	 *
 	 * @since X.X.X
