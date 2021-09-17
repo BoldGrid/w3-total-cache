@@ -64,8 +64,8 @@ class Extension_CloudFlare_Widget {
 					$stats["requests_all"] += $data["sum"]["requests"];
 					$stats["requests_cached"] += $data["sum"]["cachedRequests"];
 					$stats["pageviews_all"] += $data["sum"]["pageViews"];
-					$stats["uniques_all"] += $data["sum"]["bytes"];
-					$stats["threats_all"] += $data["uniq"]["uniques"];
+					$stats["uniques_all"] += $data["uniq"]["uniques"];
+					$stats["threats_all"] += $data["sum"]["threats"];
 				}
 
 				$v[$key] = $stats;
