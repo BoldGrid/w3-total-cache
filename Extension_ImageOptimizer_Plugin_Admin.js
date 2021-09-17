@@ -63,6 +63,7 @@
 	 *
 	 * @since X.X.X
 	 *
+	 * @see checkNotOptimized()
 	 * @see checkItemsProcessing()
 	 */
 	function startCheckItems() {
@@ -71,6 +72,9 @@
 		}
 
 		isCheckingItems= true;
+
+		// If any processed images were not optimized, then print a notice to check settings.
+		checkNotOptimized();
 
 		// Check status and update every 5 seconds.
 		checkitemsInterval = setInterval( checkItemsProcessing, 5000 );
@@ -101,6 +105,8 @@
 	 * Callback: Check processing item.
 	 *
 	 * @since X.X.X
+	 *
+	 * @see checkNotOptimized()
 	 */
 	 function checkItemProcessing() {
 		var $this = $( this ),
@@ -186,6 +192,24 @@
 						'</div>'
 					);
 				});
+		}
+
+		// If any processed images were not optimized, then print a notice to check settings.
+		checkNotOptimized();
+	}
+
+	/**
+	 * Check for images not optimized and print a notice if nay are found.
+	 *
+	 * @since X.X.X
+	 */
+	function checkNotOptimized() {
+		if ( 'lossy' !== w3tcData.settings.compression && ! $( '#w3tc-notoptimized-notice' ).length && $( '.w3tc-notoptimized' ).length ) {
+			$( '#wpbody-content' ).prepend(
+				'<div id="w3tc-notoptimized-notice" class="notice notice-warning is-dismissible"><p>' +
+				w3tcData.lang.notoptimizedNotice +
+				'</p></div>'
+			);
 		}
 	}
 

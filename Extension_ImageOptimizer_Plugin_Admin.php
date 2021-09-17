@@ -417,24 +417,31 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				'w3tc-optimager',
 				'w3tcData',
 				array(
-					'nonces' => array(
+					'nonces'   => array(
 						'submit'   => wp_create_nonce( 'w3tc_optimager_submit' ),
 						'postmeta' => wp_create_nonce( 'w3tc_optimager_postmeta' ),
 						'revert'   => wp_create_nonce( 'w3tc_optimager_revert' ),
 					),
-					'lang'   => array(
-						'optimize'      => __( 'Optimize', 'w3-total_cache' ),
-						'sending'       => __( 'Sending...', 'w3-total_cache' ),
-						'processing'    => __( 'Processing...', 'w3-total_cache' ),
-						'optimized'     => __( 'Optimized', 'w3-total_cache' ),
-						'reverting'     => __( 'Reverting...', 'w3-total_cache' ),
-						'reverted'      => __( 'Reverted', 'w3-total_cache' ),
-						'revert'        => __( 'Revert', 'w3-total_cache' ),
-						'error'         => __( 'Error', 'w3-total_cache' ),
-						'notoptimized'  => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
-						'ajaxFail'      => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
-						'apiError'      => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
+					'lang'     => array(
+						'optimize'           => __( 'Optimize', 'w3-total_cache' ),
+						'sending'            => __( 'Sending...', 'w3-total_cache' ),
+						'processing'         => __( 'Processing...', 'w3-total_cache' ),
+						'optimized'          => __( 'Optimized', 'w3-total_cache' ),
+						'reverting'          => __( 'Reverting...', 'w3-total_cache' ),
+						'reverted'           => __( 'Reverted', 'w3-total_cache' ),
+						'revert'             => __( 'Revert', 'w3-total_cache' ),
+						'error'              => __( 'Error', 'w3-total_cache' ),
+						'notoptimized'       => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
+						'ajaxFail'           => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
+						'apiError'           => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
+						'notoptimizedNotice' => sprintf(
+							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+							__( 'Some images were not optimized.  Review your %1$ssettings%2$s to try using lossy compression.', 'w3-total_cache' ),
+							'<a href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=optimager&action=view' ) ) . '">',
+							'</a>'
+						),
 					),
+					'settings' => $this->config->get_array( 'optimager' ),
 				)
 			);
 
