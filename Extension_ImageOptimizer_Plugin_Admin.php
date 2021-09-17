@@ -421,7 +421,6 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'submit'   => wp_create_nonce( 'w3tc_optimager_submit' ),
 						'postmeta' => wp_create_nonce( 'w3tc_optimager_postmeta' ),
 						'revert'   => wp_create_nonce( 'w3tc_optimager_revert' ),
-						'control'  => wp_create_nonce( 'w3tc_optimager_control' ),
 					),
 					'lang'   => array(
 						'optimize'      => __( 'Optimize', 'w3-total_cache' ),
@@ -432,10 +431,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'reverted'      => __( 'Reverted', 'w3-total_cache' ),
 						'revert'        => __( 'Revert', 'w3-total_cache' ),
 						'error'         => __( 'Error', 'w3-total_cache' ),
-						'reduced'       => __( 'Reduced', 'w3-total_cache' ),
 						'notoptimized'  => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
-						'AjaxFail'      => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
-						'ApiError'      => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
+						'ajaxFail'      => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
+						'apiError'      => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
 					),
 				)
 			);
@@ -534,7 +532,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 					}
 				} elseif ( 'notoptimized' === $status ) {
 					?>
-					<div class="w3tc-optimized-increased"><?php esc_html_e( 'Not optimized; image would be larger.', 'w3-total-cache' ); ?></div>
+					<div class="w3tc-notoptimized"><?php esc_html_e( 'Not optimized; image would be larger.', 'w3-total-cache' ); ?></div>
 					<?php
 				}
 
@@ -584,9 +582,6 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				}
 			} elseif ( isset( $optimager_data['is_optimized_file'] ) && $optimager_data['is_optimized_file'] ) {
 				// W3TC optimized image.
-				?>
-				<span class="w3tc-optimize w3tc-optimized"></span>
-				<?php
 				echo esc_html__( 'Attachment id: ', 'w3-total-cache' ) . esc_html( $post->post_parent );
 			}
 		}

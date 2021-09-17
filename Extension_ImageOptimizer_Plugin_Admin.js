@@ -121,7 +121,9 @@
 					var infoClass;
 
 					// Remove any previous optimization information and the revert link.
-					$itemTd.find( '.w3tc-optimized-reduced, .w3tc-optimized-increased, .w3tc-revert' ).remove();
+					$itemTd.find(
+						'.w3tc-optimized-reduced, .w3tc-optimized-increased, .w3tc-notoptimized, .w3tc-revert'
+					).remove();
 
 					// Add optimization information.
 					if ( 'notoptimized' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
@@ -166,8 +168,8 @@
 							.prop( 'aria-disabled', false )
 							.closest( 'span' ).removeClass( 'w3tc-disabled' );
 
-						$itemTd.append(
-							'<div class="w3tc-optimized-increased">' +
+						$itemTd.prepend(
+							'<div class="w3tc-notoptimized">' +
 							w3tcData.lang.notoptimized +
 							'</div>'
 						);
@@ -180,7 +182,7 @@
 					$itemTd.find( '.w3tc-optimager-error' ).remove();
 					$itemTd.append(
 						'<div class="notice notice-error inline w3tc-optimager-error">' +
-						w3tcData.lang.AjaxFail +
+						w3tcData.lang.ajaxFail +
 						'</div>'
 					);
 				});
@@ -256,7 +258,7 @@
 			.fail( function() {
 				$countsTable.append(
 					'<div class="notice notice-error inline w3tc-optimager-error">' +
-					w3tcData.lang.AjaxFail +
+					w3tcData.lang.ajaxFail +
 					'</div>'
 				);
 
@@ -342,7 +344,7 @@
 
 					$itemTd.append(
 						'<div class="notice notice-error inline w3tc-optimager-error">' +
-						w3tcData.lang.ApiError +
+						w3tcData.lang.apiError +
 						'</div>'
 					);
 				}
@@ -353,7 +355,7 @@
 					.data( 'status', 'error' );
 				$itemTd.append(
 					'<div class="notice notice-error inline w3tc-optimager-error">' +
-					w3tcData.lang.AjaxFail +
+					w3tcData.lang.ajaxFail +
 					'</div>'
 				);
 			});
@@ -419,7 +421,7 @@
 
 					$itemTd.append(
 						'<div class="notice notice-error inline w3tc-optimager-error">' +
-						w3tcData.lang.ApiError +
+						w3tcData.lang.apiError +
 						'</div>'
 					);
 				}
@@ -431,7 +433,7 @@
 
 				$itemTd.append(
 					'<div class="notice notice-error inline w3tc-optimager-error">' +
-					w3tcData.lang.AjaxFail +
+					w3tcData.lang.ajaxFail +
 					'</div>'
 				);
 			});
@@ -479,7 +481,7 @@
 					$this.text( w3tcData.lang.error );
 					$parent.append(
 						'<div class="notice notice-error inline w3tc-optimager-error">' +
-						w3tcData.lang.ApiError +
+						w3tcData.lang.apiError +
 						'</div>'
 					);
 				}
@@ -488,7 +490,7 @@
 				$this.text( w3tcData.lang.error );
 				$parent.append(
 					'<div class="notice notice-error inline w3tc-optimager-error">' +
-					w3tcData.lang.AjaxFail +
+					w3tcData.lang.ajaxFail +
 					'</div>'
 				);
 			});
@@ -533,7 +535,7 @@
 						.text( w3tcData.lang.error )
 						.parent().append(
 							'<div class="notice notice-error inline w3tc-optimager-error">' +
-							w3tcData.lang.ApiError +
+							w3tcData.lang.apiError +
 							'</div>'
 						);
 				}
@@ -543,7 +545,7 @@
 					.text( w3tcData.lang.error )
 					.parent().append(
 						'<div class="notice notice-error inline w3tc-optimager-error">' +
-						w3tcData.lang.AjaxFail +
+						w3tcData.lang.ajaxFail +
 						'</div>'
 					);
 			});

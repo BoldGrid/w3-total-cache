@@ -10,26 +10,15 @@ th #w3tc-optimager-settings {
 	vertical-align: text-bottom;
 }
 
-td span.w3tc-optimize:before {
-	color: gray;
-	margin-top: 5px;
-}
-
-td span.w3tc-optimized:before {
-	color: green;
-}
-
-td span.w3tc-notoptimized:before {
-	color: yellow;
+.w3tc-optimized-increased,
+.w3tc-notoptimized {
+	color: orange;
 }
 
 .w3tc-optimized-reduced {
 	color: green;
 }
 
-.w3tc-optimized-increased,
-.w3tc-optimize-error,
-td span.w3tc-optimize-error:before,
 .w3tc-optimager-error {
 	color: red;
 }
