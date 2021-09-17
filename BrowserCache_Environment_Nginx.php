@@ -141,11 +141,9 @@ class BrowserCache_Environment_Nginx {
 			}
 		}
 
-		foreach ( $mime_types as $type => $extensions ) {
-			if ( $type != 'other_compression' ) {
-				$this->generate_section( $rules, $extensions, $type );
-			}
-		}
+		$this->generate_section( $rules, $mime_types['cssjs'], 'cssjs' );
+		$this->generate_section( $rules, $mime_types['html'], 'html' );
+		$this->generate_section( $rules, $mime_types['other'], 'other' );
 
 		$rules .= implode( "\n", $this->security_rules() ) . "\n";
 		$rules .= W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n";
