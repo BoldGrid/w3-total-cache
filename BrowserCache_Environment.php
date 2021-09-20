@@ -708,10 +708,9 @@ class BrowserCache_Environment {
 		$rules .= "    RewriteEngine On\n";
 
 		$exceptions = implode( '|', $config->get_array( 'browsercache.no404wp.exceptions' ) );
-		
-		$file_code = '. /index.php [L]';
-		if ( !empty( $exceptions ) ) {
-			$error_document = '\n';
+				if ( !empty( $exceptions ) ) {
+			$file_code = '. /index.php [L]';
+			$error_document = '';
 			if( $code = $config->get_integer( 'browsercache.no404wp.response.exceptions' ) ){
 				$file_code = ".* - [R=" . $code . ",L]";
 				$error_document = "    ErrorDocument " . $code . " \"" . $code . "\"\n";
@@ -719,49 +718,24 @@ class BrowserCache_Environment {
 			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
 			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
 			$rules .= "    RewriteCond %{REQUEST_URI} (" . $exceptions . ") [NC]\n";
-			$rules .= "    RewriteRule $file_code\n";
+			$rules .= "    RewriteRule " . $file_code . "\n";
 			$rules .= $error_document;
 		}
 
-		// in subdir - rewrite theme files and similar to upper folder if file exists
-		if ( Util_Environment::is_wpmu() &&
-			!Util_Environment::is_wpmu_subdomain() ) {
-			$document_root = Util_Rule::apache_docroot_variable();
-
-			$file_code = $wp_uri . '/index.php - [RL]';
-			foreach ( $mime_types as $section => $mime_type ) {
-				$extensions = implode( '|', array_keys( $mime_types[ $section ] ) );
-				if ( !empty( $extensions ) ) {
-					$error_document = '\n';
-					if( $code = $config->get_integer( 'browsercache.no404wp.response.' . $section ) ){
-						$file_code = "- [R=" . $config->get_integer( 'browsercache.no404wp.response.' . $section ) . ",L]";
-						$error_document = "    ErrorDocument " . $code . " \"" . $code . "\"\n";
-					}
-					$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
-					$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
-					$rules .= "    RewriteCond %{REQUEST_URI} !(" . $exceptions . ") [NC]\n";
-					$rules .= "    RewriteCond %{REQUEST_URI} ^$wp_uri/([_0-9a-zA-Z-]+/)(.*\.)(" . $extensions . ")$ [NC]\n";
-					$rules .= '    RewriteCond "' . $document_root . $wp_uri . '/%2%3" -f' . "\n";
-					$rules .= "    RewriteRule .* $file_code\n\n";
-					$rules .= $error_document;
-				}
-			}
-		}
-
-		$file_code = '/index.php - [L]';
 		foreach ( $mime_types as $section => $mime_type ) {
 			$extensions = implode( '|', array_keys( $mime_types[ $section ] ) );
 			if ( !empty( $extensions ) ) {
-				$error_document = '\n';
+				$file_code = '. /index.php [L]';
+				$error_document = '';
 				if( $code = $config->get_integer( 'browsercache.no404wp.response.' . $section ) ){
-					$file_code = "- [R=" . $config->get_integer( 'browsercache.no404wp.response.' . $section ) . ",L]";
+					$file_code = ".* - [R=" . $config->get_integer( 'browsercache.no404wp.response.' . $section ) . ",L]";
 					$error_document = "    ErrorDocument " . $code . " \"" . $code . "\"\n";
 				}
 				$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
 				$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
 				$rules .= "    RewriteCond %{REQUEST_URI} !(" . $exceptions . ") [NC]\n";
 				$rules .= "    RewriteCond %{REQUEST_URI} \\.(" . $extensions . ")$ [NC]\n";
-				$rules .= "    RewriteRule .* $file_code\n";
+				$rules .= "    RewriteRule " . $file_code . "\n";
 				$rules .= $error_document;
 			}
 		}
@@ -769,7 +743,6 @@ class BrowserCache_Environment {
 		$rules .= "</IfModule>\n";
 		$rules .= W3TC_MARKER_END_BROWSERCACHE_NO404WP . "\n";
 
-		error_log(print_r($rules,true));
 		return $rules;
 	}
 }
