@@ -390,7 +390,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		foreach ( $unoptimized_posts->posts as $post ) {
 			$size = $this->get_attachment_filesize( $post->ID );
 
-			if ( $$size ) {
+			if ( $size ) {
 				$bytes['unoptimized'] += $size;
 				$bytes['total']       += $size;
 			}

@@ -536,6 +536,9 @@
 			.done( function( response ) {
 				if ( response.success ) {
 					$this.text( w3tcData.lang.reverted );
+					$optimizeAllButton
+						.prop( 'disabled', false )
+						.prop( 'aria-disabled', 'false' );
 					refreshStats();
 				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
 					$this
