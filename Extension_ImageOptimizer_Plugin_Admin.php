@@ -291,11 +291,33 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
-	 * Get image counts by status.
+	 * Get an attachment filesize.
 	 *
 	 * @since X.X.X
 	 *
 	 * @global $wp_filesystem
+	 *
+	 * @param int $post_id Post id.
+	 * @return int
+	 */
+	public function get_attachment_filesize( $post_id ) {
+		WP_Filesystem();
+		global $wp_filesystem;
+
+		$size     = 0;
+		$filepath = get_attached_file( $post_id );
+
+		if ( $wp_filesystem->exists( $filepath ) ) {
+			$size = $wp_filesystem->size( $filepath );
+		}
+
+		return $size;
+	}
+
+	/**
+	 * Get image counts by status.
+	 *
+	 * @since X.X.X
 	 *
 	 * @see self::get_optimager_attachments()
 	 * @see self::get_eligible_attachments()
@@ -303,19 +325,23 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @return array
 	 */
 	public function get_optimager_counts() {
-		WP_Filesystem();
-		global $wp_filesystem;
-
 		$unoptimized_posts = self::get_eligible_attachments();
 		$counts            = array(
-			'sending'         => 0,
-			'processing'      => 0,
-			'optimized'       => 0,
-			'unoptimized'     => $unoptimized_posts->post_count,
-			'total'           => 0,
+			'sending'      => 0,
+			'processing'   => 0,
+			'optimized'    => 0,
+			'notoptimized' => 0,
+			'unoptimized'  => $unoptimized_posts->post_count,
+			'total'        => 0,
 		);
-		$optimized_bytes   = 0;
-		$total_bytes       = 0;
+		$bytes             = array(
+			'sending'      => 0,
+			'processing'   => 0,
+			'optimized'    => 0,
+			'notoptimized' => 0,
+			'unoptimized'  => 0,
+			'total'        => 0,
+		);
 		$optimager_posts   = self::get_optimager_attachments()->posts;
 
 		foreach ( $optimager_posts as $post ) {
@@ -328,36 +354,55 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 			switch ( $status ) {
 				case 'sending':
+					$size = $this->get_attachment_filesize( $post->ID );
 					$counts['sending']++;
+					$bytes['sending'] += $size;
+					$bytes['total']   += $size;
 					break;
 				case 'processing':
+					$size = $this->get_attachment_filesize( $post->ID );
 					$counts['processing']++;
+					$bytes['processing'] += $size;
+					$bytes['total']      += $size;
 					break;
 				case 'optimized':
 					$counts['optimized']++;
-					$optimized_bytes += $filesize_in - $filesize_out;
+					$bytes['optimized'] += $filesize_in - $filesize_out;
+					$bytes['total']     += $filesize_in - $filesize_out;
+					break;
+				case 'notoptimized':
+					$size = $this->get_attachment_filesize( $post->ID );
+					$counts['notoptimized']++;
+					$bytes['notoptimized'] += $size;
+					$bytes['total']        += $size;
 					break;
 				case 'unoptimized':
+					$size = $this->get_attachment_filesize( $post->ID );
 					$counts['unoptimized']++;
+					$bytes['unoptimized'] += $size;
+					$bytes['total']       += $size;
 					break;
 				default:
 					break;
 			}
-
-			$total_bytes += $filesize_in - $filesize_out;
 		}
 
 		foreach ( $unoptimized_posts->posts as $post ) {
-			$filepath = get_attached_file( $post->ID );
+			$size = $this->get_attachment_filesize( $post->ID );
 
-			if ( $wp_filesystem->exists( $filepath ) ) {
-				$total_bytes += $wp_filesystem->size( $filepath );
+			if ( $$size ) {
+				$bytes['unoptimized'] += $size;
+				$bytes['total']       += $size;
 			}
 		}
 
-		$counts['total']           = array_sum( $counts );
-		$counts['total_bytes']     = $total_bytes;
-		$counts['optimized_bytes'] = $optimized_bytes;
+		$counts['total']             = array_sum( $counts );
+		$counts['totalbytes']        = $bytes['total'];
+		$counts['sendingbytes']      = $bytes['sending'];
+		$counts['processingbytes']   = $bytes['processing'];
+		$counts['optimizedbytes']    = $bytes['optimized'];
+		$counts['notoptimizedbytes'] = $bytes['notoptimized'];
+		$counts['unoptimizedbytes']  = $bytes['unoptimized'];
 
 		return $counts;
 	}
@@ -434,6 +479,8 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'notoptimized'       => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
 						'ajaxFail'           => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
 						'apiError'           => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
+						'refresh'            => __( 'Refresh', 'w3-total_cache' ),
+						'refreshing'         => __( 'Refreshing...', 'w3-total_cache' ),
 						'notoptimizedNotice' => sprintf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 							__( 'Some images were not optimized.  Review your %1$ssettings%2$s to try using lossy compression.', 'w3-total_cache' ),

@@ -113,7 +113,7 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::postbox_footer();
 
 	Util_Ui::postbox_header(
-		esc_html__( 'Statistics', 'w3-total-cache' ) . ' <span class="dashicons dashicons-update"></span>',
+		esc_html__( 'Statistics', 'w3-total-cache' ),
 		'',
 		'w3tc-optimager-statistics'
 	);
@@ -121,43 +121,42 @@ if ( ! defined( 'W3TC' ) ) {
 
 	<table class="form-table" id="w3tc-optimager-stats">
 		<tr>
-			<th><?php esc_html_e( 'Counts by status:', 'w3-total-cache' ); ?></th>
+			<th><?php esc_html_e( 'Counts and filesizes by status:', 'w3-total-cache' ); ?></th>
 			<td>
 				<table id="w3tc-optimager-counts">
 					<tr>
 						<td><?php esc_html_e( 'Total:', 'w3-total-cache' ); ?></td>
 						<td id="w3tc-optimager-total"><?php echo $counts['total']; ?></td>
+						<td id="w3tc-optimager-totalbytes"><?php echo size_format( $counts['totalbytes'], 2 ); ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Optimized:', 'w3-total-cache' ); ?></td>
 						<td id="w3tc-optimager-optimized"><?php echo $counts['optimized']; ?></td>
+						<td id="w3tc-optimager-optimizedbytes"><?php echo size_format( $counts['optimizedbytes'], 2 ); ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Sending:', 'w3-total-cache' ); ?></td>
 						<td id="w3tc-optimager-sending"><?php echo $counts['sending']; ?></td>
+						<td id="w3tc-optimager-sendingbytes"><?php echo size_format( $counts['sendingbytes'], 2 ); ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Processing:', 'w3-total-cache' ); ?></td>
 						<td id="w3tc-optimager-processing"><?php echo $counts['processing']; ?></td>
+						<td id="w3tc-optimager-processingbytes"><?php echo size_format( $counts['processingbytes'], 2 ); ?></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Not optimized:', 'w3-total-cache' ); ?></td>
+						<td id="w3tc-optimager-notoptimized"><?php echo $counts['notoptimized']; ?></td>
+						<td id="w3tc-optimager-notoptimizedbytes"><?php echo size_format( $counts['notoptimizedbytes'], 2 ); ?></td>
 					</tr>
 					<tr>
 						<td><?php esc_html_e( 'Unoptimized:', 'w3-total-cache' ); ?></td>
 						<td id="w3tc-optimager-unoptimized"><?php echo $counts['unoptimized']; ?></td>
+						<td id="w3tc-optimager-unoptimizedbytes"><?php echo size_format( $counts['unoptimizedbytes'], 2 ); ?></td>
 					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr>
-			<th><?php esc_html_e( 'Filesizes (bytes):', 'w3-total-cache' ); ?></th>
-			<td>
-				<table id="w3tc-optimager-counts">
+					<tr><td height="10"></td></tr>
 					<tr>
-						<td><?php esc_html_e( 'Total:', 'w3-total-cache' ); ?></td>
-						<td id="w3tc-optimager-totalbytes"><?php echo $counts['total_bytes']; ?></td>
-					</tr>
-					<tr>
-						<td><?php esc_html_e( 'Optimized:', 'w3-total-cache' ); ?></td>
-						<td id="w3tc-optimager-optimizedbytes"><?php echo $counts['optimized_bytes']; ?></td>
+						<td colspan="3"><input id="w3tc-optimager-refresh" class="button" type="button" value="<?php esc_attr_e( 'Refresh', 'w3-total-cache' ) ?>" /></td>
 					</tr>
 				</table>
 			</td>

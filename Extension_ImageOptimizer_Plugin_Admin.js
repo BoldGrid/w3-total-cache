@@ -14,7 +14,7 @@
 		$unoptimizeLinks = $( '.w3tc-revert > a' ),
 		$optimizeAllButton = $( 'th.w3tc-optimager-all' ).parent().find( 'td button' ),
 		$revertAllButton = $( 'th.w3tc-optimager-revertall' ).parent().find( 'td button' ),
-		$refreshStatsIcon = $( '#w3tc-optimager-statistics .dashicons-update' );
+		$refreshStatsButton = $( 'input#w3tc-optimager-refresh.button' );
 
 	/* On page load. */
 
@@ -39,7 +39,7 @@
 	$revertAllButton.on( 'click', revertItems );
 
 	// Clicked the refresh icon for statistics.
-	$refreshStatsIcon.on( 'click', refreshStats );
+	$refreshStatsButton.on( 'click', refreshStats );
 
 	/* Functions. */
 
@@ -221,8 +221,11 @@
 	function refreshStats() {
 		var $countsTable = $( 'table#w3tc-optimager-counts' );
 
-		// Spin the update icon.
-		$refreshStatsIcon.addClass( 'w3tc-rotating' );
+		// Update the refresh button text.
+		$refreshStatsButton
+			.val( w3tcData.lang.refreshing )
+			.prop( 'disabled', true )
+			.prop( 'aria-disabled', 'true' );
 
 		// Remove any error notices.
 		$countsTable.find( '.w3tc-optimager-error' ).remove();
@@ -236,48 +239,33 @@
 			}
 		})
 			.done( function( response ) {
-				var $total, $optimized, $sending, $processing, $unoptimized;
-
 				if ( response.data && response.data.hasOwnProperty( 'total' ) ) {
-					$total = $countsTable.find( '#w3tc-optimager-total' );
-					$optimized = $countsTable.find( '#w3tc-optimager-optimized' );
-					$sending = $countsTable.find( '#w3tc-optimager-sending' );
-					$processing = $countsTable.find( '#w3tc-optimager-processing' );
-					$unoptimized = $countsTable.find( '#w3tc-optimager-unoptimized' );
-					$totalBytes = $countsTable.find( '#w3tc-optimager-totalbytes' );
-					$optimizedBytes = $countsTable.find( '#w3tc-optimager-optimizedbytes' );
+					[ 'total', 'optimized', 'sending', 'processing', 'notoptimized', 'unoptimized' ].forEach( function( className ) {
+						$count = $countsTable.find( '#w3tc-optimager-' + className );
+						if ( parseInt( $count.text() ) !== response.data[ className ] ) {
+							$count.text( response.data[ className ] ).closest( 'tr' ).addClass( 'w3tc-highlight' );
 
-					if ( parseInt( $total.text() ) !== response.data.total ) {
-						$total.text( response.data.total ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
-					}
-
-					if ( parseInt( $optimized.text() ) !== response.data.optimized ) {
-						$optimized.text( response.data.optimized ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
-					}
-
-					if ( parseInt( $sending.text() ) !== response.data.sending ) {
-						$sending.text( response.data.sending ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
-					}
-
-					if ( parseInt( $processing.text() ) !== response.data.processing ) {
-						$processing.text( response.data.processing ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
-					}
-
-					if ( parseInt( $unoptimized.text() ) !== response.data.unoptimized ) {
-						$unoptimized.text( response.data.unoptimized ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
-					}
-
-					if ( parseInt( $totalBytes.text() ) !== response.data.total_bytes ) {
-						$totalBytes.text( response.data.total_bytes ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
-					}
-
-					if ( parseInt( $optimizedBytes.text() ) !== response.data.optimized_bytes ) {
-						$optimizedBytes.text( response.data.optimized_bytes ).addClass( 'w3tc-highlight' ).removeClass( 'w3tc-highlight' );
-					}
+							className += 'bytes';
+							$size = $countsTable.find( '#w3tc-optimager-' + className );
+							size = sizeFormat( response.data[ className ], 2 );
+							$size.text( size );
+						}
+					} );
 				}
 
-				// Stop spinning the update icon.
-				$refreshStatsIcon.removeClass( 'w3tc-rotating' );
+				// Update the refresh button text.
+				$refreshStatsButton
+					.val( w3tcData.lang.refresh )
+					.prop( 'disabled', false )
+					.prop( 'aria-disabled', 'false' );
+
+				// Remove highlights.
+				setTimeout(
+					function() {
+						$countsTable.find( '.w3tc-highlight' ).removeClass( 'w3tc-highlight' );
+					},
+					1000
+				);
 			})
 			.fail( function() {
 				$countsTable.append(
@@ -286,8 +274,11 @@
 					'</div>'
 				);
 
-				// Stop spinning the update icon.
-				$refreshStatsIcon.removeClass( 'w3tc-rotating' );
+				// Update the refresh button text.
+				$refreshStatsButton
+					.val( w3tcData.lang.error )
+					.prop( 'disabled', false )
+					.prop( 'aria-disabled', 'false' );
 			});
 	}
 
