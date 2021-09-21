@@ -680,8 +680,13 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			$errored    = isset( $_GET['w3tc_optimager_errored'] ) ? intval( $_GET['w3tc_optimager_errored'] ) : 0;
 			$invalid    = isset( $_GET['w3tc_optimager_invalid'] ) ? intval( $_GET['w3tc_optimager_invalid'] ) : 0;
 
+			?>
+			<div class="updated notice notice-success is-dismissible">
+				<p><span class="w3tc-optimize"></span> Image Service</p>
+				<p>
+			<?php
+
 			printf(
-				'<div class="updated notice notice-success is-dismissible"><p><span class="w3tc-optimize"></span> Image Service</p><p>' .
 				// translators: 1: Submissions.
 				_n(
 					'Submitted %1$u image for processing.',
@@ -694,13 +699,16 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 			// Print extra stats if debug is on.
 			if ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) {
+				?>
+				<p>
+				<?php
+
 				printf(
-					'<p>' .
 					// translators: 1: Successes, 2: Skipped, 3: Errored, 4: Invalid.
 					__(
 						'Successful: %1$u | Skipped: %2$u | Errored: %3$u | Invalid: %4$u',
 						'w3-total-cache'
-					) . '</p>',
+					),
 					$successful,
 					$skipped,
 					$errored,
@@ -708,7 +716,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				);
 			}
 
-			echo '</div>';
+			?>
+				</p>
+			</div>
+			<?php
 
 		} elseif ( isset( $_GET['w3tc_optimager_reverted'] ) ) {
 			?>

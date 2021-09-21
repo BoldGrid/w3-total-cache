@@ -206,7 +206,7 @@
 	function checkNotOptimized() {
 		if ( 'lossy' !== w3tcData.settings.compression && ! $( '#w3tc-notoptimized-notice' ).length && $( '.w3tc-notoptimized' ).length ) {
 			$( '#wpbody-content' ).prepend(
-				'<div id="w3tc-notoptimized-notice" class="notice notice-warning is-dismissible"><p>' +
+				'<div id="w3tc-notoptimized-notice" class="notice notice-warning is-dismissible"><p><span class="w3tc-optimize"></span> Image Service</p><p>' +
 				w3tcData.lang.notoptimizedNotice +
 				'</p></div>'
 			);

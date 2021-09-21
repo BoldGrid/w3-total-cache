@@ -10,6 +10,10 @@ th #w3tc-optimager-settings {
 	vertical-align: text-bottom;
 }
 
+p span.w3tc-optimize:before {
+	vertical-align: middle;
+}
+
 .w3tc-optimized-increased,
 .w3tc-notoptimized {
 	color: orange;
