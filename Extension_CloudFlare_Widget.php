@@ -23,7 +23,6 @@ class Extension_CloudFlare_Widget {
 		$c = Dispatcher::config();
 		$interval = $c->get_integer( array( 'cloudflare', 'widget_interval' ) );
 		$v = get_transient( 'w3tc_cloudflare_stats' );
-
 		try {
 			$key = 'dashboard-' . $interval;
 			if ( !isset( $v[$key] ) ) {
@@ -33,13 +32,13 @@ class Extension_CloudFlare_Widget {
 				$type = 'day';
 				$dataset = 'httpRequests1dGroups';
 				$end = date( 'Y-m-d' );
-				$start = date( 'Y-m-d', ( strtotime( $end . ' ' . $interval . ' minutes' ) ) );
+				$start = date( 'Y-m-d', strtotime( $end . ' ' . $interval . ' minutes' ) );
 
-				if( $interval >= -720 ) {
+				if( $interval > -1440 ) {
 					$type = 'hour';
 					$dataset = 'httpRequests1hGroups';
 					$end = date( 'Y-m-d\TH:i:s' ) . 'Z';
-					$start = date( 'Y-m-d\TH:i:s', ( strtotime( $end . ' ' . $interval . ' minutes' ) ) ) . 'Z';
+					$start = date( 'Y-m-d\TH:i:s', strtotime( $end . ' ' . $interval . ' minutes' ) ) . 'Z';
 				}
 
 				$stats = array(
