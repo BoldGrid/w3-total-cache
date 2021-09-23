@@ -68,6 +68,15 @@ class CacheFlush {
 	}
 
 	/**
+	 * Flushes object cache based on group
+	 */
+	function objectcache_flush_group( $group ) {
+		if ( $this->_config->get_boolean( 'objectcache.enabled' ) ) {
+			$this->_executor->objectcache_flush_group( $group );
+		}
+	}
+
+	/**
 	 * Flushes fragment cache
 	 */
 	function fragmentcache_flush() {

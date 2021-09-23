@@ -106,7 +106,13 @@ if ( ! defined( 'W3TC' ) ) {
 					<p class="description"><?php esc_html_e( 'Use that to store transients in database even when external cache is used. That allows transient values to survive object cache cleaning / expiration', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
-			<?php if ( $this->_config->get_boolean( 'cluster.messagebus.enabled' ) ) : ?>
+			<tr>
+				<th colspan="2">
+					<?php $this->checkbox( 'objectcache.purge.posts' ) ?> <?php Util_Ui::e_config_label( 'objectcache.purge.posts' ) ?></label>
+					<p class="description"><?php _e( 'Enabling this option will cause modifications to post(s) to only trigger the purging of the post cache.', 'w3-total-cache' )?></p>
+				</th>
+			</tr>
+			<?php if ( $this->_config->get_boolean( 'cluster.messagebus.enabled' ) ): ?>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'objectcache.purge.all' ); ?> <?php Util_Ui::e_config_label( 'objectcache.purge.all' ); ?></label>

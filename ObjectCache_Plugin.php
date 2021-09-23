@@ -149,8 +149,14 @@ class ObjectCache_Plugin {
 			}
 
 			$flush = Dispatcher::component( 'CacheFlush' );
-			$flush->objectcache_flush();
-			self::$flushed = true;
+			if( $this->_config->get_boolean( 'objectcache.purge.posts' ) ) {
+				$flush->objectcache_flush_group('global-posts');
+				self::$flushed = true;
+			}
+			else {
+				$flush->objectcache_flush();
+				self::$flushed = true;
+			}
 		}
 	}
 

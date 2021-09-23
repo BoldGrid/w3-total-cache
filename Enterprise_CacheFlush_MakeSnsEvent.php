@@ -34,6 +34,18 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 	}
 
 	/**
+	 * Flushes only posts object cache
+	 *
+	 */
+	function objectcache_flush_group( $group, $extras = array() ) {
+		return $this->_prepare_message( array(
+				'action' => 'objectcache_flush_group',
+				'group' => $group,
+				'extras' => $extras
+			) );
+	}
+
+	/**
 	 * Flushes fragment caches
 	 *
 	 */

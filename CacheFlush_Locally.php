@@ -38,9 +38,34 @@ class CacheFlush_Locally {
 
 		do_action( 'w3tc_flush_objectcache' );
 		$objectcache = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
+
 		$v = $objectcache->flush();
 
 		do_action( 'w3tc_flush_after_objectcache' );
+
+		return $v;
+	}
+
+	/**
+	 * Cleans object cache for specific group
+	 *
+	 * @since 2.1.9
+	 *
+	 * @param array $extras
+	 * @param string $group
+	 *
+	 * @return ObjectCache_WpObjectCache_Regular
+	 */
+	function objectcache_flush_group( $extras = array(), $group = '' ) {
+		if ( isset( $extras['only'] ) && $extras['only'] != 'objectcache' )
+			return;
+
+		do_action( 'w3tc_flush_objectcache_group' );
+		$objectcache = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
+
+		$v = $objectcache->flush_group( $group );
+
+		do_action( 'w3tc_flush_after_objectcache_group' );
 
 		return $v;
 	}
