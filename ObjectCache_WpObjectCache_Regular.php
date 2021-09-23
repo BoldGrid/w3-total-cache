@@ -438,11 +438,57 @@ class ObjectCache_WpObjectCache_Regular {
 				$cache->flush();
 			}
 		} else {
-			$cache = $this->_get_cache( 0 );
-			$cache->flush();
-
 			$cache = $this->_get_cache();
 			$cache->flush();
+		}
+
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time = Util_Debug::microtime() - $time_start;
+
+			$this->cache_flushes++;
+			$this->time_total += $time;
+
+			if ( $this->_debug ) {
+				$this->log_call( array(
+					date( 'r' ),
+					'flush',
+					'',
+					'',
+					$reason,
+					0,
+					(int)($time * 1000000)
+				) );
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Purges all transients that belong to a transient group
+	 *
+	 * @param string  $group fragment grouping
+	 * @return bool
+	 */
+	function flush_group( $group ) {
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time_start = Util_Debug::microtime();
+		}
+		if ( $this->_config->get_boolean( 'objectcache.debug_purge' ) ) {
+			Util_Debug::log_purge( 'objectcache', 'flush', $reason );
+		}
+
+		$this->cache = array();
+
+		global $w3_multisite_blogs;
+		if ( isset( $w3_multisite_blogs ) ) {
+			foreach ( $w3_multisite_blogs as $blog ) {
+				$cache = $this->_get_cache( $blog->userblog_id );
+				$cache->flush( $group );
+			}
+		} else {
+			$cache = $this->_get_cache();
+			$cache->flush( $group );
 		}
 
 		if ( $this->_debug || $this->stats_enabled ) {

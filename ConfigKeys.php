@@ -329,11 +329,14 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 180
 	),
+	'objectcache.purge.posts' => array(
+		'type' => 'boolean',
+		'default' => true
+	),
 	'objectcache.purge.all' => array(
 		'type' => 'boolean',
 		'default' => false
 	),
-
 	'pgcache.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
