@@ -134,7 +134,7 @@ class Extension_ImageOptimizer_Api {
 		$body .= file_get_contents( $filepath ) . "\r\n" . '--' . $boundary . '--'; // phpcs:ignore WordPress.WP.AlternativeFunctions
 
 		$response = wp_remote_request(
-			$this->base_url . $this->endpoints['convert']['uri'],
+			$this->get_base_url() . $this->endpoints['convert']['uri'],
 			array(
 				'method'    => $this->endpoints['convert']['method'],
 				'sslverify' => false,
@@ -181,7 +181,7 @@ class Extension_ImageOptimizer_Api {
 	 */
 	public function get_status( $job_id, $signature ) {
 		$response = wp_remote_request(
-			$this->base_url . $this->endpoints['status']['uri'] . '/' . $job_id . '/' . $signature,
+			$this->get_base_url() . $this->endpoints['status']['uri'] . '/' . $job_id . '/' . $signature,
 			array(
 				'method'    => $this->endpoints['status']['method'],
 				'sslverify' => false,
@@ -220,7 +220,7 @@ class Extension_ImageOptimizer_Api {
 	 */
 	public function download( $job_id, $signature ) {
 		$response = wp_remote_request(
-			$this->base_url . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature,
+			$this->get_base_url() . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature,
 			array(
 				'method'    => $this->endpoints['download']['method'],
 				'sslverify' => false,
@@ -248,5 +248,18 @@ class Extension_ImageOptimizer_Api {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Get base URL.
+	 *
+	 * @since X.X.X
+	 * @access private
+	 *
+	 * @returns string
+	 */
+	private function get_base_url() {
+		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ?
+			esc_url( W3TC_API2_URL, 'https', '' ) : $this->base_url;
 	}
 }
