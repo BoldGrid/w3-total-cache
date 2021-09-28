@@ -12,7 +12,7 @@ if ( !defined( 'W3TC' ) )
 <p class="cloudflare_p">
     Period
     <?php
-    if( $stats['interval'] >= -720 ) {
+    if( $stats['interval'] >= -1440 ) {
         echo $this->date_time( $stats['since'] );
     } else {
         echo $this->date( $stats['since'] );
@@ -20,7 +20,7 @@ if ( !defined( 'W3TC' ) )
     ?>
       -
     <?php
-    if( $stats['interval'] >= -720 ) {
+    if( $stats['interval'] >= -1440 ) {
         echo $this->date_time( $stats['until'] );
     } else {
         echo $this->date( $stats['until'] );

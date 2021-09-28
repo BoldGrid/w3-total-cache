@@ -31,13 +31,13 @@ class Extension_CloudFlare_Widget {
 
 				$type = 'day';
 				$dataset = 'httpRequests1dGroups';
-				$end = date( 'Y-m-d' );
+				$end = current_time( 'Y-m-d' );
 				$start = date( 'Y-m-d', strtotime( $end . ' ' . $interval . ' minutes' ) );
 
-				if( $interval > -1440 ) {
+				if( $interval >= -1440 ) {
 					$type = 'hour';
 					$dataset = 'httpRequests1hGroups';
-					$end = date( 'Y-m-d\TH:i:s' ) . 'Z';
+					$end = current_time( 'Y-m-d\TH:i:s' ) . 'Z';
 					$start = date( 'Y-m-d\TH:i:s', strtotime( $end . ' ' . $interval . ' minutes' ) ) . 'Z';
 				}
 
@@ -52,7 +52,7 @@ class Extension_CloudFlare_Widget {
 					"uniques_all" => 0,
 					"threats_all" => 0,
 					"interval" => $interval,
-					"cached_ts" => date( 'Y-m-d H:i:s' ),
+					"cached_ts" => current_time( 'Y-m-d H:i:s' ),
 					"cached_tf" => $c->get_integer( array( 'cloudflare', 'widget_cache_mins' ) )
 				);
 
