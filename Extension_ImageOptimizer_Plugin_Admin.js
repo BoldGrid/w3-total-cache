@@ -364,13 +364,26 @@
 					);
 				}
 			})
-			.fail( function() {
+			.fail( function( response ) {
+				var message;
+
 				$this
 					.val( w3tcData.lang.error )
 					.data( 'status', 'error' );
+
+				if (
+					response && response.hasOwnProperty( 'responseJSON' ) &&
+					response.responseJSON.hasOwnProperty( 'data' ) &&
+					response.responseJSON.data.hasOwnProperty( 'message' )
+				) {
+					message = response.responseJSON.data.message;
+				} else {
+					message = w3tcData.lang.ajaxFail;
+				}
+
 				$itemTd.append(
 					'<div class="notice notice-error inline w3tc-optimager-error">' +
-					w3tcData.lang.ajaxFail +
+					message +
 					'</div>'
 				);
 			});

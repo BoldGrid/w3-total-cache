@@ -154,9 +154,17 @@ class Extension_ImageOptimizer_Api {
 		}
 
 		if ( 200 !== $response['response']['code'] ) {
-			return array(
+			$result = array(
 				'error' => __( 'Error: Received a non-200 response code: ', 'w3-total-cache' ) . $response['response']['code'],
 			);
+
+			$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			if ( isset( $response_body['message'] ) ) {
+				$result['message'] = esc_html( $response_body['message'] );
+			}
+
+			return $result;
 		}
 
 		// Convert response body to an array.
@@ -165,7 +173,7 @@ class Extension_ImageOptimizer_Api {
 		// Pass error message.
 		if ( isset( $response['message'] ) ) {
 			return array(
-				'error' => $response['message'],
+				'error' => esc_html( $response['message'] ),
 			);
 		}
 

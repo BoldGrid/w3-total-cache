@@ -1096,7 +1096,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		$api      = new Extension_ImageOptimizer_Api();
 		$response = $api->convert( $filepath );
 
-		// Check for WP Error.
+		// Check for error.
 		if ( isset( $response['error'] ) ) {
 			wp_send_json_error(
 				$response,
