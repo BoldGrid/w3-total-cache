@@ -68,7 +68,7 @@ class CacheFlush {
 	/**
 	 * Flushes object cache based on group
 	 */
-	function objectcache_flush_group( $group ) {
+	function objectcache_flush_group( $group = 'default' ) {
 		if ( $this->_config->get_boolean( 'objectcache.enabled' ) ) {
 			$this->_executor->objectcache_flush_group( $group );
 		}

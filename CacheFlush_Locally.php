@@ -56,7 +56,7 @@ class CacheFlush_Locally {
 	 *
 	 * @return ObjectCache_WpObjectCache_Regular
 	 */
-	function objectcache_flush_group( $extras = array(), $group = '' ) {
+	function objectcache_flush_group( $group = 'default', $extras = array() ) {
 		if ( isset( $extras['only'] ) && $extras['only'] != 'objectcache' )
 			return;
 

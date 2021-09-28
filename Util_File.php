@@ -136,7 +136,7 @@ class Util_File {
 				}
 
 				$full_path = $path . DIRECTORY_SEPARATOR . $entry;
-
+error_log(print_r($full_path,true));
 				if ( @is_dir( $full_path ) ) {
 					Util_File::rmdir( $full_path, $exclude );
 				} else {

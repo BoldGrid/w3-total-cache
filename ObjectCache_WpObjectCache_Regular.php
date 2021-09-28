@@ -290,7 +290,8 @@ class ObjectCache_WpObjectCache_Regular {
 			$v = array( 'content' => $data );
 			$cache_sets_inc = 1;
 			$ext_return = $cache->set( $key, $v,
-				( $expire ? $expire : $this->_lifetime ) );
+				( $expire ? $expire : $this->_lifetime ),
+				$group );
 			$return = $ext_return;
 		}
 
@@ -470,7 +471,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @param string  $group fragment grouping
 	 * @return bool
 	 */
-	function flush_group( $group ) {
+	function flush_group( $group = 'default', $reason = '' ) {
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
