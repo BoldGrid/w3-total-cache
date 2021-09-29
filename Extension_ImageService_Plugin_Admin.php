@@ -807,12 +807,11 @@ class Extension_ImageService_Plugin_Admin {
 			// If not in list mode, then print a notice to switch to it.
 			if ( 'list' !== $mode ) {
 				?>
-				<div class="notice notice-warning is-dismissible"><p><span class="w3tc-convert"></span> Image Service</p>
-					<p>
+				<div class="notice notice-warning is-dismissible"><p><span class="w3tc-convert"></span> Image Service -
 				<?php
 						printf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							__( 'Switch to %1$slist mode%2$s for image service controls.', 'w3-total-cache' ),
+							__( 'Convert your images to WebP by switching to %1$slist mode%2$s.', 'w3-total-cache' ),
 							'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
 							'</a>'
 						);
