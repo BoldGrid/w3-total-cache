@@ -152,9 +152,7 @@
 					if ( 'optimized' === response.data.status ) {
 						$this
 							.text( w3tcData.lang.optimized )
-							.data( 'status', 'optimized' )
-							.prop( 'aria-disabled', false )
-							.closest( 'span' ).removeClass( 'w3tc-disabled' );
+							.data( 'status', 'optimized' );
 
 						// Add revert link, if not already present.
 						if ( ! $itemTd.find( '.w3tc-revert' ).length ) {
@@ -169,14 +167,12 @@
 						}
 					} else if ( 'notoptimized' === response.data.status ) {
 						$this
-							.text( w3tcData.lang.optimize )
-							.data( 'status', 'notoptimized' )
-							.prop( 'aria-disabled', false )
-							.closest( 'span' ).removeClass( 'w3tc-disabled' );
+							.text( w3tcData.lang.notOptimized )
+							.data( 'status', 'notoptimized' );
 
 						$itemTd.prepend(
 							'<div class="w3tc-notoptimized">' +
-							w3tcData.lang.notoptimized +
+							w3tcData.lang.notOptimizedDesc +
 							'</div>'
 						);
 					}

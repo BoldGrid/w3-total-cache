@@ -493,11 +493,12 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'sending'            => __( 'Sending...', 'w3-total_cache' ),
 						'processing'         => __( 'Processing...', 'w3-total_cache' ),
 						'optimized'          => __( 'Optimized', 'w3-total_cache' ),
+						'notOptimized'       => __( 'Not optimized', 'w3-total_cache' ),
 						'reverting'          => __( 'Reverting...', 'w3-total_cache' ),
 						'reverted'           => __( 'Reverted', 'w3-total_cache' ),
 						'revert'             => __( 'Revert', 'w3-total_cache' ),
 						'error'              => __( 'Error', 'w3-total_cache' ),
-						'notoptimized'       => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
+						'notOptimizedDesc'   => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
 						'ajaxFail'           => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
 						'apiError'           => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
 						'refresh'            => __( 'Refresh', 'w3-total_cache' ),
@@ -618,6 +619,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 				if ( 'processing' === $status ) {
 					$link_classes  .= ' w3tc-optimize-processing';
+					$disabled_class = 'w3tc-disabled';
+					$aria_attr = 'true';
+				} elseif ( 'optimized' === $status ) {
 					$disabled_class = 'w3tc-disabled';
 					$aria_attr = 'true';
 				}
