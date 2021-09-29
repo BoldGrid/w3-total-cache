@@ -190,7 +190,7 @@ class FeatureShowcase_Plugin_Admin {
 		global $wp_version;
 
 		$imageservice_description = __(
-			'Adds the ability to convert images into the modern WEBP format for better performance.',
+			'Adds the ability to convert images into the modern WebP format for better performance using our remote API service.',
 			'w3-total-cache'
 		);
 
