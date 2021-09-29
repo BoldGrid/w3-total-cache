@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Extension_ImageOptimizer_Environment.php
+ * File: Extension_ImageService_Environment.php
  *
  * @since X.X.X
  *
@@ -10,9 +10,9 @@
 namespace W3TC;
 
 /**
- * Class: Extension_ImageOptimizer_Environment
+ * Class: Extension_ImageService_Environment
  */
-class Extension_ImageOptimizer_Environment {
+class Extension_ImageService_Environment {
 	/**
 	 * Fixes environment in each wp-admin request.
 	 *
@@ -28,7 +28,7 @@ class Extension_ImageOptimizer_Environment {
 		if ( $config->get_boolean( 'config.check' ) || $force_all_checks ) {
 			$extensions_active = $config->get_array( 'extensions.active' );
 
-			if ( array_key_exists( 'optimager', $extensions_active ) ) {
+			if ( array_key_exists( 'imageservice', $extensions_active ) ) {
 				$this->rules_add( $config, $exs );
 			} else {
 				$this->rules_remove( $exs );

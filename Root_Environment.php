@@ -173,7 +173,7 @@ class Root_Environment {
 			new ObjectCache_Environment(),
 			new DbCache_Environment(),
 			new Cdn_Environment(),
-			new Extension_ImageOptimizer_Environment(),
+			new Extension_ImageService_Environment(),
 		);
 
 		return $a;

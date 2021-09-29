@@ -1,29 +1,29 @@
-span.w3tc-optimize:before {
+span.w3tc-convert:before {
 	content:'\0041';
 	display: inline-block;
 	font-family: 'w3tc';
 	font-size: x-large;
 }
 
-th span.w3tc-optimize:before,
-th #w3tc-optimager-settings {
+th span.w3tc-convert:before,
+th #w3tc-imageservice-settings {
 	vertical-align: text-bottom;
 }
 
-p span.w3tc-optimize:before {
+p span.w3tc-convert:before {
 	vertical-align: middle;
 }
 
-.w3tc-optimized-increased,
-.w3tc-notoptimized {
+.w3tc-converted-increased,
+.w3tc-notconverted {
 	color: orange;
 }
 
-.w3tc-optimized-reduced {
+.w3tc-converted-reduced {
 	color: green;
 }
 
-.w3tc-optimager-error {
+.w3tc-imageservice-error {
 	color: red;
 }
 
@@ -39,13 +39,13 @@ p span.w3tc-optimize:before {
 	text-decoration: none;
 }
 
-/* Statistics section on the extension settings page. */
+/* Statistics section on the extension settings, tools, and statistics page. */
 
-#w3tc-optimager-counts td {
+#w3tc-imageservice-counts td {
 	padding: 1px 10px;
 }
 
-#w3tc_default_save_and_flush_extension_optimager_configuration {
+#w3tc_default_save_and_flush_extension_imageservice_configuration {
 	display: none;
 }
 

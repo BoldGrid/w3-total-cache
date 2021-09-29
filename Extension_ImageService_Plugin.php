@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Extension_ImageOptimizer_Plugin.php
+ * File: Extension_ImageService_Plugin.php
  *
  * @since X.X.X
  *
@@ -16,11 +16,11 @@ if ( ! defined( 'W3TC' ) ) {
 }
 
 /**
- * Extension_ImageOptimizer_Plugin
+ * Extension_ImageService_Plugin
  *
  * @since X.X.X
  */
-class Extension_ImageOptimizer_Plugin {
+class Extension_ImageService_Plugin {
 	/**
 	 * Add hooks.
 	 *
@@ -31,18 +31,18 @@ class Extension_ImageOptimizer_Plugin {
 		add_action(
 			'w3tc_extension_load_admin',
 			array(
-				'\W3TC\Extension_ImageOptimizer_Plugin_Admin',
+				'\W3TC\Extension_ImageService_Plugin_Admin',
 				'w3tc_extension_load_admin',
 			)
 		);
 
 		// Cron event handling.
-		require_once __DIR__ . '/Extension_ImageOptimizer_Cron.php';
+		require_once __DIR__ . '/Extension_ImageService_Cron.php';
 
 		add_action(
-			'w3tc_optimager_cron',
+			'w3tc_imageservice_cron',
 			array(
-				'\W3TC\Extension_ImageOptimizer_Cron',
+				'\W3TC\Extension_ImageService_Cron',
 				'run',
 			)
 		);
@@ -50,19 +50,19 @@ class Extension_ImageOptimizer_Plugin {
 		add_filter(
 			'cron_schedules',
 			array(
-				'\W3TC\Extension_ImageOptimizer_Cron',
+				'\W3TC\Extension_ImageService_Cron',
 				'add_schedule',
 			)
 		);
 
-		Extension_ImageOptimizer_Cron::add_cron();
+		Extension_ImageService_Cron::add_cron();
 	}
 }
 
 w3tc_add_action(
 	'wp_loaded',
 	array(
-		'\W3TC\Extension_ImageOptimizer_Plugin',
+		'\W3TC\Extension_ImageService_Plugin',
 		'wp_loaded',
 	)
 );

@@ -60,7 +60,7 @@ class Root_AdminActivation {
 		}
 
 		// Set transients for displaying activation notices.
-		set_transient( 'w3tc_activation_optimager', true, DAY_IN_SECONDS );
+		set_transient( 'w3tc_activation_imageservice', true, DAY_IN_SECONDS );
 	}
 
 	/**
@@ -105,7 +105,7 @@ class Root_AdminActivation {
 		}
 
 		// Delete cron events.
-		require_once __DIR__ . '/Extension_ImageOptimizer_Cron.php';
-		Extension_ImageOptimizer_Cron::delete_cron();
+		require_once __DIR__ . '/Extension_ImageService_Cron.php';
+		Extension_ImageService_Cron::delete_cron();
 	}
 }

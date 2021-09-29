@@ -180,22 +180,22 @@ class FeatureShowcase_Plugin_Admin {
 	 * @return array
 	 */
 	private static function get_cards() {
-		$c                     = Dispatcher::config();
-		$extensions            = $c->get_array( 'extensions.active' );
-		$is_optimager_active   = isset( $extensions['optimager'] );
-		$optimager_button_text = $is_optimager_active ? __( 'Settings', 'w3-total-cache' ) : __( 'Activate', 'w3-total-cache' );
-		$optimager_button_link = $is_optimager_active ?
-			'upload.php?page=w3tc_extension_page_optimager' : 'admin.php?page=w3tc_extensions&action=activate&extension=optimager';
+		$c                        = Dispatcher::config();
+		$extensions               = $c->get_array( 'extensions.active' );
+		$is_imageservice_active   = isset( $extensions['imageservice'] );
+		$imageservice_button_text = $is_imageservice_active ? __( 'Settings', 'w3-total-cache' ) : __( 'Activate', 'w3-total-cache' );
+		$imageservice_button_link = $is_imageservice_active ?
+			'upload.php?page=w3tc_extension_page_imageservice' : 'admin.php?page=w3tc_extensions&action=activate&extension=imageservice';
 
 		global $wp_version;
 
-		$optimager_description = __(
+		$imageservice_description = __(
 			'Adds the ability to convert images into the modern WEBP format for better performance.',
 			'w3-total-cache'
 		);
 
 		if ( version_compare( $wp_version, '5.8', '<' ) ) {
-			$optimager_description .= sprintf(
+			$imageservice_description .= sprintf(
 				__(
 					'%1$sThis feature works best in WordPress version 5.8 and higher.  You are running WordPress version %2$s.  Please %3$supdate now%4$s to benefit from this feature.%5$s',
 					'w3-total-cache'
@@ -209,13 +209,13 @@ class FeatureShowcase_Plugin_Admin {
 		}
 
 		return array(
-			'optimager'           => array(
+			'imageservice'        => array(
 				'title'      => esc_html__( 'Image Service', 'w3-total-cache' ),
 				'icon'       => 'dashicons-embed-photo',
-				'text'       => esc_html( $optimager_description ),
+				'text'       => esc_html( $imageservice_description ),
 				'button'     => '<button class="button" onclick="window.location=\'' .
-					esc_url( Util_Ui::admin_url( $optimager_button_link ) ) . '\'">' . esc_html( $optimager_button_text ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-optimizer-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=optimager' ) .
+					esc_url( Util_Ui::admin_url( $imageservice_button_link ) ) . '\'">' . esc_html( $imageservice_button_text ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=imageservice' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => false,
 				'is_new'     => true,

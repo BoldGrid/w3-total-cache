@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Extension_ImageOptimizer_Api.php
+ * File: Extension_ImageService_Api.php
  *
  * @since X.X.X
  *
@@ -10,11 +10,11 @@
 namespace W3TC;
 
 /**
- * Class: Extension_ImageOptimizer_Api
+ * Class: Extension_ImageService_Api
  *
  * @since X.X.X
  */
-class Extension_ImageOptimizer_Api {
+class Extension_ImageService_Api {
 	/**
 	 * API Base URL.
 	 *
@@ -106,7 +106,7 @@ class Extension_ImageOptimizer_Api {
 	 */
 	public function convert( $filepath, array $options = array() ) {
 		$config   = Dispatcher::config();
-		$settings = $config->get_array( 'optimager' );
+		$settings = $config->get_array( 'imageservice' );
 		$options  = array_merge(
 			array(
 				'optimize' => 'lossy' === $settings['compression'] ? '1' : '0',

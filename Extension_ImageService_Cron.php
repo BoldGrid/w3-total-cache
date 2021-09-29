@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Extension_ImageOptimizer_Cron.php
+ * File: Extension_ImageService_Cron.php
  *
  * @since X.X.X
  *
@@ -10,11 +10,11 @@
 namespace W3TC;
 
 /**
- * Class: Extension_ImageOptimizer_Cron
+ * Class: Extension_ImageService_Cron
  *
  * @since X.X.X
  */
-class Extension_ImageOptimizer_Cron {
+class Extension_ImageService_Cron {
 	/**
 	 * Add cron job/event.
 	 *
@@ -22,8 +22,8 @@ class Extension_ImageOptimizer_Cron {
 	 * @static
 	 */
 	public static function add_cron() {
-		if ( ! wp_next_scheduled( 'w3tc_optimager_cron' ) ) {
-			wp_schedule_event( time(), 'ten_seconds', 'w3tc_optimager_cron' );
+		if ( ! wp_next_scheduled( 'w3tc_imageservice_cron' ) ) {
+			wp_schedule_event( time(), 'ten_seconds', 'w3tc_imageservice_cron' );
 		}
 	}
 
@@ -48,10 +48,10 @@ class Extension_ImageOptimizer_Cron {
 	 * @static
 	 */
 	public static function delete_cron() {
-		$timestamp = wp_next_scheduled( 'w3tc_optimager_cron' );
+		$timestamp = wp_next_scheduled( 'w3tc_imageservice_cron' );
 
 		if ( $timestamp ) {
-			wp_unschedule_event( $timestamp, 'w3tc_optimager_cron' );
+			wp_unschedule_event( $timestamp, 'w3tc_imageservice_cron' );
 		}
 	}
 
@@ -60,19 +60,19 @@ class Extension_ImageOptimizer_Cron {
 	 *
 	 * @since X.X.X
 	 *
-	 * @see Extension_ImageOptimizer_Plugin_Admin::get_optimager_attachments()
+	 * @see Extension_ImageService_Plugin_Admin::get_imageservice_attachments()
 	 *
 	 * @global $wp_filesystem WP_Filesystem.
 	 */
 	public static function run() {
-		// Get all images with postmeta key "w3tc_optimager".
-		$results = Extension_ImageOptimizer_Plugin_Admin::get_optimager_attachments();
+		// Get all images with postmeta key "w3tc_imageservice".
+		$results = Extension_ImageService_Plugin_Admin::get_imageservice_attachments();
 
 		// If there are matches, then load dependencies before use.
 		if ( $results->have_posts() ) {
-			require_once __DIR__ . '/Extension_ImageOptimizer_Plugin_Admin.php';
-			require_once __DIR__ . '/Extension_ImageOptimizer_Api.php';
-			$api = new Extension_ImageOptimizer_Api();
+			require_once __DIR__ . '/Extension_ImageService_Plugin_Admin.php';
+			require_once __DIR__ . '/Extension_ImageService_Api.php';
+			$api = new Extension_ImageService_Api();
 
 			$wp_upload_dir = wp_upload_dir();
 
@@ -83,7 +83,7 @@ class Extension_ImageOptimizer_Cron {
 		}
 
 		foreach ( $results->posts as $post ) {
-			$postmeta = get_post_meta( $post->ID, 'w3tc_optimager', true );
+			$postmeta = get_post_meta( $post->ID, 'w3tc_imageservice', true );
 			$status   = isset( $postmeta['status'] ) ? $postmeta['status'] : null;
 
 			// Handle items with the "processing" status.
@@ -92,7 +92,7 @@ class Extension_ImageOptimizer_Cron {
 				$response = $api->get_status( $postmeta['processing']['job_id'], $postmeta['processing']['signature'] );
 
 				// Save the status response.
-				Extension_ImageOptimizer_Plugin_Admin::update_postmeta(
+				Extension_ImageService_Plugin_Admin::update_postmeta(
 					$post->ID,
 					array( 'job_status' => $response )
 				);
@@ -111,15 +111,15 @@ class Extension_ImageOptimizer_Cron {
 							$status = 'error';
 							break;
 						case $is_reduced:
-							$status = 'optimized';
+							$status = 'converted';
 							break;
 						default:
-							$status = 'notoptimized';
+							$status = 'notconverted';
 							break;
 					}
 
 					// Save the download headers or error.
-					Extension_ImageOptimizer_Plugin_Admin::update_postmeta(
+					Extension_ImageService_Plugin_Admin::update_postmeta(
 						$post->ID,
 						array(
 							'download' => $is_error ? $response['error'] : (array) $headers,
@@ -127,12 +127,12 @@ class Extension_ImageOptimizer_Cron {
 						)
 					);
 
-					// Skip error responses or if optimized image is larger.
+					// Skip error responses or if converted image is larger.
 					if ( $is_error || ! $is_reduced ) {
 						continue;
 					}
 
-					// If an optimized file already exists, then delete it before saving the new file.
+					// If an converted file already exists, then delete it before saving the new file.
 					if ( isset( $postmeta['post_child'] ) ) {
 						wp_delete_attachment( $postmeta['post_child'], true );
 					}
@@ -171,22 +171,22 @@ class Extension_ImageOptimizer_Cron {
 					);
 
 					// Copy postmeta data to the new attachment.
-					Extension_ImageOptimizer_Plugin_Admin::copy_postmeta( $post->ID, $post_id );
+					Extension_ImageService_Plugin_Admin::copy_postmeta( $post->ID, $post_id );
 
 					// Save the new post id.
-					Extension_ImageOptimizer_Plugin_Admin::update_postmeta(
+					Extension_ImageService_Plugin_Admin::update_postmeta(
 						$post->ID,
 						array( 'post_child' => $post_id )
 					);
 
-					// Mark the downloaded file as the optimized one.
-					Extension_ImageOptimizer_Plugin_Admin::update_postmeta(
+					// Mark the downloaded file as the converted one.
+					Extension_ImageService_Plugin_Admin::update_postmeta(
 						$post_id,
-						array( 'is_optimized_file' => true )
+						array( 'is_converted_file' => true )
 					);
 
-					// In order to filter/hide optimized files in the media list, add a meta key.
-					update_post_meta( $post_id, 'w3tc_optimager_file', $extension );
+					// In order to filter/hide converted files in the media list, add a meta key.
+					update_post_meta( $post_id, 'w3tc_imageservice_file', $extension );
 
 					// Generate the metadata for the attachment, and update the database record.
 					$attach_data           = wp_generate_attachment_metadata( $post_id, $new_filepath );
@@ -195,7 +195,7 @@ class Extension_ImageOptimizer_Cron {
 					wp_update_attachment_metadata( $post_id, $attach_data );
 				} elseif ( isset( $response['status'] ) && 'complete' === $response['status'] ) {
 					// Update the status to "error".
-					Extension_ImageOptimizer_Plugin_Admin::update_postmeta(
+					Extension_ImageService_Plugin_Admin::update_postmeta(
 						$post->ID,
 						array( 'status' => 'error' )
 					);

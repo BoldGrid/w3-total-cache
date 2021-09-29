@@ -2422,13 +2422,13 @@ $keys = array(
 		'type' => 'array',
 		'default' => array(
 			'fragmentcache' => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
-			'optimager'     => 'w3-total-cache/Extension_ImageOptimizer_Plugin.php',
+			'imageservice'     => 'w3-total-cache/Extension_ImageService_Plugin.php',
 		),
 	),
 	'extensions.active_frontend' => array(
 		'type' => 'array',
 		'default' => array(
-			'optimager' => '*',
+			'imageservice' => '*',
 		),
 	),
 	'extensions.active_dropin' => array(
@@ -2449,7 +2449,7 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false,
 	),
-	'optimager' => array(
+	'imageservice' => array(
 		'type' => 'array',
 		'default' => array(
 			'compression' => 'lossy',

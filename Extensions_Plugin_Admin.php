@@ -77,7 +77,7 @@ class Extensions_Plugin_Admin {
 		add_filter(
 			'w3tc_extensions',
 			array(
-				'\W3TC\Extension_ImageOptimizer_Plugin_Admin',
+				'\W3TC\Extension_ImageService_Plugin_Admin',
 				'w3tc_extensions',
 			), 10, 2
 		);

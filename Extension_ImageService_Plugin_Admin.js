@@ -1,5 +1,5 @@
 /**
- * File: Extension_ImageOptimizer_Plugin_Admin.js
+ * File: Extension_ImageService_Plugin_Admin.js
  *
  * JavaScript for the Media Library list page.
  *
@@ -10,11 +10,11 @@
 
 (function( $ ) {
 	var isCheckingItems = false,
-		$optimizeLinks = $( 'a.w3tc-optimize' ),
-		$unoptimizeLinks = $( '.w3tc-revert > a' ),
-		$optimizeAllButton = $( 'th.w3tc-optimager-all' ).parent().find( 'td button' ),
-		$revertAllButton = $( 'th.w3tc-optimager-revertall' ).parent().find( 'td button' ),
-		$refreshStatsButton = $( 'input#w3tc-optimager-refresh.button' );
+		$convertLinks = $( 'a.w3tc-convert' ),
+		$unconvertLinks = $( '.w3tc-revert > a' ),
+		$convertAllButton = $( 'th.w3tc-imageservice-all' ).parent().find( 'td button' ),
+		$revertAllButton = $( 'th.w3tc-imageservice-revertall' ).parent().find( 'td button' ),
+		$refreshStatsButton = $( 'input#w3tc-imageservice-refresh.button' );
 
 	/* On page load. */
 
@@ -26,16 +26,16 @@
 
 	/* Events. */
 
-	// Clicked optimize link.
-	$optimizeLinks.on( 'click', optimizeItem );
+	// Clicked convert link.
+	$convertLinks.on( 'click', convertItem );
 
 	// Clicked revert link.
-	$unoptimizeLinks.on( 'click', revertItem );
+	$unconvertLinks.on( 'click', revertItem );
 
-	// Clicked optimize all images button.
-	$optimizeAllButton.on( 'click', optimizeItems );
+	// Clicked convert all images button.
+	$convertAllButton.on( 'click', convertItems );
 
-	// Clicked revert all optimized images button.
+	// Clicked revert all converted images button.
 	$revertAllButton.on( 'click', revertItems );
 
 	// Clicked the refresh icon for statistics.
@@ -49,11 +49,11 @@
 	 * @since X.X.X
 	 */
 	function toggleButtons() {
-		if ( $optimizeAllButton.length && $( '#w3tc-optimager-unoptimized' ).text() < 1 ) {
-			$optimizeAllButton.prop( 'disabled', true ).prop( 'aria-disabled', 'true' ); // Disable button.
+		if ( $convertAllButton.length && $( '#w3tc-imageservice-unconverted' ).text() < 1 ) {
+			$convertAllButton.prop( 'disabled', true ).prop( 'aria-disabled', 'true' ); // Disable button.
 		}
 
-		if ( $revertAllButton.length && $( '#w3tc-optimager-optimized' ).text() < 1 ) {
+		if ( $revertAllButton.length && $( '#w3tc-imageservice-converted' ).text() < 1 ) {
 			$revertAllButton.prop( 'disabled', true ).prop( 'aria-disabled', 'true' ); // Disable button.
 		}
 	}
@@ -63,7 +63,7 @@
 	 *
 	 * @since X.X.X
 	 *
-	 * @see checkNotOptimized()
+	 * @see checkNotConverted()
 	 * @see checkItemsProcessing()
 	 */
 	function startCheckItems() {
@@ -73,8 +73,8 @@
 
 		isCheckingItems= true;
 
-		// If any processed images were not optimized, then print a notice to check settings.
-		checkNotOptimized();
+		// If any processed images were not converted, then print a notice to check settings.
+		checkNotConverted();
 
 		// Check status and update every 5 seconds.
 		checkitemsInterval = setInterval( checkItemsProcessing, 5000 );
@@ -97,7 +97,7 @@
 	 * @see checkItemProcessing()
 	 */
 	function checkItemsProcessing() {
-		$optimizeLinks.each( checkItemProcessing );
+		$convertLinks.each( checkItemProcessing );
 	};
 
 
@@ -106,7 +106,7 @@
 	 *
 	 * @since X.X.X
 	 *
-	 * @see checkNotOptimized()
+	 * @see checkNotConverted()
 	 */
 	 function checkItemProcessing() {
 		var $this = $( this ),
@@ -119,7 +119,7 @@
 				url: ajaxurl,
 				data: {
 					_wpnonce: w3tcData.nonces.postmeta,
-					action: 'w3tc_optimager_postmeta',
+					action: 'w3tc_imageservice_postmeta',
 					post_id: $this.data( 'post-id' )
 				}
 			})
@@ -128,13 +128,13 @@
 
 					// Remove any previous optimization information and the revert link.
 					$itemTd.find(
-						'.w3tc-optimized-reduced, .w3tc-optimized-increased, .w3tc-notoptimized, .w3tc-revert'
+						'.w3tc-converted-reduced, .w3tc-converted-increased, .w3tc-notconverted, .w3tc-revert'
 					).remove();
 
 					// Add optimization information.
-					if ( 'notoptimized' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
+					if ( 'notconverted' !== response.data.status && response.data.download && response.data.download["\u0000*\u0000data"] ) {
 						infoClass = response.data.download["\u0000*\u0000data"]['x-filesize-reduced'] > 0 ?
-							'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
+							'w3tc-converted-increased' : 'w3tc-converted-reduced';
 
 						$itemTd.prepend(
 							'<div class="' +
@@ -149,10 +149,10 @@
 						);
 					}
 
-					if ( 'optimized' === response.data.status ) {
+					if ( 'converted' === response.data.status ) {
 						$this
-							.text( w3tcData.lang.optimized )
-							.data( 'status', 'optimized' );
+							.text( w3tcData.lang.converted )
+							.data( 'status', 'converted' );
 
 						// Add revert link, if not already present.
 						if ( ! $itemTd.find( '.w3tc-revert' ).length ) {
@@ -165,14 +165,14 @@
 							// Update global revert link.
 							$( '.w3tc-revert > a' ).unbind().on( 'click', revertItem );
 						}
-					} else if ( 'notoptimized' === response.data.status ) {
+					} else if ( 'notconverted' === response.data.status ) {
 						$this
-							.text( w3tcData.lang.notOptimized )
-							.data( 'status', 'notoptimized' );
+							.text( w3tcData.lang.notConverted )
+							.data( 'status', 'notconverted' );
 
 						$itemTd.prepend(
-							'<div class="w3tc-notoptimized">' +
-							w3tcData.lang.notOptimizedDesc +
+							'<div class="w3tc-notconverted">' +
+							w3tcData.lang.notConvertedDesc +
 							'</div>'
 						);
 					}
@@ -181,29 +181,29 @@
 					$this
 						.text( w3tcData.lang.error )
 						.data( 'status', null );
-					$itemTd.find( '.w3tc-optimager-error' ).remove();
+					$itemTd.find( '.w3tc-imageservice-error' ).remove();
 					$itemTd.append(
-						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						'<div class="notice notice-error inline w3tc-imageservice-error">' +
 						w3tcData.lang.ajaxFail +
 						'</div>'
 					);
 				});
 		}
 
-		// If any processed images were not optimized, then print a notice to check settings.
-		checkNotOptimized();
+		// If any processed images were not converted, then print a notice to check settings.
+		checkNotConverted();
 	}
 
 	/**
-	 * Check for images not optimized and print a notice if nay are found.
+	 * Check for images not converted and print a notice if nay are found.
 	 *
 	 * @since X.X.X
 	 */
-	function checkNotOptimized() {
-		if ( 'lossy' !== w3tcData.settings.compression && ! $( '#w3tc-notoptimized-notice' ).length && $( '.w3tc-notoptimized' ).length ) {
+	function checkNotConverted() {
+		if ( 'lossy' !== w3tcData.settings.compression && ! $( '#w3tc-notconverted-notice' ).length && $( '.w3tc-notconverted' ).length ) {
 			$( '#wpbody-content' ).prepend(
-				'<div id="w3tc-notoptimized-notice" class="notice notice-warning is-dismissible"><p><span class="w3tc-optimize"></span> Image Service</p><p>' +
-				w3tcData.lang.notoptimizedNotice +
+				'<div id="w3tc-notconverted-notice" class="notice notice-warning is-dismissible"><p><span class="w3tc-convert"></span> Image Service</p><p>' +
+				w3tcData.lang.notConvertedNotice +
 				'</p></div>'
 			);
 		}
@@ -215,7 +215,7 @@
 	 * @since X.X.X
 	 */
 	function refreshStats() {
-		var $countsTable = $( 'table#w3tc-optimager-counts' );
+		var $countsTable = $( 'table#w3tc-imageservice-counts' );
 
 		// Update the refresh button text.
 		$refreshStatsButton
@@ -224,25 +224,25 @@
 			.prop( 'aria-disabled', 'true' );
 
 		// Remove any error notices.
-		$countsTable.find( '.w3tc-optimager-error' ).remove();
+		$countsTable.find( '.w3tc-imageservice-error' ).remove();
 
 		$.ajax({
 			method: 'POST',
 			url: ajaxurl,
 			data: {
 				_wpnonce: w3tcData.nonces.submit,
-				action: 'w3tc_optimager_counts'
+				action: 'w3tc_imageservice_counts'
 			}
 		})
 			.done( function( response ) {
 				if ( response.data && response.data.hasOwnProperty( 'total' ) ) {
-					[ 'total', 'optimized', 'sending', 'processing', 'notoptimized', 'unoptimized' ].forEach( function( className ) {
-						$count = $countsTable.find( '#w3tc-optimager-' + className );
+					[ 'total', 'converted', 'sending', 'processing', 'notconverted', 'unconverted' ].forEach( function( className ) {
+						$count = $countsTable.find( '#w3tc-imageservice-' + className );
 						if ( parseInt( $count.text() ) !== response.data[ className ] ) {
 							$count.text( response.data[ className ] ).closest( 'tr' ).addClass( 'w3tc-highlight' );
 
 							className += 'bytes';
-							$size = $countsTable.find( '#w3tc-optimager-' + className );
+							$size = $countsTable.find( '#w3tc-imageservice-' + className );
 							size = sizeFormat( response.data[ className ], 2 );
 							$size.text( size );
 						}
@@ -265,7 +265,7 @@
 			})
 			.fail( function() {
 				$countsTable.append(
-					'<div class="notice notice-error inline w3tc-optimager-error">' +
+					'<div class="notice notice-error inline w3tc-imageservice-error">' +
 					w3tcData.lang.ajaxFail +
 					'</div>'
 				);
@@ -304,13 +304,13 @@
 	/* Event callback functions */
 
 	/**
-	 * Event callback: Optimize an item.
+	 * Event callback: Convert an item.
 	 *
 	 * @since X.X.X
 	 *
 	 * @param event e Event object.
 	 */
-	 function optimizeItem() {
+	 function convertItem() {
 		var $this = $( this ),
 			$itemTd = $this.closest( 'td' );
 
@@ -320,14 +320,14 @@
 			.closest( 'span' ).addClass( 'w3tc-disabled' );
 
 		// Remove any previous optimization information, revert link, and error notices.
-		$itemTd.find( '.w3tc-optimized-reduced, .w3tc-optimized-increased, .w3tc-revert, .w3tc-optimager-error' ).remove();
+		$itemTd.find( '.w3tc-converted-reduced, .w3tc-converted-increased, .w3tc-revert, .w3tc-imageservice-error' ).remove();
 
 		$.ajax({
 			method: 'POST',
 			url: ajaxurl,
 			data: {
 				_wpnonce: w3tcData.nonces.submit,
-				action: 'w3tc_optimager_submit',
+				action: 'w3tc_imageservice_submit',
 				post_id: $this.data( 'post-id' )
 			}
 		})
@@ -354,7 +354,7 @@
 						.data( 'status', 'error' );
 
 					$itemTd.append(
-						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						'<div class="notice notice-error inline w3tc-imageservice-error">' +
 						w3tcData.lang.apiError +
 						'</div>'
 					);
@@ -378,7 +378,7 @@
 				}
 
 				$itemTd.append(
-					'<div class="notice notice-error inline w3tc-optimager-error">' +
+					'<div class="notice notice-error inline w3tc-imageservice-error">' +
 					message +
 					'</div>'
 				);
@@ -395,27 +395,27 @@
 	function revertItem() {
 		var $this = $( this ),
 			$itemTd = $this.closest( 'td' ),
-			$optimizeLink = $itemTd.find( 'a.w3tc-optimize' );
+			$convertLink = $itemTd.find( 'a.w3tc-convert' );
 
 		$this
 			.text( w3tcData.lang.reverting )
 			.prop( 'aria-disabled', 'true' )
 			.closest( 'span' ).addClass( 'w3tc-disabled' );
 
-		$optimizeLink
+		$convertLink
 			.prop( 'aria-disabled', 'true' )
 			.closest( 'span' ).addClass( 'w3tc-disabled' );
 
 		// Remove error notices.
-		$itemTd.find( '.w3tc-optimager-error' ).remove();
+		$itemTd.find( '.w3tc-imageservice-error' ).remove();
 
 		$.ajax({
 			method: 'POST',
 			url: ajaxurl,
 			data: {
 				_wpnonce: w3tcData.nonces.revert,
-				action: 'w3tc_optimager_revert',
-				post_id: $optimizeLink.data( 'post-id' )
+				action: 'w3tc_imageservice_revert',
+				post_id: $convertLink.data( 'post-id' )
 			}
 		})
 			.done( function( response ) {
@@ -423,8 +423,8 @@
 					$this.closest( 'span' ).remove(); // Remove the revert link.
 					$itemTd.find( 'div' ).remove(); // Remove optimization info.
 
-					$optimizeLink
-						.text( w3tcData.lang.optimize )
+					$convertLink
+						.text( w3tcData.lang.convert )
 						.prop( 'aria-disabled', false )
 						.data( 'status', null )
 						.closest( 'span' ).removeClass( 'w3tc-disabled' );
@@ -444,7 +444,7 @@
 						.data( 'status', 'error' );
 
 					$itemTd.append(
-						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						'<div class="notice notice-error inline w3tc-imageservice-error">' +
 						w3tcData.lang.apiError +
 						'</div>'
 					);
@@ -456,7 +456,7 @@
 					.data( 'status', 'error' );
 
 				$itemTd.append(
-					'<div class="notice notice-error inline w3tc-optimager-error">' +
+					'<div class="notice notice-error inline w3tc-imageservice-error">' +
 					w3tcData.lang.ajaxFail +
 					'</div>'
 				);
@@ -464,13 +464,13 @@
 	};
 
 	/**
-	 * Event callback: Optimize all items.
+	 * Event callback: Convert all items.
 	 *
 	 * @since X.X.X
 	 *
 	 * @see refreshStats()
 	 */
-	 function optimizeItems() {
+	 function convertItems() {
 		var $this = $( this ),
 			$parent = $this.parent();
 
@@ -480,14 +480,14 @@
 			.prop( 'aria-disabled', 'true' );
 
 		// Remove error notices.
-		$parent.find( '.w3tc-optimager-error' ).remove();
+		$parent.find( '.w3tc-imageservice-error' ).remove();
 
 		$.ajax({
 			method: 'POST',
 			url: ajaxurl,
 			data: {
 				_wpnonce: w3tcData.nonces.submit,
-				action: 'w3tc_optimager_all'
+				action: 'w3tc_imageservice_all'
 			}
 		})
 			.done( function( response ) {
@@ -504,7 +504,7 @@
 				} else {
 					$this.text( w3tcData.lang.error );
 					$parent.append(
-						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						'<div class="notice notice-error inline w3tc-imageservice-error">' +
 						w3tcData.lang.apiError +
 						'</div>'
 					);
@@ -513,7 +513,7 @@
 			.fail( function() {
 				$this.text( w3tcData.lang.error );
 				$parent.append(
-					'<div class="notice notice-error inline w3tc-optimager-error">' +
+					'<div class="notice notice-error inline w3tc-imageservice-error">' +
 					w3tcData.lang.ajaxFail +
 					'</div>'
 				);
@@ -539,13 +539,13 @@
 			url: ajaxurl,
 			data: {
 				_wpnonce: w3tcData.nonces.submit,
-				action: 'w3tc_optimager_revertall'
+				action: 'w3tc_imageservice_revertall'
 			}
 		})
 			.done( function( response ) {
 				if ( response.success ) {
 					$this.text( w3tcData.lang.reverted );
-					$optimizeAllButton
+					$convertAllButton
 						.prop( 'disabled', false )
 						.prop( 'aria-disabled', 'false' );
 					refreshStats();
@@ -561,7 +561,7 @@
 					$this
 						.text( w3tcData.lang.error )
 						.parent().append(
-							'<div class="notice notice-error inline w3tc-optimager-error">' +
+							'<div class="notice notice-error inline w3tc-imageservice-error">' +
 							w3tcData.lang.apiError +
 							'</div>'
 						);
@@ -571,7 +571,7 @@
 				$this
 					.text( w3tcData.lang.error )
 					.parent().append(
-						'<div class="notice notice-error inline w3tc-optimager-error">' +
+						'<div class="notice notice-error inline w3tc-imageservice-error">' +
 						w3tcData.lang.ajaxFail +
 						'</div>'
 					);

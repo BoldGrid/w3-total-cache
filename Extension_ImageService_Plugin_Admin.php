@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Extension_ImageOptimizer_Plugin_Admin.php
+ * File: Extension_ImageService_Plugin_Admin.php
  *
  * @since X.X.X
  *
@@ -12,11 +12,11 @@
 namespace W3TC;
 
 /**
- * Class: Extension_ImageOptimizer_Plugin_Admin
+ * Class: Extension_ImageService_Plugin_Admin
  *
  * @since X.X.X
  */
-class Extension_ImageOptimizer_Plugin_Admin {
+class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Image MIME types available for optimization.
 	 *
@@ -43,12 +43,12 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	private $config;
 
 	/**
-	 * Image Optimizer API class object.
+	 * Image Service API class object.
 	 *
 	 * @since X.X.X
 	 * @access private
 	 *
-	 * @var Extension_ImageOptimizer_API
+	 * @var Extension_ImageService_API
 	 */
 	private $api;
 
@@ -94,21 +94,21 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			);
 		}
 
-		$extensions['optimager'] = array(
+		$extensions['imageservice'] = array(
 			'name'             => 'Image Service',
 			'author'           => 'W3 EDGE',
 			'description'      => esc_html( $description ),
 			'author_uri'       => 'https://www.w3-edge.com/',
 			'extension_uri'    => 'https://www.w3-edge.com/',
-			'extension_id'     => 'optimager',
+			'extension_id'     => 'imageservice',
 			'settings_exists'  => false,
 			'version'          => '1.0',
 			'enabled'          => true,
 			'disabled_message' => '',
 			'requirements'     => '',
-			'path'             => 'w3-total-cache/Extension_ImageOptimizer_Plugin.php',
+			'path'             => 'w3-total-cache/Extension_ImageService_Plugin.php',
 			'extra_links'      => array(
-				'<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_optimager' ) ) . '">' .
+				'<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ) . '">' .
 					esc_html__( 'Settings', 'w3-total-cache' ) . '</a>',
 				'<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">' .
 					esc_html__( 'Media Library', 'w3-total-cache' ) . '</a>',
@@ -127,7 +127,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @static
 	 */
 	public static function w3tc_extension_load_admin() {
-		$o = new Extension_ImageOptimizer_Plugin_Admin();
+		$o = new Extension_ImageService_Plugin_Admin();
 
 		// Enqueue scripts.
 		add_action( 'admin_enqueue_scripts', array( $o, 'admin_enqueue_scripts' ) );
@@ -156,15 +156,15 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		add_action( 'manage_media_custom_column', array( $o, 'media_column_row' ), 10, 2 );
 
 		// AJAX hooks.
-		add_action( 'wp_ajax_w3tc_optimager_submit', array( $o, 'ajax_submit' ) );
-		add_action( 'wp_ajax_w3tc_optimager_postmeta', array( $o, 'ajax_get_postmeta' ) );
-		add_action( 'wp_ajax_w3tc_optimager_revert', array( $o, 'ajax_revert' ) );
-		add_action( 'wp_ajax_w3tc_optimager_all', array( $o, 'ajax_optimize_all' ) );
-		add_action( 'wp_ajax_w3tc_optimager_revertall', array( $o, 'ajax_revert_all' ) );
-		add_action( 'wp_ajax_w3tc_optimager_counts', array( $o, 'ajax_get_counts' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_submit', array( $o, 'ajax_submit' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_postmeta', array( $o, 'ajax_get_postmeta' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_revert', array( $o, 'ajax_revert' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_all', array( $o, 'ajax_convert_all' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_revertall', array( $o, 'ajax_revert_all' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_counts', array( $o, 'ajax_get_counts' ) );
 
 		// Admin notices.
-		add_action( 'admin_notices', array( $o, 'w3tc_optimager_notices' ) );
+		add_action( 'admin_notices', array( $o, 'w3tc_imageservice_notices' ) );
 
 		/**
 		 * Ensure all network sites include WebP support.
@@ -218,7 +218,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		 *
 		 * @param int $post_ID Attachment ID.
 		 */
-		add_action( 'add_attachment', array( $o, 'auto_optimize' ) );
+		add_action( 'add_attachment', array( $o, 'auto_convert' ) );
 
 		/**
 		 * Delete optimizations on parent image delation.
@@ -241,7 +241,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
-	 * Get all images with postmeta key "w3tc_optimager".
+	 * Get all images with postmeta key "w3tc_imageservice".
 	 *
 	 * @since X.X.X
 	 * @static
@@ -250,7 +250,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @return
 	 */
-	public static function get_optimager_attachments() {
+	public static function get_imageservice_attachments() {
 		return new \WP_Query(
 			array(
 				'post_type'           => 'attachment',
@@ -259,13 +259,13 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				'posts_per_page'      => -1,
 				'ignore_sticky_posts' => true,
 				'suppress_filters'    => true,
-				'meta_key'            => 'w3tc_optimager', // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_key'            => 'w3tc_imageservice', // phpcs:ignore WordPress.DB.SlowDBQuery
 			)
 		);
 	}
 
 	/**
-	 * Get all images without postmeta key "w3tc_optimager".
+	 * Get all images without postmeta key "w3tc_imageservice".
 	 *
 	 * @since X.X.X
 	 * @static
@@ -283,7 +283,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				'posts_per_page'      => -1,
 				'ignore_sticky_posts' => true,
 				'suppress_filters'    => true,
-				'meta_key'            => 'w3tc_optimager', // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_key'            => 'w3tc_imageservice', // phpcs:ignore WordPress.DB.SlowDBQuery
 				'meta_compare'        => 'NOT EXISTS',
 			)
 		);
@@ -318,38 +318,38 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @see self::get_optimager_attachments()
+	 * @see self::get_imageservice_attachments()
 	 * @see self::get_eligible_attachments()
 	 *
 	 * @return array
 	 */
-	public function get_optimager_counts() {
-		$unoptimized_posts = self::get_eligible_attachments();
+	public function get_imageservice_counts() {
+		$unconverted_posts = self::get_eligible_attachments();
 		$counts            = array(
 			'sending'      => 0,
 			'processing'   => 0,
-			'optimized'    => 0,
-			'notoptimized' => 0,
-			'unoptimized'  => $unoptimized_posts->post_count,
+			'converted'    => 0,
+			'notconverted' => 0,
+			'unconverted'  => $unconverted_posts->post_count,
 			'total'        => 0,
 		);
 		$bytes             = array(
 			'sending'      => 0,
 			'processing'   => 0,
-			'optimized'    => 0,
-			'notoptimized' => 0,
-			'unoptimized'  => 0,
+			'converted'    => 0,
+			'notconverted' => 0,
+			'unconverted'  => 0,
 			'total'        => 0,
 		);
-		$optimager_posts   = self::get_optimager_attachments()->posts;
+		$imageservice_posts   = self::get_imageservice_attachments()->posts;
 
-		foreach ( $optimager_posts as $post ) {
-			$optimager_data = get_post_meta( $post->ID, 'w3tc_optimager', true );
-			$status         = isset( $optimager_data['status'] ) ? $optimager_data['status'] : null;
-			$filesize_in    = isset( $optimager_data['download']["\0*\0data"]['x-filesize-in'] ) ?
-				$optimager_data['download']["\0*\0data"]['x-filesize-in'] : 0;
-			$filesize_out   = isset( $optimager_data['download']["\0*\0data"]['x-filesize-out'] ) ?
-				$optimager_data['download']["\0*\0data"]['x-filesize-out'] : 0;
+		foreach ( $imageservice_posts as $post ) {
+			$imageservice_data = get_post_meta( $post->ID, 'w3tc_imageservice', true );
+			$status         = isset( $imageservice_data['status'] ) ? $imageservice_data['status'] : null;
+			$filesize_in    = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-in'] ) ?
+				$imageservice_data['download']["\0*\0data"]['x-filesize-in'] : 0;
+			$filesize_out   = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-out'] ) ?
+				$imageservice_data['download']["\0*\0data"]['x-filesize-out'] : 0;
 
 			switch ( $status ) {
 				case 'sending':
@@ -364,21 +364,21 @@ class Extension_ImageOptimizer_Plugin_Admin {
 					$bytes['processing'] += $size;
 					$bytes['total']      += $size;
 					break;
-				case 'optimized':
-					$counts['optimized']++;
-					$bytes['optimized'] += $filesize_in - $filesize_out;
+				case 'converted':
+					$counts['converted']++;
+					$bytes['converted'] += $filesize_in - $filesize_out;
 					$bytes['total']     += $filesize_in - $filesize_out;
 					break;
-				case 'notoptimized':
+				case 'notconverted':
 					$size = $this->get_attachment_filesize( $post->ID );
-					$counts['notoptimized']++;
-					$bytes['notoptimized'] += $size;
+					$counts['notconverted']++;
+					$bytes['notconverted'] += $size;
 					$bytes['total']        += $size;
 					break;
-				case 'unoptimized':
+				case 'unconverted':
 					$size = $this->get_attachment_filesize( $post->ID );
-					$counts['unoptimized']++;
-					$bytes['unoptimized'] += $size;
+					$counts['unconverted']++;
+					$bytes['unconverted'] += $size;
 					$bytes['total']       += $size;
 					break;
 				default:
@@ -386,11 +386,11 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			}
 		}
 
-		foreach ( $unoptimized_posts->posts as $post ) {
+		foreach ( $unconverted_posts->posts as $post ) {
 			$size = $this->get_attachment_filesize( $post->ID );
 
 			if ( $size ) {
-				$bytes['unoptimized'] += $size;
+				$bytes['unconverted'] += $size;
 				$bytes['total']       += $size;
 			}
 		}
@@ -399,9 +399,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		$counts['totalbytes']        = $bytes['total'];
 		$counts['sendingbytes']      = $bytes['sending'];
 		$counts['processingbytes']   = $bytes['processing'];
-		$counts['optimizedbytes']    = $bytes['optimized'];
-		$counts['notoptimizedbytes'] = $bytes['notoptimized'];
-		$counts['unoptimizedbytes']  = $bytes['unoptimized'];
+		$counts['convertedbytes']    = $bytes['converted'];
+		$counts['notconvertedbytes'] = $bytes['notconverted'];
+		$counts['unconvertedbytes']  = $bytes['unconverted'];
 
 		return $counts;
 	}
@@ -411,29 +411,29 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 */
-	public function w3tc_extension_page_optimager() {
+	public function w3tc_extension_page_imageservice() {
 		$c      = $this->config;
-		$counts = $this->get_optimager_counts();
+		$counts = $this->get_imageservice_counts();
 
-		delete_transient( 'w3tc_activation_optimager' );
+		delete_transient( 'w3tc_activation_imageservice' );
 
 		// Save submitted settings.
-		if ( isset( $_POST, $_POST['optimager___compression'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'w3tc' ) ) {
-			$settings = $c->get_array( 'optimager' );
+		if ( isset( $_POST, $_POST['imageservice___compression'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'w3tc' ) ) {
+			$settings = $c->get_array( 'imageservice' );
 
-			if ( isset( $_POST['optimager___compression'] ) ) {
-				$settings['compression'] = sanitize_key( $_POST['optimager___compression'] );
+			if ( isset( $_POST['imageservice___compression'] ) ) {
+				$settings['compression'] = sanitize_key( $_POST['imageservice___compression'] );
 			}
 
-			if ( isset( $_POST['optimager___auto'] ) ) {
-				$settings['auto'] = sanitize_key( $_POST['optimager___auto'] );
+			if ( isset( $_POST['imageservice___auto'] ) ) {
+				$settings['auto'] = sanitize_key( $_POST['imageservice___auto'] );
 			}
 
-			$c->set( 'optimager', $settings );
+			$c->set( 'imageservice', $settings );
 			$c->save();
 		}
 
-		require W3TC_DIR . '/Extension_ImageOptimizer_Page_View.php';
+		require W3TC_DIR . '/Extension_ImageService_Page_View.php';
 	}
 
 	/**
@@ -448,8 +448,8 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			esc_html__( 'Total Cache Image Service', 'w3-total-cache' ),
 			esc_html__( 'Total Cache Image Service', 'w3-total-cache' ),
 			'edit_posts',
-			'w3tc_extension_page_optimager',
-			array( $this, 'w3tc_extension_page_optimager' )
+			'w3tc_extension_page_imageservice',
+			array( $this, 'w3tc_extension_page_imageservice' )
 		);
 	}
 
@@ -462,7 +462,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 */
 	public function admin_enqueue_scripts() {
 		// Enqueue JavaScript for the Media Library (upload) and extension settings admin pages.
-		$is_settings_page = isset( $_GET['page'] ) && 'w3tc_extension_page_optimager' === $_GET['page'];
+		$is_settings_page = isset( $_GET['page'] ) && 'w3tc_extension_page_imageservice' === $_GET['page'];
 		$is_media_page    = 'upload' === get_current_screen()->id;
 
 		if ( $is_settings_page ) {
@@ -472,53 +472,53 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 		if ( $is_settings_page || $is_media_page ) {
 			wp_register_script(
-				'w3tc-optimager',
-				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_ImageOptimizer_Plugin_Admin.js' ),
+				'w3tc-imageservice',
+				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_ImageService_Plugin_Admin.js' ),
 				array( 'jquery' ),
 				W3TC_VERSION,
 				true
 			);
 
 			wp_localize_script(
-				'w3tc-optimager',
+				'w3tc-imageservice',
 				'w3tcData',
 				array(
 					'nonces'   => array(
-						'submit'   => wp_create_nonce( 'w3tc_optimager_submit' ),
-						'postmeta' => wp_create_nonce( 'w3tc_optimager_postmeta' ),
-						'revert'   => wp_create_nonce( 'w3tc_optimager_revert' ),
+						'submit'   => wp_create_nonce( 'w3tc_imageservice_submit' ),
+						'postmeta' => wp_create_nonce( 'w3tc_imageservice_postmeta' ),
+						'revert'   => wp_create_nonce( 'w3tc_imageservice_revert' ),
 					),
 					'lang'     => array(
-						'optimize'           => __( 'Optimize', 'w3-total_cache' ),
+						'convert'           => __( 'Convert', 'w3-total_cache' ),
 						'sending'            => __( 'Sending...', 'w3-total_cache' ),
 						'processing'         => __( 'Processing...', 'w3-total_cache' ),
-						'optimized'          => __( 'Optimized', 'w3-total_cache' ),
-						'notOptimized'       => __( 'Not optimized', 'w3-total_cache' ),
+						'converted'          => __( 'Converted', 'w3-total_cache' ),
+						'notConverted'       => __( 'Not converted', 'w3-total_cache' ),
 						'reverting'          => __( 'Reverting...', 'w3-total_cache' ),
 						'reverted'           => __( 'Reverted', 'w3-total_cache' ),
 						'revert'             => __( 'Revert', 'w3-total_cache' ),
 						'error'              => __( 'Error', 'w3-total_cache' ),
-						'notOptimizedDesc'   => __( 'Not optimized; image would be larger.', 'w3-total_cache' ),
+						'notConvertedDesc'   => __( 'Not converted; image would be larger.', 'w3-total_cache' ),
 						'ajaxFail'           => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
 						'apiError'           => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
 						'refresh'            => __( 'Refresh', 'w3-total_cache' ),
 						'refreshing'         => __( 'Refreshing...', 'w3-total_cache' ),
-						'notoptimizedNotice' => sprintf(
+						'notConvertedNotice' => sprintf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							__( 'Some images were not optimized.  Review your %1$ssettings%2$s to try using lossy compression.', 'w3-total_cache' ),
-							'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_optimager' ) ) . '">',
+							__( 'Some images were not converted.  Review your %1$ssettings%2$s to try using lossy compression.', 'w3-total_cache' ),
+							'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ) . '">',
 							'</a>'
 						),
 					),
-					'settings' => $this->config->get_array( 'optimager' ),
+					'settings' => $this->config->get_array( 'imageservice' ),
 				)
 			);
 
-			wp_enqueue_script( 'w3tc-optimager' );
+			wp_enqueue_script( 'w3tc-imageservice' );
 
 			wp_enqueue_style(
-				'w3tc-optimager',
-				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_ImageOptimizer_Plugin_Admin.css' ),
+				'w3tc-imageservice',
+				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_ImageService_Plugin_Admin.css' ),
 				array(),
 				W3TC_VERSION,
 				'all'
@@ -538,7 +538,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *                                to any posts. Default true.
 	 */
 	public function add_media_column( $posts_columns, $detached = true ) {
-		$posts_columns['optimager'] = '<span class="w3tc-optimize"></span> ' . esc_html__( 'Image Service', 'w3-total-cache' );
+		$posts_columns['imageservice'] = '<span class="w3tc-convert"></span> ' . esc_html__( 'Image Service', 'w3-total-cache' );
 
 		return $posts_columns;
 	}
@@ -559,42 +559,42 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @param int    $post_id     Attachment ID.
 	 */
 	public function media_column_row( $column_name, $post_id ) {
-		if ( 'optimager' === $column_name ) {
-			delete_transient( 'w3tc_activation_optimager' );
+		if ( 'imageservice' === $column_name ) {
+			delete_transient( 'w3tc_activation_imageservice' );
 
 			$post           = get_post( $post_id );
-			$optimager_data = get_post_meta( $post_id, 'w3tc_optimager', true );
+			$imageservice_data = get_post_meta( $post_id, 'w3tc_imageservice', true );
 
 			// Display controls and info for eligible images.
 			if ( in_array( $post->post_mime_type, self::$mime_types, true ) ) {
 				$filepath = get_attached_file( $post_id );
-				$status   = isset( $optimager_data['status'] ) ? $optimager_data['status'] : null;
+				$status   = isset( $imageservice_data['status'] ) ? $imageservice_data['status'] : null;
 
-				// Check if image still has the optimized file.  It could have been deleted.
-				if ( 'optimized' === $status && isset( $optimager_data['post_child'] ) ) {
-					$child_data = get_post_meta( $optimager_data['post_child'], 'w3tc_optimager', true );
+				// Check if image still has the converted file.  It could have been deleted.
+				if ( 'converted' === $status && isset( $imageservice_data['post_child'] ) ) {
+					$child_data = get_post_meta( $imageservice_data['post_child'], 'w3tc_imageservice', true );
 
-					if ( empty( $child_data['is_optimized_file'] ) ) {
+					if ( empty( $child_data['is_converted_file'] ) ) {
 						$status = null;
 						$this->remove_optimizations( $post_id );
 					}
 				}
 
 				// If processed, then show information.
-				if ( 'optimized' === $status ) {
-					$optimized_percent = isset( $optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] ) ?
-						$optimager_data['download']["\0*\0data"]['x-filesize-out-percent'] : null;
-					$reduced_percent   = isset( $optimager_data['download']["\0*\0data"]['x-filesize-reduced'] ) ?
-						$optimager_data['download']["\0*\0data"]['x-filesize-reduced'] : null;
-					$filesize_in       = isset( $optimager_data['download']["\0*\0data"]['x-filesize-in'] ) ?
-						$optimager_data['download']["\0*\0data"]['x-filesize-in'] : null;
-					$filesize_out      = isset( $optimager_data['download']["\0*\0data"]['x-filesize-out'] ) ?
-						$optimager_data['download']["\0*\0data"]['x-filesize-out'] : null;
+				if ( 'converted' === $status ) {
+					$converted_percent = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-out-percent'] ) ?
+						$imageservice_data['download']["\0*\0data"]['x-filesize-out-percent'] : null;
+					$reduced_percent   = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-reduced'] ) ?
+						$imageservice_data['download']["\0*\0data"]['x-filesize-reduced'] : null;
+					$filesize_in       = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-in'] ) ?
+						$imageservice_data['download']["\0*\0data"]['x-filesize-in'] : null;
+					$filesize_out      = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-out'] ) ?
+						$imageservice_data['download']["\0*\0data"]['x-filesize-out'] : null;
 
-					if ( $optimized_percent ) {
-						$optimized_class = rtrim( $optimized_percent, '%' ) > 100 ? 'w3tc-optimized-increased' : 'w3tc-optimized-reduced';
+					if ( $converted_percent ) {
+						$converted_class = rtrim( $converted_percent, '%' ) > 100 ? 'w3tc-converted-increased' : 'w3tc-converted-reduced';
 						?>
-						<div class="<?php echo esc_attr( $optimized_class ); ?>">
+						<div class="<?php echo esc_attr( $converted_class ); ?>">
 						<?php
 						printf(
 							'%1$s &#8594; %2$s (%3$s)',
@@ -606,22 +606,22 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						</div>
 						<?php
 					}
-				} elseif ( 'notoptimized' === $status ) {
+				} elseif ( 'notconverted' === $status ) {
 					?>
-					<div class="w3tc-notoptimized"><?php esc_html_e( 'Not optimized; image would be larger.', 'w3-total-cache' ); ?></div>
+					<div class="w3tc-notconverted"><?php esc_html_e( 'Not converted; image would be larger.', 'w3-total-cache' ); ?></div>
 					<?php
 				}
 
 				// Determine classes.
-				$link_classes   = 'w3tc-optimize';
+				$link_classes   = 'w3tc-convert';
 				$disabled_class = '';
 				$aria_attr = 'false';
 
 				if ( 'processing' === $status ) {
-					$link_classes  .= ' w3tc-optimize-processing';
+					$link_classes  .= ' w3tc-convert-processing';
 					$disabled_class = 'w3tc-disabled';
 					$aria_attr = 'true';
-				} elseif ( 'optimized' === $status ) {
+				} elseif ( 'converted' === $status ) {
 					$disabled_class = 'w3tc-disabled';
 					$aria_attr = 'true';
 				}
@@ -640,11 +640,11 @@ class Extension_ImageOptimizer_Plugin_Admin {
 					case 'processing':
 						esc_html_e( 'Processing...', 'w3-total-cache' );
 						break;
-					case 'optimized':
-						esc_html_e( 'Optimized', 'w3-total-cache' );
+					case 'converted':
+						esc_html_e( 'Converted', 'w3-total-cache' );
 						break;
 					default:
-						esc_html_e( 'Optimize', 'w3-total-cache' );
+						esc_html_e( 'Convert', 'w3-total-cache' );
 						break;
 				}
 				// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
@@ -653,14 +653,14 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				</span>
 				<?php
 
-				// If optimized, then show revert link.
-				if ( 'optimized' === $status ) {
+				// If converted, then show revert link.
+				if ( 'converted' === $status ) {
 					?>
 					<span class="w3tc-revert"> | <a href="#"><?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?></a></span>
 					<?php
 				}
-			} elseif ( isset( $optimager_data['is_optimized_file'] ) && $optimager_data['is_optimized_file'] ) {
-				// W3TC optimized image.
+			} elseif ( isset( $imageservice_data['is_converted_file'] ) && $imageservice_data['is_converted_file'] ) {
+				// W3TC converted image.
 				echo esc_html__( 'Attachment id: ', 'w3-total-cache' ) . esc_html( $post->post_parent );
 			}
 		}
@@ -675,8 +675,8 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @return array
 	 */
 	public function add_bulk_actions( array $actions ) {
-		$actions['w3tc_optimager_optimize'] = 'W3 Total Optimize';
-		$actions['w3tc_optimager_revert'] = 'W3 Total Optimize Revert';
+		$actions['w3tc_imageservice_convert'] = 'W3 Total Convert';
+		$actions['w3tc_imageservice_revert'] = 'W3 Total Convert Revert';
 
 		return $actions;
 	}
@@ -702,28 +702,28 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 */
 	public function handle_bulk_actions( $location, $doaction, array $post_ids ) {
 		// Remove custom query args.
-		$location = remove_query_arg( array( 'w3tc_optimager_submitted', 'w3tc_optimager_reverted' ), $location );
+		$location = remove_query_arg( array( 'w3tc_imageservice_submitted', 'w3tc_imageservice_reverted' ), $location );
 
 		switch ( $doaction ) {
-			case 'w3tc_optimager_optimize':
+			case 'w3tc_imageservice_convert':
 				$stats = $this->submit_images( $post_ids );
 
 				$location = add_query_arg(
 					array(
-						'w3tc_optimager_submitted'  => $stats['submitted'],
-						'w3tc_optimager_successful' => $stats['successful'],
-						'w3tc_optimager_skipped'    => $stats['skipped'],
-						'w3tc_optimager_errored'    => $stats['errored'],
-						'w3tc_optimager_invalid'    => $stats['invalid'],
+						'w3tc_imageservice_submitted'  => $stats['submitted'],
+						'w3tc_imageservice_successful' => $stats['successful'],
+						'w3tc_imageservice_skipped'    => $stats['skipped'],
+						'w3tc_imageservice_errored'    => $stats['errored'],
+						'w3tc_imageservice_invalid'    => $stats['invalid'],
 					),
 					$location
 				);
 
 				break;
-			case 'w3tc_optimager_revert':
+			case 'w3tc_imageservice_revert':
 				$this->revert_optimizations( $post_ids );
 
-				$location = add_query_arg( 'w3tc_optimager_reverted', 1, $location );
+				$location = add_query_arg( 'w3tc_imageservice_reverted', 1, $location );
 
 				break;
 			default:
@@ -738,23 +738,23 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @uses $_GET['w3tc_optimager_submitted']  Number of submittions.
-	 * @uses $_GET['w3tc_optimager_successful'] Number of successful submissions.
-	 * @uses $_GET['w3tc_optimager_skipped']    Number of skipped submissions.
-	 * @uses $_GET['w3tc_optimager_errored']    Number of errored submissions.
-	 * @uses $_GET['w3tc_optimager_invalid']    Number of invalid submissions.
+	 * @uses $_GET['w3tc_imageservice_submitted']  Number of submittions.
+	 * @uses $_GET['w3tc_imageservice_successful'] Number of successful submissions.
+	 * @uses $_GET['w3tc_imageservice_skipped']    Number of skipped submissions.
+	 * @uses $_GET['w3tc_imageservice_errored']    Number of errored submissions.
+	 * @uses $_GET['w3tc_imageservice_invalid']    Number of invalid submissions.
 	 */
-	public function w3tc_optimager_notices() {
-		if ( isset( $_GET['w3tc_optimager_submitted'] ) ) {
-			$submitted  = intval( $_GET['w3tc_optimager_submitted'] );
-			$successful = isset( $_GET['w3tc_optimager_successful'] ) ? intval( $_GET['w3tc_optimager_successful'] ) : 0;
-			$skipped    = isset( $_GET['w3tc_optimager_skipped'] ) ? intval( $_GET['w3tc_optimager_skipped'] ) : 0;
-			$errored    = isset( $_GET['w3tc_optimager_errored'] ) ? intval( $_GET['w3tc_optimager_errored'] ) : 0;
-			$invalid    = isset( $_GET['w3tc_optimager_invalid'] ) ? intval( $_GET['w3tc_optimager_invalid'] ) : 0;
+	public function w3tc_imageservice_notices() {
+		if ( isset( $_GET['w3tc_imageservice_submitted'] ) ) {
+			$submitted  = intval( $_GET['w3tc_imageservice_submitted'] );
+			$successful = isset( $_GET['w3tc_imageservice_successful'] ) ? intval( $_GET['w3tc_imageservice_successful'] ) : 0;
+			$skipped    = isset( $_GET['w3tc_imageservice_skipped'] ) ? intval( $_GET['w3tc_imageservice_skipped'] ) : 0;
+			$errored    = isset( $_GET['w3tc_imageservice_errored'] ) ? intval( $_GET['w3tc_imageservice_errored'] ) : 0;
+			$invalid    = isset( $_GET['w3tc_imageservice_invalid'] ) ? intval( $_GET['w3tc_imageservice_invalid'] ) : 0;
 
 			?>
 			<div class="updated notice notice-success is-dismissible">
-				<p><span class="w3tc-optimize"></span> Image Service</p>
+				<p><span class="w3tc-convert"></span> Image Service</p>
 				<p>
 			<?php
 
@@ -793,9 +793,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			</div>
 			<?php
 
-		} elseif ( isset( $_GET['w3tc_optimager_reverted'] ) ) {
+		} elseif ( isset( $_GET['w3tc_imageservice_reverted'] ) ) {
 			?>
-			<div class="updated notice notice-success is-dismissible"><p><span class="w3tc-optimize"></span> Image Service</p>
+			<div class="updated notice notice-success is-dismissible"><p><span class="w3tc-convert"></span> Image Service</p>
 				<p><?php _e( 'All selected optimizations have been reverted.', 'w3-total-cache' ); ?></p>
 			</div>
 			<?php
@@ -807,7 +807,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			// If not in list mode, then print a notice to switch to it.
 			if ( 'list' !== $mode ) {
 				?>
-				<div class="notice notice-warning is-dismissible"><p><span class="w3tc-optimize"></span> Image Service</p>
+				<div class="notice notice-warning is-dismissible"><p><span class="w3tc-convert"></span> Image Service</p>
 					<p>
 				<?php
 						printf(
@@ -821,10 +821,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 				</div>
     			<?php
 			}
-		} elseif ( isset( $_GET['w3tc_optimager_action'] ) && 'dismiss_activation_notice' === $_GET['w3tc_optimager_action'] ) {
-			delete_transient( 'w3tc_activation_optimager' );
-			wp_redirect( remove_query_arg( 'w3tc_optimager_action' ) );
-		} elseif ( get_transient( 'w3tc_activation_optimager' ) ) {
+		} elseif ( isset( $_GET['w3tc_imageservice_action'] ) && 'dismiss_activation_notice' === $_GET['w3tc_imageservice_action'] ) {
+			delete_transient( 'w3tc_activation_imageservice' );
+			wp_redirect( remove_query_arg( 'w3tc_imageservice_action' ) );
+		} elseif ( get_transient( 'w3tc_activation_imageservice' ) ) {
 			// Activation notice.
 			$page       = isset( $_GET['page'] ) ? $_GET['page'] : null;
 			$skip_pages = array(
@@ -862,10 +862,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'We now offer an image conversion service to support the latest WEBP image format.  Configure your settings and convert all of your images now using our %1$sbulk tools%2$s, select images to convert in your %3$sMedia Library%2$s, or %4$shide this notice%2$s.',
 						'w3-total-cache'
 					),
-					'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_optimager' ) ) . '">',
+					'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ) . '">',
 					'</a>',
 					'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
-					'<a href="' . esc_attr( add_query_arg( 'w3tc_optimager_action', 'dismiss_activation_notice' ) ) . '">'
+					'<a href="' . esc_attr( add_query_arg( 'w3tc_imageservice_action', 'dismiss_activation_notice' ) ) . '">'
 				);
 				?>
 					</p>
@@ -890,9 +890,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		WP_Filesystem();
 		global $wp_filesystem;
 
-		require_once __DIR__ . '/Extension_ImageOptimizer_Api.php';
+		require_once __DIR__ . '/Extension_ImageService_Api.php';
 
-		$api = new Extension_ImageOptimizer_Api();
+		$api = new Extension_ImageService_Api();
 
 		$stats = array(
 			'skipped'    => 0,
@@ -980,10 +980,10 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *                  passed to the function is the same as the one that is already in the database.
 	 */
 	public static function update_postmeta( $post_id, array $data ) {
-		$postmeta = (array) get_post_meta( $post_id, 'w3tc_optimager', true );
+		$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
 		$postmeta = array_merge( $postmeta, $data );
 
-		return update_post_meta( $post_id, 'w3tc_optimager', $postmeta );
+		return update_post_meta( $post_id, 'w3tc_imageservice', $postmeta );
 	}
 
 	/**
@@ -1000,12 +1000,12 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *                  passed to the function is the same as the one that is already in the database.
 	 */
 	public static function copy_postmeta( $post_id_1, $post_id_2 ) {
-		$postmeta = (array) get_post_meta( $post_id_1, 'w3tc_optimager', true );
+		$postmeta = (array) get_post_meta( $post_id_1, 'w3tc_imageservice', true );
 
 		// Do not copy "post_child".
 		unset( $postmeta['post_child'] );
 
-		return update_post_meta( $post_id_2, 'w3tc_optimager', $postmeta );
+		return update_post_meta( $post_id_2, 'w3tc_imageservice', $postmeta );
 	}
 
 	/**
@@ -1022,7 +1022,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		$result = null;
 
 		// Get child post id.
-		$postmeta = (array) get_post_meta( $post_id, 'w3tc_optimager', true );
+		$postmeta = (array) get_post_meta( $post_id, 'w3tc_imageservice', true );
 		$child_id = isset( $postmeta['post_child'] ) ? $postmeta['post_child'] : null;
 
 		if ( $child_id ) {
@@ -1031,7 +1031,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		}
 
 		// Delete postmeta.
-		delete_post_meta( $post_id, 'w3tc_optimager' );
+		delete_post_meta( $post_id, 'w3tc_imageservice' );
 
 		return $result;
 	}
@@ -1043,8 +1043,8 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @param int $post_id Post id.
 	 */
-	public function auto_optimize( $post_id ) {
-		$settings = $this->config->get_array( 'optimager' );
+	public function auto_convert( $post_id ) {
+		$settings = $this->config->get_array( 'imageservice' );
 		$enabled  = isset( $settings['auto'] ) && 'enabled' === $settings['auto'];
 
 		if ( $enabled && in_array( get_post_mime_type( $post_id ), self::$mime_types, true ) ) {
@@ -1082,7 +1082,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @uses $_POST['post_id'] Post id.
 	 */
 	public function ajax_submit() {
-		check_ajax_referer( 'w3tc_optimager_submit' );
+		check_ajax_referer( 'w3tc_imageservice_submit' );
 
 		WP_Filesystem();
 		global $wp_filesystem;
@@ -1116,9 +1116,9 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		}
 
 		// Submit the job request.
-		require_once __DIR__ . '/Extension_ImageOptimizer_Api.php';
+		require_once __DIR__ . '/Extension_ImageService_Api.php';
 
-		$api      = new Extension_ImageOptimizer_Api();
+		$api      = new Extension_ImageService_Api();
 		$response = $api->convert( $filepath );
 
 		// Check for error.
@@ -1162,12 +1162,12 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @uses $_POST['post_id'] Post id.
 	 */
 	public function ajax_get_postmeta() {
-		check_ajax_referer( 'w3tc_optimager_postmeta' );
+		check_ajax_referer( 'w3tc_imageservice_postmeta' );
 
 		$post_id = isset( $_POST['post_id'] ) ? (int) sanitize_key( $_POST['post_id'] ) : null;
 
 		if ( $post_id ) {
-			wp_send_json_success( (array) get_post_meta( $post_id, 'w3tc_optimager', true ) );
+			wp_send_json_success( (array) get_post_meta( $post_id, 'w3tc_imageservice', true ) );
 		} else {
 			wp_send_json_error(
 				array(
@@ -1186,7 +1186,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 * @uses $_POST['post_id'] Parent post id.
 	 */
 	public function ajax_revert() {
-		check_ajax_referer( 'w3tc_optimager_revert' );
+		check_ajax_referer( 'w3tc_imageservice_revert' );
 
 		$post_id = isset( $_POST['post_id'] ) ? (int) sanitize_key( $_POST['post_id'] ) : null;
 
@@ -1198,7 +1198,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			} else {
 				wp_send_json_error(
 					array(
-						'error' => __( 'Missing optimized attachment id.', 'w3-total-cache' ),
+						'error' => __( 'Missing converted attachment id.', 'w3-total-cache' ),
 					),
 					410
 				);
@@ -1214,15 +1214,15 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
-	 * AJAX: Optimize all images.
+	 * AJAX: Convert all images.
 	 *
 	 * @since X.X.X
 	 *
 	 * @see self::get_eligible_attachments()
 	 * @see self::submit_images()
 	 */
-	public function ajax_optimize_all() {
-		check_ajax_referer( 'w3tc_optimager_submit' );
+	public function ajax_convert_all() {
+		check_ajax_referer( 'w3tc_imageservice_submit' );
 
 		$results = $this->get_eligible_attachments();
 
@@ -1242,17 +1242,17 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	}
 
 	/**
-	 * AJAX: Revert all optimized images.
+	 * AJAX: Revert all converted images.
 	 *
 	 * @since X.X.X
 	 *
-	 * @see self::get_optimager_attachments()
+	 * @see self::get_imageservice_attachments()
 	 * @see self::remove_optimizations()
 	 */
 	public function ajax_revert_all() {
-		check_ajax_referer( 'w3tc_optimager_submit' );
+		check_ajax_referer( 'w3tc_imageservice_submit' );
 
-		$results = $this->get_optimager_attachments();
+		$results = $this->get_imageservice_attachments();
 
 		$revert_count = 0;
 
@@ -1274,11 +1274,11 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @see get_optimager_counts()
+	 * @see get_imageservice_counts()
 	 */
 	public function ajax_get_counts() {
-		check_ajax_referer( 'w3tc_optimager_submit' );
+		check_ajax_referer( 'w3tc_imageservice_submit' );
 
-		wp_send_json_success( $this->get_optimager_counts() );
+		wp_send_json_success( $this->get_imageservice_counts() );
 	}
 }

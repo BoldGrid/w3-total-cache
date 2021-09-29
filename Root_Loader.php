@@ -163,7 +163,7 @@ class Root_Loader {
 			do_action( 'w3tc_extension_load_admin' );
 		}
 
-		// Hide optimized media.
+		// Hide Image Service media.
 		add_action(
 			'pre_get_posts',
 			function( $query ) {
@@ -181,7 +181,7 @@ class Root_Loader {
 					'meta_query',
 					array(
 						array(
-							'key'     => 'w3tc_optimager_file',
+							'key'     => 'w3tc_imageservice_file',
 							'compare' => 'NOT EXISTS',
 						),
 					)
@@ -201,7 +201,7 @@ class Root_Loader {
 				// Modify the query.
 				$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
-						'key'     => 'w3tc_optimager_file',
+						'key'     => 'w3tc_imageservice_file',
 						'compare' => 'NOT EXISTS',
 					),
 				);
