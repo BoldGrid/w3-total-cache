@@ -19,8 +19,10 @@ if ( ! defined( 'W3TC' ) ) {
 }
 
 ?>
+<div class="wrap" id="w3tc">
+
 <p>
-	<span class="w3tc-optimize"></span> Image Service is currently
+	Total Cache Image Service is currently
 	<?php
 	if ( $c->is_extension_active( 'optimager' ) ) {
 		?>
@@ -35,7 +37,7 @@ if ( ! defined( 'W3TC' ) ) {
 	.
 </p>
 
-<form id="w3tc-optimager-settings" action="admin.php?page=w3tc_extensions&amp;extension=optimager&amp;action=view" method="post">
+<form id="w3tc-optimager-settings" action="upload.php?page=w3tc_extension_page_optimager" method="post">
 <div class="metabox-holder">
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', '' ); ?>
@@ -169,3 +171,5 @@ if ( ! defined( 'W3TC' ) ) {
 
 </div>
 </form>
+
+</div>

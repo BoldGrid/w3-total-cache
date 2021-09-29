@@ -101,13 +101,15 @@ class Extension_ImageOptimizer_Plugin_Admin {
 			'author_uri'       => 'https://www.w3-edge.com/',
 			'extension_uri'    => 'https://www.w3-edge.com/',
 			'extension_id'     => 'optimager',
-			'settings_exists'  => true,
+			'settings_exists'  => false,
 			'version'          => '1.0',
 			'enabled'          => true,
 			'disabled_message' => '',
 			'requirements'     => '',
 			'path'             => 'w3-total-cache/Extension_ImageOptimizer_Plugin.php',
 			'extra_links'      => array(
+				'<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_optimager' ) ) . '">' .
+					esc_html__( 'Settings', 'w3-total-cache' ) . '</a>',
 				'<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">' .
 					esc_html__( 'Media Library', 'w3-total-cache' ) . '</a>',
 			),
@@ -126,9 +128,6 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 */
 	public static function w3tc_extension_load_admin() {
 		$o = new Extension_ImageOptimizer_Plugin_Admin();
-
-		// Settings page.
-		add_action( 'w3tc_extension_page_optimager', array( $o, 'w3tc_extension_page_optimager' ) );
 
 		// Enqueue scripts.
 		add_action( 'admin_enqueue_scripts', array( $o, 'admin_enqueue_scripts' ) );
@@ -418,6 +417,22 @@ class Extension_ImageOptimizer_Plugin_Admin {
 
 		delete_transient( 'w3tc_activation_optimager' );
 
+		// Save submitted settings.
+		if ( isset( $_POST, $_POST['optimager___compression'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'w3tc' ) ) {
+			$settings = $c->get_array( 'optimager' );
+
+			if ( isset( $_POST['optimager___compression'] ) ) {
+				$settings['compression'] = sanitize_key( $_POST['optimager___compression'] );
+			}
+
+			if ( isset( $_POST['optimager___auto'] ) ) {
+				$settings['auto'] = sanitize_key( $_POST['optimager___auto'] );
+			}
+
+			$c->set( 'optimager', $settings );
+			$c->save();
+		}
+
 		require W3TC_DIR . '/Extension_ImageOptimizer_Page_View.php';
 	}
 
@@ -430,10 +445,11 @@ class Extension_ImageOptimizer_Plugin_Admin {
 		// Add settings submenu to Media top-level menu.
 		add_submenu_page(
 			'upload.php',
-			esc_html__( 'W3 Image Service', 'w3-total-cache' ),
-			esc_html__( 'W3 Image Service', 'w3-total-cache' ),
+			esc_html__( 'Total Cache Image Service', 'w3-total-cache' ),
+			esc_html__( 'Total Cache Image Service', 'w3-total-cache' ),
 			'edit_posts',
-			'admin.php?page=w3tc_extensions&extension=optimager&action=view'
+			'w3tc_extension_page_optimager',
+			array( $this, 'w3tc_extension_page_optimager' )
 		);
 	}
 
@@ -446,8 +462,13 @@ class Extension_ImageOptimizer_Plugin_Admin {
 	 */
 	public function admin_enqueue_scripts() {
 		// Enqueue JavaScript for the Media Library (upload) and extension settings admin pages.
-		$is_settings_page = isset( $_GET['extension'] ) && 'optimager' === $_GET['extension'];
+		$is_settings_page = isset( $_GET['page'] ) && 'w3tc_extension_page_optimager' === $_GET['page'];
 		$is_media_page    = 'upload' === get_current_screen()->id;
+
+		if ( $is_settings_page ) {
+			wp_enqueue_style( 'w3tc-lightbox' );
+			wp_enqueue_style( 'w3tc-options' );
+		}
 
 		if ( $is_settings_page || $is_media_page ) {
 			wp_register_script(
@@ -484,7 +505,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'notoptimizedNotice' => sprintf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 							__( 'Some images were not optimized.  Review your %1$ssettings%2$s to try using lossy compression.', 'w3-total_cache' ),
-							'<a href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=optimager&action=view' ) ) . '">',
+							'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_optimager' ) ) . '">',
 							'</a>'
 						),
 					),
@@ -837,7 +858,7 @@ class Extension_ImageOptimizer_Plugin_Admin {
 						'We now offer an image conversion service to support the latest WEBP image format.  Configure your settings and convert all of your images now using our %1$sbulk tools%2$s, select images to convert in your %3$sMedia Library%2$s, or %4$shide this notice%2$s.',
 						'w3-total-cache'
 					),
-					'<a href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=optimager&action=view' ) ) . '">',
+					'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_optimager' ) ) . '">',
 					'</a>',
 					'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
 					'<a href="' . esc_attr( add_query_arg( 'w3tc_optimager_action', 'dismiss_activation_notice' ) ) . '">'

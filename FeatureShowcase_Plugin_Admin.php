@@ -185,7 +185,7 @@ class FeatureShowcase_Plugin_Admin {
 		$is_optimager_active   = isset( $extensions['optimager'] );
 		$optimager_button_text = $is_optimager_active ? __( 'Settings', 'w3-total-cache' ) : __( 'Activate', 'w3-total-cache' );
 		$optimager_button_link = $is_optimager_active ?
-			'admin.php?page=w3tc_extensions&extension=optimager&action=view' : 'admin.php?page=w3tc_extensions&action=activate&extension=optimager';
+			'upload.php?page=w3tc_extension_page_optimager' : 'admin.php?page=w3tc_extensions&action=activate&extension=optimager';
 
 		global $wp_version;
 
