@@ -24,7 +24,7 @@ class Util_PageUrls {
 			}
 
 			$full_urls  = array_merge( $full_urls,
-				self::get_older_pages( $home_path, $limit_post_pages ) );
+				self::get_older_pages( $home_path, $limit_post_pages, 'post' ) );
 			$frontpage_urls[$limit_post_pages] = $full_urls;
 		}
 		return $frontpage_urls[$limit_post_pages];
@@ -42,6 +42,7 @@ class Util_PageUrls {
 		if ( !isset( $postpage_urls[$limit_post_pages] ) ) {
 			$posts_page_uri = '';
 			$full_urls = array();
+
 			$posts_page_id = get_option( 'page_for_posts' );
 			if ( $posts_page_id ) {
 				$posts_page_uri = get_page_uri( $posts_page_id );
@@ -49,22 +50,54 @@ class Util_PageUrls {
 				$full_urls[] = $page_link;
 			}
 			if ( $posts_page_uri )
-				$full_urls = array_merge( $full_urls, self::get_older_pages( $posts_page_uri, $limit_post_pages ) );
+				$full_urls = array_merge( $full_urls, self::get_older_pages( $posts_page_uri, $limit_post_pages, 'post' ) );
 			$postpage_urls[$limit_post_pages] = $full_urls;
 		}
+
 		return $postpage_urls[$limit_post_pages];
 	}
+
+	/**
+	 * Returns all urls related to a custom post type post
+	 *
+	 * @since 2.1.7
+	 * 
+	 * @param unknown $post_id
+	 * @param int     $limit_post_pages default is 10
+	 * @return array
+	 */
+	static public function get_cpt_archive_urls( $post_id, $limit_post_pages = 10 ) {
+		static $cpt_archive_urls = array();
+		$post = get_post( $post_id );
+
+		if( $post && Util_Environment::is_custom_post_type( $post ) && !isset( $cpt_archive_urls[$limit_post_pages] ) ) {
+			$full_urls = array();
+			$post_type = $post->post_type;
+			$archive_link = get_post_type_archive_link($post_type);
+			$posts_page_uri = str_replace( home_url(), '', $archive_link ); 
+			
+			if ( $posts_page_uri ) {
+				$full_urls[] = $archive_link;
+				$full_urls = array_merge( $full_urls, self::get_older_pages( $posts_page_uri, $limit_post_pages, $post_type ) );
+			}
+
+			$cpt_archive_urls[$limit_post_pages] = $full_urls;
+		}
+		
+		return $cpt_archive_urls[$limit_post_pages];
+	}	
 
 	/**
 	 * Return older pages listing posts
 	 *
 	 * @param unknown $posts_page_uri
 	 * @param int     $limit_post_pages default is 10
+	 * @param string  $post_type default is post
 	 * @return array
 	 */
-	static private function get_older_pages( $posts_page_uri, $limit_post_pages = 10 ) {
+	static private function get_older_pages( $posts_page_uri, $limit_post_pages = 10, $post_type = 'post' ) {
 		$full_urls = array();
-		$count_posts = wp_count_posts();
+		$count_posts = wp_count_posts($post_type);
 		$posts_number = $count_posts->publish;
 		$posts_per_page = get_option( 'posts_per_page' );
 		$posts_pages_number = @ceil( $posts_number / $posts_per_page );
@@ -109,6 +142,7 @@ class Util_PageUrls {
 					$full_urls[] = $post_pagenum_link;
 				}
 			}
+
 			$post_urls[$post_id] = $full_urls;
 		}
 		return $post_urls[$post_id];
