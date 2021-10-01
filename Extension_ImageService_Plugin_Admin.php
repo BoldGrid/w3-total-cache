@@ -83,6 +83,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		if ( version_compare( $wp_version, '5.8', '<' ) ) {
 			$description .= sprintf(
+				// translators: 1: HTML break, 2: WordPress version string, 3: HTML archor open tag, 4: HTML archor close tag.
 				__(
 					'%1$sThis extension works best in WordPress version 5.8 and higher.  You are running WordPress version %2$s.  Please %3$supdate now%4$s to benefit from this feature.',
 					'w3-total-cache'
@@ -248,7 +249,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @link https://developer.wordpress.org/reference/classes/wp_query/
 	 *
-	 * @return
+	 * @return WP_Query
 	 */
 	public static function get_imageservice_attachments() {
 		return new \WP_Query(
@@ -272,7 +273,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @link https://developer.wordpress.org/reference/classes/wp_query/
 	 *
-	 * @return
+	 * @return WP_Query
 	 */
 	public static function get_eligible_attachments() {
 		return new \WP_Query(
@@ -324,8 +325,8 @@ class Extension_ImageService_Plugin_Admin {
 	 * @return array
 	 */
 	public function get_imageservice_counts() {
-		$unconverted_posts = self::get_eligible_attachments();
-		$counts            = array(
+		$unconverted_posts  = self::get_eligible_attachments();
+		$counts             = array(
 			'sending'      => 0,
 			'processing'   => 0,
 			'converted'    => 0,
@@ -333,7 +334,7 @@ class Extension_ImageService_Plugin_Admin {
 			'unconverted'  => $unconverted_posts->post_count,
 			'total'        => 0,
 		);
-		$bytes             = array(
+		$bytes              = array(
 			'sending'      => 0,
 			'processing'   => 0,
 			'converted'    => 0,
@@ -341,14 +342,14 @@ class Extension_ImageService_Plugin_Admin {
 			'unconverted'  => 0,
 			'total'        => 0,
 		);
-		$imageservice_posts   = self::get_imageservice_attachments()->posts;
+		$imageservice_posts = self::get_imageservice_attachments()->posts;
 
 		foreach ( $imageservice_posts as $post ) {
 			$imageservice_data = get_post_meta( $post->ID, 'w3tc_imageservice', true );
-			$status         = isset( $imageservice_data['status'] ) ? $imageservice_data['status'] : null;
-			$filesize_in    = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-in'] ) ?
+			$status            = isset( $imageservice_data['status'] ) ? $imageservice_data['status'] : null;
+			$filesize_in       = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-in'] ) ?
 				$imageservice_data['download']["\0*\0data"]['x-filesize-in'] : 0;
-			$filesize_out   = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-out'] ) ?
+			$filesize_out      = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-out'] ) ?
 				$imageservice_data['download']["\0*\0data"]['x-filesize-out'] : 0;
 
 			switch ( $status ) {
@@ -416,7 +417,7 @@ class Extension_ImageService_Plugin_Admin {
 		$counts = $this->get_imageservice_counts();
 
 		// Save submitted settings.
-		if ( isset( $_POST, $_POST['imageservice___compression'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'w3tc' ) ) {
+		if ( isset( $_POST['_wpnonce'], $_POST['imageservice___compression'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'w3tc' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$settings = $c->get_array( 'imageservice' );
 
 			if ( isset( $_POST['imageservice___compression'] ) ) {
@@ -460,7 +461,7 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function admin_enqueue_scripts() {
 		// Enqueue JavaScript for the Media Library (upload) and extension settings admin pages.
-		$is_settings_page = isset( $_GET['page'] ) && 'w3tc_extension_page_imageservice' === $_GET['page'];
+		$is_settings_page = isset( $_GET['page'] ) && 'w3tc_extension_page_imageservice' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$is_media_page    = 'upload' === get_current_screen()->id;
 
 		if ( $is_settings_page ) {
@@ -487,7 +488,7 @@ class Extension_ImageService_Plugin_Admin {
 						'revert'   => wp_create_nonce( 'w3tc_imageservice_revert' ),
 					),
 					'lang'     => array(
-						'convert'           => __( 'Convert', 'w3-total_cache' ),
+						'convert'            => __( 'Convert', 'w3-total_cache' ),
 						'sending'            => __( 'Sending...', 'w3-total_cache' ),
 						'processing'         => __( 'Processing...', 'w3-total_cache' ),
 						'converted'          => __( 'Converted', 'w3-total_cache' ),
@@ -558,7 +559,7 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function media_column_row( $column_name, $post_id ) {
 		if ( 'imageservice' === $column_name ) {
-			$post           = get_post( $post_id );
+			$post              = get_post( $post_id );
 			$imageservice_data = get_post_meta( $post_id, 'w3tc_imageservice', true );
 
 			// Display controls and info for eligible images.
@@ -594,9 +595,9 @@ class Extension_ImageService_Plugin_Admin {
 						<?php
 						printf(
 							'%1$s &#8594; %2$s (%3$s)',
-							size_format( $filesize_in ),
-							size_format( $filesize_out ),
-							$reduced_percent
+							esc_html( size_format( $filesize_in ) ),
+							esc_html( size_format( $filesize_out ) ),
+							esc_html( $reduced_percent )
 						);
 						?>
 						</div>
@@ -611,15 +612,15 @@ class Extension_ImageService_Plugin_Admin {
 				// Determine classes.
 				$link_classes   = 'w3tc-convert';
 				$disabled_class = '';
-				$aria_attr = 'false';
+				$aria_attr      = 'false';
 
 				if ( 'processing' === $status ) {
 					$link_classes  .= ' w3tc-convert-processing';
 					$disabled_class = 'w3tc-disabled';
-					$aria_attr = 'true';
+					$aria_attr      = 'true';
 				} elseif ( 'converted' === $status ) {
 					$disabled_class = 'w3tc-disabled';
-					$aria_attr = 'true';
+					$aria_attr      = 'true';
 				}
 
 				// Print action links.
@@ -672,7 +673,7 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function add_bulk_actions( array $actions ) {
 		$actions['w3tc_imageservice_convert'] = 'W3 Total Convert';
-		$actions['w3tc_imageservice_revert'] = 'W3 Total Convert Revert';
+		$actions['w3tc_imageservice_revert']  = 'W3 Total Convert Revert';
 
 		return $actions;
 	}
@@ -741,12 +742,14 @@ class Extension_ImageService_Plugin_Admin {
 	 * @uses $_GET['w3tc_imageservice_invalid']    Number of invalid submissions.
 	 */
 	public function w3tc_imageservice_notices() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['w3tc_imageservice_submitted'] ) ) {
 			$submitted  = intval( $_GET['w3tc_imageservice_submitted'] );
 			$successful = isset( $_GET['w3tc_imageservice_successful'] ) ? intval( $_GET['w3tc_imageservice_successful'] ) : 0;
 			$skipped    = isset( $_GET['w3tc_imageservice_skipped'] ) ? intval( $_GET['w3tc_imageservice_skipped'] ) : 0;
 			$errored    = isset( $_GET['w3tc_imageservice_errored'] ) ? intval( $_GET['w3tc_imageservice_errored'] ) : 0;
 			$invalid    = isset( $_GET['w3tc_imageservice_invalid'] ) ? intval( $_GET['w3tc_imageservice_invalid'] ) : 0;
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 			?>
 			<div class="updated notice notice-success is-dismissible">
@@ -755,14 +758,16 @@ class Extension_ImageService_Plugin_Admin {
 			<?php
 
 			printf(
-				// translators: 1: Submissions.
-				_n(
-					'Submitted %1$u image for processing.',
-					'Submitted %1$u images for processing.',
-					$submitted,
-					'w3-total-cache'
+				esc_html(
+					// translators: 1: Submissions.
+					_n(
+						'Submitted %1$u image for processing.',
+						'Submitted %1$u images for processing.',
+						$submitted,
+						'w3-total-cache'
+					)
 				) . '</p>',
-				$submitted
+				esc_attr( $submitted )
 			);
 
 			// Print extra stats if debug is on.
@@ -773,14 +778,14 @@ class Extension_ImageService_Plugin_Admin {
 
 				printf(
 					// translators: 1: Successes, 2: Skipped, 3: Errored, 4: Invalid.
-					__(
+					esc_html__(
 						'Successful: %1$u | Skipped: %2$u | Errored: %3$u | Invalid: %4$u',
 						'w3-total-cache'
 					),
-					$successful,
-					$skipped,
-					$errored,
-					$invalid
+					esc_attr( $successful ),
+					esc_attr( $skipped ),
+					esc_attr( $errored ),
+					esc_attr( $invalid )
 				);
 			}
 
@@ -789,15 +794,15 @@ class Extension_ImageService_Plugin_Admin {
 			</div>
 			<?php
 
-		} elseif ( isset( $_GET['w3tc_imageservice_reverted'] ) ) {
+		} elseif ( isset( $_GET['w3tc_imageservice_reverted'] ) ) { // phpcs:ignore
 			?>
 			<div class="updated notice notice-success is-dismissible"><p><span class="w3tc-convert"></span> Image Service</p>
-				<p><?php _e( 'All selected optimizations have been reverted.', 'w3-total-cache' ); ?></p>
+				<p><?php esc_html_e( 'All selected optimizations have been reverted.', 'w3-total-cache' ); ?></p>
 			</div>
 			<?php
 		} elseif ( 'upload' === get_current_screen()->id ) {
 			// Media Library: Get the display mode.
-			$mode  = get_user_option( 'media_library_mode', get_current_user_id() ) ?
+			$mode = get_user_option( 'media_library_mode', get_current_user_id() ) ?
 				get_user_option( 'media_library_mode', get_current_user_id() ) : 'grid';
 
 			// If not in list mode, then print a notice to switch to it.
@@ -807,14 +812,14 @@ class Extension_ImageService_Plugin_Admin {
 				<?php
 						printf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							__( 'Convert your images to WebP by switching to %1$slist mode%2$s.', 'w3-total-cache' ),
+							esc_html__( 'Convert your images to WebP by switching to %1$slist mode%2$s.', 'w3-total-cache' ),
 							'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
 							'</a>'
 						);
 				?>
 					</p>
 				</div>
-    			<?php
+				<?php
 			}
 		}
 	}
@@ -826,7 +831,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @global $wp_filesystem
 	 *
-	 * @param array $post_ids
+	 * @param array $post_ids Post ids.
 	 * @return array
 	 */
 	public function submit_images( array $post_ids ) {
@@ -1173,7 +1178,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		// Allow plenty of time to complete.
 		ignore_user_abort( true );
-		set_time_limit(0);
+		set_time_limit( 0 );
 
 		foreach ( $results->posts as $post ) {
 			$post_ids[] = $post->ID;
@@ -1201,7 +1206,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		// Allow plenty of time to complete.
 		ignore_user_abort( true );
-		set_time_limit(0);
+		set_time_limit( 0 );
 
 		foreach ( $results->posts as $post ) {
 			if ( $this->remove_optimizations( $post->ID ) ) {

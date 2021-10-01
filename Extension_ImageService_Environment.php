@@ -20,7 +20,7 @@ class Extension_ImageService_Environment {
 	 *
 	 * @param Config $config           Configuration.
 	 * @param bool   $force_all_checks Force all checks.
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
 	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
 		$exs = new Util_Environment_Exceptions();
@@ -35,14 +35,19 @@ class Extension_ImageService_Environment {
 			}
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
 	 * Fixes environment once event occurs.
 	 *
 	 * @since X.X.X
+	 *
+	 * @param Config $config     Config object.
+	 * @param mixed  $event      Event.
+	 * @param Config $old_config Old config object.
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
 	}
@@ -52,15 +57,16 @@ class Extension_ImageService_Environment {
 	 *
 	 * @since X.X.X
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
 	public function fix_after_deactivation() {
 		$exs = new Util_Environment_Exceptions();
 
 		$this->rules_remove( $exs );
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
@@ -85,10 +91,10 @@ class Extension_ImageService_Environment {
 	 *
 	 * @since X.X.X
 	 *
-	 * @param Config $config Configuration.
-	 * @param Util_Environment_Exceptions $exs Exceptions.
+	 * @param Config                      $config Configuration.
+	 * @param Util_Environment_Exceptions $exs    Exceptions.
 	 *
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials.
+	 * @throws Util_WpFile_FilesystemOperationException S/FTP form if it can't get the required filesystem credentials.
 	 */
 	private function rules_add( $config, $exs ) {
 		Util_Rule::add_rules(
@@ -163,7 +169,7 @@ location ~* ^(.+)\.(png|jpg)$ {
 	 *
 	 * @param Util_Environment_Exceptions $exs Exceptions.
 	 *
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials.
+	 * @throws Util_WpFile_FilesystemOperationException S/FTP form if it can't get the required filesystem credentials.
 	 */
 	private function rules_remove( $exs ) {
 		Util_Rule::remove_rules(
