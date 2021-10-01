@@ -266,6 +266,7 @@ if ( Util_Environment::is_apache() ):
     }
 
 ?>
+            <h5><?php _e( 'Detection of the below modules may not be possible on all environments. As such "Not detected" does not imply that the module is not installed/enabled.', 'w3-total-cache' )?></h5>
             <?php foreach ( $modules as $module ): ?>
                 <li>
                     <?php echo $module; ?>:
