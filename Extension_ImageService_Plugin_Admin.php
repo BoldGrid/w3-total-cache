@@ -415,8 +415,6 @@ class Extension_ImageService_Plugin_Admin {
 		$c      = $this->config;
 		$counts = $this->get_imageservice_counts();
 
-		delete_transient( 'w3tc_activation_imageservice' );
-
 		// Save submitted settings.
 		if ( isset( $_POST, $_POST['imageservice___compression'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'w3tc' ) ) {
 			$settings = $c->get_array( 'imageservice' );
@@ -560,8 +558,6 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function media_column_row( $column_name, $post_id ) {
 		if ( 'imageservice' === $column_name ) {
-			delete_transient( 'w3tc_activation_imageservice' );
-
 			$post           = get_post( $post_id );
 			$imageservice_data = get_post_meta( $post_id, 'w3tc_imageservice', true );
 
@@ -820,59 +816,7 @@ class Extension_ImageService_Plugin_Admin {
 				</div>
     			<?php
 			}
-		} elseif ( isset( $_GET['w3tc_imageservice_action'] ) && 'dismiss_activation_notice' === $_GET['w3tc_imageservice_action'] ) {
-			delete_transient( 'w3tc_activation_imageservice' );
-			wp_redirect( remove_query_arg( 'w3tc_imageservice_action' ) );
-		} elseif ( get_transient( 'w3tc_activation_imageservice' ) ) {
-			// Activation notice.
-			$page       = isset( $_GET['page'] ) ? $_GET['page'] : null;
-			$skip_pages = array(
-				'w3tc_setup_guide',
-				'w3tc_extensions',
-			);
-
-			/**
-			 * Accept filtering for skipped pages.
-			 *
-			 * @since X.X.X
-			 *
-			 * @param array $skip_pages Skip any array values if matching $_GET['page'].
-			 */
-			$skip_pages = apply_filters( 'w3tc_activation_notice_skip_pages', $skip_pages );
-
-			if ( ! in_array( $page, $skip_pages, true ) ) {
-				?>
-				<div class="updated notice notice-success is-dismissible">
-					<p>
-						<?php
-						printf(
-							// translators: 1: HTML strong open tag, 2: HTML strong close tag.
-							__( 'Thank you for activating %1$sW3 Total Cache%2$s and choosing to increase your website performance.', 'w3-total-cache' ),
-							'<strong>',
-							'</strong>'
-						);
-						?>
-					</p>
-					<p>
-				<?php
-				printf(
-					// translators: 1: HTML anchor open tag (Settings page link), 2: HTML anchor close tag, 3: HTML anchor open tag (Media Library link), 4: HTML anchor open tag (dismiss notice).
-					__(
-						'We now offer an image conversion service to support the latest WEBP image format.  Configure your settings and convert all of your images now using our %1$sbulk tools%2$s, select images to convert in your %3$sMedia Library%2$s, or %4$shide this notice%2$s.',
-						'w3-total-cache'
-					),
-					'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ) . '">',
-					'</a>',
-					'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
-					'<a href="' . esc_attr( add_query_arg( 'w3tc_imageservice_action', 'dismiss_activation_notice' ) ) . '">'
-				);
-				?>
-					</p>
-				</div>
-				<?php
-			}
 		}
-
 	}
 
 	/**
