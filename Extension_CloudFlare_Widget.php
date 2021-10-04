@@ -18,24 +18,62 @@ class Extension_CloudFlare_Widget {
 			'normal' );
 	}
 
-
-
 	function widget_form() {
 		$api = Extension_CloudFlare_SettingsForUi::api();
 		$c = Dispatcher::config();
 		$interval = $c->get_integer( array( 'cloudflare', 'widget_interval' ) );
-
 		$v = get_transient( 'w3tc_cloudflare_stats' );
-
 		try {
 			$key = 'dashboard-' . $interval;
 			if ( !isset( $v[$key] ) ) {
 				if ( !is_array( $v ) )
 					$v = array();
 
-				$v[$key] = $api->analytics_dashboard( $interval );
-				set_transient( 'w3tc_cloudflare_stats', $v,
-					$this->_cache_mins * 60 );
+				$type = 'day';
+				$dataset = 'httpRequests1dGroups';
+				$end = current_time( 'Y-m-d' );
+				$start = date( 'Y-m-d', strtotime( $end . ' ' . $interval . ' minutes' ) );
+
+				if( $interval >= -1440 ) {
+					$type = 'hour';
+					$dataset = 'httpRequests1hGroups';
+					$end = current_time( 'Y-m-d\TH:i:s' ) . 'Z';
+					$start = date( 'Y-m-d\TH:i:s', strtotime( $end . ' ' . $interval . ' minutes' ) ) . 'Z';
+				}
+
+				$stats = array(
+					"since" => $start,
+					"until" => $end,
+					"bandwidth_all" => 0,
+					"bandwidth_cached" => 0,
+					"requests_all" => 0,
+					"requests_cached" => 0,
+					"pageviews_all" => 0,
+					"uniques_all" => 0,
+					"threats_all" => 0,
+					"interval" => $interval,
+					"cached_ts" => current_time( 'Y-m-d H:i:s' ),
+					"cached_tf" => $c->get_integer( array( 'cloudflare', 'widget_cache_mins' ) )
+				);
+
+				$analytics_dashboard_data = $api->analytics_dashboard( $start, $end, $type );
+				foreach ( $analytics_dashboard_data["viewer"]["zones"][0][$dataset] as $data ) {
+					$stats["bandwidth_all"] += $data["sum"]["bytes"];
+					$stats["bandwidth_cached"] += $data["sum"]["cachedBytes"];
+					$stats["requests_all"] += $data["sum"]["requests"];
+					$stats["requests_cached"] += $data["sum"]["cachedRequests"];
+					$stats["pageviews_all"] += $data["sum"]["pageViews"];
+					$stats["uniques_all"] += $data["uniq"]["uniques"];
+					$stats["threats_all"] += $data["sum"]["threats"];
+				}
+
+				$v[$key] = $stats;
+
+				set_transient(
+					'w3tc_cloudflare_stats',
+					$v,
+					$stats['cached_tf'] * 60
+				);
 			}
 
 			$stats = $v[$key];
@@ -46,8 +84,6 @@ class Extension_CloudFlare_Widget {
 		include  W3TC_DIR . '/Extension_CloudFlare_Widget_View.php';
 	}
 
-
-
 	public function admin_print_styles_w3tc_dashboard() {
 		wp_enqueue_style( 'w3tc-widget' );
 		wp_enqueue_style( 'w3tc-cloudflare-widget',
@@ -55,50 +91,26 @@ class Extension_CloudFlare_Widget {
 			array(), W3TC_VERSION );
 	}
 
-
-
 	public function admin_print_scripts_w3tc_dashboard() {
 		wp_enqueue_script( 'w3tc-metadata' );
 		wp_enqueue_script( 'w3tc-widget' );
 	}
 
-
-
-	private function v( $stats, $key1, $key2 ) {
+	private function value( $value ) {
 		echo '<td class="cloudflare_td_value">';
-		echo number_format( $this->value( $stats, 'totals', $key1, $key2 ) );
+		echo number_format( $value );
 		echo "</td>\n";
 	}
 
-
-
-	private function value( $a, $k1, $k2, $k3 = null ) {
-		$v = $a;
-		if ( !is_null( $k1 ) )
-			$v = isset( $v[$k1] ) ? $v[$k1] : null;
-		if ( !is_null( $k2 ) )
-			$v = isset( $v[$k2] ) ? $v[$k2] : null;
-		if ( !is_null( $k3 ) )
-			$v = isset( $v[$k3] ) ? $v[$k3] : null;
-
-		return $v;
+	private function date( $value ) {
+		echo date( 'n/j/Y', strtotime( $value ) );
 	}
 
-
-
-	private function time( $a, $k1 ) {
-		if ( !isset( $a['totals'][$k1] ) )
-			return;
-
-		echo date( 'm/d/Y H:i:s', strtotime( $a['totals'][$k1] ) );
+	private function date_time( $value ) {
+		echo date( 'n/j/Y g:i a', strtotime( $value ) );
 	}
 
-
-
-	private function time_mins( $a, $k1 ) {
-		if ( !isset( $a['totals'][$k1] ) )
-			return;
-
-		echo date( 'm/d/Y H:i', strtotime( $a['totals'][$k1] ) );
+	private function date_time_sec( $value ) {
+		echo date( 'n/j/Y g:i:s a', strtotime( $value ) );
 	}
 }

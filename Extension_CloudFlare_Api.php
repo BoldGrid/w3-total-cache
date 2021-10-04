@@ -143,24 +143,54 @@ class Extension_CloudFlare_Api {
 			json_encode( array( 'value' => $value ) ) );
 	}
 
+	public function analytics_dashboard( $start, $end, $type = 'day' ) {
+		$dataset = 'httpRequests1dGroups';
+		$datetime_filter = 'date';
 
+		if($type === 'hour') {
+			$dataset = 'httpRequests1hGroups';
+			$datetime_filter = 'datetime';
+		}
 
-	public function analytics_dashboard( $interval ) {
-		return $this->_wp_remote_request( 'GET',
-			self::$_root_uri . '/zones/' . $this->_zone_id .
-			'/analytics/dashboard' );
+		return $this->_wp_remote_request_graphql( 'POST',
+			self::$_root_uri . '/graphql',
+			"{ \"query\": \"query {
+				viewer {
+					zones(filter: {zoneTag: \\\"" . $this->_zone_id . "\\\"}) {
+						" . $dataset . "(
+							orderBy: [" . $datetime_filter . "_ASC],
+							limit: 100,
+							filter: {
+								" . $datetime_filter . "_geq: \\\"" . $start . "\\\",
+								" . $datetime_filter . "_lt: \\\"" . $end . "\\\"
+							}
+						) {
+							dimensions {
+								" . $datetime_filter . "
+							}
+							sum {
+								bytes
+								cachedBytes
+								cachedRequests
+								pageViews
+								requests
+								threats
+							}
+							uniq {
+								uniques
+							}
+						}
+					}
+				}
+			}\"}"
+		);
 	}
-
-
-
 
 	public function purge() {
 		return $this->_wp_remote_request( 'DELETE',
 			self::$_root_uri . '/zones/' . $this->_zone_id . '/purge_cache',
 			'{"purge_everything":true}' );
 	}
-
-
 
 	private function _wp_remote_request( $method, $url, $body = array() ) {
 		if ( empty( $this->_email ) || empty( $this->_key ) ) {
@@ -189,8 +219,9 @@ class Extension_CloudFlare_Api {
 				str_replace( '<', '.', str_replace( '>', '.', $result['body'] ) ) );
 		}
 
-		if ( !$response_json['success'] ) {
+		if ( !isset( $response_json['success'] ) ) {
 			$errors = array();
+
 			if ( isset( $response_json['errors'] ) ) {
 				foreach ( $response_json['errors'] as $e ) {
 					if ( !empty( $e['message'] ) )
@@ -211,9 +242,11 @@ class Extension_CloudFlare_Api {
 		return array();
 	}
 
-
-
 	private function _wp_remote_request_with_meta( $method, $url, $body = array() ) {
+		if ( empty( $this->_email ) || empty( $this->_key ) ) {
+			throw new \Exception('Not authenticated');
+		}
+
 		$result = wp_remote_request( $url, array(
 				'method' => $method,
 				'headers' => array(
@@ -237,13 +270,13 @@ class Extension_CloudFlare_Api {
 
 		if ( !$response_json['success'] ) {
 			$errors = array();
+
 			if ( isset( $response_json['errors'] ) ) {
 				foreach ( $response_json['errors'] as $e ) {
-					if ( !empty( $e['message'] ) )
-						$errors[] = $e['message'];
+				    if ( !empty( $e['message'] ) )
+				         $errors[] = $e['message'];
 				}
 			}
-
 			if ( empty( $errors ) )
 				$errors[] = 'Request failed';
 
@@ -252,6 +285,56 @@ class Extension_CloudFlare_Api {
 
 		if ( isset( $response_json['result'] ) ) {
 			return $response_json;
+		}
+
+		return array();
+	}
+
+	private function _wp_remote_request_graphql( $method, $url, $body ) {
+		if ( empty( $this->_email ) || empty( $this->_key ) ) {
+			throw new \Exception('Not authenticated');
+		}
+
+		$body = preg_replace( '/\s\s+/', ' ', $body );
+
+		$result = wp_remote_request( $url, array(
+				'method' => $method,
+				'headers' => array(
+					'Content-Type' => 'application/json',
+					'X-Auth-Key' => $this->_key,
+					'X-Auth-Email' => $this->_email
+				),
+				'timeout' => $this->_timelimit_api_request,
+				'body' => $body
+			) );
+
+		if ( is_wp_error( $result ) ) {
+			throw new \Exception( 'Failed to reach API endpoint' );
+		}
+
+		$response_json = @json_decode( $result['body'], true );
+		if ( is_null( $response_json ) ) {
+			throw new \Exception(
+				'Failed to reach API endpoint, got unexpected response ' .
+				str_replace( '<', '.', str_replace( '>', '.', $result['body'] ) ) );
+		}
+
+		if ( isset( $response_json['errors'] ) ) {
+			$errors = array();
+
+			foreach ( $response_json['errors'] as $e ) {
+				if ( !empty( $e['message'] ) )
+					$errors[] = $e['message'];
+			}
+
+			if ( empty( $errors ) )
+				$errors[] = 'Request failed';
+
+			throw new \Exception( implode( ', ', $errors ) );
+		}
+
+		if ( isset( $response_json['data'] ) ) {
+			return $response_json['data'];
 		}
 
 		return array();
