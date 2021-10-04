@@ -80,7 +80,7 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 		}
 
 		try {
-			$invalidation = $this->api->createInvalidation( array(
+			$invalidation = $this->api->createInvalidationAsync( array(
 					'DistributionId' => $dist['Id'],
 					'InvalidationBatch' => array(
 						'CallerReference' => 'w3tc-' . 	microtime(),
