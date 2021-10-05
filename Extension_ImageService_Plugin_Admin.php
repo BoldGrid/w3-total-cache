@@ -753,7 +753,7 @@ class Extension_ImageService_Plugin_Admin {
 
 			?>
 			<div class="updated notice notice-success is-dismissible">
-				<p><span class="w3tc-convert"></span> Image Service</p>
+				<p>Total Cache Image Service</p>
 				<p>
 			<?php
 
@@ -796,7 +796,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		} elseif ( isset( $_GET['w3tc_imageservice_reverted'] ) ) { // phpcs:ignore
 			?>
-			<div class="updated notice notice-success is-dismissible"><p><span class="w3tc-convert"></span> Image Service</p>
+			<div class="updated notice notice-success is-dismissible"><p>Total Cache Image Service</p>
 				<p><?php esc_html_e( 'All selected optimizations have been reverted.', 'w3-total-cache' ); ?></p>
 			</div>
 			<?php
@@ -808,7 +808,7 @@ class Extension_ImageService_Plugin_Admin {
 			// If not in list mode, then print a notice to switch to it.
 			if ( 'list' !== $mode ) {
 				?>
-				<div class="notice notice-warning is-dismissible"><p><span class="w3tc-convert"></span> Image Service -
+				<div class="notice notice-warning is-dismissible"><p>Total Cache Image Service -
 				<?php
 						printf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.

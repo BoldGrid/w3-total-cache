@@ -202,7 +202,7 @@
 	function checkNotConverted() {
 		if ( 'lossy' !== w3tcData.settings.compression && ! $( '#w3tc-notconverted-notice' ).length && $( '.w3tc-notconverted' ).length ) {
 			$( '#wpbody-content' ).prepend(
-				'<div id="w3tc-notconverted-notice" class="notice notice-warning is-dismissible"><p><span class="w3tc-convert"></span> Image Service</p><p>' +
+				'<div id="w3tc-notconverted-notice" class="notice notice-warning is-dismissible"><p>Total Cache Image Service</p><p>' +
 				w3tcData.lang.notConvertedNotice +
 				'</p></div>'
 			);
