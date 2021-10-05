@@ -196,6 +196,7 @@ class FeatureShowcase_Plugin_Admin {
 
 		if ( version_compare( $wp_version, '5.8', '<' ) ) {
 			$imageservice_description .= sprintf(
+				// translators: 1: HTML p open tag, 2: WordPress version string, 3: HTML anchor open tag, 4: HTML anchor close tag, 5: HTML p close tag.
 				__(
 					'%1$sThis feature works best in WordPress version 5.8 and higher.  You are running WordPress version %2$s.  Please %3$supdate now%4$s to benefit from this feature.%5$s',
 					'w3-total-cache'

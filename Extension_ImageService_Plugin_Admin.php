@@ -165,7 +165,7 @@ class Extension_ImageService_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_imageservice_counts', array( $o, 'ajax_get_counts' ) );
 
 		// Admin notices.
-		add_action( 'admin_notices', array( $o, 'w3tc_imageservice_notices' ) );
+		add_action( 'admin_notices', array( $o, 'display_notices' ) );
 
 		/**
 		 * Ensure all network sites include WebP support.
@@ -324,7 +324,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @return array
 	 */
-	public function get_imageservice_counts() {
+	public function get_counts() {
 		$unconverted_posts  = self::get_eligible_attachments();
 		$counts             = array(
 			'sending'      => 0,
@@ -412,9 +412,9 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 */
-	public function w3tc_extension_page_imageservice() {
+	public function settings_page() {
 		$c      = $this->config;
-		$counts = $this->get_imageservice_counts();
+		$counts = $this->get_counts();
 
 		// Save submitted settings.
 		if ( isset( $_POST['_wpnonce'], $_POST['imageservice___compression'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'w3tc' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
@@ -448,7 +448,7 @@ class Extension_ImageService_Plugin_Admin {
 			esc_html__( 'Total Cache Image Service', 'w3-total-cache' ),
 			'edit_posts',
 			'w3tc_extension_page_imageservice',
-			array( $this, 'w3tc_extension_page_imageservice' )
+			array( $this, 'settings_page' )
 		);
 	}
 
@@ -741,7 +741,7 @@ class Extension_ImageService_Plugin_Admin {
 	 * @uses $_GET['w3tc_imageservice_errored']    Number of errored submissions.
 	 * @uses $_GET['w3tc_imageservice_invalid']    Number of invalid submissions.
 	 */
-	public function w3tc_imageservice_notices() {
+	public function display_notices() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['w3tc_imageservice_submitted'] ) ) {
 			$submitted  = intval( $_GET['w3tc_imageservice_submitted'] );
@@ -1222,11 +1222,11 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @see get_imageservice_counts()
+	 * @see get_counts()
 	 */
 	public function ajax_get_counts() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
-		wp_send_json_success( $this->get_imageservice_counts() );
+		wp_send_json_success( $this->get_counts() );
 	}
 }
