@@ -52,6 +52,8 @@ class Extensions_Plugin_Admin {
 		add_action( 'w3tc_settings_page-w3tc_extensions', array( $this, 'w3tc_settings_page_w3tc_extensions' ) );
 
 		if ( Util_Admin::is_w3tc_admin_page() ) {
+			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+
 			if ( isset( $_GET['extension'] ) && isset( $_GET['action'] ) ) { // phpcs:ignore
 				if ( in_array( $_GET['action'], array( 'activate', 'deactivate' ), true ) ) { // phpcs:ignore
 					add_action( 'init', array( $this, 'change_extension_status' ) );
@@ -204,6 +206,34 @@ class Extensions_Plugin_Admin {
 				Extensions_Util::deactivate_extension( $extension, $this->_config );
 				wp_safe_redirect( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&deactivated=%s', $extension ) ) );
 				exit;
+			}
+		}
+	}
+
+	/**
+	 * Display admin notices.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see Extensions_Util::get_active_extensions()
+	 */
+	public function admin_notices() {
+		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
+
+		foreach ( $extensions_active as $id => $info ) {
+			$transient_name = 'w3tc_activation_' . $id;
+			$action_name    = 'w3tc_' . $id . '_action';
+
+			if ( isset( $_GET[ $action_name ] ) && 'dismiss_activation_notice' === $_GET[ $action_name ] ) { // phpcs:ignore
+				delete_transient( $transient_name );
+			}
+
+			if ( isset( $info['notice'] ) && get_transient( $transient_name ) ) {
+				?>
+				<div class="notice notice-warning is-dismissible">
+					<p><?php echo $info['notice']; //phpcs:ignore ?></p>
+				</div>
+				<?php
 			}
 		}
 	}

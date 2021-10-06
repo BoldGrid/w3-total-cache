@@ -95,7 +95,7 @@ class Extension_ImageService_Plugin_Admin {
 			);
 		}
 
-		$settings_url = esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) );
+		$settings_url = esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice&w3tc_imageservice_action=dismiss_activation_notice' ) );
 		$library_url  = esc_url( Util_Ui::admin_url( 'upload.php?mode=list' ) );
 
 		$extensions['imageservice'] = array(
@@ -117,14 +117,14 @@ class Extension_ImageService_Plugin_Admin {
 			),
 			'notice'           => sprintf(
 				__(
-					'Image Service has been activated. Now, you can %1$sadjust the settings%2$s or go to the %3$sMedia Library%2$s to convert images to WebP.  %4$sLearn more%2$s.',
+					'Total Cache Image Service has been activated. Now, you can %1$sadjust the settings%2$s or go to the %3$sMedia Library%2$s to convert images to WebP.  %4$sLearn more%2$s.',
 					'w3-total-cache'
 				),
 				'<a class="edit" href="' . $settings_url . '">',
 				'</a>',
 				'<a class="edit" href="' . $library_url . '">',
 				'<a target="_blank" href="' . esc_url(
-					'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=imageservice'
+					'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=activation_notice&utm_campaign=imageservice'
 				) . '">',
 			),
 		);
@@ -429,6 +429,9 @@ class Extension_ImageService_Plugin_Admin {
 		$c      = $this->config;
 		$counts = $this->get_counts();
 
+		// Delete transient for displaying activation notice.
+		delete_transient( 'w3tc_activation_imageservice' );
+
 		// Save submitted settings.
 		if ( isset( $_POST['_wpnonce'], $_POST['imageservice___compression'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'w3tc' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			$settings = $c->get_array( 'imageservice' );
@@ -443,6 +446,13 @@ class Extension_ImageService_Plugin_Admin {
 
 			$c->set( 'imageservice', $settings );
 			$c->save();
+
+			// Display notice when saving settings.
+			?>
+			<div class="notice notice-success is-dismissible">
+				<p><?php esc_html_e( 'Settings saved.', 'w3-total-cache' ); ?></p>
+			</div>
+			<?php
 		}
 
 		require W3TC_DIR . '/Extension_ImageService_Page_View.php';
@@ -550,6 +560,9 @@ class Extension_ImageService_Plugin_Admin {
 	 *                                to any posts. Default true.
 	 */
 	public function add_media_column( $posts_columns, $detached = true ) {
+		// Delete transient for displaying activation notice.
+		delete_transient( 'w3tc_activation_imageservice' );
+
 		$posts_columns['imageservice'] = '<span class="w3tc-convert"></span> ' . esc_html__( 'Image Service', 'w3-total-cache' );
 
 		return $posts_columns;
