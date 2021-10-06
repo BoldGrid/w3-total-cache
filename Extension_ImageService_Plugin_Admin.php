@@ -77,7 +77,7 @@ class Extension_ImageService_Plugin_Admin {
 		global $wp_version;
 
 		$description = __(
-			'Adds the ability to convert images into the modern WEBP format for better performance.',
+			'Adds the ability to convert images in the Media Library to the modern WebP format for better performance.',
 			'w3-total-cache'
 		);
 
@@ -95,6 +95,9 @@ class Extension_ImageService_Plugin_Admin {
 			);
 		}
 
+		$settings_url = esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) );
+		$library_url  = esc_url( Util_Ui::admin_url( 'upload.php?mode=list' ) );
+
 		$extensions['imageservice'] = array(
 			'name'             => 'Image Service',
 			'author'           => 'BoldGrid',
@@ -109,10 +112,20 @@ class Extension_ImageService_Plugin_Admin {
 			'requirements'     => '',
 			'path'             => 'w3-total-cache/Extension_ImageService_Plugin.php',
 			'extra_links'      => array(
-				'<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ) . '">' .
-					esc_html__( 'Settings', 'w3-total-cache' ) . '</a>',
-				'<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">' .
-					esc_html__( 'Media Library', 'w3-total-cache' ) . '</a>',
+				'<a class="edit" href="' . $settings_url . '">' . esc_html__( 'Settings', 'w3-total-cache' ) . '</a>',
+				'<a class="edit" href="' . $library_url . '">' . esc_html__( 'Media Library', 'w3-total-cache' ) . '</a>',
+			),
+			'notice'           => sprintf(
+				__(
+					'Image Service has been activated. Now, you can %1$sadjust the settings%2$s or go to the %3$sMedia Library%2$s to convert images to WebP.  %4$sLearn more%2$s.',
+					'w3-total-cache'
+				),
+				'<a class="edit" href="' . $settings_url . '">',
+				'</a>',
+				'<a class="edit" href="' . $library_url . '">',
+				'<a target="_blank" href="' . esc_url(
+					'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=imageservice'
+				) . '">',
 			),
 		);
 
