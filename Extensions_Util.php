@@ -115,8 +115,13 @@ class Extensions_Util {
 				if ( ! $dont_save_config ) {
 					$w3_config->save();
 				}
+
+				// Set transient for displaying activation notice.
+				set_transient( 'w3tc_activation_' . $extension, true, DAY_IN_SECONDS );
+
 				return true;
-			} catch ( \Exception $ex ) { // phpcs:ignore
+			} catch ( \Exception $ex ) {
+				return false;
 			}
 		}
 
@@ -150,10 +155,14 @@ class Extensions_Util {
 				$config->save();
 			}
 
-			do_action( "w3tc_deactivate_extension_{$extension}" );
+			// Delete transient for displaying activation notice.
+			delete_transient( 'w3tc_activation_' . $extension );
+
+			do_action( 'w3tc_deactivate_extension_' . $extension );
 
 			return true;
-		} catch ( \Exception $ex ) { // phpcs:ignore
+		} catch ( \Exception $ex ) {
+			return false;
 		}
 
 		return false;
