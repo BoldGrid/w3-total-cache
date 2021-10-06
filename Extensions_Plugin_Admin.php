@@ -30,200 +30,34 @@ class Extensions_Plugin_Admin {
 	 */
 	public function run() {
 		// Attach w3tc-bundled extensions.
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_CloudFlare_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_FeedBurner_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_FragmentCache_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_Genesis_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_filter(
-			'w3tc_extensions_hooks',
-			array(
-				'\W3TC\Extension_Genesis_Plugin_Admin',
-				'w3tc_extensions_hooks',
-			)
-		);
-
-		add_filter(
-			'w3tc_notes_genesis_theme',
-			array(
-				'\W3TC\Extension_Genesis_Plugin_Admin',
-				'w3tc_notes_genesis_theme',
-			)
-		);
-
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_NewRelic_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_Swarmify_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_WordPressSeo_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_filter(
-			'w3tc_extensions_hooks',
-			array(
-				'\W3TC\Extension_WordPressSeo_Plugin_Admin',
-				'w3tc_extensions_hooks',
-			)
-		);
-
-		add_action(
-			'w3tc_notes_wordpress_seo',
-			array(
-				'\W3TC\Extension_WordPressSeo_Plugin_Admin',
-				'w3tc_notes_wordpress_seo',
-			)
-		);
-
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_Wpml_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_Amp_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_filter(
-			'w3tc_extensions_hooks',
-			array(
-				'\W3TC\Extension_Wpml_Plugin_Admin',
-				'w3tc_extensions_hooks',
-			)
-		);
-
-		add_action(
-			'w3tc_notes_wpml',
-			array(
-				'\W3TC\Extension_Wpml_Plugin_Admin',
-				'w3tc_notes_wpml',
-			)
-		);
-
-		add_filter(
-			'w3tc_extensions',
-			array(
-				'\W3TC\Extension_ImageService_Plugin_Admin',
-				'w3tc_extensions',
-			),
-			10,
-			2
-		);
-
-		add_action(
-			'admin_init',
-			array(
-				$this,
-				'admin_init',
-			),
-			1
-		);
-
-		add_filter(
-			'pre_update_option_active_plugins',
-			array(
-				$this,
-				'pre_update_option_active_plugins',
-			)
-		);
-
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_CloudFlare_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_FeedBurner_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_FragmentCache_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions_hooks' ) );
+		add_filter( 'w3tc_notes_genesis_theme', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_notes_genesis_theme' ) );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_NewRelic_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Swarmify_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_WordPressSeo_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_WordPressSeo_Plugin_Admin', 'w3tc_extensions_hooks' ) );
+		add_action( 'w3tc_notes_wordpress_seo', array( '\W3TC\Extension_WordPressSeo_Plugin_Admin', 'w3tc_notes_wordpress_seo' ) );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Wpml_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Amp_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_Wpml_Plugin_Admin', 'w3tc_extensions_hooks' ) );
+		add_action( 'w3tc_notes_wpml', array( '\W3TC\Extension_Wpml_Plugin_Admin', 'w3tc_notes_wpml' ) );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_ImageService_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_action( 'admin_init', array( $this, 'admin_init' ), 1 );
+		add_filter( 'pre_update_option_active_plugins', array( $this, 'pre_update_option_active_plugins' ) );
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ), 10000 );
-
-		add_action(
-			'w3tc_settings_page-w3tc_extensions',
-			array(
-				$this,
-				'w3tc_settings_page_w3tc_extensions',
-			)
-		);
+		add_action( 'w3tc_settings_page-w3tc_extensions', array( $this, 'w3tc_settings_page_w3tc_extensions' ) );
 
 		if ( Util_Admin::is_w3tc_admin_page() ) {
 			if ( isset( $_GET['extension'] ) && isset( $_GET['action'] ) ) { // phpcs:ignore
 				if ( in_array( $_GET['action'], array( 'activate', 'deactivate' ), true ) ) { // phpcs:ignore
-					add_action(
-						'init',
-						array(
-							$this,
-							'change_extension_status',
-						)
-					);
+					add_action( 'init', array( $this, 'change_extension_status' ) );
 				}
 			} elseif ( isset( $_POST['checked'] ) ) { // phpcs:ignore
-				add_action(
-					'admin_init',
-					array(
-						$this,
-						'change_extensions_status',
-					)
-				);
+				add_action( 'admin_init', array( $this, 'change_extensions_status' ) );
 			}
 		}
 	}
