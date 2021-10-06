@@ -97,10 +97,10 @@ class Extension_ImageService_Plugin_Admin {
 
 		$extensions['imageservice'] = array(
 			'name'             => 'Image Service',
-			'author'           => 'W3 EDGE',
+			'author'           => 'BoldGrid',
 			'description'      => esc_html( $description ),
-			'author_uri'       => 'https://www.w3-edge.com/',
-			'extension_uri'    => 'https://www.w3-edge.com/',
+			'author_uri'       => 'https://www.boldgrid.com/',
+			'extension_uri'    => 'https://www.boldgrid.com/w3-total-cache/',
 			'extension_id'     => 'imageservice',
 			'settings_exists'  => false,
 			'version'          => '1.0',
