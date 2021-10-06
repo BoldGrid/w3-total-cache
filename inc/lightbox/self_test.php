@@ -92,7 +92,7 @@ if ( !defined( 'W3TC' ) )
             <?php if ( function_exists( 'brotli_compress' ) ): ?>
             <span style="background-color: #33cc33"><?php _e( 'Installed', 'w3-total-cache' ); ?></span>
             <?php else: ?>
-            <span style="background-color: #FF0000"><?php _e( 'Not installed', 'w3-total-cache' ); ?></span>
+            <span style="background-color: #FFFF00"><?php _e( 'Not detected', 'w3-total-cache' ); ?></span>
             <?php endif; ?>
             <span class="w3tc-self-test-hint"><?php _e( '(required for brotli compression support)', 'w3-total-cache' ); ?></span>
         </li>
@@ -207,7 +207,7 @@ if ( !defined( 'W3TC' ) )
             <?php if ( function_exists( 'ssh2_connect' ) ): ?>
                 <span style="background-color: #33cc33"><?php _e( 'Installed', 'w3-total-cache' ); ?></span>
             <?php else: ?>
-                <span style="background-color: #FF0000"><?php _e( 'Not installed', 'w3-total-cache' ); ?></span>
+                <span style="background-color: #FFFF00"><?php _e( 'Not detected', 'w3-total-cache' ); ?></span>
             <?php endif; ?>
             <span class="w3tc-self-test-hint"><?php _e( '(required for Self-hosted (<acronym title="File Transfer Protocol">FTP</acronym>) <acronym title="Content Delivery Network">CDN</acronym> <acronym title="Secure File Transfer Protocol">SFTP</acronym> support)', 'w3-total-cache' ); ?></span>
         </li>
@@ -266,7 +266,7 @@ if ( Util_Environment::is_apache() ):
     }
 
 ?>
-            <h5><?php _e( 'Detection of the below modules may not be possible on all environments. As such "Not detected" does not imply that the module is not installed/enabled.', 'w3-total-cache' )?></h5>
+            <h5><?php _e( 'Detection of the below modules may not be possible on all environments. As such "Not detected" means that the environment disallowed detection for the given module which may still be installed/enabled whereas "Not installed" means the given module was detected but is not installed/detected.', 'w3-total-cache' )?></h5>
             <?php foreach ( $modules as $module ): ?>
                 <li>
                     <?php echo $module; ?>:
