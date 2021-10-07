@@ -235,7 +235,9 @@ class Cdn_Plugin {
 
 		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
 		if ( Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
-			$common->purge( $files, $results );
+			if ($this->_config->get_boolean( 'cdn.uploads.enable' )) {
+				$common->purge( $files, $results );
+			}
 		} else {
 			$common->upload( $files, true, $results );
 		}
