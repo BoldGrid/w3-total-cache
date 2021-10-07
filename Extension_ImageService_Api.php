@@ -177,6 +177,21 @@ class Extension_ImageService_Api {
 			);
 		}
 
+		// Update counts.
+		if ( isset( $response['usage_hourly'] ) ) {
+			set_transient(
+				'w3tc_imageservice_usage',
+				array(
+					'updated_at'    => time(),
+					'usage_hourly'  => isset( $response['usage_hourly'] ) ? $response['usage_hourly'] : null,
+					'usage_monthly' => isset( $response['usage_monthly'] ) ? $response['usage_monthly'] : null,
+					'limit_hourly'  => isset( $response['limit_hourly'] ) ? $response['limit_hourly'] : null,
+					'limit_monthly' => isset( $response['limit_monthly'] ) ? $response['limit_monthly'] : null,
+				),
+				DAY_IN_SECONDS
+			);
+		}
+
 		return $response;
 	}
 
