@@ -98,7 +98,7 @@
 	 */
 	function checkItemsProcessing() {
 		$convertLinks.each( checkItemProcessing );
-	};
+	}
 
 
 	/**
@@ -461,7 +461,7 @@
 					'</div>'
 				);
 			});
-	};
+	}
 
 	/**
 	 * Event callback: Convert all items.
