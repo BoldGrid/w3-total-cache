@@ -61,6 +61,7 @@ class Extension_ImageService_Cron {
 	 * @since X.X.X
 	 *
 	 * @see Extension_ImageService_Plugin_Admin::get_imageservice_attachments()
+	 * @see Extension_ImageService_Plugin::get_api()
 	 *
 	 * @global $wp_filesystem WP_Filesystem.
 	 */
@@ -71,8 +72,6 @@ class Extension_ImageService_Cron {
 		// If there are matches, then load dependencies before use.
 		if ( $results->have_posts() ) {
 			require_once __DIR__ . '/Extension_ImageService_Plugin_Admin.php';
-			require_once __DIR__ . '/Extension_ImageService_Api.php';
-			$api = new Extension_ImageService_Api();
 
 			$wp_upload_dir = wp_upload_dir();
 
@@ -88,6 +87,9 @@ class Extension_ImageService_Cron {
 
 			// Handle items with the "processing" status.
 			if ( 'processing' === $status && isset( $postmeta['processing']['job_id'] ) && isset( $postmeta['processing']['signature'] ) ) {
+				// Get the Image Service API object (singlton).
+				$api = Extension_ImageService_Plugin::get_api();
+
 				// Check the status of the request.
 				$response = $api->get_status( $postmeta['processing']['job_id'], $postmeta['processing']['signature'] );
 

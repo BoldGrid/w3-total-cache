@@ -22,6 +22,17 @@ if ( ! defined( 'W3TC' ) ) {
  */
 class Extension_ImageService_Plugin {
 	/**
+	 * Image Service API object.
+	 *
+	 * @since X.X.X
+	 *
+	 * @static
+	 *
+	 * @var Extension_ImageService_Api
+	 */
+	public static $api;
+
+	/**
 	 * Add hooks.
 	 *
 	 * @since X.X.X
@@ -56,6 +67,22 @@ class Extension_ImageService_Plugin {
 		);
 
 		Extension_ImageService_Cron::add_cron();
+	}
+
+	/**
+	 * Get the Image Service API object.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return Extension_ImageService_Api
+	 */
+	public static function get_api() {
+		if ( is_null( self::$api ) ) {
+			require_once __DIR__ . '/Extension_ImageService_Api.php';
+			self::$api = new Extension_ImageService_Api();
+		}
+
+		return self::$api;
 	}
 }
 

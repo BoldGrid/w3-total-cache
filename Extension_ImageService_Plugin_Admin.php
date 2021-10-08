@@ -426,6 +426,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
+	 * @see Extension_ImageService_Plugin::get_api()
 	 * @see Extension_ImageService_Api::get_usage()
 	 */
 	public function settings_page() {
@@ -461,9 +462,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		// If usage is not stored, then retrieve it from the API.
 		if ( empty( $usage ) ) {
-			require_once __DIR__ . '/Extension_ImageService_Api.php';
-			$api   = new Extension_ImageService_Api();
-			$usage = $api->get_usage();
+			$usage = Extension_ImageService_Plugin::get_api()->get_usage();
 		}
 
 		// Ensure that the monthly limit is represented correctly.
@@ -871,16 +870,14 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @global $wp_filesystem
 	 *
+	 * @see Extension_ImageService_Plugin::get_api()
+	 *
 	 * @param array $post_ids Post ids.
 	 * @return array
 	 */
 	public function submit_images( array $post_ids ) {
 		WP_Filesystem();
 		global $wp_filesystem;
-
-		require_once __DIR__ . '/Extension_ImageService_Api.php';
-
-		$api = new Extension_ImageService_Api();
 
 		$stats = array(
 			'skipped'    => 0,
@@ -905,7 +902,7 @@ class Extension_ImageService_Plugin_Admin {
 			}
 
 			// Submit current image.
-			$response = $api->convert( $filepath );
+			$response = Extension_ImageService_Plugin::get_api()->convert( $filepath );
 			$stats['submitted']++;
 
 			if ( isset( $response['error'] ) ) {
@@ -1067,6 +1064,8 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @global $wp_filesystem
 	 *
+	 * @see Extension_ImageService_Plugin::get_api()
+	 *
 	 * @uses $_POST['post_id'] Post id.
 	 */
 	public function ajax_submit() {
@@ -1104,10 +1103,7 @@ class Extension_ImageService_Plugin_Admin {
 		}
 
 		// Submit the job request.
-		require_once __DIR__ . '/Extension_ImageService_Api.php';
-
-		$api      = new Extension_ImageService_Api();
-		$response = $api->convert( $filepath );
+		$response = Extension_ImageService_Plugin::get_api()->convert( $filepath );
 
 		// Check for error.
 		if ( isset( $response['error'] ) ) {
@@ -1275,14 +1271,12 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @since X.X.X
 	 *
+	 * @see Extension_ImageService_Plugin::get_api()
 	 * @see Extension_ImageService_Api::get_usage()
 	 */
 	public function ajax_get_usage() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
-		require_once __DIR__ . '/Extension_ImageService_Api.php';
-		$api = new Extension_ImageService_Api();
-
-		wp_send_json_success( $api->get_usage() );
+		wp_send_json_success( Extension_ImageService_Plugin::get_api()->get_usage() );
 	}
 }
