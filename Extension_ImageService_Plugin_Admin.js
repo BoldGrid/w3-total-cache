@@ -14,7 +14,8 @@
 		$unconvertLinks = $( '.w3tc-revert > a' ),
 		$convertAllButton = $( 'th.w3tc-imageservice-all' ).parent().find( 'td button' ),
 		$revertAllButton = $( 'th.w3tc-imageservice-revertall' ).parent().find( 'td button' ),
-		$refreshStatsButton = $( 'input#w3tc-imageservice-refresh.button' );
+		$refreshStatsButton = $( 'input#w3tc-imageservice-refresh-counts.button' ),
+		$refreshUsageButton = $( 'input#w3tc-imageservice-refresh-usage.button' );
 
 	/* On page load. */
 
@@ -38,8 +39,11 @@
 	// Clicked revert all converted images button.
 	$revertAllButton.on( 'click', revertItems );
 
-	// Clicked the refresh icon for statistics.
+	// Clicked the refresh icon for statistics counts.
 	$refreshStatsButton.on( 'click', refreshStats );
+
+	// Clicked the refresh icon for API usage statistics.
+	$refreshUsageButton.on( 'click', refreshUsage );
 
 	/* Functions. */
 
@@ -237,7 +241,9 @@
 			.done( function( response ) {
 				if ( response.data && response.data.hasOwnProperty( 'total' ) ) {
 					[ 'total', 'converted', 'sending', 'processing', 'notconverted', 'unconverted' ].forEach( function( className ) {
-						$count = $countsTable.find( '#w3tc-imageservice-' + className );
+						var size,
+							$size,
+							$count = $countsTable.find( '#w3tc-imageservice-' + className );
 						if ( parseInt( $count.text() ) !== response.data[ className ] ) {
 							$count.text( response.data[ className ] ).closest( 'tr' ).addClass( 'w3tc-highlight' );
 
@@ -272,6 +278,71 @@
 
 				// Update the refresh button text.
 				$refreshStatsButton
+					.val( w3tcData.lang.error )
+					.prop( 'disabled', false )
+					.prop( 'aria-disabled', 'false' );
+			});
+	}
+
+	/**
+	 * Refresh API usage statistics.
+	 *
+	 * @since X.X.X
+	 */
+	function refreshUsage() {
+		var $usageTable = $( 'table#w3tc-imageservice-usage' );
+
+		// Update the refresh button text.
+		$refreshUsageButton
+			.val( w3tcData.lang.refreshing )
+			.prop( 'disabled', true )
+			.prop( 'aria-disabled', 'true' );
+
+		// Remove any error notices.
+		$usageTable.find( '.w3tc-imageservice-error' ).remove();
+
+		$.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: w3tcData.nonces.submit,
+				action: 'w3tc_imageservice_usage'
+			}
+		})
+			.done( function( response ) {
+				if ( response.data && response.data.hasOwnProperty( 'usage_hourly' ) ) {
+					[ 'usage_hourly', 'usage_monthly', 'limit_hourly', 'limit_monthly' ].forEach( function( keyName ) {
+						var className = keyName.replace( '_', '-' ),
+							$count = $usageTable.find( '#w3tc-imageservice-' + className );
+						if ( $count.text() != response.data[ keyName ] ) {
+							$count.text( response.data[ keyName ] ).closest( 'tr' ).addClass( 'w3tc-highlight' );
+						}
+					} );
+				}
+
+				// Update the refresh button text.
+				$refreshUsageButton
+					.val( w3tcData.lang.refresh )
+					.prop( 'disabled', false )
+					.prop( 'aria-disabled', 'false' );
+
+				// Remove highlights.
+				setTimeout(
+					function() {
+						$usageTable.find( '.w3tc-highlight' ).removeClass( 'w3tc-highlight' );
+					},
+					1000
+				);
+			})
+			.fail( function() {
+				$usageTable.append(
+					'<div class="notice notice-error inline w3tc-imageservice-error">' +
+					w3tcData.lang.ajaxFail +
+					'</div>'
+				);
+
+				// Update the refresh button text.
+				$refreshUsageButton
 					.val( w3tcData.lang.error )
 					.prop( 'disabled', false )
 					.prop( 'aria-disabled', 'false' );

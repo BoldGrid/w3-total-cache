@@ -41,7 +41,8 @@ p span.w3tc-convert:before {
 
 /* Statistics section on the extension settings, tools, and statistics page. */
 
-#w3tc-imageservice-counts td {
+#w3tc-imageservice-counts td,
+#w3tc-imageservice-usage td {
 	padding: 1px 10px;
 }
 

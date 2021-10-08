@@ -176,6 +176,7 @@ class Extension_ImageService_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_imageservice_all', array( $o, 'ajax_convert_all' ) );
 		add_action( 'wp_ajax_w3tc_imageservice_revertall', array( $o, 'ajax_revert_all' ) );
 		add_action( 'wp_ajax_w3tc_imageservice_counts', array( $o, 'ajax_get_counts' ) );
+		add_action( 'wp_ajax_w3tc_imageservice_usage', array( $o, 'ajax_get_usage' ) );
 
 		// Admin notices.
 		add_action( 'admin_notices', array( $o, 'display_notices' ) );
@@ -424,10 +425,13 @@ class Extension_ImageService_Plugin_Admin {
 	 * Load the extension settings page view.
 	 *
 	 * @since X.X.X
+	 *
+	 * @see Extension_ImageService_Api::get_usage()
 	 */
 	public function settings_page() {
 		$c      = $this->config;
 		$counts = $this->get_counts();
+		$usage  = get_transient( 'w3tc_imageservice_usage' );
 
 		// Delete transient for displaying activation notice.
 		delete_transient( 'w3tc_activation_imageservice' );
@@ -454,6 +458,16 @@ class Extension_ImageService_Plugin_Admin {
 			</div>
 			<?php
 		}
+
+		// If usage is not stored, then retrieve it from the API.
+		if ( empty( $usage ) ) {
+			require_once __DIR__ . '/Extension_ImageService_Api.php';
+			$api   = new Extension_ImageService_Api();
+			$usage = $api->get_usage();
+		}
+
+		// Ensure that the monthly limit is represented correctly.
+		$usage['limit_monthly'] = $usage['limit_monthly'] ? $usage['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
 
 		require W3TC_DIR . '/Extension_ImageService_Page_View.php';
 	}
@@ -1254,5 +1268,21 @@ class Extension_ImageService_Plugin_Admin {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
 		wp_send_json_success( $this->get_counts() );
+	}
+
+	/**
+	 * AJAX: Get image API usage.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see Extension_ImageService_Api::get_usage()
+	 */
+	public function ajax_get_usage() {
+		check_ajax_referer( 'w3tc_imageservice_submit' );
+
+		require_once __DIR__ . '/Extension_ImageService_Api.php';
+		$api = new Extension_ImageService_Api();
+
+		wp_send_json_success( $api->get_usage() );
 	}
 }

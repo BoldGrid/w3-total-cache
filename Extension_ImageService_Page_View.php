@@ -8,8 +8,9 @@
  *
  * @package W3TC
  *
- * @uses Config $c      Configuration object.
- * @uses array  $counts Image Service media counts.
+ * @uses Config      $c      Configuration object.
+ * @uses array       $counts Image Service media counts.
+ * @uses array|false $usage  API usage statistics.
  */
 
 namespace W3TC;
@@ -112,6 +113,7 @@ Util_Ui::config_item(
 	</table>
 
 <?php
+
 Util_Ui::postbox_footer();
 
 Util_Ui::postbox_header(
@@ -119,6 +121,7 @@ Util_Ui::postbox_header(
 	'',
 	'w3tc-imageservice-statistics'
 );
+
 ?>
 
 	<table class="form-table" id="w3tc-imageservice-stats">
@@ -158,7 +161,34 @@ Util_Ui::postbox_header(
 					</tr>
 					<tr><td height="10"></td></tr>
 					<tr>
-						<td colspan="3"><input id="w3tc-imageservice-refresh" class="button" type="button" value="<?php esc_attr_e( 'Refresh', 'w3-total-cache' ); ?>" /></td>
+						<td colspan="3"><input id="w3tc-imageservice-refresh-counts" class="button" type="button" value="<?php esc_attr_e( 'Refresh', 'w3-total-cache' ); ?>" /></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<th><?php esc_html_e( 'Image Service API usage:', 'w3-total-cache' ); ?></th>
+			<td>
+				<table id="w3tc-imageservice-usage">
+					<tr>
+						<td><?php esc_html_e( 'Hourly requests:', 'w3-total-cache' ); ?></td>
+						<td id="w3tc-imageservice-usage-hourly"><?php echo esc_html( $usage['usage_hourly'] ); ?></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Hourly limit:', 'w3-total-cache' ); ?></td>
+						<td id="w3tc-imageservice-limit-hourly"><?php echo esc_html( $usage['limit_hourly'] ); ?></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Monthly requests:', 'w3-total-cache' ); ?></td>
+						<td id="w3tc-imageservice-usage-monthly"><?php echo esc_html( $usage['usage_monthly'] ); ?></td>
+					</tr>
+					<tr>
+						<td><?php esc_html_e( 'Monthly limit:', 'w3-total-cache' ); ?></td>
+						<td id="w3tc-imageservice-limit-monthly"><?php echo esc_html( $usage['limit_monthly'] ); ?></td>
+					</tr>
+					<tr><td height="10"></td></tr>
+					<tr>
+						<td colspan="3"><input id="w3tc-imageservice-refresh-usage" class="button" type="button" value="<?php esc_attr_e( 'Refresh', 'w3-total-cache' ); ?>" /></td>
 					</tr>
 				</table>
 			</td>

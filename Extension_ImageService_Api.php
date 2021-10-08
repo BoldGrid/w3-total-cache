@@ -76,6 +76,10 @@ class Extension_ImageService_Api {
 			'method' => 'GET',
 			'uri'    => '/image/download',
 		),
+		'usage'    => array(
+			'method' => 'GET',
+			'uri'    => '/image/usage',
+		),
 	);
 
 	/**
@@ -156,13 +160,13 @@ class Extension_ImageService_Api {
 		// Convert response body to an array.
 		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		// Update counts.
+		// Update usage.
 		if ( isset( $response_body['usage_hourly'] ) ) {
 			set_transient(
 				'w3tc_imageservice_usage',
 				array(
 					'updated_at'    => time(),
-					'usage_hourly'  => isset( $response_body['usage_hourly'] ) ? $response_body['usage_hourly'] : null,
+					'usage_hourly'  => $response_body['usage_hourly'],
 					'usage_monthly' => isset( $response_body['usage_monthly'] ) ? $response_body['usage_monthly'] : null,
 					'limit_hourly'  => isset( $response_body['limit_hourly'] ) ? $response_body['limit_hourly'] : null,
 					'limit_monthly' => isset( $response_body['limit_monthly'] ) ? $response_body['limit_monthly'] : null,
@@ -213,6 +217,8 @@ class Extension_ImageService_Api {
 	/**
 	 * Get job status.
 	 *
+	 * @since X.X.X
+	 *
 	 * @param int    $job_id    Job id.
 	 * @param string $signature Signature.
 	 * @return array
@@ -252,6 +258,8 @@ class Extension_ImageService_Api {
 	/**
 	 * Download a processed image.
 	 *
+	 * @since X.X.X
+	 *
 	 * @param int    $job_id    Job id.
 	 * @param string $signature Signature.
 	 * @return array WP response array.
@@ -286,6 +294,70 @@ class Extension_ImageService_Api {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Get usage statistics.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
+	 */
+	public function get_usage() {
+		$error_message  = __( 'Unknown', 'w3-total-cache' );
+		$error_response = array(
+			'usage_hourly'  => $error_message,
+			'usage_monthly' => $error_message,
+			'limit_hourly'  => $error_message,
+			'limit_monthly' => $error_message,
+		);
+
+		$response = wp_remote_request(
+			esc_url(
+				$this->get_base_url() . $this->endpoints['usage']['uri'] .
+					'/' . rawurlencode( $this->license_key ) .
+					'/' . urlencode( $this->item_name ) . // phpcs:ignore
+					'/' . rawurlencode( $this->home_url )
+			),
+			array(
+				'method'    => $this->endpoints['usage']['method'],
+				'sslverify' => false,
+				'timeout'   => 10,
+				'headers'   => array(
+					'Accept' => 'application/json',
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $error_response;
+		}
+
+		// Convert response body to an array.
+		$response = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		// If usage is not obtained, then return error response.
+		if ( empty( $response['usage_hourly'] ) ) {
+			return $error_response;
+		} else {
+			// Update usage.
+			set_transient(
+				'w3tc_imageservice_usage',
+				array(
+					'updated_at'    => time(),
+					'usage_hourly'  => $response['usage_hourly'],
+					'usage_monthly' => isset( $response['usage_monthly'] ) ? $response['usage_monthly'] : null,
+					'limit_hourly'  => isset( $response['limit_hourly'] ) ? $response['limit_hourly'] : null,
+					'limit_monthly' => isset( $response['limit_monthly'] ) ? $response['limit_monthly'] : null,
+				),
+				DAY_IN_SECONDS
+			);
+
+			// Ensure that the monthly limit is represented correctly.
+			$response['limit_monthly'] = $response['limit_monthly'] ? $response['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
+
+			return $response;
+		}
 	}
 
 	/**
