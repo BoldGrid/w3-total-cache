@@ -33,7 +33,7 @@ class Extension_ImageService_Api {
 	 *
 	 * @var string
 	 */
-	private $license_key;
+	private $license_key = '0';
 
 	/**
 	 * W3TC Pro licensed home URL.
@@ -53,7 +53,7 @@ class Extension_ImageService_Api {
 	 *
 	 * @var string
 	 */
-	private $item_name;
+	private $item_name = '0';
 
 	/**
 	 * API endpoints.
