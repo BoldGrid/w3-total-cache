@@ -153,46 +153,61 @@ class Extension_ImageService_Api {
 			);
 		}
 
-		if ( 200 !== $response['response']['code'] ) {
-			$result = array(
-				'error' => __( 'Error: Received a non-200 response code: ', 'w3-total-cache' ) . $response['response']['code'],
-			);
-
-			$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-			if ( isset( $response_body['message'] ) ) {
-				$result['message'] = esc_html( $response_body['message'] );
-			}
-
-			return $result;
-		}
-
 		// Convert response body to an array.
-		$response = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		// Pass error message.
-		if ( isset( $response['message'] ) ) {
-			return array(
-				'error' => esc_html( $response['message'] ),
-			);
-		}
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// Update counts.
-		if ( isset( $response['usage_hourly'] ) ) {
+		if ( isset( $response_body['usage_hourly'] ) ) {
 			set_transient(
 				'w3tc_imageservice_usage',
 				array(
 					'updated_at'    => time(),
-					'usage_hourly'  => isset( $response['usage_hourly'] ) ? $response['usage_hourly'] : null,
-					'usage_monthly' => isset( $response['usage_monthly'] ) ? $response['usage_monthly'] : null,
-					'limit_hourly'  => isset( $response['limit_hourly'] ) ? $response['limit_hourly'] : null,
-					'limit_monthly' => isset( $response['limit_monthly'] ) ? $response['limit_monthly'] : null,
+					'usage_hourly'  => isset( $response_body['usage_hourly'] ) ? $response_body['usage_hourly'] : null,
+					'usage_monthly' => isset( $response_body['usage_monthly'] ) ? $response_body['usage_monthly'] : null,
+					'limit_hourly'  => isset( $response_body['limit_hourly'] ) ? $response_body['limit_hourly'] : null,
+					'limit_monthly' => isset( $response_body['limit_monthly'] ) ? $response_body['limit_monthly'] : null,
 				),
 				DAY_IN_SECONDS
 			);
 		}
 
-		return $response;
+		// Handle non-200 response codes.
+		if ( 200 !== $response['response']['code'] ) {
+			$result = array(
+				'error' => esc_html__( 'Error: Received a non-200 response code: ', 'w3-total-cache' ) . $response['response']['code'],
+			);
+
+			if ( isset( $response_body['error']['id'] ) && 'exceeded-hourly' === $response_body['error']['id'] ) {
+				$result['message'] = sprintf(
+					// translators: 1: Hourly request limit.
+					esc_html__( 'You reached your hourly limit of %1$d; try again later%2$s.', 'w3-total-cache' ),
+					esc_attr( $response_body['limit_hourly'] ),
+					isset( $response_body['licensed'] ) && $response_body['licensed'] ?
+						'' : esc_html__( ' or upgrade to Pro for higher limits', 'w3-total-cache' )
+				);
+			} elseif ( isset( $response_body['error']['id'] ) && 'exceeded-monthly' === $response_body['error']['id'] ) {
+				$result['message'] = sprintf(
+					// translators: 1: Monthly request limit.
+					esc_html__( 'You reached your monthly limit of %1$d; try again later or upgrade to Pro for unlimited.', 'w3-total-cache' ),
+					esc_attr( $response_body['limit_monthly'] )
+				);
+			} elseif ( isset( $response_body['error']['id'] ) && 'invalid-output-mime' === $response_body['error']['id'] ) {
+				$result['message'] = esc_html__( 'Invalid output image MIME type.', 'w3-total-cache' );
+			} elseif ( isset( $response_body['error']['id'] ) && 'missing-image' === $response_body['error']['id'] ) {
+				$result['message'] = esc_html__( 'An image file is required.', 'w3-total-cache' );
+			} elseif ( isset( $response_body['error']['id'] ) && 'invalid-image' === $response_body['error']['id'] ) {
+				$result['message'] = esc_html__( 'Valid image data is required.', 'w3-total-cache' );
+			} elseif ( isset( $response_body['error']['id'] ) && 'invalid-input-mime' === $response_body['error']['id'] ) {
+				$result['message'] = esc_html__( 'Invalid input image MIME type.', 'w3-total-cache' );
+			} elseif ( isset( $response_body['error']['message'] ) ) {
+				// Unknown error message id; forward the error message.
+				$result['message'] = esc_html( $response_body['error']['message'] );
+			}
+
+			return $result;
+		}
+
+		return $response_body;
 	}
 
 	/**
