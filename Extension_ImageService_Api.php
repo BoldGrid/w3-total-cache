@@ -337,7 +337,7 @@ class Extension_ImageService_Api {
 		$response = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// If usage is not obtained, then return error response.
-		if ( empty( $response['usage_hourly'] ) ) {
+		if ( ! isset( $response['usage_hourly'] ) ) {
 			return $error_response;
 		} else {
 			// Update usage.
