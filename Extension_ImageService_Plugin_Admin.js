@@ -432,7 +432,8 @@
 				}
 			})
 			.fail( function( response ) {
-				var message;
+				var message,
+					rebindBuyClick = false;
 
 				$this
 					.val( w3tcData.lang.error )
@@ -444,6 +445,7 @@
 					response.responseJSON.data.hasOwnProperty( 'message' )
 				) {
 					message = response.responseJSON.data.message;
+					rebindBuyClick = true;
 				} else {
 					message = w3tcData.lang.ajaxFail;
 				}
@@ -453,6 +455,17 @@
 					message +
 					'</div>'
 				);
+
+				// Rebind click event handler after adding a new link that may need it.
+				if ( rebindBuyClick ) {
+					$( '.button-buy-plugin' )
+					.off( 'click' )
+					.on( 'click',  function() {
+						if ( ! $( '.w3tc-overlay' ).length ) {
+							w3tc_lightbox_upgrade( w3tc_nonce, $( this ).data('src'), null );
+						}
+					} );
+				}
 			});
 	}
 
@@ -540,6 +553,7 @@
 	 * @since X.X.X
 	 *
 	 * @see refreshStats()
+	 * @see refreshUsage()
 	 */
 	 function convertItems() {
 		var $this = $( this ),
@@ -565,6 +579,7 @@
 				if ( response.success ) {
 					$this.text( w3tcData.lang.processing );
 					refreshStats();
+					refreshUsage();
 				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
 					$this.text( w3tcData.lang.error );
 					$parent.append(

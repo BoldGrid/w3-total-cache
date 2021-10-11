@@ -192,8 +192,10 @@ class Extension_ImageService_Api {
 			} elseif ( isset( $response_body['error']['id'] ) && 'exceeded-monthly' === $response_body['error']['id'] ) {
 				$result['message'] = sprintf(
 					// translators: 1: Monthly request limit.
-					esc_html__( 'You reached your monthly limit of %1$d; try again later or upgrade to Pro for unlimited.', 'w3-total-cache' ),
-					esc_attr( $response_body['limit_monthly'] )
+					esc_html__( 'You reached your monthly limit of %1$d; try again later or %2$supgrade to Pro%3$s for unlimited.', 'w3-total-cache' ),
+					esc_attr( $response_body['limit_monthly'] ),
+					'<a href="#" class="button-buy-plugin" data-src="imageservice_api_limit">',
+					'</a>'
 				);
 			} elseif ( isset( $response_body['error']['id'] ) && 'invalid-output-mime' === $response_body['error']['id'] ) {
 				$result['message'] = esc_html__( 'Invalid output image MIME type.', 'w3-total-cache' );

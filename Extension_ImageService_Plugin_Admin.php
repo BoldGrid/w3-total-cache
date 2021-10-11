@@ -501,11 +501,14 @@ class Extension_ImageService_Plugin_Admin {
 		$is_media_page    = 'upload' === get_current_screen()->id;
 
 		if ( $is_settings_page ) {
-			wp_enqueue_style( 'w3tc-lightbox' );
 			wp_enqueue_style( 'w3tc-options' );
 		}
 
 		if ( $is_settings_page || $is_media_page ) {
+			wp_localize_script( 'w3tc-lightbox', 'w3tc_nonce', array( wp_create_nonce( 'w3tc' ) ) );
+			wp_enqueue_script( 'w3tc-lightbox' );
+			wp_enqueue_style( 'w3tc-lightbox' );
+
 			wp_register_script(
 				'w3tc-imageservice',
 				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_ImageService_Plugin_Admin.js' ),

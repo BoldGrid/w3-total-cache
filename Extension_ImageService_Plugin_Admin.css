@@ -23,10 +23,6 @@ p span.w3tc-convert:before {
 	color: green;
 }
 
-.w3tc-imageservice-error {
-	color: red;
-}
-
 .w3tc-disabled {
 	cursor: not-allowed;
 	opacity: 0.7;
@@ -125,4 +121,8 @@ p span.w3tc-convert:before {
 	-webkit-animation-iteration-count: 1;
 	-o-animation-iteration-count: 1;
 	animation-iteration-count: 1;
+}
+
+#w3tc_dashboard_banner {
+	width: 100%;
 }
