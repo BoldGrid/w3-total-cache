@@ -433,7 +433,8 @@
 			})
 			.fail( function( response ) {
 				var message,
-					rebindBuyClick = false;
+					rebindBuyClick = false,
+					$wrap = $( '.wrap' );
 
 				$this
 					.val( w3tcData.lang.error )
@@ -458,6 +459,12 @@
 
 				// Rebind click event handler after adding a new link that may need it.
 				if ( rebindBuyClick ) {
+					// Ensure overlay.
+					if ( 'w3tc' !== $wrap.attr( 'id' ) ) {
+						$wrap.attr( 'id', 'w3tc' );
+					}
+
+					// Rebind click event.
 					$( '.button-buy-plugin' )
 					.off( 'click' )
 					.on( 'click',  function() {
