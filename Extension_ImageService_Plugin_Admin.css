@@ -14,11 +14,6 @@ p span.w3tc-convert:before {
 	vertical-align: middle;
 }
 
-.w3tc-converted-increased,
-.w3tc-notconverted {
-	color: orange;
-}
-
 .w3tc-converted-reduced {
 	color: green;
 }
