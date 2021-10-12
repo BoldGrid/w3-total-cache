@@ -52,7 +52,7 @@ if ( !defined( 'W3TC' ) )
             <?php if ( function_exists( 'ftp_connect' ) ): ?>
             <span style="background-color: #33cc33">Installed</span>
             <?php else: ?>
-            <span style="background-color: #FF0000">Not installed</span>
+            <span style="background-color: #FFFF00">Not detected</span>
             <?php endif; ?>
             <span class="w3tc-self-test-hint"><?php _e( '(required for Self-hosted (<acronym title="File Transfer Protocol">FTP</acronym>) <acronym title="Content Delivery Network">CDN</acronym> support)', 'w3-total-cache' ); ?></span>
         </li>
@@ -119,7 +119,7 @@ if ( !defined( 'W3TC' ) )
             <?php if ( class_exists( '\Memcached' ) ): ?>
             <span style="background-color: #33cc33"><?php _e( 'Installed', 'w3-total-cache' ); ?></span>
             <?php else: ?>
-            <span style="background-color: #FF0000"><?php _e( 'Not installed', 'w3-total-cache' ); ?></span>
+            <span style="background-color: #FFFF00"><?php _e( 'Not available', 'w3-total-cache' ); ?></span>
             <?php endif; ?>
         </li>
 
@@ -128,7 +128,7 @@ if ( !defined( 'W3TC' ) )
             <?php if ( class_exists( '\Memcache' ) ): ?>
             <span style="background-color: #33cc33"><?php _e( 'Installed', 'w3-total-cache' ); ?></span>
             <?php else: ?>
-            <span style="background-color: #FF0000"><?php _e( 'Not installed', 'w3-total-cache' ); ?></span>
+            <span style="background-color: #FFFF00"><?php _e( 'Not available', 'w3-total-cache' ); ?></span>
             <?php endif; ?>
         </li>
 
@@ -137,7 +137,7 @@ if ( !defined( 'W3TC' ) )
             <?php if ( Util_Installed::redis() ): ?>
             <span style="background-color: #33cc33"><?php _e( 'Installed', 'w3-total-cache' ); ?></span>
             <?php else: ?>
-            <span style="background-color: #FF0000"><?php _e( 'Not installed', 'w3-total-cache' ); ?></span>
+            <span style="background-color: #FFFF00"><?php _e( 'Not available', 'w3-total-cache' ); ?></span>
             <?php endif; ?>
         </li>
 
@@ -352,7 +352,7 @@ $paths = array_unique( array(
             <?php $permalink_structure = get_option( 'permalink_structure' ); if ( $permalink_structure ): ?>
             <span style="background-color: #33cc33"><?php echo htmlspecialchars( $permalink_structure ); ?></span>
             <?php else: ?>
-            <span style="background-color: #FFFF00"><?php _e( 'Disabled', 'w3-total-cache' ); ?></span>
+            <span style="background-color: #FFFF00"><?php _e( 'Off', 'w3-total-cache' ); ?></span>
             <?php endif; ?>
         </li>
 
