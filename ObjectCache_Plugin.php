@@ -35,6 +35,7 @@ class ObjectCache_Plugin {
 				) );
 		}
 
+		// posts
 		if ( $this->_do_flush() ) {
 			add_action( 'clean_post_cache', array(
 					$this,
@@ -42,6 +43,7 @@ class ObjectCache_Plugin {
 				), 0, 2 );
 		}
 
+		// comments
 		if ( $this->_do_flush() ) {
 			add_action( 'comment_post', array(
 					$this,
@@ -74,11 +76,13 @@ class ObjectCache_Plugin {
 				), 0 );
 		}
 
+		// theme
 		add_action( 'switch_theme', array(
 				$this,
 				'on_change'
 			), 0 );
 
+		// settings
 		if ( $this->_do_flush() ) {
 			add_action( 'updated_option', array(
 					$this,
@@ -95,6 +99,7 @@ class ObjectCache_Plugin {
 				), 0, 1 );
 		}
 
+		// user profile
 		add_action( 'edit_user_profile_update', array(
 				$this,
 				'on_change_profile'
@@ -185,10 +190,11 @@ class ObjectCache_Plugin {
 			}
 
 			$flush = Dispatcher::component( 'CacheFlush' );
-			if( $this->_config->get_boolean( 'objectcache.purge.posts' ) ) {
-				$flush->objectcache_flush_group('global-posts');
-				$flush->objectcache_flush_group('posts');
-				$flush->objectcache_flush_group('posts_meta');
+			$groups = $this->_config->get_array( 'objectcache.purge.posts' );
+			if( !empty( $groups ) ) {
+				foreach ( $groups as $group ) {
+					$flush->objectcache_flush_group( $group );
+				}
 				$flushed = true;
 			}
 			else {
@@ -203,14 +209,23 @@ class ObjectCache_Plugin {
 	 */
 	function on_change_option( $option ) {
 		static $flushed = false;
-/*
+
 		if ( !$flushed ) {
 			if ( $option != 'cron' ) {
 				$flush = Dispatcher::component( 'CacheFlush' );
-				$flush->objectcache_flush();
-				$flushed = true;
+				$groups = $this->_config->get_array( 'objectcache.purge.options' );
+				if( !empty( $groups ) ) {
+					foreach ( $groups as $group ) {
+						$flush->objectcache_flush_group( $group );
+					}
+					$flushed = true;
+				}
+				else {
+					$flush->objectcache_flush();
+					$flushed = true;
+				}
 			}
-		}*/
+		}
 	}
 
 	/**
@@ -231,9 +246,17 @@ class ObjectCache_Plugin {
 			}
 
 			$flush = Dispatcher::component( 'CacheFlush' );
-			$flush->objectcache_flush();
-
-			$flushed = true;
+			$groups = $this->_config->get_array( 'objectcache.purge.profiles' );
+			if( !empty( $groups ) ) {
+				foreach ( $groups as $group ) {
+					$flush->objectcache_flush_group( $group );
+				}
+				$flushed = true;
+			}
+			else {
+				$flush->objectcache_flush();
+				$flushed = true;
+			}
 		}
 	}
 

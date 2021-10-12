@@ -523,7 +523,10 @@ class Util_Admin {
 		if ( $current_config->get_boolean( 'objectcache.enabled' ) ) {
 			$objectcache_dependencies = array(
 				'objectcache.groups.global',
-				'objectcache.groups.nonpersistent'
+				'objectcache.groups.nonpersistent',
+				'objectcache.purge.posts',
+				'objectcache.purge.options',
+				'objectcache.purge.profiles'
 			);
 
 			$old_objectcache_dependencies_values = array();
