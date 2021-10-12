@@ -30,7 +30,6 @@ Util_Ui::config_item( array(
 		),
 	) );
 
-	$validate_timestamps = '';
 	Util_Ui::config_item( array(
 		'key'            => 'opcache.validate_timestamps',
 		'label'          => 'Validate timestamps:',
