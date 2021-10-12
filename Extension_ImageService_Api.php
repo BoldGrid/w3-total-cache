@@ -186,12 +186,17 @@ class Extension_ImageService_Api {
 					// translators: 1: Hourly request limit.
 					esc_html__( 'You reached your hourly limit of %1$d; try again later%2$s.', 'w3-total-cache' ),
 					esc_attr( $response_body['limit_hourly'] ),
-					isset( $response_body['licensed'] ) && $response_body['licensed'] ?
-						'' : esc_html__( ' or upgrade to Pro for higher limits', 'w3-total-cache' )
+					isset( $response_body['licensed'] ) && $response_body['licensed'] ? '' :
+						sprintf(
+							// translators: 1: Hourly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
+							esc_html__( ' or %1$supgrade to Pro%2$s for higher limits', 'w3-total-cache' ),
+							'<a href="#" class="button-buy-plugin" data-src="imageservice_api_limit">',
+							'</a>'
+						)
 				);
 			} elseif ( isset( $response_body['error']['id'] ) && 'exceeded-monthly' === $response_body['error']['id'] ) {
 				$result['message'] = sprintf(
-					// translators: 1: Monthly request limit.
+					// translators: 1: Monthly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
 					esc_html__( 'You reached your monthly limit of %1$d; try again later or %2$supgrade to Pro%3$s for unlimited.', 'w3-total-cache' ),
 					esc_attr( $response_body['limit_monthly'] ),
 					'<a href="#" class="button-buy-plugin" data-src="imageservice_api_limit">',
