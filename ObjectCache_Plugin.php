@@ -149,10 +149,11 @@ class ObjectCache_Plugin {
 			}
 
 			$flush = Dispatcher::component( 'CacheFlush' );
-			if( $this->_config->get_boolean( 'objectcache.purge.posts' ) ) {
-				$flush->objectcache_flush_group('global-posts');
-				$flush->objectcache_flush_group('posts');
-				$flush->objectcache_flush_group('posts_meta');
+			$groups = $this->_config->get_array( 'objectcache.purge.posts' );
+			if( !empty( $groups ) ) {
+				foreach ( $groups as $group ) {
+					$flush->objectcache_flush_group( $group );
+				}
 				self::$flushed = true;
 			}
 			else {
@@ -167,19 +168,22 @@ class ObjectCache_Plugin {
 	 *
 	 * @param string $option Option key.
 	 */
-	public function on_change_option( $option ) {
-		if ( 'cron' === $option ) {
-			wp_cache_delete( $option );
-		}
-
-		$do_flush = defined( 'WP_ADMIN' )
-			|| $this->_config->get_boolean( 'cluster.messagebus.enabled' )
-			|| $this->_config->get_boolean( 'objectcache.purge.all' );
-
-		if ( ! self::$flushed && $do_flush ) {
-			$flush = Dispatcher::component( 'CacheFlush' );
-			$flush->objectcache_flush();
-			self::$flushed = true;
+	function on_change_option( $option ) {
+		if ( !self::$flushed ) {
+			if ( $option != 'cron' ) {
+				$flush = Dispatcher::component( 'CacheFlush' );
+				$groups = $this->_config->get_array( 'objectcache.purge.options' );
+				if( !empty( $groups ) ) {
+					foreach ( $groups as $group ) {
+						$flush->objectcache_flush_group( $group );
+					}
+					self::$flushed = true;
+				}
+				else {
+					$flush->objectcache_flush();
+					self::$flushed = true;
+				}
+			}
 		}
 	}
 
@@ -199,9 +203,17 @@ class ObjectCache_Plugin {
 			}
 
 			$flush = Dispatcher::component( 'CacheFlush' );
-			$flush->objectcache_flush();
-
-			self::$flushed = true;
+			$groups = $this->_config->get_array( 'objectcache.purge.profiles' );
+			if( !empty( $groups ) ) {
+				foreach ( $groups as $group ) {
+					$flush->objectcache_flush_group( $group );
+				}
+				self::$flushed = true;
+			}
+			else {
+				$flush->objectcache_flush();
+				self::$flushed = true;
+			}
 		}
 	}
 
