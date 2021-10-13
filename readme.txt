@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.8
 Tested up to: 5.8
-Stable tag: 2.1.8
+Stable tag: 2.1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -274,6 +274,22 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.1.9 =
+* Fix: Cloudflare Dashboard Widget: Updated to use GraphQL
+* Fix: Cloudflare Dashboard Widget: Use WordPress timezone
+* Fix: CDN: Execute purge only if hosting is enabled, to prevent unneeded delays
+* Fix: Published/modified custom posts not clearing the archive cache(s)
+* Fix: Native WordPress sitemap caching
+* Fix: Extra MIME groups other than controlled by settings were added to rules
+* Fix: Usage Statistics: Not functioning when object cache is set to Redis
+* Fix: AMP Extension: Prevent popup admin bar for endpoints
+* Fix: Setup Guide Wizard: CSS for long translations
+* Fix: Opcache Settings: Validate timestamp indicator checkbox
+* Update: Remove robots.txt cache toggle setting
+* Enhancement: Impove 404 detection
+* Enhancement: Improved compatibility check indicators
+* Enhancement: AWS CloudFront: Faster cache invalidation using async
 
 = 2.1.8 =
 * Fix: Corrected handling of robots.txt (file and filter)
