@@ -148,7 +148,7 @@ map $http_accept $webp_ext {
     "~*webp" ".webp";
 }
 
-location ~* ^(.+)\.(png|jpg)$ {
+location ~* ^(.+)\.(png|jpe?g)$ {
     set $img_path $1;
     add_header Vary Accept;
     try_files $img_path$webp_ext $uri =404;
