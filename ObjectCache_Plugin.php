@@ -39,8 +39,9 @@ class ObjectCache_Plugin {
 	/**
 	 * Runs plugin
 	 */
-	public function run() {
-		// phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
+	function run() {
+		add_filter( 'w3tc_config_default_values', array( $this, 'w3tc_config_default_values' ) );
+
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
 
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
@@ -349,5 +350,41 @@ class ObjectCache_Plugin {
 		}
 
 		return $sources;
+	}
+
+	public function w3tc_config_default_values( $default_values ) {
+		$default_values['objectcache']['objectcache.purge.posts'] = array(
+			'type' => 'array',
+			'default' => array(
+				'global-posts',
+				'posts',
+				'posts_meta',
+				'category_relationships',
+				'post_format_relationships',
+				'post_tag_relationships',
+				'terms',
+				'term_meta',
+				'comment'
+			)
+		);
+		$default_values['objectcache']['objectcache.purge.options'] = array(
+			'type' => 'array',
+			'default' => array(
+				'options',
+				'site-options'
+			)
+		);
+		$default_values['objectcache']['objectcache.purge.profiles'] = array(
+			'type' => 'array',
+			'default' => array(
+				'users',
+				'user_meta',
+				'useremail',
+				'userlogins',
+				'userslugs'
+			)
+		);
+
+		return $default_values;
 	}
 }
