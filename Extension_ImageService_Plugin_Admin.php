@@ -668,7 +668,7 @@ class Extension_ImageService_Plugin_Admin {
 				// Print action links.
 				?>
 				<span class="<?php echo esc_attr( $disabled_class ); ?>">
-					<a href="#" class="<?php echo esc_attr( $link_classes ); ?>" data-post-id="<?php echo esc_attr( $post_id ); ?>"
+					<a class="<?php echo esc_attr( $link_classes ); ?>" data-post-id="<?php echo esc_attr( $post_id ); ?>"
 						data-status="<?php echo esc_attr( $status ); ?>" aria-disabled="<?php echo esc_attr( $aria_attr ); ?>">
 				<?php
 				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
@@ -695,7 +695,7 @@ class Extension_ImageService_Plugin_Admin {
 				// If converted, then show revert link.
 				if ( 'converted' === $status ) {
 					?>
-					<span class="w3tc-revert"> | <a href="#"><?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?></a></span>
+					<span class="w3tc-revert"> | <a><?php esc_attr_e( 'Revert', 'w3-total-cache' ); ?></a></span>
 					<?php
 				}
 			} elseif ( isset( $imageservice_data['is_converted_file'] ) && $imageservice_data['is_converted_file'] ) {

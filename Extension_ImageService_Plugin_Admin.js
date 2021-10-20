@@ -161,7 +161,7 @@
 						// Add revert link, if not already present.
 						if ( ! $itemTd.find( '.w3tc-revert' ).length ) {
 							$itemTd.append(
-								'<span class="w3tc-revert"> | <a href="#">' +
+								'<span class="w3tc-revert"> | <a>' +
 								w3tcData.lang.revert +
 								'</a></span>'
 							);
