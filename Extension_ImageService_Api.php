@@ -178,6 +178,7 @@ class Extension_ImageService_Api {
 		// Handle non-200 response codes.
 		if ( 200 !== $response['response']['code'] ) {
 			$result = array(
+				'code'  => $response['response']['code'],
 				'error' => esc_html__( 'Error: Received a non-200 response code: ', 'w3-total-cache' ) . $response['response']['code'],
 			);
 
@@ -210,6 +211,13 @@ class Extension_ImageService_Api {
 				$result['message'] = esc_html__( 'Valid image data is required.', 'w3-total-cache' );
 			} elseif ( isset( $response_body['error']['id'] ) && 'invalid-input-mime' === $response_body['error']['id'] ) {
 				$result['message'] = esc_html__( 'Invalid input image MIME type.', 'w3-total-cache' );
+			} elseif ( 403 === $response['response']['code'] ) {
+				$result['message'] = sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					esc_html__( 'Please verify your license key in %1$sGeneral Settings%2$s.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#licensing' ) ) . '">',
+					'</a>'
+				);
 			} elseif ( isset( $response_body['error']['message'] ) ) {
 				// Unknown error message id; forward the error message.
 				$result['message'] = esc_html( $response_body['error']['message'] );

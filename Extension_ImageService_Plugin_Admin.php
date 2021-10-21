@@ -1108,6 +1108,14 @@ class Extension_ImageService_Plugin_Admin {
 		// Submit the job request.
 		$response = Extension_ImageService_Plugin::get_api()->convert( $filepath );
 
+		// Check for non-200 status code.
+		if ( isset( $response['code'] ) && 200 !== $response['code'] ) {
+			wp_send_json_error(
+				$response,
+				$response['code']
+			);
+		}
+
 		// Check for error.
 		if ( isset( $response['error'] ) ) {
 			wp_send_json_error(
