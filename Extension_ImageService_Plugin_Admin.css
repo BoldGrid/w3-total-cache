@@ -121,3 +121,7 @@ p span.w3tc-convert:before {
 #w3tc_dashboard_banner {
 	width: 100%;
 }
+
+a:hover {
+	cursor: pointer;
+}
