@@ -26,6 +26,17 @@ class FeatureShowcase_Plugin_Admin {
 	private $_page = 'w3tc_feature_showcase'; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
+	 * Location of any wp_redirect.
+	 *
+	 * @since X.X.X
+	 * @access private
+	 * @static
+	 *
+	 * @var string
+	 */
+	private static $wp_redirect_location;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 2.1.0
@@ -41,6 +52,15 @@ class FeatureShowcase_Plugin_Admin {
 				$this,
 				'enqueue_styles',
 			)
+		);
+
+		// Check if being redirected.
+		add_filter(
+			'wp_redirect',
+			function( $location ) {
+				FeatureShowcase_Plugin_Admin::$wp_redirect_location = $location;
+				return $location;
+			}
 		);
 	}
 
@@ -68,8 +88,10 @@ class FeatureShowcase_Plugin_Admin {
 
 		require W3TC_DIR . '/FeatureShowcase_Plugin_Admin_View.php';
 
-		// Mark unseen new features as seen.
-		$this->mark_seen();
+		// Mark unseen new features as seen, if not redirecting to the Setup Guide wizard.
+		if ( ! self::$wp_redirect_location ) {
+			$this->mark_seen();
+		}
 	}
 
 	/**
