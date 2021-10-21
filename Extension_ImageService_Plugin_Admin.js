@@ -104,7 +104,6 @@
 		$convertLinks.each( checkItemProcessing );
 	}
 
-
 	/**
 	 * Callback: Check processing item.
 	 *
@@ -317,7 +316,7 @@
 						if ( $count.text() != response.data[ keyName ] ) {
 							$count.text( response.data[ keyName ] ).closest( 'tr' ).addClass( 'w3tc-highlight' );
 						}
-					} );
+					});
 				}
 
 				// Update the refresh button text.
