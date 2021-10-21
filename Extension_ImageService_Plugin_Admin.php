@@ -794,6 +794,8 @@ class Extension_ImageService_Plugin_Admin {
 			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 			?>
+			<script>history.pushState( null, '', location.href.split( '?' )[0] );</script>
+
 			<div class="updated notice notice-success is-dismissible">
 				<p>Total Cache Image Service</p>
 				<p>
@@ -838,6 +840,8 @@ class Extension_ImageService_Plugin_Admin {
 
 		} elseif ( isset( $_GET['w3tc_imageservice_reverted'] ) ) { // phpcs:ignore
 			?>
+			<script>history.pushState( null, '', location.href.split( '?' )[0] );</script>
+
 			<div class="updated notice notice-success is-dismissible"><p>Total Cache Image Service</p>
 				<p><?php esc_html_e( 'All selected optimizations have been reverted.', 'w3-total-cache' ); ?></p>
 			</div>
