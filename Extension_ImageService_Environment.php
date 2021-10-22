@@ -128,7 +128,7 @@ class Extension_ImageService_Environment {
     RewriteCond %{REQUEST_FILENAME} (.+)\.(jpe?g|png|gif)$
     RewriteCond %1\.webp -f
     RewriteCond %{QUERY_STRING} !type=original
-    RewriteRule (.+)\.(jpe?g|png)$ $1.webp [NC,T=image/webp,E=webp,L]
+    RewriteRule (.+)\.(jpe?g|png|gif)$ $1.webp [NC,T=image/webp,E=webp,L]
 </IfModule>
 <IfModule mod_headers.c>
     <FilesMatch "\.(jpe?g|png|gif)$">
