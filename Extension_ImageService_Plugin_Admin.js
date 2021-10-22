@@ -67,7 +67,6 @@
 	 *
 	 * @since X.X.X
 	 *
-	 * @see checkNotConverted()
 	 * @see checkItemsProcessing()
 	 */
 	function startCheckItems() {
@@ -76,9 +75,6 @@
 		}
 
 		isCheckingItems= true;
-
-		// If any processed images were not converted, then print a notice to check settings.
-		checkNotConverted();
 
 		// Check status and update every 5 seconds.
 		checkitemsInterval = setInterval( checkItemsProcessing, 5000 );
@@ -108,8 +104,6 @@
 	 * Callback: Check processing item.
 	 *
 	 * @since X.X.X
-	 *
-	 * @see checkNotConverted()
 	 */
 	 function checkItemProcessing() {
 		var $this = $( this ),
@@ -191,24 +185,6 @@
 						'</div>'
 					);
 				});
-		}
-
-		// If any processed images were not converted, then print a notice to check settings.
-		checkNotConverted();
-	}
-
-	/**
-	 * Check for images not converted and print a notice if nay are found.
-	 *
-	 * @since X.X.X
-	 */
-	function checkNotConverted() {
-		if ( 'lossy' !== w3tcData.settings.compression && ! $( '#w3tc-notconverted-notice' ).length && $( '.w3tc-notconverted' ).length ) {
-			$( '#wpbody-content' ).prepend(
-				'<div id="w3tc-notconverted-notice" class="notice notice-warning is-dismissible"><p>Total Cache Image Service</p><p>' +
-				w3tcData.lang.notConvertedNotice +
-				'</p></div>'
-			);
 		}
 	}
 
