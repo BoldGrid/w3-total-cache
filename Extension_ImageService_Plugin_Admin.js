@@ -163,15 +163,22 @@
 							$( '.w3tc-revert > a' ).unbind().on( 'click', revertItem );
 						}
 					} else if ( 'notconverted' === response.data.status ) {
-						$this
-							.text( w3tcData.lang.notConverted )
-							.data( 'status', 'notconverted' );
+						$this.data( 'status', 'notconverted' );
 
 						$itemTd.prepend(
 							'<div class="w3tc-notconverted">' +
 							w3tcData.lang.notConvertedDesc +
 							'</div>'
 						);
+
+						if ( 'lossless' === w3tcData.settings.compression ) {
+							$this
+								.text( w3tcData.lang.settings )
+								.prop( 'aria-disabled' , 'false')
+								.closest( 'span' ).removeClass( 'w3tc-disabled' );
+						} else {
+							$this.text( w3tcData.lang.notConverted );
+						}
 					}
 				})
 				.fail( function() {
@@ -359,6 +366,12 @@
 	 function convertItem() {
 		var $this = $( this ),
 			$itemTd = $this.closest( 'td' );
+
+		// If the conversion was canceled and the compression setting is "lossless", then go to the settings page.
+		if ( 'notconverted' === $this.data( 'status' ) && 'lossless' === w3tcData.settings.compression ) {
+			window.location.href = w3tcData.settingsUrl;
+			return;
+		}
 
 		$this
 			.text( w3tcData.lang.sending )

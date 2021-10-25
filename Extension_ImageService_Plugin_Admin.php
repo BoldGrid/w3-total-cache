@@ -116,6 +116,7 @@ class Extension_ImageService_Plugin_Admin {
 				'<a class="edit" href="' . $library_url . '">' . esc_html__( 'Media Library', 'w3-total-cache' ) . '</a>',
 			),
 			'notice'           => sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag, 3: HTML anchor open tag, 4: HTML anchor open tag.
 				__(
 					'Total Cache Image Service has been activated. Now, you can %1$sadjust the settings%2$s or go to the %3$sMedia Library%2$s to convert images to WebP.  %4$sLearn more%2$s.',
 					'w3-total-cache'
@@ -521,34 +522,37 @@ class Extension_ImageService_Plugin_Admin {
 				'w3tc-imageservice',
 				'w3tcData',
 				array(
-					'nonces'   => array(
+					'nonces'      => array(
 						'submit'   => wp_create_nonce( 'w3tc_imageservice_submit' ),
 						'postmeta' => wp_create_nonce( 'w3tc_imageservice_postmeta' ),
 						'revert'   => wp_create_nonce( 'w3tc_imageservice_revert' ),
 					),
-					'lang'     => array(
-						'convert'            => __( 'Convert', 'w3-total_cache' ),
-						'sending'            => __( 'Sending...', 'w3-total_cache' ),
-						'processing'         => __( 'Processing...', 'w3-total_cache' ),
-						'converted'          => __( 'Converted', 'w3-total_cache' ),
-						'notConverted'       => __( 'Not converted', 'w3-total_cache' ),
-						'reverting'          => __( 'Reverting...', 'w3-total_cache' ),
-						'reverted'           => __( 'Reverted', 'w3-total_cache' ),
-						'revert'             => __( 'Revert', 'w3-total_cache' ),
-						'error'              => __( 'Error', 'w3-total_cache' ),
-						'notConvertedDesc'   => __( 'Not converted; image would be larger.', 'w3-total_cache' ),
-						'ajaxFail'           => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
-						'apiError'           => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
-						'refresh'            => __( 'Refresh', 'w3-total_cache' ),
-						'refreshing'         => __( 'Refreshing...', 'w3-total_cache' ),
-						'notConvertedNotice' => sprintf(
+					'lang'        => array(
+						'convert'          => __( 'Convert', 'w3-total_cache' ),
+						'sending'          => __( 'Sending...', 'w3-total_cache' ),
+						'processing'       => __( 'Processing...', 'w3-total_cache' ),
+						'converted'        => __( 'Converted', 'w3-total_cache' ),
+						'notConverted'     => __( 'Not converted', 'w3-total_cache' ),
+						'reverting'        => __( 'Reverting...', 'w3-total_cache' ),
+						'reverted'         => __( 'Reverted', 'w3-total_cache' ),
+						'revert'           => __( 'Revert', 'w3-total_cache' ),
+						'error'            => __( 'Error', 'w3-total_cache' ),
+						'ajaxFail'         => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
+						'apiError'         => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
+						'refresh'          => __( 'Refresh', 'w3-total_cache' ),
+						'refreshing'       => __( 'Refreshing...', 'w3-total_cache' ),
+						'settings'         => __( 'Settings', 'w3-total_cache' ),
+						'notConvertedDesc' => sprintf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							__( 'Some images were not converted.  Review your %1$ssettings%2$s to try using lossy compression.', 'w3-total_cache' ),
-							'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ) . '">',
+							__( 'Conversion canceled; the original image is smaller in size.  %1$sLearn more%2$s.', 'w3-total_cache' ),
+							'<a target="_blank" href="' . esc_url(
+								'https://www.boldgrid.com/support/w3-total-cache/image-service#conversion-canceled/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice'
+							) . '">',
 							'</a>'
 						),
 					),
-					'settings' => $this->config->get_array( 'imageservice' ),
+					'settings'    => $this->config->get_array( 'imageservice' ),
+					'settingsUrl' => esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ),
 				)
 			);
 
@@ -600,9 +604,13 @@ class Extension_ImageService_Plugin_Admin {
 	 * @param int    $post_id     Attachment ID.
 	 */
 	public function media_column_row( $column_name, $post_id ) {
+		static $settings;
+
 		if ( 'imageservice' === $column_name ) {
 			$post              = get_post( $post_id );
 			$imageservice_data = get_post_meta( $post_id, 'w3tc_imageservice', true );
+
+			$settings = isset( $settings ) ? $settings : $this->config->get_array( 'imageservice' );
 
 			// Display controls and info for eligible images.
 			if ( in_array( $post->post_mime_type, self::$mime_types, true ) ) {
@@ -647,22 +655,38 @@ class Extension_ImageService_Plugin_Admin {
 					}
 				} elseif ( 'notconverted' === $status ) {
 					?>
-					<div class="w3tc-notconverted"><?php esc_html_e( 'Not converted; image would be larger.', 'w3-total-cache' ); ?></div>
+					<div class="w3tc-notconverted">
+					<?php
+					printf(
+						// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+						esc_html__( 'Conversion canceled; the original image is smaller in size.  %1$sLearn more%2$s.', 'w3-total_cache' ),
+						'<a target="_blank" href="' . esc_url(
+							'https://www.boldgrid.com/support/w3-total-cache/image-service#conversion-canceled/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice'
+						) . '">',
+						'</a>'
+					);
+					?>
+					</div>
 					<?php
 				}
 
 				// Determine classes.
-				$link_classes   = 'w3tc-convert';
-				$disabled_class = '';
-				$aria_attr      = 'false';
+				$link_classes = 'w3tc-convert';
 
-				if ( 'processing' === $status ) {
-					$link_classes  .= ' w3tc-convert-processing';
-					$disabled_class = 'w3tc-disabled';
-					$aria_attr      = 'true';
-				} elseif ( 'converted' === $status ) {
-					$disabled_class = 'w3tc-disabled';
-					$aria_attr      = 'true';
+				switch ( $status ) {
+					case 'processing':
+						$link_classes  .= ' w3tc-convert-processing';
+						$disabled_class = 'w3tc-disabled';
+						$aria_attr      = 'true';
+						break;
+					case 'converted':
+						$disabled_class = 'w3tc-disabled';
+						$aria_attr      = 'true';
+						break;
+					default:
+						$disabled_class = '';
+						$aria_attr      = 'false';
+						break;
 				}
 
 				// Print action links.
@@ -681,6 +705,13 @@ class Extension_ImageService_Plugin_Admin {
 						break;
 					case 'converted':
 						esc_html_e( 'Converted', 'w3-total-cache' );
+						break;
+					case 'notconverted':
+						if ( isset( $settings['compression'] ) && 'lossless' === $settings['compression'] ) {
+							esc_html_e( 'Settings', 'w3-total-cache' );
+						} else {
+							esc_html_e( 'Convert', 'w3-total-cache' );
+						}
 						break;
 					default:
 						esc_html_e( 'Convert', 'w3-total-cache' );
