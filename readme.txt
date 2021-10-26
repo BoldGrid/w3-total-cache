@@ -275,6 +275,9 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.2.0 =
+* Feature: Image Service API extension: WebP conversion options
+
 = 2.1.9 =
 * Fix: Cloudflare Dashboard Widget: Updated to use GraphQL
 * Fix: Cloudflare Dashboard Widget: Use WordPress timezone
