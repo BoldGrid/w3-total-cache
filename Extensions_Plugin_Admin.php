@@ -213,7 +213,7 @@ class Extensions_Plugin_Admin {
 	/**
 	 * Display admin notices.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see Extensions_Util::get_active_extensions()
 	 */

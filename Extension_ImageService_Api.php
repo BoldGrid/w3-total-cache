@@ -2,7 +2,7 @@
 /**
  * File: Extension_ImageService_Api.php
  *
- * @since X.X.X
+ * @since 2.2.0
  *
  * @package W3TC
  */
@@ -12,13 +12,13 @@ namespace W3TC;
 /**
  * Class: Extension_ImageService_Api
  *
- * @since X.X.X
+ * @since 2.2.0
  */
 class Extension_ImageService_Api {
 	/**
 	 * API Base URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @access private
 	 *
 	 * @var string
@@ -28,7 +28,7 @@ class Extension_ImageService_Api {
 	/**
 	 * W3TC Pro license key.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @access private
 	 *
 	 * @var string
@@ -38,7 +38,7 @@ class Extension_ImageService_Api {
 	/**
 	 * W3TC Pro licensed home URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @access private
 	 *
 	 * @var string
@@ -48,7 +48,7 @@ class Extension_ImageService_Api {
 	/**
 	 * W3TC Pro licensed product item name.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @access private
 	 *
 	 * @var string
@@ -58,7 +58,7 @@ class Extension_ImageService_Api {
 	/**
 	 * API endpoints.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @access private
 	 *
 	 * @var array
@@ -85,7 +85,7 @@ class Extension_ImageService_Api {
 	/**
 	 * Constructor.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 */
 	public function __construct() {
 		$config = Dispatcher::config();
@@ -102,7 +102,7 @@ class Extension_ImageService_Api {
 	/**
 	 * Convert an image; submit a job request.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param string $filepath Image file path.
 	 * @param array  $options  Optional array of options.  Overrides settings.
@@ -232,7 +232,7 @@ class Extension_ImageService_Api {
 	/**
 	 * Get job status.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param int    $job_id    Job id.
 	 * @param string $signature Signature.
@@ -273,7 +273,7 @@ class Extension_ImageService_Api {
 	/**
 	 * Download a processed image.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param int    $job_id    Job id.
 	 * @param string $signature Signature.
@@ -314,7 +314,7 @@ class Extension_ImageService_Api {
 	/**
 	 * Get usage statistics.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @return array
 	 */
@@ -378,7 +378,7 @@ class Extension_ImageService_Api {
 	/**
 	 * Get base URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @access private
 	 *
 	 * @returns string

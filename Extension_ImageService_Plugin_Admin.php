@@ -2,7 +2,7 @@
 /**
  * File: Extension_ImageService_Plugin_Admin.php
  *
- * @since X.X.X
+ * @since 2.2.0
  *
  * @package W3TC
  *
@@ -14,13 +14,13 @@ namespace W3TC;
 /**
  * Class: Extension_ImageService_Plugin_Admin
  *
- * @since X.X.X
+ * @since 2.2.0
  */
 class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Image MIME types available for optimization.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 *
 	 * @var array
@@ -35,7 +35,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Configuration.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @access private
 	 *
 	 * @var Config
@@ -45,7 +45,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Image Service API class object.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @access private
 	 *
 	 * @var Extension_ImageService_API
@@ -55,7 +55,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Constructor.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 */
 	public function __construct() {
 		$this->config = Dispatcher::config();
@@ -64,7 +64,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Get extension information.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 *
 	 * @global $wp_version WordPress core version.
@@ -138,7 +138,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * Runs on the "wp_loaded" action.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 */
 	public static function w3tc_extension_load_admin() {
@@ -259,7 +259,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Get all images with postmeta key "w3tc_imageservice".
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 *
 	 * @link https://developer.wordpress.org/reference/classes/wp_query/
@@ -283,7 +283,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Get all images without postmeta key "w3tc_imageservice".
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 *
 	 * @link https://developer.wordpress.org/reference/classes/wp_query/
@@ -308,7 +308,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Get an attachment filesize.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @global $wp_filesystem
 	 *
@@ -332,7 +332,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Get image counts by status.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see self::get_imageservice_attachments()
 	 * @see self::get_eligible_attachments()
@@ -425,7 +425,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Load the extension settings page view.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see Extension_ImageService_Plugin::get_api()
 	 * @see Extension_ImageService_Api::get_usage()
@@ -475,7 +475,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Add admin menu items.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 */
 	public function admin_menu() {
 		// Add settings submenu to Media top-level menu.
@@ -494,7 +494,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * Runs on the "admin_enqueue_scripts" action.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 */
 	public function admin_enqueue_scripts() {
 		// Enqueue JavaScript for the Media Library (upload) and extension settings admin pages.
@@ -573,7 +573,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * Runs on the "manage_media_columns" filter.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param string[] $posts_columns An array of columns displayed in the Media list table.
 	 * @param bool     $detached      Whether the list table contains media not attached
@@ -739,7 +739,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Add bulk actions.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param array $actions Bulk actions.
 	 * @return array
@@ -754,7 +754,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Handle bulk actions.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see self::submit_images()
 	 * @see self::revert_optimizations()
@@ -806,7 +806,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Display bulk action results admin notice.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @uses $_GET['w3tc_imageservice_submitted']  Number of submittions.
 	 * @uses $_GET['w3tc_imageservice_successful'] Number of successful submissions.
@@ -904,7 +904,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Submit images to the API for processing.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @global $wp_filesystem
 	 *
@@ -974,7 +974,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Revert optimizations of images.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param array $post_ids Attachment post ids.
 	 */
@@ -992,7 +992,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Update postmeta.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/update_post_meta/
@@ -1012,7 +1012,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Copy postmeta from one post to another.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/update_post_meta/
@@ -1034,7 +1034,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Remove optimizations.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/wp_delete_attachment/
 	 *
@@ -1062,7 +1062,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Handle auto-optimization on image upload.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param int $post_id Post id.
 	 */
@@ -1080,7 +1080,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * Does not filter the WordPress operation.  We use this as an action trigger.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param bool|null $delete       Whether to go forward with deletion.
 	 * @param WP_Post   $post         Post object.
@@ -1098,7 +1098,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * AJAX: Submit an image for processing.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @global $wp_filesystem
 	 *
@@ -1187,7 +1187,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * AJAX: Get the status of an image, from postmeta.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @uses $_POST['post_id'] Post id.
 	 */
@@ -1211,7 +1211,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * AJAX: Revert an optimization.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @uses $_POST['post_id'] Parent post id.
 	 */
@@ -1246,7 +1246,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * AJAX: Convert all images.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see self::get_eligible_attachments()
 	 * @see self::submit_images()
@@ -1274,7 +1274,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * AJAX: Revert all converted images.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see self::get_imageservice_attachments()
 	 * @see self::remove_optimizations()
@@ -1302,7 +1302,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * AJAX: Get image counts by status.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see get_counts()
 	 */
@@ -1315,7 +1315,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * AJAX: Get image API usage.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see Extension_ImageService_Plugin::get_api()
 	 * @see Extension_ImageService_Api::get_usage()

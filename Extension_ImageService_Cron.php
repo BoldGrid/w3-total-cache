@@ -2,7 +2,7 @@
 /**
  * File: Extension_ImageService_Cron.php
  *
- * @since X.X.X
+ * @since 2.2.0
  *
  * @package W3TC
  */
@@ -12,13 +12,13 @@ namespace W3TC;
 /**
  * Class: Extension_ImageService_Cron
  *
- * @since X.X.X
+ * @since 2.2.0
  */
 class Extension_ImageService_Cron {
 	/**
 	 * Add cron job/event.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 */
 	public static function add_cron() {
@@ -30,7 +30,7 @@ class Extension_ImageService_Cron {
 	/**
 	 * Add cron schedule.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 */
 	public static function add_schedule() {
@@ -44,7 +44,7 @@ class Extension_ImageService_Cron {
 	/**
 	 * Remove cron job/event.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 */
 	public static function delete_cron() {
@@ -58,7 +58,7 @@ class Extension_ImageService_Cron {
 	/**
 	 * Run the cron event.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see Extension_ImageService_Plugin_Admin::get_imageservice_attachments()
 	 * @see Extension_ImageService_Plugin::get_api()

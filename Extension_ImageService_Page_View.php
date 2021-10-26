@@ -4,7 +4,7 @@
  *
  * View for the Image Service extension settings, tools, and statistics page.
  *
- * @since X.X.X
+ * @since 2.2.0
  *
  * @package W3TC
  *

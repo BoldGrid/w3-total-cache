@@ -2,7 +2,7 @@
 /**
  * File: Extension_ImageService_Plugin.php
  *
- * @since X.X.X
+ * @since 2.2.0
  *
  * @package W3TC
  *
@@ -18,13 +18,13 @@ if ( ! defined( 'W3TC' ) ) {
 /**
  * Extension_ImageService_Plugin
  *
- * @since X.X.X
+ * @since 2.2.0
  */
 class Extension_ImageService_Plugin {
 	/**
 	 * Image Service API object.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @static
 	 *
@@ -35,7 +35,7 @@ class Extension_ImageService_Plugin {
 	/**
 	 * Add hooks.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @static
 	 */
 	public static function wp_loaded() {
@@ -72,7 +72,7 @@ class Extension_ImageService_Plugin {
 	/**
 	 * Get the Image Service API object.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @return Extension_ImageService_Api
 	 */

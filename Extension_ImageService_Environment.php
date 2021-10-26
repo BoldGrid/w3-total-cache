@@ -2,7 +2,7 @@
 /**
  * File: Extension_ImageService_Environment.php
  *
- * @since X.X.X
+ * @since 2.2.0
  *
  * @package W3TC
  */
@@ -16,7 +16,7 @@ class Extension_ImageService_Environment {
 	/**
 	 * Fixes environment in each wp-admin request.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param Config $config           Configuration.
 	 * @param bool   $force_all_checks Force all checks.
@@ -43,7 +43,7 @@ class Extension_ImageService_Environment {
 	/**
 	 * Fixes environment once event occurs.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param Config $config     Config object.
 	 * @param mixed  $event      Event.
@@ -55,7 +55,7 @@ class Extension_ImageService_Environment {
 	/**
 	 * Fixes environment after plugin deactivation
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
@@ -72,7 +72,7 @@ class Extension_ImageService_Environment {
 	/**
 	 * Returns required rules for module.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param Config $config Configuration object.
 	 * @return array
@@ -89,7 +89,7 @@ class Extension_ImageService_Environment {
 	/**
 	 * Write rewrite rules.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param Config                      $config Configuration.
 	 * @param Util_Environment_Exceptions $exs    Exceptions.
@@ -112,7 +112,7 @@ class Extension_ImageService_Environment {
 	/**
 	 * Generate rewrite rules.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @return string
 	 */
@@ -165,7 +165,7 @@ location ~* ^(.+)\.(png|jpe?g)$ {
 	/**
 	 * Removes cache directives
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param Util_Environment_Exceptions $exs Exceptions.
 	 *

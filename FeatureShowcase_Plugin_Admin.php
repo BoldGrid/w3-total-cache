@@ -28,7 +28,7 @@ class FeatureShowcase_Plugin_Admin {
 	/**
 	 * Location of any wp_redirect.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 * @access private
 	 * @static
 	 *

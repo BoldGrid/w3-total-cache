@@ -3,7 +3,7 @@
  *
  * JavaScript for the Media Library list page.
  *
- * @since X.X.X
+ * @since 2.2.0
  *
  * @global w3tcData Localized data.
  */
@@ -50,7 +50,7 @@
 	/**
 	 * Toggle buttons based on eligibility.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 */
 	function toggleButtons() {
 		if ( $convertAllButton.length && $( '#w3tc-imageservice-unconverted' ).text() < 1 ) {
@@ -65,7 +65,7 @@
 	/**
 	 * Start checking items that are in the processing status.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see checkItemsProcessing()
 	 */
@@ -92,7 +92,7 @@
 	/**
 	 * Check processing items.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see checkItemProcessing()
 	 */
@@ -103,7 +103,7 @@
 	/**
 	 * Callback: Check processing item.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 */
 	 function checkItemProcessing() {
 		var $this = $( this ),
@@ -198,7 +198,7 @@
 	/**
 	 * Refresh statistics/counts.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 */
 	function refreshStats() {
 		var $countsTable = $( 'table#w3tc-imageservice-counts' );
@@ -269,7 +269,7 @@
 	/**
 	 * Refresh API usage statistics.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 */
 	function refreshUsage() {
 		var $usageTable = $( 'table#w3tc-imageservice-usage' );
@@ -336,7 +336,7 @@
 	 *
 	 * Similar to size_format(), but in JavaScript.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param int size     Size in bytes.
 	 * @param int decimals Number of decimal places.
@@ -359,7 +359,7 @@
 	/**
 	 * Event callback: Convert an item.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param event e Event object.
 	 */
@@ -467,7 +467,7 @@
 	/**
 	 * Event callback: Revert item.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @param event e Event object.
 	 */
@@ -545,7 +545,7 @@
 	/**
 	 * Event callback: Convert all items.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see refreshStats()
 	 * @see refreshUsage()
@@ -604,7 +604,7 @@
 	/**
 	 * Event callback: Revert all items.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.0
 	 *
 	 * @see refreshStats()
 	 */
