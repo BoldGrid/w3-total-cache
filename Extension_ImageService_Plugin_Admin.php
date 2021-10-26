@@ -544,7 +544,7 @@ class Extension_ImageService_Plugin_Admin {
 						'settings'         => __( 'Settings', 'w3-total_cache' ),
 						'notConvertedDesc' => sprintf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							__( 'Conversion canceled; the original image is smaller in size.  %1$sLearn more%2$s.', 'w3-total_cache' ),
+							__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total_cache' ),
 							'<a target="_blank" href="' . esc_url(
 								'https://www.boldgrid.com/support/w3-total-cache/image-service#conversion-canceled/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice'
 							) . '">',
@@ -659,7 +659,7 @@ class Extension_ImageService_Plugin_Admin {
 					<?php
 					printf(
 						// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-						esc_html__( 'Conversion canceled; the original image is smaller in size.  %1$sLearn more%2$s.', 'w3-total_cache' ),
+						esc_html__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total_cache' ),
 						'<a target="_blank" href="' . esc_url(
 							'https://www.boldgrid.com/support/w3-total-cache/image-service#conversion-canceled/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice'
 						) . '">',
