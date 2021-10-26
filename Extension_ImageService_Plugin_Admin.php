@@ -126,7 +126,7 @@ class Extension_ImageService_Plugin_Admin {
 				'<a class="edit" href="' . $library_url . '">',
 				'<a target="_blank" href="' . esc_url(
 					'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=activation_notice&utm_campaign=imageservice'
-				) . '">',
+				) . '">'
 			),
 		);
 
