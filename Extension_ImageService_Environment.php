@@ -143,15 +143,23 @@ AddType image/webp .webp
 			case Util_Environment::is_nginx():
 				return '
 # BEGIN W3TC WEBP
-map $http_accept $webp_ext {
-    default "";
-    "~*webp" ".webp";
-}
+location ~* ^(.+)\.(jpe?g|png|gif)$ {
+    set $check X;
 
-location ~* ^(.+)\.(png|jpe?g)$ {
-    set $img_path $1;
+    if ( $http_accept ~* "webp" ) {
+        set $check A;
+    }
+
+    if ( -f $1.webp ) {
+        set $check "${check}E";
+    }
+
+    if ( $check = "AE" ) {
+        break;
+    }
+
     add_header Vary Accept;
-    try_files $img_path$webp_ext $uri =404;
+    try_files $1.webp $uri =404;
 }
 # END W3TC WEBP
 
