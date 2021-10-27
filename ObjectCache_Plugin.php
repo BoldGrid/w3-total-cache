@@ -151,7 +151,8 @@ class ObjectCache_Plugin {
 
 			$flush = Dispatcher::component( 'CacheFlush' );
 			$groups = $this->_config->get_array( 'objectcache.purge.posts' );
-			if( !empty( $groups ) ) {
+			if( ! empty( $groups ) || ! empty( $post->post_type ) ) {
+				$groups[] = $post->post_type;
 				foreach ( $groups as $group ) {
 					$flush->objectcache_flush_group( $group );
 				}
@@ -161,6 +162,7 @@ class ObjectCache_Plugin {
 				$flush->objectcache_flush();
 				self::$flushed = true;
 			}
+			$flushed = true;
 		}
 	}
 
@@ -353,11 +355,11 @@ class ObjectCache_Plugin {
 	}
 
 	public function w3tc_config_default_values( $default_values ) {
+
 		$default_values['objectcache']['objectcache.purge.posts'] = array(
 			'type' => 'array',
 			'default' => array(
 				'global-posts',
-				'posts',
 				'posts_meta',
 				'category_relationships',
 				'post_format_relationships',
