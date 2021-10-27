@@ -263,6 +263,13 @@ class ObjectCache_WpObjectCache_Regular {
 
 		$key = $this->_get_cache_key( $id, $group );
 
+		// Due to the WP core object cache utilizing "posts" as a hard-coded value for both setting and getting
+		// the key is generated with the "posts" group but is stored in the FS under the post type which will 
+		// allow W3TC to clear the posts and CPTs separately on CrUD operations
+		if ( isset( $data->post_type ) ) {
+			$group = $data->post_type;
+		}
+
 		if ( is_object( $data ) ) {
 			$data = clone $data;
 		}

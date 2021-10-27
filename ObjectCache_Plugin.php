@@ -42,7 +42,7 @@ class ObjectCache_Plugin {
 
 		// posts
 		if ( $this->_do_flush() ) {
-			add_action( 'clean_post_cache', array(
+			add_action( 'save_post', array(
 					$this,
 					'on_post_change'
 				), 0, 2 );
@@ -196,16 +196,11 @@ class ObjectCache_Plugin {
 
 			$flush = Dispatcher::component( 'CacheFlush' );
 			$groups = $this->_config->get_array( 'objectcache.purge.posts' );
-			if( !empty( $groups ) ) {
-				foreach ( $groups as $group ) {
-					$flush->objectcache_flush_group( $group );
-				}
-				$flushed = true;
+			$groups[] = $post->post_type;
+			foreach ( $groups as $group ) {
+				$flush->objectcache_flush_group( $group );
 			}
-			else {
-				$flush->objectcache_flush();
-				$flushed = true;
-			}
+			$flushed = true;
 		}
 	}
 
@@ -380,11 +375,11 @@ class ObjectCache_Plugin {
 
 
 	public function w3tc_config_default_values( $default_values ) {
+
 		$default_values['objectcache']['objectcache.purge.posts'] = array(
 			'type' => 'array',
 			'default' => array(
 				'global-posts',
-				'posts',
 				'posts_meta',
 				'category_relationships',
 				'post_format_relationships',

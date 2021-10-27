@@ -333,7 +333,6 @@ $keys = array(
 		'type' => 'array',
 		'default' => array(
 			'global-posts',
-			'posts',
 			'posts_meta',
 			'category_relationships',
 			'post_format_relationships',
