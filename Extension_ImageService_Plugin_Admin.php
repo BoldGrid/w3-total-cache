@@ -193,10 +193,9 @@ class Extension_ImageService_Plugin_Admin {
 				$filetypes = explode( ' ', $filetypes );
 				if ( ! in_array( 'webp', $filetypes, true ) ) {
 					$filetypes[] = 'webp';
-					$filetypes   = implode( ' ', $filetypes );
 				}
 
-				return $filetypes;
+				return implode( ' ', $filetypes );
 			}
 		);
 
