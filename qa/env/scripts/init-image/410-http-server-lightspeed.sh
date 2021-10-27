@@ -16,6 +16,17 @@ case "${W3D_PHP_VERSION}" in
 	"8.0")
         apt-get install -y lsphp80 lsphp80-common lsphp80-curl lsphp80-mysql lsphp80-opcache
 		sed -i "s/lsphp73/lsphp80/" /usr/local/lsws/conf/httpd_config.conf
+
+		if [ "$W3D_APC" = "apcu" ]; then
+			apt-get install -y lsphp80-apcu
+		fi
+		if [ "$W3D_MEMCACHE" = "memcached" ]; then
+			apt-get install -y lsphp80-memcached
+		fi
+		if [ "$W3D_REDIS" = "redis" ]; then
+			apt-get install -y lsphp80-redis
+		fi
+
         ;;
     *)
         echo "W3D_PHP_VERSION not met conditions, do nothing....."
