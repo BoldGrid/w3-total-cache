@@ -104,7 +104,8 @@ class Extension_ImageService_Environment {
 			W3TC_MARKER_BEGIN_WEBP,
 			W3TC_MARKER_END_WEBP,
 			array(
-				W3TC_MARKER_BEGIN_WORDPRESS => 0,
+				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE => 0,
+				W3TC_MARKER_BEGIN_WORDPRESS          => 0,
 			)
 		);
 	}
@@ -144,22 +145,27 @@ AddType image/webp .webp
 				return '
 # BEGIN W3TC WEBP
 location ~* ^(.+)\.(jpe?g|png|gif)$ {
+    set $name $1;
     set $check X;
 
     if ( $http_accept ~* "webp" ) {
         set $check A;
     }
 
-    if ( -f $1.webp ) {
+    if ( $http_accept ~ "\*/\*" ) {
+        set $check A;
+    }
+
+    if ( -f $document_root${name}.webp ) {
         set $check "${check}E";
     }
 
-    if ( $check = "AE" ) {
+    if ( $check != "AE" ) {
         break;
     }
 
     add_header Vary Accept;
-    try_files $1.webp $uri =404;
+    rewrite ^(.+)\.(jpe?g|png|gif)$ ${name}.webp last;
 }
 # END W3TC WEBP
 
