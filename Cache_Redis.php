@@ -11,6 +11,7 @@ class Cache_Redis extends Cache_Base {
 	private $_persistent;
 	private $_password;
 	private $_servers;
+	private $_class;
 	private $_dbid;
 
 	/**
@@ -23,6 +24,7 @@ class Cache_Redis extends Cache_Base {
 
 		$this->_persistent = ( isset( $config['persistent'] ) && $config['persistent'] );
 		$this->_servers = (array)$config['servers'];
+		$this->_class = $config['class'];
 		$this->_password = $config['password'];
 		$this->_dbid = $config['dbid'];
 
@@ -333,9 +335,9 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	private function _get_accessor( $key ) {
-		if ( count( $this->_servers ) <= 1 || ( defined( 'W3TC_REDIS_CLUSTER' ) && W3TC_REDIS_CLUSTER ) ) {
+		if ( count( $this->_servers ) <= 1 || strtolower($this->_class) === "rediscluster" ) {
 			$index = 0;
-		else {
+		} else {
 			$index = crc32( $key ) % count( $this->_servers );
 		}
 
@@ -346,7 +348,7 @@ class Cache_Redis extends Cache_Base {
 			$this->_accessors[$index] = null;
 		else {
 			try {
-				if ( defined( 'W3TC_REDIS_CLUSTER' ) && W3TC_REDIS_CLUSTER ) {
+				if ( strtolower($this->_class) === "rediscluster" ) {
 					$accessor = new \RedisCluster(NULL, $this->_servers, 1.5, 1.5, $this->_persistent, $this->_password);
 				} else {
 					

@@ -320,6 +320,7 @@ class ObjectCache_Plugin {
 		} elseif ( $c->get_string( 'objectcache.engine' ) == 'redis' ) {
 			$sources['redis_servers']['objectcache'] = array(
 				'servers' => $c->get_array( 'objectcache.redis.servers' ),
+				'class' => $c->get_string( 'objectcache.redis.class' ),
 				'username' => $c->get_boolean( 'objectcache.redis.username' ),
 				'dbid' => $c->get_integer( 'objectcache.redis.dbid' ),
 				'password' => $c->get_string( 'objectcache.redis.password' ),

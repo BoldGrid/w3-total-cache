@@ -39,15 +39,16 @@ class Generic_AdminActions_Test {
 	 */
 	function w3tc_test_redis() {
 		$servers    = Util_Request::get_array( 'servers' );
-		$password   = Util_Request::get_string('password', '');
+		$password   = Util_Request::get_string( 'password', '' );
 		$dbid       = Util_Request::get_integer( 'dbid', 0 );
+		$class      = Util_Request::get_string( 'class' );
 
 		if ( count( $servers ) <= 0 )
 			$success = false;
 		else {
 			$success = true;
 
-			if ( defined( 'W3TC_REDIS_CLUSTER' ) && W3TC_REDIS_CLUSTER ) {
+			if ( strtolower( $class ) === "rediscluster" ) {
 				$config = array(
 					'servers' => $servers,
 					'persistent' => false,

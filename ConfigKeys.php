@@ -298,6 +298,10 @@ $keys = array(
 			'127.0.0.1:6379'
 		)
 	),
+	'objectcache.redis.class' => array(
+		'type' => 'string',
+		'default' => 'redis' // Redis and RedisCluster currently supported
+	),
 	'objectcache.redis.password' => array(
 		'type' => 'string',
 		'default' => ''

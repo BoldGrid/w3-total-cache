@@ -23,6 +23,18 @@ if ( !defined( 'W3TC' ) )
 		<p class="description"><?php _e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
+<?php
+Util_Ui::config_item( array(
+		'key' => 'objectcache.redis.class',
+		'control' => 'selectbox',
+		'selectbox_values' => array(
+			'redis' => __( 'Redis', 'w3-total-cache' ),
+			'rediscluster' => __( 'Redis Cluster', 'w3-total-cache' )
+		),
+		'description' => __( 'What Redis Class should be used.',
+			'w3-total-cache' )
+	) );
+?>
 <tr>
 	<th><label><?php _e( 'Use persistent connection:', 'w3-total-cache' ); ?></label></th>
 	<td>

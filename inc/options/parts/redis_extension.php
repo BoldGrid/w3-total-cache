@@ -28,6 +28,15 @@ $config = Dispatcher::config();
 <?php
 
 Util_Ui::config_item( array(
+	'key' => array( $module, 'redis.class' ),
+	'label' => __( 'Use Redis Cluster:', 'w3-total-cache' ),
+	'control' => 'checkbox',
+	'checkbox_label' => Util_ConfigLabel::get( 'redis.class' ),
+	'description' =>
+	'Use Redis Cluster'
+) );
+
+Util_Ui::config_item( array(
 		'key' => array( $module, 'redis.persistent' ),
 		'label' => __( 'Use persistent connection:', 'w3-total-cache' ),
 		'control' => 'checkbox',
