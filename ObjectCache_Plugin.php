@@ -162,6 +162,7 @@ class ObjectCache_Plugin {
 				$flush->objectcache_flush();
 				self::$flushed = true;
 			}
+
 			$flushed = true;
 		}
 	}
@@ -186,6 +187,8 @@ class ObjectCache_Plugin {
 					$flush->objectcache_flush();
 					self::$flushed = true;
 				}
+
+				$flushed = true;
 			}
 		}
 	}
@@ -217,6 +220,8 @@ class ObjectCache_Plugin {
 				$flush->objectcache_flush();
 				self::$flushed = true;
 			}
+
+			$flushed = true;
 		}
 	}
 

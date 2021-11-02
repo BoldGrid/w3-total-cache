@@ -168,4 +168,8 @@ class DbCache_WpdbInjection {
 	public function flush_cache( $extras = array() ) {
 		return true;
 	}
+
+	public function flush_group( $group = 'default', $extras = array() ) {
+		return true;
+	}
 }

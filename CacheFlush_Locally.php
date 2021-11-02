@@ -27,6 +27,34 @@ class CacheFlush_Locally {
 			return false;
 
 		return $GLOBALS['wpdb']->flush_cache( $extras );
+
+		do_action( 'w3tc_flush_after_dbcache_group' );
+	}
+
+	/**
+	 * Cleans database cache for specific group
+	 *
+	 * @since 2.2.1
+	 *
+	 * @param string $group
+	 * @param array $extras
+	 *
+	 * @return ?
+	 */
+	function dbcache_flush_group( $group = 'default', $extras = array() ) {
+		if ( isset( $extras['only'] ) && $extras['only'] != 'dbcache' )
+			return;
+
+		do_action( 'w3tc_flush_dbcache_group' );
+
+		if ( !method_exists( $GLOBALS['wpdb'], 'flush_group' ) )
+			return false;
+
+		$result = $GLOBALS['wpdb']->flush_group( $group );
+
+		do_action( 'w3tc_flush_after_dbcache_group' );
+
+		return $result;
 	}
 
 	/**
@@ -51,8 +79,8 @@ class CacheFlush_Locally {
 	 *
 	 * @since 2.1.9
 	 *
-	 * @param array $extras
 	 * @param string $group
+	 * @param array $extras
 	 *
 	 * @return ObjectCache_WpObjectCache_Regular
 	 */
