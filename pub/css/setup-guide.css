@@ -20,3 +20,12 @@
 .w3tc-option-recommended {
 	font-size: 0.9em;
 }
+
+#w3tc-options-menu {
+	max-width: 155px;
+}
+
+#w3tc-options-menu li {
+	hyphens: auto;
+	overflow-wrap: break-word;
+}

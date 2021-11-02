@@ -1492,7 +1492,7 @@ class PgCache_ContentGrabber {
 				$content_type = isset( $page_key_extension['content_type'] ) ?
 					$page_key_extension['content_type'] : '';
 
-				if ( @preg_match( "~(text/xml|text/xsl|application/rdf\+xml|application/rss\+xml|application/atom\+xml)~i", $content_type ) ||
+				if ( @preg_match( "~(text/xml|text/xsl|application/xhtml\+xml|application/rdf\+xml|application/rss\+xml|application/atom\+xml|application/xml)~i", $content_type ) ||
 				preg_match( W3TC_FEED_REGEXP, $request_url_fragments['path'] ) ||
 					strpos( $request_url_fragments['path'], ".xsl" ) !== false ) {
 					$key_postfix = '.xml';
@@ -1963,7 +1963,8 @@ class PgCache_ContentGrabber {
 				'' /* redirects, they have only Location header set */,
 				'application/json', 'text/html', 'text/xml', 'text/xsl',
 				'application/xhtml+xml', 'application/rss+xml',
-				'application/atom+xml', 'application/rdf+xml'
+				'application/atom+xml', 'application/rdf+xml',
+				'application/xml'
 			)
 		);
 		return in_array( $content_type, $cache_headers );
@@ -2077,8 +2078,14 @@ class PgCache_ContentGrabber {
 		$compression_of_returned_content =
 			( $has_dynamic ? false : $compression_header );
 
-		$is_404 = ( function_exists( 'is_404' ) ? is_404() : false );
 		$headers = $this->_get_cached_headers( $response_headers['plain'] );
+		if ( !empty( $headers['Status-Code'] ) ) {
+			$is_404 = ( $headers['Status-Code'] == 404 );
+		} elseif ( function_exists( 'is_404' ) ) {
+			$is_404 = is_404();
+		} else {
+			$is_404 = false;
+		}
 
 		if ( $this->_enhanced_mode ) {
 			// redirect issued, if we have some old cache entries

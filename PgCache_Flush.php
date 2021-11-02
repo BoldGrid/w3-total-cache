@@ -76,6 +76,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		// calculate urls to purge
 		$full_urls = array();
 		$post = get_post( $post_id );
+		$is_cpt = Util_Environment::is_custom_post_type( $post );
 		$terms = array();
 
 		$feeds = $this->_config->get_array( 'pgcache.purge.feed.types' );
@@ -102,11 +103,21 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 				Util_PageUrls::get_frontpage_urls( $limit_post_pages ) );
 		}
 
+		// pgcache.purge.home becomes "Posts page" option in settings if home page and blog are set to page(s)
 		// Home (Post page) URL
 		if ( $this->_config->get_boolean( 'pgcache.purge.home' ) &&
-			$front_page != 'posts' ) {
+			$front_page != 'posts' &&
+			!$is_cpt ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_postpage_urls( $limit_post_pages ) );
+		}
+
+		// pgcache.purge.home becomes "Posts page" option in settings if home page and blog are set to page(s)
+		// Custom Post Type Archive URL
+		if ( $this->_config->get_boolean( 'pgcache.purge.home' ) &&
+			$is_cpt ) {
+			$full_urls = array_merge( $full_urls,
+				Util_PageUrls::get_cpt_archive_urls( $post_id, $limit_post_pages ) );
 		}
 
 		// Post URL
@@ -153,10 +164,18 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 				Util_PageUrls::get_yearly_archive_urls( $post, $limit_post_pages ) );
 		}
 
-		// Feed URLs
-		if ( $this->_config->get_boolean( 'pgcache.purge.feed.blog' ) ) {
+		// Feed URLs for posts
+		if ( $this->_config->get_boolean( 'pgcache.purge.feed.blog' ) &&
+		!$is_cpt ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_feed_urls( $feeds, null ) );
+		}
+
+		// Feed URLs for posts
+		if ( $this->_config->get_boolean( 'pgcache.purge.feed.blog' ) &&
+		$is_cpt ) {
+			$full_urls = array_merge( $full_urls,
+				Util_PageUrls::get_feed_urls( $feeds, $post->post_type ) );
 		}
 
 		if ( $this->_config->get_boolean( 'pgcache.purge.feed.comments' ) ) {

@@ -50,7 +50,8 @@ class UsageStatistics_StorageWriter {
 
 	public function reset() {
 		if ( !is_null( $this->cache_storage ) ) {
-			$this->cache_storage->set( 'hotspot_endtime', 0 );
+			$this->cache_storage->set( 'hotspot_endtime', 
+			array( 'content' => 0 ) );
 		}
 
 		update_site_option( 'w3tc_stats_hotspot_start', time() );
@@ -99,7 +100,7 @@ class UsageStatistics_StorageWriter {
 	/**
 	 * Returns if finish_* should be called.
 	 * It tries to pass as litte processes as possible to
-	 * flushing_begain if multiple processes come here
+	 * flushing_begin if multiple processes come here
 	 * at the same time when hotspot time ended.
 	 */
 	public function begin_flush_hotspot_data() {

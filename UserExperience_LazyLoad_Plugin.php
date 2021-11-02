@@ -131,7 +131,14 @@ class UserExperience_LazyLoad_Plugin {
 		$method = $this->config->get_string( 'lazyload.embed_method' );
 
 		$fireEvent = 'function(t){var e;try{e=new CustomEvent("w3tc_lazyload_loaded",{detail:{e:t}})}catch(a){(e=document.createEvent("CustomEvent")).initCustomEvent("w3tc_lazyload_loaded",!1,!1,{e:t})}window.dispatchEvent(e)}';
-		$config = '{elements_selector:".lazy",callback_loaded:' . $fireEvent . '}';
+
+		$thresholds = '';
+		$config_threshold = $this->config->get_string( 'lazyload.threshold' );
+		if ( !empty( $config_threshold ) ) {
+			$thresholds = 'thresholds:' . json_encode( $config_threshold ) . ',';
+		}
+
+		$config = '{elements_selector:".lazy",' . $thresholds . 'callback_loaded:' . $fireEvent . '}';
 
 		$on_initialized_javascript = apply_filters( 'w3tc_lazyload_on_initialized_javascript', '' );
 

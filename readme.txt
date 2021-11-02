@@ -1,9 +1,9 @@
 === Plugin Name ===
-Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto
+Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.8
-Tested up to: 5.7
-Stable tag: 2.1.3
+Tested up to: 5.8
+Stable tag: 2.1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -274,6 +274,52 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.1.9 =
+* Fix: Cloudflare Dashboard Widget: Updated to use GraphQL
+* Fix: Cloudflare Dashboard Widget: Use WordPress timezone
+* Fix: CDN: Execute purge only if hosting is enabled, to prevent unneeded delays
+* Fix: Published/modified custom posts not clearing the archive cache(s)
+* Fix: Native WordPress sitemap caching
+* Fix: Extra MIME groups other than controlled by settings were added to rules
+* Fix: Usage Statistics: Not functioning when object cache is set to Redis
+* Fix: AMP Extension: Prevent popup admin bar for endpoints
+* Fix: Setup Guide Wizard: CSS for long translations
+* Fix: Opcache Settings: Validate timestamp indicator checkbox
+* Update: Remove robots.txt cache toggle setting
+* Enhancement: Impove 404 detection
+* Enhancement: Improved compatibility check indicators
+* Enhancement: AWS CloudFront: Faster cache invalidation using async
+
+= 2.1.8 =
+* Fix: Corrected handling of robots.txt (file and filter)
+
+= 2.1.7 =
+* Fix: Corrected relative paths used in the JS minify YUI Compressor
+* Fix: Disallow crawling of cache directory
+* Fix: Responsive display for the dashboard
+* Enhancement: Added lazy load threshold setting
+* Enhancement: Added feature policy security headers to settings
+
+= 2.1.6 =
+* Fix: JS minify issue with template literal backticks
+* Fix: Do not redirect when using WP-CLI
+* Fix: Missing whitespace in Memcached Nginx configuration
+* Fix: Setting for CDN over passive FTP
+* Fix: Updated CDN Minify regex
+* Fix: Added missing text domains and fixed translations
+* Enhancement: Allow default AWS credentials provider
+* Enhancement: Added error logging when minification base URL is not found
+
+= 2.1.5 =
+* Fix: Sanitize extension argument
+
+= 2.1.4 =
+* Fix: Use Memcached server from config for Nginx rules instead of localhost
+* Fix: Allow more characters in CDN hostname sanitization
+* Fix: Added missing textdomains for Browser Cache settings
+* Fix: Avoid a possible PHP warning in LazyLoad mutator
+* Enhancement: Added a filter w3tc_cdn_cf_flush_all_uris for CloudFront purging
 
 = 2.1.3 =
 * Fix: Authenticated Persistent XSS & XFS in CDN admin page
