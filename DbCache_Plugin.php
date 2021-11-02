@@ -30,26 +30,13 @@ class DbCache_Plugin {
 				) );
 		}
 
-		add_action( 'publish_phone', array(
-				$this,
-				'on_change'
-			), 0 );
-
-		add_action( 'wp_trash_post', array(
-				$this,
-				'on_post_change'
-			), 0 );
-
+		// posts
 		add_action( 'save_post', array(
-				$this,
-				'on_post_change'
-			), 0 );
-
-		add_action( 'clean_post_cache', array(
 				$this,
 				'on_post_change'
 			), 0, 2 );
 
+		// comments
 		add_action( 'comment_post', array(
 				$this,
 				'on_comment_change'
@@ -80,15 +67,17 @@ class DbCache_Plugin {
 				'on_comment_change'
 			), 0 );
 
+		// theme
 		add_action( 'switch_theme', array(
 				$this,
 				'on_change'
 			), 0 );
 
+		// user profile
 		add_action( 'edit_user_profile_update', array(
-				$this,
-				'on_change'
-			), 0 );
+			$this,
+			'on_change_profile'
+		), 0, 1 );
 
 		if ( Util_Environment::is_wpmu() ) {
 			add_action( 'delete_blog', array(
@@ -97,19 +86,22 @@ class DbCache_Plugin {
 				), 0 );
 		}
 
-		add_action( 'delete_post', array(
-				$this,
-				'on_post_change'
-			), 0 );
-
-		add_filter( 'w3tc_admin_bar_menu',
-			array( $this, 'w3tc_admin_bar_menu' ) );
+		// admin bar menu
+		add_filter( 'w3tc_admin_bar_menu', array( 
+			    $this, 
+				'w3tc_admin_bar_menu' 
+			) );
 
 		// usage statistics handling
 		add_filter( 'w3tc_usage_statistics_metrics', array(
-				$this, 'w3tc_usage_statistics_metrics' ) );
+				$this, 
+				'w3tc_usage_statistics_metrics' 
+			) );
+
 		add_filter( 'w3tc_usage_statistics_sources', array(
-				$this, 'w3tc_usage_statistics_sources' ) );
+				$this, 
+				'w3tc_usage_statistics_sources' 
+			) );
 	}
 
 	/**
@@ -168,14 +160,63 @@ class DbCache_Plugin {
 				$post = $post_id;
 			}
 
-			if ( $post_id > 0 &&
-					!Util_Environment::is_flushable_post(
+			if ( $post_id > 0 && !Util_Environment::is_flushable_post(
 						$post, 'dbcache', $this->_config ) ) {
 				return;
 			}
 
 			$flusher = Dispatcher::component( 'CacheFlush' );
-			$flusher->dbcache_flush();
+			$groups = array(
+				'global-posts',
+				$post->post_type,
+				'posts_meta',
+				'category_relationships',
+				'post_format_relationships',
+				'post_tag_relationships',
+				'terms',
+				'term_meta',
+				'comment'
+			);
+
+			foreach ( $groups as $group ) {
+				$flusher->dbcache_flush_group( $group );
+			}
+
+			$flushed = true;
+		}
+	}
+
+	/**
+	 * Flush cache when user profile is updated
+	 *
+	 * @since 2.2.1
+	 * 
+	 * @param int     $user_id
+	 */
+	function on_change_profile( $user_id ) {
+		static $flushed = false;
+
+		if ( !$flushed ) {
+			if ( Util_Environment::is_wpmu() ) {
+				$blogs = get_blogs_of_user( $user_id, true );
+				if ( $blogs ) {
+					global $w3_multisite_blogs;
+					$w3_multisite_blogs = $blogs;
+				}
+			}
+
+			$flush = Dispatcher::component( 'CacheFlush' );
+			$groups = array(
+				'users',
+				'user_meta',
+				'useremail',
+				'userlogins',
+				'userslugs'
+			);
+
+			foreach ( $groups as $group ) {
+				$flush->dbcache_flush_group( $group );
+			}
 
 			$flushed = true;
 		}

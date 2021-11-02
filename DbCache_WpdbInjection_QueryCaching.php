@@ -293,6 +293,20 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		return $this->_flush_cache_for_sql_group( 'remaining', $extras );
 	}
 
+	/**
+	 * Flushes cache group
+	 *
+	 * @since 2.2.1
+	 *
+	 * @param string $group
+	 * @param array $extras
+	 *
+	 * @return boolean
+	 */
+	function flush_group( $group = 'default', $extras = array() ) {
+		return $this->_flush_cache_for_sql_group( $group, $extras );
+	}
+
 	private function _flush_cache_for_sql_group( $group, $extras = array() ) {
 		$this->wpdb_mixin->timer_start();
 
@@ -606,9 +620,19 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 		if ( $this->contains_only_tables( $tables, array( 'options' => '*' ) ) ) {
 			$group = 'options';
-		} elseif ( $this->contains_only_tables( $tables, array(
-			'comments' => '*', 'commentsmeta' => '*' ) ) ) {
+		} elseif ( $this->contains_only_tables( $tables, array(	'comments' => '*', 'commentmeta' => '*' ) ) ) {
 			$group = 'comments';
+		} elseif ( $this->contains_only_tables( $tables, array(	'users' => '*', 'usermeta' => '*' ) ) ) {
+			$group = 'users';
+		} elseif ( $this->contains_only_tables( $tables, array(	'terms' => '*', 'termmeta' => '*', 'term_taxonomy' => '*', 'term_relationships' => '*' ) ) ) {
+			$group = 'terms';
+		} elseif ( $this->contains_only_tables( $tables, array( 'posts' => '*', 'postmeta' => '*' ) ) ) {
+				if ( preg_match_all( '~post_type\s+\=\s[\'\"\`]+(.*?)[\'\"\`]+~i', $sql, $m ) ) {
+				    $group = $m[1][0];
+				}
+				else{
+					$group = 'posts';
+				}
 		} elseif ( count( $tables ) <= 1 ) {
 			$group = 'singletables';   // request with single table affected
 		} else {
@@ -639,25 +663,63 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	private function _get_flush_groups( $group, $extras = array() ) {
 		$groups_to_flush = array();
 
-		switch ( $group ) {
-		case 'remaining':
-		case 'singletables':
+		$cpts = get_post_types( array('public'=>true,'_builtin'=>false), 'names', 'and' );
+
+		if ( in_array( $group, array( 'remaining', 'singletables' ) ) ) {
 			$groups_to_flush = array(
-				'remaining' => '*',
 				'options' => '*',
 				'comments' => '*',
-				'singletables' => '*' );
-			break;
+				'users' => '*',
+				'terms' => '*',
+				'posts' => '*',
+				'singletables' => '*',
+				'remaining' => '*' );
+			foreach ( $cpts as $cpt ) {
+				$groups_to_flush[$cpt->name] = '*';
+			}
+		}
 		// options are updated on each second request,
 		// ignore by default probability that SELECTs with joins with options
 		// are critical and don't flush "remaining".
 		// That can be changed by w3tc_dbcache_get_flush_groups filter
-		case 'options':
+		else if ( $group === 'options' ) {
 			$groups_to_flush = array(
-				$group => '*'
+				'options' => '*'
 			);
-			break;
-		default:
+		}
+		else if ( $group === 'comments' ) {
+			$groups_to_flush = array(
+				'comments' => '*',
+				'commentmeta' => '*'
+			);
+		}
+		else if ( $group === 'users' ) {
+			$groups_to_flush = array(
+				'users' => '*',
+				'usermeta' => '*'
+			);
+		}
+		else if ( $group === 'terms') {
+			$groups_to_flush = array(
+				'terms' => '*',
+				'termmeta' => '*',
+				'term_taxonomy' => '*',
+				'term_relationships' => '*'
+			);
+		}
+		else if ( $group === 'posts') {
+			$groups_to_flush = array(
+				'posts' => '*',
+				'postmeta' => '*'
+		    );
+		}
+		else if ( in_array( $group, $cpts ) ) {
+			$groups_to_flush = array(
+				$group => '*',
+				'postmeta' => '*'
+		    );
+		}
+		else {
 			$groups_to_flush = array(
 				$group => '*',
 				'remaining' => '*'

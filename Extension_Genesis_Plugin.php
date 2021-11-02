@@ -40,8 +40,8 @@ class Extension_Genesis_Plugin {
 			/**
 			 * Since posts pages etc are cached individually need to be able to flush just those and not all fragment
 			 */
-			add_action( 'clean_post_cache', array( $this, 'flush_post_fragment' ) );
-			add_action( 'clean_post_cache', array( $this, 'flush_terms_fragment' ), 0, 0 );
+			add_action( 'save_post', array( $this, 'flush_post_fragment' ), 0, 1 );
+			add_action( 'save_post', array( $this, 'flush_terms_fragment' ), 0, 0 );
 
 			$this->_request_uri = $_SERVER['REQUEST_URI'];
 		}
@@ -228,7 +228,7 @@ class Extension_Genesis_Plugin {
 		//blog specific group and an array of actions that will trigger a flush of the group
 		$groups = array (
 			$this->_genesis_group( '' ) => array(
-				'clean_post_cache',
+				'save_post',
 				'update_option_sidebars_widgets',
 				'wp_update_nav_menu_item' ),
 			$this->_genesis_group( 'sidebar' ) => array(
@@ -236,7 +236,7 @@ class Extension_Genesis_Plugin {
 			$this->_genesis_group( 'loop_single' ) => array(
 				'no_action' ),
 			$this->_genesis_group( 'loop_front_page' ) => array(
-				'clean_post_cache' ),
+				'save_post' ),
 			$this->_genesis_group( 'loop_terms' ) => array(
 				'no_action' )
 		);
@@ -249,7 +249,7 @@ class Extension_Genesis_Plugin {
 	 *
 	 * @param unknown $post_ID
 	 */
-	function flush_post_fragment( $post_ID ) {
+	function flush_post_fragment( $post_ID = 0 ) {
 		$page_slug = $this->get_page_slug( $post_ID );
 		$urls = Util_PageUrls::get_post_urls( $post_ID );
 		$hooks = array( 'genesis_loop', 'genesis_comments', 'genesis_pings' );

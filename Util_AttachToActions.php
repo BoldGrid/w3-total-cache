@@ -15,7 +15,7 @@ class Util_AttachToActions {
 
 		$o = new Util_AttachToActions();
 
-		add_action( 'clean_post_cache', array(
+		add_action( 'save_post', array(
 				$o,
 				'on_post_change'
 			), 0, 2 );

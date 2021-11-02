@@ -48,6 +48,15 @@ class CacheFlush {
 	}
 
 	/**
+	 * Flushes database cache based on group
+	 */
+	function dbcache_flush_group( $group = 'default' ) {
+		if ( $this->_config->get_boolean( 'dbcache.enabled' ) ) {
+			$this->_executor->dbcache_flush_group( $group );
+		}
+	}
+
+	/**
 	 * Flushes minify cache
 	 */
 	function minifycache_flush() {
@@ -80,7 +89,6 @@ class CacheFlush {
 	function fragmentcache_flush() {
 		$this->_executor->fragmentcache_flush();
 	}
-
 
 	/**
 	 * Flushes fragment cache based on group
@@ -192,13 +200,9 @@ class CacheFlush {
 		return $this->_executor->prime_post( $post_id );
 	}
 
-
-
 	function execute_delayed_operations() {
 		return $this->_executor->execute_delayed_operations();
 	}
-
-
 
 	function execute_delayed_operations_filter( $v ) {
 		$this->execute_delayed_operations();

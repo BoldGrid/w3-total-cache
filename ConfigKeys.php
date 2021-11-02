@@ -329,36 +329,6 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 180
 	),
-	'objectcache.purge.posts' => array(
-		'type' => 'array',
-		'default' => array(
-			'global-posts',
-			'posts_meta',
-			'category_relationships',
-			'post_format_relationships',
-			'post_tag_relationships',
-			'terms',
-			'term_meta',
-			'comment'
-		)
-	),
-	'objectcache.purge.options' => array(
-		'type' => 'array',
-		'default' => array(
-			'options',
-			'site-options'
-		)
-	),
-	'objectcache.purge.profiles' => array(
-		'type' => 'array',
-		'default' => array(
-			'users',
-			'user_meta',
-			'useremail',
-			'userlogins',
-			'userslugs'
-		)
-	),
 	'objectcache.purge.all' => array(
 		'type' => 'boolean',
 		'default' => false

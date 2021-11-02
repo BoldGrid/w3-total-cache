@@ -18,11 +18,6 @@ class ObjectCache_Plugin {
 	 * Runs plugin
 	 */
 	function run() {
-		add_filter( 'w3tc_config_default_values', array(
-				$this,
-				'w3tc_config_default_values'
-			) );
-
 		add_filter( 'cron_schedules', array(
 				$this,
 				'cron_schedules'
@@ -93,6 +88,7 @@ class ObjectCache_Plugin {
 					$this,
 					'on_change_option'
 				), 0, 1 );
+
 			add_action( 'added_option', array(
 					$this,
 					'on_change_option'
@@ -108,18 +104,29 @@ class ObjectCache_Plugin {
 		add_action( 'edit_user_profile_update', array(
 				$this,
 				'on_change_profile'
-			), 0 );
+			), 0, 1 );
 
-		add_filter( 'w3tc_admin_bar_menu',
-			array( $this, 'w3tc_admin_bar_menu' ) );
+		// admin bar menu
+		add_filter( 'w3tc_admin_bar_menu', array(
+			    $this,
+				'w3tc_admin_bar_menu'
+			) );
 
 		// usage statistics handling
 		add_action( 'w3tc_usage_statistics_of_request', array(
-				$this, 'w3tc_usage_statistics_of_request' ), 10, 1 );
+				$this,
+				'w3tc_usage_statistics_of_request'
+			), 10, 1 );
+
 		add_filter( 'w3tc_usage_statistics_metrics', array(
-				$this, 'w3tc_usage_statistics_metrics' ) );
+				$this,
+				'w3tc_usage_statistics_metrics'
+			) );
+
 		add_filter( 'w3tc_usage_statistics_sources', array(
-				$this, 'w3tc_usage_statistics_sources' ) );
+				$this,
+				'w3tc_usage_statistics_sources'
+			) );
 
 
 		if ( Util_Environment::is_wpmu() ) {
@@ -195,11 +202,22 @@ class ObjectCache_Plugin {
 			}
 
 			$flush = Dispatcher::component( 'CacheFlush' );
-			$groups = $this->_config->get_array( 'objectcache.purge.posts' );
-			$groups[] = $post->post_type;
+			$groups = array(
+				'global-posts',
+				$post->post_type,
+				'posts_meta',
+				'category_relationships',
+				'post_format_relationships',
+				'post_tag_relationships',
+				'terms',
+				'term_meta',
+				'comment'
+			);
+
 			foreach ( $groups as $group ) {
 				$flush->objectcache_flush_group( $group );
 			}
+
 			$flushed = true;
 		}
 	}
@@ -213,17 +231,16 @@ class ObjectCache_Plugin {
 		if ( !$flushed ) {
 			if ( $option != 'cron' ) {
 				$flush = Dispatcher::component( 'CacheFlush' );
-				$groups = $this->_config->get_array( 'objectcache.purge.options' );
-				if( !empty( $groups ) ) {
-					foreach ( $groups as $group ) {
-						$flush->objectcache_flush_group( $group );
-					}
-					$flushed = true;
+				$groups = array(
+					'options',
+					'site-options'
+				);
+				
+				foreach ( $groups as $group ) {
+					$flush->objectcache_flush_group( $group );
 				}
-				else {
-					$flush->objectcache_flush();
-					$flushed = true;
-				}
+
+				$flushed = true;
 			}
 		}
 	}
@@ -246,17 +263,19 @@ class ObjectCache_Plugin {
 			}
 
 			$flush = Dispatcher::component( 'CacheFlush' );
-			$groups = $this->_config->get_array( 'objectcache.purge.profiles' );
-			if( !empty( $groups ) ) {
-				foreach ( $groups as $group ) {
-					$flush->objectcache_flush_group( $group );
-				}
-				$flushed = true;
+			$groups = array(
+				'users',
+				'user_meta',
+				'useremail',
+				'userlogins',
+				'userslugs'
+			);
+
+			foreach ( $groups as $group ) {
+				$flush->objectcache_flush_group( $group );
 			}
-			else {
-				$flush->objectcache_flush();
-				$flushed = true;
-			}
+
+			$flushed = true;
 		}
 	}
 
@@ -371,42 +390,5 @@ class ObjectCache_Plugin {
 		return $this->_config->get_boolean( 'cluster.messagebus.enabled' )
 			|| $this->_config->get_boolean( 'objectcache.purge.all' )
 			|| defined( 'WP_ADMIN' );
-	}
-
-
-	public function w3tc_config_default_values( $default_values ) {
-
-		$default_values['objectcache']['objectcache.purge.posts'] = array(
-			'type' => 'array',
-			'default' => array(
-				'global-posts',
-				'posts_meta',
-				'category_relationships',
-				'post_format_relationships',
-				'post_tag_relationships',
-				'terms',
-				'term_meta',
-				'comment'
-			)
-		);
-		$default_values['objectcache']['objectcache.purge.options'] = array(
-			'type' => 'array',
-			'default' => array(
-				'options',
-				'site-options'
-			)
-		);
-		$default_values['objectcache']['objectcache.purge.profiles'] = array(
-			'type' => 'array',
-			'default' => array(
-				'users',
-				'user_meta',
-				'useremail',
-				'userlogins',
-				'userslugs'
-			)
-		);
-
-		return $default_values;
 	}
 }

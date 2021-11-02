@@ -83,9 +83,17 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 
 	public function flush_cache( $extras = array() ) {
 		$v = true;
-
 		foreach ( $this->processors as $processor )
 			$v &= $processor->flush_cache( $extras );
+
+		return $v;
+	}
+
+	public function flush_group( $group = 'default', $extras = array() ) {
+		$v = true;
+
+		foreach ( $this->processors as $processor )
+			$v &= $processor->flush_group( $group, $extras );
 
 		return $v;
 	}

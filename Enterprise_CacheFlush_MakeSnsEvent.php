@@ -18,6 +18,25 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 	}
 
 	/**
+	 * Flushes DB cache group
+	 *
+	 * @since 2.2.1
+	 *
+	 * @param string $group
+	 * @param array $extras
+	 *
+	 * @return ?
+	 *
+	 */
+	function dbcache_flush_group( $group, $extras = array() ) {
+		return $this->_prepare_message( array(
+				'action' => 'dbcache_flush_group',
+				'group' => $group,
+				'extras' => $extras
+			) );
+	}
+
+	/**
 	 * Flushes minify caches
 	 *
 	 */
@@ -34,7 +53,7 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 	}
 
 	/**
-	 * Flushes only posts object cache
+	 * Flushes object cache group
 	 *
 	 */
 	function objectcache_flush_group( $group, $extras = array() ) {

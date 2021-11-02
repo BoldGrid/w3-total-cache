@@ -82,24 +82,6 @@ if ( $this->_config->get_string( 'objectcache.engine' ) == 'memcached' ) {
 					<p class="description"><?php _e( 'Use that to store transients in database even when external cache is used. That allows transient values to survive object cache cleaning / expiration', 'w3-total-cache' )?></p>
 				</th>
 			</tr>
-			<th><label for="objectcache_purge_posts"><?php Util_Ui::e_config_label( 'objectcache.purge.posts' ) ?></label></th>
-				<td>
-					<textarea id="objectcache_purge_posts"
-						<?php Util_Ui::sealing_disabled( 'objectcache.' ) ?> name="objectcache__purge__posts" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'objectcache.purge.posts' ) ) ); ?></textarea>
-				</td>
-			</tr>
-			<th><label for="objectcache_purge_options"><?php Util_Ui::e_config_label( 'objectcache.purge.options' ) ?></label></th>
-				<td>
-					<textarea id="objectcache_purge_options"
-						<?php Util_Ui::sealing_disabled( 'objectcache.' ) ?> name="objectcache__purge__options" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'objectcache.purge.options' ) ) ); ?></textarea>
-				</td>
-			</tr>
-			<th><label for="objectcache_purge_profiles"><?php Util_Ui::e_config_label( 'objectcache.purge.profiles' ) ?></label></th>
-				<td>
-					<textarea id="objectcache_purge_profiles"
-						<?php Util_Ui::sealing_disabled( 'objectcache.' ) ?> name="objectcache__purge__profiles" cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'objectcache.purge.profiles' ) ) ); ?></textarea>
-				</td>
-			</tr>
 			<?php if ( $this->_config->get_boolean( 'cluster.messagebus.enabled' ) ): ?>
 			<tr>
 				<th colspan="2">
