@@ -125,3 +125,7 @@ p span.w3tc-convert:before {
 a:hover {
 	cursor: pointer;
 }
+
+.media_page_w3tc_extension_page_imageservice #licensing_terms {
+	display:none;
+}
