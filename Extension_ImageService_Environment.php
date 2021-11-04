@@ -144,28 +144,13 @@ AddType image/webp .webp
 			case Util_Environment::is_nginx():
 				return '
 # BEGIN W3TC WEBP
-location ~* ^(.+)\.(jpe?g|png|gif)$ {
-    set $name $1;
-    set $check X;
-
-    if ( $http_accept ~* "webp" ) {
-        set $check A;
-    }
-
-    if ( $http_accept ~ "\*/\*" ) {
-        set $check A;
-    }
-
-    if ( -f $document_root${name}.webp ) {
-        set $check "${check}E";
-    }
-
-    if ( $check != "AE" ) {
+location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
+    if ( $http_accept !~* "webp|\*/\*" ) {
         break;
     }
 
     add_header Vary Accept;
-    rewrite ^(.+)\.(jpe?g|png|gif)$ ${name}.webp last;
+    try_files ${path}.webp $uri =404;
 }
 # END W3TC WEBP
 
