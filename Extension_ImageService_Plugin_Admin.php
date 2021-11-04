@@ -888,7 +888,7 @@ class Extension_ImageService_Plugin_Admin {
 				<?php
 						printf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							esc_html__( 'Convert your images to WebP by switching to %1$slist mode%2$s.', 'w3-total-cache' ),
+							esc_html__( 'Switch to %1$slist mode%2$s for WebP conversions.', 'w3-total-cache' ),
 							'<a href="' . esc_attr( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
 							'</a>'
 						);
