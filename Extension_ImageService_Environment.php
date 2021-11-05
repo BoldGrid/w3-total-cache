@@ -150,7 +150,7 @@ location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
     }
 
     add_header Vary Accept;
-    try_files ${path}.webp $uri =404;
+    try_files ${path}.webp $uri /index.php?$args;
 }
 # END W3TC WEBP
 
