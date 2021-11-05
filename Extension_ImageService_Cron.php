@@ -32,8 +32,10 @@ class Extension_ImageService_Cron {
 	 *
 	 * @since 2.2.0
 	 * @static
+	 *
+	 * @param array $schedules Schedules.
 	 */
-	public static function add_schedule() {
+	public static function add_schedule( array $schedules = array() ) {
 		$schedules['ten_seconds'] = array(
 			'interval' => 10,
 			'display'  => esc_html__( 'Every Ten Seconds', 'w3-total-cache' ),
