@@ -142,6 +142,20 @@ AddType image/webp .webp
 ';
 
 			case Util_Environment::is_nginx():
+				$ex_rules = '';
+				$config   = Dispatcher::config();
+
+				if ( $config->get_boolean( 'browsercache.no404wp' ) ) {
+					$exceptions = $config->get_array( 'browsercache.no404wp.exceptions' );
+					$imploded   = implode( '|', $exceptions );
+
+					if ( ! empty( $imploded ) ) {
+						$ex_rules = 'location ~ (' . $imploded . ") {\n" .
+							'    try_files ${path}.webp /index.php?$args;' . "\n" .
+							"}\n";
+					}
+				}
+
 				return '
 # BEGIN W3TC WEBP
 location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
@@ -149,8 +163,10 @@ location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
         break;
     }
 
+' . $ex_rules . '
+
     add_header Vary Accept;
-    try_files ${path}.webp $uri /index.php?$args;
+    try_files ${path}.webp $uri =404;
 }
 # END W3TC WEBP
 
