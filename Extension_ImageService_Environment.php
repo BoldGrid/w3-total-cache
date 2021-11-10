@@ -115,6 +115,8 @@ class Extension_ImageService_Environment {
 	 *
 	 * @since 2.2.0
 	 *
+	 * @see Dispatcher::nginx_rules_for_browsercache_section()
+	 *
 	 * @return string
 	 */
 	private function rules_generate() {
@@ -142,28 +144,22 @@ AddType image/webp .webp
 ';
 
 			case Util_Environment::is_nginx():
-				$ex_rules = '';
-				$config   = Dispatcher::config();
+				$config = Dispatcher::config();
 
-				if ( $config->get_boolean( 'browsercache.no404wp' ) ) {
-					$exceptions = $config->get_array( 'browsercache.no404wp.exceptions' );
-					$imploded   = implode( '|', $exceptions );
-
-					if ( ! empty( $imploded ) ) {
-						$ex_rules = 'location ~ (' . $imploded . ") {\n" .
-							'    try_files ${path}.webp /index.php?$args;' . "\n" .
-							"}\n";
-					}
-				}
-
-				return '
+				/*
+				 * Add Nginx rules only if Browser Cache is disabled or no404wp is enabled.
+				 * Otherwise, the rules are added in "BrowserCache_Environment_Nginx.php".
+				 * @see BrowserCache_Environment_Nginx::generate_section()
+				 */
+				if ( $config->get_boolean( 'browsercache.no404wp' ) || ! $config->get_boolean( 'browsercache.enabled' ) ) {
+					return '
 # BEGIN W3TC WEBP
 location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
     if ( $http_accept !~* "webp|\*/\*" ) {
         break;
     }
 
-' . $ex_rules . '
+    ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $config, 'other' ) ) . '
 
     add_header Vary Accept;
     try_files ${path}.webp $uri =404;
@@ -171,6 +167,9 @@ location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
 # END W3TC WEBP
 
 ';
+				} else {
+					return '';
+				}
 
 			default:
 				return '';
