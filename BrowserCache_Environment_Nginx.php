@@ -310,7 +310,7 @@ class BrowserCache_Environment_Nginx {
 						'        if ( $http_accept !~* "webp|\*/\*" ) {' . "\n" .
 						'            break;' . "\n" .
 						'        }' . "\n\n" .
-						'    ' . implode( "\n        ", $subrules ) . "\n" .
+						'    ' . implode( "\n        ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n" .
 						'        add_header Vary Accept;' . "\n" .
 						'        try_files ${path}.webp $uri /index.php?$args;' . "\n" .
 						'    }' . "\n\n";
