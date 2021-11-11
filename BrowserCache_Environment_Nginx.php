@@ -300,22 +300,27 @@ class BrowserCache_Environment_Nginx {
 			$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section );
 			$rules   .= '    ' . implode( "\n    ", $subrules ) . "\n";
 
-			if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
-				$wp_uri            = network_home_url( '', 'relative' );
-				$wp_uri            = rtrim( $wp_uri, '/' );
-				$extensions_active = $this->c->get_array( 'extensions.active' );
+			// Add rules for the Image Service extension, if active.
+			if ( 'other' === $section && array_key_exists( 'imageservice', $this->c->get_array( 'extensions.active' ) ) ) {
+				$rules .= "\n" . '    location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {' . "\n" .
+					'        if ( $http_accept !~* "webp|\*/\*" ) {' . "\n" .
+					'            break;' . "\n" .
+					'        }' . "\n\n" .
+					'        ' . implode( "\n        ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n" .
+					'        add_header Vary Accept;' . "\n";
 
-				if ( 'other' === $section && array_key_exists( 'imageservice', $extensions_active ) ) {
-					$rules .= "\n" . '    location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {' . "\n" .
-						'        if ( $http_accept !~* "webp|\*/\*" ) {' . "\n" .
-						'            break;' . "\n" .
-						'        }' . "\n\n" .
-						'        ' . implode( "\n        ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n" .
-						'        add_header Vary Accept;' . "\n" .
-						'        try_files ${path}.webp $uri /index.php?$args;' . "\n" .
-						'    }' . "\n\n";
+				if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+					$rules .= '        try_files ${path}.webp $uri =404;';
+				} else {
+					$rules .= '        try_files ${path}.webp $uri /index.php?$args;';
 				}
 
+				$rules .= "\n" . '    }' . "\n\n";
+			}
+
+			if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+				$wp_uri = network_home_url( '', 'relative' );
+				$wp_uri = rtrim( $wp_uri, '/' );
 				$rules .= '    try_files $uri $uri/ ' . $wp_uri . '/index.php?$args;' . "\n";
 			}
 

@@ -147,11 +147,17 @@ AddType image/webp .webp
 				$config = Dispatcher::config();
 
 				/*
-				 * Add Nginx rules only if Browser Cache is disabled or no404wp is enabled.
+				 * Add Nginx rules only if Browser Cache is disabled.
 				 * Otherwise, the rules are added in "BrowserCache_Environment_Nginx.php".
 				 * @see BrowserCache_Environment_Nginx::generate_section()
 				 */
-				if ( $config->get_boolean( 'browsercache.no404wp' ) || ! $config->get_boolean( 'browsercache.enabled' ) ) {
+				if ( ! $config->get_boolean( 'browsercache.enabled' ) ) {
+					if ( $config->get_boolean( 'browsercache.no404wp' ) ) {
+						$fallback = '=404';
+					} else {
+						$fallback = '/index.php?$args';
+					}
+
 					return '
 # BEGIN W3TC WEBP
 location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
@@ -162,7 +168,7 @@ location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {
     ' . implode( "\n    ", Dispatcher::nginx_rules_for_browsercache_section( $config, 'other' ) ) . '
 
     add_header Vary Accept;
-    try_files ${path}.webp $uri =404;
+    try_files ${path}.webp $uri ' . $fallback . ';
 }
 # END W3TC WEBP
 
