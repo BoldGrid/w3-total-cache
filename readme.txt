@@ -36,7 +36,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Transparent content delivery network (CDN) management with Media Library, theme files and WordPress itself
 * Mobile support: respective caching of pages by referrer or groups of user agents including theme switching for groups of referrers or user agents
 * Accelerated Mobile Pages (AMP) support
-* Secure Socket Layer (SSL) support
+* Secure Socket Layer (SSL/TLS) support
 * Caching of (minified and compressed) pages and posts in memory or on disk or on (FSD) CDN (by user agent group)
 * Caching of (minified and compressed) CSS and JavaScript in memory, on disk or on CDN
 * Caching of feeds (site, categories, tags, comments, search results) in memory or on disk or on CDN
@@ -61,6 +61,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Caching statistics for performance insights of any enabled feature
 * Extension framework for customization or extensibility for Cloudflare, WPML and much more
 * Reverse proxy integration via Nginx or Varnish
+* Image Service API extension provides WebP image format conversion from common image formats (on upload and on demand)
 
 Speed up your site tremendously, and improve the user experience for your readers without having to change WordPress, your theme, your plugins or how you produce your content.
 
@@ -220,6 +221,14 @@ The plugin uses WordPress FileSystem functionality to write to files. It checks 
 Typically, you should tell your web host about the permission issue and they should be able to resolve it.
 
 You can however try adding <em>define('FS_METHOD', 'direct');</em> to wp-config.php to circumvent the file and folder checks.
+
+= Does the Image Service extension use a lot of resources to convert images to WebP? =
+
+No.  The Image Service extension converts common image file formats to the modern WebP format using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
+
+= Is image data retained by the Total Cache Image Service API? =
+
+Image data received by our API is destroyed after a converted image is generated.  The converted iamges are destroyed once picked-up/downloaded to your website by the Total Cache plugin.
 
 = This is too good to be true, how can I test the results? =
 
