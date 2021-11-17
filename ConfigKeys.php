@@ -2420,7 +2420,9 @@ $keys = array(
 
 	'extensions.active' => array(
 		'type' => 'array',
-		'default' => array(),
+		'default' => array(
+			'fragmentcache' => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
+		),
 	),
 	'extensions.active_frontend' => array(
 		'type' => 'array',
