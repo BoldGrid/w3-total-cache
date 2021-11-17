@@ -2420,16 +2420,11 @@ $keys = array(
 
 	'extensions.active' => array(
 		'type' => 'array',
-		'default' => array(
-			'fragmentcache' => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
-			'imageservice'     => 'w3-total-cache/Extension_ImageService_Plugin.php',
-		),
+		'default' => array(),
 	),
 	'extensions.active_frontend' => array(
 		'type' => 'array',
-		'default' => array(
-			'imageservice' => '*',
-		),
+		'default' => array(),
 	),
 	'extensions.active_dropin' => array(
 		'type' => 'array',
