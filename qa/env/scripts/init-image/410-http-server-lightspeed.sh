@@ -5,6 +5,9 @@ sed -i "s/user .*/user www-data/" /usr/local/lsws/conf/httpd_config.conf
 sed -i "s/group .*/user www-data/" /usr/local/lsws/conf/httpd_config.conf
 sed -i "s/address.*:8088/address *:80/" /usr/local/lsws/conf/httpd_config.conf
 sed -i -e '/map /a\' -e 'map WpSandbox wp.sandbox' /usr/local/lsws/conf/httpd_config.conf
+sed -i -e '/map /a\' -e 'map WpSandbox b2.wp.sandbox' /usr/local/lsws/conf/httpd_config.conf
+sed -i -e '/map /a\' -e 'map WpSandbox for-tests.wp.sandbox' /usr/local/lsws/conf/httpd_config.conf
+sed -i -e '/map /a\' -e 'map ForTestsSandbox for-tests.sandbox' /usr/local/lsws/conf/httpd_config.conf
 sed -i "s/path\s+lsphp73\/bin\/lsphp/path lsphp80\/bin\/lsphp/" /usr/local/lsws/conf/httpd_config.conf
 
 cat /share/scripts/init-image/templates/lightspeed-root.conf >> /usr/local/lsws/conf/httpd_config.conf
@@ -34,12 +37,10 @@ case "${W3D_PHP_VERSION}" in
 esac
 
 # for-tests.sandbox
-#envsubst </share/scripts/init-image/templates/apache-vhost-for-tests-sandbox.conf >/etc/apache2/sites-available/for-tests-sandbox.conf
-#a2ensite for-tests-sandbox${W3TC_A2ENSITE_POSTFIX}
+envsubst </share/scripts/init-image/templates/lightspeed-vhost-for-tests-sandbox.conf >/usr/local/lsws/conf/vhosts/for-tests-sandbox.conf
 
 # system.sandbox
-#envsubst </share/scripts/init-image/templates/apache-vhost-system-sandbox.conf >/etc/apache2/sites-available/system-sandbox.conf
-#a2ensite system-sandbox${W3TC_A2ENSITE_POSTFIX}
+#envsubst </share/scripts/init-image/templates/lightspeed-vhost-system-sandbox.conf >/usr/local/lsws/conf/vhosts/system-sandbox.conf
 
 # wp.sandbox vhost
 envsubst </share/scripts/init-image/templates/lightspeed-vhost-wp-sandbox.conf >/usr/local/lsws/conf/vhosts/wp-sandbox.conf
