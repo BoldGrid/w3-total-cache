@@ -76,7 +76,7 @@ describe('', function() {
 
 	it('check image without expiration', async() => {
 		let response = await page.goto(imageUrl);
-		expect(response.headers()['content-type']).equals('image/jpeg');
+		expect(response.headers()['content-type']).matches(/image\/(jpeg|webp)/);
 		expect(response.status()).equals(200);
 		expect(response.headers()['expires']).is.undefined;
 	});
@@ -97,7 +97,7 @@ describe('', function() {
 
 	it('check image without expiration', async() => {
 		let response = await page.goto(imageUrl);
-		expect(response.headers()['content-type']).equals('image/jpeg');
+		expect(response.headers()['content-type']).matches(/image\/(jpeg|webp)/);
 		expect(response.status()).equals(200);
 		expect(response.headers()['expires']).not.null;
 
@@ -126,7 +126,7 @@ describe('', function() {
 		log.log(url);
 		let response = await page.goto(url);
 
-		expect(response.headers()['content-type']).equals('image/jpeg');
+		expect(response.headers()['content-type']).matches(/image\/(jpeg|webp)/);
 		expect(response.status()).equals(200);
 		expect(response.headers()['expires']).not.null;
 
