@@ -1488,18 +1488,13 @@ class PgCache_ContentGrabber {
 		$key_postfix = '';
 		if ( $this->_enhanced_mode && empty( $page_key_extension['group'] ) ) {
 			$key_postfix = '.html';
-
-			if( strpos( $request_url_fragments['path'], '.xsl') !== false ||
-			strpos( $request_url_fragments['path'], '.xml') !== false ){
-				$key_postfix = '.xml';
-			}
-
 			if ( $this->_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 				$content_type = isset( $page_key_extension['content_type'] ) ?
 					$page_key_extension['content_type'] : '';
 
 				if ( @preg_match( "~(text/xml|text/xsl|application/xhtml\+xml|application/rdf\+xml|application/rss\+xml|application/atom\+xml|application/xml)~i", $content_type ) ||
-				preg_match( W3TC_FEED_REGEXP, $request_url_fragments['path'] ) ) {
+				preg_match( W3TC_FEED_REGEXP, $request_url_fragments['path'] ) ||
+					strpos( $request_url_fragments['path'], ".xsl" ) !== false ) {
 					$key_postfix = '.xml';
 				}
 			}
