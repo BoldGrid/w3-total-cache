@@ -32,33 +32,6 @@ class Extension_CloudFlare_Api {
 
 
 	/**
-	 * Makes ip_lkup API request
-	 *
-	 * @param string  $ip
-	 * @return object
-	 */
-	public function ip_lkup( $ip ) {
-		@set_time_limit( $this->_timelimit_api_request );
-
-		$response = Util_Http::request(
-			'https://www.cloudflare.com/api_json.html', array(
-				'method' => 'POST',
-				'body' => array(
-					'a' => 'ip_lkup',
-					'tkn' => $this->_key,
-					'email' => $this->_email,
-					'ip' => $ip
-				)
-			) );
-		if ( isset( $response['body'] ) )
-			return @json_decode( $response['body'] );
-
-		return null;
-	}
-
-
-
-	/**
 	 * Makes external event request
 	 *
 	 * @param string  $type
