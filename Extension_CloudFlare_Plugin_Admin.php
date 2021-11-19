@@ -111,16 +111,6 @@ class Extension_CloudFlare_Plugin_Admin {
 				) );
 		}
 
-		// add check to comments page
-		add_filter( 'comment_row_actions', array( $this, 'comment_row_actions' ),
-			10, 2 );
-		add_action( 'admin_print_styles-edit-comments.php',
-			array( $this, 'admin_print_styles_edit_comments' ) );
-		add_action( 'admin_print_scripts-edit-comments.php',
-			array( $this, 'admin_print_scripts_edit_comments' ) );
-		add_action( 'wp_ajax_w3tc_cloudflare_ip_check',
-			array( $this, 'w3tc_cloudflare_ip_check' ) );
-
 		// add notices about api health
 		if ( Util_Admin::is_w3tc_admin_page() ) {
 			add_action( 'admin_notices', array(
@@ -352,64 +342,4 @@ class Extension_CloudFlare_Plugin_Admin {
 		$config = $this->_config;
 		include  W3TC_DIR . '/Extension_CloudFlare_GeneralPage_View.php';
 	}
-
-
-
-	/**
-	 * Comments page modification
-	 */
-	public function comment_row_actions( $actions, $comment_id ) {
-		$ip = get_comment_author_IP( $comment_id );
-		if ( !empty( $ip ) )
-			$actions[] = '<a href="#ip=' . urlencode( $ip ) .
-				'" class="w3tc_cloudflare_ip_check">CloudFlare IP score</a>';
-		return $actions;
-	}
-
-
-
-	public function admin_print_styles_edit_comments() {
-		wp_enqueue_style( 'w3tc_extension_cloudflare_general',
-			plugins_url( 'Extension_CloudFlare_View_Comments.css', W3TC_FILE ) );
-	}
-
-
-
-	public function admin_print_scripts_edit_comments() {
-		wp_enqueue_script( 'w3tc_extension_cloudflare_general',
-			plugins_url( 'Extension_CloudFlare_View_Comments.js', W3TC_FILE ),
-			array( 'jquery' ), '1.0' );
-	}
-
-
-
-	public function w3tc_cloudflare_ip_check() {
-		$api = new Extension_CloudFlare_Api();
-
-		$ip = $_REQUEST['ip'];
-		$response = $this->api->ip_lkup( $ip );
-
-		$error = true;
-
-		//var_dump($response);
-		if ( !isset( $response->result ) )
-			$message = 'API failed';
-		else if ( $response->result != 'success' )
-				$message = 'API error: ' . $response->msg;
-			else if ( !isset( $response->response ) || !isset( $response->response->$ip ) )
-					$message = 'no information';
-				else if ( !$response->response->$ip ) {
-						$message = 'valid IP';
-						$error = false;
-					} else
-					$message = 'invalid IP';
-
-				echo json_encode( array(
-						'message' => $message,
-						'error' => $error
-					) );
-
-			exit();
-	}
-
 }
