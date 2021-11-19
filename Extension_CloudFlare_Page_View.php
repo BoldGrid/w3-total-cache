@@ -131,6 +131,15 @@ CloudFlare not available: <?php echo $error_message; ?>
 			)
 		);
 
+		Util_Ui::config_item( array(
+				'key' => array( 'cloudflare', 'minify_js_rl_exclude' ),
+				'label' => __( 'Minified JS Rocket Loader Exclude:', 'w3-total-cache' ),
+				'checkbox_label' => 'Exclude minified JS files from being processed by Rocket Loader:',
+				'control' => 'checkbox',
+				'description' => 'Exclusion achieved by adding data-cfasync="false" to script tags.'
+			)
+		);
+
 ?>
 </table>
 <?php endif; ?>
