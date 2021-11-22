@@ -14,9 +14,6 @@
     -webkit-box-shadow:  none;
     box-shadow:  none;
 }
-#w3tc-dashboard-widgets h1 {
-    margin-top: 5px;
-}
 #w3tc-dashboard-widgets #postbox-container-left {
     padding: 10px;
     margin-right: 200px;

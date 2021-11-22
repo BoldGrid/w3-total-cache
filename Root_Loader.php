@@ -147,7 +147,6 @@ class Root_Loader {
 		}
 
 		if ( is_admin() ) {
-			$extensions = $c->get_array( 'extensions.active' );
 			foreach ( $extensions as $extension => $path ) {
 				$filename = W3TC_EXTENSION_DIR . '/' .
 					str_replace( '..', '', trim( $path, '/' ) );
@@ -163,6 +162,53 @@ class Root_Loader {
 		if ( is_admin() ) {
 			do_action( 'w3tc_extension_load_admin' );
 		}
+
+		// Hide Image Service media.
+		add_action(
+			'pre_get_posts',
+			function( $query ) {
+				if ( ! is_admin() || ! $query->is_main_query() ) {
+					return;
+				}
+
+				$screen = get_current_screen();
+
+				if ( ! $screen || 'upload' !== $screen->id || 'attachment' !== $screen->post_type ) {
+					return;
+				}
+
+				$query->set(
+					'meta_query',
+					array(
+						array(
+							'key'     => 'w3tc_imageservice_file',
+							'compare' => 'NOT EXISTS',
+						),
+					)
+				);
+
+				return;
+			}
+		);
+
+		add_filter(
+			'ajax_query_attachments_args',
+			function( $args ) {
+				if ( ! is_admin() ) {
+					return;
+				}
+
+				// Modify the query.
+				$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'     => 'w3tc_imageservice_file',
+						'compare' => 'NOT EXISTS',
+					),
+				);
+
+				return $args;
+			}
+		);
 	}
 }
 
