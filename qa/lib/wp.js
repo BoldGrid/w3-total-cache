@@ -52,12 +52,24 @@ exports.getCurrentTheme = async function(pPage) {
 
 
 
+function postCreateApiUrl(type) {
+	if (type == 'post') {
+		return env.blogSiteUrl + '/wp-json/wp/v2/posts';
+	} else if (type == 'page') {
+		return env.blogSiteUrl + '/wp-json/wp/v2/pages';
+	}
+
+	throw new Error('unknown type ' + type);
+}
+
+
+
 exports.postCreate = async function(pPage, data) {
 	expect(data.type).not.empty;
 
 	let r = await exec('cp ../../plugins/w3tcqa-json.php ' + env.wpPath + 'w3tcqa-json.php');
 
-	let apiUrl = env.blogSiteUrl + '/wp-json/wp/v2/posts';
+	let apiUrl = postCreateApiUrl(data.type);
 	let apiBody = data;
 	apiBody.status = 'draft';
 
@@ -77,7 +89,7 @@ exports.postCreate = async function(pPage, data) {
 	expect(postId > 0).true;
 	log.log(`post created: ${postId}`);
 
-	let apiUrl2 = env.blogSiteUrl + '/wp-json/wp/v2/posts/' + postId;
+	let apiUrl2 = postCreateApiUrl(data.type) + '/' + postId;
 	let apiBody2 = {
 		id: postId
 	};
@@ -124,7 +136,7 @@ exports.postUpdate = async function(pPage, data) {
 
 	let r = await exec('cp ../../plugins/w3tcqa-json.php ' + env.wpPath + 'w3tcqa-json.php');
 
-	let apiUrl = env.blogSiteUrl + '/wp-json/wp/v2/posts/' + data.post_id;
+	let apiUrl = postCreateApiUrl(data.post_type) + '/' + data.post_id;
 	let apiBody = {
 		title: data.post_title
 	};
