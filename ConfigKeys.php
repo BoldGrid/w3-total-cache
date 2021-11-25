@@ -1386,6 +1386,10 @@ $keys = array(
 		'type' => 'string',
 		'default' => 'auto'
 	),
+	'cdn.cf.public_objects' => array(
+		'type' => 'string',
+		'default' => 'enabled'
+	),
 	'cdn.cf2.key' => array(
 		'type' => 'string',
 		'default' => ''

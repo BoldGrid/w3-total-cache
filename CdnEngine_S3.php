@@ -384,13 +384,20 @@ class CdnEngine_S3 extends CdnEngine_Base {
 			throw new \Exception( 'Bucket doesn\'t exist: %s.', $this->_config['bucket'] );
 		}
 
-		$result = $this->api->putObject( array(
-				'ACL' => 'public-read',
+		if ( ! empty($this->_config['s3acl'])) {
+			$result = $this->api->putObject( array(
+				'ACL' => $this->_config['s3acl'],
 				'Bucket' => $this->_config['bucket'],
 				'Key' => $key,
 				'Body' => $key
-			)
-		);
+			));
+		} else {
+			$result = $this->api->putObject(array(
+					'Bucket' => $this->_config['bucket'],
+					'Key' => $key,
+					'Body' => $key
+			));
+		}
 
 		$object = $this->api->getObject( array(
 				'Bucket' => $this->_config['bucket'],
