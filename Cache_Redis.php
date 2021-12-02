@@ -349,21 +349,21 @@ class Cache_Redis extends Cache_Base {
 				$server = $this->_servers[$index];
 				$accessor = new \Redis();
 
-				if ( substr( $server, 0, 5 ) == 'unix:' ) {
+				if ( substr( $server, 0, 5 ) == 'unix:' ) { 
 					if ( $this->_persistent ) {
-						$accessor->pconnect( trim( substr( $server, 5 ) ),
-							null, null, $this->_instance_id . '_' . $this->_dbid );
+						$accessor->pconnect( trim( substr( $server, 5 ) ), null, 1, 
+						    $this->_instance_id . '_' . $this->_dbid, 100, 2 );
 					} else {
-						$accessor->connect( trim( substr( $server, 5 ) ) );
+						$accessor->connect( trim( substr( $server, 5, 1, null, 100, 2 ) ) );
 					}
 				} else {
 					list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
 
 					if ( $this->_persistent ) {
-						$accessor->pconnect( $ip, $port,
-							null, $this->_instance_id . '_' . $this->_dbid );
+						$accessor->pconnect( $ip, $port, 1, 
+						    $this->_instance_id . '_' . $this->_dbid, 100, 2 );
 					} else {
-						$accessor->connect( $ip, $port );
+						$accessor->connect( $ip, $port, 1, null, 100, 2 );
 					}
 				}
 
