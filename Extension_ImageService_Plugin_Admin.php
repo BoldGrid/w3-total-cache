@@ -529,6 +529,7 @@ class Extension_ImageService_Plugin_Admin {
 					'lang'        => array(
 						'convert'          => __( 'Convert', 'w3-total_cache' ),
 						'sending'          => __( 'Sending...', 'w3-total_cache' ),
+						'submitted'        => __( 'Submitted', 'w3-total_cache' ),
 						'processing'       => __( 'Processing...', 'w3-total_cache' ),
 						'converted'        => __( 'Converted', 'w3-total_cache' ),
 						'notConverted'     => __( 'Not converted', 'w3-total_cache' ),
@@ -541,6 +542,12 @@ class Extension_ImageService_Plugin_Admin {
 						'refresh'          => __( 'Refresh', 'w3-total_cache' ),
 						'refreshing'       => __( 'Refreshing...', 'w3-total_cache' ),
 						'settings'         => __( 'Settings', 'w3-total_cache' ),
+						'submittedAllDesc' => sprintf(
+							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+							__( 'Images queued for conversion.  Progress can be seen in the %1$sMedia Library%2$s.', 'w3-total_cache' ),
+							'<a href="' . esc_url( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
+							'</a>'
+						),
 						'notConvertedDesc' => sprintf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
 							__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total_cache' ),

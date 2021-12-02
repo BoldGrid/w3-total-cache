@@ -107,6 +107,8 @@ class Licensing_Plugin_Admin {
 			$state = Dispatcher::config_state();
 			$state->set( 'license.next_check', 0 );
 			$state->save();
+
+			delete_transient( 'w3tc_imageservice_limited' );
 		}
 	}
 

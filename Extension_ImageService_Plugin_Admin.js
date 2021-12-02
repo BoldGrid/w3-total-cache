@@ -572,7 +572,12 @@
 		})
 			.done( function( response ) {
 				if ( response.success ) {
-					$this.text( w3tcData.lang.processing );
+					$this.text( w3tcData.lang.submitted );
+					$parent.append(
+						'<div class="notice notice-info inline">' +
+						w3tcData.lang.submittedAllDesc +
+						'</div>'
+					);
 					refreshStats();
 					refreshUsage();
 				} else if ( response.data && response.data.hasOwnProperty( 'error' ) ) {
