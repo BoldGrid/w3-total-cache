@@ -1,9 +1,9 @@
 === Plugin Name ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
-Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront,  azure 
+Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 3.8
 Tested up to: 5.8
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,7 +63,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Reverse proxy integration via Nginx or Varnish
 * Image Service API extension provides WebP image format conversion from common image formats (on upload and on demand)
 
-Speed up your site tremendously, improve core web vitals and the overall user experience for your visitors without having to change your WordPress host, theme, plugins or your content production workflow. 
+Speed up your site tremendously, improve core web vitals and the overall user experience for your visitors without having to change your WordPress host, theme, plugins or your content production workflow.
 
 == Frequently Asked Questions ==
 
@@ -157,7 +157,7 @@ Use the "Help" button available on the Minify settings tab. Once open, the tool 
 
 = I don't understand what a CDN has to do with caching, that's completely different, no? =
 
-Technically no, a CDN is a high performance cache that stores static assets (your theme files, media library etc) in various locations throughout the world in order to provide low latency access to them by readers in those regions. Use Total Cache to accelerate your site by putting your content closer to your users with our many CDN integrations including Cloudflare, StackPath, AWS and more. 
+Technically no, a CDN is a high performance cache that stores static assets (your theme files, media library etc) in various locations throughout the world in order to provide low latency access to them by readers in those regions. Use Total Cache to accelerate your site by putting your content closer to your users with our many CDN integrations including Cloudflare, StackPath, AWS and more.
 
 = How do I use an Origin Pull (Mirror) CDN? =
 Login to your CDN providers control panel or account management area. Following any set up steps they provide, create a new "pull zone" or "bucket" for your site's domain name. If there's a set up wizard or any troubleshooting tips your provider offers, be sure to review them. In the CDN tab of the plugin, enter the hostname your CDN provider provided in the "replace site's hostname with" field. You should always do a quick check by opening a test file from the CDN hostname, e.g. http://cdn.domain.com/favicon.ico. Troubleshoot with your CDN provider until this test is successful.
@@ -216,7 +216,7 @@ First, make sure the plugin is not active (disabled) network-wide. Then make sur
 
 = A notification about file owner appears along with an FTP form, how can I resolve this? =
 
-The plugin uses WordPress FileSystem functionality to write to files. It checks if the file owner, file owner group of created files match process owner. If this is not the case it cannot write or modify files. 
+The plugin uses WordPress FileSystem functionality to write to files. It checks if the file owner, file owner group of created files match process owner. If this is not the case it cannot write or modify files.
 
 Typically, you should tell your web host about the permission issue and they should be able to resolve it.
 
@@ -284,6 +284,14 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.2.1=
+* Fix: Cloudflare: Removed use of the retired ip_lkup V1 endpoint
+* Fix: Prevent error in some environments using non-direct filesystems
+* Fix: Added better checking for some filesystem actions
+* Fix: AWS CloudFront: Reverted async change for cache invalidation to honor promises
+* Enhancement: Added option to exclude minified JS files from being processed by Rocket Loader
+* Enhancement: Improved handling of Image Service rate-limiting and error messages
 
 = 2.2.0 =
 * Feature: Image Service API extension: WebP conversion options
