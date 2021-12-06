@@ -349,21 +349,31 @@ class Cache_Redis extends Cache_Base {
 				$server = $this->_servers[$index];
 				$accessor = new \Redis();
 
+				$config = Dispatcher::config();
+				$pconnect_timeout = $config->get_string( 'redis.pconnect_timeout' );
+				$pconnect_retry_interval = $config->get_string( 'redis.pconnect_retry_interval' );
+				$pconnect_read_timeout = $config->get_string( 'redis.pconnect_read_timeout' );
+				$connect_timeout = $config->get_string( 'redis.connect_timeout' );
+				$connect_retry_interval = $config->get_string( 'redis.connect_retry_interval' );
+				$connect_read_timeout = $config->get_string( 'redis.connect_read_timeout' );
+
 				if ( substr( $server, 0, 5 ) == 'unix:' ) { 
 					if ( $this->_persistent ) {
-						$accessor->pconnect( trim( substr( $server, 5 ) ), null, 1, 
-						    $this->_instance_id . '_' . $this->_dbid, 100, 2 );
+						$accessor->pconnect( trim( substr( $server, 5 ) ), null, $pconnect_timeout, 
+						    $this->_instance_id . '_' . $this->_dbid, $pconnect_retry_interval, $pconnect_read_timeout );
 					} else {
-						$accessor->connect( trim( substr( $server, 5, 1, null, 100, 2 ) ) );
+						$accessor->connect( trim( substr( $server, 5, $connect_timeout, null,
+						    $connect_retry_interval, $connect_read_timeout ) ) );
 					}
 				} else {
 					list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
 
 					if ( $this->_persistent ) {
-						$accessor->pconnect( $ip, $port, 1, 
-						    $this->_instance_id . '_' . $this->_dbid, 100, 2 );
+						$accessor->pconnect( $ip, $port, $pconnect_timeout, 
+						    $this->_instance_id . '_' . $this->_dbid, $pconnect_retry_interval, $pconnect_read_timeout );
 					} else {
-						$accessor->connect( $ip, $port, 1, null, 100, 2 );
+						$accessor->connect( $ip, $port, $connect_timeout, null,
+						    $connect_retry_interval, $connect_read_timeout );
 					}
 				}
 
