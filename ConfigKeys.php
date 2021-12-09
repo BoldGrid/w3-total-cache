@@ -109,6 +109,18 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 0
 	),
+	'dbcache.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'dbcache.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'dbcache.redis.read_timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
 	'dbcache.use_filters' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -306,6 +318,18 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 0
 	),
+	'objectcache.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'objectcache.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'objectcache.redis.read_timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
 	'objectcache.groups.global' => array(
 		'type' => 'array',
 		'default' => array(
@@ -419,6 +443,18 @@ $keys = array(
 		'default' => ''
 	),
 	'pgcache.redis.dbid' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'pgcache.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'pgcache.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'pgcache.redis.read_timeout' => array(
 		'type' => 'integer',
 		'default' => 0
 	),
@@ -789,6 +825,18 @@ $keys = array(
 		'default' => ''
 	),
 	'minify.redis.dbid' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'minify.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'minify.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'minify.redis.read_timeout' => array(
 		'type' => 'integer',
 		'default' => 0
 	),

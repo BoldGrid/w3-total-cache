@@ -812,6 +812,9 @@ class PgCache_ContentGrabber {
 			$engineConfig = array(
 				'servers' => $this->_config->get_array( 'pgcache.redis.servers' ),
 				'persistent' => $this->_config->get_boolean( 'pgcache.redis.persistent' ),
+				'timeout' => $this->_config->get_integer( 'pgcache.redis.timeout' ),
+				'retry_interval' => $this->_config->get_integer( 'pgcache.redis.retry_interval' ),
+				'read_timeout' => $this->_config->get_integer( 'pgcache.redis.read_timeout' ),
 				'dbid' => $this->_config->get_integer( 'pgcache.redis.dbid' ),
 				'password' => $this->_config->get_string( 'pgcache.redis.password' )
 			);
@@ -861,6 +864,9 @@ class PgCache_ContentGrabber {
 				$engineConfig = array(
 					'servers' => $this->_config->get_array( 'pgcache.redis.servers' ),
 					'persistent' => $this->_config->get_boolean( 'pgcache.redis.persistent' ),
+					'timeout' => $this->_config->get_integer( 'pgcache.redis.timeout' ),
+					'retry_interval' => $this->_config->get_integer( 'pgcache.redis.retry_interval' ),
+					'read_timeout' => $this->_config->get_integer( 'pgcache.redis.read_timeout' ),
 					'dbid' => $this->_config->get_integer( 'pgcache.redis.dbid' ),
 					'password' => $this->_config->get_string( 'pgcache.redis.password' )
 				);

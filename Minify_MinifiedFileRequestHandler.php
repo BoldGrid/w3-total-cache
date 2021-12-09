@@ -672,6 +672,9 @@ class Minify_MinifiedFileRequestHandler {
 					'module' => 'minify',
 					'servers' => $this->_config->get_array( 'minify.redis.servers' ),
 					'persistent' => $this->_config->get_boolean( 'minify.redis.persistent' ),
+					'timeout' => $this->_config->get_integer( 'minify.redis.timeout' ),
+					'retry_interval' => $this->_config->get_integer( 'minify.redis.retry_interval' ),
+					'read_timeout' => $this->_config->get_integer( 'minify.redis.read_timeout' ),
 					'dbid' => $this->_config->get_integer( 'minify.redis.dbid' ),
 					'password' => $this->_config->get_string( 'minify.redis.password' )
 				);
