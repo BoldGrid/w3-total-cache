@@ -83,7 +83,15 @@ exports.postCreate = async function(pPage, data) {
 		visible: true
 	});
 	let resultString = await pPage.$eval('#result', (e) => { return e.value });
-	let result = JSON.parse(resultString);
+	let result;
+	try {
+		result = JSON.parse(resultString);
+	} catch (e) {
+		log.log('result from postCreate request:');
+		log.log(resultString);
+		throw e;
+	}
+
 	let postId = result.id;
 	console.log(postId);
 	expect(postId > 0).true;
