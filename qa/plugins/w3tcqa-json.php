@@ -1,6 +1,8 @@
 <?php
 include(dirname(__FILE__) . '/wp-load.php');
-define('DONOTCACHEPAGE', true);
+if (!defined('DONOTCACHEPAGE')) {
+	define('DONOTCACHEPAGE', true);
+}
 
 //{id: 8, content: "<!-- wp:paragraph -->↵<p>bb</p>↵<!-- /wp:paragraph -->", status: "publish"}
 ?>
