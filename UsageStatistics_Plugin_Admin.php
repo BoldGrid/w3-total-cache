@@ -7,11 +7,9 @@ class UsageStatistics_Plugin_Admin {
 	function run() {
 		$c = Dispatcher::config();
 
+		add_action( 'wp_ajax_ustats_access_log_test', array( $this, 'w3tc_ajax_ustats_access_log_test' ) );
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
 		add_action( 'w3tc_ajax_ustats_get', array( $this, 'w3tc_ajax_ustats_get' ) );
-		add_action( 'w3tc_ajax_ustats_access_log_test',
-			array( $this, 'w3tc_ajax_ustats_access_log_test' ) );
-
 		add_filter( 'w3tc_usage_statistics_summary_from_history', array(
 				'W3TC\UsageStatistics_Sources',
 				'w3tc_usage_statistics_summary_from_history'
@@ -43,9 +41,6 @@ class UsageStatistics_Plugin_Admin {
 		add_filter( 'w3tc_notes', array( $this, 'w3tc_notes' ) );
 	}
 
-#
-
-
 	public function w3tc_config_ui_save( $config, $old_config ) {
 		if ( $config->get( 'stats.slot_seconds' ) !=
 				$old_config->get( 'stats.slot_seconds' ) ) {
@@ -54,8 +49,6 @@ class UsageStatistics_Plugin_Admin {
 			$storage->reset();
 		}
 	}
-
-
 
 	public function w3tc_notes( $notes ) {
 		$c = Dispatcher::config();
@@ -111,15 +104,15 @@ class UsageStatistics_Plugin_Admin {
 
 
 	public function w3tc_ajax_ustats_access_log_test() {
-		$filename = $_REQUEST['filename'];
+		$filename = str_replace( '://', '/', $_REQUEST['filename'] );
+		$h        = @fopen( $filename, 'rb' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
-		$filename = str_replace( '://', '/', $filename );
-		$h = @fopen( $filename, 'rb' );
-		if ( !$h ) {
-			echo 'Failed to open file ' . $filename;
+		if ( ! $h ) {
+			esc_html_e( 'Failed to open file', 'w3-total-cache' );
 		} else {
-			echo 'Success';
+			esc_html_e( 'Success', 'w3-total-cache' );
 		}
-		exit();
+
+		wp_die();
 	}
 }
