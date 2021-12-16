@@ -101,16 +101,28 @@ class UsageStatistics_Plugin_Admin {
 		exit();
 	}
 
-
-
+	/**
+	 * Ajax: Test access log path.
+	 */
 	public function w3tc_ajax_ustats_access_log_test() {
-		$filename = str_replace( '://', '/', $_REQUEST['filename'] );
-		$h        = @fopen( $filename, 'rb' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$nonce = isset( $_REQUEST['_wpnonce'][0] ) ? sanitize_key( $_REQUEST['_wpnonce'][0] ) : false;
 
-		if ( ! $h ) {
-			esc_html_e( 'Failed to open file', 'w3-total-cache' );
-		} else {
+		if ( ! wp_verify_nonce( $nonce, 'w3tc' ) ) {
+			wp_die( esc_html__( 'Invalid WordPress nonce.  Please reload the page and try again.', 'w3-total-cache' ) );
+		}
+
+		$handle   = false;
+		$filepath = isset( $_REQUEST['filename'] ) ?
+			str_replace( '://', '/', sanitize_text_field( wp_unslash( $_REQUEST['filename'] ) ) ) : null;
+
+		if ( $filepath ) {
+			$handle   = @fopen( $filepath, 'rb' ); // phpcs:ignore WordPress
+		}
+
+		if ( $handle ) {
 			esc_html_e( 'Success', 'w3-total-cache' );
+		} else {
+			esc_html_e( 'Failed to open file', 'w3-total-cache' );
 		}
 
 		wp_die();
