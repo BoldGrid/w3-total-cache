@@ -12,7 +12,7 @@ if ( isset( $details['error_message'] ) )
 ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header(
-	__( 'Your CloudFlare API key', 'w3-total-cache' ) ); ?>
+	__( 'Your CloudFlare API token / global key', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<th><?php _e( 'Email:', 'w3-total-cache' ) ?></td>
@@ -23,7 +23,7 @@ if ( isset( $details['error_message'] ) )
 				</td>
 			</tr>
 			<tr>
-				<th><?php _e( '<acronym title="Application Programming Interface">API</acronym> key:', 'w3-total-cache' ); ?></td>
+				<th><?php _e( '<acronym title="Application Programming Interface">API</acronym> token / global key:', 'w3-total-cache' ); ?></td>
 				<td>
 					<input name="key" type="text" class="w3tc-ignore-change"
 						style="width: 550px"
