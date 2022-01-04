@@ -37,6 +37,33 @@ Util_Ui::config_item( array(
 	) );
 
 Util_Ui::config_item( array(
+		'key' => array( $module, 'redis.timeout' ),
+		'label' => Util_ConfigLabel::get( 'redis.timeout' ),
+		'control' => 'textbox',
+		'textbox_type' => 'number',
+		'description' =>
+		__( 'In seconds', 'w3-total-cache' )
+	) );
+
+Util_Ui::config_item( array(
+		'key' => array( $module, 'redis.retry_interval' ),
+		'label' => Util_ConfigLabel::get( 'redis.retry_interval' ),
+		'control' => 'textbox',
+		'textbox_type' => 'number',
+		'description' =>
+		__( 'In miliseconds', 'w3-total-cache' )
+	) );
+
+Util_Ui::config_item( array(
+		'key' => array( $module, 'redis.read_timeout' ),
+		'label' => Util_ConfigLabel::get( 'redis.read_timeout' ),
+		'control' => 'textbox',
+		'textbox_type' => 'number',
+		'description' =>
+		__( 'In seconds', 'w3-total-cache' )
+	) );
+
+Util_Ui::config_item( array(
 		'key' => array( $module, 'redis.dbid' ),
 		'label' => Util_ConfigLabel::get( 'redis.dbid' ),
 		'control' => 'textbox',

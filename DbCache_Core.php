@@ -25,6 +25,9 @@ class DbCache_Core {
 			$engineConfig = array(
 				'servers' => $c->get_array( 'dbcache.redis.servers' ),
 				'persistent' => $c->get_boolean( 'dbcache.redis.persistent' ),
+				'timeout' => $c->get_integer( 'dbcache.redis.timeout' ),
+				'retry_interval' => $c->get_integer( 'dbcache.redis.retry_interval' ),
+				'read_timeout' => $c->get_integer( 'dbcache.redis.read_timeout' ),
 				'dbid' => $c->get_integer( 'dbcache.redis.dbid' ),
 				'password' => $c->get_string( 'dbcache.redis.password' )
 			);
