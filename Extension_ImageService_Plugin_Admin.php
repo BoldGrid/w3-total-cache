@@ -449,6 +449,10 @@ class Extension_ImageService_Plugin_Admin {
 				$settings['auto'] = sanitize_key( $_POST['imageservice___auto'] );
 			}
 
+			if ( isset( $_POST['imageservice___visibility'] ) ) {
+				$settings['visibility'] = sanitize_key( $_POST['imageservice___visibility'] );
+			}
+
 			$c->set( 'imageservice', $settings );
 			$c->save();
 
