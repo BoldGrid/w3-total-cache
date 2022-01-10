@@ -2499,6 +2499,7 @@ $keys = array(
 		'default' => array(
 			'compression' => 'lossy',
 			'auto'        => 'enabled',
+			'visibility'  => 'never',
 		),
 	),
 
