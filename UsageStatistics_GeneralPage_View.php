@@ -121,7 +121,7 @@ jQuery('#ustats_access_log_format_reset').click(function() {
 
 jQuery('#ustats_access_log_test').click(function() {
 	var params = {
-		action: 'w3tc_ajax',
+		action: 'ustats_access_log_test',
 		_wpnonce: w3tc_nonce,
 		w3tc_action: 'ustats_access_log_test',
 		filename: jQuery('#stats__access_log__filename').val()
