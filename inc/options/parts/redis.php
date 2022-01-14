@@ -31,6 +31,36 @@ if ( !defined( 'W3TC' ) )
 	</td>
 </tr>
 <tr>
+	<th style="width: 250px;"><label for="redis_timeout"><?php echo Util_ConfigLabel::get( 'redis.timeout' ) ?></label></th>
+	<td>
+		<input id="redis_timeout" type="number" name="<?php echo $module ?>__redis__timeout"
+			<?php Util_Ui::sealing_disabled( $module ) ?>
+			value="<?php echo esc_attr( $this->_config->get_integer( $module . '.redis.timeout' ) ); ?>"
+			size="8" step="1" min="0" />
+		<p class="description"><?php _e( 'In seconds', 'w3-total-cache' ); ?></p>
+	</td>
+</tr>
+<tr>
+	<th style="width: 250px;"><label for="redis_retry_interval"><?php echo Util_ConfigLabel::get( 'redis.retry_interval' ) ?></label></th>
+	<td>
+		<input id="redis_retry_interval" type="number" name="<?php echo $module ?>__redis__retry_interval"
+			<?php Util_Ui::sealing_disabled( $module ) ?>
+			value="<?php echo esc_attr( $this->_config->get_integer( $module . '.redis.retry_interval' ) ); ?>"
+			size="8" step="100" min="0" />
+		<p class="description"><?php _e( 'In miliseconds', 'w3-total-cache' ); ?></p>
+	</td>
+</tr>
+<tr>
+	<th style="width: 250px;"><label for="redis_read_timeout"><?php echo Util_ConfigLabel::get( 'redis.read_timeout' ) ?></label></th>
+	<td>
+		<input id="redis_read_timeout" type="number" name="<?php echo $module ?>__redis__read_timeout"
+			<?php Util_Ui::sealing_disabled( $module ) ?>
+			value="<?php echo esc_attr( $this->_config->get_integer( $module . '.redis.read_timeout' ) ); ?>"
+			size="8" step="1" min="0" />
+		<p class="description"><?php _e( 'In seconds', 'w3-total-cache' ); ?></p>
+	</td>
+</tr>
+<tr>
 	<th style="width: 250px;"><label for="redis_dbid"><?php echo Util_ConfigLabel::get( 'redis.dbid' ) ?></label></th>
 	<td>
 		<input id="redis_dbid" type="text" name="<?php echo $module ?>__redis__dbid"

@@ -367,7 +367,7 @@ class Generic_AdminActions_Default {
 			$cdn_domains = array();
 
 			foreach ( $cdn_cnames as $cdn_cname ) {
-				$cdn_cname = trim( $cdn_cname );
+				$cdn_cname = preg_replace( '~[^0-9a-zA-Z/_.:\-]~', '', wp_strip_all_tags( $cdn_cname ) );
 
 				/**
 				 * Auto expand wildcard domain to 10 subdomains

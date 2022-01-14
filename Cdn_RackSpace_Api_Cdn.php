@@ -217,7 +217,7 @@ class Cdn_RackSpace_Api_Cdn {
 					'response_json' => array(), 
 					'auth_required' => true 
 				);
-			
+
 			// try to decode response
 			$response_json = @json_decode( $result['body'], true );
 			if ( is_null( $response_json ) ||

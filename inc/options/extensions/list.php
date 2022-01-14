@@ -73,11 +73,21 @@ $cb_id++;
 				<strong><?php esc_html_e( $meta['name'] ) ?></strong>
 				<div class="row-actions-visible">
 					<?php if ( $config->is_extension_active( $extension ) ):
-	$extra_links = array();
-	if ( isset( $meta['settings_exists'] ) && $meta['settings_exists'] )
-	   $extra_links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&extension=%s', $extension ) ) ).'&action=view">'. __( 'Settings' ).'</a>';
+$extra_links = array();
+
+if ( isset( $meta['settings_exists'] ) && $meta['settings_exists'] ) {
+	$extra_links[] = '<a class="edit" href="' .
+		esc_attr( Util_Ui::admin_url( sprintf( 'admin.php?page=w3tc_extensions&extension=%s&action=view', $extension ) ) ) . '">' .
+		esc_html__( 'Settings', 'w3-total-cache' ) . '</a>';
+}
+
+if ( isset( $meta['extra_links'] ) && is_Array( $meta['extra_links'] ) ) {
+	$extra_links = array_merge( $extra_links, $meta['extra_links'] );
+}
+
 $extra_links = apply_filters( "w3tc_extension_plugin_links_{$extension}", $extra_links );
 $links =  implode( ' | ', $extra_links );
+
 if ( $links ) {
 	echo $links;
 }

@@ -348,6 +348,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 				$engineConfig = array(
 					'servers' => $this->_config->get_array( 'dbcache.redis.servers' ),
 					'persistent' => $this->_config->get_boolean( 'dbcache.redis.persistent' ),
+					'timeout' => $this->_config->get_integer( 'dbcache.redis.timeout' ),
+					'retry_interval' => $this->_config->get_integer( 'dbcache.redis.retry_interval' ),
+					'read_timeout' => $this->_config->get_integer( 'dbcache.redis.read_timeout' ),
 					'dbid' => $this->_config->get_integer( 'dbcache.redis.dbid' ),
 					'password' => $this->_config->get_string( 'dbcache.redis.password' )
 				);

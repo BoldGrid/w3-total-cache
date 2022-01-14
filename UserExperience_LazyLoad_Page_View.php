@@ -41,6 +41,14 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 	) );
 
 	Util_Ui::config_item( array(
+			'key' => 'lazyload.threshold',
+			'control' => 'textbox',
+			'label' => __( 'Threshold', 'w3-total-cache' ),
+			'description' => __( 'The outer distance off the scrolling area from which to start loading the elements (example: 100px, 10%).',
+				'w3-total-cache' )
+	) );
+
+	Util_Ui::config_item( array(
 			'key' => 'lazyload.embed_method',
 			'label' => __( 'Script Embed method:', 'w3-total-cache' ),
 			'control' => 'selectbox',
@@ -49,7 +57,7 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 				'sync_head' => 'sync (to head)',
 				'inline_footer' => 'inline'
 			),
-			'description' => 'Use <code>inline</code> method only when your website has just a few pages'
+			'description' => __( 'Use <code>inline</code> method only when your website has just a few pages', 'w3-total-cache' ),
 		)
 	);
 
@@ -60,7 +68,7 @@ $is_google_maps_easy = ( in_array( 'google-maps-easy/gmp.php', $plugins ) );
 		<th>Google Maps</th>
 		<td>
 			<?php Util_Ui::pro_wrap_maybe_start(); ?>
-			<p class="description w3tc-gopro-excerpt" style="padding-bottom: 10px">Lazy load google map</p>
+			<p class="description w3tc-gopro-excerpt" style="padding-bottom: 10px"><?php _e( 'Lazy load google map', 'w3-total-cache' ); ?></p>
 			<div>
 				<?php
 				Util_Ui::control2( Util_Ui::config_item_preprocess( array(

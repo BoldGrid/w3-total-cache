@@ -1,9 +1,8 @@
 <?php
-
-/*
- * Descriptors of configuration keys
- * for config
+/**
+ * File: ConfigKeys.php
  *
+ * Descriptors of configuration keys for config.
  * Reminder: The maximum length of keys cannot exceed 64 chars. This is the limit for the name attribute in form fields.
  */
 
@@ -80,6 +79,18 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 0
 	),
+	'dbcache.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'dbcache.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'dbcache.redis.read_timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
 	'dbcache.use_filters' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -131,15 +142,17 @@ $keys = array(
 			'\bfound_rows\(\)'
 		)
 	),
-
 	'docroot_fix.enable' => array(
 		'type' => 'boolean',
 		'default' => false,
 	),
-
 	'lazyload.enabled' => array(
 		'type' => 'boolean',
 		'default' => false
+	),
+	'lazyload.threshold' => array(
+		'type' => 'string',
+		'default' => ''
 	),
 	'lazyload.process_img' => array(
 		'type' => 'boolean',
@@ -192,7 +205,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => 'async_head'
 	),
-
 	'objectcache.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -269,6 +281,18 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 0
 	),
+	'objectcache.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'objectcache.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'objectcache.redis.read_timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
 	'objectcache.groups.global' => array(
 		'type' => 'array',
 		'default' => array(
@@ -300,7 +324,6 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false
 	),
-
 	'pgcache.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -378,6 +401,18 @@ $keys = array(
 		'default' => ''
 	),
 	'pgcache.redis.dbid' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'pgcache.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'pgcache.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'pgcache.redis.read_timeout' => array(
 		'type' => 'integer',
 		'default' => 0
 	),
@@ -637,7 +672,6 @@ $keys = array(
 			)
 		)
 	),
-
 	'minify.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -715,6 +749,18 @@ $keys = array(
 		'default' => ''
 	),
 	'minify.redis.dbid' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'minify.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'minify.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'minify.redis.read_timeout' => array(
 		'type' => 'integer',
 		'default' => 0
 	),
@@ -1018,7 +1064,6 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false
 	),
-
 	'cdn.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -1118,7 +1163,6 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => true
 	),
-
 	'cdn.ftp.host' => array(
 		'type' => 'string',
 		'default' => ''
@@ -1163,7 +1207,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
-
 	'cdn.google_drive.client_id' => array(
 		'type' => 'string',
 		'default' => ''
@@ -1184,7 +1227,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
-
 	'cdn.highwinds.account_hash' => array(
 		'type' => 'string',
 		'default' => ''
@@ -1205,7 +1247,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => 'auto'
 	),
-
 	'cdn.s3.key' => array(
 		'type' => 'string',
 		'default' => ''
@@ -1230,12 +1271,10 @@ $keys = array(
 		'type' => 'string',
 		'default' => 'auto'
 	),
-
 	'cdn.s3_compatible.api_host' => array(
 		'type' => 'string',
 		'default' => 'auto'
 	),
-
 	'cdn.cf.key' => array(
 		'type' => 'string',
 		'default' => ''
@@ -1340,7 +1379,6 @@ $keys = array(
 		'type' => 'array',
 		'default' => array()
 	),
-
 	'cdn.azure.user' => array(
 		'type' => 'string',
 		'default' => ''
@@ -1561,7 +1599,6 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false
 	),
-
 	'varnish.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -1578,7 +1615,6 @@ $keys = array(
 		'type' => 'array',
 		'default' => array()
 	),
-
 	'browsercache.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -1886,8 +1922,6 @@ $keys = array(
 		'type' => 'array',
 		'default' => array()
 	),
-
-
 	'mobile.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -2129,8 +2163,6 @@ $keys = array(
 			)
 		)
 	),
-
-
 	'referrer.configuration_overloaded' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -2156,8 +2188,6 @@ $keys = array(
 			)
 		)
 	),
-
-
 	'common.track_usage' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -2251,14 +2281,13 @@ $keys = array(
 		'default' => true,
 		'master_only' => 'true'
 	),
-
 	'extensions.active' => array(
 		'type' => 'array',
-		'default' => array()
+		'default' => array(),
 	),
 	'extensions.active_frontend' => array(
 		'type' => 'array',
-		'default' => array()
+		'default' => array(),
 	),
 	'extensions.active_dropin' => array(
 		'type' => 'array',
@@ -2278,64 +2307,18 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false,
 	),
-
-	// extensions keys:
-	//
-	// cloudflare =>
-	//   'enabled'
-	//   'email'
-	//   'key'
-	//   'zone'
-	//   'widget_interval' => '30'
-	//   'widget_cache_mins' => '5'
-
-	// genesis.theme =>
-	//   'wp_head' => '0',
-	//   'genesis_header' => '1',
-	//   'genesis_do_nav' => '0',
-	//   'genesis_do_subnav' => '0',
-	//   'loop_front_page' => '1',
-	//   'loop_terms' => '1',
-	//   'flush_terms' => '1',
-	//   'loop_single' => '1',
-	//   'loop_single_excluded' => '',
-	//   'loop_single_genesis_comments' => '0',
-	//   'loop_single_genesis_pings' => '0',
-	//   'sidebar' => '0',
-	//   'sidebar_excluded' => '',
-	//   'genesis_footer' => '1',
-	//   'wp_footer' => '0',
-	//   'reject_logged_roles' => '1',
-	//   'reject_logged_roles_on_actions' => array(
-	//       0 => 'genesis_loop',
-	//       1 => 'wp_head',
-	//       2 => 'wp_footer',
-	//   ),
-	//   'reject_roles' => array(
-	//       0 => 'administrator',
-	//   ),
-	//
-	// feedbuner =>
-	//   'urls'
-	//
-	// newrelic.configuration_overloaded
-	// newrelic => array
-	//   'api_key' => '',
-	//   'monitoring_type' => 'apm',
-	//   'browser.application_id' => '',
-	//   'apm.application_name' => '',
-	//   'accept.logged_roles' => true,
-	//   'accept.roles' => array('contributor'),
-	//   'use_php_function' => true,
-	//   'cache_time' => 5,
-	//   'enable_xmit' => false,
-	//   'include_rum' => true
+	'imageservice' => array(
+		'type' => 'array',
+		'default' => array(
+			'compression' => 'lossy',
+			'auto'        => 'enabled',
+			'visibility'  => 'never',
+		),
+	),
 );
 
-
-
 /*
- * Descriptors how sealed configuration keys affect overriding
+ * Descriptors how sealed configuration keys affect overriding.
  */
 $overloading_keys_scope = array(
 	array(

@@ -15,6 +15,8 @@ def run
 
 	if ENV['W3D_HTTP_SERVER'] == 'apache'
 		system_assert '/etc/init.d/apache2 restart'
+	elsif ENV['W3D_HTTP_SERVER'] == 'lightspeed'
+		system_assert 'systemctl restart lsws'
 	else
 		# php first, nginx next - otherwise not stable
 		if ENV['W3D_PHP_VERSION'] == '7.0'
@@ -28,7 +30,7 @@ def run
 		elsif ENV['W3D_PHP_VERSION'] == '8.0'
 			system_assert 'service php8.0-fpm restart'
 		else
-			system_assert 'service php5-fpm restart'
+			system_assert 'service php5.6-fpm restart'
 		end
 
 		n = 0

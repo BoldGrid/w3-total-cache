@@ -72,13 +72,13 @@ if ( $this->_config->get_string( 'objectcache.engine' ) == 'memcached' ) {
 
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'objectcache.enabled_for_wp_admin' ) ?> Enable caching for wp-admin requests</label>
+					<?php $this->checkbox( 'objectcache.enabled_for_wp_admin' ); _e( 'Enable caching for wp-admin requests', 'w3-total-cache' ); ?></label>
 					<p class="description"><?php _e( 'Enabling this option will increase wp-admin performance, but may cause side-effects', 'w3-total-cache' )?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'objectcache.fallback_transients' ) ?> Store transients in database</label>
+					<?php $this->checkbox( 'objectcache.fallback_transients' ); _e( 'Store transients in database', 'w3-total-cache' ); ?></label>
 					<p class="description"><?php _e( 'Use that to store transients in database even when external cache is used. That allows transient values to survive object cache cleaning / expiration', 'w3-total-cache' )?></p>
 				</th>
 			</tr>

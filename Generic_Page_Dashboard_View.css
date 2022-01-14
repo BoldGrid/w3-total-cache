@@ -14,9 +14,6 @@
     -webkit-box-shadow:  none;
     box-shadow:  none;
 }
-#w3tc-dashboard-widgets h1 {
-    margin-top: 5px;
-}
 #w3tc-dashboard-widgets #postbox-container-left {
     padding: 10px;
     margin-right: 200px;
@@ -126,6 +123,7 @@
 	}
 	#w3tc-dashboard-widgets {
         min-width: auto;
+        flex-wrap: wrap;
     }
     #postbox-container-right {
         width: 100%;
@@ -138,6 +136,13 @@
     }
     #w3tc-dashboard-widgets #normal-sortables .postbox {
         width: 100%;
+    }
+    #w3tc-dashboard-widgets #side-sortables .postbox .postbox-header .w3tc-widget-text {
+        float: none;
+    }
+    #w3tc-dashboard-widgets #side-sortables .postbox .postbox-header,
+    #w3tc-dashboard-widgets #side-sortables .postbox .inside {
+        text-align: center;
     }
     .w3tc_generic_widgetservice_label {
         display: inline;

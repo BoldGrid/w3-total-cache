@@ -2,25 +2,25 @@
 
 # Functions
 php_5x () {
-    apt-get install -y php5-cli php5-mysql php5-curl
+    apt-get install -y php5.6-cli php5.6-mysql php5.6-curl php5.6-xml
 
     if [ "$W3D_APC" = "apc" ]; then
-        apt-get install -y php5-apc
+        apt-get install -y php5.6-apcu
     fi
     if [ "$W3D_APC" = "apcu" ]; then
-        apt-get install -y php5-apcu
+        apt-get install -y php5.6-apcu
     fi
     if [ "$W3D_MEMCACHE" = "memcache" ]; then
-        apt-get install -y php5-memcache
+        apt-get install -y php5.6-memcache
     fi
     if [ "$W3D_MEMCACHE" = "memcached" ]; then
-        apt-get install -y php5-memcached
+        apt-get install -y php5.6-memcached
     fi
     if [ "$W3D_REDIS" = "redis" ]; then
-        apt-get install -y php5-redis
+        apt-get install -y php5.6-redis
     fi
     if [ "$W3D_XCACHE" = "xcache" ]; then
-        apt-get install -y php5-xcache
+        apt-get install -y php5.6-xcache
     fi
 
 }
@@ -47,14 +47,14 @@ export | grep LANG
 case "${W3D_PHP_VERSION}" in
 	# php7.0-xml required by wordpress, fails otherwise on pings
 
-    "5.3") echo "Installing PHP 5.3"
-        php_5x
-        ;;
-    "5.5") echo "Installing PHP 5.5"
-        php_5x
-        ;;
+    #"5.3") echo "Installing PHP 5.3"
+    #    php_5x
+    #    ;;
+    #"5.5") echo "Installing PHP 5.5"
+    #    php_5x
+    #    ;;
     "5.6") echo "Installing PHP 5.6"
-        add-apt-repository -y ppa:ondrej/php5-5.6
+        add-apt-repository -y ppa:ondrej/php
         apt-get update
         php_5x
         ;;

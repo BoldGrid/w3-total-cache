@@ -2,7 +2,7 @@
 namespace W3TC;
 
 if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
-	require_once W3TC_LIB_DIR . '/Aws/aws-autoloader.php';
+	require_once W3TC_DIR . '/vendor/autoload.php';
 }
 
 /**
@@ -29,9 +29,13 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 			return;
 		}
 
-		$credentials = new \Aws\Credentials\Credentials(
-			$this->_config['key'],
-			$this->_config['secret'] );
+		if ( empty( $this->_config['key'] ) && empty( $this->_config['secret'] ) ) {
+			$credentials = \Aws\Credentials\CredentialProvider::defaultProvider();
+		} else {
+			$credentials = new \Aws\Credentials\Credentials(
+				$this->_config['key'],
+				$this->_config['secret'] );
+		}
 
 		$this->api = new \Aws\CloudFront\CloudFrontClient( array(
 				'credentials' => $credentials,

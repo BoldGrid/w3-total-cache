@@ -17,7 +17,7 @@ echo sprintf( 'The plugin is currently %1$s If an option is disabled it means th
 		<?php Util_Ui::postbox_header( __( 'General', 'w3-total-cache' ), '' ); ?>
 		<table class="form-table">
 			<tr>
-				<th>Preview mode:</th>
+				<th><?php _e( 'Preview mode:', 'w3-total-cache' ); ?></th>
 				<td>
 					<?php echo Util_Ui::nonce_field( 'w3tc' ); ?>
 					<?php if ( $this->_config->is_preview() ): ?>

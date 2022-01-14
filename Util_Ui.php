@@ -648,7 +648,9 @@ class Util_Ui {
 				'disabled' => $a['disabled']
 			) );
 		} elseif ( 'none' === $a['control'] ) {
-			esc_html_e( $a['none_label'] );
+			esc_html_e( $a['none_label'], 'w3-total-cache' );
+		} elseif ( 'button' === $a['control'] ) {
+			echo '<button type="button" class="button">' . __( $a['none_label'], 'w3-total-cache' ) . '</button>';
 		}
 	}
 

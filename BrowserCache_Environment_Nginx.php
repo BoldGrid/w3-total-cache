@@ -141,11 +141,9 @@ class BrowserCache_Environment_Nginx {
 			}
 		}
 
-		foreach ( $mime_types as $type => $extensions ) {
-			if ( $type != 'other_compression' ) {
-				$this->generate_section( $rules, $extensions, $type );
-			}
-		}
+		$this->generate_section( $rules, $mime_types['cssjs'], 'cssjs' );
+		$this->generate_section( $rules, $mime_types['html'], 'html' );
+		$this->generate_section( $rules, $mime_types['other'], 'other' );
 
 		$rules .= implode( "\n", $this->security_rules() ) . "\n";
 		$rules .= W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n";
@@ -266,54 +264,69 @@ class BrowserCache_Environment_Nginx {
 		return $rules;
 	}
 
-
-
 	/**
-	 * Adds cache rules for type to &$rules
+	 * Adds cache rules for type to &$rules.
 	 *
-	 * @param string  $rules
-	 * @param array   $mime_types
-	 * @param string  $section
+	 * @param string $rules      Rules.
+	 * @param array  $mime_types MIME types.
+	 * @param string $section    Section.
 	 * @return void
 	 */
 	private function generate_section( &$rules, $mime_types, $section ) {
-		$expires = $this->c->get_boolean( 'browsercache.' . $section . '.expires' );
-		$etag = $this->c->get_boolean( 'browsercache.' . $section . '.etag' );
+		$expires       = $this->c->get_boolean( 'browsercache.' . $section . '.expires' );
+		$etag          = $this->c->get_boolean( 'browsercache.' . $section . '.etag' );
 		$cache_control = $this->c->get_boolean( 'browsercache.' . $section . '.cache.control' );
-		$w3tc = $this->c->get_boolean( 'browsercache.' . $section . '.w3tc' );
+		$w3tc          = $this->c->get_boolean( 'browsercache.' . $section . '.w3tc' );
 		$last_modified = $this->c->get_boolean( 'browsercache.' . $section . '.last_modified' );
 
-		if ( $etag || $expires || $cache_control || $w3tc || !$last_modified ) {
-			$lifetime = $this->c->get_integer( 'browsercache.' . $section . '.lifetime' );
+		if ( $etag || $expires || $cache_control || $w3tc || ! $last_modified ) {
+			$mime_types2 = apply_filters(
+				'w3tc_browsercache_rules_section_extensions',
+				$mime_types,
+				$this->c,
+				$section
+			);
+			$extensions  = array_keys( $mime_types2 );
 
-			$mime_types2 = apply_filters( 'w3tc_browsercache_rules_section_extensions',
-				$mime_types, $this->c, $section );
-			$extensions = array_keys( $mime_types2 );
-
-			// Remove ext from filesmatch if its the same as permalink extension
+			// Remove ext from filesmatch if its the same as permalink extension.
 			$pext = strtolower( pathinfo( get_option( 'permalink_structure' ), PATHINFO_EXTENSION ) );
+
 			if ( $pext ) {
 				$extensions = Util_Rule::remove_extension_from_list( $extensions, $pext );
 			}
 
-			$rules .= "location ~ \\.(" . implode( '|', $extensions ) . ")$ {\n";
+			$rules .= 'location ~ \\.(' . implode( '|', $extensions ) . ')$ {' . "\n";
 
-			$subrules = Dispatcher::nginx_rules_for_browsercache_section(
-				$this->c, $section );
-			$rules .= '    ' . implode( "\n    ", $subrules ) . "\n";
+			$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section );
+			$rules   .= '    ' . implode( "\n    ", $subrules ) . "\n";
 
-			if ( !$this->c->get_boolean( 'browsercache.no404wp' ) ) {
+			// Add rules for the Image Service extension, if active.
+			if ( 'other' === $section && array_key_exists( 'imageservice', $this->c->get_array( 'extensions.active' ) ) ) {
+				$rules .= "\n" . '    location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {' . "\n" .
+					'        if ( $http_accept !~* "webp|\*/\*" ) {' . "\n" .
+					'            break;' . "\n" .
+					'        }' . "\n\n" .
+					'        ' . implode( "\n        ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n" .
+					'        add_header Vary Accept;' . "\n";
+
+				if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+					$rules .= '        try_files ${path}.webp $uri =404;';
+				} else {
+					$rules .= '        try_files ${path}.webp $uri /index.php?$args;';
+				}
+
+				$rules .= "\n" . '    }' . "\n\n";
+			}
+
+			if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
 				$wp_uri = network_home_url( '', 'relative' );
 				$wp_uri = rtrim( $wp_uri, '/' );
-
-				$rules .= '    try_files $uri $uri/ ' . $wp_uri .
-					'/index.php?$args;' . "\n";
+				$rules .= '    try_files $uri $uri/ ' . $wp_uri . '/index.php?$args;' . "\n";
 			}
-			$rules .= "}\n";
+
+			$rules .= '}' . "\n";
 		}
 	}
-
-
 
 	/**
 	 * Returns directives plugin applies to files of specific section

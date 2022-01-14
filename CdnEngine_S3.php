@@ -2,7 +2,7 @@
 namespace W3TC;
 
 if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
-	require_once W3TC_LIB_DIR . '/Aws/aws-autoloader.php';
+	require_once W3TC_DIR . '/vendor/autoload.php';
 }
 
 /**
@@ -88,26 +88,31 @@ class CdnEngine_S3 extends CdnEngine_Base {
 			return;
 		}
 
-		if ( empty( $this->_config['key'] ) ) {
-			throw new \Exception( 'Empty access key.' );
-		}
-
-		if ( empty( $this->_config['secret'] ) ) {
-			throw new \Exception( 'Empty secret key.' );
-		}
-
 		if ( empty( $this->_config['bucket'] ) ) {
 			throw new \Exception( 'Empty bucket.' );
 		}
 
-		$credentials = new \Aws\Credentials\Credentials(
-			$this->_config['key'],
-			$this->_config['secret'] );
+		if ( empty( $this->_config['key'] ) && empty( $this->_config['secret'] ) ) {
+			$credentials = \Aws\Credentials\CredentialProvider::defaultProvider();
+		} else {
+			if ( empty( $this->_config['key'] ) ) {
+				throw new \Exception( 'Empty access key.' );
+			}
+
+			if ( empty( $this->_config['secret'] ) ) {
+				throw new \Exception( 'Empty secret key.' );
+			}
+
+			$credentials = new \Aws\Credentials\Credentials(
+				$this->_config['key'],
+				$this->_config['secret'] );
+		}
 
 		$this->api = new \Aws\S3\S3Client( array(
 				'credentials' => $credentials,
 				'region' => $this->_config['bucket_location'],
-				'version' => '2006-03-01'
+				'version' => '2006-03-01',
+				'use_arn_region' => true,
 			)
 		);
 	}

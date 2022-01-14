@@ -276,7 +276,7 @@ class Generic_Plugin_Admin {
 
 	// Define icon styles for the custom post type
 	function admin_head() {
-		$page = isset( $_GET['page'] ) ? $_GET['page'] : null;
+		$page = Util_Request::get_string( 'page', null );
 
 		if ( ( ! is_multisite() || is_super_admin() ) && false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
 			$config       = new Config();
@@ -331,7 +331,7 @@ class Generic_Plugin_Admin {
 					'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ) ?>',
 					'dimension10': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ) ?>',
 					'dimension11': '<?php echo esc_attr( Util_Widget::list_widgets() ) ?>',
-					'page': '<?php echo $page ?>'
+					'page': '<?php echo esc_attr( $page ); ?>'
 				});
 
 				w3tc_ga('send', 'pageview');
