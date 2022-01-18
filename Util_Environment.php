@@ -1100,22 +1100,18 @@ class Util_Environment {
 	}
 
 	/**
+	 * Is W3TC Pro.
 	 *
-	 *
-	 * @param Config  $config
+	 * @param Config $config Config.
 	 * @return bool
 	 */
-	static public function is_w3tc_pro( $config = null ) {
-		if ( defined( 'W3TC_PRO' ) && W3TC_PRO )
-			return true;
-		if ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE )
-			return true;
-
+	public static function is_w3tc_pro( $config = null ) {
 		if ( is_object( $config ) ) {
 			$plugin_type = $config->get_string( 'plugin.type' );
 
-			if ( $plugin_type == 'pro' || $plugin_type == 'pro_dev' )
+			if ( 'pro' === $plugin_type || 'pro_dev' === $plugin_type ) {
 				return true;
+			}
 		}
 
 		return false;
