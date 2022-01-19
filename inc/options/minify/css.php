@@ -14,7 +14,7 @@ $is_pro = Util_Environment::is_w3tc_pro( $this->_config );
 Util_Ui::config_item_pro( array(
 		'key' => 'minify.css.embed',
 		'control' => 'checkbox',
-		'checkbox_label' => __( 'Eliminate render-blocking <acronym title="Cascading Style Sheet">CSS</acronym> by moving it to <acronym title="Hypertext Markup Language">HTTP</acronym> body', 'w3-total-cache' ),
+		'checkbox_label' => __( 'Eliminate render-blocking <acronym title="Cascading Style Sheet">CSS</acronym> by moving it to <acronym title="Hypertext Transfer Protocol">HTTP</acronym> body', 'w3-total-cache' ),
 		'disabled' => ( $is_pro ? null : true ),
 		'label_class' => 'w3tc_no_trtd',
 		'excerpt' => __( 'Website visitors cannot navigate your website until a given page is ready - reduce the wait time with this feature.', 'w3-total-cache' ),

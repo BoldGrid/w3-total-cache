@@ -697,6 +697,9 @@ class ObjectCache_WpObjectCache_Regular {
 			$engineConfig = array(
 				'servers' => $this->_config->get_array( 'objectcache.redis.servers' ),
 				'persistent' => $this->_config->get_boolean( 'objectcache.redis.persistent' ),
+				'timeout' => $this->_config->get_integer( 'objectcache.redis.timeout' ),
+				'retry_interval' => $this->_config->get_integer( 'objectcache.redis.retry_interval' ),
+				'read_timeout' => $this->_config->get_integer( 'objectcache.redis.read_timeout' ),
 				'dbid' => $this->_config->get_integer( 'objectcache.redis.dbid' ),
 				'password' => $this->_config->get_string( 'objectcache.redis.password' )
 			);
@@ -744,8 +747,10 @@ class ObjectCache_WpObjectCache_Regular {
 			case 'redis':
 				$engineConfig = array(
 					'servers' => $this->_config->get_array( 'objectcache.redis.servers' ),
-					'persistent' => $this->_config->get_boolean(
-						'objectcache.redis.persistent' ),
+					'persistent' => $this->_config->get_boolean( 'objectcache.redis.persistent' ),
+					'timeout' => $this->_config->get_integer( 'objectcache.redis.timeout' ),
+					'retry_interval' => $this->_config->get_integer( 'objectcache.redis.retry_interval' ),
+					'read_timeout' => $this->_config->get_integer( 'objectcache.redis.read_timeout' ),
 					'dbid' => $this->_config->get_integer( 'objectcache.redis.dbid' ),
 					'password' => $this->_config->get_string( 'objectcache.redis.password' )
 				);

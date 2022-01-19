@@ -59,6 +59,10 @@ def generate_image_descriptors
 		'apache' => {
 			'HTTP_SERVER' => 'apache',
 			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/apache2/wp.sandbox_error.log'
+		},
+		'lightspeed' => {
+			'HTTP_SERVER' => 'lightspeed',
+			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
 		}
 	})
 
@@ -73,10 +77,13 @@ def generate_image_descriptors
 		},
 		'php73' => {
 			'PHP_VERSION' => '7.3',
-			'OS' => 'xenial',
+			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'lightspeed'
+			]
 		},
 		#'php70' => {
 		#	'PHP_VERSION' => '7.0',
@@ -89,10 +96,13 @@ def generate_image_descriptors
 		#
 		'php56' => {
 			'PHP_VERSION' => '5.6',
-			'OS' => 'xenial',
+			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'lightspeed'
+			]
 		}
 		# The updated AWS library has a dependency that requires PHP 5.6 or higher.
 		#'php55' => {
@@ -129,12 +139,18 @@ def generate_image_descriptors
 		{
 			'8080' => {
 				'HTTP_SERVER_PORT' => '8080',
-				'WP_MAYBE_COLON_PORT' => ':8080'   # derived from HTTP_SERVER_PORT
+				'WP_MAYBE_COLON_PORT' => ':8080',   # derived from HTTP_SERVER_PORT
+				'_except_name_contains' => [
+					'lightspeed'
+				]
 			},
 			'https' => {
 				'HTTP_SERVER_PORT' => '443',
 				'HTTP_SERVER_SCHEME' => 'https',
-				'WP_MAYBE_COLON_PORT' => ''
+				'WP_MAYBE_COLON_PORT' => '',
+				'_except_name_contains' => [
+					'lightspeed'
+				]
 			},
 			#'varnish' => {
 			#	'HTTP_SERVER_PORT' => '8080',
@@ -211,14 +227,17 @@ def generate_box_descriptors(image_name)
 		'wp56' => {
 			'WP_VERSION' => '5.6',
 			'_except_name_contains' => [
-				'php55'   # wp5.6 requires php>=5.6
+				'lightspeed'
 			]
 		},
 		'wp57' => {
 			'WP_VERSION' => '5.7',
 			'_except_name_contains' => [
-				'php55'   # wp5.7 requires php>=5.6
+				'lightspeed'
 			]
+		},
+		'wp58' => {
+			'WP_VERSION' => '5.8'
 		}
 	}, image_name)
 
@@ -237,7 +256,7 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/moved-folders/moved-plugins/',
 				'WP_PLUGINS_URI' => '/moved-folders/moved-plugins/',
 				'_except_name_contains' => [
-					'xcache'
+					'xcache', 'lightspeed'
 				]
 			},
 			# add wp in /wp/ uri, subdomains are not supported by wp in that configuration
@@ -251,14 +270,14 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/wp/wp-content/plugins/',
 				'WP_PLUGINS_URI' => '/wp/wp-content/plugins/',
 				'_except_name_contains' => [
-					'xcache'
+					'xcache', 'lightspeed'
 				]
 			},
 			# some people enter home/siteurl captialized
 			'captial' => {
 				'WP_HOST' => 'Wp.SandBox',
 				'_except_name_contains' => [
-					'xcache'
+					'xcache', 'lightspeed'
 				]
 
 			}
@@ -282,6 +301,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
+				'lightspeed'
 			]
 		},
 		'subdir' => {
@@ -298,6 +318,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
+				'lightspeed'
 			]
 		}
 	}, image_name)
@@ -507,20 +528,6 @@ end
 # adds vagrant-provider's specific variables
 def expand_image_specifics(image_descriptors)
 	vagrant_oses = {
-		'trusty' => {
-			'AWS_ZONE' => 'us-west-2',
-			'AWS_AMI' => 'ami-064460a18d75afc81',
-			'OS_VERSION' => 'Ubuntu 14.04 LTS 64Bit',
-			'vagrant_box' => 'ubuntu/trusty64',
-			'vagrant_box_version' => '20190429.0.0'
-		},
-		'xenial' => {
-			'AWS_ZONE' => 'us-west-2',
-			'AWS_AMI' => 'ami-0dd273d94ed0540c0',
-			'OS_VERSION' => 'Ubuntu 16.04 LTS 64Bit',
-			'vagrant_box' => 'ubuntu/xenial64',
-			'vagrant_box_version' => '20210429.0.0'
-		},
 		'focal' => {
 			'AWS_ZONE' => 'us-west-2',
 			'AWS_AMI' => 'ami-03d5c68bab01f3496',
@@ -529,6 +536,22 @@ def expand_image_specifics(image_descriptors)
 			'vagrant_box_version' => '20210510.0.0'
 		},
 
+		# EOL - no PHP modules in Ondrey Sury ppa
+		#'trusty' => {
+		#	'AWS_ZONE' => 'us-west-2',
+		#	'AWS_AMI' => 'ami-064460a18d75afc81',
+		#	'OS_VERSION' => 'Ubuntu 14.04 LTS 64Bit',
+		#	'vagrant_box' => 'ubuntu/trusty64',
+		#	'vagrant_box_version' => '20190429.0.0'
+		#},
+		# EOL - no PHP modules in Ondrey Sury ppa
+		#'xenial' => {
+		#	'AWS_ZONE' => 'us-west-2',
+		#	'AWS_AMI' => 'ami-0dd273d94ed0540c0',
+		#	'OS_VERSION' => 'Ubuntu 16.04 LTS 64Bit',
+		#	'vagrant_box' => 'ubuntu/xenial64',
+		#	'vagrant_box_version' => '20210429.0.0'
+		#},
 		# puppeteer not available for this version
 		#'precise' => {
 		#	'AWS_ZONE' => 'us-west-2',

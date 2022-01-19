@@ -31,7 +31,7 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 
 <form id="w3tc_dashboard" action="admin.php?page=<?php echo $this->_page; ?>" method="post">
     <p>
-        Perform a
+        <?php _e( 'Perform a', 'w3-total-cache' ); ?>
         <input type="button" class="button button-self-test {nonce: '<?php echo wp_create_nonce( 'w3tc' ); ?>'}" value="<?php _e( 'compatibility check', 'w3-total-cache' ) ?>" />,
         <?php echo Util_Ui::nonce_field( 'w3tc' ); ?>
         <input id="flush_all" class="button" type="submit" name="w3tc_flush_all" value="<?php _e( 'empty all caches', 'w3-total-cache' ) ?>"<?php if ( ! $enabled ): ?> disabled="disabled"<?php endif; ?> /> <?php _e( 'at once or', 'w3-total-cache' ) ?>
@@ -55,7 +55,7 @@ echo implode( " $string ", apply_filters( 'w3tc_dashboard_actions', array() ) ) 
             <div class="content">
             <div id="dashboard-text" style="display:inline-block;">
                 <h1><?php _e( 'Dashboard', 'w3-total-cache' )?></h1>
-                <p>Thanks for choosing W3TC as your Web Performance Optimization (<acronym title="Web Performance Optimization">WPO</acronym>) framework!
+                <p><?php _e( 'Thanks for choosing W3TC as your Web Performance Optimization (<acronym title="Web Performance Optimization">WPO</acronym>) framework!', 'w3-total-cache' ); ?></p>
             </div>
             <div id="widgets-container">
             <?php do_meta_boxes( $screen->id, 'normal', '' ); ?>

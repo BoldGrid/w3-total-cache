@@ -26,6 +26,17 @@ class FeatureShowcase_Plugin_Admin {
 	private $_page = 'w3tc_feature_showcase'; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
+	 * Location of any wp_redirect.
+	 *
+	 * @since 2.2.0
+	 * @access private
+	 * @static
+	 *
+	 * @var string
+	 */
+	private static $wp_redirect_location;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 2.1.0
@@ -35,17 +46,22 @@ class FeatureShowcase_Plugin_Admin {
 	 * @see self::set_config()
 	 */
 	public function __construct() {
-		$page = Util_Request::get_string( 'page' );
+		add_action(
+			'admin_enqueue_scripts',
+			array(
+				$this,
+				'enqueue_styles',
+			)
+		);
 
-		if ( 'w3tc_feature_showcase' === $page ) {
-			add_action(
-				'admin_enqueue_scripts',
-				array(
-					$this,
-					'enqueue_styles',
-				)
-			);
-		}
+		// Check if being redirected.
+		add_filter(
+			'wp_redirect',
+			function( $location ) {
+				FeatureShowcase_Plugin_Admin::$wp_redirect_location = $location;
+				return $location;
+			}
+		);
 	}
 
 	/**
@@ -72,8 +88,10 @@ class FeatureShowcase_Plugin_Admin {
 
 		require W3TC_DIR . '/FeatureShowcase_Plugin_Admin_View.php';
 
-		// Mark unseen new features as seen.
-		$this->mark_seen();
+		// Mark unseen new features as seen, if not redirecting to the Setup Guide wizard.
+		if ( ! self::$wp_redirect_location ) {
+			$this->mark_seen();
+		}
 	}
 
 	/**
@@ -82,12 +100,23 @@ class FeatureShowcase_Plugin_Admin {
 	 * @since 2.1.0
 	 */
 	public function enqueue_styles() {
+		$page = Util_Request::get_string( 'page' );
+
 		wp_enqueue_style(
-			'w3tc_feature_showcase',
-			esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/feature-showcase.css' ),
+			'w3tc_feature_counter',
+			esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/feature-counter.css' ),
 			array(),
 			W3TC_VERSION
 		);
+
+		if ( 'w3tc_feature_showcase' === $page ) {
+			wp_enqueue_style(
+				'w3tc_feature_showcase',
+				esc_url( plugin_dir_url( __FILE__ ) . 'pub/css/feature-showcase.css' ),
+				array(),
+				W3TC_VERSION
+			);
+		}
 	}
 
 	/**
@@ -168,10 +197,52 @@ class FeatureShowcase_Plugin_Admin {
 	 * @access private
 	 * @static
 	 *
+	 * @global $wp_version WordPress core version.
+	 *
 	 * @return array
 	 */
 	private static function get_cards() {
+		$c                        = Dispatcher::config();
+		$extensions               = $c->get_array( 'extensions.active' );
+		$is_imageservice_active   = isset( $extensions['imageservice'] );
+		$imageservice_button_text = $is_imageservice_active ? __( 'Settings', 'w3-total-cache' ) : __( 'Activate', 'w3-total-cache' );
+		$imageservice_button_link = $is_imageservice_active ?
+			'upload.php?page=w3tc_extension_page_imageservice' : 'admin.php?page=w3tc_extensions&action=activate&extension=imageservice';
+
+		global $wp_version;
+
+		$imageservice_description = __(
+			'Adds the ability to convert images into the modern WebP format for better performance using our remote API service.',
+			'w3-total-cache'
+		);
+
+		if ( version_compare( $wp_version, '5.8', '<' ) ) {
+			$imageservice_description .= sprintf(
+				// translators: 1: HTML p open tag, 2: WordPress version string, 3: HTML anchor open tag, 4: HTML anchor close tag, 5: HTML p close tag.
+				__(
+					'%1$sThis feature works best in WordPress version 5.8 and higher.  You are running WordPress version %2$s.  Please %3$supdate now%4$s to benefit from this feature.%5$s',
+					'w3-total-cache'
+				),
+				'<p>',
+				$wp_version,
+				'<a href="' . esc_url( admin_url( 'update-core.php' ) ) . '">',
+				'</a>',
+				'</p>'
+			);
+		}
+
 		return array(
+			'imageservice'        => array(
+				'title'      => esc_html__( 'Image Service', 'w3-total-cache' ),
+				'icon'       => 'dashicons-embed-photo',
+				'text'       => esc_html( $imageservice_description ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( Util_Ui::admin_url( $imageservice_button_link ) ) . '\'">' . esc_html( $imageservice_button_text ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=imageservice' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+				'is_premium' => false,
+				'is_new'     => true,
+			),
 			'setup_guide'         => array(
 				'title'      => esc_html__( 'Setup Guide Wizard', 'w3-total-cache' ),
 				'icon'       => 'dashicons-superhero',
@@ -194,7 +265,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/lazy-load-google-maps/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_lazyload_googlemaps' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => true,
-				'is_new'     => true,
+				'is_new'     => false,
 			),
 			'cdn_fsd'             => array(
 				'title'      => esc_html__( 'Full Site Delivery via CDN', 'w3-total-cache' ),

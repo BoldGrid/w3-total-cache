@@ -22,7 +22,7 @@ class Util_File {
 
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
-			if ( !@is_dir( $curr_path ) ) {
+			if ( !@file_exists( $curr_path ) ) {
 				if ( !@mkdir( $curr_path, $mask ) ) {
 					return false;
 				}
@@ -61,7 +61,7 @@ class Util_File {
 
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
-			if ( !@is_dir( $curr_path ) ) {
+			if ( !@file_exists( $curr_path ) ) {
 				if ( !@mkdir( $curr_path, $mask ) )
 					return false;
 			}
@@ -103,7 +103,7 @@ class Util_File {
 
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
-			if ( !@is_dir( $curr_path ) ) {
+			if ( !@file_exists( $curr_path ) ) {
 				if ( !@mkdir( $curr_path, $mask ) )
 					return false;
 			}
@@ -335,7 +335,7 @@ class Util_File {
 			if ( !is_dir( W3TC_CACHE_TMP_DIR ) || !is_writable( W3TC_CACHE_TMP_DIR ) ) {
 				$e = error_get_last();
 				$description = ( isset( $e['message'] ) ? $e['message'] : '' );
-				
+
 				throw new \Exception( 'Can\'t create folder <strong>' .
 					W3TC_CACHE_TMP_DIR . '</strong>: ' . $description );
 			}

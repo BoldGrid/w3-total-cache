@@ -14,7 +14,8 @@ jQuery(function() {
 			'<span class="feature-count">' + count + '</span></span>';
 	}
 
-	var $adminmenuItem = jQuery ( '#wp-admin-bar-w3tc_feature_showcase a' ),
+	var $adminmenuTopItem = jQuery( '#wp-admin-bar-w3tc > a' ),
+		$adminmenuItem = jQuery ( '#wp-admin-bar-w3tc_feature_showcase a' ),
 		$menuItem = jQuery( '#toplevel_page_w3tc_dashboard.wp-not-current-submenu a[href="admin.php?page=w3tc_dashboard"] .wp-menu-name' ),
 		$submenuItem = jQuery( '#toplevel_page_w3tc_dashboard a[href="admin.php?page=w3tc_feature_showcase"]' );
 
@@ -24,6 +25,7 @@ jQuery(function() {
 		menuCount += W3TCFeatureShowcaseData.unseenCount;
 
 		if ( $adminmenuItem.length ) {
+			$adminmenuTopItem.append( markup( W3TCFeatureShowcaseData.unseenCount ) );
 			$adminmenuItem.append( markup( W3TCFeatureShowcaseData.unseenCount ) );
 
 			$adminmenuItem.find( '.awaiting-mod' ).css(
@@ -49,7 +51,6 @@ jQuery(function() {
 		$submenuUpdate.append( markup( 1 ) );
 		menuCount++;
 	}
-
 
 	if ( menuCount > 0 && $menuItem.length ) {
 		$menuItem.append( markup( menuCount ) );

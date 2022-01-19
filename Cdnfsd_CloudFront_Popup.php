@@ -406,8 +406,12 @@ class Cdnfsd_CloudFront_Popup {
 
 
 	private function _api( $access_key, $secret_key ) {
-		$credentials = new \Aws\Credentials\Credentials(
-			$access_key, $secret_key );
+		if ( empty( $access_key ) && empty( $secret_key ) ) {
+			$credentials = \Aws\Credentials\CredentialProvider::defaultProvider();
+		} else {
+			$credentials = new \Aws\Credentials\Credentials(
+				$access_key, $secret_key );
+		}
 
 		return new \Aws\CloudFront\CloudFrontClient( array(
 				'credentials' => $credentials,

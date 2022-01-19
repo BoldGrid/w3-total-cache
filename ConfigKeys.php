@@ -109,6 +109,18 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 0
 	),
+	'dbcache.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'dbcache.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'dbcache.redis.read_timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
 	'dbcache.use_filters' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -169,6 +181,10 @@ $keys = array(
 	'lazyload.enabled' => array(
 		'type' => 'boolean',
 		'default' => false
+	),
+	'lazyload.threshold' => array(
+		'type' => 'string',
+		'default' => ''
 	),
 	'lazyload.process_img' => array(
 		'type' => 'boolean',
@@ -302,6 +318,18 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 0
 	),
+	'objectcache.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'objectcache.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'objectcache.redis.read_timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
 	'objectcache.groups.global' => array(
 		'type' => 'array',
 		'default' => array(
@@ -415,6 +443,18 @@ $keys = array(
 		'default' => ''
 	),
 	'pgcache.redis.dbid' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'pgcache.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'pgcache.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'pgcache.redis.read_timeout' => array(
 		'type' => 'integer',
 		'default' => 0
 	),
@@ -785,6 +825,18 @@ $keys = array(
 		'default' => ''
 	),
 	'minify.redis.dbid' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'minify.redis.timeout' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'minify.redis.retry_interval' => array(
+		'type' => 'integer',
+		'default' => 0
+	),
+	'minify.redis.read_timeout' => array(
 		'type' => 'integer',
 		'default' => 0
 	),
@@ -2417,12 +2469,12 @@ $keys = array(
 	'extensions.active' => array(
 		'type' => 'array',
 		'default' => array(
-			'fragmentcache' => 'w3-total-cache/Extension_FragmentCache_Plugin.php'
-		)
+			'fragmentcache' => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
+		),
 	),
 	'extensions.active_frontend' => array(
 		'type' => 'array',
-		'default' => array()
+		'default' => array(),
 	),
 	'extensions.active_dropin' => array(
 		'type' => 'array',
@@ -2441,6 +2493,14 @@ $keys = array(
 	'jquerymigrate.disabled' => array(
 		'type' => 'boolean',
 		'default' => false,
+	),
+	'imageservice' => array(
+		'type' => 'array',
+		'default' => array(
+			'compression' => 'lossy',
+			'auto'        => 'enabled',
+			'visibility'  => 'never',
+		),
 	),
 
 	// extensions keys:

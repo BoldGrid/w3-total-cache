@@ -12,6 +12,9 @@ class Cache_Redis extends Cache_Base {
 	private $_password;
 	private $_servers;
 	private $_dbid;
+	private $_timeout;
+	private $_retry_interval;
+	private $_read_timeout;
 
 	/**
 	 * constructor
@@ -25,6 +28,9 @@ class Cache_Redis extends Cache_Base {
 		$this->_servers = (array)$config['servers'];
 		$this->_password = $config['password'];
 		$this->_dbid = $config['dbid'];
+		$this->_timeout = $config['timeout'];
+		$this->_retry_interval = $config['retry_interval'];
+		$this->_read_timeout = $config['read_timeout'];
 
 		// when disabled - no extra requests are made to obtain key version,
 		// but flush operations not supported as a result
@@ -269,6 +275,8 @@ class Cache_Redis extends Cache_Base {
 		$accessor->watch( $storage_key );
 
 		$value = $accessor->get( $storage_key );
+		$value = @unserialize( $value );
+
 		if ( !is_array( $value ) ) {
 			$accessor->unwatch();
 			return false;
@@ -347,21 +355,23 @@ class Cache_Redis extends Cache_Base {
 				$server = $this->_servers[$index];
 				$accessor = new \Redis();
 
-				if ( substr( $server, 0, 5 ) == 'unix:' ) {
+				if ( substr( $server, 0, 5 ) == 'unix:' ) { 
 					if ( $this->_persistent ) {
-						$accessor->pconnect( trim( substr( $server, 5 ) ),
-							null, null, $this->_instance_id . '_' . $this->_dbid );
+						$accessor->pconnect( trim( substr( $server, 5 ) ), null, $this->_timeout,
+						    $this->_instance_id . '_' . $this->_dbid, $this->_retry_interval, $this->_read_timeout );
 					} else {
-						$accessor->connect( trim( substr( $server, 5 ) ) );
+						$accessor->connect( trim( substr( $server, 5, $this->_timeout, null,
+						    $this->_retry_interval, $this->_read_timeout ) ) );
 					}
 				} else {
 					list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
 
 					if ( $this->_persistent ) {
-						$accessor->pconnect( $ip, $port,
-							null, $this->_instance_id . '_' . $this->_dbid );
+						$accessor->pconnect( $ip, $port, $this->_timeout,
+						    $this->_instance_id . '_' . $this->_dbid, $this->_retry_interval, $this->_read_timeout );
 					} else {
-						$accessor->connect( $ip, $port );
+						$accessor->connect( $ip, $port, $this->_timeout, null,
+						    $this->_retry_interval, $this->_read_timeout );
 					}
 				}
 

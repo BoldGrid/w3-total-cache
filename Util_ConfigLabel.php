@@ -13,6 +13,9 @@ class Util_ConfigLabel {
 				'memcached.binary_protocol' => __( 'Binary protocol', 'w3-total-cache' ),
 				'redis.servers' => __( 'Redis hostname:port / <acronym title="Internet Protocol">IP</acronym>:port:', 'w3-total-cache' ),
 				'redis.persistent' => __( 'Persistent connection', 'w3-total-cache' ),
+				'redis.timeout' =>  __( 'Connection timeout', 'w3-total-cache' ),
+				'redis.retry_interval' =>  __( 'Connection retry interval', 'w3-total-cache' ),
+				'redis.read_timeout' =>  __( 'Connection read timeout', 'w3-total-cache' ),
 				'redis.dbid' => __( 'Redis Database ID:', 'w3-total-cache' ),
 				'redis.password' => __( 'Redis password:', 'w3-total-cache' ),
 			);

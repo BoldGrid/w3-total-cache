@@ -176,6 +176,9 @@ class Minify_Core {
 			$engineConfig = array(
 				'servers' => $c->get_array( 'minify.redis.servers' ),
 				'persistent' => $c->get_boolean( 'minify.redis.persistent' ),
+				'timeout' => $c->get_integer( 'minify.redis.timeout' ),
+				'retry_interval' => $c->get_integer( 'minify.redis.retry_interval' ),
+				'read_timeout' => $c->get_integer( 'minify.redis.read_timeout' ),
 				'dbid' => $c->get_integer( 'minify.redis.dbid' ),
 				'password' => $c->get_string( 'minify.redis.password' )
 			);
