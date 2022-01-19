@@ -415,6 +415,46 @@ Util_Ui::button_config_save( 'general_varnish',
 foreach ( $custom_areas as $area )
 	do_action( "w3tc_settings_general_boxarea_{$area['id']}" );
 ?>
+
+
+
+
+		<?php Util_Ui::postbox_header( __( 'Google Page Speed', 'w3-total-cache' ), '', 'google_page_speed' ); ?>
+		<table class="form-table">
+			<tr>
+				<th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key' ) ?></label></th>
+				<td>
+					<input id="widget_pagespeed_key" type="text" name="widget__pagespeed__key" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key' ) ); ?>" <?php Util_Ui::sealing_disabled( 'common.' ) ?> size="60" />
+					<p class="description"><?php _e( 'Learn more about obtaining a <a href="https://support.google.com/cloud/answer/6158862" target="_blank"><acronym title="Application Programming Interface">API</acronym> key here</a>.', 'w3-total-cache' ); ?></p>
+				</td>
+			</tr>
+			 <tr>
+				 <th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key.restrict.referrer', 'general' ) ?></label></th>
+				 <td>
+					 <input id="widget_pagespeed_key_restrict_referrer" type="text" name="widget__pagespeed__key__restrict__referrer" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key.restrict.referrer' ) ); ?>" size="60" />
+					 <p class="description">Although not required, to prevent unauthorized use and quota theft, you have the option to restrict your key using a designated HTTP referrer. If you decide to use it, you will need to set this referrer within the API Console's "Http Referrers (web sites)" key restriction area (under Credentials).</p>
+				 </td>
+			</tr>
+			<?php
+			Util_Ui::config_item( array(
+					'key' => 'widget.pagespeed.enabled',
+					'control' => 'checkbox',
+					'checkbox_label' => __( 'Enable Google Page Speed dashboard widget', 'w3-total-cache' ),
+					'description' => __( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
+					'label_class' => 'w3tc_single_column'
+				) );
+			Util_Ui::config_item( array(
+					'key' => 'widget.pagespeed.show_in_admin_bar',
+					'control' => 'checkbox',
+					'checkbox_label' => __( 'Show page rating in admin bar', 'w3-total-cache' ),
+					'label_class' => 'w3tc_single_column'
+				) );
+			?>
+		</table>
+
+		<?php Util_Ui::button_config_save( 'general_google_page_speed' ); ?>
+		<?php Util_Ui::postbox_footer(); ?>
+
 		<?php if ( $licensing_visible ): ?>
 			<?php Util_Ui::postbox_header( __( 'Licensing', 'w3-total-cache' ), '', 'licensing' ); ?>
 			<table class="form-table">
@@ -437,38 +477,6 @@ foreach ( $custom_areas as $area )
 
 		<?php Util_Ui::postbox_header( __( 'Miscellaneous', 'w3-total-cache' ), '', 'miscellaneous' ); ?>
 		<table class="form-table">
-			<?php
-Util_Ui::config_item( array(
-		'key' => 'widget.pagespeed.enabled',
-		'control' => 'checkbox',
-		'checkbox_label' => __( 'Enable Google Page Speed dashboard widget', 'w3-total-cache' ),
-		'description' => __( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
-		'label_class' => 'w3tc_single_column'
-	) );
-?>
-			<tr>
-				<th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key' ) ?></label></th>
-				<td>
-					<input id="widget_pagespeed_key" type="text" name="widget__pagespeed__key" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key' ) ); ?>" <?php Util_Ui::sealing_disabled( 'common.' ) ?> size="60" />
-					<p class="description"><?php _e( 'Learn more about obtaining a <a href="https://support.google.com/cloud/answer/6158862" target="_blank"><acronym title="Application Programming Interface">API</acronym> key here</a>.', 'w3-total-cache' ); ?></p>
-				</td>
-			</tr>
-			 <tr>
-				 <th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key.restrict.referrer', 'general' ) ?></label></th>
-				 <td>
-					 <input id="widget_pagespeed_key_restrict_referrer" type="text" name="widget__pagespeed__key__restrict__referrer" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key.restrict.referrer' ) ); ?>" size="60" />
-					 <p class="description">Although not required, to prevent unauthorized use and quota theft, you have the option to restrict your key using a designated HTTP referrer. If you decide to use it, you will need to set this referrer within the API Console's "Http Referrers (web sites)" key restriction area (under Credentials).</p>
-				 </td>
-			</tr>
-			<?php
-Util_Ui::config_item( array(
-		'key' => 'widget.pagespeed.show_in_admin_bar',
-		'control' => 'checkbox',
-		'checkbox_label' => __( 'Show page rating in admin bar', 'w3-total-cache' ),
-		'label_class' => 'w3tc_single_column'
-	) );
-?>
-
 			<?php if ( is_network_admin() ): ?>
 			<tr>
 				<th colspan="2">

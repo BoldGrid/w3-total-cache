@@ -33,6 +33,9 @@ class PageSpeed_Plugin_Widget {
 		add_action( 'w3tc_network_dashboard_setup',
 			array( $this, 'wp_dashboard_setup' ), 3000 );
 
+		wp_enqueue_style( 'w3tc-pagespeed-google-material-icons',
+            'https://fonts.googleapis.com/icon?family=Material+Icons',
+            array(), W3TC_VERSION );
 		wp_enqueue_script( 'w3tc-widget-pagespeed',
 			plugins_url( 'PageSpeed_Widget_View.js', W3TC_FILE ),
 			array(), W3TC_VERSION );
