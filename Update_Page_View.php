@@ -16,6 +16,7 @@ $installed_plugins    = get_plugins();
 $download_url         = 'https://repo.boldgrid.com/w3-total-cache-pro.zip';
 
 ?>
+<div id="w3tc-update-page">
 <p>
 <?php
 
@@ -41,6 +42,10 @@ if ( empty( $installed_plugins[ $w3tc_pro_plugin_file ] ) ) {
 		'<a href="' . esc_url( admin_url( 'plugin-install.php' ) ) . '">',
 		'<a href="' . esc_url( admin_url( 'plugins.php?s=w3-total-cache-pro' ) ) . '">'
 	);
+
+	require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+	do_action( 'install_plugins_upload' );
 } else {
 	printf(
 		// translators: 1: HTML anchor open tag for activation link, 2: HTML anchor close tag.
@@ -60,4 +65,5 @@ if ( empty( $installed_plugins[ $w3tc_pro_plugin_file ] ) ) {
 
 ?>
 </p>
+</div>
 <?php

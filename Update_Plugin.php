@@ -57,6 +57,7 @@ class Update_Plugin {
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
 		add_action( 'w3tc_settings_page-w3tc_update', array( $this, 'w3tc_settings_page_w3tc_update' ) );
 		add_action( 'after_plugin_row_' . self::$key, array( $this, 'after_plugin_row' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 	}
 
 	/**
@@ -121,11 +122,27 @@ class Update_Plugin {
 	}
 
 	/**
+	 * Enqueue styles.
+	 *
+	 * @since X.X.X
+	 */
+	public function enqueue_styles() {
+		wp_register_style(
+			'w3tc_update_view',
+			esc_url( plugin_dir_url( __FILE__ ) . 'Update_Plugin_View.css' ),
+			array(),
+			W3TC_VERSION
+		);
+	}
+
+	/**
 	 * Update information page.
 	 *
 	 * @since X.X.X
 	 */
 	public function w3tc_settings_page_w3tc_update() {
+		wp_enqueue_style( 'w3tc_update_view' );
+
 		require_once __DIR__ . '/Update_Page_View.php';
 	}
 }
