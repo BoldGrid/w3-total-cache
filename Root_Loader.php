@@ -18,8 +18,12 @@ class Root_Loader {
 	function __construct() {
 		$c = Dispatcher::config();
 
-		$plugins = array();
+		$plugins   = array();
 		$plugins[] = new Generic_Plugin();
+
+		if ( Util_Environment::is_w3tc_pro( $c ) ) {
+			$plugins[] = new Update_Plugin();
+		}
 
 		if ( $c->get_boolean( 'dbcache.enabled' ) )
 			$plugins[] = new DbCache_Plugin();
