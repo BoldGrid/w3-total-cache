@@ -114,6 +114,11 @@
     background-color: hsla(210, 17%, 77%, 0.1);
 }
 
+.w3tcps_instruction {
+    border-bottom: 1px solid #000;
+    padding: 15px;
+}
+
 .w3tcps_loading {
     border: 7px solid #c3c3c3;
     border-top: 7px solid #3498db;

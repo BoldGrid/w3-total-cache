@@ -157,9 +157,9 @@ function w3tcps_breakdown( $data ) {
         }    
 
         if( $opportunity['score'] >= 90 ) {
-            $passed_audits .= '<div class="audits w3tcps_passed_audit' . $audit_classes . '"><span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '</span><div class="w3tcps_breakdown_items w3tcps_pass_audit_items"><p>' . $opportunity['description'] . '</p><table class="w3tcps_item_table"><tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '</table></div></div>';
+            $passed_audits .= '<div class="audits w3tcps_passed_audit' . $audit_classes . '"><span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '</span><div class="w3tcps_breakdown_items w3tcps_pass_audit_items"><p>' . $opportunity['description'] . '</p><table class="w3tcps_item_table"><tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '</table><div class="w3tcps_instruction">' . $opportunity['instruction'] . '</div></div></div>';
         } else {
-            $opportunities .= '<div class="audits w3tcps_opportunities' . $audit_classes . '"><span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '</span><div class="w3tcps_breakdown_items w3tcps_opportunity_items"><p>' . $opportunity['description'] . '</p><table class="w3tcps_item_table"><tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '</table></div></div>';
+            $opportunities .= '<div class="audits w3tcps_opportunities' . $audit_classes . '"><span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '</span><div class="w3tcps_breakdown_items w3tcps_opportunity_items"><p>' . $opportunity['description'] . '</p><table class="w3tcps_item_table"><tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '</table><div class="w3tcps_instruction">' . $opportunity['instruction'] . '</div></div></div>';
         }
     }
     
@@ -255,9 +255,9 @@ function w3tcps_breakdown( $data ) {
         } 
         
         if( $diagnostic['score'] >= 90 ) {
-            $passed_audits .= '<div class="audits w3tcps_passed_audit' . $audit_classes . '"><span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '</span><div class="w3tcps_breakdown_items w3tcps_pass_audit_items"><p>' . $diagnostic['description'] . '</p><table class="w3tcps_item_table"><tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '</table></div></div>';
+            $passed_audits .= '<div class="audits w3tcps_passed_audit' . $audit_classes . '"><span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '</span><div class="w3tcps_breakdown_items w3tcps_pass_audit_items"><p>' . $diagnostic['description'] . '</p><table class="w3tcps_item_table"><tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '</table><div class="w3tcps_instruction">' . $diagnostic['instruction'] . '</div></div></div>';
         } else {
-            $diagnostics .= '<div class="audits w3tcps_diagnostics' . $audit_classes . '"><span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '</span><div class="w3tcps_breakdown_items w3tcps_diagnostic_items"><p>' . $diagnostic['description'] . '</p><table class="w3tcps_item_table"><tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '</table></div></div>';
+            $diagnostics .= '<div class="audits w3tcps_diagnostics' . $audit_classes . '"><span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '</span><div class="w3tcps_breakdown_items w3tcps_diagnostic_items"><p>' . $diagnostic['description'] . '</p><table class="w3tcps_item_table"><tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '</table><div class="w3tcps_instruction">' . $diagnostic['instruction'] . '</div></div></div>';
         }
     }
 

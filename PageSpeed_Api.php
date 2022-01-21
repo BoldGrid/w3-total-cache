@@ -102,6 +102,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'unused-css-rules' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'unused-css-rules', 'title',  ) ),
@@ -113,6 +114,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'unminified-css' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'unminified-css', 'title',  ) ),
@@ -124,6 +126,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'unminified-javascript' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'unminified-javascript', 'title',  ) ),
@@ -135,6 +138,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'unused-javascript' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'unused-javascript', 'title',  ) ),
@@ -145,6 +149,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'uses-responsive-images' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-responsive-images', 'title',  ) ),
@@ -152,6 +157,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-responsive-images', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-responsive-images', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-responsive-images', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'offscreen-images' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'offscreen-images', 'title',  ) ),
@@ -159,6 +165,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'offscreen-images', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'offscreen-images', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'offscreen-images', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'uses-optimized-images' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-optimized-images', 'title',  ) ),
@@ -166,6 +173,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-optimized-images', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-optimized-images', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-optimized-images', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'modern-image-formats' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'modern-image-formats', 'title',  ) ),
@@ -173,6 +181,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'modern-image-formats', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'modern-image-formats', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'modern-image-formats', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'uses-text-compression' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-text-compression', 'title',  ) ),
@@ -184,6 +193,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'uses-rel-preconnect' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-rel-preconnect', 'title',  ) ),
@@ -195,6 +205,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'server-response-time' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'server-response-time', 'title',  ) ),
@@ -206,6 +217,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'redirects' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'redirects', 'title',  ) ),
@@ -217,6 +229,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'uses-rel-preload' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-rel-preload', 'title',  ) ),
@@ -228,6 +241,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'efficient-animated-content' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'efficient-animated-content', 'title',  ) ),
@@ -238,6 +252,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'duplicated-javascript' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'duplicated-javascript', 'title',  ) ),
@@ -248,6 +263,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'TBT',
 					),
+					'instruction' => 'To be determined',
 				),
 				'legacy-javascript' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'legacy-javascript', 'title',  ) ),
@@ -258,6 +274,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'TBT',
 					),
+					'instruction' => 'To be determined',
 				),
 				'preload-lcp-image' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'preload-lcp-image', 'title',  ) ),
@@ -268,6 +285,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'total-byte-weight' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'total-byte-weight', 'title',  ) ),
@@ -278,6 +296,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'dom-size' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'dom-size', 'title',  ) ),
@@ -288,6 +307,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'TBT',
 					),
+					'instruction' => 'To be determined',
 				),
 				'user-timings' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'user-timings', 'title',  ) ),
@@ -295,6 +315,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'user-timings', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'user-timings', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'user-timings', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'bootup-time' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'bootup-time', 'title',  ) ),
@@ -305,6 +326,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'TBT',
 					),
+					'instruction' => 'To be determined',
 				),
 				'mainthread-work-breakdown' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'mainthread-work-breakdown', 'title',  ) ),
@@ -315,6 +337,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'TBT',
 					),
+					'instruction' => 'To be determined',
 				),
 				'third-party-summary' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'third-party-summary', 'title',  ) ),
@@ -325,6 +348,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'TBT',
 					),
+					'instruction' => 'To be determined',
 				),
 				'third-party-facades' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'third-party-facades', 'title',  ) ),
@@ -335,6 +359,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'TBT',
 					),
+					'instruction' => 'To be determined',
 				),
 				'lcp-lazy-loaded' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'lcp-lazy-loaded', 'title',  ) ),
@@ -342,6 +367,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'lcp-lazy-loaded', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'lcp-lazy-loaded', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'lcp-lazy-loaded', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'uses-passive-event-listeners' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-passive-event-listeners', 'title',  ) ),
@@ -349,6 +375,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-passive-event-listeners', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-passive-event-listeners', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-passive-event-listeners', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'no-document-write' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'no-document-write', 'title',  ) ),
@@ -356,6 +383,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'no-document-write', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'no-document-write', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'no-document-write', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'non-composited-animations' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'non-composited-animations', 'title',  ) ),
@@ -366,6 +394,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'CLS',
 					),
+					'instruction' => 'To be determined',
 				),
 				'unsized-images' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'unsized-images', 'title',  ) ),
@@ -376,6 +405,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'CLS',
 					),
+					'instruction' => 'To be determined',
 				),
 				'viewport' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'viewport', 'title',  ) ),
@@ -386,6 +416,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'TBT',
 					),
+					'instruction' => 'To be determined',
 				),
 			),
 			'diagnostics' => array(
@@ -399,6 +430,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'first-contentful-paint-3g' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'first-contentful-paint-3g', 'title',  ) ),
@@ -406,6 +438,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'first-contentful-paint-3g', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'first-contentful-paint-3g', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'first-contentful-paint-3g', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'uses-long-cache-ttl' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-long-cache-ttl', 'title',  ) ),
@@ -413,6 +446,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-long-cache-ttl', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-long-cache-ttl', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'uses-long-cache-ttl', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'critical-request-chains' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'critical-request-chains', 'title',  ) ),
@@ -424,6 +458,7 @@ class PageSpeed_Api {
 						'FCP',
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'resource-summary' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'resource-summary', 'title',  ) ),
@@ -431,6 +466,7 @@ class PageSpeed_Api {
 					'score' => $this->v( $data, array( 'lighthouseResult', 'audits', 'resource-summary', 'score',  ) ),
 					'displayValue' => $this->v( $data, array( 'lighthouseResult', 'audits', 'resource-summary', 'displayValue',  ) ),
 					'details' => $this->v( $data, array( 'lighthouseResult', 'audits', 'resource-summary', 'details', 'items', ) ),
+					'instruction' => 'To be determined',
 				),
 				'largest-contentful-paint-element' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'largest-contentful-paint-element', 'title',  ) ),
@@ -441,6 +477,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'LCP',
 					),
+					'instruction' => 'To be determined',
 				),
 				'layout-shift-elements' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'layout-shift-elements', 'title',  ) ),
@@ -451,6 +488,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'CLS',
 					),
+					'instruction' => 'To be determined',
 				),
 				'long-tasks' => array(
 					'title' => $this->v( $data, array( 'lighthouseResult', 'audits', 'long-tasks', 'title',  ) ),
@@ -461,6 +499,7 @@ class PageSpeed_Api {
 					'type' => array(
 						'TBT',
 					),
+					'instruction' => 'To be determined',
 				),
 			)
 		);
