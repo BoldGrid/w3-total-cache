@@ -88,6 +88,21 @@ case "${W3D_PHP_VERSION}" in
 	        apt-get install -y php7.3-redis
 	    fi
         ;;
+	"7.4") echo "Installing PHP 7.4"
+		add-apt-repository -y ppa:ondrej/php
+		apt-get update
+        apt-get install -y php7.4-common php7.4-cli php7.4-mysql php7.4-curl php7.4-xml
+
+		if [ "$W3D_APC" = "apcu" ]; then
+	        apt-get install -y php7.4-apcu
+	    fi
+	    if [ "$W3D_MEMCACHE" = "memcached" ]; then
+	        apt-get install -y php7.4-memcached
+	    fi
+	    if [ "$W3D_REDIS" = "redis" ]; then
+	        apt-get install -y php7.4-redis
+	    fi
+        ;;
 	"8.0") echo "Installing PHP 8.0"
 		add-apt-repository -y ppa:ondrej/php
 		apt-get update
