@@ -240,7 +240,7 @@ def generate_box_descriptors(image_name)
 			'WP_VERSION' => '5.8'
 		},
 		'wp59' => {
-			'WP_VERSION' => '5.9-RC4'
+			'WP_VERSION' => '5.9'
 		}
 	}, image_name)
 

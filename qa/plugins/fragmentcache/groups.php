@@ -96,7 +96,10 @@ function check_fragment_groups() {
 					'blog_id' => \W3TC\Util_Environment::blog_id(),
 					'module' => 'fragmentcache',
 					'host' => \W3TC\Util_Environment::host(),
-					'instance_id' => \W3TC\Util_Environment::instance_id()
+					'instance_id' => \W3TC\Util_Environment::instance_id(),
+					'timeout' => 0,
+					'retry_interval' => 0,
+					'read_timeout' => 0,
 				));
 			break;
 
