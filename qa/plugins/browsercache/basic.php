@@ -1,12 +1,19 @@
 <?php
 /**
- * Template Name: browsercache basic
- * Description: A Page Template for testing browser cache
+ * File: basic.php
+ *
+ * Browser cache: Basic: A Page Template for testing browser cache.
  *
  * @package W3TC
- * @subpackage W3TC QA
+ * @subpackage QA
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
 
-get_header();?>
-	<img id="image" src="<?php echo get_template_directory_uri();?>/qa/image.jpg" />
-<?php get_footer();
+@get_header();
+?>
+
+	<img id="image" src="<?php echo esc_url( get_template_directory_uri() ); ?>/qa/image.jpg" />
+
+<?php
+@get_footer();

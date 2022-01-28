@@ -1,11 +1,20 @@
 <?php
+/**
+ * File: disk-enhanced-garbage-collection.php
+ *
+ * Page cache: Disk enhanced garbage collection test.
+ *
+ * @package W3TC
+ * @subpackage QA
+ */
 
-include(dirname(__FILE__) . '/wp-load.php');
+require __DIR__ . '/wp-load.php';
 
-$cronjob = wp_get_schedule('w3_pgcache_cleanup');
-/** taking garbage collection value in seconds */
+// Taking garbage collection value in seconds.
+$cronjob   = wp_get_schedule( 'w3_pgcache_cleanup' );
 $schedules = wp_get_schedules();
-$seconds = $schedules['w3_pgcache_cleanup']['interval'];
-echo $cronjob . " " . $seconds;
-/** clear pagecache */
-do_action('w3_pgcache_cleanup');
+$seconds   = $schedules['w3_pgcache_cleanup']['interval'];
+
+echo esc_html( $cronjob ) . ' ' . esc_html( $seconds );
+
+do_action( 'w3_pgcache_cleanup' );
