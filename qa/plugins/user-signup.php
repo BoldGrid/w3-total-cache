@@ -1,12 +1,21 @@
 <?php
-/*
-Plugin Name: w3tc - plugin for testing users signup
-Description: Store new user info in wp-content/mail.txt.
-*/
-add_filter('wp_mail', 'save_activation_key', 99);
+/**
+ * File: user-signup.php
+ *
+ * Store new user info in "wp-content/mail.txt" when testing user signup.
+ *
+ * @package W3TC
+ * @subpackage QA
+ *
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ */
 
-function save_activation_key($message) {
-	$f = fopen(WP_CONTENT_DIR .'/mail.txt', 'w+');
-	fwrite($f, $message['message']);
-	fclose($f);
-}
+add_filter(
+	'wp_mail',
+	function ( $message ) {
+		$f = fopen( WP_CONTENT_DIR . '/mail.txt', 'w+' );
+		fwrite( $f, $message['message'] );
+		fclose( $f );
+	},
+	99
+);
