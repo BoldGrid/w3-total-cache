@@ -85,15 +85,6 @@ def generate_image_descriptors
 				'lightspeed'
 			]
 		},
-		#'php70' => {
-		#	'PHP_VERSION' => '7.0',
-		#	'OS' => 'xenial',
-		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
-		#	'MEMCACHE' => 'memcached',
-		#	'REDIS' => 'redis'
-		#},
-		# php 5.6 is not available in trusty anymore - use xenial if required
-		#
 		'php56' => {
 			'PHP_VERSION' => '5.6',
 			'OS' => 'focal',
@@ -104,34 +95,9 @@ def generate_image_descriptors
 				'lightspeed'
 			]
 		}
-		# The updated AWS library has a dependency that requires PHP 5.6 or higher.
-		#'php55' => {
-		#	'PHP_VERSION' => '5.5',
-		#	'OS' => 'trusty',
-		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
-		#	'MEMCACHE' => 'memcached',
-		#	'REDIS' => 'redis'
-		#}
-		# puppeteer not available for this version
-		#,
-		#'php53' => {
-		#	'PHP_VERSION' => '5.3',
-		#	'OS' => 'precise',
-		#	'MEMCACHE' => 'memcached'
-		#}
 	})
 
 	php_last = php_list.keys.sort[-1]
-
-	# add special memory caches
-	#image_descriptors = add_single(image_descriptors, 'php55', {
-	#	'xcache' => {
-	#		'APC' => '',   # remove apc from environment
-	#		'XCACHE' => 'xcache',
-	#		'FILESYSTEM' => 'no',
-	#		'MEMCACHE' => 'memcache'   # use old "memcache" extension instead of "memcached"
-	#	}}
-	#)
 
 	# add special path configurations
 	image_descriptors = multiply_selected(image_descriptors,
@@ -162,8 +128,6 @@ def generate_image_descriptors
 
 	return image_descriptors
 end
-
-
 
 def generate_box_descriptors(image_name)
 	wpl = 'wp53'
@@ -240,8 +204,11 @@ def generate_box_descriptors(image_name)
 			'WP_VERSION' => '5.8'
 		},
 		'wp59' => {
-			'WP_VERSION' => '5.9'
-		}
+			'WP_VERSION' => '5.9',
+			'_except_name_contains' => [
+				'php56'   # WP 5.9 requires php>=7.4
+			]
+	}
 	}, image_name)
 
 	wp_last = box_descriptors.keys.sort[-1]
