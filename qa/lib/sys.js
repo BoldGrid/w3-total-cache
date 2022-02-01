@@ -8,17 +8,11 @@ const https = require('https');
 const log = require('mocha-logger');
 const puppeteer = require('puppeteer');
 const util = require('util');
-
 const exec = util.promisify(require('child_process').exec);
-
 const wp = requireRoot('lib/wp');
 const env = requireRoot('lib/environment');
 
-
-
 exports.suiteTimeout = 90000;
-
-
 
 exports.beforeDefault = async function() {
 	global.adminPage = null;
@@ -63,9 +57,7 @@ exports.beforeDefault = async function() {
 			await dialog.accept();
 		}
 	});
-}
-
-
+};
 
 exports.after = async function() {
 	if (global.page)
@@ -74,28 +66,21 @@ exports.after = async function() {
 		await adminPage.close();
 	if (global.browser)
 		await browser.close();
-}
-
-
+};
 
 exports.restoreStateFinal = async function() {
-	log.log('Restore wp state - to final');
+	log.log(`Restore WordPress (${parseFloat(env.wpVersion)}) state - to final`);
 	const r = await exec('/share/scripts/restore-final.rb');
 	//expect(r.stdout).contains('restoreFinalSuccess');
 	await exports.afterSourceFileContentsChanges();
-}
-
-
-
+};
 
 exports.restoreStateW3tcInactive = async function() {
-	log.log('Restore wp state - to w3tc inactive');
+	log.log(`Restore WordPress (${parseFloat(env.wpVersion)}) state - to w3tc inactive`);
 	const r = await exec('/share/scripts/restore-w3tc-inactive.sh');
 	//expect(r.stdout).contains('restoreFinalSuccess');
 	await exports.afterSourceFileContentsChanges();
-}
-
-
+};
 
 exports.afterRulesChange = async function() {
 	if (process.env['W3D_HTTP_SERVER'] == 'nginx' ||
@@ -104,37 +89,29 @@ exports.afterRulesChange = async function() {
 		const r = await exec('/share/scripts/restart-http.rb');
 		expect(r.stdout).contains('restartHttpSuccess');
 	}
-}
-
-
+};
 
 exports.afterSourceFileContentsChanges = async function() {
 	log.log('Restarting http server after source file contents change');
 	const r = await exec('/share/scripts/restart-http.rb');
 	expect(r.stdout).contains('restartHttpSuccess');
-}
-
-
+};
 
 exports.copyPhpToRoot = async function(filename) {
-	log.log('copying ' + filename);
+	log.log(`copying ${filename}`);
 	let targetPath = env.wpPath;
-	const r = await exec('cp -f ' + filename + ' ' + targetPath);
+	const r = await exec(`cp -f ${filename} ${targetPath}`);
 	expect(r.stdout).empty;
-}
-
-
+};
 
 exports.copyPhpToPath = async function(from, to) {
-	log.log('copying custom template to ' + to);
+	log.log(`Copying custom template from "${from}" to "${to}"...`);
 
-	const r = await exec('mkdir -p ' + to);
+	const r = await exec(`mkdir -p ${to}`);
 	expect(r.stdout).empty;
-	const r2 = await exec('cp -f ' + from + ' ' + to);
+	const r2 = await exec(`cp -f ${from} ${to}`);
 	expect(r2.stdout).empty;
-}
-
-
+};
 
 exports.httpGet = function(url) {
 	process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
@@ -160,9 +137,7 @@ exports.httpGet = function(url) {
 	});
 
 	return p;
-}
-
-
+};
 
 exports.repeatOnFailure = async function(pPage, operation) {
 	for (let n = 0; n < 100; n++) {
@@ -177,8 +152,7 @@ exports.repeatOnFailure = async function(pPage, operation) {
 			log.error(content.substr(0, 500) + '\n...\n' + content.substr(-500));
 		}
 
-		log.log(new Date().toISOString() + ' doing next ' +
-			(n <= 0 ? '' : ' attempt' + n));
+		log.log(`${new Date().toISOString()} doing next ${n <= 0 ? '' : ` attempt${n}`}`);
 		await pPage.waitFor(1000);
 	}
-}
+};
