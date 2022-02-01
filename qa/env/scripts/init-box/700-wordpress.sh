@@ -41,6 +41,9 @@ sed -i '/require_wp_db();/a require( ABSPATH . \"/disable-wp-updates.php\" );   
 $LIMITED wp rewrite structure '/%year%/%monthnum%/%day%/%postname%/'
 $LIMITED wp rewrite flush --hard
 
+# Activate "twentytwentyone" theme
+$LIMITED wp theme activate twentytwentyone
+
 # extras
 if [ "$W3D_WP_NETWORK" = "subdomain" ] || [ "$W3D_WP_NETWORK" = "subdir" ]; then
 	/share/scripts/init-box/720-wordpress-network.sh
