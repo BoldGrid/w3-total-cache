@@ -20,7 +20,8 @@ define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_LOG', true );
 PHP
 
-# Remove default WP_DEBUG definition.
+# Remove default WP_DEBUG definition
+cd $W3D_WP_PATH
 sed -i "0,/'WP_DEBUG', false/{/'WP_DEBUG', false/d}" wp-config.php
 
 cd $W3D_WP_PATH
