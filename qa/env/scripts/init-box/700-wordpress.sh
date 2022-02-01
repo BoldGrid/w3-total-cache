@@ -21,11 +21,10 @@ define( 'WP_DEBUG_LOG', true );
 PHP
 
 # Remove default WP_DEBUG definition
-cd $W3D_WP_PATH
-sed -i "0,/'WP_DEBUG', false/{/'WP_DEBUG', false/d}" wp-config.php
+sed -i "0,/'WP_DEBUG', false/{/'WP_DEBUG', false/d}" ${W3D_WP_PATH}wp-config.php
 
 cd $W3D_WP_PATH
-$LIMITED wp core install --url=$URL --title=sandbox --admin_user=admin --admin_password=1 --admin_email=a@b.com
+$LIMITED wp core install --url=$URL --title=sandbox --admin_user=admin --admin_password=1 --admin_email=a@b.com --skip-email
 # set predefined time format (expected by QA changing post's time)
 $LIMITED wp option set time_format "H:i"
 
