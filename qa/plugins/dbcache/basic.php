@@ -10,7 +10,9 @@
  * phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput, WordPress.WP.GlobalVariablesOverride.Prohibited, WordPress.DB.DirectDatabaseQuery
  */
 
-define( 'DONOTCACHEPAGE', true );
+if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+	define( 'DONOTCACHEPAGE', true );
+}
 
 require __DIR__ . '/wp-load.php';
 

@@ -10,7 +10,9 @@
  * phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput, WordPress.WP.AlternativeFunctions, WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
  */
 
-define( 'DONOTCACHEPAGE', true );
+if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+	define( 'DONOTCACHEPAGE', true );
+}
 
 $wp_plugins_path = $_REQUEST['wp_plugins_path'];
 $w3tc_path       = $wp_plugins_path . 'w3-total-cache';

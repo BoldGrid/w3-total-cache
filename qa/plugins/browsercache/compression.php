@@ -12,7 +12,9 @@
 
 require __DIR__ . '/wp-load.php';
 
-define( 'DONOTCACHEPAGE', true );
+if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+	define( 'DONOTCACHEPAGE', true );
+}
 
 $blog_id         = $_REQUEST['blog_id'];
 $url             = $_REQUEST['url'];

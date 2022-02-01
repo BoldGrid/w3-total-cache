@@ -10,7 +10,9 @@
  * phpcs:disable WordPress.Security.ValidatedSanitizedInput, WordPress.Security.NonceVerification.Recommended
  */
 
-define( 'DONOTCACHEPAGE', true );
+if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+	define( 'DONOTCACHEPAGE', true );
+}
 
 $content  = '';
 $fc_group = 'nogroup';
