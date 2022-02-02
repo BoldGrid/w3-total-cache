@@ -4,6 +4,9 @@
  *
  * Minify Url Deformation CSS Test Template: A Page Template for testing minify manual css font split.
  *
+ * Template Name: Minify: Auto: Theme: External CSS
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

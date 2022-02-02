@@ -4,6 +4,9 @@
  *
  * Browsercache prevent caching: A Page Template for testing browser cache.
  *
+ * Template Name: Browser cache: Prevent cache
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

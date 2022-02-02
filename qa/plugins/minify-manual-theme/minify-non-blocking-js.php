@@ -4,6 +4,9 @@
  *
  * Minify non-blocking js test: A Page Template for testing minify manual non-blocking javascript.
  *
+ * Template Name: Minify: Manual: Non-blocking JS
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

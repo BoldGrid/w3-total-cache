@@ -4,6 +4,9 @@
  *
  * Page cache: Page template for testing AMP extension.
  *
+ * Template Name: Page cache: AMP template
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage W3TC QA
  *

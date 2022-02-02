@@ -4,6 +4,9 @@
  *
  * Minify test: Adds plugin-based files for minification.
  *
+ * Template Name: Minify: Plugin test
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  */

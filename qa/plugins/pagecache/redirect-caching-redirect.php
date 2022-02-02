@@ -4,6 +4,9 @@
  *
  * Page cache: Cache redirect
  *
+ * Template Name: Page cache: Redirect caching redirect
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage W3TC QA
  *

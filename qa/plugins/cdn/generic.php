@@ -4,6 +4,9 @@
  *
  * CDN: Generaic.
  *
+ * Template Name: CDN: Generic
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

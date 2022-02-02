@@ -4,6 +4,9 @@
  *
  * Minify auto javascript test: A Page Template for testing minify auto js split.
  *
+ * Template Name: Minify: Auto: JS split
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

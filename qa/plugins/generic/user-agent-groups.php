@@ -4,6 +4,9 @@
  *
  * Generic: User-agent groups.
  *
+ * Template Name: Generic: User-agent groups
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

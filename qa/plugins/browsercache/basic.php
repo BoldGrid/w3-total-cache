@@ -4,7 +4,11 @@
  *
  * Browser cache: Basic: A Page Template for testing browser cache.
  *
+ * Template Name: Browser Cache: Basic
+ * Template Post Type: post, page
+ *
  * @package W3TC
+ *
  * @subpackage QA
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged

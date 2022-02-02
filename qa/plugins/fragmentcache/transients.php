@@ -4,6 +4,9 @@
  *
  * Fragment cache: transients.
  *
+ * Template Name: Fragment cache: Transients
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

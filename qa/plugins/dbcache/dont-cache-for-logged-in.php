@@ -4,6 +4,9 @@
  *
  * DB cache: Don't cache logged-in users.
  *
+ * Template Name: Database cache: Don't cache logged-in users
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

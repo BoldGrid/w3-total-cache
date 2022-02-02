@@ -4,6 +4,9 @@
  *
  * Generic: Options.
  *
+ * Template Name: Generic: Options
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

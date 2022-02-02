@@ -4,6 +4,9 @@
  *
  * Minify Auto Comment After JS Test Template: A Page Template for testing minify auto js split.
  *
+ * Template Name: Minify: Auto: Theme: Comments after
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

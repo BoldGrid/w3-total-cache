@@ -4,6 +4,9 @@
  *
  * Object cache: Non-persistent groups.
  *
+ * Template Name: Object cache: Non-persistent groups
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

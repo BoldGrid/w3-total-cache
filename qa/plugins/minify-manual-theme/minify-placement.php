@@ -4,6 +4,9 @@
  *
  * Minify placement manual theme test: A Page Template for testing minify manual js/css placement.
  *
+ * Template Name: Minify: Manual: JS/CSS placement
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

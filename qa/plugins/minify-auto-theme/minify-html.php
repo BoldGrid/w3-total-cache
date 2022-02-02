@@ -4,6 +4,9 @@
  *
  * Minify auto HTML test: A Page Template for testing minify HTML.
  *
+ * Template Name: Minify: HTML
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

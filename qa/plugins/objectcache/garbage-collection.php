@@ -4,6 +4,9 @@
  *
  * Object cache: Garbage collection test.
  *
+ * Template Name: Object cache: Garbage collection
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

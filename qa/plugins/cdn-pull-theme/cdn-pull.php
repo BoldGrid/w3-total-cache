@@ -4,6 +4,9 @@
  *
  * CDN pull test.
  *
+ * Template Name: CDN: Pull theme
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

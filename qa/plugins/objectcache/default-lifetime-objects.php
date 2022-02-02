@@ -4,6 +4,9 @@
  *
  * Object cache: Default lifetime objects.
  *
+ * Template Name: Object cache: Default lifetime
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

@@ -4,6 +4,9 @@
  *
  * Browser compression.
  *
+ * Template Name: Browser cache: Compression
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

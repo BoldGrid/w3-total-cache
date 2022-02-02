@@ -4,6 +4,9 @@
  *
  * Page cache: Never cache pages test.
  *
+ * Template Name: Page cache: Never cache pages
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *

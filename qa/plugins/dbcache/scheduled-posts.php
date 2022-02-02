@@ -4,6 +4,9 @@
  *
  * Database cache: Scheduled posts.
  *
+ * Template Name: Database cache: Scheduled posts
+ * Template Post Type: post, page
+ *
  * @package W3TC
  * @subpackage QA
  *
