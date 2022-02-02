@@ -222,7 +222,7 @@ class Minify_MinifiedFileRequestHandler {
 			@header( 'X-Powered-By: ' . Util_Environment::w3tc_header() );
 		}
 
-		if ( empty( $_GET['f_array'] ) && empty( $_GET['g'] ) ) {
+		if ( empty( Util_Request::get( 'f_array' ) ) && empty( Util_Request::get_string( 'g' ) ) ) {
 			return $this->finish_with_error( 'Nothing to minify', $quiet, false );
 		}
 

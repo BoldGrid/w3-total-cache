@@ -98,9 +98,9 @@ class Minify_Plugin {
 			exit();
 		}
 
-		if ( !empty( $_REQUEST['w3tc_minify'] ) ) {
+		if ( !empty( Util_Request::get_string( 'w3tc_minify' ) ) ) {
 			$w3_minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
-			$w3_minify->process( $_REQUEST['w3tc_minify'] );
+			$w3_minify->process( Util_Request::get_string( 'w3tc_minify' ) );
 			exit();
 		}
 	}

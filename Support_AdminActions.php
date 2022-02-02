@@ -13,7 +13,7 @@ class Support_AdminActions {
 		$post = array();
 
 		foreach ( $_GET as $p => $v )
-			$post[$p] = $v;
+			$post[$p] = Util_Request::get( $p );
 
 		$post['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
 		$post['version'] = W3TC_VERSION;

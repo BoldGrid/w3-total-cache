@@ -36,10 +36,10 @@ class Util_Widget {
 			Util_Widget::add( $widget_id, $name, $w3tc_registered_widgets[$widget_id]['callback'], $w3tc_registered_widget_controls[$widget_id]['callback'] );
 		}
 
-		if ( 'POST' == $_SERVER['REQUEST_METHOD'] && isset( $_POST['widget_id'] ) ) {
-			check_admin_referer( 'edit-dashboard-widget_' . $_POST['widget_id'], 'dashboard-widget-nonce' );
+		if ( 'POST' == $_SERVER['REQUEST_METHOD'] && isset( Util_Request::get_string( 'widget_id' ) ) ) {
+			check_admin_referer( 'edit-dashboard-widget_' . Util_Request::get_string( 'widget_id' ), 'dashboard-widget-nonce' );
 			ob_start(); // hack - but the same hack wp-admin/widgets.php uses
-			Util_Widget::trigger_widget_control( $_POST['widget_id'] );
+			Util_Widget::trigger_widget_control( Util_Request::get_string( 'widget_id' ) );
 			ob_end_clean();
 		}
 
@@ -100,7 +100,7 @@ class Util_Widget {
 		if ( $control_callback && current_user_can( 'edit_dashboard' ) &&
 			is_callable( $control_callback ) ) {
 			$w3tc_dashboard_control_callbacks[$widget_id] = $control_callback;
-			if ( isset( $_GET['edit'] ) && $widget_id == $_GET['edit'] ) {
+			if ( isset( Util_Request::get_string( 'edit' ) ) && $widget_id == Util_Request::get_string( 'edit' ) ) {
 				list( $url ) = explode( '#', add_query_arg( 'edit', false ), 2 );
 				$widget_name .= ' <span class="postbox-title-action">' .
 					'<a href="' . esc_url( $url ) . '">' . __( 'Cancel' ) .

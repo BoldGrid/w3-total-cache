@@ -5,9 +5,9 @@ namespace W3TC;
 
 class Extension_Swarmify_AdminActions {
 	public function w3tc_swarmify_set_key() {
-		if ( isset( $_REQUEST['status'] ) && isset( $_REQUEST['swarmcdnkey'] ) && $_REQUEST['status'] == '1' ) {
+		if ( isset( Util_Request::get_string( 'status' ) ) && isset( Util_Request::get_string( 'swarmcdnkey' ) ) && Util_Request::get_string( 'status' ) == '1' ) {
 			$config = Dispatcher::config();
-			$config->set( array( 'swarmify', 'api_key' ), $_REQUEST['swarmcdnkey'] );
+			$config->set( array( 'swarmify', 'api_key' ), Util_Request::get_string( 'swarmcdnkey' ) );
 			$config->save();
 		}
 

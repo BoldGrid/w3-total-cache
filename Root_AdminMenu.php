@@ -209,7 +209,7 @@ class Root_AdminMenu {
 		/*
 		 * Hidden pages.
 		 */
-		if ( isset( $_REQUEST['w3tc_dbcluster_config'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( isset( Util_Request::get_string( 'w3tc_dbcluster_config' ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$options_dbcache = new DbCache_Page();
 			$options_dbcache->dbcluster_config();
 		}

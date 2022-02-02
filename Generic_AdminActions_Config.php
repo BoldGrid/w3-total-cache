@@ -137,7 +137,7 @@ class Generic_AdminActions_Config {
 		$params = array( 'page' => 'w3tc_general' );
 
 		if ( !file_put_contents( W3TC_FILE_DB_CLUSTER_CONFIG,
-				stripslashes( $_REQUEST['newcontent'] ) ) ) {
+			Util_Request::get_string( 'newcontent' ) ) ) {
 			try {
 				Util_Activation::throw_on_write_error( W3TC_FILE_DB_CLUSTER_CONFIG );
 			} catch ( \Exception $e ) {

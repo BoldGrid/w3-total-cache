@@ -113,8 +113,8 @@ class DbCache_Environment {
 				} else if ( !$this->db_check_old_add_in() ) {
 
 
-					if ( isset( $_GET['page'] ) )
-						$url = 'admin.php?page=' . $_GET['page'] . '&amp;';
+					if ( isset( Util_Request::get_string( 'page' ) ) )
+						$url = 'admin.php?page=' . Util_Request::get_string( 'page' ) . '&amp;';
 					else
 						$url = basename( Util_Environment::remove_query_all( $_SERVER['REQUEST_URI'] ) ) . '?page=w3tc_dashboard&amp;';
 					$remove_url = Util_Ui::admin_url( $url . 'w3tc_default_remove_add_in=dbcache' );

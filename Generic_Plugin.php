@@ -38,7 +38,7 @@ class Generic_Plugin {
 				'admin_bar_init'
 			) );
 
-		if ( isset( $_REQUEST['w3tc_theme'] ) && isset( $_SERVER['HTTP_USER_AGENT'] ) &&
+		if ( isset( Util_Request::get_string( 'w3tc_theme' ) ) && isset( $_SERVER['HTTP_USER_AGENT'] ) &&
 			stristr( $_SERVER['HTTP_USER_AGENT'], W3TC_POWERED_BY ) !== false ) {
 			add_filter( 'template', array(
 					$this,
@@ -215,7 +215,7 @@ class Generic_Plugin {
 
 
 		// dont add system stuff to search results
-		if ( ( isset( $_GET['repeat'] ) && $_GET['repeat'] == 'w3tc' ) ||
+		if ( ( isset( Util_Request::get_string( 'repeat' ) ) && Util_Request::get_string( 'repeat' ) == 'w3tc' ) ||
 			Util_Environment::is_preview_mode() ) {
 			header( 'X-Robots-Tag: noindex' );
 		}

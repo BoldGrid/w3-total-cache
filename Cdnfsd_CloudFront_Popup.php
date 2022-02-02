@@ -45,8 +45,8 @@ class Cdnfsd_CloudFront_Popup {
 
 
 	public function w3tc_ajax_cdn_cloudfront_fsd_list_distributions() {
-		$access_key = $_REQUEST['access_key'];
-		$secret_key = $_REQUEST['secret_key'];
+		$access_key = Util_Request::get_string( 'access_key' );
+		$secret_key = Util_Request::get_string( 'secret_key' );
 
 		if ( empty( $access_key ) || empty( $secret_key ) ) {
 			$this->render_intro( array(
@@ -100,8 +100,8 @@ class Cdnfsd_CloudFront_Popup {
 
 
 	public function w3tc_ajax_cdn_cloudfront_fsd_view_distribution() {
-		$access_key = $_REQUEST['access_key'];
-		$secret_key = $_REQUEST['secret_key'];
+		$access_key = Util_Request::get_string( 'access_key' );
+		$secret_key = Util_Request::get_string( 'secret_key' );
 		$distribution_id = Util_Request::get( 'distribution_id', '' );
 
 		$details = array(
@@ -248,8 +248,8 @@ class Cdnfsd_CloudFront_Popup {
 
 
 	public function w3tc_ajax_cdn_cloudfront_fsd_configure_distribution() {
-		$access_key = $_REQUEST['access_key'];
-		$secret_key = $_REQUEST['secret_key'];
+		$access_key = Util_Request::get_string( 'access_key' );
+		$secret_key = Util_Request::get_string( 'secret_key' );
 		$distribution_id = Util_Request::get( 'distribution_id', '' );
 
 		$origin_id = rand();
@@ -363,8 +363,8 @@ class Cdnfsd_CloudFront_Popup {
 
 
 	public function w3tc_ajax_cdn_cloudfront_fsd_configure_distribution_skip() {
-		$access_key = $_REQUEST['access_key'];
-		$secret_key = $_REQUEST['secret_key'];
+		$access_key = Util_Request::get_string( 'access_key' );
+		$secret_key = Util_Request::get_string( 'secret_key' );
 		$distribution_id = Util_Request::get( 'distribution_id', '' );
 
 		$origin_id = rand();

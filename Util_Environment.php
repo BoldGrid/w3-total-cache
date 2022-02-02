@@ -1064,8 +1064,8 @@ class Util_Environment {
 			return $posts[0]->ID;
 		} elseif ( isset( $posts->ID ) ) {
 			return $posts->ID;
-		} elseif ( isset( $_REQUEST['p'] ) ) {
-			return (integer) $_REQUEST['p'];
+		} elseif ( isset( Util_Request::get_integer( 'p' ) ) {
+			return Util_Request::get_integer( 'p' );
 		}
 
 		return 0;

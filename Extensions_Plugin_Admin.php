@@ -54,11 +54,11 @@ class Extensions_Plugin_Admin {
 		if ( Util_Admin::is_w3tc_admin_page() ) {
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 
-			if ( isset( $_GET['extension'] ) && isset( $_GET['action'] ) ) { // phpcs:ignore
-				if ( in_array( $_GET['action'], array( 'activate', 'deactivate' ), true ) ) { // phpcs:ignore
+			if ( isset( Util_Request::get_string( 'extension' ) ) && isset( Util_Request::get_string( 'action' ) ) ) { // phpcs:ignore
+				if ( in_array( Util_Request::get_string( 'action' ), array( 'activate', 'deactivate' ), true ) ) { // phpcs:ignore
 					add_action( 'init', array( $this, 'change_extension_status' ) );
 				}
-			} elseif ( isset( $_POST['checked'] ) ) { // phpcs:ignore
+			} elseif ( isset( Util_Request::get_string( 'checked' ) ) ) { // phpcs:ignore
 				add_action( 'admin_init', array( $this, 'change_extensions_status' ) );
 			}
 		}
@@ -224,7 +224,7 @@ class Extensions_Plugin_Admin {
 			$transient_name = 'w3tc_activation_' . $id;
 			$action_name    = 'w3tc_' . $id . '_action';
 
-			if ( isset( $_GET[ $action_name ] ) && 'dismiss_activation_notice' === $_GET[ $action_name ] ) { // phpcs:ignore
+			if ( isset( Util_Request::get_string( $action_name ) ) && 'dismiss_activation_notice' === Util_Request::get_string( $action_name ) ) { // phpcs:ignore
 				delete_transient( $transient_name );
 			}
 

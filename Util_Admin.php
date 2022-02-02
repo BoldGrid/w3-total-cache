@@ -734,9 +734,9 @@ class Util_Admin {
 	 * @return bool
 	 */
 	static public function is_w3tc_admin_page() {
-		if ( isset( $_GET['page'] ) && substr( $_GET['page'], 0, 5 ) == 'w3tc_' )
+		if ( isset( Util_Request::get_string( 'page' ) ) && substr( Util_Request::get_string( 'page' ), 0, 5 ) == 'w3tc_' )
 			return true;
-		if ( isset( $_REQUEST['action'] ) && substr( $_REQUEST['action'], 0, 5 ) == 'w3tc_' )
+		if ( isset( Util_Request::get_string( 'action' ) ) && substr( Util_Request::get_string( 'action' ), 0, 5 ) == 'w3tc_' )
 			return true;
 
 		return false;

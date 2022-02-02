@@ -51,7 +51,7 @@ class Cdnfsd_MaxCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_maxcdn_fsd_list_zones() {
-		$api_key = $_REQUEST['api_key'];
+		$api_key = Util_Request::get_string( 'api_key' );
 
 		$api = \NetDNA::create( $api_key );
 		if ( !$api->is_valid() ) {
@@ -90,7 +90,7 @@ class Cdnfsd_MaxCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_maxcdn_fsd_view_zone() {
-		$api_key = $_REQUEST['api_key'];
+		$api_key = Util_Request::get_string( 'api_key' );
 		$zone_id = Util_Request::get( 'zone_id', '' );
 
 		$details = array(
@@ -223,7 +223,7 @@ class Cdnfsd_MaxCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_maxcdn_fsd_configure_zone() {
-		$api_key = $_REQUEST['api_key'];
+		$api_key = Util_Request::get_string( 'api_key' );
 		$zone_id = Util_Request::get( 'zone_id', '' );
 
 		$zone = array(
@@ -290,7 +290,7 @@ class Cdnfsd_MaxCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_maxcdn_fsd_configure_zone_skip() {
-		$api_key = $_REQUEST['api_key'];
+		$api_key = Util_Request::get_string( 'api_key'] );
 		$zone_id = Util_Request::get( 'zone_id', '' );
 
 		$api = \NetDNA::create( $api_key );

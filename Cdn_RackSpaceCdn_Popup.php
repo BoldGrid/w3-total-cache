@@ -49,8 +49,8 @@ class Cdn_RackSpaceCdn_Popup {
 
 	public function w3tc_ajax_cdn_rackspace_intro_done() {
 		$this->_render_cdn_rackspace_regions( array(
-				'user_name' => $_REQUEST['user_name'],
-				'api_key' => $_REQUEST['api_key'] ) );
+				'user_name' => Util_Request::get_string( 'user_name' ),
+				'api_key' => Util_Request::get_string( 'api_key' ) ) );
 	}
 
 
@@ -88,12 +88,12 @@ class Cdn_RackSpaceCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_rackspace_regions_done() {
-		$user_name = $_REQUEST['user_name'];
-		$api_key = $_REQUEST['api_key'];
-		$access_token = $_REQUEST['access_token'];
-		$region = Util_Request::get( 'region' );
+		$user_name = Util_Request::get_string( 'user_name' );
+		$api_key = Util_Request::get_string( 'api_key' );
+		$access_token = Util_Request::get_string( 'access_token' );
+		$region = Util_Request::get_string( 'region' );
 		$region_descriptors = json_decode(
-			strtr( $_REQUEST['region_descriptors'], '!^', '"\\' ), true );
+			strtr( Util_Request::get_string( 'region_descriptors' ), '!^', '"\\' ), true );
 
 		if ( !isset( $region_descriptors[$region] ) ) {
 			return $this->_render_cdn_rackspace_regions( array(
@@ -139,12 +139,12 @@ class Cdn_RackSpaceCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_rackspace_services_done() {
-		$user_name = $_REQUEST['user_name'];
-		$api_key = $_REQUEST['api_key'];
-		$access_token = $_REQUEST['access_token'];
+		$user_name = Util_Request::get_string( 'user_name' );
+		$api_key = Util_Request::get_string( 'api_key' );
+		$access_token = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode(
-			strtr( $_REQUEST['access_region_descriptor'], '!^', '"\\' ), true );
-		$region = $_REQUEST['region'];
+			strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
+		$region = Util_Request::get_string( 'region' );
 		$service = Util_Request::get( 'service' );
 
 		if ( !empty( $service ) ) {
@@ -188,17 +188,17 @@ class Cdn_RackSpaceCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_rackspace_service_create_done() {
-		$user_name = $_REQUEST['user_name'];
-		$api_key = $_REQUEST['api_key'];
-		$access_token = $_REQUEST['access_token'];
+		$user_name = Util_Request::get_string( 'user_name' );
+		$api_key = Util_Request::get_string( 'api_key' );
+		$access_token = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode(
-			strtr( $_REQUEST['access_region_descriptor'], '!^', '"\\' ), true );
-		$region = $_REQUEST['region'];
+			strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
+		$region = Util_Request::get_string( 'region' );
 
-		$name = $_REQUEST['name'];
-		$protocol = $_REQUEST['protocol'];
-		$cname_http = $_REQUEST['cname_http'];
-		$cname_https_prefix = $_REQUEST['cname_https_prefix'];
+		$name = Util_Request::get_string( 'name' );
+		$protocol = Util_Request::get_string( 'protocol' );
+		$cname_http = Util_Request::get_string( 'cname_http' );
+		$cname_https_prefix = Util_Request::get_string( 'cname_https_prefix' );
 
 		$is_https = ( $protocol == 'https' );
 		$cname = ( $is_https ? $cname_https_prefix : $cname_http );
@@ -281,10 +281,10 @@ class Cdn_RackSpaceCdn_Popup {
 
 	// ajax returning json for js-script about service state
 	public function w3tc_ajax_cdn_rackspace_service_get_state() {
-		$access_token = $_REQUEST['access_token'];
+		$access_token = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode(
-			strtr( $_REQUEST['access_region_descriptor'], '!^', '"\\' ), true );
-		$service_id = $_REQUEST['service_id'];
+			strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
+		$service_id = Util_Request::get_string( 'service_id' );
 
 		$api = new Cdn_RackSpace_Api_Cdn( array(
 				'access_token' => $access_token,
@@ -359,13 +359,13 @@ class Cdn_RackSpaceCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_rackspace_service_actualize_done() {
-		$user_name = $_REQUEST['user_name'];
-		$api_key = $_REQUEST['api_key'];
-		$access_token = $_REQUEST['access_token'];
+		$user_name = Util_Request::get_string( 'user_name' );
+		$api_key = Util_Request::get_string( 'api_key' );
+		$access_token = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode(
-			strtr( $_REQUEST['access_region_descriptor'], '!^', '"\\' ), true );
-		$region = $_REQUEST['region'];
-		$service_id = $_REQUEST['service_id'];
+			strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
+		$region = Util_Request::get_string( 'region' );
+		$service_id = Util_Request::get_string( 'service_id' );
 
 		$api = new Cdn_RackSpace_Api_Cdn( array(
 				'access_token' => $access_token,
@@ -413,13 +413,13 @@ class Cdn_RackSpaceCdn_Popup {
 
 
 	private function _save_config() {
-		$user_name = $_REQUEST['user_name'];
-		$api_key = $_REQUEST['api_key'];
-		$access_token = $_REQUEST['access_token'];
+		$user_name = Util_Request::get_string( 'user_name' );
+		$api_key = Util_Request::get_string( 'api_key' );
+		$access_token = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode(
-			strtr( $_REQUEST['access_region_descriptor'], '!^', '"\\' ), true );
-		$region = $_REQUEST['region'];
-		$service_id = $_REQUEST['service_id'];
+			strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
+		$region = Util_Request::get_string( 'region' );
+		$service_id = Util_Request::get_string( 'service_id' );
 
 		$api = new Cdn_RackSpace_Api_Cdn( array(
 				'access_token' => $access_token,

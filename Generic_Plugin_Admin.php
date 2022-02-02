@@ -179,13 +179,13 @@ class Generic_Plugin_Admin {
 
 		try {
 			$base_capability = apply_filters( 'w3tc_ajax_base_capability_', 'manage_options' );
-			$capability = apply_filters( 'w3tc_ajax_capability_' . $_REQUEST['w3tc_action'],
+			$capability = apply_filters( 'w3tc_ajax_capability_' . Util_Request::get_string( 'w3tc_action' ),
 				$base_capability );
 			if ( !empty( $capability ) && !current_user_can( $capability ) )
 				throw new \Exception( 'no permissions' );
 
 			do_action( 'w3tc_ajax' );
-			do_action( 'w3tc_ajax_' . $_REQUEST['w3tc_action'] );
+			do_action( 'w3tc_ajax_' . Util_Request::get_string( 'w3tc_action' ) );
 		} catch ( \Exception $e ) {
 			echo $e->getMessage();
 		}
@@ -220,8 +220,8 @@ class Generic_Plugin_Admin {
 			Util_Activation::deactivate_plugin();
 		}
 
-		if ( isset( $_REQUEST['page'] ) )
-			do_action( 'admin_init_' . $_REQUEST['page'] );
+		if ( isset( Util_Request::get_string( 'page' ) ) )
+			do_action( 'admin_init_' . Util_Request::get_string( 'page' ) );
 	}
 
 	/**
@@ -259,8 +259,8 @@ class Generic_Plugin_Admin {
 				do_action( 'w3tc_message_action_' . $action );
 		}
 		// for testing
-		if ( isset( $_REQUEST['w3tc_message_action'] ) )
-			do_action( 'w3tc_message_action_' . $_REQUEST['w3tc_message_action'] );
+		if ( isset( Util_Request::get_string( 'w3tc_message_action' ) ) )
+			do_action( 'w3tc_message_action_' . Util_Request::get_string( 'w3tc_message_action' ) );
 
 	}
 
@@ -393,9 +393,9 @@ class Generic_Plugin_Admin {
 
 			global $pagenow;
 			if ( $pagenow == 'plugins.php' || $this->is_w3tc_page ||
-				isset( $_REQUEST['w3tc_note'] ) ||
-				isset( $_REQUEST['w3tc_error'] ) ||
-				isset( $_REQUEST['w3tc_message'] ) ) {
+				isset( Util_Request::get_string( 'w3tc_note' ) ) ||
+				isset( Util_Request::get_string( 'w3tc_error' ) ) ||
+				isset( Util_Request::get_string( 'w3tc_message' ) ) ) {
 				/**
 				 * Only admin can see W3TC notices and errors
 				 */
@@ -518,7 +518,7 @@ class Generic_Plugin_Admin {
 	}
 
 	public function w3tc_ajax_faq() {
-		$section = $_REQUEST['section'];
+		$section = Util_Request::get_string( 'section' );
 
 		$entries = Generic_Faq::parse( $section );
 		$response = array();
@@ -741,7 +741,7 @@ class Generic_Plugin_Admin {
 			$environment = Dispatcher::component( 'Root_Environment' );
 			$environment->fix_in_wpadmin( $this->_config );
 
-			if ( isset( $_REQUEST['upgrade'] ) )
+			if ( isset( Util_Request::get_string( 'upgrade' ) ) )
 				$notes[] = __( 'Required files and directories have been automatically created',
 					'w3-total-cache' );
 		} catch ( Util_Environment_Exceptions $exs ) {

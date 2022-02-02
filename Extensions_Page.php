@@ -33,16 +33,16 @@ class Extensions_Page extends Base_Page_Settings {
 		$extension = '';
 		$extension_status = 'all';
 
-		if ( isset( $_GET['extension_status'] ) ) {
-			if ( in_array( $_GET['extension_status'], array( 'all', 'active', 'inactive', 'core' ) ) )
-				$extension_status = $_GET['extension_status'];
+		if ( isset( Util_Request::get_string( 'extension_status' ) ) ) {
+			if ( in_array( Util_Request::get_string( 'extension_status' ), array( 'all', 'active', 'inactive', 'core' ) ) )
+				$extension_status = Util_Request::get_string( 'extension_status' );
 		}
 
-		if ( isset( $_GET['extension'] ) ) {
-			$extension = esc_attr( $_GET['extension'] );
+		if ( isset( Util_Request::get_string( 'extension' ) ) ) {
+			$extension = esc_attr( Util_Request::get_string( 'extension' ) );
 		}
 
-		$view = ( isset( $_GET['action'] ) && $_GET['action'] == 'view' );
+		$view = ( isset( Util_Request::get_string( 'action' ) ) && Util_Request::get_string( 'action' ) == 'view' );
 
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
 

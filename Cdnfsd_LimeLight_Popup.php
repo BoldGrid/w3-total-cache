@@ -31,9 +31,9 @@ class Cdnfsd_LimeLight_Popup {
 
 
 	public function w3tc_ajax_cdnfsd_limelight_save() {
-		$short_name = $_REQUEST['short_name'];
-		$username = $_REQUEST['username'];
-		$api_key = $_REQUEST['api_key'];
+		$short_name = Util_Request::get_string( 'short_name' );
+		$username = Util_Request::get_string( 'username' );
+		$api_key = Util_Request::get_string( 'api_key' );
 
 		try {
 			$api = new Cdnfsd_LimeLight_Api( $short_name, $username, $api_key );
