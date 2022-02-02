@@ -111,6 +111,7 @@ exports.copyPhpToPath = async function(from, to) {
 	expect(r.stdout).empty;
 	const r2 = await exec(`cp -f ${from} ${to}`);
 	expect(r2.stdout).empty;
+	await exec(`chown -R www-data: ${to}`);
 };
 
 exports.httpGet = function(url) {
