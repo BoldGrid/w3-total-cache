@@ -10,7 +10,7 @@
  * @package W3TC
  * @subpackage W3TC QA
  *
- * phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+ * phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput, WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
  */
 
 if ( ! defined( 'W3TCQA_NO_REDIRECT' ) ) {
@@ -30,7 +30,7 @@ if ( ! defined( 'W3TCQA_NO_REDIRECT' ) ) {
 
 	$url .= '/';
 
-	wp_safe_redirect( $url );
+	wp_redirect( $url );
 	exit;
 } else {
 	echo 'no redirect\n';
