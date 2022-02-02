@@ -3,7 +3,9 @@ LIMITED="sudo -u www-data"
 
 mkdir -pv ${W3D_WP_PATH}
 curl -L --silent --show-error http://wordpress.org/wordpress-${W3D_WP_VERSION}.tar.gz --output ${W3D_WP_PATH}wordpress.tar.gz
+
 cd ${W3D_WP_PATH}
+
 tar xzf ${W3D_WP_PATH}wordpress.tar.gz --strip-components=1
 chown -R www-data:www-data ${W3D_WP_PATH}
 
@@ -20,10 +22,9 @@ define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_LOG', true );
 PHP
 
-# Remove default WP_DEBUG definition
-sed -i "0,/'WP_DEBUG', false/{/'WP_DEBUG', false/d}" ${W3D_WP_PATH}wp-config.php
+# Remove default WP_DEBUG false definition
+sed -i "/'WP_DEBUG', false/d" wp-config.php
 
-cd $W3D_WP_PATH
 $LIMITED wp core install --url=$URL --title=sandbox --admin_user=admin --admin_password=1 --admin_email=a@b.com --skip-email
 # set predefined time format (expected by QA changing post's time)
 $LIMITED wp option set time_format "H:i"
