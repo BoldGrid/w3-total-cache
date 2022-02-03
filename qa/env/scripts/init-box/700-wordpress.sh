@@ -4,6 +4,7 @@ LIMITED="sudo -u www-data"
 echo "Installing WordPress ${W3D_WP_VERSION} at ${W3D_WP_PATH} for ${W3D_HTTP_SERVER_SCHEME}://${W3D_WP_HOST}${W3D_WP_MAYBE_COLON_PORT}${W3D_WP_SITE_URI} ..."
 
 mkdir -pv $W3D_WP_PATH
+chown -R www-data: $W3D_WP_PATH
 
 cd $W3D_WP_PATH
 
