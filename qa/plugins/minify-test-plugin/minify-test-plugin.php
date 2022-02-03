@@ -1,11 +1,6 @@
 <?php
 /**
- * File: minify-test-plugin.php
- *
- * Minify test: Adds plugin-based files for minification.
- *
- * Template Name: Minify: Plugin test
- * Template Post Type: post, page
+ * Plugin Name: Minify Test Plugin
  *
  * @package W3TC
  * @subpackage QA
