@@ -498,6 +498,9 @@ class Extension_ImageService_Plugin_Admin {
 	 * Runs on the "admin_enqueue_scripts" action.
 	 *
 	 * @since 2.2.0
+	 *
+	 * @see Util_Ui::admin_url()
+	 * @see Licensing_Core::get_tos_choice()
 	 */
 	public function admin_enqueue_scripts() {
 		// Enqueue JavaScript for the Media Library (upload) and extension settings admin pages.
@@ -561,6 +564,9 @@ class Extension_ImageService_Plugin_Admin {
 							'</a>'
 						),
 					),
+					'tos_choice'  => Licensing_Core::get_tos_choice(),
+					'track_usage' => $this->config->get_boolean( 'common.track_usage' ),
+					'ga_profile'  => ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) ? 'UA-2264433-7' : 'UA-2264433-8',
 					'settings'    => $this->config->get_array( 'imageservice' ),
 					'settingsUrl' => esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ),
 				)
