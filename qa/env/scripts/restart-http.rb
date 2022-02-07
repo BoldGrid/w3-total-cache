@@ -27,6 +27,8 @@ def run
 			system_assert 'service php7.2-fpm restart'
 		elsif ENV['W3D_PHP_VERSION'] == '7.3'
 			system_assert 'service php7.3-fpm restart'
+		elsif ENV['W3D_PHP_VERSION'] == '7.4'
+			system_assert 'service php7.4-fpm restart'
 		elsif ENV['W3D_PHP_VERSION'] == '8.0'
 			system_assert 'service php8.0-fpm restart'
 		else

@@ -75,8 +75,8 @@ def generate_image_descriptors
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis'
 		},
-		'php73' => {
-			'PHP_VERSION' => '7.3',
+		'php74' => {
+			'PHP_VERSION' => '7.4',
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
@@ -224,12 +224,12 @@ def generate_box_descriptors(image_name)
 		#		'php80'  # not compatible, WP_Feed_Cache::create() fatal
 		#	]
 		#},
-		'wp56' => {
-			'WP_VERSION' => '5.6',
-			'_except_name_contains' => [
-				'lightspeed'
-			]
-		},
+		#'wp56' => {
+		#'WP_VERSION' => '5.6',
+		#	'_except_name_contains' => [
+		#		'lightspeed'
+		#	]
+		#},
 		'wp57' => {
 			'WP_VERSION' => '5.7',
 			'_except_name_contains' => [
@@ -238,6 +238,9 @@ def generate_box_descriptors(image_name)
 		},
 		'wp58' => {
 			'WP_VERSION' => '5.8'
+		},
+		'wp59' => {
+			'WP_VERSION' => '5.9'
 		}
 	}, image_name)
 

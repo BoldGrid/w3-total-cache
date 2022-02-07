@@ -42,6 +42,9 @@ exports.getCurrentTheme = async function(pPage) {
 			(e) => e.src);
 		let m = description.match(/themes\/(.+)\/screenshot\.png$/);
 		return m[1];
+	} else if (env.wpVersion.match(/^5\.9(.*)/)) { // WP 5.9*
+		let theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
+		return theme;
 	} else {   // env.wpVersion.match(/^4\.*/)
 		let description = await pPage.$eval('.theme.active .theme-actions a',
 			(e) => e.getAttribute('href'));
