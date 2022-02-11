@@ -498,43 +498,6 @@ function w3tc_get_referrer_group( $group ) {
 	return $o->get_group_values( $group );
 }
 
-
-/**
- * Deprecated.  Flushes files from opcache.
- *
- * @param bool $http If delete request should be made over http to current site.  Default false.
- * @return mixed
- */
-function w3tc_opcache_flush( $http = false ) {
-	if ( ! $http ) {
-		$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-		return $o->opcache_flush();
-	} else {
-		$url    = WP_PLUGIN_URL . '/' . dirname( W3TC_FILE ) . '/pub/opcache.php';
-		$path   = parse_url( $url, PHP_URL_PATH );
-		$post   = array(
-			'method'      => 'POST',
-			'timeout'     => 45,
-			'redirection' => 5,
-			'httpversion' => '1.0',
-			'blocking'    => true,
-			'body'        => array(
-				'nonce'   => wp_hash( $path ),
-				'command' => 'flush',
-			),
-		);
-		$result = wp_remote_post( $url, $post );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		} elseif ( '200' != $result['response']['code'] ) {
-			return $result['response']['code'];
-		}
-
-		return true;
-	}
-}
-
 /**
  * Deprecated. Retained for 3rd parties that used it. see w3tc_config().
  *
