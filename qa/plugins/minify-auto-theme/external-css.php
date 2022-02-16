@@ -22,9 +22,8 @@ function external_font_script() {
 
 add_action( 'wp_head', 'external_font_script' );
 
-@get_header();
+get_header();
 ?>
-
 <div id="main-content" class="main-content">
 	<div id="primary" class="content-area">
 		<div id="content" role="main" class="site-content">
@@ -47,6 +46,5 @@ add_action( 'wp_head', 'external_font_script' );
 		</div><!-- #content -->
 	</div><!-- #primary -->
 </div><!-- #primary -->
-
 <?php
-@get_footer();
+get_footer();
