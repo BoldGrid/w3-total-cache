@@ -23,14 +23,10 @@ class Util_Request {
 			$value = $request[$key];
 
 			if ( defined( 'TEMPLATEPATH' ) ) {
-				$value = Util_Environment::stripslashes( $value );
+				return sanitize_text_field( Util_Environment::stripslashes( $value ) );
 			}
 
-			if( is_array($value) ) {
-				return map_deep( $value, 'sanitize_text_field' );
-			} else {
-				return sanitize_text_field( $value );
-			}
+			return is_array( $value ) ? map_deep( $value, 'sanitize_text_field' ) : sanitize_text_field( $value );
 		}
 
 		return $default;
@@ -119,7 +115,7 @@ class Util_Request {
 		$array = array();
 		foreach ( $request as $key => $value ) {
 			if ( strpos( $key, $prefix ) === 0 || strpos( $key, str_replace( '.', '_', $prefix ) ) === 0 ) {
-				$array[substr( $key, strlen( $prefix ) )] = sanitize_text_field( $value );
+				$array[ substr( $key, strlen( $prefix ) ) ] = sanitize_text_field( $value );
 			}
 		}
 		return $array;
