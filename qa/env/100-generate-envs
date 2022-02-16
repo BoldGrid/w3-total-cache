@@ -59,11 +59,13 @@ def generate_image_descriptors
 		'apache' => {
 			'HTTP_SERVER' => 'apache',
 			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/apache2/wp.sandbox_error.log'
-		},
-		'lightspeed' => {
-			'HTTP_SERVER' => 'lightspeed',
-			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
 		}
+		# still in development
+		#,
+		#'lightspeed' => {
+		#	'HTTP_SERVER' => 'lightspeed',
+		#	'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
+		#}
 	})
 
 	# multiply by php
@@ -205,15 +207,11 @@ def generate_box_descriptors(image_name)
 			]
 		},
 		'wp59' => {
-			'WP_VERSION' => '5.9',
-			'_except_name_contains' => [
-				'lightspeed'
-			]
+			'WP_VERSION' => '5.9'
 		}
 	}, image_name)
 
 	wp_last = box_descriptors.keys.sort[-1]
-
 	box_descriptors = multiply_selected(box_descriptors,
 		wp_last,
 		{
