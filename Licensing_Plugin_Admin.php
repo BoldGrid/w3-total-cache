@@ -164,11 +164,11 @@ class Licensing_Plugin_Admin {
 			case 'no_key' === $status:
 				break;
 			case $this->_status_is( $status, 'no_pro_plugin' ):
-				$message = __( 'You need to install W3 Total Cache Pro plugin in order to obtain PRO functionality', 'w3-total-cache' );
+				$message = esc_html__( 'The W3 Total Cache Pro plugin is required to obtain Pro functionality', 'w3-total-cache' );
 				break;
 			case $this->_status_is( $status, 'inactive.expired' ):
 				$message = sprintf(
-					__( 'It looks like your W3 Total Cache Pro License has expired. %s to continue using the Pro Features', 'w3-total-cache' ),
+					__( 'It looks like your W3 Total Cache Pro license has expired. %s to continue using the Pro Features', 'w3-total-cache' ),
 					'<input type="button" class="button-primary button-buy-plugin"' .
 					' data-nonce="'. wp_create_nonce( 'w3tc' ) . '"' .
 					' data-renew-key="' . esc_attr( $this->get_license_key() ) . '"' .
@@ -209,7 +209,7 @@ class Licensing_Plugin_Admin {
 
 			Util_Ui::error_box(
 				sprintf(
-					"<p>$message. <a class='w3tc_licensing_check' href='%s'>" . __( 'check license status again' ) . '</a></p>',
+					"<p>$message. <a class='w3tc_licensing_check' href='%s'>" . esc_html__( 'Recheck license status' ) . '</a></p>',
 					Util_Ui::url( array( 'page' => 'w3tc_general', 'w3tc_licensing_check_key' => 'y' ) )
 				)
 			);
