@@ -9,9 +9,11 @@ const exec = util.promisify(require('child_process').exec);
 fs.readFileAsync = util.promisify(fs.readFile);
 fs.writeFileAsync = util.promisify(fs.writeFile);
 
+
+
 exports.login = async function(pPage, data) {
 	await sys.repeatOnFailure(pPage, async() => {
-		log.log(`logging in to wp-admin ${env.networkAdminUrl}`);
+		log.log('logging in to wp-admin ' + env.networkAdminUrl);
 
 		await pPage.goto(env.networkAdminUrl, {waitUntil: 'domcontentloaded'});
 		let title = await pPage.title();
@@ -28,10 +30,12 @@ exports.login = async function(pPage, data) {
 		expect(await pPage.title()).contains('Dashboard');
 		log.success('Logged in to wp-admin');
 	});
-};
+}
+
+
 
 exports.getCurrentTheme = async function(pPage) {
-	await pPage.goto(`${env.adminUrl}themes.php`, {waitUntil: 'domcontentloaded'});
+	await pPage.goto(env.adminUrl + 'themes.php', {waitUntil: 'domcontentloaded'});
 
 	if (env.wpVersion.match(/^3\.(.+)/)) {
 		let description = await pPage.$eval('#current-theme .hide-if-customize',
@@ -47,28 +51,34 @@ exports.getCurrentTheme = async function(pPage) {
 		let m = description.match(/theme=([^&]+)/);
 		return m[1];
 	}
-};
+}
+
+
 
 function postCreateApiUrl(type) {
 	if (type == 'post') {
-		return `${env.homeUrl}/wp-json/wp/v2/posts`;
+		return env.homeUrl + '/wp-json/wp/v2/posts';
 	} else if (type == 'page') {
-		return `${env.homeUrl}/wp-json/wp/v2/pages`;
+		return env.homeUrl + '/wp-json/wp/v2/pages';
 	}
 
-	throw new Error(`unknown type ${type}`);
+	throw new Error('unknown type ' + type);
 }
+
+
 
 exports.postCreate = async function(pPage, data) {
 	expect(data.type).not.empty;
 
-	let r = await exec(`cp ../../plugins/w3tcqa-json.php ${env.wpPath}w3tcqa-json.php`);
+	let r = await exec('cp ../../plugins/w3tcqa-json.php ' + env.wpPath + 'w3tcqa-json.php');
 
 	let apiUrl = postCreateApiUrl(data.type);
 	let apiBody = data;
 	apiBody.status = 'draft';
 
-	let controlUrl = `${env.blogSiteUrl}w3tcqa-json.php?url=${encodeURIComponent(apiUrl)}&body=${encodeURIComponent(JSON.stringify(apiBody))}`;
+	let controlUrl = env.blogSiteUrl + 'w3tcqa-json.php' +
+		'?url=' + encodeURIComponent(apiUrl) +
+		'&body=' + encodeURIComponent(JSON.stringify(apiBody));
 
 	log.log(`opening ${controlUrl}`);
 	await pPage.goto(controlUrl, {waitUntil: 'domcontentloaded'});
@@ -90,7 +100,7 @@ exports.postCreate = async function(pPage, data) {
 	expect(postId > 0).true;
 	log.log(`post created: ${postId}`);
 
-	let apiUrl2 = `${postCreateApiUrl(data.type)}/${postId}`;
+	let apiUrl2 = postCreateApiUrl(data.type) + '/' + postId;
 	let apiBody2 = {
 		id: postId
 	};
@@ -106,7 +116,9 @@ exports.postCreate = async function(pPage, data) {
 		console.log(apiBody2);
 	}
 
-	let controlUrl2 = `${env.blogSiteUrl}w3tcqa-json.php?url=${encodeURIComponent(apiUrl2)}&body=${encodeURIComponent(JSON.stringify(apiBody2))}`;
+	let controlUrl2 = env.blogSiteUrl + 'w3tcqa-json.php' +
+		'?url=' + encodeURIComponent(apiUrl2) +
+		'&body=' + encodeURIComponent(JSON.stringify(apiBody2));
 	log.log(`opening ${controlUrl2}`);
 	await pPage.goto(controlUrl2, {waitUntil: 'domcontentloaded'});
 	await pPage.waitForSelector('#resultReady', {
@@ -121,24 +133,28 @@ exports.postCreate = async function(pPage, data) {
 		id: result2.id,
 		url: result2.link
 	};
-};
+}
+
+
 
 exports.postUpdate = async function(pPage, data) {
 	let postType = typeof data.post_type != 'undefined' ? data.post_type : 'post';
 	log.log(`wp.postUpdate`);
 	console.log(data);
 
-	await pPage.goto(`${env.adminUrl}post.php?post=${data.post_id}&action=edit`);
-	log.log(`${new Date().toISOString()} Updating the ${postType} ${data.post_title}`);
+	await pPage.goto(env.adminUrl + 'post.php?post=' + data.post_id + '&action=edit');
+	log.log(new Date().toISOString() + ' Updating the ' + postType + ' ' + data.post_title);
 
-	let r = await exec(`cp ../../plugins/w3tcqa-json.php ${env.wpPath}w3tcqa-json.php`);
+	let r = await exec('cp ../../plugins/w3tcqa-json.php ' + env.wpPath + 'w3tcqa-json.php');
 
-	let apiUrl = `${postCreateApiUrl(data.post_type)}/${data.post_id}`;
+	let apiUrl = postCreateApiUrl(data.post_type) + '/' + data.post_id;
 	let apiBody = {
 		title: data.post_title
 	};
 
-	let controlUrl = `${env.blogSiteUrl}w3tcqa-json.php?url=${encodeURIComponent(apiUrl)}&body=${encodeURIComponent(JSON.stringify(apiBody))}`;
+	let controlUrl = env.blogSiteUrl + 'w3tcqa-json.php' +
+		'?url=' + encodeURIComponent(apiUrl) +
+		'&body=' + encodeURIComponent(JSON.stringify(apiBody));
 
 	log.log(`opening ${controlUrl}`);
 	await pPage.goto(controlUrl, {waitUntil: 'domcontentloaded'});
@@ -148,23 +164,28 @@ exports.postUpdate = async function(pPage, data) {
 	let resultString = await pPage.$eval('#result', (e) => { return e.value });
 	let result = JSON.parse(resultString);
 	log.log(`post ${data.post_id} updated`);
-};
+}
+
+
 
 exports.addWpConfigConstant = async function(pPage, name, value) {
-	log.log(`set constant ${name}`);
-	let filename = `${env.wpPath}/wp-config.php`;
+	log.log('set constant ' + name);
+	let filename = env.wpPath + '/wp-config.php';
     let content = await fs.readFileAsync(filename, 'utf8');
 	await fs.writeFileAsync(filename,
-		`<\?php\ndefine("${name}", "${value}");\n${content.replace(/^<\?php/, '')}`,
+		'<\?php' + "\n" + 'define("' + name + '", "' + value + '");' + "\n" +
+		content.replace(/^<\?php/, ''),
 		'utf8');
 
-	let checkFilename = `${env.wpPath}/check-constant.php`;
+	let checkFilename = env.wpPath + '/check-constant.php';
 	await fs.writeFileAsync(checkFilename,
-		`<\?php\ninclude(dirname(__FILE__) . "/wp-load.php");\nif (defined("${name}")) echo "constant-defined";`,
+		'<\?php' + "\n" +
+			'include(dirname(__FILE__) . "/wp-load.php");\n' +
+			'if (defined("' + name + '")) echo "constant-defined";',
 		'utf8');
 
 	for (let n = 0; n < 100; n++) {
-		await pPage.goto(`${env.wpUrl}/check-constant.php`);
+		await pPage.goto(env.wpUrl + '/check-constant.php');
 		let html = await pPage.content();
 		if (html.indexOf('constant-defined') >= 0) {
 			log.success('constant is defined');
@@ -177,37 +198,39 @@ exports.addWpConfigConstant = async function(pPage, name, value) {
 	}
 
 	log.error('constant is not defined');
-};
+}
+
+
 
 exports.networkActivatePlugin = async function(pPage, pluginFilename) {
-	log.log(`About to network-activate plugin "${pluginFilename}"...`);
-
-	await pPage.goto(`${env.networkAdminUrl}/plugins.php`);
+	await pPage.goto(env.networkAdminUrl + '/plugins.php');
 
 	if (parseFloat(env.wpVersion) < 4.4) {
 		let parts = pluginFilename.split('/');
 		let pluginName = parts[0];
-		let pluginRow = await pPage.$(`tr#${pluginName}`);
+		let pluginRow = await pPage.$('tr#' + pluginName);
 		expect(pluginRow).not.null;
 
 		await Promise.all([
-			pPage.click(`#${pluginName} .activate a`),
+			pPage.click('#' + pluginName + ' .activate a'),
 			pPage.waitForNavigation()
 		]);
 	} else {
-		let pluginRow = await pPage.$(`tr[data-plugin="${pluginFilename}"]`);
+		let pluginRow = await pPage.$('tr[data-plugin="' + pluginFilename + '"]');
 		expect(pluginRow).not.null;
 
 		await Promise.all([
-			pPage.click(`tr[data-plugin="${pluginFilename}"] .activate a`),
+			pPage.click('tr[data-plugin="' + pluginFilename + '"] .activate a'),
 			pPage.waitForNavigation()
 		]);
 	}
 
 	let ifActivated = await pPage.$eval('#message', (e) => e.innerText.trim());
 	expect(ifActivated).contains('Plugin activated.');
-	log.success(`activated plugin ${pluginFilename}`);
-};
+	log.success('activated plugin ' + pluginFilename);
+}
+
+
 
 exports.userSignUp = async function(pPage, data) {
 	if (env.isWpmu) {
@@ -215,11 +238,13 @@ exports.userSignUp = async function(pPage, data) {
 	} else {
 		return await userSignUpSingle(pPage, data);
 	}
-};
+}
+
+
 
 async function userSignUpSingle(pPage, data) {
 	// add user
-    await pPage.goto(`${env.adminUrl}user-new.php`);
+    await pPage.goto(env.adminUrl + 'user-new.php');
 	await pPage.$eval('#user_login', (e, v) => e.value = v, data.user_login);
 	await pPage.$eval('#email', (e, v) => e.value = v, data.email);
 	await pPage.select('#role', data.role);
@@ -250,9 +275,11 @@ async function userSignUpSingle(pPage, data) {
 	return password;
 }
 
+
+
 async function userSignUpNetwork(pPage, data) {
 	// enable signup
-	await pPage.goto(`${env.networkAdminUrl}settings.php`);
+	await pPage.goto(env.networkAdminUrl + 'settings.php');
 	await pPage.click('#registration2');
 
 	await Promise.all([
@@ -270,7 +297,7 @@ async function userSignUpNetwork(pPage, data) {
 	log.success('signup allowed');
 
 	// add user
-    await pPage.goto(`${env.adminUrl}user-new.php`);
+    await pPage.goto(env.adminUrl + 'user-new.php');
 	await pPage.$eval('#user_login', (e, v) => e.value = v, data.user_login);
 	await pPage.$eval('#email', (e, v) => e.value = v, data.email);
 	await pPage.select('#role', data.role);
@@ -284,7 +311,7 @@ async function userSignUpNetwork(pPage, data) {
 	expect(m).contains('Invitation email sent to new user.');
 
 	//we're "catching" the email with activation key and activated a subscriber
-	let emailContent = await fs.readFileAsync(`${env.wpContentPath}mail.txt`, 'utf8');
+	let emailContent = await fs.readFileAsync(env.wpContentPath + 'mail.txt', 'utf8');
 	expect(emailContent).not.empty;
 	let emailMatch = emailContent.match(new RegExp('http.*wp-activate.php([^< ]+)'));
 	let emailUrl = emailMatch[0];

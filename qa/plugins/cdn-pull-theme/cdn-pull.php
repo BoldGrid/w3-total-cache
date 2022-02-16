@@ -61,9 +61,8 @@ wp_enqueue_script( 'jquery' );
 wp_enqueue_script( 'js1', get_template_directory_uri() . '/qa/theme-js.js', array(), W3TC_VERSION, false );
 wp_enqueue_script( 'js2', plugins_url( 'test-plugin/plugin-js.js' ), array(), W3TC_VERSION, false );
 
-@get_header();
+get_header();
 ?>
-
 	<div id="main-content" class="main-content">
 		<div id="primary" class="content-area">
 			<div id="content" role="main" class="site-content">
@@ -94,6 +93,5 @@ wp_enqueue_script( 'js2', plugins_url( 'test-plugin/plugin-js.js' ), array(), W3
 			</div><!-- #content -->
 		</div><!-- #primary -->
 </div><!-- #primary -->
-
 <?php
-@get_footer();
+get_footer();

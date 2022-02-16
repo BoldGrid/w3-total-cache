@@ -13,9 +13,8 @@
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WhiteSpace.PrecisionAlignment.Found
  */
 
-@get_header();
+get_header();
 ?>
-
 <div id="main-content" class="main-content">
 
 	<div id="multiple-whitespace1" data-attr="   space-in-attr   ">    multiple whitespace around element
@@ -98,6 +97,5 @@
 	<div id="link-ending-slash"><a href="https://www.website.com/path/">bla</a></div>
 	<div id="link-ending-slash-extra-tags"><a href="https://www.website.com/path/" class="my">bla2</a></div>
 </div>
-
 <?php
-@get_footer();
+get_footer();

@@ -14,10 +14,8 @@
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
 
-@get_header();
+get_header();
 ?>
-
 	<img id="image" src="<?php echo esc_url( get_template_directory_uri() ); ?>/qa/image.jpg" />
-
 <?php
-@get_footer();
+get_footer();
