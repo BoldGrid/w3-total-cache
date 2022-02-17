@@ -23,7 +23,7 @@ class Util_Request {
 			$value = $request[$key];
 
 			if ( defined( 'TEMPLATEPATH' ) ) {
-				return sanitize_text_field( Util_Environment::stripslashes( $value ) );
+				$value = Util_Environment::stripslashes( $value );
 			}
 
 			return is_array( $value ) ? map_deep( $value, 'sanitize_text_field' ) : sanitize_text_field( $value );
