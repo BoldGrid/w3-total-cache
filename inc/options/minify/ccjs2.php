@@ -45,9 +45,9 @@ $compilation_level = $c->get_string( 'minify.ccjs.options.compilation_level' );
 <tr>
 	<th>&nbsp;</th>
 	<td>
-		<input class="minifier_test js_enabled button {type: 'ccjs', nonce: '<?php echo wp_create_nonce( 'w3tc' ) ?>'}"
+		<input class="minifier_test js_enabled button {type: 'ccjs', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
 			type="button"
-			value="<?php _e( 'Test Closure Compiler', 'w3-total-cache' ) ?>" />
+			value="<?php esc_attr_e( 'Test Closure Compiler', 'w3-total-cache' ); ?>" />
 		<span class="minifier_test_status w3tc-status w3tc-process"></span>
 	</td>
 </tr>
@@ -64,7 +64,7 @@ $compilation_level = $c->get_string( 'minify.ccjs.options.compilation_level' );
 			<?php foreach ( $compilation_levels as $compilation_level_key => $compilation_level_name ): ?>
 				<option value="<?php echo esc_attr( $compilation_level_key ); ?>"
 					<?php selected( $compilation_level, $compilation_level_key ) ?>>
-					<?php echo $compilation_level_name; ?>
+					<?php echo esc_html( $compilation_level_name ); ?>
 				</option>
 			<?php endforeach ?>
 		</select>
