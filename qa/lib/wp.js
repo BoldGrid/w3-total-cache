@@ -202,6 +202,17 @@ exports.addWpConfigConstant = async function(pPage, name, value) {
 
 
 
+exports.addQaBootstrap = async function(pPage, themeFunctionsFilename, filenameToLoad) {
+	log.log('add qa bootstrap code to ' + themeFunctionsFilename);
+    let content = await fs.readFileAsync(themeFunctionsFilename, 'utf8');
+	await fs.writeFileAsync(themeFunctionsFilename,
+		content + "\n\n" +
+		"require( __DIR__ . '" + filenameToLoad + "' );",
+		'utf8');
+}
+
+
+
 exports.networkActivatePlugin = async function(pPage, pluginFilename) {
 	await pPage.goto(env.networkAdminUrl + '/plugins.php');
 
