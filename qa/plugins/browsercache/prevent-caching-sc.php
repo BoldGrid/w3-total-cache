@@ -1,7 +1,6 @@
 <?php
-add_shortcode( 'w3tcqa', 'w3tcqa_shortcode' );
 
-function w3tcqa_shortcode( $atts ) {
+add_shortcode( 'w3tcqa', function( $atts ) {
 	ob_start();
 
 	$parsed = wp_parse_url( get_template_directory_uri() );
@@ -17,4 +16,4 @@ function w3tcqa_shortcode( $atts ) {
 	ob_end_clean();
 
 	return $output;
-}
+} );

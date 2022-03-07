@@ -28,8 +28,8 @@ describe('', function() {
 	it('copy theme files', async() => {
 		let theme = await wp.getCurrentTheme(adminPage);
 		let themePath = env.wpContentPath + 'themes/' + theme;
-		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/basic-sc.php');
 		await sys.copyPhpToPath('../../plugins/browsercache/*', `${themePath}/qa`);
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/basic-sc.php');
 	});
 
 

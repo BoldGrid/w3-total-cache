@@ -128,6 +128,7 @@ exports.postCreate = async function(pPage, data) {
 	let result2 = JSON.parse(resultString2);
 	expect(result2.id > 0).true;
 	expect(result2.link).not.empty;
+	log.log('page created: ' + result2.link);
 
 	return {
 		id: result2.id,

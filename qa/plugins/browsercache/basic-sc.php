@@ -1,7 +1,7 @@
 <?php
-add_shortcode( 'w3tcqa', 'w3tcqa_shortcode' );
+/** shortcode-based version of browsercache-basic test */
 
-function w3tcqa_shortcode( $atts ) {
+add_shortcode( 'w3tcqa', function( $atts ) {
 	ob_start();
 
 	?>
@@ -12,4 +12,4 @@ function w3tcqa_shortcode( $atts ) {
 	ob_end_clean();
 
 	return $output;
-}
+} );
