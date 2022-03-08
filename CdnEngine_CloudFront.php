@@ -147,7 +147,12 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	 * Returns origin
 	 */
 	function _get_origin() {
-		return sprintf( '%s.s3.amazonaws.com', $this->_config['bucket'] );
+		if ( $this->_config['bucket_location'] === 'us-east-1' ) {
+			$region = "";
+		} else {
+			$region = $this->_config['bucket_location'] . '.';
+		}
+		return sprintf( '%s.s3.%samazonaws.com', $this->_config['bucket'], $region );
 	}
 
 	/**
