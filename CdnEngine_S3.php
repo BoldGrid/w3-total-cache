@@ -388,7 +388,13 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		}
 
 		if ( !$bucket_found ) {
-			throw new \Exception( 'Bucket doesn\'t exist: %s.', $this->_config['bucket'] );
+			throw new \Exception(
+				sprintf(
+					// translators: 1: AWS S3 bucket name.
+					esc_html__( 'Bucket doesn\'t exist: %1$s.', 'w3-total-cache' ),
+					$this->_config['bucket']
+				)
+			);
 		}
 
 		if ( ! empty( $this->_config['s3_acl'] ) ) {
