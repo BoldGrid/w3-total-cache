@@ -3666,7 +3666,7 @@ class nusoap_server extends nusoap_base {
 			$this->appendDebug($this->wsdl->getDebug());
 			$this->wsdl->clearDebug();
 			if($err = $this->wsdl->getError()){
-				die('WSDL ERROR: '.$err);
+				die( 'WSDL ERROR: ' . esc_html( $err ) );
 			}
 		}
 	}
@@ -3723,11 +3723,11 @@ class nusoap_server extends nusoap_base {
 			} elseif ($this->wsdl) {
 				$this->debug("In service, serialize WSDL");
 				header("Content-Type: text/xml; charset=ISO-8859-1\r\n");
-				print $this->wsdl->serialize($this->debug_flag);
+				print esc_html( $this->wsdl->serialize( $this->debug_flag ) );
 				if ($this->debug_flag) {
 					$this->debug('wsdl:');
 					$this->appendDebug($this->varDump($this->wsdl));
-					print $this->getDebugAsXMLComment();
+					print esc_html( $this->getDebugAsXMLComment() );
 				}
 			} else {
 				$this->debug("In service, there is no WSDL");
@@ -3736,7 +3736,7 @@ class nusoap_server extends nusoap_base {
 			}
 		} elseif ($this->wsdl) {
 			$this->debug("In service, return Web description");
-			print $this->wsdl->webDescription();
+			print esc_html( $this->wsdl->webDescription() );
 		} else {
 			$this->debug("In service, no Web description");
 			header("Content-Type: text/html; charset=ISO-8859-1\r\n");
@@ -4242,7 +4242,7 @@ class nusoap_server extends nusoap_base {
 		foreach($this->outgoing_headers as $hdr){
 			header($hdr, false);
 		}
-		print $payload;
+		print esc_html( $payload );
 		$this->response = join("\r\n",$this->outgoing_headers)."\r\n\r\n".$payload;
 	}
 
@@ -5481,7 +5481,7 @@ class wsdl extends nusoap_base {
 						        } 
 						    } 
 						    if (!isset($typePrefix)) {
-						        die("$partType has no namespace!");
+						        die( esc_html( $partType ) . 'has no namespace!' );
 						    } 
 						}
 						$ns = $this->getNamespaceFromPrefix($typePrefix);

@@ -72,7 +72,7 @@ class Generic_Plugin_WidgetForum {
 	 */
 	function widget_latest() {
 		if ( false !== ( $output = get_transient( $this->_widget_latest_cache_key() ) ) )
-			echo $output;
+			echo esc_html( $output );
 		else
 			include W3TC_INC_DIR . '/widget/latest.php';
 	}

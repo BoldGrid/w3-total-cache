@@ -13,9 +13,9 @@ include W3TC_INC_DIR . '/options/common/header.php';
 	<h1>Object Cache Calls</h1>
 	<p>
 		Period
-		<?php echo $result['date_min'] ?>
+		<?php echo esc_html( $result['date_min'] ); ?>
 		-
-		<?php echo $result['date_max'] ?>
+		<?php echo esc_html( $result['date_max'] ); ?>
 	</p>
 
 	<table style="width: 100%">

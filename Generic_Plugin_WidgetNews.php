@@ -1,5 +1,6 @@
 <?php
 namespace W3TC;
+
 /**
  * W3 Forum Widget
  */
@@ -17,17 +18,12 @@ class Generic_Plugin_WidgetNews {
 	 * Runs plugin
 	 */
 	function run() {
-		if ( Util_Admin::get_current_wp_page() == 'w3tc_dashboard' )
+		if ( Util_Admin::get_current_wp_page() === 'w3tc_dashboard' ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
+		}
 
-		add_action( 'w3tc_widget_setup', array(
-				$this,
-				'wp_dashboard_setup'
-			) );
-		add_action( 'w3tc_network_dashboard_setup', array(
-				$this,
-				'wp_dashboard_setup'
-			) );
+		add_action( 'w3tc_widget_setup', array( $this, 'wp_dashboard_setup' ) );
+		add_action( 'w3tc_network_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
 
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_w3tc_widget_latest_news_ajax', array( $this, 'action_widget_latest_news_ajax' ) );
@@ -40,13 +36,19 @@ class Generic_Plugin_WidgetNews {
 	 * @return void
 	 */
 	function wp_dashboard_setup() {
-		Util_Widget::add( 'w3tc_latest_news', __( 'News', 'w3-total-cache' ), array(
+		Util_Widget::add(
+			'w3tc_latest_news',
+			__( 'News', 'w3-total-cache' ),
+			array(
 				$this,
-				'widget_latest'
-			), array(
+				'widget_latest',
+			),
+			array(
 				$this,
-				'widget_latest_control'
-			), 'side' );
+				'widget_latest_control',
+			),
+			'side'
+		);
 	}
 
 	/**
@@ -64,10 +66,12 @@ class Generic_Plugin_WidgetNews {
 	 * @return void
 	 */
 	function widget_latest() {
-		if ( false !== ( $output = get_transient( $this->_widget_latest_cache_key() ) ) )
-			echo $output;
-		else
+		$output = get_transient( $this->_widget_latest_cache_key() );
+		if ( false !== $output ) {
+			echo esc_html( $output );
+		} else {
 			include W3TC_INC_DIR . '/widget/latest_news.php';
+		}
 	}
 
 	/**
@@ -76,22 +80,23 @@ class Generic_Plugin_WidgetNews {
 	 * @return void
 	 */
 	function action_widget_latest_news_ajax() {
-		// load content of feed
+		// load content of feed.
 		global $wp_version;
 
-		$items = array();
+		$items       = array();
 		$items_count = $this->_config->get_integer( 'widget.latest_news.items' );
 
 		include_once ABSPATH . WPINC . '/feed.php';
+
 		$feed = fetch_feed( W3TC_NEWS_FEED_URL );
 
-		if ( !is_wp_error( $feed ) ) {
+		if ( ! is_wp_error( $feed ) ) {
 			$feed_items = $feed->get_items( 0, $items_count );
 
 			foreach ( $feed_items as $feed_item ) {
 				$items[] = array(
-					'link' => $feed_item->get_link(),
-					'title' => htmlspecialchars_decode( $feed_item->get_title() )
+					'link'  => $feed_item->get_link(),
+					'title' => htmlspecialchars_decode( $feed_item->get_title() ),
 				);
 			}
 		}
@@ -99,7 +104,7 @@ class Generic_Plugin_WidgetNews {
 		ob_start();
 		include W3TC_INC_DIR . '/widget/latest_news_ajax.php';
 
-		// Default lifetime in cache of 12 hours (same as the feeds)
+		// Default lifetime in cache of 12 hours (same as the feeds).
 		set_transient( $this->_widget_latest_cache_key(), ob_get_flush(), 43200 );
 		die();
 	}
@@ -112,9 +117,7 @@ class Generic_Plugin_WidgetNews {
 	 * @return void
 	 */
 	function widget_latest_control( $widget_id, $form_inputs = array() ) {
-		if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
-
-
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 			$this->_config->set( 'widget.latest_news.items', Util_Request::get_integer( 'w3tc_widget_latest_news_items', 3 ) );
 			$this->_config->save();
 			delete_transient( $this->_widget_latest_cache_key() );

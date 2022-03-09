@@ -579,7 +579,7 @@ class Minify_MinifiedFileRequestHandler {
 
 		if ( defined( 'W3TC_IN_MINIFY' ) ) {
 			status_header( 400 );
-			echo $message;
+			echo esc_html( $message );
 			die();
 		}
 	}

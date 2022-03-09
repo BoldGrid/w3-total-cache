@@ -186,7 +186,7 @@ class Cdn_RackSpaceCloudFiles_Popup {
 			array(
 				'cdn_configuration_saved' =>
 				'CDN credentials are saved successfully' ) );
-		echo 'Location admin.php?page=w3tc_cdn&' . $postfix;
+		echo 'Location admin.php?page=w3tc_cdn&' . esc_url( $postfix );
 		exit();
 	}
 }

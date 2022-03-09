@@ -1,15 +1,15 @@
 <?php
 namespace W3TC;
 
-if ( !defined( 'W3TC' ) )
+if ( ! defined( 'W3TC' ) ) {
 	die();
-
+}
 ?>
 <div class="w3tc-overlay-logo"></div>
 <header>
 </header>
 <div class="w3tchelp_content">
-    <h3>Hang on!</h3>
+	<h3>Hang on!</h3>
 	<p>
 		In the best case, the usage of minify optimization is a trial and
 		error process, it's <em>not</em> an "instant on" or "set it and forget it"
@@ -22,7 +22,7 @@ if ( !defined( 'W3TC' ) )
 		are all unique, that means that minify cannot automatically work for everyone.
 	</p>
 
-    <h3>What is minification exactly?</h3>
+	<h3>What is minification exactly?</h3>
 	<ul class="w3tchelp_content_list">
 		<li>
 			Minification is a process of reducing the file size to improve user experience 
@@ -59,13 +59,27 @@ if ( !defined( 'W3TC' ) )
 		</li>
 	</ol>
 
-    <div>
-    	<input type="submit" class="btn w3tc-size image btn-primary outset save palette-turquoise "
-    	value="I Understand the Risks">
-    	<?php
-echo Util_Ui::button_link( 'Do It For Me',
-	'admin.php?page=w3tc_support', false,
-	'btn w3tc-size image btn-primary outset save palette-turquoise w3tc-button-ignore-change' );
-?>
-    </div>
+	<div>
+		<input type="submit" class="btn w3tc-size image btn-primary outset save palette-turquoise "
+			value="I Understand the Risks">
+		<?php
+		echo wp_kses(
+			Util_Ui::button_link(
+				'Do It For Me',
+				'admin.php?page=w3tc_support',
+				false,
+				'btn w3tc-size image btn-primary outset save palette-turquoise w3tc-button-ignore-change'
+			),
+			array(
+				'input' => array(
+					'type'    => array(),
+					'name'    => array(),
+					'class'   => array(),
+					'value'   => array(),
+					'onclick' => array(),
+				),
+			)
+		);
+		?>
+	</div>
 </div>

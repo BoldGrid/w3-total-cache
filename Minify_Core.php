@@ -134,7 +134,7 @@ class Minify_Core {
 
 		if ( $debug ) {
 			Minify_Core::log( $error );
-			echo "\r\n/* " . htmlspecialchars( $error ) . " */\r\n";
+			echo "\r\n/* " . esc_html( $error ) . " */\r\n";
 		}
 	}
 

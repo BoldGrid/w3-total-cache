@@ -82,17 +82,14 @@ class Minify_Cache_ZendPlatform {
     }
 
 
-    /**
-     * Send the cached content to output
-     *
-     * @param string $id cache id
-     */
-    public function display($id)
-    {
-        echo $this->_fetch($id)
-            ? $this->_data
-            : '';
-    }
+	/**
+	 * Send the cached content to output
+	 *
+	 * @param string $id cache id
+	 */
+	public function display( $id ) {
+		echo $this->_fetch( $id ) ? esc_html( $this->_data ) : '';
+	}
 
 
     /**

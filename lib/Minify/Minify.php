@@ -388,7 +388,7 @@ class Minify {
 				self::$lastServed['fullCacheId'] = $fullCacheId;
 				self::$_cache->display($fullCacheId);
 			} else {
-				echo $content['content'];
+				echo esc_html( $content['content'] );
 			}
 		} else {
 			if ($cacheIsReady)
@@ -505,8 +505,8 @@ class Minify {
 		list(, $code) = explode(' ', $header, 3);
 		header($header, true, $code);
 		header('Content-Type: text/html; charset=utf-8');
-		echo "<h1>$h1</h1>";
-		echo "<p>Please see <a href='$url'>$url</a>.</p>";
+		echo '<h1>' . esc_html( $h1 ) . '</h1>';
+		echo '<p>Please see <a href="' . esc_url( $url ) . '">' . esc_html( $url ) . '</a>.</p>';
 		exit();
 	}
 

@@ -55,7 +55,7 @@ class Generic_AdminActions_Config {
 	function w3tc_config_export() {
 		$filename = substr( get_home_url(), strpos( get_home_url(), '//' )+2 );
 		@header( sprintf( __( 'Content-Disposition: attachment; filename=%s.json', 'w3-total-cache' ), $filename ) );
-		echo $this->_config->export();
+		echo esc_html( $this->_config->export() );
 		die();
 	}
 

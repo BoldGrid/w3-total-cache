@@ -383,7 +383,7 @@ class Generic_Plugin {
 		<script type= "text/javascript">
 		var w3tc_monitoring_score = document.createElement('script');
 		w3tc_monitoring_score.type = 'text/javascript';
-		w3tc_monitoring_score.src = '<?php echo $url ?>';
+		w3tc_monitoring_score.src = '<?php echo esc_url( $url ); ?>';
 		document.getElementsByTagName('HEAD')[0].appendChild(w3tc_monitoring_score);
 		</script>
 		<?php

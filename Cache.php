@@ -71,7 +71,7 @@ class Cache {
 				break;
 
 			default:
-				trigger_error( 'Incorrect cache engine ' . $engine, E_USER_WARNING );
+				trigger_error( 'Incorrect cache engine ' . esc_html( $engine ), E_USER_WARNING );
 				$instances[$instance_key] = new Cache_Base( $config );
 				break;
 			}

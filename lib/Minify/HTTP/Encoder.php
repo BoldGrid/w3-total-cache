@@ -168,7 +168,7 @@ class HTTP_Encoder {
 	public function sendAll()
 	{
 		$this->sendHeaders();
-		echo $this->_content;
+		echo esc_html( $this->_content );
 	}
 
 	/**

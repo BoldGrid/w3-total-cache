@@ -5,12 +5,12 @@ if ( !defined( 'W3TC' ) )
 	die();
 ?>
 <p id="w3tc-options-menu">
-    Jump to:
-    <a href="admin.php?page=w3tc_general"><?php _e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-    <a href="admin.php?page=w3tc_extensions"><?php _e( 'Extensions', 'w3-total-cache' ); ?></a> |
-    <a href="#credentials"><?php _e( 'Credentials', 'w3-total-cache' ); ?></a> |
-    <a href="#general"><?php _e( 'General', 'w3-total-cache' ); ?></a> |
-    <a href="#info"><?php _e( 'Information', 'w3-total-cache' ); ?></a>
+	Jump to:
+	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
+	<a href="#credentials"><?php esc_html_e( 'Credentials', 'w3-total-cache' ); ?></a> |
+	<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
+	<a href="#info"><?php esc_html_e( 'Information', 'w3-total-cache' ); ?></a>
 </p>
 <p>
     CloudFlare extension is currently <?php
@@ -22,11 +22,11 @@ else
 <p>
 
 <form action="admin.php?page=w3tc_extensions&amp;extension=cloudflare&amp;action=view" method="post">
-    <p>
-        <?php echo Util_Ui::nonce_field( 'w3tc' ); ?>
-        <input type="submit" name="w3tc_cloudflare_flush" value="<?php _e( 'Purge CloudFlare cache', 'w3-total-cache' ) ?>" class="button" />
-        <?php _e( 'if needed.', 'w3-total-cache' ) ?>
-    </p>
+	<p>
+		<?php echo esc_html( Util_Ui::nonce_field( 'w3tc' ) ); ?>
+		<input type="submit" name="w3tc_cloudflare_flush" value="<?php esc_html_e( 'Purge CloudFlare cache', 'w3-total-cache' ); ?>" class="button" />
+		<?php esc_html_e( 'if needed.', 'w3-total-cache' ); ?>
+	</p>
 </form>
 
 <form action="admin.php?page=w3tc_extensions&amp;extension=cloudflare&amp;action=view" method="post">
@@ -36,22 +36,21 @@ else
 			<tr>
 				<th style="width: 300px;">
 					<label>
-<?php
-_e( 'Specify account credentials:',
-	'w3-total-cache' );
-?>
+						<?php
+						esc_html_e( 'Specify account credentials:', 'w3-total-cache' );
+						?>
 					</label>
 				</th>
 				<td>
 					<?php if ( $state != 'not_configured' ): ?>
 						<input class="w3tc_extension_cloudflare_authorize button-primary"
 							type="button"
-							value="<?php _e( 'Reauthorize', 'w3-total-cache' ); ?>"
+							value="<?php esc_attr_e( 'Reauthorize', 'w3-total-cache' ); ?>"
 							/>
 					<?php else: ?>
 						<input class="w3tc_extension_cloudflare_authorize button-primary"
 							type="button"
-							value="<?php _e( 'Authorize', 'w3-total-cache' ); ?>"
+							value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>"
 							/>
 					<?php endif ?>
 				</td>
@@ -60,10 +59,10 @@ _e( 'Specify account credentials:',
 			<?php if ( $state != 'not_configured' ): ?>
 			<tr>
 				<th>
-					<label><?php _e( 'Zone:', 'w3-total-cache' ); ?></label>
+					<label><?php esc_attr_e( 'Zone:', 'w3-total-cache' ); ?></label>
 				</th>
 				<td class="w3tc_config_value_text">
-<?php echo $config->get_string( array( 'cloudflare', 'zone_name' ) ) ?>
+					<?php echo esc_html( $config->get_string( array( 'cloudflare', 'zone_name' ) ) ); ?>
 				</td>
 			</tr>
 			<?php endif ?>
@@ -86,7 +85,7 @@ Authenticate your account in order to access settings.
 <?php if ( $state == 'not_available' ): ?>
 <table class="form-table">
 <tr><td colspan="2">
-CloudFlare not available: <?php echo $error_message; ?>
+CloudFlare not available: <?php echo esc_html( $error_message ); ?>
 </td></tr>
 </table>
 <?php endif ?>

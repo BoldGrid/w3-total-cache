@@ -155,14 +155,14 @@ class Cdnfsd_StackPath_Popup {
 
 		if ( !isset( $details[$field]['current'] ) ||
 			$details[$field]['current'] == $details[$field]['new'] )
-			echo htmlspecialchars( $details[$field]['new'] );
+			echo esc_html( $details[ $field ]['new'] );
 		else {
 			echo 'currently set to <strong>' .
-				htmlspecialchars( empty( $details[$field]['current'] ) ?
+				esc_html( empty( $details[ $field ]['current'] ) ?
 				'<empty>' : $details[$field]['current'] ) .
 				'</strong><br />';
 			echo 'will be changed to <strong>' .
-				htmlspecialchars( $details[$field]['new'] ) . '</strong><br />';
+				esc_html( $details[ $field ]['new'] ) . '</strong><br />';
 		}
 	}
 
@@ -173,11 +173,11 @@ class Cdnfsd_StackPath_Popup {
 
 		if ( !isset( $details[$field]['current'] ) ) {
 			echo 'will be set to <strong>';
-			echo $this->render_zone_boolean( $details[$field]['new'] );
+			echo esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) );
 			echo '</strong>';
 		} else if ( $details[$field]['current'] == $details[$field]['new'] ) {
 				echo '<strong>';
-				echo $this->render_zone_boolean( $details[$field]['new'] );
+				echo esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) );
 				echo '</strong>';
 			} else {
 			echo 'currently set to <strong>';
@@ -206,7 +206,7 @@ class Cdnfsd_StackPath_Popup {
 		if ( isset( $details[$field]['current'] ) &&
 			$details[$field]['current'] != $details[$field]['new'] ) {
 			echo '<p class="description">currently set to <strong>' .
-				$details[$field]['current'] . '</strong></p>';
+				esc_html( $details[ $field ]['current'] ) . '</strong></p>';
 		}
 	}
 
