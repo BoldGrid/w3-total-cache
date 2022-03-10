@@ -18,6 +18,7 @@ def run
 	elsif ENV['W3D_HTTP_SERVER'] == 'lightspeed'
 		system_assert 'systemctl restart lsws'
 	else
+		socket_filename = '/tmp/php-fpm.sock'
 		# php first, nginx next - otherwise not stable
 		if ENV['W3D_PHP_VERSION'] == '7.0'
 			system_assert 'service php7.0-fpm restart'
@@ -29,20 +30,23 @@ def run
 			system_assert 'service php7.3-fpm restart'
 		elsif ENV['W3D_PHP_VERSION'] == '7.4'
 			system_assert 'service php7.4-fpm restart'
+			socket_filename = '/run/php/php7.4-fpm.sock'
 		elsif ENV['W3D_PHP_VERSION'] == '8.0'
 			system_assert 'service php8.0-fpm restart'
+			socket_filename = '/run/php/php8.0-fpm.sock'
 		else
 			system_assert 'service php5.6-fpm restart'
+			socket_filename = '/run/php/php5.6-fpm.sock'
 		end
 
 		n = 0
-		while !File.exists?('/tmp/php-fpm.sock') and n <= 10
+		while !File.exists?(socket_filename) and n <= 10
 			sleep(1)
-			puts 'waiting for /tmp/php-fpm.sock'
+			puts 'waiting for ' + socket_filename
 			n += 1
 		end
 
-		if !File.exists?('/tmp/php-fpm.sock')
+		if !File.exists?(socket_filename)
 			abort 'failed waiting'
 		end
 
