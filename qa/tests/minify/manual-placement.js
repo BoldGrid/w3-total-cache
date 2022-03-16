@@ -98,6 +98,7 @@ describe('', function() {
 
 
 	it('placement', async() => {
+		log.log(testPageUrl);
 		await page.goto(testPageUrl);
 		// checking if <\!-- W3TC-include-css --> was replaced
 		await checkPlacement('W3TC-include-css', 'test css placement', 'css');
@@ -122,7 +123,7 @@ describe('', function() {
 
 
 async function checkPlacement(comments, helperComments, cssOrJs) {
-	log.log('checking placement of ' + cssOrJs);
+	log.log(`checking placement of ${cssOrJs} ${comments}`);
 	let html = await page.content();
 	expect(html).not.contains('<!-- ' + comments + ' -->');
 	let reg;

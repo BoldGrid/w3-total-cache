@@ -35,6 +35,7 @@ add_shortcode( 'w3tcqa', function( $atts ) {
 	ob_start();
 
 	?>
+	<!-- test minify body start --><!-- W3TC-include-js-body-start -->
 	<p>JS1: <span id="js1">failed</span></p>
 	<p>JS2: <span id="js2">failed</span></p>
 	<p>JS3: <span id="js3">failed</span></p>
