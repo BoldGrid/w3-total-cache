@@ -30,13 +30,10 @@ def run
 			system_assert 'service php7.3-fpm restart'
 		elsif ENV['W3D_PHP_VERSION'] == '7.4'
 			system_assert 'service php7.4-fpm restart'
-			socket_filename = '/run/php/php7.4-fpm.sock'
 		elsif ENV['W3D_PHP_VERSION'] == '8.0'
 			system_assert 'service php8.0-fpm restart'
-			socket_filename = '/run/php/php8.0-fpm.sock'
 		else
 			system_assert 'service php5.6-fpm restart'
-			socket_filename = '/run/php/php5.6-fpm.sock'
 		end
 
 		n = 0
