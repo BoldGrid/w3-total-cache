@@ -755,8 +755,8 @@ class wsdl extends nusoap_base {
     * @access private
     */
     function webDescription(){
-		if (isset($_SERVER)) {
-			$PHP_SELF = $_SERVER['PHP_SELF'];
+		if ( isset( $_SERVER['PHP_SELF'] ) ) {
+			$PHP_SELF = sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) );
 		} else {
 			$this->setError("_SERVER not available");
 		}

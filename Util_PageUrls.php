@@ -485,7 +485,7 @@ class Util_PageUrls {
 	 * @return string
 	 */
 	static public function get_pagenum_link( $url, $pagenum = 1 ) {
-		$request_uri = $_SERVER['REQUEST_URI'];
+		$request_uri            = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$_SERVER['REQUEST_URI'] = $url;
 
 		if ( is_admin() ) {

@@ -116,7 +116,7 @@ class ObjectCache_Environment {
 						$url = 'admin.php?page=' . Util_Request::get_string( 'page' ) . '&amp;';
 					else
 						$url = basename( Util_Environment::remove_query_all(
-								$_SERVER['REQUEST_URI'] ) ) . '?page=w3tc_dashboard&amp;';
+								isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) . '?page=w3tc_dashboard&amp;';
 					$remove_url = Util_Ui::admin_url( $url .
 						'w3tc_default_remove_add_in=objectcache' );
 

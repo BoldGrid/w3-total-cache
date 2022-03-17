@@ -27,7 +27,7 @@ class Generic_AdminActions_Config {
 		} elseif ( $_FILES['config_file']['error'] != UPLOAD_ERR_OK ) {
 			$error = 'config_import_upload';
 		} else {
-			$imported = $config->import( $_FILES['config_file']['tmp_name'] );
+			$imported = $config->import( isset( $_FILES['config_file']['tmp_name'] ) ? sanitize_file_name( wp_unslash( $_FILES['config_file']['tmp_name'] ) ) : '' );
 
 			if ( !$imported ) {
 				$error = 'config_import_import';

@@ -315,7 +315,7 @@ class Generic_Plugin_Admin {
 					'dimension2': '<?php echo W3TC_VERSION ?>',
 					'dimension3': '<?php global $wp_version; echo $wp_version; ?>',
 					'dimension4': 'php<?php echo phpversion() ?>',
-					'dimension5': '<?php echo esc_attr( $_SERVER["SERVER_SOFTWARE"] ) ?>',
+					'dimension5': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
 					'dimension6': 'mysql<?php global $wpdb; echo $wpdb->db_version() ?>',
 					'dimension7': '<?php echo Util_Environment::home_url_host() ?>',
 					'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ) ?>',

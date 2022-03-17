@@ -14,7 +14,7 @@ class Util_Admin {
 		$page_url = Util_Request::get_string( 'page' );
 		if ( $url == '' ) {
 			if ( $check_referrer && !empty( $_SERVER['HTTP_REFERER'] ) ) {
-				$url = $_SERVER['HTTP_REFERER'];
+				$url = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
 			} else {
 				$url = 'admin.php';
 				if ( empty( $page ) )
@@ -713,7 +713,7 @@ class Util_Admin {
 			return $parse_url['host'];
 		}
 
-		return $_SERVER['HTTP_HOST'];
+		return isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 	}
 
 	/*

@@ -107,22 +107,21 @@ class DbCache_Environment {
 				if ( $script_data == @file_get_contents( $src ) )
 					return;
 			} else if ( get_transient( 'w3tc_remove_add_in_dbcache' ) == 'yes' ) {
-					// user already manually asked to remove another plugin's add in,
-					// we should try to apply ours
-					// (in case of missing permissions deletion could fail)
-				} else if ( !$this->db_check_old_add_in() ) {
-
-
-					if ( isset( Util_Request::get_string( 'page' ) ) )
-						$url = 'admin.php?page=' . Util_Request::get_string( 'page' ) . '&amp;';
-					else
-						$url = basename( Util_Environment::remove_query_all( $_SERVER['REQUEST_URI'] ) ) . '?page=w3tc_dashboard&amp;';
-					$remove_url = Util_Ui::admin_url( $url . 'w3tc_default_remove_add_in=dbcache' );
-					throw new Util_WpFile_FilesystemOperationException(
-						sprintf( __( 'The Database add-in file db.php is not a W3 Total Cache drop-in.
-                    Remove it or disable Database Caching. %s', 'w3-total-cache' ),
-							Util_Ui::button_link( __( 'Remove it for me', 'w3-total-cache' ), wp_nonce_url( $remove_url, 'w3tc' ) ) ) );
+				// user already manually asked to remove another plugin's add in,
+				// we should try to apply ours
+				// (in case of missing permissions deletion could fail)
+			} else if ( !$this->db_check_old_add_in() ) {
+				if ( isset( Util_Request::get_string( 'page' ) ) ) {
+					$url = 'admin.php?page=' . Util_Request::get_string( 'page' ) . '&amp;';
+				} else {
+					$url = basename( Util_Environment::remove_query_all( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) . '?page=w3tc_dashboard&amp;';
 				}
+				$remove_url = Util_Ui::admin_url( $url . 'w3tc_default_remove_add_in=dbcache' );
+				throw new Util_WpFile_FilesystemOperationException(
+					sprintf( __( 'The Database add-in file db.php is not a W3 Total Cache drop-in.
+                Remove it or disable Database Caching. %s', 'w3-total-cache' ),
+						Util_Ui::button_link( __( 'Remove it for me', 'w3-total-cache' ), wp_nonce_url( $remove_url, 'w3tc' ) ) ) );
+			}
 		}
 
 		Util_WpFile::copy_file( $src, $dst );

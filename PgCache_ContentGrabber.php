@@ -125,7 +125,7 @@ class PgCache_ContentGrabber {
 			'host' => Util_Environment::host_port()
 		);
 
-		$this->_request_uri = $_SERVER['REQUEST_URI'];
+		$this->_request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$this->_lifetime = $this->_config->get_integer( 'pgcache.lifetime' );
 		$this->_late_init = $this->_config->get_boolean( 'pgcache.late_init' );
 		$this->_late_caching = $this->_config->get_boolean( 'pgcache.late_caching' );
@@ -535,8 +535,9 @@ class PgCache_ContentGrabber {
 		/**
 		 * Skip if posting
 		 */
-		if ( isset( $_SERVER['REQUEST_METHOD'] ) && in_array( strtoupper( $_SERVER['REQUEST_METHOD'] ), array( 'DELETE', 'PUT', 'OPTIONS', 'TRACE', 'CONNECT', 'POST' ) ) ) {
-			$this->cache_reject_reason = sprintf( 'Requested method is %s', $_SERVER['REQUEST_METHOD'] );
+		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
+		if ( in_array( strtoupper( $request_method ), array( 'DELETE', 'PUT', 'OPTIONS', 'TRACE', 'CONNECT', 'POST' ), true ) ) {
+			$this->cache_reject_reason = sprintf( 'Requested method is %s', $request_method );
 
 			return false;
 		}
@@ -544,7 +545,7 @@ class PgCache_ContentGrabber {
 		/**
 		 * Skip if HEAD request
 		 */
-		if ( isset( $_SERVER['REQUEST_METHOD'] ) && strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'HEAD' &&
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) == 'HEAD' &&
 			( $this->_enhanced_mode || $this->_config->get_boolean( 'pgcache.reject.request_head' ) ) ) {
 			$this->cache_reject_reason = 'Requested method is HEAD';
 
@@ -1070,7 +1071,7 @@ class PgCache_ContentGrabber {
 		foreach ( $uas as $ua ) {
 			if ( !empty( $ua ) ) {
 				if ( isset( $_SERVER['HTTP_USER_AGENT'] ) &&
-					stristr( $_SERVER['HTTP_USER_AGENT'], $ua ) !== false )
+					stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), $ua ) !== false )
 					return false;
 			}
 		}
@@ -1302,7 +1303,7 @@ class PgCache_ContentGrabber {
 			foreach ( $compressions as $compression ) {
 				if ( is_string( $compression ) &&
 					isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) &&
-					stristr( $_SERVER['HTTP_ACCEPT_ENCODING'], $compression ) !== false ) {
+					stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_ENCODING'] ) ), $compression ) !== false ) {
 					return $compression;
 				}
 			}
@@ -1383,7 +1384,7 @@ class PgCache_ContentGrabber {
 	 */
 	function _is_buggy_ie() {
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$ua = $_SERVER['HTTP_USER_AGENT'];
+			$ua = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 
 			if ( strpos( $ua, 'Mozilla/4.0 (compatible; MSIE ' ) === 0 && strpos( $ua, 'Opera' ) === false ) {
 				$version = (float) substr( $ua, 30 );
@@ -1805,7 +1806,7 @@ class PgCache_ContentGrabber {
 	 */
 	function _check_modified_since( $time ) {
 		if ( !empty( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
-			$if_modified_since = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
+			$if_modified_since = sanitize_text_field( wp_unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) );
 
 			// IE has tacked on extra data to this header, strip it
 			if ( ( $semicolon = strrpos( $if_modified_since, ';' ) ) !== false ) {
@@ -1826,7 +1827,7 @@ class PgCache_ContentGrabber {
 	 */
 	function _check_match( $etag ) {
 		if ( !empty( $_SERVER['HTTP_IF_NONE_MATCH'] ) ) {
-			$if_none_match = $_SERVER['HTTP_IF_NONE_MATCH'] ;
+			$if_none_match = sanitize_text_field( wp_unslash( $_SERVER['HTTP_IF_NONE_MATCH'] ) );
 			$client_etags = explode( ',', $if_none_match );
 
 			foreach ( $client_etags as $client_etag ) {
@@ -2217,8 +2218,8 @@ class PgCache_ContentGrabber {
 	 */
 	static protected function log( $msg ) {
 		$data = sprintf( "[%s] [%s] [%s] %s\n", date( 'r' ),
-			$_SERVER['REQUEST_URI'],
-			( !empty( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '-' ),
+			isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+			! empty( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '-',
 			$msg );
 		$data = strtr( $data, '<>', '..' );
 

@@ -32,17 +32,18 @@ if ( !defined( 'W3TC' ) )
 
         <li>
             Web Server:
-            <?php if ( stristr( $_SERVER['SERVER_SOFTWARE'], 'apache' ) !== false ): ?>
+			<?php $server_software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : ''; ?>
+            <?php if ( stristr( $server_software, 'apache' ) !== false ) : ?>
             <code>Apache</code>
-            <?php elseif ( stristr( $_SERVER['SERVER_SOFTWARE'], 'LiteSpeed' ) !== false ): ?>
+            <?php elseif ( stristr( $server_software, 'LiteSpeed' ) !== false ) : ?>
             <code>Lite Speed</code>
-            <?php elseif ( stristr( $_SERVER['SERVER_SOFTWARE'], 'nginx' ) !== false ): ?>
+            <?php elseif ( stristr( $server_software, 'nginx' ) !== false ) : ?>
             <code>nginx</code>
-            <?php elseif ( stristr( $_SERVER['SERVER_SOFTWARE'], 'lighttpd' ) !== false ): ?>
+            <?php elseif ( stristr( $server_software, 'lighttpd' ) !== false ) : ?>
             <code>lighttpd</code>
-            <?php elseif ( stristr( $_SERVER['SERVER_SOFTWARE'], 'iis' ) !== false ): ?>
+            <?php elseif ( stristr( $server_software, 'iis' ) !== false ) : ?>
             <code>Microsoft IIS</code>
-            <?php else: ?>
+            <?php else : ?>
             <span style="background-color: #FFFF00">Not detected</span>
             <?php endif; ?>
         </li>
