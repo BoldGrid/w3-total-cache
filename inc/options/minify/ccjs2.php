@@ -46,7 +46,7 @@ $compilation_level = $c->get_string( 'minify.ccjs.options.compilation_level' );
 <tr>
 	<th>&nbsp;</th>
 	<td>
-		<input class="minifier_test js_enabled button {type: 'ccjs', nonce: '<?php esc_attr_e( wp_create_nonce( 'w3tc' ), 'w3-total-cache' ); ?>'}"
+		<input class="minifier_test js_enabled button {type: 'ccjs', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
 			type="button"
 			value="<?php esc_attr_e( 'Test Closure Compiler', 'w3-total-cache' ); ?>" />
 		<span class="minifier_test_status w3tc-status w3tc-process"></span>
@@ -62,9 +62,9 @@ $compilation_level = $c->get_string( 'minify.ccjs.options.compilation_level' );
 		<select id="minify_ccjs_options_compilation_level" class="js_enabled"
 			name="minify__ccjs__options__compilation_level"
 			<?php Util_Ui::sealing_disabled( 'minify.' ); ?>>
-			<?php foreach ( $compilation_levels as $compilation_level_key => $compilation_level_name ) : ?>
-				<option value="<?php esc_attr_e( $compilation_level_key, 'w3-total-cache' ); ?>"
-					<?php selected( $compilation_level, $compilation_level_key ); ?>>
+			<?php foreach ( $compilation_levels as $compilation_level_key => $compilation_level_name ): ?>
+				<option value="<?php echo esc_attr( $compilation_level_key ); ?>"
+					<?php selected( $compilation_level, $compilation_level_key ) ?>>
 					<?php esc_html_e( $compilation_level_name, 'w3-total-cache' ); ?>
 				</option>
 			<?php endforeach ?>
