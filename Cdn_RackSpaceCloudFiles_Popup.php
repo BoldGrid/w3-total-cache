@@ -35,7 +35,7 @@ class Cdn_RackSpaceCloudFiles_Popup {
 
 	public function w3tc_ajax_cdn_rackspace_intro_done() {
 		$user_name = Util_Request::get_string( 'user_name' );
-		$api_key = Util_Request::get_string( 'api_key' );
+		$api_key   = Util_Request::get_string( 'api_key' );
 
 		try {
 			$r = Cdn_RackSpace_Api_Tokens::authenticate( $user_name,
@@ -75,7 +75,9 @@ class Cdn_RackSpaceCloudFiles_Popup {
 		$access_token = Util_Request::get_string( 'access_token' );
 		$region = Util_Request::get( 'region' );
 		$region_descriptors = json_decode(
-			strtr( Util_Request::get_string( 'region_descriptors' ), '!^', '"\\' ), true );
+			strtr( Util_Request::get_string( 'region_descriptors' ), '!^', '"\\' ),
+			true
+		);
 
 		if ( !isset( $region_descriptors[$region] ) ) {
 			$details = array(
@@ -127,7 +129,9 @@ class Cdn_RackSpaceCloudFiles_Popup {
 		$api_key = Util_Request::get_string( 'api_key' );
 		$access_token = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode(
-			strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ), true );
+			strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ),
+			true
+		);
 		$region = Util_Request::get_string( 'region' );
 		$container = Util_Request::get( 'container' );
 
@@ -145,6 +149,7 @@ class Cdn_RackSpaceCloudFiles_Popup {
 		try {
 			if ( empty( $container ) ) {
 				$container_new = Util_Request::get_string( 'container_new' );
+
 				if ( empty( $container_new ) )
 					throw new \Exception( 'Please select container' );
 

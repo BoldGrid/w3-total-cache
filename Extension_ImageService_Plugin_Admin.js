@@ -435,6 +435,18 @@
 				) {
 					message = response.responseJSON.data.message;
 					rebindBuyClick = true;
+
+					if ( 'accept' === w3tcData.tos_choice && w3tcData.track_usage ) {
+						(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+							(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+							m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+							})(window,document,'script','https://api.w3-edge.com/v1/analytics','w3tc_ga');
+
+						if ( window.w3tc_ga ) {
+							w3tc_ga( 'create', w3tcData.ga_profile, 'auto' );
+							w3tc_ga( 'send', 'event', 'w3tc_error', 'imageservice', response.responseJSON.data.code );
+						}
+					}
 				} else {
 					message = w3tcData.lang.ajaxFail;
 				}
