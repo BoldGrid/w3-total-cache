@@ -438,14 +438,11 @@ class Extension_ImageService_Plugin_Admin {
 		delete_transient( 'w3tc_activation_imageservice' );
 
 		// Save submitted settings.
-		$nonce_val = Util_Request::get_string( '_wpnonce' );
-		if ( ( ! empty( $nonce_val ) && ! empty( Util_Request::get_string( 'imageservice___compression' ) ) ) && wp_verify_nonce( $nonce_val, 'w3tc' ) ) {
-			$settings = $c->get_array( 'imageservice' );
-
-			$imageservice_compression_val = Util_Request::get_string( 'imageservice___compression' );
-			if ( ! empty( $imageservice_compression_val ) ) {
-				$settings['compression'] = $imageservice_compression_val;
-			}
+		$nonce_val                    = Util_Request::get_string( '_wpnonce' );
+		$imageservice_compression_val = Util_Request::get_string( 'imageservice___compression' );
+		if ( ! empty( $imageservice_compression_val ) && ! empty( $nonce_val ) && wp_verify_nonce( $nonce_val, 'w3tc' ) ) {
+			$settings                = $c->get_array( 'imageservice' );
+			$settings['compression'] = $imageservice_compression_val;
 
 			$imageservice_auto_val = Util_Request::get_string( 'imageservice___auto' );
 			if ( ! empty( $imageservice_auto_val ) ) {
