@@ -397,6 +397,7 @@ class Cdn_Core {
 					'id' => $c->get_string( 'cdn.cf.id' ),
 					'cname' => $c->get_array( 'cdn.cf.cname' ),
 					'ssl' => $c->get_string( 'cdn.cf.ssl' ),
+					'public_objects' => $c->get_string( 'cdn.cf.public_objects' ),
 					'compression' => $compression
 				);
 				break;
