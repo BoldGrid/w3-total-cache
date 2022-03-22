@@ -734,10 +734,15 @@ class Util_Admin {
 	 * @return bool
 	 */
 	static public function is_w3tc_admin_page() {
-		if ( isset( Util_Request::get_string( 'page' ) ) && substr( Util_Request::get_string( 'page' ), 0, 5 ) == 'w3tc_' )
+		$page_val = Util_Request::get_string( 'page' );
+		if ( ! empty( $page_val ) && 'w3tc_' === substr( $page_val, 0, 5 ) ) {
 			return true;
-		if ( isset( Util_Request::get_string( 'action' ) ) && substr( Util_Request::get_string( 'action' ), 0, 5 ) == 'w3tc_' )
+		}
+
+		$action_val = Util_Request::get_string( 'action' );
+		if ( ! empty( $action_val ) && 'w3tc_' === substr( $action_val, 0, 5 ) ) {
 			return true;
+		}
 
 		return false;
 	}

@@ -78,7 +78,7 @@ class SetupGuide_Plugin_Admin {
 	 * @since 2.0.0
 	 */
 	public function skip() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			update_site_option( 'w3tc_setupguide_completed', time() );
 			wp_send_json_success();
 		} else {
@@ -94,8 +94,8 @@ class SetupGuide_Plugin_Admin {
 	 * @uses $_POST['choice'] TOS choice: accept/decline.
 	 */
 	public function set_tos_choice() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$choice          = empty( Util_Request::get_string( 'choice' ) ) ? null : Util_Request::get_string( 'choice' );
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$choice          = Util_Request::get_string( 'choice' );
 			$allowed_choices = array(
 				'accept',
 				'decline',
@@ -159,8 +159,8 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Util_Http::ttfb()
 	 */
 	public function test_pgcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$nocache = ! empty( Util_Request::get_string( 'nocache' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$nocache = ! empty( Util_Request::get_string( 'nocache' ) );
 			$url     = site_url();
 			$results = array(
 				'nocache'  => $nocache,
@@ -189,7 +189,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_pgcache_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config = new Config();
 
 			wp_send_json_success(
@@ -217,9 +217,9 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\CacheFlush::flush_posts()
 	 */
 	public function config_pgcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$enable          = ! empty( Util_Request::get_string( 'enable' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$enable          = ! empty( Util_Request::get_string( 'enable' ) );
+			$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
 			$is_updating     = false;
 			$success         = false;
 			$config          = new Config();
@@ -302,7 +302,7 @@ class SetupGuide_Plugin_Admin {
 	 * @global $wpdb WordPress database object.
 	 */
 	public function test_dbcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config  = new Config();
 			$results = array(
 				'enabled' => $config->get_boolean( 'dbcache.enabled' ),
@@ -378,7 +378,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_dbcache_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config = new Config();
 
 			wp_send_json_success(
@@ -406,9 +406,9 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\CacheFlush::dbcache_flush()
 	 */
 	public function config_dbcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$enable          = ! empty( Util_Request::get_string( 'enable' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$enable          = ! empty( Util_Request::get_string( 'enable' ) );
+			$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
 			$is_updating     = false;
 			$success         = false;
 			$config          = new Config();
@@ -484,7 +484,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function test_objcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config  = new Config();
 			$results = array(
 				'enabled' => $config->get_boolean( 'objectcache.enabled' ),
@@ -521,7 +521,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_objcache_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config = new Config();
 
 			wp_send_json_success(
@@ -549,9 +549,9 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\CacheFlush::objcache_flush()
 	 */
 	public function config_objcache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$enable          = ! empty( Util_Request::get_string( 'enable' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$enable          = ! empty( Util_Request::get_string( 'enable' ) );
+			$engine          = empty( Util_Request::get_string( 'engine' ) ) ? '' : esc_attr( Util_Request::get_string( 'engine', '', true ) );
 			$is_updating     = false;
 			$success         = false;
 			$config          = new Config();
@@ -627,7 +627,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Util_Http::get_headers()
 	 */
 	public function test_browsercache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$results = array();
 			$urls    = array(
 				trailingslashit( site_url() ),
@@ -666,7 +666,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_string()
 	 */
 	public function get_browsercache_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config = new Config();
 
 			wp_send_json_success(
@@ -700,8 +700,8 @@ class SetupGuide_Plugin_Admin {
 	 * @uses $_POST['enable']
 	 */
 	public function config_browsercache() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-			$enable               = ! empty( Util_Request::get_string( 'enable' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$enable               = ! empty( Util_Request::get_string( 'enable' ) );
 			$config               = new Config();
 			$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
 
@@ -747,7 +747,7 @@ class SetupGuide_Plugin_Admin {
 	 * @see \W3TC\Config::get_array()
 	 */
 	public function get_lazyload_settings() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config = new Config();
 
 			wp_send_json_success(
@@ -779,7 +779,7 @@ class SetupGuide_Plugin_Admin {
 	 * @uses $_POST['enable']
 	 */
 	public function config_lazyload() {
-		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$enable           = ! empty( Util_Request::get_string( 'enable' ) );
 			$config           = new Config();
 			$lazyload_enabled = $config->get_boolean( 'lazyload.enabled' );

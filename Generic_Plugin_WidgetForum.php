@@ -119,7 +119,7 @@ class Generic_Plugin_WidgetForum {
 	 * @return void
 	 */
 	function widget_latest_control( $widget_id, $form_inputs = array() ) {
-		if ( 'POST' === isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' ) {
+		if ( 'POST' === ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' ) ) {
 			$this->_config->set( 'widget.latest.items', Util_Request::get_integer( 'w3tc_widget_latest_items', 3 ) );
 			$this->_config->save();
 			delete_transient( $this->_widget_latest_cache_key() );

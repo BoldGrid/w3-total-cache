@@ -39,7 +39,7 @@ class Generic_Plugin {
 			) );
 
 		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		if ( isset( Util_Request::get_string( 'w3tc_theme' ) ) && stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
+		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) ) && stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
 			add_filter( 'template', array(
 					$this,
 					'template_preview'
@@ -215,10 +215,9 @@ class Generic_Plugin {
 			add_action( 'wp_print_scripts', array( $this, 'popup_script' ) );
 		}
 
-
-		// dont add system stuff to search results
-		if ( ( isset( Util_Request::get_string( 'repeat' ) ) && Util_Request::get_string( 'repeat' ) == 'w3tc' ) ||
-			Util_Environment::is_preview_mode() ) {
+		// dont add system stuff to search results.
+		$repeat_val = Util_Request::get_string( 'repeat' );
+		if ( ( ! empty( $repeat_val ) && 'w3tc' === $repeat_val ) || Util_Environment::is_preview_mode() ) {
 			header( 'X-Robots-Tag: noindex' );
 		}
 	}

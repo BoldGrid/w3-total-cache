@@ -589,10 +589,10 @@ class PgCache_ContentGrabber {
 		/**
 		 * Check User Agent
 		 */
-		if ( !$this->_check_ua() ) {
+		if ( ! $this->_check_ua() ) {
 			$this->cache_reject_reason = 'User agent is rejected';
-			if ( isset( Util_Request::get_string( 'w3tc_rewrite_test' ) ) ) {
-				// special common case - w3tc_rewrite_test check request
+			if ( ! empty( Util_Request::get_string( 'w3tc_rewrite_test' ) ) ) {
+				// special common case - w3tc_rewrite_test check request.
 				$this->process_status = 'miss_wp_admin';
 			} else {
 				$this->process_status = 'miss_configuration';

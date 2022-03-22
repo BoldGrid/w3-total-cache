@@ -105,15 +105,16 @@ class UsageStatistics_Plugin_Admin {
 	 * Ajax: Test access log path.
 	 */
 	public function w3tc_ajax_ustats_access_log_test() {
-		$nonce = isset( Util_Request::get_array( '_wpnonce')[0] ) ? Util_Request::get_array( '_wpnonce' )[0] ) : false;
+		$nonce_val = Util_Request::get_array( '_wpnonce' )[0];
+		$nonce     = isset( $nonce_val ) ? $nonce_val : false;
 
 		if ( ! wp_verify_nonce( $nonce, 'w3tc' ) ) {
 			wp_die( esc_html__( 'Invalid WordPress nonce.  Please reload the page and try again.', 'w3-total-cache' ) );
 		}
 
-		$handle   = false;
-		$filepath = isset( Util_Request::get_string( 'filename' ) ) ?
-			str_replace( '://', '/', Util_Request::get_string( 'filename' ) )  : null;
+		$handle       = false;
+		$filename_val = Util_Request::get_string( 'filename' );
+		$filepath     = ! emtpy( $filename_val ) ? str_replace( '://', '/', $filename_val ) : null;
 
 		if ( $filepath ) {
 			$handle   = @fopen( $filepath, 'rb' ); // phpcs:ignore WordPress

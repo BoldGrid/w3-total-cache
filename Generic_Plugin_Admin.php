@@ -220,8 +220,10 @@ class Generic_Plugin_Admin {
 			Util_Activation::deactivate_plugin();
 		}
 
-		if ( isset( Util_Request::get_string( 'page' ) ) )
-			do_action( 'admin_init_' . Util_Request::get_string( 'page' ) );
+		$page_val = Util_Request::get_string( 'page' );
+		if ( ! empty( $page_val ) ) {
+			do_action( 'admin_init_' . $page_val );
+		}
 	}
 
 	/**
@@ -258,10 +260,11 @@ class Generic_Plugin_Admin {
 			foreach ( $this->w3tc_message['actions'] as $action )
 				do_action( 'w3tc_message_action_' . $action );
 		}
-		// for testing
-		if ( isset( Util_Request::get_string( 'w3tc_message_action' ) ) )
-			do_action( 'w3tc_message_action_' . Util_Request::get_string( 'w3tc_message_action' ) );
-
+		// for testing.
+		$w3tc_message_action_val = Util_Request::get_string( 'w3tc_message_action' );
+		if ( ! empty( $w3tc_message_action_val ) ) {
+			do_action( 'w3tc_message_action_' . $w3tc_message_action_val );
+		}
 	}
 
 	// Define icon styles for the custom post type
@@ -392,10 +395,10 @@ class Generic_Plugin_Admin {
 			}
 
 			global $pagenow;
-			if ( $pagenow == 'plugins.php' || $this->is_w3tc_page ||
-				isset( Util_Request::get_string( 'w3tc_note' ) ) ||
-				isset( Util_Request::get_string( 'w3tc_error' ) ) ||
-				isset( Util_Request::get_string( 'w3tc_message' ) ) ) {
+			if ( 'plugins.php' === $pagenow || $this->is_w3tc_page ||
+				! empty( Util_Request::get_string( 'w3tc_note' ) ) ||
+				! empty( Util_Request::get_string( 'w3tc_error' ) ) ||
+				! empty( Util_Request::get_string( 'w3tc_message' ) ) ) {
 				/**
 				 * Only admin can see W3TC notices and errors
 				 */
@@ -741,9 +744,9 @@ class Generic_Plugin_Admin {
 			$environment = Dispatcher::component( 'Root_Environment' );
 			$environment->fix_in_wpadmin( $this->_config );
 
-			if ( isset( Util_Request::get_string( 'upgrade' ) ) )
-				$notes[] = __( 'Required files and directories have been automatically created',
-					'w3-total-cache' );
+			if ( ! empty( Util_Request::get_string( 'upgrade' ) ) ) {
+				$notes[] = __( 'Required files and directories have been automatically created', 'w3-total-cache' );
+			}
 		} catch ( Util_Environment_Exceptions $exs ) {
 			$r = Util_Activation::parse_environment_exceptions( $exs );
 			$n = 1;

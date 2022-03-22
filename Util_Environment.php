@@ -1059,6 +1059,8 @@ class Util_Environment {
 	static public function detect_post_id() {
 		global $posts, $comment_post_ID, $post_ID;
 
+		$p_val = Util_Request::get_integer( 'p' );
+
 		if ( $post_ID ) {
 			return $post_ID;
 		} elseif ( $comment_post_ID ) {
@@ -1067,8 +1069,8 @@ class Util_Environment {
 			return $posts[0]->ID;
 		} elseif ( isset( $posts->ID ) ) {
 			return $posts->ID;
-		} elseif ( isset( Util_Request::get_integer( 'p' ) ) {
-			return Util_Request::get_integer( 'p' );
+		} elseif ( ! empty( $p_val ) {
+			return $p_val;
 		}
 
 		return 0;

@@ -111,8 +111,9 @@ class DbCache_Environment {
 				// we should try to apply ours
 				// (in case of missing permissions deletion could fail)
 			} else if ( !$this->db_check_old_add_in() ) {
-				if ( isset( Util_Request::get_string( 'page' ) ) ) {
-					$url = 'admin.php?page=' . Util_Request::get_string( 'page' ) . '&amp;';
+				$page_val = Util_Request::get_string( 'page' );
+				if ( isset( $page_val ) ) {
+					$url = 'admin.php?page=' . $page_val . '&amp;';
 				} else {
 					$url = basename( Util_Environment::remove_query_all( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) . '?page=w3tc_dashboard&amp;';
 				}

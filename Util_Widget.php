@@ -97,10 +97,10 @@ class Util_Widget {
 		}
 
 		// it's ajax callback
-		if ( $control_callback && current_user_can( 'edit_dashboard' ) &&
-			is_callable( $control_callback ) ) {
-			$w3tc_dashboard_control_callbacks[$widget_id] = $control_callback;
-			if ( isset( Util_Request::get_string( 'edit' ) ) && $widget_id == Util_Request::get_string( 'edit' ) ) {
+		if ( $control_callback && current_user_can( 'edit_dashboard' ) && is_callable( $control_callback ) ) {
+			$w3tc_dashboard_control_callbacks[ $widget_id ] = $control_callback;
+			$edit_val                                       = Util_Request::get_string( 'edit' );
+			if ( ! empty( $edit_val ) && $widget_id === $edit_val ) {
 				list( $url ) = explode( '#', add_query_arg( 'edit', false ), 2 );
 				$widget_name .= ' <span class="postbox-title-action">' .
 					'<a href="' . esc_url( $url ) . '">' . __( 'Cancel' ) .

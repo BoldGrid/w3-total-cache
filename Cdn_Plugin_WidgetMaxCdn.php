@@ -39,8 +39,9 @@ class Cdn_Plugin_WidgetMaxCdn {
 		add_action( 'w3tc_ajax_cdn_maxcdn_widgetdata', array(
 			$this, 'w3tc_ajax_cdn_maxcdn_widgetdata' ) );
 
-		if ( $this->have_zone && $this->authorized && isset( Util_Request::get_string( 'page' ) ) &&
-				strpos( Util_Request::get_string( 'page' ), 'w3tc_dashboard' ) !== false ) {
+		$page_val = Util_Request::get_string( 'page' );
+		if ( $this->have_zone && $this->authorized && ! empty( $page_val ) &&
+				strpos( $page_val, 'w3tc_dashboard' ) !== false ) {
 
 		}
 	}

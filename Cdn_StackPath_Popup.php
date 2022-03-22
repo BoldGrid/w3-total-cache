@@ -163,13 +163,13 @@ class Cdn_StackPath_Popup {
 		} else {
 			$zone = array();
 
-			if ( isset( Util_Request::get_string( 'url_change' ) ) ) {
+			if ( ! empty( Util_Request::get_string( 'url_change' ) ) ) {
 				$zone['url'] = Util_Request::get_string( 'url' );
 			}
-			if ( isset( Util_Request::get_string( 'compress_change' ) ) ) {
+			if ( ! empty( Util_Request::get_string( 'compress_change' ) ) ) {
 				$zone['compress'] = Util_Request::get_string( 'compress' );
 			}
-			if ( isset( Util_Request::get_string( 'cors_headers_change' ) ) ) {
+			if ( ! empty( Util_Request::get_string( 'cors_headers_change' ) ) ) {
 				$zone['cors_headers'] = Util_Request::get_string( 'cors_headers' );
 			}
 			if ( Util_Request::get_string( 'ssl' ) == 'shared' ) {

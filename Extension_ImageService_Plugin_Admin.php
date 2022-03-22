@@ -438,19 +438,23 @@ class Extension_ImageService_Plugin_Admin {
 		delete_transient( 'w3tc_activation_imageservice' );
 
 		// Save submitted settings.
-		if ( isset( Util_Request::get_string( '_wpnonce' ), Util_Request::get_string( 'imageservice___compression' ) ) && wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$nonce_val = Util_Request::get_string( '_wpnonce' );
+		if ( ( ! empty( $nonce_val ) && ! empty( Util_Request::get_string( 'imageservice___compression' ) ) ) && wp_verify_nonce( $nonce_val, 'w3tc' ) ) {
 			$settings = $c->get_array( 'imageservice' );
 
-			if ( isset( Util_Request::get_string( 'imageservice___compression' ) ) ) {
-				$settings['compression'] = Util_Request::get_string( 'imageservice___compression' );
+			$imageservice_compression_val = Util_Request::get_string( 'imageservice___compression' );
+			if ( ! empty( $imageservice_compression_val ) ) {
+				$settings['compression'] = $imageservice_compression_val;
 			}
 
-			if ( isset( Util_Request::get_string( 'imageservice___auto' ) ) ) {
-				$settings['auto'] = Util_Request::get_string( 'imageservice___auto' );
+			$imageservice_auto_val = Util_Request::get_string( 'imageservice___auto' );
+			if ( ! empty( $imageservice_auto_val ) ) {
+				$settings['auto'] = $imageservice_auto_val;
 			}
 
-			if ( isset( Util_Request::get_string( 'imageservice___visibility' ) ) ) {
-				$settings['visibility'] = Util_Request::get_string( 'imageservice___visibility' );
+			$imageservice_visibility_val = Util_Request::get_string( 'imageservice___visibility' );
+			if ( ! empty( $imageservice_visibility_val ) ) {
+				$settings['visibility'] = $imageservice_visibility_val;
 			}
 
 			$c->set( 'imageservice', $settings );
@@ -501,7 +505,8 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function admin_enqueue_scripts() {
 		// Enqueue JavaScript for the Media Library (upload) and extension settings admin pages.
-		$is_settings_page = isset( Util_Request::get_string( 'page' ) ) && 'w3tc_extension_page_imageservice' === Util_Request::get_string( 'page' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page_val         = Util_Request::get_string( 'page' );
+		$is_settings_page = ! empty( $page_val ) && 'w3tc_extension_page_imageservice' === $page_val;
 		$is_media_page    = 'upload' === get_current_screen()->id;
 
 		if ( $is_settings_page ) {
@@ -825,14 +830,19 @@ class Extension_ImageService_Plugin_Admin {
 	 * @uses $_GET['w3tc_imageservice_invalid']    Number of invalid submissions.
 	 */
 	public function display_notices() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( isset( Util_Request::get_integer( 'w3tc_imageservice_submitted' ) ) ) {
-			$submitted  = Util_Request::get_integer( 'w3tc_imageservice_submitted' );
-			$successful = isset( Util_Request::get_integer( 'w3tc_imageservice_successful' ) ) ? Util_Request::get_integer( 'w3tc_imageservice_successful' ) : 0;
-			$skipped    = isset( Util_Request::get_integer( 'w3tc_imageservice_skipped' ) ) ? Util_Request::get_integer( 'w3tc_imageservice_skipped' ) : 0;
-			$errored    = isset( Util_Request::get_integer( 'w3tc_imageservice_errored' ) ) ? Util_Request::get_integer( 'w3tc_imageservice_errored' ) : 0;
-			$invalid    = isset( Util_Request::get_integer( 'w3tc_imageservice_invalid' ) ) ? Util_Request::get_integer( 'w3tc_imageservice_invalid' ) : 0;
-			// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$submitted = Util_Request::get_integer( 'w3tc_imageservice_submitted' );
+		if ( ! empty( $submitted ) ) {
+			$successful_val = Util_Request::get_integer( 'w3tc_imageservice_successful' );
+			$successful     = ! empty( $successful_val ) ? $successful_val : 0;
+
+			$skipped_val = Util_Request::get_integer( 'w3tc_imageservice_skipped' );
+			$skipped     = ! empty( $skipped_val ) ? $skipped_val : 0;
+
+			$errored_val = Util_Request::get_integer( 'w3tc_imageservice_errored' );
+			$errored     = ! empty( $errored_val ) ? $errored_val : 0;
+
+			$invalid_val = Util_Request::get_integer( 'w3tc_imageservice_invalid' );
+			$invalid     = ! empty( $invalid_val ) ? $invalid_val : 0;
 
 			?>
 			<script>history.pushState( null, '', location.href.split( '?' )[0] );</script>
@@ -879,7 +889,7 @@ class Extension_ImageService_Plugin_Admin {
 			</div>
 			<?php
 
-		} elseif ( isset( Util_Request::get_string( 'w3tc_imageservice_reverted' ) ) ) { // phpcs:ignore
+		} elseif ( ! empty( Util_Request::get_string( 'w3tc_imageservice_reverted' ) ) ) {
 			?>
 			<script>history.pushState( null, '', location.href.split( '?' )[0] );</script>
 
@@ -1143,7 +1153,8 @@ class Extension_ImageService_Plugin_Admin {
 		);
 
 		// Check for post id.
-		$post_id = isset( Util_Request::get_integer( 'post_id' ) ) ? Util_Request::get_integer( 'post_id' ) : null;
+		$post_id_val = Util_Request::get_integer( 'post_id' );
+		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( ! $post_id ) {
 			wp_send_json_error(
@@ -1226,7 +1237,8 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_get_postmeta() {
 		check_ajax_referer( 'w3tc_imageservice_postmeta' );
 
-		$post_id = isset( Util_Request::get_integer( 'post_id' ) ) ? Util_Request::get_integer( 'post_id' ) : null;
+		$post_id_val = Util_Request::get_integer( 'post_id' );
+		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( $post_id ) {
 			wp_send_json_success( (array) get_post_meta( $post_id, 'w3tc_imageservice', true ) );
@@ -1250,7 +1262,8 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_revert() {
 		check_ajax_referer( 'w3tc_imageservice_revert' );
 
-		$post_id = isset( Util_Request::get_integer( 'post_id' ) ) ? Util_Request::get_integer( 'post_id' ) : null;
+		$post_id_val = Util_Request::get_integer( 'post_id' );
+		$post_id     = ! emtpy( $post_id_val ) ? $post_id_val : null;
 
 		if ( $post_id ) {
 			$result = $this->remove_optimizations( $post_id );

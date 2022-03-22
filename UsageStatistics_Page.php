@@ -31,12 +31,14 @@ class UsageStatistics_Page {
 			return;
 		}
 
-		if ( isset( Util_Request::get_string( 'view' ) ) && Util_Request::get_string( 'view' ) == 'db_requests' ) {
+		$view_val = Util_Request::get_string( 'view' );
+		if ( ! empty( $view_val ) && 'db_requests' === $view_val ) {
 			$storage = new UsageStatistics_StorageReader();
 			$summary = $storage->get_history_summary();
 			$timestamp_start = $summary['period']['timestamp_start'];
 
-			$sort_column = isset( Util_Request::get_string( 'sort' ) ) ? Util_Request::get_string( 'sort' ) : '';
+			$sort_val    = Util_Request::get_string( 'sort' );
+			$sort_column = ! empty( $sort_val ) ? $sort_val : '';
 			if ( !in_array( $sort_column, array(
 					'query', 'count_total', 'count_hit', 'avg_size',
 					'avg_time_ms', 'sum_time_ms' ) ) ) {
@@ -61,12 +63,13 @@ class UsageStatistics_Page {
 			);
 
 			include  W3TC_DIR . '/UsageStatistics_Page_DbRequests_View.php';
-		} elseif ( isset( Util_Request::get_string( 'view' ) ) && Util_Request::get_string( 'view' ) == 'oc_requests' ) {
+		} elseif ( ! empty( $view_val ) && 'oc_requests' === $view_val ) {
 			$storage = new UsageStatistics_StorageReader();
 			$summary = $storage->get_history_summary();
 			$timestamp_start = $summary['period']['timestamp_start'];
 
-			$sort_column = isset( Util_Request::get_string( 'sort' ) ) ? Util_Request::get_string( 'sort' ) : '';
+			$sort_val    = Util_Request::get_string( 'sort' );
+			$sort_column = ! empty( $sort_val ) ? $sort_val : '';
 			if ( !in_array( $sort_column, array(
 					'group', 'count_total', 'count_get_total', 'count_get_hit',
 					'count_set', 'avg_size', 'sum_size', 'sum_time_ms' ) ) ) {
@@ -91,12 +94,13 @@ class UsageStatistics_Page {
 			);
 
 			include  W3TC_DIR . '/UsageStatistics_Page_ObjectCacheLog_View.php';
-		} elseif ( isset( Util_Request::get_string( 'view' ) ) && Util_Request::get_string( 'view' ) == 'pagecache_requests' ) {
+		} elseif ( ! empty( $view_val ) && 'pagecache_requests' === $view_val ) {
 			$storage = new UsageStatistics_StorageReader();
 			$summary = $storage->get_history_summary();
 			$timestamp_start = $summary['period']['timestamp_start'];
 
-			$sort_column = isset( Util_Request::get_string( 'sort' ) ) ? Util_Request::get_string( 'sort' ) : '';
+			$sort_val    = Util_Request::get_string( 'sort' );
+			$sort_column = ! empty( $sort_val ) ? $sort_val : '';
 			if ( !in_array( $sort_column, array(
 					'uri', 'count', 'avg_size', 'avg_time_ms',
 					'sum_time_ms' ) ) ) {
@@ -108,8 +112,11 @@ class UsageStatistics_Page {
 				return;
 			}
 
-			$reader = new UsageStatistics_Source_PageCacheLog( $timestamp_start,
-			Util_Request::get_string( 'status' ), $sort_column );
+			$reader = new UsageStatistics_Source_PageCacheLog(
+				$timestamp_start,
+				Util_Request::get_string( 'status' ),
+				$sort_column
+			);
 			$items = $reader->list_entries();
 
 			$result = array(
