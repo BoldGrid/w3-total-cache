@@ -72,6 +72,7 @@ def generate_image_descriptors
 	image_descriptors = multiply(image_descriptors, php_list = {
 		'php80' => {
 			'PHP_VERSION' => '8.0',
+			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
@@ -79,6 +80,7 @@ def generate_image_descriptors
 		},
 		'php74' => {
 			'PHP_VERSION' => '7.4',
+			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
@@ -89,6 +91,7 @@ def generate_image_descriptors
 		},
 		'php56' => {
 			'PHP_VERSION' => '5.6',
+			'PHPFPM_SOCKET_FILE' => '/run/php/php5.6-fpm.sock',
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
