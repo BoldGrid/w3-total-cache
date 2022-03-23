@@ -33,6 +33,7 @@ def run
 		elsif ENV['W3D_PHP_VERSION'] == '8.0'
 			system_assert 'service php8.0-fpm restart'
 		else
+			socket_filename = '/run/php/php5.6-fpm.sock'
 			system_assert 'service php5.6-fpm restart'
 		end
 
