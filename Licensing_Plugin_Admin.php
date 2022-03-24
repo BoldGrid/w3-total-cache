@@ -160,7 +160,7 @@ class Licensing_Plugin_Admin {
 		$state  = Dispatcher::config_state();
 		$status = $state->get_string( 'license.status' );
 
-		if ( defined( 'W3TC_PRO' ) {
+		if ( defined( 'W3TC_PRO' ) ) {
 		} elseif ( 'no_key' === $status ) {
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
 			$message = wp_kses(
@@ -284,7 +284,8 @@ class Licensing_Plugin_Admin {
 						),
 						'<a href="' . esc_url( W3TC_TERMS_URL ) . '" target="blank">',
 						'</a>'
-					) . $buttons;
+					) . $buttons
+				);
 			} else {
 				$notes['licensing_terms'] = sprintf(
 					// translators: 1: HTML break tag, 2: Anchor/link open tag, 3: Anchor/link close tag.

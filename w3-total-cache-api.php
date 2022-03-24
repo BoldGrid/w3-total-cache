@@ -661,7 +661,21 @@ function w3_instance( $class ) {
  * @param mixed  $default_value Default value.
  */
 function w3tc_e( $key, $default_value ) {
-	echo esc_html( w3tc_er( $key, $default_value ) );
+	$dom = new DOMDocument();
+	$dom->loadHTML( $default_value );
+	$allowed_html = array();
+	foreach ( $dom->getElementsByTagName( '*' ) as $tag ) {
+		$tagname = $tag->tagName;
+		foreach ( $tag->attributes as $attribute_name => $attribute_val ) {
+			$allowed_html[ $tagname ][ $attribute_name ] = array();
+		}
+		$allowed_html[ $tagname ] = empty( $allowed_html[ $tagname ] ) ? array() : $allowed_html[ $tagname ];
+	}
+
+	echo wp_kses(
+		w3tc_er( $key, $default_value ),
+		$allowed_html
+	);
 }
 
 /**
