@@ -577,7 +577,8 @@ class Util_Environment {
 			$document_root = substr(
 				self::normalize_path( sanitize_text_field( wp_unslash( $_SERVER['PATH_TRANSLATED'] ) ) ),
 				0,
-				-strlen( self::normalize_path( sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) ) ) );
+				-strlen( self::normalize_path( sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) ) ) )
+			);
 		} elseif ( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
 			$document_root = self::normalize_path( sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) );
 		} else {
@@ -1069,7 +1070,7 @@ class Util_Environment {
 			return $posts[0]->ID;
 		} elseif ( isset( $posts->ID ) ) {
 			return $posts->ID;
-		} elseif ( ! empty( $p_val ) {
+		} elseif ( ! empty( $p_val ) ) {
 			return $p_val;
 		}
 
@@ -1217,7 +1218,7 @@ class Util_Environment {
 	 * Checks if post belongs to a custom post type
 	 *
 	 * @since 2.1.7
-	 * 
+	 *
 	 * @param unknown $post
 	 *
 	 * @return bool
@@ -1228,7 +1229,7 @@ class Util_Environment {
 		// post type not found belongs to default post type(s)
 		if ( empty ( $post_type ) )
 			return false;
-		
+
 		// check if custom
 		if ( $post_type->_builtin === false )
 			return true;
