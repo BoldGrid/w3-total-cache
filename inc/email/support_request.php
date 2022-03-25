@@ -35,8 +35,8 @@
         <hr />
 
         <font size="-1" color="#ccc">
-            E-mail sent from IP: <?php echo htmlspecialchars( $_SERVER['REMOTE_ADDR'] ); ?><br />
-            User Agent: <?php echo htmlspecialchars( $_SERVER['HTTP_USER_AGENT'] ); ?>
+            E-mail sent from IP: <?php echo htmlspecialchars( isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '' ); ?><br />
+            User Agent: <?php echo htmlspecialchars( isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '' ); ?>
         </font>
     </body>
 </html>

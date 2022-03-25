@@ -49,7 +49,7 @@ class Cdn_MaxCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_maxcdn_list_zones() {
-		$api_key = $_REQUEST['api_key'];
+		$api_key = Util_Request::get_string( 'api_key' );
 
 		$api = \NetDNA::create( $api_key );
 		if ( !$api->is_valid() ) {
@@ -89,8 +89,8 @@ class Cdn_MaxCdn_Popup {
 
 	public function w3tc_ajax_cdn_maxcdn_view_zone() {
 		$config = Dispatcher::config();
-		$api_key = $_REQUEST['api_key'];
-		$zone_id = Util_Request::get( 'zone_id', '' );
+		$api_key = Util_Request::get_string( 'api_key' );
+		$zone_id = Util_Request::get_string( 'zone_id', '' );
 
 		$details = array(
 			'api_key' => $api_key,
@@ -155,7 +155,7 @@ class Cdn_MaxCdn_Popup {
 
 
 	public function w3tc_ajax_cdn_maxcdn_configure_zone() {
-		$api_key = $_REQUEST['api_key'];
+		$api_key = Util_Request::get_string( 'api_key' );
 		$zone_id = Util_Request::get( 'zone_id', '' );
 
 		if ( empty( $zone_id ) ) {
@@ -171,16 +171,16 @@ class Cdn_MaxCdn_Popup {
 		} else {
 			$zone = array();
 
-			if ( isset( $_REQUEST['url_change'] ) ) {
-				$zone['url'] = Util_Request::get( 'url' );
+			if ( ! empty( Util_Request::get_string( 'url_change' ) ) ) {
+				$zone['url'] = Util_Request::get_string( 'url' );
 			}
-			if ( isset( $_REQUEST['compress_change'] ) ) {
-				$zone['compress'] = Util_Request::get( 'compress' );
+			if ( ! empty( Util_Request::get_string( 'compress_change' ) ) ) {
+				$zone['compress'] = Util_Request::get_string( 'compress' );
 			}
-			if ( isset( $_REQUEST['cors_headers_change'] ) ) {
-				$zone['cors_headers'] = Util_Request::get( 'cors_headers' );
+			if ( ! empty( Util_Request::get_string( 'cors_headers_change' ) ) ) {
+				$zone['cors_headers'] = Util_Request::get_string( 'cors_headers' );
 			}
-			if ( Util_Request::get( 'ssl' ) == 'shared' ) {
+			if ( Util_Request::get_string( 'ssl' ) == 'shared' ) {
 				$zone['sslshared'] = 1;
 				$zone['http2'] = 1;
 			}

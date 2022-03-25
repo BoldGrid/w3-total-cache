@@ -23,8 +23,8 @@ class Root_AdminActivation {
 		if ( Util_Environment::is_wpmu() ) {
 			if ( $network_wide ) {
 				// we are in network activation
-			} else if ( $_GET['action'] == 'error_scrape' &&
-					strpos( $_SERVER['REQUEST_URI'], '/network/' ) !== false ) {
+			} else if ( Util_Request::get_string( 'action' ) == 'error_scrape' &&
+					strpos( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', '/network/' ) !== false ) {
 					// workaround for error_scrape page called after error
 					// really we are in network activation and going to throw some error
 				} else {

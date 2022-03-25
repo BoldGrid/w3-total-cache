@@ -33,9 +33,9 @@ class Extension_CloudFlare_Popup {
 
 	public function w3tc_ajax_extension_cloudflare_intro_done() {
 		$this->_render_extension_cloudflare_zones( array(
-				'email' => $_REQUEST['email'],
-				'key' => $_REQUEST['key'],
-				'page' => empty( $_REQUEST['page'] ) ? 1 : (int) $_REQUEST['page']
+				'email' => Util_Request::get_string( 'email' ),
+				'key' => Util_Request::get_string( 'key' ),
+				'page' => empty( Util_Request::get_integer( 'page' ) ) ? 1 : Util_Request::get_integer( 'page' )
 			) 
 		);
 	}
@@ -77,8 +77,8 @@ class Extension_CloudFlare_Popup {
 
 
 	public function w3tc_ajax_extension_cloudflare_zones_done() {
-		$email = $_REQUEST['email'];
-		$key = $_REQUEST['key'];
+		$email = Util_Request::get_string( 'email' );
+		$key = Util_Request::get_string( 'key' );
 		$zone_id = Util_Request::get( 'zone_id' );
 
 		if ( empty( $zone_id ) ) {

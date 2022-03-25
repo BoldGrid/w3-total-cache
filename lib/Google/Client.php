@@ -651,6 +651,6 @@ class W3TCG_Google_Client
   public function isAppEngine()
   {
     return (isset($_SERVER['SERVER_SOFTWARE']) &&
-        strpos($_SERVER['SERVER_SOFTWARE'], 'Google App Engine') !== false);
+        strpos( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ), 'Google App Engine') !== false);
   }
 }

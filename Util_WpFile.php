@@ -285,7 +285,7 @@ class Util_WpFile {
 	 */
 	static private function request_filesystem_credentials( $method = '', $url = '', $context = false ) {
 		if ( strlen( $url ) <= 0 )
-			$url = $_SERVER['REQUEST_URI'];
+			$url = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$url = preg_replace( "/&w3tc_note=([^&]+)/", '', $url );
 
 		// Ensure request_filesystem_credentials() is available.

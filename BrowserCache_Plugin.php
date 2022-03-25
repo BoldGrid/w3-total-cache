@@ -143,8 +143,8 @@ class BrowserCache_Plugin {
 		/**
 		 * Check User Agent
 		 */
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) &&
-			stristr( $_SERVER['HTTP_USER_AGENT'], W3TC_POWERED_BY ) !== false ) {
+		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		if ( stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
 			return false;
 		}
 

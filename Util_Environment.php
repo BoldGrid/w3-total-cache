@@ -218,14 +218,14 @@ class Util_Environment {
 	 * @return boolean
 	 */
 	static public function is_https() {
+		$https                  = isset( $_SERVER['HTTPS'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) : '';
+		$server_port            = isset( $_SERVER['SERVER_PORT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_PORT'] ) ) : '';
+		$http_x_forwarded_proto = isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ) : '';
 		switch ( true ) {
-		case ( isset( $_SERVER['HTTPS'] ) &&
-				Util_Environment::to_boolean( $_SERVER['HTTPS'] ) ):
-		case ( isset( $_SERVER['SERVER_PORT'] ) &&
-				(int) $_SERVER['SERVER_PORT'] == 443 ):
-		case ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) &&
-				$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' ):
-			return true;
+			case ( self::to_boolean( $https ) ):
+			case ( 433 === (int) $server_port ):
+			case ( 'https' === $http_x_forwarded_proto ):
+				return true;
 		}
 
 		return false;
@@ -260,8 +260,9 @@ class Util_Environment {
 		if ( empty( $_SERVER['SERVER_SOFTWARE'] ) )
 			return true;
 
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) !== false;
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ), 'Apache' ) !== false;
 	}
+
 
 	/**
 	 * Check whether server is LiteSpeed
@@ -269,7 +270,7 @@ class Util_Environment {
 	 * @return bool
 	 */
 	static public function is_litespeed() {
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( $_SERVER['SERVER_SOFTWARE'], 'LiteSpeed' ) !== false;
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ), 'LiteSpeed' ) !== false;
 	}
 
 	/**
@@ -278,7 +279,7 @@ class Util_Environment {
 	 * @return boolean
 	 */
 	static public function is_nginx() {
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( $_SERVER['SERVER_SOFTWARE'], 'nginx' ) !== false;
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ), 'nginx' ) !== false;
 	}
 
 	/**
@@ -287,7 +288,7 @@ class Util_Environment {
 	 * @return boolean
 	 */
 	static public function is_iis() {
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( $_SERVER['SERVER_SOFTWARE'], 'IIS' ) !== false;
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ), 'IIS' ) !== false;
 	}
 
 	/**
@@ -514,11 +515,12 @@ class Util_Environment {
 			$wp_path_rel_to_home = str_ireplace( $home, '', $siteurl ); /* $siteurl - $home */
 			// fix of get_home_path, used when index.php is moved outside of
 			// wp folder.
+			$script_filename = isset( $_SERVER['SCRIPT_FILENAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_FILENAME'] ) ) : '';
 			$pos = strripos(
-				str_replace( '\\', '/', $_SERVER['SCRIPT_FILENAME'] ),
+				str_replace( '\\', '/', $script_filename ),
 				trailingslashit( $wp_path_rel_to_home ) );
 			if ( $pos !== false ) {
-				$home_path = substr( $_SERVER['SCRIPT_FILENAME'], 0, $pos );
+				$home_path = substr( $script_filename, 0, $pos );
 				$home_path = trailingslashit( $home_path );
 			} else if ( defined( 'WP_CLI' ) ) {
 				$pos = strripos(
@@ -557,12 +559,13 @@ class Util_Environment {
 			return $document_root;
 		}
 
-		if ( !empty( $_SERVER['SCRIPT_FILENAME'] ) &&
-			!empty( $_SERVER['PHP_SELF'] ) ) {
-			$script_filename = Util_Environment::normalize_path(
-				$_SERVER['SCRIPT_FILENAME'] );
-			$php_self = Util_Environment::normalize_path(
-				$_SERVER['PHP_SELF'] );
+		if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && ! empty( $_SERVER['PHP_SELF'] ) ) {
+			$script_filename = self::normalize_path(
+				sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_FILENAME'] ) )
+			);
+			$php_self        = self::normalize_path(
+				sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) )
+			);
 			if ( substr( $script_filename, -strlen( $php_self ) ) == $php_self ) {
 				$document_root = substr( $script_filename, 0, -strlen( $php_self ) );
 				$document_root = realpath( $document_root );
@@ -570,13 +573,13 @@ class Util_Environment {
 			}
 		}
 
-		if ( !empty( $_SERVER['PATH_TRANSLATED'] ) ) {
+		if ( ! empty( $_SERVER['PATH_TRANSLATED'] ) && ! empty( $_SERVER['PHP_SELF'] ) ) {
 			$document_root = substr(
-				Util_Environment::normalize_path( $_SERVER['PATH_TRANSLATED'] ),
+				self::normalize_path( sanitize_text_field( wp_unslash( $_SERVER['PATH_TRANSLATED'] ) ) ),
 				0,
-				-strlen( Util_Environment::normalize_path( $_SERVER['PHP_SELF'] ) ) );
-		} elseif ( !empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
-			$document_root = Util_Environment::normalize_path( $_SERVER['DOCUMENT_ROOT'] );
+				-strlen( self::normalize_path( sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) ) ) );
+		} elseif ( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
+			$document_root = self::normalize_path( sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) );
 		} else {
 			$document_root = ABSPATH;
 		}
@@ -679,9 +682,9 @@ class Util_Environment {
 		static $host = null;
 
 		if ( $host === null ) {
-			if ( !empty( $_SERVER['HTTP_HOST'] ) ) {
-				// HTTP_HOST sometimes is not set causing warning
-				$host = $_SERVER['HTTP_HOST'];
+			if ( ! empty( $_SERVER['HTTP_HOST'] ) ) {
+				// HTTP_HOST sometimes is not set causing warning.
+				$host = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) );
 			} else {
 				$host = '';
 			}
@@ -1025,7 +1028,7 @@ class Util_Environment {
 
 		$status_code = 302;
 
-		$protocol = $_SERVER["SERVER_PROTOCOL"];
+		$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) ) : '';
 		if ( 'HTTP/1.1' === $protocol ) {
 			$status_code = 307;
 		}
@@ -1056,6 +1059,8 @@ class Util_Environment {
 	static public function detect_post_id() {
 		global $posts, $comment_post_ID, $post_ID;
 
+		$p_val = Util_Request::get_integer( 'p' );
+
 		if ( $post_ID ) {
 			return $post_ID;
 		} elseif ( $comment_post_ID ) {
@@ -1064,8 +1069,8 @@ class Util_Environment {
 			return $posts[0]->ID;
 		} elseif ( isset( $posts->ID ) ) {
 			return $posts->ID;
-		} elseif ( isset( $_REQUEST['p'] ) ) {
-			return (integer) $_REQUEST['p'];
+		} elseif ( ! empty( $p_val ) {
+			return $p_val;
 		}
 
 		return 0;
@@ -1271,7 +1276,7 @@ class Util_Environment {
 	 * @return string
 	 */
 	static public function get_server_version() {
-		$sig = explode( '/', $_SERVER['SERVER_SOFTWARE'] );
+		$sig = explode( '/', isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' );
 		$temp = isset( $sig[1] ) ? explode( ' ', $sig[1] ) : array( '0' );
 		$version = $temp[0];
 		return $version;
