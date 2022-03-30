@@ -104,9 +104,10 @@ class Extension_NewRelic_Service {
 		 * Apache 2.2 or 2.4 via mod_php
 		 * Or any web server that supports FastCGI using php-fpm
 		 */
-		$server = explode( '/', $_SERVER['SERVER_SOFTWARE'] );
+		$server_software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
+		$server = explode( '/', $server_software );
 		$ws_check = false;
-		$ws_name = $_SERVER['SERVER_SOFTWARE'];
+		$ws_name = $server_software;
 		$ws_version = '';
 
 		if ( sizeof( $server ) > 1 ) {
@@ -126,7 +127,7 @@ class Extension_NewRelic_Service {
 			break;
 		default:
 			$ws_check = php_sapi_name() == 'fpm-fcgi';
-			$ws_name = $_SERVER['SERVER_SOFTWARE'];
+			$ws_name = $server_software;
 			$ws_version = '';
 		}
 		$verified[__( 'Web Server', 'w3-total-cache' )] = $ws_check ? $supported_string :

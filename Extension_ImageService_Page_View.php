@@ -83,6 +83,23 @@ Util_Ui::config_item(
 		'description'       => esc_html__( 'Auto-convert images on upload.', 'w3-total-cache' ),
 	)
 );
+
+Util_Ui::config_item(
+	array(
+		'key'              => array(
+			'imageservice',
+			'visibility',
+		),
+		'label'            => esc_html__( 'Visibility:', 'w3-total-cache' ),
+		'control'          => 'selectbox',
+		'selectbox_values' => array(
+			'never'     => array( 'label' => __( 'Never', 'w3-total-cache' ) ),
+			'extension' => array( 'label' => __( 'If extension is active', 'w3-total-cache' ) ),
+			'always'    => array( 'label' => __( 'Always', 'w3-total-cache' ) ),
+		),
+		'description'      => esc_html__( 'Show converted image attachments in the Media Library.', 'w3-total-cache' ),
+	)
+);
 ?>
 	</table>
 

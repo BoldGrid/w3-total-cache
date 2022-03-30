@@ -21,7 +21,7 @@ $licensing_visible = ( ( !Util_Environment::is_wpmu() || is_network_admin() ) &&
 	<?php
 	switch ( $page ) {
 	case 'w3tc_general':
-		if ( !empty( $_REQUEST['view'] ) ) {
+		if ( !empty( Util_Request::get_string( 'view' ) ) ) {
 			break;
 		}
 

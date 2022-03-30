@@ -202,7 +202,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		if ( $this->debug ) {
 			$this->log_query( array(
 				date( 'r' ),
-				strtr( $_SERVER['REQUEST_URI'], "<>\r\n", '..  ' ),
+				strtr( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', "<>\r\n", '..  ' ),
 				strtr( $query, "<>\r\n", '..  ' ),   // 'query'
 				(int)($time_total * 1000000),   // 'time_total' (microsecs)
 				$reject_reason,   // 'reason'
@@ -351,6 +351,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 				$engineConfig = array(
 					'servers' => $this->_config->get_array( 'dbcache.redis.servers' ),
 					'persistent' => $this->_config->get_boolean( 'dbcache.redis.persistent' ),
+					'timeout' => $this->_config->get_integer( 'dbcache.redis.timeout' ),
+					'retry_interval' => $this->_config->get_integer( 'dbcache.redis.retry_interval' ),
+					'read_timeout' => $this->_config->get_integer( 'dbcache.redis.read_timeout' ),
 					'dbid' => $this->_config->get_integer( 'dbcache.redis.dbid' ),
 					'password' => $this->_config->get_string( 'dbcache.redis.password' )
 				);
@@ -424,10 +427,11 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		 */
 		$ajax_skip = false;
 		if ( defined( 'DOING_AJAX' ) ) {
-			// wp_admin is always defined for ajax requests, check by referrer
-			if ( isset( $_SERVER['HTTP_REFERER'] ) &&
-				strpos( $_SERVER['HTTP_REFERER'], '/wp-admin/' ) === false )
+			$http_referer = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
+			// wp_admin is always defined for ajax requests, check by referrer.
+			if ( strpos( $http_referer, '/wp-admin/' ) === false ) {
 				$ajax_skip = true;
+			}
 		}
 
 		/**
@@ -531,11 +535,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	function _check_request_uri() {
 		$auto_reject_uri = array(
 			'wp-login',
-			'wp-register'
+			'wp-register',
 		);
 
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		foreach ( $auto_reject_uri as $uri ) {
-			if ( strstr( $_SERVER['REQUEST_URI'], $uri ) !== false ) {
+			if ( strstr( $request_uri, $uri ) !== false ) {
 				return false;
 			}
 		}
@@ -545,7 +550,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 		foreach ( $reject_uri as $expr ) {
 			$expr = trim( $expr );
-			if ( $expr != '' && preg_match( '~' . $expr . '~i', $_SERVER['REQUEST_URI'] ) ) {
+			if ( '' !== $expr && preg_match( '~' . $expr . '~i', $request_uri ) ) {
 				return false;
 			}
 		}

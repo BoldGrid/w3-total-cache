@@ -3642,7 +3642,7 @@ class nusoap_server extends nusoap_base {
 			$this->debug("In nusoap_server, set debug_flag=$debug based on global flag");
 			$this->debug_flag = $debug;
 		} elseif (isset($_SERVER['QUERY_STRING'])) {
-			$qs = explode('&', $_SERVER['QUERY_STRING']);
+			$qs = explode( '&', sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) );
 			foreach ($qs as $v) {
 				if (substr($v, 0, 6) == 'debug=') {
 					$this->debug("In nusoap_server, set debug_flag=" . substr($v, 6) . " based on query string #1");
@@ -3680,13 +3680,13 @@ class nusoap_server extends nusoap_base {
 	function service($data){
 
 		if (isset($_SERVER['REQUEST_METHOD'])) {
-			$rm = $_SERVER['REQUEST_METHOD'];
+			$rm = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) );
 		} else {
 			$rm = '';
 		}
 
 		if (isset($_SERVER['QUERY_STRING'])) {
-			$qs = $_SERVER['QUERY_STRING'];
+			$qs = sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
 		} else {
 			$qs = '';
 		}
@@ -4404,9 +4404,14 @@ class nusoap_server extends nusoap_base {
 		}
 		if(false == $soapaction) {
 			if (isset($_SERVER)) {
-				$SERVER_NAME = $_SERVER['SERVER_NAME'];
-				$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
-				$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off';
+				$SERVER_NAME = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
+				$SCRIPT_NAME = '';
+				if ( isset( $_SERVER['PHP_SELF'] ) ) {
+					$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) );
+				} elseif ( isset( $_SERVER['SCRIPT_NAME'] ) ) {
+					$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
+				}				
+				$HTTPS = isset($_SERVER['HTTPS']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) : 'off';
 			} else {
 				$this->setError("_SERVER not available");
 			}
@@ -4472,10 +4477,15 @@ class nusoap_server extends nusoap_base {
     function configureWSDL($serviceName,$namespace = false,$endpoint = false,$style='rpc', $transport = 'http://schemas.xmlsoap.org/soap/http', $schemaTargetNamespace = false)
     {
 		if (isset($_SERVER)) {
-			$SERVER_NAME = $_SERVER['SERVER_NAME'];
-			$SERVER_PORT = $_SERVER['SERVER_PORT'];
-			$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
-			$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off';
+			$SERVER_NAME = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
+			$SERVER_PORT = isset( $_SERVER['SERVER_PORT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_PORT'] ) ) : '';
+			$SCRIPT_NAME = '';
+			if ( isset($_SERVER['PHP_SELF'] ) {
+				$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) );
+			} elseif ( isset( $_SERVER['SCRIPT_NAME'] ) ) {
+				$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
+			}
+			$HTTPS = isset( $_SERVER['HTTPS'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) : 'off';
 		} else {
 			$this->setError("_SERVER not available");
 		}
@@ -5296,8 +5306,8 @@ class wsdl extends nusoap_base {
     */
     function webDescription(){
 
-		if (isset($_SERVER)) {
-			$PHP_SELF = $_SERVER['PHP_SELF'];
+		if ( isset($_SERVER['PHP_SELF'] ) ) {
+			$PHP_SELF = sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) );
 		} else {
 			$this->setError("_SERVER not available");
 		}

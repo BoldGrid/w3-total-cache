@@ -109,6 +109,14 @@ class Extension_ImageService_Api {
 	 * @return array
 	 */
 	public function convert( $filepath, array $options = array() ) {
+		// Abort if rate-limit exceeded.
+		$result = get_transient( 'w3tc_imageservice_limited' );
+
+		if ( ! empty( $result ) ) {
+			return $result;
+		}
+
+		// Prepare request.
 		$config   = Dispatcher::config();
 		$settings = $config->get_array( 'imageservice' );
 		$options  = array_merge(
@@ -137,6 +145,7 @@ class Extension_ImageService_Api {
 		$body .= 'Content-Disposition: form-data; name="image"; filename="' . basename( $filepath ) . '"' . "\r\n\r\n";
 		$body .= file_get_contents( $filepath ) . "\r\n" . '--' . $boundary . '--'; // phpcs:ignore WordPress.WP.AlternativeFunctions
 
+		// Send request.
 		$response = wp_remote_request(
 			$this->get_base_url() . $this->endpoints['convert']['uri'],
 			array(
@@ -151,6 +160,7 @@ class Extension_ImageService_Api {
 			)
 		);
 
+		// Examine response.
 		if ( is_wp_error( $response ) ) {
 			return array(
 				'error' => __( 'WP Error: ', 'w3-total-cache' ) . $response->get_error_message(),
@@ -178,8 +188,10 @@ class Extension_ImageService_Api {
 		// Handle non-200 response codes.
 		if ( 200 !== $response['response']['code'] ) {
 			$result = array(
-				'code'  => $response['response']['code'],
-				'error' => esc_html__( 'Error: Received a non-200 response code: ', 'w3-total-cache' ) . $response['response']['code'],
+				'code'   => $response['response']['code'],
+				'error'  => esc_html__( 'Error: Received a non-200 response code: ', 'w3-total-cache' ) . $response['response']['code'],
+				'status' => 'error',
+				'time'   => time(),
 			);
 
 			if ( isset( $response_body['error']['id'] ) && 'exceeded-hourly' === $response_body['error']['id'] ) {
@@ -195,6 +207,7 @@ class Extension_ImageService_Api {
 							'</a>'
 						)
 				);
+				set_transient( 'w3tc_imageservice_limited', $result, 5 * MINUTE_IN_SECONDS );
 			} elseif ( isset( $response_body['error']['id'] ) && 'exceeded-monthly' === $response_body['error']['id'] ) {
 				$result['message'] = sprintf(
 					// translators: 1: Monthly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
@@ -203,6 +216,7 @@ class Extension_ImageService_Api {
 					'<a href="#" class="button-buy-plugin" data-src="imageservice_api_limit">',
 					'</a>'
 				);
+				set_transient( 'w3tc_imageservice_limited', $result, DAY_IN_SECONDS );
 			} elseif ( isset( $response_body['error']['id'] ) && 'invalid-output-mime' === $response_body['error']['id'] ) {
 				$result['message'] = esc_html__( 'Invalid output image MIME type.', 'w3-total-cache' );
 			} elseif ( isset( $response_body['error']['id'] ) && 'missing-image' === $response_body['error']['id'] ) {

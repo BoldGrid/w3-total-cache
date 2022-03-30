@@ -59,6 +59,10 @@ def generate_image_descriptors
 		'apache' => {
 			'HTTP_SERVER' => 'apache',
 			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/apache2/wp.sandbox_error.log'
+		},
+		'lightspeed' => {
+			'HTTP_SERVER' => 'lightspeed',
+			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
 		}
 	})
 
@@ -71,12 +75,15 @@ def generate_image_descriptors
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis'
 		},
-		'php73' => {
-			'PHP_VERSION' => '7.3',
+		'php74' => {
+			'PHP_VERSION' => '7.4',
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'lightspeed'
+			]
 		},
 		#'php70' => {
 		#	'PHP_VERSION' => '7.0',
@@ -92,7 +99,10 @@ def generate_image_descriptors
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'lightspeed'
+			]
 		}
 		# The updated AWS library has a dependency that requires PHP 5.6 or higher.
 		#'php55' => {
@@ -129,12 +139,18 @@ def generate_image_descriptors
 		{
 			'8080' => {
 				'HTTP_SERVER_PORT' => '8080',
-				'WP_MAYBE_COLON_PORT' => ':8080'   # derived from HTTP_SERVER_PORT
+				'WP_MAYBE_COLON_PORT' => ':8080',   # derived from HTTP_SERVER_PORT
+				'_except_name_contains' => [
+					'lightspeed'
+				]
 			},
 			'https' => {
 				'HTTP_SERVER_PORT' => '443',
 				'HTTP_SERVER_SCHEME' => 'https',
-				'WP_MAYBE_COLON_PORT' => ''
+				'WP_MAYBE_COLON_PORT' => '',
+				'_except_name_contains' => [
+					'lightspeed'
+				]
 			},
 			#'varnish' => {
 			#	'HTTP_SERVER_PORT' => '8080',
@@ -208,14 +224,23 @@ def generate_box_descriptors(image_name)
 		#		'php80'  # not compatible, WP_Feed_Cache::create() fatal
 		#	]
 		#},
-		'wp56' => {
-			'WP_VERSION' => '5.6'
-		},
+		#'wp56' => {
+		#'WP_VERSION' => '5.6',
+		#	'_except_name_contains' => [
+		#		'lightspeed'
+		#	]
+		#},
 		'wp57' => {
-			'WP_VERSION' => '5.7'
+			'WP_VERSION' => '5.7',
+			'_except_name_contains' => [
+				'lightspeed'
+			]
 		},
 		'wp58' => {
 			'WP_VERSION' => '5.8'
+		},
+		'wp59' => {
+			'WP_VERSION' => '5.9'
 		}
 	}, image_name)
 
@@ -234,7 +259,7 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/moved-folders/moved-plugins/',
 				'WP_PLUGINS_URI' => '/moved-folders/moved-plugins/',
 				'_except_name_contains' => [
-					'xcache'
+					'xcache', 'lightspeed'
 				]
 			},
 			# add wp in /wp/ uri, subdomains are not supported by wp in that configuration
@@ -248,14 +273,14 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/wp/wp-content/plugins/',
 				'WP_PLUGINS_URI' => '/wp/wp-content/plugins/',
 				'_except_name_contains' => [
-					'xcache'
+					'xcache', 'lightspeed'
 				]
 			},
 			# some people enter home/siteurl captialized
 			'captial' => {
 				'WP_HOST' => 'Wp.SandBox',
 				'_except_name_contains' => [
-					'xcache'
+					'xcache', 'lightspeed'
 				]
 
 			}
@@ -279,6 +304,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
+				'lightspeed'
 			]
 		},
 		'subdir' => {
@@ -295,6 +321,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
+				'lightspeed'
 			]
 		}
 	}, image_name)

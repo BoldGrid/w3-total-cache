@@ -43,7 +43,7 @@ class Extension_Genesis_Plugin {
 			add_action( 'clean_post_cache', array( $this, 'flush_post_fragment' ) );
 			add_action( 'clean_post_cache', array( $this, 'flush_terms_fragment' ), 0, 0 );
 
-			$this->_request_uri = $_SERVER['REQUEST_URI'];
+			$this->_request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		}
 	}
 
@@ -376,7 +376,7 @@ class Extension_Genesis_Plugin {
 		}
 		if ( is_front_page() )
 			return 'front_page';
-		return str_replace( '/', '-', trim( $_SERVER['REQUEST_URI'], "/" ) );
+		return isset( $_SERVER['REQUEST_URI'] ) ? str_replace( '/', '-', trim( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/' ) ) : '';
 	}
 
 	/**

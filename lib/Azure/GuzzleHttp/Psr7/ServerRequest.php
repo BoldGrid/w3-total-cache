@@ -165,11 +165,11 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public static function fromGlobals()
     {
-        $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+        $method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : 'GET';
         $headers = function_exists('getallheaders') ? getallheaders() : [];
         $uri = self::getUriFromGlobals();
         $body = new LazyOpenStream('php://input', 'r+');
-        $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL']) : '1.1';
+        $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? str_replace('HTTP/', '', sanitize_text_field( wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) ) ) : '1.1';
 
         $serverRequest = new ServerRequest($method, $uri, $headers, $body, $protocol, $_SERVER);
 
@@ -180,38 +180,38 @@ class ServerRequest extends Request implements ServerRequestInterface
             ->withUploadedFiles(self::normalizeFiles($_FILES));
     }
 
-    /**
-     * Get a Uri populated with values from $_SERVER.
-     *
-     * @return UriInterface
-     */
-    public static function getUriFromGlobals() {
-        $uri = new Uri('');
+	/**
+	 * Get a Uri populated with values from $_SERVER.
+	 *
+	 * @return UriInterface
+	 */
+	public static function getUriFromGlobals() {
+		$uri = new Uri( '' );
 
-        if (isset($_SERVER['HTTPS'])) {
-            $uri = $uri->withScheme($_SERVER['HTTPS'] == 'on' ? 'https' : 'http');
-        }
+		if ( isset( $_SERVER['HTTPS'] ) ) {
+			$uri = $uri->withScheme( sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) == 'on' ? 'https' : 'http');
+		}
 
-        if (isset($_SERVER['HTTP_HOST'])) {
-            $uri = $uri->withHost($_SERVER['HTTP_HOST']);
-        } elseif (isset($_SERVER['SERVER_NAME'])) {
-            $uri = $uri->withHost($_SERVER['SERVER_NAME']);
-        }
+		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
+			$uri = $uri->withHost( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) );
+		} elseif ( isset( $_SERVER['SERVER_NAME'] ) ) {
+			$uri = $uri->withHost( sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) );
+		}
 
-        if (isset($_SERVER['SERVER_PORT'])) {
-            $uri = $uri->withPort($_SERVER['SERVER_PORT']);
-        }
+		if ( isset( $_SERVER['SERVER_PORT'] ) ) {
+			$uri = $uri->withPort( sanitize_text_field( wp_unslash( $_SERVER['SERVER_PORT'] ) ) );
+		}
 
-        if (isset($_SERVER['REQUEST_URI'])) {
-            $uri = $uri->withPath(current(explode('?', $_SERVER['REQUEST_URI'])));
-        }
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+			$uri = $uri->withPath( current( explode( '?', sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) ) );
+		}
 
-        if (isset($_SERVER['QUERY_STRING'])) {
-            $uri = $uri->withQuery($_SERVER['QUERY_STRING']);
-        }
+		if ( isset( $_SERVER['QUERY_STRING'] ) ) {
+			$uri = $uri->withQuery( sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) );
+		}
 
-        return $uri;
-    }
+		return $uri;
+	}
 
 
     /**

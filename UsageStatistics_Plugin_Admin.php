@@ -7,11 +7,9 @@ class UsageStatistics_Plugin_Admin {
 	function run() {
 		$c = Dispatcher::config();
 
+		add_action( 'wp_ajax_ustats_access_log_test', array( $this, 'w3tc_ajax_ustats_access_log_test' ) );
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
 		add_action( 'w3tc_ajax_ustats_get', array( $this, 'w3tc_ajax_ustats_get' ) );
-		add_action( 'w3tc_ajax_ustats_access_log_test',
-			array( $this, 'w3tc_ajax_ustats_access_log_test' ) );
-
 		add_filter( 'w3tc_usage_statistics_summary_from_history', array(
 				'W3TC\UsageStatistics_Sources',
 				'w3tc_usage_statistics_summary_from_history'
@@ -43,9 +41,6 @@ class UsageStatistics_Plugin_Admin {
 		add_filter( 'w3tc_notes', array( $this, 'w3tc_notes' ) );
 	}
 
-#
-
-
 	public function w3tc_config_ui_save( $config, $old_config ) {
 		if ( $config->get( 'stats.slot_seconds' ) !=
 				$old_config->get( 'stats.slot_seconds' ) ) {
@@ -54,8 +49,6 @@ class UsageStatistics_Plugin_Admin {
 			$storage->reset();
 		}
 	}
-
-
 
 	public function w3tc_notes( $notes ) {
 		$c = Dispatcher::config();
@@ -108,18 +101,31 @@ class UsageStatistics_Plugin_Admin {
 		exit();
 	}
 
-
-
+	/**
+	 * Ajax: Test access log path.
+	 */
 	public function w3tc_ajax_ustats_access_log_test() {
-		$filename = $_REQUEST['filename'];
+		$nonce_val = Util_Request::get_array( '_wpnonce' )[0];
+		$nonce     = isset( $nonce_val ) ? $nonce_val : false;
 
-		$filename = str_replace( '://', '/', $filename );
-		$h = @fopen( $filename, 'rb' );
-		if ( !$h ) {
-			echo 'Failed to open file ' . $filename;
-		} else {
-			echo 'Success';
+		if ( ! wp_verify_nonce( $nonce, 'w3tc' ) ) {
+			wp_die( esc_html__( 'Invalid WordPress nonce.  Please reload the page and try again.', 'w3-total-cache' ) );
 		}
-		exit();
+
+		$handle       = false;
+		$filename_val = Util_Request::get_string( 'filename' );
+		$filepath     = ! emtpy( $filename_val ) ? str_replace( '://', '/', $filename_val ) : null;
+
+		if ( $filepath ) {
+			$handle   = @fopen( $filepath, 'rb' ); // phpcs:ignore WordPress
+		}
+
+		if ( $handle ) {
+			esc_html_e( 'Success', 'w3-total-cache' );
+		} else {
+			esc_html_e( 'Failed to open file', 'w3-total-cache' );
+		}
+
+		wp_die();
 	}
 }

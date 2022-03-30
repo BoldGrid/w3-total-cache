@@ -10,7 +10,7 @@ include W3TC_INC_DIR . '/options/common/header.php';
 	<?php Util_Ui::postbox_header( __( 'Usage Statistics', 'w3-total-cache' ) ); ?>
 
 	<div style="float: right"><a href="admin.php?page=w3tc_stats">&lt; Back To Statistics</a></div>
-	<h1>Page Cache Reject Requests for <?php echo esc_html( $_REQUEST['status_name'] ) ?></h1>
+	<h1>Page Cache Reject Requests for <?php echo esc_html( isset( $_REQUEST['status_name'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['status_name'] ) ) : '' ); ?></h1>
 	<p>
 		Period
 		<?php echo $result['date_min'] ?>

@@ -527,7 +527,7 @@ foreach ( $custom_areas as $area )
 							// translators: 1: WordPress ABSPATH value, 2: Server document root value.
 							__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
 							esc_html( untrailingslashit( ABSPATH ) ),
-							esc_html( $_SERVER['DOCUMENT_ROOT'] )
+							esc_html( isset( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '' )
 						),
 					)
 				);

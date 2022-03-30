@@ -28,7 +28,7 @@ class Extension_CloudFlare_Plugin_Admin {
 			'name' => 'CloudFlare',
 			'author' => 'W3 EDGE',
 			'description' =>  sprintf( __( 'CloudFlare protects and accelerates websites. <a href="%s" target="_blank">Sign up now for free</a> to get started,
-            or if you have an account simply log in to obtain your <abbr title="Application Programming Interface">API</abbr> key from the <a target="_blank" href="https://www.cloudflare.com/my-account">account page</a> to enter it on the General Settings box that appears after plugin activation.
+            or if you have an account simply log in to obtain your <abbr title="Application Programming Interface">API</abbr> token / global key from the <a target="_blank" href="https://www.cloudflare.com/my-account">account page</a> to enter it on the General Settings box that appears after plugin activation.
             Contact the CloudFlare <a href="http://www.cloudflare.com/help.html" target="_blank">support team</a> with any questions.', 'w3-total-cache' ), 'https://www.cloudflare.com/sign-up.html?affiliate=w3edge&amp;seed_domain=' . Util_Environment::host() . '&amp;email=' . htmlspecialchars( $cloudflare_signup_email ) . '&amp;username=' . htmlspecialchars( $cloudflare_signup_user ) ),
 			'author_uri' => 'https://www.w3-edge.com/',
 			'extension_uri' => 'https://www.w3-edge.com/',
@@ -215,7 +215,7 @@ class Extension_CloudFlare_Plugin_Admin {
 		} elseif ( !filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
 			$error = 'Invalid email.';
 		} elseif ( !$key ) {
-			$error = 'Empty key.';
+			$error = 'Empty token / global key.';
 		} elseif ( !$zone ) {
 			$error = 'Empty zone.';
 		} elseif ( strpos( $zone, '.' ) === false ) {

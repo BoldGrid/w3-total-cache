@@ -88,7 +88,10 @@ switch ($action) {
 					'blog_id' => $blog_id,
 					'module' => 'dbcache',
 					'host' => \W3TC\Util_Environment::host(),
-					'instance_id' => \W3TC\Util_Environment::instance_id()
+					'instance_id' => \W3TC\Util_Environment::instance_id(),
+					'timeout' => 0,
+					'retry_interval' => 0,
+					'read_timeout' => 0,
 				));
 			break;
 

@@ -36,7 +36,7 @@ class Minify_Cache_W3TCDerived {
      */
     public function store($id, $data)
     {
-        $data['created_time'] = $_SERVER['REQUEST_TIME'];
+        $data['created_time'] = isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '';
         return $this->_cache->set($id, $data);
     }
 
