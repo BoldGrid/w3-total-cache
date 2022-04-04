@@ -1,13 +1,23 @@
 <?php
+/**
+ * FIle: Generic_AdminNotes.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class: Generic_AdminNotes
+ */
 class Generic_AdminNotes {
 	/**
+	 * W3TC admin notices.
 	 *
-	 * @param Config  $config
+	 * @param array $notes Notices.
 	 * @return string
 	 */
-	function w3tc_notes( $notes ) {
+	public function w3tc_notes( $notes ) {
 		$c            = Dispatcher::config();
 		$state        = Dispatcher::config_state();
 		$state_master = Dispatcher::config_state_master();
@@ -22,14 +32,14 @@ class Generic_AdminNotes {
 			if ( $wp_content_mode > 0755 ) {
 				$notes['generic_wp_content_writeable'] = wp_kses(
 					sprintf(
-						// translators: 1 HTML strong tag for current WP directory, 2 HTML strong tag for CHMOD instruction for current WP directory,
-						// translators: 3 conversion of file permissions from base 10 to 8, 4 HTML input button for hiding message.
+						// translators: 1: HTML strong tag for current WP directory, 2: HTML strong tag for CHMOD instruction for current WP directory,
+						// translators: 3: conversion of file permissions from base 10 to 8, 4: HTML input button for hiding message.
 						__(
 							'%1$s is write-able. When finished installing the plugin, change the permissions back to the default: %2$s. Permissions are currently %3$s. %4$s',
 							'w3-total-cache'
 						),
 						'<strong>' . WP_CONTENT_DIR . '</strong>',
-						'<strong>' . __( 'chmod 755 ', 'w3-total-cache' ) . WP_CONTENT_DIR . '</strong>',
+						'<strong>chmod 755 ' . WP_CONTENT_DIR . '</strong>',
 						base_convert( Util_File::get_file_permissions( WP_CONTENT_DIR ), 10, 8 ),
 						Util_Ui::button_hide_note2(
 							array(
@@ -54,12 +64,12 @@ class Generic_AdminNotes {
 		}
 
 		/**
-		 * Check Zlib extension
+		 * Check Zlib extension.
 		 */
 		if ( ! $state_master->get_boolean( 'common.hide_note_no_zlib' ) && ! function_exists( 'gzencode' ) ) {
 			$notes['no_zlib'] = wp_kses(
 				sprintf(
-					// translators: 1 opening HTML strong tag, 2 closing HTML strong tag, 3 HTML input button for hiding message.
+					// translators: 1: opening HTML strong tag, 2: closing HTML strong tag, 3: HTML input button for hiding message.
 					__(
 						'Unfortunately the PHP installation is incomplete, the %1$szlib module is missing%2$s. This is a core PHP module. Notify the server administrator. %3$s',
 						'w3-total-cache'
@@ -93,7 +103,7 @@ class Generic_AdminNotes {
 		if ( ! $state_master->get_boolean( 'common.hide_note_zlib_output_compression' ) && Util_Environment::is_zlib_enabled() ) {
 			$notes['zlib_output_compression'] = wp_kses(
 				sprintf(
-					// translators: 1 opening HTML strong tag, 2 clsoing HTML strong tag, 3 HTML line break, 4 HTML input button to hide message.
+					// translators: 1: opening HTML strong tag, 2: clsoing HTML strong tag, 3: HTML line break, 4: HTML input button to hide message.
 					__(
 						'Either the PHP configuration, web server configuration or a script in the WordPress installation has %1$szlib.output_compression%2$s enabled.%3$sPlease locate and disable this setting to ensure proper HTTP compression behavior. %4$s',
 						'w3-total-cache'
@@ -128,7 +138,7 @@ class Generic_AdminNotes {
 
 			$notes['nginx_restart_required'] = wp_kses(
 				sprintf(
-					// translators: 1 HTML input button to hide message.
+					// translators: 1: HTML input button to hide message.
 					__(
 						'nginx.conf rules have been updated. Please restart nginx server to provide a consistent user experience. %1$s',
 						'w3-total-cache'
@@ -159,8 +169,8 @@ class Generic_AdminNotes {
 		if ( $c->is_preview() ) {
 			$notes['preview_mode'] = wp_kses(
 				sprintf(
-					// translators: 1 HTML input button to apply changes, 2 HTML input button to disable preview mode,
-					// translators: 3 opening HTML p tag, 4 HTML inptu button to preview changes, 5 closing HTML p tag.
+					// translators: 1: HTML input button to apply changes, 2: HTML input button to disable preview mode,
+					// translators: 3: opening HTML p tag, 4: HTML inptu button to preview changes, 5: closing HTML p tag.
 					__(
 						'Preview mode is active: Changed settings will not take effect until preview mode is %1$s or %2$s. %3$sTo preview any changed settings (without deploying): %4$s',
 						'w3-total-cache'
@@ -193,7 +203,7 @@ class Generic_AdminNotes {
 		}
 
 		/**
-		 * Show notification after plugin activate/deactivate
+		 * Show notification after plugin activate/deactivate.
 		 */
 		if ( $state_note->get( 'common.show_note.plugins_updated' ) && ! is_network_admin() /* flushing under network admin do nothing */ ) {
 			$texts = array();
@@ -208,7 +218,7 @@ class Generic_AdminNotes {
 			if ( $c->get_boolean( 'minify.enabled' ) ) {
 				$texts[] = wp_kses(
 					sprintf(
-						// translators: 1 HTML input button to view minify settings.
+						// translators: 1: HTML input button to view minify settings.
 						__(
 							'check the %1$s to maintain the desired user experience',
 							'w3-total-cache'
@@ -241,7 +251,7 @@ class Generic_AdminNotes {
 			if ( count( $texts ) ) {
 				$notes['some_plugins_activated'] = wp_kses(
 					sprintf(
-						// translators: 1 HTML input button to clear the cache, 2 HTML input button to hide message.
+						// translators: 1: HTML input button to clear the cache, 2: HTML input button to hide message.
 						__(
 							'One or more plugins have been activated or deactivated, please %1$s. %2$s',
 							'w3-total-cache'
@@ -269,12 +279,12 @@ class Generic_AdminNotes {
 		}
 
 		/**
-		 * Show notification when flush_statics needed
+		 * Show notification when flush_statics needed.
 		 */
 		if ( $c->get_boolean( 'browsercache.enabled' ) && $state_note->get( 'common.show_note.flush_statics_needed' ) && ! is_network_admin() /* flushing under network admin do nothing */ && ! $c->is_preview() ) {
 			$notes['flush_statics_needed'] = wp_kses(
 				sprintf(
-					// translators: 1 HTML input button to empty static files cache, 2 HTML input button to hide message.
+					// translators: 1: HTML input button to empty static files cache, 2: HTML input button to hide message.
 					__(
 						'The setting change(s) made either invalidate the cached data or modify the behavior of the site. %1$s now to provide a consistent user experience. %2$s',
 						'w3-total-cache'
@@ -304,14 +314,14 @@ class Generic_AdminNotes {
 		}
 
 		/**
-		 * Show notification when flush_posts needed
+		 * Show notification when flush_posts needed.
 		 */
 		if ( $state_note->get( 'common.show_note.flush_posts_needed' ) && ! is_network_admin() /* flushing under network admin do nothing */ && ! $c->is_preview() && ! isset( $notes['flush_statics_needed'] ) ) {
 			$cf = Dispatcher::component( 'CacheFlush' );
 			if ( $cf->flushable_posts() ) {
 				$notes['flush_posts_needed'] = wp_kses(
 					sprintf(
-						// translators: 1 HTML input button to empty page cache, 2 HTML input button to hide message.
+						// translators: 1: HTML input button to empty page cache, 2: HTML input button to hide message.
 						__(
 							'The setting change(s) made either invalidate the cached data or modify the behavior of the site. %1$s now to provide a consistent user experience. %2$s',
 							'w3-total-cache'
@@ -353,7 +363,7 @@ class Generic_AdminNotes {
 		if ( $is_debug && ! $state_master->get_boolean( 'common.hide_note_debug_enabled' ) ) {
 			$notes['debug_enabled'] = wp_kses(
 				sprintf(
-					// translators: 1 HTML input button to hide message.
+					// translators: 1: HTML input button to hide message.
 					__(
 						'You\'re running debug mode, it\'s using Resources and not recommend to run continuously. %1$s',
 						'w3-total-cache'
@@ -381,12 +391,18 @@ class Generic_AdminNotes {
 		return $notes;
 	}
 
+	/**
+	 * W3TC error notices.
+	 *
+	 * @param array $errors Errors.
+	 * @return array
+	 */
 	public function w3tc_errors( $errors ) {
 		$state = Dispatcher::config_state();
 		$c     = Dispatcher::config();
 
 		/**
-		 * Check permalinks
+		 * Check permalinks.
 		 */
 		if (
 			! $state->get_boolean( 'common.hide_note_no_permalink_rules' ) &&
@@ -398,12 +414,13 @@ class Generic_AdminNotes {
 		) {
 			$errors['generic_no_permalinks'] = wp_kses(
 				sprintf(
-					// translators: 1 HTML a tag to WordPress codex for using htaccess for permalinks, 2 HTML input button to hide message.
+					// translators: 1: HTML a tag to WordPress codex for using htaccess for permalinks, 2: HTML input button to hide message.
 					__(
 						'The required directives for fancy permalinks could not be detected, please confirm they are available: %1$s %2$s',
 						'w3-total-cache'
 					),
-					'<a href="http://codex.wordpress.org/Using_Permalinks#Creating_and_editing_.28.htaccess.29">' . __( 'Creating and editing', 'w3-total-cache' ) . '</a>',
+					'<a href="http://codex.wordpress.org/Using_Permalinks#Creating_and_editing_.28.htaccess.29">' .
+						__( 'Creating and editing', 'w3-total-cache' ) . '</a>',
 					Util_Ui::button_hide_note2(
 						array(
 							'w3tc_default_config_state_master' => 'y',
@@ -428,7 +445,7 @@ class Generic_AdminNotes {
 		}
 
 		/**
-		 * Check memcached
+		 * Check memcached.
 		 */
 		if ( isset( $errors['memcache_not_responding.details'] ) ) {
 			$memcache_errors = '';
@@ -438,8 +455,8 @@ class Generic_AdminNotes {
 
 			$memcache_error = wp_kses(
 				sprintf(
-					// translators: 1 opening HTML p tag, 2 closing HTML p tag followed by opening HTML ul tag followed by memcache errors within HTML li tags,
-					// translators: 3 closing HTML p tag.
+					// translators: 1: opening HTML p tag, 2: closing HTML p tag followed by opening HTML ul tag followed by memcache errors within HTML li tags,
+					// translators: 3: closing HTML p tag.
 					__(
 						'%1$sThe following memcached servers are not responding or not running:%2$sThis message will automatically disappear once the issue is resolved.%3$s',
 						'w3-total-cache'
