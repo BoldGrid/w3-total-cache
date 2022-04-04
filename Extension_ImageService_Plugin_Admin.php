@@ -1266,7 +1266,7 @@ class Extension_ImageService_Plugin_Admin {
 		check_ajax_referer( 'w3tc_imageservice_revert' );
 
 		$post_id_val = Util_Request::get_integer( 'post_id' );
-		$post_id     = ! emtpy( $post_id_val ) ? $post_id_val : null;
+		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( $post_id ) {
 			$result = $this->remove_optimizations( $post_id );

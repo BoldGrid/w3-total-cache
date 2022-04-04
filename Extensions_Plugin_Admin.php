@@ -55,7 +55,7 @@ class Extensions_Plugin_Admin {
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 
 			$action_val = Util_Request::get_string( 'action' );
-			if ( ! empty( Util_Request::get_string( 'extension' ) ) && ! emtpy( $action_val ) ) {
+			if ( ! empty( Util_Request::get_string( 'extension' ) ) && ! empty( $action_val ) ) {
 				if ( in_array( $action_val, array( 'activate', 'deactivate' ), true ) ) {
 					add_action( 'init', array( $this, 'change_extension_status' ) );
 				}
