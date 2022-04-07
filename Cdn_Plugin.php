@@ -607,10 +607,9 @@ class Cdn_Plugin {
 
 		foreach ( $uas as $ua ) {
 			if ( !empty( $ua ) ) {
-				if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr(
-						$_SERVER['HTTP_USER_AGENT'], $ua ) !== false
-				)
+				if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), $ua ) !== false ) {
 					return false;
+				}
 			}
 		}
 
@@ -630,7 +629,7 @@ class Cdn_Plugin {
 			$expr = trim( $expr );
 			$expr = str_replace( '~', '\~', $expr );
 
-			if ( $expr != '' && preg_match( '~' . $expr . '~i', $_SERVER['REQUEST_URI'] ) ) {
+			if ( $expr != '' && preg_match( '~' . $expr . '~i', isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) {
 				return false;
 			}
 		}

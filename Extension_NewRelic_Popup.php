@@ -25,7 +25,7 @@ class Extension_NewRelic_Popup {
 	}
 
 	public function w3tc_ajax_newrelic_list_applications() {
-		$api_key = $_REQUEST['api_key'];
+		$api_key = Util_Request::get_string( 'api_key' );
 		$c       = Dispatcher::config();
 		$details = array(
 			'api_key'                => $api_key,
@@ -59,12 +59,12 @@ class Extension_NewRelic_Popup {
 	}
 
 	public function w3tc_ajax_newrelic_apply_configuration() {
-		$api_key                = $_REQUEST['api_key'];
-		$monitoring_type        = Util_Request::get( 'monitoring_type', 'apm' );
-		$apm_application_name   = Util_Request::get( 'apm_application_name' );
-		$browser_application_id = Util_Request::get( 'browser_application_id' );
-
-		$c = Dispatcher::config();
+		$api_key                = Util_Request::get_string( 'api_key' );
+		$monitoring_type        = Util_Request::get_string( 'monitoring_type', 'apm' );
+		$apm_application_name   = Util_Request::get_string( 'apm_application_name' );
+		$browser_application_id = Util_Request::get_string( 'browser_application_id' );
+		$c                      = Dispatcher::config();
+		
 		$c->set( array( 'newrelic', 'api_key' ), $api_key );
 
 		if ( 'apm' === $monitoring_type ) {

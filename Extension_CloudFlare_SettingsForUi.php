@@ -79,6 +79,9 @@ class Extension_CloudFlare_SettingsForUi {
 				continue;
 			if ( $value == '' )
 				continue;
+
+			$value = Util_Request::get_string( $key );
+
 			$settings_key = substr( $key, strlen( $prefix ) );
 
 			if ( !isset( $settings[$settings_key] ) ) {

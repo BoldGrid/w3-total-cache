@@ -121,7 +121,7 @@ class PageSpeed_Plugin_Widget {
 			return 'n/a';
 		}
 
-		$url = $_SERVER['HTTP_REFERER'];
+		$url = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
 
 		$config = Dispatcher::config();
 		$key = $config->get_string( 'widget.pagespeed.key' );

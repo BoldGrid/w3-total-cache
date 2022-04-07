@@ -4,9 +4,9 @@ namespace W3TC;
 class Extension_CloudFlare_Page {
 	static public function admin_print_scripts_w3tc_extensions() {
 		if ( ( isset( $_REQUEST['extension'] ) &&
-			$_REQUEST['extension'] == 'cloudflare' ) ||
+		Util_Request::get_string( 'extension' ) == 'cloudflare' ) ||
 			( isset( $_REQUEST['page'] ) &&
-			$_REQUEST['page'] == 'w3tc_cdnfsd' ) ) {
+			Util_Request::get_string( 'page' ) == 'w3tc_cdnfsd' ) ) {
 			wp_enqueue_script( 'w3tc_extension_cloudflare',
 				plugins_url( 'Extension_CloudFlare_Page_View.js', W3TC_FILE ),
 				array( 'jquery' ), '1.0' );

@@ -24,7 +24,7 @@ class BrowserCache_Plugin_Admin {
 		$fp_values = array();
 
 		foreach ( $_REQUEST as $key => $value ) {
-			$value = stripslashes( $value );    // wp core add slashes
+			$value = Util_Request::get_string( $key );
 			if ( substr( $key, 0, $prefixl ) == $prefix ) {
 				$k = substr( $key, $prefixl );
 				if ( !empty( $value ) ) {

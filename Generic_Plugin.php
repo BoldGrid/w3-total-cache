@@ -38,8 +38,8 @@ class Generic_Plugin {
 				'admin_bar_init'
 			) );
 
-		if ( isset( $_REQUEST['w3tc_theme'] ) && isset( $_SERVER['HTTP_USER_AGENT'] ) &&
-			stristr( $_SERVER['HTTP_USER_AGENT'], W3TC_POWERED_BY ) !== false ) {
+		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) ) && stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
 			add_filter( 'template', array(
 					$this,
 					'template_preview'
@@ -154,7 +154,7 @@ class Generic_Plugin {
 		if ( is_multisite() && !is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
 			if ( $w3_current_blog_id != $current_blog->blog_id && !isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {
-				$url = Util_Environment::host_port() . $_SERVER['REQUEST_URI'];
+				$url = Util_Environment::host_port() . isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 				$pos = strpos( $url, '?' );
 				if ( $pos !== false )
 					$url = substr( $url, 0, $pos );
@@ -186,11 +186,13 @@ class Generic_Plugin {
 					// command-line mode, no real requests made,
 					// try to switch context in-request
 				} else {
-					if ( strpos( $_SERVER['REQUEST_URI'], '?' ) === false )
-						Util_Environment::safe_redirect_temp( $_SERVER['REQUEST_URI'] . '?repeat=w3tc' );
-					else {
-						if ( strpos( $_SERVER['REQUEST_URI'], 'repeat=w3tc' ) === false )
-							Util_Environment::safe_redirect_temp( $_SERVER['REQUEST_URI'] . '&repeat=w3tc' );
+					$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+					if ( strpos( $request_uri, '?' ) === false ) {
+						Util_Environment::safe_redirect_temp( $request_uri . '?repeat=w3tc' );
+					} else {
+						if ( strpos( $request_uri, 'repeat=w3tc' ) === false ) {
+							Util_Environment::safe_redirect_temp( $request_uri . '&repeat=w3tc' );
+						}
 					}
 				}
 			}
@@ -213,10 +215,9 @@ class Generic_Plugin {
 			add_action( 'wp_print_scripts', array( $this, 'popup_script' ) );
 		}
 
-
-		// dont add system stuff to search results
-		if ( ( isset( $_GET['repeat'] ) && $_GET['repeat'] == 'w3tc' ) ||
-			Util_Environment::is_preview_mode() ) {
+		// dont add system stuff to search results.
+		$repeat_val = Util_Request::get_string( 'repeat' );
+		if ( ( ! empty( $repeat_val ) && 'w3tc' === $repeat_val ) || Util_Environment::is_preview_mode() ) {
 			header( 'X-Robots-Tag: noindex' );
 		}
 	}
@@ -377,7 +378,7 @@ class Generic_Plugin {
 
 	public function wp_after_admin_bar_render() {
 		$url = admin_url( 'admin-ajax.php', 'relative' ) .
-			'?action=w3tc_monitoring_score&' . md5( $_SERVER['REQUEST_URI'] );
+			'?action=w3tc_monitoring_score&' . md5( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
 
 ?>
 		<script type= "text/javascript">
@@ -502,7 +503,7 @@ class Generic_Plugin {
 				 * Add footer comment
 				 */
 				$date = date_i18n( 'Y-m-d H:i:s' );
-				$host = ( !empty( $_SERVER['SERVER_NAME'] ) ? $_SERVER['SERVER_NAME'] : 'localhost' );
+				$host = ( ! empty( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : 'localhost' );
 
 				if ( Util_Environment::is_preview_mode() )
 					$buffer .= "\r\n<!-- W3 Total Cache used in preview mode -->";
@@ -593,8 +594,8 @@ class Generic_Plugin {
 		/**
 		 * Check User Agent
 		 */
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) &&
-			stristr( $_SERVER['HTTP_USER_AGENT'], W3TC_POWERED_BY ) !== false ) {
+		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		if ( stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
 			return false;
 		}
 

@@ -17,8 +17,9 @@ class Support_Page {
 		$w3tc_support_field_name = '';
 		$w3tc_support_field_value = '';
 
-		if ( isset( $_GET['service_item'] ) ) {
-			$pos = (int) $_GET['service_item'];
+		$service_item_val = Util_Request::get_integer( 'service_item' );
+		if ( ! empty( $service_item_val ) ) {
+			$pos = $service_item_val;
 
 			$v = get_site_option( 'w3tc_generic_widgetservices' );
 			try {
@@ -59,13 +60,14 @@ class Support_Page {
 	 * @return void
 	 */
 	function options() {
-		if ( isset( $_GET['done'] ) ) {
+		if ( ! empty( Util_Request::get_string( 'done' ) ) ) {
 			$postprocess_url =
 				'admin.php?page=w3tc_support&w3tc_support_send_details' .
-				'&_wpnonce=' . urlencode( $_GET['_wpnonce'] );
+				'&_wpnonce=' . rawurlencode( Util_Request::get_string( '_wpnonce' ) );
 			foreach ( $_GET as $p => $v ) {
-				if ( $p != 'page' && $p != '_wpnonce' && $p != 'done' )
-					$postprocess_url .= '&' . urlencode( $p ) . '=' . urlencode( $v );
+				if ( 'page' !== $p && '_wpnonce' !== $p && 'done' !== $p ) {
+					$postprocess_url .= '&' . rawurlencode( $p ) . '=' . rawurlencode( Util_Request::get_string( $p ) );
+				}
 			}
 
 			// terms accepted as a part of form

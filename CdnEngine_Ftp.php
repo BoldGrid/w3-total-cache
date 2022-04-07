@@ -42,9 +42,10 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 		$config['host'] = $ip;
 		$config['port'] = $port;
 
-		if ( $config['type'] == 'sftp' && $config['default_keys'] ) {
-			$config['pubkey'] = $_SERVER['HOME'] . '/.ssh/id_rsa.pub';
-			$config['privkey'] = $_SERVER['HOME'] . '/.ssh/id_rsa';
+		if ( 'sftp' === $config['type'] && $config['default_keys'] ) {
+			$home              = isset( $_SERVER['HOME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HOME'] ) ) : '';
+			$config['pubkey']  = $home . '/.ssh/id_rsa.pub';
+			$config['privkey'] = $home . '/.ssh/id_rsa';
 		}
 
 		parent::__construct( $config );
