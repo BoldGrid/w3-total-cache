@@ -394,21 +394,9 @@ class PgCache_ContentGrabber {
 			$content = $this->_compress( $content, $compression );
 		}
 
-		$dom = new DOMDocument();
-		$dom->loadHTML( $content );
-		$allowed_html = array();
-		foreach ( $dom->getElementsByTagName( '*' ) as $tag ) {
-			$tagname = $tag->tagName;
-			foreach ( $tag->attributes as $attribute_name => $attribute_val ) {
-				$allowed_html[ $tagname ][ $attribute_name ] = array();
-			}
-			$allowed_html[ $tagname ] = empty( $allowed_html[ $tagname ] ) ? array() : $allowed_html[ $tagname ];
-
-		}
-
 		echo wp_kses(
 			$content,
-			$allowed_html
+			Util_Ui::get_allowed_html_for_wp_kses_from_content( $centent )
 		);
 
 		Dispatcher::usage_statistics_apply_before_init_and_exit( array( $this,
@@ -515,20 +503,9 @@ class PgCache_ContentGrabber {
 		// Compress page according to headers already set.
 		$compressed_buffer = $this->_compress( $buffer, $compression );
 
-		$dom = new DOMDocument();
-		$dom->loadHTML( $compressed_buffer );
-		$allowed_html = array();
-		foreach ( $dom->getElementsByTagName( '*' ) as $tag ) {
-			$tagname = $tag->tagName;
-			foreach ( $tag->attributes as $attribute_name => $attribute_val ) {
-				$allowed_html[ $tagname ][ $attribute_name ] = array();
-			}
-			$allowed_html[ $tagname ] = empty( $allowed_html[ $tagname ] ) ? array() : $allowed_html[ $tagname ];
-		}
-
 		echo wp_kses(
 			$compressed_buffer,
-			$allowed_html
+			Util_Ui::get_allowed_html_for_wp_kses_from_content( $compressed_buffer )
 		);
 	}
 

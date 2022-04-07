@@ -1,6 +1,8 @@
 <?php
 namespace W3TC;
 
+use DOMDocument;
+
 class Util_Ui {
 	/**
 	 * Returns button html
@@ -12,10 +14,10 @@ class Util_Ui {
 	 */
 	public static function button( $text, $onclick = '', $class = 'button',
 		$name = '' ) {
-		$maybe_name = ( empty( $name ) ? '' : ' name="' . esc_html( $name ) . '"' );
+		$maybe_name = ( empty( $name ) ? '' : ' name="' . esc_attr( $name ) . '"' );
 		return '<input type="button"' . $maybe_name . ' class="' .
-			esc_html( $class ) . '" value="' . esc_html( $text ) .
-			'" onclick="' . esc_html( $onclick ) . '" />';
+			esc_attr( $class ) . '" value="' . esc_attr( $text ) .
+			'" onclick="' . esc_attr( $onclick ) . '" />';
 	}
 
 	/**
@@ -154,7 +156,11 @@ class Util_Ui {
 	 * @param string $area
 	 */
 	public static function e_config_label( $config_key ) {
-		echo esc_html( self::config_label( $config_key ) );
+		$config_label = self::config_label( $config_key );
+		echo wp_kses(
+			$config_label,
+			self::get_allowed_html_for_wp_kses_from_content( $config_label )
+		);
 	}
 
 	/**
@@ -176,7 +182,7 @@ class Util_Ui {
 		if ( ! empty( $id ) ) {
 			$id = ' id="' . esc_attr( $id ) . '"';
 		}
-		echo '<div' . esc_attr( $id ) . ' class="postbox ' . esc_attr( $class ) . '"><div class="handlediv" title="' . esc_attr( __( 'Click to toggle', 'w3-total-cache' ) ) . '"><br /></div><h3 class="hndle"><span>' . esc_html( $title ) . '</span></h3><div class="inside">';
+		echo '<div' . esc_attr( $id ) . ' class="postbox ' . esc_attr( $class ) . '"><div class="handlediv" title="' . esc_attr( __( 'Click to toggle', 'w3-total-cache' ) ) . '"><br /></div><h3 class="hndle"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3><div class="inside">';
 	}
 
 	/**
@@ -195,22 +201,22 @@ class Util_Ui {
 		?>
 		<p class="submit">
 			<?php
+			$nonce_field = self::nonce_field( 'w3tc' );
 			echo wp_kses(
-				self::nonce_field( 'w3tc' ),
-				array(
-					'input' => array(
-						'type'  => array(),
-						'name'  => array(),
-						'value' => array(),
-					),
-				)
+				$nonce_field,
+				self::get_allowed_html_for_wp_kses_from_content( $nonce_field )
 			);
 			?>
 			<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>"
 				name="w3tc_save_options"
 				class="w3tc-button-save button-primary"
 				value="<?php esc_attr_e( 'Save all settings', 'w3-total-cache' ); ?>" />
-			<?php echo esc_html( $extra ); ?>
+			<?php
+			echo wp_kses(
+				$extra,
+				self::get_allowed_html_for_wp_kses_from_content( $extra )
+			);
+			?>
 			<?php if ( ! is_network_admin() ) : ?>
 			<input type="submit" id="<?php echo esc_attr( $b2_id ); ?>"
 				name="w3tc_default_save_and_flush" style="float: right"
@@ -266,7 +272,7 @@ class Util_Ui {
 		return sprintf(
 			'<div %s class="updated">%s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
-			$logo . esc_html( $message )
+			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
 		);
 	}
 
@@ -277,18 +283,10 @@ class Util_Ui {
 	 * @param string $id      adds an id to the notification box.
 	 */
 	public static function e_notification_box( $message, $id = '' ) {
+		$notification_box = self::get_notification_box( $message, $id );
 		echo wp_kses(
-			self::get_notification_box( $message, $id ),
-			array(
-				'img' => array(
-					'src'   => array(),
-					'alt'   => array(),
-					'style' => array(),
-				),
-				'div' => array(
-					'class' => array(),
-				),
-			)
+			$notification_box,
+			self::get_allowed_html_for_wp_kses_from_content( $notification_box )
 		);
 	}
 
@@ -310,22 +308,12 @@ class Util_Ui {
 		$v = sprintf(
 			'<div %s class="error">%s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
-			$logo . esc_html( $message )
+			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
 		);
 
 		echo wp_kses(
 			$v,
-			array(
-				'img' => array(
-					'src'   => array(),
-					'alt'   => array(),
-					'style' => array(),
-				),
-				'div' => array(
-					'id'    => array(),
-					'class' => array(),
-				),
-			)
+			self::get_allowed_html_for_wp_kses_from_content( $v )
 		);
 	}
 
@@ -389,16 +377,10 @@ class Util_Ui {
 	 * @param int    $size
 	 */
 	public static function hidden( $id, $name, $value ) {
+		$hidden = self::r_hidden( $id, $name, $value );
 		echo wp_kses(
-			self::r_hidden( $id, $name, $value ),
-			array(
-				'input' => array(
-					'type'  => array(),
-					'id'    => array(),
-					'name'  => array(),
-					'value' => array(),
-				),
-			)
+			$hidden,
+			self::get_allowed_html_for_wp_kses_from_content( $hidden )
 		);
 	}
 
@@ -409,7 +391,11 @@ class Util_Ui {
 	 * @param string $text
 	 */
 	public static function label( $id, $text ) {
-		echo '<label for="' . esc_attr( $id ) . '">' . esc_html( $text ) . '</label>';
+		$label = '<label for="' . esc_attr( $id ) . '">' . $text . '</label>';
+		echo wp_kses(
+			$label,
+			self::get_allowed_html_for_wp_kses_from_content( $label )
+		);
 	}
 
 	/**
@@ -511,7 +497,7 @@ class Util_Ui {
 		echo '<option value="' . esc_attr( $key ) . '" ';
 		selected( $selected_value, $key );
 		disabled( $disabled );
-		echo '>' . esc_html( $label ) . '</option>' . "\n";
+		echo '>' . wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</option>' . "\n";
 	}
 
 	/**
@@ -526,7 +512,10 @@ class Util_Ui {
 			if ( $first ) {
 				$first = false;
 			} else {
-				echo esc_html( $separator );
+				echo wp_kses(
+					$separator,
+					self::get_allowed_html_for_wp_kses_from_content( $separator )
+				);
 			}
 
 			$label         = '';
@@ -552,7 +541,7 @@ class Util_Ui {
 				 value="' . esc_attr( $key ) . '"';
 			checked( $value, $key );
 			disabled( $disabled || $item_disabled );
-			echo ' />' . esc_html( $label ) . '</label>' . esc_html( $postfix ) . "\n";
+			echo ' />' . wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</label>' . wp_kses( $postfix, self::get_allowed_html_for_wp_kses_from_content( $postfix ) ) . "\n";
 			if ( $pro_feature ) {
 				self::pro_wrap_description(
 					$label_or_array['pro_excerpt'],
@@ -603,7 +592,7 @@ class Util_Ui {
 		echo ' /> ';
 
 		if ( ! is_null( $label ) ) {
-			echo esc_html( $label ) . '</label>';
+			echo wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</label>';
 		}
 	}
 
@@ -736,9 +725,9 @@ class Util_Ui {
 				)
 			);
 		} elseif ( 'none' === $a['control'] ) {
-			echo esc_html( $a['none_label'] );
+			echo wp_kses( $a['none_label'], self::get_allowed_html_for_wp_kses_from_content( $a['none_label'] ) );
 		} elseif ( 'button' === $a['control'] ) {
-			echo '<button type="button" class="button">' . esc_html( $a['none_label'] ) . '</button>';
+			echo '<button type="button" class="button">' . wp_kses( $a['none_label'], self::get_allowed_html_for_wp_kses_from_content( $a['none_label'] ) ) . '</button>';
 		}
 	}
 
@@ -797,11 +786,11 @@ class Util_Ui {
 					( isset( $e['label'] ) ? $e['label'] : null ),
 				);
 			} elseif ( 'description' === $key ) {
-				echo '<p class="description">' . esc_html( $e ) . '</p>';
+				echo '<p class="description">' . wp_kses( $e, self::get_allowed_html_for_wp_kses_from_content( $e ) ) . '</p>';
 			} elseif ( 'hidden' === $key ) {
 				self::hidden( '', $e['name'], $e['value'] );
 			} elseif ( 'html' === $key ) {
-				echo esc_html( $e );
+				echo wp_kses( $e, self::get_allowed_html_for_wp_kses_from_content( $e ) );
 			} elseif ( 'radiogroup' === $key ) {
 				self::radiogroup(
 					$e['name'],
@@ -888,10 +877,28 @@ class Util_Ui {
 		self::control2( $a );
 
 		if ( isset( $a['control_after'] ) ) {
-			echo esc_html( $a['control_after'] );
+			echo wp_kses(
+				$a['control_after'],
+				self::get_allowed_html_for_wp_kses_from_content( $a['control_after'] )
+			);
 		}
 		if ( isset( $a['description'] ) ) {
-			echo '<p class="description">' . esc_html( $a['description'] ) . '</p>';
+			echo wp_kses(
+				sprintf(
+					'%1$s%2$s%3$s',
+					'<p class="description">',
+					$a['description'],
+					'</p>'
+				),
+				array(
+					'p'       => array(
+						'class' => array(),
+					),
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
+			);
 		}
 
 		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
@@ -911,7 +918,7 @@ class Util_Ui {
 		);
 
 		if ( isset( $a['description'] ) ) {
-			echo '<p class="description">' . esc_html( $a['description'] ) . '</p>';
+			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
 		}
 
 		echo "</td></tr>\n";
@@ -935,7 +942,7 @@ class Util_Ui {
 		self::control2( $a );
 
 		if ( isset( $a['control_after'] ) ) {
-			echo esc_html( $a['control_after'] );
+			echo wp_kses( $a['control_after'], self::get_allowed_html_for_wp_kses_from_content( $a['control_after'] ) );
 		}
 
 		if ( isset( $a['description'] ) ) {
@@ -1054,18 +1061,20 @@ class Util_Ui {
 		<?php
 	}
 
-	public static function pro_wrap_description( $excerpt, $description, $data_href ) {
-		echo '<p class="description w3tc-gopro-excerpt">' . esc_html( $excerpt ) . '</p>';
+	public static function pro_wrap_description( $excerpt_clean, $description, $data_href ) {
+		echo '<p class="description w3tc-gopro-excerpt">' . wp_kses( $excerpt_clean, self::get_allowed_html_for_wp_kses_from_content( $excerpt_clean ) ) . '</p>';
 
 		if ( ! empty( $description ) ) {
 			$d = array_map(
 				function( $e ) {
-					return '<p class="description">' . esc_html( $e ) . '</p>';
+					return '<p class="description">' . wp_kses( $e, self::get_allowed_html_for_wp_kses_from_content( $e ) ) . '</p>';
 				},
 				$description
 			);
 
-			echo '<div class="w3tc-gopro-description">' . esc_html( implode( "\n", $d ) ) . '</div>';
+			$descriptions = implode( "\n", $d );
+
+			echo '<div class="w3tc-gopro-description">' . wp_kses( $descriptions, self::get_allowed_html_for_wp_kses_from_content( $descriptions ) ) . '</div>';
 			echo '<a href="#" class="w3tc-gopro-more" data-href="w3tc-gopro-more-' . esc_url( $data_href ) . '">' . esc_html( __( 'Show More', 'w3-total-cache' ) ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></a>';
 		}
 	}
@@ -1226,5 +1235,24 @@ class Util_Ui {
 		}
 
 		return str_replace( '__', '.', $http_key );
+	}
+
+	public static function get_allowed_html_for_wp_kses_from_content( $content ) {
+		$allowed_html = array();
+
+		if( empty( $content ) ) {
+			return $allowed_html;
+		}
+
+		$dom = new DOMDocument();
+		$dom->loadHTML( $content );
+		foreach ( $dom->getElementsByTagName( '*' ) as $tag ) {
+			$tagname = $tag->tagName;
+			foreach ( $tag->attributes as $attribute_name => $attribute_val ) {
+				$allowed_html[ $tagname ][ $attribute_name ] = array();
+			}
+			$allowed_html[ $tagname ] = empty( $allowed_html[ $tagname ] ) ? array() : $allowed_html[ $tagname ];
+		}
+		return $allowed_html;
 	}
 }

@@ -28,12 +28,18 @@ Util_Ui::config_overloading_button( array(
 		'none_label' => __( 'Lazy Load Google Maps', 'w3-total-cache' ),
 		'excerpt' => wp_kses(
 			sprintf(
-				// Translators: 1 an opening anchor to the user experience page, 2 its closing anchor tag, 3 an opening strong tag, 4 its closing tag.
-				__( 'In addition to lazy loading images, with %3$sW3 Total Cache Pro%4$s you can lazy load %3$sGoogle Maps%4$s! More information and settings can be found on the %1$sUser Experience page%2$s.', 'w3-total-cache' ),
+				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag, 3 opening HTML strong tag, 4 closing HTML strong tag,
+				// translators: 5 opening HTML a tag to W3TC User Experience page, 6 closing HTML a tag.
+				__(
+					'In addition to lazy loading images, with %1$sW3 Total Cache Pro%2$s you can lazy load %3$sGoogle Maps%4$s! More information and settings can be found on the %5$sUser Experience page%6$s.',
+					'w3-total-cache'
+				),
+				'<strong>',
+				'</strong>',
+				'<strong>',
+				'</strong>',
 				'<a href="' . admin_url( 'admin.php?page=w3tc_userexperience' ) . '">',
 				'</a>',
-				'<strong>',
-				'</strong>'
 			),
 			array(
 				'a'      => array(

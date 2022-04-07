@@ -1,11 +1,11 @@
 <?php
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) { 
+if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-include W3TC_INC_DIR . '/options/common/header.php';
+require W3TC_INC_DIR . '/options/common/header.php';
 ?>
 
 <p>
@@ -397,14 +397,11 @@ include W3TC_INC_DIR . '/options/common/header.php';
 			<?php
 			echo wp_kses(
 				sprintf(
-					w3tc_er(
-						'reverseproxy.general.header',
-						// translators: 1 opening HTML a tag to W3TC Page Cache admin page, 2 closing HTML a tag,
-						// translators: 3 opening HTML a tag to W3TC Browsercache admin page, 4 closing HTML a tag.
-						__(
-							'A reverse proxy adds scale to an server by handling requests before WordPress does. Purge settings are set on the %1$sPage Cache settings%2$s page and %3$sBrowser Cache settings%4$s are set on the browser cache settings page.',
-							'w3-total-cache'
-						)
+					// translators: 1 opening HTML a tag to W3TC Page Cache admin page, 2 closing HTML a tag,
+					// translators: 3 opening HTML a tag to W3TC Browsercache admin page, 4 closing HTML a tag.
+					__(
+						'A reverse proxy adds scale to an server by handling requests before WordPress does. Purge settings are set on the %1$sPage Cache settings%2$s page and %3$sBrowser Cache settings%4$s are set on the browser cache settings page.',
+						'w3-total-cache'
 					),
 					'<a href="' . esc_url( self_admin_url( 'admin.php?page=w3tc_pgcache' ) ) . '">',
 					'</a>',
@@ -819,7 +816,7 @@ include W3TC_INC_DIR . '/options/common/header.php';
 						// translators: 1: WordPress ABSPATH value, 2: Server document root value.
 						__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
 						esc_html( untrailingslashit( ABSPATH ) ),
-						esc_html( $_SERVER['DOCUMENT_ROOT'] )
+						esc_html( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '' )
 					),
 				)
 			);

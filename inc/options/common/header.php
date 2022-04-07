@@ -161,7 +161,20 @@ do_action( 'w3tc-dashboard-head' );
 
 			?>
 			<p id="w3tc-options-menu">
-				<?php echo esc_html( implode( ' | ', $links ) ); ?>
+				<?php
+				echo wp_kses(
+					implode( ' | ', $links ),
+					array(
+						'a'    => array(
+							'href'  => array(),
+							'class' => array(),
+						),
+						'abbr' => array(
+							'title' => array(),
+						),
+					)
+				);
+				?>
 			</p>
 			<?php
 
