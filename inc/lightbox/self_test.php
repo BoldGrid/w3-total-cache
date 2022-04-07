@@ -117,9 +117,9 @@ if ( ! defined( 'W3TC' ) ) {
 								'(required for Self-hosted (%1$sFTP%2$s) %3$sCDN%4$s support)',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'File Transfer Protocol', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -244,7 +244,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'(required for %1$sCDN%2$s support)',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -275,7 +275,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'(required for NetDNA / MaxCDN %1$sCDN%2$s purge support)',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -333,11 +333,11 @@ if ( ! defined( 'W3TC' ) ) {
 								'(required for Self-hosted (%1$sFTP%2$s) %3$sCDN%4$s %5$sSFTP%6$s support)',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'File Transfer Protocol', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'Secure File Transfer Protocol', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Secure File Transfer Protocol', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(

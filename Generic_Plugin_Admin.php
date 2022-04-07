@@ -179,13 +179,13 @@ class Generic_Plugin_Admin {
 
 		try {
 			$base_capability = apply_filters( 'w3tc_ajax_base_capability_', 'manage_options' );
-			$capability = apply_filters( 'w3tc_ajax_capability_' . $_REQUEST['w3tc_action'],
+			$capability = apply_filters( 'w3tc_ajax_capability_' . Util_Request::get_string( 'w3tc_action' ),
 				$base_capability );
 			if ( !empty( $capability ) && !current_user_can( $capability ) )
 				throw new \Exception( 'no permissions' );
 
 			do_action( 'w3tc_ajax' );
-			do_action( 'w3tc_ajax_' . $_REQUEST['w3tc_action'] );
+			do_action( 'w3tc_ajax_' . Util_Request::get_string( 'w3tc_action' ) );
 		} catch ( \Exception $e ) {
 			echo esc_html( $e->getMessage() );
 		}
@@ -220,8 +220,10 @@ class Generic_Plugin_Admin {
 			Util_Activation::deactivate_plugin();
 		}
 
-		if ( isset( $_REQUEST['page'] ) )
-			do_action( 'admin_init_' . $_REQUEST['page'] );
+		$page_val = Util_Request::get_string( 'page' );
+		if ( ! empty( $page_val ) ) {
+			do_action( 'admin_init_' . $page_val );
+		}
 	}
 
 	/**
@@ -258,10 +260,11 @@ class Generic_Plugin_Admin {
 			foreach ( $this->w3tc_message['actions'] as $action )
 				do_action( 'w3tc_message_action_' . $action );
 		}
-		// for testing
-		if ( isset( $_REQUEST['w3tc_message_action'] ) )
-			do_action( 'w3tc_message_action_' . $_REQUEST['w3tc_message_action'] );
-
+		// for testing.
+		$w3tc_message_action_val = Util_Request::get_string( 'w3tc_message_action' );
+		if ( ! empty( $w3tc_message_action_val ) ) {
+			do_action( 'w3tc_message_action_' . $w3tc_message_action_val );
+		}
 	}
 
 	// Define icon styles for the custom post type
@@ -315,12 +318,13 @@ class Generic_Plugin_Admin {
 					'dimension2': '<?php echo esc_html( W3TC_VERSION ); ?>',
 					'dimension3': '<?php global $wp_version; echo esc_html( $wp_version ); ?>',
 					'dimension4': 'php<?php echo esc_html( phpversion() ); ?>',
-					'dimension5': '<?php echo esc_attr( $_SERVER["SERVER_SOFTWARE"] ); ?>',
+					'dimension5': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
 					'dimension6': 'mysql<?php global $wpdb; echo esc_attr( $wpdb->db_version() ); ?>',
 					'dimension7': '<?php echo esc_url( Util_Environment::home_url_host() ); ?>',
 					'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
 					'dimension10': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
 					'dimension11': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
+
 					'page': '<?php echo esc_attr( $page ); ?>'
 				});
 
@@ -392,10 +396,10 @@ class Generic_Plugin_Admin {
 			}
 
 			global $pagenow;
-			if ( $pagenow == 'plugins.php' || $this->is_w3tc_page ||
-				isset( $_REQUEST['w3tc_note'] ) ||
-				isset( $_REQUEST['w3tc_error'] ) ||
-				isset( $_REQUEST['w3tc_message'] ) ) {
+			if ( 'plugins.php' === $pagenow || $this->is_w3tc_page ||
+				! empty( Util_Request::get_string( 'w3tc_note' ) ) ||
+				! empty( Util_Request::get_string( 'w3tc_error' ) ) ||
+				! empty( Util_Request::get_string( 'w3tc_message' ) ) ) {
 				/**
 				 * Only admin can see W3TC notices and errors
 				 */
@@ -518,7 +522,7 @@ class Generic_Plugin_Admin {
 	}
 
 	public function w3tc_ajax_faq() {
-		$section = $_REQUEST['section'];
+		$section = Util_Request::get_string( 'section' );
 
 		$entries = Generic_Faq::parse( $section );
 		$response = array();
@@ -741,9 +745,9 @@ class Generic_Plugin_Admin {
 			$environment = Dispatcher::component( 'Root_Environment' );
 			$environment->fix_in_wpadmin( $this->_config );
 
-			if ( isset( $_REQUEST['upgrade'] ) )
-				$notes[] = __( 'Required files and directories have been automatically created',
-					'w3-total-cache' );
+			if ( ! empty( Util_Request::get_string( 'upgrade' ) ) ) {
+				$notes[] = __( 'Required files and directories have been automatically created', 'w3-total-cache' );
+			}
 		} catch ( Util_Environment_Exceptions $exs ) {
 			$r = Util_Activation::parse_environment_exceptions( $exs );
 			$n = 1;

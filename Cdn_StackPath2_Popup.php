@@ -42,8 +42,8 @@ class Cdn_StackPath2_Popup {
 
 	public function w3tc_ajax_cdn_stackpath2_list_stacks() {
 		$api_config = array(
-			'client_id' => $_REQUEST['client_id'],
-			'client_secret' => $_REQUEST['client_secret']
+			'client_id' => Util_Request::get_string( 'client_id' ),
+			'client_secret' => Util_Request::get_string( 'client_secret' )
 		);
 
 		$api = new Cdn_StackPath2_Api( $api_config );
@@ -89,8 +89,8 @@ class Cdn_StackPath2_Popup {
 
 
 	public function w3tc_ajax_cdn_stackpath2_list_sites() {
-		$api_config = $this->api_config_decode( $_REQUEST['api_config'] );
-		$api_config['stack_id'] = $_REQUEST['stack_id'];
+		$api_config = $this->api_config_decode( Util_Request::get_string( 'api_config' ) );
+		$api_config['stack_id'] = Util_Request::get_string( 'stack_id' );
 		$this->_w3tc_ajax_cdn_stackpath2_list_sites( $api_config );
 	}
 
@@ -127,7 +127,7 @@ class Cdn_StackPath2_Popup {
 
 
 	public function w3tc_ajax_cdn_stackpath2_configure_site() {
-		$api_config = $this->api_config_decode( $_REQUEST['api_config'] );
+		$api_config = $this->api_config_decode( Util_Request::get_string( 'api_config' ) );
 		$site_id = Util_Request::get( 'site_id', '' );
 
 		$api = new Cdn_StackPath2_Api( $api_config );

@@ -454,21 +454,25 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	 * @return boolean
 	 */
 	function _is_current_zone( $zone ) {
-		// obsolete
+		$server_name = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
+		// obsolete.
 		if ( isset( $zone['SERVER_NAME'] ) ) {
-			if ( $_SERVER['SERVER_NAME'] == $zone['SERVER_NAME'] )
+			if ( $server_name === $zone['SERVER_NAME'] ) {
 				return true;
+			}
 		}
 
 		if ( isset( $zone['server_names'] ) ) {
-			if ( !is_array( $zone['server_names'] ) )
+			if ( ! is_array( $zone['server_names'] ) ) {
 				die( 'server_names must be defined as array' );
-
-			foreach ( $zone['server_names'] as $server_name ) {
-				if ( $server_name == '*' )
+			}
+			foreach ( $zone['server_names'] as $zone_server_name ) {
+				if ( '*' === $zone_server_name ) {
 					return true;
-				if ( $_SERVER['SERVER_NAME'] == $server_name )
+				}
+				if ( $server_name === $zone_server_name ) {
 					return true;
+				}
 			}
 		}
 

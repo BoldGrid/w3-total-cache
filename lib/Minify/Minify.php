@@ -453,18 +453,18 @@ class Minify {
 	 *
 	 * @param string $docRoot value to use for DOCUMENT_ROOT
 	 */
-	public static function setDocRoot($docRoot = '')
-	{
+	public static function setDocRoot( $docRoot = '' ) {
 		self::$isDocRootSet = true;
-		if ($docRoot) {
+		$server_software    = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
+		if ( $docRoot ) {
 			$_SERVER['DOCUMENT_ROOT'] = $docRoot;
-		} elseif (isset($_SERVER['SERVER_SOFTWARE'])
-				  && 0 === strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS/')) {
+		} elseif ( 0 === strpos( $server_software, 'Microsoft-IIS/' ) ) {
 			$_SERVER['DOCUMENT_ROOT'] = substr(
-				$_SERVER['SCRIPT_FILENAME']
-				,0
-				,strlen($_SERVER['SCRIPT_FILENAME']) - strlen($_SERVER['SCRIPT_NAME']));
-			$_SERVER['DOCUMENT_ROOT'] = rtrim($_SERVER['DOCUMENT_ROOT'], '\\');
+				isset( $_SERVER['SCRIPT_FILENAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_FILENAME'] ) ) : '',
+				0,
+				strlen( isset( $_SERVER['SCRIPT_FILENAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_FILENAME'] ) ) : '' ) - strlen( isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '' )
+			);
+			$_SERVER['DOCUMENT_ROOT'] = rtrim( isset( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '', '\\' );
 		}
 	}
 

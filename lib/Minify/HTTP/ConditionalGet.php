@@ -123,12 +123,12 @@ class HTTP_ConditionalGet {
 		if (isset($spec['setExpires'])
 			&& is_numeric($spec['setExpires'])
 			&& ! isset($spec['maxAge'])) {
-			$spec['maxAge'] = $spec['setExpires'] - $_SERVER['REQUEST_TIME'];
+			$spec['maxAge'] = $spec['setExpires'] - ( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' );
 		}
 		if (isset($spec['maxAge']) && $this->_cacheHeaders['expires_enabled'] && $spec['maxAge']) {
 			$maxAge = $spec['maxAge'];
 			$this->_headers['Expires'] = self::gmtDate(
-				$_SERVER['REQUEST_TIME'] + $spec['maxAge']
+				( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' ) + $spec['maxAge']
 			);
 		}
 		$etagAppend = '';
@@ -366,7 +366,7 @@ class HTTP_ConditionalGet {
 		if (!isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
 			return false;
 		}
-		$clientEtagList = $_SERVER['HTTP_IF_NONE_MATCH'];
+		$clientEtagList = sanitize_text_field( wp_unslash( $_SERVER['HTTP_IF_NONE_MATCH'] ) );
 		$clientEtags = explode(',', $clientEtagList);
 
 		$compareTo = $this->normalizeEtag($this->_etag);
@@ -403,7 +403,7 @@ class HTTP_ConditionalGet {
 			return false;
 		}
 		// strip off IE's extra data (semicolon)
-		list($ifModifiedSince) = explode(';', $_SERVER['HTTP_IF_MODIFIED_SINCE'], 2);
+		list($ifModifiedSince) = explode(';', sanitize_text_field( wp_unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ), 2);
 		if (strtotime($ifModifiedSince) >= $this->_lmTime) {
 			// Apache 2.2's behavior. If there was no ETag match, send the
 			// non-encoded version of the ETag value.

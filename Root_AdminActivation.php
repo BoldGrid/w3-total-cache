@@ -16,12 +16,13 @@ class Root_AdminActivation {
 	 * @return void
 	 */
 	public static function activate( $network_wide ) {
-		// decline non-network activation at WPMU.
+		// Decline non-network activation at WPMU.
 		if ( Util_Environment::is_wpmu() ) {
 			if ( $network_wide ) {
-				// we are in network activation.
-			} elseif ( 'error_scrape' === $_GET['action'] && strpos( $_SERVER['REQUEST_URI'], '/network/' ) !== false ) {
-				// workaround for error_scrape page called after error really we are in network activation and going to throw some error.
+				// We are in network activation.
+			} else if ( Util_Request::get_string( 'action' ) == 'error_scrape' &&
+					strpos( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', '/network/' ) !== false ) {
+				// Workaround for error_scrape page called after error really we are in network activation and going to throw some error.
 			} else {
 				echo wp_kses(
 					sprintf(
@@ -39,6 +40,7 @@ class Root_AdminActivation {
 						),
 					)
 				);
+
 				die;
 			}
 		}

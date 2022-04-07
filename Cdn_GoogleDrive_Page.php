@@ -18,12 +18,12 @@ class Cdn_GoogleDrive_Page {
 		);
 
 		// it's return from google oauth
-		if ( isset( $_GET['oa_client_id'] ) ) {
+		if ( isset( Util_Request::get_string( 'oa_client_id' ) ) ) {
 			$path = wp_nonce_url( 'admin.php', 'w3tc' ) .
 				'&page=w3tc_cdn&w3tc_cdn_google_drive_auth_return';
 			foreach ( $_GET as $key => $value ) {
 				if ( substr( $key, 0, 3 ) == 'oa_' )
-					$path .= '&' . urlencode( $key ) . '=' . urlencode( $value );
+					$path .= '&' . urlencode( $key ) . '=' . urlencode( Util_Request::get_string( $key ) );
 			}
 
 			$popup_url = self_admin_url( $path );

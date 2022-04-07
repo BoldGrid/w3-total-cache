@@ -255,7 +255,9 @@ class Util_Ui {
 	 * @return string
 	 */
 	public static function get_notification_box( $message, $id = '' ) {
-		if ( ! isset( $_GET['page'] ) || ( isset( $_GET['page'] ) && substr( $_GET['page'], 0, 5 ) !== 'w3tc_' ) ) {
+		$page_val = Util_Request::get_string( 'page' );
+
+		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
 				'<img src="%s" alt="W3 Total Cache" style="height:30px" />"',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) ) . ''
@@ -266,7 +268,7 @@ class Util_Ui {
 		return sprintf(
 			'<div %s class="updated">%s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
-			$logo . esc_html( $message )
+			$logo . $message
 		);
 	}
 
@@ -293,13 +295,15 @@ class Util_Ui {
 	}
 
 	/**
-	 * Echos an error box
+	 * Echos an error box.
 	 *
-	 * @param unknown $message
-	 * @param string  $id
+	 * @param string $message Message.
+	 * @param string $id      Id.
 	 */
 	public static function error_box( $message, $id = '' ) {
-		if ( ! isset( $_GET['page'] ) || ( isset( $_GET['page'] ) && substr( $_GET['page'], 0, 5 ) !== 'w3tc_' ) ) {
+		$page_val = Util_Request::get_string( 'page' );
+
+		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
 				'<img src="%s" alt="W3 Total Cache" style="height:30px" />',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) . '' )
@@ -307,10 +311,11 @@ class Util_Ui {
 		} else {
 			$logo = '';
 		}
+
 		$v = sprintf(
 			'<div %s class="error">%s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
-			$logo . esc_html( $message )
+			$logo . $message
 		);
 
 		echo wp_kses(

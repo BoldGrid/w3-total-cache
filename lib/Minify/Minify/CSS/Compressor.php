@@ -67,7 +67,7 @@ class Minify_CSS_Compressor {
      */
     protected function _process($css)
     {
-        $this->_replacementHash = 'MINIFYCSS' . md5($_SERVER['REQUEST_TIME']);
+        $this->_replacementHash = 'MINIFYCSS' . md5( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' );
         $this->_placeholders = array();
 
         $css = preg_replace_callback('~(".*"|\'.*\')~U', array($this, '_removeQuotesCB'), $css);

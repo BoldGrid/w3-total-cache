@@ -50,34 +50,34 @@ do_action( 'w3tc-dashboard-head' );
 			$anchors = array(
 				array(
 					'id'   => 'general',
-					'text' => __( 'General', 'w3-total-cache' ),
+					'text' => esc_html__( 'General', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'page_cache',
-					'text' => __( 'Page Cache', 'w3-total-cache' ),
+					'text' => esc_html__( 'Page Cache', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'minify',
-					'text' => 'Minify',
+					'text' => esc_html__( 'Minify', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'system_opcache',
-					'text' => __( 'Opcode Cache', 'w3-total-cache' ),
+					'text' => esc_html__( 'Opcode Cache', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'database_cache',
-					'text' => __( 'Database Cache', 'w3-total-cache' ),
+					'text' => esc_html__( 'Database Cache', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'object_cache',
-					'text' => __( 'Object Cache', 'w3-total-cache' ),
+					'text' => esc_html__( 'Object Cache', 'w3-total-cache' ),
 				),
 			);
 
 			if ( Util_Environment::is_w3tc_pro( $config ) ) {
 				$anchors[] = array(
 					'id'   => 'fragmentcache',
-					'text' => __( 'Fragment Cache', 'w3-total-cache' ),
+					'text' => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
 				);
 			}
 
@@ -86,7 +86,7 @@ do_action( 'w3tc-dashboard-head' );
 				array(
 					array(
 						'id'   => 'browser_cache',
-						'text' => __( 'Browser Cache', 'w3-total-cache' ),
+						'text' => esc_html__( 'Browser Cache', 'w3-total-cache' ),
 					),
 					array(
 						'id'   => 'cdn',
@@ -97,7 +97,7 @@ do_action( 'w3tc-dashboard-head' );
 									'%1$sCDN%2$s',
 									'w3-total-cache'
 								),
-								'<abbr title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<abbr title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</abbr>'
 							),
 							array(
@@ -109,7 +109,7 @@ do_action( 'w3tc-dashboard-head' );
 					),
 					array(
 						'id'   => 'reverse_proxy',
-						'text' => __( 'Reverse Proxy', 'w3-total-cache' ),
+						'text' => esc_html__( 'Reverse Proxy', 'w3-total-cache' ),
 					),
 				)
 			);
@@ -117,19 +117,19 @@ do_action( 'w3tc-dashboard-head' );
 			if ( Util_Environment::is_w3tc_pro() ) {
 				$anchors[] = array(
 					'id'   => 'amazon_sns',
-					'text' => __( 'Message Bus', 'w3-total-cache' ),
+					'text' => esc_html__( 'Message Bus', 'w3-total-cache' ),
 				);
 			}
 
 			$anchors[] = array(
 				'id'   => 'monitoring',
-				'text' => __( 'Monitoring', 'w3-total-cache' ),
+				'text' => esc_html__( 'Monitoring', 'w3-total-cache' ),
 			);
 
 			if ( $licensing_visible ) {
 				array(
 					'id'   => 'licensing',
-					'text' => __( 'Licensing', 'w3-total-cache' ),
+					'text' => esc_html__( 'Licensing', 'w3-total-cache' ),
 				);
 			}
 
@@ -139,15 +139,15 @@ do_action( 'w3tc-dashboard-head' );
 				array(
 					array(
 						'id'   => 'miscellaneous',
-						'text' => __( 'Miscellaneous', 'w3-total-cache' ),
+						'text' => esc_html__( 'Miscellaneous', 'w3-total-cache' ),
 					),
 					array(
 						'id'   => 'debug',
-						'text' => __( 'Debug', 'w3-total-cache' ),
+						'text' => esc_html__( 'Debug', 'w3-total-cache' ),
 					),
 					array(
 						'id'   => 'settings',
-						'text' => __( 'Import / Export Settings', 'w3-total-cache' ),
+						'text' => esc_html__( 'Import / Export Settings', 'w3-total-cache' ),
 					),
 				)
 			);
@@ -164,7 +164,6 @@ do_action( 'w3tc-dashboard-head' );
 				<?php echo esc_html( implode( ' | ', $links ) ); ?>
 			</p>
 			<?php
-
 			break;
 
 		case 'w3tc_pgcache':
