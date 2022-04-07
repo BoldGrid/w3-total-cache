@@ -115,7 +115,7 @@ class Cdn_AdminNotes {
 			$notes[] = sprintf(
 				__( 'Make sure to whitelist your servers IPs. Follow the instructions on %s. The IP for this server is %s. %s', 'w3-total-cache' ),
 				'<a href="http://support.maxcdn.com/tutorials/how-to-whitelist-your-server-ip-to-use-the-api/">MaxCDN</a>',
-				$_SERVER['SERVER_ADDR'],
+				isset( $_SERVER['SERVER_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_ADDR'] ) ) : '',
 				Util_Ui::button_hide_note2( array(
 						'w3tc_default_config_state' => 'y',
 						'key' => 'cdn.hide_note_maxcdn_whitelist_ip',

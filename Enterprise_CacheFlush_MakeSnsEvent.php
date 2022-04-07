@@ -193,7 +193,7 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 		$message = array();
 		$message['actions'] = $this->messages;
 		$message['blog_id'] = Util_Environment::blog_id();
-		$message['host'] = isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null;
+		$message['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : null;
 		$message['hostname'] = @gethostname();
 		$v = json_encode( $message );
 
@@ -206,7 +206,7 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 			$this->_log( $origin . ' sending message ' . $v );
 			$this->_log( 'Host: ' . $message['host'] );
 			if ( isset( $_SERVER['REQUEST_URI'] ) )
-				$this->_log( 'URL: ' . $_SERVER['REQUEST_URI'] );
+				$this->_log( 'URL: ' . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
 			if ( function_exists( 'current_filter' ) )
 				$this->_log( 'Current WP hook: ' . current_filter() );
 

@@ -9,7 +9,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<p>
 			Date: <?php echo esc_html( gmdate( 'm/d/Y H:i:s' ) ); ?><br />
 			Version: <?php echo esc_html( W3TC_VERSION ); ?><br />
-			URL: <a href="<?php echo esc_attr( $url ); ?>"><?php echo esc_html( $url ); ?></a><br />
+			URL: <a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $url ); ?></a><br />
 			Name: <?php echo esc_html( $name ); ?><br />
 			E-Mail: <a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a><br />
 

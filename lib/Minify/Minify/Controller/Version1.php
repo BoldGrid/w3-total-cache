@@ -32,7 +32,7 @@ class Minify_Controller_Version1 extends Minify_Controller_Base {
     public function setupSources($options) {
         // PHP insecure by default: realpath() and other FS functions can't handle null bytes.
         if (isset($_GET['files'])) {
-            $_GET['files'] = str_replace("\x00", '', (string)$_GET['files']);
+            $_GET['files'] = str_replace("\x00", '', (string) sanitize_text_field( wp_unslash( $_GET['files'] ) ) );
         }
 
         self::_setupDefines();
@@ -47,21 +47,22 @@ class Minify_Controller_Version1 extends Minify_Controller_Base {
 
         // The following restrictions are to limit the URLs that minify will
         // respond to. Ideally there should be only one way to reference a file.
-        if (! isset($_GET['files'])
+		$files = isset( $_GET['files'] ) ? sanitize_text_field( wp_unslash( $_GET['files'] ) ) : '';
+        if (! isset($files)
             // verify at least one file, files are single comma separated,
             // and are all same extension
-            || ! preg_match('/^[^,]+\\.(css|js)(,[^,]+\\.\\1)*$/', $_GET['files'], $m)
+            || ! preg_match('/^[^,]+\\.(css|js)(,[^,]+\\.\\1)*$/', $files, $m)
             // no "//" (makes URL rewriting easier)
-            || strpos($_GET['files'], '//') !== false
+            || strpos($files, '//') !== false
             // no "\"
-            || strpos($_GET['files'], '\\') !== false
+            || strpos($files, '\\') !== false
             // no "./"
-            || preg_match('/(?:^|[^\\.])\\.\\//', $_GET['files'])
+            || preg_match('/(?:^|[^\\.])\\.\\//', $files)
         ) {
             return $options;
         }
 
-        $files = explode(',', $_GET['files']);
+        $files = explode(',', $files);
         if (count($files) > MINIFY_MAX_FILES) {
             return $options;
         }
@@ -70,7 +71,7 @@ class Minify_Controller_Version1 extends Minify_Controller_Base {
         $docroot = \W3TC\Util_Environment::document_root();
 
         // strings for prepending to relative/absolute paths
-        $prependRelPaths = dirname($_SERVER['SCRIPT_FILENAME'])
+        $prependRelPaths = dirname( isset( $_SERVER['SCRIPT_FILENAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_FILENAME'] ) ) : '' )
             . DIRECTORY_SEPARATOR;
         $prependAbsPaths = $docroot;
 

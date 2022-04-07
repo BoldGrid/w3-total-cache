@@ -17,6 +17,6 @@ class Mobile_UserAgent extends Mobile_Base {
 	}
 
 	function group_verifier( $group_compare_value ) {
-		return isset( $_SERVER['HTTP_USER_AGENT'] ) && preg_match( '~' . $group_compare_value . '~i', $_SERVER['HTTP_USER_AGENT'] );
+		return preg_match( '~' . $group_compare_value . '~i', isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '' );
 	}
 }

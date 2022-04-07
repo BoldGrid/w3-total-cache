@@ -125,7 +125,8 @@ class PgCache_ContentGrabber {
 			'host' => Util_Environment::host_port()
 		);
 
-		$this->_request_uri = $_SERVER['REQUEST_URI'];
+		$this->_request_uri = isset( $_SERVER['REQUEST_URI'] ) ?
+			filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : ''; // phpcs:ignore
 		$this->_lifetime = $this->_config->get_integer( 'pgcache.lifetime' );
 		$this->_late_init = $this->_config->get_boolean( 'pgcache.late_init' );
 		$this->_late_caching = $this->_config->get_boolean( 'pgcache.late_caching' );
@@ -543,8 +544,11 @@ class PgCache_ContentGrabber {
 		/**
 		 * Skip if posting
 		 */
-		if ( isset( $_SERVER['REQUEST_METHOD'] ) && in_array( strtoupper( $_SERVER['REQUEST_METHOD'] ), array( 'DELETE', 'PUT', 'OPTIONS', 'TRACE', 'CONNECT', 'POST' ) ) ) {
-			$this->cache_reject_reason = sprintf( 'Requested method is %s', $_SERVER['REQUEST_METHOD'] );
+		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ?
+			filter_var( stripslashes( $_SERVER['REQUEST_METHOD'] ), FILTER_SANITIZE_STRING ) : ''; // phpcs:ignore
+
+		if ( in_array( strtoupper( $request_method ), array( 'DELETE', 'PUT', 'OPTIONS', 'TRACE', 'CONNECT', 'POST' ), true ) ) {
+			$this->cache_reject_reason = sprintf( 'Requested method is %s', $request_method );
 
 			return false;
 		}
@@ -552,7 +556,8 @@ class PgCache_ContentGrabber {
 		/**
 		 * Skip if HEAD request
 		 */
-		if ( isset( $_SERVER['REQUEST_METHOD'] ) && strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'HEAD' &&
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) &&
+			strtoupper( filter_var( stripslashes( $_SERVER['REQUEST_METHOD'] ), FILTER_SANITIZE_STRING ) ) === 'HEAD' && // phpcs:ignore
 			( $this->_enhanced_mode || $this->_config->get_boolean( 'pgcache.reject.request_head' ) ) ) {
 			$this->cache_reject_reason = 'Requested method is HEAD';
 
@@ -596,10 +601,10 @@ class PgCache_ContentGrabber {
 		/**
 		 * Check User Agent
 		 */
-		if ( !$this->_check_ua() ) {
+		if ( ! $this->_check_ua() ) {
 			$this->cache_reject_reason = 'User agent is rejected';
-			if ( isset( $_REQUEST['w3tc_rewrite_test'] ) ) {
-				// special common case - w3tc_rewrite_test check request
+			if ( ! empty( Util_Request::get_string( 'w3tc_rewrite_test' ) ) ) {
+				// special common case - w3tc_rewrite_test check request.
 				$this->process_status = 'miss_wp_admin';
 			} else {
 				$this->process_status = 'miss_configuration';
@@ -1078,7 +1083,7 @@ class PgCache_ContentGrabber {
 		foreach ( $uas as $ua ) {
 			if ( !empty( $ua ) ) {
 				if ( isset( $_SERVER['HTTP_USER_AGENT'] ) &&
-					stristr( $_SERVER['HTTP_USER_AGENT'], $ua ) !== false )
+					stristr( filter_var( stripslashes( $_SERVER['HTTP_USER_AGENT'] ), FILTER_SANITIZE_STRING ), $ua ) !== false ) // phpcs:ignore
 					return false;
 			}
 		}
@@ -1310,7 +1315,7 @@ class PgCache_ContentGrabber {
 			foreach ( $compressions as $compression ) {
 				if ( is_string( $compression ) &&
 					isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) &&
-					stristr( $_SERVER['HTTP_ACCEPT_ENCODING'], $compression ) !== false ) {
+					stristr( filter_var( stripslashes( $_SERVER['HTTP_ACCEPT_ENCODING'] ), FILTER_SANITIZE_STRING ), $compression ) !== false ) { // phpcs:ignore
 					return $compression;
 				}
 			}
@@ -1391,7 +1396,7 @@ class PgCache_ContentGrabber {
 	 */
 	function _is_buggy_ie() {
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$ua = $_SERVER['HTTP_USER_AGENT'];
+			$ua = filter_var( stripslashes( $_SERVER['HTTP_USER_AGENT'] ), FILTER_SANITIZE_STRING ); // phpcs:ignore
 
 			if ( strpos( $ua, 'Mozilla/4.0 (compatible; MSIE ' ) === 0 && strpos( $ua, 'Opera' ) === false ) {
 				$version = (float) substr( $ua, 30 );
@@ -1813,7 +1818,7 @@ class PgCache_ContentGrabber {
 	 */
 	function _check_modified_since( $time ) {
 		if ( !empty( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
-			$if_modified_since = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
+			$if_modified_since = filter_var( stripslashes( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ), FILTER_SANITIZE_STRING ); // phpcs:ignore
 
 			// IE has tacked on extra data to this header, strip it
 			if ( ( $semicolon = strrpos( $if_modified_since, ';' ) ) !== false ) {
@@ -1834,8 +1839,8 @@ class PgCache_ContentGrabber {
 	 */
 	function _check_match( $etag ) {
 		if ( !empty( $_SERVER['HTTP_IF_NONE_MATCH'] ) ) {
-			$if_none_match = $_SERVER['HTTP_IF_NONE_MATCH'] ;
-			$client_etags = explode( ',', $if_none_match );
+			$if_none_match = filter_var( stripslashes( $_SERVER['HTTP_IF_NONE_MATCH'] ), FILTER_SANITIZE_STRING ); // phpcs:ignore
+			$client_etags  = explode( ',', $if_none_match );
 
 			foreach ( $client_etags as $client_etag ) {
 				$client_etag = trim( $client_etag );
@@ -2218,19 +2223,20 @@ class PgCache_ContentGrabber {
 		}
 	}
 
-
-
 	/**
-	 * Log
+	 * Log.
 	 */
 	static protected function log( $msg ) {
-		$data = sprintf( "[%s] [%s] [%s] %s\n", date( 'r' ),
-			$_SERVER['REQUEST_URI'],
-			( !empty( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '-' ),
-			$msg );
+		$data = sprintf(
+			"[%s] [%s] [%s] %s\n", date( 'r' ),
+			isset( $_SERVER['REQUEST_URI'] ) ? filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URI ) : '',
+			! empty( $_SERVER['HTTP_REFERER'] ) ? filter_var( stripslashes( $_SERVER['HTTP_REFERER'] ), FILTER_SANITIZE_STRING ) : '-',
+			$msg
+		);
 		$data = strtr( $data, '<>', '..' );
 
 		$filename = Util_Debug::log_filename( 'pagecache' );
+
 		return @file_put_contents( $filename, $data, FILE_APPEND );
 	}
 }

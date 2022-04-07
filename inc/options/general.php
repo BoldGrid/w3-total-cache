@@ -791,7 +791,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'Optimize disk enhanced page and minify disk caching for %1$sNFS%2$s',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Network File System', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Network File System', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -806,30 +806,30 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</th>
 			</tr>
 			<?php
-			Util_Ui::config_item(
-				array(
-					'key'            => 'docroot_fix.enable',
-					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Fix document root path', 'w3-total-cache' ),
-					'label_class'    => 'w3tc_single_column',
-					'description'    => sprintf(
-						// translators: 1: WordPress ABSPATH value, 2: Server document root value.
-						__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
-						esc_html( untrailingslashit( ABSPATH ) ),
-						esc_html( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '' )
-					),
-				)
-			);
+				Util_Ui::config_item(
+					array(
+						'key'            => 'docroot_fix.enable',
+						'control'        => 'checkbox',
+						'checkbox_label' => esc_html__( 'Fix document root path', 'w3-total-cache' ),
+						'label_class'    => 'w3tc_single_column',
+						'description'    => sprintf(
+							// translators: 1: WordPress ABSPATH value, 2: Server document root value.
+							__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
+							esc_attr( untrailingslashit( ABSPATH ) ),
+							esc_attr( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '' )
+						),
+					)
+				);
 
-			Util_Ui::config_item(
-				array(
-					'key'            => 'common.track_usage',
-					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Anonymously track usage to improve product quality', 'w3-total-cache' ),
-					'label_class'    => 'w3tc_single_column',
-				)
-			);
-			?>
+		Util_Ui::config_item(
+			array(
+				'key'            => 'common.track_usage',
+				'control'        => 'checkbox',
+				'checkbox_label' => esc_html__( 'Anonymously track usage to improve product quality', 'w3-total-cache' ),
+				'label_class'    => 'w3tc_single_column',
+			)
+		);
+		?>
 		</table>
 
 		<?php Util_Ui::button_config_save( 'general_misc' ); ?>
@@ -845,7 +845,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'Detailed information about each cache will be appended in (publicly available) %1$sHTML%2$s comments in the page\'s source code. Performance in this mode will not be optimal, use sparingly and disable when not in use.',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(

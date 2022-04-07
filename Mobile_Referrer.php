@@ -26,15 +26,14 @@ class Mobile_Referrer extends Mobile_Base {
 		$http_referrer = '';
 
 		if ( $this->has_enabled_groups() ) {
-			if ( isset( $_COOKIE[W3TC_REFERRER_COOKIE_NAME] ) ) {
-				$http_referrer = $_COOKIE[W3TC_REFERRER_COOKIE_NAME];
+			if ( isset( $_COOKIE[ W3TC_REFERRER_COOKIE_NAME ] ) ) {
+				$http_referrer = sanitize_text_field( wp_unslash( $_COOKIE[ W3TC_REFERRER_COOKIE_NAME ] ) );
 			} elseif ( isset( $_SERVER['HTTP_REFERER'] ) ) {
-				$http_referrer = $_SERVER['HTTP_REFERER'];
+				$http_referrer = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
 
-				setcookie( W3TC_REFERRER_COOKIE_NAME, $http_referrer, 0,
-					'/' /* not defined yet Util_Environment::network_home_url_uri()*/ );
+				setcookie( W3TC_REFERRER_COOKIE_NAME, $http_referrer, 0, '/' /* not defined yet Util_Environment::network_home_url_uri()*/ );
 			}
-		} elseif ( isset( $_COOKIE[W3TC_REFERRER_COOKIE_NAME] ) ) {
+		} elseif ( isset( $_COOKIE[ W3TC_REFERRER_COOKIE_NAME ] ) ) {
 			setcookie( W3TC_REFERRER_COOKIE_NAME, '', 1 );
 		}
 

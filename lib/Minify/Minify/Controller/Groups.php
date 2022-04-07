@@ -50,13 +50,14 @@ class Minify_Controller_Groups extends Minify_Controller_Base {
         $groups = $options['groups'];
         unset($options['groups']);
 
-        // mod_fcgid places PATH_INFO in ORIG_PATH_INFO
-        $pi = isset($_SERVER['ORIG_PATH_INFO'])
-            ? substr($_SERVER['ORIG_PATH_INFO'], 1)
-            : (isset($_SERVER['PATH_INFO'])
-                ? substr($_SERVER['PATH_INFO'], 1)
-                : false
-            );
+		// mod_fcgid places PATH_INFO in ORIG_PATH_INFO.
+		$pi = false;
+		if ( isset( $_SERVER['ORIG_PATH_INFO'] ) ) {
+			$pi = substr( sanitize_text_field( wp_unslash( $_SERVER['ORIG_PATH_INFO'] ) ), 1 );
+		} elseif ( isset( $_SERVER['PATH_INFO'] ) ) {
+			$pi = substr( sanitize_text_field( wp_unslash( $_SERVER['PATH_INFO'] ) ), 1 );
+		}
+
         if (false === $pi || ! isset($groups[$pi])) {
             // no PATH_INFO or not a valid group
             $this->log("Missing PATH_INFO or no group set for \"$pi\"");

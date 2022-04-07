@@ -36,19 +36,18 @@ class Minify_Cache_ZendPlatform {
     }
 
 
-    /**
-     * Write data to cache.
-     *
-     * @param string $id cache id
-     *
-     * @param string $data
-     *
-     * @return bool success
-     */
-    public function store($id, $data)
-    {
-        return output_cache_put($id, "{$_SERVER['REQUEST_TIME']}|{$data}");
-    }
+	/**
+	 * Write data to cache.
+	 *
+	 * @param string $id cache id
+	 *
+	 * @param string $data
+	 *
+	 * @return bool success
+	 */
+	public function store( $id, $data ) {
+		return output_cache_put( $id, '{' . ( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' ) . '}|{' . $data . '}' );
+	}
 
 
     /**

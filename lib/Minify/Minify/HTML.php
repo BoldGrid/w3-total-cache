@@ -97,7 +97,7 @@ class Minify_HTML {
 			$this->_isXhtml = (false !== strpos($this->_html, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML'));
 		}
 
-		$this->_replacementHash = 'MINIFYHTML' . md5($_SERVER['REQUEST_TIME']);
+		$this->_replacementHash = 'MINIFYHTML' . md5( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' );
 		$this->_placeholders = array();
 
 		// replace dynamic tags

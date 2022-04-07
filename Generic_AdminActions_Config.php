@@ -27,7 +27,7 @@ class Generic_AdminActions_Config {
 		} elseif ( $_FILES['config_file']['error'] != UPLOAD_ERR_OK ) {
 			$error = 'config_import_upload';
 		} else {
-			$imported = $config->import( $_FILES['config_file']['tmp_name'] );
+			$imported = $config->import( isset( $_FILES['config_file']['tmp_name'] ) ? sanitize_file_name( wp_unslash( $_FILES['config_file']['tmp_name'] ) ) : '' );
 
 			if ( !$imported ) {
 				$error = 'config_import_import';
@@ -137,7 +137,7 @@ class Generic_AdminActions_Config {
 		$params = array( 'page' => 'w3tc_general' );
 
 		if ( !file_put_contents( W3TC_FILE_DB_CLUSTER_CONFIG,
-				stripslashes( $_REQUEST['newcontent'] ) ) ) {
+			Util_Request::get_string( 'newcontent' ) ) ) {
 			try {
 				Util_Activation::throw_on_write_error( W3TC_FILE_DB_CLUSTER_CONFIG );
 			} catch ( \Exception $e ) {
