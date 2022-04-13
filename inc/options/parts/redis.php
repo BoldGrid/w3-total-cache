@@ -20,7 +20,7 @@ if ( !defined( 'W3TC' ) )
 			<?php Util_Ui::sealing_disabled( $module ) ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span class="w3tc_common_redis_test_result w3tc-status w3tc-process"></span>
-		<p class="description"><?php _e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122', 'w3-total-cache' ); ?></p>
+		<p class="description"><?php _e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122. To use TLS, prefix server with tls://', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>
