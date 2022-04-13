@@ -175,6 +175,7 @@ class Minify_Core {
 		case 'redis':
 			$engineConfig = array(
 				'servers' => $c->get_array( 'minify.redis.servers' ),
+				'verify_tls_certificates' => $c->get_boolean( 'minify.redis.verify_tls_certificates' ),
 				'persistent' => $c->get_boolean( 'minify.redis.persistent' ),
 				'timeout' => $c->get_integer( 'minify.redis.timeout' ),
 				'retry_interval' => $c->get_integer( 'minify.redis.retry_interval' ),

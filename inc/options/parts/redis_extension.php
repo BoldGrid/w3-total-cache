@@ -28,6 +28,15 @@ $config = Dispatcher::config();
 <?php
 
 Util_Ui::config_item( array(
+		'key' => array( $module, 'redis.verify_tls_certificates' ),
+		'label' => Util_ConfigLabel::get( 'redis.verify_tls_certificates' ),
+		'control' => 'checkbox',
+		'checkbox_label' => Util_ConfigLabel::get( 'redis.verify_tls_certificates' ),
+		'description' =>
+		__('Verify the server\'s certificate when connecting via TLS.', 'w3-total-cache')
+	) );
+
+Util_Ui::config_item( array(
 		'key' => array( $module, 'redis.persistent' ),
 		'label' => __( 'Use persistent connection:', 'w3-total-cache' ),
 		'control' => 'checkbox',

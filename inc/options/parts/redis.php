@@ -24,6 +24,13 @@ if ( !defined( 'W3TC' ) )
 	</td>
 </tr>
 <tr>
+	<th><label><?php _e( 'Verify TLS Certificates:', 'w3-total-cache' ); ?></label></th>
+	<td>
+		<?php $this->checkbox( $module . '.redis.verify_tls_certificates' ) ?> <?php echo Util_ConfigLabel::get( 'redis.verify_tls_certificates' ) ?></label>
+		<p class="description"><?php _e( 'Verify the server\'s certificate when connecting via TLS.', 'w3-total-cache' ); ?></p>
+	</td>
+</tr>
+<tr>
 	<th><label><?php _e( 'Use persistent connection:', 'w3-total-cache' ); ?></label></th>
 	<td>
 		<?php $this->checkbox( $module . '.redis.persistent' ) ?> <?php echo Util_ConfigLabel::get( 'redis.persistent' ) ?></label>

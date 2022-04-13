@@ -24,6 +24,7 @@ class DbCache_Core {
 		case 'redis':
 			$engineConfig = array(
 				'servers' => $c->get_array( 'dbcache.redis.servers' ),
+				'verify_tls_certificates' => $c->get_boolean( 'dbcache.redis.verify_tls_certificates' ),
 				'persistent' => $c->get_boolean( 'dbcache.redis.persistent' ),
 				'timeout' => $c->get_integer( 'dbcache.redis.timeout' ),
 				'retry_interval' => $c->get_integer( 'dbcache.redis.retry_interval' ),

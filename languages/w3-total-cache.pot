@@ -7674,6 +7674,11 @@ msgstr ""
 
 #: inc/options/parts/redis.php:30
 msgid ""
+"Verify the server\'s certificate when connecting via TLS."
+msgstr ""
+
+#: inc/options/parts/redis.php:37
+msgid ""
 "Using persistent connection doesn't reinitialize redis driver on each request"
 msgstr ""
 
