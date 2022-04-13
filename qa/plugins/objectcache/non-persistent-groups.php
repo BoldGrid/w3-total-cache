@@ -1,28 +1,38 @@
 <?php
+/**
+ * File: non-persistent-groups.php
+ *
+ * Object cache: Non-persistent groups.
+ *
+ * Template Name: Object cache: Non-persistent groups
+ * Template Post Type: post, page
+ *
+ * @package W3TC
+ * @subpackage QA
+ *
+ * phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput, WordPress.WP.GlobalVariablesOverride.Prohibited
+ */
 
-require_once dirname(__FILE__) . '/wp-load.php';
+require __DIR__ . '/wp-load.php';
 
 $content = '';
-$fc_key = 'transient_test';
+$fc_key  = 'transient_test';
 
-if (!isset($_REQUEST['action']) || !isset($_REQUEST['group']))
+if ( ! isset( $_REQUEST['action'] ) || ! isset( $_REQUEST['group'] ) ) {
 	return;
+}
 
 $action = $_REQUEST['action'];
-$group = $_REQUEST['group'];
-$id = 'test';
-$data = 'object cache test';
+$group  = $_REQUEST['group'];
+$id     = 'test';
+$data   = 'object cache test';
 
-switch($action) {
+switch ( $action ) {
 	case 'setCache':
-		$set = wp_cache_set($id, $data, $group);
-		echo $set ? 'setCache ok' : 'error';
+		echo wp_cache_set( $id, $data, $group ) ? 'setCache ok' : 'error';
 		die;
-		break;
 
 	case 'getCache':
-		$cache = wp_cache_get($id, $group);
-		echo $cache;
+		echo wp_cache_get( $id, $group ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		die;
-		break;
 }

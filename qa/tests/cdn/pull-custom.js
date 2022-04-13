@@ -24,8 +24,9 @@ describe('check that media library works when CDN is active', function() {
 
 	it('copy theme files', async() => {
 		theme = await wp.getCurrentTheme(adminPage);
-		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
-		await sys.copyPhpToPath('../../plugins/cdn-pull-theme/*', targetPath);
+		let themePath = env.wpContentPath + 'themes/' + theme;
+		await sys.copyPhpToPath('../../plugins/cdn-pull-theme/*', `${themePath}/qa`);
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/cdn-pull-sc.php');
 	});
 
 
@@ -85,8 +86,7 @@ describe('check that media library works when CDN is active', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'page content',
-			template: 'qa/cdn-pull.php'
+			content: 'page content [w3tcqa]',
 		});
 		testPageUrl = testPage.url;
 	});
