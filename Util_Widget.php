@@ -36,7 +36,7 @@ class Util_Widget {
 			Util_Widget::add( $widget_id, $name, $w3tc_registered_widgets[$widget_id]['callback'], $w3tc_registered_widget_controls[$widget_id]['callback'] );
 		}
 
-		if ( 'POST' == isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' && isset( Util_Request::get_string( 'widget_id' ) ) ) {
+		if ( 'POST' === isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' && isset( $_POST['widget_id'] ) ) {
 			check_admin_referer( 'edit-dashboard-widget_' . Util_Request::get_string( 'widget_id' ), 'dashboard-widget-nonce' );
 			ob_start(); // hack - but the same hack wp-admin/widgets.php uses
 			Util_Widget::trigger_widget_control( Util_Request::get_string( 'widget_id' ) );
