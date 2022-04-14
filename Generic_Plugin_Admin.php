@@ -816,18 +816,50 @@ class Generic_Plugin_Admin {
 		 * Show messages
 		 */
 		foreach ( $notes as $key => $note ) {
-			echo sprintf(
-				'<div class="updated w3tc_note" id="%s"><p>%s</p></div>',
-				esc_attr( $key ),
-				esc_html( $note )
+			echo wp_kses(
+				sprintf(
+					'<div class="updated w3tc_note" id="%s"><p>%s</p></div>',
+					esc_attr( $key ),
+					$note
+				),
+				array(
+					'div'   => array(
+						'class' => array(),
+						'id'    => array(),
+					),
+					'input' => array(
+						'class'   => array(),
+						'name'    => array(),
+						'onclick' => array(),
+						'type'    => array(),
+						'value'   => array(),
+					),
+					'p'     => array(),
+				)
 			);
 		}
 
 		foreach ( $errors as $key => $error ) {
-			echo sprintf(
-				'<div class="error w3tc_error" id="%s"><p>%s</p></div>',
-				esc_attr( $key ),
-				esc_html( $error )
+			echo wp_kses(
+				sprintf(
+					'<div class="error w3tc_error" id="%s"><p>%s</p></div>',
+					esc_attr( $key ),
+					$error
+				),
+				array(
+					'div'   => array(
+						'class' => array(),
+						'id'    => array(),
+					),
+					'input' => array(
+						'class'   => array(),
+						'name'    => array(),
+						'onclick' => array(),
+						'type'    => array(),
+						'value'   => array(),
+					),
+					'p'     => array(),
+				)
 			);
 		}
 	}
