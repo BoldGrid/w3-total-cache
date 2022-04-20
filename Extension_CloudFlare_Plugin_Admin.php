@@ -37,7 +37,7 @@ class Extension_CloudFlare_Plugin_Admin {
 					),
 					'<a href="' . esc_url( 'https://www.cloudflare.com/sign-up.html?affiliate=w3edge&amp;seed_domain=' . Util_Environment::host() . '&amp;email=' . $cloudflare_signup_email . '&amp;username=' . $cloudflare_signup_user ) . '" target="_blank">',
 					'</a>',
-					'<abbr title="' . __( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+					'<abbr title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
 					'</abbr>',
 					'<a target="_blank" href="https://www.cloudflare.com/my-account">',
 					'</a>',

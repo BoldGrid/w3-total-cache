@@ -613,7 +613,7 @@ class Generic_Plugin_Admin {
 
 		$changelog = (array) preg_split( '~[\r\n]+~', trim( $matches[1] ) );
 
-		echo '<div style="color: #f00;">' . esc_html( __( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
+		echo '<div style="color: #f00;">' . esc_html__( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
 		$ul = false;
 
 		foreach ( $changelog as $index => $line ) {

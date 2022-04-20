@@ -11,7 +11,7 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select Application', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select Application', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<td>

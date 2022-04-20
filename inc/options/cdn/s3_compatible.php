@@ -110,7 +110,7 @@ Util_Ui::config_item(
 						'If you have already added a %1$sCNAME%2$s to your %3$sDNS%4$s Zone, enter it here.',
 						'w3-total-cache'
 					),
-					'<a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#VirtualHostingCustomURLs" target="_blank">',
+					'<a href="' . esc_url( 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#VirtualHostingCustomURLs' ) . '" target="_blank">',
 					'</a>',
 					'<acronym title="' . __( 'Domain Name System', 'w3-total-cache' ) . '">',
 					'</acronym>'

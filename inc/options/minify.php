@@ -942,7 +942,7 @@ if ( ! defined( 'W3TC' ) ) {
 									),
 									'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="admin.php?page=w3tc_browsercache">',
+									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(
@@ -968,7 +968,7 @@ if ( ! defined( 'W3TC' ) ) {
 									),
 									'<acronym title="' . __( 'Time to Live', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="admin.php?page=w3tc_browsercache">',
+									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(

@@ -84,7 +84,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'Even if using a feed proxy service (like %1$sFeedBurner%2$s), enabling this option is still recommended.',
 									'w3-total-cache'
 								),
-								'<a href="http://en.wikipedia.org/wiki/FeedBurner" target="_blank">',
+								'<a href="' . esc_url( 'http://en.wikipedia.org/wiki/FeedBurner' ) . '" target="_blank">',
 								'</a>'
 							),
 							array(
@@ -236,7 +236,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'A %1$scompliant%2$s sitemap can be used to specify the pages to maintain in the primed cache. Pages will be cached according to the priorities specified in the %3$sXML%4$s file.',
 									'w3-total-cache'
 								),
-								'<a href="http://www.xml-sitemaps.com/validate-xml-sitemap.html" target="_blank">',
+								'<a href="' . esc_url( 'http://www.xml-sitemaps.com/validate-xml-sitemap.html' ) . '" target="_blank">',
 								'</a>',
 								'<acronym title="' . __( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
 								'</acronym>'
@@ -782,7 +782,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'</acronym>',
 									'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="admin.php?page=w3tc_browsercache">',
+									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(

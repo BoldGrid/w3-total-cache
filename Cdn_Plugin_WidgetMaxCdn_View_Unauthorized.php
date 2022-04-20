@@ -15,7 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'Dramatically increase website speeds in just a few clicks! Add the MaxCDN content delivery network (%1$sCDN%2$s) service to your site.',
 					'w3-total-cache'
 				),
-				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 				'</acronym>'
 			),
 			array(
@@ -40,7 +40,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Existing MaxCDN customers, enable %1$sCDN%2$s and:',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(

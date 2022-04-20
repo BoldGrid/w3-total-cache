@@ -11,14 +11,23 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( '', 'account_hash', $details['account_hash'] );
 	Util_Ui::hidden( '', 'api_token', $details['api_token'] );
 
-	echo esc_html( Util_Ui::nonce_field( 'w3tc' ) );
+	echo wp_kses(
+		Util_Ui::nonce_field( 'w3tc' ),
+		array(
+			'input' => array(
+				'type'  => array(),
+				'name'  => array(),
+				'value' => array(),
+			),
+		)
+	);
 
 	if ( isset( $details['error_message'] ) ) {
 		echo '<div class="error">' . esc_html( $details['error_message'] ) . '</div>';
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select host to use', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select host to use', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<td>Host:</td>

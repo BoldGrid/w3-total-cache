@@ -17,7 +17,7 @@ if ( ! defined( 'W3TC' ) ) {
 				),
 				Util_Ui::url( array( 'w3tc_cdn_flush' => 'y' ) )
 			),
-			'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+			'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 			'</acronym>'
 		),
 		array(

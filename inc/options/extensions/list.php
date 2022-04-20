@@ -110,7 +110,15 @@ if ( ! defined( 'W3TC' ) ) {
 							$links       = implode( ' | ', $extra_links );
 
 							if ( $links ) {
-								echo esc_html( $links );
+								echo wp_kses(
+									$links,
+									array(
+										'a' => array(
+											'href'  => array(),
+											'class' => array(),
+										),
+									)
+								);
 							}
 							?>
 
@@ -151,7 +159,7 @@ if ( ! defined( 'W3TC' ) ) {
 								<?php Util_Ui::pro_wrap_description( $meta['pro_excerpt'], $meta['pro_description'], 'extension-' . $extension ); ?>
 								<?php Util_Ui::pro_wrap_maybe_end( "extension_$extension" ); ?>
 							<?php else : ?>
-								<?php echo esc_html( $meta['description'] ); ?>
+								<?php echo wp_kses( $meta['description'], Util_Ui::get_allowed_html_for_wp_kses_from_content( $meta['description'] ) ); ?>
 							<?php endif ?>
 
 							<?php if ( ! empty( $meta['requirements'] ) ) : ?>
@@ -189,7 +197,7 @@ if ( ! defined( 'W3TC' ) ) {
 						?>
 						|
 						<?php
-						echo esc_html(
+						echo wp_kses(
 							sprintf(
 								// translators: 1 HTML a tag to extension author page.
 								__(
@@ -197,6 +205,12 @@ if ( ! defined( 'W3TC' ) ) {
 									'w3-total-cache'
 								),
 								'<a href="' . esc_url( $meta['author_uri'] ) . '" title="' . __( 'Visit author homepage', 'w3-total-cache' ) . '">' . esc_html( $meta['author'] ) . '</a>'
+							),
+							array(
+								'a' => array(
+									'href'   => array(),
+									'target' => array(),
+								),
 							)
 						);
 						?>

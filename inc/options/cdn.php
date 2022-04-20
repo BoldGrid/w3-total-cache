@@ -35,8 +35,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 		array(
 			'strong' => array(),
 			'span'   => array(
-				'class'    => array(),
-				'disabled' => array(),
+				'class' => array(),
 			),
 		)
 	);
@@ -100,7 +99,18 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 			<?php endif; ?>
 			<input id="cdn_rename_domain" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="Modify attachment URLs" /> <?php esc_html_e( 'if the domain name of your site has ever changed.', 'w3-total-cache' ); ?>
 		<?php endif; ?>
-		<?php echo esc_html( Util_Ui::nonce_field( 'w3tc' ) ); ?>
+		<?php
+		echo wp_kses(
+			Util_Ui::nonce_field( 'w3tc' ),
+			array(
+				'input' => array(
+					'type'  => array(),
+					'name'  => array(),
+					'value' => array(),
+				),
+			)
+		);
+		?>
 		<input type="submit" name="w3tc_flush_browser_cache" value="<?php esc_attr_e( 'Update media query string', 'w3-total-cache' ); ?>" <?php disabled( ! ( $browsercache_enabled && $browsercache_update_media_qs ) ); ?> class="button" /> <?php esc_html_e( 'to make existing file modifications visible to visitors with a primed cache.', 'w3-total-cache' ); ?>
 	</p>
 </form>
@@ -717,7 +727,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 								// translators: 1 Cookie Domain.
 								__(
 									'Set cookie domain to "%1$s"',
-									'w3-tota-cachel'
+									'w3-total-cache'
 								),
 								$cookie_domain
 							)

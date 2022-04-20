@@ -19,13 +19,13 @@ if ( ! defined( 'W3TC' ) ) {
 						'We recommend that you use %1$s%2$sIAM%3$s%4$s to create a new policy for %5$sAWS%6$s services that have limited permissions. A helpful tool: %7$s%8$sAWS%9$s Policy Generator%10$s',
 						'w3-total-cache'
 					),
-					'<a href="http://docs.amazonwebservices.com/IAM/latest/UserGuide/AccessPolicyLanguage_KeyConcepts.html" target="_blank">',
+					'<a href="' . esc_url( 'http://docs.amazonwebservices.com/IAM/latest/UserGuide/AccessPolicyLanguage_KeyConcepts.html' ) . '" target="_blank">',
 					'<acronym title="' . __( 'AWS Identity and Access Management', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'</a>',
 					'<acronym title="' . __( 'Amazon Web Services', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<a href="http://awspolicygen.s3.amazonaws.com/policygen.html" target="_blank">',
+					'<a href="' . esc_url( 'http://awspolicygen.s3.amazonaws.com/policygen.html' ) . '" target="_blank">',
 					'<acronym title="' . __( 'Amazon Web Services', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'</a>'
@@ -155,7 +155,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'If you have already added a %1$sCNAME%2$s to your %3$sDNS%4$s Zone, enter it here.',
 						'w3-total-cache'
 					),
-					'<a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#VirtualHostingCustomURLs" target="_blank">',
+					'<a href="' . esc_url( 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#VirtualHostingCustomURLs' ) . '" target="_blank">',
 					'</a>',
 					'<acronym title="' . __( 'Domain Name System', 'w3-total-cache' ) . '">',
 					'</acronym>'

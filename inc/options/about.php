@@ -202,7 +202,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Complete header management including %1$sETags%2$s',
 						'w3-total-cache'
 					),
-					'<a href="http://en.wikipedia.org/wiki/HTTP_ETag">',
+					'<a href="' . esc_url( 'http://en.wikipedia.org/wiki/HTTP_ETag' ) . '">',
 					'</a>'
 				),
 				array(
@@ -243,18 +243,18 @@ if ( ! defined( 'W3TC' ) ) {
 	<p><?php esc_html_e( 'It\'s quite difficult to recall all of the innovators that have shared their thoughts, code and experiences in the blogosphere over the years, but here are some names to get you started:', 'w3-total-cache' ); ?></p>
 
 	<ul>
-		<li><a href="http://stevesouders.com/" target="_blank">Steve Souders</a></li>
-		<li><a href="http://mrclay.org/" target="_blank">Steve Clay</a></li>
-		<li><a href="http://wonko.com/" target="_blank">Ryan Grove</a></li>
-		<li><a href="http://www.nczonline.net/blog/2009/06/23/loading-javascript-without-blocking/" target="_blank">Nicholas Zakas</a> </li>
-		<li><a href="http://rtdean.livejournal.com/" target="_blank">Ryan Dean</a></li>
-		<li><a href="http://gravitonic.com/" target="_blank">Andrei Zmievski</a></li>
+		<li><a href="<?php echo esc_url( 'http://stevesouders.com/' ); ?>" target="_blank">Steve Souders</a></li>
+		<li><a href="<?php echo esc_url( 'http://mrclay.org/' ); ?>" target="_blank">Steve Clay</a></li>
+		<li><a href="<?php echo esc_url( 'http://wonko.com/' ); ?>" target="_blank">Ryan Grove</a></li>
+		<li><a href="<?php echo esc_url( 'http://www.nczonline.net/blog/2009/06/23/loading-javascript-without-blocking/' ); ?>" target="_blank">Nicholas Zakas</a> </li>
+		<li><a href="<?php echo esc_url( 'http://rtdean.livejournal.com/' ); ?>" target="_blank">Ryan Dean</a></li>
+		<li><a href="<?php echo esc_url( 'http://gravitonic.com/' ); ?>" target="_blank">Andrei Zmievski</a></li>
 		<li>George Schlossnagle</li>
 		<li>Daniel Cowgill</li>
-		<li><a href="http://toys.lerdorf.com/" target="_blank">Rasmus Lerdorf</a></li>
-		<li><a href="http://notmysock.org/" target="_blank">Gopal Vijayaraghavan</a></li>
-		<li><a href="http://eaccelerator.net/" target="_blank">Bart Vanbraban</a></li>
-		<li><a href="http://xcache.lighttpd.net/" target="_blank">mOo</a></li>
+		<li><a href="<?php echo esc_url( 'http://toys.lerdorf.com/' ); ?>" target="_blank">Rasmus Lerdorf</a></li>
+		<li><a href="<?php echo esc_url( 'http://notmysock.org/' ); ?>" target="_blank">Gopal Vijayaraghavan</a></li>
+		<li><a href="<?php echo esc_url( 'http://eaccelerator.net/' ); ?>" target="_blank">Bart Vanbraban</a></li>
+		<li><a href="<?php echo esc_url( 'http://xcache.lighttpd.net/' ); ?>" target="_blank">mOo</a></li>
 	</ul>
 
 	<p><?php esc_html_e( 'Please reach out to all of these people and support their projects if you\'re so inclined.', 'w3-total-cache' ); ?></p>

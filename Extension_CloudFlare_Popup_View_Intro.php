@@ -13,7 +13,7 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Your CloudFlare API token / global key', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Your CloudFlare API token / global key', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Email:', 'w3-total-cache' ); ?></td>
@@ -33,7 +33,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'%1$sAPI%2$s token / global key:',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(

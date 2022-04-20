@@ -273,6 +273,10 @@ class Generic_AdminNotes {
 							'value'   => array(),
 							'onclick' => array(),
 						),
+						'a'     => array(
+							'href'   => array(),
+							'target' => array(),
+						),
 					)
 				);
 			}

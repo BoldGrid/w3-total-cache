@@ -60,7 +60,18 @@ if ( ! defined( 'W3TC' ) ) {
 		<textarea name="files" rows="10" cols="90"></textarea>
 	</p>
 	<p>
-		<?php echo esc_html( Util_Ui::nonce_field( 'w3tc' ) ); ?>
+		<?php
+		echo wp_kses(
+			Util_Ui::nonce_field( 'w3tc' ),
+			array(
+				'input' => array(
+					'type'  => array(),
+					'name'  => array(),
+					'value' => array(),
+				),
+			)
+		);
+		?>
 		<input class="button-primary" type="submit" name="w3tc_cdn_purge_files" value="<?php esc_attr_e( 'Purge', 'w3-total-cache' ); ?>" />
 	</p>
 </form>

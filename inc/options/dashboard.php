@@ -4,6 +4,7 @@ namespace W3TC;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
+
 /*
  * Display the header for our dashboard.
  *
@@ -12,7 +13,7 @@ if ( ! defined( 'W3TC' ) ) {
  * Just fantasic. Other banners, not so good. Everyone agrees, believe me.
  */
 if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
-	include W3TC_INC_DIR . '/options/common/header.php';
+	require W3TC_INC_DIR . '/options/common/header.php';
 
 	echo wp_kses(
 		sprintf(
@@ -40,7 +41,7 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 	do_action( 'w3tc-dashboard-head' );
 	echo '<div class="wrap" id="w3tc">';
 
-	include W3TC_INC_DIR . '/options/parts/dashboard_banner.php';
+	require W3TC_INC_DIR . '/options/parts/dashboard_banner.php';
 }
 ?>
 
@@ -74,8 +75,6 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 		?>
 		.
 	</p>
-</form>
-
 	<div id="w3tc-dashboard-widgets" class="clearfix widefat metabox-holder">
 		<?php $screen = get_current_screen(); ?>
 		<div id="postbox-container-left">
@@ -120,5 +119,5 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 		wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );
 		?>
 	</div>
-
+</form>
 <?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

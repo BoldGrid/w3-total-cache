@@ -23,7 +23,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'On the "%1$sGeneral%2$s" tab and select your caching methods for page, database and minify. In most cases, "disk enhanced" mode for page cache, "disk" mode for minify and "disk" mode for database caching are "good" settings.',
 						'w3-total-cache'
 					),
-					'<a href="admin.php?page=w3tc_general">',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
 					'</a>',
 				),
 				array(
@@ -43,7 +43,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'1. The "Compatibility Mode" option found in the advanced section of the "%1$sPage Cache Settings%2$s" tab will enable functionality that optimizes the interoperablity of caching with WordPress, is disabled by default, but highly recommended. Years of testing in hundreds of thousands of installations have helped us learn how to make caching behave well with WordPress. The tradeoff is that disk enhanced page cache performance under load tests will be decreased by ~20% at scale.',
 						'w3-total-cache'
 					),
-					'<a href="admin.php?page=w3tc_pgcache">',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_pgcache' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -79,7 +79,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'</acronym>',
 					'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<a href="https://api.w3-edge.com/v1/redirects/faq/usage">',
+					'<a href="' . esc_url( 'https://api.w3-edge.com/v1/redirects/faq/usage' ) . '">',
 					'<acronym title="' . __( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'</a>'
@@ -109,7 +109,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<em>',
 					'</em>',
-					'<a href="admin.php?page=w3tc_browsercache">',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 					'</a>',
 					'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 					'</acronym>'
@@ -145,7 +145,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'</em>',
 					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<a href="admin.php?page=w3tc_cdn">',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
 					'</a>',
 					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
@@ -180,7 +180,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<em>',
 					'</em>',
-					'<a href="admin.php?page=w3tc_dbcache">',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_dbcache' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -204,7 +204,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<em>',
 					'</em>',
-					'<a href="admin.php?page=w3tc_objectcache">',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_objectcache' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -228,7 +228,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<em>',
 					'</em>',
-					'<a href="admin.php?page=w3tc_cachegroups">',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cachegroups' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -254,7 +254,7 @@ if ( ! defined( 'W3TC' ) ) {
 				),
 				'<acronym title="' . __( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 				'</acronym>',
-				'<a href="admin.php?page=w3tc_faq">',
+				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_faq' ) ) . '">',
 				'</a>'
 			),
 			array(
@@ -372,7 +372,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'Additional installation guides can be found in the %1$swiki%2$s.',
 										'w3-total-cache'
 									),
-									'<a href="https://api.w3-edge.com/v1/redirects/faq/installation" target="_blank">',
+									'<a href="' . esc_url( 'https://api.w3-edge.com/v1/redirects/faq/installation' ) . '" target="_blank">',
 									'</a>'
 								),
 								array(
@@ -394,9 +394,9 @@ if ( ! defined( 'W3TC' ) ) {
 										'Best compatibility with %1$sIIS%2$s is realized via %3$sWinCache%4$s opcode cache.',
 										'w3-total-cache'
 									),
-									'<a href="http://www.iis.net/" target="_blank">',
+									'<a href="' . esc_url( 'http://www.iis.net/' ) . '" target="_blank">',
 									'</a>',
-									'<a href="http://www.iis.net/download/wincacheforphp" target="_blank">',
+									'<a href="' . esc_url( 'http://www.iis.net/download/wincacheforphp' ) . '" target="_blank">',
 									'</a>'
 								),
 								array(

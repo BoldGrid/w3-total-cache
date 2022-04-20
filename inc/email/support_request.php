@@ -7,29 +7,31 @@ if ( ! defined( 'W3TC' ) ) {
 	<head></head>
 	<body>
 		<p>
-			Date: <?php echo esc_html( gmdate( 'm/d/Y H:i:s' ) ); ?><br />
-			Version: <?php echo esc_html( W3TC_VERSION ); ?><br />
-			URL: <a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $url ); ?></a><br />
-			Name: <?php echo esc_html( $name ); ?><br />
-			E-Mail: <a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a><br />
+			<?php
+			echo esc_html__( 'Date:', 'w3-total-cache' ) . esc_html( gmdate( 'm/d/Y H:i:s' ) ) . '<br />';
+			echo esc_html__( 'Version: ', 'w3-total-cache' ) . esc_html( W3TC_VERSION ) . '<br />';
+			echo esc_html__( 'URL: ', 'w3-total-cache' ) . '<a href="' . esc_url( $url ) . '">' . esc_html( $url ) . '</a><br />';
+			echo esc_html__( 'Name: ', 'w3-total-cache' ) . esc_html( $name ) . '<br />';
+			echo esc_html__( 'E-Mail: ', 'w3-total-cache' ) . '<a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a><br />';
 
-			<?php if ( $twitter ) : ?>
-			Twitter: <a href="http://twitter.com/<?php echo esc_attr( $twitter ); ?>"><?php echo esc_html( $twitter ); ?></a><br />
-			<?php endif; ?>
+			if ( $twitter ) {
+				echo esc_html__( 'Twitter: ', 'w3-total-cache' ) . '<a href="http://twitter.com/' . esc_attr( $twitter ) . '">' . esc_html( $twitter ) . '</a><br />';
+			}
 
-			<?php if ( $phone ) : ?>
-			Phone: <?php echo esc_html( $phone ); ?><br />
-			<?php endif; ?>
+			if ( $phone ) {
+				echo esc_html__( 'Phone: ', 'w3-total-cache' ) . esc_html( $phone ) . '<br />';
+			}
 
-			<?php if ( $forum_url ) : ?>
-			Forum Topic URL: <a href="<?php echo esc_attr( $forum_url ); ?>"><?php echo esc_html( $forum_url ); ?></a><br />
-			<?php endif; ?>
+			if ( $forum_url ) {
+				echo esc_html__( 'Forum Topic URL: ', 'w3-total-cache' ) . '<a href="' . esc_url( $forum_url ) . '">' . esc_url( $forum_url ) . '</a><br />';
+			}
 
-			<?php if ( $request_data_url ) : ?>
-			Request data: <a href="<?php echo esc_attr( $request_data_url ); ?>"><?php echo esc_html( $request_data_url ); ?></a><br />
-			<?php endif; ?>
+			if ( $request_data_url ) {
+				echo esc_html__( 'Request data: ', 'w3-total-cache' ) . '<a href="' . esc_url( $request_data_url ) . '">' . esc_url( $request_data_url ) . '</a><br />';
+			}
 
-			Subject: <?php echo esc_html( $subject ); ?>
+			echo esc_html__( 'Subject: ', 'w3-total-cache' ) . esc_html( $subject );
+			?>
 		</p>
 
 		<p>
@@ -39,8 +41,10 @@ if ( ! defined( 'W3TC' ) ) {
 		<hr />
 
 		<font size="-1" color="#ccc">
-			E-mail sent from IP: <?php echo esc_html( $_SERVER['REMOTE_ADDR'] ); ?><br />
-			User Agent: <?php echo esc_html( $_SERVER['HTTP_USER_AGENT'] ); ?>
+			<?php
+			echo esc_html__( 'E-mail sent from IP: ', 'w3-total-cache' ) . esc_html( $_SERVER['REMOTE_ADDR'] ) . '<br />';
+			echo esc_html__( 'User Agent: ', 'w3-total-cache' ) . esc_html( $_SERVER['HTTP_USER_AGENT'] );
+			?>
 		</font>
 	</body>
 </html>

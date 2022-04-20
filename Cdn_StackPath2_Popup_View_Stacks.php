@@ -10,7 +10,7 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( '', 'api_config', $details['api_config'] );
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select stack to use', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select stack to use', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<td>Site:</td>

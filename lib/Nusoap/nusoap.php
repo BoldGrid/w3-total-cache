@@ -4242,7 +4242,7 @@ class nusoap_server extends nusoap_base {
 		foreach($this->outgoing_headers as $hdr){
 			header($hdr, false);
 		}
-		print esc_html( $payload );
+		print wp_kses( $payload, Util_Ui::get_allowed_html_for_wp_kses_from_content( $payload ) );
 		$this->response = join("\r\n",$this->outgoing_headers)."\r\n\r\n".$payload;
 	}
 
@@ -4480,7 +4480,7 @@ class nusoap_server extends nusoap_base {
 			$SERVER_NAME = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
 			$SERVER_PORT = isset( $_SERVER['SERVER_PORT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_PORT'] ) ) : '';
 			$SCRIPT_NAME = '';
-			if ( isset($_SERVER['PHP_SELF'] ) {
+			if ( isset( $_SERVER['PHP_SELF'] ) ) {
 				$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) );
 			} elseif ( isset( $_SERVER['SCRIPT_NAME'] ) ) {
 				$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );

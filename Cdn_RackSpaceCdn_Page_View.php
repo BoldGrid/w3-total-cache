@@ -50,9 +50,9 @@ if ( ! defined( 'W3TC' ) ) {
 							'%1$sCDN%2$s host (%3$sCNAME%4$s target):',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 						'</acronym>',
-						'<acronym title="' . __( 'Canonical Name', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(
@@ -88,9 +88,9 @@ if ( ! defined( 'W3TC' ) ) {
 								'Enter hostname mapped to %1$sCDN%2$s host, this value will replace your site\'s hostname in the %3$sHTML%4$s.',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -122,7 +122,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'Reload %1$sCNAME%2$ss from RackSpace',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Canonical Name', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -143,9 +143,9 @@ if ( ! defined( 'W3TC' ) ) {
 								'Hostname(s) mapped to %1$sCDN%2$s host, this value will replace your site\'s hostname in the %3$sHTML%4$s. You can manage them from RackSpace management console and load here afterwards.',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(

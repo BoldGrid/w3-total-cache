@@ -11,7 +11,7 @@ $authorized = ! empty( $key );
 ?>
 <form id="cdn_form" action="admin.php?page=w3tc_cdn" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Configuration: Full-Site Delivery', 'w3-total-cache' ), '', 'configuration' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ), '', 'configuration' ); ?>
 		<table class="form-table">
 			<tr>
 				<th style="width: 300px;">
@@ -43,9 +43,9 @@ $authorized = ! empty( $key );
 									'%1$sCDN%2$s %3$sCNAME%4$s:',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>',
-								'<acronym title="' . __( 'Canonical Name', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(

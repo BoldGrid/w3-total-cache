@@ -35,7 +35,18 @@ $security_session_values = array(
 		?>
 	</p>
 	<p>
-		<?php echo esc_html( Util_Ui::nonce_field( 'w3tc' ) ); ?>
+		<?php
+		echo wp_kses(
+			Util_Ui::nonce_field( 'w3tc' ),
+			array(
+				'input' => array(
+					'type'  => array(),
+					'name'  => array(),
+					'value' => array(),
+				),
+			)
+		);
+		?>
 
 		<?php
 		echo wp_kses(

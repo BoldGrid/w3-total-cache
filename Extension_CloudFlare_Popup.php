@@ -112,7 +112,7 @@ class Extension_CloudFlare_Popup {
 				'extension_cloudflare_configuration_saved' => 'CloudFlare credentials are saved successfully',
 			)
 		);
-		echo esc_url( 'Location admin.php?page=w3tc_extensions&extension=cloudflare&action=view&' . $postfix );
+		echo 'Location admin.php?page=w3tc_extensions&extension=cloudflare&action=view&' . esc_attr( $postfix );
 		exit();
 	}
 }

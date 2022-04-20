@@ -197,7 +197,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'control'        => 'checkbox',
 					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
 					'description'    => __( 'Minification can decrease file size of <acronym title="Hypertext Markup Language">HTML</acronym>, <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym> and feeds respectively by ~10% on average.', 'w3-total-cache' ),
-					'control_after'  => ' <a class="w3tc-control-after" target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/w3-total-cache-minify-faq/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_faq" title="' .
+					'control_after'  => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/w3-total-cache-minify-faq/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_faq' ) . '" title="' .
 						__( 'Minify frequently asked questions', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
@@ -216,7 +216,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'Select manual mode to use fields on the minify settings tab to specify files to be minified, otherwise files will be minified automatically.',
 						'w3-total-cache'
 					),
-					'control_after'     => ' <a class="w3tc-control-after" target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=manual_minify#difference-between-auto-and-manual-minify" title="'
+					'control_after'     => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=manual_minify#difference-between-auto-and-manual-minify' ) . '" title="'
 						. __( 'How to use manual minify', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
@@ -225,7 +225,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			Util_Ui::config_item_engine(
 				array(
 					'key'           => 'minify.engine',
-					'control_after' => ' <a class="w3tc-control-after" target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/choosing-a-minification-method-for-w3-total-cache/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_engine" title="' .
+					'control_after' => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-a-minification-method-for-w3-total-cache/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_engine' ) . '" title="' .
 						__( 'Choosing a minification method', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
@@ -242,7 +242,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							'label'    => __( 'HTML Tidy', 'w3-total-cache' ),
 						),
 					),
-					'control_after'    => ' <a class="w3tc-control-after" target="_blank" href="https://www.boldgrid.com/support/w3-total-cache/minify/html-minify-or-tidy/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_html#minify-default" title="' .
+					'control_after'    => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify/html-minify-or-tidy/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_html#minify-default' ) . '" title="' .
 						__( 'How to use minify HTML', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
@@ -672,7 +672,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'Learn more about obtaining a %1$s%2$sAPI%3$s key here%4$s.',
 									'w3-total-cache'
 								),
-								'<a href="https://support.google.com/cloud/answer/6158862" target="_blank">',
+								'<a href="' . esc_url( 'https://support.google.com/cloud/answer/6158862' ) . '" target="_blank">',
 								'<acronym title="' . __( 'Application Programming Interface', 'w3-total-cache' ) . '">',
 								'</acronym>',
 								'</a>'
@@ -739,7 +739,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'Notify of server configuration errors, if this option is disabled, the server configuration for active settings can be found on the %1$sinstall%2$s tab.',
 									'w3-total-cache'
 								),
-								'<a href="admin.php?page=w3tc_install">',
+								'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_install' ) ) . '">',
 								'</a>'
 							),
 							array(
@@ -806,30 +806,30 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</th>
 			</tr>
 			<?php
-				Util_Ui::config_item(
-					array(
-						'key'            => 'docroot_fix.enable',
-						'control'        => 'checkbox',
-						'checkbox_label' => esc_html__( 'Fix document root path', 'w3-total-cache' ),
-						'label_class'    => 'w3tc_single_column',
-						'description'    => sprintf(
-							// translators: 1: WordPress ABSPATH value, 2: Server document root value.
-							__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
-							esc_attr( untrailingslashit( ABSPATH ) ),
-							esc_attr( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '' )
-						),
-					)
-				);
+			Util_Ui::config_item(
+				array(
+					'key'            => 'docroot_fix.enable',
+					'control'        => 'checkbox',
+					'checkbox_label' => esc_html__( 'Fix document root path', 'w3-total-cache' ),
+					'label_class'    => 'w3tc_single_column',
+					'description'    => sprintf(
+						// translators: 1: WordPress ABSPATH value, 2: Server document root value.
+						__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
+						esc_attr( untrailingslashit( ABSPATH ) ),
+						esc_attr( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '' )
+					),
+				)
+			);
 
-		Util_Ui::config_item(
-			array(
-				'key'            => 'common.track_usage',
-				'control'        => 'checkbox',
-				'checkbox_label' => esc_html__( 'Anonymously track usage to improve product quality', 'w3-total-cache' ),
-				'label_class'    => 'w3tc_single_column',
-			)
-		);
-		?>
+			Util_Ui::config_item(
+				array(
+					'key'            => 'common.track_usage',
+					'control'        => 'checkbox',
+					'checkbox_label' => esc_html__( 'Anonymously track usage to improve product quality', 'w3-total-cache' ),
+					'label_class'    => 'w3tc_single_column',
+				)
+			);
+			?>
 		</table>
 
 		<?php Util_Ui::button_config_save( 'general_misc' ); ?>

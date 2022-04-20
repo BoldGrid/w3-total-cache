@@ -15,9 +15,9 @@ if ( ! defined( 'W3TC' ) ) {
 	NewRelic extension is currently 
 	<?php
 	if ( $config->is_extension_active_frontend( 'newrelic' ) ) {
-		echo '<span class="w3tc-enabled">' . esc_html( __( 'enabled', 'w3-total-cache' ) ) . '</span>';
+		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
 	} else {
-		echo '<span class="w3tc-disabled">' . esc_html( __( 'disabled', 'w3-total-cache' ) ) . '</span>';
+		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>';
 	}
 	?>
 	.
@@ -89,7 +89,18 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 		</table>
 		<p class="submit">
-			<?php echo esc_html( Util_Ui::nonce_field( 'w3tc' ) ); ?>
+			<?php
+			echo wp_kses(
+				Util_Ui::nonce_field( 'w3tc' ),
+				array(
+					'input' => array(
+						'type'  => array(),
+						'name'  => array(),
+						'value' => array(),
+					),
+				)
+			);
+			?>
 			<input type="submit" name="w3tc_save_new_relic"
 				class="w3tc-button-save button-primary"
 				<?php Util_Ui::sealing_disabled( 'newrelic' ); ?>
@@ -161,7 +172,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'Use %1$sRUM%2$s only for following user roles',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Real User Monitoring', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Real User Monitoring', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(
@@ -181,7 +192,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'Select user roles that %1$sRUM%2$s should be enabled for:',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Real User Monitoring', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Real User Monitoring', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -217,7 +228,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'Include %1$sRUM%2$s in compressed or cached pages:',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Real User Monitoring', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Real User Monitoring', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -245,7 +256,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'This enables inclusion of %1$sRUM%2$s when using Page Cache together with Browser Cache gzip or when using Page Cache with Disc: Enhanced',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Real User Monitoring', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Real User Monitoring', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -269,7 +280,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'Use %1$sPHP%2$s function to set application name:',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Hypertext Preprocessor', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Preprocessor', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(

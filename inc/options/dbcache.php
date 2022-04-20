@@ -30,7 +30,18 @@ if ( ! defined( 'W3TC' ) ) {
 	</p>
 	<p>
 		<?php esc_html_e( 'To rebuild the database cache use the', 'w3-total-cache' ); ?>
-		<?php echo esc_html( Util_Ui::nonce_field( 'w3tc' ) ); ?>
+		<?php
+		echo wp_kses(
+			Util_Ui::nonce_field( 'w3tc' ),
+			array(
+				'input' => array(
+					'type'  => array(),
+					'name'  => array(),
+					'value' => array(),
+				),
+			)
+		);
+		?>
 		<input type="submit" name="w3tc_flush_dbcache" value="<?php esc_attr_e( 'empty cache', 'w3-total-cache' ); ?>"<?php echo ! $dbcache_enabled ? ' disabled="disabled"' : ''; ?> class="button" />
 			<?php esc_html_e( 'operation.', 'w3-total-cache' ); ?>
 	</p>
@@ -94,7 +105,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'Always ignore the specified pages / directories. Supports regular expressions (See %1$s%2$sFAQ%3$s%4$s).',
 										'w3-total-cache'
 									),
-									'<a href="https://api.w3-edge.com/v1/redirects/faq/usage/regexp-support">',
+									'<a href="' . esc_url( 'https://api.w3-edge.com/v1/redirects/faq/usage/regexp-support' ) . '">',
 									'<acronym title="' . __( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 									'</acronym>',
 									'</a>'

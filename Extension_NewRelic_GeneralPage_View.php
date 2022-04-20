@@ -6,7 +6,7 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <?php
-Util_Ui::postbox_header( __( 'Monitoring', 'w3-total-cache' ), '', 'monitoring' );
+Util_Ui::postbox_header( esc_html__( 'Monitoring', 'w3-total-cache' ), '', 'monitoring' );
 Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_overloaded' ) );
 ?>
 
@@ -52,7 +52,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_over
 							'%1$sAPI%2$s key:',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(

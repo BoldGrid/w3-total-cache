@@ -94,27 +94,36 @@ class Root_AdminActivation {
 			if ( strlen( $r['required_changes'] ) > 0 ) {
 				$changes_style = 'border: 1px solid black; background: white; margin: 10px 30px 10px 30px; padding: 10px;';
 
-				$error = wp_kses(
+				// this is not shown since wp redirects from that page not solved now.
+				echo wp_kses(
 					sprintf(
-						// translators: 1 opening HTML strong tag, 2 closing HTML strong tag, 3 html line break tag,
-						// translators: 4 HTML line break tag, 5 opening HTML div tag, 6 list of required changes,
-						// translators: 7 closing HTML div tag.
+						// translators: 1 opening HTML div tag followed by opening HTML p tag, 2 opening HTML strong tag,
+						// translators: 3 closing HTML strong tag, 4 html line break tags (x2), 5 opening HTML div tag,
+						// translators: 6 list of required changes, 7 closing HTML div tag,
+						// translators: 8 closing HTML p tag followed by closing HTML div tag.
 						__(
-							'%1$sW3 Total Cache Error:%2$s Files and directories could not be automatically removed to complete the deactivation. %3$sPlease execute commands manually:%4$s%5$s%6$s',
+							'%1$s%2$sW3 Total Cache Error:%3$s Files and directories could not be automatically removed to complete the deactivation. %4$sPlease execute commands manually:%5$s%6$s%7$s%8$s',
 							'w3-total-cache'
 						),
+						'<div class="' . esc_attr__( 'error', 'w3-total-cache' ) . '"><p>',
 						'<strong>',
 						'</strong>',
-						'<br />',
-						'<br /><div style="' . esc_attr( $changes_style ) . '">',
+						'<br /><br />',
+						'<div style="' . esc_attr( $changes_style ) . '">',
 						esc_html( $r['required_changes'] ),
-						'</div>'
+						'</div>',
+						'</p></div>'
 					),
-					array()
+					array(
+						'div'    => array(
+							'class' => array(),
+							'style' => array(),
+						),
+						'strong' => array(),
+						'br'     => array(),
+						'p'      => array(),
+					)
 				);
-
-				// this is not shown since wp redirects from that page not solved now.
-				echo '<div class="error"><p>' . esc_html( $error ) . '</p></div>';
 			}
 		}
 

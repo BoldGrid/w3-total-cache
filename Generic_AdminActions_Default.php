@@ -61,10 +61,10 @@ class Generic_AdminActions_Default {
 				$old_config
 			);
 		} catch ( \Exception $ex ) {
-			echo esc_html( wp_json_encode( array( 'result' => 'failed' ) ) );
+			echo wp_json_encode( array( 'result' => 'failed' ) );
 			exit();
 		}
-		echo esc_html( wp_json_encode( array( 'result' => 'success' ) ) );
+		echo wp_json_encode( array( 'result' => 'success' ) );
 		exit();
 	}
 
@@ -225,7 +225,7 @@ class Generic_AdminActions_Default {
 
 		$capability = apply_filters( 'w3tc_capability_config_save', 'manage_options' );
 		if ( ! current_user_can( $capability ) ) {
-			wp_die( esc_html( __( 'You do not have the rights to perform this action.', 'w3-total-cache' ) ) );
+			wp_die( esc_html__( 'You do not have the rights to perform this action.', 'w3-total-cache' ) );
 		}
 
 		/**

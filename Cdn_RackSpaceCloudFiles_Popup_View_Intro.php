@@ -14,7 +14,7 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Your RackSpace API key', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Your RackSpace API key', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<td><?php esc_html_e( 'Username:', 'w3-total-cache' ); ?></td>

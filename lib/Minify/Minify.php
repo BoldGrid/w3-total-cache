@@ -388,7 +388,10 @@ class Minify {
 				self::$lastServed['fullCacheId'] = $fullCacheId;
 				self::$_cache->display($fullCacheId);
 			} else {
-				echo esc_html( $content['content'] );
+				echo wp_kses(
+					$content['content'],
+					Util_Ui::get_allowed_html_for_wp_kses_from_content( $content['content'] )
+				);
 			}
 		} else {
 			if ($cacheIsReady)

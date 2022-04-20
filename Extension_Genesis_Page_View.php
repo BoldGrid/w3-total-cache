@@ -18,9 +18,9 @@ if ( ! defined( 'W3TC' ) ) {
 	Genesis extension is currently 
 	<?php
 	if ( $config->is_extension_active_frontend( 'genesis.theme' ) ) {
-		echo '<span class="w3tc-enabled">' . esc_html( __( 'enabled', 'w3-total-cache' ) ) . '</span>';
+		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
 	} else {
-		echo '<span class="w3tc-disabled">' . esc_html( __( 'disabled', 'w3-total-cache' ) ) . '</span>';
+		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>';
 	}
 	?>
 	.
@@ -34,36 +34,36 @@ if ( ! defined( 'W3TC' ) ) {
 			array(
 				'key'            => array( 'genesis.theme', 'wp_head' ),
 				'control'        => 'checkbox',
-				'label'          => __( 'Cache wp_head loop:', 'w3-total-cache' ),
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'description'    => __( 'Cache wp_head. This includes the embedded CSS, JS etc.', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache wp_head loop:', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Cache wp_head. This includes the embedded CSS, JS etc.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'genesis_header' ),
 				'control'        => 'checkbox',
-				'label'          => __( 'Cache header:', 'w3-total-cache' ),
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'description'    => __( 'Cache header loop. This is the area where the logo is located.', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache header:', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Cache header loop. This is the area where the logo is located.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'genesis_do_nav' ),
 				'control'        => 'checkbox',
-				'label'          => __( 'Cache primary navigation:', 'w3-total-cache' ),
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'description'    => __( 'Caches the navigation filter; per page.', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache primary navigation:', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches the navigation filter; per page.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'genesis_do_subnav' ),
 				'control'        => 'checkbox',
-				'label'          => __( 'Cache secondary navigation:', 'w3-total-cache' ),
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'description'    => __( 'Caches secondary navigation filter; per page.', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache secondary navigation:', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches secondary navigation filter; per page.', 'w3-total-cache' ),
 			)
 		);
 		?>
@@ -71,77 +71,77 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php Util_Ui::button_config_save( 'extension_genesis_header' ); ?>
 	<?php Util_Ui::postbox_footer(); ?>
 
-	<?php Util_Ui::postbox_header( __( 'Content', 'w3-total-cache' ), '', 'content' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Content', 'w3-total-cache' ), '', 'content' ); ?>
 	<table class="form-table">
 		<?php
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'loop_front_page' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Cache front page post loop:', 'w3-total-cache' ),
-				'description'    => __( 'Caches the front page post loop, pagination is supported.', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache front page post loop:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches the front page post loop, pagination is supported.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'loop_terms' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Cache author/tag/categories/term post loop:', 'w3-total-cache' ),
-				'description'    => __( 'Caches the posts listed on tag, categories, author and other term pages, pagination is supported.', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache author/tag/categories/term post loop:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches the posts listed on tag, categories, author and other term pages, pagination is supported.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'         => array( 'genesis.theme', 'loop_terms_excluded' ),
 				'control'     => 'textarea',
-				'label'       => __( 'Excluded terms pages / posts:', 'w3-total-cache' ),
-				'description' => __( 'List of pages / posts that should not have the terms loop cached. Specify one page / post per line. This area supports regular expressions.', 'w3-total-cache' ),
+				'label'       => esc_html__( 'Excluded terms pages / posts:', 'w3-total-cache' ),
+				'description' => esc_html__( 'List of pages / posts that should not have the terms loop cached. Specify one page / post per line. This area supports regular expressions.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'flush_terms' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Flush posts loop:', 'w3-total-cache' ),
-				'description'    => __( 'Flushes the posts loop cache on post updates. See setting above for affected loops.', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Flush posts loop:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Flushes the posts loop cache on post updates. See setting above for affected loops.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'loop_single' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Cache single post / page:', 'w3-total-cache' ),
-				'description'    => __( 'Caches the single post / page loop, pagination is supported.', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache single post / page:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches the single post / page loop, pagination is supported.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'         => array( 'genesis.theme', 'loop_single_excluded' ),
 				'control'     => 'textarea',
-				'label'       => __( 'Excluded single pages / posts:', 'w3-total-cache' ),
-				'description' => __( 'List of pages / posts that should not have the single post / post loop cached. Specify one page / post per line. This area supports regular expressions.', 'w3-total-cache' ),
+				'label'       => esc_html__( 'Excluded single pages / posts:', 'w3-total-cache' ),
+				'description' => esc_html__( 'List of pages / posts that should not have the single post / post loop cached. Specify one page / post per line. This area supports regular expressions.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'loop_single_genesis_comments' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Cache comments:', 'w3-total-cache' ),
-				'description'    => __( 'Caches the comments loop, pagination is supported.', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache comments:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches the comments loop, pagination is supported.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'loop_single_genesis_pings' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Cache pings:', 'w3-total-cache' ),
-				'description'    => __( 'Caches the ping loop, pagination is supported. One per line.', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache pings:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches the ping loop, pagination is supported. One per line.', 'w3-total-cache' ),
 			)
 		);
 		?>
@@ -149,24 +149,24 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php Util_Ui::button_config_save( 'extension_genesis_content' ); ?>
 	<?php Util_Ui::postbox_footer(); ?>
 
-	<?php Util_Ui::postbox_header( __( 'Sidebar', 'w3-total-cache' ), '', 'sidebar' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Sidebar', 'w3-total-cache' ), '', 'sidebar' ); ?>
 	<table class="form-table">
 		<?php
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'sidebar' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Cache sidebar:', 'w3-total-cache' ),
-				'description'    => __( 'Caches sidebar loop, the widget area.', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache sidebar:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches sidebar loop, the widget area.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'         => array( 'genesis.theme', 'sidebar_excluded' ),
 				'control'     => 'textarea',
-				'label'       => __( 'Exclude pages:', 'w3-total-cache' ),
-				'description' => __( 'List of pages that should not have sidebar cached. Specify one page / post per line. This area supports regular expressions.', 'w3-total-cache' ),
+				'label'       => esc_html__( 'Exclude pages:', 'w3-total-cache' ),
+				'description' => esc_html__( 'List of pages that should not have sidebar cached. Specify one page / post per line. This area supports regular expressions.', 'w3-total-cache' ),
 			)
 		);
 		?>
@@ -174,34 +174,34 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php Util_Ui::button_config_save( 'extension_genesis_sidebar' ); ?>
 	<?php Util_Ui::postbox_footer(); ?>
 
-	<?php Util_Ui::postbox_header( __( 'Footer', 'w3-total-cache' ) ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Footer', 'w3-total-cache' ) ); ?>
 	<table class="form-table">
 		<?php
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'genesis_footer' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Cache genesis footer:', 'w3-total-cache' ),
-				'description'    => __( 'Caches footer loop.', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache genesis footer:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches footer loop.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'wp_footer' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Cache footer:', 'w3-total-cache' ),
-				'description'    => __( 'Caches wp_footer loop.', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Cache footer:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Caches wp_footer loop.', 'w3-total-cache' ),
 			)
 		);
 		Util_Ui::config_item(
 			array(
 				'key'            => array( 'genesis.theme', 'reject_logged_roles' ),
 				'control'        => 'checkbox',
-				'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-				'label'          => __( 'Disable fragment cache:', 'w3-total-cache' ),
-				'description'    => __( 'Don\'t use fragment cache with the following hooks and for the specified user roles.' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Disable fragment cache:', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Don\'t use fragment cache with the following hooks and for the specified user roles.' ),
 			)
 		);
 		?>
@@ -209,7 +209,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php Util_Ui::button_config_save( 'extension_genesis_footer' ); ?>
 	<?php Util_Ui::postbox_footer(); ?>
 
-	<?php Util_Ui::postbox_header( __( 'Exclusions', 'w3-total-cache' ), '', 'exclusions' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Exclusions', 'w3-total-cache' ), '', 'exclusions' ); ?>
 	<table class="form-table">
 		<tr>
 			<td><?php esc_html_e( 'Select hooks', 'w3-total-cache' ); ?></td>

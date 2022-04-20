@@ -7,7 +7,7 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <form class="w3tc_cdn_stackpath2_form">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Succeeded', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Succeeded', 'w3-total-cache' ) ); ?>
 
 		<div style="text-align: center">
 			Site was successfully configured.<br />

@@ -58,7 +58,7 @@ class Licensing_Plugin_Admin {
 			$menu_items['90040.licensing'] = array(
 				'id'     => 'w3tc_debug_overlay_upgrade',
 				'parent' => 'w3tc_debug_overlays',
-				'title'  => __( 'Upgrade', 'w3-total-cache' ),
+				'title'  => esc_html__( 'Upgrade', 'w3-total-cache' ),
 				'href'   => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ), 'w3tc' )
 			);
 		}

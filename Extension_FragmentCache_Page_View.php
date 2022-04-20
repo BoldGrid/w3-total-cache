@@ -43,7 +43,18 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 
 <form action="admin.php?page=w3tc_fragmentcache" method="post">
 	<p>
-		<?php echo esc_html( Util_Ui::nonce_field( 'w3tc' ) ); ?>
+		<?php
+		echo wp_kses(
+			Util_Ui::nonce_field( 'w3tc' ),
+			array(
+				'input' => array(
+					'type'  => array(),
+					'name'  => array(),
+					'value' => array(),
+				),
+			)
+		);
+		?>
 		<input type="submit" name="w3tc_flush_fragmentcache" value="<?php esc_attr_e( 'Empty the entire cache', 'w3-total-cache' ); ?>" class="button" />
 		<?php esc_html_e( 'if needed.', 'w3-total-cache' ); ?>
 	</p>

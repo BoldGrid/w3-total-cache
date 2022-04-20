@@ -23,7 +23,7 @@ if ( ! defined( 'W3TC' ) ) {
 <p>
 
 <div class="metabox-holder">
-	<?php Util_Ui::postbox_header( __( 'Google FeedBurner', 'w3-total-cache' ) ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Google FeedBurner', 'w3-total-cache' ) ); ?>
 	<table class="form-table">
 		<?php
 		Util_Ui::config_item(
@@ -37,7 +37,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'Additional %1$sURL%2$ss:',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(
@@ -53,7 +53,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'Specify any additional feed %1$sURL%2$ss to ping on FeedBurner.',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(

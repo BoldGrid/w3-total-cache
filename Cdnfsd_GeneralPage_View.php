@@ -16,7 +16,7 @@ if ( ! defined( 'W3TC' ) ) {
 				'If you do not have a %1$sCDN%2$s provider try StackPath. %3$sSign up now to enjoy a special offer!%4$s.',
 				'w3-total-cache'
 			),
-			'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+			'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 			'</acronym>',
 			'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_maxcdn_signup' ), 'w3tc' ) ) . '" target="_blank">',
 			'</a>'
@@ -48,9 +48,9 @@ if ( ! defined( 'W3TC' ) ) {
 						'%1$sFSD%2$s %3$sCDN%4$s:',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Full Site Delivery', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Full Site Delivery', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -96,9 +96,9 @@ if ( ! defined( 'W3TC' ) ) {
 						'%1$sFSD%2$s %3$sCDN%4$s Type:',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Full Site Delivery', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Full Site Delivery', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -119,7 +119,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Select the %1$sCDN%2$s type you wish to use. %3$s',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					$cdnfsd_engine_extra_description
 				),

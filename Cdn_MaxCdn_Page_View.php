@@ -53,11 +53,11 @@ if ( ! defined( 'W3TC' ) ) {
 								'%1$sCDN%2$s %3$sHTTP%4$s %5$sCNAME%6$s:',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'Canonical Name', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -72,8 +72,27 @@ if ( ! defined( 'W3TC' ) ) {
 			<td class="w3tc_config_value_text">
 				<?php echo esc_html( $http_domain ); ?>
 				<p class="description">
-					This website domain has to be CNAME pointing to this
-					<acronym title="Content Delivery Network">CDN</acronym> domain for <acronym title="Hypertext Transfer Protocol">HTTP</acronym> requests
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acornym tag,
+							// translators: 3 opening HMTL acornym tag, 4 closing HTML acronym tag.
+							__(
+								'This website domain has to be CNAME pointing to this %1$sCDN%2$s domain for %3$sHTTP%4$s requests',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
 				</p>
 			</td>
 		</tr>
@@ -92,11 +111,11 @@ if ( ! defined( 'W3TC' ) ) {
 								'%1$sCDN%2$s %3$sHTTP%4$sS %5$sCNAME%6$s:',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'Canonical Name', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -111,8 +130,29 @@ if ( ! defined( 'W3TC' ) ) {
 			<td class="w3tc_config_value_text">
 				<?php echo esc_html( $https_domain ); ?>
 				<p class="description">
-					This website domain has to be <acronym title="Canonical Name">CNAME</acronym> pointing to this
-					<acronym title="Content Delivery Network">CDN</acronym> domain for <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym> requests
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HMTL acronym tag,
+							// translators: 3 opening HTML acronym tag, 4 closing HMTL acronym tag,
+							// translators: 5 opening HTML acronym tag, 6 closing HMTL acronym tag.
+							__(
+								'This website domain has to be %1$sCNAME%2$s pointing to this %3$sCDN%4$s domain for %5$sHTTPS%6$s requests'
+							),
+							'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'HyperText Transfer Protocol over SSL', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
 				</p>
 			</td>
 		</tr>
@@ -129,7 +169,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'%1$sSSL%2$s support:',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(
@@ -155,7 +195,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'Enabled (always use %1$sSSL%2$s)',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -175,7 +215,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'Disabled (always use %1$sHTTP%2$s)',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -197,9 +237,9 @@ if ( ! defined( 'W3TC' ) ) {
 							'Some %1$sCDN%2$s providers may or may not support %3$sSSL%4$s, contact your vendor for more information.',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 						'</acronym>',
-						'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(
@@ -229,9 +269,9 @@ if ( ! defined( 'W3TC' ) ) {
 							'Enter the hostname provided by your %1$sCDN%2$s provider, this value will replace your site\'s hostname in the %3$sHTML%4$s.',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 						'</acronym>',
-						'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(

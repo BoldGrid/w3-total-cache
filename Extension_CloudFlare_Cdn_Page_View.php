@@ -7,7 +7,7 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <form id="cdn_form" action="admin.php?page=w3tc_cdn" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Configuration: Full-Site Delivery', 'w3-total-cache' ), '', 'configuration' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ), '', 'configuration' ); ?>
 		<table class="form-table">
 			<tr>
 				<th style="width: 300px;">

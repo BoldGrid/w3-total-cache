@@ -169,9 +169,6 @@ do_action( 'w3tc-dashboard-head' );
 							'href'  => array(),
 							'class' => array(),
 						),
-						'abbr' => array(
-							'title' => array(),
-						),
 					)
 				);
 				?>

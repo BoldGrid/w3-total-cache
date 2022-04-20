@@ -30,7 +30,7 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select service to use', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select service to use', 'w3-total-cache' ) ); ?>
 		<table class="form-table w3tc_popup_form">
 			<tr>
 				<th>Service:</td>

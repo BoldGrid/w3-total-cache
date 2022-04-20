@@ -117,7 +117,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php foreach ( $line['backtrace'] as $backtrace_line ) : ?>
 				<tr>
 					<td><?php echo esc_html( $backtrace_line['number'] ); ?></td>
-					<td><?php echo esc_html( $this->esc_filename( $backtrace_line['filename'] ) ); ?></td>
+					<td><?php echo $this->esc_filename( $backtrace_line['filename'] ); // phpcs:ignore ?></td>
 					<td><?php echo esc_html( $backtrace_line['function'] ); ?></td>
 				</tr>
 			<?php endforeach ?>

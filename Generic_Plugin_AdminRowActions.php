@@ -72,7 +72,7 @@ class Generic_Plugin_AdminRowActions {
 				echo sprintf(
 					'<div><a href="%s">%s</a></div>',
 					esc_url( $url ),
-					esc_html( __( 'Purge from cache', 'w3-total-cache' ) )
+					esc_html__( 'Purge from cache', 'w3-total-cache' )
 				);
 			}
 		}

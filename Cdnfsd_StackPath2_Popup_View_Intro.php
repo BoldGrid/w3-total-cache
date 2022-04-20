@@ -12,7 +12,7 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Your StackPath Account credentials', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Your StackPath Account credentials', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<td>API Client ID:</td>

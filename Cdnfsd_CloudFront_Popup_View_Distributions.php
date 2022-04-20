@@ -11,7 +11,7 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( '', 'secret_key', $details['secret_key'] );
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select distribution to use', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select distribution to use', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<td>Distribution:</td>

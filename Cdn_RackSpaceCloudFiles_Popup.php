@@ -187,11 +187,11 @@ class Cdn_RackSpaceCloudFiles_Popup {
 		$state->set( 'cdn.rackspace_cf.access_state', '' );
 		$state->save();
 
-		$postfix = Util_Admin::custom_message_id( array(),
-			array(
-				'cdn_configuration_saved' =>
-				'CDN credentials are saved successfully' ) );
-		echo 'Location admin.php?page=w3tc_cdn&' . esc_url( $postfix );
+		$postfix = Util_Admin::custom_message_id(
+			array(),
+			array( 'cdn_configuration_saved' => 'CDN credentials are saved successfully' )
+		);
+		echo 'Location admin.php?page=w3tc_cdn&' . wp_kses( $postfix, Util_Ui::get_allowed_html_for_wp_kses_from_content( $postfix ) );
 		exit();
 	}
 }

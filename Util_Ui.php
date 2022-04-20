@@ -182,7 +182,10 @@ class Util_Ui {
 		if ( ! empty( $id ) ) {
 			$id = ' id="' . esc_attr( $id ) . '"';
 		}
-		echo '<div' . esc_attr( $id ) . ' class="postbox ' . esc_attr( $class ) . '"><div class="handlediv" title="' . esc_attr( __( 'Click to toggle', 'w3-total-cache' ) ) . '"><br /></div><h3 class="hndle"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3><div class="inside">';
+		echo '<div' . $id . ' class="postbox ' . esc_attr( $class ) . '">
+		<div class="handlediv" title="' . esc_attr__( 'Click to toggle', 'w3-total-cache' ) . '"><br /></div>
+		<h3 class="hndle"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
+		<div class="inside">';
 	}
 
 	/**
@@ -1250,7 +1253,7 @@ class Util_Ui {
 		}
 
 		$dom = new DOMDocument();
-		$dom->loadHTML( $content );
+		@$dom->loadHTML( $content );
 		foreach ( $dom->getElementsByTagName( '*' ) as $tag ) {
 			$tagname = $tag->tagName;
 			foreach ( $tag->attributes as $attribute_name => $attribute_val ) {
