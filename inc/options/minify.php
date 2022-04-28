@@ -28,7 +28,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'w3-total-cache'
 				),
 				Cache::engine_name( $this->_config->get_string( 'minify.engine' ) ),
-				'<span class="w3tc-' . ( $minify_enabled ? 'enabled">' . __( 'enabled', 'w3-total-cache' ) : 'disabled">' . __( 'disabled', 'w3-total-cache' ) ) . '</span>'
+				'<span class="w3tc-' . ( $minify_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
 			),
 			array(
 				'span' => array(
@@ -47,7 +47,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'To rebuild the minify cache use the %1$s operation.',
 					'w3-total-cache'
 				),
-				Util_Ui::nonce_field( 'w3tc' ) . '<input type="submit" name="w3tc_flush_minify" value="' . __( 'empty cache', 'w3-total-cache' ) . '"' . disabled( $minify_enabled, false, false ) . ' class="button" />'
+				Util_Ui::nonce_field( 'w3tc' ) . '<input type="submit" name="w3tc_flush_minify" value="' . esc_attr__( 'empty cache', 'w3-total-cache' ) . '"' . disabled( $minify_enabled, false, false ) . ' class="button" />'
 			),
 			array(
 				'input' => array(
@@ -73,7 +73,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'%1$s to make existing file modifications visible to visitors with a primed cache.',
 					'w3-total-cache'
 				),
-				'<input type="submit" name="w3tc_flush_browser_cache" value="' . __( 'Update media query string', 'w3-total-cache' ) . '"' . disabled( ! ( $browsercache_enabled && $browsercache_update_media_qs ), true, false ) . ' class="button" />'
+				'<input type="submit" name="w3tc_flush_browser_cache" value="' . esc_attr__( 'Update media query string', 'w3-total-cache' ) . '"' . disabled( ! ( $browsercache_enabled && $browsercache_update_media_qs ), true, false ) . ' class="button" />'
 			),
 			array(
 				'input' => array(
@@ -91,7 +91,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 <form id="minify_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'General', 'w3-total-cache' ), '', 'general' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
 			<tr>
 				<th colspan="2">
@@ -115,9 +115,9 @@ if ( ! defined( 'W3TC' ) ) {
 									'If disabled, %1$sCSS%2$s and %3$sJS%4$s embeddings will use GET variables instead of "fancy" links.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 								'</acronym>',
-								'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -142,12 +142,12 @@ if ( ! defined( 'W3TC' ) ) {
 					'key'              => 'minify.error.notification',
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
-						''            => __( 'Disabled', 'w3-total-cache' ),
-						'admin'       => __( 'Admin Notification', 'w3-total-cache' ),
-						'email'       => __( 'Email Notification', 'w3-total-cache' ),
-						'admin,email' => __( 'Both Admin &amp; Email Notification', 'w3-total-cache' ),
+						''            => esc_html__( 'Disabled', 'w3-total-cache' ),
+						'admin'       => esc_html__( 'Admin Notification', 'w3-total-cache' ),
+						'email'       => esc_html__( 'Email Notification', 'w3-total-cache' ),
+						'admin,email' => esc_html__( 'Both Admin &amp; Email Notification', 'w3-total-cache' ),
 					),
-					'description'      => __( 'Notify when minify cache creation errors occur.', 'w3-total-cache' ),
+					'description'      => esc_html__( 'Notify when minify cache creation errors occur.', 'w3-total-cache' ),
 				)
 			);
 			?>
@@ -156,7 +156,31 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::button_config_save( 'minify_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( '<acronym title="Hypertext Markup Language">HTML</acronym> &amp; <acronym title="eXtensible Markup Language">XML</acronym>', 'w3-total-cache' ), '', 'html_xml' ); ?>
+		<?php
+		Util_Ui::postbox_header(
+			wp_kses(
+				sprintf(
+					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+					// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+					__(
+						'%1$sHTML%2$s &amp; %3$sXML%4$s',
+						'w3-total-cache'
+					),
+					'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+					'</acronym>',
+					'<acronym title="' . esc_attr__( 'eXtensible Markup Language', 'w3-total-cache' ) . '">',
+					'</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
+			),
+			'',
+			'html_xml'
+		);
+		?>
 		<table class="form-table">
 			<tr>
 				<th>
@@ -168,7 +192,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'%1$sHTML%2$s minify settings:',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -233,10 +257,10 @@ if ( ! defined( 'W3TC' ) ) {
 			sprintf(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 				__(
-					'%1JS%2',
+					'%1$sJS%2$s',
 					'w3-total-cache'
 				),
-				'<acronym title="' . __( 'JavaScript', ) . '">',
+				'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 				'</acronym>'
 			),
 			'',
@@ -251,14 +275,14 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'          => sprintf(
 						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 						__(
-							'%1JS%2 minify settings:',
+							'%1$sJS%2$s minify settings:',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr_( 'JavaScript', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				)
 			);
 			?>
@@ -267,17 +291,17 @@ if ( ! defined( 'W3TC' ) ) {
 				Util_Ui::config_item(
 					array(
 						'key'              => 'minify.js.method',
-						'label'            => __( 'Minify method:', 'w3-total-cache' ),
+						'label'            => esc_html__( 'Minify method:', 'w3-total-cache' ),
 						'control'          => 'selectbox',
 						'selectbox_values' => array(
 							'both'    => array(
-								'label' => __( 'Combine & Minify', 'w3-total-cache' ),
+								'label' => esc_html__( 'Combine & Minify', 'w3-total-cache' ),
 							),
 							'minify'  => array(
-								'label' => __( 'Minify only', 'w3-total-cache' ),
+								'label' => esc_html__( 'Minify only', 'w3-total-cache' ),
 							),
 							'combine' => array(
-								'label' => __( 'Combine only', 'w3-total-cache' ),
+								'label' => esc_html__( 'Combine only', 'w3-total-cache' ),
 							),
 						),
 					)
@@ -417,7 +441,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'%1$sJS%2$s file management:',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -516,7 +540,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'No %1$sJS%2$s files added',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -537,20 +561,21 @@ if ( ! defined( 'W3TC' ) ) {
 					'key'            => 'minify.js.http2push',
 					'label'          => '<acronym title="Hypertext Markup Language">HTTP</acronym>/2 push',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-					'description'    => __( 'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Transfer Protocol">HTTP</acronym>/2 protocol.', 'w3-total-cache' ) .
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'description'    => esc_html__( 'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Transfer Protocol">HTTP</acronym>/2 protocol.', 'w3-total-cache' ) .
 						(
 							'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ?
 							'' :
 							sprintf(
+								// translators: 1 HTML line break tag followed by opening HTML b tag, 2 closing HTML b tag.
 								__(
-									' %1Not supported by "Disk: Enhanced" page cache method for Nginx%2',
+									' %1$sNot supported by "Disk: Enhanced" page cache method for Nginx%2$s',
 									'w3-total-cache'
 								),
 								'<br /><b>',
 								'</b>'
 							)
-						),
+					),
 				)
 			);
 			?>
@@ -564,10 +589,10 @@ if ( ! defined( 'W3TC' ) ) {
 			sprintf(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 				__(
-					'%1CSS</acronym>',
+					'%1$sCSS%2$s',
 					'w3-total-cache'
 				),
-				'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+				'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 				'</acronym>'
 			),
 			'',
@@ -579,9 +604,24 @@ if ( ! defined( 'W3TC' ) ) {
 			Util_Ui::config_item(
 				array(
 					'key'            => 'minify.css.enable',
-					'label'          => __( '<acronym title="Cascading Style Sheet">CSS</acronym> minify settings:', 'w3-total-cache' ),
+					'label'          => wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+							__(
+								'%1$sCSS%2$s minify settings:',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					),
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				)
 			);
 			?>
@@ -593,13 +633,13 @@ if ( ! defined( 'W3TC' ) ) {
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
 						'both'    => array(
-							'label' => __( 'Combine & Minify', 'w3-total-cache' ),
+							'label' => esc_html__( 'Combine & Minify', 'w3-total-cache' ),
 						),
 						'minify'  => array(
-							'label' => __( 'Minify only', 'w3-total-cache' ),
+							'label' => esc_html__( 'Minify only', 'w3-total-cache' ),
 						),
 						'combine' => array(
-							'label' => __( 'Combine only', 'w3-total-cache' ),
+							'label' => esc_html__( 'Combine only', 'w3-total-cache' ),
 						),
 					),
 				)
@@ -664,7 +704,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'%1$sCSS%2$s file management:',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -755,7 +795,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'No %1$sCSS%2$s files added',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -776,18 +816,35 @@ if ( ! defined( 'W3TC' ) ) {
 					'key'            => 'minify.css.http2push',
 					'label'          => '<acronym title="Hypertext Markup Language">HTTP</acronym>/2 push',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-					'description'    => __( 'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Transfer Protocol">HTTP</acronym>/2 protocol.', 'w3-total-cache' ) .
-						(
-							'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ?
-							'' :
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'description'    => wp_kses(
+						sprintf(
+							__(
+								'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Transfer Protocol">HTTP</acronym>/2 protocol.',
+								'w3-total-cache'
+							),
+						),
+						array()
+					) . (
+						'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ?
+						'' :
+						wp_kses(
 							sprintf(
+								// translators: 1 HTML line break tag, 2 opening HTML b tag, 3 closing HTML b tag.
 								__(
-									' <br /><b>Not supported by "Disk: Enhanced" page cache method for Nginx</b>',
+									' %1$s%2$sNot supported by "Disk: Enhanced" page cache method for Nginx%3$s',
 									'w3-total-cache'
 								),
+								'<br />',
+								'<b>',
+								'</b>'
+							),
+							array(
+								'br' => array(),
+								'b'  => array(),
 							)
-						),
+						)
+					),
 				)
 			);
 			?>
@@ -796,7 +853,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::button_config_save( 'minify_css' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
 		<table class="form-table">
 			<?php
 			if ( 'memcached' === $this->_config->get_string( 'minify.engine' ) ) {
@@ -853,7 +910,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'Always ignore the specified %1$sJS%2$s files. Use relative paths. Omit: protocol, hostname, leading forward slash and query strings.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -880,7 +937,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'Always ignore the specified %1$sCSS%2$s files. Use relative paths. Omit: protocol, hostname, leading forward slash and query strings.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -925,7 +982,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::button_config_save( 'minify_advanced' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Note(s):', 'w3-total-cache' ), '', 'notes' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Note(s):', 'w3-total-cache' ), '', 'notes' ); ?>
 		<table class="form-table">
 			<tr>
 				<th colspan="2">
@@ -940,7 +997,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'Enable %1$sHTTP%2$s compression in the "Cascading Style Sheets &amp; JavaScript" section on %3$sBrowser Cache%4$s Settings tab.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 									'</acronym>',
 									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
@@ -966,7 +1023,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'The %1$sTTL%2$s of page cache files is set via the "Expires header lifetime" field in the "Cascading Style Sheets &amp; JavaScript" section on %3$sBrowser Cache%4$s Settings tab.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Time to Live', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Time to Live', 'w3-total-cache' ) . '">',
 									'</acronym>',
 									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'

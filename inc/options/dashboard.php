@@ -24,7 +24,7 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 				'w3-total-cache'
 			),
 			'<p>',
-			'<span class="w3tc-' . ( $enabled ? 'enabled' : 'disabled' ) . '">' . ( $enabled ? __( 'enabled', 'w3-total-cache' ) : __( 'disabled', 'w3-total-cache' ) ) . '</span>',
+			'<span class="w3tc-' . ( $enabled ? 'enabled' : 'disabled' ) . '">' . ( $enabled ? esc_html__( 'enabled', 'w3-total-cache' ) : esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>',
 			'<strong>' . Util_Environment::w3tc_edition( $this->_config ) . '</strong>',
 			'</p>'
 		),
@@ -70,7 +70,7 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 		<?php endif; ?>
 		<input type="submit" name="w3tc_flush_browser_cache" value="<?php esc_html_e( 'update Media Query String', 'w3-total-cache' ); ?>" <?php disabled( ! ( $browsercache_enabled && $browsercache_update_media_qs ) ); ?> class="button" />
 		<?php
-		$string = __( 'or', 'w3-total-cache' );
+		$string = esc_html__( 'or', 'w3-total-cache' );
 		echo esc_html( implode( " $string ", apply_filters( 'w3tc_dashboard_actions', array() ) ) );
 		?>
 		.
@@ -90,7 +90,7 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 								'Thanks for choosing W3TC as your Web Performance Optimization (%1$sWPO%2$s) framework!',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Web Performance Optimization', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Web Performance Optimization', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(

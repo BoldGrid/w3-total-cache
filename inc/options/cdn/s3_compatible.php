@@ -8,19 +8,37 @@ if ( ! defined( 'W3TC' ) ) {
 Util_Ui::config_item(
 	array(
 		'key'          => 'cdn.s3_compatible.api_host',
-		'label'        => __( 'API host:', 'w3-total-cache' ),
+		'label'        => esc_html__( 'API host:', 'w3-total-cache' ),
 		'control'      => 'textbox',
 		'textbox_size' => 30,
-		'description'  => __( 'Host of API endpoint, comptabile with Amazon S3 API', 'w3-total-cache' ),
+		'description'  => esc_html__( 'Host of API endpoint, comptabile with Amazon S3 API', 'w3-total-cache' ),
 	)
 );
 Util_Ui::config_item(
 	array(
 		'key'          => 'cdn.s3.key',
-		'label'        => __( 'Access key ID:', 'w3-total-cache' ),
+		'label'        => esc_html__( 'Access key ID:', 'w3-total-cache' ),
 		'control'      => 'textbox',
 		'textbox_size' => 30,
-		'description'  => __( 'Theme files, media library attachments, <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym> files etc will appear to load instantly for site visitors.', 'w3-total-cache' ),
+		'description'  => wp_kses(
+			sprintf(
+				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+				// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+				__(
+					'Theme files, media library attachments, %1$sCSS%2$s, %3$sJS%4$s files etc will appear to load instantly for site visitors.',
+					'w3-total-cache'
+				),
+				'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+				'</acronym>',
+				'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
+				'</acronym>'
+			),
+			array(
+				'acronym' => array(
+					'title' => array(),
+				),
+			)
+		),
 	)
 );
 
@@ -50,7 +68,7 @@ Util_Ui::config_item(
 						'%1$sSSL%2$s support:',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -78,9 +96,9 @@ Util_Ui::config_item(
 						'Some %1$sCDN%2$s providers may or may not support %3$sSSL%4$s, contact your vendor for more information.',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -112,7 +130,7 @@ Util_Ui::config_item(
 					),
 					'<a href="' . esc_url( 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#VirtualHostingCustomURLs' ) . '" target="_blank">',
 					'</a>',
-					'<acronym title="' . __( 'Domain Name System', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Domain Name System', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(

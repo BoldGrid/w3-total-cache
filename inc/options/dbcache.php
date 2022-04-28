@@ -18,7 +18,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'w3-total-cache'
 				),
 				esc_html( Cache::engine_name( $this->_config->get_string( 'dbcache.engine' ) ) ),
-				'<span class="w3tc-' . ( $dbcache_enabled ? 'enabled">' . __( 'enabled', 'w3-total-cache' ) : 'disabled">' . __( 'disabled', 'w3-total-cache' ) ) . '</span>'
+				'<span class="w3tc-' . ( $dbcache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
 			),
 			array(
 				'span' => array(
@@ -49,7 +49,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'General', 'w3-total-cache' ), '', 'general' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
 			<tr>
 				<th>
@@ -62,7 +62,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::button_config_save( 'dbcache_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
 		<table class="form-table">
 			<?php
 			if ( 'memcached' === $this->_config->get_string( 'dbcache.engine' ) ) {
@@ -106,7 +106,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'w3-total-cache'
 									),
 									'<a href="' . esc_url( 'https://api.w3-edge.com/v1/redirects/faq/usage/regexp-support' ) . '">',
-									'<acronym title="' . __( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 									'</acronym>',
 									'</a>'
 								),

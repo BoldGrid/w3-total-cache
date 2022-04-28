@@ -17,7 +17,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				'The plugin is currently %1$s If an option is disabled it means that either your current installation is not compatible or software installation is required.',
 				'w3-total-cache'
 			),
-			'<span class="w3tc-' . ( $enabled ? 'enabled">' . __( 'enabled', 'w3-total-cache' ) : 'disabled">' . __( 'disabled', 'w3-total-cache' ) ) . '</span>.'
+			'<span class="w3tc-' . ( $enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>.'
 		),
 		array(
 			'span' => array(
@@ -29,7 +29,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 </p>
 <form id="w3tc_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'General', 'w3-total-cache' ), '' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '' ); ?>
 		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Preview mode:', 'w3-total-cache' ); ?></th>
@@ -50,7 +50,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						<input type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>" />
 						<?php
 						echo wp_kses(
-							Util_Ui::button_link( __( 'Deploy', 'w3-total-cache' ) ),
+							Util_Ui::button_link( esc_html__( 'Deploy', 'w3-total-cache' ) ),
 							array(
 								'input' => array(
 									'type'    => array(),
@@ -97,7 +97,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( __( 'Page Cache', 'w3-total-cache' ), '', 'page_cache' );
+		Util_Ui::postbox_header( esc_html__( 'Page Cache', 'w3-total-cache' ), '', 'page_cache' );
 		Util_Ui::config_overloading_button( array( 'key' => 'pgcache.configuration_overloaded' ) );
 		?>
 
@@ -109,8 +109,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'            => 'pgcache.enabled',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-					'description'    => __( 'Caching pages will reduce the response time of your site and increase the scale of your web server.', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'description'    => esc_html__( 'Caching pages will reduce the response time of your site and increase the scale of your web server.', 'w3-total-cache' ),
 				)
 			);
 			Util_Ui::config_item(
@@ -119,53 +119,53 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'control'             => 'selectbox',
 					'selectbox_values'    => array(
 						'file'            => array(
-							'label'    => __( 'Disk: Basic', 'w3-total-cache' ),
+							'label'    => esc_html__( 'Disk: Basic', 'w3-total-cache' ),
 							'optgroup' => 0,
 						),
 						'file_generic'    => array(
-							'label'    => __( 'Disk: Enhanced', 'w3-total-cache' ),
+							'label'    => esc_html__( 'Disk: Enhanced', 'w3-total-cache' ),
 							'optgroup' => 0,
 						),
 						'apc'             => array(
 							'disabled' => ! Util_Installed::apc(),
-							'label'    => __( 'Opcode: Alternative PHP Cache (APC / APCu)', 'w3-total-cache' ),
+							'label'    => esc_html__( 'Opcode: Alternative PHP Cache (APC / APCu)', 'w3-total-cache' ),
 							'optgroup' => 1,
 						),
 						'eaccelerator'    => array(
 							'disabled' => ! Util_Installed::eaccelerator(),
-							'label'    => __( 'Opcode: eAccelerator', 'w3-total-cache' ),
+							'label'    => esc_html__( 'Opcode: eAccelerator', 'w3-total-cache' ),
 							'optgroup' => 1,
 						),
 						'xcache'          => array(
 							'disabled' => ! Util_Installed::xcache(),
-							'label'    => __( 'Opcode: XCache', 'w3-total-cache' ),
+							'label'    => esc_html__( 'Opcode: XCache', 'w3-total-cache' ),
 							'optgroup' => 1,
 						),
 						'wincache'        => array(
 							'disabled' => ! Util_Installed::wincache(),
-							'label'    => __( 'Opcode: WinCache', 'w3-total-cache' ),
+							'label'    => esc_html__( 'Opcode: WinCache', 'w3-total-cache' ),
 							'optgroup' => 1,
 						),
 						'memcached'       => array(
 							'disabled' => ! Util_Installed::memcached(),
-							'label'    => __( 'Memcached', 'w3-total-cache' ),
+							'label'    => esc_html__( 'Memcached', 'w3-total-cache' ),
 							'optgroup' => 2,
 						),
 						'nginx_memcached' => array(
 							'disabled' => ! Util_Installed::memcached_memcached() || ! $is_pro,
-							'label'    => __( 'Nginx + Memcached', 'w3-total-cache' ) . ( $is_pro ? '' : ' (available after upgrade)' ),
+							'label'    => esc_html__( 'Nginx + Memcached', 'w3-total-cache' ) . ( $is_pro ? '' : esc_html__( ' (available after upgrade)', 'w3-total-cache' ) ),
 							'optgroup' => 2,
 						),
 						'redis'           => array(
 							'disabled' => ! Util_Installed::redis(),
-							'label'    => __( 'Redis', 'w3-total-cache' ),
+							'label'    => esc_html__( 'Redis', 'w3-total-cache' ),
 							'optgroup' => 2,
 						),
 					),
 					'selectbox_optgroups' => array(
-						__( 'Shared Server (disk enhanced is best):', 'w3-total-cache' ),
-						__( 'Dedicated / Virtual Server:', 'w3-total-cache' ),
-						__( 'Multiple Servers:', 'w3-total-cache' ),
+						esc_html__( 'Shared Server (disk enhanced is best):', 'w3-total-cache' ),
+						esc_html__( 'Dedicated / Virtual Server:', 'w3-total-cache' ),
+						esc_html__( 'Multiple Servers:', 'w3-total-cache' ),
 					),
 				)
 			);
@@ -176,7 +176,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::button_config_save(
 			'general_pagecache',
 			'<input type="submit" name="w3tc_flush_pgcache" value="' .
-				__( 'Empty cache', 'w3-total-cache' ) . '"' .
+				esc_attr__( 'Empty cache', 'w3-total-cache' ) . '"' .
 				( $pgcache_enabled ? '' : ' disabled="disabled" ' ) .
 				' class="button" />'
 		);
@@ -184,7 +184,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( __( 'Minify', 'w3-total-cache' ), '', 'minify' );
+		Util_Ui::postbox_header( esc_html__( 'Minify', 'w3-total-cache' ), '', 'minify' );
 		Util_Ui::config_overloading_button( array( 'key' => 'minify.configuration_overloaded' ) );
 		?>
 		<p><?php w3tc_e( 'minify.general.header', 'Reduce load time by decreasing the size and number of <acronym title="Cascading Style Sheet">CSS</acronym> and <acronym title="JavaScript">JS</acronym> files. Automatically remove unnecessary data from <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym>, feed, page and post <acronym title="Hypertext Markup Language">HTML</acronym>.' ); ?></p>
@@ -195,10 +195,31 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'            => 'minify.enabled',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-					'description'    => __( 'Minification can decrease file size of <acronym title="Hypertext Markup Language">HTML</acronym>, <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym> and feeds respectively by ~10% on average.', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'description'    => wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+							// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag,
+							// translators: 5 opening HTML acronym tag, 6 closing HTML acronym tag.
+							__(
+								'Minification can decrease file size of %1$SHTML%2$s, %3$sCSS%4$s, %5$sJS%6$s and feeds respectively by ~10% on average.',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					),
 					'control_after'  => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/w3-total-cache-minify-faq/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_faq' ) . '" title="' .
-						__( 'Minify frequently asked questions', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
+						esc_attr__( 'Minify frequently asked questions', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
 			);
@@ -209,15 +230,15 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'value'             => ( $this->_config->get_boolean( 'minify.auto' ) ? 1 : 0 ),
 					'control'           => 'radiogroup',
 					'radiogroup_values' => array(
-						'1' => __( 'Auto', 'w3-total-cache' ),
-						'0' => __( 'Manual', 'w3-total-cache' ),
+						'1' => esc_html__( 'Auto', 'w3-total-cache' ),
+						'0' => esc_html__( 'Manual', 'w3-total-cache' ),
 					),
-					'description'       => __(
+					'description'       => esc_html__(
 						'Select manual mode to use fields on the minify settings tab to specify files to be minified, otherwise files will be minified automatically.',
 						'w3-total-cache'
 					),
 					'control_after'     => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=manual_minify#difference-between-auto-and-manual-minify' ) . '" title="'
-						. __( 'How to use manual minify', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
+						. esc_attr__( 'How to use manual minify', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
 			);
@@ -226,7 +247,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'           => 'minify.engine',
 					'control_after' => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/choosing-a-minification-method-for-w3-total-cache/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_engine' ) . '" title="' .
-						__( 'Choosing a minification method', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
+						esc_attr__( 'Choosing a minification method', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
 			);
@@ -236,14 +257,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'key'              => 'minify.html.engine',
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
-						'html'     => __( 'Minify (default)', 'w3-total-cache' ),
+						'html'     => esc_html__( 'Minify (default)', 'w3-total-cache' ),
 						'htmltidy' => array(
 							'disabled' => ! Util_Installed::tidy(),
-							'label'    => __( 'HTML Tidy', 'w3-total-cache' ),
+							'label'    => esc_html__( 'HTML Tidy', 'w3-total-cache' ),
 						),
 					),
 					'control_after'    => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify/html-minify-or-tidy/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_html#minify-default' ) . '" title="' .
-						__( 'How to use minify HTML', 'w3-total-cache' ) . '">' . __( 'Learn more', 'w3-total-cache' ) .
+						esc_attr__( 'How to use minify HTML', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
 			);
@@ -253,11 +274,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'key'              => 'minify.js.engine',
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
-						'js'         => __( 'JSMin (default)', 'w3-total-cache' ),
-						'googleccjs' => __( 'Google Closure Compiler (Web Service)', 'w3-total-cache' ),
-						'ccjs'       => __( 'Google Closure Compiler (Local Java)', 'w3-total-cache' ),
-						'jsminplus'  => __( 'Narcissus', 'w3-total-cache' ),
-						'yuijs'      => __( 'YUI Compressor', 'w3-total-cache' ),
+						'js'         => esc_html__( 'JSMin (default)', 'w3-total-cache' ),
+						'googleccjs' => esc_html__( 'Google Closure Compiler (Web Service)', 'w3-total-cache' ),
+						'ccjs'       => esc_html__( 'Google Closure Compiler (Local Java)', 'w3-total-cache' ),
+						'jsminplus'  => esc_html__( 'Narcissus', 'w3-total-cache' ),
+						'yuijs'      => esc_html__( 'YUI Compressor', 'w3-total-cache' ),
 					),
 				)
 			);
@@ -266,13 +287,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'key'              => 'minify.css.engine',
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
-						'css'     => __( 'Minify (default)', 'w3-total-cache' ),
+						'css'     => esc_html__( 'Minify (default)', 'w3-total-cache' ),
 						'csstidy' => array(
-							'label'    => __( 'CSS Tidy', 'w3-total-cache' ),
+							'label'    => esc_html__( 'CSS Tidy', 'w3-total-cache' ),
 							'disabled' => ( version_compare( PHP_VERSION, '5.4.0', '<' ) ? true : false ),
 						),
-						'cssmin'  => __( 'YUI Compressor (PHP)', 'w3-total-cache' ),
-						'yuicss'  => __( 'YUI Compressor', 'w3-total-cache' ),
+						'cssmin'  => esc_html__( 'YUI Compressor (PHP)', 'w3-total-cache' ),
+						'yuicss'  => esc_html__( 'YUI Compressor', 'w3-total-cache' ),
 					),
 				)
 			);
@@ -283,7 +304,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::button_config_save(
 			'general_minify',
 			'<input type="submit" name="w3tc_flush_minify" value="' .
-				__( 'Empty cache', 'w3-total-cache' ) . '" ' .
+				esc_attr__( 'Empty cache', 'w3-total-cache' ) . '" ' .
 				( $minify_enabled ? '' : ' disabled="disabled" ' ) .
 				' class="button" />'
 		);
@@ -294,7 +315,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php do_action( 'w3tc_settings_general_boxarea_system_opcache' ); ?>
 
 		<?php
-		Util_Ui::postbox_header( __( 'Database Cache', 'w3-total-cache' ), '', 'database_cache' );
+		Util_Ui::postbox_header( esc_html__( 'Database Cache', 'w3-total-cache' ), '', 'database_cache' );
 		Util_Ui::config_overloading_button( array( 'key' => 'dbcache.configuration_overloaded' ) );
 		?>
 
@@ -306,8 +327,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'            => 'dbcache.enabled',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-					'description'    => __( 'Caching database objects decreases the response time of your site. Best used if object caching is not possible.', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'description'    => esc_html__( 'Caching database objects decreases the response time of your site. Best used if object caching is not possible.', 'w3-total-cache' ),
 				)
 			);
 			Util_Ui::config_item_engine( array( 'key' => 'dbcache.engine' ) );
@@ -322,7 +343,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::button_config_save(
 			'general_dbcache',
 			'<input type="submit" name="w3tc_flush_dbcache" value="' .
-				__( 'Empty cache', 'w3-total-cache' ) . '" ' .
+				esc_html__( 'Empty cache', 'w3-total-cache' ) . '" ' .
 				( $dbcache_enabled ? '' : ' disabled="disabled" ' ) .
 				' class="button" />'
 		);
@@ -331,7 +352,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( 'Object Cache', '', 'object_cache' );
+		Util_Ui::postbox_header( esc_html__( 'Object Cache', 'w3-total-cache' ), '', 'object_cache' );
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
 		?>
 
@@ -343,8 +364,30 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'            => 'objectcache.enabled',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-					'description'    => __( 'Object caching greatly increases performance for highly dynamic sites that use the <a href="http://codex.wordpress.org/Class_Reference/WP_Object_Cache" target="_blank">Object Cache <acronym title="Application Programming Interface">API</acronym></a>.', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'description'    => wp_kses(
+						sprintf(
+							// translators: 1 opening HTML a tag to WordPress codex for WP Object Cache, 2 Opening HTML acronym tag,
+							// translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
+							__(
+								'Object caching greatly increases performance for highly dynamic sites that use the %1$sObject Cache %2$sAPI%3$s%4$s.',
+								'w3-total-cache'
+							),
+							'<a href="' . esc_url( 'http://codex.wordpress.org/Class_Reference/WP_Object_Cache' ) . '" target="_blank">',
+							'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'</a>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+							'a'       => array(
+								'href'   => array(),
+								'target' => array(),
+							),
+						)
+					),
 				)
 			);
 			Util_Ui::config_item_engine( array( 'key' => 'objectcache.engine' ) );
@@ -355,7 +398,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::button_config_save(
 			'general_objectcache',
 			'<input type="submit" name="w3tc_flush_objectcache" value="' .
-				__( 'Empty cache', 'w3-total-cache' ) . '" ' .
+				esc_attr__( 'Empty cache', 'w3-total-cache' ) . '" ' .
 				( $objectcache_enabled ? '' : ' disabled="disabled" ' ) .
 				' class="button" />'
 		);
@@ -364,7 +407,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( __( 'Browser Cache', 'w3-total-cache' ), '', 'browser_cache' );
+		Util_Ui::postbox_header( esc_html__( 'Browser Cache', 'w3-total-cache' ), '', 'browser_cache' );
 		Util_Ui::config_overloading_button( array( 'key' => 'browsercache.configuration_overloaded' ) );
 		?>
 
@@ -376,8 +419,23 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'            => 'browsercache.enabled',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
-					'description'    => __( 'Enable <acronym title="Hypertext Transfer Protocol">HTTP</acronym> compression and add headers to reduce server load and decrease file load time.', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'description'    => wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+							__(
+								'Enable %1$sHTTP%2$s compression and add headers to reduce server load and decrease file load time.',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					),
 				)
 			);
 			?>
@@ -389,7 +447,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php do_action( 'w3tc_settings_general_boxarea_cdn' ); ?>
 
 		<?php
-		Util_Ui::postbox_header( __( 'Reverse Proxy', 'w3-total-cache' ), '', 'reverse_proxy' );
+		Util_Ui::postbox_header( esc_html__( 'Reverse Proxy', 'w3-total-cache' ), '', 'reverse_proxy' );
 		Util_Ui::config_overloading_button( array( 'key' => 'varnish.configuration_overloaded' ) );
 		?>
 
@@ -437,9 +495,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'Specify the IP addresses of your varnish instances above. The %1$sVCL%2$s\'s %3$sACL%4$s must allow this request.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Varnish Configuration Language', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Varnish Configuration Language', 'w3-total-cache' ) . '">',
 								'</acronym>',
-								'<acronym title="' . __( 'Access Control List', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Access Control List', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -458,7 +516,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::button_config_save(
 			'general_varnish',
 			'<input type="submit" name="w3tc_flush_varnish" value="' .
-				__( 'Purge cache', 'w3-total-cache' ) . '"' .
+				esc_attr__( 'Purge cache', 'w3-total-cache' ) . '"' .
 				( $varnish_enabled ? '' : ' disabled="disabled" ' ) .
 				' class="button" />'
 		);
@@ -467,7 +525,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php if ( $is_pro ) : ?>
-			<?php Util_Ui::postbox_header( 'Message Bus', '', 'amazon_sns' ); ?>
+			<?php Util_Ui::postbox_header( esc_html__( 'Message Bus', 'w3-total-cache' ), '', 'amazon_sns' ); ?>
 			<p>
 				<?php esc_html_e( 'Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then syncronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared.', 'w3-total-cache' ); ?>
 			</p>
@@ -494,7 +552,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 										'Specify the Amazon %1$sSNS%2$s service endpoint hostname. If empty, then default "sns.us-east-1.amazonaws.com" will be used.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Simple Notification Service', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Simple Notification Service', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -523,7 +581,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 										'Specify the %1$sAPI%2$s Key.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -552,7 +610,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 										'Specify the %1$sAPI%2$s secret.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -581,7 +639,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 										'Specify the %1$sSNS%2$s topic.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Simple Notification Service', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Simple Notification Service', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -606,7 +664,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		}
 		?>
 		<?php if ( $licensing_visible ) : ?>
-			<?php Util_Ui::postbox_header( __( 'Licensing', 'w3-total-cache' ), '', 'licensing' ); ?>
+			<?php Util_Ui::postbox_header( esc_html__( 'Licensing', 'w3-total-cache' ), '', 'licensing' ); ?>
 			<table class="form-table">
 					<tr>
 						<th>
@@ -625,7 +683,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 											'Please enter the license key provided after %1$s.',
 											'w3-total-cache'
 										),
-										'<a class="button-buy-plugin" data-src="generic_license" href="#">' . __( 'upgrading', 'w3-total-cache' ) . '</a>'
+										'<a class="button-buy-plugin" data-src="generic_license" href="#">' . esc_html__( 'upgrading', 'w3-total-cache' ) . '</a>'
 									),
 									array(
 										'a' => array(
@@ -645,15 +703,15 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php Util_Ui::postbox_footer(); ?>
 		<?php endif ?>
 
-		<?php Util_Ui::postbox_header( __( 'Miscellaneous', 'w3-total-cache' ), '', 'miscellaneous' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Miscellaneous', 'w3-total-cache' ), '', 'miscellaneous' ); ?>
 		<table class="form-table">
 			<?php
 			Util_Ui::config_item(
 				array(
 					'key'            => 'widget.pagespeed.enabled',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable Google Page Speed dashboard widget', 'w3-total-cache' ),
-					'description'    => __( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable Google Page Speed dashboard widget', 'w3-total-cache' ),
+					'description'    => esc_html__( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
 					'label_class'    => 'w3tc_single_column',
 				)
 			);
@@ -673,7 +731,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'w3-total-cache'
 								),
 								'<a href="' . esc_url( 'https://support.google.com/cloud/answer/6158862' ) . '" target="_blank">',
-								'<acronym title="' . __( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
 								'</acronym>',
 								'</a>'
 							),
@@ -695,7 +753,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				<th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key.restrict.referrer', 'general' ); ?></label></th>
 				<td>
 					<input id="widget_pagespeed_key_restrict_referrer" type="text" name="widget__pagespeed__key__restrict__referrer" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key.restrict.referrer' ) ); ?>" size="60" />
-					<p class="description">Although not required, to prevent unauthorized use and quota theft, you have the option to restrict your key using a designated HTTP referrer. If you decide to use it, you will need to set this referrer within the API Console's "Http Referrers (web sites)" key restriction area (under Credentials).</p>
+					<p class="description">
+						<?php esc_html__( 'Although not required, to prevent unauthorized use and quota theft, you have the option to restrict your key using a designated HTTP referrer. If you decide to use it, you will need to set this referrer within the API Console\'s "Http Referrers (web sites)" key restriction area (under Credentials).', 'w3-total-cache' ); ?>
+					</p>
 				</td>
 			</tr>
 			<?php
@@ -703,7 +763,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'            => 'widget.pagespeed.show_in_admin_bar',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Show page rating in admin bar', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Show page rating in admin bar', 'w3-total-cache' ),
 					'label_class'    => 'w3tc_single_column',
 				)
 			);
@@ -765,7 +825,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'Not recommended for %1$sNFS%2$s systems.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Network File System', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Network File System', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -814,7 +874,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'label_class'    => 'w3tc_single_column',
 					'description'    => sprintf(
 						// translators: 1: WordPress ABSPATH value, 2: Server document root value.
-						__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
+						esc_html__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
 						esc_attr( untrailingslashit( ABSPATH ) ),
 						esc_attr( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '' )
 					),
@@ -835,7 +895,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php Util_Ui::button_config_save( 'general_misc' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( 'Debug', '', 'debug' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Debug', 'w3-total-cache' ), '', 'debug' ); ?>
 		<p>
 			<?php
 			echo wp_kses(
@@ -884,7 +944,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'If selected, detailed caching information will appear at the end of each page in a %1$sHTML%2$s comment. View a page\'s source code to review.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -933,9 +993,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 					<?php
 					\W3TC\Util_Ui::pro_wrap_description(
-						__( 'Purge Logs provide information on when your cache has been purged and what triggered it.', 'w3-total-cache' ),
+						esc_html__( 'Purge Logs provide information on when your cache has been purged and what triggered it.', 'w3-total-cache' ),
 						array(
-							__( 'Sometimes, you\'ll encounter a complex issue involving your cache being purged for an unknown reason. The Purge Logs functionality can help you easily resolve those issues.', 'w3-total-cache' ),
+							esc_html__( 'Sometimes, you\'ll encounter a complex issue involving your cache being purged for an unknown reason. The Purge Logs functionality can help you easily resolve those issues.', 'w3-total-cache' ),
 						),
 						'general-purge-log'
 					);
@@ -953,7 +1013,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post" enctype="multipart/form-data">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Import / Export Settings', 'w3-total-cache' ), '', 'settings' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Import / Export Settings', 'w3-total-cache' ), '', 'settings' ); ?>
 		<?php
 		echo wp_kses(
 			Util_Ui::nonce_field( 'w3tc' ),

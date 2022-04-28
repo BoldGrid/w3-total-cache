@@ -20,13 +20,13 @@ if ( ! defined( 'W3TC' ) ) {
 						'w3-total-cache'
 					),
 					'<a href="' . esc_url( 'http://docs.amazonwebservices.com/IAM/latest/UserGuide/AccessPolicyLanguage_KeyConcepts.html' ) . '" target="_blank">',
-					'<acronym title="' . __( 'AWS Identity and Access Management', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'AWS Identity and Access Management', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'</a>',
-					'<acronym title="' . __( 'Amazon Web Services', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Amazon Web Services', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'<a href="' . esc_url( 'http://awspolicygen.s3.amazonaws.com/policygen.html' ) . '" target="_blank">',
-					'<acronym title="' . __( 'Amazon Web Services', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Amazon Web Services', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'</a>'
 				),
@@ -86,7 +86,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'%1$sSSL%2$s support:',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -114,9 +114,9 @@ if ( ! defined( 'W3TC' ) ) {
 						'Some %1$sCDN%2$s providers may or may not support %3$sSSL%4$s, contact your vendor for more information.',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -157,7 +157,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<a href="' . esc_url( 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html#VirtualHostingCustomURLs' ) . '" target="_blank">',
 					'</a>',
-					'<acronym title="' . __( 'Domain Name System', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Domain Name System', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(

@@ -24,7 +24,7 @@ $security_session_values = array(
 					'Browser caching is currently %1$s.',
 					'w3-total-cache'
 				),
-				'<span class="w3tc-' . ( $browsercache_enabled ? 'enabled">' . __( 'enabled', 'w3-total-cache' ) : 'disabled">' . __( 'disabled', 'w3-total-cache' ) ) . '</span>'
+				'<span class="w3tc-' . ( $browsercache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
 			),
 			array(
 				'span' => array(
@@ -57,7 +57,7 @@ $security_session_values = array(
 					'w3-total-cache'
 				),
 				'<input type="submit" name="w3tc_flush_browser_cache" value="' .
-					__( 'Update media query string', 'w3-total-cache' ) . '" ' .
+					esc_attr__( 'Update media query string', 'w3-total-cache' ) . '" ' .
 					disabled( ! ( $browsercache_enabled && $browsercache_update_media_qs ), true, false ) .
 					' class="button" />'
 			),
@@ -76,7 +76,7 @@ $security_session_values = array(
 </form>
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'General', 'w3-total-cache' ), '', 'general' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<p><?php esc_html_e( 'Specify global browser cache policy.', 'w3-total-cache' ); ?></p>
 		<table class="form-table">
 			<tr>
@@ -134,7 +134,7 @@ $security_session_values = array(
 									'Enable %1$sHTTP%2$s (gzip) compression',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -162,7 +162,7 @@ $security_session_values = array(
 									'Enable %1$sHTTP%2$s (brotli) compression',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -198,7 +198,7 @@ $security_session_values = array(
 									'Resources with a "?" in the %1$sURL%2$s are not cached by some proxy caching servers.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -226,7 +226,7 @@ $security_session_values = array(
 									'Do not add the prevent caching query string to the specified %1$sURI%2$ss. Supports regular expressions.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Uniform Resource Identifier', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Uniform Resource Identifier', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -260,7 +260,7 @@ $security_session_values = array(
 									'If enabled - you may get 404 File Not Found response for some files generated on-the-fly by WordPress plugins. You may add those file %1$sURI%2$ss to 404 error exception list below to avoid that.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Uniform Resource Identifier', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Uniform Resource Identifier', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -285,10 +285,10 @@ $security_session_values = array(
 							sprintf(
 								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 								__(
-									'Never process 404 (not found) events for the specified %1$sURI</acronym>s.',
+									'Never process 404 (not found) events for the specified %1$sURI%2$ss.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Uniform Resource Identifier', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Uniform Resource Identifier', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -307,8 +307,38 @@ $security_session_values = array(
 					'key'            => 'browsercache.rewrite',
 					'disabled'       => Util_Ui::sealing_disabled( 'browsercache.' ),
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Rewrite <acronym title="Universal Resource Locator">URL</acronym> structure of objects', 'w3-total-cache' ),
-					'description'    => __( 'Generate unique <acronym title="Universal Resource Indicator">URI</acronym> for each file protected from caching by browser.', 'w3-total-cache' ),
+					'checkbox_label' => wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+							__(
+								'Rewrite %1$sURL%2$s structure of objects',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Universal Resource Locator', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					),
+					'description'    => wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+							__(
+								'Generate unique %1$sURI%2$s for each file protected from caching by browser.',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Universal Resource Indicator', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					),
 					'label_class'    => 'w3tc_single_column',
 				)
 			);
@@ -318,7 +348,26 @@ $security_session_values = array(
 		<?php Util_Ui::button_config_save( 'browsercache_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( '<acronym title="Cascading Style Sheet">CSS</acronym> &amp; <acronym title="JavaScript">JS</acronym>', 'w3-total-cache' ), '', 'css_js' ); ?>
+		<?php
+		Util_Ui::postbox_header(
+			wp_kses(
+				sprintf(
+					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+					// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+					__(
+						'%1$sCSS%2$s &amp; %3$sJS%4$s',
+						'w3-total-cache'
+					),
+					'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+					'</acronym>',
+					'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
+					'</acronym>'
+				),
+			),
+			'',
+			'css_js'
+		);
+		?>
 		<p><?php esc_html_e( 'Specify browser cache policy for Cascading Style Sheets and JavaScript files.', 'w3-total-cache' ); ?></p>
 
 		<table class="form-table">
@@ -416,7 +465,7 @@ $security_session_values = array(
 									'Resources with a "?" in the %1$sURL%2$s are not cached by some proxy caching servers.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -440,7 +489,31 @@ $security_session_values = array(
 		<?php Util_Ui::button_config_save( 'browsercache_css_js' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( '<acronym title="Hypertext Markup Language">HTML</acronym> &amp; <acronym title="Extensible Markup Language">XML</acronym>', 'w3-total-cache' ), '', 'html_xml' ); ?>
+		<?php
+		Util_Ui::postbox_header(
+			wp_kses(
+				sprintf(
+					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+					// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+					__(
+						'%1$sHTML%2$s &amp; %3$sXML%4$s',
+						'w3-total-cache'
+					),
+					'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+					'</acronym>',
+					'<acronym title="' . esc_attr__( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
+					'</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
+			),
+			'',
+			'html_xml'
+		);
+		?>
 		<p><?php esc_html_e( 'Specify browser cache policy for posts, pages, feeds and text-based files.', 'w3-total-cache' ); ?></p>
 
 		<table class="form-table">
@@ -525,7 +598,7 @@ $security_session_values = array(
 		<?php Util_Ui::button_config_save( 'browsercache_html_xml' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Media &amp; Other Files', 'w3-total-cache' ), '', 'media' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Media &amp; Other Files', 'w3-total-cache' ), '', 'media' ); ?>
 		<table class="form-table">
 			<tr>
 				<th colspan="2">
@@ -621,7 +694,7 @@ $security_session_values = array(
 									'Resources with a "?" in the %1$sURL%2$s are not cached by some proxy caching servers.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(

@@ -9,7 +9,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php Util_Ui::hidden( '', 'w3tc_action', 'extension_cloudflare_intro_done' ); ?>
 	<?php
 	if ( isset( $details['error_message'] ) ) {
-		'<div class="error">' . esc_html( $details['error_message'] ) . '</div>';
+		echo '<div class="error">' . esc_html( $details['error_message'] ) . '</div>';
 	}
 	?>
 	<div class="metabox-holder">

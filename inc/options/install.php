@@ -40,7 +40,7 @@ if ( ! defined( 'W3TC' ) ) {
 				sprintf(
 					// translators: 1 opening HTML a tag to W3TC PageCache admin page, 2 closing HTML a tag.
 					__(
-						'1. The "Compatibility Mode" option found in the advanced section of the "%1$sPage Cache Settings%2$s" tab will enable functionality that optimizes the interoperablity of caching with WordPress, is disabled by default, but highly recommended. Years of testing in hundreds of thousands of installations have helped us learn how to make caching behave well with WordPress. The tradeoff is that disk enhanced page cache performance under load tests will be decreased by ~20% at scale.',
+						'1. The "Compatibility Mode" option found in the advanced section of the %1$s"Page Cache Settings"%2$s tab will enable functionality that optimizes the interoperablity of caching with WordPress, is disabled by default, but highly recommended. Years of testing in hundreds of thousands of installations have helped us learn how to make caching behave well with WordPress. The tradeoff is that disk enhanced page cache performance under load tests will be decreased by ~20\% at scale.',
 						'w3-total-cache'
 					),
 					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_pgcache' ) ) . '">',
@@ -73,14 +73,14 @@ if ( ! defined( 'W3TC' ) ) {
 					'</em>',
 					'<a href="admin.php?page=w3tc_minify">',
 					'</a>',
-					'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'<a href="' . esc_url( 'https://api.w3-edge.com/v1/redirects/faq/usage' ) . '">',
-					'<acronym title="' . __( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'</a>'
 				),
@@ -111,7 +111,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'</em>',
 					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 					'</a>',
-					'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -143,17 +143,17 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<em>',
 					'</em>',
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
 					'</a>',
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'Domain Name System', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Domain Name System', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'File Transfer Protocol', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'File Transfer Protocol', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -252,7 +252,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'Check out the %1$sFAQ%2$s for more details on %3$susage</a>.',
 					'w3-total-cache'
 				),
-				'<acronym title="' . __( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
+				'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 				'</acronym>',
 				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_faq' ) ) . '">',
 				'</a>'
@@ -307,7 +307,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'%1$sPHP%2$s Modules',
 					'w3-total-cache'
 				),
-				'<acronym title="' . __( 'Hypertext Preprocessor', 'w3-total-cache' ) . '">',
+				'<acronym title="' . esc_attr__( 'Hypertext Preprocessor', 'w3-total-cache' ) . '">',
 				'</acronym>'
 			),
 			array(
@@ -332,7 +332,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'Install %1$sAPC%2$s module',
 							'w3-total-cache'
 						),
-						'<acronym title="' . __( 'Alternative PHP Cache', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Alternative PHP Cache', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(
@@ -358,7 +358,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<hr />
 
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Note(s):', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Note(s):', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<th colspan="2">

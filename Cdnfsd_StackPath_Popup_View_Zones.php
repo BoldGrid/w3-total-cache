@@ -33,7 +33,7 @@ if ( ! defined( 'W3TC' ) ) {
 					<input name="zone_new_name" type="text" class="w3tc-ignore-change" />
 					<?php
 					if ( count( $details['zones'] ) > 15 ) {
-						esc_html_e( '</div>', 'w3-total-cache' );
+						echo '</div>';
 					}
 					?>
 				</td>

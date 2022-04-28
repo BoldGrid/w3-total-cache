@@ -18,7 +18,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'w3-total-cache'
 				),
 				'<strong>' . esc_html( Cache::engine_name( $this->_config->get_string( 'pgcache.engine' ) ) ) . '</strong>',
-				'<span class="w3tc-' . ( $pgcache_enabled ? 'enabled">' . __( 'enabled', 'w3-total-cache' ) : 'disabled">' . __( 'disabled', 'w3-total-cache' ) ) . '</span>.'
+				'<span class="w3tc-' . ( $pgcache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>.'
 			),
 			array(
 				'strong' => array(),
@@ -56,7 +56,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'General', 'w3-total-cache' ), '', 'general' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
 			<tr>
 				<th>
@@ -109,7 +109,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'Cache %1$sSSL%2$s requests (uniquely) for improved performance.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Secure Socket Layer', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Secure Socket Layer', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -169,26 +169,61 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::button_config_save( 'pagecache_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Aliases', 'w3-total-cache' ), '', 'mirrors' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Aliases', 'w3-total-cache' ), '', 'mirrors' ); ?>
 		<table class="form-table">
 			<?php
 			Util_Ui::config_item(
 				array(
 					'key'            => 'pgcache.mirrors.enabled',
 					'control'        => 'checkbox',
-					'label'          => __( 'Cache alias hostnames:', 'w3-total-cache' ),
-					'checkbox_label' => __( 'Enable', 'w3-total-cache' ),
+					'label'          => esc_html__( 'Cache alias hostnames:', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'enabled'        => ! Util_Environment::is_wpmu_subdomain(),
-					'description'    => __( 'If the same WordPress content is accessed from different domains', 'w3-total-cache' ),
+					'description'    => esc_html__( 'If the same WordPress content is accessed from different domains', 'w3-total-cache' ),
 				)
 			);
 			Util_Ui::config_item(
 				array(
 					'key'         => 'pgcache.mirrors.home_urls',
 					'control'     => 'textarea',
-					'label'       => __( 'Additional home <acronym title="Uniform Resource Locator">URL</acronym>s:', 'w3-total-cache' ),
+					'label'       => wp_kses(
+						sprintf(
+							// translators: 1 opneing HTML acronym tag, 2 closing HTML acronym tag.
+							__(
+								'Additional home %1$sURL%2$ss:',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					),
 					'enabled'     => ! Util_Environment::is_wpmu_subdomain(),
-					'description' => __( 'Specify full home <acronym title="Uniform Resource Locator">URL</acronym>s of your mirrors so that plugin will flush it\'s cache when content is changed. For example:<br /> http://my-site.com<br />http://www.my-site.com<br />https://my-site.com', 'w3-total-cache' ),
+					'description' => wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag, 3 HTML line break tag,
+							// translators: 4 HTML line break tag, 5 HTML line break tag.
+							__(
+								'Specify full home %1$sURL%2$ss of your mirrors so that plugin will flush it\'s cache when content is changed. For example:%3$s http://my-site.com%4$shttp://www.my-site.com%5$shttps://my-site.com',
+								'w3-total-cache'
+							),
+							'<acronym title="Uniform Resource Locator">',
+							'</acronym>',
+							'<br />',
+							'<br />',
+							'<br />'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+							'br'      => array(),
+						)
+					),
 				)
 			);
 			?>
@@ -196,7 +231,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::button_config_save( 'pagecache_aliases' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Cache Preload', 'w3-total-cache' ), '', 'cache_preload' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Cache Preload', 'w3-total-cache' ), '', 'cache_preload' ); ?>
 		<table class="form-table">
 			<tr>
 				<th colspan="2">
@@ -231,14 +266,15 @@ if ( ! defined( 'W3TC' ) ) {
 						<?php
 						echo wp_kses(
 							sprintf(
-								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								// translators: 1 opening HTML a tag to XML Sitemap Validator tool, 2 closing HTML a tag,
+								// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
 								__(
 									'A %1$scompliant%2$s sitemap can be used to specify the pages to maintain in the primed cache. Pages will be cached according to the priorities specified in the %3$sXML%4$s file.',
 									'w3-total-cache'
 								),
 								'<a href="' . esc_url( 'http://www.xml-sitemaps.com/validate-xml-sitemap.html' ) . '" target="_blank">',
 								'</a>',
-								'<acronym title="' . __( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -275,7 +311,7 @@ if ( ! defined( 'W3TC' ) ) {
 		if ( $cdnfsd_enabled ) {
 			$modules[] = 'CDN';
 		}
-		Util_Ui::postbox_header( __( 'Purge Policy: ', 'w3-total-cache' ) . implode( ', ', $modules ), '', 'purge_policy' );
+		Util_Ui::postbox_header( esc_html__( 'Purge Policy: ', 'w3-total-cache' ) . implode( ', ', $modules ), '', 'purge_policy' );
 		?>
 		<table class="form-table">
 			<tr>
@@ -372,7 +408,31 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::button_config_save( 'pagecache_purge_policy' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( '<acronym title="REpresentational State Transfer">REST</acronym> <acronym title="Application Programming Interface">API</acronym>', 'w3-total-cache' ), '', 'rest' ); ?>
+		<?php
+		Util_Ui::postbox_header(
+			wp_kses(
+				sprintf(
+					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+					// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+					__(
+						'%1$sREST%2$s %3$sAPI%4$s',
+						'w3-total-cache'
+					),
+					'<acronym title="' . esc_attr__( 'REpresentational State Transfer', 'w3-total-cache' ) . '">',
+					'</acronym>',
+					'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+					'</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
+			),
+			'',
+			'rest'
+		);
+		?>
 		<table class="form-table">
 			<?php
 			Util_Ui::config_item(
@@ -386,15 +446,51 @@ if ( ! defined( 'W3TC' ) ) {
 							'label'           => 'Cache',
 							'disabled'        => ! Util_Environment::is_w3tc_pro( $this->_config ),
 							'pro_feature'     => true,
-							'pro_excerpt'     => __( 'If you’re using the WordPress API make sure to use caching to scale performance.', 'w3-total-cache' ),
+							'pro_excerpt'     => esc_html__( 'If you\'re using the WordPress API make sure to use caching to scale performance.', 'w3-total-cache' ),
 							'pro_description' => array(
-								__( 'If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely.', 'w3-total-cache' ),
+								esc_html__( 'If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely.', 'w3-total-cache' ),
 							),
 						),
-						'disable' => 'Disable <acronym title="REpresentational State Transfer">REST</acronym> <acronym title="Application Programming Interface">API</acronym>',
+						'disable' => wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+								// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+								__(
+									'Disable %1$sREST%2$s %3$sAPI%4$s',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'REpresentational State Transfer', 'w3-total-cache' ) . '">',
+								'</acronym>',
+								'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+								'</acronym>',
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						),
 					),
 					'radiogroup_separator' => '<br />',
-					'description'          => __( 'Controls WordPress <acronym title="REpresentational State Transfer">REST</acronym> <acronym title="Application Programming Interface">API</acronym> functionality.', 'w3-total-cache' ),
+					'description'          => wp_kses(
+						sprintf(
+							// translators: 1 opneing HTML acronym tag, 2 closing HTML acronym tag,
+							// translators: 3 opneing HTML acronym tag, 4 closing HTML acronym tag.
+							__(
+								'Controls WordPress %1$sREST%2$s %3$sAPI%4$s functionality.',
+								'w3-total-cache'
+							),
+							'<acronym title="REpresentational State Transfer">',
+							'</acronym>',
+							'<acronym title="Application Programming Interface">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					),
 				)
 			);
 			?>
@@ -403,7 +499,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::postbox_footer(); ?>
 
 
-		<?php Util_Ui::postbox_header( __( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
 		<table class="form-table">
 			<tr>
 				<th><label for="pgcache_late_init"><?php esc_html_e( 'Late initialization:', 'w3-total-cache' ); ?></label></th>
@@ -464,7 +560,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'If disabled, HEAD requests can often be cached resulting in "empty pages" being returned for subsequent requests for a %1$sURL%2$s.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -512,9 +608,9 @@ if ( ! defined( 'W3TC' ) ) {
 										'Significantly reduce the default %1$sTTL%2$s for comment cookies to reduce the number of authenticated user traffic. Enter -1 to revert to default %3$sTTL%4$s.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Time to Live', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Time to Live', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<acronym title="' . __( 'Time to Live', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Time to Live', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -542,7 +638,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'Always cache %1$sURL%2$ss that use these query string name-value pairs. The value part is not required. But if used, separate name-value pairs with an equals sign (i.e., name=value). Each pair should be on their own line.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -590,8 +686,8 @@ if ( ! defined( 'W3TC' ) ) {
 									'Always ignore the specified pages / directories. Supports regular expressions (See %1$s%2$sFAQ%3$s%4$s)',
 									'w3-total-cache'
 								),
-								'<a href="https://github.com/W3EDGE/w3-total-cache/wiki/FAQ:-Usage#which-textareas-for-file-entries-support-regular-expressions">',
-								'<acronym title="' . __( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
+								'<a href="' . esc_url( 'https://github.com/W3EDGE/w3-total-cache/wiki/FAQ:-Usage#which-textareas-for-file-entries-support-regular-expressions' ) . '">',
+								'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 								'</acronym>',
 								'</a>'
 							),
@@ -662,7 +758,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'w3-total-cache'
 								),
 								'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_faq' ) ) . '">',
-								'<acronym title="' . __( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 								'</acronym>',
 								'</a>'
 							),
@@ -714,7 +810,7 @@ if ( ! defined( 'W3TC' ) ) {
 										'Return correct Content-Type header for %1$sXML%2$s files (e.g., feeds and sitemaps). Slows down cache engine.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -733,7 +829,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::button_config_save( 'pagecache_advanced' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Note(s)', 'w3-total-cache' ), '', 'notes' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Note(s)', 'w3-total-cache' ), '', 'notes' ); ?>
 		<table class="form-table">
 			<tr>
 				<th>
@@ -749,11 +845,11 @@ if ( ! defined( 'W3TC' ) ) {
 										'Enable %1$sHTTP%2$s compression in the "%3$sHTML%4$s" section on %5$sBrowser Cache</a> Settings tab.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="admin.php?page=w3tc_browsercache">',
+									'<a href="' . esc_url( wp_admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(
@@ -773,14 +869,14 @@ if ( ! defined( 'W3TC' ) ) {
 								sprintf(
 									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 									// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag,
-									// translators: 1 opening HTML a tag to W3TC BrowserCache admin page, 2 closing HTML a tag.
+									// translators: 5 opening HTML a tag to W3TC BrowserCache admin page, 6 closing HTML a tag.
 									__(
 										'The %1$sTTL%2$s of page cache files is set via the "Expires header lifetime" field in the "%3$sHTML%4$s" section on %5$sBrowser Cache%6$s Settings tab.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Time to Live', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Time to Live', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 									'</acronym>',
 									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'

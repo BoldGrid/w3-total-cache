@@ -18,7 +18,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'w3-total-cache'
 				),
 				'<a href="http://memcached.org/" target="_blank">memcached</a>',
-				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 				'</acronym>'
 			),
 			array(
@@ -47,9 +47,9 @@ if ( ! defined( 'W3TC' ) ) {
 						'Reduced %1$sHTTP%2$s Transactions, %3$sDNS%4$s lookups and reduced document load time',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'Domain Name System', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Domain Name System', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -71,11 +71,11 @@ if ( ! defined( 'W3TC' ) ) {
 						'Bandwidth savings via Minify and %1$sHTTP%2$s compression of %3$sHTML%4$s, %5$sCSS%6$s, JavaScript and feeds',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -96,7 +96,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Transparent content delivery network (%1$sCDN%2$s) integration with Media Library, theme files and WordPress core',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
 				),
 				array(
@@ -116,7 +116,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Caching of pages / posts in memory or on disk or on %1$sCDN%2$s (mirror only)',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -136,9 +136,9 @@ if ( ! defined( 'W3TC' ) ) {
 						'Caching of (minified) %1$sCSS%2$s and JavaScript in memory, on disk or on %3$sCDN%4$s',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 					'</acronym>',
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -161,7 +161,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Caching of search results pages (i.e. %1$sURI%2$ss with query string variables) in memory or on disk',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Uniform Resource Identifier', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Uniform Resource Identifier', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -182,7 +182,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Minification (concatenation and white space removal) of inline, external or 3rd party JavaScript / %1$sCSS%2$s with automated updates',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -223,7 +223,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'Import post attachments directly into the Media Library (and %1$sCDN%2$s)',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(

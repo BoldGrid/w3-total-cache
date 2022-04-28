@@ -207,9 +207,9 @@ do_action( 'w3tc-dashboard-head' );
 								'%1$sHTML%2$s &amp; %3$sXML%4$s',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'eXtensible Markup Language', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'eXtensible Markup Language', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -229,7 +229,7 @@ do_action( 'w3tc-dashboard-head' );
 								'%1$sJS%2$s',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -249,7 +249,7 @@ do_action( 'w3tc-dashboard-head' );
 								'%1$sCSS%2$s',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -303,9 +303,9 @@ do_action( 'w3tc-dashboard-head' );
 								'%1$sCSS%2$s &amp; %3$sJS%4$s',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -326,9 +326,9 @@ do_action( 'w3tc-dashboard-head' );
 								'%1$sHTML%2$s &amp; %3$sXML%4$s',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 							'</acronym>',
-							'<acronym title="' . __( 'eXtensible Markup Language', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'eXtensible Markup Language', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -378,7 +378,7 @@ do_action( 'w3tc-dashboard-head' );
 								'%1$sPHP%2$s Modules',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Hypertext Preprocessor', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Hypertext Preprocessor', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(

@@ -33,7 +33,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'%1$sAPI%2$s key:',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(

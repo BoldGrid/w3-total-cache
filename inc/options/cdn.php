@@ -30,7 +30,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 				'w3-total-cache'
 			),
 			'<strong>' . Cache::engine_name( $this->_config->get_string( 'cdn.engine' ) ) . '</strong>',
-			'<span class="w3tc-' . ( $cdn_enabled ? 'enabled">' . __( 'enabled', 'w3-total-cache' ) : 'disabled">' . __( 'disabled', 'w3-total-cache' ) ) . '</span>'
+			'<span class="w3tc-' . ( $cdn_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
 		),
 		array(
 			'strong' => array(),
@@ -64,7 +64,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 						'Prepare the %1$sCDN%2$s by:',
 						'w3-total-cache'
 					),
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
 				array(
@@ -86,7 +86,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 								' objects from the %1$sCDN%2$s if needed.',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -116,7 +116,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 </form>
 <form id="cdn_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'General', 'w3-total-cache' ), '', 'general' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
 			<tr>
 				<th <?php echo $cdn_mirror ? 'colspan="2"' : 'style="width: 300px;"'; ?>>
@@ -140,7 +140,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'If checked, all attachments will be hosted with the %1$sCDN%2$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -187,7 +187,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'If checked, WordPress static core file types specified in the "wp-includes file types to upload" field below will be hosted with the %1$sCDN%2$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -218,7 +218,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'If checked, all theme file types specified in the "theme file types to upload" field below will be hosted with the %1$sCDN%2$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -252,11 +252,11 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'If checked, minified %1$sCSS%2$s and %3$sJS%4$s files will be hosted with the %5$sCDN%6$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
 								'</acronym>',
-								'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 								'</acronym>',
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -288,7 +288,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'If checked, any file names or paths specified in the "custom file list" field below will be hosted with the %1$sCDN%2$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -330,7 +330,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 										'Adds canonical %1$sHTTP%2$s header to assets files.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 									'</acronym>'
 								),
 								array(
@@ -349,7 +349,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 		<?php Util_Ui::button_config_save( 'cdn_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Configuration: Objects', 'w3-total-cache' ), '', 'configuration' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Objects', 'w3-total-cache' ), '', 'configuration' ); ?>
 		<table class="form-table">
 			<?php
 			if ( 'google_drive' === $cdn_engine ||
@@ -372,7 +372,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 
 		<?php do_action( 'w3tc_settings_box_cdnfsd' ); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
 		<table class="form-table">
 
 			<tr>
@@ -386,7 +386,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 								'Only purge %1$sCDN%2$s manually',
 								'w3-total-cache'
 							),
-							'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),
 						array(
@@ -405,7 +405,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'Purge %1$sCDN%2$s only if explicit purge button is clicked.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -422,19 +422,82 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'cdn.reject.ssl' ); ?> <?php Util_Ui::e_config_label( 'cdn.reject.ssl' ); ?></label>
-					<p class="description">When <acronym title="Secure Sockets Layer">SSL</acronym> pages are returned no <acronym title="Content Delivery Network">CDN</acronym> <acronym title="Uniform Resource Indicator">URL</acronym>s will appear in HTML pages.</p>
+					<p class="description">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+								// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag,
+								// translators: 5 opening HTML acronym tag, 6 closing HTML acronym tag.
+								__(
+									'When %1$sSSL%2$s pages are returned no %3$sCDN%4$s %5$sURL%6$ss will appear in HTML pages.',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
+								'</acronym>',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'</acornym>',
+								'<acronym title="' . esc_attr__( 'Uniform Resource Indicator', 'w3-total-cache' ) . '">',
+								'</acornym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'cdn.admin.media_library' ); ?> <?php Util_Ui::e_config_label( 'cdn.admin.media_library' ); ?></label>
-					<p class="description">All Media Library content will use <acronym title="Content Delivery Network">CDN</acronym> links on administration pages.</p>
+					<p class="description">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								__( 
+									'All Media Library content will use %1$sCDN%2$s links on administration pages.',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'cdn.cors_header' ); ?> Add <acronym title="Access-Control-Allow-Origin">CORS</acronym> header</label>
-					<p class="description">Add <acronym title="Access-Control-Allow-Origin">CORS</acronym> headers to allow cross-domain assets usage.</p>
+					<p class="description">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								__(
+									'Add %1$sCORS%2$s headers to allow cross-domain assets usage.',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Access-Control-Allow-Origin', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</p>
 				</th>
 			</tr>
 
@@ -470,7 +533,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'Always ignore the specified pages / directories. Supports regular expression (See %1$s%2$sFAQ%3$s%4$s)'
 								),
 								'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_faq' ) ) . '">',
-								'<acronym title="' . __( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 								'</acronym>',
 								'</a>'
 							),
@@ -499,7 +562,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'If %1$sCDN%2$s is enabled (and not using the origin pull method), your minified files will be automatically uploaded.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -579,7 +642,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'Specify the file types within the WordPress core to host with the %1$sCDN%2$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -607,7 +670,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'Specify the file types in the active theme to host with the %1$sCDN%2$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -644,7 +707,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'Specify any files outside of theme or other common directories to host with the %1$sCDN%2$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -675,7 +738,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'Specify user agents that should not access files hosted with the %1$sCDN%2$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -702,7 +765,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'Specify the path of files that should not use the %1$sCDN%2$s.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -744,9 +807,9 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 									'If using subdomain for %1$sCDN%2$s functionality, this setting helps prevent new users from sending cookies in requests to the %3$sCDN%4$s subdomain.',
 									'w3-total-cache'
 								),
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>',
-								'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+								'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 								'</acronym>'
 							),
 							array(
@@ -764,7 +827,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 		<?php Util_Ui::button_config_save( 'cdn_advanced' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Note(s):', 'w3-total-cache' ), '', 'notes' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Note(s):', 'w3-total-cache' ), '', 'notes' ); ?>
 		<table class="form-table">
 			<tr>
 				<th colspan="2">
@@ -781,11 +844,11 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 										'If using Amazon Web Services or Self-Hosted %1$sCDN%2$s types, enable %3$sHTTP%4$s compression in the "Media &amp; Other Files" section on %5$sBrowser Cache%6$s Settings tab.',
 										'w3-total-cache'
 									),
-									'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<acronym title="' . __( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+									'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="admin.php?page=w3tc_browsercache">',
+									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(

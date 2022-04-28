@@ -18,7 +18,7 @@ if ( ! defined( 'W3TC' ) ) {
 				?>
 			</p>
 			<p>
-				Enhance your website Performance with StackPath's CDN services. StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $10 a month.
+				<?php esc_html_e( 'Enhance your website Performance with StackPath\'s CDN services. StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $10 a month.', 'w3-total-cache' ); ?>
 			</p>
 			<p>
 				<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL ); ?>" target="_blank" id="netdna-stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave', 'Sign Up Now and save!' ); ?></a>
@@ -36,8 +36,7 @@ if ( ! defined( 'W3TC' ) ) {
 	</th>
 	<td>
 		<p>
-			If you're an existing StackPath customer, enable CDN and Authorize.
-			If you need help configuring your CDN, we also offer Premium Services to assist you.
+			<?php esc_html_e( 'If you\'re an existing StackPath customer, enable CDN and Authorize. If you need help configuring your CDN, we also offer Premium Services to assist you.', 'w3-total-cache' ); ?>
 		</p>
 
 		<p>
@@ -59,13 +58,60 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php if ( ! is_null( $http_domain ) ) : ?>
 		<tr>
 			<th>
-				<label><?php esc_html_e( '<acronym title="Content Delivery Network">CDN</acronym> <acronym title="HyperText Transfer Protocol">HTTP</acronym> <acronym title="Canonical Name">CNAME</acronym>:', 'w3-total-cache' ); ?></label>
+				<label>
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+							// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag,
+							// translators: 5 opening HTML acronym tag, 6 closing HTML acronym tag.
+							__(
+								'%1$sCDN%2$s %3$sHTTP%4$s %5$sCNAME%6$s:',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'HyperText Transfer Protocol', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
+				</label>
 			</th>
 			<td class="w3tc_config_value_text">
 				<?php echo esc_html( $http_domain ); ?>
 				<p class="description">
-					This website domain has to be <acronym title="Canonical Name">CNAME</acronym> pointing to this
-					<acronym title="Content Delivery Network">CDN</acronym> domain for <acronym title="HyperText Transfer Protocol">HTTP</acronym> requests
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+							// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag,
+							// translators: 5 opening HTML acronym tag, 6 closing HTML acronym tag.
+							__(
+								'This website domain has to be %1$sCNAME%2$s pointing to this %3$sCDN%4$s domain for %5$sHTTP</acronym> requests',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'HyperText Transfer Protocol', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
 				</p>
 			</td>
 		</tr>
@@ -104,8 +150,30 @@ if ( ! defined( 'W3TC' ) ) {
 			<td class="w3tc_config_value_text">
 				<?php echo esc_html( $https_domain ); ?>
 				<p class="description">
-					This website domain has to be <acronym title="Canonical Name">CNAME</acronym> pointing to this
-					<acronym title="Content Delivery Network">CDN</acronym> domain for <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym> requests
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+							// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag,
+							// translators: 5 opening HTML acronym tag, 6 closing HTML acronym tag.
+							__(
+								'This website domain has to be %1$sCNAME%2$s pointing to this %3$sCDN%4$s domain for %5$sHTTPS%6$s requests',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'</acronym>',
+							'<acronym title="' . esc_attr__( 'HyperText Transfer Protocol over SSL', 'w3-total-cache' ) . '">',
+							'</acronym>',
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
 				</p>
 			</td>
 		</tr>

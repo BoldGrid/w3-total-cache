@@ -247,8 +247,7 @@ class Extension_CloudFlare_Plugin_Admin {
 			'response' => $response,
 		);
 
-		echo esc_html( wp_json_encode( $return ) );
-		exit();
+		wp_send_json( $return );
 	}
 
 	/**
