@@ -395,10 +395,7 @@ class PgCache_ContentGrabber {
 			$content = $this->_compress( $content, $compression );
 		}
 
-		echo wp_kses(
-			$content,
-			Util_Ui::get_allowed_html_for_wp_kses_from_content( $centent )
-		);
+		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		Dispatcher::usage_statistics_apply_before_init_and_exit( array( $this,
 				'w3tc_usage_statistics_of_request' ) );
@@ -504,10 +501,7 @@ class PgCache_ContentGrabber {
 		// Compress page according to headers already set.
 		$compressed_buffer = $this->_compress( $buffer, $compression );
 
-		echo wp_kses(
-			$compressed_buffer,
-			Util_Ui::get_allowed_html_for_wp_kses_from_content( $compressed_buffer )
-		);
+		echo $compressed_buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
