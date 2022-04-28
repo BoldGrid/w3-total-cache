@@ -820,11 +820,17 @@ if ( ! defined( 'W3TC' ) ) {
 					'description'    => wp_kses(
 						sprintf(
 							__(
-								'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Transfer Protocol">HTTP</acronym>/2 protocol.',
+								'For better performance, send files to browser before they are requested when using the %1$sHTTP%2$s/2 protocol.',
 								'w3-total-cache'
 							),
+							'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+							'</acronym>'
 						),
-						array()
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
 					) . (
 						'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ?
 						'' :

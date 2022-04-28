@@ -89,7 +89,8 @@ if ( ! defined( 'W3TC' ) ) {
 							),
 							array(
 								'a' => array(
-									'href' => array(),
+									'href'   => array(),
+									'target' => array(),
 								),
 							)
 						);
