@@ -22,10 +22,19 @@ $config = Dispatcher::config();
 			<?php Util_Ui::sealing_disabled( $module ) ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span class="w3tc_common_redis_test_result w3tc-status w3tc-process"></span>
-		<p class="description"><?php _e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122', 'w3-total-cache' ); ?></p>
+		<p class="description"><?php _e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122. To use TLS, prefix server with tls://', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <?php
+
+Util_Ui::config_item( array(
+		'key' => array( $module, 'redis.verify_tls_certificates' ),
+		'label' => Util_ConfigLabel::get( 'redis.verify_tls_certificates' ),
+		'control' => 'checkbox',
+		'checkbox_label' => Util_ConfigLabel::get( 'redis.verify_tls_certificates' ),
+		'description' =>
+		__('Verify the server\'s certificate when connecting via TLS.', 'w3-total-cache')
+	) );
 
 Util_Ui::config_item( array(
 		'key' => array( $module, 'redis.persistent' ),

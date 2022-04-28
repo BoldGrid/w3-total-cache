@@ -816,6 +816,7 @@ class PgCache_ContentGrabber {
 		case 'redis':
 			$engineConfig = array(
 				'servers' => $this->_config->get_array( 'pgcache.redis.servers' ),
+				'verify_tls_certificates' => $this->_config->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
 				'persistent' => $this->_config->get_boolean( 'pgcache.redis.persistent' ),
 				'timeout' => $this->_config->get_integer( 'pgcache.redis.timeout' ),
 				'retry_interval' => $this->_config->get_integer( 'pgcache.redis.retry_interval' ),
@@ -868,6 +869,7 @@ class PgCache_ContentGrabber {
 			case 'redis':
 				$engineConfig = array(
 					'servers' => $this->_config->get_array( 'pgcache.redis.servers' ),
+					'verify_tls_certificates' => $this->_config->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
 					'persistent' => $this->_config->get_boolean( 'pgcache.redis.persistent' ),
 					'timeout' => $this->_config->get_integer( 'pgcache.redis.timeout' ),
 					'retry_interval' => $this->_config->get_integer( 'pgcache.redis.retry_interval' ),
