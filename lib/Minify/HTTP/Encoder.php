@@ -168,7 +168,10 @@ class HTTP_Encoder {
 	public function sendAll()
 	{
 		$this->sendHeaders();
-		echo $this->_content;
+		echo wp_kses(
+			$this->_content,
+			Util_Ui::get_allowed_html_for_wp_kses_from_content( $this->_content )
+		);
 	}
 
 	/**

@@ -69,9 +69,11 @@ class Generic_Plugin_AdminRowActions {
 						'w3tc_flush_post' => 'y',
 						'post_id' => $post->ID ) );
 
-				echo sprintf( '<div><a href="%s">%s</a></div>',
-					$url,
-					__( 'Purge from cache', 'w3-total-cache' ) );
+				echo sprintf(
+					'<div><a href="%s">%s</a></div>',
+					esc_url( $url ),
+					esc_html__( 'Purge from cache', 'w3-total-cache' )
+				);
 			}
 		}
 	}

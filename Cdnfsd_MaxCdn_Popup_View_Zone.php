@@ -16,7 +16,7 @@ Util_Ui::hidden( '', 'name', $details['name'] );
 		<table class="form-table">
 			<tr>
 				<th>Name:</th>
-				<td><?php echo $details['name'] ?></td>
+				<td><?php echo esc_html( $details['name'] ); ?></td>
 			</tr>
 			<tr>
 				<th>Origin URL:</th>
@@ -48,10 +48,10 @@ Util_Ui::hidden( '', 'name', $details['name'] );
 		<p class="submit">
 			<input type="button"
 				class="w3tc_cdn_maxcdn_fsd_configure_zone w3tc-button-save button-primary"
-				value="<?php _e( 'Apply', 'w3-total-cache' ); ?>" />
+				value="<?php esc_attr_e( 'Apply', 'w3-total-cache' ); ?>" />
 			<input type="button"
 				class="w3tc_cdn_maxcdn_fsd_configure_zone_skip w3tc-button-save button"
-				value="<?php _e( 'Don\'t reconfigure, I know what I\'m doing', 'w3-total-cache' ); ?>" />
+				value="<?php esc_attr_e( 'Don\'t reconfigure, I know what I\'m doing', 'w3-total-cache' ); ?>" />
 
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>

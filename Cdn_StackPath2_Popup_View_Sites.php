@@ -47,7 +47,7 @@ Util_Ui::hidden( '', 'api_config', $details['api_config'] );
 		<p class="submit">
 			<input type="button"
 				class="w3tc_cdn_stackpath2_configure_site w3tc-button-save button-primary"
-				value="<?php _e( 'Apply', 'w3-total-cache' ); ?>" />
+				value="<?php esc_html_e( 'Apply', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>

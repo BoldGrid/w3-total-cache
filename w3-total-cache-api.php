@@ -179,9 +179,17 @@ function w3tc_class_autoload( $class ) {
 			return;
 		} else {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				echo 'Attempt to create object of class ' .
-					$class . ' has been made, but file ' .
-					$filename . ' doesnt exists';
+				echo esc_html(
+					sprintf(
+						// translators: 1 class name, 2 file name.
+						__(
+							'Attempt to create object of class %1 has been made, but file %2 doesnt exists',
+							'w3-total-cache'
+						),
+						$class,
+						$filename
+					)
+				);
 				debug_print_backtrace();
 			}
 		}
@@ -190,22 +198,23 @@ function w3tc_class_autoload( $class ) {
 	if ( substr( $class, 0, 13 ) == 'W3TCG_Google_' &&
 		( ! defined( 'W3TC_GOOGLE_LIBRARY' ) || W3TC_GOOGLE_LIBRARY ) ) {
 		// Google library.
-		$classPath = explode( '_', substr( $class, 6 ) );
-		if ( count( $classPath ) > 3 ) {
+		$class_path = explode( '_', substr( $class, 6 ) );
+		if ( count( $class_path ) > 3 ) {
 			// Maximum class file path depth in this project is 3.
-			$classPath = array_slice( $classPath, 0, 3 );
+			$class_path = array_slice( $class_path, 0, 3 );
 		}
 
-		$filePath = W3TC_LIB_DIR . DIRECTORY_SEPARATOR .
-			implode( '/', $classPath ) . '.php';
+		$file_path = W3TC_LIB_DIR . DIRECTORY_SEPARATOR .
+			implode( '/', $class_path ) . '.php';
 
-		if ( file_exists( $filePath ) )
-			require $filePath;
+		if ( file_exists( $file_path ) ) {
+			require $file_path;
+		}
 		return;
 	}
 
 	if ( substr( $class, 0, 6 ) == 'W3TCL\\' ) {
-		$base = W3TC_LIB_DIR . DIRECTORY_SEPARATOR;
+		$base  = W3TC_LIB_DIR . DIRECTORY_SEPARATOR;
 		$class = substr( $class, 6 );
 
 		// PSR loader.
@@ -352,7 +361,6 @@ function w3tc_dbcache_flush() {
 
 /**
  * Deprecated.  Shortcut for minify cache flush.
- *
  */
 function w3tc_minify_flush() {
 	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
@@ -389,7 +397,7 @@ function w3tc_minify_script_group( $location ) {
 	$o->printed_scripts[] = $location;
 
 	$r = $o->get_script_group( $location );
-	echo $r['body'];
+	echo esc_html( $r['body'] );
 }
 
 /**
@@ -403,7 +411,7 @@ function w3tc_minify_style_group( $location ) {
 	$o->printed_styles[] = $location;
 
 	$r = $o->get_style_group( $location );
-	echo $r['body'];
+	echo esc_html( $r['body'] );
 }
 
 /**
@@ -414,7 +422,7 @@ function w3tc_minify_style_group( $location ) {
  */
 function w3tc_minify_script_custom( $files, $blocking = true ) {
 	$o = \W3TC\Dispatcher::component( 'Minify_Plugin' );
-	echo $o->get_script_custom( $files, $blocking );
+	echo esc_html( $o->get_script_custom( $files, $blocking ) );
 }
 
 /**
@@ -425,7 +433,7 @@ function w3tc_minify_script_custom( $files, $blocking = true ) {
 function w3tc_minify_style_custom( $files ) {
 	$o = \W3TC\Dispatcher::component( 'Minify_Plugin' );
 	$r = $o->get_style_custom( $files );
-	echo $r['body'];
+	echo esc_html( $r['body'] );
 }
 
 /**
@@ -523,9 +531,9 @@ if ( defined( 'W3TC_CONFIG_HIDE' ) && W3TC_CONFIG_HIDE ) {
 		/**
 		 * Get string.
 		 *
-		 * @param string $key     Key.
-		 * @param string $default Default.
-		 * @param boolean $trim   Trim.
+		 * @param string  $key     Key.
+		 * @param string  $default Default.
+		 * @param boolean $trim    Trim.
 		 * @return string
 		 */
 		public function get_string( $key, $default = '', $trim = true ) {
@@ -535,7 +543,7 @@ if ( defined( 'W3TC_CONFIG_HIDE' ) && W3TC_CONFIG_HIDE ) {
 		/**
 		 * Get integer.
 		 *
-		 * @param string $key Key.
+		 * @param string $key     Key.
 		 * @param int    $default Default.
 		 */
 		public function get_integer( $key, $default = 0 ) {
@@ -653,7 +661,10 @@ function w3_instance( $class ) {
  * @param mixed  $default_value Default value.
  */
 function w3tc_e( $key, $default_value ) {
-	echo w3tc_er( $key, $default_value);
+	echo wp_kses(
+		w3tc_er( $key, $default_value ),
+		\W3TC\Util_Ui::get_allowed_html_for_wp_kses_from_content( $default_value )
+	);
 }
 
 /**
@@ -663,8 +674,7 @@ function w3tc_e( $key, $default_value ) {
  * @param mixed  $default_value Default value.
  */
 function w3tc_er( $key, $default_value ) {
-	$default_value = __( $default_value , 'w3-total-cache' );
-	$v             = get_site_option( 'w3tc_generic_widgetservices' );
+	$v = get_site_option( 'w3tc_generic_widgetservices' );
 
 	try {
 		$v = json_decode( $v, true );
@@ -739,7 +749,7 @@ function w3tc_apply_filters( $hook, $value ) {
 	array_shift( $args );
 
 	global $w3tc_actions;
-	if ( ! empty($w3tc_actions[ $hook ] ) ) {
+	if ( ! empty( $w3tc_actions[ $hook ] ) ) {
 		foreach ( $w3tc_actions[ $hook ] as $callback ) {
 			$value   = call_user_func_array( $callback, $args );
 			$args[0] = $value;

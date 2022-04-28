@@ -118,7 +118,7 @@ class Cdn_Highwinds_Popup {
 			array(
 				'cdn_configuration_saved' =>
 				'CDN credentials are saved successfully' ) );
-		echo 'Location admin.php?page=w3tc_cdn&' . $postfix;
+		echo 'Location admin.php?page=w3tc_cdn&' . esc_html( $postfix );
 		exit();
 	}
 
@@ -238,7 +238,7 @@ class Cdn_Highwinds_Popup {
 
 			$postfix = Util_Admin::custom_message_id( array(),
 				array( 'cdn_cnames_saved' => 'CNAMEs are saved successfully' ) );
-			echo 'Location admin.php?page=w3tc_cdn&' . $postfix;
+			echo 'Location admin.php?page=w3tc_cdn&' . esc_html( $postfix );
 			exit();
 		} catch ( \Exception $ex ) {
 			$details['error_message'] = $ex->getMessage();

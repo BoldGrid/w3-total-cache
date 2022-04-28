@@ -134,7 +134,7 @@ class Minify_Core {
 
 		if ( $debug ) {
 			Minify_Core::log( $error );
-			echo "\r\n/* " . htmlspecialchars( $error ) . " */\r\n";
+			echo "\r\n/* " . esc_html( $error ) . " */\r\n";
 		}
 	}
 
@@ -147,7 +147,14 @@ class Minify_Core {
 	 * @return bool
 	 */
 	static public function log( $msg ) {
-		$data = sprintf( "[%s] [%s] [%s] %s\n", date( 'r' ), isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', ! empty( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '-' ), $msg );
+		$data = sprintf(
+			"[%s] [%s] [%s] %s\n",
+			date( 'r' ),
+			isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+			! empty( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '-',
+			$msg
+		);
+
 		$data = strtr( $data, '<>', '..' );
 
 		$filename = Util_Debug::log_filename( 'minify' );

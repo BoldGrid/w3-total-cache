@@ -144,46 +144,36 @@ class UsageStatistics_Page {
 
 
 	public function sort_link( $result, $name, $sort_column ) {
-		$name_esc = esc_html( $name );
 		if ( $result['sort_column'] == $sort_column ) {
-			echo "<strong>$name_esc</strong>";
+			echo '<strong>' . esc_html( $name ) . '</strong>';
 			return;
 		}
 
 		$new_query_string = $_GET;
 		$new_query_string['sort'] = sanitize_text_field( $sort_column );
 
-		$url_esc = esc_url(
-			'admin.php?' . http_build_query( $new_query_string ) );
-
-		echo "<a href='$url_esc'>$name_esc</a>";
+		echo '<a href="' . esc_url( 'admin.php?' . http_build_query( $new_query_string ) ) . '">' . esc_html( $name ) . '</a>';
 	}
 
 
 
-	public function summary_item( $id, $name, $checked = false,
-		$extra_class = '', $column_background = '', $link_key = '' ) {
-		echo "<div class='ustats_$id $extra_class'>\n";
+	public function summary_item( $id, $name, $checked = false, $extra_class = '', $column_background = '', $link_key = '' ) {
+		echo '<div class="ustats_' . esc_attr( $id ) . ' ' . esc_attr( $extra_class ) . '">\n';
 		echo '<label>';
-		echo '<input type="checkbox" name="';
-		echo esc_attr( 'w3tcus_chart_check_' . $id ) . '" ';
-		echo 'data-name="' . esc_attr( $name ) . '" ';
-		echo 'data-column="' . esc_attr( $id ) . '" ';
+		echo '<input type="checkbox" name="' . esc_attr( 'w3tcus_chart_check_' . $id ) . '" data-name="' .
+			esc_attr( $name ) . '" data-column="' . esc_attr( $id ) . '" ';
 
-		if ( !empty( $column_background ) ) {
+		if ( ! empty( $column_background ) ) {
 			echo 'data-background="' . esc_attr( $column_background ) . '" ';
 		}
 
 		echo 'class="w3tc-ignore-change w3tcus_chart_check" ';
 		checked( $checked );
 		echo ' />';
-		if ( !empty( $link_key ) ) {
-			echo "<a href='" .
-				esc_url( 'admin.php?page=w3tc_stats&view=pagecache_requests&status=' .
-					urlencode( $link_key ) . '&status_name=' . urlencode( $name ) ) .
-				"'>$name</a>";
+		if ( ! empty( $link_key ) ) {
+			echo '<a href="' . esc_url( 'admin.php?page=w3tc_stats&view=pagecache_requests&status=' . rawurlencode( $link_key ) . '&status_name=' . rawurlencode( $name ) ) . '">$name</a>';
 		} else {
-			echo $name;
+			echo esc_html( $name );
 		}
 		echo ": <span></span>\n";
 

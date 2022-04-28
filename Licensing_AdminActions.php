@@ -31,8 +31,7 @@ class Licensing_AdminActions {
 
 	private function param( $name ) {
 		$param = Util_Request::get_string( $name );
-		return preg_replace( '/[^0-9a-zA-Z._\-]/', '',
-			isset( $param ) ? $param ) : '' );
+		return preg_replace( '/[^0-9a-zA-Z._\-]/', '', isset( $param ) ? $param : '' );
 	}
 
 	/**

@@ -1,8 +1,6 @@
 <?php
 namespace W3TC;
 
-
-
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RecursiveRegexIterator;
@@ -12,7 +10,7 @@ define( 'W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN', '~define\s*\(\s*[\'"]COOKI
 
 class Generic_AdminActions_Default {
 
-	private $_config = null;
+	private $_config        = null;
 	private $_config_master = null;
 
 	/**
@@ -23,7 +21,7 @@ class Generic_AdminActions_Default {
 	private $_page = null;
 
 	function __construct() {
-		$this->_config = Dispatcher::config();
+		$this->_config        = Dispatcher::config();
 		$this->_config_master = Dispatcher::config_master();
 
 		$this->_page = Util_Admin::get_current_page();
@@ -59,12 +57,14 @@ class Generic_AdminActions_Default {
 			$this->_config->save();
 
 			Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(
-				$this->_config, $old_config );
+				$this->_config,
+				$old_config
+			);
 		} catch ( \Exception $ex ) {
-			echo json_encode( array( 'result' => 'failed' ) );
+			echo wp_json_encode( array( 'result' => 'failed' ) );
 			exit();
 		}
-		echo json_encode( array( 'result' => 'success' ) );
+		echo wp_json_encode( array( 'result' => 'success' ) );
 		exit();
 	}
 
@@ -74,8 +74,9 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	function w3tc_default_hide_note() {
-		$note = Util_Request::get_string( 'note' );
+		$note    = Util_Request::get_string( 'note' );
 		$setting = sprintf( 'notes.%s', $note );
+
 		$this->_config->set( $setting, false );
 		$this->_config->save();
 
@@ -84,7 +85,7 @@ class Generic_AdminActions_Default {
 	}
 
 	function w3tc_default_config_state() {
-		$key = Util_Request::get_string( 'key' );
+		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
 		$config_state = Dispatcher::config_state_master();
@@ -94,7 +95,7 @@ class Generic_AdminActions_Default {
 	}
 
 	function w3tc_default_config_state_master() {
-		$key = Util_Request::get_string( 'key' );
+		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
 		$config_state = Dispatcher::config_state_master();
@@ -105,7 +106,7 @@ class Generic_AdminActions_Default {
 	}
 
 	function w3tc_default_config_state_note() {
-		$key = Util_Request::get_string( 'key' );
+		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
 		$s = Dispatcher::config_state_note();
@@ -124,49 +125,55 @@ class Generic_AdminActions_Default {
 	}
 
 	public function w3tc_default_purgelog_clear() {
-		$module = Util_Request::get_label( 'module' );
+		$module       = Util_Request::get_label( 'module' );
 		$log_filename = Util_Debug::log_filename( $module . '-purge' );
+
 		if ( file_exists( $log_filename ) ) {
 			unlink( $log_filename );
 		}
 
-		Util_Admin::redirect( array(
-			'page' => 'w3tc_general',
-			'view' => 'purge_log',
-			'module' => $module
-		), true );
+		Util_Admin::redirect(
+			array(
+				'page'   => 'w3tc_general',
+				'view'   => 'purge_log',
+				'module' => $module,
+			),
+			true
+		);
 	}
 
-	/**
-	 *
-	 */
 	function w3tc_default_remove_add_in() {
 
 		$module = Util_Request::get_string( 'w3tc_default_remove_add_in' );
 
 		// in the case of missing permissions to delete
-		// environment will use that to try to override addin via ftp
+		// environment will use that to try to override addin via ftp.
 		set_transient( 'w3tc_remove_add_in_' . $module, 'yes', 600 );
 
 		switch ( $module ) {
-		case 'pgcache':
-			Util_WpFile::delete_file( W3TC_ADDIN_FILE_ADVANCED_CACHE );
-			$src = W3TC_INSTALL_FILE_ADVANCED_CACHE;
-			$dst = W3TC_ADDIN_FILE_ADVANCED_CACHE;
-			try {
-				Util_WpFile::copy_file( $src, $dst );
-			} catch ( Util_WpFile_FilesystemOperationException $ex ) {}
-			break;
-		case 'dbcache':
-			Util_WpFile::delete_file( W3TC_ADDIN_FILE_DB );
-			break;
-		case 'objectcache':
-			Util_WpFile::delete_file( W3TC_ADDIN_FILE_OBJECT_CACHE );
-			break;
+			case 'pgcache':
+				Util_WpFile::delete_file( W3TC_ADDIN_FILE_ADVANCED_CACHE );
+				$src = W3TC_INSTALL_FILE_ADVANCED_CACHE;
+				$dst = W3TC_ADDIN_FILE_ADVANCED_CACHE;
+				try {
+					Util_WpFile::copy_file( $src, $dst );
+				} catch ( Util_WpFile_FilesystemOperationException $ex ) {
+					// missing exception handle?
+				}
+				break;
+			case 'dbcache':
+				Util_WpFile::delete_file( W3TC_ADDIN_FILE_DB );
+				break;
+			case 'objectcache':
+				Util_WpFile::delete_file( W3TC_ADDIN_FILE_OBJECT_CACHE );
+				break;
 		}
-		Util_Admin::redirect( array(
-				'w3tc_note' => 'add_in_removed'
-			), true );
+		Util_Admin::redirect(
+			array(
+				'w3tc_note' => 'add_in_removed',
+			),
+			true
+		);
 	}
 
 	/**
@@ -180,7 +187,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * save&flush all action
+	 * Save&flush all action
 	 *
 	 * @return void
 	 */
@@ -202,29 +209,24 @@ class Generic_AdminActions_Default {
 
 	private function _w3tc_save_options_process() {
 		$data = array(
-			'old_config' => $this->_config,
+			'old_config'            => $this->_config,
 			'response_query_string' => array(),
-			'response_actions' => array(),
-			'response_errors' => array(),
-			'response_notes' => array( 'config_save' )
+			'response_actions'      => array(),
+			'response_errors'       => array(),
+			'response_notes'        => array( 'config_save' ),
 		);
 
-		// if we are on extension settings page - stay on the same page
-		if ( Util_Request::get_string( 'page' ) == 'w3tc_extensions' ) {
-			$data['response_query_string']['page'] =
-				Util_Request::get_string( 'page' );
-			$data['response_query_string']['extension'] =
-				Util_Request::get_string( 'extension' );
-			$data['response_query_string']['action'] =
-				Util_Request::get_string( 'action' );
+		// if we are on extension settings page - stay on the same page.
+		if ( 'w3tc_extensions' === Util_Request::get_string( 'page' ) ) {
+			$data['response_query_string']['page']      = Util_Request::get_string( 'page' );
+			$data['response_query_string']['extension'] = Util_Request::get_string( 'extension' );
+			$data['response_query_string']['action']    = Util_Request::get_string( 'action' );
 		}
 
-
-		$capability = apply_filters( 'w3tc_capability_config_save',
-			'manage_options' );
-		if ( !current_user_can( $capability ) )
-			wp_die( __( 'You do not have the rights to perform this action.',
-					'w3-total-cache' ) );
+		$capability = apply_filters( 'w3tc_capability_config_save', 'manage_options' );
+		if ( ! current_user_can( $capability ) ) {
+			wp_die( esc_html__( 'You do not have the rights to perform this action.', 'w3-total-cache' ) );
+		}
 
 		/**
 		 * Read config
@@ -233,7 +235,7 @@ class Generic_AdminActions_Default {
 		$config = new Config();
 		$this->read_request( $config );
 
-		if ( $this->_page == 'w3tc_dashboard' ) {
+		if ( 'w3tc_dashboard' === $this->_page ) {
 			if ( Util_Request::get_boolean( 'maxcdn' ) ) {
 				$config->set( 'cdn.enabled', true );
 				$config->set( 'cdn.engine', 'maxcdn' );
@@ -243,8 +245,8 @@ class Generic_AdminActions_Default {
 		/**
 		 * General tab
 		 */
-		if ( $this->_page == 'w3tc_general' ) {
-			$file_nfs = Util_Request::get_boolean( 'file_nfs' );
+		if ( 'w3tc_general' === $this->_page ) {
+			$file_nfs     = Util_Request::get_boolean( 'file_nfs' );
 			$file_locking = Util_Request::get_boolean( 'file_locking' );
 
 			$config->set( 'pgcache.file.nfs', $file_nfs );
@@ -256,22 +258,23 @@ class Generic_AdminActions_Default {
 			$config->set( 'minify.file.locking', $file_locking );
 
 			if ( is_network_admin() ) {
-				if ( ( $this->_config->get_boolean( 'common.force_master' ) !==
-						$config->get_boolean( 'common.force_master' ) ) ) {
-					// blogmap is wrong so empty it
+				if ( ( $this->_config->get_boolean( 'common.force_master' ) !== $config->get_boolean( 'common.force_master' ) ) ) {
+					// blogmap is wrong so empty it.
 					@unlink( W3TC_CACHE_BLOGMAP_FILENAME );
-					$blogmap_dir = dirname( W3TC_CACHE_BLOGMAP_FILENAME ) . '/' .
-						basename( W3TC_CACHE_BLOGMAP_FILENAME, '.php' ) . '/';
-					if ( @is_dir( $blogmap_dir ) )
+					$blogmap_dir = dirname( W3TC_CACHE_BLOGMAP_FILENAME ) . '/' . basename( W3TC_CACHE_BLOGMAP_FILENAME, '.php' ) . '/';
+					if ( @is_dir( $blogmap_dir ) ) {
 						Util_File::rmdir( $blogmap_dir );
+					}
 				}
 			}
 
 			/**
 			 * Check permalinks for page cache
 			 */
-			if ( $config->get_boolean( 'pgcache.enabled' ) && $config->get_string( 'pgcache.engine' ) == 'file_generic'
-				&& !get_option( 'permalink_structure' ) ) {
+			if ( $config->get_boolean( 'pgcache.enabled' ) &&
+				'file_generic' === $config->get_string( 'pgcache.engine' ) &&
+				! get_option( 'permalink_structure' ) ) {
+
 				$config->set( 'pgcache.enabled', false );
 				$data['response_errors'][] = 'fancy_permalinks_disabled_pgcache';
 			}
@@ -280,20 +283,21 @@ class Generic_AdminActions_Default {
 		/**
 		 * Minify tab
 		 */
-		if ( $this->_page == 'w3tc_minify' ) {
+		if ( 'w3tc_minify' === $this->_page ) {
 			if ( ( $this->_config->get_boolean( 'minify.js.http2push' ) && ! $config->get_boolean( 'minify.js.http2push' ) ) ||
-				( $this->_config->get_boolean( 'minify.css.http2push' ) && ! $config->get_boolean( 'minify.css.http2push' ) ) ) {
-				if ( $config->get_string( 'pgcache.engine' ) == 'file_generic' ) {
+			( $this->_config->get_boolean( 'minify.css.http2push' ) && ! $config->get_boolean( 'minify.css.http2push' ) ) ) {
+
+				if ( 'file_generic' === $config->get_string( 'pgcache.engine' ) ) {
 					$cache_dir = Util_Environment::cache_blog_dir( 'page_enhanced' );
-					$this->_deleteAllHtaccessFiles( $cache_dir );
+					$this->_delete_all_htaccess_files( $cache_dir );
 				}
 			}
 
-			if ( !$this->_config->get_boolean( 'minify.auto' ) ) {
-				$js_groups = array();
+			if ( ! $this->_config->get_boolean( 'minify.auto' ) ) {
+				$js_groups  = array();
 				$css_groups = array();
 
-				$js_files = Util_Request::get_array( 'js_files' );
+				$js_files  = Util_Request::get_array( 'js_files' );
 				$css_files = Util_Request::get_array( 'css_files' );
 
 				foreach ( $js_files as $theme => $templates ) {
@@ -301,8 +305,9 @@ class Generic_AdminActions_Default {
 						foreach ( (array) $locations as $location => $types ) {
 							foreach ( (array) $types as $files ) {
 								foreach ( (array) $files as $file ) {
-									if ( !empty( $file ) ) {
-										$js_groups[$theme][$template][$location]['files'][] = Util_Environment::normalize_file_minify( $file );
+									if ( ! empty( $file ) ) {
+										$js_groups[ $theme ][ $template ][ $location ]['files'][] =
+											Util_Environment::normalize_file_minify( $file );
 									}
 								}
 							}
@@ -314,8 +319,9 @@ class Generic_AdminActions_Default {
 					foreach ( $templates as $template => $locations ) {
 						foreach ( (array) $locations as $location => $files ) {
 							foreach ( (array) $files as $file ) {
-								if ( !empty( $file ) ) {
-									$css_groups[$theme][$template][$location]['files'][] = Util_Environment::normalize_file_minify( $file );
+								if ( ! empty( $file ) ) {
+									$css_groups[ $theme ][ $template ][ $location ]['files'][] =
+										Util_Environment::normalize_file_minify( $file );
 								}
 							}
 						}
@@ -325,10 +331,10 @@ class Generic_AdminActions_Default {
 				$config->set( 'minify.js.groups', $js_groups );
 				$config->set( 'minify.css.groups', $css_groups );
 
-				$js_theme = Util_Request::get_string( 'js_theme' );
+				$js_theme  = Util_Request::get_string( 'js_theme' );
 				$css_theme = Util_Request::get_string( 'css_theme' );
 
-				$data['response_query_string']['js_theme'] = $js_theme;
+				$data['response_query_string']['js_theme']  = $js_theme;
 				$data['response_query_string']['css_theme'] = $css_theme;
 			}
 		}
@@ -336,25 +342,33 @@ class Generic_AdminActions_Default {
 		/**
 		 * Browser Cache tab
 		 */
-		if ( $this->_page == 'w3tc_browsercache' ) {
-			if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.no404wp' ) && !get_option( 'permalink_structure' ) ) {
+		if ( 'w3tc_browsercache' === $this->_page ) {
+			if ( $config->get_boolean( 'browsercache.enabled' ) &&
+				$config->get_boolean( 'browsercache.no404wp' ) &&
+				! get_option( 'permalink_structure' ) ) {
+
 				$config->set( 'browsercache.no404wp', false );
 				$data['response_errors'][] = 'fancy_permalinks_disabled_browsercache';
 			}
 
-			// todo: move to cdn module
+			// todo: move to cdn module.
 			$engine = $this->_config->get_string( 'cdn.engine' );
-			if ( $engine == 'maxcdn' ) {
+			if ( 'maxcdn' === $engine ) {
 				require_once W3TC_LIB_NETDNA_DIR . '/NetDNA.php';
-				$keys = explode( '+', $this->_config->get_string( 'cdn.'.$engine.'.authorization_key' ) );
-				if ( sizeof( $keys ) == 3 ) {
-					list( $alias, $consumerkey, $consumersecret ) =  $keys;
+				$keys = explode( '+', $this->_config->get_string( 'cdn.' . $engine . '.authorization_key' ) );
+				if ( count( $keys ) === 3 ) {
+					list( $alias, $consumerkey, $consumersecret ) = $keys;
 					try {
-						$api = new \NetDNA( $alias, $consumerkey, $consumersecret );
+						$api                   = new \NetDNA( $alias, $consumerkey, $consumersecret );
 						$disable_cooker_header = $config->get_boolean( 'browsercache.other.nocookies' ) ||
 							$config->get_boolean( 'browsercache.cssjs.nocookies' );
-						$api->update_pull_zone( $this->_config->get_string( 'cdn.' . $engine .'.zone_id' ), array( 'ignore_setcookie_header' => $disable_cooker_header ) );
-					} catch ( \Exception $ex ) {}
+						$api->update_pull_zone(
+							$this->_config->get_string( 'cdn.' . $engine . '.zone_id' ),
+							array( 'ignore_setcookie_header' => $disable_cooker_header )
+						);
+					} catch ( \Exception $ex ) {
+						// missing exception handle?
+					}
 				}
 			}
 		}
@@ -362,8 +376,8 @@ class Generic_AdminActions_Default {
 		/**
 		 * CDN tab
 		 */
-		if ( $this->_page == 'w3tc_cdn' ) {
-			$cdn_cnames = Util_Request::get_array( 'cdn_cnames' );
+		if ( 'w3tc_cdn' === $this->_page ) {
+			$cdn_cnames  = Util_Request::get_array( 'cdn_cnames' );
 			$cdn_domains = array();
 
 			foreach ( $cdn_cnames as $cdn_cname ) {
@@ -390,146 +404,156 @@ class Generic_AdminActions_Default {
 			}
 
 			switch ( $this->_config->get_string( 'cdn.engine' ) ) {
-			case 'akamai':
-				$config->set( 'cdn.akamai.domain', $cdn_domains );
-				break;
+				case 'akamai':
+					$config->set( 'cdn.akamai.domain', $cdn_domains );
+					break;
 
-			case 'att':
-				$config->set( 'cdn.att.domain', $cdn_domains );
-				break;
+				case 'att':
+					$config->set( 'cdn.att.domain', $cdn_domains );
+					break;
 
-			case 'azure':
-				$config->set( 'cdn.azure.cname', $cdn_domains );
-				break;
+				case 'azure':
+					$config->set( 'cdn.azure.cname', $cdn_domains );
+					break;
 
-			case 'cf':
-				$config->set( 'cdn.cf.cname', $cdn_domains );
-				break;
+				case 'cf':
+					$config->set( 'cdn.cf.cname', $cdn_domains );
+					break;
 
-			case 'cf2':
-				$config->set( 'cdn.cf2.cname', $cdn_domains );
-				break;
+				case 'cf2':
+					$config->set( 'cdn.cf2.cname', $cdn_domains );
+					break;
 
-			case 'cotendo':
-				$config->set( 'cdn.cotendo.domain', $cdn_domains );
-				break;
+				case 'cotendo':
+					$config->set( 'cdn.cotendo.domain', $cdn_domains );
+					break;
 
-			case 'edgecast':
-				$config->set( 'cdn.edgecast.domain', $cdn_domains );
-				break;
+				case 'edgecast':
+					$config->set( 'cdn.edgecast.domain', $cdn_domains );
+					break;
 
-			case 'ftp':
-				$config->set( 'cdn.ftp.domain', $cdn_domains );
-				break;
+				case 'ftp':
+					$config->set( 'cdn.ftp.domain', $cdn_domains );
+					break;
 
-			case 'highwinds':
-				$config->set( 'cdn.highwinds.host.domains', $cdn_domains );
-				break;
+				case 'highwinds':
+					$config->set( 'cdn.highwinds.host.domains', $cdn_domains );
+					break;
 
-			case 'limelight':
-				$config->set( 'cdn.limelight.host.domains', $cdn_domains );
-				break;
+				case 'limelight':
+					$config->set( 'cdn.limelight.host.domains', $cdn_domains );
+					break;
 
-			case 'mirror':
-				$config->set( 'cdn.mirror.domain', $cdn_domains );
-				break;
+				case 'mirror':
+					$config->set( 'cdn.mirror.domain', $cdn_domains );
+					break;
 
-			case 'maxcdn':
-				$v = $config->get( 'cdn.maxcdn.domain' );
-				if ( isset( $v['http_default'] ) )
-					$cdn_domains['http_default'] = $v['http_default'];
-				if ( isset( $v['https_default'] ) )
-					$cdn_domains['https_default'] = $v['https_default'];
+				case 'maxcdn':
+					$v = $config->get( 'cdn.maxcdn.domain' );
+					if ( isset( $v['http_default'] ) ) {
+						$cdn_domains['http_default'] = $v['http_default'];
+					}
+					if ( isset( $v['https_default'] ) ) {
+						$cdn_domains['https_default'] = $v['https_default'];
+					}
+					$config->set( 'cdn.maxcdn.domain', $cdn_domains );
+					break;
 
-				$config->set( 'cdn.maxcdn.domain', $cdn_domains );
-				break;
+				case 'rackspace_cdn':
+					$config->set( 'cdn.rackspace_cdn.domains', $cdn_domains );
+					break;
 
-			case 'rackspace_cdn':
-				$config->set( 'cdn.rackspace_cdn.domains', $cdn_domains );
-				break;
+				case 'rscf':
+					$config->set( 'cdn.rscf.cname', $cdn_domains );
+					break;
 
-			case 'rscf':
-				$config->set( 'cdn.rscf.cname', $cdn_domains );
-				break;
+				case 's3':
+				case 's3_compatible':
+					$config->set( 'cdn.s3.cname', $cdn_domains );
+					break;
 
-			case 's3':
-			case 's3_compatible':
-				$config->set( 'cdn.s3.cname', $cdn_domains );
-				break;
-
-			case 'stackpath':
-				$v = $config->get( 'cdn.stackpath.domain' );
-				if ( isset( $v['http_default'] ) )
-					$cdn_domains['http_default'] = $v['http_default'];
-				if ( isset( $v['https_default'] ) )
-					$cdn_domains['https_default'] = $v['https_default'];
-
-				$config->set( 'cdn.stackpath.domain', $cdn_domains );
-				break;
-			case 'stackpath2':
-				$config->set( 'cdn.stackpath2.domain', $cdn_domains );
-				break;
+				case 'stackpath':
+					$v = $config->get( 'cdn.stackpath.domain' );
+					if ( isset( $v['http_default'] ) ) {
+						$cdn_domains['http_default'] = $v['http_default'];
+					}
+					if ( isset( $v['https_default'] ) ) {
+						$cdn_domains['https_default'] = $v['https_default'];
+					}
+					$config->set( 'cdn.stackpath.domain', $cdn_domains );
+					break;
+				case 'stackpath2':
+					$config->set( 'cdn.stackpath2.domain', $cdn_domains );
+					break;
 			}
 		}
 
 		$old_ext_settings = $this->_config->get_array( 'extensions.settings', array() );
 		$new_ext_settings = $old_ext_settings;
-		$modified = false;
+		$modified         = false;
 
 		$extensions = Extensions_Util::get_extensions( $config );
 		foreach ( $extensions as $extension => $descriptor ) {
-			$request = Util_Request::get_as_array(
-				'extensions.settings.' . $extension . '.' );
+			$request = Util_Request::get_as_array( 'extensions.settings.' . $extension . '.' );
 			if ( count( $request ) > 0 ) {
-				if ( !isset( $new_ext_settings[$extension] ) )
-					$new_ext_settings[$extension] = array();
+				if ( ! isset( $new_ext_settings[ $extension ] ) ) {
+					$new_ext_settings[ $extension ] = array();
+				}
 
 				foreach ( $request as $key => $value ) {
-					if ( !isset( $old_ext_settings[$extension] ) ||
-						!isset( $old_ext_settings[$extension][$key] ) ||
-						$old_ext_settings[$extension][$key] != $value ) {
-						$new_ext_settings[$extension][$key] = $value;
-						$modified = true;
+					if ( ! isset( $old_ext_settings[ $extension ] ) ||
+						! isset( $old_ext_settings[ $extension ][ $key ] ) ||
+						$old_ext_settings[ $extension ][ $key ] !== $value ) {
+
+						$new_ext_settings[ $extension ][ $key ] = $value;
+						$modified                               = true;
 					}
 				}
 			}
 		}
 
-		if ( $modified )
-			$config->set( "extensions.settings", $new_ext_settings );
+		if ( $modified ) {
+			$config->set( 'extensions.settings', $new_ext_settings );
+		}
 
 		$data['new_config'] = $config;
-		$data = apply_filters( 'w3tc_save_options', $data );
-		$config = $data['new_config'];
+		$data               = apply_filters( 'w3tc_save_options', $data );
+		$config             = $data['new_config'];
 
 		do_action( 'w3tc_config_ui_save', $config, $this->_config );
 		do_action( "w3tc_config_ui_save-{$this->_page}", $config, $this->_config );
 
 		Util_Admin::config_save( $this->_config, $config );
 
-		if ( $this->_page == 'w3tc_cdn' ) {
+		if ( 'w3tc_cdn' === $this->_page ) {
 			/**
 			 * Handle Set Cookie Domain
 			 */
 			$set_cookie_domain_old = Util_Request::get_boolean( 'set_cookie_domain_old' );
 			$set_cookie_domain_new = Util_Request::get_boolean( 'set_cookie_domain_new' );
 
-			if ( $set_cookie_domain_old != $set_cookie_domain_new ) {
+			if ( $set_cookie_domain_old !== $set_cookie_domain_new ) {
 				if ( $set_cookie_domain_new ) {
-					if ( !$this->enable_cookie_domain() ) {
-						Util_Admin::redirect( array_merge(
-								$data['response_query_string'], array(
-									'w3tc_error' => 'enable_cookie_domain'
+					if ( ! $this->enable_cookie_domain() ) {
+						Util_Admin::redirect(
+							array_merge(
+								$data['response_query_string'],
+								array(
+									'w3tc_error' => 'enable_cookie_domain',
 								)
-							) );
+							)
+						);
 					}
 				} else {
-					if ( !$this->disable_cookie_domain() ) {
-						Util_Admin::redirect( array_merge(
-								$data['response_query_string'], array(
-									'w3tc_error' => 'disable_cookie_domain'
+					if ( ! $this->disable_cookie_domain() ) {
+						Util_Admin::redirect(
+							array_merge(
+								$data['response_query_string'],
+								array(
+									'w3tc_error' => 'disable_cookie_domain',
 								)
-							) );
+							)
+						);
 					}
 				}
 			}
@@ -537,31 +561,32 @@ class Generic_AdminActions_Default {
 
 		return array(
 			'query_string' => $data['response_query_string'],
-			'actions' => $data['response_actions'],
-			'errors' => $data['response_errors'],
-			'notes' => $data['response_notes']
+			'actions'      => $data['response_actions'],
+			'errors'       => $data['response_errors'],
+			'notes'        => $data['response_notes'],
 		);
 	}
 
-	private function _deleteAllHtaccessFiles($dir) {
+	private function _delete_all_htaccess_files( $dir ) {
 		if ( ! is_dir( $dir ) ) {
 			return;
 		}
 
 		$handle = opendir( $dir );
-		if ( $handle === false ) {
+		if ( false === $handle ) {
 			return;
 		}
 
-		while ( false !== ( $file = readdir( $handle ) ) ) {
-			if ( $file == '.' || $file == '..' ) {
+		$file = readdir( $handle );
+		while ( false !== $file ) {
+			if ( '.' === $file || '..' === $file ) {
 				continue;
 			}
 
 			if ( is_dir( $file ) ) {
-				$this->_deleteAllHtaccessFiles( $file );
+				$this->_delete_all_htaccess_files( $file );
 				continue;
-			} else if ( $file === '.htaccess' ) {
+			} elseif ( '.htaccess' === $file ) {
 				@unlink( $file );
 			}
 		}
@@ -575,23 +600,36 @@ class Generic_AdminActions_Default {
 	 * @return bool
 	 */
 	function enable_cookie_domain() {
-		$config_path = Util_Environment::wp_config_path();
-		$config_data = @file_get_contents( $config_path );
+		global $wp_filesystem;
 
-		if ( $config_data === false ) {
+		$config_path = Util_Environment::wp_config_path();
+		$config_data = $wp_filesystem->get_contents( $config_path );
+
+		if ( false === $config_data ) {
 			return false;
 		}
 
 		$cookie_domain = Util_Admin::get_cookie_domain();
 
 		if ( $this->is_cookie_domain_define( $config_data ) ) {
-			$new_config_data = preg_replace( W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN, "define('COOKIE_DOMAIN', '" . addslashes( $cookie_domain ) . "')", $config_data, 1 );
+			$new_config_data = preg_replace(
+				W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN,
+				"define('COOKIE_DOMAIN', '" . addslashes( $cookie_domain ) . "')",
+				$config_data,
+				1
+			);
 		} else {
-			$new_config_data = preg_replace( '~<\?(php)?~', "\\0\r\ndefine('COOKIE_DOMAIN', '" . addslashes( $cookie_domain ) . "'); // " . __( 'Added by W3 Total Cache', 'w3-total-cache' ) . "\r\n", $config_data, 1 );
+			$new_config_data = preg_replace(
+				'~<\?(php)?~',
+				"\\0\r\ndefine('COOKIE_DOMAIN', '" . addslashes( $cookie_domain ) .
+					"'); // " . __( 'Added by W3 Total Cache', 'w3-total-cache' ) . "\r\n",
+				$config_data,
+				1
+			);
 		}
 
-		if ( $new_config_data != $config_data ) {
-			if ( !@file_put_contents( $config_path, $new_config_data ) ) {
+		if ( $new_config_data !== $config_data ) {
+			if ( ! $wp_filesystem->put_contents( $config_path, $new_config_data ) ) {
 				return false;
 			}
 		}
@@ -605,18 +643,25 @@ class Generic_AdminActions_Default {
 	 * @return bool
 	 */
 	function disable_cookie_domain() {
-		$config_path = Util_Environment::wp_config_path();
-		$config_data = @file_get_contents( $config_path );
+		global $wp_filesystem;
 
-		if ( $config_data === false ) {
+		$config_path = Util_Environment::wp_config_path();
+		$config_data = $wp_filesystem->get_contents( $config_path );
+
+		if ( false === $config_data ) {
 			return false;
 		}
 
 		if ( $this->is_cookie_domain_define( $config_data ) ) {
-			$new_config_data = preg_replace( W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN, "define('COOKIE_DOMAIN', false)", $config_data, 1 );
+			$new_config_data = preg_replace(
+				W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN,
+				"define('COOKIE_DOMAIN', false)",
+				$config_data,
+				1
+			);
 
-			if ( $new_config_data != $config_data ) {
-				if ( !@file_put_contents( $config_path, $new_config_data ) ) {
+			if ( $new_config_data !== $config_data ) {
+				if ( ! $wp_filesystem->put_contents( $config_path, $new_config_data ) ) {
 					return false;
 				}
 			}
@@ -628,7 +673,7 @@ class Generic_AdminActions_Default {
 	/**
 	 * Checks COOKIE_DOMAIN definition existence
 	 *
-	 * @param string  $content
+	 * @param string $content
 	 * @return int
 	 */
 	function is_cookie_domain_define( $content ) {
@@ -639,7 +684,7 @@ class Generic_AdminActions_Default {
 	/**
 	 * Returns true if config section is sealed
 	 *
-	 * @param string  $section
+	 * @param string $section
 	 * @return boolean
 	 */
 	protected function is_sealed( $section ) {
@@ -649,15 +694,15 @@ class Generic_AdminActions_Default {
 	/**
 	 * Reads config from request
 	 *
-	 * @param Config  $config
+	 * @param Config $config
 	 */
 	function read_request( $config ) {
 		$request = Util_Request::get_request();
 
-		include W3TC_DIR . '/ConfigKeys.php';   // define $keys
+		include W3TC_DIR . '/ConfigKeys.php';   // define $keys.
 
 		foreach ( $request as $request_key => $request_value ) {
-			if  ( is_array( $request_value ) ) {
+			if ( is_array( $request_value ) ) {
 				array_map( 'stripslashes_deep', $request_value );
 			} else {
 				$request_value = stripslashes( $request_value );
@@ -667,11 +712,10 @@ class Generic_AdminActions_Default {
 				}
 			}
 
-			if ( substr( $request_key, 0, 11 ) == 'extension__' ) {
-				$extension_id = Util_Ui::config_key_from_http_name(
-					substr( $request_key, 11 ) );
+			if ( 'extension__' === substr( $request_key, 0, 11 ) ) {
+				$extension_id = Util_Ui::config_key_from_http_name( substr( $request_key, 11 ) );
 
-				if ( $request_value == '1' ) {
+				if ( '1' === $request_value ) {
 					Extensions_Util::activate_extension( $extension_id, $config, true );
 				} else {
 					Extensions_Util::deactivate_extension( $extension_id, $config, true );
@@ -682,18 +726,17 @@ class Generic_AdminActions_Default {
 			if ( is_array( $key ) ) {
 				$config->set( $key, $request_value );
 			} elseif ( array_key_exists( $key, $keys ) ) {
-				$descriptor = $keys[$key];
+				$descriptor = $keys[ $key ];
 				if ( isset( $descriptor['type'] ) ) {
-					if ( $descriptor['type'] == 'array' ) {
+					if ( 'array' === $descriptor['type'] ) {
 						if ( is_array( $request_value ) ) {
 							$request_value = implode( "\n", $request_value );
 						}
-						$request_value = explode( "\n",
-							str_replace( "\r\n", "\n", $request_value ) );
-					} elseif ( $descriptor['type'] == 'boolean' ) {
-						$request_value = ( $request_value == '1' );
-					} elseif ( $descriptor['type'] == 'integer' ) {
-						$request_value = (int)$request_value;
+						$request_value = explode( "\n", str_replace( "\r\n", "\n", $request_value ) );
+					} elseif ( 'boolean' === $descriptor['type'] ) {
+						$request_value = ( '1' === $request_value );
+					} elseif ( 'integer' === $descriptor['type'] ) {
+						$request_value = (int) $request_value;
 					}
 				}
 
