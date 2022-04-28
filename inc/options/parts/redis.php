@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: redis.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -10,7 +16,7 @@ if ( ! defined( 'W3TC' ) ) {
  */
 ?>
 <tr>
-	<th><label for="redis_servers"><?php echo esc_html( Util_ConfigLabel::get( 'redis.servers' ) ); ?></label></th>
+	<th><label for="redis_servers"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.servers' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="redis_servers" type="text"
 			name="<?php echo esc_attr( $module ); ?>__redis__servers"
@@ -21,7 +27,14 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php Util_Ui::sealing_disabled( $module ); ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span class="w3tc_common_redis_test_result w3tc-status w3tc-process"></span>
-		<p class="description"><?php esc_html_e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122', 'w3-total-cache' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122. To use TLS, prefix server with tls://', 'w3-total-cache' ); ?></p>
+	</td>
+</tr>
+<tr>
+	<th><label><?php esc_html_e( 'Verify TLS Certificates:', 'w3-total-cache' ); ?></label></th>
+	<td>
+		<?php $this->checkbox( $module . '.redis.verify_tls_certificates' ); ?> <?php echo esc_html( Util_ConfigLabel::get( 'redis.verify_tls_certificates' ) ); ?></label>
+		<p class="description"><?php esc_html_e( 'Verify the server\'s certificate when connecting via TLS.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>

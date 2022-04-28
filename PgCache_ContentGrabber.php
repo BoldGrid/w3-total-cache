@@ -126,7 +126,7 @@ class PgCache_ContentGrabber {
 		);
 
 		$this->_request_uri = isset( $_SERVER['REQUEST_URI'] ) ?
-			filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : ''; // phpcs:ignore
+			filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL ) : ''; // phpcs:ignore
 		$this->_lifetime = $this->_config->get_integer( 'pgcache.lifetime' );
 		$this->_late_init = $this->_config->get_boolean( 'pgcache.late_init' );
 		$this->_late_caching = $this->_config->get_boolean( 'pgcache.late_caching' );
@@ -824,6 +824,7 @@ class PgCache_ContentGrabber {
 		case 'redis':
 			$engineConfig = array(
 				'servers' => $this->_config->get_array( 'pgcache.redis.servers' ),
+				'verify_tls_certificates' => $this->_config->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
 				'persistent' => $this->_config->get_boolean( 'pgcache.redis.persistent' ),
 				'timeout' => $this->_config->get_integer( 'pgcache.redis.timeout' ),
 				'retry_interval' => $this->_config->get_integer( 'pgcache.redis.retry_interval' ),
@@ -876,6 +877,7 @@ class PgCache_ContentGrabber {
 			case 'redis':
 				$engineConfig = array(
 					'servers' => $this->_config->get_array( 'pgcache.redis.servers' ),
+					'verify_tls_certificates' => $this->_config->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
 					'persistent' => $this->_config->get_boolean( 'pgcache.redis.persistent' ),
 					'timeout' => $this->_config->get_integer( 'pgcache.redis.timeout' ),
 					'retry_interval' => $this->_config->get_integer( 'pgcache.redis.retry_interval' ),

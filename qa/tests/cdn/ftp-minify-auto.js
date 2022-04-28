@@ -19,17 +19,19 @@ describe('', function() {
 	before(sys.beforeDefault);
 	after(sys.after);
 
-	it('test', async() => {
-		//
-		// copy theme files
-		//
+
+
+	it('copy theme files', async() => {
 		let theme = await wp.getCurrentTheme(adminPage);
-		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
-		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', targetPath);
-
+		let themePath = env.wpContentPath + 'themes/' + theme;
+		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', `${themePath}/qa`);
 		await sys.copyPhpToRoot('../../plugins/cdn/generic.php');
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/minify-auto-js-sc.php');
+	});
 
 
+
+	it('set options', async() => {
 		//
 		// set options
 		//
@@ -50,16 +52,18 @@ describe('', function() {
 		});
 
 		await sys.afterRulesChange();
+	});
 
 
+
+	it('test', async() => {
 		//
 		// create test page
 		//
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'page content',
-			template: 'qa/minify-auto-js.php'
+			content: 'page content [w3tcqa]'
 		});
 		testPageUrl = testPage.url;
 

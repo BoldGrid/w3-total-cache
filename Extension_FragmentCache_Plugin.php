@@ -90,6 +90,7 @@ class Extension_FragmentCache_Plugin {
 			'memcached.persistent' => true,
 			'redis.persistent' => true,
 			'redis.servers' => array( '127.0.0.1:6379' ),
+			'redis.verify_tls_certificates' => true,
 			'lifetime' => 180
 		);
 
