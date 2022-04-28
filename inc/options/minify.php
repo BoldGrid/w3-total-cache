@@ -278,7 +278,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'%1$sJS%2$s minify settings:',
 							'w3-total-cache'
 						),
-						'<acronym title="' . esc_attr_( 'JavaScript', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					'control'        => 'checkbox',
