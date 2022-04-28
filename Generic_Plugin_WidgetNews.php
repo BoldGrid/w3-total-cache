@@ -1,23 +1,34 @@
 <?php
+/**
+ * File: Generic_Plugin_WidgetNews.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * W3 Forum Widget
+ * Class: Generic_Plugin_WidgetNews
  */
 class Generic_Plugin_WidgetNews {
 	/**
-	 * Config
+	 * Config.
+	 *
+	 * @var Config
 	 */
-	private $_config = null;
+	private $_config = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Runs plugin
+	 * Runs plugin.
 	 */
-	function run() {
+	public function run() {
 		if ( Util_Admin::get_current_wp_page() === 'w3tc_dashboard' ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		}
@@ -31,11 +42,9 @@ class Generic_Plugin_WidgetNews {
 	}
 
 	/**
-	 * Dashboard setup action
-	 *
-	 * @return void
+	 * Dashboard setup action.
 	 */
-	function wp_dashboard_setup() {
+	public function wp_dashboard_setup() {
 		Util_Widget::add(
 			'w3tc_latest_news',
 			__( 'News', 'w3-total-cache' ),
@@ -56,7 +65,7 @@ class Generic_Plugin_WidgetNews {
 	 *
 	 * @return string
 	 */
-	function _widget_latest_cache_key() {
+	public function _widget_latest_cache_key() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		return 'dash_' . md5( 'w3tc_latest_news' );
 	}
 
@@ -65,21 +74,32 @@ class Generic_Plugin_WidgetNews {
 	 *
 	 * @return void
 	 */
-	function widget_latest() {
+	public function widget_latest() {
 		$output = get_transient( $this->_widget_latest_cache_key() );
+
 		if ( false !== $output ) {
-			echo esc_html( $output );
+			echo wp_kses(
+				$output,
+				array(
+					'a'  => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+					'h4' => array(),
+					'p'  => array(
+						'style' => array(),
+					),
+				)
+			);
 		} else {
 			include W3TC_INC_DIR . '/widget/latest_news.php';
 		}
 	}
 
 	/**
-	 * Prints latest widget contents
-	 *
-	 * @return void
+	 * Prints latest widget contents.
 	 */
-	function action_widget_latest_news_ajax() {
+	public function action_widget_latest_news_ajax() {
 		// load content of feed.
 		global $wp_version;
 
@@ -110,13 +130,12 @@ class Generic_Plugin_WidgetNews {
 	}
 
 	/**
-	 * Latest widget control
+	 * Latest widget control.
 	 *
-	 * @param integer $widget_id
-	 * @param array   $form_inputs
-	 * @return void
+	 * @param integer $widget_id   Widget id.
+	 * @param array   $form_inputs Form inputs.
 	 */
-	function widget_latest_control( $widget_id, $form_inputs = array() ) {
+	public function widget_latest_control( $widget_id, $form_inputs = array() ) {
 		if ( 'POST' === ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' ) ) {
 			$this->_config->set( 'widget.latest_news.items', Util_Request::get_integer( 'w3tc_widget_latest_news_items', 3 ) );
 			$this->_config->save();
@@ -125,6 +144,9 @@ class Generic_Plugin_WidgetNews {
 		include W3TC_INC_DIR . '/widget/latest_news_control.php';
 	}
 
+	/**
+	 * Enqueue scripts and styles.
+	 */
 	public function enqueue() {
 		wp_enqueue_style( 'w3tc-widget' );
 		wp_enqueue_script( 'w3tc-metadata' );
