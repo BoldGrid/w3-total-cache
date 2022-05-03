@@ -9,7 +9,7 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 
 ?>
 <p id="w3tc-options-menu">
-	Jump to:
+	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
 	<a href="#overview"><?php esc_html_e( 'Overview', 'w3-total-cache' ); ?></a> |
@@ -18,17 +18,17 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 <p>
 	<?php Util_Ui::pro_wrap_maybe_start2(); ?>
 
-	Fragment caching
+	<?php esc_html_e( 'Fragment caching', 'w3-total-cache' ); ?>
 	<?php if ( ! empty( $engine ) ) : ?>
-		via
+		<?php esc_html_e( 'via', 'w3-total-cache' ); ?>
 		<strong><?php echo esc_html( Cache::engine_name( $engine ) ); ?></strong>
 	<?php endif; ?>
 
-	is currently
+	<?php esc_html_e( 'is currently', 'w3-total-cache' ); ?>
 	<?php if ( $config->is_extension_active_frontend( 'fragmentcache' ) ) : ?>
-		<span class="w3tc-enabled">enabled</span>
+		<span class="w3tc-enabled"><?php esc_html_e( 'enabled', 'w3-total-cache' ); ?></span>
 	<?php else : ?>
-		<span class="w3tc-disabled">disabled</span>
+		<span class="w3tc-disabled"><?php esc_html_e( 'disabled', 'w3-total-cache' ); ?></span>
 		<?php
 		$ext = Extensions_Util::get_extension( $config, 'fragmentcache' );
 		if ( ! empty( $ext['requirements'] ) ) {
@@ -62,7 +62,7 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 
 <form action="admin.php?page=w3tc_fragmentcache" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Overview', 'w3-total-cache' ), '', 'overview' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Overview', 'w3-total-cache' ), '', 'overview' ); ?>
 		<table class="form-table">
 		<tr>
 			<th><?php esc_html_e( 'Registered fragment groups:', 'w3-total-cache' ); ?></th>
@@ -84,7 +84,7 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 		</table>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( __( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
 		<table class="form-table">
 			<?php
 			if ( 'memcached' === $config->get_string( array( 'fragmentcache', 'engine' ) ) ) {

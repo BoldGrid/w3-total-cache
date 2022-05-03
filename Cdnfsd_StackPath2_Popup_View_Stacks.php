@@ -8,10 +8,10 @@ if ( ! defined( 'W3TC' ) ) {
 <form class="w3tc_cdn_stackpath2_fsd_form" method="post">
 	<?php Util_Ui::hidden( '', 'api_config', $details['api_config'] ); ?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select stack to use', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select stack to use', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<td>Site:</td>
+				<td><?php esc_html_e( 'Site:', 'w3-total-cache' ); ?></td>
 				<td>
 					<?php
 					if ( count( $details['stacks'] ) > 15 ) {
@@ -32,7 +32,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 					<?php
 					if ( count( $details['stacks'] ) > 15 ) {
-						esc_html_e( '</div>', 'w3-total-cache' );
+						echo '</div>';
 					}
 					?>
 				</td>

@@ -25,12 +25,12 @@ if ( ! defined( 'W3TC' ) ) {
 
 <form action="admin.php?page=w3tc_monitoring" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Application Settings', 'w3-total-cache' ), '', 'application' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Application Settings', 'w3-total-cache' ), '', 'application' ); ?>
 		<?php if ( $application_settings ) : ?>
 		<table class="form-table">
 			<tr>
 				<th>
-					<label>Application ID:</label>
+					<label><?php esc_html_e( 'Application ID:', 'w3-total-cache' ); ?></label>
 				</th>
 				<td>
 					<?php echo esc_html( $application_settings['application-id'] ); ?>
@@ -38,7 +38,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 			<tr>
 				<th>
-					<label>Application name:</label>
+					<label><?php esc_html_e( 'Application name:', 'w3-total-cache' ); ?></label>
 				</th>
 				<td>
 					<?php echo esc_html( $application_settings['name'] ); ?>
@@ -46,7 +46,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 			<tr>
 				<th>
-					<label for="alerts-enabled">Alerts enabled:</label>
+					<label for="alerts-enabled"><?php esc_html_e( 'Alerts enabled:', 'w3-total-cache' ); ?></label>
 				</th>
 				<td>
 					<input name="alerts-enabled]" type="hidden" value="false" />
@@ -56,7 +56,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 			<tr>
 				<th>
-					<label for="app-apdex-t">Application ApDex Threshold:</label>
+					<label for="app-apdex-t"><?php esc_html_e( 'Application ApDex Threshold:', 'w3-total-cache' ); ?></label>
 				</th>
 				<td>
 					<input id="app-apdex-t" name="application[app_apdex_t]" type="text"
@@ -66,7 +66,26 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 			<tr>
 				<th>
-					<label for="rum-apdex-t"><acronym title="Real User Monitoring">RUM</acronym> ApDex Threshold:</label>
+					<label for="rum-apdex-t">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								__(
+									'%1$sRUM%2$s ApDex Threshold:',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Real User Monitoring', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</label>
 				</th>
 				<td>
 					<input id="rum-apdex-t" name="application[rum_apdex_t]" type="text"
@@ -76,7 +95,26 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 			<tr>
 				<th>
-					<label for="rum-enabled"><acronym title="Real User Monitoring">RUM</acronym> enabled:</label>
+					<label for="rum-enabled">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								__(
+									'%1$sRUM%2$s enabled:',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Real User Monitoring', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</label>
 				</th>
 				<td>
 					<input name="application[rum_enabled]" type="hidden" value="false"
@@ -104,7 +142,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<input type="submit" name="w3tc_save_new_relic"
 				class="w3tc-button-save button-primary"
 				<?php Util_Ui::sealing_disabled( 'newrelic' ); ?>
-				value="Save New Relic settings" />
+				value="<?php esc_attr_e( 'Save New Relic settings', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php elseif ( empty( $application_settings ) ) : ?>
 		<p class="description">
@@ -134,7 +172,7 @@ if ( ! defined( 'W3TC' ) ) {
 	</form>
 	<form action="admin.php?page=w3tc_monitoring" method="post">
 
-	<?php Util_Ui::postbox_header( __( 'Dashboard Settings', 'w3-total-cache' ), '', 'dashboard' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Dashboard Settings', 'w3-total-cache' ), '', 'dashboard' ); ?>
 	<table class="form-table">
 		<tr>
 			<th>
@@ -154,7 +192,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php Util_Ui::button_config_save( 'extension_newrelic_dashboard' ); ?>
 	<?php Util_Ui::postbox_footer(); ?>
 
-	<?php Util_Ui::postbox_header( __( 'Behavior Settings', 'w3-total-cache' ), '', 'behavior' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Behavior Settings', 'w3-total-cache' ), '', 'behavior' ); ?>
 	<table  class="form-table">
 		<tr>
 			<th colspan="2">
@@ -208,11 +246,11 @@ if ( ! defined( 'W3TC' ) ) {
 					<?php $saved_roles = $config->get_array( array( 'newrelic', 'accept.roles' ) ); ?>
 					<input type="hidden" name="newrelic___accept__roles" value="" /><br />
 					<?php foreach ( get_editable_roles() as $role_name => $role_data ) : ?>
-					<input type="checkbox" name="newrelic___accept__roles[]" value="<?php echo esc_attr( $role_name ); ?>"
-						<?php checked( in_array( $role_name, $saved_roles, true ) ); ?>
-						id="role_<?php echo esc_attr( $role_name ); ?>"
-						<?php Util_Ui::sealing_disabled( 'newrelic' ); ?> />
-					<label for="role_<?php echo esc_attr( $role_name ); ?>"><?php echo esc_html( $role_data['name'] ); ?></label>
+						<input type="checkbox" name="newrelic___accept__roles[]" value="<?php echo esc_attr( $role_name ); ?>"
+							<?php checked( in_array( $role_name, $saved_roles, true ) ); ?>
+							id="role_<?php echo esc_attr( $role_name ); ?>"
+							<?php Util_Ui::sealing_disabled( 'newrelic' ); ?> />
+						<label for="role_<?php echo esc_attr( $role_name ); ?>"><?php echo esc_html( $role_data['name'] ); ?></label>
 					<?php endforeach; ?>
 				</div>
 			</th>

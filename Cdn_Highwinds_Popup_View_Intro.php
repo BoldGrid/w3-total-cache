@@ -12,10 +12,10 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Your Highwinds API Token', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Your Highwinds API Token', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<td>API Token:</td>
+				<td><?php esc_html_e( 'API Token:', 'w3-total-cache' ); ?></td>
 				<td>
 					<input name="api_token" type="text" class="w3tc-ignore-change"
 						value="" style="width: 550px" />

@@ -31,18 +31,18 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Configure service', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Configure service', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<th>Name:</th>
+				<th><?php esc_html_e( 'Name:', 'w3-total-cache' ); ?></th>
 				<td><?php echo esc_html( $details['name'] ); ?></td>
 			</tr>
 			<tr>
-				<th>Origin host:</th>
+				<th><?php esc_html_e( 'Origin host:', 'w3-total-cache' ); ?></th>
 				<td><?php $this->render_service_value_change( $details, 'origin' ); ?></td>
 			</tr>
 			<tr>
-				<th>Origin protocol:</th>
+				<th><?php esc_html_e( 'Origin protocol:', 'w3-total-cache' ); ?></th>
 				<td><?php echo esc_html( $details['protocol'] ); ?><br />
 				</td>
 			</tr>

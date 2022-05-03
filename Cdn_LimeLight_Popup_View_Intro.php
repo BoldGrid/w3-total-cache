@@ -12,10 +12,10 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Your LimeLight Account credentials', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Your LimeLight Account credentials', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<td>Account Short Name:</td>
+				<td><?php esc_html_e( 'Account Short Name:', 'w3-total-cache' ); ?></td>
 				<td>
 					<input name="short_name" type="text" class="w3tc-ignore-change"
 						style="width: 550px"
@@ -23,7 +23,7 @@ if ( ! defined( 'W3TC' ) ) {
 				</td>
 			</tr>
 			<tr>
-				<td>Username:</td>
+				<td><?php esc_html_e( 'Username:', 'w3-total-cache' ); ?></td>
 				<td>
 					<input name="username" type="text" class="w3tc-ignore-change"
 						style="width: 550px"
@@ -31,7 +31,7 @@ if ( ! defined( 'W3TC' ) ) {
 				</td>
 			</tr>
 			<tr>
-				<td>API Key:</td>
+				<td><?php esc_html_e( 'API Key:', 'w3-total-cache' ); ?></td>
 				<td>
 					<input name="api_key" type="text" class="w3tc-ignore-change"
 						style="width: 550px"
@@ -39,7 +39,7 @@ if ( ! defined( 'W3TC' ) ) {
 				</td>
 			</tr>
 			<tr>
-				<td>CDN hostname:</td>
+				<td><?php esc_html_e( 'CDN hostname:', 'w3-total-cache' ); ?></td>
 				<td>
 					<input name="domain" type="text" class="w3tc-ignore-change"
 						style="width: 550px"

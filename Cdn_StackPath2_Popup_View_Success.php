@@ -10,7 +10,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::postbox_header( esc_html__( 'Succeeded', 'w3-total-cache' ) ); ?>
 
 		<div style="text-align: center">
-			Site was successfully configured.<br />
+			<?php esc_html_e( 'Site was successfully configured.', 'w3-total-cache' ); ?><br />
 		</div>
 
 		<p class="submit">

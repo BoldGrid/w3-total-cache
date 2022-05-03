@@ -6,7 +6,7 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <p id="w3tc-options-menu">
-	Jump to:
+	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
 	<a href="#header"><?php esc_html_e( 'Header', 'w3-total-cache' ); ?></a> |
@@ -15,7 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<a href="#exclusions"><?php esc_html_e( 'Exclusions', 'w3-total-cache' ); ?></a>
 </p>
 <p>
-	Genesis extension is currently 
+	<?php esc_html_e( 'Genesis extension is currently ', 'w3-total-cache' ); ?>
 	<?php
 	if ( $config->is_extension_active_frontend( 'genesis.theme' ) ) {
 		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
@@ -27,7 +27,7 @@ if ( ! defined( 'W3TC' ) ) {
 <p>
 
 <div class="metabox-holder">
-	<?php Util_Ui::postbox_header( __( 'Header', 'w3-total-cache' ), '', 'header' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Header', 'w3-total-cache' ), '', 'header' ); ?>
 	<table class="form-table">
 		<?php
 		Util_Ui::config_item(
@@ -218,20 +218,20 @@ if ( ! defined( 'W3TC' ) ) {
 				$saved_hooks = $config->get_array( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
 				$name        = Util_Ui::config_key_to_http_name( array( 'genesis.theme', 'reject_logged_roles_on_actions' ) );
 				$hooks       = array(
-					'genesis_header'    => 'Header',
-					'genesis_footer'    => 'Footer',
-					'genesis_sidebar'   => 'Sidebar',
-					'genesis_loop'      => 'The Loop',
+					'genesis_header'    => esc_html__( 'Header', 'w3-total-cache' ),
+					'genesis_footer'    => esc_html__( 'Footer', 'w3-total-cache' ),
+					'genesis_sidebar'   => esc_html__( 'Sidebar', 'w3-total-cache' ),
+					'genesis_loop'      => esc_html__( 'The Loop', 'w3-total-cache' ),
 					'wp_head'           => 'wp_head',
 					'wp_footer'         => 'wp_footer',
-					'genesis_comments'  => 'Comments',
-					'genesis_pings'     => 'Pings',
-					'genesis_do_nav'    => 'Primary navigation',
-					'genesis_do_subnav' => 'Secondary navigation',
+					'genesis_comments'  => esc_html__( 'Comments', 'w3-total-cache' ),
+					'genesis_pings'     => esc_html__( 'Pings', 'w3-total-cache' ),
+					'genesis_do_nav'    => esc_html__( 'Primary navigation', 'w3-total-cache' ),
+					'genesis_do_subnav' => esc_html__( 'Secondary navigation', 'w3-total-cache' ),
 				);
 				?>
 
-				<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?> type="hidden" name="<?php echo esc_attr( $name, 'w3-total-cache' ); ?>" value="" />
+				<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?> type="hidden" name="<?php echo esc_attr( $name ); ?>" value="" />
 				<?php foreach ( $hooks as $hook => $hook_label ) : ?>
 					<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?> 
 						type="checkbox" name="<?php echo esc_attr( $name ); ?>[]"
