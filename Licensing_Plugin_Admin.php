@@ -254,7 +254,7 @@ class Licensing_Plugin_Admin {
 				Util_Ui::button_link(
 					__( 'Decline', 'w3-total-cache' ),
 					Util_Ui::url( array( 'w3tc_licensing_terms_decline' => 'y' ) )
-				),
+				)
 			);
 		} else {
 			$state = Dispatcher::config_state();
