@@ -233,7 +233,7 @@ class Extensions_Plugin_Admin {
 			if ( isset( $info['notice'] ) && get_transient( $transient_name ) ) {
 				?>
 				<div class="notice notice-warning is-dismissible">
-					<p><?php echo $info['notice']; //phpcs:ignore ?></p>
+					<p><?php echo esc_html( $info['notice'] ); ?></p>
 				</div>
 				<?php
 			}

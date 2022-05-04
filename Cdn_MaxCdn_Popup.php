@@ -229,20 +229,20 @@ class Cdn_MaxCdn_Popup {
 
 		if ( !isset( $details[$field]['current'] ) ) {
 			echo 'will be set to <strong>';
-			echo htmlspecialchars( $details[$field]['new'] );
+			echo esc_html( $details[ $field ]['new'] );
 			echo '</strong>';
 		} elseif ( $details[$field]['current'] == $details[$field]['new'] ) {
 				echo '<strong>';
-				echo htmlspecialchars( $details[$field]['new'] );
+				echo esc_html( $details[ $field ]['new'] );
 				echo '</strong>';
 		} else {
 			echo 'currently set to <strong>';
-			echo htmlspecialchars( $details[$field]['current'] );
+			echo esc_html( $details[ $field ]['current'] );
 			echo '</strong><br />';
-			echo '<label class="w3tc_change_label"><input type="checkbox" name="' . $field . '_change" value="y"' .
+			echo '<label class="w3tc_change_label"><input type="checkbox" name="' . esc_attr( $field ) . '_change" value="y"' .
 				' checked="checked" /> ';
 			echo 'change to <strong>';
-			echo htmlspecialchars( $details[$field]['new'] );
+			echo esc_html( $details[ $field ]['new'] );
 			echo '</strong></label><br />';
 		}
 	}
@@ -263,7 +263,7 @@ class Cdn_MaxCdn_Popup {
 			echo 'currently set to <strong>';
 			$this->render_zone_boolean( $details[$field]['current'] );
 			echo '</strong><br />';
-			echo '<input type="checkbox" name="' . $field . '_change" value="y"' .
+			echo '<input type="checkbox" name="' . esc_attr( $field ) . '_change" value="y"' .
 				' checked="checked" /> ';
 			echo 'change to <strong>';
 			$this->render_zone_boolean( $details[$field]['new'] );

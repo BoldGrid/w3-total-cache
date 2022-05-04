@@ -39,6 +39,7 @@ class Generic_AdminActions_Test {
 	 */
 	function w3tc_test_redis() {
 		$servers = Util_Request::get_array( 'servers' );
+		$verify_tls_certificates = Util_Request::get_boolean('verify_tls_certificates', true );
 		$password   = Util_Request::get_string('password', '');
 		$dbid       = Util_Request::get_integer( 'dbid', 0 );
 
@@ -50,6 +51,7 @@ class Generic_AdminActions_Test {
 			foreach ( $servers as $server ) {
 				@$cache = Cache::instance( 'redis', array(
 						'servers' => $server,
+						'verify_tls_certificates' => $verify_tls_certificates,
 						'persistent' => false,
 						'password' => $password,
 						'dbid' => $dbid

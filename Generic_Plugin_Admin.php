@@ -187,7 +187,7 @@ class Generic_Plugin_Admin {
 			do_action( 'w3tc_ajax' );
 			do_action( 'w3tc_ajax_' . Util_Request::get_string( 'w3tc_action' ) );
 		} catch ( \Exception $e ) {
-			echo $e->getMessage();
+			echo esc_html( $e->getMessage() );
 		}
 
 		exit();
@@ -204,7 +204,7 @@ class Generic_Plugin_Admin {
 
 		header( "Content-Type: application/x-javascript; charset=UTF-8" );
 		echo 'document.getElementById("w3tc_monitoring_score") && ( document.getElementById("w3tc_monitoring_score").innerHTML = "' .
-			strtr( $score, '"', '.' ) . '" );';
+			esc_html( strtr( $score, '"', '.' ) ) . '" );';
 
 		exit();
 	}
@@ -312,18 +312,19 @@ class Generic_Plugin_Admin {
 			})(window,document,'script','https://api.w3-edge.com/v1/analytics','w3tc_ga');
 
 			if (window.w3tc_ga) {
-				w3tc_ga('create', '<?php echo $profile ?>', 'auto');
+				w3tc_ga('create', '<?php echo esc_html( $profile ); ?>', 'auto');
 				w3tc_ga('set', {
 					'dimension1': 'w3-total-cache',
-					'dimension2': '<?php echo W3TC_VERSION ?>',
-					'dimension3': '<?php global $wp_version; echo $wp_version; ?>',
-					'dimension4': 'php<?php echo phpversion() ?>',
+					'dimension2': '<?php echo esc_html( W3TC_VERSION ); ?>',
+					'dimension3': '<?php global $wp_version; echo esc_html( $wp_version ); ?>',
+					'dimension4': 'php<?php echo esc_html( phpversion() ); ?>',
 					'dimension5': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
-					'dimension6': 'mysql<?php global $wpdb; echo $wpdb->db_version() ?>',
-					'dimension7': '<?php echo Util_Environment::home_url_host() ?>',
-					'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ) ?>',
-					'dimension10': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ) ?>',
-					'dimension11': '<?php echo esc_attr( Util_Widget::list_widgets() ) ?>',
+					'dimension6': 'mysql<?php global $wpdb; echo esc_attr( $wpdb->db_version() ); ?>',
+					'dimension7': '<?php echo esc_url( Util_Environment::home_url_host() ); ?>',
+					'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
+					'dimension10': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
+					'dimension11': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
+
 					'page': '<?php echo esc_attr( $page ); ?>'
 				});
 
@@ -612,7 +613,7 @@ class Generic_Plugin_Admin {
 
 		$changelog = (array) preg_split( '~[\r\n]+~', trim( $matches[1] ) );
 
-		echo '<div style="color: #f00;">' . __( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
+		echo '<div style="color: #f00;">' . esc_html__( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
 		$ul = false;
 
 		foreach ( $changelog as $index => $line ) {
@@ -622,7 +623,7 @@ class Generic_Plugin_Admin {
 					$ul = true;
 				}
 				$line = preg_replace( '~^\s*\*\s*~', '', htmlspecialchars( $line ) );
-				echo '<li style="width: 50%; margin: 0; float: left; ' . ( $index % 2 == 0 ? 'clear: left;' : '' ) . '">' . $line . '</li>';
+				echo '<li style="width: 50%; margin: 0; float: left; ' . ( $index % 2 == 0 ? 'clear: left;' : '' ) . '">' . esc_html( $line ) . '</li>';
 			} else {
 				if ( $ul ) {
 					echo '</ul><div style="clear: left;"></div>';
@@ -815,15 +816,51 @@ class Generic_Plugin_Admin {
 		 * Show messages
 		 */
 		foreach ( $notes as $key => $note ) {
-			echo sprintf(
-				'<div class="updated w3tc_note" id="%s"><p>%s</p></div>',
-				$key,
-				$note );
+			echo wp_kses(
+				sprintf(
+					'<div class="updated w3tc_note" id="%s"><p>%s</p></div>',
+					esc_attr( $key ),
+					$note
+				),
+				array(
+					'div'   => array(
+						'class' => array(),
+						'id'    => array(),
+					),
+					'input' => array(
+						'class'   => array(),
+						'name'    => array(),
+						'onclick' => array(),
+						'type'    => array(),
+						'value'   => array(),
+					),
+					'p'     => array(),
+				)
+			);
 		}
 
 		foreach ( $errors as $key => $error ) {
-			echo sprintf( '<div class="error w3tc_error" id="%s"><p>%s</p></div>',
-				$key, $error );
+			echo wp_kses(
+				sprintf(
+					'<div class="error w3tc_error" id="%s"><p>%s</p></div>',
+					esc_attr( $key ),
+					$error
+				),
+				array(
+					'div'   => array(
+						'class' => array(),
+						'id'    => array(),
+					),
+					'input' => array(
+						'class'   => array(),
+						'name'    => array(),
+						'onclick' => array(),
+						'type'    => array(),
+						'value'   => array(),
+					),
+					'p'     => array(),
+				)
+			);
 		}
 	}
 }

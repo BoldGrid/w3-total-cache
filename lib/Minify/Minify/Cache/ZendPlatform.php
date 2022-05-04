@@ -81,17 +81,14 @@ class Minify_Cache_ZendPlatform {
     }
 
 
-    /**
-     * Send the cached content to output
-     *
-     * @param string $id cache id
-     */
-    public function display($id)
-    {
-        echo $this->_fetch($id)
-            ? $this->_data
-            : '';
-    }
+	/**
+	 * Send the cached content to output
+	 *
+	 * @param string $id cache id
+	 */
+	public function display( $id ) {
+		echo $this->_fetch( $id ) ? wp_kses( $this->_data, Util_Ui::get_allowed_html_for_wp_kses_from_content( $this->_data ) ) : '';
+	}
 
 
     /**

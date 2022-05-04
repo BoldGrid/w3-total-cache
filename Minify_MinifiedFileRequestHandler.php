@@ -579,7 +579,7 @@ class Minify_MinifiedFileRequestHandler {
 
 		if ( defined( 'W3TC_IN_MINIFY' ) ) {
 			status_header( 400 );
-			echo $message;
+			echo esc_html( $message );
 			die();
 		}
 	}
@@ -671,6 +671,7 @@ class Minify_MinifiedFileRequestHandler {
 					'host' =>  Util_Environment::host(),
 					'module' => 'minify',
 					'servers' => $this->_config->get_array( 'minify.redis.servers' ),
+					'verify_tls_certificates' => $this->_config->get_boolean( 'minify.redis.verify_tls_certificates' ),
 					'persistent' => $this->_config->get_boolean( 'minify.redis.persistent' ),
 					'timeout' => $this->_config->get_integer( 'minify.redis.timeout' ),
 					'retry_interval' => $this->_config->get_integer( 'minify.redis.retry_interval' ),

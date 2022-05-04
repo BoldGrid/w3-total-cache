@@ -103,14 +103,14 @@ class Extension_CloudFlare_Widget {
 	}
 
 	private function date( $value ) {
-		echo date( 'n/j/Y', strtotime( $value ) );
+		echo esc_html( date( 'n/j/Y', strtotime( $value ) ) );
 	}
 
 	private function date_time( $value ) {
-		echo date( 'n/j/Y g:i a', strtotime( $value ) );
+		echo esc_html( date( 'n/j/Y g:i a', strtotime( $value ) ) );
 	}
 
 	private function date_time_sec( $value ) {
-		echo date( 'n/j/Y g:i:s a', strtotime( $value ) );
+		echo esc_html( date( 'n/j/Y g:i:s a', strtotime( $value ) ) );
 	}
 }

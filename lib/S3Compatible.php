@@ -357,7 +357,7 @@ class S3Compatible
 		if (self::$useExceptions)
 			throw new S3Exception($message, $file, $line, $code);
 		else
-			trigger_error($message, E_USER_WARNING);
+			trigger_error( esc_html( $message ), E_USER_WARNING );
 	}
 
 
