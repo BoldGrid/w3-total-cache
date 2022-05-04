@@ -447,7 +447,7 @@ $feature_policies = array(
 								'w3-total-cache'
 							),
 							'<b>',
-							'</b>'
+							'</b>',
 							'<acronym title="' . esc_attr__( 'Subject Public Key Information', 'w3-total-cache' ) . '">',
 							'</acronym>'
 						),

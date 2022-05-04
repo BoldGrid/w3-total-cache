@@ -11,6 +11,7 @@ class Cache_Redis extends Cache_Base {
 	private $_persistent;
 	private $_password;
 	private $_servers;
+	private $_verify_tls_certificates;
 	private $_dbid;
 	private $_timeout;
 	private $_retry_interval;
@@ -26,6 +27,7 @@ class Cache_Redis extends Cache_Base {
 
 		$this->_persistent = ( isset( $config['persistent'] ) && $config['persistent'] );
 		$this->_servers = (array)$config['servers'];
+		$this->_verify_tls_certificates = ( isset( $config['verify_tls_certificates'] ) && $config['verify_tls_certificates'] );
 		$this->_password = $config['password'];
 		$this->_dbid = $config['dbid'];
 		$this->_timeout = $config['timeout'];
@@ -366,12 +368,20 @@ class Cache_Redis extends Cache_Base {
 				} else {
 					list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
 
+					$context = [];
+					if (substr( $server, 0, 4 ) == 'tls:' && !$this->_verify_tls_certificates) {
+						$context['stream'] = [
+							'verify_peer' => false,
+							'verify_peer_name' => false,
+						];
+					}
+
 					if ( $this->_persistent ) {
 						$accessor->pconnect( $ip, $port, $this->_timeout,
-						    $this->_instance_id . '_' . $this->_dbid, $this->_retry_interval, $this->_read_timeout );
+						    $this->_instance_id . '_' . $this->_dbid, $this->_retry_interval, $this->_read_timeout, $context );
 					} else {
 						$accessor->connect( $ip, $port, $this->_timeout, null,
-						    $this->_retry_interval, $this->_read_timeout );
+						    $this->_retry_interval, $this->_read_timeout, $context );
 					}
 				}
 
