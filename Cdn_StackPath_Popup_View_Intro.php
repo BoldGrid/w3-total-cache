@@ -12,7 +12,7 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Your StackPath Account credentials', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Your StackPath Account credentials', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<td>API Key:</td>
@@ -21,9 +21,24 @@ if ( ! defined( 'W3TC' ) ) {
 						style="width: 550px"
 						value="<?php echo esc_attr( $details['api_key'] ); ?>" />
 					<p class="description">
-						To obtain API key you can
-						<a target="_blank" href="<?php echo esc_url( $url_obtain_key ); ?>">click here</a>,
-						log in, and paste the key in above field.
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 HTML a tag to Stackpath API key page.
+								__(
+									'To obtain API key you can %1$s, log in, and paste the key in above field.',
+									'w3-total-cache'
+								),
+								'<a target="_blank" href="' . esc_url( $url_obtain_key ) . '">' . esc_html__( 'click here', 'w3-total-cache' ) . '</a>'
+							),
+							array(
+								'a' => array(
+									'target' => array(),
+									'href'   => array(),
+								),
+							)
+						);
+						?>
 					</p>
 				</td>
 			</tr>

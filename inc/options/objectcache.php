@@ -18,7 +18,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'w3-total-cache'
 				),
 				'<strong>' . Cache::engine_name( $this->_config->get_string( 'objectcache.engine' ) ) . '</strong>',
-				'<span class="w3tc-' . ( $objectcache_enabled ? 'enabled">' . __( 'enabled', 'w3-total-cache' ) : 'disabled">' . __( 'disabled', 'w3-total-cache' ) ) . '</span>'
+				'<span class="w3tc-' . ( $objectcache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
 			),
 			array(
 				'strong' => array(),
@@ -30,7 +30,7 @@ if ( ! defined( 'W3TC' ) ) {
 		?>
 	</p>
 	<p>
-		To rebuild the object cache use the
+		<?php esc_html_e( 'To rebuild the object cache use the', 'w3-total-cache' ); ?>
 		<?php
 		echo wp_kses(
 			Util_Ui::nonce_field( 'w3tc' ),
@@ -44,13 +44,13 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 		<input type="submit" name="w3tc_flush_objectcache" value="<?php esc_attr_e( 'empty cache', 'w3-total-cache' ); ?>"
-			<?php echo ! $objectcache_enabled ? ' disabled="disabled"' : ''; ?> class="button" /> operation.
+			<?php echo ! $objectcache_enabled ? ' disabled="disabled"' : ''; ?> class="button" /><?php esc_html_e( ' operation.', 'w3-total-cache' ); ?>
 	</p>
 </form>
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
 		<table class="form-table">
 			<?php
 			if ( 'memcached' === $this->_config->get_string( 'objectcache.engine' ) ) {

@@ -10,10 +10,10 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::hidden( '', 'api_config', $details['api_config'] );
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select site to use', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select site to use', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<td>Site:</td>
+				<td><?php esc_html_e( 'Site:', 'w3-total-cache' ); ?></td>
 				<td>
 					<?php
 					if ( count( $details['sites'] ) > 15 ) {
@@ -32,7 +32,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 					<label>
 						<input name="site_id" type="radio" class="w3tc-ignore-change" value="" />
-						Add new site: <?php echo esc_html( $details['new_hostname'] ); ?>
+						<?php esc_html_e( 'Add new site: ', 'w3-total-cache' ); ?><?php echo esc_html( $details['new_hostname'] ); ?>
 					</label>
 
 					<?php

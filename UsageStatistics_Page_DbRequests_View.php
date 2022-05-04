@@ -8,12 +8,12 @@ if ( ! defined( 'W3TC' ) ) {
 require W3TC_INC_DIR . '/options/common/header.php';
 ?>
 <div class="metabox-holder">
-	<?php Util_Ui::postbox_header( __( 'Usage Statistics', 'w3-total-cache' ) ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Usage Statistics', 'w3-total-cache' ) ); ?>
 
-	<div style="float: right"><a href="admin.php?page=w3tc_stats">&lt; Back To Statistics</a></div>
-	<h1>Database Queries</h1>
+	<div style="float: right"><a href="admin.php?page=w3tc_stats"><?php esc_html_e( '&lt; Back To Statistics', 'w3-total-cache' ); ?></a></div>
+	<h1><?php esc_html_e( 'Database Queries', 'w3-total-cache' ); ?></h1>
 	<p>
-		Period
+		<?php esc_html_e( 'Period', 'w3-total-cache' ); ?>
 		<?php echo esc_html( $result['date_min'] ); ?>
 		-
 		<?php echo esc_html( $result['date_max'] ); ?>
@@ -30,7 +30,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</tr>
 	<?php foreach ( $result['items'] as $i ) : ?>
 		<tr>
-			<td title="Reject reasons: <?php echo esc_attr( implode( ',', $i['reasons'] ) ); ?>"><?php echo esc_html( $i['query'] ); ?></td>
+			<td title="<?php echo esc_attr__( 'Reject reasons: ', 'w3-total-cache' ) . esc_attr( implode( ',', $i['reasons'] ) ); ?>"><?php echo esc_html( $i['query'] ); ?></td>
 			<td><?php echo esc_html( $i['count_total'] ); ?></td>
 			<td><?php echo esc_html( $i['count_hit'] ); ?></td>
 			<td><?php echo esc_html( $i['sum_time_ms'] ); ?></td>

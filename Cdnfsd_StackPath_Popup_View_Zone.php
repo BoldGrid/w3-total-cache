@@ -13,35 +13,44 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Configure zone', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Configure zone', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<th>Name:</th>
+				<th><?php esc_html_e( 'Name:', 'w3-total-cache' ); ?></th>
 				<td><?php echo esc_html( $details['name'] ); ?></td>
 			</tr>
 			<tr>
-				<th>Origin URL:</th>
+				<th><?php esc_html_e( 'Origin URL:', 'w3-total-cache' ); ?></th>
 				<td><?php $this->render_zone_value_change( $details, 'url' ); ?></td>
 			</tr>
 			<tr>
-				<th>Origin IP:</th>
+				<th><?php esc_html_e( 'Origin IP:', 'w3-total-cache' ); ?></th>
 				<td><?php $this->render_zone_ip_change( $details, 'ip' ); ?>
-					<p class="description">IP of your WordPress host</p>
+					<p class="description"><?php esc_html_e( 'IP of your WordPress host', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 			<tr>
-				<th>Origin IP Resolution:</th>
+				<th><?php esc_html_e( 'Origin IP Resolution:', 'w3-total-cache' ); ?></th>
 				<td><?php $this->render_zone_boolean_change( $details, 'dns_check' ); ?></td>
 			</tr>
 			<tr>
-				<th>Ignore Cache Control:</th>
+				<th><?php esc_html_e( 'Ignore Cache Control:', 'w3-total-cache' ); ?></th>
 				<td><?php $this->render_zone_boolean_change( $details, 'dns_check' ); ?></td>
 			</tr>
 			<tr>
-				<th><acronym title="Content Delivery Network">CDN</acronym> Domain:</th>
+				<th>
+					<acronym title="<?php esc_attr_e( 'Content Delivery Network', 'w3-total-cache' ); ?>">
+						<?php esc_html_e( 'CDN', 'w3-total-cache' ); ?>
+					</acronym><?php esc_html_e( ' Domain:', 'w3-total-cache' ); ?>
+				</th>
 				<td>
 					<?php $this->render_zone_value_change( $details, 'custom_domain' ); ?>
-					<p class="description">Domain <acronym title="Content Delivery Network">CDN</acronym> will handle</p>
+					<p class="description">
+						<?php esc_html_e( 'Domain ', 'w3-total-cache' ); ?>
+						<acronym title="<?php esc_attr_e( 'Content Delivery Network', 'w3-total-cache' ); ?>">
+							<?php esc_html_e( 'CDN', 'w3-total-cache' ); ?>
+						</acronym><?php esc_html_e( ' will handle', 'w3-total-cache' ); ?>
+					</p>
 				</td>
 			</tr>
 		</table>

@@ -23,10 +23,10 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 	<br /><br />
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select folder', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select folder', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<td>Folder:</td>
+				<td><?php esc_html_e( 'Folder:', 'w3-total-cache' ); ?></td>
 				<td>
 					<?php foreach ( $folders as $folder ) : ?>
 						<label>
@@ -37,7 +37,7 @@ if ( ! defined( 'W3TC' ) ) {
 					<?php endforeach ?>	
 					<label>
 						<input name="folder" type="radio" class="w3tc-ignore-change" value="" />
-						Add new folder:
+						<?php esc_html_e( 'Add new folder:', 'w3-total-cache' ); ?>
 					</label>
 					<input name="folder_new" type="text" class="w3tc-ignore-change" />
 				</td>

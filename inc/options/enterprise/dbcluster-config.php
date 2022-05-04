@@ -9,7 +9,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Database Cluster Configuration File', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Database Cluster Configuration File', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<th>
