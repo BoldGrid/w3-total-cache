@@ -29,10 +29,10 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select zone', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select zone', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<td>Zone:</td>
+				<td><?php esc_html_e( 'Zone:', 'w3-total-cache' ); ?></td>
 				<td>
 					<?php foreach ( $details['zones'] as $z ) : ?>
 						<label>
@@ -41,6 +41,7 @@ if ( ! defined( 'W3TC' ) ) {
 							<?php echo esc_html( $z['name'] ); ?>
 						</label><br />
 					<?php endforeach ?>
+				</td>
 			</tr>
 			<tr>
 				<td></td>

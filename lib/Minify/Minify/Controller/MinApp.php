@@ -108,8 +108,8 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
         }
 
         if (! $cOptions['groupsOnly'] && isset($_GET['f_array'])) {
-            $files = $_GET['f_array'];
-            $ext   = isset( $_GET['ext'] ) ? sanitize_text_field( wp_unslash( $_GET['ext'] ) ) : '';
+            $files = sanitize_text_field( wp_unslash( $_GET['f_array'] ) );
+            $ext = isset( $_GET['ext'] ) ? sanitize_text_field( wp_unslash( $_GET['ext'] ) ) : '';
 
             if (!empty($_GET['b'])) {
 				$b = sanitize_text_field( wp_unslash( $_GET['b'] ) );
@@ -136,7 +136,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
             $basenames = array(); // just for cache id
             foreach ($files as $file) {
                 if ($file instanceof Minify_Source) {
-                    $sources[] = sanitize_text_field( wp_unslash( $file ) );
+                    $sources[] = $file;
                     continue;
                 }
 

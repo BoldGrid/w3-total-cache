@@ -23,6 +23,14 @@ describe('', function() {
 
 
 
+	it('copy theme files', async() => {
+		let theme = await wp.getCurrentTheme(adminPage);
+		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
+		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', targetPath);
+	});
+
+
+
 	it('set options', async() => {
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
 			pgcache__enabled: true,

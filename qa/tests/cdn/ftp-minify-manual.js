@@ -14,24 +14,25 @@ const wp = requireRoot('lib/wp');
 
 /**environments:environments('blog') */
 
-let theme;
-
 describe('', function() {
 	this.timeout(sys.suiteTimeout);
 	before(sys.beforeDefault);
 	after(sys.after);
 
-	it('copy theme files', async() => {
-		theme = await wp.getCurrentTheme(adminPage);
-		let themePath = env.wpContentPath + 'themes/' + theme;
-		await sys.copyPhpToPath('../../plugins/minify-manual-theme/*', `${themePath}/qa`);
+	it('test', async() => {
+		//
+		// copy theme files
+		//
+		let theme = await wp.getCurrentTheme(adminPage);
+		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
+		await sys.copyPhpToPath('../../plugins/minify-manual-theme/*', targetPath);
 		await sys.copyPhpToRoot('../../plugins/cdn/generic.php');
-		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/minify-js-sc.php');
-	});
+		log.success('theme files copied');
 
 
-
-	it('set options', async() => {
+		//
+		// set options
+		//
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
 			cdn__enabled: true,
 			browsercache__enabled: false,
@@ -52,10 +53,8 @@ describe('', function() {
 		});
 
 		await sys.afterRulesChange();
-	});
 
 
-	it('test', async() => {
 		//
 		// configure minify
 		//
@@ -69,7 +68,8 @@ describe('', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'page content [w3tcqa]'
+			content: 'page content',
+			template: 'qa/minify-js.php'
 		});
 		testPageUrl = testPage.url;
 

@@ -101,10 +101,6 @@ $keys = array(
 			'127.0.0.1:6379'
 		)
 	),
-	'dbcache.redis.verify_tls_certificates' => array(
-		'type' => 'boolean',
-		'default' => true
-	),
 	'dbcache.redis.password' => array(
 		'type' => 'string',
 		'default' => ''
@@ -314,10 +310,6 @@ $keys = array(
 			'127.0.0.1:6379'
 		)
 	),
-	'objectcache.redis.verify_tls_certificates' => array(
-		'type' => 'boolean',
-		'default' => true
-	),
 	'objectcache.redis.password' => array(
 		'type' => 'string',
 		'default' => ''
@@ -445,10 +437,6 @@ $keys = array(
 		'default' => array(
 			'127.0.0.1:6379'
 		)
-	),
-	'pgcache.redis.verify_tls_certificates' => array(
-		'type' => 'boolean',
-		'default' => true
 	),
 	'pgcache.redis.password' => array(
 		'type' => 'string',
@@ -831,10 +819,6 @@ $keys = array(
 		'default' => array(
 			'127.0.0.1:6379'
 		)
-	),
-	'minify.redis.verify_tls_certificates' => array(
-		'type' => 'boolean',
-		'default' => true
 	),
 	'minify.redis.password' => array(
 		'type' => 'string',

@@ -122,9 +122,6 @@ class Extension_CloudFlare_Plugin_Admin {
 		$this->check_ip_versions();
 	}
 
-	/**
-	 * Admin notices.
-	 */
 	public function admin_notices() {
 		$plugins = get_plugins();
 		if ( array_key_exists( 'cloudflare/cloudflare.php', $plugins ) && $this->_config->get_boolean( 'notes.cloudflare_plugin' ) ) {
@@ -141,18 +138,7 @@ class Extension_CloudFlare_Plugin_Admin {
 					Util_Ui::button_hide_note( 'Hide this message', 'cloudflare_plugin' ),
 					'</p></div>'
 				),
-				array(
-					'div'   => array(
-						'class' => array(),
-					),
-					'input' => array(
-						'class'   => array(),
-						'value'   => array(),
-						'type'    => array(),
-						'onclick' => array(),
-					),
-					'p'     => array(),
-				)
+				array()
 			);
 		}
 	}

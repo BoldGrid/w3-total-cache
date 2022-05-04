@@ -22,10 +22,8 @@ else if (parseFloat(env.wpVersion) < 5.0)
 	otherTheme = 'twentyfifteen/twentyfifteen';
 else if (parseFloat(env.wpVersion) < 5.5)
 	otherTheme = 'twentysixteen/twentysixteen';
-else if (parseFloat(env.wpVersion) < 5.9)
-	otherTheme = 'twentynineteen/twentynineteen';
 else
-	otherTheme = 'twentytwentyone/twentytwentyone';
+	otherTheme = 'twentynineteen/twentynineteen';
 
 let pluginUrl = env.blogSiteUrl.replace(/(b2\.)?wp\.sandbox/, 'for-tests.wp.sandbox') +
 	'user-agent-groups.php?path=' + env.blogSiteUrl;
@@ -110,10 +108,6 @@ describe('', function() {
 		} else if (theme[0] == 'twentynineteen') {
 			css = await page.$eval('#twentynineteen-style-css',
 				(e) => e.getAttribute('href'));
-		} else if (theme[0] == 'twentytwentyone') {
-			css = await page.$eval('#twenty-twenty-one-style-css',
-				(e) => e.getAttribute('href'));
-
 		} else {
 			css = await page.$eval('link[type="text/css"]',
 				(e) => e.getAttribute('href'));

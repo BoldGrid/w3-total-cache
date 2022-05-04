@@ -13,7 +13,7 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Specify API Key', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Specify API Key', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<th>

@@ -12,10 +12,29 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Your <acronym title="Amazon Web Services">AWS</acronym> CloudFront Account Credentials', 'w3-total-cache' ) ); ?>
+		<?php
+		Util_Ui::postbox_header(
+			wp_kses(
+				sprintf(
+					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+					__(
+						'Your %1$sAWS%2$s CloudFront Account Credentials',
+						'w3-total-cache'
+					),
+					'<acronym title="' . esc_attr__( 'Amazon Web Services', 'w3-total-cache' ) . '">',
+					'</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
+			)
+		);
+		?>
 		<table class="form-table">
 			<tr>
-				<td>Access Key:</td>
+				<td><?php esc_html_e( 'Access Key:', 'w3-total-cache' ); ?></td>
 				<td>
 					<input name="access_key" type="text" class="w3tc-ignore-change"
 						style="width: 550px"
@@ -23,7 +42,7 @@ if ( ! defined( 'W3TC' ) ) {
 				</td>
 				</tr>
 				<tr>
-					<td>Access Secret:</td>
+					<td><?php esc_html_e( 'Access Secret:', 'w3-total-cache' ); ?></td>
 					<td>
 						<input name="secret_key" type="text" class="w3tc-ignore-change"
 							style="width: 550px"

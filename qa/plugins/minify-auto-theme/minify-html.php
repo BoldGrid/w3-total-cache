@@ -1,20 +1,13 @@
 <?php
 /**
- * File: minify-html.php
- *
- * Minify auto HTML test: A Page Template for testing minify HTML.
- *
- * Template Name: Minify: HTML
- * Template Post Type: post, page
+ * Template Name: Minify Auto - HTML test
+ * Description: A Page Template for testing minify HTML
  *
  * @package W3TC
- * @subpackage QA
- *
- * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WhiteSpace.PrecisionAlignment.Found
+ * @subpackage W3TC QA
  */
 
-get_header();
-?>
+get_header(); ?>
 <div id="main-content" class="main-content">
 
 	<div id="multiple-whitespace1" data-attr="   space-in-attr   ">    multiple whitespace around element
@@ -97,5 +90,5 @@ get_header();
 	<div id="link-ending-slash"><a href="https://www.website.com/path/">bla</a></div>
 	<div id="link-ending-slash-extra-tags"><a href="https://www.website.com/path/" class="my">bla2</a></div>
 </div>
-<?php
-get_footer();
+
+<?php get_footer(); ?>

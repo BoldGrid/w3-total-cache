@@ -1,21 +1,8 @@
 <?php
-/**
- * File: flush-api.php
- *
- * @package W3TC
- * @subpackage QA
- *
- * phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
- */
-
-if ( ! defined( 'DONOTCACHEPAGE' ) ) {
-	define( 'DONOTCACHEPAGE', true );
-}
-
-require __DIR__ . '/wp-load.php';
+include(dirname(__FILE__) . '/wp-load.php');
+define('DONOTCACHEPAGE', true);
 
 $url = $_REQUEST['url'];
 
 w3tc_flush_url( $url );
-
 echo 'ok';

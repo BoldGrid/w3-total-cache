@@ -21,16 +21,15 @@ class Util_Ui {
 	}
 
 	/**
-	 * Returns button link html.
+	 * Returns button link html
 	 *
-	 * @param string $text       Text.
-	 * @param string $url        URL.
-	 * @param bool   $new_window Open link in a new window.
-	 * @param string $class      Class.
-	 * @param string $name       Name.
+	 * @param string  $text
+	 * @param string  $url
+	 * @param boolean $new_window
 	 * @return string
 	 */
-	public static function button_link( $text, $url, $new_window = false, $class = 'button', $name = '' ) {
+	public static function button_link( $text, $url, $new_window = false,
+		$class = 'button', $name = '' ) {
 		$url = str_replace( '&amp;', '&', $url );
 
 		if ( $new_window ) {
@@ -444,7 +443,7 @@ class Util_Ui {
 	public static function passwordbox( $id, $name, $value, $disabled = false, $size = 40 ) {
 		echo '<input class="enabled" type="password"
 			 id="' . esc_attr( $id ) . '"
-			 name="' . esc_attr( $name ) . '"
+			 name="' . esc_attr( $name ) . '" 
 			 value="' . esc_attr( $value ) . '" ';
 		disabled( $disabled );
 		echo ' size="' . esc_attr( $size ) . '" />';

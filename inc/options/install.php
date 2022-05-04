@@ -40,7 +40,7 @@ if ( ! defined( 'W3TC' ) ) {
 				sprintf(
 					// translators: 1 opening HTML a tag to W3TC PageCache admin page, 2 closing HTML a tag.
 					__(
-						'1. The "Compatibility Mode" option found in the advanced section of the %1$s"Page Cache Settings"%2$s tab will enable functionality that optimizes the interoperablity of caching with WordPress, is disabled by default, but highly recommended. Years of testing in hundreds of thousands of installations have helped us learn how to make caching behave well with WordPress. The tradeoff is that disk enhanced page cache performance under load tests will be decreased by ~20%% at scale.',
+						'1. The "Compatibility Mode" option found in the advanced section of the %1$s"Page Cache Settings"%2$s tab will enable functionality that optimizes the interoperablity of caching with WordPress, is disabled by default, but highly recommended. Years of testing in hundreds of thousands of installations have helped us learn how to make caching behave well with WordPress. The tradeoff is that disk enhanced page cache performance under load tests will be decreased by ~20\% at scale.',
 						'w3-total-cache'
 					),
 					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_pgcache' ) ) . '">',

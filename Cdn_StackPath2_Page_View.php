@@ -95,7 +95,7 @@ if ( ! defined( 'W3TC' ) ) {
 							// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag,
 							// translators: 5 opening HTML acronym tag, 6 closing HTML acronym tag.
 							__(
-								'This website domain has to be %1$sCNAME%2$s pointing to this %3$sCDN%4$s domain for %5$sHTTP%6$s requests',
+								'This website domain has to be %1$sCNAME%2$s pointing to this %3$sCDN%4$s domain for %5$sHTTP</acronym> requests',
 								'w3-total-cache'
 							),
 							'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',

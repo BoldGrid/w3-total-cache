@@ -28,9 +28,8 @@ describe('', function() {
 
 	it('copy theme files', async() => {
 		let theme = await wp.getCurrentTheme(adminPage);
-		let themePath = env.wpContentPath + 'themes/' + theme;
-		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', `${themePath}/qa`);
-		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/minify-auto-js-sc.php');
+		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
+		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', targetPath);
 	});
 
 
@@ -60,7 +59,8 @@ describe('', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'page content [w3tcqa]'
+			content: 'page content',
+			template: 'qa/minify-auto-js.php'
 		});
 		testPageUrl = testPage.url;
 	});

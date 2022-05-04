@@ -696,7 +696,6 @@ class ObjectCache_WpObjectCache_Regular {
 		case 'redis':
 			$engineConfig = array(
 				'servers' => $this->_config->get_array( 'objectcache.redis.servers' ),
-				'verify_tls_certificates' => $this->_config->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
 				'persistent' => $this->_config->get_boolean( 'objectcache.redis.persistent' ),
 				'timeout' => $this->_config->get_integer( 'objectcache.redis.timeout' ),
 				'retry_interval' => $this->_config->get_integer( 'objectcache.redis.retry_interval' ),
@@ -748,7 +747,6 @@ class ObjectCache_WpObjectCache_Regular {
 			case 'redis':
 				$engineConfig = array(
 					'servers' => $this->_config->get_array( 'objectcache.redis.servers' ),
-					'verify_tls_certificates' => $this->_config->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
 					'persistent' => $this->_config->get_boolean( 'objectcache.redis.persistent' ),
 					'timeout' => $this->_config->get_integer( 'objectcache.redis.timeout' ),
 					'retry_interval' => $this->_config->get_integer( 'objectcache.redis.retry_interval' ),

@@ -363,11 +363,6 @@ $security_session_values = array(
 					'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
 					'</acronym>'
 				),
-				array(
-					'acronym' => array(
-						'title' => array(),
-					),
-				)
 			),
 			'',
 			'css_js'

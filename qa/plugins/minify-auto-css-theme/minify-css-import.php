@@ -1,57 +1,51 @@
 <?php
 /**
- * File: minify-css-import.php
- *
- * Minify auto CSS: A Page Template for testing minify auto js split.
- *
- * Template Name: Minify: Auto: CSS theme import
- * Template Post Type: post, page
+ * Template Name: Minify Auto Css
+ * Description: A Page Template for testing minify auto js split
  *
  * @package W3TC
- * @subpackage QA
- *
- * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * @subpackage W3TC QA
  */
 
-wp_enqueue_style( 'minify-css1', get_template_directory_uri() . '/qa/minify-css1.css', array(), W3TC_VERSION, false );
+wp_enqueue_style( 'minify-css1', get_template_directory_uri() . '/qa/minify-css1.css' );
 
-// Test relative paths, without host.
-add_action(
-	'wp_head',
-	function() {
-		$css3_parts = wp_parse_url( get_template_directory_uri() . '/qa/minify-css3.css' );
-		$css3_path  = $css3_parts['path'];
+// test relative paths, without host
+add_action( 'wp_head', 'w3tcqa_wp_head' );
 
-		echo '<link rel="stylesheet" id="minify-css3-css"  href="' . $css3_path . '" type="text/css" media="all" />'; // phpcs:ignore
-	}
-);
+function w3tcqa_wp_head() {
+	$css3_parts = parse_url( get_template_directory_uri() . '/qa/minify-css3.css' );
+	$css3_path = $css3_parts['path'];
 
-get_header();
-?>
-<div id="main-content" class="main-content">
-	<div id="primary" class="content-area">
-		<div id="content" role="main" class="site-content">
-			<?php
-			while ( have_posts() ) {
-				the_post();
+	echo "<link rel='stylesheet' id='minify-css3-css'  href='$css3_path' type='text/css' media='all' />";
+}
 
-				/**
-				 * We are using a heading by rendering the_content
-				 * If we have content for this page, let's display it.
-				 */
-				if ( empty( get_the_content() ) ) {
-					get_template_part( 'content', 'intro' );
-				}
-			}
+get_header(); ?>
+	<div id="main-content" class="main-content">
+		<div id="primary" class="content-area">
+			<div id="content" role="main" class="site-content">
+				<?php while ( have_posts() ) : the_post(); ?>
 
-			$url6 = get_template_directory_uri() . '/qa/minify-auto-js6.js';
+				<?php
+					/**
+					 * We are using a heading by rendering the_content
+					 * If we have content for this page, let's display it.
+					 */
+					if ( '' != get_the_content() )
+						get_template_part( 'content', 'intro' );
+				?>
 
-			// No quotes around script url.
-			echo '<script type="text/javascript" src=' . $url6 . '></script>'; // phpcs:ignore
+				<?php endwhile; ?>
 
-			?>
-		</div>
-	</div>
-</div>
-<?php
-get_footer();
+				<?php
+
+				$url6 = get_template_directory_uri() . '/qa/minify-auto-js6.js';
+				// no quotes around script url
+    			echo '<script type="text/javascript" src=' . $url6 . '></script>';
+
+    			?>
+
+			</div><!-- #content -->
+		</div><!-- #primary -->
+</div><!-- #primary -->
+
+<?php get_footer(); ?>

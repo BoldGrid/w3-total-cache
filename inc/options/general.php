@@ -202,7 +202,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag,
 							// translators: 5 opening HTML acronym tag, 6 closing HTML acronym tag.
 							__(
-								'Minification can decrease file size of %1$sHTML%2$s, %3$sCSS%4$s, %5$sJS%6$s and feeds respectively by ~10%% on average.',
+								'Minification can decrease file size of %1$SHTML%2$s, %3$sCSS%4$s, %5$sJS%6$s and feeds respectively by ~10% on average.',
 								'w3-total-cache'
 							),
 							'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',

@@ -390,7 +390,7 @@ class Minify {
 			} else {
 				echo wp_kses(
 					$content['content'],
-					\W3TC\Util_Ui::get_allowed_html_for_wp_kses_from_content( $content['content'] )
+					Util_Ui::get_allowed_html_for_wp_kses_from_content( $content['content'] )
 				);
 			}
 		} else {

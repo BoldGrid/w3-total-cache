@@ -343,6 +343,15 @@ class Generic_Plugin {
 						'w3tc'
 					),
 				);
+				$menu_items['60030.generic'] = array(
+					'id'     => 'w3tc_overlay_edge',
+					'parent' => 'w3tc_debug_overlays',
+					'title'  => __( 'Edge', 'w3-total-cache' ),
+					'href'   => wp_nonce_url(
+						network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=generic_edge' ),
+						'w3tc'
+					),
+				);
 			}
 
 			$menu_items = apply_filters( 'w3tc_admin_bar_menu', $menu_items );
