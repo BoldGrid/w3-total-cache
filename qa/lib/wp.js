@@ -128,6 +128,7 @@ exports.postCreate = async function(pPage, data) {
 	let result2 = JSON.parse(resultString2);
 	expect(result2.id > 0).true;
 	expect(result2.link).not.empty;
+	log.log('page created: ' + result2.link);
 
 	return {
 		id: result2.id,
@@ -198,6 +199,17 @@ exports.addWpConfigConstant = async function(pPage, name, value) {
 	}
 
 	log.error('constant is not defined');
+}
+
+
+
+exports.addQaBootstrap = async function(pPage, themeFunctionsFilename, filenameToLoad) {
+	log.log('add qa bootstrap code to ' + themeFunctionsFilename);
+    let content = await fs.readFileAsync(themeFunctionsFilename, 'utf8');
+	await fs.writeFileAsync(themeFunctionsFilename,
+		content + "\n\n" +
+		"require( __DIR__ . '" + filenameToLoad + "' );",
+		'utf8');
 }
 
 

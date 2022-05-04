@@ -1,22 +1,32 @@
 <?php
+/**
+ * File: default-lifetime-objects.php
+ *
+ * Object cache: Default lifetime objects.
+ *
+ * Template Name: Object cache: Default lifetime
+ * Template Post Type: post, page
+ *
+ * @package W3TC
+ * @subpackage QA
+ *
+ * phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput, WordPress.WP.GlobalVariablesOverride.Prohibited
+ */
 
-require_once dirname(__FILE__) . '/wp-load.php';
+require __DIR__ . '/wp-load.php';
 
 $action = $_REQUEST['action'];
-$group = $_REQUEST['group'];
-$id = 'test';
-$data = 'object cache test';
+$group  = $_REQUEST['group'];
+$id     = 'test';
+$data   = 'object cache test';
 
-switch($action) {
+switch ( $action ) {
 	case 'setCache':
-		$set = wp_cache_set($id, $data, $group);
-		echo $set ? 'setCache ok' : 'setCache error ' . $group . ':' . $id;
+		echo wp_cache_set( $id, $data, $group ) ?
+			'setCache ok' : 'setCache error ' . esc_html( $group ) . ':' . esc_html( $id );
 		die;
-		break;
 
 	case 'getCache':
-		$cache = wp_cache_get($id, $group);
-		echo $cache;
+		echo wp_cache_get( $id, $group ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		die;
-		break;
 }

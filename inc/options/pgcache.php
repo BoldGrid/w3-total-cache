@@ -89,7 +89,8 @@ if ( ! defined( 'W3TC' ) ) {
 							),
 							array(
 								'a' => array(
-									'href' => array(),
+									'href'   => array(),
+									'target' => array(),
 								),
 							)
 						);
@@ -849,7 +850,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'</acronym>',
 									'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
 									'</acronym>',
-									'<a href="' . esc_url( wp_admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
+									'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
 									'</a>'
 								),
 								array(
