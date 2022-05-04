@@ -198,7 +198,7 @@ if ( ! defined( 'W3TC' ) ) {
 							sprintf(
 								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 								__(
-									'Browser cache %1$sTTL</acronym>:',
+									'Browser cache %1$sTTL%2$s:',
 									'w3-total-cache'
 								),
 								'<acronym title="' . esc_attr__( 'Time-to-Live', 'w3-total-cache' ) . '">',

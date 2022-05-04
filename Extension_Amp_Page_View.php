@@ -19,7 +19,10 @@ if ( ! defined( 'W3TC' ) ) {
 					'tag'         => 'tag',
 					'querystring' => 'query string',
 				),
-				'description'       => 'If AMP page URLs are tag based (/my-page/amp/) or query string based (/my-page?amp)',
+				'description'       => esc_html__(
+					'If AMP page URLs are tag based (/my-page/amp/) or query string based (/my-page?amp)',
+					'w3-total-cache'
+				),
 			)
 		);
 		Util_Ui::config_item(
