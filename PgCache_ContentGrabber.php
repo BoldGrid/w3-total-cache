@@ -127,6 +127,7 @@ class PgCache_ContentGrabber {
 
 		$this->_request_uri = isset( $_SERVER['REQUEST_URI'] ) ?
 			filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : ''; // phpcs:ignore
+
 		$this->_lifetime = $this->_config->get_integer( 'pgcache.lifetime' );
 		$this->_late_init = $this->_config->get_boolean( 'pgcache.late_init' );
 		$this->_late_caching = $this->_config->get_boolean( 'pgcache.late_caching' );
@@ -1540,6 +1541,8 @@ class PgCache_ContentGrabber {
 
 		if ( empty( $page_key_extension['group'] ) ) {
 			if ( $this->_enhanced_mode || $this->_nginx_memcached ) {
+				$extra = '';
+
 				// URL decode
 				$key = urldecode( $key );
 
@@ -1553,13 +1556,16 @@ class PgCache_ContentGrabber {
 				$key = preg_replace( '~\?.*$~', '', $key );
 
 				// make sure one slash is at the end
+				if (substr($key, strlen($key) - 1, 1) == '/') {
+					$extra = '_slash';
+				}
 				$key = trim( $key, '/' ) . '/';
 
 				if ( $this->_nginx_memcached ) {
 					return $key;
 				}
 
-				return $key . '_index';
+				return $key . '_index' . $extra;
 			}
 		}
 
