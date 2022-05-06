@@ -19,7 +19,7 @@ if ( ! defined( 'W3TC' ) ) {
 					),
 					'<br />',
 					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
-					'</a>',
+					'</a>'
 				),
 				array(
 					'a'  => array(
