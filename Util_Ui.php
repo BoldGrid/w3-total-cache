@@ -792,7 +792,7 @@ class Util_Ui {
 					isset( $e['name'] ) ? $e['name'] : null,
 					$e['value'],
 					( isset( $e['disabled'] ) ? $e['disabled'] : false ),
-					( isset( $e['label'] ) ? $e['label'] : null ),
+					( isset( $e['label'] ) ? $e['label'] : null )
 				);
 			} elseif ( 'description' === $key ) {
 				echo '<p class="description">' . wp_kses( $e, self::get_allowed_html_for_wp_kses_from_content( $e ) ) . '</p>';
