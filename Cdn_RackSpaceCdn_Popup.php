@@ -378,7 +378,7 @@ class Cdn_RackSpaceCdn_Popup {
 								),
 							),
 						),
-					),
+					)
 				);
 			}
 		} catch ( \Exception $ex ) {
@@ -523,7 +523,7 @@ class Cdn_RackSpaceCdn_Popup {
 					'</strong><br />',
 					'<strong>',
 					$details[ $field ]['new'],
-					'</strong><br />',
+					'</strong><br />'
 				),
 				array(
 					'strong' => array(),

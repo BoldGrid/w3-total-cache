@@ -154,7 +154,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'</acronym>',
 					'</a>',
 					'<acronym title="' . __( 'Domain Name System', 'w3-total-cache' ) . '">',
-					'</acronym>',
+					'</acronym>'
 				),
 				array(
 					'a'       => array(

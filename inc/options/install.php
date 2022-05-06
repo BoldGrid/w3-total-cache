@@ -24,7 +24,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'w3-total-cache'
 					),
 					'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
-					'</a>',
+					'</a>'
 				),
 				array(
 					'a' => array(

@@ -165,7 +165,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 							'</acronym>',
 							'<acronym title="' . esc_attr__( 'HyperText Transfer Protocol over SSL', 'w3-total-cache' ) . '">',
-							'</acronym>',
+							'</acronym>'
 						),
 						array(
 							'acronym' => array(

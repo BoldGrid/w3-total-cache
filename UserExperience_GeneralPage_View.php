@@ -17,7 +17,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'key'            => 'lazyload.enabled',
 			'control'        => 'checkbox',
 			'checkbox_label' => esc_html__( 'Lazy Load Images', 'w3-total-cache' ),
-			'description'    => esc_html__( 'Defer loading offscreen images.', 'w3-total-cache' )
+			'description'    => esc_html__( 'Defer loading offscreen images.', 'w3-total-cache' ),
 		)
 	);
 
@@ -39,7 +39,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 					'<strong>',
 					'</strong>',
 					'<a href="' . admin_url( 'admin.php?page=w3tc_userexperience' ) . '">',
-					'</a>',
+					'</a>'
 				),
 				array(
 					'a'      => array(
