@@ -806,7 +806,7 @@ class Util_Ui {
 					$e['value'],
 					$e['values'],
 					$e['disabled'],
-					$e['separator'],
+					$e['separator']
 				);
 			} elseif ( 'selectbox' === $key ) {
 				self::selectbox(
@@ -815,7 +815,7 @@ class Util_Ui {
 					$e['value'],
 					$e['values'],
 					( isset( $e['disabled'] ) ? $e['disabled'] : false ),
-					( isset( $e['optgroups'] ) ? $e['optgroups'] : null ),
+					( isset( $e['optgroups'] ) ? $e['optgroups'] : null )
 				);
 			} elseif ( 'textbox' === $key ) {
 				self::textbox(
@@ -825,14 +825,14 @@ class Util_Ui {
 					( isset( $e['disabled'] ) ? $e['disabled'] : false ),
 					( ! empty( $e['size'] ) ? $e['size'] : 20 ),
 					( ! empty( $e['type'] ) ? $e['type'] : 'text' ),
-					( ! empty( $e['placeholder'] ) ? $e['placeholder'] : '' ),
+					( ! empty( $e['placeholder'] ) ? $e['placeholder'] : '' )
 				);
 			} elseif ( 'textarea' === $key ) {
 				self::textarea(
 					$id,
 					$e['name'],
 					$e['value'],
-					( isset( $e['disabled'] ) ? $e['disabled'] : false ),
+					( isset( $e['disabled'] ) ? $e['disabled'] : false )
 				);
 			}
 		}
