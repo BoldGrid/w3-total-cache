@@ -183,7 +183,7 @@ function w3tc_class_autoload( $class ) {
 					sprintf(
 						// translators: 1 class name, 2 file name.
 						__(
-							'Attempt to create object of class %1 has been made, but file %2 doesnt exists',
+							'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
 							'w3-total-cache'
 						),
 						$class,
