@@ -354,34 +354,87 @@ class Cache_Redis extends Cache_Base {
 			$this->_accessors[$index] = null;
 		else {
 			try {
-				$server = $this->_servers[$index];
+				$server   = $this->_servers[ $index ];
 				$accessor = new \Redis();
 
-				if ( substr( $server, 0, 5 ) == 'unix:' ) { 
+				if ( substr( $server, 0, 5 ) === 'unix:' ) {
 					if ( $this->_persistent ) {
-						$accessor->pconnect( trim( substr( $server, 5 ) ), null, $this->_timeout,
-						    $this->_instance_id . '_' . $this->_dbid, $this->_retry_interval, $this->_read_timeout );
+						$accessor->pconnect(
+							trim( substr( $server, 5 ) ),
+							null,
+							$this->_timeout,
+							$this->_instance_id . '_' . $this->_dbid,
+							$this->_retry_interval,
+							$this->_read_timeout
+						);
 					} else {
-						$accessor->connect( trim( substr( $server, 5, $this->_timeout, null,
-						    $this->_retry_interval, $this->_read_timeout ) ) );
+						$accessor->connect(
+							trim( substr( $server, 5 ) ),
+							$this->_timeout,
+							null,
+							$this->_retry_interval,
+							$this->_read_timeout
+						);
 					}
 				} else {
 					list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
 
-					$context = [];
-					if (substr( $server, 0, 4 ) == 'tls:' && !$this->_verify_tls_certificates) {
-						$context['stream'] = [
-							'verify_peer' => false,
-							'verify_peer_name' => false,
-						];
-					}
+					$rf = new \ReflectionMethod( 'Redis', 'pconnect' );
+					$ct = $rf->getNumberOfParameters();
 
-					if ( $this->_persistent ) {
-						$accessor->pconnect( $ip, $port, $this->_timeout,
-						    $this->_instance_id . '_' . $this->_dbid, $this->_retry_interval, $this->_read_timeout, $context );
+					if ( 7 === $ct ) {
+						// Context argument is supported.
+						$context = [];
+
+						if ( substr( $server, 0, 4 ) === 'tls:' && ! $this->_verify_tls_certificates ) {
+							$context['stream'] = array(
+								'verify_peer'      => false,
+								'verify_peer_name' => false,
+							);
+						}
+
+						if ( $this->_persistent ) {
+							$accessor->pconnect(
+								$ip,
+								$port,
+								$this->_timeout,
+								$this->_instance_id . '_' . $this->_dbid,
+								$this->_retry_interval,
+								$this->_read_timeout,
+								$context
+							);
+						} else {
+							$accessor->connect(
+								$ip,
+								$port,
+								$this->_timeout,
+								null,
+								$this->_retry_interval,
+								$this->_read_timeout,
+								$context
+							);
+						}
 					} else {
-						$accessor->connect( $ip, $port, $this->_timeout, null,
-						    $this->_retry_interval, $this->_read_timeout, $context );
+						// Context argument is not supported.
+						if ( $this->_persistent ) {
+							$accessor->pconnect(
+								$ip,
+								$port,
+								$this->_timeout,
+								$this->_instance_id . '_' . $this->_dbid,
+								$this->_retry_interval,
+								$this->_read_timeout
+							);
+						} else {
+							$accessor->connect(
+								$ip,
+								$port,
+								$this->_timeout,
+								null,
+								$this->_retry_interval,
+								$this->_read_timeout
+							);
+						}
 					}
 				}
 
