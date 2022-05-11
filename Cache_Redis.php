@@ -513,7 +513,7 @@ class Cache_Redis extends Cache_Base {
 								return false;
 							}
 
-							throw new ErrorException( $errstr, 0, $errno, $errfile, $errline );
+							throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
 						}
 					);
 
