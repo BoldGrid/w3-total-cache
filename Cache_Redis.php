@@ -505,6 +505,18 @@ class Cache_Redis extends Cache_Base {
 						);
 					}
 
+					// Catch PHP errors.
+					set_error_handler( // phpcs:ignore
+						function( $errno, $errstr, $errfile, $errline ) {
+							// Error was suppressed with the @-operator.
+							if ( 0 === error_reporting() ) { // phpcs:ignore
+								return false;
+							}
+
+							throw new ErrorException( $errstr, 0, $errno, $errfile, $errline );
+						}
+					);
+
 					if ( $this->_persistent ) {
 						try {
 							$accessor->pconnect(
@@ -516,7 +528,7 @@ class Cache_Redis extends Cache_Base {
 								$this->_read_timeout,
 								$context
 							);
-						} catch ( \Exception $e ) {
+						} catch ( \ErrorException $e ) {
 							$accessor->pconnect(
 								$ip,
 								$port,
@@ -537,7 +549,7 @@ class Cache_Redis extends Cache_Base {
 								$this->_read_timeout,
 								$context
 							);
-						} catch ( \Exception $e ) {
+						} catch ( \ErrorException $e ) {
 							$accessor->connect(
 								$ip,
 								$port,
@@ -548,6 +560,8 @@ class Cache_Redis extends Cache_Base {
 							);
 						}
 					}
+
+					restore_error_handler();
 				}
 
 				if ( ! empty( $this->_password ) ) {
