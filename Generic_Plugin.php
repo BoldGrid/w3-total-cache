@@ -157,7 +157,7 @@ class Generic_Plugin {
 					// command-line mode, no real requests made,
 					// try to switch context in-request.
 				} else {
-					$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+					$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_Var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : ''; // phpcs:ignore
 					if ( strpos( $request_uri, '?' ) === false ) {
 						Util_Environment::safe_redirect_temp( $request_uri . '?repeat=w3tc' );
 					} else {
