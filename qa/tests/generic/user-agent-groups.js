@@ -125,8 +125,12 @@ describe('', function() {
 
 
 	it('check 2 copies exists in a cache', async() => {
-		await page.goto(env.blogSiteUrl + 'user-agent-groups.php?engine=' + env.cacheEngineLabel +
-			'&url=' + env.homeUrl + '&blog_id=' + env.blogId);
+		let checkUrl = env.blogSiteUrl + 'user-agent-groups.php?engine=' + env.cacheEngineLabel +
+			'&url=' + env.homeUrl + '&blog_id=' + env.blogId;
+
+		log.log(`opening ${checkUrl}`);
+
+		await page.goto(checkUrl);
 		expect(await page.content()).contains('ok');
 	});
 });
