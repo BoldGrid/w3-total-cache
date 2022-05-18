@@ -90,7 +90,7 @@ class Minify_Plugin {
 		$parsed = parse_url( $url );
 		$prefix = '/' . trim( $parsed['path'], '/' ) . '/';
 
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		if ( substr( $request_uri, 0, strlen( $prefix ) ) == $prefix ) {
 			$w3_minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
 			$filename = Util_Environment::remove_query_all( substr( $request_uri, strlen( $prefix ) ) );
@@ -962,7 +962,7 @@ class Minify_Plugin {
 		);
 
 		foreach ( $auto_reject_uri as $uri ) {
-			if ( strstr( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', $uri ) !== false ) {
+			if ( strstr( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', $uri ) !== false ) {
 				return false;
 			}
 		}
@@ -974,7 +974,7 @@ class Minify_Plugin {
 			$expr = trim( $expr );
 			$expr = str_replace( '~', '\~', $expr );
 
-			if ( '' !== $expr && preg_match( '~' . $expr . '~i', isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) {
+			if ( '' !== $expr && preg_match( '~' . $expr . '~i', isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) {
 				return false;
 			}
 		}
