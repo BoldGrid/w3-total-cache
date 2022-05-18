@@ -2230,8 +2230,8 @@ class PgCache_ContentGrabber {
 	static protected function log( $msg ) {
 		$data = sprintf(
 			"[%s] [%s] [%s] %s\n", date( 'r' ),
-			isset( $_SERVER['REQUEST_URI'] ) ? filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URI ) : '',
-			! empty( $_SERVER['HTTP_REFERER'] ) ? filter_var( stripslashes( $_SERVER['HTTP_REFERER'] ), FILTER_SANITIZE_STRING ) : '-',
+			isset( $_SERVER['REQUEST_URI'] ) ? filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '',
+			! empty( $_SERVER['HTTP_REFERER'] ) ? htmlspecialchars( $_SERVER['HTTP_REFERER'] ) : '-',
 			$msg
 		);
 		$data = strtr( $data, '<>', '..' );
