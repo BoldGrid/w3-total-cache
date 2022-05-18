@@ -30,12 +30,12 @@ $content         = '';
 $engine          = $_REQUEST['engine'];
 
 if ( 'file_generic' === $engine ) {
-	$cache_path = $wp_content_path . 'cache/page_enhanced/' . $host_port . $path . '_index' .
+	$cache_path = $wp_content_path . 'cache/page_enhanced/' . $host_port . $path . '_index_slash' .
 		( 'https' === $scheme ? '_ssl' : '' ) . '.html';
 
 	echo file_exists( $cache_path ) ? 'plain found ' : 'plain not found ';
 
-	$cache_path = $wp_content_path . 'cache/page_enhanced/' . $host_port . $path . '_index' .
+	$cache_path = $wp_content_path . 'cache/page_enhanced/' . $host_port . $path . '_index_slash' .
 		( 'https' === $scheme ? '_ssl' : '' ) . '.html_gzip';
 
 	echo file_exists( $cache_path ) ? 'gzip found ' : 'gzip not found ';
