@@ -57,9 +57,9 @@ exports.getCurrentTheme = async function(pPage) {
 
 function postCreateApiUrl(type) {
 	if (type == 'post') {
-		return env.homeUrl + '/wp-json/wp/v2/posts';
+		return env.homeUrl.replace(/\/$/, '') + '/wp-json/wp/v2/posts';
 	} else if (type == 'page') {
-		return env.homeUrl + '/wp-json/wp/v2/pages';
+		return env.homeUrl.replace(/\/$/, '') + '/wp-json/wp/v2/pages';
 	}
 
 	throw new Error('unknown type ' + type);
