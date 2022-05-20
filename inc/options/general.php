@@ -876,7 +876,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						// translators: 1: WordPress ABSPATH value, 2: Server document root value.
 						esc_html__( 'Fix incorrect server document root path.  Uses the WordPress ABSPATH ("%1$s") in place of the current server document root ("%2$s").', 'w3-total-cache' ),
 						esc_attr( untrailingslashit( ABSPATH ) ),
-						esc_attr( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '' )
+						esc_attr( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '' )
 					),
 				)
 			);

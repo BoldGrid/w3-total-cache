@@ -272,11 +272,11 @@ class Util_Environment {
 	 */
 	public static function is_https() {
 		$https                  = isset( $_SERVER['HTTPS'] ) ?
-			filter_var( stripslashes( $_SERVER['HTTPS'] ), FILTER_SANITIZE_STRING ) : ''; // phpcs:ignore
+			htmlspecialchars( stripslashes( $_SERVER['HTTPS'] ) ) : ''; // phpcs:ignore
 		$server_port            = isset( $_SERVER['SERVER_PORT'] ) ?
-			filter_var( stripslashes( $_SERVER['SERVER_PORT'] ), FILTER_SANITIZE_STRING ) : ''; // phpcs:ignore
+			htmlspecialchars( stripslashes( $_SERVER['SERVER_PORT'] ) ) : ''; // phpcs:ignore
 		$http_x_forwarded_proto = isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ?
-			filter_var( stripslashes( $_SERVER['HTTP_X_FORWARDED_PROTO'] ), FILTER_SANITIZE_STRING ) : ''; // phpcs:ignore
+			htmlspecialchars( stripslashes( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ) : ''; // phpcs:ignore
 
 		switch ( true ) {
 			case ( self::to_boolean( $https ) ):
@@ -325,7 +325,7 @@ class Util_Environment {
 			return true;
 		}
 
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( filter_var( stripslashes( $_SERVER['SERVER_SOFTWARE'] ), FILTER_SANITIZE_STRING ), 'Apache' ) !== false; // phpcs:ignore
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ), 'Apache' ) !== false; // phpcs:ignore
 	}
 
 
@@ -337,7 +337,7 @@ class Util_Environment {
 	 * @return bool
 	 */
 	public static function is_litespeed() {
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( filter_var( stripslashes( $_SERVER['SERVER_SOFTWARE'] ), FILTER_SANITIZE_STRING ), 'LiteSpeed' ) !== false; // phpcs:ignore
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ), 'LiteSpeed' ) !== false; // phpcs:ignore
 	}
 
 	/**
@@ -348,7 +348,7 @@ class Util_Environment {
 	 * @return bool
 	 */
 	public static function is_nginx() {
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( filter_var( stripslashes( $_SERVER['SERVER_SOFTWARE'] ), FILTER_SANITIZE_STRING ), 'nginx' ) !== false; // phpcs:ignore
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ), 'nginx' ) !== false; // phpcs:ignore
 	}
 
 	/**
@@ -359,7 +359,7 @@ class Util_Environment {
 	 * @return bool
 	 */
 	public static function is_iis() {
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( filter_var( stripslashes( $_SERVER['SERVER_SOFTWARE'] ), FILTER_SANITIZE_STRING ), 'IIS' ) !== false; // phpcs:ignore
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ), 'IIS' ) !== false; // phpcs:ignore
 	}
 
 	/**
@@ -628,7 +628,7 @@ class Util_Environment {
 
 			// fix of get_home_path, used when index.php is moved outside of wp folder.
 			$script_filename = isset( $_SERVER['SCRIPT_FILENAME'] ) ?
-				filter_var( stripslashes( $_SERVER['SCRIPT_FILENAME'] ), FILTER_SANITIZE_STRING ) : ''; // phpcs:ignore
+				htmlspecialchars( stripslashes( $_SERVER['SCRIPT_FILENAME'] ) ) : ''; // phpcs:ignore
 
 			$pos = strripos(
 				str_replace( '\\', '/', $script_filename ),
@@ -679,10 +679,10 @@ class Util_Environment {
 
 		if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && ! empty( $_SERVER['PHP_SELF'] ) ) {
 			$script_filename = self::normalize_path(
-				filter_var( stripslashes( $_SERVER['SCRIPT_FILENAME'] ), FILTER_SANITIZE_STRING ) // phpcs:ignore
+				htmlspecialchars( stripslashes( $_SERVER['SCRIPT_FILENAME'] ) ) // phpcs:ignore
 			);
 			$php_self        = self::normalize_path(
-				filter_var( stripslashes( $_SERVER['PHP_SELF'] ), FILTER_SANITIZE_STRING ) // phpcs:ignore
+				htmlspecialchars( stripslashes( $_SERVER['PHP_SELF'] ) ) // phpcs:ignore
 			);
 			if ( substr( $script_filename, -strlen( $php_self ) ) == $php_self ) {
 				$document_root = substr( $script_filename, 0, -strlen( $php_self ) );
@@ -693,12 +693,12 @@ class Util_Environment {
 
 		if ( ! empty( $_SERVER['PATH_TRANSLATED'] ) && ! empty( $_SERVER['PHP_SELF'] ) ) {
 			$document_root = substr(
-				self::normalize_path( filter_var( stripslashes( $_SERVER['PATH_TRANSLATED'] ), FILTER_SANITIZE_STRING ) ), // phpcs:ignore
+				self::normalize_path( htmlspecialchars( stripslashes( $_SERVER['PATH_TRANSLATED'] ) ) ), // phpcs:ignore
 				0,
-				-strlen( self::normalize_path( filter_var( stripslashes( $_SERVER['PHP_SELF'] ), FILTER_SANITIZE_STRING ) ) ) // phpcs:ignore
+				-strlen( self::normalize_path( htmlspecialchars( stripslashes( $_SERVER['PHP_SELF'] ) ) ) ) // phpcs:ignore
 			);
 		} elseif ( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
-			$document_root = self::normalize_path( filter_var( stripslashes( $_SERVER['DOCUMENT_ROOT'] ), FILTER_SANITIZE_STRING ) ); // phpcs:ignore
+			$document_root = self::normalize_path( htmlspecialchars( stripslashes( $_SERVER['DOCUMENT_ROOT'] ) ) ); // phpcs:ignore
 		} else {
 			$document_root = ABSPATH;
 		}
@@ -823,7 +823,7 @@ class Util_Environment {
 		if ( null === $host ) {
 			if ( ! empty( $_SERVER['HTTP_HOST'] ) ) {
 				// HTTP_HOST sometimes is not set causing warning.
-				$host = filter_var( stripslashes( $_SERVER['HTTP_HOST'] ), FILTER_SANITIZE_STRING ); // phpcs:ignore
+				$host = htmlspecialchars( stripslashes( $_SERVER['HTTP_HOST'] ) ); // phpcs:ignore
 			} else {
 				$host = '';
 			}
@@ -1222,7 +1222,7 @@ class Util_Environment {
 		$status_code = 302;
 
 		$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ?
-			filter_var( stripslashes( $_SERVER['SERVER_PROTOCOL'] ), FILTER_SANITIZE_STRING ) : ''; // phpcs:ignore
+			htmlspecialchars( stripslashes( $_SERVER['SERVER_PROTOCOL'] ) ) : ''; // phpcs:ignore
 
 		if ( 'HTTP/1.1' === $protocol ) {
 			$status_code = 307;
@@ -1524,7 +1524,7 @@ class Util_Environment {
 		$sig     = explode(
 			'/',
 			isset( $_SERVER['SERVER_SOFTWARE'] ) ?
-				filter_var( stripslashes( $_SERVER['SERVER_SOFTWARE'] ), FILTER_SANITIZE_STRING ) : '' // phpcs:ignore
+				htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ) : '' // phpcs:ignore
 		);
 		$temp    = isset( $sig[1] ) ? explode( ' ', $sig[1] ) : array( '0' );
 		$version = $temp[0];
