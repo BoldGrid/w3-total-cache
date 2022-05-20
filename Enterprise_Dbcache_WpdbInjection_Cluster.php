@@ -122,11 +122,13 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		global $wpdb_cluster;
 		$wpdb_cluster = $this;
 
-		if ( isset( $GLOBALS['w3tc_dbcluster_config'] ) ) {
-			$this->apply_configuration( $GLOBALS['w3tc_dbcluster_config'] );
-		} elseif ( file_exists( WP_CONTENT_DIR . '/db-cluster-config.php' ) ) {
+		if ( !isset( $GLOBALS['w3tc_dbcluster_config'] ) && file_exists( WP_CONTENT_DIR . '/db-cluster-config.php' ) ) {
 			// The config file resides in WP_CONTENT_DIR
 			require WP_CONTENT_DIR . '/db-cluster-config.php';
+		}
+
+		if ( isset( $GLOBALS['w3tc_dbcluster_config'] ) ) {
+			$this->apply_configuration( $GLOBALS['w3tc_dbcluster_config'] );
 		} else {
 			$this->_reject_reason = 'w3tc dbcluster configuration not found, ' .
 				'using single-server configuration';
@@ -575,7 +577,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			if ( preg_match( '/^\s*SELECT\s+SQL_CALC_FOUND_ROWS\s/i', $query ) ) {
 				if ( false === strpos( $query, "NO_SELECT_FOUND_ROWS" ) ) {
 					$this->wpdb_mixin->timer_start();
-					$this->wpdb_mixin->_last_found_rows_result = mysqli_query( $this->wpdb_mixin->dbh, "SELECT FOUND_ROWS()" );
+					$this->wpdb_mixin->_last_found_rows_result = mysqli_num_rows( $this->wpdb_mixin->dbh, "SELECT FOUND_ROWS()" );
 					$elapsed += $this->wpdb_mixin->timer_stop();
 					++$this->wpdb_mixin->num_queries;
 					$query .= "; SELECT FOUND_ROWS()";
@@ -874,9 +876,9 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		if ( !mysqli_select_db( $this->wpdb_mixin->dbh, DB_NAME ) )
 			return $this->wpdb_mixin->bail( "We were unable to select the database." );
 		if ( !empty( $this->wpdb_mixin->charset ) ) {
-			$collation_query = "SET NAMES '$this->wpdb_mixin->charset'";
+			$collation_query = "SET NAMES '{$this->wpdb_mixin->charset}'";
 			if ( !empty( $this->wpdb_mixin->collate ) )
-				$collation_query .= " COLLATE '$this->wpdb_mixin->collate'";
+				$collation_query .= " COLLATE '{$this->wpdb_mixin->collate}'";
 			mysqli_query( $this->wpdb_mixin->dbh, $collation_query );
 		}
 
