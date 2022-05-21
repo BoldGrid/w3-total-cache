@@ -539,7 +539,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			'wp-register',
 		);
 
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		foreach ( $auto_reject_uri as $uri ) {
 			if ( strstr( $request_uri, $uri ) !== false ) {
 				return false;
