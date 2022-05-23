@@ -445,7 +445,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		 */
 		$ajax_skip = false;
 		if ( defined( 'DOING_AJAX' ) ) {
-			$http_referer = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
+			$http_referer = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
 			// wp_admin is always defined for ajax requests, check by referrer.
 			if ( strpos( $http_referer, '/wp-admin/' ) === false ) {
 				$ajax_skip = true;
