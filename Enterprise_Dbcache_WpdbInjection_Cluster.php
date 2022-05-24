@@ -577,7 +577,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			if ( preg_match( '/^\s*SELECT\s+SQL_CALC_FOUND_ROWS\s/i', $query ) ) {
 				if ( false === strpos( $query, "NO_SELECT_FOUND_ROWS" ) ) {
 					$this->wpdb_mixin->timer_start();
-					$this->wpdb_mixin->_last_found_rows_result = mysqli_query( $this->wpdb_mixin->result );
+					$this->wpdb_mixin->_last_found_rows_result = mysqli_query( $this->wpdb_mixin->dbh, "SELECT FOUND_ROWS()" );
 					$elapsed += $this->wpdb_mixin->timer_stop();
 					++$this->wpdb_mixin->num_queries;
 					$query .= "; SELECT FOUND_ROWS()";
