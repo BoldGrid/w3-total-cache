@@ -561,7 +561,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		$this->wpdb_mixin->last_query = $query;
 
 		if ( preg_match( '/^\s*SELECT\s+FOUND_ROWS(\s*)/i', $query )
-			&& is_resource( $this->wpdb_mixin->_last_found_rows_result ) ) {
+			&& is_object( $this->wpdb_mixin->_last_found_rows_result ) ) {
 			$this->wpdb_mixin->result = $this->wpdb_mixin->_last_found_rows_result;
 			$elapsed = 0;
 		} else {
@@ -577,7 +577,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			if ( preg_match( '/^\s*SELECT\s+SQL_CALC_FOUND_ROWS\s/i', $query ) ) {
 				if ( false === strpos( $query, "NO_SELECT_FOUND_ROWS" ) ) {
 					$this->wpdb_mixin->timer_start();
-					$this->wpdb_mixin->_last_found_rows_result = mysqli_num_rows( $this->wpdb_mixin->result );
+					$this->wpdb_mixin->_last_found_rows_result = mysqli_query( $this->wpdb_mixin->result );
 					$elapsed += $this->wpdb_mixin->timer_stop();
 					++$this->wpdb_mixin->num_queries;
 					$query .= "; SELECT FOUND_ROWS()";
