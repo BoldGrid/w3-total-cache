@@ -50,7 +50,10 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						<input type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>" />
 						<?php
 						echo wp_kses(
-							Util_Ui::button_link( esc_html__( 'Deploy', 'w3-total-cache' ) ),
+							Util_Ui::button_link(
+								esc_html__( 'Deploy', 'w3-total-cache' ),
+								esc_url( wp_nonce_url( sprintf( 'admin.php?page=%1$s&w3tc_config_preview_deploy', $this->_page ), 'w3tc' ) )
+							),
 							array(
 								'input' => array(
 									'type'    => array(),
@@ -60,7 +63,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									'onclick' => array(),
 								),
 							)
-						) . esc_url( wp_nonce_url( sprintf( 'admin.php?page=%s&w3tc_config_preview_deploy', $this->_page ), 'w3tc' ) );
+						);
 						?>
 						<p class="description">
 							<?php
