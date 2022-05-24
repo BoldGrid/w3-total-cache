@@ -18,7 +18,7 @@ $config = Dispatcher::config();
 
 ?>
 <tr>
-	<th><label for="redis_servers"><?php echo esc_html( Util_ConfigLabel::get( 'redis.servers' ) ); ?></label></th>
+	<th><label for="redis_servers"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.servers' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="redis_servers" type="text"
 			name="<?php echo esc_attr( $module ); ?>___redis__servers"

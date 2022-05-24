@@ -12,7 +12,7 @@ $config = Dispatcher::config();
  */
 ?>
 <tr>
-	<th><label for="memcached_servers"><?php echo esc_html( Util_ConfigLabel::get( 'memcached.servers' ) ); ?></label></th>
+	<th><label for="memcached_servers"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.servers' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="memcached_servers" type="text"
 			name="<?php echo esc_attr( $module ); ?>___memcached__servers"

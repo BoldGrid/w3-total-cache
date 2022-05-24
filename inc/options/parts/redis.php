@@ -33,19 +33,19 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label><?php esc_html_e( 'Verify TLS Certificates:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php $this->checkbox( $module . '.redis.verify_tls_certificates' ); ?> <?php echo esc_html( Util_ConfigLabel::get( 'redis.verify_tls_certificates' ) ); ?></label>
+		<?php $this->checkbox( $module . '.redis.verify_tls_certificates' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'redis.verify_tls_certificates' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
 		<p class="description"><?php esc_html_e( 'Verify the server\'s certificate when connecting via TLS.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>
 	<th><label><?php esc_html_e( 'Use persistent connection:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php $this->checkbox( $module . '.redis.persistent' ); ?> <?php echo esc_html( Util_ConfigLabel::get( 'redis.persistent' ) ); ?></label>
+		<?php $this->checkbox( $module . '.redis.persistent' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'redis.persistent' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
 		<p class="description"><?php esc_html_e( 'Using persistent connection doesn\'t reinitialize redis driver on each request', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>
-	<th style="width: 250px;"><label for="redis_timeout"><?php echo esc_html( Util_ConfigLabel::get( 'redis.timeout' ) ); ?></label></th>
+	<th style="width: 250px;"><label for="redis_timeout"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.timeout' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="redis_timeout" type="number" name="<?php echo esc_attr( $module ); ?>__redis__timeout"
 			<?php Util_Ui::sealing_disabled( $module ); ?>
@@ -55,7 +55,7 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <tr>
-	<th style="width: 250px;"><label for="redis_retry_interval"><?php echo esc_html( Util_ConfigLabel::get( 'redis.retry_interval' ) ); ?></label></th>
+	<th style="width: 250px;"><label for="redis_retry_interval"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.retry_interval' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="redis_retry_interval" type="number" name="<?php echo esc_attr( $module ); ?>__redis__retry_interval"
 			<?php Util_Ui::sealing_disabled( $module ); ?>
@@ -65,7 +65,7 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <tr>
-	<th style="width: 250px;"><label for="redis_read_timeout"><?php echo esc_html( Util_ConfigLabel::get( 'redis.read_timeout' ) ); ?></label></th>
+	<th style="width: 250px;"><label for="redis_read_timeout"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.read_timeout' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="redis_read_timeout" type="number" name="<?php echo esc_attr( $module ); ?>__redis__read_timeout"
 			<?php Util_Ui::sealing_disabled( $module ); ?>
@@ -75,7 +75,7 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <tr>
-	<th style="width: 250px;"><label for="redis_dbid"><?php echo esc_html( Util_ConfigLabel::get( 'redis.dbid' ) ); ?></label></th>
+	<th style="width: 250px;"><label for="redis_dbid"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.dbid' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="redis_dbid" type="text" name="<?php echo esc_attr( $module ); ?>__redis__dbid"
 			<?php Util_Ui::sealing_disabled( $module ); ?>
@@ -85,7 +85,7 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <tr>
-	<th><label for="redis_password"><?php echo esc_html( Util_ConfigLabel::get( 'redis.password' ) ); ?></label></th>
+	<th><label for="redis_password"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.password' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="redis_password" name="<?php echo esc_attr( $module ); ?>__redis__password" type="text"
 			<?php Util_Ui::sealing_disabled( $module ); ?>
