@@ -35,22 +35,23 @@ exports.login = async function(pPage, data) {
 
 
 exports.getCurrentTheme = async function(pPage) {
+	let theme = null;
+
 	await pPage.goto(env.adminUrl + 'themes.php', {waitUntil: 'domcontentloaded'});
 
-	if (env.wpVersion.match(/^3\.(.+)/)) {
-		let description = await pPage.$eval('#current-theme .hide-if-customize',
-			(e) => e.src);
+	if (env.wpVersion.match(/^3\.(.+)/)) { // WP 3.*
+		let description = await pPage.$eval('#current-theme .hide-if-customize', (e) => e.src);
 		let m = description.match(/themes\/(.+)\/screenshot\.png$/);
-		return m[1];
-	} else if (env.wpVersion.match(/^(5\.9|6\.0)(.*)/)) { // WP 5.9* and 6.0*
-		let theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
-		return theme;
-	} else {   // env.wpVersion.match(/^4\.*/)
-		let description = await pPage.$eval('.theme.active .theme-actions a',
-			(e) => e.getAttribute('href'));
+		theme = m[1];
+	} else if (env.wpVersion.match(/^4\.(.+)/)) { // WP 4.*
+		let description = await pPage.$eval('.theme.active .theme-actions a', (e) => e.getAttribute('href'));
 		let m = description.match(/theme=([^&]+)/);
-		return m[1];
+		theme = m[1];
+	} else { // WP 5.9* and 6.0*
+		theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
 	}
+
+	return theme;
 }
 
 
