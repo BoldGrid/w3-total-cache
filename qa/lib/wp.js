@@ -40,15 +40,22 @@ exports.getCurrentTheme = async function(pPage) {
 	await pPage.goto(env.adminUrl + 'themes.php', {waitUntil: 'domcontentloaded'});
 
 	if (env.wpVersion.match(/^3\.(.+)/)) { // WP 3.*
-		let description = await pPage.$eval('#current-theme .hide-if-customize', (e) => e.src);
-		let m = description.match(/themes\/(.+)\/screenshot\.png$/);
-		theme = m[1];
+		let src = await pPage.$eval('#current-theme .hide-if-customize', (e) => e.src);
+		let m   = src.match(/themes\/(.+)\/screenshot\.png$/);
+		theme   = m[1];
 	} else if (env.wpVersion.match(/^4\.(.+)/)) { // WP 4.*
-		let description = await pPage.$eval('.theme.active .theme-actions a', (e) => e.getAttribute('href'));
-		let m = description.match(/theme=([^&]+)/);
-		theme = m[1];
+		let href = await pPage.$eval('.theme.active .theme-actions a', (e) => e.getAttribute('href'));
+		let m    = href.match(/theme=([^&]+)/);
+		theme    = m[1];
 	} else { // WP 5.9* and 6.0*
 		theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
+
+		// If the data attribute is null, then failover to the screenshot image src.
+		if (!theme) {
+			let src = await pPage.$eval('.theme.active .theme-screenshot img', (e) => e.src);
+			let m   = src.match(/themes\/(.+)\/screenshot\.png$/);
+			theme   = m[1];
+		}
 	}
 
 	return theme;
