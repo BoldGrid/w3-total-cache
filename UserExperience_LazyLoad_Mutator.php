@@ -103,6 +103,7 @@ class UserExperience_LazyLoad_Mutator {
 				'$1data-$2=', $content );
 
 			$content = $this->add_class_lazy( $content );
+			$content = $this->remove_native_lazy( $content );
 			$this->modified = true;
 		}
 
@@ -218,6 +219,18 @@ class UserExperience_LazyLoad_Mutator {
 		}
 
 		return $content;
+	}
+
+
+
+	/**
+	 * In safari javascript lazy-loaded image with loading="lazy"
+	 * dont fire events, i.e. image not loaded
+	 */
+	public function remove_native_lazy( $content ) {
+		return preg_replace(
+			'~(\s+)loading=[\'"]lazy[\'"]~is', '', $content
+		);
 	}
 
 
