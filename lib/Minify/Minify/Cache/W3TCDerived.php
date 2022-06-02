@@ -86,10 +86,7 @@ class Minify_Cache_W3TCDerived {
     {
         $v = $this->fetch($id);
 		if ( isset( $v['content'] ) ) {
-			echo wp_kses(
-				$v['content'],
-				Util_Ui::get_allowed_html_for_wp_kses_from_content( $v['content'] )
-			);
+			echo $v['content'];
 		}
     }
 
