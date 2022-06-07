@@ -434,9 +434,9 @@ class Util_Rule {
 		$document_root           = isset( $_SERVER['DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '';
 		$subdomain_document_root = isset( $_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] ) ) : '';
 		$php_document_root       = isset( $_SERVER['PHP_DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['PHP_DOCUMENT_ROOT'] ) ) : '';
-		if ( $subdomain_document_root !== $document_root ) {
+		if ( ! empty( $subdomain_document_root ) && $subdomain_document_root !== $document_root ) {
 			return '%{ENV:SUBDOMAIN_DOCUMENT_ROOT}';
-		} elseif ( $php_document_root !== $document_root ) {
+		} elseif ( ! empty( $php_document_root ) && $php_document_root !== $document_root ) {
 			return '%{ENV:PHP_DOCUMENT_ROOT}';
 		} else {
 			return '%{DOCUMENT_ROOT}';
