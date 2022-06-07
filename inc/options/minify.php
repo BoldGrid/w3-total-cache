@@ -969,9 +969,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<th><label for="minify_cache_files"><?php Util_Ui::e_config_label( 'minify.cache.files' ); ?></label></th>
 				<td>
-					<textarea id="minify_cache_files" name="minify__cache__files" <?php Util_Ui::sealing_disabled( 'minify.' ); ?> cols="40" rows="5">
-						<?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'minify.cache.files' ) ) ); ?>
-					</textarea>
+					<textarea id="minify_cache_files" name="minify__cache__files"<?php Util_Ui::sealing_disabled( 'minify.' ); ?> cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'minify.cache.files' ) ) ); ?></textarea>
 					<p class="description"><?php esc_html_e( 'Specify external files/libraries that should be combined.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
