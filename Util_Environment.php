@@ -1039,18 +1039,6 @@ class Util_Environment {
 	}
 
 	/**
-	 * Translates remote file to local file.
-	 *
-	 * @static
-	 *
-	 * @param string $file File path.
-	 * @return string
-	 */
-	public function translate_file( $file ) {
-		return $file;
-	}
-
-	/**
 	 * Removes WP query string from URL.
 	 *
 	 * @static
