@@ -39,27 +39,41 @@ exports.getCurrentTheme = async function(pPage) {
 
 	await pPage.goto(env.adminUrl + 'themes.php', {waitUntil: 'domcontentloaded'});
 
-	if (env.wpVersion.match(/^3\.(.+)/)) { // WP 3.*
+	if (env.wpVersion.match(/^3\.(.+)/)) { // WP 3.*.
 		let src = await pPage.$eval('#current-theme .hide-if-customize', (e) => e.src);
 		let m   = src.match(/themes\/(.+)\/screenshot\.png$/);
 		theme   = m[1];
-	} else if (env.wpVersion.match(/^4\.(.+)/)) { // WP 4.*
+	} else if (env.wpVersion.match(/^4\.(.+)/)) { // WP 4.*.
 		let href = await pPage.$eval('.theme.active .theme-actions a', (e) => e.getAttribute('href'));
 		let m    = href.match(/theme=([^&]+)/);
 		theme    = m[1];
-	} else { // WP 5.9* and 6.0*
+	} else { // WP 5 nad up.
 		theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
+
+		log.log(`Active theme (from data-slug): ${theme}`);
 
 		// If the data attribute is null, then failover to the screenshot image src.
 		if (!theme) {
+			log.log('Could not find active theme data-slug.');
+
 			let src = await pPage.$eval('.theme.active .theme-screenshot img', (e) => e.src);
-			let m   = src.match(/themes\/(.+)\/screenshot\.png$/);
-			theme   = m[1];
+
+			log.log(`Active theme screenshot img src: ${src}`);
+
+			let m = src.match(/themes\/(.+)\/screenshot\.png/);
+
+			log.log(`Active theme screenshot img src match: ${m}`);
+
+			if (!Array.isArray(m) || !m[1]) {
+				throw new Error('Could not determine theme folder.');
+			}
+
+			theme = m[1];
 		}
 	}
 
 	return theme;
-}
+};
 
 
 
