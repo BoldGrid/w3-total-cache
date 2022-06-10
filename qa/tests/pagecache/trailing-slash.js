@@ -56,7 +56,7 @@ describe('', function() {
 		log.log(`trying ${url}`);
 
 		let response = await page.goto(url);
-		expect(page.url()).equals(testPage.url);
+		expect(page.url().toLowerCase()).equals(testPage.url.toLowerCase());
 		expectNoPhp(response);
 	});
 
@@ -65,7 +65,7 @@ describe('', function() {
 		log.log(`trying ${url}`);
 
 		let response = await page.goto(url);
-		expect(page.url()).equals(testPage.url);
+		expect(page.url().toLowerCase()).equals(testPage.url.toLowerCase());
 		expectNoPhp(response);
 	});
 
@@ -86,7 +86,7 @@ describe('', function() {
 		log.log(`trying ${url}`);
 
 		let response = await page.goto(url);
-		expect(page.url()).equals(testPage.url);
+		expect(page.url().toLowerCase()).equals(testPage.url.toLowerCase());
 		expectNoPhp(response);
 
 		let content = await page.content();
@@ -101,7 +101,7 @@ describe('', function() {
 		log.log(`trying ${url}`);
 
 		let response = await page.goto(url);
-		expect(page.url()).equals(testPage.url);
+		expect(page.url().toLowerCase()).equals(testPage.url.toLowerCase());
 		expectNoPhp(response);
 
 		let content = await page.content();
