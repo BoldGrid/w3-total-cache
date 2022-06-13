@@ -189,7 +189,7 @@ class PgCache_Environment {
 
 			try{
 			if ( file_exists( $dir ) && !is_writeable( $dir ) )
-				Util_WpFile::delete_folder( $dir, '', isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
+				Util_WpFile::delete_folder( $dir, '', isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
 		} catch ( Util_WpFile_FilesystemRmdirException $ex ) {
 			$exs->push( $ex );
 		}
