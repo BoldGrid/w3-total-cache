@@ -132,7 +132,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
             $basenames = array(); // just for cache id
             foreach ($files as $file) {
                 if ($file instanceof Minify_Source) {
-                    $sources[] = sanitize_text_field( wp_unslash( $file ) );
+                    $sources[] = $file;
                     continue;
                 }
 
