@@ -37,7 +37,15 @@ function get_cache_key( $path, $host_port, $group ) {
 	global $url, $engine;
 
 	if ( 'file_generic' === $engine ) {
-		return $host_port . $path . '_index' . ( empty( $group ) ? '' : '_' . $group ) .
+		// Make sure one slash is at the end.
+		$extra = '';
+
+		if ( '/' === substr( $path, strlen( $path ) - 1, 1 ) ) {
+			$extra = '_slash';
+		}
+
+		// Return the cache key.
+		return $host_port . $path . '_index' . $extra . ( empty( $group ) ? '' : '_' . $group ) .
 			( preg_match( '/https/', $url ) ? '_ssl' : '' ) . '.html';
 	}
 
