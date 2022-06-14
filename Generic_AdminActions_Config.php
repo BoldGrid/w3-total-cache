@@ -16,35 +16,33 @@ class Generic_AdminActions_Config {
 	 *
 	 * @return void
 	 */
-	function w3tc_config_import() {
+	public function w3tc_config_import() {
 		$error = '';
 
 		$config = new Config();
 
-		if ( !isset( $_FILES['config_file']['error'] ) ||
-			$_FILES['config_file']['error'] == UPLOAD_ERR_NO_FILE ) {
+		if ( ! isset( $_FILES['config_file']['error'] ) || UPLOAD_ERR_NO_FILE === $_FILES['config_file']['error'] ) {
 			$error = 'config_import_no_file';
-		} elseif ( $_FILES['config_file']['error'] != UPLOAD_ERR_OK ) {
+		} elseif ( UPLOAD_ERR_OK !== $_FILES['config_file']['error'] ) {
 			$error = 'config_import_upload';
 		} else {
-			$imported = $config->import( isset( $_FILES['config_file']['tmp_name'] ) ? sanitize_file_name( wp_unslash( $_FILES['config_file']['tmp_name'] ) ) : '' );
+			$imported = $config->import(
+				isset( $_FILES['config_file']['tmp_name'] ) ?
+					esc_url_raw( wp_unslash( $_FILES['config_file']['tmp_name'] ) ) : ''
+			);
 
-			if ( !$imported ) {
+			if ( ! $imported ) {
 				$error = 'config_import_import';
 			}
 		}
 
 		if ( $error ) {
-			Util_Admin::redirect( array(
-					'w3tc_error' => $error
-				), true );
+			Util_Admin::redirect( array( 'w3tc_error' => $error ), true );
 			return;
 		}
 
 		Util_Admin::config_save( $this->_config, $config );
-		Util_Admin::redirect( array(
-				'w3tc_note' => 'config_import'
-			), true );
+		Util_Admin::redirect( array( 'w3tc_note' => 'config_import' ), true );
 	}
 
 	/**

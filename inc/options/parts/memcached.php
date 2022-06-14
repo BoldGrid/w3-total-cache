@@ -10,7 +10,7 @@ if ( ! defined( 'W3TC' ) ) {
  */
 ?>
 <tr>
-	<th><label for="memcached_servers"><?php echo esc_html( Util_ConfigLabel::get( 'memcached.servers' ) ); ?></label></th>
+	<th><label for="memcached_servers"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.servers' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="memcached_servers" type="text"
 			name="<?php echo esc_attr( $module ); ?>__memcached__servers"
@@ -26,7 +26,7 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label><?php esc_html_e( 'Use persistent connection:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php $this->checkbox( $module . '.memcached.persistent' ); ?> <?php echo esc_html( Util_ConfigLabel::get( 'memcached.persistent' ) ); ?></label>
+		<?php $this->checkbox( $module . '.memcached.persistent' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'memcached.persistent' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
 		<p class="description"><?php esc_html_e( 'Using persistent connection doesn\'t reinitialize memcached driver on each request', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
@@ -66,13 +66,13 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label><?php esc_html_e( 'Use binary protocol:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php $this->checkbox( $module . '.memcached.binary_protocol' ); ?> <?php echo esc_html( Util_ConfigLabel::get( 'memcached.binary_protocol' ) ); ?></label>
+		<?php $this->checkbox( $module . '.memcached.binary_protocol' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'memcached.binary_protocol' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
 		<p class="description"><?php esc_html_e( 'Using binary protocol can increase throughput.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 
 <tr>
-	<th><label for="memcached_username"><?php echo esc_html( Util_ConfigLabel::get( 'memcached.username' ) ); ?></label></th>
+	<th><label for="memcached_username"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.username' ), array( 'acronym' => array( 'title' => array() ) )); ?></label></th>
 	<td>
 		<input id="memcached_username" name="<?php echo esc_attr( $module ); ?>__memcached__username" type="text"
 			<?php Util_Ui::sealing_disabled( $module ); ?>
@@ -120,7 +120,7 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <tr>
-	<th><label for="memcached_password"><?php echo esc_html( Util_ConfigLabel::get( 'memcached.password' ) ); ?></label></th>
+	<th><label for="memcached_password"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.password' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="memcached_password" name="<?php echo esc_attr( $module ); ?>__memcached__password" type="text"
 			<?php Util_Ui::sealing_disabled( $module ); ?>

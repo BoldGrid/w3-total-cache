@@ -208,7 +208,7 @@ class Cdnfsd_CloudFront_Popup {
 		} elseif ( $details[ $field ]['current'] === $details[ $field ]['new'] ) {
 			echo '<strong>' . esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) ) . '</strong>';
 		} else {
-			echo 'currently set to <strong>' . esc_html( $this->render_zone_boolean( $details[ $field ]['current'] ) .
+			echo 'currently set to <strong>' . esc_html( $this->render_zone_boolean( $details[ $field ]['current'] ) ) .
 				'</strong><br />will be changed to <strong>' . esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) ) .
 				'</strong><br />';
 		}

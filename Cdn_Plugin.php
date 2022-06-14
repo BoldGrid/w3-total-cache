@@ -435,7 +435,6 @@ class Cdn_Plugin {
 			} else {
 				foreach ( $urls as $url ) {
 					$file = Util_Environment::normalize_file_minify( $url );
-					$file = Util_Environment::translate_file( $file );
 
 					if ( !Util_Environment::is_url( $file ) ) {
 						$file = $document_root . '/' . $file;

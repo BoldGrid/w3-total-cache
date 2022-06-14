@@ -125,7 +125,7 @@ class Generic_Plugin {
 		if ( is_multisite() && ! is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
 			if ( $w3_current_blog_id !== $current_blog->blog_id && ! isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {
-				$url = Util_Environment::host_port() . isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+				$url = Util_Environment::host_port() . ( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
 				$pos = strpos( $url, '?' );
 				if ( false !== $pos ) {
 					$url = substr( $url, 0, $pos );
@@ -157,7 +157,7 @@ class Generic_Plugin {
 					// command-line mode, no real requests made,
 					// try to switch context in-request.
 				} else {
-					$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+					$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 					if ( strpos( $request_uri, '?' ) === false ) {
 						Util_Environment::safe_redirect_temp( $request_uri . '?repeat=w3tc' );
 					} else {
@@ -366,7 +366,7 @@ class Generic_Plugin {
 	public function wp_after_admin_bar_render() {
 		$url = admin_url( 'admin-ajax.php', 'relative' ) .
 			'?action=w3tc_monitoring_score&' .
-			md5( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
+			md5( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
 
 		?>
 		<script type= "text/javascript">

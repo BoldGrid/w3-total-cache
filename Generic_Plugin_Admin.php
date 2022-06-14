@@ -804,21 +804,21 @@ class Generic_Plugin_Admin {
 			}
 
 			foreach ( $r['later_errors'] as $e ) {
-				$errors['generic_env_' . $n] = $e;
+				$errors[ 'generic_env_' . $n ] = $e;
 				$n++;
 			}
 		}
 
 		$errors = apply_filters( 'w3tc_errors', $errors );
-		$notes = apply_filters( 'w3tc_notes', $notes );
+		$notes  = apply_filters( 'w3tc_notes', $notes );
 
 		/**
-		 * Show messages
+		 * Show messages.
 		 */
 		foreach ( $notes as $key => $note ) {
 			echo wp_kses(
 				sprintf(
-					'<div class="updated w3tc_note" id="%s"><p>%s</p></div>',
+					'<div class="updated w3tc_note" id="%1$s"><p>%2$s</p></div>',
 					esc_attr( $key ),
 					$note
 				),
@@ -840,27 +840,11 @@ class Generic_Plugin_Admin {
 		}
 
 		foreach ( $errors as $key => $error ) {
-			echo wp_kses(
-				sprintf(
-					'<div class="error w3tc_error" id="%s"><p>%s</p></div>',
+				printf(
+					'<div class="error w3tc_error" id="%1$s"><p>%2$s</p></div>',
 					esc_attr( $key ),
-					$error
-				),
-				array(
-					'div'   => array(
-						'class' => array(),
-						'id'    => array(),
-					),
-					'input' => array(
-						'class'   => array(),
-						'name'    => array(),
-						'onclick' => array(),
-						'type'    => array(),
-						'value'   => array(),
-					),
-					'p'     => array(),
-				)
-			);
+					$error // phpcs:ignore
+				);
 		}
 	}
 }

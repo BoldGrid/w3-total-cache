@@ -12,7 +12,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a>
 </p>
 <p>
-	NewRelic extension is currently 
+	NewRelic extension is currently
 	<?php
 	if ( $config->is_extension_active_frontend( 'newrelic' ) ) {
 		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
@@ -355,7 +355,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'a' => array(
 									'href' => array(),
 								),
-							),
+							)
 						);
 						?>
 					</p>

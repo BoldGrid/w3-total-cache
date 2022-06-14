@@ -388,10 +388,7 @@ class Minify {
 				self::$lastServed['fullCacheId'] = $fullCacheId;
 				self::$_cache->display($fullCacheId);
 			} else {
-				echo wp_kses(
-					$content['content'],
-					\W3TC\Util_Ui::get_allowed_html_for_wp_kses_from_content( $content['content'] )
-				);
+				echo $content['content'];
 			}
 		} else {
 			if ($cacheIsReady)
@@ -463,11 +460,11 @@ class Minify {
 			$_SERVER['DOCUMENT_ROOT'] = $docRoot;
 		} elseif ( 0 === strpos( $server_software, 'Microsoft-IIS/' ) ) {
 			$_SERVER['DOCUMENT_ROOT'] = substr(
-				isset( $_SERVER['SCRIPT_FILENAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_FILENAME'] ) ) : '',
+				isset( $_SERVER['SCRIPT_FILENAME'] ) ? esc_url_raw( wp_unslash( $_SERVER['SCRIPT_FILENAME'] ) ) : '',
 				0,
-				strlen( isset( $_SERVER['SCRIPT_FILENAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_FILENAME'] ) ) : '' ) - strlen( isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '' )
+				strlen( isset( $_SERVER['SCRIPT_FILENAME'] ) ? esc_url_raw( wp_unslash( $_SERVER['SCRIPT_FILENAME'] ) ) : '' ) - strlen( isset( $_SERVER['SCRIPT_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '' )
 			);
-			$_SERVER['DOCUMENT_ROOT'] = rtrim( isset( $_SERVER['DOCUMENT_ROOT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '', '\\' );
+			$_SERVER['DOCUMENT_ROOT'] = rtrim( isset( $_SERVER['DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '', '\\' );
 		}
 	}
 

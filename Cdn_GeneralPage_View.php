@@ -105,7 +105,7 @@ Util_Ui::config_overloading_button(
 					'acronym' => array(
 						'title' => array(),
 					),
-				),
+				)
 			),
 		)
 	);

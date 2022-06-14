@@ -1,8 +1,16 @@
 <?php
+/**
+ * File: DbCache_WpdbInjection_QueryCaching.php
+ *
+ * @package W3TC
+ *
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+ */
+
 namespace W3TC;
 
 /**
- * class DbCache_WpdbInjection_QueryCaching
+ * Class: DbCache_WpdbInjection_QueryCaching
  */
 class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
@@ -192,24 +200,33 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 					$filter_data = apply_filters( 'w3tc_dbcache_cache_set', $filter_data );
 				}
 
-				$cache->set( md5( $filter_data['query'] ),
+				$cache->set(
+					md5( $filter_data['query'] ),
 					$filter_data['content'],
 					$filter_data['expiration'],
-					$filter_data['group'] );
+					$filter_data['group']
+				);
 			}
 		}
 
 		if ( $this->debug ) {
-			$this->log_query( array(
-				date( 'r' ),
-				strtr( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', "<>\r\n", '..  ' ),
-				strtr( $query, "<>\r\n", '..  ' ),   // 'query'
-				(int)($time_total * 1000000),   // 'time_total' (microsecs)
-				$reject_reason,   // 'reason'
-				$is_cache_hit,   // 'cached'
-				( $data ? strlen( serialize( $data ) ) : 0 ),   // 'data_size'
-				strtr( $group, "<>\r\n", '..  ' )   // 'group'
-			) );
+			$this->log_query(
+				array(
+					gmdate( 'r' ),
+					strtr(
+						isset( $_SERVER['REQUEST_URI'] ) ?
+						esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+						"<>\r\n",
+						'..  '
+					),
+					strtr( $query, "<>\r\n", '..  ' ), // 'query'.
+					(int) ( $time_total * 1000000 ), // 'time_total' (microsecs).
+					$reject_reason, // 'reason'.
+					$is_cache_hit, // 'cached'.
+					( $data ? strlen( serialize( $data ) ) : 0 ), // 'data_size'.
+					strtr( $group, "<>\r\n", '..  ' ), // 'group'.
+				)
+			);
 		}
 
 		$this->time_total += $time_total;
@@ -428,7 +445,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		 */
 		$ajax_skip = false;
 		if ( defined( 'DOING_AJAX' ) ) {
-			$http_referer = isset( $_SERVER['HTTP_REFERER'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_REFERER'] ), FILTER_SANITIZE_URL ) : '';
+			$http_referer = isset( $_SERVER['HTTP_REFERER'] ) ?
+				filter_var( wp_unslash( $_SERVER['HTTP_REFERER'] ), FILTER_SANITIZE_URL ) : '';
+
 			// wp_admin is always defined for ajax requests, check by referrer.
 			if ( strpos( $http_referer, '/wp-admin/' ) === false ) {
 				$ajax_skip = true;
@@ -539,7 +558,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			'wp-register',
 		);
 
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '';
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ?
+			filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '';
+
 		foreach ( $auto_reject_uri as $uri ) {
 			if ( strstr( $request_uri, $uri ) !== false ) {
 				return false;

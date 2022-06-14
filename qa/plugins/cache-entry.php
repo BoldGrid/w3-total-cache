@@ -26,7 +26,7 @@ $content          = '';
 $engine           = $_REQUEST['engine'];
 
 if ( 'file_generic' === $engine ) {
-	$cache_path = $wp_content_path . 'cache/page_enhanced/' . $host_port . $path . '_index' .
+	$cache_path = $wp_content_path . 'cache/page_enhanced/' . $host_port . $path . '_index_slash' .
 		( 'https' === $scheme ? '_ssl' : '' ) . $page_key_postfix . '.html';
 	$content    = 'Test of cache' . file_get_contents( $cache_path );
 	$success    = file_put_contents( $cache_path, $content );

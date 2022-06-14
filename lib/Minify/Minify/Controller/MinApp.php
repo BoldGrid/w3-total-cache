@@ -75,8 +75,6 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                         continue;
                     }
                     if (0 === strpos($file, '//')) {
-                        //$file = $_SERVER['DOCUMENT_ROOT'] . substr($file, 1);
-
                         // W3TC FIX.
                         $file = $docroot . substr($file, 1);
                     }
@@ -128,21 +126,17 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
             }
             $allowDirs = array();
             foreach ((array)$cOptions['allowDirs'] as $allowDir) {
-                //$allowDirs[] = \W3TC\Util_Environment::realpath(str_replace('//', $_SERVER['DOCUMENT_ROOT'] . '/', $allowDir));
-
                 // W3TC FIX.
                 $allowDirs[] = \W3TC\Util_Environment::realpath(str_replace('//', $docroot . '/', $allowDir));
             }
             $basenames = array(); // just for cache id
             foreach ($files as $file) {
                 if ($file instanceof Minify_Source) {
-                    $sources[] = sanitize_text_field( wp_unslash( $file ) );
+                    $sources[] = $file;
                     continue;
                 }
 
                 $uri = $base . $file;
-
-                //$path = $_SERVER['DOCUMENT_ROOT'] . $uri;
 
                 // W3TC FIX.
                 $path = $docroot . $uri;

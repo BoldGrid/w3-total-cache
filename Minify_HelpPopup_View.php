@@ -18,8 +18,8 @@ if ( ! defined( 'W3TC' ) ) {
 	<p>
 		<?php
 		esc_html_e(
-			'There are lots of reasons why minify cannot work for all sites under all circumstances and they 
-				have nothing to do with W3 Total Cache: Your site\'s content, your server(s), your plugins and 
+			'There are lots of reasons why minify cannot work for all sites under all circumstances and they
+				have nothing to do with W3 Total Cache: Your site\'s content, your server(s), your plugins and
 				your theme are all unique, that means that minify cannot automatically work for everyone.',
 			'w3-total-cache'
 		);
@@ -31,7 +31,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<li>
 			<?php
 			esc_html_e(
-				'Minification is a process of reducing the file size to improve user experience and it requires 
+				'Minification is a process of reducing the file size to improve user experience and it requires
 					testing in order to get it right &mdash; as such it doesn\'t work for everyone.',
 				'w3-total-cache'
 			);
@@ -44,10 +44,10 @@ if ( ! defined( 'W3TC' ) ) {
 					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 					// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
 					__(
-						'The interactions and dependencies of %1$sCSS%2$s or %3$sJS%4$s on each other can be complex. 
-							Themes and plugins are typically created by various developers and can be combined in 
-							millions of combinations. As a result, W3 Total Cache cannot take all of those nuances into 
-							account, it just does the operation and let\'s you tune to what degree it does it, it 
+						'The interactions and dependencies of %1$sCSS%2$s or %3$sJS%4$s on each other can be complex.
+							Themes and plugins are typically created by various developers and can be combined in
+							millions of combinations. As a result, W3 Total Cache cannot take all of those nuances into
+							account, it just does the operation and let\'s you tune to what degree it does it, it
 							doesn\'t "validate" the result or know if it\'s good or bad; a human must do that.',
 						'w3-total-cache'
 					),
@@ -60,7 +60,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'acronym' => array(
 						'title' => array(),
 					),
-				),
+				)
 			);
 			?>
 		</li>
@@ -74,8 +74,8 @@ if ( ! defined( 'W3TC' ) ) {
 				sprintf(
 					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 					__(
-						'Start with minify for your %1$sCSS%2$s using auto mode first. If you have any issues at that step, 
-							contact your developer(s) and report a bug. They should be able to point you in the right 
+						'Start with minify for your %1$sCSS%2$s using auto mode first. If you have any issues at that step,
+							contact your developer(s) and report a bug. They should be able to point you in the right
 							direction or correct the issue in a future update.',
 						'w3-total-cache'
 					),
@@ -98,12 +98,12 @@ if ( ! defined( 'W3TC' ) ) {
 					// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag,
 					// translators: 5 opening HTML acronym tag, 6 closing HTML acronym tag.
 					__(
-						'Once %1$sCSS%2$s is optimized, try %3$sJS%4$s minification. If auto mode doesn\'t work for 
-							you, be sure to check the web browsers error console to quickly confirm that the optimization 
-							isn\'t working. If the JavaScript is working, you can either make additional optimizations for 
-							user experience like experimenting with embed locations etc or further reducing file size etc. 
-							However, if you\'re having errors try the "combine only" option and if that still generates 
-							errors, there are bugs in the code of your theme or plugins or both that prevent minification 
+						'Once %1$sCSS%2$s is optimized, try %3$sJS%4$s minification. If auto mode doesn\'t work for
+							you, be sure to check the web browsers error console to quickly confirm that the optimization
+							isn\'t working. If the JavaScript is working, you can either make additional optimizations for
+							user experience like experimenting with embed locations etc or further reducing file size etc.
+							However, if you\'re having errors try the "combine only" option and if that still generates
+							errors, there are bugs in the code of your theme or plugins or both that prevent minification
 							of %5$sJS%6$s from working automatically.',
 						'w3-total-cache'
 					),

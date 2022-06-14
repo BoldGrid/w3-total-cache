@@ -266,7 +266,7 @@ if ( ! defined( 'W3TC' ) ) {
 								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 								__(
 									'Challenge %1$sTTL%2$s:',
-									'w3-total-cache',
+									'w3-total-cache'
 								),
 								'<acronym title="' . esc_attr__( 'Time-to-Live', 'w3-total-cache' ) . '">',
 								'</acronym>'
@@ -275,7 +275,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'acronym' => array(
 									'title' => array(),
 								),
-							),
+							)
 						),
 						'values'      => array(
 							''         => '',
@@ -417,7 +417,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'w3-total-cache'
 							),
 							'<acronym title="' . esc_attr__( 'HyperText Markup Language', 'w3-total-cache' ) . '">',
-							'</acronym>',
+							'</acronym>'
 						),
 						array(
 							'acronym' => array(
@@ -433,7 +433,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'w3-total-cache'
 							),
 							'<acronym title="' . esc_attr__( 'HyperText Markup Language', 'w3-total-cache' ) . '">',
-							'</acronym>',
+							'</acronym>'
 						),
 						array(
 							'acronym' => array(

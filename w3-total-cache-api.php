@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.2.1' );
+define( 'W3TC_VERSION', '2.2.2-rc.1' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -183,7 +183,7 @@ function w3tc_class_autoload( $class ) {
 					sprintf(
 						// translators: 1 class name, 2 file name.
 						__(
-							'Attempt to create object of class %1 has been made, but file %2 doesnt exists',
+							'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
 							'w3-total-cache'
 						),
 						$class,

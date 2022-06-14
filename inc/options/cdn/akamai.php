@@ -119,7 +119,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 					'</acronym>',
 					'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
-					'</acronym>',
+					'</acronym>'
 				),
 				array(
 					'acronym' => array(

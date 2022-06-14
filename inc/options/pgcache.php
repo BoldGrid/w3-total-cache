@@ -463,7 +463,7 @@ if ( ! defined( 'W3TC' ) ) {
 								'<acronym title="' . esc_attr__( 'REpresentational State Transfer', 'w3-total-cache' ) . '">',
 								'</acronym>',
 								'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-								'</acronym>',
+								'</acronym>'
 							),
 							array(
 								'acronym' => array(
