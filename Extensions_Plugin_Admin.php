@@ -233,7 +233,20 @@ class Extensions_Plugin_Admin {
 			if ( isset( $info['notice'] ) && get_transient( $transient_name ) ) {
 				?>
 				<div class="notice notice-warning is-dismissible">
-					<p><?php echo esc_html( $info['notice'] ); ?></p>
+					<p>
+				<?php
+				echo wp_kses(
+					$info['notice'],
+					array(
+						'a' => array(
+							'class'  => array(),
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
+				);
+				?>
+						</p>
 				</div>
 				<?php
 			}
