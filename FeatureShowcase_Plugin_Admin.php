@@ -205,9 +205,10 @@ class FeatureShowcase_Plugin_Admin {
 		$c                        = Dispatcher::config();
 		$extensions               = $c->get_array( 'extensions.active' );
 		$is_imageservice_active   = isset( $extensions['imageservice'] );
-		$imageservice_button_text = $is_imageservice_active ? __( 'Settings', 'w3-total-cache' ) : __( 'Activate', 'w3-total-cache' );
-		$imageservice_button_link = $is_imageservice_active ?
-			'upload.php?page=w3tc_extension_page_imageservice' : 'admin.php?page=w3tc_extensions&action=activate&extension=imageservice';
+		$imageservice_button_text = is_network_admin() ? __( 'Available in sites', 'w3-total-cache' ) :
+			( $is_imageservice_active ? __( 'Settings', 'w3-total-cache' ) : __( 'Activate', 'w3-total-cache' ) );
+		$imageservice_button_link = is_network_admin() ? 'network/sites.php' :
+			( $is_imageservice_active ? 'upload.php?page=w3tc_extension_page_imageservice' : 'admin.php?page=w3tc_extensions&action=activate&extension=imageservice' );
 
 		global $wp_version;
 
