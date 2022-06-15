@@ -59,7 +59,7 @@ class Extensions_Plugin_Admin {
 				if ( in_array( $action_val, array( 'activate', 'deactivate' ), true ) ) {
 					add_action( 'init', array( $this, 'change_extension_status' ) );
 				}
-			} elseif ( ! empty( Util_Request::get_string( 'checked' ) ) ) {
+			} elseif ( ! empty( Util_Request::get_array( 'checked' ) ) ) {
 				add_action( 'admin_init', array( $this, 'change_extensions_status' ) );
 			}
 		}
