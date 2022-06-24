@@ -285,7 +285,7 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
-= 2.2.2=
+= 2.2.2 =
 * Security: PHPCS and WPCS updates
 * Security: Updated guzzlehttp/guzzle to 6.5.6
 * Security: Updated guzzlehttp/psr7 to 1.8.5
@@ -310,7 +310,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: Adjusted lightbox for accessibility
 * Update: Removed deprecated opcache flush
 
-= 2.2.1=
+= 2.2.1 =
 * Fix: Cloudflare: Removed use of the retired ip_lkup V1 endpoint
 * Fix: Prevent error in some environments using non-direct filesystems
 * Fix: Added better checking for some filesystem actions
