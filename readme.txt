@@ -298,6 +298,8 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Database cluster logic
 * Fix: FTP credentials form
 * Fix: Preview deploy button
+* Fix: Image Service links in multisite network admin
+* Fix: Enable Image Service settings changes in multisite blog/sub sites
 * Enhancement: Updated Cloudflare settings to allow a global API key or token
 * Enhancement: Added Cloudflare CDN public objects option to settings
 * Enhancement: Added timeout settings for Redis
