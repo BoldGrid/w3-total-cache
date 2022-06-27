@@ -207,10 +207,10 @@ class FeatureShowcase_Plugin_Admin {
 		$is_imageservice_active   = isset( $extensions['imageservice'] );
 		$imageservice_button_text = $is_imageservice_active ?
 			( is_network_admin() ? __( 'Available in sites', 'w3-total-cache' ) : __( 'Settings', 'w3-total-cache' ) ) :
-			( is_network_admin() ? __( 'Activate', 'w3-total-cache' ) : '' );
+			( is_network_admin() || ! is_multisite() ? __( 'Activate', 'w3-total-cache' ) : '' );
 		$imageservice_button_link = $is_imageservice_active ?
 			( is_network_admin() ? 'network/sites.php' : 'upload.php?page=w3tc_extension_page_imageservice' ) :
-			( is_network_admin() ? 'admin.php?page=w3tc_extensions&action=activate&extension=imageservice' : '' );
+			( is_network_admin() || ! is_multisite() ? 'admin.php?page=w3tc_extensions&action=activate&extension=imageservice' : '' );
 
 		global $wp_version;
 
