@@ -205,9 +205,12 @@ class FeatureShowcase_Plugin_Admin {
 		$c                        = Dispatcher::config();
 		$extensions               = $c->get_array( 'extensions.active' );
 		$is_imageservice_active   = isset( $extensions['imageservice'] );
-		$imageservice_button_text = $is_imageservice_active ? __( 'Settings', 'w3-total-cache' ) : __( 'Activate', 'w3-total-cache' );
+		$imageservice_button_text = $is_imageservice_active ?
+			( is_network_admin() ? __( 'Available in sites', 'w3-total-cache' ) : __( 'Settings', 'w3-total-cache' ) ) :
+			( is_network_admin() ? __( 'Activate', 'w3-total-cache' ) : '' );
 		$imageservice_button_link = $is_imageservice_active ?
-			'upload.php?page=w3tc_extension_page_imageservice' : 'admin.php?page=w3tc_extensions&action=activate&extension=imageservice';
+			( is_network_admin() ? 'network/sites.php' : 'upload.php?page=w3tc_extension_page_imageservice' ) :
+			( is_network_admin() ? 'admin.php?page=w3tc_extensions&action=activate&extension=imageservice' : '' );
 
 		global $wp_version;
 
@@ -236,8 +239,10 @@ class FeatureShowcase_Plugin_Admin {
 				'title'      => esc_html__( 'Image Service', 'w3-total-cache' ),
 				'icon'       => 'dashicons-embed-photo',
 				'text'       => esc_html( $imageservice_description ),
-				'button'     => '<button class="button" onclick="window.location=\'' .
-					esc_url( Util_Ui::admin_url( $imageservice_button_link ) ) . '\'">' . esc_html( $imageservice_button_text ) . '</button>',
+				'button'     => empty( $imageservice_button_text ) ? '' :
+					( '<button class="button" onclick="window.location=\'' .
+					esc_url( Util_Ui::admin_url( $imageservice_button_link ) ) . '\'">' .
+					esc_html( $imageservice_button_text ) . '</button>' ),
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=imageservice' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => false,

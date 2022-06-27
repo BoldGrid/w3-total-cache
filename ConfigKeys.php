@@ -2522,6 +2522,10 @@ $keys = array(
 			'visibility'  => 'never',
 		),
 	),
+	'imageservice.configuration_overloaded' => array(
+		'type' => 'boolean',
+		'default' => true,
+	),
 
 	// extensions keys:
 	//
@@ -2613,5 +2617,9 @@ $overloading_keys_scope = array(
 	array(
 		'key' => 'varnish.configuration_overloaded',
 		'prefix' => 'varnish.'
-	)
+	),
+	array(
+		'key' => 'imageservice.configuration_overloaded',
+		'prefix' => 'imageservice.'
+	),
 );

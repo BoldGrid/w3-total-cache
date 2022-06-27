@@ -65,6 +65,7 @@ Util_Ui::config_item(
 			'lossless' => 'Lossless',
 		),
 		'description'       => esc_html__( 'Image compression type.', 'w3-total-cache' ),
+		'disabled'          => false,
 	)
 );
 
@@ -81,6 +82,7 @@ Util_Ui::config_item(
 			'disabled' => 'Disabled',
 		),
 		'description'       => esc_html__( 'Auto-convert images on upload.', 'w3-total-cache' ),
+		'disabled'          => false,
 	)
 );
 
@@ -98,6 +100,7 @@ Util_Ui::config_item(
 			'always'    => array( 'label' => __( 'Always', 'w3-total-cache' ) ),
 		),
 		'description'      => esc_html__( 'Show converted image attachments in the Media Library.', 'w3-total-cache' ),
+		'disabled'         => false,
 	)
 );
 ?>
