@@ -30,7 +30,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<p class="description"><?php esc_html_e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122. To use TLS, prefix server with tls://', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
-<tr>
+<tr class="hidden">
 	<th><label><?php esc_html_e( 'Verify TLS Certificates:', 'w3-total-cache' ); ?></label></th>
 	<td>
 		<?php $this->checkbox( $module . '.redis.verify_tls_certificates' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'redis.verify_tls_certificates' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
