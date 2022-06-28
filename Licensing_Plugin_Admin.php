@@ -275,17 +275,15 @@ class Licensing_Plugin_Admin {
 		if ( 'accept' !== $terms && 'decline' !== $terms && 'postpone' !== $terms ) {
 			if ( $state_master->get_integer( 'common.install' ) < 1542029724 ) {
 				/* installed before 2018-11-12 */
-				$notes['licensing_terms'] = wp_kses(
-					sprintf(
-						// translators: 1 opening HTML a tag to W3TC Terms page, 2 closing HTML a tag.
-						__(
-							'Our terms of use and privacy policies have been updated. Please %1$sreview%2$s and accept them.',
-							'w3-total-cache'
-						),
-						'<a href="' . esc_url( W3TC_TERMS_URL ) . '" target="blank">',
-						'</a>'
-					) . $buttons
-				);
+				$notes['licensing_terms'] = sprintf(
+					// translators: 1 opening HTML a tag to W3TC Terms page, 2 closing HTML a tag.
+					esc_html__(
+						'Our terms of use and privacy policies have been updated. Please %1$sreview%2$s and accept them.',
+						'w3-total-cache'
+					),
+					'<a target="_blank" href="' . esc_url( W3TC_TERMS_URL ) . '">',
+					'</a>'
+				) . $buttons;
 			} else {
 				$notes['licensing_terms'] = sprintf(
 					// translators: 1: HTML break tag, 2: Anchor/link open tag, 3: Anchor/link close tag.
