@@ -505,18 +505,6 @@ class Cache_Redis extends Cache_Base {
 						);
 					}
 
-					// Catch PHP errors.
-					set_error_handler( // phpcs:ignore
-						function( $errno, $errstr, $errfile, $errline ) {
-							// Error was suppressed with the @-operator.
-							if ( 0 === error_reporting() ) { // phpcs:ignore
-								return false;
-							}
-
-							throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
-						}
-					);
-
 					if ( $this->_persistent ) {
 						try {
 							$accessor->pconnect(
