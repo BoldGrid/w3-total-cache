@@ -507,9 +507,9 @@ if ( ! defined( 'W3TC' ) ) {
 
 		<li>
 			<?php esc_html_e( 'WP_CACHE define:', 'w3-total-cache' ); ?>
-			<?php if ( defined( 'WP_CACHE' ) && WP_CACHE === 'true' ) : ?>
+			<?php if ( defined( 'WP_CACHE' ) && WP_CACHE ) : ?>
 				<span style="background-color: #33cc33"><?php esc_html_e( 'Defined (true)', 'w3-total-cache' ); ?></span>
-			<?php elseif ( defined( 'WP_CACHE' ) && WP_CACHE === 'false' ) : ?>
+			<?php elseif ( defined( 'WP_CACHE' ) && ! WP_CACHE ) : ?>
 				<span style="background-color: #FF0000"><?php esc_html_e( 'Defined (false)', 'w3-total-cache' ); ?></span>
 			<?php else : ?>
 				<span style="background-color: #FF0000"><?php esc_html_e( 'Not defined', 'w3-total-cache' ); ?></span>
