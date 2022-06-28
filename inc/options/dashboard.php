@@ -71,7 +71,19 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 		<input type="submit" name="w3tc_flush_browser_cache" value="<?php esc_html_e( 'update Media Query String', 'w3-total-cache' ); ?>" <?php disabled( ! ( $browsercache_enabled && $browsercache_update_media_qs ) ); ?> class="button" />
 		<?php
 		$string = esc_html__( 'or', 'w3-total-cache' );
-		echo esc_html( implode( " $string ", apply_filters( 'w3tc_dashboard_actions', array() ) ) );
+		echo wp_kses(
+			implode( " $string ", apply_filters( 'w3tc_dashboard_actions', array() ) ),
+			array(
+				'input' => array(
+					'class'    => array(),
+					'disabled' => array(),
+					'id'       => array(),
+					'name'     => array(),
+					'type'     => array(),
+					'value'    => array(),
+				),
+			)
+		);
 		?>
 		.
 	</p>
