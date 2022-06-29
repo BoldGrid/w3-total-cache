@@ -496,69 +496,24 @@ class Cache_Redis extends Cache_Base {
 				} else {
 					list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
 
-					$context = array();
-
-					if ( substr( $server, 0, 4 ) === 'tls:' && ! $this->_verify_tls_certificates ) {
-						$context['stream'] = array(
-							'verify_peer'      => false,
-							'verify_peer_name' => false,
-						);
-					}
-
-					// Catch PHP errors.
-					set_error_handler( // phpcs:ignore
-						function( $errno, $errstr, $errfile, $errline ) {
-							// Error was suppressed with the @-operator.
-							if ( 0 === error_reporting() ) { // phpcs:ignore
-								return false;
-							}
-
-							throw new \ErrorException( $errstr, 0, $errno, $errfile, $errline );
-						}
-					);
-
 					if ( $this->_persistent ) {
-						try {
-							$accessor->pconnect(
-								$ip,
-								$port,
-								$this->_timeout,
-								$this->_instance_id . '_' . $this->_dbid,
-								$this->_retry_interval,
-								$this->_read_timeout,
-								$context
-							);
-						} catch ( \ErrorException $e ) {
-							$accessor->pconnect(
-								$ip,
-								$port,
-								$this->_timeout,
-								$this->_instance_id . '_' . $this->_dbid,
-								$this->_retry_interval,
-								$this->_read_timeout
-							);
-						}
+						$accessor->pconnect(
+							$ip,
+							$port,
+							$this->_timeout,
+							$this->_instance_id . '_' . $this->_dbid,
+							$this->_retry_interval,
+							$this->_read_timeout
+						);
 					} else {
-						try {
-							$accessor->connect(
-								$ip,
-								$port,
-								$this->_timeout,
-								null,
-								$this->_retry_interval,
-								$this->_read_timeout,
-								$context
-							);
-						} catch ( \ErrorException $e ) {
-							$accessor->connect(
-								$ip,
-								$port,
-								$this->_timeout,
-								null,
-								$this->_retry_interval,
-								$this->_read_timeout
-							);
-						}
+						$accessor->connect(
+							$ip,
+							$port,
+							$this->_timeout,
+							null,
+							$this->_retry_interval,
+							$this->_read_timeout
+						);
 					}
 
 					restore_error_handler();
