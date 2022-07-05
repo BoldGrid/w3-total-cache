@@ -474,16 +474,38 @@ class Cache_Redis extends Cache_Base {
 				$server   = $this->_servers[ $index ];
 				$accessor = new \Redis();
 
+				$phpredis_version = phpversion('redis');
+				if ($phpredis_version) {
+					$phpredis_version = (int) $phpredis_version[0]; // Only care about the major version
+				} else {
+					$phpredis_version = 0;
+				}
+				if ($phpredis_version > 4) {
+					$phpredis_modern = true;
+				} else {
+					$phpredis_modern = false;
+				}
+
 				if ( substr( $server, 0, 5 ) === 'unix:' ) {
 					if ( $this->_persistent ) {
-						$accessor->pconnect(
-							trim( substr( $server, 5 ) ),
-							null,
-							$this->_timeout,
-							$this->_instance_id . '_' . $this->_dbid,
-							$this->_retry_interval,
-							$this->_read_timeout
-						);
+						if ($phpredis_modern) {
+							$accessor->pconnect(
+								trim(substr($server, 5)),
+								null,
+								$this->_timeout,
+								$this->_instance_id . '_' . $this->_dbid,
+								$this->_retry_interval,
+								$this->_read_timeout
+							);
+						} else { // Old phpredis only supports a subset of parameters
+							$accessor->pconnect(
+								trim(substr($server, 5)),
+								null,
+								$this->_timeout,
+								$this->_instance_id . '_' . $this->_dbid,
+								$this->_retry_interval
+							);
+						}
 					} else {
 						$accessor->connect(
 							trim( substr( $server, 5 ) ),
@@ -497,14 +519,24 @@ class Cache_Redis extends Cache_Base {
 					list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
 
 					if ( $this->_persistent ) {
-						$accessor->pconnect(
-							$ip,
-							$port,
-							$this->_timeout,
-							$this->_instance_id . '_' . $this->_dbid,
-							$this->_retry_interval,
-							$this->_read_timeout
-						);
+						if ($phpredis_modern) {
+							$accessor->pconnect(
+								$ip,
+								$port,
+								$this->_timeout,
+								$this->_instance_id . '_' . $this->_dbid,
+								$this->_retry_interval,
+								$this->_read_timeout
+							);
+						} else { // Old phpredis only supports a subset of parameters
+							$accessor->pconnect(
+								$ip,
+								$port,
+								$this->_timeout,
+								$this->_instance_id . '_' . $this->_dbid,
+								$this->_retry_interval
+							);
+						}
 					} else {
 						$accessor->connect(
 							$ip,
