@@ -176,13 +176,13 @@ class Licensing_Plugin_Admin {
 				),
 				array(
 					'input' => array(
-						'type' => array(),
-						'class' => array(),
-						'data-nonce' => array(),
+						'type'           => array(),
+						'class'          => array(),
+						'data-nonce'     => array(),
 						'data-renew-key' => array(),
-						'data-src' => array(),
-						'value' => array()
-					)
+						'data-src'       => array(),
+						'value'          => array(),
+					),
 				)
 			);
 		} elseif ( $this->_status_is( $status, 'invalid' ) ) {
@@ -209,8 +209,8 @@ class Licensing_Plugin_Admin {
 				array(
 					'a' => array(
 						'class' => array(),
-						'href' => array()
-					)
+						'href'  => array(),
+					),
 				)
 			);
 		} elseif ( $this->_status_is( $status, 'inactive' ) ) {
