@@ -245,7 +245,7 @@ class Template {
 			'w3tc_wizard',
 			'W3TC_Wizard',
 			array(
-				'beforeunloadText' => __( 'Are you sure that you want to leve this page?', 'w3-total-cache' ),
+				'beforeunloadText' => __( 'Are you sure that you want to leave this page?', 'w3-total-cache' ),
 			)
 		);
 

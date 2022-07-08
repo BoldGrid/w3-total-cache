@@ -212,9 +212,8 @@ class PgCache_Plugin {
 				$redirect_url .= ':' . (int)$parsed_url['port'];
 			}
 
-			$redirect_url .= $_SERVER['REQUEST_URI'];
+			$redirect_url .= isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
-			//echo $redirect_url;
 			wp_redirect( $redirect_url, 301 );
 			exit();
 		}

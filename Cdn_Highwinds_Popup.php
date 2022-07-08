@@ -30,7 +30,7 @@ class Cdn_Highwinds_Popup {
 
 
 	public function w3tc_ajax_cdn_highwinds_select_host() {
-		$api_token = $_REQUEST['api_token'];
+		$api_token = Util_Request::get_string( 'api_token' );
 
 		try {
 			$user = Cdn_Highwinds_Api::users_me( $api_token );
@@ -60,8 +60,8 @@ class Cdn_Highwinds_Popup {
 
 
 	public function w3tc_ajax_cdn_highwinds_configure_host() {
-		$account_hash = $_REQUEST['account_hash'];
-		$api_token = $_REQUEST['api_token'];
+		$account_hash = Util_Request::get_string( 'account_hash' );
+		$api_token = Util_Request::get_string( 'api_token' );
 
 		$host = Util_Request::get( 'host', '' );
 
@@ -74,7 +74,7 @@ class Cdn_Highwinds_Popup {
 
 		try {
 			if ( empty( $host ) ) {
-				$host = $this->_create_host( $api, $_REQUEST['host_new'] );
+				$host = $this->_create_host( $api, Util_Request::get_string( 'host_new' ) );
 			}
 		} catch ( \Exception $ex ) {
 			$api_hosts = $api->hosts();
@@ -118,7 +118,7 @@ class Cdn_Highwinds_Popup {
 			array(
 				'cdn_configuration_saved' =>
 				'CDN credentials are saved successfully' ) );
-		echo 'Location admin.php?page=w3tc_cdn&' . $postfix;
+		echo 'Location admin.php?page=w3tc_cdn&' . esc_html( $postfix );
 		exit();
 	}
 
@@ -166,7 +166,7 @@ class Cdn_Highwinds_Popup {
 		try {
 			// create host
 			$host_response = $api->host_add( array(
-					'name' => $_REQUEST['host_new'],
+					'name' => Util_Request::get_string( 'host_new' ),
 					'services' => $service_ids
 				) );
 			$host = $host_response['hashCode'];
@@ -238,7 +238,7 @@ class Cdn_Highwinds_Popup {
 
 			$postfix = Util_Admin::custom_message_id( array(),
 				array( 'cdn_cnames_saved' => 'CNAMEs are saved successfully' ) );
-			echo 'Location admin.php?page=w3tc_cdn&' . $postfix;
+			echo 'Location admin.php?page=w3tc_cdn&' . esc_html( $postfix );
 			exit();
 		} catch ( \Exception $ex ) {
 			$details['error_message'] = $ex->getMessage();

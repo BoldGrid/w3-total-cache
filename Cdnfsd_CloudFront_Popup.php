@@ -45,8 +45,8 @@ class Cdnfsd_CloudFront_Popup {
 
 
 	public function w3tc_ajax_cdn_cloudfront_fsd_list_distributions() {
-		$access_key = $_REQUEST['access_key'];
-		$secret_key = $_REQUEST['secret_key'];
+		$access_key = Util_Request::get_string( 'access_key' );
+		$secret_key = Util_Request::get_string( 'secret_key' );
 
 		if ( empty( $access_key ) || empty( $secret_key ) ) {
 			$this->render_intro( array(
@@ -100,8 +100,8 @@ class Cdnfsd_CloudFront_Popup {
 
 
 	public function w3tc_ajax_cdn_cloudfront_fsd_view_distribution() {
-		$access_key = $_REQUEST['access_key'];
-		$secret_key = $_REQUEST['secret_key'];
+		$access_key = Util_Request::get_string( 'access_key' );
+		$secret_key = Util_Request::get_string( 'secret_key' );
 		$distribution_id = Util_Request::get( 'distribution_id', '' );
 
 		$details = array(
@@ -188,39 +188,29 @@ class Cdnfsd_CloudFront_Popup {
 	private function render_zone_value_change( $details, $field ) {
 		Util_Ui::hidden( '', $field, $details[$field]['new'] );
 
-		if ( !isset( $details[$field]['current'] ) ||
-			$details[$field]['current'] == $details[$field]['new'] )
-			echo htmlspecialchars( $details[$field]['new'] );
-		else {
+		if ( ! isset( $details[ $field ]['current'] ) || $details[ $field ]['current'] === $details[ $field ]['new'] ) {
+			echo esc_html( $details[ $field ]['new'] );
+		} else {
 			echo 'currently set to <strong>' .
-				htmlspecialchars( empty( $details[$field]['current'] ) ?
-				'<empty>' : $details[$field]['current'] ) .
+				( empty( $details[ $field ]['current'] ) ? '<empty>' : esc_html( $details[ $field ]['current'] ) ) .
 				'</strong><br />';
-			echo 'will be changed to <strong>' .
-				htmlspecialchars( $details[$field]['new'] ) . '</strong><br />';
+			echo 'will be changed to <strong>' . esc_html( $details[ $field ]['new'] ) . '</strong><br />';
 		}
 	}
 
 
 
 	private function render_zone_boolean_change( $details, $field ) {
-		Util_Ui::hidden( '', $field, $details[$field]['new'] );
+		Util_Ui::hidden( '', $field, $details[ $field ]['new'] );
 
-		if ( !isset( $details[$field]['current'] ) ) {
-			echo 'will be set to <strong>';
-			echo $this->render_zone_boolean( $details[$field]['new'] );
-			echo '</strong>';
-		} else if ( $details[$field]['current'] == $details[$field]['new'] ) {
-				echo '<strong>';
-				echo $this->render_zone_boolean( $details[$field]['new'] );
-				echo '</strong>';
-			} else {
-			echo 'currently set to <strong>';
-			$this->render_zone_boolean( $details[$field]['current'] );
-			echo '</strong><br />';
-			echo 'will be changed to <strong>';
-			$this->render_zone_boolean( $details[$field]['new'] );
-			echo '</strong><br />';
+		if ( !isset( $details[ $field ]['current'] ) ) {
+			echo 'will be set to <strong>' . esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) ) . '</strong>';
+		} elseif ( $details[ $field ]['current'] === $details[ $field ]['new'] ) {
+			echo '<strong>' . esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) ) . '</strong>';
+		} else {
+			echo 'currently set to <strong>' . esc_html( $this->render_zone_boolean( $details[ $field ]['current'] ) ) .
+				'</strong><br />will be changed to <strong>' . esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) ) .
+				'</strong><br />';
 		}
 	}
 
@@ -236,20 +226,18 @@ class Cdnfsd_CloudFront_Popup {
 
 
 	private function render_zone_ip_change( $details, $field ) {
-		Util_Ui::textbox( '', $field, $details[$field]['new'] );
+		Util_Ui::textbox( '', $field, $details[ $field ]['new'] );
 
-		if ( isset( $details[$field]['current'] ) &&
-			$details[$field]['current'] != $details[$field]['new'] ) {
-			echo '<p class="description">currently set to <strong>' .
-				$details[$field]['current'] . '</strong></p>';
+		if ( isset( $details[ $field ]['current'] ) && $details[ $field ]['current'] !== $details[ $field ]['new'] ) {
+			echo '<p class="description">currently set to <strong>' . esc_html( $details[ $field ]['current'] ) . '</strong></p>';
 		}
 	}
 
 
 
 	public function w3tc_ajax_cdn_cloudfront_fsd_configure_distribution() {
-		$access_key = $_REQUEST['access_key'];
-		$secret_key = $_REQUEST['secret_key'];
+		$access_key = Util_Request::get_string( 'access_key' );
+		$secret_key = Util_Request::get_string( 'secret_key' );
 		$distribution_id = Util_Request::get( 'distribution_id', '' );
 
 		$origin_id = rand();
@@ -363,8 +351,8 @@ class Cdnfsd_CloudFront_Popup {
 
 
 	public function w3tc_ajax_cdn_cloudfront_fsd_configure_distribution_skip() {
-		$access_key = $_REQUEST['access_key'];
-		$secret_key = $_REQUEST['secret_key'];
+		$access_key = Util_Request::get_string( 'access_key' );
+		$secret_key = Util_Request::get_string( 'secret_key' );
 		$distribution_id = Util_Request::get( 'distribution_id', '' );
 
 		$origin_id = rand();

@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 3.8
-Tested up to: 5.9
-Stable tag: 2.2.1
+Tested up to: 6.0
+Stable tag: 2.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -285,7 +285,40 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
-= 2.2.1=
+= 2.2.3 =
+* Fix: Redis Cache: Removed exception on warnings
+* Fix: Compatibility check for WP_CACHE
+* Fix: Flush all cache cache except Cloudflare button
+* Fix: License terms update notice escaping
+* Fix: Feature Showcase: Image Service activate button
+* Security: Updated guzzlehttp/guzzle to 6.5.8
+
+= 2.2.2 =
+* Security: PHPCS and WPCS updates
+* Security: Updated guzzlehttp/guzzle to 6.5.6
+* Security: Updated guzzlehttp/psr7 to 1.8.5
+* Fix: Cloudflare flush all cache
+* Fix: Access log test
+* Fix: Better handling for PHP 5.6
+* Fix: Convert Redis warnings to exceptions
+* Fix: WordPress 5.5 image lazy loading
+* Fix: Infinite loop when using database cluster configuration
+* Fix: Database cluster logic
+* Fix: FTP credentials form
+* Fix: Preview deploy button
+* Fix: Image Service links in multisite network admin
+* Fix: Enable Image Service settings changes in multisite blog/sub sites
+* Enhancement: Updated Cloudflare settings to allow a global API key or token
+* Enhancement: Added Cloudflare CDN public objects option to settings
+* Enhancement: Added timeout settings for Redis
+* Enhancement: Added TLS/SSL certificate verification option for Redis
+* Enhancement: Added Image Service visibility option
+* Enhancement: Updated Image Service limit notification
+* Enhancement: Better handling of trailing slash URLs
+* Update: Adjusted lightbox for accessibility
+* Update: Removed deprecated opcache flush
+
+= 2.2.1 =
 * Fix: Cloudflare: Removed use of the retired ip_lkup V1 endpoint
 * Fix: Prevent error in some environments using non-direct filesystems
 * Fix: Added better checking for some filesystem actions

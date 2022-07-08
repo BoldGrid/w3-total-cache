@@ -67,9 +67,12 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 
 		$request_time_total = microtime( true ) - $this->request_time_start;
 
-		$data = sprintf( "\n[%s] [%s] [%s]\n", date( 'r' ),
-			$_SERVER['REQUEST_URI'], round( $request_time_total, 4 ) ) .
-			implode( "\n", $strings ) . "\n";
+		$data = sprintf(
+			"\n[%s] [%s] [%s]\n",
+			gmdate( 'r' ),
+			isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+			round( $request_time_total, 4 )
+		) . implode( "\n", $strings ) . "\n";
 		$data = strtr( $data, '<>', '..' );
 
 		$filename = Util_Debug::log_filename( 'dbcache' );

@@ -1,8 +1,16 @@
 <?php
+/**
+ * File: DbCache_WpdbInjection_QueryCaching.php
+ *
+ * @package W3TC
+ *
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+ */
+
 namespace W3TC;
 
 /**
- * class DbCache_WpdbInjection_QueryCaching
+ * Class: DbCache_WpdbInjection_QueryCaching
  */
 class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
@@ -192,24 +200,33 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 					$filter_data = apply_filters( 'w3tc_dbcache_cache_set', $filter_data );
 				}
 
-				$cache->set( md5( $filter_data['query'] ),
+				$cache->set(
+					md5( $filter_data['query'] ),
 					$filter_data['content'],
 					$filter_data['expiration'],
-					$filter_data['group'] );
+					$filter_data['group']
+				);
 			}
 		}
 
 		if ( $this->debug ) {
-			$this->log_query( array(
-				date( 'r' ),
-				strtr( $_SERVER['REQUEST_URI'], "<>\r\n", '..  ' ),
-				strtr( $query, "<>\r\n", '..  ' ),   // 'query'
-				(int)($time_total * 1000000),   // 'time_total' (microsecs)
-				$reject_reason,   // 'reason'
-				$is_cache_hit,   // 'cached'
-				( $data ? strlen( serialize( $data ) ) : 0 ),   // 'data_size'
-				strtr( $group, "<>\r\n", '..  ' )   // 'group'
-			) );
+			$this->log_query(
+				array(
+					gmdate( 'r' ),
+					strtr(
+						isset( $_SERVER['REQUEST_URI'] ) ?
+						esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+						"<>\r\n",
+						'..  '
+					),
+					strtr( $query, "<>\r\n", '..  ' ), // 'query'.
+					(int) ( $time_total * 1000000 ), // 'time_total' (microsecs).
+					$reject_reason, // 'reason'.
+					$is_cache_hit, // 'cached'.
+					( $data ? strlen( serialize( $data ) ) : 0 ), // 'data_size'.
+					strtr( $group, "<>\r\n", '..  ' ), // 'group'.
+				)
+			);
 		}
 
 		$this->time_total += $time_total;
@@ -350,6 +367,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			case 'redis':
 				$engineConfig = array(
 					'servers' => $this->_config->get_array( 'dbcache.redis.servers' ),
+					'verify_tls_certificates' => $this->_config->get_boolean( 'dbcache.redis.verify_tls_certificates' ),
 					'persistent' => $this->_config->get_boolean( 'dbcache.redis.persistent' ),
 					'timeout' => $this->_config->get_integer( 'dbcache.redis.timeout' ),
 					'retry_interval' => $this->_config->get_integer( 'dbcache.redis.retry_interval' ),
@@ -427,10 +445,13 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		 */
 		$ajax_skip = false;
 		if ( defined( 'DOING_AJAX' ) ) {
-			// wp_admin is always defined for ajax requests, check by referrer
-			if ( isset( $_SERVER['HTTP_REFERER'] ) &&
-				strpos( $_SERVER['HTTP_REFERER'], '/wp-admin/' ) === false )
+			$http_referer = isset( $_SERVER['HTTP_REFERER'] ) ?
+				filter_var( wp_unslash( $_SERVER['HTTP_REFERER'] ), FILTER_SANITIZE_URL ) : '';
+
+			// wp_admin is always defined for ajax requests, check by referrer.
+			if ( strpos( $http_referer, '/wp-admin/' ) === false ) {
 				$ajax_skip = true;
+			}
 		}
 
 		/**
@@ -534,11 +555,14 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	function _check_request_uri() {
 		$auto_reject_uri = array(
 			'wp-login',
-			'wp-register'
+			'wp-register',
 		);
 
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ?
+			filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '';
+
 		foreach ( $auto_reject_uri as $uri ) {
-			if ( strstr( $_SERVER['REQUEST_URI'], $uri ) !== false ) {
+			if ( strstr( $request_uri, $uri ) !== false ) {
 				return false;
 			}
 		}
@@ -548,7 +572,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 		foreach ( $reject_uri as $expr ) {
 			$expr = trim( $expr );
-			if ( $expr != '' && preg_match( '~' . $expr . '~i', $_SERVER['REQUEST_URI'] ) ) {
+			if ( '' !== $expr && preg_match( '~' . $expr . '~i', $request_uri ) ) {
 				return false;
 			}
 		}

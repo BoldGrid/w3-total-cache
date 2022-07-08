@@ -168,7 +168,10 @@ class HTTP_Encoder {
 	public function sendAll()
 	{
 		$this->sendHeaders();
-		echo $this->_content;
+		echo wp_kses(
+			$this->_content,
+			Util_Ui::get_allowed_html_for_wp_kses_from_content( $this->_content )
+		);
 	}
 
 	/**
@@ -202,7 +205,7 @@ class HTTP_Encoder {
 		{
 			return array('', '');
 		}
-		$ae = $_SERVER['HTTP_ACCEPT_ENCODING'];
+		$ae = sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_ENCODING'] ) );
 		// brotli checks (quick)
 		if (0 === strpos($ae, 'br,')
 			|| strpos($ae, ', br') === strlen($ae) - 4
@@ -320,7 +323,7 @@ class HTTP_Encoder {
 		if (empty($_SERVER['HTTP_USER_AGENT'])) {
 			return false;
 		}
-		$ua = $_SERVER['HTTP_USER_AGENT'];
+		$ua = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 		// quick escape for non-IEs
 		if (0 !== strpos($ua, 'Mozilla/4.0 (compatible; MSIE ')
 			|| false !== strpos($ua, 'Opera')) {

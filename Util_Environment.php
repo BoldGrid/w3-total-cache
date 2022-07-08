@@ -1,66 +1,84 @@
 <?php
+/**
+ * File: Util_Environment.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class: Util_Environment
+ */
 class Util_Environment {
 	/**
-	 * Formats URL
+	 * Is using ,aster config.
 	 *
-	 * @param string  $url
-	 * @param array   $params
-	 * @param boolean $skip_empty
-	 * @param string  $separator
+	 * @var bool
+	 * @static
+	 */
+	private static $is_using_master_config = null;
+
+	/**
+	 * Formats URL.
+	 *
+	 * @static
+	 *
+	 * @param string $url        URL.
+	 * @param array  $params     Parameters.
+	 * @param bool   $skip_empty Skip empty.
+	 * @param string $separator  Separate.
 	 * @return string
 	 */
-	static public function url_format( $url = '', $params = array(),
-		$skip_empty = false, $separator = '&' ) {
-		if ( $url != '' ) {
-			$parse_url = @parse_url( $url );
-			$url = '';
+	public static function url_format( $url = '', $params = array(), $skip_empty = false, $separator = '&' ) {
+		if ( ! empty( $url ) ) {
+			$parse_url = @parse_url( $url ); // phpcs:ignore
+			$url       = '';
 
-			if ( !empty( $parse_url['scheme'] ) ) {
+			if ( ! empty( $parse_url['scheme'] ) ) {
 				$url .= $parse_url['scheme'] . '://';
 
-				if ( !empty( $parse_url['user'] ) ) {
+				if ( ! empty( $parse_url['user'] ) ) {
 					$url .= $parse_url['user'];
 
-					if ( !empty( $parse_url['pass'] ) ) {
+					if ( ! empty( $parse_url['pass'] ) ) {
 						$url .= ':' . $parse_url['pass'];
 					}
 				}
 
-				if ( !empty( $parse_url['host'] ) ) {
+				if ( ! empty( $parse_url['host'] ) ) {
 					$url .= $parse_url['host'];
 				}
 
-				if ( !empty( $parse_url['port'] ) && $parse_url['port'] != 80 ) {
+				if ( ! empty( $parse_url['port'] ) && $parse_url['port'] != 80 ) {
 					$url .= ':' . (int) $parse_url['port'];
 				}
 			}
 
-			if ( !empty( $parse_url['path'] ) ) {
+			if ( ! empty( $parse_url['path'] ) ) {
 				$url .= $parse_url['path'];
 			}
 
-			if ( !empty( $parse_url['query'] ) ) {
+			if ( ! empty( $parse_url['query'] ) ) {
 				$old_params = array();
 				parse_str( $parse_url['query'], $old_params );
 
 				$params = array_merge( $old_params, $params );
 			}
 
-			$query = Util_Environment::url_query( $params );
+			$query = self::url_query( $params );
 
-			if ( $query != '' ) {
+			if ( ! empty( $query ) ) {
 				$url .= '?' . $query;
 			}
 
-			if ( !empty( $parse_url['fragment'] ) ) {
+			if ( ! empty( $parse_url['fragment'] ) ) {
 				$url .= '#' . $parse_url['fragment'];
 			}
 		} else {
-			$query = Util_Environment::url_query( $params, $skip_empty, $separator );
+			$query = self::url_query( $params, $skip_empty, $separator );
 
-			if ( $query != '' ) {
+			if ( ! empty( $query ) ) {
 				$url = '?' . $query;
 			}
 		}
@@ -69,20 +87,21 @@ class Util_Environment {
 	}
 
 	/**
-	 * Formats query string
+	 * Formats query string.
 	 *
-	 * @param array   $params
-	 * @param boolean $skip_empty
-	 * @param string  $separator
+	 * @static
+	 *
+	 * @param array  $params     Parameters.
+	 * @param bool   $skip_empty Skip empty.
+	 * @param string $separator  Separator.
 	 * @return string
 	 */
-	static public function url_query( $params = array(), $skip_empty = false,
-		$separator = '&' ) {
-		$str = '';
+	public static function url_query( $params = array(), $skip_empty = false, $separator = '&' ) {
+		$str          = '';
 		static $stack = array();
 
 		foreach ( (array) $params as $key => $value ) {
-			if ( $skip_empty === true && empty( $value ) ) {
+			if ( $skip_empty && empty( $value ) ) {
 				continue;
 			}
 
@@ -90,15 +109,16 @@ class Util_Environment {
 
 			if ( is_array( $value ) ) {
 				if ( count( $value ) ) {
-					$str .= ( $str != '' ? '&' : '' ) .
-						Util_Environment::url_query( $value, $skip_empty, $key );
+					$str .= ( ! empty( $str ) ? '&' : '' ) .
+						self::url_query( $value, $skip_empty, $key );
 				}
 			} else {
 				$name = '';
+
 				foreach ( $stack as $key ) {
-					$name .= ( $name != '' ? '[' . $key . ']' : $key );
+					$name .= ( ! empty( $name ) ? '[' . $key . ']' : $key );
 				}
-				$str .= ( $str != '' ? $separator : '' ) . $name . '=' . rawurlencode( $value );
+				$str .= ( ! empty( $str ) ? $separator : '' ) . $name . '=' . rawurlencode( $value );
 			}
 
 			array_pop( $stack );
@@ -107,21 +127,29 @@ class Util_Environment {
 		return $str;
 	}
 
-	/*
-	 * Returns URL from filename/dirname
+	/**
+	 * Returns URL from filename/dirname.
 	 *
+	 * @static
+	 *
+	 * @param string $filename Filename.
+	 * @param bool   $use_site_url Use siteurl.
 	 * @return string
 	 */
-	static public function filename_to_url( $filename, $use_site_url = false ) {
-		// using wp-content instead of document_root as known dir since dirbased
-		// multisite wp adds blogname to the path inside site_url
-		if ( substr( $filename, 0, strlen( WP_CONTENT_DIR ) ) != WP_CONTENT_DIR )
+	public static function filename_to_url( $filename, $use_site_url = false ) {
+		/**
+		 * Using wp-content instead of document_root as known dir since dirbased
+		 * multisite wp adds blogname to the path inside site_url.
+		 */
+		if ( substr( $filename, 0, strlen( WP_CONTENT_DIR ) ) !== WP_CONTENT_DIR ) {
 			return '';
+		}
+
 		$uri_from_wp_content = substr( $filename, strlen( WP_CONTENT_DIR ) );
 
-		if ( DIRECTORY_SEPARATOR != '/' )
-			$uri_from_wp_content = str_replace( DIRECTORY_SEPARATOR, '/',
-				$uri_from_wp_content );
+		if ( DIRECTORY_SEPARATOR != '/' ) {
+			$uri_from_wp_content = str_replace( DIRECTORY_SEPARATOR, '/', $uri_from_wp_content );
+		}
 
 		$url = content_url( $uri_from_wp_content );
 		$url = apply_filters( 'w3tc_filename_to_url', $url );
@@ -130,54 +158,71 @@ class Util_Environment {
 	}
 
 	/**
-	 * Returns true if database cluster is used
+	 * Returns true if database cluster is used.
 	 *
-	 * @return boolean
+	 * @static
+	 *
+	 * @return bool
 	 */
-	static public function is_dbcluster() {
-		if ( !defined( 'W3TC_PRO' ) || !W3TC_PRO )
+	public static function is_dbcluster() {
+		if ( ! defined( 'W3TC_PRO' ) || ! W3TC_PRO ) {
 			return false;
+		}
 
-		if ( isset( $GLOBALS['w3tc_dbcluster_config'] ) )
+		if ( isset( $GLOBALS['w3tc_dbcluster_config'] ) ) {
 			return true;
+		}
 
 		return defined( 'W3TC_FILE_DB_CLUSTER_CONFIG' ) &&
-			@file_exists( W3TC_FILE_DB_CLUSTER_CONFIG );
+			@file_exists( W3TC_FILE_DB_CLUSTER_CONFIG ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
 	/**
-	 * Returns true if WPMU uses vhosts
+	 * Returns true if WPMU uses vhosts.
 	 *
-	 * @return boolean
+	 * @static
+	 *
+	 * @return bool
 	 */
-	static public function is_wpmu_subdomain() {
-		return ( ( defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL ) ||
-			( defined( 'VHOST' ) && VHOST == 'yes' ) );
+	public static function is_wpmu_subdomain() {
+		return (
+			( defined( 'SUBDOMAIN_INSTALL' ) && SUBDOMAIN_INSTALL ) ||
+			( defined( 'VHOST' ) && 'yes' === VHOST )
+		);
 	}
 
 	/**
-	 * Returns if there is multisite mode
+	 * Returns if there is multisite mode.
 	 *
-	 * @return boolean
+	 * @static
+	 *
+	 * @return bool
 	 */
-	static public function is_wpmu() {
+	public static function is_wpmu() {
 		static $wpmu = null;
 
-		if ( $wpmu === null ) {
-			$wpmu = ( file_exists( ABSPATH . 'wpmu-settings.php' ) ||
+		if ( null === $wpmu ) {
+			$wpmu = (
+				file_exists( ABSPATH . 'wpmu-settings.php' ) ||
 				( defined( 'MULTISITE' ) && MULTISITE ) ||
 				defined( 'SUNRISE' ) ||
-				Util_Environment::is_wpmu_subdomain() );
+				self::is_wpmu_subdomain()
+			);
 		}
 
 		return $wpmu;
 	}
 
-	static private $is_using_master_config = null;
-
-	static public function is_using_master_config() {
+	/**
+	 * Is using master config.
+	 *
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function is_using_master_config() {
 		if ( is_null( self::$is_using_master_config ) ) {
-			if ( !Util_Environment::is_wpmu() ) {
+			if ( ! self::is_wpmu() ) {
 				self::$is_using_master_config = true;
 			} elseif ( is_network_admin() ) {
 				self::$is_using_master_config = true;
@@ -186,7 +231,7 @@ class Util_Environment {
 				if ( is_null( $blog_data ) ) {
 					self::$is_using_master_config = true;
 				} else {
-					self::$is_using_master_config = ( $blog_data[0] == 'm' );
+					self::$is_using_master_config = ( 'm' === $blog_data[0] );
 				}
 			}
 		}
@@ -195,147 +240,186 @@ class Util_Environment {
 	}
 
 	/**
-	 * Returns header W3TC adds to responses powered by itself
+	 * Returns header W3TC adds to responses powered by itself.
+	 *
+	 * @static
+	 *
+	 * @return string
 	 */
-	static public function w3tc_header() {
+	public static function w3tc_header() {
 		return W3TC_POWERED_BY .
 			'/' . W3TC_VERSION;
 	}
 
 	/**
-	 * Check if URL is valid
+	 * Check if URL is valid.
 	 *
-	 * @param string  $url
-	 * @return boolean
+	 * @static
+	 *
+	 * @param string $url URL.
+	 * @return bool
 	 */
-	static public function is_url( $url ) {
+	public static function is_url( $url ) {
 		return preg_match( '~^(https?:)?//~', $url );
 	}
 
 	/**
-	 * Returns true if current connection is secure
+	 * Returns true if current connection is secure.
 	 *
-	 * @return boolean
+	 * @static
+	 *
+	 * @return bool
 	 */
-	static public function is_https() {
+	public static function is_https() {
+		$https                  = isset( $_SERVER['HTTPS'] ) ?
+			htmlspecialchars( stripslashes( $_SERVER['HTTPS'] ) ) : ''; // phpcs:ignore
+		$server_port            = isset( $_SERVER['SERVER_PORT'] ) ?
+			htmlspecialchars( stripslashes( $_SERVER['SERVER_PORT'] ) ) : ''; // phpcs:ignore
+		$http_x_forwarded_proto = isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ?
+			htmlspecialchars( stripslashes( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ) : ''; // phpcs:ignore
+
 		switch ( true ) {
-		case ( isset( $_SERVER['HTTPS'] ) &&
-				Util_Environment::to_boolean( $_SERVER['HTTPS'] ) ):
-		case ( isset( $_SERVER['SERVER_PORT'] ) &&
-				(int) $_SERVER['SERVER_PORT'] == 443 ):
-		case ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) &&
-				$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' ):
-			return true;
+			case ( self::to_boolean( $https ) ):
+			case ( 433 === (int) $server_port ):
+			case ( 'https' === $http_x_forwarded_proto ):
+				return true;
 		}
 
 		return false;
 	}
 
 	/**
-	 * Moves user to preview-mode or opposite
+	 * Moves user to preview-mode or opposite.
+	 *
+	 * @static
 	 */
-	static public function set_preview( $is_enabled ) {
-		if ( $is_enabled )
+	public static function set_preview( $is_enabled ) {
+		if ( $is_enabled ) {
 			setcookie( 'w3tc_preview', '*', 0, '/' );
-		else
-			setcookie( "w3tc_preview", '', time()-3600, '/' );
+		} else {
+			setcookie( 'w3tc_preview', '', time() - 3600, '/' );
+		}
 	}
 
 	/**
-	 * Retuns true if preview settings active
+	 * Retuns true if preview settings active.
 	 *
-	 * @return boolean
-	 */
-	static public function is_preview_mode() {
-		return !empty( $_COOKIE['w3tc_preview'] );
-	}
-
-	/**
-	 * Returns true if server is Apache
-	 *
-	 * @return boolean
-	 */
-	static public function is_apache() {
-		// assume apache when unknown, since most common
-		if ( empty( $_SERVER['SERVER_SOFTWARE'] ) )
-			return true;
-
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) !== false;
-	}
-
-	/**
-	 * Check whether server is LiteSpeed
+	 * @static
 	 *
 	 * @return bool
 	 */
-	static public function is_litespeed() {
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( $_SERVER['SERVER_SOFTWARE'], 'LiteSpeed' ) !== false;
+	public static function is_preview_mode() {
+		return ! empty( $_COOKIE['w3tc_preview'] );
 	}
 
 	/**
-	 * Returns true if server is nginx
+	 * Returns true if server is Apache.
 	 *
-	 * @return boolean
+	 * @static
+	 *
+	 * @return bool
 	 */
-	static public function is_nginx() {
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( $_SERVER['SERVER_SOFTWARE'], 'nginx' ) !== false;
+	public static function is_apache() {
+		// Assume apache when unknown, since most common.
+		if ( empty( $_SERVER['SERVER_SOFTWARE'] ) ) {
+			return true;
+		}
+
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ), 'Apache' ) !== false; // phpcs:ignore
 	}
 
+
 	/**
-	 * Returns true if server is nginx
+	 * Check whether server is LiteSpeed.
 	 *
-	 * @return boolean
+	 * @static
+	 *
+	 * @return bool
 	 */
-	static public function is_iis() {
-		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( $_SERVER['SERVER_SOFTWARE'], 'IIS' ) !== false;
+	public static function is_litespeed() {
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ), 'LiteSpeed' ) !== false; // phpcs:ignore
 	}
 
 	/**
-	 * Returns domain from host
+	 * Returns true if server is nginx.
 	 *
-	 * @param string  $host
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function is_nginx() {
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ), 'nginx' ) !== false; // phpcs:ignore
+	}
+
+	/**
+	 * Returns true if server is nginx.
+	 *
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function is_iis() {
+		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ), 'IIS' ) !== false; // phpcs:ignore
+	}
+
+	/**
+	 * Returns host/domain from URL.
+	 *
+	 * @static
+	 *
+	 * @param string $url URL.
 	 * @return string
 	 */
-	static public function url_to_host( $url ) {
-		$a = parse_url( $url );
-		if ( isset( $a['host'] ) )
+	public static function url_to_host( $url ) {
+		$a = parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+
+		if ( isset( $a['host'] ) ) {
 			return $a['host'];
+		}
 
 		return '';
 	}
 
 	/**
-	 * Returns path from URL. Without trailing slash
+	 * Returns path from URL. Without trailing slash.
+	 *
+	 * @static
+	 *
+	 * @param string $url URL.
 	 */
-	static public function url_to_uri( $url ) {
+	public static function url_to_uri( $url ) {
 		$uri = @parse_url( $url, PHP_URL_PATH );
 
-		// convert FALSE and other return values to string
-		if ( empty( $uri ) )
+		// Convert FALSE and other return values to string.
+		if ( empty( $uri ) ) {
 			return '';
+		}
 
 		return rtrim( $uri, '/' );
 	}
 
 	/**
-	 * Returns current blog ID
+	 * Returns current blog ID.
 	 *
-	 * @return integer
+	 * @static
+	 *
+	 * @return int
 	 */
-	static public function blog_id() {
+	public static function blog_id() {
 		global $w3_current_blog_id;
 
-		if ( !is_null( $w3_current_blog_id ) )
+		if ( ! is_null( $w3_current_blog_id ) ) {
 			return $w3_current_blog_id;
+		}
 
-		if ( !Util_Environment::is_wpmu() || is_network_admin() ) {
+		if ( ! self::is_wpmu() || is_network_admin() ) {
 			$w3_current_blog_id = 0;
 			return $w3_current_blog_id;
 		}
 
-
 		$blog_data = Util_WpmuBlogmap::get_current_blog_data();
-		if ( !is_null( $blog_data ) ) {
+
+		if ( ! is_null( $blog_data ) ) {
 			$w3_current_blog_id = substr( $blog_data, 1 );
 		} else {
 			$w3_current_blog_id = 0;
@@ -346,94 +430,113 @@ class Util_Environment {
 
 	/**
 	 * Memoized version of wp_upload_dir. That function is quite slow
-	 * for a number of times CDN calls it
+	 * for a number of times CDN calls it.
+	 *
+	 * @static
+	 *
+	 * @return string
 	 */
-	static public function wp_upload_dir() {
+	public static function wp_upload_dir() {
 		static $values_by_blog = array();
 
-		$blog_id = Util_Environment::blog_id();
-		if ( !isset( $values_by_blog[$blog_id] ) )
-			$values_by_blog[$blog_id] = wp_upload_dir();
+		$blog_id = self::blog_id();
 
-		return $values_by_blog[$blog_id];
+		if ( ! isset( $values_by_blog[ $blog_id ] ) )
+			$values_by_blog[ $blog_id ] = wp_upload_dir();
+
+		return $values_by_blog[ $blog_id ];
 	}
 
 	/**
-	 * Returns path to section's cache dir
+	 * Returns path to section's cache dir.
 	 *
-	 * @param string  $section
+	 * @static
+	 *
+	 * @param string $section Section.
 	 * @return string
 	 */
-	static public function cache_dir( $section ) {
+	public static function cache_dir( $section ) {
 		return W3TC_CACHE_DIR . DIRECTORY_SEPARATOR . $section;
 	}
 
 	/**
-	 * Returns path to blog's cache dir
+	 * Returns path to blog's cache dir.
 	 *
-	 * @param string  $section
-	 * @param null|int $blog_id
+	 * @static
+	 *
+	 * @param string $section  Section.
+	 * @param int    $blog_id Blog id.
 	 * @return string
 	 */
-	static public function cache_blog_dir( $section, $blog_id = null ) {
-		if ( !Util_Environment::is_wpmu() )
+	public static function cache_blog_dir( $section, $blog_id = null ) {
+		if ( ! self::is_wpmu() ) {
 			$postfix = '';
-		else {
-			if ( is_null( $blog_id ) )
-				$blog_id = Util_Environment::blog_id();
+		} else {
+			if ( is_null( $blog_id ) ) {
+				$blog_id = self::blog_id();
+			}
 
 			$postfix = DIRECTORY_SEPARATOR . sprintf( '%d', $blog_id );
 
 			if ( defined( 'W3TC_BLOG_LEVELS' ) ) {
-				for ( $n = 0; $n < W3TC_BLOG_LEVELS; $n++ )
+				for ( $n = 0; $n < W3TC_BLOG_LEVELS; $n++ ) {
 					$postfix = DIRECTORY_SEPARATOR .
 						substr( $postfix, strlen( $postfix ) - 1 - $n, 1 ) .
 						$postfix;
+				}
 			}
 		}
 
-		return Util_Environment::cache_dir( $section ) . $postfix;
+		return self::cache_dir( $section ) . $postfix;
 	}
 
-	static public function cache_blog_minify_dir() {
+	/**
+	 * Cache blog minify directory.
+	 *
+	 * @static
+	 *
+	 * @return string
+	 */
+	public static function cache_blog_minify_dir() {
 		// when minify manual used with a shared config - shared
 		// minify urls has to be used too, since CDN upload is possible
 		// only from network admin
-		if ( Util_Environment::is_wpmu() &&
-			Util_Environment::is_using_master_config() &&
-			! Dispatcher::config()->get_boolean( 'minify.auto' ) )
-			$path = Util_Environment::cache_blog_dir( 'minify', 0 );
-		else
-			$path = Util_Environment::cache_blog_dir( 'minify' );
+		if ( self::is_wpmu() && self::is_using_master_config() && ! Dispatcher::config()->get_boolean( 'minify.auto' ) ) {
+			$path = self::cache_blog_dir( 'minify', 0 );
+		} else {
+			$path = self::cache_blog_dir( 'minify' );
+		}
 
 		return $path;
 	}
 
-
-
 	/**
-	 * Returns URL regexp from URL
+	 * Returns URL regexp from URL.
 	 *
-	 * @param string  $url
+	 * @static
+	 *
+	 * @param string $url URL.
 	 * @return string
 	 */
-	static public function get_url_regexp( $url ) {
+	public static function get_url_regexp( $url ) {
 		$url = preg_replace( '~(https?:)?//~i', '', $url );
 		$url = preg_replace( '~^www\.~i', '', $url );
 
-		$regexp = '(https?:)?//(www\.)?' . Util_Environment::preg_quote( $url );
+		$regexp = '(https?:)?//(www\.)?' . self::preg_quote( $url );
 
 		return $regexp;
 	}
 
 	/**
-	 * Returns SSL URL if current connection is https
+	 * Returns SSL URL if current connection is https.
 	 *
-	 * @param string  $url
+	 * @static
+	 *
+	 * @param string $url URL.
 	 * @return string
 	 */
-	static public function url_to_maybe_https( $url ) {
-		if ( Util_Environment::is_https() ) {
+	public static function url_to_maybe_https( $url ) {
+		if ( self::is_https() ) {
 			$url = str_replace( 'http://', 'https://', $url );
 		}
 
@@ -441,19 +544,21 @@ class Util_Environment {
 	}
 
 	/**
-	 * Get domain URL
+	 * Get domain URL.
+	 *
+	 * @static
 	 *
 	 * @return string
 	 */
 
-	static public function home_domain_root_url() {
-		$home_url = get_home_url();
-		$parse_url = @parse_url( $home_url );
+	public static function home_domain_root_url() {
+		$home_url  = get_home_url();
+		$parse_url = @parse_url( $home_url ); // phpcs:ignore
 
 		if ( $parse_url && isset( $parse_url['scheme'] ) && isset( $parse_url['host'] ) ) {
-			$scheme = $parse_url['scheme'];
-			$host = $parse_url['host'];
-			$port = ( isset( $parse_url['port'] ) && $parse_url['port'] != 80 ? ':' . (int) $parse_url['port'] : '' );
+			$scheme     = $parse_url['scheme'];
+			$host       = $parse_url['host'];
+			$port       = ( isset( $parse_url['port'] ) && 80 != $parse_url['port'] ? ':' . (int) $parse_url['port'] : '' ); // phpcs:ignore
 			$domain_url = sprintf( '%s://%s%s', $scheme, $host, $port );
 
 			return $domain_url;
@@ -463,67 +568,82 @@ class Util_Environment {
 	}
 
 	/**
-	 * Returns domain url regexp
+	 * Returns domain url regexp.
+	 *
+	 * @static
 	 *
 	 * @return string
 	 */
-	static public function home_domain_root_url_regexp() {
-		$domain_url = Util_Environment::home_domain_root_url();
-		$regexp = Util_Environment::get_url_regexp( $domain_url );
+	public static function home_domain_root_url_regexp() {
+		$domain_url = self::home_domain_root_url();
+		$regexp     = self::get_url_regexp( $domain_url );
 
 		return $regexp;
 	}
 
 	/**
-	 * Returns SSL home url
+	 * Returns SSL home url.
+	 *
+	 * @static
 	 *
 	 * @return string
 	 */
-	static public function home_url_maybe_https() {
+	public static function home_url_maybe_https() {
 		$home_url = get_home_url();
-		$ssl = Util_Environment::url_to_maybe_https( $home_url );
+		$ssl = self::url_to_maybe_https( $home_url );
 
 		return $ssl;
 	}
 
 	/**
-	 * Returns home url regexp
+	 * Returns home url regexp.
+	 *
+	 * @static
 	 *
 	 * @return string
 	 */
-	static public function home_url_regexp() {
+	public static function home_url_regexp() {
 		$home_url = get_home_url();
-		$regexp = Util_Environment::get_url_regexp( $home_url );
+		$regexp = self::get_url_regexp( $home_url );
 
 		return $regexp;
 	}
 
 	/**
-	 * Copy of wordpress get_home_path, but accessible not only for wp-admin
+	 * Copy of WordPress get_home_path, but accessible not only for wp-admin
 	 * Get the absolute filesystem path to the root of the WordPress installation
-	 * (i.e. filesystem path of siteurl)
+	 * (i.e. filesystem path of siteurl).
 	 *
-	 * @return string Full filesystem path to the root of the WordPress installation
+	 * @static
+	 *
+	 * @return string Full filesystem path to the root of the WordPress installation.
 	 */
-	static public function site_path() {
+	public static function site_path() {
 		$home    = set_url_scheme( get_option( 'home' ), 'http' );
 		$siteurl = set_url_scheme( get_option( 'siteurl' ), 'http' );
 
 		$home_path = ABSPATH;
 		if ( ! empty( $home ) && 0 !== strcasecmp( $home, $siteurl ) ) {
-			$wp_path_rel_to_home = str_ireplace( $home, '', $siteurl ); /* $siteurl - $home */
-			// fix of get_home_path, used when index.php is moved outside of
-			// wp folder.
+			$wp_path_rel_to_home = str_ireplace( $home, '', $siteurl ); // $siteurl - $home.
+
+			// fix of get_home_path, used when index.php is moved outside of wp folder.
+			$script_filename = isset( $_SERVER['SCRIPT_FILENAME'] ) ?
+				htmlspecialchars( stripslashes( $_SERVER['SCRIPT_FILENAME'] ) ) : ''; // phpcs:ignore
+
 			$pos = strripos(
-				str_replace( '\\', '/', $_SERVER['SCRIPT_FILENAME'] ),
-				trailingslashit( $wp_path_rel_to_home ) );
-			if ( $pos !== false ) {
-				$home_path = substr( $_SERVER['SCRIPT_FILENAME'], 0, $pos );
+				str_replace( '\\', '/', $script_filename ),
+				trailingslashit( $wp_path_rel_to_home )
+			);
+
+			if ( false !== $pos ) {
+				$home_path = substr( $script_filename, 0, $pos );
 				$home_path = trailingslashit( $home_path );
 			} else if ( defined( 'WP_CLI' ) ) {
 				$pos = strripos(
 					str_replace( '\\', '/', ABSPATH ),
-					trailingslashit( $wp_path_rel_to_home ) );
+					trailingslashit( $wp_path_rel_to_home )
+				);
+
 				if ( $pos !== false ) {
 					$home_path = substr( ABSPATH, 0, $pos );
 					$home_path = trailingslashit( $home_path );
@@ -534,22 +654,22 @@ class Util_Environment {
 		return str_replace( '\\', DIRECTORY_SEPARATOR, $home_path );
 	}
 
-
-
 	/**
-	 * Returns absolute path to document root
-	 *
+	 * Returns absolute path to document root.
 	 * No trailing slash!
+	 *
+	 * @static
 	 *
 	 * @return string
 	 */
-	static public function document_root() {
+	public static function document_root() {
 		static $document_root = null;
 
-		if ( !is_null( $document_root ) )
+		if ( ! is_null( $document_root ) ) {
 			return $document_root;
+		}
 
-		$c = Dispatcher::config();
+		$c           = Dispatcher::config();
 		$docroot_fix = $c->get_boolean( 'docroot_fix.enable' );
 
 		if ( $docroot_fix ) {
@@ -557,12 +677,13 @@ class Util_Environment {
 			return $document_root;
 		}
 
-		if ( !empty( $_SERVER['SCRIPT_FILENAME'] ) &&
-			!empty( $_SERVER['PHP_SELF'] ) ) {
-			$script_filename = Util_Environment::normalize_path(
-				$_SERVER['SCRIPT_FILENAME'] );
-			$php_self = Util_Environment::normalize_path(
-				$_SERVER['PHP_SELF'] );
+		if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && ! empty( $_SERVER['PHP_SELF'] ) ) {
+			$script_filename = self::normalize_path(
+				htmlspecialchars( stripslashes( $_SERVER['SCRIPT_FILENAME'] ) ) // phpcs:ignore
+			);
+			$php_self        = self::normalize_path(
+				htmlspecialchars( stripslashes( $_SERVER['PHP_SELF'] ) ) // phpcs:ignore
+			);
 			if ( substr( $script_filename, -strlen( $php_self ) ) == $php_self ) {
 				$document_root = substr( $script_filename, 0, -strlen( $php_self ) );
 				$document_root = realpath( $document_root );
@@ -570,13 +691,14 @@ class Util_Environment {
 			}
 		}
 
-		if ( !empty( $_SERVER['PATH_TRANSLATED'] ) ) {
+		if ( ! empty( $_SERVER['PATH_TRANSLATED'] ) && ! empty( $_SERVER['PHP_SELF'] ) ) {
 			$document_root = substr(
-				Util_Environment::normalize_path( $_SERVER['PATH_TRANSLATED'] ),
+				self::normalize_path( htmlspecialchars( stripslashes( $_SERVER['PATH_TRANSLATED'] ) ) ), // phpcs:ignore
 				0,
-				-strlen( Util_Environment::normalize_path( $_SERVER['PHP_SELF'] ) ) );
-		} elseif ( !empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
-			$document_root = Util_Environment::normalize_path( $_SERVER['DOCUMENT_ROOT'] );
+				-strlen( self::normalize_path( htmlspecialchars( stripslashes( $_SERVER['PHP_SELF'] ) ) ) ) // phpcs:ignore
+			);
+		} elseif ( ! empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
+			$document_root = self::normalize_path( htmlspecialchars( stripslashes( $_SERVER['DOCUMENT_ROOT'] ) ) ); // phpcs:ignore
 		} else {
 			$document_root = ABSPATH;
 		}
@@ -596,18 +718,20 @@ class Util_Environment {
 	 *
 	 * No trailing slash!
 	 *
+	 * @static
+	 *
 	 * @return string
 	 */
-	static public function site_root() {
+	public static function site_root() {
 		$site_root = ABSPATH;
 		$site_root = realpath( $site_root );
-		$site_root = Util_Environment::normalize_path( $site_root );
+		$site_root = self::normalize_path( $site_root );
 
 		return $site_root;
 	}
 
 	/**
-	 * Returns blog path
+	 * Returns blog path.
 	 *
 	 * Example:
 	 *
@@ -616,30 +740,34 @@ class Util_Environment {
 	 *
 	 * With trailing slash!
 	 *
-	 * @return string
-	 */
-	static public function site_url_uri() {
-		return Util_Environment::url_to_uri( site_url() ) . '/';
-	}
-
-	/**
-	 * Returns home domain
+	 * @static
 	 *
 	 * @return string
 	 */
-	static public function home_url_host() {
-		$home_url = get_home_url();
-		$parse_url = @parse_url( $home_url );
+	public static function site_url_uri() {
+		return self::url_to_uri( site_url() ) . '/';
+	}
+
+	/**
+	 * Returns home domain.
+	 *
+	 * @static
+	 *
+	 * @return string
+	 */
+	public static function home_url_host() {
+		$home_url  = get_home_url();
+		$parse_url = @parse_url( $home_url ); // phpcs:ignore
 
 		if ( $parse_url && isset( $parse_url['host'] ) ) {
 			return $parse_url['host'];
 		}
 
-		return Util_Environment::host();
+		return self::host();
 	}
 
 	/**
-	 * Returns home path
+	 * Returns home path.
 	 *
 	 * Example:
 	 *
@@ -649,39 +777,53 @@ class Util_Environment {
 	 *
 	 * With trailing slash!
 	 *
+	 * @static
+	 *
 	 * @return string
 	 */
-	static public function home_url_uri() {
-		return Util_Environment::url_to_uri( get_home_url() ) . '/';
+	public static function home_url_uri() {
+		return self::url_to_uri( get_home_url() ) . '/';
 	}
 
-	static public function network_home_url_uri() {
+	/**
+	 * Network home URL.
+	 *
+	 * @static
+	 *
+	 * @return string
+	 */
+	public static function network_home_url_uri() {
 		$uri = network_home_url( '', 'relative' );
 
-		/* There is a bug in WP where network_home_url can return
+		/*
+		 * There is a bug in WP where network_home_url can return
 		 * a non-relative URI even though scheme is set to relative.
 		 */
-		if ( Util_Environment::is_url( $uri ) )
+		if ( self::is_url( $uri ) ) {
 			$uri = parse_url( $uri, PHP_URL_PATH );
+		}
 
-		if ( empty( $uri ) )
+		if ( empty( $uri ) ) {
 			return '/';
+		}
 
 		return $uri;
 	}
 
 	/**
-	 * Returns server hostname with port
+	 * Returns server hostname with port.
+	 *
+	 * @static
 	 *
 	 * @return string
 	 */
-	static public function host_port() {
+	public static function host_port() {
 		static $host = null;
 
-		if ( $host === null ) {
-			if ( !empty( $_SERVER['HTTP_HOST'] ) ) {
-				// HTTP_HOST sometimes is not set causing warning
-				$host = $_SERVER['HTTP_HOST'];
+		if ( null === $host ) {
+			if ( ! empty( $_SERVER['HTTP_HOST'] ) ) {
+				// HTTP_HOST sometimes is not set causing warning.
+				$host = htmlspecialchars( stripslashes( $_SERVER['HTTP_HOST'] ) ); // phpcs:ignore
 			} else {
 				$host = '';
 			}
@@ -689,26 +831,36 @@ class Util_Environment {
 
 		return $host;
 	}
-
-	static public function host() {
-		$host_port = Util_Environment::host_port();
+	/**
+	 * Host.
+	 *
+	 * @static
+	 *
+	 * @return string
+	 */
+	public static function host() {
+		$host_port = self::host_port();
 
 		$pos = strpos( $host_port, ':' );
-		if ( $pos === false )
+
+		if ( $pos === false ) {
 			return $host_port;
+		}
 
 		return substr( $host_port, 0, $pos );
 	}
 
 	/**
-	 * Returns WP config file path
+	 * Returns WP config file path.
+	 *
+	 * @static
 	 *
 	 * @return string
 	 */
-	static public function wp_config_path() {
+	public static function wp_config_path() {
 		$search = array(
 			ABSPATH . 'wp-config.php',
-			dirname( ABSPATH ) . DIRECTORY_SEPARATOR . 'wp-config.php'
+			dirname( ABSPATH ) . DIRECTORY_SEPARATOR . 'wp-config.php',
 		);
 
 		foreach ( $search as $path ) {
@@ -720,49 +872,56 @@ class Util_Environment {
 		return false;
 	}
 
-
 	/**
-	 * Parses path
+	 * Parses path.
 	 *
-	 * @param string  $path
+	 * @static
+	 *
+	 * @param string $path Path.
 	 * @return mixed
 	 */
-	static public function parse_path( $path ) {
-		$path = str_replace( array(
+	public static function parse_path( $path ) {
+		$path = str_replace(
+			array(
 				'%BLOG_ID%',
 				'%POST_ID%',
 				'%BLOG_ID%',
-				'%HOST%'
-			), array(
+				'%HOST%',
+			),
+			array(
 				( isset( $GLOBALS['blog_id'] ) && is_numeric( $GLOBALS['blog_id'] ) ? (int) $GLOBALS['blog_id'] : 0 ),
 				( isset( $GLOBALS['post_id'] ) && is_numeric( $GLOBALS['post_id'] ) ?
 					(int) $GLOBALS['post_id'] : 0 ),
-				Util_Environment::blog_id(),
-				Util_Environment::host()
-			), $path );
+				self::blog_id(),
+				self::host(),
+			),
+			$path
+		);
 
 		return $path;
 	}
 
 	/**
-	 * Normalizes file name
+	 * Normalizes file name.
 	 *
 	 * Relative to site root!
 	 *
-	 * @param string  $file
+	 * @static
+	 *
+	 * @param string $file File path.
 	 * @return string
 	 */
-	static public function normalize_file( $file ) {
-		if ( Util_Environment::is_url( $file ) ) {
+	public static function normalize_file( $file ) {
+		if ( self::is_url( $file ) ) {
 			if ( strstr( $file, '?' ) === false ) {
-				$home_url_regexp = '~' . Util_Environment::home_url_regexp() . '~i';
+				$home_url_regexp = '~' . self::home_url_regexp() . '~i';
 				$file = preg_replace( $home_url_regexp, '', $file );
 			}
 		}
 
-		if ( !Util_Environment::is_url( $file ) ) {
-			$file = Util_Environment::normalize_path( $file );
-			$file = str_replace( Util_Environment::site_root(), '', $file );
+		if ( ! self::is_url( $file ) ) {
+			$file = self::normalize_path( $file );
+			$file = str_replace( self::site_root(), '', $file );
 			$file = ltrim( $file, '/' );
 		}
 
@@ -770,24 +929,26 @@ class Util_Environment {
 	}
 
 	/**
-	 * Normalizes file name for minify
+	 * Normalizes file name for minify.
 	 *
 	 * Relative to document root!
+	 *
+	 * @static
 	 *
 	 * @param string  $file
 	 * @return string
 	 */
-	static public function normalize_file_minify( $file ) {
-		if ( Util_Environment::is_url( $file ) ) {
+	public static function normalize_file_minify( $file ) {
+		if ( self::is_url( $file ) ) {
 			if ( strstr( $file, '?' ) === false ) {
-				$domain_url_regexp = '~' . Util_Environment::home_domain_root_url_regexp() . '~i';
+				$domain_url_regexp = '~' . self::home_domain_root_url_regexp() . '~i';
 				$file = preg_replace( $domain_url_regexp, '', $file );
 			}
 		}
 
-		if ( !Util_Environment::is_url( $file ) ) {
-			$file = Util_Environment::normalize_path( $file );
-			$file = str_replace( Util_Environment::document_root(), '', $file );
+		if ( ! self::is_url( $file ) ) {
+			$file = self::normalize_path( $file );
+			$file = str_replace( self::document_root(), '', $file );
 			$file = ltrim( $file, '/' );
 		}
 
@@ -795,113 +956,125 @@ class Util_Environment {
 	}
 
 	/**
-	 * Normalizes file name for minify
+	 * Normalizes file name for minify.
 	 * Relative to document root!
 	 *
-	 * @param string  $file
+	 * @static
+	 *
+	 * @param string $file File path.
 	 * @return string
 	 */
-	static public function url_to_docroot_filename( $url ) {
+	public static function url_to_docroot_filename( $url ) {
 		$data = array(
 			'home_url' => get_home_url(),
-			'url' => $url
+			'url' => $url,
 		);
+
 		$data = apply_filters( 'w3tc_url_to_docroot_filename', $data );
 
-		$home_url = $data['home_url'];
+		$home_url       = $data['home_url'];
 		$normalized_url = $data['url'];
-		$normalized_url = Util_Environment::remove_query_all( $normalized_url );
+		$normalized_url = self::remove_query_all( $normalized_url );
 
-		// cut protocol
+		// Cut protocol.
 		$normalized_url = preg_replace( '~^http(s)?://~', '//', $normalized_url );
-		$home_url = preg_replace( '~^http(s)?://~', '//', $home_url );
+		$home_url       = preg_replace( '~^http(s)?://~', '//', $home_url );
 
-		if ( substr( $normalized_url, 0, strlen( $home_url ) ) != $home_url ) {
-			// not a home url, return unchanged since cant be
-			// converted to filename
+		if ( substr( $normalized_url, 0, strlen( $home_url ) ) !== $home_url ) {
+			// Not a home url, return unchanged since cant be converted to filename.
 			return null;
 		}
 
 		$path_relative_to_home = str_replace( $home_url, '', $normalized_url );
+		$home                  = set_url_scheme( get_option( 'home' ), 'http' );
+		$siteurl               = set_url_scheme( get_option( 'siteurl' ), 'http' );
+		$home_path             = rtrim( Util_Environment::site_path(), '/' );
 
-		$home = set_url_scheme( get_option( 'home' ), 'http' );
-		$siteurl = set_url_scheme( get_option( 'siteurl' ), 'http' );
-
-		$home_path = rtrim( Util_Environment::site_path(), '/' );
-		// adjust home_path if site is not is home
+		// Adjust home_path if site is not is home.
 		if ( ! empty( $home ) && 0 !== strcasecmp( $home, $siteurl ) ) {
-			// $siteurl - $home
+			// $siteurl - $home/
 			$wp_path_rel_to_home = rtrim( str_ireplace( $home, '', $siteurl ), '/' );
+
 			if ( substr( $home_path, -strlen( $wp_path_rel_to_home ) ) ==
 				$wp_path_rel_to_home ) {
 				$home_path = substr( $home_path, 0, -strlen( $wp_path_rel_to_home ) );
 			}
 		}
 
-		// common encoded characters
+		// Common encoded characters.
 		$path_relative_to_home = str_replace( '%20', ' ', $path_relative_to_home );
 
 		$full_filename = $home_path . DIRECTORY_SEPARATOR .
 			trim( $path_relative_to_home, DIRECTORY_SEPARATOR );
 
-		$docroot = Util_Environment::document_root();
+		$docroot = self::document_root();
+
 		if ( substr( $full_filename, 0, strlen( $docroot ) ) == $docroot ) {
 			$docroot_filename = substr( $full_filename, strlen( $docroot ) );
 		} else {
 			$docroot_filename = $path_relative_to_home;
 		}
 
-		// sometimes urls (coming from other plugins/themes)
-		// contain multiple "/" like "my-folder//myfile.js" which
-		// fails to recognize by filesystem, while url is accessible
+		/*
+		 * Sometimes urls (coming from other plugins/themes)
+		 * contain multiple "/" like "my-folder//myfile.js" which
+		 * fails to recognize by filesystem, while url is accessible.
+		 */
 		$docroot_filename = str_replace( '//', DIRECTORY_SEPARATOR, $docroot_filename );
 
 		return ltrim( $docroot_filename, DIRECTORY_SEPARATOR );
 	}
 
-	static public function docroot_to_full_filename( $docroot_filename ) {
+	/**
+	 * Document root to full filename.
+	 *
+	 * @static
+	 *
+	 * @param string $docroot_filename Document filename.
+	 * @return strin
+	 */
+	public static function docroot_to_full_filename( $docroot_filename ) {
 		return rtrim( Util_Environment::document_root(), DIRECTORY_SEPARATOR ) .
 			DIRECTORY_SEPARATOR . $docroot_filename;
 	}
 
 	/**
-	 * Translates remote file to local file
+	 * Removes WP query string from URL.
 	 *
-	 * @param string  $file
-	 * @return string
+	 * @static
 	 */
-	static public function translate_file( $file ) {
-		return $file;
-	}
-
-	/**
-	 * Removes WP query string from URL
-	 */
-	static public function remove_query( $url ) {
+	public static function remove_query( $url ) {
 		$url = preg_replace( '~(\?|&amp;|&#038;|&)+ver=[a-z0-9-_\.]+~i', '', $url );
 
 		return $url;
 	}
 
 	/**
-	 * Removes all query strings from url
+	 * Removes all query strings from url.
+	 *
+	 * @static
+	 *
+	 * @param string $url URL.
+	 * @return string
 	 */
-	static public function remove_query_all( $url ) {
+	public static function remove_query_all( $url ) {
 		$pos = strpos( $url, '?' );
-		if ( $pos === false )
+		if ( $pos === false ) {
 			return $url;
+		}
 
 		return substr( $url, 0, $pos );
 	}
 
-
 	/**
-	 * Converts win path to unix
+	 * Converts win path to unix.
 	 *
-	 * @param string  $path
+	 * @static
+	 *
+	 * @param string $path Path.
 	 * @return string
 	 */
-	static public function normalize_path( $path ) {
+	public static function normalize_path( $path ) {
 		$path = preg_replace( '~[/\\\]+~', '/', $path );
 		$path = rtrim( $path, '/' );
 
@@ -909,13 +1082,42 @@ class Util_Environment {
 	}
 
 	/**
-	 * Returns real path of given path
+	 * Returns real path of given path.
 	 *
-	 * @param string  $path
+	 * @static
+	 *
+	 * @param string $path Path.
 	 * @return string
 	 */
-	static public function realpath( $path ) {
-		$path = Util_Environment::normalize_path( $path );
+	public static function realpath( $path ) {
+		$path      = self::normalize_path( $path );
+		$parts     = explode( '/', $path );
+		$absolutes = array();
+
+		foreach ( $parts as $part ) {
+			if ( '.' == $part ) {
+				continue;
+			}
+
+			if ( '..' == $part ) {
+				array_pop( $absolutes );
+			} else {
+				$absolutes[] = $part;
+			}
+		}
+
+		return implode( '/', $absolutes );
+	}
+
+	/**
+	 * Returns real path of given path.
+	 *
+	 * @static
+	 *
+	 * @param string $path Path.
+	 * @return string
+	 */
+	public static function path_remove_dots( $path ) {
 		$parts = explode( '/', $path );
 		$absolutes = array();
 
@@ -934,40 +1136,19 @@ class Util_Environment {
 	}
 
 	/**
-	 * Returns real path of given path
+	 * Returns full URL from relative one.
 	 *
-	 * @param string  $path
+	 * @static
+	 *
+	 * @param string $relative_url Relative URL.
 	 * @return string
 	 */
-	static public function path_remove_dots( $path ) {
-		$parts = explode( '/', $path );
-		$absolutes = array();
+	public static function url_relative_to_full( $relative_url ) {
+		$relative_url = self::path_remove_dots( $relative_url );
 
-		foreach ( $parts as $part ) {
-			if ( '.' == $part ) {
-				continue;
-			}
-			if ( '..' == $part ) {
-				array_pop( $absolutes );
-			} else {
-				$absolutes[] = $part;
-			}
-		}
-
-		return implode( '/', $absolutes );
-	}
-
-	/**
-	 * Returns full URL from relative one
-	 */
-	static public function url_relative_to_full( $relative_url ) {
-		$relative_url = Util_Environment::path_remove_dots( $relative_url );
-
-		if (version_compare(PHP_VERSION, '5.4.7') < 0) {
-			if ( substr( $relative_url, 0, 2) == '//' ) {
-				$relative_url =
-					( Util_Environment::is_https() ? 'https' : 'http' ) .
-					':' . $relative_url;
+		if ( version_compare( PHP_VERSION, '5.4.7' ) < 0 ) {
+			if ( substr( $relative_url, 0, 2 ) === '//'  ) {
+				$relative_url = ( self::is_https() ? 'https' : 'http' ) . ':' . $relative_url;
 			}
 		}
 
@@ -993,175 +1174,223 @@ class Util_Environment {
 	}
 
 	/**
-	 * Redirects to URL
+	 * Redirects to URL.
 	 *
-	 * @param string  $url
-	 * @param array   $params
-	 * @return string
+	 * @static
+	 *
+	 * @param string $url    URL.
+	 * @param array  $params Parameters.
 	 */
-	static public function redirect( $url = '', $params = array() ) {
-		$url = Util_Environment::url_format( $url, $params );
-		if ( function_exists( 'do_action' ) )
+	public static function redirect( $url = '', $params = array() ) {
+		$url = self::url_format( $url, $params );
+		if ( function_exists( 'do_action' ) ) {
 			do_action( 'w3tc_redirect' );
+		}
 
-		@header( 'Location: ' . $url );
+		@header( 'Location: ' . $url ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		exit();
 	}
 
 	/**
-	 * Redirects to URL
+	 * Redirects to URL.
 	 *
-	 * @param string  $url
-	 * @param array   $params
+	 * @static
 	 *
-	 * @return string
+	 * @param string $url           URL.
+	 * @param array  $params        Parameters.
+	 * @param bool   $safe_redirect Safe redirect or not.
 	 */
-	static public function safe_redirect_temp( $url = '', $params = array(),
-			$safe_redirect = false ) {
-		$url = Util_Environment::url_format( $url, $params );
+	public static function safe_redirect_temp( $url = '', $params = array(), $safe_redirect = false ) {
+		$url = self::url_format( $url, $params );
+
 		if ( function_exists( 'do_action' ) ) {
 			do_action( 'w3tc_redirect' );
 		}
 
 		$status_code = 302;
 
-		$protocol = $_SERVER["SERVER_PROTOCOL"];
+		$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ?
+			htmlspecialchars( stripslashes( $_SERVER['SERVER_PROTOCOL'] ) ) : ''; // phpcs:ignore
+
 		if ( 'HTTP/1.1' === $protocol ) {
 			$status_code = 307;
 		}
 
 		$text = get_status_header_desc( $status_code );
-		if ( !empty( $text ) ) {
+		if ( ! empty( $text ) ) {
 			$status_header = "$protocol $status_code $text";
 			@header( $status_header, true, $status_code );
 		}
 
-		add_action( 'wp_safe_redirect_fallback', array(
-			'\W3TC\Util_Environment', 'wp_safe_redirect_fallback' ) );
+		add_action(
+			'wp_safe_redirect_fallback',
+			array( '\W3TC\Util_Environment', 'wp_safe_redirect_fallback' )
+		);
 
-		@header( 'Cache-Control: no-cache' );
+		@header( 'Cache-Control: no-cache' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		wp_safe_redirect( $url, $status_code );
 		exit();
 	}
 
-	static public function wp_safe_redirect_fallback( $url ) {
+	/**
+	 * Fallback for wp_sfe_redirect().
+	 *
+	 * @static
+	 *
+	 * @param string $url URL.
+	 * @return string
+	 */
+	public static function wp_safe_redirect_fallback( $url ) {
 		return home_url( '?w3tc_repeat=invalid' );
 	}
 
 	/**
-	 * Detects post ID
+	 * Detects post ID.
 	 *
-	 * @return integer
+	 * @static
+	 *
+	 * @return int
 	 */
-	static public function detect_post_id() {
-		global $posts, $comment_post_ID, $post_ID;
+	public static function detect_post_id() {
+		global $posts, $comment_post_ID, $post_ID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		$p_val = Util_Request::get_integer( 'p' );
 
 		if ( $post_ID ) {
 			return $post_ID;
-		} elseif ( $comment_post_ID ) {
-			return $comment_post_ID;
+		} elseif ( $comment_post_ID ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			return $comment_post_ID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		} elseif ( ( is_single() || is_page() ) && is_array( $posts ) && isset( $posts[0]->ID ) ) {
 			return $posts[0]->ID;
 		} elseif ( isset( $posts->ID ) ) {
 			return $posts->ID;
-		} elseif ( isset( $_REQUEST['p'] ) ) {
-			return (integer) $_REQUEST['p'];
+		} elseif ( ! empty( $p_val ) ) {
+			return $p_val;
 		}
 
 		return 0;
 	}
 
-	static public function instance_id() {
+	/**
+	 * Get W3TC instance id.
+	 *
+	 * @static
+	 *
+	 * @return int
+	 */
+	public static function instance_id() {
 		if ( defined( 'W3TC_INSTANCE_ID' ) ) {
 			return W3TC_INSTANCE_ID;
 		}
 
 		static $instance_id;
 
-		if ( !isset( $instance_id ) ) {
-			$config = Dispatcher::config();
+		if ( ! isset( $instance_id ) ) {
+			$config      = Dispatcher::config();
 			$instance_id = $config->get_integer( 'common.instance_id', 0 );
 		}
+
 		return $instance_id;
 	}
 
 	/**
+	 * Get W3TC edition.
 	 *
+	 * @static
 	 *
-	 * @var Config $config
+	 * @param Config $config Config.
 	 * @return string
 	 */
-	static public function w3tc_edition( $config = null ) {
-		if ( Util_Environment::is_w3tc_pro( $config ) &&  Util_Environment::is_w3tc_pro_dev() )
+	public static function w3tc_edition( $config = null ) {
+		if ( self::is_w3tc_pro( $config ) && self::is_w3tc_pro_dev() ) {
 			return 'pro development';
-		if ( Util_Environment::is_w3tc_pro( $config ) )
+		}
+
+		if ( self::is_w3tc_pro( $config ) ) {
 			return 'pro';
+		}
+
 		return 'community';
 	}
 
 	/**
+	 * Is W3TC Pro.
 	 *
+	 * @static
 	 *
-	 * @param Config  $config
+	 * @param Config $config Config.
 	 * @return bool
 	 */
-	static public function is_w3tc_pro( $config = null ) {
-		if ( defined( 'W3TC_PRO' ) && W3TC_PRO )
+	public static function is_w3tc_pro( $config = null ) {
+		if ( defined( 'W3TC_PRO' ) && W3TC_PRO ) {
 			return true;
-		if ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE )
+		}
+
+		if ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ) {
 			return true;
+		}
 
 		if ( is_object( $config ) ) {
 			$plugin_type = $config->get_string( 'plugin.type' );
 
-			if ( $plugin_type == 'pro' || $plugin_type == 'pro_dev' )
+			if ( 'pro' === $plugin_type || 'pro_dev' === $plugin_type ) {
 				return true;
+			}
 		}
 
 		return false;
 	}
 
 	/**
-	 * Enable Pro Dev mode support
+	 * Enable Pro Dev mode support.
+	 *
+	 * @static
 	 *
 	 * @return bool
 	 */
-	static public function is_w3tc_pro_dev() {
+	public static function is_w3tc_pro_dev() {
 		return defined( 'W3TC_PRO_DEV_MODE' ) && W3TC_PRO_DEV_MODE;
 	}
 
 	/**
-	 * Quotes regular expression string
+	 * Quotes regular expression string.
 	 *
-	 * @param string  $string
-	 * @param string  $delimiter
+	 * @static
+	 *
+	 * @param string $string    String.
+	 * @param string $delimiter Delimeter.
 	 * @return string
 	 */
-	static public function preg_quote( $string, $delimiter = '~' ) {
+	public static function preg_quote( $string, $delimiter = '~' ) {
 		$string = preg_quote( $string, $delimiter );
-		$string = strtr( $string, array(
-				' ' => '\ '
-			) );
+		$string = strtr(
+			$string,
+			array( ' ' => '\ ' )
+		);
 
 		return $string;
 	}
 
 	/**
-	 * Returns true if zlib output compression is enabled otherwise false
+	 * Returns true if zlib output compression is enabled otherwise false.
 	 *
-	 * @return boolean
+	 * @static
+	 *
+	 * @return bool
 	 */
-	static public function is_zlib_enabled() {
-		return Util_Environment::to_boolean( ini_get( 'zlib.output_compression' ) );
+	public static function is_zlib_enabled() {
+		return self::to_boolean( ini_get( 'zlib.output_compression' ) );
 	}
 
 	/**
-	 * Recursive strips slahes from the var
+	 * Recursive strips slahes from the var.
 	 *
-	 * @param mixed   $var
+	 * @static
+	 *
+	 * @param mixed $var Value.
 	 * @return mixed
 	 */
-	static public function stripslashes( $var ) {
+	public static function stripslashes( $var ) {
 		if ( is_string( $var ) ) {
 			return stripslashes( $var );
 		} elseif ( is_array( $var ) ) {
@@ -1172,74 +1401,81 @@ class Util_Environment {
 	}
 
 	/**
-	 * Checks if post should be flushed or not. Returns true if it should not be flushed
+	 * Checks if post should be flushed or not. Returns true if it should not be flushed.
 	 *
-	 * @param unknown $post
-	 * @param string  $module which cache module to check against (pgcache, varnish, dbcache or objectcache)
-	 * @param Config  $config
+	 * @static
+	 *
+	 * @param object $post Post object.
+	 * @param string $module Which cache module to check against (pgcache, varnish, dbcache or objectcache).
+	 * @param Config $config Config.
 	 * @return bool
 	 */
-	static public function is_flushable_post( $post, $module, $config ) {
-		if ( is_numeric( $post ) )
+	public static function is_flushable_post( $post, $module, $config ) {
+		if ( is_numeric( $post ) ) {
 			$post = get_post( $post );
-		$post_status = array( 'publish' );
-		// dont flush when we have post "attachment"
-		// its child of the post and is flushed always when post is published, while not changed in fact
-		$post_type = array( 'revision', 'attachment' );
-		switch ( $module ) {
-		case 'pgcache':
-		case 'varnish':
-		case 'posts':   // means html content of post pages
-			if ( !$config->get_boolean( 'pgcache.reject.logged' ) )
-				$post_status[] = 'private';
-			break;
-		case 'dbcache':
-			if ( !$config->get_boolean( 'dbcache.reject.logged' ) )
-				$post_status[] = 'private';
-			break;
 		}
 
-		$flushable = is_object( $post ) &&
-			!in_array( $post->post_type, $post_type ) &&
-			in_array( $post->post_status, $post_status );
+		$post_status = array( 'publish' );
+
+		/**
+		 * Dont flush when we have post "attachment"
+		 * its child of the post and is flushed always when post is published, while not changed in fact.
+		 */
+		$post_type = array( 'revision', 'attachment' );
+		switch ( $module ) {
+			case 'pgcache':
+			case 'varnish':
+			case 'posts':   // Means html content of post pages.
+				if ( ! $config->get_boolean( 'pgcache.reject.logged' ) ) {
+					$post_status[] = 'private';
+				}
+				break;
+			case 'dbcache':
+				if ( ! $config->get_boolean( 'dbcache.reject.logged' ) ) {
+					$post_status[] = 'private';
+				}
+				break;
+		}
+
+		$flushable = is_object( $post ) && ! in_array( $post->post_type, $post_type, true ) && in_array( $post->post_status, $post_status, true );
 
 		return apply_filters( 'w3tc_flushable_post', $flushable, $post, $module );
 	}
 
-
-
 	/**
-	 * Checks if post belongs to a custom post type
+	 * Checks if post belongs to a custom post type.
 	 *
 	 * @since 2.1.7
-	 * 
-	 * @param unknown $post
+	 * @static
 	 *
+	 * @param object $post Post object.
 	 * @return bool
 	 */
-	static public function is_custom_post_type( $post ) {
+	public static function is_custom_post_type( $post ) {
 		$post_type = get_post_type_object( $post->post_type );
 
-		// post type not found belongs to default post type(s)
-		if ( empty ( $post_type ) )
+		// post type not found belongs to default post type(s).
+		if ( empty( $post_type ) ) {
 			return false;
-		
-		// check if custom
-		if ( $post_type->_builtin === false )
+		}
+
+		// check if custom.
+		if ( false === $post_type->_builtin ) {
 			return true;
+		}
 
 		return false;
 	}
 
-
-
 	/**
-	 * Converts value to boolean
+	 * Converts value to boolean.
 	 *
-	 * @param mixed   $value
-	 * @return boolean
+	 * @static
+	 *
+	 * @param mixed $value Value.
+	 * @return bool
 	 */
-	static public function to_boolean( $value ) {
+	public static function to_boolean( $value ) {
 		if ( is_string( $value ) ) {
 			switch ( strtolower( $value ) ) {
 			case '+':
@@ -1266,21 +1502,30 @@ class Util_Environment {
 	}
 
 	/**
-	 * Returns the apache, nginx version
+	 * Returns the apache, nginx version.
+	 *
+	 * @static
 	 *
 	 * @return string
 	 */
-	static public function get_server_version() {
-		$sig = explode( '/', $_SERVER['SERVER_SOFTWARE'] );
-		$temp = isset( $sig[1] ) ? explode( ' ', $sig[1] ) : array( '0' );
+	public static function get_server_version() {
+		$sig     = explode(
+			'/',
+			isset( $_SERVER['SERVER_SOFTWARE'] ) ?
+				htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ) : '' // phpcs:ignore
+		);
+		$temp    = isset( $sig[1] ) ? explode( ' ', $sig[1] ) : array( '0' );
 		$version = $temp[0];
+
 		return $version;
 	}
 
 	/**
-	 * Checks if current request is REST REQUEST
+	 * Checks if current request is REST REQUEST.
+	 *
+	 * @static
 	 */
-	static public function is_rest_request( $url ) {
+	public static function is_rest_request( $url ) {
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST )
 			return true;
 
@@ -1289,7 +1534,12 @@ class Util_Environment {
 		return preg_match( '~' . W3TC_WP_JSON_URI . '~', $url );
 	}
 
-	static public function reset_microcache() {
+	/**
+	 * Reset microcache.
+	 *
+	 * @static
+	 */
+	public static function reset_microcache() {
 		global $w3_current_blog_id;
 		$w3_current_blog_id = null;
 

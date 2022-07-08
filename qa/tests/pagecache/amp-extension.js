@@ -24,8 +24,9 @@ describe('', function() {
 
 	it('copy theme files', async() => {
 		let theme = await wp.getCurrentTheme(adminPage);
-		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
-		await sys.copyPhpToPath('../../plugins/pagecache/template-amp.php', targetPath);
+		let themePath = env.wpContentPath + 'themes/' + theme;
+		await sys.copyPhpToPath('../../plugins/pagecache/*', `${themePath}/qa`);
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/template-amp-sc.php');
 		await sys.copyPhpToRoot('../../plugins/cache-entry.php');
 	});
 
@@ -51,8 +52,7 @@ describe('', function() {
 	    let testPage = await wp.postCreate(adminPage, {
 	        type: 'page',
 	        title: 'test',
-	        content: 'page content',
-	        template: 'qa/template-amp.php'
+	        content: 'page content [w3tcqa]'
 	    });
 	    testPageUrl = testPage.url;
 		testPageAmpUrls = [

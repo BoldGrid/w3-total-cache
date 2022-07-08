@@ -223,7 +223,7 @@ class _WpdbEssentials {
 				$this->last_error =
 					'Connection failed with ' . $this->dbh->connect_errno . ' error code';
 				if ( WP_DEBUG ) {
-					echo $this->last_error;
+					echo esc_html( $this->last_error );
 				}
 			}
 		} else {
@@ -240,7 +240,7 @@ class _WpdbEssentials {
 			$this->select( $this->dbname, $this->dbh );
 		} else {
 			if ( WP_DEBUG ) {
-				echo 'Failed to connect to mysql server';
+				esc_html_e( 'Failed to connect to mysql server', 'w3-total-cache' );
 			}
 		}
 	}
@@ -256,7 +256,7 @@ class _WpdbEssentials {
 		if ( ! $success ) {
 			$this->ready = false;
 			if ( WP_DEBUG ) {
-				echo 'Failed to select database';
+				esc_html_e( 'Failed to select database', 'w3-total-cache' );
 			}
 		}
 	}
@@ -335,7 +335,7 @@ class _WpdbEssentials {
 
 		if ( $this->last_error ) {
 			if ( WP_DEBUG ) {
-				echo $this->last_error;
+				echo esc_html( $this->last_error );
 			}
 			return false;
 		}

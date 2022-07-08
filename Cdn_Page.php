@@ -56,7 +56,7 @@ class Cdn_Page extends Base_Page_Settings {
 			return $parse_url['host'];
 		}
 
-		return $_SERVER['HTTP_HOST'];
+		return isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 	}
 
 	/**

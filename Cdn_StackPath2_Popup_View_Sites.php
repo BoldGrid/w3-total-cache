@@ -1,18 +1,18 @@
 <?php
 namespace W3TC;
 
-if ( !defined( 'W3TC' ) )
+if ( ! defined( 'W3TC' ) ) {
 	die();
+}
 ?>
 <form class="w3tc_cdn_stackpath2_form" method="post">
-	<?php
-Util_Ui::hidden( '', 'api_config', $details['api_config'] );
-?>
+	<?php Util_Ui::hidden( '', 'api_config', $details['api_config'] ); ?>
+
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Select site to use', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Select site to use', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<td>Site:</td>
+				<td><?php esc_html_e( 'Site:', 'w3-total-cache' ); ?></td>
 				<td>
 					<?php
 					if ( count( $details['sites'] ) > 15 ) {
@@ -20,19 +20,17 @@ Util_Ui::hidden( '', 'api_config', $details['api_config'] );
 					}
 					?>
 
-					<?php foreach ( $details['sites'] as $i ): ?>
-
+					<?php foreach ( $details['sites'] as $i ) : ?>
 						<label>
 							<input name="site_id" type="radio" class="w3tc-ignore-change"
-								value="<?php echo esc_attr( $i['id'] ) ?>" />
-							<?php echo esc_html( $i['label'] ) ?>
+								value="<?php echo esc_attr( $i['id'] ); ?>" />
+							<?php echo esc_html( $i['label'] ); ?>
 						</label><br />
 					<?php endforeach ?>
 
 					<label>
-						<input name="site_id" type="radio" class="w3tc-ignore-change" value=""
-							/>
-						Add new site: <?php echo esc_html( $details['new_hostname'] ) ?>
+						<input name="site_id" type="radio" class="w3tc-ignore-change" value="" />
+						<?php echo esc_html__( 'Add new site: ', 'w3-total-cache' ) . esc_html( $details['new_hostname'] ); ?>
 					</label>
 
 					<?php
@@ -47,7 +45,7 @@ Util_Ui::hidden( '', 'api_config', $details['api_config'] );
 		<p class="submit">
 			<input type="button"
 				class="w3tc_cdn_stackpath2_configure_site w3tc-button-save button-primary"
-				value="<?php _e( 'Apply', 'w3-total-cache' ); ?>" />
+				value="<?php esc_html_e( 'Apply', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>

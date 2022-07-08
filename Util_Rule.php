@@ -328,8 +328,11 @@ class Util_Rule {
 
 			if ( !@file_put_contents( $path, $data ) ) {
 				try {
-					Util_WpFile::delete_folder( dirname( $path ), '',
-						$_SERVER['REQUEST_URI'] );
+					Util_WpFile::delete_folder(
+						dirname( $path ),
+						'',
+						isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ''
+					);
 				} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 					$exs->push( $ex );
 					return;
@@ -424,18 +427,20 @@ class Util_Rule {
 	}
 
 	/**
-	 * Support for GoDaddy servers configuration which uses
-	 * SUBDOMAIN_DOCUMENT_ROOT variable
+	 * Support for GoDaddy servers configuration which uses.
+	 * SUBDOMAIN_DOCUMENT_ROOT variable.
 	 */
-	static public function apache_docroot_variable() {
-		if ( isset( $_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] ) &&
-			$_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] != $_SERVER['DOCUMENT_ROOT'] )
+	public static function apache_docroot_variable() {
+		$document_root           = isset( $_SERVER['DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '';
+		$subdomain_document_root = isset( $_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] ) ) : '';
+		$php_document_root       = isset( $_SERVER['PHP_DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['PHP_DOCUMENT_ROOT'] ) ) : '';
+		if ( ! empty( $subdomain_document_root ) && $subdomain_document_root !== $document_root ) {
 			return '%{ENV:SUBDOMAIN_DOCUMENT_ROOT}';
-		elseif ( isset( $_SERVER['PHP_DOCUMENT_ROOT'] ) &&
-			$_SERVER['PHP_DOCUMENT_ROOT'] != $_SERVER['DOCUMENT_ROOT'] )
+		} elseif ( ! empty( $php_document_root ) && $php_document_root !== $document_root ) {
 			return '%{ENV:PHP_DOCUMENT_ROOT}';
-		else
+		} else {
 			return '%{DOCUMENT_ROOT}';
+		}
 	}
 
 

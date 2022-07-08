@@ -61,7 +61,7 @@ class Util_PageUrls {
 	 * Returns all urls related to a custom post type post
 	 *
 	 * @since 2.1.7
-	 * 
+	 *
 	 * @param unknown $post_id
 	 * @param int     $limit_post_pages default is 10
 	 * @return array
@@ -74,8 +74,8 @@ class Util_PageUrls {
 			$full_urls = array();
 			$post_type = $post->post_type;
 			$archive_link = get_post_type_archive_link($post_type);
-			$posts_page_uri = str_replace( home_url(), '', $archive_link ); 
-			
+			$posts_page_uri = str_replace( home_url(), '', $archive_link );
+
 			if ( $posts_page_uri ) {
 				$full_urls[] = $archive_link;
 				$full_urls = array_merge( $full_urls, self::get_older_pages( $posts_page_uri, $limit_post_pages, $post_type ) );
@@ -83,9 +83,9 @@ class Util_PageUrls {
 
 			$cpt_archive_urls[$limit_post_pages] = $full_urls;
 		}
-		
+
 		return $cpt_archive_urls[$limit_post_pages];
-	}	
+	}
 
 	/**
 	 * Return older pages listing posts
@@ -484,8 +484,8 @@ class Util_PageUrls {
 	 * @param int     $pagenum
 	 * @return string
 	 */
-	static public function get_pagenum_link( $url, $pagenum = 1 ) {
-		$request_uri = $_SERVER['REQUEST_URI'];
+	public static function get_pagenum_link( $url, $pagenum = 1 ) {
+		$request_uri            = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$_SERVER['REQUEST_URI'] = $url;
 
 		if ( is_admin() ) {

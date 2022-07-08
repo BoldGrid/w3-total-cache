@@ -38,11 +38,6 @@ class Cdn_Plugin_WidgetMaxCdn {
 
 		add_action( 'w3tc_ajax_cdn_maxcdn_widgetdata', array(
 			$this, 'w3tc_ajax_cdn_maxcdn_widgetdata' ) );
-
-		if ( $this->have_zone && $this->authorized && isset( $_GET['page'] ) &&
-				strpos( $_GET['page'], 'w3tc_dashboard' ) !== false ) {
-
-		}
 	}
 
 	function w3tc_ajax_cdn_maxcdn_widgetdata() {

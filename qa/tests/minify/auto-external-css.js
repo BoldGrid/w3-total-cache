@@ -30,8 +30,10 @@ describe('', function() {
 
 	it('copy theme files', async() => {
 		let theme = await wp.getCurrentTheme(adminPage);
-		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
-		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', targetPath);
+		let themePath = env.wpContentPath + 'themes/' + theme;
+		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', `${themePath}/qa`);
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`,
+			'/qa/external-css-sc.php');
 	});
 
 
@@ -50,8 +52,7 @@ describe('', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'page content',
-			template: 'qa/external-css.php'
+			content: 'page content'
 		});
 		testPageUrl = testPage.url;
 	});

@@ -501,7 +501,7 @@ class csstidy {
 		if (!is_dir('temp')) {
 			$madedir = mkdir('temp');
 			if (!$madedir) {
-				print 'Could not make directory "temp" in ' . dirname(__FILE__);
+				print 'Could not make directory "temp" in ' . esc_html( dirname( __FILE__ ) );
 				exit;
 			}
 		}

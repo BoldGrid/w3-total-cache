@@ -75,6 +75,7 @@ describe('', function() {
 		});
 
 		if (env.cacheEngineLabel == 'file_generic') {
+			await page.goto(env.homeUrl + 'feed/');
 			// changing timestamp for index.html.old file in order to flush cache
 			await w3tc.pageCacheFileGenericChangeFileTimestamp(
 				env.homeUrl + 'feed', 'xml');

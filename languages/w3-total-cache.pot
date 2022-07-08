@@ -7585,9 +7585,15 @@ msgstr ""
 msgid "symbols (set to 0 to disable)"
 msgstr ""
 
-#: inc/options/parts/memcached_extension.php:23
-#: inc/options/parts/redis_extension.php:25 inc/options/parts/memcached.php:22
+#: inc/options/parts/redis_extension.php:25
 #: inc/options/parts/redis.php:23
+msgid ""
+"Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:"
+"11211, domain.com:22122. To use TLS, prefix server with tls://"
+msgstr ""
+
+#: inc/options/parts/memcached_extension.php:23
+#: inc/options/parts/memcached.php:22
 msgid ""
 "Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:"
 "11211, domain.com:22122"
@@ -7667,6 +7673,11 @@ msgid "Using binary protocol can increase throughput."
 msgstr ""
 
 #: inc/options/parts/redis.php:30
+msgid ""
+"Verify the server\'s certificate when connecting via TLS."
+msgstr ""
+
+#: inc/options/parts/redis.php:37
 msgid ""
 "Using persistent connection doesn't reinitialize redis driver on each request"
 msgstr ""

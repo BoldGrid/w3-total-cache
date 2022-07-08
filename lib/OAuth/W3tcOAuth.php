@@ -250,11 +250,12 @@ class W3tcOAuthRequest {
               ? 'http'
               : 'https';
     $http_url = ($http_url) ? $http_url : $scheme .
-                              '://' . $_SERVER['SERVER_NAME'] .
+                              '://' . ( isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '' ) .
                               ':' .
-                              $_SERVER['SERVER_PORT'] .
-                              $_SERVER['REQUEST_URI'];
-    $http_method = ($http_method) ? $http_method : $_SERVER['REQUEST_METHOD'];
+                              ( isset( $_SERVER['SERVER_PORT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_PORT'] ) ) : '' ) .
+                              ( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
+    $http_method = ( $http_method ) ?
+      $http_method : ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' );
 
     // We weren't handed any parameters, so let's find the ones relevant to
     // this request.
@@ -265,7 +266,7 @@ class W3tcOAuthRequest {
       $request_headers = W3tcOAuthUtil::get_headers();
 
       // Parse the query-string to find GET parameters
-      $parameters = W3tcOAuthUtil::parse_parameters($_SERVER['QUERY_STRING']);
+      $parameters = W3tcOAuthUtil::parse_parameters( isset( $_SERVER['QUERY_STRING'] ) ? sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) : '' );
 
       // It's a POST request of the proper content-type, so parse POST
       // parameters and add those overriding any duplicates from GET
@@ -552,9 +553,9 @@ class W3tcOAuthUtil {
       // that $_SERVER actually contains what we need
       $out = array();
       if( isset($_SERVER['CONTENT_TYPE']) )
-        $out['Content-Type'] = $_SERVER['CONTENT_TYPE'];
+        $out['Content-Type'] = sanitize_text_field( wp_unslash( $_SERVER['CONTENT_TYPE'] ) );
       if( isset($_ENV['CONTENT_TYPE']) )
-        $out['Content-Type'] = $_ENV['CONTENT_TYPE'];
+        $out['Content-Type'] = sanitize_text_field( wp_unslash( $_ENV['CONTENT_TYPE'] ) );
 
       foreach ($_SERVER as $key => $value) {
         if (substr($key, 0, 5) == "HTTP_") {

@@ -13,9 +13,9 @@ class Support_AdminActions {
 		$post = array();
 
 		foreach ( $_GET as $p => $v )
-			$post[$p] = $v;
+			$post[$p] = Util_Request::get( $p );
 
-		$post['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+		$post['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		$post['version'] = W3TC_VERSION;
 
 		$license_level = 'community';
@@ -160,7 +160,7 @@ class Support_AdminActions {
 		$server_info = array(
 			'w3tc' => array(
 				'version' => W3TC_VERSION,
-				'server' => ( !empty( $_SERVER['SERVER_SOFTWARE'] ) ? $_SERVER['SERVER_SOFTWARE'] : 'Unknown' ),
+				'server' => ( ! empty( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : 'Unknown' ),
 				'dir' => W3TC_DIR,
 				'cache_dir' => W3TC_CACHE_DIR,
 				'blog_id' => Util_Environment::blog_id(),

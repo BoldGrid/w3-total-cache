@@ -35,20 +35,21 @@ trait StreamDecoratorTrait
         throw new \UnexpectedValueException("$name not found on class");
     }
 
-    public function __toString()
-    {
-        try {
-            if ($this->isSeekable()) {
-                $this->seek(0);
-            }
-            return $this->getContents();
-        } catch (\Exception $e) {
-            // Really, PHP? https://bugs.php.net/bug.php?id=53648
-            trigger_error('StreamDecorator::__toString exception: '
-                . (string) $e, E_USER_ERROR);
-            return '';
-        }
-    }
+	public function __toString() {
+		try {
+			if ( $this->isSeekable() ) {
+				$this->seek( 0 );
+			}
+			return $this->getContents();
+		} catch ( \Exception $e ) {
+			// Really, PHP? https://bugs.php.net/bug.php?id=53648.
+			trigger_error(
+				'StreamDecorator::__toString exception: ' . esc_html( (string) $e ),
+				E_USER_ERROR
+			);
+			return '';
+		}
+	}
 
     public function getContents()
     {

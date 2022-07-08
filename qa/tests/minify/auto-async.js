@@ -24,8 +24,9 @@ describe('', function() {
 
 	it('copy theme files', async() => {
 		let theme = await wp.getCurrentTheme(adminPage);
-		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
-		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', targetPath);
+		let themePath = env.wpContentPath + 'themes/' + theme;
+		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', `${themePath}/qa`);
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/minify-auto-js-async-sc.php');
 	});
 
 
@@ -46,8 +47,7 @@ describe('', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'page content',
-			template: 'qa/minify-auto-js-async.php'
+			content: 'page content [w3tcqa]'
 		});
 		testPageUrl = testPage.url;
 		console.log(testPageUrl);

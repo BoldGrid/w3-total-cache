@@ -108,6 +108,10 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				$this->_config['secret'] );
 		}
 
+		if ( isset( $this->_config['public_objects'] ) && 'enabled' === $this->_config['public_objects'] ) {
+			$this->_config['s3_acl'] = 'public-read';
+		}
+
 		$this->api = new \Aws\S3\S3Client( array(
 				'credentials' => $credentials,
 				'region' => $this->_config['bucket_location'],
@@ -286,7 +290,10 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 * Wrapper to set headers well
 	 */
 	private function _put_object( $data, $headers ) {
-		$data['ACL'] = 'public-read';
+		if ( ! empty( $this->_config['s3_acl'] ) ) {
+			$data['ACL'] = 'public-read';
+		}
+
 		$data['Bucket'] = $this->_config['bucket'];
 
 		$data['ContentType'] = $headers['Content-Type'];
@@ -381,16 +388,33 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		}
 
 		if ( !$bucket_found ) {
-			throw new \Exception( 'Bucket doesn\'t exist: %s.', $this->_config['bucket'] );
+			throw new \Exception(
+				sprintf(
+					// translators: 1: AWS S3 bucket name.
+					esc_html__( 'Bucket doesn\'t exist: %1$s.', 'w3-total-cache' ),
+					$this->_config['bucket']
+				)
+			);
 		}
 
-		$result = $this->api->putObject( array(
-				'ACL' => 'public-read',
-				'Bucket' => $this->_config['bucket'],
-				'Key' => $key,
-				'Body' => $key
-			)
-		);
+		if ( ! empty( $this->_config['s3_acl'] ) ) {
+			$result = $this->api->putObject(
+				array(
+					'ACL' => $this->_config['s3_acl'],
+					'Bucket' => $this->_config['bucket'],
+					'Key' => $key,
+					'Body' => $key
+				)
+			);
+		} else {
+			$result = $this->api->putObject(
+				array(
+					'Bucket' => $this->_config['bucket'],
+					'Key' => $key,
+					'Body' => $key
+				)
+			);
+		}
 
 		$object = $this->api->getObject( array(
 				'Bucket' => $this->_config['bucket'],

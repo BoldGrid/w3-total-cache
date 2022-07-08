@@ -4,9 +4,9 @@ namespace W3TC;
 class Extension_CloudFlare_Page {
 	static public function admin_print_scripts_w3tc_extensions() {
 		if ( ( isset( $_REQUEST['extension'] ) &&
-			$_REQUEST['extension'] == 'cloudflare' ) ||
+		Util_Request::get_string( 'extension' ) == 'cloudflare' ) ||
 			( isset( $_REQUEST['page'] ) &&
-			$_REQUEST['page'] == 'w3tc_cdnfsd' ) ) {
+			Util_Request::get_string( 'page' ) == 'w3tc_cdnfsd' ) ) {
 			wp_enqueue_script( 'w3tc_extension_cloudflare',
 				plugins_url( 'Extension_CloudFlare_Page_View.js', W3TC_FILE ),
 				array( 'jquery' ), '1.0' );
@@ -120,11 +120,20 @@ class Extension_CloudFlare_Page {
 		$b1_id = 'w3tc_cloudflare_save_' . $id;
 
 		echo '<p class="submit">';
-		echo Util_Ui::nonce_field( 'w3tc' );
-		echo '<input type="submit" id="' . $b1_id .
+		echo wp_kses(
+			Util_Ui::nonce_field( 'w3tc' ),
+			array(
+				'input' => array(
+					'type'  => array(),
+					'name'  => array(),
+					'value' => array(),
+				),
+			)
+		);
+		echo '<input type="submit" id="' . esc_attr( $b1_id ) .
 			'" name="w3tc_cloudflare_save_settings" ' .
-			' class="w3tc-button-save button-primary" '.
-			' value="' . __( 'Save CloudFlare settings', 'w3-total-cache' ) .
+			' class="w3tc-button-save button-primary" ' .
+			' value="' . esc_attr( __( 'Save CloudFlare settings', 'w3-total-cache' ) ) .
 			'" />';
 		echo '</p>';
 	}
