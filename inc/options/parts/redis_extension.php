@@ -74,15 +74,18 @@ Util_Ui::config_item(
 	)
 );
 
-Util_Ui::config_item(
-	array(
-		'key'          => array( $module, 'redis.read_timeout' ),
-		'label'        => Util_ConfigLabel::get( 'redis.read_timeout' ),
-		'control'      => 'textbox',
-		'textbox_type' => 'number',
-		'description'  => __( 'In seconds', 'w3-total-cache' ),
-	)
-);
+if ( version_compare( phpversion( 'redis' ), '5', '>=' ) ) {
+	// PHP Redis 5 supports the read_timeout setting.
+	Util_Ui::config_item(
+		array(
+			'key'          => array( $module, 'redis.read_timeout' ),
+			'label'        => Util_ConfigLabel::get( 'redis.read_timeout' ),
+			'control'      => 'textbox',
+			'textbox_type' => 'number',
+			'description'  => __( 'In seconds', 'w3-total-cache' ),
+		)
+	);
+}
 
 Util_Ui::config_item(
 	array(
