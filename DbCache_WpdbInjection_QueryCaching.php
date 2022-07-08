@@ -215,7 +215,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 					gmdate( 'r' ),
 					strtr(
 						isset( $_SERVER['REQUEST_URI'] ) ?
-						esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+						esc_url_raw( stripslashes( $_SERVER['REQUEST_URI'] ) ) : '',
 						"<>\r\n",
 						'..  '
 					),
@@ -559,7 +559,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		);
 
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ?
-			filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '';
+			filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '';
 
 		foreach ( $auto_reject_uri as $uri ) {
 			if ( strstr( $request_uri, $uri ) !== false ) {
