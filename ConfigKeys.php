@@ -2404,11 +2404,11 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => true
 	),
-	'widget.pagespeed.key' => array(
+	'widget.pagespeed.access_token' => array(
 		'type' => 'string',
 		'default' => ''
 	),
-	'widget.pagespeed.key.restrict.referrer' => array(
+	'widget.pagespeed.w3key' => array(
 		'type' => 'string',
 		'default' => ''
 	),

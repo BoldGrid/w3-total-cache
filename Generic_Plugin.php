@@ -258,11 +258,9 @@ class Generic_Plugin {
 			$modules = Dispatcher::component( 'ModuleStatus' );
 
 			$menu_postfix = '';
-			if ( !is_admin() &&
-				$this->_config->get_boolean( 'widget.pagespeed.show_in_admin_bar' ) ) {
+			if ( ! is_admin() && $this->_config->get_boolean( 'widget.pagespeed.show_in_admin_bar' ) ) {
 				$menu_postfix = ' <span id="w3tc_monitoring_score">...</span>';
-				add_action( 'wp_after_admin_bar_render',
-					array( $this, 'wp_after_admin_bar_render' ) );
+				add_action( 'wp_after_admin_bar_render', array( $this, 'wp_after_admin_bar_render' ) );
 			}
 
 			$menu_items = array();
@@ -377,15 +375,14 @@ class Generic_Plugin {
 	}
 
 	public function wp_after_admin_bar_render() {
-		$url = admin_url( 'admin-ajax.php', 'relative' ) .
-			'?action=w3tc_monitoring_score&' . md5( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
-
-?>
+		$url = admin_url( 'admin-ajax.php', 'relative' ) . '?action=w3tc_monitoring_score&' . md5( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
+		Util_Debug::debug('Generic_Plugin wp_after_admin_bar_render',$url);
+		?>
 		<script type= "text/javascript">
-		var w3tc_monitoring_score = document.createElement('script');
-		w3tc_monitoring_score.type = 'text/javascript';
-		w3tc_monitoring_score.src = '<?php echo $url ?>';
-		document.getElementsByTagName('HEAD')[0].appendChild(w3tc_monitoring_score);
+			var w3tc_monitoring_score = document.createElement('script');
+			w3tc_monitoring_score.type = 'text/javascript';
+			w3tc_monitoring_score.src = '<?php echo $url ?>';
+			document.getElementsByTagName('HEAD')[0].appendChild(w3tc_monitoring_score);
 		</script>
 		<?php
 	}

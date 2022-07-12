@@ -9,8 +9,8 @@ include W3TC_INC_DIR . '/options/common/header.php';
 
 <p>
 	<?php
-echo sprintf( 'The plugin is currently %1$s If an option is disabled it means that either your current installation is not compatible or software installation is required.', '<span class="w3tc-'.( $enabled ? 'enabled">' . __( 'enabled', 'w3-total-cache' ) : 'disabled">' . __( 'disabled', 'w3-total-cache' ) ) . '</span>.' )
-?>
+	echo sprintf( 'The plugin is currently %1$s If an option is disabled it means that either your current installation is not compatible or software installation is required.', '<span class="w3tc-'.( $enabled ? 'enabled">' . __( 'enabled', 'w3-total-cache' ) : 'disabled">' . __( 'disabled', 'w3-total-cache' ) ) . '</span>.' );
+	?>
 </p>
 <form id="w3tc_form" action="admin.php?page=<?php echo $this->_page; ?>" method="post">
 	<div class="metabox-holder">
@@ -416,26 +416,66 @@ foreach ( $custom_areas as $area )
 	do_action( "w3tc_settings_general_boxarea_{$area['id']}" );
 ?>
 
-
-
-
 		<?php Util_Ui::postbox_header( __( 'Google Page Speed', 'w3-total-cache' ), '', 'google_page_speed' ); ?>
+		<?php
+		$access_token_json = $this->_config->get_string( 'widget.pagespeed.access_token' );
+
+		if ( ! empty( $access_token_json ) ) {
+			$w3_pagespeed                    = new PageSpeed_Api( $access_token_json );
+			$refresh_token_check_result_json = $w3_pagespeed->refresh_token_check();
+		} else {
+			$w3_pagespeed = new PageSpeed_Api();
+		}
+
+		$site_id    = Util_Http::generate_site_id();
+		$return_url = 'http://' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) . '/wp-admin/admin.php?page=w3tc_general';
+		$w3key      = ! empty( $this->_config->get_string( 'widget.pagespeed.w3key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3key' ) : '';
+		$auth_url   = $w3_pagespeed->client->createAuthUrl();
+
+		// This may need a nonce or equivilant security measure?
+		$new_gacode = Util_Request::get( 'w3tc_new_gacode' );
+		$new_w3key  = Util_Request::get( 'w3tc_new_w3key' );
+		if ( ! empty( $new_gacode ) && ! empty( $new_w3key ) ) {
+			$w3_pagespeed->new_token( $new_gacode, $new_w3key );
+			unset( $_GET['w3tc_new_gacode'] );
+			unset( $_GET['w3tc_new_w3key'] );
+		}
+		?>
 		<table class="form-table">
-			<tr>
-				<th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key' ) ?></label></th>
-				<td>
-					<input id="widget_pagespeed_key" type="text" name="widget__pagespeed__key" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key' ) ); ?>" <?php Util_Ui::sealing_disabled( 'common.' ) ?> size="60" />
-					<p class="description"><?php _e( 'Learn more about obtaining a <a href="https://support.google.com/cloud/answer/6158862" target="_blank"><acronym title="Application Programming Interface">API</acronym> key here</a>.', 'w3-total-cache' ); ?></p>
-				</td>
-			</tr>
-			 <tr>
-				 <th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key.restrict.referrer', 'general' ) ?></label></th>
-				 <td>
-					 <input id="widget_pagespeed_key_restrict_referrer" type="text" name="widget__pagespeed__key__restrict__referrer" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key.restrict.referrer' ) ); ?>" size="60" />
-					 <p class="description">Although not required, to prevent unauthorized use and quota theft, you have the option to restrict your key using a designated HTTP referrer. If you decide to use it, you will need to set this referrer within the API Console's "Http Referrers (web sites)" key restriction area (under Credentials).</p>
-				 </td>
-			</tr>
 			<?php
+			$access_token_json = ( ! empty( $w3_pagespeed->client->getAccessToken() ) ? $w3_pagespeed->client->getAccessToken() : '' );
+
+			if ( ! $w3_pagespeed->client->isAccessTokenExpired() && ! empty( $access_token_json ) ) {
+				?>
+				<tr>
+					<th><label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label></th>
+					<td>
+						<input id="widget_pagespeed_access_token" type="text" name="widget__pagespeed__access_token" value="<?php echo esc_attr( $access_token_json ); ?>" size="60" readonly/><span style="color:#090;padding: 0 10px;"><strong>Valid</strong></span>
+					</td>
+				</tr>
+				<?php
+			} elseif ( $w3_pagespeed->client->isAccessTokenExpired() && ! empty( $access_token_json ) ) {
+				?>
+				<tr>
+					<th><label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label></th>
+					<td>
+						<input id="widget_pagespeed_access_token" type="text" name="widget__pagespeed__access_token" value="<?php echo esc_attr( $access_token_json ); ?>" size="60" readonly/><span style="color:#f00;padding: 0 10px;"><strong>Expired!</strong></span><a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo W3TC_API_GPS_AUTHORIZE_URL . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ). '/' . rawurlencode( $w3key ); ?>"><?php esc_html_e( 'Re-Authorize' ); ?></a>
+						<p><?php esc_html_e( 'Click the "Re-Authorize" button to re-authorize W3TC to perform requests to the PageSpeed Insights API on your behalf via a temporary Google Access Token. This token will be set to automatically refresh once expired so authorization should only be required once.', 'w3-total-cache' ); ?></p>
+					</td>
+				</tr>
+				<?php
+			} else {
+				?>
+				<tr>
+					<th><label for="widget_pagespeed_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label></th>
+					<td>
+						<input id="widget_pagespeed_access_token" type="text" name="widget__pagespeed__access_token" value="<?php echo esc_attr( $access_token_json ); ?>" size="60" readonly/><a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo W3TC_API_GPS_AUTHORIZE_URL . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ); ?>"><?php esc_html_e( 'Authorize' ); ?></a>
+						<p><?php esc_html_e( 'Click the "Authorize" button to authorize W3TC to perform requests to the PageSpeed Insights API on your behalf via a refreshed temporary Google Access Token. This token will be set to automatically refresh once expired so authorization should only be required once.', 'w3-total-cache' ); ?></p>
+					</td>
+				</tr>
+				<?php
+			}
+
 			Util_Ui::config_item( array(
 					'key' => 'widget.pagespeed.enabled',
 					'control' => 'checkbox',
