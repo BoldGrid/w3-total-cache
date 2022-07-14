@@ -76,7 +76,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		// calculate urls to purge
 		$full_urls = array();
 		$post = get_post( $post_id );
-		if (empty($post)) {
+		if ( empty( $post ) ) {
 			return true;
 		}
 		$is_cpt = Util_Environment::is_custom_post_type( $post );
