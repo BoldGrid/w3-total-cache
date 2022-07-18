@@ -439,6 +439,31 @@ class Generic_Plugin_Admin {
 				'w3tc_nonce',
 				array( wp_create_nonce( 'w3tc' ) )
 			);
+
+			wp_localize_script(
+				'w3tc-options',
+				'w3tcLang',
+				array(
+					'cfWarning' => wp_kses(
+						sprintf(
+							// translators: 1: HTML break, 2: HTML anchor open tag, 3: HTML anchor close tag.
+							__(
+								'Please see Amazon\'s documentation: Paying for file invalidation%1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.',
+								'w3-total-cache'
+							),
+							'<br />',
+							'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">',
+							'</a>',
+						),
+						array(
+							'a' => array(
+								'target' => array(),
+								'href'   => array(),
+							),
+						)
+					),
+				)
+			);
 		}
 
 		switch ( $this->_page ) {

@@ -320,6 +320,23 @@ function w3tc_csp_reference() {
 	});
 }
 
+function cdn_cf_check() {
+	var cdn_enabled = jQuery( '#cdn__enabled' ).is( ':checked' ),
+		cdn_engine = jQuery( '#cdn__engine' ).find( ':selected' ).val();
+
+	// Remove any cf admin notices.
+	jQuery( '.w3tc-cf-notice' ).remove();
+
+	if ( cdn_enabled && ( 'cf' === cdn_engine || 'cf2' === cdn_engine ) ) {
+		// Print cf admin notice.
+		jQuery( this ).closest( 'div' ).prepend(
+			'<div class="notice notice-warning inline w3tc-cf-notice"><p>' +
+			w3tcLang.cfWarning +
+			'</p></div>'
+		);
+	}
+}
+
 jQuery(function() {
 	// general page
 	jQuery('.w3tc_read_technical_info').on( 'click', function() {
@@ -354,8 +371,12 @@ jQuery(function() {
 			}
 		}).fail(function() {
 			jQuery('.w3tc_license_verification').html('Check failed');
-		})
+		});
 	});
+
+	// When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
+	jQuery( '#cdn__enabled' ).on( 'click', cdn_cf_check );
+	jQuery( '#cdn__engine' ).on( 'change', cdn_cf_check );
 
 	// pagecache page
 	w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
