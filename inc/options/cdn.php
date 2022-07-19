@@ -415,6 +415,31 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 							)
 						);
 						?>
+						<div class="hidden" id="cdn-flushmanually-warning">
+								<div class="notice notice-warning inline"><p>
+							<?php
+							echo wp_kses(
+								sprintf(
+									// translators: 1: HTML break, 2: HTML anchor open tag, 3: HTML anchor close tag.
+									__(
+										'Please see %2$sAmazon\'s CloudFront documentation -- Paying for file invalidation%3$s:%1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%1$sYou can disable automatic purging by enabling "Only purge CDN manually".',
+										'w3-total-cache'
+									),
+									'<br />',
+									'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">',
+									'</a>'
+								),
+								array(
+									'a'  => array(
+										'target' => array(),
+										'href'   => array(),
+									),
+									'br' => array(),
+								)
+							);
+							?>
+							</p></div>
+						</div>
 					</p>
 				</th>
 			</tr>
@@ -458,7 +483,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 						echo wp_kses(
 							sprintf(
 								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-								__( 
+								__(
 									'All Media Library content will use %1$sCDN%2$s links on administration pages.',
 									'w3-total-cache'
 								),

@@ -442,13 +442,16 @@ class Generic_Plugin_Admin {
 
 			wp_localize_script(
 				'w3tc-options',
-				'w3tcLang',
+				'w3tcData',
 				array(
-					'cfWarning' => wp_kses(
+					'cdnEnabled'       => $this->_config->get_boolean( 'cdn.enabled' ),
+					'cdnEngine'        => $this->_config->get_string( 'cdn.engine' ),
+					'cdnFlushManually' => $this->_config->get_boolean( 'cdn.flush_manually' ),
+					'cfWarning'        => wp_kses(
 						sprintf(
 							// translators: 1: HTML break, 2: HTML anchor open tag, 3: HTML anchor close tag.
 							__(
-								'Please see Amazon\'s documentation: Paying for file invalidation%1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%1$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%3$s.',
+								'Please see %2$sAmazon\'s CloudFront documentation -- Paying for file invalidation%3$s:%1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%1$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%3$s.',
 								'w3-total-cache'
 							),
 							'<br />',

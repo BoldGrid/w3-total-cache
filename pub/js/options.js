@@ -321,19 +321,30 @@ function w3tc_csp_reference() {
 }
 
 function cdn_cf_check() {
-	var cdn_enabled = jQuery( '#cdn__enabled' ).is( ':checked' ),
-		cdn_engine = jQuery( '#cdn__engine' ).find( ':selected' ).val();
+	var cdnEnabled = jQuery( '#cdn__enabled' ).is( ':checked' ),
+		cdnEngine = jQuery( '#cdn__engine' ).find( ':selected' ).val(),
+		cdnFlushManually = jQuery( '[name="cdn__flush_manually"]' ).is( ':checked' );
 
 	// Remove any cf admin notices.
 	jQuery( '.w3tc-cf-notice' ).remove();
 
-	if ( cdn_enabled && ( 'cf' === cdn_engine || 'cf2' === cdn_engine ) ) {
+	// General page.
+	if ( ! w3tcData.cdnFlushManually && cdnEnabled && ( 'cf' === cdnEngine || 'cf2' === cdnEngine ) ) {
 		// Print cf admin notice.
-		jQuery( this ).closest( 'div' ).prepend(
+		jQuery( '#cdn .inside' ).prepend(
 			'<div class="notice notice-warning inline w3tc-cf-notice"><p>' +
-			w3tcLang.cfWarning +
+			w3tcData.cfWarning +
 			'</p></div>'
 		);
+	}
+
+	// CDN page.
+	if ( ! cdnFlushManually && w3tcData.cdnEnabled && ( 'cf' === w3tcData.cdnEngine || 'cf2' === w3tcData.cdnEngine ) ) {
+		// Show warning on the CDN page for flush manually.
+		jQuery( '#cdn-flushmanually-warning' ).show();
+	} else {
+		// Hide warning on the CDN page for flush manually.
+		jQuery( '#cdn-flushmanually-warning' ).hide();
 	}
 }
 
@@ -375,8 +386,15 @@ jQuery(function() {
 	});
 
 	// When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
+	cdn_cf_check();
 	jQuery( '#cdn__enabled' ).on( 'click', cdn_cf_check );
 	jQuery( '#cdn__engine' ).on( 'change', cdn_cf_check );
+
+	/**
+	 * CDN page.
+	 * When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
+	 */
+	 jQuery( '[name="cdn__flush_manually"]' ).on( 'click', cdn_cf_check );
 
 	// pagecache page
 	w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
