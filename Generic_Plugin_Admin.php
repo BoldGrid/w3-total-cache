@@ -448,18 +448,20 @@ class Generic_Plugin_Admin {
 						sprintf(
 							// translators: 1: HTML break, 2: HTML anchor open tag, 3: HTML anchor close tag.
 							__(
-								'Please see Amazon\'s documentation: Paying for file invalidation%1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.',
+								'Please see Amazon\'s documentation: Paying for file invalidation%1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%1$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%3$s.',
 								'w3-total-cache'
 							),
 							'<br />',
 							'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">',
 							'</a>',
+							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">'
 						),
 						array(
-							'a' => array(
+							'a'  => array(
 								'target' => array(),
 								'href'   => array(),
 							),
+							'br' => array(),
 						)
 					),
 				)
