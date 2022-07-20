@@ -40,12 +40,6 @@ class PageSpeed_Plugin_Widget {
 		add_action( 'w3tc_widget_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
 		add_action( 'w3tc_network_dashboard_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
 
-		wp_enqueue_style(
-			'w3tc-pagespeed-google-material-icons',
-			'https://fonts.googleapis.com/icon?family=Material+Icons',
-			array(),
-			W3TC_VERSION
-		);
 		wp_enqueue_script(
 			'w3tc-widget-pagespeed',
 			plugins_url( 'PageSpeed_Widget_View.js', W3TC_FILE ),
@@ -128,9 +122,9 @@ class PageSpeed_Plugin_Widget {
 				return;
 			}
 
+			$home_url     = get_home_url();
 			$w3_pagespeed = new PageSpeed_Api( $access_token );
-			$api_response = $w3_pagespeed->analyze( get_home_url() );
-			$home_url = get_home_url();
+			$api_response = $w3_pagespeed->analyze( $home_url );
 
 			if ( ! $api_response ) {
 				echo wp_json_encode(
@@ -211,24 +205,84 @@ class PageSpeed_Plugin_Widget {
 	 * @return [type]
 	 */
 	public function w3tc_monitoring_score( $score ) {
-		if ( empty( $_SERVER['HTTP_REFERER'] ) ) {
-			return 'n/a';
-		}
-
 		$config       = Dispatcher::config();
 		$access_token = ! empty( $config->get_string( 'widget.pagespeed.access_token' ) ) ? $config->get_string( 'widget.pagespeed.access_token' ) : null;
 		
 		if ( empty( $access_token ) ) {
-			header( 'Location: ' . filter_var( '/wp-admin/admin.php?page=w3tc_general#google_page_speed', FILTER_SANITIZE_URL ) );
-			exit;
+			return wp_json_encode(
+				array(
+					'error' => sprintf(
+						// translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
+						__(
+							'It appears that your Google Access token is either missing, expired, or invalid. Please click %1$s to obtain a new Google access token or to refresh an expired one.',
+							'w3-total-cache'
+						),
+						'<a href="' . filter_var( '/wp-admin/admin.php?page=w3tc_general#google_page_speed', FILTER_SANITIZE_URL ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+					),
+				),
+			);
 		}
 
-		$url          = isset( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
+		$home_url     = get_home_url();
 		$w3_pagespeed = new PageSpeed_Api( $access_token );
-		$r            = $w3_pagespeed->get_page_score( $url );
-		
-		if ( ! is_null( $r ) ) {
-			$score .= (int) ( (float) $r * 100 ) . ' / 100';
+		$api_response = $w3_pagespeed->get_page_score( $home_url );
+
+		if ( ! $api_response ) {
+			return wp_json_encode(
+				array(
+					'error' => sprintf(
+						// translators: 1 Request URL value.
+						__(
+							'API request failed<br/><br/>
+								Analyze Score URL: %1$s',
+							'w3-total-cache'
+						),
+						$home_url
+					),
+				)
+			);
+		} elseif ( is_array( $api_response ) && ! empty( $api_response['error'] ) ) {
+			return wp_json_encode(
+				array(
+					'error' => sprintf(
+						// translators: 1 Request URL value, 2 Request response code, 3 Error message.
+						__(
+							'API request error<br/><br/>
+								Analyze Score URL: %1$s<br/><br/>
+								Response Code: %2$s<br/>
+								Response Message: %3$s<br/>',
+							'w3-total-cache'
+						),
+						$home_url,
+						! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A',
+						! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A'
+					),
+				)
+			);
+		} elseif ( is_array( $api_response ) && ! empty( $api_response['mobile']['error'] ) && ! empty( $api_response['desktop']['error'] ) ) {
+			return wp_json_encode(
+				array(
+					'error' => sprintf(
+						// translators: 1 Request URL value, 2 Request response code, 3 Error message.
+						__(
+							'API request error<br/><br/>
+								Analyze Score URL: %1$s<br/><br/>
+								Mobile response Code: %2$s<br/>Mobile response Message: %3$s<br/><br/>
+								Desktop response Code: %4$s<br/>Desktop response Message: %5$s',
+							'w3-total-cache'
+						),
+						$home_url,
+						! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A',
+						! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A',
+						! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A',
+						! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A'
+					),
+				)
+			);
+		}
+
+		if ( is_numeric( $api_response ) ) {
+			//$score = (int) ( (float) $api_response * 100 ) . ' / 100';
 		}
 
 		return $score;

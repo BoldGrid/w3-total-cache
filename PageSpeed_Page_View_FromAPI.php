@@ -719,8 +719,8 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 						<div class="metabox-holder">
 							<?php
 							$analysis_types = array(
-								'mobile'  => 'smartphone',
 								'desktop' => 'computer',
+								'mobile'  => 'smartphone',
 							);
 							foreach ( $analysis_types as $analysis_type => $icon ) {
 								?>

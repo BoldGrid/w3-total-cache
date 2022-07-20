@@ -60,10 +60,6 @@ class Generic_Plugin_Admin {
 				$this,
 				'wp_ajax_w3tc_ajax'
 			) );
-		add_action( 'wp_ajax_w3tc_monitoring_score', array(
-				$this,
-				'wp_ajax_w3tc_monitoring_score'
-			) );
 
 		add_action( 'admin_head', array(
 				$this,
@@ -189,22 +185,6 @@ class Generic_Plugin_Admin {
 		} catch ( \Exception $e ) {
 			echo $e->getMessage();
 		}
-
-		exit();
-	}
-
-	public function wp_ajax_w3tc_monitoring_score() {
-		if ( !$this->_config->get_boolean( 'widget.pagespeed.show_in_admin_bar' ) )
-			exit();
-
-		$score = '';
-
-		$modules = Dispatcher::component( 'ModuleStatus' );
-		$score = apply_filters( 'w3tc_monitoring_score', $score );
-
-		header( "Content-Type: application/x-javascript; charset=UTF-8" );
-		echo 'document.getElementById("w3tc_monitoring_score") && ( document.getElementById("w3tc_monitoring_score").innerHTML = "' .
-			strtr( $score, '"', '.' ) . '" );';
 
 		exit();
 	}

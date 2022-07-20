@@ -428,7 +428,7 @@ foreach ( $custom_areas as $area )
 		}
 
 		$site_id    = Util_Http::generate_site_id();
-		$return_url = 'http://' . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) . '/wp-admin/admin.php?page=w3tc_general';
+		$return_url = admin_url( 'admin.php?page=w3tc_general' );
 		$w3key      = ! empty( $this->_config->get_string( 'widget.pagespeed.w3key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3key' ) : '';
 		$auth_url   = $w3_pagespeed->client->createAuthUrl();
 

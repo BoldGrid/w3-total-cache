@@ -1,3 +1,21 @@
+#w3tc_monitoring_score .material-icons {
+	font-family: 'Material Icons';
+	font-weight: normal;
+	font-style: normal;
+	font-size: 18px;
+	line-height: 1;
+	letter-spacing: normal;
+	text-transform: none;
+	display: inline-block;
+	white-space: nowrap;
+	word-wrap: normal;
+	direction: ltr;
+	-moz-font-feature-settings: 'liga';
+	-moz-osx-font-smoothing: grayscale;
+	margin-left: 15px;
+	vertical-align: middle;
+}
+
 .w3tcps_content .nav-tab-wrapper {
 	margin-top: 25px;
 }
@@ -76,12 +94,6 @@
 	margin: 5px;
 }
 
-.material-icons {
-    margin: 0;
-    display: inline-flex;
-    vertical-align: middle;
-}
-
 .w3tcps_metrics_container {
     display: inline-block;
 }
@@ -111,6 +123,9 @@
 }
 
 .w3tcps_metric .material-icons {
+	margin: 0;
+    display: inline-flex;
+    vertical-align: middle;
     margin: 0 0 0 10px;
 }
 

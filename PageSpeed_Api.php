@@ -75,36 +75,6 @@ class PageSpeed_Api {
 	 * @return array
 	 */
 	public function analyze_strategy( $url, $strategy ) {
-		/*
-		$json = $this->_request(
-			array(
-				'url'      => $url,
-				'category' => 'performance',
-				'strategy' => $strategy,
-			)
-		);
-
-		if ( ! $json ) {
-			return array(
-				'error' => array(
-					'code'    => 500,
-					'message' => 'An unknown error occured.',
-				),
-			);
-		}
-
-		$data = array();
-		try {
-			$data = json_decode( $json, true );
-		} catch ( \Exception $e ) {
-			return array(
-				'error' => array(
-					'code'    => 500,
-					'message' => 'Error decoding JSON server response.',
-				),
-			);
-		}
-		*/
 		$data = array();
 		try {
 			$data = $this->_request(
@@ -1479,46 +1449,9 @@ class PageSpeed_Api {
 	 * @return string | null
 	 */
 	public function get_page_score( $url ) {
-		/*
-		$json = $this->_request(
-			array(
-				'url'      => $url,
-				'category' => 'performance',
-				'strategy' => 'desktop',
-			)
-		);
-
-		if ( ! $json ) {
-			return array(
-				'error' => array(
-					'code'    => 500,
-					'message' => 'An unknown error occured.',
-				),
-			);
-		}
-
 		$data = array();
 		try {
-			$data = json_decode( $json, true );
-		} catch ( \Exception $e ) {
-			return array(
-				'error' => array(
-					'code'    => 500,
-					'message' => 'Error decoding JSON server response.',
-				),
-			);
-		}
-		*/
-
-		$data = array();
-		try {
-			$data = $this->_request(
-				array(
-					'url'      => $url,
-					'category' => 'performance',
-					'strategy' => 'desktop',
-				)
-			);
+			$data = $this->analyze( $url );
 		} catch ( \W3TCG_Google_Service_Exception $e ) {
 			$errors = json_encode( $e->getErrors() );
 			return array(
@@ -1529,16 +1462,15 @@ class PageSpeed_Api {
 			);
 		}
 
-		if ( $this->v( $data, array( 'code' ) ) !== 200 ) {
-			return array(
-				'error' => array(
-					'code'    => $this->v( $data, array( 'code' ) ),
-					'message' => $this->v( $data, array( 'message' ) ),
-				),
-			);
+		$page_score = '';
+		if ( ! empty( $this->v( $data, array( 'desktop', 'score' ) ) ) ) {
+			$page_score .= '<i class="material-icons" aria-hidden="true">computer</i> ' . $this->v( $data, array( 'desktop', 'score' ) );
+		}
+		if ( ! empty( $this->v( $data, array( 'mobile', 'score' ) ) ) ) {
+			$page_score .= '<i class="material-icons" aria-hidden="true">smartphone</i> ' . $this->v( $data, array( 'mobile', 'score' ) );
 		}
 
-		return $this->v( $data, array( 'lighthouseResult', 'categories', 'performance', 'score' ) );
+		return array( 'score' => $page_score );
 	}
 
 	/**
@@ -1581,61 +1513,19 @@ class PageSpeed_Api {
 			)
 		);
 
-		/*
-		$request = new \W3TCG_Google_Http_Request(
-			Util_Environment::url_format(
-				W3TC_PAGESPEED_API_URL,
-				array_merge(
-					$query,
-					array(
-						'access_key' => $this->client->getAccessToken(),
-					)
-				)
-			)
-		);
-		*/
-
-		$result = $this->client->execute( $request );
+		try {
+			$result = $this->client->execute( $request );
+		} catch ( \W3TCG_Google_Auth_Exception $e ) {
+			$errors = json_encode( $e->getErrors() );
+			return array(
+				'error' => array(
+					'code'    => 500,
+					'message' => $errors,
+				),
+			);
+		}
 
 		return $result;
-
-		/*
-		if ( empty( $this->client->getAccessToken() ) ) {
-			return '{"error":{"code":403,"message":"Missing Google access token."}}';
-		} elseif ( ! empty( $this->client->getRefreshToken() ) && $this->client->isAccessTokenExpired() ) {
-			$update_result = json_decode( $this->refresh_token() );
-			if ( is_wp_error( $update_result ) ) {
-				return '{"error":{"message":"' . $response->get_error_message() . '"}}';
-			} elseif ( $update_result['response']['code'] !== 200 ) {
-				return '{"error":{"code":' . $update_result['response']['code'] . ',"message":"' . $update_result['response']['message'] . '"}}';
-			}
-		}
-
-		$request_url = Util_Environment::url_format(
-			W3TC_PAGESPEED_API_URL,
-			array_merge(
-				$query,
-				array(
-					'access_key' => $this->client->getAccessToken(),
-				)
-			)
-		);
-
-		$response = Util_Http::get(
-			$request_url,
-			array(
-				'timeout' => 120,
-			)
-		);
-		
-		if ( is_wp_error( $response ) ) {
-			return '{"error":{"message":"' . $response->get_error_message() . '"}}';
-		} elseif ( $response['response']['code'] !== 200 ) {
-			return '{"error":{"code":' . $response['response']['code'] . ',"message":"' . $response['response']['message'] . '"}}';
-		}
-
-		return $response['body'];
-		*/
 	}
 
 	/**
@@ -1724,7 +1614,17 @@ class PageSpeed_Api {
 			}
 		}
 
-		$this->client->refreshToken( $initial_refresh_token->refresh_token );
+		try {
+			$this->client->refreshToken( $initial_refresh_token->refresh_token );
+		} catch ( \W3TCG_Google_Auth_Exception $e ) {
+			$errors = json_encode( $e->getErrors() );
+			return array(
+				'error' => array(
+					'code'    => 500,
+					'message' => $errors,
+				),
+			);
+		}
 
 		$new_access_token = json_decode( $this->client->getAccessToken() );
 
@@ -1732,37 +1632,43 @@ class PageSpeed_Api {
 			$new_refresh_token = $new_access_token->refresh_token;
 			unset( $new_access_token->refresh_token );
 
-			$request_url = Util_Environment::url_format(
-				W3TC_API_GPS_UPDATE_TOKEN_URL,
-				array(
-					'site_id'       => Util_Http::generate_site_id(),
-					'w3key'         => $this->config->get_string( 'widget.pagespeed.w3key' ),
-					'refresh_token' => $new_refresh_token,
+			$request = new \W3TCG_Google_Http_Request(
+				Util_Environment::url_format(
+					W3TC_API_GPS_UPDATE_TOKEN_URL,
+					array(
+						'site_id'       => Util_Http::generate_site_id(),
+						'w3key'         => $this->config->get_string( 'widget.pagespeed.w3key' ),
+						'refresh_token' => $new_refresh_token,
+					)
 				)
 			);
+	
+			try {
+				$result = $this->client->execute( $request );
+			} catch ( \W3TCG_Google_Auth_Exception $e ) {
+				$errors = json_encode( $e->getErrors() );
+				return array(
+					'error' => array(
+						'code'    => 500,
+						'message' => $errors,
+					),
+				);
+			}
 
-			$response = Util_Http::request(
-				$request_url,
-				array(
-					'method'  => 'POST',
-					'timeout' => 120,
-				)
-			);
-
-			if ( is_wp_error( $response ) ) {
+			if ( is_wp_error( $result ) ) {
 				return wp_json_encode(
 					array(
 						'error' => array(
-							'message' => $response->get_error_message(),
+							'message' => $result->get_error_message(),
 						),
 					)
 				);
-			} elseif ( $response['response']['code'] !== 200 ) {
+			} elseif ( $result['response']['code'] !== 200 ) {
 				return wp_json_encode(
 					array(
 						'error' => array(
-							'code'    => $response['response']['code'],
-							'message' => $response['response']['message'],
+							'code'    => $result['response']['code'],
+							'message' => $result['response']['message'],
 						),
 					)
 				);
@@ -1804,7 +1710,17 @@ class PageSpeed_Api {
 			);
 		}
 
-		$this->client->authenticate( $gacode );
+		try {
+			$this->client->authenticate( $gacode );
+		} catch ( \W3TCG_Google_Auth_Exception $e ) {
+			$errors = json_encode( $e->getErrors() );
+			return array(
+				'error' => array(
+					'code'    => 500,
+					'message' => $errors,
+				),
+			);
+		}
 
 		$access_token_json = $this->client->getAccessToken();
 

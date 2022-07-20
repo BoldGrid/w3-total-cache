@@ -19,6 +19,7 @@ class PageSpeed_Page {
 	public function run() {
 		add_action( 'admin_print_scripts-performance_page_w3tc_pagespeed', array( $this, 'admin_print_scripts_w3tc_pagespeed' ) );
 		//add_action( 'w3tc_ajax_pagespeed_data', array( $this, 'w3tc_ajax_pagespeed_data' ) );
+		add_action( 'wp_ajax_w3tc_monitoring_score', array( $this, 'wp_ajax_w3tc_monitoring_score' ) );
 	}
 
 	/**
@@ -159,5 +160,120 @@ class PageSpeed_Page {
 		ob_end_clean();
 
 		echo wp_json_encode( array( '.w3tcps_content' => $content ) );
+	}
+
+	/**
+	 * PageSpeed AJAX fetch monitoring score
+	 *
+	 * @return JSON
+	 */
+	public function wp_ajax_w3tc_monitoring_score() {
+		$encoded_url = Util_Request::get( 'url' );
+
+		$url = ( ! empty( $encoded_url ) ? urldecode( $encoded_url ) : get_home_url() );
+
+		$api_response = null;
+
+		if ( Util_Request::get( 'cache' ) !== 'no' ) {
+			$r = get_transient( 'w3tc_pagespeed_score_' . $encoded_url );
+			$r = @json_decode( $r, true );
+			if ( is_array( $r ) && isset( $r['time'] ) &&
+					$r['time'] >= time() - 3600 ) {
+				$api_response = $r;
+			}
+		}
+
+		if ( is_null( $api_response ) ) {
+			$config       = Dispatcher::config();
+			$access_token = ! empty( $config->get_string( 'widget.pagespeed.access_token' ) ) ? $config->get_string( 'widget.pagespeed.access_token' ) : null;
+
+			if ( empty( $access_token ) ) {
+				echo wp_json_encode(
+					array(
+						'error' => sprintf(
+							// translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
+							__(
+								'It appears that your Google Access token is either missing, expired, or invalid. Please click %1$s to obtain a new Google access token or to refresh an expired one.',
+								'w3-total-cache'
+							),
+							'<a href="' . filter_var( '/wp-admin/admin.php?page=w3tc_general#google_page_speed', FILTER_SANITIZE_URL ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+						),
+					),
+				);
+				return;
+			}
+
+			$w3_pagespeed = new PageSpeed_Api( $access_token );
+
+			$w3_pagespeed->refresh_token_check();
+
+			$api_response = $w3_pagespeed->get_page_score( $url );
+
+			if ( ! $api_response ) {
+				echo wp_json_encode(
+					array(
+						'error' => sprintf(
+							// translators: 1 Request URL value.
+							__(
+								'API request failed<br/><br/>
+									Analyze URL: %1$s',
+								'w3-total-cache'
+							),
+							$url
+						),
+					)
+				);
+				return;
+			} elseif ( ! empty( $api_response['error'] ) ) {
+				echo wp_json_encode(
+					array(
+						'error' => sprintf(
+							// translators: 1 Request URL value, 2 Request response code, 3 Error message.
+							__(
+								'API request error<br/><br/>
+									Analyze URL: %1$s<br/><br/>
+									Response Code: %2$s<br/>
+									Response Message: %3$s<br/>',
+								'w3-total-cache'
+							),
+							$url,
+							! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A',
+							! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A'
+						),
+					)
+				);
+				return;
+			} elseif ( ! empty( $api_response['mobile']['error'] ) && ! empty( $api_response['desktop']['error'] ) ) {
+				echo wp_json_encode(
+					array(
+						'error' => sprintf(
+							// translators: 1 Request URL value, 2 Request response code, 3 Error message.
+							__(
+								'API request error<br/><br/>
+									Analyze URL: %1$s<br/><br/>
+									Mobile response Code: %2$s<br/>Mobile response Message: %3$s<br/><br/>
+									Desktop response Code: %4$s<br/>Desktop response Message: %5$s',
+								'w3-total-cache'
+							),
+							$url,
+							! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A',
+							! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A',
+							! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A',
+							! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A'
+						),
+					)
+				);
+				return;
+			}
+
+			set_transient( 'w3tc_pagespeed_score_' . $encoded_url, wp_json_encode( $api_response ), 3600 );
+		}
+
+		if ( ! empty( $api_response['score'] ) ) {
+			header( "Content-Type: application/x-javascript; charset=UTF-8" );
+			echo 'document.getElementById("w3tc_monitoring_score") && ( document.getElementById("w3tc_monitoring_score").innerHTML = "' . addslashes( $api_response['score'] ) . '" );';	
+		}
+		
+		return;
 	}
 }
