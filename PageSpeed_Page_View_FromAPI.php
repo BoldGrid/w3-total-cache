@@ -597,7 +597,6 @@ function w3tcps_allowed_tags() {
 	);
 }
 
-/*
 if ( Util_Request::get( 'cache' ) !== 'no' ) {
 	$r = get_transient( 'w3tc_pagespeed_data_' . $encoded_url );
 	$r = @json_decode( $r, true );
@@ -605,7 +604,6 @@ if ( Util_Request::get( 'cache' ) !== 'no' ) {
 		$api_response = $r;
 	}
 }
-*/
 
 if ( is_null( $api_response ) ) {
 	$config       = Dispatcher::config();
@@ -672,7 +670,7 @@ if ( is_null( $api_response ) ) {
 
 	$api_response['time'] = time();
 
-	//set_transient( 'w3tc_pagespeed_data_' . $encoded_url, wp_json_encode( $api_response ), 3600 );
+	set_transient( 'w3tc_pagespeed_data_' . $encoded_url, wp_json_encode( $api_response ), 3600 );
 }
 
 /**

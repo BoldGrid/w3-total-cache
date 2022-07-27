@@ -75,24 +75,13 @@ class PageSpeed_Api {
 	 * @return array
 	 */
 	public function analyze_strategy( $url, $strategy ) {
-		$data = array();
-		try {
-			$data = $this->_request(
-				array(
-					'url'      => $url,
-					'category' => 'performance',
-					'strategy' => $strategy,
-				)
-			);
-		} catch ( \W3TCG_Google_Service_Exception $e ) {
-			$errors = json_encode( $e->getErrors() );
-			return array(
-				'error' => array(
-					'code'    => 500,
-					'message' => $errors,
-				),
-			);
-		}
+		$data = $this->_request(
+			array(
+				'url'      => $url,
+				'category' => 'performance',
+				'strategy' => $strategy,
+			)
+		);
 
 		if ( ! empty( $this->v( $data, array( 'error', 'code' ) ) ) && $this->v( $data, array( 'error', 'code' ) ) !== 200 ) {
 			return array(
@@ -1452,12 +1441,11 @@ class PageSpeed_Api {
 		$data = array();
 		try {
 			$data = $this->analyze( $url );
-		} catch ( \W3TCG_Google_Service_Exception $e ) {
-			$errors = json_encode( $e->getErrors() );
+		} catch ( \Exception $e ) {
 			return array(
 				'error' => array(
 					'code'    => 500,
-					'message' => $errors,
+					'message' => $e->getMessage(),
 				),
 			);
 		}
@@ -1515,12 +1503,11 @@ class PageSpeed_Api {
 
 		try {
 			$result = $this->client->execute( $request );
-		} catch ( \W3TCG_Google_Auth_Exception $e ) {
-			$errors = json_encode( $e->getErrors() );
+		} catch ( \Exception $e ) {
 			return array(
 				'error' => array(
 					'code'    => 500,
-					'message' => $errors,
+					'message' => $e->getMessage(),
 				),
 			);
 		}
@@ -1616,13 +1603,14 @@ class PageSpeed_Api {
 
 		try {
 			$this->client->refreshToken( $initial_refresh_token->refresh_token );
-		} catch ( \W3TCG_Google_Auth_Exception $e ) {
-			$errors = json_encode( $e->getErrors() );
-			return array(
-				'error' => array(
-					'code'    => 500,
-					'message' => $errors,
-				),
+		} catch ( \Exception $e ) {
+			return wp_json_encode(
+				array(
+					'error' => array(
+						'code'    => 500,
+						'message' => $e->getMessage(),
+					),
+				)
 			);
 		}
 
@@ -1645,13 +1633,14 @@ class PageSpeed_Api {
 	
 			try {
 				$result = $this->client->execute( $request );
-			} catch ( \W3TCG_Google_Auth_Exception $e ) {
-				$errors = json_encode( $e->getErrors() );
-				return array(
-					'error' => array(
-						'code'    => 500,
-						'message' => $errors,
-					),
+			} catch ( \Exception $e ) {
+				return wp_json_encode(
+					array(
+						'error' => array(
+							'code'    => 500,
+							'message' => $e->getMessage,
+						),
+					)
 				);
 			}
 
@@ -1712,13 +1701,14 @@ class PageSpeed_Api {
 
 		try {
 			$this->client->authenticate( $gacode );
-		} catch ( \W3TCG_Google_Auth_Exception $e ) {
-			$errors = json_encode( $e->getErrors() );
-			return array(
-				'error' => array(
-					'code'    => 500,
-					'message' => $errors,
-				),
+		} catch ( \Exception $e ) {
+			return wp_json_encode(
+				array(
+					'error' => array(
+						'code'    => 500,
+						'message' => $e->getMessage(),
+					),
+				)
 			);
 		}
 
