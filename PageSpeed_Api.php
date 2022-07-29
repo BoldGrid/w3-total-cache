@@ -1640,7 +1640,7 @@ class PageSpeed_Api {
 					array(
 						'error' => array(
 							'code'    => 500,
-							'message' => $e->getMessage,
+							'message' => $e->getMessage(),
 						),
 					)
 				);
@@ -1747,7 +1747,7 @@ class PageSpeed_Api {
 				array(
 					'error' => array(
 						'code'    => 500,
-						'message' => $e->getMessage,
+						'message' => $e->getMessage(),
 					),
 				)
 			);
