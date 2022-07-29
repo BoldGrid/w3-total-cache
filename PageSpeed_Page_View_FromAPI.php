@@ -36,12 +36,14 @@ $api_response_error = null;
  */
 function w3tcps_gauge_color( $score ) {
 	$color = '#fff';
-	if ( ! empty( $score ) && $score >= 90 ) {
-		$color = '#0c6';
-	} elseif ( ! empty( $score ) && $score >= 50 && $score < 90 ) {
-		$color = '#fa3';
-	} elseif ( ! empty( $score ) && $score >= 0 && $score < 50 ) {
-		$color = '#f33';
+	if ( ! empty( $score ) && is_numeric( $score ) ) {
+		if ( $score >= 90 ) {
+			$color = '#0c6';
+		} elseif ( $score >= 50 && $score < 90 ) {
+			$color = '#fa3';
+		} elseif ( $score >= 0 && $score < 50 ) {
+			$color = '#f33';
+		}
 	}
 	return $color;
 }
@@ -66,6 +68,10 @@ function w3tcps_gauge_angle( $score ) {
  * @return void
  */
 function w3tcps_gauge( $data, $icon ) {
+	if ( ! isset( $data ) || empty ( $data['score'] ) || empty ( $icon ) ) {
+		return;
+	}
+
 	$color = w3tcps_gauge_color( $data['score'] );
 	$angle = w3tcps_gauge_angle( $data['score'] );
 
@@ -90,12 +96,14 @@ function w3tcps_gauge( $data, $icon ) {
  */
 function w3tcps_breakdown_bg( $score ) {
 	$notice = 'notice notice-info inline';
-	if ( $score >= 90 ) {
-		$notice = 'notice notice-success inline';
-	} elseif ( $score >= 50 && $score < 90 ) {
-		$noitce = 'notice notice-warning inline';
-	} elseif ( $score > 0 && $score < 50 ) {
-		$notice = 'notice notice-error inline';
+	if ( ! empty( $score ) && is_numeric( $score ) ) {
+		if ( $score >= 90 ) {
+			$notice = 'notice notice-success inline';
+		} elseif ( $score >= 50 && $score < 90 ) {
+			$noitce = 'notice notice-warning inline';
+		} elseif ( $score > 0 && $score < 50 ) {
+			$notice = 'notice notice-error inline';
+		}
 	}
 	return $notice;
 }
@@ -109,12 +117,14 @@ function w3tcps_breakdown_bg( $score ) {
  */
 function w3tcps_breakdown_grade( $score ) {
 	$grade = 'w3tcps_blank';
-	if ( $score >= 90 ) {
-		$grade = 'w3tcps_pass';
-	} elseif ( $score >= 50 && $score < 90 ) {
-		$grade = 'w3tcps_average';
-	} elseif ( $score > 0 && $score < 50 ) {
-		$grade = 'w3tcps_fail';
+	if ( ! empty( $score ) && is_numeric( $score ) ) {
+		if ( $score >= 90 ) {
+			$grade = 'w3tcps_pass';
+		} elseif ( $score >= 50 && $score < 90 ) {
+			$grade = 'w3tcps_average';
+		} elseif ( $score > 0 && $score < 50 ) {
+			$grade = 'w3tcps_fail';
+		}
 	}
 	return $grade;
 }
@@ -127,7 +137,9 @@ function w3tcps_breakdown_grade( $score ) {
  * @return void
  */
 function w3tcps_final_screenshot( $data ) {
-	echo '<img src="' . esc_attr( $data['screenshots']['final']['screenshot'] ) . '" alt="' . esc_attr( $data['screenshots']['final']['title'] ) . '"/>';
+	if ( isset( $data ) && ! empty ( $data['screenshots']['final']['screenshot'] ) ) {
+		echo '<img src="' . esc_attr( $data['screenshots']['final']['screenshot'] ) . '" alt="' . ( ! empty ( $data['screenshots']['final']['title'] ) ? esc_attr( $data['screenshots']['final']['title'] ) : __( 'Final Screenshot', 'w3-total-cache' ) ) . '"/>';
+	}
 }
 
 /**
@@ -138,8 +150,10 @@ function w3tcps_final_screenshot( $data ) {
  * @return void
  */
 function w3tcps_screenshots( $data ) {
-	foreach ( $data['screenshots']['other']['screenshots'] as $screenshot ) {
-		echo '<img src="' . esc_attr( $screenshot['data'] ) . '" alt="' . esc_attr( $data['screenshots']['other']['title'] ) . '"/>';
+	if ( isset( $data ) && ! empty ( $data['screenshots']['other']['screenshots'] ) ) {
+		foreach ( $data['screenshots']['other']['screenshots'] as $screenshot ) {
+			echo '<img src="' . esc_attr( $screenshot['data'] ) . '" alt="' . ( ! empty ( $data['screenshots']['other']['title'] ) ? esc_attr( $data['screenshots']['other']['title'] ) : __( 'Other Screenshot', 'w3-total-cache' ) ) . '"/>';
+		}
 	}
 }
 
@@ -151,6 +165,10 @@ function w3tcps_screenshots( $data ) {
  * @return void
  */
 function w3tcps_breakdown( $data ) {
+	if ( ! isset( $data ) || ( empty ( $data['opportunities'] ) && empty ( $data['diagnostics'] ) ) ) {
+		return;
+	}
+
 	$opportunities = '';
 	$diagnostics   = '';
 	$passed_audits = '';
@@ -497,7 +515,7 @@ function w3tcps_barline( $metric ) {
  * @return void
  */
 function w3tcps_bar( $data, $metric, $name, $icon ) {
-	if ( empty( $data[ $metric ] ) ) {
+	if ( ! isset( $data ) || empty ( $data[ $metric ] ) || empty ( $metric ) || empty ( $name ) || empty( $icon ) ) {
 		return;
 	}
 
@@ -598,10 +616,10 @@ function w3tcps_allowed_tags() {
 }
 
 if ( Util_Request::get( 'cache' ) !== 'no' ) {
-	$r = get_transient( 'w3tc_pagespeed_data_' . $encoded_url );
-	$r = @json_decode( $r, true );
-	if ( is_array( $r ) && isset( $r['time'] ) && $r['time'] >= time() - 3600 ) {
-		$api_response = $r;
+	$cached_api_response = get_transient( 'w3tc_pagespeed_data_' . $encoded_url );
+	$cached_api_response = @json_decode( $cached_api_response, true );
+	if ( is_array( $cached_api_response ) && isset( $cached_api_response['time'] ) && $cached_api_response['time'] >= time() - 3600 ) {
+		//$api_response = $cached_api_response;
 	}
 }
 
@@ -674,13 +692,6 @@ if ( is_null( $api_response ) ) {
 }
 
 /**
- * Google PageSpeed Insights API response data.
- *
- * @var array
- */
-$r = $api_response;
-
-/**
  * Get the active tab and icon from the $_GET param.
  *
  * @var string
@@ -726,7 +737,7 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 									<div id="w3tcps_legend_<?php echo esc_attr( $analysis_type ); ?>">
 										<?php Util_Ui::postbox_header( __( 'Legend', 'w3-total-cache' ), '', 'gps-legend' ); ?>
 										<div class="w3tcps_gauge_<?php echo esc_attr( $analysis_type ); ?>">
-											<?php w3tcps_gauge( $r[ $analysis_type ], $icon ); ?>
+											<?php w3tcps_gauge( $api_response[ $analysis_type ], $icon ); ?>
 										</div>
 										<?php
 										echo wp_kses(
@@ -764,23 +775,23 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 									</div>
 									<div class="w3tcps_metrics_<?php echo esc_attr( $analysis_type ); ?>">
 										<?php Util_Ui::postbox_header( __( 'Core Metrics', 'w3-total-cache' ), '', 'gps-core-metrics' ); ?>
-										<?php w3tcps_bar( $r[ $analysis_type ], 'first-contentful-paint', 'First Contentful Paint', $icon ); ?>
-										<?php w3tcps_bar( $r[ $analysis_type ], 'speed-index', 'Speed Index', $icon ); ?>
-										<?php w3tcps_bar( $r[ $analysis_type ], 'largest-contentful-paint', 'Largest Contentful Paint', $icon ); ?>
-										<?php w3tcps_bar( $r[ $analysis_type ], 'interactive', 'Time to Interactive', $icon ); ?>
-										<?php w3tcps_bar( $r[ $analysis_type ], 'total-blocking-time', 'Total Blocking Time', $icon ); ?>
-										<?php w3tcps_bar( $r[ $analysis_type ], 'cumulative-layout-shift', 'Cumulative Layout Shift', $icon ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'first-contentful-paint', 'First Contentful Paint', $icon ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'speed-index', 'Speed Index', $icon ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'largest-contentful-paint', 'Largest Contentful Paint', $icon ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'interactive', 'Time to Interactive', $icon ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'total-blocking-time', 'Total Blocking Time', $icon ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'cumulative-layout-shift', 'Cumulative Layout Shift', $icon ); ?>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
 									<div class="w3tcps_screenshots_<?php echo esc_attr( $analysis_type ); ?>">
 										<?php Util_Ui::postbox_header( __( 'Screenshots', 'w3-total-cache' ), '', 'gps-screenshots' ); ?>
 										<div class="w3tcps_screenshots_other_<?php echo esc_attr( $analysis_type ); ?>">
 											<h3 class="w3tcps_metric_title"><?php esc_html_e( 'Pageload Thumbnails', 'w3-total-cache' ); ?></h3>
-											<div class="w3tcps_other_screenshot_container"><?php w3tcps_screenshots( $r[ $analysis_type ] ); ?></div>
+											<div class="w3tcps_other_screenshot_container"><?php w3tcps_screenshots( $api_response[ $analysis_type ] ); ?></div>
 										</div>    
 										<div class="w3tcps_screenshots_final_<?php echo esc_attr( $analysis_type ); ?>">
 											<h3 class="w3tcps_metric_title"><?php esc_html_e( 'Final Screenshot', 'w3-total-cache' ); ?></h3>
-											<div class="w3tcps_final_screenshot_container"><?php w3tcps_final_screenshot( $r[ $analysis_type ] ); ?></div>
+											<div class="w3tcps_final_screenshot_container"><?php w3tcps_final_screenshot( $api_response[ $analysis_type ] ); ?></div>
 										</div>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
@@ -793,7 +804,7 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 											<a href="#" class="w3tcps_audit_filter nav-tab"><?php esc_html_e( 'LCP', 'w3-total-cache' ); ?></a>
 											<a href="#" class="w3tcps_audit_filter nav-tab"><?php esc_html_e( 'CLS', 'w3-total-cache' ); ?></a>
 										</div>
-										<?php w3tcps_breakdown( $r[ $analysis_type ] ); ?>
+										<?php w3tcps_breakdown( $api_response[ $analysis_type ] ); ?>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
 								</div>

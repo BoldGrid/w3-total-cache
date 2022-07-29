@@ -1502,8 +1502,10 @@ class PageSpeed_Api {
 		);
 
 		try {
-			$result = $this->client->execute( $request );
+			$response = $this->client->execute( $request );
+			Util_Debug::debug('PageSpeed_Api _execute response',$response);
 		} catch ( \Exception $e ) {
+			Util_Debug::debug('PageSpeed_Api _execute e',$e);
 			return array(
 				'error' => array(
 					'code'    => 500,
@@ -1512,7 +1514,7 @@ class PageSpeed_Api {
 			);
 		}
 
-		return $result;
+		return $response;
 	}
 
 	/**
@@ -1622,7 +1624,7 @@ class PageSpeed_Api {
 
 			$request = new \W3TCG_Google_Http_Request(
 				Util_Environment::url_format(
-					W3TC_API_GPS_UPDATE_TOKEN_URL,
+					W3TC_API_GPS_UPDATE_TOKEN_URL
 					array(
 						'site_id'       => Util_Http::generate_site_id(),
 						'w3key'         => $this->config->get_string( 'widget.pagespeed.w3key' ),
@@ -1632,7 +1634,7 @@ class PageSpeed_Api {
 			);
 	
 			try {
-				$result = $this->client->execute( $request );
+				$response = $this->client->execute( $request );
 			} catch ( \Exception $e ) {
 				return wp_json_encode(
 					array(
@@ -1644,20 +1646,20 @@ class PageSpeed_Api {
 				);
 			}
 
-			if ( is_wp_error( $result ) ) {
+			if ( is_wp_error( $response ) ) {
 				return wp_json_encode(
 					array(
 						'error' => array(
-							'message' => $result->get_error_message(),
+							'message' => $response->get_error_message(),
 						),
 					)
 				);
-			} elseif ( $result['response']['code'] !== 200 ) {
+			} elseif ( $response['response']['code'] !== 200 ) {
 				return wp_json_encode(
 					array(
 						'error' => array(
-							'code'    => $result['response']['code'],
-							'message' => $result['response']['message'],
+							'code'    => $response['response']['code'],
+							'message' => $response['response']['message'],
 						),
 					)
 				);
@@ -1727,22 +1729,29 @@ class PageSpeed_Api {
 
 		$access_token = ( ! empty( $access_token_json ) ? json_decode( $access_token_json ) : '' );
 
-		$request_url = Util_Environment::url_format(
-			W3TC_API_GPS_UPDATE_TOKEN_URL,
-			array(
-				'site_id'       => Util_Http::generate_site_id(),
-				'w3key'         => $w3key,
-				'refresh_token' => $access_token->refresh_token,
+		$request = new \W3TCG_Google_Http_Request(
+			Util_Environment::url_format(
+				W3TC_API_GPS_UPDATE_TOKEN_URL
+				array(
+					'site_id'       => Util_Http::generate_site_id(),
+					'w3key'         => $w3key,
+					'refresh_token' => $access_token->refresh_token,
+				)
 			)
 		);
 
-		$response = Util_Http::request(
-			$request_url,
-			array(
-				'method'  => 'POST',
-				'timeout' => 120,
-			)
-		);
+		try {
+			$response = $this->client->execute( $request );
+		} catch ( \Exception $e ) {
+			return wp_json_encode(
+				array(
+					'error' => array(
+						'code'    => 500,
+						'message' => $e->getMessage,
+					),
+				)
+			);
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return wp_json_encode(
