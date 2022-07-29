@@ -1624,7 +1624,7 @@ class PageSpeed_Api {
 
 			$request = new \W3TCG_Google_Http_Request(
 				Util_Environment::url_format(
-					W3TC_API_GPS_UPDATE_TOKEN_URL
+					W3TC_API_GPS_UPDATE_TOKEN_URL,
 					array(
 						'site_id'       => Util_Http::generate_site_id(),
 						'w3key'         => $this->config->get_string( 'widget.pagespeed.w3key' ),
@@ -1731,7 +1731,7 @@ class PageSpeed_Api {
 
 		$request = new \W3TCG_Google_Http_Request(
 			Util_Environment::url_format(
-				W3TC_API_GPS_UPDATE_TOKEN_URL
+				W3TC_API_GPS_UPDATE_TOKEN_URL,
 				array(
 					'site_id'       => Util_Http::generate_site_id(),
 					'w3key'         => $w3key,
