@@ -449,7 +449,7 @@ class Generic_Plugin_Admin {
 					'cdnFlushManually' => $this->_config->get_boolean( 'cdn.flush_manually' ),
 					'cfWarning'        => wp_kses(
 						sprintf(
-							// translators: 1: HTML break, 2: HTML anchor open tag, 3: HTML anchor close tag.
+							// translators: 1: HTML break, 2: HTML anchor open tag, 3: HTML anchor close tag, 4: HTML anchor open tag.
 							__(
 								'Please see %2$sAmazon\'s CloudFront documentation -- Paying for file invalidation%3$s:%1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%1$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%3$s.',
 								'w3-total-cache'
