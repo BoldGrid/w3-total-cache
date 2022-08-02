@@ -82,6 +82,15 @@ class ConfigCache {
 				'password' =>
 					( defined( 'W3TC_CONFIG_CACHE_REDIS_PASSWORD' ) ?
 						W3TC_CONFIG_CACHE_REDIS_PASSWORD : '' ),
+				'timeout' =>
+					( defined( 'W3TC_CONFIG_CACHE_REDIS_TIMEOUT' ) ?
+						W3TC_CONFIG_CACHE_REDIS_TIMEOUT : 0 ),
+				'retry_interval' =>
+					( defined( 'W3TC_CONFIG_CACHE_REDIS_RETRY_INTERVAL' ) ?
+						W3TC_CONFIG_CACHE_REDIS_RETRY_INTERVAL : 0 ),
+				'read_timeout' =>
+					( defined( 'W3TC_CONFIG_CACHE_REDIS_READ_TIMEOUT' ) ?
+						W3TC_CONFIG_CACHE_REDIS_READ_TIMEOUT : 0 ),
 				'key_version_mode' => 'disabled'
 			);
 			break;
