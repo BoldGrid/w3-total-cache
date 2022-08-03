@@ -1477,18 +1477,18 @@ class PageSpeed_Api {
 				),
 			);
 		} elseif ( ! empty( $this->client->getRefreshToken() ) && $this->client->isAccessTokenExpired() ) {
-			$update_result = json_decode( $this->refresh_token() );
-			if ( is_wp_error( $update_result ) ) {
+			$response = json_decode( $this->refresh_token() );
+			if ( is_wp_error( $response ) ) {
 				return array(
 					'error' => array(
 						'message' => $response->get_error_message()
 					),
 				);
-			} elseif ( $update_result['response']['code'] !== 200 ) {
+			} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
 				return array(
 					'error' => array(
-						'code'    => $update_result['response']['code'],
-						'message' => $update_result['response']['message']
+						'code'    => $response['response']['code'],
+						'message' => $response['response']['message']
 					),
 				);
 			}
@@ -1654,7 +1654,7 @@ class PageSpeed_Api {
 						),
 					)
 				);
-			} elseif ( $response['response']['code'] !== 200 ) {
+			} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
 				return wp_json_encode(
 					array(
 						'error' => array(
@@ -1713,9 +1713,9 @@ class PageSpeed_Api {
 				)
 			);
 		}
-
+		
 		$access_token_json = $this->client->getAccessToken();
-
+		
 		if ( empty( $access_token_json ) ) {
 			return wp_json_encode(
 				array(
@@ -1728,7 +1728,7 @@ class PageSpeed_Api {
 		}
 
 		$access_token = ( ! empty( $access_token_json ) ? json_decode( $access_token_json ) : '' );
-
+		
 		$request = new \W3TCG_Google_Http_Request(
 			Util_Environment::url_format(
 				W3TC_API_GPS_UPDATE_TOKEN_URL,
@@ -1739,7 +1739,7 @@ class PageSpeed_Api {
 				)
 			)
 		);
-
+		
 		try {
 			$response = $this->client->execute( $request );
 		} catch ( \Exception $e ) {
@@ -1752,7 +1752,7 @@ class PageSpeed_Api {
 				)
 			);
 		}
-
+		
 		if ( is_wp_error( $response ) ) {
 			return wp_json_encode(
 				array(
@@ -1761,7 +1761,7 @@ class PageSpeed_Api {
 					),
 				)
 			);
-		} elseif ( $response['response']['code'] !== 200 ) {
+		} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
 			return wp_json_encode(
 				array(
 					'error' => array(
@@ -1771,12 +1771,13 @@ class PageSpeed_Api {
 				)
 			);
 		}
-
+		
 		unset( $access_token->refresh_token );
+		
 		$this->config->set( 'widget.pagespeed.access_token', wp_json_encode( $access_token ) );
 		$this->config->set( 'widget.pagespeed.w3key', $w3key );
 		$this->config->save();
-
+		
 		return null;
 	}
 
@@ -1809,13 +1810,21 @@ class PageSpeed_Api {
 			);
 		}
 
-		$response = Util_Http::get(
-			W3TC_API_GPS_GET_TOKEN_URL . '/' . $site_id . '/' . $w3key,
-			array(
-				'timeout' => 120,
-			)
-		);
-
+		$request = new \W3TCG_Google_Http_Request( W3TC_API_GPS_GET_TOKEN_URL . '/' . $site_id . '/' . $w3key );
+        
+		try {
+			$response = $this->client->execute( $request );
+		} catch ( \Exception $e ) {
+			return wp_json_encode(
+			    array(
+				    'error' => array(
+				    	'code'    => 500,
+				    	'message' => $e->getMessage(),
+				    ),
+				)
+			);
+		}
+       
 		if ( is_wp_error( $response ) ) {
 			return wp_json_encode(
 				array(

@@ -82,7 +82,7 @@ class ConfigCache {
 				'password' =>
 					( defined( 'W3TC_CONFIG_CACHE_REDIS_PASSWORD' ) ?
 						W3TC_CONFIG_CACHE_REDIS_PASSWORD : '' ),
-				'key_version_mode' => 'disabled'
+				'key_version_mode' => 'disabled',
 			);
 			break;
 

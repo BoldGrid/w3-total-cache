@@ -436,9 +436,35 @@ foreach ( $custom_areas as $area )
 		$new_gacode = Util_Request::get( 'w3tc_new_gacode' );
 		$new_w3key  = Util_Request::get( 'w3tc_new_w3key' );
 		if ( ! empty( $new_gacode ) && ! empty( $new_w3key ) ) {
-			$w3_pagespeed->new_token( $new_gacode, $new_w3key );
-			unset( $_GET['w3tc_new_gacode'] );
-			unset( $_GET['w3tc_new_w3key'] );
+			$response = json_decode( $w3_pagespeed->new_token( $new_gacode, $new_w3key ), true );
+			
+			if ( is_wp_error( $response ) ) {
+				echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured! - ', 'w3-total-cache' ) . $response->get_error_message() . '</div></div>';
+			} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
+				$response_error = sprintf(
+					// translators: 1 Request response code, 2 Error message.
+					__(
+						'API request error!<br/><br/>
+							Response Code: %1$s<br/>
+							Response Message: %2$s<br/>',
+						'w3-total-cache'
+					),
+					! empty( $response['error']['code'] ) ? $response['error']['code'] : 'N/A',
+					! empty( $response['error']['message'] ) ? $response['error']['message'] : 'N/A'
+				);
+				echo wp_kses(
+					'<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . $response_error . '</div></div>',
+					array(
+						'div' => array(
+							'class' => array(),
+						),
+						'br'  => array(),
+					)
+				);
+			} elseif ( ! empty( $response['refresh_token'] ) ) {
+				unset( $_GET['w3tc_new_gacode'] );
+				unset( $_GET['w3tc_new_w3key'] );
+			}
 		}
 		?>
 		<table class="form-table">
