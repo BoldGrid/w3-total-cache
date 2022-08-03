@@ -754,7 +754,7 @@ class Cdn_Plugin {
 	 * @return 	array
 	 */
 	function wp_get_attachment_image_src( $image ) {
-		$url = ( ! emtpy( $image[0] ) ? trim( $image[0] ) : null );
+		$url = empty( $image[0] ) ? null : trim( $image[0] );
 		
 		if ( ! empty( $url ) ) {
 			$parsed          = parse_url( $url );
