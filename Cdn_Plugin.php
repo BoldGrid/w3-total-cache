@@ -754,14 +754,14 @@ class Cdn_Plugin {
 	 * @return 	array
 	 */
 	function wp_get_attachment_image_src( $image ) {
-		$url = trim( $image[0] );
+		$url = ( ! emtpy( $image[0] ) ? trim( $image[0] ) : null );
 		
 		if ( ! empty( $url ) ) {
 			$parsed          = parse_url( $url );
 			$uri             = ( isset( $parsed['path'] ) ? $parsed['path'] : '/' ) . ( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
 			$wp_upload_dir   = wp_upload_dir();
 			$upload_base_url = $wp_upload_dir['baseurl'];
-			if ( substr( $url, 0, strlen( $upload_base_url ) ) == $upload_base_url ) {
+			if ( substr( $url, 0, strlen( $upload_base_url ) ) === $upload_base_url ) {
 				$common  = Dispatcher::component( 'Cdn_Core' );
 				$new_url = $common->url_to_cdn_url( $url, $uri );
 				if ( ! is_null( $new_url ) ) {
