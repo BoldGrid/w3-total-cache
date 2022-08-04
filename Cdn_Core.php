@@ -564,6 +564,7 @@ class Cdn_Core {
 					'bucket_location' => $c->get_string( 'cdn.s3.bucket.location' ),
 					'cname' => $c->get_array( 'cdn.s3.cname' ),
 					'ssl' => $c->get_string( 'cdn.s3.ssl' ),
+					'public_objects' => $c->get_string( 'cdn.s3.public_objects' ),
 					'compression' => $compression
 				);
 				break;
