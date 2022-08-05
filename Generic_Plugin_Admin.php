@@ -439,6 +439,36 @@ class Generic_Plugin_Admin {
 				'w3tc_nonce',
 				array( wp_create_nonce( 'w3tc' ) )
 			);
+
+			wp_localize_script(
+				'w3tc-options',
+				'w3tcData',
+				array(
+					'cdnEnabled'       => $this->_config->get_boolean( 'cdn.enabled' ),
+					'cdnEngine'        => $this->_config->get_string( 'cdn.engine' ),
+					'cdnFlushManually' => $this->_config->get_boolean( 'cdn.flush_manually' ),
+					'cfWarning'        => wp_kses(
+						sprintf(
+							// translators: 1: HTML break, 2: HTML anchor open tag, 3: HTML anchor close tag, 4: HTML anchor open tag.
+							__(
+								'Please see %2$sAmazon\'s CloudFront documentation -- Paying for file invalidation%3$s:%1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%1$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%3$s.',
+								'w3-total-cache'
+							),
+							'<br />',
+							'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">',
+							'</a>',
+							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">'
+						),
+						array(
+							'a'  => array(
+								'target' => array(),
+								'href'   => array(),
+							),
+							'br' => array(),
+						)
+					),
+				)
+			);
 		}
 
 		switch ( $this->_page ) {

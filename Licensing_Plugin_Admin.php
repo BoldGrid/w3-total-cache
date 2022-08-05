@@ -204,7 +204,8 @@ class Licensing_Plugin_Admin {
 							'page'                         => 'w3tc_general',
 							'w3tc_licensing_reset_rooturi' => 'y',
 						)
-					) . '"></a>'
+					) . '">',
+					'</a>'
 				),
 				array(
 					'a' => array(

@@ -575,7 +575,7 @@ if ( ! defined( 'W3TC' ) ) {
 					</td>
 				</tr>
 			<?php endif; ?>
-			<?php if ( 'file_generic' === $this->_config->get_string( 'pgcache.engine' ) ) : ?>
+			<?php if ( 'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ) : ?>
 				<tr>
 					<th><label for="pgcache_lifetime"><?php Util_Ui::e_config_label( 'pgcache.lifetime' ); ?></label></th>
 					<td>
