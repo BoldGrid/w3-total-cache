@@ -183,7 +183,7 @@ class Generic_Plugin_Admin {
 			do_action( 'w3tc_ajax' );
 			do_action( 'w3tc_ajax_' . Util_Request::get_string( 'w3tc_action' ) );
 		} catch ( \Exception $e ) {
-			echo $e->getMessage();
+			echo esc_html( $e->getMessage() );
 		}
 
 		exit();
@@ -292,18 +292,19 @@ class Generic_Plugin_Admin {
 			})(window,document,'script','https://api.w3-edge.com/v1/analytics','w3tc_ga');
 
 			if (window.w3tc_ga) {
-				w3tc_ga('create', '<?php echo $profile ?>', 'auto');
+				w3tc_ga('create', '<?php echo esc_html( $profile ); ?>', 'auto');
 				w3tc_ga('set', {
 					'dimension1': 'w3-total-cache',
-					'dimension2': '<?php echo W3TC_VERSION ?>',
-					'dimension3': '<?php global $wp_version; echo $wp_version; ?>',
-					'dimension4': 'php<?php echo phpversion() ?>',
+					'dimension2': '<?php echo esc_html( W3TC_VERSION ); ?>',
+					'dimension3': '<?php global $wp_version; echo esc_html( $wp_version ); ?>',
+					'dimension4': 'php<?php echo esc_html( phpversion() ); ?>',
 					'dimension5': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
-					'dimension6': 'mysql<?php global $wpdb; echo $wpdb->db_version() ?>',
-					'dimension7': '<?php echo Util_Environment::home_url_host() ?>',
-					'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ) ?>',
-					'dimension10': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ) ?>',
-					'dimension11': '<?php echo esc_attr( Util_Widget::list_widgets() ) ?>',
+					'dimension6': 'mysql<?php global $wpdb; echo esc_attr( $wpdb->db_version() ); ?>',
+					'dimension7': '<?php echo esc_url( Util_Environment::home_url_host() ); ?>',
+					'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
+					'dimension10': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
+					'dimension11': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
+
 					'page': '<?php echo esc_attr( $page ); ?>'
 				});
 
@@ -417,6 +418,36 @@ class Generic_Plugin_Admin {
 				'w3tc-options',
 				'w3tc_nonce',
 				array( wp_create_nonce( 'w3tc' ) )
+			);
+
+			wp_localize_script(
+				'w3tc-options',
+				'w3tcData',
+				array(
+					'cdnEnabled'       => $this->_config->get_boolean( 'cdn.enabled' ),
+					'cdnEngine'        => $this->_config->get_string( 'cdn.engine' ),
+					'cdnFlushManually' => $this->_config->get_boolean( 'cdn.flush_manually' ),
+					'cfWarning'        => wp_kses(
+						sprintf(
+							// translators: 1: HTML break, 2: HTML anchor open tag, 3: HTML anchor close tag, 4: HTML anchor open tag.
+							__(
+								'Please see %2$sAmazon\'s CloudFront documentation -- Paying for file invalidation%3$s:%1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%1$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%3$s.',
+								'w3-total-cache'
+							),
+							'<br />',
+							'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">',
+							'</a>',
+							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">'
+						),
+						array(
+							'a'  => array(
+								'target' => array(),
+								'href'   => array(),
+							),
+							'br' => array(),
+						)
+					),
+				)
 			);
 		}
 
@@ -592,7 +623,7 @@ class Generic_Plugin_Admin {
 
 		$changelog = (array) preg_split( '~[\r\n]+~', trim( $matches[1] ) );
 
-		echo '<div style="color: #f00;">' . __( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
+		echo '<div style="color: #f00;">' . esc_html__( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
 		$ul = false;
 
 		foreach ( $changelog as $index => $line ) {
@@ -602,7 +633,7 @@ class Generic_Plugin_Admin {
 					$ul = true;
 				}
 				$line = preg_replace( '~^\s*\*\s*~', '', htmlspecialchars( $line ) );
-				echo '<li style="width: 50%; margin: 0; float: left; ' . ( $index % 2 == 0 ? 'clear: left;' : '' ) . '">' . $line . '</li>';
+				echo '<li style="width: 50%; margin: 0; float: left; ' . ( $index % 2 == 0 ? 'clear: left;' : '' ) . '">' . esc_html( $line ) . '</li>';
 			} else {
 				if ( $ul ) {
 					echo '</ul><div style="clear: left;"></div>';
@@ -783,27 +814,47 @@ class Generic_Plugin_Admin {
 			}
 
 			foreach ( $r['later_errors'] as $e ) {
-				$errors['generic_env_' . $n] = $e;
+				$errors[ 'generic_env_' . $n ] = $e;
 				$n++;
 			}
 		}
 
 		$errors = apply_filters( 'w3tc_errors', $errors );
-		$notes = apply_filters( 'w3tc_notes', $notes );
+		$notes  = apply_filters( 'w3tc_notes', $notes );
 
 		/**
-		 * Show messages
+		 * Show messages.
 		 */
 		foreach ( $notes as $key => $note ) {
-			echo sprintf(
-				'<div class="updated w3tc_note" id="%s"><p>%s</p></div>',
-				$key,
-				$note );
+			echo wp_kses(
+				sprintf(
+					'<div class="updated w3tc_note" id="%1$s"><p>%2$s</p></div>',
+					esc_attr( $key ),
+					$note
+				),
+				array(
+					'div'   => array(
+						'class' => array(),
+						'id'    => array(),
+					),
+					'input' => array(
+						'class'   => array(),
+						'name'    => array(),
+						'onclick' => array(),
+						'type'    => array(),
+						'value'   => array(),
+					),
+					'p'     => array(),
+				)
+			);
 		}
 
 		foreach ( $errors as $key => $error ) {
-			echo sprintf( '<div class="error w3tc_error" id="%s"><p>%s</p></div>',
-				$key, $error );
+				printf(
+					'<div class="error w3tc_error" id="%1$s"><p>%2$s</p></div>',
+					esc_attr( $key ),
+					$error // phpcs:ignore
+				);
 		}
 	}
 }

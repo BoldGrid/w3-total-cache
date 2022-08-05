@@ -385,11 +385,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 		try {
 			try {
 				$listed_files = $this->_service->files->listFiles(
-					array(
-						'q' =>
-						'(' . join( $titles_filter, ' or ' ) . ') ' .
-						'and trashed = false'
-					)
+					array( 'q' => '(' . join( ' or ', $titles_filter ) . ') and trashed = false' )
 				);
 			} catch ( \W3TCG_Google_Auth_Exception $e ) {
 				if ( $allow_refresh_token )

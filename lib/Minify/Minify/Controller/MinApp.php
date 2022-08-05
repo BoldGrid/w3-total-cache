@@ -75,8 +75,6 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                         continue;
                     }
                     if (0 === strpos($file, '//')) {
-                        //$file = $_SERVER['DOCUMENT_ROOT'] . substr($file, 1);
-
                         // W3TC FIX.
                         $file = $docroot . substr($file, 1);
                     }
@@ -108,8 +106,8 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
         }
 
         if (! $cOptions['groupsOnly'] && isset($_GET['f_array'])) {
-            $files = sanitize_text_field( wp_unslash( $_GET['f_array'] ) );
-            $ext = isset( $_GET['ext'] ) ? sanitize_text_field( wp_unslash( $_GET['ext'] ) ) : '';
+            $files = $_GET['f_array'];
+            $ext   = isset( $_GET['ext'] ) ? sanitize_text_field( wp_unslash( $_GET['ext'] ) ) : '';
 
             if (!empty($_GET['b'])) {
 				$b = sanitize_text_field( wp_unslash( $_GET['b'] ) );
@@ -128,8 +126,6 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
             }
             $allowDirs = array();
             foreach ((array)$cOptions['allowDirs'] as $allowDir) {
-                //$allowDirs[] = \W3TC\Util_Environment::realpath(str_replace('//', $_SERVER['DOCUMENT_ROOT'] . '/', $allowDir));
-
                 // W3TC FIX.
                 $allowDirs[] = \W3TC\Util_Environment::realpath(str_replace('//', $docroot . '/', $allowDir));
             }
@@ -141,8 +137,6 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                 }
 
                 $uri = $base . $file;
-
-                //$path = $_SERVER['DOCUMENT_ROOT'] . $uri;
 
                 // W3TC FIX.
                 $path = $docroot . $uri;

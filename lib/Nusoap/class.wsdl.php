@@ -940,7 +940,7 @@ class wsdl extends nusoap_base {
 						        }
 						    }
 						    if (!isset($typePrefix)) {
-						        die("$partType has no namespace!");
+						        die( esc_html( $partType ) . 'has no namespace!' );
 						    }
 						}
 						$ns = $this->getNamespaceFromPrefix($typePrefix);

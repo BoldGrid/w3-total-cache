@@ -85,8 +85,9 @@ class Minify_Cache_W3TCDerived {
     public function display($id)
     {
         $v = $this->fetch($id);
-        if (isset($v['content']))
-            echo $v['content'];
+		if ( isset( $v['content'] ) ) {
+			echo $v['content'];
+		}
     }
 
     private $loaded_id = null;

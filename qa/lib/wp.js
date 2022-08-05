@@ -35,31 +35,53 @@ exports.login = async function(pPage, data) {
 
 
 exports.getCurrentTheme = async function(pPage) {
+	let theme = null;
+
 	await pPage.goto(env.adminUrl + 'themes.php', {waitUntil: 'domcontentloaded'});
 
-	if (env.wpVersion.match(/^3\.(.+)/)) {
-		let description = await pPage.$eval('#current-theme .hide-if-customize',
-			(e) => e.src);
-		let m = description.match(/themes\/(.+)\/screenshot\.png$/);
-		return m[1];
-	} else if (env.wpVersion.match(/^5\.9(.*)/)) { // WP 5.9*
-		let theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
-		return theme;
-	} else {   // env.wpVersion.match(/^4\.*/)
-		let description = await pPage.$eval('.theme.active .theme-actions a',
-			(e) => e.getAttribute('href'));
-		let m = description.match(/theme=([^&]+)/);
-		return m[1];
+	if (env.wpVersion.match(/^3\.(.+)/)) { // WP 3.*.
+		let src = await pPage.$eval('#current-theme .hide-if-customize', (e) => e.src);
+		let m   = src.match(/themes\/(.+)\/screenshot\.png$/);
+		theme   = m[1];
+	} else if (env.wpVersion.match(/^4\.(.+)/)) { // WP 4.*.
+		let href = await pPage.$eval('.theme.active .theme-actions a', (e) => e.getAttribute('href'));
+		let m    = href.match(/theme=([^&]+)/);
+		theme    = m[1];
+	} else { // WP 5 nad up.
+		theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
+
+		log.log(`Active theme (from data-slug): ${theme}`);
+
+		// If the data attribute is null, then failover to the screenshot image src.
+		if (!theme) {
+			log.log('Could not find active theme data-slug.');
+
+			let src = await pPage.$eval('.theme.active .theme-screenshot img', (e) => e.src);
+
+			log.log(`Active theme screenshot img src: ${src}`);
+
+			let m = src.match(/themes\/(.+)\/screenshot\.png/);
+
+			log.log(`Active theme screenshot img src match: ${m}`);
+
+			if (!Array.isArray(m) || !m[1]) {
+				throw new Error('Could not determine theme folder.');
+			}
+
+			theme = m[1];
+		}
 	}
-}
+
+	return theme;
+};
 
 
 
 function postCreateApiUrl(type) {
 	if (type == 'post') {
-		return env.homeUrl + '/wp-json/wp/v2/posts';
+		return env.homeUrl.replace(/\/$/, '') + '/wp-json/wp/v2/posts';
 	} else if (type == 'page') {
-		return env.homeUrl + '/wp-json/wp/v2/pages';
+		return env.homeUrl.replace(/\/$/, '') + '/wp-json/wp/v2/pages';
 	}
 
 	throw new Error('unknown type ' + type);
@@ -128,6 +150,7 @@ exports.postCreate = async function(pPage, data) {
 	let result2 = JSON.parse(resultString2);
 	expect(result2.id > 0).true;
 	expect(result2.link).not.empty;
+	log.log('page created: ' + result2.link);
 
 	return {
 		id: result2.id,
@@ -198,6 +221,17 @@ exports.addWpConfigConstant = async function(pPage, name, value) {
 	}
 
 	log.error('constant is not defined');
+}
+
+
+
+exports.addQaBootstrap = async function(pPage, themeFunctionsFilename, filenameToLoad) {
+	log.log('add qa bootstrap code to ' + themeFunctionsFilename);
+    let content = await fs.readFileAsync(themeFunctionsFilename, 'utf8');
+	await fs.writeFileAsync(themeFunctionsFilename,
+		content + "\n\n" +
+		"require( __DIR__ . '" + filenameToLoad + "' );",
+		'utf8');
 }
 
 

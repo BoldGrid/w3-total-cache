@@ -46,25 +46,25 @@ class Command
 
 		if (!is_null($help)) {
 			$this->showHelp();
-			die(self::SUCCESS_EXIT);
+			die( esc_html( self::SUCCESS_EXIT ) );
 		}
 
 		if (is_null($input)) {
 			fwrite(STDERR, '-i <file> argument is missing' . PHP_EOL);
 			$this->showHelp();
-			die(self::FAILURE_EXIT);
+			die( esc_html( self::FAILURE_EXIT ) );
 		}
 
 		if (!is_readable($input)) {
 			fwrite(STDERR, 'Input file is not readable' . PHP_EOL);
-			die(self::FAILURE_EXIT);
+			die( esc_html( self::FAILURE_EXIT ) );
 		}
 
 		$css = file_get_contents($input);
 
 		if ($css === false) {
 			fwrite(STDERR, 'Input CSS code could not be retrieved from input file' . PHP_EOL);
-			die(self::FAILURE_EXIT);
+			die( esc_html( self::FAILURE_EXIT ) );
 		}
 
 		$this->setStat('original-size', strlen($css));
@@ -105,28 +105,28 @@ class Command
 
 		if (!is_null($dryrun)) {
 			$this->showStats();
-			die(self::SUCCESS_EXIT);
+			die( esc_html( self::SUCCESS_EXIT ) );
 		}
 
 		if (is_null($output)) {
 			fwrite(STDOUT, $css . PHP_EOL);
 			$this->showStats();
-			die(self::SUCCESS_EXIT);
+			die( esc_html( self::SUCCESS_EXIT ) );
 		}
 
 		if (!is_writable(dirname($output))) {
 			fwrite(STDERR, 'Output file is not writable' . PHP_EOL);
-			die(self::FAILURE_EXIT);
+			die( esc_html( self::FAILURE_EXIT ) );
 		}
 
 		if (file_put_contents($output, $css) === false) {
 			fwrite(STDERR, 'Compressed CSS code could not be saved to output file' . PHP_EOL);
-			die(self::FAILURE_EXIT);
+			die( esc_html( self::FAILURE_EXIT ) );
 		}
 
 		$this->showStats();
 
-		die(self::SUCCESS_EXIT);
+		die( esc_html( self::SUCCESS_EXIT ) );
 	}
 
 	protected function getOpt($opts, $options)
@@ -184,7 +184,8 @@ class Command
 		);
 		$peakMemoryUsage = $this->formatBytes($this->stats['peak-memory-usage']);
 
-		print <<<EOT
+		print esc_html(
+			<<<EOT
 
 ------------------------------
 CSSMIN STATS
@@ -195,7 +196,8 @@ Compression time:    $compressionTime
 Peak memory usage:   $peakMemoryUsage
 
 
-EOT;
+EOT
+		);
 	}
 
 	protected function showHelp()

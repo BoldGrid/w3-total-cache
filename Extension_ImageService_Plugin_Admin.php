@@ -111,10 +111,6 @@ class Extension_ImageService_Plugin_Admin {
 			'disabled_message' => '',
 			'requirements'     => '',
 			'path'             => 'w3-total-cache/Extension_ImageService_Plugin.php',
-			'extra_links'      => array(
-				'<a class="edit" href="' . $settings_url . '">' . esc_html__( 'Settings', 'w3-total-cache' ) . '</a>',
-				'<a class="edit" href="' . $library_url . '">' . esc_html__( 'Media Library', 'w3-total-cache' ) . '</a>',
-			),
 			'notice'           => sprintf(
 				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag, 3: HTML anchor open tag, 4: HTML anchor open tag.
 				__(
@@ -129,6 +125,14 @@ class Extension_ImageService_Plugin_Admin {
 				) . '">'
 			),
 		);
+
+		// The settings and Media Library links are only valid for single and network sites; not the admin section.
+		if ( ! is_network_admin() ) {
+			$extensions['imageservice']['extra_links'] = array(
+				'<a class="edit" href="' . $settings_url . '">' . esc_html__( 'Settings', 'w3-total-cache' ) . '</a>',
+				'<a class="edit" href="' . $library_url . '">' . esc_html__( 'Media Library', 'w3-total-cache' ) . '</a>',
+			);
+		}
 
 		return $extensions;
 	}
@@ -1266,7 +1270,7 @@ class Extension_ImageService_Plugin_Admin {
 		check_ajax_referer( 'w3tc_imageservice_revert' );
 
 		$post_id_val = Util_Request::get_integer( 'post_id' );
-		$post_id     = ! emtpy( $post_id_val ) ? $post_id_val : null;
+		$post_id     = ! empty( $post_id_val ) ? $post_id_val : null;
 
 		if ( $post_id ) {
 			$result = $this->remove_optimizations( $post_id );

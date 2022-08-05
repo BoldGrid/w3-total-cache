@@ -252,7 +252,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 				return;
 			}
 
-			echo $v . "\n";
+			echo esc_html( $v ) . "\n";
 		} elseif ( $op == 'set' ) {
 			$type =( isset( $vars['type'] ) ? $vars['type'] : 'string' );
 

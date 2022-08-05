@@ -55,11 +55,11 @@ class Extensions_Plugin_Admin {
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 
 			$action_val = Util_Request::get_string( 'action' );
-			if ( ! empty( Util_Request::get_string( 'extension' ) ) && ! emtpy( $action_val ) ) {
+			if ( ! empty( Util_Request::get_string( 'extension' ) ) && ! empty( $action_val ) ) {
 				if ( in_array( $action_val, array( 'activate', 'deactivate' ), true ) ) {
 					add_action( 'init', array( $this, 'change_extension_status' ) );
 				}
-			} elseif ( ! empty( Util_Request::get_string( 'checked' ) ) ) {
+			} elseif ( ! empty( Util_Request::get_array( 'checked' ) ) ) {
 				add_action( 'admin_init', array( $this, 'change_extensions_status' ) );
 			}
 		}
@@ -233,7 +233,20 @@ class Extensions_Plugin_Admin {
 			if ( isset( $info['notice'] ) && get_transient( $transient_name ) ) {
 				?>
 				<div class="notice notice-warning is-dismissible">
-					<p><?php echo $info['notice']; //phpcs:ignore ?></p>
+					<p>
+				<?php
+				echo wp_kses(
+					$info['notice'],
+					array(
+						'a' => array(
+							'class'  => array(),
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
+				);
+				?>
+						</p>
 				</div>
 				<?php
 			}

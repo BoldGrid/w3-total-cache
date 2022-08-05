@@ -1503,9 +1503,7 @@ class PageSpeed_Api {
 
 		try {
 			$response = $this->client->execute( $request );
-			Util_Debug::debug('PageSpeed_Api _execute response',$response);
 		} catch ( \Exception $e ) {
-			Util_Debug::debug('PageSpeed_Api _execute e',$e);
 			return array(
 				'error' => array(
 					'code'    => 500,
@@ -1582,6 +1580,7 @@ class PageSpeed_Api {
 		if ( empty( $initial_refresh_token ) ) {
 			$initial_refresh_token_json = $this->get_refresh_token( Util_Http::generate_site_id(), $this->config->get_string( 'widget.pagespeed.w3key' ) );
 			$initial_refresh_token      = json_decode( $initial_refresh_token_json );
+
 			if ( ! empty( $initial_refresh_token->error ) ) {
 				return wp_json_encode(
 					array(
@@ -1632,7 +1631,7 @@ class PageSpeed_Api {
 					)
 				)
 			);
-	
+
 			try {
 				$response = $this->client->execute( $request );
 			} catch ( \Exception $e ) {
@@ -1811,7 +1810,7 @@ class PageSpeed_Api {
 		}
 
 		$request = new \W3TCG_Google_Http_Request( W3TC_API_GPS_GET_TOKEN_URL . '/' . $site_id . '/' . $w3key );
-        
+
 		try {
 			$response = $this->client->execute( $request );
 		} catch ( \Exception $e ) {
@@ -1824,7 +1823,7 @@ class PageSpeed_Api {
 				)
 			);
 		}
-       
+
 		if ( is_wp_error( $response ) ) {
 			return wp_json_encode(
 				array(
@@ -1843,7 +1842,7 @@ class PageSpeed_Api {
 				)
 			);
 		}
-
-		return wp_json_encode( array( 'refresh_token' => $response['body'] ) );
+		
+		return wp_json_encode( $response );
 	}
 }

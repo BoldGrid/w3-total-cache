@@ -33,36 +33,45 @@ class Generic_AdminActions_Test {
 	}
 
 	/**
-	 * Test memcached
-	 *
-	 * @return void
+	 * Test memcached.
 	 */
-	function w3tc_test_redis() {
-		$servers = Util_Request::get_array( 'servers' );
-		$password   = Util_Request::get_string('password', '');
-		$dbid       = Util_Request::get_integer( 'dbid', 0 );
+	public function w3tc_test_redis() {
+		$servers                 = Util_Request::get_array( 'servers' );
+		$verify_tls_certificates = Util_Request::get_boolean('verify_tls_certificates', true );
+		$password                = Util_Request::get_string('password', '');
+		$dbid                    = Util_Request::get_integer( 'dbid', 0 );
 
-		if ( count( $servers ) <= 0 )
+		if ( count( $servers ) <= 0 ) {
 			$success = false;
-		else {
+		} else {
 			$success = true;
 
 			foreach ( $servers as $server ) {
-				@$cache = Cache::instance( 'redis', array(
-						'servers' => $server,
-						'persistent' => false,
-						'password' => $password,
-						'dbid' => $dbid
-					) );
-				if ( is_null( $cache ) )
+				@$cache = Cache::instance( // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					'redis',
+					array(
+						'servers'                 => $server,
+						'verify_tls_certificates' => $verify_tls_certificates,
+						'persistent'              => false,
+						'password'                => $password,
+						'dbid'                    => $dbid,
+					)
+				);
+
+				if ( is_null( $cache ) ) {
 					$success = false;
+				}
 
 				$test_string = sprintf( 'test_' . md5( time() ) );
-				$test_value = array( 'content' => $test_string );
+				$test_value  = array( 'content' => $test_string );
+
 				$cache->set( $test_string, $test_value, 60 );
+
 				$test_value = $cache->get( $test_string );
-				if ( $test_value['content'] != $test_string )
+
+				if ( isset( $test_value['content'] ) && $test_value['content'] !== $test_string ) {
 					$success = false;
+				}
 			}
 		}
 
@@ -82,7 +91,7 @@ class Generic_AdminActions_Test {
 			);
 		}
 
-		echo json_encode( $response );
+		echo wp_json_encode( $response );
 		exit();
 	}
 

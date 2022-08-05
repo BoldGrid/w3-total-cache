@@ -96,6 +96,9 @@ class Cdn_Plugin {
 		if ( !is_admin() || $this->_config->get_boolean( 'cdn.admin.media_library' ) ) {
 			add_filter( 'wp_prepare_attachment_for_js',
 				array( $this, 'wp_prepare_attachment_for_js' ), 0 );
+
+			add_filter( 'wp_get_attachment_image_src',
+				array( $this, 'wp_get_attachment_image_src' ), 0 );
 		}
 
 		/**
@@ -435,7 +438,6 @@ class Cdn_Plugin {
 			} else {
 				foreach ( $urls as $url ) {
 					$file = Util_Environment::normalize_file_minify( $url );
-					$file = Util_Environment::translate_file( $file );
 
 					if ( !Util_Environment::is_url( $file ) ) {
 						$file = $document_root . '/' . $file;
@@ -742,6 +744,33 @@ class Cdn_Plugin {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Adjusts attachment image src to cdn. This is for those who rely on
+	 * wp_get_attachment_image_src()
+	 *
+	 * @param 	array   $image	Image object
+	 * @return 	array
+	 */
+	function wp_get_attachment_image_src( $image ) {
+		$url = empty( $image[0] ) ? null : trim( $image[0] );
+		
+		if ( ! empty( $url ) ) {
+			$parsed          = parse_url( $url );
+			$uri             = ( isset( $parsed['path'] ) ? $parsed['path'] : '/' ) . ( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
+			$wp_upload_dir   = wp_upload_dir();
+			$upload_base_url = $wp_upload_dir['baseurl'];
+			if ( substr( $url, 0, strlen( $upload_base_url ) ) === $upload_base_url ) {
+				$common  = Dispatcher::component( 'Cdn_Core' );
+				$new_url = $common->url_to_cdn_url( $url, $uri );
+				if ( ! is_null( $new_url ) ) {
+					$image[0] = $new_url;
+				}
+			}
+		}
+
+		return $image;
 	}
 
 	/**

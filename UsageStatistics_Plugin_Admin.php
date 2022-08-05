@@ -114,7 +114,7 @@ class UsageStatistics_Plugin_Admin {
 
 		$handle       = false;
 		$filename_val = Util_Request::get_string( 'filename' );
-		$filepath     = ! emtpy( $filename_val ) ? str_replace( '://', '/', $filename_val ) : null;
+		$filepath     = ! empty( $filename_val ) ? str_replace( '://', '/', $filename_val ) : null;
 
 		if ( $filepath ) {
 			$handle   = @fopen( $filepath, 'rb' ); // phpcs:ignore WordPress

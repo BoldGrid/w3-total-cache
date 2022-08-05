@@ -305,18 +305,22 @@ function updateUTimes(filename) {
 exports.pageCacheFileGenericChangeFileTimestamp = async function(url, extension) {
 	log.log("Changing timestamp for the old cache file of " + url);
 	let filename = exports.pageCacheFileGenericUrlToFilename(url, extension);
+	let filenameSlash = exports.pageCacheFileGenericUrlToFilename(url, extension, '_slash');
+	let tryouts = [
+		filename,
+		filename + '_old',
+		filename + '_gzip_old',
+		filenameSlash,
+		filenameSlash + '_old',
+		filenameSlash + '_gzip_old'
+	];
+
 	let someUpdated = false;
-	if (fs.existsSync(filename)) {
-		updateUTimes(filename);
-		someUpdated = true;
-	}
-	if (fs.existsSync(filename + '_old')) {
-		updateUTimes(filename + '_old');
-		someUpdated = true;
-	}
-	if (fs.existsSync(filename + '_gzip_old')) {
-		updateUTimes(filename + '_gzip_old');
-		someUpdated = true;
+	for (let f of tryouts) {
+		if (fs.existsSync(f)) {
+			updateUTimes(f);
+			someUpdated = true;
+		}
 	}
 
 	if (!someUpdated) {
@@ -327,7 +331,7 @@ exports.pageCacheFileGenericChangeFileTimestamp = async function(url, extension)
 
 
 
-exports.pageCacheFileGenericUrlToFilename = function(url, extension) {
+exports.pageCacheFileGenericUrlToFilename = function(url, extension, postfix = '') {
 	if (!extension) {
 		extension = 'html';
 	}
@@ -337,7 +341,9 @@ exports.pageCacheFileGenericUrlToFilename = function(url, extension) {
 	if (uri[uri.length - 1] != '/')
 	uri += '/';
 
-	let cf = (env.scheme == 'https' ? '_index_ssl.' : '_index.') + extension;
+	let cf = '_index' + postfix +
+		(env.scheme == 'https' ? '_ssl' : '') +
+		'.' + extension;
 
 	return env.wpContentPath + 'cache/page_enhanced/' +
 		m[1].toString().toLowerCase() + uri + cf;

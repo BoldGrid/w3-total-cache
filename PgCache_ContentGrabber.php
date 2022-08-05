@@ -126,7 +126,7 @@ class PgCache_ContentGrabber {
 		);
 
 		$this->_request_uri = isset( $_SERVER['REQUEST_URI'] ) ?
-			filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : ''; // phpcs:ignore
+			filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL ) : ''; // phpcs:ignore
 		$this->_lifetime = $this->_config->get_integer( 'pgcache.lifetime' );
 		$this->_late_init = $this->_config->get_boolean( 'pgcache.late_init' );
 		$this->_late_caching = $this->_config->get_boolean( 'pgcache.late_caching' );
@@ -395,7 +395,7 @@ class PgCache_ContentGrabber {
 			$content = $this->_compress( $content, $compression );
 		}
 
-		echo $content;
+		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		Dispatcher::usage_statistics_apply_before_init_and_exit( array( $this,
 				'w3tc_usage_statistics_of_request' ) );
@@ -495,11 +495,13 @@ class PgCache_ContentGrabber {
 	public function shutdown() {
 		$compression = $this->_page_key_extension['compression'];
 
-		// Parse dynamic content
+		// Parse dynamic content.
 		$buffer = $this->_parse_dynamic( $this->_shutdown_buffer );
 
-		// Compress page according to headers already set
-		echo $this->_compress( $buffer, $compression );
+		// Compress page according to headers already set.
+		$compressed_buffer = $this->_compress( $buffer, $compression );
+
+		echo $compressed_buffer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -537,7 +539,7 @@ class PgCache_ContentGrabber {
 		 * Skip if posting
 		 */
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ?
-			filter_var( stripslashes( $_SERVER['REQUEST_METHOD'] ), FILTER_SANITIZE_STRING ) : ''; // phpcs:ignore
+			htmlspecialchars( stripslashes( $_SERVER['REQUEST_METHOD'] ) ) : ''; // phpcs:ignore
 
 		if ( in_array( strtoupper( $request_method ), array( 'DELETE', 'PUT', 'OPTIONS', 'TRACE', 'CONNECT', 'POST' ), true ) ) {
 			$this->cache_reject_reason = sprintf( 'Requested method is %s', $request_method );
@@ -546,10 +548,10 @@ class PgCache_ContentGrabber {
 		}
 
 		/**
-		 * Skip if HEAD request
+		 * Skip if HEAD request.
 		 */
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) &&
-			strtoupper( filter_var( stripslashes( $_SERVER['REQUEST_METHOD'] ), FILTER_SANITIZE_STRING ) ) === 'HEAD' && // phpcs:ignore
+			strtoupper( $_SERVER['REQUEST_METHOD'] ) === 'HEAD' && // phpcs:ignore
 			( $this->_enhanced_mode || $this->_config->get_boolean( 'pgcache.reject.request_head' ) ) ) {
 			$this->cache_reject_reason = 'Requested method is HEAD';
 
@@ -816,6 +818,7 @@ class PgCache_ContentGrabber {
 		case 'redis':
 			$engineConfig = array(
 				'servers' => $this->_config->get_array( 'pgcache.redis.servers' ),
+				'verify_tls_certificates' => $this->_config->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
 				'persistent' => $this->_config->get_boolean( 'pgcache.redis.persistent' ),
 				'timeout' => $this->_config->get_integer( 'pgcache.redis.timeout' ),
 				'retry_interval' => $this->_config->get_integer( 'pgcache.redis.retry_interval' ),
@@ -868,6 +871,7 @@ class PgCache_ContentGrabber {
 			case 'redis':
 				$engineConfig = array(
 					'servers' => $this->_config->get_array( 'pgcache.redis.servers' ),
+					'verify_tls_certificates' => $this->_config->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
 					'persistent' => $this->_config->get_boolean( 'pgcache.redis.persistent' ),
 					'timeout' => $this->_config->get_integer( 'pgcache.redis.timeout' ),
 					'retry_interval' => $this->_config->get_integer( 'pgcache.redis.retry_interval' ),
@@ -1075,7 +1079,7 @@ class PgCache_ContentGrabber {
 		foreach ( $uas as $ua ) {
 			if ( !empty( $ua ) ) {
 				if ( isset( $_SERVER['HTTP_USER_AGENT'] ) &&
-					stristr( filter_var( stripslashes( $_SERVER['HTTP_USER_AGENT'] ), FILTER_SANITIZE_STRING ), $ua ) !== false ) // phpcs:ignore
+					stristr( htmlspecialchars( stripslashes( $_SERVER['HTTP_USER_AGENT'] ) ), $ua ) !== false ) // phpcs:ignore
 					return false;
 			}
 		}
@@ -1307,7 +1311,7 @@ class PgCache_ContentGrabber {
 			foreach ( $compressions as $compression ) {
 				if ( is_string( $compression ) &&
 					isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) &&
-					stristr( filter_var( stripslashes( $_SERVER['HTTP_ACCEPT_ENCODING'] ), FILTER_SANITIZE_STRING ), $compression ) !== false ) { // phpcs:ignore
+					stristr( htmlspecialchars( stripslashes( $_SERVER['HTTP_ACCEPT_ENCODING'] ) ), $compression ) !== false ) { // phpcs:ignore
 					return $compression;
 				}
 			}
@@ -1388,7 +1392,7 @@ class PgCache_ContentGrabber {
 	 */
 	function _is_buggy_ie() {
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$ua = filter_var( stripslashes( $_SERVER['HTTP_USER_AGENT'] ), FILTER_SANITIZE_STRING ); // phpcs:ignore
+			$ua = htmlspecialchars( stripslashes( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore
 
 			if ( strpos( $ua, 'Mozilla/4.0 (compatible; MSIE ' ) === 0 && strpos( $ua, 'Opera' ) === false ) {
 				$version = (float) substr( $ua, 30 );
@@ -1540,6 +1544,8 @@ class PgCache_ContentGrabber {
 
 		if ( empty( $page_key_extension['group'] ) ) {
 			if ( $this->_enhanced_mode || $this->_nginx_memcached ) {
+				$extra = '';
+
 				// URL decode
 				$key = urldecode( $key );
 
@@ -1553,13 +1559,16 @@ class PgCache_ContentGrabber {
 				$key = preg_replace( '~\?.*$~', '', $key );
 
 				// make sure one slash is at the end
+				if (substr($key, strlen($key) - 1, 1) == '/') {
+					$extra = '_slash';
+				}
 				$key = trim( $key, '/' ) . '/';
 
 				if ( $this->_nginx_memcached ) {
 					return $key;
 				}
 
-				return $key . '_index';
+				return $key . '_index' . $extra;
 			}
 		}
 
@@ -1810,7 +1819,7 @@ class PgCache_ContentGrabber {
 	 */
 	function _check_modified_since( $time ) {
 		if ( !empty( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
-			$if_modified_since = filter_var( stripslashes( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ), FILTER_SANITIZE_STRING ); // phpcs:ignore
+			$if_modified_since = htmlspecialchars( stripslashes( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ); // phpcs:ignore
 
 			// IE has tacked on extra data to this header, strip it
 			if ( ( $semicolon = strrpos( $if_modified_since, ';' ) ) !== false ) {
@@ -1831,7 +1840,7 @@ class PgCache_ContentGrabber {
 	 */
 	function _check_match( $etag ) {
 		if ( !empty( $_SERVER['HTTP_IF_NONE_MATCH'] ) ) {
-			$if_none_match = filter_var( stripslashes( $_SERVER['HTTP_IF_NONE_MATCH'] ), FILTER_SANITIZE_STRING ); // phpcs:ignore
+			$if_none_match = htmlspecialchars( stripslashes( $_SERVER['HTTP_IF_NONE_MATCH'] ) ); // phpcs:ignore
 			$client_etags  = explode( ',', $if_none_match );
 
 			foreach ( $client_etags as $client_etag ) {
@@ -2221,8 +2230,8 @@ class PgCache_ContentGrabber {
 	static protected function log( $msg ) {
 		$data = sprintf(
 			"[%s] [%s] [%s] %s\n", date( 'r' ),
-			isset( $_SERVER['REQUEST_URI'] ) ? filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URI ) : '',
-			! empty( $_SERVER['HTTP_REFERER'] ) ? filter_var( stripslashes( $_SERVER['HTTP_REFERER'] ), FILTER_SANITIZE_STRING ) : '-',
+			isset( $_SERVER['REQUEST_URI'] ) ? filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '',
+			! empty( $_SERVER['HTTP_REFERER'] ) ? htmlspecialchars( $_SERVER['HTTP_REFERER'] ) : '-',
 			$msg
 		);
 		$data = strtr( $data, '<>', '..' );
