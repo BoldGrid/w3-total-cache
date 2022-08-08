@@ -38,15 +38,22 @@ esac
 
 # for-tests.sandbox
 envsubst </share/scripts/init-image/templates/lightspeed-vhost-for-tests-sandbox.conf >/usr/local/lsws/conf/vhosts/for-tests-sandbox.conf
+chown lsadm:nogroup /usr/local/lsws/conf/vhosts/for-tests-sandbox.conf
 
 # system.sandbox
 #envsubst </share/scripts/init-image/templates/lightspeed-vhost-system-sandbox.conf >/usr/local/lsws/conf/vhosts/system-sandbox.conf
 
 # wp.sandbox vhost
 envsubst </share/scripts/init-image/templates/lightspeed-vhost-wp-sandbox.conf >/usr/local/lsws/conf/vhosts/wp-sandbox.conf
+chown lsadm:nogroup /usr/local/lsws/conf/vhosts/wp-sandbox.conf
 
 touch /var/www/wp.sandbox_error.log
 chown www-data:www-data /var/www/wp.sandbox_error.log
+
+# make backup of server config since it will be editable by plugin tests
+cp /usr/local/lsws/conf/vhosts/wp-sandbox.conf /usr/local/lsws/conf/vhosts/wp-sandbox-backup.conf
+chown lsadm:nogroup /usr/local/lsws/conf/vhosts/wp-sandbox-backup.conf
+chmod 777 /usr/local/lsws/conf/vhosts/wp-sandbox-backup.conf
 
 rm -rf /tmp/lshttpd
 killall lsphp

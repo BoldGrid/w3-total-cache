@@ -59,13 +59,11 @@ def generate_image_descriptors
 		'apache' => {
 			'HTTP_SERVER' => 'apache',
 			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/apache2/wp.sandbox_error.log'
+		},
+		'lightspeed' => {
+			'HTTP_SERVER' => 'lightspeed',
+			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
 		}
-		# still in development
-		#,
-		#'lightspeed' => {
-		#	'HTTP_SERVER' => 'lightspeed',
-		#	'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
-		#}
 	})
 
 	# multiply by php
