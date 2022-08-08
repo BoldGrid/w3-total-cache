@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 3.8
 Tested up to: 6.0
-Stable tag: 2.2.3
+Stable tag: 2.2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,23 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.2.4 =
+* Fix: Extensions URL in settings
+* Fix: Redis undefined array key warnings
+* Fix: Redis connect issue based on phpredis version
+* Fix: Sanitization of licensing messages
+* Fix: DB cache error in Ajax
+* Fix: Call to undefined function in DB cache query class
+* Fix: PHP 8 compatibility: join
+* Fix: WooCommerce Variation Image Gallery plugin CDN filter
+* Enhancement: Add setting for AWS S3 public objects in ACL
+* Enhancement: Check if post is empty before cache flush
+* Enhancement: Add max lifetime setting for non-disk page cache
+* Enhancement: Add notice when selecting CDN using CloudFront
+* Update: CSS Tidy 1.7.3 => 2.0.1
+* Update: Add sns-message-validator
+* Security: Ensure cache writes in cache folders
 
 = 2.2.3 =
 * Fix: Redis Cache: Removed exception on warnings
