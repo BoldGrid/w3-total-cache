@@ -46,6 +46,23 @@ class Util_Rule {
 	}
 
 	/**
+	 * Returns litespeed rules path
+	 *
+	 * @return string
+	 */
+	static public function get_litespeed_rules_path() {
+		$config = Dispatcher::config();
+
+		$path = $config->get_string( 'config.path' );
+
+		if ( !$path ) {
+			$path = Util_Environment::site_path() . 'litespeed.conf';
+		}
+
+		return $path;
+	}
+
+	/**
 	 * Returns path of pagecache core rules file
 	 *
 	 * @return string
@@ -69,6 +86,10 @@ class Util_Rule {
 	 * @return string
 	 */
 	static public function get_browsercache_rules_cache_path() {
+		if ( Util_Environment::is_litespeed() ) {
+			return Util_Rule::get_litespeed_rules_path();
+		}
+
 		return Util_Rule::get_pgcache_rules_core_path();
 	}
 

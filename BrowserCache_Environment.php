@@ -182,8 +182,12 @@ class BrowserCache_Environment {
 	public function rules_cache_generate( $config, $cdnftp = false ) {
 		switch ( true ) {
 		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
 			return $this->rules_cache_generate_apache( $config );
+
+		case Util_Environment::is_litespeed():
+			$generator_litespeed = new BrowserCache_Environment_LiteSpeed( $config );
+			$mime_types = $this->get_mime_types();
+			return $generator_litespeed->generate( $mime_types, $cdnftp );
 
 		case Util_Environment::is_nginx():
 			$generator_nginx = new BrowserCache_Environment_Nginx( $config );
