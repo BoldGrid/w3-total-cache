@@ -82,10 +82,10 @@ class PageSpeed_Plugin_Widget {
 	 * @return void
 	 */
 	public function widget_pagespeed() {
-		$config = Dispatcher::config();
-		$key    = $config->get_string( 'widget.pagespeed.key' );
+		$config       = Dispatcher::config();
+		$access_token = $config->get_string( 'widget.pagespeed.access_token' );
 
-		if ( empty( $key ) ) {
+		if ( empty( $access_token ) ) {
 			include W3TC_DIR . '/PageSpeed_Widget_View_NotConfigured.php';
 		} else {
 			include W3TC_DIR . '/PageSpeed_Widget_View.php';

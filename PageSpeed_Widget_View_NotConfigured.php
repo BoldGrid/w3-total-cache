@@ -12,7 +12,7 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <p>
-	<?php esc_html_e( 'Google Page Speed score is not available.', 'w3-total-cache' ); ?>
+	<?php esc_html_e( 'Google Page Speed API is not available.', 'w3-total-cache' ); ?>
 </p>
 <p>
 	<?php
@@ -20,10 +20,10 @@ if ( ! defined( 'W3TC' ) ) {
 		sprintf(
 			// translators: 1 opening HTML a tag, 2 closing HTML a tag.
 			__(
-				'Please follow the directions found in the Miscellanous settings box on the %1$sGeneral Settings%2$s tab.',
+				'Please follow the directions found in the Google Page Speed settings box on the %1$sGeneral Settings%2$s tab.',
 				'w3-total-cache'
 			),
-			'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
+			'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '">',
 			'</a>'
 		),
 		array(
