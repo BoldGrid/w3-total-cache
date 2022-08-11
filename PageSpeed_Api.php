@@ -1494,23 +1494,40 @@ class PageSpeed_Api {
 			}
 		}
 
+		$access_token = json_decode( $this->client->getAccessToken() );
+
 		$request = new \W3TCG_Google_Http_Request(
 			Util_Environment::url_format(
 				W3TC_PAGESPEED_API_URL,
-				$query
+				array_merge(
+					$query,
+					array(
+						'quotaUser'    => Util_Http::generate_site_id(),
+						'access_token' => $access_token->access_token,
+					)
+				)
 			)
 		);
 
-		try {
-			$response = $this->client->execute( $request );
-		} catch ( \Exception $e ) {
-			return array(
-				'error' => array(
-					'code'    => 500,
-					'message' => $e->getMessage(),
-				),
-			);
-		}
+		// Attempt the request up to 4 times with an increasing delay between each attempt
+		$attempts = 0;
+		while ( ++$attempts ) {
+			try {
+				$response = $this->client->execute( $request );
+				break;
+			} catch ( \Exception $e ) {
+				if ( $attempts <= 4 ) {
+					sleep( $attempts * 2 );
+				} else {
+					return array(
+						'error' => array(
+							'code'    => 500,
+							'message' => $e->getMessage(),
+						),
+					);
+				}
+			}
+		};
 
 		return $response;
 	}
@@ -1576,11 +1593,9 @@ class PageSpeed_Api {
 	 */
 	public function refresh_token() {
 		$initial_refresh_token = $this->client->getRefreshToken();
-
 		if ( empty( $initial_refresh_token ) ) {
 			$initial_refresh_token_json = $this->get_refresh_token( Util_Http::generate_site_id(), $this->config->get_string( 'widget.pagespeed.w3key' ) );
 			$initial_refresh_token      = json_decode( $initial_refresh_token_json );
-
 			if ( ! empty( $initial_refresh_token->error ) ) {
 				return wp_json_encode(
 					array(
@@ -1614,7 +1629,7 @@ class PageSpeed_Api {
 				)
 			);
 		}
-
+		
 		$new_access_token = json_decode( $this->client->getAccessToken() );
 
 		if ( ! empty( $new_access_token->refresh_token ) && $new_access_token->refresh_token !== $initial_refresh_token->refresh_token ) {

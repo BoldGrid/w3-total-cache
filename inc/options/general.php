@@ -754,12 +754,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'description' => __( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
 					'label_class' => 'w3tc_single_column'
 				) );
-			Util_Ui::config_item( array(
-					'key' => 'widget.pagespeed.show_in_admin_bar',
-					'control' => 'checkbox',
-					'checkbox_label' => __( 'Show page rating in admin bar', 'w3-total-cache' ),
-					'label_class' => 'w3tc_single_column'
-				) );
 			?>
 		</table>
 

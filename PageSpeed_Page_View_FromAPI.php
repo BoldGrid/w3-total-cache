@@ -619,7 +619,7 @@ if ( Util_Request::get( 'cache' ) !== 'no' ) {
 	$cached_api_response = get_transient( 'w3tc_pagespeed_data_' . $encoded_url );
 	$cached_api_response = @json_decode( $cached_api_response, true );
 	if ( is_array( $cached_api_response ) && isset( $cached_api_response['time'] ) && $cached_api_response['time'] >= time() - 3600 ) {
-		//$api_response = $cached_api_response;
+		$api_response = $cached_api_response;
 	}
 }
 
@@ -643,51 +643,53 @@ if ( is_null( $api_response ) ) {
 	$w3_pagespeed->refresh_token_check();
 
 	$api_response = $w3_pagespeed->analyze( $url );
-
-	if ( ! $api_response ) {
-		$api_response_error = sprintf(
-			// translators: 1 Request URL value.
-			__(
-				'API request failed<br/><br/>
-					Analyze URL: %1$s',
-				'w3-total-cache'
-			),
-			$url
-		);
-	} elseif ( ! empty( $api_response['error'] ) ) {
-		$api_response_error = sprintf(
-			// translators: 1 Request URL value, 2 Request response code, 3 Error message.
-			__(
-				'API request error!<br/><br/>
-					Analyze URL: %1$s<br/><br/>
-					Response Code: %2$s<br/>
-					Response Message: %3$s<br/>',
-				'w3-total-cache'
-			),
-			$url,
-			! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A',
-			! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A'
-		);
-	} elseif ( ! empty( $api_response['mobile']['error'] ) || ! empty( $api_response['desktop']['error'] ) ) {
-		$api_response_error = sprintf(
-			// translators: 1 Request URL value, 2 Request response code, 3 Error message.
-			__(
-				'API request error!<br/><br/>
-					Analyze URL: %1$s<br/><br/>
-					Mobile response Code: %2$s<br/>Mobile response Message: %3$s<br/><br/>
-					Desktop response Code: %4$s<br/>Desktop response Message: %5$s',
-				'w3-total-cache'
-			),
-			$url,
-			! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A',
-			! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A',
-			! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A',
-			! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A'
-		);
-	}
-
 	$api_response['time'] = time();
+}
 
+if ( ! $api_response ) {
+	$api_response_error = sprintf(
+		// translators: 1 Request URL value.
+		__(
+			'API request failed<br/><br/>
+				Analyze URL: %1$s',
+			'w3-total-cache'
+		),
+		$url
+	);
+	delete_transient( 'w3tc_pagespeed_data_' . $encoded_url );
+} elseif ( ! empty( $api_response['error'] ) ) {
+	$api_response_error = sprintf(
+		// translators: 1 Request URL value, 2 Request response code, 3 Error message.
+		__(
+			'API request error!<br/><br/>
+				Analyze URL: %1$s<br/><br/>
+				Response Code: %2$s<br/>
+				Response Message: %3$s<br/>',
+			'w3-total-cache'
+		),
+		$url,
+		! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A',
+		! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A'
+	);
+	delete_transient( 'w3tc_pagespeed_data_' . $encoded_url );
+} elseif ( ! empty( $api_response['mobile']['error'] ) || ! empty( $api_response['desktop']['error'] ) ) {
+	$api_response_error = sprintf(
+		// translators: 1 Request URL value, 2 Request response code, 3 Error message.
+		__(
+			'API request error!<br/><br/>
+				Analyze URL: %1$s<br/><br/>
+				Mobile response Code: %2$s<br/>Mobile response Message: %3$s<br/><br/>
+				Desktop response Code: %4$s<br/>Desktop response Message: %5$s',
+			'w3-total-cache'
+		),
+		$url,
+		! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A',
+		! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A',
+		! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A',
+		! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A'
+	);
+	delete_transient( 'w3tc_pagespeed_data_' . $encoded_url );
+} else {
 	set_transient( 'w3tc_pagespeed_data_' . $encoded_url, wp_json_encode( $api_response ), 3600 );
 }
 

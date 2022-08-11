@@ -1,7 +1,3 @@
-.w3tcps_error {
-    position: absolute;
-}
-
 .w3tcps_scores {
 	display: flex;
 	align-items: center;
@@ -26,6 +22,7 @@
 	display: inline-flex;
     font-size: 14px;
 	margin-bottom: 2px;
+	min-width: 90px;
 }
 
 .w3tcps_barline div {
@@ -56,7 +53,7 @@
 }
 
 .w3tcps_buttons .button {
-	margin: 5px;
+	margin: 5px !important;
 }
 
 .material-icons {
@@ -70,27 +67,28 @@
 }
 
 .w3tcps_metric {
-    width: 100%;
     box-sizing: border-box;
-    border: 1px solid #ddd;
-    background: #fff;
+    margin: 4px 2px;
 }
 
 .w3tcps_metric_title {
-    font-size: 1.3em;
-    border-bottom: 2px solid #000;
-    background: #2d4149;
-    color: #fff !important;
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 .w3tcps_metric_title,
 .w3tcps_metric_stats {
-    padding: 15px;
+    padding: 8px 12px;
     margin: 0;
+	text-align: left;
 }
 
 .w3tcps_metric .material-icons {
+	margin: 0;
+    display: inline-flex;
+    vertical-align: middle;
     margin: 0 0 0 10px;
+	max-width: 25px;
 }
 
 .w3tcps_loading {
@@ -149,6 +147,16 @@
 .w3tcps_pass::before {
     border-radius: 100%;
     background: #0c6;
+}
+
+#w3tcps_legend {
+	text-align: center;
+}
+
+.w3tcps_gauge_desktop,
+.w3tcps_gauge_mobile {
+	display: inline-block;
+	width: 49%;
 }
 
 .gauge {

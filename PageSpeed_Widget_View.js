@@ -1,7 +1,25 @@
 jQuery(document).ready(function($) {
+	function w3tcps_mobile_toggle() {
+		$('#w3tcps_control_desktop').removeClass('nav-tab-active');
+        $('#w3tcps_desktop').hide();
+		$('#w3tcps_control_mobile').addClass('nav-tab-active');
+		$('#w3tcps_mobile').show();
+    }
+	
+	$(document).on('click', '#w3tcps_control_mobile', w3tcps_mobile_toggle);
+
+    function w3tcps_desktop_toggle() {
+		$('#w3tcps_control_mobile').removeClass('nav-tab-active')
+		$('#w3tcps_mobile').hide();
+		$('#w3tcps_control_desktop').addClass('nav-tab-active');
+		$('#w3tcps_desktop').show();
+    }
+
+    $(document).on('click', '#w3tcps_control_desktop', w3tcps_desktop_toggle);
+
 	function w3tcps_load(nocache) {
 		$('.w3tcps_loading').removeClass('w3tc_none');
-		$('.w3tcps_content').addClass('w3tc_none');
+		$('.w3tc-gps-widget').addClass('w3tc_none');
 		$('.w3tcps_error').addClass('w3tc_none');
 
 		$.getJSON(ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
@@ -10,18 +28,19 @@ jQuery(document).ready(function($) {
 				$('.w3tcps_loading').addClass('w3tc_none');
 
 				if (data.error) {
+					$('.w3tcps_error .notice-error').html('Error : '+data.error);
 					$('.w3tcps_error').removeClass('w3tc_none');
 					return;
 				}
 
-				jQuery('.w3tcps_content').html(data['.w3tcps_content']);
-				$('.w3tcps_content').removeClass('w3tc_none').fadeIn('slow');
-				console.log(7);
+				jQuery('.w3tc-gps-widget').html(data['.w3tc-gps-widget']);
+				$('.w3tc-gps-widget').removeClass('w3tc_none').fadeIn('slow');
 				$('#normal-sortables').masonry();
 			}
-		).fail(function() {
+		).fail(function(jqXHR, textStatus, errorThrown) {
+			$('.w3tcps_error .notice-error').html('Error : '+jqXHR.responseText);
 			$('.w3tcps_error').removeClass('w3tc_none');
-			$('.w3tcps_content').addClass('w3tc_none');
+			$('.w3tc-gps-widget').addClass('w3tc_none');
 			$('.w3tcps_loading').addClass('w3tc_none');
 		});
 	}
@@ -29,8 +48,6 @@ jQuery(document).ready(function($) {
 	jQuery('.w3tcps_buttons').on('click', '.w3tcps_refresh', function() {
 		w3tcps_load(true);
 	});
-
-
 
 	w3tcps_load();
 });

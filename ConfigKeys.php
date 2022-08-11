@@ -2428,10 +2428,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
-	'widget.pagespeed.show_in_admin_bar' => array(
-		'type' => 'boolean',
-		'default' => false
-	),
 	'timelimit.email_send' => array(
 		'type' => 'integer',
 		'default' => 180
