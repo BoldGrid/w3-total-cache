@@ -1496,15 +1496,13 @@ class PageSpeed_Api {
 
 		$access_token = json_decode( $this->client->getAccessToken() );
 
-		$request = new \W3TCG_Google_Http_Request(
-			Util_Environment::url_format(
-				W3TC_PAGESPEED_API_URL,
-				array_merge(
-					$query,
-					array(
-						'quotaUser'    => Util_Http::generate_site_id(),
-						'access_token' => $access_token->access_token,
-					)
+		$request = Util_Environment::url_format(
+			W3TC_PAGESPEED_API_URL,
+			array_merge(
+				$query,
+				array(
+					'quotaUser'    => Util_Http::generate_site_id(),
+					'access_token' => $access_token->access_token,
 				)
 			)
 		);
@@ -1513,7 +1511,12 @@ class PageSpeed_Api {
 		$attempts = 0;
 		while ( ++$attempts ) {
 			try {
-				$response = $this->client->execute( $request );
+				$response = wp_remote_get(
+					$request,
+					array(
+						'timeout' => 60,
+					)
+				);
 				break;
 			} catch ( \Exception $e ) {
 				if ( $attempts <= 4 ) {
@@ -1529,7 +1532,26 @@ class PageSpeed_Api {
 			}
 		};
 
-		return $response;
+		if ( is_wp_error( $response ) ) {
+			return wp_json_encode(
+				array(
+					'error' => array(
+						'message' => $response->get_error_message(),
+					),
+				)
+			);
+		} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
+			return wp_json_encode(
+				array(
+					'error' => array(
+						'code'    => $response['response']['code'],
+						'message' => $response['response']['message'],
+					),
+				)
+			);
+		}
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 
 	/**
@@ -1636,19 +1658,22 @@ class PageSpeed_Api {
 			$new_refresh_token = $new_access_token->refresh_token;
 			unset( $new_access_token->refresh_token );
 
-			$request = new \W3TCG_Google_Http_Request(
-				Util_Environment::url_format(
-					W3TC_API_GPS_UPDATE_TOKEN_URL,
-					array(
-						'site_id'       => Util_Http::generate_site_id(),
-						'w3key'         => $this->config->get_string( 'widget.pagespeed.w3key' ),
-						'refresh_token' => $new_refresh_token,
-					)
+			$request = Util_Environment::url_format(
+				W3TC_API_GPS_UPDATE_TOKEN_URL,
+				array(
+					'site_id'       => Util_Http::generate_site_id(),
+					'w3key'         => $this->config->get_string( 'widget.pagespeed.w3key' ),
+					'refresh_token' => $new_refresh_token,
 				)
 			);
 
 			try {
-				$response = $this->client->execute( $request );
+				$response = wp_remote_get(
+					$request,
+					array(
+						'timeout' => 60,
+					)
+				);
 			} catch ( \Exception $e ) {
 				return wp_json_encode(
 					array(
@@ -1742,20 +1767,23 @@ class PageSpeed_Api {
 		}
 
 		$access_token = ( ! empty( $access_token_json ) ? json_decode( $access_token_json ) : '' );
-		
-		$request = new \W3TCG_Google_Http_Request(
-			Util_Environment::url_format(
-				W3TC_API_GPS_UPDATE_TOKEN_URL,
-				array(
-					'site_id'       => Util_Http::generate_site_id(),
-					'w3key'         => $w3key,
-					'refresh_token' => $access_token->refresh_token,
-				)
+
+		$request = Util_Environment::url_format(
+			W3TC_API_GPS_UPDATE_TOKEN_URL,
+			array(
+				'site_id'       => Util_Http::generate_site_id(),
+				'w3key'         => $w3key,
+				'refresh_token' => $access_token->refresh_token,
 			)
 		);
 		
 		try {
-			$response = $this->client->execute( $request );
+			$response = wp_remote_get(
+				$request,
+				array(
+					'timeout' => 60,
+				)
+			);
 		} catch ( \Exception $e ) {
 			return wp_json_encode(
 				array(
@@ -1824,10 +1852,14 @@ class PageSpeed_Api {
 			);
 		}
 
-		$request = new \W3TCG_Google_Http_Request( W3TC_API_GPS_GET_TOKEN_URL . '/' . $site_id . '/' . $w3key );
-
+		$request = W3TC_API_GPS_GET_TOKEN_URL . '/' . $site_id . '/' . $w3key;
 		try {
-			$response = $this->client->execute( $request );
+			$response = wp_remote_get(
+				$request,
+				array(
+					'timeout' => 60,
+				)
+			);
 		} catch ( \Exception $e ) {
 			return wp_json_encode(
 			    array(
@@ -1858,6 +1890,6 @@ class PageSpeed_Api {
 			);
 		}
 		
-		return wp_json_encode( $response );
+		return wp_remote_retrieve_body( $response );
 	}
 }

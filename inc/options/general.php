@@ -715,22 +715,22 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<table class="form-table">
 			<?php
 			$access_token_json = ( ! empty( $w3_pagespeed->client->getAccessToken() ) ? $w3_pagespeed->client->getAccessToken() : '' );
-
 			if ( ! $w3_pagespeed->client->isAccessTokenExpired() && ! empty( $access_token_json ) ) {
 				?>
 				<tr>
-					<th><label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label></th>
-					<td>
-						<input id="widget_pagespeed_access_token" type="text" name="widget__pagespeed__access_token" value="<?php echo esc_attr( $access_token_json ); ?>" size="60" readonly/><span style="color:#090;padding: 0 10px;"><strong>Valid</strong></span>
-					</td>
+					<th>
+						<label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?> <?php esc_html_e( 'Valid', 'w3-total-cache' ); ?></label>
+					</th>
 				</tr>
 				<?php
 			} elseif ( $w3_pagespeed->client->isAccessTokenExpired() && ! empty( $access_token_json ) ) {
 				?>
 				<tr>
-					<th><label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label></th>
+					<th>
+						<label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?> <?php esc_html_e( 'Expired', 'w3-total-cache' ); ?></label>
+					</th>
 					<td>
-						<input id="widget_pagespeed_access_token" type="text" name="widget__pagespeed__access_token" value="<?php echo esc_attr( $access_token_json ); ?>" size="60" readonly/><span style="color:#f00;padding: 0 10px;"><strong>Expired!</strong></span><a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo W3TC_API_GPS_AUTHORIZE_URL . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ). '/' . rawurlencode( $w3key ); ?>"><?php esc_html_e( 'Re-Authorize' ); ?></a>
+						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo W3TC_API_GPS_AUTHORIZE_URL . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ). '/' . rawurlencode( $w3key ); ?>"><?php esc_html_e( 'Re-Authorize' ); ?></a>
 						<p><?php esc_html_e( 'Click the "Re-Authorize" button to re-authorize W3TC to perform requests to the PageSpeed Insights API on your behalf via a temporary Google Access Token. This token will be set to automatically refresh once expired so authorization should only be required once.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>
@@ -738,9 +738,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			} else {
 				?>
 				<tr>
-					<th><label for="widget_pagespeed_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label></th>
+					<th>
+						<label for="widget_pagespeed_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label>
+					</th>
 					<td>
-						<input id="widget_pagespeed_access_token" type="text" name="widget__pagespeed__access_token" value="<?php echo esc_attr( $access_token_json ); ?>" size="60" readonly/><a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo W3TC_API_GPS_AUTHORIZE_URL . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ); ?>"><?php esc_html_e( 'Authorize' ); ?></a>
+						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo W3TC_API_GPS_AUTHORIZE_URL . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ); ?>"><?php esc_html_e( 'Authorize' ); ?></a>
 						<p><?php esc_html_e( 'Click the "Authorize" button to authorize W3TC to perform requests to the PageSpeed Insights API on your behalf via a refreshed temporary Google Access Token. This token will be set to automatically refresh once expired so authorization should only be required once.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>

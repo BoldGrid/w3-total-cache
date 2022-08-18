@@ -16,6 +16,10 @@
 	vertical-align: middle;
 }
 
+#w3tcps_content {
+	max-width: 1234px;
+}
+
 .w3tcps_content .nav-tab-wrapper {
 	margin-top: 25px;
 }
@@ -100,10 +104,10 @@
 
 .w3tcps_metric {
 	min-width: 255px;
-    width: 32.3333%;
+    width: calc(33.333% - .5em);
     box-sizing: border-box;
     display: inline-block;
-    margin: 4px 2px;
+    margin: 4px 0;
     border: 1px solid #c3c4c7;
 	box-shadow: 0 1px 1px rgba(0,0,0,0.04);
     background: #fff;
@@ -129,6 +133,27 @@
     margin: 0 0 0 10px;
 }
 
+.w3tcps_item_desciption {
+	background-color: hsla(210, 17%, 77%, 0.1);
+	padding: 15px !important;
+	margin: 0 !important;
+}
+
+.w3tcps_item_breakdown_table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.w3tcps_item_breakdown_table .w3tcps_item_breakdown_instruction_column {
+	background-color: hsla(210, 17%, 77%, 0.1);
+}
+
+.w3tcps_item_breakdown_table .w3tcps_item_breakdown_items_column,
+.w3tcps_item_breakdown_table .w3tcps_item_breakdown_instruction_column {
+	width: 50%;
+	vertical-align: top;
+}
+
 .w3tcps_item_table {
     width: 100%;
 }
@@ -148,9 +173,7 @@
 }
 
 .w3tcps_instruction {
-	border: 2px solid #0e1920;
 	padding: 0;
-	background: #ffffff;
 }
 
 .w3tc_instruction_copy {
@@ -170,6 +193,12 @@
     margin: 20px auto;
 }
 
+#gps-audit-results .inside #w3tcps_audit_filters_desktop,
+#gps-audit-results .inside #w3tcps_audit_filters_mobile,
+#gps-audit-results .inside .w3tcps_audit_results {
+	width: calc(100% - .5em);
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -178,18 +207,12 @@
 .chevron_up {
     background: url(data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgZGF0YS1wcmVmaXg9ImZhcyIgZGF0YS1pY29uPSJjaGV2cm9uLXVwIiBjbGFzcz0ic3ZnLWlubGluZS0tZmEgZmEtY2hldnJvbi11cCBmYS13LTE0IiByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDQ0OCA1MTIiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTI0MC45NzEgMTMwLjUyNGwxOTQuMzQzIDE5NC4zNDNjOS4zNzMgOS4zNzMgOS4zNzMgMjQuNTY5IDAgMzMuOTQxbC0yMi42NjcgMjIuNjY3Yy05LjM1NyA5LjM1Ny0yNC41MjIgOS4zNzUtMzMuOTAxLjA0TDIyNCAyMjcuNDk1IDY5LjI1NSAzODEuNTE2Yy05LjM3OSA5LjMzNS0yNC41NDQgOS4zMTctMzMuOTAxLS4wNGwtMjIuNjY3LTIyLjY2N2MtOS4zNzMtOS4zNzMtOS4zNzMtMjQuNTY5IDAtMzMuOTQxTDIwNy4wMyAxMzAuNTI1YzkuMzcyLTkuMzczIDI0LjU2OC05LjM3MyAzMy45NDEtLjAwMXoiPjwvcGF0aD48L3N2Zz4=) center no-repeat;
     background-size: 17px;
-    background-position-x: right 15px;
+    background-position: right 15px center;
 }
 .chevron_down {
     background: url(data:image/svg+xml;base64,PHN2ZyBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgZGF0YS1wcmVmaXg9ImZhcyIgZGF0YS1pY29uPSJjaGV2cm9uLWRvd24iIGNsYXNzPSJzdmctaW5saW5lLS1mYSBmYS1jaGV2cm9uLWRvd24gZmEtdy0xNCIgcm9sZT0iaW1nIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48cGF0aCBmaWxsPSJjdXJyZW50Q29sb3IiIGQ9Ik0yMDcuMDI5IDM4MS40NzZMMTIuNjg2IDE4Ny4xMzJjLTkuMzczLTkuMzczLTkuMzczLTI0LjU2OSAwLTMzLjk0MWwyMi42NjctMjIuNjY3YzkuMzU3LTkuMzU3IDI0LjUyMi05LjM3NSAzMy45MDEtLjA0TDIyNCAyODQuNTA1bDE1NC43NDUtMTU0LjAyMWM5LjM3OS05LjMzNSAyNC41NDQtOS4zMTcgMzMuOTAxLjA0bDIyLjY2NyAyMi42NjdjOS4zNzMgOS4zNzMgOS4zNzMgMjQuNTY5IDAgMzMuOTQxTDI0MC45NzEgMzgxLjQ3NmMtOS4zNzMgOS4zNzItMjQuNTY5IDkuMzcyLTMzLjk0MiAweiI+PC9wYXRoPjwvc3ZnPg==) center no-repeat;
     background-size: 17px;
-    background-position-x: right 15px;
-}
-
-.w3tcps_legend,
-.w3tcps_content {
-    padding: 35px 15px;
-    text-align: center;
+    background-position: right 15px center;
 }
 
 /*
@@ -228,10 +251,6 @@
     display: none;
 }
 
-#gps-audit-results .inside {
-	padding: 15px 25px !important;
-}
-
 .w3tcps_breakdown_items_toggle {
     cursor: pointer;
 }
@@ -255,8 +274,7 @@
 
 .w3tcps_screenshots_final_mobile,
 .w3tcps_screenshots_final_desktop {
-    width: 23%;
-    float: left;
+    width: calc(25% - .5em);
 }
 
 .w3tcps_screenshots_final_mobile img,
@@ -267,8 +285,7 @@
 
 .w3tcps_screenshots_other_mobile,
 .w3tcps_screenshots_other_desktop {
-    width: 73%;
-    float: left;
+    width: calc(75% - .5em);
 }
 
 .w3tcps_audit_results {
@@ -290,7 +307,9 @@
 	border: 1px solid #c3c4c7;
 	box-shadow: 0 1px 1px rgba(0,0,0,0.04);
     background: #fff;
-    margin: 25px 1%;
+    margin: 25px 0;
+	display: inline-block;
+	vertical-align: top;
 }
 
 .opportunities,

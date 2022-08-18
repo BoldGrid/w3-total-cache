@@ -266,27 +266,58 @@ function w3tcps_breakdown( $data ) {
 				$headers .= '<th>Cache Hit Probability</th>';
 				$items   .= '<td>' . $item['cacheHitProbability'] . '</td>';
 			}
+			if ( ! empty( $item['value'] ) && ! empty( $item['statistic'] ) ) {
+				$headers .= '<th>Statistic</th>';
+				$items   .= '<td>' . $item['statistic'] . '</td>';
+				
+				$headers .= '<th>Element</th>';
+				$items .= '<td>';
+				if ( ! empty( $item['node'] ) ) {
+					$items .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
+					$items .= '<p>' . $item['node']['selector'] . '</p>'; 
+				}
+				$items .= '</td>';
+
+				$headers .= '<th>Value</th>';
+				$items   .= '<td>' . $item['value'] . '</td>';
+			} else if ( ! empty( $item['node'] ) ) {
+				$headers .= '<th>Element</th>';
+				$items .= '<td>';
+				$items .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
+				$items .= '<p>' . $item['node']['selector'] . '</p>'; 
+				$items .= '</td>';
+			}
 			$items .= '</tr>';
 		}
+
+		$items = ( ! empty( $items ) ? $items : '<p class="w3tcps-no-items">No identified items were provided by Google PageSpeed Insights API for this metric</p>' );
 
 		if ( $opportunity['score'] >= 90 ) {
 			$passed_audits .= '
 				<div class="audits w3tcps_passed_audit' . $audit_classes . ' ' . $notice . '">
 					<span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '</span>
 					<div class="w3tcps_breakdown_items w3tcps_pass_audit_items">
-						<p>' . $opportunity['description'] . '</p>
-						<table class="w3tcps_item_table">
-							<tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '
+						<p class="w3tcps_item_desciption">' . $opportunity['description'] . '</p>
+						<table class="w3tcps_item_breakdown_table">
+							<tr>
+								<td class="w3tcps_item_breakdown_items_column">
+									<table class="w3tcps_item_table">
+										<tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '
+									</table>
+								</td>
+								<td class="w3tcps_item_breakdown_instruction_column">
+									<div class="w3tcps_instruction">
+										<div class="w3tc_fancy_header">
+											<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
+											<div class="w3tc_fancy_title">
+												<span>TOTAL</span> <span>CACHE</span><span>:</span> <span>Our Recommendation</span>
+											</div>
+										</div>
+										<div class="w3tc_instruction_copy">' . $opportunity['instruction'] . '</div>
+									</div>
+								</td>
+							</tr>
 						</table>
-						<div class="w3tcps_instruction">
-							<div class="w3tc_fancy_header">
-								<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
-								<div class="w3tc_fancy_title">
-									<span>TOTAL</span> <span>CACHE</span><span>:</span> <span>Our Recommendation</span>
-								</div>
-							</div>
-							<div class="w3tc_instruction_copy">' . $opportunity['instruction'] . '</div>
-						</div>
 					</div>
 				</div>';
 		} else {
@@ -294,19 +325,27 @@ function w3tcps_breakdown( $data ) {
 				<div class="audits w3tcps_opportunities' . $audit_classes . ' ' . $notice . '">
 					<span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '</span>
 					<div class="w3tcps_breakdown_items w3tcps_opportunity_items">
-						<p>' . $opportunity['description'] . '</p>
-						<table class="w3tcps_item_table">
-							<tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '
+						<p class="w3tcps_item_desciption">' . $opportunity['description'] . '</p>
+						<table class="w3tcps_item_breakdown_table">
+							<tr>
+								<td class="w3tcps_item_breakdown_items_column">
+									<table class="w3tcps_item_table">
+										<tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '
+									</table>
+								</td>
+								<td class="w3tcps_item_breakdown_instruction_column">
+									<div class="w3tcps_instruction">
+										<div class="w3tc_fancy_header">
+											<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
+											<div class="w3tc_fancy_title">
+												<span>TOTAL</span> <span>CACHE</span><span>:</span> <span>Our Recommendation</span>
+											</div>
+										</div>
+										<div class="w3tc_instruction_copy">' . $opportunity['instruction'] . '</div>
+									</div>
+								</td>
+							</tr>
 						</table>
-						<div class="w3tcps_instruction">
-							<div class="w3tc_fancy_header">
-								<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
-								<div class="w3tc_fancy_title">
-									<span>TOTAL</span> <span>CACHE</span><span>:</span> <span>Our Recommendation</span>
-								</div>
-							</div>
-							<div class="w3tc_instruction_copy">' . $opportunity['instruction'] . '</div>
-						</div>
 					</div>
 				</div>';
 		}
@@ -402,27 +441,58 @@ function w3tcps_breakdown( $data ) {
 				$headers .= '<th>Cache Hit Probability</th>';
 				$items   .= '<td>' . ( $item['cacheHitProbability'] * 100 ) . '%</td>';
 			}
+			if ( ! empty( $item['value'] ) && ! empty( $item['statistic'] ) ) {
+				$headers .= '<th>Statistic</th>';
+				$items   .= '<td>' . $item['statistic'] . '</td>';
+				
+				$headers .= '<th>Element</th>';
+				$items .= '<td>';
+				if ( ! empty( $item['node'] ) ) {
+					$items .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
+					$items .= '<p>' . $item['node']['selector'] . '</p>'; 
+				}
+				$items .= '</td>';
+
+				$headers .= '<th>Value</th>';
+				$items   .= '<td>' . $item['value'] . '</td>';
+			} else if ( ! empty( $item['node'] ) ) {
+				$headers .= '<th>Element</th>';
+				$items .= '<td>';
+				$items .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
+				$items .= '<p>' . $item['node']['selector'] . '</p>'; 
+				$items .= '</td>';
+			}
 			$items .= '</tr>';
 		}
+
+		$items = ( ! empty( $items ) ? $items : '<p class="w3tcps-no-items">No identified items were provided by Google PageSpeed Insights API for this metric</p>' );
 
 		if ( $diagnostic['score'] >= 90 ) {
 			$passed_audits .= '
 				<div class="audits w3tcps_passed_audit' . $audit_classes . ' ' . $notice . '">
 					<span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '</span>
 					<div class="w3tcps_breakdown_items w3tcps_pass_audit_items">
-						<p>' . $diagnostic['description'] . '</p>
-						<table class="w3tcps_item_table">
-							<tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '
+						<p class="w3tcps_item_desciption">' . $diagnostic['description'] . '</p>
+						<table class="w3tcps_item_breakdown_table">
+							<tr>
+								<td class="w3tcps_item_breakdown_items_column">
+									<table class="w3tcps_item_table">
+										<tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '
+									</table>
+								</td>
+								<td class="w3tcps_item_breakdown_instruction_column">
+									<div class="w3tcps_instruction">
+										<div class="w3tc_fancy_header">
+											<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
+											<div class="w3tc_fancy_title">
+												<span>TOTAL</span> <span>CACHE</span><span>:</span> <span>Our Recommendation</span>
+											</div>
+										</div>
+										<div class="w3tc_instruction_copy">' . $diagnostic['instruction'] . '</div>
+									</div>
+								</td>
+							</tr>
 						</table>
-						<div class="w3tcps_instruction">
-							<div class="w3tc_fancy_header">
-								<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
-								<div class="w3tc_fancy_title">
-									<span>TOTAL</span> <span>CACHE</span><span>:</span> <span>Our Recommendation</span>
-								</div>
-							</div>
-							<div class="w3tc_instruction_copy">' . $diagnostic['instruction'] . '</div>
-						</div>
 					</div>
 				</div>';
 		} else {
@@ -430,19 +500,27 @@ function w3tcps_breakdown( $data ) {
 				<div class="audits w3tcps_diagnostics' . $audit_classes . ' ' . $notice . '">
 					<span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '</span>
 					<div class="w3tcps_breakdown_items w3tcps_diagnostic_items">
-						<p>' . $diagnostic['description'] . '</p>
-						<table class="w3tcps_item_table">
-							<tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '
+						<p class="w3tcps_item_desciption">' . $diagnostic['description'] . '</p>
+						<table class="w3tcps_item_breakdown_table">
+							<tr>
+								<td class="w3tcps_item_breakdown_items_column">
+									<table class="w3tcps_item_table">
+										<tr class="w3tcps_passed_audit_item_header">' . $headers . '</tr>' . $items . '
+									</table>
+								</td>
+								<td class="w3tcps_item_breakdown_instruction_column">
+									<div class="w3tcps_instruction">
+										<div class="w3tc_fancy_header">
+											<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
+											<div class="w3tc_fancy_title">
+												<span>TOTAL</span> <span>CACHE</span><span>:</span> <span>Our Recommendation</span>
+											</div>
+										</div>
+										<div class="w3tc_instruction_copy">' . $diagnostic['instruction'] . '</div>
+									</div>
+								</td>
+							</tr>
 						</table>
-						<div class="w3tcps_instruction">
-							<div class="w3tc_fancy_header">
-								<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
-								<div class="w3tc_fancy_title">
-									<span>TOTAL</span> <span>CACHE</span><span>:</span> <span>Our Recommendation</span>
-								</div>
-							</div>
-							<div class="w3tc_instruction_copy">' . $diagnostic['instruction'] . '</div>
-						</div>
 					</div>
 				</div>';
 		}
@@ -510,12 +588,11 @@ function w3tcps_barline( $metric ) {
  * @param array  $data PageSpeed desktop/mobile score.
  * @param string $metric Metric key.
  * @param string $name Metric name.
- * @param string $icon Desktop/Mobile icon.
  *
  * @return void
  */
-function w3tcps_bar( $data, $metric, $name, $icon ) {
-	if ( ! isset( $data ) || empty ( $data[ $metric ] ) || empty ( $metric ) || empty ( $name ) || empty( $icon ) ) {
+function w3tcps_bar( $data, $metric, $name ) {
+	if ( ! isset( $data ) || empty ( $data[ $metric ] ) || empty ( $metric ) || empty ( $name ) ) {
 		return;
 	}
 
@@ -523,7 +600,6 @@ function w3tcps_bar( $data, $metric, $name, $icon ) {
 	<div class="w3tcps_metric">
 		<h3 class="w3tcps_metric_title"><?php echo esc_html( $name ); ?></h3>
 		<div class="w3tcps_metric_stats">
-			<i class="material-icons" aria-hidden="true"><?php echo esc_html( $icon ); ?></i> 
 			<?php w3tcps_barline( $data[ $metric ] ); ?>
 		</div>
 	</div>
@@ -700,6 +776,7 @@ if ( ! $api_response ) {
  */
 $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile' );
 
+require W3TC_INC_DIR . '/options/common/header.php';
 ?>
 <div id="w3tcps_container">
 	<div class="w3tcps_content">
@@ -777,12 +854,12 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 									</div>
 									<div class="w3tcps_metrics_<?php echo esc_attr( $analysis_type ); ?>">
 										<?php Util_Ui::postbox_header( __( 'Core Metrics', 'w3-total-cache' ), '', 'gps-core-metrics' ); ?>
-										<?php w3tcps_bar( $api_response[ $analysis_type ], 'first-contentful-paint', 'First Contentful Paint', $icon ); ?>
-										<?php w3tcps_bar( $api_response[ $analysis_type ], 'speed-index', 'Speed Index', $icon ); ?>
-										<?php w3tcps_bar( $api_response[ $analysis_type ], 'largest-contentful-paint', 'Largest Contentful Paint', $icon ); ?>
-										<?php w3tcps_bar( $api_response[ $analysis_type ], 'interactive', 'Time to Interactive', $icon ); ?>
-										<?php w3tcps_bar( $api_response[ $analysis_type ], 'total-blocking-time', 'Total Blocking Time', $icon ); ?>
-										<?php w3tcps_bar( $api_response[ $analysis_type ], 'cumulative-layout-shift', 'Cumulative Layout Shift', $icon ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'first-contentful-paint', 'First Contentful Paint' ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'speed-index', 'Speed Index' ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'interactive', 'Time to Interactive' ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'total-blocking-time', 'Total Blocking Time' ); ?>
+										<?php w3tcps_bar( $api_response[ $analysis_type ], 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
 									<div class="w3tcps_screenshots_<?php echo esc_attr( $analysis_type ); ?>">
@@ -822,3 +899,4 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 		</div>
 	</div>
 </div>
+<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>
