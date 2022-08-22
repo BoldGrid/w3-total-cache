@@ -98,16 +98,18 @@
 	margin: 5px;
 }
 
-.w3tcps_metrics_container {
-    display: inline-block;
+#w3tcps-core-metrics .inside {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 5px;
 }
 
 .w3tcps_metric {
 	min-width: 255px;
-    width: calc(33.333% - .5em);
+	flex: 1 1 33%;
     box-sizing: border-box;
-    display: inline-block;
-    margin: 4px 0;
     border: 1px solid #c3c4c7;
 	box-shadow: 0 1px 1px rgba(0,0,0,0.04);
     background: #fff;
@@ -198,9 +200,9 @@
 	margin: 0px 15px !important;
 }
 
-#gps-audit-results .inside #w3tcps_audit_filters_desktop,
-#gps-audit-results .inside #w3tcps_audit_filters_mobile,
-#gps-audit-results .inside .w3tcps_audit_results {
+#w3tcps-audit-results .inside #w3tcps_audit_filters_desktop,
+#w3tcps-audit-results .inside #w3tcps_audit_filters_mobile,
+#w3tcps-audit-results .inside .w3tcps_audit_results {
 	width: calc(100% - .5em);
 }
 
@@ -266,8 +268,6 @@
     display: inline-flex;
     vertical-align: middle;
     align-items: center;
-    font-family: 'Roboto Mono', 'Menlo', 'dejavu sans mono', 'Consolas', 'Lucida Console', monospace;
-    white-space: nowrap;
 }
 
 .w3tcps_breakdown_items {
@@ -277,9 +277,17 @@
 	background: #ffffff;
 }
 
-.w3tcps_screenshots_final_mobile,
-.w3tcps_screenshots_final_desktop {
-    width: calc(25% - .5em);
+#w3tcps-screenshots .inside {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 5px;
+}
+
+#w3tcps-screenshots .inside .w3tcps_screenshots_final_mobile,
+#w3tcps-screenshots .inside .w3tcps_screenshots_final_desktop {
+    flex: 1 1 24%;
 }
 
 .w3tcps_screenshots_final_mobile img,
@@ -288,9 +296,9 @@
     border: 1px solid #ddd;
 }
 
-.w3tcps_screenshots_other_mobile,
-.w3tcps_screenshots_other_desktop {
-    width: calc(75% - .5em);
+#w3tcps-screenshots .inside .w3tcps_screenshots_other_mobile,
+#w3tcps-screenshots .inside .w3tcps_screenshots_other_desktop {
+    flex: 1 1 74%;
 }
 
 .w3tcps_audit_results {
@@ -315,6 +323,7 @@
     margin: 25px 0;
 	display: inline-block;
 	vertical-align: top;
+	min-width: 250px
 }
 
 .opportunities,
@@ -345,7 +354,7 @@
 .opportunities .w3tcps_range,
 .diagnostics .w3tcps_range,
 .passed_audits .w3tcps_range {
-    padding: 15px;
+    padding: 15px 45px 15px 15px;
     width: 100%;
     box-sizing: border-box;
     margin: 0;
@@ -380,6 +389,9 @@
 .w3tcps_blank::before {
     border: calc(0.2 * 14px) solid #bdbdbd;
     border-radius: 100%;
+	width: 12px;
+    height: 12px;
+	min-width: 12px;
 }
 
 .w3tcps_fail::before {
@@ -394,11 +406,13 @@
     background: #fa3;
     width: calc(14px * 0.88);
     height: calc(14px * 0.88);
+	min-width: 12px;
 }
 
 .w3tcps_pass::before {
     border-radius: 100%;
     background: #0c6;
+	min-width: 14px;
 }
 
 .gauge {

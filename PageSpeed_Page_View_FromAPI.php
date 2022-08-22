@@ -729,7 +729,7 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 								?>
 								<div id="w3tcps_<?php echo esc_attr( $analysis_type ); ?>" class="tab-content w3tcps_content">
 									<div id="w3tcps_legend_<?php echo esc_attr( $analysis_type ); ?>">
-										<?php Util_Ui::postbox_header( __( 'Legend', 'w3-total-cache' ), '', 'gps-legend' ); ?>
+										<?php Util_Ui::postbox_header( __( 'Legend', 'w3-total-cache' ), '', 'w3tcps-legend' ); ?>
 										<div class="w3tcps_gauge_<?php echo esc_attr( $analysis_type ); ?>">
 											<?php w3tcps_gauge( $api_response[ $analysis_type ], $icon ); ?>
 										</div>
@@ -768,7 +768,7 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
 									<div class="w3tcps_metrics_<?php echo esc_attr( $analysis_type ); ?>">
-										<?php Util_Ui::postbox_header( __( 'Core Metrics', 'w3-total-cache' ), '', 'gps-core-metrics' ); ?>
+										<?php Util_Ui::postbox_header( __( 'Core Metrics', 'w3-total-cache' ), '', 'w3tcps-core-metrics' ); ?>
 										<?php w3tcps_bar( $api_response[ $analysis_type ], 'first-contentful-paint', 'First Contentful Paint' ); ?>
 										<?php w3tcps_bar( $api_response[ $analysis_type ], 'speed-index', 'Speed Index' ); ?>
 										<?php w3tcps_bar( $api_response[ $analysis_type ], 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
@@ -778,7 +778,7 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
 									<div class="w3tcps_screenshots_<?php echo esc_attr( $analysis_type ); ?>">
-										<?php Util_Ui::postbox_header( __( 'Screenshots', 'w3-total-cache' ), '', 'gps-screenshots' ); ?>
+										<?php Util_Ui::postbox_header( __( 'Screenshots', 'w3-total-cache' ), '', 'w3tcps-screenshots' ); ?>
 										<div class="w3tcps_screenshots_other_<?php echo esc_attr( $analysis_type ); ?>">
 											<h3 class="w3tcps_metric_title"><?php esc_html_e( 'Pageload Thumbnails', 'w3-total-cache' ); ?></h3>
 											<div class="w3tcps_other_screenshot_container"><?php w3tcps_screenshots( $api_response[ $analysis_type ] ); ?></div>
@@ -790,7 +790,7 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
 									<div class="w3tcps_breakdown w3tcps_breakdown_<?php echo esc_attr( $analysis_type ); ?>">
-										<?php Util_Ui::postbox_header( __( 'Audit Results', 'w3-total-cache' ), '', 'gps-audit-results' ); ?>
+										<?php Util_Ui::postbox_header( __( 'Audit Results', 'w3-total-cache' ), '', 'w3tcps-audit-results' ); ?>
 										<div id="w3tcps_audit_filters_<?php echo esc_attr( $analysis_type ); ?>" class="nav-tab-wrapper">
 											<a href="#" class="w3tcps_audit_filter nav-tab nav-tab-active"><?php esc_html_e( 'ALL', 'w3-total-cache' ); ?></a>
 											<a href="#" class="w3tcps_audit_filter nav-tab"><?php esc_html_e( 'FCP', 'w3-total-cache' ); ?></a>

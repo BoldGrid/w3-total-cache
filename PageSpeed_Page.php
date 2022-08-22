@@ -37,9 +37,9 @@ class PageSpeed_Page {
 	 */
 	public function admin_print_scripts_w3tc_pagespeed() {
 		wp_enqueue_style( 'w3tc-pagespeed-google-material-icons', 'https://fonts.googleapis.com/icon?family=Material+Icons', array(), W3TC_VERSION );
-		wp_enqueue_style( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION . time() );
+		wp_enqueue_style( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION );
 
-		wp_register_script( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.js', W3TC_FILE ), array(), W3TC_VERSION . time(), false );
+		wp_register_script( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 		wp_localize_script(
 			'w3tc-pagespeed',
 			'w3tcData',
