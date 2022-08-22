@@ -17,6 +17,6 @@ if ( ! defined( 'W3TC' ) ) {
 </div>
 <div class="w3tc-gps-widget"></div>
 <div class="w3tcps_buttons">
-	<input class="button w3tcps_refresh" type="button" value="<?php esc_html_e( 'Refresh analysis', 'w3-total-cache' ); ?>" />
-	<a href="<?php echo esc_url( admin_url( 'admin.php?page=w3tc_pagespeed' ) ); ?>" class="button"><?php esc_html_e( 'View all results', 'w3-total-cache' ); ?></a>
+	<input class="button w3tcps_refresh" type="button" value="<?php esc_html_e( 'Refresh Analysis', 'w3-total-cache' ); ?>" />
+	<a href="<?php echo esc_url( admin_url( 'admin.php?page=w3tc_pagespeed' ) ); ?>" class="button"><?php esc_html_e( 'View All Results', 'w3-total-cache' ); ?></a>
 </div>

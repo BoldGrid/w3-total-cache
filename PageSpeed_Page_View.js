@@ -1,8 +1,7 @@
 jQuery(document).ready(function($) {
 	function w3tcps_analyze(page_post, nocache) {
-		console.log(page_post);
         let page_post_id = page_post.find('.page_post_url').attr('page_post_id');
-        let page_post_url = page_post.find('.page_post_url').text();
+        let page_post_url = page_post.find('.page_post_url').attr('page_post_url');
 
         $('.w3tcps_analyze').prop('disabled',true);
         page_post.find('.page_post_psresults').fadeOut('fast');
@@ -14,20 +13,18 @@ jQuery(document).ready(function($) {
             url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=pagespeed_data&url=' + encodeURIComponent( page_post_url ) + (nocache ? '&cache=no' : ''),
             dataType: 'json',
             success: function(data){
-                $('.w3tcps_analyze').prop('disabled',false);
+				$('.w3tcps_analyze').prop('disabled',false);
                 $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none');
-
 				if (data.error) {
-					$('#' + page_post_id).prev().find('.w3tcps_error p').html( data.error );
+					$('#' + page_post_id).prev().find('.w3tcps_error p').html( w3tcData.lang.pagespeed_data_error + data.error );
            			$('#' + page_post_id).prev().find('.w3tcps_error').removeClass( 'w3tc_none' );
 	        		return;
 		        }
-
     			$('#' + page_post_id).html(data['.w3tcps_content']).fadeIn('slow');
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 $('.w3tcps_analyze').prop('disabled',false);
-				$('#' + page_post_id).prev().find('.w3tcps_error p').html( errorThrown );
+				$('#' + page_post_id).prev().find('.w3tcps_error p').html( w3tcData.lang.pagespeed_data_error + errorThrown );
                 $('#' + page_post_id).prev().find('.w3tcps_error').removeClass('w3tc_none');
                 $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none');
             },
@@ -66,20 +63,18 @@ jQuery(document).ready(function($) {
 			$( '.w3tcps_breakdown .audits' ).show();
 		} else if ( $(this).text().trim ) {
 			$( '.w3tcps_breakdown .audits' ).hide();
-			$( '.w3tcps_breakdown .' + $(this).text() ).delay(200).show();
+			$( '.w3tcps_breakdown .' + $( this).text() ).delay(200).show();
 		} else {
 			$( '.w3tcps_breakdown .audits' ).show();
-			alert( 'An unknown error occured attempting to filter audit results!' );
+			alert( w3tcData.lang.pagespeed_filter_error );
 		}
     }
 
 	$(document).on('click', '.w3tcps_audit_filter', w3tcps_audit_filter);
 
-	/*
     $('.w3tcps_content').on('click', '.w3tcps_analyze', function() {
 		w3tcps_analyze($(this).closest('.page_post'),true);
 	});
 
-	w3tcps_analyze($('#w3tcps_home .page_post'), true);
-	*/
+	w3tcps_analyze($('#w3tcps_home .page_post'), false);
 });

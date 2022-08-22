@@ -39,13 +39,24 @@ class PageSpeed_Plugin_Widget {
 		add_action( 'w3tc_widget_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
 		add_action( 'w3tc_network_dashboard_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
 
-		wp_enqueue_script(
+		wp_register_script(
 			'w3tc-widget-pagespeed',
 			plugins_url( 'PageSpeed_Widget_View.js', W3TC_FILE ),
 			array(),
 			W3TC_VERSION,
 			'false'
 		);
+		wp_localize_script(
+			'w3tc-widget-pagespeed',
+			'w3tcData',
+			array(
+				'lang' => array(
+					'pagespeed_widget_data_error' => __( 'Error : ', 'w3-total-cache' ),
+				),
+			)
+		);
+		wp_enqueue_script( 'w3tc-widget-pagespeed' );
+
 		wp_enqueue_style(
 			'w3tc-widget-pagespeed',
 			plugins_url( 'PageSpeed_Widget_View.css', W3TC_FILE ),

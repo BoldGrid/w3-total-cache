@@ -27,8 +27,7 @@ class PageSpeed_Page {
 	 * @return void
 	 */
 	public function w3tc_ajax() {
-		// This AJAX works but is disabled due to being non-active
-		//add_action( 'w3tc_ajax_pagespeed_data', array( $this, 'w3tc_ajax_pagespeed_data' ) );
+		add_action( 'w3tc_ajax_pagespeed_data', array( $this, 'w3tc_ajax_pagespeed_data' ) );
 	}
 
 	/**
@@ -38,8 +37,20 @@ class PageSpeed_Page {
 	 */
 	public function admin_print_scripts_w3tc_pagespeed() {
 		wp_enqueue_style( 'w3tc-pagespeed-google-material-icons', 'https://fonts.googleapis.com/icon?family=Material+Icons', array(), W3TC_VERSION );
-		wp_enqueue_style( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION );
-		wp_enqueue_script( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+		wp_enqueue_style( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION . time() );
+
+		wp_register_script( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.js', W3TC_FILE ), array(), W3TC_VERSION . time(), false );
+		wp_localize_script(
+			'w3tc-pagespeed',
+			'w3tcData',
+			array(
+				'lang' => array(
+					'pagespeed_data_error' => __( 'Error : ', 'w3-total-cache' ),
+					'pagespeed_filter_error' => __( 'An unknown error occured attempting to filter audit results!', 'w3-total-cache' ),
+				),
+			)
+		);
+		wp_enqueue_script( 'w3tc-pagespeed' );
 	}
 
 	/**
@@ -50,8 +61,7 @@ class PageSpeed_Page {
 	public function render() {
 		$c = Dispatcher::config();
 
-		//require W3TC_DIR . '/PageSpeed_Page_View.php';
-		require W3TC_DIR . '/PageSpeed_Page_View_FromAPI.php';
+		require W3TC_DIR . '/PageSpeed_Page_View.php';
 	}
 
 	/**
@@ -60,17 +70,14 @@ class PageSpeed_Page {
 	 * @return JSON
 	 */
 	public function w3tc_ajax_pagespeed_data() {
-		$encoded_url = Util_Request::get( 'url' );
-
-		$url = ( ! empty( $encoded_url ) ? urldecode( $encoded_url ) : get_home_url() );
-
+		$encoded_url  = Util_Request::get( 'url' );
+		$url          = ( ! empty( $encoded_url ) ? urldecode( $encoded_url ) : get_home_url() );
 		$api_response = null;
 
 		if ( Util_Request::get( 'cache' ) !== 'no' ) {
 			$r = get_transient( 'w3tc_pagespeed_data_' . $encoded_url );
 			$r = @json_decode( $r, true );
-			if ( is_array( $r ) && isset( $r['time'] ) &&
-					$r['time'] >= time() - 3600 ) {
+			if ( is_array( $r ) && isset( $r['time'] ) && $r['time'] >= time() - 3600 ) {
 				$api_response = $r;
 			}
 		}

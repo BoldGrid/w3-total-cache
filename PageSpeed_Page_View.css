@@ -190,7 +190,12 @@
     width: 30px;
     height: 30px;
     animation: spin 2s linear infinite;
-    margin: 20px auto;
+    margin: 20px;
+}
+
+.w3tcps_analyze {
+	vertical-align: middle !important;
+	margin: 0px 15px !important;
 }
 
 #gps-audit-results .inside #w3tcps_audit_filters_desktop,

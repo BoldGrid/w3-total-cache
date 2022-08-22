@@ -40,12 +40,16 @@ class PageSpeed_Api {
 		$this->client->setAccessType( 'offline' );
 		$this->client->setApprovalPrompt( 'force' );
 		$this->client->setDefer( true );
-
+		//$this->reset();
 		if ( ! empty( $access_token_json ) ) {
 			$this->client->setAccessToken( $access_token_json );
 		}
 	}
-
+	public function reset() {
+		$this->config->set( 'widget.pagespeed.access_token', '' );
+		$this->config->set( 'widget.pagespeed.w3key', '' );
+		$this->config->save();
+	}
 	/**
 	 * Fully analyze URL via PageSpeed API
 	 *
@@ -1473,7 +1477,7 @@ class PageSpeed_Api {
 			return array(
 				'error' => array(
 					'code'    => 403,
-					'message' => 'Missing Google access token.'
+					'message' => __( 'Missing Google access token.', 'w3-total-cache' )
 				),
 			);
 		} elseif ( ! empty( $this->client->getRefreshToken() ) && $this->client->isAccessTokenExpired() ) {
