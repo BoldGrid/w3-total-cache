@@ -150,7 +150,7 @@ function w3tcps_bar( $data, $metric, $name ) {
 				'br'  => array(),
 			)
 		);
-	} elseif ( empty( $api_response ) ) {
+	} elseif ( empty( $api_response[ 'desktop' ] ) || empty( $api_response[ 'mobile' ] ) ) {
 		echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured!', 'w3-total-cache' ) . '</div></div>';
 	} else {
 		?>

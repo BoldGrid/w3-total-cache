@@ -663,14 +663,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 		<?php Util_Ui::postbox_header( __( 'Google Page Speed', 'w3-total-cache' ), '', 'google_page_speed' ); ?>
 		<?php
-		$access_token_json = $this->_config->get_string( 'widget.pagespeed.access_token' );
-
-		if ( ! empty( $access_token_json ) ) {
-			$w3_pagespeed                    = new PageSpeed_Api( $access_token_json );
-			$refresh_token_check_result_json = $w3_pagespeed->refresh_token_check();
-		} else {
-			$w3_pagespeed = new PageSpeed_Api();
-		}
+		$access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
+		$w3_pagespeed      = new PageSpeed_Api( $access_token_json );
 
 		$site_id    = Util_Http::generate_site_id();
 		$return_url = admin_url( 'admin.php?page=w3tc_general' );
@@ -682,7 +676,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$new_w3key  = Util_Request::get( 'w3tc_new_w3key' );
 		if ( ! empty( $new_gacode ) && ! empty( $new_w3key ) ) {
 			$response = json_decode( $w3_pagespeed->new_token( $new_gacode, $new_w3key ), true );
-			
+
 			if ( is_wp_error( $response ) ) {
 				echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured! - ', 'w3-total-cache' ) . $response->get_error_message() . '</div></div>';
 			} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {

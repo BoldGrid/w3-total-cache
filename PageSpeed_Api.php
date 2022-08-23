@@ -43,6 +43,7 @@ class PageSpeed_Api {
 
 		if ( ! empty( $access_token_json ) ) {
 			$this->client->setAccessToken( $access_token_json );
+			$this->refresh_token_check();
 		}
 	}
 
@@ -1506,7 +1507,7 @@ class PageSpeed_Api {
 				)
 			)
 		);
-
+		
 		// Attempt the request up to 4 times with an increasing delay between each attempt
 		$attempts = 0;
 		while ( ++$attempts ) {
@@ -1517,7 +1518,9 @@ class PageSpeed_Api {
 						'timeout' => 60,
 					)
 				);
-				break;
+				if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
+					break;
+				}
 			} catch ( \Exception $e ) {
 				if ( $attempts <= 4 ) {
 					sleep( $attempts * 2 );
