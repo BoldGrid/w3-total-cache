@@ -219,7 +219,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 					gmdate( 'r' ),
 					strtr(
 						isset( $_SERVER['REQUEST_URI'] ) ?
-							esc_url_raw( stripslashes( $_SERVER['REQUEST_URI'] ) ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+							filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 						"<>\r\n",
 						'..  '
 					),
@@ -595,9 +595,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			'wp-login',
 			'wp-register',
 		);
-
+		
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ?
-			esc_url_raw( stripslashes( $_SERVER['REQUEST_URI'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
 		foreach ( $auto_reject_uri as $uri ) {
 			if ( strstr( $request_uri, $uri ) !== false ) {
