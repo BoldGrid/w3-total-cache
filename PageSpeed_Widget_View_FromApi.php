@@ -11,132 +11,6 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-/**
- * Get score guage color
- *
- * @param int $score PageSpeed desktop/mobile score.
- *
- * @return string
- */
-function w3tcps_gauge_color( $score ) {
-	$color = '#fff';
-	if ( ! empty( $score ) && is_numeric( $score ) ) {
-		if ( $score >= 90 ) {
-			$color = '#0c6';
-		} elseif ( $score >= 50 && $score < 90 ) {
-			$color = '#fa3';
-		} elseif ( $score >= 0 && $score < 50 ) {
-			$color = '#f33';
-		}
-	}
-	return $color;
-}
-
-/**
- * Get score guage angle
- *
- * @param int $score PageSpeed desktop/mobile score.
- *
- * @return int
- */
-function w3tcps_gauge_angle( $score ) {
-	return ( ! empty( $score ) ? ( $score / 100 ) * 180 : 0 );
-}
-
-/**
- * Render the PageSpeed desktop/mobile score guage
- *
- * @param array  $data PageSpeed data.
- * @param string $icon Desktop/Mobile icon.
- *
- * @return void
- */
-function w3tcps_gauge( $data, $icon ) {
-	if ( ! isset( $data ) || empty ( $data['score'] ) || empty ( $icon ) ) {
-		return;
-	}
-
-	$color = w3tcps_gauge_color( $data['score'] );
-	$angle = w3tcps_gauge_angle( $data['score'] );
-
-	?>
-	<div class="gauge" style="width: 120px; --rotation:<?php echo esc_attr( $angle ); ?>deg; --color:<?php echo esc_attr( $color ); ?>; --background:#888;">
-		<div class="percentage"></div>
-		<div class="mask"></div>
-		<span class="value">
-			<i class="material-icons" aria-hidden="true"><?php echo esc_html( $icon ); ?></i>
-			<?php echo ( ! empty( $data['score'] ) ? esc_html( $data['score'] ) : '' ); ?>
-		</span>
-	</div>
-	<?php
-}
-
-/**
- * Render metric barline
- *
- * @param array $metric PageSpeed desktop/mobile score.
- *
- * @return void
- */
-function w3tcps_barline( $metric ) {
-	if ( empty( $metric['score'] ) ) {
-		return;
-	}
-
-	$metric['score'] *= 100;
-
-	$bar = '';
-
-	if ( $metric['score'] >= 90 ) {
-		$bar = '<div style="flex-grow: ' . $metric['score'] . '"><span class="w3tcps_range w3tcps_pass">' . $metric['displayValue'] . '</span></div>';
-	} elseif ( $metric['score'] >= 50 && $metric['score'] < 90 ) {
-		$bar = '<div style="flex-grow: ' . $metric['score'] . '"><span class="w3tcps_range w3tcps_average">' . $metric['displayValue'] . '</span></div>';
-	} elseif ( $metric['score'] < 50 ) {
-		$bar = '<div style="flex-grow: ' . $metric['score'] . '"><span class="w3tcps_range w3tcps_fail">' . $metric['displayValue'] . '<span></div>';
-	}
-
-	echo wp_kses(
-		'<div class="w3tcps_barline">' . $bar . '</div>',
-		array(
-			'div'  => array(
-				'style' => array(),
-				'class' => array(),
-			),
-			'span' => array(
-				'class' => array(),
-			),
-		)
-	);
-}
-
-/**
- * [Description for w3tcps_bar]
- *
- * @param array  $data PageSpeed desktop/mobile score.
- * @param string $metric Metric key.
- * @param string $name Metric name.
- * @param string $icon Desktop/Mobile icon.
- *
- * @return void
- */
-function w3tcps_bar( $data, $metric, $name ) {
-	if ( ! isset( $data ) || empty ( $metric ) || empty ( $name ) ) {
-		return;
-	}
-
-	?>
-	<div class="w3tcps_metric">
-		<h3 class="w3tcps_metric_title"><?php echo esc_html( $name ); ?></h3>
-		<div class="w3tcps_metric_stats">
-			<i class="material-icons" aria-hidden="true"><?php echo esc_html( 'computer' ); ?></i> 
-			<?php w3tcps_barline( $data['desktop'][ $metric ] ); ?>
-			<i class="material-icons" aria-hidden="true"><?php echo esc_html( 'smartphone' ); ?></i> 
-			<?php w3tcps_barline( $data['mobile'][ $metric ] ); ?>
-		</div>
-	</div>
-	<?php
-}
-
 ?>
 <div class="metabox-holder">
 	<?php
@@ -150,17 +24,17 @@ function w3tcps_bar( $data, $metric, $name ) {
 				'br'  => array(),
 			)
 		);
-	} elseif ( empty( $api_response[ 'desktop' ] ) || empty( $api_response[ 'mobile' ] ) ) {
+	} elseif ( empty( $api_response['desktop'] ) || empty( $api_response['mobile'] ) ) {
 		echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured!', 'w3-total-cache' ) . '</div></div>';
 	} else {
 		?>
 		<div id="w3tcps_legend">
 			<div class="w3tcps_gages">
 				<div class="w3tcps_gauge_desktop">
-					<?php w3tcps_gauge( $api_response[ 'desktop' ], 'computer' ); ?>
+					<?php Util_PageSpeed::print_gauge( $api_response['desktop'], 'desktop' ); ?>
 				</div>
 				<div class="w3tcps_gauge_mobile">
-					<?php w3tcps_gauge( $api_response[ 'mobile' ], 'smartphone' ); ?>
+					<?php Util_PageSpeed::print_gauge( $api_response['mobile'], 'smartphone' ); ?>
 				</div>
 			</div>
 			<?php
@@ -198,12 +72,12 @@ function w3tcps_bar( $data, $metric, $name ) {
 		</div>
 		<div id="w3tcps_widget_metrics_container" class="tab-content w3tcps_content">
 			<div class="w3tcps_widget_metrics">
-				<?php w3tcps_bar( $api_response, 'first-contentful-paint', 'First Contentful Paint' ); ?>
-				<?php w3tcps_bar( $api_response, 'speed-index', 'Speed Index' ); ?>
-				<?php w3tcps_bar( $api_response, 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
-				<?php w3tcps_bar( $api_response, 'interactive', 'Time to Interactive' ); ?>
-				<?php w3tcps_bar( $api_response, 'total-blocking-time', 'Total Blocking Time' ); ?>
-				<?php w3tcps_bar( $api_response, 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
+				<?php Util_PageSpeed::print_bar( $api_response, 'first-contentful-paint', 'First Contentful Paint' ); ?>
+				<?php Util_PageSpeed::print_bar( $api_response, 'speed-index', 'Speed Index' ); ?>
+				<?php Util_PageSpeed::print_bar( $api_response, 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
+				<?php Util_PageSpeed::print_bar( $api_response, 'interactive', 'Time to Interactive' ); ?>
+				<?php Util_PageSpeed::print_bar( $api_response, 'total-blocking-time', 'Total Blocking Time' ); ?>
+				<?php Util_PageSpeed::print_bar( $api_response, 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
 			</div>
 		</div>
 		<?php

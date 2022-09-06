@@ -1,22 +1,12 @@
-jQuery(document).ready(function($) {
-	function w3tcps_mobile_toggle() {
-		$('#w3tcps_control_desktop').removeClass('nav-tab-active');
-        $('#w3tcps_desktop').hide();
-		$('#w3tcps_control_mobile').addClass('nav-tab-active');
-		$('#w3tcps_mobile').show();
-    }
-	
-	$(document).on('click', '#w3tcps_control_mobile', w3tcps_mobile_toggle);
-
-    function w3tcps_desktop_toggle() {
-		$('#w3tcps_control_mobile').removeClass('nav-tab-active')
-		$('#w3tcps_mobile').hide();
-		$('#w3tcps_control_desktop').addClass('nav-tab-active');
-		$('#w3tcps_desktop').show();
-    }
-
-    $(document).on('click', '#w3tcps_control_desktop', w3tcps_desktop_toggle);
-
+jQuery(document).ready( function($) {
+	/**
+	 * Analyze homepage via AJAX to Google PageSpeed Insights.
+	 *
+	 * @param mixed nocache Flag to enable/disable results cache.
+	 * 
+	 * @return void
+	 * 
+	 */
 	function w3tcps_load(nocache) {
 		$('.w3tcps_loading').removeClass('w3tc_none');
 		$('.w3tc-gps-widget').addClass('w3tc_none');
@@ -33,7 +23,7 @@ jQuery(document).ready(function($) {
 					return;
 				}
 
-				jQuery('.w3tc-gps-widget').html(data['.w3tc-gps-widget']);
+				$('.w3tc-gps-widget').html(data['.w3tc-gps-widget']);
 				$('.w3tc-gps-widget').removeClass('w3tc_none').fadeIn('slow');
 				$('#normal-sortables').masonry();
 			}
@@ -44,8 +34,37 @@ jQuery(document).ready(function($) {
 			$('.w3tcps_loading').addClass('w3tc_none');
 		});
 	}
+	
+	/**
+     * Toggle mobile view.
+     *
+     * @return void
+     * 
+     */
+	function w3tcps_mobile_toggle() {
+		$('#w3tcps_control_desktop').removeClass('nav-tab-active');
+        $('#w3tcps_desktop').hide();
+		$('#w3tcps_control_mobile').addClass('nav-tab-active');
+		$('#w3tcps_mobile').show();
+    }
 
-	jQuery('.w3tcps_buttons').on('click', '.w3tcps_refresh', function() {
+    /**
+     * Toggle desktop view.
+     *
+     * @return void
+     * 
+     */
+    function w3tcps_desktop_toggle() {
+		$('#w3tcps_control_mobile').removeClass('nav-tab-active')
+		$('#w3tcps_mobile').hide();
+		$('#w3tcps_control_desktop').addClass('nav-tab-active');
+		$('#w3tcps_desktop').show();
+    }
+
+	$(document).on('click', '#w3tcps_control_mobile', w3tcps_mobile_toggle);
+    $(document).on('click', '#w3tcps_control_desktop', w3tcps_desktop_toggle);
+
+	$('.w3tcps_buttons').on('click', '.w3tcps_refresh', function() {
 		w3tcps_load(true);
 	});
 

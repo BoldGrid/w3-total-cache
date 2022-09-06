@@ -56,12 +56,6 @@
 	margin: 5px !important;
 }
 
-.material-icons {
-    margin: 0;
-    display: inline-flex;
-    vertical-align: middle;
-}
-
 .w3tcps_metrics_container {
     display: inline-block;
 }
@@ -81,14 +75,6 @@
     padding: 8px 12px;
     margin: 0;
 	text-align: left;
-}
-
-.w3tcps_metric .material-icons {
-	margin: 0;
-    display: inline-flex;
-    vertical-align: middle;
-    margin: 0 0 0 10px;
-	max-width: 25px;
 }
 
 .w3tcps_loading {

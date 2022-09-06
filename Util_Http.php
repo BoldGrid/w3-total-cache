@@ -214,7 +214,7 @@ class Util_Http {
 	}
 
 	/**
-	 * Generate unique md5 value based on domain and IP.
+	 * Generate unique md5 value based on domain.
 	 *
 	 * @return string
 	 */
