@@ -190,6 +190,24 @@ class Dispatcher {
 
 
 	/**
+	 * Returns common rules used by litespeed for files belonging to browsercache
+	 * section
+	 */
+	static public function litespeed_rules_for_browsercache_section( $config, $section ) {
+		if ( !$config->get_boolean( 'browsercache.enabled' ) ) {
+			return [
+				'other' => [],
+				'add_header' => []
+			];
+		}
+
+		$o = new BrowserCache_Environment_LiteSpeed( $config );
+		return $o->section_rules( $section );
+	}
+
+
+
+	/**
 	 * Called when minify going to process request of some minified file
 	 */
 	static public function requested_minify_filename( $config, $file ) {

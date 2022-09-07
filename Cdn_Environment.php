@@ -331,6 +331,9 @@ class Cdn_Environment {
 		if ( Util_Environment::is_nginx() ) {
 			$o = new Cdn_Environment_Nginx( $config );
 			return $o->generate( $cdnftp );
+		} elseif ( Util_Environment::is_litespeed() ) {
+			$o = new Cdn_Environment_LiteSpeed( $config );
+			return $o->generate( $cdnftp );
 		} else {
 			return $this->rules_generate_apache( $config, $cdnftp );
 		}
@@ -412,6 +415,10 @@ class Cdn_Environment {
 			$extensions, $config, $section ) {
 		if ( Util_Environment::is_nginx() ) {
 			$o = new Cdn_Environment_Nginx( $config );
+			$extensions = $o->w3tc_browsercache_rules_section_extensions(
+				$extensions, $section );
+		} elseif ( Util_Environment::is_litespeed() ) {
+			$o = new Cdn_Environment_LiteSpeed( $config );
 			$extensions = $o->w3tc_browsercache_rules_section_extensions(
 				$extensions, $section );
 		}

@@ -27,9 +27,10 @@ class BrowserCache_Environment_LiteSpeed {
 
 		$rules = '';
 		$rules .= W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n";
-
+		/*
 		if ( $this->c->get_boolean( 'browsercache.rewrite' ) ) {
 		}
+		*/
 
 		$this->generate_section( $rules, $mime_types['cssjs'], 'cssjs' );
 		$this->generate_section( $rules, $mime_types['html'], 'html' );
@@ -162,9 +163,9 @@ class BrowserCache_Environment_LiteSpeed {
 
 			case 'no_cache':
 				$add_header_rules[] = 'unset Pragma';
-				$add_header_rules[] = 'add_header Pragma "no-cache";';
+				$add_header_rules[] = 'set Pragma "no-cache";';
 				$add_header_rules[] = 'unset Cache-Control';
-				$add_header_rules[] = 'add_header Cache-Control "max-age=0, private, no-store, no-cache, must-revalidate"';
+				$add_header_rules[] = 'set Cache-Control "max-age=0, private, no-store, no-cache, must-revalidate"';
 				break;
 			}
 		}
