@@ -74,7 +74,23 @@ def generate_image_descriptors
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'lightspeed'
+			]
+		},
+		# litespeed-specific, lighter env to keep scope tight
+		'php80tiny' => {
+			'PHP_VERSION' => '8.0',
+			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
+			'OS' => 'focal',
+			'APC' => '',
+			'MEMCACHE' => '',
+			'REDIS' => '',
+			'_except_name_contains' => [
+				'apache',
+				'nginx',
+			]
 		},
 		'php74' => {
 			'PHP_VERSION' => '7.4',
