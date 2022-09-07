@@ -5,6 +5,13 @@ namespace W3TC;
  * class BrowserCache_Environment
  */
 class BrowserCache_Environment {
+	public function __construct() {
+		add_filter( 'w3tc_cdn_rules_section',
+			array( $this, 'w3tc_cdn_rules_section' ), 10, 2 );
+	}
+
+
+
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
@@ -743,5 +750,16 @@ class BrowserCache_Environment {
 		$rules .= W3TC_MARKER_END_BROWSERCACHE_NO404WP . "\n";
 
 		return $rules;
+	}
+
+
+
+	public function w3tc_cdn_rules_section( $section_rules, $config ) {
+		if ( Util_Environment::is_litespeed() ) {
+			$o = new BrowserCache_Environment_LiteSpeed( $config );
+			$section_rules = $o->w3tc_cdn_rules_section( $section_rules );
+		}
+
+		return $section_rules;
 	}
 }

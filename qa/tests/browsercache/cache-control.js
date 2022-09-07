@@ -57,7 +57,7 @@ describe('', function() {
 		let response = await page.goto(jsUrl, {waitUntil: 'domcontentloaded'});
 		let headers = response.headers();
 		console.log(headers);
-		expect(headers.expires).is.not.empty;
+		expect(headers['cache-control']).contains('max-age=0, private, no-store, no-cache, must-revalidate');
 
 	});
 
@@ -77,6 +77,6 @@ describe('', function() {
 		let response = await page.goto(jsUrl, {waitUntil: 'domcontentloaded'});
 		let headers = response.headers();
 		console.log(headers);
-		expect(headers.expires).is.undefined;
+		expect(headers['cache-control']).contains('max-age=100');
 	});
 });
