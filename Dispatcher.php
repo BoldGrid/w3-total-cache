@@ -162,6 +162,7 @@ class Dispatcher {
 	/**
 	 * Returns common rules used by nginx for files belonging to browsercache
 	 * section
+	 * TODO: change to filters, like litespeed does
 	 */
 	static public function nginx_rules_for_browsercache_section( $config, $section,
 			$extra_add_headers_set = false ) {
@@ -185,24 +186,6 @@ class Dispatcher {
 		}
 
 		return array_merge( $rules['other'], $rules['add_header'] );
-	}
-
-
-
-	/**
-	 * Returns common rules used by litespeed for files belonging to browsercache
-	 * section
-	 */
-	static public function litespeed_rules_for_browsercache_section( $config, $section ) {
-		if ( !$config->get_boolean( 'browsercache.enabled' ) ) {
-			return [
-				'other' => [],
-				'add_header' => []
-			];
-		}
-
-		$o = new BrowserCache_Environment_LiteSpeed( $config );
-		return $o->section_rules( $section );
 	}
 
 

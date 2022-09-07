@@ -78,6 +78,9 @@ class BrowserCache_Environment_LiteSpeed {
 
 
 			$section_rules = self::section_rules( $section );
+			$section_rules = apply_filters( 'w3tc_browsercache_rules_section',
+				$section_rules, $this->c, $section );
+
 			$context_rules = $section_rules['other'];
 
 			if ( !empty( $section_rules['add_header'] ) ) {
@@ -171,5 +174,16 @@ class BrowserCache_Environment_LiteSpeed {
 		}
 
 		return array( 'add_header' => $add_header_rules, 'other' => $rules );
+	}
+
+
+
+	public function w3tc_cdn_rules_section( $section_rules ) {
+		$section_rules_bc = $this->section_rules( 'other' );
+		$section_rules['other'] = array_merge( $section_rules['other'], $section_rules_bc['other'] );
+		$section_rules['add_header'] = array_merge(
+			$section_rules['add_header'], $section_rules_bc['add_header'] );
+
+		return $section_rules;
 	}
 }
