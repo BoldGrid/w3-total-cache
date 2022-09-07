@@ -84,7 +84,7 @@ class PageSpeed_Api {
 			)
 		);
 
-		if ( ! empty( PageSpeed_Data::get_value( $data, array( 'error', 'code' ) ) ) && PageSpeed_Data::get_value( $data, array( 'error', 'code' ) ) !== 200 ) {
+		if ( ! empty( PageSpeed_Data::get_value( $data, array( 'error', 'code' ) ) ) ) {
 			return array(
 				'error' => array(
 					'code'    => PageSpeed_Data::get_value( $data, array( 'error', 'code' ) ),
@@ -114,23 +114,7 @@ class PageSpeed_Api {
 					'message' => __( 'Missing Google access token.', 'w3-total-cache' ),
 				),
 			);
-		} elseif ( ! empty( $this->client->getRefreshToken() ) && $this->client->isAccessTokenExpired() ) {
-			$response = json_decode( $this->refresh_token() );
-			if ( is_wp_error( $response ) ) {
-				return array(
-					'error' => array(
-						'message' => $response->get_error_message(),
-					),
-				);
-			} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
-				return array(
-					'error' => array(
-						'code'    => $response['response']['code'],
-						'message' => $response['response']['message'],
-					),
-				);
-			}
-		}
+		} 
 
 		$access_token = json_decode( $this->client->getAccessToken() );
 
@@ -145,9 +129,10 @@ class PageSpeed_Api {
 			)
 		);
 
-		// Attempt the request up to 4 times with an increasing delay between each attempt.
+		// Attempt the request up to x times with an increasing delay between each attempt. Uses W3TC_PAGESPEED_MAX_ATTEMPTS;
 		$attempts = 0;
-		while ( ++$attempts ) {
+
+		while ( ++$attempts <= W3TC_PAGESPEED_MAX_ATTEMPTS ) {
 			try {
 				$response = wp_remote_get(
 					$request,
@@ -155,13 +140,12 @@ class PageSpeed_Api {
 						'timeout' => 60,
 					)
 				);
+
 				if ( ! is_wp_error( $response ) && 200 === $response['response']['code'] ) {
 					break;
 				}
 			} catch ( \Exception $e ) {
-				if ( $attempts <= 4 ) {
-					sleep( $attempts * 2 );
-				} else {
+				if ( $attempts >= W3TC_PAGESPEED_MAX_ATTEMPTS ) {
 					return array(
 						'error' => array(
 							'code'    => 500,
@@ -170,26 +154,27 @@ class PageSpeed_Api {
 					);
 				}
 			}
+
+			// Sleep for a cumulative .5 seconds each attempt.
+			usleep( $attempts * 500000 );
 		};
 
-		if ( is_wp_error( $response ) ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'message' => $response->get_error_message(),
-					),
-				)
+		if ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
+			// Google PageSpeed Insights sometimes will return a 500 and message body with details so we still grab the body response.
+			$decoded_body = json_decode( wp_remote_retrieve_body( $response ), true );
+			return array(
+				'error' => array(
+					'code'    => $response['response']['code'],
+					'message' => ( ! empty( $decoded_body['error']['message'] ) ? $decoded_body['error']['message'] : $response['response']['message'] ),
+				),
 			);
-		} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => $response['response']['code'],
-						'message' => $response['response']['message'],
-					),
-				)
+		} elseif ( is_wp_error( $response ) ) {
+			return array(
+				'error' => array(
+					'message' => $response->get_error_message(),
+				),
 			);
-		}
+		} 
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}

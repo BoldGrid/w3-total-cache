@@ -35,7 +35,7 @@ class PageSpeed_Widget {
 			plugins_url( 'PageSpeed_Widget_View.js', W3TC_FILE ),
 			array(),
 			W3TC_VERSION,
-			'false'
+			'true'
 		);
 		wp_localize_script(
 			'w3tc-widget-pagespeed',
@@ -51,12 +51,6 @@ class PageSpeed_Widget {
 		wp_enqueue_style(
 			'w3tc-widget-pagespeed',
 			plugins_url( 'PageSpeed_Widget_View.css', W3TC_FILE ),
-			array(),
-			W3TC_VERSION
-		);
-		wp_enqueue_style(
-			'w3tc-pagespeed-google-material-icons',
-			'https://fonts.googleapis.com/icon?family=Material+Icons',
 			array(),
 			W3TC_VERSION
 		);
@@ -96,8 +90,9 @@ class PageSpeed_Widget {
 	 * @return JSON
 	 */
 	public function w3tc_ajax_pagespeed_widgetdata() {
-		$home_url     = get_home_url();
-		$api_response = null;
+		$home_url           = get_home_url();
+		$api_response       = null;
+		$api_response_error = null;
 
 		if ( Util_Request::get( 'cache' ) !== 'no' ) {
 			$r = get_transient( 'w3tc_pagespeed_data_' . $home_url );
@@ -131,63 +126,54 @@ class PageSpeed_Widget {
 			$api_response = $w3_pagespeed->analyze( $home_url );
 
 			if ( ! $api_response ) {
-				echo wp_json_encode(
-					array(
-						'error' => sprintf(
-							// translators: 1 Request URL value.
-							__(
-								'API request failed<br/><br/>
-									Analyze URL: %1$s',
-								'w3-total-cache'
-							),
-							$home_url
+				$api_response_error = array(
+					'error' => sprintf(
+						// translators: 1 Request URL value.
+						__(
+							'API request failed<br/><br/>
+								Analyze URL: %1$s',
+							'w3-total-cache'
 						),
-					)
+						$home_url
+					),
 				);
 				delete_transient( 'w3tc_pagespeed_data_' . $home_url );
-				return;
 			} elseif ( ! empty( $api_response['error'] ) ) {
-				echo wp_json_encode(
-					array(
-						'error' => sprintf(
-							// translators: 1 Request URL value, 2 Request response code, 3 Error message.
-							__(
-								'API request error<br/><br/>
-									Analyze URL: %1$s<br/><br/>
-									Response Code: %2$s<br/>
-									Response Message: %3$s<br/>',
-								'w3-total-cache'
-							),
-							$home_url,
-							! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A',
-							! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A'
+				$api_response_error = array(
+					'error' => sprintf(
+						// translators: 1 Request URL value, 2 Request response code, 3 Error message.
+						__(
+							'API request error<br/><br/>
+								Analyze URL: %1$s<br/><br/>
+								Response Code: %2$s<br/>
+								Response Message: %3$s<br/>',
+							'w3-total-cache'
 						),
-					)
+						$home_url,
+						! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A',
+						! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A'
+					),
 				);
 				delete_transient( 'w3tc_pagespeed_data_' . $home_url );
-				return;
 			} elseif ( ! empty( $api_response['mobile']['error'] ) && ! empty( $api_response['desktop']['error'] ) ) {
-				echo wp_json_encode(
-					array(
-						'error' => sprintf(
-							// translators: 1 Request URL value, 2 Request response code, 3 Error message.
-							__(
-								'API request error<br/><br/>
-									Analyze URL: %1$s<br/><br/>
-									Mobile response Code: %2$s<br/>Mobile response Message: %3$s<br/><br/>
-									Desktop response Code: %4$s<br/>Desktop response Message: %5$s',
-								'w3-total-cache'
-							),
-							$home_url,
-							! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A',
-							! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A',
-							! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A',
-							! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A'
+				$api_response_error = array(
+					'error' => sprintf(
+						// translators: 1 Request URL value, 2 Request response code, 3 Error message.
+						__(
+							'API request error<br/><br/>
+								Analyze URL: %1$s<br/><br/>
+								Mobile response Code: %2$s<br/>Mobile response Message: %3$s<br/><br/>
+								Desktop response Code: %4$s<br/>Desktop response Message: %5$s',
+							'w3-total-cache'
 						),
-					)
+						$home_url,
+						! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A',
+						! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A',
+						! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A',
+						! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A'
+					),
 				);
 				delete_transient( 'w3tc_pagespeed_data_' . $home_url );
-				return;
 			}
 
 			$api_response['time'] = time();

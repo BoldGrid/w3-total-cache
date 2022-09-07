@@ -118,7 +118,7 @@ class Util_PageSpeed {
 	 *
 	 * @return void
 	 */
-	public static function print_bar( $data, $metric, $name ) {
+	public static function print_bar_combined_with_icon( $data, $metric, $name ) {
 		if ( ! isset( $data ) || empty( $metric ) || empty( $name ) ) {
 			return;
 		}
@@ -145,7 +145,7 @@ class Util_PageSpeed {
 	 *
 	 * @return void
 	 */
-	public static function print_bar_single( $data, $metric, $name ) {
+	public static function print_bar_single_no_icon( $data, $metric, $name ) {
 		if ( ! isset( $data ) || empty ( $data[ $metric ] ) || empty ( $metric ) || empty ( $name ) ) {
 			return;
 		}
@@ -154,7 +154,7 @@ class Util_PageSpeed {
 		<div class="w3tcps_metric">
 			<h3 class="w3tcps_metric_title"><?php echo esc_html( $name ); ?></h3>
 			<div class="w3tcps_metric_stats">
-				<?php self::barline( $data[ $metric ] ); ?>
+				<?php self::print_barline( $data[ $metric ] ); ?>
 			</div>
 		</div>
 		<?php
@@ -618,7 +618,8 @@ class Util_PageSpeed {
 				<div class="opportunities"><h3 class="w3tcps_metric_title">' . esc_html__( 'Opportunities', 'w3-total-cache' ) . '</h3>' . $opportunities . '</div>
 				<div class="diagnostics"><h3 class="w3tcps_metric_title">' . esc_html__( 'Diagnostics', 'w3-total-cache' ) . '</h3>' . $diagnostics . '</div>
 				<div class="passed_audits"><h3 class="w3tcps_metric_title">' . esc_html__( 'Passed Audits', 'w3-total-cache' ) . '</h3>' . $passed_audits . '</div>
-			</div>'
+			</div>',
+			$allowed_tags
 		);
 	}
 

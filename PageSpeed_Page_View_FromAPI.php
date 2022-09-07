@@ -24,18 +24,24 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 		<div id="w3tcps_home">
 			<div class="page_post">
 				<?php
-				if ( ! empty( $api_response_error ) ) {
-					echo wp_kses(
-						'<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . $api_response_error . '</div></div>',
-						array(
-							'div' => array(
-								'class' => array(),
-							),
-							'br'  => array(),
-						)
-					);
-				} elseif ( empty( $api_response[ 'desktop' ] ) || empty( $api_response[ 'mobile' ] ) ) {
-					echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured!', 'w3-total-cache' ) . '</div></div>';
+				if ( isset( $api_response_error['error'] ) && ! empty( $api_response_error['error'] ) ) {
+					?>
+					<div class="w3tcps_feedback">
+						<div class="notice notice-error inline w3tcps_error">
+							<p><?php echo $api_response_error['error']; ?></p>
+						</div>
+					</div>
+					<?php
+				} elseif ( ! empty( $api_response['mobile']['error'] ) || ! empty( $api_response['desktop']['error'] ) ) {
+					?>
+					<div class="w3tcps_feedback">
+						<div class="notice notice-error inline w3tcps_error">
+							<p><?php esc_html_e( 'An error has occured!', 'w3-total-cache' ); ?></p>
+							<p><?php echo esc_html( $api_response['mobile']['error'] ); ?></p>
+							<p><?php echo esc_html( $api_response['desktop']['error'] ); ?></p>
+						</div>
+					</div>
+					<?php
 				} else {
 					?>
 					<div id="w3tc" class="wrap">
@@ -93,12 +99,12 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 									</div>
 									<div class="w3tcps_metrics_<?php echo esc_attr( $analysis_type ); ?>">
 										<?php Util_Ui::postbox_header( __( 'Core Metrics', 'w3-total-cache' ), '', 'w3tcps-core-metrics' ); ?>
-										<?php Util_PageSpeed::print_bar( $api_response[ $analysis_type ], 'first-contentful-paint', 'First Contentful Paint' ); ?>
-										<?php Util_PageSpeed::print_bar( $api_response[ $analysis_type ], 'speed-index', 'Speed Index' ); ?>
-										<?php Util_PageSpeed::print_bar( $api_response[ $analysis_type ], 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
-										<?php Util_PageSpeed::print_bar( $api_response[ $analysis_type ], 'interactive', 'Time to Interactive' ); ?>
-										<?php Util_PageSpeed::print_bar( $api_response[ $analysis_type ], 'total-blocking-time', 'Total Blocking Time' ); ?>
-										<?php Util_PageSpeed::print_bar( $api_response[ $analysis_type ], 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'first-contentful-paint', 'First Contentful Paint' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'speed-index', 'Speed Index' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'interactive', 'Time to Interactive' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'total-blocking-time', 'Total Blocking Time' ); ?>
+										<?php Util_PageSpeed::print_bar_single_no_icon( $api_response[ $analysis_type ], 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
 									<div class="w3tcps_screenshots_<?php echo esc_attr( $analysis_type ); ?>">

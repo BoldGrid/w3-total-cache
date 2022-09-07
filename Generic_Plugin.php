@@ -210,23 +210,6 @@ class Generic_Plugin {
 		.w3tc-icon:before{
 			content:'\\0041'; top: 2px;
 			font-family: 'w3tc';
-		}
-		#w3tc_monitoring_score .material-icons {
-			font-family: 'Material Icons';
-			font-weight: normal;
-			font-style: normal;
-			font-size: 18px;
-			line-height: 1;
-			letter-spacing: normal;
-			text-transform: none;
-			display: inline-block;
-			white-space: nowrap;
-			word-wrap: normal;
-			direction: ltr;
-			-moz-font-feature-settings: 'liga';
-			-moz-osx-font-smoothing: grayscale;
-			margin-left: 15px;
-			vertical-align: middle;
 		}";
 
 		wp_add_inline_style( 'admin-bar', $css);
@@ -674,14 +657,5 @@ class Generic_Plugin {
 
 	public function pro_dev_mode() {
 		echo '<!-- W3 Total Cache is currently running in Pro version Development mode. --><div style="border:2px solid red;text-align:center;font-size:1.2em;color:red"><p><strong>W3 Total Cache is currently running in Pro version Development mode.</strong></p></div>';
-	}
-
-	/**
-	 * Initialize Google material icons for admin bar GPS score.
-	 *
-	 * @return void
-	 */
-	public function print_styles_google_material_icons() {
-		wp_enqueue_style( 'w3tc-google-material-icons', 'https://fonts.googleapis.com/icon?family=Material+Icons', array(), W3TC_VERSION );
 	}
 }

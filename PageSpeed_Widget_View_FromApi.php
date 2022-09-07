@@ -14,18 +14,24 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <div class="metabox-holder">
 	<?php
-	if ( ! empty( $api_response_error ) ) {
-		echo wp_kses(
-			'<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . $api_response_error . '</div></div>',
-			array(
-				'div' => array(
-					'class' => array(),
-				),
-				'br'  => array(),
-			)
-		);
-	} elseif ( empty( $api_response['desktop'] ) || empty( $api_response['mobile'] ) ) {
-		echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured!', 'w3-total-cache' ) . '</div></div>';
+	if ( isset( $api_response_error['error'] ) && ! empty( $api_response_error['error'] ) ) {
+		?>
+		<div class="w3tcps_feedback">
+			<div class="notice notice-error inline w3tcps_error">
+				<p><?php echo $api_response_error['error']; ?></p>
+			</div>
+		</div>
+		<?php
+	} elseif ( ! empty( $api_response['mobile']['error'] ) || ! empty( $api_response['desktop']['error'] ) ) {
+		?>
+		<div class="w3tcps_feedback">
+			<div class="notice notice-error inline w3tcps_error">
+				<p><?php esc_html_e( 'An error has occured!', 'w3-total-cache' ); ?></p>
+				<p><?php echo __( 'Mobile: ', 'w3-total-cache' ) . esc_html( $api_response['mobile']['error'] ); ?></p>
+				<p><?php echo __( 'Desktop: ', 'w3-total-cache' ) . esc_html( $api_response['desktop']['error'] ); ?></p>
+			</div>
+		</div>
+		<?php
 	} else {
 		?>
 		<div id="w3tcps_legend">
@@ -72,12 +78,12 @@ if ( ! defined( 'W3TC' ) ) {
 		</div>
 		<div id="w3tcps_widget_metrics_container" class="tab-content w3tcps_content">
 			<div class="w3tcps_widget_metrics">
-				<?php Util_PageSpeed::print_bar( $api_response, 'first-contentful-paint', 'First Contentful Paint' ); ?>
-				<?php Util_PageSpeed::print_bar( $api_response, 'speed-index', 'Speed Index' ); ?>
-				<?php Util_PageSpeed::print_bar( $api_response, 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
-				<?php Util_PageSpeed::print_bar( $api_response, 'interactive', 'Time to Interactive' ); ?>
-				<?php Util_PageSpeed::print_bar( $api_response, 'total-blocking-time', 'Total Blocking Time' ); ?>
-				<?php Util_PageSpeed::print_bar( $api_response, 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'first-contentful-paint', 'First Contentful Paint' ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'speed-index', 'Speed Index' ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'interactive', 'Time to Interactive' ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'total-blocking-time', 'Total Blocking Time' ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
 			</div>
 		</div>
 		<?php

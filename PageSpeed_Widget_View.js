@@ -1,3 +1,12 @@
+/**
+ * File: PageSpeed_Widget_View.js
+ *
+ * JavaScript for the PageSpeed widget.
+ *
+ * @since 3.0.0
+ *
+ * @global w3tcData Localized data.
+ */
 jQuery(document).ready( function($) {
 	/**
 	 * Analyze homepage via AJAX to Google PageSpeed Insights.
@@ -16,13 +25,11 @@ jQuery(document).ready( function($) {
 			'&w3tc_action=pagespeed_widgetdata' + (nocache ? '&cache=no' : ''),
 			function(data) {
 				$('.w3tcps_loading').addClass('w3tc_none');
-
 				if (data.error) {
 					$('.w3tcps_error .notice-error').html(w3tcData.lang.pagespeed_widget_data_error + data.error);
 					$('.w3tcps_error').removeClass('w3tc_none');
 					return;
 				}
-
 				$('.w3tc-gps-widget').html(data['.w3tc-gps-widget']);
 				$('.w3tc-gps-widget').removeClass('w3tc_none').fadeIn('slow');
 				$('#normal-sortables').masonry();

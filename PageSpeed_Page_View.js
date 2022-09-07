@@ -1,3 +1,12 @@
+/**
+ * File: PageSpeed_Page_View.js
+ *
+ * JavaScript for the PageSpeed page.
+ *
+ * @since 3.0.0
+ *
+ * @global w3tcData Localized data.
+ */
 jQuery(document).ready(function($) {
 	function w3tcps_analyze(page_post, nocache) {
         let page_post_id = page_post.find('.page_post_url').attr('page_post_id');

@@ -17,7 +17,7 @@ class PageSpeed_Instructions {
 	 *
 	 * @return array
 	 */
-	public function get_pagespeed_instructions() {
+	public static function get_pagespeed_instructions() {
 		return array(
 			'opportunities' => array(
 				'render-blocking-resources'    => '
