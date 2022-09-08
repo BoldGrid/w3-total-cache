@@ -64,7 +64,7 @@ class Util_PageSpeed {
 			<div class="percentage"></div>
 			<div class="mask"></div>
 			<span class="value">
-				<span class="dashicons dashicons-<?php esc_attr( $icon ); ?>"></span>
+				<span class="dashicons dashicons-<?php echo esc_attr( $icon ); ?>"></span>
 				<?php echo ( ! empty( $data['score'] ) ? esc_html( $data['score'] ) : '' ); ?>
 			</span>
 		</div>
@@ -146,7 +146,7 @@ class Util_PageSpeed {
 	 * @return void
 	 */
 	public static function print_bar_single_no_icon( $data, $metric, $name ) {
-		if ( ! isset( $data ) || empty ( $data[ $metric ] ) || empty ( $metric ) || empty ( $name ) ) {
+		if ( ! isset( $data ) || empty( $data[ $metric ] ) || empty( $metric ) || empty( $name ) ) {
 			return;
 		}
 
@@ -210,8 +210,8 @@ class Util_PageSpeed {
 	 * @return void
 	 */
 	public static function print_final_screenshot( $data ) {
-		if ( isset( $data ) && ! empty ( $data['screenshots']['final']['screenshot'] ) ) {
-			echo '<img src="' . esc_attr( $data['screenshots']['final']['screenshot'] ) . '" alt="' . ( ! empty ( $data['screenshots']['final']['title'] ) ? esc_attr( $data['screenshots']['final']['title'] ) : esc_attr__( 'Final Screenshot', 'w3-total-cache' ) ) . '"/>';
+		if ( isset( $data ) && ! empty( $data['screenshots']['final']['screenshot'] ) ) {
+			echo '<img src="' . esc_attr( $data['screenshots']['final']['screenshot'] ) . '" alt="' . ( ! empty( $data['screenshots']['final']['title'] ) ? esc_attr( $data['screenshots']['final']['title'] ) : esc_attr__( 'Final Screenshot', 'w3-total-cache' ) ) . '"/>';
 		}
 	}
 
@@ -223,9 +223,9 @@ class Util_PageSpeed {
 	 * @return void
 	 */
 	public static function print_screenshots( $data ) {
-		if ( isset( $data ) && ! empty ( $data['screenshots']['other']['screenshots'] ) ) {
+		if ( isset( $data ) && ! empty( $data['screenshots']['other']['screenshots'] ) ) {
 			foreach ( $data['screenshots']['other']['screenshots'] as $screenshot ) {
-				echo '<img src="' . esc_attr( $screenshot['data'] ) . '" alt="' . ( ! empty ( $data['screenshots']['other']['title'] ) ? esc_attr( $data['screenshots']['other']['title'] ) : esc_attr__( 'Other Screenshot', 'w3-total-cache' ) ) . '"/>';
+				echo '<img src="' . esc_attr( $screenshot['data'] ) . '" alt="' . ( ! empty( $data['screenshots']['other']['title'] ) ? esc_attr( $data['screenshots']['other']['title'] ) : esc_attr__( 'Other Screenshot', 'w3-total-cache' ) ) . '"/>';
 			}
 		}
 	}
@@ -238,7 +238,8 @@ class Util_PageSpeed {
 	 * @return void
 	 */
 	public static function print_breakdown( $data ) {
-		if ( ! isset( $data ) || ( empty ( $data['opportunities'] ) && empty ( $data['diagnostics'] ) ) ) {
+		//Util_Debug::debug( 'Util_PageSpeed print_breakdown data', $data);
+		if ( ! isset( $data ) || ( empty( $data['opportunities'] ) && empty( $data['diagnostics'] ) ) ) {
 			return;
 		}
 
@@ -344,21 +345,21 @@ class Util_PageSpeed {
 					$items   .= '<td>' . $item['statistic'] . '</td>';
 
 					$headers .= '<th>' . esc_html__( 'Element', 'w3-total-cache' ) . '</th>';
-					$items .= '<td>';
+					$items   .= '<td>';
 					if ( ! empty( $item['node'] ) ) {
 						$items .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
-						$items .= '<p>' . $item['node']['selector'] . '</p>'; 
+						$items .= '<p>' . $item['node']['selector'] . '</p>';
 					}
 					$items .= '</td>';
 
 					$headers .= '<th>' . esc_html__( 'Value', 'w3-total-cache' ) . '</th>';
 					$items   .= '<td>' . $item['value'] . '</td>';
-				} else if ( ! empty( $item['node'] ) ) {
+				} elseif ( ! empty( $item['node'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Element', 'w3-total-cache' ) . '</th>';
-					$items .= '<td>';
-					$items .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
-					$items .= '<p>' . $item['node']['selector'] . '</p>'; 
-					$items .= '</td>';
+					$items   .= '<td>';
+					$items   .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
+					$items   .= '<p>' . $item['node']['selector'] . '</p>';
+					$items   .= '</td>';
 				}
 				$items .= '</tr>';
 			}
@@ -389,7 +390,7 @@ class Util_PageSpeed {
 													<span>' . esc_html__( 'Our Recommendation', 'w3-total-cache' ) . '</span>
 												</div>
 											</div>
-											<div class="w3tc_instruction_copy">' . $opportunity['instruction'] . '</div>
+											<div class="w3tc_instruction_copy">' . $opportunity['instructions'] . '</div>
 										</div>
 									</td>
 								</tr>
@@ -420,7 +421,7 @@ class Util_PageSpeed {
 													<span>' . esc_html__( 'Our Recommendation', 'w3-total-cache' ) . '</span>
 												</div>
 											</div>
-											<div class="w3tc_instruction_copy">' . $opportunity['instruction'] . '</div>
+											<div class="w3tc_instruction_copy">' . $opportunity['instructions'] . '</div>
 										</div>
 									</td>
 								</tr>
@@ -525,21 +526,21 @@ class Util_PageSpeed {
 					$items   .= '<td>' . $item['statistic'] . '</td>';
 
 					$headers .= '<th>' . esc_html__( 'Element', 'w3-total-cache' ) . '</th>';
-					$items .= '<td>';
+					$items   .= '<td>';
 					if ( ! empty( $item['node'] ) ) {
 						$items .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
-						$items .= '<p>' . $item['node']['selector'] . '</p>'; 
+						$items .= '<p>' . $item['node']['selector'] . '</p>';
 					}
 					$items .= '</td>';
 
 					$headers .= '<th>' . esc_html__( 'Value', 'w3-total-cache' ) . '</th>';
 					$items   .= '<td>' . $item['value'] . '</td>';
-				} else if ( ! empty( $item['node'] ) ) {
+				} elseif ( ! empty( $item['node'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Element', 'w3-total-cache' ) . '</th>';
-					$items .= '<td>';
-					$items .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
-					$items .= '<p>' . $item['node']['selector'] . '</p>'; 
-					$items .= '</td>';
+					$items   .= '<td>';
+					$items   .= '<p>' . esc_html( $item['node']['snippet'] ) . '</p>';
+					$items   .= '<p>' . $item['node']['selector'] . '</p>';
+					$items   .= '</td>';
 				}
 				$items .= '</tr>';
 			}
@@ -570,7 +571,7 @@ class Util_PageSpeed {
 													<span>' . esc_html__( 'Our Recommendation', 'w3-total-cache' ) . '</span>
 												</div>
 											</div>
-											<div class="w3tc_instruction_copy">' . $diagnostic['instruction'] . '</div>
+											<div class="w3tc_instruction_copy">' . $diagnostic['instructions'] . '</div>
 										</div>
 									</td>
 								</tr>
@@ -601,7 +602,7 @@ class Util_PageSpeed {
 													<span>' . esc_html__( 'Our Recommendation', 'w3-total-cache' ) . '</span>
 												</div>
 											</div>
-											<div class="w3tc_instruction_copy">' . $diagnostic['instruction'] . '</div>
+											<div class="w3tc_instruction_copy">' . $diagnostic['instructions'] . '</div>
 										</div>
 									</td>
 								</tr>
@@ -621,6 +622,27 @@ class Util_PageSpeed {
 			</div>',
 			$allowed_tags
 		);
+	}
+
+	/**
+	 * Recursively get value based on series of key decendents.
+	 *
+	 * @param array $data PageSpeed data.
+	 * @param array $elements Array of key decendents.
+	 *
+	 * @return object | null
+	 */
+	public static function get_value_recursive( $data, $elements ) {
+		if ( empty( $elements ) ) {
+			return $data;
+		}
+
+		$key = array_shift( $elements );
+		if ( ! isset( $data[ $key ] ) ) {
+			return null;
+		}
+
+		return self::get_value( $data[ $key ], $elements );
 	}
 
 	/**

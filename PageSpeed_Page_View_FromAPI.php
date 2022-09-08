@@ -16,7 +16,7 @@ if ( ! defined( 'W3TC' ) ) {
  *
  * @var string
  */
-$current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile' );
+$current_tab = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile' );
 
 ?>
 <div id="w3tcps_container">
@@ -28,7 +28,7 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 					?>
 					<div class="w3tcps_feedback">
 						<div class="notice notice-error inline w3tcps_error">
-							<p><?php echo $api_response_error['error']; ?></p>
+							<p><?php echo wp_kses( $api_response_error['error'], Util_PageSpeed::get_allowed_tags() ); ?></p>
 						</div>
 					</div>
 					<?php
@@ -52,7 +52,7 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 						<div class="metabox-holder">
 							<?php
 							$analysis_types = array(
-								'desktop' => 'computer',
+								'desktop' => 'desktop',
 								'mobile'  => 'smartphone',
 							);
 							foreach ( $analysis_types as $analysis_type => $icon ) {
@@ -83,9 +83,9 @@ $current_tab  = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile
 											array(
 												'span' => array(),
 												'a'    => array(
-													'rel'    => array(),
+													'rel'  => array(),
 													'target' => array(),
-													'href'   => array(),
+													'href' => array(),
 												),
 											)
 										);

@@ -17,7 +17,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 <div id="w3tcps_container">
 	<div id="w3tcps_home" class="w3tcps_content">
 		<div class="page_post">
-			<h3 class="page_post_url" page_post_id="<?php echo esc_attr( get_option( 'page_on_front' ) ); ?>" page_post_url="<?php echo network_home_url(); ?>">
+			<h3 class="page_post_url" page_post_id="<?php echo esc_attr( get_option( 'page_on_front' ) ); ?>" page_post_url="<?php echo esc_attr( network_home_url() ); ?>">
 				<?php esc_html_e( 'Homepage', 'w3-total-cache' ); ?>
 				<input class="button w3tcps_analyze" type="button" value="<?php esc_attr_e( 'Refresh Analysis', 'w3-total-cache' ); ?>" />
 			</h3>

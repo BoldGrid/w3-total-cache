@@ -18,7 +18,7 @@ if ( ! defined( 'W3TC' ) ) {
 		?>
 		<div class="w3tcps_feedback">
 			<div class="notice notice-error inline w3tcps_error">
-				<p><?php echo $api_response_error['error']; ?></p>
+				<p><?php echo wp_kses( $api_response_error['error'], Util_PageSpeed::get_allowed_tags() ); ?></p>
 			</div>
 		</div>
 		<?php
@@ -27,8 +27,8 @@ if ( ! defined( 'W3TC' ) ) {
 		<div class="w3tcps_feedback">
 			<div class="notice notice-error inline w3tcps_error">
 				<p><?php esc_html_e( 'An error has occured!', 'w3-total-cache' ); ?></p>
-				<p><?php echo __( 'Mobile: ', 'w3-total-cache' ) . esc_html( $api_response['mobile']['error'] ); ?></p>
-				<p><?php echo __( 'Desktop: ', 'w3-total-cache' ) . esc_html( $api_response['desktop']['error'] ); ?></p>
+				<p><?php esc_html_e( 'Mobile: ', 'w3-total-cache' ) . esc_html( $api_response['mobile']['error'] ); ?></p>
+				<p><?php esc_html_e( 'Desktop: ', 'w3-total-cache' ) . esc_html( $api_response['desktop']['error'] ); ?></p>
 			</div>
 		</div>
 		<?php

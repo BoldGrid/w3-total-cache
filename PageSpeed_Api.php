@@ -93,7 +93,7 @@ class PageSpeed_Api {
 			);
 		}
 
-		return array_merge(
+		return array_merge_recursive(
 			PageSpeed_Data::prepare_pagespeed_data( $data ),
 			PageSpeed_Instructions::get_pagespeed_instructions(),
 		);
@@ -114,7 +114,7 @@ class PageSpeed_Api {
 					'message' => __( 'Missing Google access token.', 'w3-total-cache' ),
 				),
 			);
-		} 
+		}
 
 		$access_token = json_decode( $this->client->getAccessToken() );
 
@@ -129,7 +129,7 @@ class PageSpeed_Api {
 			)
 		);
 
-		// Attempt the request up to x times with an increasing delay between each attempt. Uses W3TC_PAGESPEED_MAX_ATTEMPTS;
+		// Attempt the request up to x times with an increasing delay between each attempt. Uses W3TC_PAGESPEED_MAX_ATTEMPTS.
 		$attempts = 0;
 
 		while ( ++$attempts <= W3TC_PAGESPEED_MAX_ATTEMPTS ) {
@@ -174,7 +174,7 @@ class PageSpeed_Api {
 					'message' => $response->get_error_message(),
 				),
 			);
-		} 
+		}
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}

@@ -17,7 +17,7 @@ class PageSpeed_Page {
 	 * @return void
 	 */
 	public function run() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_print_scripts_w3tc_pagespeed' ) );
+		add_action( 'admin_print_scripts-performance_page_w3tc_pagespeed', array( $this, 'admin_print_scripts_w3tc_pagespeed' ) );
 		add_action( 'w3tc_ajax_pagespeed_data', array( $this, 'w3tc_ajax_pagespeed_data' ) );
 	}
 
@@ -41,7 +41,7 @@ class PageSpeed_Page {
 			'w3tcData',
 			array(
 				'lang' => array(
-					'pagespeed_data_error' => __( 'Error : ', 'w3-total-cache' ),
+					'pagespeed_data_error'   => __( 'Error : ', 'w3-total-cache' ),
 					'pagespeed_filter_error' => __( 'An unknown error occured attempting to filter audit results!', 'w3-total-cache' ),
 				),
 			)
@@ -73,7 +73,7 @@ class PageSpeed_Page {
 
 		if ( Util_Request::get( 'cache' ) !== 'no' ) {
 			$r = get_transient( 'w3tc_pagespeed_data_' . $encoded_url );
-			$r = @json_decode( $r, true );
+			$r = json_decode( $r, true );
 			if ( is_array( $r ) && isset( $r['time'] ) && $r['time'] >= time() - 3600 ) {
 				$api_response = $r;
 			}
@@ -101,7 +101,7 @@ class PageSpeed_Page {
 
 			$w3_pagespeed = new PageSpeed_Api( $access_token );
 			$api_response = $w3_pagespeed->analyze( $url );
-			
+
 			if ( ! $api_response ) {
 				$api_response_error = array(
 					'error' => sprintf(
