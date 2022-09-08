@@ -1,18 +1,3 @@
-.w3tcps_scores {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.w3tcps_scores p {
-	padding: 0 10px;
-}
-
-.w3tcps_scores section {
-	font-size: 30px;
-	font-weight: bold;
-}
-
 .w3tcps_metric {
 	margin-top: 10px;
 	margin-bottom: 5px;
@@ -32,21 +17,6 @@
 	position: relative;
 }
 
-.w3tcps_barfast {
-	background-color: #0cc66b;
-	color: #fff;
-}
-
-.w3tcps_baraverage {
-	background-color: #ffa400;
-	color: #000;
-}
-
-.w3tcps_barslow {
-	background-color: #ff4e42;
-	color: #fff;
-}
-
 .w3tcps_buttons {
 	display: flex;
 	justify-content: center;
@@ -54,10 +24,6 @@
 
 .w3tcps_buttons .button {
 	margin: 5px !important;
-}
-
-.w3tcps_metrics_container {
-    display: inline-block;
 }
 
 .w3tcps_metric {
@@ -85,11 +51,6 @@
     height: 30px;
     animation: spin 2s linear infinite;
     margin: 20px auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 
 .w3tcps_legend,
@@ -160,17 +121,13 @@
     padding-top: 50%;
 }
 
-.gauge .chart {
-  overflow: hidden;
-}
-
 .gauge .mask {
     position: absolute;
     left: 20%;
     right: 20%;
     bottom: 0;
     top: 40%;
-	
+
     background-color: #ffffff;
     border-radius: 50%/100% 100% 0 0;
 }
@@ -187,25 +144,10 @@
     transition-duration: 600;
 }
 
-.gauge:hover {
-    --rotation: 100deg;
-}
 .gauge .value {
     position:absolute; 
     bottom:0%; 
     left:0;   
     width:100%; 
     text-align: center;
-}
-
-.gauge .min {
-    position:absolute; 
-    bottom:0; 
-    left:5%;   
-}
-
-.gauge .max {
-    position:absolute; 
-    bottom:0; 
-    right:5%;   
 }

@@ -27,7 +27,7 @@ class PageSpeed_Page {
 	 * @return void
 	 */
 	public function admin_print_scripts_w3tc_pagespeed() {
-		wp_enqueue_style( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION );
+		wp_enqueue_style( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION . time() );
 
 		wp_register_script(
 			'w3tc-pagespeed',

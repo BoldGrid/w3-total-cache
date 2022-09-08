@@ -642,7 +642,7 @@ class Util_PageSpeed {
 			return null;
 		}
 
-		return self::get_value( $data[ $key ], $elements );
+		return self::get_value_recursive( $data[ $key ], $elements );
 	}
 
 	/**

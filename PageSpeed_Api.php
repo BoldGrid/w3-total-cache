@@ -84,11 +84,11 @@ class PageSpeed_Api {
 			)
 		);
 
-		if ( ! empty( PageSpeed_Data::get_value( $data, array( 'error', 'code' ) ) ) ) {
+		if ( ! empty( Util_PageSpeed::get_value_recursive( $data, array( 'error', 'code' ) ) ) ) {
 			return array(
 				'error' => array(
-					'code'    => PageSpeed_Data::get_value( $data, array( 'error', 'code' ) ),
-					'message' => PageSpeed_Data::get_value( $data, array( 'error', 'message' ) ),
+					'code'    => Util_PageSpeed::get_value_recursive( $data, array( 'error', 'code' ) ),
+					'message' => Util_PageSpeed::get_value_recursive( $data, array( 'error', 'message' ) ),
 				),
 			);
 		}
