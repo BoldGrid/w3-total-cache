@@ -153,15 +153,6 @@ if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 	define( 'W3TC_FEED_REGEXP', '~/feed(/|$)~' );
 }
 
-define( 'W3TC_API_GPS_AUTHORIZE_URL', 'https://api2-dev-jacobd.w3-edge.com/google/authorize-in' );
-define( 'W3TC_API_GPS_GET_TOKEN_URL', 'https://api2-dev-jacobd.w3-edge.com/google/get-token' );
-define( 'W3TC_API_GPS_UPDATE_TOKEN_URL', 'https://api2-dev-jacobd.w3-edge.com/google/update-token' );
-define( 'W3TC_PAGESPEED_API_URL', 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed' );
-define( 'W3TC_PAGESPEED_RETURN_URL', 'https://api2-dev-jacobd.w3-edge.com/google/authorize-out/' );
-define( 'W3TC_PAGESPEED_MAX_ATTEMPTS', 4 );
-
-define( 'W3TC_GOOGLE_CLIENT_JSON', '{"web":{"client_id":"887173527583-mvtpm465985h8pokb3os715s9s3emv78.apps.googleusercontent.com","project_id":"w3tc-testing","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"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","redirect_uris":["http://jacobdboldgrid.com/wp-admin/admin.php?page=w3tc_dashboard","http://jacobdboldgrid.com/wp-admin/admin.php?page=w3tc_general","http://jacobdboldgrid.com/wp-admin/admin.php?page=w3tc_pagespeed"]}}' );
-
 @ini_set( 'pcre.backtrack_limit', 4194304 );
 @ini_set( 'pcre.recursion_limit', 4194304 );
 

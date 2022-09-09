@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: general.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -678,7 +684,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			$response = json_decode( $w3_pagespeed->new_token( $new_gacode, $new_w3key ), true );
 
 			if ( is_wp_error( $response ) ) {
-				echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured! - ', 'w3-total-cache' ) . $response->get_error_message() . '</div></div>';
+				echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured! - ', 'w3-total-cache' ) . esc_html( $response->get_error_message() ) . '</div></div>';
 			} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
 				$response_error = sprintf(
 					// translators: 1 Request response code, 2 Error message.
@@ -724,7 +730,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						<label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?> <?php esc_html_e( 'Expired', 'w3-total-cache' ); ?></label>
 					</th>
 					<td>
-						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo W3TC_API_GPS_AUTHORIZE_URL . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ). '/' . rawurlencode( $w3key ); ?>"><?php esc_html_e( 'Re-Authorize' ); ?></a>
+						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $w3_pagespeed->get_w3tc_api_url( 'google/authorize-in' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ) . '/' . rawurlencode( $w3key ) ); ?>"><?php esc_html_e( 'Re-Authorize' ); ?></a>
 						<p><?php esc_html_e( 'Click the "Re-Authorize" button to re-authorize W3TC to perform requests to the PageSpeed Insights API on your behalf via a temporary Google Access Token. This token will be set to automatically refresh once expired so authorization should only be required once.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>
@@ -736,27 +742,29 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						<label for="widget_pagespeed_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label>
 					</th>
 					<td>
-						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo W3TC_API_GPS_AUTHORIZE_URL . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ); ?>"><?php esc_html_e( 'Authorize' ); ?></a>
+						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $w3_pagespeed->get_w3tc_api_url( 'google/authorize-in' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ) ); ?>"><?php esc_html_e( 'Authorize' ); ?></a>
 						<p><?php esc_html_e( 'Click the "Authorize" button to authorize W3TC to perform requests to the PageSpeed Insights API on your behalf via a refreshed temporary Google Access Token. This token will be set to automatically refresh once expired so authorization should only be required once.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>
 				<?php
 			}
 
-			Util_Ui::config_item( array(
-					'key' => 'widget.pagespeed.enabled',
-					'control' => 'checkbox',
+			Util_Ui::config_item(
+				array(
+					'key'            => 'widget.pagespeed.enabled',
+					'control'        => 'checkbox',
 					'checkbox_label' => __( 'Enable Google Page Speed dashboard widget', 'w3-total-cache' ),
-					'description' => __( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
-					'label_class' => 'w3tc_single_column'
-				) );
+					'description'    => __( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
+					'label_class'    => 'w3tc_single_column',
+				)
+			);
 			?>
 		</table>
 
 		<?php Util_Ui::button_config_save( 'general_google_page_speed' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php if ( $licensing_visible ): ?>
+		<?php if ( $licensing_visible ) : ?>
 			<?php Util_Ui::postbox_header( __( 'Licensing', 'w3-total-cache' ), '', 'licensing' ); ?>
 			<table class="form-table">
 					<tr>
@@ -794,11 +802,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			</table>
 			<?php Util_Ui::button_config_save( 'general_licensing' ); ?>
 			<?php Util_Ui::postbox_footer(); ?>
-		<?php endif ?>
+		<?php endif; ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Miscellaneous', 'w3-total-cache' ), '', 'miscellaneous' ); ?>
 		<table class="form-table">
-			<?php if ( is_network_admin() ): ?>
+			<?php if ( is_network_admin() ) : ?>
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'common.force_master' ); ?> <?php Util_Ui::e_config_label( 'common.force_master' ); ?></label>

@@ -26,6 +26,34 @@ class PageSpeed_Api {
 	public $client;
 
 	/**
+	 * W3TC Google Client JSON. Overwritten by W3TC_GOOGLE_CLIENT_JSON constant.
+	 *
+	 * @var string
+	 */
+	private $google_client_json = '{"web":{"client_id":"887173527583-mvtpm465985h8pokb3os715s9s3emv78.apps.googleusercontent.com","project_id":"w3tc-testing","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"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","redirect_uris":["http://jacobdboldgrid.com/wp-admin/admin.php?page=w3tc_dashboard","http://jacobdboldgrid.com/wp-admin/admin.php?page=w3tc_general","http://jacobdboldgrid.com/wp-admin/admin.php?page=w3tc_pagespeed"]}}';
+
+	/**
+	 * W3TC API server base URL. Overwritten by W3TC_API2_URL constant.
+	 *
+	 * @var string
+	 */
+	private $w3tc_api_base_url = 'https://api2.w3-edge.com';
+
+	/**
+	 * Retry Attemps. Overwritten by W3TC_PAGESPEED_MAX_ATTEMPTS constant.
+	 *
+	 * @var string
+	 */
+	private $retry_attempts = 4;
+
+	/**
+	 * Google PageSpeed API URL. Overwritten by W3TC_PAGESPEED_API_URL constant.
+	 *
+	 * @var string
+	 */
+	private $pagespeed_api_base_url = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
+
+	/**
 	 * PageSpeed API constructor.
 	 *
 	 * @param string $access_token_json API access token JSON.
@@ -34,8 +62,8 @@ class PageSpeed_Api {
 		$this->config = Dispatcher::config();
 		$this->client = new \W3TCG_Google_Client();
 		$this->client->setApplicationName( 'W3TC PageSpeed Analyzer' );
-		$this->client->setAuthConfig( W3TC_GOOGLE_CLIENT_JSON );
-		$this->client->setRedirectUri( W3TC_PAGESPEED_RETURN_URL );
+		$this->client->setAuthConfig( $this->get_google_client_json() );
+		$this->client->setRedirectUri( $this->get_w3tc_api_url( 'google/authorize-out/' ) );
 		$this->client->addScope( 'openid' );
 		$this->client->setAccessType( 'offline' );
 		$this->client->setApprovalPrompt( 'force' );
@@ -61,7 +89,7 @@ class PageSpeed_Api {
 			'mobile'   => $mobile,
 			'desktop'  => $desktop,
 			'test_url' => Util_Environment::url_format(
-				W3TC_PAGESPEED_API_URL,
+				$this->get_pagespeed_api_base_url(),
 				array( 'url' => $url )
 			),
 		);
@@ -119,7 +147,7 @@ class PageSpeed_Api {
 		$access_token = json_decode( $this->client->getAccessToken() );
 
 		$request = Util_Environment::url_format(
-			W3TC_PAGESPEED_API_URL,
+			$this->get_pagespeed_api_base_url(),
 			array_merge(
 				$query,
 				array(
@@ -129,10 +157,10 @@ class PageSpeed_Api {
 			)
 		);
 
-		// Attempt the request up to x times with an increasing delay between each attempt. Uses W3TC_PAGESPEED_MAX_ATTEMPTS.
+		// Attempt the request up to x times with an increasing delay between each attempt. Uses W3TC_PAGESPEED_MAX_ATTEMPTS constant if defined.
 		$attempts = 0;
 
-		while ( ++$attempts <= W3TC_PAGESPEED_MAX_ATTEMPTS ) {
+		while ( ++$attempts <= $this->get_w3tc_pagespeed_max_attempts() ) {
 			try {
 				$response = wp_remote_get(
 					$request,
@@ -145,7 +173,7 @@ class PageSpeed_Api {
 					break;
 				}
 			} catch ( \Exception $e ) {
-				if ( $attempts >= W3TC_PAGESPEED_MAX_ATTEMPTS ) {
+				if ( $attempts >= $this->get_w3tc_pagespeed_max_attempts() ) {
 					return array(
 						'error' => array(
 							'code'    => 500,
@@ -212,7 +240,7 @@ class PageSpeed_Api {
 									Response Message: %3$s<br/>',
 								'w3-total-cache'
 							),
-							W3TC_API_GPS_GET_TOKEN_URL . '/' . Util_Http::generate_site_id() . '/' . $this->config->get_string( 'widget.pagespeed.w3key' ),
+							$this->get_w3tc_api_url( 'google/get-token' ) . '/' . Util_Http::generate_site_id() . '/' . $this->config->get_string( 'widget.pagespeed.w3key' ),
 							! empty( $initial_refresh_token->error->code ) ? $initial_refresh_token->error->code : 'N/A',
 							! empty( $initial_refresh_token->error->message ) ? $initial_refresh_token->error->message : 'N/A'
 						),
@@ -220,7 +248,7 @@ class PageSpeed_Api {
 				);
 			}
 		}
-
+		
 		try {
 			$this->client->refreshToken( $initial_refresh_token->refresh_token );
 		} catch ( \Exception $e ) {
@@ -233,7 +261,7 @@ class PageSpeed_Api {
 				)
 			);
 		}
-
+		
 		$new_access_token = json_decode( $this->client->getAccessToken() );
 
 		if ( ! empty( $new_access_token->refresh_token ) && $new_access_token->refresh_token !== $initial_refresh_token->refresh_token ) {
@@ -241,14 +269,14 @@ class PageSpeed_Api {
 			unset( $new_access_token->refresh_token );
 
 			$request = Util_Environment::url_format(
-				W3TC_API_GPS_UPDATE_TOKEN_URL,
+				$this->get_w3tc_api_url( 'google/update-token' ),
 				array(
 					'site_id'       => Util_Http::generate_site_id(),
 					'w3key'         => $this->config->get_string( 'widget.pagespeed.w3key' ),
 					'refresh_token' => $new_refresh_token,
 				)
 			);
-
+			
 			try {
 				$response = wp_remote_get(
 					$request,
@@ -266,7 +294,7 @@ class PageSpeed_Api {
 					)
 				);
 			}
-
+			
 			if ( is_wp_error( $response ) ) {
 				return wp_json_encode(
 					array(
@@ -351,7 +379,7 @@ class PageSpeed_Api {
 		$access_token = ( ! empty( $access_token_json ) ? json_decode( $access_token_json ) : '' );
 
 		$request = Util_Environment::url_format(
-			W3TC_API_GPS_UPDATE_TOKEN_URL,
+			$this->get_w3tc_api_url( 'google/update-token' ),
 			array(
 				'site_id'       => Util_Http::generate_site_id(),
 				'w3key'         => $w3key,
@@ -434,7 +462,8 @@ class PageSpeed_Api {
 			);
 		}
 
-		$request = W3TC_API_GPS_GET_TOKEN_URL . '/' . $site_id . '/' . $w3key;
+		$request = $this->get_w3tc_api_url( 'google/get-token' ) . '/' . $site_id . '/' . $w3key;
+		
 		try {
 			$response = wp_remote_get(
 				$request,
@@ -452,7 +481,7 @@ class PageSpeed_Api {
 				)
 			);
 		}
-
+		
 		if ( is_wp_error( $response ) ) {
 			return wp_json_encode(
 				array(
@@ -473,5 +502,43 @@ class PageSpeed_Api {
 		}
 
 		return wp_remote_retrieve_body( $response );
+	}
+
+	/**
+	 * Get Google Client JSON config.
+	 *
+	 * @return JSON
+	 */
+	public function get_google_client_json() {
+		return defined( 'W3TC_GOOGLE_CLIENT_JSON' ) && W3TC_GOOGLE_CLIENT_JSON ? W3TC_GOOGLE_CLIENT_JSON : $this->google_client_json;
+	}
+
+	/**
+	 * Get W3TC PageSpeed API max attempts.
+	 *
+	 * @return int
+	 */
+	public function get_w3tc_pagespeed_max_attempts() {
+		return defined( 'W3TC_PAGESPEED_MAX_ATTEMPTS' ) && W3TC_PAGESPEED_MAX_ATTEMPTS ? W3TC_PAGESPEED_MAX_ATTEMPTS : $this->retry_attempts;
+	}
+
+	/**
+	 * Get Google PageSpeed API URL.
+	 *
+	 * @return string
+	 */
+	public function get_pagespeed_api_base_url() {
+		return defined( 'W3TC_PAGESPEED_API_URL' ) && W3TC_PAGESPEED_API_URL ? W3TC_PAGESPEED_API_URL : $this->pagespeed_api_base_url;
+	}
+
+	/**
+	 * Get W3TC API server URL target. Will be forced to HTTPS.
+	 *
+	 * @param string $target API target URI.
+	 *
+	 * @return string
+	 */
+	public function get_w3tc_api_url( $target ) {
+		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ? esc_url( 'https://' . W3TC_API2_URL . '/' . $target, array( 'https' ), '' ) : esc_url( $this->w3tc_api_base_url . $target, 'https', '' );
 	}
 }

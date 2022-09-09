@@ -43,6 +43,11 @@
 	text-align: left;
 }
 
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 .w3tcps_loading {
     border: 7px solid #c3c3c3;
     border-top: 7px solid #3498db;
