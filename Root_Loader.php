@@ -1,46 +1,78 @@
 <?php
+/**
+ * File: Root_Loader.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class: Root_Loader
+ */
 class Root_Loader {
 	/**
 	 * Enabled Plugins that has been run
 	 *
 	 * @var W3_Plugin[]
 	 */
-	private $_loaded_plugins = array();
+	private $_loaded_plugins = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+
 	/**
 	 * Enabled extensions that has been run
 	 *
 	 * @var W3_Plugin[]
 	 */
-	private $_loaded_extensions = array();
+	private $_loaded_extensions = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		$c = Dispatcher::config();
 
-		$plugins = array();
+		$plugins   = array();
 		$plugins[] = new Generic_Plugin();
 
-		if ( $c->get_boolean( 'dbcache.enabled' ) )
+		if ( $c->get_boolean( 'dbcache.enabled' ) ) {
 			$plugins[] = new DbCache_Plugin();
-		if ( $c->get_boolean( 'objectcache.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'objectcache.enabled' ) ) {
 			$plugins[] = new ObjectCache_Plugin();
-		if ( $c->get_boolean( 'pgcache.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'pgcache.enabled' ) ) {
 			$plugins[] = new PgCache_Plugin();
-		if ( $c->get_boolean( 'cdn.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'cdn.enabled' ) ) {
 			$plugins[] = new Cdn_Plugin();
-		if ( $c->get_boolean( 'cdnfsd.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'cdnfsd.enabled' ) ) {
 			$plugins[] = new Cdnfsd_Plugin();
-		if ( $c->get_boolean( 'lazyload.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'lazyload.enabled' ) ) {
 			$plugins[] = new UserExperience_LazyLoad_Plugin();
-		if ( $c->get_boolean( 'browsercache.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'browsercache.enabled' ) ) {
 			$plugins[] = new BrowserCache_Plugin();
-		if ( $c->get_boolean( 'minify.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'minify.enabled' ) ) {
 			$plugins[] = new Minify_Plugin();
-		if ( $c->get_boolean( 'varnish.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'varnish.enabled' ) ) {
 			$plugins[] = new Varnish_Plugin();
-		if ( $c->get_boolean( 'stats.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'stats.enabled' ) ) {
 			$plugins[] = new UsageStatistics_Plugin();
+		}
 
 		if ( is_admin() ) {
 			$plugins[] = new Generic_Plugin_Admin();
@@ -57,20 +89,22 @@ class Root_Loader {
 
 			$plugins[] = new Cdn_Plugin_Admin();
 			$plugins[] = new Cdnfsd_Plugin_Admin();
+
 			$cdn_engine = $c->get_string( 'cdn.engine' );
-			if ( $cdn_engine == 'maxcdn' ) {
+			if ( 'maxcdn' === $cdn_engine ) {
 				$plugins[] = new Cdn_Plugin_WidgetMaxCdn();
 			}
 
-			if ( $c->get_boolean( 'widget.pagespeed.enabled' ) )
+			if ( $c->get_boolean( 'widget.pagespeed.enabled' ) ) {
 				$plugins[] = new PageSpeed_Plugin_Widget();
+			}
 
 			$plugins[] = new Generic_Plugin_AdminCompatibility();
 			$plugins[] = new Licensing_Plugin_Admin();
 
-			if ( $c->get_boolean( 'pgcache.enabled' ) ||
-				$c->get_boolean( 'varnish.enabled' ) )
+			if ( $c->get_boolean( 'pgcache.enabled' ) || $c->get_boolean( 'varnish.enabled' ) ) {
 				$plugins[] = new Generic_Plugin_AdminRowActions();
+			}
 
 			$plugins[] = new Extensions_Plugin_Admin();
 			$plugins[] = new Generic_Plugin_AdminNotifications();
@@ -85,21 +119,21 @@ class Root_Loader {
 
 		$this->_loaded_plugins = $plugins;
 
-		register_activation_hook( W3TC_FILE, array(
-				$this,
-				'activate'
-			) );
+		register_activation_hook(
+			W3TC_FILE,
+			array( $this, 'activate' )
+		);
 
-		register_deactivation_hook( W3TC_FILE, array(
-				$this,
-				'deactivate'
-			) );
+		register_deactivation_hook(
+			W3TC_FILE,
+			array( $this, 'deactivate' )
+		);
 	}
 
 	/**
 	 * Run plugins
 	 */
-	function run() {
+	public function run() {
 		foreach ( $this->_loaded_plugins as $plugin ) {
 			$plugin->run();
 		}
@@ -114,6 +148,8 @@ class Root_Loader {
 
 	/**
 	 * Activation action hook
+	 *
+	 * @param bool $network_wide Network wide flag.
 	 */
 	public function activate( $network_wide ) {
 		Root_AdminActivation::activate( $network_wide );
@@ -129,19 +165,18 @@ class Root_Loader {
 	/**
 	 * Loads extensions stored in config
 	 */
-	function run_extensions() {
-		$c = Dispatcher::config();
+	public function run_extensions() {
+		$c          = Dispatcher::config();
 		$extensions = $c->get_array( 'extensions.active' );
 
 		$frontend = $c->get_array( 'extensions.active_frontend' );
 		foreach ( $frontend as $extension => $nothing ) {
-			if ( isset( $extensions[$extension] ) ) {
-				$path = $extensions[$extension];
-				$filename = W3TC_EXTENSION_DIR . '/' .
-					str_replace( '..', '', trim( $path, '/' ) );
+			if ( isset( $extensions[ $extension ] ) ) {
+				$path     = $extensions[ $extension ];
+				$filename = W3TC_EXTENSION_DIR . '/' . str_replace( '..', '', trim( $path, '/' ) );
 
 				if ( file_exists( $filename ) ) {
-					include_once( $filename );
+					include_once $filename;
 				}
 			}
 		}
@@ -152,7 +187,7 @@ class Root_Loader {
 					str_replace( '..', '', trim( $path, '/' ) );
 
 				if ( file_exists( $filename ) ) {
-					include_once( $filename );
+					include_once $filename;
 				}
 			}
 		}
@@ -181,7 +216,7 @@ class Root_Loader {
 	}
 
 	/**
-	 * Modify query object.
+	 * Modify query object to hide Image Service converted images.
 	 *
 	 * @param object $query WP_Query object.
 	 *
@@ -210,7 +245,7 @@ class Root_Loader {
 	}
 
 	/**
-	 * Filter AJAX query arguments for attachements.
+	 * Filter AJAX query arguments for attachements to hide Image Service converted images.
 	 *
 	 * @param string $args arguments.
 	 *
@@ -221,7 +256,6 @@ class Root_Loader {
 			return;
 		}
 
-		// Modify the query.
 		$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			array(
 				'key'     => 'w3tc_imageservice_file',
