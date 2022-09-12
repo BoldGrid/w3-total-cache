@@ -170,50 +170,66 @@ class Root_Loader {
 		if ( 'never' === $visibility || ( 'extension' === $visibility && ! isset( $extensions['imageservice'] ) ) ) {
 			add_action(
 				'pre_get_posts',
-				function( $query ) {
-					if ( ! is_admin() || ! $query->is_main_query() ) {
-						return;
-					}
-
-					$screen = get_current_screen();
-
-					if ( ! $screen || 'upload' !== $screen->id || 'attachment' !== $screen->post_type ) {
-						return;
-					}
-
-					$query->set(
-						'meta_query',
-						array(
-							array(
-								'key'     => 'w3tc_imageservice_file',
-								'compare' => 'NOT EXISTS',
-							),
-						)
-					);
-
-					return;
-				}
+				array( $this, 'w3tc_modify_query_obj' ),
 			);
 
 			add_filter(
 				'ajax_query_attachments_args',
-				function( $args ) {
-					if ( ! is_admin() ) {
-						return;
-					}
-
-					// Modify the query.
-					$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-						array(
-							'key'     => 'w3tc_imageservice_file',
-							'compare' => 'NOT EXISTS',
-						),
-					);
-
-					return $args;
-				}
+				array( $this, 'w3tc_filter_ajax_args' ),
 			);
 		}
+	}
+
+	/**
+	 * Modify query object.
+	 *
+	 * @param object $query WP_Query object.
+	 *
+	 * @return void
+	 */
+	public function w3tc_modify_query_obj( $query ) {
+		if ( ! is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+
+		if ( ! $screen || 'upload' !== $screen->id || 'attachment' !== $screen->post_type ) {
+			return;
+		}
+
+		$query->set(
+			'meta_query',
+			array(
+				array(
+					'key'     => 'w3tc_imageservice_file',
+					'compare' => 'NOT EXISTS',
+				),
+			)
+		);
+	}
+
+	/**
+	 * Filter AJAX query arguments for attachements.
+	 *
+	 * @param string $args arguments.
+	 *
+	 * @return void
+	 */
+	public function w3tc_filter_ajax_args( $args ) {
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Modify the query.
+		$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			array(
+				'key'     => 'w3tc_imageservice_file',
+				'compare' => 'NOT EXISTS',
+			),
+		);
+
+		return $args;
 	}
 }
 
