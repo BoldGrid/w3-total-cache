@@ -681,7 +681,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$new_gacode = Util_Request::get( 'w3tc_new_gacode' );
 		$new_w3key  = Util_Request::get( 'w3tc_new_w3key' );
 		if ( ! empty( $new_gacode ) && ! empty( $new_w3key ) ) {
-			$response = json_decode( $w3_pagespeed->new_token( $new_gacode, $new_w3key ), true );
+			$response = json_decode( $w3_pagespeed->process_authorization_response( $new_gacode, $new_w3key ), true );
 
 			if ( is_wp_error( $response ) ) {
 				echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured! - ', 'w3-total-cache' ) . esc_html( $response->get_error_message() ) . '</div></div>';

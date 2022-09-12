@@ -329,7 +329,7 @@ class PageSpeed_Api {
 	 *
 	 * @return string | null
 	 */
-	public function new_token( $gacode, $w3key ) {
+	public function process_authorization_response( $gacode, $w3key ) {
 		if ( empty( $gacode ) ) {
 			return wp_json_encode(
 				array(
