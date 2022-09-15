@@ -11,10 +11,9 @@ jQuery(document).ready( function($) {
 	/**
 	 * Analyze homepage via AJAX to Google PageSpeed Insights.
 	 *
-	 * @param mixed nocache Flag to enable/disable results cache.
+	 * @param boolean nocache Flag to enable/disable results cache.
 	 * 
 	 * @return void
-	 * 
 	 */
 	function w3tcps_load(nocache) {
 		$('.w3tcps_loading').removeClass('w3tc_none');
@@ -46,7 +45,6 @@ jQuery(document).ready( function($) {
      * Toggle mobile view.
      *
      * @return void
-     * 
      */
 	function w3tcps_mobile_toggle() {
 		$('#w3tcps_control_desktop').removeClass('nav-tab-active');
@@ -59,7 +57,6 @@ jQuery(document).ready( function($) {
      * Toggle desktop view.
      *
      * @return void
-     * 
      */
     function w3tcps_desktop_toggle() {
 		$('#w3tcps_control_mobile').removeClass('nav-tab-active')
