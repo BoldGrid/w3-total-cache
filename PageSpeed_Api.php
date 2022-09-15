@@ -132,7 +132,7 @@ class PageSpeed_Api {
 	 *
 	 * @param string $query API request query.
 	 *
-	 * @return string | false
+	 * @return array
 	 */
 	public function process_request( $query ) {
 		if ( empty( $this->client->getAccessToken() ) ) {
@@ -221,7 +221,7 @@ class PageSpeed_Api {
 	/**
 	 * Refreshes the Google access token if a valid refresh token is defined.
 	 *
-	 * @return string | null
+	 * @return string
 	 */
 	public function refresh_token() {
 		$initial_refresh_token = $this->client->getRefreshToken();
@@ -248,7 +248,7 @@ class PageSpeed_Api {
 				);
 			}
 		}
-		
+
 		try {
 			$this->client->refreshToken( $initial_refresh_token->refresh_token );
 		} catch ( \Exception $e ) {
@@ -261,7 +261,7 @@ class PageSpeed_Api {
 				)
 			);
 		}
-		
+
 		$new_access_token = json_decode( $this->client->getAccessToken() );
 
 		if ( ! empty( $new_access_token->refresh_token ) && $new_access_token->refresh_token !== $initial_refresh_token->refresh_token ) {
@@ -276,7 +276,7 @@ class PageSpeed_Api {
 					'refresh_token' => $new_refresh_token,
 				)
 			);
-			
+
 			try {
 				$response = wp_remote_get(
 					$request,
@@ -294,7 +294,7 @@ class PageSpeed_Api {
 					)
 				);
 			}
-			
+
 			if ( is_wp_error( $response ) ) {
 				return wp_json_encode(
 					array(
@@ -439,7 +439,7 @@ class PageSpeed_Api {
 	 * @param string $site_id W3 API access key.
 	 * @param string $w3key   W3 API access key.
 	 *
-	 * @return string | null
+	 * @return string
 	 */
 	public function get_refresh_token( $site_id, $w3key ) {
 		if ( empty( $site_id ) ) {
@@ -463,7 +463,7 @@ class PageSpeed_Api {
 		}
 
 		$request = $this->get_w3tc_api_url( 'google/get-token' ) . '/' . $site_id . '/' . $w3key;
-		
+
 		try {
 			$response = wp_remote_get(
 				$request,
@@ -481,7 +481,7 @@ class PageSpeed_Api {
 				)
 			);
 		}
-		
+
 		if ( is_wp_error( $response ) ) {
 			return wp_json_encode(
 				array(
@@ -501,13 +501,14 @@ class PageSpeed_Api {
 			);
 		}
 
+		// Response body should contain a JSON format string.
 		return wp_remote_retrieve_body( $response );
 	}
 
 	/**
 	 * Get Google Client JSON config.
 	 *
-	 * @return JSON
+	 * @return string
 	 */
 	public function get_google_client_json() {
 		return defined( 'W3TC_GOOGLE_CLIENT_JSON' ) && W3TC_GOOGLE_CLIENT_JSON ? W3TC_GOOGLE_CLIENT_JSON : $this->google_client_json;
