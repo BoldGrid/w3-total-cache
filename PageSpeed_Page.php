@@ -13,7 +13,6 @@ namespace W3TC;
  * PageSpeed Page
  *
  * @since 2.3.0
- *
  */
 class PageSpeed_Page {
 	/**
