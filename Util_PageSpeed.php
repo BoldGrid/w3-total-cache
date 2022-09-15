@@ -12,7 +12,7 @@ namespace W3TC;
  */
 class Util_PageSpeed {
 	/**
-	 * Get score guage angle
+	 * Get score guage angle.
 	 *
 	 * @param int $score PageSpeed desktop/mobile score.
 	 *
@@ -44,7 +44,7 @@ class Util_PageSpeed {
 	}
 
 	/**
-	 * Render the PageSpeed desktop/mobile score guage
+	 * Render the PageSpeed desktop/mobile score guage.
 	 *
 	 * @param array  $data PageSpeed desktop/mobile data containing score key.
 	 * @param string $icon Desktop/Mobile icon value.
@@ -161,7 +161,7 @@ class Util_PageSpeed {
 	}
 
 	/**
-	 * Get PageSpeed metric notice BG
+	 * Get PageSpeed metric notice BG.
 	 *
 	 * @param int $score PageSpeed desktop/mobile score.
 	 *
@@ -182,7 +182,7 @@ class Util_PageSpeed {
 	}
 
 	/**
-	 * Get PageSpeed metric grade
+	 * Get PageSpeed metric grade.
 	 *
 	 * @param int $score PageSpeed desktop/mobile score.
 	 *
@@ -203,7 +203,7 @@ class Util_PageSpeed {
 	}
 
 	/**
-	 * Render the final generated screenshot
+	 * Render the final generated screenshot.
 	 *
 	 * @param array $data PageSpeed data.
 	 *
@@ -216,7 +216,7 @@ class Util_PageSpeed {
 	}
 
 	/**
-	 * Render all "building" screenshots
+	 * Render all "building" screenshots.
 	 *
 	 * @param mixed $data PageSpeed desktop/mobile score.
 	 *
@@ -231,14 +231,13 @@ class Util_PageSpeed {
 	}
 
 	/**
-	 * Render all metric data into listable items
+	 * Render all metric data into listable items.
 	 *
 	 * @param array $data PageSpeed desktop/mobile score.
 	 *
 	 * @return void
 	 */
 	public static function print_breakdown( $data ) {
-		//Util_Debug::debug( 'Util_PageSpeed print_breakdown data', $data);
 		if ( ! isset( $data ) || ( empty( $data['opportunities'] ) && empty( $data['diagnostics'] ) ) ) {
 			return;
 		}
@@ -369,7 +368,7 @@ class Util_PageSpeed {
 			if ( $opportunity['score'] >= 90 ) {
 				$passed_audits .= '
 					<div class="audits w3tcps_passed_audit' . $audit_classes . ' ' . $notice . '">
-						<span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '</span>
+						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
 						<div class="w3tcps_breakdown_items w3tcps_pass_audit_items">
 							<p class="w3tcps_item_desciption">' . $opportunity['description'] . '</p>
 							<table class="w3tcps_item_breakdown_table">
@@ -400,7 +399,7 @@ class Util_PageSpeed {
 			} else {
 				$opportunities .= '
 					<div class="audits w3tcps_opportunities' . $audit_classes . ' ' . $notice . '">
-						<span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '</span>
+						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '">' . $opportunity['title'] . ' - ' . $opportunity['displayValue'] . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
 						<div class="w3tcps_breakdown_items w3tcps_opportunity_items">
 							<p class="w3tcps_item_desciption">' . $opportunity['description'] . '</p>
 							<table class="w3tcps_item_breakdown_table">
@@ -550,7 +549,7 @@ class Util_PageSpeed {
 			if ( $diagnostic['score'] >= 90 ) {
 				$passed_audits .= '
 					<div class="audits w3tcps_passed_audit' . $audit_classes . ' ' . $notice . '">
-						<span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '</span>
+						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
 						<div class="w3tcps_breakdown_items w3tcps_pass_audit_items">
 							<p class="w3tcps_item_desciption">' . $diagnostic['description'] . '</p>
 							<table class="w3tcps_item_breakdown_table">
@@ -581,7 +580,7 @@ class Util_PageSpeed {
 			} else {
 				$diagnostics .= '
 					<div class="audits w3tcps_diagnostics' . $audit_classes . ' ' . $notice . '">
-						<span class="w3tcps_breakdown_items_toggle w3tcps_range chevron_down ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '</span>
+						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '">' . $diagnostic['title'] . ' - ' . $diagnostic['displayValue'] . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
 						<div class="w3tcps_breakdown_items w3tcps_diagnostic_items">
 							<p class="w3tcps_item_desciption">' . $diagnostic['description'] . '</p>
 							<table class="w3tcps_item_breakdown_table">

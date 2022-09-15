@@ -2,6 +2,8 @@
 /**
  * File: PageSpeed_Data.php
  *
+ * Processes PageSpeed API data return into usable format.
+ *
  * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC

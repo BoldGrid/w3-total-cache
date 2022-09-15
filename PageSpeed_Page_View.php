@@ -2,6 +2,8 @@
 /**
  * File: PageSpeed_Page_View.php
  *
+ * Default PageSpeed page template.
+ *
  * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC

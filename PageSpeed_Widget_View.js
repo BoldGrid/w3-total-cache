@@ -1,7 +1,7 @@
 /**
  * File: PageSpeed_Widget_View.js
  *
- * JavaScript for the PageSpeed widget.
+ * JavaScript for the PageSpeed dashboard widget.
  *
  * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
@@ -21,7 +21,6 @@ jQuery(document).ready( function($) {
 		$('.w3tcps_loading').removeClass('w3tc_none');
 		$('.w3tc-gps-widget').addClass('w3tc_none');
 		$('.w3tcps_error').addClass('w3tc_none');
-
 		$.getJSON(ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
 			'&w3tc_action=pagespeed_widgetdata' + (nocache ? '&cache=no' : ''),
 			function(data) {

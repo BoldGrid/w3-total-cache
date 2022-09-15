@@ -28,26 +28,26 @@ jQuery(document).ready(function($) {
 		page_post.find('.w3tcps_error').addClass('w3tc_none');
 
 		$.ajax({
-            type: 'GET',
-            url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=pagespeed_data&url=' + encodeURIComponent( page_post_url ) + (nocache ? '&cache=no' : ''),
-            dataType: 'json',
-            success: function(data){
+			type: 'GET',
+			url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=pagespeed_data&url=' + encodeURIComponent( page_post_url ) + (nocache ? '&cache=no' : ''),
+			dataType: 'json',
+			success: function(data){
 				$('.w3tcps_analyze').prop('disabled',false);
-                $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none');
+			    $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none');
 				if (data.error) {
 					$('#' + page_post_id).prev().find('.w3tcps_error p').html( w3tcData.lang.pagespeed_data_error + data.error );
-           			$('#' + page_post_id).prev().find('.w3tcps_error').removeClass( 'w3tc_none' );
-	        		return;
-		        }
-    			$('#' + page_post_id).html(data['.w3tcps_content']).fadeIn('slow');
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                $('.w3tcps_analyze').prop('disabled',false);
+					$('#' + page_post_id).prev().find('.w3tcps_error').removeClass( 'w3tc_none' );
+					return;
+			    }
+				$('#' + page_post_id).html(data['.w3tcps_content']).fadeIn('slow');
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+			    $('.w3tcps_analyze').prop('disabled',false);
 				$('#' + page_post_id).prev().find('.w3tcps_error p').html( w3tcData.lang.pagespeed_data_error + errorThrown );
-                $('#' + page_post_id).prev().find('.w3tcps_error').removeClass('w3tc_none');
-                $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none');
-            },
-            async: true
+			    $('#' + page_post_id).prev().find('.w3tcps_error').removeClass('w3tc_none');
+			    $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none');
+			},
+			async: true
         });
     }
 
@@ -59,13 +59,13 @@ jQuery(document).ready(function($) {
 	 * @return void
 	 */
     function w3tcps_breakdown_items_toggle() {
-        $(this).toggleClass("chevron_up chevron_down");
+        $(this).find('.dashicons').toggleClass("dashicons-arrow-up-alt2 dashicons-arrow-down-alt2");
         $(this).next().slideToggle();
     }
    
 	/**
 	 * View mobile tab.
-	 * 
+	 *
 	 * @since 2.3.0
 	 *
 	 * @return void

@@ -2,6 +2,8 @@
 /**
  * File: PageSpeed_Page_View_FromAPI.php
  *
+ * Template file for PageSpeed page.
+ *
  * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
@@ -82,14 +84,7 @@ $current_tab = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile'
 												'<a target="_blank" href="' . esc_url( 'https://googlechrome.github.io/lighthouse/scorecalc/#FCP=1028&amp;TTI=1119&amp;SI=1028&amp;TBT=18&amp;LCP=1057&amp;CLS=0&amp;FMP=1028&amp;device=desktop&amp;version=9.0.0' ) . '">',
 												'</a>'
 											),
-											array(
-												'span' => array(),
-												'a'    => array(
-													'rel'  => array(),
-													'target' => array(),
-													'href' => array(),
-												),
-											)
+											Util_PageSpeed::get_allowed_tags()
 										);
 										?>
 										<div class="w3tcps_ranges">

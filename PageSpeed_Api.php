@@ -2,6 +2,8 @@
 /**
  * File: PageSpeed_Api.php
  *
+ * Controls Google OAuth2.0 requests both for authentication and queries against the PageSpeed API.
+ *
  * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
@@ -16,7 +18,7 @@ namespace W3TC;
  */
 class PageSpeed_Api {
 	/**
-	 * Config
+	 * Config.
 	 *
 	 * @var object
 	 */
@@ -68,7 +70,7 @@ class PageSpeed_Api {
 		$this->config = Dispatcher::config();
 		$this->client = new \W3TCG_Google_Client();
 		$this->client->setApplicationName( 'W3TC PageSpeed Analyzer' );
-		$this->client->setAuthConfig( $this->get_google_client_json() );
+		$this->client->setAuthConfig( $this->get_client_json() );
 		$this->client->setRedirectUri( $this->get_w3tc_api_url( 'google/authorize-out/' ) );
 		$this->client->addScope( 'openid' );
 		$this->client->setAccessType( 'offline' );
@@ -97,7 +99,7 @@ class PageSpeed_Api {
 			'mobile'   => $mobile,
 			'desktop'  => $desktop,
 			'test_url' => Util_Environment::url_format(
-				$this->get_pagespeed_api_base_url(),
+				$this->get_pagespeed_url(),
 				array( 'url' => $url )
 			),
 		);
@@ -147,7 +149,9 @@ class PageSpeed_Api {
 	 * @return array
 	 */
 	public function process_request( $query ) {
-		if ( empty( $this->client->getAccessToken() ) ) {
+		$access_token_json = $this->client->getAccessToken();
+
+		if ( empty( $access_token_json ) ) {
 			return array(
 				'error' => array(
 					'code'    => 403,
@@ -156,10 +160,10 @@ class PageSpeed_Api {
 			);
 		}
 
-		$access_token = json_decode( $this->client->getAccessToken() );
+		$access_token = json_decode( $access_token_json );
 
 		$request = Util_Environment::url_format(
-			$this->get_pagespeed_api_base_url(),
+			$this->get_pagespeed_url(),
 			array_merge(
 				$query,
 				array(
@@ -172,7 +176,7 @@ class PageSpeed_Api {
 		// Attempt the request up to x times with an increasing delay between each attempt. Uses W3TC_PAGESPEED_MAX_ATTEMPTS constant if defined.
 		$attempts = 0;
 
-		while ( ++$attempts <= $this->get_w3tc_pagespeed_max_attempts() ) {
+		while ( ++$attempts <= $this->get_max_attempts() ) {
 			try {
 				$response = wp_remote_get(
 					$request,
@@ -185,7 +189,7 @@ class PageSpeed_Api {
 					break;
 				}
 			} catch ( \Exception $e ) {
-				if ( $attempts >= $this->get_w3tc_pagespeed_max_attempts() ) {
+				if ( $attempts >= $this->get_max_attempts() ) {
 					return array(
 						'error' => array(
 							'code'    => 500,
@@ -243,21 +247,15 @@ class PageSpeed_Api {
 			$initial_refresh_token_json = $this->get_refresh_token( Util_Http::generate_site_id(), $this->config->get_string( 'widget.pagespeed.w3key' ) );
 			$initial_refresh_token      = json_decode( $initial_refresh_token_json );
 			if ( ! empty( $initial_refresh_token->error ) ) {
+				$refresh_url   = $this->get_w3tc_api_url( 'google/get-token' ) . '/' . Util_Http::generate_site_id() . '/' . $this->config->get_string( 'widget.pagespeed.w3key' );
+				$error_code    = ! empty( $initial_refresh_token->error->code ) ? $initial_refresh_token->error->code : 'N/A';
+				$error_message = ! empty( $initial_refresh_token->error->message ) ? $initial_refresh_token->error->message : 'N/A';
 				return wp_json_encode(
 					array(
-						'error' => sprintf(
-							// translators: 1 Refresh URL value, 2 Request response code, 3 Error message.
-							__(
-								'API request error<br/><br/>
-									Refresh URL: %1$s<br/><br/>
-									Response Code: %2$s<br/>
-									Response Message: %3$s<br/>',
-								'w3-total-cache'
-							),
-							$this->get_w3tc_api_url( 'google/get-token' ) . '/' . Util_Http::generate_site_id() . '/' . $this->config->get_string( 'widget.pagespeed.w3key' ),
-							! empty( $initial_refresh_token->error->code ) ? $initial_refresh_token->error->code : 'N/A',
-							! empty( $initial_refresh_token->error->message ) ? $initial_refresh_token->error->message : 'N/A'
-						),
+						'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
+							<p>' . esc_html__( 'Refresh URL : ', 'w3-total-cache' ) . $refresh_url . '</p>
+							<p>' . esc_html__( 'Response Code : ', 'w3-total-cache' ) . $error_code . '</p>
+							<p>' . esc_html__( 'Response Message : ', 'w3-total-cache' ) . $error_message . '</p>',
 					)
 				);
 			}
@@ -278,7 +276,7 @@ class PageSpeed_Api {
 
 		$new_access_token = json_decode( $this->client->getAccessToken() );
 
-		if ( ! empty( $new_access_token->refresh_token ) && $new_access_token->refresh_token !== $initial_refresh_token->refresh_token ) {
+		if ( ! empty( $new_access_token->refresh_token ) ) {
 			$new_refresh_token = $new_access_token->refresh_token;
 			unset( $new_access_token->refresh_token );
 
@@ -530,7 +528,7 @@ class PageSpeed_Api {
 	 *
 	 * @return string
 	 */
-	public function get_google_client_json() {
+	public function get_client_json() {
 		return defined( 'W3TC_GOOGLE_CLIENT_JSON' ) && W3TC_GOOGLE_CLIENT_JSON ? W3TC_GOOGLE_CLIENT_JSON : $this->google_client_json;
 	}
 
@@ -541,7 +539,7 @@ class PageSpeed_Api {
 	 *
 	 * @return int
 	 */
-	public function get_w3tc_pagespeed_max_attempts() {
+	public function get_max_attempts() {
 		return defined( 'W3TC_PAGESPEED_MAX_ATTEMPTS' ) && W3TC_PAGESPEED_MAX_ATTEMPTS ? W3TC_PAGESPEED_MAX_ATTEMPTS : $this->retry_attempts;
 	}
 
@@ -552,7 +550,7 @@ class PageSpeed_Api {
 	 *
 	 * @return string
 	 */
-	public function get_pagespeed_api_base_url() {
+	public function get_pagespeed_url() {
 		return defined( 'W3TC_PAGESPEED_API_URL' ) && W3TC_PAGESPEED_API_URL ? W3TC_PAGESPEED_API_URL : $this->pagespeed_api_base_url;
 	}
 

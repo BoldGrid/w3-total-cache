@@ -2,6 +2,8 @@
 /**
  * File: PageSpeed_Widget.php
  *
+ * Controller for PageSpeed dashboard widget setup, display, and AJAX handler.
+ *
  * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
@@ -10,33 +12,39 @@
 namespace W3TC;
 
 /**
- * Google PageSpeed dashboard widget
+ * Google PageSpeed dashboard widget.
  *
  * @since 2.3.0
  */
 class PageSpeed_Widget {
 	/**
-	 * Run PageSpeed widget
+	 * Run PageSpeed widget.
 	 *
 	 * @since 2.3.0
 	 *
 	 * @return void
 	 */
 	public function run() {
-		add_action( 'admin_init_w3tc_dashboard', array( $this, 'admin_init_w3tc_dashboard' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'w3tc_widget_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
+		add_action( 'w3tc_network_dashboard_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
 		add_action( 'w3tc_ajax_pagespeed_widgetdata', array( $this, 'w3tc_ajax_pagespeed_widgetdata' ) );
 	}
 
 	/**
-	 * Initialize PageSpeed widget scripts/styles
+	 * Initialize PageSpeed widget scripts/styles.
 	 *
 	 * @since 2.3.0
 	 *
+	 * @param string $hook_suffix The current admin page.
+	 *
 	 * @return void
 	 */
-	public function admin_init_w3tc_dashboard() {
-		add_action( 'w3tc_widget_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
-		add_action( 'w3tc_network_dashboard_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
+	public function enqueue_scripts( $hook_suffix ) {
+		// Only enqueue scripts/styles for dashboard page.
+		if ( 'toplevel_page_w3tc_dashboard' !== $hook_suffix ) {
+			return;
+		}
 
 		wp_register_script(
 			'w3tc-widget-pagespeed',
@@ -65,7 +73,7 @@ class PageSpeed_Widget {
 	}
 
 	/**
-	 * Dashboard setup action
+	 * Dashboard setup action.
 	 *
 	 * @since 2.3.0
 	 *
@@ -83,7 +91,7 @@ class PageSpeed_Widget {
 	}
 
 	/**
-	 * PageSpeed widget
+	 * PageSpeed widget.
 	 *
 	 * @since 2.3.0
 	 *
@@ -97,7 +105,7 @@ class PageSpeed_Widget {
 	}
 
 	/**
-	 * PageSpeed widget AJAX fetch data
+	 * PageSpeed widget AJAX fetch data.
 	 *
 	 * @since 2.3.0
 	 *
@@ -129,7 +137,6 @@ class PageSpeed_Widget {
 								'It appears that your Google Access token is either missing, expired, or invalid. Please click %1$s to obtain a new Google access token or to refresh an expired one.',
 								'w3-total-cache'
 							),
-							'<a href="' . filter_var( '/wp-admin/admin.php?page=w3tc_general#google_page_speed', FILTER_SANITIZE_URL ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 						),
 					),
 				);
@@ -141,51 +148,34 @@ class PageSpeed_Widget {
 
 			if ( ! $api_response ) {
 				$api_response_error = array(
-					'error' => sprintf(
-						// translators: 1 Request URL value.
-						__(
-							'API request failed<br/><br/>
-								Analyze URL: %1$s',
-							'w3-total-cache'
-						),
-						$home_url
-					),
+					'error' => '<p><strong>' . esc_html__( 'API request failed!', 'w3-total-cache' ) . '</strong></p>
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $url . '</p>',
 				);
 				delete_transient( 'w3tc_pagespeed_data_' . $home_url );
 			} elseif ( ! empty( $api_response['error'] ) ) {
+				$error_code    = ! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A';
+				$error_message = ! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A';
+
 				$api_response_error = array(
-					'error' => sprintf(
-						// translators: 1 Request URL value, 2 Request response code, 3 Error message.
-						__(
-							'API request error<br/><br/>
-								Analyze URL: %1$s<br/><br/>
-								Response Code: %2$s<br/>
-								Response Message: %3$s<br/>',
-							'w3-total-cache'
-						),
-						$home_url,
-						! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A',
-						! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A'
-					),
+					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $home_url . '</p>
+						<p>' . esc_html__( 'Response Code : ', 'w3-total-cache' ) . $error_code . '</p>
+						<p>' . esc_html__( 'Response Message : ', 'w3-total-cache' ) . $error_message . '</p>',
 				);
 				delete_transient( 'w3tc_pagespeed_data_' . $home_url );
 			} elseif ( ! empty( $api_response['mobile']['error'] ) && ! empty( $api_response['desktop']['error'] ) ) {
+				$mobile_error_code     = ! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A';
+				$mobile_error_message  = ! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A';
+				$desktop_error_code    = ! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A';
+				$desktop_error_message = ! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A';
+
 				$api_response_error = array(
-					'error' => sprintf(
-						// translators: 1 Request URL value, 2 Request response code, 3 Error message.
-						__(
-							'API request error<br/><br/>
-								Analyze URL: %1$s<br/><br/>
-								Mobile response Code: %2$s<br/>Mobile response Message: %3$s<br/><br/>
-								Desktop response Code: %4$s<br/>Desktop response Message: %5$s',
-							'w3-total-cache'
-						),
-						$home_url,
-						! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A',
-						! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A',
-						! empty( $api_response['desktop']['error']['code'] ) ? $api_response['desktop']['error']['code'] : 'N/A',
-						! empty( $api_response['desktop']['error']['message'] ) ? $api_response['desktop']['error']['message'] : 'N/A'
-					),
+					'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $home_url . '</p>
+						<p>' . esc_html__( 'Mobile response Code : ', 'w3-total-cache' ) . $mobile_error_code . '</p>
+						<p>' . esc_html__( 'Mobile response Message : ', 'w3-total-cache' ) . $mobile_error_message . '</p>
+						<p>' . esc_html__( 'Desktop response Code : ', 'w3-total-cache' ) . $desktop_error_code . '</p>
+						<p>' . esc_html__( 'Desktop response Message : ', 'w3-total-cache' ) . $desktop_error_message . '</p>',
 				);
 				delete_transient( 'w3tc_pagespeed_data_' . $home_url );
 			}
