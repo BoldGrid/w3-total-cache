@@ -7,7 +7,15 @@
  *
  * @global w3tcData Localized data.
  */
-jQuery(document).ready(function($) {
+jQuery(document).ready( function($) {
+	/**
+	 * Analyze GPS page_post URL via AJAX to Google PageSpeed Insights.
+	 *
+	 * @param object page_post GPS page page_post object.
+	 * @param boolean nocache Flag to enable/disable results cache.
+	 * 
+	 * @return void
+	 */
 	function w3tcps_analyze(page_post, nocache) {
         let page_post_id = page_post.find('.page_post_url').attr('page_post_id');
         let page_post_url = page_post.find('.page_post_url').attr('page_post_url');
@@ -41,13 +49,21 @@ jQuery(document).ready(function($) {
         });
     }
 
+	/**
+	 * Toggle breakdown accordion.
+	 * 
+	 * @return void
+	 */
     function w3tcps_breakdown_items_toggle() {
         $(this).toggleClass("chevron_up chevron_down");
         $(this).next().slideToggle();
     }
    
-    $(document).on('click', '.w3tcps_breakdown_items_toggle', w3tcps_breakdown_items_toggle);
-
+	/**
+	 * View mobile tab.
+	 * 
+	 * @return void
+	 */
     function w3tcps_mobile_toggle() {
 		$('#w3tcps_control_desktop').removeClass('nav-tab-active');
         $('#w3tcps_desktop').hide();
@@ -55,8 +71,11 @@ jQuery(document).ready(function($) {
 		$('#w3tcps_mobile').show();
     }
 
-	$(document).on('click', '#w3tcps_control_mobile', w3tcps_mobile_toggle);
-
+	/**
+	 * View desktop tab.
+	 * 
+	 * @return void
+	 */
     function w3tcps_desktop_toggle() {
 		$('#w3tcps_control_mobile').removeClass('nav-tab-active')
 		$('#w3tcps_mobile').hide();
@@ -64,8 +83,11 @@ jQuery(document).ready(function($) {
 		$('#w3tcps_desktop').show();
     }
 
-    $(document).on('click', '#w3tcps_control_desktop', w3tcps_desktop_toggle);
-
+	/**
+	 * View breakdown auidt type tab.
+	 * 
+	 * @return void
+	 */
 	function w3tcps_audit_filter( event ) {
 		event.preventDefault();
 		if ( 'ALL' === $(this).text() ) {
@@ -79,6 +101,9 @@ jQuery(document).ready(function($) {
 		}
     }
 
+	$(document).on('click', '.w3tcps_breakdown_items_toggle', w3tcps_breakdown_items_toggle);
+	$(document).on('click', '#w3tcps_control_mobile', w3tcps_mobile_toggle);
+    $(document).on('click', '#w3tcps_control_desktop', w3tcps_desktop_toggle);
 	$(document).on('click', '.w3tcps_audit_filter', w3tcps_audit_filter);
 
     $('.w3tcps_content').on('click', '.w3tcps_analyze', function() {
