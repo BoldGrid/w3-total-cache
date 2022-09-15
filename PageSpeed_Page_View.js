@@ -3,13 +3,15 @@
  *
  * JavaScript for the PageSpeed page.
  *
- * @since 3.0.0
+ * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @global w3tcData Localized data.
  */
-jQuery(document).ready( function($) {
+jQuery(document).ready(function($) {
 	/**
 	 * Analyze GPS page_post URL via AJAX to Google PageSpeed Insights.
+	 *
+	 * @since 2.3.0
 	 *
 	 * @param object page_post GPS page page_post object.
 	 * @param boolean nocache Flag to enable/disable results cache.
@@ -52,6 +54,8 @@ jQuery(document).ready( function($) {
 	/**
 	 * Toggle breakdown accordion.
 	 * 
+	 * @since 2.3.0
+	 *
 	 * @return void
 	 */
     function w3tcps_breakdown_items_toggle() {
@@ -62,6 +66,8 @@ jQuery(document).ready( function($) {
 	/**
 	 * View mobile tab.
 	 * 
+	 * @since 2.3.0
+	 *
 	 * @return void
 	 */
     function w3tcps_mobile_toggle() {
@@ -74,6 +80,8 @@ jQuery(document).ready( function($) {
 	/**
 	 * View desktop tab.
 	 * 
+	 * @since 2.3.0
+	 *
 	 * @return void
 	 */
     function w3tcps_desktop_toggle() {
@@ -86,6 +94,8 @@ jQuery(document).ready( function($) {
 	/**
 	 * View breakdown auidt type tab.
 	 * 
+	 * @since 2.3.0
+	 *
 	 * @return void
 	 */
 	function w3tcps_audit_filter( event ) {

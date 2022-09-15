@@ -2,6 +2,8 @@
 /**
  * File: PageSpeed_Data.php
  *
+ * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
+ *
  * @package W3TC
  */
 
@@ -9,11 +11,15 @@ namespace W3TC;
 
 /**
  * PageSpeed Data Config.
+ *
+ * @since 2.3.0
  */
 class PageSpeed_Data {
 
 	/**
 	 * Prepare PageSpeed Data Config.
+	 *
+	 * @since 2.3.0
 	 *
 	 * @param array $data PageSpeed analysis data.
 	 *

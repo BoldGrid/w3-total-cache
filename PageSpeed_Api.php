@@ -2,6 +2,8 @@
 /**
  * File: PageSpeed_Api.php
  *
+ * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
+ *
  * @package W3TC
  */
 
@@ -9,6 +11,8 @@ namespace W3TC;
 
 /**
  * PageSpeed API.
+ *
+ * @since 2.3.0
  */
 class PageSpeed_Api {
 	/**
@@ -56,6 +60,8 @@ class PageSpeed_Api {
 	/**
 	 * PageSpeed API constructor.
 	 *
+	 * @since 2.3.0
+	 *
 	 * @param string $access_token_json API access token JSON.
 	 */
 	public function __construct( $access_token_json = null ) {
@@ -78,6 +84,8 @@ class PageSpeed_Api {
 	/**
 	 * Fully analyze URL via PageSpeed API.
 	 *
+	 * @since 2.3.0
+	 *
 	 * @param string $url URL to analyze via PageSpeed API.
 	 *
 	 * @return array
@@ -97,6 +105,8 @@ class PageSpeed_Api {
 
 	/**
 	 * Analyze URL via PageSpeed API using strategy.
+	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $url URL to analyze.
 	 * @param string $strategy Strategy to use desktop/mobile.
@@ -129,6 +139,8 @@ class PageSpeed_Api {
 
 	/**
 	 * Make API request.
+	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $query API request query.
 	 *
@@ -209,6 +221,8 @@ class PageSpeed_Api {
 
 	/**
 	 * Checks if the Google access token is expired and attempts to refresh.
+	 *
+	 * @since 2.3.0
 	 *
 	 * @return void
 	 */
@@ -324,6 +338,8 @@ class PageSpeed_Api {
 	/**
 	 * Creates new Google access token from authorize request response.
 	 *
+	 * @since 2.3.0
+	 *
 	 * @param string $gacode New Google access authentication code.
 	 * @param string $w3key  W3 API access key.
 	 *
@@ -436,6 +452,8 @@ class PageSpeed_Api {
 	/**
 	 * Fetches Google refresh token from W3 API server.
 	 *
+	 * @since 2.3.0
+	 *
 	 * @param string $site_id W3 API access key.
 	 * @param string $w3key   W3 API access key.
 	 *
@@ -508,6 +526,8 @@ class PageSpeed_Api {
 	/**
 	 * Get Google Client JSON config.
 	 *
+	 * @since 2.3.0
+	 *
 	 * @return string
 	 */
 	public function get_google_client_json() {
@@ -516,6 +536,8 @@ class PageSpeed_Api {
 
 	/**
 	 * Get W3TC PageSpeed API max attempts.
+	 *
+	 * @since 2.3.0
 	 *
 	 * @return int
 	 */
@@ -526,6 +548,8 @@ class PageSpeed_Api {
 	/**
 	 * Get Google PageSpeed API URL.
 	 *
+	 * @since 2.3.0
+	 *
 	 * @return string
 	 */
 	public function get_pagespeed_api_base_url() {
@@ -534,6 +558,8 @@ class PageSpeed_Api {
 
 	/**
 	 * Get W3TC API server URL target. Will be forced to HTTPS.
+	 *
+	 * @since 2.3.0
 	 *
 	 * @param string $target API target URI.
 	 *
