@@ -65,7 +65,8 @@ class Cdn_Plugin {
 
 		}
 
-		$flush_on_actions = !$this->_config->get_boolean( 'cdn.flush_manually' );
+		$default_override = Cdn_Util::get_flush_manually_default_override( $cdn_engine );
+		$flush_on_actions = ! $this->_config->get_boolean( 'cdn.flush_manually', $default_override );
 
 		if ( $flush_on_actions ) {
 			add_action( 'delete_attachment',
@@ -163,8 +164,9 @@ class Cdn_Plugin {
 	}
 
 	public function w3tc_preflush_cdn_all( $do_flush, $extras = array() ) {
-		if ( $this->_config->get_boolean( 'cdn.flush_manually' ) ) {
-			if ( !isset( $extras['ui_action'] ) ) {
+		$default_override = Cdn_Util::get_flush_manually_default_override( $this->_config->get_string( 'cdn.engine' ) );
+		if ( $this->_config->get_boolean( 'cdn.flush_manually', $default_override ) ) {
+			if ( ! isset( $extras['ui_action'] ) ) {
 				$do_flush = false;
 			}
 		}
