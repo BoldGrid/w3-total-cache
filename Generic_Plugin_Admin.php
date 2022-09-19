@@ -448,7 +448,7 @@ class Generic_Plugin_Admin {
 					'cdnEngine'        => $this->_config->get_string( 'cdn.engine' ),
 					'cdnFlushManually' => $this->_config->get_boolean(
 						'cdn.flush_manually',
-						Cdn_Util::get_flush_manually_default_override( $this->_config->get_string( 'cdn.engine' ) );
+						Cdn_Util::get_flush_manually_default_override( $this->_config->get_string( 'cdn.engine' ) )
 					),
 					'cfWarning'        => wp_kses(
 						sprintf(
