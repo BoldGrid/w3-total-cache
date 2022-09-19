@@ -1171,7 +1171,7 @@ $keys = array(
 	),
 	'cdn.flush_manually' => array(
 		'type' => 'boolean',
-		'default' => true
+		'default' => false
 	),
 	'cdn.engine' => array(
 		'type' => 'string',
