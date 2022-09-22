@@ -478,6 +478,18 @@ class Cache_Redis extends Cache_Base {
 			$connect_args[] = $this->_read_timeout;
 		}
 
+		// support for stream context was added in phpredis 5.3.2
+		if ( version_compare( $phpredis_version, '5.3.2', '>=' ) ) {
+			$context = [];
+			if ( substr( $server, 0, 4 ) == 'tls:' && !$this->_verify_tls_certificates ) {
+				$context['stream'] = [
+					'verify_peer' => false,
+					'verify_peer_name' => false,
+				];
+			}
+			$connect_args[] = $context;
+		}
+
 		return $connect_args;
 	}
 
