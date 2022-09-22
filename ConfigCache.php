@@ -73,6 +73,9 @@ class ConfigCache {
 		case 'redis':
 			$engineConfig = array(
 				'servers' => explode( ',', W3TC_CONFIG_CACHE_REDIS_SERVERS ),
+				'verify_tls_certificates' =>
+					( defined( 'W3TC_CONFIG_CACHE_REDIS_VERIFY_TLS_CERTIFICATES' ) ?
+						W3TC_CONFIG_CACHE_REDIS_VERIFY_TLS_CERTIFICATES : true ),
 				'persistent' =>
 					( defined( 'W3TC_CONFIG_CACHE_REDIS_PERSISTENT' ) ?
 						W3TC_CONFIG_CACHE_REDIS_PERSISTENT : true ),

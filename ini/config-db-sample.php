@@ -27,6 +27,7 @@ define( 'W3TC_CONFIG_CACHE_MEMCACHED_PASSWORD', '' );
 //
 define( 'W3TC_CONFIG_CACHE_ENGINE', 'redis');
 define( 'W3TC_CONFIG_CACHE_REDIS_SERVERS', '127.0.0.1:6379' );
+define( 'W3TC_CONFIG_CACHE_REDIS_VERIFY_TLS_CERTIFICATES', true);
 
 // optional redis settings
 define( 'W3TC_CONFIG_CACHE_REDIS_PERSISTENT', true );
