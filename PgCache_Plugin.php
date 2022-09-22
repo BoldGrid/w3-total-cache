@@ -286,6 +286,7 @@ class PgCache_Plugin {
 		} elseif ( $c->get_string( 'pgcache.engine' ) == 'redis' ) {
 			$sources['redis_servers']['pgcache'] = array(
 				'servers' => $c->get_array( 'pgcache.redis.servers' ),
+				'verify_tls_certificates' => $c->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
 				'dbid' => $c->get_integer( 'pgcache.redis.dbid' ),
 				'password' => $c->get_string( 'pgcache.redis.password' ),
 				'name' => __( 'Page Cache', 'w3-total-cache' )

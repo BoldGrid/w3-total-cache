@@ -260,6 +260,7 @@ class DbCache_Plugin {
 		} elseif ( $c->get_string( 'dbcache.engine' ) == 'redis' ) {
 			$sources['redis_servers']['dbcache'] = array(
 				'servers' => $c->get_array( 'dbcache.redis.servers' ),
+				'verify_tls_certificates' => $c->get_boolean( 'dbcache.redis.verify_tls_certificates' ),
 				'username' => $c->get_boolean( 'dbcache.redis.username' ),
 				'dbid' => $c->get_integer( 'dbcache.redis.dbid' ),
 				'password' => $c->get_string( 'dbcache.redis.password' ),
