@@ -556,8 +556,6 @@ class Cache_Redis extends Cache_Base {
 							);
 						}
 					}
-
-					restore_error_handler();
 				}
 
 				if ( ! empty( $this->_password ) ) {
