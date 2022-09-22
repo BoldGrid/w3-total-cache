@@ -473,8 +473,8 @@ class Cache_Redis extends Cache_Base {
 
 		$phpredis_version = phpversion( 'redis' );
 
-		// Old phpredis only supports a subset of parameters.
-		if ( version_compare( $phpredis_version, '5', '>=' ) ) {
+		// the read_timeout parameter was added in phpredis 3.1.3
+		if ( version_compare( $phpredis_version, '3.1.3', '>=' ) ) {
 			$connect_args[] = $this->_read_timeout;
 		}
 

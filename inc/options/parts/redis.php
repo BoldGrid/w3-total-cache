@@ -65,9 +65,9 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <?php
-if ( version_compare( phpversion( 'redis' ), '5', '>=' ) ) {
-	// PHP Redis 5 supports the read_timeout setting.
-	?>
+// PHP Redis 3.1.3+ supports the read_timeout setting.
+if ( version_compare( phpversion( 'redis' ), '3.1.3', '>=' ) ) {
+?>
 <tr>
 	<th style="width: 250px;"><label for="redis_read_timeout"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.read_timeout' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
@@ -78,7 +78,7 @@ if ( version_compare( phpversion( 'redis' ), '5', '>=' ) ) {
 		<p class="description"><?php esc_html_e( 'In seconds', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
-	<?php
+<?php
 }
 ?>
 <tr>
