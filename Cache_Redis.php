@@ -451,6 +451,37 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
+	 * Build Redis connection arguments based on server URI
+	 *
+	 * @param string $server Server URI to connect to.
+	 */
+	private function _build_connect_args($server) {
+		$connect_args = [];
+
+		if ( substr( $server, 0, 5 ) === 'unix:' ) {
+			$connect_args[] = trim(substr($server, 5));
+			$connect_args[] = null; // port
+		} else {
+			[$ip, $port] = Util_Content::endpoint_to_host_port( $server, null );
+			$connect_args[] = $ip;
+			$connect_args[] = $port;
+		}
+
+		$connect_args[] = $this->_timeout;
+		$connect_args[] = $this->_persistent ? $this->_instance_id . '_' . $this->_dbid : null;
+		$connect_args[] = $this->_retry_interval;
+
+		$phpredis_version = phpversion( 'redis' );
+
+		// Old phpredis only supports a subset of parameters.
+		if ( version_compare( $phpredis_version, '5', '>=' ) ) {
+			$connect_args[] = $this->_read_timeout;
+		}
+
+		return $connect_args;
+	}
+
+	/**
 	 * Get accessor.
 	 *
 	 * @param string $key Key.
@@ -471,91 +502,15 @@ class Cache_Redis extends Cache_Base {
 			$this->_accessors[ $index ] = null;
 		} else {
 			try {
-				$server   = $this->_servers[ $index ];
+				$server = $this->_servers[ $index ];
+				$connect_args = $this->_build_connect_args($server);
+
 				$accessor = new \Redis();
 
-				$phpredis_modern = version_compare( phpversion( 'redis' ), '5', '>=' );
-
-				if ( substr( $server, 0, 5 ) === 'unix:' ) {
-					if ( $this->_persistent ) {
-						if ( $phpredis_modern ) {
-							$accessor->pconnect(
-								trim( substr( $server, 5 ) ),
-								null,
-								$this->_timeout,
-								$this->_instance_id . '_' . $this->_dbid,
-								$this->_retry_interval,
-								$this->_read_timeout
-							);
-						} else { // Old phpredis only supports a subset of parameters.
-							$accessor->pconnect(
-								trim( substr( $server, 5 ) ),
-								null,
-								$this->_timeout,
-								$this->_instance_id . '_' . $this->_dbid,
-								$this->_retry_interval
-							);
-						}
-					} else {
-						if ( $phpredis_modern ) {
-							$accessor->connect(
-								trim( substr( $server, 5 ) ),
-								$this->_timeout,
-								null,
-								$this->_retry_interval,
-								$this->_read_timeout
-							);
-						} else { // Old phpredis only supports a subset of parameters.
-							$accessor->connect(
-								trim( substr( $server, 5 ) ),
-								$this->_timeout,
-								null,
-								$this->_retry_interval
-							);
-						}
-					}
+				if ( $this->_persistent ) {
+					$accessor->pconnect( ...$connect_args );
 				} else {
-					list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
-
-					if ( $this->_persistent ) {
-						if ( $phpredis_modern ) {
-							$accessor->pconnect(
-								$ip,
-								$port,
-								$this->_timeout,
-								$this->_instance_id . '_' . $this->_dbid,
-								$this->_retry_interval,
-								$this->_read_timeout
-							);
-						} else { // Old phpredis only supports a subset of parameters.
-							$accessor->pconnect(
-								$ip,
-								$port,
-								$this->_timeout,
-								$this->_instance_id . '_' . $this->_dbid,
-								$this->_retry_interval
-							);
-						}
-					} else {
-						if ( $phpredis_modern ) {
-							$accessor->connect(
-								$ip,
-								$port,
-								$this->_timeout,
-								null,
-								$this->_retry_interval,
-								$this->_read_timeout
-							);
-						} else { // Old phpredis only supports a subset of parameters.
-							$accessor->connect(
-								$ip,
-								$port,
-								$this->_timeout,
-								null,
-								$this->_retry_interval
-							);
-						}
-					}
+					$accessor->connect( ...$connect_args );
 				}
 
 				if ( ! empty( $this->_password ) ) {
