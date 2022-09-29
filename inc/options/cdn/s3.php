@@ -135,9 +135,9 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php
 		$cdn_s3_bucket = $this->_config->get_string( 'cdn.s3.bucket' );
 		if ( '' !== $cdn_s3_bucket ) {
-			echo esc_html( $cdn_s3_bucket ) . '.s3.amazonaws.com';
+			echo esc_html( $cdn_s3_bucket ) . '.s3.amazonaws.com ';
 		} else {
-			echo '&lt;bucket&gt;.s3.amazonaws.com';
+			echo '&lt;bucket&gt;.s3.amazonaws.com ';
 		}
 
 		esc_html_e( 'or CNAME:', 'w3-total-cache' );
