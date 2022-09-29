@@ -101,6 +101,14 @@ class Base_Page_Settings {
 
 		if ( ! is_null( $force_value ) ) {
 			checked( $force_value, true );
+		} elseif ( 'cdn.flush_manually' === $option_id ) {
+			checked(
+				$this->_config->get_boolean(
+					$option_id,
+					Cdn_Util::get_flush_manually_default_override( $this->_config->get_string( 'cdn.engine' ) )
+				),
+				true
+			);
 		} else {
 			checked( $this->_config->get_boolean( $option_id ), true );
 		}

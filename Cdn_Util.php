@@ -230,4 +230,18 @@ class Cdn_Util {
 
 		return $file;
 	}
+
+	/**
+	 * Get the override default value for cdn.flush_manually to prevent excessive invalidation charges for S3 CF and CF2.
+	 *
+	 * @since 2.2.6
+	 *
+	 * @param string $cdn_engine CDN engine value.
+	 *
+	 * @return boolean default value override;
+	 */
+	public static function get_flush_manually_default_override( $cdn_engine = null ) {
+		$override_targets = array( 's3', 'cf', 'cf2' );
+		return in_array( $cdn_engine, $override_targets, true );
+	}
 }

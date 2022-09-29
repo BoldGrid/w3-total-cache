@@ -377,8 +377,8 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'cdn.flush_manually' ); ?>
 					<?php
+					$this->checkbox( 'cdn.flush_manually' );
 					echo wp_kses(
 						sprintf(
 							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
