@@ -44,13 +44,13 @@ class PageSpeed_Page {
 			return;
 		}
 
-		wp_enqueue_style( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION . time() );
+		wp_enqueue_style( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION );
 
 		wp_register_script(
 			'w3tc-pagespeed',
 			esc_url( plugin_dir_url( __FILE__ ) . 'PageSpeed_Page_View.js' ),
 			array(),
-			W3TC_VERSION . time(),
+			W3TC_VERSION,
 			true
 		);
 		wp_localize_script(
