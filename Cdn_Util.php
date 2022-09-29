@@ -241,7 +241,7 @@ class Cdn_Util {
 	 * @return boolean default value override;
 	 */
 	public static function get_flush_manually_default_override( $cdn_engine = null ) {
-		$override_targets = array( 'S3', 'CF', 'CF2' );
+		$override_targets = array( 's3', 'cf', 'cf2' );
 		return in_array( $cdn_engine, $override_targets, true );
 	}
 }
