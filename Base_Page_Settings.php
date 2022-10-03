@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class: Base_Page_Settings
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 class Base_Page_Settings {
 	/**
@@ -16,42 +18,42 @@ class Base_Page_Settings {
 	 *
 	 * @var Config
 	 */
-	protected $_config = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	protected $_config = null;
 
 	/**
 	 * Notes
 	 *
 	 * @var array
 	 */
-	protected $_notes = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	protected $_notes = array();
 
 	/**
 	 * Errors
 	 *
 	 * @var array
 	 */
-	protected $_errors = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	protected $_errors = array();
 
 	/**
 	 * Used in PHPMailer init function
 	 *
 	 * @var string
 	 */
-	protected $_phpmailer_sender = ''; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	protected $_phpmailer_sender = '';
 
 	/**
 	 * Master configuration
 	 *
 	 * @var Config
 	 */
-	protected $_config_master; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	protected $_config_master;
 
 	/**
 	 * Page
 	 *
 	 * @var number
 	 */
-	protected $_page; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	protected $_page;
 
 	/**
 	 * Constructor.

@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class: Root_Loader
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 class Root_Loader {
 	/**
@@ -16,14 +18,14 @@ class Root_Loader {
 	 *
 	 * @var W3_Plugin[]
 	 */
-	private $_loaded_plugins = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_loaded_plugins = array();
 
 	/**
 	 * Enabled extensions that has been run
 	 *
 	 * @var W3_Plugin[]
 	 */
-	private $_loaded_extensions = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_loaded_extensions = array();
 
 	/**
 	 * Constructor.
@@ -173,7 +175,7 @@ class Root_Loader {
 		foreach ( $frontend as $extension => $nothing ) {
 			if ( isset( $extensions[ $extension ] ) ) {
 				$path     = $extensions[ $extension ];
-				$filename = W3TC_EXTENSION_DIR . '/' . str_replace( '..', '', trim( (string) $path, '/' ) );
+				$filename = W3TC_EXTENSION_DIR . '/' . str_replace( '..', '', trim( $path, '/' ) );
 
 				if ( file_exists( $filename ) ) {
 					include_once $filename;
@@ -184,7 +186,7 @@ class Root_Loader {
 		if ( is_admin() ) {
 			foreach ( $extensions as $extension => $path ) {
 				$filename = W3TC_EXTENSION_DIR . '/' .
-					str_replace( '..', '', trim( (string) $path, '/' ) );
+					str_replace( '..', '', trim( $path, '/' ) );
 
 				if ( file_exists( $filename ) ) {
 					include_once $filename;

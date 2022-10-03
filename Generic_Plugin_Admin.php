@@ -9,6 +9,9 @@ namespace W3TC;
 
 /**
  * Class Generic_Plugin_Admin
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class Generic_Plugin_Admin {
 	/**
@@ -16,14 +19,14 @@ class Generic_Plugin_Admin {
 	 *
 	 * @var string
 	 */
-	private $_page = 'w3tc_dashboard'; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_page = 'w3tc_dashboard';
 
 	/**
 	 * Config
 	 *
 	 * @var Config
 	 */
-	private $_config = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_config = null;
 
 	/**
 	 * Config
@@ -365,7 +368,7 @@ class Generic_Plugin_Admin {
 	 *
 	 * @return void
 	 */
-	private function _admin_menu( $base_capability ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	private function _admin_menu( $base_capability ) {
 		$base_capability = apply_filters( 'w3tc_capability_menu', $base_capability );
 
 		if ( current_user_can( $base_capability ) ) {
@@ -638,7 +641,7 @@ class Generic_Plugin_Admin {
 			return;
 		}
 
-		$changelog = (array) preg_split( '~[\r\n]+~', trim( (string) $matches[1] ) );
+		$changelog = (array) preg_split( '~[\r\n]+~', trim( $matches[1] ) );
 
 		echo '<div style="color: #f00;">' . esc_html__( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
 		$ul = false;

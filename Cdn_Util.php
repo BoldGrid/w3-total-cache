@@ -223,7 +223,7 @@ class Cdn_Util {
 	 * @return string
 	 */
 	public static function get_regexp_by_mask( $mask ) {
-		$mask = trim( (string) $mask );
+		$mask = trim( $mask );
 		$mask = Util_Environment::preg_quote( $mask );
 
 		$mask = str_replace(
@@ -267,17 +267,17 @@ class Cdn_Util {
 		if ( empty( $content_dir ) ) {
 			$content_dir = str_replace( Util_Environment::document_root(), '', WP_CONTENT_DIR );
 			$content_dir = substr( $content_dir, strlen( Util_Environment::site_url_uri() ) );
-			$content_dir = trim( (string) $content_dir, '/' );
+			$content_dir = trim( $content_dir, '/' );
 			if ( defined( 'WP_PLUGIN_DIR' ) ) {
 				$plugin_dir = str_replace( Util_Environment::document_root(), '', WP_PLUGIN_DIR );
-				$plugin_dir = trim( (string) $plugin_dir, '/' );
+				$plugin_dir = trim( $plugin_dir, '/' );
 			} else {
 				$plugin_dir = str_replace( Util_Environment::document_root(), '', WP_CONTENT_DIR . '/plugins' );
-				$plugin_dir = trim( (string) $plugin_dir, '/' );
+				$plugin_dir = trim( $plugin_dir, '/' );
 			}
 			$upload_dir = Util_Environment::wp_upload_dir();
 			$upload_dir = str_replace( Util_Environment::document_root(), '', $upload_dir['basedir'] );
-			$upload_dir = trim( (string) $upload_dir, '/' );
+			$upload_dir = trim( $upload_dir, '/' );
 		}
 		$file = str_replace( '{wp_content_dir}', $content_dir, $file );
 		$file = str_replace( '{plugins_dir}', $plugin_dir, $file );

@@ -9,6 +9,9 @@ namespace W3TC;
 
 /**
  * Class: DbCache_WpdbInjection_QueryCaching
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
@@ -44,14 +47,14 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @var Config
 	 */
-	public $_config = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	public $_config = null;
 
 	/**
 	 * Lifetime.
 	 *
 	 * @var int
 	 */
-	public $_lifetime = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	public $_lifetime = null;
 
 	/**
 	 * Number of cache flushes during http request processing.
@@ -270,7 +273,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @param array $data Data.
 	 */
-	public function _escape( $data ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _escape( $data ) {
 		return $this->next_injection->_escape( $data );
 	}
 
@@ -376,7 +379,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return bool
 	 */
-	private function _flush_cache_for_sql_group( $group, $extras = array() ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	private function _flush_cache_for_sql_group( $group, $extras = array() ) {
 		$this->wpdb_mixin->timer_start();
 
 		if ( $this->debug ) {
@@ -417,7 +420,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return W3_Cache_Base
 	 */
-	public function _get_cache() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _get_cache() {
 		static $cache = array();
 
 		if ( ! isset( $cache[0] ) ) {
@@ -478,7 +481,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return boolean
 	 */
-	public function _can_cache( $sql, &$cache_reject_reason ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _can_cache( $sql, &$cache_reject_reason ) {
 		/**
 		 * Skip if request-wide reject reason specified.
 		 * Note - as a result requedt-wide checks are done only once per request.
@@ -564,7 +567,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return bool
 	 */
-	public function _can_cache_once_per_request() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _can_cache_once_per_request() {
 		/**
 		 * Skip if disabled
 		 */
@@ -600,7 +603,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return bool
 	 */
-	public function _check_sql( $sql ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _check_sql( $sql ) {
 
 		$auto_reject_strings = $this->_config->get_array( 'dbcache.reject.words' );
 
@@ -611,7 +614,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$reject_sql = $this->_config->get_array( 'dbcache.reject.sql' );
 
 		foreach ( $reject_sql as $expr ) {
-			$expr = trim( (string) $expr );
+			$expr = trim( $expr );
 			$expr = str_replace( '{prefix}', $this->wpdb_mixin->prefix, $expr );
 			if ( ! empty( $expr ) && preg_match( '~' . $expr . '~i', $sql ) ) {
 				return false;
@@ -626,7 +629,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return boolean
 	 */
-	public function _check_request_uri() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _check_request_uri() {
 		$auto_reject_uri = array(
 			'wp-login',
 			'wp-register',
@@ -645,7 +648,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$reject_uri = array_map( array( '\W3TC\Util_Environment', 'parse_path' ), $reject_uri );
 
 		foreach ( $reject_uri as $expr ) {
-			$expr = trim( (string) $expr );
+			$expr = trim( $expr );
 			if ( ! empty( $expr ) && preg_match( '~' . $expr . '~i', $request_uri ) ) {
 				return false;
 			}
@@ -659,7 +662,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return bool
 	 */
-	public function _check_cookies() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _check_cookies() {
 		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
 			if ( 'wordpress_test_cookie' === $cookie_name ) {
 				continue;
@@ -685,7 +688,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return bool
 	 */
-	public function _check_logged_in() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _check_logged_in() {
 		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
 			if ( strpos( $cookie_name, 'wordpress_logged_in' ) === 0 ) {
 				return false;
@@ -704,7 +707,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return string
 	 */
-	private function _get_group( $sql ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	private function _get_group( $sql ) {
 		$sql = strtolower( $sql );
 
 		// Collect list of tables used in query.
@@ -770,7 +773,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @param array  $extras Extra arguments.
 	 */
-	private function _get_flush_groups( $group, $extras = array() ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	private function _get_flush_groups( $group, $extras = array() ) {
 		$groups_to_flush = array();
 
 		switch ( $group ) {
@@ -828,7 +831,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return string|void
 	 */
-	private function _get_reject_reason_message( $key ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	private function _get_reject_reason_message( $key ) {
 		if ( ! function_exists( '__' ) ) {
 			return $key;
 		}

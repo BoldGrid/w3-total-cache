@@ -9,6 +9,9 @@ namespace W3TC;
 
 /**
  * Class: Cdn_Plugin
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class Cdn_Plugin {
 	/**
@@ -23,21 +26,21 @@ class Cdn_Plugin {
 	 *
 	 * @var Config
 	 */
-	private $_config = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_config = null;
 
 	/**
 	 * Debug flag.
 	 *
 	 * @var bool
 	 */
-	private $_debug = false; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_debug = false;
 
 	/**
 	 * Attachements action.
 	 *
 	 * @var array
 	 */
-	private $_attachments_action = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_attachments_action = array();
 
 	/**
 	 * Constructor.
@@ -373,7 +376,7 @@ class Cdn_Plugin {
 	public function get_files_includes() {
 		$includes_root = Util_Environment::normalize_path( ABSPATH . WPINC );
 		$doc_root      = Util_Environment::normalize_path( Util_Environment::document_root() );
-		$includes_path = ltrim( (string) str_replace( $doc_root, '', $includes_root ), '/' );
+		$includes_path = ltrim( str_replace( $doc_root, '', $includes_root ), '/' );
 
 		$files = Cdn_Util::search_files(
 			$includes_root,
@@ -398,7 +401,7 @@ class Cdn_Plugin {
 		}
 
 		$themes_root = Util_Environment::normalize_path( $themes_root );
-		$themes_path = ltrim( (string) str_replace( Util_Environment::normalize_path( Util_Environment::document_root() ), '', $themes_root ), '/' );
+		$themes_path = ltrim( str_replace( Util_Environment::normalize_path( Util_Environment::document_root() ), '', $themes_root ), '/' );
 		$files       = Cdn_Util::search_files(
 			$themes_root,
 			$themes_path,
@@ -427,7 +430,7 @@ class Cdn_Plugin {
 
 			$document_root = Util_Environment::normalize_path( Util_Environment::document_root() );
 			$minify_root   = Util_Environment::normalize_path( Util_Environment::cache_blog_dir( 'minify' ) );
-			$minify_path   = ltrim( (string) str_replace( $document_root, '', $minify_root ), '/' );
+			$minify_path   = ltrim( str_replace( $document_root, '', $minify_root ), '/' );
 
 			$urls = $minify->get_urls();
 
@@ -450,7 +453,7 @@ class Cdn_Plugin {
 
 					if ( ! Util_Environment::is_url( $file ) ) {
 						$file = $document_root . '/' . $file;
-						$file = ltrim( (string) str_replace( $minify_root, '', $file ), '/' );
+						$file = ltrim( str_replace( $minify_root, '', $file ), '/' );
 
 						$dir = dirname( $file );
 
@@ -487,14 +490,14 @@ class Cdn_Plugin {
 			$path      = '';
 		}
 
-		$content_path = trim( (string) str_replace( WP_CONTENT_DIR, '', $site_root ), '/\\' );
+		$content_path = trim( str_replace( WP_CONTENT_DIR, '', $site_root ), '/\\' );
 
 		foreach ( $custom_files as $custom_file ) {
 			if ( '' !== $custom_file ) {
 				$custom_file = Cdn_Util::replace_folder_placeholders( $custom_file );
 				$custom_file = Util_Environment::normalize_file( $custom_file );
 
-				$dir      = trim( (string) dirname( $custom_file ), '/\\' );
+				$dir      = trim( dirname( $custom_file ), '/\\' );
 				$rel_path = $dir;
 
 				if ( strpos( $dir, '<currentblog>' ) !== false ) {
@@ -618,12 +621,12 @@ class Cdn_Plugin {
 	 *
 	 * @return boolean
 	 */
-	public function _check_request_uri() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _check_request_uri() {
 		$reject_uri = $this->_config->get_array( 'cdn.reject.uri' );
 		$reject_uri = array_map( array( '\W3TC\Util_Environment', 'parse_path' ), $reject_uri );
 
 		foreach ( $reject_uri as $expr ) {
-			$expr = trim( (string) $expr );
+			$expr = trim( $expr );
 			$expr = str_replace( '~', '\~', $expr );
 
 			if ( '' !== $expr && preg_match( '~' . $expr . '~i', isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) {
@@ -642,7 +645,7 @@ class Cdn_Plugin {
 	 *
 	 * @return boolean
 	 */
-	private function _check_logged_in_role_allowed() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	private function _check_logged_in_role_allowed() {
 		$current_user = wp_get_current_user();
 
 		if ( ! is_user_logged_in() ) {
@@ -724,7 +727,7 @@ class Cdn_Plugin {
 	 * @return string
 	 */
 	private function wp_prepare_attachment_for_js_url( $url ) {
-		$url = trim( (string) $url );
+		$url = trim( $url );
 		if ( ! empty( $url ) ) {
 			$parsed = wp_parse_url( $url );
 			$uri    = ( isset( $parsed['path'] ) ? $parsed['path'] : '/' ) .
@@ -753,7 +756,7 @@ class Cdn_Plugin {
 	public function w3tc_minify_http2_preload_url( $data ) {
 		$url = $data['result_link'];
 
-		$url = trim( (string) $url );
+		$url = trim( $url );
 		if ( empty( $url ) ) {
 			return $data;
 		}
@@ -864,6 +867,9 @@ class Cdn_Plugin {
 
 /**
  * Class: _Cdn_Plugin_ContentFilter
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSameLine.ContentAfterBrace, PEAR.NamingConventions.ValidClassName.StartWithCapital, Generic.Files.OneObjectStructurePerFile.MultipleFound
 	/**
@@ -871,35 +877,35 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 *
 	 * @var array
 	 */
-	private $_regexps = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_regexps = array();
 
 	/**
 	 * Placeholders.
 	 *
 	 * @var array
 	 */
-	private $_placeholders = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_placeholders = array();
 
 	/**
 	 * Config.
 	 *
 	 * @var Config
 	 */
-	private $_config; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_config;
 
 	/**
 	 * Replaced URLs.
 	 *
 	 * @var array
 	 */
-	private $_replaced_urls = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_replaced_urls = array();
 
 	/**
 	 * If background uploading already scheduled
 	 *
 	 * @var boolean
 	 */
-	private static $_upload_scheduled = false; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private static $_upload_scheduled = false;
 
 	/**
 	 * Constructor.
@@ -965,10 +971,10 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 *
 	 * @return string
 	 */
-	public function _link_replace_callback( $matches ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _link_replace_callback( $matches ) {
 		list( $match, $quote, $url, , , , $path ) = $matches;
 
-		$path = ltrim( (string) $path, '/' );
+		$path = ltrim( $path, '/' );
 		$r    = $this->_link_replace_callback_checks( $match, $quote, $url, $path );
 		if ( is_null( $r ) ) {
 			$r = $this->_link_replace_callback_ask_cdn( $match, $quote, $url, $path );
@@ -984,7 +990,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 *
 	 * @return string
 	 */
-	public function _srcset_replace_callback( $matches ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _srcset_replace_callback( $matches ) {
 		list( $match, $srcset ) = $matches;
 
 		if ( empty( $this->_regexps ) ) {
@@ -1092,7 +1098,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 			$upload_url_domain_regexp = isset( $parsed['host'] ) ?
 				Util_Environment::get_url_regexp( $parsed['scheme'] . '://' . $parsed['host'] ) :
 				$domain_url_regexp;
-			$baseurlpath              = isset( $parsed['path'] ) ? rtrim( (string) $parsed['path'], '/' ) : '';
+			$baseurlpath              = isset( $parsed['path'] ) ? rtrim( $parsed['path'], '/' ) : '';
 			if ( $baseurlpath ) {
 				$regexps[] = '~(["\'])\s*((' . $upload_url_domain_regexp . ')?('
 					. Util_Environment::preg_quote( $baseurlpath )
@@ -1211,7 +1217,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 						} else {
 							$file = Util_Environment::normalize_path( $mask );   // \ -> backspaces.
 							$file = str_replace( Util_Environment::site_root(), '', $file );
-							$file = ltrim( (string) $file, '/' );
+							$file = ltrim( $file, '/' );
 
 							$custom_regexps_docroot_related[] = Cdn_Util::get_regexp_by_mask( $mask );
 						}
@@ -1255,7 +1261,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 *
 	 * @return null|string
 	 */
-	public function _link_replace_callback_checks( $match, $quote, $url, $path ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _link_replace_callback_checks( $match, $quote, $url, $path ) {
 		global $wpdb;
 
 		static $queue = null, $reject_files = null;
@@ -1319,7 +1325,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 *
 	 * @return null|string
 	 */
-	public function _link_replace_callback_ask_cdn( $match, $quote, $url, $path ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _link_replace_callback_ask_cdn( $match, $quote, $url, $path ) {
 		$common  = Dispatcher::component( 'Cdn_Core' );
 		$new_url = $common->url_to_cdn_url( $url, $path );
 		if ( ! is_null( $new_url ) ) {
@@ -1337,12 +1343,12 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 *
 	 * @return string
 	 */
-	public function _minify_auto_pushcdn_link_replace_callback( $matches ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+	public function _minify_auto_pushcdn_link_replace_callback( $matches ) {
 		static $dispatcher = null;
 
 		list( $match, $quote, $url, , , , $path ) = $matches;
 
-		$path = ltrim( (string) $path, '/' );
+		$path = ltrim( $path, '/' );
 		$r    = $this->_link_replace_callback_checks( $match, $quote, $url, $path );
 
 		// Check if we can replace that URL (for auto mode it should be uploaded).
