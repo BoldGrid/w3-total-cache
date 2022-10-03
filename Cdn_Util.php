@@ -179,8 +179,8 @@ class Cdn_Util {
 		$dir = @opendir( $search_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		if ( $dir ) {
-			$entry = @readdir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			while ( false !== $entry ) {
+			// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.PHP.NoSilencedErrors.Discouraged
+			while ( ( $entry = @readdir( $dir ) ) !== false ) {
 				if ( '.' !== $entry && '..' !== $entry && ! in_array( $entry, $ignore, true ) ) {
 					$path = $search_dir . '/' . $entry;
 

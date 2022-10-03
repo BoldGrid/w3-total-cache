@@ -1296,10 +1296,12 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 		// Don't replace URL for files that are in the CDN queue.
 		if ( null === $queue ) {
 			if ( ! Cdn_Util::is_engine_mirror( $this->_config->get_string( 'cdn.engine' ) ) ) {
-				$queue = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$queue = $wpdb->get_var(
 					$wpdb->prepare(
-						"SELECT remote_path FROM $wpdb->base_prefix %s WHERE remote_path = %s",
-						W3TC_CDN_TABLE_QUEUE,
+						// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
+						'SELECT `remote_path` FROM `%1$s` WHERE `remote_path` = \'%2$s\'',
+						$wpdb->base_prefix . W3TC_CDN_TABLE_QUEUE,
 						$path
 					)
 				);
