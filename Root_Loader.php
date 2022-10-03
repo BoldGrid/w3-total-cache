@@ -173,7 +173,7 @@ class Root_Loader {
 		foreach ( $frontend as $extension => $nothing ) {
 			if ( isset( $extensions[ $extension ] ) ) {
 				$path     = $extensions[ $extension ];
-				$filename = W3TC_EXTENSION_DIR . '/' . str_replace( '..', '', trim( $path, '/' ) );
+				$filename = W3TC_EXTENSION_DIR . '/' . str_replace( '..', '', trim( (string) $path, '/' ) );
 
 				if ( file_exists( $filename ) ) {
 					include_once $filename;
@@ -184,7 +184,7 @@ class Root_Loader {
 		if ( is_admin() ) {
 			foreach ( $extensions as $extension => $path ) {
 				$filename = W3TC_EXTENSION_DIR . '/' .
-					str_replace( '..', '', trim( $path, '/' ) );
+					str_replace( '..', '', trim( (string) $path, '/' ) );
 
 				if ( file_exists( $filename ) ) {
 					include_once $filename;
@@ -205,12 +205,12 @@ class Root_Loader {
 		if ( 'never' === $visibility || ( 'extension' === $visibility && ! isset( $extensions['imageservice'] ) ) ) {
 			add_action(
 				'pre_get_posts',
-				array( $this, 'w3tc_modify_query_obj' ),
+				array( $this, 'w3tc_modify_query_obj' )
 			);
 
 			add_filter(
 				'ajax_query_attachments_args',
-				array( $this, 'w3tc_filter_ajax_args' ),
+				array( $this, 'w3tc_filter_ajax_args' )
 			);
 		}
 	}

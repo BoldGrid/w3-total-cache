@@ -3,8 +3,6 @@
  * File: DbCache_WpdbInjection_QueryCaching.php
  *
  * @package W3TC
- *
- * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize, PSR2.Methods.MethodDeclaration.Underscore, PSR2.Classes.PropertyDeclaration.Underscore
  */
 
 namespace W3TC;
@@ -43,15 +41,17 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 	/**
 	 * Config.
+	 *
+	 * @var Config
 	 */
-	public $_config = null;
+	public $_config = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Lifetime.
 	 *
 	 * @var int
 	 */
-	public $_lifetime = null;
+	public $_lifetime = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Number of cache flushes during http request processing.
@@ -62,7 +62,6 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 	/**
 	 * Request-global cache reject reason.
-	 * null until filled.
 	 *
 	 * @var string
 	 */
@@ -70,20 +69,48 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 	/**
 	 * Request-global check reject scope.
-	 * false until set.
 	 *
 	 * @var bool
 	 */
 	private $cache_reject_request_wide = false;
+
+	/**
+	 * Debug flag.
+	 *
+	 * @var bool
+	 */
 	private $debug = false;
+
+	/**
+	 * Reject log flag.
+	 *
+	 * @var bool
+	 */
 	private $reject_logged = false;
-	private $reject_constants;
-	private $use_filters;
+
+	/**
+	 * Log filehandle flag.
+	 *
+	 * @var bool
+	 */
 	private $log_filehandle = false;
 
 	/**
+	 * Reject constants flag.
+	 *
+	 * @var bool
+	 */
+	private $reject_constants = false;
+
+	/**
+	 * Use filters flag.
+	 *
+	 * @var bool
+	 */
+	private $use_filters = false;
+
+	/**
 	 * Result of check if caching is possible at the level of current http request.
-	 * null until filled.
 	 *
 	 * @var bool
 	 */
@@ -125,15 +152,15 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$caching = $this->_can_cache( $query, $reject_reason );
 		if ( preg_match( '~^\s*start transaction\b~is', $query ) ) {
 			$this->cache_reject_reason = 'transaction';
-			$reject_reason = $this->cache_reject_reason;
-			$caching = false;
+			$reject_reason             = $this->cache_reject_reason;
+			$caching                   = false;
 		}
 
 		if ( preg_match( '~^\s*insert\b|^\s*delete\b|^\s*update\b|^\s*replace\b|^\s*commit\b|^\s*truncate\b|^\s*drop\b|^\s*create\b~is', $query ) ) {
 			$this->cache_reject_reason = 'modification query';
-			$reject_reason = $this->cache_reject_reason;
-			$caching = false;
-			$flush_after_query = true;
+			$reject_reason             = $this->cache_reject_reason;
+			$caching                   = false;
+			$flush_after_query         = true;
 		}
 
 		if ( $this->use_filters && function_exists( 'apply_filters' ) ) {
@@ -223,12 +250,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 						"<>\r\n",
 						'..  '
 					),
-					strtr( $query, "<>\r\n", '..  ' ), // 'query'.
-					(int) ( $time_total * 1000000 ), // 'time_total' (microsecs).
-					$reject_reason, // 'reason'.
-					$is_cache_hit, // 'cached'.
-					( $data ? strlen( serialize( $data ) ) : 0 ), // 'data_size'.
-					strtr( $group, "<>\r\n", '..  ' ), // 'group'.
+					strtr( $query, "<>\r\n", '..  ' ), // query.
+					(int) ( $time_total * 1000000 ), // time_total in seconds.
+					$reject_reason, // reason.
+					$is_cache_hit, // cached.
+					( $data ? strlen( serialize( $data ) ) : 0 ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- data size
+					strtr( $group, "<>\r\n", '..  ' ), // group.
 				)
 			);
 		}
@@ -243,7 +270,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @param array $data Data.
 	 */
-	public function _escape( $data ) {
+	public function _escape( $data ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		return $this->next_injection->_escape( $data );
 	}
 
@@ -270,6 +297,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @param string       $table  Table.
 	 * @param array        $data   Data.
 	 * @param array|string $format Format.
+	 *
 	 * @return int|false
 	 */
 	public function insert( $table, $data, $format = null ) {
@@ -282,6 +310,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @param string       $table  Table.
 	 * @param array        $data   Data.
 	 * @param array|string $format Format.
+	 *
 	 * @return int|false
 	 */
 	public function replace( $table, $data, $format = null ) {
@@ -302,6 +331,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @param array        $where        Where.
 	 * @param array|string $format       Format.
 	 * @param array|string $where_format Format where.
+	 *
 	 * @return int|false
 	 */
 	public function update( $table, $data, $where, $format = null, $where_format = null ) {
@@ -316,6 +346,8 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @param string       $table        Table.
 	 * @param array        $where        Where.
 	 * @param array|string $where_format Format where.
+	 *
+	 * @return int|false
 	 */
 	public function delete( $table, $where, $where_format = null ) {
 		$group = $this->_get_group( $table );
@@ -327,6 +359,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * Flushes cache.
 	 *
 	 * @param array $extras Extra arguments.
+	 *
 	 * @return bool
 	 */
 	public function flush_cache( $extras = array() ) {
@@ -340,16 +373,17 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @param string $group  Group.
 	 * @param array  $extras Extra arguments.
+	 *
 	 * @return bool
 	 */
-	private function _flush_cache_for_sql_group( $group, $extras = array() ) {
+	private function _flush_cache_for_sql_group( $group, $extras = array() ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		$this->wpdb_mixin->timer_start();
 
 		if ( $this->debug ) {
 			$filename = Util_Debug::log(
 				'dbcache',
 				'flushing based on sqlquery group ' . $group .
-				' with extras ' . json_encode( $extras )
+				' with extras ' . wp_json_encode( $extras )
 			);
 		}
 		if ( $this->_config->get_boolean( 'dbcache.debug_purge' ) ) {
@@ -383,7 +417,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return W3_Cache_Base
 	 */
-	public function _get_cache() {
+	public function _get_cache() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		static $cache = array();
 
 		if ( ! isset( $cache[0] ) ) {
@@ -397,7 +431,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 						'aws_autodiscovery' => $this->_config->get_boolean( 'dbcache.memcached.aws_autodiscovery' ),
 						'username'          => $this->_config->get_string( 'dbcache.memcached.username' ),
 						'password'          => $this->_config->get_string( 'dbcache.memcached.password' ),
-						'binary_protocol'   => $this->_config->get_boolean( 'dbcache.memcached.binary_protocol' )
+						'binary_protocol'   => $this->_config->get_boolean( 'dbcache.memcached.binary_protocol' ),
 					);
 					break;
 
@@ -410,7 +444,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 						'retry_interval'          => $this->_config->get_integer( 'dbcache.redis.retry_interval' ),
 						'read_timeout'            => $this->_config->get_integer( 'dbcache.redis.read_timeout' ),
 						'dbid'                    => $this->_config->get_integer( 'dbcache.redis.dbid' ),
-						'password'                => $this->_config->get_string( 'dbcache.redis.password' )
+						'password'                => $this->_config->get_string( 'dbcache.redis.password' ),
 					);
 					break;
 
@@ -419,7 +453,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 						'use_wp_hash'     => true,
 						'section'         => 'db',
 						'locking'         => $this->_config->get_boolean( 'dbcache.file.locking' ),
-						'flush_timelimit' => $this->_config->get_integer( 'timelimit.cache_flush' )
+						'flush_timelimit' => $this->_config->get_integer( 'timelimit.cache_flush' ),
 					);
 					break;
 
@@ -441,9 +475,10 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @param string $sql                 SQL query.
 	 * @param string $cache_reject_reason Cache reject reason.
+	 *
 	 * @return boolean
 	 */
-	public function _can_cache( $sql, &$cache_reject_reason ) {
+	public function _can_cache( $sql, &$cache_reject_reason ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		/**
 		 * Skip if request-wide reject reason specified.
 		 * Note - as a result requedt-wide checks are done only once per request.
@@ -471,7 +506,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		foreach ( $this->reject_constants as $name ) {
 			if ( defined( $name ) && constant( $name ) ) {
 				$this->cache_reject_reason = $name . ' constant defined';
-				$cache_reject_reason = $this->cache_reject_reason;
+				$cache_reject_reason       = $this->cache_reject_reason;
 
 				return false;
 			}
@@ -516,7 +551,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		 */
 		if ( $this->reject_logged && ! $this->_check_logged_in() ) {
 			$this->cache_reject_reason = 'user.logged_in';
-			$cache_reject_reason = $this->cache_reject_reason;
+			$cache_reject_reason       = $this->cache_reject_reason;
 
 			return false;
 		}
@@ -529,7 +564,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return bool
 	 */
-	public function _can_cache_once_per_request() {
+	public function _can_cache_once_per_request() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		/**
 		 * Skip if disabled
 		 */
@@ -562,9 +597,10 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * Check SQL
 	 *
 	 * @param string $sql SQL query.
+	 *
 	 * @return bool
 	 */
-	public function _check_sql( $sql ) {
+	public function _check_sql( $sql ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 
 		$auto_reject_strings = $this->_config->get_array( 'dbcache.reject.words' );
 
@@ -575,7 +611,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$reject_sql = $this->_config->get_array( 'dbcache.reject.sql' );
 
 		foreach ( $reject_sql as $expr ) {
-			$expr = trim( $expr );
+			$expr = trim( (string) $expr );
 			$expr = str_replace( '{prefix}', $this->wpdb_mixin->prefix, $expr );
 			if ( ! empty( $expr ) && preg_match( '~' . $expr . '~i', $sql ) ) {
 				return false;
@@ -590,12 +626,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return boolean
 	 */
-	public function _check_request_uri() {
+	public function _check_request_uri() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		$auto_reject_uri = array(
 			'wp-login',
 			'wp-register',
 		);
-		
+
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ?
 			filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
@@ -609,7 +645,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$reject_uri = array_map( array( '\W3TC\Util_Environment', 'parse_path' ), $reject_uri );
 
 		foreach ( $reject_uri as $expr ) {
-			$expr = trim( $expr );
+			$expr = trim( (string) $expr );
 			if ( ! empty( $expr ) && preg_match( '~' . $expr . '~i', $request_uri ) ) {
 				return false;
 			}
@@ -623,7 +659,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return bool
 	 */
-	public function _check_cookies() {
+	public function _check_cookies() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
 			if ( 'wordpress_test_cookie' === $cookie_name ) {
 				continue;
@@ -649,7 +685,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 *
 	 * @return bool
 	 */
-	public function _check_logged_in() {
+	public function _check_logged_in() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
 			if ( strpos( $cookie_name, 'wordpress_logged_in' ) === 0 ) {
 				return false;
@@ -665,9 +701,10 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @access private
 	 *
 	 * @param string $sql SQL query.
+	 *
 	 * @return string
 	 */
-	private function _get_group( $sql ) {
+	private function _get_group( $sql ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		$sql = strtolower( $sql );
 
 		// Collect list of tables used in query.
@@ -679,7 +716,14 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 		if ( $this->contains_only_tables( $tables, array( 'options' => '*' ) ) ) {
 			$group = 'options';
-		} elseif ( $this->contains_only_tables( $tables, array( 'comments' => '*', 'commentsmeta' => '*' ) ) ) {
+		} elseif (
+			$this->contains_only_tables(
+				$tables,
+				array(
+					'comments'     => '*',
+					'commentsmeta' => '*',
+				)
+			) ) {
 			$group = 'comments';
 		} elseif ( count( $tables ) <= 1 ) {
 			$group = 'singletables';   // Request with single table affected.
@@ -700,7 +744,8 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @accress private
 	 *
 	 * @param array $tables  Tables.
-	 * #param array $allowed Allowed.
+	 *
+	 * @param array $allowed Allowed.
 	 */
 	private function contains_only_tables( $tables, $allowed ) {
 		if ( empty( $tables ) ) {
@@ -708,7 +753,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		}
 
 		foreach ( $tables as $t ) {
-			if ( !isset( $allowed[ $t ] ) ) {
+			if ( ! isset( $allowed[ $t ] ) ) {
 				return false;
 			}
 		}
@@ -722,9 +767,10 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @access private
 	 *
 	 * @param string $group  Group.
+	 *
 	 * @param array  $extras Extra arguments.
 	 */
-	private function _get_flush_groups( $group, $extras = array() ) {
+	private function _get_flush_groups( $group, $extras = array() ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		$groups_to_flush = array();
 
 		switch ( $group ) {
@@ -770,7 +816,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		}
 
 		$request_wide_string = $this->cache_reject_request_wide ?
-			( function_exists( '__' ) ? __( 'Request-wide', 'w3-total-cache' ).' ' : 'Request ' ) : '';
+			( function_exists( '__' ) ? __( 'Request-wide ', 'w3-total-cache' ) : 'Request ' ) : '';
 
 		return $request_wide_string . $this->_get_reject_reason_message( $this->cache_reject_reason );
 	}
@@ -779,9 +825,10 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * Get reject reason message.
 	 *
 	 * @param string $key Key.
+	 *
 	 * @return string|void
 	 */
-	private function _get_reject_reason_message( $key ) {
+	private function _get_reject_reason_message( $key ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		if ( ! function_exists( '__' ) ) {
 			return $key;
 		}
@@ -820,6 +867,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * Footer comment.
 	 *
 	 * @param array $strings Strings.
+	 *
 	 * @return array
 	 */
 	public function w3tc_footer_comment( $strings ) {
@@ -847,10 +895,10 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 		if ( $this->debug ) {
 			$strings[] = '';
-			$strings[] = 'Db cache debug info:';
-			$strings[] = sprintf( '%1$s%2$d', str_pad( 'Total queries: ', 20 ), $this->query_total );
-			$strings[] = sprintf( '%1$s%2$d', str_pad( 'Cached queries: ', 20 ), $this->query_hits );
-			$strings[] = sprintf( '%1$s%2$.4f', str_pad( 'Total query time: ', 20 ), $this->time_total );
+			$strings[] = __( 'Db cache debug info:', 'w3-total-cache' );
+			$strings[] = sprintf( '%1$s%2$d', str_pad( __( 'Total queries: ', 'w3-total-cache' ), 20 ), $this->query_total );
+			$strings[] = sprintf( '%1$s%2$d', str_pad( __( 'Cached queries: ', 'w3-total-cache' ), 20 ), $this->query_hits );
+			$strings[] = sprintf( '%1$s%2$.4f', str_pad( __( 'Total query time: ', 'w3-total-cache' ), 20 ), $this->time_total );
 		}
 
 		if ( $this->log_filehandle ) {
@@ -864,13 +912,14 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * Usage statistics of request.
 	 *
 	 * @param object $storage Storage object.
+	 *
 	 * @return void
 	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
 		$storage->counter_add( 'dbcache_calls_total', $this->query_total );
 		$storage->counter_add( 'dbcache_calls_hits', $this->query_hits );
 		$storage->counter_add( 'dbcache_flushes', $this->cache_flushes );
-		$time_ms = (int)( $this->time_total * 1000 );
+		$time_ms = (int) ( $this->time_total * 1000 );
 		$storage->counter_add( 'dbcache_time_ms', $time_ms );
 	}
 
@@ -880,11 +929,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	 * @access private
 	 *
 	 * @param string $line Line to add.
+	 *
 	 * @return void
 	 */
 	private function log_query( $line ) {
 		if ( ! $this->log_filehandle ) {
-			$filename = Util_Debug::log_filename( 'dbcache-queries' );
+			$filename             = Util_Debug::log_filename( 'dbcache-queries' );
 			$this->log_filehandle = fopen( $filename, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 		}
 

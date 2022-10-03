@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: s3.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -175,9 +181,9 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <tr>
-	<th><label for="cdn_s3_public_objects"><?php _e( 'Set objects to publicly accessible on upload:', 'w3-total-cache' ); ?></label></th>
+	<th><label for="cdn_s3_public_objects"><?php esc_html_e( 'Set objects to publicly accessible on upload:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<select id="cdn_s3_public_objects" name="cdn__s3__public_objects" <?php Util_Ui::sealing_disabled( 'cdn.' ) ?> >
+		<select id="cdn_s3_public_objects" name="cdn__s3__public_objects" <?php Util_Ui::sealing_disabled( 'cdn.' ); ?> >
 			<option value="enabled"<?php selected( $this->_config->get_string( 'cdn.s3.public_objects' ), 'enabled' ); ?>><?php esc_html_e( 'Enabled (apply the \'public-read\' ACL)', 'w3-total-cache' ); ?></option>
 			<option value="disabled"<?php selected( $this->_config->get_string( 'cdn.s3.public_objects' ), 'disabled' ); ?>><?php esc_html_e( 'Disabled (don\'t apply an ACL)', 'w3-total-cache' ); ?></option>
 		</select>

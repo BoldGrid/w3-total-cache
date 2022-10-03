@@ -1,67 +1,86 @@
 <?php
+/**
+ * File: Base_Page_Settings.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class: Base_Page_Settings
+ */
 class Base_Page_Settings {
 	/**
 	 * Config
 	 *
 	 * @var Config
 	 */
-	protected $_config = null;
+	protected $_config = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Notes
 	 *
 	 * @var array
 	 */
-	protected $_notes = array();
+	protected $_notes = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Errors
 	 *
 	 * @var array
 	 */
-	protected $_errors = array();
+	protected $_errors = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Used in PHPMailer init function
 	 *
 	 * @var string
 	 */
-	protected $_phpmailer_sender = '';
+	protected $_phpmailer_sender = ''; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Master configuration
 	 *
 	 * @var Config
 	 */
-	protected $_config_master;
+	protected $_config_master; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
 	 * Page
 	 *
 	 * @var number
 	 */
-	protected $_page;
+	protected $_page; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		$this->_config        = Dispatcher::config();
 		$this->_config_master = Dispatcher::config_master();
 		$this->_page          = Util_Admin::get_current_page();
 	}
 
-	function options() {
+	/**
+	 * Render header.
+	 */
+	public function options() {
 		$this->view();
 	}
 
+	/**
+	 * Render footer.
+	 */
 	public function render_footer() {
 		include W3TC_INC_OPTIONS_DIR . '/common/footer.php';
 	}
 
 	/**
-	 * Returns true if config section is sealed
+	 * Returns true if config section is sealed.
 	 *
-	 * @param string $section
+	 * @param string $section Config section.
+	 *
 	 * @return boolean
 	 */
 	protected function is_sealed( $section ) {
@@ -69,7 +88,7 @@ class Base_Page_Settings {
 	}
 
 	/**
-	 * Returns true if we edit master config
+	 * Returns true if we edit master config.
 	 *
 	 * @return boolean
 	 */
@@ -78,12 +97,13 @@ class Base_Page_Settings {
 	}
 
 	/**
-	 * Prints checkbox with config option value
+	 * Prints checkbox with config option value.
 	 *
-	 * @param string $option_id
-	 * @param bool   $disabled
-	 * @param string $class_prefix
-	 * @param bool   $label
+	 * @param string $option_id    Option ID.
+	 * @param bool   $disabled     Disabled flag.
+	 * @param string $class_prefix Class prefix.
+	 * @param bool   $label        Label.
+	 * @param bool   $force_value  Override value.
 	 */
 	protected function checkbox( $option_id, $disabled = false, $class_prefix = '', $label = true, $force_value = null ) {
 		$disabled = $disabled || $this->_config->is_sealed( $option_id );
@@ -123,10 +143,10 @@ class Base_Page_Settings {
 	/**
 	 * Prints a radio button and if config value matches value
 	 *
-	 * @param string  $option_id    config id.
-	 * @param unknown $value
-	 * @param bool    $disabled
-	 * @param string  $class_prefix
+	 * @param string  $option_id    Option id.
+	 * @param unknown $value        Value.
+	 * @param bool    $disabled     Disabled flag.
+	 * @param string  $class_prefix Class prefix.
 	 */
 	protected function radio( $option_id, $value, $disabled = false, $class_prefix = '' ) {
 		if ( is_bool( $value ) ) {
@@ -151,9 +171,9 @@ class Base_Page_Settings {
 	}
 
 	/**
-	 * Prints checkbox for debug option
+	 * Prints checkbox for debug option.
 	 *
-	 * @param string $option_id
+	 * @param string $option_id Option ID.
 	 */
 	protected function checkbox_debug( $option_id ) {
 		if ( is_array( $option_id ) ) {
@@ -183,6 +203,13 @@ class Base_Page_Settings {
 		echo ' />';
 	}
 
+	/**
+	 * Prints checkbox for debug option for pro.
+	 *
+	 * @param string  $option_id Option ID.
+	 * @param unknown $label     Label.
+	 * @param unknown $label_pro Pro label.
+	 */
 	protected function checkbox_debug_pro( $option_id, $label, $label_pro ) {
 		if ( is_array( $option_id ) ) {
 			$section         = $option_id[0];
@@ -228,6 +255,13 @@ class Base_Page_Settings {
 		echo '</label>';
 	}
 
+	/**
+	 * Prints checkbox for debug option for pro.
+	 *
+	 * @param string  $option_id           Option ID.
+	 * @param bool    $disabled            Disabled flag.
+	 * @param unknown $value_when_disabled Override value when disabled.
+	 */
 	protected function value_with_disabled( $option_id, $disabled, $value_when_disabled ) {
 		if ( $disabled ) {
 			echo 'value="' . esc_attr( $value_when_disabled ) . '" disabled="disabled" ';
@@ -236,6 +270,9 @@ class Base_Page_Settings {
 		}
 	}
 
+	/**
+	 * Render header.
+	 */
 	protected function view() {
 		include W3TC_INC_DIR . '/options/common/header.php';
 	}
