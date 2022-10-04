@@ -4,6 +4,7 @@ apt-get install -y openlitespeed
 sed -i "s/user .*/user www-data/" /usr/local/lsws/conf/httpd_config.conf
 sed -i "s/group .*/user www-data/" /usr/local/lsws/conf/httpd_config.conf
 sed -i "s/address.*:8088/address *:80/" /usr/local/lsws/conf/httpd_config.conf
+sed -i "s/lsphp74/lsphp80/" /usr/local/lsws/conf/httpd_config.conf
 sed -i -e '/map /a\' -e 'map WpSandbox wp.sandbox' /usr/local/lsws/conf/httpd_config.conf
 sed -i -e '/map /a\' -e 'map WpSandbox b2.wp.sandbox' /usr/local/lsws/conf/httpd_config.conf
 sed -i -e '/map /a\' -e 'map WpSandbox for-tests.wp.sandbox' /usr/local/lsws/conf/httpd_config.conf
