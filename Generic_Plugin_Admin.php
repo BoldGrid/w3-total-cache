@@ -634,7 +634,7 @@ class Generic_Plugin_Admin {
 		}
 
 		$matches = null;
-		$regexp  = '~==\s*Changelog\s*==\s*=\s*[0-9.]+\s*=(.*)(=\s*' . preg_quote( W3TC_VERSION, '/' ) . '\s*=|$)~Uis';
+		$regexp  = '~==\s*Changelog\s*==\s*=\s*[0-9.]+\s*=(.*)(=\s*' . preg_quote( W3TC_VERSION, '~' ) . '\s*=|$)~Uis';
 
 		$body = $response['body'];
 		if ( ! preg_match( $regexp, $body, $matches ) ) {
