@@ -569,6 +569,6 @@ class PageSpeed_Api {
 	 * @return string
 	 */
 	public function get_w3tc_api_url( $target ) {
-		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ? esc_url( 'https://' . W3TC_API2_URL . '/' . $target, array( 'https' ), '' ) : esc_url( $this->w3tc_api_base_url . $target, 'https', '' );
+		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ? esc_url( 'https://' . W3TC_API2_URL . '/' . $target, array( 'https' ), '' ) : esc_url( $this->w3tc_api_base_url . '/' . $target, 'https', '' );
 	}
 }

@@ -38,7 +38,13 @@ jQuery(document).ready(function($) {
 					$('#' + page_post_id).prev().find('.w3tcps_error p').html( w3tcData.lang.pagespeed_data_error + data.error );
 					$('#' + page_post_id).prev().find('.w3tcps_error').removeClass( 'w3tc_none' );
 					return;
-			    }
+			    } else if (data.notice) {
+					$('.w3tcps_analyze').addClass('w3tc_none');
+					$('#' + page_post_id).prev().find('.w3tcps_missing_token p').html( data.notice );
+					$('#' + page_post_id).prev().find('.w3tcps_missing_token').removeClass( 'w3tc_none' );
+					return;
+				}
+				$('.w3tcps_analyze').removeClass( 'w3tc_none' );
 				$('#' + page_post_id).html(data['.w3tcps_content']).fadeIn('slow');
 			},
 			error: function(jqXHR, textStatus, errorThrown) {

@@ -116,8 +116,8 @@ class Root_AdminMenu {
 				'order'          => 1200,
 			),
 			'w3tc_pagespeed'          => array(
-				'page_title'     => __( 'Google Page Speed', 'w3-total-cache' ),
-				'menu_text'      => __( 'Google Page Speed', 'w3-total-cache' ),
+				'page_title'     => __( 'Google PageSpeed', 'w3-total-cache' ),
+				'menu_text'      => __( 'Google PageSpeed', 'w3-total-cache' ),
 				'visible_always' => true,
 				'order'          => 1200,
 			),

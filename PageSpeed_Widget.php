@@ -83,7 +83,7 @@ class PageSpeed_Widget {
 		Util_Widget::add(
 			'w3tc_pagespeed',
 			'<div class="w3tc-widget-pagespeed-logo"></div>' .
-				'<div class="w3tc-widget-text">' . esc_html__( 'Page Speed Report', 'w3-total-cache' ) . '</div>',
+				'<div class="w3tc-widget-text">' . esc_html__( 'PageSpeed Report', 'w3-total-cache' ) . '</div>',
 			array( $this, 'widget_pagespeed' ),
 			Util_Ui::admin_url( 'admin.php?page=w3tc_general#miscellaneous' ),
 			'normal'
@@ -131,7 +131,7 @@ class PageSpeed_Widget {
 			if ( empty( $access_token ) ) {
 				echo wp_json_encode(
 					array(
-						'error' => sprintf(
+						'missing_token' => sprintf(
 							// translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
 							__(
 								'It appears that your Google Access token is either missing, expired, or invalid. Please click %1$s to obtain a new Google access token or to refresh an expired one.',

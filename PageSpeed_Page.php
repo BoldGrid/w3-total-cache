@@ -107,13 +107,13 @@ class PageSpeed_Page {
 			if ( empty( $access_token ) ) {
 				echo wp_json_encode(
 					array(
-						'error' => sprintf(
+						'notice' => sprintf(
 							// translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
 							__(
 								'It appears that your Google Access token is either missing, expired, or invalid. Please click %1$s to obtain a new Google access token or to refresh an expired one.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url( Util_Ui::admin_url( '/wp-admin/admin.php?page=w3tc_general#google_page_speed' ) ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 						),
 					),
 				);

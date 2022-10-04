@@ -667,7 +667,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php Util_Ui::postbox_footer(); ?>
 		<?php endif; ?>
 
-		<?php Util_Ui::postbox_header( __( 'Google Page Speed', 'w3-total-cache' ), '', 'google_page_speed' ); ?>
+		<?php Util_Ui::postbox_header( __( 'Google PageSpeed', 'w3-total-cache' ), '', 'google_page_speed' ); ?>
 		<?php
 		$access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
 		$w3_pagespeed      = new PageSpeed_Api( $access_token_json );
@@ -723,18 +723,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					</th>
 				</tr>
 				<?php
-			} elseif ( $w3_pagespeed->client->isAccessTokenExpired() && ! empty( $access_token_json ) ) {
-				?>
-				<tr>
-					<th>
-						<label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?> <?php esc_html_e( 'Expired', 'w3-total-cache' ); ?></label>
-					</th>
-					<td>
-						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $w3_pagespeed->get_w3tc_api_url( 'google/authorize-in' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ) . '/' . rawurlencode( $w3key ) ); ?>"><?php esc_html_e( 'Re-Authorize' ); ?></a>
-						<p><?php esc_html_e( 'Click the "Re-Authorize" button to re-authorize W3TC to perform requests to the PageSpeed Insights API on your behalf via a temporary Google Access Token. This token will be set to automatically refresh once expired so authorization should only be required once.', 'w3-total-cache' ); ?></p>
-					</td>
-				</tr>
-				<?php
 			} else {
 				?>
 				<tr>
@@ -743,7 +731,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					</th>
 					<td>
 						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $w3_pagespeed->get_w3tc_api_url( 'google/authorize-in' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ) ); ?>"><?php esc_html_e( 'Authorize' ); ?></a>
-						<p><?php esc_html_e( 'Click the "Authorize" button to authorize W3TC to perform requests to the PageSpeed Insights API on your behalf via a refreshed temporary Google Access Token. This token will be set to automatically refresh once expired so authorization should only be required once.', 'w3-total-cache' ); ?></p>
+						<p><?php esc_html_e( 'Allow W3 Total Cache to connect to the PageSpeed Insights API on your behalf.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>
 				<?php
@@ -753,8 +741,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				array(
 					'key'            => 'widget.pagespeed.enabled',
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable Google Page Speed dashboard widget', 'w3-total-cache' ),
-					'description'    => __( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
+					'checkbox_label' => __( 'Enable Google PageSpeed dashboard widget', 'w3-total-cache' ),
+					'description'    => __( 'Display Google PageSpeed results on the WordPress dashboard.', 'w3-total-cache' ),
 					'label_class'    => 'w3tc_single_column',
 				)
 			);

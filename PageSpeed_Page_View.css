@@ -1,3 +1,7 @@
+.w3tc_none {
+	display: none !important;
+}
+
 #w3tcps_container {
 	max-width: 1234px;
 }
@@ -21,10 +25,6 @@
 
 .w3tcps_content .postbox .hndle {
 	border-bottom: unset !important;
-}
-
-.w3tcps_feedback .w3tcps_error {
-	padding: 15px;
 }
 
 .w3tcps_barline {

@@ -139,7 +139,7 @@ do_action( 'w3tc-dashboard-head' );
 				array(
 					array(
 						'id'   => 'google_page_speed',
-						'text' => __( 'Google Page Speed', 'w3-total-cache' )
+						'text' => __( 'Google PageSpeed', 'w3-total-cache' )
 					),
 					array(
 						'id'   => 'miscellaneous',

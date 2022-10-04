@@ -29,7 +29,13 @@ jQuery(document).ready( function($) {
 					$('.w3tcps_error .notice-error').html(w3tcData.lang.pagespeed_widget_data_error + data.error);
 					$('.w3tcps_error').removeClass('w3tc_none');
 					return;
+				} else if (data.missing_token) {
+					$('.w3tcps_analyze').addClass('w3tc_none');
+					$('.w3tcps_missing_token .notice-info').html( data.missing_token );
+					$('.w3tcps_missing_token').removeClass( 'w3tc_none' );
+					return;
 				}
+				$('.w3tcps_analyze').removeClass('w3tc_none');
 				$('.w3tc-gps-widget').html(data['.w3tc-gps-widget']);
 				$('.w3tc-gps-widget').removeClass('w3tc_none').fadeIn('slow');
 				$('#normal-sortables').masonry();

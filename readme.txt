@@ -22,7 +22,7 @@ https://youtu.be/7AsNSSrZq4Y
 *BENEFITS*
 
 * Improvements in search engine result page rankings, especially for mobile-friendly websites and sites that use SSL
-* At least 10x improvement in overall site performance (Grade A in [WebPagetest](https://www.webpagetest.org/) or significant [Google Page Speed](http://code.google.com/speed/page-speed/) improvements) **when fully configured**
+* At least 10x improvement in overall site performance (Grade A in [WebPagetest](https://www.webpagetest.org/) or significant [Google PageSpeed](http://code.google.com/speed/page-speed/) improvements) **when fully configured**
 * Improved conversion rates and "[site performance](http://googlewebmastercentral.blogspot.com/2009/12/your-sites-performance-in-webmaster.html)" which [affect your site's rank](http://googlewebmastercentral.blogspot.com/2010/04/using-site-speed-in-web-search-ranking.html) on Google.com
 * "Instant" repeat page views: browser caching
 * Optimized progressive render: pages start rendering quickly and can be interacted with more quickly
@@ -234,7 +234,7 @@ Image data received by our API is destroyed after a converted image is generated
 
 You will be able to see the results instantly on each page load, but for tangible metrics, you should consider using the following tools:
 
-* [Google Page Speed](https://developers.google.com/speed/pagespeed/)
+* [Google PageSpeed](https://developers.google.com/speed/pagespeed/)
 * [Google Search Console Core Web Vitals Report](https://search.google.com/search-console/core-web-vitals/)
 * [WebPagetest](https://www.webpagetest.org/test)
 * [Pingdom](https://tools.pingdom.com/)

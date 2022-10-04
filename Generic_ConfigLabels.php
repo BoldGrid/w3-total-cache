@@ -10,7 +10,7 @@ class Generic_ConfigLabels {
 				'cluster.messagebus.sns.api_secret' => __( '<acronym title="Application Programming Interface">API</acronym> secret:', 'w3-total-cache' ),
 				'cluster.messagebus.sns.topic_arn' => __( 'Topic <acronym title="Identification">ID</acronym>:', 'w3-total-cache' ),
 				'cluster.messagebus.debug' =>  __( 'Message Bus', 'w3-total-cache' ),
-				'widget.pagespeed.access_token' => __( 'Google Access Token:', 'w3-total-cache' ),
+				'widget.pagespeed.access_token' => __( 'Authorize :', 'w3-total-cache' ),
 				'widget.pagespeed.w3key' => __( 'W3 API Key:', 'w3-total-cache' ),
 				'common.force_master' => __( 'Use single network configuration file for all sites.', 'w3-total-cache' ),
 				'config.path' => __( 'Nginx server configuration file path', 'w3-total-cache' ),
