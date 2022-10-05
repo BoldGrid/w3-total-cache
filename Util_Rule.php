@@ -63,6 +63,15 @@ class Util_Rule {
 	}
 
 	/**
+	 * Returns path of apache's primary rules file
+	 *
+	 * @return string
+	 */
+	static public function get_apache_rules_path() {
+		return Util_Environment::site_path() . '.htaccess';
+	}
+
+	/**
 	 * Returns path of pagecache core rules file
 	 *
 	 * @return string
@@ -71,7 +80,7 @@ class Util_Rule {
 		switch ( true ) {
 		case Util_Environment::is_apache():
 		case Util_Environment::is_litespeed():
-			return Util_Environment::site_path() . '.htaccess';
+			return Util_Rule::get_apache_rules_path();
 
 		case Util_Environment::is_nginx():
 			return Util_Rule::get_nginx_rules_path();
@@ -90,15 +99,6 @@ class Util_Rule {
 			return Util_Rule::get_litespeed_rules_path();
 		}
 
-		return Util_Rule::get_pgcache_rules_core_path();
-	}
-
-	/**
-	 * Returns path of browsercache no404wp rules file
-	 *
-	 * @return string
-	 */
-	static public function get_browsercache_rules_no404wp_path() {
 		return Util_Rule::get_pgcache_rules_core_path();
 	}
 
