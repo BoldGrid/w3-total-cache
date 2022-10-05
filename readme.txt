@@ -287,7 +287,7 @@ Please reach out to all of these people and support their projects if you're so 
 
 = 2.2.5 =
 * Fix: Revert WooCommerce Variation Image Gallery plugin CDN filter
-* Fix: DB cache sytax error in PHP 5.6
+* Fix: DB cache syntax error in PHP 5.6
 * Fix: Added missing space to S3 CDN bucket label
 * Fix: JS error for CloudFront CDN related check on non-W3TC pages
 * Enhancement: Image Service pre_get_posts anonymous action now hooked (w3tc_modify_query_obj)

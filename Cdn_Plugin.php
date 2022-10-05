@@ -267,7 +267,7 @@ class Cdn_Plugin {
 				'display'  => sprintf(
 					// translators: 1 queue interval value.
 					__(
-						'[W3TC] CDN queue process (every %d$1 seconds)',
+						'[W3TC] CDN queue process (every %1$d seconds)',
 						'w3-total-cache'
 					),
 					$queue_interval
@@ -285,7 +285,7 @@ class Cdn_Plugin {
 				'display'  => sprintf(
 					// translators: 1 queue interval value.
 					__(
-						'[W3TC] CDN auto upload (every %d$1 seconds)',
+						'[W3TC] CDN auto upload (every %1$d seconds)',
 						'w3-total-cache'
 					),
 					$autoupload_interval
