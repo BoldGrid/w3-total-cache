@@ -440,13 +440,17 @@ class Generic_Plugin_Admin {
 					),
 					'cfWarning'        => wp_kses(
 						sprintf(
-							// translators: 1: HTML a tag to docs.aws.amazon.com for invalidation payments, 2: HTML a tag to purge CDN manually.
+							// translators: 1: HTML opening a tag to docs.aws.amazon.com for invalidation payments, 2: HTML closing a tag followed by HTML line break tag,
+							// translators: 4: HTML line break tag, 5: HTML opening a tag to purge CDN manually, 6: HTML closing a tag.
 							__(
-								'Please see %1$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%1$sYou can disable automatic purging by enabling %2$s.',
+								'Please see %1$sAmazon\'s CloudFront documentation -- Paying for file invalidation%2$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%3$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%5$s.',
 								'w3-total-cache'
 							),
-							'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">' . esc_html__( 'Amazon\'s CloudFront documentation -- Paying for file invalidation', 'w3-total-cache' ) . '</a>.<br/>',
-							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">' . esc_html__( 'Only purge CDN manually', 'w3-total-cache' ) . '</a>'
+							'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">',
+							'</a>.<br/>',
+							'<br/>',
+							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">',
+							'</a>'
 						),
 						array(
 							'a'  => array(
@@ -634,7 +638,7 @@ class Generic_Plugin_Admin {
 		}
 
 		$matches = null;
-		$regexp  = '~==\s*Changelog\s*==\s*=\s*[0-9.]+\s*=(.*)(=\s*' . preg_quote( W3TC_VERSION, '/' ) . '\s*=|$)~Uis';
+		$regexp  = '~==\s*Changelog\s*==\s*=\s*[0-9.]+\s*=(.*)(=\s*' . preg_quote( W3TC_VERSION, '~' ) . '\s*=|$)~Uis';
 
 		$body = $response['body'];
 		if ( ! preg_match( $regexp, $body, $matches ) ) {
@@ -681,7 +685,7 @@ class Generic_Plugin_Admin {
 			'fancy_permalinks_disabled_pgcache'      => sprintf(
 				// translators: 1 enable button link.
 				__(
-					'Fancy permalinks are disabled. Please %s$1 it first, then re-attempt to enabling enhanced disk mode.',
+					'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling enhanced disk mode.',
 					'w3-total-cache'
 				),
 				Util_Ui::button_link( 'enable', 'options-permalink.php' )
@@ -689,12 +693,11 @@ class Generic_Plugin_Admin {
 			'fancy_permalinks_disabled_browsercache' => sprintf(
 				// translators: 1 enable button link.
 				__(
-					'Fancy permalinks are disabled. Please %s$1 it first, then re-attempt to enabling the \'Do not process 404 errors for static objects with WordPress\'.',
+					'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling the \'Do not process 404 errors for static objects with WordPress\'.',
 					'w3-total-cache'
 				),
 				Util_Ui::button_link( 'enable', 'options-permalink.php' )
 			),
-			'support_request'                        => __( 'Failed to send support request.', 'w3-total-cache' ),
 			'support_request_type'                   => __( 'Please select request type.', 'w3-total-cache' ),
 			'support_request_url'                    => sprintf(
 				// translators: 1 HTML acronym URL (uniform resource locator).
