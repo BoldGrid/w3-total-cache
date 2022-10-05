@@ -66,6 +66,8 @@ class BrowserCache_Environment {
 		if ( !$config->get_boolean( 'browsercache.enabled' ) )
 			return null;
 
+		$mime_types = $this->get_mime_types();
+
 		switch ( true ) {
 		case Util_Environment::is_apache():
 			$generator_apache = new BrowserCache_Environment_Apache( $config );
@@ -75,7 +77,7 @@ class BrowserCache_Environment {
 					'content' =>
 						W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n" .
 						$this->rules_cache_generate_apache( $config ) .
-						$generator_apache->rules_no404wp() .
+						$generator_apache->rules_no404wp( $mime_types ) .
 						W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n"
 				)
 			);
@@ -83,13 +85,11 @@ class BrowserCache_Environment {
 
 		case Util_Environment::is_litespeed():
 			$generator_litespeed = new BrowserCache_Environment_LiteSpeed( $config );
-			$mime_types = $this->get_mime_types();
 			$rewrite_rules = $generator_litespeed->get_required_rules( $mime_types );
 			break;
 
 		case Util_Environment::is_nginx():
 			$generator_nginx = new BrowserCache_Environment_Nginx( $config );
-			$mime_types = $this->get_mime_types();
 			$rewrite_rules = $generator_nginx->get_required_rules( $mime_types );
 			break;
 		}

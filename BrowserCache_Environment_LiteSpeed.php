@@ -31,7 +31,7 @@ class BrowserCache_Environment_LiteSpeed {
 				'content' =>
 					W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n" .
 					$g->rules_rewrite() .
-					$g->rules_no404wp() .
+					$g->rules_no404wp( $mime_types ) .
 					W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n"
 			);
 		}

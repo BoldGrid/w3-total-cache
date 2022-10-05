@@ -41,15 +41,14 @@ class BrowserCache_Environment_Apache {
 	 * @param Config  $config
 	 * @return string
 	 */
-	public function rules_no404wp() {
+	public function rules_no404wp( $mime_types ) {
 		if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
 			return '';
 		}
 
-		$a = $this->get_mime_types();
-		$cssjs_types = $a['cssjs'];
-		$html_types = $a['html'];
-		$other_types = $a['other'];
+		$cssjs_types = $mime_types['cssjs'];
+		$html_types = $mime_types['html'];
+		$other_types = $mime_types['other'];
 
 		$extensions = array_merge( array_keys( $cssjs_types ),
 			array_keys( $html_types ), array_keys( $other_types ) );
