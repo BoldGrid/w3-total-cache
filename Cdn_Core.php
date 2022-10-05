@@ -727,7 +727,7 @@ class Cdn_Core {
 			}
 		}
 
-		return ltrim( $remote_uri, '/' );
+		return apply_filters( 'w3tc_uri_cdn_uri', ltrim( $remote_uri, '/' ) );
 	}
 
 	/**
