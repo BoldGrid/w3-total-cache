@@ -9,6 +9,12 @@ namespace W3TC;
  * class Minify_Environment
  */
 class Minify_Environment {
+	public function __construct() {
+		add_filter( 'w3tc_browsercache_rules_section',
+			array( $this, 'w3tc_browsercache_rules_section' ),
+			10, 3 );
+	}
+
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
@@ -760,5 +766,14 @@ class Minify_Environment {
 		$rules .= W3TC_MARKER_END_MINIFY_CACHE . "\n";
 
 		return $rules;
+	}
+
+	public function w3tc_browsercache_rules_section( $section_rules, $config, $section ) {
+		if ( Util_Environment::is_litespeed() ) {
+			$o = new Minify_Environment_LiteSpeed( $config );
+			$section_rules = $o->w3tc_browsercache_rules_section(
+				$section_rules, $section );
+		}
+		return $section_rules;
 	}
 }
