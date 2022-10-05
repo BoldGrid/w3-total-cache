@@ -290,6 +290,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: DB cache syntax error in PHP 5.6
 * Fix: Added missing space to S3 CDN bucket label
 * Fix: JS error for CloudFront CDN related check on non-W3TC pages
+* Fix: Page cache unpack warning for empty/malformed files 
 * Enhancement: Image Service pre_get_posts anonymous action now hooked (w3tc_modify_query_obj)
 * Enhancement: Image Service ajax_query_attachments_args anonymous action now hooked (w3tc_filter_ajax_args)
 
