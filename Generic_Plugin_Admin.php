@@ -698,7 +698,6 @@ class Generic_Plugin_Admin {
 				),
 				Util_Ui::button_link( 'enable', 'options-permalink.php' )
 			),
-			'support_request'                        => __( 'Failed to send support request.', 'w3-total-cache' ),
 			'support_request_type'                   => __( 'Please select request type.', 'w3-total-cache' ),
 			'support_request_url'                    => sprintf(
 				// translators: 1 HTML acronym URL (uniform resource locator).
