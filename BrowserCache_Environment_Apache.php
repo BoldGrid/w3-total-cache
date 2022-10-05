@@ -41,7 +41,7 @@ class BrowserCache_Environment_Apache {
 	 * @param Config  $config
 	 * @return string
 	 */
-	private function rules_no404wp() {
+	public function rules_no404wp() {
 		if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
 			return '';
 		}
