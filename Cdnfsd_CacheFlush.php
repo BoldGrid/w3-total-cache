@@ -39,7 +39,7 @@ class Cdnfsd_CacheFlush {
 
 		$config           = Dispatcher::config();
 		$common           = Dispatcher::component( 'Cdn_Core' );
-		$default_override = $common->get_flush_manually_default_override();
+		$default_override = Cdn_Util::get_flush_manually_default_override();
 		if ( $config->get_boolean( 'cdn.flush_manually', $default_override ) ) {
 			// in this mode flush only on purge button clicks.
 			if ( ! isset( $extras['ui_action'] ) ) {
@@ -72,7 +72,7 @@ class Cdnfsd_CacheFlush {
 
 		$config           = Dispatcher::config();
 		$common           = Dispatcher::component( 'Cdn_Core' );
-		$default_override = $common->get_flush_manually_default_override();
+		$default_override = Cdn_Util::get_flush_manually_default_override();
 		if ( $config->get_boolean( 'cdn.flush_manually', $default_override ) ) {
 			// in this mode flush only on purge button clicks.
 			if ( ! isset( $extras['ui_action'] ) ) {
@@ -211,7 +211,7 @@ class Cdnfsd_CacheFlush {
 	public static function w3tc_flush_url( $url, $extras = null ) {
 		$config           = Dispatcher::config();
 		$common           = Dispatcher::component( 'Cdn_Core' );
-		$default_override = $common->get_flush_manually_default_override();
+		$default_override = Cdn_Util::get_flush_manually_default_override();
 		if ( $config->get_boolean( 'cdn.flush_manually', $default_override ) ) {
 			// in this mode flush only on purge button clicks.
 			if ( ! isset( $extras['ui_action'] ) ) {
