@@ -321,6 +321,7 @@ function w3tc_csp_reference() {
 }
 
 function cdn_cf_check() {
+	// Prevents JS error for non W3TC pages.
 	if ( typeof w3tcData === 'undefined' ) {
 		return;
 	}

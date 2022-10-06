@@ -1,9 +1,9 @@
 === Plugin Name ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
-Requires at least: 3.8
+Requires at least: 5.3
 Tested up to: 6.0
-Stable tag: 2.2.4
+Stable tag: 2.2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,15 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.2.5 =
+* Fix: Revert WooCommerce Variation Image Gallery plugin CDN filter
+* Fix: DB cache syntax error in PHP 5.6
+* Fix: Added missing space to S3 CDN bucket label
+* Fix: JS error for CloudFront CDN related check on non-W3TC pages
+* Fix: Page cache unpack warning for empty/malformed files 
+* Enhancement: Image Service pre_get_posts anonymous action now hooked (w3tc_modify_query_obj)
+* Enhancement: Image Service ajax_query_attachments_args anonymous action now hooked (w3tc_filter_ajax_args)
 
 = 2.2.4 =
 * Fix: Extensions URL in settings

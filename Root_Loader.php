@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class: Root_Loader
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 class Root_Loader {
 	/**
@@ -16,14 +18,14 @@ class Root_Loader {
 	 *
 	 * @var W3_Plugin[]
 	 */
-	private $_loaded_plugins = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_loaded_plugins = array();
 
 	/**
 	 * Enabled extensions that has been run
 	 *
 	 * @var W3_Plugin[]
 	 */
-	private $_loaded_extensions = array(); // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+	private $_loaded_extensions = array();
 
 	/**
 	 * Constructor.
@@ -205,12 +207,12 @@ class Root_Loader {
 		if ( 'never' === $visibility || ( 'extension' === $visibility && ! isset( $extensions['imageservice'] ) ) ) {
 			add_action(
 				'pre_get_posts',
-				array( $this, 'w3tc_modify_query_obj' ),
+				array( $this, 'w3tc_modify_query_obj' )
 			);
 
 			add_filter(
 				'ajax_query_attachments_args',
-				array( $this, 'w3tc_filter_ajax_args' ),
+				array( $this, 'w3tc_filter_ajax_args' )
 			);
 		}
 	}
