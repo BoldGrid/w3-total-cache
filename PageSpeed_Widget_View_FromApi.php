@@ -51,18 +51,18 @@ if ( ! defined( 'W3TC' ) ) {
 			echo wp_kses(
 				sprintf(
 					// translators: 1 opening HTML span tag, 2 opening HTML a tag to web.dev/performance-soring, 3 closing HTML a tag,
-					// translators: 4 closing HTML span tag, 5 opening HTML a tag to googlechrome.github.io Lighthouse Score Calculator,
-					// translators: 6 closing HTML a tag.
+					// translators: 4 opening HTML a tag to googlechrome.github.io Lighthouse Score Calculator, 5 closing HTML a tag,
+					// translators: 6 closing HTML p tag.
 					__(
-						'%1$sValues are estimated and may vary. The %2$sperformance score is calculated%3$s directly from these metrics.%4$s%5$sSee calculator.%6$s',
+						'%1$sValues are estimated and may vary. The %2$sperformance score is calculated%3$s directly from these metrics. %4$sSee calculator.%5$s%6$s',
 						'w3-total-cache'
 					),
-					'<span>',
+					'<p class="w3tcps_legend_description">',
 					'<a rel="noopener" target="_blank" href="' . esc_url( 'https://web.dev/performance-scoring/?utm_source=lighthouse&amp;utm_medium=lr' ) . '">',
 					'</a>',
-					'</span>',
 					'<a target="_blank" href="' . esc_url( 'https://googlechrome.github.io/lighthouse/scorecalc/#FCP=1028&amp;TTI=1119&amp;SI=1028&amp;TBT=18&amp;LCP=1057&amp;CLS=0&amp;FMP=1028&amp;device=desktop&amp;version=9.0.0' ) . '">',
-					'</a>'
+					'</a>',
+					'</p>'
 				),
 				Util_PageSpeed::get_allowed_tags()
 			);

@@ -35,8 +35,8 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to W3TC minify JS admin page, 2 HTML a tag to W3TC minify CSS admin page.
 								__( 'W3TC can eliminate render blocking resources. Once Minified, you can deffer JS in the %1$s. Render blocking CSS can be eliminated in %2$s using the "Eliminate Render blocking CSS by moving it to HTTP body" (PRO FEATURE).', 'w3-total-cache' ),
-								'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '">' . esc_html__( 'Performance>Minify>JS', 'w3-total-cache' ) . '</a> ',
-								'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '">' . esc_html__( 'Performance>Minify>CSS', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; JS', 'w3-total-cache' ) . '</a> ',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; CSS', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -55,10 +55,10 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to W3TC Minify CSS admin page, 2 HTML acronym for CSS, 3 HTML acronym for JS, 4 HTML a tag to W3 API FAQ page containing HTML acronym tag for FAQ.
 								__( 'On the %1$s tab all of the recommended settings are preset. Use the help button to simplify discovery of your %2$s and %3$s files and groups. Pay close attention to the method and location of your %3$s group embeddings. See the plugin\'s %4$s for more information on usage.', 'w3-total-cache' ),
-								'<a href="admin.php?page=w3tc_minify#css" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="admin.php?page=w3tc_minify#css" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
 								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . esc_html__( 'CSS', 'w3-total-cache' ) . '</acronym>',
 								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">' . esc_html__( 'JS', 'w3-total-cache' ) . '</acronym>',
-								'<a href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '" target="_blank"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
+								'<a target="_blank" href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '" target="_blank"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -69,10 +69,10 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to W3TC Minify CSS admin page, 2 HTML acronym for CSS, 3 HTML acronym for JS, 4 HTML a tag to W3 API FAQ page containing HTML acronym tag for FAQ.
 								__( 'On the %1$s tab all of the recommended settings are preset. Use the help button to simplify discovery of your %2$s and %3$s files and groups. Pay close attention to the method and location of your %3$s group embeddings. See the plugin\'s %4$s for more information on usage.', 'w3-total-cache' ),
-								'<a href="admin.php?page=w3tc_minify#css" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="admin.php?page=w3tc_minify#css" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
 								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . esc_html__( 'CSS', 'w3-total-cache' ) . '</acronym>',
 								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">' . esc_html__( 'JS', 'w3-total-cache' ) . '</acronym>',
-								'<a href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '" target="_blank"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
+								'<a target="_blank" href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '" target="_blank"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -91,7 +91,7 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to helpx.adobe.com for optimizing-image-jped-format.
 								__( 'It\'s important to prepare images before uloading them to the website. This should be done before the Image is uploaded and can be done by using some image optimization tool like %1$s.', 'w3-total-cache' ),
-								'<a href="' . esc_url( 'https://helpx.adobe.com/photoshop-elements/using/optimizing-images-jpeg-format.html' ) . '" target="_blank">' . esc_html__( 'photoshop', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://helpx.adobe.com/photoshop-elements/using/optimizing-images-jpeg-format.html' ) . '" target="_blank">' . esc_html__( 'photoshop', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>
@@ -117,7 +117,7 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to kjdev php-ext-brotli.
 								__( 'Use W3 Total Cache Browser Caching - Peformance>Browser Cache - Enable Gzip compression or Brotli compression (Gzip compression is most common anf for Brotli compression you need to install %1$s on your server.', 'w3-total-cache' ),
-								'<a href="' . esc_url( 'https://github.com/kjdev/php-ext-brotli' ) . '" target="_blank">' . esc_html__( 'Brotli extension', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( 'https://github.com/kjdev/php-ext-brotli' ) . '" target="_blank">' . esc_html__( 'Brotli extension', 'w3-total-cache' ) . '</a>',
 							),
 							$allowed_tags
 						) . '</p>',
@@ -127,12 +127,12 @@ class PageSpeed_Instructions {
 						<ol>
 							<li>
 								' . esc_html__( 'Add preconnect for critical third-party domains. Out of the list of third-party resources flagged by Google Page speed, identify the critical third-party resources and add the following code to the link tag:', 'w3-total-cache' ) . '
-								<code>' . esc_html( '<link rel="preconnect" href="' . esc_url( 'https://third-party-example.com', 'w3-total-cache' ) . '">' ) . '</code>
+								<code>' . esc_html( '<link rel="preconnect" target="_blank" href="' . esc_url( 'https://third-party-example.com', 'w3-total-cache' ) . '">' ) . '</code>
 								' . esc_html__( 'Where "https://third-party-example.com" is the critical third-party domain your page intends to connect to.', 'w3-total-cache' ) . '
 							</li>
 							<li>
 								' . esc_html__( 'Add dns-prefetch for all other third-party domains. For all other third-party scripts, including non-critical ones, add the following code to the link tag:', 'w3-total-cache' ) . '
-								<code>' . esc_html( '<link rel="dns-prefetch" href="' . esc_url( 'https://third-party-example.com', 'w3-total-cache' ) . '">' ) . '</code>
+								<code>' . esc_html( '<link rel="dns-prefetch" target="_blank" href="' . esc_url( 'https://third-party-example.com', 'w3-total-cache' ) . '">' ) . '</code>
 								' . esc_html__( 'Where "https://third-party-example.com"	is the domain of the respective third-party resource.', 'w3-total-cache' ) . '
 							</li>
 						</ol>',
@@ -150,7 +150,7 @@ class PageSpeed_Instructions {
 				),
 				'uses-rel-preload'             => array(
 					'instructions' => '<p>' . esc_html__( 'JS and CSS - Use HTTP2/Push for W3TC Minified files', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'Preload fonts hosted on the server: ', 'w3-total-cache' ) . '<code>' . esc_html( '<link rel="preload" href="fontname" as="font" type="font/format" crossorigin>' ) . '</code></p>',
+						<p>' . esc_html__( 'Preload fonts hosted on the server: ', 'w3-total-cache' ) . '<code>' . esc_html( '<link rel="preload" target="_blank" href="fontname" as="font" type="font/format" crossorigin>' ) . '</code></p>',
 				),
 				'efficient-animated-content'   => array(
 					'instructions' => '<p>' . esc_html__( 'Use W3TC Image Service to convert images to WebP.', 'w3-total-cache' ) . '</p>',
@@ -162,7 +162,7 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to Zillow Webpack-Stats-Duplicates.
 								__( 'To fix this audit, use a tool like %1$s to identify duplicate modules', 'w3-total-cache' ),
-								'<a href="' . esc_url( 'https://github.com/zillow/webpack-stats-duplicates' ) . '" target="_blank">' . esc_html__( 'webpack-stats-duplicates', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://github.com/zillow/webpack-stats-duplicates' ) . '" target="_blank">' . esc_html__( 'webpack-stats-duplicates', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -177,7 +177,7 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to philipwalton.com for deplying-es2015-code-in-production-today.
 								__( 'Learn more about implementing this technique %1$s.', 'w3-total-cache' ),
-								'<a href="' . esc_url( 'https://philipwalton.com/articles/deploying-es2015-code-in-production-today/' ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( 'https://philipwalton.com/articles/deploying-es2015-code-in-production-today/' ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>',
 							),
 							$allowed_tags
 						) . '</p>',
@@ -206,7 +206,7 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: HTML a tag to developer.mozilla.org for User_Timing_API.
 								__( 'The %1$s gives you a way to measure your app\'s JavaScript performance.', 'w3-total-cache' ),
-								'<a href="' . esc_url( 'https://developer.mozilla.org/docs/Web/API/User_Timing_API' ) . '" target="_blank">' . esc_html__( 'User Timing API', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://developer.mozilla.org/docs/Web/API/User_Timing_API' ) . '" target="_blank">' . esc_html__( 'User Timing API', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>
@@ -216,7 +216,7 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to developer.chrome.com for devtools/evaluate-performance/reference.
 								__( 'You can access those data from JavaScript using the API or by viewing them on your %1$s.', 'w3-total-cache' ),
-								'<a href="' . esc_url( 'https://developer.chrome.com/docs/devtools/evaluate-performance/reference/' ) . '" target="_blank">' . esc_html__( 'Chrome DevTools Timeline Recordings', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://developer.chrome.com/docs/devtools/evaluate-performance/reference/' ) . '" target="_blank">' . esc_html__( 'Chrome DevTools Timeline Recordings', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -227,10 +227,10 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to W3TC Minify JS admin page, 2 HTML acronym for CSS, 3 HTML acronym for JS, 4 HTML a tag to W3 API FAQ page containing HTML acronym tag for FAQ.
 								__( 'On the %1$s tab all of the recommended settings are preset. Use the help button to simplify discovery of your %2$s and %3$s files and groups. Pay close attention to the method and location of your %3$s group embeddings. See the plugin\'s %4$s for more information on usage.', 'w3-total-cache' ),
-								'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
 								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . esc_html__( 'CSS', 'w3-total-cache' ) . '</acronym>',
 								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">' . esc_html__( 'JS', 'w3-total-cache' ) . '</acronym>',
-								'<a href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '" target="_blank"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
+								'<a target="_blank" href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '" target="_blank"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -238,7 +238,7 @@ class PageSpeed_Instructions {
 				'mainthread-work-breakdown'    => array(
 					'instructions' => '<p>' . esc_html__( 'Optimizing third-party JavaScript', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Review your website\'s third-party code and remove the ones	that aren\'t adding any value to your website.', 'w3-total-cache' ) . '</p>
-						<p><a href="' . esc_url( 'https://web.dev/debounce-your-input-handlers/' ) . '" target="_blank">' . esc_html__( 'Debouncing your input handlers', 'w3-total-cache' ) . '</a></p>
+						<p><a target="_blank" href="' . esc_url( 'https://web.dev/debounce-your-input-handlers/' ) . '" target="_blank">' . esc_html__( 'Debouncing your input handlers', 'w3-total-cache' ) . '</a></p>
 						<p>' . esc_html__( 'Avoid using long-running input handlers (which may block scrolling) and do not make style changes in input handlers (which is likely to cause repainting of pixels).', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Debouncing your input handlers helps solve both of the above problems.', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Delay 3rd-party JS', 'w3-total-cache' ) . '</p>
@@ -246,7 +246,7 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use W3TC Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Reducing CSS parsing time', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use W3TC Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</p>
-						<p><a href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '" target="_blank">' . esc_html__( 'Only using compositor properties:', 'w3-total-cache' ) . '</a>' . esc_html__( 'Only using compositor properties <br/><br/>Stick to using compositor properties to keep events away from the main-thread. Compositor properties are run on a separate compositor thread, freeing the main-thread for longer and improving your page load performance.', 'w3-total-cache' ) . '</p>',
+						<p><a target="_blank" href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '" target="_blank">' . esc_html__( 'Only using compositor properties:', 'w3-total-cache' ) . '</a>' . esc_html__( 'Only using compositor properties <br/><br/>Stick to using compositor properties to keep events away from the main-thread. Compositor properties are run on a separate compositor thread, freeing the main-thread for longer and improving your page load performance.', 'w3-total-cache' ) . '</p>',
 				),
 				'third-party-summary'          => array(
 					'instructions' => '<ol>
@@ -271,7 +271,7 @@ class PageSpeed_Instructions {
 				),
 				'lcp-lazy-loaded'              => array(
 					'instructions' => '<p>' . esc_html__( 'Don\'t lazy load images that appear "above the fold" just use a standard ', 'w3-total-cache' ) . esc_html( '<img>' ) . esc_html__( ' or ', 'w3-total-cache' ) . esc_html( '<picture>' ) . esc_html__( '	element.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'Exclude the image from being lazy-loaded if the W3TC Lazy load is enabled in Performance>User Experience>Exclude words.', 'w3-total-cache' ) . '</p>',
+						<p>' . esc_html__( 'Exclude the image from being lazy-loaded if the W3TC Lazy load is enabled in Performance &raquo; User Experience &raquo; Exclude words.', 'w3-total-cache' ) . '</p>',
 				),
 				'uses-passive-event-listeners' => array(
 					'instructions' => '<p>' . esc_html__( 'Add a passive flag to every event listener that Lighthouse identified.', 'w3-total-cache' ) . '</p>
@@ -286,7 +286,7 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'Using W3TC JS Minify and deffering or using async may also help.', 'w3-total-cache' ) . '</p>',
 				),
 				'non-composited-animations'    => array(
-					'instructions' => '<p><a href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '" target="_blank">' . esc_html__( 'Only using compositor properties:', 'w3-total-cache' ) . '</a></p>
+					'instructions' => '<p><a target="_blank" href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '" target="_blank">' . esc_html__( 'Only using compositor properties:', 'w3-total-cache' ) . '</a></p>
 						<p>' . esc_html__( 'Stick to using compositor properties to keep events away from the main-thread. Compositor properties are run on a separate compositor thread, freeing the main-thread for longer and improving your page load performance.', 'w3-total-cache' ) . '</p>',
 				),
 				'unsized-images'               => array(
@@ -304,7 +304,7 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 HTML a tag to developer.mozilla.org for documentation on viewport_meta_tag.
 								__( 'More details %1$s.', 'w3-total-cache' ),
-								'<a href="' . esc_url( 'https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag' ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag' ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -315,7 +315,7 @@ class PageSpeed_Instructions {
 					'instructions' => '<p>' . esc_html__( 'It\'s advisable to host the fonts on the server instead of using Google CDN', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Preload fonts with a plugin or manually:', 'w3-total-cache' ) . '</p>
 						<br/>
-						<code>' . esc_html( '<link rel="preload" href="/webfontname" as="font" type="font/format" crossorigin>' ) . '</code>
+						<code>' . esc_html( '<link rel="preload" target="_blank" href="/webfontname" as="font" type="font/format" crossorigin>' ) . '</code>
 						<br/>
 						<p>' . esc_html__( 'Use font-display atribute: The font-display attribute determines how the font is displayed during your page load, based on whether it has been downloaded and is ready for use.', 'w3-total-cache' ) . '</p>',
 				),

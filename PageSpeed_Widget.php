@@ -119,8 +119,9 @@ class PageSpeed_Widget {
 		if ( Util_Request::get( 'cache' ) !== 'no' ) {
 			$r = get_transient( 'w3tc_pagespeed_data_' . $home_url );
 			$r = json_decode( $r, true );
-			if ( is_array( $r ) && isset( $r['time'] ) && $r['time'] >= time() - 3600 ) {
-				$api_response = $r;
+			if ( is_array( $r ) && isset( $r['time'] ) && $r['time'] >= time() - Util_PageSpeed::get_cache_life() ) {
+				$api_response                 = $r;
+				$api_response['display_time'] = gmdate( 'M jS, Y g:ia', $r['time'] );
 			}
 		}
 
@@ -178,11 +179,11 @@ class PageSpeed_Widget {
 						<p>' . esc_html__( 'Desktop response Message : ', 'w3-total-cache' ) . $desktop_error_message . '</p>',
 				);
 				delete_transient( 'w3tc_pagespeed_data_' . $home_url );
+			} else {
+				$api_response['time']         = time();
+				$api_response['display_time'] = gmdate( 'M jS, Y g:ia', $api_response['time'] );
+				set_transient( 'w3tc_pagespeed_data_' . $home_url, wp_json_encode( $api_response ), Util_PageSpeed::get_cache_life() );
 			}
-
-			$api_response['time'] = time();
-
-			set_transient( 'w3tc_pagespeed_data_' . $home_url, wp_json_encode( $api_response ), 3600 );
 		}
 
 		ob_start();
@@ -190,6 +191,11 @@ class PageSpeed_Widget {
 		$content = ob_get_contents();
 		ob_end_clean();
 
-		echo wp_json_encode( array( '.w3tc-gps-widget' => $content ) );
+		echo wp_json_encode(
+			array(
+				'w3tcps_widget'    => $content,
+				'w3tcps_timestamp' => ! empty( $api_response['display_time'] ) ? $api_response['display_time'] : '',
+			)
+		);
 	}
 }

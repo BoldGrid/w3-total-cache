@@ -681,7 +681,7 @@ class Generic_Plugin_Admin {
 			'pgcache_purge_post' => __( 'Unable to purge post.', 'w3-total-cache' ),
 			'enable_cookie_domain' => sprintf( __( '<strong>%swp-config.php</strong> could not be written, please edit config and add:<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', \'%s\');</strong> before <strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>.', 'w3-total-cache' ), ABSPATH, addslashes( $cookie_domain ) ),
 			'disable_cookie_domain' => sprintf( __( '<strong>%swp-config.php</strong> could not be written, please edit config and add:<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', false);</strong> before <strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>.', 'w3-total-cache' ), ABSPATH ),
-			'pull_zone' => __( 'Pull Zone could not be automatically created.', 'w3-total-cache' )
+			'pull_zone' => __( 'Pull Zone could not be automatically created.', 'w3-total-cache' ),
 		);
 
 		$note_messages = array(
@@ -710,7 +710,7 @@ class Generic_Plugin_Admin {
 			'add_in_removed' => __( 'The add-in has been removed.', 'w3-total-cache' ),
 			'enabled_edge' => __( 'Edge mode has been enabled.', 'w3-total-cache' ),
 			'disabled_edge' => __( 'Edge mode has been disabled.', 'w3-total-cache' ),
-			'pull_zone' => __( 'Pull Zone was automatically created.', 'w3-total-cache' )
+			'pull_zone' => __( 'Pull Zone was automatically created.', 'w3-total-cache' ),
 		);
 
 		$errors = array();

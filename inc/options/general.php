@@ -677,39 +677,48 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$w3key      = ! empty( $this->_config->get_string( 'widget.pagespeed.w3key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3key' ) : '';
 		$auth_url   = $w3_pagespeed->client->createAuthUrl();
 
-		// This may need a nonce or equivilant security measure?
 		$new_gacode = Util_Request::get( 'w3tc_new_gacode' );
 		$new_w3key  = Util_Request::get( 'w3tc_new_w3key' );
 		if ( ! empty( $new_gacode ) && ! empty( $new_w3key ) ) {
 			$response = json_decode( $w3_pagespeed->process_authorization_response( $new_gacode, $new_w3key ), true );
 
 			if ( is_wp_error( $response ) ) {
-				echo '<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . esc_html__( 'An unknown error has occured! - ', 'w3-total-cache' ) . esc_html( $response->get_error_message() ) . '</div></div>';
-			} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
+				update_option(
+					'w3tcps_authorize_fail',
+					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+				);
+				update_option(
+					'w3tcps_authorize_fail_message',
+					esc_html( $response->get_error_message() )
+				);
+			} elseif ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
 				$response_error = sprintf(
 					// translators: 1 Request response code, 2 Error message.
 					__(
-						'API request error!<br/><br/>
-							Response Code: %1$s<br/>
-							Response Message: %2$s<br/>',
+						'Response Code: %1$s<br/>Response Message: %2$s',
 						'w3-total-cache'
 					),
 					! empty( $response['error']['code'] ) ? $response['error']['code'] : 'N/A',
 					! empty( $response['error']['message'] ) ? $response['error']['message'] : 'N/A'
 				);
-				echo wp_kses(
-					'<div class="w3tcps_feedback"><div class="notice notice-error inline w3tcps_error">' . $response_error . '</div></div>',
-					array(
-						'div' => array(
-							'class' => array(),
-						),
-						'br'  => array(),
-					)
+				update_option(
+					'w3tcps_authorize_fail',
+					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+				);
+				update_option(
+					'w3tcps_authorize_fail_message',
+					$response_error
 				);
 			} elseif ( ! empty( $response['refresh_token'] ) ) {
-				unset( $_GET['w3tc_new_gacode'] );
-				unset( $_GET['w3tc_new_w3key'] );
+				unset( $_GET['w3tc_new_gacode'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				unset( $_GET['w3tc_new_w3key'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				update_option(
+					'w3tcps_authorize_success',
+					__( 'Google PageSpeed Insights API authorization successfull.', 'w3-total-cache' )
+				);
 			}
+
+			do_action( 'admin_post_w3tcps_authorize_notice' );
 		}
 		?>
 		<table class="form-table">

@@ -19,11 +19,11 @@ jQuery(document).ready(function($) {
 	 * @return void
 	 */
 	function w3tcps_analyze(page_post, nocache) {
-        let page_post_id = page_post.find('.page_post_url').attr('page_post_id');
-        let page_post_url = page_post.find('.page_post_url').attr('page_post_url');
+        let page_post_id = page_post.find('.w3tcps_buttons').attr('page_post_id');
+        let page_post_url = page_post.find('.w3tcps_buttons').attr('page_post_url');
 
-        $('.w3tcps_analyze').prop('disabled',true);
         page_post.find('.page_post_psresults').fadeOut('fast');
+		page_post.find('.w3tcps_buttons').addClass('w3tc_none');
         page_post.find('.w3tcps_loading').removeClass('w3tc_none');
 		page_post.find('.w3tcps_error').addClass('w3tc_none');
 
@@ -32,20 +32,22 @@ jQuery(document).ready(function($) {
 			url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=pagespeed_data&url=' + encodeURIComponent( page_post_url ) + (nocache ? '&cache=no' : ''),
 			dataType: 'json',
 			success: function(data){
-				$('.w3tcps_analyze').prop('disabled',false);
 			    $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none');
 				if (data.error) {
+					$('.w3tcps_buttons').removeClass( 'w3tc_none' );
 					$('#' + page_post_id).prev().find('.w3tcps_error p').html( w3tcData.lang.pagespeed_data_error + data.error );
 					$('#' + page_post_id).prev().find('.w3tcps_error').removeClass( 'w3tc_none' );
 					return;
-			    } else if (data.notice) {
-					$('.w3tcps_analyze').addClass('w3tc_none');
+			    } else if (data.missing_token) {
+					$('.w3tcps_buttons').addClass('w3tc_none');
 					$('#' + page_post_id).prev().find('.w3tcps_missing_token p').html( data.notice );
 					$('#' + page_post_id).prev().find('.w3tcps_missing_token').removeClass( 'w3tc_none' );
 					return;
 				}
-				$('.w3tcps_analyze').removeClass( 'w3tc_none' );
-				$('#' + page_post_id).html(data['.w3tcps_content']).fadeIn('slow');
+				$('.w3tcps_timestamp').html(data['w3tcps_timestamp']);
+				$('.w3tcps_buttons').removeClass( 'w3tc_none' );
+				$('#' + page_post_id).html(data['w3tcps_content']).fadeIn('slow');
+				$('.w3tcps_item_desciption a').attr('target', '_blank');
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 			    $('.w3tcps_analyze').prop('disabled',false);
@@ -126,5 +128,5 @@ jQuery(document).ready(function($) {
 		w3tcps_analyze($(this).closest('.page_post'),true);
 	});
 
-	w3tcps_analyze($('#w3tcps_home .page_post'), false);
+	w3tcps_analyze($('#w3tcps_home .page_post'),false);
 });

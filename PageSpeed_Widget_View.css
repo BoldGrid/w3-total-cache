@@ -1,24 +1,22 @@
 .w3tc_none {
-	display: none;
+	display: none !important;
 }
 
-.w3tcps_metric {
-	margin-top: 10px;
-	margin-bottom: 5px;
+#w3tc_pagespeed .inside {
+	min-height: 80px;
+}
+
+.w3tcps_timestamp_container {
+	text-align: center;
 }
 
 .w3tcps_barline {
 	display: inline-flex;
-    font-size: 14px;
-	margin-bottom: 2px;
 	min-width: 90px;
 }
 
 .w3tcps_barline div {
-	text-align: left;
 	padding-left: 10px;
-	min-width: 38px;
-	position: relative;
 }
 
 .w3tcps_buttons {
@@ -30,14 +28,8 @@
 	margin: 5px !important;
 }
 
-.w3tcps_metric {
-    box-sizing: border-box;
-    margin: 4px 2px;
-}
-
 .w3tcps_metric_title {
     font-size: 14px;
-    line-height: 1.4;
 }
 
 .w3tcps_metric_title,
@@ -47,25 +39,12 @@
 	text-align: left;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
 .w3tcps_loading {
-    border: 7px solid #c3c3c3;
-    border-top: 7px solid #3498db;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 2s linear infinite;
-    margin: 20px auto;
+	text-align: center;
 }
 
-.w3tcps_legend,
 .w3tcps_content {
     padding: 15px;
-    text-align: center;
 }
 
 .w3tcps_range {
@@ -75,7 +54,6 @@
     vertical-align: middle;
     align-items: center;
     font-family: 'Roboto Mono', 'Menlo', 'dejavu sans mono', 'Consolas', 'Lucida Console', monospace;
-    white-space: nowrap;
 }
 
 .w3tcps_range::before {
@@ -112,7 +90,6 @@
 .w3tcps_gauge_desktop,
 .w3tcps_gauge_mobile {
 	display: inline-block;
-	width: 49%;
 }
 
 .gauge {

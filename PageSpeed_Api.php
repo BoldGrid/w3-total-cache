@@ -84,6 +84,16 @@ class PageSpeed_Api {
 	}
 
 	/**
+	 * Run PageSpeed API.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return void
+	 */
+	public function run() {
+		add_action( 'admin_post_w3tcps_authorize_notice', array( $this, 'authorize_notice' ) );
+	}
+	/**
 	 * Fully analyze URL via PageSpeed API.
 	 *
 	 * @since 2.3.0
@@ -341,7 +351,7 @@ class PageSpeed_Api {
 	 * @param string $gacode New Google access authentication code.
 	 * @param string $w3key  W3 API access key.
 	 *
-	 * @return string | null
+	 * @return JSON
 	 */
 	public function process_authorization_response( $gacode, $w3key ) {
 		if ( empty( $gacode ) ) {
@@ -444,7 +454,7 @@ class PageSpeed_Api {
 		$this->config->set( 'widget.pagespeed.w3key', $w3key );
 		$this->config->save();
 
-		return null;
+		return wp_json_encode( array( 'refresh_token' => $access_token ) );
 	}
 
 	/**
@@ -570,5 +580,21 @@ class PageSpeed_Api {
 	 */
 	public function get_w3tc_api_url( $target ) {
 		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ? esc_url( 'https://' . W3TC_API2_URL . '/' . $target, array( 'https' ), '' ) : esc_url( $this->w3tc_api_base_url . '/' . $target, 'https', '' );
+	}
+
+	/**
+	 * PageSpeed authorize admin notice.
+	 *
+	 * @since 2.3.0
+	 */
+	public function authorize_notice() {
+		if ( current_user_can( 'manage_options' ) && get_option( 'w3tcps_authorize_success' ) ) {
+			echo '<div class="updated is-dismissible"><p>' . esc_html( get_option( 'w3tcps_authorize_success' ) ) . '</p></div>';
+			delete_option( 'w3tcps_authorize_success ' );
+		} elseif ( current_user_can( 'manage_options' ) && get_option( 'w3tcps_authorize_fail' ) ) {
+			echo '<div class="error is-dismissible"><p>' . esc_html( get_option( 'w3tcps_authorize_fail' ) ) . '</p><p>' . wp_kses( get_option( 'w3tcps_authorize_fail_message' ), Util_PageSpeed::get_allowed_tags() ) . '</p></div>';
+			delete_option( 'w3tcps_authorize_fail ' );
+			delete_option( 'w3tcps_authorize_fail_message ' );
+		}
 	}
 }

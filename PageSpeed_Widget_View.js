@@ -19,6 +19,8 @@ jQuery(document).ready( function($) {
 	 */
 	function w3tcps_load(nocache) {
 		$('.w3tcps_loading').removeClass('w3tc_none');
+		$('.w3tcps_timestamp_container').addClass('w3tc_none');
+		$('.w3tcps_buttons').addClass('w3tc_none');
 		$('.w3tc-gps-widget').addClass('w3tc_none');
 		$('.w3tcps_error').addClass('w3tc_none');
 		$.getJSON(ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
@@ -35,8 +37,10 @@ jQuery(document).ready( function($) {
 					$('.w3tcps_missing_token').removeClass( 'w3tc_none' );
 					return;
 				}
-				$('.w3tcps_analyze').removeClass('w3tc_none');
-				$('.w3tc-gps-widget').html(data['.w3tc-gps-widget']);
+				$('.w3tcps_timestamp').html(data['w3tcps_timestamp']);
+				$('.w3tcps_timestamp_container').removeClass('w3tc_none');
+				$('.w3tcps_buttons').removeClass('w3tc_none');
+				$('.w3tc-gps-widget').html(data['w3tcps_widget']);
 				$('.w3tc-gps-widget').removeClass('w3tc_none').fadeIn('slow');
 				$('#normal-sortables').masonry();
 			}

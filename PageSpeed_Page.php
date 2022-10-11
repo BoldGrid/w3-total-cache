@@ -95,8 +95,9 @@ class PageSpeed_Page {
 		if ( Util_Request::get( 'cache' ) !== 'no' ) {
 			$r = get_transient( 'w3tc_pagespeed_data_' . $encoded_url );
 			$r = json_decode( $r, true );
-			if ( is_array( $r ) && isset( $r['time'] ) && $r['time'] >= time() - 3600 ) {
-				$api_response = $r;
+			if ( is_array( $r ) && isset( $r['time'] ) && $r['time'] >= time() - Util_PageSpeed::get_cache_life() ) {
+				$api_response                 = $r;
+				$api_response['display_time'] = gmdate( 'M jS, Y g:ia', $r['time'] );
 			}
 		}
 
@@ -107,7 +108,7 @@ class PageSpeed_Page {
 			if ( empty( $access_token ) ) {
 				echo wp_json_encode(
 					array(
-						'notice' => sprintf(
+						'missing_token' => sprintf(
 							// translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
 							__(
 								'It appears that your Google Access token is either missing, expired, or invalid. Please click %1$s to obtain a new Google access token or to refresh an expired one.',
@@ -156,8 +157,9 @@ class PageSpeed_Page {
 				);
 				delete_transient( 'w3tc_pagespeed_data_' . $encoded_url );
 			} else {
-				$api_response['time'] = time();
-				set_transient( 'w3tc_pagespeed_data_' . $encoded_url, wp_json_encode( $api_response ), 3600 );
+				$api_response['time']         = time();
+				$api_response['display_time'] = gmdate( 'M jS, Y g:ia', $api_response['time'] );
+				set_transient( 'w3tc_pagespeed_data_' . $encoded_url, wp_json_encode( $api_response ), Util_PageSpeed::get_cache_life() );
 			}
 		}
 
@@ -166,6 +168,11 @@ class PageSpeed_Page {
 		$content = ob_get_contents();
 		ob_end_clean();
 
-		echo wp_json_encode( array( '.w3tcps_content' => $content ) );
+		echo wp_json_encode(
+			array(
+				'w3tcps_content'   => $content,
+				'w3tcps_timestamp' => ! empty( $api_response['display_time'] ) ? $api_response['display_time'] : '',
+			)
+		);
 	}
 }

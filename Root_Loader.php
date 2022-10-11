@@ -62,6 +62,7 @@ class Root_Loader {
 				$plugins[] = new Cdn_Plugin_WidgetMaxCdn();
 			}
 
+			$plugins[] = new PageSpeed_Api();
 			$plugins[] = new PageSpeed_Page();
 			if ( $c->get_boolean( 'widget.pagespeed.enabled' ) ) {
 				$plugins[] = new PageSpeed_Widget();
