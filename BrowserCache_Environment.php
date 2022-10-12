@@ -180,11 +180,26 @@ class BrowserCache_Environment {
 	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
 	 */
 	private function rules_cache_remove( $exs ) {
-		$rules = $this->get_required_rules( $config );
+		$filenames = array();
 
-		foreach ( $rules as $i ) {
+		switch ( true ) {
+		case Util_Environment::is_apache():
+			$filenames[] = Util_Rule::get_apache_rules_path();
+			break;
+
+		case Util_Environment::is_litespeed():
+			$filenames[] = Util_Rule::get_apache_rules_path();
+			$filenames[] = Util_Rule::get_litespeed_rules_path();
+			break;
+
+		case Util_Environment::is_nginx():
+			$filenames[] = Util_Rule::get_nginx_rules_path();
+			break;
+		}
+
+		foreach ( $filenames as $i ) {
 			Util_Rule::remove_rules( $exs,
-				$i['filename'],
+				$i,
 				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
 				W3TC_MARKER_END_BROWSERCACHE_CACHE );
 		}
