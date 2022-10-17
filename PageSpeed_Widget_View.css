@@ -1,13 +1,18 @@
-.w3tc_none {
-	display: none !important;
+#w3tc_pagespeed .inside {
+	min-height: 30px;
 }
 
-#w3tc_pagespeed .inside {
-	min-height: 80px;
+.w3tcps_loading .spinner {
+	margin-top: 5px;
+	float: left;
 }
 
 .w3tcps_timestamp_container {
 	text-align: center;
+}
+
+.w3tcps_timestamp_label {
+	margin: 0;
 }
 
 .w3tcps_barline {

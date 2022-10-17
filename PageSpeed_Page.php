@@ -44,8 +44,6 @@ class PageSpeed_Page {
 			return;
 		}
 
-		wp_enqueue_style( 'w3tc-pagespeed', plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION );
-
 		wp_register_script(
 			'w3tc-pagespeed',
 			esc_url( plugin_dir_url( __FILE__ ) . 'PageSpeed_Page_View.js' ),
@@ -64,6 +62,13 @@ class PageSpeed_Page {
 			)
 		);
 		wp_enqueue_script( 'w3tc-pagespeed' );
+
+		wp_enqueue_style(
+			'w3tc-pagespeed',
+			plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ),
+			array(),
+			W3TC_VERSION
+		);
 	}
 
 	/**
@@ -93,11 +98,10 @@ class PageSpeed_Page {
 		$api_response_error = null;
 
 		if ( Util_Request::get( 'cache' ) !== 'no' ) {
-			$r = get_transient( 'w3tc_pagespeed_data_' . $encoded_url );
-			$r = json_decode( $r, true );
-			if ( is_array( $r ) && isset( $r['time'] ) && $r['time'] >= time() - Util_PageSpeed::get_cache_life() ) {
-				$api_response                 = $r;
-				$api_response['display_time'] = gmdate( 'M jS, Y g:ia', $r['time'] );
+			$cache = get_option( 'w3tc_pagespeed_data_' . $encoded_url );
+			$cache = json_decode( $cache, true );
+			if ( is_array( $cache ) && isset( $cache['time'] ) && $cache['time'] >= time() - Util_PageSpeed::get_cache_life() ) {
+				$api_response = $cache;
 			}
 		}
 
@@ -111,10 +115,10 @@ class PageSpeed_Page {
 						'missing_token' => sprintf(
 							// translators: 1 HTML a tag to W3TC settings page Google PageSpeed meta box.
 							__(
-								'It appears that your Google Access token is either missing, expired, or invalid. Please click %1$s to obtain a new Google access token or to refresh an expired one.',
+								'Before you can get started using the Google PageSpeed tool, you’ll first need to authorize access. Please click %1$s.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 						),
 					),
 				);
@@ -129,7 +133,7 @@ class PageSpeed_Page {
 					'error' => '<p><strong>' . esc_html__( 'API request failed!', 'w3-total-cache' ) . '</strong></p>
 						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $url . '</p>',
 				);
-				delete_transient( 'w3tc_pagespeed_data_' . $encoded_url );
+				delete_option( 'w3tc_pagespeed_data_' . $encoded_url );
 			} elseif ( ! empty( $api_response['error'] ) ) {
 				$error_code    = ! empty( $api_response['error']['code'] ) ? $api_response['error']['code'] : 'N/A';
 				$error_message = ! empty( $api_response['error']['message'] ) ? $api_response['error']['message'] : 'N/A';
@@ -140,7 +144,7 @@ class PageSpeed_Page {
 						<p>' . esc_html__( 'Response Code : ', 'w3-total-cache' ) . $error_code . '</p>
 						<p>' . esc_html__( 'Response Message : ', 'w3-total-cache' ) . $error_message . '</p>',
 				);
-				delete_transient( 'w3tc_pagespeed_data_' . $encoded_url );
+				delete_option( 'w3tc_pagespeed_data_' . $encoded_url );
 			} elseif ( ! empty( $api_response['mobile']['error'] ) && ! empty( $api_response['desktop']['error'] ) ) {
 				$mobile_error_code     = ! empty( $api_response['mobile']['error']['code'] ) ? $api_response['mobile']['error']['code'] : 'N/A';
 				$mobile_error_message  = ! empty( $api_response['mobile']['error']['message'] ) ? $api_response['mobile']['error']['message'] : 'N/A';
@@ -155,11 +159,11 @@ class PageSpeed_Page {
 						<p>' . esc_html__( 'Desktop response Code : ', 'w3-total-cache' ) . $desktop_error_code . '</p>
 						<p>' . esc_html__( 'Desktop response Message : ', 'w3-total-cache' ) . $desktop_error_message . '</p>',
 				);
-				delete_transient( 'w3tc_pagespeed_data_' . $encoded_url );
+				delete_option( 'w3tc_pagespeed_data_' . $encoded_url );
 			} else {
 				$api_response['time']         = time();
-				$api_response['display_time'] = gmdate( 'M jS, Y g:ia', $api_response['time'] );
-				set_transient( 'w3tc_pagespeed_data_' . $encoded_url, wp_json_encode( $api_response ), Util_PageSpeed::get_cache_life() );
+				$api_response['display_time'] = \current_time( 'M jS, Y g:ia', false );
+				update_option( 'w3tc_pagespeed_data_' . $encoded_url, wp_json_encode( $api_response ), Util_PageSpeed::get_cache_life() );
 			}
 		}
 

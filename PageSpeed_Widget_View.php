@@ -16,19 +16,17 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <div class="w3tcps_loading w3tc_none">
-	<img src="/wp-includes/js/tinymce/skins/lightgray/img/loader.gif" alt="loader.gif">
+	<span class="spinner"></span>
 	<p><?php esc_html_e( 'Running Analysis. This may take up to 2 minutes.', 'w3-total-cache' ); ?></p>
 </div>
-<div class="w3tcps_error w3tc_none">
-	<p class="notice notice-error"><?php esc_html_e( 'Unable to fetch PageSpeed results.', 'w3-total-cache' ); ?></p>
-</div>
-<div class="w3tcps_missing_token w3tc_none">
-	<p class="notice notice-info"><?php esc_html_e( 'Google PageSpeed Insights authorization required', 'w3-total-cache' ); ?></p>
-</div>
+<div class="w3tcps_error w3tc_none notice notice-error"></div>
+<div class="w3tcps_missing_token w3tc_none"></div>
 <div class="w3tc-gps-widget"></div>
 <div class="w3tcps_timestamp_container">
-	<span class="w3tcps_timestamp_label"><?php esc_html_e( 'Analysis last run ', 'w3-total-cache' ); ?></span>
-	<span class="w3tcps_timestamp"></span>
+	<p class="w3tcps_timestamp_label">
+		<?php esc_html_e( 'Analysis last run ', 'w3-total-cache' ); ?>
+		<span class="w3tcps_timestamp"></span>
+	</p>
 </div>
 <div class="w3tcps_buttons w3tc_none">
 	<input class="button w3tcps_refresh" type="button" value="<?php esc_html_e( 'Refresh Analysis', 'w3-total-cache' ); ?>" />

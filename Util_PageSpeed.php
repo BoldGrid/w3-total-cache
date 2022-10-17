@@ -711,7 +711,7 @@ class Util_PageSpeed {
 	 * @return int
 	 */
 	public static function get_cache_life() {
-		return 300;
+		return 3600;
 	}
 
 	/**

@@ -24,7 +24,7 @@ jQuery(document).ready(function($) {
 
         page_post.find('.page_post_psresults').fadeOut('fast');
 		page_post.find('.w3tcps_buttons').addClass('w3tc_none');
-        page_post.find('.w3tcps_loading').removeClass('w3tc_none');
+        page_post.find('.w3tcps_loading').removeClass('w3tc_none').find('.spinner').addClass('is-active');
 		page_post.find('.w3tcps_error').addClass('w3tc_none');
 
 		$.ajax({
@@ -32,15 +32,15 @@ jQuery(document).ready(function($) {
 			url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=pagespeed_data&url=' + encodeURIComponent( page_post_url ) + (nocache ? '&cache=no' : ''),
 			dataType: 'json',
 			success: function(data){
-			    $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none');
+			    $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none').find('.spinner').removeClass('is-active');
 				if (data.error) {
 					$('.w3tcps_buttons').removeClass( 'w3tc_none' );
-					$('#' + page_post_id).prev().find('.w3tcps_error p').html( w3tcData.lang.pagespeed_data_error + data.error );
+					$('#' + page_post_id).prev().find('.w3tcps_error').html( w3tcData.lang.pagespeed_data_error + data.error );
 					$('#' + page_post_id).prev().find('.w3tcps_error').removeClass( 'w3tc_none' );
 					return;
 			    } else if (data.missing_token) {
 					$('.w3tcps_buttons').addClass('w3tc_none');
-					$('#' + page_post_id).prev().find('.w3tcps_missing_token p').html( data.notice );
+					$('#' + page_post_id).prev().find('.w3tcps_missing_token').html( data.notice );
 					$('#' + page_post_id).prev().find('.w3tcps_missing_token').removeClass( 'w3tc_none' );
 					return;
 				}
@@ -51,9 +51,9 @@ jQuery(document).ready(function($) {
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
 			    $('.w3tcps_analyze').prop('disabled',false);
-				$('#' + page_post_id).prev().find('.w3tcps_error p').html( w3tcData.lang.pagespeed_data_error + errorThrown );
+				$('#' + page_post_id).prev().find('.w3tcps_error').html( w3tcData.lang.pagespeed_data_error + errorThrown );
 			    $('#' + page_post_id).prev().find('.w3tcps_error').removeClass('w3tc_none');
-			    $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none');
+			    $('#' + page_post_id).prev().find('.w3tcps_loading').addClass('w3tc_none').find('.spinner').removeClass('is-active');
 			},
 			async: true
         });

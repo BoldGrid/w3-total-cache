@@ -1,9 +1,10 @@
-.w3tc_none {
-	display: none !important;
-}
-
 #w3tcps_container {
 	max-width: 1234px;
+}
+
+.w3tcps_loading .spinner {
+	margin-top: 0;
+	float: left;
 }
 
 .w3tcps_content .postbox {
@@ -16,9 +17,8 @@
 	border-bottom: unset !important;
 }
 
-.w3tcps_buttons span {
-	vertical-align: middle;
-	vertical-align: -moz-middle-with-baseline;
+.w3tcps_timestamp {
+	margin-right: 5px;
 }
 
 #w3tcps-core-metrics .inside {
