@@ -13,7 +13,7 @@ def run
 	system_assert 'chown -R www-data:www-data /var/www/wp-sandbox'
 	system_assert 'mysql </var/www/backup-final.sql'
 
-	if ENV['W3D_HTTP_SERVER'] == 'lightspeed'
+	if ENV['W3D_HTTP_SERVER'] == 'litespeed'
 		system_assert 'cp /usr/local/lsws/conf/vhosts/wp-sandbox-backup.conf /usr/local/lsws/conf/vhosts/wp-sandbox.conf'
 		system_assert 'ln /usr/local/lsws/conf/vhosts/wp-sandbox.conf /var/www/wp-sandbox/litespeed.conf'
 		system_assert 'chmod 777 /var/www/wp-sandbox/litespeed.conf'

@@ -11,7 +11,7 @@ sed -i -e '/map /a\' -e 'map WpSandbox for-tests.wp.sandbox' /usr/local/lsws/con
 sed -i -e '/map /a\' -e 'map ForTestsSandbox for-tests.sandbox' /usr/local/lsws/conf/httpd_config.conf
 sed -i "s/path\s+lsphp73\/bin\/lsphp/path lsphp80\/bin\/lsphp/" /usr/local/lsws/conf/httpd_config.conf
 
-cat /share/scripts/init-image/templates/lightspeed-root.conf >> /usr/local/lsws/conf/httpd_config.conf
+cat /share/scripts/init-image/templates/litespeed-root.conf >> /usr/local/lsws/conf/httpd_config.conf
 
 
 
@@ -38,14 +38,14 @@ case "${W3D_PHP_VERSION}" in
 esac
 
 # for-tests.sandbox
-envsubst </share/scripts/init-image/templates/lightspeed-vhost-for-tests-sandbox.conf >/usr/local/lsws/conf/vhosts/for-tests-sandbox.conf
+envsubst </share/scripts/init-image/templates/litespeed-vhost-for-tests-sandbox.conf >/usr/local/lsws/conf/vhosts/for-tests-sandbox.conf
 chown lsadm:nogroup /usr/local/lsws/conf/vhosts/for-tests-sandbox.conf
 
 # system.sandbox
-#envsubst </share/scripts/init-image/templates/lightspeed-vhost-system-sandbox.conf >/usr/local/lsws/conf/vhosts/system-sandbox.conf
+#envsubst </share/scripts/init-image/templates/litespeed-vhost-system-sandbox.conf >/usr/local/lsws/conf/vhosts/system-sandbox.conf
 
 # wp.sandbox vhost
-envsubst </share/scripts/init-image/templates/lightspeed-vhost-wp-sandbox.conf >/usr/local/lsws/conf/vhosts/wp-sandbox.conf
+envsubst </share/scripts/init-image/templates/litespeed-vhost-wp-sandbox.conf >/usr/local/lsws/conf/vhosts/wp-sandbox.conf
 chown lsadm:nogroup /usr/local/lsws/conf/vhosts/wp-sandbox.conf
 
 touch /var/www/wp.sandbox_error.log

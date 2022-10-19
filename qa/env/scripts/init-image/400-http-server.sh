@@ -19,8 +19,8 @@ if [ "$W3D_HTTP_SERVER" = "apache" ]; then
 	/share/scripts/init-image/410-http-server-apache.sh
 fi
 
-if [ "$W3D_HTTP_SERVER" = "lightspeed" ]; then
-	/share/scripts/init-image/410-http-server-lightspeed.sh
+if [ "$W3D_HTTP_SERVER" = "litespeed" ]; then
+	/share/scripts/init-image/410-http-server-litespeed.sh
 fi
 
 if [ "$W3D_HTTP_SERVER" = "nginx" ]; then

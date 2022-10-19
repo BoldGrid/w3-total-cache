@@ -15,7 +15,7 @@ def run
 
 	if ENV['W3D_HTTP_SERVER'] == 'apache'
 		system_assert '/etc/init.d/apache2 restart'
-	elsif ENV['W3D_HTTP_SERVER'] == 'lightspeed'
+	elsif ENV['W3D_HTTP_SERVER'] == 'litespeed'
 		system_assert 'systemctl restart lsws'
 		system_assert 'chmod 777 /var/www/wp-sandbox/litespeed.conf'
 	else
