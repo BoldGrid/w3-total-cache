@@ -63,20 +63,24 @@ describe('', function() {
 
 
 
-	it('set options - no expires', async() => {
-	    await w3tc.setOptions(adminPage, 'w3tc_browsercache', {
-		  browsercache_cssjs_cache_policy: 'cache_public_maxage'
-	    });
+	if (process.env['W3D_HTTP_SERVER'] == 'nginx') {
+		// no maxage support in nginx
+	} else {
+		it('set options - maxage', async() => {
+			await w3tc.setOptions(adminPage, 'w3tc_browsercache', {
+			  browsercache_cssjs_cache_policy: 'cache_public_maxage'
+		    });
 
-	    await sys.afterRulesChange();
-	});
+		    await sys.afterRulesChange();
+		});
 
 
 
-	it('expires is not present', async() => {
-		let response = await page.goto(jsUrl, {waitUntil: 'domcontentloaded'});
-		let headers = response.headers();
-		console.log(headers);
-		expect(headers['cache-control']).contains('max-age=100');
-	});
+		it('maxage is present', async() => {
+			let response = await page.goto(jsUrl, {waitUntil: 'domcontentloaded'});
+			let headers = response.headers();
+			console.log(headers);
+			expect(headers['cache-control']).contains('max-age=100');
+		});
+	}
 });
