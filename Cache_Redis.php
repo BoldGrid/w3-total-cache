@@ -455,16 +455,16 @@ class Cache_Redis extends Cache_Base {
 	 *
 	 * @param string $server Server URI to connect to.
 	 */
-	private function _build_connect_args($server) {
-		$connect_args = [];
+	private function build_connect_args( $server ) {
+		$connect_args = array();
 
 		if ( substr( $server, 0, 5 ) === 'unix:' ) {
-			$connect_args[] = trim(substr($server, 5));
-			$connect_args[] = null; // port
+			$connect_args[] = trim( substr( $server, 5 ) );
+			$connect_args[] = null; // port.
 		} else {
-			[$ip, $port] = Util_Content::endpoint_to_host_port( $server, null );
-			$connect_args[] = $ip;
-			$connect_args[] = $port;
+			list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
+			$connect_args[]    = $ip;
+			$connect_args[]    = $port;
 		}
 
 		$connect_args[] = $this->_timeout;
@@ -473,19 +473,19 @@ class Cache_Redis extends Cache_Base {
 
 		$phpredis_version = phpversion( 'redis' );
 
-		// the read_timeout parameter was added in phpredis 3.1.3
+		// The read_timeout parameter was added in phpredis 3.1.3.
 		if ( version_compare( $phpredis_version, '3.1.3', '>=' ) ) {
 			$connect_args[] = $this->_read_timeout;
 		}
 
-		// support for stream context was added in phpredis 5.3.2
+		// Support for stream context was added in phpredis 5.3.2.
 		if ( version_compare( $phpredis_version, '5.3.2', '>=' ) ) {
-			$context = [];
-			if ( substr( $server, 0, 4 ) == 'tls:' && !$this->_verify_tls_certificates ) {
-				$context['stream'] = [
-					'verify_peer' => false,
+			$context = array();
+			if ( 'tls:' === substr( $server, 0, 4 ) && ! $this->_verify_tls_certificates ) {
+				$context['stream'] = array(
+					'verify_peer'      => false,
 					'verify_peer_name' => false,
-				];
+				);
 			}
 			$connect_args[] = $context;
 		}
@@ -514,8 +514,8 @@ class Cache_Redis extends Cache_Base {
 			$this->_accessors[ $index ] = null;
 		} else {
 			try {
-				$server = $this->_servers[ $index ];
-				$connect_args = $this->_build_connect_args($server);
+				$server       = $this->_servers[ $index ];
+				$connect_args = $this->build_connect_args( $server );
 
 				$accessor = new \Redis();
 

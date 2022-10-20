@@ -37,7 +37,10 @@ class UsageStatistics_Sources_Redis {
 				array(
 					'servers' => array( $host_port ),
 					'password' => $i['password'],
-					'dbid' => $i['dbid']
+					'dbid' => $i['dbid'],
+					'timeout' => 0,
+					'retry_interval' => 0,
+					'read_timeout' => 0,
 				) );
 
 			$stats = $cache->get_statistics();
@@ -74,7 +77,10 @@ class UsageStatistics_Sources_Redis {
 				array(
 					'servers' => array( $host_port ),
 					'password' => $i['password'],
-					'dbid' => $i['dbid']
+					'dbid' => $i['dbid'],
+					'timeout' => 0,
+					'retry_interval' => 0,
+					'read_timeout' => 0,
 				) );
 
 			$stats = $cache->get_statistics();
@@ -110,7 +116,10 @@ class UsageStatistics_Sources_Redis {
 				array(
 					'servers' => array( $host_port ),
 					'password' => $i['password'],
-					'dbid' => $i['dbid']
+					'dbid' => $i['dbid'],
+					'timeout' => 0,
+					'retry_interval' => 0,
+					'read_timeout' => 0,
 				) );
 
 			$stats = $cache->get_statistics();

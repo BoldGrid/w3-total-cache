@@ -242,29 +242,34 @@ class DbCache_Plugin {
 			) );
 	}
 
-
-
+	/**
+	 * Usage Statisitcs sources filter.
+	 *
+	 * @param array $sources Sources.
+	 *
+	 * @return array
+	 */
 	public function w3tc_usage_statistics_sources( $sources ) {
 		$c = Dispatcher::config();
-		if ( $c->get_string( 'dbcache.engine' ) == 'apc' ) {
+		if ( 'apc' === $c->get_string( 'dbcache.engine' ) ) {
 			$sources['apc_servers']['dbcache'] = array(
-				'name' => __( 'Database Cache', 'w3-total-cache' )
+				'name' => __( 'Database Cache', 'w3-total-cache' ),
 			);
-		} elseif ( $c->get_string( 'dbcache.engine' ) == 'memcached' ) {
+		} elseif ( 'memcached' === $c->get_string( 'dbcache.engine' ) ) {
 			$sources['memcached_servers']['dbcache'] = array(
-				'servers' => $c->get_array( 'dbcache.memcached.servers' ),
+				'servers'  => $c->get_array( 'dbcache.memcached.servers' ),
 				'username' => $c->get_string( 'dbcache.memcached.username' ),
 				'password' => $c->get_string( 'dbcache.memcached.password' ),
-				'name' => __( 'Database Cache', 'w3-total-cache' )
+				'name'     => __( 'Database Cache', 'w3-total-cache' ),
 			);
-		} elseif ( $c->get_string( 'dbcache.engine' ) == 'redis' ) {
+		} elseif ( 'redis' === $c->get_string( 'dbcache.engine' ) ) {
 			$sources['redis_servers']['dbcache'] = array(
-				'servers' => $c->get_array( 'dbcache.redis.servers' ),
+				'servers'                 => $c->get_array( 'dbcache.redis.servers' ),
 				'verify_tls_certificates' => $c->get_boolean( 'dbcache.redis.verify_tls_certificates' ),
-				'username' => $c->get_boolean( 'dbcache.redis.username' ),
-				'dbid' => $c->get_integer( 'dbcache.redis.dbid' ),
-				'password' => $c->get_string( 'dbcache.redis.password' ),
-				'name' => __( 'Database Cache', 'w3-total-cache' )
+				'username'                => $c->get_boolean( 'dbcache.redis.username' ),
+				'dbid'                    => $c->get_integer( 'dbcache.redis.dbid' ),
+				'password'                => $c->get_string( 'dbcache.redis.password' ),
+				'name'                    => __( 'Database Cache', 'w3-total-cache' ),
 			);
 		}
 

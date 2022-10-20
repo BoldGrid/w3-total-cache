@@ -269,27 +269,34 @@ class PgCache_Plugin {
 				'pagecache_requests_time_10ms' ) );
 	}
 
+	/**
+	 * Usage Statisitcs sources filter.
+	 *
+	 * @param array $sources Sources.
+	 *
+	 * @return array
+	 */
 	public function w3tc_usage_statistics_sources( $sources ) {
 		$c = Dispatcher::config();
-		if ( $c->get_string( 'pgcache.engine' ) == 'apc' ) {
+		if ( 'apc' === $c->get_string( 'pgcache.engine' ) ) {
 			$sources['apc_servers']['pgcache'] = array(
 				'name' => __( 'Page Cache', 'w3-total-cache' )
 			);
-		} elseif ( $c->get_string( 'pgcache.engine' ) == 'memcached' ) {
+		} elseif ( 'memcached' === $c->get_string( 'pgcache.engine' ) ) {
 			$sources['memcached_servers']['pgcache'] = array(
-				'servers' => $c->get_array( 'pgcache.memcached.servers' ),
-				'username' => $c->get_string( 'pgcache.memcached.username' ),
-				'password' => $c->get_string( 'pgcache.memcached.password' ),
+				'servers'         => $c->get_array( 'pgcache.memcached.servers' ),
+				'username'        => $c->get_string( 'pgcache.memcached.username' ),
+				'password'        => $c->get_string( 'pgcache.memcached.password' ),
 				'binary_protocol' => $c->get_boolean( 'pgcache.memcached.binary_protocol' ),
-				'name' => __( 'Page Cache', 'w3-total-cache' )
+				'name'            => __( 'Page Cache', 'w3-total-cache' ),
 			);
-		} elseif ( $c->get_string( 'pgcache.engine' ) == 'redis' ) {
+		} elseif ( 'redis' === $c->get_string( 'pgcache.engine' ) ) {
 			$sources['redis_servers']['pgcache'] = array(
-				'servers' => $c->get_array( 'pgcache.redis.servers' ),
+				'servers'                 => $c->get_array( 'pgcache.redis.servers' ),
 				'verify_tls_certificates' => $c->get_boolean( 'pgcache.redis.verify_tls_certificates' ),
-				'dbid' => $c->get_integer( 'pgcache.redis.dbid' ),
-				'password' => $c->get_string( 'pgcache.redis.password' ),
-				'name' => __( 'Page Cache', 'w3-total-cache' )
+				'dbid'                    => $c->get_integer( 'pgcache.redis.dbid' ),
+				'password'                => $c->get_string( 'pgcache.redis.password' ),
+				'name'                    => __( 'Page Cache', 'w3-total-cache' ),
 			);
 		}
 

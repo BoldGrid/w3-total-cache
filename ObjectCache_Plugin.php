@@ -303,28 +303,35 @@ class ObjectCache_Plugin {
 		return $metrics;
 	}
 
-	public function w3tc_usage_statistics_sources($sources) {
+	/**
+	 * Usage Statisitcs sources filter.
+	 *
+	 * @param array $sources Sources.
+	 *
+	 * @return array
+	 */
+	public function w3tc_usage_statistics_sources( $sources ) {
 		$c = Dispatcher::config();
-		if ( $c->get_string( 'objectcache.engine' ) == 'apc' ) {
+		if ( 'apc' === $c->get_string( 'objectcache.engine' ) ) {
 			$sources['apc_servers']['objectcache'] = array(
-				'name' => __( 'Object Cache', 'w3-total-cache' )
+				'name' => __( 'Object Cache', 'w3-total-cache' ),
 			);
-		} elseif ( $c->get_string( 'objectcache.engine' ) == 'memcached' ) {
+		} elseif ( 'memcached' === $c->get_string( 'objectcache.engine' ) ) {
 			$sources['memcached_servers']['objectcache'] = array(
-				'servers' => $c->get_array( 'objectcache.memcached.servers' ),
-				'username' => $c->get_string( 'objectcache.memcached.username' ),
-				'password' => $c->get_string( 'objectcache.memcached.password' ),
+				'servers'         => $c->get_array( 'objectcache.memcached.servers' ),
+				'username'        => $c->get_string( 'objectcache.memcached.username' ),
+				'password'        => $c->get_string( 'objectcache.memcached.password' ),
 				'binary_protocol' => $c->get_boolean( 'objectcache.memcached.binary_protocol' ),
-				'name' => __( 'Object Cache', 'w3-total-cache' )
+				'name'            => __( 'Object Cache', 'w3-total-cache' ),
 			);
-		} elseif ( $c->get_string( 'objectcache.engine' ) == 'redis' ) {
+		} elseif ( 'redis' === $c->get_string( 'objectcache.engine' ) ) {
 			$sources['redis_servers']['objectcache'] = array(
-				'servers' => $c->get_array( 'objectcache.redis.servers' ),
+				'servers'                 => $c->get_array( 'objectcache.redis.servers' ),
 				'verify_tls_certificates' => $c->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
-				'username' => $c->get_boolean( 'objectcache.redis.username' ),
-				'dbid' => $c->get_integer( 'objectcache.redis.dbid' ),
-				'password' => $c->get_string( 'objectcache.redis.password' ),
-				'name' => __( 'Object Cache', 'w3-total-cache' )
+				'username'                => $c->get_boolean( 'objectcache.redis.username' ),
+				'dbid'                    => $c->get_integer( 'objectcache.redis.dbid' ),
+				'password'                => $c->get_string( 'objectcache.redis.password' ),
+				'name'                    => __( 'Object Cache', 'w3-total-cache' ),
 			);
 		}
 
