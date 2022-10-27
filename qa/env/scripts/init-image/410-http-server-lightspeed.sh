@@ -29,7 +29,20 @@ case "${W3D_PHP_VERSION}" in
 		if [ "$W3D_REDIS" = "redis" ]; then
 			apt-get install -y lsphp80-redis
 		fi
+        ;;
+	"8.1")
+        apt-get install -y lsphp81 lsphp81-common lsphp81-curl lsphp81-mysql lsphp81-opcache
+		sed -i "s/lsphp73/lsphp81/" /usr/local/lsws/conf/httpd_config.conf
 
+		if [ "$W3D_APC" = "apcu" ]; then
+			apt-get install -y lsphp81-apcu
+		fi
+		if [ "$W3D_MEMCACHE" = "memcached" ]; then
+			apt-get install -y lsphp81-memcached
+		fi
+		if [ "$W3D_REDIS" = "redis" ]; then
+			apt-get install -y lsphp81-redis
+		fi
         ;;
     *)
         echo "W3D_PHP_VERSION not met conditions, do nothing....."
