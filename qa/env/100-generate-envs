@@ -70,8 +70,8 @@ def generate_image_descriptors
 
 	# multiply by php
 	image_descriptors = multiply(image_descriptors, php_list = {
-		'php81' => {
-			'PHP_VERSION' => '8.1',
+		'php80' => {
+			'PHP_VERSION' => '8.0',
 			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
