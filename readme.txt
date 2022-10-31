@@ -287,7 +287,7 @@ Please reach out to all of these people and support their projects if you're so 
 
 = 2.2.7 =
 * Fix: Updated database cache connection class to avoid deprecated warnings in WordPress 6.1
-* Enhancement: Redis: Added options for retry interval and timeout
+* Fix: Redis: Fixed handling of retry interval and timeout options for usage statistics
 * Enhancement: Redis: Added TLS/SSL certificate verification option
 * Enhancement: Page cache: Added query string exemptions
 
