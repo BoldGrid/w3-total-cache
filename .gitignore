@@ -10,3 +10,4 @@ error_log
 /qa/env/working/*
 /qa/node_modules/*
 node_modules
+.vscode/

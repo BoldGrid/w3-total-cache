@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
-Tested up to: 6.0
-Stable tag: 2.2.6
+Tested up to: 6.1
+Stable tag: 2.2.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -285,6 +285,12 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.2.7 =
+* Fix: Updated database cache connection class to avoid deprecated warnings in WordPress 6.1
+* Fix: Redis: Fixed handling of retry interval and timeout options for usage statistics
+* Enhancement: Redis: Added TLS/SSL certificate verification option
+* Enhancement: Page cache: Added query string exemptions
+
 = 2.2.6 =
 * Fix: Error clearing all cache when using Cloudfront full CDN in Pro
 
@@ -293,7 +299,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: DB cache syntax error in PHP 5.6
 * Fix: Added missing space to S3 CDN bucket label
 * Fix: JS error for CloudFront CDN related check on non-W3TC pages
-* Fix: Page cache unpack warning for empty/malformed files 
+* Fix: Page cache unpack warning for empty/malformed files
 * Enhancement: Image Service pre_get_posts anonymous action now hooked (w3tc_modify_query_obj)
 * Enhancement: Image Service ajax_query_attachments_args anonymous action now hooked (w3tc_filter_ajax_args)
 

@@ -47,7 +47,7 @@ exports.getCurrentTheme = async function(pPage) {
 		let href = await pPage.$eval('.theme.active .theme-actions a', (e) => e.getAttribute('href'));
 		let m    = href.match(/theme=([^&]+)/);
 		theme    = m[1];
-	} else { // WP 5 nad up.
+	} else { // WP 5 and up.
 		theme = await pPage.$eval('.theme.active', (e) => e.getAttribute('data-slug'));
 
 		log.log(`Active theme (from data-slug): ${theme}`);
@@ -227,12 +227,18 @@ exports.addWpConfigConstant = async function(pPage, name, value) {
 
 exports.addQaBootstrap = async function(pPage, themeFunctionsFilename, filenameToLoad) {
 	log.log('add qa bootstrap code to ' + themeFunctionsFilename);
-    let content = await fs.readFileAsync(themeFunctionsFilename, 'utf8');
+
+	let content = "<?php\n\n";
+
+	if (fs.existsSync(themeFunctionsFilename)) {
+		content = await fs.readFileAsync(themeFunctionsFilename, 'utf8');
+	}
+
 	await fs.writeFileAsync(themeFunctionsFilename,
 		content + "\n\n" +
 		"require( __DIR__ . '" + filenameToLoad + "' );",
 		'utf8');
-}
+};
 
 
 
