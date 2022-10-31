@@ -293,25 +293,23 @@ class PageSpeed_Api {
 				)
 			);
 
-			try {
-				$response = wp_remote_get(
-					$request,
-					array(
-						'timeout' => 60,
-					)
-				);
-			} catch ( \Exception $e ) {
+			$response = wp_remote_get(
+				$request,
+				array(
+					'timeout' => 60,
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
 				return wp_json_encode(
 					array(
 						'error' => array(
-							'code'    => 500,
-							'message' => $e->getMessage(),
+							'code'    => $response->get_error_code(),
+							'message' => $response->get_error_message(),
 						),
 					)
 				);
-			}
-
-			if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
+			} elseif ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
 				if ( 'update-token-missing-site-id' === $response['error']['id'] ) {
 					$message = __( 'No site ID provided for Google access record update!', 'w3-total-cache' );
 				} elseif ( 'update-token-missing-w3key' === $response['error']['id'] ) {
@@ -407,25 +405,23 @@ class PageSpeed_Api {
 			)
 		);
 
-		try {
-			$response = wp_remote_get(
-				$request,
-				array(
-					'timeout' => 60,
-				)
-			);
-		} catch ( \Exception $e ) {
+		$response = wp_remote_get(
+			$request,
+			array(
+				'timeout' => 60,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
 			return wp_json_encode(
 				array(
 					'error' => array(
-						'code'    => 500,
-						'message' => $e->getMessage(),
+						'code'    => $response->get_error_code(),
+						'message' => $response->get_error_message(),
 					),
 				)
 			);
-		}
-
-		if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
+		} elseif ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
 			if ( 'update-token-missing-site-id' === $response['error']['id'] ) {
 				$message = __( 'No site ID provided for Google access record update!', 'w3-total-cache' );
 			} elseif ( 'update-token-missing-w3key' === $response['error']['id'] ) {
@@ -487,25 +483,23 @@ class PageSpeed_Api {
 
 		$request = $this->get_w3tc_api_url( 'google/get-token' ) . '/' . $site_id . '/' . $w3key;
 
-		try {
-			$response = wp_remote_get(
-				$request,
-				array(
-					'timeout' => 60,
-				)
-			);
-		} catch ( \Exception $e ) {
+		$response = wp_remote_get(
+			$request,
+			array(
+				'timeout' => 60,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
 			return wp_json_encode(
 				array(
 					'error' => array(
-						'code'    => 500,
-						'message' => $e->getMessage(),
+						'code'    => $response->get_error_code(),
+						'message' => $response->get_error_message(),
 					),
 				)
 			);
-		}
-
-		if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
+		} elseif ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
 			if ( 'get-token-missing-site-id' === $response['error']['id'] ) {
 				$message = __( 'No site ID provided for Google access record update!', 'w3-total-cache' );
 			} elseif ( 'get-token-missing-w3key' === $response['error']['id'] ) {

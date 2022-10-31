@@ -716,21 +716,21 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			$authorize_error = json_decode( $authorize_error );
 
 			if ( 'authorize-in-missing-site-id' === $authorize_error->error->id ) {
-				$message = __( 'Unique site ID missing!', 'w3-total-cache' );
+				$message = __( 'Unique site ID missing for authorize request!', 'w3-total-cache' );
 			} elseif ( 'authorize-in-missing-auth-url' === $authorize_error->error->id ) {
-				$message = __( 'Authorize URL missing!', 'w3-total-cache' );
+				$message = __( 'Authorize URL missing for authorize request!', 'w3-total-cache' );
 			} elseif ( 'authorize-in-missing-return-url' === $authorize_error->error->id ) {
-				$message = __( 'Return URL missing!', 'w3-total-cache' );
+				$message = __( 'Return URL missing for authorize request!', 'w3-total-cache' );
 			} elseif ( 'authorize-in-failed' === $authorize_error->error->id ) {
 				$message = __( 'Failed to process authorize request!', 'w3-total-cache' );
 			}
 
 			if ( 'authorize-out-code-missing' === $authorize_error->error->id ) {
-				$message = __( 'No Google authorize code provided for update!', 'w3-total-cache' );
+				$message = __( 'No authorize code returned to W3-API from Google!', 'w3-total-cache' );
 			} elseif ( 'authorize-out-w3key-missing' === $authorize_error->error->id ) {
-				$message = __( 'No W3Key provided for update!', 'w3-total-cache' );
+				$message = __( 'No W3Key return to W3-API from Google!', 'w3-total-cache' );
 			} elseif ( 'authorize-out-not-found' === $authorize_error->error->id ) {
-				$message = __( 'No matching record found to update!', 'w3-total-cache' );
+				$message = __( 'No W3-API matching record found during Google authorization return processing!', 'w3-total-cache' );
 			}
 
 			update_option(
