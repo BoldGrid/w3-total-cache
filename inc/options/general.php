@@ -677,21 +677,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$w3key      = ! empty( $this->_config->get_string( 'widget.pagespeed.w3key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3key' ) : '';
 		$auth_url   = $w3_pagespeed->client->createAuthUrl();
 
-		$new_gacode = Util_Request::get( 'w3tc_new_gacode' );
-		$new_w3key  = Util_Request::get( 'w3tc_new_w3key' );
+		$new_gacode      = Util_Request::get( 'w3tc_new_gacode' );
+		$new_w3key       = Util_Request::get( 'w3tc_new_w3key' );
+		$authorize_error = Util_Request::get( 'w3tc_authorize_error' );
 		if ( ! empty( $new_gacode ) && ! empty( $new_w3key ) ) {
 			$response = json_decode( $w3_pagespeed->process_authorization_response( $new_gacode, $new_w3key ), true );
 
-			if ( is_wp_error( $response ) ) {
-				update_option(
-					'w3tcps_authorize_fail',
-					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
-				);
-				update_option(
-					'w3tcps_authorize_fail_message',
-					esc_html( $response->get_error_message() )
-				);
-			} elseif ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
+			if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
 				$response_error = sprintf(
 					// translators: 1 Request response code, 2 Error message.
 					__(
@@ -717,6 +709,38 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					__( 'Google PageSpeed Insights API authorization successfull.', 'w3-total-cache' )
 				);
 			}
+
+			do_action( 'admin_post_w3tcps_authorize_notice' );
+		} elseif ( ! empty( $authorize_error ) ) {
+			unset( $_GET['w3tc_authorize_error'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$authorize_error = json_decode( $authorize_error );
+
+			if ( 'authorize-in-missing-site-id' === $authorize_error->error->id ) {
+				$message = __( 'Unique site ID missing!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-missing-auth-url' === $authorize_error->error->id ) {
+				$message = __( 'Authorize URL missing!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-missing-return-url' === $authorize_error->error->id ) {
+				$message = __( 'Return URL missing!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-failed' === $authorize_error->error->id ) {
+				$message = __( 'Failed to process authorize request!', 'w3-total-cache' );
+			}
+
+			if ( 'authorize-out-code-missing' === $authorize_error->error->id ) {
+				$message = __( 'No Google authorize code provided for update!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-w3key-missing' === $authorize_error->error->id ) {
+				$message = __( 'No W3Key provided for update!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-not-found' === $authorize_error->error->id ) {
+				$message = __( 'No matching record found to update!', 'w3-total-cache' );
+			}
+
+			update_option(
+				'w3tcps_authorize_fail',
+				__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+			);
+			update_option(
+				'w3tcps_authorize_fail_message',
+				$message
+			);
 
 			do_action( 'admin_post_w3tcps_authorize_notice' );
 		}

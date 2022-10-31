@@ -222,12 +222,6 @@ class PageSpeed_Api {
 					'message' => ( ! empty( $decoded_body['error']['message'] ) ? $decoded_body['error']['message'] : $response['response']['message'] ),
 				),
 			);
-		} elseif ( is_wp_error( $response ) ) {
-			return array(
-				'error' => array(
-					'message' => $response->get_error_message(),
-				),
-			);
 		}
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
@@ -317,20 +311,22 @@ class PageSpeed_Api {
 				);
 			}
 
-			if ( is_wp_error( $response ) ) {
+			if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
+				if ( 'update-token-missing-site-id' === $response['error']['id'] ) {
+					$message = __( 'No site ID provided for Google access record update!', 'w3-total-cache' );
+				} elseif ( 'update-token-missing-w3key' === $response['error']['id'] ) {
+					$message = __( 'No W3 key provided for Google access record update!', 'w3-total-cache' );
+				} elseif ( 'update-token-missing-refresh-token' === $response['error']['id'] ) {
+					$message = __( 'No refresh token provided for Google access record update!', 'w3-total-cache' );
+				} elseif ( 'update-token-not-found' === $response['error']['id'] ) {
+					$message = __( 'No matching Google access record found for W3 key!', 'w3-total-cache' );
+				}
+
 				return wp_json_encode(
 					array(
 						'error' => array(
-							'message' => $response->get_error_message(),
-						),
-					)
-				);
-			} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
-				return wp_json_encode(
-					array(
-						'error' => array(
-							'code'    => $response['response']['code'],
-							'message' => $response['response']['message'],
+							'code'    => $response['error']['code'],
+							'message' => $message,
 						),
 					)
 				);
@@ -429,20 +425,21 @@ class PageSpeed_Api {
 			);
 		}
 
-		if ( is_wp_error( $response ) ) {
+		if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
+			if ( 'update-token-missing-site-id' === $response['error']['id'] ) {
+				$message = __( 'No site ID provided for Google access record update!', 'w3-total-cache' );
+			} elseif ( 'update-token-missing-w3key' === $response['error']['id'] ) {
+				$message = __( 'No W3 key provided for Google access record update!', 'w3-total-cache' );
+			} elseif ( 'update-token-missing-refresh-token' === $response['error']['id'] ) {
+				$message = __( 'No refresh token provided for Google access record update!', 'w3-total-cache' );
+			} elseif ( 'update-token-not-found' === $response['error']['id'] ) {
+				$message = __( 'No matching Google access record found for W3 key!', 'w3-total-cache' );
+			}
 			return wp_json_encode(
 				array(
 					'error' => array(
-						'message' => $response->get_error_message(),
-					),
-				)
-			);
-		} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => $response['response']['code'],
-						'message' => $response['response']['message'],
+						'code'    => $response['error']['code'],
+						'message' => $message,
 					),
 				)
 			);
@@ -508,20 +505,22 @@ class PageSpeed_Api {
 			);
 		}
 
-		if ( is_wp_error( $response ) ) {
+		if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
+			if ( 'get-token-missing-site-id' === $response['error']['id'] ) {
+				$message = __( 'No site ID provided for Google access record update!', 'w3-total-cache' );
+			} elseif ( 'get-token-missing-w3key' === $response['error']['id'] ) {
+				$message = __( 'No W3 key provided for Google access record update!', 'w3-total-cache' );
+			} elseif ( 'get-token-not-found' === $response['error']['id'] ) {
+				$message = __( 'No matching Google access record found for W3 key!', 'w3-total-cache' );
+			} elseif ( 'get-token-bad-record' === $response['error']['id'] ) {
+				$message = __( 'Matching Google access record found but the refresh token value is blank!', 'w3-total-cache' );
+			}
+
 			return wp_json_encode(
 				array(
 					'error' => array(
-						'message' => $response->get_error_message(),
-					),
-				)
-			);
-		} elseif ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => $response['response']['code'],
-						'message' => $response['response']['message'],
+						'code'    => $response['error']['code'],
+						'message' => $message,
 					),
 				)
 			);
