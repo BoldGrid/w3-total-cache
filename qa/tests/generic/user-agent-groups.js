@@ -117,6 +117,9 @@ describe('', function() {
 		} else if (theme[0] == 'twentynineteen') {
 			css = await page.$eval('#twentynineteen-style-css',
 				(e) => e.getAttribute('href'));
+		} else if (theme[0] == 'twentytwenty') {
+			css = await page.$eval('#twentytwenty-style-css',
+				(e) => e.getAttribute('href'));
 		} else if (theme[0] == 'twentytwentyone') {
 			css = await page.$eval('#twenty-twenty-one-style-css',
 				(e) => e.getAttribute('href'));
