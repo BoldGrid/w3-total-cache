@@ -30,13 +30,20 @@ if ( ! defined( 'W3TC' ) ) {
 		<p class="description"><?php esc_html_e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122. To use TLS, prefix server with tls://', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
-<tr class="hidden">
-	<th><label><?php esc_html_e( 'Verify TLS Certificates:', 'w3-total-cache' ); ?></label></th>
-	<td>
-		<?php $this->checkbox( $module . '.redis.verify_tls_certificates' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'redis.verify_tls_certificates' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
-		<p class="description"><?php esc_html_e( 'Verify the server\'s certificate when connecting via TLS.', 'w3-total-cache' ); ?></p>
-	</td>
-</tr>
+<?php
+// PHP Redis 5.3.2+ supports SSL/TLS.
+if ( version_compare( phpversion( 'redis' ), '5.3.2', '>=' ) ) {
+	?>
+	<tr>
+		<th><label><?php esc_html_e( 'Verify TLS Certificates:', 'w3-total-cache' ); ?></label></th>
+		<td>
+			<?php $this->checkbox( $module . '.redis.verify_tls_certificates' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'redis.verify_tls_certificates' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
+			<p class="description"><?php esc_html_e( 'Verify the server\'s certificate when connecting via TLS.', 'w3-total-cache' ); ?></p>
+		</td>
+	</tr>
+	<?php
+}
+?>
 <tr>
 	<th><label><?php esc_html_e( 'Use persistent connection:', 'w3-total-cache' ); ?></label></th>
 	<td>
@@ -65,19 +72,19 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <?php
-if ( version_compare( phpversion( 'redis' ), '5', '>=' ) ) {
-	// PHP Redis 5 supports the read_timeout setting.
+// PHP Redis 3.1.3+ supports the read_timeout setting.
+if ( version_compare( phpversion( 'redis' ), '3.1.3', '>=' ) ) {
 	?>
-<tr>
-	<th style="width: 250px;"><label for="redis_read_timeout"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.read_timeout' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
-	<td>
-		<input id="redis_read_timeout" type="number" name="<?php echo esc_attr( $module ); ?>__redis__read_timeout"
-			<?php Util_Ui::sealing_disabled( $module ); ?>
-			value="<?php echo esc_attr( $this->_config->get_integer( $module . '.redis.read_timeout' ) ); ?>"
-			size="8" step="1" min="0" />
-		<p class="description"><?php esc_html_e( 'In seconds', 'w3-total-cache' ); ?></p>
-	</td>
-</tr>
+	<tr>
+		<th style="width: 250px;"><label for="redis_read_timeout"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.read_timeout' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
+		<td>
+			<input id="redis_read_timeout" type="number" name="<?php echo esc_attr( $module ); ?>__redis__read_timeout"
+				<?php Util_Ui::sealing_disabled( $module ); ?>
+				value="<?php echo esc_attr( $this->_config->get_integer( $module . '.redis.read_timeout' ) ); ?>"
+				size="8" step="1" min="0" />
+			<p class="description"><?php esc_html_e( 'In seconds', 'w3-total-cache' ); ?></p>
+		</td>
+	</tr>
 	<?php
 }
 ?>
