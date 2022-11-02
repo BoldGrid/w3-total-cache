@@ -966,7 +966,7 @@ class Util_Environment {
 	 */
 	public static function url_to_docroot_filename( $url ) {
 		$data = array(
-			'home_url' => get_home_url(),
+			'home_url' => get_site_url(),
 			'url' => $url,
 		);
 
