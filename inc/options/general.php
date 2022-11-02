@@ -693,6 +693,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					! empty( $response['error']['code'] ) ? $response['error']['code'] : 'N/A',
 					! empty( $response['error']['message'] ) ? $response['error']['message'] : 'N/A'
 				);
+
 				update_option(
 					'w3tcps_authorize_fail',
 					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
@@ -702,17 +703,24 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					$response_error
 				);
 			} elseif ( ! empty( $response['refresh_token'] ) ) {
-				unset( $_GET['w3tc_new_gacode'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				unset( $_GET['w3tc_new_w3key'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				update_option(
 					'w3tcps_authorize_success',
 					__( 'Google PageSpeed Insights API authorization successfull.', 'w3-total-cache' )
 				);
+			} else {
+				update_option(
+					'w3tcps_authorize_fail',
+					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+				);
+				update_option(
+					'w3tcps_authorize_fail_message',
+					__( 'Missing refresh token.', 'w3-totoal-cache' )
+				);
 			}
 
-			do_action( 'admin_post_w3tcps_authorize_notice' );
+			wp_safe_redirect( $return_url );
+			exit;
 		} elseif ( ! empty( $authorize_error ) ) {
-			unset( $_GET['w3tc_authorize_error'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$authorize_error = json_decode( $authorize_error );
 
 			if ( 'authorize-in-missing-site-id' === $authorize_error->error->id ) {
@@ -742,7 +750,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				$message
 			);
 
-			do_action( 'admin_post_w3tcps_authorize_notice' );
+			wp_safe_redirect( $return_url );
+			exit;
 		}
 		?>
 		<table class="form-table">

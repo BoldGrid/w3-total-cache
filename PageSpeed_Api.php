@@ -91,7 +91,7 @@ class PageSpeed_Api {
 	 * @return void
 	 */
 	public function run() {
-		add_action( 'admin_post_w3tcps_authorize_notice', array( $this, 'authorize_notice' ) );
+		add_action( 'admin_notices', array( $this, 'authorize_notice' ) );
 	}
 	/**
 	 * Fully analyze URL via PageSpeed API.
