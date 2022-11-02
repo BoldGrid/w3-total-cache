@@ -313,7 +313,7 @@ class Cdn_AdminActions {
 		$title = __( 'Content Delivery Network (CDN): Purge Tool', 'w3-total-cache' );
 		$results = array();
 
-		$path = ltrim( str_replace( get_home_url(), '', get_stylesheet_directory_uri() ), '/' );
+		$path = ltrim( str_replace( get_site_url(), '', get_stylesheet_directory_uri() ), '/' );
 		include W3TC_INC_DIR . '/popup/cdn_purge.php';
 	}
 
@@ -345,7 +345,7 @@ class Cdn_AdminActions {
 			$errors[] = __( 'Empty files list.', 'w3-total-cache' );
 		}
 
-		$path = str_replace( get_home_url(), '', get_stylesheet_directory_uri() );
+		$path = str_replace( get_site_url(), '', get_stylesheet_directory_uri() );
 		include W3TC_INC_DIR . '/popup/cdn_purge.php';
 	}
 

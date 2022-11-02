@@ -395,7 +395,7 @@ class Util_Rule {
 		case Util_Environment::is_apache():
 		case Util_Environment::is_litespeed():
 			if ( Util_Environment::is_wpmu() ) {
-				$url = get_home_url();
+				$url = get_site_url();
 				$match = null;
 				if ( preg_match( '~http(s)?://(.+?)(/)?$~', $url, $match ) ) {
 					$home_path = $match[2];

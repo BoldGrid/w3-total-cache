@@ -50,7 +50,7 @@ class BrowserCache_Environment_Nginx {
 					$home_uri = W3TC_HOME_URI;
 				} else {
 					$primary_blog_id = get_network()->site_id;
-					$home_uri = parse_url( get_home_url( $primary_blog_id ),
+					$home_uri = parse_url( get_site_url( $primary_blog_id ),
 						PHP_URL_PATH );
 					$home_uri = rtrim( $home_uri, '/' );
 				}

@@ -51,7 +51,7 @@ class Generic_AdminActions_Config {
 	 * @return void
 	 */
 	function w3tc_config_export() {
-		$filename = substr( get_home_url(), strpos( get_home_url(), '//' )+2 );
+		$filename = substr( get_site_url(), strpos( get_site_url(), '//' )+2 );
 		@header( sprintf( __( 'Content-Disposition: attachment; filename=%s.json', 'w3-total-cache' ), $filename ) );
 		echo $this->_config->export(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		die();
