@@ -307,7 +307,7 @@ class Util_Rule {
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 				if ( $replace_start !== false ) {
 					$message = sprintf( __( 'Edit file <strong>%s</strong> and replace all lines between and including <strong>%s</strong> and <strong>%s</strong> markers with:',
-						'w3-total-caceh' ), $path, $start, $end );
+						'w3-total-cache' ), $path, $start, $end );
 				} else {
 					$message = sprintf( __( 'Edit file <strong>%s</strong> and add the following rules above the WordPress directives:',
 						'w3-total-cache' ), $path );
