@@ -540,30 +540,30 @@ class Extension_ImageService_Plugin_Admin {
 						'revert'   => wp_create_nonce( 'w3tc_imageservice_revert' ),
 					),
 					'lang'        => array(
-						'convert'          => __( 'Convert', 'w3-total_cache' ),
-						'sending'          => __( 'Sending...', 'w3-total_cache' ),
-						'submitted'        => __( 'Submitted', 'w3-total_cache' ),
-						'processing'       => __( 'Processing...', 'w3-total_cache' ),
-						'converted'        => __( 'Converted', 'w3-total_cache' ),
-						'notConverted'     => __( 'Not converted', 'w3-total_cache' ),
-						'reverting'        => __( 'Reverting...', 'w3-total_cache' ),
-						'reverted'         => __( 'Reverted', 'w3-total_cache' ),
-						'revert'           => __( 'Revert', 'w3-total_cache' ),
-						'error'            => __( 'Error', 'w3-total_cache' ),
-						'ajaxFail'         => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total_cache' ),
-						'apiError'         => __( 'API error.  Please reload the page to try again,', 'w3-total_cache' ),
-						'refresh'          => __( 'Refresh', 'w3-total_cache' ),
-						'refreshing'       => __( 'Refreshing...', 'w3-total_cache' ),
-						'settings'         => __( 'Settings', 'w3-total_cache' ),
+						'convert'          => __( 'Convert', 'w3-total-cache' ),
+						'sending'          => __( 'Sending...', 'w3-total-cache' ),
+						'submitted'        => __( 'Submitted', 'w3-total-cache' ),
+						'processing'       => __( 'Processing...', 'w3-total-cache' ),
+						'converted'        => __( 'Converted', 'w3-total-cache' ),
+						'notConverted'     => __( 'Not converted', 'w3-total-cache' ),
+						'reverting'        => __( 'Reverting...', 'w3-total-cache' ),
+						'reverted'         => __( 'Reverted', 'w3-total-cache' ),
+						'revert'           => __( 'Revert', 'w3-total-cache' ),
+						'error'            => __( 'Error', 'w3-total-cache' ),
+						'ajaxFail'         => __( 'Failed to retrieve a response.  Please reload the page to try again.', 'w3-total-cache' ),
+						'apiError'         => __( 'API error.  Please reload the page to try again,', 'w3-total-cache' ),
+						'refresh'          => __( 'Refresh', 'w3-total-cache' ),
+						'refreshing'       => __( 'Refreshing...', 'w3-total-cache' ),
+						'settings'         => __( 'Settings', 'w3-total-cache' ),
 						'submittedAllDesc' => sprintf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							__( 'Images queued for conversion.  Progress can be seen in the %1$sMedia Library%2$s.', 'w3-total_cache' ),
+							__( 'Images queued for conversion.  Progress can be seen in the %1$sMedia Library%2$s.', 'w3-total-cache' ),
 							'<a href="' . esc_url( Util_Ui::admin_url( 'upload.php?mode=list' ) ) . '">',
 							'</a>'
 						),
 						'notConvertedDesc' => sprintf(
 							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-							__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total_cache' ),
+							__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total-cache' ),
 							'<a target="_blank" href="' . esc_url(
 								'https://www.boldgrid.com/support/w3-total-cache/image-service#conversion-canceled/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice'
 							) . '">',
@@ -681,7 +681,7 @@ class Extension_ImageService_Plugin_Admin {
 					<?php
 					printf(
 						// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-						esc_html__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total_cache' ),
+						esc_html__( 'The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s.', 'w3-total-cache' ),
 						'<a target="_blank" href="' . esc_url(
 							'https://www.boldgrid.com/support/w3-total-cache/image-service#conversion-canceled/?utm_source=w3tc&utm_medium=conversion_canceled&utm_campaign=imageservice'
 						) . '">',
