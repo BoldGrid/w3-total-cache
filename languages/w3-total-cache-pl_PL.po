@@ -5,12 +5,12 @@ msgstr ""
 "Project-Id-Version: W3 Total Cache 2.2.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: \n"
-"Language-Team: Polish\n"
+"Language-Team: Polski\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2022-11-04T21:35:34+00:00\n"
-"PO-Revision-Date: 2022-11-04 22:27+0000\n"
+"PO-Revision-Date: 2022-11-07 22:06+0000\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: w3-total-cache\n"
 "Language: pl-PL\n"
@@ -642,7 +642,7 @@ msgid ""
 "permitted to ignore them."
 msgstr ""
 "%1$sHTTP%2$s Ścisłe zabezpieczenia transportu (%3$sHSTS%4$s) wymuszają "
-"bezpieczeństwo (%5$sHTTP%6$s ponad %7$sSSL%8$s/%9$sTLS%10 $s) połączenia z "
+"bezpieczeństwo (%5$sHTTP%6$s ponad %7$sSSL%8$s/%9$sTLS%10$s) połączenia z "
 "serwerem. Może to pomóc złagodzić niepożądane skutki spowodowane błędami i "
 "wyciekami sesji za pośrednictwem plików cookie i linków. Pomaga także bronić "
 "się przed atakami typu man-in-the-middle. Jeśli istnieją ostrzeżenia "
@@ -4786,7 +4786,7 @@ msgstr ""
 #. translators: 1: Hourly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
 #: Extension_ImageService_Api.php:205
 msgid " or %1$supgrade to Pro%2$s for higher limits"
-msgstr " lub %1$zaktualizuj do wersji Pro%2$s, aby uzyskać wyższe limity"
+msgstr " lub %1$szaktualizuj do wersji Pro%2$s, aby uzyskać wyższe limity"
 
 #. translators: 1: Monthly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
 #: Extension_ImageService_Api.php:214
@@ -4795,7 +4795,7 @@ msgid ""
 "Pro%3$s for unlimited."
 msgstr ""
 "Osiągnąłeś swój miesięczny limit w wysokości %1$d; spróbuj ponownie później "
-"lub %2$przejdź na Pro%3$s bez ograniczeń."
+"lub %2$sprzejdź na Pro%3$s bez ograniczeń."
 
 #: Extension_ImageService_Api.php:221
 msgid "Invalid output image MIME type."
@@ -4962,7 +4962,7 @@ msgid ""
 msgstr ""
 "%1$sTo rozszerzenie działa najlepiej w wersji WordPress 5.8 i nowszych. "
 "Korzystasz z WordPressa w wersji %2$s. Aby skorzystać z tej funkcji, "
-"%3$zaktualizuj teraz%4$s."
+"%3$szaktualizuj teraz%4$s."
 
 #. translators: 1: HTML anchor open tag, 2: HTML anchor close tag, 3: HTML anchor open tag, 4: HTML anchor open tag.
 #: Extension_ImageService_Plugin_Admin.php:116
@@ -5586,7 +5586,7 @@ msgid ""
 "helpful for your site. %s%s"
 msgstr ""
 "Aktywacja rozszerzenia <a href=\"%s\">WPML</a> dla W3 Total Cache może być "
-"pomocna dla Twojej witryny. %SS"
+"pomocna dla Twojej witryny. %s%s"
 
 #: FeatureShowcase_Plugin_Admin.php:209
 msgid "Available in sites"
@@ -5614,7 +5614,7 @@ msgid ""
 msgstr ""
 "%1$sTa funkcja działa najlepiej w wersji WordPress 5.8 i nowszych. "
 "Korzystasz z WordPressa w wersji %2$s. Aby skorzystać z tej funkcji, "
-"%3$zaktualizuj teraz%4$s.%5$s"
+"%3$szaktualizuj teraz%4$s.%5$s"
 
 #: FeatureShowcase_Plugin_Admin.php:247 FeatureShowcase_Plugin_Admin.php:259 
 #: FeatureShowcase_Plugin_Admin.php:271 FeatureShowcase_Plugin_Admin.php:283 
@@ -7071,7 +7071,7 @@ msgid ""
 "Please review the latest %1$sterms of use and privacy policy%2$s, and accept "
 "them."
 msgstr ""
-"Zapoznaj się z najnowszymi %1$warunkami użytkowania i polityką "
+"Zapoznaj się z najnowszymi %1$swarunkami użytkowania i polityką "
 "prywatności%2$s i zaakceptuj je."
 
 #: inc/lightbox/upgrade.php:15
@@ -10611,7 +10611,7 @@ msgstr ""
 "Pozwalając nam zbierać dane o sposobie korzystania z W3 Total Cache, możemy "
 "ulepszyć nasze funkcje i doświadczenie dla wszystkich. Te dane nie będą "
 "zawierać żadnych informacji umożliwiających identyfikację osoby."
-"%1$sZapraszamy do zapoznania się z naszymi %2$warunkami użytkowania i "
+"%1$sZapraszamy do zapoznania się z naszymi %2$swarunkami użytkowania i "
 "polityką prywatności%3$s."
 
 #: Minify_ConfigLabels.php:7
@@ -11474,7 +11474,7 @@ msgstr ""
 "Pozwalając nam zbierać dane o sposobie korzystania z W3 Total Cache, możemy "
 "ulepszyć nasze funkcje i doświadczenie dla wszystkich. Dane te nie będą "
 "zawierać żadnych informacji umożliwiających identyfikację osoby. Zachęcamy "
-"do zapoznania się z naszymi %1$warunkami użytkowania i polityką "
+"do zapoznania się z naszymi %1$swarunkami użytkowania i polityką "
 "prywatności%2$s."
 
 #. translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
@@ -12221,7 +12221,7 @@ msgid ""
 "additional resources, and is not recommended to be run continuously. %s %s"
 msgstr ""
 "W3 Total Cache: Zbieranie statystyk jest obecnie włączone. Zużywa to "
-"dodatkowe zasoby i nie zaleca się ciągłego uruchamiania. %SS"
+"dodatkowe zasoby i nie zaleca się ciągłego uruchamiania. %s %s"
 
 #: UsageStatistics_Plugin_Admin.php:63
 msgid "Disable statistics"

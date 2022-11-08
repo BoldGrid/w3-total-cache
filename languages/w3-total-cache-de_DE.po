@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "POT-Creation-Date: 2022-11-04T21:35:34+00:00\n"
-"PO-Revision-Date: 2022-11-04 22:12+0000\n"
+"PO-Revision-Date: 2022-11-07 21:24+0000\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: w3-total-cache\n"
 "Language: de-DE\n"
@@ -646,7 +646,7 @@ msgid ""
 "permitted to ignore them."
 msgstr ""
 "%1$sHTTP%2$s Strict-Transport-Security (%3$sHSTS%4$s) erzwingt sichere "
-"(%5$sHTTP%6$s über %7$sSSL%8$s/%9$sTLS%10 $s) Verbindungen zum Server. Dies "
+"(%5$sHTTP%6$s über %7$sSSL%8$s/%9$sTLS%10$s) Verbindungen zum Server. Dies "
 "kann dazu beitragen, nachteilige Auswirkungen zu mindern, die durch Fehler "
 "und Sitzungslecks durch Cookies und Links verursacht werden. Es hilft auch "
 "bei der Abwehr von Man-in-the-Middle-Angriffen. Wenn %11$sSSL%12$s "
@@ -4307,7 +4307,7 @@ msgstr ""
 "CloudFlare schützt und beschleunigt Websites. %1$sMelden Sie sich jetzt "
 "kostenlos an,%2$s um loszulegen, oder wenn Sie ein Konto haben, melden Sie "
 "sich einfach an, um Ihren %3$sAPI%4$s-Token/globalen Schlüssel von der "
-"%5$sKontoseite%6$ abzurufen s, um es in das Feld Allgemeine Einstellungen "
+"%5$sKontoseite%6$s abzurufen s, um es in das Feld Allgemeine Einstellungen "
 "einzugeben, das nach der Plugin-Aktivierung angezeigt wird. Wenden Sie sich "
 "bei Fragen an das CloudFlare %7$sSupport-Team%8$s."
 
@@ -4824,7 +4824,7 @@ msgstr ""
 #. translators: 1: Hourly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
 #: Extension_ImageService_Api.php:205
 msgid " or %1$supgrade to Pro%2$s for higher limits"
-msgstr " oder %1$Upgrade auf Pro%2$s für höhere Limits"
+msgstr " oder %1$sUpgrade auf Pro%2$s für höhere Limits"
 
 #. translators: 1: Monthly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
 #: Extension_ImageService_Api.php:214
@@ -7144,7 +7144,7 @@ msgid ""
 "Please review the latest %1$sterms of use and privacy policy%2$s, and accept "
 "them."
 msgstr ""
-"Bitte lesen Sie die aktuellen %1$Nutzungsbedingungen und "
+"Bitte lesen Sie die aktuellen %1$sNutzungsbedingungen und "
 "Datenschutzrichtlinien%2$s und akzeptieren Sie diese."
 
 #: inc/lightbox/upgrade.php:15
@@ -9195,7 +9195,7 @@ msgstr ""
 #: inc/options/install.php:251
 msgid "Check out the %1$sFAQ%2$s for more details on %3$susage</a>."
 msgstr ""
-"Sehen Sie sich die %1$sFAQ%2$s für weitere Details zur %3$Nutzung</a> an."
+"Sehen Sie sich die %1$sFAQ%2$s für weitere Details zur %3$sNutzung</a> an."
 
 #: inc/options/install.php:274
 msgid "Rewrite Rules (based on active settings)"
@@ -9661,7 +9661,7 @@ msgid ""
 "Need help? Take a look at our %1$spremium support, customization and audit "
 "services%2$s."
 msgstr ""
-"Brauchen Sie Hilfe? Werfen Sie einen Blick auf unseren %1$Premium-Support, "
+"Brauchen Sie Hilfe? Werfen Sie einen Blick auf unseren %1$sPremium-Support, "
 "Anpassungs- und Prüfungsservices%2$s."
 
 #: inc/options/minify/csstidy2.php:9
@@ -10764,7 +10764,7 @@ msgstr ""
 "Indem wir uns erlauben, Daten darüber zu sammeln, wie W3 Total Cache "
 "verwendet wird, können wir unsere Funktionen und Erfahrungen für alle "
 "verbessern. Diese Daten enthalten keine persönlich identifizierbaren "
-"Informationen.%1$sLesen Sie unsere %2$Nutzungsbedingungen und "
+"Informationen.%1$sLesen Sie unsere %2$sNutzungsbedingungen und "
 "Datenschutzrichtlinie%3$s."
 
 #: Minify_ConfigLabels.php:7
@@ -11629,7 +11629,7 @@ msgstr ""
 "Indem wir uns erlauben, Daten darüber zu sammeln, wie W3 Total Cache "
 "verwendet wird, können wir unsere Funktionen und Erfahrungen für alle "
 "verbessern. Diese Daten enthalten keine personenbezogenen Daten. Lesen Sie "
-"unsere %1$Nutzungsbedingungen und Datenschutzrichtlinie%2$s."
+"unsere %1$sNutzungsbedingungen und Datenschutzrichtlinie%2$s."
 
 #. translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
 #: SetupGuide_Plugin_Admin.php:1119
