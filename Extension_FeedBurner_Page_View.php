@@ -6,17 +6,17 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <p>
-	Jump to:
+	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a>
 </p>
 <p>
-	FeedBurner extension is currently 
 	<?php
+	esc_html_e( 'FeedBurner extension is currently', 'w3-total-cache' );
 	if ( $config->is_extension_active_frontend( 'feedburner' ) ) {
-		echo '<span class="w3tc-enabled">enabled</span>';
+		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
 	} else {
-		echo '<span class="w3tc-disabled">disabled</span>';
+		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>';
 	}
 	?>
 	.

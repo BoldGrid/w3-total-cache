@@ -28,7 +28,8 @@ class UsageStatistics_Plugin_Admin {
 				'admin_init_w3tc_general'
 			) );
 
-		add_action( 'admin_print_scripts-performance_page_w3tc_stats', array(
+		// Translation is needed as prefix hooks for tranlsated menu/page titles changes the used hook for non-english.
+		add_action( 'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_stats', array(
 				'\W3TC\UsageStatistics_Page',
 				'admin_print_scripts_w3tc_stats'
 			) );

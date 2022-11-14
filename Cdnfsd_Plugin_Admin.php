@@ -8,7 +8,8 @@ class Cdnfsd_Plugin_Admin {
 
 		// attach to actions without firing class loading at all without need
 		if ( $cdnfsd_engine == 'cloudfront' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
+			// Translation is needed as prefix hooks for tranlsated menu/page titles changes the used hook for non-english.
+			add_action( 'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn', array(
 					'\W3TC\Cdnfsd_CloudFront_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
@@ -18,7 +19,8 @@ class Cdnfsd_Plugin_Admin {
 					'\W3TC\Cdnfsd_CloudFront_Page',
 					'w3tc_settings_box_cdnfsd' ) );
 		} elseif ( $cdnfsd_engine == 'limelight' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
+			// Translation is needed as prefix hooks for tranlsated menu/page titles changes the used hook for non-english.
+			add_action( 'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn', array(
 					'\W3TC\Cdnfsd_LimeLight_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
@@ -28,7 +30,8 @@ class Cdnfsd_Plugin_Admin {
 					'\W3TC\Cdnfsd_LimeLight_Page',
 					'w3tc_settings_box_cdnfsd' ) );
 		} elseif ( $cdnfsd_engine == 'maxcdn' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
+			// Translation is needed as prefix hooks for tranlsated menu/page titles changes the used hook for non-english.
+			add_action( 'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn', array(
 					'\W3TC\Cdnfsd_MaxCdn_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
@@ -38,7 +41,8 @@ class Cdnfsd_Plugin_Admin {
 					'\W3TC\Cdnfsd_MaxCdn_Page',
 					'w3tc_settings_box_cdnfsd' ) );
 		} elseif ( $cdnfsd_engine == 'stackpath' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
+			// Translation is needed as prefix hooks for tranlsated menu/page titles changes the used hook for non-english.
+			add_action( 'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn', array(
 					'\W3TC\Cdnfsd_StackPath_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
@@ -48,7 +52,8 @@ class Cdnfsd_Plugin_Admin {
 					'\W3TC\Cdnfsd_StackPath_Page',
 					'w3tc_settings_box_cdnfsd' ) );
 		} elseif ( $cdnfsd_engine == 'stackpath2' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
+			// Translation is needed as prefix hooks for tranlsated menu/page titles changes the used hook for non-english.
+			add_action( 'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn', array(
 					'\W3TC\Cdnfsd_StackPath2_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(

@@ -190,7 +190,21 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::postbox_header( esc_html__( 'Minify', 'w3-total-cache' ), '', 'minify' );
 		Util_Ui::config_overloading_button( array( 'key' => 'minify.configuration_overloaded' ) );
 		?>
-		<p><?php w3tc_e( 'minify.general.header', 'Reduce load time by decreasing the size and number of <acronym title="Cascading Style Sheet">CSS</acronym> and <acronym title="JavaScript">JS</acronym> files. Automatically remove unnecessary data from <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym>, feed, page and post <acronym title="Hypertext Markup Language">HTML</acronym>.' ); ?></p>
+		<p>
+			<?php
+			w3tc_e(
+				'minify.general.header',
+				sprintf(
+					// translators: 1 HTML acronym for Cascading Style Sheet (CSS), 2 HTML acronym for JavaScript (JS),
+					// translators: 3 HTML acronym for Hypertext Markup Language (HTML).
+					__( 'Reduce load time by decreasing the size and number of %1$s and %2$s files. Automatically remove unnecessary data from %1$s, %2$s, feed, page and post %3$s.', 'w3-total-cache' ),
+					'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . __( 'CSS', 'w3-total-cache' ) . '</acronym>',
+					'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">' . __( 'JS', 'w3-total-cache' ) . '</acronym>',
+					'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">' . __( 'HTML', 'w3-total-cache' ) . '</acronym>'
+				)
+			);
+			?>
+		</p>
 
 		<table class="form-table">
 			<?php
@@ -970,8 +984,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php
 					$this->checkbox_debug_pro(
 						'pgcache.debug_purge',
-						'Page Cache Purge Log',
-						' (<a href="?page=w3tc_general&view=purge_log&module=pagecache">view log</a>)'
+						__( 'Page Cache Purge Log', 'w3-total-cache' ),
+						' (<a href="?page=w3tc_general&view=purge_log&module=pagecache">' . __( 'view log', 'w3-total-cache' ) . '</a>)'
 					);
 					?>
 					<br />
@@ -979,8 +993,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php
 					$this->checkbox_debug_pro(
 						'dbcache.debug_purge',
-						'Database Cache Purge Log',
-						' (<a href="?page=w3tc_general&view=purge_log&module=dbcache">view log</a>)'
+						__( 'Database Cache Purge Log', 'w3-total-cache' ),
+						' (<a href="?page=w3tc_general&view=purge_log&module=dbcache">' . __( 'view log', 'w3-total-cache' ) . '</a>)'
 					);
 					?>
 					<br />
@@ -988,8 +1002,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php
 					$this->checkbox_debug_pro(
 						'objectcache.debug_purge',
-						'Object Cache Purge Log',
-						' (<a href="?page=w3tc_general&view=purge_log&module=objectcache">view log</a>)'
+						__( 'Object Cache Purge Log', 'w3-total-cache' ),
+						' (<a href="?page=w3tc_general&view=purge_log&module=objectcache">' . __( 'view log', 'w3-total-cache' ) . '</a>)'
 					);
 					?>
 					<br />

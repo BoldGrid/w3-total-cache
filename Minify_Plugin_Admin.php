@@ -31,8 +31,8 @@ class Minify_Plugin_Admin {
 				'w3tc_ajax_minify_help'
 			) );
 
-		// show note
-		add_action( 'admin_print_scripts-performance_page_w3tc_general',
+		// Show note. Translation is needed as prefix hooks for tranlsated menu/page titles changes the used hook for non-english.
+		add_action( 'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_general',
 			array( $this, 'admin_print_scripts_w3tc_general' ) );
 		add_action( 'w3tc_message_action_minify_help', array(
 				$this,

@@ -629,7 +629,7 @@ if ( ! defined( 'W3TC' ) ) {
 			Util_Ui::config_item(
 				array(
 					'key'              => 'minify.css.method',
-					'label'            => 'Minify method:',
+					'label'            => __( 'Minify method:', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
 						'both'    => array(
