@@ -53,6 +53,23 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	}
 
 	/**
+	 * Get cache multiple
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $ids  Array of IDs.
+	 * @param string $group Name of group.
+	 * @param bool   $force Force flag.
+	 *
+	 * @return mixed
+	 */
+	function wp_cache_get_multiple( $ids, $group = 'default', $force = false ) {
+		global $wp_object_cache;
+
+		return $wp_object_cache->get_multiple( $ids, $group, $force );
+	}
+
+	/**
 	 * Set cache
 	 *
 	 * @param string  $id
@@ -130,6 +147,22 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 		global $wp_object_cache;
 
 		return $wp_object_cache->flush();
+	}
+
+	/**
+	 * Removes all cache items from the runtime memory,
+	 * without flushing the persistent cache storage.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @global WP_Object_Cache $wp_object_cache Object cache global instance.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	function wp_cache_flush_runtime() {
+		global $wp_object_cache;
+
+		return $wp_object_cache->flush_runtime();
 	}
 
 	/**

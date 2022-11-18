@@ -244,6 +244,25 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
+	 * Get multiple from the cache
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param string $ids   IDs.
+	 * @param string $group Group.
+	 * @param bool   $force Force flag.
+	 *
+	 * @return mixed
+	 */
+	public function get_multiple( $ids, $group = 'default', $force = false ) {
+		$found_cache = array();
+		foreach ( $ids as $id ) {
+			$found_cache[ $id ] = $this->get( $id, $group, $force );
+		}
+		return $found_cache;
+	}
+
+	/**
 	 * Set to the cache
 	 *
 	 * @param string  $id
