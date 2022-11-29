@@ -8388,7 +8388,7 @@ msgstr "realizar un"
 
 #: Generic_Plugin.php:245 Root_AdminMenu.php:160 Root_AdminMenu.php:161
 msgid "Performance"
-msgstr "Actuación"
+msgstr "Rendimiento"
 
 #: Cdnfsd_Plugin_Admin.php:12 Cdnfsd_Plugin_Admin.php:23 
 #: Cdnfsd_Plugin_Admin.php:34 Cdnfsd_Plugin_Admin.php:45 
@@ -8400,7 +8400,7 @@ msgstr "Actuación"
 #: Minify_Plugin_Admin.php:35 PgCache_Plugin_Admin.php:40 
 #: UsageStatistics_Plugin_Admin.php:32
 msgid "performance"
-msgstr "actuación"
+msgstr "rendimiento"
 
 #: UsageStatistics_Page_DbRequests_View.php:16 
 #: UsageStatistics_Page_ObjectCacheLog_View.php:16 
