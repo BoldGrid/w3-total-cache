@@ -2428,7 +2428,7 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
-	'widget.pagespeed.w3key' => array(
+	'widget.pagespeed.w3tc_pagespeed_key' => array(
 		'type' => 'string',
 		'default' => ''
 	),

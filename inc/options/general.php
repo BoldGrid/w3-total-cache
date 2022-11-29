@@ -672,16 +672,16 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
 		$w3_pagespeed      = new PageSpeed_Api( $access_token_json );
 
-		$site_id    = Util_Http::generate_site_id();
-		$return_url = admin_url( 'admin.php?page=w3tc_general' );
-		$w3key      = ! empty( $this->_config->get_string( 'widget.pagespeed.w3key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3key' ) : '';
-		$auth_url   = $w3_pagespeed->client->createAuthUrl();
+		$site_id            = Util_Http::generate_site_id();
+		$return_url         = admin_url( 'admin.php?page=w3tc_general' );
+		$w3tc_pagespeed_key = ! empty( $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) : '';
+		$auth_url           = $w3_pagespeed->client->createAuthUrl();
 
-		$new_gacode      = Util_Request::get( 'w3tc_new_gacode' );
-		$new_w3key       = Util_Request::get( 'w3tc_new_w3key' );
-		$authorize_error = Util_Request::get( 'w3tc_authorize_error' );
-		if ( ! empty( $new_gacode ) && ! empty( $new_w3key ) ) {
-			$response = json_decode( $w3_pagespeed->process_authorization_response( $new_gacode, $new_w3key ), true );
+		$new_gacode             = Util_Request::get( 'w3tc_new_gacode' );
+		$new_w3tc_pagespeed_key = Util_Request::get( 'w3tc_new_w3tc_pagespeed_key' );
+		$authorize_error        = Util_Request::get( 'w3tc_authorize_error' );
+		if ( ! empty( $new_gacode ) && ! empty( $new_w3tc_pagespeed_key ) ) {
+			$response = json_decode( $w3_pagespeed->process_authorization_response( $new_gacode, $new_w3tc_pagespeed_key ), true );
 
 			if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
 				$response_error = sprintf(
@@ -735,7 +735,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 			if ( 'authorize-out-code-missing' === $authorize_error->error->id ) {
 				$message = __( 'No authorize code returned to W3-API from Google!', 'w3-total-cache' );
-			} elseif ( 'authorize-out-w3key-missing' === $authorize_error->error->id ) {
+			} elseif ( 'authorize-out-w3tc-pagespeed-key-missing' === $authorize_error->error->id ) {
 				$message = __( 'No W3Key return to W3-API from Google!', 'w3-total-cache' );
 			} elseif ( 'authorize-out-not-found' === $authorize_error->error->id ) {
 				$message = __( 'No W3-API matching record found during Google authorization return processing!', 'w3-total-cache' );
