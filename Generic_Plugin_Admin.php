@@ -102,10 +102,6 @@ class Generic_Plugin_Admin {
 				delete_transient( 'w3tc_message' );
 			}
 		}
-
-		// Should be in Support_PluginAdmin, but saving loading file by being here.
-		// Translation is needed as prefix hooks for tranlsated menu/page titles changes the used hook for non-english.
-		add_action( 'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_support', array( '\W3TC\Support_Page', 'admin_print_scripts_w3tc_support' ) );
 	}
 
 	/**
@@ -205,6 +201,178 @@ class Generic_Plugin_Admin {
 		// Special handling for deactivation link, it's plugins.php file.
 		if ( 'w3tc_deactivate_plugin' === Util_Request::get_string( 'action' ) ) {
 			Util_Activation::deactivate_plugin();
+		}
+
+		// These have been moved here as the admin_print_scripts-{$suffix} hook with translations won't take the user locale setting
+		// into account if it's called too soon, resulting in JS not loading.
+
+		// Translations are needed as the "prefix" used is based on the menu/page title, which is translated (11+ year old WP bug).
+
+		// Support page.
+		add_action(
+			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_support',
+			array(
+				'\W3TC\Support_Page',
+				'admin_print_scripts_w3tc_support',
+			)
+		);
+
+		// Minify.
+		add_action(
+			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_general',
+			array(
+				'\W3TC\Minify_Plugin_Admin',
+				'admin_print_scripts_w3tc_general',
+			)
+		);
+
+		// PageCache.
+		add_action(
+			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_pgcache',
+			array(
+				'\W3TC\PgCache_Page',
+				'admin_print_scripts_w3tc_pgcache',
+			)
+		);
+
+		// Extensions.
+		add_action(
+			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_extensions',
+			array(
+				'\W3TC\Extension_CloudFlare_Page',
+				'admin_print_scripts_w3tc_extensions',
+			)
+		);
+
+		// Usage Statistics.
+		add_action(
+			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_stats',
+			array(
+				'\W3TC\UsageStatistics_Page',
+				'admin_print_scripts_w3tc_stats',
+			)
+		);
+
+		$c             = Dispatcher::config();
+		$cdn_engine    = $c->get_string( 'cdn.engine' );
+		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
+
+		// CDN.
+		if ( 'google_drive' === $cdn_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdn_GoogleDrive_Page',
+					'admin_print_scripts_w3tc_cdn',
+				)
+			);
+		} elseif ( 'highwinds' === $cdn_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdn_Highwinds_Page',
+					'admin_print_scripts_w3tc_cdn',
+				)
+			);
+		} elseif ( 'limelight' === $cdn_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdn_LimeLight_Page',
+					'admin_print_scripts_w3tc_cdn',
+				)
+			);
+		} elseif ( 'maxcdn' === $cdn_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdn_MaxCdn_Page',
+					'admin_print_scripts_w3tc_cdn',
+				)
+			);
+		} elseif ( 'rackspace_cdn' === $cdn_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdn_RackSpaceCdn_Page',
+					'admin_print_scripts_w3tc_cdn',
+				)
+			);
+		} elseif ( 'rscf' === $cdn_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdn_RackSpaceCloudFiles_Page',
+					'admin_print_scripts_w3tc_cdn',
+				)
+			);
+		} elseif ( 'stackpath' === $cdn_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdn_StackPath_Page',
+					'admin_print_scripts_w3tc_cdn',
+				)
+			);
+		} elseif ( 'stackpath2' === $cdn_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdn_StackPath2_Page',
+					'admin_print_scripts_w3tc_cdn',
+				)
+			);
+		}
+
+		// CDNFSD.
+		if ( 'cloudflare' === $cdnfsd_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Extension_CloudFlare_Page',
+					'admin_print_scripts_w3tc_extensions',
+				)
+			);
+		} elseif ( 'cloudfront' === $cdnfsd_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdnfsd_CloudFront_Page',
+					'admin_print_scripts_performance_page_w3tc_cdn',
+				)
+			);
+		} elseif ( 'limelight' === $cdnfsd_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdnfsd_LimeLight_Page',
+					'admin_print_scripts_performance_page_w3tc_cdn',
+				)
+			);
+		} elseif ( 'maxcdn' === $cdnfsd_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdnfsd_MaxCdn_Page',
+					'admin_print_scripts_performance_page_w3tc_cdn',
+				)
+			);
+		} elseif ( 'stackpath' === $cdnfsd_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdnfsd_StackPath_Page',
+					'admin_print_scripts_performance_page_w3tc_cdn',
+				)
+			);
+		} elseif ( 'stackpath2' === $cdnfsd_engine ) {
+			add_action(
+				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				array(
+					'\W3TC\Cdnfsd_StackPath2_Page',
+					'admin_print_scripts_performance_page_w3tc_cdn',
+				)
+			);
 		}
 
 		$page_val = Util_Request::get_string( 'page' );

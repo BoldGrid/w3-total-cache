@@ -36,12 +36,6 @@ class PgCache_Plugin_Admin {
 					$this, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
 		}
 
-		// Translation is needed as prefix hooks for tranlsated menu/page titles changes the used hook for non-english.
-		add_action( 'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_pgcache', array(
-				'\W3TC\PgCache_Page',
-				'admin_print_scripts_w3tc_pgcache'
-			) );
-
 		// Cache groups.
 		add_action(
 			'w3tc_config_ui_save-w3tc_cachegroups',
