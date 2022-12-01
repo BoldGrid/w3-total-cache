@@ -102,7 +102,6 @@ class Extension_CloudFlare_Plugin_Admin {
 
 		// own settings page.
 		add_action( 'w3tc_extension_page_cloudflare', array( '\W3TC\Extension_CloudFlare_Page', 'w3tc_extension_page_cloudflare' ) );
-		add_action( 'admin_print_scripts-performance_page_w3tc_extensions', array( '\W3TC\Extension_CloudFlare_Page', 'admin_print_scripts_w3tc_extensions' ) );
 
 		add_action( 'w3tc_ajax', array( '\W3TC\Extension_CloudFlare_Popup', 'w3tc_ajax' ) );
 
@@ -110,7 +109,6 @@ class Extension_CloudFlare_Plugin_Admin {
 
 		if ( empty( $cdnfsd_engine ) || 'cloudflare' === $cdnfsd_engine ) {
 			add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Extension_CloudFlare_Page', 'w3tc_settings_box_cdnfsd' ) );
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array( '\W3TC\Extension_CloudFlare_Page', 'admin_print_scripts_w3tc_extensions' ) );
 		}
 
 		// add notices about api health.

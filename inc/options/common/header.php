@@ -179,7 +179,7 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_pgcache':
 			?>
 			<p id="w3tc-options-menu">
-				Jump to:
+				<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 				<a href="#toplevel_page_w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#mirrors"><?php esc_html_e( 'Mirrors', 'w3-total-cache' ); ?></a> |
@@ -360,7 +360,7 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_install':
 			?>
 			<p id="w3tc-options-menu">
-				Jump to:
+				<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 				<a href="#initial"><?php esc_html_e( 'Initial Installation', 'w3-total-cache' ); ?></a> |
 				<?php if ( count( $rewrite_rules_descriptors ) ) : ?>
 					<a href="#rules"><?php esc_html_e( 'Rewrite Rules', 'w3-total-cache' ); ?></a> |

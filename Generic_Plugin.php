@@ -119,8 +119,9 @@ class Generic_Plugin {
 	 * @return void
 	 */
 	function init() {
-		// Load plugin text domain.
-		load_plugin_textdomain( W3TC_TEXT_DOMAIN, false, plugin_basename( W3TC_DIR ) . '/languages/' );
+		// Load W3TC textdomain for translations.
+		$this->reset_l10n();
+		load_plugin_textdomain( W3TC_TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
 		if ( is_multisite() && ! is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
@@ -679,5 +680,26 @@ class Generic_Plugin {
 
 	public function pro_dev_mode() {
 		echo '<!-- W3 Total Cache is currently running in Pro version Development mode. --><div style="border:2px solid red;text-align:center;font-size:1.2em;color:red"><p><strong>W3 Total Cache is currently running in Pro version Development mode.</strong></p></div>';
+	}
+
+	/**
+	 * Reset the l10n global variables.
+	 *
+	 * @return void
+	 */
+	public function reset_l10n() {
+		global $l10n, $l10n_unloaded;
+
+		if ( is_array( $l10n ) ) {
+			foreach ( $l10n as $domain => $l10n_data ) {
+				unset( $l10n[ $domain ] );
+			}
+		}
+
+		if ( is_array( $l10n_unloaded ) ) {
+			foreach ( $l10n_unloaded as $domain => $l10n_unloaded_data ) {
+				unset( $l10n_unloaded[ $domain ] );
+			}
+		}
 	}
 }

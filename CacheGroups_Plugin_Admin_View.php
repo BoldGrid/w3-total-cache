@@ -56,7 +56,7 @@ if ( ! defined( 'W3TC' ) ) {
 						<td>
 							<span class="mobile_group_number"><?php echo esc_attr( $index ); ?>.</span> <span class="mobile_group"><?php echo esc_html( $group ); // phpcs:ignore ?></span>
 							<input type="button" class="button mobile_delete"
-								value="Delete group"
+								value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>"
 								<?php disabled( $useragent_groups['disabled'] ); ?> />
 						</td>
 					</tr>
@@ -259,7 +259,7 @@ if ( ! defined( 'W3TC' ) ) {
 							<span class="cookiegroup_number"><?php echo esc_attr( $index ); ?>.</span>
 							<span class="cookiegroup_name"><?php echo htmlspecialchars( $group ); // phpcs:ignore ?></span>
 							<input type="button" class="button w3tc_cookiegroup_delete"
-								value="Delete group"
+								value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>"
 								<?php disabled( $cookie_groups['disabled'] ); ?> />
 						</td>
 					</tr>

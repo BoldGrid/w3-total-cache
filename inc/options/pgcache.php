@@ -442,9 +442,9 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'                => '<acronym title="REpresentational State Transfer">REST</acronym> <acronym title="Application Programming Interface">API</acronym>',
 					'control'              => 'radiogroup',
 					'radiogroup_values'    => array(
-						''        => "Don't cache",
+						''        => __( 'Don\'t cache', 'w3-total-cache' ),
 						'cache'   => array(
-							'label'           => 'Cache',
+							'label'           => __( 'Cache', 'w3-total-cache' ),
 							'disabled'        => ! Util_Environment::is_w3tc_pro( $this->_config ),
 							'pro_feature'     => true,
 							'pro_excerpt'     => esc_html__( 'If you\'re using the WordPress API make sure to use caching to scale performance.', 'w3-total-cache' ),

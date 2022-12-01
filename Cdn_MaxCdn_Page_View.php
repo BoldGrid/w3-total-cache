@@ -9,8 +9,8 @@ if ( ! defined( 'W3TC' ) ) {
 	<tr>
 		<th style="width: 300px;"><label><?php esc_html_e( 'Create account:', 'w3-total-cache' ); ?></label></th>
 		<td>
-			<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_maxcdn_signup' ), 'w3tc' ) ); ?>" target="_blank" id="netdna-maxcdn-create-account" class="button-primary"><?php w3tc_e( 'cdn.maxcdn.signUpAndSave', 'Sign Up Now and save!' ); ?></a>
-			<p class="description"><?php w3tc_e( 'cdn.maxcdn.signUpAndSave.description', 'MaxCDN is a service that lets you speed up your site even more with W3 Total Cache. Sign up now to recieve a special offer!' ); ?></p>
+			<a href="<?php echo esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_maxcdn_signup' ), 'w3tc' ) ); ?>" target="_blank" id="netdna-maxcdn-create-account" class="button-primary"><?php w3tc_e( 'cdn.maxcdn.signUpAndSave', __( 'Sign Up Now and save!', 'w3-total-cache' ) ); ?></a>
+			<p class="description"><?php w3tc_e( 'cdn.maxcdn.signUpAndSave.description', __( 'MaxCDN is a service that lets you speed up your site even more with W3 Total Cache. Sign up now to recieve a special offer!', 'w3-total-cache' ) ); ?></p>
 		</td>
 	</tr>
 <?php endif ?>
