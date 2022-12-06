@@ -85,7 +85,7 @@ class PageSpeed_Widget {
 			'<div class="w3tc-widget-pagespeed-logo"></div>' .
 				'<div class="w3tc-widget-text">' . esc_html__( 'PageSpeed Report', 'w3-total-cache' ) . '</div>',
 			array( $this, 'widget_pagespeed' ),
-			Util_Ui::admin_url( 'admin.php?page=w3tc_general#miscellaneous' ),
+			Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ),
 			'normal'
 		);
 	}

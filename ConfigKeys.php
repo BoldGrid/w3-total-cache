@@ -2422,7 +2422,7 @@ $keys = array(
 	),
 	'widget.pagespeed.enabled' => array(
 		'type' => 'boolean',
-		'default' => true
+		'default' => false
 	),
 	'widget.pagespeed.access_token' => array(
 		'type' => 'string',

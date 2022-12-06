@@ -40,7 +40,7 @@ jQuery(document).ready(function($) {
 					return;
 			    } else if (data.missing_token) {
 					$('.w3tcps_buttons').addClass('w3tc_none');
-					$('#' + page_post_id).prev().find('.w3tcps_missing_token').html( data.notice );
+					$('#' + page_post_id).prev().find('.w3tcps_missing_token').html( data.missing_token );
 					$('#' + page_post_id).prev().find('.w3tcps_missing_token').removeClass( 'w3tc_none' );
 					return;
 				}
