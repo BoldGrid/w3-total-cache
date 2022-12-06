@@ -680,6 +680,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$new_gacode             = Util_Request::get( 'w3tc_new_gacode' );
 		$new_w3tc_pagespeed_key = Util_Request::get( 'w3tc_new_w3tc_pagespeed_key' );
 		$authorize_error        = Util_Request::get( 'w3tc_authorize_error' );
+
 		if ( ! empty( $new_gacode ) && ! empty( $new_w3tc_pagespeed_key ) ) {
 			$response = json_decode( $w3_pagespeed->process_authorization_response( $new_gacode, $new_w3tc_pagespeed_key ), true );
 

@@ -76,16 +76,11 @@ class PageSpeed_Api {
 		$this->client->setAccessType( 'offline' );
 		$this->client->setApprovalPrompt( 'force' );
 		$this->client->setDefer( true );
-		$this->reset();
+
 		if ( ! empty( $access_token_json ) ) {
 			$this->client->setAccessToken( $access_token_json );
 			$this->maybe_refresh_token();
 		}
-	}
-	public function reset() {
-		$this->config->set( 'widget.pagespeed.access_token', '' );
-		$this->config->set( 'widget.pagespeed.w3key', '' );
-		$this->config->save();
 	}
 	/**
 	 * Run PageSpeed API.
