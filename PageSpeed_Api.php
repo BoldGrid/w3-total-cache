@@ -591,4 +591,17 @@ class PageSpeed_Api {
 			delete_option( 'w3tcps_authorize_fail_message ' );
 		}
 	}
+
+	/**
+	 * Reset authentication.
+	 *
+	 * @since 2.3.0
+	 */
+	public function reset() {
+		$access_token = $this->client->getAccessToken();
+		$this->client->revokeToken( $access_token );
+		$this->config->set( 'widget.pagespeed.access_token', '' );
+		$this->config->set( 'widget.pagespeed.w3key', '' );
+		$this->config->save();
+	}
 }

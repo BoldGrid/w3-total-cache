@@ -680,6 +680,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$new_gacode             = Util_Request::get( 'w3tc_new_gacode' );
 		$new_w3tc_pagespeed_key = Util_Request::get( 'w3tc_new_w3tc_pagespeed_key' );
 		$authorize_error        = Util_Request::get( 'w3tc_authorize_error' );
+		$deauthorize            = Util_Request::get( 'w3tc_deauthorize' );
 
 		if ( ! empty( $new_gacode ) && ! empty( $new_w3tc_pagespeed_key ) ) {
 			$response = json_decode( $w3_pagespeed->process_authorization_response( $new_gacode, $new_w3tc_pagespeed_key ), true );
@@ -719,6 +720,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				);
 			}
 
+			wp_safe_redirect( $return_url );
+			exit;
+		} elseif ( $deauthorize ) {
+			$w3_pagespeed->reset();
+			update_option(
+				'w3tcps_authorize_success',
+				__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
+			);
 			wp_safe_redirect( $return_url );
 			exit;
 		} elseif ( ! empty( $authorize_error ) ) {
@@ -763,6 +772,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				<tr>
 					<th>
 						<label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?> <?php esc_html_e( 'Valid', 'w3-total-cache' ); ?></label>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						<a id="w3tc-google-deauthorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $return_url . '&w3tc_deauthorize=1' ); ?>"><?php esc_html_e( 'Deauthorize' ); ?></a>
 					</th>
 				</tr>
 				<?php
