@@ -15,14 +15,11 @@ Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_over
 		<?php
 		echo wp_kses(
 			sprintf(
-				w3tc_er(
-					'newrelic.general.header',
-					// translators: 1 opening HTML a tag to W3TC NewRelic Signup page, 2 closing HTML a tag,
-					// translators: 3 opening HTML a tag to NewRelic documentation for PHP, 4 closing HTML a tag.
-					__(
-						'New Relic may not be installed or not active on this server. %1$sSign up for a (free) account%2$s. Visit %3$sNew Relic%4$s for installation instructions.',
-						'w3-total-cache'
-					)
+				// translators: 1 opening HTML a tag to W3TC NewRelic Signup page, 2 closing HTML a tag,
+				// translators: 3 opening HTML a tag to NewRelic documentation for PHP, 4 closing HTML a tag.
+				__(
+					'New Relic may not be installed or not active on this server. %1$sSign up for a (free) account%2$s. Visit %3$sNew Relic%4$s for installation instructions.',
+					'w3-total-cache'
 				),
 				'<a href="' . esc_url( W3TC_NEWRELIC_SIGNUP_URL ) . '" target="_blank">',
 				'</a>',
