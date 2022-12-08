@@ -569,6 +569,18 @@ class Generic_Plugin_Admin {
 				add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 				add_action( 'network_admin_notices', array( $this, 'admin_notices' ) );
 			}
+
+			global $pagenow;
+			if ( ! $this->is_w3tc_page &&
+				(
+					! empty( Util_Request::get_string( 'w3tc_note' ) ) ||
+					! empty( Util_Request::get_string( 'w3tc_error' ) ) ||
+					! empty( Util_Request::get_string( 'w3tc_message' ) )
+				)
+			) {
+				// This is needed for admin notice buttons displayed on non-w3tc pages after actions via admin top menu.
+				add_action( 'admin_print_scripts-' . $pagenow, array( $this, 'admin_print_scripts' ) );
+			}
 		}
 	}
 
