@@ -103,7 +103,7 @@ class Extension_NewRelic_Service {
 				),
 				$os_name,
 				$os_version,
-				'<a href="https://docs.newrelic.com/docs/apm/agents/php-agent/getting-started/introduction-new-relic-php/" target="_blank">',
+				'<a href="https://docs.newrelic.com/docs/apm/agents/php-agent/getting-started/php-agent-compatibility-requirements/" target="_blank">',
 				'</a>'
 			);
 
@@ -147,7 +147,7 @@ class Extension_NewRelic_Service {
 				),
 				$ws_name,
 				$ws_version,
-				'<a href="https://docs.newrelic.com/docs/apm/agents/php-agent/getting-started/introduction-new-relic-php/" target="_blank">',
+				'<a href="https://docs.newrelic.com/docs/apm/agents/php-agent/getting-started/php-agent-compatibility-requirements/" target="_blank">',
 				'</a>'
 			);
 		return $verified;
