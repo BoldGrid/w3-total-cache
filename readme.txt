@@ -285,6 +285,9 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.2.9 =
+* Fix: Reset our textdomain for translations
+
 = 2.2.8 =
 * Fix: Escape output in compatibility checker, minify, and New Relic pages
 * Fix: Admin notice buttons on non-plugin pages
