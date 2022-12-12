@@ -683,23 +683,15 @@ class Generic_Plugin {
 	}
 
 	/**
-	 * Reset the l10n global variables.
+	 * Reset the l10n global variables for our text domain.
 	 *
 	 * @return void
+	 *
+	 * @since 2.2.8
 	 */
 	public function reset_l10n() {
-		global $l10n, $l10n_unloaded;
+		global $l10n;
 
-		if ( is_array( $l10n ) ) {
-			foreach ( $l10n as $domain => $l10n_data ) {
-				unset( $l10n[ $domain ] );
-			}
-		}
-
-		if ( is_array( $l10n_unloaded ) ) {
-			foreach ( $l10n_unloaded as $domain => $l10n_unloaded_data ) {
-				unset( $l10n_unloaded[ $domain ] );
-			}
-		}
+		unset( $l10n['w3-total-cache'] );
 	}
 }
