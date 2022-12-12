@@ -292,7 +292,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Translation issues due to hooks and typos
 * Fix: Broken JavaScript in admin_print_scripts calls when language is not English
 * Fix: Deprecated warnings in JS and CSS minify
-* Update: Translation file.
+* Update: Translation files
 
 = 2.2.7 =
 * Fix: Updated database cache connection class to avoid deprecated warnings in WordPress 6.1
