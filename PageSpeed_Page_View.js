@@ -119,10 +119,73 @@ jQuery(document).ready(function($) {
 		}
     }
 
+	/**
+	 * Copy full URL value.
+	 * 
+	 * @since 2.3.0
+	 *
+	 * @return void
+	 */
+	 function w3tcps_copyurl() {
+		var copyurl = $(this).attr('copyurl');
+
+		const message = document.createElement("span");
+		message.id = 'copyurl_result';
+		message.style.cssText = 'position:absolute;background:#ffffff;padding:0 5px;';
+
+		if (window.isSecureContext && navigator.clipboard) {
+			navigator.clipboard.writeText(copyurl).then(
+				function(){
+					message.style.cssText += 'border:2px solid #72aee6;';
+					message.textContent = "Coppied to clipboard";
+				},
+				function(){
+					message.style.cssText += 'border:2px solid #00a32a;';
+					message.textContent = 'Unable to copy to clipboard';
+				}
+			);
+		} else {
+			const textArea = document.createElement("textarea");			
+			textArea.id = 'copyurl_fallback';
+			textArea.style.cssText = 'position:absolute;left:-10000px;';
+  			textArea.value = copyurl;
+			$(this).append(textArea);
+  			textArea.focus();
+  			textArea.select();
+ 			try {
+    			document.execCommand('copy');
+				message.style.cssText += 'border:2px solid #72aee6;';
+				message.textContent = "Coppied to clipboard";
+  			} catch (err) {
+    			console.error('Unable to copy to clipboard', err);
+				message.style.cssText += 'border:2px solid #00a32a;';
+				message.textContent = 'Unable to copy to clipboard';
+  			}
+  			$('#copyurl_fallback').remove();
+		}
+		$(this).parent().prepend(message);
+		setTimeout(
+			function(){
+				$('#copyurl_result').remove();
+			},
+			2000
+		);
+    }
+
+	function showSnackBar() {
+		var sb = document.getElementById("snackbar");
+	  
+		//this is where the class name will be added & removed to activate the css
+		sb.className = "show";
+	  
+		setTimeout(()=>{ sb.className = sb.className.replace("show", ""); }, 3000);
+	  }
+
 	$(document).on('click', '.w3tcps_breakdown_items_toggle', w3tcps_breakdown_items_toggle);
 	$(document).on('click', '#w3tcps_control_mobile', w3tcps_mobile_toggle);
     $(document).on('click', '#w3tcps_control_desktop', w3tcps_desktop_toggle);
 	$(document).on('click', '.w3tcps_audit_filter', w3tcps_audit_filter);
+	$(document).on('click', '.copyurl', w3tcps_copyurl);
 
     $('.w3tcps_content').on('click', '.w3tcps_analyze', function() {
 		w3tcps_analyze($(this).closest('.page_post'),true);

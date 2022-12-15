@@ -25,7 +25,6 @@ class PageSpeed_Page {
 	 * @return void
 	 */
 	public function run() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'w3tc_ajax_pagespeed_data', array( $this, 'w3tc_ajax_pagespeed_data' ) );
 	}
 
@@ -34,16 +33,9 @@ class PageSpeed_Page {
 	 *
 	 * @since 2.3.0
 	 *
-	 * @param string $hook_suffix The current admin page.
-	 *
 	 * @return void
 	 */
-	public function enqueue_scripts( $hook_suffix ) {
-		// Only enqueue scripts/styles for GPS page.
-		if ( 'performance_page_w3tc_pagespeed' !== $hook_suffix ) {
-			return;
-		}
-
+	public static function admin_print_scripts_w3tc_pagespeed() {
 		wp_register_script(
 			'w3tc-pagespeed',
 			esc_url( plugin_dir_url( __FILE__ ) . 'PageSpeed_Page_View.js' ),

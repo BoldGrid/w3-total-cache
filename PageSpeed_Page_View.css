@@ -78,6 +78,10 @@
     padding: 8px 10px;
 }
 
+.w3tcps_breakdown_items_table .copyurl {
+	cursor: pointer;
+}
+
 .w3tcps_breakdown_items_table tr:nth-child(even) {
     background-color: hsla(210, 17%, 77%, 0.1);
 }

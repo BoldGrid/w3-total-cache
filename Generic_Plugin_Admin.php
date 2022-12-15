@@ -181,6 +181,22 @@ class Generic_Plugin_Admin {
 			Util_Activation::deactivate_plugin();
 		}
 
+		// PageSpeed page/widget.
+		add_action(
+			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_pagespeed',
+			array(
+				'\W3TC\PageSpeed_Page',
+				'admin_print_scripts_w3tc_pagespeed',
+			)
+		);
+		add_action(
+			'admin_print_scripts-toplevel_page_w3tc_dashboard',
+			array(
+				'\W3TC\PageSpeed_Widget',
+				'admin_print_scripts_w3tc_pagespeed_widget',
+			)
+		);
+
 		$page_val = Util_Request::get_string( 'page' );
 		if ( ! empty( $page_val ) ) {
 			do_action( 'admin_init_' . $page_val );

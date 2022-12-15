@@ -34,7 +34,7 @@ class PageSpeed_Instructions {
 						wp_kses(
 							sprintf(
 								// translators: 1 HTML a tag to W3TC minify JS admin page, 2 HTML a tag to W3TC minify CSS admin page.
-								__( 'W3TC can eliminate render blocking resources. Once Minified, you can deffer JS in the %1$s. Render blocking CSS can be eliminated in %2$s using the "Eliminate Render blocking CSS by moving it to HTTP body" (PRO FEATURE).', 'w3-total-cache' ),
+								__( 'W3 Total Cache can eliminate render blocking resources. Once Minified, you can defer JS in the %1$s. Render blocking CSS can be eliminated in %2$s using the "Eliminate Render blocking CSS by moving it to HTTP body" (PRO FEATURE).', 'w3-total-cache' ),
 								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; JS', 'w3-total-cache' ) . '</a> ',
 								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; CSS', 'w3-total-cache' ) . '</a>'
 							),
@@ -106,10 +106,10 @@ class PageSpeed_Instructions {
 					'instructions' => '<p>' . esc_html__( 'Enable lazy load for images.', 'w3-total-cache' ) . '</p>',
 				),
 				'uses-optimized-images'        => array(
-					'instructions' => '<p>' . esc_html__( 'Use W3TC Image Service to convert images to WebP.', 'w3-total-cache' ) . '</p>',
+					'instructions' => '<p>' . esc_html__( 'Use W3 Total Cache Image Service to convert media library images to WebP.', 'w3-total-cache' ) . '</p>',
 				),
 				'modern-image-formats'         => array(
-					'instructions' => '<p>' . esc_html__( 'Use W3TC Image Service to convert images to WebP.', 'w3-total-cache' ) . '</p>',
+					'instructions' => '<p>' . esc_html__( 'Use W3 Total Cache Image Service to convert media library images to WebP.', 'w3-total-cache' ) . '</p>',
 				),
 				'uses-text-compression'        => array(
 					'instructions' => '<p>' .
@@ -149,11 +149,11 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'Remember that combining multiple redirects into a single redirect is the most effective way to improve web performance.', 'w3-total-cache' ) . '</p>',
 				),
 				'uses-rel-preload'             => array(
-					'instructions' => '<p>' . esc_html__( 'JS and CSS - Use HTTP2/Push for W3TC Minified files', 'w3-total-cache' ) . '</p>
+					'instructions' => '<p>' . esc_html__( 'JS and CSS - Use HTTP2/Push for W3 Total Cache Minified files', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Preload fonts hosted on the server: ', 'w3-total-cache' ) . '<code>' . esc_html( '<link rel="preload" target="_blank" href="fontname" as="font" type="font/format" crossorigin>' ) . '</code></p>',
 				),
 				'efficient-animated-content'   => array(
-					'instructions' => '<p>' . esc_html__( 'Use W3TC Image Service to convert images to WebP.', 'w3-total-cache' ) . '</p>',
+					'instructions' => '<p>' . esc_html__( 'Use W3 Total Cache Image Service to convert media library images to WebP.', 'w3-total-cache' ) . '</p>',
 				),
 				'duplicated-javascript'        => array(
 					'instructions' => '<p>' . esc_html__( 'Incorporate good site building practices into your development workflow to ensure you avoid duplication of JavaScript modules in the first place.', 'w3-total-cache' ) . '</p>
@@ -188,7 +188,7 @@ class PageSpeed_Instructions {
 				'total-byte-weight'            => array(
 					'instructions' => '<p>' . esc_html__( 'Deffer or async the JS (Select  Non blocking using Defer or  Non blocking using async Embed method in W3 Total Cache Minify options before head and after body)', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Compress your HTML, CSS, and JavaScript files and minify your CSS and JavaScript to ensure your text-based resources are as small as they can be. W3 Total Cache Minify JS and CSS', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use Webp conversion in W3TC', 'w3-total-cache' ) . '</p>
+						<p>' . esc_html__( 'Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use Webp conversion in W3 Total Cache', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Use Browser Caching for static files and HTML  - 1 year for static files 1 hor for html', 'w3-total-cache' ) . '</p>',
 				),
 				'dom-size'                     => array(
@@ -243,9 +243,9 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'Debouncing your input handlers helps solve both of the above problems.', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Delay 3rd-party JS', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Reducing JavaScript execution time', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use W3TC Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</p>
+						<p>' . esc_html__( 'Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use W3 Total Cache Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Reducing CSS parsing time', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use W3TC Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</p>
+						<p>' . esc_html__( 'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use W3 Total Cache Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</p>
 						<p><a target="_blank" href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '" target="_blank">' . esc_html__( 'Only using compositor properties:', 'w3-total-cache' ) . '</a>' . esc_html__( 'Only using compositor properties <br/><br/>Stick to using compositor properties to keep events away from the main-thread. Compositor properties are run on a separate compositor thread, freeing the main-thread for longer and improving your page load performance.', 'w3-total-cache' ) . '</p>',
 				),
 				'third-party-summary'          => array(
@@ -271,7 +271,7 @@ class PageSpeed_Instructions {
 				),
 				'lcp-lazy-loaded'              => array(
 					'instructions' => '<p>' . esc_html__( 'Don\'t lazy load images that appear "above the fold" just use a standard ', 'w3-total-cache' ) . esc_html( '<img>' ) . esc_html__( ' or ', 'w3-total-cache' ) . esc_html( '<picture>' ) . esc_html__( '	element.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'Exclude the image from being lazy-loaded if the W3TC Lazy load is enabled in Performance &raquo; User Experience &raquo; Exclude words.', 'w3-total-cache' ) . '</p>',
+						<p>' . esc_html__( 'Exclude the image from being lazy-loaded if the W3 Total Cache Lazy load is enabled in Performance &raquo; User Experience &raquo; Exclude words.', 'w3-total-cache' ) . '</p>',
 				),
 				'uses-passive-event-listeners' => array(
 					'instructions' => '<p>' . esc_html__( 'Add a passive flag to every event listener that Lighthouse identified.', 'w3-total-cache' ) . '</p>
@@ -283,7 +283,7 @@ class PageSpeed_Instructions {
 				'no-document-write'            => array(
 					'instructions' => '<p>' . esc_html__( 'You can fix this audit by preferably eliminating document.write() altogether, wherever possible.', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Avoiding the use of document.write() should ideally be built into your development workflow so that your production website is optimized for web performance from the beginning.', 'w3-total-cache' ) . '</p> 
-						<p>' . esc_html__( 'Using W3TC JS Minify and deffering or using async may also help.', 'w3-total-cache' ) . '</p>',
+						<p>' . esc_html__( 'Using W3 Total Cache JS Minify and defering or using async may also help.', 'w3-total-cache' ) . '</p>',
 				),
 				'non-composited-animations'    => array(
 					'instructions' => '<p><a target="_blank" href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '" target="_blank">' . esc_html__( 'Only using compositor properties:', 'w3-total-cache' ) . '</a></p>
@@ -350,9 +350,9 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'If the cause is slow server response time:', 'w3-total-cache' ) . '</p>
 						<ul>
 							<li>' . esc_html__( 'Optimize your server.', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Route users to a nearby CDN. (W3TC CDN setup)', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Cache assets. (W3TC Page Caching, Minify)', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Serve HTML pages cache-first.  (W3TC Page Caching, )', 'w3-total-cache' ) . '</li>
+							<li>' . esc_html__( 'Route users to a nearby CDN. (W3 Total Cache CDN setup)', 'w3-total-cache' ) . '</li>
+							<li>' . esc_html__( 'Cache assets. (W3 Total Cache Page Caching, Minify)', 'w3-total-cache' ) . '</li>
+							<li>' . esc_html__( 'Serve HTML pages cache-first.  (W3 Total Cache Page Caching, )', 'w3-total-cache' ) . '</li>
 							<li>' . esc_html__( 'Establish third-party connections early.', 'w3-total-cache' ) . '</li>
 						</ul>
 						<br/>
@@ -407,7 +407,7 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'Delay 3rd-party JS', 'w3-total-cache' ) . '</p>
 						<ul>
 							<li>' . esc_html__( 'Reducing JavaScript execution time', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use W3TC Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</li>
+							<li>' . esc_html__( 'Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use W3 Total Cache Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</li>
 						</ul>
 						<br/>
 						<p>' . esc_html__( 'Only using compositor properties', 'w3-total-cache' ) . '</p>
@@ -418,7 +418,7 @@ class PageSpeed_Instructions {
 						<br/>
 						<p>' . esc_html__( 'Reducing CSS parsing time', 'w3-total-cache' ) . '</p>
 						<ul>
-							<li>' . esc_html__( 'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use W3TC Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</li>
+							<li>' . esc_html__( 'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use W3 Total Cache Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN', 'w3-total-cache' ) . '</li>
 						</ul>
 						<br/>
 						<p>' . esc_html__( 'Only using compositor properties', 'w3-total-cache' ) . '</p>

@@ -277,7 +277,7 @@ class Util_PageSpeed {
 				$items  .= '<tr class="w3tcps_passed_audit_item">';
 				if ( isset( $item['url'] ) ) {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
-					$items   .= '<td>...' . wp_parse_url( $item['url'] )['path'] . '</td>';
+					$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . $item['url'] . '"></span><span title="' . $item['url'] . '"> ...' . wp_parse_url( $item['url'] )['path'] . '</span></td>';
 				}
 				if ( isset( $item['totalBytes'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Total Bytes', 'w3-total-cache' ) . '</th>';
@@ -446,7 +446,7 @@ class Util_PageSpeed {
 				$items  .= '<tr class="w3tcps_passed_audit_item">';
 				if ( isset( $item['url'] ) ) {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
-					$items   .= '<td>...' . wp_parse_url( $item['url'] )['path'] . '</td>';
+					$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . $item['url'] . '"></span><span title="' . $item['url'] . '"> ...' . wp_parse_url( $item['url'] )['path'] . '</span></td>';
 				}
 				if ( isset( $item['totalBytes'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Total Bytes', 'w3-total-cache' ) . '</th>';
@@ -632,8 +632,10 @@ class Util_PageSpeed {
 				'class' => array(),
 			),
 			'span'  => array(
-				'id'    => array(),
-				'class' => array(),
+				'id'      => array(),
+				'class'   => array(),
+				'title'   => array(),
+				'copyurl' => array(),
 			),
 			'p'     => array(
 				'id'    => array(),

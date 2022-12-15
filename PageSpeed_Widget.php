@@ -25,7 +25,6 @@ class PageSpeed_Widget {
 	 * @return void
 	 */
 	public function run() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'w3tc_widget_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
 		add_action( 'w3tc_network_dashboard_setup', array( $this, 'wp_dashboard_setup' ), 3000 );
 		add_action( 'w3tc_ajax_pagespeed_widgetdata', array( $this, 'w3tc_ajax_pagespeed_widgetdata' ) );
@@ -36,16 +35,9 @@ class PageSpeed_Widget {
 	 *
 	 * @since 2.3.0
 	 *
-	 * @param string $hook_suffix The current admin page.
-	 *
 	 * @return void
 	 */
-	public function enqueue_scripts( $hook_suffix ) {
-		// Only enqueue scripts/styles for dashboard page.
-		if ( 'toplevel_page_w3tc_dashboard' !== $hook_suffix ) {
-			return;
-		}
-
+	public static function admin_print_scripts_w3tc_pagespeed_widget() {
 		wp_register_script(
 			'w3tc-widget-pagespeed',
 			plugins_url( 'PageSpeed_Widget_View.js', W3TC_FILE ),
