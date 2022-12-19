@@ -36,11 +36,6 @@ class PgCache_Plugin_Admin {
 					$this, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
 		}
 
-		add_action( 'admin_print_scripts-performance_page_w3tc_pgcache', array(
-				'\W3TC\PgCache_Page',
-				'admin_print_scripts_w3tc_pgcache'
-			) );
-
 		// Cache groups.
 		add_action(
 			'w3tc_config_ui_save-w3tc_cachegroups',

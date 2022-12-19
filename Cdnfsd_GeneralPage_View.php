@@ -5,34 +5,44 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
-<p><?php w3tc_e( 'cdnfsd.general.header', 'Host the entire website with your compatible <acronym title="Content Delivery Network">CDN</acronym> provider to reduce page load time.' ); ?>
-<?php if ( ! $cdnfsd_enabled ) : ?>
+<p>
 	<?php
-	wp_kses(
+	w3tc_e(
+		'cdnfsd.general.header',
 		sprintf(
-			// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-			// translators: 3 opening HTML a tag to W3TC MaxCDN Signup admin page, 4 closing HTML a tag.
-			__(
-				'If you do not have a %1$sCDN%2$s provider try StackPath. %3$sSign up now to enjoy a special offer!%4$s.',
-				'w3-total-cache'
-			),
-			'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-			'</acronym>',
-			'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_maxcdn_signup' ), 'w3tc' ) ) . '" target="_blank">',
-			'</a>'
-		),
-		array(
-			'acronym' => array(
-				'title' => array(),
-			),
-			'a'       => array(
-				'href'   => array(),
-				'target' => array(),
-			),
+			// translators: 1 HTML acronym for Content Delivery Network (CDN).
+			__( 'Host the entire website with your compatible %1$s provider to reduce page load time.', 'w3-total-cache' ),
+			'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
 		)
 	);
 	?>
-<?php endif; ?>
+	<?php if ( ! $cdnfsd_enabled ) : ?>
+		<?php
+		wp_kses(
+			sprintf(
+				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+				// translators: 3 opening HTML a tag to W3TC MaxCDN Signup admin page, 4 closing HTML a tag.
+				__(
+					'If you do not have a %1$sCDN%2$s provider try StackPath. %3$sSign up now to enjoy a special offer!%4$s.',
+					'w3-total-cache'
+				),
+				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+				'</acronym>',
+				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_maxcdn_signup' ), 'w3tc' ) ) . '" target="_blank">',
+				'</a>'
+			),
+			array(
+				'acronym' => array(
+					'title' => array(),
+				),
+				'a'       => array(
+					'href'   => array(),
+					'target' => array(),
+				),
+			)
+		);
+		?>
+	<?php endif; ?>
 </p>
 
 <table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">

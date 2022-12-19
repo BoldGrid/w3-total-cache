@@ -562,10 +562,25 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'          => '<acronym title="Hypertext Markup Language">HTTP</acronym>/2 push',
 					'control'        => 'checkbox',
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
-					'description'    => esc_html__( 'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Transfer Protocol">HTTP</acronym>/2 protocol.', 'w3-total-cache' ) .
-						(
-							'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ?
-							'' :
+					'description'    => wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag for HTTP (Hypertext Transfer Protocol), 2 closing HTML acronym tag.
+							__(
+								'For better performance, send files to browser before they are requested when using the %1$sHTTP%2$s/2 protocol.',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					) . (
+						'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ?
+						'' :
+						wp_kses(
 							sprintf(
 								// translators: 1 HTML line break tag followed by opening HTML b tag, 2 closing HTML b tag.
 								__(
@@ -574,7 +589,12 @@ if ( ! defined( 'W3TC' ) ) {
 								),
 								'<br /><b>',
 								'</b>'
+							),
+							array(
+								'br' => array(),
+								'b'  => array(),
 							)
+						)
 					),
 				)
 			);
@@ -629,7 +649,7 @@ if ( ! defined( 'W3TC' ) ) {
 			Util_Ui::config_item(
 				array(
 					'key'              => 'minify.css.method',
-					'label'            => 'Minify method:',
+					'label'            => __( 'Minify method:', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
 						'both'    => array(
@@ -819,6 +839,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'description'    => wp_kses(
 						sprintf(
+							// translators: 1 opening HTML acronym tag for HTTP (Hypertext Transfer Protocol), 2 closing HTML acronym tag.
 							__(
 								'For better performance, send files to browser before they are requested when using the %1$sHTTP%2$s/2 protocol.',
 								'w3-total-cache'

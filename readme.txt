@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.1
-Stable tag: 2.2.7
+Stable tag: 2.2.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,18 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.2.9 =
+* Fix: Reset our textdomain for translations
+
+= 2.2.8 =
+* Fix: Escape output in compatibility checker, minify, and New Relic pages
+* Fix: Admin notice buttons on non-plugin pages
+* Fix: Namespace on exception type in a minify class
+* Fix: Translation issues due to hooks and typos
+* Fix: Broken JavaScript in admin_print_scripts calls when language is not English
+* Fix: Deprecated warnings in JS and CSS minify
+* Update: Translation files
 
 = 2.2.7 =
 * Fix: Updated database cache connection class to avoid deprecated warnings in WordPress 6.1

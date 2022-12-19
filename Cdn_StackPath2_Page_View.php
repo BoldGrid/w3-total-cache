@@ -13,7 +13,11 @@ if ( ! defined( 'W3TC' ) ) {
 				<?php
 				w3tc_e(
 					'cdn.stackpath.widget.v2.no_cdn',
-					'W3 Total Cache has detected that you do not have a <acronym title="Content Delivery Network">CDN</acronym> configured'
+					sprintf(
+						// translators: 1 HTML acronym for Content Delivery Network (CDN).
+						__( 'W3 Total Cache has detected that you do not have a %1$s configured', 'w3-total-cache' ),
+						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+					)
 				);
 				?>
 			</p>
@@ -21,9 +25,16 @@ if ( ! defined( 'W3TC' ) ) {
 				<?php esc_html_e( 'Enhance your website Performance with StackPath\'s CDN services. StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $10 a month.', 'w3-total-cache' ); ?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL ); ?>" target="_blank" id="netdna-stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave', 'Sign Up Now and save!' ); ?></a>
+				<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL ); ?>" target="_blank" id="netdna-stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave', __( 'Sign Up Now and save!', 'w3-total-cache' ) ); ?></a>
 			</p>
-			<p class="description"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave.description', 'StackPath is a service that lets you speed up your site even more with W3 Total Cache. Sign up now to recieve a special offer!' ); ?></p>
+			<p class="description">
+				<?php
+				w3tc_e(
+					'cdn.stackpath2.signUpAndSave.description',
+					__( 'StackPath is a service that lets you speed up your site even more with W3 Total Cache. Sign up now to recieve a special offer!', 'w3-total-cache' )
+				);
+				?>
+			</p>
 		</td>
 	</tr>
 <?php endif; ?>
