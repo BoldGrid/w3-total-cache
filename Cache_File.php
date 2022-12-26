@@ -155,9 +155,11 @@ class Cache_File extends Cache_Base {
 		if ( !is_readable( $path ) )
 			return array( null, $has_old_data );
 
-		$fp = @fopen( $path, 'rb' );
-		if ( ! $fp || 4 > filesize( $path ) ) {
-			return array( null, $has_old_data );
+		if(file_exists($path)) {
+			$fp = @fopen( $path, 'rb' );
+			if ( ! $fp || 4 > filesize( $path ) ) {
+				return array( null, $has_old_data );
+			}
 		}
 
 		if ( $this->_locking )
