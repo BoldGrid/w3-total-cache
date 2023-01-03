@@ -270,12 +270,13 @@ function w3tc_flush_all( $extras = null ) {
 /**
  * Purges/Flushes post page.
  *
- * @param int   $post_id Post id.
- * @param array $extras  Exteas.
+ * @param int     $post_id Post id.
+ * @param boolean $force   Force flag (optional).
+ * @param array   $extras  Extras.
  */
-function w3tc_flush_post( $post_id, $extras = null ) {
+function w3tc_flush_post( $post_id, $force = false, $extras = null ) {
 	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->flush_post( $post_id, $extras );
+	$o->flush_post( $post_id, $force, $extras );
 }
 
 /**
@@ -324,11 +325,13 @@ function w3tc_pgcache_flush() {
 /**
  * Deprecated.  Shortcut for page post cache flush.
  *
- * @param int $post_id Post id.
+ * @param int     $post_id Post id.
+ * @param boolean $force Force flag (optional).
+ *
  * @return bool
  */
-function w3tc_pgcache_flush_post( $post_id ) {
-	return w3tc_flush_post( $post_id );
+function w3tc_pgcache_flush_post( $post_id, $force = false ) {
+	return w3tc_flush_post( $post_id, $force );
 }
 
 /**

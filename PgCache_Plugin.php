@@ -392,7 +392,7 @@ class PgCache_Plugin {
 	 *
 	 * @return boolean
 	 */
-	public function w3tc_flush_post( $post_id, $force ) {
+	public function w3tc_flush_post( $post_id, $force = false ) {
 		$pgcacheflush = Dispatcher::component( 'PgCache_Flush' );
 		$v            = $pgcacheflush->flush_post( $post_id, $force );
 
