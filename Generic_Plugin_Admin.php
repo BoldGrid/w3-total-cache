@@ -1123,6 +1123,10 @@ class Generic_Plugin_Admin {
 						'value'   => array(),
 					),
 					'p'     => array(),
+					'a'     => array(
+						'href'  => array(),
+						'class' => array(),
+					),
 				)
 			);
 		}
