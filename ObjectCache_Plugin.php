@@ -158,9 +158,13 @@ class ObjectCache_Plugin {
 		static $flushed = false;
 
 		if ( ! $flushed ) {
-			$flush = Dispatcher::component( 'CacheFlush' );
-			$flush->objectcache_flush();
-			$flushed = true;
+			if ( 'cron' === $option ) {
+				wp_cache_delete( $option );
+			} else {
+				$flush = Dispatcher::component( 'CacheFlush' );
+				$flush->objectcache_flush();
+				$flushed = true;
+			}
 		}
 	}
 
