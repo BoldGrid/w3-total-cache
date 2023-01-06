@@ -40,26 +40,21 @@ class ObjectCache_Plugin {
 			add_action( 'w3_objectcache_cleanup', array( $this, 'cleanup' ) );
 		}
 
-		if ( $this->_do_flush() ) {
-			add_action( 'clean_post_cache', array( $this, 'on_post_change' ), 0, 2 );
-		}
+		add_action( 'save_post', array( $this, 'on_post_change' ), 0, 2 );
+		add_action( 'delete_post', array( $this, 'on_post_change' ), 0, 2 );
 
-		if ( $this->_do_flush() ) {
-			add_action( 'comment_post', array( $this, 'on_comment_change' ), 0 );
-			add_action( 'edit_comment', array( $this, 'on_comment_change' ), 0 );
-			add_action( 'delete_comment', array( $this, 'on_comment_change' ), 0 );
-			add_action( 'wp_set_comment_status', array( $this, 'on_comment_status' ), 0, 2 );
-			add_action( 'trackback_post', array( $this, 'on_comment_change' ), 0 );
-			add_action( 'pingback_post', array( $this, 'on_comment_change' ), 0 );
-		}
+		add_action( 'comment_post', array( $this, 'on_comment_change' ), 0 );
+		add_action( 'edit_comment', array( $this, 'on_comment_change' ), 0 );
+		add_action( 'delete_comment', array( $this, 'on_comment_change' ), 0 );
+		add_action( 'wp_set_comment_status', array( $this, 'on_comment_status' ), 0, 2 );
+		add_action( 'trackback_post', array( $this, 'on_comment_change' ), 0 );
+		add_action( 'pingback_post', array( $this, 'on_comment_change' ), 0 );
 
 		add_action( 'switch_theme', array( $this, 'on_change' ), 0 );
 
-		if ( $this->_do_flush() ) {
-			add_action( 'updated_option', array( $this, 'on_change_option' ), 0, 1 );
-			add_action( 'added_option', array( $this, 'on_change_option' ), 0, 1 );
-			add_action( 'delete_option', array( $this, 'on_change_option' ), 0, 1 );
-		}
+		add_action( 'updated_option', array( $this, 'on_change_option' ), 0, 1 );
+		add_action( 'added_option', array( $this, 'on_change_option' ), 0, 1 );
+		add_action( 'delete_option', array( $this, 'on_change_option' ), 0, 1 );
 
 		add_action( 'edit_user_profile_update', array( $this, 'on_change_profile' ), 0 );
 
@@ -162,15 +157,15 @@ class ObjectCache_Plugin {
 	public function on_change_option( $option ) {
 		static $flushed = false;
 
-		/* // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 		if ( ! $flushed ) {
-			if ( 'cron' !== $option ) {
+			if ( 'cron' === $option ) {
+				wp_cache_delete( $option );
+			} else {
 				$flush = Dispatcher::component( 'CacheFlush' );
 				$flush->objectcache_flush();
 				$flushed = true;
 			}
 		}
-		*/
 	}
 
 	/**
@@ -328,17 +323,5 @@ class ObjectCache_Plugin {
 		}
 
 		return $sources;
-	}
-
-	/**
-	 * Returns flag for flushable.
-	 *
-	 * @return bool
-	 */
-	private function _do_flush() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
-		// TODO: Requires admin flush until OC can make changes in Admin backend.
-		return $this->_config->get_boolean( 'cluster.messagebus.enabled' )
-			|| $this->_config->get_boolean( 'objectcache.purge.all' )
-			|| defined( 'WP_ADMIN' );
 	}
 }
