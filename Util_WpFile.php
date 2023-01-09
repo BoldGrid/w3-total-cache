@@ -19,15 +19,18 @@ class Util_WpFile {
 	 * @param string $extra Extra markup for an error message.
 	 */
 	public static function ajax_check_credentials( $extra = null ) {
-		$access_type = get_filesystem_method();
+		// Ensure WP functions are available.
+		require_once ABSPATH . 'wp-load.php';
+
+		$access_type = \get_filesystem_method();
 		ob_start();
-		$credentials = request_filesystem_credentials(
-			site_url() . '/wp-admin/',
+		$credentials = \request_filesystem_credentials(
+			\site_url() . '/wp-admin/',
 			$access_type
 		);
 		ob_end_clean();
 
-		if ( false === $credentials || ! WP_Filesystem( $credentials ) ) {
+		if ( false === $credentials || ! \WP_Filesystem( $credentials ) ) {
 			global $wp_filesystem;
 
 			$status['error'] = sprintf(
@@ -41,12 +44,12 @@ class Util_WpFile {
 			);
 
 			// Pass through the error from WP_Filesystem if one was raised.
-			if ( $wp_filesystem instanceof WP_Filesystem_Base && is_wp_error( $wp_filesystem->errors ) &&
+			if ( $wp_filesystem instanceof WP_Filesystem_Base && \is_wp_error( $wp_filesystem->errors ) &&
 				$wp_filesystem->errors->has_errors() ) {
 					$status['error'] = esc_html( $wp_filesystem->errors->get_error_message() );
 			}
 
-			wp_send_json_error( $status );
+			\wp_send_json_error( $status );
 		}
 	}
 
@@ -284,19 +287,18 @@ class Util_WpFile {
 	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
 	 */
 	private static function request_filesystem_credentials( $method = '', $url = '', $context = false ) {
+		// Ensure WP functions are available.
+		require_once ABSPATH . 'wp-load.php';
+
 		if ( strlen( $url ) <= 0 ) {
-			$url = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+			$url = isset( $_SERVER['REQUEST_URI'] ) ? \esc_url_raw( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		}
 
 		$url = preg_replace( '/&w3tc_note=([^&]+)/', '', $url );
 
-		// Ensure request_filesystem_credentials() is available.
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/template.php';
-
 		$success = true;
 		ob_start();
-		if ( false === ( $creds = request_filesystem_credentials( $url, $method, false, $context, array() ) ) ) {
+		if ( false === ( $creds = \request_filesystem_credentials( $url, $method, false, $context, array() ) ) ) {
 			$success =  false;
 		}
 		$form = ob_get_contents();
@@ -304,8 +306,8 @@ class Util_WpFile {
 
 		ob_start();
 		// If first check failed try again and show error message
-		if ( !WP_Filesystem( $creds ) && $success ) {
-			request_filesystem_credentials( $url, $method, true, false, array() );
+		if ( ! \WP_Filesystem( $creds ) && $success ) {
+			\request_filesystem_credentials( $url, $method, true, false, array() );
 			$success =  false;
 			$form = ob_get_contents();
 		}
@@ -334,13 +336,12 @@ class Util_WpFile {
 	 */
 	static private function get_filesystem_credentials_form( $method = '', $url = '',
 		$context = false ) {
-		// Ensure request_filesystem_credentials() is available.
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/template.php';
+		// Ensure WP functions are available.
+		require_once ABSPATH . 'wp-load.php';
 
 		ob_start();
 		// If first check failed try again and show error message
-		request_filesystem_credentials( $url, $method, true, false, array() );
+		\request_filesystem_credentials( $url, $method, true, false, array() );
 		$success =  false;
 		$form = ob_get_contents();
 
