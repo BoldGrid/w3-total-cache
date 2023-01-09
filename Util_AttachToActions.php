@@ -22,8 +22,9 @@ class Util_AttachToActions {
 		$o = new Util_AttachToActions();
 
 		// posts.
+		add_action( 'pre_post_update', array( $o, 'on_pre_post_update' ), 0, 2 );
+		add_action( 'pre_trash_post', array( $o, 'on_post_change' ), 0, 2 );
 		add_action( 'save_post', array( $o, 'on_post_change' ), 0, 2 );
-		add_action( 'delete_post', array( $o, 'on_post_change' ), 0, 2 );
 
 		// comments.
 		add_action( 'comment_post', array( $o, 'on_comment_change' ), 0 );
@@ -50,6 +51,34 @@ class Util_AttachToActions {
 		if ( Util_Environment::is_wpmu() ) {
 			add_action( 'delete_blog', array( $o, 'on_change' ), 0 );
 		}
+	}
+
+	/**
+	 * Pre-Post changed action for published post changed to draft which invalidates the published URL.
+	 *
+	 * @param integer $post_id Post ID.
+	 * @param null    $post    Post.
+	 * @return void
+	 */
+	public function on_pre_post_update( $post_id, $post = null ) {
+		if ( is_null( $post ) ) {
+			$post = get_post( $post_id );
+		}
+
+		// if attachment changed - parent post has to be flushed
+		// since there are usually attachments content like title
+		// on the page (gallery).
+		if ( 'attachment' === $post['post_type'] ) {
+			$post_id = $post['post_parent'];
+			$post    = get_post( $post_id );
+		}
+
+		if ( 'draft' !== $post['post_status'] ) {
+			return;
+		}
+
+		$cacheflush = Dispatcher::component( 'CacheFlush' );
+		$cacheflush->flush_post( $post_id );
 	}
 
 	/**
