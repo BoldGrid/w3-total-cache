@@ -21,6 +21,15 @@ class ObjectCache_Plugin {
 	private $_config = null;
 
 	/**
+	 * If the object cache has been flushed.
+	 *
+	 * @since 2.2.10
+	 *
+	 * @var boolean
+	 */
+	private static $flushed = false;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -116,12 +125,10 @@ class ObjectCache_Plugin {
 	 * Change action
 	 */
 	public function on_change() {
-		static $flushed = false;
-
-		if ( ! $flushed ) {
+		if ( ! self::$flushed ) {
 			$flush = Dispatcher::component( 'CacheFlush' );
 			$flush->objectcache_flush();
-			$flushed = true;
+			self::$flushed = true;
 		}
 	}
 
@@ -132,9 +139,7 @@ class ObjectCache_Plugin {
 	 * @param mixed   $post Post.
 	 */
 	public function on_post_change( $post_id = 0, $post = null ) {
-		static $flushed = false;
-
-		if ( ! $flushed ) {
+		if ( ! self::$flushed ) {
 			if ( is_null( $post ) ) {
 				$post = $post_id;
 			}
@@ -145,7 +150,7 @@ class ObjectCache_Plugin {
 
 			$flush = Dispatcher::component( 'CacheFlush' );
 			$flush->objectcache_flush();
-			$flushed = true;
+			self::$flushed = true;
 		}
 	}
 
@@ -155,20 +160,18 @@ class ObjectCache_Plugin {
 	 * @param string $option Option key.
 	 */
 	public function on_change_option( $option ) {
-		static $flushed = false;
+		if ( 'cron' === $option ) {
+			wp_cache_delete( $option );
+		}
 
 		$do_flush = defined( 'WP_ADMIN' )
 			|| $this->_config->get_boolean( 'cluster.messagebus.enabled' )
 			|| $this->_config->get_boolean( 'objectcache.purge.all' );
 
-		if ( $do_flush && ! $flushed ) {
-			if ( 'cron' === $option ) {
-				wp_cache_delete( $option );
-			} else {
-				$flush = Dispatcher::component( 'CacheFlush' );
-				$flush->objectcache_flush();
-				$flushed = true;
-			}
+		if ( ! self::$flushed && $do_flush ) {
+			$flush = Dispatcher::component( 'CacheFlush' );
+			$flush->objectcache_flush();
+			self::$flushed = true;
 		}
 	}
 
@@ -178,9 +181,7 @@ class ObjectCache_Plugin {
 	 * @param integer $user_id User ID.
 	 */
 	public function on_change_profile( $user_id ) {
-		static $flushed = false;
-
-		if ( ! $flushed ) {
+		if ( ! self::$flushed ) {
 			if ( Util_Environment::is_wpmu() ) {
 				$blogs = get_blogs_of_user( $user_id, true );
 				if ( $blogs ) {
@@ -192,7 +193,7 @@ class ObjectCache_Plugin {
 			$flush = Dispatcher::component( 'CacheFlush' );
 			$flush->objectcache_flush();
 
-			$flushed = true;
+			self::$flushed = true;
 		}
 	}
 
