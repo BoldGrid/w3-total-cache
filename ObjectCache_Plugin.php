@@ -157,7 +157,11 @@ class ObjectCache_Plugin {
 	public function on_change_option( $option ) {
 		static $flushed = false;
 
-		if ( ! $flushed ) {
+		$do_flush = defined( 'WP_ADMIN' )
+			|| $this->_config->get_boolean( 'cluster.messagebus.enabled' )
+			|| $this->_config->get_boolean( 'objectcache.purge.all' );
+
+		if ( $do_flush && ! $flushed ) {
 			if ( 'cron' === $option ) {
 				wp_cache_delete( $option );
 			} else {
