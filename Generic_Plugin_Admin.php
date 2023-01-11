@@ -1061,7 +1061,7 @@ class Generic_Plugin_Admin {
 
 				$ftp_style = 'border: 1px solid black; background: white; ' .
 					'margin: 10px 30px 10px 30px; ' .
-					'padding: 10px; display: none';
+					'padding: 20px; max-width: 450px; display: none';
 
 				$ftp_form = str_replace( 'class="wrap"', '', $exs->credentials_form() );
 				$ftp_form = str_replace( '<form ', '<form name="w3tc_ftp_form" ', $ftp_form );
@@ -1074,14 +1074,14 @@ class Generic_Plugin_Admin {
 					'<table>' .
 					'<tr>' .
 						'<td>' . esc_html__( 'Please execute commands manually', 'w3-total-cache' ) . '</td>' .
-						'<td>' . Util_Ui::button( __( 'View required changes', 'w3-total-cache' ), '', 'w3tc-show-required-changes' ) . '</td>' .
+						'<td>' . Util_Ui::button( __( 'View required changes', 'w3-total-cache' ), '', 'w3tc-show-required-changes button' ) . '</td>' .
 					'</tr>' .
 					'<tr>' .
 						'<td>' . esc_html__( 'or use FTP form to allow ', 'w3-total-cache' ) .
 							'<strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong>' .
 							esc_html__( 'make it automatically.', 'w3-total-cache' ) .
 						'</td>' .
-						'<td>' . Util_Ui::button( 'Update via FTP', '', 'w3tc-show-ftp-form' ) . '</td>' .
+						'<td>' . Util_Ui::button( 'Update via FTP', '', 'w3tc-show-ftp-form button' ) . '</td>' .
 					'</tr>' .
 					'</table>' .
 					'<div class="w3tc-required-changes" style="' . $changes_style . '">' . $r['required_changes'] . '</div>' .
