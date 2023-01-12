@@ -62,7 +62,7 @@ class Util_AttachToActions {
 	 */
 	public function on_pre_post_update( $post_id, $post = null ) {
 		if ( is_null( $post ) ) {
-			$post = get_post( $post_id );
+			$post = get_post( $post_id, ARRAY_A );
 		}
 
 		// if attachment changed - parent post has to be flushed
