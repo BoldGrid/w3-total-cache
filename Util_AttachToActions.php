@@ -70,7 +70,7 @@ class Util_AttachToActions {
 		// on the page (gallery).
 		if ( 'attachment' === $post['post_type'] ) {
 			$post_id = $post['post_parent'];
-			$post    = get_post( $post_id );
+			$post    = get_post( $post_id, ARRAY_A );
 		}
 
 		if ( 'draft' !== $post['post_status'] ) {
