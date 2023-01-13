@@ -54,7 +54,7 @@ class Varnish_Plugin {
 	 *
 	 * @return mixed
 	 */
-	public function varnish_flush_post( $post_id, $force ) {
+	public function varnish_flush_post( $post_id, $force = false ) {
 		$varnishflush = Dispatcher::component( 'Varnish_Flush' );
 		$v = $varnishflush->flush_post( $post_id, $force );
 
