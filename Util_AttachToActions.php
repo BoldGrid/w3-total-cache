@@ -132,6 +132,18 @@ class Util_AttachToActions {
 	}
 
 	/**
+	 * Comment status action
+	 *
+	 * @param integer $comment_id Comment ID.
+	 * @param string  $status Status.
+	 */
+	public function on_comment_status( $comment_id, $status ) {
+		if ( 'approve' === $status || '1' === $status ) {
+			$this->on_comment_change( $comment_id );
+		}
+	}
+
+	/**
 	 * Change action
 	 */
 	public function on_change() {
