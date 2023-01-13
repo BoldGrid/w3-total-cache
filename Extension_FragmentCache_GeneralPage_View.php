@@ -23,7 +23,7 @@ Util_Ui::postbox_header( 'Fragment Cache', '', 'fragmentcache' );
 
 <?php
 Util_Ui::button_config_save(
-	'general_feedburner',
+	'general_fragmentcache',
 	'<input type="submit" name="w3tc_flush_fragmentcache" value="' . __( 'Empty cache', 'w3-total-cache' ) . '" class="button" />'
 );
 ?>
