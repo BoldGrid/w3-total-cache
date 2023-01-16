@@ -75,27 +75,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<th>
 					<?php $this->checkbox( 'pgcache.cache.feed' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.feed' ); ?></label>
-					<p class="description">
-						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML a tag to FeedBurner wiki, 2 closing HTML a tag.
-								__(
-									'Even if using a feed proxy service (like %1$sFeedBurner%2$s), enabling this option is still recommended.',
-									'w3-total-cache'
-								),
-								'<a href="' . esc_url( 'http://en.wikipedia.org/wiki/FeedBurner' ) . '" target="_blank">',
-								'</a>'
-							),
-							array(
-								'a' => array(
-									'href'   => array(),
-									'target' => array(),
-								),
-							)
-						);
-						?>
-					</p>
+					<p class="description"><?php esc_html_e( 'Even if using a feed proxy service enabling this option is still recommended.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<tr>
