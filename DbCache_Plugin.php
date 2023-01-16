@@ -38,19 +38,26 @@ class DbCache_Plugin {
 			add_action( 'w3_dbcache_cleanup', array( $this, 'cleanup' ) );
 		}
 
+		// Posts.
 		add_action( 'publish_phone', array( $this, 'on_change' ), 0 );
 		add_action( 'wp_trash_post', array( $this, 'on_post_change' ), 0 );
 		add_action( 'save_post', array( $this, 'on_post_change' ), 0 );
 		add_action( 'clean_post_cache', array( $this, 'on_post_change' ), 0, 2 );
+		add_action( 'delete_post', array( $this, 'on_post_change' ), 0 );
+
+		// Comments.
 		add_action( 'comment_post', array( $this, 'on_comment_change' ), 0 );
 		add_action( 'edit_comment', array( $this, 'on_comment_change' ), 0 );
 		add_action( 'delete_comment', array( $this, 'on_comment_change' ), 0 );
 		add_action( 'wp_set_comment_status', array( $this, 'on_comment_status' ), 0, 2 );
 		add_action( 'trackback_post', array( $this, 'on_comment_change' ), 0 );
 		add_action( 'pingback_post', array( $this, 'on_comment_change' ), 0 );
+
+		// Theme.
 		add_action( 'switch_theme', array( $this, 'on_change' ), 0 );
+
+		// Profile.
 		add_action( 'edit_user_profile_update', array( $this, 'on_change' ), 0 );
-		add_action( 'delete_post', array( $this, 'on_post_change' ), 0 );
 
 		if ( Util_Environment::is_wpmu() ) {
 			add_action( 'delete_blog', array( $this, 'on_change' ), 0 );
@@ -166,9 +173,7 @@ class DbCache_Plugin {
 	 * @param string  $status Status.
 	 */
 	public function on_comment_status( $comment_id, $status ) {
-		if ( 'approve' === $status || '1' === $status ) {
-			$this->on_comment_change( $comment_id );
-		}
+		$this->on_comment_change( $comment_id );
 	}
 
 	/**
