@@ -706,3 +706,8 @@ a > span.dashicons-external {
 td .w3tc-control-after span {
 	vertical-align: text-top;
 }
+
+.w3tc-ftp-form input[type="text"],
+.w3tc-ftp-form input[type="password"] {
+	width: 100%;
+}
