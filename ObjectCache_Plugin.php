@@ -226,7 +226,7 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Comment status action
+	 * Comment status action triggered by approve/spam/trash comment quick-links under items on the Comments admin page.
 	 *
 	 * @param integer $comment_id Comment ID.
 	 * @param string  $status Status.

@@ -116,7 +116,7 @@ class Util_AttachToActions {
 	}
 
 	/**
-	 * Comment change action
+	 * Comment status action triggered by approve/spam/trash comment quick-links under items on the Comments admin page.
 	 *
 	 * @param integer $comment_id Comment ID.
 	 */
