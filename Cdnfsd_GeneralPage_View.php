@@ -15,9 +15,8 @@ if ( ! defined( 'W3TC' ) ) {
 			'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
 		)
 	);
-	?>
-	<?php if ( ! $cdnfsd_enabled ) : ?>
-		<?php
+	
+	if ( ! $cdnfsd_enabled ) {
 		wp_kses(
 			sprintf(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
@@ -41,6 +40,7 @@ if ( ! defined( 'W3TC' ) ) {
 				),
 			)
 		);
+	}
 	?>
 </p>
 
