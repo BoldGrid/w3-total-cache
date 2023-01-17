@@ -19,8 +19,8 @@ class BrowserCache_Environment_Nginx {
 		return array(
 			array(
 				'filename' => Util_Rule::get_nginx_rules_path(),
-				'content' => $this->generate( $mime_types )
-			)
+				'content'  => $this->generate( $mime_types ),
+			),
 		);
 	}
 
