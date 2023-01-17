@@ -328,8 +328,6 @@ class ConfigCompiler {
 				is_array( $file_data['extensions.active'] ) ) {
 				if ( isset( $file_data['extensions.active']['cloudflare'] ) )
 					$active['cloudflare'] = 'w3-total-cache/Extension_CloudFlare_Plugin.php';
-				if ( isset( $file_data['extensions.active']['feedburner'] ) )
-					$active['feedburner'] = 'w3-total-cache/Extension_FeedBurner_Plugin.php';
 				if ( isset( $file_data['extensions.active']['genesis.theme'] ) )
 					$active['genesis.theme'] = 'w3-total-cache/Extension_Genesis_Plugin.php';
 				if ( isset( $file_data['extensions.active']['wordpress-seo'] ) )
@@ -384,7 +382,6 @@ class ConfigCompiler {
 		// extensions - kept in separate key now
 		$this->_set_if_exists_extension( $file_data, 'cloudflare' );
 		$this->_set_if_exists_extension( $file_data, 'genesis.theme' );
-		$this->_set_if_exists_extension( $file_data, 'feedburner' );
 
 		// fragmentcache to extension
 		if ( isset( $file_data['fragmentcache.enabled'] ) &&

@@ -97,6 +97,22 @@ case "${W3D_PHP_VERSION}" in
             apt-get install -y php8.0-redis
         fi
         ;;
+	"8.1") echo "Installing PHP 8.1"
+		add-apt-repository -y ppa:ondrej/php
+		apt-get update
+        apt-get install -y php8.1-common php8.1-cli php8.1-mysql php8.1-curl php8.1-xml
+        update-alternatives --set php /usr/bin/php8.1
+
+        if [ "$W3D_APC" = "apcu" ]; then
+            apt-get install -y php8.1-apcu
+        fi
+        if [ "$W3D_MEMCACHE" = "memcached" ]; then
+            apt-get install -y php8.1-memcached
+        fi
+        if [ "$W3D_REDIS" = "redis" ]; then
+            apt-get install -y php8.1-redis
+        fi
+        ;;
     *)
         echo "W3D_PHP_VERSION not met conditions, do nothing..... ${W3D_PHP_VERSION}"
         ;;

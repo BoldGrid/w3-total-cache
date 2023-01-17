@@ -78,6 +78,15 @@ describe('', function() {
 	});
 
 
+	it('Fix DbCache_WpdbBase.php for WP >= 6.1', async() => {
+		// Prevent deprecated error on older version of W3TC in WP >= 6.1.
+		if (parseFloat(env.wpVersion) >= 6.1) {
+			log.log('Fixing DbCache_WpdbBase.php for WP >= 6.1 (' + env.wpVersion + ')...');
+			await exec('cp -pf /share/w3tc/DbCache_WpdbBase.php ' + env.wpPluginsPath + 'w3-total-cache/');
+		}
+	});
+
+
 
 	it('activate w3tc', async() => {
 		await wp.networkActivatePlugin(adminPage, 'w3-total-cache/w3-total-cache.php');

@@ -430,7 +430,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<ul>
 			<?php
 			foreach ( $additional_checks as $check ) :
-				echo '<li>' . esc_html( $check ) . '</li>';
+				echo '<li>' . wp_kses( $check, Util_Ui::get_allowed_html_for_wp_kses_from_content( $check ) ) . '</li>';
 			endforeach;
 			?>
 		</ul>

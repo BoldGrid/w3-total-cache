@@ -11,6 +11,7 @@ def ssh(host, cmd):
 	v = shell_silent([
 		'timeout', '600',
 		'ssh', host,
+		'-i', '~/.ssh/key-aws-w3tcqa.pem',
 		'-o', 'StrictHostKeyChecking=no',
 		'-o', 'UserKnownHostsFile=./working/hosts',
 		cmd])
@@ -27,6 +28,7 @@ def scp(host_src, src, host_dst, dst):
 		host_dst = host_dst + ':'
 
 	v = shell2('scp ' +
+		'-i ~/.ssh/key-aws-w3tcqa.pem ' +
 		'-o StrictHostKeyChecking=no ' +
 		'-o UserKnownHostsFile=./working/hosts -r ' +
 		host_src + src + ' ' + host_dst + dst)

@@ -286,7 +286,6 @@ class Generic_AdminActions_Default {
 		if ( 'w3tc_minify' === $this->_page ) {
 			if ( ( $this->_config->get_boolean( 'minify.js.http2push' ) && ! $config->get_boolean( 'minify.js.http2push' ) ) ||
 			( $this->_config->get_boolean( 'minify.css.http2push' ) && ! $config->get_boolean( 'minify.css.http2push' ) ) ) {
-
 				if ( 'file_generic' === $config->get_string( 'pgcache.engine' ) ) {
 					$cache_dir = Util_Environment::cache_blog_dir( 'page_enhanced' );
 					$this->_delete_all_htaccess_files( $cache_dir );
@@ -577,8 +576,7 @@ class Generic_AdminActions_Default {
 			return;
 		}
 
-		$file = readdir( $handle );
-		while ( false !== $file ) {
+		while ( false !== ( $file = readdir( $handle ) ) ) {
 			if ( '.' === $file || '..' === $file ) {
 				continue;
 			}
@@ -587,7 +585,7 @@ class Generic_AdminActions_Default {
 				$this->_delete_all_htaccess_files( $file );
 				continue;
 			} elseif ( '.htaccess' === $file ) {
-				@unlink( $file );
+				@unlink( $dir . '/' . $file );
 			}
 		}
 

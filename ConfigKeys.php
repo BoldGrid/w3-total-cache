@@ -1368,6 +1368,10 @@ $keys = array(
 		'type' => 'string',
 		'default' => 'auto'
 	),
+	'cdn.s3.public_objects' => array(
+		'type'    => 'string',
+		'default' => 'enabled',
+	),
 
 	'cdn.s3_compatible.api_host' => array(
 		'type' => 'string',

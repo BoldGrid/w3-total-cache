@@ -16,8 +16,14 @@ if ( ! defined( 'W3TC_DIR' ) ) {
  */
 if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php' ) ) {
 	if ( ! defined( 'WP_ADMIN' ) ) {
+		global $wp_version;
+
 		// lets don't show error on front end.
-		require_once ABSPATH . WPINC . '/wp-db.php';
+		if ( version_compare( $wp_version, '6.1-beta1', '>=' ) ) {
+			require_once ABSPATH . WPINC . '/class-wpdb.php';
+		} else {
+			require_once ABSPATH . WPINC . '/wp-db.php';
+		}
 	} else {
 		echo wp_kses(
 			sprintf(

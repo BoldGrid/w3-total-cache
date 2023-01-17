@@ -28,17 +28,11 @@ class Cdn_Plugin_Admin {
 
 		// attach to actions without firing class loading at all without need
 		if ( $cdn_engine == 'google_drive' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
-					'\W3TC\Cdn_GoogleDrive_Page',
-					'admin_print_scripts_w3tc_cdn' ) );
 			add_action( 'w3tc_settings_cdn_boxarea_configuration', array(
 					'\W3TC\Cdn_GoogleDrive_Page',
 					'w3tc_settings_cdn_boxarea_configuration'
 				) );
 		} elseif ( $cdn_engine == 'highwinds' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
-					'\W3TC\Cdn_Highwinds_Page',
-					'admin_print_scripts_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
 					'\W3TC\Cdn_Highwinds_Popup',
 					'w3tc_ajax' ) );
@@ -52,9 +46,6 @@ class Cdn_Plugin_Admin {
 					'\W3TC\Cdn_Highwinds_Page',
 					'w3tc_settings_cdn_boxarea_configuration' ) );
 		} elseif ( $cdn_engine == 'limelight' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
-					'\W3TC\Cdn_LimeLight_Page',
-					'admin_print_scripts_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
 					'\W3TC\Cdn_LimeLight_Popup',
 					'w3tc_ajax' ) );
@@ -63,9 +54,6 @@ class Cdn_Plugin_Admin {
 					'w3tc_settings_cdn_boxarea_configuration'
 				) );
 		} elseif ( $cdn_engine == 'maxcdn' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
-					'\W3TC\Cdn_MaxCdn_Page',
-					'admin_print_scripts_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
 					'\W3TC\Cdn_MaxCdn_Popup',
 					'w3tc_ajax' ) );
@@ -77,9 +65,6 @@ class Cdn_Plugin_Admin {
 			add_filter( 'w3tc_admin_actions', array(
 					'\W3TC\Cdn_RackSpaceCdn_Page',
 					'w3tc_admin_actions' ) );
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
-					'\W3TC\Cdn_RackSpaceCdn_Page',
-					'admin_print_scripts_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
 					'\W3TC\Cdn_RackSpaceCdn_Popup',
 					'w3tc_ajax' ) );
@@ -87,9 +72,6 @@ class Cdn_Plugin_Admin {
 					'\W3TC\Cdn_RackSpaceCdn_Page',
 					'w3tc_settings_cdn_boxarea_configuration' ) );
 		} elseif ( $cdn_engine == 'rscf' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
-					'\W3TC\Cdn_RackSpaceCloudFiles_Page',
-					'admin_print_scripts_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
 					'\W3TC\Cdn_RackSpaceCloudFiles_Popup',
 					'w3tc_ajax' ) );
@@ -97,9 +79,6 @@ class Cdn_Plugin_Admin {
 					'\W3TC\Cdn_RackSpaceCloudFiles_Page',
 					'w3tc_settings_cdn_boxarea_configuration' ) );
 		} elseif ( $cdn_engine == 'stackpath' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
-					'\W3TC\Cdn_StackPath_Page',
-					'admin_print_scripts_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
 					'\W3TC\Cdn_StackPath_Popup',
 					'w3tc_ajax' ) );
@@ -114,9 +93,6 @@ class Cdn_Plugin_Admin {
 					'\W3TC\Cdn_StackPath_Widget',
 					'w3tc_ajax_cdn_stackpath_widgetdata' ) );
 		} elseif ( $cdn_engine == 'stackpath2' ) {
-			add_action( 'admin_print_scripts-performance_page_w3tc_cdn', array(
-					'\W3TC\Cdn_StackPath2_Page',
-					'admin_print_scripts_w3tc_cdn' ) );
 			add_action( 'w3tc_ajax', array(
 					'\W3TC\Cdn_StackPath2_Popup',
 					'w3tc_ajax' ) );

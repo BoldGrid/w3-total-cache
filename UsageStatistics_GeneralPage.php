@@ -20,7 +20,10 @@ class UsageStatistics_GeneralPage {
 
 
 	public function w3tc_settings_general_anchors( $anchors ) {
-		$anchors[] = array( 'id' => 'stats', 'text' => 'Statistics' );
+		$anchors[] = array(
+			'id'   => 'stats',
+			'text' => __( 'Statistics', 'w3-total-cache' ),
+		);
 		return $anchors;
 	}
 

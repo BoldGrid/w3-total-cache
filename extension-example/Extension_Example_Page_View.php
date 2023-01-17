@@ -6,11 +6,11 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <p>
-	Jump to:
+	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a>
 </p>
-<p>Example extension is currently <span class="w3tc-enabled">enabled</span></p>
+<p><?php esc_html_e( 'Example extension is currently ', 'w3-total-cache' ); ?><span class="w3tc-enabled"><?php esc_html_e( 'enabled', 'w3-total-cache' ); ?></span></p>
 
 <div class="metabox-holder">
 <?php

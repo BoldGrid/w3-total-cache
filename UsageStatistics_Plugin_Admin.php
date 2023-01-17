@@ -28,11 +28,6 @@ class UsageStatistics_Plugin_Admin {
 				'admin_init_w3tc_general'
 			) );
 
-		add_action( 'admin_print_scripts-performance_page_w3tc_stats', array(
-				'\W3TC\UsageStatistics_Page',
-				'admin_print_scripts_w3tc_stats'
-			) );
-
 		add_action( 'w3tc_config_ui_save', array(
 				$this,
 				'w3tc_config_ui_save'
