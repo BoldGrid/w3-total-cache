@@ -99,7 +99,7 @@ exports.restoreStateW3tcInactive = async function() {
 
 exports.afterRulesChange = async function() {
 	if (process.env['W3D_HTTP_SERVER'] == 'nginx' ||
-			process.env['W3D_HTTP_SERVER'] == 'lightspeed') {
+			process.env['W3D_HTTP_SERVER'] == 'litespeed') {
 		log.log('Restarting http server after rules change');
 		const r = await exec('/share/scripts/restart-http.rb');
 		expect(r.stdout).contains('restartHttpSuccess');
