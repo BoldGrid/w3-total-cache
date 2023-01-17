@@ -282,14 +282,6 @@ class Generic_Plugin_Admin {
 					'admin_print_scripts_w3tc_cdn',
 				)
 			);
-		} elseif ( 'maxcdn' === $cdn_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdn_MaxCdn_Page',
-					'admin_print_scripts_w3tc_cdn',
-				)
-			);
 		} elseif ( 'rackspace_cdn' === $cdn_engine ) {
 			add_action(
 				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
@@ -346,14 +338,6 @@ class Generic_Plugin_Admin {
 				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdnfsd_LimeLight_Page',
-					'admin_print_scripts_performance_page_w3tc_cdn',
-				)
-			);
-		} elseif ( 'maxcdn' === $cdnfsd_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdnfsd_MaxCdn_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn',
 				)
 			);

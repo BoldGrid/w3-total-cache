@@ -92,11 +92,6 @@ class Root_Loader {
 			$plugins[] = new Cdn_Plugin_Admin();
 			$plugins[] = new Cdnfsd_Plugin_Admin();
 
-			$cdn_engine = $c->get_string( 'cdn.engine' );
-			if ( 'maxcdn' === $cdn_engine ) {
-				$plugins[] = new Cdn_Plugin_WidgetMaxCdn();
-			}
-
 			if ( $c->get_boolean( 'widget.pagespeed.enabled' ) ) {
 				$plugins[] = new PageSpeed_Plugin_Widget();
 			}

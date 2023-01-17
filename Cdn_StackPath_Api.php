@@ -2,7 +2,7 @@
 namespace W3TC;
 
 require_once(W3TC_LIB_DIR . '/OAuth/W3tcOAuth.php');
-require_once(W3TC_LIB_DIR . '/NetDNA/W3tcWpHttpException.php');
+require_once(W3TC_LIB_NETDNA_DIR . '/W3tcWpHttpException.php');
 
 /**
  * StackPath REST Client Library
@@ -11,7 +11,7 @@ class Cdn_StackPath_Api {
 	private $alias;
 	private $key;
 	private $secret;
-	private $netdnarws_url = 'https://api.stackpath.com/v1';
+	private $stackpath_api_url = 'https://api.stackpath.com/v1';
 
 
 
@@ -49,7 +49,7 @@ class Cdn_StackPath_Api {
 		$consumer = new \W3tcOAuthConsumer( $this->key, $this->secret, NULL );
 
 		// the endpoint for your request
-		$endpoint = "$this->netdnarws_url/$this->alias$selected_call";
+		$endpoint = "$this->stackpath_api_url/$this->alias$selected_call";
 
 		//parse endpoint before creating OAuth request
 		$parsed = parse_url( $endpoint );

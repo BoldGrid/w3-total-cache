@@ -97,13 +97,6 @@
     background: url("pub/img/w3tc_google-logo.png") 0 3px no-repeat;
 }
 
-.w3tc-widget-maxcdn-logo {
-    width: 150px;
-    height: 35px;
-    background: url("pub/img/w3tc_maxcdn-logo.png") 0 5px no-repeat;
-    float: left;
-}
-
 .w3tc-widget-boldgrid-logo {
 	width: 70%;
     height: 100%;
@@ -146,9 +139,6 @@
     }
     .w3tc_generic_widgetservice_label {
         display: inline;
-    }
-    #cdn_maxcdn_authorization_key {
-        width: 100%;
     }
 }
 

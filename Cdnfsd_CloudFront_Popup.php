@@ -34,8 +34,7 @@ class Cdnfsd_CloudFront_Popup {
 	private function render_intro( $details ) {
 		$config = Dispatcher::config();
 		$url_obtain_key = Util_Ui::url( array(
-				'page' => 'w3tc_dashboard',
-				'w3tc_cdn_maxcdn_authorize' => 'y'
+				'page' => 'w3tc_dashboard'
 			) );
 
 		include  W3TC_DIR . '/Cdnfsd_CloudFront_Popup_View_Intro.php';

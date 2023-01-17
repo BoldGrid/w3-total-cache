@@ -408,7 +408,6 @@ class Cdn_AdminActions {
 			if ( $engine == 'google_drive' ||
 				$engine == 'highwinds' ||
 				$engine == 'limelight' ||
-				$engine == 'maxcdn' ||
 				$engine == 'stackpath' ||
 				$engine == 'transparentcdn' ||
 				$engine == 'stackpath2' ||
@@ -506,27 +505,5 @@ class Cdn_AdminActions {
 			$code = wp_remote_retrieve_response_code( $response );
 			return 200 == $code;
 		}
-	}
-
-
-
-	function w3tc_cdn_maxcdn_authorize() {
-		try {
-			$state = Dispatcher::config_state();
-			if ( $state->get_integer( 'track.maxcdn_authorize', 0 ) == 0 ) {
-				$state->set( 'track.maxcdn_authorize', time() );
-				$state->save();
-			}
-		} catch ( \Exception $ex ) {}
-		Util_Environment::redirect( W3TC_MAXCDN_AUTHORIZE_URL );
-	}
-
-	function w3tc_cdn_maxcdn_signup() {
-		try {
-			$state = Dispatcher::config_state();
-			$state->set( 'track.maxcdn_signup', time() );
-			$state->save();
-		} catch ( \Exception $ex ) {}
-		Util_Environment::redirect( W3TC_MAXCDN_SIGNUP_URL );
 	}
 }
