@@ -81,7 +81,6 @@ class Cdn_Plugin {
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
 
 		if ( is_admin() ) {
-			add_action( 'w3tc_config_ui_save-w3tc_cdn', array( $this, 'change_canonical_header' ), 0, 0 );
 			add_filter( 'w3tc_module_is_running-cdn', array( $this, 'cdn_is_running' ) );
 		}
 
