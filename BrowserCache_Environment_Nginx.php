@@ -15,7 +15,7 @@ class BrowserCache_Environment_Nginx {
 
 
 
-	public function get_required_rules( $mime_types) {
+	public function get_required_rules( $mime_types ) {
 		return array(
 			array(
 				'filename' => Util_Rule::get_nginx_rules_path(),
