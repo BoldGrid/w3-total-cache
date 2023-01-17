@@ -181,13 +181,5 @@ only screen and (                min-resolution: 2dppx)  {
         background-image: url("pub/img/w3tc_google-logo-retina.png");
         background-size: 97px 33px;
     }
-
-    .w3tc-widget-netdna-logo {
-        float: left;
-        width: 180px;
-        height: 90px;
-        background-image: url("pub/img/w3tc_netdna-logo-retina.png");
-        background-size: 177px 90px;
-    }
 }
 */

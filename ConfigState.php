@@ -50,6 +50,7 @@ namespace W3TC;
  *   objectcache.show_note.flush_needed
  *   objectcache.show_note.flush_needed.timestamp - when the note was set
  *   extension.<extension_id>.hide_note_suggest_activation
+ *   track.stackpath_signup
  */
 class ConfigState {
 	private $_data;
