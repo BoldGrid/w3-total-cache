@@ -11,12 +11,13 @@ class Cdn_AdminNotes {
 	 * @return array
 	 */
 	public function w3tc_notes( $notes ) {
-		$config = Dispatcher::config();
-		$state = Dispatcher::config_state();
-
+		$config     = Dispatcher::config();
+		$state      = Dispatcher::config_state();
+		$cdn_engine = $config->get_string( 'cdn.engine' );
+		
 		$page = Util_Request::get_string( 'page' );
 
-		if ( !Cdn_Util::is_engine_mirror( $config->get_string( 'cdn.engine' ) ) ) {
+		if ( !Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
 			/**
 			 * Show notification after theme change
 			 */
@@ -121,6 +122,18 @@ class Cdn_AdminNotes {
 						'w3tc_default_config_state' => 'y',
 						'key' => 'cdn.hide_note_no_curl',
 						'value' => 'true' ) ) );
+		}
+
+		if ( 'maxcdn' === $cdn_engine ) {
+			$notes[] = sprintf(
+				// translators: 1 opening HTML a tag to MaxCDN/StackPath migration guide, 2 closing HTML a tag. 
+				__(
+					'MaxCDN is deprecated and is now StackPath CDN. As a result your MaxCDN configuration is now invalidated and will require either a reconfiguration under a new CDN provider or a migration to StackPath via %1$sthis%2$s guide.',
+					'w3-total-cache'
+				),
+				'<a href="https://support.stackpath.com/hc/en-us/articles/10408946467739-MaxCDN-Migration-to-StackPath-Instructions" target="_blank">',
+				'</a>'
+			);
 		}
 
 		return $notes;
