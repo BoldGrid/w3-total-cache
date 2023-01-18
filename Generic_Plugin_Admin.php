@@ -1108,8 +1108,9 @@ class Generic_Plugin_Admin {
 					),
 					'p'     => array(),
 					'a'     => array(
-						'href'  => array(),
-						'class' => array(),
+						'target' => array(),
+						'href'   => array(),
+						'class'  => array(),
 					),
 				)
 			);
