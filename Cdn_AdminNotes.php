@@ -14,7 +14,7 @@ class Cdn_AdminNotes {
 		$config     = Dispatcher::config();
 		$state      = Dispatcher::config_state();
 		$cdn_engine = $config->get_string( 'cdn.engine' );
-		
+
 		$page = Util_Request::get_string( 'page' );
 
 		if ( !Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
@@ -126,13 +126,14 @@ class Cdn_AdminNotes {
 
 		if ( 'maxcdn' === $cdn_engine ) {
 			$notes[] = sprintf(
-				// translators: 1 opening HTML a tag to MaxCDN/StackPath migration guide, 2 closing HTML a tag. 
+				// translators: 1: Opening anchor tag with a link to the CDN settings page, 2: closing anchor tag, 3 opening anchor tag to MaxCDN/StackPath migration guide.
 				__(
-					'MaxCDN is deprecated and is now StackPath CDN. As a result your MaxCDN configuration is now invalidated and will require either a reconfiguration under a new CDN provider or a migration to StackPath via %1$sthis%2$s guide.',
+					'MaxCDN has been replaced with StackPath CDN. As a result your configuration is now invalid and requires reconfiguration to a new %1$sCDN provider%2$s. You can migrate to StackPath using %3$sthis guide%2$s.',
 					'w3-total-cache'
 				),
-				'<a href="https://support.stackpath.com/hc/en-us/articles/10408946467739-MaxCDN-Migration-to-StackPath-Instructions" target="_blank">',
-				'</a>'
+				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
+				'</a>',
+				'<a href="' . esc_url( 'https://support.stackpath.com/hc/en-us/articles/10408946467739-MaxCDN-Migration-to-StackPath-Instructions' ) . '" target="_blank">'
 			);
 		}
 
