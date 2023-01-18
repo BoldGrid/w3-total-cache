@@ -11,12 +11,13 @@ class Cdn_AdminNotes {
 	 * @return array
 	 */
 	public function w3tc_notes( $notes ) {
-		$config = Dispatcher::config();
-		$state = Dispatcher::config_state();
+		$config     = Dispatcher::config();
+		$state      = Dispatcher::config_state();
+		$cdn_engine = $config->get_string( 'cdn.engine' );
 
 		$page = Util_Request::get_string( 'page' );
 
-		if ( !Cdn_Util::is_engine_mirror( $config->get_string( 'cdn.engine' ) ) ) {
+		if ( !Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
 			/**
 			 * Show notification after theme change
 			 */
@@ -121,6 +122,19 @@ class Cdn_AdminNotes {
 						'w3tc_default_config_state' => 'y',
 						'key' => 'cdn.hide_note_no_curl',
 						'value' => 'true' ) ) );
+		}
+
+		if ( 'maxcdn' === $cdn_engine ) {
+			$notes[] = sprintf(
+				// translators: 1: Opening anchor tag with a link to the CDN settings page, 2: closing anchor tag, 3 opening anchor tag to MaxCDN/StackPath migration guide.
+				__(
+					'MaxCDN has been replaced with StackPath CDN. As a result your configuration is now invalid and requires reconfiguration to a new %1$sCDN provider%2$s. You can migrate to StackPath using %3$sthis guide%2$s.',
+					'w3-total-cache'
+				),
+				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
+				'</a>',
+				'<a href="' . esc_url( 'https://support.stackpath.com/hc/en-us/articles/10408946467739-MaxCDN-Migration-to-StackPath-Instructions' ) . '" target="_blank">'
+			);
 		}
 
 		return $notes;
