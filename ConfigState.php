@@ -31,7 +31,6 @@ namespace W3TC;
  *   newrelic.hide_note_pageload_slow
  *   minify.show_note.need_flush
  *   minify.show_note.need_flush.timestamp - when the note was set
- *   cdn.hide_note_maxcdn_whitelist_ip
  *   cdn.hide_note_no_curl
  *   cdn.google_drive.access_token
  *   cdn.rackspace_cf.access_state
@@ -51,9 +50,7 @@ namespace W3TC;
  *   objectcache.show_note.flush_needed
  *   objectcache.show_note.flush_needed.timestamp - when the note was set
  *   extension.<extension_id>.hide_note_suggest_activation
- *   track.maxcdn_signup
- *   track.maxcdn_authorize
- *   track.maxcdn_validation
+ *   track.stackpath_signup
  */
 class ConfigState {
 	private $_data;

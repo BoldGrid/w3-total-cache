@@ -89,7 +89,7 @@ jQuery(function($) {
 
 
 
-	    .on('click', '.w3tc_cdn_maxcdn_fsd_done', function() {
+	    .on('click', '.w3tc_cdn_cloudfront_fsd_done', function() {
 			// refresh page
 	    	window.location = window.location + '&';
 	    })

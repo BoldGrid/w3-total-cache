@@ -53,14 +53,6 @@ class Cdn_Plugin_Admin {
 					'\W3TC\Cdn_LimeLight_Page',
 					'w3tc_settings_cdn_boxarea_configuration'
 				) );
-		} elseif ( $cdn_engine == 'maxcdn' ) {
-			add_action( 'w3tc_ajax', array(
-					'\W3TC\Cdn_MaxCdn_Popup',
-					'w3tc_ajax' ) );
-			add_action( 'w3tc_settings_cdn_boxarea_configuration', array(
-					'\W3TC\Cdn_MaxCdn_Page',
-					'w3tc_settings_cdn_boxarea_configuration'
-				) );
 		} elseif ( $cdn_engine == 'rackspace_cdn' ) {
 			add_filter( 'w3tc_admin_actions', array(
 					'\W3TC\Cdn_RackSpaceCdn_Page',
@@ -164,10 +156,6 @@ class Cdn_Plugin_Admin {
 		);
 		$engine_values['limelight'] = array(
 			'label' => __( 'LimeLight', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull
-		);
-		$engine_values['maxcdn'] = array(
-			'label' => __( 'MaxCDN', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull
 		);
 		$engine_values['rackspace_cdn'] = array(

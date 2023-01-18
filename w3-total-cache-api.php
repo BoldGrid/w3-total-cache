@@ -32,8 +32,6 @@ define( 'W3TC_TERMS_URL', 'https://api.w3-edge.com/v1/redirects/policies-terms' 
 define( 'W3TC_TERMS_ACCEPT_URL', 'https://api.w3-edge.com/v1/redirects/policies-accept' );
 define( 'W3TC_MAILLINGLIST_SIGNUP_URL', 'https://api.w3-edge.com/v1/signup-newsletter' );
 define( 'W3TC_NEWRELIC_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/newrelic/signup' );
-define( 'W3TC_MAXCDN_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/maxcdn/signup' );
-define( 'W3TC_MAXCDN_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/maxcdn/authorize' );
 define( 'W3TC_STACKPATH_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/stackpath/signup' );
 define( 'W3TC_STACKPATH_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/stackpath/authorize' );
 define( 'W3TC_STACKPATH2_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/stackpath2/authorize' );

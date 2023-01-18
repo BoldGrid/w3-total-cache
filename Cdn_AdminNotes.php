@@ -108,19 +108,6 @@ class Cdn_AdminNotes {
 			}
 		}
 
-		if ( $config->get_string( 'cdn.engine' ) == 'maxcdn' &&
-			!$state->get_boolean( 'cdn.hide_note_maxcdn_whitelist_ip' ) &&
-			$state->get_integer( 'track.maxcdn_authorize' ) == 0 &&
-			$config->get_string( 'cdn.' . $config->get_string( 'cdn.engine' ) .'.authorization_key' ) ) {
-			$notes[] = sprintf(
-				__( 'Make sure to whitelist your servers IPs. Follow the instructions on %s. The IP for this server is %s. %s', 'w3-total-cache' ),
-				'<a href="http://support.maxcdn.com/tutorials/how-to-whitelist-your-server-ip-to-use-the-api/">MaxCDN</a>',
-				isset( $_SERVER['SERVER_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_ADDR'] ) ) : '',
-				Util_Ui::button_hide_note2( array(
-						'w3tc_default_config_state' => 'y',
-						'key' => 'cdn.hide_note_maxcdn_whitelist_ip',
-						'value' => 'true' ) ) );
-		}
 
 		/**
 		 * Check CURL extension
@@ -231,27 +218,6 @@ class Cdn_AdminNotes {
 
 		case ( $cdn_engine == 'mirror' && !count( $c->get_array( 'cdn.mirror.domain' ) ) ):
 			$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-			break;
-
-		case ( $cdn_engine == 'maxcdn' ):
-			$fields = array();
-			if ( $c->get_string( 'cdn.maxcdn.authorization_key' ) == '' )
-				$fields[] = '"' . __( 'Authorization key', 'w3-total-cache' ) . '"';
-
-			if ( !count( $c->get_array( 'cdn.maxcdn.domain' ) ) )
-				$fields[] = '"' . __( 'Replace default hostname with', 'w3-total-cache' ) . '"';
-
-			if ( $fields ) {
-				$error = sprintf( __( 'The <strong>%s</strong> field(s) cannot be empty.', 'w3-total-cache' ),
-					implode( __( ' and ', 'w3-total-cache' ), $fields ) );
-			}
-
-			if ( $c->get_string( 'cdn.maxcdn.authorization_key' ) != '' &&
-				sizeof( explode( '+', $c->get_string( 'cdn.maxcdn.authorization_key' ) ) ) != 3 )
-				$error .= __( 'The <strong>"Authorization key"</strong> is not correct.', 'w3-total-cache' );
-			elseif ( $c->get_integer( 'cdn.maxcdn.zone_id', 0 ) <= 0 )
-				$error .= __( 'You need to select / create a pull zone.', 'w3-total-cache' );
-
 			break;
 
 		case ( $cdn_engine == 'cotendo' && !count( $c->get_array( 'cdn.cotendo.domain' ) ) ):

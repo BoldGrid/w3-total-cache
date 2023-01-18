@@ -361,7 +361,6 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 			if ( 'google_drive' === $cdn_engine ||
 				'highwinds' === $cdn_engine ||
 				'limelight' === $cdn_engine ||
-				'maxcdn' === $cdn_engine ||
 				'rackspace_cdn' === $cdn_engine ||
 				'rscf' === $cdn_engine ||
 				'stackpath' === $cdn_engine ||
