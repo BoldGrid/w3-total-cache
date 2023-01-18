@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdnfsd_GeneralPage_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -15,9 +21,9 @@ if ( ! defined( 'W3TC' ) ) {
 			'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
 		)
 	);
-	
+
 	if ( ! $cdnfsd_enabled ) {
-		wp_kses(
+		echo '&nbsp;' . wp_kses(
 			sprintf(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 				// translators: 3 opening HTML a tag to W3TC MaxCDN Signup admin page, 4 closing HTML a tag.

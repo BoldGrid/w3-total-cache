@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_GeneralPage_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -52,9 +58,9 @@ Util_Ui::config_overloading_button(
 			)
 		)
 	);
-	
+
 	if ( ! $cdn_enabled ) {
-		echo wp_kses(
+		echo '&nbsp;' . wp_kses(
 			sprintf(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 				// translators: 3 opening HTML a tag, 4 closing HTML a tag.
