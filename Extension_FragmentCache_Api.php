@@ -69,7 +69,7 @@ function w3tc_fragmentcache_start( $id, $group = '', $hook = '' ) {
 		_w3tc_caching_fragment( $id, $group );
 		ob_start();
 	} else {
-		echo $fragment;
+		echo esc_html( $fragment );
 		if ( $hook ) {
 			remove_all_filters($hook);
 		}

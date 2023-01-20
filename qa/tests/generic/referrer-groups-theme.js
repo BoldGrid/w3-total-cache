@@ -12,16 +12,27 @@ const w3tc = requireRoot('lib/w3tc');
 /**environments: multiply(environments('blog'), environments('cache')) */
 
 let otherTheme;
-if (parseFloat(env.wpVersion) < 4.4)
+
+log.log('WordPress version number: ' + parseFloat(env.wpVersion));
+
+if (parseFloat(env.wpVersion) < 4.4) {
 	otherTheme = 'twentythirteen/twentythirteen';
-else if (parseFloat(env.wpVersion) < 4.7)
+} else if (parseFloat(env.wpVersion) < 4.7) {
 	otherTheme = 'twentyfourteen/twentyfourteen';
-else if (parseFloat(env.wpVersion) < 5.0)
+} else if (parseFloat(env.wpVersion) < 5.0) {
 	otherTheme = 'twentyfifteen/twentyfifteen';
-else if (parseFloat(env.wpVersion) < 5.5)
+} else if (parseFloat(env.wpVersion) < 5.5) {
 	otherTheme = 'twentysixteen/twentysixteen';
-else
+} else if (parseFloat(env.wpVersion) < 5.9) {
 	otherTheme = 'twentynineteen/twentynineteen';
+} else if (parseFloat(env.wpVersion) < 6.1) {
+	otherTheme = 'twentytwenty/twentytwenty';
+} else {
+	// WP 6.1.
+	otherTheme = 'twentytwentythree/twentytwentythree';
+}
+
+log.log('Switch to theme: ' + otherTheme);
 
 let pluginUrl = env.blogSiteUrl.replace(/(b2\.)?wp\.sandbox/i, 'for-tests.wp.sandbox') +
 	'referrer-groups.php?path=' + env.blogSiteUrl;
@@ -104,11 +115,27 @@ describe('', function() {
 		} else if (theme[0] == 'twentynineteen') {
 			css = await page.$eval('#twentynineteen-style-css',
 				(e) => e.getAttribute('href'));
+		} else if (theme[0] == 'twentytwenty') {
+			css = await page.$eval('#twentytwenty-style-css',
+				(e) => e.getAttribute('href'));
+		} else if (theme[0] == 'twentytwentyone') {
+			css = await page.$eval('#twentytwentyone-style-css',
+				(e) => e.getAttribute('href'));
+		} else if (theme[0] == 'twentytwentytwo') {
+			css = await page.$eval('#twentytwentytwo-style-css',
+				(e) => e.getAttribute('href'));
+		} else if (theme[0] == 'twentytwentythree') {
+			css = await page.$eval('#wp-webfonts-inline-css',
+				(e) => e.innerHTML);
 		} else {
 			css = await page.$eval('link[type="text/css"]',
 				(e) => e.getAttribute('href'));
 		}
 
-		expect(css).contains('themes/' + theme[0] + '/style.css');
+		if (theme[0] == 'twentytwentythree') {
+			expect(css).contains('themes/' + theme[0] + '/assets/');
+		} else {
+			expect(css).contains('themes/' + theme[0] + '/style.css');
+		}
 	});
 });

@@ -1,83 +1,149 @@
 <?php
 namespace W3TC;
 
-if ( !defined( 'W3TC' ) )
+if ( ! defined( 'W3TC' ) ) {
 	die();
+}
 
 /*
  * Requires $module variable
  */
 ?>
 <tr>
-	<th><label for="memcached_servers"><?php echo Util_ConfigLabel::get( 'memcached.servers' ) ?></label></th>
+	<th><label for="memcached_servers"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.servers' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="memcached_servers" type="text"
-			name="<?php echo $module ?>__memcached__servers"
-			<?php Util_Ui::sealing_disabled( $module ) ?>
+			name="<?php echo esc_attr( $module ); ?>__memcached__servers"
+			<?php Util_Ui::sealing_disabled( $module ); ?>
 			value="<?php echo esc_attr( implode( ',', $this->_config->get_array( $module . '.memcached.servers' ) ) ); ?>" size="80" />
-		<input id="memcached_test" class="button {nonce: '<?php echo wp_create_nonce( 'w3tc' ); ?>'}"
-			<?php Util_Ui::sealing_disabled( $module ) ?>
+		<input id="memcached_test" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+			<?php Util_Ui::sealing_disabled( $module ); ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span id="memcached_test_status" class="w3tc-status w3tc-process"></span>
-		<p class="description"><?php _e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122', 'w3-total-cache' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>
-	<th><label><?php _e( 'Use persistent connection:', 'w3-total-cache' ); ?></label></th>
+	<th><label><?php esc_html_e( 'Use persistent connection:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php $this->checkbox( $module . '.memcached.persistent' ) ?> <?php echo Util_ConfigLabel::get( 'memcached.persistent' ) ?></label>
-		<p class="description"><?php _e( 'Using persistent connection doesn\'t reinitialize memcached driver on each request', 'w3-total-cache' ); ?></p>
+		<?php $this->checkbox( $module . '.memcached.persistent' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'memcached.persistent' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
+		<p class="description"><?php esc_html_e( 'Using persistent connection doesn\'t reinitialize memcached driver on each request', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>
-	<th><label><?php _e( 'Node Auto Discovery:', 'w3-total-cache' ); ?></label></th>
+	<th><label><?php esc_html_e( 'Node Auto Discovery:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<label><?php $this->checkbox( $module . '.memcached.aws_autodiscovery',
-	!Util_Installed::memcached_aws() ) ?>
-		Amazon Node Auto Discovery</label>
+		<label>
+			<?php $this->checkbox( $module . '.memcached.aws_autodiscovery', ! Util_Installed::memcached_aws() ); ?>
+			Amazon Node Auto Discovery
+		</label>
 		<p class="description">
 			<?php
-if ( !Util_Installed::memcached_aws() )
-	_e( 'ElastiCache <acronym title="Hypertext Preprocessor">PHP</acronym> module not found', 'w3-total-cache' );
-else
-	_e( 'When Amazon ElastiCache used, specify configuration endpoint as Memcached host', 'w3-total-cache' );
-?>
-</p>
+			if ( ! Util_Installed::memcached_aws() ) {
+				echo wp_kses(
+					sprintf(
+						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+						__(
+							'ElastiCache %1$sPHP%2$s module not found',
+							'w3-total-cache'
+						),
+						'<acronym title="' . __( 'Hypertext Preprocessor', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				);
+			} else {
+				esc_html_e( 'When Amazon ElastiCache used, specify configuration endpoint as Memcached host', 'w3-total-cache' );
+			}
+			?>
+		</p>
 	</td>
 </tr>
 <tr>
-	<th><label><?php _e( 'Use binary protocol:', 'w3-total-cache' ); ?></label></th>
+	<th><label><?php esc_html_e( 'Use binary protocol:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<?php $this->checkbox( $module . '.memcached.binary_protocol' ) ?> <?php echo Util_ConfigLabel::get( 'memcached.binary_protocol' ) ?></label>
-		<p class="description"><?php _e( 'Using binary protocol can increase throughput.', 'w3-total-cache' ); ?></p>
+		<?php $this->checkbox( $module . '.memcached.binary_protocol' ); ?> <?php echo wp_kses( Util_ConfigLabel::get( 'memcached.binary_protocol' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label>
+		<p class="description"><?php esc_html_e( 'Using binary protocol can increase throughput.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 
 <tr>
-	<th><label for="memcached_username"><?php echo Util_ConfigLabel::get( 'memcached.username' ) ?></label></th>
+	<th><label for="memcached_username"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.username' ), array( 'acronym' => array( 'title' => array() ) )); ?></label></th>
 	<td>
-		<input id="memcached_username" name="<?php echo $module ?>__memcached__username" type="text"
-			<?php Util_Ui::sealing_disabled( $module ) ?>
-			<?php
-$this->value_with_disabled( $module . '.memcached.username',
-	!Util_Installed::memcached_auth(), '' )
-?> />
+		<input id="memcached_username" name="<?php echo esc_attr( $module ); ?>__memcached__username" type="text"
+			<?php Util_Ui::sealing_disabled( $module ); ?>
+			<?php $this->value_with_disabled( $module . '.memcached.username', ! Util_Installed::memcached_auth(), '' ); ?> />
 		<p class="description">
-			<?php _e( 'Specify memcached username, when <acronym title="Simple Authentication and Security Layer">SASL</acronym> authentication used', 'w3-total-cache' );
-if ( !Util_Installed::memcached_auth() )
-	_e( '<br>Available when memcached extension installed, built with <acronym title="Simple Authentication and Security Layer">SASL</acronym>', 'w3-total-cache' )
-	?></p>
+			<?php
+			echo wp_kses(
+				sprintf(
+					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+					__(
+						'Specify memcached username, when %1$sSASL%2$s authentication used',
+						'w3-total-cache'
+					),
+					'<acronym title="' . __( 'Simple Authentication and Security Layer', 'w3-total-cache' ) . '">',
+					'</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
+			);
+			if ( ! Util_Installed::memcached_auth() ) {
+				echo wp_kses(
+					sprintf(
+						// translators: 1 HTML line break, 2 opening HTML acronym tag, 3 closing HTML acronym tag.
+						__(
+							'%1$sAvailable when memcached extension installed, built with %2$sSASL%3$s',
+							'w3-total-cache'
+						),
+						'</ br>',
+						'<acronym title="' . __( 'Simple Authentication and Security Layer', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'br'      => array(),
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				);
+			}
+			?>
+		</p>
 	</td>
 </tr>
 <tr>
-	<th><label for="memcached_password"><?php echo Util_ConfigLabel::get( 'memcached.password' ) ?></label></th>
+	<th><label for="memcached_password"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.password' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
-		<input id="memcached_password" name="<?php echo $module ?>__memcached__password" type="text"
-			<?php Util_Ui::sealing_disabled( $module ) ?>
+		<input id="memcached_password" name="<?php echo esc_attr( $module ); ?>__memcached__password" type="text"
+			<?php Util_Ui::sealing_disabled( $module ); ?>
+			<?php $this->value_with_disabled( $module . '.memcached.password', ! Util_Installed::memcached_auth(), '' ); ?> />
+		<p class="description">
 			<?php
-	$this->value_with_disabled( $module . '.memcached.password',
-		!Util_Installed::memcached_auth(), '' )
-	?> />
-		<p class="description"><?php _e( 'Specify memcached password, when <acronym title="Simple Authentication and Security Layer">SASL</acronym> authentication used', 'w3-total-cache' )?></p>
+			echo wp_kses(
+				sprintf(
+					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+					__(
+						'Specify memcached password, when %1$sSASL%2$s authentication used',
+						'w3-total-cache'
+					),
+					'<acronym title="' . __( 'Simple Authentication and Security Layer', 'w3-total-cache' ) . '">',
+					'</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
+			);
+			?>
+		</p>
 	</td>
 </tr>

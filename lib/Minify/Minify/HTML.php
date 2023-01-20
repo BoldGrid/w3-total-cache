@@ -97,7 +97,7 @@ class Minify_HTML {
 			$this->_isXhtml = (false !== strpos($this->_html, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML'));
 		}
 
-		$this->_replacementHash = 'MINIFYHTML' . md5($_SERVER['REQUEST_TIME']);
+		$this->_replacementHash = 'MINIFYHTML' . md5( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' );
 		$this->_placeholders = array();
 
 		// replace dynamic tags
@@ -142,7 +142,7 @@ class Minify_HTML {
 		// remove ws around block/undisplayed elements
 		$this->_html = preg_replace('/\\s+(<\\/?(?:area|article|aside|base(?:font)?|blockquote|body'
 			.'|canvas|caption|center|col(?:group)?|dd|dir|div|dl|dt|fieldset|figcaption|figure|footer|form'
-			.'|frame(?:set)?|h[1-6]|head|header|hgroup|hr|html|legend|li|link|main|map|menu|meta|nav'
+			.'|frame(?:set)?|h[1-6]|head|header|hgroup|hr|html|legend|link|main|map|menu|meta|nav'
 			.'|ol|opt(?:group|ion)|output|p|param|section|t(?:able|body|head|d|h||r|foot|itle)'
 			.'|ul|video)\\b[^>]*>)/i', '$1', $this->_html);
 

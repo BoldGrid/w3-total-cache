@@ -11,12 +11,13 @@ class Cdn_AdminNotes {
 	 * @return array
 	 */
 	public function w3tc_notes( $notes ) {
-		$config = Dispatcher::config();
-		$state = Dispatcher::config_state();
+		$config     = Dispatcher::config();
+		$state      = Dispatcher::config_state();
+		$cdn_engine = $config->get_string( 'cdn.engine' );
 
 		$page = Util_Request::get_string( 'page' );
 
-		if ( !Cdn_Util::is_engine_mirror( $config->get_string( 'cdn.engine' ) ) ) {
+		if ( !Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
 			/**
 			 * Show notification after theme change
 			 */
@@ -108,19 +109,6 @@ class Cdn_AdminNotes {
 			}
 		}
 
-		if ( $config->get_string( 'cdn.engine' ) == 'maxcdn' &&
-			!$state->get_boolean( 'cdn.hide_note_maxcdn_whitelist_ip' ) &&
-			$state->get_integer( 'track.maxcdn_authorize' ) == 0 &&
-			$config->get_string( 'cdn.' . $config->get_string( 'cdn.engine' ) .'.authorization_key' ) ) {
-			$notes[] = sprintf(
-				__( 'Make sure to whitelist your servers IPs. Follow the instructions on %s. The IP for this server is %s. %s', 'w3-total-cache' ),
-				'<a href="http://support.maxcdn.com/tutorials/how-to-whitelist-your-server-ip-to-use-the-api/">MaxCDN</a>',
-				$_SERVER['SERVER_ADDR'],
-				Util_Ui::button_hide_note2( array(
-						'w3tc_default_config_state' => 'y',
-						'key' => 'cdn.hide_note_maxcdn_whitelist_ip',
-						'value' => 'true' ) ) );
-		}
 
 		/**
 		 * Check CURL extension
@@ -134,6 +122,19 @@ class Cdn_AdminNotes {
 						'w3tc_default_config_state' => 'y',
 						'key' => 'cdn.hide_note_no_curl',
 						'value' => 'true' ) ) );
+		}
+
+		if ( 'maxcdn' === $cdn_engine ) {
+			$notes[] = sprintf(
+				// translators: 1: Opening anchor tag with a link to the CDN settings page, 2: closing anchor tag, 3 opening anchor tag to MaxCDN/StackPath migration guide.
+				__(
+					'MaxCDN has been replaced with StackPath CDN. As a result your configuration is now invalid and requires reconfiguration to a new %1$sCDN provider%2$s. You can migrate to StackPath using %3$sthis guide%2$s.',
+					'w3-total-cache'
+				),
+				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
+				'</a>',
+				'<a href="' . esc_url( 'https://support.stackpath.com/hc/en-us/articles/10408946467739-MaxCDN-Migration-to-StackPath-Instructions' ) . '" target="_blank">'
+			);
 		}
 
 		return $notes;
@@ -231,27 +232,6 @@ class Cdn_AdminNotes {
 
 		case ( $cdn_engine == 'mirror' && !count( $c->get_array( 'cdn.mirror.domain' ) ) ):
 			$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-			break;
-
-		case ( $cdn_engine == 'maxcdn' ):
-			$fields = array();
-			if ( $c->get_string( 'cdn.maxcdn.authorization_key' ) == '' )
-				$fields[] = '"' . __( 'Authorization key', 'w3-total-cache' ) . '"';
-
-			if ( !count( $c->get_array( 'cdn.maxcdn.domain' ) ) )
-				$fields[] = '"' . __( 'Replace default hostname with', 'w3-total-cache' ) . '"';
-
-			if ( $fields ) {
-				$error = sprintf( __( 'The <strong>%s</strong> field(s) cannot be empty.', 'w3-total-cache' ),
-					implode( __( ' and ', 'w3-total-cache' ), $fields ) );
-			}
-
-			if ( $c->get_string( 'cdn.maxcdn.authorization_key' ) != '' &&
-				sizeof( explode( '+', $c->get_string( 'cdn.maxcdn.authorization_key' ) ) ) != 3 )
-				$error .= __( 'The <strong>"Authorization key"</strong> is not correct.', 'w3-total-cache' );
-			elseif ( $c->get_integer( 'cdn.maxcdn.zone_id', 0 ) <= 0 )
-				$error .= __( 'You need to select / create a pull zone.', 'w3-total-cache' );
-
 			break;
 
 		case ( $cdn_engine == 'cotendo' && !count( $c->get_array( 'cdn.cotendo.domain' ) ) ):

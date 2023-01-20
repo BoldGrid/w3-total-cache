@@ -158,9 +158,10 @@ class Minify_ContentMinifier {
 			);
 
 			$symlinks = $this->_config->get_array( 'minify.symlinks' );
+			$docroot  = Util_Environment::document_root();
 
 			foreach ( $symlinks as $link => $target ) {
-				$link = str_replace( '//', realpath( $_SERVER['DOCUMENT_ROOT'] ), $link );
+				$link = str_replace( '//', realpath( $docroot ), $link );
 				$link = strtr( $link, '/', DIRECTORY_SEPARATOR );
 				$options['symlinks'][$link] = realpath( $target );
 			}

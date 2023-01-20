@@ -63,10 +63,6 @@ class CdnEngine {
 				$instances[$instance_key] = new CdnEngine_Mirror_LimeLight( $config );
 				break;
 
-			case 'maxcdn':
-				$instances[$instance_key] = new CdnEngine_Mirror_MaxCdn( $config );
-				break;
-
 			case 'mirror':
 				$instances[$instance_key] = new CdnEngine_Mirror( $config );
 				break;

@@ -36,6 +36,8 @@ return array(
 	'atx' => 'application/vnd.antix.game-component',
 	'au|snd' => 'audio/basic',
 	'avi' => 'video/x-msvideo',
+	'avif' => 'image/avif',
+	'avifs' => 'image/avif-sequence',
 	'aw' => 'application/applixware',
 	'azf' => 'application/vnd.airzip.filesecure.azf',
 	'azs' => 'application/vnd.airzip.filesecure.azs',

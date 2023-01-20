@@ -116,7 +116,11 @@ class Minify_ImportProcessor {
         if ('/' === $url[0]) {
             // protocol-relative or root path
             $url = ltrim($url, '/');
-            $file = realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR
+
+            // W3TC FIX: Override $_SERVER['DOCUMENT_ROOT'] if enabled in settings.
+            $docroot = \W3TC\Util_Environment::document_root();
+
+            $file = realpath($docroot) . DIRECTORY_SEPARATOR
                 . strtr($url, '/', DIRECTORY_SEPARATOR);
         } else {
             // relative to current path

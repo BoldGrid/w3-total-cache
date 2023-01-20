@@ -1,40 +1,47 @@
 <?php
+/**
+ * File: Generic_Plugin_WidgetForumn.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * W3 Forum Widget
- */
-
-
-
-/**
- * Class Generic_Plugin_WidgetForum
+ * Class: Generic_Plugin_WidgetForum
  */
 class Generic_Plugin_WidgetForum {
 	/**
-	 * Config
+	 * Config.
+	 *
+	 * @var Config
 	 */
-	private $_config = null;
+	private $_config = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Runs plugin
+	 * Runs plugin.
 	 */
-	function run() {
-		if ( Util_Admin::get_current_wp_page() == 'w3tc_dashboard' )
+	public function run() {
+		if ( Util_Admin::get_current_wp_page() == 'w3tc_dashboard' ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
+		}
 
-		add_action( 'w3tc_widget_setup', array(
-				$this,
-				'wp_dashboard_setup'
-			) );
-		add_action( 'w3tc_network_dashboard_setup', array(
-				$this,
-				'wp_dashboard_setup'
-			) );
+		add_action(
+			'w3tc_widget_setup',
+			array( $this, 'wp_dashboard_setup' )
+		);
+
+		add_action(
+			'w3tc_network_dashboard_setup',
+			array( $this, 'wp_dashboard_setup' )
+		);
 
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_w3tc_widget_latest_ajax', array( $this, 'action_widget_latest_ajax' ) );
@@ -42,63 +49,70 @@ class Generic_Plugin_WidgetForum {
 	}
 
 	/**
-	 * Dashboard setup action
-	 *
-	 * @return void
+	 * Dashboard setup action.
 	 */
-	function wp_dashboard_setup() {
-		Util_Widget::add( 'w3tc_latest', __( 'Discussions', 'w3-total-cache' ), array(
-				$this,
-				'widget_latest'
-			), array(
-				$this,
-				'widget_latest_control'
-			), 'side' );
+	public function wp_dashboard_setup() {
+		Util_Widget::add(
+			'w3tc_latest',
+			__( 'Discussions', 'w3-total-cache' ),
+			array( $this, 'widget_latest' ),
+			array( $this, 'widget_latest_control' ),
+			'side'
+		);
 	}
 
 	/**
-	 * Returns key for transient cache of "widget latest"
-	 *
-	 * @return string
+	 * Returns key for transient cache of "widget latest".
 	 */
-	function _widget_latest_cache_key() {
+	public function _widget_latest_cache_key() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		return 'dash_' . md5( 'w3tc_latest' );
 	}
 
 	/**
-	 * Prints latest widget contents
-	 *
-	 * @return void
+	 * Prints latest widget contents.
 	 */
-	function widget_latest() {
-		if ( false !== ( $output = get_transient( $this->_widget_latest_cache_key() ) ) )
-			echo $output;
-		else
+	public function widget_latest() {
+		$output = get_transient( $this->_widget_latest_cache_key() );
+
+		if ( false !== $output ) {
+			echo wp_kses(
+				$output,
+				array(
+					'a'  => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+					'h4' => array(),
+					'p'  => array(
+						'style' => array(),
+					),
+				)
+			);
+		} else {
 			include W3TC_INC_DIR . '/widget/latest.php';
+		}
 	}
 
 	/**
-	 * Prints latest widget contents
-	 *
-	 * @return void
+	 * Prints latest widget contents.
 	 */
-	function action_widget_latest_ajax() {
-		// load content of feed
+	public function action_widget_latest_ajax() {
+		// Load content of feed.
 		global $wp_version;
 
-		$items = array();
+		$items       = array();
 		$items_count = $this->_config->get_integer( 'widget.latest.items' );
 
 		include_once ABSPATH . WPINC . '/feed.php';
 		$feed = fetch_feed( W3TC_FEED_URL );
 
-		if ( !is_wp_error( $feed ) ) {
+		if ( ! is_wp_error( $feed ) ) {
 			$feed_items = $feed->get_items( 0, $items_count );
 
 			foreach ( $feed_items as $feed_item ) {
 				$items[] = array(
-					'link' => $feed_item->get_link(),
-					'title' => htmlspecialchars_decode( $feed_item->get_title() )
+					'link'  => $feed_item->get_link(),
+					'title' => htmlspecialchars_decode( $feed_item->get_title() ),
 				);
 			}
 		}
@@ -106,7 +120,7 @@ class Generic_Plugin_WidgetForum {
 		ob_start();
 		include W3TC_INC_DIR . '/widget/latest_ajax.php';
 
-		// Default lifetime in cache of 12 hours (same as the feeds)
+		// Default lifetime in cache of 12 hours (same as the feeds).
 		set_transient( $this->_widget_latest_cache_key(), ob_get_flush(), 43200 );
 		die();
 	}
@@ -114,12 +128,11 @@ class Generic_Plugin_WidgetForum {
 	/**
 	 * Latest widget control
 	 *
-	 * @param integer $widget_id
-	 * @param array   $form_inputs
-	 * @return void
+	 * @param integer $widget_id   Widget id.
+	 * @param array   $form_inputs Form inputs.
 	 */
-	function widget_latest_control( $widget_id, $form_inputs = array() ) {
-		if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
+	public function widget_latest_control( $widget_id, $form_inputs = array() ) {
+		if ( 'POST' === ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' ) ) {
 			$this->_config->set( 'widget.latest.items', Util_Request::get_integer( 'w3tc_widget_latest_items', 3 ) );
 			$this->_config->save();
 			delete_transient( $this->_widget_latest_cache_key() );
@@ -127,6 +140,9 @@ class Generic_Plugin_WidgetForum {
 		include W3TC_INC_DIR . '/widget/latest_control.php';
 	}
 
+	/**
+	 * Enqueue scripts and styles.
+	 */
 	public function enqueue() {
 		wp_enqueue_style( 'w3tc-widget' );
 		wp_enqueue_script( 'w3tc-metadata' );

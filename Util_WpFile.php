@@ -1,7 +1,55 @@
 <?php
+/**
+ * File: Util_WpFile.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class: Util_WpFile
+ */
 class Util_WpFile {
+	/**
+	 * Check WP_Filesystem credentials when running ajax.
+	 *
+	 * @since 2.2.1
+	 *
+	 * @param string $extra Extra markup for an error message.
+	 */
+	public static function ajax_check_credentials( $extra = null ) {
+		$access_type = get_filesystem_method();
+		ob_start();
+		$credentials = request_filesystem_credentials(
+			site_url() . '/wp-admin/',
+			$access_type
+		);
+		ob_end_clean();
+
+		if ( false === $credentials || ! WP_Filesystem( $credentials ) ) {
+			global $wp_filesystem;
+
+			$status['error'] = sprintf(
+				// translators: 1: Filesystem access method: "direct", "ssh2", "ftpext" or "ftpsockets".
+				__(
+					'Unable to connect to the filesystem (using %1$s). Please confirm your credentials.  %2$s',
+					'w3-total-cache'
+				),
+				$access_type,
+				$extra
+			);
+
+			// Pass through the error from WP_Filesystem if one was raised.
+			if ( $wp_filesystem instanceof WP_Filesystem_Base && is_wp_error( $wp_filesystem->errors ) &&
+				$wp_filesystem->errors->has_errors() ) {
+					$status['error'] = esc_html( $wp_filesystem->errors->get_error_message() );
+			}
+
+			wp_send_json_error( $status );
+		}
+	}
+
 	/**
 	 * Tries to write file content
 	 *
@@ -235,10 +283,12 @@ class Util_WpFile {
 	 * If false WP_CONTENT_DIR is assumed
 	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
 	 */
-	static private function request_filesystem_credentials( $method = '', $url = '', $context = false ) {
-		if ( strlen( $url ) <= 0 )
-			$url = $_SERVER['REQUEST_URI'];
-		$url = preg_replace( "/&w3tc_note=([^&]+)/", '', $url );
+	private static function request_filesystem_credentials( $method = '', $url = '', $context = false ) {
+		if ( strlen( $url ) <= 0 ) {
+			$url = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		}
+
+		$url = preg_replace( '/&w3tc_note=([^&]+)/', '', $url );
 
 		// Ensure request_filesystem_credentials() is available.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -266,8 +316,6 @@ class Util_WpFile {
 			$error = $matches[2];
 			$form = str_replace( $matches[0], '', $form );
 		}
-
-		$form = str_replace( '<input ', '<input class="w3tc-ignore-change" ', $form );
 
 		if ( !$success ) {
 			throw new Util_WpFile_FilesystemOperationException( $error, $form );

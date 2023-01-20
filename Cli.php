@@ -133,7 +133,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 				if ( isset( $vars['post_id'] ) ) {
 					if ( is_numeric( $vars['post_id'] ) ) {
 						try {
-							w3tc_flush_post( $vars['post_id'] );
+							w3tc_flush_post( $vars['post_id'], true );
 						}
 						catch ( \Exception $e ) {
 							\WP_CLI::error( __( 'Flushing the page from cache failed.', 'w3-total-cache' ) );
@@ -252,7 +252,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 				return;
 			}
 
-			echo $v . "\n";
+			echo esc_html( $v ) . "\n";
 		} elseif ( $op == 'set' ) {
 			$type =( isset( $vars['type'] ) ? $vars['type'] : 'string' );
 
@@ -366,49 +366,6 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			\WP_CLI::error( __( 'Files did not successfully purge with error %s', 'w3-total-cache' ), $e );
 		}
 		\WP_CLI::success( __( 'Files purged successfully.', 'w3-total-cache' ) );
-
-	}
-
-	/**
-	 * SNS/local file.php Tells opcache to compile files
-	 *
-	 * @param array   $args
-	 */
-	function opcache_flush( $args = array() ) {
-		try {
-			$method = array_shift( $args );
-			if ( !in_array( $method, array( 'SNS', 'local' ) ) )
-				\WP_CLI::error( $method . __( ' is not supported. Change to SNS or local to delete opcache files', 'w3-total-cache' ) );
-
-			if ( $method == 'SNS' ) {
-				$w3_cache = Dispatcher::component( 'CacheFlush' );
-				$w3_cache->opcache_flush();
-			} else {
-				$url = WP_PLUGIN_URL . '/' . dirname( W3TC_FILE ) . '/pub/opcache.php';
-				$path = parse_url( $url, PHP_URL_PATH );
-				$post = array(
-					'method' => 'POST',
-					'timeout' => 45,
-					'redirection' => 5,
-					'httpversion' => '1.0',
-					'blocking' => true,
-					'body' => array(
-						'nonce' => wp_hash( $path ),
-						'command' => 'flush'
-					),
-				);
-				$result = wp_remote_post( $url, $post );
-				if ( is_wp_error( $result ) ) {
-					\WP_CLI::error( __( 'Files did not successfully delete with error %s', 'w3-total-cache' ), $result );
-				} elseif ( $result['response']['code'] != '200' ) {
-					\WP_CLI::error( __( 'Files did not successfully delete with message: ', 'w3-total-cache' ). $result['body'] );
-				}
-			}
-		}
-		catch ( \Exception $e ) {
-			\WP_CLI::error( __( 'Files did not successfully delete with error %s', 'w3-total-cache' ), $e );
-		}
-		\WP_CLI::success( __( 'Files deleted successfully.', 'w3-total-cache' ) );
 
 	}
 

@@ -374,10 +374,6 @@ input.w3tc-error, textarea.w3tc-error {
 	display:none;
 }
 
-#cdn_netdna_authorization_key, #cdn_maxcdn_authorization_key {
-	margin-bottom: 3px;
-}
-
 #w3tc_extensions table.extensions .column-name {
 	width:180px;
 }
@@ -705,4 +701,9 @@ a > span.dashicons-external {
 
 td .w3tc-control-after span {
 	vertical-align: text-top;
+}
+
+.w3tc-ftp-form input[type="text"],
+.w3tc-ftp-form input[type="password"] {
+	width: 100%;
 }

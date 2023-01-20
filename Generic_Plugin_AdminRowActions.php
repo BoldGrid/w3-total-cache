@@ -33,7 +33,7 @@ class Generic_Plugin_AdminRowActions {
 
 		if ( current_user_can( $capability ) )
 			$actions = array_merge( $actions, array(
-					'w3tc_flush_post' => sprintf( '<a href="%s">' . __( 'Purge from cache', 'w3-total-cache' ) . '</a>', wp_nonce_url( sprintf( 'admin.php?page=w3tc_dashboard&w3tc_flush_post&post_id=%d', $post->ID ), 'w3tc' ) )
+					'w3tc_flush_post' => sprintf( '<a href="%s">' . __( 'Purge from cache', 'w3-total-cache' ) . '</a>', wp_nonce_url( sprintf( 'admin.php?page=w3tc_dashboard&w3tc_flush_post&post_id=%d&force=true', $post->ID ), 'w3tc' ) )
 				) );
 
 		return $actions;
@@ -52,7 +52,7 @@ class Generic_Plugin_AdminRowActions {
 
 		if ( current_user_can( $capability ) )
 			$actions = array_merge( $actions, array(
-					'w3tc_flush_post' => sprintf( '<a href="%s">' . __( 'Purge from cache', 'w3-total-cache' ) . '</a>', wp_nonce_url( sprintf( 'admin.php?page=w3tc_dashboard&w3tc_flush_post&post_id=%d', $post->ID ), 'w3tc' ) )
+					'w3tc_flush_post' => sprintf( '<a href="%s">' . __( 'Purge from cache', 'w3-total-cache' ) . '</a>', wp_nonce_url( sprintf( 'admin.php?page=w3tc_dashboard&w3tc_flush_post&post_id=%d&force=true', $post->ID ), 'w3tc' ) )
 				) );
 
 		return $actions;
@@ -65,13 +65,20 @@ class Generic_Plugin_AdminRowActions {
 		if ( current_user_can( 'manage_options' ) ) {
 			global $post;
 			if ( !is_null( $post ) ) {
-				$url = Util_Ui::url( array( 'page' => 'w3tc_dashboard',
+				$url = Util_Ui::url(
+					array(
+						'page'            => 'w3tc_dashboard',
 						'w3tc_flush_post' => 'y',
-						'post_id' => $post->ID ) );
+						'post_id'         => $post->ID,
+						'force'           => true,
+					)
+				);
 
-				echo sprintf( '<div><a href="%s">%s</a></div>',
-					$url,
-					__( 'Purge from cache', 'w3-total-cache' ) );
+				echo sprintf(
+					'<div><a href="%s">%s</a></div>',
+					esc_url( $url ),
+					esc_html__( 'Purge from cache', 'w3-total-cache' )
+				);
 			}
 		}
 	}

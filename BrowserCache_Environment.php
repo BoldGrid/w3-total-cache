@@ -5,6 +5,13 @@ namespace W3TC;
  * class BrowserCache_Environment
  */
 class BrowserCache_Environment {
+	public function __construct() {
+		add_filter( 'w3tc_cdn_rules_section',
+			array( $this, 'w3tc_cdn_rules_section' ), 10, 2 );
+	}
+
+
+
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
@@ -20,13 +27,6 @@ class BrowserCache_Environment {
 				$this->rules_cache_add( $config, $exs );
 			} else {
 				$this->rules_cache_remove( $exs );
-			}
-
-			if ( $config->get_boolean( 'browsercache.enabled' ) &&
-				$config->get_boolean( 'browsercache.no404wp' ) ) {
-				$this->rules_no404wp_add( $config, $exs );
-			} else {
-				$this->rules_no404wp_remove( $exs );
 			}
 		}
 
@@ -51,7 +51,6 @@ class BrowserCache_Environment {
 		$exs = new Util_Environment_Exceptions();
 
 		$this->rules_cache_remove( $exs );
-		$this->rules_no404wp_remove( $exs );
 
 		if ( count( $exs->exceptions() ) > 0 )
 			throw $exs;
@@ -67,22 +66,34 @@ class BrowserCache_Environment {
 		if ( !$config->get_boolean( 'browsercache.enabled' ) )
 			return null;
 
-		$rewrite_rules = array();
+		$mime_types = $this->get_mime_types();
 
-		$browsercache_rules_cache_path = Util_Rule::get_browsercache_rules_cache_path();
-		$rewrite_rules[] = array(
-			'filename' => $browsercache_rules_cache_path,
-			'content' => $this->rules_cache_generate( $config )
-		);
-
-		if ( $config->get_boolean( 'browsercache.no404wp' ) ) {
-			$browsercache_rules_no404wp_path =
-				Util_Rule::get_browsercache_rules_no404wp_path();
-			$rewrite_rules[] = array(
-				'filename' => $browsercache_rules_no404wp_path,
-				'content' => $this->rules_no404wp_generate( $config )
+		switch ( true ) {
+		case Util_Environment::is_apache():
+			$generator_apache = new BrowserCache_Environment_Apache( $config );
+			$rewrite_rules = array(
+				array(
+					'filename' => Util_Rule::get_apache_rules_path(),
+					'content' =>
+						W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n" .
+						$this->rules_cache_generate_apache( $config ) .
+						$generator_apache->rules_no404wp( $mime_types ) .
+						W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n"
+				)
 			);
+			break;
+
+		case Util_Environment::is_litespeed():
+			$generator_litespeed = new BrowserCache_Environment_LiteSpeed( $config );
+			$rewrite_rules = $generator_litespeed->get_required_rules( $mime_types );
+			break;
+
+		case Util_Environment::is_nginx():
+			$generator_nginx = new BrowserCache_Environment_Nginx( $config );
+			$rewrite_rules = $generator_nginx->get_required_rules( $mime_types );
+			break;
 		}
+
 		return $rewrite_rules;
 	}
 
@@ -97,6 +108,8 @@ class BrowserCache_Environment {
 		$other_compression = $a['other'];
 		unset( $other_compression['asf|asx|wax|wmv|wmx'] );
 		unset( $other_compression['avi'] );
+		unset( $other_compression['avif'] );
+		unset( $other_compression['avifs'] );
 		unset( $other_compression['divx'] );
 		unset( $other_compression['gif'] );
 		unset( $other_compression['br'] );
@@ -127,7 +140,7 @@ class BrowserCache_Environment {
 	 * @return string
 	 */
 	public function rules_cache_generate_for_ftp( $config ) {
-		return $this->rules_cache_generate( $config, true );
+		return $this->rules_cache_generate_apache( $config );
 	}
 
 
@@ -142,20 +155,23 @@ class BrowserCache_Environment {
 	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
 	 */
 	private function rules_cache_add( $config, $exs ) {
-		Util_Rule::add_rules( $exs,
-			Util_Rule::get_browsercache_rules_cache_path(),
-			$this->rules_cache_generate( $config ),
-			W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
-			W3TC_MARKER_END_BROWSERCACHE_CACHE,
-			array(
-				W3TC_MARKER_BEGIN_MINIFY_CORE => 0,
-				W3TC_MARKER_BEGIN_PGCACHE_CORE => 0,
-				W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP => 0,
-				W3TC_MARKER_BEGIN_WORDPRESS => 0,
-				W3TC_MARKER_END_PGCACHE_CACHE => strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
-				W3TC_MARKER_END_MINIFY_CACHE => strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
-			)
-		);
+		$rules = $this->get_required_rules( $config );
+
+		foreach ( $rules as $i ) {
+			Util_Rule::add_rules( $exs,
+				$i['filename'],
+				$i['content'],
+				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
+				W3TC_MARKER_END_BROWSERCACHE_CACHE,
+				array(
+					W3TC_MARKER_BEGIN_MINIFY_CORE => 0,
+					W3TC_MARKER_BEGIN_PGCACHE_CORE => 0,
+					W3TC_MARKER_BEGIN_WORDPRESS => 0,
+					W3TC_MARKER_END_PGCACHE_CACHE => strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
+					W3TC_MARKER_END_MINIFY_CACHE => strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
+				)
+			);
+		}
 	}
 
 	/**
@@ -164,31 +180,29 @@ class BrowserCache_Environment {
 	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
 	 */
 	private function rules_cache_remove( $exs ) {
-		Util_Rule::remove_rules( $exs,
-			Util_Rule::get_browsercache_rules_cache_path(),
-			W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
-			W3TC_MARKER_END_BROWSERCACHE_CACHE );
-	}
+		$filenames = array();
 
-	/**
-	 * Returns cache rules
-	 *
-	 * @param Config  $config
-	 * @param bool    $cdnftp
-	 * @return string
-	 */
-	public function rules_cache_generate( $config, $cdnftp = false ) {
 		switch ( true ) {
 		case Util_Environment::is_apache():
+			$filenames[] = Util_Rule::get_apache_rules_path();
+			break;
+
 		case Util_Environment::is_litespeed():
-			return $this->rules_cache_generate_apache( $config );
+			$filenames[] = Util_Rule::get_apache_rules_path();
+			$filenames[] = Util_Rule::get_litespeed_rules_path();
+			break;
 
 		case Util_Environment::is_nginx():
-			$generator_nginx = new BrowserCache_Environment_Nginx( $config );
-			$mime_types = $this->get_mime_types();
-			return $generator_nginx->generate( $mime_types, $cdnftp );
+			$filenames[] = Util_Rule::get_nginx_rules_path();
+			break;
 		}
-		return '';
+
+		foreach ( $filenames as $i ) {
+			Util_Rule::remove_rules( $exs,
+				$i,
+				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
+				W3TC_MARKER_END_BROWSERCACHE_CACHE );
+		}
 	}
 
 	/**
@@ -229,7 +243,6 @@ class BrowserCache_Environment {
 		}
 
 		$rules = '';
-		$rules .= W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n";
 
 		if ( count( $mime_types ) ) {
 			$rules .= "<IfModule mod_mime.c>\n";
@@ -358,9 +371,12 @@ class BrowserCache_Environment {
 			$rules .= "</IfModule>\n";
 		}
 
-		foreach ( $mime_types2 as $type => $extensions )
-			$rules .= $this->_rules_cache_generate_apache_for_type( $config,
-				$extensions, $type );
+		$rules .= $this->_rules_cache_generate_apache_for_type( $config,
+			$mime_types2['cssjs'], 'cssjs' );
+		$rules .= $this->_rules_cache_generate_apache_for_type( $config,
+			$mime_types2['html'], 'html' );
+		$rules .= $this->_rules_cache_generate_apache_for_type( $config,
+			$mime_types2['other'], 'other' );
 
 		if ( $config->get_boolean( 'browsercache.hsts' ) ||
 			 $config->get_boolean( 'browsercache.security.xfo' ) ||
@@ -469,18 +485,8 @@ class BrowserCache_Environment {
 			$rules .= "</IfModule>\n";
 		}
 
-		if ( $config->get_boolean( 'browsercache.rewrite' ) ) {
-			$core = Dispatcher::component( 'BrowserCache_Core' );
-			$extensions = $core->get_replace_extensions( $config );
-
-			$rules .= "<IfModule mod_rewrite.c>\n";
-			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
-			$rules .= '    RewriteRule ^(.+)\.(x[0-9]{5})\.(' .
-				implode( '|', $extensions ) . ')$ $1.$3 [L]' . "\n";
-			$rules .= "</IfModule>\n";
-		}
-
-		$rules .= W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n";
+		$g = new BrowserCache_Environment_Apache( $config );
+		$rules .= $g->rules_rewrite();
 
 		return $rules;
 	}
@@ -577,18 +583,18 @@ class BrowserCache_Environment {
 		} else {
 			if ( $compatibility ) {
 				$rules .= "    FileETag None\n";
-				$headers_rules .= "         Header unset ETag\n";
+				$headers_rules .= "        Header unset ETag\n";
 			}
 		}
 
 		if ( $unset_setcookie )
-			$headers_rules .= "         Header unset Set-Cookie\n";
+			$headers_rules .= "        Header unset Set-Cookie\n";
 
 		if ( !$set_last_modified )
-			$headers_rules .= "         Header unset Last-Modified\n";
+			$headers_rules .= "        Header unset Last-Modified\n";
 
 		if ( $w3tc )
-			$headers_rules .= "         Header set X-Powered-By \"" .
+			$headers_rules .= "        Header set X-Powered-By \"" .
 				Util_Environment::w3tc_header() . "\"\n";
 
 		if ( strlen( $headers_rules ) > 0 ) {
@@ -611,128 +617,12 @@ class BrowserCache_Environment {
 	 * rules_no404wp
 	 */
 
-	/**
-	 * Writes no 404 by WP rules
-	 *
-	 * @param Config  $config
-	 * @param Util_Environment_Exceptions $exs
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form
-	 */
-	private function rules_no404wp_add( $config, $exs ) {
-		Util_Rule::add_rules( $exs, Util_Rule::get_browsercache_rules_no404wp_path(),
-			$this->rules_no404wp_generate( $config ),
-			W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP,
-			W3TC_MARKER_END_BROWSERCACHE_NO404WP,
-			array(
-				W3TC_MARKER_BEGIN_WORDPRESS => 0,
-				W3TC_MARKER_END_PGCACHE_CORE =>
-				strlen( W3TC_MARKER_END_PGCACHE_CORE ) + 1,
-				W3TC_MARKER_END_MINIFY_CORE =>
-				strlen( W3TC_MARKER_END_MINIFY_CORE ) + 1,
-				W3TC_MARKER_END_BROWSERCACHE_CACHE =>
-				strlen( W3TC_MARKER_END_BROWSERCACHE_CACHE ) + 1,
-				W3TC_MARKER_END_PGCACHE_CACHE =>
-				strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
-				W3TC_MARKER_END_MINIFY_CACHE =>
-				strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
-			)
-		);
-	}
-
-	/**
-	 * Removes 404 directives
-	 *
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form
-	 */
-	private function rules_no404wp_remove( $exs ) {
-		Util_Rule::remove_rules( $exs,
-			Util_Rule::get_browsercache_rules_no404wp_path(),
-			W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP,
-			W3TC_MARKER_END_BROWSERCACHE_NO404WP
-		);
-	}
-
-	/**
-	 * Generate rules related to prevent for media 404 error by WP
-	 *
-	 * @param Config  $config
-	 * @return string
-	 */
-	private function rules_no404wp_generate( $config ) {
-		switch ( true ) {
-		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
-			return $this->rules_no404wp_generate_apache( $config );
+	public function w3tc_cdn_rules_section( $section_rules, $config ) {
+		if ( Util_Environment::is_litespeed() ) {
+			$o = new BrowserCache_Environment_LiteSpeed( $config );
+			$section_rules = $o->w3tc_cdn_rules_section( $section_rules );
 		}
 
-		return false;
-	}
-
-	/**
-	 * Generate rules related to prevent for media 404 error by WP
-	 *
-	 * @param Config  $config
-	 * @return string
-	 */
-	private function rules_no404wp_generate_apache( $config ) {
-		$a = $this->get_mime_types();
-		$cssjs_types = $a['cssjs'];
-		$html_types = $a['html'];
-		$other_types = $a['other'];
-
-		$extensions = array_merge( array_keys( $cssjs_types ),
-			array_keys( $html_types ), array_keys( $other_types ) );
-
-		$permalink_structure = get_option( 'permalink_structure' );
-		$permalink_structure_ext = ltrim( strrchr( $permalink_structure, '.' ),
-			'.' );
-
-		if ( $permalink_structure_ext != '' ) {
-			foreach ( $extensions as $index => $extension ) {
-				if ( strstr( $extension, $permalink_structure_ext ) !== false ) {
-					$extensions[$index] = preg_replace( '~\|?' .
-						Util_Environment::preg_quote( $permalink_structure_ext ) .
-						'\|?~', '', $extension );
-				}
-			}
-		}
-
-		$exceptions = $config->get_array( 'browsercache.no404wp.exceptions' );
-		$wp_uri = network_home_url( '', 'relative' );
-		$wp_uri = rtrim( $wp_uri, '/' );
-
-		$rules = '';
-		$rules .= W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP . "\n";
-		$rules .= "<IfModule mod_rewrite.c>\n";
-		$rules .= "    RewriteEngine On\n";
-
-		// in subdir - rewrite theme files and similar to upper folder if file exists
-		if ( Util_Environment::is_wpmu() &&
-			!Util_Environment::is_wpmu_subdomain() ) {
-			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
-			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
-			$rules .= "    RewriteCond %{REQUEST_URI} ^$wp_uri/([_0-9a-zA-Z-]+/)(.*\.)(" .
-				implode( '|', $extensions ) . ")$ [NC]\n";
-			$document_root = Util_Rule::apache_docroot_variable();
-			$rules .= '    RewriteCond "' . $document_root . $wp_uri .
-				'/%2%3" -f' . "\n";
-			$rules .= "    RewriteRule .* $wp_uri/%2%3 [L]\n\n";
-		}
-
-
-		$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
-		$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
-
-		$imploded = implode( '|', $exceptions );
-		if ( !empty( $imploded ) )
-			$rules .= "    RewriteCond %{REQUEST_URI} !(" . $imploded. ")\n";
-
-		$rules .= "    RewriteCond %{REQUEST_URI} \\.(" .
-			implode( '|', $extensions ) . ")$ [NC]\n";
-		$rules .= "    RewriteRule .* - [L]\n";
-		$rules .= "</IfModule>\n";
-		$rules .= W3TC_MARKER_END_BROWSERCACHE_NO404WP . "\n";
-
-		return $rules;
+		return $section_rules;
 	}
 }

@@ -90,17 +90,17 @@ class Minify_Plugin {
 		$parsed = parse_url( $url );
 		$prefix = '/' . trim( $parsed['path'], '/' ) . '/';
 
-		if ( substr( $_SERVER['REQUEST_URI'], 0, strlen( $prefix ) ) == $prefix ) {
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		if ( substr( $request_uri, 0, strlen( $prefix ) ) == $prefix ) {
 			$w3_minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
-			$filename = Util_Environment::remove_query_all(
-				substr( $_SERVER['REQUEST_URI'], strlen( $prefix ) ) );
+			$filename = Util_Environment::remove_query_all( substr( $request_uri, strlen( $prefix ) ) );
 			$w3_minify->process( $filename );
 			exit();
 		}
 
-		if ( !empty( $_REQUEST['w3tc_minify'] ) ) {
+		if ( !empty( Util_Request::get_string( 'w3tc_minify' ) ) ) {
 			$w3_minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
-			$w3_minify->process( $_REQUEST['w3tc_minify'] );
+			$w3_minify->process( Util_Request::get_string( 'w3tc_minify' ) );
 			exit();
 		}
 	}
@@ -927,7 +927,7 @@ class Minify_Plugin {
 
 		foreach ( $uas as $ua ) {
 			if ( !empty( $ua ) ) {
-				if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( $_SERVER['HTTP_USER_AGENT'], $ua ) !== false ) {
+				if ( stristr( isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '', $ua ) !== false ) {
 					return false;
 				}
 			}
@@ -962,7 +962,7 @@ class Minify_Plugin {
 		);
 
 		foreach ( $auto_reject_uri as $uri ) {
-			if ( strstr( $_SERVER['REQUEST_URI'], $uri ) !== false ) {
+			if ( strstr( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', $uri ) !== false ) {
 				return false;
 			}
 		}
@@ -974,11 +974,10 @@ class Minify_Plugin {
 			$expr = trim( $expr );
 			$expr = str_replace( '~', '\~', $expr );
 
-			if ( $expr != '' && preg_match( '~' . $expr . '~i', $_SERVER['REQUEST_URI'] ) ) {
+			if ( '' !== $expr && preg_match( '~' . $expr . '~i', isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) {
 				return false;
 			}
 		}
-
 
 		if ( Util_Request::get_string( 'wp_customize' ) )
 			return false;
@@ -1093,8 +1092,13 @@ class _W3_MinifyHelpers {
 	function generate_script_tag( $url, $embed_type = 'blocking' ) {
 		static $non_blocking_function = false;
 
+		$rocket_loader_ignore = "";
+		if( $this->config->get_boolean( array( 'cloudflare', 'minify_js_rl_exclude' ) ) ){
+			$rocket_loader_ignore = 'data-cfasync="false"';
+		}
+
 		if ( $embed_type == 'blocking' ) {
-			$script = '<script src="' .
+			$script = '<script ' . $rocket_loader_ignore . ' src="' .
 				str_replace( '&', '&amp;', $url ) . '"></script>';
 		} else {
 			$script = '';
@@ -1109,19 +1113,19 @@ class _W3_MinifyHelpers {
 					$url . "');</script>";
 
 			} elseif ( $embed_type == 'nb-async' ) {
-				$script = '<script async src="' .
+				$script = '<script ' . $rocket_loader_ignore . ' async src="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			} elseif ( $embed_type == 'nb-defer' ) {
-				$script = '<script defer src="' .
+				$script = '<script ' . $rocket_loader_ignore . ' defer src="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			} elseif ( $embed_type == 'extsrc' ) {
-				$script = '<script extsrc="' .
+				$script = '<script ' . $rocket_loader_ignore . ' extsrc="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			} elseif ( $embed_type == 'asyncsrc' ) {
-				$script = '<script asyncsrc="' .
+				$script = '<script ' . $rocket_loader_ignore . ' asyncsrc="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			} else {
-				$script = '<script src="' .
+				$script = '<script ' . $rocket_loader_ignore . ' src="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			}
 		}

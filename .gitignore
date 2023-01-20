@@ -9,3 +9,5 @@ error_log
 /qa/env/lib/*.pyc
 /qa/env/working/*
 /qa/node_modules/*
+node_modules
+.vscode/

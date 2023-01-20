@@ -39,10 +39,6 @@ class Generic_Plugin_AdminNotifications {
 					$this,
 					'w3tc_message_action_generic_edge'
 				) );
-			add_action( 'w3tc_ajax_generic_edge', array(
-					$this,
-					'w3tc_ajax_generic_edge'
-				) );
 		}
 	}
 

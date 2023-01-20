@@ -28,8 +28,9 @@ describe('minify html', function() {
 
 	it('copy theme files', async() => {
 		let theme = await wp.getCurrentTheme(adminPage);
-		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
-		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', targetPath);
+		let themePath = env.wpContentPath + 'themes/' + theme;
+		await sys.copyPhpToPath('../../plugins/minify-auto-theme/*', `${themePath}/qa`);
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`, '/qa/minify-html-sc.php');
 	});
 
 
@@ -54,8 +55,7 @@ describe('minify html', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'page content',
-			template: 'qa/minify-html.php'
+			content: 'page content [w3tcqa]'
 		});
 		testPageUrl = testPage.url;
 	});
@@ -134,7 +134,12 @@ describe('minify html', function() {
 
 		let e6img = await page.$eval('#void6image', (e) => e.alt);
 		expect(e6img).equals('b/');
-		expect(testPageHtml).contains('id=void-elements6>\n<img\nid=void6image src=a/ alt=b/ >');
+
+		if (parseFloat(env.wpVersion) < 6.1) {
+			expect(testPageHtml).contains('id=void-elements6>\n<img\nid=void6image src=a/ alt=b/ >');
+		} else {
+			expect(testPageHtml).contains('id=void-elements6>\n<img\ndecoding=async id=void6image src=a/ alt=b/ >');
+		}
 
 		let e7img = await page.$eval('#void7image', (e) => e.alt);
 		expect(e7img).equals('svg-test');

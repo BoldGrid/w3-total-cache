@@ -207,7 +207,7 @@ class JSMin {
 				// fallthrough intentional
 			case self::ACTION_DELETE_A: // 2
 				$this->a = $this->b;
-				if ($this->a === "'" || $this->a === '"') { // string literal
+				if ( in_array( $this->a, array( "'", '"', '`' ), true ) ) {
 					$str = $this->a; // in case needed for exception
 					for(;;) {
 						$this->output .= $this->a;
@@ -329,7 +329,9 @@ class JSMin {
 				$c = null;
 			}
 		}
-		if (ord($c) >= self::ORD_SPACE || $c === "\n" || $c === null) {
+		if ( $c === "\n" || $c === null) {
+			return $c;
+		} elseif ( ord($c) >= self::ORD_SPACE ) {
 			return $c;
 		}
 		if ($c === "\r") {

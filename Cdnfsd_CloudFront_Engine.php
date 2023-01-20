@@ -2,7 +2,7 @@
 namespace W3TC;
 
 if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
-	require_once W3TC_LIB_DIR . '/Aws/aws-autoloader.php';
+	require_once W3TC_DIR . '/vendor/autoload.php';
 }
 
 
@@ -54,7 +54,7 @@ class Cdnfsd_CloudFront_Engine {
 	 */
 	public function flush_all() {
 		$api = $this->_api();
-		$uris = array( '/*' );
+		$uris = apply_filters( 'w3tc_cdn_cf_flush_all_uris', array( '/*' ) );
 
 		$api->createInvalidation( array(
 				'DistributionId' => $this->distribution_id,
@@ -72,12 +72,24 @@ class Cdnfsd_CloudFront_Engine {
 
 
 	private function _api() {
-		if ( empty( $this->access_key ) || empty( $this->secret_key ) ||
-			empty( $this->distribution_id ) )
-			throw new \Exception( __( 'Access key not specified.', 'w3-total-cache' ) );
+		if ( empty( $this->distribution_id ) ) {
+			throw new \Exception( __('CloudFront distribution not specified.', 'w3-total-cache' ) );
+		}
 
-		$credentials = new \Aws\Credentials\Credentials(
-			$this->access_key, $this->secret_key );
+		if ( empty( $this->access_key ) && empty( $this->secret_key ) ) {
+			$credentials = \Aws\Credentials\CredentialProvider::defaultProvider();
+		} else {
+			if ( empty( $this->access_key ) ) {
+				throw new \Exception( __( 'Access key not specified.', 'w3-total-cache' ) );
+			}
+
+			if ( empty( $this->secret_key ) ) {
+				throw new \Exception( __( 'Secret key not specified.', 'w3-total-cache' ) );
+			}
+
+			$credentials = new \Aws\Credentials\Credentials(
+				$this->access_key, $this->secret_key );
+		}
 
 		return new \Aws\CloudFront\CloudFrontClient( array(
 				'credentials' => $credentials,

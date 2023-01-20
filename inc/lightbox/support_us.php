@@ -1,8 +1,9 @@
 <?php
 namespace W3TC;
 
-if ( !defined( 'W3TC' ) )
+if ( ! defined( 'W3TC' ) ) {
 	die();
+}
 
 $state_master = Dispatcher::config_state_master();
 
@@ -36,57 +37,113 @@ $state_master = Dispatcher::config_state_master();
 			</div>
 		</div>
 	</header>
-	<form action="<?php echo Util_Ui::admin_url( 'admin.php?page=w3tc_general' ); ?>&amp;w3tc_config_save_support_us" method="post">
+	<form action="<?php echo esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>&amp;w3tc_config_save_support_us" method="post">
 
 	<div class="content">
-			<h3 class="font-palette-dark-skies"><?php _e( 'Thank you! You\'ve been using W3 Total Cache for seven days or so! Please support us:', 'w3-total-cache' ); ?></h3>
+			<h3 class="font-palette-dark-skies"><?php esc_html_e( 'Thank you! You\'ve been using W3 Total Cache for seven days or so! Please support us:', 'w3-total-cache' ); ?></h3>
 
 			<ul>
 				<li>
 					<label>
 						Please give us a five star rating:<br>
 						<?php
-echo Util_Ui::action_button(
-	__( 'Login & Rate Us', 'w3-total-cache' ),
-	W3TC_SUPPORT_US_RATE_URL,
-	"btn w3tc-size image btn-default palette-wordpress",
-	true ) ?>
+						echo wp_kses(
+							Util_Ui::action_button(
+								__( 'Login & Rate Us', 'w3-total-cache' ),
+								W3TC_SUPPORT_US_RATE_URL,
+								'btn w3tc-size image btn-default palette-wordpress',
+								true
+							),
+							array(
+								'input' => array(
+									'type'    => array(),
+									'name'    => array(),
+									'class'   => array(),
+									'value'   => array(),
+									'onclick' => array(),
+								),
+							)
+						);
+						?>
 					</label>
 				</li>
 				<li>
 					<label>Post a tweet:<br />
 						<?php
-$tweet_url = 'http://twitter.com/home/?status=' . urlencode( W3TC_SUPPORT_US_TWEET );
-echo Util_Ui::action_button(
-	__( 'Tell Your Friends', 'w3-total-cache' ),
-	$tweet_url,
-	"btn w3tc-size image btn-default palette-twitter",
-	true );
-echo Util_Ui::hidden(
-	__( 'tweeted' ),
-	__( 'tweeted' ),
-	'0' ) ?>
+						$tweet_url = 'http://twitter.com/home/?status=' . rawurlencode( W3TC_SUPPORT_US_TWEET );
+						echo wp_kses(
+							Util_Ui::action_button(
+								__( 'Tell Your Friends', 'w3-total-cache' ),
+								$tweet_url,
+								'btn w3tc-size image btn-default palette-twitter',
+								true
+							),
+							array(
+								'input' => array(
+									'type'    => array(),
+									'name'    => array(),
+									'class'   => array(),
+									'value'   => array(),
+									'onclick' => array(),
+								),
+							)
+						);
+						echo wp_kses(
+							Util_Ui::hidden(
+								__( 'tweeted' ),
+								__( 'tweeted' ),
+								'0'
+							),
+							array(
+								'input' => array(
+									'type'  => array(),
+									'id'    => array(),
+									'name'  => array(),
+									'value' => array(),
+								),
+							)
+						);
+						?>
 					</label>
 				</li>
 			</ul>
 			<p>
-			<label class="w3tc_signup_email" for="email">Don't forget to join our newsletter:<br />
-				<input id="email" name="email" type="text" class="form-control w3tc-size" value="<?php esc_attr_e( $email ) ?>"></label><br />
-			<input type="checkbox" name="signmeup" id="signmeup" class="css-checkbox" value="1" checked="checked" /><label for="signmeup" class="css-label"> <?php _e( 'Yes, sign me up.', 'w3-total-cache' ) ?> </label>
+				<label class="w3tc_signup_email" for="email">Don't forget to join our newsletter:<br />
+					<input id="email" name="email" type="text" class="form-control w3tc-size" value="<?php echo esc_attr( $email ); ?>">
+				</label><br />
+				<input type="checkbox" name="signmeup" id="signmeup" class="css-checkbox" value="1" checked="checked" />
+				<label for="signmeup" class="css-label"> <?php esc_html_e( 'Yes, sign me up.', 'w3-total-cache' ); ?> </label>
 			</p>
-			<?php if ( $state_master->get_string( 'license.community_terms' ) !=  'accept' ): ?>
+			<?php if ( $state_master->get_string( 'license.community_terms' ) !== 'accept' ) : ?>
 				<p>
-				<input type="checkbox" name="accept_terms" id="accept_terms" class="css-checkbox" value="1"
-					/>
-				<label for="accept_terms" class="css-label">
-					<?php sprintf( _e( 'Please review the latest <a href="%s" target="blank">terms of use and privacy policy</a>, and accept them.', 'w3-total-cache' ), W3TC_TERMS_URL ) ?>
-				</label>
+					<input type="checkbox" name="accept_terms" id="accept_terms" class="css-checkbox" value="1"/>
+					<label for="accept_terms" class="css-label">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML a tag to W3TC Terms page, 2 closing HTML a tag.
+								__(
+									'Please review the latest %1$sterms of use and privacy policy%2$s, and accept them.',
+									'w3-total-cache'
+								),
+								'<a href="' . esc_url( W3TC_TERMS_URL ) . '" target="blank">',
+								'</a>'
+							),
+							array(
+								'a' => array(
+									'href'   => array(),
+									'target' => array(),
+								),
+							)
+						);
+						?>
+					</label>
 				</p>
 			<?php endif ?>
 	</div>
 	<div class="w3tc_overlay_footer">
 		<p>
-			<?php wp_nonce_field( 'w3tc' ) ?>
+			<?php wp_nonce_field( 'w3tc' ); ?>
 			<input type="submit" class="btn w3tc-size image w3tc-button-save btn-primary outset save palette-turquoise " value="Save &amp; close">
 			<input type="button" class="btn w3tc-size btn-default outset palette-light-grey w3tc_lightbox_close" value="Cancel">
 		</p>

@@ -32,7 +32,7 @@ if ( ! defined( 'W3TC' ) ) {
 	/*]]>*/</script>
 
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Manage User Agent Groups', 'w3-total-cache' ), '', 'manage-uag' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Manage User Agent Groups', 'w3-total-cache' ), '', 'manage-uag' ); ?>
 		<p>
 			<input id="mobile_add" type="button" class="button"
 				<?php disabled( $useragent_groups['disabled'] ); ?>
@@ -56,7 +56,7 @@ if ( ! defined( 'W3TC' ) ) {
 						<td>
 							<span class="mobile_group_number"><?php echo esc_attr( $index ); ?>.</span> <span class="mobile_group"><?php echo esc_html( $group ); // phpcs:ignore ?></span>
 							<input type="button" class="button mobile_delete"
-								value="Delete group"
+								value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>"
 								<?php disabled( $useragent_groups['disabled'] ); ?> />
 						</td>
 					</tr>
@@ -81,7 +81,7 @@ if ( ! defined( 'W3TC' ) ) {
 							<select id="mobile_groups_<?php echo esc_attr( $group ); ?>_theme"
 								name="mobile_groups[<?php echo esc_attr( $group ); ?>][theme]"
 								<?php disabled( $useragent_groups['disabled'] ); ?> >
-								<option value="">-- Pass-through --</option>
+								<option value=""><?php esc_html_e( '-- Pass-through --', 'w3-total-cache' ); ?></option>
 								<?php foreach ( $useragent_themes as $theme_key => $theme_name ) : ?>
 								<option value="<?php echo esc_attr( $theme_key ); ?>"<?php selected( $theme_key, $group_config['theme'] ); ?>><?php echo esc_html( $theme_name ); ?></option>
 								<?php endforeach; ?>
@@ -159,7 +159,7 @@ if ( ! defined( 'W3TC' ) ) {
 	/*]]>*/</script>
 
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Manage Referrer Groups', 'w3-total-cache' ), '', 'manage-rg' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Manage Referrer Groups', 'w3-total-cache' ), '', 'manage-rg' ); ?>
 		<p>
 			<input id="referrer_add" type="button" class="button" value="<?php esc_html_e( 'Create a group', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'of referrers by specifying names in the referrers field. Assign a set of referrers to use a specific theme, redirect them to another domain, create referrer groups to ensure that a unique cache is created for each referrer group. Drag and drop groups into order (if needed) to determine their priority (top -&gt; down).', 'w3-total-cache' ); ?>
 		</p>
@@ -235,7 +235,7 @@ if ( ! defined( 'W3TC' ) ) {
 <!-- Cookie Groups -->
 
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( __( 'Manage Cookie Groups', 'w3-total-cache' ), '', 'manage-cg' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Manage Cookie Groups', 'w3-total-cache' ), '', 'manage-cg' ); ?>
 		<p>
 			<input id="w3tc_cookiegroup_add" type="button" class="button"
 				<?php disabled( $cookie_groups['disabled'] ); ?>
@@ -259,7 +259,7 @@ if ( ! defined( 'W3TC' ) ) {
 							<span class="cookiegroup_number"><?php echo esc_attr( $index ); ?>.</span>
 							<span class="cookiegroup_name"><?php echo htmlspecialchars( $group ); // phpcs:ignore ?></span>
 							<input type="button" class="button w3tc_cookiegroup_delete"
-								value="Delete group"
+								value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>"
 								<?php disabled( $cookie_groups['disabled'] ); ?> />
 						</td>
 					</tr>

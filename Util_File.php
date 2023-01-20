@@ -22,7 +22,7 @@ class Util_File {
 
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
-			if ( !@is_dir( $curr_path ) ) {
+			if ( !@file_exists( $curr_path ) ) {
 				if ( !@mkdir( $curr_path, $mask ) ) {
 					return false;
 				}
@@ -61,7 +61,7 @@ class Util_File {
 
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
-			if ( !@is_dir( $curr_path ) ) {
+			if ( !@file_exists( $curr_path ) ) {
 				if ( !@mkdir( $curr_path, $mask ) )
 					return false;
 			}
@@ -93,7 +93,8 @@ class Util_File {
 		$path = trim( $path, '/' );
 		$dirs = explode( '/', $path );
 
-		$curr_path = $from_path;
+		$curr_path = realpath( $from_path );   // use canonicalization
+		$curr_path_previous = $curr_path;
 
 		foreach ( $dirs as $dir ) {
 			if ( $dir == '' )
@@ -103,9 +104,17 @@ class Util_File {
 
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
-			if ( !@is_dir( $curr_path ) ) {
-				if ( !@mkdir( $curr_path, $mask ) )
+			if ( !@file_exists( $curr_path ) ) {
+				if ( !@mkdir( $curr_path, $mask ) ) {
 					return false;
+				}
+				$curr_path = realpath( $curr_path );
+				// make sure we grow from previous step and dont jump elsewhere
+				if ( strlen( $curr_path ) <= 0 ||
+						substr( $curr_path, 0, strlen( $curr_path_previous ) ) != $curr_path_previous ) {
+					return false;
+				}
+				$curr_path_previous = $curr_path;
 			}
 		}
 
@@ -335,7 +344,7 @@ class Util_File {
 			if ( !is_dir( W3TC_CACHE_TMP_DIR ) || !is_writable( W3TC_CACHE_TMP_DIR ) ) {
 				$e = error_get_last();
 				$description = ( isset( $e['message'] ) ? $e['message'] : '' );
-				
+
 				throw new \Exception( 'Can\'t create folder <strong>' .
 					W3TC_CACHE_TMP_DIR . '</strong>: ' . $description );
 			}

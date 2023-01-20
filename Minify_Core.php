@@ -134,7 +134,7 @@ class Minify_Core {
 
 		if ( $debug ) {
 			Minify_Core::log( $error );
-			echo "\r\n/* " . htmlspecialchars( $error ) . " */\r\n";
+			echo "\r\n/* " . esc_html( $error ) . " */\r\n";
 		}
 	}
 
@@ -147,7 +147,14 @@ class Minify_Core {
 	 * @return bool
 	 */
 	static public function log( $msg ) {
-		$data = sprintf( "[%s] [%s] [%s] %s\n", date( 'r' ), $_SERVER['REQUEST_URI'], ( !empty( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '-' ), $msg );
+		$data = sprintf(
+			"[%s] [%s] [%s] %s\n",
+			date( 'r' ),
+			isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+			! empty( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '-',
+			$msg
+		);
+
 		$data = strtr( $data, '<>', '..' );
 
 		$filename = Util_Debug::log_filename( 'minify' );
@@ -175,7 +182,11 @@ class Minify_Core {
 		case 'redis':
 			$engineConfig = array(
 				'servers' => $c->get_array( 'minify.redis.servers' ),
+				'verify_tls_certificates' => $c->get_boolean( 'minify.redis.verify_tls_certificates' ),
 				'persistent' => $c->get_boolean( 'minify.redis.persistent' ),
+				'timeout' => $c->get_integer( 'minify.redis.timeout' ),
+				'retry_interval' => $c->get_integer( 'minify.redis.retry_interval' ),
+				'read_timeout' => $c->get_integer( 'minify.redis.read_timeout' ),
 				'dbid' => $c->get_integer( 'minify.redis.dbid' ),
 				'password' => $c->get_string( 'minify.redis.password' )
 			);

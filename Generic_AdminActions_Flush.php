@@ -23,7 +23,7 @@ class Generic_AdminActions_Flush {
 	function w3tc_flush_current_page() {
 		$url = filter_input( INPUT_GET, 'url', FILTER_SANITIZE_URL );
 		if ( empty( $url ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
-			$url = $_SERVER['HTTP_REFERER'];
+			$url = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
 		}
 		w3tc_flush_url( $url );
 
@@ -245,7 +245,7 @@ class Generic_AdminActions_Flush {
 	 */
 	function w3tc_flush_post() {
 		$post_id = Util_Request::get_integer( 'post_id' );
-		w3tc_flush_post( $post_id, array( 'ui_action' => 'flush_button' ) );
+		w3tc_flush_post( $post_id, true, array( 'ui_action' => 'flush_button' ) );
 
 		Util_Admin::redirect( array(
 				'w3tc_note' => 'pgcache_purge_post'

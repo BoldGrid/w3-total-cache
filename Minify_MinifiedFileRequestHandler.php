@@ -222,7 +222,7 @@ class Minify_MinifiedFileRequestHandler {
 			@header( 'X-Powered-By: ' . Util_Environment::w3tc_header() );
 		}
 
-		if ( empty( $_GET['f_array'] ) && empty( $_GET['g'] ) ) {
+		if ( empty( Util_Request::get( 'f_array' ) ) && empty( Util_Request::get_string( 'g' ) ) ) {
 			return $this->finish_with_error( 'Nothing to minify', $quiet, false );
 		}
 
@@ -511,7 +511,7 @@ class Minify_MinifiedFileRequestHandler {
 		try {
 			$files = Minify_Core::minify_filename_to_urls_for_minification(
 				$hash, $type );
-		} catch ( Exception $e ) {
+		} catch ( \Exception $e ) {
 			$files = array();
 		}
 
@@ -532,7 +532,7 @@ class Minify_MinifiedFileRequestHandler {
 				} else {
 					$path = Util_Environment::docroot_to_full_filename( $docroot_filename );
 
-					if ( file_exists( $path ) ) {
+					if ( @file_exists( $path ) ) {
 						$result[] = $file;
 					} else {
 						Minify_Core::debug_error( sprintf( 'File "%s" doesn\'t exist', $file ) );
@@ -579,7 +579,7 @@ class Minify_MinifiedFileRequestHandler {
 
 		if ( defined( 'W3TC_IN_MINIFY' ) ) {
 			status_header( 400 );
-			echo $message;
+			echo esc_html( $message );
 			die();
 		}
 	}
@@ -671,7 +671,11 @@ class Minify_MinifiedFileRequestHandler {
 					'host' =>  Util_Environment::host(),
 					'module' => 'minify',
 					'servers' => $this->_config->get_array( 'minify.redis.servers' ),
+					'verify_tls_certificates' => $this->_config->get_boolean( 'minify.redis.verify_tls_certificates' ),
 					'persistent' => $this->_config->get_boolean( 'minify.redis.persistent' ),
+					'timeout' => $this->_config->get_integer( 'minify.redis.timeout' ),
+					'retry_interval' => $this->_config->get_integer( 'minify.redis.retry_interval' ),
+					'read_timeout' => $this->_config->get_integer( 'minify.redis.read_timeout' ),
 					'dbid' => $this->_config->get_integer( 'minify.redis.dbid' ),
 					'password' => $this->_config->get_string( 'minify.redis.password' )
 				);

@@ -31,8 +31,10 @@ describe('', function() {
 
 	it('copy theme files', async() => {
 		let theme = await wp.getCurrentTheme(adminPage);
-		let targetPath = env.wpContentPath + 'themes/' + theme;
-		await sys.copyPhpToPath('../../plugins/pagecache/redirect-caching-redirect.php', targetPath);
+		let themePath = env.wpContentPath + 'themes/' + theme;
+		await sys.copyPhpToPath('../../plugins/pagecache/*', `${themePath}/qa`);
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`,
+			'/qa/redirect-caching-redirect-sc.php');
 	});
 
 
@@ -53,8 +55,7 @@ describe('', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'test',
-			template: 'redirect-caching-redirect.php'
+			content: 'test [w3tcqa]'
 		});
 
 		testPageUrl = testPage.url;

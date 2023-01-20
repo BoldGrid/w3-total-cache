@@ -67,7 +67,7 @@ class Minify_CSS_Compressor {
      */
     protected function _process($css)
     {
-        $this->_replacementHash = 'MINIFYCSS' . md5($_SERVER['REQUEST_TIME']);
+        $this->_replacementHash = 'MINIFYCSS' . md5( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' );
         $this->_placeholders = array();
 
         $css = preg_replace_callback('~(".*"|\'.*\')~U', array($this, '_removeQuotesCB'), $css);
@@ -254,7 +254,7 @@ class Minify_CSS_Compressor {
     protected function _fontFamilyCB($m)
     {
         // Issue 210: must not eliminate WS between words in unquoted families
-        $pieces = preg_split('/(\'[^\']+\'|"[^"]+")/', $m[1], null, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        $pieces = preg_split('/(\'[^\']+\'|"[^"]+")/', $m[1], -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
         $out = 'font-family:';
         while (null !== ($piece = array_shift($pieces))) {
             if ($piece[0] !== '"' && $piece[0] !== "'") {

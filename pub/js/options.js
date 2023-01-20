@@ -320,6 +320,39 @@ function w3tc_csp_reference() {
 	});
 }
 
+function cdn_cf_check() {
+	// Prevents JS error for non W3TC pages.
+	if ( typeof w3tcData === 'undefined' ) {
+		return;
+	}
+
+	var cdnEnabled = jQuery( '#cdn__enabled' ).is( ':checked' ),
+		cdnEngine = jQuery( '#cdn__engine' ).find( ':selected' ).val(),
+		cdnFlushManually = jQuery( '[name="cdn__flush_manually"]' ).is( ':checked' );
+
+	// Remove any cf admin notices.
+	jQuery( '.w3tc-cf-notice' ).remove();
+
+	// General page.
+	if ( ! w3tcData.cdnFlushManually && cdnEnabled && ( 'cf' === cdnEngine || 'cf2' === cdnEngine ) ) {
+		// Print cf admin notice.
+		jQuery( '#cdn .inside' ).prepend(
+			'<div class="notice notice-warning inline w3tc-cf-notice"><p>' +
+			w3tcData.cfWarning +
+			'</p></div>'
+		);
+	}
+
+	// CDN page.
+	if ( ! cdnFlushManually && w3tcData.cdnEnabled && ( 'cf' === w3tcData.cdnEngine || 'cf2' === w3tcData.cdnEngine ) ) {
+		// Show warning on the CDN page for flush manually.
+		jQuery( '#cdn-flushmanually-warning' ).show();
+	} else {
+		// Hide warning on the CDN page for flush manually.
+		jQuery( '#cdn-flushmanually-warning' ).hide();
+	}
+}
+
 jQuery(function() {
 	// general page
 	jQuery('.w3tc_read_technical_info').on( 'click', function() {
@@ -354,8 +387,19 @@ jQuery(function() {
 			}
 		}).fail(function() {
 			jQuery('.w3tc_license_verification').html('Check failed');
-		})
+		});
 	});
+
+	// When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
+	cdn_cf_check();
+	jQuery( '#cdn__enabled' ).on( 'click', cdn_cf_check );
+	jQuery( '#cdn__engine' ).on( 'change', cdn_cf_check );
+
+	/**
+	 * CDN page.
+	 * When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
+	 */
+	 jQuery( '[name="cdn__flush_manually"]' ).on( 'click', cdn_cf_check );
 
 	// pagecache page
 	w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
@@ -642,7 +686,7 @@ jQuery(function() {
 					'config[user]': jQuery('#cdn_ftp_user').val(),
 					'config[path]': jQuery('#cdn_ftp_path').val(),
 					'config[pass]': jQuery('#cdn_ftp_pass').val(),
-					'config[pasv]': jQuery('#cdn_ftp_pasv:checked').length,
+					'config[pasv]': jQuery('#cdn__ftp__pasv:checked').length,
 					'config[default_keys]': jQuery('#cdn__ftp__default_keys:checked').length,
 					'config[pubkey]': jQuery('#cdn_ftp_pubkey').val(),
 					'config[privkey]': jQuery('#cdn_ftp_privkey').val()
@@ -969,6 +1013,7 @@ jQuery(function() {
 		jQuery.post('admin.php?page=w3tc_dashboard', {
 			w3tc_test_redis: 1,
 			servers: jQuery('#redis_servers').val(),
+			verify_tls_certificates: jQuery('[id$=__redis__verify_tls_certificates]').is(':checked'),
 			dbid : jQuery('#redis_dbid').val(),
 			password : jQuery('#redis_password').val(),
 			_wpnonce: jQuery(this).metadata().nonce

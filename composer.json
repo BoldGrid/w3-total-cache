@@ -1,0 +1,18 @@
+{
+    "require": {
+        "aws/aws-sdk-php": "^3.180",
+        "guzzlehttp/guzzle": "6.*",
+        "symfony/polyfill-intl-idn" : "1.20.*",
+        "symfony/polyfill-intl-normalizer" : "1.20.*",
+        "symfony/polyfill-mbstring" : "1.20.*"
+    },
+    "replace": {
+        "symfony/polyfill-php56": "*",
+        "symfony/polyfill-php70": "*",
+        "symfony/polyfill-php71": "*",
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php74": "*",
+        "symfony/polyfill-mbstring": "*"
+    }
+}

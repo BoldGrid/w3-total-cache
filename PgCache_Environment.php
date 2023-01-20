@@ -189,7 +189,7 @@ class PgCache_Environment {
 
 			try{
 			if ( file_exists( $dir ) && !is_writeable( $dir ) )
-				Util_WpFile::delete_folder( $dir, '', $_SERVER['REQUEST_URI'] );
+				Util_WpFile::delete_folder( $dir, '', isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
 		} catch ( Util_WpFile_FilesystemRmdirException $ex ) {
 			$exs->push( $ex );
 		}
@@ -411,7 +411,6 @@ class PgCache_Environment {
 			W3TC_MARKER_BEGIN_PGCACHE_CORE,
 			W3TC_MARKER_END_PGCACHE_CORE,
 			array(
-				W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP => 0,
 				W3TC_MARKER_BEGIN_WORDPRESS => 0,
 				W3TC_MARKER_END_MINIFY_CORE =>
 					strlen( W3TC_MARKER_END_MINIFY_CORE ) + 1,
@@ -703,6 +702,10 @@ class PgCache_Environment {
 		$rules .= "    RewriteRule .* - [E=W3TC_PREVIEW:_preview]\n";
 		$env_W3TC_PREVIEW = '%{ENV:W3TC_PREVIEW}';
 
+		$rules .= "    RewriteCond %{REQUEST_URI} \\/$\n";
+		$rules .= "    RewriteRule .* - [E=W3TC_SLASH:_slash]\n";
+		$env_W3TC_SLASH = '%{ENV:W3TC_SLASH}';
+
 		$use_cache_rules = '';
 		/**
 		 * Don't accept POSTs
@@ -735,7 +738,7 @@ class PgCache_Environment {
 		 * Make final rewrites for specific files
 		 */
 		$uri_prefix =  $cache_path . '/%{HTTP_HOST}/%{REQUEST_URI}/' .
-			'_index' . $env_W3TC_UA . $env_W3TC_REF . $env_W3TC_COOKIE .
+			'_index' . $env_W3TC_SLASH . $env_W3TC_UA . $env_W3TC_REF . $env_W3TC_COOKIE .
 			$env_W3TC_SSL . $env_W3TC_PREVIEW;
 		$uri_prefix = apply_filters( 'w3tc_pagecache_rules_apache_uri_prefix',
 			$uri_prefix );
@@ -751,15 +754,6 @@ class PgCache_Environment {
 
 		foreach ( $exts as $ext ) {
 			$rules .= $use_cache_rules;
-
-			if ( $ext == '.html' ) {
-				/**
-				 * Check permalink structure trailing slash
-				 */
-				if ( substr( $permalink_structure, -1 ) == '/' ) {
-					$rules .= "    RewriteCond %{REQUEST_URI} \\/$\n";
-				}
-			}
 
 			$rules .= "    RewriteCond \"" . $document_root . $uri_prefix . $ext .
 				$env_W3TC_ENC . "\"" . $switch . "\n";
@@ -956,17 +950,11 @@ class PgCache_Environment {
 		$rules .= "    set \$w3tc_rewrite 0;\n";
 		$rules .= "}\n";
 
-		/**
-		 * Check permalink structure trailing slash
-		 * and allow WordPress to redirect for non-slash URIs
-		 */
-		if ( $pgcache_engine == 'file_generic' ) {
-			if ( substr( $permalink_structure, -1 ) == '/' ) {
-				$rules .= "if ($env_request_uri !~ \\/$) {\n";
-				$rules .= "    set \$w3tc_rewrite 0;\n";
-				$rules .= "}\n";
-			}
-		}
+		$rules .= "set \$w3tc_slash \"\";\n";
+		$rules .= "if ($env_request_uri ~ \\/$) {\n";
+		$rules .= "    set \$w3tc_slash _slash;\n";
+		$rules .= "}\n";
+		$env_w3tc_slash = "\$w3tc_slash";
 
 		/**
 		 * Check for rejected cookies
@@ -1129,7 +1117,7 @@ class PgCache_Environment {
 			$env_w3tc_enc = '$w3tc_enc';
 		}
 
-		$key_postfix = $env_w3tc_ua . $env_w3tc_ref . $env_w3tc_cookie .
+		$key_postfix = $env_w3tc_slash . $env_w3tc_ua . $env_w3tc_ref . $env_w3tc_cookie .
 			$env_w3tc_ssl . $env_w3tc_preview;
 
 		if ( $pgcache_engine == 'file_generic' ) {
@@ -1213,8 +1201,12 @@ class PgCache_Environment {
 		   }
 
 		$rules .= '  default_type text/html;' . "\n";
+
+		$memcached_servers = $config->get_array( 'pgcache.memcached.servers' );
+		$memcached_pass = !empty( $memcached_servers ) ? array_values( $memcached_servers )[0] : 'localhost:11211';
+
 		$rules .= '  if ($w3tc_rewrite = 1) {' . "\n";
-		$rules .= '    memcached_pass localhost:11211;' . "\n";
+		$rules .= '    memcached_pass ' . $memcached_pass . ';' . "\n";
 		$rules .= "  }\n";
 		$rules .= '  error_page     404 502 504 = @fallback;' . "\n";
 		$rules .= "}\n";
@@ -1249,7 +1241,6 @@ class PgCache_Environment {
 				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE => 0,
 				W3TC_MARKER_BEGIN_MINIFY_CORE => 0,
 				W3TC_MARKER_BEGIN_PGCACHE_CORE => 0,
-				W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP => 0,
 				W3TC_MARKER_BEGIN_WORDPRESS => 0,
 				W3TC_MARKER_END_MINIFY_CACHE => strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
 			)

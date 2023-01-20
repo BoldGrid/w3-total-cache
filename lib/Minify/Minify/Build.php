@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Build.php
+ *
+ * NOTE: Fixes have been included in this file; look for "W3TC FIX".
+ */
+
 namespace W3TCL\Minify;
 
 /**
@@ -85,13 +91,16 @@ class Minify_Build {
 	 */
 	public function __construct($sources)
 	{
+		// W3TC FIX: Override $_SERVER['DOCUMENT_ROOT'] if enabled in settings.
+		$docroot = \W3TC\Util_Environment::document_root();
+
 		$max = 0;
 		foreach ((array)$sources as $source) {
 			if ($source instanceof Minify_Source) {
 				$max = max($max, $source->lastModified);
 			} elseif (is_string($source)) {
 				if (0 === strpos($source, '//')) {
-					$source = $_SERVER['DOCUMENT_ROOT'] . substr($source, 1);
+					$source = $docroot . substr($source, 1);
 				}
 				if (is_file($source)) {
 					$max = max($max, filemtime($source));

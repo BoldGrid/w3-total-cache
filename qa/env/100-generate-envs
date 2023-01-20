@@ -59,6 +59,10 @@ def generate_image_descriptors
 		'apache' => {
 			'HTTP_SERVER' => 'apache',
 			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/apache2/wp.sandbox_error.log'
+		},
+		'litespeed' => {
+			'HTTP_SERVER' => 'litespeed',
+			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
 		}
 	})
 
@@ -66,61 +70,53 @@ def generate_image_descriptors
 	image_descriptors = multiply(image_descriptors, php_list = {
 		'php80' => {
 			'PHP_VERSION' => '8.0',
+			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'litespeed'
+			]
 		},
-		'php73' => {
-			'PHP_VERSION' => '7.3',
-			'OS' => 'xenial',
+		# litespeed-specific, lighter env to keep scope tight
+		'php80tiny' => {
+			'PHP_VERSION' => '8.0',
+			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
+			'OS' => 'focal',
+			'APC' => '',
+			'MEMCACHE' => '',
+			'REDIS' => '',
+			'_except_name_contains' => [
+				'apache',
+				'nginx',
+			]
+		},
+		'php74' => {
+			'PHP_VERSION' => '7.4',
+			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
+			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'litespeed'
+			]
 		},
-		#'php70' => {
-		#	'PHP_VERSION' => '7.0',
-		#	'OS' => 'xenial',
-		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
-		#	'MEMCACHE' => 'memcached',
-		#	'REDIS' => 'redis'
-		#},
-		# php 5.6 is not available in trusty anymore - use xenial if required
-		#
-		#'php56' => {
-		#	'PHP_VERSION' => '5.6',
-		#	'OS' => 'trusty',
-		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
-		#	'MEMCACHE' => 'memcached',
-		#	'REDIS' => 'redis'
-		#},
-		'php55' => {
-			'PHP_VERSION' => '5.5',
-			'OS' => 'trusty',
+		'php56' => {
+			'PHP_VERSION' => '5.6',
+			'PHPFPM_SOCKET_FILE' => '/run/php/php5.6-fpm.sock',
+			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'litespeed'
+			]
 		}
-		# puppeteer not available for this version
-		#,
-		#'php53' => {
-		#	'PHP_VERSION' => '5.3',
-		#	'OS' => 'precise',
-		#	'MEMCACHE' => 'memcached'
-		#}
 	})
 
 	php_last = php_list.keys.sort[-1]
-
-	# add special memory caches
-	image_descriptors = add_single(image_descriptors, 'php55', {
-		'xcache' => {
-			'APC' => '',   # remove apc from environment
-			'XCACHE' => 'xcache',
-			'FILESYSTEM' => 'no',
-			'MEMCACHE' => 'memcache'   # use old "memcache" extension instead of "memcached"
-		}}
-	)
 
 	# add special path configurations
 	image_descriptors = multiply_selected(image_descriptors,
@@ -128,12 +124,18 @@ def generate_image_descriptors
 		{
 			'8080' => {
 				'HTTP_SERVER_PORT' => '8080',
-				'WP_MAYBE_COLON_PORT' => ':8080'   # derived from HTTP_SERVER_PORT
+				'WP_MAYBE_COLON_PORT' => ':8080',   # derived from HTTP_SERVER_PORT
+				'_except_name_contains' => [
+					'litespeed'
+				]
 			},
 			'https' => {
 				'HTTP_SERVER_PORT' => '443',
 				'HTTP_SERVER_SCHEME' => 'https',
-				'WP_MAYBE_COLON_PORT' => ''
+				'WP_MAYBE_COLON_PORT' => '',
+				'_except_name_contains' => [
+					'litespeed'
+				]
 			},
 			#'varnish' => {
 			#	'HTTP_SERVER_PORT' => '8080',
@@ -146,11 +148,7 @@ def generate_image_descriptors
 	return image_descriptors
 end
 
-
-
 def generate_box_descriptors(image_name)
-	wpl = 'wp53'
-
 	box_descriptors = {
 		'' => {
 			'WP_PATH' => '/var/www/wp-sandbox/',
@@ -182,12 +180,12 @@ def generate_box_descriptors(image_name)
 		#		'php73', 'php80'  # cause a lot of PHP warnings
 		#	]
 		#},
-		'wp51' => {   # dont comment out - last env using PHP55
-			'WP_VERSION' => '5.1',
-			'_except_name_contains' => [
-				'php80'  # not compatible, {} in script-loader fatal
-			]
-		},
+		#'wp51' => {   # dont comment out - last env using PHP55 # Stopped using php55.
+		#	'WP_VERSION' => '5.1',
+		#	'_except_name_contains' => [
+		#		'php80'  # not compatible, {} in script-loader fatal
+		#	]
+		#},
 		#'wp52' => {
 		#	'WP_VERSION' => '5.2',
 		#	'_except_name_contains' => [
@@ -200,29 +198,49 @@ def generate_box_descriptors(image_name)
 		#		'php55'   # wp5.3 requires php>=5.6
 		#	]
 		#},
-		'wp55' => {
-			'WP_VERSION' => '5.5',
+		#'wp55' => {
+		#	'WP_VERSION' => '5.5',
+		#	'_except_name_contains' => [
+		#		'php55',   # wp5.5 requires php>=5.6
+		#		'php80'  # not compatible, WP_Feed_Cache::create() fatal
+		#	]
+		#},
+		#'wp56' => {
+		#'WP_VERSION' => '5.6',
+		#	'_except_name_contains' => [
+		#		'litespeed'
+		#	]
+		#},
+		#'wp57' => {
+		#	'WP_VERSION' => '5.7',
+		#	'_except_name_contains' => [
+		#		'litespeed'
+		#	]
+		#},
+		'wp58' => {
+			'WP_VERSION' => '5.8',
 			'_except_name_contains' => [
-				'php55',   # wp5.5 requires php>=5.6
-				'php80'  # not compatible, WP_Feed_Cache::create() fatal
+				'litespeed'
 			]
 		},
-		'wp56' => {
-			'WP_VERSION' => '5.6',
+		'wp59' => {
+			'WP_VERSION' => '5.9'
+		},
+		'wp60' => {
+			'WP_VERSION' => '6.0',
 			'_except_name_contains' => [
-				'php55'   # wp5.6 requires php>=5.6
+				'litespeed'
 			]
 		},
-		'wp57' => {
-			'WP_VERSION' => '5.7',
+		'wp61' => {
+			'WP_VERSION' => '6.1',
 			'_except_name_contains' => [
-				'php55'   # wp5.7 requires php>=5.6
+				'litespeed'
 			]
 		}
 	}, image_name)
 
 	wp_last = box_descriptors.keys.sort[-1]
-
 	box_descriptors = multiply_selected(box_descriptors,
 		wp_last,
 		{
@@ -236,7 +254,7 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/moved-folders/moved-plugins/',
 				'WP_PLUGINS_URI' => '/moved-folders/moved-plugins/',
 				'_except_name_contains' => [
-					'xcache'
+					'xcache', 'litespeed'
 				]
 			},
 			# add wp in /wp/ uri, subdomains are not supported by wp in that configuration
@@ -250,14 +268,14 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/wp/wp-content/plugins/',
 				'WP_PLUGINS_URI' => '/wp/wp-content/plugins/',
 				'_except_name_contains' => [
-					'xcache'
+					'xcache', 'litespeed'
 				]
 			},
 			# some people enter home/siteurl captialized
 			'captial' => {
 				'WP_HOST' => 'Wp.SandBox',
 				'_except_name_contains' => [
-					'xcache'
+					'xcache', 'litespeed'
 				]
 
 			}
@@ -281,6 +299,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
+				'litespeed'
 			]
 		},
 		'subdir' => {
@@ -297,6 +316,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
+				'litespeed'
 			]
 		}
 	}, image_name)
@@ -506,28 +526,30 @@ end
 # adds vagrant-provider's specific variables
 def expand_image_specifics(image_descriptors)
 	vagrant_oses = {
-		'trusty' => {
-			'AWS_ZONE' => 'us-west-2',
-			'AWS_AMI' => 'ami-064460a18d75afc81',
-			'OS_VERSION' => 'Ubuntu 14.04 LTE 64Bit',
-			'vagrant_box' => 'ubuntu/trusty64',
-			'vagrant_box_version' => '20190429.0.0'
-		},
-		'xenial' => {
-			'AWS_ZONE' => 'us-west-2',
-			'AWS_AMI' => 'ami-08f21f7b6d9013a08',
-			'OS_VERSION' => 'Ubuntu 16.04 LTE 64Bit',
-			'vagrant_box' => 'ubuntu/xenial64',
-			'vagrant_box_version' => '20190501.0.0'
-		},
 		'focal' => {
 			'AWS_ZONE' => 'us-west-2',
-			'AWS_AMI' => 'ami-0c007ac192ba0744b',
-			'OS_VERSION' => 'Ubuntu 20.04 LTE 64Bit',
+			'AWS_AMI' => 'ami-03d5c68bab01f3496',
+			'OS_VERSION' => 'Ubuntu 20.04 LTS 64Bit',
 			'vagrant_box' => 'ubuntu/focal64',
-			'vagrant_box_version' => '20201210.0.0'
+			'vagrant_box_version' => '20210510.0.0'
 		},
 
+		# EOL - no PHP modules in Ondrey Sury ppa
+		#'trusty' => {
+		#	'AWS_ZONE' => 'us-west-2',
+		#	'AWS_AMI' => 'ami-064460a18d75afc81',
+		#	'OS_VERSION' => 'Ubuntu 14.04 LTS 64Bit',
+		#	'vagrant_box' => 'ubuntu/trusty64',
+		#	'vagrant_box_version' => '20190429.0.0'
+		#},
+		# EOL - no PHP modules in Ondrey Sury ppa
+		#'xenial' => {
+		#	'AWS_ZONE' => 'us-west-2',
+		#	'AWS_AMI' => 'ami-0dd273d94ed0540c0',
+		#	'OS_VERSION' => 'Ubuntu 16.04 LTS 64Bit',
+		#	'vagrant_box' => 'ubuntu/xenial64',
+		#	'vagrant_box_version' => '20210429.0.0'
+		#},
 		# puppeteer not available for this version
 		#'precise' => {
 		#	'AWS_ZONE' => 'us-west-2',

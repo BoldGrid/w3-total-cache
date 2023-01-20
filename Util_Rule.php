@@ -46,6 +46,32 @@ class Util_Rule {
 	}
 
 	/**
+	 * Returns litespeed rules path
+	 *
+	 * @return string
+	 */
+	static public function get_litespeed_rules_path() {
+		$config = Dispatcher::config();
+
+		$path = $config->get_string( 'config.path' );
+
+		if ( !$path ) {
+			$path = Util_Environment::site_path() . 'litespeed.conf';
+		}
+
+		return $path;
+	}
+
+	/**
+	 * Returns path of apache's primary rules file
+	 *
+	 * @return string
+	 */
+	static public function get_apache_rules_path() {
+		return Util_Environment::site_path() . '.htaccess';
+	}
+
+	/**
 	 * Returns path of pagecache core rules file
 	 *
 	 * @return string
@@ -54,7 +80,7 @@ class Util_Rule {
 		switch ( true ) {
 		case Util_Environment::is_apache():
 		case Util_Environment::is_litespeed():
-			return Util_Environment::site_path() . '.htaccess';
+			return Util_Rule::get_apache_rules_path();
 
 		case Util_Environment::is_nginx():
 			return Util_Rule::get_nginx_rules_path();
@@ -69,15 +95,10 @@ class Util_Rule {
 	 * @return string
 	 */
 	static public function get_browsercache_rules_cache_path() {
-		return Util_Rule::get_pgcache_rules_core_path();
-	}
+		if ( Util_Environment::is_litespeed() ) {
+			return Util_Rule::get_litespeed_rules_path();
+		}
 
-	/**
-	 * Returns path of browsercache no404wp rules file
-	 *
-	 * @return string
-	 */
-	static public function get_browsercache_rules_no404wp_path() {
 		return Util_Rule::get_pgcache_rules_core_path();
 	}
 
@@ -307,7 +328,7 @@ class Util_Rule {
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 				if ( $replace_start !== false ) {
 					$message = sprintf( __( 'Edit file <strong>%s</strong> and replace all lines between and including <strong>%s</strong> and <strong>%s</strong> markers with:',
-						'w3-total-caceh' ), $path, $start, $end );
+						'w3-total-cache' ), $path, $start, $end );
 				} else {
 					$message = sprintf( __( 'Edit file <strong>%s</strong> and add the following rules above the WordPress directives:',
 						'w3-total-cache' ), $path );
@@ -328,8 +349,11 @@ class Util_Rule {
 
 			if ( !@file_put_contents( $path, $data ) ) {
 				try {
-					Util_WpFile::delete_folder( dirname( $path ), '',
-						$_SERVER['REQUEST_URI'] );
+					Util_WpFile::delete_folder(
+						dirname( $path ),
+						'',
+						isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ''
+					);
 				} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 					$exs->push( $ex );
 					return;
@@ -424,18 +448,20 @@ class Util_Rule {
 	}
 
 	/**
-	 * Support for GoDaddy servers configuration which uses
-	 * SUBDOMAIN_DOCUMENT_ROOT variable
+	 * Support for GoDaddy servers configuration which uses.
+	 * SUBDOMAIN_DOCUMENT_ROOT variable.
 	 */
-	static public function apache_docroot_variable() {
-		if ( isset( $_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] ) &&
-			$_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] != $_SERVER['DOCUMENT_ROOT'] )
+	public static function apache_docroot_variable() {
+		$document_root           = isset( $_SERVER['DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : '';
+		$subdomain_document_root = isset( $_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['SUBDOMAIN_DOCUMENT_ROOT'] ) ) : '';
+		$php_document_root       = isset( $_SERVER['PHP_DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['PHP_DOCUMENT_ROOT'] ) ) : '';
+		if ( ! empty( $subdomain_document_root ) && $subdomain_document_root !== $document_root ) {
 			return '%{ENV:SUBDOMAIN_DOCUMENT_ROOT}';
-		elseif ( isset( $_SERVER['PHP_DOCUMENT_ROOT'] ) &&
-			$_SERVER['PHP_DOCUMENT_ROOT'] != $_SERVER['DOCUMENT_ROOT'] )
+		} elseif ( ! empty( $php_document_root ) && $php_document_root !== $document_root ) {
 			return '%{ENV:PHP_DOCUMENT_ROOT}';
-		else
+		} else {
 			return '%{DOCUMENT_ROOT}';
+		}
 	}
 
 

@@ -122,11 +122,13 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		global $wpdb_cluster;
 		$wpdb_cluster = $this;
 
-		if ( isset( $GLOBALS['w3tc_dbcluster_config'] ) ) {
-			$this->apply_configuration( $GLOBALS['w3tc_dbcluster_config'] );
-		} elseif ( file_exists( WP_CONTENT_DIR . '/db-cluster-config.php' ) ) {
+		if ( !isset( $GLOBALS['w3tc_dbcluster_config'] ) && file_exists( WP_CONTENT_DIR . '/db-cluster-config.php' ) ) {
 			// The config file resides in WP_CONTENT_DIR
 			require WP_CONTENT_DIR . '/db-cluster-config.php';
+		}
+
+		if ( isset( $GLOBALS['w3tc_dbcluster_config'] ) ) {
+			$this->apply_configuration( $GLOBALS['w3tc_dbcluster_config'] );
 		} else {
 			$this->_reject_reason = 'w3tc dbcluster configuration not found, ' .
 				'using single-server configuration';
@@ -454,21 +456,25 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	 * @return boolean
 	 */
 	function _is_current_zone( $zone ) {
-		// obsolete
+		$server_name = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
+		// obsolete.
 		if ( isset( $zone['SERVER_NAME'] ) ) {
-			if ( $_SERVER['SERVER_NAME'] == $zone['SERVER_NAME'] )
+			if ( $server_name === $zone['SERVER_NAME'] ) {
 				return true;
+			}
 		}
 
 		if ( isset( $zone['server_names'] ) ) {
-			if ( !is_array( $zone['server_names'] ) )
+			if ( ! is_array( $zone['server_names'] ) ) {
 				die( 'server_names must be defined as array' );
-
-			foreach ( $zone['server_names'] as $server_name ) {
-				if ( $server_name == '*' )
+			}
+			foreach ( $zone['server_names'] as $zone_server_name ) {
+				if ( '*' === $zone_server_name ) {
 					return true;
-				if ( $_SERVER['SERVER_NAME'] == $server_name )
+				}
+				if ( $server_name === $zone_server_name ) {
 					return true;
+				}
 			}
 		}
 
@@ -555,7 +561,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		$this->wpdb_mixin->last_query = $query;
 
 		if ( preg_match( '/^\s*SELECT\s+FOUND_ROWS(\s*)/i', $query )
-			&& is_resource( $this->wpdb_mixin->_last_found_rows_result ) ) {
+			&& is_object( $this->wpdb_mixin->_last_found_rows_result ) ) {
 			$this->wpdb_mixin->result = $this->wpdb_mixin->_last_found_rows_result;
 			$elapsed = 0;
 		} else {
@@ -870,9 +876,9 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		if ( !mysqli_select_db( $this->wpdb_mixin->dbh, DB_NAME ) )
 			return $this->wpdb_mixin->bail( "We were unable to select the database." );
 		if ( !empty( $this->wpdb_mixin->charset ) ) {
-			$collation_query = "SET NAMES '$this->wpdb_mixin->charset'";
+			$collation_query = "SET NAMES '{$this->wpdb_mixin->charset}'";
 			if ( !empty( $this->wpdb_mixin->collate ) )
-				$collation_query .= " COLLATE '$this->wpdb_mixin->collate'";
+				$collation_query .= " COLLATE '{$this->wpdb_mixin->collate}'";
 			mysqli_query( $this->wpdb_mixin->dbh, $collation_query );
 		}
 
