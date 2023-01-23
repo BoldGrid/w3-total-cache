@@ -71,12 +71,12 @@ class Util_AttachToActions {
 		// if attachment changed - parent post has to be flushed
 		// since there are usually attachments content like title
 		// on the page (gallery).
-		if ( 'attachment' === $data['post_type'] ) {
+		if ( isset( $data['post_type'] ) && 'attachment' === $data['post_type'] ) {
 			$post_id = $data['post_parent'];
 			$data    = get_post( $post_id, ARRAY_A );
 		}
 
-		if ( 'draft' !== $data['post_status'] ) {
+		if ( ! isset( $data['post_status'] ) || 'draft' !== $data['post_status'] ) {
 			return;
 		}
 
@@ -102,7 +102,7 @@ class Util_AttachToActions {
 		// if attachment changed - parent post has to be flushed
 		// since there are usually attachments content like title
 		// on the page (gallery).
-		if ( 'attachment' === $post->post_type ) {
+		if ( isset( $post->post_type ) && 'attachment' === $post->post_type ) {
 			$post_id = $post->post_parent;
 			$post    = get_post( $post_id );
 		}
