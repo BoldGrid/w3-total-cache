@@ -62,7 +62,7 @@ class Util_File {
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
 			if ( !@file_exists( $curr_path ) ) {
-				if ( !@mkdir( $curr_path, $mask ) )
+				if ( !@mkdir( $curr_path, $mask, true ) )
 					return false;
 			}
 		}
@@ -105,7 +105,7 @@ class Util_File {
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
 			if ( !@file_exists( $curr_path ) ) {
-				if ( !@mkdir( $curr_path, $mask ) ) {
+				if ( !@mkdir( $curr_path, $mask, true ) ) {
 					return false;
 				}
 				$curr_path = realpath( $curr_path );
