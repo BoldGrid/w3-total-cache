@@ -414,17 +414,6 @@ function w3tc_minify_style_group( $location ) {
 }
 
 /**
- * Deprecated.  Prints script tag for custom scripts.
- *
- * @param string|array $files    Files.
- * @param bool         $blocking Blocking.
- */
-function w3tc_minify_script_custom( $files, $blocking = true ) {
-	$o = \W3TC\Dispatcher::component( 'Minify_Plugin' );
-	echo esc_html( $o->get_script_custom( $files, $blocking ) );
-}
-
-/**
  * Deprecated.  Prints style tag for custom styles.
  *
  * @param string|array $files Files.
