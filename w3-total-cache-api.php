@@ -660,9 +660,11 @@ function w3_instance( $class ) {
  * @param mixed  $default_value Default value.
  */
 function w3tc_e( $key, $default_value ) {
+	$content = w3tc_er( $key, $default_value );
+
 	echo wp_kses(
-		w3tc_er( $key, $default_value ),
-		\W3TC\Util_Ui::get_allowed_html_for_wp_kses_from_content( $default_value )
+		$content,
+		\W3TC\Util_Ui::get_allowed_html_for_wp_kses_from_content( $content )
 	);
 }
 
