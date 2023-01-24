@@ -7,7 +7,10 @@
         "symfony/polyfill-mbstring" : "1.20.*"
     },
     "require-dev": {
-        "yoast/phpunit-polyfills": "^1.0"
+        "yoast/phpunit-polyfills": "^1.0",
+        "phpunit/phpunit": "^9.5",
+        "squizlabs/php_codesniffer": "^3.7",
+        "wp-coding-standards/wpcs": "dev-develop"
     },
     "replace": {
         "symfony/polyfill-php56": "*",
