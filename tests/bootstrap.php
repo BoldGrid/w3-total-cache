@@ -70,7 +70,9 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 require $_tests_dir . '/includes/bootstrap.php';
 
 // Create the W3TC configuration directory.
-mkdir( ABSPATH . 'wp-content/w3tc-config' );
+if ( ! file_exists( ABSPATH . 'wp-content/w3tc-config' ) ) {
+	mkdir( ABSPATH . 'wp-content/w3tc-config' );
+}
 
 // Remove old configuration file.
 unlink( ABSPATH . 'wp-content/w3tc-config/master.php' );
