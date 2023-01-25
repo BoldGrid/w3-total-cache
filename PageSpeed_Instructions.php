@@ -40,8 +40,8 @@ class PageSpeed_Instructions {
 									'w3-total-cache'
 								),
 								'W3 Total Cache',
-								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; JS', 'w3-total-cache' ) . '</a> ',
-								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; CSS', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify JS', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; JS', 'w3-total-cache' ) . '</a> ',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; CSS', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -64,10 +64,10 @@ class PageSpeed_Instructions {
 									'On the %1$s tab all of the recommended settings are preset. Use the help button to simplify discovery of your %2$s and %3$s files and groups. Pay close attention to the method and location of your %3$s group embeddings. See the plugin\'s %4$s for more information on usage.',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="admin.php?page=w3tc_minify#css" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
 								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . esc_html__( 'CSS', 'w3-total-cache' ) . '</acronym>',
 								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">' . esc_html__( 'JS', 'w3-total-cache' ) . '</acronym>',
-								'<a target="_blank" href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '" target="_blank"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
+								'<a target="_blank" href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -81,10 +81,10 @@ class PageSpeed_Instructions {
 									'On the %1$s tab all of the recommended settings are preset. Use the help button to simplify discovery of your %2$s and %3$s files and groups. Pay close attention to the method and location of your %3$s group embeddings. See the plugin\'s %4$s for more information on usage.',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="admin.php?page=w3tc_minify#css" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
 								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . esc_html__( 'CSS', 'w3-total-cache' ) . '</acronym>',
 								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">' . esc_html__( 'JS', 'w3-total-cache' ) . '</acronym>',
-								'<a target="_blank" href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '" target="_blank"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
+								'<a target="_blank" href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -107,7 +107,7 @@ class PageSpeed_Instructions {
 									'It\'s important to prepare images before uloading them to the website. This should be done before the Image is uploaded and can be done by using some image optimization tool like %1$s.',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="' . esc_url( 'https://helpx.adobe.com/photoshop-elements/using/optimizing-images-jpeg-format.html' ) . '" target="_blank">' . esc_html__( 'photoshop', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://helpx.adobe.com/photoshop-elements/using/optimizing-images-jpeg-format.html' ) . '">' . esc_html__( 'photoshop', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>
@@ -124,23 +124,27 @@ class PageSpeed_Instructions {
 				'uses-optimized-images'        => array(
 					'instructions' =>
 						'<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s Image Service to convert media library images to WebP.',
+								'Use %1$s $2$sImage Service%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
-							'W3 Total Cache'
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ) . '" alt="' . esc_attr__( 'W3TC Extensions', 'w3-total-cache' ) . '">',
+							'</a>'
 						) . '</p>',
 				),
 				'modern-image-formats'         => array(
 					'instructions' =>
 						'<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s Image Service to convert media library images to WebP.',
+								'Use %1$s %2$sImage Service%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
-							'W3 Total Cache'
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ) . '" alt="' . esc_attr__( 'W3TC Extensions', 'w3-total-cache' ) . '">',
+							'</a>'
 						) . '</p>',
 				),
 				'uses-text-compression'        => array(
@@ -149,11 +153,11 @@ class PageSpeed_Instructions {
 							sprintf(
 								// translators: 1 W3TC plugin name, 2 HTML a tag to kjdev php-ext-brotli.
 								esc_html__(
-									'Use %1$s Browser Caching - Peformance>Browser Cache - Enable Gzip compression or Brotli compression (Gzip compression is most common anf for Brotli compression you need to install %2$s on your server.',
+									'Use %1$s Browser Caching - Peformance>Browser Cache - Enable Gzip compression or Brotli compression (Gzip compression is most common and for Brotli compression you need to install %2$s on your server.',
 									'w3-total-cache'
 								),
 								'W3 Total Cache',
-								'<a target="_blank" href="' . esc_url( 'https://github.com/kjdev/php-ext-brotli' ) . '" target="_blank">' . esc_html__( 'Brotli extension', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( 'https://github.com/kjdev/php-ext-brotli' ) . '">' . esc_html__( 'Brotli extension', 'w3-total-cache' ) . '</a>',
 							),
 							$allowed_tags
 						) . '</p>',
@@ -177,12 +181,14 @@ class PageSpeed_Instructions {
 				'server-response-time'         => array(
 					'instructions' =>
 						'<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 W3TC plugin name, 2 opening HTML a tag to Page Cache setting, 3 closing HTML a tag.
 							esc_html__(
-								'%1$s Page Caching (fastest module)',
+								'Use %1$s %2$sPage Caching%3$s (fastest module)',
 								'w3-total-cache'
 							),
-							'W3 Total Cache'
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) . '" alt="' . esc_attr__( 'Page Cache', 'w3-total-cache' ) . '">',
+							'</a>'
 						) . '</p>',
 				),
 				'redirects'                    => array(
@@ -209,12 +215,14 @@ class PageSpeed_Instructions {
 				'efficient-animated-content'   => array(
 					'instructions' =>
 						'<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s Image Service to convert media library images to WebP.',
+								'Use %1$s %2$sImage Service%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
-							'W3 Total Cache'
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ) . '" alt="' . esc_attr__( 'W3TC Extensions', 'w3-total-cache' ) . '">',
+							'</a>'
 						) . '</p>',
 				),
 				'duplicated-javascript'        => array(
@@ -228,7 +236,7 @@ class PageSpeed_Instructions {
 									'To fix this audit, use a tool like %1$s to identify duplicate modules',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="' . esc_url( 'https://github.com/zillow/webpack-stats-duplicates' ) . '" target="_blank">' . esc_html__( 'webpack-stats-duplicates', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://github.com/zillow/webpack-stats-duplicates' ) . '">' . esc_html__( 'webpack-stats-duplicates', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -247,7 +255,7 @@ class PageSpeed_Instructions {
 									'Learn more about implementing this technique %1$s.',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="' . esc_url( 'https://philipwalton.com/articles/deploying-es2015-code-in-production-today/' ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( 'https://philipwalton.com/articles/deploying-es2015-code-in-production-today/' ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>',
 							),
 							$allowed_tags
 						) . '</p>',
@@ -258,30 +266,47 @@ class PageSpeed_Instructions {
 				'total-byte-weight'            => array(
 					'instructions' =>
 						'<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 W3TC plugin name, 2 opening HTML a tag to Minify setting, 3 closing HTML a tag.
 							esc_html__(
-								'Deffer or async the JS (Select  Non blocking using Defer or  Non blocking using async Embed method in %1$s Minify options before head and after body)',
+								'Deffer or async the JS (Select  Non blocking using Defer or  Non blocking using async Embed method in %1$s %2$sMinify%3$s options before head and after body)',
 								'w3-total-cache'
 							),
-							'W3 Total Cache'
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#minify' ) ) . '" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '">',
+							'</a>',
 						) . '</p>
 						<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 W3TC plugin name, 2 opening HTML a tag to CSS Minify settings, 3 closing HTML a tag,
+							// translators: 4 opening html a tagl to JS Minify settings, 5 closing HTML a tag.
 							esc_html__(
-								'Compress your HTML, CSS, and JavaScript files and minify your CSS and JavaScript to ensure your text-based resources are as small as they can be. %1$s Minify JS and CSS',
+								'Compress your HTML, CSS, and JavaScript files and minify your CSS and JavaScript to ensure your text-based resources are as small as they can be. Use the %1$s Minify %2$sJS%3$s and %4$sCSS%5$s features to accomplish this.',
 								'w3-total-cache'
 							),
-							'W3 Total Cache'
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">',
+							'</a>',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify JS', 'w3-total-cache' ) . '">',
+							'</a>'
 						) . '</p>
 						<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 W3TC plugin name, 2 opening HTML a tag to W3TC extensions, 3 closing HTML a tag.
 							esc_html__(
-								'Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use Webp conversion in %1$s',
+								'Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use Webp conversion via the %1$s %2$sImage Service%3$s extension.',
 								'w3-total-cache'
 							),
-							'W3 Total Cache'
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ) . '" alt="' . esc_attr__( 'W3TC Extensions', 'w3-total-cache' ) . '">',
+							'</a>'
 						) . '</p>
-						<p>' . esc_html__( 'Use Browser Caching for static files and HTML  - 1 year for static files 1 hor for html', 'w3-total-cache' ) . '</p>',
+						<p>' . sprintf(
+							// translators: 1 opening HTML a tag to Browser Caching setting, 2 closing HTML a tag.
+							esc_html__(
+								'Use %1$sBrowser Caching%2$s for static files and HTML  - 1 year for static files 1 hor for html',
+								'w3-total-cache'
+							),
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#browser_cache' ) ) . '" alt="' . esc_attr__( 'Browser Cache', 'w3-total-cache' ) . '">',
+							'</a>'
+						) . '</p>',
 				),
 				'dom-size'                     => array(
 					'instructions' =>
@@ -302,7 +327,7 @@ class PageSpeed_Instructions {
 									'The %1$s gives you a way to measure your app\'s JavaScript performance.',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="' . esc_url( 'https://developer.mozilla.org/docs/Web/API/User_Timing_API' ) . '" target="_blank">' . esc_html__( 'User Timing API', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://developer.mozilla.org/docs/Web/API/User_Timing_API' ) . '">' . esc_html__( 'User Timing API', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>
@@ -314,7 +339,7 @@ class PageSpeed_Instructions {
 									'You can access those data from JavaScript using the API or by viewing them on your %1$s.',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="' . esc_url( 'https://developer.chrome.com/docs/devtools/evaluate-performance/reference/' ) . '" target="_blank">' . esc_html__( 'Chrome DevTools Timeline Recordings', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://developer.chrome.com/docs/devtools/evaluate-performance/reference/' ) . '">' . esc_html__( 'Chrome DevTools Timeline Recordings', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -328,10 +353,10 @@ class PageSpeed_Instructions {
 									'On the %1$s tab all of the recommended settings are preset. Use the help button to simplify discovery of your %2$s and %3$s files and groups. Pay close attention to the method and location of your %3$s group embeddings. See the plugin\'s %4$s for more information on usage.',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '" target="_blank">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a>',
 								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . esc_html__( 'CSS', 'w3-total-cache' ) . '</acronym>',
 								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">' . esc_html__( 'JS', 'w3-total-cache' ) . '</acronym>',
-								'<a target="_blank" href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '" target="_blank"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
+								'<a target="_blank" href="https://api.w3-edge.com/v1/redirects/faq/usage" alt="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '"><acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">' . esc_html__( 'FAQ', 'w3-total-cache' ) . '</acronym></a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -340,29 +365,40 @@ class PageSpeed_Instructions {
 					'instructions' =>
 						'<p>' . esc_html__( 'Optimizing third-party JavaScript', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Review your website\'s third-party code and remove the ones	that aren\'t adding any value to your website.', 'w3-total-cache' ) . '</p>
-						<p><a target="_blank" href="' . esc_url( 'https://web.dev/debounce-your-input-handlers/' ) . '" target="_blank">' . esc_html__( 'Debouncing your input handlers', 'w3-total-cache' ) . '</a></p>
+						<p><a target="_blank" href="' . esc_url( 'https://web.dev/debounce-your-input-handlers/' ) . '">' . esc_html__( 'Debouncing your input handlers', 'w3-total-cache' ) . '</a></p>
 						<p>' . esc_html__( 'Avoid using long-running input handlers (which may block scrolling) and do not make style changes in input handlers (which is likely to cause repainting of pixels).', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Debouncing your input handlers helps solve both of the above problems.', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Delay 3rd-party JS', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Reducing JavaScript execution time', 'w3-total-cache' ) . '</p>
 						<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 W3TC plugin name, 2 opening HTML a tag to Minify JS settings, 3 closing HTML a tag,
+							// translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
 							esc_html__(
-								'Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use %1$s Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN',
+								'Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use %1$s Minify for %2$sJS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server.',
 								'w3-total-cache'
 							),
-							'W3 Total Cache'
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify JS', 'w3-total-cache' ) . '">',
+							'</a>',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '" alt="' . esc_attr__( 'CDN', 'w3-total-cache' ) . '">',
+							'</a>'
 						) . '</p>
 						<p>' . esc_html__( 'Reducing CSS parsing time', 'w3-total-cache' ) . '</p>
 						<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 W3TC plugin name, 2 opening HTML a tag to Minify CSS settings, 3 closing HTML a tag,
+							// translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
 							esc_html__(
-								'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use %1$s Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN',
+								'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use %1$s Minify for %2$sCSS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server.',
 								'w3-total-cache'
 							),
-							'W3 Total Cache'
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">',
+							'</a>',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '" alt="' . esc_attr__( 'CDN', 'w3-total-cache' ) . '">',
+							'</a>'
 						) . '</p>
-						<p><a target="_blank" href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '" target="_blank">' . esc_html__( 'Only using compositor properties:', 'w3-total-cache' ) . '</a>' . esc_html__( 'Only using compositor properties <br/><br/>Stick to using compositor properties to keep events away from the main-thread. Compositor properties are run on a separate compositor thread, freeing the main-thread for longer and improving your page load performance.', 'w3-total-cache' ) . '</p>',
+						<p><a target="_blank" href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '">' . esc_html__( 'Only using compositor properties', 'w3-total-cache' ) . '</a></p>
+						<p>' . esc_html__( 'Stick to using compositor properties to keep events away from the main-thread. Compositor properties are run on a separate compositor thread, freeing the main-thread for longer and improving your page load performance.', 'w3-total-cache' ) . '</p>',
 				),
 				'third-party-summary'          => array(
 					'instructions' =>
@@ -421,7 +457,7 @@ class PageSpeed_Instructions {
 				),
 				'non-composited-animations'    => array(
 					'instructions' =>
-						'<p><a target="_blank" href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '" target="_blank">' . esc_html__( 'Only using compositor properties:', 'w3-total-cache' ) . '</a></p>
+						'<p><a target="_blank" href="' . esc_url( 'https://developers.google.com/web/fundamentals/performance/rendering/stick-to-compositor-only-properties-and-manage-layer-count' ) . '">' . esc_html__( 'Only using compositor properties:', 'w3-total-cache' ) . '</a></p>
 						<p>' . esc_html__( 'Stick to using compositor properties to keep events away from the main-thread. Compositor properties are run on a separate compositor thread, freeing the main-thread for longer and improving your page load performance.', 'w3-total-cache' ) . '</p>',
 				),
 				'unsized-images'               => array(
@@ -444,7 +480,7 @@ class PageSpeed_Instructions {
 									'More details %1$s.',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="' . esc_url( 'https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag' ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( 'https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag' ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -473,11 +509,13 @@ class PageSpeed_Instructions {
 				'uses-long-cache-ttl'              => array(
 					'instructions' =>
 						'<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
+							// translators: 1 opening HTML a tag to Browswer Cache settings, 2 closing HTML a tag, 3 W3TC plugin name.
 							esc_html__(
-								'Use Browser Caching in %1$s and set the Expires header and cache control header for static files and HTML.',
+								'Use %1$sBrowser Caching%2$s in %3$s and set the Expires header and cache control header for static files and HTML.',
 								'w3-total-cache'
 							),
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#browser_cache' ) ) . '" alt="' . esc_attr__( 'Browser Cache', 'w3-total-cache' ) . '">',
+							'</a>',
 							'W3 Total Cache'
 						) . '</p>
 						<p>' . esc_html__( 'Use default values for best results', 'w3-total-cache' ) . '</p>',
@@ -502,30 +540,9 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'If the cause is slow server response time:', 'w3-total-cache' ) . '</p>
 						<ul>
 							<li>' . esc_html__( 'Optimize your server.', 'w3-total-cache' ) . '</li>
-							<li>' . sprintf(
-								// translators: 1 W3TC plugin name.
-								esc_html__(
-									'Route users to a nearby CDN. (%1$s CDN setup)',
-									'w3-total-cache'
-								),
-								'W3 Total Cache'
-							) . '</li>
-							<li>' . sprintf(
-								// translators: 1 W3TC plugin name.
-								esc_html__(
-									'Cache assets. (%1$s Page Caching, Minify)',
-									'w3-total-cache'
-								),
-								'W3 Total Cache'
-							) . '</li>
-							<li>' . sprintf(
-								// translators: 1 W3TC plugin name.
-								esc_html__(
-									'Serve HTML pages cache-first.  (%1$s Page Caching, )',
-									'w3-total-cache'
-								),
-								'W3 Total Cache'
-							) . '</li>
+							<li>' . esc_html__( 'Route users to a nearby CDN.', 'w3-total-cache' ) . '</li>
+							<li>' . esc_html__( 'Cache assets.', 'w3-total-cache' ) . '</li>
+							<li>' . esc_html__( 'Serve HTML pages cache-first.', 'w3-total-cache' ) . '</li>
 							<li>' . esc_html__( 'Establish third-party connections early.', 'w3-total-cache' ) . '</li>
 						</ul>
 						<br/>
@@ -549,8 +566,17 @@ class PageSpeed_Instructions {
 						</ul>
 						<br/>
 						<p>' . esc_html__( 'If the cause is client-side rendering:', 'w3-total-cache' ) . '</p>
+						<ul>
 							<li>' . esc_html__( 'Minimize critical JavaScript.', 'w3-total-cache' ) . '</li>
 							<li>' . esc_html__( 'Use another rendering strategy.', 'w3-total-cache' ) . '</li>
+						</ul>
+						<br/>
+						<p>W3 Total Cache ' . esc_html__( 'Features that will help performace of the above:', 'w3-total-cache' ) . '</p>
+						<ul>
+							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#minify' ) ) . '" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '">' . esc_html__( 'Minify', 'w3-total-cache' ) . '</a></li>
+							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) . '" alt="' . esc_attr__( 'Page Cache', 'w3-total-cache' ) . '">' . esc_html__( 'Page Cache', 'w3-total-cache' ) . '</a></li>
+							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#browser_cache' ) ) . '" alt="' . esc_attr__( 'Browser Cache', 'w3-total-cache' ) . '">' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</a></li>
+							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '" alt="' . esc_attr__( 'CDN', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</a></li>
 						</ul>',
 				),
 				'layout-shift-elements'            => array(
@@ -583,12 +609,17 @@ class PageSpeed_Instructions {
 						<ul>
 							<li>' . esc_html__( 'Reducing JavaScript execution time', 'w3-total-cache' ) . '</li>
 							<li>' . sprintf(
-								// translators: 1 W3TC plugin name.
+								// translators: 1 W3TC plugin name, 2 opening HTML a tag to CDN setting, 3 closing HTML a tag,
+								// translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
 								esc_html__(
-									'Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use %1$s Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN',
+									'Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use %1$s %2$sMinify for JS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server.',
 									'w3-total-cache'
 								),
-								'W3 Total Cache'
+								'W3 Total Cache',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify JS', 'w3-total-cache' ) . '">',
+								'</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '" alt="' . esc_attr__( 'CDN', 'w3-total-cache' ) . '">',
+								'</a>'
 							) . '</li>
 						</ul>
 						<br/>
@@ -601,12 +632,17 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'Reducing CSS parsing time', 'w3-total-cache' ) . '</p>
 						<ul>
 							<li>' . sprintf(
-								// translators: 1 W3TC plugin name.
+								// translators: 1 W3TC plugin name, 2 opening HTML a tag to Minify CSS settings, 3 closing HTML a tag,
+								// translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
 								esc_html__(
-									'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use %1$s Minify for JS and compression.) Use HTTP2 Push if available on server Use CDN',
+									'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use %1$s %2$sMinify for CSS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server.',
 									'w3-total-cache'
 								),
-								'W3 Total Cache'
+								'W3 Total Cache',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">',
+								'</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '" alt="' . esc_attr__( 'CDN', 'w3-total-cache' ) . '">',
+								'</a>'
 				 			) . '</li>
 						</ul>
 						<br/>
