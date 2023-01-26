@@ -242,7 +242,7 @@ class FeatureShowcase_Plugin_Admin {
 				'button'     => '<button class="button" onclick="window.location=\'' .
 				esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ) ) . '\'">' .
 				__( 'Launch', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/tbd/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=tbd' ) .
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/google-pagespeed-tool/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pagespeed-tool' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => false,
 				'is_new'     => true,
