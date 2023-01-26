@@ -11,3 +11,5 @@ error_log
 /qa/node_modules/*
 node_modules
 .vscode/
+.phpunit.result.cache
+vendor/
