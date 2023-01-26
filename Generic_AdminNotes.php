@@ -40,7 +40,7 @@ class Generic_AdminNotes {
 						),
 						'<strong>' . WP_CONTENT_DIR . '</strong>',
 						'<strong>chmod 755 ' . WP_CONTENT_DIR . '</strong>',
-						base_convert( Util_File::get_file_permissions( WP_CONTENT_DIR ), 10, 8 ),
+						$wp_content_mode,
 						Util_Ui::button_hide_note2(
 							array(
 								'w3tc_default_config_state_master' => 'y',
