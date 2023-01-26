@@ -75,4 +75,6 @@ if ( ! file_exists( ABSPATH . 'wp-content/w3tc-config' ) ) {
 }
 
 // Remove old configuration file.
-unlink( ABSPATH . 'wp-content/w3tc-config/master.php' );
+if ( file_exists( ABSPATH . 'wp-content/w3tc-config/master.php' ) ) {
+	unlink( ABSPATH . 'wp-content/w3tc-config/master.php' );
+}
