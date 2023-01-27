@@ -1,0 +1,72 @@
+# Travis CI configuraion for the W3 Total Cache WordPress plugin by BoldGrid
+# @link https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-on-travis-ci
+
+language: php
+
+services:
+  - mysql
+
+notifications:
+  slack:
+    secure: "GYRxUZH53f/OdEhgn4w908Ivuyl4h/p05kR1Buv0ovDEiSbuesWvqa3LMlXy8J67dLZpkFxToM4tlNCFdykNNHnKLHb1EqgjShIpRcgKppOA0L/87UrtjS+5OhAJAghnQr8KOuj+Ivn7zFVHS8+WBvLWKEeP7zrW/K1IqNrvUjzVcg9xSzLL/q6l/yLaAxqtCX4jXudg5HmtK7QTTQEjFSnnNW4J4hWbrKGHH43C5+9msUT7Mqo3mNjJf1tKGm+HJ5NN2wk3x/SzVEFdUJIUoFVAoG1CjOZKPqfKi7I9VStaC6sGhhiq53Sn7rbmbPJqH3ZD+Q3GaE/sqc5RxuC/34Bn1rGPs3H7RGi5DAAz7f5fHpaZWsux4b+QvLwVx7FHky44uGzPPgzN7+jJxwXh1RBd6yZq6551mHDvOdF77RPJlTJ1UukqQFjqMLNUISX9Pv6cQPealEXjFM7fOMofGyIAkJQusDczIekIZqB5W44i4XwBjKMky+47CZK9Ac41HSpJdpLs+jVa1G7N8Kb/mNSzGx4ABGbXLt+V0YphAL2+WPJ1DEYRZZVCcEzwJl/M5CFOBiUAcd9B3ZpFXoYBxyfjReJFUY7xMVozRXB7hu6RatmLhh+mYbL48572eq01wMxtfr/Klr82PwzoSX5qujWZv2ksxJTiRbPJcBk22YQ="
+
+matrix:
+  include:
+    -
+      php: 5.6
+      env: WP_VERSION=latest
+      dist: xenial
+      before_script:
+        - nvm install 10
+        - nvm use 10
+        - yarn install
+        - composer self-update --1
+        # Lock file has phpunit 7. Remove it and install phpunit 5 for php 5.6.
+        - composer remove --dev phpunit/phpunit && composer require --dev phpunit/phpunit ^5
+        - composer install -o
+        - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+        # We are only running phpcs on php 5.6. @todo fix with php 7 and 8.
+        - yarn run php-codesniffer
+    -
+      php: 7.4
+      env: WP_VERSION=latest
+      dist: bionic
+      before_script:
+        - nvm install 10
+        - nvm use 10
+        - yarn install
+        - composer self-update --1
+        - composer remove --dev phpunit/phpunit && composer require --dev phpunit/phpunit
+        - composer install -o
+        - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+    -
+      php: 8.0
+      env: WP_VERSION=latest
+      dist: xenial
+      before_script:
+        - nvm install 10
+        - nvm use 10
+        - yarn install
+        - composer self-update --1
+        - composer remove --dev phpunit/phpunit && composer require --dev phpunit/phpunit
+        - composer install -o
+        - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+
+script:
+  - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
+  - vendor/phpunit/phpunit/phpunit --debug
+  - yarn run js-lint
+  # Remove dev scripts.
+  - composer install -o --no-dev
+
+deploy:
+  - provider: script
+    script: chmod +x ./bin/release.sh && ./bin/release.sh
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: releases
+    api_key: "${GITHUB_TOKEN}"
+    file: "w3-total-cache.zip"
+    on:
+      tags: true
