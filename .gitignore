@@ -1,6 +1,6 @@
-nbproject
-error_log
-.DS_Store
+.vscode/
+node_modules/
+vendor/
 /qa/env/000-environment
 /qa/env/200-ami-build
 /qa/env/amis/*
@@ -9,7 +9,7 @@ error_log
 /qa/env/lib/*.pyc
 /qa/env/working/*
 /qa/node_modules/*
-node_modules
-.vscode/
+.DS_Store
 .phpunit.result.cache
-vendor/
+error_log
+nbproject
