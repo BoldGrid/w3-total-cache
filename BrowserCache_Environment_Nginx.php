@@ -257,17 +257,23 @@ class BrowserCache_Environment_Nginx {
 			if ( $this->c->get_boolean( 'browsercache.security.fp' ) ) {
 				$fp_values = $this->c->get_array( 'browsercache.security.fp.values' );
 
-				$v = array();
+				$feature_v    = array();
+				$permission_v = array();
 				foreach ( $fp_values as $key => $value ) {
-					$value = str_replace( '"', "'", $value );
-					if ( !empty( $value ) ) {
-						$v[] = "$key $value";
+					if ( ! empty( $value ) ) {
+						$value = str_replace( array( '"', "'" ), '', $value );
+
+						$feature_v[]    = "$key '$value'";
+						$permission_v[] = "$key=($value)";
 					}
 				}
 
-				if ( !empty( $v ) ) {
-					$rules[] = 'add_header Feature-Policy "' .
-						implode( ';', $v ) . "\";\n";
+				if ( ! empty( $feature_v ) ) {
+					$rules .= '    Header set Feature-Policy "' . implode( ';', $feature_v ) . "\"\n";
+				}
+
+				if ( ! empty( $permission_v ) ) {
+					$rules .= '    Header set Permissions-Policy "' . implode( ',', $permission_v ) . "\"\n";
 				}
 			}
 		}
