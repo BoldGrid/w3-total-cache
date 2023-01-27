@@ -2092,6 +2092,66 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
+	'browsercache.security.cspro' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
+	'browsercache.security.cspro.base' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.frame' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.connect' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.font' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.script' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.style' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.img' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.media' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.object' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.plugin' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.form' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.frame.ancestors' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.sandbox' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.default' => array(
+		'type' => 'string',
+		'default' => ''
+	),
 	'browsercache.security.fp' => array(
 		'type' => 'boolean',
 		'default' => false

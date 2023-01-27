@@ -177,6 +177,7 @@ class BrowserCache_Environment_Nginx {
 			 $this->c->get_boolean( 'browsercache.security.pkp' ) ||
 			 $this->c->get_boolean( 'browsercache.security.referrer.policy' ) ||
 			 $this->c->get_boolean( 'browsercache.security.csp' ) ||
+			 $this->c->get_boolean( 'browsercache.security.cspro' ) ||
 			 $this->c->get_boolean( 'browsercache.security.fp' )
 		   ) {
 			$lifetime = $this->c->get_integer( 'browsercache.other.lifetime' );
@@ -251,6 +252,42 @@ class BrowserCache_Environment_Nginx {
 
 				if ( !empty( $dir ) ) {
 					$rules[] = "add_header Content-Security-Policy \"$dir\";";
+				}
+			}
+
+			if ( $this->c->get_boolean( 'browsercache.security.cspro' ) ) {
+				$base = trim( $this->c->get_string( 'browsercache.security.cspro.base' ) );
+				$frame = trim( $this->c->get_string( 'browsercache.security.cspro.frame' ) );
+				$connect = trim( $this->c->get_string( 'browsercache.security.cspro.connect' ) );
+				$font = trim( $this->c->get_string( 'browsercache.security.cspro.font' ) );
+				$script = trim( $this->c->get_string( 'browsercache.security.cspro.script' ) );
+				$style = trim( $this->c->get_string( 'browsercache.security.cspro.style' ) );
+				$img = trim( $this->c->get_string( 'browsercache.security.cspro.img' ) );
+				$media = trim( $this->c->get_string( 'browsercache.security.cspro.media' ) );
+				$object = trim( $this->c->get_string( 'browsercache.security.cspro.object' ) );
+				$plugin = trim( $this->c->get_string( 'browsercache.security.cspro.plugin' ) );
+				$form = trim( $this->c->get_string( 'browsercache.security.cspro.form' ) );
+				$frame_ancestors = trim( $this->c->get_string( 'browsercache.security.cspro.frame.ancestors' ) );
+				$sandbox = $this->c->get_string( 'browsercache.security.cspro.sandbox' );
+				$default = trim( $this->c->get_string( 'browsercache.security.cspro.default' ) );
+
+				$dir = rtrim( ( !empty( $base ) ? "base-uri $base; " : "" ).
+					   ( !empty( $frame ) ? "frame-src $frame; " : "" ).
+					   ( !empty( $connect ) ? "connect-src $connect; " : "" ).
+					   ( !empty( $font ) ? "font-src $font; " : "" ).
+					   ( !empty( $script ) ? "script-src $script; " : "" ).
+					   ( !empty( $style ) ? "style-src $style; " : "" ).
+					   ( !empty( $img ) ? "img-src $img; " : "" ).
+					   ( !empty( $media ) ? "media-src $media; " : "" ).
+					   ( !empty( $object ) ? "object-src $object; " : "" ).
+					   ( !empty( $plugin ) ? "plugin-types $plugin; " : "" ).
+					   ( !empty( $form ) ? "form-action $form; " : "" ).
+					   ( !empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : "" ).
+					   ( !empty( $sandbox ) ? "sandbox " . trim( $sandbox ) . "; " : "" ).
+					   ( !empty( $default ) ? "default-src $default;" : "" ), "; " );
+
+				if ( !empty( $dir ) ) {
+					$rules[] = "add_header Content-Security-Policy-Report-Only \"$dir\";";
 				}
 			}
 

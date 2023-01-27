@@ -785,6 +785,234 @@ $feature_policies = array(
 			<div><i><?php esc_html_e( 'Defines the defaults for directives you leave unspecified. Generally, this applies to any directive that ends with -src.', 'w3-total-cache' ); ?></i></div>
 		</td>
 	</tr>
+	<tr>
+		<th colspan="2">
+			<?php $this->checkbox( 'browsercache.security.cspro' ); ?> <?php Util_Ui::e_config_label( 'browsercache.security.cspro' ); ?></label>
+			<p class="description">
+				<?php
+				echo wp_kses(
+					sprintf(
+						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+						__(
+							'The Content Security Policy Report Only (%1$sCSPRO%2$s) header allows web developers to experiment with policies by monitoring (but not enforcing) their effects. These violation reports consist of JSON documents sent via an HTTP POST request to the specified URI. This header is applied separately from the Content-Security-Policy and is useful for testing alternative configurations.',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Content Security Policy Report Only', 'w3-total-cache' ) . '">',
+						'</acronym>',
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				);
+				?>
+			</p>
+		</th>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_base"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.base' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_base" type="text" name="browsercache__security__cspro__base"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.base' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div>
+				<i>
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+							__(
+								'Restricts the %1$sURL%2$ss which can be used in a document\'s &lt;base&gt; element.',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
+				</i>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_connect"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.connect' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_connect" type="text" name="browsercache__security__cspro__connect"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.connect' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Limits the origins to which you can connect via XMLHttpRequest, WebSockets, and EventSource.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_font"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.font' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_font" type="text" name="browsercache__security__cspro__font"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.font' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies the origins that can serve web fonts.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_frame"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.frame' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_frame" type="text" name="browsercache__security__cspro__frame"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.frame' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Restricts from where the protected resource can embed frames.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_img"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.img' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_img" type="text" name="browsercache__security__cspro__img"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.img' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for images and favicons.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_media"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.media' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_media" type="text" name="browsercache__security__cspro__media"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.media' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for loading media using the &lt;audio&gt; and &lt;video&gt; elements.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_object"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.object' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_object" type="text" name="browsercache__security__cspro__object"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.object' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Allows control over the &lt;object&gt;, &lt;embed&gt;, and &lt;applet&gt; elements used by Flash and other plugins.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_script"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.script' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_script" type="text" name="browsercache__security__cspro__script"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.script' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for JavaScript.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_style"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.style' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_style" type="text" name="browsercache__security__cspro__style"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.style' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div>
+				<i>
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+							__(
+								'Specifies valid sources for %1$sCSS%2$s stylesheets.',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
+				</i>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_form"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.form' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_form" type="text" name="browsercache__security__cspro__form"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.form' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div>
+				<i>
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+							__(
+								'Restricts the %1$sURL%2$ss which can be used as the target of form submissions from a given context.',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
+				</i>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_frame_ancestors"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.frame.ancestors' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_frame_ancestors" type="text" name="browsercache__security__cspro__frame__ancestors"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.frame.ancestors' ) ); ?>" size="50" placeholder="Example: 'none'" />
+			<div><i><?php esc_html_e( 'Specifies valid parents that may embed a page using &lt;frame&gt;, &lt;iframe&gt;, &lt;object&gt;, &lt;embed&gt;, or &lt;applet&gt;.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_plugin"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.plugin' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_plugin" type="text" name="browsercache__security__cspro__plugin"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.plugin' ) ); ?>" size="50" placeholder="Example: application/x-shockwave-flash" />
+			<div><i><?php esc_html_e( 'Restricts the set of plugins that can be embedded into a document by limiting the types of resources which can be loaded.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_sandbox"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.sandbox' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_sandbox" type="text" name="browsercache__security__cspro__sandbox"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.sandbox' ) ); ?>" size="50" placeholder="Example: allow-popups" />
+			<div><i><?php esc_html_e( 'This directive operates similarly to the &lt;iframe&gt; sandbox attribute by applying restrictions to a page\'s actions, including preventing popups, preventing the execution of plugins and scripts, and enforcing a same-origin policy.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_default"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.default' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_default" type="text" name="browsercache__security__cspro__default"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.default' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Defines the defaults for directives you leave unspecified. Generally, this applies to any directive that ends with -src.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
 	<?php
 	Util_Ui::config_item(
 		array(

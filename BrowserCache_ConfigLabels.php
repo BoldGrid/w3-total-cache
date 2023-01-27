@@ -71,7 +71,22 @@ class BrowserCache_ConfigLabels {
 				'browsercache.security.csp.form' => __( 'form-action:', 'w3-total-cache' ),
 				'browsercache.security.csp.frame.ancestors' => __( 'frame-ancestors:', 'w3-total-cache' ),
 				'browsercache.security.csp.sandbox' => __( 'sandbox:', 'w3-total-cache' ),
-				'browsercache.security.csp.default' => __( 'default-src:', 'w3-total-cache' )
+				'browsercache.security.csp.default' => __( 'default-src:', 'w3-total-cache' ),
+				'browsercache.security.cspro' => __( 'Content Security Policy Report Only', 'w3-total-cache' ),
+				'browsercache.security.cspro.base' => __( 'base-uri:', 'w3-total-cache' ),
+				'browsercache.security.cspro.frame' => __( 'frame-src:', 'w3-total-cache' ),
+				'browsercache.security.cspro.connect' => __( 'connect-src:', 'w3-total-cache' ),
+				'browsercache.security.cspro.font' => __( 'font-src:', 'w3-total-cache' ),
+				'browsercache.security.cspro.script' => __( 'script-src:', 'w3-total-cache' ),
+				'browsercache.security.cspro.style' => __( 'style-src:', 'w3-total-cache' ),
+				'browsercache.security.cspro.img' => __( 'img-src:', 'w3-total-cache' ),
+				'browsercache.security.cspro.media' => __( 'media-src:', 'w3-total-cache' ),
+				'browsercache.security.cspro.object' => __( 'object-src:', 'w3-total-cache' ),
+				'browsercache.security.cspro.plugin' => __( 'plugin-types:', 'w3-total-cache' ),
+				'browsercache.security.cspro.form' => __( 'form-action:', 'w3-total-cache' ),
+				'browsercache.security.cspro.frame.ancestors' => __( 'frame-ancestors:', 'w3-total-cache' ),
+				'browsercache.security.cspro.sandbox' => __( 'sandbox:', 'w3-total-cache' ),
+				'browsercache.security.cspro.default' => __( 'default-src:', 'w3-total-cache' ),
 			) );
 	}
 }
