@@ -791,7 +791,7 @@ $feature_policies = array(
 			'key'            => 'browsercache.security.fp',
 			'disabled'       => Util_Ui::sealing_disabled( 'browsercache.' ),
 			'control'        => 'checkbox',
-			'checkbox_label' => esc_html__( 'Feature-Policy', 'w3-total-cache' ),
+			'checkbox_label' => esc_html__( 'Feature-Policy / Permissions-Policy', 'w3-total-cache' ),
 			'description'    => esc_html__( 'Allows you to control which origins can use which features.', 'w3-total-cache' ),
 			'label_class'    => 'w3tc_single_column',
 		)
