@@ -4,7 +4,7 @@
  *
  * Processes PageSpeed API data return into usable format.
  *
- * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * PageSpeed Data Config.
  *
- * @since 2.3.0
+ * @since 2.2.13
  */
 class PageSpeed_Data {
 
 	/**
 	 * Prepare PageSpeed Data Config.
 	 *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
 	 * @param array $data PageSpeed analysis data.
 	 *

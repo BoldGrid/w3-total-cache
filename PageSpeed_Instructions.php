@@ -4,7 +4,7 @@
  *
  * Defines W3TC's recomendations for each PageSpeed metric.
  *
- * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * PageSpeed Instructions Config.
  *
- * @since 2.3.0
+ * @since 2.2.13
  */
 class PageSpeed_Instructions {
 
 	/**
 	 * Get PageSpeed Instructions Config.
 	 *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
 	 * @return array
 	 */
@@ -49,7 +49,7 @@ class PageSpeed_Instructions {
 				'unused-css-rules'             => array(
 					'instructions' =>
 						'<p>' . esc_html__( 'Some themes and plugins are loading CSS files or parts of the CSS files on all pages and not only on the pages that should be loading on. For eaxmple if you are using some contact form plugin, there is a chance that the CSS file of that plugin will load not only on the /contact/ page, but on all other pages as well and this is why the unused CSS should be removed.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'Open your Chrome browser, go to “Developer Tools”, click on “More Tools” and then “Coverage”.', 'w3-total-cache' ) . '</p>	
+						<p>' . esc_html__( 'Open your Chrome browser, go to “Developer Tools”, click on “More Tools” and then “Coverage”.', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Coverage will open up. We will see buttons for start capturing coverage, to reload and start capturing coverage and to stop capturing coverage and show results.', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'If you have a webpage you want to analyze its code coverage. Load the webpage and click on the o button in the Coverage tab.', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'After sometime, a table will show up in the tab with the resources it analyzed, and how much code is used in the webpage. All the files linked in the webpage (css, js) will be listed in the Coverage tab. Clicking on any resource there will open that resource in the Sources panel with a breakdown of Total Bytes and Unused Bytes.', 'w3-total-cache' ) . '</p>
@@ -164,7 +164,7 @@ class PageSpeed_Instructions {
 				),
 				'uses-rel-preconnect'          => array(
 					'instructions' =>
-						'<p>' . esc_html__( 'Look at the list of third-party resources flagged by Google Page speed and add preconnect or dns-prefetch to their link tags depending on whether the resource is critical or not.', 'w3-total-cache' ) . '</p>						
+						'<p>' . esc_html__( 'Look at the list of third-party resources flagged by Google Page speed and add preconnect or dns-prefetch to their link tags depending on whether the resource is critical or not.', 'w3-total-cache' ) . '</p>
 						<ol>
 							<li>
 								' . esc_html__( 'Add preconnect for critical third-party domains. Out of the list of third-party resources flagged by Google Page speed, identify the critical third-party resources and add the following code to the link tag:', 'w3-total-cache' ) . '
@@ -438,14 +438,14 @@ class PageSpeed_Instructions {
 					'instructions' =>
 						'<p>' . esc_html__( 'Add a passive flag to every event listener that Lighthouse identified.', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'If you\'re only supporting browsers that have passive event listener support, just add the flag.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'For example:', 'w3-total-cache' ) . '</p> 
+						<p>' . esc_html__( 'For example:', 'w3-total-cache' ) . '</p>
 						<code>' . esc_html( 'document.addEventListener("touchstart", onTouchStart, {passive: true});' ) . '</code>
 						<p>' . esc_html__( 'If you\'re supporting older browsers that don\'t support passive event listeners, you\'ll need to use feature detection or a polyfill. See the Feature Detection section of the WICG Passive event listeners explainer document for more information.', 'w3-total-cache' ) . '</p>',
 				),
 				'no-document-write'            => array(
 					'instructions' =>
 						'<p>' . esc_html__( 'You can fix this audit by preferably eliminating document.write() altogether, wherever possible.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'Avoiding the use of document.write() should ideally be built into your development workflow so that your production website is optimized for web performance from the beginning.', 'w3-total-cache' ) . '</p> 
+						<p>' . esc_html__( 'Avoiding the use of document.write() should ideally be built into your development workflow so that your production website is optimized for web performance from the beginning.', 'w3-total-cache' ) . '</p>
 						<p>' . sprintf(
 							// translators: 1 W3TC plugin name.
 							esc_html__(
@@ -471,7 +471,7 @@ class PageSpeed_Instructions {
 				'viewport'                     => array(
 					'instructions' =>
 						'<p>' . esc_html__( 'Use the "viewport" <meta> tag to control the viewport\'s size and shape form mobile friendly website:', 'w3-total-cache' ) . '</p>
-						<code>' . esc_html( '<meta name="viewport" content="width=device-width, initial-scale=1">' ) . '</code> 
+						<code>' . esc_html( '<meta name="viewport" content="width=device-width, initial-scale=1">' ) . '</code>
 						<p>' .
 						wp_kses(
 							sprintf(

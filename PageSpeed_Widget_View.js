@@ -3,7 +3,7 @@
  *
  * JavaScript for the PageSpeed dashboard widget.
  *
- * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @global w3tcData Localized data.
  */
@@ -11,10 +11,10 @@ jQuery(document).ready( function($) {
 	/**
 	 * Analyze homepage via AJAX to Google PageSpeed Insights.
 	 *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
 	 * @param boolean nocache Flag to enable/disable results cache.
-	 * 
+	 *
 	 * @return void
 	 */
 	function w3tcps_load(nocache) {
@@ -51,11 +51,11 @@ jQuery(document).ready( function($) {
 			$('.w3tcps_loading').addClass('w3tc_none').find('.spinner').removeClass('is-active');
 		});
 	}
-	
+
 	/**
      * Toggle mobile view.
      *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
      * @return void
      */
@@ -69,7 +69,7 @@ jQuery(document).ready( function($) {
     /**
      * Toggle desktop view.
      *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
      * @return void
      */

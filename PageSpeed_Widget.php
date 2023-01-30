@@ -4,7 +4,7 @@
  *
  * Controller for PageSpeed dashboard widget setup, display, and AJAX handler.
  *
- * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */
@@ -14,13 +14,13 @@ namespace W3TC;
 /**
  * Google PageSpeed dashboard widget.
  *
- * @since 2.3.0
+ * @since 2.2.13
  */
 class PageSpeed_Widget {
 	/**
 	 * Run PageSpeed widget.
 	 *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
 	 * @return void
 	 */
@@ -33,7 +33,7 @@ class PageSpeed_Widget {
 	/**
 	 * Initialize PageSpeed widget scripts/styles.
 	 *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
 	 * @return void
 	 */
@@ -67,7 +67,7 @@ class PageSpeed_Widget {
 	/**
 	 * Dashboard setup action.
 	 *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
 	 * @return void
 	 */
@@ -85,7 +85,7 @@ class PageSpeed_Widget {
 	/**
 	 * PageSpeed widget.
 	 *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
 	 * @return void
 	 */
@@ -99,7 +99,7 @@ class PageSpeed_Widget {
 	/**
 	 * PageSpeed widget AJAX fetch data.
 	 *
-	 * @since 2.3.0
+	 * @since 2.2.13
 	 *
 	 * @return JSON
 	 */

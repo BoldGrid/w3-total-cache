@@ -4,7 +4,7 @@
  *
  * Default PageSpeed dashboard widget template.
  *
- * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */

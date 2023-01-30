@@ -4,7 +4,7 @@
  *
  * Template file for PageSpeed dashboard widget.
  *
- * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */
@@ -68,9 +68,9 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 			<div class="w3tcps_ranges">
-				<span class="w3tcps_range w3tcps_fail"><?php esc_html_e( '0–49', 'w3-total-cache' ); ?></span> 
-				<span class="w3tcps_range w3tcps_average"><?php esc_html_e( '50–89', 'w3-total-cache' ); ?></span> 
-				<span class="w3tcps_range w3tcps_pass"><?php esc_html_e( '90–100', 'w3-total-cache' ); ?></span> 
+				<span class="w3tcps_range w3tcps_fail"><?php esc_html_e( '0–49', 'w3-total-cache' ); ?></span>
+				<span class="w3tcps_range w3tcps_average"><?php esc_html_e( '50–89', 'w3-total-cache' ); ?></span>
+				<span class="w3tcps_range w3tcps_pass"><?php esc_html_e( '90–100', 'w3-total-cache' ); ?></span>
 			</div>
 		</div>
 		<div id="w3tcps_widget_metrics_container" class="tab-content w3tcps_content">

@@ -4,7 +4,7 @@
  *
  * Template file for PageSpeed page.
  *
- * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */
@@ -88,9 +88,9 @@ $current_tab = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile'
 										);
 										?>
 										<div class="w3tcps_ranges">
-											<span class="w3tcps_range w3tcps_fail"><?php esc_html_e( '0–49', 'w3-total-cache' ); ?></span> 
-											<span class="w3tcps_range w3tcps_average"><?php esc_html_e( '50–89', 'w3-total-cache' ); ?></span> 
-											<span class="w3tcps_range w3tcps_pass"><?php esc_html_e( '90–100', 'w3-total-cache' ); ?></span> 
+											<span class="w3tcps_range w3tcps_fail"><?php esc_html_e( '0–49', 'w3-total-cache' ); ?></span>
+											<span class="w3tcps_range w3tcps_average"><?php esc_html_e( '50–89', 'w3-total-cache' ); ?></span>
+											<span class="w3tcps_range w3tcps_pass"><?php esc_html_e( '90–100', 'w3-total-cache' ); ?></span>
 										</div>
 										<?php Util_Ui::postbox_footer(); ?>
 									</div>
@@ -109,7 +109,7 @@ $current_tab = ( ! empty( $_GET['tab'] ) ? Util_Request::get( 'tab' ) : 'mobile'
 										<div class="w3tcps_screenshots_other_<?php echo esc_attr( $analysis_type ); ?>">
 											<h3 class="w3tcps_metric_title"><?php esc_html_e( 'Pageload Thumbnails', 'w3-total-cache' ); ?></h3>
 											<div class="w3tcps_other_screenshot_container"><?php Util_PageSpeed::print_screenshots( $api_response[ $analysis_type ] ); ?></div>
-										</div>    
+										</div>
 										<div class="w3tcps_screenshots_final_<?php echo esc_attr( $analysis_type ); ?>">
 											<h3 class="w3tcps_metric_title"><?php esc_html_e( 'Final Screenshot', 'w3-total-cache' ); ?></h3>
 											<div class="w3tcps_final_screenshot_container"><?php Util_PageSpeed::print_final_screenshot( $api_response[ $analysis_type ] ); ?></div>
