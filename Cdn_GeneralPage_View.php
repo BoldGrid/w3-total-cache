@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_GeneralPage_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -52,34 +58,33 @@ Util_Ui::config_overloading_button(
 			)
 		)
 	);
+
+	if ( ! $cdn_enabled ) {
+		echo '&nbsp;' . wp_kses(
+			sprintf(
+				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+				// translators: 3 opening HTML a tag, 4 closing HTML a tag.
+				__(
+					'If you do not have a %1$sCDN%2$s provider try StackPath. %3$sSign up now to enjoy a special offer!%4$s.',
+					'w3-total-cache'
+				),
+				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+				'</acronym>',
+				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_stackpath_signup' ), 'w3tc' ) ) . '" target="_blank">',
+				'</a>'
+			),
+			array(
+				'acronym' => array(
+					'title' => array(),
+				),
+				'a'       => array(
+					'href'   => array(),
+					'target' => array(),
+				),
+			)
+		);
+	}
 	?>
-<?php if ( ! $cdn_enabled ) : ?>
-	<?php
-	echo wp_kses(
-		sprintf(
-			// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-			// translators: 3 opening HTML a tag, 4 closing HTML a tag.
-			__(
-				'If you do not have a %1$sCDN%2$s provider try StackPath. %3$sSign up now to enjoy a special offer!%4$s.',
-				'w3-total-cache'
-			),
-			'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-			'</acronym>',
-			'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_maxcdn_signup' ), 'w3tc' ) ) . '" target="_blank">',
-			'</a>'
-		),
-		array(
-			'acronym' => array(
-				'title' => array(),
-			),
-			'a'       => array(
-				'href'   => array(),
-				'target' => array(),
-			),
-		)
-	);
-	?>
-<?php endif; ?>
 </p>
 <table class="form-table">
 	<?php

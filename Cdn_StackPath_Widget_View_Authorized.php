@@ -11,7 +11,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<div class="w3tcstackpath_error_details"></div>
 </div>
 
-<div id="stackpath-widget" class="stackpath-netdna-widget-base w3tcstackpath_content w3tc_hidden">
+<div id="stackpath-widget" class="stackpath-widget-base w3tcstackpath_content w3tc_hidden">
 	<div class="w3tcstackpath_wrapper">
 		<div class="w3tcstackpath_status">
 			<p>

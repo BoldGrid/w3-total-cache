@@ -287,13 +287,6 @@ class ConfigCompiler {
 		if ( !isset( $file_data['cdn.cors_header'] ) ) {
 			$file_data['cdn.cors_header'] = true;
 		}
-		if ( isset( $file_data['cdn.engine'] ) && $file_data['cdn.engine'] == 'netdna' ) {
-			$file_data['cdn.engine'] = 'maxcdn';
-			$file_data['cdn.maxcdn.authorization_key'] = $file_data['cdn.netdna.authorization_key'];
-			$file_data['cdn.maxcdn.domain'] = $file_data['cdn.netdna.domain'];
-			$file_data['cdn.maxcdn.ssl'] = $file_data['cdn.netdna.ssl'];
-			$file_data['cdn.maxcdn.zone_id'] = $file_data['cdn.netdna.zone_id'];
-		}
 
 		//
 		// changes in 0.9.5
@@ -328,8 +321,6 @@ class ConfigCompiler {
 				is_array( $file_data['extensions.active'] ) ) {
 				if ( isset( $file_data['extensions.active']['cloudflare'] ) )
 					$active['cloudflare'] = 'w3-total-cache/Extension_CloudFlare_Plugin.php';
-				if ( isset( $file_data['extensions.active']['feedburner'] ) )
-					$active['feedburner'] = 'w3-total-cache/Extension_FeedBurner_Plugin.php';
 				if ( isset( $file_data['extensions.active']['genesis.theme'] ) )
 					$active['genesis.theme'] = 'w3-total-cache/Extension_Genesis_Plugin.php';
 				if ( isset( $file_data['extensions.active']['wordpress-seo'] ) )
@@ -384,7 +375,6 @@ class ConfigCompiler {
 		// extensions - kept in separate key now
 		$this->_set_if_exists_extension( $file_data, 'cloudflare' );
 		$this->_set_if_exists_extension( $file_data, 'genesis.theme' );
-		$this->_set_if_exists_extension( $file_data, 'feedburner' );
 
 		// fragmentcache to extension
 		if ( isset( $file_data['fragmentcache.enabled'] ) &&
@@ -442,19 +432,6 @@ class ConfigCompiler {
 		// changes in 0.9.5.4
 		//
 		if ( isset( $file_data['cdn.engine'] ) ) {
-			if ( $file_data['cdn.engine'] == 'maxcdn_fsd' ) {
-				$file_data['cdnfsd.engine'] = 'maxcdn';
-				$file_data['cdnfsd.enabled'] = $file_data['cdn.enabled'];
-
-				if ( isset( $file_data['cdn.maxcdn_fsd.api_key'] ) ) {
-					$file_data['cdnfsd.maxcdn.api_key'] =
-						$file_data['cdn.maxcdn_fsd.api_key'];
-					$file_data['cdnfsd.maxcdn.zone_id'] =
-						$file_data['cdn.maxcdn_fsd.zone_id'];
-					$file_data['cdnfsd.maxcdn.zone_domain'] =
-						$file_data['cdn.maxcdn_fsd.zone_domain'];
-				}
-			}
 			if ( $file_data['cdn.engine'] == 'cloudfront_fsd' ) {
 				$file_data['cdnfsd.engine'] = 'cloudfront';
 				$file_data['cdnfsd.enabled'] = $file_data['cdn.enabled'];

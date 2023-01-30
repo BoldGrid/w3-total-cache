@@ -831,6 +831,7 @@ class Util_Environment {
 
 		return $host;
 	}
+
 	/**
 	 * Host.
 	 *

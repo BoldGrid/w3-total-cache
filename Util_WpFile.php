@@ -317,8 +317,6 @@ class Util_WpFile {
 			$form = str_replace( $matches[0], '', $form );
 		}
 
-		$form = str_replace( '<input ', '<input class="w3tc-ignore-change" ', $form );
-
 		if ( !$success ) {
 			throw new Util_WpFile_FilesystemOperationException( $error, $form );
 		}

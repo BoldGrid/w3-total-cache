@@ -75,27 +75,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<th>
 					<?php $this->checkbox( 'pgcache.cache.feed' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.feed' ); ?></label>
-					<p class="description">
-						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML a tag to FeedBurner wiki, 2 closing HTML a tag.
-								__(
-									'Even if using a feed proxy service (like %1$sFeedBurner%2$s), enabling this option is still recommended.',
-									'w3-total-cache'
-								),
-								'<a href="' . esc_url( 'http://en.wikipedia.org/wiki/FeedBurner' ) . '" target="_blank">',
-								'</a>'
-							),
-							array(
-								'a' => array(
-									'href'   => array(),
-									'target' => array(),
-								),
-							)
-						);
-						?>
-					</p>
+					<p class="description"><?php esc_html_e( 'Even if using a feed proxy service enabling this option is still recommended.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -532,7 +512,7 @@ if ( ! defined( 'W3TC' ) ) {
 					<th><label><?php esc_html_e( 'Compatibility mode:', 'w3-total-cache' ); ?></label></th>
 					<td>
 						<?php $this->checkbox( 'pgcache.compatibility' ); ?> <?php Util_Ui::e_config_label( 'pgcache.compatibility' ); ?></label>
-						<p class="description"><?php esc_html_e( 'Decreases performance by ~20% at scale in exchange for increasing interoperability with more hosting environments and WordPress idiosyncrasies. This option should be enabled for most sites.', 'w3-total-cache' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Decreases performance by ~20% at scale in exchange for increasing interoperability with more hosting environments and WordPress idiosyncrasies. Enable this option if you experience issues with the Apache rules.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>
 				<?php if ( ! Util_Environment::is_nginx() ) : ?>

@@ -266,26 +266,6 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php else : ?>
 				<span style="background-color: #FF0000"><?php esc_html_e( 'Not installed', 'w3-total-cache' ); ?></span>
 			<?php endif; ?>
-				<span class="w3tc-self-test-hint">
-					<?php
-					echo wp_kses(
-						sprintf(
-							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-							__(
-								'(required for NetDNA / MaxCDN %1$sCDN%2$s purge support)',
-								'w3-total-cache'
-							),
-							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-							'</acronym>'
-						),
-						array(
-							'acronym' => array(
-								'title' => array(),
-							),
-						)
-					);
-					?>
-				</span>
 		</li>
 
 		<li>
@@ -446,7 +426,6 @@ if ( ! defined( 'W3TC' ) ) {
 			array(
 				Util_Rule::get_pgcache_rules_core_path(),
 				Util_Rule::get_browsercache_rules_cache_path(),
-				Util_Rule::get_browsercache_rules_no404wp_path(),
 			)
 		);
 		?>

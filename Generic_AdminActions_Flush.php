@@ -245,7 +245,7 @@ class Generic_AdminActions_Flush {
 	 */
 	function w3tc_flush_post() {
 		$post_id = Util_Request::get_integer( 'post_id' );
-		w3tc_flush_post( $post_id, array( 'ui_action' => 'flush_button' ) );
+		w3tc_flush_post( $post_id, true, array( 'ui_action' => 'flush_button' ) );
 
 		Util_Admin::redirect( array(
 				'w3tc_note' => 'pgcache_purge_post'

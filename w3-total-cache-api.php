@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.2.9' );
+define( 'W3TC_VERSION', '2.2.12' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -32,8 +32,6 @@ define( 'W3TC_TERMS_URL', 'https://api.w3-edge.com/v1/redirects/policies-terms' 
 define( 'W3TC_TERMS_ACCEPT_URL', 'https://api.w3-edge.com/v1/redirects/policies-accept' );
 define( 'W3TC_MAILLINGLIST_SIGNUP_URL', 'https://api.w3-edge.com/v1/signup-newsletter' );
 define( 'W3TC_NEWRELIC_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/newrelic/signup' );
-define( 'W3TC_MAXCDN_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/maxcdn/signup' );
-define( 'W3TC_MAXCDN_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/maxcdn/authorize' );
 define( 'W3TC_STACKPATH_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/stackpath/signup' );
 define( 'W3TC_STACKPATH_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/stackpath/authorize' );
 define( 'W3TC_STACKPATH2_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/stackpath2/authorize' );
@@ -121,7 +119,6 @@ define( 'W3TC_MARKER_BEGIN_PGCACHE_CORE', '# BEGIN W3TC Page Cache core' );
 define( 'W3TC_MARKER_BEGIN_PGCACHE_CACHE', '# BEGIN W3TC Page Cache cache' );
 define( 'W3TC_MARKER_BEGIN_PGCACHE_WPSC', '# BEGIN WPSuperCache' );
 define( 'W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE', '# BEGIN W3TC Browser Cache' );
-define( 'W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP', '# BEGIN W3TC Skip 404 error handling by WordPress for static files' );
 define( 'W3TC_MARKER_BEGIN_MINIFY_CORE', '# BEGIN W3TC Minify core' );
 define( 'W3TC_MARKER_BEGIN_MINIFY_CACHE', '# BEGIN W3TC Minify cache' );
 define( 'W3TC_MARKER_BEGIN_MINIFY_LEGACY', '# BEGIN W3TC Minify' );
@@ -134,7 +131,6 @@ define( 'W3TC_MARKER_END_PGCACHE_CACHE', '# END W3TC Page Cache cache' );
 define( 'W3TC_MARKER_END_PGCACHE_LEGACY', '# END W3TC Page Cache' );
 define( 'W3TC_MARKER_END_PGCACHE_WPSC', '# END WPSuperCache' );
 define( 'W3TC_MARKER_END_BROWSERCACHE_CACHE', '# END W3TC Browser Cache' );
-define( 'W3TC_MARKER_END_BROWSERCACHE_NO404WP', '# END W3TC Skip 404 error handling by WordPress for static files' );
 define( 'W3TC_MARKER_END_MINIFY_CORE', '# END W3TC Minify core' );
 define( 'W3TC_MARKER_END_MINIFY_CACHE', '# END W3TC Minify cache' );
 define( 'W3TC_MARKER_END_MINIFY_LEGACY', '# END W3TC Minify' );
@@ -270,12 +266,13 @@ function w3tc_flush_all( $extras = null ) {
 /**
  * Purges/Flushes post page.
  *
- * @param int   $post_id Post id.
- * @param array $extras  Exteas.
+ * @param int     $post_id Post id.
+ * @param boolean $force   Force flag (optional).
+ * @param array   $extras  Extras.
  */
-function w3tc_flush_post( $post_id, $extras = null ) {
+function w3tc_flush_post( $post_id, $force = false, $extras = null ) {
 	$o = \W3TC\Dispatcher::component( 'CacheFlush' );
-	$o->flush_post( $post_id, $extras );
+	$o->flush_post( $post_id, $force, $extras );
 }
 
 /**
@@ -324,11 +321,13 @@ function w3tc_pgcache_flush() {
 /**
  * Deprecated.  Shortcut for page post cache flush.
  *
- * @param int $post_id Post id.
+ * @param int     $post_id Post id.
+ * @param boolean $force Force flag (optional).
+ *
  * @return bool
  */
-function w3tc_pgcache_flush_post( $post_id ) {
-	return w3tc_flush_post( $post_id );
+function w3tc_pgcache_flush_post( $post_id, $force = false ) {
+	return w3tc_flush_post( $post_id, $force );
 }
 
 /**

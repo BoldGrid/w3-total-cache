@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.1
-Stable tag: 2.2.9
+Stable tag: 2.2.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,21 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.2.12 =
+* Fix: Comment status change error
+* Fix: Varnish flush post arguments
+
+= 2.2.11 =
+* Fix: Error when flushing page cache after an attachment update
+
+= 2.2.10 =
+* Fix: Optimized and fixed object cache flushing
+* Fix: Scheduled post page cache flushing
+* Fix: Admin bar flush cache for current page with disabled purge policy
+* Fix: Loop when disabling Minify HTTP/2 push setting
+* Fix: Extension admin notice missing links
+* Update: Removed custom translation files
 
 = 2.2.9 =
 * Fix: Reset our textdomain for translations

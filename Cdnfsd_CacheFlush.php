@@ -57,11 +57,12 @@ class Cdnfsd_CacheFlush {
 	 * Purges cdn's post cache
 	 *
 	 * @param integer $post_id Post ID.
-	 * @param array   $extras Extras.
+	 * @param boolean $force   Force Flag (optional).
+	 * @param array   $extras  Extras.
 	 *
 	 * @return bool
 	 */
-	public static function w3tc_flush_post( $post_id, $extras = null ) {
+	public static function w3tc_flush_post( $post_id, $force = false, $extras = null ) {
 		if ( ! $post_id ) {
 			$post_id = Util_Environment::detect_post_id();
 		}
@@ -122,7 +123,7 @@ class Cdnfsd_CacheFlush {
 		}
 
 		// Post URL.
-		if ( $config->get_boolean( 'pgcache.purge.post' ) ) {
+		if ( $config->get_boolean( 'pgcache.purge.post' ) || $force ) {
 			$full_urls = array_merge( $full_urls, Util_PageUrls::get_post_urls( $post_id ) );
 		}
 

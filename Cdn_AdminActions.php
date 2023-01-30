@@ -408,7 +408,6 @@ class Cdn_AdminActions {
 			if ( $engine == 'google_drive' ||
 				$engine == 'highwinds' ||
 				$engine == 'limelight' ||
-				$engine == 'maxcdn' ||
 				$engine == 'stackpath' ||
 				$engine == 'transparentcdn' ||
 				$engine == 'stackpath2' ||
@@ -508,25 +507,12 @@ class Cdn_AdminActions {
 		}
 	}
 
-
-
-	function w3tc_cdn_maxcdn_authorize() {
+	function w3tc_cdn_stackpath_signup() {
 		try {
 			$state = Dispatcher::config_state();
-			if ( $state->get_integer( 'track.maxcdn_authorize', 0 ) == 0 ) {
-				$state->set( 'track.maxcdn_authorize', time() );
-				$state->save();
-			}
-		} catch ( \Exception $ex ) {}
-		Util_Environment::redirect( W3TC_MAXCDN_AUTHORIZE_URL );
-	}
-
-	function w3tc_cdn_maxcdn_signup() {
-		try {
-			$state = Dispatcher::config_state();
-			$state->set( 'track.maxcdn_signup', time() );
+			$state->set( 'track.stackpath_signup', time() );
 			$state->save();
 		} catch ( \Exception $ex ) {}
-		Util_Environment::redirect( W3TC_MAXCDN_SIGNUP_URL );
+		Util_Environment::redirect( W3TC_STACKPATH_SIGNUP_URL );
 	}
 }

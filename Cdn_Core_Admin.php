@@ -704,31 +704,6 @@ WHERE p.post_type = "attachment" AND (pm.meta_value IS NOT NULL OR pm2.meta_valu
 		return $actions;
 	}
 
-	/**
-	 * Changes settings on MaxCDN site
-	 */
-	function change_canonical_header() {
-		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
-
-		if ( $cdn_engine == 'maxcdn' ) {
-			require_once W3TC_LIB_NETDNA_DIR . '/NetDNA.php';
-			$authorization_key = $this->_config->get_string( "cdn.$cdn_engine.authorization_key" );
-			if ( $authorization_key ) {
-				$keys = explode( '+', $authorization_key );
-				if ( sizeof( $keys ) == 3 ) {
-					list( $alias, $consumer_key, $consumer_secret ) =  $keys;
-					$api = new \NetDNA( $alias, $consumer_key, $consumer_secret );
-					$zone = array();
-					$zone_id = $this->_config->get_string( "cdn.$cdn_engine.zone_id" );
-					$zone['canonical_link_headers'] = $this->_config->get_boolean( 'cdn.canonical_header' ) ? 1 : 0;
-					try {
-						$api->update_pull_zone( $zone_id, $zone );
-					} catch ( \Exception $ex ) {}
-				}
-			}
-		}
-	}
-
 	function is_running() {
 		/**
 		 * CDN
@@ -765,10 +740,6 @@ WHERE p.post_type = "attachment" AND (pm.meta_value IS NOT NULL OR pm2.meta_valu
 			break;
 
 		case ( $cdn_engine == 'mirror' && !count( $this->_config->get_array( 'cdn.mirror.domain' ) ) ):
-			$running = false;
-			break;
-
-		case ( $cdn_engine == 'maxcdn' ):
 			$running = false;
 			break;
 

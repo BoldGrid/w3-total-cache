@@ -932,9 +932,9 @@ class PgCache_ContentGrabber {
 			}
 
 			$engineConfig['use_expired_data'] = true;
-			$engineConfig['module'] = 'pgcache';
-			$engineConfig['host'] = '';   // host is always put to a key
-			$engineConfig['instance_id'] = Util_Environment::instance_id();
+			$engineConfig['module']           = 'pgcache';
+			$engineConfig['host']             = Util_Environment::host();
+			$engineConfig['instance_id']      = Util_Environment::instance_id();
 
 			$caches[$group] = Cache::instance( $engine, $engineConfig );
 		}

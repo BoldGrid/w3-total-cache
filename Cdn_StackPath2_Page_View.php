@@ -25,7 +25,7 @@ if ( ! defined( 'W3TC' ) ) {
 				<?php esc_html_e( 'Enhance your website Performance with StackPath\'s CDN services. StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $10 a month.', 'w3-total-cache' ); ?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL ); ?>" target="_blank" id="netdna-stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave', __( 'Sign Up Now and save!', 'w3-total-cache' ) ); ?></a>
+				<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL ); ?>" target="_blank" id="stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave', __( 'Sign Up Now and save!', 'w3-total-cache' ) ); ?></a>
 			</p>
 			<p class="description">
 				<?php
