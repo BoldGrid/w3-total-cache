@@ -226,7 +226,10 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Comment status action triggered by approve/spam/trash comment quick-links under items on the Comments admin page.
+	 * Comment status action fired immediately after transitioning a comment’s status from one to another
+	 * in the database and removing the comment from the object cache, but prior to all status transition hooks.
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/wp_set_comment_status/
 	 *
 	 * @param integer $comment_id Comment ID.
 	 * @param string  $status Status.
