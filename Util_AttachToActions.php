@@ -133,7 +133,7 @@ class Util_AttachToActions {
 
 	/**
 	 * Comment status action fired immediately after transitioning a comment’s status from one to another
-	 * in the database and removing the comment from the object cache, but prior to all status transition hooks.
+	 * in the database and removing the comment, but prior to all status transition hooks.
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/wp_set_comment_status/
 	 *
