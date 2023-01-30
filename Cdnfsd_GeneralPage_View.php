@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdnfsd_GeneralPage_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -15,10 +21,9 @@ if ( ! defined( 'W3TC' ) ) {
 			'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
 		)
 	);
-	?>
-	<?php if ( ! $cdnfsd_enabled ) : ?>
-		<?php
-		wp_kses(
+
+	if ( ! $cdnfsd_enabled ) {
+		echo '&nbsp;' . wp_kses(
 			sprintf(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 				// translators: 3 opening HTML a tag to W3TC MaxCDN Signup admin page, 4 closing HTML a tag.
@@ -28,7 +33,7 @@ if ( ! defined( 'W3TC' ) ) {
 				),
 				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 				'</acronym>',
-				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_maxcdn_signup' ), 'w3tc' ) ) . '" target="_blank">',
+				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_stackpath_signup' ), 'w3tc' ) ) . '" target="_blank">',
 				'</a>'
 			),
 			array(
@@ -41,8 +46,8 @@ if ( ! defined( 'W3TC' ) ) {
 				),
 			)
 		);
-		?>
-	<?php endif; ?>
+	}
+	?>
 </p>
 
 <table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">

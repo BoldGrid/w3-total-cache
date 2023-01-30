@@ -97,13 +97,6 @@
     background: url("pub/img/w3tc_google-logo.png") 0 3px no-repeat;
 }
 
-.w3tc-widget-maxcdn-logo {
-    width: 150px;
-    height: 35px;
-    background: url("pub/img/w3tc_maxcdn-logo.png") 0 5px no-repeat;
-    float: left;
-}
-
 .w3tc-widget-boldgrid-logo {
 	width: 70%;
     height: 100%;
@@ -147,9 +140,6 @@
     .w3tc_generic_widgetservice_label {
         display: inline;
     }
-    #cdn_maxcdn_authorization_key {
-        width: 100%;
-    }
 }
 
 /**
@@ -190,14 +180,6 @@ only screen and (                min-resolution: 2dppx)  {
         height: 90px;
         background-image: url("pub/img/w3tc_google-logo-retina.png");
         background-size: 97px 33px;
-    }
-
-    .w3tc-widget-netdna-logo {
-        float: left;
-        width: 180px;
-        height: 90px;
-        background-image: url("pub/img/w3tc_netdna-logo-retina.png");
-        background-size: 177px 90px;
     }
 }
 */

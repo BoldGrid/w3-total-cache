@@ -54,11 +54,6 @@ class Cdn_StackPath_Popup {
 			$zones = $api->get_sites();
 		} catch ( \Exception $ex ) {
 			$error_message = 'Can\'t authenticate: ' . $ex->getMessage();
-
-			if ( strpos( $error_message, 'not whitelisted' ) > 0 ) {
-				$error_message .= '. You can whitelist IP ' .
-					'<a target="_blank" href="https://cp.maxcdn.com/account/api/whitelist">here</a>';
-			}
 			$this->render_intro( array(
 					'api_key' => $api_key,
 					'error_message' => $error_message
@@ -133,7 +128,7 @@ class Cdn_StackPath_Popup {
 		}
 
 
-		// ssl is not enabled at maxcdn - offer it
+		// ssl is not enabled at StackPath - offer it
 		if ( Util_Environment::is_https() &&
 			( is_null( $details['ssl']['current'] ) ||
 				$details['ssl']['current'] == 'off' ) ) {

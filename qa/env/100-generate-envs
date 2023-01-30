@@ -59,13 +59,11 @@ def generate_image_descriptors
 		'apache' => {
 			'HTTP_SERVER' => 'apache',
 			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/apache2/wp.sandbox_error.log'
+		},
+		'litespeed' => {
+			'HTTP_SERVER' => 'litespeed',
+			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
 		}
-		# still in development
-		#,
-		#'lightspeed' => {
-		#	'HTTP_SERVER' => 'lightspeed',
-		#	'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
-		#}
 	})
 
 	# multiply by php
@@ -76,7 +74,23 @@ def generate_image_descriptors
 			'OS' => 'focal',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'litespeed'
+			]
+		},
+		# litespeed-specific, lighter env to keep scope tight
+		'php80tiny' => {
+			'PHP_VERSION' => '8.0',
+			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
+			'OS' => 'focal',
+			'APC' => '',
+			'MEMCACHE' => '',
+			'REDIS' => '',
+			'_except_name_contains' => [
+				'apache',
+				'nginx',
+			]
 		},
 		'php74' => {
 			'PHP_VERSION' => '7.4',
@@ -86,7 +100,7 @@ def generate_image_descriptors
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis',
 			'_except_name_contains' => [
-				'lightspeed'
+				'litespeed'
 			]
 		},
 		'php56' => {
@@ -97,7 +111,7 @@ def generate_image_descriptors
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis',
 			'_except_name_contains' => [
-				'lightspeed'
+				'litespeed'
 			]
 		}
 	})
@@ -112,7 +126,7 @@ def generate_image_descriptors
 				'HTTP_SERVER_PORT' => '8080',
 				'WP_MAYBE_COLON_PORT' => ':8080',   # derived from HTTP_SERVER_PORT
 				'_except_name_contains' => [
-					'lightspeed'
+					'litespeed'
 				]
 			},
 			'https' => {
@@ -120,7 +134,7 @@ def generate_image_descriptors
 				'HTTP_SERVER_SCHEME' => 'https',
 				'WP_MAYBE_COLON_PORT' => '',
 				'_except_name_contains' => [
-					'lightspeed'
+					'litespeed'
 				]
 			},
 			#'varnish' => {
@@ -194,34 +208,34 @@ def generate_box_descriptors(image_name)
 		#'wp56' => {
 		#'WP_VERSION' => '5.6',
 		#	'_except_name_contains' => [
-		#		'lightspeed'
+		#		'litespeed'
 		#	]
 		#},
 		#'wp57' => {
 		#	'WP_VERSION' => '5.7',
 		#	'_except_name_contains' => [
-		#		'lightspeed'
+		#		'litespeed'
 		#	]
 		#},
-		#'wp58' => {
-		#	'WP_VERSION' => '5.8',
-		#	'_except_name_contains' => [
-		#		'lightspeed'
-		#	]
-		#},
+		'wp58' => {
+			'WP_VERSION' => '5.8',
+			'_except_name_contains' => [
+				'litespeed'
+			]
+		},
 		'wp59' => {
 			'WP_VERSION' => '5.9'
 		},
 		'wp60' => {
 			'WP_VERSION' => '6.0',
 			'_except_name_contains' => [
-				'lightspeed'
+				'litespeed'
 			]
 		},
 		'wp61' => {
-			'WP_VERSION' => '6.1-RC5',
+			'WP_VERSION' => '6.1',
 			'_except_name_contains' => [
-				'lightspeed'
+				'litespeed'
 			]
 		}
 	}, image_name)
@@ -240,7 +254,7 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/moved-folders/moved-plugins/',
 				'WP_PLUGINS_URI' => '/moved-folders/moved-plugins/',
 				'_except_name_contains' => [
-					'xcache', 'lightspeed'
+					'xcache', 'litespeed'
 				]
 			},
 			# add wp in /wp/ uri, subdomains are not supported by wp in that configuration
@@ -254,14 +268,14 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/wp/wp-content/plugins/',
 				'WP_PLUGINS_URI' => '/wp/wp-content/plugins/',
 				'_except_name_contains' => [
-					'xcache', 'lightspeed'
+					'xcache', 'litespeed'
 				]
 			},
 			# some people enter home/siteurl captialized
 			'captial' => {
 				'WP_HOST' => 'Wp.SandBox',
 				'_except_name_contains' => [
-					'xcache', 'lightspeed'
+					'xcache', 'litespeed'
 				]
 
 			}
@@ -285,7 +299,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
-				'lightspeed'
+				'litespeed'
 			]
 		},
 		'subdir' => {
@@ -302,7 +316,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
-				'lightspeed'
+				'litespeed'
 			]
 		}
 	}, image_name)

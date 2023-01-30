@@ -177,7 +177,7 @@
 
 **February 2012:**
 
-* [Get Google Page Speed Report Via W3 Total Cache](http://www.myh3r3.com/code/get-google-page-speed-report-via-w3-total-cache/), Aayush Nagar
+* [Get Google PageSpeed Report Via W3 Total Cache](http://www.myh3r3.com/code/get-google-page-speed-report-via-w3-total-cache/), Aayush Nagar
 * [3 WordPress Plugins To Speed Up Your Blog](http://www.wordpressninja.com/2012/02/speed-up-your-wordpress-blog/), Missy Diaz
 * [Top 5 Plugins for WordPress](http://creativetech.me/2012/02/top-5-plugins-wordpress/), Phill Fernandes
 * [Geeking out with WordPress, CDNs, and Amazon CloudFront](http://polizeros.com/2012/02/17/geeking-out-with-wordpress-cdns-and-amazon-cloudfront/), Bob Morris
@@ -291,7 +291,7 @@
 **August 2011:**
 
 * [Matt Mullenweg: State of the Word 2011 (4:49)](http://wordpress.tv/2011/08/14/matt-mullenweg-state-of-the-word-2011/), Matt Mullenweg
-* [http://freenuts.com/increase-your-page-speed-to-a-new-level/](Increase Your Page Speed To A New Level)
+* [http://freenuts.com/increase-your-page-speed-to-a-new-level/](Increase Your PageSpeed To A New Level)
 * [7 Plugins That Every WordPress Blog Must Have](http://coderbay.com/7-wordpress-plugins-that-every-wordpress-blog-must-have/), Karim Pattoki
 * [Speeding Up Your WordPress Site With W3 Total Cache](http://www.sohailtech.com/2011/08/10/speeding-wordpress-site-w3-total-cache/)
 * [W3 Total Cache Setup with CloudFlare and CDN : Complete Tutorial Guide](http://thecustomizewindows.com/2011/08/w3-total-cache-setup-with-cloudflare-and-cdn-complete-tutorial-guide/), Abhishek Ghosh
@@ -300,7 +300,7 @@
 
 * [Speeding Up Your Blog - Part II: WordPress & Cloudflare Integration](http://www.thewebhostinghero.com/tutorials/wordpress-cloudflare.html)
 * [How Your Website Loses 7% of Potential Conversions](http://www.clickz.com/clickz/column/2097323/website-loses-potential-conversions), Bryan Eisenberg
-* [How to Integrate Google Page Speed with W3 Total Cache](http://geekscalling.com/google/how-to-integrate-google-page-speed-with-w3-total-cache), Anish
+* [How to Integrate Google PageSpeed with W3 Total Cache](http://geekscalling.com/google/how-to-integrate-google-page-speed-with-w3-total-cache), Anish
 * [22 WordPress Plugins for Content Marketers](http://www.business2community.com/content-marketing/22-wordpress-plugins-for-content-marketers-040787), Brody Dorland
 
 **June 2011:**
@@ -311,10 +311,10 @@
 
 **May 2011:**
 
-* [HOW TO: Get Google Page Speed Report Via W3 Total Cache](http://hellboundbloggers.com/2011/05/10/get-google-page-speed-report-in-w3-total-cache/), S.Pradeep Kumar
+* [HOW TO: Get Google PageSpeed Report Via W3 Total Cache](http://hellboundbloggers.com/2011/05/10/get-google-page-speed-report-in-w3-total-cache/), S.Pradeep Kumar
 * [Optimizing WordPress with Nginx, Varnish, APC, W3 Total Cache, and Amazon S3 (With Benchmarks)](http://danielmiessler.com/blog/optimizing-wordpress-with-nginx-varnish-w3-total-cache-amazon-s3-and-memcached), Daniel Miessler
 * [Poll: Best Caching Plugin for WordPress?](http://digwp.com/2011/05/best-caching-plugin-wordpress/), Jeff Starr
-* [Page Speed Online has a shiny new API](http://googlecode.blogspot.com/2011/05/page-speed-online-has-shiny-new-api.html), Andrew Oates and Richard Rabbat
+* [PageSpeed Online has a shiny new API](http://googlecode.blogspot.com/2011/05/page-speed-online-has-shiny-new-api.html), Andrew Oates and Richard Rabbat
 * [Use W3 Total Cache to Speed Up Your WordPress Site](http://www.ostraining.com/blog/wordpress/w3-total-cache/), Steve Burge
 
 **April 2011:**
@@ -401,9 +401,9 @@
 
 * [Getting W3 Total Cache and a mobile plugin to work in WordPress](http://blog.trasatti.it/2010/07/getting-w3-total-cache-and-a-mobile-plugin-to-work-in-wordpress.html), Andrea Trasatti
 * [Improve Your WordPress Performance With W3 Total Cache](http://maketecheasier.com/improve-wordpress-performance-with-w3-total-cache/2010/07/21), Damien Oh
-* [Four Simple Steps For Big Gains In Page Speed](http://www.dailyblogtips.com/four-simple-steps-for-big-gains-in-page-speed/), Greg Hayes
+* [Four Simple Steps For Big Gains In PageSpeed](http://www.dailyblogtips.com/four-simple-steps-for-big-gains-in-page-speed/), Greg Hayes
 * [How to use Content Delivery Network on Shared Hosting for WordPress](http://solvater.com/2010/07/content-delivery-network-shared-hosting-wordpress-configuration-with-w3-total-cache-in-wordpress/), Arafath Hashmi
-* [How to Use Google Webmaster Tools to Diagnose and Improve WordPress Page Speed](http://wpmu.org/how-to-use-google-webmaster-tools-to-diagnose-and-improve-wordpress-page-speed/), Sarah Gooding
+* [How to Use Google Webmaster Tools to Diagnose and Improve WordPress PageSpeed](http://wpmu.org/how-to-use-google-webmaster-tools-to-diagnose-and-improve-wordpress-page-speed/), Sarah Gooding
 * [Caching Wordpress - Preparing Your Blog For The Mainstream](http://bradblogging.com/how-to/caching-wordpress-preparing-your-blog-for-the-mainstream/), Brad Ney
 * [11 Ways to Speed Up WordPress](http://mashable.com/2010/07/19/speed-up-wordpress/), Cyrus Patten
 * [How To Decrease Page Loading Time Of Your WordPress Blog By 75%](http://bloggingwithsuccess.net/decrease-loading-times), Ishan Sharma

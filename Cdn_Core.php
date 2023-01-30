@@ -497,16 +497,6 @@ class Cdn_Core {
 					);
 				break;
 
-			case 'maxcdn':
-				$engine_config = array(
-					'authorization_key' => $c->get_string( 'cdn.maxcdn.authorization_key' ),
-					'zone_id' => $c->get_integer( 'cdn.maxcdn.zone_id' ),
-					'domain' => $c->get_array( 'cdn.maxcdn.domain' ),
-					'ssl' => $c->get_string( 'cdn.maxcdn.ssl' ),
-					'compression' => false
-				);
-				break;
-
 			case 'mirror':
 				$engine_config = array(
 					'domain' => $c->get_array( 'cdn.mirror.domain' ),

@@ -21,13 +21,6 @@ class Cdnfsd_Plugin_Admin {
 			add_action( 'w3tc_settings_box_cdnfsd', array(
 					'\W3TC\Cdnfsd_LimeLight_Page',
 					'w3tc_settings_box_cdnfsd' ) );
-		} elseif ( $cdnfsd_engine == 'maxcdn' ) {
-			add_action( 'w3tc_ajax', array(
-					'\W3TC\Cdnfsd_MaxCdn_Popup',
-					'w3tc_ajax' ) );
-			add_action( 'w3tc_settings_box_cdnfsd', array(
-					'\W3TC\Cdnfsd_MaxCdn_Page',
-					'w3tc_settings_box_cdnfsd' ) );
 		} elseif ( $cdnfsd_engine == 'stackpath' ) {
 			add_action( 'w3tc_ajax', array(
 					'\W3TC\Cdnfsd_StackPath_Popup',
@@ -79,9 +72,6 @@ class Cdnfsd_Plugin_Admin {
 		$cdnfsd_engine_values['limelight'] = array(
 			'label' => __( 'Limelight', 'w3-total-cache' ),
 		);
-		$cdnfsd_engine_values['maxcdn'] = array(
-			'label' => __( 'MaxCDN', 'w3-total-cache' ),
-		);
 		$cdnfsd_engine_values['stackpath'] = array(
 			'label' => __( 'StackPath SecureCDN (Legacy)', 'w3-total-cache' ),
 		);
@@ -95,8 +85,6 @@ class Cdnfsd_Plugin_Admin {
 		$tag = '';
 		if ( $cdnfsd_engine == 'cloudfront' ) {
 			$tag = 'https://api.w3-edge.com/v1/redirects/faq/cdn-fsd/cloudfront';
-		} elseif ( $cdnfsd_engine == 'maxcdn' ) {
-			$tag = 'https://api.w3-edge.com/v1/redirects/faq/cdn-fsd/maxcdn';
 		} elseif ( $cdnfsd_engine == 'stackpath' || $cdnfsd_engine == 'stackpath2' ) {
 			$tag = 'https://api.w3-edge.com/v1/redirects/faq/cdn-fsd/stackpath';
 		}

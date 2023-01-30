@@ -45,13 +45,6 @@ class Cdnfsd_Core {
 					) );
 				break;
 
-			case 'maxcdn':
-				$engine_object = new Cdnfsd_MaxCdn_Engine( array(
-						'api_key' => $c->get_string( 'cdnfsd.maxcdn.api_key' ),
-						'zone_id' => $c->get_integer( 'cdnfsd.maxcdn.zone_id' )
-					) );
-				break;
-
 			case 'stackpath':
 				$engine_object = new Cdnfsd_StackPath_Engine( array(
 						'api_key' => $c->get_string( 'cdnfsd.stackpath.api_key' ),

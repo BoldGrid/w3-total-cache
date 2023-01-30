@@ -15,6 +15,17 @@ class BrowserCache_Environment_Nginx {
 
 
 
+	public function get_required_rules( $mime_types ) {
+		return array(
+			array(
+				'filename' => Util_Rule::get_nginx_rules_path(),
+				'content'  => $this->generate( $mime_types ),
+			),
+		);
+	}
+
+
+
 	/**
 	 * Returns cache rules
 	 */
@@ -342,7 +353,7 @@ class BrowserCache_Environment_Nginx {
 		$lifetime = $this->c->get_integer( "browsercache.$section.lifetime" );
 
 		if ( $expires ) {
-			$rules[] = "expires ${lifetime}s;";
+			$rules[] = 'expires ' . $lifetime . 's;';
 		}
 		if ( version_compare( Util_Environment::get_server_version(), '1.3.3', '>=' ) ) {
 			if ( $this->c->get_boolean( "browsercache.$section.etag" ) ) {

@@ -61,11 +61,13 @@ class Cdn_Environment_Nginx {
 	public function w3tc_browsercache_rules_section_extensions(
 			$extensions, $section ) {
 		// CDN adds own rules for those extensions
-		unset( $extensions['ttf|ttc'] );
-		unset( $extensions['otf'] );
-		unset( $extensions['eot'] );
-		unset( $extensions['woff'] );
-		unset( $extensions['woff2'] );
+		if ( $this->c->get_boolean( 'cdn.cors_header') ) {
+			unset( $extensions['ttf|ttc'] );
+			unset( $extensions['otf'] );
+			unset( $extensions['eot'] );
+			unset( $extensions['woff'] );
+			unset( $extensions['woff2'] );
+		}
 
 		return $extensions;
 	}

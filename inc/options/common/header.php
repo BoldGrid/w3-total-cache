@@ -138,6 +138,10 @@ do_action( 'w3tc-dashboard-head' );
 				$custom_areas,
 				array(
 					array(
+						'id'   => 'google_page_speed',
+						'text' => __( 'Google PageSpeed', 'w3-total-cache' )
+					),
+					array(
 						'id'   => 'miscellaneous',
 						'text' => esc_html__( 'Miscellaneous', 'w3-total-cache' ),
 					),

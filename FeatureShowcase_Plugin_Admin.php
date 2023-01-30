@@ -235,6 +235,18 @@ class FeatureShowcase_Plugin_Admin {
 		}
 
 		return array(
+			'pagespeed'           => array(
+				'title'      => esc_html__( 'Google Page Speed', 'w3-total-cache' ),
+				'icon'       => 'dashicons-analytics',
+				'text'       => esc_html__( "Adds the ability to analyze the website's homepage and provide a detailed breakdown of performance metrics including potential issues and proposed solutions.", 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+				esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ) ) . '\'">' .
+				__( 'Launch', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/google-pagespeed-tool/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pagespeed-tool' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+				'is_premium' => false,
+				'is_new'     => true,
+			),
 			'imageservice'        => array(
 				'title'      => esc_html__( 'Image Service', 'w3-total-cache' ),
 				'icon'       => 'dashicons-embed-photo',
@@ -246,7 +258,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=imageservice' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => false,
-				'is_new'     => true,
+				'is_new'     => false,
 			),
 			'setup_guide'         => array(
 				'title'      => esc_html__( 'Setup Guide Wizard', 'w3-total-cache' ),
@@ -258,7 +270,7 @@ class FeatureShowcase_Plugin_Admin {
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/setup-guide-wizard/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=setup_guide' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => false,
-				'is_new'     => true,
+				'is_new'     => false,
 			),
 			'lazyload_gmaps'      => array(
 				'title'      => esc_html__( 'Lazy Load Google Maps', 'w3-total-cache' ),

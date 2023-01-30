@@ -1535,22 +1535,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => 'auto'
 	),
-	'cdn.maxcdn.authorization_key' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-	'cdn.maxcdn.domain' => array(
-		'type' => 'array',
-		'default' => array()
-	),
-	'cdn.maxcdn.ssl' => array(
-		'type' => 'string',
-		'default' => 'auto'
-	),
-	'cdn.maxcdn.zone_id' => array(
-		'type' => 'integer',
-		'default' => 0
-	),
 	'cdn.cotendo.username' => array(
 		'type' => 'string',
 		'default' => ''
@@ -1742,14 +1726,6 @@ $keys = array(
 	'cdnfsd.limelight.api_key' => array(
 		'type' => 'string',
 		'default' => ''
-	),
-	'cdnfsd.maxcdn.api_key' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-	'cdnfsd.maxcdn.zone_id' => array(
-		'type' => 'integer',
-		'default' => 0
 	),
 	'cdnfsd.stackpath.api_key' => array(
 		'type' => 'string',
@@ -2422,19 +2398,15 @@ $keys = array(
 	),
 	'widget.pagespeed.enabled' => array(
 		'type' => 'boolean',
-		'default' => true
-	),
-	'widget.pagespeed.key' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-	'widget.pagespeed.key.restrict.referrer' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-	'widget.pagespeed.show_in_admin_bar' => array(
-		'type' => 'boolean',
 		'default' => false
+	),
+	'widget.pagespeed.access_token' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'widget.pagespeed.w3tc_pagespeed_key' => array(
+		'type' => 'string',
+		'default' => ''
 	),
 	'timelimit.email_send' => array(
 		'type' => 'integer',
