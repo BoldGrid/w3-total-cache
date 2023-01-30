@@ -6,6 +6,8 @@ namespace W3TC;
  */
 class CacheFlush {
 	private $_config;
+	private $_executor;
+
 	/**
 	 * PHP5 Constructor
 	 */
