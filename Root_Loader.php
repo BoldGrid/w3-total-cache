@@ -92,8 +92,13 @@ class Root_Loader {
 			$plugins[] = new Cdn_Plugin_Admin();
 			$plugins[] = new Cdnfsd_Plugin_Admin();
 
+			$cdn_engine = $c->get_string( 'cdn.engine' );
+
+			$plugins[] = new PageSpeed_Api();
+			$plugins[] = new PageSpeed_Page();
+
 			if ( $c->get_boolean( 'widget.pagespeed.enabled' ) ) {
-				$plugins[] = new PageSpeed_Plugin_Widget();
+				$plugins[] = new PageSpeed_Widget();
 			}
 
 			$plugins[] = new Generic_Plugin_AdminCompatibility();

@@ -205,23 +205,4 @@ class Generic_AdminActions_Test {
 		$options_minify = new Minify_Page();
 		$options_minify->recommendations();
 	}
-
-
-	/**
-	 * Page Speed results action
-	 *
-	 * @return void
-	 */
-	function w3tc_test_pagespeed_results() {
-		$title = 'Google Page Speed';
-
-		$config = Dispatcher::config();
-		$key = $config->get_string( 'widget.pagespeed.key' );
-		$ref = $config->get_string( 'widget.pagespeed.key.restrict.referrer' );
-
- 		$w3_pagespeed = new PageSpeed_Api( $key, $ref );
-
-		$results = $w3_pagespeed->analyze( get_home_url() );
-		include W3TC_INC_POPUP_DIR . '/pagespeed_results.php';
-	}
 }
