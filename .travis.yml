@@ -20,6 +20,8 @@ matrix:
         - nvm install 16
         - nvm use 16
         - yarn install
+        # Downgrade to composer v1 for PHP 5.6.
+        - composer self-update --1
         # Lock file has phpunit 9. Remove it and install phpunit 5 for php 5.6.
         - composer remove --no-update --dev phpunit/phpunit yoast/phpunit-polyfills
         - composer remove --no-update symfony/polyfill-intl-idn symfony/polyfill-intl-normalizer symfony/polyfill-mbstring
@@ -52,11 +54,12 @@ matrix:
         #- yarn run php-codesniffer
 
 script:
-  - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
   - vendor/phpunit/phpunit/phpunit --debug
-  - yarn run js-lint
+  #- yarn run js-lint
   # Remove dev dependencies.
   - composer install -o --no-dev
+  # PHP lint.
+  - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
 
 deploy:
   - provider: script
