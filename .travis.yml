@@ -33,23 +33,23 @@ matrix:
     -
       php: 7.4
       env: WP_VERSION=latest
-      dist: bionic
+      dist: focal
       before_script:
         - nvm install 16
         - nvm use 16
         - yarn install
-        - composer install -o
+        - composer update -o
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
         #- yarn run php-codesniffer
     -
       php: 8.0
       env: WP_VERSION=latest
-      dist: xenial
+      dist: focal
       before_script:
         - nvm install 16
         - nvm use 16
         - yarn install
-        - composer install -o
+        - composer update -o
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
         #- yarn run php-codesniffer
 
