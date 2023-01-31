@@ -144,7 +144,7 @@ class PageSpeed_Api {
 
 		return array_merge_recursive(
 			PageSpeed_Data::prepare_pagespeed_data( $data ),
-			PageSpeed_Instructions::get_pagespeed_instructions(),
+			PageSpeed_Instructions::get_pagespeed_instructions()
 		);
 	}
 
