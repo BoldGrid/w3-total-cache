@@ -667,7 +667,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'Always ignore the specified pages / directories. Supports regular expressions (See %1$s%2$sFAQ%3$s%4$s)',
 									'w3-total-cache'
 								),
-								'<a href="' . esc_url( 'https://github.com/W3EDGE/w3-total-cache/wiki/FAQ:-Usage#which-textareas-for-file-entries-support-regular-expressions' ) . '">',
+								'<a href="' . esc_url( 'https://github.com/BoldGrid/w3-total-cache/wiki/FAQ:-Usage#which-textareas-for-file-entries-support-regular-expressions' ) . '">',
 								'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 								'</acronym>',
 								'</a>'
