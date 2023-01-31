@@ -314,7 +314,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 		$this->assertIsString( $config );
 
 		// Set the expected return string.
-		$expected = <<<'EOT'
+		$expected = <<<EOT
 			<?php
 
 			return array(
