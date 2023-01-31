@@ -157,7 +157,7 @@ class PageSpeed_Instructions {
 									'w3-total-cache'
 								),
 								'W3 Total Cache',
-								'<a target="_blank" href="' . esc_url( 'https://github.com/kjdev/php-ext-brotli' ) . '">' . esc_html__( 'Brotli extension', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( 'https://github.com/kjdev/php-ext-brotli' ) . '">' . esc_html__( 'Brotli extension', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',

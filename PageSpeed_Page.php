@@ -112,7 +112,7 @@ class PageSpeed_Page {
 							),
 							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 						),
-					),
+					)
 				);
 				return;
 			}
