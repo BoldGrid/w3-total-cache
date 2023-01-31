@@ -229,19 +229,12 @@ class Generic_Plugin {
 		if ( current_user_can( $base_capability ) ) {
 			$modules = Dispatcher::component( 'ModuleStatus' );
 
-			$menu_postfix = '';
-			if ( ! is_admin() && $this->_config->get_boolean( 'widget.pagespeed.show_in_admin_bar' ) ) {
-				$menu_postfix = ' <span id="w3tc_monitoring_score">...</span>';
-				add_action( 'wp_after_admin_bar_render', array( $this, 'wp_after_admin_bar_render' ) );
-			}
-
 			$menu_items = array();
 
 			$menu_items['00010.generic'] = array(
 				'id'    => 'w3tc',
 				'title' => sprintf(
-					'<span class="w3tc-icon ab-icon"></span><span class="ab-label">%s</span>' .
-					$menu_postfix,
+					'<span class="w3tc-icon ab-icon"></span><span class="ab-label">%s</span>',
 					__( 'Performance', 'w3-total-cache' )
 				),
 				'href'  => wp_nonce_url(
@@ -362,21 +355,6 @@ class Generic_Plugin {
 				}
 			}
 		}
-	}
-
-	public function wp_after_admin_bar_render() {
-		$url = admin_url( 'admin-ajax.php', 'relative' ) .
-			'?action=w3tc_monitoring_score&' .
-			md5( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
-
-		?>
-		<script type= "text/javascript">
-			var w3tc_monitoring_score = document.createElement('script');
-			w3tc_monitoring_score.type = 'text/javascript';
-			w3tc_monitoring_score.src = '<?php echo esc_url( $url ); ?>';
-			document.getElementsByTagName('HEAD')[0].appendChild(w3tc_monitoring_score);
-		</script>
-		<?php
 	}
 
 	/**
