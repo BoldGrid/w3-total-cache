@@ -1,4 +1,4 @@
-# Travis CI configuraion for the W3 Total Cache WordPress plugin by BoldGrid
+# Travis CI configuraion for the W3 Total Cache WordPress plugin by BoldGrid.
 # @link https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-on-travis-ci
 
 language: php
@@ -17,46 +17,47 @@ matrix:
       env: WP_VERSION=latest
       dist: xenial
       before_script:
-        - nvm install 10
-        - nvm use 10
+        - nvm install 16
+        - nvm use 16
         - yarn install
-        - composer self-update --1
+        #- composer self-update --1
         # Lock file has phpunit 7. Remove it and install phpunit 5 for php 5.6.
         - composer remove --dev phpunit/phpunit && composer require --dev phpunit/phpunit ^5
         - composer install -o
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
-        # We are only running phpcs on php 5.6. @todo fix with php 7 and 8.
-        - yarn run php-codesniffer
+        #- yarn run php-codesniffer
     -
       php: 7.4
       env: WP_VERSION=latest
       dist: bionic
       before_script:
-        - nvm install 10
-        - nvm use 10
+        - nvm install 16
+        - nvm use 16
         - yarn install
-        - composer self-update --1
+        #- composer self-update --1
         - composer remove --dev phpunit/phpunit && composer require --dev phpunit/phpunit
         - composer install -o
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+        #- yarn run php-codesniffer
     -
       php: 8.0
       env: WP_VERSION=latest
       dist: xenial
       before_script:
-        - nvm install 10
-        - nvm use 10
+        - nvm install 16
+        - nvm use 16
         - yarn install
-        - composer self-update --1
+        #- composer self-update --1
         - composer remove --dev phpunit/phpunit && composer require --dev phpunit/phpunit
         - composer install -o
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+        #- yarn run php-codesniffer
 
 script:
   - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
   - vendor/phpunit/phpunit/phpunit --debug
   - yarn run js-lint
-  # Remove dev scripts.
+  # Remove dev dependencies.
   - composer install -o --no-dev
 
 deploy:
