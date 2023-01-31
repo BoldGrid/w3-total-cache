@@ -313,24 +313,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 
 		$this->assertIsString( $config );
 
-		// Set the expected return string.
-		$expected = <<<EOT
-			<?php
-
-			return array(
-				'bool' => true,
-				'int' => 1,
-				'null' => null,
-				'object' => array(
-				),
-				'string' => 'test',
-			);
-			EOT;
-
-			// Convert line endings to DOS style ("\r\n").
-			$expected = preg_replace( '~\R~u', "\r\n", $expected );
-
-			$this->assertEquals( $expected, $config );
+		$this->assertEquals( "<?php\r\n\r\nreturn array(\r\n\t'bool' => true,\r\n\t'int' => 1,\r\n\t'null' => null,\r\n\t'object' => array(\r\n\t),\r\n\t'string' => 'test',\r\n);", $config );
 	}
 
 	/**
