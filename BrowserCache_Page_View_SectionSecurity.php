@@ -15,7 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 $c         = Dispatcher::config();
 $fp_values = $c->get_array( 'browsercache.security.fp.values' );
-
+error_log('config = ' . print_r($c,true));
 $feature_policies = array(
 	array(
 		'label'       => 'accelerometer',
@@ -555,6 +555,22 @@ $feature_policies = array(
 		</td>
 	</tr>
 	<tr>
+		<th>
+			<label for="browsercache_security_reportto"><?php Util_Ui::e_config_label( 'browsercache.security.reportto' ); ?></label>
+		</th>
+		<td>
+			<textarea id="browsercache_security_reportto" <?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> name="browsercache__security__reportto" cols="50" rows="7" placeholder="Example:
+{
+	'group': 'csp-endpoint',
+	'max_age': 10886400,
+	'endpoints': [
+		{ 'url': 'https://example.com/csp-reports' }
+	]
+}"><?php echo esc_textarea( $this->_config->get_string( 'browsercache.security.reportto' ) ); ?></textarea>
+			<p class="description"><?php esc_html_e( 'The Report-To HTTP response header field instructs the user agent to store reporting endpoints for an origin. Enter valid JSON above.', 'w3-total-cache' ); ?></p>
+		</td>
+	</tr>
+	<tr>
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.security.csp' ); ?> <?php Util_Ui::e_config_label( 'browsercache.security.csp' ); ?></label>
 			<p class="description">
@@ -581,6 +597,26 @@ $feature_policies = array(
 				?>
 			</p>
 		</th>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_csp_reporturi"><?php Util_Ui::e_config_label( 'browsercache.security.csp.reporturi' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_csp_reporturi" type="text" name="browsercache__security__csp__reporturi"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.reporturi' ) ); ?>" size="50" placeholder="Example: /csp-violation-report-endpoint/" />
+			<div><i><?php esc_html_e( 'Instructs the user agent to report attempts to violate the Content Security Policy. These violation reports consist of JSON documents sent via an HTTP POST request to the specified URI.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_csp_reportto"><?php Util_Ui::e_config_label( 'browsercache.security.csp.reportto' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_csp_reportto" type="text" name="browsercache__security__csp__reportto"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.reportto' ) ); ?>" size="50" placeholder="Example: csp-endpoint" />
+			<div><i><?php esc_html_e( 'Defines a reporting endpoint to which violation reports should to be sent.', 'w3-total-cache' ); ?></i></div>
+		</td>
 	</tr>
 	<tr>
 		<th>
@@ -777,6 +813,76 @@ $feature_policies = array(
 	</tr>
 	<tr>
 		<th>
+			<label for="browsercache_security_csp_child"><?php Util_Ui::e_config_label( 'browsercache.security.csp.child' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_csp_child" type="text" name="browsercache__security__csp__child"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.child' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Defines the valid sources for web workers and nested browsing contexts loaded using elements such as <frame> and <iframe>. For workers, non-compliant requests are treated as fatal network errors by the user agent.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_csp_manifest"><?php Util_Ui::e_config_label( 'browsercache.security.csp.manifest' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_csp_manifest" type="text" name="browsercache__security__csp__manifest"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.manifest' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies which manifest can be applied to the resource.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_csp_scriptelem"><?php Util_Ui::e_config_label( 'browsercache.security.csp.scriptelem' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_csp_scriptelem" type="text" name="browsercache__security__csp__scriptelem"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.scriptelem' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for JavaScript <script> elements.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_csp_scriptattr"><?php Util_Ui::e_config_label( 'browsercache.security.csp.scriptattr' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_csp_scriptattr" type="text" name="browsercache__security__csp__scriptattr"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.scriptattr' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for JavaScript inline event handlers.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_csp_styleelem"><?php Util_Ui::e_config_label( 'browsercache.security.csp.styleelem' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_csp_styleelem" type="text" name="browsercache__security__csp__styleelem"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.styleelem' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for stylesheet <style> elements and <link> elements with rel="stylesheet".', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_csp_styleattr"><?php Util_Ui::e_config_label( 'browsercache.security.csp.styleattr' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_csp_styleattr" type="text" name="browsercache__security__csp__styleattr"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.styleattr' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for inline styles applied to individual DOM elements.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_csp_worker"><?php Util_Ui::e_config_label( 'browsercache.security.csp.worker' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_csp_worker" type="text" name="browsercache__security__csp__worker"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.worker' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for Worker, SharedWorker, or ServiceWorker scripts.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
 			<label for="browsercache_security_csp_default"><?php Util_Ui::e_config_label( 'browsercache.security.csp.default' ); ?></label>
 		</th>
 		<td>
@@ -809,6 +915,26 @@ $feature_policies = array(
 				?>
 			</p>
 		</th>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_reporturi"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.reporturi' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_reporturi" type="text" name="browsercache__security__cspro__reporturi"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.reporturi' ) ); ?>" size="50" placeholder="Example: /csp-violation-report-endpoint/" />
+			<div><i><?php esc_html_e( 'Instructs the user agent to report attempts to violate the Content Security Policy. These violation reports consist of JSON documents sent via an HTTP POST request to the specified URI.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_reportto"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.reportto' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_reportto" type="text" name="browsercache__security__cspro__reportto"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.reportto' ) ); ?>" size="50" placeholder="Example: csp-endpoint" />
+			<div><i><?php esc_html_e( 'Defines a reporting endpoint to which violation reports should to be sent.', 'w3-total-cache' ); ?></i></div>
+		</td>
 	</tr>
 	<tr>
 		<th>
@@ -1001,6 +1127,76 @@ $feature_policies = array(
 			<input id="browsercache_security_cspro_sandbox" type="text" name="browsercache__security__cspro__sandbox"
 				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.sandbox' ) ); ?>" size="50" placeholder="Example: allow-popups" />
 			<div><i><?php esc_html_e( 'This directive operates similarly to the &lt;iframe&gt; sandbox attribute by applying restrictions to a page\'s actions, including preventing popups, preventing the execution of plugins and scripts, and enforcing a same-origin policy.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_child"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.child' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_child" type="text" name="browsercache__security__cspro__child"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.child' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Defines the valid sources for web workers and nested browsing contexts loaded using elements such as <frame> and <iframe>. For workers, non-compliant requests are treated as fatal network errors by the user agent.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_manifest"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.manifest' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_manifest" type="text" name="browsercache__security__cspro__manifest"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.manifest' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies which manifest can be applied to the resource.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_scriptelem"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.scriptelem' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_scriptelem" type="text" name="browsercache__security__cspro__scriptelem"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.scriptelem' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for JavaScript <script> elements.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_scriptattr"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.scriptattr' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_scriptattr" type="text" name="browsercache__security__cspro__scriptattr"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.scriptattr' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for JavaScript inline event handlers.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_styleelem"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.styleelem' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_styleelem" type="text" name="browsercache__security__cspro__styleelem"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.styleelem' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for stylesheet <style> elements and <link> elements with rel="stylesheet".', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_styleattr"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.styleattr' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_styleattr" type="text" name="browsercache__security__cspro__styleattr"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.styleattr' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for inline styles applied to individual DOM elements.', 'w3-total-cache' ); ?></i></div>
+		</td>
+	</tr>
+	<tr>
+		<th>
+			<label for="browsercache_security_cspro_worker"><?php Util_Ui::e_config_label( 'browsercache.security.cspro.worker' ); ?></label>
+		</th>
+		<td>
+			<input id="browsercache_security_cspro_worker" type="text" name="browsercache__security__cspro__worker"
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.worker' ) ); ?>" size="50" placeholder="Example: 'self' 'unsafe-inline' *.domain.com" />
+			<div><i><?php esc_html_e( 'Specifies valid sources for Worker, SharedWorker, or ServiceWorker scripts.', 'w3-total-cache' ); ?></i></div>
 		</td>
 	</tr>
 	<tr>
