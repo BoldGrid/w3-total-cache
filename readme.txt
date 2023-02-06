@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.1
-Stable tag: 2.2.12
+Stable tag: 2.2.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,22 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.2.13 =
+* Fix: PHP 8.2 compatibility
+* Fix: GuzzleHttp 7 conflict with Azure
+* Fix: Allow object cache updates when using WP-CLI
+* Fix: Added missing Page Cache configuration "host" value
+* Fix: Missing on_comment_status action callback
+* Fix: Flush cache on attachment update
+* Fix: Varnish flush for posts
+* Update: PageSpeed Insights reports and performance page widget
+* Update: Added basic OpenLiteSpeed support
+* Update: Add Permissions-Policy to mirror Feature-Policy directives
+* Update: Improved comment status logic for flushing database and object caches
+* Update: Adjusted FTP form style
+* Update: Removed deprecated MaxCDN and NetDNA components and added a notice if one was used
+* Update: Removed deprecated FeedBurner
 
 = 2.2.12 =
 * Fix: Comment status change error
