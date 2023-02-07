@@ -2032,10 +2032,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => 'no-referrer-when-downgrade'
 	),
-	'browsercache.security.reportto' => array(
-		'type' => 'string',
-		'default' => ''
-	),
 	'browsercache.security.csp' => array(
 		'type' => 'boolean',
 		'default' => false
@@ -2100,7 +2096,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
-	
 	'browsercache.security.csp.child' => array(
 		'type' => 'string',
 		'default' => ''
@@ -2197,7 +2192,6 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
-	
 	'browsercache.security.cspro.child' => array(
 		'type' => 'string',
 		'default' => ''

@@ -57,7 +57,6 @@ class BrowserCache_ConfigLabels {
 				'browsercache.security.pkp.report.only' => __( 'Report Mode Only:', 'w3-total-cache' ),
 				'browsercache.security.referrer.policy' => __( 'Referrer Policy', 'w3-total-cache' ),
 				'browsercache.security.referrer.policy.directive' => __( 'Directive:', 'w3-total-cache' ),
-				'browsercache.security.reportto' => __( '<acronym title="Content Security Policy">CSP</acronym> Report-To', 'w3-total-cache' ),
 				'browsercache.security.csp' => __( 'Content Security Policy', 'w3-total-cache' ),
 				'browsercache.security.csp.reporturi' => __( 'report-uri:', 'w3-total-cache' ),
 				'browsercache.security.csp.reportto' => __( 'report-to:', 'w3-total-cache' ),

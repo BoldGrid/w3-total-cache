@@ -555,22 +555,6 @@ $feature_policies = array(
 		</td>
 	</tr>
 	<tr>
-		<th>
-			<label for="browsercache_security_reportto"><?php Util_Ui::e_config_label( 'browsercache.security.reportto' ); ?></label>
-		</th>
-		<td>
-			<textarea id="browsercache_security_reportto" <?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> name="browsercache__security__reportto" cols="50" rows="7" placeholder="Example:
-{
-	'group': 'csp-endpoint',
-	'max_age': 10886400,
-	'endpoints': [
-		{ 'url': 'https://example.com/csp-reports' }
-	]
-}"><?php echo esc_textarea( $this->_config->get_string( 'browsercache.security.reportto' ) ); ?></textarea>
-			<p class="description"><?php esc_html_e( 'The Report-To HTTP response header field instructs the user agent to store reporting endpoints for an origin. Enter valid JSON above.', 'w3-total-cache' ); ?></p>
-		</td>
-	</tr>
-	<tr>
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.security.csp' ); ?> <?php Util_Ui::e_config_label( 'browsercache.security.csp' ); ?></label>
 			<p class="description">

@@ -430,11 +430,6 @@ class BrowserCache_Environment {
 				$rules .= "    Header set Referrer-Policy \"" . ($dir == "0" ? "" : $dir ) . "\"\n";
 			}
 
-			if ( ! empty( $config->get_string( 'browsercache.security.reportto' ) ) ) {
-				$reportto = json_encode( strip_tags( $config->get_string( 'browsercache.security.reportto' ) ) );
-				$rules .= "    Header set Report-To $reportto\n";
-			}
-
 			if ( $config->get_boolean( 'browsercache.security.csp' ) ) {
 				$base = trim( $config->get_string( 'browsercache.security.csp.base' ) );
 				$reporturi = esc_url( $config->get_string( 'browsercache.security.csp.reporturi' ) );
