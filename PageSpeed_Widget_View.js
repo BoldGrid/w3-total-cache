@@ -37,10 +37,10 @@ jQuery(document).ready( function($) {
 					$('.w3tcps_missing_token').removeClass( 'w3tc_none' );
 					return;
 				}
-				$('.w3tcps_timestamp').html(data['w3tcps_timestamp']);
+				$('.w3tcps_timestamp').html(data.w3tcps_timestamp);
 				$('.w3tcps_timestamp_container').removeClass('w3tc_none');
 				$('.w3tcps_buttons').removeClass('w3tc_none');
-				$('.w3tc-gps-widget').html(data['w3tcps_widget']);
+				$('.w3tc-gps-widget').html(data.w3tcps_widget);
 				$('.w3tc-gps-widget').removeClass('w3tc_none').fadeIn('slow');
 				$('#normal-sortables').masonry();
 			}
@@ -74,7 +74,7 @@ jQuery(document).ready( function($) {
      * @return void
      */
     function w3tcps_desktop_toggle() {
-		$('#w3tcps_control_mobile').removeClass('nav-tab-active')
+		$('#w3tcps_control_mobile').removeClass('nav-tab-active');
 		$('#w3tcps_mobile').hide();
 		$('#w3tcps_control_desktop').addClass('nav-tab-active');
 		$('#w3tcps_desktop').show();
