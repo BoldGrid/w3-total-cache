@@ -7,7 +7,7 @@
  *
  * @global w3tcData Localized data.
  */
-jQuery(document).ready( function($) {
+jQuery(document).ready(function ($) {
 	/**
 	 * Analyze homepage via AJAX to Google PageSpeed Insights.
 	 *
@@ -25,7 +25,7 @@ jQuery(document).ready( function($) {
 		$('.w3tcps_error').addClass('w3tc_none');
 		$.getJSON(ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
 			'&w3tc_action=pagespeed_widgetdata' + (nocache ? '&cache=no' : ''),
-			function(data) {
+			function (data) {
 				$('.w3tcps_loading').addClass('w3tc_none').find('.spinner').removeClass('is-active');
 				if (data.error) {
 					$('.w3tcps_error').html(w3tcData.lang.pagespeed_widget_data_error + data.error);
@@ -33,8 +33,8 @@ jQuery(document).ready( function($) {
 					return;
 				} else if (data.missing_token) {
 					$('.w3tcps_analyze').addClass('w3tc_none');
-					$('.w3tcps_missing_token').html( data.missing_token );
-					$('.w3tcps_missing_token').removeClass( 'w3tc_none' );
+					$('.w3tcps_missing_token').html(data.missing_token);
+					$('.w3tcps_missing_token').removeClass('w3tc_none');
 					return;
 				}
 				$('.w3tcps_timestamp').html(data.w3tcps_timestamp);
@@ -44,7 +44,7 @@ jQuery(document).ready( function($) {
 				$('.w3tc-gps-widget').removeClass('w3tc_none').fadeIn('slow');
 				$('#normal-sortables').masonry();
 			}
-		).fail(function(jqXHR, textStatus, errorThrown) {
+		).fail(function (jqXHR, textStatus, errorThrown) {
 			$('.w3tcps_error').html(w3tcData.lang.pagespeed_widget_data_error + jqXHR.responseText);
 			$('.w3tcps_error').removeClass('w3tc_none');
 			$('.w3tc-gps-widget').addClass('w3tc_none');
@@ -53,37 +53,37 @@ jQuery(document).ready( function($) {
 	}
 
 	/**
-     * Toggle mobile view.
-     *
+	 * Toggle mobile view.
+	 *
 	 * @since 2.3.0
 	 *
-     * @return void
-     */
+	 * @return void
+	 */
 	function w3tcps_mobile_toggle() {
 		$('#w3tcps_control_desktop').removeClass('nav-tab-active');
-        $('#w3tcps_desktop').hide();
+		$('#w3tcps_desktop').hide();
 		$('#w3tcps_control_mobile').addClass('nav-tab-active');
 		$('#w3tcps_mobile').show();
-    }
+	}
 
-    /**
-     * Toggle desktop view.
-     *
+	/**
+	 * Toggle desktop view.
+	 *
 	 * @since 2.3.0
 	 *
-     * @return void
-     */
-    function w3tcps_desktop_toggle() {
+	 * @return void
+	 */
+	function w3tcps_desktop_toggle() {
 		$('#w3tcps_control_mobile').removeClass('nav-tab-active');
 		$('#w3tcps_mobile').hide();
 		$('#w3tcps_control_desktop').addClass('nav-tab-active');
 		$('#w3tcps_desktop').show();
-    }
+	}
 
 	$(document).on('click', '#w3tcps_control_mobile', w3tcps_mobile_toggle);
-    $(document).on('click', '#w3tcps_control_desktop', w3tcps_desktop_toggle);
+	$(document).on('click', '#w3tcps_control_desktop', w3tcps_desktop_toggle);
 
-	$('.w3tcps_buttons').on('click', '.w3tcps_refresh', function() {
+	$('.w3tcps_buttons').on('click', '.w3tcps_refresh', function () {
 		w3tcps_load(true);
 	});
 
