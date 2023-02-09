@@ -142,7 +142,7 @@ class PageSpeed_Widget {
 			if ( ! $api_response ) {
 				$api_response_error = array(
 					'error' => '<p><strong>' . esc_html__( 'API request failed!', 'w3-total-cache' ) . '</strong></p>
-						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $url . '</p>',
+						<p>' . esc_html__( 'Analyze URL : ', 'w3-total-cache' ) . $home_url . '</p>',
 				);
 				delete_option( 'w3tc_pagespeed_data_' . $home_url );
 			} elseif ( ! empty( $api_response['error'] ) ) {
