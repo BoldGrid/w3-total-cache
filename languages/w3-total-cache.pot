@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.2.13\n"
+"Project-Id-Version: W3 Total Cache 2.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-02-08T18:52:16+00:00\n"
+"POT-Creation-Date: 2023-02-09T21:17:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: w3-total-cache\n"
@@ -2258,8 +2258,8 @@ msgstr ""
 #: inc/options/common/header.php:333
 #: inc/options/general.php:209
 #: inc/options/general.php:231
-#: inc/options/general.php:1004
-#: inc/options/general.php:1043
+#: inc/options/general.php:1010
+#: inc/options/general.php:1049
 #: inc/options/minify.php:169
 #: inc/options/minify.php:195
 #: inc/options/pgcache.php:831
@@ -3929,9 +3929,9 @@ msgstr ""
 #: Extension_FragmentCache_Plugin_Admin.php:103
 #: Extension_FragmentCache_Plugin_Admin.php:161
 #: Extension_FragmentCache_Plugin_Admin.php:169
-#: FeatureShowcase_Plugin_Admin.php:324
+#: FeatureShowcase_Plugin_Admin.php:299
 #: inc/options/common/header.php:80
-#: inc/options/general.php:1025
+#: inc/options/general.php:1031
 msgid "Fragment Cache"
 msgstr ""
 
@@ -4356,14 +4356,14 @@ msgstr ""
 #: Extension_ImageService_Plugin_Admin.php:557
 #: Extension_ImageService_Plugin_Admin.php:733
 #: FeatureShowcase_Plugin_Admin.php:209
-#: FeatureShowcase_Plugin_Admin.php:281
-#: FeatureShowcase_Plugin_Admin.php:293
-#: FeatureShowcase_Plugin_Admin.php:305
-#: FeatureShowcase_Plugin_Admin.php:317
-#: FeatureShowcase_Plugin_Admin.php:329
-#: FeatureShowcase_Plugin_Admin.php:341
-#: FeatureShowcase_Plugin_Admin.php:353
-#: FeatureShowcase_Plugin_Admin.php:365
+#: FeatureShowcase_Plugin_Admin.php:256
+#: FeatureShowcase_Plugin_Admin.php:268
+#: FeatureShowcase_Plugin_Admin.php:280
+#: FeatureShowcase_Plugin_Admin.php:292
+#: FeatureShowcase_Plugin_Admin.php:304
+#: FeatureShowcase_Plugin_Admin.php:316
+#: FeatureShowcase_Plugin_Admin.php:328
+#: FeatureShowcase_Plugin_Admin.php:340
 #: FeatureShowcase_Plugin_Admin.php:377
 #: FeatureShowcase_Plugin_Admin.php:389
 #: FeatureShowcase_Plugin_Admin.php:401
@@ -4462,7 +4462,7 @@ msgid "The converted image would be larger than the original; conversion cancele
 msgstr ""
 
 #: Extension_ImageService_Plugin_Admin.php:608
-#: FeatureShowcase_Plugin_Admin.php:251
+#: FeatureShowcase_Plugin_Admin.php:359
 msgid "Image Service"
 msgstr ""
 
@@ -4990,20 +4990,20 @@ msgid "Adds the ability to analyze the website's homepage and provide a detailed
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:244
-#: FeatureShowcase_Plugin_Admin.php:269
+#: FeatureShowcase_Plugin_Admin.php:352
 msgid "Launch"
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:246
-#: FeatureShowcase_Plugin_Admin.php:259
-#: FeatureShowcase_Plugin_Admin.php:271
-#: FeatureShowcase_Plugin_Admin.php:283
-#: FeatureShowcase_Plugin_Admin.php:295
-#: FeatureShowcase_Plugin_Admin.php:307
-#: FeatureShowcase_Plugin_Admin.php:319
-#: FeatureShowcase_Plugin_Admin.php:331
-#: FeatureShowcase_Plugin_Admin.php:343
-#: FeatureShowcase_Plugin_Admin.php:355
+#: FeatureShowcase_Plugin_Admin.php:258
+#: FeatureShowcase_Plugin_Admin.php:270
+#: FeatureShowcase_Plugin_Admin.php:282
+#: FeatureShowcase_Plugin_Admin.php:294
+#: FeatureShowcase_Plugin_Admin.php:306
+#: FeatureShowcase_Plugin_Admin.php:318
+#: FeatureShowcase_Plugin_Admin.php:330
+#: FeatureShowcase_Plugin_Admin.php:342
+#: FeatureShowcase_Plugin_Admin.php:354
 #: FeatureShowcase_Plugin_Admin.php:367
 #: FeatureShowcase_Plugin_Admin.php:379
 #: FeatureShowcase_Plugin_Admin.php:391
@@ -5018,74 +5018,74 @@ msgstr ""
 msgid "More info"
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:264
-msgid "Setup Guide Wizard"
-msgstr ""
-
-#: FeatureShowcase_Plugin_Admin.php:266
-msgid "The Setup Guide wizard quickly walks you through configuring W3 Total Cache."
-msgstr ""
-
-#: FeatureShowcase_Plugin_Admin.php:276
+#: FeatureShowcase_Plugin_Admin.php:251
 #: UserExperience_GeneralPage_View.php:28
 msgid "Lazy Load Google Maps"
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:278
+#: FeatureShowcase_Plugin_Admin.php:253
 msgid "Defer loading offscreen Google Maps, making pages load faster."
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:288
+#: FeatureShowcase_Plugin_Admin.php:263
 msgid "Full Site Delivery via CDN"
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:290
+#: FeatureShowcase_Plugin_Admin.php:265
 msgid "Provide the best user experience possible by enhancing by hosting HTML pages and RSS feeds with (supported) CDN's high speed global networks."
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:300
+#: FeatureShowcase_Plugin_Admin.php:275
 msgid "Eliminate Render Blocking CSS"
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:302
+#: FeatureShowcase_Plugin_Admin.php:277
 msgid "Render blocking CSS delays a webpage from being visible in a timely manner. Eliminate this easily with the click of a button in W3 Total Cache Pro."
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:312
+#: FeatureShowcase_Plugin_Admin.php:287
 msgid "Extension Framework"
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:314
+#: FeatureShowcase_Plugin_Admin.php:289
 msgid "Improve the performance of your Genesis, WPML powered site, and much more. StudioPress' Genesis Framework is up to 60% faster with W3TC Pro."
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:326
+#: FeatureShowcase_Plugin_Admin.php:301
 msgid "Unlocking the fragment caching module delivers enhanced performance for plugins and themes that use the WordPress Transient API."
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:336
+#: FeatureShowcase_Plugin_Admin.php:311
 msgid "Rest API Caching"
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:338
+#: FeatureShowcase_Plugin_Admin.php:313
 msgid "Save server resources or add scale and performance by caching the WordPress Rest API with W3TC Pro."
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:348
+#: FeatureShowcase_Plugin_Admin.php:323
 #: UsageStatistics_Widget.php:25
 msgid "Caching Statistics"
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:350
+#: FeatureShowcase_Plugin_Admin.php:325
 msgid "Analytics for your WordPress and Server cache that allow you to track the size, time and hit/miss ratio of each type of cache, giving you the information needed to gain maximum performance."
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:360
+#: FeatureShowcase_Plugin_Admin.php:335
 msgid "Purge Logs"
 msgstr ""
 
-#: FeatureShowcase_Plugin_Admin.php:362
+#: FeatureShowcase_Plugin_Admin.php:337
 msgid "Purge Logs provide information on when your cache has been purged and what triggered it. If you are troubleshooting an issue with your cache being cleared, Purge Logs can tell you why."
+msgstr ""
+
+#: FeatureShowcase_Plugin_Admin.php:347
+msgid "Setup Guide Wizard"
+msgstr ""
+
+#: FeatureShowcase_Plugin_Admin.php:349
+msgid "The Setup Guide wizard quickly walks you through configuring W3 Total Cache."
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:374
@@ -7182,7 +7182,7 @@ msgid "W3 Total Cache %1$sby W3 EDGE %2$s&reg;%3$s%4$s"
 msgstr ""
 
 #: inc/options/common/header.php:132
-#: inc/options/general.php:827
+#: inc/options/general.php:833
 msgid "Licensing"
 msgstr ""
 
@@ -7195,17 +7195,17 @@ msgid "Google PageSpeed"
 msgstr ""
 
 #: inc/options/common/header.php:146
-#: inc/options/general.php:866
+#: inc/options/general.php:872
 msgid "Miscellaneous"
 msgstr ""
 
 #: inc/options/common/header.php:150
-#: inc/options/general.php:994
+#: inc/options/general.php:1000
 msgid "Debug"
 msgstr ""
 
 #: inc/options/common/header.php:154
-#: inc/options/general.php:1112
+#: inc/options/general.php:1118
 msgid "Import / Export Settings"
 msgstr ""
 
@@ -7814,145 +7814,145 @@ msgstr ""
 msgid "Display Google PageSpeed results on the WordPress dashboard."
 msgstr ""
 
-#: inc/options/general.php:835
+#: inc/options/general.php:841
 msgid "Verify license key"
 msgstr ""
 
 #. translators: 1 HTML a tag to trigger W3TC licence upgrade.
-#: inc/options/general.php:842
+#: inc/options/general.php:848
 msgid "Please enter the license key provided after %1$s."
 msgstr ""
 
-#: inc/options/general.php:846
+#: inc/options/general.php:852
 msgid "upgrading"
 msgstr ""
 
-#: inc/options/general.php:872
+#: inc/options/general.php:878
 msgid "Only one configuration file for whole network will be created and used. Recommended if all sites have the same configuration."
 msgstr ""
 
-#: inc/options/general.php:881
+#: inc/options/general.php:887
 msgid "If empty the default path will be used.."
 msgstr ""
 
 #. translators: 1 opening HTML a tag to W3TC install admin page.
-#: inc/options/general.php:894
+#: inc/options/general.php:900
 msgid "Notify of server configuration errors, if this option is disabled, the server configuration for active settings can be found on the %1$sinstall%2$s tab."
 msgstr ""
 
-#: inc/options/general.php:914
+#: inc/options/general.php:920
 msgid "Enable file locking"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:920
+#: inc/options/general.php:926
 msgid "Not recommended for %1$sNFS%2$s systems."
 msgstr ""
 
-#: inc/options/general.php:924
-#: inc/options/general.php:950
+#: inc/options/general.php:930
+#: inc/options/general.php:956
 msgid "Network File System"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:946
+#: inc/options/general.php:952
 msgid "Optimize disk enhanced page and minify disk caching for %1$sNFS%2$s"
 msgstr ""
 
-#: inc/options/general.php:961
+#: inc/options/general.php:967
 msgid "Try this option if your hosting environment uses a network based file system for a possible performance improvement."
 msgstr ""
 
-#: inc/options/general.php:969
+#: inc/options/general.php:975
 msgid "Fix document root path"
 msgstr ""
 
 #. translators: 1: WordPress ABSPATH value, 2: Server document root value.
-#: inc/options/general.php:973
+#: inc/options/general.php:979
 msgid "Fix incorrect server document root path.  Uses the WordPress ABSPATH (\"%1$s\") in place of the current server document root (\"%2$s\")."
 msgstr ""
 
-#: inc/options/general.php:984
+#: inc/options/general.php:990
 msgid "Anonymously track usage to improve product quality"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:1000
+#: inc/options/general.php:1006
 msgid "Detailed information about each cache will be appended in (publicly available) %1$sHTML%2$s comments in the page's source code. Performance in this mode will not be optimal, use sparingly and disable when not in use."
 msgstr ""
 
-#: inc/options/general.php:1018
+#: inc/options/general.php:1024
 msgid "Debug mode:"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:1039
+#: inc/options/general.php:1045
 msgid "If selected, detailed caching information will appear at the end of each page in a %1$sHTML%2$s comment. View a page's source code to review."
 msgstr ""
 
-#: inc/options/general.php:1059
+#: inc/options/general.php:1065
 msgid "Purge Logs:"
 msgstr ""
 
-#: inc/options/general.php:1066
+#: inc/options/general.php:1072
 msgid "Page Cache Purge Log"
 msgstr ""
 
-#: inc/options/general.php:1067
-#: inc/options/general.php:1076
-#: inc/options/general.php:1085
+#: inc/options/general.php:1073
+#: inc/options/general.php:1082
+#: inc/options/general.php:1091
 msgid "view log"
 msgstr ""
 
-#: inc/options/general.php:1075
+#: inc/options/general.php:1081
 msgid "Database Cache Purge Log"
 msgstr ""
 
-#: inc/options/general.php:1084
+#: inc/options/general.php:1090
 msgid "Object Cache Purge Log"
 msgstr ""
 
-#: inc/options/general.php:1092
+#: inc/options/general.php:1098
 msgid "Purge Logs provide information on when your cache has been purged and what triggered it."
 msgstr ""
 
-#: inc/options/general.php:1094
+#: inc/options/general.php:1100
 msgid "Sometimes, you'll encounter a complex issue involving your cache being purged for an unknown reason. The Purge Logs functionality can help you easily resolve those issues."
 msgstr ""
 
-#: inc/options/general.php:1127
+#: inc/options/general.php:1133
 msgid "Import configuration:"
 msgstr ""
 
-#: inc/options/general.php:1130
+#: inc/options/general.php:1136
 msgid "Upload"
 msgstr ""
 
-#: inc/options/general.php:1131
+#: inc/options/general.php:1137
 msgid "Upload and replace the active settings file."
 msgstr ""
 
-#: inc/options/general.php:1135
+#: inc/options/general.php:1141
 msgid "Export configuration:"
 msgstr ""
 
-#: inc/options/general.php:1137
+#: inc/options/general.php:1143
 msgid "Download"
 msgstr ""
 
-#: inc/options/general.php:1138
+#: inc/options/general.php:1144
 msgid "Download the active settings file."
 msgstr ""
 
-#: inc/options/general.php:1142
+#: inc/options/general.php:1148
 msgid "Reset configuration:"
 msgstr ""
 
-#: inc/options/general.php:1144
+#: inc/options/general.php:1150
 msgid "Restore Default Settings"
 msgstr ""
 
-#: inc/options/general.php:1145
+#: inc/options/general.php:1151
 msgid "Revert all settings to the defaults. Any settings staged in preview mode will not be modified."
 msgstr ""
 
