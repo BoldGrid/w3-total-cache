@@ -4,7 +4,7 @@
  *
  * Controls Google OAuth2.0 requests both for authentication and queries against the PageSpeed API.
  *
- * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */
@@ -14,7 +14,7 @@ namespace W3TC;
 /**
  * PageSpeed API.
  *
- * @since 2.2.13
+ * @since 2.3.0
  */
 class PageSpeed_Api {
 	/**
@@ -62,7 +62,7 @@ class PageSpeed_Api {
 	/**
 	 * PageSpeed API constructor.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @param string $access_token_json API access token JSON.
 	 */
@@ -85,7 +85,7 @@ class PageSpeed_Api {
 	/**
 	 * Run PageSpeed API.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return void
 	 */
@@ -95,7 +95,7 @@ class PageSpeed_Api {
 	/**
 	 * Fully analyze URL via PageSpeed API.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @param string $url URL to analyze via PageSpeed API.
 	 *
@@ -117,7 +117,7 @@ class PageSpeed_Api {
 	/**
 	 * Analyze URL via PageSpeed API using strategy.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @param string $url URL to analyze.
 	 * @param string $strategy Strategy to use desktop/mobile.
@@ -151,7 +151,7 @@ class PageSpeed_Api {
 	/**
 	 * Make API request.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @param string $query API request query.
 	 *
@@ -229,7 +229,7 @@ class PageSpeed_Api {
 	/**
 	 * Checks if the Google access token is expired and attempts to refresh.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return void
 	 */
@@ -339,7 +339,7 @@ class PageSpeed_Api {
 	/**
 	 * Creates new Google access token from authorize request response.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @param string $gacode             New Google access authentication code.
 	 * @param string $w3tc_pagespeed_key W3 API access key.
@@ -452,7 +452,7 @@ class PageSpeed_Api {
 	/**
 	 * Fetches Google refresh token from W3 API server.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @param string $site_id            Site ID.
 	 * @param string $w3tc_pagespeed_key W3 API access key.
@@ -526,7 +526,7 @@ class PageSpeed_Api {
 	/**
 	 * Get Google Client JSON config.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return string
 	 */
@@ -542,7 +542,7 @@ class PageSpeed_Api {
 	/**
 	 * Get W3TC PageSpeed API max attempts.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return int
 	 */
@@ -553,7 +553,7 @@ class PageSpeed_Api {
 	/**
 	 * Get Google PageSpeed API URL.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return string
 	 */
@@ -564,7 +564,7 @@ class PageSpeed_Api {
 	/**
 	 * Get W3TC API server URL target.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @param string $target API target URI.
 	 *
@@ -579,7 +579,7 @@ class PageSpeed_Api {
 	/**
 	 * PageSpeed authorize admin notice.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 */
 	public function authorize_notice() {
 		if ( current_user_can( 'manage_options' ) && get_option( 'w3tcps_authorize_success' ) ) {
@@ -595,7 +595,7 @@ class PageSpeed_Api {
 	/**
 	 * Reset authentication.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 */
 	public function reset() {
 		$access_token = $this->client->getAccessToken();

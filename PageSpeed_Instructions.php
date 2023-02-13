@@ -4,7 +4,7 @@
  *
  * Defines W3TC's recomendations for each PageSpeed metric.
  *
- * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * PageSpeed Instructions Config.
  *
- * @since 2.2.13
+ * @since 2.3.0
  */
 class PageSpeed_Instructions {
 
 	/**
 	 * Get PageSpeed Instructions Config.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return array
 	 */

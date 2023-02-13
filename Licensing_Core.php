@@ -135,7 +135,7 @@ class Licensing_Core {
 	/**
 	 * Get the terms of service choice.
 	 *
-	 * @since X.X.X
+	 * @since 2.2.2
 	 *
 	 * @static
 	 *

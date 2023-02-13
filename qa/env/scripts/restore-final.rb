@@ -21,7 +21,7 @@ def run
 
 	# tables are not immediately available after loading dump, wait for that
 	n = 0
-	while !system('mysql </share/scripts/mysql-test.sql') and n < 10
+	while !system('mysql </share/scripts/mysql-test.sql') and n < 30
 		sleep(1)
 		puts 'waiting for mysql to be ready'
 		n += 1
