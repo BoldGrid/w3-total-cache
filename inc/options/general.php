@@ -823,6 +823,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php Util_Ui::button_config_save( 'general_google_page_speed' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
+		<?php
+		foreach ( $custom_areas as $area ) {
+			do_action( 'w3tc_settings_general_boxarea_' . $area['id'] );
+		}
+		?>
+
 		<?php if ( $licensing_visible ) : ?>
 			<?php Util_Ui::postbox_header( __( 'Licensing', 'w3-total-cache' ), '', 'licensing' ); ?>
 			<table class="form-table">

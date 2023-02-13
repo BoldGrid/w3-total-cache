@@ -172,7 +172,7 @@ class Util_Ui {
 	 * a "WP 5.5" comment.
 	 *
 	 * @todo Add .postbox-header to our postboxes and cleanup css.
-	 * @link https://github.com/W3EDGE/w3-total-cache/issues/237
+	 * @link https://github.com/BoldGrid/w3-total-cache/issues/237
 	 *
 	 * @param string $title
 	 * @param string $class

@@ -4,7 +4,7 @@
  *
  * Controller for PageSpeed page setup, display, and AJAX handler.
  *
- * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */
@@ -14,13 +14,13 @@ namespace W3TC;
 /**
  * PageSpeed Page.
  *
- * @since 2.2.13
+ * @since 2.3.0
  */
 class PageSpeed_Page {
 	/**
 	 * Run PageSpeed Page.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return void
 	 */
@@ -31,7 +31,7 @@ class PageSpeed_Page {
 	/**
 	 * Initialize PageSpeed scripts/styles.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return void
 	 */
@@ -66,7 +66,7 @@ class PageSpeed_Page {
 	/**
 	 * Renders the PageSpeed feature.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return void
 	 */
@@ -79,7 +79,7 @@ class PageSpeed_Page {
 	/**
 	 * PageSpeed AJAX fetch data.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return JSON
 	 */
@@ -112,7 +112,7 @@ class PageSpeed_Page {
 							),
 							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 						),
-					),
+					)
 				);
 				return;
 			}

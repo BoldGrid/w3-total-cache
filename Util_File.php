@@ -62,7 +62,7 @@ class Util_File {
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
 			if ( !@file_exists( $curr_path ) ) {
-				if ( !@mkdir( $curr_path, $mask ) )
+				if ( !@mkdir( $curr_path, $mask, true ) )
 					return false;
 			}
 		}
@@ -105,7 +105,7 @@ class Util_File {
 			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
 
 			if ( !@file_exists( $curr_path ) ) {
-				if ( !@mkdir( $curr_path, $mask ) ) {
+				if ( !@mkdir( $curr_path, $mask, true ) ) {
 					return false;
 				}
 				$curr_path = realpath( $curr_path );
@@ -289,18 +289,26 @@ class Util_File {
 		return false;
 	}
 
-	static public function get_file_permissions( $file ) {
-		if ( function_exists( 'fileperms' ) && $fileperms = @fileperms( $file ) ) {
+	/**
+	 * Get the octal file permission number of a file or directory.
+	 *
+	 * @param string $file File path.
+	 * @return int
+	 */
+	public static function get_file_permissions( $file ) {
+		if ( function_exists( 'fileperms' ) && $fileperms = @fileperms( $file ) ) { // phpcs:ignore
 			$fileperms = 0777 & $fileperms;
 		} else {
 			clearstatcache();
-			$stat=@stat( $file );
-			if ( $stat )
+			$stat = @stat( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+			if ( $stat ) {
 				$fileperms = 0777 & $stat['mode'];
-			else
+			} else {
 				$fileperms = 0;
+			}
 		}
-		return $fileperms;
+		return intval( decoct( $fileperms ) );
 	}
 
 	static public function get_file_owner( $file = '' ) {

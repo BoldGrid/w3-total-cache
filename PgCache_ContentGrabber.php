@@ -864,7 +864,8 @@ class PgCache_ContentGrabber {
 					'aws_autodiscovery' => $this->_config->get_boolean( 'pgcache.memcached.aws_autodiscovery' ),
 					'username' => $this->_config->get_string( 'pgcache.memcached.username' ),
 					'password' => $this->_config->get_string( 'pgcache.memcached.password' ),
-					'binary_protocol' => $this->_config->get_boolean( 'pgcache.memcached.binary_protocol' )
+					'binary_protocol' => $this->_config->get_boolean( 'pgcache.memcached.binary_protocol' ),
+					'host' => Util_Environment::host(),
 				);
 				break;
 
@@ -933,7 +934,7 @@ class PgCache_ContentGrabber {
 
 			$engineConfig['use_expired_data'] = true;
 			$engineConfig['module']           = 'pgcache';
-			$engineConfig['host']             = Util_Environment::host();
+			$engineConfig['host']             = '';
 			$engineConfig['instance_id']      = Util_Environment::instance_id();
 
 			$caches[$group] = Cache::instance( $engine, $engineConfig );

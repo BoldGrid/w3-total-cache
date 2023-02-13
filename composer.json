@@ -1,6 +1,6 @@
 {
     "require": {
-        "aws/aws-sdk-php": "^3.180",
+        "aws/aws-sdk-php": "3.183.8",
         "guzzlehttp/guzzle": "6.*",
         "symfony/polyfill-intl-idn" : "1.20.*",
         "symfony/polyfill-intl-normalizer" : "1.20.*",

@@ -4,7 +4,7 @@
  *
  * Defines W3TC's recomendations for each PageSpeed metric.
  *
- * @since 2.2.13 Update to utilize OAuth2.0 and overhaul of feature.
+ * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * PageSpeed Instructions Config.
  *
- * @since 2.2.13
+ * @since 2.3.0
  */
 class PageSpeed_Instructions {
 
 	/**
 	 * Get PageSpeed Instructions Config.
 	 *
-	 * @since 2.2.13
+	 * @since 2.3.0
 	 *
 	 * @return array
 	 */
@@ -157,7 +157,7 @@ class PageSpeed_Instructions {
 									'w3-total-cache'
 								),
 								'W3 Total Cache',
-								'<a target="_blank" href="' . esc_url( 'https://github.com/kjdev/php-ext-brotli' ) . '">' . esc_html__( 'Brotli extension', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( 'https://github.com/kjdev/php-ext-brotli' ) . '">' . esc_html__( 'Brotli extension', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -255,7 +255,7 @@ class PageSpeed_Instructions {
 									'Learn more about implementing this technique %1$s.',
 									'w3-total-cache'
 								),
-								'<a target="_blank" href="' . esc_url( 'https://philipwalton.com/articles/deploying-es2015-code-in-production-today/' ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( 'https://philipwalton.com/articles/deploying-es2015-code-in-production-today/' ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -273,7 +273,7 @@ class PageSpeed_Instructions {
 							),
 							'W3 Total Cache',
 							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#minify' ) ) . '" alt="' . esc_attr__( 'Minify', 'w3-total-cache' ) . '">',
-							'</a>',
+							'</a>'
 						) . '</p>
 						<p>' . sprintf(
 							// translators: 1 W3TC plugin name, 2 opening HTML a tag to CSS Minify settings, 3 closing HTML a tag,
@@ -632,18 +632,18 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'Reducing CSS parsing time', 'w3-total-cache' ) . '</p>
 						<ul>
 							<li>' . sprintf(
-								// translators: 1 W3TC plugin name, 2 opening HTML a tag to Minify CSS settings, 3 closing HTML a tag,
-								// translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
-								esc_html__(
-									'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use %1$s %2$sMinify for CSS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server.',
-									'w3-total-cache'
-								),
-								'W3 Total Cache',
-								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">',
-								'</a>',
-								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '" alt="' . esc_attr__( 'CDN', 'w3-total-cache' ) . '">',
-								'</a>'
-				 			) . '</li>
+							// translators: 1 W3TC plugin name, 2 opening HTML a tag to Minify CSS settings, 3 closing HTML a tag,
+							// translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
+							esc_html__(
+								'Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use %1$s %2$sMinify for CSS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server.',
+								'w3-total-cache'
+							),
+							'W3 Total Cache',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">',
+							'</a>',
+							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '" alt="' . esc_attr__( 'CDN', 'w3-total-cache' ) . '">',
+							'</a>'
+						) . '</li>
 						</ul>
 						<br/>
 						<p>' . esc_html__( 'Only using compositor properties', 'w3-total-cache' ) . '</p>
