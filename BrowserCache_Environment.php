@@ -63,8 +63,9 @@ class BrowserCache_Environment {
 	 * @return array
 	 */
 	public function get_required_rules( $config ) {
-		if ( !$config->get_boolean( 'browsercache.enabled' ) )
-			return null;
+		if ( ! $config->get_boolean( 'browsercache.enabled' ) ) {
+			return array();
+		}
 
 		$mime_types = $this->get_mime_types();
 
