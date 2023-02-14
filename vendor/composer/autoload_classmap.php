@@ -730,6 +730,8 @@ return array(
     'Aws\\SnowBall\\Exception\\SnowBallException' => $vendorDir . '/aws/aws-sdk-php/src/SnowBall/Exception/SnowBallException.php',
     'Aws\\SnowBall\\SnowBallClient' => $vendorDir . '/aws/aws-sdk-php/src/SnowBall/SnowBallClient.php',
     'Aws\\Sns\\Exception\\SnsException' => $vendorDir . '/aws/aws-sdk-php/src/Sns/Exception/SnsException.php',
+	'Aws\\Sns\\Message' => $vendorDir . '/aws/aws-php-sns-message-validator/src/Message.php',
+	'Aws\\Sns\\MessageValidator' => $vendorDir . '/aws/aws-php-sns-message-validator/src/MessageValidator.php',
     'Aws\\Sns\\SnsClient' => $vendorDir . '/aws/aws-sdk-php/src/Sns/SnsClient.php',
     'Aws\\Sqs\\Exception\\SqsException' => $vendorDir . '/aws/aws-sdk-php/src/Sqs/Exception/SqsException.php',
     'Aws\\Sqs\\SqsClient' => $vendorDir . '/aws/aws-sdk-php/src/Sqs/SqsClient.php',

@@ -803,6 +803,8 @@ class ComposerStaticInitc972e5e91f8b219f1680861ca6a05fc1
         'Aws\\SnowBall\\Exception\\SnowBallException' => __DIR__ . '/..' . '/aws/aws-sdk-php/src/SnowBall/Exception/SnowBallException.php',
         'Aws\\SnowBall\\SnowBallClient' => __DIR__ . '/..' . '/aws/aws-sdk-php/src/SnowBall/SnowBallClient.php',
         'Aws\\Sns\\Exception\\SnsException' => __DIR__ . '/..' . '/aws/aws-sdk-php/src/Sns/Exception/SnsException.php',
+		'Aws\\Sns\\Message' => __DIR__ . '/..' . '/aws/aws-php-sns-message-validator/src/Message.php',
+		'Aws\\Sns\\MessageValidator' => __DIR__ . '/..' . '/aws/aws-php-sns-message-validator/src/MessageValidator.php',
         'Aws\\Sns\\SnsClient' => __DIR__ . '/..' . '/aws/aws-sdk-php/src/Sns/SnsClient.php',
         'Aws\\Sqs\\Exception\\SqsException' => __DIR__ . '/..' . '/aws/aws-sdk-php/src/Sqs/Exception/SqsException.php',
         'Aws\\Sqs\\SqsClient' => __DIR__ . '/..' . '/aws/aws-sdk-php/src/Sqs/SqsClient.php',
