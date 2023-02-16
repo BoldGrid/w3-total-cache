@@ -6,6 +6,12 @@
         "symfony/polyfill-intl-normalizer" : "1.20.*",
         "symfony/polyfill-mbstring" : "1.20.*"
     },
+    "require-dev": {
+        "yoast/phpunit-polyfills": "^1.0",
+        "phpunit/phpunit": "^9.5",
+        "squizlabs/php_codesniffer": "^3.7",
+        "wp-coding-standards/wpcs": "dev-develop"
+    },
     "replace": {
         "symfony/polyfill-php56": "*",
         "symfony/polyfill-php70": "*",
@@ -14,5 +20,10 @@
         "symfony/polyfill-php73": "*",
         "symfony/polyfill-php74": "*",
         "symfony/polyfill-mbstring": "*"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
