@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.1
-Stable tag: 2.2.12
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,7 +22,7 @@ https://youtu.be/7AsNSSrZq4Y
 *BENEFITS*
 
 * Improvements in search engine result page rankings, especially for mobile-friendly websites and sites that use SSL
-* At least 10x improvement in overall site performance (Grade A in [WebPagetest](https://www.webpagetest.org/) or significant [Google Page Speed](http://code.google.com/speed/page-speed/) improvements) **when fully configured**
+* At least 10x improvement in overall site performance (Grade A in [WebPagetest](https://www.webpagetest.org/) or significant [Google PageSpeed](http://code.google.com/speed/page-speed/) improvements) **when fully configured**
 * Improved conversion rates and "[site performance](http://googlewebmastercentral.blogspot.com/2009/12/your-sites-performance-in-webmaster.html)" which [affect your site's rank](http://googlewebmastercentral.blogspot.com/2010/04/using-site-speed-in-web-search-ranking.html) on Google.com
 * "Instant" repeat page views: browser caching
 * Optimized progressive render: pages start rendering quickly and can be interacted with more quickly
@@ -234,7 +234,7 @@ Image data received by our API is destroyed after a converted image is generated
 
 You will be able to see the results instantly on each page load, but for tangible metrics, you should consider using the following tools:
 
-* [Google Page Speed](https://developers.google.com/speed/pagespeed/)
+* [Google PageSpeed](https://developers.google.com/speed/pagespeed/)
 * [Google Search Console Core Web Vitals Report](https://search.google.com/search-console/core-web-vitals/)
 * [WebPagetest](https://www.webpagetest.org/test)
 * [Pingdom](https://tools.pingdom.com/)
@@ -284,6 +284,22 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.3.0 =
+* Feature: PageSpeed Insights reports and performance page widget
+* Feature: Added basic OpenLiteSpeed support
+* Feature: Add Permissions-Policy to mirror Feature-Policy directives
+* Fix: PHP 8.2 compatibility
+* Fix: GuzzleHttp 7 conflict with Azure
+* Fix: Allow object cache updates when using WP-CLI
+* Fix: Added missing Page Cache configuration "host" value
+* Fix: Missing on_comment_status action callback
+* Fix: Flush cache on attachment update
+* Fix: Varnish flush for posts
+* Update: Improved comment status logic for flushing database and object caches
+* Update: Adjusted FTP form style
+* Update: Removed deprecated MaxCDN and NetDNA components and added a notice if one was used
+* Update: Removed deprecated FeedBurner
 
 = 2.2.12 =
 * Fix: Comment status change error

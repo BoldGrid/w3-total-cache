@@ -63,7 +63,6 @@ class Generic_Plugin_Admin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'admin_print_styles-toplevel_page_w3tc_dashboard', array( '\W3TC\Generic_Page_Dashboard', 'admin_print_styles_w3tc_dashboard' ) );
 		add_action( 'wp_ajax_w3tc_ajax', array( $this, 'wp_ajax_w3tc_ajax' ) );
-		add_action( 'wp_ajax_w3tc_monitoring_score', array( $this, 'wp_ajax_w3tc_monitoring_score' ) );
 
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
 
@@ -164,30 +163,6 @@ class Generic_Plugin_Admin {
 		} catch ( \Exception $e ) {
 			echo esc_html( $e->getMessage() );
 		}
-
-		exit();
-	}
-
-	/**
-	 * Load action
-	 *
-	 * @throws Exception Exception.
-	 *
-	 * @return void
-	 */
-	public function wp_ajax_w3tc_monitoring_score() {
-		if ( ! $this->_config->get_boolean( 'widget.pagespeed.show_in_admin_bar' ) ) {
-			exit();
-		}
-
-		$score = '';
-
-		$modules = Dispatcher::component( 'ModuleStatus' );
-		$score   = apply_filters( 'w3tc_monitoring_score', $score );
-
-		header( 'Content-Type: application/x-javascript; charset=UTF-8' );
-		echo 'document.getElementById("w3tc_monitoring_score") && ( document.getElementById("w3tc_monitoring_score").innerHTML = "' .
-			esc_html( strtr( $score, '"', '.' ) ) . '" );';
 
 		exit();
 	}
@@ -358,6 +333,22 @@ class Generic_Plugin_Admin {
 				)
 			);
 		}
+
+		// PageSpeed page/widget.
+		add_action(
+			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_pagespeed',
+			array(
+				'\W3TC\PageSpeed_Page',
+				'admin_print_scripts_w3tc_pagespeed',
+			)
+		);
+		add_action(
+			'admin_print_scripts-toplevel_page_w3tc_dashboard',
+			array(
+				'\W3TC\PageSpeed_Widget',
+				'admin_print_scripts_w3tc_pagespeed_widget',
+			)
+		);
 
 		$page_val = Util_Request::get_string( 'page' );
 		if ( ! empty( $page_val ) ) {

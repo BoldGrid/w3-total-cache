@@ -2530,19 +2530,15 @@ $keys = array(
 	),
 	'widget.pagespeed.enabled' => array(
 		'type' => 'boolean',
-		'default' => true
-	),
-	'widget.pagespeed.key' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-	'widget.pagespeed.key.restrict.referrer' => array(
-		'type' => 'string',
-		'default' => ''
-	),
-	'widget.pagespeed.show_in_admin_bar' => array(
-		'type' => 'boolean',
 		'default' => false
+	),
+	'widget.pagespeed.access_token' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'widget.pagespeed.w3tc_pagespeed_key' => array(
+		'type' => 'string',
+		'default' => ''
 	),
 	'timelimit.email_send' => array(
 		'type' => 'integer',

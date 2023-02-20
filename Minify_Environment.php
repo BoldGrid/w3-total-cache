@@ -432,7 +432,7 @@ class Minify_Environment {
 				$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
 			}
 		}
-		$rules .= "    RewriteRule ^(.+\\.(css|js))$ ${site_uri}index.php [L]\n";
+		$rules .= "    RewriteRule ^(.+\\.(css|js))$ {$site_uri}index.php [L]\n";
 
 		$rules .= "</IfModule>\n";
 		$rules .= W3TC_MARKER_END_MINIFY_CORE . "\n";
@@ -497,7 +497,7 @@ class Minify_Environment {
 			$rules .= "    rewrite (.*) $1\$w3tc_enc break;\n";
 			$rules .= "}\n";
 		}
-		$rules .= "rewrite ^$cache_uri ${minify_uri}index.php last;\n";
+		$rules .= "rewrite ^$cache_uri {$minify_uri}index.php last;\n";
 		$rules .= W3TC_MARKER_END_MINIFY_CORE . "\n";
 
 		return $rules;

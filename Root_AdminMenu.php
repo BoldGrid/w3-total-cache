@@ -115,6 +115,12 @@ class Root_AdminMenu {
 				'visible_always' => true,
 				'order'          => 1200,
 			),
+			'w3tc_pagespeed'          => array(
+				'page_title'     => __( 'Google PageSpeed', 'w3-total-cache' ),
+				'menu_text'      => __( 'Google PageSpeed', 'w3-total-cache' ),
+				'visible_always' => true,
+				'order'          => 1200,
+			),
 			'w3tc_install'          => array(
 				'page_title'     => __( 'Install', 'w3-total-cache' ),
 				'menu_text'      => __( 'Install', 'w3-total-cache' ),
@@ -271,6 +277,11 @@ class Root_AdminMenu {
 			case 'w3tc_support':
 				$options_support = new Support_Page();
 				$options_support->options();
+				break;
+
+			case 'w3tc_pagespeed':
+				$options_pagespeed = new PageSpeed_Page();
+				$options_pagespeed->render();
 				break;
 
 			case 'w3tc_install':

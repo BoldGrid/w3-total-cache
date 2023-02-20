@@ -113,6 +113,7 @@ class Util_Http {
 	 */
 	public static function ttfb( $url, $nocache = false ) {
 		$ch   = curl_init( esc_url( $url ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+
 		$pass = (bool) $ch;
 		$ttfb = false;
 		$opts = array(
@@ -210,5 +211,14 @@ class Util_Http {
 		}
 
 		return $headers;
+	}
+
+	/**
+	 * Generate unique md5 value based on domain.
+	 *
+	 * @return string
+	 */
+	public static function generate_site_id() {
+		return md5( network_home_url() );
 	}
 }

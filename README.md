@@ -11,4 +11,4 @@ This repository is not suitable for support. Please don't use our issue tracker 
 Support requests in issues on this repository will be closed on sight.
 
 ## Contributing to W3 Total Cache
-If you have a patch or have stumbled upon an issue with W3 Total Cache, you can contribute this back to the code. Please read our [contributor guidelines](https://github.com/W3EDGE/w3-total-cache/wiki/Contributor-Guidelines) for more information how you can do this.
+If you have a patch or have stumbled upon an issue with W3 Total Cache, you can contribute this back to the code. Please read our [contributor guidelines](https://github.com/BoldGrid/w3-total-cache/wiki/Contributor-Guidelines) for more information how you can do this.

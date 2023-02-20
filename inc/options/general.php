@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: general.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -675,13 +681,156 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php Util_Ui::postbox_footer(); ?>
 		<?php endif; ?>
 
+		<?php Util_Ui::postbox_header( __( 'Google PageSpeed', 'w3-total-cache' ), '', 'google_page_speed' ); ?>
 		<?php
-		foreach ( $custom_areas as $area ) {
-			do_action( "w3tc_settings_general_boxarea_{$area['id']}" );
+		$access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
+		$w3_pagespeed      = new PageSpeed_Api( $access_token_json );
+
+		$site_id            = Util_Http::generate_site_id();
+		$return_url         = admin_url( 'admin.php?page=w3tc_general' );
+		$w3tc_pagespeed_key = ! empty( $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) : '';
+		$auth_url           = $w3_pagespeed->client->createAuthUrl();
+
+		$new_gacode             = Util_Request::get( 'w3tc_new_gacode' );
+		$new_w3tc_pagespeed_key = Util_Request::get( 'w3tc_new_w3tc_pagespeed_key' );
+		$authorize_error        = Util_Request::get( 'w3tc_authorize_error' );
+		$deauthorize            = Util_Request::get( 'w3tc_deauthorize' );
+
+		if ( ! empty( $new_gacode ) && ! empty( $new_w3tc_pagespeed_key ) ) {
+			$response = json_decode( $w3_pagespeed->process_authorization_response( $new_gacode, $new_w3tc_pagespeed_key ), true );
+
+			if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
+				$response_error = sprintf(
+					// translators: 1 Request response code, 2 Error message.
+					__(
+						'Response Code: %1$s<br/>Response Message: %2$s',
+						'w3-total-cache'
+					),
+					! empty( $response['error']['code'] ) ? $response['error']['code'] : 'N/A',
+					! empty( $response['error']['message'] ) ? $response['error']['message'] : 'N/A'
+				);
+
+				update_option(
+					'w3tcps_authorize_fail',
+					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+				);
+				update_option(
+					'w3tcps_authorize_fail_message',
+					$response_error
+				);
+			} elseif ( ! empty( $response['refresh_token'] ) ) {
+				update_option(
+					'w3tcps_authorize_success',
+					__( 'Google PageSpeed Insights API authorization successfull.', 'w3-total-cache' )
+				);
+			} else {
+				update_option(
+					'w3tcps_authorize_fail',
+					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+				);
+				update_option(
+					'w3tcps_authorize_fail_message',
+					__( 'Missing refresh token.', 'w3-totoal-cache' )
+				);
+			}
+
+			wp_safe_redirect( $return_url );
+			exit;
+		} elseif ( $deauthorize ) {
+			$w3_pagespeed->reset();
+			update_option(
+				'w3tcps_authorize_success',
+				__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
+			);
+			wp_safe_redirect( $return_url );
+			exit;
+		} elseif ( ! empty( $authorize_error ) ) {
+			$authorize_error = json_decode( $authorize_error );
+
+			if ( 'authorize-in-missing-site-id' === $authorize_error->error->id ) {
+				$message = __( 'Unique site ID missing for authorize request!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-missing-auth-url' === $authorize_error->error->id ) {
+				$message = __( 'Authorize URL missing for authorize request!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-missing-return-url' === $authorize_error->error->id ) {
+				$message = __( 'Return URL missing for authorize request!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-failed' === $authorize_error->error->id ) {
+				$message = __( 'Failed to process authorize request!', 'w3-total-cache' );
+			}
+
+			if ( 'authorize-out-code-missing' === $authorize_error->error->id ) {
+				$message = __( 'No authorize code returned to W3-API from Google!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-w3tc-pagespeed-key-missing' === $authorize_error->error->id ) {
+				$message = __( 'No W3Key return to W3-API from Google!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-not-found' === $authorize_error->error->id ) {
+				$message = __( 'No W3-API matching record found during Google authorization return processing!', 'w3-total-cache' );
+			}
+
+			update_option(
+				'w3tcps_authorize_fail',
+				__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+			);
+			update_option(
+				'w3tcps_authorize_fail_message',
+				$message
+			);
+
+			wp_safe_redirect( $return_url );
+			exit;
 		}
 		?>
+		<table class="form-table">
+			<?php
+			$access_token_json = ( ! empty( $w3_pagespeed->client->getAccessToken() ) ? $w3_pagespeed->client->getAccessToken() : '' );
+			if ( ! $w3_pagespeed->client->isAccessTokenExpired() && ! empty( $access_token_json ) ) {
+				?>
+				<tr>
+					<th>
+						<label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?> <?php esc_html_e( 'Valid', 'w3-total-cache' ); ?></label>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						<a id="w3tc-google-deauthorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $return_url . '&w3tc_deauthorize=1' ); ?>"><?php esc_html_e( 'Deauthorize' ); ?></a>
+					</th>
+				</tr>
+				<?php
+			} else {
+				?>
+				<tr>
+					<th>
+						<label for="widget_pagespeed_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label>
+					</th>
+					<td>
+						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $w3_pagespeed->get_w3tc_api_url( 'google/authorize-in' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ) ); ?>"><?php esc_html_e( 'Authorize' ); ?></a>
+						<p><?php esc_html_e( 'Allow W3 Total Cache to connect to the PageSpeed Insights API on your behalf.', 'w3-total-cache' ); ?></p>
+					</td>
+				</tr>
+				<?php
+			}
+
+			Util_Ui::config_item(
+				array(
+					'key'            => 'widget.pagespeed.enabled',
+					'control'        => 'checkbox',
+					'checkbox_label' => __( 'Enable Google PageSpeed dashboard widget', 'w3-total-cache' ),
+					'description'    => __( 'Display Google PageSpeed results on the WordPress dashboard.', 'w3-total-cache' ),
+					'label_class'    => 'w3tc_single_column',
+				)
+			);
+			?>
+		</table>
+
+		<?php Util_Ui::button_config_save( 'general_google_page_speed' ); ?>
+		<?php Util_Ui::postbox_footer(); ?>
+
+		<?php
+		foreach ( $custom_areas as $area ) {
+			do_action( 'w3tc_settings_general_boxarea_' . $area['id'] );
+		}
+		?>
+
 		<?php if ( $licensing_visible ) : ?>
-			<?php Util_Ui::postbox_header( esc_html__( 'Licensing', 'w3-total-cache' ), '', 'licensing' ); ?>
+			<?php Util_Ui::postbox_header( __( 'Licensing', 'w3-total-cache' ), '', 'licensing' ); ?>
 			<table class="form-table">
 					<tr>
 						<th>
@@ -718,74 +867,10 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			</table>
 			<?php Util_Ui::button_config_save( 'general_licensing' ); ?>
 			<?php Util_Ui::postbox_footer(); ?>
-		<?php endif ?>
+		<?php endif; ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Miscellaneous', 'w3-total-cache' ), '', 'miscellaneous' ); ?>
 		<table class="form-table">
-			<?php
-			Util_Ui::config_item(
-				array(
-					'key'            => 'widget.pagespeed.enabled',
-					'control'        => 'checkbox',
-					'checkbox_label' => esc_html__( 'Enable Google Page Speed dashboard widget', 'w3-total-cache' ),
-					'description'    => esc_html__( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
-					'label_class'    => 'w3tc_single_column',
-				)
-			);
-			?>
-			<tr>
-				<th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key' ); ?></label></th>
-				<td>
-					<input id="widget_pagespeed_key" type="text" name="widget__pagespeed__key" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key' ) ); ?>" <?php Util_Ui::sealing_disabled( 'common.' ); ?> size="60" />
-					<p class="description">
-						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HMTL a tag to Google API Key guide, 2 opening HTML acronym tag,
-								// translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
-								__(
-									'Learn more about obtaining a %1$s%2$sAPI%3$s key here%4$s.',
-									'w3-total-cache'
-								),
-								'<a href="' . esc_url( 'https://support.google.com/cloud/answer/6158862' ) . '" target="_blank">',
-								'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-								'</acronym>',
-								'</a>'
-							),
-							array(
-								'acronym' => array(
-									'title' => array(),
-								),
-								'a'       => array(
-									'href'   => array(),
-									'target' => array(),
-								),
-							)
-						);
-						?>
-					</p>
-				</td>
-			</tr>
-			<tr>
-				<th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key.restrict.referrer', 'general' ); ?></label></th>
-				<td>
-					<input id="widget_pagespeed_key_restrict_referrer" type="text" name="widget__pagespeed__key__restrict__referrer" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key.restrict.referrer' ) ); ?>" size="60" />
-					<p class="description">
-						<?php esc_html__( 'Although not required, to prevent unauthorized use and quota theft, you have the option to restrict your key using a designated HTTP referrer. If you decide to use it, you will need to set this referrer within the API Console\'s "Http Referrers (web sites)" key restriction area (under Credentials).', 'w3-total-cache' ); ?>
-					</p>
-				</td>
-			</tr>
-			<?php
-			Util_Ui::config_item(
-				array(
-					'key'            => 'widget.pagespeed.show_in_admin_bar',
-					'control'        => 'checkbox',
-					'checkbox_label' => esc_html__( 'Show page rating in admin bar', 'w3-total-cache' ),
-					'label_class'    => 'w3tc_single_column',
-				)
-			);
-			?>
-
 			<?php if ( is_network_admin() ) : ?>
 			<tr>
 				<th colspan="2">
