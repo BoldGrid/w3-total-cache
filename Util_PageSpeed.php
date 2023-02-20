@@ -280,6 +280,7 @@ class Util_PageSpeed {
 					if ( filter_var( $item['url'], FILTER_VALIDATE_URL ) !== false ) {
 						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['url'] )['path'] ) . '</a></td>';
 					} else {
+						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
 						$items   .= '<td>' . $item['url'] . '</td>';
 					}
 				}
@@ -288,6 +289,7 @@ class Util_PageSpeed {
 					if ( filter_var( $item['source']['url'], FILTER_VALIDATE_URL ) !== false ) {
 						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['source']['url'] )['path'] ) . '</a></td>';
 					} else {
+						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
 						$items   .= '<td>' . $item['source']['url'] . '</td>';
 					}
 				}
@@ -459,6 +461,7 @@ class Util_PageSpeed {
 					if ( filter_var( $item['url'], FILTER_VALIDATE_URL ) !== false ) {
 						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['url'] )['path'] ) . '</a></td>';
 					} else {
+						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
 						$items   .= '<td>' . $item['url'] . '</td>';
 					}
 				}
@@ -467,6 +470,7 @@ class Util_PageSpeed {
 					if ( filter_var( $item['source']['url'], FILTER_VALIDATE_URL ) !== false ) {
 						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['source']['url'] )['path'] ) . '</a></td>';
 					} else {
+						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
 						$items   .= '<td>' . $item['source']['url'] . '</td>';
 					}
 				}
