@@ -126,7 +126,7 @@ class PageSpeed_Instructions {
 						'<p>' . sprintf(
 							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s $2$sImage Service%3$s to convert media library images to WebP.',
+								'Use %1$s %2$sImage Service%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',

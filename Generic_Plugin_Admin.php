@@ -185,7 +185,7 @@ class Generic_Plugin_Admin {
 
 		// Support page.
 		add_action(
-			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_support',
+			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_support',
 			array(
 				'\W3TC\Support_Page',
 				'admin_print_scripts_w3tc_support',
@@ -194,7 +194,7 @@ class Generic_Plugin_Admin {
 
 		// Minify.
 		add_action(
-			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_general',
+			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_general',
 			array(
 				'\W3TC\Minify_Plugin_Admin',
 				'admin_print_scripts_w3tc_general',
@@ -203,7 +203,7 @@ class Generic_Plugin_Admin {
 
 		// PageCache.
 		add_action(
-			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_pgcache',
+			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_pgcache',
 			array(
 				'\W3TC\PgCache_Page',
 				'admin_print_scripts_w3tc_pgcache',
@@ -212,7 +212,7 @@ class Generic_Plugin_Admin {
 
 		// Extensions.
 		add_action(
-			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_extensions',
+			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_extensions',
 			array(
 				'\W3TC\Extension_CloudFlare_Page',
 				'admin_print_scripts_w3tc_extensions',
@@ -221,7 +221,7 @@ class Generic_Plugin_Admin {
 
 		// Usage Statistics.
 		add_action(
-			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_stats',
+			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_stats',
 			array(
 				'\W3TC\UsageStatistics_Page',
 				'admin_print_scripts_w3tc_stats',
@@ -235,7 +235,7 @@ class Generic_Plugin_Admin {
 		// CDN.
 		if ( 'google_drive' === $cdn_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdn_GoogleDrive_Page',
 					'admin_print_scripts_w3tc_cdn',
@@ -243,7 +243,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'highwinds' === $cdn_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdn_Highwinds_Page',
 					'admin_print_scripts_w3tc_cdn',
@@ -251,7 +251,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'limelight' === $cdn_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdn_LimeLight_Page',
 					'admin_print_scripts_w3tc_cdn',
@@ -259,7 +259,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'rackspace_cdn' === $cdn_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdn_RackSpaceCdn_Page',
 					'admin_print_scripts_w3tc_cdn',
@@ -267,7 +267,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'rscf' === $cdn_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdn_RackSpaceCloudFiles_Page',
 					'admin_print_scripts_w3tc_cdn',
@@ -275,7 +275,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'stackpath' === $cdn_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdn_StackPath_Page',
 					'admin_print_scripts_w3tc_cdn',
@@ -283,7 +283,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'stackpath2' === $cdn_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdn_StackPath2_Page',
 					'admin_print_scripts_w3tc_cdn',
@@ -294,7 +294,7 @@ class Generic_Plugin_Admin {
 		// CDNFSD.
 		if ( 'cloudflare' === $cdnfsd_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Extension_CloudFlare_Page',
 					'admin_print_scripts_w3tc_extensions',
@@ -302,7 +302,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'cloudfront' === $cdnfsd_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdnfsd_CloudFront_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn',
@@ -310,7 +310,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'limelight' === $cdnfsd_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdnfsd_LimeLight_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn',
@@ -318,7 +318,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'stackpath' === $cdnfsd_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdnfsd_StackPath_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn',
@@ -326,7 +326,7 @@ class Generic_Plugin_Admin {
 			);
 		} elseif ( 'stackpath2' === $cdnfsd_engine ) {
 			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
+				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
 				array(
 					'\W3TC\Cdnfsd_StackPath2_Page',
 					'admin_print_scripts_performance_page_w3tc_cdn',
@@ -336,7 +336,7 @@ class Generic_Plugin_Admin {
 
 		// PageSpeed page/widget.
 		add_action(
-			'admin_print_scripts-' . sanitize_title( __( 'performance', 'w3-total-cache' ) ) . '_page_w3tc_pagespeed',
+			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_pagespeed',
 			array(
 				'\W3TC\PageSpeed_Page',
 				'admin_print_scripts_w3tc_pagespeed',

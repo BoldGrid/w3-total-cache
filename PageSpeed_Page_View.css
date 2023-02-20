@@ -55,6 +55,7 @@
 .w3tcps_breakdown_items_container {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
 	grid-row-gap: .75em;
 	grid-column-gap: .75em;
 	padding: .75em;
@@ -62,7 +63,8 @@
 
 .w3tcps_breakdown_items_container .w3tcps_breakdown_items_table,
 .w3tcps_breakdown_items_container .w3tcps_instruction {
-	flex: 50%;
+	flex: 49%;
+	flex-grow: 1;
 	align-self: flex-start;
 	border: 1px solid #ccd0d4;
 	border-collapse: collapse;
