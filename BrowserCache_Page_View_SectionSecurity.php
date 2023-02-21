@@ -602,7 +602,7 @@ $feature_policies = array(
 			<div>
 				<i><?php esc_html_e( 'Defines a reporting endpoint "group" to which violation reports should to be sent.', 'w3-total-cache' ); ?></i>
 				<br/><br/>
-				<i><?php esc_html_e( 'The referenced group should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
+				<i><?php esc_html_e( 'The referenced "group" should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
 			</div>
 		</td>
 	</tr>
@@ -924,7 +924,7 @@ $feature_policies = array(
 			<div>
 				<i><?php esc_html_e( 'Defines a reporting endpoint "group" to which violation reports should to be sent.', 'w3-total-cache' ); ?></i>
 				<br/><br/>
-				<i><?php esc_html_e( 'The referenced group should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
+				<i><?php esc_html_e( 'The referenced "group" should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
 			</div>
 		</td>
 	</tr>
