@@ -1,3 +1,5 @@
+[![Build Status](https://app.travis-ci.com/BoldGrid/w3-total-cache.svg?branch=master)](https://app.travis-ci.com/BoldGrid/w3-total-cache)
+
 Welcome to the W3 Total Cache repository on GitHub. Here you can browse the source, look at open issues and keep track of development.
 
 If you are not a developer, please use the [W3 Total Cache plugin page](https://wordpress.org/plugins/w3-total-cache/) on WordPress.org.
