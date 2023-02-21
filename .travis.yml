@@ -20,7 +20,7 @@ matrix:
         - nvm install 16
         - nvm use 16
         - yarn install
-        - composer install -o
+        - composer update -o
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
         #- yarn run php-codesniffer
     -
@@ -35,7 +35,8 @@ matrix:
         - composer self-update --1
         # Lock file has phpunit 9. Remove it and install phpunit 5 for php 5.6.
         - composer remove --dev phpunit/phpunit yoast/phpunit-polyfills
-        - composer require --dev phpunit/phpunit yoast/phpunit-polyfills -o
+        - composer require --dev phpunit/phpunit yoast/phpunit-polyfills
+        - composer update -o
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
         #- yarn run php-codesniffer
     -
@@ -54,7 +55,7 @@ script:
   - vendor/phpunit/phpunit/phpunit --debug
   #- yarn run js-lint
   # Remove dev dependencies.
-  - composer update -o --no-dev
+  - composer install --no-dev -o
   # PHP lint.
   - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
 
