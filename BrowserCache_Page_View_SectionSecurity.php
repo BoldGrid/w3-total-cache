@@ -15,7 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 $c         = Dispatcher::config();
 $fp_values = $c->get_array( 'browsercache.security.fp.values' );
-error_log('config = ' . print_r($c,true));
+
 $feature_policies = array(
 	array(
 		'label'       => 'accelerometer',
@@ -588,7 +588,7 @@ $feature_policies = array(
 		</th>
 		<td>
 			<input id="browsercache_security_csp_reporturi" type="text" name="browsercache__security__csp__reporturi"
-				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.reporturi' ) ); ?>" size="50" placeholder="Example: /csp-violation-report-endpoint/" />
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.reporturi' ) ); ?>" size="50" placeholder="Example: https://endpoint.com" />
 			<div><i><?php esc_html_e( 'Instructs the user agent to report attempts to violate the Content Security Policy. These violation reports consist of JSON documents sent via an HTTP POST request to the specified URI.', 'w3-total-cache' ); ?></i></div>
 		</td>
 	</tr>
@@ -599,7 +599,11 @@ $feature_policies = array(
 		<td>
 			<input id="browsercache_security_csp_reportto" type="text" name="browsercache__security__csp__reportto"
 				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.csp.reportto' ) ); ?>" size="50" placeholder="Example: csp-endpoint" />
-			<div><i><?php esc_html_e( 'Defines a reporting endpoint to which violation reports should to be sent.', 'w3-total-cache' ); ?></i></div>
+			<div>
+				<i><?php esc_html_e( 'Defines a reporting endpoint "group" to which violation reports should to be sent.', 'w3-total-cache' ); ?></i>
+				<br/><br/>
+				<i><?php esc_html_e( 'The referenced group should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
+			</div>
 		</td>
 	</tr>
 	<tr>
@@ -906,7 +910,7 @@ $feature_policies = array(
 		</th>
 		<td>
 			<input id="browsercache_security_cspro_reporturi" type="text" name="browsercache__security__cspro__reporturi"
-				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.reporturi' ) ); ?>" size="50" placeholder="Example: /csp-violation-report-endpoint/" />
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.reporturi' ) ); ?>" size="50" placeholder="Example: https://endpoint.com" />
 			<div><i><?php esc_html_e( 'Instructs the user agent to report attempts to violate the Content Security Policy. These violation reports consist of JSON documents sent via an HTTP POST request to the specified URI.', 'w3-total-cache' ); ?></i></div>
 		</td>
 	</tr>
@@ -916,8 +920,12 @@ $feature_policies = array(
 		</th>
 		<td>
 			<input id="browsercache_security_cspro_reportto" type="text" name="browsercache__security__cspro__reportto"
-				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.reportto' ) ); ?>" size="50" placeholder="Example: csp-endpoint" />
-			<div><i><?php esc_html_e( 'Defines a reporting endpoint to which violation reports should to be sent.', 'w3-total-cache' ); ?></i></div>
+				<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?> value="<?php echo esc_attr( $this->_config->get_string( 'browsercache.security.cspro.reportto' ) ); ?>" size="50" placeholder="Example: report-to csp-endpoint" />
+			<div>
+				<i><?php esc_html_e( 'Defines a reporting endpoint "group" to which violation reports should to be sent.', 'w3-total-cache' ); ?></i>
+				<br/><br/>
+				<i><?php esc_html_e( 'The referenced group should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
+			</div>
 		</td>
 	</tr>
 	<tr>
