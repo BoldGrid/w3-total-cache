@@ -277,7 +277,21 @@ class Util_PageSpeed {
 				$items  .= '<tr class="w3tcps_passed_audit_item">';
 				if ( isset( $item['url'] ) ) {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
-					$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . $item['url'] . '"></span><span title="' . $item['url'] . '"> ...' . wp_parse_url( $item['url'] )['path'] . '</span></td>';
+					if ( filter_var( $item['url'], FILTER_VALIDATE_URL ) !== false ) {
+						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['url'] )['path'] ) . '</a></td>';
+					} else {
+						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
+						$items   .= '<td>' . $item['url'] . '</td>';
+					}
+				}
+				if ( isset( $item['source'] ) ) {
+					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
+					if ( filter_var( $item['source']['url'], FILTER_VALIDATE_URL ) !== false ) {
+						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['source']['url'] )['path'] ) . '</a></td>';
+					} else {
+						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
+						$items   .= '<td>' . $item['source']['url'] . '</td>';
+					}
 				}
 				if ( isset( $item['totalBytes'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Total Bytes', 'w3-total-cache' ) . '</th>';
@@ -379,8 +393,7 @@ class Util_PageSpeed {
 									<div class="w3tc_fancy_header">
 										<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
 										<div class="w3tc_fancy_title">
-											<span>' . esc_html__( 'TOTAL', 'w3-total-cache' ) . '</span>
-											<span>' . esc_html__( 'CACHE', 'w3-total-cache' ) . '</span>
+											<span>Total Cache</span>
 											<span>:</span>
 											<span>' . esc_html__( 'Tips', 'w3-total-cache' ) . '</span>
 										</div>
@@ -404,8 +417,7 @@ class Util_PageSpeed {
 									<div class="w3tc_fancy_header">
 										<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
 										<div class="w3tc_fancy_title">
-											<span>' . esc_html__( 'TOTAL', 'w3-total-cache' ) . '</span>
-											<span>' . esc_html__( 'CACHE', 'w3-total-cache' ) . '</span>
+											<span>Total Cache</span>
 											<span>:</span>
 											<span>' . esc_html__( 'Tips', 'w3-total-cache' ) . '</span>
 										</div>
@@ -446,7 +458,21 @@ class Util_PageSpeed {
 				$items  .= '<tr class="w3tcps_passed_audit_item">';
 				if ( isset( $item['url'] ) ) {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
-					$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . $item['url'] . '"></span><span title="' . $item['url'] . '"> ...' . wp_parse_url( $item['url'] )['path'] . '</span></td>';
+					if ( filter_var( $item['url'], FILTER_VALIDATE_URL ) !== false ) {
+						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['url'] )['path'] ) . '</a></td>';
+					} else {
+						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
+						$items   .= '<td>' . $item['url'] . '</td>';
+					}
+				}
+				if ( isset( $item['source'] ) ) {
+					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
+					if ( filter_var( $item['source']['url'], FILTER_VALIDATE_URL ) !== false ) {
+						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['source']['url'] )['path'] ) . '</a></td>';
+					} else {
+						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
+						$items   .= '<td>' . $item['source']['url'] . '</td>';
+					}
 				}
 				if ( isset( $item['totalBytes'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Total Bytes', 'w3-total-cache' ) . '</th>';
@@ -548,8 +574,7 @@ class Util_PageSpeed {
 									<div class="w3tc_fancy_header">
 										<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
 										<div class="w3tc_fancy_title">
-											<span>' . esc_html__( 'TOTAL', 'w3-total-cache' ) . '</span>
-											<span>' . esc_html__( 'CACHE', 'w3-total-cache' ) . '</span>
+											<span>Total Cache</span>
 											<span>:</span>
 											<span>' . esc_html__( 'Tips', 'w3-total-cache' ) . '</span>
 										</div>
@@ -573,8 +598,7 @@ class Util_PageSpeed {
 									<div class="w3tc_fancy_header">
 										<img class="w3tc_fancy_icon" src="' . esc_url( plugins_url( '/w3-total-cache/pub/img/w3tc_cube-shadow.png' ) ) . '" />
 										<div class="w3tc_fancy_title">
-											<span>' . esc_html__( 'TOTAL', 'w3-total-cache' ) . '</span>
-											<span>' . esc_html__( 'CACHE', 'w3-total-cache' ) . '</span>
+											<span>Total Cache</span>
 											<span>:</span>
 											<span>' . esc_html__( 'Tips', 'w3-total-cache' ) . '</span>
 										</div>
@@ -668,6 +692,7 @@ class Util_PageSpeed {
 				'href'   => array(),
 				'target' => array(),
 				'rel'    => array(),
+				'title'  => array(),
 			),
 			'link'  => array(
 				'id'    => array(),
