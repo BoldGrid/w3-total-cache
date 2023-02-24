@@ -52,37 +52,6 @@ jQuery(document).ready(function ($) {
 		});
 	}
 
-	/**
-	 * Toggle mobile view.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @return void
-	 */
-	function w3tcps_mobile_toggle() {
-		$('#w3tcps_control_desktop').removeClass('nav-tab-active');
-		$('#w3tcps_desktop').hide();
-		$('#w3tcps_control_mobile').addClass('nav-tab-active');
-		$('#w3tcps_mobile').show();
-	}
-
-	/**
-	 * Toggle desktop view.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @return void
-	 */
-	function w3tcps_desktop_toggle() {
-		$('#w3tcps_control_mobile').removeClass('nav-tab-active');
-		$('#w3tcps_mobile').hide();
-		$('#w3tcps_control_desktop').addClass('nav-tab-active');
-		$('#w3tcps_desktop').show();
-	}
-
-	$(document).on('click', '#w3tcps_control_mobile', w3tcps_mobile_toggle);
-	$(document).on('click', '#w3tcps_control_desktop', w3tcps_desktop_toggle);
-
 	$('.w3tcps_buttons').on('click', '.w3tcps_refresh', function () {
 		w3tcps_load(true);
 	});

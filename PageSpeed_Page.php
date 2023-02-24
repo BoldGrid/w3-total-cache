@@ -38,7 +38,7 @@ class PageSpeed_Page {
 	public static function admin_print_scripts_w3tc_pagespeed() {
 		wp_register_script(
 			'w3tc-pagespeed',
-			esc_url( plugin_dir_url( __FILE__ ) . 'PageSpeed_Page_View.js' ),
+			esc_url( plugins_url( 'PageSpeed_Page_View.js', W3TC_FILE ) ),
 			array(),
 			W3TC_VERSION,
 			true
@@ -57,7 +57,7 @@ class PageSpeed_Page {
 
 		wp_enqueue_style(
 			'w3tc-pagespeed',
-			plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ),
+			esc_url( plugins_url( 'PageSpeed_Page_View.css', W3TC_FILE ) ),
 			array(),
 			W3TC_VERSION
 		);
