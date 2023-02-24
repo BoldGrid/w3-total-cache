@@ -4,7 +4,8 @@
         "guzzlehttp/guzzle": "6.*",
         "symfony/polyfill-intl-idn" : "1.20.*",
         "symfony/polyfill-intl-normalizer" : "1.20.*",
-        "symfony/polyfill-mbstring" : "1.20.*"
+        "symfony/polyfill-mbstring" : "1.20.*",
+        "aws/aws-php-sns-message-validator": "^1.8"
     },
     "require-dev": {
         "yoast/phpunit-polyfills": "^1.0",
