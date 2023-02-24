@@ -40,7 +40,7 @@ class PageSpeed_Widget {
 	public static function admin_print_scripts_w3tc_pagespeed_widget() {
 		wp_register_script(
 			'w3tc-widget-pagespeed',
-			plugins_url( 'PageSpeed_Widget_View.js', W3TC_FILE ),
+			esc_url( plugins_url( 'PageSpeed_Widget_View.js', W3TC_FILE ) ),
 			array(),
 			W3TC_VERSION,
 			'true'
@@ -58,7 +58,7 @@ class PageSpeed_Widget {
 
 		wp_enqueue_style(
 			'w3tc-widget-pagespeed',
-			plugins_url( 'PageSpeed_Widget_View.css', W3TC_FILE ),
+			esc_url( plugins_url( 'PageSpeed_Widget_View.css', W3TC_FILE ) ),
 			array(),
 			W3TC_VERSION
 		);
