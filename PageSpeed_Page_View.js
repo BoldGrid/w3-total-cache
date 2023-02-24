@@ -67,6 +67,20 @@ jQuery(document).ready(function ($) {
 	 * @return void
 	 */
 	function w3tcps_breakdown_items_toggle() {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_pagespeed',
+					eventAction: 'metric',
+					eventLabel: $(this).text(),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+
 		$(this).find('.dashicons').toggleClass("dashicons-arrow-up-alt2 dashicons-arrow-down-alt2");
 		$(this).next().slideToggle();
 	}
@@ -79,6 +93,20 @@ jQuery(document).ready(function ($) {
 	 * @return void
 	 */
 	function w3tcps_mobile_toggle() {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_pagespeed',
+					eventAction: 'mobile_tab',
+					eventLabel: $('#w3tcps_control_mobile').text(),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+
 		$('#w3tcps_control_desktop').removeClass('nav-tab-active');
 		$('#w3tcps_desktop').hide();
 		$('#w3tcps_control_mobile').addClass('nav-tab-active');
@@ -93,6 +121,20 @@ jQuery(document).ready(function ($) {
 	 * @return void
 	 */
 	function w3tcps_desktop_toggle() {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_pagespeed',
+					eventAction: 'desktop_tab',
+					eventLabel: $('#w3tcps_control_desktop').text(),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+
 		$('#w3tcps_control_mobile').removeClass('nav-tab-active');
 		$('#w3tcps_mobile').hide();
 		$('#w3tcps_control_desktop').addClass('nav-tab-active');
@@ -108,6 +150,21 @@ jQuery(document).ready(function ($) {
 	 */
 	function w3tcps_audit_filter(event) {
 		event.preventDefault();
+
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_pagespeed',
+					eventAction: 'filter_tab',
+					eventLabel: $(this).text(),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+
 		if ('ALL' === $(this).text()) {
 			$('.w3tcps_breakdown .audits').show();
 		} else if ($(this).text().trim) {
@@ -188,6 +245,20 @@ jQuery(document).ready(function ($) {
 	$(document).on('click', '.copyurl', w3tcps_copyurl);
 
 	$('.w3tcps_content').on('click', '.w3tcps_analyze', function () {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_pagespeed',
+					eventAction: 're_analyze',
+					eventLabel: $(this).closest('.page_post').find('.w3tcps_buttons').attr('page_post_url'),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+
 		w3tcps_analyze($(this).closest('.page_post'), true);
 	});
 
