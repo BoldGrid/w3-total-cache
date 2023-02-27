@@ -69,6 +69,10 @@ class BrowserCache_Plugin {
 			array( $this, 'w3tc_minify_http2_preload_url' ), 4000 );
 		add_filter( 'w3tc_cdn_config_headers',
 			array( $this, 'w3tc_cdn_config_headers' ) );
+
+		if ( Util_Admin::is_w3tc_admin_page() ) {
+			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		}
 	}
 
 	private function url_clean_enabled() {
@@ -466,5 +470,25 @@ class BrowserCache_Plugin {
 		if ( !empty( $wp->query_vars['feed'] ) )
 			unset( $headers['ETag'] );
 		return $headers;
+	}
+
+	/**
+	 * Admin notice for Content-Security-Policy-Report-Only that displays if the feature is enabled and the report-uri/to isn't defined.
+	 *
+	 * @since 2.2.13
+	 */
+	public function admin_notices() {
+		if ( $this->_config->get_boolean( 'browsercache.security.cspro' ) && empty( $this->_config->get_string( 'browsercache.security.cspro.reporturi' ) ) && empty( $this->_config->get_string( 'browsercache.security.cspro.reportto' ) ) ) {
+			$message = '<p>' . sprintf(
+				// translators: 1 opening HTML a tag to Browser Cache CSP-Report-Only settings, 2 closing HTML a tag.
+				esc_html__(
+					'The Content Security Policy - Report Only requires the "report-uri" and/or "report-to" directives. Please define one or both of these directives %1$shere%2$s.',
+					'w3-total-cache'
+				),
+				'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache#browsercache__security__cspro' ) . '" target="_blank" alt="' . esc_attr__( 'Browser Cache Content-Security-Policy-Report-Only Settings', 'w3-total-cache' ) . '">',
+				'</a>'
+			);
+			Util_Ui::error_box( $message );
+		}
 	}
 }
