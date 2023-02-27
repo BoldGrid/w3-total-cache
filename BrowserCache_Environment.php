@@ -436,8 +436,8 @@ class BrowserCache_Environment {
 
 			if ( $config->get_boolean( 'browsercache.security.csp' ) ) {
 				$base = trim( $config->get_string( 'browsercache.security.csp.base' ) );
-				$reporturi = esc_url( $config->get_string( 'browsercache.security.csp.reporturi' ) );
-				$reportto = esc_url( $config->get_string( 'browsercache.security.csp.reportto' ) );
+				$reporturi = trim( $config->get_string( 'browsercache.security.csp.reporturi' ) );
+				$reportto = trim( $config->get_string( 'browsercache.security.csp.reportto' ) );
 				$frame = trim( $config->get_string( 'browsercache.security.csp.frame' ) );
 				$connect = trim( $config->get_string( 'browsercache.security.csp.connect' ) );
 				$font = trim( $config->get_string( 'browsercache.security.csp.font' ) );
@@ -460,29 +460,29 @@ class BrowserCache_Environment {
 				$default = trim( $config->get_string( 'browsercache.security.csp.default' ) );
 
 				$dir = rtrim(
-					( ! empty( $base ) ? "base-uri $base; " : "" ) .
-						( ! empty( $reporturi ) ? "report-uri $reporturi; " : "" ) .
-						( ! empty( $reportto ) ? "report-to $reportto; " : "" ) .
-						( ! empty( $frame ) ? "frame-src $frame; " : "" ) .
-						( ! empty( $connect ) ? "connect-src $connect; " : "" ) .
-						( ! empty( $font ) ? "font-src $font; " : "" ) .
-						( ! empty( $script ) ? "script-src $script; " : "" ) .
-						( ! empty( $style ) ? "style-src $style; " : "" ) .
-						( ! empty( $img ) ? "img-src $img; " : "" ) .
-						( ! empty( $media ) ? "media-src $media; " : "" ) .
-						( ! empty( $object ) ? "object-src $object; " : "" ) .
-						( ! empty( $plugin ) ? "plugin-types $plugin; " : "" ) .
-						( ! empty( $form ) ? "form-action $form; " : "" ) .
-						( ! empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : "" ) .
-						( ! empty( $sandbox ) ? "sandbox $sandbox; " : "" ) .
-						( ! empty( $child ) ? "child-src $child; " : "" ) .
-						( ! empty( $manifest ) ? "manifest-src $manifest; " : "" ) .
-						( ! empty( $scriptelem ) ? "script-src-elem $scriptelem; " : "" ) .
-						( ! empty( $scriptattr ) ? "script-src-attr $scriptattr; " : "" ) .
-						( ! empty( $styleelem ) ? "style-src-elem $styleelem; " : "" ) .
-						( ! empty( $styleattr ) ? "style-src-attr $styleattr; " : "" ) .
-						( ! empty( $worker ) ? "worker-src $worker; " : "" ) .
-						( ! empty( $default ) ? "default-src $default;" : "" ),
+					( ! empty( $base ) ? "base-uri $base; " : '' ) .
+						( ! empty( $reporturi ) ? "report-uri $reporturi; " : '' ) .
+						( ! empty( $reportto ) ? "report-to $reportto; " : '' ) .
+						( ! empty( $frame ) ? "frame-src $frame; " : '' ) .
+						( ! empty( $connect ) ? "connect-src $connect; " : '' ) .
+						( ! empty( $font ) ? "font-src $font; " : '' ) .
+						( ! empty( $script ) ? "script-src $script; " : '' ) .
+						( ! empty( $style ) ? "style-src $style; " : '' ) .
+						( ! empty( $img ) ? "img-src $img; " : '' ) .
+						( ! empty( $media ) ? "media-src $media; " : '' ) .
+						( ! empty( $object ) ? "object-src $object; " : '' ) .
+						( ! empty( $plugin ) ? "plugin-types $plugin; " : '' ) .
+						( ! empty( $form ) ? "form-action $form; " : '' ) .
+						( ! empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : '' ) .
+						( ! empty( $sandbox ) ? "sandbox $sandbox; " : '' ) .
+						( ! empty( $child ) ? "child-src $child; " : '' ) .
+						( ! empty( $manifest ) ? "manifest-src $manifest; " : '' ) .
+						( ! empty( $scriptelem ) ? "script-src-elem $scriptelem; " : '' ) .
+						( ! empty( $scriptattr ) ? "script-src-attr $scriptattr; " : '' ) .
+						( ! empty( $styleelem ) ? "style-src-elem $styleelem; " : '' ) .
+						( ! empty( $styleattr ) ? "style-src-attr $styleattr; " : '' ) .
+						( ! empty( $worker ) ? "worker-src $worker; " : '' ) .
+						( ! empty( $default ) ? "default-src $default;" : '' ),
 					'; '
 				);
 
@@ -493,8 +493,8 @@ class BrowserCache_Environment {
 
 			if ( $config->get_boolean( 'browsercache.security.cspro' ) && ( ! empty( $config->get_string( 'browsercache.security.cspro.reporturi' ) ) || ! empty( $config->get_string( 'browsercache.security.cspro.reportto' ) ) ) ) {
 				$base = trim( $config->get_string( 'browsercache.security.cspro.base' ) );
-				$reporturi = esc_url( $config->get_string( 'browsercache.security.cspro.reporturi' ) );
-				$reportto = esc_url( $config->get_string( 'browsercache.security.cspro.reportto' ) );
+				$reporturi = trim( $config->get_string( 'browsercache.security.cspro.reporturi' ) );
+				$reportto = trim( $config->get_string( 'browsercache.security.cspro.reportto' ) );
 				$frame = trim( $config->get_string( 'browsercache.security.cspro.frame' ) );
 				$connect = trim( $config->get_string( 'browsercache.security.cspro.connect' ) );
 				$font = trim( $config->get_string( 'browsercache.security.cspro.font' ) );
@@ -516,29 +516,29 @@ class BrowserCache_Environment {
 				$worker = trim( $config->get_string( 'browsercache.security.cspro.worker' ) );
 				$default = trim( $config->get_string( 'browsercache.security.cspro.default' ) );
 				$dir = rtrim(
-					( ! empty( $base ) ? "base-uri $base; " : "" ) .
-						( ! empty( $reporturi ) ? "report-uri $reporturi; " : "" ) .
-						( ! empty( $reportto ) ? "report-to $reportto; " : "" ) .
-						( ! empty( $frame ) ? "frame-src $frame; " : "" ) .
-						( ! empty( $connect ) ? "connect-src $connect; " : "" ) .
-						( ! empty( $font ) ? "font-src $font; " : "" ) .
-						( ! empty( $script ) ? "script-src $script; " : "" ) .
-						( ! empty( $style ) ? "style-src $style; " : "" ) .
-						( ! empty( $img ) ? "img-src $img; " : "" ) .
-						( ! empty( $media ) ? "media-src $media; " : "" ) .
-						( ! empty( $object ) ? "object-src $object; " : "" ) .
-						( ! empty( $plugin ) ? "plugin-types $plugin; " : "" ) .
-						( ! empty( $form ) ? "form-action $form; " : "" ) .
-						( ! empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : "" ) .
-						( ! empty( $sandbox ) ? "sandbox $sandbox; " : "" ) .
-						( ! empty( $child ) ? "child-src $child; " : "" ) .
-						( ! empty( $manifest ) ? "manifest-src $manifest; " : "" ) .
-						( ! empty( $scriptelem ) ? "script-src-elem $scriptelem; " : "" ) .
-						( ! empty( $scriptattr ) ? "script-src-attr $scriptattr; " : "" ) .
-						( ! empty( $styleelem ) ? "style-src-elem $styleelem; " : "" ) .
-						( ! empty( $styleattr ) ? "style-src-attr $styleattr; " : "" ) .
-						( ! empty( $worker ) ? "worker-src $worker; " : "" ) .
-						( ! empty( $default ) ? "default-src $default;" : "" ),
+					( ! empty( $base ) ? "base-uri $base; " : '' ) .
+						( ! empty( $reporturi ) ? "report-uri $reporturi; " : '' ) .
+						( ! empty( $reportto ) ? "report-to $reportto; " : '' ) .
+						( ! empty( $frame ) ? "frame-src $frame; " : '' ) .
+						( ! empty( $connect ) ? "connect-src $connect; " : '' ) .
+						( ! empty( $font ) ? "font-src $font; " : '' ) .
+						( ! empty( $script ) ? "script-src $script; " : '' ) .
+						( ! empty( $style ) ? "style-src $style; " : '' ) .
+						( ! empty( $img ) ? "img-src $img; " : '' ) .
+						( ! empty( $media ) ? "media-src $media; " : '' ) .
+						( ! empty( $object ) ? "object-src $object; " : '' ) .
+						( ! empty( $plugin ) ? "plugin-types $plugin; " : '' ) .
+						( ! empty( $form ) ? "form-action $form; " : '' ) .
+						( ! empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : '' ) .
+						( ! empty( $sandbox ) ? "sandbox $sandbox; " : '' ) .
+						( ! empty( $child ) ? "child-src $child; " : '' ) .
+						( ! empty( $manifest ) ? "manifest-src $manifest; " : '' ) .
+						( ! empty( $scriptelem ) ? "script-src-elem $scriptelem; " : '' ) .
+						( ! empty( $scriptattr ) ? "script-src-attr $scriptattr; " : '' ) .
+						( ! empty( $styleelem ) ? "style-src-elem $styleelem; " : '' ) .
+						( ! empty( $styleattr ) ? "style-src-attr $styleattr; " : '' ) .
+						( ! empty( $worker ) ? "worker-src $worker; " : '' ) .
+						( ! empty( $default ) ? "default-src $default;" : '' ),
 					'; '
 				);
 
