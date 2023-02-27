@@ -2036,6 +2036,14 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false
 	),
+	'browsercache.security.csp.reporturi' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.csp.reportto' => array(
+		'type' => 'string',
+		'default' => ''
+	),
 	'browsercache.security.csp.base' => array(
 		'type' => 'string',
 		'default' => ''
@@ -2088,7 +2096,131 @@ $keys = array(
 		'type' => 'string',
 		'default' => ''
 	),
+	'browsercache.security.csp.child' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.csp.manifest' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.csp.scriptelem' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.csp.scriptattr' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.csp.styleelem' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.csp.styleattr' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.csp.worker' => array(
+		'type' => 'string',
+		'default' => ''
+	),
 	'browsercache.security.csp.default' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
+	'browsercache.security.cspro.reporturi' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.reportto' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.base' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.frame' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.connect' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.font' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.script' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.style' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.img' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.media' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.object' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.plugin' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.form' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.frame.ancestors' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.sandbox' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.child' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.manifest' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.scriptelem' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.scriptattr' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.styleelem' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.styleattr' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.worker' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'browsercache.security.cspro.default' => array(
 		'type' => 'string',
 		'default' => ''
 	),
