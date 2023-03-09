@@ -141,17 +141,26 @@ class Util_Environment {
 		 * Using wp-content instead of document_root as known dir since dirbased
 		 * multisite wp adds blogname to the path inside site_url.
 		 */
-		if ( substr( $filename, 0, strlen( WP_CONTENT_DIR ) ) !== WP_CONTENT_DIR ) {
+		if ( substr( $filename, 0, strlen( WP_CONTENT_DIR ) ) === WP_CONTENT_DIR ) {
+			// This is the default location of the wp-content/cache directory.
+			$location = WP_CONTENT_DIR;
+		} else if ( substr( $filename, 0, strlen( W3TC_CACHE_DIR ) ) === W3TC_CACHE_DIR ) {
+			// This is needed in the event the cache directory is moved outside of wp-content and replace with a symbolic link.
+			$location = substr( W3TC_CACHE_DIR, 0, -strlen( '/cache' ) );
+		} else if ( substr( $filename, 0, strlen( W3TC_CONFIG_DIR ) ) === W3TC_CONFIG_DIR ) {
+			// This is needed in the event the cache directory is moved outside of wp-content and replace with a symbolic link.
+			$location = substr( W3TC_CONFIG_DIR, 0, -strlen( '/w3tc-config' ) );
+		} else {
 			return '';
 		}
 
-		$uri_from_wp_content = substr( $filename, strlen( WP_CONTENT_DIR ) );
+		$uri_from_location = substr( $filename, strlen( $location ) );
 
 		if ( DIRECTORY_SEPARATOR != '/' ) {
-			$uri_from_wp_content = str_replace( DIRECTORY_SEPARATOR, '/', $uri_from_wp_content );
+			$uri_from_location = str_replace( DIRECTORY_SEPARATOR, '/', $uri_from_location );
 		}
 
-		$url = content_url( $uri_from_wp_content );
+		$url = content_url( $uri_from_location );
 		$url = apply_filters( 'w3tc_filename_to_url', $url );
 
 		return $url;
