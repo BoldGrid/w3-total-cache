@@ -65,8 +65,10 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
+      php: 7.4
   - provider: releases
     api_key: "${GITHUB_TOKEN}"
     file: "w3-total-cache.zip"
     on:
       tags: true
+      php: 7.4
