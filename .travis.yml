@@ -14,23 +14,19 @@ matrix:
   include:
     -
       php: 7.4
+      env: WP_VERSION=latest
       dist: focal
-      env:
-        - COMPOSER_MIRROR_PATH_REPOS=1
-        - WP_VERSION=latest
       before_script:
         - nvm install 16
         - nvm use 16
         - yarn install
-        - composer update -o
+        - COMPOSER_MIRROR_PATH_REPOS=1 composer update -o
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
         #- yarn run php-codesniffer
     -
       php: 5.6
+      env: WP_VERSION=latest
       dist: xenial
-      env:
-        - COMPOSER_MIRROR_PATH_REPOS=1
-        - WP_VERSION=latest
       before_script:
         - nvm install 16
         - nvm use 16
@@ -45,10 +41,8 @@ matrix:
         #- yarn run php-codesniffer
     -
       php: 8.0
+      env: WP_VERSION=latest
       dist: focal
-      env:
-        - COMPOSER_MIRROR_PATH_REPOS=1
-        - WP_VERSION=latest
       before_script:
         - nvm install 16
         - nvm use 16
@@ -61,7 +55,7 @@ script:
   - vendor/phpunit/phpunit/phpunit --debug
   #- yarn run js-lint
   # Remove dev dependencies.
-  - composer install --no-dev -o
+  - COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev -o
   # PHP lint.
   - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
 
