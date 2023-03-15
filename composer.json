@@ -1,15 +1,11 @@
 {
     "require": {
         "aws/aws-sdk-php": "3.183.8",
-        "guzzlehttp/guzzle": "6.*",
-        "symfony/polyfill-intl-idn" : "1.20.*",
-        "symfony/polyfill-intl-normalizer" : "1.20.*",
-        "symfony/polyfill-mbstring" : "1.20.*",
         "aws/aws-php-sns-message-validator": "^1.8"
     },
     "require-dev": {
         "yoast/phpunit-polyfills": "^1.0",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^9.6",
         "squizlabs/php_codesniffer": "^3.7",
         "wp-coding-standards/wpcs": "dev-develop"
     },
