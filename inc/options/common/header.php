@@ -17,27 +17,6 @@ $licensing_visible = (
 do_action( 'w3tc-dashboard-head' );
 ?>
 <div class="wrap" id="w3tc">
-	<h2 class="logo">
-		<?php
-		echo wp_kses(
-			sprintf(
-				// translators: 1 opening HTML span tag, 2 opening HTML sup tag, 3 closing HTML sup tag, 4 closing HTML span tag.
-				__(
-					'W3 Total Cache %1$sby W3 EDGE %2$s&reg;%3$s%4$s',
-					'w3-total-cache'
-				),
-				'<span>',
-				'<sup>',
-				'</sup>',
-				'</span>'
-			),
-			array(
-				'span' => array(),
-				'sup'  => array(),
-			)
-		);
-		?>
-	</h2>
 	<?php if ( ! Util_Environment::is_w3tc_pro( $config ) ) : ?>
 		<?php require W3TC_INC_OPTIONS_DIR . '/edd/buy.php'; ?>
 	<?php endif ?>

@@ -65,6 +65,7 @@ class Generic_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_ajax', array( $this, 'wp_ajax_w3tc_ajax' ) );
 
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
+		add_action( 'admin_notices', array( $this, 'top_nav_bar' ) );
 
 		if ( is_network_admin() ) {
 			add_action( 'network_admin_menu', array( $this, 'network_admin_menu' ) );
@@ -395,6 +396,13 @@ class Generic_Plugin_Admin {
 		if ( ! empty( $w3tc_message_action_val ) ) {
 			do_action( 'w3tc_message_action_' . $w3tc_message_action_val );
 		}
+	}
+
+	/**
+	 * Render sticky top navigation bar on all W3TC admin pages.
+	 */
+	public function top_nav_bar() {
+		require W3TC_INC_DIR . '/options/common/top_nav_bar.php';
 	}
 
 	/**
