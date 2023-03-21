@@ -20,7 +20,7 @@ if [ ! -e ./working/w3tc ]; then
 else
     # New "git -C" can do it, but not everyone has the new version installed.
     cd ./working/w3tc
-    git pull
+    git pull -X theirs
     cd ../..
 fi
 
@@ -32,7 +32,7 @@ if [ ! -z "$W3TCQA_GIT_URL2" ]; then
     else
         # New "git -C" can do it, but not everyone has the new version installed.
         cd ./working/w3tc2
-        git pull
+        git pull -X theirs
         cd ../..
     fi
 
