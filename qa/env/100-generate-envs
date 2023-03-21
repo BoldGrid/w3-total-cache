@@ -164,76 +164,29 @@ def generate_box_descriptors(image_name)
 	}
 
 	box_descriptors = multiply(box_descriptors, {
-		#'wp47' => {
-		#	'WP_VERSION' => '4.7',
-		#	'_except_name_contains' => [
-		#		'php53', 'php55', 'php56', 'php71', 'php73',   # no reason to use for all php versions
-		#		'varnish',
-		#		'https'
-		#	]
-		#},
-		#'wp49' => {
-		#	'WP_VERSION' => '4.9.4',
-		#	'_except_name_contains' => [
-		#		'varnish',
-		#		'php53', 'php55',
-		#		'php73', 'php80'  # cause a lot of PHP warnings
-		#	]
-		#},
-		#'wp51' => {   # dont comment out - last env using PHP55 # Stopped using php55.
-		#	'WP_VERSION' => '5.1',
-		#	'_except_name_contains' => [
-		#		'php80'  # not compatible, {} in script-loader fatal
-		#	]
-		#},
-		#'wp52' => {
-		#	'WP_VERSION' => '5.2',
-		#	'_except_name_contains' => [
-		#		'php55'   # wp5.2 requires php>=5.6
-		#	]
-		#},
-		#'wp53' => {
-		#	'WP_VERSION' => '5.3',
-		#	'_except_name_contains' => [
-		#		'php55'   # wp5.3 requires php>=5.6
-		#	]
-		#},
-		#'wp55' => {
-		#	'WP_VERSION' => '5.5',
-		#	'_except_name_contains' => [
-		#		'php55',   # wp5.5 requires php>=5.6
-		#		'php80'  # not compatible, WP_Feed_Cache::create() fatal
-		#	]
-		#},
-		#'wp56' => {
-		#'WP_VERSION' => '5.6',
+		#'wp58' => {
+		#	'WP_VERSION' => '5.8',
 		#	'_except_name_contains' => [
 		#		'litespeed'
 		#	]
 		#},
-		#'wp57' => {
-		#	'WP_VERSION' => '5.7',
-		#	'_except_name_contains' => [
-		#		'litespeed'
-		#	]
-		#},
-		'wp58' => {
-			'WP_VERSION' => '5.8',
-			'_except_name_contains' => [
-				'litespeed'
-			]
-		},
 		'wp59' => {
 			'WP_VERSION' => '5.9'
 		},
-		'wp60' => {
-			'WP_VERSION' => '6.0',
+		#'wp60' => {
+		#	'WP_VERSION' => '6.0',
+		#	'_except_name_contains' => [
+		#		'litespeed'
+		#	]
+		#},
+		'wp61' => {
+			'WP_VERSION' => '6.1',
 			'_except_name_contains' => [
 				'litespeed'
 			]
 		},
-		'wp61' => {
-			'WP_VERSION' => '6.1',
+		'wp62' => {
+			'WP_VERSION' => '6.2-RC3',
 			'_except_name_contains' => [
 				'litespeed'
 			]
