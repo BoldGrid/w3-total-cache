@@ -41,4 +41,4 @@ if [ ! -z "$W3TCQA_GIT_URL2" ]; then
 fi
 
 # Install Composer dependencies.
-cd ./working/w3tc && composer update -o --no-dev
+cd ./working/w3tc && composer remove -n --no-update --dev yoast/phpunit-polyfills phpunit/phpunit squizlabs/php_codesniffer wp-coding-standards/wpcs && composer update -o --no-dev -n
