@@ -59,8 +59,15 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'description'    => esc_html__( 'Remove emojis support from your website.', 'w3-total-cache' )
 		)
 	);
-	?>
-	<?php
+
+	Util_Ui::config_item_extension_enabled(
+		array(
+			'extension_id'   => 'user-experience-defer-scripts',
+			'checkbox_label' => esc_html__( 'Defer JavaScripts', 'w3-total-cache' ),
+			'description'    => esc_html__( 'Defer JavaScripts on your pages.', 'w3-total-cache' )
+		)
+	);
+
 	Util_Ui::config_item_extension_enabled(
 		array(
 			'extension_id'   => 'user-experience-oembed',

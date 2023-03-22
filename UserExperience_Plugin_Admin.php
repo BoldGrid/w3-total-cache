@@ -33,6 +33,11 @@ class UserExperience_Plugin_Admin {
 
 
 	static public function w3tc_extensions( $extensions, $config ) {
+		$extensions['user-experience-defer-scripts'] = array(
+			'public' => false,
+			'extension_id' => 'user-experience-defer-scripts',
+			'path' => 'w3-total-cache/UserExperience_DeferScripts_Extension.php'
+		);
 		$extensions['user-experience-emoji'] = array(
 			'public' => false,
 			'extension_id' => 'user-experience-emoji',
