@@ -65,14 +65,15 @@ class Generic_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_ajax', array( $this, 'wp_ajax_w3tc_ajax' ) );
 
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
-		add_action( 'admin_notices', array( $this, 'top_nav_bar' ) );
 
 		if ( is_network_admin() ) {
 			add_action( 'network_admin_menu', array( $this, 'network_admin_menu' ) );
 			add_filter( 'network_admin_plugin_action_links_' . W3TC_FILE, array( $this, 'plugin_action_links' ) );
+			add_action( 'network_admin_notices', array( $this, 'top_nav_bar' ), 0 );
 		} else {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 			add_filter( 'plugin_action_links_' . W3TC_FILE, array( $this, 'plugin_action_links' ) );
+			add_action( 'admin_notices', array( $this, 'top_nav_bar' ), 0 );
 		}
 
 		add_filter( 'favorite_actions', array( $this, 'favorite_actions' ) );

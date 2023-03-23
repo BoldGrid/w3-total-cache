@@ -7,10 +7,18 @@
 	margin: 1em auto 0;
 }
 
+.update-nag {
+	max-width: 1205px;
+	margin: 0 auto 5px;
+	padding: 12.7px 14.5px;
+	display: block;
+	box-sizing: border-box;
+}
+
 .updated.w3tc_note,
 .error.w3tc_error {
 	max-width: 1200px;
-	margin: 0 auto;
+	margin: 0 auto 2px;
 	padding: 0;
 }
 
@@ -529,14 +537,14 @@ th.w3tc_extensions_manage_column_check {
 	align-items: center;
 }
 
-#w3tc-top-nav-bar #w3tc-top-nav-bar-content .logo {
+#w3tc-top-nav-bar #w3tc-top-nav-bar-content .logo-link {
 	float: left;
 	width: 35%;
 	min-width: 224px;
 	text-align: left;
 }
 
-#w3tc-top-nav-bar #w3tc-top-nav-bar-content h2.logo {
+#w3tc-top-nav-bar #w3tc-top-nav-bar-content .logo-link h2.logo {
 	height: 40px;
 	background: url("../img/W3TC_dashboard_logo_title.png") top left no-repeat;
 	background-size: contain;
@@ -779,13 +787,13 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 	}
 }
 
-@media ( max-width: 630px ) {
-	#w3tc-top-nav-bar #w3tc-top-nav-bar-content h2.logo {
+@media ( max-width: 650px ) {
+	#w3tc-top-nav-bar #w3tc-top-nav-bar-content .logo-link h2.logo {
 		height: 34px;
 		background: url("../img/w3tc_w3tc-logo.png") top left no-repeat;
 	}
 
-	#w3tc-top-nav-bar #w3tc-top-nav-bar-content .logo {
+	#w3tc-top-nav-bar #w3tc-top-nav-bar-content .logo-link {
 		width: 10%;
 		min-width: 45px;
 	}
@@ -801,7 +809,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 	}
 }
 
-@media ( max-width: 450px ) {
+@media ( max-width: 470px ) {
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links > a,
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links > input,
 	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown > a {
@@ -814,11 +822,6 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 /**
  * Banner ad on dashboard.
  */
-
-#w3tc_dashboard_banner {
-	margin-right: 200px;
-}
-
 #w3tc #w3tc_dashboard_banner .inside {
 	background-image: url("../img/transparent-comet-moon.png"), linear-gradient( to right, #fff 60%, #56bec1 100% );
 	background-repeat: no-repeat;
