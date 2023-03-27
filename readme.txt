@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
-Tested up to: 6.1
-Stable tag: 2.3.0
+Tested up to: 6.2
+Stable tag: 2.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,14 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.3.1 =
+* Fix: PHP 8 compatibility: Invalid return type if Browser Cache is disabled
+* Fix: Added AWS SNS message classes (aws/aws-php-sns-message-validator)
+* Fix: PageSpeed service: messages and escaping
+* Fix: Image Service meta query handling
+* Update: Dependency version updates
+* Update: Content-Security-Policy (CSP) and Content-Security-Policy-Report-Only (CSPRO) header field configuration
 
 = 2.3.0 =
 * Feature: PageSpeed Insights reports and performance page widget
