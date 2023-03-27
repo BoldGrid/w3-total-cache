@@ -57,9 +57,7 @@ script:
 
 deploy:
   - provider: script
-    script:
-      - for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) $i;done
-      - chmod +x ./bin/release.sh && ./bin/release.sh
+    script: chmod +x ./bin/release.sh && ./bin/release.sh
     skip_cleanup: true
     on:
       tags: true
