@@ -19,7 +19,7 @@ matrix:
       dist: focal
       before_script:
         - composer self-update
-        - composer update -o
+        - composer update
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
         #- yarn run php-codesniffer
     -
@@ -31,14 +31,14 @@ matrix:
         # Lock file has phpunit 9. Remove it and install phpunit 5 for php 5.6.
         - composer remove --no-update --dev phpunit/phpunit yoast/phpunit-polyfills
         - composer require --no-update --dev phpunit/phpunit yoast/phpunit-polyfills
-        - composer update -o
+        - composer update
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
         #- yarn run php-codesniffer
     -
       php: 8.0
       dist: focal
       before_script:
-        - composer update -o
+        - composer update
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
         #- yarn run php-codesniffer
 
@@ -51,13 +51,15 @@ script:
   - vendor/phpunit/phpunit/phpunit --debug
   #- yarn run js-lint
   # Remove dev dependencies.
-  - composer install --no-dev -o
+  - composer install --no-dev
   # PHP lint.
   - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
 
 deploy:
   - provider: script
-    script: chmod +x ./bin/release.sh && ./bin/release.sh
+    script:
+      - for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) $i;done
+      - chmod +x ./bin/release.sh && ./bin/release.sh
     skip_cleanup: true
     on:
       tags: true
