@@ -745,10 +745,6 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 	height: 106px;
 }
 
-@media ( max-width: 960px ) {
-	
-}
-
 @media ( max-width: 782px ) {
 	#w3tc-top-nav-bar {
 		top: 46px;
