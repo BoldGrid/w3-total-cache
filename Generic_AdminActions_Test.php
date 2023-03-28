@@ -36,7 +36,7 @@ class Generic_AdminActions_Test {
 	}
 
 	/**
-	 * Test memcached.
+	 * Test redis
 	 */
 	public function w3tc_test_redis() {
 		$servers                 = Util_Request::get_array( 'servers' );
