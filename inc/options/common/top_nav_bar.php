@@ -5,6 +5,8 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
+$config = Dispatcher::config();
+
 $allowed_button_tags = array(
 	'input'   => array(
 		'type'    => array(),
@@ -16,7 +18,7 @@ $allowed_button_tags = array(
 );
 
 $settings_menu_array = array(
-	Util_UI::admin_url( 'admin.php?page=w3tc_dashboard' )      => esc_attr__( 'Dashboard', 'w3-total-cache' ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_general' )        => esc_attr__( 'General Settings', 'w3-total-cache' ),
 	Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' )        => esc_attr__( 'Page Cache', 'w3-total-cache' ),
 	Util_UI::admin_url( 'admin.php?page=w3tc_minify' )         => esc_attr__( 'Minify', 'w3-total-cache' ),
 	Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' )        => esc_attr__( 'Database Cache', 'w3-total-cache' ),
@@ -69,8 +71,11 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 			</h2>
 		</a>
 		<div id="w3tc-top-nav-bar-content-links">
+		<a class="w3tc-top-nav-support" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_dashboard' ); ?>" alt="<?php esc_attr_e( 'Dashboard', 'w3-total-cache' ); ?>">
+			<?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?>
+		</a>
 		<div class="w3tc-top-nav-dropdown">
-				<a class="w3tc-top-nav-settings" href="<?php echo admin_url( 'admin.php?page=w3tc_general' ); ?>" alt="<?php esc_attr_e( 'Settings', 'w3-total-cache' ); ?>">
+				<a class="w3tc-top-nav-settings" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_general' ); ?>" alt="<?php esc_attr_e( 'Settings', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Settings', 'w3-total-cache' ); ?><span class="dashicons dashicons-arrow-down-alt2"></span>
 				</a>
 				<div id="w3tc-top-nav-settings-menu" class="w3tc-top-nav-dropdown-content">
@@ -82,7 +87,7 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 				</div>
 			</div>
 			<div class="w3tc-top-nav-dropdown">
-				<a class="w3tc-top-nav-tools" href="<?php echo admin_url( 'admin.php?page=w3tc_tools' ); ?>" alt="<?php esc_attr_e( 'Tools', 'w3-total-cache' ); ?>">
+				<a class="w3tc-top-nav-tools" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_tools' ); ?>" alt="<?php esc_attr_e( 'Tools', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Tools', 'w3-total-cache' ); ?><span class="dashicons dashicons-arrow-down-alt2"></span>
 				</a>
 				<div id="w3tc-top-nav-tools-menu" class="w3tc-top-nav-dropdown-content">
@@ -94,7 +99,7 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 				</div>
 			</div>
 			<div class="w3tc-top-nav-dropdown">
-				<a class="w3tc-top-nav-about" href="<?php echo admin_url( 'admin.php?page=w3tc_about' ); ?>" alt="<?php esc_attr_e( 'About', 'w3-total-cache' ); ?>">
+				<a class="w3tc-top-nav-about" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_about' ); ?>" alt="<?php esc_attr_e( 'About', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'About', 'w3-total-cache' ); ?><span class="dashicons dashicons-arrow-down-alt2"></span>
 				</a>
 				<div id="w3tc-top-nav-about-menu" class="w3tc-top-nav-dropdown-content">
@@ -105,10 +110,14 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 					?>
 				</div>
 			</div>
-			<a class="w3tc-top-nav-support" href="<?php echo admin_url( 'admin.php?page=w3tc_support' ); ?>" alt="<?php esc_attr_e( 'Support', 'w3-total-cache' ); ?>">
+			<a class="w3tc-top-nav-support" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_support' ); ?>" alt="<?php esc_attr_e( 'Support', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'Support', 'w3-total-cache' ); ?>
 			</a>
-			<input type="button" class="button w3tc-gopro-button button-buy-plugin" data-src="dashboard_banner" value="<?php esc_attr_e( 'Go Pro', 'w3-total-cache' ); ?>" />
+			<?php
+			if( ! Util_Environment::is_w3tc_pro( $config ) ) {
+				echo '<input type="button" class="button w3tc-gopro-button button-buy-plugin" data-src="dashboard_banner" value="' . esc_attr__( 'Upgrade', 'w3-total-cache' ) . '" />';
+			}
+			?>
 		</div>
 	</div>
 </div>
