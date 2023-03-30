@@ -5,6 +5,10 @@
  * @package W3TC
  */
 
+if ( ! function_exists( 'get_filesystem_method' ) ) {
+    require_once ABSPATH . '/wp-admin/includes/file.php';
+}
+
 namespace W3TC;
 
 /**
