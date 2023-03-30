@@ -384,7 +384,7 @@ class Util_PageSpeed {
 			if ( $opportunity['score'] >= 90 ) {
 				$passed_audits .= '
 					<div class="audits w3tcps_passed_audit' . $audit_classes . ' ' . $notice . '">
-						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '">' . $opportunity['title'] . ( isset( $opportunity['displayValue'] ) ? ' - ' . $opportunity['displayValue'] : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
+						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '" gatitle="' . $opportunity['title'] . '">' . $opportunity['title'] . ( isset( $opportunity['displayValue'] ) ? ' - ' . $opportunity['displayValue'] : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
 						<div class="w3tcps_breakdown_items w3tcps_pass_audit_items">
 							<p class="w3tcps_item_desciption">' . $opportunity['description'] . '</p>
 							<div class="w3tcps_breakdown_items_container">
@@ -408,7 +408,7 @@ class Util_PageSpeed {
 			} else {
 				$opportunities .= '
 					<div class="audits w3tcps_opportunities' . $audit_classes . ' ' . $notice . '">
-						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '">' . $opportunity['title'] . ( isset( $opportunity['displayValue'] ) ? ' - ' . $opportunity['displayValue'] : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
+						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '" gatitle="' . $opportunity['title'] . '">' . $opportunity['title'] . ( isset( $opportunity['displayValue'] ) ? ' - ' . $opportunity['displayValue'] : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
 						<div class="w3tcps_breakdown_items w3tcps_opportunity_items">
 							<p class="w3tcps_item_desciption">' . $opportunity['description'] . '</p>
 							<div class="w3tcps_breakdown_items_container">
@@ -567,7 +567,7 @@ class Util_PageSpeed {
 			if ( $diagnostic['score'] >= 90 ) {
 				$passed_audits .= '
 					<div class="audits w3tcps_passed_audit' . $audit_classes . ' ' . $notice . '">
-						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '">' . $diagnostic['title'] . ( isset( $diagnostic['displayValue'] ) ? ' - ' . $diagnostic['displayValue'] : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
+						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '" gatitle="' . $diagnostic['title'] . '">' . $diagnostic['title'] . ( isset( $diagnostic['displayValue'] ) ? ' - ' . $diagnostic['displayValue'] : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
 						<div class="w3tcps_breakdown_items w3tcps_pass_audit_items">
 							<p class="w3tcps_item_desciption">' . $diagnostic['description'] . '</p>
 							<div class="w3tcps_breakdown_items_container">
@@ -591,7 +591,7 @@ class Util_PageSpeed {
 			} else {
 				$diagnostics .= '
 					<div class="audits w3tcps_diagnostics' . $audit_classes . ' ' . $notice . '">
-						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '">' . $diagnostic['title'] . ( isset( $diagnostic['displayValue'] ) ? ' - ' . $diagnostic['displayValue'] : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
+						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . $grade . '" gatitle="' . $diagnostic['title'] . '">' . $diagnostic['title'] . ( isset( $diagnostic['displayValue'] ) ? ' - ' . $diagnostic['displayValue'] : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
 						<div class="w3tcps_breakdown_items w3tcps_diagnostic_items">
 							<p class="w3tcps_item_desciption">' . $diagnostic['description'] . '</p>
 							<div class="w3tcps_breakdown_items_container">
@@ -663,6 +663,7 @@ class Util_PageSpeed {
 				'id'      => array(),
 				'class'   => array(),
 				'title'   => array(),
+				'gatitle' => array(),
 				'copyurl' => array(),
 			),
 			'p'     => array(
