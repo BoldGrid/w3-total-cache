@@ -30,5 +30,5 @@ if ( ! defined( 'W3TC' ) ) {
 </div>
 <div class="w3tcps_buttons w3tc_none">
 	<input class="button w3tcps_refresh" type="button" value="<?php esc_html_e( 'Refresh Analysis', 'w3-total-cache' ); ?>" />
-	<a href="<?php echo esc_url( admin_url( 'admin.php?page=w3tc_pagespeed' ) ); ?>" class="button"><?php esc_html_e( 'View All Results', 'w3-total-cache' ); ?></a>
+	<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ) ); ?>" class="button"><?php esc_html_e( 'View All Results', 'w3-total-cache' ); ?></a>
 </div>
