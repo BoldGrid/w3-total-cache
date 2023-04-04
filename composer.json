@@ -21,6 +21,8 @@
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+        },
+        "optimize-autoloader": true,
+        "COMPOSER_MIRROR_PATH_REPOS": true
     }
 }

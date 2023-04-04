@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-02-09T21:17:59+00:00\n"
+"POT-Creation-Date: 2023-03-21T21:21:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: w3-total-cache\n"
@@ -203,59 +203,123 @@ msgid "Content Security Policy"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:61
-msgid "base-uri:"
+#: BrowserCache_ConfigLabels.php:85
+msgid "report-uri:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:62
-msgid "frame-src:"
+#: BrowserCache_ConfigLabels.php:86
+msgid "report-to:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:63
-msgid "connect-src:"
+#: BrowserCache_ConfigLabels.php:87
+msgid "base-uri:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:64
-msgid "font-src:"
+#: BrowserCache_ConfigLabels.php:88
+msgid "frame-src:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:65
-msgid "script-src:"
+#: BrowserCache_ConfigLabels.php:89
+msgid "connect-src:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:66
-msgid "style-src:"
+#: BrowserCache_ConfigLabels.php:90
+msgid "font-src:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:67
-msgid "img-src:"
+#: BrowserCache_ConfigLabels.php:91
+msgid "script-src:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:68
-msgid "media-src:"
+#: BrowserCache_ConfigLabels.php:92
+msgid "style-src:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:69
-msgid "object-src:"
+#: BrowserCache_ConfigLabels.php:93
+msgid "img-src:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:70
-msgid "plugin-types:"
+#: BrowserCache_ConfigLabels.php:94
+msgid "media-src:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:71
-msgid "form-action:"
+#: BrowserCache_ConfigLabels.php:95
+msgid "object-src:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:72
-msgid "frame-ancestors:"
+#: BrowserCache_ConfigLabels.php:96
+msgid "plugin-types:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:73
-msgid "sandbox:"
+#: BrowserCache_ConfigLabels.php:97
+msgid "form-action:"
 msgstr ""
 
 #: BrowserCache_ConfigLabels.php:74
+#: BrowserCache_ConfigLabels.php:98
+msgid "frame-ancestors:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:75
+#: BrowserCache_ConfigLabels.php:99
+msgid "sandbox:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:76
+#: BrowserCache_ConfigLabels.php:100
+msgid "child-src:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:77
+#: BrowserCache_ConfigLabels.php:101
+msgid "manifest-src:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:78
+#: BrowserCache_ConfigLabels.php:102
+msgid "script-src-elem:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:79
+#: BrowserCache_ConfigLabels.php:103
+msgid "script-src-attr:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:80
+#: BrowserCache_ConfigLabels.php:104
+msgid "style-src-elem:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:81
+#: BrowserCache_ConfigLabels.php:105
+msgid "style-src-attr:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:82
+#: BrowserCache_ConfigLabels.php:106
+msgid "worker-src:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:83
+#: BrowserCache_ConfigLabels.php:107
 msgid "default-src:"
+msgstr ""
+
+#: BrowserCache_ConfigLabels.php:84
+#: BrowserCache_Page_View_SectionSecurity.php:894
+msgid "Content Security Policy Report Only"
 msgstr ""
 
 #: BrowserCache_Page_View_QuickReference.php:9
@@ -449,8 +513,10 @@ msgstr ""
 
 #: BrowserCache_Page_View_SectionSecurity.php:201
 #: BrowserCache_Page_View_SectionSecurity.php:498
-#: BrowserCache_Page_View_SectionSecurity.php:602
-#: BrowserCache_Page_View_SectionSecurity.php:734
+#: BrowserCache_Page_View_SectionSecurity.php:626
+#: BrowserCache_Page_View_SectionSecurity.php:758
+#: BrowserCache_Page_View_SectionSecurity.php:948
+#: BrowserCache_Page_View_SectionSecurity.php:1080
 #: Generic_Plugin_Admin.php:864
 #: inc/options/browsercache.php:201
 #: inc/options/browsercache.php:473
@@ -598,45 +664,70 @@ msgstr ""
 msgid "The Content Security Policy (%1$sCSP%2$s) header reduces the risk of %3$sXSS%4$s attacks by allowing you to define where resources can be retrieved from, preventing browsers from loading data from any other locations. This makes it harder for an attacker to inject malicious code into your site."
 msgstr ""
 
+#: BrowserCache_Page_View_SectionSecurity.php:592
+#: BrowserCache_Page_View_SectionSecurity.php:914
+msgid "Instructs the user agent to report attempts to violate the Content Security Policy. These violation reports consist of JSON documents sent via an HTTP POST request to the specified URI."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:603
+#: BrowserCache_Page_View_SectionSecurity.php:925
+msgid "Defines a reporting endpoint \"group\" to which violation reports should to be sent."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:605
+#: BrowserCache_Page_View_SectionSecurity.php:927
+msgid "The referenced \"group\" should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers."
+msgstr ""
+
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: BrowserCache_Page_View_SectionSecurity.php:598
+#: BrowserCache_Page_View_SectionSecurity.php:622
+#: BrowserCache_Page_View_SectionSecurity.php:944
 msgid "Restricts the %1$sURL%2$ss which can be used in a document's &lt;base&gt; element."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:623
+#: BrowserCache_Page_View_SectionSecurity.php:647
+#: BrowserCache_Page_View_SectionSecurity.php:969
 msgid "Limits the origins to which you can connect via XMLHttpRequest, WebSockets, and EventSource."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:633
+#: BrowserCache_Page_View_SectionSecurity.php:657
+#: BrowserCache_Page_View_SectionSecurity.php:979
 msgid "Specifies the origins that can serve web fonts."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:643
+#: BrowserCache_Page_View_SectionSecurity.php:667
+#: BrowserCache_Page_View_SectionSecurity.php:989
 msgid "Restricts from where the protected resource can embed frames."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:653
+#: BrowserCache_Page_View_SectionSecurity.php:677
+#: BrowserCache_Page_View_SectionSecurity.php:999
 msgid "Specifies valid sources for images and favicons."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:663
+#: BrowserCache_Page_View_SectionSecurity.php:687
+#: BrowserCache_Page_View_SectionSecurity.php:1009
 msgid "Specifies valid sources for loading media using the &lt;audio&gt; and &lt;video&gt; elements."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:673
+#: BrowserCache_Page_View_SectionSecurity.php:697
+#: BrowserCache_Page_View_SectionSecurity.php:1019
 msgid "Allows control over the &lt;object&gt;, &lt;embed&gt;, and &lt;applet&gt; elements used by Flash and other plugins."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:683
+#: BrowserCache_Page_View_SectionSecurity.php:707
+#: BrowserCache_Page_View_SectionSecurity.php:1029
 msgid "Specifies valid sources for JavaScript."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: BrowserCache_Page_View_SectionSecurity.php:699
+#: BrowserCache_Page_View_SectionSecurity.php:723
+#: BrowserCache_Page_View_SectionSecurity.php:1045
 msgid "Specifies valid sources for %1$sCSS%2$s stylesheets."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:703
+#: BrowserCache_Page_View_SectionSecurity.php:727
+#: BrowserCache_Page_View_SectionSecurity.php:1049
 #: Cdn_GeneralPage_View.php:104
 #: Extension_CloudFlare_Page_View.php:396
 #: inc/options/about.php:78
@@ -666,40 +757,94 @@ msgid "Cascading Style Sheet"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: BrowserCache_Page_View_SectionSecurity.php:730
+#: BrowserCache_Page_View_SectionSecurity.php:754
+#: BrowserCache_Page_View_SectionSecurity.php:1076
 msgid "Restricts the %1$sURL%2$ss which can be used as the target of form submissions from a given context."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:755
+#: BrowserCache_Page_View_SectionSecurity.php:779
+#: BrowserCache_Page_View_SectionSecurity.php:1101
 msgid "Specifies valid parents that may embed a page using &lt;frame&gt;, &lt;iframe&gt;, &lt;object&gt;, &lt;embed&gt;, or &lt;applet&gt;."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:765
+#: BrowserCache_Page_View_SectionSecurity.php:789
+#: BrowserCache_Page_View_SectionSecurity.php:1111
 msgid "Restricts the set of plugins that can be embedded into a document by limiting the types of resources which can be loaded."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:775
+#: BrowserCache_Page_View_SectionSecurity.php:799
+#: BrowserCache_Page_View_SectionSecurity.php:1121
 msgid "This directive operates similarly to the &lt;iframe&gt; sandbox attribute by applying restrictions to a page's actions, including preventing popups, preventing the execution of plugins and scripts, and enforcing a same-origin policy."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:785
+#: BrowserCache_Page_View_SectionSecurity.php:809
+#: BrowserCache_Page_View_SectionSecurity.php:1131
+msgid "Defines the valid sources for web workers and nested browsing contexts loaded using elements such as <frame> and <iframe>. For workers, non-compliant requests are treated as fatal network errors by the user agent."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:819
+#: BrowserCache_Page_View_SectionSecurity.php:1141
+msgid "Specifies which manifest can be applied to the resource."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:829
+#: BrowserCache_Page_View_SectionSecurity.php:1151
+msgid "Specifies valid sources for JavaScript <script> elements."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:839
+#: BrowserCache_Page_View_SectionSecurity.php:1161
+msgid "Specifies valid sources for JavaScript inline event handlers."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:849
+#: BrowserCache_Page_View_SectionSecurity.php:1171
+msgid "Specifies valid sources for stylesheet <style> elements and <link> elements with rel=\"stylesheet\"."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:859
+#: BrowserCache_Page_View_SectionSecurity.php:1181
+msgid "Specifies valid sources for inline styles applied to individual DOM elements."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:869
+#: BrowserCache_Page_View_SectionSecurity.php:1191
+msgid "Specifies valid sources for Worker, SharedWorker, or ServiceWorker scripts."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:879
+#: BrowserCache_Page_View_SectionSecurity.php:1201
 msgid "Defines the defaults for directives you leave unspecified. Generally, this applies to any directive that ends with -src."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:794
+#. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+#: BrowserCache_Page_View_SectionSecurity.php:890
+msgid "The Content Security Policy Report Only (%1$sCSPRO%2$s) header allows web developers to experiment with policies by monitoring (but not enforcing) their effects. These violation reports consist of JSON documents sent via an HTTP POST request to the specified URI. This header is applied separately from the Content-Security-Policy and is useful for testing alternative configurations."
+msgstr ""
+
+#: BrowserCache_Page_View_SectionSecurity.php:1210
 msgid "Feature-Policy / Permissions-Policy"
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:795
+#: BrowserCache_Page_View_SectionSecurity.php:1211
 msgid "Allows you to control which origins can use which features."
 msgstr ""
 
-#: BrowserCache_Page_View_SectionSecurity.php:811
+#: BrowserCache_Page_View_SectionSecurity.php:1227
 msgid "One of:"
 msgstr ""
 
-#: BrowserCache_Plugin.php:376
+#: BrowserCache_Plugin.php:380
 msgid "Browser Cache: Update Media Query String"
+msgstr ""
+
+#. translators: 1 opening HTML a tag to Browser Cache CSP-Report-Only settings, 2 closing HTML a tag.
+#: BrowserCache_Plugin.php:484
+msgid "The Content Security Policy - Report Only requires the \"report-uri\" and/or \"report-to\" directives. Please define one or both of these directives %1$shere%2$s."
+msgstr ""
+
+#: BrowserCache_Plugin.php:488
+msgid "Browser Cache Content-Security-Policy-Report-Only Settings"
 msgstr ""
 
 #: CacheGroups_Plugin_Admin.php:42
@@ -2336,8 +2481,8 @@ msgstr ""
 #: UsageStatistics_Page_View.php:203
 #: UsageStatistics_Page_View.php:341
 #: UsageStatistics_Page_View.php:357
-#: Util_PageSpeed.php:307
-#: Util_PageSpeed.php:476
+#: Util_PageSpeed.php:323
+#: Util_PageSpeed.php:506
 msgid "Requests"
 msgstr ""
 
@@ -5404,6 +5549,24 @@ msgid "Clear Log"
 msgstr ""
 
 #: Generic_Plugin.php:238
+#: Generic_Plugin_Admin.php:188
+#: Generic_Plugin_Admin.php:197
+#: Generic_Plugin_Admin.php:206
+#: Generic_Plugin_Admin.php:215
+#: Generic_Plugin_Admin.php:224
+#: Generic_Plugin_Admin.php:238
+#: Generic_Plugin_Admin.php:246
+#: Generic_Plugin_Admin.php:254
+#: Generic_Plugin_Admin.php:262
+#: Generic_Plugin_Admin.php:270
+#: Generic_Plugin_Admin.php:278
+#: Generic_Plugin_Admin.php:286
+#: Generic_Plugin_Admin.php:297
+#: Generic_Plugin_Admin.php:305
+#: Generic_Plugin_Admin.php:313
+#: Generic_Plugin_Admin.php:321
+#: Generic_Plugin_Admin.php:329
+#: Generic_Plugin_Admin.php:339
 #: Root_AdminMenu.php:166
 #: Root_AdminMenu.php:167
 msgid "Performance"
@@ -5460,27 +5623,6 @@ msgstr ""
 msgid "Support Us"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:188
-#: Generic_Plugin_Admin.php:197
-#: Generic_Plugin_Admin.php:206
-#: Generic_Plugin_Admin.php:215
-#: Generic_Plugin_Admin.php:224
-#: Generic_Plugin_Admin.php:238
-#: Generic_Plugin_Admin.php:246
-#: Generic_Plugin_Admin.php:254
-#: Generic_Plugin_Admin.php:262
-#: Generic_Plugin_Admin.php:270
-#: Generic_Plugin_Admin.php:278
-#: Generic_Plugin_Admin.php:286
-#: Generic_Plugin_Admin.php:297
-#: Generic_Plugin_Admin.php:305
-#: Generic_Plugin_Admin.php:313
-#: Generic_Plugin_Admin.php:321
-#: Generic_Plugin_Admin.php:329
-#: Generic_Plugin_Admin.php:339
-msgid "performance"
-msgstr ""
-
 #. translators: 4: HTML line break tag, 5: HTML opening a tag to purge CDN manually, 6: HTML closing a tag.
 #: Generic_Plugin_Admin.php:601
 msgid "Please see %1$sAmazon's CloudFront documentation -- Paying for file invalidation%2$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%3$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%5$s."
@@ -5519,7 +5661,9 @@ msgstr ""
 
 #: Generic_Plugin_Admin.php:864
 #: Util_PageSpeed.php:279
-#: Util_PageSpeed.php:448
+#: Util_PageSpeed.php:289
+#: Util_PageSpeed.php:462
+#: Util_PageSpeed.php:472
 msgid "URL"
 msgstr ""
 
@@ -9722,7 +9866,9 @@ msgstr ""
 
 #. translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 #: PageSpeed_Instructions.php:128
-msgid "Use %1$s $2$sImage Service%3$s to convert media library images to WebP."
+#: PageSpeed_Instructions.php:141
+#: PageSpeed_Instructions.php:219
+msgid "Use %1$s %2$sImage Service%3$s to convert media library images to WebP."
 msgstr ""
 
 #: PageSpeed_Instructions.php:133
@@ -9730,12 +9876,6 @@ msgstr ""
 #: PageSpeed_Instructions.php:224
 #: PageSpeed_Instructions.php:298
 msgid "W3TC Extensions"
-msgstr ""
-
-#. translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
-#: PageSpeed_Instructions.php:141
-#: PageSpeed_Instructions.php:219
-msgid "Use %1$s %2$sImage Service%3$s to convert media library images to WebP."
 msgstr ""
 
 #. translators: 1 W3TC plugin name, 2 HTML a tag to kjdev php-ext-brotli.
@@ -10337,7 +10477,7 @@ msgstr ""
 
 #. translators: 1 cache lifetime.
 #: PageSpeed_Page_View.php:29
-msgid "This tool will analyze your website's homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explaination of the metric and our recommendation for achieving improvments via W3 Total Cache features/extensions if available. Results will be cached for of %1$s but will forcibly refresh via the \"Refresh Analysis\" button."
+msgid "This tool will analyze your website's homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explaination of the metric and our recommendation for achieving improvments via W3 Total Cache features/extensions if available. Results will be cached for %1$s but will forcibly refresh via the \"Refresh Analysis\" button."
 msgstr ""
 
 #: PageSpeed_Page_View.php:43
@@ -11709,133 +11849,121 @@ msgstr ""
 msgid "Other Screenshot"
 msgstr ""
 
-#: Util_PageSpeed.php:280
-#: Util_PageSpeed.php:449
+#: Util_PageSpeed.php:282
+#: Util_PageSpeed.php:292
+#: Util_PageSpeed.php:465
+#: Util_PageSpeed.php:475
 msgid "Copy Full URL"
 msgstr ""
 
-#: Util_PageSpeed.php:283
-#: Util_PageSpeed.php:452
+#: Util_PageSpeed.php:299
+#: Util_PageSpeed.php:482
 msgid "Total Bytes"
 msgstr ""
 
-#: Util_PageSpeed.php:287
-#: Util_PageSpeed.php:456
+#: Util_PageSpeed.php:303
+#: Util_PageSpeed.php:486
 msgid "Wasted Bytes"
 msgstr ""
 
-#: Util_PageSpeed.php:291
-#: Util_PageSpeed.php:460
+#: Util_PageSpeed.php:307
+#: Util_PageSpeed.php:490
 msgid "Wasted Percentage"
 msgstr ""
 
-#: Util_PageSpeed.php:295
-#: Util_PageSpeed.php:464
+#: Util_PageSpeed.php:311
+#: Util_PageSpeed.php:494
 msgid "Wasted Miliseconds"
 msgstr ""
 
-#: Util_PageSpeed.php:299
-#: Util_PageSpeed.php:468
+#: Util_PageSpeed.php:315
+#: Util_PageSpeed.php:498
 msgid "Type"
 msgstr ""
 
-#: Util_PageSpeed.php:303
-#: Util_PageSpeed.php:472
+#: Util_PageSpeed.php:319
+#: Util_PageSpeed.php:502
 msgid "Group"
 msgstr ""
 
-#: Util_PageSpeed.php:311
-#: Util_PageSpeed.php:480
+#: Util_PageSpeed.php:327
+#: Util_PageSpeed.php:510
 msgid "Transfer Size"
 msgstr ""
 
-#: Util_PageSpeed.php:315
-#: Util_PageSpeed.php:484
+#: Util_PageSpeed.php:331
+#: Util_PageSpeed.php:514
 msgid "Start Time"
 msgstr ""
 
-#: Util_PageSpeed.php:319
-#: Util_PageSpeed.php:488
+#: Util_PageSpeed.php:335
+#: Util_PageSpeed.php:518
 msgid "Duration"
 msgstr ""
 
-#: Util_PageSpeed.php:323
-#: Util_PageSpeed.php:492
+#: Util_PageSpeed.php:339
+#: Util_PageSpeed.php:522
 msgid "Parse/Compile Time"
 msgstr ""
 
-#: Util_PageSpeed.php:327
-#: Util_PageSpeed.php:496
+#: Util_PageSpeed.php:343
+#: Util_PageSpeed.php:526
 msgid "Execution Time"
 msgstr ""
 
-#: Util_PageSpeed.php:331
-#: Util_PageSpeed.php:500
+#: Util_PageSpeed.php:347
+#: Util_PageSpeed.php:530
 msgid "Total"
 msgstr ""
 
-#: Util_PageSpeed.php:335
-#: Util_PageSpeed.php:504
+#: Util_PageSpeed.php:351
+#: Util_PageSpeed.php:534
 msgid "Cache Lifetime Miliseconds"
 msgstr ""
 
-#: Util_PageSpeed.php:339
-#: Util_PageSpeed.php:508
+#: Util_PageSpeed.php:355
+#: Util_PageSpeed.php:538
 msgid "Cache Hit Probability"
 msgstr ""
 
-#: Util_PageSpeed.php:343
-#: Util_PageSpeed.php:512
+#: Util_PageSpeed.php:359
+#: Util_PageSpeed.php:542
 msgid "Statistic"
 msgstr ""
 
-#: Util_PageSpeed.php:346
-#: Util_PageSpeed.php:357
-#: Util_PageSpeed.php:515
-#: Util_PageSpeed.php:526
+#: Util_PageSpeed.php:362
+#: Util_PageSpeed.php:373
+#: Util_PageSpeed.php:545
+#: Util_PageSpeed.php:556
 msgid "Element"
 msgstr ""
 
-#: Util_PageSpeed.php:354
-#: Util_PageSpeed.php:523
+#: Util_PageSpeed.php:370
+#: Util_PageSpeed.php:553
 msgid "Value"
 msgstr ""
 
-#: Util_PageSpeed.php:366
-#: Util_PageSpeed.php:535
+#: Util_PageSpeed.php:382
+#: Util_PageSpeed.php:565
 msgid "No identified items were provided by Google PageSpeed Insights API for this metric"
 msgstr ""
 
-#: Util_PageSpeed.php:382
-#: Util_PageSpeed.php:407
-#: Util_PageSpeed.php:551
-#: Util_PageSpeed.php:576
-msgid "TOTAL"
-msgstr ""
-
-#: Util_PageSpeed.php:383
-#: Util_PageSpeed.php:408
-#: Util_PageSpeed.php:552
-#: Util_PageSpeed.php:577
-msgid "CACHE"
-msgstr ""
-
-#: Util_PageSpeed.php:385
-#: Util_PageSpeed.php:410
-#: Util_PageSpeed.php:554
-#: Util_PageSpeed.php:579
+#: Util_PageSpeed.php:400
+#: Util_PageSpeed.php:424
+#: Util_PageSpeed.php:583
+#: Util_PageSpeed.php:607
 msgid "Tips"
 msgstr ""
 
-#: Util_PageSpeed.php:594
+#: Util_PageSpeed.php:622
 msgid "Opportunities"
 msgstr ""
 
-#: Util_PageSpeed.php:595
+#: Util_PageSpeed.php:623
 msgid "Diagnostics"
 msgstr ""
 
-#: Util_PageSpeed.php:596
+#: Util_PageSpeed.php:624
 msgid "Passed Audits"
 msgstr ""
 
