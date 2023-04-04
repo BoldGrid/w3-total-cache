@@ -892,7 +892,7 @@ $feature_policies = array(
 							'w3-total-cache'
 						),
 						'<acronym title="' . esc_attr__( 'Content Security Policy Report Only', 'w3-total-cache' ) . '">',
-						'</acronym>',
+						'</acronym>'
 					),
 					array(
 						'acronym' => array(

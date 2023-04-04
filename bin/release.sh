@@ -8,8 +8,11 @@ echo 'Finding and deleting .git folders.'
 find vendor/ -name '.git' -type d -print -exec rm -rf {} +
 
 # Cleanup development and build contents.
-rm -fv .editorconfig .jshintrc .travis.yml composer.* error_log package.* phpcs.xml phpunit.xml yarn.lock
-rm -rfv .git* bin node_modules qa tests vendor
+rm -fv package.* phpcs.xml
+rm -rfv qa
+
+# Find and replace symlinks in the "vendor" directory.
+for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) $i;done
 
 # Create a tag in the Wordpress.org SVN repo when after your build succeeds via Travis.
 # @link https://github.com/BoldGrid/wordpress-tag-sync
