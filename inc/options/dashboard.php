@@ -40,8 +40,6 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 	// When header.php is not included (above), we need to do our head action and open the wrap.
 	do_action( 'w3tc-dashboard-head' );
 	echo '<div class="wrap" id="w3tc">';
-
-	require W3TC_INC_DIR . '/options/parts/dashboard_banner.php';
 }
 ?>
 

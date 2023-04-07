@@ -29,6 +29,10 @@
 	padding: 1px 12px;
 }
 
+#w3tc-wizard-container {
+	margin: 0 auto;
+}
+
 #icon-w3tc_general {
 	display: none;
 }
@@ -630,6 +634,60 @@ th.w3tc_extensions_manage_column_check {
 
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown-content > a:hover {
 	background-color: #f1f1f1;
+}
+
+/**
+ * Footer
+ */
+
+#w3tc-footer {
+	margin: 20px -20px 0;
+	background: #ffffff;
+	border-top: 2px solid #c3c4c7;
+	border-bottom: 2px solid #c3c4c7;
+}
+#w3tc-footer #w3tc-footer-container {
+	width: 100%;
+	max-width: 1200px;
+	padding: 10px 0;
+	margin: 0 auto;
+	display: flex;
+	column-gap: 20px;
+}
+#w3tc-footer .w3tc-footer-link {
+	display: block;
+	width: 100%;
+	margin-top: 10px;
+}
+#w3tc-footer .w3tc-footer-link .dashicons {
+	color: #000000;
+	text-decoration: none;
+	margin-right: 5px;
+}
+#w3tc-footer .w3tc-gopro-button {
+	margin-top: 10px;
+}
+#w3tc-footer .w3tc-footer-column-1 {
+	width: 20%;
+	margin-bottom: 15px;
+}
+#w3tc-footer .w3tc-footer-column-2 {
+	width: 40%;
+	margin-bottom: 15px;
+}
+#w3tc-footer .w3tc-footer-inner-column-50 {
+	width: 50%;
+	padding-right: 15px;
+	float: left;
+	box-sizing: border-box;
+}
+#w3tc-footer .logo-link h2.logo {
+	height: 40px;
+	background: url("../img/W3TC_dashboard_logo_title.png") top left no-repeat;
+	background-size: contain;
+	text-indent: -9999px;
+	margin: .67em 0;
+	padding:0;
 }
 
 /**

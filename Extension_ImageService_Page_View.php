@@ -22,13 +22,6 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <div class="wrap" id="w3tc">
 
-<?php
-// Upgrade banner.
-if ( ! Util_Environment::is_w3tc_pro( $c ) ) {
-	require W3TC_INC_DIR . '/options/parts/dashboard_banner.php';
-}
-?>
-
 <p>
 	Total Cache Image Service is currently
 <?php

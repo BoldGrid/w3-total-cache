@@ -96,6 +96,11 @@ ul#w3tc-options-menu {
 	position: relative;
 }
 
+/* Wizard content slides */
+#w3tc_wizard_content .w3tc-wizard-slides {
+	padding: 0 10px;
+}
+
 /* Footer */
 #w3tc_wizard_footer {
 	width: 100%;
@@ -133,10 +138,6 @@ ul#w3tc-options-menu {
 
 .w3tc-overlay {
 	display: none;
-}
-
-#wpfooter {
-	position: relative;
 }
 
 /* Spinner */

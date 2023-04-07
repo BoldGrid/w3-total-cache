@@ -7,16 +7,6 @@ if ( ! defined( 'W3TC' ) ) {
 
 $config = Dispatcher::config();
 
-$allowed_button_tags = array(
-	'input'   => array(
-		'type'    => array(),
-		'name'    => array(),
-		'class'   => array(),
-		'value'   => array(),
-		'onclick' => array(),
-	),
-);
-
 $settings_menu_array = array(
 	Util_UI::admin_url( 'admin.php?page=w3tc_general' )        => esc_attr__( 'General Settings', 'w3-total-cache' ),
 	Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' )        => esc_attr__( 'Page Cache', 'w3-total-cache' ),
@@ -71,10 +61,10 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 			</h2>
 		</a>
 		<div id="w3tc-top-nav-bar-content-links">
-		<a class="w3tc-top-nav-support" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_dashboard' ); ?>" alt="<?php esc_attr_e( 'Dashboard', 'w3-total-cache' ); ?>">
-			<?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?>
-		</a>
-		<div class="w3tc-top-nav-dropdown">
+			<a class="w3tc-top-nav-support" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_dashboard' ); ?>" alt="<?php esc_attr_e( 'Dashboard', 'w3-total-cache' ); ?>">
+				<?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?>
+			</a>
+			<div class="w3tc-top-nav-dropdown">
 				<a class="w3tc-top-nav-settings" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_general' ); ?>" alt="<?php esc_attr_e( 'Settings', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Settings', 'w3-total-cache' ); ?><span class="dashicons dashicons-arrow-down-alt2"></span>
 				</a>
@@ -87,7 +77,7 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 				</div>
 			</div>
 			<div class="w3tc-top-nav-dropdown">
-				<a class="w3tc-top-nav-tools" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_tools' ); ?>" alt="<?php esc_attr_e( 'Tools', 'w3-total-cache' ); ?>">
+				<a class="w3tc-top-nav-tools" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_extensions' ); ?>" alt="<?php esc_attr_e( 'Tools', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Tools', 'w3-total-cache' ); ?><span class="dashicons dashicons-arrow-down-alt2"></span>
 				</a>
 				<div id="w3tc-top-nav-tools-menu" class="w3tc-top-nav-dropdown-content">

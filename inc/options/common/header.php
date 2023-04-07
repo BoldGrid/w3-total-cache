@@ -17,9 +17,6 @@ $licensing_visible = (
 do_action( 'w3tc-dashboard-head' );
 ?>
 <div class="wrap" id="w3tc">
-	<?php if ( ! Util_Environment::is_w3tc_pro( $config ) ) : ?>
-		<?php require W3TC_INC_OPTIONS_DIR . '/edd/buy.php'; ?>
-	<?php endif ?>
 	<?php
 	switch ( $page ) {
 		case 'w3tc_general':
