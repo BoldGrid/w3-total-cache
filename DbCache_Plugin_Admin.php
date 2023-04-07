@@ -52,8 +52,11 @@ class DbCache_Plugin_Admin {
 
 		if ( $c->get_string( 'dbcache.engine' ) == 'memcached' ) {
 			$memcached_servers = $c->get_array( 'dbcache.memcached.servers' );
+			$memcached_binary_protocol = $c->get_boolean( 'dbcache.memcached.binary_protocol' );
+			$memcached_username = $c->get_string( 'dbcache.memcached.username' );
+			$memcached_password = $c->get_string( 'dbcache.memcached.password' );
 
-			if ( !Util_Installed::is_memcache_available( $memcached_servers ) ) {
+			if ( !Util_Installed::is_memcache_available( $memcached_servers, $memcached_binary_protocol, $memcached_username, $memcached_password ) ) {
 				if ( !isset( $errors['memcache_not_responding.details'] ) )
 					$errors['memcache_not_responding.details'] = array();
 

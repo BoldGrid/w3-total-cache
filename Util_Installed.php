@@ -123,9 +123,12 @@ class Util_Installed {
 	 * Check if memcache is available
 	 *
 	 * @param array   $servers
+	 * @param boolean $binary_protocol
+	 * @param string  $username
+	 * @param string  $password
 	 * @return boolean
 	 */
-	static public function is_memcache_available( $servers ) {
+	static public function is_memcache_available( $servers, $binary_protocol, $username, $password ) {
 		static $results = array();
 
 		$key = md5( implode( '', $servers ) );
@@ -133,7 +136,10 @@ class Util_Installed {
 		if ( !isset( $results[$key] ) ) {
 			$memcached = Cache::instance( 'memcached', array(
 					'servers' => $servers,
-					'persistent' => false
+					'persistent' => false,
+					'binary_protocol' => $binary_protocol,
+					'username' => $username,
+					'password' => $password
 				) );
 			if ( is_null( $memcached ) )
 				return false;
