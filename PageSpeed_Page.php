@@ -74,6 +74,8 @@ class PageSpeed_Page {
 		$c = Dispatcher::config();
 
 		require W3TC_DIR . '/PageSpeed_Page_View.php';
+
+		require W3TC_INC_DIR . '/options/common/footer.php';
 	}
 
 	/**

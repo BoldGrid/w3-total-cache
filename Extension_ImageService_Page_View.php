@@ -219,5 +219,3 @@ Util_Ui::postbox_header(
 
 </div>
 </form>
-
-</div>

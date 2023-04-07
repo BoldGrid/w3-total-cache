@@ -28,6 +28,7 @@ class UsageStatistics_Page {
 			} else {
 				include  W3TC_DIR . '/UsageStatistics_Page_View_Disabled.php';
 			}
+			require W3TC_INC_DIR . '/options/common/footer.php';
 			return;
 		}
 
@@ -139,6 +140,8 @@ class UsageStatistics_Page {
 
 			include  W3TC_DIR . '/UsageStatistics_Page_View.php';
 		}
+
+		require W3TC_INC_DIR . '/options/common/footer.php';
 	}
 
 
