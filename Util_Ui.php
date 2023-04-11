@@ -1066,7 +1066,8 @@ class Util_Ui {
 
 		?>
 		<div class="w3tc-gopro">
-			<div>
+			<div class="w3tc-gopro-ribbon"><span>&bigstar; PRO</span></div>
+			<div class="w3tc-gopro-content">
 		<?php
 	}
 

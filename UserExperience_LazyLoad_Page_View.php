@@ -108,7 +108,7 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, tru
 
 	?>
 </table>
-<table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">
+<table class="form-table">
 	<tr>
 		<th><?php esc_html_e( 'Google Maps', 'w3-total-cache' ); ?></th>
 		<td>

@@ -68,11 +68,11 @@ do_action( 'w3tc-dashboard-footer' );
 				<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_minify#css' ) ); ?>" alt="<?php esc_attr_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>
 				</a>
+			</div>
+			<div class="w3tc-footer-inner-column-50">
 				<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_extensions#genesis.theme' ) ); ?>" alt="<?php esc_attr_e( 'Genesis Framework Acceleration', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Genesis Framework Acceleration', 'w3-total-cache' ); ?>
 				</a>
-			</div>
-			<div class="w3tc-footer-inner-column-50">
 				<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_extensions#wpml' ) ); ?>" alt="<?php esc_attr_e( 'WPML Extension', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'WPML Extension', 'w3-total-cache' ); ?>
 				</a>
@@ -82,12 +82,12 @@ do_action( 'w3tc-dashboard-footer' );
 				<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_general#debug' ) ); ?>" alt="<?php esc_attr_e( 'Purge Logs', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Purge Logs', 'w3-total-cache' ); ?>
 				</a>
-				<?php
-				if( ! Util_Environment::is_w3tc_pro( $config ) ) {
-					echo '<input type="button" class="button w3tc-gopro-button button-buy-plugin" data-src="dashboard_banner" value="' . esc_attr__( 'Upgrade', 'w3-total-cache' ) . '" />';
-				}
-				?>
 			</div>
+			<?php
+			if( ! Util_Environment::is_w3tc_pro( $config ) ) {
+				echo '<input type="button" class="button w3tc-gopro-button button-buy-plugin" data-src="dashboard_banner" value="' . esc_attr__( 'Learn more about Pro!', 'w3-total-cache' ) . '" />';
+			}
+			?>
 		</div>
 		<div class="w3tc-footer-column-1">
 			<h2><?php esc_html_e( 'Follow Us', 'w3-total-cache' ); ?></h2>

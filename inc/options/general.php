@@ -1060,7 +1060,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</td>
 			</tr>
 		</table>
-		<table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">
+		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Purge Logs:', 'w3-total-cache' ); ?></th>
 				<td>

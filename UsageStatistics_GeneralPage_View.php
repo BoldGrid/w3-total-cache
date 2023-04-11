@@ -11,7 +11,7 @@ $is_pro = Util_Environment::is_w3tc_pro( $c );
 
 ?>
 
-<table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">
+<table class="form-table">
 	<?php
 Util_Ui::config_item_pro( array(
 		'key' => 'stats.enabled',

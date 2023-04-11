@@ -403,7 +403,9 @@ class Generic_Plugin_Admin {
 	 * Render sticky top navigation bar on all W3TC admin pages.
 	 */
 	public function top_nav_bar() {
-		require W3TC_INC_DIR . '/options/common/top_nav_bar.php';
+		if ( Util_Admin::is_w3tc_admin_page() ) {
+			require W3TC_INC_DIR . '/options/common/top_nav_bar.php';
+		}
 	}
 
 	/**
