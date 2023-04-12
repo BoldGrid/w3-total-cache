@@ -23,8 +23,14 @@ class ObjectCache_Plugin_Admin {
 		if ( $c->get_string( 'objectcache.engine' ) == 'memcached' ) {
 			$memcached_servers = $c->get_array(
 				'objectcache.memcached.servers' );
+			$memcached_binary_protocol = $c->get_boolean(
+				'objectcache.memcached.binary_protocol' );
+			$memcached_username = $c->get_string(
+				'objectcache.memcached.username' );
+			$memcached_password = $c->get_string(
+				'objectcache.memcached.password' );
 
-			if ( !Util_Installed::is_memcache_available( $memcached_servers ) ) {
+			if ( !Util_Installed::is_memcache_available( $memcached_servers, $memcached_binary_protocol, $memcached_username, $memcached_password ) ) {
 				if ( !isset( $errors['memcache_not_responding.details'] ) )
 					$errors['memcache_not_responding.details'] = array();
 

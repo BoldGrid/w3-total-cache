@@ -27,13 +27,16 @@ class Generic_AdminActions_Test {
 	 * @return void
 	 */
 	function w3tc_test_memcached() {
-		$servers = Util_Request::get_array( 'servers' );
+		$servers 		 = Util_Request::get_array( 'servers' );
+		$binary_protocol = Util_Request::get_boolean( 'binary_protocol', true );
+		$username        = Util_Request::get_string( 'username', '' );
+		$password        = Util_Request::get_string( 'password', '' );
 
-		$this->respond_test_result( $this->is_memcache_available( $servers ) );
+		$this->respond_test_result( $this->is_memcache_available( $servers, $binary_protocol, $username, $password ) );
 	}
 
 	/**
-	 * Test memcached.
+	 * Test redis
 	 */
 	public function w3tc_test_redis() {
 		$servers                 = Util_Request::get_array( 'servers' );
@@ -166,14 +169,17 @@ class Generic_AdminActions_Test {
 	 * @param array   $servers
 	 * @return boolean
 	 */
-	private function is_memcache_available( $servers ) {
+	private function is_memcache_available( $servers, $binary_protocol, $username, $password ) {
 		if ( count( $servers ) <= 0 )
 			return false;
 
 		foreach ( $servers as $server ) {
 			@$memcached = Cache::instance( 'memcached', array(
 					'servers' => $server,
-					'persistent' => false
+					'persistent' => false,
+					'binary_protocol' => $binary_protocol,
+					'username' => $username,
+					'password' => $password
 				) );
 			if ( is_null( $memcached ) )
 				return false;
