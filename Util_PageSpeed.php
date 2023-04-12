@@ -90,7 +90,7 @@ class Util_PageSpeed {
 		if ( $metric['score'] >= 90 ) {
 			$bar = '<div style="flex-grow: ' . esc_attr( $metric['score'] ) . '"><span class="w3tcps_range w3tcps_pass">' . esc_html( $metric['displayValue'] ) . '</span></div>';
 		} elseif ( $metric['score'] >= 50 && $metric['score'] < 90 ) {
-			$bar = '<div style="flex-grow: ' . esc_attr( $metric['score'] ). '"><span class="w3tcps_range w3tcps_average">' . esc_html( $metric['displayValue'] ) . '</span></div>';
+			$bar = '<div style="flex-grow: ' . esc_attr( $metric['score'] ) . '"><span class="w3tcps_range w3tcps_average">' . esc_html( $metric['displayValue'] ) . '</span></div>';
 		} elseif ( $metric['score'] < 50 ) {
 			$bar = '<div style="flex-grow: ' . esc_attr( $metric['score'] ) . '"><span class="w3tcps_range w3tcps_fail">' . esc_html( $metric['displayValue'] ) . '<span></div>';
 		}
@@ -267,7 +267,7 @@ class Util_PageSpeed {
 				}
 			}
 
-			$opportunity['description'] = preg_replace( '/(.*?)(\[.*?\])\((.*?)\)(.*?[,.?!]*)/i', '$1<a href="$3">$2</a>$4', esc_html( $opportunity['description'] ) );
+			$opportunity['description'] = preg_replace( '/(.*?)(\[.*?\])\((.*?)\)(.*?[,.?!]*)/', '$1<a href="$3">$2</a>$4', esc_html( $opportunity['description'] ) );
 
 			$headers = '';
 			$items   = '';
@@ -305,11 +305,11 @@ class Util_PageSpeed {
 				}
 				if ( isset( $item['wastedPercent'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Wasted Percentage', 'w3-total-cache' ) . '</th>';
-					$items   .= '<td>' . round( esc_html( $item['wastedPercent'] ), 2 ) . '%</td>';
+					$items   .= '<td>' . round( $item['wastedPercent'], 2 ) . '%</td>';
 				}
 				if ( isset( $item['wastedMs'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Wasted Miliseconds', 'w3-total-cache' ) . '</th>';
-					$items   .= '<td>' . round( esc_html( $item['wastedMs'] ), 2 ) . '</td>';
+					$items   .= '<td>' . round( $item['wastedMs'], 2 ) . '</td>';
 				}
 				if ( isset( $item['label'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Type', 'w3-total-cache' ) . '</th>';
@@ -451,7 +451,7 @@ class Util_PageSpeed {
 				$audit_classes .= ' ' . $type;
 			}
 
-			$diagnostic['description'] = preg_replace( '/(.*?)(\[.*?\])\((.*?)\)(.*?[,.?!]*)/i', '$1<a href="$3">$2</a>$4', esc_html( $diagnostic['description'] ) );
+			$diagnostic['description'] = preg_replace( '/(.*?)(\[.*?\])\((.*?)\)(.*?[,.?!]*)/', '$1<a href="$3">$2</a>$4', esc_html( $diagnostic['description'] ) );
 
 			$headers = '';
 			$items   = '';
@@ -488,11 +488,11 @@ class Util_PageSpeed {
 				}
 				if ( isset( $item['wastedPercent'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Wasted Percentage', 'w3-total-cache' ) . '</th>';
-					$items   .= '<td>' . round( esc_html( $item['wastedPercent'] ), 2 ) . '%</td>';
+					$items   .= '<td>' . round( $item['wastedPercent'], 2 ) . '%</td>';
 				}
 				if ( isset( $item['wastedMs'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Wasted Miliseconds', 'w3-total-cache' ) . '</th>';
-					$items   .= '<td>' . round( esc_html( $item['wastedMs'] ), 2 ) . '</td>';
+					$items   .= '<td>' . round( $item['wastedMs'], 2 ) . '</td>';
 				}
 				if ( isset( $item['label'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Type', 'w3-total-cache' ) . '</th>';
