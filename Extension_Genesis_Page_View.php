@@ -68,7 +68,7 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_header' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Content', 'w3-total-cache' ), '', 'content' ); ?>
@@ -146,7 +146,7 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_content' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Sidebar', 'w3-total-cache' ), '', 'sidebar' ); ?>
@@ -171,7 +171,7 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_sidebar' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Footer', 'w3-total-cache' ) ); ?>
@@ -206,7 +206,7 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_footer' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Exclusions', 'w3-total-cache' ), '', 'exclusions' ); ?>
@@ -272,7 +272,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</td>
 		</tr>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_exclusions' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 </div>

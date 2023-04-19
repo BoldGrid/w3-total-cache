@@ -39,6 +39,7 @@ if ( $c->is_extension_active( 'imageservice' ) ) {
 </p>
 
 <form id="w3tc-imageservice-settings" action="upload.php?page=w3tc_extension_page_imageservice" method="post">
+	<?php Util_UI::print_control_bar( 'extension_imageservice_form_control' ); ?>
 <div class="metabox-holder">
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', '' ); ?>
@@ -100,7 +101,6 @@ Util_Ui::config_item(
 	</table>
 
 <?php
-Util_Ui::button_config_save( 'extension_imageservice_configuration' );
 Util_Ui::postbox_footer();
 
 Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', '' );

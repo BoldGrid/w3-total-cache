@@ -5,7 +5,15 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-Util_Ui::postbox_header( 'Fragment Cache', '', 'fragmentcache' );
+Util_Ui::postbox_header_tabs(
+	esc_html__( 'Fragment Cache', 'w3-total-cache' ),
+	esc_html__( 'This needs a description!', 'w3-total-cache' ),
+	'',
+	'fragmentcache',
+	esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' )
+);
+
 ?>
 <p><?php esc_html_e( 'Enable fragment caching reduce execution time for common operations.', 'w3-total-cache' ); ?></p>
 
@@ -21,10 +29,4 @@ Util_Ui::postbox_header( 'Fragment Cache', '', 'fragmentcache' );
 	?>
 </table>
 
-<?php
-Util_Ui::button_config_save(
-	'general_fragmentcache',
-	'<input type="submit" name="w3tc_flush_fragmentcache" value="' . __( 'Empty cache', 'w3-total-cache' ) . '" class="button" />'
-);
-?>
 <?php Util_Ui::postbox_footer(); ?>

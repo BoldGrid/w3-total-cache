@@ -49,6 +49,7 @@ if ( ! defined( 'W3TC' ) ) {
 </form>
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'objectcache_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
 		<table class="form-table">
@@ -133,7 +134,6 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php endif ?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'objectcache' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>

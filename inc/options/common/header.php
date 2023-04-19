@@ -114,7 +114,7 @@ do_action( 'w3tc-dashboard-head' );
 				$custom_areas,
 				array(
 					array(
-						'id'   => 'google_page_speed',
+						'id'   => 'google_pagespeed',
 						'text' => __( 'Google PageSpeed', 'w3-total-cache' )
 					),
 					array(
@@ -159,8 +159,7 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_pgcache':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
-				<a href="#toplevel_page_w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+				<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>|
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#mirrors"><?php esc_html_e( 'Mirrors', 'w3-total-cache' ); ?></a> |
 				<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
@@ -175,7 +174,6 @@ do_action( 'w3tc-dashboard-head' );
 			?>
 			<p id="w3tc-options-menu">
 				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
-				<a href="#toplevel_page_w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#html_xml">
 					<?php
@@ -250,7 +248,6 @@ do_action( 'w3tc-dashboard-head' );
 			?>
 			<p id="w3tc-options-menu">
 				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
-				<a href="#toplevel_page_w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
 			</p>
@@ -261,7 +258,6 @@ do_action( 'w3tc-dashboard-head' );
 			?>
 			<p id="w3tc-options-menu">
 				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
-				<a href="#toplevel_page_w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
 			</p>
 			<?php
@@ -271,7 +267,6 @@ do_action( 'w3tc-dashboard-head' );
 			?>
 			<p id="w3tc-options-menu">
 				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
-				<a href="#toplevel_page_w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#css_js">
 					<?php
@@ -329,7 +324,6 @@ do_action( 'w3tc-dashboard-head' );
 			?>
 			<p id="w3tc-options-menu">
 				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
-				<a href="#toplevel_page_w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#manage-uag"><?php esc_html_e( 'Manage User Agent Groups', 'w3-total-cache' ); ?></a> |
 				<a href="#manage-rg"><?php esc_html_e( 'Manage Referrer Groups', 'w3-total-cache' ); ?></a> |
 				<a href="#manage-cg"><?php esc_html_e( 'Manage Cookie Groups', 'w3-total-cache' ); ?></a>

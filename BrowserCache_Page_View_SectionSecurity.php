@@ -1232,5 +1232,4 @@ $feature_policies = array(
 	?>
 </table>
 
-<?php Util_Ui::button_config_save( 'browsercache_security' ); ?>
 <?php Util_Ui::postbox_footer(); ?>

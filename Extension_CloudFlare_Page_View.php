@@ -45,6 +45,7 @@ if ( ! defined( 'W3TC' ) ) {
 </form>
 
 <form action="admin.php?page=w3tc_extensions&amp;extension=cloudflare&amp;action=view" method="post">
+	<?php Util_UI::print_control_bar( 'extension_cloudflare_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Credentials', 'w3-total-cache' ), '', 'credentials' ); ?>
 		<table class="form-table">
@@ -152,7 +153,6 @@ if ( ! defined( 'W3TC' ) ) {
 			</table>
 		<?php endif; ?>
 
-		<?php Util_Ui::button_config_save( 'extension_cloudflare_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 

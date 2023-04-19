@@ -11,7 +11,7 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-Util_Ui::postbox_header(
+Util_Ui::postbox_header_tabs(
 	wp_kses(
 		sprintf(
 			// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -28,8 +28,11 @@ Util_Ui::postbox_header(
 			),
 		)
 	),
+	esc_html__( 'This needs a description!', 'w3-total-cache' ),
 	'',
-	'cdn'
+	'cdn',
+	esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' )
 );
 Util_Ui::config_overloading_button(
 	array(
@@ -144,12 +147,6 @@ Util_Ui::config_overloading_button(
 
 <?php
 do_action( 'w3tc_settings_general_boxarea_cdn_footer' );
-
-Util_Ui::button_config_save(
-	'general_cdn',
-	'<input id="cdn_purge" type="button" value="' . __( 'Empty cache', 'w3-total-cache' ) .
-		'" ' . ( $cdn_enabled && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ' ) .
-		' class="button {nonce: \'' . wp_create_nonce( 'w3tc' ) . '\'}" />'
-);
 ?>
+
 <?php Util_Ui::postbox_footer(); ?>

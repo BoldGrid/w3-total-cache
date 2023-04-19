@@ -30,7 +30,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		</div>
-		<h3 class="hndle">
+		<h3 class="postbox-title">
 			<img style="height:32px;" src="<?php echo esc_url( plugins_url( 'w3-total-cache/pub/img/W3TC_dashboard_logo_title.png' ) ); ?>" />
 		</h3>
 		<div class="inside">

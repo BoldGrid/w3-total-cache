@@ -4,13 +4,19 @@ namespace W3TC;
 if ( !defined( 'W3TC' ) )
 	die();
 
-Util_Ui::postbox_header( 'Statistics', '', 'stats' );
-
 $c = Dispatcher::config();
 $is_pro = Util_Environment::is_w3tc_pro( $c );
 
-?>
+Util_Ui::postbox_header_tabs(
+	esc_html__( 'Statistics', 'w3-total-cache' ),
+	esc_html__( 'This needs a description!', 'w3-total-cache' ),
+	'',
+	'stats',
+	esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_stats' )
+);
 
+?>
 <table class="form-table">
 	<?php
 Util_Ui::config_item_pro( array(
@@ -101,9 +107,6 @@ Util_Ui::config_item( array(
 ?>
 </table>
 
-<?php
-Util_Ui::button_config_save( 'stats' );
-?>
 <?php Util_Ui::postbox_footer(); ?>
 
 <script>

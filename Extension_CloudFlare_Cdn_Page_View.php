@@ -5,8 +5,6 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
-<form id="cdn_form" action="admin.php?page=w3tc_cdn" method="post">
-	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ), '', 'configuration' ); ?>
 		<table class="form-table">
 			<tr>
@@ -21,7 +19,4 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'cdn_configuration' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
-	</div>
-</form>

@@ -4,9 +4,15 @@ namespace W3TC;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
-?>
-<?php Util_Ui::postbox_header( esc_html__( 'Opcode Cache', 'w3-total-cache' ), '', 'system_opcache' ); ?>
 
+Util_Ui::postbox_header_tabs(
+	esc_html__( 'Opcode Cache', 'w3-total-cache' ),
+	esc_html__( 'This needs a description!', 'w3-total-cache' ),
+	'',
+	'system_opcache'
+);
+
+?>
 <table class="form-table">
 	<?php
 	Util_Ui::config_item(
@@ -44,12 +50,5 @@ if ( ! defined( 'W3TC' ) ) {
 	);
 	?>
 </table>
-<?php
-Util_Ui::button_config_save(
-	'general_opcache',
-	'<input type="submit" name="w3tc_opcache_flush" value="' . esc_attr__( 'Empty cache', 'w3-total-cache' ) . '"' .
-		( ( 'Not Available' !== $opcode_engine ) ? '' : ' disabled="disabled" ' ) . ' class="button" />'
-);
-?>
 
 <?php Util_Ui::postbox_footer(); ?>

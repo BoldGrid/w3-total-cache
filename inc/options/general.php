@@ -34,8 +34,16 @@ require W3TC_INC_DIR . '/options/common/header.php';
 	?>
 </p>
 <form id="w3tc_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'general_form_control' ); ?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '' ); ?>
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'General', 'w3-total-cache' ),
+			'',
+			'',
+			'general'
+		);
+		?>
 		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Preview mode:', 'w3-total-cache' ); ?></th>
@@ -102,11 +110,23 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'general_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
-
+		
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Page Cache', 'w3-total-cache' ), '', 'page_cache' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Page Cache', 'w3-total-cache' ),
+			esc_html__(
+				'Page cache is a technique used to speed up the performance of a website by storing a copy of the 
+					generated HTML page in the server\'s memory or dis, and then serving that copy to subsequent 
+					visitors instead of generating the page from scratch each time. This can result in significant 
+					speed improvements for websites with high traffic or dynamic content.',
+				'w3-total-cache'
+			),
+			'',
+			'page_cache',
+			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+			Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' )
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'pgcache.configuration_overloaded' ) );
 		?>
 
@@ -181,19 +201,23 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php
-		Util_Ui::button_config_save(
-			'general_pagecache',
-			'<input type="submit" name="w3tc_flush_pgcache" value="' .
-				esc_attr__( 'Empty cache', 'w3-total-cache' ) . '"' .
-				( $pgcache_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
-		?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Minify', 'w3-total-cache' ), '', 'minify' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Minify', 'w3-total-cache' ),
+			esc_html__(
+				'Minification is a technique used to reduce the file size of HTML, CSS, and JavaScript 
+					files by removing unnecessary characters such as whitespace, comments, and line breaks. 
+					This process can significantly improve the load times of web pages by reducing the amount 
+					of data that needs to be downloaded by the user\'s browser.',
+				'w3-total-cache'
+			),
+			'',
+			'minify',
+			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+			Util_UI::admin_url( 'admin.php?page=w3tc_minify' )
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'minify.configuration_overloaded' ) );
 		?>
 		<p>
@@ -323,22 +347,20 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php
-		Util_Ui::button_config_save(
-			'general_minify',
-			'<input type="submit" name="w3tc_flush_minify" value="' .
-				esc_attr__( 'Empty cache', 'w3-total-cache' ) . '" ' .
-				( $minify_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
-		?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 
 		<?php do_action( 'w3tc_settings_general_boxarea_system_opcache' ); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Database Cache', 'w3-total-cache' ), '', 'database_cache' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Database Cache', 'w3-total-cache' ),
+			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			'',
+			'database_cache',
+			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+			Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' )
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'dbcache.configuration_overloaded' ) );
 		?>
 
@@ -362,20 +384,17 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php endif; ?>
 		</table>
 
-		<?php
-		Util_Ui::button_config_save(
-			'general_dbcache',
-			'<input type="submit" name="w3tc_flush_dbcache" value="' .
-				esc_html__( 'Empty cache', 'w3-total-cache' ) . '" ' .
-				( $dbcache_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
-		?>
-
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Object Cache', 'w3-total-cache' ), '', 'object_cache' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Object Cache', 'w3-total-cache' ),
+			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			'',
+			'object_cache',
+			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' )
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
 		?>
 
@@ -417,20 +436,17 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php
-		Util_Ui::button_config_save(
-			'general_objectcache',
-			'<input type="submit" name="w3tc_flush_objectcache" value="' .
-				esc_attr__( 'Empty cache', 'w3-total-cache' ) . '" ' .
-				( $objectcache_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
-		?>
-
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Browser Cache', 'w3-total-cache' ), '', 'browser_cache' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Browser Cache', 'w3-total-cache' ),
+			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			'',
+			'browser_cache',
+			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+			Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' )
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'browsercache.configuration_overloaded' ) );
 		?>
 
@@ -464,13 +480,17 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'general_browsercache' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php do_action( 'w3tc_settings_general_boxarea_cdn' ); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Reverse Proxy', 'w3-total-cache' ), '', 'reverse_proxy' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Reverse Proxy', 'w3-total-cache' ),
+			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			'',
+			'reverse_proxy'
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'varnish.configuration_overloaded' ) );
 		?>
 
@@ -535,20 +555,17 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			</tr>
 		</table>
 
-		<?php
-		Util_Ui::button_config_save(
-			'general_varnish',
-			'<input type="submit" name="w3tc_flush_varnish" value="' .
-				esc_attr__( 'Purge cache', 'w3-total-cache' ) . '"' .
-				( $varnish_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
-		?>
-
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php if ( $is_pro ) : ?>
-			<?php Util_Ui::postbox_header( esc_html__( 'Message Bus', 'w3-total-cache' ), '', 'amazon_sns' ); ?>
+			<?php
+			Util_Ui::postbox_header_tabs(
+				esc_html__( 'Message Bus', 'w3-total-cache' ),
+				esc_html__( 'This needs a description!', 'w3-total-cache' ),
+				'',
+				'amazon_sns'
+			);
+			?>
 			<p>
 				<?php esc_html_e( 'Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then syncronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared.', 'w3-total-cache' ); ?>
 			</p>
@@ -677,11 +694,19 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</tr>
 			</table>
 
-			<?php Util_Ui::button_config_save( 'general_dbcluster' ); ?>
 			<?php Util_Ui::postbox_footer(); ?>
 		<?php endif; ?>
 
-		<?php Util_Ui::postbox_header( __( 'Google PageSpeed', 'w3-total-cache' ), '', 'google_page_speed' ); ?>
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Google PageSpeed', 'w3-total-cache' ),
+			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			'',
+			'google_pagespeed',
+			esc_html__( 'PageSpeed Tool', 'w3-total-cache' ),
+			Util_UI::admin_url( 'admin.php?page=w3tc_pagespeed' )
+		);
+		?>
 		<?php
 		$access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
 		$w3_pagespeed      = new PageSpeed_Api( $access_token_json );
@@ -820,7 +845,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'general_google_page_speed' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -830,7 +854,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		?>
 
 		<?php if ( $licensing_visible ) : ?>
-			<?php Util_Ui::postbox_header( __( 'Licensing', 'w3-total-cache' ), '', 'licensing' ); ?>
+			<?php
+			Util_Ui::postbox_header_tabs(
+				esc_html__( 'Licensing', 'w3-total-cache' ),
+				esc_html__( 'This needs a description!', 'w3-total-cache' ),
+				'',
+				'licensing'
+			);
+			?>
 			<table class="form-table">
 					<tr>
 						<th>
@@ -865,11 +896,18 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					</tr>
 
 			</table>
-			<?php Util_Ui::button_config_save( 'general_licensing' ); ?>
+
 			<?php Util_Ui::postbox_footer(); ?>
 		<?php endif; ?>
 
-		<?php Util_Ui::postbox_header( esc_html__( 'Miscellaneous', 'w3-total-cache' ), '', 'miscellaneous' ); ?>
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Miscellaneous', 'w3-total-cache' ),
+			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			'',
+			'miscellaneous'
+		);
+		?>
 		<table class="form-table">
 			<?php if ( is_network_admin() ) : ?>
 			<tr>
@@ -994,10 +1032,16 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'general_misc' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( esc_html__( 'Debug', 'w3-total-cache' ), '', 'debug' ); ?>
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Debug', 'w3-total-cache' ),
+			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			'',
+			'debug'
+		);
+		?>
 		<p>
 			<?php
 			echo wp_kses(
@@ -1108,7 +1152,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 		</table>
 
-		<?php Util_Ui::button_config_save( 'general_debug' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>

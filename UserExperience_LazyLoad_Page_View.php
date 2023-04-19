@@ -211,8 +211,5 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, tru
 		</td>
 	</tr>
 </table>
-<p class="submit">
-	<?php Util_Ui::button_config_save( 'lazyload' ); ?>
-</p>
 
 <?php Util_Ui::postbox_footer(); ?>

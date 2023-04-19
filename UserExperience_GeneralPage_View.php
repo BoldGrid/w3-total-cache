@@ -6,7 +6,14 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <?php
-Util_Ui::postbox_header( esc_html__( 'User Experience', 'w3-total-cache' ), '', 'userexperience' );
+Util_Ui::postbox_header_tabs(
+	esc_html__( 'User Experience', 'w3-total-cache' ),
+	esc_html__( 'This needs a description!', 'w3-total-cache' ),
+	'',
+	'userexperience',
+	esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_userexperience' )
+);
 Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_overloaded' ) );
 ?>
 
@@ -80,5 +87,4 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 	?>
 </table>
 
-<?php Util_Ui::button_config_save( 'general_userexperience' ); ?>
 <?php Util_Ui::postbox_footer(); ?>

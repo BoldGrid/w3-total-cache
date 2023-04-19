@@ -1350,4 +1350,44 @@ jQuery(function() {
 				w3tc_ga('send', 'event', 'select', value, name);
 		});
 	}
+
+	// options save bar css changer
+	jQuery(window).scroll(function(){
+		var fixed = jQuery('.w3tc_form_bar');
+	
+		var fixed_position = fixed.offset().top + fixed.height();
+
+		var add_class = false;
+		jQuery('form .metabox-holder .postbox .inside').each(function(){
+	
+			var toCross_position = jQuery(this).offset().top;
+			var toCross_height = jQuery(this).height();
+
+			if (fixed_position > toCross_position && fixed_position < toCross_position + toCross_height) {
+				add_class = true;
+			}
+		});
+
+		if(add_class){
+			fixed.addClass('w3tc_form_bar_bordered');
+		} else {
+			fixed.removeClass('w3tc_form_bar_bordered');
+		}
+	});
+
+	jQuery("a").on('click', function(event) {
+		if (this.hash !== "") {
+		  	event.preventDefault();
+		  	var hash = this.hash;
+			var wpadminbar_height = ( jQuery('#wpadminbar').length ) ? jQuery('#wpadminbar').height() : 0;
+			var nav_bar_height = ( jQuery('#w3tc-top-nav-bar').length ) ? jQuery('#w3tc-top-nav-bar').height() : 0;
+			var options_menu_height = ( jQuery('#w3tc-options-menu').length ) ? jQuery('#w3tc-options-menu').height() : 0;
+			var form_bar_height = ( jQuery('.w3tc_form_bar').length ) ? jQuery('.w3tc_form_bar').height() : 0;
+		  	jQuery('html, body').animate({
+				scrollTop: jQuery(hash).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height - 11
+		  	}, 400, function(){
+				//window.location.hash = hash;
+		  	});
+		}
+	});
 });

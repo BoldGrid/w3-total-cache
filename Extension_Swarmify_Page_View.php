@@ -23,6 +23,7 @@ if ( ! defined( 'W3TC' ) ) {
 <p>
 
 <form action="admin.php?page=w3tc_extensions&amp;extension=swarmify&amp;action=view" method="post">
+	<?php Util_UI::print_control_bar( 'extension_swarmify_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', 'configuration' ); ?>
 		<table class="form-table">
@@ -38,7 +39,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		</table>
-		<?php Util_Ui::button_config_save( 'extension_swarmify_configuration' ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Behavior Settings', 'w3-total-cache' ), '', 'behavior' ); ?>
@@ -75,7 +76,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		</table>
-		<?php Util_Ui::button_config_save( 'extension_swarmify_behaviour' ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>

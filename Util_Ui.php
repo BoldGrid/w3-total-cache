@@ -184,8 +184,42 @@ class Util_Ui {
 			$id = ' id="' . esc_attr( $id ) . '"';
 		}
 		echo '<div' . $id . ' class="postbox ' . esc_attr( $class ) . '">
-		<div class="handlediv" title="' . esc_attr__( 'Click to toggle', 'w3-total-cache' ) . '"><br /></div>
-		<h3 class="hndle"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
+		<h3 class="postbox-title"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
+		<div class="inside">';
+	}
+
+	/**
+	 * Returns postbox header with tabs and links (used on the General settings page exclusively)
+	 *
+	 * WordPress 5.5 introduced .postbox-header, which broke the styles of our postboxes. This was
+	 * resolved by adding additional css to /pub/css/options.css and pub/css/widget.css tagged with
+	 * a "WP 5.5" comment.
+	 *
+	 * @todo Add .postbox-header to our postboxes and cleanup css.
+	 * @link https://github.com/BoldGrid/w3-total-cache/issues/237
+	 *
+	 * @param string $title
+	 * @param string $description
+	 * @param string $class
+	 * @param string $id
+	 * @param string $link_text
+	 * @param string $link
+	 * @return void
+	 */
+	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $link_text = '', $link = '' ) {
+		if ( ! empty( $id ) ) {
+			$id = ' id="' . esc_attr( $id ) . '"';
+		}
+		if ( ! empty( $description ) ) {
+			$description = '<div class="postbox-description">' . esc_html__( $description ) . '</div>';
+		}
+		if ( ! empty( $link_text ) && ! empty( $link ) ) {
+			$adv_settings_tab = '<span class="advanced-settings"><a href="' . esc_url( $link ) . '">' . $link_text . '<span class="dashicons dashicons-arrow-right-alt2"></span></a></span>';
+		}
+		echo '<div' . $id . ' class="postbox-tabs ' . esc_attr( $class ) . '">
+		<h3 class="postbox-title"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
+		' . $description . '
+		<span class="base-settings">' . esc_html__( 'Base Settings', 'w3-total-cache' ) . '</span>' . $adv_settings_tab . '
 		<div class="inside">';
 	}
 
@@ -228,6 +262,133 @@ class Util_Ui {
 				value="<?php esc_attr_e( 'Save Settings & Purge Caches', 'w3-total-cache' ); ?>" />
 			<?php endif ?>
 		</p>
+		<?php
+	}
+
+	public static function button_config_save_dropdown( $id = '', $extra = '' ) {
+		$b1_id = 'w3tc_save_options_' . $id;
+		$b2_id = 'w3tc_default_save_and_flush_' . $id;
+
+		$config = Dispatcher::config();
+
+		?>
+		<div class="w3tc-button-flush-save-dropdown-container">
+			<?php
+			$nonce_field = self::nonce_field( 'w3tc' );
+			echo wp_kses(
+				$nonce_field,
+				self::get_allowed_html_for_wp_kses_from_content( $nonce_field )
+			);
+			echo wp_kses(
+				$extra,
+				self::get_allowed_html_for_wp_kses_from_content( $extra )
+			);
+			?>
+			<ul class="w3tc-button-flush-dropdown ">
+				<li>
+					<input type="submit" name="w3tc_flush_all" value="<?php _e( 'Empty All Caches', 'w3-total-cache' ); ?>" class="button" />
+				</li>
+				<li>
+					<div class="dropdown-arrow">
+						<span class="up dashicons dashicons-arrow-up-alt2"></span>
+						<span class="down dashicons dashicons-arrow-down-alt2"></span>
+					</div>
+      				<ul class="w3tc-button-flush-dropdown-sub">
+						<?php
+						if ( $config->get_boolean( 'pgcache.enabled' ) ) {
+							?>
+					  		<li>
+								<input type="submit" name="w3tc_flush_pgcache" value="<?php esc_attr_e( 'Empty Page Cache', 'w3-total-cache' ); ?>" class="button" />
+							</li>
+							<?php
+						}
+						if ( $config->get_boolean( 'minify.enabled' ) ) {
+							?>
+							<li>
+								<input type="submit" name="w3tc_flush_minify" value="<?php esc_attr_e( 'Empty Minify Cache', 'w3-total-cache' ); ?>" class="button" />
+							</li>
+							<?php
+						}
+						if ( $config->get_boolean( 'dbcache.enabled' ) ) {
+							?>
+							<li>
+								<input type="submit" name="w3tc_flush_dbcache" value="<?php esc_attr_e( 'Empty Database Cache', 'w3-total-cache' ); ?>" class="button" />
+							</li>
+							<?php
+						}
+						if ( $config->get_boolean( 'objectcache.enabled' ) ) {
+							?>
+							<li>
+								<input type="submit" name="w3tc_flush_objectcache" value="<?php esc_attr_e( 'Empty Object Cache', 'w3-total-cache' ); ?>" class="button" />
+							</li>
+							<?php
+						}
+						if ( $config->get_boolean( 'cdn.enabled' ) ) {
+							?>
+							<li>
+								<input type="submit" name="w3tc_flush_cdn" value="<?php esc_attr_e( 'Empty CDN Cache', 'w3-total-cache' ); ?>" class="button" 
+									<?php echo ( $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ' ); ?> />
+							</li>
+							<?php
+						}
+						if ( $config->get_boolean( 'fragmentcache.enabled' ) ) {
+							?>
+        					<li>
+								<input type="submit" name="w3tc_flush_fragmentcache" value="<?php esc_attr_e( 'Empty Fragment Cache', 'w3-total-cache' ); ?>" class="button" />
+							</li>
+							<?php
+						}
+						if ( 'Not Available' !== $opcode_engine ) {
+							?>
+							<li>
+								<input type="submit" name="w3tc_opcache_flush" value="<?php esc_attr_e( 'Empty OpCache Cache', 'w3-total-cache' ); ?>" class="button" 
+									<?php echo ( ( 'Not Available' !== $opcode_engine ) ? '' : ' disabled="disabled" ' ); ?> />
+							</li>
+							<?php
+						}
+						?>
+					</ul>
+				</li>
+			</ul>
+			<ul class="w3tc-button-save-dropdown">
+				<li>
+					<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>"
+						name="w3tc_save_options"
+						class="w3tc-button-save button-primary"
+						value="<?php esc_attr_e( 'Save settings', 'w3-total-cache' ); ?>" />
+				</li>
+				<li>
+					<div class="dropdown-arrow">
+						<span class="up dashicons dashicons-arrow-up-alt2"></span>
+						<span class="down dashicons dashicons-arrow-down-alt2"></span>
+					</div>
+      				<ul class="w3tc-button-save-dropdown-sub">
+        				<li>
+							<?php if ( ! is_network_admin() ) : ?>
+								<input type="submit" id="<?php echo esc_attr( $b2_id ); ?>"
+									name="w3tc_default_save_and_flush" style="float: right"
+									class="w3tc-button-save button-primary"
+									value="<?php esc_attr_e( 'Save Settings & Purge Caches', 'w3-total-cache' ); ?>" />
+							<?php endif ?>
+						</li>
+      				</ul>
+    			</li>
+			</ul>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Prints the form control bar
+	 *
+	 * @param string $id
+	 * @return void
+	 */
+	public static function print_control_bar( $id = '' ) {
+		?>
+		<div class="w3tc_form_bar">
+			<?php Util_Ui::button_config_save_dropdown( $id ); ?>
+		</div>
 		<?php
 	}
 

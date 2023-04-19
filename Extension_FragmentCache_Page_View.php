@@ -61,6 +61,7 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 </form>
 
 <form action="admin.php?page=w3tc_fragmentcache" method="post">
+	<?php Util_UI::print_control_bar( 'extension_fragmentcache_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Overview', 'w3-total-cache' ), '', 'overview' ); ?>
 		<table class="form-table">
@@ -120,7 +121,6 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'extension_fragmentcache' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>

@@ -4,10 +4,17 @@ namespace W3TC;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
-?>
-<?php
-Util_Ui::postbox_header( esc_html__( 'Monitoring', 'w3-total-cache' ), '', 'monitoring' );
+
+Util_Ui::postbox_header_tabs(
+	esc_html__( 'Monitoring', 'w3-total-cache' ),
+	esc_html__( 'This needs a description!', 'w3-total-cache' ),
+	'',
+	'monitoring',
+	esc_html__( 'Advacned Settings', 'w3-total-cache' ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_monitoring' )
+);
 Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_overloaded' ) );
+
 ?>
 
 <?php if ( ! $new_relic_installed ) : ?>
@@ -82,5 +89,5 @@ Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_over
 		</td>
 	</tr>
 </table>
-<?php Util_Ui::button_config_save( 'general_newrelic' ); ?>
+
 <?php Util_Ui::postbox_footer(); ?>

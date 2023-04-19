@@ -16,8 +16,9 @@ if ( !defined( 'W3TC' ) )
 <p>
 
 <form action="admin.php?page=w3tc_userexperience" method="post">
-<div class="metabox-holder">
-	<?php /* decouple it when too much */ ?>
-	<?php include  W3TC_DIR . '/UserExperience_LazyLoad_Page_View.php' ?>
-</div>
+	<?php Util_UI::print_control_bar( 'pagecache_form_control' ); ?>
+	<div class="metabox-holder">
+		<?php /* decouple it when too much */ ?>
+		<?php include  W3TC_DIR . '/UserExperience_LazyLoad_Page_View.php' ?>
+	</div>
 </form>

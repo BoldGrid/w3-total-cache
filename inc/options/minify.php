@@ -90,6 +90,7 @@ if ( ! defined( 'W3TC' ) ) {
 </form>
 
 <form id="minify_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'minify_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
@@ -153,7 +154,6 @@ if ( ! defined( 'W3TC' ) ) {
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -249,7 +249,6 @@ if ( ! defined( 'W3TC' ) ) {
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_html_xml' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -601,7 +600,6 @@ if ( ! defined( 'W3TC' ) ) {
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_js' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -877,7 +875,6 @@ if ( ! defined( 'W3TC' ) ) {
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_css' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
@@ -1004,7 +1001,6 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php endif; ?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_advanced' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Note(s):', 'w3-total-cache' ), '', 'notes' ); ?>

@@ -55,6 +55,7 @@ if ( ! defined( 'W3TC' ) ) {
 </form>
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'pagecache_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
@@ -147,7 +148,6 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'pagecache_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Aliases', 'w3-total-cache' ), '', 'mirrors' ); ?>
@@ -209,7 +209,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		</table>
-		<?php Util_Ui::button_config_save( 'pagecache_aliases' ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Cache Preload', 'w3-total-cache' ), '', 'cache_preload' ); ?>
@@ -278,7 +278,6 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'pagecache_cache_preload' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -386,7 +385,6 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'pagecache_purge_policy' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -476,7 +474,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		</table>
-		<?php Util_Ui::button_config_save( 'rest' ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 
@@ -807,7 +805,6 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php endif; ?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'pagecache_advanced' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Note(s)', 'w3-total-cache' ), '', 'notes' ); ?>

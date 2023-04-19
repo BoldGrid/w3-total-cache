@@ -121,6 +121,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 	</p>
 </form>
 <form id="cdn_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'cdn_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
@@ -352,7 +353,6 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 			<?php endif; ?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'cdn_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Objects', 'w3-total-cache' ), '', 'configuration' ); ?>
@@ -372,7 +372,6 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'cdn_configuration' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php do_action( 'w3tc_settings_box_cdnfsd' ); ?>
@@ -854,7 +853,6 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'cdn_advanced' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Note(s):', 'w3-total-cache' ), '', 'notes' ); ?>
