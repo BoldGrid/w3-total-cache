@@ -353,6 +353,20 @@ function cdn_cf_check() {
 	}
 }
 
+function set_sticky_bar_positions() {
+	jQuery('#w3tc-options-menu').css(
+		'top',
+		((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').height() : 0) +
+			jQuery('#w3tc-top-nav-bar').height() + 1
+	);
+	jQuery('.w3tc_form_bar').css(
+		'top',
+		((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').height() : 0) +
+			jQuery('#w3tc-top-nav-bar').height() +
+			jQuery('#w3tc-options-menu').height() + 5
+	);
+}
+
 jQuery(function() {
 	// general page
 	jQuery('.w3tc_read_technical_info').on( 'click', function() {
@@ -1358,7 +1372,8 @@ jQuery(function() {
 		var fixed_position = fixed.offset().top + fixed.height();
 
 		var add_class = false;
-		jQuery('form .metabox-holder .postbox .inside').each(function(){
+
+		jQuery('form .metabox-holder .postbox .inside, form .metabox-holder .postbox-tabs .inside').each(function(){
 	
 			var toCross_position = jQuery(this).offset().top;
 			var toCross_height = jQuery(this).height();
@@ -1379,7 +1394,7 @@ jQuery(function() {
 		if (this.hash !== "") {
 		  	event.preventDefault();
 		  	var hash = this.hash;
-			var wpadminbar_height = ( jQuery('#wpadminbar').length ) ? jQuery('#wpadminbar').height() : 0;
+			var wpadminbar_height = ( jQuery(window).width() > 600  && jQuery('#wpadminbar').length ) ? jQuery('#wpadminbar').height() : 0;
 			var nav_bar_height = ( jQuery('#w3tc-top-nav-bar').length ) ? jQuery('#w3tc-top-nav-bar').height() : 0;
 			var options_menu_height = ( jQuery('#w3tc-options-menu').length ) ? jQuery('#w3tc-options-menu').height() : 0;
 			var form_bar_height = ( jQuery('.w3tc_form_bar').length ) ? jQuery('.w3tc_form_bar').height() : 0;
@@ -1390,4 +1405,10 @@ jQuery(function() {
 		  	});
 		}
 	});
+
+	jQuery(window).resize(function() {
+		set_sticky_bar_positions();
+	});
+
+	set_sticky_bar_positions();
 });

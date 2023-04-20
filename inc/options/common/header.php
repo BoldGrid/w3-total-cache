@@ -159,7 +159,7 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_pgcache':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>|
+				<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#mirrors"><?php esc_html_e( 'Mirrors', 'w3-total-cache' ); ?></a> |
 				<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |

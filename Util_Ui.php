@@ -286,7 +286,8 @@ class Util_Ui {
 			?>
 			<ul class="w3tc-button-flush-dropdown ">
 				<li>
-					<input type="submit" name="w3tc_flush_all" value="<?php _e( 'Empty All Caches', 'w3-total-cache' ); ?>" class="button" />
+					<input type="submit" name="w3tc_flush_all" class="w3tc-button-flush button-primary" 
+						value="<?php _e( 'Empty All Caches', 'w3-total-cache' ); ?>" />
 				</li>
 				<li>
 					<div class="dropdown-arrow">
@@ -352,9 +353,7 @@ class Util_Ui {
 			</ul>
 			<ul class="w3tc-button-save-dropdown">
 				<li>
-					<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>"
-						name="w3tc_save_options"
-						class="w3tc-button-save button-primary"
+					<input type="submit" name="w3tc_save_options" class="w3tc-button-save button-primary"
 						value="<?php esc_attr_e( 'Save settings', 'w3-total-cache' ); ?>" />
 				</li>
 				<li>
