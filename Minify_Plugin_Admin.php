@@ -136,8 +136,11 @@ class Minify_Plugin_Admin {
 
 		if ( $c->get_string( 'minify.engine' ) == 'memcached' ) {
 			$memcached_servers = $c->get_array( 'minify.memcached.servers' );
+			$memcached_binary_protocol = $c->get_boolean( 'minify.memcached.binary_protocol' );
+			$memcached_username = $c->get_string( 'minify.memcached.username' );
+			$memcached_password = $c->get_string( 'minify.memcached.password' );
 
-			if ( !Util_Installed::is_memcache_available( $memcached_servers ) ) {
+			if ( !Util_Installed::is_memcache_available( $memcached_servers, $memcached_binary_protocol, $memcached_username, $memcached_password ) ) {
 				if ( !isset( $errors['memcache_not_responding.details'] ) )
 					$errors['memcache_not_responding.details'] = array();
 

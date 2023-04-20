@@ -687,7 +687,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$w3_pagespeed      = new PageSpeed_Api( $access_token_json );
 
 		$site_id            = Util_Http::generate_site_id();
-		$return_url         = admin_url( 'admin.php?page=w3tc_general' );
+		$return_url         = Util_Ui::admin_url( 'admin.php?page=w3tc_general' );
 		$w3tc_pagespeed_key = ! empty( $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) : '';
 		$auth_url           = $w3_pagespeed->client->createAuthUrl();
 

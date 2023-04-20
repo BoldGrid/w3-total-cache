@@ -74,7 +74,7 @@ jQuery(document).ready(function ($) {
 				{
 					eventCategory: 'w3tc_pagespeed',
 					eventAction: 'metric',
-					eventLabel: $(this).text(),
+					eventLabel: $(this).attr('gatitle'),
 					eventValue: 0,
 					transport: 'beacon'
 				}
