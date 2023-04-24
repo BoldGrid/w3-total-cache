@@ -997,7 +997,7 @@ td .w3tc-control-after span {
 #w3tc-footer .w3tc-footer-link {
 	display: block;
 	width: 100%;
-	margin-top: 10px;
+	margin-bottom: 10px;
 }
 #w3tc-footer .w3tc-footer-link .dashicons {
 	color: #000000;

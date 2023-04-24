@@ -208,15 +208,15 @@ class Util_Ui {
 	 */
 	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $link_text = '', $link = '' ) {
 		if ( ! empty( $id ) ) {
-			$id = ' id="' . esc_attr( $id ) . '"';
+			$display_id = ' id="' . esc_attr( $id ) . '"';
 		}
 		if ( ! empty( $description ) ) {
 			$description = '<div class="postbox-description">' . esc_html__( $description ) . '</div>';
 		}
 		if ( ! empty( $link_text ) && ! empty( $link ) ) {
-			$adv_settings_tab = '<span class="advanced-settings"><a href="' . esc_url( $link ) . '">' . $link_text . '<span class="dashicons dashicons-arrow-right-alt2"></span></a></span>';
+			$adv_settings_tab = '<span class="advanced-settings"><a href="' . esc_url( $link ) . '" gatitle="' . esc_attr( $id ) . '">' . $link_text . '<span class="dashicons dashicons-arrow-right-alt2"></span></a></span>';
 		}
-		echo '<div' . $id . ' class="postbox-tabs ' . esc_attr( $class ) . '">
+		echo '<div' . $display_id . ' class="postbox-tabs ' . esc_attr( $class ) . '">
 		<h3 class="postbox-title"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
 		' . $description . '
 		<span class="base-settings">' . esc_html__( 'Base Settings', 'w3-total-cache' ) . '</span>' . $adv_settings_tab . '

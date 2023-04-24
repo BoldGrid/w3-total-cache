@@ -356,14 +356,14 @@ function cdn_cf_check() {
 function set_sticky_bar_positions() {
 	jQuery('#w3tc-options-menu').css(
 		'top',
-		((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').height() : 0) +
-			jQuery('#w3tc-top-nav-bar').height() + 1
+		((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0) +
+			jQuery('#w3tc-top-nav-bar').outerHeight()
 	);
 	jQuery('.w3tc_form_bar').css(
 		'top',
 		((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').height() : 0) +
-			jQuery('#w3tc-top-nav-bar').height() +
-			jQuery('#w3tc-options-menu').height() + 5
+			jQuery('#w3tc-top-nav-bar').outerHeight() +
+			jQuery('#w3tc-options-menu').outerHeight()
 	);
 }
 
@@ -1312,6 +1312,91 @@ jQuery(function() {
 
 	});
 
+	// Options menu achor links
+	jQuery('#w3tc-top-nav-bar a').on( 'click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_topnav_bar',
+					eventAction: 'link',
+					eventLabel: jQuery(this).text(),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+	});
+
+	// Options menu achor links
+	jQuery('#w3tc-options-menu a').on( 'click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_options_menu',
+					eventAction: 'anchor',
+					eventLabel: jQuery(this).text(),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+	});
+
+	// Form control bar buttons
+	jQuery('.w3tc_form_bar input').on( 'click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_form_bar',
+					eventAction: 'button',
+					eventLabel: jQuery(this).text(),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+	});
+
+	// Footer links
+	jQuery('#w3tc-footer a').on( 'click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_footer',
+					eventAction: 'link',
+					eventLabel: jQuery(this).text(),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+	});
+
+	// General settings advanced options links
+	jQuery('.advanced-settings a').on( 'click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_general_advanced_tab',
+					eventAction: 'link',
+					eventLabel: jQuery(this).attr('gatitle'),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+	});
+
 	// google analytics events
 	if (typeof w3tc_ga != 'undefined') {
 		jQuery('.w3tc_error').each(function() {
@@ -1367,16 +1452,20 @@ jQuery(function() {
 
 	// options save bar css changer
 	jQuery(window).scroll(function(){
+		if(jQuery('.w3tc_form_bar').length == 0){
+			return;
+		}
+
 		var fixed = jQuery('.w3tc_form_bar');
-	
-		var fixed_position = fixed.offset().top + fixed.height();
+
+		var fixed_position = fixed.offset().top + fixed.outerHeight();
 
 		var add_class = false;
 
 		jQuery('form .metabox-holder .postbox .inside, form .metabox-holder .postbox-tabs .inside').each(function(){
 	
 			var toCross_position = jQuery(this).offset().top;
-			var toCross_height = jQuery(this).height();
+			var toCross_height = jQuery(this).outerHeight();
 
 			if (fixed_position > toCross_position && fixed_position < toCross_position + toCross_height) {
 				add_class = true;
@@ -1391,20 +1480,43 @@ jQuery(function() {
 	});
 
 	jQuery("a").on('click', function(event) {
-		if (this.hash !== "") {
+		if(this.hash !== "" && this.href.replace(this.hash,'') === window.location.href.replace(window.location.hash,'')){
 		  	event.preventDefault();
 		  	var hash = this.hash;
-			var wpadminbar_height = ( jQuery(window).width() > 600  && jQuery('#wpadminbar').length ) ? jQuery('#wpadminbar').height() : 0;
-			var nav_bar_height = ( jQuery('#w3tc-top-nav-bar').length ) ? jQuery('#w3tc-top-nav-bar').height() : 0;
-			var options_menu_height = ( jQuery('#w3tc-options-menu').length ) ? jQuery('#w3tc-options-menu').height() : 0;
-			var form_bar_height = ( jQuery('.w3tc_form_bar').length ) ? jQuery('.w3tc_form_bar').height() : 0;
-		  	jQuery('html, body').animate({
-				scrollTop: jQuery(hash).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height - 11
-		  	}, 400, function(){
-				//window.location.hash = hash;
-		  	});
+			var wpadminbar_height = ( jQuery(window).width() > 600  && jQuery('#wpadminbar').length ) ? jQuery('#wpadminbar').outerHeight() : 0;
+			var nav_bar_height = ( jQuery('#w3tc-top-nav-bar').length ) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0;
+			var options_menu_height = ( jQuery('#w3tc-options-menu').length ) ? jQuery('#w3tc-options-menu').outerHeight() : 0;
+			var form_bar_height = ( jQuery('.w3tc_form_bar').length ) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
+			jQuery('html, body').animate(
+				{
+					scrollTop: jQuery(hash.replace(/\./g,'\\.')).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
+				},
+				600
+			);
 		}
 	});
+
+	var hash = window.location.hash;
+	if(hash !== ""){
+		// Start at top of page rather than instantly loading at the anchor point
+		window.scrollTo(0, 0);
+		var wpadminbar_height = ( jQuery(window).width() > 600  && jQuery('#wpadminbar').length ) ? jQuery('#wpadminbar').outerHeight() : 0;
+		var nav_bar_height = ( jQuery('#w3tc-top-nav-bar').length ) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0;
+		var options_menu_height = ( jQuery('#w3tc-options-menu').length ) ? jQuery('#w3tc-options-menu').outerHeight() : 0;
+		var form_bar_height = ( jQuery('.w3tc_form_bar').length ) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
+		// Scroll to taget after .5 seconds
+		setTimeout(
+			function(){
+				jQuery('html, body').animate(
+					{
+						scrollTop: jQuery(hash.replace(/\./g,'\\.')).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
+					},
+					600
+				);
+			},
+			500
+		);
+	}
 
 	jQuery(window).resize(function() {
 		set_sticky_bar_positions();
