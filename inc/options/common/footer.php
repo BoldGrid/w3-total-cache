@@ -5,6 +5,8 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
+$config = Dispatcher::config();
+
 do_action( 'w3tc-dashboard-footer' );
 ?>
 </div>
@@ -59,7 +61,7 @@ do_action( 'w3tc-dashboard-footer' );
 				<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_general#cdn' ) ); ?>" alt="<?php esc_attr_e( 'Full Site Delivery', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Full Site Delivery', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_extensions#fragmentcache' ) ); ?>" alt="<?php esc_attr_e( 'Fragment Cache', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" href="<?php echo esc_url( ( $config->is_extension_active( 'fragmentcache' ) ) ? Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' ) : Util_UI::admin_url( 'admin.php?page=w3tc_extensions#fragmentcache' ) ); ?>" alt="<?php esc_attr_e( 'Fragment Cache', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Fragment Cache', 'w3-total-cache' ); ?>
 				</a>
 				<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_pgcache#rest' ) ); ?>" alt="<?php esc_attr_e( 'Rest API Caching', 'w3-total-cache' ); ?>">
@@ -70,7 +72,7 @@ do_action( 'w3tc-dashboard-footer' );
 				</a>
 			</div>
 			<div class="w3tc-footer-inner-column-50">
-				<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_extensions#genesis.theme' ) ); ?>" alt="<?php esc_attr_e( 'Genesis Framework Acceleration', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" href="<?php echo esc_url( ( $config->is_extension_active( 'genesis.theme' ) ) ? Util_UI::admin_url( 'admin.php?page=w3tc_extensions&extension=genesis.theme&action=view' ) : Util_UI::admin_url( 'admin.php?page=w3tc_extensions#genesis.theme' ) ); ?>" alt="<?php esc_attr_e( 'Genesis Framework Acceleration', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Genesis Framework Acceleration', 'w3-total-cache' ); ?>
 				</a>
 				<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_extensions#wpml' ) ); ?>" alt="<?php esc_attr_e( 'WPML Extension', 'w3-total-cache' ); ?>">
