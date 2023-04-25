@@ -19,7 +19,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 <p id="w3tc-options-menu">
 	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
-	<a href="#toplevel_page_w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+	<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 	<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 	<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
 	<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |

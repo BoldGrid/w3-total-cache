@@ -14,7 +14,7 @@ $is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugi
 $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, true ) );
 
 ?>
-<?php Util_Ui::postbox_header( esc_html__( 'Lazy Loading', 'w3-total-cache' ), '', 'application' ); ?>
+<?php Util_Ui::postbox_header( esc_html__( 'Lazy Loading', 'w3-total-cache' ), '', 'lazy-loading' ); ?>
 <table class="form-table">
 	<?php
 	Util_Ui::config_item(
