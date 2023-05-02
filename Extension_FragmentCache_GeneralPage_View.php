@@ -10,7 +10,6 @@ Util_Ui::postbox_header_tabs(
 	esc_html__( 'This needs a description!', 'w3-total-cache' ),
 	'',
 	'fragmentcache',
-	esc_html__( 'Advacned Settings', 'w3-total-cache' ),
 	Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' )
 );
 

@@ -356,14 +356,18 @@ function cdn_cf_check() {
 function set_sticky_bar_positions() {
 	jQuery('#w3tc-options-menu').css(
 		'top',
-		((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0) +
+		Math.floor(
+			((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0) +
 			jQuery('#w3tc-top-nav-bar').outerHeight()
+		)
 	);
 	jQuery('.w3tc_form_bar').css(
 		'top',
-		((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').height() : 0) +
+		Math.floor(
+			((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0) +
 			jQuery('#w3tc-top-nav-bar').outerHeight() +
 			jQuery('#w3tc-options-menu').outerHeight()
+		)
 	);
 }
 
@@ -1388,6 +1392,23 @@ jQuery(function() {
 				'event',
 				{
 					eventCategory: 'w3tc_general_advanced_tab',
+					eventAction: 'link',
+					eventLabel: jQuery(this).attr('gatitle'),
+					eventValue: 0,
+					transport: 'beacon'
+				}
+			);
+		}
+	});
+
+	// Extra links
+	jQuery('.extra-link a').on( 'click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'send',
+				'event',
+				{
+					eventCategory: 'w3tc_general_extra_link_tab',
 					eventAction: 'link',
 					eventLabel: jQuery(this).attr('gatitle'),
 					eventValue: 0,

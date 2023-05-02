@@ -362,6 +362,14 @@ class Generic_Plugin_Admin {
 	 * Enqueue admin scripts.
 	 */
 	public function admin_enqueue_scripts() {
+		// Bootstrap
+		wp_register_script( 'w3tc-bootstrap-popper-js', '//cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js' );
+		wp_register_script( 'w3tc-bootstrap-bootstrap-js', '//cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js' );
+		wp_enqueue_script( 'w3tc-bootstrap-popper-js' );
+		wp_enqueue_script( 'w3tc-bootstrap-bootstrap-js' );
+		wp_register_style( 'w3tc-bootstrap-css', plugins_url( 'pub/css/bootstrap-buttons.css', W3TC_FILE ), array(), W3TC_VERSION );
+		wp_enqueue_style( 'w3tc-bootstrap-css' );
+
 		wp_register_style( 'w3tc-options', plugins_url( 'pub/css/options.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-lightbox', plugins_url( 'pub/css/lightbox.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-widget', plugins_url( 'pub/css/widget.css', W3TC_FILE ), array(), W3TC_VERSION );

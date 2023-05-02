@@ -61,7 +61,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					);
 					?>
 					<?php if ( $this->_config->is_preview() ) : ?>
-						<input type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>" />
+						<input id="preiew-button" type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>" />
 						<?php
 						echo wp_kses(
 							Util_Ui::button_link(
@@ -103,7 +103,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							?>
 						</p>
 					<?php else : ?>
-						<input type="submit" name="w3tc_config_preview_enable" class="button-primary" value="<?php esc_attr_e( 'Enable', 'w3-total-cache' ); ?>" />
+						<input id="preview-button" type="submit" name="w3tc_config_preview_enable" class="button-primary" value="<?php esc_attr_e( 'Enable', 'w3-total-cache' ); ?>" />
 					<?php endif; ?>
 					<p class="description"><?php esc_html_e( 'Use preview mode to test configuration scenarios prior to releasing them (deploy) on the actual site. Preview mode remains active even after deploying settings until the feature is disabled.', 'w3-total-cache' ); ?></p>
 				</td>
@@ -124,7 +124,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'page_cache',
-			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
 			Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' )
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'pgcache.configuration_overloaded' ) );
@@ -215,7 +214,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'minify',
-			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
 			Util_UI::admin_url( 'admin.php?page=w3tc_minify' )
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'minify.configuration_overloaded' ) );
@@ -358,7 +356,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			esc_html__( 'This needs a description!', 'w3-total-cache' ),
 			'',
 			'database_cache',
-			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
 			Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' )
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'dbcache.configuration_overloaded' ) );
@@ -392,7 +389,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			esc_html__( 'This needs a description!', 'w3-total-cache' ),
 			'',
 			'object_cache',
-			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
 			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' )
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
@@ -444,7 +440,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			esc_html__( 'This needs a description!', 'w3-total-cache' ),
 			'',
 			'browser_cache',
-			esc_html__( 'Advacned Settings', 'w3-total-cache' ),
 			Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' )
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'browsercache.configuration_overloaded' ) );
@@ -703,8 +698,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			esc_html__( 'This needs a description!', 'w3-total-cache' ),
 			'',
 			'google_pagespeed',
-			esc_html__( 'PageSpeed Tool', 'w3-total-cache' ),
-			Util_UI::admin_url( 'admin.php?page=w3tc_pagespeed' )
+			'',
+			array( esc_html__( 'PageSpeed Tool', 'w3-total-cache' ) => Util_UI::admin_url( 'admin.php?page=w3tc_pagespeed' ) )
 		);
 		?>
 		<?php

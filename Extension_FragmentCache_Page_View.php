@@ -9,7 +9,6 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 
 ?>
 <p id="w3tc-options-menu">
-	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
 	<a href="#overview"><?php esc_html_e( 'Overview', 'w3-total-cache' ); ?></a> |

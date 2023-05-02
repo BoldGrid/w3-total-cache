@@ -103,7 +103,7 @@ do_action( 'w3tc-dashboard-head' );
 			);
 
 			if ( $licensing_visible ) {
-				array(
+				$anchors[] = array(
 					'id'   => 'licensing',
 					'text' => esc_html__( 'Licensing', 'w3-total-cache' ),
 				);
@@ -159,7 +159,6 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_pgcache':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 				<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#mirrors"><?php esc_html_e( 'Mirrors', 'w3-total-cache' ); ?></a> |
@@ -174,7 +173,6 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_minify':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
 				<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#html_xml">
@@ -249,7 +247,6 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_dbcache':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
 				<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
@@ -260,7 +257,6 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_objectcache':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
 				<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
 			</p>
@@ -270,7 +266,6 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_browsercache':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
 				<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<a href="#css_js">
@@ -328,7 +323,6 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_cachegroups':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to: ', 'w3-total-cache' ); ?>
 				<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#manage-uag"><?php esc_html_e( 'Manage User Agent Groups', 'w3-total-cache' ); ?></a> |
 				<a href="#manage-rg"><?php esc_html_e( 'Manage Referrer Groups', 'w3-total-cache' ); ?></a> |
@@ -340,7 +334,6 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_userexperience':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 				<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a>
 			</p>
@@ -350,7 +343,6 @@ do_action( 'w3tc-dashboard-head' );
 		case 'w3tc_install':
 			?>
 			<p id="w3tc-options-menu">
-				<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 				<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 				<a href="#initial"><?php esc_html_e( 'Initial Installation', 'w3-total-cache' ); ?></a> |
 				<?php if ( count( $rewrite_rules_descriptors ) ) : ?>
