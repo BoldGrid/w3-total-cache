@@ -1,3 +1,14 @@
+/*!
+ * Bootstrap v4.0.0 (https://getbootstrap.com)
+ * Copyright 2011-2018 The Bootstrap Authors
+ * Copyright 2011-2018 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+ 
+/*
+ * The CSS in this file was manually pulled from the bootstrap.css to avoid unintended impact on other style definitions
+ */
+
 .btn {
 	display: inline-block;
 	font-weight: 400;
@@ -1378,7 +1389,7 @@
 	border-left: 1px solid #ced4da;
 	border-radius: 0 0.25rem 0.25rem 0;
   }
-  
+
   .sr-only {
 	position: absolute;
 	width: 1px;
