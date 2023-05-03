@@ -5,6 +5,8 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
+<?php
+/*
 <p id="w3tc-options-menu">
 	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
@@ -13,6 +15,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<a href="#sidebar"><?php esc_html_e( 'Sidebar', 'w3-total-cache' ); ?></a> |
 	<a href="#exclusions"><?php esc_html_e( 'Exclusions', 'w3-total-cache' ); ?></a>
 </p>
+*/
 <p>
 	<?php esc_html_e( 'Genesis extension is currently ', 'w3-total-cache' ); ?>
 	<?php

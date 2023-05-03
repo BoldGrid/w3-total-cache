@@ -716,8 +716,10 @@ class Util_Admin {
 		return isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 	}
 
-	/*
+	/**
 	 * Returns current w3tc admin page
+	 * 
+	 * @return string
 	 */
 	static public function get_current_page() {
 		$page = Util_Request::get_string( 'page' );
@@ -726,6 +728,21 @@ class Util_Admin {
 			return $page;
 
 		return 'w3tc_dashboard';
+	}
+
+	/**
+	 * Returns current w3tc extension id
+	 * 
+	 * @return string
+	 */
+	static public function get_current_extension() {
+		$page      = Util_Request::get_string( 'page' );
+		$extension = Util_Request::get_string( 'extension' );
+		if ( substr( $page, 0, 5 ) == 'w3tc_' && ! empty( $extension) ){
+			return $extension;
+		}
+
+		return '';
 	}
 
 	/**

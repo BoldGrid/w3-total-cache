@@ -871,4 +871,55 @@ class Util_PageUrls {
 		}
 		return $archive_slug;
 	}
+
+	/**
+	 * Gets page title based on key
+	 *
+	 * @param string $id
+	 * @return string
+	 */
+	static public function get_page_title( $id ) {
+		$map = array(
+			'w3tc_dashboard'                   => esc_html__( 'Dashboard', 'w3-total-cache' ),
+			'w3tc_feature_showcase'            => esc_html__( 'Feature Showcase', 'w3-total-cache' ),
+			'w3tc_general'                     => esc_html__( 'General Settings', 'w3-total-cache' ),
+			'w3tc_pgcache'                     => esc_html__( 'Page Cache', 'w3-total-cache' ),
+			'w3tc_minify'                      => esc_html__( 'Minify', 'w3-total-cache' ),
+			'w3tc_dbcache'                     => esc_html__( 'Database Cache', 'w3-total-cache' ),
+			'w3tc_objectcache'                 => esc_html__( 'Object Cache', 'w3-total-cache' ),
+			'w3tc_browsercache'                => esc_html__( 'Browser Cache', 'w3-total-cache' ),
+			'w3tc_cachegroups'                 => esc_html__( 'Cache Groups', 'w3-total-cache' ),
+			'w3tc_cdn'                         => 'CDN',
+			'w3tc_faq'                         => 'FAQ',
+			'w3tc_fragmentcache'               => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
+			'w3tc_support'                     => esc_html__( 'Support', 'w3-total-cache' ),
+			'w3tc_pagespeed'                   => esc_html__( 'Google PageSpeed', 'w3-total-cache' ),
+			'w3tc_userexperience'              => esc_html__( 'User Experience', 'w3-total-cache' ),
+			'w3tc_install'                     => esc_html__( 'Install', 'w3-total-cache' ),
+			'w3tc_setup_guide'                 => esc_html__( 'Setup Guide', 'w3-total-cache' ),
+			'w3tc_extensions'                  => esc_html__( 'Extensions', 'w3-total-cache' ),
+			'w3tc_stats'                       => esc_html__( 'Statistics', 'w3-total-cache' ),
+			'w3tc_extension_page_imageservice' => esc_html__( 'Image Service', 'w3-total-cache' ),
+			'w3tc_monitoring'                  => esc_html__( 'Monitoring', 'w3-total-cache' ),
+			'w3tc_about'                       => esc_html__( 'About', 'w3-total-cache' ),
+		);
+
+		return ! empty( $map[ $id ] ) ? $map[ $id ] : '';
+	}
+
+	/**
+	 * Gets extension title based on key
+	 *
+	 * @param string $id
+	 * @return string
+	 */
+	static public function get_extension_title( $id ) {
+		$map = array(
+			'swarmify'   => 'Swarmify',
+			'cloudflare' => 'CloudFlare',
+			'amp'        => 'AMP',
+		);
+
+		return ! empty( $map[ $id ] ) ? $map[ $id ] : '';
+	}
 }

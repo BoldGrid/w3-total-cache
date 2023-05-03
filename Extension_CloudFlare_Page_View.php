@@ -5,13 +5,16 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
+<?php
+/*
 <p id="w3tc-options-menu">
 	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
 	<a href="#credentials"><?php esc_html_e( 'Credentials', 'w3-total-cache' ); ?></a> |
-	<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
-	<a href="#info"><?php esc_html_e( 'Information', 'w3-total-cache' ); ?></a>
+	<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a>
 </p>
+*/
+?>
 <p>
 	<?php esc_html_e( 'CloudFlare extension is currently ', 'w3-total-cache' ); ?>
 	<?php

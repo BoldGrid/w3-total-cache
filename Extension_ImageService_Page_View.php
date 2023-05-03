@@ -21,7 +21,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 ?>
 <div class="wrap" id="w3tc">
-
+<?php Util_Ui::print_breadcrumb(); ?>
 <p>
 	Total Cache Image Service is currently
 <?php
@@ -42,7 +42,7 @@ if ( $c->is_extension_active( 'imageservice' ) ) {
 	<?php Util_UI::print_control_bar( 'extension_imageservice_form_control' ); ?>
 <div class="metabox-holder">
 
-	<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', '' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', 'configuration' ); ?>
 
 	<table class="form-table" id="w3tc-imageservice-config">
 <?php
@@ -103,7 +103,7 @@ Util_Ui::config_item(
 <?php
 Util_Ui::postbox_footer();
 
-Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', '' );
+Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', 'tools' );
 ?>
 
 	<table class="form-table" id="w3tc-imageservice-tools">
@@ -139,7 +139,7 @@ Util_Ui::postbox_footer();
 Util_Ui::postbox_header(
 	esc_html__( 'Statistics', 'w3-total-cache' ),
 	'',
-	'w3tc-imageservice-statistics'
+	'statistics'
 );
 
 ?>

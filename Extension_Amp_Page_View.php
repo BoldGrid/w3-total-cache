@@ -8,7 +8,7 @@ if ( ! defined( 'W3TC' ) ) {
 <form action="admin.php?page=w3tc_extensions&amp;extension=amp&amp;action=view" method="post">
 	<?php Util_UI::print_control_bar( 'extension_amp_form_control' ); ?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', '' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', 'configuration' ); ?>
 		<table class="form-table">
 			<?php
 			Util_Ui::config_item(

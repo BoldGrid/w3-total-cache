@@ -354,7 +354,7 @@ function cdn_cf_check() {
 }
 
 function set_sticky_bar_positions() {
-	jQuery('#w3tc-options-menu').css(
+	jQuery('#w3tc > #w3tc-options-menu').css(
 		'top',
 		Math.floor(
 			((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0) +
@@ -366,7 +366,7 @@ function set_sticky_bar_positions() {
 		Math.floor(
 			((jQuery(window).width() > 600  && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0) +
 			jQuery('#w3tc-top-nav-bar').outerHeight() +
-			jQuery('#w3tc-options-menu').outerHeight()
+			(( jQuery('#w3tc > #w3tc-options-menu').length ) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0)
 		)
 	);
 }
@@ -1506,7 +1506,7 @@ jQuery(function() {
 		  	var hash = this.hash;
 			var wpadminbar_height = ( jQuery(window).width() > 600  && jQuery('#wpadminbar').length ) ? jQuery('#wpadminbar').outerHeight() : 0;
 			var nav_bar_height = ( jQuery('#w3tc-top-nav-bar').length ) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0;
-			var options_menu_height = ( jQuery('#w3tc-options-menu').length ) ? jQuery('#w3tc-options-menu').outerHeight() : 0;
+			var options_menu_height = ( jQuery('#w3tc > #w3tc-options-menu').length ) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0;
 			var form_bar_height = ( jQuery('.w3tc_form_bar').length ) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
 			jQuery('html, body').animate(
 				{
@@ -1523,7 +1523,7 @@ jQuery(function() {
 		window.scrollTo(0, 0);
 		var wpadminbar_height = ( jQuery(window).width() > 600  && jQuery('#wpadminbar').length ) ? jQuery('#wpadminbar').outerHeight() : 0;
 		var nav_bar_height = ( jQuery('#w3tc-top-nav-bar').length ) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0;
-		var options_menu_height = ( jQuery('#w3tc-options-menu').length ) ? jQuery('#w3tc-options-menu').outerHeight() : 0;
+		var options_menu_height = ( jQuery('#w3tc > #w3tc-options-menu').length ) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0;
 		var form_bar_height = ( jQuery('.w3tc_form_bar').length ) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
 		// Scroll to taget after .5 seconds
 		setTimeout(

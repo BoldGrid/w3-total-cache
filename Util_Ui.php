@@ -269,472 +269,10 @@ class Util_Ui {
 		$b2_id = 'w3tc_default_save_and_flush_' . $id;
 
 		$config            = Dispatcher::config();
-		$page              = Util_Admin::get_current_page();
-		$state             = Dispatcher::config_state();
-		$licensing_visible = (
-			( ! Util_Environment::is_wpmu() || is_network_admin() ) &&
-			! ini_get( 'w3tc.license_key' ) &&
-			'host_valid' !== $state->get_string( 'license.status' )
-		);
 
 		?>
 		<div class="w3tc-button-control-container">
-		<?php
-			switch ( $page ) {
-				case 'w3tc_general':
-					$fragmentcache_link = array();
-					if ( Util_Environment::is_w3tc_pro( $config ) ) {
-						$fragmentcache_link = array(
-							array(
-								'link'   => '#fragmentcache',
-								'text' => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
-							),
-						);
-					}
-
-					$message_bus_link = array();
-					if ( Util_Environment::is_w3tc_pro() ) {
-						$message_bus_link = array(
-							array(
-								'link'   => '#amazon_sns',
-								'text' => esc_html__( 'Message Bus', 'w3-total-cache' ),
-							),
-						);
-					}
-
-					$licensing_link = array();
-					if ( $licensing_visible ) {
-						$licensing_link = array(
-							array(
-								'link'   => '#licensing',
-								'text' => esc_html__( 'Licensing', 'w3-total-cache' ),
-							),
-						);
-					}
-
-					$custom_areas = is_array( $custom_areas ) ? $custom_areas : array();
-					
-					$links = array_merge(
-						array(
-							array(
-								'link' => '#general',
-								'text' => esc_html__( 'General', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#page_cache',
-								'text' => esc_html__( 'Page Cache', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#minify',
-								'text' => esc_html__( 'Minify', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#system_opcache',
-								'text' => esc_html__( 'Opcode Cache', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#database_cache',
-								'text' => esc_html__( 'Database Cache', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#object_cache',
-								'text' => esc_html__( 'Object Cache', 'w3-total-cache' ),
-							),
-						),
-						$fragmentcache_link,
-						array(
-							array(
-								'link' => '#browser_cache',
-								'text' => esc_html__( 'Browser Cache', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#cdn',
-								'text' => wp_kses(
-									sprintf(
-										// translators: 1 opening HTML abbr tag, 2 closing HTML abbr tag.
-										__(
-											'%1$sCDN%2$s',
-											'w3-total-cache'
-										),
-										'<abbr title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-										'</abbr>'
-									),
-									array(
-										'abbr' => array(
-											'title' => array(),
-										),
-									)
-								),
-							),
-							array(
-								'link' => '#reverse_proxy',
-								'text' => esc_html__( 'Reverse Proxy', 'w3-total-cache' ),
-							),
-						),
-						$message_bus_link,
-						array(
-							array(
-								'link' => '#monitoring',
-								'text' => esc_html__( 'Monitoring', 'w3-total-cache' ),
-							),
-						),
-						$licensing_link,
-						$custom_areas,
-						array(
-							array(
-								'link' => '#google_pagespeed',
-								'text' => __( 'Google PageSpeed', 'w3-total-cache' )
-							),
-							array(
-								'link' => '#miscellaneous',
-								'text' => esc_html__( 'Miscellaneous', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#debug',
-								'text' => esc_html__( 'Debug', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#settings',
-								'text' => esc_html__( 'Import / Export Settings', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#',
-								'text' => esc_html__( 'Compatibility Test', 'w3-total-cache' ),
-							)
-						)
-					);
-					break;
-					
-				case 'w3tc_pgcache':
-					$links = array(
-						array(
-							'link' => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
-							'text' => esc_html__( 'Main Menu', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#general',
-							'text' => esc_html__( 'General', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#mirrors',
-							'text' => esc_html__( 'Mirrors', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#advanced',
-							'text' => esc_html__( 'Advanced', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#cache_preload',
-							'text' => esc_html__( 'Cache Preload', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#purge_policy',
-							'text' => esc_html__( 'Purge Policy', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#notes',
-							'text' => esc_html__( 'Note(s)', 'w3-total-cache' ),
-						),
-					);
-					break;
-				
-				case 'w3tc_minify':
-					$links = array(
-						array(
-							'link' => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
-							'text' => esc_html__( 'Main Menu', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#general',
-							'text' => esc_html__( 'General', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#html_xml',
-							'text' => wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-									// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-									__(
-										'%1$sHTML%2$s &amp; %3$sXML%4$s',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
-									'</acronym>',
-									'<acronym title="' . esc_attr__( 'eXtensible Markup Language', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							),
-						),
-						array(
-							'link' => '#js',
-							'text' => wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-									__(
-										'%1$sJS%2$s',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							),
-						),
-						array(
-							'link' => '#css',
-							'text' => wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-									__(
-										'%1$sCSS%2$s',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							),
-						),
-						array(
-							'link' => '#advanced',
-							'text' => esc_html__( 'Advanced', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#notes',
-							'text' => esc_html__( 'Note(s)', 'w3-total-cache' ),
-						),
-					);
-					break;
-						
-				case 'w3tc_dbcache':
-					$links = array(
-						array(
-							'link' => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
-							'text' => esc_html__( 'Main Menu', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#general',
-							'text' => esc_html__( 'General', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#advanced',
-							'text' => esc_html__( 'Advanced', 'w3-total-cache' ),
-						),
-					);
-					break;
-				
-				case 'w3tc_objectcache':
-					$links = array(
-						array(
-							'link' => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
-							'text' => esc_html__( 'Main Menu', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#advanced',
-							'text' => esc_html__( 'Advanced', 'w3-total-cache' ),
-						),
-					);
-					break;
-				
-				case 'w3tc_browsercache':
-					$links = array(
-						array(
-							'link' => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
-							'text' => esc_html__( 'Main Menu', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#general',
-							'text' => esc_html__( 'General', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#css_js',
-							'text' => wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-									// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-									__(
-										'%1$sCSS%2$s &amp; %3$sJS%4$s',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
-									'</acronym>',
-									'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							),
-						),
-						array(
-							'link' => '#html_xml',
-							'text' => wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-									// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-									__(
-										'%1$sHTML%2$s &amp; %3$sXML%4$s',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
-									'</acronym>',
-									'<acronym title="' . esc_attr__( 'eXtensible Markup Language', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							),
-						),
-						array(
-							'link' => '#media',
-							'text' => esc_html__( 'Media', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#security',
-							'text' => esc_html__( 'Security Headers', 'w3-total-cache' ),
-						),
-					);
-					break;
-						
-				case 'w3tc_cachegroups':
-					$links = array(
-						array(
-							'link' => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
-							'text' => esc_html__( 'Main Menu', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#manage-uag',
-							'text' => esc_html__( 'Manage User Agent Groups', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#manage-rg',
-							'text' => esc_html__( 'Manage Referrer Groups', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#manage-cg',
-							'text' => esc_html__( 'Manage Cookie Groups', 'w3-total-cache' ),
-						),
-					);
-					break;
-				
-				case 'w3tc_userexperience':
-					$links = array(
-						array(
-							'link' => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
-							'text' => esc_html__( 'Main Menu', 'w3-total-cache' ),
-						),
-						array(
-							'link' => '#lazy-loading',
-							'text' => esc_html__( 'Lazy Loading', 'w3-total-cache' ),
-						),
-					);
-					break;
-				
-				case 'w3tc_install':
-					$rewrite_rules_descriptors_link = array();
-					if ( count( $rewrite_rules_descriptors ) ) {
-						$rewrite_rules_descriptors_link = array(
-							array(
-								'link' => '#rules',
-								'text' => esc_html__( 'Rewrite Rules', 'w3-total-cache' ),
-							),
-						);
-					}
-
-					$other_areas_link = array();
-					if ( count( $other_areas ) ) {
-						$other_areas_link = array(
-							array(
-								'link' => '#other',
-								'text' => esc_html__( 'Other', 'w3-total-cache' ),
-							),
-						);
-					}
-
-					$links = array_merge(
-						array(
-							array(
-								'link' => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
-								'text' => esc_html__( 'Main Menu', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#initial',
-								'text' => esc_html__( 'Lazy Loading', 'w3-total-cache' ),
-							),
-						),
-						$rewrite_rules_descriptors_link,
-						$other_areas_link,
-						array(
-							array(
-								'link' => '#additional',
-								'text' => esc_html__( 'Services', 'w3-total-cache' ),
-							),
-							array(
-								'link' => '#modules',
-								'text' => wp_kses(
-									sprintf(
-										// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-										__(
-											'%1$sPHP%2$s Modules',
-											'w3-total-cache'
-										),
-										'<acronym title="' . esc_attr__( 'Hypertext Preprocessor', 'w3-total-cache' ) . '">',
-										'</acronym>'
-									),
-									array(
-										'acronym' => array(
-											'title' => array(),
-										),
-									)
-								),
-							),
-						)
-					);
-					break;
-			}
-
-			$first_link = array_shift( $links );
-			$first_link = '<a class="btn btn-primary btn-sm" href="' . $first_link['link'] . '">' . $first_link['text'] . '</a>';
-
-			$sub_links = array();
-			foreach ( $links as $link ) {
-				$sub_links[] = '<a class="btn btn-primary btn-sm dropdown-item" href="' . $link['link'] . '">' . $link['text'] . '</a>';
-			}
-
-			?>
-			<div class="btn-group w3tc-button-subnav-dropdown">
-			  	<?php echo $first_link; ?>
-			  	<button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			  		<span class="sr-only">Toggle Dropdown</span>
-			  	</button>
-			  	<div class="dropdown-menu dropdown-menu-left">
-			  		<?php
-					foreach( $sub_links as $sub_link) {
-						echo $sub_link;
-					}
-					?>
-			  	</div>
-			</div>
 			<?php
-
 			$nonce_field = self::nonce_field( 'w3tc' );
 			echo wp_kses(
 				$nonce_field,
@@ -805,7 +343,11 @@ class Util_Ui {
 	public static function print_control_bar( $id = '' ) {
 		?>
 		<div class="w3tc_form_bar">
-			<?php Util_Ui::button_config_save_dropdown( $id ); ?>
+			<?php
+			$custom_areas = apply_filters( "w3tc_settings_general_anchors", array() );
+			Util_Ui::print_options_menu( $custom_areas );
+			Util_Ui::button_config_save_dropdown( $id );
+			?>
 		</div>
 		<?php
 	}
@@ -1843,5 +1385,513 @@ class Util_Ui {
 			$allowed_html[ $tagname ] = empty( $allowed_html[ $tagname ] ) ? array() : $allowed_html[ $tagname ];
 		}
 		return $allowed_html;
+	}
+
+	
+	/**
+	 * Prints breadcrumb
+	 *
+	 * @return void
+	 */
+	public static function print_breadcrumb() {
+		$page           = Util_Admin::get_current_page();
+		$page_name      = Util_PageUrls::get_page_title( $page );
+		$extension      = Util_Admin::get_current_extension();
+		$extension_name = Util_PageUrls::get_extension_title( $extension );
+		if( 'w3tc_extensions' === $page && ! empty( $extension ) && ! empty( $extension_name ) ){
+			$parent  = '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=' . $page . '#' . $extension ) ) . '">' . esc_html__( 'Extensions', 'w3-total-cache' ) . '</a>';
+			$current = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . $extension_name . '</span>';
+		} else {
+			$parent  = $page !== 'w3tc_general' ? '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ) . '">' . esc_html__( 'General Settings', 'w3-total-cache' ) . '</a>': '';
+			$current = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . $page_name . '</span>';
+		}
+		
+		?>
+		<p id="w3tc-breadcrumb">
+			<span class="dashicons dashicons-admin-home"></span>
+			<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard' ) ); ?>">W3 Total Cache</a>
+			<?php echo $parent; ?>
+			<?php echo $current; ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Prints the options anchor menu
+	 *
+	 * @param array $custom_areas
+	 * @return void
+	 */
+	public static function print_options_menu( $custom_areas = array() ) {
+		$config            = Dispatcher::config();
+		$state             = Dispatcher::config_state();
+		$page              = Util_Admin::get_current_page();
+		$licensing_visible = (
+			( ! Util_Environment::is_wpmu() || is_network_admin() ) &&
+			! ini_get( 'w3tc.license_key' ) &&
+			'host_valid' !== $state->get_string( 'license.status' )
+		);
+
+		switch ( $page ) {
+			case 'w3tc_general':
+				if ( ! empty( $_REQUEST['view'] ) ) {
+					break;
+				}
+	
+				$fragment_cache_link = array();
+				if ( Util_Environment::is_w3tc_pro( $config ) ) {
+					$fragment_cache_link = array(
+						array(
+							'id'   => 'fragmentcache',
+							'text' => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
+						),
+					);
+				}
+	
+				$message_bus_link = array();
+				if ( Util_Environment::is_w3tc_pro() ) {
+					$message_bus_link = array(
+						array(
+							'id'   => 'amazon_sns',
+							'text' => esc_html__( 'Message Bus', 'w3-total-cache' ),
+						),
+					);
+				}
+	
+				$licensing_link = array();
+				if ( $licensing_visible ) {
+					$licensing_link = array(
+						array(
+							'id'   => 'licensing',
+							'text' => esc_html__( 'Licensing', 'w3-total-cache' ),
+						),
+					);
+				}
+	
+				$links = array_merge(
+					array(
+						array(
+							'id'   => 'general',
+							'text' => esc_html__( 'General', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'page_cache',
+							'text' => esc_html__( 'Page Cache', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'minify',
+							'text' => esc_html__( 'Minify', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'system_opcache',
+							'text' => esc_html__( 'Opcode Cache', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'database_cache',
+							'text' => esc_html__( 'Database Cache', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'object_cache',
+							'text' => esc_html__( 'Object Cache', 'w3-total-cache' ),
+						),
+					),
+					$fragment_cache_link,
+					array(
+						array(
+							'id'   => 'browser_cache',
+							'text' => esc_html__( 'Browser Cache', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'cdn',
+							'text' => wp_kses(
+								sprintf(
+									// translators: 1 opening HTML abbr tag, 2 closing HTML abbr tag.
+									__(
+										'%1$sCDN%2$s',
+										'w3-total-cache'
+									),
+									'<abbr title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+									'</abbr>'
+								),
+								array(
+									'abbr' => array(
+										'title' => array(),
+									),
+								)
+							),
+						),
+						array(
+							'id'   => 'reverse_proxy',
+							'text' => esc_html__( 'Reverse Proxy', 'w3-total-cache' ),
+						),
+					),
+					$message_bus_link,
+					array(
+						array(
+							'id'   => 'monitoring',
+							'text' => esc_html__( 'Monitoring', 'w3-total-cache' ),
+						),
+					),
+					$licensing_link,
+					$custom_areas,
+					array(
+						array(
+							'id'   => 'google_pagespeed',
+							'text' => __( 'Google PageSpeed', 'w3-total-cache' )
+						),
+						array(
+							'id'   => 'miscellaneous',
+							'text' => esc_html__( 'Miscellaneous', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'debug',
+							'text' => esc_html__( 'Debug', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'settings',
+							'text' => esc_html__( 'Import / Export Settings', 'w3-total-cache' ),
+						),
+					)
+				);
+	
+				$links_buff = array();
+				foreach ( $links as $link ) {
+					$links_buff[] = "<a href=\"#{$link['id']}\">{$link['text']}</a>";
+				}
+	
+				$links_buff[] = '<a href="#" class="button-self-test">Compatibility Test</a>';
+	
+				?>
+				<div id="w3tc-options-menu">
+					<?php
+					echo wp_kses(
+						implode( ' | ', $links_buff ),
+						array(
+							'a'    => array(
+								'href'  => array(),
+								'class' => array(),
+							),
+						)
+					);
+					?>
+				</div>
+				<?php
+				break;
+	
+			case 'w3tc_pgcache':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
+					<a href="#mirrors"><?php esc_html_e( 'Mirrors', 'w3-total-cache' ); ?></a> |
+					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
+					<a href="#cache_preload"><?php esc_html_e( 'Cache Preload', 'w3-total-cache' ); ?></a> |
+					<a href="#purge_policy"><?php esc_html_e( 'Purge Policy', 'w3-total-cache' ); ?></a> |
+					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+	
+			case 'w3tc_minify':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
+					<a href="#html_xml">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+								// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+								__(
+									'%1$sHTML%2$s &amp; %3$sXML%4$s',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+								'</acronym>',
+								'<acronym title="' . esc_attr__( 'eXtensible Markup Language', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</a> |
+					<a href="#js">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								__(
+									'%1$sJS%2$s',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</a> |
+					<a href="#css">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								__(
+									'%1$sCSS%2$s',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</a> |
+					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
+					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+	
+			case 'w3tc_dbcache':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
+					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+	
+			case 'w3tc_objectcache':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+	
+			case 'w3tc_browsercache':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
+					<a href="#css_js">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+								// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+								__(
+									'%1$sCSS%2$s &amp; %3$sJS%4$s',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
+								'</acronym>',
+								'<acronym title="' . esc_attr__( 'JavaScript', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</a> |
+					<a href="#html_xml">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
+								// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
+								__(
+									'%1$sHTML%2$s &amp; %3$sXML%4$s',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Hypertext Markup Language', 'w3-total-cache' ) . '">',
+								'</acronym>',
+								'<acronym title="' . esc_attr__( 'eXtensible Markup Language', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</a> |
+					<a href="#media"><?php esc_html_e( 'Media', 'w3-total-cache' ); ?></a> |
+					<a href="#security"><?php esc_html_e( 'Security Headers', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+	
+			case 'w3tc_cachegroups':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#manage-uag"><?php esc_html_e( 'Manage User Agent Groups', 'w3-total-cache' ); ?></a> |
+					<a href="#manage-rg"><?php esc_html_e( 'Manage Referrer Groups', 'w3-total-cache' ); ?></a> |
+					<a href="#manage-cg"><?php esc_html_e( 'Manage Cookie Groups', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+
+			case 'w3tc_cdn':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
+					<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
+					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
+					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+	
+			case 'w3tc_userexperience':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+	
+			case 'w3tc_install':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#initial"><?php esc_html_e( 'Initial Installation', 'w3-total-cache' ); ?></a> |
+					<?php if ( count( $rewrite_rules_descriptors ) ) : ?>
+						<a href="#rules"><?php esc_html_e( 'Rewrite Rules', 'w3-total-cache' ); ?></a> |
+					<?php endif ?>
+					<?php if ( count( $other_areas ) ) : ?>
+						<a href="#other"><?php esc_html_e( 'Other', 'w3-total-cache' ); ?></a> |
+					<?php endif ?>
+					<a href="#additional"><?php esc_html_e( 'Services', 'w3-total-cache' ); ?></a> |
+					<a href="#modules">
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								__(
+									'%1$sPHP%2$s Modules',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Hypertext Preprocessor', 'w3-total-cache' ) . '">',
+								'</acronym>'
+							),
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</a>
+				</div>
+				<?php
+				break;
+
+			case 'w3tc_fragmentcache':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="#overview"><?php esc_html_e( 'Overview', 'w3-total-cache' ); ?></a> |
+					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+
+			case 'w3tc_monitoring':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
+					<a href="#application"><?php esc_html_e( 'Application', 'w3-total-cache' ); ?></a> |
+					<a href="#dashboard"><?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?></a> |
+					<a href="#behavior"><?php esc_html_e( 'Behavior', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+
+			case 'w3tc_extension_page_imageservice':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
+					<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
+					<a href="#tools"><?php esc_html_e( 'Tools', 'w3-total-cache' ); ?></a> |
+					<a href="#statistics"><?php esc_html_e( 'Statistics', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+
+			case 'w3tc_extensions':
+				$extension = Util_Admin::get_current_extension();
+				switch ( $extension ) {
+					case 'cloudflare':
+						?>
+						<div id="w3tc-options-menu">
+							<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+							<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
+							<a href="#credentials"><?php esc_html_e( 'Credentials', 'w3-total-cache' ); ?></a> |
+							<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a>
+						</div>
+						<?php
+						break;
+
+					case 'amp':
+						?>
+						<div id="w3tc-options-menu">
+							<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+							<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
+							<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a>
+						</div>
+						<?php
+						break;
+
+					case 'swarmify':
+						?>
+						<div id="w3tc-options-menu">
+							<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+							<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
+							<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
+							<a href="#behavior"><?php esc_html_e( 'Behavior Settings', 'w3-total-cache' ); ?></a>
+						</div>
+						<?php
+						break;
+
+					case 'genesis':
+						?>
+						<div id="w3tc-options-menu">
+							<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
+							<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
+							<a href="#header"><?php esc_html_e( 'Header', 'w3-total-cache' ); ?></a> |
+							<a href="#content"><?php esc_html_e( 'Content', 'w3-total-cache' ); ?></a> |
+							<a href="#sidebar"><?php esc_html_e( 'Sidebar', 'w3-total-cache' ); ?></a> |
+							<a href="#exclusions"><?php esc_html_e( 'Exclusions', 'w3-total-cache' ); ?></a>
+						</div>
+						<?php
+						break;
+				}
+		}
 	}
 }
