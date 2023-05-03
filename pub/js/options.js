@@ -1316,6 +1316,12 @@ jQuery(function() {
 
 	});
 
+	// Bootstrap dropdown toggle
+	jQuery('.dropdown-toggle').on('click',function(){
+		jQuery('.dropdown-toggle').not(this).next().hide();
+		jQuery(this).next().toggle();
+	});
+
 	// Options menu achor links
 	jQuery('#w3tc-top-nav-bar a').on( 'click', function(e) {
 		if (window.w3tc_ga) {

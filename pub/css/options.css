@@ -1112,6 +1112,10 @@ td .w3tc-control-after span {
 	margin-left: unset;
 	box-sizing: border-box;
 }
+.w3tc_form_bar .w3tc-button-control-container .dropdown-menu-right {
+	left: unset;
+	right: 0;
+}
 .w3tc_form_bar .w3tc-button-control-container .w3tc-button-subnav-dropdown .dropdown-menu.show {
 	transform: translate3d(64px, 31px, 0px) !important;
 	width: 67vw;
