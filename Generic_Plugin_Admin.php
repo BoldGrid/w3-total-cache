@@ -435,7 +435,7 @@ class Generic_Plugin_Admin {
 				$page = 'extensions/' . Util_Request::get_string( 'extension' );
 			}
 
-			if ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) {
+			if ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) {
 				$profile = 'UA-2264433-7';
 			} else {
 				$profile = 'UA-2264433-8';
