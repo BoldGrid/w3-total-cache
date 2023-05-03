@@ -9,6 +9,8 @@
  * @link       https://www.boldgrid.com/w3-total-cache/
  */
 
+declare( strict_types = 1 );
+
 /**
  * Class: W3tc_Admin_Util_File_Test
  *
