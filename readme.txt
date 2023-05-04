@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.2
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,11 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.3.2 =
+* Fix: Correct interpolation of a symlinked cache directory
+* Fix: Memcached test using SASL authentication
+* Fix: Multi-site authorization request returning to incorrect URL
 
 = 2.3.1 =
 * Fix: PHP 8 compatibility: Invalid return type if Browser Cache is disabled
