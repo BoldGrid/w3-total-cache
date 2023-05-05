@@ -371,6 +371,11 @@ function set_sticky_bar_positions() {
 	);
 }
 
+
+function set_footer_position() {
+	jQuery('#w3tc-footer').insertAfter(jQuery('#wpfooter'));
+}
+
 jQuery(function() {
 	// general page
 	jQuery('.w3tc_read_technical_info').on( 'click', function() {
@@ -1547,7 +1552,9 @@ jQuery(function() {
 
 	jQuery(window).resize(function() {
 		set_sticky_bar_positions();
+		set_footer_position();
 	});
 
 	set_sticky_bar_positions();
+	set_footer_position();
 });

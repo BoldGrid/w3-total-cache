@@ -30,6 +30,10 @@
 	padding: 1px 12px;
 }
 
+#w3tc_form {
+	margin-top: 10px;
+}
+
 #w3tc-wizard-container {
 	margin: 0 auto;
 }
@@ -90,7 +94,7 @@ input.w3tc-error, textarea.w3tc-error {
 
 #w3tc > #w3tc-breadcrumb {
 	display: inline;
-	padding: 5px;
+	padding: 5px 12px;
 	background: #ffffff;
 	border: 1px solid #c3c4c7;
 	vertical-align: middle;
@@ -346,14 +350,13 @@ input.w3tc-error, textarea.w3tc-error {
 
 .performance_page_w3tc_general #preview-button {
 	color: #2271b1;
-	background: #f6f7f7;
-	border-color: #2271b1;
+	background: unset;
+	border: unset;
+	text-decoration: underline;
 }
 
 .performance_page_w3tc_general #preview-button:hover {
-	color: #0a4b78;
-	background: #f0f0f1;
-	border-color: #0a4b78;
+	color: #135e96;
 }
 
 .performance_page_w3tc_general #w3tc .postbox-tabs {
@@ -1000,10 +1003,9 @@ td .w3tc-control-after span {
 #w3tc-footer {
 	background: #ffffff;
 	box-shadow: 0 -1px 0 #ccd0d4, 0 -1px 1px 1px rgba(0,0,0,0.04);
-	margin: 65px -20px;
 	position: absolute;
-	left: 0;
-	width: calc(100% + 40px);
+	width: calc(100% - 160px);
+	margin-left: 160px;
 }
 #w3tc-footer #w3tc-footer-container {
 	width: 100%;
@@ -1104,13 +1106,19 @@ td .w3tc-control-after span {
 	margin-left: 5px;
 	float: right;
 }
+.w3tc_form_bar .w3tc-button-control-container .dropdown-menu {
+	padding: 0;
+}
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu .dropdown-item {
 	font-size: 16px;
 	cursor: pointer;
-	padding-top: 7px;
-	padding-bottom: 7px;
+	padding: 7px 10px;
 	margin-left: unset;
 	box-sizing: border-box;
+}
+.w3tc_form_bar .w3tc-button-control-container .dropdown-menu .dropdown-item:active {
+	background: #f8f9fa;
+	color: #16181b;
 }
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu-right {
 	left: unset;
@@ -1132,7 +1140,7 @@ td .w3tc-control-after span {
 	border-color: #2271b1;
 }
 .w3tc_form_bar .w3tc-button-control-container .w3tc-button-flush-dropdown > .btn:hover {
-	background: #f0f0f1;
+	background: #f1f1f1;
 }
 .w3tc_form_bar .w3tc-button-control-container .w3tc-button-subnav-dropdown > .btn,
 .w3tc_form_bar .w3tc-button-control-container .w3tc-button-save-dropdown > .btn {
@@ -1182,6 +1190,11 @@ td .w3tc-control-after span {
 
 	#w3tc #w3tc_dashboard_banner .inside > p:first-of-type {
 		padding-top: initial;
+	}
+
+	#w3tc-footer {
+		width: calc(100% - 36px);
+		margin-left: 36px;
 	}
 
 	#w3tc-footer #w3tc-footer-container {
@@ -1274,7 +1287,8 @@ td .w3tc-control-after span {
 	}
 
 	#w3tc-footer {
-		margin: 20px -10px;
+		margin-left: 0;
+		width: 100%;
 	}
 
 	table.w3tc-pro-feature:after {

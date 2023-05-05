@@ -8,29 +8,32 @@ if ( ! defined( 'W3TC' ) ) {
 $config = Dispatcher::config();
 
 $settings_menu_array = array(
-	Util_UI::admin_url( 'admin.php?page=w3tc_general' )        => esc_attr__( 'General Settings', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' )        => esc_attr__( 'Page Cache', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_minify' )         => esc_attr__( 'Minify', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' )        => esc_attr__( 'Database Cache', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' )    => esc_attr__( 'Object Cache', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' )   => esc_attr__( 'Browser Cache', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_cachegroups' )    => esc_attr__( 'Cache Groups', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' )            => 'CDN',
-	Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' )  => esc_attr__( 'Fragment Cache', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_userexperience' ) => esc_attr__( 'User Experience', 'w3-total-cache' ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_general' )        => array( 'text' => esc_attr__( 'General Settings', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' )        => array( 'text' => esc_attr__( 'Page Cache', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_minify' )         => array( 'text' => esc_attr__( 'Minify', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' )        => array( 'text' => esc_attr__( 'Database Cache', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' )    => array( 'text' => esc_attr__( 'Object Cache', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' )   => array( 'text' => esc_attr__( 'Browser Cache', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_cachegroups' )    => array( 'text' => esc_attr__( 'Cache Groups', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' )            => array( 'text' => 'CDN' ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' )  => array( 'text' => esc_attr__( 'Fragment Cache', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_userexperience' ) => array( 'text' => esc_attr__( 'User Experience', 'w3-total-cache' ) ),
 );
 
 $tools_menu_array = array(
-	Util_UI::admin_url( 'admin.php?page=w3tc_extensions' )  => esc_attr__( 'Extensions', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_stats' )       => esc_attr__( 'Statistics', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_pagespeed' )   => esc_attr__( 'Google PageSpeed', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_setup_guide' ) => esc_attr__( 'Setup Guide', 'w3-total-cache' ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_extensions' )  => array( 'text' => esc_attr__( 'Extensions', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_stats' )       => array( 'text' => esc_attr__( 'Statistics', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_pagespeed' )   => array( 'text' => esc_attr__( 'Google PageSpeed', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_setup_guide' ) => array( 'text' => esc_attr__( 'Setup Guide', 'w3-total-cache' ) ),
 );
 
 $about_menu_array = array(
-	Util_UI::admin_url( 'admin.php?page=w3tc_feature_showcase' ) => esc_attr__( 'Feature Showcase', 'w3-total-cache' ),
-	Util_UI::admin_url( 'admin.php?page=w3tc_install' )          => esc_attr__( 'Install', 'w3-total-cache' ),
-	'https://api.w3-edge.com/v1/redirects/faq'                   => 'FAQ',
+	Util_UI::admin_url( 'admin.php?page=w3tc_feature_showcase' ) => array( 'text' => esc_attr__( 'Feature Showcase', 'w3-total-cache' ) ),
+	Util_UI::admin_url( 'admin.php?page=w3tc_install' )          => array( 'text' => esc_attr__( 'Install', 'w3-total-cache' ) ),
+	'https://api.w3-edge.com/v1/redirects/faq'                   => array(
+		'text'   => 'FAQ',
+		'target' => '_blank',
+	),
 );
 
 do_action( 'w3tc-dashboard-top-nav-bar' );
@@ -70,8 +73,10 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 				</a>
 				<div id="w3tc-top-nav-settings-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
-					foreach ( $settings_menu_array as $url => $label ) {
-						echo '<a href="' . $url . '" alt="' . $label . '">' . $label . '</a>';
+					foreach ( $settings_menu_array as $url => $data ) {
+						$target = ! empty( $data['target'] ) ? ' target="' . $data['target'] . '"': '';
+						$external = parse_url( $url, PHP_URL_HOST ) !== $_SERVER['HTTP_HOST'] ? '<span class="dashicons dashicons-external"></span>': '';
+						echo '<a href="' . $url . '" alt="' . $data['text'] . '"' . $target . '>' . $data['text'] . $external . '</a>';
 					}
 					?>
 				</div>
@@ -82,8 +87,10 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 				</a>
 				<div id="w3tc-top-nav-tools-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
-					foreach ( $tools_menu_array as $url => $label ) {
-						echo '<a href="' . $url . '" alt="' . $label . '">' . $label . '</a>';
+					foreach ( $tools_menu_array as $url => $data ) {
+						$target = ! empty( $data['target'] ) ? ' target="' . $data['target'] . '"': '';
+						$external = parse_url( $url, PHP_URL_HOST ) !== $_SERVER['HTTP_HOST'] ? '<span class="dashicons dashicons-external"></span>': '';
+						echo '<a href="' . $url . '" alt="' . $data['text'] . '"' . $target . '>' . $data['text'] . $external . '</a>';
 					}
 					?>
 				</div>
@@ -94,8 +101,10 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 				</a>
 				<div id="w3tc-top-nav-about-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
-					foreach ( $about_menu_array as $url => $label ) {
-						echo '<a href="' . $url . '" alt="' . $label . '">' . $label . '</a>';
+					foreach ( $about_menu_array as $url => $data ) {
+						$target   = ! empty( $data['target'] ) ? ' target="' . $data['target'] . '"': '';
+						$external = parse_url( $url, PHP_URL_HOST ) !== $_SERVER['HTTP_HOST'] ? '<span class="dashicons dashicons-external"></span>': '';
+						echo '<a href="' . $url . '" alt="' . $data['text'] . '"' . $target . '>' . $data['text'] . $external . '</a>';
 					}
 					?>
 				</div>

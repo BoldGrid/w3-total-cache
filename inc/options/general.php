@@ -12,27 +12,8 @@ if ( ! defined( 'W3TC' ) ) {
 }
 
 require W3TC_INC_DIR . '/options/common/header.php';
-?>
 
-<p>
-	<?php
-	echo wp_kses(
-		sprintf(
-			// translators: 1 HTML span tag indicating plugin enabled/disabled.
-			__(
-				'The plugin is currently %1$s If an option is disabled it means that either your current installation is not compatible or software installation is required.',
-				'w3-total-cache'
-			),
-			'<span class="w3tc-' . ( $enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>.'
-		),
-		array(
-			'span' => array(
-				'class' => array(),
-			),
-		)
-	);
-	?>
-</p>
+?>
 <form id="w3tc_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<?php Util_UI::print_control_bar( 'general_form_control' ); ?>
 	<div class="metabox-holder">
