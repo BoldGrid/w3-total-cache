@@ -268,7 +268,7 @@ class Util_Ui {
 		$b1_id = 'w3tc_save_options_' . $id;
 		$b2_id = 'w3tc_default_save_and_flush_' . $id;
 
-		$config            = Dispatcher::config();
+		$config = Dispatcher::config();
 
 		?>
 		<div class="w3tc-button-control-container">
@@ -284,48 +284,48 @@ class Util_Ui {
 			);
 			?>
 			<div class="btn-group w3tc-button-save-dropdown">
-				<button type="submit" class="btn btn-primary btn-sm" name="w3tc_flush_all"><?php esc_html_e( 'Save settings', 'w3-total-cache' ); ?></button>
+				<input type="submit" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save settings', 'w3-total-cache' ); ?>"/>
 				<button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<span class="sr-only">Toggle Dropdown</span>
 				</button>
 				<div class="dropdown-menu dropdown-menu-right">
 					<?php
 					if ( ! is_network_admin() ) {
-						echo '<button type="submit" id="' . esc_attr( $b2_id ) . '" class="dropdown-item" name="w3tc_default_save_and_flush">' . esc_html__( 'Save Settings & Purge Caches', 'w3-total-cache' ) . '</button>';
+						echo '<input type="submit" id="' . esc_attr( $b2_id ) . '" class="w3tc-button-save dropdown-item" name="w3tc_default_save_and_flush" value="' . esc_html__( 'Save Settings & Purge Caches', 'w3-total-cache' ) . '"/>';
 					}
 					?>
 				</div>
 			</div>
 			<div class="btn-group w3tc-button-flush-dropdown">
-			  	<button type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all"><?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?></button>
+			  	<input type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>"/>
 			  	<button type="button" class="btn btn-light btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 			  	  	<span class="sr-only">Toggle Dropdown</span>
 			  	</button>
 			  	<div class="dropdown-menu dropdown-menu-right">
 			  		<?php
 					if ( $config->get_boolean( 'pgcache.enabled' ) ) {
-						echo '<button type="submit" class="dropdown-item" name="w3tc_flush_pgcache">' . esc_html__( 'Empty Page Cache', 'w3-total-cache' ) . '</button>';
+						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_html__( 'Empty Page Cache', 'w3-total-cache' ) . '"/>';
 					}
 					if ( $config->get_boolean( 'minify.enabled' ) ) {
-						echo '<button type="submit" class="dropdown-item" name="w3tc_flush_minify">' . esc_html__( 'Empty Minify Cache', 'w3-total-cache' ) . '</button>';
+						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_minify" value="' . esc_html__( 'Empty Minify Cache', 'w3-total-cache' ) . '"/>';
 					}
 					if ( $config->get_boolean( 'dbcache.enabled' ) ) {
-						echo '<button type="submit" class="dropdown-item" name="w3tc_flush_dbcache">' . esc_html__( 'Empty Database Cache', 'w3-total-cache' ) . '</button>';
+						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_html__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
 					}
 					if ( $config->get_boolean( 'objectcache.enabled' ) ) {
-						echo '<button type="submit" class="dropdown-item" name="w3tc_flush_objectcache">' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '</button>';
+						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
 					}
 					if ( $config->get_boolean( 'cdn.enabled' ) ) {
 						$disable = $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ';
-						echo '<button type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . '>' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '</button>';
+						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
 					}
 					if ( $config->get_boolean( 'fragmentcache.enabled' ) ) {
-						echo '<button type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache">' . esc_html__( 'Empty Fragment Cache', 'w3-total-cache' ) . '</button>';
+						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_html__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
 					}
 					$opcode_enabled = ( Util_Installed::opcache() || Util_Installed::apc_opcache() );
 					if ( $opcode_enabled ) {
 						$disable = $opcode_enabled ? '' : ' disabled="disabled" ';
-						echo '<button type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . '>' . esc_html__( 'Empty OpCache Cache', 'w3-total-cache' ) . '</button>';
+						echo '<input type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . ' value="' . esc_html__( 'Empty OpCache Cache', 'w3-total-cache' ) . '"/>';
 					}
 					?>
 			  	</div>

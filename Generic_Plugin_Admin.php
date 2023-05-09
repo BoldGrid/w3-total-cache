@@ -96,11 +96,11 @@ class Generic_Plugin_Admin {
 		// Load w3tc_message.
 		$message_id = Util_Request::get_string( 'w3tc_message' );
 		if ( $message_id ) {
-			$v = get_transient( 'w3tc_message' );
+			$v = get_option( 'w3tc_message' );
 
 			if ( isset( $v[ $message_id ] ) ) {
 				$this->w3tc_message = $v[ $message_id ];
-				delete_transient( 'w3tc_message' );
+				delete_option( 'w3tc_message' );
 			}
 		}
 	}
@@ -948,7 +948,7 @@ class Generic_Plugin_Admin {
 		);
 
 		$note_messages = array(
-			'config_save'          => __( 'Plugin configuration successfully updated.', 'w3-total-cache' ),
+			'config_save'          => __( 'Plugin configuration successfully updated.', 'w3-total-cache' ),'config_save_flush'    => __( 'Plugin configuration successfully updated and all caches successfully emptied.', 'w3-total-cache' ),
 			'flush_all'            => __( 'All caches successfully emptied.', 'w3-total-cache' ),
 			'flush_memcached'      => __( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
 			'flush_opcode'         => __( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),

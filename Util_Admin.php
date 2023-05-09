@@ -51,10 +51,16 @@ class Util_Admin {
 		}
 
 		$message_id = uniqid();
-		set_transient( 'w3tc_message',
+		update_option(
+			'w3tc_message',
 			array(
-				$message_id => array( 'errors' => $errors, 'notes' => $notes )
-			), 600 );
+				$message_id => array(
+					'errors' => $errors,
+					'notes'  => $notes,
+				),
+			),
+			'yes'
+		);
 
 		Util_Admin::redirect( array_merge( $params, array(
 					'w3tc_message' => $message_id ) ), $check_referrer );
@@ -82,7 +88,7 @@ class Util_Admin {
 		}
 
 		$message_id = uniqid();
-		set_transient( 'w3tc_message', array( $message_id => $data ), 600 );
+		update_option( 'w3tc_message', array( $message_id => $data, 'yes' ) );
 		$data['query_string']['w3tc_message'] = $message_id;
 
 		Util_Environment::redirect( 'admin.php', $data['query_string'] );
@@ -92,10 +98,16 @@ class Util_Admin {
 
 	static public function custom_message_id( $errors = null, $notes = null ) {
 		$message_id = uniqid();
-		set_transient( 'w3tc_message',
+		update_option(
+			'w3tc_message',
 			array(
-				$message_id => array( 'errors' => $errors, 'notes' => $notes )
-			), 600 );
+				$message_id => array(
+					'errors' => $errors,
+					'notes'  => $notes,
+				),
+			),
+			'yes'
+		);
 
 		return 'w3tc_message=' . $message_id;
 	}
