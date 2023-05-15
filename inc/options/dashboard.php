@@ -130,4 +130,3 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 		?>
 	</div>
 </form>
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

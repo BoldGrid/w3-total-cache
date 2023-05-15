@@ -900,4 +900,3 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

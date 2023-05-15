@@ -478,8 +478,6 @@ class Extension_ImageService_Plugin_Admin {
 		$usage['limit_monthly'] = $usage['limit_monthly'] ? $usage['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
 
 		require W3TC_DIR . '/Extension_ImageService_Page_View.php';
-
-		require W3TC_INC_DIR . '/options/common/footer.php';
 	}
 
 	/**

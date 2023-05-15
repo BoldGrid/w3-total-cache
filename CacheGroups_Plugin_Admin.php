@@ -70,9 +70,6 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 
 		// Load view.
 		require W3TC_DIR . '/CacheGroups_Plugin_Admin_View.php';
-
-		// Footer.
-		require W3TC_INC_DIR . '/options/common/footer.php';
 	}
 
 	/**

@@ -113,7 +113,7 @@ textarea.w3tc-error {
 #w3tc>#w3tc-options-menu {
     position: sticky;
     top: 80px;
-    background: #f1f1f1;
+    background: #f0f0f1;
     z-index: 3;
     margin: 0;
     padding: 5px 0;
@@ -228,7 +228,7 @@ textarea.w3tc-error {
     color: #000;
     margin: 1em 0;
     overflow: auto;
-    background: #eee;
+    background: #ffffff;
     padding: 12px 15px;
     border: 1px solid #ccc;
 }
@@ -357,10 +357,12 @@ textarea.w3tc-error {
 }
 
 .performance_page_w3tc_general #preview-button {
+    padding: 0;
     color: #2271b1;
     background: unset;
     border: unset;
     text-decoration: underline;
+    box-shadow: unset;
 }
 
 .performance_page_w3tc_general #preview-button:hover {
@@ -663,12 +665,11 @@ th.w3tc_extensions_manage_column_check {
 }
 
 table:not(.w3tc-pro-feature) .w3tc-gopro {
-    //border-left: 3px solid green;
     margin: 5px -20px 5px -13px;
     box-shadow: 0 5px 5px -3px #888;
     background: #efefef;
     padding: 10px;
-    background-image: linear-gradient( to right, #f1f1f1, #f1f1f1, #f1f1f1, #f1f1f1, #e7f3f3, #56bec1, #16252c);
+    background-image: linear-gradient( to right, #f0f0f1, #f0f0f1, #f0f0f1, #f0f0f1, #e7f3f3, #56bec1, #16252c);
     position: relative;
     padding-right: 280px;
     border: 1px solid #c3c4c7;
@@ -816,7 +817,7 @@ table.w3tc-pro-feature th {
 }
 
 table.w3tc-pro-feature td {
-    background-image: linear-gradient( to right, #f1f1f1, #f1f1f1, #f1f1f1, #e7f3f3, #56bec1, #16252c);
+    background-image: linear-gradient( to right, #f0f0f1, #f0f0f1, #f0f0f1, #e7f3f3, #56bec1, #16252c);
     padding-right: 401.25px;
 }
 
@@ -1012,7 +1013,7 @@ td .w3tc-control-after span {
 
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>a:hover,
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown:hover>a {
-    background-color: #f1f1f1;
+    background-color: #f0f0f1;
     border: 1px solid #2271b1;
 }
 
@@ -1030,7 +1031,7 @@ td .w3tc-control-after span {
 }
 
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown-content>a:hover {
-    background-color: #f1f1f1;
+    background-color: #f0f0f1;
 }
 
 
@@ -1042,7 +1043,9 @@ td .w3tc-control-after span {
     background: #ffffff;
     box-shadow: 0 -1px 0 #ccd0d4, 0 -1px 1px 1px rgba(0, 0, 0, 0.04);
     position: absolute;
-    width: calc(100% - 160px);
+    left: 0;
+    right: 0;
+    //width: calc(100% - 160px);
     margin-left: 160px;
 }
 
@@ -1107,7 +1110,7 @@ td .w3tc-control-after span {
 .w3tc_form_bar {
     position: sticky;
     top: 102px;
-    background: #f1f1f1;
+    background: #f0f0f1;
     z-index: 2;
     display: flex;
 }
@@ -1169,9 +1172,10 @@ td .w3tc-control-after span {
 }
 
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu .dropdown-item {
-    font-size: 16px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    padding: 0.25rem 0.5rem;
     cursor: pointer;
-    padding: 7px 10px;
     margin-left: unset;
     box-sizing: border-box;
 }
@@ -1194,7 +1198,7 @@ td .w3tc-control-after span {
 }
 
 .w3tc_form_bar .w3tc-button-control-container .w3tc-button-flush-dropdown>.btn:hover {
-    background: #f1f1f1;
+    background: #f0f0f1;
 }
 
 .w3tc_form_bar .w3tc-button-control-container .w3tc-button-save-dropdown>.btn {
@@ -1247,6 +1251,7 @@ td .w3tc-control-after span {
     #w3tc-footer {
         width: calc(100% - 36px);
         margin-left: 36px;
+        padding: 0 15px;
     }
     #w3tc-footer #w3tc-footer-container {
         flex-wrap: wrap;
@@ -1254,7 +1259,6 @@ td .w3tc-control-after span {
     #w3tc-footer .w3tc-footer-column-1,
     #w3tc-footer .w3tc-footer-column-2 {
         width: 100%;
-        text-align: center;
         padding: 0 10px;
     }
     #w3tc-footer .logo-link h2.logo {

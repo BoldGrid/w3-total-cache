@@ -65,6 +65,7 @@ class Generic_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_ajax', array( $this, 'wp_ajax_w3tc_ajax' ) );
 
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
+		add_action( 'admin_footer', array( $this, 'admin_footer' ) );
 
 		if ( is_network_admin() ) {
 			add_action( 'network_admin_menu', array( $this, 'network_admin_menu' ) );
@@ -501,6 +502,13 @@ class Generic_Plugin_Admin {
 			} );
 		</script>
 		<?php
+	}
+
+	/**
+	 * Defines the W3TC footer
+	 */
+	public function admin_footer() {
+		require W3TC_INC_DIR . '/options/common/footer.php';
 	}
 
 	/**

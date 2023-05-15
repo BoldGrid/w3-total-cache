@@ -77,7 +77,5 @@ class Support_Page {
 		} else {
 			include  W3TC_DIR . '/Support_Page_View_PageContent.php';
 		}
-
-		require W3TC_INC_DIR . '/options/common/footer.php';
 	}
 }

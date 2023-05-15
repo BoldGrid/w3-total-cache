@@ -723,5 +723,3 @@ $security_session_values = array(
 		<?php require W3TC_DIR . '/BrowserCache_Page_View_SectionSecurity.php'; ?>
 	</div>
 </form>
-
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

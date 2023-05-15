@@ -177,7 +177,6 @@ class Template {
 	</div>
 
 		<?php
-		require W3TC_INC_DIR . '/options/common/footer.php';
 	}
 
 	/**
