@@ -1102,7 +1102,7 @@ class Generic_Plugin_Admin {
 		foreach ( $notes as $key => $note ) {
 			echo wp_kses(
 				sprintf(
-					'<div class="updated w3tc_note" id="%1$s"><p>%2$s</p></div>',
+					'<div class="updated w3tc_note inline" id="%1$s"><p>%2$s</p></div>',
 					esc_attr( $key ),
 					$note
 				),
@@ -1130,7 +1130,7 @@ class Generic_Plugin_Admin {
 
 		foreach ( $errors as $key => $error ) {
 				printf(
-					'<div class="error w3tc_error" id="%1$s"><p>%2$s</p></div>',
+					'<div class="error w3tc_error inline" id="%1$s"><p>%2$s</p></div>',
 					esc_attr( $key ),
 					$error // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);

@@ -12,8 +12,9 @@
 .update-nag,
 .notice,
 .error {
-    max-width: 1205px;
-    margin: 0 auto 5px;
+    max-width: 1200px;
+    margin: 0 auto 5px !important;
+    padding: 10px 12px !important;
     display: block;
     box-sizing: border-box;
 }
@@ -21,13 +22,16 @@
 .updated.w3tc_note,
 .error.w3tc_error {
     max-width: 1200px;
-    margin: 0 auto 2px;
-    padding: 0;
+    margin: 0 auto 5px !important;
+    padding: 10px 12px !important;
+    display: block;
+    box-sizing: border-box;
 }
 
 .updated.w3tc_note p,
 .error.w3tc_error p {
-    padding: 1px 12px;
+    margin: 0;
+    padding: 0;
 }
 
 #w3tc_form {
@@ -95,14 +99,16 @@ textarea.w3tc-error {
 
 #w3tc>#w3tc-breadcrumb {
     display: inline;
-    padding: 5px 12px;
-    background: #ffffff;
-    border: 1px solid #c3c4c7;
+    padding-bottom: 45px;
     vertical-align: middle;
 }
 
 #w3tc>#w3tc-breadcrumb a {
     text-decoration: none;
+}
+
+#w3tc>#w3tc-breadcrumb .dashicons-admin-home {
+    vertical-align: text-bottom;
 }
 
 #w3tc>#w3tc-breadcrumb .dashicons-arrow-right-alt2 {
@@ -406,6 +412,9 @@ textarea.w3tc-error {
 .performance_page_w3tc_general #w3tc .postbox-tabs .nav-tab-wrapper .nav-tab {
     border-bottom: unset;
     margin-top: 0;
+    padding: 2px 8px;
+    font-size: 14px;
+    font-weight: normal;
 }
 
 .performance_page_w3tc_general #w3tc .postbox-tabs .nav-tab-wrapper .nav-tab .dashicons {
@@ -1169,15 +1178,26 @@ td .w3tc-control-after span {
 
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu {
     padding: 0;
+    border: none;
+    box-shadow: 0px 0px 2px 0px #c3c4c7;
 }
 
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu .dropdown-item {
-    font-size: 0.875rem;
-    line-height: 1.5;
-    padding: 0.25rem 0.5rem;
+    font-size: 13px;
+    line-height: 2.15384615;
     cursor: pointer;
     margin-left: unset;
     box-sizing: border-box;
+    min-height: 30px;
+    background: #f9f9f9;
+    color: #2271b1;
+    padding: 5px 15px;
+    text-align: left;
+    border-radius: 3px;
+}
+
+.w3tc_form_bar .w3tc-button-control-container .dropdown-menu .dropdown-item:hover {
+    background-color: #f0f0f1;
 }
 
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu .dropdown-item:active {
