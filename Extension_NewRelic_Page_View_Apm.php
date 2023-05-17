@@ -18,12 +18,11 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php esc_html_e( 'NewRelic extension is currently', 'w3-total-cache' ); ?>
 	<?php
 	if ( $config->is_extension_active_frontend( 'newrelic' ) ) {
-		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
+		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>.';
 	} else {
-		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>';
+		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>.';
 	}
 	?>
-	.
 <p>
 
 <form action="admin.php?page=w3tc_monitoring" method="post">

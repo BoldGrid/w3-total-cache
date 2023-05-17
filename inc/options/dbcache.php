@@ -7,45 +7,26 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
-<form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
-	<p>
-		<?php
-		echo wp_kses(
-			sprintf(
-				// translators: 1 Database cache engine name, 2 HTML span indicating DB cache enabled/disabled.
-				__(
-					'Database caching via %1$s is currently %2$s.',
-					'w3-total-cache'
-				),
-				esc_html( Cache::engine_name( $this->_config->get_string( 'dbcache.engine' ) ) ),
-				'<span class="w3tc-' . ( $dbcache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
+<p>
+	<?php
+	echo wp_kses(
+		sprintf(
+			// translators: 1 Database cache engine name, 2 HTML span indicating DB cache enabled/disabled.
+			__(
+				'Database caching via %1$s is currently %2$s.',
+				'w3-total-cache'
 			),
-			array(
-				'span' => array(
-					'class' => array(),
-				),
-			)
-		);
-		?>
-	</p>
-	<p>
-		<?php esc_html_e( 'To rebuild the database cache use the', 'w3-total-cache' ); ?>
-		<?php
-		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ),
-			array(
-				'input' => array(
-					'type'  => array(),
-					'name'  => array(),
-					'value' => array(),
-				),
-			)
-		);
-		?>
-		<input type="submit" name="w3tc_flush_dbcache" value="<?php esc_attr_e( 'empty cache', 'w3-total-cache' ); ?>"<?php echo ! $dbcache_enabled ? ' disabled="disabled"' : ''; ?> class="button" />
-			<?php esc_html_e( 'operation.', 'w3-total-cache' ); ?>
-	</p>
-</form>
+			esc_html( Cache::engine_name( $this->_config->get_string( 'dbcache.engine' ) ) ),
+			'<span class="w3tc-' . ( $dbcache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
+		),
+		array(
+			'span' => array(
+				'class' => array(),
+			),
+		)
+	);
+	?>
+</p>
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<?php Util_UI::print_control_bar( 'dbcache_form_control' ); ?>

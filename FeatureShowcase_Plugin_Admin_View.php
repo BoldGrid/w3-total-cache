@@ -28,10 +28,7 @@ namespace W3TC;
 
 $is_pro = Util_Environment::is_w3tc_pro( $config );
 
-if ( $is_pro ) {
-	require W3TC_INC_DIR . '/options/common/header.php';
-}
-
+require W3TC_INC_DIR . '/options/common/header.php';
 ?>
 
 <div class="w3tc-page-container">

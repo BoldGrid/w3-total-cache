@@ -38,10 +38,6 @@
     margin-top: 10px;
 }
 
-#w3tc-wizard-container {
-    margin: 0 auto;
-}
-
 #icon-w3tc_general {
     display: none;
 }
@@ -98,9 +94,8 @@ textarea.w3tc-error {
 }
 
 #w3tc>#w3tc-breadcrumb {
-    display: inline;
-    padding-bottom: 45px;
     vertical-align: middle;
+    margin-bottom: 20px;
 }
 
 #w3tc>#w3tc-breadcrumb a {
@@ -1193,7 +1188,6 @@ td .w3tc-control-after span {
     color: #2271b1;
     padding: 5px 15px;
     text-align: left;
-    border-radius: 3px;
 }
 
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu .dropdown-item:hover {

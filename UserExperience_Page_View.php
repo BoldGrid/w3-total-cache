@@ -8,11 +8,10 @@ if ( !defined( 'W3TC' ) )
 <p>
 	Lazy loading is currently
 	<?php if ( $c->get_boolean( 'lazyload.enabled' ) ): ?>
-		<span class="w3tc-enabled">enabled</span>
+		<span class="w3tc-enabled">enabled</span>.
 	<?php else: ?>
-		<span class="w3tc-disabled">disabled</span>
+		<span class="w3tc-disabled">disabled</span>.
 	<?php endif ?>
-	.
 <p>
 
 <form action="admin.php?page=w3tc_userexperience" method="post">
