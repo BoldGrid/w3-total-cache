@@ -508,7 +508,9 @@ class Generic_Plugin_Admin {
 	 * Defines the W3TC footer
 	 */
 	public function admin_footer() {
-		require W3TC_INC_DIR . '/options/common/footer.php';
+		if ( $this->is_w3tc_page ) {
+			require W3TC_INC_DIR . '/options/common/footer.php';
+		}
 	}
 
 	/**
