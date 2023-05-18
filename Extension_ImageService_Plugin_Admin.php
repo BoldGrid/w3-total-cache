@@ -515,6 +515,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		if ( $is_settings_page ) {
 			wp_enqueue_style( 'w3tc-options' );
+			wp_enqueue_style( 'w3tc-bootstrap-css' );
 			wp_enqueue_script( 'w3tc-options' );
 		}
 

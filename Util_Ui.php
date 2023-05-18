@@ -1394,31 +1394,10 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function print_breadcrumb() {
-		$page           = Util_Admin::get_current_page();
-		$page_name      = Util_PageUrls::get_page_title( $page );
-		$extension      = Util_Admin::get_current_extension();
-		$extension_name = Util_PageUrls::get_extension_title( $extension );
-		$subpages       = array(
-			'w3tc_pgcache',
-			'w3tc_minify',
-			'w3tc_dbcache',
-			'w3tc_objectcache',
-			'w3tc_browsercache',
-			'w3tc_cachegroups',
-			'w3tc_cdn',
-			'w3tc_fragmentcache',
-			'w3tc_userexperience',
-			'w3tc_monitoring',
-			'w3tc_stats',
-		);
-		if( 'w3tc_extensions' === $page && ! empty( $extension ) && ! empty( $extension_name ) ){
-			$parent  = '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=' . $page . '#' . $extension ) ) . '">' . esc_html__( 'Extensions', 'w3-total-cache' ) . '</a>';
-			$current = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . $extension_name . '</span>';
-		} else {
-			$parent  = $page !== 'w3tc_general' && in_array( $page, $subpages ) ? '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ) . '">' . esc_html__( 'General Settings', 'w3-total-cache' ) . '</a>': '';
-			$current = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . $page_name . '</span>';
-		}
-		
+		$page         = ! empty( Util_Admin::get_current_extension() ) ? Util_Admin::get_current_extension() : Util_Admin::get_current_page();
+		$page_mapping = Util_PageUrls::get_page_mapping( $page );
+		$parent       = isset( $page_mapping['parent_name'] ) ? '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . $page_mapping['parent_link'] . '">' . $page_mapping['parent_name'] . '</a>': '';
+		$current      = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . $page_mapping['page_name'] . '</span>';
 		?>
 		<p id="w3tc-breadcrumb">
 			<span class="dashicons dashicons-admin-home"></span>
