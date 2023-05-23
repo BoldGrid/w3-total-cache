@@ -64,10 +64,10 @@ do_action( 'w3tc-dashboard-footer' );
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/what-is-fragment-caching-and-why-do-i-need-it/' ); ?>" alt="<?php esc_attr_e( 'Fragment Cache', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Fragment Cache', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="#" alt="<?php esc_attr_e( 'Rest API Caching', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/page-cache/rest-api/' ); ?>" alt="<?php esc_attr_e( 'Rest API Caching', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Rest API Caching', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="#" alt="<?php esc_attr_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify/render-blocking-css/' ); ?>" alt="<?php esc_attr_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>
 				</a>
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-lazy-loading-for-your-wordpress-website-with-w3-total-cache/' ); ?>" alt="<?php esc_attr_e( 'Lazy Load Google Maps', 'w3-total-cache' ); ?>">
@@ -78,7 +78,7 @@ do_action( 'w3tc-dashboard-footer' );
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( '#' ); ?>" alt="<?php esc_attr_e( 'Genesis Framework Acceleration', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Genesis Framework Acceleration', 'w3-total-cache' ); ?>
 				</a>
-				<a class="w3tc-footer-link" target="_blank" href="#" alt="<?php esc_attr_e( 'WPML Extension', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/wpml/' ); ?>" alt="<?php esc_attr_e( 'WPML Extension', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'WPML Extension', 'w3-total-cache' ); ?>
 				</a>
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-w3-total-cache-statistics-to-give-detailed-information-about-your-cache/' ); ?>" alt="<?php esc_attr_e( 'Caching Statistics', 'w3-total-cache' ); ?>">
@@ -90,7 +90,7 @@ do_action( 'w3tc-dashboard-footer' );
 			</div>
 			<?php
 			if( ! Util_Environment::is_w3tc_pro( $config ) ) {
-				echo '<input type="button" class="button w3tc-gopro-button button-buy-plugin" data-src="dashboard_banner" value="' . esc_attr__( 'Learn more about Pro!', 'w3-total-cache' ) . '" />';
+				echo '<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'Learn more about Pro!', 'w3-total-cache' ) . '</a>';
 			}
 			?>
 		</div>

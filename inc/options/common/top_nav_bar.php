@@ -114,7 +114,7 @@ do_action( 'w3tc-dashboard-top-nav-bar' );
 			</a>
 			<?php
 			if( ! Util_Environment::is_w3tc_pro( $config ) ) {
-				echo '<input type="button" class="button w3tc-gopro-button button-buy-plugin" data-src="dashboard_banner" value="' . esc_attr__( 'Upgrade', 'w3-total-cache' ) . '" />';
+				echo '<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '</a>';
 			}
 			?>
 		</div>

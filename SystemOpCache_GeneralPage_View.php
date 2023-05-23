@@ -7,7 +7,14 @@ if ( ! defined( 'W3TC' ) ) {
 
 Util_Ui::postbox_header_tabs(
 	esc_html__( 'Opcode Cache', 'w3-total-cache' ),
-	esc_html__( 'This needs a description!', 'w3-total-cache' ),
+	esc_html__(
+		'Opcode cache is a powerful feature that enhances the performance of a WordPress website by caching 
+			compiled PHP code. By storing pre-compiled code in memory, opcode cache eliminates the need for 
+			repetitive interpretation and compilation of PHP files, resulting in significantly faster execution 
+			times. Enabling opcode cache through W3 Total Cache reduces server load and improves response times, 
+			ultimately enhancing the overall speed and responsiveness of your WordPress site.',
+		'w3-total-cache'
+	),
 	'',
 	'system_opcache'
 );

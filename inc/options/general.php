@@ -110,8 +110,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::config_overloading_button( array( 'key' => 'pgcache.configuration_overloaded' ) );
 		?>
 
-		<p><?php esc_html_e( 'Enable page caching to decrease the response time of the site.', 'w3-total-cache' ); ?></p>
-
 		<table class="form-table">
 			<?php
 			Util_Ui::config_item(
@@ -199,21 +197,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'minify.configuration_overloaded' ) );
 		?>
-		<p>
-			<?php
-			w3tc_e(
-				'minify.general.header',
-				sprintf(
-					// translators: 1 HTML acronym for Cascading Style Sheet (CSS), 2 HTML acronym for JavaScript (JS),
-					// translators: 3 HTML acronym for Hypertext Markup Language (HTML).
-					__( 'Reduce load time by decreasing the size and number of %1$s and %2$s files. Automatically remove unnecessary data from %1$s, %2$s, feed, page and post %3$s.', 'w3-total-cache' ),
-					'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">' . __( 'CSS', 'w3-total-cache' ) . '</acronym>',
-					'<acronym title="' . __( 'JavaScript', 'w3-total-cache' ) . '">' . __( 'JS', 'w3-total-cache' ) . '</acronym>',
-					'<acronym title="' . __( 'Hypertext Markup Language', 'w3-total-cache' ) . '">' . __( 'HTML', 'w3-total-cache' ) . '</acronym>'
-				)
-			);
-			?>
-		</p>
 
 		<table class="form-table">
 			<?php
@@ -334,15 +317,20 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Database Cache', 'w3-total-cache' ),
-			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			esc_html__(
+				'Enable this setting to utilize the power of caching your WordPress site\'s database queries. 
+					By storing frequently accessed database queries in memory, the database cache reduces the need for 
+					repetitive database interactions, resulting in faster page load times. This feature is particularly 
+					beneficial for websites with heavy database usage, improving overall performance and delivering a smoother 
+					user experience.',
+				'w3-total-cache'
+			),
 			'',
 			'database_cache',
 			Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' )
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'dbcache.configuration_overloaded' ) );
 		?>
-
-		<p><?php esc_html_e( 'Enable database caching to reduce post, page and feed creation time.', 'w3-total-cache' ); ?></p>
 
 		<table class="form-table">
 			<?php
@@ -367,15 +355,22 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Object Cache', 'w3-total-cache' ),
-			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			esc_html__(
+				'Enable this option to utilize an object cache mechanism, which significantly enhances the performance 
+					of your WordPress website. Object caching stores frequently accessed database queries and complex data 
+					structures in memory, reducing the need to retrieve them from the database repeatedly. By doing so, it 
+					minimizes the processing time required to generate dynamic content, resulting in faster page loading times 
+					and improved overall site speed. Enabling object cache is particularly beneficial for websites with heavy 
+					database usage or high traffic volumes, as it helps alleviate the strain on the server by efficiently 
+					serving cached data.',
+				'w3-total-cache'
+			),
 			'',
 			'object_cache',
 			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' )
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
 		?>
-
-		<p><?php esc_html_e( 'Enable object caching to further reduce execution time for common operations.', 'w3-total-cache' ); ?></p>
 
 		<table class="form-table">
 			<?php
@@ -418,15 +413,21 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Browser Cache', 'w3-total-cache' ),
-			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			esc_html__(
+				'Enabling browser caching allows the W3 Total Cache plugin to instruct visitors\' web browsers to store 
+					static files from your WordPress website, such as images, CSS, and JavaScript files, locally on their 
+					devices. By doing so, subsequent visits to your site will retrieve these cached files from the browser\'s 
+					storage, reducing the need for repeated downloads. This results in faster page loading times and a 
+					smoother browsing experience for your visitors, ultimately improving the overall speed and performance 
+					of your WordPress website.',
+				'w3-total-cache'
+			),
 			'',
 			'browser_cache',
 			Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' )
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'browsercache.configuration_overloaded' ) );
 		?>
-
-		<p><?php esc_html_e( 'Reduce server load and decrease response time by using the cache available in site visitor\'s web browser.', 'w3-total-cache' ); ?></p>
 
 		<table class="form-table">
 			<?php
@@ -463,36 +464,21 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Reverse Proxy', 'w3-total-cache' ),
-			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			esc_html__(
+				'A reverse proxy is a server that sits between a client and a web server, acting as an intermediary 
+					for requests. It retrieves resources on behalf of the client from the server, and then returns 
+					the response to the client. By utilizing a reverse proxy, such as Varnish or Nginx, in conjunction 
+					with W3 Total Cache, you can significantly enhance the performance of your WordPress website by 
+					caching and serving static content directly from the reverse proxy server, reducing the load on 
+					your WordPress server and improving response times for visitors.',
+				'w3-total-cache'
+			),
 			'',
 			'reverse_proxy'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'varnish.configuration_overloaded' ) );
 		?>
 
-		<p>
-			<?php
-			echo wp_kses(
-				sprintf(
-					// translators: 1 opening HTML a tag to W3TC Page Cache admin page, 2 closing HTML a tag,
-					// translators: 3 opening HTML a tag to W3TC Browsercache admin page, 4 closing HTML a tag.
-					__(
-						'A reverse proxy adds scale to an server by handling requests before WordPress does. Purge settings are set on the %1$sPage Cache settings%2$s page and %3$sBrowser Cache settings%4$s are set on the browser cache settings page.',
-						'w3-total-cache'
-					),
-					'<a href="' . esc_url( self_admin_url( 'admin.php?page=w3tc_pgcache' ) ) . '">',
-					'</a>',
-					'<a href="' . esc_url( self_admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
-					'</a>'
-				),
-				array(
-					'a' => array(
-						'href' => array(),
-					),
-				)
-			);
-			?>
-		</p>
 		<table class="form-table">
 			<tr>
 				<th colspan="2">
@@ -537,14 +523,18 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php
 			Util_Ui::postbox_header_tabs(
 				esc_html__( 'Message Bus', 'w3-total-cache' ),
-				esc_html__( 'This needs a description!', 'w3-total-cache' ),
+				esc_html__(
+					'Allows policy management to be shared between a dynamic pool of servers. For example, each 
+						server in a pool to use opcode caching (which is not a shared resource) and purging is 
+						then syncronized between any number of servers in real-time; each server therefore behaves 
+						identically even though resources are not shared.',
+					'w3-total-cache'
+				),
 				'',
 				'amazon_sns'
 			);
 			?>
-			<p>
-				<?php esc_html_e( 'Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then syncronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared.', 'w3-total-cache' ); ?>
-			</p>
+
 			<table class="form-table">
 				<tr>
 					<th colspan="2">
@@ -676,7 +666,16 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Google PageSpeed', 'w3-total-cache' ),
-			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			esc_html__(
+				'The PageSpeed Tool is a powerful feature within the W3 Total Cache plugin that helps optimize 
+					and enhance the performance of your WordPress website. By leveraging the insights and 
+					recommendations provided by Google\'s PageSpeed Insights API, this tool analyzes your website\'s 
+					speed and suggests improvements to boost its performance. By implementing the recommended 
+					optimizations, such as minimizing CSS and JavaScript, optimizing images, and enabling browser 
+					caching, you can significantly accelerate your WordPress site, resulting in faster loading 
+					times and an improved user experience.',
+				'w3-total-cache'
+			),
 			'',
 			'google_pagespeed',
 			'',
@@ -833,11 +832,18 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php
 			Util_Ui::postbox_header_tabs(
 				esc_html__( 'Licensing', 'w3-total-cache' ),
-				esc_html__( 'This needs a description!', 'w3-total-cache' ),
+				esc_html__(
+					'The plugin license is a key that unlocks advanced features and support for the W3 Total Cache 
+						WordPress plugin. By activating the license, users gain access to enhanced caching mechanisms, 
+						optimization tools, and expert assistance, enabling them to significantly speed up their 
+						WordPress websites and improve overall performance.',
+					'w3-total-cache'
+				),
 				'',
 				'licensing'
 			);
 			?>
+
 			<table class="form-table">
 					<tr>
 						<th>
@@ -851,12 +857,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 								<?php
 								echo wp_kses(
 									sprintf(
-										// translators: 1 HTML a tag to trigger W3TC licence upgrade.
+										// translators: 1 HTML a tag to W3TC marketing page.
 										__(
 											'Please enter the license key provided after %1$s.',
 											'w3-total-cache'
 										),
-										'<a class="button-buy-plugin" data-src="generic_license" href="#">' . esc_html__( 'upgrading', 'w3-total-cache' ) . '</a>'
+										'<a href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'upgrading', 'w3-total-cache' ) . '</a>'
 									),
 									array(
 										'a' => array(
@@ -879,11 +885,16 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Miscellaneous', 'w3-total-cache' ),
-			esc_html__( 'This needs a description!', 'w3-total-cache' ),
+			esc_html__(
+				'Miscellaneous settings in the W3 Total Cache plugin provide additional options and configurations 
+					to optimize and speed up your WordPress website.',
+				'w3-total-cache'
+			),
 			'',
 			'miscellaneous'
 		);
 		?>
+
 		<table class="form-table">
 			<?php if ( is_network_admin() ) : ?>
 			<tr>
@@ -1013,14 +1024,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Debug', 'w3-total-cache' ),
-			esc_html__( 'This needs a description!', 'w3-total-cache' ),
-			'',
-			'debug'
-		);
-		?>
-		<p>
-			<?php
-			echo wp_kses(
+			wp_kses(
 				sprintf(
 					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 					__(
@@ -1035,9 +1039,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'title' => array(),
 					),
 				)
-			);
-			?>
-		</p>
+			),
+			'',
+			'debug'
+		);
+		?>
 
 		<table class="form-table">
 			<tr>

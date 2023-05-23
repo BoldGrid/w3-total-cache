@@ -28,7 +28,16 @@ Util_Ui::postbox_header_tabs(
 			),
 		)
 	),
-	esc_html__( 'This needs a description!', 'w3-total-cache' ),
+	esc_html__(
+		'Content Delivery Network (CDN) is a powerful feature that can significantly enhance the performance of 
+			your WordPress website. By leveraging a distributed network of servers located worldwide, a CDN helps 
+			deliver your website\'s static files, such as images, CSS, and JavaScript, to visitors more efficiently. 
+			This reduces the latency and improves the loading speed of your website, resulting in a faster and 
+			smoother browsing experience for your users. With W3 Total Cache\'s CDN integration, you can easily 
+			configure and connect your website to a CDN service of your choice, unleashing the full potential of 
+			your WordPress site\'s speed optimization.',
+		'w3-total-cache'
+	),
 	'',
 	'cdn',
 	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' )
@@ -41,26 +50,6 @@ Util_Ui::config_overloading_button(
 ?>
 <p>
 	<?php
-	w3tc_e(
-		'cdn.general.header',
-		wp_kses(
-			sprintf(
-				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-				__(
-					'Host static files with your %1$sCDN%2$s to reduce page load time.',
-					'w3-total-cache'
-				),
-				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-				'</acronym>'
-			),
-			array(
-				'acronym' => array(
-					'title' => array(),
-				),
-			)
-		)
-	);
-
 	if ( ! $cdn_enabled ) {
 		echo '&nbsp;' . wp_kses(
 			sprintf(

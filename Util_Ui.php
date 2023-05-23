@@ -206,7 +206,7 @@ class Util_Ui {
 	 */
 	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $adv_link = '', $extra_links = array() ) {
 		$display_id         = ( ! empty( $id ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
-		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . esc_html__( $description ) . '</div>' : '';
+		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
 		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
 		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
 		
@@ -397,7 +397,7 @@ class Util_Ui {
 			$logo = '';
 		}
 		return sprintf(
-			'<div %s class="updated">%s</div>',
+			'<div %s class="updated inline">%s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
 			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
 		);
@@ -436,7 +436,7 @@ class Util_Ui {
 		}
 
 		$v = sprintf(
-			'<div %s class="error">%s</div>',
+			'<div %s class="error inline">%s</div>',
 			$id ? 'id="' . esc_attr( $id ) . '"' : '',
 			$logo . wp_kses( $message, self::get_allowed_html_for_wp_kses_from_content( $message ) )
 		);
@@ -1036,7 +1036,19 @@ class Util_Ui {
 	}
 
 	public static function config_item_extension_enabled( $a ) {
-		echo "<tr><th class=''></th>\n<td>\n";
+		$a = self::config_item_preprocess( $a );
+
+		if ( 'w3tc_single_column' === $a['label_class'] ) {
+			echo '<tr><th colspan="2">';
+		} else {
+			echo '<tr><th class="' . esc_attr( $a['label_class'] ) . '">';
+
+			if ( ! empty( $a['label'] ) ) {
+				self::label( $a['control_name'], $a['label'] );
+			}
+
+			echo "</th>\n<td>\n";
+		}
 
 		$c = Dispatcher::config();
 		self::checkbox2(
@@ -1051,13 +1063,16 @@ class Util_Ui {
 			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
 		}
 
-		echo "</td></tr>\n";
+		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
+		echo "</tr>\n";
 	}
 
 	public static function config_item_pro( $a ) {
 		$a = self::config_item_preprocess( $a );
 
-		if ( 'w3tc_no_trtd' !== $a['label_class'] ) {
+		if ( 'w3tc_single_column' === $a['label_class'] ) {
+			echo '<tr><th colspan="2">';
+		} elseif ( 'w3tc_no_trtd' !== $a['label_class'] ) {
 			echo '<tr><th class="' . esc_attr( $a['label_class'] ) . '">';
 
 			if ( ! empty( $a['label'] ) ) {
@@ -1082,7 +1097,8 @@ class Util_Ui {
 		self::pro_wrap_maybe_end( $a['control_name'] );
 
 		if ( 'w3tc_no_trtd' !== $a['label_class'] ) {
-			echo "</th></tr>\n";
+			echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
+			echo "</tr>\n";
 		}
 	}
 
@@ -1218,9 +1234,7 @@ class Util_Ui {
 		?>
 			</div>
 			<div class="w3tc-gopro-action">
-				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
-					Learn more about Pro
-				</button>
+				<a class="button w3tc-gopro-button" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/' ); ?>" target="_blank"><?php esc_html_e( 'Learn more about Pro!', 'w3-total-cache' ); ?></a>
 			</div>
 		</div>
 		<?php
@@ -1245,9 +1259,7 @@ class Util_Ui {
 		?>
 			</p>
 			<div style="text-align: right">
-				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
-					Unlock Feature
-				</button>
+				<a class="button w3tc-gopro-button" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/' ); ?>" target="_blank"><?php esc_html_e( 'Unlock Feature', 'w3-total-cache' ); ?></a>
 			</div>
 		</div>
 		<?php
@@ -1805,7 +1817,6 @@ class Util_Ui {
 			case 'w3tc_monitoring':
 				?>
 				<div id="w3tc-options-menu">
-					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
 					<a href="#application"><?php esc_html_e( 'Application', 'w3-total-cache' ); ?></a> |
 					<a href="#dashboard"><?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?></a> |
 					<a href="#behavior"><?php esc_html_e( 'Behavior', 'w3-total-cache' ); ?></a>
@@ -1816,7 +1827,6 @@ class Util_Ui {
 			case 'w3tc_extension_page_imageservice':
 				?>
 				<div id="w3tc-options-menu">
-					<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
 					<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
 					<a href="#tools"><?php esc_html_e( 'Tools', 'w3-total-cache' ); ?></a> |
 					<a href="#statistics"><?php esc_html_e( 'Statistics', 'w3-total-cache' ); ?></a>

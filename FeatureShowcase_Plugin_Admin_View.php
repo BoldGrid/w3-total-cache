@@ -79,7 +79,8 @@ foreach ( $cards as $feature_id => $card ) {
 
 	if ( $is_premium && ! $is_pro ) {
 		?>
-					<button class="button w3tc-gopro-button button-buy-plugin" data-src="feature_showcase">Unlock Feature</button>
+					<a class="button w3tc-gopro-button" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/' ); ?>" target="_blank"><?php esc_html_e( 'Unlock Feature', 'w3-total-cache' ); ?></a>
+			
 		<?php
 	} elseif ( ! empty( $card['button'] ) ) {
 		echo $card['button'];
