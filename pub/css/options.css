@@ -19,6 +19,13 @@
     box-sizing: border-box;
 }
 
+.update-nag p,
+.notice p,
+.error p {
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
 .updated.w3tc_note,
 .error.w3tc_error {
     max-width: 1200px;

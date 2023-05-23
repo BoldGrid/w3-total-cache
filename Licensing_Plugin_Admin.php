@@ -162,7 +162,7 @@ class Licensing_Plugin_Admin {
 
 		$state  = Dispatcher::config_state();
 		$status = $state->get_string( 'license.status' );
-
+$status = 'inactive.expired';
 		if ( defined( 'W3TC_PRO' ) ) {
 		} elseif ( 'no_key' === $status ) {
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
