@@ -934,8 +934,6 @@ class Util_PageUrls {
 			),
 			'w3tc_pagespeed'                   => array(
 				'page_name'   => esc_html__( 'Google PageSpeed', 'w3-total-cache' ),
-				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
-				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
 			),
 			'w3tc_userexperience'              => array(
 				'page_name'   => esc_html__( 'User Experience', 'w3-total-cache' ),

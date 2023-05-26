@@ -372,6 +372,10 @@ function set_sticky_bar_positions() {
 
 function set_footer_position() {
     jQuery('#w3tc-footer').insertAfter(jQuery('#wpfooter'));
+    jQuery('#w3tc-footer').css(
+        'bottom',
+        Math.floor(0 - jQuery('#w3tc-footer').outerHeight())
+    );
 }
 
 jQuery(function() {

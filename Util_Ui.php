@@ -1036,8 +1036,6 @@ class Util_Ui {
 	}
 
 	public static function config_item_extension_enabled( $a ) {
-		$a = self::config_item_preprocess( $a );
-
 		if ( 'w3tc_single_column' === $a['label_class'] ) {
 			echo '<tr><th colspan="2">';
 		} else {

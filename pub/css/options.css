@@ -402,6 +402,14 @@ textarea.w3tc-error {
     margin: 20px 0 25px;
 }
 
+#w3tc .postbox-tabs .form-table th {
+	padding: 20px 0;
+}
+
+#w3tc .postbox-tabs table:not(.w3tc-pro-feature) .w3tc-gopro {
+	margin: 5px 0;
+}
+
 #w3tc .postbox-tabs .nav-tab-wrapper {
     border: unset;
     padding-top: 0;
@@ -1102,6 +1110,8 @@ td .w3tc-control-after span {
 #w3tc-footer .w3tc-gopro-button {
     margin-top: 10px;
     white-space: normal;
+	float: left;
+	clear: both;
 }
 
 #w3tc-footer .w3tc-footer-column-1 {

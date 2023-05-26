@@ -98,7 +98,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			esc_html__( 'Page Cache', 'w3-total-cache' ),
 			esc_html__(
 				'Page cache is a technique used to speed up the performance of a website by storing a copy of the 
-					generated HTML page in the server\'s memory or dis, and then serving that copy to subsequent 
+					generated HTML page in the server\'s memory or disk, and then serving that copy to subsequent 
 					visitors instead of generating the page from scratch each time. This can result in significant 
 					speed improvements for websites with high traffic or dynamic content.',
 				'w3-total-cache'
