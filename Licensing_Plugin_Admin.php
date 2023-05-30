@@ -162,18 +162,19 @@ class Licensing_Plugin_Admin {
 
 		$state  = Dispatcher::config_state();
 		$status = $state->get_string( 'license.status' );
-$status = 'inactive.expired';
+
 		if ( defined( 'W3TC_PRO' ) ) {
 		} elseif ( 'no_key' === $status ) {
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
-			$message = wp_kses(
+			$ga_client_id = preg_replace("/^.+\.(.+?\..+?)$/", "$1", $_COOKIE['_ga']);
+			$message      = wp_kses(
 				sprintf(
 					// translators: 1 HTML input button for renewing licence.
 					__(
 						'It looks like your W3 Total Cache Pro License has expired. %1$s to continue using the Pro Features',
 						'w3-total-cache'
 					),
-					'<a class="button" href="' . esc_url( \W3TC\Licensing_Core::purchase_url( 'licensing_expired', $this->get_license_key(), '') ) . '" target="_blank">' . esc_html__( 'Renew Now', 'w3-total-cache' ) . '</a>'
+					'<a class="button" href="' . esc_url( \W3TC\Licensing_Core::purchase_url( 'licensing_expired', $this->get_license_key(), $ga_client_id) ) . '" target="_blank">' . esc_html__( 'Renew Now', 'w3-total-cache' ) . '</a>'
 				),
 				array(
 					'a' => array(

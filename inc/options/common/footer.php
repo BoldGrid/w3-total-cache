@@ -58,7 +58,7 @@ do_action( 'w3tc-dashboard-footer' );
 		<div class="w3tc-footer-column-2">
 			<h2><?php esc_html_e( 'Pro Features', 'w3-total-cache' ); ?></h2>
 			<div class="w3tc-footer-inner-column-50">
-				<a class="w3tc-footer-link" target="_blank" href="#" alt="<?php esc_attr_e( 'Full Site Delivery', 'w3-total-cache' ); ?>">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/cdn/full-site-delivery/' ); ?>" alt="<?php esc_attr_e( 'Full Site Delivery', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Full Site Delivery', 'w3-total-cache' ); ?>
 				</a>
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/what-is-fragment-caching-and-why-do-i-need-it/' ); ?>" alt="<?php esc_attr_e( 'Fragment Cache', 'w3-total-cache' ); ?>">
