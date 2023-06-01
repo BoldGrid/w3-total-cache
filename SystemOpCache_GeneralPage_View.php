@@ -11,8 +11,9 @@ Util_Ui::postbox_header_tabs(
 		'Opcode cache is a powerful feature that enhances the performance of a WordPress website by caching 
 			compiled PHP code. By storing pre-compiled code in memory, opcode cache eliminates the need for 
 			repetitive interpretation and compilation of PHP files, resulting in significantly faster execution 
-			times. Enabling opcode cache through W3 Total Cache reduces server load and improves response times, 
-			ultimately enhancing the overall speed and responsiveness of your WordPress site.',
+			times. Opcode cache reduces server load and improves response times, ultimately enhancing the 
+			overall speed and responsiveness of your WordPress site. If opcode cache is available on the 
+			hosting server it will automatically be selected in the dropdown and enabled.',
 		'w3-total-cache'
 	),
 	'',

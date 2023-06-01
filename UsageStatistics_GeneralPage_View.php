@@ -10,11 +10,11 @@ $is_pro = Util_Environment::is_w3tc_pro( $c );
 Util_Ui::postbox_header_tabs(
 	esc_html__( 'Statistics', 'w3-total-cache' ),
 	esc_html__(
-		'Cache Usage Statistics is a feature within the W3 Total Cache WordPress plugin that provides valuable 
-			insights into the performance of your website\'s caching system. It displays detailed data regarding 
-			the utilization of your cache and overall performance metrics. By monitoring these statistics, website 
-			owners can identify areas of improvement, optimize their caching settings, and ultimately enhance the 
-			speed and responsiveness of their WordPress site, resulting in a smoother user experience for visitors.',
+		'Cache Usage Statistics is a feature that provides valuable insights into the performance of your website\'s 
+			caching system. It displays detailed data regarding the utilization of your cache and overall performance 
+			metrics. By monitoring these statistics, website owners can identify areas of improvement, optimize their 
+			caching settings, and ultimately enhance the speed and responsiveness of their WordPress site, resulting 
+			in a smoother user experience for visitors.',
 		'w3-total-cache'
 	),
 	'',

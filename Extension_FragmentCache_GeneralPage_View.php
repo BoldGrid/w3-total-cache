@@ -8,11 +8,11 @@ if ( ! defined( 'W3TC' ) ) {
 Util_Ui::postbox_header_tabs(
 	esc_html__( 'Fragment Cache', 'w3-total-cache' ),
 	esc_html__(
-		'Fragment caching is a powerful feature in the W3 Total Cache WordPress plugin that helps improve 
-			the speed and performance of your website. It allows you to cache specific sections or fragments 
-			of your web pages instead of caching the entire page. By selectively caching these fragments, 
-			such as sidebar widgets or dynamic content, you can reduce the processing time required to 
-			generate the page, resulting in faster load times and improved overall site performance.',
+		'Fragment caching is a powerful feature that helps improve the speed and performance of your 
+			website. It allows you to cache specific sections or fragments of your web pages instead 
+			of caching the entire page. By selectively caching these fragments, such as sidebar widgets 
+			or dynamic content, you can reduce the processing time required to generate the page, 
+			resulting in faster load times and improved overall site performance.',
 		'w3-total-cache'
 	),
 	'',

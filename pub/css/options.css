@@ -22,8 +22,8 @@
 .update-nag p,
 .notice p,
 .error p {
-	padding: 0 !important;
-	margin: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .updated.w3tc_note,
@@ -403,11 +403,11 @@ textarea.w3tc-error {
 }
 
 #w3tc .postbox-tabs .form-table th {
-	padding: 20px 0;
+    padding: 20px 0;
 }
 
 #w3tc .postbox-tabs table:not(.w3tc-pro-feature) .w3tc-gopro {
-	margin: 5px 0;
+    margin: 5px 0;
 }
 
 #w3tc .postbox-tabs .nav-tab-wrapper {
@@ -975,7 +975,7 @@ td .w3tc-control-after span {
     background-origin: content-box;
     text-indent: -9999px;
     margin: 4px 0;
-    padding: 0 10px;
+    padding: 0;
 }
 
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links {
@@ -1010,7 +1010,7 @@ td .w3tc-control-after span {
     box-shadow: 0px 0px 2px 0px #c3c4c7;
     z-index: 1;
     top: 30px;
-	right: 0;
+    right: 0;
 }
 
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a {
@@ -1048,7 +1048,7 @@ td .w3tc-control-after span {
     box-shadow: 0 1px 0 darkgreen;
     background: green;
     color: #fff;
-	box-shadow: unset;
+    box-shadow: unset;
 }
 
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button:hover,
@@ -1056,7 +1056,7 @@ td .w3tc-control-after span {
     border-color: green;
     box-shadow: 0 1px 0 green;
     background: #009900;
-	box-shadow: unset;
+    box-shadow: unset;
 }
 
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown-content>a {
@@ -1110,8 +1110,8 @@ td .w3tc-control-after span {
 #w3tc-footer .w3tc-gopro-button {
     margin-top: 10px;
     white-space: normal;
-	float: left;
-	clear: both;
+    float: left;
+    clear: both;
 }
 
 #w3tc-footer .w3tc-footer-column-1 {
@@ -1223,19 +1223,19 @@ td .w3tc-control-after span {
     color: #2271b1;
     padding: 5px 15px;
     text-align: left;
-	border-radius: 3px;
-	box-shadow: 0 2px 0 1px #f9f9f9;
+    border-radius: 3px;
+    box-shadow: 0 2px 0 1px #f9f9f9;
 }
 
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu .dropdown-item:hover {
-	color: #2271b1;
+    color: #2271b1;
     background-color: #f0f0f1;
-	box-shadow: 0 2px 0 1px #f0f0f1;
+    box-shadow: 0 2px 0 1px #f0f0f1;
 }
 
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu .dropdown-item:focus {
-	box-shadow: 0 0 0 1px #4f94d4,0 0 2px 1px rgba(79,148,212,.8);
-	outline: 1px solid transparent;
+    box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba(79, 148, 212, .8);
+    outline: 1px solid transparent;
 }
 
 .w3tc_form_bar .w3tc-button-control-container .dropdown-menu-right {
@@ -1363,7 +1363,7 @@ td .w3tc-control-after span {
         vertical-align: middle;
     }
     #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>input,
-	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>a.w3tc-gopro-button {
+    #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>a.w3tc-gopro-button {
         margin-top: 3px;
     }
     #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown-content {

@@ -414,12 +414,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Browser Cache', 'w3-total-cache' ),
 			esc_html__(
-				'Enabling browser caching allows the W3 Total Cache plugin to instruct visitors\' web browsers to store 
-					static files from your WordPress website, such as images, CSS, and JavaScript files, locally on their 
-					devices. By doing so, subsequent visits to your site will retrieve these cached files from the browser\'s 
-					storage, reducing the need for repeated downloads. This results in faster page loading times and a 
-					smoother browsing experience for your visitors, ultimately improving the overall speed and performance 
-					of your WordPress website.',
+				'Enabling browser caching will instruct visitors\' web browsers to store static files from your WordPress 
+					website, such as images, CSS, and JavaScript files, locally on their devices. By doing so, subsequent 
+					visits to your site will retrieve these cached files from the browser\'s storage, reducing the need 
+					for repeated downloads. This results in faster page loading times and a smoother browsing experience 
+					for your visitors, ultimately improving the overall speed and performance of your WordPress website.',
 				'w3-total-cache'
 			),
 			'',
@@ -667,13 +666,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Google PageSpeed', 'w3-total-cache' ),
 			esc_html__(
-				'The PageSpeed Tool is a powerful feature within the W3 Total Cache plugin that helps optimize 
-					and enhance the performance of your WordPress website. By leveraging the insights and 
-					recommendations provided by Google\'s PageSpeed Insights API, this tool analyzes your website\'s 
-					speed and suggests improvements to boost its performance. By implementing the recommended 
-					optimizations, such as minimizing CSS and JavaScript, optimizing images, and enabling browser 
-					caching, you can significantly accelerate your WordPress site, resulting in faster loading 
-					times and an improved user experience.',
+				'The PageSpeed Tool is a powerful feature that can be used to help optimize and enhance the performance 
+					of your WordPress website. By leveraging the insights and recommendations provided by Google\'s 
+					PageSpeed Insights API, this tool analyzes your website\'s speed and suggests improvements to boost 
+					its performance. By implementing the recommended optimizations, such as minimizing CSS and JavaScript, 
+					optimizing images, and enabling browser caching, you can significantly accelerate your WordPress site, 
+					resulting in faster loading times and an improved user experience.',
 				'w3-total-cache'
 			),
 			'',
@@ -835,7 +833,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				esc_html__(
 					'The plugin license is a key that unlocks advanced features and support for the W3 Total Cache 
 						WordPress plugin. By activating the license, users gain access to enhanced caching mechanisms, 
-						optimization tools, and expert assistance, enabling them to significantly speed up their 
+						optimization tools, enabling them to significantly speed up their 
 						WordPress websites and improve overall performance.',
 					'w3-total-cache'
 				),
@@ -886,8 +884,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Miscellaneous', 'w3-total-cache' ),
 			esc_html__(
-				'Miscellaneous settings in the W3 Total Cache plugin provide additional options and configurations 
-					to optimize and speed up your WordPress website.',
+				'Miscellaneous settings provide additional options and configurations to optimize and speed up 
+					your WordPress website.',
 				'w3-total-cache'
 			),
 			'',

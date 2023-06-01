@@ -8,12 +8,11 @@ if ( ! defined( 'W3TC' ) ) {
 Util_Ui::postbox_header_tabs(
 	esc_html__( 'Monitoring', 'w3-total-cache' ),
 	esc_html__(
-		'"New Relic" is a powerful performance monitoring and analysis tool that can be integrated with the 
-			W3 Total Cache plugin to enhance the speed and efficiency of a WordPress website. By utilizing 
-			New Relic, website owners can gain valuable insights into their site\'s performance, identifying 
-			bottlenecks, slow queries, and other performance issues. With this information, users can optimize 
-			their website\'s configuration, improve caching strategies, and make informed decisions to deliver 
-			a faster and more responsive browsing experience for their visitors.',
+		'"New Relic" is a powerful performance monitoring and analysis tool that enhance the speed and efficiency 
+			of a WordPress website. By utilizing New Relic, website owners can gain valuable insights into their 
+			site\'s performance, identifying bottlenecks, slow queries, and other performance issues. With this 
+			information, users can optimize their website\'s configuration, improve caching strategies, and make 
+			informed decisions to deliver a faster and more responsive browsing experience for their visitors.',
 		'w3-total-cache'
 	),
 	'',

@@ -9,11 +9,11 @@ if ( ! defined( 'W3TC' ) ) {
 Util_Ui::postbox_header_tabs(
 	esc_html__( 'User Experience', 'w3-total-cache' ),
 	esc_html__(
-		'User Experience (UX) is a setting in the W3 Total Cache WordPress plugin that focuses on enhancing 
-			the overall browsing experience for visitors of your website. By enabling this feature, you can 
-			optimize your website\'s performance by minimizing load times, reducing server requests, and 
-			delivering content more efficiently. This ultimately leads to faster page loading, improved user 
-			satisfaction, and increased engagement, resulting in a speedier and more enjoyable WordPress website.',
+		'User Experience (UX) is a setting that focuses on enhancing the overall browsing experience for visitors 
+			of your website. By enabling this feature, you can optimize your website\'s performance by minimizing 
+			load times, reducing server requests, and delivering content more efficiently. This ultimately leads 
+			to faster page loading, improved user satisfaction, and increased engagement, resulting in a speedier 
+			and more enjoyable WordPress website.',
 		'w3-total-cache'
 	),
 	'',
