@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: buy.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -15,8 +21,7 @@ if ( ! defined( 'W3TC' ) ) {
 				'Unlock more speed, %1$s now!',
 				'w3-total-cache'
 			),
-			'<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '</a>';
-			
+			'<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '</a>'
 		),
 		array(
 			'a' => array(

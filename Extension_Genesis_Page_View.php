@@ -224,7 +224,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 				<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?> type="hidden" name="<?php echo esc_attr( $name ); ?>" value="" />
 				<?php foreach ( $hooks as $hook => $hook_label ) : ?>
-					<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?> 
+					<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?>
 						type="checkbox" name="<?php echo esc_attr( $name ); ?>[]"
 						value="<?php echo esc_attr( $hook ); ?>"
 						<?php checked( in_array( $hook, $saved_hooks, true ) ); ?>

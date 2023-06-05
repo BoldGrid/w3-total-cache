@@ -14,7 +14,7 @@ chmod a+x /usr/local/src/wp-cli/bin/wp
 ln -s /usr/local/src/wp-cli/bin/wp /usr/bin/wp
 
 # wp-completion
-curl -L --silent "https://github.com/wp-cli/wp-cli/raw/master/utils/wp-completion.bash" --output /root/.wp-completion.bash
+curl -L --silent "https://raw.githubusercontent.com/wp-cli/wp-cli/main/utils/wp-completion.bash" --output /root/.wp-completion.bash
 echo "source /root/.wp-completion.bash" >> /root/.bashrc
 echo "alias wp=\"/usr/bin/wp --allow-root \"" >> /root/.bash_aliases
 

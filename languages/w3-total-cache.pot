@@ -2,20 +2,20 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.3.0\n"
+"Project-Id-Version: W3 Total Cache 2.3.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-06-05T21:17:26+00:00\n"
+"POT-Creation-Date: 2023-06-05T21:22:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: w3-total-cache\n"
 
 #. Plugin Name of the plugin
-#: Generic_Plugin_Admin.php:1079
+#: Generic_Plugin_Admin.php:1080
 #: SetupGuide_Plugin_Admin.php:1081
 #: SetupGuide_Plugin_Admin.php:1127
 #: SetupGuide_Plugin_Admin.php:1199
@@ -1325,7 +1325,7 @@ msgstr ""
 #: Cdn_StackPath_Page_View.php:231
 #: Cdn_StackPath_Widget_View_Unauthorized.php:16
 #: Cdn_StackPath_Widget_View_Unauthorized.php:33
-#: Generic_Plugin_Admin.php:979
+#: Generic_Plugin_Admin.php:980
 #: inc/lightbox/self_test.php:122
 #: inc/lightbox/self_test.php:247
 #: inc/lightbox/self_test.php:318
@@ -1560,7 +1560,7 @@ msgstr ""
 #: Cdn_StackPath_Widget_View_Unauthorized.php:16
 #: Cdn_StackPath_Widget_View_Unauthorized.php:33
 #: Extension_NewRelic_AdminNotes.php:23
-#: Generic_Plugin_Admin.php:979
+#: Generic_Plugin_Admin.php:980
 #: PageSpeed_Instructions.php:383
 #: PageSpeed_Instructions.php:397
 #: PageSpeed_Instructions.php:579
@@ -1625,7 +1625,7 @@ msgstr ""
 #: Minify_ConfigLabels.php:29
 #: PgCache_ConfigLabels.php:40
 #: SystemOpCache_GeneralPage_View.php:55
-#: UsageStatistics_GeneralPage_View.php:32
+#: UsageStatistics_GeneralPage_View.php:41
 msgid "Enable"
 msgstr ""
 
@@ -2500,7 +2500,7 @@ msgid "Username:"
 msgstr ""
 
 #: Cdn_LimeLight_Popup_View_Intro.php:34
-#: Extension_Swarmify_Page_View.php:29
+#: Extension_Swarmify_Page_View.php:28
 msgid "API Key:"
 msgstr ""
 
@@ -3199,7 +3199,7 @@ msgstr ""
 msgid "Database"
 msgstr ""
 
-#: DbCache_Plugin_Admin.php:61
+#: DbCache_Plugin_Admin.php:64
 msgid "Database Cache: %s."
 msgstr ""
 
@@ -3312,7 +3312,7 @@ msgstr ""
 
 #: Extension_Amp_Page_View.php:11
 #: Extension_ImageService_Page_View.php:45
-#: Extension_Swarmify_Page_View.php:23
+#: Extension_Swarmify_Page_View.php:22
 #: Util_Ui.php:1756
 #: Util_Ui.php:1828
 #: Util_Ui.php:1850
@@ -4414,7 +4414,7 @@ msgstr ""
 #: Extension_ImageService_Page_View.php:140
 #: inc/options/common/top_nav_bar.php:25
 #: UsageStatistics_GeneralPage.php:25
-#: UsageStatistics_GeneralPage_View.php:11
+#: UsageStatistics_GeneralPage_View.php:18
 #: UsageStatistics_Plugin_Admin.php:75
 #: UsageStatistics_Plugin_Admin.php:76
 #: Util_PageUrls.php:953
@@ -4686,7 +4686,7 @@ msgstr ""
 #: inc/options/minify.php:340
 #: inc/options/minify.php:360
 #: Minify_ConfigLabels.php:9
-#: Minify_Plugin.php:306
+#: Minify_Plugin.php:310
 #: Minify_Plugin_Admin.php:49
 #: PageSpeed_Instructions.php:67
 #: PageSpeed_Instructions.php:84
@@ -4801,7 +4801,7 @@ msgid "How many minutes data retrieved from New Relic should be stored. Minimum 
 msgstr ""
 
 #: Extension_NewRelic_Page_View_Apm.php:188
-#: Extension_Swarmify_Page_View.php:40
+#: Extension_Swarmify_Page_View.php:39
 #: Util_Ui.php:1859
 msgid "Behavior Settings"
 msgstr ""
@@ -5010,43 +5010,43 @@ msgstr ""
 msgid "Swarmify extension is currently"
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:32
+#: Extension_Swarmify_Page_View.php:31
 msgid "Swarmify API Key required in order to start optimizing your videos experience"
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:46
+#: Extension_Swarmify_Page_View.php:45
 msgid "&lt;video&gt;:"
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:48
+#: Extension_Swarmify_Page_View.php:47
 msgid "Optimize &lt;video&gt; HTML tags"
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:49
+#: Extension_Swarmify_Page_View.php:48
 msgid "Optimize videos delivered using &lt;video&gt; HTML tag."
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:56
+#: Extension_Swarmify_Page_View.php:55
 msgid "JWPlayer:"
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:58
+#: Extension_Swarmify_Page_View.php:57
 msgid "Optimize JWPlayer"
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:59
+#: Extension_Swarmify_Page_View.php:58
 msgid "Optimize videos delivered using JWPlayer script."
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:66
+#: Extension_Swarmify_Page_View.php:65
 msgid "Logged In:"
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:68
+#: Extension_Swarmify_Page_View.php:67
 msgid "Don't optimize videos for logged in users"
 msgstr ""
 
-#: Extension_Swarmify_Page_View.php:69
+#: Extension_Swarmify_Page_View.php:68
 msgid "Only unauthenticated users will view optimized version of a given page."
 msgstr ""
 
@@ -5099,7 +5099,7 @@ msgid "Activating the <a href=\"%s\">Yoast SEO</a> extension for W3 Total Cache 
 msgstr ""
 
 #: Extension_Wpml_Plugin_Admin.php:22
-msgid "W3 Total Cache's Page caching cannot work effectively when WPML Language URL formatis \"Language name added as a parameter\" used. Please consider another URL format. Visit the WPML -&gt; Languages settings. %s"
+msgid "W3 Total Cache's Page caching cannot work effectively when WPML Language URL format is \"Language name added as a parameter\" used. Please consider another URL format. Visit the WPML -&gt; Languages settings. %s"
 msgstr ""
 
 #: Extension_Wpml_Plugin_Admin.php:50
@@ -5115,7 +5115,7 @@ msgid "Localization is a type of personalization that makes websites more diffic
 msgstr ""
 
 #: Extension_Wpml_Plugin_Admin.php:114
-msgid "ppgrade"
+msgid "upgrade"
 msgstr ""
 
 #: Extension_Wpml_Plugin_Admin.php:121
@@ -5181,7 +5181,7 @@ msgstr ""
 #: FeatureShowcase_Plugin_Admin.php:251
 #: inc/options/common/footer.php:75
 #: inc/options/common/footer.php:76
-#: UserExperience_GeneralPage_View.php:43
+#: UserExperience_GeneralPage_View.php:49
 msgid "Lazy Load Google Maps"
 msgstr ""
 
@@ -5268,7 +5268,7 @@ msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:396
 #: SetupGuide_Plugin_Admin.php:1278
-#: UserExperience_GeneralPage_View.php:32
+#: UserExperience_GeneralPage_View.php:38
 msgid "Lazy Load Images"
 msgstr ""
 
@@ -5389,23 +5389,23 @@ msgstr ""
 msgid "Static files cache successfully emptied."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:85
+#: Generic_AdminActions_Test.php:88
 msgid "Test passed."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:90
+#: Generic_AdminActions_Test.php:93
 msgid "Test failed."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:113
+#: Generic_AdminActions_Test.php:116
 msgid "Empty JAVA executable path."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:115
+#: Generic_AdminActions_Test.php:118
 msgid "Empty JAR file path."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:150
+#: Generic_AdminActions_Test.php:153
 msgid "Invalid engine."
 msgstr ""
 
@@ -5846,138 +5846,138 @@ msgstr ""
 msgid "Plugin configuration successfully updated."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:961
+#: Generic_Plugin_Admin.php:962
 msgid "Plugin configuration successfully updated and all caches successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:962
+#: Generic_Plugin_Admin.php:963
 msgid "All caches successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:963
+#: Generic_Plugin_Admin.php:964
 msgid "Memcached cache(s) successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:964
+#: Generic_Plugin_Admin.php:965
 msgid "Opcode cache(s) successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:965
+#: Generic_Plugin_Admin.php:966
 msgid "Disk cache(s) successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:966
+#: Generic_Plugin_Admin.php:967
 msgid "Page cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:967
+#: Generic_Plugin_Admin.php:968
 msgid "Database cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:968
+#: Generic_Plugin_Admin.php:969
 msgid "Object cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:969
+#: Generic_Plugin_Admin.php:970
 msgid "Fragment cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:970
+#: Generic_Plugin_Admin.php:971
 msgid "Minify cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:971
+#: Generic_Plugin_Admin.php:972
 msgid "Media Query string has been successfully updated."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:972
+#: Generic_Plugin_Admin.php:973
 msgid "Varnish servers successfully purged."
 msgstr ""
 
 #. translators: 1 HTML acronym for CDN (content delivery network).
-#: Generic_Plugin_Admin.php:975
+#: Generic_Plugin_Admin.php:976
 msgid "%1$s was successfully purged."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:981
+#: Generic_Plugin_Admin.php:982
 msgid "The support request has been successfully sent."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:982
+#: Generic_Plugin_Admin.php:983
 msgid "Settings successfully imported."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:983
+#: Generic_Plugin_Admin.php:984
 msgid "Settings successfully restored."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:984
+#: Generic_Plugin_Admin.php:985
 msgid "Preview mode was successfully enabled"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:985
+#: Generic_Plugin_Admin.php:986
 msgid "Preview mode was successfully disabled"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:986
+#: Generic_Plugin_Admin.php:987
 msgid "Preview settings successfully deployed. Preview mode remains enabled until it's disabled. Continue testing new settings or disable preview mode if done."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:987
+#: Generic_Plugin_Admin.php:988
 msgid "Attachment successfully purged."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:988
+#: Generic_Plugin_Admin.php:989
 msgid "Post successfully purged."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:989
+#: Generic_Plugin_Admin.php:990
 msgid "New relic settings have been updated."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:990
+#: Generic_Plugin_Admin.php:991
 msgid "The add-in has been removed."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:991
+#: Generic_Plugin_Admin.php:992
 msgid "Edge mode has been enabled."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:992
+#: Generic_Plugin_Admin.php:993
 msgid "Edge mode has been disabled."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:993
+#: Generic_Plugin_Admin.php:994
 msgid "Pull Zone was automatically created."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1043
+#: Generic_Plugin_Admin.php:1044
 msgid "Required files and directories have been automatically created"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1070
+#: Generic_Plugin_Admin.php:1071
 msgid "W3 Total Cache Error:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1071
+#: Generic_Plugin_Admin.php:1072
 msgid "Files and directories could not be automatically created to complete the installation."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1074
+#: Generic_Plugin_Admin.php:1075
 #: Util_Activation.php:240
 msgid "Please execute commands manually"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1075
+#: Generic_Plugin_Admin.php:1076
 #: Util_Activation.php:244
 msgid "View required changes"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1078
+#: Generic_Plugin_Admin.php:1079
 msgid "or use FTP form to allow "
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1080
+#: Generic_Plugin_Admin.php:1081
 msgid "make it automatically."
 msgstr ""
 
@@ -7421,7 +7421,7 @@ msgid "W3 Edge"
 msgstr ""
 
 #: inc/options/common/top_nav_bar.php:20
-#: UserExperience_GeneralPage_View.php:10
+#: UserExperience_GeneralPage_View.php:16
 #: UserExperience_Plugin_Admin.php:24
 #: UserExperience_Plugin_Admin.php:25
 #: Util_PageUrls.php:939
@@ -7472,7 +7472,7 @@ msgid "About"
 msgstr ""
 
 #: inc/options/common/top_nav_bar.php:117
-#: inc/options/edd/buy.php:18
+#: inc/options/edd/buy.php:24
 #: Licensing_Plugin_Admin.php:59
 #: UsageStatistics_Page_View_Free.php:15
 msgid "Upgrade"
@@ -7563,16 +7563,16 @@ msgid "Disable caching once specified constants defined."
 msgstr ""
 
 #. translators: 1 HTML a link to buy plugin.
-#: inc/options/edd/buy.php:14
+#: inc/options/edd/buy.php:20
 msgid "Unlock more speed, %1$s now!"
 msgstr ""
 
 #. translators: 1 HTML a tag to W3TC licencing page.
-#: inc/options/edd/buy.php:36
+#: inc/options/edd/buy.php:41
 msgid "Please enter the license key you received after successful checkout %1$s."
 msgstr ""
 
-#: inc/options/edd/buy.php:40
+#: inc/options/edd/buy.php:45
 #: PageSpeed_Instructions.php:258
 #: PageSpeed_Instructions.php:483
 #: PageSpeed_Page.php:113
@@ -8740,7 +8740,7 @@ msgstr ""
 
 #: inc/options/parts/memcached.php:23
 #: inc/options/parts/memcached_extension.php:25
-msgid "Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122"
+msgid "Multiple servers may be used and seperated by a comma; e.g. 127.0.0.1:11211, domain.com:11211"
 msgstr ""
 
 #: inc/options/parts/memcached.php:27
@@ -8822,7 +8822,7 @@ msgstr ""
 
 #: inc/options/parts/redis.php:30
 #: inc/options/parts/redis_extension.php:32
-msgid "Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122. To use TLS, prefix server with tls://"
+msgid "Multiple servers may be used and seperated by a comma; e.g. 127.0.0.1:6379, domain.com:6379. To use TLS, prefix server with tls://"
 msgstr ""
 
 #: inc/options/parts/redis.php:38
@@ -9689,7 +9689,7 @@ msgstr ""
 msgid "I Understand the Risks"
 msgstr ""
 
-#: Minify_Plugin.php:317
+#: Minify_Plugin.php:321
 msgid "Minified using %s%s"
 msgstr ""
 
@@ -9697,21 +9697,21 @@ msgstr ""
 msgid "Recently an error occurred while creating the CSS / JS minify cache: %s. %s"
 msgstr ""
 
-#: Minify_Plugin_Admin.php:145
+#: Minify_Plugin_Admin.php:148
 msgid "Minify: %s."
 msgstr ""
 
-#: Minify_Plugin_Admin.php:162
-#: ObjectCache_Plugin_Admin.php:54
+#: Minify_Plugin_Admin.php:165
+#: ObjectCache_Plugin_Admin.php:60
 msgid "The setting change(s) made either invalidate the cached data or modify the behavior of the site. %s now to provide a consistent user experience."
 msgstr ""
 
-#: Minify_Plugin_Admin.php:165
+#: Minify_Plugin_Admin.php:168
 msgid "Empty the minify cache"
 msgstr ""
 
-#: Minify_Plugin_Admin.php:189
-#: Minify_Plugin_Admin.php:197
+#: Minify_Plugin_Admin.php:192
+#: Minify_Plugin_Admin.php:200
 msgid "Minification"
 msgstr ""
 
@@ -9757,11 +9757,11 @@ msgstr ""
 msgid "[W3TC] Object Cache file GC (every %d seconds)"
 msgstr ""
 
-#: ObjectCache_Plugin_Admin.php:32
+#: ObjectCache_Plugin_Admin.php:38
 msgid "Object Cache: %s."
 msgstr ""
 
-#: ObjectCache_Plugin_Admin.php:57
+#: ObjectCache_Plugin_Admin.php:63
 msgid "Empty the object cache"
 msgstr ""
 
@@ -10921,7 +10921,7 @@ msgstr ""
 msgid "Page Cache: Current Page"
 msgstr ""
 
-#: PgCache_Plugin_Admin.php:290
+#: PgCache_Plugin_Admin.php:293
 msgid "Page Cache: %s."
 msgstr ""
 
@@ -11249,89 +11249,89 @@ msgstr ""
 msgid "Once enabled, each file request will update the cache with the latest version. When this setting is off, the Opcode Cache will not check, instead PHP must be restarted in order for setting changes to be reflected."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:12
+#: UsageStatistics_GeneralPage_View.php:19
 msgid ""
-"Cache Usage Statistics is a feature that provides valuable insights into the performance of your website's \n"
-"\t\t\tcaching system. It displays detailed data regarding the utilization of your cache and overall performance \n"
-"\t\t\tmetrics. By monitoring these statistics, website owners can identify areas of improvement, optimize their \n"
-"\t\t\tcaching settings, and ultimately enhance the speed and responsiveness of their WordPress site, resulting \n"
-"\t\t\tin a smoother user experience for visitors."
+"Cache Usage Statistics is a feature that provides valuable insights into the performance of your website's\n"
+"\t\tcaching system. It displays detailed data regarding the utilization of your cache and overall performance\n"
+"\t\tmetrics. By monitoring these statistics, website owners can identify areas of improvement, optimize their\n"
+"\t\tcaching settings, and ultimately enhance the speed and responsiveness of their WordPress site, resulting\n"
+"\t\tin a smoother user experience for visitors."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:30
+#: UsageStatistics_GeneralPage_View.php:39
 msgid "Cache usage statistics"
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:34
+#: UsageStatistics_GeneralPage_View.php:43
 msgid "Enable statistics collection. Note that this consumes additional resources and is not recommended to be run continuously."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:37
+#: UsageStatistics_GeneralPage_View.php:45
 msgid "Statistics provides near-complete transparency into the behavior of your caching performance, allowing you to identify opportunities to further improve your website speed and ensure operations are working as expected. Includes metrics like cache sizes, object lifetimes, hit vs miss ratio, etc across every caching method configured in your settings."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:38
+#: UsageStatistics_GeneralPage_View.php:46
 msgid "Some statistics are available directly on your Performance Dashboard, however, the comprehensive suite of statistics are available on the Statistics screen. Web server logs created by Nginx or Apache can be analyzed if accessible."
 msgstr ""
 
 #. translators: 1 The opening anchor tag linking to our support page, 2 its closing tag.
-#: UsageStatistics_GeneralPage_View.php:42
+#: UsageStatistics_GeneralPage_View.php:50
 msgid "Use the caching statistics to compare the performance of different configurations like caching methods, object lifetimes and so on. Did you know that we offer premium support, customization and audit services? %1$sClick here for more information%2$s."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:52
+#: UsageStatistics_GeneralPage_View.php:63
 msgid "Slot time (seconds):"
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:55
+#: UsageStatistics_GeneralPage_View.php:66
 msgid "The duration of time in seconds to collect statistics per interval."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:60
+#: UsageStatistics_GeneralPage_View.php:74
 msgid "Slots collected:"
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:63
+#: UsageStatistics_GeneralPage_View.php:77
 msgid "The number of intervals that are represented in the graph."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:70
+#: UsageStatistics_GeneralPage_View.php:86
 msgid "Use the system reported averages of CPU resource usage."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:71
+#: UsageStatistics_GeneralPage_View.php:87
 msgid "Collect CPU usage"
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:77
+#: UsageStatistics_GeneralPage_View.php:95
 msgid "Parse server access log"
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:79
+#: UsageStatistics_GeneralPage_View.php:97
 msgid "Enable collecting statistics from an Access Log.  This provides much more precise statistics."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:84
+#: UsageStatistics_GeneralPage_View.php:105
 msgid "Webserver:"
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:90
+#: UsageStatistics_GeneralPage_View.php:111
 msgid "Webserver type generating access logs."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:95
+#: UsageStatistics_GeneralPage_View.php:119
 msgid "Access Log Filename:"
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:98
+#: UsageStatistics_GeneralPage_View.php:122
 msgid "Where your access log is located."
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:105
+#: UsageStatistics_GeneralPage_View.php:131
 msgid "Access Log Format:"
 msgstr ""
 
-#: UsageStatistics_GeneralPage_View.php:108
+#: UsageStatistics_GeneralPage_View.php:134
 msgid "Format of your access log from webserver configuration."
 msgstr ""
 
@@ -11744,45 +11744,45 @@ msgstr ""
 msgid "Upgrade to Pro"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:11
+#: UserExperience_GeneralPage_View.php:17
 msgid ""
-"User Experience (UX) is a setting that focuses on enhancing the overall browsing experience for visitors \n"
-"\t\t\tof your website. By enabling this feature, you can optimize your website's performance by minimizing \n"
-"\t\t\tload times, reducing server requests, and delivering content more efficiently. This ultimately leads \n"
-"\t\t\tto faster page loading, improved user satisfaction, and increased engagement, resulting in a speedier \n"
-"\t\t\tand more enjoyable WordPress website."
+"User Experience (UX) is a setting that focuses on enhancing the overall browsing experience for visitors\n"
+"\t\tof your website. By enabling this feature, you can optimize your website's performance by minimizing\n"
+"\t\tload times, reducing server requests, and delivering content more efficiently. This ultimately leads\n"
+"\t\tto faster page loading, improved user satisfaction, and increased engagement, resulting in a speedier\n"
+"\t\tand more enjoyable WordPress website."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:34
+#: UserExperience_GeneralPage_View.php:40
 msgid "Defer loading offscreen images."
 msgstr ""
 
 #. translators: 5 opening HTML a tag to W3TC User Experience page, 6 closing HTML a tag.
-#: UserExperience_GeneralPage_View.php:48
+#: UserExperience_GeneralPage_View.php:54
 msgid "In addition to lazy loading images, with %1$sW3 Total Cache Pro%2$s you can lazy load %3$sGoogle Maps%4$s! More information and settings can be found on the %5$sUser Experience page%6$s."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:73
+#: UserExperience_GeneralPage_View.php:79
 msgid "Disable Emoji"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:74
+#: UserExperience_GeneralPage_View.php:80
 msgid "Remove emojis support from your website."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:83
+#: UserExperience_GeneralPage_View.php:89
 msgid "Disable wp-embed script"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:84
+#: UserExperience_GeneralPage_View.php:90
 msgid "Remove wp-embed.js script from your website. oEmbed functionality still works but you will not be able to embed other WordPress posts on your pages."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:93
+#: UserExperience_GeneralPage_View.php:99
 msgid "Disable jquery-migrate on the front-end"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:95
+#: UserExperience_GeneralPage_View.php:101
 msgid "Remove jquery-migrate support from your website front-end."
 msgstr ""
 
@@ -12222,7 +12222,7 @@ msgid "FTP credentials don't allow to delete "
 msgstr ""
 
 #. translators: 1 class name, 2 file name.
-#: w3-total-cache-api.php:180
+#: w3-total-cache-api.php:188
 msgid "Attempt to create object of class %1$s has been made, but file %2$s doesnt exists"
 msgstr ""
 
