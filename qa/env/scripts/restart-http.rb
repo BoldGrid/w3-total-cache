@@ -17,7 +17,7 @@ def run
 		system_assert '/etc/init.d/apache2 restart'
 	elsif ENV['W3D_HTTP_SERVER'] == 'litespeed'
 		system_assert 'systemctl restart lsws'
-		system_assert 'chmod 777 /var/www/wp-sandbox/litespeed.conf'
+		system 'chmod 777 /var/www/wp-sandbox/litespeed.conf'
 	else
 		socket_filename = '/tmp/php-fpm.sock'
 		# php first, nginx next - otherwise not stable

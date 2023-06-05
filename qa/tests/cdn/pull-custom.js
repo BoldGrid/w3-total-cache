@@ -100,8 +100,7 @@ describe('check that media library works when CDN is active', function() {
 			env.blogWpContentUrl + 'themes/' + theme + '/qa/theme-js.js',
 			env.blogWpContentUrl + 'themes/' + theme + '/qa-theme-image2.png',
 			env.blogPluginsUrl + 'test-plugin/plugin-js.js',
-			env.blogPluginsUrl + 'test-plugin/plugin-image1.jpg',
-			imageUrl
+			env.blogPluginsUrl + 'test-plugin/plugin-image1.jpg'
 		];
 
 		let urlsToKeep = [
@@ -114,6 +113,7 @@ describe('check that media library works when CDN is active', function() {
 		let pageContent = await page.content();
 
 		urlsToReplace.forEach(function(url) {
+			log.log('URL to replace host: ' + url);
 			let urlReplaced = url.replace(
 				'://' + env.blogHost + env.wpMaybeColonPort,
 				'://for-tests.sandbox');

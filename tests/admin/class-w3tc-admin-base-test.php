@@ -9,6 +9,8 @@
  * @link       https://www.boldgrid.com/w3-total-cache/
  */
 
+declare( strict_types = 1 );
+
 /**
  * Class: W3tc_Admin_Base_Test
  *
@@ -131,6 +133,32 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 		foreach ( $definitions as $definition ) {
 			$this->assertTrue( defined( $definition ) );
 		}
+	}
+
+	/**
+	 * Test for the WP_CONTENT_DIR constant.
+	 *
+	 * @since 2.3.2
+	 */
+	public function test_contentdir() {
+		$this->expectOutputRegex( '~.+/wp-content$~' );
+
+		print WP_CONTENT_DIR; // phpcs:ignore
+
+		fwrite( STDERR, 'WP_CONTENT_DIR: ' . WP_CONTENT_DIR . PHP_EOL );
+	}
+
+	/**
+	 * Test for the WP_CONTENT_DIR constant with realpath().
+	 *
+	 * @since 2.3.2
+	 */
+	public function test_contentdir_realpath() {
+		$this->expectOutputRegex( '~.+/wp-content$~' );
+
+		print realpath( WP_CONTENT_DIR ); // phpcs:ignore
+
+		fwrite( STDERR, 'realpath( WP_CONTENT_DIR ): ' . realpath( WP_CONTENT_DIR ) . PHP_EOL );
 	}
 
 	/**

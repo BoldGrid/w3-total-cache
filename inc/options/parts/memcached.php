@@ -20,7 +20,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php Util_Ui::sealing_disabled( $module ); ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span id="memcached_test_status" class="w3tc-status w3tc-process"></span>
-		<p class="description"><?php esc_html_e( 'Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122', 'w3-total-cache' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Multiple servers may be used and seperated by a comma; e.g. 127.0.0.1:11211, domain.com:11211', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>
