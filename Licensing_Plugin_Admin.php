@@ -164,7 +164,7 @@ class Licensing_Plugin_Admin {
 		if ( defined( 'W3TC_PRO' ) ) {
 		} elseif ( 'no_key' === $status ) {
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
-			$ga_client_id = preg_replace("/^.+\.(.+?\..+?)$/", "$1", $_COOKIE['_ga']);
+			$ga_client_id = preg_replace( '/^.+\.(.+?\..+?)$/', '$1', $_COOKIE['_ga'] );
 			$message      = wp_kses(
 				sprintf(
 					// translators: 1 HTML input button for renewing licence.
