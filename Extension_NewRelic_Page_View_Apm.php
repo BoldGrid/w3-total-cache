@@ -6,14 +6,6 @@ if ( ! defined( 'W3TC' ) ) {
 }
 
 ?>
-<?php
-/*
-<p>
-	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a>
-</p>
-*/
-?>
 <p>
 	<?php esc_html_e( 'NewRelic extension is currently', 'w3-total-cache' ); ?>
 	<?php

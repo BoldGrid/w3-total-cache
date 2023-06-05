@@ -92,7 +92,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</table>
 
 		<?php Util_Ui::postbox_footer(); ?>
-		
+
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Page Cache', 'w3-total-cache' ),

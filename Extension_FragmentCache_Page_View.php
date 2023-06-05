@@ -8,16 +8,6 @@ if ( ! defined( 'W3TC' ) ) {
 $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 
 ?>
-<?php
-/*
-<p id="w3tc-options-menu">
-	<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-	<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
-	<a href="#overview"><?php esc_html_e( 'Overview', 'w3-total-cache' ); ?></a> |
-	<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
-</p>
-*/
-?>
 <p>
 	<?php Util_Ui::pro_wrap_maybe_start2(); ?>
 
