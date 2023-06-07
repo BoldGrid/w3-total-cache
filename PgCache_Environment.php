@@ -734,6 +734,9 @@ class PgCache_Environment {
 				array_map( array( '\W3TC\Util_Environment', 'preg_quote' ), $reject_user_agents ) ) . ") [NC]\n";
 		}
 
+		$use_cache_rules = apply_filters( 'w3tc_pagecache_rules_apache_rewrite_cond',
+			$use_cache_rules );
+
 		/**
 		 * Make final rewrites for specific files
 		 */
