@@ -275,6 +275,20 @@ class Cache_File_Generic extends Cache_File {
 	}
 
 	/**
+	 * Checks if entry exists
+	 *
+	 * @param string  $key
+	 * @param string  $group Used to differentiate between groups of cache values
+	 * @return boolean true if exists, false otherwise
+	 */
+	function exists( $key, $group = '' ) {
+		$key = $this->get_item_key( $key );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+
+		return file_exists( $path );
+	}
+
+	/**
 	 * Key to delete, deletes _old and primary if exists.
 	 *
 	 * @param unknown $key

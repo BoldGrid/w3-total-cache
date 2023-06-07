@@ -299,9 +299,16 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 					if ( !isset( $caches[$group] ) ) {
 						$caches[$group] = $this->_get_cache( $group );
 					}
-					$this->_flush_url( $url, $caches[$group], $mobile_groups,
-						$referrer_groups, $cookies, $encryptions, $compressions,
-						$group == '*' ? '' : $group );
+					$this->_flush_url( [
+						'url' => $url,
+						'cache' => $caches[$group],
+						'mobile_groups' => $mobile_groups,
+						'referrer_groups' => $referrer_groups,
+						'cookies' => $cookies,
+						'encryptions' => $encryptions,
+						'compressions' => $compressions,
+						'group' => $group == '*' ? '' : $group
+					] );
 				}
 
 				$count += count( $this->queued_urls );
@@ -323,17 +330,18 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	/**
 	 * Does the actual job - flushing of a single url cache entries
 	 */
-	private function _flush_url( $url, $cache, $mobile_groups, $referrer_groups,
-		$cookies, $encryptions, $compressions, $group ) {
-		if ( empty( $url ) ) {
+	private function _flush_url( $data ) {
+		$data['parent'] = $this;
+		$data = apply_filters( 'w3tc_pagecache_flush_url', $data );
+		if ( empty( $data ) || empty( $data['url'] ) ) {
 			return;
 		}
 
-		foreach ( $mobile_groups as $mobile_group ) {
-			foreach ( $referrer_groups as $referrer_group ) {
-				foreach ( $cookies as $cookie ) {
-					foreach ( $encryptions as $encryption ) {
-						foreach ( $compressions as $compression ) {
+		foreach ( $data['mobile_groups'] as $mobile_group ) {
+			foreach ( $data['referrer_groups'] as $referrer_group ) {
+				foreach ( $data['cookies'] as $cookie ) {
+					foreach ( $data['encryptions'] as $encryption ) {
+						foreach ( $data['compressions'] as $compression ) {
 							$page_keys = array();
 							$page_keys[] = $this->_get_page_key(
 								array(
@@ -342,15 +350,15 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 									'cookie' => $cookie,
 									'encryption' => $encryption,
 									'compression' => $compression,
-									'group' => $group
+									'group' => $data['group']
 								),
-								$url );
+								$data['url'] );
 
 							$page_keys = apply_filters(
 								'w3tc_pagecache_flush_url_keys', $page_keys );
 
 							foreach ( $page_keys as $page_key ) {
-								$cache->delete( $page_key, $group );
+								$cache->delete( $page_key, $data['group'] );
 							}
 						}
 					}
