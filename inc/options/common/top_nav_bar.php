@@ -15,75 +15,75 @@ $config = Dispatcher::config();
 
 $menu_array = array(
 	'settings' => array(
-		1  => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
 			'text' => __( 'General Settings', 'w3-total-cache' ),
 		),
-		2  => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_pgcache' ),
 			'text' => __( 'Page Cache', 'w3-total-cache' ),
 		),
-		3  => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_minify' ),
 			'text' => __( 'Minify', 'w3-total-cache' ),
 		),
-		4  => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_dbcache' ),
 			'text' => __( 'Database Cache', 'w3-total-cache' ),
 		),
-		5  => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_objectcache' ),
 			'text' => __( 'Object Cache', 'w3-total-cache' ),
 		),
-		6  => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache' ),
 			'text' => __( 'Browser Cache', 'w3-total-cache' ),
 		),
-		7  => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_cachegroups' ),
 			'text' => __( 'Cache Groups', 'w3-total-cache' ),
 		),
-		8  => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ),
 			'text' => 'CDN',
 		),
-		9  => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_fragmentcache' ),
 			'text' => __( 'Fragment Cache', 'w3-total-cache' ),
 		),
-		10 => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience' ),
 			'text' => __( 'User Experience', 'w3-total-cache' ),
 		),
 	),
 	'tools'    => array(
-		1 => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ),
 			'text' => __( 'Extensions', 'w3-total-cache' ),
 		),
-		2 => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
 			'text' => __( 'Statistics', 'w3-total-cache' ),
 		),
-		3 => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ),
 			'text' => __( 'Google PageSpeed', 'w3-total-cache' ),
 		),
-		4 => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_setup_guide' ),
 			'text' => __( 'Setup Guide', 'w3-total-cache' ),
 		),
 	),
 	'about'    => array(
-		1 => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_feature_showcase' ),
 			'text' => __( 'Feature Showcase', 'w3-total-cache' ),
 		),
-		2 => array(
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_install' ),
 			'text' => __( 'Install', 'w3-total-cache' ),
 		),
-		3 => array(
+		array(
 			'url'      => 'https://api.w3-edge.com/v1/redirects/faq',
 			'text'     => 'FAQ',
 			'target'   => '_blank',
@@ -132,7 +132,7 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 					foreach ( $menu_array['settings'] as $entry ) {
 						$target   = ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '';
 						$dashicon = ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '';
-						$output   = '<a href="' . esc_url( $entry['url'] ) . '" alt="' . esc_attr( $entry['text'] ) . '"' . esc_html( $target ) . '>' . esc_html( $entry['text'] ) . $dashicon . '</a>';
+						$output   = '<a href="' . esc_url( $entry['url'] ) . '" alt="' . esc_attr( $entry['text'] ) . '"' . $target . '>' . esc_html( $entry['text'] ) . $dashicon . '</a>';
 						echo wp_kses( $output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $output ) );
 					}
 					?>
@@ -147,7 +147,7 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 					foreach ( $menu_array['tools'] as $entry ) {
 						$target   = ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '';
 						$dashicon = ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '';
-						$output   = '<a href="' . esc_url( $entry['url'] ) . '" alt="' . esc_attr( $entry['text'] ) . '"' . esc_html( $target ) . '>' . esc_html( $entry['text'] ) . $dashicon . '</a>';
+						$output   = '<a href="' . esc_url( $entry['url'] ) . '" alt="' . esc_attr( $entry['text'] ) . '"' . $target . '>' . esc_html( $entry['text'] ) . $dashicon . '</a>';
 						echo wp_kses( $output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $output ) );
 					}
 					?>
@@ -162,7 +162,7 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 					foreach ( $menu_array['about'] as $entry ) {
 						$target   = ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '';
 						$dashicon = ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '';
-						$output   = '<a href="' . esc_url( $entry['url'] ) . '" alt="' . esc_attr( $entry['text'] ) . '"' . esc_html( $target ) . '>' . esc_html( $entry['text'] ) . $dashicon . '</a>';
+						$output   = '<a href="' . esc_url( $entry['url'] ) . '" alt="' . esc_attr( $entry['text'] ) . '"' . $target . '>' . esc_html( $entry['text'] ) . $dashicon . '</a>';
 						echo wp_kses( $output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $output ) );
 					}
 					?>
