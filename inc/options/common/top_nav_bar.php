@@ -130,9 +130,15 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				<div id="w3tc-top-nav-settings-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
 					foreach ( $menu_array['settings'] as $entry ) {
-						$target   = ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '';
-						$dashicon = ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '';
-						$output   = '<a href="' . esc_url( $entry['url'] ) . '" alt="' . esc_attr( $entry['text'] ) . '"' . $target . '>' . esc_html( $entry['text'] ) . $dashicon . '</a>';
+						$output = sprintf(
+							// translators: 1 link href URL , 2 link alt text, 3 link target, 4 link text, 5 link text dashicon.
+							'<a href="%1$s" alt="%2$s"%3$s>%4$s%5$s</a>',
+							esc_url( $entry['url'] ),
+							esc_attr( $entry['text'] ),
+							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
+							esc_html( $entry['text'] ),
+							( ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '' )
+						);
 						echo wp_kses( $output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $output ) );
 					}
 					?>
@@ -145,9 +151,15 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				<div id="w3tc-top-nav-tools-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
 					foreach ( $menu_array['tools'] as $entry ) {
-						$target   = ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '';
-						$dashicon = ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '';
-						$output   = '<a href="' . esc_url( $entry['url'] ) . '" alt="' . esc_attr( $entry['text'] ) . '"' . $target . '>' . esc_html( $entry['text'] ) . $dashicon . '</a>';
+						$output = sprintf(
+							// translators: 1 link href URL , 2 link alt text, 3 link target, 4 link text, 5 link text dashicon.
+							'<a href="%1$s" alt="%2$s"%3$s>%4$s%5$s</a>',
+							esc_url( $entry['url'] ),
+							esc_attr( $entry['text'] ),
+							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
+							esc_html( $entry['text'] ),
+							( ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '' )
+						);
 						echo wp_kses( $output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $output ) );
 					}
 					?>
@@ -160,9 +172,15 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				<div id="w3tc-top-nav-about-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
 					foreach ( $menu_array['about'] as $entry ) {
-						$target   = ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '';
-						$dashicon = ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '';
-						$output   = '<a href="' . esc_url( $entry['url'] ) . '" alt="' . esc_attr( $entry['text'] ) . '"' . $target . '>' . esc_html( $entry['text'] ) . $dashicon . '</a>';
+						$output = sprintf(
+							// translators: 1 link href URL , 2 link alt text, 3 link target, 4 link text, 5 link text dashicon.
+							'<a href="%1$s" alt="%2$s"%3$s>%4$s%5$s</a>',
+							esc_url( $entry['url'] ),
+							esc_attr( $entry['text'] ),
+							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
+							esc_html( $entry['text'] ),
+							( ! empty( $entry['dashicon'] ) ? $entry['dashicon'] : '' )
+						);
 						echo wp_kses( $output, Util_Ui::get_allowed_html_for_wp_kses_from_content( $output ) );
 					}
 					?>
