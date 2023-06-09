@@ -1439,17 +1439,7 @@ class Util_Ui {
 				if ( ! empty( $_REQUEST['view'] ) ) {
 					break;
 				}
-	
-				$fragment_cache_link = array();
-				if ( Util_Environment::is_w3tc_pro( $config ) ) {
-					$fragment_cache_link = array(
-						array(
-							'id'   => 'fragmentcache',
-							'text' => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
-						),
-					);
-				}
-	
+
 				$message_bus_link = array();
 				if ( Util_Environment::is_w3tc_pro() ) {
 					$message_bus_link = array(
@@ -1459,7 +1449,7 @@ class Util_Ui {
 						),
 					);
 				}
-	
+
 				$licensing_link = array();
 				if ( $licensing_visible ) {
 					$licensing_link = array(
@@ -1469,7 +1459,7 @@ class Util_Ui {
 						),
 					);
 				}
-	
+
 				$links = array_merge(
 					array(
 						array(
@@ -1496,9 +1486,6 @@ class Util_Ui {
 							'id'   => 'object_cache',
 							'text' => esc_html__( 'Object Cache', 'w3-total-cache' ),
 						),
-					),
-					$fragment_cache_link,
-					array(
 						array(
 							'id'   => 'browser_cache',
 							'text' => esc_html__( 'Browser Cache', 'w3-total-cache' ),
@@ -1528,19 +1515,9 @@ class Util_Ui {
 						),
 					),
 					$message_bus_link,
-					array(
-						array(
-							'id'   => 'monitoring',
-							'text' => esc_html__( 'Monitoring', 'w3-total-cache' ),
-						),
-					),
-					$licensing_link,
 					$custom_areas,
+					$licensing_link,
 					array(
-						array(
-							'id'   => 'google_pagespeed',
-							'text' => __( 'Google PageSpeed', 'w3-total-cache' )
-						),
 						array(
 							'id'   => 'miscellaneous',
 							'text' => esc_html__( 'Miscellaneous', 'w3-total-cache' ),
@@ -1548,6 +1525,10 @@ class Util_Ui {
 						array(
 							'id'   => 'debug',
 							'text' => esc_html__( 'Debug', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'google_pagespeed',
+							'text' => __( 'Google PageSpeed', 'w3-total-cache' )
 						),
 						array(
 							'id'   => 'settings',
