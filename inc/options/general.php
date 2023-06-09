@@ -345,7 +345,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			Util_Ui::config_item_engine( array( 'key' => 'dbcache.engine' ) );
 			?>
 
-			<?php if ( Util_Environment::is_w3tc_pro() && is_network_admin() ) : ?>
+			<?php if ( $is_pro && is_network_admin() ) : ?>
 				<?php require W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster_general_section.php'; ?>
 			<?php endif; ?>
 		</table>
@@ -893,13 +893,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php $this->checkbox_debug( 'minify.debug' ); ?> <?php Util_Ui::e_config_label( 'minify.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'dbcache.debug' ); ?> <?php Util_Ui::e_config_label( 'dbcache.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'objectcache.debug' ); ?> <?php Util_Ui::e_config_label( 'objectcache.debug' ); ?></label><br />
-					<?php if ( Util_Environment::is_w3tc_pro( $this->_config ) ) : ?>
+					<?php if ( $is_pro ) : ?>
 						<?php $this->checkbox_debug( array( 'fragmentcache', 'debug' ) ); ?> <?php esc_html_e( 'Fragment Cache', 'w3-total-cache' ); ?></label><br />
 					<?php endif; ?>
 					<?php $this->checkbox_debug( 'cdn.debug' ); ?> <?php Util_Ui::e_config_label( 'cdn.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'cdnfsd.debug' ); ?> <?php Util_Ui::e_config_label( 'cdnfsd.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'varnish.debug' ); ?> <?php Util_Ui::e_config_label( 'varnish.debug' ); ?></label>
-					<?php if ( Util_Environment::is_w3tc_pro() ) : ?>
+					<?php if ( $is_pro ) : ?>
 						<br />
 						<?php $this->checkbox_debug( 'cluster.messagebus.debug' ); ?> <?php Util_Ui::e_config_label( 'cluster.messagebus.debug' ); ?></label>
 					<?php endif ?>

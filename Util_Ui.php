@@ -1440,7 +1440,7 @@ class Util_Ui {
 				}
 
 				$message_bus_link = array();
-				if ( Util_Environment::is_w3tc_pro() ) {
+				if ( Util_Environment::is_w3tc_pro( $config ) ) {
 					$message_bus_link = array(
 						array(
 							'id'   => 'amazon_sns',
