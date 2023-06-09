@@ -51,7 +51,7 @@ do_action( 'w3tc-dashboard-footer' );
 			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/forum/w3-total-cache/' ); ?>" alt="<?php esc_attr_e( 'Forums', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'Forums', 'w3-total-cache' ); ?>
 			</a>
-			<a class="w3tc-footer-link" target="_blank" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_support' ); ?>" alt="<?php esc_attr_e( 'Premium Support Services', 'w3-total-cache' ); ?>">
+			<a class="w3tc-footer-link" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_support' ); ?>" alt="<?php esc_attr_e( 'Premium Support Services', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'Premium Support Services', 'w3-total-cache' ); ?>
 			</a>
 		</div>
