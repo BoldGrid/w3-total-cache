@@ -51,7 +51,7 @@ do_action( 'w3tc-dashboard-footer' );
 			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/forum/w3-total-cache/' ); ?>" alt="<?php esc_attr_e( 'Forums', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'Forums', 'w3-total-cache' ); ?>
 			</a>
-			<a class="w3tc-footer-link" href="<?php echo Util_UI::admin_url( 'admin.php?page=w3tc_support' ); ?>" alt="<?php esc_attr_e( 'Premium Support Services', 'w3-total-cache' ); ?>">
+			<a class="w3tc-footer-link" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ); ?>" alt="<?php esc_attr_e( 'Premium Support Services', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'Premium Support Services', 'w3-total-cache' ); ?>
 			</a>
 		</div>
@@ -86,7 +86,7 @@ do_action( 'w3tc-dashboard-footer' );
 				</a>
 			</div>
 			<?php
-			if( ! Util_Environment::is_w3tc_pro( $config ) ) {
+			if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
 				echo '<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'Learn more about Pro!', 'w3-total-cache' ) . '</a>';
 			}
 			?>

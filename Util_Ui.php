@@ -1381,7 +1381,7 @@ class Util_Ui {
 	public static function get_allowed_html_for_wp_kses_from_content( $content ) {
 		$allowed_html = array();
 
-		if( empty( $content ) ) {
+		if ( empty( $content ) ) {
 			return $allowed_html;
 		}
 
@@ -1397,7 +1397,6 @@ class Util_Ui {
 		return $allowed_html;
 	}
 
-	
 	/**
 	 * Prints breadcrumb
 	 *
@@ -1406,14 +1405,14 @@ class Util_Ui {
 	public static function print_breadcrumb() {
 		$page         = ! empty( Util_Admin::get_current_extension() ) ? Util_Admin::get_current_extension() : Util_Admin::get_current_page();
 		$page_mapping = Util_PageUrls::get_page_mapping( $page );
-		$parent       = isset( $page_mapping['parent_name'] ) ? '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . $page_mapping['parent_link'] . '">' . $page_mapping['parent_name'] . '</a>': '';
-		$current      = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . $page_mapping['page_name'] . '</span>';
+		$parent       = isset( $page_mapping['parent_name'] ) ? '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( $page_mapping['parent_link'] ) . '">' . esc_html( $page_mapping['parent_name'] ) . '</a>' : '';
+		$current      = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . esc_html( $page_mapping['page_name'] ) . '</span>';
 		?>
 		<p id="w3tc-breadcrumb">
 			<span class="dashicons dashicons-admin-home"></span>
-			<a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard' ) ); ?>">W3 Total Cache</a>
-			<?php echo $parent; ?>
-			<?php echo $current; ?>
+			<a href="<?php echo esc_url( self::admin_url( 'admin.php?page=w3tc_dashboard' ) ); ?>">W3 Total Cache</a>
+			<?php echo wp_kses( $parent, self::get_allowed_html_for_wp_kses_from_content( $parent ) ); ?>
+			<?php echo wp_kses( $current, self::get_allowed_html_for_wp_kses_from_content( $current ) ); ?>
 		</p>
 		<?php
 	}
@@ -1421,7 +1420,7 @@ class Util_Ui {
 	/**
 	 * Prints the options anchor menu
 	 *
-	 * @param array $custom_areas
+	 * @param array $custom_areas Custom Areas.
 	 * @return void
 	 */
 	public static function print_options_menu( $custom_areas = array() ) {
@@ -1528,7 +1527,7 @@ class Util_Ui {
 						),
 						array(
 							'id'   => 'google_pagespeed',
-							'text' => __( 'Google PageSpeed', 'w3-total-cache' )
+							'text' => __( 'Google PageSpeed', 'w3-total-cache' ),
 						),
 						array(
 							'id'   => 'settings',
@@ -1536,21 +1535,21 @@ class Util_Ui {
 						),
 					)
 				);
-	
+
 				$links_buff = array();
 				foreach ( $links as $link ) {
 					$links_buff[] = "<a href=\"#{$link['id']}\">{$link['text']}</a>";
 				}
-	
+
 				$links_buff[] = '<a href="#" class="button-self-test">Compatibility Test</a>';
-	
+
 				?>
 				<div id="w3tc-options-menu">
 					<?php
 					echo wp_kses(
 						implode( ' | ', $links_buff ),
 						array(
-							'a'    => array(
+							'a' => array(
 								'href'  => array(),
 								'class' => array(),
 							),
@@ -1560,20 +1559,21 @@ class Util_Ui {
 				</div>
 				<?php
 				break;
-	
+
 			case 'w3tc_pgcache':
 				?>
 				<div id="w3tc-options-menu">
 					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
-					<a href="#mirrors"><?php esc_html_e( 'Mirrors', 'w3-total-cache' ); ?></a> |
-					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
+					<a href="#mirrors"><?php esc_html_e( 'Aliases', 'w3-total-cache' ); ?></a> |
 					<a href="#cache_preload"><?php esc_html_e( 'Cache Preload', 'w3-total-cache' ); ?></a> |
 					<a href="#purge_policy"><?php esc_html_e( 'Purge Policy', 'w3-total-cache' ); ?></a> |
+					<a href="#rest"><?php esc_html_e( 'Rest API', 'w3-total-cache' ); ?></a> |
+					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
 					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
 				break;
-	
+
 			case 'w3tc_minify':
 				?>
 				<div id="w3tc-options-menu">
@@ -1646,7 +1646,7 @@ class Util_Ui {
 				</div>
 				<?php
 				break;
-	
+
 			case 'w3tc_dbcache':
 				?>
 				<div id="w3tc-options-menu">
@@ -1655,7 +1655,7 @@ class Util_Ui {
 				</div>
 				<?php
 				break;
-	
+
 			case 'w3tc_objectcache':
 				?>
 				<div id="w3tc-options-menu">
@@ -1663,7 +1663,7 @@ class Util_Ui {
 				</div>
 				<?php
 				break;
-	
+
 			case 'w3tc_browsercache':
 				?>
 				<div id="w3tc-options-menu">
@@ -1719,7 +1719,7 @@ class Util_Ui {
 				</div>
 				<?php
 				break;
-	
+
 			case 'w3tc_cachegroups':
 				?>
 				<div id="w3tc-options-menu">
@@ -1740,7 +1740,7 @@ class Util_Ui {
 				</div>
 				<?php
 				break;
-	
+
 			case 'w3tc_userexperience':
 				?>
 				<div id="w3tc-options-menu">
@@ -1748,7 +1748,7 @@ class Util_Ui {
 				</div>
 				<?php
 				break;
-	
+
 			case 'w3tc_install':
 				?>
 				<div id="w3tc-options-menu">
