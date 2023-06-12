@@ -531,7 +531,7 @@ $keys = array(
 	),
 	'pgcache.accept.qs' => array(
 		'type' => 'array',
-		'default' => PgCache_QsExempts::get_qs_exempts()
+		'default' => \W3TC\PgCache_QsExempts::get_qs_exempts()
 	),
 	'pgcache.migrated.qsexempts' => array(
 		'type' => 'integer',
