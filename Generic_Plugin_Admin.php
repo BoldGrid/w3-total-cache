@@ -65,13 +65,16 @@ class Generic_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_ajax', array( $this, 'wp_ajax_w3tc_ajax' ) );
 
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
+		add_action( 'admin_footer', array( $this, 'admin_footer' ) );
 
 		if ( is_network_admin() ) {
 			add_action( 'network_admin_menu', array( $this, 'network_admin_menu' ) );
 			add_filter( 'network_admin_plugin_action_links_' . W3TC_FILE, array( $this, 'plugin_action_links' ) );
+			add_action( 'network_admin_notices', array( $this, 'top_nav_bar' ), 0 );
 		} else {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 			add_filter( 'plugin_action_links_' . W3TC_FILE, array( $this, 'plugin_action_links' ) );
+			add_action( 'admin_notices', array( $this, 'top_nav_bar' ), 0 );
 		}
 
 		add_filter( 'favorite_actions', array( $this, 'favorite_actions' ) );
@@ -94,11 +97,11 @@ class Generic_Plugin_Admin {
 		// Load w3tc_message.
 		$message_id = Util_Request::get_string( 'w3tc_message' );
 		if ( $message_id ) {
-			$v = get_transient( 'w3tc_message' );
+			$v = get_option( 'w3tc_message' );
 
 			if ( isset( $v[ $message_id ] ) ) {
 				$this->w3tc_message = $v[ $message_id ];
-				delete_transient( 'w3tc_message' );
+				delete_option( 'w3tc_message' );
 			}
 		}
 	}
@@ -362,6 +365,7 @@ class Generic_Plugin_Admin {
 	public function admin_enqueue_scripts() {
 		wp_register_style( 'w3tc-options', plugins_url( 'pub/css/options.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-lightbox', plugins_url( 'pub/css/lightbox.css', W3TC_FILE ), array(), W3TC_VERSION );
+		wp_register_style( 'w3tc-bootstrap-css', plugins_url( 'pub/css/bootstrap-buttons.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-widget', plugins_url( 'pub/css/widget.css', W3TC_FILE ), array(), W3TC_VERSION );
 
 		wp_register_script( 'w3tc-metadata', plugins_url( 'pub/js/metadata.js', W3TC_FILE ), array(), W3TC_VERSION, false );
@@ -398,13 +402,22 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
+	 * Render sticky top navigation bar on all W3TC admin pages.
+	 */
+	public function top_nav_bar() {
+		if ( Util_Admin::is_w3tc_admin_page() ) {
+			require W3TC_INC_DIR . '/options/common/top_nav_bar.php';
+		}
+	}
+
+	/**
 	 * Define icon styles for the custom post type.
 	 */
 	public function admin_head() {
 		global $wp_version;
 		global $wpdb;
 
-		$page   = Util_Request::get_string( 'page', null );
+		$page = Util_Request::get_string( 'page', null );
 
 		if ( ( ! is_multisite() || is_super_admin() ) && false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
 			$state_master = Dispatcher::config_state_master();
@@ -416,7 +429,7 @@ class Generic_Plugin_Admin {
 
 		if ( empty( $this->_config->get_integer( 'pgcache.migrated.qsexempts' ) ) ) {
 			$pgcache_accept_qs = array_unique( array_merge( $this->_config->get_array( 'pgcache.accept.qs' ), PgCache_QsExempts::get_qs_exempts() ) );
-			ksort( $pgcache_accept_qs );
+			sort( $pgcache_accept_qs );
 			$this->_config->set( 'pgcache.accept.qs', $pgcache_accept_qs );
 			$this->_config->set( 'pgcache.migrated.qsexempts', time() );
 			$this->_config->save();
@@ -499,6 +512,15 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
+	 * Defines the W3TC footer
+	 */
+	public function admin_footer() {
+		if ( $this->is_w3tc_page ) {
+			require W3TC_INC_DIR . '/options/common/footer.php';
+		}
+	}
+
+	/**
 	 * Render network admin menu.
 	 */
 	public function network_admin_menu() {
@@ -573,6 +595,7 @@ class Generic_Plugin_Admin {
 	 */
 	public function admin_print_styles() {
 		wp_enqueue_style( 'w3tc-options' );
+		wp_enqueue_style( 'w3tc-bootstrap-css' );
 		wp_enqueue_style( 'w3tc-lightbox' );
 	}
 
@@ -943,6 +966,7 @@ class Generic_Plugin_Admin {
 
 		$note_messages = array(
 			'config_save'          => __( 'Plugin configuration successfully updated.', 'w3-total-cache' ),
+			'config_save_flush'    => __( 'Plugin configuration successfully updated and all caches successfully emptied.', 'w3-total-cache' ),
 			'flush_all'            => __( 'All caches successfully emptied.', 'w3-total-cache' ),
 			'flush_memcached'      => __( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
 			'flush_opcode'         => __( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),
@@ -1088,7 +1112,7 @@ class Generic_Plugin_Admin {
 		foreach ( $notes as $key => $note ) {
 			echo wp_kses(
 				sprintf(
-					'<div class="updated w3tc_note" id="%1$s"><p>%2$s</p></div>',
+					'<div class="updated w3tc_note inline" id="%1$s"><p>%2$s</p></div>',
 					esc_attr( $key ),
 					$note
 				),
@@ -1116,7 +1140,7 @@ class Generic_Plugin_Admin {
 
 		foreach ( $errors as $key => $error ) {
 				printf(
-					'<div class="error w3tc_error" id="%1$s"><p>%2$s</p></div>',
+					'<div class="error w3tc_error inline" id="%1$s"><p>%2$s</p></div>',
 					esc_attr( $key ),
 					$error // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);

@@ -4,9 +4,23 @@ namespace W3TC;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
-?>
-<?php Util_Ui::postbox_header( esc_html__( 'Opcode Cache', 'w3-total-cache' ), '', 'system_opcache' ); ?>
 
+Util_Ui::postbox_header_tabs(
+	esc_html__( 'Opcode Cache', 'w3-total-cache' ),
+	esc_html__(
+		'Opcode cache is a powerful feature that enhances the performance of a WordPress website by caching 
+			compiled PHP code. By storing pre-compiled code in memory, opcode cache eliminates the need for 
+			repetitive interpretation and compilation of PHP files, resulting in significantly faster execution 
+			times. Opcode cache reduces server load and improves response times, ultimately enhancing the 
+			overall speed and responsiveness of your WordPress site. If opcode cache is available on the 
+			hosting server it will automatically be selected in the dropdown and enabled.',
+		'w3-total-cache'
+	),
+	'',
+	'system_opcache'
+);
+
+?>
 <table class="form-table">
 	<?php
 	Util_Ui::config_item(
@@ -44,12 +58,5 @@ if ( ! defined( 'W3TC' ) ) {
 	);
 	?>
 </table>
-<?php
-Util_Ui::button_config_save(
-	'general_opcache',
-	'<input type="submit" name="w3tc_opcache_flush" value="' . esc_attr__( 'Empty cache', 'w3-total-cache' ) . '"' .
-		( ( 'Not Available' !== $opcode_engine ) ? '' : ' disabled="disabled" ' ) . ' class="button" />'
-);
-?>
 
 <?php Util_Ui::postbox_footer(); ?>

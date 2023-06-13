@@ -259,5 +259,3 @@ if ( ! defined( 'W3TC' ) ) {
 
 	<p><?php esc_html_e( 'Please reach out to all of these people and support their projects if you\'re so inclined.', 'w3-total-cache' ); ?></p>
 </div>
-
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>
