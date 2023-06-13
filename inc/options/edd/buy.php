@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: buy.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -10,19 +16,18 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php
 	echo wp_kses(
 		sprintf(
-			// translators: 1 HTML input button to buy plugin.
+			// translators: 1 HTML a link to buy plugin.
 			__(
 				'Unlock more speed, %1$s now!',
 				'w3-total-cache'
 			),
-			'<input type="button" class="button-primary button-buy-plugin" data-src="' . esc_attr( 'page_' . $page ) . '" value="' . esc_attr( __( 'upgrade', 'w3-total-cache' ) ) . '" />'
+			'<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '</a>'
 		),
 		array(
-			'input' => array(
-				'type'     => array(),
-				'class'    => array(),
-				'data-src' => array(),
-				'value'    => array(),
+			'a' => array(
+				'class'  => array(),
+				'href'   => array(),
+				'target' => array(),
 			),
 		)
 	);

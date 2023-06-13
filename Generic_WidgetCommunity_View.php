@@ -35,8 +35,5 @@ if ( !defined( 'W3TC' ) )
 </p>
 
 <p>
-	<input
-		type="button"
-		class="button-primary button-buy-plugin"
-		data-src="community_widget" value="<?php esc_attr_e( 'Learn more about Pro', 'w3-total-cache' ) ?>" />
+	<a class="button w3tc-gopro-button" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/' ); ?>" target="_blank"><?php esc_html_e( 'Learn more about Pro!', 'w3-total-cache' ); ?></a>
 </p>
