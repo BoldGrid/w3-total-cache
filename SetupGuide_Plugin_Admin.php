@@ -815,6 +815,67 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
+	 * Admin-Ajax: Get the imageservice settings.
+	 *
+	 * @since  2.3.4
+	 *
+	 * @see \W3TC\Config::is_extension_active()
+	 * @see \W3TC\Config::get_string()
+	 */
+	public function get_imageservice_settings() {
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$config = new Config();
+
+			wp_send_json_success(
+				array(
+					'enabled' => $config->is_extension_active( 'imageservice' ),
+				)
+			);
+		} else {
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Configure image optimization.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::set()
+	 * @see \W3TC\Config::save()
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\CacheFlush::flush_posts()
+	 *
+	 * @uses $_POST['enable']
+	 */
+	public function config_imageservice() {
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$enable           = ! empty( Util_Request::get_string( 'enable' ) );
+			$config           = new Config();
+
+			if ( ! empty( $enable ) ) {
+				Extensions_Util::activate_extension( 'imageservice', $config );
+			} else {
+				Extensions_Util::deactivate_extension( 'imageservice', $config );
+			}
+
+			$is_enabled = $config->is_extension_active( 'imageservice' );
+
+			wp_send_json_success(
+				array(
+					'success'              => $is_enabled === $enable,
+					'enable'               => $enable,
+					'imageservice_enabled' => $is_enabled,
+				)
+			);
+		} else {
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
 	 * Display the terms of service dialog if needed.
 	 *
 	 * @since  2.0.0
@@ -1023,6 +1084,20 @@ class SetupGuide_Plugin_Admin {
 					),
 				),
 				array(
+					'tag'      => 'wp_ajax_w3tc_get_imageservice_settings',
+					'function' => array(
+						$this,
+						'get_imageservice_settings',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_config_imageservice',
+					'function' => array(
+						$this,
+						'config_imageservice',
+					),
+				),
+				array(
 					'tag'      => 'wp_ajax_w3tc_get_lazyload_settings',
 					'function' => array(
 						$this,
@@ -1060,8 +1135,16 @@ class SetupGuide_Plugin_Admin {
 					'text' => __( 'Browser Cache', 'w3-total-cache' ),
 				),
 				array(
+					'id'   => 'imageservice',
+					'text' => __( 'Image Optimization', 'w3-total-cache' ),
+				),
+				array(
 					'id'   => 'lazyload',
 					'text' => __( 'Lazy Load', 'w3-total-cache' ),
+				),
+				array(
+					'id'   => 'googlepagespeed',
+					'text' => __( 'Google PageSpeed', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'more',
@@ -1265,6 +1348,18 @@ class SetupGuide_Plugin_Admin {
 						<tbody></tbody>
 						</table>',
 				),
+				array( // Image Service.
+					'headline' => __( 'Image Optimization', 'w3-total-cache' ),
+					'id'       => 'io1',
+					'markup'   => '<p>' .
+						esc_html__(
+							'Adds the ability to convert images in the Media Library to the modern WebP format for better performance.',
+							'w3-total-cache'
+						) . '</p>
+						<p>
+						<input type="checkbox" id="imageservice-enable" value="1" /> <label for="imageservice-enable">' .
+						esc_html__( 'Enable Image Service', 'w3-total-cache' ) . '</label></p>',
+				),
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
 					'id'       => 'll1',
@@ -1276,6 +1371,19 @@ class SetupGuide_Plugin_Admin {
 						<p>
 						<input type="checkbox" id="lazyload-enable" value="1" /> <label for="lazyload-enable">' .
 						esc_html__( 'Lazy Load Images', 'w3-total-cache' ) . '</label></p>',
+				),
+				array( // Google Pagespeed Tool.
+					'headline' => __( 'Google PageSpeed', 'w3-total-cache' ),
+					'id'       => 'gps1',
+					'markup'   => '<p>' .
+						esc_html__(
+							'This tool can be used to analyze your website\'s homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explaination of the metric and our recommendation for achieving improvments via W3 Total Cache features/extensions if available.',
+							'w3-total-cache'
+						) . '</p><br/><p>' .
+						esc_html__(
+							'This tool is enabled by default but will not function until authorization is granted for W3 Total cache to use the Google Insights API on your behalf. This can be done via an "Authorize" button located under the Google PageSpeed section on the General Settings page.',
+							'w3-total-cache'
+						) . '</p>',
 				),
 				array( // Setup complete.
 					'headline' => __( 'Setup Complete!', 'w3-total-cache' ),

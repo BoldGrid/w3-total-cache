@@ -110,6 +110,9 @@ function w3tc_wizard_actions( $slide ) {
 		browsercacheSettings = {
 			enabled: null
 		},
+		imageserviceSettings = {
+			enabled: null
+		},
 		lazyloadSettings = {
 			enabled: null
 		},
@@ -317,6 +320,52 @@ function w3tc_wizard_actions( $slide ) {
 		})
 		.done(function( response ) {
 			browsercacheSettings = response.data;
+		});
+	}
+
+	/**
+	 * Configure Image Service.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @param int enable Enable browser cache.
+	 * @return jqXHR
+	 */
+	function configImageservice( enable ) {
+		configSuccess = null;
+
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_config_imageservice',
+				enable: enable
+			}
+		})
+		.done(function( response ) {
+			configSuccess = response.data.success;
+		});
+	}
+
+	/**
+	 * Get Image Service settings.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @return jqXHR
+	 */
+	function getImageserviceSettings() {
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_get_imageservice_settings'
+			}
+		})
+		.done(function( response ) {
+			imageserviceSettings = response.data;
 		});
 	}
 
@@ -1181,7 +1230,7 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
-		case 'w3tc-wizard-slide-ll1':
+		case 'w3tc-wizard-slide-io1':
 			// Save the browser cache setting from the previous slide.
 			var browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val();
 
@@ -1196,6 +1245,39 @@ function w3tc_wizard_actions( $slide ) {
 
 			if ( ! jQuery( '#w3tc-wizard-step-browsercache .dashicons-yes' ).length ) {
 				jQuery( '#w3tc-wizard-step-browsercache' ).append( '<span class="dashicons dashicons-yes"></span>' );
+			}
+
+			// Present the Image Service slide.
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-wizard-step-imageservice' ).addClass( 'is-active' );
+			$dashboardButton.closest( 'span' ).hide();
+			$nextButton.closest( 'span' ).show();
+			$nextButton.prop( 'disabled', 'disabled' );
+
+			// Update the Image Service enable chackbox from saved config.
+			getImageserviceSettings()
+				.then( function() {
+					$container.find( 'input#imageservice-enable' ).prop( 'checked', imageserviceSettings.enabled );
+					$nextButton.prop( 'disabled', false );
+				}, configFailed );
+
+			break;
+
+		case 'w3tc-wizard-slide-ll1':
+			// Save the image service setting from the previous slide.
+			var imageserviceEnabled = $container.find( 'input:checked#imageservice-enable' ).val();
+			console.log(imageserviceEnabled);
+			configImageservice( ( '1' === imageserviceEnabled ? 1 : 0 ) )
+				.fail( function() {
+					$slide.append(
+						'<div class="notice notice-error"><p><strong>' +
+						W3TC_SetupGuide.config_error_msg +
+						'</strong></p></div>'
+					);
+				});
+
+			if ( ! jQuery( '#w3tc-wizard-step-imageservice .dashicons-yes' ).length ) {
+				jQuery( '#w3tc-wizard-step-imageservice' ).append( '<span class="dashicons dashicons-yes"></span>' );
 			}
 
 			// Present the Lazy Load slide.
@@ -1214,6 +1296,31 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
+			case 'w3tc-wizard-slide-gps1':
+				// Save the lazy load setting from the previous slide.
+				var lazyloadEnabled = $container.find( 'input:checked#lazyload-enable' ).val();
+
+				configLazyload( ( '1' === lazyloadEnabled ? 1 : 0 ) )
+				.fail( function() {
+					$slide.append(
+						'<div class="notice notice-error"><p><strong>' +
+						W3TC_SetupGuide.config_error_msg +
+						'</strong></p></div>'
+					);
+				});
+
+				if ( ! jQuery( '#w3tc-wizard-step-lazyload .dashicons-yes' ).length ) {
+					jQuery( '#w3tc-wizard-step-lazyload' ).append( '<span class="dashicons dashicons-yes"></span>' );
+				}
+
+				// Present the Google PageSpeed slide.
+				$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
+				$container.find( '#w3tc-wizard-step-googlepagespeed' ).addClass( 'is-active' );
+				$dashboardButton.closest( 'span' ).hide();
+				$nextButton.closest( 'span' ).show();
+
+				break;
+
 		case 'w3tc-wizard-slide-complete':
 			var html,
 				pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ).val(),
@@ -1227,22 +1334,7 @@ function w3tc_wizard_actions( $slide ) {
 				objcacheEngine = $container.find( 'input:checked[name="objcache_engine"]' ).val(),
 				objcacheEngineLabel = $container.find( 'input:checked[name="objcache_engine"]' )
 					.closest('td').next('td').text(),
-				browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val(),
-				lazyloadEnabled = $container.find( 'input:checked#lazyload-enable' ).val();
-
-			// Save the lazyload setting from the previous slide.
-			configLazyload( ( '1' === lazyloadEnabled ? 1 : 0 ) )
-			.fail( function() {
-				$slide.append(
-					'<div class="notice notice-error"><p><strong>' +
-					W3TC_SetupGuide.config_error_msg +
-					'</strong></p></div>'
-				);
-			});
-
-			if ( ! jQuery( '#w3tc-wizard-step-lazyload .dashicons-yes' ).length ) {
-				jQuery( '#w3tc-wizard-step-lazyload' ).append( '<span class="dashicons dashicons-yes"></span>' );
-			}
+				browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val();
 
 			// Prevent leave page alert.
 			jQuery( window ).off( 'beforeunload' );
