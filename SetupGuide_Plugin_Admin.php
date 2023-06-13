@@ -1468,17 +1468,13 @@ class SetupGuide_Plugin_Admin {
 							'</a>'
 						) . '</p>
 						<h3>' . esc_html__( 'Google PageSpeed Tool', 'w3-total-cache' ) . '</h3>
-						<p>' . esc_html__(
-							'This tool can be used to analyze your website\'s homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explaination of the metric and our recommendation for achieving improvments via W3 Total Cache features/extensions if available.',
-							'w3-total-cache'
-						) . '</p>
 						<p>' . sprintf(
 							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
 							esc_html__(
-								'This tool is enabled by default but will not function until authorization is granted for W3 Total cache to use the Google Insights API on your behalf. This can be done via an "Authorize" button located under the Google PageSpeed section on the %1$sGeneral Settings%2$s page.',
+								'Google PageSpeed Insights can be used to analyze your homepage and provide an explanation of metrics and recommendations for improvements using W3 Total Cache features/extensions.  This tool is enabled by default but will not function until authorization is granted, which can be done on the %1$sGeneral Settings%2$s page.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '">',
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_pagespeed' ) ) . '">',
 							'</a>'
 						) . '</p>
 						<h3>' . esc_html__( 'Need help?', 'w3-total-cache' ) . '</h3>

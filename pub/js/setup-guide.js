@@ -1309,6 +1309,7 @@ function w3tc_wizard_actions( $slide ) {
 				objcacheEngineLabel = $container.find( 'input:checked[name="objcache_engine"]' )
 					.closest('td').next('td').text(),
 				browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val(),
+				imageserviceEnabled = $container.find( 'input#imageservice-enable' ).val(),
 				lazyloadEnabled = $container.find( 'input:checked#lazyload-enable' ).val();
 
 			// Save the lazy load setting from the previous slide.
@@ -1350,11 +1351,11 @@ function w3tc_wizard_actions( $slide ) {
 			);
 
 			$container.find( '#w3tc-imageservice-setting' ).html(
-				imageserviceEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
+				imageserviceEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.notEnabled
 			);
 
 			$container.find( '#w3tc-lazyload-setting' ).html(
-				lazyloadEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
+				lazyloadEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.notEnabled
 			);
 
 			if ( ! jQuery( '#test-results' ).data( 'completed' ) ) {
