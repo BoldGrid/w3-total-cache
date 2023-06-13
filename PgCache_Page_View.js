@@ -9,12 +9,12 @@
  */
 
 jQuery(function() {
-	jQuery('.pgcache_qsexempts_default').on(
+	jQuery('.w3tc-pgcache-qsexempts-default').on(
 		'click',
 		function(){
-			var $pgcacheQsExempts = jQuery('#pgcache_accept_qs').val().split("\n");
-			$pgcacheQsExempts = $pgcacheQsExempts.filter(item=>item).concat(W3TCPgCacheQsExemptsData.defaultQsExempts.filter((item)=>$pgcacheQsExempts.indexOf(item)<0)).sort();
-			jQuery('#pgcache_accept_qs').val($pgcacheQsExempts.join("\n"));
+			var pgcacheQsExempts = jQuery('#pgcache_accept_qs').val().split("\n");
+			pgcacheQsExempts = pgcacheQsExempts.filter(item=>item).concat(W3TCPgCacheQsExemptsData.defaultQsExempts.filter((item)=>pgcacheQsExempts.indexOf(item)<0)).sort();
+			jQuery('#pgcache_accept_qs').val(pgcacheQsExempts.join("\n"));
 		}
 	);
 });

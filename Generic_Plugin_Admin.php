@@ -416,7 +416,8 @@ class Generic_Plugin_Admin {
 
 		if ( empty( $this->_config->get_integer( 'pgcache.migrated.qsexempts' ) ) ) {
 			$pgcache_accept_qs = array_unique( array_merge( $this->_config->get_array( 'pgcache.accept.qs' ), PgCache_QsExempts::get_qs_exempts() ) );
-			$this->_config->set( 'pgcache.accept.qs', ksort( $pgcache_accept_qs ) );
+			ksort( $pgcache_accept_qs );
+			$this->_config->set( 'pgcache.accept.qs', $pgcache_accept_qs );
 			$this->_config->set( 'pgcache.migrated.qsexempts', time() );
 			$this->_config->save();
 		}
