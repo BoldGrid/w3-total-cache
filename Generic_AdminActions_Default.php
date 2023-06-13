@@ -274,6 +274,36 @@ class Generic_AdminActions_Default {
 		}
 
 		/**
+		 * Page Cache tab
+		 */
+		if ( 'w3tc_pgcache' === $this->_page ) {
+			// Textarea settings
+			$settings = array(
+				'pgcache.mirrors.home_urls',
+				'pgcache.purge.pages',
+				'pgcache.accept.qs',
+				'pgcache.reject.ua',
+				'pgcache.reject.cookie',
+				'pgcache.reject.uri',
+				'pgcache.reject.categories',
+				'pgcache.reject.tags',
+				'pgcache.reject.authors',
+				'pgcache.reject.custom',
+				'pgcache.accept.files',
+				'pgcache.accept.uri',
+				'pgcache.cache.headers',
+			);
+			// Remove empty lines, trim values, and sort.
+			foreach ( $settings as $setting ) {
+				if ( ! empty( $config->get_array( $setting ) ) ) {
+					$values = array_map( 'trim', array_filter( $config->get_array( $setting ) ) );
+					sort( $values );
+					$config->set( $setting, $values );
+				}
+			}
+		}
+
+		/**
 		 * Minify tab
 		 */
 		if ( 'w3tc_minify' === $this->_page ) {
