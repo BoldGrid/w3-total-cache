@@ -404,7 +404,7 @@ class Generic_Plugin_Admin {
 		global $wp_version;
 		global $wpdb;
 
-		$page   = Util_Request::get_string( 'page', null );
+		$page = Util_Request::get_string( 'page', null );
 
 		if ( ( ! is_multisite() || is_super_admin() ) && false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
 			$state_master = Dispatcher::config_state_master();
@@ -416,7 +416,7 @@ class Generic_Plugin_Admin {
 
 		if ( empty( $this->_config->get_integer( 'pgcache.migrated.qsexempts' ) ) ) {
 			$pgcache_accept_qs = array_unique( array_merge( $this->_config->get_array( 'pgcache.accept.qs' ), PgCache_QsExempts::get_qs_exempts() ) );
-			ksort( $pgcache_accept_qs );
+			sort( $pgcache_accept_qs );
 			$this->_config->set( 'pgcache.accept.qs', $pgcache_accept_qs );
 			$this->_config->set( 'pgcache.migrated.qsexempts', time() );
 			$this->_config->save();
