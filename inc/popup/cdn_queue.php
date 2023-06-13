@@ -106,5 +106,3 @@ if ( ! defined( 'W3TC' ) ) {
 	<p class="empty"><?php esc_html_e( 'Purge queue is empty', 'w3-total-cache' ); ?></p>
 <?php endif; ?>
 </div>
-
-<?php require W3TC_INC_DIR . '/popup/common/footer.php'; ?>

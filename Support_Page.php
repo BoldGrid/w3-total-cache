@@ -74,7 +74,8 @@ class Support_Page {
 			Licensing_Core::terms_accept();
 
 			include  W3TC_DIR . '/Support_Page_View_DoneContent.php';
-		} else
+		} else {
 			include  W3TC_DIR . '/Support_Page_View_PageContent.php';
+		}
 	}
 }
