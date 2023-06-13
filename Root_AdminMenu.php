@@ -310,8 +310,6 @@ class Root_AdminMenu {
 
 				do_action( 'w3tc_settings_page-' . $this->_page ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 
-				$view->render_footer();
-
 				break;
 		}
 	}

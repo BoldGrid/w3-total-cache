@@ -28,6 +28,7 @@ class UsageStatistics_Page {
 			} else {
 				include  W3TC_DIR . '/UsageStatistics_Page_View_Disabled.php';
 			}
+
 			return;
 		}
 
