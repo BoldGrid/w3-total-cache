@@ -1266,7 +1266,6 @@ function w3tc_wizard_actions( $slide ) {
 		case 'w3tc-wizard-slide-ll1':
 			// Save the image service setting from the previous slide.
 			var imageserviceEnabled = $container.find( 'input:checked#imageservice-enable' ).val();
-			console.log(imageserviceEnabled);
 			configImageservice( ( '1' === imageserviceEnabled ? 1 : 0 ) )
 				.fail( function() {
 					$slide.append(

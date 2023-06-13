@@ -1379,7 +1379,7 @@ class SetupGuide_Plugin_Admin {
 						esc_html__(
 							'This tool can be used to analyze your website\'s homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explaination of the metric and our recommendation for achieving improvments via W3 Total Cache features/extensions if available.',
 							'w3-total-cache'
-						) . '</p><br/><p>' .
+						) . '</p><p>' .
 						esc_html__(
 							'This tool is enabled by default but will not function until authorization is granted for W3 Total cache to use the Google Insights API on your behalf. This can be done via an "Authorize" button located under the Google PageSpeed section on the General Settings page.',
 							'w3-total-cache'
