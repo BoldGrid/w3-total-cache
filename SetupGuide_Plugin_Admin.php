@@ -852,8 +852,8 @@ class SetupGuide_Plugin_Admin {
 	 */
 	public function config_imageservice() {
 		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
-			$enable           = ! empty( Util_Request::get_string( 'enable' ) );
-			$config           = new Config();
+			$enable = ! empty( Util_Request::get_string( 'enable' ) );
+			$config = new Config();
 
 			if ( ! empty( $enable ) ) {
 				Extensions_Util::activate_extension( 'imageservice', $config );
