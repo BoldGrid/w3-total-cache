@@ -1,3 +1,4 @@
+<?php include W3TC_INC_DIR . '/options/common/header.php'; ?>
 <div style="text-align: center; font-weight: bold; margin-top: 50px">
 	Thank you for filling out the form
 </div>

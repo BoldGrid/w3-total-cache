@@ -261,7 +261,3 @@ if ( ! defined( 'W3TC' ) ) {
 	</div>
 	<br class="clear">
 </div>
-
-<?php if ( is_network_admin() ) : ?>
-	<?php Util_Ui::button_config_save( 'extensions' ); ?>
-<?php endif ?>

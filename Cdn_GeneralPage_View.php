@@ -11,7 +11,7 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-Util_Ui::postbox_header(
+Util_Ui::postbox_header_tabs(
 	wp_kses(
 		sprintf(
 			// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -28,8 +28,19 @@ Util_Ui::postbox_header(
 			),
 		)
 	),
+	esc_html__(
+		'Content Delivery Network (CDN) is a powerful feature that can significantly enhance the performance of 
+			your WordPress website. By leveraging a distributed network of servers located worldwide, a CDN helps 
+			deliver your website\'s static files, such as images, CSS, and JavaScript, to visitors more efficiently. 
+			This reduces the latency and improves the loading speed of your website, resulting in a faster and 
+			smoother browsing experience for your users. With W3 Total Cache\'s CDN integration, you can easily 
+			configure and connect your website to a CDN service of your choice, unleashing the full potential of 
+			your WordPress site\'s speed optimization.',
+		'w3-total-cache'
+	),
 	'',
-	'cdn'
+	'cdn',
+	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' )
 );
 Util_Ui::config_overloading_button(
 	array(
@@ -39,26 +50,6 @@ Util_Ui::config_overloading_button(
 ?>
 <p>
 	<?php
-	w3tc_e(
-		'cdn.general.header',
-		wp_kses(
-			sprintf(
-				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-				__(
-					'Host static files with your %1$sCDN%2$s to reduce page load time.',
-					'w3-total-cache'
-				),
-				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-				'</acronym>'
-			),
-			array(
-				'acronym' => array(
-					'title' => array(),
-				),
-			)
-		)
-	);
-
 	if ( ! $cdn_enabled ) {
 		echo '&nbsp;' . wp_kses(
 			sprintf(
@@ -144,12 +135,6 @@ Util_Ui::config_overloading_button(
 
 <?php
 do_action( 'w3tc_settings_general_boxarea_cdn_footer' );
-
-Util_Ui::button_config_save(
-	'general_cdn',
-	'<input id="cdn_purge" type="button" value="' . __( 'Empty cache', 'w3-total-cache' ) .
-		'" ' . ( $cdn_enabled && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ' ) .
-		' class="button {nonce: \'' . wp_create_nonce( 'w3tc' ) . '\'}" />'
-);
 ?>
+
 <?php Util_Ui::postbox_footer(); ?>

@@ -9,8 +9,6 @@ $key        = $config->get_string( 'cdnfsd.limelight.api_key' );
 $authorized = ! empty( $key );
 
 ?>
-<form id="cdn_form" action="admin.php?page=w3tc_cdn" method="post">
-	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ), '', 'configuration' ); ?>
 		<table class="form-table">
 			<tr>
@@ -31,5 +29,3 @@ $authorized = ! empty( $key );
 			</tr>
 		</table>
 		<?php Util_Ui::postbox_footer(); ?>
-	</div>
-</form>
