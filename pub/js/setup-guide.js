@@ -1295,31 +1295,6 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
-			case 'w3tc-wizard-slide-gps1':
-				// Save the lazy load setting from the previous slide.
-				var lazyloadEnabled = $container.find( 'input:checked#lazyload-enable' ).val();
-
-				configLazyload( ( '1' === lazyloadEnabled ? 1 : 0 ) )
-				.fail( function() {
-					$slide.append(
-						'<div class="notice notice-error"><p><strong>' +
-						W3TC_SetupGuide.config_error_msg +
-						'</strong></p></div>'
-					);
-				});
-
-				if ( ! jQuery( '#w3tc-wizard-step-lazyload .dashicons-yes' ).length ) {
-					jQuery( '#w3tc-wizard-step-lazyload' ).append( '<span class="dashicons dashicons-yes"></span>' );
-				}
-
-				// Present the Google PageSpeed slide.
-				$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
-				$container.find( '#w3tc-wizard-step-googlepagespeed' ).addClass( 'is-active' );
-				$dashboardButton.closest( 'span' ).hide();
-				$nextButton.closest( 'span' ).show();
-
-				break;
-
 		case 'w3tc-wizard-slide-complete':
 			var html,
 				pgcacheEngine = $container.find( 'input:checked[name="pgcache_engine"]' ).val(),
@@ -1333,7 +1308,22 @@ function w3tc_wizard_actions( $slide ) {
 				objcacheEngine = $container.find( 'input:checked[name="objcache_engine"]' ).val(),
 				objcacheEngineLabel = $container.find( 'input:checked[name="objcache_engine"]' )
 					.closest('td').next('td').text(),
-				browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val();
+				browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val(),
+				lazyloadEnabled = $container.find( 'input:checked#lazyload-enable' ).val();
+
+			// Save the lazy load setting from the previous slide.
+			configLazyload( ( '1' === lazyloadEnabled ? 1 : 0 ) )
+			.fail( function() {
+				$slide.append(
+					'<div class="notice notice-error"><p><strong>' +
+					W3TC_SetupGuide.config_error_msg +
+					'</strong></p></div>'
+				);
+			});
+
+			if ( ! jQuery( '#w3tc-wizard-step-lazyload .dashicons-yes' ).length ) {
+				jQuery( '#w3tc-wizard-step-lazyload' ).append( '<span class="dashicons dashicons-yes"></span>' );
+			}
 
 			// Prevent leave page alert.
 			jQuery( window ).off( 'beforeunload' );
@@ -1357,6 +1347,10 @@ function w3tc_wizard_actions( $slide ) {
 
 			$container.find( '#w3tc-browsercache-setting' ).html(
 				browsercacheEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
+			);
+
+			$container.find( '#w3tc-imageservice-setting' ).html(
+				imageserviceEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
 			);
 
 			$container.find( '#w3tc-lazyload-setting' ).html(

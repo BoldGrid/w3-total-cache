@@ -1143,10 +1143,6 @@ class SetupGuide_Plugin_Admin {
 					'text' => __( 'Lazy Load', 'w3-total-cache' ),
 				),
 				array(
-					'id'   => 'googlepagespeed',
-					'text' => __( 'Google PageSpeed', 'w3-total-cache' ),
-				),
-				array(
 					'id'   => 'more',
 					'text' => __( 'More Caching Options', 'w3-total-cache' ),
 				),
@@ -1372,19 +1368,6 @@ class SetupGuide_Plugin_Admin {
 						<input type="checkbox" id="lazyload-enable" value="1" /> <label for="lazyload-enable">' .
 						esc_html__( 'Lazy Load Images', 'w3-total-cache' ) . '</label></p>',
 				),
-				array( // Google Pagespeed Tool.
-					'headline' => __( 'Google PageSpeed', 'w3-total-cache' ),
-					'id'       => 'gps1',
-					'markup'   => '<p>' .
-						esc_html__(
-							'This tool can be used to analyze your website\'s homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explaination of the metric and our recommendation for achieving improvments via W3 Total Cache features/extensions if available.',
-							'w3-total-cache'
-						) . '</p><p>' .
-						esc_html__(
-							'This tool is enabled by default but will not function until authorization is granted for W3 Total cache to use the Google Insights API on your behalf. This can be done via an "Authorize" button located under the Google PageSpeed section on the General Settings page.',
-							'w3-total-cache'
-						) . '</p>',
-				),
 				array( // Setup complete.
 					'headline' => __( 'Setup Complete!', 'w3-total-cache' ),
 					'id'       => 'complete',
@@ -1446,6 +1429,16 @@ class SetupGuide_Plugin_Admin {
 						<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
+								'%1$sImage Optimization%2$s enabled? %1$s%3$s%2$s',
+								'w3-total-cache'
+							),
+							'<strong>',
+							'</strong>',
+							'<span id="w3tc-imageservice-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+						) . '</p>
+						<p>' . sprintf(
+							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
+							esc_html__(
 								'%1$sLazy Load%2$s images? %1$s%3$s%2$s',
 								'w3-total-cache'
 							),
@@ -1471,10 +1464,21 @@ class SetupGuide_Plugin_Admin {
 								'Please visit %1$sGeneral Settings%2$s to learn more about these features.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url(
-								$force_master_config || is_network_admin() ?
-								network_admin_url( 'admin.php?page=w3tc_general' ) : admin_url( 'admin.php?page=w3tc_general' )
-							) . '">',
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
+							'</a>'
+						) . '</p>
+						<h3>' . esc_html__( 'Google PageSpeed Tool', 'w3-total-cache' ) . '</h3>
+						<p>' . esc_html__(
+							'This tool can be used to analyze your website\'s homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explaination of the metric and our recommendation for achieving improvments via W3 Total Cache features/extensions if available.',
+							'w3-total-cache'
+						) . '</p>
+						<p>' . sprintf(
+							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
+							esc_html__(
+								'This tool is enabled by default but will not function until authorization is granted for W3 Total cache to use the Google Insights API on your behalf. This can be done via an "Authorize" button located under the Google PageSpeed section on the %1$sGeneral Settings%2$s page.',
+								'w3-total-cache'
+							),
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '">',
 							'</a>'
 						) . '</p>
 						<h3>' . esc_html__( 'Need help?', 'w3-total-cache' ) . '</h3>
