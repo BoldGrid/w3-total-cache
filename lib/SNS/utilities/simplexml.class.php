@@ -82,12 +82,12 @@ class CFSimpleXML extends SimpleXMLIterator
 	 *
 	 * @param string $data (Required) A well-formed XML string or the path or URL to an XML document if $data_is_url is <code>true</code>.
 	 * @param integer $options (Optional) Used to specify additional LibXML parameters. The default value is <code>0</code>.
-	 * @param boolean $data_is_url (Optional) Specify a value of <code>true</code> to specify that data is a path or URL to an XML document instead of string data. The default value is <code>false</code>.
-	 * @param string $ns (Optional) The XML namespace to return values for.
+	 * @param boolean $data_is_url (Optional) Specify a value of <code>true</code> to specify that data is a path or URL to an XML document instead of string data. The default value is <code>false</code>. (6/12/2023 Made not required to prevent PHP error/warning for required following optional)
+	 * @param string $ns (Optional) The XML namespace to return values for. (6/12/2023 Made not required to prevent PHP error/warning for required following optional)
 	 * @param boolean $is_prefix (Optional) (No description provided by PHP.net.)
 	 * @return CFSimpleXML Creates a new <CFSimpleXML> element.
 	 */
-	public static function init($data, $options = 0, $data_is_url, $ns, $is_prefix = false)
+	public static function init($data, $options = 0, $data_is_url=false, $ns='', $is_prefix = false)
 	{
 		if (version_compare(PHP_VERSION, '5.3.0', '<'))
 		{

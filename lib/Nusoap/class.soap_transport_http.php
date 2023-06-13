@@ -445,12 +445,12 @@ class soap_transport_http extends nusoap_base {
 	* @param    string $data message data
 	* @param    integer $timeout set connection timeout in seconds
 	* @param	integer $response_timeout set response timeout in seconds
-	* @param	array $cookies cookies to send
+	* @param	array $cookies cookies to send (6/12/2023 Made not required to prevent PHP error/warning for required following optional)
 	* @return	string data
 	* @access   public
 	* @deprecated
 	*/
-	function sendHTTPS($data, $timeout=0, $response_timeout=30, $cookies) {
+	function sendHTTPS($data, $timeout=0, $response_timeout=30, $cookies=array()) {
 		return $this->send($data, $timeout, $response_timeout, $cookies);
 	}
 
