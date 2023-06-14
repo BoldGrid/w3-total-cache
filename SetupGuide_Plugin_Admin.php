@@ -815,6 +815,67 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
+	 * Admin-Ajax: Get the imageservice settings.
+	 *
+	 * @since  2.3.4
+	 *
+	 * @see \W3TC\Config::is_extension_active()
+	 * @see \W3TC\Config::get_string()
+	 */
+	public function get_imageservice_settings() {
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$config = new Config();
+
+			wp_send_json_success(
+				array(
+					'enabled' => $config->is_extension_active( 'imageservice' ),
+				)
+			);
+		} else {
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Configure image optimization.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::set()
+	 * @see \W3TC\Config::save()
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\CacheFlush::flush_posts()
+	 *
+	 * @uses $_POST['enable']
+	 */
+	public function config_imageservice() {
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$enable = ! empty( Util_Request::get_string( 'enable' ) );
+			$config = new Config();
+
+			if ( ! empty( $enable ) ) {
+				Extensions_Util::activate_extension( 'imageservice', $config );
+			} else {
+				Extensions_Util::deactivate_extension( 'imageservice', $config );
+			}
+
+			$is_enabled = $config->is_extension_active( 'imageservice' );
+
+			wp_send_json_success(
+				array(
+					'success'              => $is_enabled === $enable,
+					'enable'               => $enable,
+					'imageservice_enabled' => $is_enabled,
+				)
+			);
+		} else {
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
 	 * Display the terms of service dialog if needed.
 	 *
 	 * @since  2.0.0
@@ -1023,6 +1084,20 @@ class SetupGuide_Plugin_Admin {
 					),
 				),
 				array(
+					'tag'      => 'wp_ajax_w3tc_get_imageservice_settings',
+					'function' => array(
+						$this,
+						'get_imageservice_settings',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_config_imageservice',
+					'function' => array(
+						$this,
+						'config_imageservice',
+					),
+				),
+				array(
 					'tag'      => 'wp_ajax_w3tc_get_lazyload_settings',
 					'function' => array(
 						$this,
@@ -1058,6 +1133,10 @@ class SetupGuide_Plugin_Admin {
 				array(
 					'id'   => 'browsercache',
 					'text' => __( 'Browser Cache', 'w3-total-cache' ),
+				),
+				array(
+					'id'   => 'imageservice',
+					'text' => __( 'Image Optimization', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'lazyload',
@@ -1265,6 +1344,18 @@ class SetupGuide_Plugin_Admin {
 						<tbody></tbody>
 						</table>',
 				),
+				array( // Image Service.
+					'headline' => __( 'Image Optimization', 'w3-total-cache' ),
+					'id'       => 'io1',
+					'markup'   => '<p>' .
+						esc_html__(
+							'Adds the ability to convert images in the Media Library to the modern WebP format for better performance.',
+							'w3-total-cache'
+						) . '</p>
+						<p>
+						<input type="checkbox" id="imageservice-enable" value="1" /> <label for="imageservice-enable">' .
+						esc_html__( 'Enable Image Service', 'w3-total-cache' ) . '</label></p>',
+				),
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
 					'id'       => 'll1',
@@ -1338,6 +1429,16 @@ class SetupGuide_Plugin_Admin {
 						<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
 							esc_html__(
+								'%1$sImage Optimization%2$s enabled? %1$s%3$s%2$s',
+								'w3-total-cache'
+							),
+							'<strong>',
+							'</strong>',
+							'<span id="w3tc-imageservice-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+						) . '</p>
+						<p>' . sprintf(
+							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
+							esc_html__(
 								'%1$sLazy Load%2$s images? %1$s%3$s%2$s',
 								'w3-total-cache'
 							),
@@ -1363,10 +1464,17 @@ class SetupGuide_Plugin_Admin {
 								'Please visit %1$sGeneral Settings%2$s to learn more about these features.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url(
-								$force_master_config || is_network_admin() ?
-								network_admin_url( 'admin.php?page=w3tc_general' ) : admin_url( 'admin.php?page=w3tc_general' )
-							) . '">',
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
+							'</a>'
+						) . '</p>
+						<h3>' . esc_html__( 'Google PageSpeed Tool', 'w3-total-cache' ) . '</h3>
+						<p>' . sprintf(
+							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
+							esc_html__(
+								'Google PageSpeed Insights can be used to analyze your homepage and provide an explanation of metrics and recommendations for improvements using W3 Total Cache features/extensions.  This tool is enabled by default but will not function until authorization is granted, which can be done on the %1$sGeneral Settings%2$s page.',
+								'w3-total-cache'
+							),
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_pagespeed' ) ) . '">',
 							'</a>'
 						) . '</p>
 						<h3>' . esc_html__( 'Need help?', 'w3-total-cache' ) . '</h3>

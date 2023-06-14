@@ -29,3 +29,11 @@
 	hyphens: auto;
 	overflow-wrap: break-word;
 }
+
+p#w3tc-breadcrumb {
+	margin-bottom: 0 !important;
+}
+
+.w3tc-wizard-slides p {
+	line-height: 1.2em !important;
+}
