@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.2
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,13 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.3.3 =
+* Fix: Fragment Cache: Fatal error when displaying registered groups
+* Fix: PHP 8 deprecation warnings in the SNS Message Bus and NuSOAP libraries
+* Fix: Broken nonce for renewal form
+* Fix: Page Cache: Moved hardcoded query string exemptions to the settings page
+* Update: Redis and Memcached host/IP/domain configuration examples
 
 = 2.3.2 =
 * Fix: Correct interpolation of a symlinked cache directory
