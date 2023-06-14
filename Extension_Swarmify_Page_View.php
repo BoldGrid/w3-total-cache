@@ -6,23 +6,18 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <p>
-	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
-	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a>
-</p>
-<p>
 	<?php esc_html_e( 'Swarmify extension is currently', 'w3-total-cache' ); ?>
 	<?php
 	if ( $config->is_extension_active_frontend( 'swarmify' ) ) {
-		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
+		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>.';
 	} else {
-		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>';
+		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>.';
 	}
 	?>
-	.
 <p>
 
 <form action="admin.php?page=w3tc_extensions&amp;extension=swarmify&amp;action=view" method="post">
+	<?php Util_UI::print_control_bar( 'extension_swarmify_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', 'configuration' ); ?>
 		<table class="form-table">
@@ -38,7 +33,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		</table>
-		<?php Util_Ui::button_config_save( 'extension_swarmify_configuration' ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Behavior Settings', 'w3-total-cache' ), '', 'behavior' ); ?>
@@ -75,7 +70,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		</table>
-		<?php Util_Ui::button_config_save( 'extension_swarmify_behaviour' ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>

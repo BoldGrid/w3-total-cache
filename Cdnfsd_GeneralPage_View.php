@@ -50,7 +50,7 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 </p>
 
-<table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">
+<table class="form-table">
 	<?php
 	Util_Ui::config_item_pro(
 		array(
