@@ -167,9 +167,9 @@ class Licensing_Plugin_Admin {
 			$ga_client_id = preg_replace( '/^.+\.(.+?\..+?)$/', '$1', $_COOKIE['_ga'] );
 			$message      = wp_kses(
 				sprintf(
-					// translators: 1 HTML input button for renewing licence.
+					// translators: 1 HTML input button for renewing license.
 					__(
-						'It looks like your W3 Total Cache Pro License has expired. %1$s to continue using the Pro Features',
+						'It looks like your W3 Total Cache Pro license has expired. %1$s to continue using the Pro features',
 						'w3-total-cache'
 					),
 					'<a class="button" href="' . esc_url( \W3TC\Licensing_Core::purchase_url( 'licensing_expired', $this->get_license_key(), $ga_client_id) ) . '" target="_blank">' . esc_html__( 'Renew Now', 'w3-total-cache' ) . '</a>'
