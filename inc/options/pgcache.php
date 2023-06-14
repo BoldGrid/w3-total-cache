@@ -610,6 +610,7 @@ if ( ! defined( 'W3TC' ) ) {
 					<textarea id="pgcache_accept_qs" name="pgcache__accept__qs"
 						<?php Util_Ui::sealing_disabled( 'pgcache.' ); ?>
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.accept.qs' ) ) ); ?></textarea>
+					<input type="button" class="button w3tc-pgcache-qsexempts-default" value="Add Defaults" />
 					<p class="description">
 						<?php
 						echo wp_kses(

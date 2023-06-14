@@ -407,12 +407,19 @@ class Generic_Plugin_Admin {
 		$page = Util_Request::get_string( 'page', null );
 
 		if ( ( ! is_multisite() || is_super_admin() ) && false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
-			$config       = new Config();
 			$state_master = Dispatcher::config_state_master();
 
-			if ( ! $config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
+			if ( ! $this->_config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
 				wp_safe_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
 			}
+		}
+
+		if ( empty( $this->_config->get_integer( 'pgcache.migrated.qsexempts' ) ) ) {
+			$pgcache_accept_qs = array_unique( array_merge( $this->_config->get_array( 'pgcache.accept.qs' ), PgCache_QsExempts::get_qs_exempts() ) );
+			sort( $pgcache_accept_qs );
+			$this->_config->set( 'pgcache.accept.qs', $pgcache_accept_qs );
+			$this->_config->set( 'pgcache.migrated.qsexempts', time() );
+			$this->_config->save();
 		}
 
 		if ( 'w3tc_dashboard' === $page ) {
