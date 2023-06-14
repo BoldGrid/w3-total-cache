@@ -277,7 +277,7 @@ class Generic_AdminActions_Default {
 		 * Page Cache tab
 		 */
 		if ( 'w3tc_pgcache' === $this->_page ) {
-			// Textarea settings
+			// Textarea settings.
 			$settings = array(
 				'pgcache.mirrors.home_urls',
 				'pgcache.purge.pages',
@@ -295,8 +295,9 @@ class Generic_AdminActions_Default {
 			);
 			// Remove empty lines, trim values, and sort.
 			foreach ( $settings as $setting ) {
-				if ( ! empty( $config->get_array( $setting ) ) ) {
-					$values = array_map( 'trim', array_filter( $config->get_array( $setting ) ) );
+				$setting_array = $config->get_array( $setting );
+				if ( ! empty( $setting_array ) && is_array( $setting_array ) ) {
+					$values = array_filter( array_map( 'trim', $setting_array ), 'strlen' );
 					sort( $values );
 					$config->set( $setting, $values );
 				}
