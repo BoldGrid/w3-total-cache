@@ -165,9 +165,9 @@ class Licensing_Plugin_Admin {
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
 			$message = wp_kses(
 				sprintf(
-					// translators: 1 HTML input button for renewing licence.
+					// translators: 1 HTML input button for renewing license.
 					__(
-						'It looks like your W3 Total Cache Pro License has expired. %1$s to continue using the Pro Features',
+						'It looks like your W3 Total Cache Pro license has expired. %1$s to continue using the Pro features',
 						'w3-total-cache'
 					),
 					'<input type="button" class="button-primary button-buy-plugin" data-nonce="' .
