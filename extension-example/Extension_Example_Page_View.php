@@ -6,7 +6,6 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <p>
-	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
 	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
 	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a>
 </p>

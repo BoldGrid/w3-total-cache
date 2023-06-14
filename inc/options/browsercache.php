@@ -75,6 +75,7 @@ $security_session_values = array(
 	</p>
 </form>
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'browsercache_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<p><?php esc_html_e( 'Specify global browser cache policy.', 'w3-total-cache' ); ?></p>
@@ -345,7 +346,6 @@ $security_session_values = array(
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'browsercache_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -491,7 +491,6 @@ $security_session_values = array(
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'browsercache_css_js' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -600,7 +599,6 @@ $security_session_values = array(
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'browsercache_html_xml' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Media &amp; Other Files', 'w3-total-cache' ), '', 'media' ); ?>
@@ -720,11 +718,8 @@ $security_session_values = array(
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'browsercache_media' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php require W3TC_DIR . '/BrowserCache_Page_View_SectionSecurity.php'; ?>
 	</div>
 </form>
-
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>
