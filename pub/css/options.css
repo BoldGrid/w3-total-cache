@@ -36,7 +36,8 @@
 div.w3tc-error.inline {
 	display:inline-block;
 }
-input.w3tc-error, textarea.w3tc-error {
+input.w3tc-error,
+textarea.w3tc-error {
 	background: none;
 	border: 1px solid #f99
 }
@@ -108,30 +109,34 @@ input.w3tc-error, textarea.w3tc-error {
 	margin-top: 10px
 }
 
-#w3tc #toc a, #qa a {
+#toc a,
+#qa a {
 	text-decoration: none
 }
 
-#w3tc #toc a:hover, #qa a:hover {
+#toc a:hover,
+#qa a:hover {
 	text-decoration: underline
 }
 
-#w3tc #toc ul {
+#toc ul {
 	margin: 0;
 	padding: 0
 }
 
-#w3tc #toc li {
+#toc li {
 	margin: 0;
 	padding: 0
 }
 
-#w3tc #qa {
+#qa {
 	clear: both;
 	padding: 10px;
 }
 
-#w3tc #qa, #w3tc #about, #w3tc #install {
+#qa,
+#about,
+#install {
 	width: 760px;
 }
 
@@ -192,7 +197,8 @@ input.w3tc-error, textarea.w3tc-error {
 	background: #e9e9e9;
 }
 
-#cdn_cnames li span, .w3tc_cdn_cname_comment {
+#cdn_cnames li span,
+.w3tc_cdn_cname_comment {
 	padding-left: 10px;
 	color: #999;
 }
@@ -272,7 +278,8 @@ input.w3tc-error, textarea.w3tc-error {
 	text-align: left;
 }
 
-#support_loading, .w3tc-checking {
+#support_loading,
+.w3tc-checking {
 	height: 32px;
 	background: url(../img/wpspin_light.gif) left center no-repeat;
 	padding-left: 38px;
@@ -297,7 +304,9 @@ input.w3tc-error, textarea.w3tc-error {
 	float: right; /* WP 5.5 */
 }
 
-#pgcache_reject_roles label, #newrelic_accept_roles label, #cdn_reject_roles label  {
+#pgcache_reject_roles label,
+#newrelic_accept_roles label,
+#cdn_reject_roles label  {
 	margin-right: 15px;
 }
 
@@ -340,11 +349,16 @@ input.w3tc-error, textarea.w3tc-error {
 	margin-left:5px;
 }
 
-#w3tc .updated p, #w3tc_dashboard p, #w3tc_general p, #w3tc_cdn p { line-height: 30px}
+#w3tc .updated p,
+#w3tc_dashboard p,
+#w3tc_general p,
+#w3tc_cdn p { line-height: 30px}
 
-#w3tc .updated p, #w3tc_general p, #w3tc_cdn p { line-height: 30px}
+#w3tc .updated p,
+#w3tc_general p,
+#w3tc_cdn p { line-height: 30px}
 
-#w3tc #application ul {
+#application ul {
 	margin-top:0;
 }
 
@@ -361,7 +375,8 @@ input.w3tc-error, textarea.w3tc-error {
 	font-family: courier, sans-serif;
 }
 
-.minify_auto_test, .w3tc-loading {
+.minify_auto_test,
+.w3tc-loading {
 	height: 16px;
 	background: url(../img/wpspin_light.gif) right top no-repeat;
 	width: 16px;
@@ -626,7 +641,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 	margin-right: 200px;
 }
 
-#w3tc #w3tc_dashboard_banner .inside {
+#w3tc_dashboard_banner .inside {
 	background-image: url("../img/transparent-comet-moon.png"), linear-gradient( to right, #fff 60%, #56bec1 100% );
 	background-repeat: no-repeat;
 	background-position: top right;
@@ -654,16 +669,16 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after {
 }
 
 @media screen and (max-width: 960px) {
-	#w3tc #w3tc_dashboard_banner {
+	#w3tc_dashboard_banner {
 		margin: 45px auto auto auto;
 	}
 
-	#w3tc #w3tc_dashboard_banner .inside {
+	#w3tc_dashboard_banner .inside {
 		background: none;
 		padding: 12px;
 	}
 
-	#w3tc #w3tc_dashboard_banner .inside > p:first-of-type {
+	#w3tc_dashboard_banner .inside > p:first-of-type {
 		padding-top: initial;
 	}
 }
