@@ -488,7 +488,7 @@ class SetupGuide_Plugin_Admin {
 		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config  = new Config();
 			$results = array(
-				'enabled' => $config->get_boolean( 'objectcache.enabled' ),
+				'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
 				'engine'  => $config->get_string( 'objectcache.engine' ),
 				'elapsed' => null,
 			);
@@ -527,7 +527,7 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success(
 				array(
-					'enabled' => $config->get_boolean( 'objectcache.enabled' ),
+					'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
 					'engine'  => $config->get_string( 'objectcache.engine' ),
 				)
 			);
@@ -556,7 +556,7 @@ class SetupGuide_Plugin_Admin {
 			$is_updating     = false;
 			$success         = false;
 			$config          = new Config();
-			$old_enabled     = $config->get_boolean( 'objectcache.enabled' );
+			$old_enabled     = $config->getf_boolean( 'objectcache.enabled' );
 			$old_engine      = $config->get_string( 'objectcache.engine' );
 			$allowed_engines = array(
 				'',
@@ -588,7 +588,7 @@ class SetupGuide_Plugin_Admin {
 						$f->objectcache_flush();
 					}
 
-					if ( $config->get_boolean( 'objectcache.enabled' ) === $enable &&
+					if ( $config->getf_boolean( 'objectcache.enabled' ) === $enable &&
 						( ! $enable || $config->get_string( 'objectcache.engine' ) === $engine ) ) {
 							$success = true;
 							$message = __( 'Settings updated', 'w3-total-cache' );
@@ -608,7 +608,7 @@ class SetupGuide_Plugin_Admin {
 					'message'          => $message,
 					'enable'           => $enable,
 					'engine'           => $engine,
-					'current_enabled'  => $config->get_boolean( 'objectcache.enabled' ),
+					'current_enabled'  => $config->getf_boolean( 'objectcache.enabled' ),
 					'current_engine'   => $config->get_string( 'objectcache.engine' ),
 					'previous_enabled' => $old_enabled,
 					'previous_engine'  => $old_engine,
@@ -1277,8 +1277,9 @@ class SetupGuide_Plugin_Admin {
 						) . '</p>
 						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__( 'can help you speed up dynamic pages by persistently storing objects.', 'w3-total-cache' ) .
-						'</p>
-						<p>
+						'</p>' .
+						( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline">' . esc_html( 'Object Cache is disabled via filter.') . '</p>' : '' ) .
+						'<p>
 						<input id="w3tc-test-objcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">
 						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .

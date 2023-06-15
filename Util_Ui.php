@@ -312,7 +312,7 @@ class Util_Ui {
 					if ( $config->get_boolean( 'dbcache.enabled' ) ) {
 						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_html__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
 					}
-					if ( $config->get_boolean( 'objectcache.enabled' ) ) {
+					if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
 						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
 					}
 					if ( $config->get_boolean( 'cdn.enabled' ) ) {
@@ -1104,7 +1104,7 @@ class Util_Ui {
 		$c = Dispatcher::config();
 
 		if ( ! isset( $a['value'] ) || is_null( $a['value'] ) ) {
-			$a['value'] = $c->get( $a['key'] );
+			$a['value'] = $c->getf( $a['key'] );
 			if ( is_array( $a['value'] ) ) {
 				$a['value'] = implode( "\n", $a['value'] );
 			}

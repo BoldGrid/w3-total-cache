@@ -36,18 +36,11 @@ class Root_Loader {
 		$plugins   = array();
 		$plugins[] = new Generic_Plugin();
 
-		/**
-		 * Filter to disable object cache.
-		 *
-		 * @since 3.3.3
-		 */
-		$disable_objectcache = apply_filters( 'w3tc_disable_objectcache', false );
-
 		if ( $c->get_boolean( 'dbcache.enabled' ) ) {
 			$plugins[] = new DbCache_Plugin();
 		}
 
-		if ( $c->get_boolean( 'objectcache.enabled' ) && ! $disable_objectcache ) {
+		if ( $c->getf_boolean( 'objectcache.enabled' ) ) {
 			$plugins[] = new ObjectCache_Plugin();
 		}
 
@@ -88,11 +81,7 @@ class Root_Loader {
 			$plugins[] = new BrowserCache_Plugin_Admin();
 			$plugins[] = new DbCache_Plugin_Admin();
 			$plugins[] = new UserExperience_Plugin_Admin();
-
-			if ( ! $disable_objectcache ) {
-				$plugins[] = new ObjectCache_Plugin_Admin();
-			}
-			
+			$plugins[] = new ObjectCache_Plugin_Admin();
 			$plugins[] = new PgCache_Plugin_Admin();
 			$plugins[] = new Minify_Plugin_Admin();
 			$plugins[] = new Generic_WidgetSpreadTheWord_Plugin();

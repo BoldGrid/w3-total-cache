@@ -45,7 +45,6 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 					<ul>
 						<?php
 						foreach ( $registered_groups as $group => $descriptor ) :
-							Util_Debug::debug('registered_groups',$registered_groups);
 							echo '<li>' . esc_html( $group ) . ' (' . esc_html( $descriptor['expiration'] ) . ' secs): ' . esc_html( implode( ',', $descriptor['actions'] ) ) . '</li>';
 						endforeach;
 						?>

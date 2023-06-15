@@ -370,40 +370,43 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' )
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
+		echo ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline" style="margin-top:10px !important;">' . esc_html( 'Object Cache is disabled via filter.') . '</p>' : '' );
 		?>
 
 		<table class="form-table">
 			<?php
-			Util_Ui::config_item(
-				array(
-					'key'            => 'objectcache.enabled',
-					'control'        => 'checkbox',
-					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
-					'description'    => wp_kses(
-						sprintf(
-							// translators: 1 opening HTML a tag to WordPress codex for WP Object Cache, 2 Opening HTML acronym tag,
-							// translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
-							__(
-								'Object caching greatly increases performance for highly dynamic sites that use the %1$sObject Cache %2$sAPI%3$s%4$s.',
-								'w3-total-cache'
-							),
-							'<a href="' . esc_url( 'http://codex.wordpress.org/Class_Reference/WP_Object_Cache' ) . '" target="_blank">',
-							'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-							'</acronym>',
-							'</a>'
+			$objectcache_config_item = array(
+				'key'            => 'objectcache.enabled',
+				'control'        => 'checkbox',
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'description'    => wp_kses(
+					sprintf(
+						// translators: 1 opening HTML a tag to WordPress codex for WP Object Cache, 2 Opening HTML acronym tag,
+						// translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
+						__(
+							'Object caching greatly increases performance for highly dynamic sites that use the %1$sObject Cache %2$sAPI%3$s%4$s.',
+							'w3-total-cache'
 						),
-						array(
-							'acronym' => array(
-								'title' => array(),
-							),
-							'a'       => array(
-								'href'   => array(),
-								'target' => array(),
-							),
-						)
+						'<a href="' . esc_url( 'http://codex.wordpress.org/Class_Reference/WP_Object_Cache' ) . '" target="_blank">',
+						'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+						'</acronym>',
+						'</a>'
 					),
-				)
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+						'a'       => array(
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
+				),
 			);
+			if( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ) {
+				$objectcache_config_item['disabled'] = true;
+			}
+			Util_Ui::config_item( $objectcache_config_item );
 			Util_Ui::config_item_engine( array( 'key' => 'objectcache.engine' ) );
 			?>
 		</table>
