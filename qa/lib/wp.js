@@ -243,7 +243,7 @@ exports.addQaBootstrap = async function(pPage, themeFunctionsFilename, filenameT
 
 
 exports.networkActivatePlugin = async function(pPage, pluginFilename) {
-	await pPage.goto(env.networkAdminUrl + '/plugins.php');
+	await pPage.goto(env.networkAdminUrl + 'plugins.php');
 
 	if (parseFloat(env.wpVersion) < 4.4) {
 		let parts = pluginFilename.split('/');
