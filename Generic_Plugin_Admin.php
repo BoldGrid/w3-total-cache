@@ -412,6 +412,8 @@ class Generic_Plugin_Admin {
 
 	/**
 	 * Define icon styles for the custom post type.
+	 *
+	 * @throws \Exception Exception.
 	 */
 	public function admin_head() {
 		global $wp_version;
@@ -432,7 +434,13 @@ class Generic_Plugin_Admin {
 			sort( $pgcache_accept_qs );
 			$this->_config->set( 'pgcache.accept.qs', $pgcache_accept_qs );
 			$this->_config->set( 'pgcache.migrated.qsexempts', time() );
-			$this->_config->save();
+
+			// Save the config if the environment is ready; filesystem needs to be writable.
+			try {
+				$this->_config->save();
+			} catch ( \Exception $e ) {
+				$this->_config->set( 'pgcache.migrated.qsexempts', null );
+			}
 		}
 
 		if ( 'w3tc_dashboard' === $page ) {
