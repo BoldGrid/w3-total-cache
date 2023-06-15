@@ -1278,7 +1278,7 @@ class SetupGuide_Plugin_Admin {
 						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__( 'can help you speed up dynamic pages by persistently storing objects.', 'w3-total-cache' ) .
 						'</p>' .
-						( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline">' . esc_html( 'Object Cache is disabled via filter.') . '</p>' : '' ) .
+						( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' ) .
 						'<p>
 						<input id="w3tc-test-objcache" class="button-primary" type="button" value="' .
 						esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">

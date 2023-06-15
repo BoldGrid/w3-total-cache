@@ -636,7 +636,7 @@ class Util_Admin {
 			w3tc_dbcache_flush();
 		}
 
-		if ( $old_config->get_string( 'objectcache.engine' ) != $new_config->get_string( 'objectcache.engine' ) || $old_config->getf_string( 'objectcache.enabled' ) != $new_config->getf_string( 'objectcache.enabled' ) ) {
+		if ( $old_config->get_string( 'objectcache.engine' ) != $new_config->get_string( 'objectcache.engine' ) || $old_config->getf_boolean( 'objectcache.enabled' ) !== $new_config->getf_boolean( 'objectcache.enabled' ) ) {
 			w3tc_objectcache_flush();
 		}
 
