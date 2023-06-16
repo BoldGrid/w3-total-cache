@@ -1406,16 +1406,25 @@ class SetupGuide_Plugin_Admin {
 							'<span id="w3tc-dbcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
 						) . '</p>
 						<p>' .
-						sprintf(
-							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
-							esc_html__(
-								'%1$sObject Cache%2$s engine set to %1$s%3$s%2$s',
-								'w3-total-cache'
-							),
-							'<strong>',
-							'</strong>',
-							'<span id="w3tc-objcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
-						) . '</p>
+							(
+								! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' )
+								?
+								'<strong>' .
+									esc_html__( 'Object Cache', 'w3-total-cache' ) .
+								'</strong>' . esc_html__( ' is disabled via filter', 'w3-total-cache' )
+								:
+								sprintf(
+									// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
+									esc_html__(
+										'%1$sObject Cache%2$s engine set to %1$s%3$s%2$s',
+										'w3-total-cache'
+									),
+									'<strong>',
+									'</strong>',
+									'<span id="w3tc-objcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+								)
+							) .
+						'</p>
 						<p>' .
 						sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
