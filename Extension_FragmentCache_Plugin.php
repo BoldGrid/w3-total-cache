@@ -6,6 +6,7 @@ namespace W3TC;
  */
 class Extension_FragmentCache_Plugin {
 	private $_config = null;
+	private $_core = null;
 
 	function __construct() {
 		$this->_config = Dispatcher::config();
