@@ -882,7 +882,7 @@ function w3tc_wizard_actions( $slide ) {
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-objectcache' ).addClass( 'is-active' );
 
-			if ( ! $container.find( '#test-results' ).data( 'oc-none' ) ) {
+			if ( ! $container.find( '#test-results' ).data( 'oc-none' ) && ! W3TC_SetupGuide.objcache_disabled ) {
 				$nextButton.prop( 'disabled', 'disabled' );
 			}
 

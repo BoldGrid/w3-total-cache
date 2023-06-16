@@ -973,6 +973,7 @@ class SetupGuide_Plugin_Admin {
 							'enabled'           => __( 'Enabled', 'w3-total-cache' ),
 							'notEnabled'        => __( 'Not Enabled', 'w3-total-cache' ),
 							'dashboardUrl'      => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard' ) ),
+							'objcache_disabled' => ( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ),
 						),
 					),
 				),
@@ -1279,14 +1280,13 @@ class SetupGuide_Plugin_Admin {
 						esc_html__( 'can help you speed up dynamic pages by persistently storing objects.', 'w3-total-cache' ) .
 						'</p>' .
 						( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' ) .
-						'<p>
-						<input id="w3tc-test-objcache" class="button-primary" type="button" value="' .
-						esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">
-						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
-						' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
-						</span>
-						</p>
-						<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
+						( ! has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p>
+							<input id="w3tc-test-objcache" class="button-primary" type="button" value="' . esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">
+							<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
+								' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
+							</span>
+						</p>' : '' ) .
+						'<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
 									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
