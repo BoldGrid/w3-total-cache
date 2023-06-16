@@ -1409,9 +1409,15 @@ class SetupGuide_Plugin_Admin {
 							(
 								! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' )
 								?
-								'<strong>' .
-									esc_html__( 'Object Cache', 'w3-total-cache' ) .
-								'</strong>' . esc_html__( ' is disabled via filter', 'w3-total-cache' )
+								sprintf(
+									// translators: 1: HTML strong open tag, 2: HTML strong close tag.
+									esc_html__(
+										'%1$sObject Cache%2$s is %1$sdisabled via filter%2$s',
+										'w3-total-cache'
+									),
+									'<strong>',
+									'</strong>'
+								)
 								:
 								sprintf(
 									// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
