@@ -789,7 +789,7 @@ class ObjectCache_WpObjectCache_Regular {
 		/**
 		 * Skip if disabled
 		 */
-		if ( !$this->_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( !$this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->cache_reject_reason = 'objectcache.disabled';
 
 			return false;

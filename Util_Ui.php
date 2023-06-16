@@ -312,7 +312,7 @@ class Util_Ui {
 					if ( $config->get_boolean( 'dbcache.enabled' ) ) {
 						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_html__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
 					}
-					if ( $config->get_boolean( 'objectcache.enabled' ) ) {
+					if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
 						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
 					}
 					if ( $config->get_boolean( 'cdn.enabled' ) ) {

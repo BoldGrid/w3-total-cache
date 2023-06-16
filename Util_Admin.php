@@ -305,7 +305,7 @@ class Util_Admin {
 				$pgcache_dependencies = array_merge( $pgcache_dependencies, array( 'dbcache.debug' ) );
 			}
 
-			if ( $new_config->get_boolean( 'objectcache.enabled' ) ) {
+			if ( $new_config->getf_boolean( 'objectcache.enabled' ) ) {
 				$pgcache_dependencies = array_merge( $pgcache_dependencies, array( 'objectcache.debug' ) );
 			}
 
@@ -573,7 +573,7 @@ class Util_Admin {
 		/**
 		 * Show need empty object cache notification
 		 */
-		if ( $current_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $current_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$objectcache_dependencies = array(
 				'objectcache.groups.global',
 				'objectcache.groups.nonpersistent',
@@ -636,7 +636,7 @@ class Util_Admin {
 			w3tc_dbcache_flush();
 		}
 
-		if ( $old_config->get_string( 'objectcache.engine' ) != $new_config->get_string( 'objectcache.engine' ) || $old_config->get_string( 'objectcache.enabled' ) != $new_config->get_string( 'objectcache.enabled' ) ) {
+		if ( $old_config->get_string( 'objectcache.engine' ) != $new_config->get_string( 'objectcache.engine' ) || $old_config->getf_boolean( 'objectcache.enabled' ) !== $new_config->getf_boolean( 'objectcache.enabled' ) ) {
 			w3tc_objectcache_flush();
 		}
 

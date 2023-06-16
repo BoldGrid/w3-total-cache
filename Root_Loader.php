@@ -40,7 +40,7 @@ class Root_Loader {
 			$plugins[] = new DbCache_Plugin();
 		}
 
-		if ( $c->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $c->getf_boolean( 'objectcache.enabled' ) ) {
 			$plugins[] = new ObjectCache_Plugin();
 		}
 

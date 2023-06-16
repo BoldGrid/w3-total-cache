@@ -7,7 +7,7 @@ class ObjectCache_Plugin_Admin {
 		add_filter( 'w3tc_config_labels', array( $config_labels, 'config_labels' ) );
 
 		$c = Dispatcher::config();
-		if ( $c->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $c->getf_boolean( 'objectcache.enabled' ) ) {
 			add_filter( 'w3tc_errors', array( $this, 'w3tc_errors' ) );
 			add_filter( 'w3tc_notes', array( $this, 'w3tc_notes' ) );
 			add_filter( 'w3tc_usage_statistics_summary_from_history', array(
