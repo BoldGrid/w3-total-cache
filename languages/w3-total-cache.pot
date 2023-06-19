@@ -2,20 +2,20 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.3.0\n"
+"Project-Id-Version: W3 Total Cache 2.3.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-03-21T21:21:22+00:00\n"
+"POT-Creation-Date: 2023-06-19T14:09:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: w3-total-cache\n"
 
 #. Plugin Name of the plugin
-#: Generic_Plugin_Admin.php:1056
+#: Generic_Plugin_Admin.php:1071
 #: SetupGuide_Plugin_Admin.php:1081
 #: SetupGuide_Plugin_Admin.php:1127
 #: SetupGuide_Plugin_Admin.php:1199
@@ -498,7 +498,7 @@ msgstr ""
 #: inc/options/minify.php:572
 #: inc/options/minify.php:847
 #: inc/options/minify.php:1025
-#: inc/options/pgcache.php:829
+#: inc/options/pgcache.php:830
 msgid "Hypertext Transfer Protocol"
 msgstr ""
 
@@ -517,13 +517,13 @@ msgstr ""
 #: BrowserCache_Page_View_SectionSecurity.php:758
 #: BrowserCache_Page_View_SectionSecurity.php:948
 #: BrowserCache_Page_View_SectionSecurity.php:1080
-#: Generic_Plugin_Admin.php:864
+#: Generic_Plugin_Admin.php:879
 #: inc/options/browsercache.php:201
 #: inc/options/browsercache.php:473
 #: inc/options/browsercache.php:702
 #: inc/options/pgcache.php:177
 #: inc/options/pgcache.php:544
-#: inc/options/pgcache.php:622
+#: inc/options/pgcache.php:623
 msgid "Uniform Resource Locator"
 msgstr ""
 
@@ -1322,7 +1322,7 @@ msgstr ""
 #: Cdn_StackPath_Page_View.php:231
 #: Cdn_StackPath_Widget_View_Unauthorized.php:16
 #: Cdn_StackPath_Widget_View_Unauthorized.php:33
-#: Generic_Plugin_Admin.php:956
+#: Generic_Plugin_Admin.php:971
 #: inc/lightbox/self_test.php:122
 #: inc/lightbox/self_test.php:247
 #: inc/lightbox/self_test.php:318
@@ -1556,7 +1556,7 @@ msgstr ""
 #: Cdn_StackPath_Widget_View_Unauthorized.php:16
 #: Cdn_StackPath_Widget_View_Unauthorized.php:33
 #: Extension_NewRelic_AdminNotes.php:23
-#: Generic_Plugin_Admin.php:956
+#: Generic_Plugin_Admin.php:971
 #: PageSpeed_Instructions.php:383
 #: PageSpeed_Instructions.php:397
 #: PageSpeed_Instructions.php:579
@@ -2407,8 +2407,8 @@ msgstr ""
 #: inc/options/general.php:1049
 #: inc/options/minify.php:169
 #: inc/options/minify.php:195
-#: inc/options/pgcache.php:831
-#: inc/options/pgcache.php:860
+#: inc/options/pgcache.php:832
+#: inc/options/pgcache.php:861
 msgid "Hypertext Markup Language"
 msgstr ""
 
@@ -3199,7 +3199,7 @@ msgstr ""
 msgid "Database"
 msgstr ""
 
-#: DbCache_Plugin_Admin.php:61
+#: DbCache_Plugin_Admin.php:64
 msgid "Database Cache: %s."
 msgstr ""
 
@@ -4519,7 +4519,7 @@ msgstr ""
 #: FeatureShowcase_Plugin_Admin.php:461
 #: FeatureShowcase_Plugin_Admin.php:473
 #: FeatureShowcase_Plugin_Admin.php:485
-#: Generic_Plugin_Admin.php:737
+#: Generic_Plugin_Admin.php:752
 #: inc/options/extensions/list.php:102
 msgid "Settings"
 msgstr ""
@@ -4687,7 +4687,7 @@ msgstr ""
 #: inc/options/minify.php:363
 #: inc/options/minify.php:383
 #: Minify_ConfigLabels.php:9
-#: Minify_Plugin.php:306
+#: Minify_Plugin.php:310
 #: Minify_Plugin_Admin.php:49
 #: PageSpeed_Instructions.php:67
 #: PageSpeed_Instructions.php:84
@@ -5346,7 +5346,7 @@ msgstr ""
 msgid "You do not have the rights to perform this action."
 msgstr ""
 
-#: Generic_AdminActions_Default.php:584
+#: Generic_AdminActions_Default.php:615
 msgid "Added by W3 Total Cache"
 msgstr ""
 
@@ -5354,23 +5354,23 @@ msgstr ""
 msgid "Static files cache successfully emptied."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:85
+#: Generic_AdminActions_Test.php:88
 msgid "Test passed."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:90
+#: Generic_AdminActions_Test.php:93
 msgid "Test failed."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:113
+#: Generic_AdminActions_Test.php:116
 msgid "Empty JAVA executable path."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:115
+#: Generic_AdminActions_Test.php:118
 msgid "Empty JAR file path."
 msgstr ""
 
-#: Generic_AdminActions_Test.php:150
+#: Generic_AdminActions_Test.php:153
 msgid "Invalid engine."
 msgstr ""
 
@@ -5624,42 +5624,42 @@ msgid "Support Us"
 msgstr ""
 
 #. translators: 4: HTML line break tag, 5: HTML opening a tag to purge CDN manually, 6: HTML closing a tag.
-#: Generic_Plugin_Admin.php:601
+#: Generic_Plugin_Admin.php:616
 msgid "Please see %1$sAmazon's CloudFront documentation -- Paying for file invalidation%2$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%3$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%5$s."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:738
+#: Generic_Plugin_Admin.php:753
 msgid "Premium Support"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:759
+#: Generic_Plugin_Admin.php:774
 msgid "Empty Caches"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:806
+#: Generic_Plugin_Admin.php:821
 msgid "Take a minute to update, here's why:"
 msgstr ""
 
 #. translators: 1 enable button link.
-#: Generic_Plugin_Admin.php:843
+#: Generic_Plugin_Admin.php:858
 msgid "Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling enhanced disk mode."
 msgstr ""
 
 #. translators: 1 enable button link.
-#: Generic_Plugin_Admin.php:851
+#: Generic_Plugin_Admin.php:866
 msgid "Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling the 'Do not process 404 errors for static objects with WordPress'."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:857
+#: Generic_Plugin_Admin.php:872
 msgid "Please select request type."
 msgstr ""
 
 #. translators: 1 HTML acronym URL (uniform resource locator).
-#: Generic_Plugin_Admin.php:860
+#: Generic_Plugin_Admin.php:875
 msgid "Please enter the address of the site in the site %1$s field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:864
+#: Generic_Plugin_Admin.php:879
 #: Util_PageSpeed.php:279
 #: Util_PageSpeed.php:289
 #: Util_PageSpeed.php:462
@@ -5667,55 +5667,55 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:866
+#: Generic_Plugin_Admin.php:881
 msgid "Please enter your name in the Name field"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:867
+#: Generic_Plugin_Admin.php:882
 msgid "Please enter valid email address in the E-Mail field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:868
+#: Generic_Plugin_Admin.php:883
 msgid "Please enter your phone in the phone field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:869
+#: Generic_Plugin_Admin.php:884
 msgid "Please enter subject in the subject field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:870
+#: Generic_Plugin_Admin.php:885
 msgid "Please describe the issue in the issue description field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:871
+#: Generic_Plugin_Admin.php:886
 msgid "Please enter an administrator login. Create a temporary one just for this support case if needed."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:872
+#: Generic_Plugin_Admin.php:887
 msgid "Please enter WP Admin password, be sure it's spelled correctly."
 msgstr ""
 
 #. translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-#: Generic_Plugin_Admin.php:875
+#: Generic_Plugin_Admin.php:890
 msgid "Please enter %1$s or %2$s host for the site."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:879
-#: Generic_Plugin_Admin.php:888
-#: Generic_Plugin_Admin.php:897
+#: Generic_Plugin_Admin.php:894
+#: Generic_Plugin_Admin.php:903
+#: Generic_Plugin_Admin.php:912
 #: inc/options/cdn/ftp.php:240
 msgid "Secure Shell"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:879
-#: Generic_Plugin_Admin.php:888
-#: Generic_Plugin_Admin.php:897
+#: Generic_Plugin_Admin.php:894
+#: Generic_Plugin_Admin.php:903
+#: Generic_Plugin_Admin.php:912
 msgid "SSH"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:880
-#: Generic_Plugin_Admin.php:889
-#: Generic_Plugin_Admin.php:898
+#: Generic_Plugin_Admin.php:895
+#: Generic_Plugin_Admin.php:904
+#: Generic_Plugin_Admin.php:913
 #: inc/lightbox/self_test.php:120
 #: inc/lightbox/self_test.php:316
 #: inc/options/cdn/ftp.php:19
@@ -5730,197 +5730,197 @@ msgstr ""
 msgid "File Transfer Protocol"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:880
-#: Generic_Plugin_Admin.php:889
-#: Generic_Plugin_Admin.php:898
+#: Generic_Plugin_Admin.php:895
+#: Generic_Plugin_Admin.php:904
+#: Generic_Plugin_Admin.php:913
 msgid "FTP"
 msgstr ""
 
 #. translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-#: Generic_Plugin_Admin.php:884
+#: Generic_Plugin_Admin.php:899
 msgid "Please enter %1$s or %2$s login for the server. Create a temporary one just for this support case if needed."
 msgstr ""
 
 #. translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-#: Generic_Plugin_Admin.php:893
+#: Generic_Plugin_Admin.php:908
 msgid "Please enter %1$s or %2$s password for the %2$s account."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:900
+#: Generic_Plugin_Admin.php:915
 msgid "Unable to send the support request."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:901
+#: Generic_Plugin_Admin.php:916
 msgid "Please select config file."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:902
+#: Generic_Plugin_Admin.php:917
 msgid "Unable to upload config file."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:903
+#: Generic_Plugin_Admin.php:918
 msgid "Configuration file could not be imported."
 msgstr ""
 
 #. translators: 1 W3TC config director path.
-#: Generic_Plugin_Admin.php:906
+#: Generic_Plugin_Admin.php:921
 msgid "Default settings could not be restored. Please run %1$s to make the configuration file write-able, then try again."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:912
+#: Generic_Plugin_Admin.php:927
 msgid "Unable to purge attachment."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:913
+#: Generic_Plugin_Admin.php:928
 msgid "Unable to purge post."
 msgstr ""
 
 #. translators: 1 absolute path to wp-config.php, 2 cookie domain definition, 3 require once wp-setting.php definition.
-#: Generic_Plugin_Admin.php:916
+#: Generic_Plugin_Admin.php:931
 msgid "%1$s could not be written, please edit config and add: %2$s before %3$s."
 msgstr ""
 
 #. translators: 1 absolute path to wp-config.php, 2 cooke domain definition, 3 require once wp-setting.php definition.
-#: Generic_Plugin_Admin.php:926
+#: Generic_Plugin_Admin.php:941
 msgid "%1$s could not be written, please edit config and add:%2$s before %3$s."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:934
+#: Generic_Plugin_Admin.php:949
 msgid "Pull Zone could not be automatically created."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:938
+#: Generic_Plugin_Admin.php:953
 msgid "Plugin configuration successfully updated."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:939
+#: Generic_Plugin_Admin.php:954
 msgid "All caches successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:940
+#: Generic_Plugin_Admin.php:955
 msgid "Memcached cache(s) successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:941
+#: Generic_Plugin_Admin.php:956
 msgid "Opcode cache(s) successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:942
+#: Generic_Plugin_Admin.php:957
 msgid "Disk cache(s) successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:943
+#: Generic_Plugin_Admin.php:958
 msgid "Page cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:944
+#: Generic_Plugin_Admin.php:959
 msgid "Database cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:945
+#: Generic_Plugin_Admin.php:960
 msgid "Object cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:946
+#: Generic_Plugin_Admin.php:961
 msgid "Fragment cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:947
+#: Generic_Plugin_Admin.php:962
 msgid "Minify cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:948
+#: Generic_Plugin_Admin.php:963
 msgid "Media Query string has been successfully updated."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:949
+#: Generic_Plugin_Admin.php:964
 msgid "Varnish servers successfully purged."
 msgstr ""
 
 #. translators: 1 HTML acronym for CDN (content delivery network).
-#: Generic_Plugin_Admin.php:952
+#: Generic_Plugin_Admin.php:967
 msgid "%1$s was successfully purged."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:958
+#: Generic_Plugin_Admin.php:973
 msgid "The support request has been successfully sent."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:959
+#: Generic_Plugin_Admin.php:974
 msgid "Settings successfully imported."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:960
+#: Generic_Plugin_Admin.php:975
 msgid "Settings successfully restored."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:961
+#: Generic_Plugin_Admin.php:976
 msgid "Preview mode was successfully enabled"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:962
+#: Generic_Plugin_Admin.php:977
 msgid "Preview mode was successfully disabled"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:963
+#: Generic_Plugin_Admin.php:978
 msgid "Preview settings successfully deployed. Preview mode remains enabled until it's disabled. Continue testing new settings or disable preview mode if done."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:964
+#: Generic_Plugin_Admin.php:979
 msgid "Attachment successfully purged."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:965
+#: Generic_Plugin_Admin.php:980
 msgid "Post successfully purged."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:966
+#: Generic_Plugin_Admin.php:981
 msgid "New relic settings have been updated."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:967
+#: Generic_Plugin_Admin.php:982
 msgid "The add-in has been removed."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:968
+#: Generic_Plugin_Admin.php:983
 msgid "Edge mode has been enabled."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:969
+#: Generic_Plugin_Admin.php:984
 msgid "Edge mode has been disabled."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:970
+#: Generic_Plugin_Admin.php:985
 msgid "Pull Zone was automatically created."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1020
+#: Generic_Plugin_Admin.php:1035
 msgid "Required files and directories have been automatically created"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1047
+#: Generic_Plugin_Admin.php:1062
 msgid "W3 Total Cache Error:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1048
+#: Generic_Plugin_Admin.php:1063
 msgid "Files and directories could not be automatically created to complete the installation."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1051
+#: Generic_Plugin_Admin.php:1066
 #: Util_Activation.php:240
 msgid "Please execute commands manually"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1052
+#: Generic_Plugin_Admin.php:1067
 #: Util_Activation.php:244
 msgid "View required changes"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1055
+#: Generic_Plugin_Admin.php:1070
 msgid "or use FTP form to allow "
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1057
+#: Generic_Plugin_Admin.php:1072
 msgid "make it automatically."
 msgstr ""
 
@@ -6764,7 +6764,7 @@ msgstr ""
 
 #: inc/options/browsercache.php:509
 #: inc/options/pgcache.php:258
-#: inc/options/pgcache.php:794
+#: inc/options/pgcache.php:795
 msgid "Extensible Markup Language"
 msgstr ""
 
@@ -6784,7 +6784,7 @@ msgstr ""
 #: inc/options/cdn.php:26
 #: inc/options/common/header.php:193
 #: inc/options/common/header.php:268
-#: inc/options/pgcache.php:813
+#: inc/options/pgcache.php:814
 msgid "Note(s)"
 msgstr ""
 
@@ -6928,8 +6928,8 @@ msgstr ""
 #: inc/options/dbcache.php:109
 #: inc/options/install.php:83
 #: inc/options/install.php:255
-#: inc/options/pgcache.php:671
-#: inc/options/pgcache.php:742
+#: inc/options/pgcache.php:672
+#: inc/options/pgcache.php:743
 #: PageSpeed_Instructions.php:70
 #: PageSpeed_Instructions.php:87
 #: PageSpeed_Instructions.php:359
@@ -8451,7 +8451,7 @@ msgstr ""
 #: inc/options/minify.php:1051
 #: inc/options/pgcache.php:592
 #: inc/options/pgcache.php:594
-#: inc/options/pgcache.php:858
+#: inc/options/pgcache.php:859
 msgid "Time to Live"
 msgstr ""
 
@@ -8624,7 +8624,7 @@ msgstr ""
 
 #: inc/options/parts/memcached.php:23
 #: inc/options/parts/memcached_extension.php:25
-msgid "Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122"
+msgid "Multiple servers may be used and seperated by a comma; e.g. 127.0.0.1:11211, domain.com:11211"
 msgstr ""
 
 #: inc/options/parts/memcached.php:27
@@ -8706,7 +8706,7 @@ msgstr ""
 
 #: inc/options/parts/redis.php:30
 #: inc/options/parts/redis_extension.php:32
-msgid "Multiple servers may be used and seperated by a comma; e.g. 192.168.1.100:11211, domain.com:22122. To use TLS, prefix server with tls://"
+msgid "Multiple servers may be used and seperated by a comma; e.g. 127.0.0.1:6379, domain.com:6379. To use TLS, prefix server with tls://"
 msgstr ""
 
 #: inc/options/parts/redis.php:38
@@ -8934,64 +8934,64 @@ msgid "Significantly reduce the default %1$sTTL%2$s for comment cookies to reduc
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/pgcache.php:618
+#: inc/options/pgcache.php:619
 msgid "Always cache %1$sURL%2$ss that use these query string name-value pairs. The value part is not required. But if used, separate name-value pairs with an equals sign (i.e., name=value). Each pair should be on their own line."
 msgstr ""
 
-#: inc/options/pgcache.php:641
+#: inc/options/pgcache.php:642
 msgid "Never send cache pages for these user agents."
 msgstr ""
 
-#: inc/options/pgcache.php:650
+#: inc/options/pgcache.php:651
 msgid "Never cache pages that use the specified cookies."
 msgstr ""
 
 #. translators: 2 opening HTML acronym tag, 3 closing HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:666
+#: inc/options/pgcache.php:667
 msgid "Always ignore the specified pages / directories. Supports regular expressions (See %1$s%2$sFAQ%3$s%4$s)"
 msgstr ""
 
-#: inc/options/pgcache.php:694
+#: inc/options/pgcache.php:695
 msgid "Always ignore all pages filed under the specified category slugs."
 msgstr ""
 
-#: inc/options/pgcache.php:703
+#: inc/options/pgcache.php:704
 msgid "Always ignore all pages filed under the specified tag slugs."
 msgstr ""
 
-#: inc/options/pgcache.php:712
+#: inc/options/pgcache.php:713
 msgid "Always ignore all pages filed under the specified author usernames."
 msgstr ""
 
-#: inc/options/pgcache.php:721
+#: inc/options/pgcache.php:722
 msgid "Always ignore all pages filed under the specified custom fields. Separate name-value pairs with an equals sign (i.e., name=value)."
 msgstr ""
 
 #. translators: 3 closing HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:737
+#: inc/options/pgcache.php:738
 msgid "Cache the specified pages / directories even if listed in the \"never cache the following pages\" field. Supports regular expression (See %1$s%2$sFAQ%3$s%4$s)"
 msgstr ""
 
-#: inc/options/pgcache.php:767
+#: inc/options/pgcache.php:768
 msgid "Cache the specified pages even if they don't have trailing slash."
 msgstr ""
 
-#: inc/options/pgcache.php:777
+#: inc/options/pgcache.php:778
 msgid "Specify additional page headers to cache."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/pgcache.php:790
+#: inc/options/pgcache.php:791
 msgid "Return correct Content-Type header for %1$sXML%2$s files (e.g., feeds and sitemaps). Slows down cache engine."
 msgstr ""
 
 #. translators: 5 opening HTML a tag to W3TC BrowserCache admin page, 6 closing HTML a tag.
-#: inc/options/pgcache.php:825
+#: inc/options/pgcache.php:826
 msgid "Enable %1$sHTTP%2$s compression in the \"%3$sHTML%4$s\" section on %5$sBrowser Cache</a> Settings tab."
 msgstr ""
 
 #. translators: 5 opening HTML a tag to W3TC BrowserCache admin page, 6 closing HTML a tag.
-#: inc/options/pgcache.php:854
+#: inc/options/pgcache.php:855
 msgid "The %1$sTTL%2$s of page cache files is set via the \"Expires header lifetime\" field in the \"%3$sHTML%4$s\" section on %5$sBrowser Cache%6$s Settings tab."
 msgstr ""
 
@@ -9254,9 +9254,9 @@ msgstr ""
 msgid "Upgrade"
 msgstr ""
 
-#. translators: 1 HTML input button for renewing licence.
+#. translators: 1 HTML input button for renewing license.
 #: Licensing_Plugin_Admin.php:169
-msgid "It looks like your W3 Total Cache Pro License has expired. %1$s to continue using the Pro Features"
+msgid "It looks like your W3 Total Cache Pro license has expired. %1$s to continue using the Pro features"
 msgstr ""
 
 #: Licensing_Plugin_Admin.php:175
@@ -9594,7 +9594,7 @@ msgstr ""
 msgid "I Understand the Risks"
 msgstr ""
 
-#: Minify_Plugin.php:317
+#: Minify_Plugin.php:321
 msgid "Minified using %s%s"
 msgstr ""
 
@@ -9602,21 +9602,21 @@ msgstr ""
 msgid "Recently an error occurred while creating the CSS / JS minify cache: %s. %s"
 msgstr ""
 
-#: Minify_Plugin_Admin.php:145
+#: Minify_Plugin_Admin.php:148
 msgid "Minify: %s."
 msgstr ""
 
-#: Minify_Plugin_Admin.php:162
-#: ObjectCache_Plugin_Admin.php:54
+#: Minify_Plugin_Admin.php:165
+#: ObjectCache_Plugin_Admin.php:60
 msgid "The setting change(s) made either invalidate the cached data or modify the behavior of the site. %s now to provide a consistent user experience."
 msgstr ""
 
-#: Minify_Plugin_Admin.php:165
+#: Minify_Plugin_Admin.php:168
 msgid "Empty the minify cache"
 msgstr ""
 
-#: Minify_Plugin_Admin.php:189
-#: Minify_Plugin_Admin.php:197
+#: Minify_Plugin_Admin.php:192
+#: Minify_Plugin_Admin.php:200
 msgid "Minification"
 msgstr ""
 
@@ -9662,11 +9662,11 @@ msgstr ""
 msgid "[W3TC] Object Cache file GC (every %d seconds)"
 msgstr ""
 
-#: ObjectCache_Plugin_Admin.php:32
+#: ObjectCache_Plugin_Admin.php:38
 msgid "Object Cache: %s."
 msgstr ""
 
-#: ObjectCache_Plugin_Admin.php:57
+#: ObjectCache_Plugin_Admin.php:63
 msgid "Empty the object cache"
 msgstr ""
 
@@ -10814,7 +10814,7 @@ msgstr ""
 msgid "Page Cache: Current Page"
 msgstr ""
 
-#: PgCache_Plugin_Admin.php:290
+#: PgCache_Plugin_Admin.php:293
 msgid "Page Cache: %s."
 msgstr ""
 
@@ -12043,7 +12043,7 @@ msgid "FTP credentials don't allow to delete "
 msgstr ""
 
 #. translators: 1 class name, 2 file name.
-#: w3-total-cache-api.php:180
+#: w3-total-cache-api.php:188
 msgid "Attempt to create object of class %1$s has been made, but file %2$s doesnt exists"
 msgstr ""
 
