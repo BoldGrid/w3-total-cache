@@ -72,7 +72,7 @@ exports.setOptions = async function(pPage, queryPage, values) {
 
 				// very weird issue - first button click hangs, while all other
 				// works in that case. it cant scroll up?
-				saveSelector = '#w3tc_save_options_general_minify';
+				saveSelector = 'input[name="w3tc_save_options"]';
 			}
 		} else if (tagType == 'INPUT text' || tagType == 'INPUT password' ||
 				tagType == 'TEXTAREA') {

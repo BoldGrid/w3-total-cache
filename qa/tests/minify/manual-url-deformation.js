@@ -55,7 +55,7 @@ describe('', function() {
 
 		log.log('click save');
 		await Promise.all([
-			adminPage.click('#w3tc_save_options_minify_css'),
+			adminPage.click('input[name="w3tc_save_options"]'),
 			adminPage.waitForNavigation({timeout: 0})
 		]);
 

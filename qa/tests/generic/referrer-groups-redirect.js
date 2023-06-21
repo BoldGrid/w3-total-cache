@@ -73,7 +73,7 @@ describe('', function() {
 			(e, v) => e.value = v, redirectedUrl);
 
 		await Promise.all([
-			adminPage.click('#w3tc_save_options_referrers'),
+			adminPage.click('input[name="w3tc_save_options"]'),
 			adminPage.waitForNavigation()
 		]);
 
