@@ -207,10 +207,15 @@ class PgCache_ContentGrabber {
 		}
 
 		$this->_page_key_extension = $this->_get_key_extension();
+
 		if ( !$this->_page_key_extension['cache'] ) {
 			$this->_caching = false;
 			$this->cache_reject_reason =
 				$this->_page_key_extension['cache_reject_reason'];
+		}
+
+		if ( !empty( $_SERVER['HTTP_W3TCALWAYSCACHED'] ) ) {
+			$this->_page_key_extension['alwayscached'] = true;
 		}
 
 		if ( $this->_caching && !$this->_late_caching ) {
@@ -235,6 +240,7 @@ class PgCache_ContentGrabber {
 		/**
 		 * Start output buffering
 		 */
+
 		Util_Bus::add_ob_callback( 'pagecache', array( $this, 'ob_callback' ) );
 	}
 
@@ -266,6 +272,10 @@ class PgCache_ContentGrabber {
 	 * @return boolean
 	 */
 	function _extract_cached_page( $with_filter ) {
+		if ( !empty( $this->_page_key_extension['alwayscached'] ) ) {
+			return null;
+		}
+
 		$cache = $this->_get_cache( $this->_page_key_extension['group'] );
 
 		$mobile_group = $this->_page_key_extension['useragent'];
@@ -2147,14 +2157,30 @@ class PgCache_ContentGrabber {
 		$buffers = array();
 		$something_was_set = false;
 
+		if ( !empty( $this->_page_key_extension['alwayscached'] ) ) {
+			$this->_set_extract_page_key(
+				array_merge( $this->_page_key_extension, [
+						'compression' => false,
+						'content_type' => $content_type
+					] ),
+				true );
+			if ( !empty( $this->_page_key ) ) {
+				$queue_item = Extension_AlwaysCached_Queue::get_by_page_key( $this->_page_key );
+				header( 'w3tcalwayscached: ' .
+					( empty( $queue_item ) ? 'none' : $queue_item['id'] ) );
+			}
+		}
+
 		foreach ( $compressions_to_store as $_compression ) {
 			$this->_set_extract_page_key(
-				array_merge( $this->_page_key_extension,
-					array(
+				array_merge( $this->_page_key_extension, [
 						'compression' => $_compression,
-						'content_type' => $content_type ) ), true );
-			if ( empty( $this->_page_key ) )
+						'content_type' => $content_type
+					] ),
+				true );
+			if ( empty( $this->_page_key ) ) {
 				continue;
+			}
 
 			// Compress content
 			$buffers[$_compression] = $this->_compress( $buffer, $_compression );

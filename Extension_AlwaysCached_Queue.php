@@ -2,7 +2,7 @@
 namespace W3TC;
 
 if ( !defined( 'W3TC_ALWAYSCACHED_TABLE_QUEUE' ) ) {
-	define( 'W3TC_ALWAYSCACHED_TABLE_QUEUE', 'w3tc_Extension_AlwaysCached_Queue' );
+	define( 'W3TC_ALWAYSCACHED_TABLE_QUEUE', 'w3tc_alwayscached_queue' );
 }
 
 
