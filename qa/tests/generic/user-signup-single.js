@@ -60,10 +60,13 @@ describe('', function() {
 
 	it('enable users registration', async() => {
 		await adminPage.goto(env.networkAdminUrl + 'options-general.php');
-		await adminPage.click('#users_can_register');
 
+		let usersCanRegister = '#users_can_register';
+		await adminPage.evaluate((usersCanRegister) => document.querySelector(usersCanRegister).click(), usersCanRegister);
+
+		let submitButton = '#submit';
 		await Promise.all([
-			adminPage.click('#submit'),
+			adminPage.evaluate((submitButton) => document.querySelector(submitButton).click(), submitButton),
 			adminPage.waitForNavigation()
 		]);
 
@@ -80,8 +83,9 @@ describe('', function() {
 		await page.$eval('#user_login', (e, v) => { e.value = v }, 'testuser');
 		await page.$eval('#user_email', (e, v) => { e.value = v }, 'test2@example.com');
 
+		let wpSubmitButton = '#wp-submit';
 		await Promise.all([
-			page.click('#wp-submit'),
+			page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
 			page.waitForNavigation({timeout:0}),
 		]);
 
@@ -117,8 +121,9 @@ describe('', function() {
 			testUserPassword = await page.$eval('#pass1-text', (e) => e.value);
 
 			log.log('got password ' + testUserPassword);
+			let wpSubmitButton = '#wp-submit';
 			await Promise.all([
-				page.click('#wp-submit'),
+				page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
 				page.waitForNavigation()
 			]);
 
@@ -140,8 +145,9 @@ describe('', function() {
 			testUserPassword = await page.$eval('#pass1', (e) => e.value);
 
 			log.log('got password ' + testUserPassword);
+			let wpSubmitButton = '#wp-submit';
 			await Promise.all([
-				page.click('#wp-submit'),
+				page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
 				page.waitForNavigation()
 			]);
 
@@ -158,8 +164,9 @@ describe('', function() {
 		await page.$eval('#user_login', (e, v) => { e.value = v }, 'testuser');
 		await page.$eval('#user_pass', (e, v) => { e.value = v }, testUserPassword);
 
+		let wpSubmitButton = '#wp-submit';
 		await Promise.all([
-			page.click('#wp-submit'),
+			page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
 			page.waitForNavigation({timeout:0}),
 		]);
 

@@ -77,8 +77,9 @@ describe('', function() {
 		await adminPage.select('#js_use_type_footer', 'nb-async');
 
 		log.log('click save');
+		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
-			adminPage.click('input[name="w3tc_save_options"]'),
+			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
 			adminPage.waitForNavigation({timeout: 0})
 		]);
 

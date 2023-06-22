@@ -68,7 +68,8 @@ describe('', function() {
 			adminPage._overwriteSystemDialogPrompt = false;
 		});
 
-		await adminPage.click('#mobile_add');
+		let mobileAdd = '#mobile_add';
+		await adminPage.evaluate((mobileAdd) => document.querySelector(mobileAdd).click(), mobileAdd);
 		log.log('wait button to create elements');
 		await adminPage.waitForSelector('#mobile_groups_test1_redirect');
 
@@ -77,8 +78,9 @@ describe('', function() {
 		await adminPage.$eval('#mobile_groups_test1_theme',
 			(e, v) => e.value = v, otherTheme);
 
+		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
-			adminPage.click('input[name="w3tc_save_options"]'),
+			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
 			adminPage.waitForNavigation()
 		]);
 
