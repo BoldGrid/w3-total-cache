@@ -69,6 +69,7 @@ describe('', function() {
 		});
 
 		await adminPage.click('#mobile_add');
+
 		log.log('wait button to create elements');
 		await adminPage.waitForSelector('#mobile_groups_test1_redirect');
 
@@ -77,8 +78,9 @@ describe('', function() {
 		await adminPage.$eval('#mobile_groups_test1_theme',
 			(e, v) => e.value = v, otherTheme);
 
+		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
-			adminPage.click('#w3tc_save_options_mobile'),
+			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
 			adminPage.waitForNavigation()
 		]);
 

@@ -46,8 +46,9 @@ describe('check that media library works when CDN is active', function() {
 
 		let fileInput = await adminPage.$('input[name=async-upload]');
 		await fileInput.uploadFile('../../plugins/image.jpg');
+		let htmlUpload = '#html-upload';
 		await Promise.all([
-			adminPage.click('#html-upload'),
+			adminPage.evaluate((htmlUpload) => document.querySelector(htmlUpload).click(), htmlUpload),
 			adminPage.waitForNavigation({timeout:0})
 		]);
 	});
