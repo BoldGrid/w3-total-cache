@@ -68,8 +68,8 @@ describe('', function() {
 			adminPage._overwriteSystemDialogPrompt = false;
 		});
 
-		let mobileAdd = '#mobile_add';
-		await adminPage.evaluate((mobileAdd) => document.querySelector(mobileAdd).click(), mobileAdd);
+		await adminPage.evaluate('#mobile_add');
+
 		log.log('wait button to create elements');
 		await adminPage.waitForSelector('#mobile_groups_test1_redirect');
 

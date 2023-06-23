@@ -68,8 +68,7 @@ describe('', function() {
 			adminPage._overwriteSystemDialogPrompt = false;
 		});
 
-		let referrerAdd = '#referrer_add';
-		await adminPage.evaluate((referrerAdd) => document.querySelector(referrerAdd).click(), referrerAdd);
+		await adminPage.click('#referrer_add');
 
 		log.log('wait button to create elements');
 		await adminPage.waitForSelector('#referrer_groups_test_group_redirect');
