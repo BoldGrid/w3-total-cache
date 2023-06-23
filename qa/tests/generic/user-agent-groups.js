@@ -68,7 +68,7 @@ describe('', function() {
 			adminPage._overwriteSystemDialogPrompt = false;
 		});
 
-		await adminPage.evaluate('#mobile_add');
+		await adminPage.click('#mobile_add');
 
 		log.log('wait button to create elements');
 		await adminPage.waitForSelector('#mobile_groups_test1_redirect');
