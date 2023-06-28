@@ -91,6 +91,62 @@ class Extension_AlwaysCached_Queue {
 
 
 
+	static public function rows( $mode ) {
+		if ( $mode == 'postponed' ) {
+			$where = 'to_process >= %s';
+		} else {
+			$where = 'to_process < %s';
+		}
+
+		global $wpdb;
+		$table = Extension_AlwaysCached_Queue::table_name();
+
+		return $wpdb->get_results( $wpdb->prepare( "
+				SELECT *
+				FROM `$table`
+				WHERE $where
+				ORDER BY to_process
+				LIMIT 50",
+				gmdate( 'Y-m-d G:i:s' ) ), ARRAY_A );
+	}
+
+
+
+	static public function row_count_pending() {
+		global $wpdb;
+		$table = Extension_AlwaysCached_Queue::table_name();
+
+		return $wpdb->get_var( $wpdb->prepare( "
+			SELECT COUNT(*)
+			FROM `$table`
+			WHERE to_process < %s",
+			gmdate( 'Y-m-d G:i:s' ) ) );
+	}
+
+
+
+	static public function row_count_postponed() {
+		global $wpdb;
+		$table = Extension_AlwaysCached_Queue::table_name();
+
+		return $wpdb->get_var( $wpdb->prepare( "
+			SELECT COUNT(*)
+			FROM `$table`
+			WHERE to_process >= %s",
+			gmdate( 'Y-m-d G:i:s' ) ) );
+	}
+
+
+
+	static public function empty() {
+		global $wpdb;
+		$table = Extension_AlwaysCached_Queue::table_name();
+
+		return $wpdb->query( "DELETE FROM `$table`" );
+	}
+
+
+
 	static private function table_name() {
 		global $wpdb;
 		return $wpdb->base_prefix . W3TC_ALWAYSCACHED_TABLE_QUEUE;

@@ -84,3 +84,8 @@ class Extension_AlwaysCached_Plugin {
 
 $p = new Extension_AlwaysCached_Plugin();
 $p->run();
+
+if ( is_admin() ) {
+	$p = new Extension_AlwaysCached_Plugin_Admin();
+	$p->run();
+}

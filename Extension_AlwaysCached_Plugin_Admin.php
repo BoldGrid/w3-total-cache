@@ -35,5 +35,29 @@ class Extension_AlwaysCached_Plugin_Admin {
 
 
 	function run() {
+		// own settings page.
+		add_action( 'w3tc_extension_page_alwayscached', [
+			'\W3TC\Extension_AlwaysCached_Page',
+			'w3tc_extension_page_alwayscached'
+		] );
+
+		add_action( 'admin_print_scripts', [
+			'\W3TC\Extension_AlwaysCached_Page',
+			'admin_print_scripts',
+		] );
+
+		add_filter( 'w3tc_admin_actions', [ $this, 'w3tc_admin_actions' ] );
+
+		add_action( 'w3tc_ajax', [
+			'\W3TC\Extension_AlwaysCached_Page',
+			'w3tc_ajax'
+		] );
+	}
+
+
+
+	public function w3tc_admin_actions( $handlers ) {
+		$handlers['alwayscached'] = 'Extension_AlwaysCached_AdminActions';
+		return $handlers;
 	}
 }
