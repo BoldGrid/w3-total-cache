@@ -16,7 +16,7 @@ class Varnish_Plugin {
 			2000, 1 );
 		add_action( 'w3tc_flush_post',
 			array( $this, 'varnish_flush_post' ),
-			2000, 1 );
+			2000, 2 );
 		add_action( 'w3tc_flushable_posts', '__return_true', 2000 );
 		add_action( 'w3tc_flush_posts',
 			array( $this, 'varnish_flush' ),
@@ -49,12 +49,14 @@ class Varnish_Plugin {
 	/**
 	 * Purges post from varnish
 	 *
-	 * @param integer $post_id
+	 * @param integer $post_id Post ID.
+	 * @param boolean $force   Force flag (optional).
+	 *
 	 * @return mixed
 	 */
-	public function varnish_flush_post( $post_id ) {
+	public function varnish_flush_post( $post_id, $force = false ) {
 		$varnishflush = Dispatcher::component( 'Varnish_Flush' );
-		$v = $varnishflush->flush_post( $post_id );
+		$v = $varnishflush->flush_post( $post_id, $force );
 
 		return $v;
 	}

@@ -5,9 +5,22 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-Util_Ui::postbox_header( 'Fragment Cache', '', 'fragmentcache' );
+Util_Ui::postbox_header_tabs(
+	esc_html__( 'Fragment Cache', 'w3-total-cache' ),
+	esc_html__(
+		'Fragment caching is a powerful feature that helps improve the speed and performance of your 
+			website. It allows you to cache specific sections or fragments of your web pages instead 
+			of caching the entire page. By selectively caching these fragments, such as sidebar widgets 
+			or dynamic content, you can reduce the processing time required to generate the page, 
+			resulting in faster load times and improved overall site performance.',
+		'w3-total-cache'
+	),
+	'',
+	'fragmentcache',
+	Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' )
+);
+
 ?>
-<p><?php esc_html_e( 'Enable fragment caching reduce execution time for common operations.', 'w3-total-cache' ); ?></p>
 
 <table class="form-table">
 	<?php
@@ -21,10 +34,4 @@ Util_Ui::postbox_header( 'Fragment Cache', '', 'fragmentcache' );
 	?>
 </table>
 
-<?php
-Util_Ui::button_config_save(
-	'general_feedburner',
-	'<input type="submit" name="w3tc_flush_fragmentcache" value="' . __( 'Empty cache', 'w3-total-cache' ) . '" class="button" />'
-);
-?>
 <?php Util_Ui::postbox_footer(); ?>

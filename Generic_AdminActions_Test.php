@@ -27,13 +27,16 @@ class Generic_AdminActions_Test {
 	 * @return void
 	 */
 	function w3tc_test_memcached() {
-		$servers = Util_Request::get_array( 'servers' );
+		$servers 		 = Util_Request::get_array( 'servers' );
+		$binary_protocol = Util_Request::get_boolean( 'binary_protocol', true );
+		$username        = Util_Request::get_string( 'username', '' );
+		$password        = Util_Request::get_string( 'password', '' );
 
-		$this->respond_test_result( $this->is_memcache_available( $servers ) );
+		$this->respond_test_result( $this->is_memcache_available( $servers, $binary_protocol, $username, $password ) );
 	}
 
 	/**
-	 * Test memcached.
+	 * Test redis
 	 */
 	public function w3tc_test_redis() {
 		$servers                 = Util_Request::get_array( 'servers' );
@@ -166,14 +169,17 @@ class Generic_AdminActions_Test {
 	 * @param array   $servers
 	 * @return boolean
 	 */
-	private function is_memcache_available( $servers ) {
+	private function is_memcache_available( $servers, $binary_protocol, $username, $password ) {
 		if ( count( $servers ) <= 0 )
 			return false;
 
 		foreach ( $servers as $server ) {
 			@$memcached = Cache::instance( 'memcached', array(
 					'servers' => $server,
-					'persistent' => false
+					'persistent' => false,
+					'binary_protocol' => $binary_protocol,
+					'username' => $username,
+					'password' => $password
 				) );
 			if ( is_null( $memcached ) )
 				return false;
@@ -204,24 +210,5 @@ class Generic_AdminActions_Test {
 	function w3tc_test_minify_recommendations() {
 		$options_minify = new Minify_Page();
 		$options_minify->recommendations();
-	}
-
-
-	/**
-	 * Page Speed results action
-	 *
-	 * @return void
-	 */
-	function w3tc_test_pagespeed_results() {
-		$title = 'Google Page Speed';
-
-		$config = Dispatcher::config();
-		$key = $config->get_string( 'widget.pagespeed.key' );
-		$ref = $config->get_string( 'widget.pagespeed.key.restrict.referrer' );
-
- 		$w3_pagespeed = new PageSpeed_Api( $key, $ref );
-
-		$results = $w3_pagespeed->analyze( get_home_url() );
-		include W3TC_INC_POPUP_DIR . '/pagespeed_results.php';
 	}
 }

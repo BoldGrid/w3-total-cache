@@ -515,6 +515,8 @@ class Extension_ImageService_Plugin_Admin {
 
 		if ( $is_settings_page ) {
 			wp_enqueue_style( 'w3tc-options' );
+			wp_enqueue_style( 'w3tc-bootstrap-css' );
+			wp_enqueue_script( 'w3tc-options' );
 		}
 
 		if ( $is_settings_page || $is_media_page ) {
@@ -572,7 +574,7 @@ class Extension_ImageService_Plugin_Admin {
 					),
 					'tos_choice'  => Licensing_Core::get_tos_choice(),
 					'track_usage' => $this->config->get_boolean( 'common.track_usage' ),
-					'ga_profile'  => ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG ) ? 'UA-2264433-7' : 'UA-2264433-8',
+					'ga_profile'  => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'UA-2264433-7' : 'UA-2264433-8',
 					'settings'    => $this->config->get_array( 'imageservice' ),
 					'settingsUrl' => esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ),
 				)

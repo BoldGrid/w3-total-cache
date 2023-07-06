@@ -85,16 +85,23 @@ class Extension_WordPressSeo_Plugin_Admin {
 		$extension_id = 'wordpress-seo';
 
 		$notes[$extension_id] = sprintf(
-			__( 'Activating the <a href="%s">Yoast SEO</a> extension for W3 Total Cache may be helpful for your site. <a class="button" href="%s">Click here</a> to try it. %s',
-				'w3-total-cache' ),
+			__(
+				'Activating the <a href="%s">Yoast SEO</a> extension for W3 Total Cache may be helpful for your site. <a class="button" href="%s">Click here</a> to try it. %s',
+				'w3-total-cache'
+			),
 			Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#' . $extension_id ),
 			Util_Ui::url( array( 'w3tc_extensions_activate' => $extension_id ) ),
 			Util_Ui::button_link(
 				__( 'Hide this message', 'w3-total-cache' ),
-				Util_Ui::url( array(
+				Util_Ui::url(
+					array(
 						'w3tc_default_config_state' => 'y',
-						'key' => 'wordpress_seo.hide_note_suggest_activation',
-						'value' => 'true' ) ) ) );
+						'key'                       => 'wordpress_seo.hide_note_suggest_activation',
+						'value'                     => 'true'
+					)
+				)
+			)
+		);
 
 		return $notes;
 	}

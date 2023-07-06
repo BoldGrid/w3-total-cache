@@ -5,6 +5,13 @@ namespace W3TC;
  * class BrowserCache_Environment
  */
 class BrowserCache_Environment {
+	public function __construct() {
+		add_filter( 'w3tc_cdn_rules_section',
+			array( $this, 'w3tc_cdn_rules_section' ), 10, 2 );
+	}
+
+
+
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
@@ -20,13 +27,6 @@ class BrowserCache_Environment {
 				$this->rules_cache_add( $config, $exs );
 			} else {
 				$this->rules_cache_remove( $exs );
-			}
-
-			if ( $config->get_boolean( 'browsercache.enabled' ) &&
-				$config->get_boolean( 'browsercache.no404wp' ) ) {
-				$this->rules_no404wp_add( $config, $exs );
-			} else {
-				$this->rules_no404wp_remove( $exs );
 			}
 		}
 
@@ -51,7 +51,6 @@ class BrowserCache_Environment {
 		$exs = new Util_Environment_Exceptions();
 
 		$this->rules_cache_remove( $exs );
-		$this->rules_no404wp_remove( $exs );
 
 		if ( count( $exs->exceptions() ) > 0 )
 			throw $exs;
@@ -64,25 +63,41 @@ class BrowserCache_Environment {
 	 * @return array
 	 */
 	public function get_required_rules( $config ) {
-		if ( !$config->get_boolean( 'browsercache.enabled' ) )
-			return null;
-
-		$rewrite_rules = array();
-
-		$browsercache_rules_cache_path = Util_Rule::get_browsercache_rules_cache_path();
-		$rewrite_rules[] = array(
-			'filename' => $browsercache_rules_cache_path,
-			'content' => $this->rules_cache_generate( $config )
-		);
-
-		if ( $config->get_boolean( 'browsercache.no404wp' ) ) {
-			$browsercache_rules_no404wp_path =
-				Util_Rule::get_browsercache_rules_no404wp_path();
-			$rewrite_rules[] = array(
-				'filename' => $browsercache_rules_no404wp_path,
-				'content' => $this->rules_no404wp_generate( $config )
-			);
+		if ( ! $config->get_boolean( 'browsercache.enabled' ) ) {
+			return array();
 		}
+
+		$mime_types = $this->get_mime_types();
+
+		switch ( true ) {
+			case Util_Environment::is_apache():
+				$generator_apache = new BrowserCache_Environment_Apache( $config );
+				$rewrite_rules = array(
+					array(
+						'filename' => Util_Rule::get_apache_rules_path(),
+						'content' =>
+							W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n" .
+							$this->rules_cache_generate_apache( $config ) .
+							$generator_apache->rules_no404wp( $mime_types ) .
+							W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n"
+					)
+				);
+				break;
+
+			case Util_Environment::is_litespeed():
+				$generator_litespeed = new BrowserCache_Environment_LiteSpeed( $config );
+				$rewrite_rules = $generator_litespeed->get_required_rules( $mime_types );
+				break;
+
+			case Util_Environment::is_nginx():
+				$generator_nginx = new BrowserCache_Environment_Nginx( $config );
+				$rewrite_rules = $generator_nginx->get_required_rules( $mime_types );
+				break;
+
+			default:
+				$rewrite_rules = array();
+		}
+
 		return $rewrite_rules;
 	}
 
@@ -129,7 +144,7 @@ class BrowserCache_Environment {
 	 * @return string
 	 */
 	public function rules_cache_generate_for_ftp( $config ) {
-		return $this->rules_cache_generate( $config, true );
+		return $this->rules_cache_generate_apache( $config );
 	}
 
 
@@ -144,20 +159,23 @@ class BrowserCache_Environment {
 	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
 	 */
 	private function rules_cache_add( $config, $exs ) {
-		Util_Rule::add_rules( $exs,
-			Util_Rule::get_browsercache_rules_cache_path(),
-			$this->rules_cache_generate( $config ),
-			W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
-			W3TC_MARKER_END_BROWSERCACHE_CACHE,
-			array(
-				W3TC_MARKER_BEGIN_MINIFY_CORE => 0,
-				W3TC_MARKER_BEGIN_PGCACHE_CORE => 0,
-				W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP => 0,
-				W3TC_MARKER_BEGIN_WORDPRESS => 0,
-				W3TC_MARKER_END_PGCACHE_CACHE => strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
-				W3TC_MARKER_END_MINIFY_CACHE => strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
-			)
-		);
+		$rules = $this->get_required_rules( $config );
+
+		foreach ( $rules as $i ) {
+			Util_Rule::add_rules( $exs,
+				$i['filename'],
+				$i['content'],
+				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
+				W3TC_MARKER_END_BROWSERCACHE_CACHE,
+				array(
+					W3TC_MARKER_BEGIN_MINIFY_CORE => 0,
+					W3TC_MARKER_BEGIN_PGCACHE_CORE => 0,
+					W3TC_MARKER_BEGIN_WORDPRESS => 0,
+					W3TC_MARKER_END_PGCACHE_CACHE => strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
+					W3TC_MARKER_END_MINIFY_CACHE => strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
+				)
+			);
+		}
 	}
 
 	/**
@@ -166,31 +184,29 @@ class BrowserCache_Environment {
 	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
 	 */
 	private function rules_cache_remove( $exs ) {
-		Util_Rule::remove_rules( $exs,
-			Util_Rule::get_browsercache_rules_cache_path(),
-			W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
-			W3TC_MARKER_END_BROWSERCACHE_CACHE );
-	}
+		$filenames = array();
 
-	/**
-	 * Returns cache rules
-	 *
-	 * @param Config  $config
-	 * @param bool    $cdnftp
-	 * @return string
-	 */
-	public function rules_cache_generate( $config, $cdnftp = false ) {
 		switch ( true ) {
 		case Util_Environment::is_apache():
+			$filenames[] = Util_Rule::get_apache_rules_path();
+			break;
+
 		case Util_Environment::is_litespeed():
-			return $this->rules_cache_generate_apache( $config );
+			$filenames[] = Util_Rule::get_apache_rules_path();
+			$filenames[] = Util_Rule::get_litespeed_rules_path();
+			break;
 
 		case Util_Environment::is_nginx():
-			$generator_nginx = new BrowserCache_Environment_Nginx( $config );
-			$mime_types = $this->get_mime_types();
-			return $generator_nginx->generate( $mime_types, $cdnftp );
+			$filenames[] = Util_Rule::get_nginx_rules_path();
+			break;
 		}
-		return '';
+
+		foreach ( $filenames as $i ) {
+			Util_Rule::remove_rules( $exs,
+				$i,
+				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
+				W3TC_MARKER_END_BROWSERCACHE_CACHE );
+		}
 	}
 
 	/**
@@ -231,7 +247,6 @@ class BrowserCache_Environment {
 		}
 
 		$rules = '';
-		$rules .= W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n";
 
 		if ( count( $mime_types ) ) {
 			$rules .= "<IfModule mod_mime.c>\n";
@@ -374,6 +389,7 @@ class BrowserCache_Environment {
 			 $config->get_boolean( 'browsercache.security.pkp' ) ||
 			 $config->get_boolean( 'browsercache.security.referrer.policy' ) ||
 			 $config->get_boolean( 'browsercache.security.csp' ) ||
+			 $config->get_boolean( 'browsercache.security.cspro' ) ||
 			 $config->get_boolean( 'browsercache.security.fp' )
 		   ) {
 			$lifetime = $config->get_integer( 'browsercache.other.lifetime' );
@@ -420,6 +436,8 @@ class BrowserCache_Environment {
 
 			if ( $config->get_boolean( 'browsercache.security.csp' ) ) {
 				$base = trim( $config->get_string( 'browsercache.security.csp.base' ) );
+				$reporturi = trim( $config->get_string( 'browsercache.security.csp.reporturi' ) );
+				$reportto = trim( $config->get_string( 'browsercache.security.csp.reportto' ) );
 				$frame = trim( $config->get_string( 'browsercache.security.csp.frame' ) );
 				$connect = trim( $config->get_string( 'browsercache.security.csp.connect' ) );
 				$font = trim( $config->get_string( 'browsercache.security.csp.font' ) );
@@ -431,61 +449,132 @@ class BrowserCache_Environment {
 				$plugin = trim( $config->get_string( 'browsercache.security.csp.plugin' ) );
 				$form = trim( $config->get_string( 'browsercache.security.csp.form' ) );
 				$frame_ancestors = trim( $config->get_string( 'browsercache.security.csp.frame.ancestors' ) );
-				$sandbox = $config->get_string( 'browsercache.security.csp.sandbox' );
+				$sandbox = trim( $config->get_string( 'browsercache.security.csp.sandbox' ) );
+				$child = trim( $config->get_string( 'browsercache.security.csp.child' ) );
+				$manifest = trim( $config->get_string( 'browsercache.security.csp.manifest' ) );
+				$scriptelem = trim( $config->get_string( 'browsercache.security.csp.scriptelem' ) );
+				$scriptattr = trim( $config->get_string( 'browsercache.security.csp.scriptattr' ) );
+				$styleelem = trim( $config->get_string( 'browsercache.security.csp.styleelem' ) );
+				$scriptelem = trim( $config->get_string( 'browsercache.security.csp.styleattr' ) );
+				$worker = trim( $config->get_string( 'browsercache.security.csp.worker' ) );
 				$default = trim( $config->get_string( 'browsercache.security.csp.default' ) );
 
-				$dir = rtrim( ( !empty( $base ) ? "base-uri $base; " : "" ).
-					   ( !empty( $frame ) ? "frame-src $frame; " : "" ).
-					   ( !empty( $connect ) ? "connect-src $connect; " : "" ).
-					   ( !empty( $font ) ? "font-src $font; " : "" ).
-					   ( !empty( $script ) ? "script-src $script; " : "" ).
-					   ( !empty( $style ) ? "style-src $style; " : "" ).
-					   ( !empty( $img ) ? "img-src $img; " : "" ).
-					   ( !empty( $media ) ? "media-src $media; " : "" ).
-					   ( !empty( $object ) ? "object-src $object; " : "" ).
-					   ( !empty( $plugin ) ? "plugin-types $plugin; " : "" ).
-					   ( !empty( $form ) ? "form-action $form; " : "" ).
-					   ( !empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : "" ).
-					   ( !empty( $sandbox ) ? "sandbox " . trim( $sandbox ) . "; " : "" ).
-					   ( !empty( $default ) ? "default-src $default;" : "" ), "; " );
+				$dir = rtrim(
+					( ! empty( $base ) ? "base-uri $base; " : '' ) .
+						( ! empty( $reporturi ) ? "report-uri $reporturi; " : '' ) .
+						( ! empty( $reportto ) ? "report-to $reportto; " : '' ) .
+						( ! empty( $frame ) ? "frame-src $frame; " : '' ) .
+						( ! empty( $connect ) ? "connect-src $connect; " : '' ) .
+						( ! empty( $font ) ? "font-src $font; " : '' ) .
+						( ! empty( $script ) ? "script-src $script; " : '' ) .
+						( ! empty( $style ) ? "style-src $style; " : '' ) .
+						( ! empty( $img ) ? "img-src $img; " : '' ) .
+						( ! empty( $media ) ? "media-src $media; " : '' ) .
+						( ! empty( $object ) ? "object-src $object; " : '' ) .
+						( ! empty( $plugin ) ? "plugin-types $plugin; " : '' ) .
+						( ! empty( $form ) ? "form-action $form; " : '' ) .
+						( ! empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : '' ) .
+						( ! empty( $sandbox ) ? "sandbox $sandbox; " : '' ) .
+						( ! empty( $child ) ? "child-src $child; " : '' ) .
+						( ! empty( $manifest ) ? "manifest-src $manifest; " : '' ) .
+						( ! empty( $scriptelem ) ? "script-src-elem $scriptelem; " : '' ) .
+						( ! empty( $scriptattr ) ? "script-src-attr $scriptattr; " : '' ) .
+						( ! empty( $styleelem ) ? "style-src-elem $styleelem; " : '' ) .
+						( ! empty( $styleattr ) ? "style-src-attr $styleattr; " : '' ) .
+						( ! empty( $worker ) ? "worker-src $worker; " : '' ) .
+						( ! empty( $default ) ? "default-src $default;" : '' ),
+					'; '
+				);
 
 				if ( !empty( $dir ) ) {
 					$rules .= "    Header set Content-Security-Policy \"$dir\"\n";
 				}
 			}
 
+			if ( $config->get_boolean( 'browsercache.security.cspro' ) && ( ! empty( $config->get_string( 'browsercache.security.cspro.reporturi' ) ) || ! empty( $config->get_string( 'browsercache.security.cspro.reportto' ) ) ) ) {
+				$base = trim( $config->get_string( 'browsercache.security.cspro.base' ) );
+				$reporturi = trim( $config->get_string( 'browsercache.security.cspro.reporturi' ) );
+				$reportto = trim( $config->get_string( 'browsercache.security.cspro.reportto' ) );
+				$frame = trim( $config->get_string( 'browsercache.security.cspro.frame' ) );
+				$connect = trim( $config->get_string( 'browsercache.security.cspro.connect' ) );
+				$font = trim( $config->get_string( 'browsercache.security.cspro.font' ) );
+				$script = trim( $config->get_string( 'browsercache.security.cspro.script' ) );
+				$style = trim( $config->get_string( 'browsercache.security.cspro.style' ) );
+				$img = trim( $config->get_string( 'browsercache.security.cspro.img' ) );
+				$media = trim( $config->get_string( 'browsercache.security.cspro.media' ) );
+				$object = trim( $config->get_string( 'browsercache.security.cspro.object' ) );
+				$plugin = trim( $config->get_string( 'browsercache.security.cspro.plugin' ) );
+				$form = trim( $config->get_string( 'browsercache.security.cspro.form' ) );
+				$frame_ancestors = trim( $config->get_string( 'browsercache.security.cspro.frame.ancestors' ) );
+				$sandbox = trim( $config->get_string( 'browsercache.security.cspro.sandbox' ) );
+				$child = trim( $config->get_string( 'browsercache.security.cspro.child' ) );
+				$manifest = trim( $config->get_string( 'browsercache.security.cspro.manifest' ) );
+				$scriptelem = trim( $config->get_string( 'browsercache.security.cspro.scriptelem' ) );
+				$scriptattr = trim( $config->get_string( 'browsercache.security.cspro.scriptattr' ) );
+				$styleelem = trim( $config->get_string( 'browsercache.security.cspro.styleelem' ) );
+				$scriptelem = trim( $config->get_string( 'browsercache.security.cspro.styleattr' ) );
+				$worker = trim( $config->get_string( 'browsercache.security.cspro.worker' ) );
+				$default = trim( $config->get_string( 'browsercache.security.cspro.default' ) );
+				$dir = rtrim(
+					( ! empty( $base ) ? "base-uri $base; " : '' ) .
+						( ! empty( $reporturi ) ? "report-uri $reporturi; " : '' ) .
+						( ! empty( $reportto ) ? "report-to $reportto; " : '' ) .
+						( ! empty( $frame ) ? "frame-src $frame; " : '' ) .
+						( ! empty( $connect ) ? "connect-src $connect; " : '' ) .
+						( ! empty( $font ) ? "font-src $font; " : '' ) .
+						( ! empty( $script ) ? "script-src $script; " : '' ) .
+						( ! empty( $style ) ? "style-src $style; " : '' ) .
+						( ! empty( $img ) ? "img-src $img; " : '' ) .
+						( ! empty( $media ) ? "media-src $media; " : '' ) .
+						( ! empty( $object ) ? "object-src $object; " : '' ) .
+						( ! empty( $plugin ) ? "plugin-types $plugin; " : '' ) .
+						( ! empty( $form ) ? "form-action $form; " : '' ) .
+						( ! empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : '' ) .
+						( ! empty( $sandbox ) ? "sandbox $sandbox; " : '' ) .
+						( ! empty( $child ) ? "child-src $child; " : '' ) .
+						( ! empty( $manifest ) ? "manifest-src $manifest; " : '' ) .
+						( ! empty( $scriptelem ) ? "script-src-elem $scriptelem; " : '' ) .
+						( ! empty( $scriptattr ) ? "script-src-attr $scriptattr; " : '' ) .
+						( ! empty( $styleelem ) ? "style-src-elem $styleelem; " : '' ) .
+						( ! empty( $styleattr ) ? "style-src-attr $styleattr; " : '' ) .
+						( ! empty( $worker ) ? "worker-src $worker; " : '' ) .
+						( ! empty( $default ) ? "default-src $default;" : '' ),
+					'; '
+				);
+
+				if ( !empty( $dir ) ) {
+					$rules .= "    Header set Content-Security-Policy-Report-Only \"$dir\"\n";
+				}
+			}
+
 			if ( $config->get_boolean( 'browsercache.security.fp' ) ) {
 				$fp_values = $config->get_array( 'browsercache.security.fp.values' );
 
-				$v = array();
+				$feature_v    = array();
+				$permission_v = array();
 				foreach ( $fp_values as $key => $value ) {
-					$value = str_replace( '"', "'", $value );
-					if ( !empty( $value ) ) {
-						$v[] = "$key $value";
+					if ( ! empty( $value ) ) {
+						$value = str_replace( array( '"', "'" ), '', $value );
+
+						$feature_v[]    = "$key '$value'";
+						$permission_v[] = "$key=($value)";
 					}
 				}
 
-				if ( !empty( $v ) ) {
-					$rules .= '    Header set Feature-Policy "' .
-						implode( ';', $v ) . "\"\n";
+				if ( ! empty( $feature_v ) ) {
+					$rules .= '    Header set Feature-Policy "' . implode( ';', $feature_v ) . "\"\n";
+				}
+
+				if ( ! empty( $permission_v ) ) {
+					$rules .= '    Header set Permissions-Policy "' . implode( ',', $permission_v ) . "\"\n";
 				}
 			}
 
 			$rules .= "</IfModule>\n";
 		}
 
-		if ( $config->get_boolean( 'browsercache.rewrite' ) ) {
-			$core = Dispatcher::component( 'BrowserCache_Core' );
-			$extensions = $core->get_replace_extensions( $config );
-
-			$rules .= "<IfModule mod_rewrite.c>\n";
-			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
-			$rules .= '    RewriteRule ^(.+)\.(x[0-9]{5})\.(' .
-				implode( '|', $extensions ) . ')$ $1.$3 [L]' . "\n";
-			$rules .= "</IfModule>\n";
-		}
-
-		$rules .= W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n";
+		$g = new BrowserCache_Environment_Apache( $config );
+		$rules .= $g->rules_rewrite();
 
 		return $rules;
 	}
@@ -616,128 +705,12 @@ class BrowserCache_Environment {
 	 * rules_no404wp
 	 */
 
-	/**
-	 * Writes no 404 by WP rules
-	 *
-	 * @param Config  $config
-	 * @param Util_Environment_Exceptions $exs
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form
-	 */
-	private function rules_no404wp_add( $config, $exs ) {
-		Util_Rule::add_rules( $exs, Util_Rule::get_browsercache_rules_no404wp_path(),
-			$this->rules_no404wp_generate( $config ),
-			W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP,
-			W3TC_MARKER_END_BROWSERCACHE_NO404WP,
-			array(
-				W3TC_MARKER_BEGIN_WORDPRESS => 0,
-				W3TC_MARKER_END_PGCACHE_CORE =>
-				strlen( W3TC_MARKER_END_PGCACHE_CORE ) + 1,
-				W3TC_MARKER_END_MINIFY_CORE =>
-				strlen( W3TC_MARKER_END_MINIFY_CORE ) + 1,
-				W3TC_MARKER_END_BROWSERCACHE_CACHE =>
-				strlen( W3TC_MARKER_END_BROWSERCACHE_CACHE ) + 1,
-				W3TC_MARKER_END_PGCACHE_CACHE =>
-				strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
-				W3TC_MARKER_END_MINIFY_CACHE =>
-				strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
-			)
-		);
-	}
-
-	/**
-	 * Removes 404 directives
-	 *
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form
-	 */
-	private function rules_no404wp_remove( $exs ) {
-		Util_Rule::remove_rules( $exs,
-			Util_Rule::get_browsercache_rules_no404wp_path(),
-			W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP,
-			W3TC_MARKER_END_BROWSERCACHE_NO404WP
-		);
-	}
-
-	/**
-	 * Generate rules related to prevent for media 404 error by WP
-	 *
-	 * @param Config  $config
-	 * @return string
-	 */
-	private function rules_no404wp_generate( $config ) {
-		switch ( true ) {
-		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
-			return $this->rules_no404wp_generate_apache( $config );
+	public function w3tc_cdn_rules_section( $section_rules, $config ) {
+		if ( Util_Environment::is_litespeed() ) {
+			$o = new BrowserCache_Environment_LiteSpeed( $config );
+			$section_rules = $o->w3tc_cdn_rules_section( $section_rules );
 		}
 
-		return false;
-	}
-
-	/**
-	 * Generate rules related to prevent for media 404 error by WP
-	 *
-	 * @param Config  $config
-	 * @return string
-	 */
-	private function rules_no404wp_generate_apache( $config ) {
-		$a = $this->get_mime_types();
-		$cssjs_types = $a['cssjs'];
-		$html_types = $a['html'];
-		$other_types = $a['other'];
-
-		$extensions = array_merge( array_keys( $cssjs_types ),
-			array_keys( $html_types ), array_keys( $other_types ) );
-
-		$permalink_structure = get_option( 'permalink_structure' );
-		$permalink_structure_ext = ltrim( strrchr( $permalink_structure, '.' ),
-			'.' );
-
-		if ( $permalink_structure_ext != '' ) {
-			foreach ( $extensions as $index => $extension ) {
-				if ( strstr( $extension, $permalink_structure_ext ) !== false ) {
-					$extensions[$index] = preg_replace( '~\|?' .
-						Util_Environment::preg_quote( $permalink_structure_ext ) .
-						'\|?~', '', $extension );
-				}
-			}
-		}
-
-		$exceptions = $config->get_array( 'browsercache.no404wp.exceptions' );
-		$wp_uri = network_home_url( '', 'relative' );
-		$wp_uri = rtrim( $wp_uri, '/' );
-
-		$rules = '';
-		$rules .= W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP . "\n";
-		$rules .= "<IfModule mod_rewrite.c>\n";
-		$rules .= "    RewriteEngine On\n";
-
-		// in subdir - rewrite theme files and similar to upper folder if file exists
-		if ( Util_Environment::is_wpmu() &&
-			!Util_Environment::is_wpmu_subdomain() ) {
-			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
-			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
-			$rules .= "    RewriteCond %{REQUEST_URI} ^$wp_uri/([_0-9a-zA-Z-]+/)(.*\.)(" .
-				implode( '|', $extensions ) . ")$ [NC]\n";
-			$document_root = Util_Rule::apache_docroot_variable();
-			$rules .= '    RewriteCond "' . $document_root . $wp_uri .
-				'/%2%3" -f' . "\n";
-			$rules .= "    RewriteRule .* $wp_uri/%2%3 [L]\n\n";
-		}
-
-
-		$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
-		$rules .= "    RewriteCond %{REQUEST_FILENAME} !-d\n";
-
-		$imploded = implode( '|', $exceptions );
-		if ( !empty( $imploded ) )
-			$rules .= "    RewriteCond %{REQUEST_URI} !(" . $imploded. ")\n";
-
-		$rules .= "    RewriteCond %{REQUEST_URI} \\.(" .
-			implode( '|', $extensions ) . ")$ [NC]\n";
-		$rules .= "    RewriteRule .* - [L]\n";
-		$rules .= "</IfModule>\n";
-		$rules .= W3TC_MARKER_END_BROWSERCACHE_NO404WP . "\n";
-
-		return $rules;
+		return $section_rules;
 	}
 }

@@ -235,13 +235,6 @@ class Generic_AdminActions_Default {
 		$config = new Config();
 		$this->read_request( $config );
 
-		if ( 'w3tc_dashboard' === $this->_page ) {
-			if ( Util_Request::get_boolean( 'maxcdn' ) ) {
-				$config->set( 'cdn.enabled', true );
-				$config->set( 'cdn.engine', 'maxcdn' );
-			}
-		}
-
 		/**
 		 * General tab
 		 */
@@ -281,12 +274,42 @@ class Generic_AdminActions_Default {
 		}
 
 		/**
+		 * Page Cache tab
+		 */
+		if ( 'w3tc_pgcache' === $this->_page ) {
+			// Textarea settings.
+			$settings = array(
+				'pgcache.mirrors.home_urls',
+				'pgcache.purge.pages',
+				'pgcache.accept.qs',
+				'pgcache.reject.ua',
+				'pgcache.reject.cookie',
+				'pgcache.reject.uri',
+				'pgcache.reject.categories',
+				'pgcache.reject.tags',
+				'pgcache.reject.authors',
+				'pgcache.reject.custom',
+				'pgcache.accept.files',
+				'pgcache.accept.uri',
+				'pgcache.cache.headers',
+			);
+			// Remove empty lines, trim values, and sort.
+			foreach ( $settings as $setting ) {
+				$setting_array = $config->get_array( $setting );
+				if ( ! empty( $setting_array ) && is_array( $setting_array ) ) {
+					$values = array_filter( array_map( 'trim', $setting_array ), 'strlen' );
+					sort( $values );
+					$config->set( $setting, $values );
+				}
+			}
+		}
+
+		/**
 		 * Minify tab
 		 */
 		if ( 'w3tc_minify' === $this->_page ) {
 			if ( ( $this->_config->get_boolean( 'minify.js.http2push' ) && ! $config->get_boolean( 'minify.js.http2push' ) ) ||
 			( $this->_config->get_boolean( 'minify.css.http2push' ) && ! $config->get_boolean( 'minify.css.http2push' ) ) ) {
-
 				if ( 'file_generic' === $config->get_string( 'pgcache.engine' ) ) {
 					$cache_dir = Util_Environment::cache_blog_dir( 'page_enhanced' );
 					$this->_delete_all_htaccess_files( $cache_dir );
@@ -349,27 +372,6 @@ class Generic_AdminActions_Default {
 
 				$config->set( 'browsercache.no404wp', false );
 				$data['response_errors'][] = 'fancy_permalinks_disabled_browsercache';
-			}
-
-			// todo: move to cdn module.
-			$engine = $this->_config->get_string( 'cdn.engine' );
-			if ( 'maxcdn' === $engine ) {
-				require_once W3TC_LIB_NETDNA_DIR . '/NetDNA.php';
-				$keys = explode( '+', $this->_config->get_string( 'cdn.' . $engine . '.authorization_key' ) );
-				if ( count( $keys ) === 3 ) {
-					list( $alias, $consumerkey, $consumersecret ) = $keys;
-					try {
-						$api                   = new \NetDNA( $alias, $consumerkey, $consumersecret );
-						$disable_cooker_header = $config->get_boolean( 'browsercache.other.nocookies' ) ||
-							$config->get_boolean( 'browsercache.cssjs.nocookies' );
-						$api->update_pull_zone(
-							$this->_config->get_string( 'cdn.' . $engine . '.zone_id' ),
-							array( 'ignore_setcookie_header' => $disable_cooker_header )
-						);
-					} catch ( \Exception $ex ) {
-						// missing exception handle?
-					}
-				}
 			}
 		}
 
@@ -446,17 +448,6 @@ class Generic_AdminActions_Default {
 
 				case 'mirror':
 					$config->set( 'cdn.mirror.domain', $cdn_domains );
-					break;
-
-				case 'maxcdn':
-					$v = $config->get( 'cdn.maxcdn.domain' );
-					if ( isset( $v['http_default'] ) ) {
-						$cdn_domains['http_default'] = $v['http_default'];
-					}
-					if ( isset( $v['https_default'] ) ) {
-						$cdn_domains['https_default'] = $v['https_default'];
-					}
-					$config->set( 'cdn.maxcdn.domain', $cdn_domains );
 					break;
 
 				case 'rackspace_cdn':
@@ -577,8 +568,7 @@ class Generic_AdminActions_Default {
 			return;
 		}
 
-		$file = readdir( $handle );
-		while ( false !== $file ) {
+		while ( false !== ( $file = readdir( $handle ) ) ) {
 			if ( '.' === $file || '..' === $file ) {
 				continue;
 			}
@@ -587,7 +577,7 @@ class Generic_AdminActions_Default {
 				$this->_delete_all_htaccess_files( $file );
 				continue;
 			} elseif ( '.htaccess' === $file ) {
-				@unlink( $file );
+				@unlink( $dir . '/' . $file );
 			}
 		}
 

@@ -245,7 +245,7 @@ class Generic_AdminActions_Flush {
 	 */
 	function w3tc_flush_post() {
 		$post_id = Util_Request::get_integer( 'post_id' );
-		w3tc_flush_post( $post_id, array( 'ui_action' => 'flush_button' ) );
+		w3tc_flush_post( $post_id, true, array( 'ui_action' => 'flush_button' ) );
 
 		Util_Admin::redirect( array(
 				'w3tc_note' => 'pgcache_purge_post'
@@ -275,7 +275,7 @@ class Generic_AdminActions_Flush {
 			$this->flush_dbcache();
 		}
 
-		if ( $this->_config->get_string( 'objectcache.engine' ) == $type && $this->_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $this->_config->get_string( 'objectcache.engine' ) == $type && $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->flush_objectcache();
 		}
 

@@ -867,18 +867,9 @@ class ObjectCache_WpObjectCache_Regular {
 	 */
 	function _can_cache() {
 		/**
-		 * Don't cache in console mode
-		 */
-		if ( PHP_SAPI === 'cli' ) {
-			$this->cache_reject_reason = 'Console mode';
-
-			return false;
-		}
-
-		/**
 		 * Skip if disabled
 		 */
-		if ( !$this->_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( !$this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->cache_reject_reason = 'objectcache.disabled';
 
 			return false;

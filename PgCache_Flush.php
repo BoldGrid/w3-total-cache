@@ -42,9 +42,10 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	/**
 	 * Flushes post cache
 	 *
-	 * @param integer $post_id
+	 * @param integer $post_id Post ID.
+	 * @param boolean $force   Force flag (optional).
 	 */
-	public function flush_post( $post_id = null ) {
+	public function flush_post( $post_id = null, $force = false ) {
 		if ( !$post_id ) {
 			$post_id = Util_Environment::detect_post_id();
 		}
@@ -124,7 +125,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		}
 
 		// Post URL
-		if ( $this->_config->get_boolean( 'pgcache.purge.post' ) ) {
+		if ( $this->_config->get_boolean( 'pgcache.purge.post' ) || $force ) {
 			$full_urls = array_merge( $full_urls,
 				Util_PageUrls::get_post_urls( $post_id ) );
 		}

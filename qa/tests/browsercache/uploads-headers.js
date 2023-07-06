@@ -54,8 +54,10 @@ describe('', function() {
 
 		let fileInput = await adminPage.$('input[name=async-upload]');
 		await fileInput.uploadFile('../../plugins/image.jpg');
+
+		let htmlUpload = '#html-upload';
 		await Promise.all([
-			adminPage.click('#html-upload'),
+			adminPage.evaluate((htmlUpload) => document.querySelector(htmlUpload).click(), htmlUpload),
 			adminPage.waitForNavigation({timeout:0})
 		]);
 	});
@@ -64,9 +66,11 @@ describe('', function() {
 
 	it('find image url', async() => {
 		await adminPage.waitForSelector('.attachment-preview');
+		console.log('waited');
 		let imgs = await dom.listTagAttributes(adminPage, 'img', 'src');
+		console.log(imgs);
 		for (let url of imgs) {
-			if (url.indexOf("image.jpg") >= 0) {
+			if (url.indexOf("/image") >= 0) {
 				imageUrl = url;
 			}
 		}
@@ -75,6 +79,7 @@ describe('', function() {
 
 
 	it('check image without expiration', async() => {
+		log.log(imageUrl);
 		let response = await page.goto(imageUrl);
 		expect(response.headers()['content-type']).matches(/image\/(jpeg|webp)/);
 		expect(response.status()).equals(200);

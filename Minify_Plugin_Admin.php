@@ -30,14 +30,11 @@ class Minify_Plugin_Admin {
 				$this,
 				'w3tc_ajax_minify_help'
 			) );
-
-		// show note
-		add_action( 'admin_print_scripts-performance_page_w3tc_general',
-			array( $this, 'admin_print_scripts_w3tc_general' ) );
 		add_action( 'w3tc_message_action_minify_help', array(
 				$this,
 				'w3tc_message_action_minify_help'
 			) );
+
 		if ( defined( 'W3TC_DEBUG' ) && W3TC_DEBUG )
 			add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
 
@@ -88,7 +85,7 @@ class Minify_Plugin_Admin {
 
 
 
-	public function admin_print_scripts_w3tc_general() {
+	public static function admin_print_scripts_w3tc_general() {
 		$state = Dispatcher::config_state();
 		if ( !$state->get_boolean( 'minify.hide_minify_help' ) ) {
 			wp_enqueue_script( 'w3tc-minify-help',
@@ -139,8 +136,11 @@ class Minify_Plugin_Admin {
 
 		if ( $c->get_string( 'minify.engine' ) == 'memcached' ) {
 			$memcached_servers = $c->get_array( 'minify.memcached.servers' );
+			$memcached_binary_protocol = $c->get_boolean( 'minify.memcached.binary_protocol' );
+			$memcached_username = $c->get_string( 'minify.memcached.username' );
+			$memcached_password = $c->get_string( 'minify.memcached.password' );
 
-			if ( !Util_Installed::is_memcache_available( $memcached_servers ) ) {
+			if ( !Util_Installed::is_memcache_available( $memcached_servers, $memcached_binary_protocol, $memcached_username, $memcached_password ) ) {
 				if ( !isset( $errors['memcache_not_responding.details'] ) )
 					$errors['memcache_not_responding.details'] = array();
 

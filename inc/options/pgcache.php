@@ -7,54 +7,30 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
-<form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
-	<p>
-		<?php
-		echo wp_kses(
-			sprintf(
-				// translators: 1 HTML strong tag containing PageCache Engine name, 2 HTML span tag containing PageCache Engine enabled/disabled.
-				__(
-					'Page caching via %1$s is currently %2$s',
-					'w3-total-cache'
-				),
-				'<strong>' . esc_html( Cache::engine_name( $this->_config->get_string( 'pgcache.engine' ) ) ) . '</strong>',
-				'<span class="w3tc-' . ( $pgcache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>.'
+<p>
+	<?php
+	echo wp_kses(
+		sprintf(
+			// translators: 1 HTML strong tag containing PageCache Engine name, 2 HTML span tag containing PageCache Engine enabled/disabled.
+			__(
+				'Page caching via %1$s is currently %2$s',
+				'w3-total-cache'
 			),
-			array(
-				'strong' => array(),
-				'span'   => array(
-					'class' => array(),
-				),
-			)
-		);
-		?>
-	</p>
-	<p>
-		<?php
-		echo wp_kses(
-			sprintf(
-				// translators: 1 Nonce Field followed by submit HTML input to flush PageCache.
-				__(
-					'To rebuild the page cache use the %1$s operation',
-					'w3-total-cache'
-				),
-				Util_Ui::nonce_field( 'w3tc' ) . '<input type="submit" name="w3tc_flush_pgcache" value="empty cache"' . disabled( $pgcache_enabled, false, false ) . ' class="button" />'
+			'<strong>' . esc_html( Cache::engine_name( $this->_config->get_string( 'pgcache.engine' ) ) ) . '</strong>',
+			'<span class="w3tc-' . ( $pgcache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>.'
+		),
+		array(
+			'strong' => array(),
+			'span'   => array(
+				'class' => array(),
 			),
-			array(
-				'input' => array(
-					'type'     => array(),
-					'name'     => array(),
-					'value'    => array(),
-					'disabled' => array(),
-					'class'    => array(),
-				),
-			)
-		);
-		?>
-	</p>
-</form>
+		)
+	);
+	?>
+</p>
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'pagecache_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
@@ -75,27 +51,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<th>
 					<?php $this->checkbox( 'pgcache.cache.feed' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.feed' ); ?></label>
-					<p class="description">
-						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML a tag to FeedBurner wiki, 2 closing HTML a tag.
-								__(
-									'Even if using a feed proxy service (like %1$sFeedBurner%2$s), enabling this option is still recommended.',
-									'w3-total-cache'
-								),
-								'<a href="' . esc_url( 'http://en.wikipedia.org/wiki/FeedBurner' ) . '" target="_blank">',
-								'</a>'
-							),
-							array(
-								'a' => array(
-									'href'   => array(),
-									'target' => array(),
-								),
-							)
-						);
-						?>
-					</p>
+					<p class="description"><?php esc_html_e( 'Even if using a feed proxy service enabling this option is still recommended.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<tr>
@@ -167,7 +123,6 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'pagecache_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Aliases', 'w3-total-cache' ), '', 'mirrors' ); ?>
@@ -229,7 +184,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		</table>
-		<?php Util_Ui::button_config_save( 'pagecache_aliases' ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Cache Preload', 'w3-total-cache' ), '', 'cache_preload' ); ?>
@@ -298,7 +253,6 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'pagecache_cache_preload' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -406,7 +360,6 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'pagecache_purge_policy' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -442,9 +395,9 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'                => '<acronym title="REpresentational State Transfer">REST</acronym> <acronym title="Application Programming Interface">API</acronym>',
 					'control'              => 'radiogroup',
 					'radiogroup_values'    => array(
-						''        => "Don't cache",
+						''        => __( 'Don\'t cache', 'w3-total-cache' ),
 						'cache'   => array(
-							'label'           => 'Cache',
+							'label'           => __( 'Cache', 'w3-total-cache' ),
 							'disabled'        => ! Util_Environment::is_w3tc_pro( $this->_config ),
 							'pro_feature'     => true,
 							'pro_excerpt'     => esc_html__( 'If you\'re using the WordPress API make sure to use caching to scale performance.', 'w3-total-cache' ),
@@ -496,7 +449,7 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 			?>
 		</table>
-		<?php Util_Ui::button_config_save( 'rest' ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 
@@ -532,7 +485,7 @@ if ( ! defined( 'W3TC' ) ) {
 					<th><label><?php esc_html_e( 'Compatibility mode:', 'w3-total-cache' ); ?></label></th>
 					<td>
 						<?php $this->checkbox( 'pgcache.compatibility' ); ?> <?php Util_Ui::e_config_label( 'pgcache.compatibility' ); ?></label>
-						<p class="description"><?php esc_html_e( 'Decreases performance by ~20% at scale in exchange for increasing interoperability with more hosting environments and WordPress idiosyncrasies. This option should be enabled for most sites.', 'w3-total-cache' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Decreases performance by ~20% at scale in exchange for increasing interoperability with more hosting environments and WordPress idiosyncrasies. Enable this option if you experience issues with the Apache rules.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>
 				<?php if ( ! Util_Environment::is_nginx() ) : ?>
@@ -630,6 +583,7 @@ if ( ! defined( 'W3TC' ) ) {
 					<textarea id="pgcache_accept_qs" name="pgcache__accept__qs"
 						<?php Util_Ui::sealing_disabled( 'pgcache.' ); ?>
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.accept.qs' ) ) ); ?></textarea>
+					<input type="button" class="button w3tc-pgcache-qsexempts-default" value="Add Defaults" />
 					<p class="description">
 						<?php
 						echo wp_kses(
@@ -687,7 +641,7 @@ if ( ! defined( 'W3TC' ) ) {
 									'Always ignore the specified pages / directories. Supports regular expressions (See %1$s%2$sFAQ%3$s%4$s)',
 									'w3-total-cache'
 								),
-								'<a href="' . esc_url( 'https://github.com/W3EDGE/w3-total-cache/wiki/FAQ:-Usage#which-textareas-for-file-entries-support-regular-expressions' ) . '">',
+								'<a href="' . esc_url( 'https://github.com/BoldGrid/w3-total-cache/wiki/FAQ:-Usage#which-textareas-for-file-entries-support-regular-expressions' ) . '">',
 								'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
 								'</acronym>',
 								'</a>'
@@ -827,7 +781,6 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php endif; ?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'pagecache_advanced' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Note(s)', 'w3-total-cache' ), '', 'notes' ); ?>
@@ -900,5 +853,3 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
-
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

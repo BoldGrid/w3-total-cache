@@ -21,7 +21,7 @@ class ObjectCache_Environment {
 		$exs = new Util_Environment_Exceptions();
 
 		try {
-			$addin_required = $config->get_boolean( 'objectcache.enabled' );
+			$addin_required = $config->getf_boolean( 'objectcache.enabled' );
 			$addin_required = apply_filters( 'w3tc_objectcache_addin_required',
 				$addin_required );
 
@@ -43,7 +43,7 @@ class ObjectCache_Environment {
 	 * @throws Util_Environment_Exceptions
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
-		if ( $config->get_boolean( 'objectcache.enabled' ) &&
+		if ( $config->getf_boolean( 'objectcache.enabled' ) &&
 			$config->get_string( 'objectcache.engine' ) == 'file' ) {
 			if ( !wp_next_scheduled( 'w3_objectcache_cleanup' ) ) {
 				wp_schedule_event( time(),

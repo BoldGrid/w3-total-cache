@@ -511,7 +511,7 @@ class Minify_MinifiedFileRequestHandler {
 		try {
 			$files = Minify_Core::minify_filename_to_urls_for_minification(
 				$hash, $type );
-		} catch ( Exception $e ) {
+		} catch ( \Exception $e ) {
 			$files = array();
 		}
 

@@ -36,7 +36,7 @@ class Cdnfsd_Plugin {
 		add_action( 'w3tc_flush_post', array(
 				'\W3TC\Cdnfsd_CacheFlush',
 				'w3tc_flush_post'
-			), 3000, 2 );
+			), 3000, 3 );
 		add_action( 'w3tc_flushable_posts', '__return_true', 3000 );
 		add_action( 'w3tc_flush_posts', array(
 				'\W3TC\Cdnfsd_CacheFlush',

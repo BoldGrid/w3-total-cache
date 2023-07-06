@@ -39,27 +39,6 @@ if ( ! defined( 'W3TC' ) ) {
 		?>
 	</p>
 	<p>
-		<?php
-		echo wp_kses(
-			sprintf(
-				// translators: 1 HTML submit button to rebuild minify cache.
-				__(
-					'To rebuild the minify cache use the %1$s operation.',
-					'w3-total-cache'
-				),
-				Util_Ui::nonce_field( 'w3tc' ) . '<input type="submit" name="w3tc_flush_minify" value="' . esc_attr__( 'empty cache', 'w3-total-cache' ) . '"' . disabled( $minify_enabled, false, false ) . ' class="button" />'
-			),
-			array(
-				'input' => array(
-					'type'     => array(),
-					'name'     => array(),
-					'value'    => array(),
-					'disabled' => array(),
-					'class'    => array(),
-				),
-			)
-		);
-		?>
 		<?php if ( ! $auto ) : ?>
 			<?php esc_html_e( 'Get minify hints using the', 'w3-total-cache' ); ?>
 			<input type="button" class="button button-minify-recommendations {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" value="<?php esc_attr_e( 'help', 'w3-total-cache' ); ?>" />
@@ -87,9 +66,9 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 	</p>
-</form>
 
 <form id="minify_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'minify_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
@@ -153,7 +132,6 @@ if ( ! defined( 'W3TC' ) ) {
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -249,7 +227,6 @@ if ( ! defined( 'W3TC' ) ) {
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_html_xml' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -562,10 +539,25 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'          => '<acronym title="Hypertext Markup Language">HTTP</acronym>/2 push',
 					'control'        => 'checkbox',
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
-					'description'    => esc_html__( 'For better performance, send files to browser before they are requested when using the <acronym title="Hypertext Transfer Protocol">HTTP</acronym>/2 protocol.', 'w3-total-cache' ) .
-						(
-							'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ?
-							'' :
+					'description'    => wp_kses(
+						sprintf(
+							// translators: 1 opening HTML acronym tag for HTTP (Hypertext Transfer Protocol), 2 closing HTML acronym tag.
+							__(
+								'For better performance, send files to browser before they are requested when using the %1$sHTTP%2$s/2 protocol.',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Hypertext Transfer Protocol', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					) . (
+						'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ?
+						'' :
+						wp_kses(
 							sprintf(
 								// translators: 1 HTML line break tag followed by opening HTML b tag, 2 closing HTML b tag.
 								__(
@@ -574,14 +566,18 @@ if ( ! defined( 'W3TC' ) ) {
 								),
 								'<br /><b>',
 								'</b>'
+							),
+							array(
+								'br' => array(),
+								'b'  => array(),
 							)
+						)
 					),
 				)
 			);
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_js' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -629,7 +625,7 @@ if ( ! defined( 'W3TC' ) ) {
 			Util_Ui::config_item(
 				array(
 					'key'              => 'minify.css.method',
-					'label'            => 'Minify method:',
+					'label'            => __( 'Minify method:', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
 						'both'    => array(
@@ -819,6 +815,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'description'    => wp_kses(
 						sprintf(
+							// translators: 1 opening HTML acronym tag for HTTP (Hypertext Transfer Protocol), 2 closing HTML acronym tag.
 							__(
 								'For better performance, send files to browser before they are requested when using the %1$sHTTP%2$s/2 protocol.',
 								'w3-total-cache'
@@ -856,7 +853,6 @@ if ( ! defined( 'W3TC' ) ) {
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_css' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
@@ -983,7 +979,6 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php endif; ?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'minify_advanced' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Note(s):', 'w3-total-cache' ), '', 'notes' ); ?>
@@ -1050,5 +1045,3 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
-
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

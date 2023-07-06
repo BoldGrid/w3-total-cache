@@ -44,8 +44,9 @@ describe('', function() {
 		log.log('opening ' + pluginUrl);
 		await page.goto(pluginUrl);
 
+		let helloWorld = '#hello-world';
 		await Promise.all([
-			page.click('#hello-world'),
+			page.evaluate((helloWorld) => document.querySelector(helloWorld).click(), helloWorld),
 			page.waitForNavigation()
 		]);
 
@@ -64,6 +65,7 @@ describe('', function() {
 		});
 
 		await adminPage.click('#referrer_add');
+
 		log.log('wait button to create elements');
 		await adminPage.waitForSelector('#referrer_groups_test_group_redirect');
 
@@ -72,8 +74,9 @@ describe('', function() {
 		await adminPage.$eval('#referrer_groups_test_group_redirect',
 			(e, v) => e.value = v, redirectedUrl);
 
+		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
-			adminPage.click('#w3tc_save_options_referrers'),
+			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
 			adminPage.waitForNavigation()
 		]);
 
@@ -87,8 +90,9 @@ describe('', function() {
 		log.log('opening ' + pluginUrl);
 		await page.goto(pluginUrl);
 
+		let helloWorld = '#hello-world';
 		await Promise.all([
-			page.click('#hello-world'),
+			page.evaluate((helloWorld) => document.querySelector(helloWorld).click(), helloWorld),
 			page.waitForNavigation()
 		]);
 

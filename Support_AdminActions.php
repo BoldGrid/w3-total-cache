@@ -43,7 +43,6 @@ class Support_AdminActions {
 			Util_Rule::get_pgcache_rules_core_path(),
 			Util_Rule::get_pgcache_rules_cache_path(),
 			Util_Rule::get_browsercache_rules_cache_path(),
-			Util_Rule::get_browsercache_rules_no404wp_path(),
 			Util_Rule::get_minify_rules_core_path(),
 			Util_Rule::get_minify_rules_cache_path()
 		);

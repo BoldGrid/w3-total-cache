@@ -46,8 +46,9 @@ describe('check that media library works when CDN is active', function() {
 
 		let fileInput = await adminPage.$('input[name=async-upload]');
 		await fileInput.uploadFile('../../plugins/image.jpg');
+		let htmlUpload = '#html-upload';
 		await Promise.all([
-			adminPage.click('#html-upload'),
+			adminPage.evaluate((htmlUpload) => document.querySelector(htmlUpload).click(), htmlUpload),
 			adminPage.waitForNavigation({timeout:0})
 		]);
 	});
@@ -57,8 +58,10 @@ describe('check that media library works when CDN is active', function() {
 		await adminPage.waitForSelector('.attachment-preview');
 		let imgs = await dom.listTagAttributes(adminPage, 'img', 'src');
 		for (let url of imgs) {
-			if (url.indexOf("image.jpg") >= 0) {
+			log.log('Found image URL: ' + url);
+			if (url.search(/image(.*?).jpg/) >= 0) {
 				imageUrl = url;
+				log.log('Using URL: ' + url);
 			}
 		}
 	});

@@ -149,11 +149,15 @@ class CacheFlush_Locally {
 
 	/**
 	 * Purges/Flushes post from page cache, varnish and cdn cache
+	 *
+	 * @param integer $post_id Post ID.
+	 * @param boolean $force   Force flag (optional).
+	 * @param array   $extras  Extras.
 	 */
-	function flush_post( $post_id, $extras = null ) {
+	function flush_post( $post_id, $force = false, $extras = null ) {
 		$do_flush = apply_filters( 'w3tc_preflush_post', true, $extras );
 		if ( $do_flush )
-			do_action( 'w3tc_flush_post', $post_id, $extras );
+			do_action( 'w3tc_flush_post', $post_id, $force, $extras );
 	}
 
 	/**
@@ -184,7 +188,7 @@ class CacheFlush_Locally {
 				add_action( 'w3tc_flush_all',
 					array( $this, 'dbcache_flush' ),
 					100, 2 );
-			if ( $config->get_boolean( 'objectcache.enabled' ) )
+			if ( $config->getf_boolean( 'objectcache.enabled' ) )
 				add_action( 'w3tc_flush_all',
 					array( $this, 'objectcache_flush' ),
 					200, 1 );

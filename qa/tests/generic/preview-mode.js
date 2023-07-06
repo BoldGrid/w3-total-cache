@@ -41,8 +41,10 @@ describe('', function() {
 
 	it('enable preview mode', async() => {
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general');
+
+		let configPreviewEnable = 'input[name=w3tc_config_preview_enable]';
 		await Promise.all([
-			adminPage.click('input[name=w3tc_config_preview_enable]'),
+			adminPage.evaluate((configPreviewEnable) => document.querySelector(configPreviewEnable).click(), configPreviewEnable),
 			adminPage.waitForNavigation()
 		]);
 
@@ -59,8 +61,10 @@ describe('', function() {
 
 	it('"deploy" changes in preview mode to usual', async() => {
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general');
+
+		let deployButton = 'input[value=Deploy]';
 		await Promise.all([
-			adminPage.click('input[value=Deploy]'),
+			adminPage.evaluate((deployButton) => document.querySelector(deployButton).click(), deployButton),
 			adminPage.waitForNavigation()
 		]);
 		expect(await adminPage.content()).contains('Preview settings successfully deployed.');

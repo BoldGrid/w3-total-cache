@@ -119,8 +119,9 @@ class Generic_Plugin {
 	 * @return void
 	 */
 	function init() {
-		// Load plugin text domain.
-		load_plugin_textdomain( W3TC_TEXT_DOMAIN, false, plugin_basename( W3TC_DIR ) . '/languages/' );
+		// Load W3TC textdomain for translations.
+		$this->reset_l10n();
+		load_plugin_textdomain( W3TC_TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
 		if ( is_multisite() && ! is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
@@ -228,19 +229,12 @@ class Generic_Plugin {
 		if ( current_user_can( $base_capability ) ) {
 			$modules = Dispatcher::component( 'ModuleStatus' );
 
-			$menu_postfix = '';
-			if ( ! is_admin() && $this->_config->get_boolean( 'widget.pagespeed.show_in_admin_bar' ) ) {
-				$menu_postfix = ' <span id="w3tc_monitoring_score">...</span>';
-				add_action( 'wp_after_admin_bar_render', array( $this, 'wp_after_admin_bar_render' ) );
-			}
-
 			$menu_items = array();
 
 			$menu_items['00010.generic'] = array(
 				'id'    => 'w3tc',
 				'title' => sprintf(
-					'<span class="w3tc-icon ab-icon"></span><span class="ab-label">%s</span>' .
-					$menu_postfix,
+					'<span class="w3tc-icon ab-icon"></span><span class="ab-label">%s</span>',
 					__( 'Performance', 'w3-total-cache' )
 				),
 				'href'  => wp_nonce_url(
@@ -266,7 +260,7 @@ class Generic_Plugin {
 						'parent' => 'w3tc',
 						'title'  => __( 'Purge Current Page', 'w3-total-cache' ),
 						'href'   => wp_nonce_url(
-							admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_post&amp;post_id=' . Util_Environment::detect_post_id() ),
+							admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_post&amp;post_id=' . Util_Environment::detect_post_id() . '&force=true' ),
 							'w3tc'
 						),
 					);
@@ -361,21 +355,6 @@ class Generic_Plugin {
 				}
 			}
 		}
-	}
-
-	public function wp_after_admin_bar_render() {
-		$url = admin_url( 'admin-ajax.php', 'relative' ) .
-			'?action=w3tc_monitoring_score&' .
-			md5( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
-
-		?>
-		<script type= "text/javascript">
-			var w3tc_monitoring_score = document.createElement('script');
-			w3tc_monitoring_score.type = 'text/javascript';
-			w3tc_monitoring_score.src = '<?php echo esc_url( $url ); ?>';
-			document.getElementsByTagName('HEAD')[0].appendChild(w3tc_monitoring_score);
-		</script>
-		<?php
 	}
 
 	/**
@@ -669,7 +648,7 @@ class Generic_Plugin {
 	private function is_debugging() {
 		$debug = $this->_config->get_boolean( 'pgcache.enabled' ) && $this->_config->get_boolean( 'pgcache.debug' );
 		$debug = $debug || ( $this->_config->get_boolean( 'dbcache.enabled' ) && $this->_config->get_boolean( 'dbcache.debug' ) );
-		$debug = $debug || ( $this->_config->get_boolean( 'objectcache.enabled' ) && $this->_config->get_boolean( 'objectcache.debug' ) );
+		$debug = $debug || ( $this->_config->getf_boolean( 'objectcache.enabled' ) && $this->_config->get_boolean( 'objectcache.debug' ) );
 		$debug = $debug || ( $this->_config->get_boolean( 'browsercache.enabled' ) && $this->_config->get_boolean( 'browsercache.debug' ) );
 		$debug = $debug || ( $this->_config->get_boolean( 'minify.enabled' ) && $this->_config->get_boolean( 'minify.debug' ) );
 		$debug = $debug || ( $this->_config->get_boolean( 'cdn.enabled' ) && $this->_config->get_boolean( 'cdn.debug' ) );
@@ -679,5 +658,18 @@ class Generic_Plugin {
 
 	public function pro_dev_mode() {
 		echo '<!-- W3 Total Cache is currently running in Pro version Development mode. --><div style="border:2px solid red;text-align:center;font-size:1.2em;color:red"><p><strong>W3 Total Cache is currently running in Pro version Development mode.</strong></p></div>';
+	}
+
+	/**
+	 * Reset the l10n global variables for our text domain.
+	 *
+	 * @return void
+	 *
+	 * @since 2.2.8
+	 */
+	public function reset_l10n() {
+		global $l10n;
+
+		unset( $l10n['w3-total-cache'] );
 	}
 }

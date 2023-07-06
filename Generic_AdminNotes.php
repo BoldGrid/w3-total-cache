@@ -29,7 +29,7 @@ class Generic_AdminNotes {
 		if ( ! W3TC_WIN && ! $state_master->get_boolean( 'common.hide_note_wp_content_permissions' ) ) {
 			$wp_content_mode = Util_File::get_file_permissions( WP_CONTENT_DIR );
 
-			if ( $wp_content_mode > 0755 ) {
+			if ( $wp_content_mode > 755 ) {
 				$notes['generic_wp_content_writeable'] = wp_kses(
 					sprintf(
 						// translators: 1: HTML strong tag for current WP directory, 2: HTML strong tag for CHMOD instruction for current WP directory,
@@ -40,7 +40,7 @@ class Generic_AdminNotes {
 						),
 						'<strong>' . WP_CONTENT_DIR . '</strong>',
 						'<strong>chmod 755 ' . WP_CONTENT_DIR . '</strong>',
-						base_convert( Util_File::get_file_permissions( WP_CONTENT_DIR ), 10, 8 ),
+						$wp_content_mode,
 						Util_Ui::button_hide_note2(
 							array(
 								'w3tc_default_config_state_master' => 'y',

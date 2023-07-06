@@ -21,8 +21,9 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 
 <form id="cachegroups_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'cachegroups_form_control' ); ?>
 
-<!-- User Agenet Groups -->
+	<!-- User Agenet Groups -->
 
 	<script type="text/javascript">/*<![CDATA[*/
 	var mobile_themes = {};
@@ -56,7 +57,7 @@ if ( ! defined( 'W3TC' ) ) {
 						<td>
 							<span class="mobile_group_number"><?php echo esc_attr( $index ); ?>.</span> <span class="mobile_group"><?php echo esc_html( $group ); // phpcs:ignore ?></span>
 							<input type="button" class="button mobile_delete"
-								value="Delete group"
+								value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>"
 								<?php disabled( $useragent_groups['disabled'] ); ?> />
 						</td>
 					</tr>
@@ -124,10 +125,6 @@ if ( ! defined( 'W3TC' ) ) {
 		<div id="mobile_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All user agents recieve the same page and minify cache results.', 'w3-total-cache' ); ?></div>
 
 		<?php
-		if ( ! $useragent_groups['disabled'] ) {
-			Util_Ui::button_config_save( 'mobile' );
-		}
-
 		Util_Ui::postbox_footer();
 
 		Util_Ui::postbox_header(
@@ -228,7 +225,6 @@ if ( ! defined( 'W3TC' ) ) {
 		</ul>
 		<div id="referrer_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All referrers recieve the same page and minify cache results.', 'w3-total-cache' ); ?></div>
 
-		<?php Util_Ui::button_config_save( 'referrers' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 
@@ -259,7 +255,7 @@ if ( ! defined( 'W3TC' ) ) {
 							<span class="cookiegroup_number"><?php echo esc_attr( $index ); ?>.</span>
 							<span class="cookiegroup_name"><?php echo htmlspecialchars( $group ); // phpcs:ignore ?></span>
 							<input type="button" class="button w3tc_cookiegroup_delete"
-								value="Delete group"
+								value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>"
 								<?php disabled( $cookie_groups['disabled'] ); ?> />
 						</td>
 					</tr>
@@ -313,10 +309,6 @@ if ( ! defined( 'W3TC' ) ) {
 		<div id="cookiegroups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All Cookies recieve the same page and minify cache results.', 'w3-total-cache' ); ?></div>
 
 		<?php
-		if ( ! $cookie_groups['disabled'] ) {
-			Util_Ui::button_config_save( 'pgcache_cookiegroups' );
-		}
-
 		Util_Ui::postbox_footer();
 
 		Util_Ui::postbox_header(

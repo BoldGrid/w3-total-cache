@@ -7,7 +7,7 @@ class ObjectCache_Plugin_Admin {
 		add_filter( 'w3tc_config_labels', array( $config_labels, 'config_labels' ) );
 
 		$c = Dispatcher::config();
-		if ( $c->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $c->getf_boolean( 'objectcache.enabled' ) ) {
 			add_filter( 'w3tc_errors', array( $this, 'w3tc_errors' ) );
 			add_filter( 'w3tc_notes', array( $this, 'w3tc_notes' ) );
 			add_filter( 'w3tc_usage_statistics_summary_from_history', array(
@@ -23,8 +23,14 @@ class ObjectCache_Plugin_Admin {
 		if ( $c->get_string( 'objectcache.engine' ) == 'memcached' ) {
 			$memcached_servers = $c->get_array(
 				'objectcache.memcached.servers' );
+			$memcached_binary_protocol = $c->get_boolean(
+				'objectcache.memcached.binary_protocol' );
+			$memcached_username = $c->get_string(
+				'objectcache.memcached.username' );
+			$memcached_password = $c->get_string(
+				'objectcache.memcached.password' );
 
-			if ( !Util_Installed::is_memcache_available( $memcached_servers ) ) {
+			if ( !Util_Installed::is_memcache_available( $memcached_servers, $memcached_binary_protocol, $memcached_username, $memcached_password ) ) {
 				if ( !isset( $errors['memcache_not_responding.details'] ) )
 					$errors['memcache_not_responding.details'] = array();
 

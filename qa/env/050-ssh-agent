@@ -1,5 +1,3 @@
 pkill ssh-agent
 eval `ssh-agent -s`
-
-ssh-add ./key-aws-w3tcqa.pem
 ssh-add ~/.ssh/id_rsa
