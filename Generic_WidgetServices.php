@@ -76,37 +76,4 @@ class Generic_WidgetServices {
 
 		include  W3TC_DIR . '/Generic_WidgetServices_View.php';
 	}
-
-/*
-		wp_enqueue_style( 'w3tc-widget-newrelic',
-			plugins_url( 'Extension_NewRelic_Widget_View.css', W3TC_FILE ),
-			array(), W3TC_VERSION );
-
-		if ( Util_Admin::get_current_wp_page() == 'w3tc_dashboard' )
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
-
-		$this->_json_request_types = array(
-			'email_support' => sprintf( __( 'Less than 15 Minute Email Support Response %s', 'w3-total-cache' ), '(M-F 9AM - 5PM EDT): $175 USD' ),
-			'phone_support' => sprintf( __( 'Less than 15 Minute Phone Support Response %s', 'w3-total-cache' ), '(M-F 9AM - 5PM EDT): $250 USD' ),
-			'plugin_config' => sprintf( __( 'Professional Plugin Configuration %s', 'w3-total-cache' ), 'Starting @ $200 USD' ),
-			'theme_config' => sprintf( __( 'Theme Performance Optimization & Plugin Configuration %s', 'w3-total-cache' ), 'Starting @ $350 USD' ),
-			'linux_config' => sprintf( __( 'Linux Server Optimization & Plugin Configuration %s', 'w3-total-cache' ), 'Starting @ $450 USD' )
-		);
-		$this->_request_types = array(
-			'email_support' => sprintf( __( 'Less than 15 Minute Email Support Response %s', 'w3-total-cache' ), '<br /><span>(M-F 9AM - 5PM EDT): $175 USD</span>' ),
-			'phone_support' => sprintf( __( 'Less than 15 Minute Phone Support Response %s', 'w3-total-cache' ), '<br /><span>(M-F 9AM - 5PM EDT): $250 USD</span>' ),
-			'plugin_config' => sprintf( __( 'Professional Plugin Configuration %s', 'w3-total-cache' ), '<br /><span>Starting @ $200 USD</span>' ),
-			'theme_config' => sprintf( __( 'Theme Performance Optimization & Plugin Configuration %s', 'w3-total-cache' ), '<br /><span>Starting @ $350 USD</span>' ),
-			'linux_config' => sprintf( __( 'Linux Server Optimization & Plugin Configuration %s', 'w3-total-cache' ), '<br /><span>Starting @ $450 USD</span>' )
-		);
-
-	function widget_form() {
-		include W3TC_INC_WIDGET_DIR . '/services.php';
-	}
-
-	public function enqueue() {
-		wp_enqueue_style( 'w3tc-widget' );
-		wp_enqueue_script( 'w3tc-metadata' );
-		wp_enqueue_script( 'w3tc-widget' );
-	}*/
 }

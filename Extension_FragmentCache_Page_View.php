@@ -31,7 +31,7 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 	<?php endif; ?>
 
 	<?php Util_Ui::pro_wrap_maybe_end2( 'fragmentcache_header' ); ?>
-<p>
+</p>
 
 <form action="admin.php?page=w3tc_fragmentcache" method="post">
 	<?php Util_UI::print_control_bar( 'extension_fragmentcache_form_control' ); ?>

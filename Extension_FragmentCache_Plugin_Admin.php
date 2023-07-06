@@ -111,7 +111,7 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_admin_bar_menu( $menu_items ) {
-		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) ) {
+		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			$menu_items['20510.fragmentcache'] = array(
 				'id' => 'w3tc_flush_fragmentcache',
 				'parent' => 'w3tc_flush',
