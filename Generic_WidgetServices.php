@@ -1,16 +1,20 @@
 <?php
-namespace W3TC;
 /**
- * W3 Forum Widget
+ * File: Generic_WidgetServices.php
+ *
+ * @package W3TC
  */
 
-
+namespace W3TC;
 
 /**
  * Class Generic_Plugin_WidgetServices
  */
 class Generic_WidgetServices {
-	function __construct() {
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
 	}
 
 	/**
@@ -18,62 +22,47 @@ class Generic_WidgetServices {
 	 *
 	 * @return void
 	 */
-	static public function admin_init_w3tc_dashboard() {
+	public static function admin_init_w3tc_dashboard() {
 		$o = new Generic_WidgetServices();
-
 		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 5000 );
-		add_action( 'w3tc_network_dashboard_setup',
-			array( $o, 'wp_dashboard_setup' ), 5000 );
+		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 5000 );
 	}
 
-	function wp_dashboard_setup() {
-		Util_Widget::add( 'w3tc_services',
-			'<div class="w3tc-widget-w3tc-logo"></div>' .
-			'<div class="w3tc-widget-text">' .
-			__( 'Premium Services', 'w3-total-cache' ) .
-			'</div>',
+	/**
+	 * W3TC dashboard Premium Services widget.
+	 */
+	public function wp_dashboard_setup() {
+		Util_Widget::add(
+			'w3tc_services',
+			'<div class="w3tc-widget-w3tc-logo"></div><div class="w3tc-widget-text">' . __( 'Premium Services', 'w3-total-cache' ) . '</div>',
 			array( $this, 'widget_form' ),
-			null, 'normal' );
+			null,
+			'normal'
+		);
 	}
 
-
-
-	public function load_request_types() {
-		$v = get_site_option( 'w3tc_generic_widgetservices' );
-		try {
-			$v = json_decode( $v, true );
-			if ( isset( $v['items'] ) && isset( $v['expires'] ) &&
-				$v['expires'] > time() )
-				return $v['items'];
-		} catch ( \Exception $e ) {
-		}
-
-
-		$result = wp_remote_request( W3TC_SUPPORT_SERVICES_URL,
-			array( 'method' => 'GET' ) );
-
-		if ( is_wp_error( $result ) )
-			return null;
-
-		$response_json = json_decode( $result['body'], true );
-
-		if ( is_null( $response_json ) || !isset( $response_json['items'] ) )
-			return null;
-
-		update_site_option( 'w3tc_generic_widgetservices',
-			json_encode( array(
-				'content' => $response_json,
-				'expires' => time() + 3600 * 24 * 7
-			) ) );
-
-		return $response_json['items'];
-	}
-
-
-
+	/**
+	 * Premium Services widget content.
+	 */
 	public function widget_form() {
-		$items = $this->load_request_types();
+		include W3TC_DIR . '/Generic_WidgetServices_View.php';
+	}
 
-		include  W3TC_DIR . '/Generic_WidgetServices_View.php';
+	/**
+	 * Premium Services widget services list.
+	 */
+	public static function get_services() {
+		return array(
+			__( 'Billing Support', 'w3-total-cache' ),
+			__( 'Sales Questions', 'w3-total-cache' ),
+			__( 'Submit a Bug Report', 'w3-total-cache' ),
+			__( 'Suggest a New Feature', 'w3-total-cache' ),
+			__( 'Performance Audit & Consultation', 'w3-total-cache' ),
+			__( 'Plugin Configuration', 'w3-total-cache' ),
+			__( 'CDN Configuration: Full-Site Delivery', 'w3-total-cache' ),
+			__( 'Hosting Environment Troubleshooting', 'w3-total-cache' ),
+			__( 'Eliminate render-blocking Javascripts', 'w3-total-cache' ),
+			__( 'Investigate Compatibility Issue', 'w3-total-cache' ),
+		);
 	}
 }
