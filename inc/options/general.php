@@ -345,7 +345,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			Util_Ui::config_item_engine( array( 'key' => 'dbcache.engine' ) );
 			?>
 
-			<?php if ( $is_pro && is_network_admin() ) : ?>
+			<?php if ( $is_pro ) : ?>
 				<?php require W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster_general_section.php'; ?>
 			<?php endif; ?>
 		</table>

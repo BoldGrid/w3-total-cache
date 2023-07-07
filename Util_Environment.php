@@ -173,8 +173,8 @@ class Util_Environment {
 	 *
 	 * @return bool
 	 */
-	public static function is_dbcluster() {
-		if ( ! defined( 'W3TC_PRO' ) || ! W3TC_PRO ) {
+	public static function is_dbcluster( $config ) {
+		if ( !self::is_w3tc_pro( $config ) ) {
 			return false;
 		}
 
