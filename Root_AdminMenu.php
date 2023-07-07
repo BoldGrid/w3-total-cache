@@ -218,6 +218,7 @@ class Root_AdminMenu {
 		if ( ! empty( Util_Request::get_string( 'w3tc_dbcluster_config' ) ) ) {
 			$options_dbcache = new DbCache_Page();
 			$options_dbcache->dbcluster_config();
+			return;
 		}
 
 		/**

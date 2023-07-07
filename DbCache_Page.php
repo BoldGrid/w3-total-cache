@@ -30,7 +30,7 @@ class DbCache_Page extends Base_Page_Settings {
 	 */
 	function dbcluster_config() {
 		$this->_page = 'w3tc_dbcluster_config';
-		if ( Util_Environment::is_dbcluster() )
+		if ( Util_Environment::is_dbcluster( $this->_config ) )
 			$content = @file_get_contents( W3TC_FILE_DB_CLUSTER_CONFIG );
 		else
 			$content = @file_get_contents( W3TC_DIR . '/ini/dbcluster-config-sample.php' );
