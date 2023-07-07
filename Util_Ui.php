@@ -342,6 +342,21 @@ class Util_Ui {
 			</button>
 			<div class="dropdown-menu dropdown-menu-right">
 				<?php
+				$actions = apply_filters( 'w3tc_dashboard_actions', array() );
+				foreach ( $actions as $action ) {
+					echo wp_kses(
+						$action,
+						array(
+							'input' => array(
+								'class'    => array(),
+								'disabled' => array(),
+								'name'     => array(),
+								'type'     => array(),
+								'value'    => array(),
+							),
+						)
+					);
+				}
 				if ( $config->get_boolean( 'pgcache.enabled' ) ) {
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_html__( 'Empty Page Cache', 'w3-total-cache' ) . '"/>';
 				}

@@ -294,12 +294,12 @@ class Extension_CloudFlare_Plugin_Admin {
 		$can_empty_file     = $modules->can_empty_file();
 		$can_empty_varnish  = $modules->can_empty_varnish();
 
-		$actions[] = __( ' or ', 'w3-total-cache' ) . '<input id="flush_all_except_cf" class="button" type="submit"
-			 name="w3tc_cloudflare_flush_all_except_cf" value="' . __( 'empty all caches except CloudFlare', 'w3-total-cache' ) . '"' .
-			(
-				( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! esc_attr( $can_empty_varnish ) ) ?
-				'disabled="disabled"' : ''
-			) . '> at once';
+		$actions[] = sprintf(
+			'<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush_all_except_cf" value="%1$s"%2$s>',
+			esc_attr__( 'Empty All Caches Except CloudFlare', 'w3-total-cache' ),
+			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! esc_attr( $can_empty_varnish ) )
+				? ' disabled="disabled"' : ''
+		);
 
 		return $actions;
 	}

@@ -54,27 +54,14 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 <form id="w3tc_dashboard" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<?php
 	echo wp_kses(
-	    Util_Ui::nonce_field( 'w3tc' ),
-	    array(
-	        'input' => array(
-	                'type'  => array(),
-	                'name'  => array(),
-	                'value' => array(),
-	        ),
-	    )
-	);
-	echo wp_kses(
-    	apply_filters( 'w3tc_dashboard_actions', array() ),
-    	array(
-            'input' => array(
-                'class'    => array(),
-                'disabled' => array(),
-                'id'       => array(),
-                'name'     => array(),
-                'type'     => array(),
-                'value'    => array(),
-            ),
-    	)
+		Util_Ui::nonce_field( 'w3tc' ),
+		array(
+			'input' => array(
+				'type'  => array(),
+				'name'  => array(),
+				'value' => array(),
+			),
+		)
 	);
 	?>
 	<div id="w3tc-dashboard-widgets" class="clearfix widefat metabox-holder">
