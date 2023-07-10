@@ -790,7 +790,7 @@ class Cdn_Plugin {
 			$menu_items['20710.cdn'] = array(
 				'id'     => 'w3tc_cdn_flush_all',
 				'parent' => 'w3tc_flush',
-				'title'  => __( 'CDN: All', 'w3-total-cache' ),
+				'title'  => __( 'CDN Cache', 'w3-total-cache' ),
 				'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_cdn&amp;w3tc_flush_cdn' ), 'w3tc' ),
 			);
 		}

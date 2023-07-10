@@ -5,6 +5,8 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
+$config = Dispatcher::config();
+
 Util_Ui::postbox_header_tabs(
 	esc_html__( 'Fragment Cache', 'w3-total-cache' ),
 	esc_html__(
@@ -24,13 +26,18 @@ Util_Ui::postbox_header_tabs(
 
 <table class="form-table">
 	<?php
-	Util_Ui::config_item_engine(
-		array(
-			'key'         => array( 'fragmentcache', 'engine' ),
-			'label'       => __( 'Fragment Cache Method:', 'w3-total-cache' ),
-			'empty_value' => true,
-		)
+	$fragmentcache_config = array(
+		'key'         => array( 'fragmentcache', 'engine' ),
+		'label'       => __( 'Fragment Cache Method:', 'w3-total-cache' ),
+		'empty_value' => true,
+		'pro'         => true,
 	);
+
+	if ( ! $config->is_extension_active_frontend( 'fragmentcache' ) || ! Util_Environment::is_w3tc_pro( $config ) ) {
+		$fragmentcache_config['disabled'] = true;
+	}
+
+	Util_Ui::config_item_engine( $fragmentcache_config );
 	?>
 </table>
 

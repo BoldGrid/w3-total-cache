@@ -231,7 +231,7 @@ class Extensions_Plugin_Admin {
 
 			if ( isset( $info['notice'] ) && get_transient( $transient_name ) ) {
 				?>
-				<div class="notice notice-warning is-dismissible">
+				<div class="notice notice-warning inline is-dismissible">
 					<p>
 				<?php
 				echo wp_kses(

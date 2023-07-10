@@ -74,7 +74,11 @@ $menu_array = array(
 			'text' => __( 'Setup Guide', 'w3-total-cache' ),
 		),
 	),
-	'about'    => array(
+	'info'    => array(
+		array(
+			'url'  => Util_UI::admin_url( 'admin.php?page=w3tc_about' ),
+			'text' => __( 'About', 'w3-total-cache' ),
+		),
 		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_feature_showcase' ),
 			'text' => __( 'Feature Showcase', 'w3-total-cache' ),
@@ -82,6 +86,11 @@ $menu_array = array(
 		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_install' ),
 			'text' => __( 'Install', 'w3-total-cache' ),
+		),
+		array(
+			'url'   => '#',
+			'text'  => __( 'Compatibility Test', 'w3-total-cache' ),
+			'class' => 'button-self-test',
 		),
 		array(
 			'url'      => 'https://api.w3-edge.com/v1/redirects/faq',
@@ -124,15 +133,16 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				<?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?>
 			</a>
 			<div class="w3tc-top-nav-dropdown">
-				<a class="w3tc-top-nav-settings" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_general' ) ); ?>" alt="<?php esc_attr_e( 'Settings', 'w3-total-cache' ); ?>">
+				<a class="w3tc-top-nav-settings no-link" href="#" alt="<?php esc_attr_e( 'Settings', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Settings', 'w3-total-cache' ); ?><span class="dashicons dashicons-arrow-down-alt2"></span>
 				</a>
 				<div id="w3tc-top-nav-settings-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
 					foreach ( $menu_array['settings'] as $entry ) {
 						$output = sprintf(
-							// translators: 1 link href URL , 2 link alt text, 3 link target, 4 link text, 5 link text dashicon.
-							'<a href="%1$s" alt="%2$s"%3$s>%4$s%5$s</a>',
+							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
+							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
+							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ': '',
 							esc_url( $entry['url'] ),
 							esc_attr( $entry['text'] ),
 							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
@@ -145,15 +155,16 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				</div>
 			</div>
 			<div class="w3tc-top-nav-dropdown">
-				<a class="w3tc-top-nav-tools" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_extensions' ) ); ?>" alt="<?php esc_attr_e( 'Tools', 'w3-total-cache' ); ?>">
+				<a class="w3tc-top-nav-tools no-link" href="#" alt="<?php esc_attr_e( 'Tools', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Tools', 'w3-total-cache' ); ?><span class="dashicons dashicons-arrow-down-alt2"></span>
 				</a>
 				<div id="w3tc-top-nav-tools-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
 					foreach ( $menu_array['tools'] as $entry ) {
 						$output = sprintf(
-							// translators: 1 link href URL , 2 link alt text, 3 link target, 4 link text, 5 link text dashicon.
-							'<a href="%1$s" alt="%2$s"%3$s>%4$s%5$s</a>',
+							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
+							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
+							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ': '',
 							esc_url( $entry['url'] ),
 							esc_attr( $entry['text'] ),
 							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
@@ -166,15 +177,16 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				</div>
 			</div>
 			<div class="w3tc-top-nav-dropdown">
-				<a class="w3tc-top-nav-about" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_about' ) ); ?>" alt="<?php esc_attr_e( 'About', 'w3-total-cache' ); ?>">
-					<?php esc_html_e( 'About', 'w3-total-cache' ); ?><span class="dashicons dashicons-arrow-down-alt2"></span>
+				<a class="w3tc-top-nav-info no-link" href="#" alt="<?php esc_attr_e( 'Info', 'w3-total-cache' ); ?>">
+					<?php esc_html_e( 'Info', 'w3-total-cache' ); ?><span class="dashicons dashicons-arrow-down-alt2"></span>
 				</a>
-				<div id="w3tc-top-nav-about-menu" class="w3tc-top-nav-dropdown-content">
+				<div id="w3tc-top-nav-info-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
-					foreach ( $menu_array['about'] as $entry ) {
+					foreach ( $menu_array['info'] as $entry ) {
 						$output = sprintf(
-							// translators: 1 link href URL , 2 link alt text, 3 link target, 4 link text, 5 link text dashicon.
-							'<a href="%1$s" alt="%2$s"%3$s>%4$s%5$s</a>',
+							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
+							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
+							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ': '',
 							esc_url( $entry['url'] ),
 							esc_attr( $entry['text'] ),
 							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),

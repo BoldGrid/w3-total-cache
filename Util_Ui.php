@@ -208,11 +208,11 @@ class Util_Ui {
 		$display_id         = ( ! empty( $id ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
 		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
-		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
+		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
 		
 		$extra_link_tabs = '';
 		foreach ( $extra_links as $extra_link_text => $extra_link ) {
-			$extra_link_tabs .= '<a class="nav-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>';
+			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>';
 		}
 
 		echo '<div' . $display_id . ' class="postbox-tabs ' . esc_attr( $class ) . '">
@@ -265,70 +265,132 @@ class Util_Ui {
 	}
 
 	public static function button_config_save_dropdown( $id = '', $extra = '' ) {
-		$b1_id = 'w3tc_save_options_' . $id;
-		$b2_id = 'w3tc_default_save_and_flush_' . $id;
-
-		$config = Dispatcher::config();
-
 		?>
 		<div class="w3tc-button-control-container">
 			<?php
-			$nonce_field = self::nonce_field( 'w3tc' );
-			echo wp_kses(
-				$nonce_field,
-				self::get_allowed_html_for_wp_kses_from_content( $nonce_field )
-			);
-			echo wp_kses(
-				$extra,
-				self::get_allowed_html_for_wp_kses_from_content( $extra )
-			);
+			self::print_save_split_button( $id, $extra );
+			self::print_flush_split_button();
 			?>
-			<div class="btn-group w3tc-button-save-dropdown">
-				<input type="submit" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save settings', 'w3-total-cache' ); ?>"/>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Prints the split button for saving setting.
+	 *
+	 * @param string $id     ID value.
+	 * @param string $extra Extra values.
+	 * @return void
+	 */
+	public static function print_save_split_button( $id = '', $extra = '' ) {
+		$b1_id = 'w3tc_save_options_' . $id;
+		$b2_id = 'w3tc_default_save_and_flush_' . $id;
+
+		$nonce_field = self::nonce_field( 'w3tc' );
+		echo wp_kses(
+			$nonce_field,
+			self::get_allowed_html_for_wp_kses_from_content( $nonce_field )
+		);
+
+		echo wp_kses(
+			$extra,
+			self::get_allowed_html_for_wp_kses_from_content( $extra )
+		);
+
+		?>
+		<div class="btn-group w3tc-button-save-dropdown">
+			<?php
+			if ( ! is_network_admin() ) {
+				?>
+				<input type="submit" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
 				<button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<span class="sr-only">Toggle Dropdown</span>
 				</button>
 				<div class="dropdown-menu dropdown-menu-right">
-					<?php
-					if ( ! is_network_admin() ) {
-						echo '<input type="submit" id="' . esc_attr( $b2_id ) . '" class="w3tc-button-save dropdown-item" name="w3tc_default_save_and_flush" value="' . esc_html__( 'Save Settings & Purge Caches', 'w3-total-cache' ) . '"/>';
-					}
-					?>
+					<input type="submit" id="<?php echo esc_attr( $b2_id ); ?>" class="w3tc-button-save dropdown-item" name="w3tc_default_save_and_flush" value="<?php esc_html_e( 'Save Settings & Purge Caches', 'w3-total-cache' ); ?>"/>
 				</div>
-			</div>
-			<div class="btn-group w3tc-button-flush-dropdown">
-			  	<input type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>"/>
-			  	<button type="button" class="btn btn-light btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			  	  	<span class="sr-only">Toggle Dropdown</span>
-			  	</button>
-			  	<div class="dropdown-menu dropdown-menu-right">
-			  		<?php
-					if ( $config->get_boolean( 'pgcache.enabled' ) ) {
-						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_html__( 'Empty Page Cache', 'w3-total-cache' ) . '"/>';
-					}
-					if ( $config->get_boolean( 'minify.enabled' ) ) {
-						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_minify" value="' . esc_html__( 'Empty Minify Cache', 'w3-total-cache' ) . '"/>';
-					}
-					if ( $config->get_boolean( 'dbcache.enabled' ) ) {
-						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_html__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
-					}
-					if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
-						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
-					}
-					if ( $config->get_boolean( 'cdn.enabled' ) ) {
-						$disable = $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ';
-						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
-					}
-					if ( $config->get_boolean( 'fragmentcache.enabled' ) ) {
-						echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_html__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
-					}
-					$opcode_enabled = ( Util_Installed::opcache() || Util_Installed::apc_opcache() );
-					if ( $opcode_enabled ) {
-						$disable = $opcode_enabled ? '' : ' disabled="disabled" ';
-						echo '<input type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . ' value="' . esc_html__( 'Empty OpCache Cache', 'w3-total-cache' ) . '"/>';
-					}
-					?>
-			  	</div>
+				<?php
+			} else {
+				?>
+				<input type="submit" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
+				<?php
+			}
+			?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Prints the split button for flushing caches.
+	 *
+	 * @return void
+	 */
+	public static function print_flush_split_button() {
+		$config = Dispatcher::config();
+
+		$nonce_field = self::nonce_field( 'w3tc' );
+		echo wp_kses(
+			$nonce_field,
+			self::get_allowed_html_for_wp_kses_from_content( $nonce_field )
+		);
+
+		?>
+		<div class="btn-group w3tc-button-flush-dropdown">
+			<input type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>"/>
+			<button type="button" class="btn btn-light btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<span class="sr-only">Toggle Dropdown</span>
+			</button>
+			<div class="dropdown-menu dropdown-menu-right">
+				<?php
+				$actions = apply_filters( 'w3tc_dashboard_actions', array() );
+				foreach ( $actions as $action ) {
+					echo wp_kses(
+						$action,
+						array(
+							'input' => array(
+								'class'    => array(),
+								'disabled' => array(),
+								'name'     => array(),
+								'type'     => array(),
+								'value'    => array(),
+							),
+						)
+					);
+				}
+				if ( $config->get_boolean( 'pgcache.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_html__( 'Empty Page Cache', 'w3-total-cache' ) . '"/>';
+				}
+				if ( $config->get_boolean( 'browsercache.cssjs.replace' ) || $config->get_boolean( 'browsercache.other.replace' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_browser_cache" value="' . esc_html__( 'Empty Browser Cache', 'w3-total-cache' ) . '"/>';
+				}
+				if ( $config->get_boolean( 'minify.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_minify" value="' . esc_html__( 'Empty Minify Cache', 'w3-total-cache' ) . '"/>';
+				}
+				if ( $config->get_boolean( 'dbcache.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_html__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
+				}
+				if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
+				}
+				if ( $config->get_boolean( 'cdn.enabled' ) ) {
+					$disable = $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
+				}
+				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_html__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
+				}
+				if ( $config->get_boolean( 'varnish.enabled' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_varnish" value="' . esc_html__( 'Empty Varnish Cache', 'w3-total-cache' ) . '"/>';
+				}
+				if ( $config->is_extension_active_frontend( 'cloudflare' ) ) {
+					echo '<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush" value="' . esc_html__( 'Empty CloudFlare Cache', 'w3-total-cache' ) . '"/>';
+				}
+				$opcode_enabled = ( Util_Installed::opcache() || Util_Installed::apc_opcache() );
+				if ( $opcode_enabled ) {
+					$disable = $opcode_enabled ? '' : ' disabled="disabled" ';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . ' value="' . esc_html__( 'Empty OpCode Cache', 'w3-total-cache' ) . '"/>';
+				}
+				?>
 			</div>
 		</div>
 		<?php
@@ -344,9 +406,9 @@ class Util_Ui {
 		?>
 		<div class="w3tc_form_bar">
 			<?php
-			$custom_areas = apply_filters( "w3tc_settings_general_anchors", array() );
-			Util_Ui::print_options_menu( $custom_areas );
-			Util_Ui::button_config_save_dropdown( $id );
+			$custom_areas = apply_filters( 'w3tc_settings_general_anchors', array() );
+			self::print_options_menu( $custom_areas );
+			self::button_config_save_dropdown( $id );
 			?>
 		</div>
 		<?php
@@ -390,7 +452,7 @@ class Util_Ui {
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
-				'<img src="%s" alt="W3 Total Cache" style="height:30px" />"',
+				'<img src="%s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />"',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) ) . ''
 			);
 		} else {
@@ -428,7 +490,7 @@ class Util_Ui {
 
 		if ( empty( $page_val ) || ( ! empty( $page_val ) && 'w3tc_' !== substr( $page_val, 0, 5 ) ) ) {
 			$logo = sprintf(
-				'<img src="%s" alt="W3 Total Cache" style="height:30px" />',
+				'<img src="%s" alt="W3 Total Cache" style="height:30px;padding: 10px 2px 0 2px;" />',
 				esc_url( plugins_url( '/pub/img/W3TC_dashboard_logo_title.png', W3TC_FILE ) . '' )
 			);
 		} else {
@@ -1177,21 +1239,25 @@ class Util_Ui {
 			'optgroup' => 2,
 		);
 
-		self::config_item(
-			array(
-				'key'                 => $a['key'],
-				'label'               => ( isset( $a['label'] ) ? $a['label'] : null ),
-				'disabled'            => ( isset( $a['disabled'] ) ? $a['disabled'] : null ),
-				'control'             => 'selectbox',
-				'selectbox_values'    => $values,
-				'selectbox_optgroups' => array(
-					__( 'Shared Server:', 'w3-total-cache' ),
-					__( 'Dedicated / Virtual Server:', 'w3-total-cache' ),
-					__( 'Multiple Servers:', 'w3-total-cache' ),
-				),
-				'control_after'       => isset( $a['control_after'] ) ? $a['control_after'] : null,
-			)
+		$item_engine_config = array(
+			'key'                 => $a['key'],
+			'label'               => ( isset( $a['label'] ) ? $a['label'] : null ),
+			'disabled'            => ( isset( $a['disabled'] ) ? $a['disabled'] : null ),
+			'control'             => 'selectbox',
+			'selectbox_values'    => $values,
+			'selectbox_optgroups' => array(
+				__( 'Shared Server:', 'w3-total-cache' ),
+				__( 'Dedicated / Virtual Server:', 'w3-total-cache' ),
+				__( 'Multiple Servers:', 'w3-total-cache' ),
+			),
+			'control_after'       => isset( $a['control_after'] ) ? $a['control_after'] : null,
 		);
+
+		if ( isset( $a['pro'] ) ) {
+			self::config_item_pro( $item_engine_config );
+		} else {
+			self::config_item( $item_engine_config );
+		}
 	}
 
 	public static function pro_wrap_maybe_start() {
@@ -1541,8 +1607,6 @@ class Util_Ui {
 					$links_buff[] = "<a href=\"#{$link['id']}\">{$link['text']}</a>";
 				}
 
-				$links_buff[] = '<a href="#" class="button-self-test">Compatibility Test</a>';
-
 				?>
 				<div id="w3tc-options-menu">
 					<?php
@@ -1853,6 +1917,11 @@ class Util_Ui {
 						<?php
 						break;
 				}
+			default:
+				?>
+				<div id="w3tc-options-menu"></div>
+				<?php
+				break;
 		}
 	}
 }

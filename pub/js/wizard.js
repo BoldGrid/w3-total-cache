@@ -17,7 +17,10 @@
 	$skipButton.on( 'click', skipFunction );
 
 	jQuery( window ).on( 'beforeunload', function() {
-		return W3TC_Wizard.beforeunloadText;
+		var $previousSlide = $container.find( '.w3tc-wizard-slides:visible' ).prev( '.w3tc-wizard-slides' );
+		if ( $previousSlide.length ) {
+			return W3TC_Wizard.beforeunloadText;
+		}
 	});
 
 	// Listen for clicks to go to the W3TC Dashboard.
