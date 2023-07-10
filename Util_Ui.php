@@ -279,10 +279,10 @@ class Util_Ui {
 	 * Prints the split button for saving setting.
 	 *
 	 * @param string $id     ID value.
-	 * @param string $extras Extra values.
+	 * @param string $extra Extra values.
 	 * @return void
 	 */
-	public static function print_save_split_button( $id = '', $extras = '' ) {
+	public static function print_save_split_button( $id = '', $extra = '' ) {
 		$b1_id = 'w3tc_save_options_' . $id;
 		$b2_id = 'w3tc_default_save_and_flush_' . $id;
 
@@ -302,12 +302,12 @@ class Util_Ui {
 			<?php
 			if ( ! is_network_admin() ) {
 				?>
-				<input type="submit" id="<?php echo esc_attr( $b2_id ); ?>" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_default_save_and_flush" value="<?php esc_html_e( 'Save Settings & Purge Caches', 'w3-total-cache' ); ?>"/>
+				<input type="submit" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
 				<button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<span class="sr-only">Toggle Dropdown</span>
 				</button>
 				<div class="dropdown-menu dropdown-menu-right">
-					<input type="submit" class="w3tc-button-save dropdown-item" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
+					<input type="submit" id="<?php echo esc_attr( $b2_id ); ?>" class="w3tc-button-save dropdown-item" name="w3tc_default_save_and_flush" value="<?php esc_html_e( 'Save Settings & Purge Caches', 'w3-total-cache' ); ?>"/>
 				</div>
 				<?php
 			} else {

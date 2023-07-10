@@ -159,7 +159,7 @@ class Extension_CloudFlare_Plugin_Admin {
 		$menu_items['20810.cloudflare'] = array(
 			'id'     => 'w3tc_flush_cloudflare',
 			'parent' => 'w3tc_flush',
-			'title'  => __( 'CloudFlare: All', 'w3-total-cache' ),
+			'title'  => __( 'CloudFlare', 'w3-total-cache' ),
 			'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush' ), 'w3tc' ),
 		);
 
@@ -297,7 +297,7 @@ class Extension_CloudFlare_Plugin_Admin {
 		$actions[] = sprintf(
 			'<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush_all_except_cf" value="%1$s"%2$s>',
 			esc_attr__( 'Empty All Caches Except CloudFlare', 'w3-total-cache' ),
-			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! esc_attr( $can_empty_varnish ) )
+			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish )
 				? ' disabled="disabled"' : ''
 		);
 

@@ -1215,7 +1215,7 @@ td .w3tc-control-after span {
 }
 
 .w3tc_form_bar>#w3tc-options-menu {
-	width: 60%;
+	width: 70%;
 	align-self: center;
 	padding: 5px 0;
 }
@@ -1233,7 +1233,7 @@ td .w3tc-control-after span {
 }
 
 .w3tc_form_bar>.w3tc-button-control-container {
-	width: 40%;
+	width: 30%;
 	min-width: 290px;
 	align-self: center;
 }

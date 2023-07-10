@@ -115,7 +115,7 @@ class Extension_FragmentCache_Plugin_Admin {
 			$menu_items['20510.fragmentcache'] = array(
 				'id' => 'w3tc_flush_fragmentcache',
 				'parent' => 'w3tc_flush',
-				'title' => __( 'Fragment Cache: All Fragments', 'w3-total-cache' ),
+				'title' => __( 'Fragment Cache', 'w3-total-cache' ),
 				'href' => wp_nonce_url( admin_url(
 						'admin.php?page=w3tc_dashboard&amp;w3tc_flush_fragmentcache' ), 'w3tc' )
 			);
