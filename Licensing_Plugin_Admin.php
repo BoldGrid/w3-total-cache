@@ -21,6 +21,8 @@ class Licensing_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_verify_plugin_license_key', array( $this, 'action_verify_plugin_license_key' ) );
 		add_action( 'w3tc_config_ui_save-w3tc_general', array( $this, 'possible_state_change' ), 2, 10 );
 
+		add_action( 'w3tc_message_action_licensing_upgrade', array( $this, 'w3tc_message_action_licensing_upgrade' ) );
+
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
 	}
 
@@ -45,9 +47,9 @@ class Licensing_Plugin_Admin {
 						),
 					)
 				),
-				'href'   => esc_url( 'https://www.boldgrid.com/w3-total-cache/' ),
-				'meta'   => array(
-					'target' => '_blank',
+				'href'   => wp_nonce_url(
+					network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ),
+					'w3tc'
 				),
 			);
 		}
@@ -57,10 +59,7 @@ class Licensing_Plugin_Admin {
 				'id'     => 'w3tc_debug_overlay_upgrade',
 				'parent' => 'w3tc_debug_overlays',
 				'title'  => esc_html__( 'Upgrade', 'w3-total-cache' ),
-				'href'   => esc_url( 'https://www.boldgrid.com/w3-total-cache/' ),
-				'meta'   => array(
-					'target' => '_blank',
-				),
+				'href'   => wp_nonce_url( network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=licensing_upgrade' ), 'w3tc' ),
 			);
 		}
 
@@ -164,21 +163,25 @@ class Licensing_Plugin_Admin {
 		if ( defined( 'W3TC_PRO' ) ) {
 		} elseif ( 'no_key' === $status ) {
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
-			$ga_client_id = preg_replace( '/^.+\.(.+?\..+?)$/', '$1', $_COOKIE['_ga'] );
-			$message      = wp_kses(
+			$message = wp_kses(
 				sprintf(
 					// translators: 1 HTML input button for renewing license.
 					__(
 						'It looks like your W3 Total Cache Pro license has expired. %1$s to continue using the Pro features',
 						'w3-total-cache'
 					),
-					'<a class="button" href="' . esc_url( \W3TC\Licensing_Core::purchase_url( 'licensing_expired', $this->get_license_key(), $ga_client_id) ) . '" target="_blank">' . esc_html__( 'Renew Now', 'w3-total-cache' ) . '</a>'
+					'<input type="button" class="button button-buy-plugin" data-nonce="' .
+						wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
+						'" data-src="licensing_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />'
 				),
 				array(
-					'a' => array(
-						'class'  => array(),
-						'href'   => array(),
-						'target' => array(),
+					'input' => array(
+						'type'           => array(),
+						'class'          => array(),
+						'data-nonce'     => array(),
+						'data-renew-key' => array(),
+						'data-src'       => array(),
+						'value'          => array(),
 					),
 				)
 			);

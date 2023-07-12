@@ -111,7 +111,7 @@ class Extension_Wpml_Plugin_Admin {
 
 		$config = Dispatcher::config();
 		if ( !Util_Environment::is_w3tc_pro( $config ) )
-			$activate_text = 'Available after <a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'upgrade', 'w3-total-cache' ) . '</a>. ';
+		$activate_text = 'Available after <a href="#" class="button-buy-plugin" data-src="wpml_requirements3">upgrade</a>. ';
 		else {
 			$activate_text = sprintf( '<a class="button" href="%s">Click here</a> to try it. ',
 				Util_Ui::url( array( 'w3tc_extensions_activate' => $extension_id ) ) );

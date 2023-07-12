@@ -1093,6 +1093,7 @@ td .w3tc-control-after span {
 	margin-left: 4px;
 }
 
+#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links input.button-buy-plugin,
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button {
 	border-color: darkgreen;
 	box-shadow: 0 1px 0 darkgreen;
@@ -1101,6 +1102,8 @@ td .w3tc-control-after span {
 	box-shadow: unset;
 }
 
+#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links input.button-buy-plugin:hover,
+#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links input.button-buy-plugin:focus,
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button:hover,
 #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links a.w3tc-gopro-button:focus {
 	border-color: green;
@@ -1156,12 +1159,17 @@ td .w3tc-control-after span {
 	text-decoration: none;
 	margin-right: 5px;
 }
-
+#w3tc-footer .button-buy-plugin,
 #w3tc-footer .w3tc-gopro-button {
 	margin-top: 10px;
 	white-space: normal;
 	float: left;
 	clear: both;
+	border-color: darkgreen;
+	box-shadow: 0 1px 0 darkgreen;
+	background: green;
+	color: #fff;
+	box-shadow: unset;
 }
 
 #w3tc-footer .w3tc-footer-column-1 {

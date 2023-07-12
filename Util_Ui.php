@@ -1298,7 +1298,9 @@ class Util_Ui {
 		?>
 			</div>
 			<div class="w3tc-gopro-action">
-				<a class="button w3tc-gopro-button" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/' ); ?>" target="_blank"><?php esc_html_e( 'Learn more about Pro!', 'w3-total-cache' ); ?></a>
+				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
+					Learn more about Pro
+				</button>
 			</div>
 		</div>
 		<?php
@@ -1323,7 +1325,9 @@ class Util_Ui {
 		?>
 			</p>
 			<div style="text-align: right">
-				<a class="button w3tc-gopro-button" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/' ); ?>" target="_blank"><?php esc_html_e( 'Unlock Feature', 'w3-total-cache' ); ?></a>
+				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
+					Unlock Feature
+				</button>
 			</div>
 		</div>
 		<?php

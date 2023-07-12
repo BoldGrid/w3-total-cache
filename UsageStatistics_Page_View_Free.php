@@ -12,7 +12,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 	<div class="ustats_ad">
 		<?php require __DIR__ . '/UsageStatistics_Page_View_Ad.php'; ?>
-		<a class="button w3tc-gopro-button" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/' ); ?>" target="_blank"><?php esc_html_e( 'Upgrade', 'w3-total-cache' ); ?></a>	
+		<input type="button" class="button-primary button-buy-plugin"
+			data-src="page_stats_bottom"
+			value="<?php esc_attr_e( 'upgrade', 'w3-total-cache' ); ?>" />
 	</div>
 
 	<?php Util_Ui::postbox_footer(); ?>

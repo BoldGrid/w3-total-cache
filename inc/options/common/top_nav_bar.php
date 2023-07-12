@@ -203,7 +203,8 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 			</a>
 			<?php
 			if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
-				echo '<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '</a>';
+				echo '<input type="button" class="button-primary button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
+					data-src="top_nav_bar" value="' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '" />';
 			}
 			?>
 		</div>

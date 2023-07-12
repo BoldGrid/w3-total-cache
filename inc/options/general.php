@@ -705,7 +705,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 											'Please enter the license key provided after %1$s.',
 											'w3-total-cache'
 										),
-										'<a href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'upgrading', 'w3-total-cache' ) . '</a>'
+										'<a class="button-buy-plugin" data-src="generic_license" href="#">' . esc_html__( 'upgrading', 'w3-total-cache' ) . '</a>'
 									),
 									array(
 										'a' => array(
