@@ -77,7 +77,11 @@ foreach ( $cards as $feature_id => $card ) {
 				<div class="w3tc-card-button">
 					<?php
 					if ( $is_premium && ! $is_pro ) {
-						echo '<button class="button w3tc-gopro-button button-buy-plugin" data-src="feature_showcase">Unlock Feature</button>';
+						?>
+						<button class="button w3tc-gopro-button button-buy-plugin" data-src="feature_showcase">
+							<?php esc_html_e( 'Unlock Feature', 'w3-total-cache' ); ?>
+						</button>
+						<?php
 					} elseif ( ! empty( $card['button'] ) ) {
 						echo $card['button'];
 					}

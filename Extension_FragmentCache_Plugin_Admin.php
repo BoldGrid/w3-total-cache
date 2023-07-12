@@ -97,13 +97,15 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_admin_menu( $menu ) {
-		$menu['w3tc_fragmentcache'] = array(
-			'page_title' => __( 'Fragment Cache', 'w3-total-cache' ),
-			'menu_text' => '<span class="w3tc_menu_item_pro">' .
-			__( 'Fragment Cache', 'w3-total-cache' ) . '</span>',
-			'visible_always' => false,
-			'order' => 1100
-		);
+		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
+			$menu['w3tc_fragmentcache'] = array(
+				'page_title' => __( 'Fragment Cache', 'w3-total-cache' ),
+				'menu_text' => '<span class="w3tc_menu_item_pro">' .
+				__( 'Fragment Cache', 'w3-total-cache' ) . '</span>',
+				'visible_always' => false,
+				'order' => 1100
+			);
+		}
 
 		return $menu;
 	}
