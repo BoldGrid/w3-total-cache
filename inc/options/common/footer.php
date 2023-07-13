@@ -87,7 +87,8 @@ do_action( 'w3tc-dashboard-footer' );
 			</div>
 			<?php
 			if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
-				echo '<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'Learn more about Pro!', 'w3-total-cache' ) . '</a>';
+				echo '<input type="button" class="button button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
+					data-src="footer" value="' . esc_html__( 'Learn more about Pro!', 'w3-total-cache' ) . '" />';
 			}
 			?>
 		</div>

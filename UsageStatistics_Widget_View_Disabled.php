@@ -29,7 +29,8 @@ if ( ! defined( 'W3TC' ) ) {
 </style>
 <p class="w3tcuw_inactive">
 	<?php if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) : ?>
-		<a class="button w3tc-gopro-button" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/' ); ?>" target="_blank"><?php esc_html_e( 'Upgrade to Pro', 'w3-total-cache' ); ?></a>
+		<input type="button" class="button-primary button-buy-plugin {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+			data-src="usagestatistics_widget" value="<?php esc_html_e( 'Upgrade to Pro', 'w3-total-cache' ); ?>" />
 	<?php else : ?>
 		<a href="admin.php?page=w3tc_general#stats" class="button-primary">Enable</a>
 	<?php endif ?>

@@ -21,13 +21,14 @@ if ( ! defined( 'W3TC' ) ) {
 				'Unlock more speed, %1$s now!',
 				'w3-total-cache'
 			),
-			'<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '</a>'
+			'<input type="button" class="button-primary button-buy-plugin" data-src="' . esc_attr( 'page_' . $page ) . '" value="' . esc_attr( __( 'upgrade', 'w3-total-cache' ) ) . '" />'
 		),
 		array(
-			'a' => array(
-				'class'  => array(),
-				'href'   => array(),
-				'target' => array(),
+			'input' => array(
+				'type'     => array(),
+				'class'    => array(),
+				'data-src' => array(),
+				'value'    => array(),
 			),
 		)
 	);

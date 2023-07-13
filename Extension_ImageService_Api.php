@@ -203,7 +203,7 @@ class Extension_ImageService_Api {
 						sprintf(
 							// translators: 1: Hourly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
 							esc_html__( ' or %1$supgrade to Pro%2$s for higher limits', 'w3-total-cache' ),
-							'<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">',
+							'<a href="#" class="button-buy-plugin" data-src="imageservice_api_limit">',
 							'</a>'
 						)
 				);
@@ -213,7 +213,7 @@ class Extension_ImageService_Api {
 					// translators: 1: Monthly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
 					esc_html__( 'You reached your monthly limit of %1$d; try again later or %2$supgrade to Pro%3$s for unlimited.', 'w3-total-cache' ),
 					esc_attr( $response_body['limit_monthly'] ),
-					'<a class="button w3tc-gopro-button" href="' . esc_url( 'https://www.boldgrid.com/w3-total-cache/' ) . '" target="_blank">',
+					'<a href="#" class="button-buy-plugin" data-src="imageservice_api_limit">',
 					'</a>'
 				);
 				set_transient( 'w3tc_imageservice_limited', $result, DAY_IN_SECONDS );

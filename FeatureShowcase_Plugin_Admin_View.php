@@ -75,18 +75,17 @@ foreach ( $cards as $feature_id => $card ) {
 			<div class="w3tc-card-body"><p><?php echo $card['text']; ?></p></div>
 			<div class="w3tc-card-footer">
 				<div class="w3tc-card-button">
-	<?php
-
-	if ( $is_premium && ! $is_pro ) {
-		?>
-					<a class="button w3tc-gopro-button" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/' ); ?>" target="_blank"><?php esc_html_e( 'Unlock Feature', 'w3-total-cache' ); ?></a>
-			
-		<?php
-	} elseif ( ! empty( $card['button'] ) ) {
-		echo $card['button'];
-	}
-
-	?>
+					<?php
+					if ( $is_premium && ! $is_pro ) {
+						?>
+						<button class="button w3tc-gopro-button button-buy-plugin" data-src="feature_showcase">
+							<?php esc_html_e( 'Unlock Feature', 'w3-total-cache' ); ?>
+						</button>
+						<?php
+					} elseif ( ! empty( $card['button'] ) ) {
+						echo $card['button'];
+					}
+					?>
 				</div><div class="w3tc-card-links"><?php echo $card['link']; ?></div>
 			</div>
 		</div>
