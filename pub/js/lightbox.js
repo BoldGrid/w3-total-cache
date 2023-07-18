@@ -481,7 +481,7 @@ function w3tc_lightbox_save_license_key(license_key, nonce, callback) {
   var params = {
 	w3tc_default_save_license_key: 1,
 	license_key: license_key,
-	_wpnonce: ('array' == jQuery.type(nonce)) ? nonce[0] : nonce
+	_wpnonce: ('array' === jQuery.type(nonce)) ? nonce[0] : nonce
   };
 
   jQuery.post('admin.php?page=w3tc_dashboard', params, function(data) {
