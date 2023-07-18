@@ -444,7 +444,7 @@ function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
 				var data = event.data.split(' ');
 				if (data[0] === 'license') {
 					// legacy purchase
-					w3tc_lightbox_save_licence_key(function() {
+					w3tc_lightbox_save_license_key(function() {
 						lightbox.close();
 					});
 				} else if (data[0] === 'v2_license') {
@@ -457,7 +457,7 @@ function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
 						window.location = window.location + '&refresh';
 					}
 
-					w3tc_lightbox_save_licence_key(data[1], nonce, function() {
+					w3tc_lightbox_save_license_key(data[1], nonce, function() {
 						jQuery('#buy_frame').attr('src', data[3]);
 					});
 				}
@@ -476,12 +476,12 @@ function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
 	});
 }
 
-function w3tc_lightbox_save_licence_key(license_key, nonce, callback) {
+function w3tc_lightbox_save_license_key(license_key, nonce, callback) {
   jQuery('#plugin_license_key').val(license_key);
   var params = {
-	w3tc_default_save_licence_key: 1,
+	w3tc_default_save_license_key: 1,
 	license_key: license_key,
-	_wpnonce: nonce
+	_wpnonce: ('array' === jQuery.type(nonce)) ? nonce[0] : nonce
   };
 
   jQuery.post('admin.php?page=w3tc_dashboard', params, function(data) {
