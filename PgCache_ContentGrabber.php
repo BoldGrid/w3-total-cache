@@ -104,15 +104,28 @@ class PgCache_ContentGrabber {
 	private $output_size = 0;
 
 	/**
-	 *
-	 *
 	 * @var bool If cached page should be displayed after init
 	 */
 	var $_late_init = false;
 
+	/**
+	 * @var bool late caching
+	 */
+	var $_late_caching = false;
+
 	var $_cached_data = null;
 
 	var $_old_exists = false;
+
+	/**
+	 * @var bool Nginx memcached flag
+	 */
+	var $_nginx_memcached = false;
+
+	/**
+	 * @var string
+	 */
+	var $_page_group;
 
 	/**
 	 * PHP5 Constructor
