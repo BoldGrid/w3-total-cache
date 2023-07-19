@@ -574,7 +574,7 @@ class Extension_ImageService_Plugin_Admin {
 					),
 					'tos_choice'  => Licensing_Core::get_tos_choice(),
 					'track_usage' => $this->config->get_boolean( 'common.track_usage' ),
-					'ga_profile'  => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'UA-2264433-7' : 'UA-2264433-8',
+					'ga_profile'  => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
 					'settings'    => $this->config->get_array( 'imageservice' ),
 					'settingsUrl' => esc_url( Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) ),
 				)

@@ -60,16 +60,21 @@ var W3tc_Lightbox = {
 		} else if (this.options.url) {
 			this.load(this.options.url, this.options.callback);
 
-			if (typeof ga != 'undefined') {
+			if (window.w3tc_ga) {
 				var w3tc_action = this.options.url.match(/w3tc_action=([^&]+)/);
-				if (window.w3tc_ga) {
-					if (w3tc_action && w3tc_action[1])
-						w3tc_ga('send', 'pageview', 'overlays/' + w3tc_action[1]);
-					else {
-						var w3tc_action = this.options.url.match(/&(w3tc_[^&]+)&/);
-						if (w3tc_action && w3tc_action[1])
-							w3tc_ga('send', 'pageview', 'overlays/' + w3tc_action[1]);
-					}
+
+				if (! w3tc_action || ! w3tc_action[1]) {
+					w3tc_action = this.options.url.match(/&(w3tc_[^&]+)&/);
+				}
+
+				if (w3tc_action && w3tc_action[1]) {
+					w3tc_ga(
+						'event',
+						'pageview',
+						{
+							eventLabel: 'overlays/' + w3tc_action[1]
+						}
+					);
 				}
 			}
 		}
