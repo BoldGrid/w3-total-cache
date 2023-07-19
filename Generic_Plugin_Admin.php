@@ -480,6 +480,8 @@ class Generic_Plugin_Admin {
 			);
 			?>
 			<script type="application/javascript">
+				var w3tc_ga_cid;
+
 				window.dataLayer = window.dataLayer || [];
 
 				function w3tc_ga(){dataLayer.push(arguments);}
@@ -500,6 +502,13 @@ class Generic_Plugin_Admin {
 						'w3tc_widgets': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
 						'page': '<?php echo esc_attr( $page ); ?>'
 					}
+				});
+
+				const cidPromise = new Promise(resolve => {
+					w3tc_ga('get', '<?php echo esc_attr( $profile ); ?>', 'client_id', resolve);
+				});
+				cidPromise.then((cid) => {
+					w3tc_ga_cid = cid;
 				});
 			</script>
 			<?php
@@ -856,11 +865,9 @@ class Generic_Plugin_Admin {
 				}
 				$line = preg_replace( '~^\s*\*\s*~', '', htmlspecialchars( $line ) );
 				echo '<li style="width: 50%; margin: 0; float: left; ' . ( 0 === $index % 2 ? 'clear: left;' : '' ) . '">' . esc_html( $line ) . '</li>';
-			} else {
-				if ( $ul ) {
-					echo '</ul><div style="clear: left;"></div>';
-					$ul = false;
-				}
+			} elseif ( $ul ) {
+				echo '</ul><div style="clear: left;"></div>';
+				$ul = false;
 			}
 		}
 

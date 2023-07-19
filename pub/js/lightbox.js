@@ -390,9 +390,7 @@ function w3tc_lightbox_self_test(nonce) {
 function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 	var client_id = '';
 	if (window.w3tc_ga) {
-		w3tc_ga(function(tracker) {
-			client_id = tracker.get('clientId');
-		});
+		client_id = w3tc_ga_cid;
 	}
 
   	W3tc_Lightbox.open({
@@ -417,9 +415,11 @@ function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 		jQuery('#w3tc-purchase-link', lightbox.container).on( 'click', function() {
 			lightbox.close();
 
-			jQuery([document.documentElement, document.body]).animate({
-				scrollTop: jQuery("#licensing").offset().top
-			}, 2000);
+			if ( jQuery('#licensing').length ) {
+				jQuery([document.documentElement, document.body]).animate({
+					scrollTop: jQuery('#licensing').offset().top
+				}, 2000);
+			}
 		});
 
 		// Allow for customizations of the "upgrade" overlay specifically.
