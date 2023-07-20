@@ -2636,6 +2636,12 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => true,
 	),
+	'fragmentcache' => array(
+		'type'    => 'array',
+		'default' => array(
+			'engine' => 'file',
+		),
+	),
 
 	// extensions keys:
 	//
