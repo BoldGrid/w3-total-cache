@@ -34,8 +34,7 @@ class Extension_FragmentCache_Plugin_Admin {
 			'version' => '1.0',
 			'enabled' => empty( $requirements ),
 			'requirements' => implode( ', ', $requirements ),
-			'active_frontend_own_control' => true,
-			'path' => 'w3-total-cache/Extension_FragmentCache_Plugin.php'
+			'path' => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
 		);
 
 		return $extensions;
@@ -140,14 +139,7 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_config_save( $config ) {
-		// frontend activity
-		$engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
-
-		$is_frontend_active = ( !empty( $engine ) &&
-			Util_Environment::is_w3tc_pro( $config ) );
-
-		$config->set_extension_active_frontend( 'fragmentcache',
-			$is_frontend_active );
+		$config->set_extension_active_frontend( 'fragmentcache', Util_Environment::is_w3tc_pro( $config ) );
 	}
 
 

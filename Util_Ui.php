@@ -336,7 +336,7 @@ class Util_Ui {
 
 		?>
 		<div class="btn-group w3tc-button-flush-dropdown">
-			<input type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>"/>
+			<input id="flush_all" type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>"/>
 			<button type="button" class="btn btn-light btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				<span class="sr-only">Toggle Dropdown</span>
 			</button>
