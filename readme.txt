@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
-Tested up to: 6.2
-Stable tag: 2.3.3
+Tested up to: 6.3
+Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,17 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.4.0 =
+* Feature: Added filter "w3tc_config_item_objectcache.enabled" to allow for disabling W3TC object cache
+* Fix: Auto-apply W3TC Pro license after purchase via in-plugin purchase/upgrade buttons
+* Fix: PHP 8 warnings for Page and Fragment caches
+* Fix: Replaced delete_blog deprecated hook with wp_uninitialize_site and wp_update_site
+* Fix: Database Cluster configuration file save issue
+* Fix: Fragment cache will now be disabled for non-pro users instead of being only disabled on the front-end
+* Fix: Premium services widget list is now synced with the support page
+* Update: User interface updated for cleaner appearance and easier navigation and control
+* Update: Added support for get/set/add/delete wp_xxx_multiple methods to Object cache
 
 = 2.3.3 =
 * Fix: Fragment Cache: Fatal error when displaying registered groups
