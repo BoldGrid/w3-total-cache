@@ -284,7 +284,8 @@ class Cache_File_Generic extends Cache_File {
 		$key = $this->get_item_key( $key );
 		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
 		$old_entry_path = $path . '_old';
-		@unlink( $old_entry_path );
+		if ( file_exists($old_entry_path) )
+			@unlink( $old_entry_path );
 
 		if ( !file_exists( $path ) )
 			return true;
