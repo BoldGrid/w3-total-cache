@@ -22,8 +22,9 @@ class Extension_FragmentCache_Plugin {
 
 		$config = Dispatcher::config();
 		// remainder only when extension is frontend-active
-		if ( !$config->is_extension_active_frontend( 'fragmentcache' ) )
+		if ( ! $config->is_extension_active_frontend( 'fragmentcache' ) || empty( $this->_config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
 			return;
+		}
 
 		add_action( 'init', array( $this, 'on_init' ), 9999999 );
 
