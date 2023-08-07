@@ -37,7 +37,7 @@ describe('', function() {
 
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_dashboard');
 		
-		let compatibilityCheck = 'input[value="compatibility check"]';
+		let compatibilityCheck = '#w3tc-top-nav-info-menu a.compatiblity-test';
 		await adminPage.evaluate((compatibilityCheck) => document.querySelector(compatibilityCheck).click(), compatibilityCheck);
 
 		await adminPage.waitFor(() => {

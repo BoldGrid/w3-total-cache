@@ -90,7 +90,7 @@ $menu_array = array(
 		array(
 			'url'   => '#',
 			'text'  => __( 'Compatibility Test', 'w3-total-cache' ),
-			'class' => 'button-self-test',
+			'class' => 'compatiblity-test button-self-test',
 		),
 		array(
 			'url'      => 'https://api.w3-edge.com/v1/redirects/faq',
