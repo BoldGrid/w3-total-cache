@@ -950,7 +950,7 @@ class SetupGuide_Plugin_Admin {
 							'install_version'   => esc_attr( $state->get_string( 'common.install_version' ) ),
 							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $config ) ),
 							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
-							'ga_profile'        => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'UA-2264433-7' : 'UA-2264433-8',
+							'ga_profile'        => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
 							'tos_choice'        => Licensing_Core::get_tos_choice(),
 							'track_usage'       => $config->get_boolean( 'common.track_usage' ),
 							'test_complete_msg' => __(

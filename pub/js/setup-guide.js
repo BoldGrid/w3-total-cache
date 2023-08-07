@@ -17,8 +17,14 @@ jQuery(function() {
 
 	// GA.
 	if ( w3tc_enable_ga ) {
-		w3tc_ga( 'create', W3TC_SetupGuide.ga_profile, 'auto' );
-		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', 'w3tc-wizard-step-welcome' );
+		w3tc_ga(
+			'event',
+			'button',
+			{
+				eventCategory: 'w3tc_setup_guide',
+				eventLabel: 'w3tc-wizard-step-welcome'
+			}
+		);
 	}
 
 	// Handle the terms of service notice.
@@ -54,28 +60,36 @@ jQuery(function() {
 			if ( 'accept' === choice ) {
 				W3TC_SetupGuide.tos_choice = choice;
 
-				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-					(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-					m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-					})(window,document,'script','https://api.w3-edge.com/v1/analytics','w3tc_ga');
+				var gaScript = document.createElement( 'script' );
+				gaScript.type = 'text/javascript';
+				gaScript.setAttribute( 'async', 'true' );
+				gaScript.setAttribute( 'src', 'https://www.googletagmanager.com/gtag/js?id=' + W3TC_SetupGuide.ga_profile );
+				document.documentElement.firstChild.appendChild( gaScript );
+
+				window.dataLayer = window.dataLayer || [];
+
+				const w3tc_ga = function() { dataLayer.push( arguments ); }
 
 				if (window.w3tc_ga) {
-					w3tc_ga( 'create', W3TC_SetupGuide.ga_profile, 'auto' );
-					w3tc_ga( 'set', {
-						'dimension1': 'w3-total-cache',
-						'dimension2': W3TC_SetupGuide.w3tc_version,
-						'dimension3': W3TC_SetupGuide.wp_version,
-						'dimension4': W3TC_SetupGuide.php_version,
-						'dimension5': W3TC_SetupGuide.server_software,
-						'dimension6': W3TC_SetupGuide.db_version,
-						'dimension7': W3TC_SetupGuide.home_url_host,
-						'dimension9': W3TC_SetupGuide.install_version,
-						'dimension10': W3TC_SetupGuide.w3tc_edition,
-						'dimension11': W3TC_SetupGuide.list_widgets,
-						'page': W3TC_SetupGuide.page
-					});
+					w3tc_enable_ga = true;
 
-					w3tc_ga( 'send', 'pageview' );
+					w3tc_ga( 'js', new Date() );
+
+					w3tc_ga( 'config', W3TC_SetupGuide.ga_profile, {
+						'user_properties': {
+							'plugin': 'w3-total-cache',
+							'w3tc_version': W3TC_SetupGuide.w3tc_version,
+							'wp_version': W3TC_SetupGuide.wp_version,
+							'php_version': W3TC_SetupGuide.php_version,
+							'server_software': W3TC_SetupGuide.server_software,
+							'wpdb_version': W3TC_SetupGuide.db_version,
+							'home_url': W3TC_SetupGuide.home_url_host,
+							'w3tc_install_version': W3TC_SetupGuide.install_version,
+							'w3tc_edition': W3TC_SetupGuide.w3tc_edition,
+							'w3tc_widgets': W3TC_SetupGuide.list_widgets,
+							'page': W3TC_SetupGuide.page
+						}
+					});
 				}
 			}
 		});
@@ -449,7 +463,14 @@ function w3tc_wizard_actions( $slide ) {
 
 	// GA.
 	if ( w3tc_enable_ga ) {
-		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', slideId );
+		w3tc_ga(
+			'event',
+			'button',
+			{
+				eventCategory: 'w3tc_setup_guide',
+				eventLabel: slideId
+			}
+		);
 	}
 
 	switch ( slideId ) {

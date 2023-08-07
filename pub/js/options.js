@@ -1346,8 +1346,14 @@ jQuery(function() {
 		}
 
 		if (window.w3tc_ga) {
-			w3tc_ga('send', 'event', 'anchor', 'click',
-				jQuery(this).data('href'));
+			w3tc_ga(
+				'event',
+				'anchor',
+				{
+					eventCategory: 'click',
+					eventLabel: jQuery(this).data('href')
+				}
+			);
 		}
 	});
 
@@ -1369,13 +1375,11 @@ jQuery(function() {
 	jQuery('#w3tc-top-nav-bar a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
-				'event', {
+				'event',
+				{
 					eventCategory: 'w3tc_topnav_bar',
 					eventAction: 'link',
-					eventLabel: jQuery(this).text(),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: jQuery(this).text()
 				}
 			);
 		}
@@ -1385,13 +1389,11 @@ jQuery(function() {
 	jQuery('#w3tc-options-menu a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
-				'event', {
+				'event',
+				{
 					eventCategory: 'w3tc_options_menu',
 					eventAction: 'anchor',
-					eventLabel: jQuery(this).text(),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: jQuery(this).text()
 				}
 			);
 		}
@@ -1401,13 +1403,11 @@ jQuery(function() {
 	jQuery('.w3tc_form_bar input').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
-				'event', {
+				'event',
+				{
 					eventCategory: 'w3tc_form_bar',
 					eventAction: 'button',
-					eventLabel: jQuery(this).text(),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: jQuery(this).text()
 				}
 			);
 		}
@@ -1417,13 +1417,11 @@ jQuery(function() {
 	jQuery('#w3tc-footer a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
-				'event', {
+				'event',
+				{
 					eventCategory: 'w3tc_footer',
 					eventAction: 'link',
-					eventLabel: jQuery(this).text(),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: jQuery(this).text()
 				}
 			);
 		}
@@ -1433,13 +1431,11 @@ jQuery(function() {
 	jQuery('.advanced-settings a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
-				'event', {
+				'event',
+				{
 					eventCategory: 'w3tc_general_advanced_tab',
 					eventAction: 'link',
-					eventLabel: jQuery(this).attr('gatitle'),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: jQuery(this).attr('gatitle')
 				}
 			);
 		}
@@ -1449,43 +1445,73 @@ jQuery(function() {
 	jQuery('.extra-link a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
-				'event', {
+				'event',
+				{
 					eventCategory: 'w3tc_general_extra_link_tab',
 					eventAction: 'link',
-					eventLabel: jQuery(this).attr('gatitle'),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: jQuery(this).attr('gatitle')
 				}
 			);
 		}
 	});
 
-	// google analytics events
+	// Analytics events.
 	if (typeof w3tc_ga != 'undefined') {
 		jQuery('.w3tc_error').each(function() {
 			var id = jQuery(this).attr('id');
 			var text = jQuery(this).text();
-			if (id && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'w3tc_error', id, text);
+			if (id && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'w3tc_error',
+					{
+						eventCategory: id,
+						eventLabel: text
+					}
+				);
+			}
 		});
 		jQuery('.w3tc_note').each(function() {
 			var id = jQuery(this).attr('id');
 			var text = jQuery(this).text();
-			if (id && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'w3tc_note', id, text);
+			if (id && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'w3tc_note',
+					{
+						eventCategory: id,
+						eventLabel: text
+					}
+				);
+			}
 		});
 
 		jQuery('body').on('click', 'a', function() {
 			var url = jQuery(this).attr('href');
-			if (url && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'anchor', 'click', url, { useBeacon: true });
+			if (url && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'anchor',
+					{
+						eventCategory: 'click',
+						eventLabel: url
+					}
+				);
+			}
 		});
 
 		jQuery('body').on('click', 'input[type="button"]', function() {
 			var name = jQuery(this).attr('name');
-			if (name && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'button', 'click', name, { useBeacon: true });
+			if (name && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'button',
+					{
+						eventCategory: 'click',
+						eventLabel: name
+					}
+				);
+			}
 		});
 		jQuery('body').on('click', 'input[type="submit"]', function() {
 			var name = jQuery(this).attr('name');
@@ -1493,24 +1519,48 @@ jQuery(function() {
 			if (!id)
 				id = name;
 
-			if (name && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'button', id, name, { useBeacon: true });
+			if (name && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'button',
+					{
+						eventCategory: id,
+						eventLabel: name
+					}
+				);
+			}
 		});
 
 		jQuery('body').on('click', 'input[type="checkbox"]', function() {
 			var name = jQuery(this).attr('name');
 			var action = jQuery(this).is(':checked') ? 'check' : 'uncheck';
 
-			if (name && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'checkbox', action, name);
+			if (name && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'checkbox',
+					{
+						eventCategory: action,
+						eventLabel: name
+					}
+				);
+			}
 		});
 
 		jQuery('body').on('change', 'select', function() {
 			var name = jQuery(this).attr('name');
 			var value = jQuery(this).val();
 
-			if (name && value && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'select', value, name);
+			if (name && value && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'select',
+					{
+						eventCategory: value,
+						eventLabel: name
+					}
+				);
+			}
 		});
 	}
 
