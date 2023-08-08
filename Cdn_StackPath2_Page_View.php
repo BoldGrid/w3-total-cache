@@ -31,7 +31,7 @@ if ( ! defined( 'W3TC' ) ) {
 				<?php
 				w3tc_e(
 					'cdn.stackpath2.signUpAndSave.description',
-					__( 'StackPath is a service that lets you speed up your site even more with W3 Total Cache. Sign up now to recieve a special offer!', 'w3-total-cache' )
+					__( 'StackPath is a service that lets you speed up your site even more with W3 Total Cache. Sign up now to receive a special offer!', 'w3-total-cache' )
 				);
 				?>
 			</p>
