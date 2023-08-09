@@ -173,7 +173,12 @@ class Util_Environment {
 	 *
 	 * @return bool
 	 */
-	public static function is_dbcluster( $config ) {
+	public static function is_dbcluster( $config = null ) {
+		if ( is_null( $config ) ) {
+			// fallback for compatibility with older wp-content/db.php
+			$config = \W3TC\Dispatcher::config();
+		}
+
 		if ( !self::is_w3tc_pro( $config ) ) {
 			return false;
 		}
