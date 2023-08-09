@@ -2,16 +2,16 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.4.0\n"
+"Project-Id-Version: W3 Total Cache 2.4.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-08-02T18:01:21+00:00\n"
+"POT-Creation-Date: 2023-08-09T13:31:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.7.1\n"
+"X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: w3-total-cache\n"
 
 #. Plugin Name of the plugin
@@ -1294,7 +1294,6 @@ msgstr ""
 msgid "%1$sCDN%2$s %3$sCNAME%4$s:"
 msgstr ""
 
-#. translators: 1 HTML acronym for Content Delivery Network (CDN).
 #: Cdnfsd_CloudFront_Page_View.php:44
 #: Cdnfsd_GeneralPage_View.php:21
 #: Cdnfsd_GeneralPage_View.php:34
@@ -1562,7 +1561,6 @@ msgstr ""
 msgid "Host the entire website with your compatible %1$s provider to reduce page load time."
 msgstr ""
 
-#. translators: 1 HTML acronym for Content Delivery Network (CDN).
 #: Cdnfsd_GeneralPage_View.php:21
 #: Cdnfsd_StackPath_Popup_View_Zone.php:43
 #: Cdnfsd_StackPath_Popup_View_Zone.php:51
@@ -4716,6 +4714,7 @@ msgid "Application monitoring has detected that your page load time is higher th
 msgstr ""
 
 #: Extension_NewRelic_Api.php:45
+#: lib/NewRelic/NewRelicAPI.php:39
 msgid "Invalid API key"
 msgstr ""
 
@@ -9359,6 +9358,30 @@ msgstr ""
 
 #: inc/wizard/template.php:249
 msgid "Are you sure that you want to leave this page?"
+msgstr ""
+
+#: lib/NetDNA/NetDNAPresentation.php:64
+msgid "Pending"
+msgstr ""
+
+#: lib/NetDNA/NetDNAPresentation.php:66
+msgid "Active"
+msgstr ""
+
+#: lib/NetDNA/NetDNAPresentation.php:68
+msgid "Cancelled"
+msgstr ""
+
+#: lib/NetDNA/NetDNAPresentation.php:70
+msgid "Suspended"
+msgstr ""
+
+#: lib/NetDNA/NetDNAPresentation.php:72
+msgid "Fraud"
+msgstr ""
+
+#: lib/NetDNA/NetDNAPresentation.php:74
+msgid "unknown"
 msgstr ""
 
 #. translators: 1 opening HTML span tag, 2 closing HTML span tag.
