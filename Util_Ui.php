@@ -376,7 +376,7 @@ class Util_Ui {
 					$disable = $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ';
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
 				}
-				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) ) {
+				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) && ! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_html__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'varnish.enabled' ) ) {
@@ -1812,7 +1812,16 @@ class Util_Ui {
 			case 'w3tc_userexperience':
 				?>
 				<div id="w3tc-options-menu">
-					<!--<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a>-->
+					<?php
+					$extensions_active = $config->get_array( 'extensions.active' );
+					if ( array_key_exists( 'user-experience-defer-scripts', $extensions_active ) ) {
+						// If more items are added this will only encompase the Defer Scripts, but if only 1 item show no sub-nav.
+						?>
+						<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a> |
+						<a href="#application"><?php esc_html_e( 'Defer Scripts', 'w3-total-cache' ); ?></a>
+						<?php
+					}
+					?>
 				</div>
 				<?php
 				break;

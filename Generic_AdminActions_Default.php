@@ -712,6 +712,14 @@ class Generic_AdminActions_Default {
 				}
 			}
 
+			/*
+			If a compound key is used for a setting the value will be saved as a string rather than
+			a specified data type. This would then require post processing depending on the use case
+			when fetching/using the value to ensure the correct data type. This may need to be addressed
+			in the future as it makes textarea settings in extensions a bit complicated due to having to
+			parse a multi-line string into an array which requires trimming, removing empty lines, and
+			sorting, which is a tad messy (maybe add a static utility method to accomplish that?)
+			*/
 			$key = Util_Ui::config_key_from_http_name( $request_key );
 			if ( is_array( $key ) ) {
 				$config->set( $key, $request_value );

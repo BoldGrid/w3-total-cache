@@ -86,7 +86,8 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 		array(
 			'extension_id'   => 'user-experience-defer-scripts',
 			'checkbox_label' => esc_html__( 'Defer JavaScripts', 'w3-total-cache' ),
-			'description'    => esc_html__( 'Defer JavaScripts on your pages.', 'w3-total-cache' )
+			'description'    => esc_html__( 'Defer the loading of JavaScript sources on your pages.', 'w3-total-cache' ),
+			'label_class'    => 'w3tc_single_column',
 		)
 	);
 
