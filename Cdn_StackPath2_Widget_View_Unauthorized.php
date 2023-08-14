@@ -39,7 +39,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php
 		w3tc_e(
 			'cdn.stackpath2.widget.v2.works_magically',
-			__( 'StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $10 per month.', 'w3-total-cache' )
+			__( 'StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $27.50 per month.', 'w3-total-cache' )
 		);
 		?>
 	</p>
