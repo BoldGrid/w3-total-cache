@@ -713,33 +713,38 @@ class Generic_AdminActions_Default {
 			}
 
 			/*
-			If a compound key is used for a setting the value will be saved as a string rather than
-			a specified data type. This would then require post processing depending on the use case
-			when fetching/using the value to ensure the correct data type. This may need to be addressed
-			in the future as it makes textarea settings in extensions a bit complicated due to having to
-			parse a multi-line string into an array which requires trimming, removing empty lines, and
-			sorting, which is a tad messy (maybe add a static utility method to accomplish that?)
+			[JD] 8/14/23 This was modified to implode compound keys as the use of a compound key was causing setting
+			values to save as strings rather than being analyzed for the correct datatype if no Config_Keys entry
+			existed. From what I can tell compound keys have previously only been used in extensions which appear
+			to process saves differently as they don't have Config_Keys entries but when a compound key is used
+			outside of the extension context in some cases it would save incorrectly. This was the case for the
+			defer scripts feature where the textarea was saving as a string rather than the intended array.
+			Subsequently Config_Keys entries were added for that feature and the below was updated to implode the
+			key if array so it properly looks up the corresponding type config value if present. That being said
+			this may affect extensions and/or enable them to use Config_Keys entries.
 			*/
 			$key = Util_Ui::config_key_from_http_name( $request_key );
+
 			if ( is_array( $key ) ) {
-				$config->set( $key, $request_value );
+				$descriptor = $keys[ implode( '.', $key ) ];
 			} elseif ( array_key_exists( $key, $keys ) ) {
 				$descriptor = $keys[ $key ];
-				if ( isset( $descriptor['type'] ) ) {
-					if ( 'array' === $descriptor['type'] ) {
-						if ( is_array( $request_value ) ) {
-							$request_value = implode( "\n", $request_value );
-						}
-						$request_value = explode( "\n", str_replace( "\r\n", "\n", $request_value ) );
-					} elseif ( 'boolean' === $descriptor['type'] ) {
-						$request_value = ( '1' === $request_value );
-					} elseif ( 'integer' === $descriptor['type'] ) {
-						$request_value = (int) $request_value;
-					}
-				}
-
-				$config->set( $key, $request_value );
 			}
+
+			if ( isset( $descriptor['type'] ) ) {
+				if ( 'array' === $descriptor['type'] ) {
+					if ( is_array( $request_value ) ) {
+						$request_value = implode( "\n", $request_value );
+					}
+					$request_value = explode( "\n", str_replace( "\r\n", "\n", $request_value ) );
+				} elseif ( 'boolean' === $descriptor['type'] ) {
+					$request_value = ( '1' === $request_value );
+				} elseif ( 'integer' === $descriptor['type'] ) {
+					$request_value = (int) $request_value;
+				}
+			}
+
+			$config->set( $key, $request_value );
 		}
 	}
 }

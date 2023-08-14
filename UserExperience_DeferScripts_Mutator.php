@@ -65,31 +65,12 @@ class UserExperience_DeferScripts_Mutator {
 		$buffer         = $r['buffer'];
 		$this->modified = $r['modified'];
 
-		/* 
-		Because an array is used as the key the includes are saved as a string instead of array, so
-		we need to parse it before use. This will remove empty lines, trim values, and sort before use.
-		See Generic_AdminActions_Default.php read_request method.
-		*/
-		$this->includes = array_filter(
-			array_map(
-				'trim',
-				explode(
-					"\n",
-					str_replace(
-						"\r\n",
-						"\n",
-						$this->config->get_array(
-							array(
-								'user-experience-defer-scripts',
-								'includes',
-							)
-						)[0]
-					),
-				)
-			),
-			'strlen'
+		$this->includes = $this->config->get_array(
+			array(
+				'user-experience-defer-scripts',
+				'includes',
+			)
 		);
-		sort( $this->includes );
 		
 		$buffer = preg_replace_callback(
 			'~<script\s[^>]+>~is',
