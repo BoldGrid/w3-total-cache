@@ -2642,14 +2642,6 @@ $keys = array(
 			'engine' => 'file',
 		),
 	),
-	'user-experience-defer-scripts.timeout' => array(
-		'type'    => 'integer',
-		'default' => 0,
-	),
-	'user-experience-defer-scripts.includes' => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
 
 	// extensions keys:
 	//

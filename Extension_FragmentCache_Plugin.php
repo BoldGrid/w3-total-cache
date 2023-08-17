@@ -50,7 +50,12 @@ class Extension_FragmentCache_Plugin {
 				'switch_blog'
 			), 0, 2 );
 
-		$groups = $this->_config->get_array( array( 'fragmentcache', 'groups' ) );
+		/*
+		Due to the use of a compound key for a textarea this field is saved
+		as a string so it needs to be parsed into array and cleaned before use.
+		*/
+		$groups = Util_Environment::textarea_to_array( $this->_config->get_string( array( 'fragmentcache', 'groups' ) ) );
+
 		foreach ( $groups as $group ) {
 			$split = explode( ',', $group );
 			$group = array_shift( $split );

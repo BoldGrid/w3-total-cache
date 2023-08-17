@@ -65,13 +65,19 @@ class UserExperience_DeferScripts_Mutator {
 		$buffer         = $r['buffer'];
 		$this->modified = $r['modified'];
 
-		$this->includes = $this->config->get_array(
-			array(
-				'user-experience-defer-scripts',
-				'includes',
+		/*
+		Due to the use of a compound key for a textarea this field is saved
+		as a string so it needs to be parsed into array and cleaned before use.
+		*/
+		$this->includes = Util_Environment::textarea_to_array(
+			$this->config->get_string(
+				array(
+					'user-experience-defer-scripts',
+					'includes',
+				)
 			)
 		);
-		
+
 		$buffer = preg_replace_callback(
 			'~<script\s[^>]+>~is',
 			array(

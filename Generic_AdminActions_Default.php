@@ -297,8 +297,7 @@ class Generic_AdminActions_Default {
 			foreach ( $settings as $setting ) {
 				$setting_array = $config->get_array( $setting );
 				if ( ! empty( $setting_array ) && is_array( $setting_array ) ) {
-					$values = array_filter( array_map( 'trim', $setting_array ), 'strlen' );
-					sort( $values );
+					$values = Util_Environment::clean_array( $setting_array );
 					$config->set( $setting, $values );
 				}
 			}
@@ -696,10 +695,6 @@ class Generic_AdminActions_Default {
 				array_map( 'stripslashes_deep', $request_value );
 			} else {
 				$request_value = stripslashes( $request_value );
-
-				if ( strpos( $request_key, 'memcached__servers' ) || strpos( $request_key, 'redis__servers' ) ) {
-					$request_value = explode( ',', $request_value );
-				}
 			}
 
 			if ( 'extension__' === substr( $request_key, 0, 11 ) ) {
@@ -712,39 +707,24 @@ class Generic_AdminActions_Default {
 				}
 			}
 
-			/*
-			[JD] 8/14/23 This was modified to implode compound keys as the use of a compound key was causing setting
-			values to save as strings rather than being analyzed for the correct datatype if no Config_Keys entry
-			existed. From what I can tell compound keys have previously only been used in extensions which appear
-			to process saves differently as they don't have Config_Keys entries but when a compound key is used
-			outside of the extension context in some cases it would save incorrectly. This was the case for the
-			defer scripts feature where the textarea was saving as a string rather than the intended array.
-			Subsequently Config_Keys entries were added for that feature and the below was updated to implode the
-			key if array so it properly looks up the corresponding type config value if present. That being said
-			this may affect extensions and/or enable them to use Config_Keys entries.
-			*/
 			$key = Util_Ui::config_key_from_http_name( $request_key );
 
 			if ( is_array( $key ) ) {
-				$descriptor = $keys[ implode( '.', $key ) ];
+				$config->set( $key, $request_value );
 			} elseif ( array_key_exists( $key, $keys ) ) {
 				$descriptor = $keys[ $key ];
-			}
-
-			if ( isset( $descriptor['type'] ) ) {
-				if ( 'array' === $descriptor['type'] ) {
-					if ( is_array( $request_value ) ) {
-						$request_value = implode( "\n", $request_value );
+				if ( isset( $descriptor['type'] ) ) {
+					if ( 'array' === $descriptor['type'] ) {
+						$request_value = Util_Environment::textarea_to_array( $request_value );
+					} elseif ( 'boolean' === $descriptor['type'] ) {
+						$request_value = ( '1' === $request_value );
+					} elseif ( 'integer' === $descriptor['type'] ) {
+						$request_value = (int) $request_value;
 					}
-					$request_value = explode( "\n", str_replace( "\r\n", "\n", $request_value ) );
-				} elseif ( 'boolean' === $descriptor['type'] ) {
-					$request_value = ( '1' === $request_value );
-				} elseif ( 'integer' === $descriptor['type'] ) {
-					$request_value = (int) $request_value;
 				}
-			}
 
-			$config->set( $key, $request_value );
+				$config->set( $key, $request_value );
+			}
 		}
 	}
 }
