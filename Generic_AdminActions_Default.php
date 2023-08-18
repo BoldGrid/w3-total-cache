@@ -677,24 +677,36 @@ class Generic_AdminActions_Default {
 				}
 			}
 
-			$key = Util_Ui::config_key_from_http_name( $request_key );
+			$key        = Util_Ui::config_key_from_http_name( $request_key );
+			$descriptor = null;
 
-			if ( is_array( $key ) ) {
-				$config->set( $key, $request_value );
-			} elseif ( array_key_exists( $key, $keys ) ) {
+			if ( ! is_array( $key ) && array_key_exists( $key, $keys ) ) {
 				$descriptor = $keys[ $key ];
-				if ( isset( $descriptor['type'] ) ) {
-					if ( 'array' === $descriptor['type'] ) {
-						$request_value = Util_Environment::textarea_to_array( $request_value );
-					} elseif ( 'boolean' === $descriptor['type'] ) {
-						$request_value = ( '1' === $request_value );
-					} elseif ( 'integer' === $descriptor['type'] ) {
-						$request_value = (int) $request_value;
-					}
-				}
-
-				$config->set( $key, $request_value );
 			}
+
+			/**
+			 * This filter is needed for compound keys to set the appropirate data type to save as.
+			 * Mainly used by extensions with textarea fields that don't feature a ConfigKeys entry.
+			 * If no filter exists to define such fields it will save as a string, requiring post-processing.
+			 *
+			 * @since 2.4.2
+			 *
+			 * @param mixed $descriptor Array containing correct data type or null if not matched.
+			 * @param array $key        Key to match on.
+			*/
+			$descriptor = apply_filters( 'w3tc_config_key_descriptor', $descriptor, $key );
+
+			if ( isset( $descriptor['type'] ) ) {
+				if ( 'array' === $descriptor['type'] ) {
+					$request_value = Util_Environment::textarea_to_array( $request_value );
+				} elseif ( 'boolean' === $descriptor['type'] ) {
+					$request_value = ( '1' === $request_value );
+				} elseif ( 'integer' === $descriptor['type'] ) {
+					$request_value = (int) $request_value;
+				}
+			}
+
+			$config->set( $key, $request_value );
 		}
 	}
 }

@@ -1,4 +1,14 @@
 <?php
+/**
+ * File: UserExperience_DeferScripts_Page_View.php
+ *
+ * Renders the defer scripts setting block on the UserExperience advanced settings page.
+ *
+ * @since 2.4.2
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

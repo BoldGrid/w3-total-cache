@@ -8,6 +8,7 @@
  *
  * @package W3TC
  */
+
 namespace W3TC;
 
 /**
@@ -22,7 +23,7 @@ class UserExperience_DeferScripts_Mutator {
 	 * @var object
 	 */
 	private $config;
-	
+
 	/**
 	 * Modified flag.
 	 *
@@ -41,6 +42,10 @@ class UserExperience_DeferScripts_Mutator {
 	 * User Experience DeferScripts Mutator constructor.
 	 *
 	 * @since 2.4.2
+	 *
+	 * @param object $config Config object.
+	 *
+	 * @return void
 	 */
 	public function __construct( $config ) {
 		$this->config = $config;
@@ -51,30 +56,26 @@ class UserExperience_DeferScripts_Mutator {
 	 *
 	 * @since 2.4.2
 	 *
-	 * @return void
+	 * @param string $buffer Buffer string containing browser output.
+	 *
+	 * @return string
 	 */
 	public function run( $buffer ) {
 		$r = apply_filters(
 			'w3tc_deferscripts_mutator_before',
 			array(
 				'buffer'   => $buffer,
-				'modified' => $this->modified
+				'modified' => $this->modified,
 			)
 		);
-		
+
 		$buffer         = $r['buffer'];
 		$this->modified = $r['modified'];
 
-		/*
-		Due to the use of a compound key for a textarea this field is saved
-		as a string so it needs to be parsed into array and cleaned before use.
-		*/
-		$this->includes = Util_Environment::textarea_to_array(
-			$this->config->get_string(
-				array(
-					'user-experience-defer-scripts',
-					'includes',
-				)
+		$this->includes = $this->config->get_array(
+			array(
+				'user-experience-defer-scripts',
+				'includes',
 			)
 		);
 
@@ -107,7 +108,7 @@ class UserExperience_DeferScripts_Mutator {
 	 * @since 2.4.2
 	 *
 	 * @param array $matches array of matched JS entries.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function tag_script( $matches ) {
@@ -123,7 +124,7 @@ class UserExperience_DeferScripts_Mutator {
 				$count
 			);
 
-			if ($count > 0) {
+			if ( $count > 0 ) {
 				$this->modified = true;
 			}
 		}
@@ -135,7 +136,7 @@ class UserExperience_DeferScripts_Mutator {
 	 * Checks if content has already been deferred.
 	 *
 	 * @since 2.4.2
-	 * 
+	 *
 	 * @param string $content script tag string.
 	 *
 	 * @return boolean
@@ -143,7 +144,7 @@ class UserExperience_DeferScripts_Mutator {
 	private function is_content_included( $content ) {
 		foreach ( $this->includes as $w ) {
 			if ( ! empty( $w ) ) {
-				if ( strpos( $content, $w ) !== FALSE ) {
+				if ( strpos( $content, $w ) !== false ) {
 					return true;
 				}
 			}

@@ -8,6 +8,7 @@
  *
  * @package W3TC
  */
+
 namespace W3TC;
 
 /**
@@ -52,6 +53,11 @@ class UserExperience_DeferScripts_Extension {
 		add_filter( 'w3tc_minify_js_script_tags', array( $this, 'w3tc_minify_js_script_tags' ) );
 
 		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ) );
+
+		/**
+		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
+		*/
+		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 	}
 
 	/**
@@ -77,7 +83,7 @@ class UserExperience_DeferScripts_Extension {
 		$can_process = $this->can_process( $can_process );
 		$can_process = apply_filters( 'w3tc_deferscripts_can_process', $can_process );
 
-		// set reject reason in comment
+		// set reject reason in comment.
 		if ( $can_process['enabled'] ) {
 			$reject_reason = '';
 		} else {
@@ -91,12 +97,12 @@ class UserExperience_DeferScripts_Extension {
 		);
 
 		// processing.
-		if ( !$can_process['enabled'] ) {
+		if ( ! $can_process['enabled'] ) {
 			return $buffer;
 		}
 
 		$this->mutator = new UserExperience_DeferScripts_Mutator( $this->config );
-		
+
 		$buffer = $this->mutator->run( $buffer );
 
 		// embed lazyload script.
@@ -221,7 +227,25 @@ class UserExperience_DeferScripts_Extension {
 	 * @return void
 	 */
 	public function w3tc_userexperience_page() {
-		include( __DIR__ . '/UserExperience_DeferScripts_Page_View.php' );
+		include __DIR__ . '/UserExperience_DeferScripts_Page_View.php';
+	}
+
+	/**
+	 * Specify config key typing for fields that need it.
+	 *
+	 * @since 2.4.2
+	 *
+	 * @param mixed $descriptor Descriptor.
+	 * @param mixed $key Compound key array.
+	 *
+	 * @return array
+	 */
+	public function w3tc_config_key_descriptor( $descriptor, $key ) {
+		if ( is_array( $key ) && 'user-experience-defer-scripts.includes' === implode( '.', $key ) ) {
+			$descriptor = array( 'type' => 'array' );
+		}
+
+		return $descriptor;
 	}
 }
 
