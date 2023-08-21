@@ -1110,17 +1110,26 @@ class Util_Ui {
 			echo "</th>\n<td>\n";
 		}
 
+		if ( isset( $a['pro'] ) ) {
+			self::pro_wrap_maybe_start();
+		}
+
 		$c = Dispatcher::config();
 		self::checkbox2(
 			array(
-				'name'  => 'extension__' . self::config_key_to_http_name( $a['extension_id'] ),
-				'value' => $c->is_extension_active_frontend( $a['extension_id'] ),
-				'label' => $a['checkbox_label'],
+				'name'     => 'extension__' . self::config_key_to_http_name( $a['extension_id'] ),
+				'value'    => $c->is_extension_active_frontend( $a['extension_id'] ),
+				'label'    => $a['checkbox_label'],
+				'disabled' => isset( $a['disabled'] ) ? $a['disabled'] : false,
 			)
 		);
 
 		if ( isset( $a['description'] ) ) {
 			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
+		}
+
+		if ( isset( $a['pro'] ) ) {
+			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $a['extension_id'] ) );
 		}
 
 		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );

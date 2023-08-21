@@ -48,9 +48,15 @@ class UserExperience_DeferScripts_Extension {
 	 * @return void
 	 */
 	public function run() {
+		if ( ! Util_Environment::is_w3tc_pro( $this->config ) ) {
+			$this->config->set_extension_active_frontend( 'user-experience-defer-scripts', false );
+			return;
+		}
+
 		Util_Bus::add_ob_callback( 'lazyload', array( $this, 'ob_callback' ) );
 
 		add_filter( 'w3tc_minify_js_script_tags', array( $this, 'w3tc_minify_js_script_tags' ) );
+		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ) );
 
 		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ) );
 
@@ -227,7 +233,9 @@ class UserExperience_DeferScripts_Extension {
 	 * @return void
 	 */
 	public function w3tc_userexperience_page() {
-		include __DIR__ . '/UserExperience_DeferScripts_Page_View.php';
+		if ( Util_Environment::is_w3tc_pro( $this->config ) ) {
+			include __DIR__ . '/UserExperience_DeferScripts_Page_View.php';
+		}
 	}
 
 	/**
@@ -246,6 +254,40 @@ class UserExperience_DeferScripts_Extension {
 		}
 
 		return $descriptor;
+	}
+
+	/**
+	 * Performs actions on save.
+	 *
+	 * @since 2.4.2
+	 *
+	 * @param array $data Array of save data.
+	 *
+	 * @return array
+	 */
+	public function w3tc_save_options( $data ) {
+		$new_config = $data['new_config'];
+		$old_config = $data['old_config'];
+
+		if (
+			$new_config->get_array( array( 'user-experience-defer-scripts', 'timeout' ) ) !== $old_config->get_array( array( 'user-experience-defer-scripts', 'timeout' ) )
+			|| $new_config->get_array( array( 'user-experience-defer-scripts', 'includes' ) ) !== $old_config->get_array( array( 'user-experience-defer-scripts', 'includes' ) )
+		) {
+			$minify_enabled  = $this->config->get_boolean( 'minify.enabled' );
+			$pgcache_enabled = $this->config->get_boolean( 'pgcache.enabled' );
+			if ( $minify_enabled || $pgcache_enabled ) {
+				$state = Dispatcher::config_state();
+				if ( $minify_enabled ) {
+					$state->set( 'minify.show_note.need_flush', true );
+				}
+				if ( $pgcache_enabled ) {
+					$state->set( 'common.show_note.flush_posts_needed', true );
+				}
+				$state->save();
+			}
+		}
+
+		return $data;
 	}
 }
 
