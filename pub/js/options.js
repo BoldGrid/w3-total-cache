@@ -1037,7 +1037,7 @@ jQuery(function() {
 		status.html('Testing...');
 		jQuery.post('admin.php?page=w3tc_dashboard', {
 				w3tc_test_memcached: 1,
-				servers: jQuery('#memcached_servers').val(),
+				servers: jQuery('#memcached_servers').val().replace(/(\r\n|\r|\n)/g,','),
 				binary_protocol: jQuery('[id$=__memcached__binary_protocol]').is(':checked'),
 				username: jQuery('#memcached_username').val(),
 				password: jQuery('#memcached_password').val(),
@@ -1060,7 +1060,7 @@ jQuery(function() {
 		status.html('Testing...');
 		jQuery.post('admin.php?page=w3tc_dashboard', {
 				w3tc_test_redis: 1,
-				servers: jQuery('#redis_servers').val(),
+				servers: jQuery('#redis_servers').val().replace(/(\r\n|\r|\n)/g,','),
 				verify_tls_certificates: jQuery('[id$=__redis__verify_tls_certificates]').is(':checked'),
 				dbid: jQuery('#redis_dbid').val(),
 				password: jQuery('#redis_password').val(),
