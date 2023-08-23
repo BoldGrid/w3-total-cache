@@ -1560,4 +1560,56 @@ class Util_Environment {
 
 		self::$is_using_master_config = null;
 	}
+
+	/**
+	 * Removes blank lines, trim values, removes duplicates, and sorts array.
+	 *
+	 * @since 2.4.3
+	 *
+	 * @param array $values Array of values.
+	 *
+	 * @return array
+	 */
+	public static function clean_array( $values ) {
+		if ( ! empty( $values ) && is_array( $values ) ) {
+			$values = array_unique(
+				array_filter(
+					array_map(
+						'trim',
+						$values
+					),
+					'strlen'
+				)
+			);
+			sort( $values );
+		}
+
+		return $values;
+	}
+
+	/**
+	 * Parses textarea setting value from string to array.
+	 *
+	 * @since 2.4.3
+	 *
+	 * @param string $value Value.
+	 *
+	 * @return array
+	 */
+	public static function textarea_to_array( $value ) {
+		$values_array = array();
+
+		if ( ! empty( $value ) ) {
+			$values_array = self::clean_array(
+				preg_split(
+					'/\R/',
+					$value,
+					0,
+					PREG_SPLIT_NO_EMPTY
+				)
+			);
+		}
+
+		return $values_array;
+	}
 }

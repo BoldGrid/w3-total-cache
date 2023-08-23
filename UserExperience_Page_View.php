@@ -19,5 +19,6 @@ if ( !defined( 'W3TC' ) )
 	<div class="metabox-holder">
 		<?php /* decouple it when too much */ ?>
 		<?php include  W3TC_DIR . '/UserExperience_LazyLoad_Page_View.php' ?>
+		<?php do_action( 'w3tc_userexperience_page' ) ?>
 	</div>
 </form>
