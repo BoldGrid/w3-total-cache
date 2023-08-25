@@ -1004,19 +1004,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<table class="form-table">
 			<?php
 			$image_service_link = $this->_config->is_extension_active_frontend( 'imageservice' )
-				? wp_kses(
-					sprintf(
-						// Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
-						__( 'The tool and it\'s settings can be found on the %1$s %2$sImage Service%3$s page.', 'w3-total-cache' ),
-						'Total Cache',
-						'<a href="' . Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) . '">',
-						'</a>'
-					),
-					array(
-						'a' => array(
-							'href' => array(),
-						),
-					)
+				? sprintf(
+					// Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
+					__( 'The tool and it\'s settings can be found on the %1$s %2$sImage Service%3$s page.', 'w3-total-cache' ),
+					'Total Cache',
+					'<a href="' . Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) . '">',
+					'</a>'
 				) : '';
 			Util_Ui::config_item_pro(
 				array(
@@ -1024,10 +1017,31 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'label'          => esc_html__( 'Image Service', 'w3-total-cache' ),
 					'control'        => 'checkbox',
 					'checkbox_label' => __( 'Enable Image Service Extension', 'w3-total-cache' ),
-					'excerpt'        => __(
-						'This extension allows for optimizing media library images to WebP format. ',
-						'w3-total-cache'
-					) . $image_service_link,
+					'excerpt'        => wp_kses(
+						sprintf(
+							// translators: 1 license rates for free/pro users, 2 link to image service tool.
+							__(
+								'This extension allows for optimizing media library images to WebP format. %1$s %2$s',
+								'w3-total-cache'
+							),
+							Util_Environment::is_w3tc_pro( $this->_config )
+								? __(
+									'As a Pro license holder you are limited to converstion rates of 10,000/hr and unlimited/month.',
+									'w3-total-cache'
+								)
+								: __(
+									'As a free user you are limitied to conversions of 100/hr and 1,000/month. The Pro license
+										increases these rates to 10,000/hr and unlimited/month.',
+									'w3-total-cache'
+								),
+							$image_service_link
+						),
+						array(
+							'a' => array(
+								'href' => array(),
+							),
+						)
+					),
 					'description'    => array(),
 					'label_class'    => 'w3tc_single_column',
 				)
