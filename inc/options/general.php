@@ -981,6 +981,64 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 		<?php
 		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Image Service', 'w3-total-cache' ),
+			esc_html__(
+				'The Image Service tool can be used to generate WebP versions of media library
+					images which offer superior lossless and lossy compression.',
+				'w3-total-cache'
+			),
+			'',
+			'image_service',
+			'',
+			$this->_config->is_extension_active_frontend( 'imageservice' )
+				? array( esc_html__( 'Image Service', 'w3-total-cache' ) => Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) )
+				: array()
+		);
+
+		if ( $this->_config->get_boolean( 'extension.imageservice' ) ) {
+			Extensions_Util::activate_extension( 'imageservice', $this->_config );
+		} else {
+			Extensions_Util::deactivate_extension( 'imageservice', $this->_config );
+		}
+		?>
+		<table class="form-table">
+			<?php
+			$image_service_link = $this->_config->is_extension_active_frontend( 'imageservice' )
+				? wp_kses(
+					sprintf(
+						// Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
+						__( 'The tool and it\'s settings can be found on the %1$s %2$sImage Service%3$s page.', 'w3-total-cache' ),
+						'Total Cache',
+						'<a href="' . Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) . '">',
+						'</a>'
+					),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				) : '';
+			Util_Ui::config_item_pro(
+				array(
+					'key'            => 'extension.imageservice',
+					'label'          => esc_html__( 'Image Service', 'w3-total-cache' ),
+					'control'        => 'checkbox',
+					'checkbox_label' => __( 'Enable Image Service Extension', 'w3-total-cache' ),
+					'excerpt'        => __(
+						'This extension allows for optimizing media library images to WebP format. ',
+						'w3-total-cache'
+					) . $image_service_link,
+					'description'    => array(),
+					'label_class'    => 'w3tc_single_column',
+				)
+			);
+			?>
+		</table>
+
+		<?php Util_Ui::postbox_footer(); ?>
+
+		<?php
+		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Google PageSpeed', 'w3-total-cache' ),
 			esc_html__(
 				'The PageSpeed Tool is a powerful feature that can be used to help optimize and enhance the performance 

@@ -101,6 +101,20 @@ $menu_array = array(
 	),
 );
 
+if ( $config->is_extension_active_frontend( 'imageservice' ) ) {
+	array_splice(
+		$menu_array['tools'],
+		2,
+		0,
+		array(
+			array(
+				'url'  => Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ),
+				'text' => __( 'Image Service', 'w3-total-cache' ),
+			),
+		)
+	);
+}
+
 do_action( 'w3tc_dashboard_top_nav_bar' );
 ?>
 <div id="w3tc-top-nav-bar">

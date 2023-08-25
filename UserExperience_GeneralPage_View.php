@@ -26,9 +26,13 @@ Util_Ui::postbox_header_tabs(
 	),
 	'',
 	'userexperience',
-	Util_UI::admin_url( 'admin.php?page=w3tc_userexperience' )
+	Util_UI::admin_url( 'admin.php?page=w3tc_userexperience' ),
+	$config->is_extension_active_frontend( 'imageservice' )
+		? array( esc_html__( 'Image Service', 'w3-total-cache' ) => Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) )
+		: array()
 );
 Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_overloaded' ) );
+
 ?>
 
 <table class="form-table">

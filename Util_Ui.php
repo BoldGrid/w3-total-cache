@@ -1605,6 +1605,10 @@ class Util_Ui {
 							'text' => esc_html__( 'Debug', 'w3-total-cache' ),
 						),
 						array(
+							'id'   => 'image_service',
+							'text' => esc_html__( 'Image Service', 'w3-total-cache' ),
+						),
+						array(
 							'id'   => 'google_pagespeed',
 							'text' => __( 'Google PageSpeed', 'w3-total-cache' ),
 						),
