@@ -34,14 +34,25 @@ class PageSpeed_Instructions {
 						'<p>' . wp_kses(
 							sprintf(
 								// translators: 1 W3TC plugin name, 2 HTML a tag to W3TC minify JS admin page
-								// translators: 3 HTML a tag to W3TC minify CSS admin page.
+								// translators: 3 HTML a tag to W3TC general settings user experience section
+								// translators: 4 HTML a tag to W3TC user expereince advanced settings page
+								// translators: 5 HTML a tag to W3TC minify CSS admin page, 6 HTML line break tag.
 								esc_html__(
-									'%1$s can eliminate render blocking resources. Once Minified, you can defer JS in the %2$s. Render blocking CSS can be eliminated in %3$s using the "Eliminate Render blocking CSS by moving it to HTTP body" (PRO FEATURE).',
+									'%1$s can eliminate render blocking resources.%6$sOnce Minified, you can defer JS in the
+										%2$s.%6$sThe Defer Scripts (PRO FEATURE) can also be used with or without minify to defer
+										the loading of JS files containing the "src" attribute. Scripts matched using this
+										feature will be excluded from the minify process. To enable this feature navigate
+										to %3$s and check the "Defer JavaScript" checkbox. Once enabled the settings can be found
+										at %4$s.%6$sRender blocking CSS can be eliminated in %5$s using the "Eliminate Render
+										blocking CSS by moving it to HTTP body" (PRO FEATURE).',
 									'w3-total-cache'
 								),
 								'W3 Total Cache',
 								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify JS', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; JS', 'w3-total-cache' ) . '</a> ',
-								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; CSS', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '" alt="' . esc_attr__( 'Defer Scripts', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; General Settings &raquo; User Experience', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#application' ) ) . '" alt="' . esc_attr__( 'Defer Scripts Settings', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; User Experience', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; CSS', 'w3-total-cache' ) . '</a>',
+								'<br/><br/>'
 							),
 							$allowed_tags
 						) . '</p>',
