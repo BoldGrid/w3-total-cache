@@ -20,16 +20,12 @@ $config = Dispatcher::config();
 <tr>
 	<th><label for="redis_servers"><?php echo wp_kses( Util_ConfigLabel::get( 'redis.servers' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
-		<input id="redis_servers" type="text"
-			name="<?php echo esc_attr( $module ); ?>___redis__servers"
-			<?php Util_Ui::sealing_disabled( $module ); ?>
-			value="<?php echo esc_attr( implode( ',', $config->get_array( array( $module, 'redis.servers' ) ) ) ); ?>"
-			size="100" />
+		<textarea id="redis_servers" name="<?php echo esc_attr( $module ); ?>__redis__servers" <?php Util_Ui::sealing_disabled( $module ); ?> rows="10" cols="50"><?php echo esc_html( implode( "\n", $config->get_array( array( $module, 'redis.servers' ) ) ) ); ?></textarea>
 		<input class="w3tc_common_redis_test button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
 			<?php Util_Ui::sealing_disabled( $module ); ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span class="w3tc_common_redis_test_result w3tc-status w3tc-process"></span>
-		<p class="description"><?php esc_html_e( 'Multiple servers may be used and seperated by a comma; e.g. 127.0.0.1:6379, domain.com:6379. To use TLS, prefix server with tls://', 'w3-total-cache' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Enter one server definition per line: e.g. 127.0.0.1:11211 or domain.com:11211. To use TLS, prefix server with tls://', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <?php
