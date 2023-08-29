@@ -362,8 +362,8 @@ class Util_PageSpeed {
 					$headers .= '<th>' . esc_html__( 'Element', 'w3-total-cache' ) . '</th>';
 					$items   .= '<td>';
 					if ( isset( $item['node'] ) ) {
-						$items .= '<p><b>' . __( 'Snippet : ', 'w3-total-cache' )  . '</b>' . esc_html( $item['node']['snippet'] ) . '</p>';
-						$items .= '<p><b>' . __( 'Selector : ', 'w3-total-cache' )  . '</b>' . esc_html( $item['node']['selector'] ) . '</p>';
+						$items .= '<p><b>' . __( 'Snippet: ', 'w3-total-cache' )  . '</b>' . esc_html( $item['node']['snippet'] ) . '</p>';
+						$items .= '<p><b>' . __( 'Selector: ', 'w3-total-cache' )  . '</b>' . esc_html( $item['node']['selector'] ) . '</p>';
 					}
 					$items .= '</td>';
 
@@ -372,8 +372,8 @@ class Util_PageSpeed {
 				} elseif ( isset( $item['node'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Element', 'w3-total-cache' ) . '</th>';
 					$items   .= '<td>';
-					$items   .= '<p><b>' . __( 'Snippet : ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['snippet'] ) . '</p>';
-					$items   .= '<p><b>' . __( 'Selector : ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['selector'] ) . '</p>';
+					$items   .= '<p><b>' . __( 'Snippet: ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['snippet'] ) . '</p>';
+					$items   .= '<p><b>' . __( 'Selector: ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['selector'] ) . '</p>';
 					$items   .= '</td>';
 				}
 				if ( isset( $item['headings'] ) && isset( $item['items'] ) ) {
@@ -386,8 +386,8 @@ class Util_PageSpeed {
 						$items .= '<tr class="w3tcps_passed_audit_subitem">';
 						if ( isset( $sub_item['node'] ) ) {
 							$items   .= '<td>';
-							$items   .= '<p><b>' . __( 'Snippet : ', 'w3-total-cache' ) . '</b>' . esc_html( $sub_item['node']['snippet'] ) . '</p>';
-							$items   .= '<p><b>' . __( 'Selector : ', 'w3-total-cache' ) . '</b>' . esc_html( $sub_item['node']['selector'] ) . '</p>';
+							$items   .= '<p><b>' . __( 'Snippet: ', 'w3-total-cache' ) . '</b>' . esc_html( $sub_item['node']['snippet'] ) . '</p>';
+							$items   .= '<p><b>' . __( 'Selector: ', 'w3-total-cache' ) . '</b>' . esc_html( $sub_item['node']['selector'] ) . '</p>';
 							$items   .= '</td>';
 						}
 						if ( isset( $sub_item['phase'] ) && isset( $sub_item['timing'] ) && isset( $sub_item['percent'] ) ) {
@@ -572,8 +572,8 @@ class Util_PageSpeed {
 					$headers .= '<th>' . esc_html__( 'Element', 'w3-total-cache' ) . '</th>';
 					$items   .= '<td>';
 					if ( isset( $item['node'] ) ) {
-						$items .= '<p><b>' . __( 'Snippet : ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['snippet'] ) . '</p>';
-						$items .= '<p><b>' . __( 'Selector : ', 'w3-total-cache' ) . '</b>' .esc_html( $item['node']['selector'] ) . '</p>';
+						$items .= '<p><b>' . __( 'Snippet: ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['snippet'] ) . '</p>';
+						$items .= '<p><b>' . __( 'Selector: ', 'w3-total-cache' ) . '</b>' .esc_html( $item['node']['selector'] ) . '</p>';
 					}
 					$items .= '</td>';
 
@@ -582,8 +582,8 @@ class Util_PageSpeed {
 				} elseif ( isset( $item['node'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Element', 'w3-total-cache' ) . '</th>';
 					$items   .= '<td>';
-					$items   .= '<p><b>' . __( 'Snippet : ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['snippet'] ) . '</p>';
-					$items   .= '<p><b>' . __( 'Selector : ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['selector'] ) . '</p>';
+					$items   .= '<p><b>' . __( 'Snippet: ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['snippet'] ) . '</p>';
+					$items   .= '<p><b>' . __( 'Selector: ', 'w3-total-cache' ) . '</b>' . esc_html( $item['node']['selector'] ) . '</p>';
 					$items   .= '</td>';
 				}
 				if ( isset( $item['headings'] ) && isset( $item['items'] ) ) {
@@ -596,8 +596,8 @@ class Util_PageSpeed {
 						$items .= '<tr class="w3tcps_passed_audit_subitem">';
 						if ( isset( $sub_item['node'] ) ) {
 							$items   .= '<td>';
-							$items   .= '<p><b>' . __( 'Snippet : ', 'w3-total-cache' ) . '</b>' . esc_html( $sub_item['node']['snippet'] ) . '</p>';
-							$items   .= '<p><b>' . __( 'Selector : ', 'w3-total-cache' ) . '</b>' . esc_html( $sub_item['node']['selector'] ) . '</p>';
+							$items   .= '<p><b>' . __( 'Snippet: ', 'w3-total-cache' ) . '</b>' . esc_html( $sub_item['node']['snippet'] ) . '</p>';
+							$items   .= '<p><b>' . __( 'Selector: ', 'w3-total-cache' ) . '</b>' . esc_html( $sub_item['node']['selector'] ) . '</p>';
 							$items   .= '</td>';
 						}
 						if ( isset( $sub_item['phase'] ) && isset( $sub_item['timing'] ) && isset( $sub_item['percent'] ) ) {
