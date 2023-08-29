@@ -362,8 +362,8 @@ class Util_PageSpeed {
 					$headers .= '<th>' . esc_html__( 'Element', 'w3-total-cache' ) . '</th>';
 					$items   .= '<td>';
 					if ( isset( $item['node'] ) ) {
-						$items .= '<p><b>' . __( 'Snippet: ', 'w3-total-cache' )  . '</b>' . esc_html( $item['node']['snippet'] ) . '</p>';
-						$items .= '<p><b>' . __( 'Selector: ', 'w3-total-cache' )  . '</b>' . esc_html( $item['node']['selector'] ) . '</p>';
+						$items .= '<p><b>' . __( 'Snippet', 'w3-total-cache' ) . ': </b>' . esc_html( $item['node']['snippet'] ) . '</p>';
+						$items .= '<p><b>' . __( 'Selector', 'w3-total-cache' ) . ': </b>' . esc_html( $item['node']['selector'] ) . '</p>';
 					}
 					$items .= '</td>';
 
