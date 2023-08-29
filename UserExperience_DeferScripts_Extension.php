@@ -209,7 +209,7 @@ class UserExperience_DeferScripts_Extension {
 	}
 
 	/**
-	 * Filters script tags that are flaged as deferred. This is used to prevent minify from touching scripts deferred by this feature.
+	 * Filters script tags that are flaged as deferred. This is used to prevent Minify from touching scripts deferred by this feature.
 	 *
 	 * @since 2.4.2
 	 *

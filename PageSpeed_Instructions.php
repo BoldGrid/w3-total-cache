@@ -33,15 +33,15 @@ class PageSpeed_Instructions {
 					'instructions' =>
 						'<p>' . wp_kses(
 							sprintf(
-								// translators: 1 W3TC plugin name, 2 HTML a tag to W3TC minify JS admin page
+								// translators: 1 W3TC plugin name, 2 HTML a tag to W3TC Minify JS admin page
 								// translators: 3 HTML a tag to W3TC general settings user experience section
 								// translators: 4 HTML a tag to W3TC user expereince advanced settings page
-								// translators: 5 HTML a tag to W3TC minify CSS admin page, 6 HTML line break tag.
+								// translators: 5 HTML a tag to W3TC Minify CSS admin page, 6 HTML line break tag.
 								esc_html__(
 									'%1$s can eliminate render blocking resources.%6$sOnce Minified, you can defer JS in the
-										%2$s.%6$sThe Defer Scripts (PRO FEATURE) can also be used with or without minify to defer
+										%2$s.%6$sThe Defer Scripts (PRO FEATURE) can also be used with or without Minify to defer
 										the loading of JS files containing the "src" attribute. Scripts matched using this
-										feature will be excluded from the minify process. To enable this feature navigate
+										feature will be excluded from the Minify process. To enable this feature navigate
 										to %3$s and check the "Defer JavaScript" checkbox. Once enabled the settings can be found
 										at %4$s.%6$sRender blocking CSS can be eliminated in %5$s using the "Eliminate Render
 										blocking CSS by moving it to HTTP body" (PRO FEATURE).',
@@ -290,7 +290,7 @@ class PageSpeed_Instructions {
 							// translators: 1 W3TC plugin name, 2 opening HTML a tag to CSS Minify settings, 3 closing HTML a tag,
 							// translators: 4 opening html a tagl to JS Minify settings, 5 closing HTML a tag.
 							esc_html__(
-								'Compress your HTML, CSS, and JavaScript files and minify your CSS and JavaScript to ensure your text-based resources are as small as they can be. Use the %1$s Minify %2$sJS%3$s and %4$sCSS%5$s features to accomplish this.',
+								'Compress your HTML, CSS, and JavaScript files and Minify your CSS and JavaScript to ensure your text-based resources are as small as they can be. Use the %1$s Minify %2$sJS%3$s and %4$sCSS%5$s features to accomplish this.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
