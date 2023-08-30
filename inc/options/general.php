@@ -991,7 +991,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'image_service',
 			'',
 			$this->_config->is_extension_active_frontend( 'imageservice' )
-				? array( esc_html__( 'Image Service', 'w3-total-cache' ) => Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) )
+				? array( esc_html__( 'Image Service Tool & Settings', 'w3-total-cache' ) => Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) )
 				: array()
 		);
 
@@ -1006,7 +1006,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			$image_service_link = $this->_config->is_extension_active_frontend( 'imageservice' )
 				? sprintf(
 					// Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
-					__( 'The tool and it\'s settings can be found on the %1$s %2$sImage Service%3$s page.', 'w3-total-cache' ),
+					__( 'The tool and its settings can be found on the %1$s %2$sImage Service%3$s page.', 'w3-total-cache' ),
 					'Total Cache',
 					'<a href="' . Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) . '">',
 					'</a>'
@@ -1025,14 +1025,26 @@ require W3TC_INC_DIR . '/options/common/header.php';
 								'w3-total-cache'
 							),
 							Util_Environment::is_w3tc_pro( $this->_config )
-								? __(
-									'As a Pro license holder you are limited to converstion rates of 10,000/hr and unlimited/month.',
-									'w3-total-cache'
+								? sprintf(
+									// translators: 1 free hourly rate, 2 free monthly rate.
+									__(
+										'As a Pro license holder you are limited to converstion rates of %1$s and %2$s.',
+										'w3-total-cache'
+									),
+									W3TC_IMAGE_SERVICE_PRO_HLIMIT,
+									W3TC_IMAGE_SERVICE_PRO_MLIMIT
 								)
-								: __(
-									'As a free user you are limitied to conversions of 100/hr and 1,000/month. The Pro license
-										increases these rates to 10,000/hr and unlimited/month.',
-									'w3-total-cache'
+								: sprintf(
+									// translators: 1 free hourly rate, 2 pro monthly rate, 3 pro hourly rate, 4 pro monthly rate.
+									__(
+										'As a free user you are limitied to conversions of %1$s and %2$s. The Pro license
+											increases these rates to %3$s and %4$s.',
+										'w3-total-cache'
+									),
+									W3TC_IMAGE_SERVICE_FREE_HLIMIT,
+									W3TC_IMAGE_SERVICE_FREE_MLIMIT,
+									W3TC_IMAGE_SERVICE_PRO_HLIMIT,
+									W3TC_IMAGE_SERVICE_PRO_MLIMIT
 								),
 							$image_service_link
 						),

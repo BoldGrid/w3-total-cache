@@ -66,6 +66,12 @@ $menu_array = array(
 			'text' => __( 'Statistics', 'w3-total-cache' ),
 		),
 		array(
+			'url'  => $config->is_extension_active_frontend( 'imageservice' )
+				? Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' )
+				: Util_Ui::admin_url( 'admin.php?page=w3tc_general#image_service' ),
+			'text' => __( 'Image Service', 'w3-total-cache' ),
+		),
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ),
 			'text' => __( 'Google PageSpeed', 'w3-total-cache' ),
 		),
@@ -100,20 +106,6 @@ $menu_array = array(
 		),
 	),
 );
-
-if ( $config->is_extension_active_frontend( 'imageservice' ) ) {
-	array_splice(
-		$menu_array['tools'],
-		2,
-		0,
-		array(
-			array(
-				'url'  => Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ),
-				'text' => __( 'Image Service', 'w3-total-cache' ),
-			),
-		)
-	);
-}
 
 do_action( 'w3tc_dashboard_top_nav_bar' );
 ?>
