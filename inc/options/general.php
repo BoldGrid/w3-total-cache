@@ -1056,6 +1056,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					),
 					'description'    => array(),
 					'label_class'    => 'w3tc_single_column',
+					'wrap_separate'  => true,
 				)
 			);
 			?>
