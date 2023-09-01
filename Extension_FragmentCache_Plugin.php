@@ -24,9 +24,11 @@ class Extension_FragmentCache_Plugin {
 		*/
 		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 
-		$config = Dispatcher::config();
+		$is_active = $this->_config->is_extension_active_frontend( 'fragmentcache' );
+		$engine    = $this->_config->get_string( array( 'fragmentcache', 'engine' ) );
+
 		// remainder only when extension is frontend-active.
-		if ( ! $config->is_extension_active_frontend( 'fragmentcache' ) || empty( $this->_config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
+		if ( ! $is_active || empty( $engine ) ) {
 			return;
 		}
 
@@ -35,7 +37,7 @@ class Extension_FragmentCache_Plugin {
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
 
-		if ( 'file' === $this->_config->get_string( array( 'fragmentcache', 'engine' ) ) ) {
+		if ( 'file' === $engine ) {
 			add_action( 'w3_fragmentcache_cleanup', array( $this, 'cleanup' ) );
 		}
 
