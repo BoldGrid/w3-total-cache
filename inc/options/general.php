@@ -989,10 +989,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'image_service',
-			'',
-			$this->_config->is_extension_active_frontend( 'imageservice' )
-				? array( esc_html__( 'WebP Converter Tool & Settings', 'w3-total-cache' ) => Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) )
-				: array()
+			$this->_config->is_extension_active( 'imageservice' )
+				? Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' )
+				: ''
 		);
 
 		if ( $this->_config->get_boolean( 'extension.imageservice' ) ) {
@@ -1003,7 +1002,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		?>
 		<table class="form-table">
 			<?php
-			$image_service_link = $this->_config->is_extension_active_frontend( 'imageservice' )
+			$image_service_link = $this->_config->is_extension_active( 'imageservice' )
 				? sprintf(
 					// Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
 					__( 'The tool and its settings can be found on the %1$s %2$sWebP Converter%3$s page.', 'w3-total-cache' ),
@@ -1019,39 +1018,53 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'checkbox_label' => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
 					'excerpt'        => wp_kses(
 						sprintf(
-							// translators: 1 license rates for free/pro users, 2 link to image service tool.
+							// translators: 1 HTML line breaks, 2 license rates for free/pro users, 3 link to image service tool.
 							__(
-								'This extension allows for optimizing media library images to WebP format. %1$s %2$s',
+								'This extension allows for optimizing media library images to WebP format.%1$s%2$s%1$s%3$s',
 								'w3-total-cache'
 							),
+							'<br/><br/>',
 							Util_Environment::is_w3tc_pro( $this->_config )
 								? sprintf(
-									// translators: 1 free hourly rate, 2 free monthly rate.
+									// translators: 1 free hourly rate, 2 free monthly rate, 3 opening HTML a tag to documentation URL,
+									// translators: 4 closing HTML a tag.
 									__(
-										'As a Pro license holder you are limited to converstion rates of %1$s and %2$s.',
+										'As a Pro license holder you are granted converstion rates of %1$s/hour and %2$s/month.
+											Conversion rates are subject to change and documentation can be found %3$shere%4$s.',
 										'w3-total-cache'
 									),
-									W3TC_IMAGE_SERVICE_PRO_HLIMIT,
-									W3TC_IMAGE_SERVICE_PRO_MLIMIT
+									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
+									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
+										? esc_html__( 'unlimited', 'w3-total-cache')
+										: number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
+									'<a href="https://www.boldgrid.com/support/w3-total-cache/image-service/" target="_blank">',
+									'</a>'
 								)
 								: sprintf(
-									// translators: 1 free hourly rate, 2 pro monthly rate, 3 pro hourly rate, 4 pro monthly rate.
+									// translators: 1 free hourly rate, 2 pro monthly rate, 3 pro hourly rate, 4 pro monthly rate,
+									// translators: 5 opening HTML a tag to documentation URL, 6 closing HTML a tag.
 									__(
-										'As a free user you are limitied to conversions of %1$s and %2$s. The Pro license
-											increases these rates to %3$s and %4$s.',
+										'As a free user you are limitied to conversions of %1$s/hour and %2$s/month. The Pro license
+											increases these rates to %3$s/hour and %4$s/month. Conversion rates are subject to change
+											and documentation can be found %5$shere%6$s.',
 										'w3-total-cache'
 									),
-									W3TC_IMAGE_SERVICE_FREE_HLIMIT,
-									W3TC_IMAGE_SERVICE_FREE_MLIMIT,
-									W3TC_IMAGE_SERVICE_PRO_HLIMIT,
-									W3TC_IMAGE_SERVICE_PRO_MLIMIT
+									number_format_i18n( W3TC_IMAGE_SERVICE_FREE_HLIMIT, 0 ),
+									number_format_i18n( W3TC_IMAGE_SERVICE_FREE_MLIMIT, 0 ),
+									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
+									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
+										? esc_html__( 'unlimited', 'w3-total-cache')
+										: number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
+									'<a href="https://www.boldgrid.com/support/w3-total-cache/image-service/" target="_blank">',
+									'</a>'
 								),
 							$image_service_link
 						),
 						array(
-							'a' => array(
+							'a'  => array(
 								'href' => array(),
 							),
+							'br' => array(),
 						)
 					),
 					'description'    => array(),

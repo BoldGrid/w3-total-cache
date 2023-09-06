@@ -38,10 +38,10 @@ define( 'W3TC_STACKPATH2_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/s
 define( 'W3TC_GOOGLE_DRIVE_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/googledrive/authorize' );
 
 // Image Service rate constants.
-define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', '100/hour' );
-define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', '1,000/month' );
-define( 'W3TC_IMAGE_SERVICE_PRO_HLIMIT', '10,000/hour' );
-define( 'W3TC_IMAGE_SERVICE_PRO_MLIMIT', 'unlimited/month' );
+define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 100 );
+define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 1000 );
+define( 'W3TC_IMAGE_SERVICE_PRO_HLIMIT', 10000 );
+define( 'W3TC_IMAGE_SERVICE_PRO_MLIMIT', 0 );
 
 // this is the URL our updater / license checker pings. This should be the URL of the site with EDD installed.
 if ( ! defined( 'W3TC_LICENSE_API_URL' ) ) {
