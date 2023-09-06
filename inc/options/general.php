@@ -981,9 +981,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 		<?php
 		Util_Ui::postbox_header_tabs(
-			esc_html__( 'Image Service', 'w3-total-cache' ),
+			esc_html__( 'WebP Converter', 'w3-total-cache' ),
 			esc_html__(
-				'The Image Service tool can be used to generate WebP versions of media library
+				'The WebP Converter tool can be used to generate WebP versions of media library
 					images which offer superior lossless and lossy compression.',
 				'w3-total-cache'
 			),
@@ -991,7 +991,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'image_service',
 			'',
 			$this->_config->is_extension_active_frontend( 'imageservice' )
-				? array( esc_html__( 'Image Service Tool & Settings', 'w3-total-cache' ) => Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) )
+				? array( esc_html__( 'WebP Converter Tool & Settings', 'w3-total-cache' ) => Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) )
 				: array()
 		);
 
@@ -1006,7 +1006,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			$image_service_link = $this->_config->is_extension_active_frontend( 'imageservice' )
 				? sprintf(
 					// Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
-					__( 'The tool and its settings can be found on the %1$s %2$sImage Service%3$s page.', 'w3-total-cache' ),
+					__( 'The tool and its settings can be found on the %1$s %2$sWebP Converter%3$s page.', 'w3-total-cache' ),
 					'Total Cache',
 					'<a href="' . Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) . '">',
 					'</a>'
@@ -1014,9 +1014,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			Util_Ui::config_item_pro(
 				array(
 					'key'            => 'extension.imageservice',
-					'label'          => esc_html__( 'Image Service', 'w3-total-cache' ),
+					'label'          => esc_html__( 'WebP Converter', 'w3-total-cache' ),
 					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable Image Service Extension', 'w3-total-cache' ),
+					'checkbox_label' => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
 					'excerpt'        => wp_kses(
 						sprintf(
 							// translators: 1 license rates for free/pro users, 2 link to image service tool.

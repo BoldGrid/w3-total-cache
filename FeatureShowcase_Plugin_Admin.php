@@ -356,7 +356,7 @@ class FeatureShowcase_Plugin_Admin {
 				'is_new'     => false,
 			),
 			'imageservice'        => array(
-				'title'      => esc_html__( 'Image Service', 'w3-total-cache' ),
+				'title'      => esc_html__( 'WebP Converter', 'w3-total-cache' ),
 				'icon'       => 'dashicons-embed-photo',
 				'text'       => esc_html( $imageservice_description ),
 				'button'     => empty( $imageservice_button_text ) ? '' :
