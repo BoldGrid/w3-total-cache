@@ -61,11 +61,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Caching statistics for performance insights of any enabled feature
 * Extension framework for customization or extensibility for Cloudflare, WPML and much more
 * Reverse proxy integration via Nginx or Varnish
-<<<<<<< Updated upstream
 * WebP Converter extension provides WebP image format conversion from common image formats (on upload and on demand)
-=======
-* W3TC WebP extension provides WebP image format conversion from common image formats (on upload and on demand)
->>>>>>> Stashed changes
 
 Speed up your site tremendously, improve core web vitals and the overall user experience for your visitors without having to change your WordPress host, theme, plugins or your content production workflow.
 
@@ -230,11 +226,7 @@ You can however try adding <em>define('FS_METHOD', 'direct');</em> to wp-config.
 
 No.  The WebP Converter extension converts common image file formats to the modern WebP format using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
 
-<<<<<<< Updated upstream
 = Is image data retained by the Total Cache WebP Converter API? =
-=======
-= Is image data retained by the Total Cache W3TC WebP API? =
->>>>>>> Stashed changes
 
 Image data received by our API is destroyed after a converted image is generated.  The converted iamges are destroyed once picked-up/downloaded to your website by the Total Cache plugin.
 
