@@ -215,21 +215,21 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	}
 
 	/**
-	 * Default initialization method, calls wp_db apropriate method
+	 * Default initialization method, calls wp_db appropriate method.
 	 */
 	public function default_initialize() {
 		parent::__construct( DB_USER, DB_PASSWORD, DB_NAME, DB_HOST );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_insert( $table, $data, $format = null ) {
 		return parent::insert( $table, $data, $format );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_query( $query ) {
 		return parent::query( $query );
@@ -240,91 +240,91 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_prepare( $query, $args ) {
 		return parent::prepare( $query, ...$args );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_replace( $table, $data, $format = null ) {
 		return parent::replace( $table, $data, $format );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_update( $table, $data, $where, $format = null, $where_format = null ) {
 		return parent::update( $table, $data, $where, $format, $where_format );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_delete( $table, $where, $where_format = null ) {
 		return parent::delete( $table, $where, $where_format );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_init_charset() {
 		return parent::init_charset();
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_set_charset( $dbh, $charset = null, $collate = null ) {
 		return parent::set_charset( $dbh, $charset, $collate );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_set_sql_mode( $modes = array() ) {
 		return parent::set_sql_mode( $modes );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_flush() {
 		return parent::flush();
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_check_database_version( $dbh_or_table = false ) {
 		return parent::check_database_version( $dbh_or_table );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_supports_collation( $dbh_or_table = false ) {
 		return parent::supports_collation( $dbh_or_table );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_has_cap( $db_cap, $dbh_or_table = false ) {
 		return parent::has_cap( $db_cap, $dbh_or_table );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function default_db_version( $dbh_or_table = false ) {
 		return parent::db_version( $dbh_or_table );
 	}
 
 	/**
-	 * Default implementation, calls wp_db apropriate method
+	 * Default implementation, calls wp_db appropriate method.
 	 */
 	public function switch_active_processor( $offset ) {
 		$new_processor_number = $this->active_processor_number + $offset;
@@ -348,12 +348,24 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
  * class CallUnderlying
  */
 class _CallUnderlying {
+	/**
+	 * WPDB mixin.
+	 *
+	 * @var object
+	 */
+	private $wpdb_mixin;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param object $manager Manager.
+	 */
 	function __construct( $manager ) {
 		$this->wpdb_mixin = $manager;
 	}
 
 	/**
-	 * Calls underlying processor's aproptiate method of wp_db
+	 * Calls underlying processor's appropriate method of wp_db.
 	 */
 	function initialize() {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
@@ -370,7 +382,7 @@ class _CallUnderlying {
 	}
 
 	/**
-	 * Calls underlying processor's aproptiate method of wp_db
+	 * Calls underlying processor's appropriate method of wp_db.
 	 */
 	function flush() {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
@@ -387,7 +399,7 @@ class _CallUnderlying {
 	}
 
 	/**
-	 * Calls underlying processor's aproptiate method of wp_db
+	 * Calls underlying processor's appropriate method of wp_db.
 	 */
 	function query( $query ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
@@ -404,7 +416,7 @@ class _CallUnderlying {
 	}
 
 	/**
-	 * Calls underlying processor's aproptiate method of wp_db
+	 * Calls underlying processor's appropriate method of wp_db.
 	 */
 	function _escape( $data ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
@@ -421,7 +433,7 @@ class _CallUnderlying {
 	}
 
 	/**
-	 * Calls underlying processor's aproptiate method of wp_db
+	 * Calls underlying processor's appropriate method of wp_db.
 	 */
 	function prepare( $query, $args ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
@@ -438,7 +450,7 @@ class _CallUnderlying {
 	}
 
 	/**
-	 * Calls underlying processor's aproptiate method of wp_db
+	 * Calls underlying processor's appropriate method of wp_db.
 	 */
 	function insert( $table, $data, $format = null ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
@@ -455,7 +467,7 @@ class _CallUnderlying {
 	}
 
 	/**
-	 * Calls underlying processor's aproptiate method of wp_db
+	 * Calls underlying processor's appropriate method of wp_db.
 	 */
 	function replace( $table, $data, $format = null ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );
@@ -472,7 +484,7 @@ class _CallUnderlying {
 	}
 
 	/**
-	 * Calls underlying processor's aproptiate method of wp_db
+	 * Calls underlying processor's appropriate method of wp_db.
 	 */
 	function update( $table, $data, $where, $format = null, $where_format = null ) {
 		$switched = $this->wpdb_mixin->switch_active_processor( 1 );

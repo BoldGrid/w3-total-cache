@@ -243,11 +243,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'0' => esc_html__( 'Manual', 'w3-total-cache' ),
 					),
 					'description'       => esc_html__(
-						'Select manual mode to use fields on the minify settings tab to specify files to be minified, otherwise files will be minified automatically.',
+						'Select manual mode to use fields on the Minify settings tab to specify files to be minified, otherwise files will be minified automatically.',
 						'w3-total-cache'
 					),
 					'control_after'     => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=manual_minify#difference-between-auto-and-manual-minify' ) . '" title="'
-						. esc_attr__( 'How to use manual minify', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
+						. esc_attr__( 'How to use manual Minify', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
 			);
@@ -273,7 +273,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						),
 					),
 					'control_after'    => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify/html-minify-or-tidy/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_html#minify-default' ) . '" title="' .
-						esc_attr__( 'How to use minify HTML', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
+						esc_attr__( 'How to use Minify HTML', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
 			);
@@ -818,7 +818,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							sprintf(
 								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 								__(
-									'Optimize disk enhanced page and minify disk caching for %1$sNFS%2$s',
+									'Optimize disk enhanced page and Minify disk caching for %1$sNFS%2$s',
 									'w3-total-cache'
 								),
 								'<acronym title="' . esc_attr__( 'Network File System', 'w3-total-cache' ) . '">',

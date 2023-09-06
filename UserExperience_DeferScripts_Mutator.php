@@ -154,7 +154,7 @@ class UserExperience_DeferScripts_Mutator {
 	}
 
 	/**
-	 * Filters out scripts so minify doesn't touch deferred scripts.
+	 * Filters out scripts so Minify doesn't touch deferred scripts.
 	 *
 	 * @since 2.4.2
 	 *
