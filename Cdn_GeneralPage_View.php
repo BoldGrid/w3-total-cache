@@ -29,12 +29,12 @@ Util_Ui::postbox_header_tabs(
 		)
 	),
 	esc_html__(
-		'Content Delivery Network (CDN) is a powerful feature that can significantly enhance the performance of 
-			your WordPress website. By leveraging a distributed network of servers located worldwide, a CDN helps 
-			deliver your website\'s static files, such as images, CSS, and JavaScript, to visitors more efficiently. 
-			This reduces the latency and improves the loading speed of your website, resulting in a faster and 
-			smoother browsing experience for your users. With W3 Total Cache\'s CDN integration, you can easily 
-			configure and connect your website to a CDN service of your choice, unleashing the full potential of 
+		'Content Delivery Network (CDN) is a powerful feature that can significantly enhance the performance of
+			your WordPress website. By leveraging a distributed network of servers located worldwide, a CDN helps
+			deliver your website\'s static files, such as images, CSS, and JavaScript, to visitors more efficiently.
+			This reduces the latency and improves the loading speed of your website, resulting in a faster and
+			smoother browsing experience for your users. With W3 Total Cache\'s CDN integration, you can easily
+			configure and connect your website to a CDN service of your choice, unleashing the full potential of
 			your WordPress site\'s speed optimization.',
 		'w3-total-cache'
 	),
@@ -56,12 +56,12 @@ Util_Ui::config_overloading_button(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 				// translators: 3 opening HTML a tag, 4 closing HTML a tag.
 				__(
-					'If you do not have a %1$sCDN%2$s provider try StackPath. %3$sSign up now to enjoy a special offer!%4$s.',
+					'If you do not have a %1$sCDN%2$s provider try BunnyCDN. %3$sSign up now to enjoy a special offer%4$s!',
 					'w3-total-cache'
 				),
 				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 				'</acronym>',
-				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_stackpath_signup' ), 'w3tc' ) ) . '" target="_blank">',
+				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_bunnycdn_signup' ), 'w3tc' ) ) . '" target="_blank">',
 				'</a>'
 			),
 			array(
@@ -89,7 +89,7 @@ Util_Ui::config_overloading_button(
 					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 					// translators: 3 opening HTML acronym tag, 4 closing acronym tag.
 					__(
-						'Theme files, media library attachments, %1$sCSS%2$s, %3$sJS%4$s files etc will quickly for site visitors.',
+						'Theme files, media library attachments, %1$sCSS%2$s, and %3$sJS%4$s files will load quickly for site visitors.',
 						'w3-total-cache'
 					),
 					'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',

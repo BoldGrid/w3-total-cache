@@ -28,12 +28,12 @@ if ( ! defined( 'W3TC' ) ) {
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 				// translators: 3 opening HTML a tag to W3TC MaxCDN Signup admin page, 4 closing HTML a tag.
 				__(
-					'If you do not have a %1$sCDN%2$s provider try StackPath. %3$sSign up now to enjoy a special offer!%4$s.',
+					'If you do not have a %1$sCDN%2$s provider try BunnyCDN. %3$sSign up now to enjoy a special offer%4$s!',
 					'w3-total-cache'
 				),
 				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 				'</acronym>',
-				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_stackpath_signup' ), 'w3tc' ) ) . '" target="_blank">',
+				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_bunnycdn_signup' ), 'w3tc' ) ) . '" target="_blank">',
 				'</a>'
 			),
 			array(

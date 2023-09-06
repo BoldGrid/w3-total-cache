@@ -1,7 +1,8 @@
 {
     "require": {
         "aws/aws-sdk-php": "3.183.8",
-        "aws/aws-php-sns-message-validator": "^1.8"
+        "aws/aws-php-sns-message-validator": "^1.8",
+        "bunnyway/bunnycdn.php.storage": "dev-master"
     },
     "require-dev": {
         "yoast/phpunit-polyfills": "^1.0",
@@ -18,6 +19,21 @@
         "symfony/polyfill-php74": "*",
         "symfony/polyfill-mbstring": "*"
     },
+    "repositories": [
+        {
+          "type": "package",
+          "package": {
+            "name": "bunnyway/bunnycdn.php.storage",
+            "version": "master",
+            "type": "vcs",
+            "source": {
+              "url": "https://github.com/BunnyWay/BunnyCDN.PHP.Storage.git",
+              "type": "git",
+              "reference": "master"
+            }
+          }
+        }
+      ],
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true

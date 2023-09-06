@@ -1,8 +1,24 @@
 <?php
+/**
+ * File: Cdn_Plugin_Admin.php
+ *
+ * @since X.X.X
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class: Cdn_Plugin_Admin
+ */
 class Cdn_Plugin_Admin {
-	function run() {
+	/**
+	 * Run.
+	 *
+	 * @return void
+	 */
+	public function run() {
 		$config_labels = new Cdn_ConfigLabels();
 		add_filter( 'w3tc_config_labels', array( $config_labels, 'config_labels' ) );
 
@@ -98,14 +114,34 @@ class Cdn_Plugin_Admin {
 			add_action( 'w3tc_ajax_cdn_stackpath2_widgetdata', array(
 					'\W3TC\Cdn_StackPath2_Widget',
 					'w3tc_ajax_cdn_stackpath2_widgetdata' ) );
+		} elseif ( 'bunnycdn' === $cdn_engine ) {
+			// BunnyCDN.
+			add_action(
+				'w3tc_ajax',
+				array( '\W3TC\Cdn_BunnyCdn_Popup', 'w3tc_ajax' )
+			);
+			add_action(
+				'w3tc_settings_cdn_boxarea_configuration',
+				array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' )
+			);
+			add_action(
+				'admin_init_w3tc_dashboard',
+				array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' )
+			);
+			add_action(
+				'w3tc_ajax_cdn_bunnycdn_widgetdata',
+				array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' )
+			);
 		} else {
-			// default cdn widget
-			add_action( 'admin_init_w3tc_dashboard', array(
-					'\W3TC\Cdn_StackPath2_Widget',
-					'admin_init_w3tc_dashboard' ) );
-			add_action( 'w3tc_ajax_cdn_stackpath2_widgetdata', array(
-					'\W3TC\Cdn_StackPath2_Widget',
-					'w3tc_ajax_cdn_stackpath2_widgetdata' ) );
+			// Default CDN widget.
+			add_action(
+				'admin_init_w3tc_dashboard',
+				array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' )
+			);
+			add_action(
+				'w3tc_ajax_cdn_bunnycdn_widgetdata',
+				array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' )
+			);
 		}
 
 		add_action( 'w3tc_settings_general_boxarea_cdn', array(
@@ -114,8 +150,11 @@ class Cdn_Plugin_Admin {
 			) );
 	}
 
-
-
+	/**
+	 * CDN settings.
+	 *
+	 * @return void
+	 */
 	public function w3tc_settings_general_boxarea_cdn() {
 		$config = Dispatcher::config();
 
@@ -142,6 +181,10 @@ class Cdn_Plugin_Admin {
 			'label' => __( 'AT&amp;T', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull
 		);
+		$engine_values['bunnycdn'] = array(
+			'label' => __( 'BunnyCDN (recommended)', 'w3-total-cache' ),
+			'optgroup' => $optgroup_pull,
+		);
 		$engine_values['cotendo'] = array(
 			'label' => __( 'Cotendo (Akamai)', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull
@@ -163,7 +206,7 @@ class Cdn_Plugin_Admin {
 			'optgroup' => $optgroup_pull
 		);
 		$engine_values['stackpath2'] = array(
-			'label' => __( 'StackPath (recommended)', 'w3-total-cache' ),
+			'label' => __( 'StackPath', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull
 		);
 		$engine_values['stackpath'] = array(
@@ -211,19 +254,17 @@ class Cdn_Plugin_Admin {
 		$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
 		$cdn_engine = $config->get_string( 'cdn.engine' );
 
-		include  W3TC_DIR . '/Cdn_GeneralPage_View.php';
+		include W3TC_DIR . '/Cdn_GeneralPage_View.php';
 	}
-
-
 
 	/**
 	 * Adjusts attachment urls to cdn. This is for those who rely on
 	 * wp_get_attachment_url()
 	 *
-	 * @param 	string   $url	the local url to modify
-	 * @return 	string
+	 * @param  string $url The local url to modify.
+	 * @return string
 	 */
-	function wp_get_attachment_url( $url ) {
+	public function wp_get_attachment_url( $url ) {
 		if ( defined( 'WP_ADMIN' ) ) {
 			$url = trim( $url );
 
@@ -235,7 +276,7 @@ class Cdn_Plugin_Admin {
 				$wp_upload_dir = wp_upload_dir();
 				$upload_base_url = $wp_upload_dir['baseurl'];
 
-				if ( substr($url, 0, strlen( $upload_base_url ) ) == $upload_base_url ) {
+				if ( substr( $url, 0, strlen( $upload_base_url ) ) == $upload_base_url ) {
 					$common = Dispatcher::component( 'Cdn_Core' );
 					$new_url = $common->url_to_cdn_url( $url, $uri );
 					if ( !is_null( $new_url ) ) {

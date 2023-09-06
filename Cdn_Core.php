@@ -599,6 +599,15 @@ class Cdn_Core {
 					);
 					break;
 
+				case 'bunnycdn':
+					$engine_config = array(
+						'account_api_key'  => $c->get_string( 'cdn.bunnycdn.account_api_key' ),
+						'storage_api_key'  => $c->get_string( 'cdn.bunnycdn.storage_api_key' ),
+						'stream_api_key'   => $c->get_string( 'cdn.bunnycdn.stream_api_key' ),
+						'site_root_domain' => $c->get_string( 'cdn.bunnycdn.site_root_domain' ),
+						'pull_zone_id'     => $c->get_string( 'cdn.bunnycdn.pull_zone_id' ),
+					);
+					break;
 			}
 
 			$engine_config = array_merge( $engine_config, array(

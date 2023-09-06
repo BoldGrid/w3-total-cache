@@ -413,6 +413,7 @@ class Cdn_AdminActions {
 				$engine == 'stackpath2' ||
 				$engine == 'rackspace_cdn' ||
 				$engine == 'rscf' ||
+				'bunnycdn' === $engine ||
 				$engine == 's3_compatible' ) {
 				// those use already stored w3tc config
 				$w3_cdn = Dispatcher::component( 'Cdn_Core' )->get_cdn();
@@ -495,7 +496,21 @@ class Cdn_AdminActions {
 		echo json_encode( $response );
 	}
 
-
+	/**
+	 * Redirect to the BunnyCDN signup page.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_cdn_bunnycdn_signup() {
+		try {
+			$state = Dispatcher::config_state();
+			$state->set( 'track.bunnycdn_signup', time() );
+			$state->save();
+		} catch ( \Exception $ex ) {} // phpcs:ignore
+		Util_Environment::redirect( W3TC_BUNNYCDN_SIGNUP_URL );
+	}
 
 	private function test_cdn_url( $url ) {
 		$response = wp_remote_get( $url );

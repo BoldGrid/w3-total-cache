@@ -42,6 +42,21 @@ class Cdnfsd_Plugin_Admin {
 			add_action( 'w3tc_settings_box_cdnfsd', array(
 				'\W3TC\Cdnfsd_TransparentCDN_Page',
 				'w3tc_settings_box_cdnfsd' ) );
+		} elseif ( 'bunnycdn' === $cdnfsd_engine ) {
+			add_action(
+				'w3tc_ajax',
+				array(
+					'\W3TC\Cdnfsd_BunnyCdn_Popup',
+					'w3tc_ajax',
+				)
+			);
+			add_action(
+				'w3tc_settings_box_cdnfsd',
+				array(
+					'\W3TC\Cdnfsd_BunnyCdn_Page',
+					'w3tc_settings_box_cdnfsd',
+				)
+			);
 		}
 
 		add_action( 'w3tc_settings_general_boxarea_cdn_footer',
@@ -62,6 +77,9 @@ class Cdnfsd_Plugin_Admin {
 		$cdnfsd_engine_values[''] = array(
 			'label' => 'Select a provider',
 		);
+		$cdnfsd_engine_values['bunnycdn'] = array(
+			'label' => __( 'BunnyCDN (recommended)', 'w3-total-cache' ),
+		);
 		$cdnfsd_engine_values['cloudfront'] = array(
 			'label' => __( 'Amazon CloudFront', 'w3-total-cache' ),
 		);
@@ -76,7 +94,7 @@ class Cdnfsd_Plugin_Admin {
 			'label' => __( 'StackPath SecureCDN (Legacy)', 'w3-total-cache' ),
 		);
 		$cdnfsd_engine_values['stackpath2'] = array(
-			'label' => __( 'StackPath (recommended)', 'w3-total-cache' ),
+			'label' => __( 'StackPath', 'w3-total-cache' ),
 		);
 		$cdnfsd_engine_values['transparentcdn'] = array(
 			'label' => __( 'TransparentCDN', 'w3-total-cache' ),
