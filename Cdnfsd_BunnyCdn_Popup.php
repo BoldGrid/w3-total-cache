@@ -129,7 +129,6 @@ class Cdnfsd_BunnyCdn_Popup {
 						'OriginUrl'        => $origin_url, // Origin URL or IP (with optional port number).
 					)
 				);
-error_log( __METHOD__ . ': $response: ' . print_r( $response, true ) );
 
 				$pull_zone_id = (int) $response['Id'];
 				$name         = $response['Name'];
