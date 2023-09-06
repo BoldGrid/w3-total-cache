@@ -315,7 +315,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: PHP 8 compatibility: Invalid return type if Browser Cache is disabled
 * Fix: Added AWS SNS message classes (aws/aws-php-sns-message-validator)
 * Fix: PageSpeed service: messages and escaping
-* Fix: WebP Converter meta query handling
+* Fix: Image Service meta query handling
 * Update: Dependency version updates
 * Update: Content-Security-Policy (CSP) and Content-Security-Policy-Report-Only (CSPRO) header field configuration
 
@@ -377,8 +377,8 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Added missing space to S3 CDN bucket label
 * Fix: JS error for CloudFront CDN related check on non-W3TC pages
 * Fix: Page cache unpack warning for empty/malformed files
-* Enhancement: WebP Converter pre_get_posts anonymous action now hooked (w3tc_modify_query_obj)
-* Enhancement: WebP Converter ajax_query_attachments_args anonymous action now hooked (w3tc_filter_ajax_args)
+* Enhancement: Image Service pre_get_posts anonymous action now hooked (w3tc_modify_query_obj)
+* Enhancement: Image Service ajax_query_attachments_args anonymous action now hooked (w3tc_filter_ajax_args)
 
 = 2.2.4 =
 * Fix: Extensions URL in settings
@@ -402,7 +402,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Compatibility check for WP_CACHE
 * Fix: Flush all cache cache except Cloudflare button
 * Fix: License terms update notice escaping
-* Fix: Feature Showcase: WebP Converter activate button
+* Fix: Feature Showcase: Image Service activate button
 * Security: Updated guzzlehttp/guzzle to 6.5.8
 
 = 2.2.2 =
@@ -418,14 +418,14 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Database cluster logic
 * Fix: FTP credentials form
 * Fix: Preview deploy button
-* Fix: WebP Converter links in multisite network admin
-* Fix: Enable WebP Converter settings changes in multisite blog/sub sites
+* Fix: Image Service links in multisite network admin
+* Fix: Enable Image Service settings changes in multisite blog/sub sites
 * Enhancement: Updated Cloudflare settings to allow a global API key or token
 * Enhancement: Added Cloudflare CDN public objects option to settings
 * Enhancement: Added timeout settings for Redis
 * Enhancement: Added TLS/SSL certificate verification option for Redis
-* Enhancement: Added WebP Converter visibility option
-* Enhancement: Updated WebP Converter limit notification
+* Enhancement: Added Image Service visibility option
+* Enhancement: Updated Image Service limit notification
 * Enhancement: Better handling of trailing slash URLs
 * Update: Adjusted lightbox for accessibility
 * Update: Removed deprecated opcache flush
@@ -436,10 +436,10 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Added better checking for some filesystem actions
 * Fix: AWS CloudFront: Reverted async change for cache invalidation to honor promises
 * Enhancement: Added option to exclude minified JS files from being processed by Rocket Loader
-* Enhancement: Improved handling of WebP Converter rate-limiting and error messages
+* Enhancement: Improved handling of Image Service rate-limiting and error messages
 
 = 2.2.0 =
-* Feature: WebP Converter extension: WebP conversion options
+* Feature: Image Service extension: WebP conversion options
 
 = 2.1.9 =
 * Fix: Cloudflare Dashboard Widget: Updated to use GraphQL
