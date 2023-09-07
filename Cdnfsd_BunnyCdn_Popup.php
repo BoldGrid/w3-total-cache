@@ -47,7 +47,7 @@ class Cdnfsd_BunnyCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_fsd_intro() {
 		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdnfsd.bunnycdn.account_api_key' );
+		$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
 
 		// Ask for an account API key.
 		$this->render_intro(
@@ -82,8 +82,8 @@ class Cdnfsd_BunnyCdn_Popup {
 		// Save the account API key, if added or changed.
 		$config = Dispatcher::config();
 
-		if ( $config->get_string( 'cdnfsd.bunnycdn.account_api_key' ) !== $account_api_key ) {
-			$config->set( 'cdnfsd.bunnycdn.account_api_key', $account_api_key );
+		if ( $config->get_string( 'cdn.bunnycdn.account_api_key' ) !== $account_api_key ) {
+			$config->set( 'cdn.bunnycdn.account_api_key', $account_api_key );
 			$config->save();
 		}
 
@@ -111,7 +111,7 @@ class Cdnfsd_BunnyCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_fsd_configure_pull_zone() {
 		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdnfsd.bunnycdn.account_api_key' );
+		$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
 		$pull_zone_id    = Util_Request::get_string( 'pull_zone_id' );
 		$origin_url      = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
 		$name            = Util_Request::get_string( 'name' ); // Pull zone name.
@@ -149,7 +149,7 @@ class Cdnfsd_BunnyCdn_Popup {
 		$config->set( 'cdnfsd.bunnycdn.name', $name );
 		$config->set( 'cdnfsd.bunnycdn.origin_url', $origin_url );
 		$config->set( 'cdnfsd.bunnycdn.cdn_hostname', $cdn_hostname );
-		$config->set( 'cdnfsd.bunnycdn.is_authorized', true );
+		$config->set( 'cdn.bunnycdn.is_authorized', true );
 		$config->save();
 
 		// Print success view.

@@ -12,8 +12,8 @@ namespace W3TC;
 
 defined( 'W3TC' ) || die;
 
-$account_api_key = $config->get_string( 'cdnfsd.bunnycdn.account_api_key' );
-$is_authorized   = $config->get_boolean( 'cdnfsd.bunnycdn.is_authorized' );
+$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
+$is_authorized   = $config->get_boolean( 'cdn.bunnycdn.is_authorized' );
 
 Util_Ui::postbox_header(
 	esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ),
