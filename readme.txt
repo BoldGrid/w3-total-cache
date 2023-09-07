@@ -61,7 +61,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Caching statistics for performance insights of any enabled feature
 * Extension framework for customization or extensibility for Cloudflare, WPML and much more
 * Reverse proxy integration via Nginx or Varnish
-* Image Service API extension provides WebP image format conversion from common image formats (on upload and on demand)
+* WebP Converter extension provides WebP image format conversion from common image formats (on upload and on demand)
 
 Speed up your site tremendously, improve core web vitals and the overall user experience for your visitors without having to change your WordPress host, theme, plugins or your content production workflow.
 
@@ -222,11 +222,11 @@ Typically, you should tell your web host about the permission issue and they sho
 
 You can however try adding <em>define('FS_METHOD', 'direct');</em> to wp-config.php to circumvent the file and folder checks.
 
-= Does the Image Service extension use a lot of resources to convert images to WebP? =
+= Does the WebP Converter extension use a lot of resources to convert images to WebP? =
 
-No.  The Image Service extension converts common image file formats to the modern WebP format using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
+No.  The WebP Converter extension converts common image file formats to the modern WebP format using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
 
-= Is image data retained by the Total Cache Image Service API? =
+= Is image data retained by the Total Cache WebP Converter API? =
 
 Image data received by our API is destroyed after a converted image is generated.  The converted iamges are destroyed once picked-up/downloaded to your website by the Total Cache plugin.
 
@@ -439,7 +439,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Enhancement: Improved handling of Image Service rate-limiting and error messages
 
 = 2.2.0 =
-* Feature: Image Service API extension: WebP conversion options
+* Feature: Image Service extension: WebP conversion options
 
 = 2.1.9 =
 * Fix: Cloudflare Dashboard Widget: Updated to use GraphQL

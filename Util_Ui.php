@@ -1151,12 +1151,24 @@ class Util_Ui {
 			echo "</th>\n<td>\n";
 		}
 
-		self::pro_wrap_maybe_start();
+		// If wrap_separate is not set we wrap everything.
+		if ( ! isset( $a['wrap_separate'] ) ) {
+			self::pro_wrap_maybe_start();
+		}
 
 		self::control2( $a );
 
 		if ( isset( $a['control_after'] ) ) {
 			echo wp_kses( $a['control_after'], self::get_allowed_html_for_wp_kses_from_content( $a['control_after'] ) );
+		}
+
+		// If wrap_separate is set we wrap only the description.
+		if ( isset( $a['wrap_separate'] ) ) {
+			// If not pro we add a spacer for better separation of control element and wrapper.
+			if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+				echo '<br/><br/>';
+			}
+			self::pro_wrap_maybe_start();
 		}
 
 		if ( isset( $a['description'] ) ) {
@@ -1603,6 +1615,10 @@ class Util_Ui {
 						array(
 							'id'   => 'debug',
 							'text' => esc_html__( 'Debug', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'image_service',
+							'text' => esc_html__( 'WebP Converter', 'w3-total-cache' ),
 						),
 						array(
 							'id'   => 'google_pagespeed',

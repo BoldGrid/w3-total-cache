@@ -344,7 +344,7 @@ class PageSpeed_Api {
 	 * @param string $gacode             New Google access authentication code.
 	 * @param string $w3tc_pagespeed_key W3 API access key.
 	 *
-	 * @return JSON
+	 * @return string
 	 */
 	public function process_authorization_response( $gacode, $w3tc_pagespeed_key ) {
 		if ( empty( $gacode ) ) {

@@ -39,6 +39,12 @@ define( 'W3TC_GOOGLE_DRIVE_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/googledri
 define( 'W3TC_BUNNYCDN_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/signup' );
 define( 'W3TC_BUNNYCDN_SETTINGS_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/settings' );
 
+// Image Service rate constants.
+define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 100 );
+define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 1000 );
+define( 'W3TC_IMAGE_SERVICE_PRO_HLIMIT', 10000 );
+define( 'W3TC_IMAGE_SERVICE_PRO_MLIMIT', 0 );
+
 // this is the URL our updater / license checker pings. This should be the URL of the site with EDD installed.
 if ( ! defined( 'W3TC_LICENSE_API_URL' ) ) {
 	define( 'W3TC_LICENSE_API_URL', 'https://www.w3-edge.com/' );

@@ -23,7 +23,7 @@ if ( ! defined( 'W3TC' ) ) {
 <div class="wrap" id="w3tc">
 <?php Util_Ui::print_breadcrumb(); ?>
 <p>
-	Total Cache Image Service is currently
+	Total Cache WebP Converter is currently
 <?php
 if ( $c->is_extension_active( 'imageservice' ) ) {
 	?>
@@ -187,7 +187,7 @@ Util_Ui::postbox_header(
 			</td>
 		</tr>
 		<tr>
-			<th><?php esc_html_e( 'Image Service API usage:', 'w3-total-cache' ); ?></th>
+			<th><?php esc_html_e( 'WebP Converter API usage:', 'w3-total-cache' ); ?></th>
 			<td>
 				<table id="w3tc-imageservice-usage">
 					<tr>

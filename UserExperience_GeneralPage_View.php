@@ -29,6 +29,7 @@ Util_Ui::postbox_header_tabs(
 	Util_UI::admin_url( 'admin.php?page=w3tc_userexperience' )
 );
 Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_overloaded' ) );
+
 ?>
 
 <table class="form-table">
@@ -92,7 +93,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 				'Defer the loading of specified JavaScript sources on your pages.',
 				'w3-total-cache'
 			) . (
-				Util_Environment::is_w3tc_pro( $config )
+				Util_Environment::is_w3tc_pro( $config ) && $config->is_extension_active( 'user-experience-defer-scripts' )
 				? wp_kses(
 					sprintf(
 						// translators: 1 opening HTML a tag to W3TC User Experience page, 2 closing HTML a tag.
