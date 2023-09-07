@@ -66,6 +66,12 @@ $menu_array = array(
 			'text' => __( 'Statistics', 'w3-total-cache' ),
 		),
 		array(
+			'url'  => $config->is_extension_active( 'imageservice' )
+				? Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' )
+				: Util_Ui::admin_url( 'admin.php?page=w3tc_general#image_service' ),
+			'text' => __( 'WebP Converter', 'w3-total-cache' ),
+		),
+		array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ),
 			'text' => __( 'Google PageSpeed', 'w3-total-cache' ),
 		),

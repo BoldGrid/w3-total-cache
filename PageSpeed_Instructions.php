@@ -137,7 +137,7 @@ class PageSpeed_Instructions {
 						'<p>' . sprintf(
 							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s %2$sImage Service%3$s to convert media library images to WebP.',
+								'Use %1$s %2$sWebP Converter%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
@@ -150,7 +150,7 @@ class PageSpeed_Instructions {
 						'<p>' . sprintf(
 							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s %2$sImage Service%3$s to convert media library images to WebP.',
+								'Use %1$s %2$sWebP Converter%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
@@ -228,7 +228,7 @@ class PageSpeed_Instructions {
 						'<p>' . sprintf(
 							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s %2$sImage Service%3$s to convert media library images to WebP.',
+								'Use %1$s %2$sWebP Converter%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
@@ -302,7 +302,7 @@ class PageSpeed_Instructions {
 						<p>' . sprintf(
 							// translators: 1 W3TC plugin name, 2 opening HTML a tag to W3TC extensions, 3 closing HTML a tag.
 							esc_html__(
-								'Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use Webp conversion via the %1$s %2$sImage Service%3$s extension.',
+								'Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use Webp conversion via the %1$s %2$sWebP Converter%3$s extension.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
