@@ -114,8 +114,9 @@ if ( ! defined( 'W3TC' ) ) {
 									$links,
 									array(
 										'a' => array(
-											'href'  => array(),
-											'class' => array(),
+											'href'   => array(),
+											'class'  => array(),
+											'target' => array(),
 										),
 									)
 								);
@@ -204,7 +205,8 @@ if ( ! defined( 'W3TC' ) ) {
 									'By %s',
 									'w3-total-cache'
 								),
-								'<a href="' . esc_url( $meta['author_uri'] ) . '" title="' . __( 'Visit author homepage', 'w3-total-cache' ) . '">' . esc_html( $meta['author'] ) . '</a>'
+								'<a href="' . esc_url( $meta['author_uri'] ) . '" target="_blank" title="' .
+									__( 'Visit author homepage', 'w3-total-cache' ) . '">' . esc_html( $meta['author'] ) . '</a>'
 							),
 							array(
 								'a' => array(
@@ -215,7 +217,7 @@ if ( ! defined( 'W3TC' ) ) {
 						);
 						?>
 						|
-						<a href="<?php echo esc_url( $meta['extension_uri'] ); ?>"
+						<a href="<?php echo esc_url( $meta['extension_uri'] ); ?>" target="_blank"
 							title="<?php esc_attr_e( 'Visit extension site', 'w3-total-cache' ); ?>">
 							<?php esc_html_e( 'Visit extension site', 'w3-total-cache' ); ?></a>
 					</div>
