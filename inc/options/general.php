@@ -42,7 +42,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					);
 					?>
 					<?php if ( $this->_config->is_preview() ) : ?>
-						<input id="preiew-button" type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>" />
+						<input id="preview-button" type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>" />
 						<?php
 						echo wp_kses(
 							Util_Ui::button_link(
@@ -387,7 +387,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					)
 				),
 			);
-			if( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ) {
+			if ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ) {
 				$objectcache_config_item['disabled'] = true;
 			}
 			Util_Ui::config_item( $objectcache_config_item );
@@ -501,7 +501,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			Util_Ui::postbox_header_tabs(
 				esc_html__( 'Message Bus', 'w3-total-cache' ),
 				esc_html__(
-					'Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then syncronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared.',
+					'Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then synchronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared.',
 					'w3-total-cache'
 				),
 				'',
@@ -996,37 +996,36 @@ require W3TC_INC_DIR . '/options/common/header.php';
 									// translators: 1 free hourly rate, 2 free monthly rate, 3 opening HTML a tag to documentation URL,
 									// translators: 4 closing HTML a tag.
 									__(
-										'As a Pro license holder you are granted converstion rates of %1$s/hour and %2$s/month. Conversion rates are subject to change and documentation can be found %3$shere%4$s.',
+										'As a Pro license holder you are granted conversion rates of %1$s/hour and %2$s/month. Conversion rates are subject to change and documentation can be found %3$shere%4$s.',
 										'w3-total-cache'
 									),
 									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
 									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
-										? esc_html__( 'unlimited', 'w3-total-cache')
-										: number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
-									'<a href="https://www.boldgrid.com/support/w3-total-cache/image-service/" target="_blank">',
+										? esc_html__( 'unlimited', 'w3-total-cache' ) : number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
+									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/' ) . '" target="_blank">',
 									'</a>'
 								)
 								: sprintf(
 									// translators: 1 free hourly rate, 2 pro monthly rate, 3 pro hourly rate, 4 pro monthly rate,
 									// translators: 5 opening HTML a tag to documentation URL, 6 closing HTML a tag.
 									__(
-										'As a free user you are limitied to conversions of %1$s/hour and %2$s/month. The Pro license increases these rates to %3$s/hour and %4$s/month. Conversion rates are subject to change and documentation can be found %5$shere%6$s.',
+										'As a free user you are limited to conversions of %1$s/hour and %2$s/month. The Pro license increases these rates to %3$s/hour and %4$s/month. Conversion rates are subject to change and documentation can be found %5$shere%6$s.',
 										'w3-total-cache'
 									),
 									number_format_i18n( W3TC_IMAGE_SERVICE_FREE_HLIMIT, 0 ),
 									number_format_i18n( W3TC_IMAGE_SERVICE_FREE_MLIMIT, 0 ),
 									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
 									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
-										? esc_html__( 'unlimited', 'w3-total-cache')
-										: number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
-									'<a href="https://www.boldgrid.com/support/w3-total-cache/image-service/" target="_blank">',
+										? esc_html__( 'unlimited', 'w3-total-cache' ) : number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
+									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/' ) . '" target="_blank">',
 									'</a>'
 								),
 							$image_service_link
 						),
 						array(
 							'a'  => array(
-								'href' => array(),
+								'href'   => array(),
+								'target' => array(),
 							),
 							'br' => array(),
 						)
@@ -1093,7 +1092,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			} elseif ( ! empty( $response['refresh_token'] ) ) {
 				update_option(
 					'w3tcps_authorize_success',
-					__( 'Google PageSpeed Insights API authorization successfull.', 'w3-total-cache' )
+					__( 'Google PageSpeed Insights API authorization successful.', 'w3-total-cache' )
 				);
 			} else {
 				update_option(
@@ -1102,7 +1101,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				);
 				update_option(
 					'w3tcps_authorize_fail_message',
-					__( 'Missing refresh token.', 'w3-totoal-cache' )
+					__( 'Missing refresh token.', 'w3-total-cache' )
 				);
 			}
 
