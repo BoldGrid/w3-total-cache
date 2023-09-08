@@ -13,7 +13,7 @@
  *     BunnyCDN API configuration details.
  *
  *     @type string $account_api_key Account API key.
- *     @type string $error_message   Error message (optional).
+ *     @type string $error_message   Error message (optional).  String already escaped.
  * }
  */
 
@@ -23,15 +23,11 @@ defined( 'W3TC' ) || die();
 
 ?>
 <form class="w3tc_cdn_bunnycdn_fsd_form">
-	<?php
-
-	if ( isset( $details['error_message'] ) ) {
-		?>
-		<div class="error"><?php echo esc_html( $details['error_message'] ); ?></div>
-		<?php
-	}
-
-	?>
+	<?php if ( isset( $details['error_message'] ) ) : ?>
+		<div class="error">
+			<?php echo $details['error_message']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		</div>
+	<?php endif; ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'BunnyCDN API Configuration', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
