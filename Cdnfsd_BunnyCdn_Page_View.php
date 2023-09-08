@@ -13,7 +13,7 @@ namespace W3TC;
 defined( 'W3TC' ) || die;
 
 $account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
-$is_authorized   = $config->get_boolean( 'cdn.bunnycdn.is_authorized' );
+$is_authorized   = $account_api_key && $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' );
 
 Util_Ui::postbox_header(
 	esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ),
@@ -31,7 +31,7 @@ Util_Ui::postbox_header(
 		</th>
 		<td>
 			<?php if ( $is_authorized ) : ?>
-				<input class="w3tc_cdn_bunnycdn_fsd_authorize button-primary" type="button" value="<?php esc_attr_e( 'Reauthorize', 'w3-total-cache' ); ?>" />
+				<input class="w3tc_cdn_bunnycdn_fsd_deauthorization button-primary" type="button" value="<?php esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
 			<?php else : ?>
 				<input class="w3tc_cdn_bunnycdn_fsd_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>" />
 			<?php endif; ?>
@@ -79,13 +79,12 @@ Util_Ui::postbox_header(
 				<?php
 				echo wp_kses(
 					sprintf(
-						// translators: 1: Opening HTML acronym tag, 2: Opening HTML acronym tag, 4: Closing HTML acronym tag.
+						// translators: 1: Opening HTML acronym tag, 2: Closing HTML acronym tag.
 						esc_html__(
-							'%1$sCDN%3$s %2$sCNAME%3$s:',
+							'%1$sCDN%2$s hostname:',
 							'w3-total-cache'
 						),
 						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-						'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
 						'</acronym>'
 					),
 					array(
@@ -100,7 +99,25 @@ Util_Ui::postbox_header(
 		<td class="w3tc_config_value_text">
 			<?php echo esc_html( $config->get_string( 'cdnfsd.bunnycdn.cdn_hostname' ) ); ?>
 			<p class="description">
-				The website domain <acronym title="Canonical Name">CNAME</acronym> must point to the <acronym title="Content Delivery Network">CDN</acronym> domain.
+				<?php
+				echo wp_kses(
+					sprintf(
+						// translators: 1: Opening HTML acronym tag, 2: Closing HTML acronym tag.
+						esc_html__(
+							'The website domain %1$sCNAME%3$s must point to the %2$sCDN%3$s hostname.',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				);
+				?>
 			</p>
 		</td>
 	</tr>
