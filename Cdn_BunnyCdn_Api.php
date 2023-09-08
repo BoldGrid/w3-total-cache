@@ -195,7 +195,7 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 
 		return $this->wp_remote_post(
-			\esc_url( 'https://api.bunny.net/pullzone/id' . $id ),
+			\esc_url( 'https://api.bunny.net/pullzone/' . $id ),
 			array(),
 			array( 'method' => 'DELETE' )
 		);
@@ -211,21 +211,12 @@ class Cdn_BunnyCdn_Api {
 	 * @return array
 	 */
 	public function site_metrics( $site_id, $days ) {
-		$d = new \DateTime();
+		$d             = new \DateTime();
+		$end_date      = $d->format( 'Y-m-d' ) . 'T00:00:00Z';
+		$start_date    = $d->sub( new \DateInterval( 'P' . $days . 'D' ) )->format( 'Y-m-d' ) . 'T00:00:00Z';
+		$optional_data = array();
 
-		$end_date = $d->format( 'Y-m-d' ) . 'T00:00:00Z';
-		$start_date = $d->sub( new \DateInterval( 'P' . $days . 'D' ) )->format( 'Y-m-d' ) . 'T00:00:00Z';
-
-		return $this->wp_remote_get(
-			\esc_url( 'https://@todo' ),
-			array(
-				'site_id'     => $site_id,
-				'start_date'  => $start_date,
-				'end_date'    => $end_date,
-				'platforms'   => 'CDS',
-				'granularity' => 'P1D',
-			)
-		);
+		return $this->wp_remote_get( \esc_url( 'https://@todo' ), array( $optional_data ) );
 	}
 
 	/**
@@ -276,7 +267,7 @@ class Cdn_BunnyCdn_Api {
 	 * @since X.X.X
 	 *
 	 * @param  array|WP_Error $result Result.
-	 * @return string
+	 * @return array
 	 * @throws \Exception Exception.
 	 */
 	private function decode_response( $result ) {
@@ -284,18 +275,15 @@ class Cdn_BunnyCdn_Api {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
 		}
 
-		if ( empty( $result['body'] ) || ! \is_string( $result['body'] ) ) {
+		// If a response body was expected and not present, then throw an exception.
+		if ( 204 !== $result['response']['code'] && ( empty( $result['body'] ) || ! \is_string( $result['body'] ) ) ) {
 			throw new \Exception( \esc_html__( 'Response body is invalid', 'w3-total-cache' ) );
 		}
 
 		$response_body = @\json_decode( $result['body'], true );
 
-		if ( empty( $response_body ) ) {
-			throw new \Exception( \esc_html( \__( 'Failed to reach API endpoint, got unexpected response: ', 'w3-total-cache' ) . $result['body'] ) );
-		}
-
 		// Throw an exception if the response code/status is not ok.
-		if ( ! \in_array( $result['response']['code'], array( 200, 201 ), true ) ) {
+		if ( ! \in_array( $result['response']['code'], array( 200, 201, 204 ), true ) ) {
 			$message = isset( $response_body['Message'] ) ? $response_body['Message'] : $result['body'];
 
 			throw new \Exception(
@@ -303,7 +291,7 @@ class Cdn_BunnyCdn_Api {
 			);
 		}
 
-		return $response_body;
+		return is_array( $response_body ) ? $response_body : array();
 	}
 
 	/**
