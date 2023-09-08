@@ -1,8 +1,7 @@
 /**
  * File: Cdn_BunnyCdn_Wiget_View.js
  *
- * @since X.X.X
- *
+ * @since   X.X.X
  * @package W3TC
  */
 

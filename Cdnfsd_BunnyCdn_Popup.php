@@ -2,8 +2,7 @@
 /**
  * File: Cdnfsd_BunnyCdn_Popup.php
  *
- * @since X.X.X
- *
+ * @since   X.X.X
  * @package W3TC
  */
 

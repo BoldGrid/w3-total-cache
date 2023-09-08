@@ -1,8 +1,7 @@
 /**
  * File: Cdnfsd_BunnyCdn_Page_View.js
  *
- * @since X.X.X
- *
+ * @since   X.X.X
  * @package W3TC
  */
 

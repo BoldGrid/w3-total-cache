@@ -2,8 +2,7 @@
 /**
  * File: Cdn_BunnyCDN_Api.php
  *
- * @since X.X.X
- *
+ * @since   X.X.X
  * @package W3TC
  */
 

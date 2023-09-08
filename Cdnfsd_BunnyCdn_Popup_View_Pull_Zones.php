@@ -5,8 +5,7 @@
  * Assists with configuring BunnyCDN as a full-site delivery CDN.
  * A pull zone selection is presented along with a form to add a new pull zone.
  *
- * @since X.X.X
- *
+ * @since   X.X.X
  * @package W3TC
  *
  * @param array $details {

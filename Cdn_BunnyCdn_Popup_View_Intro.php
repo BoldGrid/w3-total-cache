@@ -2,16 +2,13 @@
 /**
  * File: Cdn_BunnyCdn_Popup_View_Intro.php
  *
- * @since X.X.X
- *
+ * @since   X.X.X
  * @package W3TC
  */
 
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die();
 
 ?>
 

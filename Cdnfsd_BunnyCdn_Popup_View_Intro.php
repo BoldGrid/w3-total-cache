@@ -5,8 +5,7 @@
  * Assists with configuring BunnyCDN as a full-site delivery CDN.
  * Asks to enter an account API key from the BunnyCDN main account.
  *
- * @since X.X.X
- *
+ * @since   X.X.X
  * @package W3TC
  *
  * @param array $details {

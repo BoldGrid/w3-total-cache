@@ -2,8 +2,7 @@
 /**
  * File: Cdn_BunnyCdn_Widget.php
  *
- * @since X.X.X
- *
+ * @since   X.X.X
  * @package W3TC
  */
 
