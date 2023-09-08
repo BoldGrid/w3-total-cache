@@ -698,6 +698,10 @@ class Generic_AdminActions_Default {
 
 			if ( isset( $descriptor['type'] ) ) {
 				if ( 'array' === $descriptor['type'] ) {
+					if ( is_array( $request_value ) ) {
+						// This is needed for radio inputs.
+						$request_value = implode( "\n", $request_value );
+					}
 					$request_value = Util_Environment::textarea_to_array( $request_value );
 				} elseif ( 'boolean' === $descriptor['type'] ) {
 					$request_value = ( '1' === $request_value );
