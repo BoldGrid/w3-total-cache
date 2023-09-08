@@ -38,10 +38,20 @@ class Cdnfsd_BunnyCdn_Popup {
 			'w3tc_ajax_cdn_bunnycdn_fsd_configure_pull_zone',
 			array( $o, 'w3tc_ajax_cdn_bunnycdn_fsd_configure_pull_zone' )
 		);
+
+		add_action(
+			'w3tc_ajax_cdn_bunnycdn_fsd_deauthorization',
+			array( $o, 'w3tc_ajax_cdn_bunnycdn_fsd_deauthorization' )
+		);
+
+		add_action(
+			'w3tc_ajax_cdn_bunnycdn_fsd_deauthorize',
+			array( $o, 'w3tc_ajax_cdn_bunnycdn_fsd_deauthorize' )
+		);
 	}
 
 	/**
-	 * W3TC AJAX: Intro.
+	 * W3TC AJAX: Intro -- authorization.
 	 *
 	 * @since X.X.X
 	 */
@@ -125,8 +135,11 @@ class Cdnfsd_BunnyCdn_Popup {
 			try {
 				$response = $api->add_pull_zone(
 					array(
-						'Name'             => $name, // The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
-						'OriginUrl'        => $origin_url, // Origin URL or IP (with optional port number).
+						'Name'                => $name, // The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
+						'OriginUrl'           => $origin_url, // Origin URL or IP (with optional port number).
+						'EnableTLS1'          => false, // TLS 1.0 was deprecated in 2018.
+						'EnableTLS1_1'        => false, // TLS 1.1 was EOL's on March 31,2020.
+						'ErrorPageWhitelabel' => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
 					)
 				);
 
@@ -149,11 +162,62 @@ class Cdnfsd_BunnyCdn_Popup {
 		$config->set( 'cdnfsd.bunnycdn.name', $name );
 		$config->set( 'cdnfsd.bunnycdn.origin_url', $origin_url );
 		$config->set( 'cdnfsd.bunnycdn.cdn_hostname', $cdn_hostname );
-		$config->set( 'cdn.bunnycdn.is_authorized', true );
 		$config->save();
 
 		// Print success view.
-		include W3TC_DIR . '/Cdnfsd_BunnyCdn_Popup_View_Success.php';
+		include W3TC_DIR . '/Cdnfsd_BunnyCdn_Popup_View_Configured.php';
+		\wp_die();
+	}
+
+	/**
+	 * W3TC AJAX: Deauthorization form.
+	 *
+	 * @since X.X.X
+	 */
+	public function w3tc_ajax_cdn_bunnycdn_fsd_deauthorization() {
+		$config          = Dispatcher::config();
+		$origin_url      = $config->get_string( 'cdnfsd.bunnycdn.origin_url' ); // Origin URL or IP.
+		$name            = $config->get_string( 'cdnfsd.bunnycdn.name' ); // Pull zone name.
+		$cdn_hostname    = $config->get_string( 'cdnfsd.bunnycdn.cdn_hostname' ); // Pull zone CDN hostname.
+
+		// Present details and ask to deauthorize and optionally delete the pull zone.
+		include W3TC_DIR . '/Cdnfsd_BunnyCdn_Popup_View_Deauthorize.php';
+		\wp_die();
+	}
+
+	/**
+	 * W3TC AJAX: Deauthorize.
+	 *
+	 * Deauthorize and optionally delete the pull zone.
+	 *
+	 * @since X.X.X
+	 */
+	public function w3tc_ajax_cdn_bunnycdn_fsd_deauthorize() {
+		$config           = Dispatcher::config();
+		$account_api_key  = $config->get_string( 'cdn.bunnycdn.account_api_key' );
+		$pull_zone_id     = $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' );
+		$delete_pull_zone = Util_Request::get_string( 'delete_pull_zone' );
+
+		// Delete pull zone, if requested.
+		if ( 'yes' === $delete_pull_zone ) {
+			$api = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $account_api_key ) );
+
+			// Try to delete pull zone.
+			try {
+				$result = $api->delete_pull_zone( $pull_zone_id );
+			} catch ( \Exception $ex ) {
+				$delete_error_message = $ex->getMessage();
+			}
+		}
+
+		$config->set( 'cdnfsd.bunnycdn.pull_zone_id', null );
+		$config->set( 'cdnfsd.bunnycdn.name', null );
+		$config->set( 'cdnfsd.bunnycdn.origin_url', null );
+		$config->set( 'cdnfsd.bunnycdn.cdn_hostname', null );
+		$config->save();
+
+		// Print success view.
+		include W3TC_DIR . '/Cdnfsd_BunnyCdn_Popup_View_Deauthorized.php';
 		\wp_die();
 	}
 

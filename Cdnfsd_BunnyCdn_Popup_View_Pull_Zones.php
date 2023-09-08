@@ -19,9 +19,7 @@
 
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die();
 
 ?>
 <form class="w3tc_cdn_bunnycdn_fsd_form" method="post">
@@ -81,18 +79,6 @@ if ( ! defined( 'W3TC' ) ) {
 				</select>
 			</tr>
 			<tr>
-				<td><?php esc_html_e( 'Origin URL / IP', 'w3-total-cache' ); ?>:</td>
-				<td>
-					<input id="w3tc-origin-url" name="origin_url" type="text" class="w3tc-ignore-change"
-						style="width: 550px" value="<?php echo esc_attr( $field_origin_url ); ?>"
-						<?php echo ( empty( $details['pull_zone_id'] ) ? '' : 'readonly ' ); ?>
-						data-suggested="<?php echo esc_attr( $details['suggested_origin_url'] ); ?>" />
-					<p class="description">
-						<?php esc_html_e( 'Pull origin site URL or IP address.', 'w3-total-cache' ); ?>
-					</p>
-				</td>
-			</tr>
-			<tr>
 				<td><?php esc_html_e( 'Pull Zone Name', 'w3-total-cache' ); ?>:</td>
 				<td>
 					<input id="w3tc-pull-zone-name" name="name" type="text" class="w3tc-ignore-change"
@@ -101,6 +87,18 @@ if ( ! defined( 'W3TC' ) ) {
 						data-suggested="<?php echo esc_attr( $details['suggested_zone_name'] ); ?>" />
 					<p class="description">
 						<?php esc_html_e( 'Name of the pull zone (letters, numbers, and dashes).  If empty, one will be automatically generated.', 'w3-total-cache' ); ?>
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<td><?php esc_html_e( 'Origin URL / IP', 'w3-total-cache' ); ?>:</td>
+				<td>
+					<input id="w3tc-origin-url" name="origin_url" type="text" class="w3tc-ignore-change"
+						style="width: 550px" value="<?php echo esc_attr( $field_origin_url ); ?>"
+						<?php echo ( empty( $details['pull_zone_id'] ) ? '' : 'readonly ' ); ?>
+						data-suggested="<?php echo esc_attr( $details['suggested_origin_url'] ); ?>" />
+					<p class="description">
+						<?php esc_html_e( 'Pull origin site URL or IP address.', 'w3-total-cache' ); ?>
 					</p>
 				</td>
 			</tr>

@@ -97,5 +97,28 @@ jQuery(function($) {
 		// Close the popup success modal.
 		.on('click', '.w3tc_cdn_bunnycdn_fsd_done', function() {
 			window.location = window.location + '&';
+		})
+
+		// Load the deauthorize form.
+		.on('click', '.w3tc_cdn_bunnycdn_fsd_deauthorization', function() {
+			W3tc_Lightbox.open({
+				id:'w3tc-overlay',
+				close: '',
+				width: 800,
+				height: 300,
+				url: ajaxurl +
+					'?action=w3tc_ajax&_wpnonce=' +
+					w3tc_nonce +
+					'&w3tc_action=cdn_bunnycdn_fsd_deauthorization',
+				callback: w3tc_bunnycdn_resize
+			});
+		})
+
+		// Deauthorize and optionally delete the pull zone.
+		.on('click', '.w3tc_cdn_bunnycdn_fsd_deauthorize', function() {
+			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
+				'&w3tc_action=cdn_bunnycdn_fsd_deauthorize';
+
+			W3tc_Lightbox.load_form(url, '.w3tc_cdn_bunnycdn_fsd_form', w3tc_bunnycdn_resize);
 		});
 });
