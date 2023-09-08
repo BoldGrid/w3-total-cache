@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Cdnfsd_BunnyCdn_Popup_View_Sites.php
+ * File: Cdnfsd_BunnyCdn_Popup_Pull_Zones.php
  *
  * Assists with configuring BunnyCDN as a full-site delivery CDN.
  * A pull zone selection is presented along with a form to add a new pull zone.
