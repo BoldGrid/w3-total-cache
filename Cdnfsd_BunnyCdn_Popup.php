@@ -83,7 +83,7 @@ class Cdnfsd_BunnyCdn_Popup {
 			$this->render_intro(
 				array(
 					'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-					'error_message'   => esc_html( __( 'Cannot list pull zones', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+					'error_message'   => \esc_html( __( 'Cannot list pull zones', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
 				)
 			);
 		}
@@ -150,7 +150,7 @@ class Cdnfsd_BunnyCdn_Popup {
 				$this->render_intro(
 					array(
 						'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-						'error_message'   => esc_html( __( 'Cannot select or add a pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+						'error_message'   => \esc_html( __( 'Cannot select or add a pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
 					)
 				);
 			}

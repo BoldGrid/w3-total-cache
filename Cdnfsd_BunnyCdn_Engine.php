@@ -15,7 +15,7 @@ namespace W3TC;
  */
 class Cdnfsd_BunnyCdn_Engine {
 	/**
-	 * Configuration.
+	 * CDN configuration.
 	 *
 	 * @since X.X.X
 	 *
@@ -28,7 +28,7 @@ class Cdnfsd_BunnyCdn_Engine {
 	 *
 	 * @since X.X.X
 	 *
-	 * @param array $config Configuration.
+	 * @param array $config CDN configuration.
 	 */
 	public function __construct( array $config = array() ) {
 		$this->config = $config;
@@ -78,25 +78,19 @@ class Cdnfsd_BunnyCdn_Engine {
 	 */
 	public function flush_all() {
 		if ( empty( $this->config['account_api_key'] ) ) {
-			throw new \Exception( esc_html__( 'Account API key not specified.', 'w3-total-cache' ) );
+			throw new \Exception( \esc_html__( 'Account API key not specified.', 'w3-total-cache' ) );
+		}
+
+		if ( empty( $this->config['pull_zone_id'] ) || ! \is_numeric( $this->config['pull_zone_id'] ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
 		$api = new Cdn_BunnyCdn_Api( $this->config );
 
-		$items   = array();
-		$items[] = array(
-			'url'       => home_url( '/' ),
-			'recursive' => true,
-		);
-
 		try {
-			$r = $api->purge( array( 'items' => $items ) );
+			$r = $api->purge_pull_zone();
 		} catch ( \Exception $ex ) {
-			if ( $ex->getMessage() == 'Validation Failure: Purge url must contain one of your hostnames' ) {
-				throw new \Exception( esc_html__( 'CDN site is not configured correctly: Delivery Domain must match your site domain', 'w3-total-cache' ) );
-			} else {
-				throw $ex;
-			}
+			throw new \Exception( \esc_html( __( 'Could not purge pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ) );
 		}
 	}
 }

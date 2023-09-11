@@ -57,6 +57,16 @@ class Cdn_BunnyCdn_Api {
 	private $api_type;
 
 	/**
+	 * Pull zone id.
+	 *
+	 * @since  X.X.X
+	 * @access private
+	 *
+	 * @var int
+	 */
+	private $pull_zone_id;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since X.X.X
@@ -67,6 +77,7 @@ class Cdn_BunnyCdn_Api {
 		$this->account_api_key = ! empty( $config['account_api_key'] ) ? $config['account_api_key'] : '';
 		$this->storage_api_key = ! empty( $config['storage_api_key'] ) ? $config['storage_api_key'] : '';
 		$this->stream_api_key  = ! empty( $config['stream_api_key'] ) ? $config['stream_api_key'] : '';
+		$this->pull_zone_id    = ! empty( $config['pull_zone_id'] ) ? $config['pull_zone_id'] : '';
 	}
 
 	/**
@@ -234,6 +245,26 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
+	 * Purge an entire pull zone.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param  int $pull_zone_id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
+	 * @return void
+	 * @throws \Exception Exception.
+	 */
+	public function purge_pull_zone( $pull_zone_id = null ) {
+		$this->api_type = 'account';
+		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
+
+		if ( empty( $pull_zone_id ) || ! is_numeric( $pull_zone_id ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
+		}
+
+		$this->wp_remote_post( \esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/purgeCache' ) );
+	}
+
+	/**
 	 * Get the API key by API type.
 	 *
 	 * API type can be passed or the class property will be used.
@@ -336,11 +367,11 @@ class Cdn_BunnyCdn_Api {
 	 * @link https://developer.wordpress.org/reference/classes/wp_http/request/
 	 *
 	 * @param  string $url URL address.
-	 * @param  array  $data Data for the POSt request.
+	 * @param  array  $data Optional data for the POSt request.
 	 * @param  array  $args Optional additional arguments for the wp_remote_port call.
 	 * @return string
 	 */
-	private function wp_remote_post( $url, array $data, array $args = array() ) {
+	private function wp_remote_post( $url, array $data = array(), array $args = array() ) {
 		$api_key = $this->get_api_key();
 
 		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );

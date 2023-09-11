@@ -87,7 +87,12 @@ class Cdnfsd_Core {
 					break;
 
 				case 'bunnycdn':
-					$engine_object = new Cdnfsd_StackPath_Engine( array( 'account_api_key' => $c->get_string( 'cdnfsd.stackpath.api_key' ) ) );
+					$engine_object = new Cdnfsd_BunnyCdn_Engine(
+						array(
+							'account_api_key' => $c->get_string( 'cdn.bunnycdn.account_api_key' ),
+							'pull_zone_id'    => $c->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ),
+						),
+					);
 					break;
 
 				default:

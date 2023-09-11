@@ -2,8 +2,7 @@
 /**
  * File: CdnEngine_Mirror_BunnyCdn.php
  *
- * @since X.X.X
- *
+ * @since   X.X.X
  * @package W3TC
  */
 
@@ -28,8 +27,6 @@ class CdnEngine_Mirror_BunnyCDN extends CdnEngine_Mirror {
 				'account_api_key'  => '',
 				'storage_api_key'  => '',
 				'stream_api_key'   => '',
-				'site_root_domain' => '',
-				'pull_zone_id'     => '',
 			),
 			$config
 		);
