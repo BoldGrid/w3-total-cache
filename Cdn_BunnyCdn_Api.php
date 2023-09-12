@@ -212,6 +212,36 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
+	 * Add a custom hostname to a pull zone.
+	 *
+	 * @since X.X.X
+	 *
+	 * @link https://docs.bunny.net/reference/pullzonepublic_addhostname
+	 *
+	 * @param  string $hostname Custom hostname.
+	 * @param  int    $pull_zone_id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
+	 * @return void
+	 * @throws \Exception Exception.
+	 */
+	public function add_custom_hostname( $hostname, $pull_zone_id = null ) {
+		$this->api_type = 'account';
+		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
+
+		if ( empty( $pull_zone_id ) || ! is_numeric( $pull_zone_id ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
+		}
+
+		if ( empty( $hostname ) || ! filter_var( $hostname, FILTER_VALIDATE_DOMAIN ) ) {
+			throw new \Exception( \esc_html__( 'Invalid hostname', 'w3-total-cache' ) . ' "' . esc_html( $hostname ) . '".' );
+		}
+
+		$this->wp_remote_post(
+			\esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/addHostname' ),
+			array( 'Hostname' => $hostname )
+		);
+	}
+
+	/**
 	 * Get site metrics.
 	 *
 	 * @since X.X.X
@@ -239,7 +269,7 @@ class Cdn_BunnyCdn_Api {
 	 */
 	public function purge( array $data ) {
 		return $this->wp_remote_post(
-			\esc_url( 'https://@todo' ),
+			\esc_url( 'https://api.bunny.net/purge' ),
 			$data
 		);
 	}

@@ -11,6 +11,11 @@ namespace W3TC;
 defined( 'W3TC' ) || die();
 
 ?>
+<?php if ( ! empty( $error_messages ) ) : ?>
+	<div class="error">
+		<?php echo $error_messages; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	</div>
+<?php endif; ?>
 <form class="w3tc_cdn_bunnycdn_fsd_form">
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Success', 'w3-total-cache' ) ); ?>

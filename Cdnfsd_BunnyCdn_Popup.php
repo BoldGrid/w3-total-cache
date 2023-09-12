@@ -103,10 +103,11 @@ class Cdnfsd_BunnyCdn_Popup {
 			( empty( $server_ip ) ? \parse_url( \home_url(), PHP_URL_HOST ) : $server_ip );
 
 		$details = array(
-			'pull_zones'           => $pull_zones,
-			'suggested_origin_url' => $suggested_origin_url, // Suggested origin URL or IP.
-			'suggested_zone_name'  => \substr( \str_replace( '.', '-', \parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
-			'pull_zone_id'         => $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
+			'pull_zones'                 => $pull_zones,
+			'suggested_origin_url'       => $suggested_origin_url, // Suggested origin URL or IP.
+			'suggested_zone_name'        => \substr( \str_replace( '.', '-', \parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
+			'pull_zone_id'               => $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
+			'suggested_custom_hostname'  => \parse_url( \home_url(), PHP_URL_HOST ), // Suggested custom hostname.
 		);
 
 		include W3TC_DIR . '/Cdnfsd_BunnyCdn_Popup_View_Pull_Zones.php';
@@ -119,12 +120,13 @@ class Cdnfsd_BunnyCdn_Popup {
 	 * @since X.X.X
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_fsd_configure_pull_zone() {
-		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
-		$pull_zone_id    = Util_Request::get_string( 'pull_zone_id' );
-		$origin_url      = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
-		$name            = Util_Request::get_string( 'name' ); // Pull zone name.
-		$cdn_hostname    = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname.
+		$config           = Dispatcher::config();
+		$account_api_key  = $config->get_string( 'cdn.bunnycdn.account_api_key' );
+		$pull_zone_id     = Util_Request::get_string( 'pull_zone_id' );
+		$origin_url       = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
+		$name             = Util_Request::get_string( 'name' ); // Pull zone name.
+		$cdn_hostname     = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname (system).
+		$custom_hostnames = explode( ',', Util_Request::get_string( 'custom_hostnames' ) );
 
 		// If not selecting a pull zone. then create a new one.
 		if ( empty( $pull_zone_id ) ) {
@@ -139,6 +141,7 @@ class Cdnfsd_BunnyCdn_Popup {
 						'EnableTLS1'          => false, // TLS 1.0 was deprecated in 2018.
 						'EnableTLS1_1'        => false, // TLS 1.1 was EOL's on March 31,2020.
 						'ErrorPageWhitelabel' => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
+						'FollowRedirects'     => true, // Follow redirects returned by the origin and cache the response.
 					)
 				);
 
@@ -154,6 +157,26 @@ class Cdnfsd_BunnyCdn_Popup {
 					)
 				);
 			}
+
+			// Add custom hostnames, if any.
+			$error_messages = array();
+
+			if ( ! empty( $custom_hostnames ) ) {
+
+				foreach ( $custom_hostnames as $custom_hostname ) {
+					try {
+						$api->add_custom_hostname( $custom_hostname, $pull_zone_id );
+					} catch ( \Exception $ex ) {
+						$error_messages[] = sprintf(
+							// translators: 1: hostname.
+							__( 'Could not add custom hostname "%1$s"', 'w3-total-cache' ) . '; ',
+							esc_html( $custom_hostname )
+						) . $ex->getMessage();
+					}
+				}
+			}
+
+			$error_messages = implode( "\r\n", $error_messages );
 		}
 
 		// Save configuration.

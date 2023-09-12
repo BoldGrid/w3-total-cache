@@ -52,16 +52,19 @@ jQuery(function($) {
 		.on('change', '#w3tc-pull-zone-id', function() {
 			var $selected_option = $(this).find(':selected'),
 				$origin = $('#w3tc-origin-url'),
-				$name = $('#w3tc-pull-zone-name');
+				$name = $('#w3tc-pull-zone-name'),
+				$hostnames = $('#w3tc-custom-hostnames');
 
 			if ($(this).find(':selected').val() === '') {
 				// Enable the add pull zone fields with suggested or entered values.
 				$origin.val($origin.data('suggested')).prop('readonly', false);
 				$name.val($name.data('suggested')).prop('readonly', false);
+				$hostnames.val($hostnames.data('suggested')).prop('readonly', false);
 			} else {
 				// Disable the add pull zone fields and change values using the selected option.
 				$origin.prop('readonly', true).val($selected_option.data('origin'));
 				$name.prop('readonly', true).val($selected_option.data('name'));
+				$hostnames.prop('readonly', true).val($selected_option.data('custom-hostnames'));
 			}
 
 			// Update the hidden input field for the selected pull zone id from the select option value.
