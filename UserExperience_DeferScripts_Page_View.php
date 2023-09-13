@@ -23,6 +23,27 @@ if ( is_null( $c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) )
 
 ?>
 <?php Util_Ui::postbox_header( esc_html__( 'Defer Scripts', 'w3-total-cache' ), '', 'application' ); ?>
+<p><?php esc_html_e( 'For best results it is recommended to enable the Minify feature to optimize internal sources and to then use this feature to handle external sources and/or any internal sources excluded from Minify.', 'w3-total-cache' ); ?></p>
+<p>
+	<?php
+	echo wp_kses(
+		sprintf(
+			__(
+				'To identify render-blocking JavaScript sources, use the %1$sGoogle PageSpeed%2$s tool and add appropirate URLs from the "Eliminate render-blocking resources" section to the Defer List textarea below.',
+				'w3-total-cache'
+			),
+			'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ) . '" target="_blank">',
+			'</a>'
+		),
+		array(
+			'a' => array(
+				'href'   => array(),
+				'target' => array(),
+			),
+		)
+	);
+	?>
+</p>
 <table class="form-table">
 	<?php
 	Util_Ui::config_item(

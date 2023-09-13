@@ -110,7 +110,7 @@ class PageSpeed_Page {
 								'Before you can get started using the Google PageSpeed tool, you’ll first need to authorize access. Please click %1$s.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_pagespeed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 						),
 					)
 				);

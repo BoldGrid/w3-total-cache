@@ -238,7 +238,7 @@ class FeatureShowcase_Plugin_Admin {
 			'defer-scripts'       => array(
 				'title'      => esc_html__( 'Defer JavaScript', 'w3-total-cache' ),
 				'icon'       => 'dashicons-media-code',
-				'text'       => esc_html__( "Defer the loading of specified JavaScript sources on your pages separate from Minify.", 'w3-total-cache' ),
+				'text'       => esc_html__( "Defer the loading of specified internal/external JavaScript sources on your pages separate from Minify.", 'w3-total-cache' ),
 				'button'     => '<button class="button" onclick="window.location=\'' .
 					esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
