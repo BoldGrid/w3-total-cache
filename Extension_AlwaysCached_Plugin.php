@@ -11,6 +11,8 @@ class Extension_AlwaysCached_Plugin {
 	 */
 	public function run() {
 		add_action( 'init', [ $this, 'init' ] );
+		add_filter( 'w3tc_admin_bar_menu',
+			[ $this, 'w3tc_admin_bar_menu' ] );
 		add_filter( 'w3tc_pagecache_flush_url',
 			[ $this, 'w3tc_pagecache_flush_url' ] );
 		add_filter( 'w3tc_pagecache_rules_apache_rewrite_cond',
@@ -41,6 +43,21 @@ class Extension_AlwaysCached_Plugin {
 
 
 
+	public function w3tc_admin_bar_menu( $menu_items ) {
+		if ( ! is_admin() ) {
+			$menu_items['10025.always_cached'] = array(
+				'id'     => 'w3tc_flush_current_page',
+				'parent' => 'w3tc',
+				'title'  => __( 'Regenerate Current Page', 'w3-total-cache' ),
+				'href'   => wp_nonce_url(
+					admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_alwayscached_regenerate&amp;post_id=' . Util_Environment::detect_post_id() ),
+					'w3tc'
+				),
+			);
+		}
+
+		return $menu_items;
+	}
 	public function w3tc_pagecache_rules_apache_rewrite_cond( $rewrite_conditions ) {
 		$rewrite_conditions .= "    RewriteCond %{HTTP:w3tcalwayscached} =\"\"\n";
 		return $rewrite_conditions;

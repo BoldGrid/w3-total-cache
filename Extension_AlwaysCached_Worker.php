@@ -6,7 +6,10 @@ namespace W3TC;
  */
 class Extension_AlwaysCached_Worker {
 	static public function run() {
-		$time_exit = time() + 60;
+		$timeslot_seconds = 60;
+		$timeslot_seconds = apply_filters(
+			'w3tc_alwayscached_worker_timeslot', $timeslot_seconds );
+		$time_exit = time() + $timeslot_seconds;
 		for (;;) {
 			if ( time() >= $time_exit ) {
 				echo "\ntime slot exhaused";
@@ -27,17 +30,20 @@ class Extension_AlwaysCached_Worker {
 				]
 			] );
 			if ( empty( $result['response'] ) ||
-				empty( $result['response']['code'] ) ||
-				$result['response']['code'] == 500 ) {
+					empty( $result['response']['code'] ) ||
+					$result['response']['code'] == 500 ) {
 				error_log( 'failed to handle queue url' . $item['url'] );
 				echo "failed";
 				continue;
 			}
-			if ( empty( $result['headers'] ) || empty( $result['headers']['w3tcalwayscached'] ) ) {
+			if ( empty( $result['headers'] ) ||
+					empty( $result['headers']['w3tcalwayscached'] ) ) {
 				echo "no evidence of cache refresh, will retry";
 			}
 
 			Extension_AlwaysCached_Queue::pop_item_finish( $item );
+			update_option( 'w3tc_alwayscached_worker_timestamp',
+				gmdate( 'Y-m-d G:i:s' ) );
 			echo " done";
 		}
 

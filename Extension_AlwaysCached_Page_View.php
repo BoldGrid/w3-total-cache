@@ -8,6 +8,10 @@ if ( ! defined( 'W3TC' ) ) {
 $count_pending = Extension_AlwaysCached_Queue::row_count_pending();
 $count_postponed = Extension_AlwaysCached_Queue::row_count_postponed();
 
+$time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
+
+
+
 ?>
 <p id="w3tc-options-menu">
 	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
@@ -71,6 +75,25 @@ $count_postponed = Extension_AlwaysCached_Queue::row_count_postponed();
 					<?php endif ?>
 				</td>
 			</tr>
+			<tr>
+				<th>
+					<label>
+						<?php esc_html_e( 'Last regeneration run:', 'w3-total-cache' ); ?>
+					</label>
+				</th>
+				<td>
+					<?php if (empty($time_lastrun)): ?>
+						n/a
+					<?php else: ?>
+						<?php
+						echo sprintf( __( '<span title="%s">%s ago</span>', 'w3-total-cache' ),
+							esc_html( $time_lastrun ),
+							esc_html( human_time_diff( strtotime( $time_lastrun ), time() ) ) );
+						?>
+					<?php endif ?>
+				</td>
+			</tr>
+
 			<tr>
 				<th>
 
