@@ -19,6 +19,8 @@ class Cdnfsd_BunnyCdn_Popup {
 	 *
 	 * @since  X.X.X
 	 * @static
+	 *
+	 * @return void
 	 */
 	public static function w3tc_ajax() {
 		$o = new Cdnfsd_BunnyCdn_Popup();

@@ -17,29 +17,28 @@ class Cdn_Page extends Base_Page_Settings {
 	 * @return void
 	 */
 	function view() {
-		$config = Dispatcher::config();
-		$cdn_engine = $config->get_string( 'cdn.engine' );
-
-		$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
-		$cdn_mirror = Cdn_Util::is_engine_mirror( $cdn_engine );
+		$config               = Dispatcher::config();
+		$cdn_engine           = $config->get_string( 'cdn.engine' );
+		$cdn_enabled          = $config->get_boolean( 'cdn.enabled' );
+		$cdnfsd_enabled       = $config->get_boolean( 'cdnfsd.enabled' );
+		$cdn_mirror           = Cdn_Util::is_engine_mirror( $cdn_engine );
 		$cdn_mirror_purge_all = Cdn_Util::can_purge_all( $cdn_engine );
-		$cdn_common = Dispatcher::component( 'Cdn_Core' );
-
-		$cdn = $cdn_common->get_cdn();
-		$cdn_supports_header = $cdn->headers_support() == W3TC_CDN_HEADER_MIRRORING;
-		$minify_enabled = (
+		$cdn_common           = Dispatcher::component( 'Cdn_Core' );
+		$cdn                  = $cdn_common->get_cdn();
+		$cdn_supports_header  = $cdn->headers_support() == W3TC_CDN_HEADER_MIRRORING;
+		$minify_enabled       = (
 			$config->get_boolean( 'minify.enabled' ) &&
 			Util_Rule::can_check_rules() &&
 			$config->get_boolean( 'minify.rewrite' ) &&
-			( !$config->get_boolean( 'minify.auto' ) ||
-				Cdn_Util::is_engine_mirror( $config->get_string( 'cdn.engine' ) ) ) );
+			( ! $config->get_boolean( 'minify.auto' ) || Cdn_Util::is_engine_mirror( $config->get_string( 'cdn.engine' ) ) )
+		);
+		$cookie_domain        = $this->get_cookie_domain();
+		$set_cookie_domain    = $this->is_cookie_domain_enabled();
 
-		$cookie_domain = $this->get_cookie_domain();
-		$set_cookie_domain = $this->is_cookie_domain_enabled();
-
-		// Required for Update Media Query String button
-		$browsercache_enabled = $config->get_boolean( 'browsercache.enabled' );
+		// Required for Update Media Query String button.
+		$browsercache_enabled         = $config->get_boolean( 'browsercache.enabled' );
 		$browsercache_update_media_qs = ( $config->get_boolean( 'browsercache.cssjs.replace' ) || $config->get_boolean( 'browsercache.other.replace' ) );
+
 		include W3TC_INC_DIR . '/options/cdn.php';
 	}
 

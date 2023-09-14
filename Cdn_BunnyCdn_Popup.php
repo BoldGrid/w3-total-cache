@@ -17,17 +17,38 @@ class Cdn_BunnyCdn_Popup {
 	/**
 	 * W3TC AJAX.
 	 *
-	 * @since X.X.X
+	 * @since  X.X.X
+	 * @static
 	 *
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
 		$o = new Cdn_BunnyCdn_Popup();
 
-		add_action( 'w3tc_ajax_cdn_bunnycdn_intro', array( $o, 'w3tc_ajax_cdn_bunnycdn_intro' ) );
-		add_action( 'w3tc_ajax_cdn_bunnycdn_list_stacks', array( $o, 'w3tc_ajax_cdn_bunnycdn_list_stacks' ) );
-		add_action( 'w3tc_ajax_cdn_bunnycdn_list_sites', array( $o, 'w3tc_ajax_cdn_bunnycdn_list_sites' ) );
-		add_action( 'w3tc_ajax_cdn_bunnycdn_configure_site', array( $o, 'w3tc_ajax_cdn_bunnycdn_configure_site' ) );
+		\add_action(
+			'w3tc_ajax_cdn_bunnycdn_intro',
+			array( $o, 'w3tc_ajax_cdn_bunnycdn_intro' )
+		);
+
+		\add_action(
+			'w3tc_ajax_cdn_bunnycdn_list_pull_zones',
+			array( $o, 'w3tc_ajax_cdn_bunnycdn_list_pull_zones' )
+		);
+
+		\add_action(
+			'w3tc_ajax_cdn_bunnycdn_configure_pull_zone',
+			array( $o, 'w3tc_ajax_cdn_bunnycdn_configure_pull_zone' )
+		);
+
+		\add_action(
+			'w3tc_ajax_cdn_bunnycdn_deauthorization',
+			array( $o, 'w3tc_ajax_cdn_bunnycdn_deauthorization' )
+		);
+
+		\add_action(
+			'w3tc_ajax_cdn_bunnycdn_deauthorize',
+			array( $o, 'w3tc_ajax_cdn_bunnycdn_deauthorize' )
+		);
 	}
 
 	/**
@@ -38,234 +59,209 @@ class Cdn_BunnyCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_intro() {
-		$config = Dispatcher::config();
+		$config          = Dispatcher::config();
+		$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
 
+		// Ask for an account API key.
 		$this->render_intro(
 			array(
-				'client_id'     => $config->get_string( 'cdn.bunnycdn.client_id' ),
-				'client_secret' => $config->get_string( 'cdn.bunnycdn.client_secret' ),
+				'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
 			)
 		);
+	}
+
+	/**
+	 * W3TC AJAX: List pull zones.
+	 *
+	 * @since X.X.X
+	 */
+	public function w3tc_ajax_cdn_bunnycdn_list_pull_zones() {
+		$account_api_key = Util_Request::get_string( 'account_api_key' );
+		$api             = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $account_api_key ) );
+
+		// Try to retrieve pull zones.
+		try {
+			$pull_zones = $api->list_pull_zones();
+		} catch ( \Exception $ex ) {
+			// Reauthorize: Ask for a new account API key.
+			$this->render_intro(
+				array(
+					'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
+					'error_message'   => \esc_html( __( 'Cannot list pull zones', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+				)
+			);
+		}
+
+		// Save the account API key, if added or changed.
+		$config = Dispatcher::config();
+
+		if ( $config->get_string( 'cdn.bunnycdn.account_api_key' ) !== $account_api_key ) {
+			$config->set( 'cdn.bunnycdn.account_api_key', $account_api_key );
+			$config->save();
+		}
+
+		// Print the view.
+		$server_ip            = ! empty( $_SERVER['SERVER_ADDR'] ) && \filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_VALIDATE_IP ) ?
+			\filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_SANITIZE_URL ) : null;
+		$suggested_origin_url = 'http' . ( is_ssl() ? 's' : '' ) . '://' .
+			( empty( $server_ip ) ? \parse_url( \home_url(), PHP_URL_HOST ) : $server_ip );
+
+		$details = array(
+			'pull_zones'                 => $pull_zones,
+			'suggested_origin_url'       => $suggested_origin_url, // Suggested origin URL or IP.
+			'suggested_zone_name'        => \substr( \str_replace( '.', '-', \parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
+			'pull_zone_id'               => $config->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
+			'suggested_custom_hostname'  => \parse_url( \home_url(), PHP_URL_HOST ), // Suggested custom hostname.
+		);
+
+		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Pull_Zones.php';
+		\wp_die();
+	}
+
+	/**
+	 * W3TC AJAX: Configure pull zone.
+	 *
+	 * @since X.X.X
+	 */
+	public function w3tc_ajax_cdn_bunnycdn_configure_pull_zone() {
+		$config           = Dispatcher::config();
+		$account_api_key  = $config->get_string( 'cdn.bunnycdn.account_api_key' );
+		$pull_zone_id     = Util_Request::get_string( 'pull_zone_id' );
+		$origin_url       = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
+		$name             = Util_Request::get_string( 'name' ); // Pull zone name.
+		$cdn_hostname     = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname (system).
+		$custom_hostnames = explode( ',', Util_Request::get_string( 'custom_hostnames' ) );
+
+		// If not selecting a pull zone. then create a new one.
+		if ( empty( $pull_zone_id ) ) {
+			$api = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $account_api_key ) );
+
+			// Try to create a new pull zone.
+			try {
+				$response = $api->add_pull_zone(
+					array(
+						'Name'                => $name, // The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
+						'OriginUrl'           => $origin_url, // Origin URL or IP (with optional port number).
+						'EnableTLS1'          => false, // TLS 1.0 was deprecated in 2018.
+						'EnableTLS1_1'        => false, // TLS 1.1 was EOL's on March 31,2020.
+						'ErrorPageWhitelabel' => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
+						'FollowRedirects'     => true, // Follow redirects returned by the origin and cache the response.
+					)
+				);
+
+				$pull_zone_id = (int) $response['Id'];
+				$name         = $response['Name'];
+				$cdn_hostname = $response['Hostnames'][0]['Value'];
+			} catch ( \Exception $ex ) {
+				// Reauthorize: Ask for a new account API key.
+				$this->render_intro(
+					array(
+						'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
+						'error_message'   => \esc_html( __( 'Cannot select or add a pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+					)
+				);
+			}
+
+			// Add custom hostnames, if any.
+			$error_messages = array();
+
+			if ( ! empty( $custom_hostnames ) ) {
+
+				foreach ( $custom_hostnames as $custom_hostname ) {
+					try {
+						$api->add_custom_hostname( $custom_hostname, $pull_zone_id );
+					} catch ( \Exception $ex ) {
+						$error_messages[] = \sprintf(
+							// translators: 1: hostname.
+							__( 'Could not add custom hostname "%1$s"', 'w3-total-cache' ) . '; ',
+							\esc_html( $custom_hostname )
+						) . $ex->getMessage();
+					}
+				}
+			}
+
+			$error_messages = \implode( "\r\n", $error_messages );
+		}
+
+		// Save configuration.
+		$config->set( 'cdn.bunnycdn.pull_zone_id', $pull_zone_id );
+		$config->set( 'cdn.bunnycdn.name', $name );
+		$config->set( 'cdn.bunnycdn.origin_url', $origin_url );
+		$config->set( 'cdn.bunnycdn.cdn_hostname', $cdn_hostname );
+		$config->save();
+
+		// Print success view.
+		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Configured.php';
+		\wp_die();
+	}
+
+	/**
+	 * W3TC AJAX: Deauthorization form.
+	 *
+	 * @since X.X.X
+	 */
+	public function w3tc_ajax_cdn_bunnycdn_deauthorization() {
+		$config          = Dispatcher::config();
+		$origin_url      = $config->get_string( 'cdn.bunnycdn.origin_url' ); // Origin URL or IP.
+		$name            = $config->get_string( 'cdn.bunnycdn.name' ); // Pull zone name.
+		$cdn_hostname    = $config->get_string( 'cdn.bunnycdn.cdn_hostname' ); // Pull zone CDN hostname.
+
+		// Present details and ask to deauthorize and optionally delete the pull zone.
+		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Deauthorize.php';
+		\wp_die();
+	}
+
+	/**
+	 * W3TC AJAX: Deauthorize.
+	 *
+	 * Deauthorize and optionally delete the pull zone.
+	 *
+	 * @since X.X.X
+	 */
+	public function w3tc_ajax_cdn_bunnycdn_deauthorize() {
+		$config           = Dispatcher::config();
+		$account_api_key  = $config->get_string( 'cdn.bunnycdn.account_api_key' );
+		$pull_zone_id     = $config->get_string( 'cdn.bunnycdn.pull_zone_id' );
+		$delete_pull_zone = Util_Request::get_string( 'delete_pull_zone' );
+
+		// Delete pull zone, if requested.
+		if ( 'yes' === $delete_pull_zone ) {
+			$api = new Cdn_BunnyCdn_Api( array( 'account_api_key' => $account_api_key ) );
+
+			// Try to delete pull zone.
+			try {
+				$result = $api->delete_pull_zone( $pull_zone_id );
+			} catch ( \Exception $ex ) {
+				$delete_error_message = $ex->getMessage();
+			}
+		}
+
+		$config->set( 'cdn.bunnycdn.pull_zone_id', null );
+		$config->set( 'cdn.bunnycdn.name', null );
+		$config->set( 'cdn.bunnycdn.origin_url', null );
+		$config->set( 'cdn.bunnycdn.cdn_hostname', null );
+		$config->save();
+
+		// Print success view.
+		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Deauthorized.php';
+		\wp_die();
 	}
 
 	/**
 	 * Render intro.
 	 *
-	 * @since X.X.X
+	 * @since  X.X.X
+	 * @access private
 	 *
-	 * @param  array $details Details.
-	 * @return void
+	 * @param array $details {
+	 *     Details for the modal.
+	 *
+	 *     @type string $account_api_key Account API key.
+	 *     @type string $error_message Error message (optional).
+	 * }
 	 */
-	private function render_intro( $details ) {
-		$config         = Dispatcher::config();
-		$url_obtain_key = W3TC_BUNNYCDN_AUTHORIZE_URL;
-
+	private function render_intro( array $details ) {
 		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Intro.php';
-		wp_die();
-	}
-
-	/**
-	 * W3TC AJAX: List stacks.
-	 *
-	 * @return void
-	 */
-	public function w3tc_ajax_cdn_bunnycdn_list_stacks() {
-		$api_config = array(
-			'client_id'     => Util_Request::get_string( 'client_id' ),
-			'client_secret' => Util_Request::get_string( 'client_secret' ),
-		);
-
-		$api = new Cdn_BunnyCdn_Api( $api_config );
-
-		try {
-			$response = json_decode( $api->stacks_list(), true );
-			$stacks   = $response['results'];
-		} catch ( \Exception $ex ) {
-			$error_message = 'Can\'t authenticate: ' . $ex->getMessage();
-
-			$this->render_intro(
-				array(
-					'client_id'     => $api_config['client_id'],
-					'client_secret' => $api_config['client_secret'],
-					'error_message' => $error_message,
-				)
-			);
-			wp_die();
-		}
-
-		$count    = 0;
-		$stack_id = '';
-
-		foreach ( $stacks as $i ) {
-			if ( 'ACTIVE' === $i['status'] ) {
-				$count++;
-				$stack_id = $i['id'];
-			}
-		}
-
-		if ( 1 === $count ) {
-			$api_config['stack_id'] = $stack_id;
-			$this->_w3tc_ajax_cdn_bunnycdn_list_sites( $api_config );
-			wp_die();
-		}
-
-		$details = array(
-			'api_config' => $this->api_config_encode( $api_config ),
-			'stacks'     => $stacks,
-		);
-
-		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Stacks.php';
-		wp_die();
-	}
-
-	/**
-	 * W3TC AJAX: List sites.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return void
-	 */
-	public function w3tc_ajax_cdn_bunnycdn_list_sites() {
-		$api_config = $this->api_config_decode( Util_Request::get_string( 'api_config' ) );
-		$api_config['stack_id'] = Util_Request::get_string( 'stack_id' );
-		$this->_w3tc_ajax_cdn_bunnycdn_list_sites( $api_config );
-	}
-
-	/**
-	 * W3TC AJAX: List sites.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param array $api_config API Configuration.
-	 * @return void
-	 */
-	private function _w3tc_ajax_cdn_bunnycdn_list_sites( array $api_config ) {
-		$api = new Cdn_BunnyCdn_Api( $api_config );
-
-		try {
-			$r     = $api->site_list();
-			$sites = $r['results'];
-		} catch ( \Exception $ex ) {
-			$error_message = 'Can\'t authenticate: ' . $ex->getMessage();
-
-			$this->render_intro(
-				array(
-					'client_id'     => $api_config['client_id'],
-					'client_secret' => $api_config['client_secret'],
-					'stack_id'      => $api_config['stack_id'],
-					'error_message' => $error_message,
-				)
-			);
-			wp_die();
-		}
-
-		$details = array(
-			'api_config'   => $this->api_config_encode( $api_config ),
-			'sites'        => $sites,
-			'new_hostname' => parse_url( home_url(), PHP_URL_HOST ),
-		);
-
-		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Sites.php';
-		wp_die();
-	}
-
-	/**
-	 * W3TC AJAX: Configure site.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return void
-	 */
-	public function w3tc_ajax_cdn_bunnycdn_configure_site() {
-		$api_config   = $this->api_config_decode( Util_Request::get_string( 'api_config' ) );
-		$site_id      = Util_Request::get( 'site_id', '' );
-		$api          = new Cdn_BunnyCdn_Api( $api_config );
-		$cors_present = false;
-
-		try {
-			if ( empty( $site_id ) ) {
-				// Create new zone mode.
-				$hostname = parse_url( home_url(), PHP_URL_HOST );
-
-				$r = $api->site_create(
-					array(
-						'domain'   => $hostname,
-						'origin'   => array(
-							'path'       => '/',
-							'hostname'   => $hostname,
-							'port'       => 80,
-							'securePort' => 443,
-						),
-						'features' => array( 'CDN' ),
-					)
-				);
-
-				$site_id = $r['site']['id'];
-			}
-
-			$r       = $api->site_dns_targets_get( $site_id );
-			$domains = $r['addresses'];
-			$cds     = $api->site_cds_get( $site_id );
-
-			if ( isset( $cds['configuration'] ) && isset( $cds['configuration']['staticHeader'] ) ) {
-				$headers      = $cds['configuration']['staticHeader'];
-				$cors_present = isset( $headers[0] ) &&
-					isset( $headers[0]['http'] ) &&
-					preg_match( '/access\-control\-allow\-origin/i', $headers[0]['http'] );
-			}
-		} catch ( \Exception $ex ) {
-			$this->render_intro(
-				array(
-					'client_id'     => $api_config['client_id'],
-					'client_secret' => $api_config['client_secret'],
-					'stack_id'      => $api_config['stack_id'],
-					'error_message' => 'Can\'t obtain site: ' . $ex->getMessage(),
-				)
-			);
-			wp_die();
-		}
-
-		$c = Dispatcher::config();
-		$c->set( 'cdn.bunnycdn.client_id', $api_config['client_id'] );
-		$c->set( 'cdn.bunnycdn.client_secret', $api_config['client_secret'] );
-		$c->set( 'cdn.bunnycdn.stack_id', $api_config['stack_id'] );
-		$c->set( 'cdn.bunnycdn.site_id', $site_id );
-		$c->set( 'cdn.bunnycdn.site_root_domain', $domains[0] );
-		$c->set( 'cdn.bunnycdn.domain', $domains );
-		$c->set( 'cdn.cors_header', ! $cors_present );
-		$c->save();
-
-		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Success.php';
-		wp_die();
-	}
-
-	/**
-	 * Encode the API configuration.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param  array $config API configuration.
-	 * @return string JSON string.
-	 */
-	private function api_config_encode( array $config ) {
-		return wp_json_encode(
-			array(
-				'client_id'     => $config['client_id'],
-				'client_secret' => $config['client_secret'],
-				'stack_id'      => isset( $config['stack_id'] ) ? $config['stack_id'] : '',
-			)
-		);
-	}
-
-	/**
-	 * Decode the API configuration.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param  string $encoded_config JSON-encoded API configuration.
-	 * @return array
-	 */
-	private function api_config_decode( $encoded_config ) {
-		return json_decode( $encoded_config, true );
+		\wp_die();
 	}
 }

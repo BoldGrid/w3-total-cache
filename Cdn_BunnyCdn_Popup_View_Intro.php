@@ -2,8 +2,18 @@
 /**
  * File: Cdn_BunnyCdn_Popup_View_Intro.php
  *
+ * Assists with configuring BunnyCDN as an object storage CDN.
+ * Asks to enter an account API key from the BunnyCDN main account.
+ *
  * @since   X.X.X
  * @package W3TC
+ *
+ * @param array $details {
+ *     BunnyCDN API configuration details.
+ *
+ *     @type string $account_api_key Account API key.
+ *     @type string $error_message   Error message (optional).  String already escaped.
+ * }
  */
 
 namespace W3TC;
@@ -11,34 +21,24 @@ namespace W3TC;
 defined( 'W3TC' ) || die();
 
 ?>
-
 <form class="w3tc_cdn_bunnycdn_form">
-	<?php
-	if ( isset( $details['error_message'] ) ) {
-		echo '<div class="error">' . esc_html( $details['error_message'] ) . '</div>';
-	}
-	?>
+	<?php if ( isset( $details['error_message'] ) ) : ?>
+		<div class="error">
+			<?php echo $details['error_message']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		</div>
+	<?php endif; ?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( esc_html__( 'Your BunnyCDN API keys', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'BunnyCDN API Configuration', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-				<td>API Client ID:</td>
+				<td><?php esc_html_e( 'Account API Key', 'w3-total-cache' ); ?>:</td>
 				<td>
-					<input name="client_id" type="text" class="w3tc-ignore-change"
-						style="width: 550px"
-						value="<?php echo esc_attr( $details['client_id'] ); ?>" />
-				</td>
-			</tr>
-			<tr>
-				<td>API Client Secret:</td>
-				<td>
-					<input name="client_secret" type="text" class="w3tc-ignore-change"
-						style="width: 550px"
-						value="<?php echo esc_attr( $details['client_secret'] ); ?>" />
+					<input id="w3tc-account-api-key" name="account_api_key" type="text" class="w3tc-ignore-change"
+						style="width: 550px" value="<?php echo esc_attr( $details['account_api_key'] ); ?>" />
 					<p class="description">
-						To obtain API key you can
-						<a target="_blank" href="<?php echo esc_attr( $url_obtain_key ); ?>">click here</a>,
-						log in, and paste the key in above field.
+						<?php esc_html_e( 'To obtain your account API key,', 'w3-total-cache' ); ?>
+						<a target="_blank" href="<?php echo esc_url( W3TC_BUNNYCDN_SETTINGS_URL ); ?>"><?php esc_html_e( 'click here', 'w3-total-cache' ); ?></a>,
+						<?php esc_html_e( 'log in using the main account credentials, and paste the API key into the field above.', 'w3-total-cache' ); ?>
 					</p>
 				</td>
 			</tr>
@@ -46,7 +46,7 @@ defined( 'W3TC' ) || die();
 
 		<p class="submit">
 			<input type="button"
-				class="w3tc_cdn_bunnycdn_list_stacks w3tc-button-save button-primary"
+				class="w3tc_cdn_bunnycdn_list_pull_zones w3tc-button-save button-primary"
 				value="<?php esc_attr_e( 'Next', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>

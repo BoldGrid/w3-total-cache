@@ -18,7 +18,7 @@ $is_authorized   = $account_api_key && $config->get_integer( 'cdnfsd.bunnycdn.pu
 Util_Ui::postbox_header(
 	esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ),
 	'',
-	'configuration'
+	'configuration-fsd'
 );
 
 ?>
@@ -26,7 +26,7 @@ Util_Ui::postbox_header(
 	<tr>
 		<th style="width: 300px;">
 			<label>
-				<?php esc_html_e( 'Specify account API key', 'w3-total-cache' ); ?>:
+				<?php esc_html_e( 'Account API key authorization', 'w3-total-cache' ); ?>:
 			</label>
 		</th>
 		<td>
@@ -102,7 +102,7 @@ Util_Ui::postbox_header(
 				<?php
 				echo wp_kses(
 					sprintf(
-						// translators: 1: Opening HTML acronym tag, 2: Closing HTML acronym tag.
+						// translators: 1: Opening HTML acronym tag, 2: Opening HTML acronym tag, 3: Closing HTML acronym tag.
 						esc_html__(
 							'The website domain %1$sCNAME%3$s must point to the %2$sCDN%3$s hostname.',
 							'w3-total-cache'

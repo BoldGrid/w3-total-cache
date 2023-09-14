@@ -227,12 +227,12 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
-		if ( empty( $pull_zone_id ) || ! is_numeric( $pull_zone_id ) ) {
+		if ( empty( $pull_zone_id ) || ! \is_numeric( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
-		if ( empty( $hostname ) || ! filter_var( $hostname, FILTER_VALIDATE_DOMAIN ) ) {
-			throw new \Exception( \esc_html__( 'Invalid hostname', 'w3-total-cache' ) . ' "' . esc_html( $hostname ) . '".' );
+		if ( empty( $hostname ) || ! \filter_var( $hostname, FILTER_VALIDATE_DOMAIN ) ) {
+			throw new \Exception( \esc_html__( 'Invalid hostname', 'w3-total-cache' ) . ' "' . \esc_html( $hostname ) . '".' );
 		}
 
 		$this->wp_remote_post(
@@ -268,7 +268,9 @@ class Cdn_BunnyCdn_Api {
 	 * @return array
 	 */
 	public function purge( array $data ) {
-		return $this->wp_remote_post(
+		$this->api_type = 'account';
+
+		return $this->wp_remote_get(
 			\esc_url( 'https://api.bunny.net/purge' ),
 			$data
 		);
@@ -287,7 +289,7 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
-		if ( empty( $pull_zone_id ) || ! is_numeric( $pull_zone_id ) ) {
+		if ( empty( $pull_zone_id ) || ! \is_numeric( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
@@ -335,11 +337,6 @@ class Cdn_BunnyCdn_Api {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
 		}
 
-		// If a response body was expected and not present, then throw an exception.
-		if ( 204 !== $result['response']['code'] && ( empty( $result['body'] ) || ! \is_string( $result['body'] ) ) ) {
-			throw new \Exception( \esc_html__( 'Response body is invalid', 'w3-total-cache' ) );
-		}
-
 		$response_body = @\json_decode( $result['body'], true );
 
 		// Throw an exception if the response code/status is not ok.
@@ -351,7 +348,7 @@ class Cdn_BunnyCdn_Api {
 			);
 		}
 
-		return is_array( $response_body ) ? $response_body : array();
+		return \is_array( $response_body ) ? $response_body : array();
 	}
 
 	/**
