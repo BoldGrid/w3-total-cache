@@ -62,7 +62,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 					'</strong>',
 					'<strong>',
 					'</strong>',
-					'<a href="' . admin_url( 'admin.php?page=w3tc_userexperience#lazy-loading' ) . '">',
+					'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#lazy-loading' ) . '">',
 					'</a>'
 				),
 				array(
@@ -90,7 +90,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'extension_id'   => 'user-experience-defer-scripts',
 			'checkbox_label' => esc_html__( 'Defer JavaScript', 'w3-total-cache' ),
 			'description'    => __(
-				'Defer the loading of specified JavaScript sources on your pages.',
+				'Defer the loading of specified interal/external JavaScript sources on your pages separate from Minify. For best results it is recommended to enable the Minify feature to optimize internal sources and to then use the Defer JavaScript feature to handle external sources and/or any internal sources excluded from Minify.',
 				'w3-total-cache'
 			) . (
 				Util_Environment::is_w3tc_pro( $config ) && $config->is_extension_active( 'user-experience-defer-scripts' )
@@ -101,7 +101,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 							' Settings can be found on the %1$sUser Experience page%2$s.',
 							'w3-total-cache'
 						),
-						'<a href="' . admin_url( 'admin.php?page=w3tc_userexperience#application' ) . '">',
+						'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#application' ) . '">',
 						'</a>'
 					),
 					array(
