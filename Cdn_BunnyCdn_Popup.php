@@ -201,10 +201,12 @@ class Cdn_BunnyCdn_Popup {
 	 * @since X.X.X
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_deauthorization() {
-		$config          = Dispatcher::config();
-		$origin_url      = $config->get_string( 'cdn.bunnycdn.origin_url' ); // Origin URL or IP.
-		$name            = $config->get_string( 'cdn.bunnycdn.name' ); // Pull zone name.
-		$cdn_hostname    = $config->get_string( 'cdn.bunnycdn.cdn_hostname' ); // Pull zone CDN hostname.
+		$config              = Dispatcher::config();
+		$origin_url          = $config->get_string( 'cdn.bunnycdn.origin_url' ); // Origin URL or IP.
+		$name                = $config->get_string( 'cdn.bunnycdn.name' ); // Pull zone name.
+		$cdn_hostname        = $config->get_string( 'cdn.bunnycdn.cdn_hostname' ); // Pull zone CDN hostname.
+		$cdn_pull_zone_id    = $config->get_string( 'cdn.bunnycdn.pull_zone_id' ); // CDN pull zone id.
+		$cdnfsd_pull_zone_id = $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN FSD pull zone id.
 
 		// Present details and ask to deauthorize and optionally delete the pull zone.
 		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Deauthorize.php';
@@ -219,10 +221,11 @@ class Cdn_BunnyCdn_Popup {
 	 * @since X.X.X
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_deauthorize() {
-		$config           = Dispatcher::config();
-		$account_api_key  = $config->get_string( 'cdn.bunnycdn.account_api_key' );
-		$pull_zone_id     = $config->get_string( 'cdn.bunnycdn.pull_zone_id' );
-		$delete_pull_zone = Util_Request::get_string( 'delete_pull_zone' );
+		$config              = Dispatcher::config();
+		$account_api_key     = $config->get_string( 'cdn.bunnycdn.account_api_key' );
+		$cdn_pull_zone_id    = $config->get_string( 'cdn.bunnycdn.pull_zone_id' ); // CDN pull zone id.
+		$cdnfsd_pull_zone_id = $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN FSD pull zone id.
+		$delete_pull_zone    = Util_Request::get_string( 'delete_pull_zone' );
 
 		// Delete pull zone, if requested.
 		if ( 'yes' === $delete_pull_zone ) {
@@ -230,9 +233,16 @@ class Cdn_BunnyCdn_Popup {
 
 			// Try to delete pull zone.
 			try {
-				$result = $api->delete_pull_zone( $pull_zone_id );
+				$api->delete_pull_zone( $cdn_pull_zone_id );
 			} catch ( \Exception $ex ) {
 				$delete_error_message = $ex->getMessage();
+			}
+
+			if ( $cdn_pull_zone_id === $cdnfsd_pull_zone_id ) {
+				$config->set( 'cdnfsd.bunnycdn.pull_zone_id', null );
+				$config->set( 'cdnfsd.bunnycdn.name', null );
+				$config->set( 'cdnfsd.bunnycdn.origin_url', null );
+				$config->set( 'cdnfsd.bunnycdn.cdn_hostname', null );
 			}
 		}
 
