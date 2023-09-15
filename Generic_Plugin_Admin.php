@@ -586,6 +586,8 @@ class Generic_Plugin_Admin {
 						'cdn.flush_manually',
 						Cdn_Util::get_flush_manually_default_override( $this->_config->get_string( 'cdn.engine' ) )
 					),
+					'cdnfsdEnabled'    => $this->_config->get_boolean( 'cdnfsd.enabled' ),
+					'cdnfsdEngine'     => $this->_config->get_string( 'cdnfsd.engine' ),
 					'cfWarning'        => wp_kses(
 						sprintf(
 							// translators: 1: HTML opening a tag to docs.aws.amazon.com for invalidation payments, 2: HTML closing a tag followed by HTML line break tag,
@@ -607,6 +609,10 @@ class Generic_Plugin_Admin {
 							),
 							'br' => array(),
 						)
+					),
+					'bunnyCdnWarning'  => esc_html__(
+						'BunnyCDN should only be enabled as either a CDN for objects or full-site delivery, not both at the same time.  The CDN settings have been reverted.',
+						'w3-total-cache'
 					),
 				)
 			);
