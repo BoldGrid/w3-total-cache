@@ -236,11 +236,14 @@ class FeatureShowcase_Plugin_Admin {
 
 		return array(
 			'defer-scripts'       => array(
-				'title'      => esc_html__( 'Defer JavaScript', 'w3-total-cache' ),
+				'title'      => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
 				'icon'       => 'dashicons-media-code',
-				'text'       => esc_html__( "Defer the loading of specified internal/external JavaScript sources on your pages separate from Minify.", 'w3-total-cache' ),
-				'button'     => '<button class="button" onclick="window.location=\'' .
-					esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '\'">' .
+				'text'       => esc_html__( "Delay the loading of specified internal/external JavaScript sources on your pages separate from Minify.", 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' . (
+					Util_Environment::is_w3tc_pro( $c ) && isset( $extensions[ 'user-experience-defer-scripts' ] )
+						? esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#application' )  )
+						: esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) )
+					) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/defer-scripts-tool/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=defer-scripts-tool' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
