@@ -90,7 +90,7 @@ class Cdnfsd_BunnyCdn_Engine {
 		try {
 			$r = $api->purge_pull_zone();
 		} catch ( \Exception $ex ) {
-			throw new \Exception( \esc_html( __( 'Could not purge pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ) );
+			throw new \Exception( \esc_html( \__( 'Could not purge pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ) );
 		}
 	}
 }

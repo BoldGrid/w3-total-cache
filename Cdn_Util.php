@@ -46,9 +46,10 @@ class Cdn_Util {
 	}
 
 	/**
-	 * Returns true if CDN engine is mirror
+	 * Returns true if CDN engine is mirror.
 	 *
 	 * @param string $engine CDN engine.
+	 * @static
 	 *
 	 * @return bool
 	 */
@@ -67,6 +68,7 @@ class Cdn_Util {
 				'rackspace_cdn',
 				'stackpath',
 				'stackpath2',
+				'bunnycdn',
 			),
 			true
 		);

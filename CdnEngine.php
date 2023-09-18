@@ -12,7 +12,7 @@ namespace W3TC;
  */
 class CdnEngine {
 	/**
-	 * Returns CdnEngine_Base instance
+	 * Returns CdnEngine_Base instance.
 	 *
 	 * @param string $engine CDN engine.
 	 * @param array  $config Configuration.
@@ -20,8 +20,7 @@ class CdnEngine {
 	 */
 	public static function instance( $engine, array $config = array() ) {
 		static $instances = array();
-
-		$instance_key = sprintf( '%s_%s', $engine, md5( serialize( $config ) ) );
+		$instance_key     = sprintf( '%s_%s', $engine, md5( serialize( $config ) ) );
 
 		if ( ! isset( $instances[ $instance_key ] ) ) {
 			switch ( $engine ) {
