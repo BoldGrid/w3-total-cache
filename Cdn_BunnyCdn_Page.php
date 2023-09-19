@@ -41,6 +41,10 @@ class Cdn_BunnyCdn_Page {
 	 * @return void
 	 */
 	public static function admin_print_scripts_w3tc_cdn() {
+		$config          = Dispatcher::config();
+		$is_authorized   = ! empty( $config->get_string( 'cdn.bunnycdn.account_api_key' ) ) &&
+			( $config->get_string( 'cdn.bunnycdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
+
 		\wp_register_script(
 			'w3tc_cdn_bunnycdn',
 			\plugins_url( 'Cdn_BunnyCdn_Page_View.js', W3TC_FILE ),
@@ -50,12 +54,15 @@ class Cdn_BunnyCdn_Page {
 
 		\wp_localize_script(
 			'w3tc_cdn_bunnycdn',
-			'W3TC_Bunnycdn_lang',
+			'W3TC_Bunnycdn',
 			array(
-				'empty_url'       => \esc_html__( 'No URL specified', 'w3-total-cache' ),
-				'success_purging' => \esc_html__( 'Successfully purged URL', 'w3-total-cache' ),
-				'error_purging'   => \esc_html__( 'Error purging URL', 'w3-total-cache' ),
-				'error_ajax'      => \esc_html__( 'Error with AJAX', 'w3-total-cache' ),
+				'is_authorized' => $is_authorized,
+				'lang'          => array(
+					'empty_url'       => \esc_html__( 'No URL specified', 'w3-total-cache' ),
+					'success_purging' => \esc_html__( 'Successfully purged URL', 'w3-total-cache' ),
+					'error_purging'   => \esc_html__( 'Error purging URL', 'w3-total-cache' ),
+					'error_ajax'      => \esc_html__( 'Error with AJAX', 'w3-total-cache' ),
+				),
 			)
 		);
 

@@ -28,7 +28,8 @@ $placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \h
 			</label>
 		</th>
 		<td>
-				<textarea id="w3tc-purge-urls" class="w3tc-ignore-change" cols="60" rows="5" placeholder="<?php echo \esc_html( $placeholder ); ?> "></textarea>
+				<textarea id="w3tc-purge-urls" class="w3tc-ignore-change" cols="60" rows="5"
+					placeholder="<?php echo \esc_html( $placeholder ); ?>" <?php echo ( $is_authorized ? '' : 'disabled' ); ?>></textarea>
 				<p><?php \esc_html_e( 'Purging a URL will remove the file from the CDN cache and re-download it from your origin server. Please enter the exact CDN URL of each individual file. You can also purge folders or wildcard files using * inside of the URL path. Wildcard values are not supported if using Perma-Cache.', 'w3-total-cache' ); ?></p>
 				<p>
 					<input class="w3tc_cdn_bunnycdn_purge_urls button-primary" type="button"
@@ -38,10 +39,19 @@ $placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \h
 			<?php if ( ! $is_authorized ) : ?>
 			<p>
 				<?php
-				\printf(
-					// translators: 1: Name of the CDN service.
-					\esc_html__( 'Please configure %1$s in order to purge URLs.', 'w3-total-cache' ),
-					'Bunny CDN'
+				echo wp_kses(
+					\sprintf(
+						// translators: 1: Opening HTML div element, 2: Name of the CDN service, 3: Closing HTML div element.
+						\esc_html__( '%1$sPlease configure %2$s in order to purge URLs.%3$s', 'w3-total-cache' ),
+						'<div class="notice notice-info">',
+						'Bunny CDN',
+						'</div>'
+					),
+					array(
+						'div' => array(
+							'class' => array(),
+						),
+					)
 				);
 				?>
 			</p>
