@@ -2,7 +2,7 @@
 /**
  * File: Cdnfsd_BunnyCdn_Popup_Deauthorize.php
  *
- * Assists to deauthorize BunnyCDN as a full-site delivery CDN and optionally delete the pull zone.
+ * Assists to deauthorize BunnyCDN as an objects CDN and optionally delete the pull zone.
  *
  * @since   X.X.X
  * @package W3TC
@@ -23,7 +23,7 @@ defined( 'W3TC' ) || die;
 $is_same_zone = $cdn_pull_zone_id === $cdnfsd_pull_zone_id;
 
 ?>
-<form class="w3tc_cdn_bunnycdn_fsd_form" method="post">
+<form class="w3tc_cdn_bunnycdn_form" method="post">
 	<input type="hidden" name="pull_zone_id" />
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( \esc_html__( 'Deauthorize pull zone', 'w3-total-cache' ) ); ?>
@@ -54,7 +54,7 @@ $is_same_zone = $cdn_pull_zone_id === $cdnfsd_pull_zone_id;
 		</table>
 
 		<p class="submit">
-			<input type="button" class="w3tc_cdn_bunnycdn_fsd_deauthorize w3tc-button-save button-primary"
+			<input type="button" class="w3tc_cdn_bunnycdn_deauthorize w3tc-button-save button-primary"
 				value="<?php \esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>

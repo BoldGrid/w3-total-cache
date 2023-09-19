@@ -16,6 +16,7 @@ defined( 'W3TC' ) || die();
 
 $account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
 $is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.bunnycdn.pull_zone_id' );
+$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for BunnyCDN.
 
 ?>
 <table class="form-table">
@@ -29,7 +30,15 @@ $is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.bunn
 			<?php if ( $is_authorized ) : ?>
 				<input class="w3tc_cdn_bunnycdn_deauthorization button-primary" type="button" value="<?php esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
 			<?php else : ?>
-				<input class="w3tc_cdn_bunnycdn_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>" />
+				<input class="w3tc_cdn_bunnycdn_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>"
+				<?php echo ( $is_unavailable ? 'disabled' : '' ); ?> />
+				<?php if ( $is_unavailable ) : ?>
+					<div class="notice notice-info">
+						<p>
+							<?php esc_html_e( 'CDN for objects cannot be authorized if full-site delivery is already configured.', 'w3-total-cache' ); ?>
+						</p>
+					</div>
+				<?php endif; ?>
 			<?php endif; ?>
 		</td>
 	</tr>

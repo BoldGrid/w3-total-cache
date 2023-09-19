@@ -21,7 +21,7 @@ defined( 'W3TC' ) || die();
 		<?php Util_Ui::postbox_header( esc_html__( 'Success', 'w3-total-cache' ) ); ?>
 
 		<div style="text-align: center">
-			<?php esc_html_e( 'A pull zone was created successfully', 'w3-total-cache' ); ?>.<br />
+			<?php esc_html_e( 'A pull zone has been configured successfully', 'w3-total-cache' ); ?>.<br />
 		</div>
 
 		<p class="submit">

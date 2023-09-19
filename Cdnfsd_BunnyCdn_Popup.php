@@ -236,6 +236,7 @@ class Cdnfsd_BunnyCdn_Popup {
 				$delete_error_message = $ex->getMessage();
 			}
 
+			// If the same pull zone is used for CDN Objects, then deauthorize that too.
 			if ( $cdnfsd_pull_zone_id === $cdn_pull_zone_id ) {
 				$config->set( 'cdn.bunnycdn.pull_zone_id', null );
 				$config->set( 'cdn.bunnycdn.name', null );

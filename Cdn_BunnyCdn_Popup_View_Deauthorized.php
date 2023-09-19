@@ -15,7 +15,7 @@ namespace W3TC;
 defined( 'W3TC' ) || die();
 
 ?>
-<form class="w3tc_cdn_bunnycdn_fsd_form">
+<form class="w3tc_cdn_bunnycdn_form">
 <?php if ( isset( $delete_error_message ) ) : ?>
 	<div class="error">
 		<?php
@@ -33,7 +33,7 @@ defined( 'W3TC' ) || die();
 		?>
 
 		<div style="text-align: center">
-			<p><?php esc_html_e( 'The full-site delivery has been deauthorized', 'w3-total-cache' ); ?>.</p>
+			<p><?php esc_html_e( 'The objects CDN has been deauthorized', 'w3-total-cache' ); ?>.</p>
 		</div>
 		<?php if ( 'yes' === $delete_pull_zone && empty( $delete_error_message ) ) : ?>
 			<div style="text-align: center">
@@ -41,7 +41,7 @@ defined( 'W3TC' ) || die();
 			</div>
 		<?php endif; ?>
 		<p class="submit">
-			<input type="button" class="w3tc_cdn_bunnycdn_fsd_done w3tc-button-save button-primary"
+			<input type="button" class="w3tc_cdn_bunnycdn_done w3tc-button-save button-primary"
 				value="<?php esc_html_e( 'Done', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>
