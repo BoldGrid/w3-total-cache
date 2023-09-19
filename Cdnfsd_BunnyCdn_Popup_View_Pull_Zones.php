@@ -34,11 +34,17 @@ defined( 'W3TC' ) || die();
 			if ( ! empty( $details['pull_zones'] ) ) {
 				// List pull zones for selection.
 				foreach ( $details['pull_zones'] as $pull_zone ) {
+					// Skip pull zones that are disabled or suspended.
+					if ( ! $pull_zone['Enabled'] || $pull_zone['Suspended'] ) {
+						continue;
+					}
+
 					// Get the CDN hostname and custom hostnames.
 					$cdn_hostname = '?';
 					$custom_hostnames = array();
 
 					foreach ( $pull_zone['Hostnames'] as $hostname ) {
+						// Get the CDN hostname.  It should be the system hostname.
 						if ( ! empty( $hostname['Value'] ) ) {
 							if ( ! empty( $hostname['IsSystemHostname'] ) ) {
 								// CDN hostname (system); there should only be one.
@@ -66,8 +72,6 @@ defined( 'W3TC' ) || die();
 						data-custom-hostnames="<?php echo esc_attr( implode( ',', $custom_hostnames ) ); ?>">
 						<?php echo esc_attr( $pull_zone['Name'] ); ?>
 						(<?php echo esc_html( $origin_url ); ?>)
-						(<?php echo $pull_zone['Enabled'] ? esc_html__( 'Enabled', 'w3-total-cache' ) : esc_html__( 'Disabled', 'w3-total-cache' ); ?>)
-						<?php echo $pull_zone['Suspended'] ? '(' . esc_html__( 'Suspended', 'w3-total-cache' ) . ')' : ''; ?>
 					</option>
 					<?php
 					// If selected, then get the origin URL/IP and pull zone name.
