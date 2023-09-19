@@ -1843,7 +1843,7 @@ class Util_Ui {
 						// If more items are added this will only encompase the Defer Scripts, but if only 1 item show no sub-nav.
 						?>
 						<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a> |
-						<a href="#application"><?php esc_html_e( 'Defer Scripts', 'w3-total-cache' ); ?></a>
+						<a href="#application"><?php esc_html_e( 'Delay Scripts', 'w3-total-cache' ); ?></a>
 						<?php
 					}
 					?>
