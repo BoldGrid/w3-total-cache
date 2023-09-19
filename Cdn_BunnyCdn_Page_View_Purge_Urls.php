@@ -36,16 +36,15 @@ $placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \h
 						value="<?php \esc_attr_e( 'Purge URLs Now', 'w3-total-cache' ); ?>"
 						<?php echo ( $is_authorized ? '' : 'disabled' ); ?>/>
 				</p>
-			<?php if ( ! $is_authorized ) : ?>
-			<p>
-				<?php
+			<?php
+			if ( ! $is_authorized ) :
 				echo wp_kses(
 					\sprintf(
-						// translators: 1: Opening HTML div element, 2: Name of the CDN service, 3: Closing HTML div element.
+						// translators: 1: Opening HTML elements, 2: Name of the CDN service, 3: Closing HTML elements.
 						\esc_html__( '%1$sPlease configure %2$s in order to purge URLs.%3$s', 'w3-total-cache' ),
-						'<div class="notice notice-info">',
+						'<div class="notice notice-info"><p>',
 						'Bunny CDN',
-						'</div>'
+						'</p></div>'
 					),
 					array(
 						'div' => array(
@@ -53,9 +52,8 @@ $placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \h
 						),
 					)
 				);
-				?>
-			</p>
-			<?php else : ?>
+				else :
+					?>
 				<br />
 				<p><div id="w3tc-purge-messages"></div></p>
 			<?php endif; ?>
