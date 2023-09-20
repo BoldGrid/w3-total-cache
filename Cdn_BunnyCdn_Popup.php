@@ -140,12 +140,15 @@ class Cdn_BunnyCdn_Popup {
 			try {
 				$response = $api->add_pull_zone(
 					array(
-						'Name'                => $name, // The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
-						'OriginUrl'           => $origin_url, // Origin URL or IP (with optional port number).
-						'EnableTLS1'          => false, // TLS 1.0 was deprecated in 2018.
-						'EnableTLS1_1'        => false, // TLS 1.1 was EOL's on March 31,2020.
-						'ErrorPageWhitelabel' => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
-						'FollowRedirects'     => true, // Follow redirects returned by the origin and cache the response.
+						'Name'                  => $name, // The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
+						'OriginUrl'             => $origin_url, // Origin URL or IP (with optional port number).
+						'DisableCookies'        => false, // Do not strip response cookies.
+						'EnableTLS1'            => false, // TLS 1.0 was deprecated in 2018.
+						'EnableTLS1_1'          => false, // TLS 1.1 was EOL's on March 31,2020.
+						'ErrorPageWhitelabel'   => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
+						'FollowRedirects'       => true, // Follow redirects returned by the origin and cache the response.
+						'UseStaleWhileUpdating' => true, // Serve stale content while updating.  If Stale While Updating is enabled, cache will not be refreshed if the origin responds with a non-cacheable resource.
+						'UseStaleWhileOffline'  => true, // Serve stale content if the origin is offline.
 					)
 				);
 
