@@ -18,7 +18,7 @@ jQuery(function() {
     	        var name = $mobile_group.find('.mobile_group').text();
     	        var theme = $mobile_group.find('select').val();
     	        var redirect = $mobile_group.find('input[type=text]').val();
-    	        var agents = jQuery.trim($mobile_group.find('textarea').val().replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, "")).split('\n');
+    	        var agents = jQuery.trim($mobile_group.find('textarea').val().replace(/^(\s)*(\r\n|\n|\r)/gm, '')).split('\n');
 
     	        mobile_groups.not($mobile_group).each(function(index, compare_mobile_group) {
     	            var $compare_mobile_group = jQuery(compare_mobile_group);
@@ -27,7 +27,7 @@ jQuery(function() {
     	                var compare_name = $compare_mobile_group.find('.mobile_group').text();
     	                var compare_theme = $compare_mobile_group.find('select').val();
     	                var compare_redirect = $compare_mobile_group.find('input[type=text]').val();
-    	                var compare_agents = jQuery.trim($compare_mobile_group.find('textarea').val().replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, "")).split('\n');
+    	                var compare_agents = jQuery.trim($compare_mobile_group.find('textarea').val().replace(/^(\s)*(\r\n|\n|\r)/gm, '')).split('\n');
 
     	                var groups = sort_array([name, compare_name]);
 
@@ -57,7 +57,7 @@ jQuery(function() {
     	        var name = $referrer_group.find('.referrer_group').text();
     	        var theme = $referrer_group.find('select').val();
     	        var redirect = $referrer_group.find('input[type=text]').val();
-    	        var agents = jQuery.trim($referrer_group.find('textarea').val().replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, "")).split('\n');
+    	        var agents = jQuery.trim($referrer_group.find('textarea').val().replace(/^(\s)*(\r\n|\n|\r)/gm, '')).split('\n');
 
     	        referrer_groups.not($referrer_group).each(function(index, compare_referrer_group) {
     	            var $compare_referrer_group = jQuery(compare_referrer_group);
@@ -66,7 +66,7 @@ jQuery(function() {
     	                var compare_name = $compare_referrer_group.find('.referrer_group').text();
     	                var compare_theme = $compare_referrer_group.find('select').val();
     	                var compare_redirect = $compare_referrer_group.find('input[type=text]').val();
-    	                var compare_agents = jQuery.trim($compare_referrer_group.find('textarea').val().replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, "")).split('\n');
+    	                var compare_agents = jQuery.trim($compare_referrer_group.find('textarea').val().replace(/^(\s)*(\r\n|\n|\r)/gm, '')).split('\n');
 
     	                var groups = sort_array([name, compare_name]);
 
@@ -94,14 +94,14 @@ jQuery(function() {
 
     	    if ($cookiegroup.find('.cookiegroup_enabled:checked').length) {
     	        var name = $cookiegroup.find('.cookiegroup_name').text();
-    	        var agents = jQuery.trim($cookiegroup.find('textarea').val().replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, "")).split('\n');
+    	        var agents = jQuery.trim($cookiegroup.find('textarea').val().replace(/^(\s)*(\r\n|\n|\r)/gm, '')).split('\n');
 
     	        cookiegroups.not($cookiegroup).each(function(index, compare_cookiegroup) {
     	            var $compare_cookiegroup = jQuery(compare_cookiegroup);
 
     	            if ($compare_cookiegroup.find('.cookiegroup_enabled:checked').length) {
     	                var compare_name = $compare_cookiegroup.find('.cookiegroup_name').text();
-    	                var compare_agents = jQuery.trim($compare_cookiegroup.find('textarea').val().replace(/(?:(?:\r\n|\r|\n)\s*){2}/gm, "")).split('\n');
+    	                var compare_agents = jQuery.trim($compare_cookiegroup.find('textarea').val().replace(/^(\s)*(\r\n|\n|\r)/gm, '')).split('\n');
 
     	                var groups = sort_array([name, compare_name]);
 
@@ -119,7 +119,7 @@ jQuery(function() {
 			alert(unique_array(error).join('\n'));
 			return false;
 		}
-		
+
 		return true;
 	});
 
