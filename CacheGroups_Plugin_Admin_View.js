@@ -93,21 +93,21 @@ jQuery(function() {
     	    var $cookiegroup = jQuery(cookiegroup);
 
     	    if ($cookiegroup.find('.cookiegroup_enabled:checked').length) {
-    	        var name = $cookiegroup.find('.cookiegroup').text();
+    	        var name = $cookiegroup.find('.cookiegroup_name').text();
     	        var agents = jQuery.trim($cookiegroup.find('textarea').val()).split('\n');
 
     	        cookiegroups.not($cookiegroup).each(function(index, compare_cookiegroup) {
     	            var $compare_cookiegroup = jQuery(compare_cookiegroup);
 
     	            if ($compare_cookiegroup.find('.cookiegroup_enabled:checked').length) {
-    	                var compare_name = $compare_cookiegroup.find('.cookiegroup').text();
+    	                var compare_name = $compare_cookiegroup.find('.cookiegroup_name').text();
     	                var compare_agents = jQuery.trim($compare_cookiegroup.find('textarea').val()).split('\n');
 
     	                var groups = sort_array([name, compare_name]);
 
     	                jQuery.each(compare_agents, function(index, value) {
     	                    if (jQuery.inArray(value, agents) !== -1) {
-    	                        error.push('Duplicate stem "' + value + '" found in the mobile groups "' + groups[0] + '" and "' + groups[1] + '"');
+    	                        error.push('Duplicate stem "' + value + '" found in the cookie groups "' + groups[0] + '" and "' + groups[1] + '"');
     	                    }
     	                });
     	            }
