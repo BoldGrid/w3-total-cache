@@ -173,6 +173,8 @@ jQuery(function($) {
 					text: W3TC_Bunnycdn.lang.empty_url + '.'
 				}).appendTo($messages);
 
+				$this.closest('p').removeClass('lightbox-loader');
+
 				return;
 			}
 
