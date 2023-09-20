@@ -1,11 +1,18 @@
 <?php
+/**
+ * File: Cdn_Page.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-
-
+/**
+ * Class: Cdn_Page
+ */
 class Cdn_Page extends Base_Page_Settings {
 	/**
-	 * Current page
+	 * Current page.
 	 *
 	 * @var string
 	 */
@@ -16,10 +23,11 @@ class Cdn_Page extends Base_Page_Settings {
 	 *
 	 * @return void
 	 */
-	function view() {
+	public function view() {
 		$config               = Dispatcher::config();
 		$cdn_engine           = $config->get_string( 'cdn.engine' );
 		$cdn_enabled          = $config->get_boolean( 'cdn.enabled' );
+		$cdnfsd_engine        = $config->get_string( 'cdnfsd.engine' );
 		$cdnfsd_enabled       = $config->get_boolean( 'cdnfsd.enabled' );
 		$cdn_mirror           = Cdn_Util::is_engine_mirror( $cdn_engine );
 		$cdn_mirror_purge_all = Cdn_Util::can_purge_all( $cdn_engine );
@@ -43,15 +51,15 @@ class Cdn_Page extends Base_Page_Settings {
 	}
 
 	/**
-	 * Returns cookie domain
+	 * Returns cookie domain.
 	 *
 	 * @return string
 	 */
-	function get_cookie_domain() {
-		$site_url = get_option( 'siteurl' );
+	public function get_cookie_domain() {
+		$site_url  = get_option( 'siteurl' );
 		$parse_url = @parse_url( $site_url );
 
-		if ( $parse_url && !empty( $parse_url['host'] ) ) {
+		if ( $parse_url && ! empty( $parse_url['host'] ) ) {
 			return $parse_url['host'];
 		}
 
@@ -59,11 +67,11 @@ class Cdn_Page extends Base_Page_Settings {
 	}
 
 	/**
-	 * Checks if COOKIE_DOMAIN is enabled
+	 * Checks if COOKIE_DOMAIN is enabled.
 	 *
 	 * @return bool
 	 */
-	function is_cookie_domain_enabled() {
+	public function is_cookie_domain_enabled() {
 		$cookie_domain = $this->get_cookie_domain();
 
 		return defined( 'COOKIE_DOMAIN' ) && COOKIE_DOMAIN == $cookie_domain;

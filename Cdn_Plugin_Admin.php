@@ -103,6 +103,10 @@ class Cdn_Plugin_Admin {
 		$optgroup_push      = count( $engine_optgroups );
 		$engine_optgroups[] = \__( 'Origin Push:', 'w3-total-cache' );
 
+		$engine_values[''] = array(
+			'label' => 'Select a provider',
+		);
+
 		$engine_values['akamai'] = array(
 			'label'    => \__( 'Akamai', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,

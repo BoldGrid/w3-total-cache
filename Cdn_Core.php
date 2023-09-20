@@ -587,6 +587,10 @@ class Cdn_Core {
 						'domain'          => $c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
 					);
 					break;
+
+				default:
+					$engine_config = array();
+					break;
 			}
 
 			$engine_config = array_merge(

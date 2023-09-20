@@ -101,7 +101,8 @@ class CdnEngine {
 					break;
 
 				default:
-					trigger_error( 'Incorrect CDN engine', E_USER_WARNING );
+					empty( $engine ) || trigger_error( 'Incorrect CDN engine', E_USER_WARNING );
+
 					$instances[ $instance_key ] = new CdnEngine_Base();
 					break;
 			}
