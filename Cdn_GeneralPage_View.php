@@ -55,15 +55,15 @@ Util_Ui::config_overloading_button(
 	$cdnfsd_engine = $config->get_string( 'cdnfsd.engine' );
 	$stackpaths    = array( 'stackpath', 'stackpath2' );
 
-	if ( in_array( $cdn_engine, $stackpaths ) || in_array( $cdnfsd_engine, $stackpaths ) ) {
+	if ( in_array( $cdn_engine, $stackpaths, true ) || in_array( $cdnfsd_engine, $stackpaths, true ) ) {
 		?>
-		<div class="notice notice-info inline">
-			<p><?php esc_html_e(	'StackPath will cease operations at 12:00 am Central (UTC-6:00) on November, 22,2023.',	'w3-total-cache' ); ?></p>
+		<div class="notice notice-warning inline is-dismissible">
+			<p><?php esc_html_e( 'StackPath will cease operations at 12:00 am Central (UTC-6:00) on November, 22,2023.', 'w3-total-cache' ); ?></p>
 		</div>
 		<?php
 	} elseif ( 'highwinds' === $cdn_engine || 'highwinds' === $cdnfsd_engine ) {
 		?>
-		<div class="notice notice-info inline">
+		<div class="notice notice-warning inline is-dismissible">
 			<p><?php esc_html_e( 'HighWinds will cease operations at 12:00 am Central (UTC-6:00) on November, 22,2023.', 'w3-total-cache' ); ?></p>
 		</div>
 		<?php
