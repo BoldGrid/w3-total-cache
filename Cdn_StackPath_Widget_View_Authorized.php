@@ -5,6 +5,24 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
+<p>
+	<div class="notice notice-warning inline">
+		<p>
+			<?php
+			$date_time_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+			$sunset_timestamp = wp_date( $date_time_format, '1700629200' );
+			printf(
+				// translators: 1 sunset unix timestamp.
+				__(
+					'StackPath will cease operations at %1$s.',
+					'w3-total-cache'
+				),
+				$sunset_timestamp
+			);
+			?>	
+		</p>
+	</div>
+</p>
 <div class="w3tcstackpath_loading w3tc_loading w3tc_hidden">Loading...</div>
 <div class="w3tcstackpath_error w3tc_none">
 	An error occurred

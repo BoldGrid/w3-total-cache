@@ -506,13 +506,4 @@ class Cdn_AdminActions {
 			return 200 == $code;
 		}
 	}
-
-	function w3tc_cdn_stackpath_signup() {
-		try {
-			$state = Dispatcher::config_state();
-			$state->set( 'track.stackpath_signup', time() );
-			$state->save();
-		} catch ( \Exception $ex ) {}
-		Util_Environment::redirect( W3TC_STACKPATH_SIGNUP_URL );
-	}
 }
