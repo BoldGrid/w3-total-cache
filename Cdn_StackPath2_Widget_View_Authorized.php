@@ -5,6 +5,11 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
+<p>
+	<div class="notice notice-warning inline is-dismissible">
+		<p><?php esc_html_e( 'StackPath will cease operations at 12:00 am Central (UTC-6:00) on November, 22,2023.', 'w3-total-cache' ); ?></p>
+	</div>
+</p>
 <div class="w3tcstackpath2_loading w3tc_loading w3tc_hidden">Loading...</div>
 <div class="w3tcstackpath2_error w3tc_none">
 	An error occurred
