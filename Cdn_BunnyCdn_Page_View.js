@@ -128,7 +128,7 @@ jQuery(function($) {
 
 		// Sanitize the purge URL list.
 		.on('focusout', '#w3tc-purge-urls', function () {
-			// Abort if BunnyCDN is not authorized.
+			// Abort if Bunny CDN is not authorized.
 			if (! W3TC_Bunnycdn.is_authorized) {
 				return;
 			}
@@ -147,7 +147,7 @@ jQuery(function($) {
 
 		// Purge URLs.
 		.on('click', '.w3tc_cdn_bunnycdn_purge_urls', function() {
-			// Abort if BunnyCDN is not authorized.
+			// Abort if Bunny CDN is not authorized.
 			if (! W3TC_Bunnycdn.is_authorized) {
 				return;
 			}

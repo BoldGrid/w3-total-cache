@@ -54,7 +54,7 @@ Util_Ui::config_overloading_button(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 				// translators: 3 opening HTML a tag, 4 closing HTML a tag.
 				__(
-					'If you do not have a %1$sCDN%2$s provider try BunnyCDN. %3$sSign up now to enjoy a special offer%4$s!',
+					'If you do not have a %1$sCDN%2$s provider try Bunny CDN. %3$sSign up now to enjoy a special offer%4$s!',
 					'w3-total-cache'
 				),
 				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',

@@ -2,7 +2,7 @@
 /**
  * File: Cdnfsd_BunnyCdn_Popup_Deauthorize.php
  *
- * Assists to deauthorize BunnyCDN as a full-site delivery CDN and optionally delete the pull zone.
+ * Assists to deauthorize Bunny CDN as a full-site delivery CDN and optionally delete the pull zone.
  *
  * @since   X.X.X
  * @package W3TC

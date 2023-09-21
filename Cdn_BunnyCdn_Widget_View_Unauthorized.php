@@ -34,7 +34,7 @@ defined( 'W3TC' ) || die();
 			'cdn.bunnycdn.widget.v2.header',
 			sprintf(
 				// translators: 1 HTML acronym for Content Delivery Network (CDN).
-				__( 'Enhance your website performance by adding BunnyCDN\'s (%1$s) service to your site.', 'w3-total-cache' ),
+				__( 'Enhance your website performance by adding Bunny CDN\'s (%1$s) service to your site.', 'w3-total-cache' ),
 				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
 			)
 		);
@@ -46,7 +46,7 @@ defined( 'W3TC' ) || die();
 		<?php
 		w3tc_e(
 			'cdn.bunnycdn.widget.v2.works_magically',
-			__( 'BunnyCDN works magically with W3 Total Cache to speed up your site around the world for as little as $1 per month.', 'w3-total-cache' )
+			__( 'Bunny CDN works magically with W3 Total Cache to speed up your site around the world for as little as $1 per month.', 'w3-total-cache' )
 		);
 		?>
 	</p>
@@ -62,7 +62,7 @@ defined( 'W3TC' ) || die();
 				sprintf(
 					// translators: 1 HTML acronym for Content Delivery Network (CDN).
 					__(
-						'If you\'re an existing BunnyCDN customer, enable %1$s and authorize. If you need help configuring your %1$s, we also offer Premium Services to assist you.',
+						'If you\'re an existing Bunny CDN customer, enable %1$s and authorize. If you need help configuring your %1$s, we also offer Premium Services to assist you.',
 						'w3-total-cache'
 					),
 					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'

@@ -67,7 +67,7 @@ class Cdnfsd_Plugin_Admin {
 		);
 
 		$cdnfsd_engine_values['bunnycdn'] = array(
-			'label' => __( 'BunnyCDN (recommended)', 'w3-total-cache' ),
+			'label' => __( 'Bunny CDN (recommended)', 'w3-total-cache' ),
 		);
 
 		$cdnfsd_engine_values['cloudfront'] = array(

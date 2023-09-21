@@ -124,7 +124,7 @@ class Cdn_Plugin_Admin {
 		);
 
 		$engine_values['bunnycdn'] = array(
-			'label'    => \__( 'BunnyCDN (recommended)', 'w3-total-cache' ),
+			'label'    => \__( 'Bunny CDN (recommended)', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);
 

@@ -2,14 +2,14 @@
 /**
  * File: Cdn_BunnyCdn_Popup_Pull_Zones.php
  *
- * Assists with configuring BunnyCDN as an object storage CDN.
+ * Assists with configuring Bunny CDN as an object storage CDN.
  * A pull zone selection is presented along with a form to add a new pull zone.
  *
  * @since   X.X.X
  * @package W3TC
  *
  * @param array $details {
- *     BunnyCDN API configuration details.
+ *     Bunny CDN API configuration details.
  *
  *     @type array  $pull_zones      Pull zones.
  *     @type string $error_message   Error message (optional).

@@ -318,9 +318,9 @@ function w3tc_csp_reference() {
 }
 
 /**
- * BunnyCDN check.
+ * Bunny CDN check.
  *
- * Prevent enabling BunnyCDN ("bunnycdn" engine) for both CDN and CDNFSD.
+ * Prevent enabling Bunny CDN ("bunnycdn" engine) for both CDN and CDNFSD.
  *
  * @since X.X.X
  *
@@ -480,7 +480,7 @@ jQuery(function() {
 		});
 	});
 
-	// Prevent enabling BunnyCDN for both CDN and CDNFSD.
+	// Prevent enabling Bunny CDN for both CDN and CDNFSD.
 	$cdn_enabled.on('click', cdn_bunnycdn_check);
 	$cdn_engine.on('change', cdn_bunnycdn_check);
 	jQuery('#cdnfsd__enabled').on('click', cdn_bunnycdn_check);

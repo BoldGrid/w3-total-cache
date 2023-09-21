@@ -14,7 +14,7 @@ defined( 'W3TC' ) || die;
 
 $account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
 $is_authorized   = $account_api_key && $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' );
-$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdn.bunnycdn.pull_zone_id' ); // CDN FSD is unavailable if CDN is authorized for BunnyCDN.
+$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdn.bunnycdn.pull_zone_id' ); // CDN FSD is unavailable if CDN is authorized for Bunny CDN.
 
 Util_Ui::postbox_header(
 	esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ),

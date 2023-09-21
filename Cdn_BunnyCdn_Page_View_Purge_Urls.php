@@ -2,7 +2,7 @@
 /**
  * File: Cdn_BunnyCdn_Page_View_Purge_Urls.php
  *
- * BunnyCDN settings purge URLs view.
+ * Bunny CDN settings purge URLs view.
  *
  * @since   X.X.X
  * @package W3TC

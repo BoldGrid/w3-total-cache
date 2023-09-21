@@ -2,14 +2,14 @@
 /**
  * File: Cdnfsd_BunnyCdn_Popup_View_Intro.php
  *
- * Assists with configuring BunnyCDN as a full-site delivery CDN.
- * Asks to enter an account API key from the BunnyCDN main account.
+ * Assists with configuring Bunny CDN as a full-site delivery CDN.
+ * Asks to enter an account API key from the Bunny CDN main account.
  *
  * @since   X.X.X
  * @package W3TC
  *
  * @param array $details {
- *     BunnyCDN API configuration details.
+ *     Bunny CDN API configuration details.
  *
  *     @type string $account_api_key Account API key.
  *     @type string $error_message   Error message (optional).  String already escaped.
@@ -28,7 +28,7 @@ defined( 'W3TC' ) || die();
 		</div>
 	<?php endif; ?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( esc_html__( 'BunnyCDN API Configuration', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Bunny CDN API Configuration', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<td><?php esc_html_e( 'Account API Key', 'w3-total-cache' ); ?>:</td>

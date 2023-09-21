@@ -2,7 +2,7 @@
 /**
  * File: Cdn_BunnyCdn_Page_View.php
  *
- * BunnyCDN settings page section view.
+ * Bunny CDN settings page section view.
  *
  * @since   X.X.X
  * @package W3TC
@@ -16,7 +16,7 @@ defined( 'W3TC' ) || die();
 
 $account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
 $is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.bunnycdn.pull_zone_id' );
-$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for BunnyCDN.
+$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for Bunny CDN.
 
 ?>
 <table class="form-table">
