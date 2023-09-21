@@ -7,9 +7,7 @@
 
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die;
 
 Util_Ui::postbox_header_tabs(
 	wp_kses(
@@ -74,6 +72,51 @@ Util_Ui::config_overloading_button(
 				),
 			)
 		);
+	}
+
+	$config        = Dispatcher::config();
+	$cdn_engine    = $config->get_string( 'cdn.engine' );
+	$cdnfsd_engine = $config->get_string( 'cdnfsd.engine' );
+	$stackpaths    = array( 'stackpath', 'stackpath2' );
+
+	if ( in_array( $cdn_engine, $stackpaths, true ) || in_array( $cdnfsd_engine, $stackpaths, true ) ) {
+		?>
+		<div class="notice notice-warning inline">
+			<p>
+				<?php
+				// StackPath sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
+				$date_time_format = \get_option( 'date_format' ) . ' ' . \get_option( 'time_format' );
+				\printf(
+					// translators: 1 StackPath sunset datetime.
+					\esc_html__(
+						'StackPath will cease operations at %1$s.',
+						'w3-total-cache'
+					),
+					\wp_date( $date_time_format, '1700629200' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	} elseif ( 'highwinds' === $cdn_engine || 'highwinds' === $cdnfsd_engine ) {
+		?>
+		<div class="notice notice-warning inline">
+			<p>
+				<?php
+				// HighWinds sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
+				$date_time_format = \get_option( 'date_format' ) . ' ' . \get_option( 'time_format' );
+				\printf(
+					// translators: 1 HighWinds sunset datetime.
+					\esc_html__(
+						'HighWinds will cease operations at %1$s.',
+						'w3-total-cache'
+					),
+					\wp_date( $date_time_format, '1700629200' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+				?>
+			</p>
+		</div>
+		<?php
 	}
 	?>
 </p>
