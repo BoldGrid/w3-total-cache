@@ -57,13 +57,13 @@ Util_Ui::config_overloading_button(
 
 	if ( in_array( $cdn_engine, $stackpaths, true ) || in_array( $cdnfsd_engine, $stackpaths, true ) ) {
 		?>
-		<div class="notice notice-warning inline is-dismissible">
+		<div class="notice notice-warning inline">
 			<p><?php esc_html_e( 'StackPath will cease operations at 12:00 am Central (UTC-6:00) on November, 22,2023.', 'w3-total-cache' ); ?></p>
 		</div>
 		<?php
 	} elseif ( 'highwinds' === $cdn_engine || 'highwinds' === $cdnfsd_engine ) {
 		?>
-		<div class="notice notice-warning inline is-dismissible">
+		<div class="notice notice-warning inline">
 			<p><?php esc_html_e( 'HighWinds will cease operations at 12:00 am Central (UTC-6:00) on November, 22,2023.', 'w3-total-cache' ); ?></p>
 		</div>
 		<?php
