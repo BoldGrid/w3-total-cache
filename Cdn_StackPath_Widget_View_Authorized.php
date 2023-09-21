@@ -7,7 +7,20 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <p>
 	<div class="notice notice-warning inline">
-		<p><?php esc_html_e( 'StackPath will cease operations at 12:00 am Central (UTC-6:00) on November, 22,2023.', 'w3-total-cache' ); ?></p>
+		<p>
+			<?php
+			$date_time_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+			$sunset_timestamp = wp_date( $date_time_format, '1700629200' );
+			printf(
+				// translators: 1 sunset unix timestamp.
+				__(
+					'StackPath will cease operations at %1$s.',
+					'w3-total-cache'
+				),
+				$sunset_timestamp
+			);
+			?>	
+		</p>
 	</div>
 </p>
 <div class="w3tcstackpath_loading w3tc_loading w3tc_hidden">Loading...</div>

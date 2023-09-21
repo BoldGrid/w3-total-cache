@@ -58,13 +58,39 @@ Util_Ui::config_overloading_button(
 	if ( in_array( $cdn_engine, $stackpaths, true ) || in_array( $cdnfsd_engine, $stackpaths, true ) ) {
 		?>
 		<div class="notice notice-warning inline">
-			<p><?php esc_html_e( 'StackPath will cease operations at 12:00 am Central (UTC-6:00) on November, 22,2023.', 'w3-total-cache' ); ?></p>
+			<p>
+				<?php
+				// StackPath sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
+				$date_time_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+				printf(
+					// translators: 1 StackPath sunset datetime.
+					__(
+						'StackPath will cease operations at %1$s.',
+						'w3-total-cache'
+					),
+					wp_date( $date_time_format, '1700629200' )
+				);
+				?>	
+			</p>
 		</div>
 		<?php
 	} elseif ( 'highwinds' === $cdn_engine || 'highwinds' === $cdnfsd_engine ) {
 		?>
 		<div class="notice notice-warning inline">
-			<p><?php esc_html_e( 'HighWinds will cease operations at 12:00 am Central (UTC-6:00) on November, 22,2023.', 'w3-total-cache' ); ?></p>
+			<p>
+				<?php
+				// HighWinds sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
+				$date_time_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+				printf(
+					// translators: 1 HighWinds sunset datetime.
+					__(
+						'HighWinds will cease operations at %1$s.',
+						'w3-total-cache'
+					),
+					wp_date( $date_time_format, '1700629200' )
+				);
+				?>	
+			</p>
 		</div>
 		<?php
 	}
