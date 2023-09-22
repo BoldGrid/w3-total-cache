@@ -43,11 +43,11 @@ describe('check that media library works when CDN is active', function() {
 			cdn__includes__enable: false,
 			cdn__uploads__enable: false,
 			cdn_custom_files:
-				'{wp_content_dir}/uploads/*\n' +
+				'{plugins_dir}/*.jpg\n' +
+				'{plugins_dir}/*.js\n' +
 				'{wp_content_dir}/themes/*.js\n' +
 				'{wp_content_dir}/themes/*.png\n' +
-				'{plugins_dir}/*.js\n' +
-				'{plugins_dir}/*.jpg\n',
+				'{wp_content_dir}/uploads/*\n',
 	      cdn_cnames_0: 'for-tests.sandbox'
 	    });
 
