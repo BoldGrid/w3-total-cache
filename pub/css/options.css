@@ -60,12 +60,14 @@
 	display: none;
 }
 
-.w3tc-enabled {
+.w3tc-enabled,
+.w3tc-authorized {
 	color: #090;
 	font-weight: 700;
 }
 
-.w3tc-disabled {
+.w3tc-disabled,
+.w3tc-not-authorized {
 	color: #f00;
 	font-weight: 700;
 }

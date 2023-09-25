@@ -67,6 +67,85 @@ class Cdn_BunnyCdn_Api {
 	private $pull_zone_id;
 
 	/**
+	 * Default Edge Rules.
+	 *
+	 * @since  X.X.X
+	 * @access private
+	 * @static
+	 *
+	 * @var array
+	 */
+	private static $default_edge_rules = array(
+		array(
+			'ActionType'          => 15, // BypassPermaCache.
+			'TriggerMatchingType' => 0, // MatchAny.
+			'Enabled'             => true,
+			'Triggers'            => array(
+				array(
+					'Type'                => 3, // UrlExtension.
+					'PatternMatchingType' => 0, // MatchAny.
+					'PatternMatches'      => array( '.zip' ),
+				),
+			),
+			'Description'         => 'Bypass PermaCache for ZIP files',
+		),
+		array(
+			'ActionType'          => 3, // OverrideCacheTime.
+			'TriggerMatchingType' => 0, // MatchAny.
+			'ActionParameter1'    => '0',
+			'ActionParameter2'    => '',
+			'Enabled'             => true,
+			'Triggers'            => array(
+				array(
+					'Type'                => 1, // RequestHeader.
+					'PatternMatchingType' => 0, // MatchAny.
+					'PatternMatches'      => array(
+						'*wordpress_logged_in*',
+						'*wordpress_sec*',
+					),
+					'Parameter1'          => 'Cookie',
+				),
+			),
+			'Description'         => 'Override Cache Time if logged into WordPress',
+		),
+		array(
+			'ActionType'          => 15, // BypassPermaCache.
+			'TriggerMatchingType' => 0, // MatchAny.
+			'Enabled'             => true,
+			'Triggers'            => array(
+				array(
+					'Type'                => 1, // RequestHeader.
+					'PatternMatchingType' => 0, // MatchAny.
+					'PatternMatches'      => array(
+						'*wordpress_logged_in*',
+						'*wordpress_sec*',
+					),
+					'Parameter1'          => 'Cookie',
+				),
+			),
+			'Description'         => 'Bypass PermaCache if logged into WordPress',
+		),
+		array(
+			'ActionType'          => 16, // OverrideBrowserCacheTime.
+			'TriggerMatchingType' => 0, // MatchAny.
+			'ActionParameter1'    => '0',
+			'Enabled'             => true,
+			'Triggers'            => array(
+				array(
+					'Type'                => 1, // RequestHeader.
+					'PatternMatchingType' => 0, // MatchAny.
+					'PatternMatches'      => array(
+						'*wordpress_logged_in*',
+						'*wordpress_sec*',
+					),
+					'Parameter1'          => 'Cookie',
+				),
+			),
+			'Description'         => 'Override Browser Cache Time if logged into WordPress',
+		),
+	);
+
+	/**
 	 * Constructor.
 	 *
 	 * @since X.X.X
@@ -178,12 +257,18 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_updatepullzone
 	 *
-	 * @param  int   $id Pull zone id.
+	 * @param  int   $id   Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
 	 * @param  array $data Data used to update the pull zone.
 	 * @return array
+	 * @throws \Exception Exception.
 	 */
-	public function update_pull_zone( int $id, array $data ) {
+	public function update_pull_zone( $id, array $data ) {
 		$this->api_type = 'account';
+		$id             = empty( $this->pull_zone_id ) ? $id : $this->pull_zone_id;
+
+		if ( empty( $id ) || ! \is_int( $id ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
+		}
 
 		return $this->wp_remote_post(
 			'https://api.bunny.net/pullzone/' . $id,
@@ -198,11 +283,17 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_delete
 	 *
-	 * @param  int $id Pull zone id.
+	 * @param  int $id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
 	 * @return array
+	 * @throws \Exception Exception.
 	 */
 	public function delete_pull_zone( $id ) {
 		$this->api_type = 'account';
+		$id             = empty( $this->pull_zone_id ) ? $id : $this->pull_zone_id;
+
+		if ( empty( $id ) || ! \is_int( $id ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
+		}
 
 		return $this->wp_remote_post(
 			\esc_url( 'https://api.bunny.net/pullzone/' . $id ),
@@ -227,7 +318,7 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
-		if ( empty( $pull_zone_id ) || ! \is_numeric( $pull_zone_id ) ) {
+		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
@@ -242,21 +333,55 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Get site metrics.
+	 * Get the default edge rules.
+	 *
+	 * @since  X.X.X
+	 * @static
+	 *
+	 * @return array
+	 */
+	public static function get_default_edge_rules() {
+		return self::$default_edge_rules;
+	}
+
+	/**
+	 * Add/Update Edge Rule.
 	 *
 	 * @since X.X.X
 	 *
-	 * @param  int    $site_id Site id.
-	 * @param  string $days Days.
-	 * @return array
+	 * @param  array $data Data.
+	 * @param  int   $pull_zone_id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
+	 * @return void
+	 * @throws \Exception Exception.
 	 */
-	public function site_metrics( $site_id, $days ) {
-		$d             = new \DateTime();
-		$end_date      = $d->format( 'Y-m-d' ) . 'T00:00:00Z';
-		$start_date    = $d->sub( new \DateInterval( 'P' . $days . 'D' ) )->format( 'Y-m-d' ) . 'T00:00:00Z';
-		$optional_data = array();
+	public function add_edge_rule( array $data, $pull_zone_id = null ) {
+		$this->api_type = 'account';
+		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
-		return $this->wp_remote_get( \esc_url( 'https://@todo' ), array( $optional_data ) );
+		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
+		}
+
+		if ( ! isset( $data['ActionType'] ) || ! \is_int( $data['ActionType'] ) || $data['ActionType'] < 0 ) {
+			throw new \Exception( \esc_html__( 'Invalid parameter "ActionType".', 'w3-total-cache' ) );
+		}
+
+		if ( ! isset( $data['TriggerMatchingType'] ) || ! \is_int( $data['TriggerMatchingType'] ) || $data['TriggerMatchingType'] < 0 ) {
+			throw new \Exception( \esc_html__( 'Invalid parameter "TriggerMatchingType".', 'w3-total-cache' ) );
+		}
+
+		if ( ! isset( $data['Enabled'] ) || ! \is_bool( $data['Enabled'] ) ) {
+			throw new \Exception( \esc_html__( 'Missing parameter "Enabled".', 'w3-total-cache' ) );
+		}
+
+		if ( empty( $data['Triggers'] ) ) {
+			throw new \Exception( \esc_html__( 'Missing parameter "Triggers".', 'w3-total-cache' ) );
+		}
+
+		$this->wp_remote_post(
+			\esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/edgerules/addOrUpdate' ),
+			$data
+		);
 	}
 
 	/**
@@ -289,7 +414,7 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
-		if ( empty( $pull_zone_id ) || ! \is_numeric( $pull_zone_id ) ) {
+		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 

@@ -24,11 +24,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		sprintf(
 			// translators: 1 HTML strong tag containing CDN Engine value, 2 HTML span tag containing CDN Engine enabled/disabled value.
 			__(
-				'Content Delivery Network object support via %1$s is currently %2$s.',
+				'Content Delivery Network object support via %1$s is currently %2$s and %3$s.',
 				'w3-total-cache'
 			),
 			'<strong>' . Cache::engine_name( $this->_config->get_string( 'cdn.engine' ) ) . '</strong>',
-			'<span class="w3tc-' . ( $cdn_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
+			'<span class="w3tc-' . ( $cdn_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>',
+			'<span class="w3tc-' . ( $is_cdn_authorized ? 'authorized">' . esc_html__( 'authorized', 'w3-total-cache' ) : 'not-authorized">' . esc_html__( 'not authorized', 'w3-total-cache' ) ) . '</span>'
 		),
 		array(
 			'strong' => array(),
@@ -45,11 +46,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		sprintf(
 			// translators: 1 HTML strong tag containing CDN Engine value, 2 HTML span tag containing CDN Engine enabled/disabled value.
 			__(
-				'Content Delivery Network full-site-delivery support via %1$s is currently %2$s.',
+				'Content Delivery Network full-site-delivery support via %1$s is currently %2$s and %3$s.',
 				'w3-total-cache'
 			),
 			'<strong>' . Cache::engine_name( $this->_config->get_string( 'cdnfsd.engine' ) ) . '</strong>',
-			'<span class="w3tc-' . ( $cdnfsd_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
+			'<span class="w3tc-' . ( $cdnfsd_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>',
+			'<span class="w3tc-' . ( $is_cdnfsd_authorized ? 'authorized">' . esc_html__( 'authorized', 'w3-total-cache' ) : 'not-authorized">' . esc_html__( 'not authorized', 'w3-total-cache' ) ) . '</span>'
 		),
 		array(
 			'strong' => array(),

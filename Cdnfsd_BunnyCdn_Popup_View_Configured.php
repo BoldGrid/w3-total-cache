@@ -21,7 +21,16 @@ defined( 'W3TC' ) || die();
 		<?php Util_Ui::postbox_header( esc_html__( 'Success', 'w3-total-cache' ) ); ?>
 
 		<div style="text-align: center">
-			<?php esc_html_e( 'A pull zone has been configured successfully', 'w3-total-cache' ); ?>.<br />
+		<p>
+			<?php esc_html_e( 'A pull zone has been configured successfully.', 'w3-total-cache' ); ?>
+		</p>
+		<p>
+			<?php esc_html_e( 'There may be additional configuration required for full-site delivery, such as DNS changes and SSL/TLS certificate installation.', 'w3-total-cache' ); ?>
+		</p>
+		<p>
+			<a target="_blank" href="<?php echo esc_url( W3TC_BUNNYCDN_CDN_URL ); ?>"><?php esc_html_e( 'Click here', 'w3-total-cache' ); ?></a>
+			<?php esc_html_e( 'to configure additional settings for this pull zone at Bunny.net.', 'w3-total-cache' ); ?>
+		</p>
 		</div>
 
 		<p class="submit">

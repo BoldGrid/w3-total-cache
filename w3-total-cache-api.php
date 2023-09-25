@@ -37,6 +37,7 @@ define( 'W3TC_STACKPATH2_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/s
 define( 'W3TC_GOOGLE_DRIVE_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/googledrive/authorize' );
 define( 'W3TC_BUNNYCDN_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/signup' );
 define( 'W3TC_BUNNYCDN_SETTINGS_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/settings' );
+define( 'W3TC_BUNNYCDN_CDN_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/cdn' );
 
 // Image Service rate constants.
 define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 100 );

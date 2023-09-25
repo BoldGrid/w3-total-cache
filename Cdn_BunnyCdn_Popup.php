@@ -122,11 +122,13 @@ class Cdn_BunnyCdn_Popup {
 	 * W3TC AJAX: Configure pull zone.
 	 *
 	 * @since X.X.X
+	 *
+	 * @see Cdn_BunnyCdn_Api::get_default_edge_rules()
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_configure_pull_zone() {
 		$config           = Dispatcher::config();
 		$account_api_key  = $config->get_string( 'cdn.bunnycdn.account_api_key' );
-		$pull_zone_id     = Util_Request::get_string( 'pull_zone_id' );
+		$pull_zone_id     = Util_Request::get_integer( 'pull_zone_id' );
 		$origin_url       = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
 		$name             = Util_Request::get_string( 'name' ); // Pull zone name.
 		$cdn_hostname     = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname (system).
@@ -142,7 +144,7 @@ class Cdn_BunnyCdn_Popup {
 					array(
 						'Name'                  => $name, // The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
 						'OriginUrl'             => $origin_url, // Origin URL or IP (with optional port number).
-						'DisableCookies'        => false, // Do not strip response cookies.
+						'AddHostHeader'         => true, // Determines if the zone should forward the requested host header to the origin.
 						'EnableTLS1'            => false, // TLS 1.0 was deprecated in 2018.
 						'EnableTLS1_1'          => false, // TLS 1.1 was EOL's on March 31,2020.
 						'ErrorPageWhitelabel'   => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
@@ -165,11 +167,24 @@ class Cdn_BunnyCdn_Popup {
 				);
 			}
 
-			// Add custom hostnames, if any.
+			// Initialize an error messages array.
 			$error_messages = array();
 
-			if ( ! empty( $custom_hostnames ) ) {
+			// Add Edge Rules.
+			foreach ( Cdn_BunnyCdn_Api::get_default_edge_rules() as $edge_rule ) {
+				try {
+					$api->add_edge_rule( $edge_rule, $pull_zone_id );
+				} catch ( \Exception $ex ) {
+					$error_messages[] = sprintf(
+						// translators: 1: Edge Rule description/name.
+						\__( 'Could not add Edge Rule "%1$s".', 'w3-total-cache' ) . '; ',
+						\esc_html( $edge_rule['Description'] )
+					) . $ex->getMessage();
+				}
+			}
 
+			// Add custom hostnames, if any.
+			if ( ! empty( $custom_hostnames ) ) {
 				foreach ( $custom_hostnames as $custom_hostname ) {
 					try {
 						$api->add_custom_hostname( $custom_hostname, $pull_zone_id );
@@ -183,6 +198,7 @@ class Cdn_BunnyCdn_Popup {
 				}
 			}
 
+			// Convert error messages array to a string.
 			$error_messages = \implode( "\r\n", $error_messages );
 		}
 
@@ -208,8 +224,8 @@ class Cdn_BunnyCdn_Popup {
 		$origin_url          = $config->get_string( 'cdn.bunnycdn.origin_url' ); // Origin URL or IP.
 		$name                = $config->get_string( 'cdn.bunnycdn.name' ); // Pull zone name.
 		$cdn_hostname        = $config->get_string( 'cdn.bunnycdn.cdn_hostname' ); // Pull zone CDN hostname.
-		$cdn_pull_zone_id    = $config->get_string( 'cdn.bunnycdn.pull_zone_id' ); // CDN pull zone id.
-		$cdnfsd_pull_zone_id = $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN FSD pull zone id.
+		$cdn_pull_zone_id    = $config->get_integer( 'cdn.bunnycdn.pull_zone_id' ); // CDN pull zone id.
+		$cdnfsd_pull_zone_id = $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN FSD pull zone id.
 
 		// Present details and ask to deauthorize and optionally delete the pull zone.
 		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Deauthorize.php';
@@ -226,8 +242,8 @@ class Cdn_BunnyCdn_Popup {
 	public function w3tc_ajax_cdn_bunnycdn_deauthorize() {
 		$config              = Dispatcher::config();
 		$account_api_key     = $config->get_string( 'cdn.bunnycdn.account_api_key' );
-		$cdn_pull_zone_id    = $config->get_string( 'cdn.bunnycdn.pull_zone_id' ); // CDN pull zone id.
-		$cdnfsd_pull_zone_id = $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN FSD pull zone id.
+		$cdn_pull_zone_id    = $config->get_integer( 'cdn.bunnycdn.pull_zone_id' ); // CDN pull zone id.
+		$cdnfsd_pull_zone_id = $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ); // CDN FSD pull zone id.
 		$delete_pull_zone    = Util_Request::get_string( 'delete_pull_zone' );
 
 		// Delete pull zone, if requested.
@@ -242,7 +258,7 @@ class Cdn_BunnyCdn_Popup {
 			}
 
 			// If the same pull zone is used for FSD, then deauthorize that too.
-			if ( $cdn_pull_zone_id === $cdnfsd_pull_zone_id ) {
+			if ( ! empty( $cdn_pull_zone_id ) && $cdn_pull_zone_id === $cdnfsd_pull_zone_id ) {
 				$config->set( 'cdnfsd.bunnycdn.pull_zone_id', null );
 				$config->set( 'cdnfsd.bunnycdn.name', null );
 				$config->set( 'cdnfsd.bunnycdn.origin_url', null );
