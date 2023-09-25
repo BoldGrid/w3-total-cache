@@ -142,7 +142,7 @@ exports.setOptionInternal = async function(pPage, name, value) {
 
 
 exports.activateExtension = async function(pPage, extenstion_id) {
-	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions');
+	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions', {waitUntil: 'domcontentloaded'});
 
 	// Skip the Setup Guide wizard.
 	if (await pPage.$('#w3tc-wizard-skip') != null) {
@@ -156,7 +156,7 @@ exports.activateExtension = async function(pPage, extenstion_id) {
 		expect(skipped).is.not.null;
 	}
 
-	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions');
+	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions', {waitUntil: 'domcontentloaded'});
 	let isActive = await pPage.$('#' + extenstion_id + ' .deactivate');
 	if (isActive != null) {
 		log.success('extension is already active');
@@ -289,10 +289,11 @@ exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngi
 	}
 
 	await pPage.goto(env.blogSiteUrl + 'cache-entry.php?blog_id=' + env.blogId +
-		'&wp_content_path=' + env.wpContentPath +
-		'&url=' + encodeURIComponent(url) +
-		'&page_key_postfix=' + pageKeyPostfix +
-		'&engine=' + cacheEngineLabel);
+			'&wp_content_path=' + env.wpContentPath +
+			'&url=' + encodeURIComponent(url) +
+			'&page_key_postfix=' + pageKeyPostfix +
+			'&engine=' + cacheEngineLabel,
+		{waitUntil: 'domcontentloaded'});
 	expect(await pPage.content()).contains('Page Caching using ' + cacheEngineName);
 }
 
