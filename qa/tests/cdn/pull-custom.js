@@ -47,7 +47,7 @@ describe('check that media library works when CDN is active', function() {
 				'{plugins_dir}/*.js\n' +
 				'{wp_content_dir}/themes/*.js\n' +
 				'{wp_content_dir}/themes/*.png\n' +
-				'{wp_content_dir}/uploads/*\n',
+				'{wp_content_dir}/uploads/*',
 	      cdn_cnames_0: 'for-tests.sandbox'
 	    });
 
