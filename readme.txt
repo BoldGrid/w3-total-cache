@@ -295,9 +295,9 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Multiple anchor links for PageSpeed block on General Settings page
 * Fix: Cache Groups validation on save
 * Fix: Cache Groups delete button not working for added groups
-* Updated: Renamed Image Service feature to WebP Converter
-* Updated: Added WebP Converter block to General Settings page along with link to navigation bar
-* Updated: StackPath CDN prices (Service ending November 22, 2023 and will be replaced by Bunny CDN in future update)
+* Update: Renamed Image Service feature to WebP Converter
+* Update: Added WebP Converter block to General Settings page along with link to navigation bar
+* Update: StackPath CDN prices (Service ending November 22, 2023 and will be replaced by Bunny CDN in future update)
 
 = 2.4.1 =
 * Fix: Add a fallback for the older version of wp-content/db.php
