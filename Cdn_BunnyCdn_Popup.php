@@ -87,7 +87,7 @@ class Cdn_BunnyCdn_Popup {
 			$this->render_intro(
 				array(
 					'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-					'error_message'   => \esc_html( __( 'Cannot list pull zones', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+					'error_message'   => \esc_html( \__( 'Cannot list pull zones', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
 				)
 			);
 		}
@@ -103,7 +103,7 @@ class Cdn_BunnyCdn_Popup {
 		// Print the view.
 		$server_ip            = ! empty( $_SERVER['SERVER_ADDR'] ) && \filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_VALIDATE_IP ) ?
 			\filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_SANITIZE_URL ) : null;
-		$suggested_origin_url = 'http' . ( is_ssl() ? 's' : '' ) . '://' .
+		$suggested_origin_url = 'http' . ( \is_ssl() ? 's' : '' ) . '://' .
 			( empty( $server_ip ) ? \parse_url( \home_url(), PHP_URL_HOST ) : $server_ip );
 
 		$details = array(
@@ -149,7 +149,6 @@ class Cdn_BunnyCdn_Popup {
 						'EnableTLS1'            => false, // TLS 1.0 was deprecated in 2018.
 						'EnableTLS1_1'          => false, // TLS 1.1 was EOL's on March 31,2020.
 						'ErrorPageWhitelabel'   => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
-						'FollowRedirects'       => true, // Follow redirects returned by the origin and cache the response.
 						'UseStaleWhileUpdating' => true, // Serve stale content while updating.  If Stale While Updating is enabled, cache will not be refreshed if the origin responds with a non-cacheable resource.
 						'UseStaleWhileOffline'  => true, // Serve stale content if the origin is offline.
 					)
@@ -163,7 +162,7 @@ class Cdn_BunnyCdn_Popup {
 				$this->render_intro(
 					array(
 						'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
-						'error_message'   => \esc_html( __( 'Cannot select or add a pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
+						'error_message'   => \esc_html( \__( 'Cannot select or add a pull zone', 'w3-total-cache' ) . '; ' . $ex->getMessage() ),
 					)
 				);
 			}
@@ -192,7 +191,7 @@ class Cdn_BunnyCdn_Popup {
 					} catch ( \Exception $ex ) {
 						$error_messages[] = \sprintf(
 							// translators: 1: hostname.
-							__( 'Could not add custom hostname "%1$s"', 'w3-total-cache' ) . '; ',
+							\__( 'Could not add custom hostname "%1$s"', 'w3-total-cache' ) . '; ',
 							\esc_html( $custom_hostname )
 						) . $ex->getMessage();
 					}

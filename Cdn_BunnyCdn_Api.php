@@ -100,8 +100,8 @@ class Cdn_BunnyCdn_Api {
 					'Type'                => 1, // RequestHeader.
 					'PatternMatchingType' => 0, // MatchAny.
 					'PatternMatches'      => array(
-						'*wordpress_logged_in*',
-						'*wordpress_sec*',
+						'*wordpress_logged_in_*',
+						'*wordpress_sec_*',
 					),
 					'Parameter1'          => 'Cookie',
 				),
@@ -117,8 +117,8 @@ class Cdn_BunnyCdn_Api {
 					'Type'                => 1, // RequestHeader.
 					'PatternMatchingType' => 0, // MatchAny.
 					'PatternMatches'      => array(
-						'*wordpress_logged_in*',
-						'*wordpress_sec*',
+						'*wordpress_logged_in_*',
+						'*wordpress_sec_*',
 					),
 					'Parameter1'          => 'Cookie',
 				),
@@ -135,8 +135,8 @@ class Cdn_BunnyCdn_Api {
 					'Type'                => 1, // RequestHeader.
 					'PatternMatchingType' => 0, // MatchAny.
 					'PatternMatches'      => array(
-						'*wordpress_logged_in*',
-						'*wordpress_sec*',
+						'*wordpress_logged_in_*',
+						'*wordpress_sec_*',
 					),
 					'Parameter1'          => 'Cookie',
 				),
