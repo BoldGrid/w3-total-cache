@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.3
-Stable tag: 2.4.1
+Stable tag: 2.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,20 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.5.0 =
+* Feature: Added Delay Scripts (Pro)
+* Fix: Several PHP 8 warnings
+* Fix: Fragment Cache extension PHP warnings when no engine was selected
+* Fix: Fragment Cache engine selection disabled for pro license under certain conditions
+* Fix: Added Database Cluster compatiblity for older db.php files
+* Fix: Fixed one PageSpeed tool metric not outputting data and adjusted a few labels
+* Fix: Multiple anchor links for PageSpeed block on General Settings page
+* Fix: Cache Groups validation on save
+* Fix: Cache Groups delete button not working for added groups
+* Update: Renamed Image Service feature to WebP Converter
+* Update: Added WebP Converter block to General Settings page along with link to navigation bar
+* Update: StackPath CDN prices (Service ending November 22, 2023 and will be replaced by Bunny CDN in future update)
 
 = 2.4.1 =
 * Fix: Add a fallback for the older version of wp-content/db.php
