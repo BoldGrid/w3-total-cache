@@ -143,6 +143,7 @@ class Cdnfsd_BunnyCdn_Popup {
 						'Name'                  => $name, // The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
 						'OriginUrl'             => $origin_url, // Origin URL or IP (with optional port number).
 						'AddHostHeader'         => true, // Determines if the zone should forward the requested host header to the origin.
+						'CacheErrorResponses'   => true, // If enabled, bunny.net will temporarily cache error responses (304+ HTTP status codes) from your servers for 5 seconds to prevent DDoS attacks on your origin. If disabled, error responses will be set to no-cache.
 						'EnableTLS1'            => false, // TLS 1.0 was deprecated in 2018.
 						'EnableTLS1_1'          => false, // TLS 1.1 was EOL's on March 31,2020.
 						'ErrorPageWhitelabel'   => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
