@@ -77,6 +77,7 @@ describe('', function() {
 
 		if (env.cacheEngineLabel == 'file_generic') {
 			await w3tc.pageCacheFileGenericChangeFileTimestamp(env.homeUrl);
+			await w3tc.pageCacheFileGenericChangeFileTimestamp(mirrorUrl);
 		}
 
 		let testPage = await wp.postCreate(adminPage, {
