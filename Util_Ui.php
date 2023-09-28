@@ -1443,7 +1443,7 @@ class Util_Ui {
 	}
 
 	/**
-	 * Returns option name accepted by W3TC as http paramter * from it's id (full name from config file)
+	 * Returns option name accepted by W3TC as http paramter from its id (full name from config file).
 	 *
 	 * @param mixed $id ID key string/array.
 	 *
