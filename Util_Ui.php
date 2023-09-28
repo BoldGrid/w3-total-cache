@@ -1443,10 +1443,15 @@ class Util_Ui {
 	}
 
 	/**
-	 * Returns option name accepted by W3TC as http paramter
-	 * from it's id (full name from config file)
+	 * Returns option name accepted by W3TC as http paramter * from it's id (full name from config file)
+	 *
+	 * @param mixed $id ID key string/array.
+	 *
+	 * @return string
 	 */
 	public static function config_key_to_http_name( $id ) {
+		$id = isset( $id ) ? $id : '';
+
 		if ( is_array( $id ) ) {
 			$id = $id[0] . '___' . $id[1];
 		}
