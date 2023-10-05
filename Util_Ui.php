@@ -1838,13 +1838,16 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<?php
-					$extensions_active = $config->get_array( 'extensions.active' );
-					if ( array_key_exists( 'user-experience-defer-scripts', $extensions_active ) ) {
-						// If more items are added this will only encompase the Defer Scripts, but if only 1 item show no sub-nav.
+					$extensions_active    = $config->get_array( 'extensions.active' );
+					$defer_script_enabled = Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'user-experience-defer-scripts', $extensions_active );
+					$dns_prefetch_enabled = Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'user-experience-preload-requests', $extensions_active );
+					// If no extensions are enabled then show no sub-nav options.
+					if ( $defer_script_enabled || $dns_prefetch_enabled ) {
 						?>
-						<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a> |
-						<a href="#application"><?php esc_html_e( 'Delay Scripts', 'w3-total-cache' ); ?></a>
+						<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a>
 						<?php
+						echo $defer_script_enabled ? ' | <a href="#application">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>' : '';
+						echo $dns_prefetch_enabled ? ' | <a href="#preload-requests">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>' : '';
 					}
 					?>
 				</div>
