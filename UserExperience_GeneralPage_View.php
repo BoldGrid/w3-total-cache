@@ -93,7 +93,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 				'Delay the loading of specified interal/external JavaScript sources on your pages separate from Minify. For best results it is recommended to enable the Minify feature to optimize internal sources and to then use the Delay JavaScript feature to handle external sources and/or any internal sources excluded from Minify.',
 				'w3-total-cache'
 			) . (
-				Util_Environment::is_w3tc_pro( $config ) && $config->is_extension_active( 'user-experience-defer-scripts' )
+				UserExperience_DeferScripts_Extension::is_enabled()
 				? wp_kses(
 					sprintf(
 						// translators: 1 opening HTML a tag to W3TC User Experience page, 2 closing HTML a tag.
@@ -126,7 +126,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 				'DNS prefetching, preconnecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks.',
 				'w3-total-cache'
 			) . (
-				Util_Environment::is_w3tc_pro( $config ) && $config->is_extension_active( 'user-experience-preload-requests' )
+				UserExperience_Preload_Requests_Extension::is_enabled()
 				? wp_kses(
 					sprintf(
 						// translators: 1 opening HTML a tag to W3TC User Experience page, 2 closing HTML a tag.
