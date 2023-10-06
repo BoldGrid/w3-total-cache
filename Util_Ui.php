@@ -1838,17 +1838,18 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<?php
-					$extensions_active    = $config->get_array( 'extensions.active' );
-					$defer_script_enabled = Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'user-experience-defer-scripts', $extensions_active );
-					$dns_prefetch_enabled = Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'user-experience-preload-requests', $extensions_active );
-					// If no extensions are enabled then show no sub-nav options.
-					if ( $defer_script_enabled || $dns_prefetch_enabled ) {
-						?>
-						<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a>
-						<?php
-						echo $defer_script_enabled ? ' | <a href="#application">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>' : '';
-						echo $dns_prefetch_enabled ? ' | <a href="#preload-requests">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>' : '';
+					$subnav_links = array( '<a href="#lazy-loading">' . esc_html__( 'Lazy Loading', 'w3-total-cache' ) . '</a>' );
+
+					if ( UserExperience_DeferScripts_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#application">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
 					}
+
+					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#application">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
+					}
+
+					// If there's only 1 meta box on the page, no need for nav links.
+					echo count( $subnav_links ) > 1 ? implode( ' | ', $subnav_links ) : '';
 					?>
 				</div>
 				<?php
