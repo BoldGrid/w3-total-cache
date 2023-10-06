@@ -2,7 +2,7 @@
 /**
  * File: UserExperience_Preload_Requests_Extension.php
  *
- * Controls the defer JS feature.
+ * Controls the Preload Requests feature.
  *
  * @since 2.5.1
  *
@@ -61,7 +61,7 @@ class UserExperience_Preload_Requests_Extension {
 	}
 
 	/**
-	 * Renders the user experience defer JS settings page.
+	 * Renders the user experience Preload Requests settings page.
 	 *
 	 * @since 2.5.1
 	 *
