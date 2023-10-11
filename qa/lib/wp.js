@@ -166,7 +166,7 @@ exports.postUpdate = async function(pPage, data) {
 	log.log(`wp.postUpdate`);
 	console.log(data);
 
-	await pPage.goto(env.adminUrl + 'post.php?post=' + data.post_id + '&action=edit');
+	await pPage.goto(env.adminUrl + 'post.php?post=' + data.post_id + '&action=edit', {waitUntil: 'domcontentloaded'});
 	log.log(new Date().toISOString() + ' Updating the ' + postType + ' ' + data.post_title);
 
 	let r = await exec('cp ../../plugins/w3tcqa-json.php ' + env.wpPath + 'w3tcqa-json.php');
@@ -209,7 +209,7 @@ exports.addWpConfigConstant = async function(pPage, name, value) {
 		'utf8');
 
 	for (let n = 0; n < 100; n++) {
-		await pPage.goto(env.wpUrl + '/check-constant.php');
+		await pPage.goto(env.wpUrl + '/check-constant.php', {waitUntil: 'domcontentloaded'});
 		let html = await pPage.content();
 		if (html.indexOf('constant-defined') >= 0) {
 			log.success('constant is defined');
@@ -244,7 +244,7 @@ exports.addQaBootstrap = async function(pPage, themeFunctionsFilename, filenameT
 
 
 exports.networkActivatePlugin = async function(pPage, pluginFilename) {
-	await pPage.goto(env.networkAdminUrl + 'plugins.php');
+	await pPage.goto(env.networkAdminUrl + 'plugins.php', {waitUntil: 'domcontentloaded'});
 
 	if (parseFloat(env.wpVersion) < 4.4) {
 		let parts = pluginFilename.split('/');
@@ -287,7 +287,7 @@ exports.userSignUp = async function(pPage, data) {
 
 async function userSignUpSingle(pPage, data) {
 	// add user
-    await pPage.goto(env.adminUrl + 'user-new.php');
+    await pPage.goto(env.adminUrl + 'user-new.php', { waitUntil: 'networkidle0' });
 	await pPage.$eval('#user_login', (e, v) => e.value = v, data.user_login);
 	await pPage.$eval('#email', (e, v) => e.value = v, data.email);
 	await pPage.select('#role', data.role);
@@ -326,7 +326,7 @@ async function userSignUpSingle(pPage, data) {
 
 async function userSignUpNetwork(pPage, data) {
 	// enable signup
-	await pPage.goto(env.networkAdminUrl + 'settings.php');
+	await pPage.goto(env.networkAdminUrl + 'settings.php', {waitUntil: 'domcontentloaded'});
 
 	let registration2 = '#registration2';
 	await pPage.evaluate((registration2) => document.querySelector(registration2).click(), registration2);
@@ -347,7 +347,7 @@ async function userSignUpNetwork(pPage, data) {
 	log.success('signup allowed');
 
 	// add user
-    await pPage.goto(env.adminUrl + 'user-new.php');
+    await pPage.goto(env.adminUrl + 'user-new.php', { waitUntil: 'networkidle0' });
 	await pPage.$eval('#user_login', (e, v) => e.value = v, data.user_login);
 	await pPage.$eval('#email', (e, v) => e.value = v, data.email);
 	await pPage.select('#role', data.role);
@@ -369,7 +369,7 @@ async function userSignUpNetwork(pPage, data) {
 	expect(emailUrl).not.empty;
 
 	// open signup verification url
-	await adminPage.goto(emailUrl);
+	await adminPage.goto(emailUrl, { waitUntil: 'domcontentloaded' });
 	let m2 = await adminPage.$eval('#signup-welcome', (e) => e.outerHTML);
 	expect(m2).not.empty;
 	let match = m2.match(new RegExp('Password:\\s*<[^>]+>\\s*([^< ]+)'));

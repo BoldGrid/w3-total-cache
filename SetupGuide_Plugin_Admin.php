@@ -1355,7 +1355,7 @@ class SetupGuide_Plugin_Admin {
 						) . '</p>
 						<p>
 						<input type="checkbox" id="imageservice-enable" value="1" /> <label for="imageservice-enable">' .
-						esc_html__( 'Enable Image Service', 'w3-total-cache' ) . '</label></p>',
+						esc_html__( 'Enable WebP Converter', 'w3-total-cache' ) . '</label></p>',
 				),
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),

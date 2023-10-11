@@ -235,13 +235,28 @@ class FeatureShowcase_Plugin_Admin {
 		}
 
 		return array(
+			'defer-scripts'       => array(
+				'title'      => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
+				'icon'       => 'dashicons-media-code',
+				'text'       => esc_html__( "Delay the loading of specified internal/external JavaScript sources on your pages separate from Minify.", 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' . (
+					Util_Environment::is_w3tc_pro( $c ) && isset( $extensions[ 'user-experience-defer-scripts' ] )
+						? esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#application' )  )
+						: esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) )
+					) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/defer-scripts-tool/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=defer-scripts-tool' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+				'is_premium' => true,
+				'is_new'     => true,
+			),
 			'pagespeed'           => array(
 				'title'      => esc_html__( 'Google Page Speed', 'w3-total-cache' ),
 				'icon'       => 'dashicons-analytics',
 				'text'       => esc_html__( "Adds the ability to analyze the website's homepage and provide a detailed breakdown of performance metrics including potential issues and proposed solutions.", 'w3-total-cache' ),
 				'button'     => '<button class="button" onclick="window.location=\'' .
-				esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ) ) . '\'">' .
-				__( 'Launch', 'w3-total-cache' ) . '</button>',
+					esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ) ) . '\'">' .
+					__( 'Launch', 'w3-total-cache' ) . '</button>',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/google-pagespeed-tool/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pagespeed-tool' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => false,
@@ -356,7 +371,7 @@ class FeatureShowcase_Plugin_Admin {
 				'is_new'     => false,
 			),
 			'imageservice'        => array(
-				'title'      => esc_html__( 'Image Service', 'w3-total-cache' ),
+				'title'      => esc_html__( 'WebP Converter', 'w3-total-cache' ),
 				'icon'       => 'dashicons-embed-photo',
 				'text'       => esc_html( $imageservice_description ),
 				'button'     => empty( $imageservice_button_text ) ? '' :

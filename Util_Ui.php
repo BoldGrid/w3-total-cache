@@ -376,7 +376,7 @@ class Util_Ui {
 					$disable = $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ';
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
 				}
-				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) ) {
+				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) && ! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_html__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'varnish.enabled' ) ) {
@@ -1110,17 +1110,26 @@ class Util_Ui {
 			echo "</th>\n<td>\n";
 		}
 
+		if ( isset( $a['pro'] ) ) {
+			self::pro_wrap_maybe_start();
+		}
+
 		$c = Dispatcher::config();
 		self::checkbox2(
 			array(
-				'name'  => 'extension__' . self::config_key_to_http_name( $a['extension_id'] ),
-				'value' => $c->is_extension_active_frontend( $a['extension_id'] ),
-				'label' => $a['checkbox_label'],
+				'name'     => 'extension__' . self::config_key_to_http_name( $a['extension_id'] ),
+				'value'    => $c->is_extension_active_frontend( $a['extension_id'] ),
+				'label'    => $a['checkbox_label'],
+				'disabled' => isset( $a['disabled'] ) ? $a['disabled'] : false,
 			)
 		);
 
 		if ( isset( $a['description'] ) ) {
 			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
+		}
+
+		if ( isset( $a['pro'] ) ) {
+			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $a['extension_id'] ) );
 		}
 
 		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
@@ -1142,12 +1151,24 @@ class Util_Ui {
 			echo "</th>\n<td>\n";
 		}
 
-		self::pro_wrap_maybe_start();
+		// If wrap_separate is not set we wrap everything.
+		if ( ! isset( $a['wrap_separate'] ) ) {
+			self::pro_wrap_maybe_start();
+		}
 
 		self::control2( $a );
 
 		if ( isset( $a['control_after'] ) ) {
 			echo wp_kses( $a['control_after'], self::get_allowed_html_for_wp_kses_from_content( $a['control_after'] ) );
+		}
+
+		// If wrap_separate is set we wrap only the description.
+		if ( isset( $a['wrap_separate'] ) ) {
+			// If not pro we add a spacer for better separation of control element and wrapper.
+			if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+				echo '<br/><br/>';
+			}
+			self::pro_wrap_maybe_start();
 		}
 
 		if ( isset( $a['description'] ) ) {
@@ -1422,10 +1443,15 @@ class Util_Ui {
 	}
 
 	/**
-	 * Returns option name accepted by W3TC as http paramter
-	 * from it's id (full name from config file)
+	 * Returns option name accepted by W3TC as http paramter from its id (full name from config file).
+	 *
+	 * @param mixed $id ID key string/array.
+	 *
+	 * @return string
 	 */
 	public static function config_key_to_http_name( $id ) {
+		$id = isset( $id ) ? $id : '';
+
 		if ( is_array( $id ) ) {
 			$id = $id[0] . '___' . $id[1];
 		}
@@ -1594,6 +1620,10 @@ class Util_Ui {
 						array(
 							'id'   => 'debug',
 							'text' => esc_html__( 'Debug', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'image_service',
+							'text' => esc_html__( 'WebP Converter', 'w3-total-cache' ),
 						),
 						array(
 							'id'   => 'google_pagespeed',
@@ -1812,7 +1842,16 @@ class Util_Ui {
 			case 'w3tc_userexperience':
 				?>
 				<div id="w3tc-options-menu">
-					<!--<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a>-->
+					<?php
+					$extensions_active = $config->get_array( 'extensions.active' );
+					if ( array_key_exists( 'user-experience-defer-scripts', $extensions_active ) ) {
+						// If more items are added this will only encompase the Defer Scripts, but if only 1 item show no sub-nav.
+						?>
+						<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a> |
+						<a href="#application"><?php esc_html_e( 'Delay Scripts', 'w3-total-cache' ); ?></a>
+						<?php
+					}
+					?>
 				</div>
 				<?php
 				break;

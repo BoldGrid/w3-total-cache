@@ -96,7 +96,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$theme    = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
 				$enabled  = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
 				$redirect = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
-				$agents   = isset( $group_config['agents'] ) ? explode( "\r\n", trim( $group_config['agents'] ) ) : array();
+				$agents   = isset( $group_config['agents'] ) ? Util_Environment::textarea_to_array( $group_config['agents'] ) : array();
 
 				$mobile_groups[ $group ] = array(
 					'theme'    => $theme,
@@ -148,9 +148,12 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$group_config
 			);
 
-			$mobile_groups[ $group ]['agents'] = array_unique( $mobile_groups[ $group ]['agents'] );
-			$mobile_groups[ $group ]['agents'] = array_map( 'strtolower', $mobile_groups[ $group ]['agents'] );
-
+			$mobile_groups[ $group ]['agents'] = array_unique(
+				array_map(
+					'strtolower',
+					$mobile_groups[ $group ]['agents']
+				)
+			);
 			sort( $mobile_groups[ $group ]['agents'] );
 		}
 
@@ -180,7 +183,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$theme     = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
 				$enabled   = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
 				$redirect  = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
-				$referrers = isset( $group_config['referrers'] ) ? explode( "\r\n", trim( $group_config['referrers'] ) ) : array();
+				$referrers = isset( $group_config['referrers'] ) ? Util_Environment::textarea_to_array( $group_config['referrers'] ) : array();
 
 				$referrer_groups[ $group ] = array(
 					'theme'     => $theme,
@@ -206,9 +209,12 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$group_config
 			);
 
-			$referrer_groups[ $group ]['referrers'] = array_unique( $referrer_groups[ $group ]['referrers'] );
-			$referrer_groups[ $group ]['referrers'] = array_map( 'strtolower', $referrer_groups[ $group ]['referrers'] );
-
+			$referrer_groups[ $group ]['referrers'] = array_unique(
+				array_map(
+					'strtolower',
+					$referrer_groups[ $group ]['referrers']
+				)
+			);
 			sort( $referrer_groups[ $group ]['referrers'] );
 		}
 
@@ -235,15 +241,9 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 			$group = trim( $group, '_' );
 
 			if ( $group ) {
-				$enabled = isset( $group_config['enabled'] ) ?
-					(bool) $group_config['enabled'] : false;
-				$cache   = isset( $group_config['cache'] ) ?
-					(bool) $group_config['cache'] : false;
-				$cookies = isset( $group_config['cookies'] ) ?
-					explode( "\r\n", trim( $group_config['cookies'] ) ) : array();
-				$cookies = array_unique( $cookies );
-
-				sort( $cookies );
+				$enabled = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : false;
+				$cache   = isset( $group_config['cache'] ) ? (bool) $group_config['cache'] : false;
+				$cookies = isset( $group_config['cookies'] ) ? Util_Environment::textarea_to_array( $group_config['cookies'] ) : array();
 
 				$cookiegroups[ $group ] = array(
 					'enabled' => $enabled,

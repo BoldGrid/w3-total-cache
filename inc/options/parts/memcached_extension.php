@@ -14,15 +14,12 @@ $config = Dispatcher::config();
 <tr>
 	<th><label for="memcached_servers"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.servers' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
-		<input id="memcached_servers" type="text"
-			name="<?php echo esc_attr( $module ); ?>___memcached__servers"
-			<?php Util_Ui::sealing_disabled( $module ); ?>
-			value="<?php echo esc_attr( implode( ',', $config->get_array( array( $module, 'memcached.servers' ) ) ) ); ?>" size="80" />
+		<textarea id="memcached_servers" name="<?php echo esc_attr( $module ); ?>__memcached__servers" <?php Util_Ui::sealing_disabled( $module ); ?> rows="10" cols="50"><?php echo esc_html( implode( "\n", $config->get_array( array( $module, 'memcached.servers' ) ) ) ); ?></textarea>
 		<input id="memcached_test" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
 			<?php Util_Ui::sealing_disabled( $module ); ?>
 			type="button" value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span id="memcached_test_status" class="w3tc-status w3tc-process"></span>
-		<p class="description"><?php esc_html_e( 'Multiple servers may be used and seperated by a comma; e.g. 127.0.0.1:11211, domain.com:11211', 'w3-total-cache' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Enter one server definition per line: e.g. 127.0.0.1:11211 or domain.com:11211.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <?php

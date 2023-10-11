@@ -10,6 +10,8 @@ namespace W3TC;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
+
+$config = Dispatcher::config();
 ?>
 <?php
 Util_Ui::postbox_header_tabs(
@@ -27,6 +29,7 @@ Util_Ui::postbox_header_tabs(
 	Util_UI::admin_url( 'admin.php?page=w3tc_userexperience' )
 );
 Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_overloaded' ) );
+
 ?>
 
 <table class="form-table">
@@ -59,7 +62,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 					'</strong>',
 					'<strong>',
 					'</strong>',
-					'<a href="' . admin_url( 'admin.php?page=w3tc_userexperience' ) . '">',
+					'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#lazy-loading' ) . '">',
 					'</a>'
 				),
 				array(
@@ -81,8 +84,40 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'label_class'    => 'w3tc_single_column',
 		)
 	);
-	?>
-	<?php
+
+	Util_Ui::config_item_extension_enabled(
+		array(
+			'extension_id'   => 'user-experience-defer-scripts',
+			'checkbox_label' => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
+			'description'    => __(
+				'Delay the loading of specified interal/external JavaScript sources on your pages separate from Minify. For best results it is recommended to enable the Minify feature to optimize internal sources and to then use the Delay JavaScript feature to handle external sources and/or any internal sources excluded from Minify.',
+				'w3-total-cache'
+			) . (
+				Util_Environment::is_w3tc_pro( $config ) && $config->is_extension_active( 'user-experience-defer-scripts' )
+				? wp_kses(
+					sprintf(
+						// translators: 1 opening HTML a tag to W3TC User Experience page, 2 closing HTML a tag.
+						__(
+							' Settings can be found on the %1$sUser Experience page%2$s.',
+							'w3-total-cache'
+						),
+						'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#application' ) . '">',
+						'</a>'
+					),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				)
+				: ''
+			),
+			'label_class'    => 'w3tc_single_column',
+			'pro'            => true,
+			'disabled'       => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+		)
+	);
+
 	Util_Ui::config_item_extension_enabled(
 		array(
 			'extension_id'   => 'user-experience-oembed',
