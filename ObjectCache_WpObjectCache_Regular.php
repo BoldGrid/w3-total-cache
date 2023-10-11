@@ -518,8 +518,10 @@ class ObjectCache_WpObjectCache_Regular {
 				$cache->flush();
 			}
 		} else {
-			$cache = $this->_get_cache( 0 );
-			$cache->flush();
+			if ( $this->_blog_id != 0 ) {
+				$cache = $this->_get_cache( 0 );
+				$cache->flush();
+			}
 
 			$cache = $this->_get_cache();
 			$cache->flush();
