@@ -488,7 +488,7 @@ class SetupGuide_Plugin_Admin {
 		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
 			$config  = new Config();
 			$results = array(
-				'enabled' => $config->get_boolean( 'objectcache.enabled' ),
+				'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
 				'engine'  => $config->get_string( 'objectcache.engine' ),
 				'elapsed' => null,
 			);
@@ -527,7 +527,7 @@ class SetupGuide_Plugin_Admin {
 
 			wp_send_json_success(
 				array(
-					'enabled' => $config->get_boolean( 'objectcache.enabled' ),
+					'enabled' => $config->getf_boolean( 'objectcache.enabled' ),
 					'engine'  => $config->get_string( 'objectcache.engine' ),
 				)
 			);
@@ -556,7 +556,7 @@ class SetupGuide_Plugin_Admin {
 			$is_updating     = false;
 			$success         = false;
 			$config          = new Config();
-			$old_enabled     = $config->get_boolean( 'objectcache.enabled' );
+			$old_enabled     = $config->getf_boolean( 'objectcache.enabled' );
 			$old_engine      = $config->get_string( 'objectcache.engine' );
 			$allowed_engines = array(
 				'',
@@ -588,7 +588,7 @@ class SetupGuide_Plugin_Admin {
 						$f->objectcache_flush();
 					}
 
-					if ( $config->get_boolean( 'objectcache.enabled' ) === $enable &&
+					if ( $config->getf_boolean( 'objectcache.enabled' ) === $enable &&
 						( ! $enable || $config->get_string( 'objectcache.engine' ) === $engine ) ) {
 							$success = true;
 							$message = __( 'Settings updated', 'w3-total-cache' );
@@ -608,7 +608,7 @@ class SetupGuide_Plugin_Admin {
 					'message'          => $message,
 					'enable'           => $enable,
 					'engine'           => $engine,
-					'current_enabled'  => $config->get_boolean( 'objectcache.enabled' ),
+					'current_enabled'  => $config->getf_boolean( 'objectcache.enabled' ),
 					'current_engine'   => $config->get_string( 'objectcache.engine' ),
 					'previous_enabled' => $old_enabled,
 					'previous_engine'  => $old_engine,
@@ -815,6 +815,67 @@ class SetupGuide_Plugin_Admin {
 	}
 
 	/**
+	 * Admin-Ajax: Get the imageservice settings.
+	 *
+	 * @since  2.3.4
+	 *
+	 * @see \W3TC\Config::is_extension_active()
+	 * @see \W3TC\Config::get_string()
+	 */
+	public function get_imageservice_settings() {
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$config = new Config();
+
+			wp_send_json_success(
+				array(
+					'enabled' => $config->is_extension_active( 'imageservice' ),
+				)
+			);
+		} else {
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
+	 * Admin-Ajax: Configure image optimization.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\Config::get_boolean()
+	 * @see \W3TC\Config::set()
+	 * @see \W3TC\Config::save()
+	 * @see \W3TC\Dispatcher::component()
+	 * @see \W3TC\CacheFlush::flush_posts()
+	 *
+	 * @uses $_POST['enable']
+	 */
+	public function config_imageservice() {
+		if ( wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_wizard' ) ) {
+			$enable = ! empty( Util_Request::get_string( 'enable' ) );
+			$config = new Config();
+
+			if ( ! empty( $enable ) ) {
+				Extensions_Util::activate_extension( 'imageservice', $config );
+			} else {
+				Extensions_Util::deactivate_extension( 'imageservice', $config );
+			}
+
+			$is_enabled = $config->is_extension_active( 'imageservice' );
+
+			wp_send_json_success(
+				array(
+					'success'              => $is_enabled === $enable,
+					'enable'               => $enable,
+					'imageservice_enabled' => $is_enabled,
+				)
+			);
+		} else {
+			wp_send_json_error( __( 'Security violation', 'w3-total-cache' ), 403 );
+		}
+	}
+
+	/**
 	 * Display the terms of service dialog if needed.
 	 *
 	 * @since  2.0.0
@@ -889,7 +950,7 @@ class SetupGuide_Plugin_Admin {
 							'install_version'   => esc_attr( $state->get_string( 'common.install_version' ) ),
 							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $config ) ),
 							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
-							'ga_profile'        => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'UA-2264433-7' : 'UA-2264433-8',
+							'ga_profile'        => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
 							'tos_choice'        => Licensing_Core::get_tos_choice(),
 							'track_usage'       => $config->get_boolean( 'common.track_usage' ),
 							'test_complete_msg' => __(
@@ -912,6 +973,7 @@ class SetupGuide_Plugin_Admin {
 							'enabled'           => __( 'Enabled', 'w3-total-cache' ),
 							'notEnabled'        => __( 'Not Enabled', 'w3-total-cache' ),
 							'dashboardUrl'      => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard' ) ),
+							'objcache_disabled' => ( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ),
 						),
 					),
 				),
@@ -1023,6 +1085,20 @@ class SetupGuide_Plugin_Admin {
 					),
 				),
 				array(
+					'tag'      => 'wp_ajax_w3tc_get_imageservice_settings',
+					'function' => array(
+						$this,
+						'get_imageservice_settings',
+					),
+				),
+				array(
+					'tag'      => 'wp_ajax_w3tc_config_imageservice',
+					'function' => array(
+						$this,
+						'config_imageservice',
+					),
+				),
+				array(
 					'tag'      => 'wp_ajax_w3tc_get_lazyload_settings',
 					'function' => array(
 						$this,
@@ -1058,6 +1134,10 @@ class SetupGuide_Plugin_Admin {
 				array(
 					'id'   => 'browsercache',
 					'text' => __( 'Browser Cache', 'w3-total-cache' ),
+				),
+				array(
+					'id'   => 'imageservice',
+					'text' => __( 'Image Optimization', 'w3-total-cache' ),
 				),
 				array(
 					'id'   => 'lazyload',
@@ -1198,15 +1278,15 @@ class SetupGuide_Plugin_Admin {
 						) . '</p>
 						<p><strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 						esc_html__( 'can help you speed up dynamic pages by persistently storing objects.', 'w3-total-cache' ) .
-						'</p>
-						<p>
-						<input id="w3tc-test-objcache" class="button-primary" type="button" value="' .
-						esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">
-						<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
-						' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
-						</span>
-						</p>
-						<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
+						'</p>' .
+						( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' ) .
+						( ! has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p>
+							<input id="w3tc-test-objcache" class="button-primary" type="button" value="' . esc_html__( 'Test Object Cache', 'w3-total-cache' ) . '">
+							<span class="hidden"><span class="spinner inline"></span>' . esc_html__( 'Testing', 'w3-total-cache' ) .
+								' <em>' . esc_html__( 'Object Cache', 'w3-total-cache' ) . '</em>&hellip;
+							</span>
+						</p>' : '' ) .
+						'<table id="w3tc-objcache-table" class="w3tc-setupguide-table widefat striped hidden">
 							<thead>
 								<tr>
 									<th>' . esc_html__( 'Select', 'w3-total-cache' ) . '</th>
@@ -1265,6 +1345,18 @@ class SetupGuide_Plugin_Admin {
 						<tbody></tbody>
 						</table>',
 				),
+				array( // Image Service.
+					'headline' => __( 'Image Optimization', 'w3-total-cache' ),
+					'id'       => 'io1',
+					'markup'   => '<p>' .
+						esc_html__(
+							'Adds the ability to convert images in the Media Library to the modern WebP format for better performance.',
+							'w3-total-cache'
+						) . '</p>
+						<p>
+						<input type="checkbox" id="imageservice-enable" value="1" /> <label for="imageservice-enable">' .
+						esc_html__( 'Enable WebP Converter', 'w3-total-cache' ) . '</label></p>',
+				),
 				array( // Lazy load.
 					'headline' => __( 'Lazy Load', 'w3-total-cache' ),
 					'id'       => 'll1',
@@ -1314,16 +1406,31 @@ class SetupGuide_Plugin_Admin {
 							'<span id="w3tc-dbcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
 						) . '</p>
 						<p>' .
-						sprintf(
-							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
-							esc_html__(
-								'%1$sObject Cache%2$s engine set to %1$s%3$s%2$s',
-								'w3-total-cache'
-							),
-							'<strong>',
-							'</strong>',
-							'<span id="w3tc-objcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
-						) . '</p>
+							(
+								! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' )
+								?
+								sprintf(
+									// translators: 1: HTML strong open tag, 2: HTML strong close tag.
+									esc_html__(
+										'%1$sObject Cache%2$s is %1$sdisabled via filter%2$s',
+										'w3-total-cache'
+									),
+									'<strong>',
+									'</strong>'
+								)
+								:
+								sprintf(
+									// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
+									esc_html__(
+										'%1$sObject Cache%2$s engine set to %1$s%3$s%2$s',
+										'w3-total-cache'
+									),
+									'<strong>',
+									'</strong>',
+									'<span id="w3tc-objcache-engine">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+								)
+							) .
+						'</p>
 						<p>' .
 						sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
@@ -1334,6 +1441,16 @@ class SetupGuide_Plugin_Admin {
 							'<strong>',
 							'</strong>',
 							'<span id="w3tc-browsercache-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
+						) . '</p>
+						<p>' . sprintf(
+							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
+							esc_html__(
+								'%1$sImage Optimization%2$s enabled? %1$s%3$s%2$s',
+								'w3-total-cache'
+							),
+							'<strong>',
+							'</strong>',
+							'<span id="w3tc-imageservice-setting">' . esc_html__( 'UNKNOWN', 'w3-total-cache' ) . '</span>'
 						) . '</p>
 						<p>' . sprintf(
 							// translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
@@ -1363,10 +1480,17 @@ class SetupGuide_Plugin_Admin {
 								'Please visit %1$sGeneral Settings%2$s to learn more about these features.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url(
-								$force_master_config || is_network_admin() ?
-								network_admin_url( 'admin.php?page=w3tc_general' ) : admin_url( 'admin.php?page=w3tc_general' )
-							) . '">',
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ) . '">',
+							'</a>'
+						) . '</p>
+						<h3>' . esc_html__( 'Google PageSpeed Tool', 'w3-total-cache' ) . '</h3>
+						<p>' . sprintf(
+							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
+							esc_html__(
+								'Google PageSpeed Insights can be used to analyze your homepage and provide an explanation of metrics and recommendations for improvements using W3 Total Cache features/extensions.  This tool is enabled by default but will not function until authorization is granted, which can be done on the %1$sGeneral Settings%2$s page.',
+								'w3-total-cache'
+							),
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_pagespeed' ) ) . '">',
 							'</a>'
 						) . '</p>
 						<h3>' . esc_html__( 'Need help?', 'w3-total-cache' ) . '</h3>

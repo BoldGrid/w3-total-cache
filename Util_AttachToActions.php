@@ -49,7 +49,8 @@ class Util_AttachToActions {
 
 		// multisite.
 		if ( Util_Environment::is_wpmu() ) {
-			add_action( 'delete_blog', array( $o, 'on_change' ), 0 );
+			add_action( 'wp_uninitialize_site', array( $o, 'on_change' ), 0 );
+			add_action( 'wp_update_site', array( $o, 'on_change' ), 0 );
 		}
 	}
 

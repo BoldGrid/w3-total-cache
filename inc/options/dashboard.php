@@ -40,53 +40,30 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 	// When header.php is not included (above), we need to do our head action and open the wrap.
 	do_action( 'w3tc-dashboard-head' );
 	echo '<div class="wrap" id="w3tc">';
-
-	require W3TC_INC_DIR . '/options/parts/dashboard_banner.php';
 }
 ?>
 
 <form id="w3tc_dashboard" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
-	<p>
-		<?php esc_html_e( 'Perform a', 'w3-total-cache' ); ?>
-		<input type="button" class="button button-self-test {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" value="<?php esc_html_e( 'compatibility check', 'w3-total-cache' ); ?>" />,
-		<?php
-		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ),
-			array(
-				'input' => array(
-					'type'  => array(),
-					'name'  => array(),
-					'value' => array(),
-				),
-			)
-		);
-		?>
-		<input id="flush_all" class="button" type="submit" name="w3tc_flush_all" value="<?php esc_html_e( 'empty all caches', 'w3-total-cache' ); ?>"<?php echo ! $enabled ? ' disabled="disabled"' : ''; ?> /> <?php esc_html_e( 'at once or', 'w3-total-cache' ); ?>
-		<input class="button" type="submit" name="w3tc_flush_memcached" value="<?php esc_html_e( 'empty only the memcached cache(s)', 'w3-total-cache' ); ?>"<?php echo ! $can_empty_memcache ? ' disabled="disabled"' : ''; ?> /> <?php esc_html_e( 'or', 'w3-total-cache' ); ?>
-		<input class="button" type="submit" name="w3tc_flush_opcode" value="<?php esc_html_e( 'empty only the opcode cache', 'w3-total-cache' ); ?>"<?php echo ! $can_empty_opcode ? ' disabled="disabled"' : ''; ?> /> <?php esc_html_e( 'or', 'w3-total-cache' ); ?>
-		<input class="button" type="submit" name="w3tc_flush_file" value="<?php esc_html_e( 'empty only the disk cache(s)', 'w3-total-cache' ); ?>"<?php echo ! $can_empty_file ? ' disabled="disabled"' : ''; ?> /> <?php esc_html_e( 'or', 'w3-total-cache' ); ?>
-		<?php if ( $cdn_mirror_purge && $cdn_enabled ) : ?>
-			<input class="button" type="submit" name="w3tc_flush_cdn" value="<?php esc_html_e( 'purge CDN completely', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'or', 'w3-total-cache' ); ?>
-		<?php endif; ?>
-		<input type="submit" name="w3tc_flush_browser_cache" value="<?php esc_html_e( 'update Media Query String', 'w3-total-cache' ); ?>" <?php disabled( ! ( $browsercache_enabled && $browsercache_update_media_qs ) ); ?> class="button" />
-		<?php
-		$string = esc_html__( 'or', 'w3-total-cache' );
-		echo wp_kses(
-			implode( " $string ", apply_filters( 'w3tc_dashboard_actions', array() ) ),
-			array(
-				'input' => array(
-					'class'    => array(),
-					'disabled' => array(),
-					'id'       => array(),
-					'name'     => array(),
-					'type'     => array(),
-					'value'    => array(),
-				),
-			)
-		);
-		?>
-		.
-	</p>
+	<div class="w3tc_dashboard_flush_container">
+		<span><?php esc_html_e( 'Flush caches with ', 'w3-total-cache' ); ?></span>
+		<div class="w3tc-button-control-container">
+			<?php Util_Ui::print_flush_split_button(); ?>
+		</div>
+	</div>
+</form>
+<form id="w3tc_dashboard" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php
+	echo wp_kses(
+		Util_Ui::nonce_field( 'w3tc' ),
+		array(
+			'input' => array(
+				'type'  => array(),
+				'name'  => array(),
+				'value' => array(),
+			),
+		)
+	);
+	?>
 	<div id="w3tc-dashboard-widgets" class="clearfix widefat metabox-holder">
 		<?php $screen = get_current_screen(); ?>
 		<div id="postbox-container-left">
@@ -132,4 +109,3 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 		?>
 	</div>
 </form>
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

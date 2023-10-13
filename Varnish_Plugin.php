@@ -78,7 +78,7 @@ class Varnish_Plugin {
 		$menu_items['20610.varnish'] = array(
 			'id' => 'w3tc_flush_varnish',
 			'parent' => 'w3tc_flush',
-			'title' => __( 'Reverse Proxy', 'w3-total-cache' ),
+			'title' => __( 'Varnish Cache', 'w3-total-cache' ),
 			'href' => wp_nonce_url( admin_url(
 					'admin.php?page=w3tc_dashboard&amp;w3tc_flush_varnish' ),
 				'w3tc' )

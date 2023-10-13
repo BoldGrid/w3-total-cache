@@ -28,5 +28,3 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 </div>
-
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

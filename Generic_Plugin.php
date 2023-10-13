@@ -254,6 +254,27 @@ class Generic_Plugin {
 					),
 				);
 
+				if (
+					! empty( $this->_config->get_string( array( 'cloudflare', 'email' ) ) )
+					&& ! empty( $this->_config->get_string( array( 'cloudflare', 'key' ) ) )
+					&& (
+						$modules->can_empty_memcache()
+						|| $modules->can_empty_opcode()
+						|| $modules->can_empty_file()
+						|| $modules->can_empty_varnish()
+					)
+				) {
+					$menu_items['10015.generic'] = array(
+						'id'     => 'w3tc_flush_all_except_cf',
+						'parent' => 'w3tc',
+						'title'  => __( 'Purge All Caches Except CloudFlare', 'w3-total-cache' ),
+						'href'   => wp_nonce_url(
+							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush_all_except_cf' ),
+							'w3tc'
+						),
+					);
+				}
+
 				if ( ! is_admin() ) {
 					$menu_items['10020.generic'] = array(
 						'id'     => 'w3tc_flush_current_page',
@@ -648,7 +669,7 @@ class Generic_Plugin {
 	private function is_debugging() {
 		$debug = $this->_config->get_boolean( 'pgcache.enabled' ) && $this->_config->get_boolean( 'pgcache.debug' );
 		$debug = $debug || ( $this->_config->get_boolean( 'dbcache.enabled' ) && $this->_config->get_boolean( 'dbcache.debug' ) );
-		$debug = $debug || ( $this->_config->get_boolean( 'objectcache.enabled' ) && $this->_config->get_boolean( 'objectcache.debug' ) );
+		$debug = $debug || ( $this->_config->getf_boolean( 'objectcache.enabled' ) && $this->_config->get_boolean( 'objectcache.debug' ) );
 		$debug = $debug || ( $this->_config->get_boolean( 'browsercache.enabled' ) && $this->_config->get_boolean( 'browsercache.debug' ) );
 		$debug = $debug || ( $this->_config->get_boolean( 'minify.enabled' ) && $this->_config->get_boolean( 'minify.debug' ) );
 		$debug = $debug || ( $this->_config->get_boolean( 'cdn.enabled' ) && $this->_config->get_boolean( 'cdn.debug' ) );

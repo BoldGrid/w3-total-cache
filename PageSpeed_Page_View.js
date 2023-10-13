@@ -69,14 +69,11 @@ jQuery(document).ready(function ($) {
 	function w3tcps_breakdown_items_toggle() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
 				'event',
+				'metric',
 				{
 					eventCategory: 'w3tc_pagespeed',
-					eventAction: 'metric',
-					eventLabel: $(this).attr('gatitle'),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: $(this).attr('gatitle')
 				}
 			);
 		}
@@ -95,14 +92,11 @@ jQuery(document).ready(function ($) {
 	function w3tcps_mobile_toggle() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
 				'event',
+				'mobile_tab',
 				{
 					eventCategory: 'w3tc_pagespeed',
-					eventAction: 'mobile_tab',
-					eventLabel: $('#w3tcps_control_mobile').text(),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: $('#w3tcps_control_mobile').text()
 				}
 			);
 		}
@@ -123,14 +117,11 @@ jQuery(document).ready(function ($) {
 	function w3tcps_desktop_toggle() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
 				'event',
+				'desktop_tab',
 				{
 					eventCategory: 'w3tc_pagespeed',
-					eventAction: 'desktop_tab',
-					eventLabel: $('#w3tcps_control_desktop').text(),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: $('#w3tcps_control_desktop').text()
 				}
 			);
 		}
@@ -153,14 +144,11 @@ jQuery(document).ready(function ($) {
 
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
 				'event',
+				'filter_tab',
 				{
 					eventCategory: 'w3tc_pagespeed',
-					eventAction: 'filter_tab',
-					eventLabel: $(this).text(),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: $(this).text()
 				}
 			);
 		}
@@ -247,14 +235,11 @@ jQuery(document).ready(function ($) {
 	$('.w3tcps_content').on('click', '.w3tcps_analyze', function () {
 		if (window.w3tc_ga) {
 			w3tc_ga(
-				'send',
 				'event',
+				're_analyze',
 				{
 					eventCategory: 'w3tc_pagespeed',
-					eventAction: 're_analyze',
-					eventLabel: $(this).closest('.page_post').find('.w3tcps_buttons').attr('page_post_url'),
-					eventValue: 0,
-					transport: 'beacon'
+					eventLabel: $(this).closest('.page_post').find('.w3tcps_buttons').attr('page_post_url')
 				}
 			);
 		}

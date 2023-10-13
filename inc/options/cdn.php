@@ -15,16 +15,10 @@ if ( ! defined( 'W3TC' ) ) {
 // so nothing to upload from network admin.
 $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Environment::is_using_master_config();
 
+$can_purge = Cdn_Util::can_purge( $cdn_engine );
+
+require W3TC_INC_DIR . '/options/common/header.php';
 ?>
-<?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
-<p id="w3tc-options-menu">
-	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
-	<a href="#toplevel_page_w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-	<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
-	<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
-	<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
-	<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
-</p>
 
 <p>
 	<?php
@@ -48,63 +42,68 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 	?>
 </p>
 <form id="w3tc_cdn" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
-	<p>
-		<?php if ( $cdn_mirror ) : ?>
+	<?php if ( $cdn_mirror ) : ?>
+		<p>
 			Maximize <acronym title="Content Delivery Network">CDN</acronym> usage by <input id="cdn_rename_domain" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="modify attachment URLs" /> or
-			<input id="cdn_import_library" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="importing attachments into the Media Library" />.
-			<?php if ( Cdn_Util::can_purge( $cdn_engine ) ) : ?>
-				<input id="cdn_purge" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="Purge" /> objects from the <acronym title="Content Delivery Network">CDN</acronym> using this tool
-			<?php endif; ?>
-			<?php if ( $cdn_mirror_purge_all ) : ?>
-				or <input class="button" type="submit" name="w3tc_flush_cdn" value="purge CDN completely" />
-			<?php endif; ?>
-			<?php if ( Cdn_Util::can_purge( $cdn_engine ) ) : ?>
-				.
-			<?php endif; ?>
-		<?php else : ?>
-			<?php
-			echo wp_kses(
-				sprintf(
-					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-					__(
-						'Prepare the %1$sCDN%2$s by:',
-						'w3-total-cache'
-					),
-					'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-					'</acronym>'
-				),
-				array(
-					'acronym' => array(
-						'title' => array(),
-					),
-				)
-			);
+			<input id="cdn_import_library" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="importing attachments into the Media Library" />
+		</p>
+		<?php
+		if ( $can_purge || $cdn_mirror_purge_all ) {
 			?>
-			<input id="cdn_import_library" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'importing attachments into the Media Library', 'w3-total-cache' ); ?>" />.
-			Check <input id="cdn_queue" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'unsuccessful file transfers', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'if some objects appear to be missing.', 'w3-total-cache' ); ?>
-			<?php if ( Cdn_Util::can_purge( $cdn_engine ) ) : ?>
-				<input id="cdn_purge" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Purge', 'w3-total-cache' ); ?>" />
-					<?php
-					echo wp_kses(
-						sprintf(
-							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-							__(
-								' objects from the %1$sCDN%2$s if needed.',
-								'w3-total-cache'
-							),
-							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-							'</acronym>'
+			<p>
+				<?php
+				$cdn_purge_button = $can_purge ? '<input id="cdn_purge" class="button {nonce: ' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '}" type="button" value="Purge" /> objects from the <acronym title="Content Delivery Network">CDN</acronym>' : '';
+				$cdn_mirror_purge_button = $cdn_mirror_purge_all ? ( $can_purge ? ' or ' : '' ) . '<input class="button" type="submit" name="w3tc_flush_cdn" value="purge CDN completely" />' : '';
+				echo $cdn_purge_button . $cdn_mirror_purge_button;
+				?>
+			</p>
+			<?php
+		}
+		?>
+	<?php else :
+		echo wp_kses(
+			sprintf(
+				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+				__(
+					'Prepare the %1$sCDN%2$s by:',
+					'w3-total-cache'
+				),
+				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+				'</acronym>'
+			),
+			array(
+				'acronym' => array(
+					'title' => array(),
+				),
+			)
+		);
+		?>
+		<input id="cdn_import_library" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'importing attachments into the Media Library', 'w3-total-cache' ); ?>" />.
+		Check <input id="cdn_queue" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'unsuccessful file transfers', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'if some objects appear to be missing.', 'w3-total-cache' ); ?>
+		<?php if ( $can_purge ) : ?>
+			<input id="cdn_purge" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Purge', 'w3-total-cache' ); ?>" />
+				<?php
+				echo wp_kses(
+					sprintf(
+						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+						__(
+							' objects from the %1$sCDN%2$s if needed.',
+							'w3-total-cache'
 						),
-						array(
-							'acronym' => array(
-								'title' => array(),
-							),
-						)
-					);
-					?>
-			<?php endif; ?>
-			<input id="cdn_rename_domain" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="Modify attachment URLs" /> <?php esc_html_e( 'if the domain name of your site has ever changed.', 'w3-total-cache' ); ?>
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				);
+				?>
 		<?php endif; ?>
+		<input id="cdn_rename_domain" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="Modify attachment URLs" /> <?php esc_html_e( 'if the domain name of your site has ever changed.', 'w3-total-cache' ); ?>
+	<?php endif; ?>
+	<p>
 		<?php
 		echo wp_kses(
 			Util_Ui::nonce_field( 'w3tc' ),
@@ -121,6 +120,7 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 	</p>
 </form>
 <form id="cdn_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'cdn_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 		<table class="form-table">
@@ -352,7 +352,6 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 			<?php endif; ?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'cdn_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Objects', 'w3-total-cache' ), '', 'configuration' ); ?>
@@ -372,7 +371,6 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'cdn_configuration' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php do_action( 'w3tc_settings_box_cdnfsd' ); ?>
@@ -854,7 +852,6 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'cdn_advanced' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Note(s):', 'w3-total-cache' ), '', 'notes' ); ?>
@@ -899,4 +896,3 @@ $upload_blogfiles_enabled = $cdn_mirror || ! is_network_admin() || ! Util_Enviro
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

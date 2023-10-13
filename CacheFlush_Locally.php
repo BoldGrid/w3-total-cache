@@ -188,7 +188,7 @@ class CacheFlush_Locally {
 				add_action( 'w3tc_flush_all',
 					array( $this, 'dbcache_flush' ),
 					100, 2 );
-			if ( $config->get_boolean( 'objectcache.enabled' ) )
+			if ( $config->getf_boolean( 'objectcache.enabled' ) )
 				add_action( 'w3tc_flush_all',
 					array( $this, 'objectcache_flush' ),
 					200, 1 );

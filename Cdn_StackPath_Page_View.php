@@ -5,16 +5,6 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
-<?php if ( ! $authorized ) : ?>
-	<tr>
-		<th style="width: 300px;"><label><?php esc_html_e( 'Create account:', 'w3-total-cache' ); ?></label></th>
-		<td>
-			<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL ); ?>" target="_blank" id="stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath.signUpAndSave', __( 'Sign Up Now and save!', 'w3-total-cache' ) ); ?></a>
-			<p class="description"><?php w3tc_e( 'cdn.stackpath.signUpAndSave.description', __( 'StackPath is a service that lets you speed up your site even more with W3 Total Cache. Sign up now and save!', 'w3-total-cache' ) ); ?></p>
-		</td>
-	</tr>
-<?php endif; ?>
-
 <tr>
 	<th style="width: 300px;">
 		<label>

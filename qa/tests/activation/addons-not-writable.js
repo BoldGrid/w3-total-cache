@@ -143,7 +143,8 @@ async function setBasicOptions() {
 
 async function fillFtpForm() {
 	expect(await adminPage.$('.w3tc-show-ftp-form')).not.null;
-	await adminPage.click('.w3tc-show-ftp-form');
+	let showFtpForm = '.w3tc-show-ftp-form';
+	await adminPage.evaluate((showFtpForm) => document.querySelector(showFtpForm).click(), showFtpForm);
 	await adminPage.waitForSelector('form[name=w3tc_ftp_form]', {
 		visible: true,
 	});
@@ -154,9 +155,9 @@ async function fillFtpForm() {
 	await adminPage.$eval('input[name=password]',
 		(e) => e.value = 'Ilgr5UOoc7s6Gj1htaDDcQ4F6T27e3UC');
 
-
+	let upgradeButton = '#upgrade';
 	await Promise.all([
-		adminPage.click('#upgrade'),
+		adminPage.evaluate((upgradeButton) => document.querySelector(upgradeButton).click(), upgradeButton),
 		adminPage.waitForNavigation({timeout:0})
 	]);
 }

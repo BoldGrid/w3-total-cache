@@ -84,5 +84,3 @@ if ( ! defined( 'W3TC' ) ) {
 		</div>
 	<?php endforeach; ?>
 </div>
-
-<?php require W3TC_INC_DIR . '/popup/common/footer.php'; ?>

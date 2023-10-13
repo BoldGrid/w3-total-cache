@@ -35,8 +35,6 @@ if ( !defined( 'W3TC' ) )
 </p>
 
 <p>
-	<input
-		type="button"
-		class="button-primary button-buy-plugin"
-		data-src="community_widget" value="<?php esc_attr_e( 'Learn more about Pro', 'w3-total-cache' ) ?>" />
+	<input type="button" class="button-primary button-buy-plugin" data-src="community_widget"
+		value="<?php esc_attr_e( 'Learn more about Pro', 'w3-total-cache' ); ?>" />
 </p>

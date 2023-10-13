@@ -8,13 +8,6 @@ if ( ! defined( 'W3TC' ) ) {
 $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 
 ?>
-<p id="w3tc-options-menu">
-	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
-	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
-	<a href="#overview"><?php esc_html_e( 'Overview', 'w3-total-cache' ); ?></a> |
-	<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
-</p>
 <p>
 	<?php Util_Ui::pro_wrap_maybe_start2(); ?>
 
@@ -26,9 +19,9 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 
 	<?php esc_html_e( 'is currently', 'w3-total-cache' ); ?>
 	<?php if ( $config->is_extension_active_frontend( 'fragmentcache' ) ) : ?>
-		<span class="w3tc-enabled"><?php esc_html_e( 'enabled', 'w3-total-cache' ); ?></span>
+		<span class="w3tc-enabled"><?php esc_html_e( 'enabled', 'w3-total-cache' ); ?></span>.
 	<?php else : ?>
-		<span class="w3tc-disabled"><?php esc_html_e( 'disabled', 'w3-total-cache' ); ?></span>
+		<span class="w3tc-disabled"><?php esc_html_e( 'disabled', 'w3-total-cache' ); ?></span>.
 		<?php
 		$ext = Extensions_Util::get_extension( $config, 'fragmentcache' );
 		if ( ! empty( $ext['requirements'] ) ) {
@@ -36,31 +29,12 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 		}
 		?>
 	<?php endif; ?>
-	.
 
 	<?php Util_Ui::pro_wrap_maybe_end2( 'fragmentcache_header' ); ?>
-<p>
+</p>
 
 <form action="admin.php?page=w3tc_fragmentcache" method="post">
-	<p>
-		<?php
-		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ),
-			array(
-				'input' => array(
-					'type'  => array(),
-					'name'  => array(),
-					'value' => array(),
-				),
-			)
-		);
-		?>
-		<input type="submit" name="w3tc_flush_fragmentcache" value="<?php esc_attr_e( 'Empty the entire cache', 'w3-total-cache' ); ?>" class="button" />
-		<?php esc_html_e( 'if needed.', 'w3-total-cache' ); ?>
-	</p>
-</form>
-
-<form action="admin.php?page=w3tc_fragmentcache" method="post">
+	<?php Util_UI::print_control_bar( 'extension_fragmentcache_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Overview', 'w3-total-cache' ), '', 'overview' ); ?>
 		<table class="form-table">
@@ -71,7 +45,7 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 					<ul>
 						<?php
 						foreach ( $registered_groups as $group => $descriptor ) :
-							echo '<li>' . esc_html( $group ) . ' (' . esc_html( $descriptor['expiration'] ) . ' secs): ' . implode( ',', esc_html( $descriptor['actions'] ) ) . '</li>';
+							echo '<li>' . esc_html( $group ) . ' (' . esc_html( $descriptor['expiration'] ) . ' secs): ' . esc_html( implode( ',', $descriptor['actions'] ) ) . '</li>';
 						endforeach;
 						?>
 					</ul>
@@ -120,7 +94,6 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'extension_fragmentcache' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>

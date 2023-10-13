@@ -62,7 +62,7 @@ class CacheFlush {
 	 * Flushes object cache
 	 */
 	function objectcache_flush() {
-		if ( $this->_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->_executor->objectcache_flush();
 		}
 	}

@@ -33,15 +33,26 @@ class PageSpeed_Instructions {
 					'instructions' =>
 						'<p>' . wp_kses(
 							sprintf(
-								// translators: 1 W3TC plugin name, 2 HTML a tag to W3TC minify JS admin page
-								// translators: 3 HTML a tag to W3TC minify CSS admin page.
+								// translators: 1 W3TC plugin name, 2 HTML a tag to W3TC Minify JS admin page
+								// translators: 3 HTML a tag to W3TC general settings user experience section
+								// translators: 4 HTML a tag to W3TC user expereince advanced settings page
+								// translators: 5 HTML a tag to W3TC Minify CSS admin page, 6 HTML line break tag.
 								esc_html__(
-									'%1$s can eliminate render blocking resources. Once Minified, you can defer JS in the %2$s. Render blocking CSS can be eliminated in %3$s using the "Eliminate Render blocking CSS by moving it to HTTP body" (PRO FEATURE).',
+									'%1$s can eliminate render blocking resources.%6$sOnce Minified, you can defer JS in the
+										%2$s.%6$sThe Defer Scripts (PRO FEATURE) can also be used with or without Minify to defer
+										the loading of JS files containing the "src" attribute. Scripts matched using this
+										feature will be excluded from the Minify process. To enable this feature navigate
+										to %3$s and check the "Defer JavaScript" checkbox. Once enabled the settings can be found
+										at %4$s.%6$sRender blocking CSS can be eliminated in %5$s using the "Eliminate Render
+										blocking CSS by moving it to HTTP body" (PRO FEATURE).',
 									'w3-total-cache'
 								),
 								'W3 Total Cache',
 								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#js' ) ) . '" alt="' . esc_attr__( 'Minify JS', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; JS', 'w3-total-cache' ) . '</a> ',
-								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; CSS', 'w3-total-cache' ) . '</a>'
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '" alt="' . esc_attr__( 'Defer Scripts', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; General Settings &raquo; User Experience', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#application' ) ) . '" alt="' . esc_attr__( 'Defer Scripts Settings', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; User Experience', 'w3-total-cache' ) . '</a>',
+								'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '" alt="' . esc_attr__( 'Minify CSS', 'w3-total-cache' ) . '">' . esc_html__( 'Performance &raquo; Minify &raquo; CSS', 'w3-total-cache' ) . '</a>',
+								'<br/><br/>'
 							),
 							$allowed_tags
 						) . '</p>',
@@ -126,7 +137,7 @@ class PageSpeed_Instructions {
 						'<p>' . sprintf(
 							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s %2$sImage Service%3$s to convert media library images to WebP.',
+								'Use %1$s %2$sWebP Converter%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
@@ -139,7 +150,7 @@ class PageSpeed_Instructions {
 						'<p>' . sprintf(
 							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s %2$sImage Service%3$s to convert media library images to WebP.',
+								'Use %1$s %2$sWebP Converter%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
@@ -217,7 +228,7 @@ class PageSpeed_Instructions {
 						'<p>' . sprintf(
 							// translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 							esc_html__(
-								'Use %1$s %2$sImage Service%3$s to convert media library images to WebP.',
+								'Use %1$s %2$sWebP Converter%3$s to convert media library images to WebP.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
@@ -279,7 +290,7 @@ class PageSpeed_Instructions {
 							// translators: 1 W3TC plugin name, 2 opening HTML a tag to CSS Minify settings, 3 closing HTML a tag,
 							// translators: 4 opening html a tagl to JS Minify settings, 5 closing HTML a tag.
 							esc_html__(
-								'Compress your HTML, CSS, and JavaScript files and minify your CSS and JavaScript to ensure your text-based resources are as small as they can be. Use the %1$s Minify %2$sJS%3$s and %4$sCSS%5$s features to accomplish this.',
+								'Compress your HTML, CSS, and JavaScript files and Minify your CSS and JavaScript to ensure your text-based resources are as small as they can be. Use the %1$s Minify %2$sJS%3$s and %4$sCSS%5$s features to accomplish this.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
@@ -291,7 +302,7 @@ class PageSpeed_Instructions {
 						<p>' . sprintf(
 							// translators: 1 W3TC plugin name, 2 opening HTML a tag to W3TC extensions, 3 closing HTML a tag.
 							esc_html__(
-								'Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use Webp conversion via the %1$s %2$sImage Service%3$s extension.',
+								'Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use Webp conversion via the %1$s %2$sWebP Converter%3$s extension.',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',

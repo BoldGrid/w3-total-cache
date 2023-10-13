@@ -13,6 +13,10 @@ class Extension_FragmentCache_Plugin_Admin {
 	static public function w3tc_extensions( $extensions, $config ) {
 		$requirements = array();
 
+		if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+			$requirements[] = __( 'Valid W3 Total Cache Pro license', 'w3-total-cache' );
+		}
+
 		$extensions['fragmentcache'] = array (
 			'name' => 'Fragment Cache',
 			'author' => 'W3 EDGE',
@@ -30,8 +34,7 @@ class Extension_FragmentCache_Plugin_Admin {
 			'version' => '1.0',
 			'enabled' => empty( $requirements ),
 			'requirements' => implode( ', ', $requirements ),
-			'active_frontend_own_control' => true,
-			'path' => 'w3-total-cache/Extension_FragmentCache_Plugin.php'
+			'path' => 'w3-total-cache/Extension_FragmentCache_Plugin.php',
 		);
 
 		return $extensions;
@@ -86,9 +89,11 @@ class Extension_FragmentCache_Plugin_Admin {
 
 	public function w3tc_extension_plugin_links( $links ) {
 		$links = array();
-		$links[] = '<a class="edit" href="' .
-			esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_fragmentcache' ) ) .
-			'">'. __( 'Settings' ).'</a>';
+
+		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
+			$links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_fragmentcache' ) ) . '">'
+				. __( 'Settings', 'w3-total-cache' ) . '</a>';
+		}
 
 		return $links;
 	}
@@ -97,13 +102,14 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_admin_menu( $menu ) {
-		$menu['w3tc_fragmentcache'] = array(
-			'page_title' => __( 'Fragment Cache', 'w3-total-cache' ),
-			'menu_text' => '<span class="w3tc_menu_item_pro">' .
-			__( 'Fragment Cache', 'w3-total-cache' ) . '</span>',
-			'visible_always' => false,
-			'order' => 1100
-		);
+		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
+			$menu['w3tc_fragmentcache'] = array(
+				'page_title'     => __( 'Fragment Cache', 'w3-total-cache' ),
+				'menu_text'      => '<span class="w3tc_menu_item_pro">' . __( 'Fragment Cache', 'w3-total-cache' ) . '</span>',
+				'visible_always' => false,
+				'order'          => 1100,
+			);
+		}
 
 		return $menu;
 	}
@@ -111,13 +117,12 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_admin_bar_menu( $menu_items ) {
-		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) ) {
+		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			$menu_items['20510.fragmentcache'] = array(
-				'id' => 'w3tc_flush_fragmentcache',
+				'id'     => 'w3tc_flush_fragmentcache',
 				'parent' => 'w3tc_flush',
-				'title' => __( 'Fragment Cache: All Fragments', 'w3-total-cache' ),
-				'href' => wp_nonce_url( admin_url(
-						'admin.php?page=w3tc_dashboard&amp;w3tc_flush_fragmentcache' ), 'w3tc' )
+				'title'  => __( 'Fragment Cache', 'w3-total-cache' ),
+				'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_fragmentcache' ), 'w3tc' )
 			);
 		}
 
@@ -134,14 +139,7 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_config_save( $config ) {
-		// frontend activity
-		$engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
-
-		$is_frontend_active = ( !empty( $engine ) &&
-			Util_Environment::is_w3tc_pro( $config ) );
-
-		$config->set_extension_active_frontend( 'fragmentcache',
-			$is_frontend_active );
+		$config->set_extension_active_frontend( 'fragmentcache', Util_Environment::is_w3tc_pro( $config ) );
 	}
 
 

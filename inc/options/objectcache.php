@@ -7,48 +7,30 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
-<form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
-	<p>
-		<?php
-		echo wp_kses(
-			sprintf(
-				// translators: 1 HTML strong tag containing Objectcache Engine value, 2 HTML span tag containing Objectcache Engine enabled/disabled value.
-				__(
-					'Object caching via %1$s is currently %2$s',
-					'w3-total-cache'
-				),
-				'<strong>' . Cache::engine_name( $this->_config->get_string( 'objectcache.engine' ) ) . '</strong>',
-				'<span class="w3tc-' . ( $objectcache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>'
+<p>
+	<?php
+	echo wp_kses(
+		sprintf(
+			// translators: 1 HTML strong tag containing Objectcache Engine value, 2 HTML span tag containing Objectcache Engine enabled/disabled value.
+			__(
+				'Object caching via %1$s is currently %2$s.',
+				'w3-total-cache'
 			),
-			array(
-				'strong' => array(),
-				'span'   => array(
-					'class' => array(),
-				),
-			)
-		);
-		?>
-	</p>
-	<p>
-		<?php esc_html_e( 'To rebuild the object cache use the', 'w3-total-cache' ); ?>
-		<?php
-		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ),
-			array(
-				'input' => array(
-					'type'  => array(),
-					'name'  => array(),
-					'value' => array(),
-				),
-			)
-		);
-		?>
-		<input type="submit" name="w3tc_flush_objectcache" value="<?php esc_attr_e( 'empty cache', 'w3-total-cache' ); ?>"
-			<?php echo ! $objectcache_enabled ? ' disabled="disabled"' : ''; ?> class="button" /><?php esc_html_e( ' operation.', 'w3-total-cache' ); ?>
-	</p>
-</form>
+			'<strong>' . Cache::engine_name( $this->_config->get_string( 'objectcache.engine' ) ) . '</strong>',
+			'<span class="w3tc-' . ( $objectcache_enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? esc_html__( ' via filter', 'w3-total-cache' ) : '' ) . '</span>'
+		),
+		array(
+			'strong' => array(),
+			'span'   => array(
+				'class' => array(),
+			),
+		)
+	);
+	?>
+</p>
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'objectcache_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Advanced', 'w3-total-cache' ), '', 'advanced' ); ?>
 		<table class="form-table">
@@ -133,9 +115,6 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php endif ?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'objectcache' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
-
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

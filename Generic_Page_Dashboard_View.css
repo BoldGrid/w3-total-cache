@@ -7,6 +7,11 @@
     height: 36px;
     line-height: 36px;
 }
+#w3tc-dashboard-widgets .hndle,
+#w3tc-dashboard-widgets .hndle .w3tc-widget-w3tc-logo,
+#w3tc-dashboard-widgets .hndle .w3tc-widget-text {
+	cursor: default;
+}
 #w3tc-dashboard-widgets .hndle, #w3tc-dashboard-widgets .hndle span {
     font-family: Arial, sans-serif;
     font-weight: bold;

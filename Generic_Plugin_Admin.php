@@ -65,13 +65,16 @@ class Generic_Plugin_Admin {
 		add_action( 'wp_ajax_w3tc_ajax', array( $this, 'wp_ajax_w3tc_ajax' ) );
 
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
+		add_action( 'admin_footer', array( $this, 'admin_footer' ) );
 
 		if ( is_network_admin() ) {
 			add_action( 'network_admin_menu', array( $this, 'network_admin_menu' ) );
 			add_filter( 'network_admin_plugin_action_links_' . W3TC_FILE, array( $this, 'plugin_action_links' ) );
+			add_action( 'network_admin_notices', array( $this, 'top_nav_bar' ), 0 );
 		} else {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 			add_filter( 'plugin_action_links_' . W3TC_FILE, array( $this, 'plugin_action_links' ) );
+			add_action( 'admin_notices', array( $this, 'top_nav_bar' ), 0 );
 		}
 
 		add_filter( 'favorite_actions', array( $this, 'favorite_actions' ) );
@@ -94,11 +97,11 @@ class Generic_Plugin_Admin {
 		// Load w3tc_message.
 		$message_id = Util_Request::get_string( 'w3tc_message' );
 		if ( $message_id ) {
-			$v = get_transient( 'w3tc_message' );
+			$v = get_option( 'w3tc_message' );
 
 			if ( isset( $v[ $message_id ] ) ) {
 				$this->w3tc_message = $v[ $message_id ];
-				delete_transient( 'w3tc_message' );
+				delete_option( 'w3tc_message' );
 			}
 		}
 	}
@@ -362,6 +365,7 @@ class Generic_Plugin_Admin {
 	public function admin_enqueue_scripts() {
 		wp_register_style( 'w3tc-options', plugins_url( 'pub/css/options.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-lightbox', plugins_url( 'pub/css/lightbox.css', W3TC_FILE ), array(), W3TC_VERSION );
+		wp_register_style( 'w3tc-bootstrap-css', plugins_url( 'pub/css/bootstrap-buttons.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-widget', plugins_url( 'pub/css/widget.css', W3TC_FILE ), array(), W3TC_VERSION );
 
 		wp_register_script( 'w3tc-metadata', plugins_url( 'pub/js/metadata.js', W3TC_FILE ), array(), W3TC_VERSION, false );
@@ -398,7 +402,18 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
+	 * Render sticky top navigation bar on all W3TC admin pages.
+	 */
+	public function top_nav_bar() {
+		if ( Util_Admin::is_w3tc_admin_page() ) {
+			require W3TC_INC_DIR . '/options/common/top_nav_bar.php';
+		}
+	}
+
+	/**
 	 * Define icon styles for the custom post type.
+	 *
+	 * @throws \Exception Exception.
 	 */
 	public function admin_head() {
 		global $wp_version;
@@ -407,11 +422,24 @@ class Generic_Plugin_Admin {
 		$page = Util_Request::get_string( 'page', null );
 
 		if ( ( ! is_multisite() || is_super_admin() ) && false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
-			$config       = new Config();
 			$state_master = Dispatcher::config_state_master();
 
-			if ( ! $config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
+			if ( ! $this->_config->get_boolean( 'pgcache.enabled' ) && $state_master->get_integer( 'common.install' ) > strtotime( 'NOW - 1 WEEK' ) ) {
 				wp_safe_redirect( esc_url( network_admin_url( 'admin.php?page=w3tc_setup_guide' ) ) );
+			}
+		}
+
+		if ( empty( $this->_config->get_integer( 'pgcache.migrated.qsexempts' ) ) ) {
+			$pgcache_accept_qs = array_unique( array_merge( $this->_config->get_array( 'pgcache.accept.qs' ), PgCache_QsExempts::get_qs_exempts() ) );
+			sort( $pgcache_accept_qs );
+			$this->_config->set( 'pgcache.accept.qs', $pgcache_accept_qs );
+			$this->_config->set( 'pgcache.migrated.qsexempts', time() );
+
+			// Save the config if the environment is ready; filesystem needs to be writable.
+			try {
+				$this->_config->save();
+			} catch ( \Exception $e ) {
+				$this->_config->set( 'pgcache.migrated.qsexempts', null );
 			}
 		}
 
@@ -436,39 +464,52 @@ class Generic_Plugin_Admin {
 			}
 
 			if ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) {
-				$profile = 'UA-2264433-7';
+				$profile = 'G-Q3CHQJWERM';
 			} else {
-				$profile = 'UA-2264433-8';
+				$profile = 'G-5TFS8M5TTY';
 			}
 
 			$state = Dispatcher::config_state();
 
+			wp_enqueue_script(
+				'w3tc_ga',
+				'https://www.googletagmanager.com/gtag/js?id=' . esc_attr( $profile ),
+				array(),
+				W3TC_VERSION,
+				true
+			);
 			?>
-			<script type="text/javascript">
-				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-				})(window,document,'script','https://api.w3-edge.com/v1/analytics','w3tc_ga');
+			<script type="application/javascript">
+				var w3tc_ga_cid;
 
-				if (window.w3tc_ga) {
-					w3tc_ga('create', '<?php echo esc_html( $profile ); ?>', 'auto');
-					w3tc_ga('set', {
-						'dimension1': 'w3-total-cache',
-						'dimension2': '<?php echo esc_html( W3TC_VERSION ); ?>',
-						'dimension3': '<?php echo esc_html( $wp_version ); ?>',
-						'dimension4': 'php<?php echo esc_html( phpversion() ); ?>',
-						'dimension5': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
-						'dimension6': 'mysql<?php echo esc_attr( $wpdb->db_version() ); ?>',
-						'dimension7': '<?php echo esc_url( Util_Environment::home_url_host() ); ?>',
-						'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
-						'dimension10': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
-						'dimension11': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
+				window.dataLayer = window.dataLayer || [];
 
+				function w3tc_ga(){dataLayer.push(arguments);}
+
+				w3tc_ga('js', new Date());
+
+				w3tc_ga('config', '<?php echo esc_attr( $profile ); ?>', {
+					'user_properties': {
+						'plugin': 'w3-total-cache',
+						'w3tc_version': '<?php echo esc_html( W3TC_VERSION ); ?>',
+						'wp_version': '<?php echo esc_html( $wp_version ); ?>',
+						'php_version': 'php<?php echo esc_html( phpversion() ); ?>',
+						'server_software': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
+						'wpdb_version': 'mysql<?php echo esc_attr( $wpdb->db_version() ); ?>',
+						'home_url': '<?php echo esc_url( Util_Environment::home_url_host() ); ?>',
+						'w3tc_install_version': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
+						'w3tc_edition': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
+						'w3tc_widgets': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
 						'page': '<?php echo esc_attr( $page ); ?>'
-					});
+					}
+				});
 
-					w3tc_ga('send', 'pageview');
-				}
+				const cidPromise = new Promise(resolve => {
+					w3tc_ga('get', '<?php echo esc_attr( $profile ); ?>', 'client_id', resolve);
+				});
+				cidPromise.then((cid) => {
+					w3tc_ga_cid = cid;
+				});
 			</script>
 			<?php
 		}
@@ -489,6 +530,15 @@ class Generic_Plugin_Admin {
 			} );
 		</script>
 		<?php
+	}
+
+	/**
+	 * Defines the W3TC footer
+	 */
+	public function admin_footer() {
+		if ( $this->is_w3tc_page ) {
+			require W3TC_INC_DIR . '/options/common/footer.php';
+		}
 	}
 
 	/**
@@ -566,6 +616,7 @@ class Generic_Plugin_Admin {
 	 */
 	public function admin_print_styles() {
 		wp_enqueue_style( 'w3tc-options' );
+		wp_enqueue_style( 'w3tc-bootstrap-css' );
 		wp_enqueue_style( 'w3tc-lightbox' );
 	}
 
@@ -814,11 +865,9 @@ class Generic_Plugin_Admin {
 				}
 				$line = preg_replace( '~^\s*\*\s*~', '', htmlspecialchars( $line ) );
 				echo '<li style="width: 50%; margin: 0; float: left; ' . ( 0 === $index % 2 ? 'clear: left;' : '' ) . '">' . esc_html( $line ) . '</li>';
-			} else {
-				if ( $ul ) {
-					echo '</ul><div style="clear: left;"></div>';
-					$ul = false;
-				}
+			} elseif ( $ul ) {
+				echo '</ul><div style="clear: left;"></div>';
+				$ul = false;
 			}
 		}
 
@@ -936,6 +985,7 @@ class Generic_Plugin_Admin {
 
 		$note_messages = array(
 			'config_save'          => __( 'Plugin configuration successfully updated.', 'w3-total-cache' ),
+			'config_save_flush'    => __( 'Plugin configuration successfully updated and all caches successfully emptied.', 'w3-total-cache' ),
 			'flush_all'            => __( 'All caches successfully emptied.', 'w3-total-cache' ),
 			'flush_memcached'      => __( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
 			'flush_opcode'         => __( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),
@@ -1081,7 +1131,7 @@ class Generic_Plugin_Admin {
 		foreach ( $notes as $key => $note ) {
 			echo wp_kses(
 				sprintf(
-					'<div class="updated w3tc_note" id="%1$s"><p>%2$s</p></div>',
+					'<div class="updated w3tc_note inline" id="%1$s"><p>%2$s</p></div>',
 					esc_attr( $key ),
 					$note
 				),
@@ -1109,7 +1159,7 @@ class Generic_Plugin_Admin {
 
 		foreach ( $errors as $key => $error ) {
 				printf(
-					'<div class="error w3tc_error" id="%1$s"><p>%2$s</p></div>',
+					'<div class="error w3tc_error inline" id="%1$s"><p>%2$s</p></div>',
 					esc_attr( $key ),
 					$error // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);

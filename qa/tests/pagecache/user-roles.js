@@ -82,8 +82,9 @@ describe('', function() {
 		await page.$eval('#user_login', (e, v) => { e.value = v }, 'subscriber');
 		await page.$eval('#user_pass', (e, v) => { e.value = v }, password);
 
+		let wpSubmit = '#wp-submit';
 		await Promise.all([
-			page.click('#wp-submit'),
+			page.evaluate((wpSubmit) => document.querySelector(wpSubmit).click(), wpSubmit),
 			page.waitForNavigation({timeout:0}),
 		]);
 

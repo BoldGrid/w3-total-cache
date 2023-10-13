@@ -93,5 +93,3 @@ jQuery(function() {
 <p>
 	<textarea rows="10" cols="90" id="cdn_import_library_rules" class="rules"></textarea>
 </p>
-
-<?php require W3TC_INC_DIR . '/popup/common/footer.php'; ?>

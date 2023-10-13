@@ -7,7 +7,7 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
-<form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+<form action="admin.php?page=w3tc_general" method="post">
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Database Cluster Configuration File', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
@@ -56,5 +56,3 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
-
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

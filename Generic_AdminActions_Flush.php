@@ -275,7 +275,7 @@ class Generic_AdminActions_Flush {
 			$this->flush_dbcache();
 		}
 
-		if ( $this->_config->get_string( 'objectcache.engine' ) == $type && $this->_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $this->_config->get_string( 'objectcache.engine' ) == $type && $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->flush_objectcache();
 		}
 

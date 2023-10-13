@@ -129,8 +129,9 @@ async function configureMinify(theme) {
 		themesPath + '/qa/minify-js6.js', 'include-footer');
 
 	log.log('click save');
+	let saveSelector = 'input[name="w3tc_save_options"]';
 	await Promise.all([
-		adminPage.click('#w3tc_save_options_minify_js'),
+		adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
 		adminPage.waitForNavigation({timeout: 0})
 	]);
 

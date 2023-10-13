@@ -75,7 +75,8 @@ class ObjectCache_Plugin {
 		add_filter( 'w3tc_usage_statistics_sources', array( $this, 'w3tc_usage_statistics_sources' ) );
 
 		if ( Util_Environment::is_wpmu() ) {
-			add_action( 'delete_blog', array( $this, 'on_change' ), 0 );
+			add_action( 'wp_uninitialize_site', array( $this, 'on_change' ), 0 );
+			add_action( 'wp_update_site', array( $this, 'on_change' ), 0 );
 			add_action( 'switch_blog', array( $this, 'switch_blog' ), 0, 2 );
 		}
 	}
