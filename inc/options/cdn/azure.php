@@ -97,7 +97,7 @@ if ( ! defined( 'W3TC' ) ) {
 			sprintf(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 				__(
-					'or %1$sCNAME%2$s:',
+					' or %1$sCNAME%2$s:',
 					'w3-total-cache'
 				),
 				'<acronym title="' . __( 'Canonical Name', 'w3-total-cache' ) . '">',
