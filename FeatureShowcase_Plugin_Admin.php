@@ -238,16 +238,28 @@ class FeatureShowcase_Plugin_Admin {
 			'defer-scripts'       => array(
 				'title'      => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
 				'icon'       => 'dashicons-media-code',
-				'text'       => esc_html__( "Delay the loading of specified internal/external JavaScript sources on your pages separate from Minify.", 'w3-total-cache' ),
+				'text'       => esc_html__( 'Delay the loading of specified internal/external JavaScript sources on your pages separate from Minify.', 'w3-total-cache' ),
 				'button'     => '<button class="button" onclick="window.location=\'' . (
-					Util_Environment::is_w3tc_pro( $c ) && isset( $extensions[ 'user-experience-defer-scripts' ] )
-						? esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#application' )  )
-						: esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) )
+					Util_Environment::is_w3tc_pro( $c ) && isset( $extensions['user-experience-defer-scripts'] ) ?
+						esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#application' ) ) :
+						esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) )
 					) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/defer-scripts-tool/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=defer-scripts-tool' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => true,
+				'is_new'     => true,
+			),
+			'bunnycdn'            => array(
+				'title'      => esc_html__( 'Bunny CDN', 'w3-total-cache' ),
+				'icon'       => 'dashicons-carrot',
+				'text'       => esc_html__( 'Bunny CDN works magically with W3 Total Cache to speed up your site around the world.', 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/bunny-cdn-setup/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=bunnycdn' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+				'is_premium' => false,
 				'is_new'     => true,
 			),
 			'pagespeed'           => array(
