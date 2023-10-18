@@ -33,6 +33,10 @@ defined( 'W3TC' ) || die();
 				<li><a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_cdn' ), 'w3tc' ) ); ?>"><?php \esc_html_e( 'Purge Cache', 'w3-total-cache' ); ?></a></li>
 			</ul>
 			<p>
+				<a target="_blank" href="<?php echo esc_url( W3TC_BUNNYCDN_CDN_URL ); ?>"><?php esc_html_e( 'Click here', 'w3-total-cache' ); ?></a>
+				<?php esc_html_e( 'to configure additional settings at Bunny.net.', 'w3-total-cache' ); ?>
+			</p>
+			<p>
 			<?php
 			w3tc_e(
 				'cdn.bunnycdn.widget.v2.existing',
