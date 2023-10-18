@@ -30,8 +30,26 @@ defined( 'W3TC' ) || die();
 		</div>
 		<div class="w3tc_bunnycdn_tools">
 			<ul class="w3tc_bunnycdn_ul">
-				<li><a class="button" href="<?php echo \esc_url( \wp_nonce_url( \network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_cdn' ), 'w3tc' ) ); ?>"><?php \esc_html_e( 'Purge Cache', 'w3-total-cache' ); ?></a></li>
+				<li><a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_cdn' ), 'w3tc' ) ); ?>"><?php \esc_html_e( 'Purge Cache', 'w3-total-cache' ); ?></a></li>
 			</ul>
+			<p>
+			<?php
+			w3tc_e(
+				'cdn.bunnycdn.widget.v2.existing',
+				\sprintf(
+					// translators: 1 HTML acronym for Content Delivery Network (CDN).
+					\__(
+						'If you need help configuring your %1$s, we also offer Premium Services to assist you.',
+						'w3-total-cache'
+					),
+					'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				)
+			);
+			?>
+		</p>
+		<a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), 'w3tc' ) ); ?>">
+			<?php \esc_html_e( 'Premium Services', 'w3-total-cache' ); ?>
+		</a>
 		</div>
 	</div>
 </div>
