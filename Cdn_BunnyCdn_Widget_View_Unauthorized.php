@@ -34,7 +34,7 @@ defined( 'W3TC' ) || die();
 			'cdn.bunnycdn.widget.v2.header',
 			\sprintf(
 				// translators: 1 HTML acronym for Content Delivery Network (CDN).
-				\__( 'Enhance your website performance by adding Bunny CDN\'s (%1$s) service to your site.', 'w3-total-cache' ),
+				\__( 'Enhance your website performance by adding Bunny.Net\'s (%1$s) service to your site.', 'w3-total-cache' ),
 				'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 			)
 		);

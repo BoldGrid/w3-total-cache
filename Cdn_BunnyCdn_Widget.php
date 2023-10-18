@@ -45,7 +45,8 @@ class Cdn_BunnyCdn_Widget {
 	 */
 	public function widget_form() {
 		$c          = Dispatcher::config();
-		$authorized = $c->get_string( 'cdn.bunnycdn.client_id' ) != '' && $c->get_string( 'cdn.engine' ) === 'bunnycdn';
+		$authorized = $c->get_string( 'cdn.engine' ) === 'bunnycdn' &&
+			( ! empty( $c->get_integer( 'cdn.bunnycdn.pull_zone_id' ) ) || ! empty( $c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) ) );
 
 		if ( $authorized ) {
 			include __DIR__ . DIRECTORY_SEPARATOR . 'Cdn_BunnyCdn_Widget_View_Authorized.php';
