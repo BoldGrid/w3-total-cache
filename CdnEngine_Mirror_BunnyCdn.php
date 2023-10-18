@@ -80,7 +80,7 @@ class CdnEngine_Mirror_BunnyCDN extends CdnEngine_Mirror {
 
 			$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_OK, 'OK' );
 		} catch ( \Exception $e ) {
-			$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_HALT, \__( 'Failure to pull zone: ', 'w3-total-cache' ) . $e->getMessage() );
+			$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_HALT, \__( 'Could not purge pull zone items: ', 'w3-total-cache' ) . $e->getMessage() );
 		}
 
 		return ! $this->_is_error( $results );

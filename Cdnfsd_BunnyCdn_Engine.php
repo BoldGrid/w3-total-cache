@@ -81,7 +81,7 @@ class Cdnfsd_BunnyCdn_Engine {
 			throw new \Exception( \esc_html__( 'Account API key not specified.', 'w3-total-cache' ) );
 		}
 
-		if ( empty( $this->config['pull_zone_id'] ) || ! \is_numeric( $this->config['pull_zone_id'] ) ) {
+		if ( empty( $this->config['pull_zone_id'] ) || ! \is_int( $this->config['pull_zone_id'] ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 

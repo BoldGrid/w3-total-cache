@@ -90,7 +90,7 @@ class Cdnfsd_Core {
 					$engine_object = new Cdnfsd_BunnyCdn_Engine(
 						array(
 							'account_api_key' => $c->get_string( 'cdn.bunnycdn.account_api_key' ),
-							'pull_zone_id'    => $c->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ),
+							'pull_zone_id'    => $c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
 						),
 					);
 					break;
