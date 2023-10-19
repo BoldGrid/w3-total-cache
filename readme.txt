@@ -285,12 +285,16 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.6.0 =
+* Feature: Added support for Bunny.Net CDN
+* Fix: Error when changing CDN cookie domain setting
+
 = 2.5.0 =
 * Feature: Added Delay Scripts (Pro)
 * Fix: Several PHP 8 warnings
 * Fix: Fragment Cache extension PHP warnings when no engine was selected
 * Fix: Fragment Cache engine selection disabled for pro license under certain conditions
-* Fix: Added Database Cluster compatiblity for older db.php files
+* Fix: Added Database Cluster compatibility for older db.php files
 * Fix: Fixed one PageSpeed tool metric not outputting data and adjusted a few labels
 * Fix: Multiple anchor links for PageSpeed block on General Settings page
 * Fix: Cache Groups validation on save
