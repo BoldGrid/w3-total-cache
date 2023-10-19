@@ -1,46 +1,52 @@
 <?php
+/**
+ * File: Extension_AlwaysCached_Page_View.php
+ *
+ * Render the AlwaysCached settings page.
+ *
+ * @since 2.5.1
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$count_pending = Extension_AlwaysCached_Queue::row_count_pending();
+$count_pending   = Extension_AlwaysCached_Queue::row_count_pending();
 $count_postponed = Extension_AlwaysCached_Queue::row_count_postponed();
 
 $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
-
-
-
 ?>
-<p id="w3tc-options-menu">
-	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
-	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
-</p>
 <p>
 	<?php esc_html_e( 'AlwaysCached extension is currently ', 'w3-total-cache' ); ?>
 	<?php
-	if ( $config->is_extension_active_frontend( 'alwayscached' ) ) {
-		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
+	if ( Extension_AlwaysCached_Plugin::is_enabled() ) {
+		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled.', 'w3-total-cache' ) . '</span>';
 	} else {
-		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) . '</span>';
+		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled.', 'w3-total-cache' ) . '</span>';
 	}
 	?>
-	.
 <p>
-
+<p>
+	<?php
+	esc_html_e( 'The Always Cached extension prevents page/post updates from clearing corresponding cache entries and instead adds them to a queue that can be manually cleared or scheduled to clear via cron.
+	?>
+</p>
 <form action="admin.php?page=w3tc_extensions&amp;extension=alwayscached&amp;action=view" method="post">
 	<?php
-		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ), [
-				'input' => [
-					'type'  => [],
-					'name'  => [],
-					'value' => [],
-				]
-			]
-		);
+	echo wp_kses(
+		Util_Ui::nonce_field( 'w3tc' ),
+		array(
+			'input' => array(
+				'type'  => array(),
+				'name'  => array(),
+				'value' => array(),
+			),
+		)
+	);
 	?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Queue', 'w3-total-cache' ), '', 'credentials' ); ?>
@@ -53,9 +59,11 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 				</th>
 				<td>
 					<?php echo esc_html( $count_pending ); ?>
-					<?php if ( $count_pending > 0 ): ?>
+					<?php if ( $count_pending > 0 ) : ?>
 						&nbsp;
-						<a href="#" class="w3tc_alwayscached_queue" data-mode="pending">View</a>
+						<a href="#" class="w3tc_alwayscached_queue" data-mode="pending">
+							<?php esc_html_e( 'View', 'w3-total-cache' ); ?>
+						</a>
 						<section></section>
 					<?php endif ?>
 				</td>
@@ -68,9 +76,11 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 				</th>
 				<td>
 					<?php echo esc_html( $count_postponed ); ?>
-					<?php if ( $count_postponed > 0 ): ?>
+					<?php if ( $count_postponed > 0 ) : ?>
 						&nbsp;
-						<a href="#" class="w3tc_alwayscached_queue" data-mode="postponed">View</a>
+						<a href="#" class="w3tc_alwayscached_queue" data-mode="postponed">
+							<?php esc_html_e( 'View', 'w3-total-cache' ); ?>
+						</a>
 						<section></section>
 					<?php endif ?>
 				</td>
@@ -82,22 +92,33 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 					</label>
 				</th>
 				<td>
-					<?php if (empty($time_lastrun)): ?>
-						n/a
-					<?php else: ?>
-						<?php
-						echo sprintf( __( '<span title="%s">%s ago</span>', 'w3-total-cache' ),
-							esc_html( $time_lastrun ),
-							esc_html( human_time_diff( strtotime( $time_lastrun ), time() ) ) );
-						?>
-					<?php endif ?>
+					<?php
+					if ( empty( $time_lastrun ) ) {
+						esc_html_e( 'n/a', 'w3-total-cache' );
+					} else {
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML span tag, 2 last queue run time, 3 closing HTML span tag.
+								__(
+									'%1$s%2$s ago%3$s',
+									'w3-total-cache'
+								),
+								'<span title="' . esc_html( $time_lastrun ) . '">',
+								esc_html( human_time_diff( strtotime( $time_lastrun ), time() ) ),
+								'</span>'
+							),
+							array(
+								'span' => array(
+									'title' => array(),
+								),
+							)
+						);
+					}
+					?>
 				</td>
 			</tr>
-
 			<tr>
-				<th>
-
-				</th>
+				<th></th>
 				<td>
 					<input type="submit" name="w3tc_alwayscached_empty"
 						value="<?php esc_html_e( 'Empty Queue', 'w3-total-cache' ); ?>" class="button" />

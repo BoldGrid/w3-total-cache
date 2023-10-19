@@ -354,11 +354,10 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 								),
 								$data['url'] );
 
-							$page_keys = apply_filters(
-								'w3tc_pagecache_flush_url_keys', $page_keys );
+							$page_keys = apply_filters( 'w3tc_pagecache_flush_url_keys', $page_keys );
 
 							foreach ( $page_keys as $page_key ) {
-								$cache->delete( $page_key, $data['group'] );
+								$data['cache']->delete( $page_key, $data['group'] );
 							}
 						}
 					}

@@ -23,6 +23,7 @@ class Generic_Page_Install extends Base_Page_Settings {
 			$e = Dispatcher::component( 'Root_Environment' );
 			$rewrite_rules_descriptors = $e->get_required_rules( $this->_config );
 			$other_areas = $e->get_other_instructions( $this->_config );
+			$other_areas = apply_filters( 'w3tc_environment_get_other_instructions', $other_areas );
 		}
 
 		include W3TC_INC_DIR . '/options/install.php';

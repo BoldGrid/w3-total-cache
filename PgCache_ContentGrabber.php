@@ -227,7 +227,7 @@ class PgCache_ContentGrabber {
 				$this->_page_key_extension['cache_reject_reason'];
 		}
 
-		if ( !empty( $_SERVER['HTTP_W3TCALWAYSCACHED'] ) ) {
+		if ( ! empty( $_SERVER['HTTP_W3TCALWAYSCACHED'] ) ) {
 			$this->_page_key_extension['alwayscached'] = true;
 		}
 
@@ -285,7 +285,7 @@ class PgCache_ContentGrabber {
 	 * @return boolean
 	 */
 	function _extract_cached_page( $with_filter ) {
-		if ( !empty( $this->_page_key_extension['alwayscached'] ) ) {
+		if ( ! empty( $this->_page_key_extension['alwayscached'] ) ) {
 			return null;
 		}
 
@@ -2169,17 +2169,21 @@ class PgCache_ContentGrabber {
 		$buffers = array();
 		$something_was_set = false;
 
-		if ( !empty( $this->_page_key_extension['alwayscached'] ) ) {
+		if ( ! empty( $this->_page_key_extension['alwayscached'] ) ) {
 			$this->_set_extract_page_key(
-				array_merge( $this->_page_key_extension, [
-						'compression' => false,
-						'content_type' => $content_type
-					] ),
-				true );
-			if ( !empty( $this->_page_key ) ) {
+				array_merge(
+					$this->_page_key_extension,
+					array(
+						'compression'  => false,
+						'content_type' => $content_type,
+				 	)
+				),
+				true
+			);
+
+			if ( ! empty( $this->_page_key ) ) {
 				$queue_item = Extension_AlwaysCached_Queue::get_by_page_key( $this->_page_key );
-				header( 'w3tcalwayscached: ' .
-					( empty( $queue_item ) ? 'none' : $queue_item['id'] ) );
+				header( 'w3tcalwayscached: ' . empty( $queue_item ) ? 'none' : $queue_item['id'] );
 			}
 		}
 

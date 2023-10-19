@@ -980,6 +980,11 @@ class Util_PageUrls {
 				'parent_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
 				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#amp' ) ),
 			),
+			'alwayscached' => array(
+				'page_name'   => esc_html__( 'Always Cached', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#alwayscached' ) ),
+			),
 		);
 
 		return ! empty( $map[ $id ] ) ? $map[ $id ] : '';

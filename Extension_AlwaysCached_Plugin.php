@@ -1,48 +1,63 @@
 <?php
+/**
+ * File: Extension_AlwaysCached_Plugin.php
+ *
+ * AlwaysCached plugin admin controller.
+ *
+ * @since 2.5.1
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * W3TC plugin to keep content always cached and regenerate in a queue
- * when needed
+ * AlwaysCached Plugin.
+ *
+ * @since 2.5.1
  */
 class Extension_AlwaysCached_Plugin {
 	/**
-	 * Runs plugin
+	 * Run method for AlwaysCached.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return void
 	 */
 	public function run() {
-		add_action( 'init', [ $this, 'init' ] );
-		add_filter( 'w3tc_admin_bar_menu',
-			[ $this, 'w3tc_admin_bar_menu' ] );
-		add_filter( 'w3tc_pagecache_flush_url',
-			[ $this, 'w3tc_pagecache_flush_url' ] );
-		add_filter( 'w3tc_pagecache_rules_apache_rewrite_cond',
-			[ $this, 'w3tc_pagecache_rules_apache_rewrite_cond' ] );
-		add_action( 'w3tc_environment_fix_on_wpadmin_request', [
-			'\W3TC\Extension_AlwaysCached_Environment',
-			'w3tc_environment_fix_on_wpadmin_request' ] );
-		add_action( 'w3tc_environment_fix_on_event', [
-			'\W3TC\Extension_AlwaysCached_Environment',
-			'w3tc_environment_fix_on_event' ], 10, 2 );
-		add_action( 'w3tc_environment_fix_after_deactivation', [
-			'\W3TC\Extension_AlwaysCached_Environment',
-			'w3tc_environment_fix_after_deactivation' ] );
-	}
-
-
-
-	public function init() {
-		if (!empty($_SERVER['HTTP_W3TCALWAYSCACHED'])) {
-			header('w3tc_test: here');
+		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
+			return null;
 		}
 
+		add_action( 'init', array( $this, 'init' ) );
+		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
+		add_filter( 'w3tc_pagecache_flush_url', array( $this, 'w3tc_pagecache_flush_url' ) );
+		add_filter( 'w3tc_pagecache_rules_apache_rewrite_cond', array( $this, 'w3tc_pagecache_rules_apache_rewrite_cond' ) );
+	}
+
+	/**
+	 * Init for AlwaysCached.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return void
+	 */
+	public function init() {
 		if ( isset( $_REQUEST['w3tc_alwayscached'] ) ) {
 			Extension_AlwaysCached_Worker::run();
 			exit();
 		}
 	}
 
-
-
+	/**
+	 * Adds admin bar menu links.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @param array $menu_items Menu items.
+	 *
+	 * @return array
+	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
 		if ( ! is_admin() ) {
 			$menu_items['10025.always_cached'] = array(
@@ -58,44 +73,80 @@ class Extension_AlwaysCached_Plugin {
 
 		return $menu_items;
 	}
+
+	/**
+	 * Adds AlwaysCached Apache rules.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @param string $rewrite_conditions Apache rules buffer.
+	 *
+	 * @return string
+	 */
 	public function w3tc_pagecache_rules_apache_rewrite_cond( $rewrite_conditions ) {
 		$rewrite_conditions .= "    RewriteCond %{HTTP:w3tcalwayscached} =\"\"\n";
 		return $rewrite_conditions;
 	}
 
-	/* data format expected:
-		'url' =>
-		'cache' =>
-		'mobile_groups' =>
-		'referrer_groups' =>
-		'cookies' =>
-		'encryptions' =>
-		'compressions' =>
-		'group' =>
-		'parent' => object with _get_page_key method
-	*/
+	/**
+	 * Adds AlwaysCached Apache rules.
+	 *
+	 * Data format expected:
+	 * array(
+	 *  'url' =>
+	 *  'cache' =>
+	 *  'mobile_groups' =>
+	 *  'referrer_groups' =>
+	 *  'cookies' =>
+	 *  'encryptions' =>
+	 *  'compressions' =>
+	 *  'group' =>
+	 *  'parent' => object with _get_page_key method
+	 * )
+	 *
+	 * @since 2.5.1
+	 *
+	 * @param array $data Data for flush request.
+	 *
+	 * @return array
+	 */
 	public function w3tc_pagecache_flush_url( $data ) {
-		// no support for mobile_groups, referrer_groups, cookies, group atm
+		// no support for mobile_groups, referrer_groups, cookies, group atm.
 		foreach ( $data['encryptions'] as $encryption ) {
-			$page_key_extension = [
-				'useragent' => $data['mobile_groups'][0],
-				'referrer' => $data['referrer_groups'][0],
-				'cookie' => $data['cookies'][0],
-				'encryption' => $encryption,
+			$page_key_extension = array(
+				'useragent'   => $data['mobile_groups'][0],
+				'referrer'    => $data['referrer_groups'][0],
+				'cookie'      => $data['cookies'][0],
+				'encryption'  => $encryption,
 				'compression' => false,
-				'group' => $data['group']
-			];
+				'group'       => $data['group'],
+			);
 
-			$page_key = $data['parent']->_get_page_key(
-				$page_key_extension, $data['url'] );
+			$page_key = $data['parent']->_get_page_key( $page_key_extension, $data['url'] );
 
 			if ( $data['cache']->exists( $page_key, $data['group'] ) ) {
-				Extension_AlwaysCached_Queue::add( $page_key, $data['url'],
-					$page_key_extension );
+				Extension_AlwaysCached_Queue::add(
+					$page_key,
+					$data['url'],
+					$page_key_extension
+				);
 			}
 		}
 
-		return [];
+		return array();
+	}
+
+	/**
+	 * Gets the enabled status of the extension.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		$config            = Dispatcher::config();
+		$extensions_active = $config->get_array( 'extensions.active' );
+		return Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'alwayscached', $extensions_active );
 	}
 }
 

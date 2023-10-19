@@ -1,73 +1,128 @@
 <?php
+/**
+ * File: Extension_AlwaysCached_Queue.php
+ *
+ * AlwaysCached queue controller.
+ *
+ * @since 2.5.1
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-if ( !defined( 'W3TC_ALWAYSCACHED_TABLE_QUEUE' ) ) {
+if ( ! defined( 'W3TC_ALWAYSCACHED_TABLE_QUEUE' ) ) {
 	define( 'W3TC_ALWAYSCACHED_TABLE_QUEUE', 'w3tc_alwayscached_queue' );
 }
 
-
-
 /**
- * queue model for always-cached module
+ * AlwaysCached queue model.
+ *
+ * @since 2.5.1
  */
 class Extension_AlwaysCached_Queue {
-	static public function add( $page_key, $url, $page_key_extension ) {
-		// compress page_key_extension by removing empty values
+
+	/**
+	 * Queue add.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @param string $page_key           Page key.
+	 * @param string $url                URL.
+	 * @param string $page_key_extension Page key extension.
+	 *
+	 * @return void
+	 */
+	public static function add( $page_key, $url, $page_key_extension ) {
+		// Compress page_key_extension by removing empty values.
 		$page_key_extension = array_filter( $page_key_extension );
 
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
 
-		$wpdb->query( $wpdb->prepare( "
-			INSERT INTO `$table`
-			( page_key, url, page_key_extension, to_process )
-			VALUES
-			( %s, %s, %s, %s )
-			ON DUPLICATE KEY UPDATE requests_count = requests_count + 1",
-			$page_key, $url, serialize( $page_key_extension ),
-			gmdate( 'Y-m-d G:i:s' ) ) );
+		$table = self::table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"INSERT INTO `$table` ( page_key, url, page_key_extension, to_process )
+					VALUES ( %s, %s, %s, %s ) ON DUPLICATE KEY UPDATE requests_count = requests_count + 1",
+				$page_key,
+				$url,
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+				serialize( $page_key_extension ),
+				gmdate( 'Y-m-d G:i:s' )
+			)
+		);
 	}
 
-
-
-	static public function get_by_page_key( $page_key ) {
+	/**
+	 * Get by page key.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @param string $page_key Page key.
+	 *
+	 * @return array|object|null|void
+	 */
+	public static function get_by_page_key( $page_key ) {
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
 
-		return $wpdb->get_row( $wpdb->prepare( "
-			SELECT id
-			FROM `$table`
-			WHERE page_key = %s",
-			$page_key ), ARRAY_A );
+		$table = self::table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id FROM `$table` WHERE page_key = %s",
+				$page_key
+			),
+			ARRAY_A
+		);
 	}
 
-
-
-	static public function pop_item_begin() {
+	/**
+	 * Retreives the first 10 items in queue.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return array|null
+	 */
+	public static function pop_item_begin() {
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
 
-		// concurrency-safe extraction
-		for ($n = 0; $n < 10; $n++) {
-			$item = $wpdb->get_row( $wpdb->prepare( "
-				SELECT *
-				FROM `$table`
-				WHERE to_process < %s
-				ORDER BY to_process
-				LIMIT 1",
-				gmdate( 'Y-m-d G:i:s' ) ), ARRAY_A );
+		$table = self::table_name();
+
+		// Concurrency-safe extraction.
+		for ( $n = 0; $n < 10; $n++ ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$item = $wpdb->get_row(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT * FROM `$table` WHERE to_process < %s ORDER BY to_process LIMIT 1",
+					gmdate( 'Y-m-d G:i:s' )
+				),
+				ARRAY_A
+			);
+
 			if ( empty( $item ) ) {
 				return null;
 			}
 
 			$new_to_process = gmdate( 'Y-m-d G:i:s', time() + 300 );
-			$count = $wpdb->query( $wpdb->prepare( "
-				UPDATE `$table`
-				SET to_process = %s
-				WHERE id = %d AND to_process = %s",
-				$new_to_process, $item['id'],
-				$item['to_process'] ) );
-			if ($count == 1) {
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$count = $wpdb->query(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"UPDATE `$table` SET to_process = %s WHERE id = %d AND to_process = %s",
+					$new_to_process,
+					$item['id'],
+					$item['to_process']
+				)
+			);
+
+			if ( 1 === $count ) {
 				$item['to_process'] = $new_to_process;
 				return $item;
 			}
@@ -76,123 +131,216 @@ class Extension_AlwaysCached_Queue {
 		return null;
 	}
 
-
-
-	static public function pop_item_finish($item) {
+	/**
+	 * Deletes queue item after pop.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @param array $item Queue item.
+	 *
+	 * @return void
+	 */
+	public static function pop_item_finish( $item ) {
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
 
-		// make sure we delete only when not changed since
-		$wpdb->query( $wpdb->prepare( "
-			DELETE FROM `$table`
-			WHERE id = %d AND to_process = %s AND requests_count = %d",
-			$item['id'], $item['to_process'], $item['requests_count'] ) );
+		$table = self::table_name();
+
+		// Make sure we delete only when not changed since.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"DELETE FROM `$table` WHERE id = %d AND to_process = %s AND requests_count = %d",
+				$item['id'],
+				$item['to_process'],
+				$item['requests_count']
+			)
+		);
 	}
 
-
-
-	static public function rows( $mode ) {
-		if ( $mode == 'postponed' ) {
-			$where = 'to_process >= %s';
-		} else {
-			$where = 'to_process < %s';
-		}
-
+	/**
+	 * Retrives queue rows.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @param string $mode Queue mode.
+	 *
+	 * @return array|object|null
+	 */
+	public static function rows( $mode ) {
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
 
-		return $wpdb->get_results( $wpdb->prepare( "
-				SELECT *
-				FROM `$table`
-				WHERE $where
-				ORDER BY to_process
-				LIMIT 50",
-				gmdate( 'Y-m-d G:i:s' ) ), ARRAY_A );
+		$table = self::table_name();
+		$comp  = 'postponed' === $mode ? '>=' : '<';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM `$table` WHERE to_process $comp %s ORDER BY to_process LIMIT 50",
+				gmdate( 'Y-m-d G:i:s' )
+			),
+			ARRAY_A
+		);
 	}
 
-
-
-	static public function row_count_pending() {
+	/**
+	 * Retrives queue pending row count.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return string|null
+	 */
+	public static function row_count_pending() {
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
 
-		return $wpdb->get_var( $wpdb->prepare( "
-			SELECT COUNT(*)
-			FROM `$table`
-			WHERE to_process < %s",
-			gmdate( 'Y-m-d G:i:s' ) ) );
+		$table = self::table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM `$table` WHERE to_process < %s",
+				gmdate( 'Y-m-d G:i:s' )
+			)
+		);
 	}
 
-
-
-	static public function row_count_postponed() {
+	/**
+	 * Retrives queue postponed row count.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return string|null
+	 */
+	public static function row_count_postponed() {
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
 
-		return $wpdb->get_var( $wpdb->prepare( "
-			SELECT COUNT(*)
-			FROM `$table`
-			WHERE to_process >= %s",
-			gmdate( 'Y-m-d G:i:s' ) ) );
+		$table = self::table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM `$table` WHERE to_process >= %s",
+				gmdate( 'Y-m-d G:i:s' )
+			)
+		);
 	}
 
-
-
-	static public function empty() {
+	/**
+	 * Deletes all queue rows.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return int
+	 */
+	public static function empty () {
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
 
+		$table = self::table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->query( "DELETE FROM `$table`" );
 	}
 
-
-
-	static private function table_name() {
+	/**
+	 * Gets AlwaysCached queue table name.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return string
+	 */
+	private static function table_name() {
 		global $wpdb;
+
 		return $wpdb->base_prefix . W3TC_ALWAYSCACHED_TABLE_QUEUE;
 	}
 
-
-
-	static public function drop_table() {
+	/**
+	 * Drops the AwaysCached queue table.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return void
+	 *
+	 *  @throws Util_Environment_Exception Exception.
+	 */
+	public static function drop_table() {
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
 
-		$wpdb->query( "DROP TABLE IF EXISTS `$table`" );
-		if ( !$wpdb->result ) {
-			throw new Util_Environment_Exception(  "Can't drop table $table" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( self::drop_table_sql() );
+
+		if ( ! $wpdb->result ) {
+			throw new Util_Environment_Exception( esc_html__( 'Can\'t drop table ', 'w3-total-cache' ) . $table );
 		}
 	}
 
-
-
-
-	static public function create_table() {
+	/**
+	 * Creates AlwaysCached queue table.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return void
+	 *
+	 * @throws Util_Environment_Exception Exception.
+	 */
+	public static function create_table() {
 		global $wpdb;
-		$wpdb->query( Extension_AlwaysCached_Queue::create_table_sql() );
-		if ( !$wpdb->result ) {
-			$table = Extension_AlwaysCached_Queue::table_name();
 
-			throw new Util_Environment_Exception(
-				"Can't create table $table" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( self::create_table_sql() );
+
+		if ( ! $wpdb->result ) {
+			$table = self::table_name();
+
+			throw new Util_Environment_Exception( esc_html__( 'Can\'t create table ', 'w3-total-cache' ) . $table );
 		}
 	}
 
-
-
-	static public function create_table_sql() {
+	/**
+	 * Retrives AlwaysCached queue table drop SQL.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return string
+	 */
+	public static function drop_table_sql() {
 		global $wpdb;
-		$table = Extension_AlwaysCached_Queue::table_name();
+
+		$table = self::table_name();
+
+		$sql = "DROP TABLE IF EXISTS `$table`";
+
+		return $sql;
+	}
+
+	/**
+	 * Retrives AlwaysCached queue table create SQL.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return string
+	 */
+	public static function create_table_sql() {
+		global $wpdb;
+
+		$table = self::table_name();
 
 		$charset_collate = '';
-		if ( ! empty( $wpdb->charset ) )
-			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-		if ( ! empty( $wpdb->collate ) )
+
+		if ( ! empty( $wpdb->charset ) ) {
+			$charset_collate .= "DEFAULT CHARACTER SET $wpdb->charset";
+		}
+
+		if ( ! empty( $wpdb->collate ) ) {
 			$charset_collate .= " COLLATE $wpdb->collate";
+		}
 
 		$sql = "CREATE TABLE IF NOT EXISTS `$table` (
 			`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-			`page_key` varchar(500) NOT NULL,
+			`page_key` varchar(500) CHARACTER SET `ascii` NOT NULL,
 			`url` varchar(500) NOT NULL,
 			`page_key_extension` varchar(500) NOT NULL,
 			`requests_count` int NOT NULL DEFAULT 1,
@@ -200,7 +348,7 @@ class Extension_AlwaysCached_Queue {
 			PRIMARY KEY (`id`),
 			UNIQUE KEY `page_key` (`page_key`),
 			INDEX `to_process` (`to_process`)
-		) $charset_collate";
+			) $charset_collate";
 
 		return $sql;
 	}
