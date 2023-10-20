@@ -32,7 +32,7 @@ class Extension_AlwaysCached_AdminActions {
 		if ( empty( $url ) ) {
 			$note = __( 'Failed to detect current page.', 'w3-total-cache' );
 		} else {
-			$result = wp_remote_request(
+			$result = Util_Http::request(
 				$url,
 				array(
 					'headers' => array(
@@ -42,7 +42,7 @@ class Extension_AlwaysCached_AdminActions {
 			);
 
 			if (
-				empty( $result['response'] )
+				is_wp_error( $result )
 				|| empty( $result['response']['code'] )
 				|| 500 === $result['response']['code']
 			) {
