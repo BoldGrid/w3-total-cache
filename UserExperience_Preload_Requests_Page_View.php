@@ -26,7 +26,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'         => array( 'user-experience-preload-requests', 'dns-prefetch' ),
 			'label'       => esc_html__( 'DNS Prefetch Domains:', 'w3-total-cache' ),
 			'control'     => 'textarea',
-			'description' => esc_html__( 'Specify domains whose DNS should be prefetched by browsers via the "dns-prefetch" header. Include one domain entry per line, e.g. (//cdn.domain.com, //fonts.googleapis.com, //www.google-ananlytics.com, etc.)', 'w3-total-cache' ),
+			'description' => esc_html__( 'Specify domains whose DNS should be prefetched by browsers via the "dns-prefetch" header. Domains entries with no protocol (//somedomain.com) will default to non-SSL HTTP (http://somedomain). Include one domain entry per line, e.g. (https://cdn.domain.com, https://fonts.googleapis.com, https://www.google-ananlytics.com, etc.)', 'w3-total-cache' ),
 		)
 	);
 	Util_Ui::config_item(
@@ -34,7 +34,7 @@ if ( ! defined( 'W3TC' ) ) {
 			'key'         => array( 'user-experience-preload-requests', 'preconnect' ),
 			'label'       => esc_html__( 'Preconnect Domains:', 'w3-total-cache' ),
 			'control'     => 'textarea',
-			'description' => esc_html__( 'Specify domains that should be preloaded by browsers via the "preconnect" header. Include one domain entry per line, e.g. (//cdn.domain.com, //fonts.googleapis.com, //www.google-ananlytics.com, etc.)', 'w3-total-cache' ),
+			'description' => esc_html__( 'Specify domains that should be preloaded by browsers via the "preconnect" header. Domains entries with no protocol (//somedomain.com) will default to non-SSL HTTP (http://somedomain). Include one domain entry per line, e.g. (https://cdn.domain.com, https://fonts.googleapis.com, https://www.google-ananlytics.com, etc.)', 'w3-total-cache' ),
 		)
 	);
 	Util_Ui::config_item(
