@@ -34,22 +34,26 @@ class Extension_AlwaysCached_Worker {
 
 		$time_exit = time() + $timeslot_seconds;
 
+		echo '<div style="white-space: pre-line;">';
+
+		esc_html_e( "Processing queue.\n", 'w3-total-cache' );
+
 		for ( ; ; ) {
 			if ( time() >= $time_exit ) {
-				esc_html_e( "\ntime slot exhaused", 'w3-total-cache' );
+				esc_html_e( "\n\nQueue worker time slot exhaused.", 'w3-total-cache' );
 				break;
 			}
 
 			$item = Extension_AlwaysCached_Queue::pop_item_begin();
 
 			if ( empty( $item ) ) {
-				esc_html_e( "\nqueue is empty", 'w3-total-cache' );
-				return;
+				esc_html_e( "\n\nQueue is empty.", 'w3-total-cache' );
+				break;
 			}
 
-			echo esc_html__( "\nrefreshing ", 'w3-total-cache' ) . esc_html( $item['id'] ) . ':' . esc_html( $item['url'] ) . '...';
+			echo esc_html__( "\nrefreshing... [ ", 'w3-total-cache' ) . esc_html( $item['id'] ) . ' : ' . esc_html( $item['url'] ) . ' ] ...';
 
-			$result = wp_remote_request(
+			$result = Util_Http::request(
 				$item['url'],
 				array(
 					'headers' => array(
@@ -59,7 +63,7 @@ class Extension_AlwaysCached_Worker {
 			);
 
 			if (
-				empty( $result['response'] )
+				is_wp_error( $result )
 				|| empty( $result['response']['code'] )
 				|| 500 === $result['response']['code']
 			) {
@@ -70,14 +74,17 @@ class Extension_AlwaysCached_Worker {
 			}
 
 			if ( empty( $result['headers'] ) || empty( $result['headers']['w3tcalwayscached'] ) ) {
-				esc_html_e( 'no evidence of cache refresh, will retry', 'w3-total-cache' );
+				esc_html_e( 'no evidence of cache refresh, will reprocess on next schedule/run', 'w3-total-cache' );
+				continue;
 			}
 
 			Extension_AlwaysCached_Queue::pop_item_finish( $item );
 
 			update_option( 'w3tc_alwayscached_worker_timestamp', gmdate( 'Y-m-d G:i:s' ) );
 
-			esc_html_e( 'done', 'w3-total-cache' );
+			esc_html_e( 'refreshed', 'w3-total-cache' );
 		}
+
+		echo '</div>';
 	}
 }

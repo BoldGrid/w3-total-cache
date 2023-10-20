@@ -2176,7 +2176,7 @@ class PgCache_ContentGrabber {
 					array(
 						'compression'  => false,
 						'content_type' => $content_type,
-				 	)
+					)
 				),
 				true
 			);
