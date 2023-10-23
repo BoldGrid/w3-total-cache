@@ -81,12 +81,12 @@ defined( 'W3TC' ) || die();
 						$selected_custom_hostnames = implode( "\r\n", $custom_hostnames );
 					}
 				}
-
-				// Determine origin URL and pull zone name for the fields below.
-				$field_origin_url       = isset( $selected_origin_url ) ? $selected_origin_url : $details['suggested_origin_url'];
-				$field_name             = isset( $selected_name ) ? $selected_name : $details['suggested_zone_name'];
-				$field_custom_hostnames = isset( $selected_name ) ? $selected_name : $details['suggested_custom_hostname'];
 			}
+
+			// Determine origin URL and pull zone name for the fields below.
+			$field_origin_url       = isset( $selected_origin_url ) ? $selected_origin_url : $details['suggested_origin_url'];
+			$field_name             = isset( $selected_name ) ? $selected_name : $details['suggested_zone_name'];
+			$field_custom_hostnames = isset( $selected_name ) ? $selected_name : $details['suggested_custom_hostname'];
 			?>
 				</select>
 			</tr>
