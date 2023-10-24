@@ -1843,14 +1843,18 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<?php
-					$extensions_active = $config->get_array( 'extensions.active' );
-					if ( array_key_exists( 'user-experience-defer-scripts', $extensions_active ) ) {
-						// If more items are added this will only encompase the Defer Scripts, but if only 1 item show no sub-nav.
-						?>
-						<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a> |
-						<a href="#application"><?php esc_html_e( 'Delay Scripts', 'w3-total-cache' ); ?></a>
-						<?php
+					$subnav_links = array( '<a href="#lazy-loading">' . esc_html__( 'Lazy Loading', 'w3-total-cache' ) . '</a>' );
+
+					if ( UserExperience_DeferScripts_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#application">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
 					}
+
+					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#application">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
+					}
+
+					// If there's only 1 meta box on the page, no need for nav links.
+					echo count( $subnav_links ) > 1 ? implode( ' | ', $subnav_links ) : '';
 					?>
 				</div>
 				<?php

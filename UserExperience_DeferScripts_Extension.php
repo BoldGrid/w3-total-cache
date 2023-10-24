@@ -289,6 +289,19 @@ class UserExperience_DeferScripts_Extension {
 
 		return $data;
 	}
+
+	/**
+	 * Gets the enabled status of the extension.
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		$config            = Dispatcher::config();
+		$extensions_active = $config->get_array( 'extensions.active' );
+		return Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'user-experience-defer-scripts', $extensions_active );
+	}
 }
 
 $o = new UserExperience_DeferScripts_Extension();
