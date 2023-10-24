@@ -103,8 +103,8 @@ class Cdn_BunnyCdn_Popup {
 		// Print the view.
 		$server_ip            = ! empty( $_SERVER['SERVER_ADDR'] ) && \filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_VALIDATE_IP ) ?
 			\filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_SANITIZE_URL ) : null;
-		$suggested_origin_url = 'http' . ( \is_ssl() ? 's' : '' ) . '://' .
-			( empty( $server_ip ) ? \parse_url( \home_url(), PHP_URL_HOST ) : $server_ip );
+		$home_url             = \parse_url( \home_url(), PHP_URL_HOST );
+		$suggested_origin_url = 'http' . ( \is_ssl() ? 's' : '' ) . '://' . ( empty( $home_url ) ? $server_ip : $home_url );
 
 		$details = array(
 			'pull_zones'                 => $pull_zones,
