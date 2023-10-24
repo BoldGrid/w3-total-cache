@@ -57,7 +57,7 @@ class FeatureShowcase_Plugin_Admin {
 		// Check if being redirected.
 		add_filter(
 			'wp_redirect',
-			function( $location ) {
+			function ( $location ) {
 				FeatureShowcase_Plugin_Admin::$wp_redirect_location = $location;
 				return $location;
 			}
@@ -235,6 +235,21 @@ class FeatureShowcase_Plugin_Admin {
 		}
 
 		return array(
+			'preload-requests'       => array(
+				'title'      => esc_html__( 'Preload Requests', 'w3-total-cache' ),
+				'icon'       => 'dashicons-controls-repeat',
+				'text'       => esc_html__( 'DNS prefetching, preconnecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks.', 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' . (
+					UserExperience_Preload_Requests_Extension::is_enabled() ?
+						esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#preload-requests' ) ) :
+						esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) )
+					) . '\'">' .
+					__( 'Settings', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=preload-requests' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+				'is_premium' => true,
+				'is_new'     => true,
+			),
 			'defer-scripts'       => array(
 				'title'      => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
 				'icon'       => 'dashicons-media-code',
@@ -258,18 +273,6 @@ class FeatureShowcase_Plugin_Admin {
 					esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '\'">' .
 					__( 'Settings', 'w3-total-cache' ) . '</button>',
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/bunny-cdn-setup/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=bunnycdn' ) .
-					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
-				'is_premium' => false,
-				'is_new'     => true,
-			),
-			'pagespeed'           => array(
-				'title'      => esc_html__( 'Google Page Speed', 'w3-total-cache' ),
-				'icon'       => 'dashicons-analytics',
-				'text'       => esc_html__( "Adds the ability to analyze the website's homepage and provide a detailed breakdown of performance metrics including potential issues and proposed solutions.", 'w3-total-cache' ),
-				'button'     => '<button class="button" onclick="window.location=\'' .
-					esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ) ) . '\'">' .
-					__( 'Launch', 'w3-total-cache' ) . '</button>',
-				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/google-pagespeed-tool/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pagespeed-tool' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => false,
 				'is_new'     => true,
@@ -391,6 +394,18 @@ class FeatureShowcase_Plugin_Admin {
 					esc_url( Util_Ui::admin_url( $imageservice_button_link ) ) . '\'">' .
 					esc_html( $imageservice_button_text ) . '</button>' ),
 				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=imageservice' ) .
+					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+				'is_premium' => false,
+				'is_new'     => false,
+			),
+			'pagespeed'           => array(
+				'title'      => esc_html__( 'Google Page Speed', 'w3-total-cache' ),
+				'icon'       => 'dashicons-analytics',
+				'text'       => esc_html__( "Adds the ability to analyze the website's homepage and provide a detailed breakdown of performance metrics including potential issues and proposed solutions.", 'w3-total-cache' ),
+				'button'     => '<button class="button" onclick="window.location=\'' .
+					esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ) ) . '\'">' .
+					__( 'Launch', 'w3-total-cache' ) . '</button>',
+				'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/google-pagespeed-tool/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pagespeed-tool' ) .
 					'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 				'is_premium' => false,
 				'is_new'     => false,
