@@ -104,102 +104,106 @@ class Cache {
 		switch ( $engine ) {
 			case 'memcached':
 				if ( class_exists( 'Memcached' ) ) {
-					$engine_name = 'memcached';
+					$engine_name = 'Memcached';
 				} else {
-					$engine_name = 'memcache';
+					$engine_name = 'Memcache';
 				}
 				break;
 
 			case 'nginx_memcached':
-				$engine_name = 'nginx + memcached';
+				$engine_name = 'Nginx + Memcached';
 				break;
 
 			case 'apc':
-				$engine_name = 'apc';
+				$engine_name = 'APC';
 				break;
 
 			case 'eaccelerator':
-				$engine_name = 'eaccelerator';
+				$engine_name = 'EAccelerator';
 				break;
 
 			case 'redis':
-				$engine_name = 'redis';
+				$engine_name = 'Redis';
 				break;
 
 			case 'xcache':
-				$engine_name = 'xcache';
+				$engine_name = 'XCache';
 				break;
 
 			case 'wincache':
-				$engine_name = 'wincache';
+				$engine_name = 'WinCache';
 				break;
 
 			case 'file':
 				if ( 'pgcache' === $module ) {
-					$engine_name = 'disk: basic';
+					$engine_name = 'Disk: Basic';
 				} else {
-					$engine_name = 'disk';
+					$engine_name = 'Disk';
 				}
 				break;
 
 			case 'file_generic':
-				$engine_name = 'disk: enhanced';
+				$engine_name = 'Disk: Enhanced';
 				break;
 
 			case 'ftp':
-				$engine_name = 'self-hosted / file transfer protocol upload';
+				$engine_name = 'Self-hosted / file transfer protocol upload';
 				break;
 
 			case 's3':
-				$engine_name = 'amazon simple storage service (s3)';
+				$engine_name = 'Amazon Simple Storage Service (S3)';
 				break;
 
 			case 's3_compatible':
-				$engine_name = 's3 compatible';
+				$engine_name = 'S3 compatible';
 				break;
 
 			case 'cf':
-				$engine_name = 'amazon cloudfront';
+				$engine_name = 'Amazon Cloudfront';
 				break;
 
 			case 'google_drive':
-				$engine_name = 'google drive';
+				$engine_name = 'Google Drive';
 				break;
 
 			case 'highwinds':
-				$engine_name = 'highwinds';
+				$engine_name = 'Highwinds';
 				break;
 
 			case 'cf2':
-				$engine_name = 'amazon cloudfront';
+				$engine_name = 'Amazon Cloudfront';
 				break;
 
 			case 'rscf':
-				$engine_name = 'rackspace cloud files';
+				$engine_name = 'Rackspace Cloud Files';
 				break;
 
 			case 'azure':
-				$engine_name = 'microsoft azure storage';
+				$engine_name = 'Microsoft Azure Storage';
 				break;
 
 			case 'edgecast':
-				$engine_name = 'media template procdn / edgecast';
+				$engine_name = 'Media Template ProCDN / EdgeCast';
 				break;
 
 			case 'att':
-				$engine_name = 'at&amp;t';
+				$engine_name = 'AT&amp;T';
 				break;
 
 			case 'rackspace_cdn':
-				$engine_name = 'rackspace';
+				$engine_name = 'Rackspace';
 				break;
 
 			case 'stackpath2':
-				$engine_name = 'stackpath';
+				$engine_name = 'StackPath';
 				break;
 
 			case 'bunnycdn':
 				$engine_name = 'Bunny CDN';
+				break;
+
+			case '':
+				$engine_name = __( 'None', 'w3-total-cache' );
 				break;
 
 			default:
