@@ -105,10 +105,10 @@ class Cdn_BunnyCdn_Popup {
 			\filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_SANITIZE_URL ) : null;
 
 		$details = array(
-			'pull_zones'                 => $pull_zones,
-			'suggested_origin_url'       => \home_url(), // Suggested origin URL or IP.
-			'suggested_zone_name'        => \substr( \str_replace( '.', '-', \parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
-			'pull_zone_id'               => $config->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
+			'pull_zones'           => $pull_zones,
+			'suggested_origin_url' => \home_url(), // Suggested origin URL or IP.
+			'suggested_zone_name'  => \substr( \str_replace( '.', '-', \parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
+			'pull_zone_id'         => $config->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
 		);
 
 		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Pull_Zones.php';

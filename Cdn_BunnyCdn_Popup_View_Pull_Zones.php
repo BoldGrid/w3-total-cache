@@ -8,12 +8,18 @@
  * @since   X.X.X
  * @package W3TC
  *
- * @param array $details {
+ * @param string           $account_api_key Account PI key.
+ * @parm  Cdn_BunnyCdn_Api $api             API class object.
+ * @param array            $details {
  *     Bunny CDN API configuration details.
  *
- *     @type array  $pull_zones      Pull zones.
- *     @type string $error_message   Error message (optional).
+ *     @type array  $pull_zones           Pull zones.
+ *     @type string $suggested_origin_url Suggested origin URL or IP.
+ *     @type string $suggested_zone_name  Suggested pull zone name.
+ *     @type int    $pull_zone_id         Pull zone id.
+ *     @type string $error_message        Error message (optional).
  * }
+ * @param string           $server_ip       Server IP address.
  */
 
 namespace W3TC;
@@ -109,7 +115,13 @@ defined( 'W3TC' ) || die();
 						<?php echo ( empty( $details['pull_zone_id'] ) ? '' : 'readonly ' ); ?>
 						data-suggested="<?php echo esc_attr( $details['suggested_origin_url'] ); ?>" />
 					<p class="description">
-						<?php esc_html_e( 'Pull origin site URL or IP address.', 'w3-total-cache' ); ?>
+						<?php
+						esc_html_e( 'Pull origin site URL or IP address.', 'w3-total-cache' );
+
+						if ( ! empty( $server_ip ) ) {
+							echo esc_html( ' ' . __( 'Detected server IP address', 'w3-total-cache' ) . ':' . $server_ip );
+						}
+						?>
 					</p>
 				</td>
 			</tr>
