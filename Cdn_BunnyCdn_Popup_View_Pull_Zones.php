@@ -84,9 +84,8 @@ defined( 'W3TC' ) || die();
 			}
 
 			// Determine origin URL and pull zone name for the fields below.
-			$field_origin_url       = isset( $selected_origin_url ) ? $selected_origin_url : $details['suggested_origin_url'];
-			$field_name             = isset( $selected_name ) ? $selected_name : $details['suggested_zone_name'];
-			$field_custom_hostnames = isset( $selected_name ) ? $selected_name : $details['suggested_custom_hostname'];
+			$field_origin_url = isset( $selected_origin_url ) ? $selected_origin_url : $details['suggested_origin_url'];
+			$field_name       = isset( $selected_name ) ? $selected_name : $details['suggested_zone_name'];
 			?>
 				</select>
 			</tr>
@@ -111,20 +110,6 @@ defined( 'W3TC' ) || die();
 						data-suggested="<?php echo esc_attr( $details['suggested_origin_url'] ); ?>" />
 					<p class="description">
 						<?php esc_html_e( 'Pull origin site URL or IP address.', 'w3-total-cache' ); ?>
-					</p>
-				</td>
-			</tr>
-			<tr>
-				<td><?php esc_html_e( 'Custom Hostnames', 'w3-total-cache' ); ?>:</td>
-				<td>
-					<input id="w3tc-custom-hostnames" name="custom_hostnames" type="text" class="w3tc-ignore-change"
-						style="width: 550px" value="<?php echo esc_attr( $field_custom_hostnames ); ?>"
-						<?php echo ( empty( $details['pull_zone_id'] ) ? '' : 'readonly ' ); ?>
-						data-suggested="<?php echo esc_attr( $details['suggested_custom_hostname'] ); ?>" />
-					<p class="description">
-						<?php esc_html_e( 'Custom hostnames can be used instead of the default *.b-cdn.net hostname. After adding a hostname, create a CNAME record to the CDN hostname provided after the pull zone is configured.', 'w3-total-cache' ); ?>
-						<br />
-						<?php esc_html_e( '* Separate hostnames using commas (",").', 'w3-total-cache' ); ?>
 					</p>
 				</td>
 			</tr>

@@ -101,17 +101,14 @@ class Cdn_BunnyCdn_Popup {
 		}
 
 		// Print the view.
-		$server_ip            = ! empty( $_SERVER['SERVER_ADDR'] ) && \filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_VALIDATE_IP ) ?
+		$server_ip = ! empty( $_SERVER['SERVER_ADDR'] ) && \filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_VALIDATE_IP ) ?
 			\filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_SANITIZE_URL ) : null;
-		$home_url             = \parse_url( \home_url(), PHP_URL_HOST );
-		$suggested_origin_url = 'http' . ( \is_ssl() ? 's' : '' ) . '://' . ( empty( $home_url ) ? $server_ip : $home_url );
 
 		$details = array(
 			'pull_zones'                 => $pull_zones,
-			'suggested_origin_url'       => $suggested_origin_url, // Suggested origin URL or IP.
+			'suggested_origin_url'       => \home_url(), // Suggested origin URL or IP.
 			'suggested_zone_name'        => \substr( \str_replace( '.', '-', \parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
 			'pull_zone_id'               => $config->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
-			'suggested_custom_hostname'  => \parse_url( \home_url(), PHP_URL_HOST ), // Suggested custom hostname.
 		);
 
 		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Pull_Zones.php';
@@ -126,13 +123,12 @@ class Cdn_BunnyCdn_Popup {
 	 * @see Cdn_BunnyCdn_Api::get_default_edge_rules()
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_configure_pull_zone() {
-		$config           = Dispatcher::config();
-		$account_api_key  = $config->get_string( 'cdn.bunnycdn.account_api_key' );
-		$pull_zone_id     = Util_Request::get_integer( 'pull_zone_id' );
-		$origin_url       = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
-		$name             = Util_Request::get_string( 'name' ); // Pull zone name.
-		$cdn_hostname     = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname (system).
-		$custom_hostnames = explode( ',', Util_Request::get_string( 'custom_hostnames' ) );
+		$config          = Dispatcher::config();
+		$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
+		$pull_zone_id    = Util_Request::get_integer( 'pull_zone_id' );
+		$origin_url      = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
+		$name            = Util_Request::get_string( 'name' ); // Pull zone name.
+		$cdn_hostname    = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname (system).
 
 		// If not selecting a pull zone. then create a new one.
 		if ( empty( $pull_zone_id ) ) {
@@ -144,12 +140,12 @@ class Cdn_BunnyCdn_Popup {
 					array(
 						'Name'                  => $name, // The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
 						'OriginUrl'             => $origin_url, // Origin URL or IP (with optional port number).
-						'AddHostHeader'         => true, // Determines if the zone should forward the requested host header to the origin.
 						'CacheErrorResponses'   => true, // If enabled, bunny.net will temporarily cache error responses (304+ HTTP status codes) from your servers for 5 seconds to prevent DDoS attacks on your origin. If disabled, error responses will be set to no-cache.
 						'DisableCookies'        => false, // Determines if the Pull Zone should automatically remove cookies from the responses.
 						'EnableTLS1'            => false, // TLS 1.0 was deprecated in 2018.
 						'EnableTLS1_1'          => false, // TLS 1.1 was EOL's on March 31,2020.
 						'ErrorPageWhitelabel'   => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
+						'OriginHostHeader'      => \parse_url( \home_url(), PHP_URL_HOST ), // Sets the host header that will be sent to the origin.
 						'UseStaleWhileUpdating' => true, // Serve stale content while updating.  If Stale While Updating is enabled, cache will not be refreshed if the origin responds with a non-cacheable resource.
 						'UseStaleWhileOffline'  => true, // Serve stale content if the origin is offline.
 					)
@@ -181,21 +177,6 @@ class Cdn_BunnyCdn_Popup {
 						\__( 'Could not add Edge Rule "%1$s".', 'w3-total-cache' ) . '; ',
 						\esc_html( $edge_rule['Description'] )
 					) . $ex->getMessage();
-				}
-			}
-
-			// Add custom hostnames, if any.
-			if ( ! empty( $custom_hostnames ) ) {
-				foreach ( $custom_hostnames as $custom_hostname ) {
-					try {
-						$api->add_custom_hostname( $custom_hostname, $pull_zone_id );
-					} catch ( \Exception $ex ) {
-						$error_messages[] = \sprintf(
-							// translators: 1: hostname.
-							\__( 'Could not add custom hostname "%1$s"', 'w3-total-cache' ) . '; ',
-							\esc_html( $custom_hostname )
-						) . $ex->getMessage();
-					}
 				}
 			}
 
