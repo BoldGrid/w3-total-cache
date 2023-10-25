@@ -209,7 +209,7 @@ class Util_Ui {
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
 		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
 		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
-		
+
 		$extra_link_tabs = '';
 		foreach ( $extra_links as $extra_link_text => $extra_link ) {
 			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>';
@@ -1523,6 +1523,7 @@ class Util_Ui {
 		$config            = Dispatcher::config();
 		$state             = Dispatcher::config_state();
 		$page              = Util_Admin::get_current_page();
+		$show_purge_link   = 'bunnycdn' === $config->get_string( 'cdn.engine' ) || 'bunnycdn' === $config->get_string( 'cdnfsd.engine' );
 		$licensing_visible = (
 			( ! Util_Environment::is_wpmu() || is_network_admin() ) &&
 			! ini_get( 'w3tc.license_key' ) &&
@@ -1832,7 +1833,15 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
-					<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
+				<?php if ( ! empty( $cdn_engine ) ) : ?>
+					<a href="#configuration"><?php esc_html_e( 'Configuration (Objects)', 'w3-total-cache' ); ?></a> |
+				<?php endif; ?>
+				<?php if ( ! empty( $cdnfsd_engine ) ) : ?>
+					<a href="#configuration-fsd"><?php esc_html_e( 'Configuration (FSD)', 'w3-total-cache' ); ?></a> |
+				<?php endif; ?>
+				<?php if ( $show_purge_link ) : ?>
+					<a href="#purge-urls"><?php esc_html_e( 'Purge', 'w3-total-cache' ); ?></a> |
+				<?php endif; ?>
 					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
 					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
 				</div>
