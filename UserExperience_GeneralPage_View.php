@@ -90,7 +90,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'extension_id'   => 'user-experience-defer-scripts',
 			'checkbox_label' => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
 			'description'    => __(
-				'Delay the loading of specified interal/external JavaScript sources on your pages separate from Minify. For best results it is recommended to enable the Minify feature to optimize internal sources and to then use the Delay JavaScript feature to handle external sources and/or any internal sources excluded from Minify.',
+				'Delay the loading of specified interal/external JavaScript sources on your pages separate from Minify.',
 				'w3-total-cache'
 			) . (
 				UserExperience_DeferScripts_Extension::is_enabled()
