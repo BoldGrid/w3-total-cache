@@ -34,10 +34,10 @@ require W3TC_INC_DIR . '/options/common/header.php';
 <div class="w3tc-page-container">
 <?php
 foreach ( $cards_data as $type => $cards ) {
-	$title = 'new' === $type ? esc_html__( 'What\'s New', 'w3-total-cache' ) : esc_html__( 'Feature List', 'w3-total-cache' );
 	$class = 'new' === $type ? 'w3tc-card-container-new' : 'w3tc-card-container';
+	
+	echo $cards !== reset( $cards_data ) ? '<hr class="w3tc-card-container-divider"/>': '';
 	?>
-	<h1 class="w3tc-card-container-title"><?php echo $title; ?></h1>
 	<div class="<?php echo $class; ?>">
 	<?php
 	foreach ( $cards as $feature_id => $card ) {
@@ -56,25 +56,14 @@ foreach ( $cards_data as $type => $cards ) {
 		}
 
 		?>
-			<div class="<?php echo $card_classes; ?>" id="w3tc-feature-<?php echo esc_attr( $feature_id ); ?>">
-		<?php
-
-		if ( $is_new ) {
-			?>
-			<div class="w3tc-card-ribbon-new"><span>NEW</span></div>
-			<?php
-		}
-
-		?>
+		<div class="<?php echo $card_classes; ?>" id="w3tc-feature-<?php echo esc_attr( $feature_id ); ?>">
 			<div class="<?php echo $title_classes; ?>">
 				<p><?php echo $card['title']; ?></p>
-		<?php
-		if ( $is_premium ) {
-		?>
-				<p class="w3tc-card-pro"><?php echo __( 'PRO FEATURE', 'w3-total-cache' ); ?></p>
-		<?php
-		}
-		?>
+				<?php
+				if ( $is_premium ) {
+					echo '<p class="w3tc-card-pro">' . __( 'PRO FEATURE', 'w3-total-cache' ) . '</p>';
+				}
+				?>
 			</div>
 			<div class="w3tc-card-icon"><span class="dashicons <?php echo $card['icon']; ?>"></span></div>
 			<div class="w3tc-card-body"><p><?php echo $card['text']; ?></p></div>
@@ -82,17 +71,27 @@ foreach ( $cards_data as $type => $cards ) {
 				<div class="w3tc-card-button">
 					<?php
 					if ( $is_premium && ! $is_pro ) {
-						?>
-						<button class="button w3tc-gopro-button button-buy-plugin" data-src="feature_showcase">
-							<?php esc_html_e( 'Unlock Feature', 'w3-total-cache' ); ?>
-						</button>
-						<?php
+						echo '<button class="button w3tc-gopro-button button-buy-plugin" data-src="feature_showcase">'
+							. esc_html__( 'Unlock Feature', 'w3-total-cache' ) . '</button>';
 					} elseif ( ! empty( $card['button'] ) ) {
 						echo $card['button'];
 					}
 					?>
 				</div><div class="w3tc-card-links"><?php echo $card['link']; ?></div>
 			</div>
+			<?php
+			if ( $is_new ) {
+				?>
+				<div class="w3tc-card-ribbon-new">
+					<span class="dashicons dashicons-awards"></span>
+					<b><?php esc_html_e( 'New', 'w3-total-cache' ); ?></b>
+					<span>
+						<?php esc_html_e( 'in', 'w3-total-cache' ); ?> W3 Total Cache Pro <?php echo W3TC_VERSION; ?>!
+					</span>
+				</div>
+				<?php
+			}
+			?>
 		</div>
 		<?php
 	}
@@ -100,6 +99,5 @@ foreach ( $cards_data as $type => $cards ) {
 	</div>
 	<?php
 }
-
 ?>
 </div>
