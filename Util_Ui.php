@@ -372,8 +372,10 @@ class Util_Ui {
 				if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
 				}
-				if ( $config->get_boolean( 'cdn.enabled' ) ) {
-					$disable = $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ';
+				if ( $config->get_boolean( 'cdn.enabled' ) || $config->get_boolean( 'cdnfsd.enabled' ) ) {
+					$disable = ( $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ) ||
+						( $config->get_boolean( 'cdnfsd.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdnfsd.engine' ) ) ) ?
+							'' : ' disabled="disabled" ';
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) && ! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {

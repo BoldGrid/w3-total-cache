@@ -32,11 +32,67 @@ class Cdn_BunnyCdn_Page {
 	}
 
 	/**
+	 * Determine if CDN or CDNFSD is active.
+	 *
+	 * @since X.X.X
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function is_active() {
+		$config          = Dispatcher::config();
+		$cdn_enabled     = $config->get_boolean( 'cdn.enabled' );
+		$cdn_engine      = $config->get_string( 'cdn.engine' );
+		$cdn_zone_id     = $config->get_integer( 'cdn.bunnycdn.pull_zone_id' );
+		$cdnfsd_enabled  = $config->get_boolean( 'cdnfsd.enabled' );
+		$cdnfsd_engine   = $config->get_string( 'cdnfsd.engine' );
+		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' );
+		$account_api_key = $config->get_string( 'cdn.bunnycdn.account_api_key' );
+
+		return ( $account_api_key &&
+			(
+				( $cdn_enabled && 'bunnycdn' === $cdn_engine && $cdn_zone_id ) ||
+				( $cdnfsd_enabled && 'bunnycdn' === $cdnfsd_engine && $cdnfsd_zone_id )
+			)
+		);
+	}
+
+	/**
+	 * Add Dashboard actions.
+	 *
+	 * @since X.X.X
+	 * @static
+	 *
+	 * @see self::in_active()
+	 *
+	 * @param array $actions Actions.
+	 * @return array
+	 */
+	public static function w3tc_dashboard_actions( array $actions ) {
+		if ( self::is_active() ) {
+			$modules            = Dispatcher::component( 'ModuleStatus' );
+			$can_empty_memcache = $modules->can_empty_memcache();
+			$can_empty_opcode   = $modules->can_empty_opcode();
+			$can_empty_file     = $modules->can_empty_file();
+			$can_empty_varnish  = $modules->can_empty_varnish();
+
+			$actions[] = sprintf(
+				'<input type="submit" class="dropdown-item" name="w3tc_bunnycdn_flush_all_except_bunnycdn" value="%1$s"%2$s>',
+				esc_attr__( 'Empty All Caches Except Bunny CDN', 'w3-total-cache' ),
+				( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
+			);
+		}
+
+		return $actions;
+	}
+
+	/**
 	 * Enqueue scripts.
 	 *
 	 * Called from plugin-admin.
 	 *
 	 * @since X.X.X
+	 * @static
 	 *
 	 * @return void
 	 */
@@ -73,6 +129,7 @@ class Cdn_BunnyCdn_Page {
 	 * CDN settings.
 	 *
 	 * @since X.X.X
+	 * @static
 	 *
 	 * @return void
 	 */
@@ -86,6 +143,7 @@ class Cdn_BunnyCdn_Page {
 	 * Display purge URLs page.
 	 *
 	 * @since X.X.X
+	 * @static
 	 */
 	public static function w3tc_purge_urls_box() {
 		$config = Dispatcher::config();
@@ -132,5 +190,15 @@ class Cdn_BunnyCdn_Page {
 		}
 
 		\wp_send_json_success();
+	}
+
+	/**
+	 * Flush all caches except Bunny CDN.
+	 *
+	 * @since X.X.X
+	 */
+	public function w3tc_bunnycdn_flush_all_except_bunnycdn() {
+		Dispatcher::component( 'CacheFlush' )->flush_all( array( 'bunnycdn' => 'skip' ) );
+		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all' ), true );
 	}
 }

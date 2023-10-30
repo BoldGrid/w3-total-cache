@@ -101,19 +101,37 @@ class CdnEngine_Mirror_BunnyCDN extends CdnEngine_Mirror {
 			return false;
 		}
 
-		if ( empty( $this->_config['pull_zone_id'] ) ) {
+		// Purge active pull zones: CDN & CDNFSD.
+		$active_zone_ids = array();
+		$config          = Dispatcher::config();
+		$cdn_zone_id     = $config->get_integer( 'cdn.bunnycdn.pull_zone_id' );
+		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' );
+
+		if ( $config->get_boolean( 'cdn.enabled' ) && 'bunnycdn' === $config->get_string( 'cdn.engine' ) && $cdn_zone_id ) {
+			$active_ids[] = $cdn_zone_id;
+		}
+
+		if ( $config->get_boolean( 'cdnfsd.enabled' ) && 'bunnycdn' === $config->get_string( 'cdnfsd.engine' ) && $cdnfsd_zone_id ) {
+			$active_ids[] = $cdnfsd_zone_id;
+		}
+
+		if ( empty( $active_ids ) ) {
 			$results = $this->_get_results( array(), W3TC_CDN_RESULT_HALT, __( 'Missing pull zone id.', 'w3-total-cache' ) );
 
 			return false;
 		}
 
-		$api     = new Cdn_BunnyCDN_Api( $this->_config );
 		$results = array();
 
-		try {
-			$results = $api->purge_pull_zone();
-		} catch ( \Exception $e ) {
-			$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_HALT, \__( 'Could not purge pull zone', 'w3-total-cache' ) . '; ' . $e->getMessage() );
+		foreach ( $active_ids as $id ) {
+			$api = new Cdn_BunnyCdn_Api( array_merge( $this->_config, array( 'pull_zone_id' => $id ) ) );
+
+			try {
+				$api->purge_pull_zone();
+				$results[] = $this->_get_result( '', '' ); // W3TC_CDN_RESULT_OK.
+			} catch ( \Exception $e ) {
+				$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_HALT, \__( 'Could not purge pull zone', 'w3-total-cache' ) . '; ' . $e->getMessage() );
+			}
 		}
 
 		return ! $this->_is_error( $results );

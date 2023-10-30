@@ -583,7 +583,7 @@ class Cdn_Core {
 						'account_api_key' => $c->get_string( 'cdn.bunnycdn.account_api_key' ),
 						'storage_api_key' => $c->get_string( 'cdn.bunnycdn.storage_api_key' ),
 						'stream_api_key'  => $c->get_string( 'cdn.bunnycdn.stream_api_key' ),
-						'pull_zone_id'    => $c->get_integer( 'cdn.pull_zone_id' ),
+						'pull_zone_id'    => $c->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
 						'domain'          => $c->get_string( 'cdn.bunnycdn.cdn_hostname' ),
 					);
 					break;

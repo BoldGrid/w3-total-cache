@@ -97,6 +97,7 @@ class Cdn_Util {
 			$engine,
 			array(
 				'att',
+				'bunnycdn',
 				'cf2',
 				'cotendo',
 				'edgecast',
