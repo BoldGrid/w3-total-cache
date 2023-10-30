@@ -8,17 +8,34 @@
     .w3tc-card-container {
         grid-template-columns: 1fr;
     }
+	.w3tc-card-container-new {
+		grid-template-columns: 1fr;
+		row-gap: 2em;
+    }
+}
+
+@media screen and (min-width: 560px) {
+    .w3tc-card-container-new {
+		grid-template-columns: repeat(auto-fit, minmax(275px, .4fr));
+		grid-gap: 3em 4%;
+    }
 }
 
 @media screen and (min-width: 900px) {
     .w3tc-card-container {
         grid-template-columns: 1fr 1fr 1fr;
     }
+	.w3tc-card-container-new {
+        grid-gap: 3.75em 5%;
+    }
 }
 
 @media screen and (min-width: 1400px) {
     .w3tc-card-container {
         grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+	.w3tc-card-container-new {
+        grid-gap: 6em 7%;
     }
 }
 
@@ -32,9 +49,53 @@
     width: 100%;
 }
 
+.w3tc-card-container-divider {
+	border-top-color: #CFCFD0;
+}
+
 .w3tc-card-container {
     display: grid;
     grid-gap: 2em;
+}
+
+.w3tc-card-container-new {
+    display: grid;
+	justify-content: center;
+}
+
+.w3tc-card-container,
+.w3tc-card-container-new {
+	margin-top: 5em;
+	margin-bottom: 5em;
+}
+
+.w3tc-card-container-title {
+	text-align: center;
+	font-weight: 600 !important;
+	font-size: 30px !important;
+	margin: 10px 0 1em !important;
+	box-shadow: 0 1px 1px -1px #888;
+	background: #fff;
+	background-image: none;
+	background-image: none;
+	padding: 33px 10px !important;
+	background-image: linear-gradient( to right, #f9f9f9, #f9f9f9, #f9f9f9, #f0f0f0, #e7f3f3, #56bec1, #16252c);
+	position: relative;
+	padding-right: 280px;
+	border: 1px solid #c3c4c7;
+}
+
+.w3tc-card-container-title::after {
+	background-image: url("../img/transparent-comet.png");
+	background-repeat: no-repeat;
+	background-position: top right;
+	background-size: 100% 100%;
+	content: "";
+	width: 251px;
+	height: 104px;
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 
 .w3tc-card {
@@ -43,6 +104,11 @@
     display: flex;
     flex-direction: column;
     position: relative;
+}
+
+.w3tc-card-container-new .w3tc-card {
+	box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;;
+	border: none;
 }
 
 .w3tc-card-title {
@@ -104,61 +170,18 @@
 }
 
 .w3tc-card-ribbon-new {
-    height: 75px;
-    overflow: hidden;
-    position: absolute;
-    right: -5px;
-    top: -5px;
-    text-align: right;
-    width: 75px;
-    z-index: 1;
-}
-
-.w3tc-card-ribbon-new span {
-    background: #30bec3;
-    box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 0.5);
-    color: #fff;
-    display: block;
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 20px;
-    position: absolute;
-    right: -21px;
-    text-transform: uppercase;
     text-align: center;
-    top: 19px;
-    transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
-    /* Needed for Safari */
-    width: 100px;
+	padding: 7px 5px;
+	background: #69BCC3;
+	color: #fff;
 }
 
-.w3tc-card-ribbon-new span::before {
-    border-left: 3px solid #30bec3;
-    border-right: 3px solid transparent;
-    border-bottom: 3px solid transparent;
-    border-top: 3px solid #30bec3;
-    content: '';
-    left: 0px;
-    position: absolute;
-    top: 100%;
-    z-index: -1;
-}
-
-.w3tc-card-ribbon-new span::after {
-    border-right: 3px solid #30bec3;
-    border-left: 3px solid transparent;
-    border-bottom: 3px solid transparent;
-    border-top: 3px solid #30bec3;
-    content: '';
-    position: absolute;
-    right: 0%;
-    top: 100%;
-    z-index: -1;
+.w3tc-card-ribbon-new b {
+	font-weight: 600;
 }
 
 .w3tc-card-footer {
-    margin: 0 0 10px 10px;
+    margin: 0 0 20px 10px;
 }
 
 .w3tc-card-footer>div {
