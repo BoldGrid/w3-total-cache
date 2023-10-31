@@ -136,11 +136,8 @@ describe('', function() {
 		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
 		let content = await page.content();
 
-		expect(content).matches(new RegExp('Object Caching \\d+\\/\\d+ objects using '
-			+ 'disk'), 'Object cache is enabled');
-		expect(content).matches(new RegExp('Page Caching using disk'),
-			'Page caching is enabled');
-		expect(content).matches(new RegExp('Database Caching.+?using disk'),
-			'Database Caching is enabled');
+		expect(content).matches(new RegExp('Object Caching \\d+\\/\\d+ objects using Disk'), 'Object cache is enabled');
+		expect(content).matches(new RegExp('Page Caching using Disk'), 'Page caching is enabled');
+		expect(content).matches(new RegExp('Database Caching.+?using Disk'), 'Database Caching is enabled');
 	});
 });

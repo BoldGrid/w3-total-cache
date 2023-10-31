@@ -48,7 +48,7 @@ class Cdn_Core {
 		$table = $wpdb->base_prefix . W3TC_CDN_TABLE_QUEUE;
 		$rows  = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT id, command FROM ' . $table . 'WHERE local_path = %s AND remote_path = %s', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'SELECT id, command FROM ' . $table . ' WHERE local_path = %s AND remote_path = %s', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$local_path,
 				$remote_path
 			)
@@ -60,7 +60,7 @@ class Cdn_Core {
 			if ( $row->command != $command ) {
 				$wpdb->query(
 					$wpdb->prepare(
-						'DELETE FROM ' . $table . 'WHERE id = %d', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+						'DELETE FROM ' . $table . ' WHERE id = %d', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 						$row->id
 					)
 				);
@@ -76,7 +76,7 @@ class Cdn_Core {
 		// Insert if not yet there.
 		return $wpdb->query(
 			$wpdb->prepare(
-				'INSERT INTO ' . $table . '(local_path, remote_path, command, last_error, date) VALUES (%s, %s, %d, %s, NOW())', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'INSERT INTO ' . $table . ' (local_path, remote_path, command, last_error, date) VALUES (%s, %s, %d, %s, NOW())', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$local_path,
 				$remote_path,
 				$command,
