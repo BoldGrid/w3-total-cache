@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
-Tested up to: 6.3
-Stable tag: 2.5.0
+Tested up to: 6.4
+Stable tag: 2.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -287,7 +287,12 @@ Please reach out to all of these people and support their projects if you're so 
 
 = 2.6.0 =
 * Feature: Added support for Bunny.Net CDN
+* Feature: Preload requests (Pro)
 * Fix: Error when changing CDN cookie domain setting
+* Fix: Admin notice when flushing cache from the admin bar
+* Fix: Error in some Minify cache file operations
+* Fix: PHP 8 compatibility
+* Update: Delay scripts UI changes
 
 = 2.5.0 =
 * Feature: Added Delay Scripts (Pro)
