@@ -33,10 +33,10 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 <div class="w3tc-page-container">
 <?php
-foreach ( $cards_data as $type => $cards ) {
-	$class = 'new' === $type ? 'w3tc-card-container-new' : 'w3tc-card-container';
-	
-	echo $cards !== reset( $cards_data ) ? '<hr class="w3tc-card-container-divider"/>': '';
+foreach ( $cards_data as $card_type => $cards ) {
+	$class = 'new' === $card_type ? 'w3tc-card-container-new' : 'w3tc-card-container';
+
+	echo reset( $cards_data ) !== $cards ? '<hr class="w3tc-card-container-divider"/>' : '';
 	?>
 	<div class="<?php echo $class; ?>">
 	<?php
