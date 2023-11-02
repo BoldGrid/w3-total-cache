@@ -27,9 +27,11 @@ if (parseFloat(env.wpVersion) < 4.4) {
 	otherTheme = 'twentynineteen/twentynineteen';
 } else if (parseFloat(env.wpVersion) < 6.1) {
 	otherTheme = 'twentytwenty/twentytwenty';
-} else {
-	// WP 6.1.
+} else if (parseFloat(env.wpVersion) < 6.3) {
 	otherTheme = 'twentytwentythree/twentytwentythree';
+} else {
+	// WP 6.4.
+	otherTheme = 'twentytwentyfour/twentytwentyfour';
 }
 
 log.log('Switch to theme: ' + otherTheme);
@@ -130,12 +132,15 @@ describe('', function() {
 		} else if (theme[0] == 'twentytwentythree') {
 			css = await page.$eval('#wp-webfonts-inline-css',
 				(e) => e.innerHTML);
+		} else if (theme[0] == 'twentytwentyfour') {
+			css = await page.$eval('#wp-fonts-local',
+				(e) => e.innerHTML);
 		} else {
 			css = await page.$eval('link[type="text/css"]',
 				(e) => e.getAttribute('href'));
 		}
 
-		if (theme[0] == 'twentytwentythree') {
+		if (theme[0] == 'twentytwentythree' || theme[0] == 'twentytwentyfour') {
 			expect(css).contains('themes/' + theme[0] + '/assets/');
 		} else {
 			expect(css).contains('themes/' + theme[0] + '/style.css');

@@ -1,9 +1,14 @@
 <?php
+/**
+ * File: Cdn_StackPath2_Page_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die;
+
 ?>
 <tr>
 	<th style="width: 300px;">

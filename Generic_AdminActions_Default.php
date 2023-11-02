@@ -558,7 +558,9 @@ class Generic_AdminActions_Default {
 	 *
 	 * @return bool
 	 */
-	function enable_cookie_domain() {
+	public function enable_cookie_domain() {
+		WP_Filesystem();
+
 		global $wp_filesystem;
 
 		$config_path = Util_Environment::wp_config_path();
@@ -601,7 +603,9 @@ class Generic_AdminActions_Default {
 	 *
 	 * @return bool
 	 */
-	function disable_cookie_domain() {
+	public function disable_cookie_domain() {
+		WP_Filesystem();
+
 		global $wp_filesystem;
 
 		$config_path = Util_Environment::wp_config_path();

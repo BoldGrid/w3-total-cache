@@ -111,7 +111,9 @@ def generate_image_descriptors
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis',
 			'_except_name_contains' => [
-				'litespeed'
+				'litespeed',
+				'wp63', # wp6.3 requires php>=7.0
+				'wp64', # wp6.4 requires php>=7.0
 			]
 		}
 	})
@@ -185,16 +187,18 @@ def generate_box_descriptors(image_name)
 		#		'litespeed'
 		#	]
 		#},
-		'wp62' => {
-			'WP_VERSION' => '6.2',
+		'wp63' => {
+			'WP_VERSION' => '6.3',
 			'_except_name_contains' => [
-				'litespeed'
+				'litespeed',
+				'php56' # wp6.3 requires php>=7.0
 			]
 		},
-		'wp63' => {
-			'WP_VERSION' => '6.3-RC3',
+		'wp64' => {
+			'WP_VERSION' => '6.4-RC2',
 			'_except_name_contains' => [
-				'litespeed'
+				'litespeed',
+				'php56' # wp6.4 requires php>=7.0
 			]
 		}
 	}, image_name)
@@ -297,28 +301,28 @@ def generate_box_subenvironments(image_variables, box_variables)
 	if image_variables['FILESYSTEM'] != 'no'
 		subenvironments['cache-file'] = {
 			'CACHE_ENGINE_LABEL' => 'file',
-			'CACHE_ENGINE_NAME' => 'disk'
+			'CACHE_ENGINE_NAME' => 'Disk'
 
 		}
 		subenvironments['pagecache-file'] = {
 			'CACHE_ENGINE_LABEL' => 'file',
-			'CACHE_ENGINE_NAME' => 'disk'
+			'CACHE_ENGINE_NAME' => 'Disk'
 
 		}
 		subenvironments['pagecache-file_generic'] = {
 			'CACHE_ENGINE_LABEL' => 'file_generic',
-			'CACHE_ENGINE_NAME' => 'disk: enhanced'
+			'CACHE_ENGINE_NAME' => 'Disk: Enhanced'
 		}
 	end
 
 	if image_variables['APC'] == 'apc' or image_variables['APC'] == 'apcu'
 		subenvironments['cache-apc'] = {
 			'CACHE_ENGINE_LABEL' => 'apc',
-			'CACHE_ENGINE_NAME' => 'apc'
+			'CACHE_ENGINE_NAME' => 'APC'
 		}
 		subenvironments['pagecache-apc'] = {
 			'CACHE_ENGINE_LABEL' => 'apc',
-			'CACHE_ENGINE_NAME' => 'apc'
+			'CACHE_ENGINE_NAME' => 'APC'
 		}
 	end
 
@@ -326,33 +330,33 @@ def generate_box_subenvironments(image_variables, box_variables)
 			image_variables['MEMCACHE'] == 'memcached'
 		subenvironments['cache-memcached'] = {
 			'CACHE_ENGINE_LABEL' => 'memcached',
-			'CACHE_ENGINE_NAME' => 'memcache'
+			'CACHE_ENGINE_NAME' => 'Memcache'
 		}
 		subenvironments['pagecache-memcached'] = {
 			'CACHE_ENGINE_LABEL' => 'memcached',
-			'CACHE_ENGINE_NAME' => 'memcache'
+			'CACHE_ENGINE_NAME' => 'Memcache'
 		}
 	end
 
 	if image_variables['REDIS'] == 'redis'
 		subenvironments['cache-redis'] = {
 			'CACHE_ENGINE_LABEL' => 'redis',
-			'CACHE_ENGINE_NAME' => 'redis'
+			'CACHE_ENGINE_NAME' => 'Redis'
 		}
 		subenvironments['pagecache-redis'] = {
 			'CACHE_ENGINE_LABEL' => 'redis',
-			'CACHE_ENGINE_NAME' => 'redis'
+			'CACHE_ENGINE_NAME' => 'Redis'
 		}
 	end
 
 	if image_variables['XCACHE'] == 'xcache'
 		subenvironments['cache-xcache'] = {
 			'CACHE_ENGINE_LABEL' => 'xcache',
-			'CACHE_ENGINE_NAME' => 'xcache'
+			'CACHE_ENGINE_NAME' => 'XCache'
 		}
 		subenvironments['pagecache-xcache'] = {
 			'CACHE_ENGINE_LABEL' => 'xcache',
-			'CACHE_ENGINE_NAME' => 'xcache'
+			'CACHE_ENGINE_NAME' => 'XCache'
 		}
 	end
 

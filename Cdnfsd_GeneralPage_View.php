@@ -7,9 +7,8 @@
 
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die;
+
 ?>
 <p>
 	<?php
