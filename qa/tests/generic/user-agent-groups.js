@@ -27,7 +27,7 @@ if (parseFloat(env.wpVersion) < 4.4) {
 	otherTheme = 'twentynineteen/twentynineteen';
 } else if (parseFloat(env.wpVersion) < 6.1) {
 	otherTheme = 'twentytwenty/twentytwenty';
-} else if (parseFloat(env.wpVersion) < 6.3) {
+} else if (parseFloat(env.wpVersion) < 6.4) {
 	otherTheme = 'twentytwentythree/twentytwentythree';
 } else {
 	// WP 6.4.
