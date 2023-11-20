@@ -111,6 +111,12 @@ class Extensions_Util {
 				$w3_config->set_extension_active_frontend( $extension, true );
 			}
 
+			// Check for Image Service extension status changes.
+			if ( 'imageservice' === $extension ) {
+				$w3_config->set( 'extension.imageservice', true );
+			}
+
+			// Save the config, unless told not to.
 			try {
 				if ( ! $dont_save_config ) {
 					$w3_config->save();
@@ -150,6 +156,12 @@ class Extensions_Util {
 
 		$config->set_extension_active_frontend( $extension, false );
 
+		// Check for Image Service extension status changes.
+		if ( 'imageservice' === $extension ) {
+			$config->set( 'extension.imageservice', false );
+		}
+
+		// Save the config, unless told not to.
 		try {
 			if ( ! $dont_save_config ) {
 				$config->save();

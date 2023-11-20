@@ -9,13 +9,13 @@
 namespace W3TC;
 
 /**
- * Class: CdnEngine_Mirror_BunnyCDN
+ * Class: CdnEngine_Mirror_BunnyCdn
  *
  * @since X.X.X
  *
  * @extends CdnEngine_Mirror
  */
-class CdnEngine_Mirror_BunnyCDN extends CdnEngine_Mirror {
+class CdnEngine_Mirror_BunnyCdn extends CdnEngine_Mirror {
 	/**
 	 * Constructor.
 	 *
@@ -60,8 +60,14 @@ class CdnEngine_Mirror_BunnyCDN extends CdnEngine_Mirror {
 			return false;
 		}
 
+		if ( empty( $this->_config['cdn_hostname'] ) ) {
+			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, \__( 'Missing CDN hostname.', 'w3-total-cache' ) );
+
+			return false;
+		}
+
 		$url_prefixes = $this->url_prefixes();
-		$api          = new Cdn_BunnyCDN_Api( $this->_config );
+		$api          = new Cdn_BunnyCdn_Api( $this->_config );
 		$results      = array();
 
 		try {
