@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Cdn_BunnyCDN_Popup.php
+ * File: Cdn_BunnyCdn_Popup.php
  *
  * @since   X.X.X
  * @package W3TC
