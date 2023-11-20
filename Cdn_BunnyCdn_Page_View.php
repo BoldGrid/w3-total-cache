@@ -102,14 +102,15 @@ $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.b
 			</label>
 		</th>
 		<td class="w3tc_config_value_text">
-			<?php echo esc_html( $config->get_string( 'cdn.bunnycdn.cdn_hostname' ) ); ?>
+		<input id="w3tc_bunnycdn_hostname" type="text" name="cdn__bunnycdn__cdn_hostname"
+			value="<?php echo esc_html( $config->get_string( 'cdn.bunnycdn.cdn_hostname' ) ); ?>" size="100" />
 			<p class="description">
 				<?php
 				echo wp_kses(
 					sprintf(
 						// translators: 1: Opening HTML acronym tag, 2: Closing HTML acronym tag.
 						esc_html__(
-							'The %1$sCDN%2$s hostname is used in media links on pages.',
+							'The %1$sCDN%2$s hostname is used in media links on pages.  For example: example.b-cdn.net',
 							'w3-total-cache'
 						),
 						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
