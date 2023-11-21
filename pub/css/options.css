@@ -297,16 +297,19 @@ textarea.w3tc-error {
 #mobile_groups th,
 #referrer_groups th,
 .w3tc_cachegroups th,
+.w3tc_remove_cssjs_singles th,
 #mobile_groups td,
 #referrer_groups td,
 .w3tc_cachegroups td,
+.w3tc_remove_cssjs_singles td,
 #cachegroups_form .form-table th {
 	padding: 10px 10px 10px 15px;
 }
 
 #mobile_groups li,
 #referrer_groups li,
-.w3tc_cachegroups li {
+.w3tc_cachegroups li,
+.w3tc_remove_cssjs_singles li {
 	cursor: ns-resize;
 	list-style: none;
 	background: #f9f9f9;
@@ -318,13 +321,15 @@ textarea.w3tc-error {
 
 #mobile_groups li:hover,
 #referrer_groups li:hover,
-.w3tc_cachegroups li:hover {
+.w3tc_cachegroups li:hover,
+.w3tc_remove_cssjs_singles li:hover {
 	background: #f5f5f5;
 }
 
 #mobile_groups li table,
 #referrer_groups li table,
-.w3tc_cachegroups li table {
+.w3tc_cachegroups li table,
+.w3tc_remove_cssjs_singles li table {
 	margin: 0;
 }
 
