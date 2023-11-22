@@ -31,17 +31,17 @@ jQuery(function() {
 						'<li id="remove_cssjs_singles_' + single + '">' +
 						'<table class="form-table">' +
 						'<tr>' +
-						'<th>CSS/JS Path:</th>' +
+						'<th>CSS/JS path to remove:</th>' +
 						'<td>' +
 						'<span class="remove_cssjs_singles_path">' + single + '</span> ' +
 						'<input type="button" class="button w3tc_remove_cssjs_singles_delete" value="Delete" />' +
 						'</td>' +
 						'</tr>' +
 						'<tr>' +
-						'<th><label for="remove_cssjs_singles_' + single + '_includes">Pages to remove on:</label></th>' +
+						'<th><label for="remove_cssjs_singles_' + single + '_includes">Remove on these pages:</label></th>' +
 						'<td>' +
-						'<textarea id="remove_cssjs_singles_' + single + '_includes" name="user-experience-remove-cssjs-singles[' + single + '][includes]" rows="10" cols="50"></textarea>' +
-						'<p class="description">Specify page slugs that the above CSS/JS should be removed from. Include one entry per line.</p>' +
+						'<textarea id="remove_cssjs_singles_' + single + '_includes" name="user-experience-remove-cssjs-singles[' + single + '][includes]" rows="5" cols="50"></textarea>' +
+						'<p class="description">Specify relative/absolute page URLs that the above CSS/JS should be removed from. Include one entry per line.</p>' +
 						'</td>' +
 						'</tr>' +
 						'</table>' +

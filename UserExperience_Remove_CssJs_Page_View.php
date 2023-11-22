@@ -58,7 +58,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 			<table class="form-table">
 				<tr>
 					<th>
-						<?php esc_html_e( 'CSS/JS Path:', 'w3-total-cache' ); ?>
+						<?php esc_html_e( 'CSS/JS path to remove:', 'w3-total-cache' ); ?>
 					</th>
 					<td>
 						<span class="remove_cssjs_singles_path"><?php echo htmlspecialchars( $single ); // phpcs:ignore ?></span>
@@ -68,13 +68,13 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 					<tr>
 					<th>
 						<label for="remove_cssjs_singles_<?php echo esc_attr( $single ); ?>_includes">
-							<?php esc_html_e( 'Pages to remove on:', 'w3-total-cache' ); ?>
+							<?php esc_html_e( 'Remove on these pages:', 'w3-total-cache' ); ?>
 						</label>
 					</th>
 					<td>
-						<textarea id="remove_cssjs_singles_<?php echo esc_attr( $single ); ?>_includes" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single ); ?>][includes]" rows="10" cols="50" ><?php echo esc_textarea( implode( "\r\n", (array) $single_config['includes'] ) ); ?></textarea>
+						<textarea id="remove_cssjs_singles_<?php echo esc_attr( $single ); ?>_includes" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single ); ?>][includes]" rows="5" cols="50" ><?php echo esc_textarea( implode( "\r\n", (array) $single_config['includes'] ) ); ?></textarea>
 						<p class="description">
-							<?php esc_html_e( 'Specify page slugs that the above CSS/JS should be removed from. Include one entry per line.', 'w3-total-cache' ); ?>
+							<?php esc_html_e( 'Specify relative/absolute page URLs that the above CSS/JS should be removed from. Include one entry per line.', 'w3-total-cache' ); ?>
 						</p>
 					</td>
 				</tr>

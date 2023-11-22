@@ -319,6 +319,10 @@ textarea.w3tc-error {
 	-moz-border-radius: 8px;
 }
 
+.w3tc_remove_cssjs_singles li {
+	cursor: default;
+}
+
 #mobile_groups li:hover,
 #referrer_groups li:hover,
 .w3tc_cachegroups li:hover,

@@ -82,20 +82,8 @@ class UserExperience_Remove_CssJs_Mutator {
 		$this->singles_includes = $this->config->get_array( 'user-experience-remove-cssjs-singles' );
 
 		$buffer = preg_replace_callback(
-			'~<link.*?href.*?/>~is',
-			array(
-				$this,
-				'remove_styles',
-			),
-			$buffer
-		);
-
-		$buffer = preg_replace_callback(
-			'~<script.*?src.*?<\/script>~is',
-			array(
-				$this,
-				'remove_scripts',
-			),
+			'~(<link.*?href.*?/>)|(<script.*?src.*?<\/script>)~is',
+			array( $this, 'remove_content' ),
 			$buffer
 		);
 
@@ -103,60 +91,19 @@ class UserExperience_Remove_CssJs_Mutator {
 	}
 
 	/**
-	 * Removes style tag for style matched to be removed.
+	 * Removes matched link/script tag from HTML content.
 	 *
 	 * @since 2.7.0
 	 *
-	 * @param array $matches array of matched CSS entries.
+	 * @param array $matches array of matched CSS/JS entries.
 	 *
 	 * @return string
 	 */
-	public function remove_styles( $matches ) {
+	public function remove_content( $matches ) {
 		$content = $matches[0];
 
 		if ( is_main_query() && $this->is_content_included( $content ) ) {
-			$count   = 0;
-			$content = preg_replace(
-				'~<link.*?href.*?/>~is',
-				'',
-				$content,
-				-1,
-				$count
-			);
-
-			if ( $count > 0 ) {
-				$this->modified = true;
-			}
-		}
-
-		return $content;
-	}
-
-	/**
-	 * Removes script tag for script matched to be removed.
-	 *
-	 * @since 2.7.0
-	 *
-	 * @param array $matches array of matched JS entries.
-	 *
-	 * @return string
-	 */
-	public function remove_scripts( $matches ) {
-		$content = $matches[0];
-
-		if ( is_main_query() && $this->is_content_included( $content ) ) {
-			$count   = 0;
-			$content = preg_replace(
-				'~<script.*?src.*?<\/script>~is',
-				'',
-				$content,
-				-1,
-				$count
-			);
-
-			if ( $count > 0 ) {
-				$this->modified = true;
-			}
+			return '';
 		}
 
 		return $content;
@@ -183,14 +130,33 @@ class UserExperience_Remove_CssJs_Mutator {
 			}
 		}
 
+		// Build array of possible current page relative/absolute URLs.
+		$current_pages = array(
+			$wp->request,
+			trailingslashit( $wp->request ),
+			home_url( $wp->request ),
+			trailingslashit( home_url( $wp->request ) ),
+		);
+
 		// Only removes matched CSS/JS on matching pages.
 		foreach ( $this->singles_includes as $include => $pages ) {
-			if ( ! empty( $pages ) && in_array( ) ) {
-				foreach ( $pages as $page ) {
-					if ( home_url( $wp->request ) === $page && strpos( $content, $include ) !== false ) {
-						return true;
-					}
-				}
+			if (
+				! empty( $pages )
+				// Check if the given single CSS/JS remove rule URL is present in HTML content.
+				&& strpos( $content, $include ) !== false
+				// Check if current page matches defined pages for given single CSS/JS remove rule.
+				&& array_intersect(
+					$current_pages,
+					// Remove leading / value from included page value(s) as the $wp->request excludes them.
+					array_map(
+						function ( $value ) {
+							return ltrim( $value, '/' );
+						},
+						$pages['includes']
+					)
+				)
+			) {
+				return true;
 			}
 		}
 
