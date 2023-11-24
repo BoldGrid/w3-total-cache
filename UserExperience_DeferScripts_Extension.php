@@ -53,7 +53,7 @@ class UserExperience_DeferScripts_Extension {
 			return;
 		}
 
-		Util_Bus::add_ob_callback( 'lazyload', array( $this, 'ob_callback' ) );
+		Util_Bus::add_ob_callback( 'deferscripts', array( $this, 'ob_callback' ) );
 
 		add_filter( 'w3tc_minify_js_script_tags', array( $this, 'w3tc_minify_js_script_tags' ) );
 		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ) );

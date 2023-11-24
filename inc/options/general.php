@@ -960,12 +960,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				? Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' )
 				: ''
 		);
-
-		if ( $this->_config->get_boolean( 'extension.imageservice' ) ) {
-			Extensions_Util::activate_extension( 'imageservice', $this->_config );
-		} else {
-			Extensions_Util::deactivate_extension( 'imageservice', $this->_config );
-		}
 		?>
 		<table class="form-table">
 			<?php
