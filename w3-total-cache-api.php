@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.5.0' );
+define( 'W3TC_VERSION', '2.6.1' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -35,6 +35,9 @@ define( 'W3TC_NEWRELIC_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/newrel
 define( 'W3TC_STACKPATH_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/stackpath/authorize' );
 define( 'W3TC_STACKPATH2_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/stackpath2/authorize' );
 define( 'W3TC_GOOGLE_DRIVE_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/googledrive/authorize' );
+define( 'W3TC_BUNNYCDN_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/signup' );
+define( 'W3TC_BUNNYCDN_SETTINGS_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/settings' );
+define( 'W3TC_BUNNYCDN_CDN_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/cdn' );
 
 // Image Service rate constants.
 define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 100 );

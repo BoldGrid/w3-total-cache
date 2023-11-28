@@ -138,14 +138,15 @@ class UserExperience_Preload_Requests_Extension {
 	 * @return void
 	 */
 	public function w3tc_preload_requests_headers() {
-		$dns_prefetch = $this->config->get_array( array( 'user-experience-preload-requests', 'dns-prefetch' ) );
-		foreach ( $dns_prefetch as $url ) {
-			echo '<link rel="dns-prefetch" href="' . esc_url( $url ) . '">';
-		}
-
+		// Preconnect hints should be printed first so they take priority. If not supported then dns-prefetch will be the fallback.
 		$preconnect = $this->config->get_array( array( 'user-experience-preload-requests', 'preconnect' ) );
 		foreach ( $preconnect as $url ) {
 			echo '<link rel="preconnect" href="' . esc_url( $url ) . '" crossorigin>';
+		}
+		
+		$dns_prefetch = $this->config->get_array( array( 'user-experience-preload-requests', 'dns-prefetch' ) );
+		foreach ( $dns_prefetch as $url ) {
+			echo '<link rel="dns-prefetch" href="' . esc_url( $url ) . '">';
 		}
 
 		$preload_css = $this->config->get_array( array( 'user-experience-preload-requests', 'preload-css' ) );

@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
-Tested up to: 6.3
-Stable tag: 2.5.0
+Tested up to: 6.4
+Stable tag: 2.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -285,12 +285,28 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.6.1 =
+* Fix: WebP Converter extension activation
+* Fix: Media Library upload may fail when using Bunny CDN
+* Fix: Cloudflare API error when updating certain settings
+* Fix: Lazy Loading issue with the Delay Scripts feature enabled
+* Update: Allow custom hostname changes for Bunny CDN
+
+= 2.6.0 =
+* Feature: Added support for Bunny.Net CDN
+* Feature: Preload requests (Pro)
+* Fix: Error when changing CDN cookie domain setting
+* Fix: Admin notice when flushing cache from the admin bar
+* Fix: Error in some Minify cache file operations
+* Fix: PHP 8 compatibility
+* Update: Delay scripts UI changes
+
 = 2.5.0 =
 * Feature: Added Delay Scripts (Pro)
 * Fix: Several PHP 8 warnings
 * Fix: Fragment Cache extension PHP warnings when no engine was selected
 * Fix: Fragment Cache engine selection disabled for pro license under certain conditions
-* Fix: Added Database Cluster compatiblity for older db.php files
+* Fix: Added Database Cluster compatibility for older db.php files
 * Fix: Fixed one PageSpeed tool metric not outputting data and adjusted a few labels
 * Fix: Multiple anchor links for PageSpeed block on General Settings page
 * Fix: Cache Groups validation on save
