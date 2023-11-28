@@ -17,69 +17,55 @@ class Extension_FragmentCache_Plugin {
 	 * Runs plugin
 	 */
 	function run() {
-		add_filter( 'w3tc_config_default_values', array(
-				$this, 'w3tc_config_default_values' ) );
+		add_filter( 'w3tc_config_default_values', array( $this, 'w3tc_config_default_values' ) );
 
-		$config = Dispatcher::config();
-		// remainder only when extension is frontend-active
-		if ( !$config->is_extension_active_frontend( 'fragmentcache' ) )
+		/**
+		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
+		*/
+		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
+
+		$is_active = $this->_config->is_extension_active_frontend( 'fragmentcache' );
+		$engine    = $this->_config->get_string( array( 'fragmentcache', 'engine' ) );
+
+		// remainder only when extension is frontend-active.
+		if ( ! $is_active || empty( $engine ) ) {
 			return;
+		}
 
 		add_action( 'init', array( $this, 'on_init' ), 9999999 );
 
-		add_filter( 'cron_schedules', array(
-				$this,
-				'cron_schedules'
-			) );
+		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
+		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
 
-		add_filter( 'w3tc_footer_comment', array(
-				$this,
-				'w3tc_footer_comment'
-			) );
-
-		if ( $this->_config->get_string( array( 'fragmentcache', 'engine' ) ) == 'file' ) {
-			add_action( 'w3_fragmentcache_cleanup', array(
-					$this,
-					'cleanup'
-				) );
+		if ( 'file' === $engine ) {
+			add_action( 'w3_fragmentcache_cleanup', array( $this, 'cleanup' ) );
 		}
 
-		add_action( 'switch_blog', array(
-				$this,
-				'switch_blog'
-			), 0, 2 );
+		add_action( 'switch_blog', array( $this, 'switch_blog' ), 0, 2 );
 
 		$groups = $this->_config->get_array( array( 'fragmentcache', 'groups' ) );
 		foreach ( $groups as $group ) {
-			$split = explode( ',', $group );
-			$group = array_shift( $split );
+			$split   = explode( ',', $group );
+			$group   = array_shift( $split );
 			$actions = $split;
-			$this->_core->register_group( $group, $actions,
-				$this->_config->get_integer( array( 'fragmentcache', 'lifetime' ) ) );
+			$this->_core->register_group( $group, $actions, $this->_config->get_integer( array( 'fragmentcache', 'lifetime' ) ) );
 		}
 
-		// handle transients by own cache
+		// handle transients by own cache.
 		if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			$wp_cache = Dispatcher::component( 'ObjectCache_WpObjectCache' );
 			$fc_cache = Dispatcher::component( 'Extension_FragmentCache_WpObjectCache' );
-			$wp_cache->register_cache( $fc_cache, array(
-					'transient', 'site-transient' ) );
+			$wp_cache->register_cache( $fc_cache, array( 'transient', 'site-transient' ) );
 		}
 
-		// flush operations
-		add_action( 'w3tc_flush_all',
-			array( $this, 'w3tc_flush_all' ),
-			300 );
-		add_action( 'w3tc_flush_fragmentcache', array(
-				$this, 'w3tc_flush_fragmentcache' ) );
-		add_action( 'w3tc_flush_fragmentcache_group', array(
-				$this, 'w3tc_flush_fragmentcache_group' ), 10, 2 );
+		// flush operations.
+		add_action( 'w3tc_flush_all', array( $this, 'w3tc_flush_all' ), 300 );
+		add_action( 'w3tc_flush_fragmentcache', array( $this, 'w3tc_flush_fragmentcache' ) );
+		add_action( 'w3tc_flush_fragmentcache_group', array( $this, 'w3tc_flush_fragmentcache_group' ), 10, 2 );
 
-		// usage statistics handling
-		add_action( 'w3tc_usage_statistics_of_request', array(
-				$this, 'w3tc_usage_statistics_of_request' ), 10, 1 );
-		add_filter( 'w3tc_usage_statistics_metrics', array(
-				$this, 'w3tc_usage_statistics_metrics' ) );
+		// usage statistics handling.
+		add_action( 'w3tc_usage_statistics_of_request', array( $this, 'w3tc_usage_statistics_of_request' ), 10, 1 );
+		add_filter( 'w3tc_usage_statistics_metrics', array( $this, 'w3tc_usage_statistics_metrics' ) );
 	}
 
 
@@ -211,6 +197,24 @@ class Extension_FragmentCache_Plugin {
 	public function w3tc_usage_statistics_metrics( $metrics ) {
 		return array_merge( $metrics, array(
 				'fragmentcache_calls_total', 'fragmentcache_calls_hits' ) );
+	}
+
+	/**
+	 * Specify config key typing for fields that need it.
+	 *
+	 * @since 2.4.2
+	 *
+	 * @param mixed $descriptor Descriptor.
+	 * @param mixed $key Compound key array.
+	 *
+	 * @return array
+	 */
+	public function w3tc_config_key_descriptor( $descriptor, $key ) {
+		if ( is_array( $key ) && 'fragmentcache.groups' === implode( '.', $key ) ) {
+			$descriptor = array( 'type' => 'array' );
+		}
+
+		return $descriptor;
 	}
 }
 

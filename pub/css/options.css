@@ -60,12 +60,14 @@
 	display: none;
 }
 
-.w3tc-enabled {
+.w3tc-enabled,
+.w3tc-authorized {
 	color: #090;
 	font-weight: 700;
 }
 
-.w3tc-disabled {
+.w3tc-disabled,
+.w3tc-not-authorized {
 	color: #f00;
 	font-weight: 700;
 }
@@ -97,6 +99,12 @@ input.w3tc-error,
 textarea.w3tc-error {
 	background: none;
 	border: 1px solid #f99;
+}
+
+#memcached_test_status,
+#redis_test_status {
+	display: inline-block;
+	vertical-align: top;
 }
 
 .w3tc-status {
@@ -1477,6 +1485,11 @@ td .w3tc-control-after span {
 	.w3tc-button-control-container .dropdown-menu .dropdown-item {
 		padding-left: 10px;
 		padding-right: 10px;
+	}
+	#memcached_test_status,
+	#redis_test_status {
+		display: inline-block;
+		vertical-align: middle;
 	}
 }
 

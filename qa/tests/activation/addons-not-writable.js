@@ -118,7 +118,7 @@ async function expectPageCachingWorks() {
 	await page.goto(env.homeUrl, {waitUntil: 'domcontentloaded'});
 
 	// trying to write a dummy word into the cached file
-	await w3tc.updateCacheEntry(adminPage, env.homeUrl, false, 'file', 'disk');
+	await w3tc.updateCacheEntry(adminPage, env.homeUrl, false, 'file', 'Disk');
 	//box.onPageChangedOutside(test);
 
 	log.log('checking content of updated cache entry');

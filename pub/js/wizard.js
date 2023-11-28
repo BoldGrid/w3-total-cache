@@ -52,7 +52,14 @@
 
 		// GA.
 		if ( window.w3tc_ga ) {
-			w3tc_ga( 'send', 'event', 'button', page, 'skip' );
+			w3tc_ga(
+				'event',
+				'button',
+				{
+					eventCategory: page,
+					eventLabel: 'skip'
+				}
+			);
 		}
 
 		jQuery.ajax({

@@ -77,5 +77,5 @@ async function expectResponseCorrect(response) {
 	let content = await page.content();
 	expect(content).not.contains('echo');
 	expect(content).contains('4428840');
-	w3tc.expectPageCachingMethod(content, 'disk');
+	w3tc.expectPageCachingMethod(content, 'Disk');
 }

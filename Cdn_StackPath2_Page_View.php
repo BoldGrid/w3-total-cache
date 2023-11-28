@@ -1,44 +1,15 @@
 <?php
+/**
+ * File: Cdn_StackPath2_Page_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
-?>
-<?php if ( ! $authorized ) : ?>
-	<tr>
-		<th style="width: 300px;"><label><?php esc_html_e( 'Create account:', 'w3-total-cache' ); ?></label></th>
-		<td>
-			<p class="notice notice-error">
-				<?php
-				w3tc_e(
-					'cdn.stackpath.widget.v2.no_cdn',
-					sprintf(
-						// translators: 1 HTML acronym for Content Delivery Network (CDN).
-						__( 'W3 Total Cache has detected that you do not have a %1$s configured', 'w3-total-cache' ),
-						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
-					)
-				);
-				?>
-			</p>
-			<p>
-				<?php esc_html_e( 'Enhance your website Performance with StackPath\'s CDN services. StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $10 a month.', 'w3-total-cache' ); ?>
-			</p>
-			<p>
-				<a href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL ); ?>" target="_blank" id="stackpath-create-account" class="button-primary"><?php w3tc_e( 'cdn.stackpath2.signUpAndSave', __( 'Sign Up Now and save!', 'w3-total-cache' ) ); ?></a>
-			</p>
-			<p class="description">
-				<?php
-				w3tc_e(
-					'cdn.stackpath2.signUpAndSave.description',
-					__( 'StackPath is a service that lets you speed up your site even more with W3 Total Cache. Sign up now to recieve a special offer!', 'w3-total-cache' )
-				);
-				?>
-			</p>
-		</td>
-	</tr>
-<?php endif; ?>
+defined( 'W3TC' ) || die;
 
+?>
 <tr>
 	<th style="width: 300px;">
 		<label>

@@ -77,7 +77,7 @@ class PageSpeed_Widget {
 			'<div class="w3tc-widget-pagespeed-logo"></div>' .
 				'<div class="w3tc-widget-text">' . esc_html__( 'PageSpeed Report', 'w3-total-cache' ) . '</div>',
 			array( $this, 'widget_pagespeed' ),
-			Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ),
+			Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_pagespeed' ),
 			'normal'
 		);
 	}
@@ -129,7 +129,7 @@ class PageSpeed_Widget {
 								'Before you can get started using the Google PageSpeed tool, you’ll first need to authorize access. Please click %1$s.',
 								'w3-total-cache'
 							),
-							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_page_speed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#google_pagespeed' ) ) . '" target="_blank">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
 						),
 					)
 				);

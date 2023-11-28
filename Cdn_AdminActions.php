@@ -413,6 +413,7 @@ class Cdn_AdminActions {
 				$engine == 'stackpath2' ||
 				$engine == 'rackspace_cdn' ||
 				$engine == 'rscf' ||
+				'bunnycdn' === $engine ||
 				$engine == 's3_compatible' ) {
 				// those use already stored w3tc config
 				$w3_cdn = Dispatcher::component( 'Cdn_Core' )->get_cdn();
@@ -462,57 +463,71 @@ class Cdn_AdminActions {
 		$container_id = '';
 
 		switch ( $engine ) {
-		case 's3':
-		case 'cf':
-		case 'cf2':
-		case 'azure':
-			$w3_cdn = CdnEngine::instance( $engine, $config );
+			case 's3':
+			case 'cf':
+			case 'cf2':
+			case 'azure':
+				$w3_cdn = CdnEngine::instance( $engine, $config );
 
-			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) );
+				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) );
 
-			$result = false;
-			try {
-				$container_id = $w3_cdn->create_container();
-				$result = true;
-				$error = __( 'Created successfully.', 'w3-total-cache' );
-			} catch ( \Exception $ex ) {
-				$error = sprintf( __( 'Error: %s', 'w3-total-cache' ),
-					$ex->getMessage() );
-			}
+				$result = false;
 
-			break;
-		default:
-			$result = false;
-			$error = __( 'Incorrect type.', 'w3-total-cache' );
+				try {
+					$container_id = $w3_cdn->create_container();
+					$result = true;
+					$error = __( 'Created successfully.', 'w3-total-cache' );
+				} catch ( \Exception $ex ) {
+					$error = sprintf(
+						__( 'Error: %s', 'w3-total-cache' ),
+						$ex->getMessage()
+					);
+				}
+
+				break;
+
+			default:
+				$result = false;
+				$error = __( 'Incorrect type.', 'w3-total-cache' );
 		}
 
 		$response = array(
-			'result' => $result,
-			'error' => $error,
-			'container_id' => $container_id
+			'result'       => $result,
+			'error'        => $error,
+			'container_id' => $container_id,
 		);
 
 		echo json_encode( $response );
 	}
 
+	/**
+	 * Redirect to the Bunny CDN signup page.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_cdn_bunnycdn_signup() {
+		try {
+			$state = Dispatcher::config_state();
+			$state->set( 'track.bunnycdn_signup', time() );
+			$state->save();
+		} catch ( \Exception $ex ) {} // phpcs:ignore
+		Util_Environment::redirect( W3TC_BUNNYCDN_SIGNUP_URL );
+	}
 
-
+	/**
+	 * Test CDN URL.
+	 *
+	 * @param string $url URL.
+	 */
 	private function test_cdn_url( $url ) {
 		$response = wp_remote_get( $url );
-		if ( is_wp_error( $response ) )
+		if ( is_wp_error( $response ) ) {
 			return false;
-		else {
+		} else {
 			$code = wp_remote_retrieve_response_code( $response );
 			return 200 == $code;
 		}
-	}
-
-	function w3tc_cdn_stackpath_signup() {
-		try {
-			$state = Dispatcher::config_state();
-			$state->set( 'track.stackpath_signup', time() );
-			$state->save();
-		} catch ( \Exception $ex ) {}
-		Util_Environment::redirect( W3TC_STACKPATH_SIGNUP_URL );
 	}
 }

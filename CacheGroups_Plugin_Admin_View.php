@@ -68,7 +68,7 @@ if ( ! defined( 'W3TC' ) ) {
 						<td>
 							<input type="hidden" name="mobile_groups[<?php echo esc_attr( $group ); ?>][enabled]" value="0" />
 							<input id="mobile_groups_<?php echo esc_attr( $group ); ?>_enabled"
-								type="checkbox"
+								class="mobile_group_enabled" type="checkbox"
 								name="mobile_groups[<?php echo esc_attr( $group ); ?>][enabled]"
 								<?php disabled( $useragent_groups['disabled'] ); ?> value="1"
 								<?php checked( $group_config['enabled'], true ); ?> />
@@ -122,7 +122,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</li>
 			<?php endforeach; ?>
 		</ul>
-		<div id="mobile_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All user agents recieve the same page and minify cache results.', 'w3-total-cache' ); ?></div>
+		<div id="mobile_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All user agents receive the same page and minify cache results.', 'w3-total-cache' ); ?></div>
 
 		<?php
 		Util_Ui::postbox_footer();
@@ -184,7 +184,10 @@ if ( ! defined( 'W3TC' ) ) {
 						</th>
 						<td>
 							<input type="hidden" name="referrer_groups[<?php echo esc_attr( $group ); ?>][enabled]" value="0" />
-							<input id="referrer_groups_<?php echo esc_attr( $group ); ?>_enabled" type="checkbox" name="referrer_groups[<?php echo esc_attr( $group ); ?>][enabled]" value="1"<?php checked( $group_config['enabled'], true ); ?> />
+							<input id="referrer_groups_<?php echo esc_attr( $group ); ?>_enabled"
+								class="referrer_group_enabled" type="checkbox"
+								name="referrer_groups[<?php echo esc_attr( $group ); ?>][enabled]"
+								value="1"<?php checked( $group_config['enabled'], true ); ?> />
 						</td>
 					</tr>
 					<tr>
@@ -223,7 +226,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</li>
 			<?php endforeach; ?>
 		</ul>
-		<div id="referrer_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All referrers recieve the same page and minify cache results.', 'w3-total-cache' ); ?></div>
+		<div id="referrer_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All referrers receive the same page and minify cache results.', 'w3-total-cache' ); ?></div>
 
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
@@ -267,7 +270,7 @@ if ( ! defined( 'W3TC' ) ) {
 						</th>
 						<td>
 							<input id="cookiegroup_<?php echo esc_attr( $group ); ?>_enabled"
-								type="checkbox"
+								class="cookiegroup_enabled" type="checkbox"
 								name="cookiegroups[<?php echo esc_attr( $group ); ?>][enabled]"
 								<?php disabled( $cookie_groups['disabled'] ); ?> value="1"
 								<?php checked( $group_config['enabled'], true ); ?> />
@@ -284,7 +287,8 @@ if ( ! defined( 'W3TC' ) ) {
 								type="checkbox"
 								name="cookiegroups[<?php echo esc_attr( $group ); ?>][cache]"
 								<?php disabled( $cookie_groups['disabled'] ); ?> value="1"
-								<?php checked( $group_config['cache'], true ); ?> />
+								<?php checked( $group_config['cache'], true ); ?> /> <?php esc_html_e( 'Enable', 'w3-total-cache' ); ?>
+							<p class="description"><?php esc_html_e( 'Controls whether web pages can be cached or not when cookies from this group are detected.', 'w3-total-cache' ); ?></p>
 						</td>
 					</tr>
 					<tr>
@@ -306,7 +310,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</li>
 			<?php endforeach; ?>
 		</ul>
-		<div id="cookiegroups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All Cookies recieve the same page and minify cache results.', 'w3-total-cache' ); ?></div>
+		<div id="cookiegroups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All Cookies receive the same page and minify cache results.', 'w3-total-cache' ); ?></div>
 
 		<?php
 		Util_Ui::postbox_footer();

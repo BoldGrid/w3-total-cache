@@ -588,11 +588,30 @@ if ( ! defined( 'W3TC' ) ) {
 					'description' => esc_html__( 'Advanced protection from Distributed Denial of Service (DDoS) attacks on your website.', 'w3-total-cache' ),
 				)
 			);
-			self::cloudflare_textbox(
+			self::cloudflare_selectbox(
 				$settings,
 				array(
 					'key'         => 'max_upload',
 					'label'       => esc_html__( 'Max upload:', 'w3-total-cache' ),
+					'values'      => array(
+						'100' => '100 MB',
+						'125' => '125 MB (Business+)',
+						'150' => '150 MB (Business+)',
+						'175' => '175 MB (Business+)',
+						'200' => '200 MB (Business+)',
+						'225' => '225 MB (Enterprise)',
+						'250' => '250 MB (Enterprise)',
+						'275' => '275 MB (Enterprise)',
+						'300' => '300 MB (Enterprise)',
+						'325' => '325 MB (Enterprise)',
+						'350' => '350 MB (Enterprise)',
+						'375' => '375 MB (Enterprise)',
+						'400' => '400 MB (Enterprise)',
+						'425' => '425 MB (Enterprise)',
+						'450' => '450 MB (Enterprise)',
+						'475' => '475 MB (Enterprise)',
+						'500' => '500 MB (Enterprise)',
+					),
 					'description' => esc_html__( 'Max size of file allowed for uploading', 'w3-total-cache' ),
 				)
 			);

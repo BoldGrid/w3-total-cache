@@ -62,10 +62,11 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 			'W3TC_TERMS_ACCEPT_URL',
 			'W3TC_MAILLINGLIST_SIGNUP_URL',
 			'W3TC_NEWRELIC_SIGNUP_URL',
-			'W3TC_STACKPATH_SIGNUP_URL',
 			'W3TC_STACKPATH_AUTHORIZE_URL',
 			'W3TC_STACKPATH2_AUTHORIZE_URL',
 			'W3TC_GOOGLE_DRIVE_AUTHORIZE_URL',
+			'W3TC_BUNNYCDN_SETTINGS_URL',
+			'W3TC_BUNNYCDN_CDN_URL',
 			'W3TC_LICENSE_API_URL',
 			'W3TC_PURCHASE_URL',
 			'W3TC_PURCHASE_PRODUCT_NAME',
@@ -403,7 +404,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 		$this->assertNull(
 			w3tc_add_action(
 				'w3tc_test_action',
-				function() {
+				function () {
 					echo 'Test.';
 				}
 			)
@@ -434,7 +435,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	public function test_w3tc_apply_filters() {
 		w3tc_add_action(
 			'w3tc_test_filter',
-			function() {
+			function () {
 				return 'Filter test.';
 			}
 		);

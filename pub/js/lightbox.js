@@ -60,16 +60,21 @@ var W3tc_Lightbox = {
 		} else if (this.options.url) {
 			this.load(this.options.url, this.options.callback);
 
-			if (typeof ga != 'undefined') {
+			if (window.w3tc_ga) {
 				var w3tc_action = this.options.url.match(/w3tc_action=([^&]+)/);
-				if (window.w3tc_ga) {
-					if (w3tc_action && w3tc_action[1])
-						w3tc_ga('send', 'pageview', 'overlays/' + w3tc_action[1]);
-					else {
-						var w3tc_action = this.options.url.match(/&(w3tc_[^&]+)&/);
-						if (w3tc_action && w3tc_action[1])
-							w3tc_ga('send', 'pageview', 'overlays/' + w3tc_action[1]);
-					}
+
+				if (! w3tc_action || ! w3tc_action[1]) {
+					w3tc_action = this.options.url.match(/&(w3tc_[^&]+)&/);
+				}
+
+				if (w3tc_action && w3tc_action[1]) {
+					w3tc_ga(
+						'event',
+						'pageview',
+						{
+							eventLabel: 'overlays/' + w3tc_action[1]
+						}
+					);
 				}
 			}
 		}
@@ -148,7 +153,7 @@ var W3tc_Lightbox = {
 	 * adds all controls of the form to the url
 	 */
 	load_form: function(url, form_selector, callback) {
-		data = {}
+		data = {};
 		var v = jQuery(form_selector).find('input').each(function(i) {
 			var name = jQuery(this).attr('name');
 			var type = jQuery(this).attr('type');
@@ -385,9 +390,7 @@ function w3tc_lightbox_self_test(nonce) {
 function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 	var client_id = '';
 	if (window.w3tc_ga) {
-		w3tc_ga(function(tracker) {
-			client_id = tracker.get('clientId');
-		});
+		client_id = w3tc_ga_cid;
 	}
 
   	W3tc_Lightbox.open({
@@ -412,9 +415,11 @@ function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 		jQuery('#w3tc-purchase-link', lightbox.container).on( 'click', function() {
 			lightbox.close();
 
-			jQuery([document.documentElement, document.body]).animate({
-				scrollTop: jQuery("#licensing").offset().top
-			}, 2000);
+			if ( jQuery('#licensing').length ) {
+				jQuery([document.documentElement, document.body]).animate({
+					scrollTop: jQuery('#licensing').offset().top
+				}, 2000);
+			}
 		});
 
 		// Allow for customizations of the "upgrade" overlay specifically.

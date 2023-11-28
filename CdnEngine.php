@@ -1,104 +1,113 @@
 <?php
+/**
+ * File: CdnEngine.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * class CdnEngine
+ * Class: CdnEngine
  */
 class CdnEngine {
 	/**
-	 * Returns CdnEngine_Base instance
+	 * Returns CdnEngine_Base instance.
 	 *
-	 * @param string  $engine
-	 * @param array   $config
+	 * @param string $engine CDN engine.
+	 * @param array  $config Configuration.
 	 * @return CdnEngine_Base
 	 */
-	static function instance( $engine, $config = array() ) {
+	public static function instance( $engine, array $config = array() ) {
 		static $instances = array();
+		$instance_key     = sprintf( '%s_%s', $engine, md5( serialize( $config ) ) );
 
-		$instance_key = sprintf( '%s_%s', $engine, md5( serialize( $config ) ) );
-
-		if ( !isset( $instances[$instance_key] ) ) {
+		if ( ! isset( $instances[ $instance_key ] ) ) {
 			switch ( $engine ) {
-			case 'akamai':
-				$instances[$instance_key] = new CdnEngine_Mirror_Akamai( $config );
-				break;
+				case 'akamai':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_Akamai( $config );
+					break;
 
-			case 'att':
-				$instances[$instance_key] = new CdnEngine_Mirror_Att( $config );
-				break;
+				case 'att':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_Att( $config );
+					break;
 
-			case 'azure':
-				$instances[$instance_key] = new CdnEngine_Azure( $config );
-				break;
+				case 'azure':
+					$instances[ $instance_key ] = new CdnEngine_Azure( $config );
+					break;
 
-			case 'cf':
-				$instances[$instance_key] = new CdnEngine_CloudFront( $config );
-				break;
+				case 'bunnycdn':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_BunnyCdn( $config );
+					break;
 
-			case 'cf2':
-				$instances[$instance_key] = new CdnEngine_Mirror_CloudFront( $config );
-				break;
+				case 'cf':
+					$instances[ $instance_key ] = new CdnEngine_CloudFront( $config );
+					break;
 
-			case 'cotendo':
-				$instances[$instance_key] = new CdnEngine_Mirror_Cotendo( $config );
-				break;
+				case 'cf2':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_CloudFront( $config );
+					break;
 
-			case 'edgecast':
-				$instances[$instance_key] = new CdnEngine_Mirror_Edgecast( $config );
-				break;
+				case 'cotendo':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_Cotendo( $config );
+					break;
 
-			case 'ftp':
-				$instances[$instance_key] = new CdnEngine_Ftp( $config );
-				break;
+				case 'edgecast':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_Edgecast( $config );
+					break;
 
-			case 'google_drive':
-				$instances[$instance_key] = new CdnEngine_GoogleDrive( $config );
-				break;
+				case 'ftp':
+					$instances[ $instance_key ] = new CdnEngine_Ftp( $config );
+					break;
 
-			case 'highwinds':
-				$instances[$instance_key] = new CdnEngine_Mirror_Highwinds( $config );
-				break;
+				case 'google_drive':
+					$instances[ $instance_key ] = new CdnEngine_GoogleDrive( $config );
+					break;
 
-			case 'limelight':
-				$instances[$instance_key] = new CdnEngine_Mirror_LimeLight( $config );
-				break;
+				case 'highwinds':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_Highwinds( $config );
+					break;
 
-			case 'mirror':
-				$instances[$instance_key] = new CdnEngine_Mirror( $config );
-				break;
+				case 'limelight':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_LimeLight( $config );
+					break;
 
-			case 'rackspace_cdn':
-				$instances[$instance_key] = new CdnEngine_Mirror_RackSpaceCdn( $config );
-				break;
+				case 'mirror':
+					$instances[ $instance_key ] = new CdnEngine_Mirror( $config );
+					break;
 
-			case 'rscf':
-				$instances[$instance_key] =
-					new CdnEngine_RackSpaceCloudFiles( $config );
-				break;
+				case 'rackspace_cdn':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_RackSpaceCdn( $config );
+					break;
 
-			case 's3':
-				$instances[$instance_key] = new CdnEngine_S3( $config );
-				break;
+				case 'rscf':
+					$instances[ $instance_key ] = new CdnEngine_RackSpaceCloudFiles( $config );
+					break;
 
-			case 's3_compatible':
-				$instances[$instance_key] = new CdnEngine_S3_Compatible( $config );
-				break;
+				case 's3':
+					$instances[ $instance_key ] = new CdnEngine_S3( $config );
+					break;
 
-			case 'stackpath':
-				$instances[$instance_key] = new CdnEngine_Mirror_StackPath( $config );
-				break;
+				case 's3_compatible':
+					$instances[ $instance_key ] = new CdnEngine_S3_Compatible( $config );
+					break;
 
-			case 'stackpath2':
-				$instances[$instance_key] = new CdnEngine_Mirror_StackPath2( $config );
-				break;
+				case 'stackpath':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_StackPath( $config );
+					break;
 
-			default :
-				trigger_error( 'Incorrect CDN engine', E_USER_WARNING );
-				$instances[$instance_key] = new CdnEngine_Base();
-				break;
+				case 'stackpath2':
+					$instances[ $instance_key ] = new CdnEngine_Mirror_StackPath2( $config );
+					break;
+
+				default:
+					empty( $engine ) || trigger_error( 'Incorrect CDN engine', E_USER_WARNING );
+
+					$instances[ $instance_key ] = new CdnEngine_Base();
+					break;
 			}
 		}
 
-		return $instances[$instance_key];
+		return $instances[ $instance_key ];
 	}
 }

@@ -209,7 +209,7 @@ class Util_Ui {
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
 		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
 		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
-		
+
 		$extra_link_tabs = '';
 		foreach ( $extra_links as $extra_link_text => $extra_link ) {
 			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>';
@@ -336,7 +336,7 @@ class Util_Ui {
 
 		?>
 		<div class="btn-group w3tc-button-flush-dropdown">
-			<input type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>"/>
+			<input id="flush_all" type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>"/>
 			<button type="button" class="btn btn-light btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				<span class="sr-only">Toggle Dropdown</span>
 			</button>
@@ -372,11 +372,13 @@ class Util_Ui {
 				if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
 				}
-				if ( $config->get_boolean( 'cdn.enabled' ) ) {
-					$disable = $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ';
+				if ( $config->get_boolean( 'cdn.enabled' ) || $config->get_boolean( 'cdnfsd.enabled' ) ) {
+					$disable = ( $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ) ||
+						( $config->get_boolean( 'cdnfsd.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdnfsd.engine' ) ) ) ?
+							'' : ' disabled="disabled" ';
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
 				}
-				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) ) {
+				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) && ! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_html__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'varnish.enabled' ) ) {
@@ -1110,17 +1112,26 @@ class Util_Ui {
 			echo "</th>\n<td>\n";
 		}
 
+		if ( isset( $a['pro'] ) ) {
+			self::pro_wrap_maybe_start();
+		}
+
 		$c = Dispatcher::config();
 		self::checkbox2(
 			array(
-				'name'  => 'extension__' . self::config_key_to_http_name( $a['extension_id'] ),
-				'value' => $c->is_extension_active_frontend( $a['extension_id'] ),
-				'label' => $a['checkbox_label'],
+				'name'     => 'extension__' . self::config_key_to_http_name( $a['extension_id'] ),
+				'value'    => $c->is_extension_active_frontend( $a['extension_id'] ),
+				'label'    => $a['checkbox_label'],
+				'disabled' => isset( $a['disabled'] ) ? $a['disabled'] : false,
 			)
 		);
 
 		if ( isset( $a['description'] ) ) {
 			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
+		}
+
+		if ( isset( $a['pro'] ) ) {
+			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $a['extension_id'] ) );
 		}
 
 		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
@@ -1142,12 +1153,24 @@ class Util_Ui {
 			echo "</th>\n<td>\n";
 		}
 
-		self::pro_wrap_maybe_start();
+		// If wrap_separate is not set we wrap everything.
+		if ( ! isset( $a['wrap_separate'] ) ) {
+			self::pro_wrap_maybe_start();
+		}
 
 		self::control2( $a );
 
 		if ( isset( $a['control_after'] ) ) {
 			echo wp_kses( $a['control_after'], self::get_allowed_html_for_wp_kses_from_content( $a['control_after'] ) );
+		}
+
+		// If wrap_separate is set we wrap only the description.
+		if ( isset( $a['wrap_separate'] ) ) {
+			// If not pro we add a spacer for better separation of control element and wrapper.
+			if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+				echo '<br/><br/>';
+			}
+			self::pro_wrap_maybe_start();
 		}
 
 		if ( isset( $a['description'] ) ) {
@@ -1422,10 +1445,15 @@ class Util_Ui {
 	}
 
 	/**
-	 * Returns option name accepted by W3TC as http paramter
-	 * from it's id (full name from config file)
+	 * Returns option name accepted by W3TC as http paramter from its id (full name from config file).
+	 *
+	 * @param mixed $id ID key string/array.
+	 *
+	 * @return string
 	 */
 	public static function config_key_to_http_name( $id ) {
+		$id = isset( $id ) ? $id : '';
+
 		if ( is_array( $id ) ) {
 			$id = $id[0] . '___' . $id[1];
 		}
@@ -1497,6 +1525,7 @@ class Util_Ui {
 		$config            = Dispatcher::config();
 		$state             = Dispatcher::config_state();
 		$page              = Util_Admin::get_current_page();
+		$show_purge_link   = 'bunnycdn' === $config->get_string( 'cdn.engine' ) || 'bunnycdn' === $config->get_string( 'cdnfsd.engine' );
 		$licensing_visible = (
 			( ! Util_Environment::is_wpmu() || is_network_admin() ) &&
 			! ini_get( 'w3tc.license_key' ) &&
@@ -1594,6 +1623,10 @@ class Util_Ui {
 						array(
 							'id'   => 'debug',
 							'text' => esc_html__( 'Debug', 'w3-total-cache' ),
+						),
+						array(
+							'id'   => 'image_service',
+							'text' => esc_html__( 'WebP Converter', 'w3-total-cache' ),
 						),
 						array(
 							'id'   => 'google_pagespeed',
@@ -1802,7 +1835,15 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
-					<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
+				<?php if ( ! empty( $config->get_string( 'cdn.engine' ) ) ) : ?>
+					<a href="#configuration"><?php esc_html_e( 'Configuration (Objects)', 'w3-total-cache' ); ?></a> |
+				<?php endif; ?>
+				<?php if ( ! empty( $config->get_string( 'cdnfsd.engine' ) ) ) : ?>
+					<a href="#configuration-fsd"><?php esc_html_e( 'Configuration (FSD)', 'w3-total-cache' ); ?></a> |
+				<?php endif; ?>
+				<?php if ( $show_purge_link ) : ?>
+					<a href="#purge-urls"><?php esc_html_e( 'Purge', 'w3-total-cache' ); ?></a> |
+				<?php endif; ?>
 					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
 					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
 				</div>
@@ -1812,7 +1853,20 @@ class Util_Ui {
 			case 'w3tc_userexperience':
 				?>
 				<div id="w3tc-options-menu">
-					<!--<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a>-->
+					<?php
+					$subnav_links = array( '<a href="#lazy-loading">' . esc_html__( 'Lazy Loading', 'w3-total-cache' ) . '</a>' );
+
+					if ( UserExperience_DeferScripts_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#application">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
+					}
+
+					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#application">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
+					}
+
+					// If there's only 1 meta box on the page, no need for nav links.
+					echo count( $subnav_links ) > 1 ? implode( ' | ', $subnav_links ) : '';
+					?>
 				</div>
 				<?php
 				break;

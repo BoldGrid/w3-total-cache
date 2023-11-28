@@ -7,9 +7,8 @@
 
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die;
+
 ?>
 <p>
 	<?php
@@ -21,35 +20,8 @@ if ( ! defined( 'W3TC' ) ) {
 			'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
 		)
 	);
-
-	if ( ! $cdnfsd_enabled ) {
-		echo '&nbsp;' . wp_kses(
-			sprintf(
-				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-				// translators: 3 opening HTML a tag to W3TC MaxCDN Signup admin page, 4 closing HTML a tag.
-				__(
-					'If you do not have a %1$sCDN%2$s provider try StackPath. %3$sSign up now to enjoy a special offer!%4$s.',
-					'w3-total-cache'
-				),
-				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-				'</acronym>',
-				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_stackpath_signup' ), 'w3tc' ) ) . '" target="_blank">',
-				'</a>'
-			),
-			array(
-				'acronym' => array(
-					'title' => array(),
-				),
-				'a'       => array(
-					'href'   => array(),
-					'target' => array(),
-				),
-			)
-		);
-	}
 	?>
 </p>
-
 <table class="form-table">
 	<?php
 	Util_Ui::config_item_pro(

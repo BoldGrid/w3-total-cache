@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
-Tested up to: 6.2
-Stable tag: 2.3.3
+Tested up to: 6.4
+Stable tag: 2.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,7 +61,7 @@ https://youtu.be/7AsNSSrZq4Y
 * Caching statistics for performance insights of any enabled feature
 * Extension framework for customization or extensibility for Cloudflare, WPML and much more
 * Reverse proxy integration via Nginx or Varnish
-* Image Service API extension provides WebP image format conversion from common image formats (on upload and on demand)
+* WebP Converter extension provides WebP image format conversion from common image formats (on upload and on demand)
 
 Speed up your site tremendously, improve core web vitals and the overall user experience for your visitors without having to change your WordPress host, theme, plugins or your content production workflow.
 
@@ -222,11 +222,11 @@ Typically, you should tell your web host about the permission issue and they sho
 
 You can however try adding <em>define('FS_METHOD', 'direct');</em> to wp-config.php to circumvent the file and folder checks.
 
-= Does the Image Service extension use a lot of resources to convert images to WebP? =
+= Does the WebP Converter extension use a lot of resources to convert images to WebP? =
 
-No.  The Image Service extension converts common image file formats to the modern WebP format using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
+No.  The WebP Converter extension converts common image file formats to the modern WebP format using our API services.  The conversions occur on our API service, so that resource usage does not impact your website server.
 
-= Is image data retained by the Total Cache Image Service API? =
+= Is image data retained by the Total Cache WebP Converter API? =
 
 Image data received by our API is destroyed after a converted image is generated.  The converted iamges are destroyed once picked-up/downloaded to your website by the Total Cache plugin.
 
@@ -284,6 +284,50 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.6.1 =
+* Fix: WebP Converter extension activation
+* Fix: Media Library upload may fail when using Bunny CDN
+* Fix: Cloudflare API error when updating certain settings
+* Fix: Lazy Loading issue with the Delay Scripts feature enabled
+* Update: Allow custom hostname changes for Bunny CDN
+
+= 2.6.0 =
+* Feature: Added support for Bunny.Net CDN
+* Feature: Preload requests (Pro)
+* Fix: Error when changing CDN cookie domain setting
+* Fix: Admin notice when flushing cache from the admin bar
+* Fix: Error in some Minify cache file operations
+* Fix: PHP 8 compatibility
+* Update: Delay scripts UI changes
+
+= 2.5.0 =
+* Feature: Added Delay Scripts (Pro)
+* Fix: Several PHP 8 warnings
+* Fix: Fragment Cache extension PHP warnings when no engine was selected
+* Fix: Fragment Cache engine selection disabled for pro license under certain conditions
+* Fix: Added Database Cluster compatibility for older db.php files
+* Fix: Fixed one PageSpeed tool metric not outputting data and adjusted a few labels
+* Fix: Multiple anchor links for PageSpeed block on General Settings page
+* Fix: Cache Groups validation on save
+* Fix: Cache Groups delete button not working for added groups
+* Update: Renamed Image Service feature to WebP Converter
+* Update: Added WebP Converter block to General Settings page along with link to navigation bar
+* Update: StackPath CDN prices (Service ending November 22, 2023 and will be replaced by Bunny CDN in future update)
+
+= 2.4.1 =
+* Fix: Add a fallback for the older version of wp-content/db.php
+
+= 2.4.0 =
+* Feature: Added filter "w3tc_config_item_objectcache.enabled" to allow for disabling W3TC object cache
+* Fix: Auto-apply W3TC Pro license after purchase via in-plugin purchase/upgrade buttons
+* Fix: PHP 8 warnings for Page and Fragment caches
+* Fix: Replaced delete_blog deprecated hook with wp_uninitialize_site and wp_update_site
+* Fix: Database Cluster configuration file save issue
+* Fix: Fragment cache will now be disabled for non-pro users instead of being only disabled on the front-end
+* Fix: Premium services widget list is now synced with the support page
+* Update: User interface updated for cleaner appearance and easier navigation and control
+* Update: Added support for get/set/add/delete wp_xxx_multiple methods to Object cache
 
 = 2.3.3 =
 * Fix: Fragment Cache: Fatal error when displaying registered groups
@@ -425,7 +469,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Enhancement: Improved handling of Image Service rate-limiting and error messages
 
 = 2.2.0 =
-* Feature: Image Service API extension: WebP conversion options
+* Feature: Image Service extension: WebP conversion options
 
 = 2.1.9 =
 * Fix: Cloudflare Dashboard Widget: Updated to use GraphQL

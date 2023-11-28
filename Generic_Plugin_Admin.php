@@ -171,9 +171,7 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Admin init
-	 *
-	 * @return void
+	 * Admin init.
 	 */
 	public function admin_init() {
 		// Special handling for deactivation link, it's plugins.php file.
@@ -181,176 +179,121 @@ class Generic_Plugin_Admin {
 			Util_Activation::deactivate_plugin();
 		}
 
-		// These have been moved here as the admin_print_scripts-{$suffix} hook with translations won't take the user locale setting
-		// into account if it's called too soon, resulting in JS not loading.
-
-		// Translations are needed as the "prefix" used is based on the menu/page title, which is translated (11+ year old WP bug).
+		/**
+		 * These have been moved here as the admin_print_scripts-{$suffix} hook with translations won't take the user locale setting
+		 * into account if it's called too soon, resulting in JS not loading.
+		 *
+		 * Translations are needed as the "prefix" used is based on the menu/page title, which is translated (11+ year old WP bug).
+		 */
 
 		// Support page.
 		add_action(
 			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_support',
-			array(
-				'\W3TC\Support_Page',
-				'admin_print_scripts_w3tc_support',
-			)
+			array( '\W3TC\Support_Page', 'admin_print_scripts_w3tc_support' )
 		);
 
 		// Minify.
 		add_action(
 			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_general',
-			array(
-				'\W3TC\Minify_Plugin_Admin',
-				'admin_print_scripts_w3tc_general',
-			)
+			array( '\W3TC\Minify_Plugin_Admin', 'admin_print_scripts_w3tc_general' )
 		);
 
 		// PageCache.
 		add_action(
 			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_pgcache',
-			array(
-				'\W3TC\PgCache_Page',
-				'admin_print_scripts_w3tc_pgcache',
-			)
+			array( '\W3TC\PgCache_Page', 'admin_print_scripts_w3tc_pgcache' )
 		);
 
 		// Extensions.
 		add_action(
 			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_extensions',
-			array(
-				'\W3TC\Extension_CloudFlare_Page',
-				'admin_print_scripts_w3tc_extensions',
-			)
+			array( '\W3TC\Extension_CloudFlare_Page', 'admin_print_scripts_performance_page_w3tc_cdn' )
 		);
 
 		// Usage Statistics.
 		add_action(
 			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_stats',
-			array(
-				'\W3TC\UsageStatistics_Page',
-				'admin_print_scripts_w3tc_stats',
-			)
+			array( '\W3TC\UsageStatistics_Page', 'admin_print_scripts_w3tc_stats' )
 		);
 
-		$c             = Dispatcher::config();
-		$cdn_engine    = $c->get_string( 'cdn.engine' );
-		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
+		$c = Dispatcher::config();
 
 		// CDN.
-		if ( 'google_drive' === $cdn_engine ) {
+		switch ( $c->get_string( 'cdn.engine' ) ) {
+			case 'bunnycdn':
+				$cdn_class = '\W3TC\Cdn_BunnyCdn_Page';
+				break;
+			case 'google_drive':
+				$cdn_class = '\W3TC\Cdn_GoogleDrive_Page';
+				break;
+			case 'highwinds':
+				$cdn_class = '\W3TC\Cdn_Highwinds_Page';
+				break;
+			case 'limelight':
+				$cdn_class = '\W3TC\Cdn_LimeLight_Page';
+				break;
+			case 'rackspace_cdn':
+				$cdn_class = '\W3TC\Cdn_RackSpaceCdn_Page';
+				break;
+			case 'rscf':
+				$cdn_class = '\W3TC\Cdn_RackSpaceCloudFiles_Page';
+				break;
+			case 'stackpath':
+				$cdn_class = '\W3TC\Cdn_StackPath_Page';
+				break;
+			case 'stackpath2':
+				$cdn_class = '\W3TC\Cdn_StackPath2_Page';
+				break;
+			default:
+				break;
+		}
+
+		if ( ! empty( $cdn_class ) ) {
 			add_action(
 				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdn_GoogleDrive_Page',
-					'admin_print_scripts_w3tc_cdn',
-				)
-			);
-		} elseif ( 'highwinds' === $cdn_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdn_Highwinds_Page',
-					'admin_print_scripts_w3tc_cdn',
-				)
-			);
-		} elseif ( 'limelight' === $cdn_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdn_LimeLight_Page',
-					'admin_print_scripts_w3tc_cdn',
-				)
-			);
-		} elseif ( 'rackspace_cdn' === $cdn_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdn_RackSpaceCdn_Page',
-					'admin_print_scripts_w3tc_cdn',
-				)
-			);
-		} elseif ( 'rscf' === $cdn_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdn_RackSpaceCloudFiles_Page',
-					'admin_print_scripts_w3tc_cdn',
-				)
-			);
-		} elseif ( 'stackpath' === $cdn_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdn_StackPath_Page',
-					'admin_print_scripts_w3tc_cdn',
-				)
-			);
-		} elseif ( 'stackpath2' === $cdn_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdn_StackPath2_Page',
-					'admin_print_scripts_w3tc_cdn',
-				)
+				array( $cdn_class, 'admin_print_scripts_w3tc_cdn' )
 			);
 		}
 
 		// CDNFSD.
-		if ( 'cloudflare' === $cdnfsd_engine ) {
+		switch ( $c->get_string( 'cdnfsd.engine' ) ) {
+			case 'bunnycdn':
+				$cdnfsd_class = '\W3TC\Cdnfsd_BunnyCdn_Page';
+				break;
+			case 'cloudflare':
+				$cdnfsd_class = '\W3TC\Extension_CloudFlare_Page';
+				break;
+			case 'cloudfront':
+				$cdnfsd_class = '\W3TC\Cdnfsd_CloudFront_Page';
+				break;
+			case 'limelight':
+				$cdnfsd_class = '\W3TC\Cdnfsd_LimeLight_Page';
+				break;
+			case 'stackpath':
+				$cdnfsd_class = '\W3TC\Cdnfsd_StackPath_Page';
+				break;
+			case 'stackpath2':
+				$cdnfsd_class = '\W3TC\Cdnfsd_StackPath2_Page';
+				break;
+			default:
+				break;
+		}
+
+		if ( ! empty( $cdnfsd_class ) ) {
 			add_action(
 				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Extension_CloudFlare_Page',
-					'admin_print_scripts_w3tc_extensions',
-				)
-			);
-		} elseif ( 'cloudfront' === $cdnfsd_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdnfsd_CloudFront_Page',
-					'admin_print_scripts_performance_page_w3tc_cdn',
-				)
-			);
-		} elseif ( 'limelight' === $cdnfsd_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdnfsd_LimeLight_Page',
-					'admin_print_scripts_performance_page_w3tc_cdn',
-				)
-			);
-		} elseif ( 'stackpath' === $cdnfsd_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdnfsd_StackPath_Page',
-					'admin_print_scripts_performance_page_w3tc_cdn',
-				)
-			);
-		} elseif ( 'stackpath2' === $cdnfsd_engine ) {
-			add_action(
-				'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_cdn',
-				array(
-					'\W3TC\Cdnfsd_StackPath2_Page',
-					'admin_print_scripts_performance_page_w3tc_cdn',
-				)
+				array( $cdnfsd_class, 'admin_print_scripts_performance_page_w3tc_cdn' )
 			);
 		}
 
 		// PageSpeed page/widget.
 		add_action(
 			'admin_print_scripts-' . sanitize_title( __( 'Performance', 'w3-total-cache' ) ) . '_page_w3tc_pagespeed',
-			array(
-				'\W3TC\PageSpeed_Page',
-				'admin_print_scripts_w3tc_pagespeed',
-			)
+			array( '\W3TC\PageSpeed_Page', 'admin_print_scripts_w3tc_pagespeed' )
 		);
 		add_action(
 			'admin_print_scripts-toplevel_page_w3tc_dashboard',
-			array(
-				'\W3TC\PageSpeed_Widget',
-				'admin_print_scripts_w3tc_pagespeed_widget',
-			)
+			array( '\W3TC\PageSpeed_Widget', 'admin_print_scripts_w3tc_pagespeed_widget' )
 		);
 
 		$page_val = Util_Request::get_string( 'page' );
@@ -380,9 +323,7 @@ class Generic_Plugin_Admin {
 		wp_localize_script(
 			'w3tc-feature-counter',
 			'W3TCFeatureShowcaseData',
-			array(
-				'unseenCount' => FeatureShowcase_Plugin_Admin::get_unseen_count(),
-			)
+			array( 'unseenCount' => FeatureShowcase_Plugin_Admin::get_unseen_count() )
 		);
 
 		wp_enqueue_script( 'w3tc-feature-counter' );
@@ -464,39 +405,52 @@ class Generic_Plugin_Admin {
 			}
 
 			if ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) {
-				$profile = 'UA-2264433-7';
+				$profile = 'G-Q3CHQJWERM';
 			} else {
-				$profile = 'UA-2264433-8';
+				$profile = 'G-5TFS8M5TTY';
 			}
 
 			$state = Dispatcher::config_state();
 
+			wp_enqueue_script(
+				'w3tc_ga',
+				'https://www.googletagmanager.com/gtag/js?id=' . esc_attr( $profile ),
+				array(),
+				W3TC_VERSION,
+				true
+			);
 			?>
-			<script type="text/javascript">
-				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-				})(window,document,'script','https://api.w3-edge.com/v1/analytics','w3tc_ga');
+			<script type="application/javascript">
+				var w3tc_ga_cid;
 
-				if (window.w3tc_ga) {
-					w3tc_ga('create', '<?php echo esc_html( $profile ); ?>', 'auto');
-					w3tc_ga('set', {
-						'dimension1': 'w3-total-cache',
-						'dimension2': '<?php echo esc_html( W3TC_VERSION ); ?>',
-						'dimension3': '<?php echo esc_html( $wp_version ); ?>',
-						'dimension4': 'php<?php echo esc_html( phpversion() ); ?>',
-						'dimension5': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
-						'dimension6': 'mysql<?php echo esc_attr( $wpdb->db_version() ); ?>',
-						'dimension7': '<?php echo esc_url( Util_Environment::home_url_host() ); ?>',
-						'dimension9': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
-						'dimension10': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
-						'dimension11': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
+				window.dataLayer = window.dataLayer || [];
 
+				function w3tc_ga(){dataLayer.push(arguments);}
+
+				w3tc_ga('js', new Date());
+
+				w3tc_ga('config', '<?php echo esc_attr( $profile ); ?>', {
+					'user_properties': {
+						'plugin': 'w3-total-cache',
+						'w3tc_version': '<?php echo esc_html( W3TC_VERSION ); ?>',
+						'wp_version': '<?php echo esc_html( $wp_version ); ?>',
+						'php_version': 'php<?php echo esc_html( phpversion() ); ?>',
+						'server_software': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
+						'wpdb_version': 'mysql<?php echo esc_attr( $wpdb->db_version() ); ?>',
+						'home_url': '<?php echo esc_url( Util_Environment::home_url_host() ); ?>',
+						'w3tc_install_version': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
+						'w3tc_edition': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
+						'w3tc_widgets': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
 						'page': '<?php echo esc_attr( $page ); ?>'
-					});
+					}
+				});
 
-					w3tc_ga('send', 'pageview');
-				}
+				const cidPromise = new Promise(resolve => {
+					w3tc_ga('get', '<?php echo esc_attr( $profile ); ?>', 'client_id', resolve);
+				});
+				cidPromise.then((cid) => {
+					w3tc_ga_cid = cid;
+				});
 			</script>
 			<?php
 		}
@@ -632,6 +586,8 @@ class Generic_Plugin_Admin {
 						'cdn.flush_manually',
 						Cdn_Util::get_flush_manually_default_override( $this->_config->get_string( 'cdn.engine' ) )
 					),
+					'cdnfsdEnabled'    => $this->_config->get_boolean( 'cdnfsd.enabled' ),
+					'cdnfsdEngine'     => $this->_config->get_string( 'cdnfsd.engine' ),
 					'cfWarning'        => wp_kses(
 						sprintf(
 							// translators: 1: HTML opening a tag to docs.aws.amazon.com for invalidation payments, 2: HTML closing a tag followed by HTML line break tag,
@@ -653,6 +609,10 @@ class Generic_Plugin_Admin {
 							),
 							'br' => array(),
 						)
+					),
+					'bunnyCdnWarning'  => esc_html__(
+						'Bunny CDN should only be enabled as either a CDN for objects or full-site delivery, not both at the same time.  The CDN settings have been reverted.',
+						'w3-total-cache'
 					),
 				)
 			);
@@ -852,11 +812,9 @@ class Generic_Plugin_Admin {
 				}
 				$line = preg_replace( '~^\s*\*\s*~', '', htmlspecialchars( $line ) );
 				echo '<li style="width: 50%; margin: 0; float: left; ' . ( 0 === $index % 2 ? 'clear: left;' : '' ) . '">' . esc_html( $line ) . '</li>';
-			} else {
-				if ( $ul ) {
-					echo '</ul><div style="clear: left;"></div>';
-					$ul = false;
-				}
+			} elseif ( $ul ) {
+				echo '</ul><div style="clear: left;"></div>';
+				$ul = false;
 			}
 		}
 
