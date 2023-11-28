@@ -19,7 +19,7 @@ class Extension_Wpml_Plugin_Admin {
 
 			if ( !$state->get_boolean( 'wpml.hide_note_language_negotiation_type' ) ) {
 				$notes[] = sprintf(
-					__( 'W3 Total Cache\'s Page caching cannot work effectively when WPML Language URL formatis "Language name added as a parameter" used. Please consider another URL format. Visit the WPML -&gt; Languages settings. %s' ,
+					__( 'W3 Total Cache\'s Page caching cannot work effectively when WPML Language URL format is "Language name added as a parameter" used. Please consider another URL format. Visit the WPML -&gt; Languages settings. %s',
 						'w3-total-cache' ),
 					Util_Ui::button_hide_note2( array(
 							'w3tc_default_config_state' => 'y',
@@ -111,7 +111,7 @@ class Extension_Wpml_Plugin_Admin {
 
 		$config = Dispatcher::config();
 		if ( !Util_Environment::is_w3tc_pro( $config ) )
-			$activate_text = 'Available after <a href="#" class="button-buy-plugin" data-src="wpml_requirements3">upgrade</a>. ';
+		$activate_text = 'Available after <a href="#" class="button-buy-plugin" data-src="wpml_requirements3">upgrade</a>. ';
 		else {
 			$activate_text = sprintf( '<a class="button" href="%s">Click here</a> to try it. ',
 				Util_Ui::url( array( 'w3tc_extensions_activate' => $extension_id ) ) );

@@ -50,7 +50,7 @@ class Cdnfsd_StackPath2_Popup {
 		$api = new Cdn_StackPath2_Api( $api_config );
 
 		try {
-			$r = $r = $api->stacks_list();
+			$r = $api->stacks_list();
 			$stacks = $r['results'];
 		} catch ( \Exception $ex ) {
 			$error_message = 'Can\'t authenticate: ' . $ex->getMessage();

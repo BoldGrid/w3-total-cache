@@ -13,13 +13,14 @@
 		$nextButton = $container.find( '#w3tc-wizard-next '),
 		$previousButton = $container.find( '#w3tc-wizard-previous ');
 
-	jQuery( '.button-buy-plugin' ).parent().remove();
-
 	$skipLink.on( 'click', skipFunction );
 	$skipButton.on( 'click', skipFunction );
 
 	jQuery( window ).on( 'beforeunload', function() {
-		return W3TC_Wizard.beforeunloadText;
+		var $previousSlide = $container.find( '.w3tc-wizard-slides:visible' ).prev( '.w3tc-wizard-slides' );
+		if ( $previousSlide.length ) {
+			return W3TC_Wizard.beforeunloadText;
+		}
 	});
 
 	// Listen for clicks to go to the W3TC Dashboard.
@@ -51,7 +52,14 @@
 
 		// GA.
 		if ( window.w3tc_ga ) {
-			w3tc_ga( 'send', 'event', 'button', page, 'skip' );
+			w3tc_ga(
+				'event',
+				'button',
+				{
+					eventCategory: page,
+					eventLabel: 'skip'
+				}
+			);
 		}
 
 		jQuery.ajax({

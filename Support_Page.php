@@ -49,7 +49,7 @@ class Support_Page {
 				'field_value' => $w3tc_support_field_value,
 				'postprocess' => urlencode( urlencode(
 					Util_Ui::admin_url(
-						wp_nonce_url( 'admin.php', 'w3tc' ) . '&page=w3tc_support&done'
+						wp_nonce_url( 'admin.php', 'w3tc' ) . '&page=w3tc_support&done=1'
 					) ) )
 			)
 		);
@@ -74,7 +74,8 @@ class Support_Page {
 			Licensing_Core::terms_accept();
 
 			include  W3TC_DIR . '/Support_Page_View_DoneContent.php';
-		} else
+		} else {
 			include  W3TC_DIR . '/Support_Page_View_PageContent.php';
+		}
 	}
 }

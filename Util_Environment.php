@@ -141,17 +141,26 @@ class Util_Environment {
 		 * Using wp-content instead of document_root as known dir since dirbased
 		 * multisite wp adds blogname to the path inside site_url.
 		 */
-		if ( substr( $filename, 0, strlen( WP_CONTENT_DIR ) ) !== WP_CONTENT_DIR ) {
+		if ( substr( $filename, 0, strlen( WP_CONTENT_DIR ) ) === WP_CONTENT_DIR ) {
+			// This is the default location of the wp-content/cache directory.
+			$location = WP_CONTENT_DIR;
+		} else if ( substr( $filename, 0, strlen( W3TC_CACHE_DIR ) ) === W3TC_CACHE_DIR ) {
+			// This is needed in the event the cache directory is moved outside of wp-content and replace with a symbolic link.
+			$location = substr( W3TC_CACHE_DIR, 0, -strlen( '/cache' ) );
+		} else if ( substr( $filename, 0, strlen( W3TC_CONFIG_DIR ) ) === W3TC_CONFIG_DIR ) {
+			// This is needed in the event the cache directory is moved outside of wp-content and replace with a symbolic link.
+			$location = substr( W3TC_CONFIG_DIR, 0, -strlen( '/w3tc-config' ) );
+		} else {
 			return '';
 		}
 
-		$uri_from_wp_content = substr( $filename, strlen( WP_CONTENT_DIR ) );
+		$uri_from_location = substr( $filename, strlen( $location ) );
 
 		if ( DIRECTORY_SEPARATOR != '/' ) {
-			$uri_from_wp_content = str_replace( DIRECTORY_SEPARATOR, '/', $uri_from_wp_content );
+			$uri_from_location = str_replace( DIRECTORY_SEPARATOR, '/', $uri_from_location );
 		}
 
-		$url = content_url( $uri_from_wp_content );
+		$url = content_url( $uri_from_location );
 		$url = apply_filters( 'w3tc_filename_to_url', $url );
 
 		return $url;
@@ -164,8 +173,13 @@ class Util_Environment {
 	 *
 	 * @return bool
 	 */
-	public static function is_dbcluster() {
-		if ( ! defined( 'W3TC_PRO' ) || ! W3TC_PRO ) {
+	public static function is_dbcluster( $config = null ) {
+		if ( is_null( $config ) ) {
+			// fallback for compatibility with older wp-content/db.php
+			$config = \W3TC\Dispatcher::config();
+		}
+
+		if ( !self::is_w3tc_pro( $config ) ) {
 			return false;
 		}
 
@@ -1545,5 +1559,57 @@ class Util_Environment {
 		$w3_current_blog_id = null;
 
 		self::$is_using_master_config = null;
+	}
+
+	/**
+	 * Removes blank lines, trim values, removes duplicates, and sorts array.
+	 *
+	 * @since 2.4.3
+	 *
+	 * @param array $values Array of values.
+	 *
+	 * @return array
+	 */
+	public static function clean_array( $values ) {
+		if ( ! empty( $values ) && is_array( $values ) ) {
+			$values = array_unique(
+				array_filter(
+					array_map(
+						'trim',
+						$values
+					),
+					'strlen'
+				)
+			);
+			sort( $values );
+		}
+
+		return $values;
+	}
+
+	/**
+	 * Parses textarea setting value from string to array.
+	 *
+	 * @since 2.4.3
+	 *
+	 * @param string $value Value.
+	 *
+	 * @return array
+	 */
+	public static function textarea_to_array( $value ) {
+		$values_array = array();
+
+		if ( ! empty( $value ) ) {
+			$values_array = self::clean_array(
+				preg_split(
+					'/\R/',
+					$value,
+					0,
+					PREG_SPLIT_NO_EMPTY
+				)
+			);
+		}
+
+		return $values_array;
 	}
 }

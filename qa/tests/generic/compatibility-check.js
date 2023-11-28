@@ -26,8 +26,9 @@ describe('', function() {
 		if (await adminPage.$('#w3tc-wizard-skip') != null) {
 			log.log('Encountered the Setup Guide wizard; skipping...');
 
+			let wizardSkip = '#w3tc-wizard-skip';
 			let skipped = await Promise.all([
-				adminPage.click('#w3tc-wizard-skip'),
+				adminPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
 				adminPage.waitForNavigation({timeout:0}),
 			]);
 
@@ -35,7 +36,9 @@ describe('', function() {
 		}
 
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_dashboard');
-		await adminPage.click('input[value="compatibility check"]');
+		
+		let compatibilityCheck = '#w3tc-top-nav-info-menu a.compatiblity-test';
+		await adminPage.evaluate((compatibilityCheck) => document.querySelector(compatibilityCheck).click(), compatibilityCheck);
 
 		await adminPage.waitFor(() => {
 			return typeof(document.querySelector('div.lightbox-content')) != 'undefined' &&

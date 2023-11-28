@@ -21,8 +21,9 @@ async function setOptions_loadPage(pPage, queryPage) {
 		if (await pPage.$('#w3tc-wizard-skip') != null) {
 			log.log('Encountered the Setup Guide wizard; skipping...');
 
+			let wizardSkip = '#w3tc-wizard-skip';
 			let skipped = await Promise.all([
-				pPage.click('#w3tc-wizard-skip'),
+				pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
 				pPage.waitForNavigation({timeout:0}),
 			]);
 
@@ -56,7 +57,7 @@ exports.setOptions = async function(pPage, queryPage, values) {
 		} else if (tagType == 'INPUT checkbox' || tagType == 'INPUT radio') {
 			let checked = await pPage.$eval(keySelector, (e) => e.getAttribute('checked'));
 			if ((checked && !values[key]) || (!checked && values[key])) {
-				await pPage.click(keySelector);
+				await pPage.evaluate((keySelector) => document.querySelector(keySelector).click(), keySelector);
 			}
 			if (key == 'minify__enabled') {
 				await pPage.waitForSelector('.lightbox-close', {
@@ -64,7 +65,10 @@ exports.setOptions = async function(pPage, queryPage, values) {
 				});
 				log.log('click minify popup close');
 				await pPage.screenshot({path: '/var/www/wp-sandbox/01.png'});
-				await pPage.click('.lightbox-close');
+
+				let lightboxClose = '.lightbox-close';
+				await pPage.evaluate((lightboxClose) => document.querySelector(lightboxClose).click(), lightboxClose);
+
 				await pPage.waitForSelector('.lightbox-close', {
 					hidden: true
 				});
@@ -72,7 +76,7 @@ exports.setOptions = async function(pPage, queryPage, values) {
 
 				// very weird issue - first button click hangs, while all other
 				// works in that case. it cant scroll up?
-				saveSelector = '#w3tc_save_options_general_minify';
+				saveSelector = 'input[name="w3tc_save_options"]';
 			}
 		} else if (tagType == 'INPUT text' || tagType == 'INPUT password' ||
 				tagType == 'TEXTAREA') {
@@ -86,7 +90,7 @@ exports.setOptions = async function(pPage, queryPage, values) {
 	log.log('click save - ' + saveSelector);
 	await Promise.all([
 		pPage.waitForNavigation({timeout: 0}),
-		pPage.click(saveSelector)
+		pPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector)
 	]);
 
 	log.log('check w3tc options modified - loading page');
@@ -138,29 +142,30 @@ exports.setOptionInternal = async function(pPage, name, value) {
 
 
 exports.activateExtension = async function(pPage, extenstion_id) {
-	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions');
+	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions', {waitUntil: 'domcontentloaded'});
 
 	// Skip the Setup Guide wizard.
 	if (await pPage.$('#w3tc-wizard-skip') != null) {
 		log.log('Encountered the Setup Guide wizard; skipping...');
-
+		let wizardSkip = '#w3tc-wizard-skip';
 		let skipped = await Promise.all([
-			pPage.click('#w3tc-wizard-skip'),
+			pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
 			pPage.waitForNavigation({timeout:0}),
 		]);
 
 		expect(skipped).is.not.null;
 	}
 
-	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions');
+	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions', {waitUntil: 'domcontentloaded'});
 	let isActive = await pPage.$('#' + extenstion_id + ' .deactivate');
 	if (isActive != null) {
 		log.success('extension is already active');
 		return;
 	}
 
+	let extensionActivate = '#' + extenstion_id + ' .activate a';
 	await Promise.all([
-		pPage.click('#' + extenstion_id + ' .activate a'),
+		pPage.evaluate((extensionActivate) => document.querySelector(extensionActivate).click(), extensionActivate),
 		pPage.waitForNavigation()
 	]);
 
@@ -177,8 +182,9 @@ exports.activateExtension = async function(pPage, extenstion_id) {
  */
 exports.followNoteFlushStatics = async function(pPage) {
 	if (await pPage.$('input[value="Empty the static files cache"]') != null) {
+		let emptyStaticCache = 'input[value="Empty the static files cache"]';
 		await Promise.all([
-			pPage.click('input[value="Empty the static files cache"]'),
+			pPage.evaluate((emptyStaticCache) => document.querySelector(emptyStaticCache).click(), emptyStaticCache),
 			pPage.waitForNavigation({timeout:0}),
 		]);
 	}
@@ -194,8 +200,9 @@ exports.expectW3tcErrors = async function(pPage, ifShouldExist) {
 	if (await pPage.$('#w3tc-wizard-skip') != null) {
 		log.log('Encountered the Setup Guide wizard; skipping...');
 
+		let wizardSkip = '#w3tc-wizard-skip';
 		let skipped = await Promise.all([
-			pPage.click('#w3tc-wizard-skip'),
+			pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
 			pPage.waitForNavigation({timeout:0}),
 		]);
 
@@ -282,10 +289,11 @@ exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngi
 	}
 
 	await pPage.goto(env.blogSiteUrl + 'cache-entry.php?blog_id=' + env.blogId +
-		'&wp_content_path=' + env.wpContentPath +
-		'&url=' + encodeURIComponent(url) +
-		'&page_key_postfix=' + pageKeyPostfix +
-		'&engine=' + cacheEngineLabel);
+			'&wp_content_path=' + env.wpContentPath +
+			'&url=' + encodeURIComponent(url) +
+			'&page_key_postfix=' + pageKeyPostfix +
+			'&engine=' + cacheEngineLabel,
+		{waitUntil: 'domcontentloaded'});
 	expect(await pPage.content()).contains('Page Caching using ' + cacheEngineName);
 }
 
@@ -385,8 +393,9 @@ exports.flushAll = async function(pPage) {
 		if (await pPage.$('#w3tc-wizard-skip') != null) {
 			log.log('Encountered the Setup Guide wizard; skipping...');
 
+			let wizardSkip = '#w3tc-wizard-skip';
 			let skipped = await Promise.all([
-				pPage.click('#w3tc-wizard-skip'),
+				pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
 				pPage.waitForNavigation({timeout:0}),
 			]);
 
@@ -396,8 +405,9 @@ exports.flushAll = async function(pPage) {
 		await pPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
 			{waitUntil: 'domcontentloaded'});
 
+		let flushAll = '#flush_all';
 		await Promise.all([
-			pPage.click('#flush_all'),
+			pPage.evaluate((flushAll) => document.querySelector(flushAll).click(), flushAll),
 			pPage.waitForNavigation({timeout:0}),
 		]);
 
@@ -434,7 +444,8 @@ exports.cdnPushExportFiles = async function(pPage, sectionToExport) {
 		sectionToExport + ' section');
 	expect(filesNumberToExport > 0).is.true;
 
-	await pPage.click('#cdn_export_file_start');
+	let cdnExportStart = '#cdn_export_file_start';
+	await pPage.evaluate((cdnExportStart) => document.querySelector(cdnExportStart).click(), cdnExportStart);
 	await pPage.waitFor((filesNumberToExport) => {
 		let onPage = document.querySelector('#cdn_export_file_processed').textContent;
 		return onPage == filesNumberToExport;
@@ -448,7 +459,8 @@ exports.cdnPushExportFiles = async function(pPage, sectionToExport) {
 
 exports.setOptionsMinifyAddJsEntry = async function(pPage, i, inputValue, optionValue) {
 	log.log('click add');
-	await pPage.click('#js_file_add');
+	let jsAdd = '#js_file_add';
+	await pPage.evaluate((jsAdd) => document.querySelector(jsAdd).click(), jsAdd);
 
 	await pPage.waitFor((ii) => {
 		return document.querySelectorAll('#js_files li table').length >= ii;
@@ -474,7 +486,8 @@ exports.setOptionsMinifyAddJsEntry = async function(pPage, i, inputValue, option
 
 exports.setOptionsMinifyAddCssEntry = async function(pPage, i, inputValue, optionValue) {
 	log.log('click add');
-	await pPage.click('#css_file_add');
+	let cssAdd = '#css_file_add';
+	await pPage.evaluate((cssAdd) => document.querySelector(cssAdd).click(), cssAdd);
 
 	await pPage.waitFor((ii) => {
 		return document.querySelectorAll('#css_files li table').length >= ii;

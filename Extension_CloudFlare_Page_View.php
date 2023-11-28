@@ -5,14 +5,6 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
-<p id="w3tc-options-menu">
-	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
-	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
-	<a href="#credentials"><?php esc_html_e( 'Credentials', 'w3-total-cache' ); ?></a> |
-	<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
-	<a href="#info"><?php esc_html_e( 'Information', 'w3-total-cache' ); ?></a>
-</p>
 <p>
 	<?php esc_html_e( 'CloudFlare extension is currently ', 'w3-total-cache' ); ?>
 	<?php
@@ -45,6 +37,7 @@ if ( ! defined( 'W3TC' ) ) {
 </form>
 
 <form action="admin.php?page=w3tc_extensions&amp;extension=cloudflare&amp;action=view" method="post">
+	<?php Util_UI::print_control_bar( 'extension_cloudflare_form_control' ); ?>
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Credentials', 'w3-total-cache' ), '', 'credentials' ); ?>
 		<table class="form-table">
@@ -152,7 +145,6 @@ if ( ! defined( 'W3TC' ) ) {
 			</table>
 		<?php endif; ?>
 
-		<?php Util_Ui::button_config_save( 'extension_cloudflare_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 
@@ -596,11 +588,30 @@ if ( ! defined( 'W3TC' ) ) {
 					'description' => esc_html__( 'Advanced protection from Distributed Denial of Service (DDoS) attacks on your website.', 'w3-total-cache' ),
 				)
 			);
-			self::cloudflare_textbox(
+			self::cloudflare_selectbox(
 				$settings,
 				array(
 					'key'         => 'max_upload',
 					'label'       => esc_html__( 'Max upload:', 'w3-total-cache' ),
+					'values'      => array(
+						'100' => '100 MB',
+						'125' => '125 MB (Business+)',
+						'150' => '150 MB (Business+)',
+						'175' => '175 MB (Business+)',
+						'200' => '200 MB (Business+)',
+						'225' => '225 MB (Enterprise)',
+						'250' => '250 MB (Enterprise)',
+						'275' => '275 MB (Enterprise)',
+						'300' => '300 MB (Enterprise)',
+						'325' => '325 MB (Enterprise)',
+						'350' => '350 MB (Enterprise)',
+						'375' => '375 MB (Enterprise)',
+						'400' => '400 MB (Enterprise)',
+						'425' => '425 MB (Enterprise)',
+						'450' => '450 MB (Enterprise)',
+						'475' => '475 MB (Enterprise)',
+						'500' => '500 MB (Enterprise)',
+					),
 					'description' => esc_html__( 'Max size of file allowed for uploading', 'w3-total-cache' ),
 				)
 			);

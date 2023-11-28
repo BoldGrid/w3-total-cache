@@ -99,8 +99,9 @@ class ConfigCompiler {
 		$this->_keys = $keys;
 
 		// move _date to initial state
-		foreach ( $this->_keys as $key => $value )
+		foreach ( $this->_keys as $key => $value ) {
 			$this->_data[$key] = $value['default'];
+		}
 
 		$this->_data['version'] = W3TC_VERSION;
 

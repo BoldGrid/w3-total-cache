@@ -218,6 +218,7 @@ class Root_AdminMenu {
 		if ( ! empty( Util_Request::get_string( 'w3tc_dbcluster_config' ) ) ) {
 			$options_dbcache = new DbCache_Page();
 			$options_dbcache->dbcluster_config();
+			return;
 		}
 
 		/**
@@ -309,8 +310,6 @@ class Root_AdminMenu {
 				$view->options();
 
 				do_action( 'w3tc_settings_page-' . $this->_page ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-
-				$view->render_footer();
 
 				break;
 		}

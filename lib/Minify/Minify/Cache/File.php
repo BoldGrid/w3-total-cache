@@ -132,17 +132,19 @@ class Minify_Cache_File {
 	 *
 	 * @param string $id cache id (e.g. a filename)
 	 *
-	 * @return string
+	 * @return string|false
 	 */
 	public function fetch($id)
 	{
 		$path = $this->_path . '/' . $id;
 
 		$data = @file_get_contents($path . '_meta');
-		if ($data) {
+		if ( ! empty( $data ) ) {
 			$data = @unserialize($data);
 			if (!is_array($data))
 				$data = array();
+		} else {
+			$data = array();
 		}
 
 		if (is_readable($path)) {

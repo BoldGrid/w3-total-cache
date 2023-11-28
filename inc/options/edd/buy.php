@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: buy.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -10,7 +16,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<?php
 	echo wp_kses(
 		sprintf(
-			// translators: 1 HTML input button to buy plugin.
+			// translators: 1 HTML a link to buy plugin.
 			__(
 				'Unlock more speed, %1$s now!',
 				'w3-total-cache'

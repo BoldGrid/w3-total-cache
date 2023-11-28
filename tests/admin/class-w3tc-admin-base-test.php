@@ -9,6 +9,8 @@
  * @link       https://www.boldgrid.com/w3-total-cache/
  */
 
+declare( strict_types = 1 );
+
 /**
  * Class: W3tc_Admin_Base_Test
  *
@@ -60,10 +62,11 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 			'W3TC_TERMS_ACCEPT_URL',
 			'W3TC_MAILLINGLIST_SIGNUP_URL',
 			'W3TC_NEWRELIC_SIGNUP_URL',
-			'W3TC_STACKPATH_SIGNUP_URL',
 			'W3TC_STACKPATH_AUTHORIZE_URL',
 			'W3TC_STACKPATH2_AUTHORIZE_URL',
 			'W3TC_GOOGLE_DRIVE_AUTHORIZE_URL',
+			'W3TC_BUNNYCDN_SETTINGS_URL',
+			'W3TC_BUNNYCDN_CDN_URL',
 			'W3TC_LICENSE_API_URL',
 			'W3TC_PURCHASE_URL',
 			'W3TC_PURCHASE_PRODUCT_NAME',
@@ -131,6 +134,32 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 		foreach ( $definitions as $definition ) {
 			$this->assertTrue( defined( $definition ) );
 		}
+	}
+
+	/**
+	 * Test for the WP_CONTENT_DIR constant.
+	 *
+	 * @since 2.3.2
+	 */
+	public function test_contentdir() {
+		$this->expectOutputRegex( '~.+/wp-content$~' );
+
+		print WP_CONTENT_DIR; // phpcs:ignore
+
+		fwrite( STDERR, 'WP_CONTENT_DIR: ' . WP_CONTENT_DIR . PHP_EOL );
+	}
+
+	/**
+	 * Test for the WP_CONTENT_DIR constant with realpath().
+	 *
+	 * @since 2.3.2
+	 */
+	public function test_contentdir_realpath() {
+		$this->expectOutputRegex( '~.+/wp-content$~' );
+
+		print realpath( WP_CONTENT_DIR ); // phpcs:ignore
+
+		fwrite( STDERR, 'realpath( WP_CONTENT_DIR ): ' . realpath( WP_CONTENT_DIR ) . PHP_EOL );
 	}
 
 	/**
@@ -375,7 +404,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 		$this->assertNull(
 			w3tc_add_action(
 				'w3tc_test_action',
-				function() {
+				function () {
 					echo 'Test.';
 				}
 			)
@@ -406,7 +435,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	public function test_w3tc_apply_filters() {
 		w3tc_add_action(
 			'w3tc_test_filter',
-			function() {
+			function () {
 				return 'Filter test.';
 			}
 		);

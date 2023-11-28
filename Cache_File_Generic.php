@@ -270,7 +270,13 @@ class Cache_File_Generic extends Cache_File {
 			}
 		}
 
-		@touch( $old_entry_path, 1479904835 );
+		/**
+		 * Disabling this as we don't want to immediately hard-expire _old cache files as there is a
+		 * 30 second window where they are still served via get_with_old calls. During AWS testing on
+		 * WP 5.9/6.3 this was resulting in the _old file immediately being removed during the clean
+		 * operation, resulting in failed automated tests (8/1/2023)
+		 */
+		// @touch( $old_entry_path, 1479904835 );
 		return true;
 	}
 

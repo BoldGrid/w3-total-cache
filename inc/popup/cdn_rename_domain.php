@@ -74,5 +74,3 @@ jQuery(function() {
 </div>
 
 <div id="cdn_rename_domain_log" class="log"></div>
-
-<?php require W3TC_INC_DIR . '/popup/common/footer.php'; ?>

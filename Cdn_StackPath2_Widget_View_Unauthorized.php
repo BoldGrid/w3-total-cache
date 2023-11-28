@@ -5,6 +5,24 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
+<p>
+	<div class="notice notice-warning inline">
+		<p>
+			<?php
+			// StackPath sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
+			$date_time_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+			printf(
+				// translators: 1 StackPath sunset datetime.
+				__(
+					'StackPath will cease operations at %1$s.',
+					'w3-total-cache'
+				),
+				wp_date( $date_time_format, '1700629200' )
+			);
+			?>
+		</p>
+	</div>
+</p>
 <div id="stackpath-widget" class="w3tcstackpath_signup">
 	<?php if ( ! $c->get_boolean( 'cdn.enabled' ) ) : ?>
 		<p class="notice notice-error">
@@ -20,32 +38,6 @@ if ( ! defined( 'W3TC' ) ) {
 			?>
 		</p>
 	<?php endif ?>
-
-	<p>
-		<?php
-		w3tc_e(
-			'cdn.stackpath.widget.v2.header',
-			sprintf(
-				// translators: 1 HTML acronym for Content Delivery Network (CDN).
-				__( 'Enhance your website performance by adding StackPath\'s (%1$s) service to your site.', 'w3-total-cache' ),
-				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
-			)
-		);
-		?>
-	</p>
-	<h4 class="w3tcstackpath_signup_h4"><?php esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
-
-	<p>
-		<?php
-		w3tc_e(
-			'cdn.stackpath2.widget.v2.works_magically',
-			__( 'StackPath works magically with W3 Total Cache to speed up your site around the world for as little as $10 per month.', 'w3-total-cache' )
-		);
-		?>
-	</p>
-	<a class="button-primary" href="<?php echo esc_url( W3TC_STACKPATH_SIGNUP_URL ); ?>" target="_blank">
-		<?php esc_html_e( 'Sign Up Now ', 'w3-total-cache' ); ?>
-	</a>
 	<p>
 		<h4 class="w3tcstackpath_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
 		<p>

@@ -37,6 +37,24 @@ class ObjectCache_WpObjectCache {
 	}
 
 	/**
+	 * Retrieves multiple values from the cache in one call.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $ids  Array of keys under which the cache contents are stored.
+	 * @param string $group Optional. Where the cache contents are grouped. Default 'default'.
+	 * @param bool   $force Optional. Whether to force an update of the local cache
+	 *                      from the persistent cache. Default false.
+	 *
+	 * @return array Array of return values, grouped by key. Each value is either
+	 *               the cache contents on success, or false on failure.
+	 */
+	public function get_multiple( $ids, $group = 'default', $force = false ) {
+		$cache = $this->_get_engine( $group );
+		return $cache->get_multiple( $ids, $group, $force );
+	}
+
+	/**
 	 * Set to the cache
 	 *
 	 * @param string  $id
@@ -48,6 +66,23 @@ class ObjectCache_WpObjectCache {
 	function set( $id, $data, $group = 'default', $expire = 0 ) {
 		$cache = $this->_get_engine( $group );
 		return $cache->set( $id, $data, $group, $expire );
+	}
+
+	/**
+	 * Sets multiple values to the cache in one call.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $data   Array of key and value to be set.
+	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
+	 *                       Default 0 (no expiration).
+	 *
+	 * @return bool[] Array of return values, grouped by key. Each value is always true.
+	 */
+	public function set_multiple( $data, $group = 'default', $expire = 0 ) {
+		$cache = $this->_get_engine( $group );
+		return $cache->set_multiple( $data, $group, $expire );
 	}
 
 	/**
@@ -64,6 +99,22 @@ class ObjectCache_WpObjectCache {
 	}
 
 	/**
+	 * Deletes multiple values from the cache in one call.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $keys  Array of keys to be deleted.
+	 * @param string $group Optional. Where the cache contents are grouped. Default empty.
+	 *
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false if the contents were not deleted.
+	 */
+	public function delete_multiple( $keys, $group = 'default' ) {
+		$cache = $this->_get_engine( $group );
+		return $cache->delete_multiple( $keys, $group );
+	}
+
+	/**
 	 * Add to the cache
 	 *
 	 * @param string  $id
@@ -75,6 +126,24 @@ class ObjectCache_WpObjectCache {
 	function add( $id, $data, $group = 'default', $expire = 0 ) {
 		$cache = $this->_get_engine( $group );
 		return $cache->add( $id, $data, $group, $expire );
+	}
+
+	/**
+	 * Adds multiple values to the cache in one call.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $data   Array of keys and values to be added.
+	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
+	 *                       Default 0 (no expiration).
+	 *
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false if cache key and group already exist.
+	 */
+	public function add_multiple( array $data, $group = '', $expire = 0 ) {
+		$cache = $this->_get_engine( $group );
+		return $cache->add_multiple( $data, $group, $expire );
 	}
 
 	/**

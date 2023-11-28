@@ -21,7 +21,7 @@ class DbCache_Environment {
 		$exs = new Util_Environment_Exceptions();
 		try {
 			if ( $config->get_boolean( 'dbcache.enabled' ) ||
-					Util_Environment::is_dbcluster() ) {
+					Util_Environment::is_dbcluster( $config ) ) {
 				$this->create_addin();
 			} else {
 				$this->delete_addin();

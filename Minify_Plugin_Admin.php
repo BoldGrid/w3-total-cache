@@ -46,7 +46,7 @@ class Minify_Plugin_Admin {
 		$menu_items['90040.minify'] = array(
 			'id' => 'w3tc_overlay_minify',
 			'parent' => 'w3tc_debug_overlays',
-			'title' => __( 'Minify', 'w3-total-cache' ),
+			'title' => __( 'Minify Cache', 'w3-total-cache' ),
 			'href' => wp_nonce_url( network_admin_url(
 					'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=minify_help' ), 'w3tc' )
 		);
@@ -136,8 +136,11 @@ class Minify_Plugin_Admin {
 
 		if ( $c->get_string( 'minify.engine' ) == 'memcached' ) {
 			$memcached_servers = $c->get_array( 'minify.memcached.servers' );
+			$memcached_binary_protocol = $c->get_boolean( 'minify.memcached.binary_protocol' );
+			$memcached_username = $c->get_string( 'minify.memcached.username' );
+			$memcached_password = $c->get_string( 'minify.memcached.password' );
 
-			if ( !Util_Installed::is_memcache_available( $memcached_servers ) ) {
+			if ( !Util_Installed::is_memcache_available( $memcached_servers, $memcached_binary_protocol, $memcached_username, $memcached_password ) ) {
 				if ( !isset( $errors['memcache_not_responding.details'] ) )
 					$errors['memcache_not_responding.details'] = array();
 

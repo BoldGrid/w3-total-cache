@@ -27,9 +27,11 @@ if (parseFloat(env.wpVersion) < 4.4) {
 	otherTheme = 'twentynineteen/twentynineteen';
 } else if (parseFloat(env.wpVersion) < 6.1) {
 	otherTheme = 'twentytwenty/twentytwenty';
-} else {
-	// WP 6.1.
+} else if (parseFloat(env.wpVersion) < 6.4) {
 	otherTheme = 'twentytwentythree/twentytwentythree';
+} else {
+	// WP 6.4.
+	otherTheme = 'twentytwentyfour/twentytwentyfour';
 }
 
 log.log('Switch to theme: ' + otherTheme);
@@ -69,6 +71,7 @@ describe('', function() {
 		});
 
 		await adminPage.click('#referrer_add');
+
 		log.log('wait button to create elements');
 		await adminPage.waitForSelector('#referrer_groups_test_group_redirect');
 
@@ -77,8 +80,9 @@ describe('', function() {
 		await adminPage.$eval('#referrer_groups_test_group_theme',
 			(e, v) => e.value = v, otherTheme);
 
+		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
-			adminPage.click('#w3tc_save_options_referrers'),
+			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
 			adminPage.waitForNavigation()
 		]);
 
@@ -92,8 +96,9 @@ describe('', function() {
 		log.log('opening ' + pluginUrl);
 		await page.goto(pluginUrl);
 
+		let helloWorld = '#hello-world';
 		await Promise.all([
-			page.click('#hello-world'),
+			page.evaluate((helloWorld) => document.querySelector(helloWorld).click(), helloWorld),
 			page.waitForNavigation()
 		]);
 
@@ -127,12 +132,15 @@ describe('', function() {
 		} else if (theme[0] == 'twentytwentythree') {
 			css = await page.$eval('#wp-webfonts-inline-css',
 				(e) => e.innerHTML);
+		} else if (theme[0] == 'twentytwentyfour') {
+			css = await page.$eval('#wp-fonts-local',
+				(e) => e.innerHTML);
 		} else {
 			css = await page.$eval('link[type="text/css"]',
 				(e) => e.getAttribute('href'));
 		}
 
-		if (theme[0] == 'twentytwentythree') {
+		if (theme[0] == 'twentytwentythree' || theme[0] == 'twentytwentyfour') {
 			expect(css).contains('themes/' + theme[0] + '/assets/');
 		} else {
 			expect(css).contains('themes/' + theme[0] + '/style.css');

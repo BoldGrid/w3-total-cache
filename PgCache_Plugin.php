@@ -327,7 +327,7 @@ class PgCache_Plugin {
 		$menu_items['20110.pagecache'] = array(
 			'id'     => 'w3tc_flush_pgcache',
 			'parent' => 'w3tc_flush',
-			'title'  => __( 'Page Cache: All', 'w3-total-cache' ),
+			'title'  => __( 'Page Cache', 'w3-total-cache' ),
 			'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_pgcache' ), 'w3tc' ),
 		);
 

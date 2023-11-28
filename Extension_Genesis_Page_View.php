@@ -5,15 +5,6 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 ?>
-<p id="w3tc-options-menu">
-	<?php esc_html_e( 'Jump to:', 'w3-total-cache' ); ?>
-	<a href="admin.php?page=w3tc_general"><?php esc_html_e( 'Main Menu', 'w3-total-cache' ); ?></a> |
-	<a href="admin.php?page=w3tc_extensions"><?php esc_html_e( 'Extensions', 'w3-total-cache' ); ?></a> |
-	<a href="#header"><?php esc_html_e( 'Header', 'w3-total-cache' ); ?></a> |
-	<a href="#content"><?php esc_html_e( 'Content', 'w3-total-cache' ); ?></a> |
-	<a href="#sidebar"><?php esc_html_e( 'Sidebar', 'w3-total-cache' ); ?></a> |
-	<a href="#exclusions"><?php esc_html_e( 'Exclusions', 'w3-total-cache' ); ?></a>
-</p>
 <p>
 	<?php esc_html_e( 'Genesis extension is currently ', 'w3-total-cache' ); ?>
 	<?php
@@ -68,7 +59,7 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_header' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Content', 'w3-total-cache' ), '', 'content' ); ?>
@@ -146,7 +137,7 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_content' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Sidebar', 'w3-total-cache' ), '', 'sidebar' ); ?>
@@ -171,7 +162,7 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_sidebar' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Footer', 'w3-total-cache' ) ); ?>
@@ -206,7 +197,7 @@ if ( ! defined( 'W3TC' ) ) {
 		);
 		?>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_footer' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 	<?php Util_Ui::postbox_header( esc_html__( 'Exclusions', 'w3-total-cache' ), '', 'exclusions' ); ?>
@@ -233,7 +224,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 				<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?> type="hidden" name="<?php echo esc_attr( $name ); ?>" value="" />
 				<?php foreach ( $hooks as $hook => $hook_label ) : ?>
-					<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?> 
+					<input <?php disabled( $config->is_sealed( 'genesis.theme' ) ); ?>
 						type="checkbox" name="<?php echo esc_attr( $name ); ?>[]"
 						value="<?php echo esc_attr( $hook ); ?>"
 						<?php checked( in_array( $hook, $saved_hooks, true ) ); ?>
@@ -272,7 +263,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</td>
 		</tr>
 	</table>
-	<?php Util_Ui::button_config_save( 'extension_genesis_exclusions' ); ?>
+
 	<?php Util_Ui::postbox_footer(); ?>
 
 </div>

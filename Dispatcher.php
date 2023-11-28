@@ -215,7 +215,7 @@ class Dispatcher {
 		if ( is_null( $cache ) ) {
 			$c = Dispatcher::config();
 			$engineConfig = null;
-			if ( $c->get_boolean( 'objectcache.enabled' ) ) {
+			if ( $c->getf_boolean( 'objectcache.enabled' ) ) {
 				$provider = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
 			} else if ( $c->get_boolean( 'dbcache.enabled' ) ) {
 				$provider = Dispatcher::component( 'DbCache_Core' );

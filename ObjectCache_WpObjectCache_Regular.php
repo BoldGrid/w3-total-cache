@@ -244,6 +244,25 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
+	 * Get multiple from the cache
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param string $ids   IDs.
+	 * @param string $group Group.
+	 * @param bool   $force Force flag.
+	 *
+	 * @return mixed
+	 */
+	public function get_multiple( $ids, $group = 'default', $force = false ) {
+		$found_cache = array();
+		foreach ( $ids as $id ) {
+			$found_cache[ $id ] = $this->get( $id, $group, $force );
+		}
+		return $found_cache;
+	}
+
+	/**
 	 * Set to the cache
 	 *
 	 * @param string  $id
@@ -330,6 +349,27 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
+	 * Sets multiple values to the cache in one call.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $data   Array of keys and values to be set.
+	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
+	 *                       Default 0 (no expiration).
+	 *
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false on failure.
+	 */
+	public function set_multiple( array $data, $group = '', $expire = 0 ) {
+		$values = array();
+		foreach ( $data as $key => $value ) {
+			$values[ $key ] = $this->set( $key, $value, $group, $expire );
+		}
+		return $values;
+	}
+
+	/**
 	 * Delete from the cache
 	 *
 	 * @param string  $id
@@ -372,6 +412,25 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
+	 * Deletes multiple values from the cache in one call.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $keys  Array of keys under which the cache to deleted.
+	 * @param string $group Optional. Where the cache contents are grouped. Default empty.
+	 *
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false if the contents were not deleted.
+	 */
+	public function delete_multiple( array $keys, $group = '' ) {
+		$values = array();
+		foreach ( $keys as $key ) {
+			$values[ $key ] = $this->delete( $key, $group );
+		}
+		return $values;
+	}
+
+	/**
 	 * Add to the cache
 	 *
 	 * @param string  $id
@@ -386,6 +445,27 @@ class ObjectCache_WpObjectCache_Regular {
 		}
 
 		return $this->set( $id, $data, $group, $expire );
+	}
+
+	/**
+	 * Add multiple to the cache
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $data   Array of keys and values to be added.
+	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
+	 *                       Default 0 (no expiration).
+	 *
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false if cache key and group already exist.
+	 */
+	public function add_multiple( array $data, $group = '', $expire = 0 ) {
+		$values = array();
+		foreach ( $data as $key => $value ) {
+			$values[ $key ] = $this->add( $key, $value, $group, $expire );
+		}
+		return $values;
 	}
 
 	/**
@@ -789,7 +869,7 @@ class ObjectCache_WpObjectCache_Regular {
 		/**
 		 * Skip if disabled
 		 */
-		if ( !$this->_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( !$this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->cache_reject_reason = 'objectcache.disabled';
 
 			return false;

@@ -62,7 +62,7 @@ class CacheFlush {
 	 * Flushes object cache
 	 */
 	function objectcache_flush() {
-		if ( $this->_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->_executor->objectcache_flush();
 		}
 	}
@@ -92,11 +92,14 @@ class CacheFlush {
 	}
 
 	/**
-	 * Purge CDN mirror cache
+	 * Purge CDN mirror cache.
+	 *
+	 * @param array $extras Extra configuration.
 	 */
-	function cdn_purge_all( $extras = array() ) {
-		if ( $this->_config->get_boolean( 'cdn.enabled' ) )
+	public function cdn_purge_all( $extras = array() ) {
+		if ( $this->_config->get_boolean( 'cdn.enabled' ) || $this->_config->get_boolean( 'cdnfsd.enabled' ) ) {
 			return $this->_executor->cdn_purge_all( $extras );
+		}
 
 		return false;
 	}

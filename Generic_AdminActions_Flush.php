@@ -17,6 +17,12 @@ class Generic_AdminActions_Flush {
 	 */
 	function w3tc_flush_all() {
 		w3tc_flush_all( array( 'ui_action' => 'flush_button' ) );
+
+		$state_note = Dispatcher::config_state_note();
+		$state_note->set( 'common.show_note.flush_statics_needed', false );
+		$state_note->set( 'common.show_note.flush_posts_needed', false );
+		$state_note->set( 'common.show_note.plugins_updated', false );
+
 		$this->_redirect_after_flush( 'flush_all' );
 	}
 
@@ -275,7 +281,7 @@ class Generic_AdminActions_Flush {
 			$this->flush_dbcache();
 		}
 
-		if ( $this->_config->get_string( 'objectcache.engine' ) == $type && $this->_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $this->_config->get_string( 'objectcache.engine' ) == $type && $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->flush_objectcache();
 		}
 

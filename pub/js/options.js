@@ -124,7 +124,8 @@ function w3tc_cdn_get_cnames() {
 }
 
 function w3tc_cdn_cnames_assign() {
-	var li = jQuery('#cdn_cnames li'), size = li.length;
+	var li = jQuery('#cdn_cnames li'),
+		size = li.length;
 
 	if (size > 1) {
 		li.eq(0).find('.cdn_cname_delete').show();
@@ -164,9 +165,10 @@ function w3tc_toggle(name, check) {
 		check = true;
 	}
 
-	var id = '#' + name, cls = '.' + name;
+	var id = '#' + name,
+		cls = '.' + name;
 
-	jQuery(cls).on( 'click', function() {
+	jQuery(cls).on('click', function() {
 		var checked = check;
 
 		jQuery(cls).each(function() {
@@ -186,7 +188,7 @@ function w3tc_toggle(name, check) {
 		}
 	});
 
-	jQuery(id).on( 'click', function() {
+	jQuery(id).on('click', function() {
 		var checked = jQuery(this).is(':checked');
 		jQuery(cls).each(function() {
 			if (checked) {
@@ -199,11 +201,13 @@ function w3tc_toggle(name, check) {
 }
 
 function w3tc_toggle2(name, dependent_ids) {
-	var id = '#' + name, dependants = '', n;
+	var id = '#' + name,
+		dependants = '',
+		n;
 	for (n = 0; n < dependent_ids.length; n++)
 		dependants += (n > 0 ? ',' : '') + '#' + dependent_ids[n];
 
-	jQuery(dependants).on( 'click', function() {
+	jQuery(dependants).on('click', function() {
 		var total_checked = true;
 
 		jQuery(dependants).each(function() {
@@ -220,7 +224,7 @@ function w3tc_toggle2(name, dependent_ids) {
 		}
 	});
 
-	jQuery(id).on( 'click', function() {
+	jQuery(id).on('click', function() {
 		var checked = jQuery(this).is(':checked');
 		jQuery(dependants).each(function() {
 			if (checked) {
@@ -251,58 +255,51 @@ function w3tc_starts_with(s, starts_with) {
 }
 
 function w3tc_security_headers() {
-	var directive_description =
-		{
-			browsercache_security_hsts_directive:
-			{
-				maxage: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym>. This only affects the site\'s main domain.',
-				maxagepre: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym> with a request to be included in Chrome\'s HSTS preload list - a list of sites that are hardcoded into Chrome as being <acronym title="HyperText Transfer Protocol over SSL">https</acronym> only. This only affects the site\'s main domain.',
-				maxageinc: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym>. This affects the site\'s subdomains as well.',
-				maxageincpre: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym> with a request to be included in Chrome\'s HSTS preload list - a list of sites that are hardcoded into Chrome as being <acronym title="HyperText Transfer Protocol over SSL">https</acronym> only. This affects the site\'s subdomains as well.'
-			},
-			browsercache_security_xfo_directive:
-			{
-				same: "The page can only be displayed in a frame on the same origin as the page itself.",
-				deny: "The page cannot be displayed in a frame, regardless of the site attempting to do so.",
-				allow: "The page can only be displayed in a frame on the specified URL."
-			},
-			browsercache_security_xss_directive:
-			{
-				0: "Disables XSS filtering.",
-				1: "Enables XSS filtering (usually default in browsers). If a cross-site scripting attack is detected, the browser will sanitize the page (remove the unsafe parts).",
-				block: "Enables <acronym title='Cross-Site Scripting'>XSS</acronym> filtering. Rather than sanitizing the page, the browser will prevent rendering of the page if an attack is detected."
-			},
-			browsercache_security_pkp_extra:
-			{
-				maxage: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using one of the defined keys. This only affects the site\'s main domain.',
-				maxageinc: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using one of the defined keys. This affects the site\'s subdomains as well.'
-			},
-			browsercache_security_pkp_report_only:
-			{
-				0: 'This instructs the browser to enforce the <acronym title="HTTP Public Key Pinning">HPKP</acronym> policy.',
-				1: 'This sets up <acronym title="HTTP Public Key Pinning">HPKP</acronym> without enforcement allowing you to use pinning to test its impact without the risk of a failed connection caused by your site being unreachable or <acronym title="HTTP Public Key Pinning">HPKP</acronym> being misconfigured.'
-			}
-		};
+	var directive_description = {
+		browsercache_security_hsts_directive: {
+			maxage: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym>. This only affects the site\'s main domain.',
+			maxagepre: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym> with a request to be included in Chrome\'s HSTS preload list - a list of sites that are hardcoded into Chrome as being <acronym title="HyperText Transfer Protocol over SSL">https</acronym> only. This only affects the site\'s main domain.',
+			maxageinc: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym>. This affects the site\'s subdomains as well.',
+			maxageincpre: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using <acronym title="HyperText Transfer Protocol over SSL">HTTPS</acronym> with a request to be included in Chrome\'s HSTS preload list - a list of sites that are hardcoded into Chrome as being <acronym title="HyperText Transfer Protocol over SSL">https</acronym> only. This affects the site\'s subdomains as well.'
+		},
+		browsercache_security_xfo_directive: {
+			same: "The page can only be displayed in a frame on the same origin as the page itself.",
+			deny: "The page cannot be displayed in a frame, regardless of the site attempting to do so.",
+			allow: "The page can only be displayed in a frame on the specified URL."
+		},
+		browsercache_security_xss_directive: {
+			0: "Disables XSS filtering.",
+			1: "Enables XSS filtering (usually default in browsers). If a cross-site scripting attack is detected, the browser will sanitize the page (remove the unsafe parts).",
+			block: "Enables <acronym title='Cross-Site Scripting'>XSS</acronym> filtering. Rather than sanitizing the page, the browser will prevent rendering of the page if an attack is detected."
+		},
+		browsercache_security_pkp_extra: {
+			maxage: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using one of the defined keys. This only affects the site\'s main domain.',
+			maxageinc: 'The time, in seconds (as defined under the "Expires Header Lifetime" box of "Media & Other Files"), that the browser should remember that this site is only to be accessed using one of the defined keys. This affects the site\'s subdomains as well.'
+		},
+		browsercache_security_pkp_report_only: {
+			0: 'This instructs the browser to enforce the <acronym title="HTTP Public Key Pinning">HPKP</acronym> policy.',
+			1: 'This sets up <acronym title="HTTP Public Key Pinning">HPKP</acronym> without enforcement allowing you to use pinning to test its impact without the risk of a failed connection caused by your site being unreachable or <acronym title="HTTP Public Key Pinning">HPKP</acronym> being misconfigured.'
+		}
+	};
 
-	jQuery('#browsercache_security_hsts_directive,#browsercache_security_xfo_directive,#browsercache_security_xss_directive,#browsercache_security_pkp_extra,#browsercache_security_pkp_report_only').on( 'change',
-	function() {
-		jQuery('#' + jQuery(this).attr('id') + '_description').html('<i>' + directive_description[jQuery(this).attr('id')][jQuery(this).val()] + '</i>');
+	jQuery('#browsercache_security_hsts_directive,#browsercache_security_xfo_directive,#browsercache_security_xss_directive,#browsercache_security_pkp_extra,#browsercache_security_pkp_report_only').on('change',
+		function() {
+			jQuery('#' + jQuery(this).attr('id') + '_description').html('<i>' + directive_description[jQuery(this).attr('id')][jQuery(this).val()] + '</i>');
 			if (jQuery(this).attr('id') == 'browsercache_security_xfo_directive') {
 				if (jQuery(this).val() == 'allow') {
 					jQuery('#browsercache_security_xfo_allow').show();
-				}else {
+				} else {
 					jQuery('#browsercache_security_xfo_allow').hide();
 				}
 			}
-	});
+		});
 
-	if(jQuery('#browsercache_security_xfo_allow').length) {
+	if (jQuery('#browsercache_security_xfo_allow').length) {
 		if (jQuery('#browsercache_security_xfo_directive').val() == 'allow') {
 			jQuery('#browsercache_security_xfo_allow').show();
 		} else {
 			jQuery('#browsercache_security_xfo_allow').hide();
 		}
-		jQuery('#browsercache_security_hsts_directive,#browsercache_security_xfo_directive,#browsercache_security_xss_directive,#browsercache_security_pkp_extra,#browsercache_security_pkp_report_only').on( 'change', );
 	}
 }
 
@@ -315,28 +312,79 @@ function w3tc_csp_reference() {
 		url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
 			'&w3tc_action=browsercache_quick_reference',
 	});
-	jQuery('div#overlay,.lightbox-content').on( 'click', function() {
+	jQuery('div#overlay,.lightbox-content').on('click', function() {
 		W3tc_Lightbox.close();
 	});
 }
 
-function cdn_cf_check() {
+/**
+ * Bunny CDN check.
+ *
+ * Prevent enabling Bunny CDN ("bunnycdn" engine) for both CDN and CDNFSD.
+ *
+ * @since X.X.X
+ *
+ * @returns null
+ */
+function cdn_bunnycdn_check() {
 	// Prevents JS error for non W3TC pages.
-	if ( typeof w3tcData === 'undefined' ) {
+	if (typeof w3tcData === 'undefined') {
 		return;
 	}
 
-	var cdnEnabled = jQuery( '#cdn__enabled' ).is( ':checked' ),
-		cdnEngine = jQuery( '#cdn__engine' ).find( ':selected' ).val(),
-		cdnFlushManually = jQuery( '[name="cdn__flush_manually"]' ).is( ':checked' );
+	var $cdn_enabled = jQuery('#cdn__enabled'),
+		$cdn_engine = jQuery('#cdn__engine'),
+		$cdnfsd_enabled = jQuery('#cdnfsd__enabled'),
+		$cdnfsd_engine = jQuery('#cdnfsd__engine'),
+		cdn_enabled = $cdn_enabled.is(':checked'),
+		cdn_engine = $cdn_engine.find(':selected').val(),
+		cdnfsd_enabled = $cdnfsd_enabled.is(':checked'),
+		cdnfsd_engine = $cdnfsd_engine.find(':selected').val(),
+		$cdn_inside = jQuery('#cdn .inside');
+
+	if (cdn_enabled && cdnfsd_enabled && 'bunnycdn' === cdn_engine && cdnfsd_engine === cdn_engine ) {
+		// Reset to what was last saved.
+		$cdn_enabled.prop('checked', w3tcData.cdnEnabled);
+		$cdn_engine.val(w3tcData.cdnEngine).change();
+		$cdnfsd_enabled.prop('checked', w3tcData.cdnfsdEnabled);
+		$cdnfsd_engine.val(w3tcData.cdnfsdEngine).change();
+
+		// Display a warning.
+		jQuery('<div/>', {
+			class: 'notice notice-warning',
+			id: 'w3tc-bunnycdn-warning',
+			text: w3tcData.bunnyCdnWarning
+		}).prependTo($cdn_inside);
+	} else {
+		// Remove the warning.
+		jQuery('#w3tc-bunnycdn-warning').remove();
+	}
+}
+
+/**
+ * Cloudfront CDN check.
+ *
+ * When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
+ *
+ * @returns null
+ */
+function cdn_cf_check() {
+	// Prevents JS error for non W3TC pages.
+	if (typeof w3tcData === 'undefined') {
+		return;
+	}
+
+	var cdnEnabled = jQuery('#cdn__enabled').is(':checked'),
+		cdnEngine = jQuery('#cdn__engine').find(':selected').val(),
+		cdnFlushManually = jQuery('[name="cdn__flush_manually"]').is(':checked');
 
 	// Remove any cf admin notices.
-	jQuery( '.w3tc-cf-notice' ).remove();
+	jQuery('.w3tc-cf-notice').remove();
 
 	// General page.
-	if ( ! w3tcData.cdnFlushManually && cdnEnabled && ( 'cf' === cdnEngine || 'cf2' === cdnEngine ) ) {
+	if (!w3tcData.cdnFlushManually && cdnEnabled && ('cf' === cdnEngine || 'cf2' === cdnEngine)) {
 		// Print cf admin notice.
-		jQuery( '#cdn .inside' ).prepend(
+		jQuery('#cdn .inside').prepend(
 			'<div class="notice notice-warning inline w3tc-cf-notice"><p>' +
 			w3tcData.cfWarning +
 			'</p></div>'
@@ -344,22 +392,64 @@ function cdn_cf_check() {
 	}
 
 	// CDN page.
-	if ( ! cdnFlushManually && w3tcData.cdnEnabled && ( 'cf' === w3tcData.cdnEngine || 'cf2' === w3tcData.cdnEngine ) ) {
+	if (!cdnFlushManually && w3tcData.cdnEnabled && ('cf' === w3tcData.cdnEngine || 'cf2' === w3tcData.cdnEngine)) {
 		// Show warning on the CDN page for flush manually.
-		jQuery( '#cdn-flushmanually-warning' ).show();
+		jQuery('#cdn-flushmanually-warning').show();
 	} else {
 		// Hide warning on the CDN page for flush manually.
-		jQuery( '#cdn-flushmanually-warning' ).hide();
+		jQuery('#cdn-flushmanually-warning').hide();
 	}
 }
 
+function set_sticky_bar_positions() {
+	jQuery('#w3tc > #w3tc-options-menu').css(
+		'top',
+		Math.floor(
+			((jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0) +
+			jQuery('#w3tc-top-nav-bar').outerHeight()
+		)
+	);
+	jQuery('.w3tc_form_bar').css(
+		'top',
+		Math.floor(
+			((jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0) +
+			jQuery('#w3tc-top-nav-bar').outerHeight() +
+			((jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0)
+		)
+	);
+}
+
+
+function set_footer_position() {
+	jQuery('#w3tc-footer').insertAfter(jQuery('#wpfooter'));
+	jQuery('#w3tc-footer').css(
+		'bottom',
+		Math.floor(0 - jQuery('#w3tc-footer').outerHeight())
+	);
+}
+
+function debounce(func){
+	var timer;
+	return function(event){
+	  	if(timer){
+			clearTimeout(timer);
+		}
+	  	timer = setTimeout(func,100,event);
+	};
+}
+
+// On document ready.
 jQuery(function() {
-	// general page
-	jQuery('.w3tc_read_technical_info').on( 'click', function() {
+	// Global vars.
+	var $cdn_enabled = jQuery('#cdn__enabled'),
+		$cdn_engine = jQuery('#cdn__engine');
+
+	// General page.
+	jQuery('.w3tc_read_technical_info').on('click', function() {
 		jQuery('.w3tc_technical_info').toggle();
 	});
 
-	jQuery('#plugin_license_key_verify').on( 'click', function() {
+	jQuery('#plugin_license_key_verify').on('click', function() {
 		jQuery('.w3tc_license_verification').html("Checking...");
 
 		var license_key = jQuery('#plugin_license_key').val();
@@ -390,63 +480,66 @@ jQuery(function() {
 		});
 	});
 
+	// Prevent enabling Bunny CDN for both CDN and CDNFSD.
+	$cdn_enabled.on('click', cdn_bunnycdn_check);
+	$cdn_engine.on('change', cdn_bunnycdn_check);
+	jQuery('#cdnfsd__enabled').on('click', cdn_bunnycdn_check);
+	jQuery('#cdnfsd__engine').on('change', cdn_bunnycdn_check);
+
 	// When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
 	cdn_cf_check();
-	jQuery( '#cdn__enabled' ).on( 'click', cdn_cf_check );
-	jQuery( '#cdn__engine' ).on( 'change', cdn_cf_check );
+	$cdn_enabled.on('click', cdn_cf_check);
+	$cdn_engine.on('change', cdn_cf_check);
 
 	/**
 	 * CDN page.
 	 * When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
 	 */
-	 jQuery( '[name="cdn__flush_manually"]' ).on( 'click', cdn_cf_check );
+	jQuery('[name="cdn__flush_manually"]').on('click', cdn_cf_check);
 
-	// pagecache page
+	// Pagecache page.
 	w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
-	jQuery('#pgcache__reject__logged_roles').on('click', function () {
+	jQuery('#pgcache__reject__logged_roles').on('click', function() {
 		w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
 	});
 
-	if(jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-		jQuery('#pgcache__cache__nginx_handle_xml').attr('checked',jQuery('#pgcache__cache__feed').is(':checked'));
+	if (jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
+		jQuery('#pgcache__cache__nginx_handle_xml').attr('checked', jQuery('#pgcache__cache__feed').is(':checked'));
 
-	jQuery('#pgcache__cache__feed').on( 'change', function(){
-		if(jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-			jQuery('#pgcache__cache__nginx_handle_xml').attr('checked',this.checked);
+	jQuery('#pgcache__cache__feed').on('change', function() {
+		if (jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
+			jQuery('#pgcache__cache__nginx_handle_xml').attr('checked', this.checked);
 	});
 
-	// browsercache page
-	w3tc_toggle2('browsercache_last_modified',
-		['browsercache__cssjs__last_modified', 'browsercache__html__last_modified',
-			'browsercache__other__last_modified']);
-	w3tc_toggle2('browsercache_expires',
-		['browsercache__cssjs__expires', 'browsercache__html__expires',
-			'browsercache__other__expires']);
-	w3tc_toggle2('browsercache_cache_control',
-		['browsercache__cssjs__cache__control', 'browsercache__html__cache__control',
-			'browsercache__other__cache__control']);
-	w3tc_toggle2('browsercache_etag',
-		['browsercache__cssjs__etag', 'browsercache__html__etag',
-			'browsercache__other__etag']);
-	w3tc_toggle2('browsercache_w3tc',
-		['browsercache__cssjs__w3tc', 'browsercache__html__w3tc',
-			'browsercache__other__w3tc']);
-	w3tc_toggle2('browsercache_compression',
-		['browsercache__cssjs__compression', 'browsercache__html__compression',
-			'browsercache__other__compression']);
-	w3tc_toggle2('browsercache_brotli',
-		['browsercache__cssjs__brotli', 'browsercache__html__brotli',
-			'browsercache__other__brotli']);
-	w3tc_toggle2('browsercache_replace',
-		['browsercache__cssjs__replace', 'browsercache__other__replace']);
-	w3tc_toggle2('browsercache_querystring',
-		['browsercache__cssjs__querystring', 'browsercache__other__querystring']);
-	w3tc_toggle2('browsercache_nocookies',
-		['browsercache__cssjs__nocookies', 'browsercache__other__nocookies']);
+	// Browsercache page.
+	w3tc_toggle2('browsercache_last_modified', ['browsercache__cssjs__last_modified', 'browsercache__html__last_modified',
+		'browsercache__other__last_modified'
+	]);
+	w3tc_toggle2('browsercache_expires', ['browsercache__cssjs__expires', 'browsercache__html__expires',
+		'browsercache__other__expires'
+	]);
+	w3tc_toggle2('browsercache_cache_control', ['browsercache__cssjs__cache__control', 'browsercache__html__cache__control',
+		'browsercache__other__cache__control'
+	]);
+	w3tc_toggle2('browsercache_etag', ['browsercache__cssjs__etag', 'browsercache__html__etag',
+		'browsercache__other__etag'
+	]);
+	w3tc_toggle2('browsercache_w3tc', ['browsercache__cssjs__w3tc', 'browsercache__html__w3tc',
+		'browsercache__other__w3tc'
+	]);
+	w3tc_toggle2('browsercache_compression', ['browsercache__cssjs__compression', 'browsercache__html__compression',
+		'browsercache__other__compression'
+	]);
+	w3tc_toggle2('browsercache_brotli', ['browsercache__cssjs__brotli', 'browsercache__html__brotli',
+		'browsercache__other__brotli'
+	]);
+	w3tc_toggle2('browsercache_replace', ['browsercache__cssjs__replace', 'browsercache__other__replace']);
+	w3tc_toggle2('browsercache_querystring', ['browsercache__cssjs__querystring', 'browsercache__other__querystring']);
+	w3tc_toggle2('browsercache_nocookies', ['browsercache__cssjs__nocookies', 'browsercache__other__nocookies']);
 
 	w3tc_security_headers();
 
-	// minify page
+	// Minify page.
 	w3tc_input_enable('.html_enabled', jQuery('#minify__html__enable:checked').length);
 	w3tc_input_enable('.js_enabled', jQuery('#minify__js__enable:checked').length);
 	w3tc_input_enable('.css_enabled', jQuery('#minify__css__enable:checked').length);
@@ -454,19 +547,19 @@ jQuery(function() {
 	w3tc_minify_js_theme(jQuery('#js_themes').val());
 	w3tc_minify_css_theme(jQuery('#css_themes').val());
 
-	jQuery('#minify__html__enable').on( 'click', function() {
+	jQuery('#minify__html__enable').on('click', function() {
 		w3tc_input_enable('.html_enabled', this.checked);
 	});
 
-	jQuery('#minify__js__enable').on( 'click', function() {
+	jQuery('#minify__js__enable').on('click', function() {
 		w3tc_input_enable('.js_enabled', jQuery(this).is(':checked'));
 	});
 
-	jQuery('#minify__css__enable').on( 'click', function() {
+	jQuery('#minify__css__enable').on('click', function() {
 		w3tc_input_enable('.css_enabled', jQuery(this).is(':checked'));
 	});
 
-	jQuery('.js_file_verify,.css_file_verify').on('click', function () {
+	jQuery('.js_file_verify,.css_file_verify').on('click', function() {
 		var file = jQuery(this).parents('li').find(':text').val();
 		if (file == '') {
 			alert('Empty URI');
@@ -481,19 +574,19 @@ jQuery(function() {
 		}
 	});
 
-	jQuery('.js_file_template').on('change', function () {
+	jQuery('.js_file_template').on('change', function() {
 		jQuery(this).parents('li').find(':text').attr('name', 'js_files[' + jQuery('#js_themes').val() + '][' + jQuery(this).val() + '][' + jQuery(this).parents('li').find('.js_file_location').val() + '][]');
 	});
 
-	jQuery('.css_file_template').on('change', function () {
+	jQuery('.css_file_template').on('change', function() {
 		jQuery(this).parents('li').find(':text').attr('name', 'css_files[' + jQuery('#css_themes').val() + '][' + jQuery(this).val() + '][include][]');
 	});
 
-	jQuery('.js_file_location').on('change', function () {
+	jQuery('.js_file_location').on('change', function() {
 		jQuery(this).parents('li').find(':text').attr('name', 'js_files[' + jQuery('#js_themes').val() + '][' + jQuery(this).parents('li').find('.js_file_template').val() + '][' + jQuery(this).val() + '][]');
 	});
 
-	jQuery('.js_file_delete').on('click', function () {
+	jQuery('.js_file_delete').on('click', function() {
 		var parent = jQuery(this).parents('li');
 		if (parent.find('input[type=text]').val() == '' || confirm('Are you sure you want to remove this JS file?')) {
 			parent.remove();
@@ -504,7 +597,7 @@ jQuery(function() {
 		return false;
 	});
 
-	jQuery('.css_file_delete').on('click', function () {
+	jQuery('.css_file_delete').on('click', function() {
 		var parent = jQuery(this).parents('li');
 		if (parent.find('input[type=text]').val() == '' || confirm('Are you sure you want to remove this CSS file?')) {
 			parent.remove();
@@ -515,27 +608,36 @@ jQuery(function() {
 		return false;
 	});
 
-	jQuery('#js_file_add').on( 'click', function() {
+	jQuery('#js_file_add').on('click', function() {
 		w3tc_minify_js_file_add(jQuery('#js_themes').val(), 'default', 'include', '');
 	});
 
-	jQuery('#css_file_add').on( 'click', function() {
+	jQuery('#css_file_add').on('click', function() {
 		w3tc_minify_css_file_add(jQuery('#css_themes').val(), 'default', '');
 	});
 
-	jQuery('#js_themes').on( 'change', function() {
+	jQuery('#js_themes').on('change', function() {
 		w3tc_minify_js_theme(jQuery(this).val());
 	});
 
-	jQuery('#css_themes').on( 'change', function() {
+	jQuery('#css_themes').on('change', function() {
 		w3tc_minify_css_theme(jQuery(this).val());
 	});
 
-	jQuery('#minify_form').on( 'submit', function() {
-		var js = [], css = [], invalid_js = [], invalid_css = [], duplicate = false, query_js = [], query_css = [];
+	jQuery('#minify_form').on('submit', function() {
+		var js = [],
+			css = [],
+			invalid_js = [],
+			invalid_css = [],
+			duplicate = false,
+			query_js = [],
+			query_css = [];
 
 		jQuery('#js_files :text').each(function() {
-			var v = jQuery(this).val(), n = jQuery(this).attr('name'), c = v + n, g = '';
+			var v = jQuery(this).val(),
+				n = jQuery(this).attr('name'),
+				c = v + n,
+				g = '';
 			var match = /js_files\[([a-z0-9_\/]+)\]/.exec(n);
 			if (match) {
 				g = '[' + jQuery('#js_themes option[value=' + match[1] + ']').text() + '] ' + v;
@@ -563,7 +665,10 @@ jQuery(function() {
 		});
 
 		jQuery('#css_files :text').each(function() {
-			var v = jQuery(this).val(), n = jQuery(this).attr('name'), c = v + n, g = '';
+			var v = jQuery(this).val(),
+				n = jQuery(this).attr('name'),
+				c = v + n,
+				g = '';
 			var match = /css_files\[([a-z0-9_\/]+)\]/.exec(n);
 			if (match) {
 				g = '[' + jQuery('#css_themes option[value=' + match[1] + ']').text() + '] ' + v;
@@ -620,55 +725,55 @@ jQuery(function() {
 		return true;
 	});
 
-	// CDN
-	jQuery('.w3tc-tab').on( 'click', function() {
+	// CDN.
+	jQuery('.w3tc-tab').on('click', function() {
 		jQuery('.w3tc-tab-content').hide();
 		jQuery(this.rel).show();
 	});
 
 	w3tc_input_enable('#cdn_reject_roles input[type=checkbox]', jQuery('#cdn__reject__logged_roles:checked').length);
-	jQuery('#cdn__reject__logged_roles').on('click', function () {
+	jQuery('#cdn__reject__logged_roles').on('click', function() {
 		w3tc_input_enable('#cdn_reject_roles input[type=checkbox]', jQuery('#cdn__reject__logged_roles:checked').length);
 	});
 
-	jQuery('#cdn_export_library').on( 'click', function() {
+	jQuery('#cdn_export_library').on('click', function() {
 		w3tc_popup('admin.php?page=w3tc_cdn&w3tc_cdn_export_library&_wpnonce=' + jQuery(this).metadata().nonce, 'cdn_export_library');
 	});
 
-	jQuery('#cdn_import_library').on( 'click', function() {
+	jQuery('#cdn_import_library').on('click', function() {
 		w3tc_popup('admin.php?page=w3tc_cdn&w3tc_cdn_import_library&_wpnonce=' + jQuery(this).metadata().nonce, 'cdn_import_library');
 	});
 
-	jQuery('#cdn_queue').on( 'click', function() {
+	jQuery('#cdn_queue').on('click', function() {
 		w3tc_popup('admin.php?page=w3tc_cdn&w3tc_cdn_queue&_wpnonce=' + jQuery(this).metadata().nonce, 'cdn_queue');
 	});
 
-	jQuery('#cdn_rename_domain').on( 'click', function() {
+	jQuery('#cdn_rename_domain').on('click', function() {
 		w3tc_popup('admin.php?page=w3tc_cdn&w3tc_cdn_rename_domain&_wpnonce=' + jQuery(this).metadata().nonce, 'cdn_rename_domain');
 	});
 
-	jQuery('#cdn_purge').on( 'click', function() {
+	jQuery('#cdn_purge').on('click', function() {
 		w3tc_popup('admin.php?page=w3tc_cdn&w3tc_cdn_purge&_wpnonce=' + jQuery(this).metadata().nonce, 'cdn_purge');
 	});
 
-	jQuery('.cdn_export').on( 'click', function() {
+	jQuery('.cdn_export').on('click', function() {
 		var metadata = jQuery(this).metadata();
 		w3tc_popup('admin.php?page=w3tc_cdn&w3tc_cdn_export&cdn_export_type=' + metadata.type + '&_wpnonce=' + metadata.nonce, 'cdn_export_' + metadata.type);
 	});
 
-	jQuery('#validate_cdn_key').on( 'click', function() {
-	  var me = jQuery(this);
-	  var metadata = me.metadata();
-	  w3tc_validate_cdn_key_result(metadata.type, metadata.nonce);
+	jQuery('#validate_cdn_key').on('click', function() {
+		var me = jQuery(this);
+		var metadata = me.metadata();
+		w3tc_validate_cdn_key_result(metadata.type, metadata.nonce);
 	});
 
-	jQuery('#use_poll_zone').on( 'click', function() {
-	  var me = jQuery(this);
-	  var metadata = me.metadata();
-	  w3tc_use_poll_zone(metadata.type, metadata.nonce);
+	jQuery('#use_poll_zone').on('click', function() {
+		var me = jQuery(this);
+		var metadata = me.metadata();
+		w3tc_use_poll_zone(metadata.type, metadata.nonce);
 	});
 
-	jQuery('#cdn_test').on( 'click', function() {
+	jQuery('#cdn_test').on('click', function() {
 		var me = jQuery(this);
 		var metadata = me.metadata();
 		var cnames = w3tc_cdn_get_cnames();
@@ -779,7 +884,8 @@ jQuery(function() {
 				break;
 
 			case 'cotendo':
-				var zones = [], zones_val = jQuery('#cdn_cotendo_zones').val();
+				var zones = [],
+					zones_val = jQuery('#cdn_cotendo_zones').val();
 
 				if (zones_val) {
 					zones = zones_val.split(/[\r\n,;]+/);
@@ -800,7 +906,8 @@ jQuery(function() {
 				}
 				break;
 			case 'akamai':
-				var emails = [], emails_val = jQuery('#cdn_akamai_email_notification').val();
+				var emails = [],
+					emails_val = jQuery('#cdn_akamai_email_notification').val();
 
 				if (emails_val) {
 					emails = emails_val.split(/[\r\n,;]+/);
@@ -872,7 +979,7 @@ jQuery(function() {
 		});
 	});
 
-	jQuery('#cdn_create_container').on('click', function () {
+	jQuery('#cdn_create_container').on('click', function() {
 		var me = jQuery(this);
 		var metadata = me.metadata();
 		var cnames = w3tc_cdn_get_cnames();
@@ -984,50 +1091,53 @@ jQuery(function() {
 		});
 	});
 
-	jQuery('#memcached_test').on( 'click', function() {
+	jQuery('#memcached_test').on('click', function() {
 		var status = jQuery('#memcached_test_status');
 		status.removeClass('w3tc-error');
 		status.removeClass('w3tc-success');
 		status.addClass('w3tc-process');
 		status.html('Testing...');
 		jQuery.post('admin.php?page=w3tc_dashboard', {
-			w3tc_test_memcached: 1,
-			servers: jQuery('#memcached_servers').val(),
-			_wpnonce: jQuery(this).metadata().nonce
-		}, function(data) {
-			status.addClass(data.result ? 'w3tc-success' : 'w3tc-error');
-			status.html(data.error);
-		}, 'json')
-		.fail(function() {
-			status.addClass('w3tc-error');
-			status.html('Request failed');
-		});
+				w3tc_test_memcached: 1,
+				servers: jQuery('#memcached_servers').val().replace(/(\r\n|\r|\n)/g,','),
+				binary_protocol: jQuery('[id$=__memcached__binary_protocol]').is(':checked'),
+				username: jQuery('#memcached_username').val(),
+				password: jQuery('#memcached_password').val(),
+				_wpnonce: jQuery(this).metadata().nonce
+			}, function(data) {
+				status.addClass(data.result ? 'w3tc-success' : 'w3tc-error');
+				status.html(data.error);
+			}, 'json')
+			.fail(function() {
+				status.addClass('w3tc-error');
+				status.html('Request failed');
+			});
 	});
 
-	jQuery('.w3tc_common_redis_test').on( 'click', function() {
+	jQuery('.w3tc_common_redis_test').on('click', function() {
 		var status = jQuery('.w3tc_common_redis_test_result');
 		status.removeClass('w3tc-error');
 		status.removeClass('w3tc-success');
 		status.addClass('w3tc-process');
 		status.html('Testing...');
 		jQuery.post('admin.php?page=w3tc_dashboard', {
-			w3tc_test_redis: 1,
-			servers: jQuery('#redis_servers').val(),
-			verify_tls_certificates: jQuery('[id$=__redis__verify_tls_certificates]').is(':checked'),
-			dbid : jQuery('#redis_dbid').val(),
-			password : jQuery('#redis_password').val(),
-			_wpnonce: jQuery(this).metadata().nonce
-		}, function(data) {
-			status.addClass(data.result ? 'w3tc-success' : 'w3tc-error');
-			status.html(data.error);
-		}, 'json')
-		.fail(function() {
-			status.addClass('w3tc-error');
-			status.html('Request failed');
-		});
+				w3tc_test_redis: 1,
+				servers: jQuery('#redis_servers').val().replace(/(\r\n|\r|\n)/g,','),
+				verify_tls_certificates: jQuery('[id$=__redis__verify_tls_certificates]').is(':checked'),
+				dbid: jQuery('#redis_dbid').val(),
+				password: jQuery('#redis_password').val(),
+				_wpnonce: jQuery(this).metadata().nonce
+			}, function(data) {
+				status.addClass(data.result ? 'w3tc-success' : 'w3tc-error');
+				status.html(data.error);
+			}, 'json')
+			.fail(function() {
+				status.addClass('w3tc-error');
+				status.html('Request failed');
+			});
 	});
 
-	jQuery('.minifier_test').on( 'click', function() {
+	jQuery('.minifier_test').on('click', function() {
 		var me = jQuery(this);
 		var metadata = me.metadata();
 		var params = {
@@ -1078,14 +1188,14 @@ jQuery(function() {
 		}, 'json');
 	});
 
-	// CDN cnames
+	// CDN cnames.
 	jQuery('body').on('click', '#cdn_cname_add', function() {
 		jQuery('#cdn_cnames').append('<li><input type="text" name="cdn_cnames[]" value="" size="60" /> <input class="button cdn_cname_delete" type="button" value="Delete" /> <span></span></li>');
 		w3tc_cdn_cnames_assign();
 		jQuery(this).trigger("size_change");
 	});
 
-	jQuery('.cdn_cname_delete').on('click', function () {
+	jQuery('.cdn_cname_delete').on('click', function() {
 		var p = jQuery(this).parent();
 		if (p.find('input[type=text]').val() == '' || confirm('Are you sure you want to remove this CNAME?')) {
 			p.remove();
@@ -1094,8 +1204,9 @@ jQuery(function() {
 		}
 	});
 
-	jQuery('#cdn_form').on( 'submit', function() {
-		var cnames = [], ret = true;
+	jQuery('#cdn_form').on('submit', function() {
+		var cnames = [],
+			ret = true;
 
 		jQuery('#cdn_cnames input[type=text]').each(function() {
 			var cname = jQuery(this).val();
@@ -1115,7 +1226,7 @@ jQuery(function() {
 		return ret;
 	});
 
-	// add sortable
+	// Add sortable.
 	if (jQuery.ui && jQuery.ui.sortable) {
 		jQuery('#js_files,#css_files').sortable({
 			axis: 'y',
@@ -1150,9 +1261,10 @@ jQuery(function() {
 		});
 	}
 
-	// show hide rules
-	jQuery('.w3tc-show-rules').on( 'click', function() {
-		var btn = jQuery(this), rules = btn.parent().find('.w3tc-rules');
+	// Show hide rules.
+	jQuery('.w3tc-show-rules').on('click', function() {
+		var btn = jQuery(this),
+			rules = btn.parent().find('.w3tc-rules');
 
 		if (rules.is(':visible')) {
 			rules.css('display', 'none');
@@ -1164,9 +1276,10 @@ jQuery(function() {
 	});
 
 
-	// show hide missing files
-	jQuery('.w3tc-show-required-changes').on( 'click', function() {
-		var btn = jQuery(this), rules = jQuery('.w3tc-required-changes');
+	// Show hide missing files.
+	jQuery('.w3tc-show-required-changes').on('click', function() {
+		var btn = jQuery(this),
+			rules = jQuery('.w3tc-required-changes');
 
 		if (rules.is(':visible')) {
 			rules.css('display', 'none');
@@ -1177,9 +1290,10 @@ jQuery(function() {
 		}
 	});
 
-	// show hide missing files
-	jQuery('.w3tc-show-ftp-form').on( 'click', function() {
-		var btn = jQuery(this), rules = jQuery('.w3tc-ftp-form');
+	// Show hide missing files.
+	jQuery('.w3tc-show-ftp-form').on('click', function() {
+		var btn = jQuery(this),
+			rules = jQuery('.w3tc-ftp-form');
 
 		if (rules.is(':visible')) {
 			rules.css('display', 'none');
@@ -1190,9 +1304,10 @@ jQuery(function() {
 		}
 	});
 
-	// show hide missing files
-	jQuery('.w3tc-show-technical-info').on( 'click', function() {
-		var btn = jQuery(this), info = jQuery('.w3tc-technical-info');
+	// Show hide missing files.
+	jQuery('.w3tc-show-technical-info').on('click', function() {
+		var btn = jQuery(this),
+			info = jQuery('.w3tc-technical-info');
 
 		if (info.is(':visible')) {
 			info.css('display', 'none');
@@ -1203,19 +1318,19 @@ jQuery(function() {
 		}
 	});
 
-	// add ignore class to the ftp form elements
+	// Add ignore class to the ftp form elements.
 	jQuery('#ftp_upload_form').find('input').each(function() {
 		jQuery(this).addClass('w3tc-ignore-change');
 	});
 
-	// toggle hiddent content
-	jQuery('.w3tc_link_more').on( 'click', function() {
+	// Toggle hidden content.
+	jQuery('.w3tc_link_more').on('click', function() {
 		var target_class = jQuery(this).metadata().for_class;
 		jQuery('.' + target_class).slideToggle();
 	});
 
-	// check for unsaved changes
-	jQuery('#w3tc input,#w3tc select,#w3tc textarea').on('change', function () {
+	// Check for unsaved changes.
+	jQuery('#w3tc input,#w3tc select,#w3tc textarea').on('change', function() {
 		var ignore = false;
 		jQuery(this).parents().addBack().each(function() {
 			if (jQuery(this).hasClass('w3tc-ignore-change') || jQuery(this).hasClass('lightbox')) {
@@ -1231,19 +1346,19 @@ jQuery(function() {
 
 	jQuery('body').on('click', '.w3tc-button-save', w3tc_beforeupload_unbind);
 
-
-	jQuery('.contextual-help-tabs ul li a').on( 'click', function() {
+	jQuery('.contextual-help-tabs ul li a').on('click', function() {
 		var id = jQuery(this).attr('aria-controls');
 		var i = jQuery('#' + id + ' .w3tchelp_content');
 		w3tc_load_faq_section(i);
 	});
 
-	jQuery('#contextual-help-link').on( 'click', function() {
+	jQuery('#contextual-help-link').on('click', function() {
 		var i = jQuery('.w3tchelp_content').first();
 		w3tc_load_faq_section(i);
 	});
 
 	var w3tchelp_loaded = {};
+
 	function w3tc_load_faq_section(i) {
 		var section = i.data('section');
 
@@ -1267,8 +1382,8 @@ jQuery(function() {
 		});
 	}
 
-	// extensions page
-	jQuery('.w3tc_extensions_manage_input_checkall').on( 'click', function(v) {
+	// Extensions page.
+	jQuery('.w3tc_extensions_manage_input_checkall').on('click', function(v) {
 		var c = jQuery(this).is(':checked');
 
 		jQuery('.w3tc_extensions_manage_input_checkall').prop('checked', c);
@@ -1278,8 +1393,8 @@ jQuery(function() {
 		});
 	});
 
-	// gopro block
-	jQuery('.w3tc-gopro-more').on( 'click', function(e) {
+	// Go Pro block.
+	jQuery('.w3tc-gopro-more').on('click', function(e) {
 		e.preventDefault();
 		if (!jQuery(this).data('expanded')) {
 			jQuery(this).data('expanded', '1');
@@ -1292,37 +1407,172 @@ jQuery(function() {
 		}
 
 		if (window.w3tc_ga) {
-			w3tc_ga('send', 'event', 'anchor', 'click',
-				jQuery(this).data('href'));
+			w3tc_ga(
+				'event',
+				'anchor',
+				{
+					eventCategory: 'click',
+					eventLabel: jQuery(this).data('href')
+				}
+			);
 		}
-
 	});
 
-	// google analytics events
+	// Bootstrap dropdown toggle.
+	jQuery('.dropdown-toggle').on('click', function() {
+		jQuery('.dropdown-toggle').not(this).next().hide();
+		jQuery(this).next().toggle();
+	});
+
+	// Bootstrap dropdown hide on click away.
+	jQuery(document).mouseup(function(e) {
+		var dropdowns = jQuery('.dropdown-toggle');
+		if (!dropdowns.is(e.target) && dropdowns.has(e.target).length === 0) {
+			dropdowns.next().hide();
+		}
+	});
+
+	// Options menu anchor links.
+	jQuery('#w3tc-top-nav-bar a').on('click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				{
+					eventCategory: 'w3tc_topnav_bar',
+					eventAction: 'link',
+					eventLabel: jQuery(this).text()
+				}
+			);
+		}
+	});
+
+	// Options menu anchor links.
+	jQuery('#w3tc-options-menu a').on('click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				{
+					eventCategory: 'w3tc_options_menu',
+					eventAction: 'anchor',
+					eventLabel: jQuery(this).text()
+				}
+			);
+		}
+	});
+
+	// Form control bar buttons.
+	jQuery('.w3tc_form_bar input').on('click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				{
+					eventCategory: 'w3tc_form_bar',
+					eventAction: 'button',
+					eventLabel: jQuery(this).text()
+				}
+			);
+		}
+	});
+
+	// Footer links.
+	jQuery('#w3tc-footer a').on('click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				{
+					eventCategory: 'w3tc_footer',
+					eventAction: 'link',
+					eventLabel: jQuery(this).text()
+				}
+			);
+		}
+	});
+
+	// General settings advanced options links.
+	jQuery('.advanced-settings a').on('click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				{
+					eventCategory: 'w3tc_general_advanced_tab',
+					eventAction: 'link',
+					eventLabel: jQuery(this).attr('gatitle')
+				}
+			);
+		}
+	});
+
+	// Extra links.
+	jQuery('.extra-link a').on('click', function(e) {
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				{
+					eventCategory: 'w3tc_general_extra_link_tab',
+					eventAction: 'link',
+					eventLabel: jQuery(this).attr('gatitle')
+				}
+			);
+		}
+	});
+
+	// Analytics events.
 	if (typeof w3tc_ga != 'undefined') {
 		jQuery('.w3tc_error').each(function() {
 			var id = jQuery(this).attr('id');
 			var text = jQuery(this).text();
-			if (id && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'w3tc_error', id, text);
+			if (id && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'w3tc_error',
+					{
+						eventCategory: id,
+						eventLabel: text
+					}
+				);
+			}
 		});
 		jQuery('.w3tc_note').each(function() {
 			var id = jQuery(this).attr('id');
 			var text = jQuery(this).text();
-			if (id && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'w3tc_note', id, text);
+			if (id && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'w3tc_note',
+					{
+						eventCategory: id,
+						eventLabel: text
+					}
+				);
+			}
 		});
 
 		jQuery('body').on('click', 'a', function() {
 			var url = jQuery(this).attr('href');
-			if (url && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'anchor', 'click', url, {useBeacon: true});
+			if (url && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'anchor',
+					{
+						eventCategory: 'click',
+						eventLabel: url
+					}
+				);
+			}
 		});
 
 		jQuery('body').on('click', 'input[type="button"]', function() {
 			var name = jQuery(this).attr('name');
-			if (name && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'button', 'click', name, {useBeacon: true});
+			if (name && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'button',
+					{
+						eventCategory: 'click',
+						eventLabel: name
+					}
+				);
+			}
 		});
 		jQuery('body').on('click', 'input[type="submit"]', function() {
 			var name = jQuery(this).attr('name');
@@ -1330,24 +1580,98 @@ jQuery(function() {
 			if (!id)
 				id = name;
 
-			if (name && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'button', id, name, {useBeacon: true});
+			if (name && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'button',
+					{
+						eventCategory: id,
+						eventLabel: name
+					}
+				);
+			}
 		});
 
 		jQuery('body').on('click', 'input[type="checkbox"]', function() {
 			var name = jQuery(this).attr('name');
 			var action = jQuery(this).is(':checked') ? 'check' : 'uncheck';
 
-			if (name && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'checkbox', action, name);
+			if (name && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'checkbox',
+					{
+						eventCategory: action,
+						eventLabel: name
+					}
+				);
+			}
 		});
 
 		jQuery('body').on('change', 'select', function() {
 			var name = jQuery(this).attr('name');
 			var value = jQuery(this).val();
 
-			if (name && value && window.w3tc_ga)
-				w3tc_ga('send', 'event', 'select', value, name);
+			if (name && value && window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'select',
+					{
+						eventCategory: value,
+						eventLabel: name
+					}
+				);
+			}
 		});
 	}
+
+	jQuery("a").on('click', function(event) {
+		if (this.hash !== "" && this.href.replace(this.hash, '') === window.location.href.replace(window.location.hash, '')) {
+			event.preventDefault();
+			var hash = this.hash,
+				wpadminbar_height = (jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0,
+				nav_bar_height = (jQuery('#w3tc-top-nav-bar').length) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0,
+				options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
+				form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
+			jQuery('html, body').animate({
+					scrollTop: jQuery(hash.replace(/\./g, '\\.')).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
+				},
+				600
+			);
+		}
+	});
+
+	var hash = window.location.hash;
+	if (hash !== "") {
+		// Start at top of page rather than instantly loading at the anchor point.
+		window.scrollTo(0, 0);
+		var wpadminbar_height = (jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0,
+			nav_bar_height = (jQuery('#w3tc-top-nav-bar').length) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0,
+			options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
+			form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
+		// Scroll to taget after .5 seconds.
+		setTimeout(
+			function() {
+				jQuery('html, body').animate({
+						scrollTop: jQuery(hash.replace(/\./g, '\\.')).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
+					},
+					600
+				);
+			},
+			500
+		);
+	}
+
+	jQuery(window).resize(
+		debounce(
+			function() {
+				console.log('resize');
+				set_sticky_bar_positions();
+				set_footer_position();
+			}
+		)
+	);
+
+	set_sticky_bar_positions();
+	set_footer_position();
 });

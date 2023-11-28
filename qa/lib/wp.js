@@ -22,8 +22,9 @@ exports.login = async function(pPage, data) {
 		await pPage.$eval('#user_login', (e, v) => { e.value = v }, 'admin');
 		await pPage.$eval('#user_pass', (e, v) => { e.value = v }, '1');
 
+		let wpSubmitButton = '#wp-submit';
 		await Promise.all([
-			pPage.click('#wp-submit'),
+			pPage.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
 			pPage.waitForNavigation({timeout:0}),
 		]);
 
@@ -165,7 +166,7 @@ exports.postUpdate = async function(pPage, data) {
 	log.log(`wp.postUpdate`);
 	console.log(data);
 
-	await pPage.goto(env.adminUrl + 'post.php?post=' + data.post_id + '&action=edit');
+	await pPage.goto(env.adminUrl + 'post.php?post=' + data.post_id + '&action=edit', {waitUntil: 'domcontentloaded'});
 	log.log(new Date().toISOString() + ' Updating the ' + postType + ' ' + data.post_title);
 
 	let r = await exec('cp ../../plugins/w3tcqa-json.php ' + env.wpPath + 'w3tcqa-json.php');
@@ -208,7 +209,7 @@ exports.addWpConfigConstant = async function(pPage, name, value) {
 		'utf8');
 
 	for (let n = 0; n < 100; n++) {
-		await pPage.goto(env.wpUrl + '/check-constant.php');
+		await pPage.goto(env.wpUrl + '/check-constant.php', {waitUntil: 'domcontentloaded'});
 		let html = await pPage.content();
 		if (html.indexOf('constant-defined') >= 0) {
 			log.success('constant is defined');
@@ -243,7 +244,7 @@ exports.addQaBootstrap = async function(pPage, themeFunctionsFilename, filenameT
 
 
 exports.networkActivatePlugin = async function(pPage, pluginFilename) {
-	await pPage.goto(env.networkAdminUrl + '/plugins.php');
+	await pPage.goto(env.networkAdminUrl + 'plugins.php', {waitUntil: 'domcontentloaded'});
 
 	if (parseFloat(env.wpVersion) < 4.4) {
 		let parts = pluginFilename.split('/');
@@ -251,16 +252,18 @@ exports.networkActivatePlugin = async function(pPage, pluginFilename) {
 		let pluginRow = await pPage.$('tr#' + pluginName);
 		expect(pluginRow).not.null;
 
+		let pluginActivate = '#' + pluginName + ' .activate a';
 		await Promise.all([
-			pPage.click('#' + pluginName + ' .activate a'),
+			pPage.evaluate((pluginActivate) => document.querySelector(pluginActivate).click(), pluginActivate),
 			pPage.waitForNavigation()
 		]);
 	} else {
 		let pluginRow = await pPage.$('tr[data-plugin="' + pluginFilename + '"]');
 		expect(pluginRow).not.null;
 
+		let pluginActivate = 'tr[data-plugin="' + pluginFilename + '"] .activate a';
 		await Promise.all([
-			pPage.click('tr[data-plugin="' + pluginFilename + '"] .activate a'),
+			pPage.evaluate((pluginActivate) => document.querySelector(pluginActivate).click(), pluginActivate),
 			pPage.waitForNavigation()
 		]);
 	}
@@ -284,16 +287,19 @@ exports.userSignUp = async function(pPage, data) {
 
 async function userSignUpSingle(pPage, data) {
 	// add user
-    await pPage.goto(env.adminUrl + 'user-new.php');
+    await pPage.goto(env.adminUrl + 'user-new.php', { waitUntil: 'networkidle0' });
 	await pPage.$eval('#user_login', (e, v) => e.value = v, data.user_login);
 	await pPage.$eval('#email', (e, v) => e.value = v, data.email);
 	await pPage.select('#role', data.role);
 
 	if (parseFloat(env.wpVersion) >= 4.4) {
-		await pPage.click('#send_user_notification');   // dont send confirmation
+		// dont send confirmation
+		let sendUserNotification = '#send_user_notification';
+		await pPage.evaluate((sendUserNotification) => document.querySelector(sendUserNotification).click(), sendUserNotification);
 	}
 
-	await pPage.click('.wp-generate-pw');
+	let generatePw = '.wp-generate-pw';
+	await pPage.evaluate((generatePw) => document.querySelector(generatePw).click(), generatePw);
 
 	let password;
 	if (parseFloat(env.wpVersion) < 5.3) {
@@ -304,8 +310,9 @@ async function userSignUpSingle(pPage, data) {
 		password = await pPage.$eval('#pass1', (e) => e.value);
 	}
 
+	let createUserSub = '#createusersub';
 	await Promise.all([
-		pPage.click('#createusersub'),
+		pPage.evaluate((createUserSub) => document.querySelector(createUserSub).click(), createUserSub),
 		pPage.waitForNavigation()
 	]);
 
@@ -319,11 +326,14 @@ async function userSignUpSingle(pPage, data) {
 
 async function userSignUpNetwork(pPage, data) {
 	// enable signup
-	await pPage.goto(env.networkAdminUrl + 'settings.php');
-	await pPage.click('#registration2');
+	await pPage.goto(env.networkAdminUrl + 'settings.php', {waitUntil: 'domcontentloaded'});
 
+	let registration2 = '#registration2';
+	await pPage.evaluate((registration2) => document.querySelector(registration2).click(), registration2);
+
+	let submitButton = '#submit';
 	await Promise.all([
-		pPage.click('#submit'),
+		pPage.evaluate((submitButton) => document.querySelector(submitButton).click(), submitButton),
 		pPage.waitForNavigation()
 	]);
 
@@ -337,13 +347,14 @@ async function userSignUpNetwork(pPage, data) {
 	log.success('signup allowed');
 
 	// add user
-    await pPage.goto(env.adminUrl + 'user-new.php');
+    await pPage.goto(env.adminUrl + 'user-new.php', { waitUntil: 'networkidle0' });
 	await pPage.$eval('#user_login', (e, v) => e.value = v, data.user_login);
 	await pPage.$eval('#email', (e, v) => e.value = v, data.email);
 	await pPage.select('#role', data.role);
 
+	let createUserSub = '#createusersub';
 	await Promise.all([
-		pPage.click('#createusersub'),
+		pPage.evaluate((createUserSub) => document.querySelector(createUserSub).click(), createUserSub),
 		pPage.waitForNavigation()
 	]);
 
@@ -358,7 +369,7 @@ async function userSignUpNetwork(pPage, data) {
 	expect(emailUrl).not.empty;
 
 	// open signup verification url
-	await adminPage.goto(emailUrl);
+	await adminPage.goto(emailUrl, { waitUntil: 'domcontentloaded' });
 	let m2 = await adminPage.$eval('#signup-welcome', (e) => e.outerHTML);
 	expect(m2).not.empty;
 	let match = m2.match(new RegExp('Password:\\s*<[^>]+>\\s*([^< ]+)'));

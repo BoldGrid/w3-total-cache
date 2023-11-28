@@ -47,7 +47,8 @@ describe('', function() {
 		// check test button
 		//
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_cdn');
-		await adminPage.click('#cdn_test');
+		let cdnTest = '#cdn_test';
+		await adminPage.evaluate((cdnTest) => document.querySelector(cdnTest).click(), cdnTest);
 
 		await adminPage.waitForSelector('#cdn_test_status', {visible: true});
 		await adminPage.waitFor(function() {

@@ -377,7 +377,7 @@ class BrowserCache_Plugin {
 			$menu_items['20190.browsercache'] = array(
 				'id' => 'w3tc_flush_browsercache',
 				'parent' => 'w3tc_flush',
-				'title' => __( 'Browser Cache: Update Media Query String', 'w3-total-cache' ),
+				'title' => __( 'Browser Cache', 'w3-total-cache' ),
 				'href' => wp_nonce_url( admin_url(
 						'admin.php?page=w3tc_dashboard&amp;w3tc_flush_browser_cache' ),
 					'w3tc' )

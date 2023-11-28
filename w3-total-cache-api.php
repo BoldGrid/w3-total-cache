@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.3.1' );
+define( 'W3TC_VERSION', '2.6.1' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -32,10 +32,18 @@ define( 'W3TC_TERMS_URL', 'https://api.w3-edge.com/v1/redirects/policies-terms' 
 define( 'W3TC_TERMS_ACCEPT_URL', 'https://api.w3-edge.com/v1/redirects/policies-accept' );
 define( 'W3TC_MAILLINGLIST_SIGNUP_URL', 'https://api.w3-edge.com/v1/signup-newsletter' );
 define( 'W3TC_NEWRELIC_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/newrelic/signup' );
-define( 'W3TC_STACKPATH_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/stackpath/signup' );
 define( 'W3TC_STACKPATH_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/stackpath/authorize' );
 define( 'W3TC_STACKPATH2_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/redirects/stackpath2/authorize' );
 define( 'W3TC_GOOGLE_DRIVE_AUTHORIZE_URL', 'https://api.w3-edge.com/v1/googledrive/authorize' );
+define( 'W3TC_BUNNYCDN_SIGNUP_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/signup' );
+define( 'W3TC_BUNNYCDN_SETTINGS_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/settings' );
+define( 'W3TC_BUNNYCDN_CDN_URL', 'https://api.w3-edge.com/v1/redirects/bunnycdn/cdn' );
+
+// Image Service rate constants.
+define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 100 );
+define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 1000 );
+define( 'W3TC_IMAGE_SERVICE_PRO_HLIMIT', 10000 );
+define( 'W3TC_IMAGE_SERVICE_PRO_MLIMIT', 0 );
 
 // this is the URL our updater / license checker pings. This should be the URL of the site with EDD installed.
 if ( ! defined( 'W3TC_LICENSE_API_URL' ) ) {
@@ -72,11 +80,19 @@ if ( ! defined( 'WP_CONTENT_DIR' ) ) {
 }
 
 if ( ! defined( 'W3TC_CACHE_DIR' ) ) {
-	define( 'W3TC_CACHE_DIR', WP_CONTENT_DIR . '/cache' );
+	if ( false !== realpath( WP_CONTENT_DIR . '/cache' ) ) {
+		define( 'W3TC_CACHE_DIR', realpath( WP_CONTENT_DIR . '/cache' ) );
+	} else {
+		define( 'W3TC_CACHE_DIR', WP_CONTENT_DIR . '/cache' );
+	}
 }
 
 if ( ! defined( 'W3TC_CONFIG_DIR' ) ) {
-	define( 'W3TC_CONFIG_DIR', WP_CONTENT_DIR . '/w3tc-config' );
+	if ( false !== realpath( WP_CONTENT_DIR . '/w3tc-config' ) ) {
+		define( 'W3TC_CONFIG_DIR', realpath( WP_CONTENT_DIR . '/w3tc-config' ) );
+	} else {
+		define( 'W3TC_CONFIG_DIR', WP_CONTENT_DIR . '/w3tc-config' );
+	}
 }
 
 if ( ! defined( 'W3TC_CACHE_MINIFY_DIR' ) ) {

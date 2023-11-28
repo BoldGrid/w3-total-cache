@@ -7,11 +7,9 @@
 
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die;
 
-Util_Ui::postbox_header(
+Util_Ui::postbox_header_tabs(
 	wp_kses(
 		sprintf(
 			// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -28,8 +26,19 @@ Util_Ui::postbox_header(
 			),
 		)
 	),
+	esc_html__(
+		'Content Delivery Network (CDN) is a powerful feature that can significantly enhance the performance of
+			your WordPress website. By leveraging a distributed network of servers located worldwide, a CDN helps
+			deliver your website\'s static files, such as images, CSS, and JavaScript, to visitors more efficiently.
+			This reduces the latency and improves the loading speed of your website, resulting in a faster and
+			smoother browsing experience for your users. With W3 Total Cache\'s CDN integration, you can easily
+			configure and connect your website to a CDN service of your choice, unleashing the full potential of
+			your WordPress site\'s speed optimization.',
+		'w3-total-cache'
+	),
 	'',
-	'cdn'
+	'cdn',
+	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' )
 );
 Util_Ui::config_overloading_button(
 	array(
@@ -39,38 +48,18 @@ Util_Ui::config_overloading_button(
 ?>
 <p>
 	<?php
-	w3tc_e(
-		'cdn.general.header',
-		wp_kses(
-			sprintf(
-				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-				__(
-					'Host static files with your %1$sCDN%2$s to reduce page load time.',
-					'w3-total-cache'
-				),
-				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-				'</acronym>'
-			),
-			array(
-				'acronym' => array(
-					'title' => array(),
-				),
-			)
-		)
-	);
-
 	if ( ! $cdn_enabled ) {
 		echo '&nbsp;' . wp_kses(
 			sprintf(
 				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 				// translators: 3 opening HTML a tag, 4 closing HTML a tag.
 				__(
-					'If you do not have a %1$sCDN%2$s provider try StackPath. %3$sSign up now to enjoy a special offer!%4$s.',
+					'If you do not have a %1$sCDN%2$s provider try Bunny CDN. %3$sSign up now to enjoy a special offer%4$s!',
 					'w3-total-cache'
 				),
 				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 				'</acronym>',
-				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_stackpath_signup' ), 'w3tc' ) ) . '" target="_blank">',
+				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_bunnycdn_signup' ), 'w3tc' ) ) . '" target="_blank">',
 				'</a>'
 			),
 			array(
@@ -83,6 +72,51 @@ Util_Ui::config_overloading_button(
 				),
 			)
 		);
+	}
+
+	$config        = Dispatcher::config();
+	$cdn_engine    = $config->get_string( 'cdn.engine' );
+	$cdnfsd_engine = $config->get_string( 'cdnfsd.engine' );
+	$stackpaths    = array( 'stackpath', 'stackpath2' );
+
+	if ( in_array( $cdn_engine, $stackpaths, true ) || in_array( $cdnfsd_engine, $stackpaths, true ) ) {
+		?>
+		<div class="notice notice-warning inline">
+			<p>
+				<?php
+				// StackPath sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
+				$date_time_format = \get_option( 'date_format' ) . ' ' . \get_option( 'time_format' );
+				\printf(
+					// translators: 1 StackPath sunset datetime.
+					\esc_html__(
+						'StackPath will cease operations at %1$s.',
+						'w3-total-cache'
+					),
+					\wp_date( $date_time_format, '1700629200' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	} elseif ( 'highwinds' === $cdn_engine || 'highwinds' === $cdnfsd_engine ) {
+		?>
+		<div class="notice notice-warning inline">
+			<p>
+				<?php
+				// HighWinds sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
+				$date_time_format = \get_option( 'date_format' ) . ' ' . \get_option( 'time_format' );
+				\printf(
+					// translators: 1 HighWinds sunset datetime.
+					\esc_html__(
+						'HighWinds will cease operations at %1$s.',
+						'w3-total-cache'
+					),
+					\wp_date( $date_time_format, '1700629200' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+				?>
+			</p>
+		</div>
+		<?php
 	}
 	?>
 </p>
@@ -98,7 +132,7 @@ Util_Ui::config_overloading_button(
 					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 					// translators: 3 opening HTML acronym tag, 4 closing acronym tag.
 					__(
-						'Theme files, media library attachments, %1$sCSS%2$s, %3$sJS%4$s files etc will quickly for site visitors.',
+						'Theme files, media library attachments, %1$sCSS%2$s, and %3$sJS%4$s files will load quickly for site visitors.',
 						'w3-total-cache'
 					),
 					'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',
@@ -144,12 +178,6 @@ Util_Ui::config_overloading_button(
 
 <?php
 do_action( 'w3tc_settings_general_boxarea_cdn_footer' );
-
-Util_Ui::button_config_save(
-	'general_cdn',
-	'<input id="cdn_purge" type="button" value="' . __( 'Empty cache', 'w3-total-cache' ) .
-		'" ' . ( $cdn_enabled && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ' ) .
-		' class="button {nonce: \'' . wp_create_nonce( 'w3tc' ) . '\'}" />'
-);
 ?>
+
 <?php Util_Ui::postbox_footer(); ?>
