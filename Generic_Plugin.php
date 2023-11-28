@@ -545,6 +545,7 @@ class Generic_Plugin {
 				array(
 					'swarmify',
 					'lazyload',
+					'deferscripts',
 					'minify',
 					'newrelic',
 					'cdn',

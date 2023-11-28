@@ -80,14 +80,21 @@ jQuery(function($) {
 		.on('change', '#w3tc-origin-url', function() {
 			var $this = $(this);
 
-			$this.val($.trim($this.val().replace(/[^a-z0-9\.:\/-]/g, '')));
+			$this.val($.trim($this.val().toLowerCase().replace(/[^a-z0-9\.:\/-]/g, '')));
 		})
 
 		// Sanitize the pull zone name input value.
 		.on('change', '#w3tc-pull-zone-name', function() {
 			var $this = $(this);
 
-			$this.val($.trim($this.val().replace(/[^a-z0-9-]/g, '')));
+			$this.val($.trim($this.val().toLowerCase().replace(/[^a-z0-9-]/g, '')));
+		})
+
+		// Sanitize the CDN hostname input value.
+		.on('change', '#w3tc_bunnycdn_hostname', function() {
+			var $this = $(this);
+
+			$this.val($.trim($this.val().toLowerCase().replace(/(^https?:|:.+$|[^a-z0-9\.-])/g, '')));
 		})
 
 		// Configure pull zone.
