@@ -121,11 +121,13 @@ class UserExperience_Remove_CssJs_Mutator {
 	private function is_content_included( $content ) {
 		global $wp;
 
-		// Always removes matched CSS/JS for all pages.
-		foreach ( $this->includes as $include ) {
-			if ( ! empty( $include ) ) {
-				if ( strpos( $content, $include ) !== false ) {
-					return true;
+		// Always removes matched CSS/JS for home page.
+		if ( is_front_page() ) {
+			foreach ( $this->includes as $include ) {
+				if ( ! empty( $include ) ) {
+					if ( strpos( $content, $include ) !== false ) {
+						return true;
+					}
 				}
 			}
 		}

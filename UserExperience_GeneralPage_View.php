@@ -123,7 +123,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'extension_id'   => 'user-experience-remove-cssjs',
 			'checkbox_label' => esc_html__( 'Remove Unwanted/Unused CSS/JS', 'w3-total-cache' ),
 			'description'    => __(
-				'Removes specfied CSS/JS tags from all pages or on a per page basis.',
+				'Removes specfied CSS/JS tags from the homepage or on a per page basis.',
 				'w3-total-cache'
 			) . (
 				UserExperience_Remove_CssJs_Extension::is_enabled()

@@ -311,7 +311,7 @@ textarea.w3tc-error {
 .w3tc_cachegroups li,
 .w3tc_remove_cssjs_singles li {
 	cursor: ns-resize;
-	list-style: none;
+	list-style: none !important;
 	background: #f9f9f9;
 	margin-bottom: 1em;
 	border-radius: 8px;

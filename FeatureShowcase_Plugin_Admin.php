@@ -243,7 +243,7 @@ class FeatureShowcase_Plugin_Admin {
 				'remove-cssjs' => array(
 					'title'      => esc_html__( 'Remove Unused CSS/JS', 'w3-total-cache' ),
 					'icon'       => 'dashicons-editor-strikethrough',
-					'text'       => esc_html__( 'Removes specfied CSS/JS tags from all pages or on a per page basis. Can be used to eliminate unused CSS/JS on pages that do not require them.', 'w3-total-cache' ),
+					'text'       => esc_html__( 'Removes specfied CSS/JS tags from the homepage or on a per page basis. Can be used to eliminate unused CSS/JS on pages that do not require them.', 'w3-total-cache' ),
 					'button'     => '<button class="button" onclick="window.location=\'' . (
 						UserExperience_Remove_CssJs_Extension::is_enabled() ?
 							esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#remove-cssjs' ) ) :

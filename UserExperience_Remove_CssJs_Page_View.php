@@ -21,10 +21,10 @@ $remove_cssjs_singles = array(
 	'value' => $c->get_array( 'user-experience-remove-cssjs-singles' ),
 );
 
-Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Everywhere', 'w3-total-cache' ), '', 'remove-cssjs' );
+Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cache' ), '', 'remove-cssjs' );
 ?>
 <p>
-	<?php esc_html_e( 'CSS/JS entries added to the below textarea will be removed from all pages if present.', 'w3-total-cache' ); ?>
+	<?php esc_html_e( 'CSS/JS entries added to the below textarea will be removed from the homepage if present.', 'w3-total-cache' ); ?>
 </p>
 <table class="form-table">
 	<?php
