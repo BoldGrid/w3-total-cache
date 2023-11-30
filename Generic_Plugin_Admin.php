@@ -316,6 +316,7 @@ class Generic_Plugin_Admin {
 		wp_register_script( 'w3tc-lightbox', plugins_url( 'pub/js/lightbox.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-widget', plugins_url( 'pub/js/widget.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-jquery-masonry', plugins_url( 'pub/js/jquery.masonry.min.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, false );
+		//wp_register_script( 'w3tc-jquery-masonry', plugins_url( 'pub/js/masonry.pkgd.min.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, false );
 
 		// New feature count for the Feature Showcase.
 		wp_register_script( 'w3tc-feature-counter', plugins_url( 'pub/js/feature-counter.js', W3TC_FILE ), array(), W3TC_VERSION, true );
@@ -389,7 +390,11 @@ class Generic_Plugin_Admin {
 			<script type="text/javascript">
 				jQuery( function() {
 					jQuery('#normal-sortables').masonry( {
-						itemSelector: '.postbox'
+						itemSelector: '.postbox',
+						columnWidth: '.postbox',
+						gutter: 20,
+						percentPosition: true,
+						transitionDuration: 0
 					} );
 				} );
 			</script>

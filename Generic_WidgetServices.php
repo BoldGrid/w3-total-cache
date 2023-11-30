@@ -24,8 +24,8 @@ class Generic_WidgetServices {
 	 */
 	public static function admin_init_w3tc_dashboard() {
 		$o = new Generic_WidgetServices();
-		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 5000 );
-		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 5000 );
+		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 10000 );
+		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 10000 );
 	}
 
 	/**

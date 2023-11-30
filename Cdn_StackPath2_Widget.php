@@ -9,7 +9,7 @@ class Cdn_StackPath2_Widget {
 		add_action( 'admin_print_scripts',
 			array( $o, 'admin_print_scripts' ) );
 
-		Util_Widget::add2( 'w3tc_stackpath', 2000,
+		Util_Widget::add2( 'w3tc_stackpath', 5000,
 			'<div class="w3tc-widget-stackpath2-logo"></div>',
 			array( $o, 'widget_form' ),
 			Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ),

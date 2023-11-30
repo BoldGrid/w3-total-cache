@@ -66,7 +66,7 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 	?>
 	<div id="w3tc-dashboard-widgets" class="clearfix widefat metabox-holder">
 		<?php $screen = get_current_screen(); ?>
-		<div id="postbox-container-left">
+		<div id="postbox-container">
 			<div class="content">
 			<div id="dashboard-text" style="display:inline-block;">
 				<h1><?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?></h1>
@@ -92,16 +92,10 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 				</p>
 			</div>
 			<div id="widgets-container">
-			<?php do_meta_boxes( $screen->id, 'normal', '' ); ?>
+				<?php do_meta_boxes( $screen->id, 'normal', '' ); ?>
 			</div>
 			</div>
 		</div>
-		<div id="postbox-container-right">
-			<div id='postbox-container-3' class='postbox-container' style="width: 100%;">
-				<?php do_meta_boxes( $screen->id, 'side', '' ); ?>
-			</div>
-		</div>
-		<div style="clear:both"></div>
 
 		<?php
 		wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false );

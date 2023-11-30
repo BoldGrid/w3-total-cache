@@ -33,6 +33,16 @@
 	margin: 5px !important;
 }
 
+.w3tcps_widget_metrics {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.w3tcps_metric {
+	flex-grow: 1;
+	width: 33%;
+}
+
 .w3tcps_metric_title {
     font-size: 14px;
 }
@@ -141,4 +151,20 @@
     left:0;   
     width:100%; 
     text-align: center;
+}
+
+@media only screen and (max-width: 1200px) {
+	.w3tcps_metric {
+		width: 50%;
+	}
+}
+
+@media only screen and (max-width: 782px) {
+	.w3tcps_metric {
+		width: 100%;
+	}
+
+	.w3tcps_metric > * {
+		text-align: center;
+	}
 }
