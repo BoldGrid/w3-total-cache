@@ -87,7 +87,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'acronym' => array(
 							'title' => array(),
 						),
-					)
+						'input'   => array(
+							'class' => array(),
+							'id'    => array(),
+							'type'  => array(),
+							'value' => array(),
+						),
+					),
 				);
 				?>
 			</p>
