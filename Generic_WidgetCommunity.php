@@ -20,8 +20,8 @@ class Generic_WidgetCommunity {
 
 		$o = new Generic_WidgetCommunity();
 
-		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 1000 );
-		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 1000 );
+		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 500 );
+		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 500 );
 	}
 
 	/**

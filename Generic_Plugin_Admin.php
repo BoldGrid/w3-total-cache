@@ -56,8 +56,10 @@ class Generic_Plugin_Admin {
 		$this->is_w3tc_page = Util_Admin::is_w3tc_admin_page();
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetAccount', 'admin_init_w3tc_dashboard' ) );
+		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetSettings', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetServices', 'admin_init_w3tc_dashboard' ) );
-		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetCommunity', 'admin_init_w3tc_dashboard' ) );
+		//add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetCommunity', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetBoldGrid', 'admin_init_w3tc_dashboard' ) );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
@@ -385,11 +387,12 @@ class Generic_Plugin_Admin {
 			}
 		}
 
+		/*
 		if ( 'w3tc_dashboard' === $page ) {
 			?>
 			<script type="text/javascript">
-				jQuery( function() {
-					jQuery('#normal-sortables').masonry( {
+				jQuery(document).ready( function() {
+					jQuery('.widgets-container .meta-box-sortables').masonry( {
 						itemSelector: '.postbox',
 						columnWidth: '.postbox',
 						gutter: 20,
@@ -400,6 +403,7 @@ class Generic_Plugin_Admin {
 			</script>
 			<?php
 		}
+		*/
 
 		if ( $this->_config->get_boolean( 'common.track_usage' ) && $this->is_w3tc_page ) {
 

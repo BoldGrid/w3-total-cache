@@ -44,14 +44,6 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 ?>
 
 <form id="w3tc_dashboard" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
-	<div class="w3tc_dashboard_flush_container">
-		<span><?php esc_html_e( 'Flush caches with ', 'w3-total-cache' ); ?></span>
-		<div class="w3tc-button-control-container">
-			<?php Util_Ui::print_flush_split_button(); ?>
-		</div>
-	</div>
-</form>
-<form id="w3tc_dashboard" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<?php
 	echo wp_kses(
 		Util_Ui::nonce_field( 'w3tc' ),
@@ -68,32 +60,38 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 		<?php $screen = get_current_screen(); ?>
 		<div id="postbox-container">
 			<div class="content">
-			<div id="dashboard-text" style="display:inline-block;">
-				<h1><?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?></h1>
-				<p>
-					<?php
-					echo wp_kses(
-						sprintf(
-							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-							__(
-								'Thanks for choosing W3TC as your Web Performance Optimization (%1$sWPO%2$s) framework!',
-								'w3-total-cache'
+				<div id="dashboard-text" style="display:inline-block;">
+					<h1><?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?></h1>
+					<p>
+						<?php
+						echo wp_kses(
+							sprintf(
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								__(
+									'Thanks for choosing W3TC as your Web Performance Optimization (%1$sWPO%2$s) framework!',
+									'w3-total-cache'
+								),
+								'<acronym title="' . esc_attr__( 'Web Performance Optimization', 'w3-total-cache' ) . '">',
+								'</acronym>'
 							),
-							'<acronym title="' . esc_attr__( 'Web Performance Optimization', 'w3-total-cache' ) . '">',
-							'</acronym>'
-						),
-						array(
-							'acronym' => array(
-								'title' => array(),
-							),
-						)
-					);
-					?>
-				</p>
-			</div>
-			<div id="widgets-container">
-				<?php do_meta_boxes( $screen->id, 'normal', '' ); ?>
-			</div>
+							array(
+								'acronym' => array(
+									'title' => array(),
+								),
+							)
+						);
+						?>
+					</p>
+				</div>
+				<div class="widgets-container">
+					<?php do_meta_boxes( $screen->id, 'normal', '' ); ?>
+				</div>
+				<div class="widgets-container">
+					<?php do_meta_boxes( $screen->id, 'stats', '' ); ?>
+				</div>
+				<div class="widgets-container">
+					<?php do_meta_boxes( $screen->id, 'bottom', '' ); ?>
+				</div>
 			</div>
 		</div>
 

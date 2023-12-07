@@ -4,7 +4,7 @@
 
 .w3tcps_loading .spinner {
 	margin-top: 5px;
-	float: left;
+	float: unset;
 }
 
 .w3tcps_timestamp_container {

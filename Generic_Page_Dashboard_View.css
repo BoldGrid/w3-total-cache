@@ -75,8 +75,65 @@
 	margin-right: 10px;
 }
 
+.general-settings-container {
+	padding: 8px 10px;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	column-gap: 70px;
+	row-gap: 10px;
+}
+
+.general-settings-container .general-setting {
+	width: calc(33% - 45px);
+	border-bottom: 2px solid #F0F0F0;
+}
+
+.general-settings-container .general-setting .general-setting-enabled {
+	float: right;
+	color: #B9C6CB;
+}
+
+.general-settings-container .general-setting .general-setting-enabled.setting-enabled {
+	color: #006D4B;
+}
+
+.general-settings-description {
+	text-align: center;
+}
+
+@media only screen and (max-width: 1200px) {
+	.general-settings-container {
+		column-gap: 35px;
+	}
+
+	.general-settings-container .general-setting {
+		width: calc(50% - 18px);
+	}
+}
+
+@media only screen and (max-width: 980px) {
+	.general-settings-container .general-setting {
+		width: 100%;
+	}
+}
+
+@media only screen and (max-width: 782px) {
+	.general-settings-container {
+		column-gap: 35px;
+	}
+
+	.general-settings-container .general-setting {
+		width: calc(50% - 18px);
+	}
+}
+
 @media only screen and (max-device-width: 480px) {
     .w3tc_generic_widgetservice_label {
         display: inline;
     }
+
+	.general-settings-container .general-setting {
+		width: 100%;
+	}
 }

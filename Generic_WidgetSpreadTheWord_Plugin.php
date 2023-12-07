@@ -45,7 +45,7 @@ class Generic_WidgetSpreadTheWord_Plugin {
 			'</div>',
 			array( $this, 'widget_form' ),
 			null,
-			'normal' );
+			'bottom' );
 	}
 
 	function widget_form() {

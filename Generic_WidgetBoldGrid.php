@@ -16,7 +16,7 @@ class Generic_WidgetBoldGrid {
 			self_admin_url(
 				'plugin-install.php?tab=plugin-information&amp;plugin=boldgrid-backup' .
 				'&amp;TB_iframe=true&amp;width=772&amp;height=550'
-			), 'normal', __( 'View Details' ), 'thickbox open-plugin-details-modal' );
+			), 'bottom', __( 'View Details' ), 'thickbox open-plugin-details-modal' );
 
 		add_thickbox();
 		wp_enqueue_script( 'plugin-install' );

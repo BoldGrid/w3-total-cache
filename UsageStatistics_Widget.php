@@ -19,15 +19,78 @@ class UsageStatistics_Widget {
 
 
 	public function init() {
-		Util_Widget::add2( 'w3tc_usage_statistics', 1000,
+		Util_Widget::add2(
+			'w3tc_usage_statistics',
+			11000,
 			'<div class="w3tc-widget-w3tc-logo"></div>' .
-			'<div class="w3tc-widget-text">' .
-			__( 'Caching Statistics', 'w3-total-cache' ) .
-			'</div>',
+				'<div class="w3tc-widget-text">' .
+				__( 'Caching Statistics', 'w3-total-cache' ) .
+				'</div>',
 			array( $this, 'widget_form' ),
 			Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
-			'normal',
-			 'Detailed' );
+			'stats',
+			'Detailed'
+		);
+		Util_Widget::add2(
+			'w3tc_usage_statistics2',
+			11000,
+			'<div class="w3tc-widget-w3tc-logo"></div>' .
+				'<div class="w3tc-widget-text">' .
+				__( 'Caching Statistics', 'w3-total-cache' ) .
+				'</div>',
+			array( $this, 'widget_form' ),
+			Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
+			'stats',
+			'Detailed'
+		);
+		Util_Widget::add2(
+			'w3tc_usage_statistics3',
+			11000,
+			'<div class="w3tc-widget-w3tc-logo"></div>' .
+				'<div class="w3tc-widget-text">' .
+				__( 'Caching Statistics', 'w3-total-cache' ) .
+				'</div>',
+			array( $this, 'widget_form' ),
+			Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
+			'stats',
+			'Detailed'
+		);
+		Util_Widget::add2(
+			'w3tc_usage_statistics4',
+			11000,
+			'<div class="w3tc-widget-w3tc-logo"></div>' .
+				'<div class="w3tc-widget-text">' .
+				__( 'Caching Statistics', 'w3-total-cache' ) .
+				'</div>',
+			array( $this, 'widget_form' ),
+			Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
+			'stats',
+			'Detailed'
+		);
+		Util_Widget::add2(
+			'w3tc_usage_statistics5',
+			11000,
+			'<div class="w3tc-widget-w3tc-logo"></div>' .
+				'<div class="w3tc-widget-text">' .
+				__( 'Caching Statistics', 'w3-total-cache' ) .
+				'</div>',
+			array( $this, 'widget_form' ),
+			Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
+			'stats',
+			'Detailed'
+		);
+		Util_Widget::add2(
+			'w3tc_usage_statistics6',
+			11000,
+			'<div class="w3tc-widget-w3tc-logo"></div>' .
+				'<div class="w3tc-widget-text">' .
+				__( 'Caching Statistics', 'w3-total-cache' ) .
+				'</div>',
+			array( $this, 'widget_form' ),
+			Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
+			'stats',
+			'Detailed'
+		);
 	}
 
 
