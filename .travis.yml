@@ -52,6 +52,7 @@ script:
   - composer install --no-dev -o
   # PHP lint.
   - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
+  - curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov
 
 deploy:
   - provider: script
