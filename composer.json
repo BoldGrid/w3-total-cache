@@ -1,6 +1,6 @@
 {
     "require": {
-        "aws/aws-sdk-php": "3.183.8",
+        "aws/aws-sdk-php": "3.293.7",
         "aws/aws-php-sns-message-validator": "^1.8"
     },
     "require-dev": {
