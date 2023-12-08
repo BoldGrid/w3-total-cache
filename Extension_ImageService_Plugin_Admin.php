@@ -257,6 +257,14 @@ class Extension_ImageService_Plugin_Admin {
 
 		// Add admin menu items.
 		add_action( 'admin_menu', array( $o, 'admin_menu' ) );
+
+		add_action(
+			'admin_init_w3tc_dashboard',
+			array(
+				'\W3TC\Extension_ImageService_Widget',
+				'admin_init_w3tc_dashboard'
+			)
+		);
 	}
 
 	/**

@@ -8,7 +8,7 @@
 namespace W3TC;
 
 /**
- * Class Generic_Plugin_WidgetSettings
+ * Class Generic_WidgetSettings
  */
 class Generic_WidgetSettings {
 	/**

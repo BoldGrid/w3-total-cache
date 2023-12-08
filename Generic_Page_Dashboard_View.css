@@ -102,6 +102,28 @@
 	text-align: center;
 }
 
+#w3tc-webp-widget-stats-container table {
+	width: 100%;
+}
+
+#w3tc-webp-widget-stats-container table tr th {
+	padding: 0 0 18px 0;
+}
+
+#w3tc-webp-widget-stats-container table tr td {
+	padding: 0;
+}
+
+.w3tc-webp-widget-stats-stat {
+	margin 5px;
+}
+
+.w3tc-webp-widget-stats-stat-total,
+.w3tc-webp-widget-stats-stat-totalbytes {
+	max-width: 120px;
+	text-align: right;
+}
+
 @media only screen and (max-width: 1200px) {
 	.general-settings-container {
 		column-gap: 35px;

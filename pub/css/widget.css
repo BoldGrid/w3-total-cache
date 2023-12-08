@@ -74,13 +74,16 @@
 	width: calc(50% - 10.5px);
 }
 
-.widgets-container .meta-box-sortables #w3tc_settings {
-	width: calc(66.66% - 10.5px);
+.widgets-container .meta-box-sortables #w3tc_settings,
+.widgets-container .meta-box-sortables #w3tc_pagespeed {
+	width: calc(66.66% - 7px);
 }
 
+/*
 .widgets-container .meta-box-sortables #w3tc_pagespeed {
-	width: 100%;
+	width: 100% !important;
 }
+*/
 
 #w3tc-dashboard-widgets .handle-actions {
 	display: none; /* WP 5.5 - Dashboard widget reordering not working, so disable. */
@@ -108,6 +111,6 @@
 
 @media only screen and (max-width: 782px) {
 	.widgets-container .meta-box-sortables .postbox {
-		width: 100% !important;
+		width: 100%  !important;
 	}
 }

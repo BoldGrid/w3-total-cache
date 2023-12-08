@@ -49,7 +49,7 @@
 
 .w3tcps_metric_title,
 .w3tcps_metric_stats {
-    padding: 8px 12px;
+    padding: 8px 5px;
     margin: 0;
 	text-align: left;
 }
@@ -161,7 +161,7 @@
 
 @media only screen and (max-width: 782px) {
 	.w3tcps_metric {
-		width: 100%;
+		width: 50%;
 	}
 
 	.w3tcps_metric > * {
