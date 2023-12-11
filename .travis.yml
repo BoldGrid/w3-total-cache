@@ -56,8 +56,8 @@ script:
   - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
 
 after_success:
-  # Codecov: Create a code coverage report.
-  - curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -f coverage.xml
+  # Codecov: Create a code coverage report for PHP 7.4.
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.4" ]]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -f coverage.xml; fi
 
 deploy:
   - provider: script
