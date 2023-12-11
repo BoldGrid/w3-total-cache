@@ -48,14 +48,16 @@ install:
 script:
   # PHPUnit: Run unit tests.
   - vendor/phpunit/phpunit/phpunit --debug --verbose --coverage-clover=coverage.xml
-  # Codecov: Create a code coverage report.
-  - curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov
   # JavaScript lint.
   #- yarn run js-lint
   # Remove dev dependencies.
   - composer install --no-dev -o
   # PHP lint.
   - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
+
+after_success:
+  # Codecov: Create a code coverage report.
+  - curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov
 
 deploy:
   - provider: script
