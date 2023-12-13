@@ -46,6 +46,11 @@ class UserExperience_Plugin_Admin {
 			'extension_id' => 'user-experience-defer-scripts',
 			'path'         => 'w3-total-cache/UserExperience_DeferScripts_Extension.php',
 		);
+		$extensions['user-experience-preload-requests'] = array(
+			'public'       => false,
+			'extension_id' => 'user-experience-preload-requests',
+			'path'         => 'w3-total-cache/UserExperience_Preload_Requests_Extension.php',
+		);
 		$extensions['user-experience-emoji'] = array(
 			'public'       => false,
 			'extension_id' => 'user-experience-emoji',

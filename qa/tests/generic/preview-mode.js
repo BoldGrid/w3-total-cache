@@ -87,10 +87,8 @@ async function checkW3tcComments(mode) {
 		expect(html).contains('W3 Total Cache used in preview mode');
 	}
 
-	expect(html).matches(new RegExp(
-		'Object Caching \\d+\\/\\d+ objects using disk'));
-	expect(html).matches(new RegExp('Page Caching using disk'));
-	expect(html).matches(new RegExp('Minified using disk'));
-	expect(html).matches(new RegExp(
-		'Database Caching (\\d+/\\d+ queries in [0-9.]+ seconds )?using disk'));
+	expect(html).matches(new RegExp('Object Caching \\d+\\/\\d+ objects using Disk'));
+	expect(html).matches(new RegExp('Page Caching using Disk'));
+	expect(html).matches(new RegExp('Minified using Disk'));
+	expect(html).matches(new RegExp('Database Caching (\\d+/\\d+ queries in [0-9.]+ seconds )?using Disk'));
 }

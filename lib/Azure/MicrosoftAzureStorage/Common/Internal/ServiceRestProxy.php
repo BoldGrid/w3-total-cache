@@ -242,7 +242,7 @@ class ServiceRestProxy extends RestProxy
                 throw $reason;
             }
         ]);
-        
+
         return $eachPromise->promise()->wait();
     }
 
@@ -379,7 +379,7 @@ class ServiceRestProxy extends RestProxy
     }
 
     /**
-     * Throws ServiceException if the recieved status code is not expected.
+     * Throws ServiceException if the received status code is not expected.
      *
      * @param string $actual   The received status code.
      * @param string $reason   The reason phrase.

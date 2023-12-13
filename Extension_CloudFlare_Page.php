@@ -2,7 +2,7 @@
 namespace W3TC;
 
 class Extension_CloudFlare_Page {
-	static public function admin_print_scripts_w3tc_extensions() {
+	static public function admin_print_scripts_performance_page_w3tc_cdn() {
 		if ( ( isset( $_REQUEST['extension'] ) &&
 		Util_Request::get_string( 'extension' ) == 'cloudflare' ) ||
 			( isset( $_REQUEST['page'] ) &&

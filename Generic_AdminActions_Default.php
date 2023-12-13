@@ -271,6 +271,17 @@ class Generic_AdminActions_Default {
 				$config->set( 'pgcache.enabled', false );
 				$data['response_errors'][] = 'fancy_permalinks_disabled_pgcache';
 			}
+
+			/**
+			 * Check for Image Service extension status changes.
+			 */
+			if ( $config->get_boolean( 'extension.imageservice' ) !== $this->_config->get_boolean( 'extension.imageservice' ) ) {
+				if ( $config->get_boolean( 'extension.imageservice' ) ) {
+					Extensions_Util::activate_extension( 'imageservice', $config );
+				} else {
+					Extensions_Util::deactivate_extension( 'imageservice', $config );
+				}
+			}
 		}
 
 		/**
@@ -558,7 +569,9 @@ class Generic_AdminActions_Default {
 	 *
 	 * @return bool
 	 */
-	function enable_cookie_domain() {
+	public function enable_cookie_domain() {
+		WP_Filesystem();
+
 		global $wp_filesystem;
 
 		$config_path = Util_Environment::wp_config_path();
@@ -601,7 +614,9 @@ class Generic_AdminActions_Default {
 	 *
 	 * @return bool
 	 */
-	function disable_cookie_domain() {
+	public function disable_cookie_domain() {
+		WP_Filesystem();
+
 		global $wp_filesystem;
 
 		$config_path = Util_Environment::wp_config_path();

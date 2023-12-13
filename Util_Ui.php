@@ -209,7 +209,7 @@ class Util_Ui {
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
 		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
 		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
-		
+
 		$extra_link_tabs = '';
 		foreach ( $extra_links as $extra_link_text => $extra_link ) {
 			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>';
@@ -372,8 +372,10 @@ class Util_Ui {
 				if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
 				}
-				if ( $config->get_boolean( 'cdn.enabled' ) ) {
-					$disable = $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ? '' : ' disabled="disabled" ';
+				if ( $config->get_boolean( 'cdn.enabled' ) || $config->get_boolean( 'cdnfsd.enabled' ) ) {
+					$disable = ( $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ) ||
+						( $config->get_boolean( 'cdnfsd.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdnfsd.engine' ) ) ) ?
+							'' : ' disabled="disabled" ';
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) && ! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
@@ -1523,6 +1525,7 @@ class Util_Ui {
 		$config            = Dispatcher::config();
 		$state             = Dispatcher::config_state();
 		$page              = Util_Admin::get_current_page();
+		$show_purge_link   = 'bunnycdn' === $config->get_string( 'cdn.engine' ) || 'bunnycdn' === $config->get_string( 'cdnfsd.engine' );
 		$licensing_visible = (
 			( ! Util_Environment::is_wpmu() || is_network_admin() ) &&
 			! ini_get( 'w3tc.license_key' ) &&
@@ -1832,7 +1835,15 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
-					<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
+				<?php if ( ! empty( $config->get_string( 'cdn.engine' ) ) ) : ?>
+					<a href="#configuration"><?php esc_html_e( 'Configuration (Objects)', 'w3-total-cache' ); ?></a> |
+				<?php endif; ?>
+				<?php if ( ! empty( $config->get_string( 'cdnfsd.engine' ) ) ) : ?>
+					<a href="#configuration-fsd"><?php esc_html_e( 'Configuration (FSD)', 'w3-total-cache' ); ?></a> |
+				<?php endif; ?>
+				<?php if ( $show_purge_link ) : ?>
+					<a href="#purge-urls"><?php esc_html_e( 'Purge', 'w3-total-cache' ); ?></a> |
+				<?php endif; ?>
 					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
 					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
 				</div>
@@ -1843,14 +1854,18 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<?php
-					$extensions_active = $config->get_array( 'extensions.active' );
-					if ( array_key_exists( 'user-experience-defer-scripts', $extensions_active ) ) {
-						// If more items are added this will only encompase the Defer Scripts, but if only 1 item show no sub-nav.
-						?>
-						<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a> |
-						<a href="#application"><?php esc_html_e( 'Delay Scripts', 'w3-total-cache' ); ?></a>
-						<?php
+					$subnav_links = array( '<a href="#lazy-loading">' . esc_html__( 'Lazy Loading', 'w3-total-cache' ) . '</a>' );
+
+					if ( UserExperience_DeferScripts_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#application">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
 					}
+
+					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#application">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
+					}
+
+					// If there's only 1 meta box on the page, no need for nav links.
+					echo count( $subnav_links ) > 1 ? implode( ' | ', $subnav_links ) : '';
 					?>
 				</div>
 				<?php

@@ -31,6 +31,7 @@ class ModuleStatus {
 			|| $this->is_enabled( 'objectcache' )
 			|| $this->is_enabled( 'browsercache' )
 			|| $this->is_enabled( 'cdn' )
+			|| $this->is_enabled( 'cdnfsd' )
 			|| $this->is_enabled( 'varnish' )
 			|| $this->is_enabled( 'newrelic' )
 			|| $this->is_enabled( 'fragmentcache' );

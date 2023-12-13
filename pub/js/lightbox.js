@@ -153,7 +153,7 @@ var W3tc_Lightbox = {
 	 * adds all controls of the form to the url
 	 */
 	load_form: function(url, form_selector, callback) {
-		data = {}
+		data = {};
 		var v = jQuery(form_selector).find('input').each(function(i) {
 			var name = jQuery(this).attr('name');
 			var type = jQuery(this).attr('type');
