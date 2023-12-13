@@ -293,13 +293,20 @@ class Minify_MinifiedFileRequestHandler {
 	 *
 	 * @return boolean
 	 */
-	function flush() {
+	function flush( $extras = array() ) {
 		$cache = $this->_get_cache();
 		// used to debug - which plugin calls flush all the time and breaks
 		// performance
 		if ( $this->_config->get_boolean( 'minify.debug' ) ) {
 			Minify_Core::log( 'Minify flush called from' );
 			Minify_Core::log( json_encode( debug_backtrace () ) );
+		}
+
+		// cleanup of map too often is risky since breaks all old minify urls.
+		// particularly minified urls in browsercached/cdn cached html becomes invalid.
+		if ( isset( $extras['ui_action'] ) && $extras['ui_action'] == 'flush_button' ) {
+			global $wpdb;
+			$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'w3tc_minify_%'" );
 		}
 
 		return $cache->flush();
@@ -542,6 +549,8 @@ class Minify_MinifiedFileRequestHandler {
 		} else {
 			Minify_Core::debug_error( sprintf( 'Unable to fetch custom files list: "%s.%s"', $hash, $type ), false, 404 );
 		}
+
+		Minify_Core::log( implode("\n", $files ) );
 
 		return $result;
 	}
