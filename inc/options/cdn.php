@@ -93,7 +93,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							'type'  => array(),
 							'value' => array(),
 						),
-					),
+					)
 				);
 				?>
 			</p>
