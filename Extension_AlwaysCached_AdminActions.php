@@ -32,7 +32,7 @@ class Extension_AlwaysCached_AdminActions {
 		if ( empty( $url ) ) {
 			$note = __( 'Failed to detect current page.', 'w3-total-cache' );
 		} else {
-			$result = Util_Http::request(
+			$result = wp_remote_request(
 				$url,
 				array(
 					'headers' => array(

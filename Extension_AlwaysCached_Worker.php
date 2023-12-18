@@ -53,7 +53,7 @@ class Extension_AlwaysCached_Worker {
 
 			echo esc_html__( "\nrefreshing... [ ", 'w3-total-cache' ) . esc_html( $item['id'] ) . ' : ' . esc_html( $item['url'] ) . ' ] ...';
 
-			$result = Util_Http::request(
+			$result = wp_remote_request(
 				$item['url'],
 				array(
 					'headers' => array(
