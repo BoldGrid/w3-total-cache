@@ -87,6 +87,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'acronym' => array(
 							'title' => array(),
 						),
+						'input'   => array(
+							'class' => array(),
+							'id'    => array(),
+							'type'  => array(),
+							'value' => array(),
+						),
 					)
 				);
 				?>
@@ -97,8 +103,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				<p>
 					<?php
 					$cdn_purge_button        = $can_purge ?
-						'<input id="cdn_purge" class="button {nonce: ' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
-							'}" type="button" value="Purge" /> objects from the <acronym title="Content Delivery Network">CDN</acronym>' :
+						'<input id="cdn_purge" class="button {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
+							'\'}" type="button" value="Purge" /> objects from the <acronym title="Content Delivery Network">CDN</acronym>' :
 						'';
 					$cdn_mirror_purge_button = $cdn_mirror_purge_all ?
 						( $can_purge ? ' or ' : '' ) . '<input class="button" type="submit" name="w3tc_flush_cdn" value="purge CDN completely" />' :
