@@ -1857,11 +1857,16 @@ class Util_Ui {
 					$subnav_links = array( '<a href="#lazy-loading">' . esc_html__( 'Lazy Loading', 'w3-total-cache' ) . '</a>' );
 
 					if ( UserExperience_DeferScripts_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#application">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#defer-scripts">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
+					}
+
+					if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#remove-cssjs">' . esc_html__( 'Remove CSS/JS - Homepage', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#remove-cssjs-singles">' . esc_html__( 'Remove CSS/JS - Singles', 'w3-total-cache' ) . '</a>';
 					}
 
 					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#application">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#preload-requests">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
 					}
 
 					// If there's only 1 meta box on the page, no need for nav links.

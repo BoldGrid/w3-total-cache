@@ -1,6 +1,15 @@
 <?php
+/**
+ * File: UserExperience_Plugin_Admin.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * UserExperience Plugin Admin.
+ */
 class UserExperience_Plugin_Admin {
 	/**
 	 * Runs the user experience feature.
@@ -17,7 +26,7 @@ class UserExperience_Plugin_Admin {
 	/**
 	 * Set user experience admin menu item.
 	 *
-	 * @param array $menu
+	 * @param array $menu Menu array.
 	 *
 	 * @return array
 	 */
@@ -35,13 +44,13 @@ class UserExperience_Plugin_Admin {
 	/**
 	 * Configures extensions for user experience.
 	 *
-	 * @param array $extensions
-	 * @param object $config
+	 * @param array  $extensions Extensions array.
+	 * @param object $config     Config object.
 	 *
 	 * @return array
 	 */
 	public static function w3tc_extensions( $extensions, $config ) {
-		$extensions['user-experience-defer-scripts'] = array(
+		$extensions['user-experience-defer-scripts']    = array(
 			'public'       => false,
 			'extension_id' => 'user-experience-defer-scripts',
 			'path'         => 'w3-total-cache/UserExperience_DeferScripts_Extension.php',
@@ -51,12 +60,17 @@ class UserExperience_Plugin_Admin {
 			'extension_id' => 'user-experience-preload-requests',
 			'path'         => 'w3-total-cache/UserExperience_Preload_Requests_Extension.php',
 		);
-		$extensions['user-experience-emoji'] = array(
+		$extensions['user-experience-remove-cssjs']     = array(
+			'public'       => false,
+			'extension_id' => 'user-experience-remove-cssjs',
+			'path'         => 'w3-total-cache/UserExperience_Remove_CssJs_Extension.php',
+		);
+		$extensions['user-experience-emoji']            = array(
 			'public'       => false,
 			'extension_id' => 'user-experience-emoji',
 			'path'         => 'w3-total-cache/UserExperience_Emoji_Extension.php',
 		);
-		$extensions['user-experience-oembed'] = array(
+		$extensions['user-experience-oembed']           = array(
 			'public'       => false,
 			'extension_id' => 'user-experience-oembed',
 			'path'         => 'w3-total-cache/UserExperience_OEmbed_Extension.php',

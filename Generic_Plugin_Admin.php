@@ -632,6 +632,19 @@ class Generic_Plugin_Admin {
 					true
 				);
 				// No break.
+			case 'w3tc_userexperience':
+				if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+					wp_enqueue_script(
+						'w3tc_remove_cssjs',
+						plugins_url( 'UserExperience_Remove_CssJs_Page_View.js', W3TC_FILE ),
+						array(
+							'jquery',
+						),
+						W3TC_VERSION,
+						true
+					);
+				}
+				// No break.
 			case 'w3tc_cdn':
 				wp_enqueue_script( 'jquery-ui-sortable' );
 				break;
