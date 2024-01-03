@@ -23,9 +23,47 @@ class Extension_ImageService_Widget {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$o = new Extension_ImageService_Widget();
+		$config = Dispatcher::config();
+		$o      = new Extension_ImageService_Widget();
 		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 2000 );
 		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 2000 );
+		wp_enqueue_script( 'w3tc-dashboard', plugins_url( 'pub/js/google-charts.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+
+		$ipa = new Extension_ImageService_Plugin_Admin();
+		// Get WebP count data.
+		$counts = $ipa->get_counts();
+		// Strip total data that won't be used in pie chart.
+		$counts = array_diff_key( $counts, array_flip( array( 'total', 'totalbytes' ) ) );
+
+		// Get WebP API Usage data.
+		$usage = get_transient( 'w3tc_imageservice_usage' );
+		// Get data via API if no transient exists.
+		$usage = empty( $usage ) ? Extension_ImageService_Plugin::get_api()->get_usage() : $usage;
+		// Strip timestamp.
+		unset( $usage['updated_at'] );
+
+		wp_register_script(
+			'w3tc-webp-widget',
+			esc_url( plugins_url( 'Extension_ImageService_Widget.js', W3TC_FILE ) ),
+			array(),
+			W3TC_VERSION,
+			'true'
+		);
+		wp_localize_script(
+			'w3tc-webp-widget',
+			'w3tc_webp_data',
+			array(
+				'counts' => array(
+					'data' => $counts,
+					'type' => 'pie',
+				),
+				'api'    => array(
+					'data' => $usage,
+					'type' => 'gauge',
+				),
+			)
+		);
+		wp_enqueue_script( 'w3tc-webp-widget' );
 	}
 
 	/**
@@ -45,18 +83,10 @@ class Extension_ImageService_Widget {
 	 * Premium Services widget content.
 	 */
 	public function widget_form() {
-		$o      = new Extension_ImageService_Plugin_Admin();
-		$counts = $o->get_counts();
-		$usage  = get_transient( 'w3tc_imageservice_usage' );
-
-		// If usage is not stored, then retrieve it from the API.
-		if ( empty( $usage ) ) {
-			$usage = Extension_ImageService_Plugin::get_api()->get_usage();
-		}
-
-		// Ensure that the monthly limit is represented correctly.
-		$usage['limit_monthly'] = $usage['limit_monthly'] ? $usage['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
-		
+		// Get WebP API Usage data.
+		$usage = get_transient( 'w3tc_imageservice_usage' );
+		// Get data via API if no transient exists.
+		$usage = empty( $usage ) ? Extension_ImageService_Plugin::get_api()->get_usage() : $usage;
 		include W3TC_DIR . '/Extension_ImageService_Widget_View.php';
 	}
 }

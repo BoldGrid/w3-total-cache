@@ -58,32 +58,28 @@
 	flex-wrap: wrap;
 	gap: 20px;
 	margin-bottom: 20px;
+	justify-content: center;
 }
 
 .widgets-container .meta-box-sortables .postbox {
 	width: calc(33.33% - 13.5px);
 	min-height: 300px;
 	box-sizing: border-box;
-	float: left;
 	margin: 0;
 }
 
+/*
 .widgets-container .meta-box-sortables #w3tc_spreadtheword,
 .widgets-container .meta-box-sortables #w3tc_boldgrid,
 .widgets-container .meta-box-sortables #w3tc_services {
 	width: calc(50% - 10.5px);
 }
+*/
 
 .widgets-container .meta-box-sortables #w3tc_settings,
 .widgets-container .meta-box-sortables #w3tc_pagespeed {
 	width: calc(66.66% - 7px);
 }
-
-/*
-.widgets-container .meta-box-sortables #w3tc_pagespeed {
-	width: 100% !important;
-}
-*/
 
 #w3tc-dashboard-widgets .handle-actions {
 	display: none; /* WP 5.5 - Dashboard widget reordering not working, so disable. */

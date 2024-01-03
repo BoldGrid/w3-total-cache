@@ -114,6 +114,10 @@
 	padding: 0;
 }
 
+.w3tc-webp-widget-stats-title {
+	text-align: center;
+}
+
 .w3tc-webp-widget-stats-stat {
 	margin 5px;
 }
@@ -123,6 +127,26 @@
 	max-width: 120px;
 	text-align: right;
 }
+
+#api_charts {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+#api_charts #apihourly_chart,
+#api_charts #apimonthly_chart {
+	width: 50%;
+}
+
+#api_charts #apihourly_chart table tr td > div > div,
+#api_charts #apimonthly_chart table tr td > div > div {
+	width: 100%;
+	margin: 0 auto;
+}
+
+svg > g:last-child > g:last-child { pointer-events: none }
+div.google-visualization-tooltip { pointer-events: none }
 
 @media only screen and (max-width: 1200px) {
 	.general-settings-container {
@@ -156,6 +180,10 @@
     }
 
 	.general-settings-container .general-setting {
+		width: 100%;
+	}
+	#api_charts #apihourly_chart,
+	#api_charts #apimonthly_chart {
 		width: 100%;
 	}
 }
