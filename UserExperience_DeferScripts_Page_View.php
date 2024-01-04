@@ -22,7 +22,7 @@ if ( is_null( $c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) )
 }
 
 ?>
-<?php Util_Ui::postbox_header( esc_html__( 'Delay Scripts', 'w3-total-cache' ), '', 'application' ); ?>
+<?php Util_Ui::postbox_header( esc_html__( 'Delay Scripts', 'w3-total-cache' ), '', 'defer-scripts' ); ?>
 <p><?php esc_html_e( 'For best results it is recommended to enable the Minify feature to optimize internal sources and to then use this feature to handle external sources and/or any internal sources excluded from Minify.', 'w3-total-cache' ); ?></p>
 <p>
 	<?php
