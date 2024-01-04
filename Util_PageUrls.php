@@ -876,7 +876,7 @@ class Util_PageUrls {
 	 * Gets page title based on key
 	 *
 	 * @param  string $id Page ID.
-	 * @return string
+	 * @return array
 	 */
 	public static function get_page_mapping( $id ) {
 		$map = array(
@@ -982,6 +982,6 @@ class Util_PageUrls {
 			),
 		);
 
-		return ! empty( $map[ $id ] ) ? $map[ $id ] : '';
+		return ! empty( $map[ $id ] ) ? $map[ $id ] : array();
 	}
 }
