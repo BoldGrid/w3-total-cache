@@ -873,10 +873,12 @@ class Util_PageUrls {
 	}
 
 	/**
-	 * Gets page title based on key
+	 * Gets page title based on key.
+	 *
+	 * @since 2.4.0
 	 *
 	 * @param  string $id Page ID.
-	 * @return string
+	 * @return array
 	 */
 	public static function get_page_mapping( $id ) {
 		$map = array(
@@ -982,6 +984,8 @@ class Util_PageUrls {
 			),
 		);
 
-		return ! empty( $map[ $id ] ) ? $map[ $id ] : '';
+		$map = apply_filters( 'w3tc_page_mapping', $map );
+
+		return ! empty( $map[ $id ] ) ? $map[ $id ] : array();
 	}
 }
