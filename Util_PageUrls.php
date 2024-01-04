@@ -984,8 +984,8 @@ class Util_PageUrls {
 			),
 		);
 
-		$page_data = ! empty( $map[ $id ] ) ? $map[ $id ] : array();
+		$map = apply_filters( 'w3tc_page_mapping', $map );
 
-		return apply_filters( 'w3tc_page_mapping', $page_data );
+		return ! empty( $map[ $id ] ) ? $map[ $id ] : array();
 	}
 }
