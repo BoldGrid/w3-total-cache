@@ -1504,7 +1504,8 @@ class Util_Ui {
 		$page         = ! empty( Util_Admin::get_current_extension() ) ? Util_Admin::get_current_extension() : Util_Admin::get_current_page();
 		$page_mapping = Util_PageUrls::get_page_mapping( $page );
 		$parent       = isset( $page_mapping['parent_name'] ) ? '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( $page_mapping['parent_link'] ) . '">' . esc_html( $page_mapping['parent_name'] ) . '</a>' : '';
-		$current      = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . esc_html( $page_mapping['page_name'] ) . '</span>';
+		$current      = isset( $page_mapping['page_name'] ) ?
+			'<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . esc_html( $page_mapping['page_name'] ) . '</span>' : '';
 		?>
 		<p id="w3tc-breadcrumb">
 			<span class="dashicons dashicons-admin-home"></span>
