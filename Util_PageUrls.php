@@ -873,7 +873,9 @@ class Util_PageUrls {
 	}
 
 	/**
-	 * Gets page title based on key
+	 * Gets page title based on key.
+	 *
+	 * @since 2.4.0
 	 *
 	 * @param  string $id Page ID.
 	 * @return array
