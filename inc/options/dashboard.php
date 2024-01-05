@@ -61,7 +61,6 @@ if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 		<div id="postbox-container">
 			<div class="content">
 				<div id="dashboard-text" style="display:inline-block;">
-					<h1><?php esc_html_e( 'Dashboard', 'w3-total-cache' ); ?></h1>
 					<p>
 						<?php
 						echo wp_kses(

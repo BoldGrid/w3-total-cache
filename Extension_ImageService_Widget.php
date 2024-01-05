@@ -24,9 +24,12 @@ class Extension_ImageService_Widget {
 	 */
 	public static function admin_init_w3tc_dashboard() {
 		$config = Dispatcher::config();
+		$is_pro = Util_Environment::is_w3tc_pro( $config );
 		$o      = new Extension_ImageService_Widget();
+
 		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 2000 );
 		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 2000 );
+
 		wp_enqueue_script( 'w3tc-dashboard', plugins_url( 'pub/js/google-charts.js', W3TC_FILE ), array(), W3TC_VERSION, true );
 
 		$ipa = new Extension_ImageService_Plugin_Admin();
@@ -41,6 +44,20 @@ class Extension_ImageService_Widget {
 		$usage = empty( $usage ) ? Extension_ImageService_Plugin::get_api()->get_usage() : $usage;
 		// Strip timestamp.
 		unset( $usage['updated_at'] );
+
+		// Validate hourly data. If no data then set usage to 0 and appropriate limits.
+		$usage['usage_hourly'] = 'Unknown' !== $usage['usage_hourly'] ? $usage['usage_hourly'] : 0;
+		$usage['limit_hourly'] = 'Unknown' !== $usage['limit_hourly'] ? $usage['limit_hourly'] : ( $is_pro ? 10000 : 100 );
+
+		// Validate monthly data. If no data then set usage to 0 and appropriate limits.
+		// Remove if pro as we don't show a gauge for pro usage.
+		if ( $is_pro ) {
+			unset( $usage['usage_monthly'] );
+			unset( $usage['limit_monthly'] );
+		} else {
+			$usage['usage_monthly'] = 'Unknown' !== $usage['usage_monthly'] ? $usage['usage_monthly'] : 0;
+			$usage['limit_monthly'] = 'Unknown' !== $usage['limit_monthly'] ? $usage['limit_monthly'] : 1000;
+		}
 
 		wp_register_script(
 			'w3tc-webp-widget',
@@ -83,10 +100,6 @@ class Extension_ImageService_Widget {
 	 * Premium Services widget content.
 	 */
 	public function widget_form() {
-		// Get WebP API Usage data.
-		$usage = get_transient( 'w3tc_imageservice_usage' );
-		// Get data via API if no transient exists.
-		$usage = empty( $usage ) ? Extension_ImageService_Plugin::get_api()->get_usage() : $usage;
 		include W3TC_DIR . '/Extension_ImageService_Widget_View.php';
 	}
 }

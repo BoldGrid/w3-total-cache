@@ -66,6 +66,7 @@
 	min-height: 300px;
 	box-sizing: border-box;
 	margin: 0;
+	flex-grow: 1;
 }
 
 /*

@@ -27,9 +27,10 @@ class Generic_WidgetStats {
 		$config = Dispatcher::config();
 
 		if (
-			! (	$config->get_boolean( 'stats.enabled' )
-			|| ! Util_Environment::is_w3tc_pro( $config )	)
-			|| (
+			(
+				! (	$config->get_boolean( 'stats.enabled' ) || ! Util_Environment::is_w3tc_pro( $config ) )
+			)
+			&& (
 				! $config->get_boolean( 'pgcache.enabled' )
 				&& ! $config->getf_boolean( 'objectcache.enabled' )
 				&& ! $config->get_boolean( 'dbcache.enabled' )
