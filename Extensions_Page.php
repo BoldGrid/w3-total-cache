@@ -55,7 +55,19 @@ class Extensions_Page extends Base_Page_Settings {
 			$sub_view = 'settings';
 		} else {
 			$extensions_all = Extensions_Util::get_extensions( $this->_config );
+			foreach ( $extensions_all as $key => $extension ) {
+				if ( isset( $extension['public'] ) && $extension['public'] === false ) {
+					unset( $extensions_all[ $key ] );
+				}
+			}
+
 			$extensions_inactive = Extensions_Util::get_inactive_extensions( $this->_config );
+			foreach ( $extensions_inactive as $key => $extension ) {
+				if ( isset( $extension['public'] ) && $extension['public'] === false ) {
+					unset( $extensions_inactive[ $key ] );
+				}
+			}
+
 			$var = "extensions_{$extension_status}";
 			$extensions = $$var;
 			$extension_keys = array_keys($extensions);
@@ -65,7 +77,9 @@ class Extensions_Page extends Base_Page_Settings {
 			$page = 1;
 		}
 
-		$config = Dispatcher::config();
+		Util_Debug::debug('extensions_all',$extensions_all);
+		Util_Debug::debug('extensions_inactive',$extensions_inactive);
+
 		include W3TC_INC_OPTIONS_DIR . '/extensions.php';
 	}
 
