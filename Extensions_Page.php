@@ -48,6 +48,12 @@ class Extensions_Page extends Base_Page_Settings {
 		$view       = ( ! empty( $action_val ) && 'view' === $action_val );
 
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
+		$extensions_active = Extensions_Util::get_extensions( $this->_config );
+			foreach ( $extensions_active as $key => $extension ) {
+				if ( isset( $extension['public'] ) && $extension['public'] === false ) {
+					unset( $extensions_active[ $key ] );
+				}
+			}
 
 		if ( $extension && $view ) {
 			$all_settings = $this->_config->get_array( 'extensions.settings' );
@@ -76,9 +82,6 @@ class Extensions_Page extends Base_Page_Settings {
 			$sub_view = 'list';
 			$page = 1;
 		}
-
-		Util_Debug::debug('extensions_all',$extensions_all);
-		Util_Debug::debug('extensions_inactive',$extensions_inactive);
 
 		include W3TC_INC_OPTIONS_DIR . '/extensions.php';
 	}
