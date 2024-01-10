@@ -48,11 +48,11 @@ class Extensions_Page extends Base_Page_Settings {
 		$view       = ( ! empty( $action_val ) && 'view' === $action_val );
 
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
-			foreach ( $extensions_active as $key => $extension ) {
-				if ( isset( $extension['public'] ) && $extension['public'] === false ) {
-					unset( $extensions_active[ $key ] );
-				}
+		foreach ( $extensions_active as $key => $extension ) {
+			if ( isset( $extension['public'] ) && false === $extension['public'] ) {
+				unset( $extensions_active[ $key ] );
 			}
+		}
 
 		if ( $extension && $view ) {
 			$all_settings = $this->_config->get_array( 'extensions.settings' );
@@ -61,14 +61,14 @@ class Extensions_Page extends Base_Page_Settings {
 		} else {
 			$extensions_all = Extensions_Util::get_extensions( $this->_config );
 			foreach ( $extensions_all as $key => $extension ) {
-				if ( isset( $extension['public'] ) && $extension['public'] === false ) {
+				if ( isset( $extension['public'] ) && false === $extension['public'] ) {
 					unset( $extensions_all[ $key ] );
 				}
 			}
 
 			$extensions_inactive = Extensions_Util::get_inactive_extensions( $this->_config );
 			foreach ( $extensions_inactive as $key => $extension ) {
-				if ( isset( $extension['public'] ) && $extension['public'] === false ) {
+				if ( isset( $extension['public'] ) && false === $extension['public'] ) {
 					unset( $extensions_inactive[ $key ] );
 				}
 			}
