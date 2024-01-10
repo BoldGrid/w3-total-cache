@@ -48,7 +48,6 @@ class Extensions_Page extends Base_Page_Settings {
 		$view       = ( ! empty( $action_val ) && 'view' === $action_val );
 
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
-		$extensions_active = Extensions_Util::get_extensions( $this->_config );
 			foreach ( $extensions_active as $key => $extension ) {
 				if ( isset( $extension['public'] ) && $extension['public'] === false ) {
 					unset( $extensions_active[ $key ] );
