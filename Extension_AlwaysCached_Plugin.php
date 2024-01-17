@@ -31,8 +31,14 @@ class Extension_AlwaysCached_Plugin {
 
 		add_action( 'init', array( $this, 'init' ) );
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
-		add_filter( 'w3tc_pagecache_flush_url', array( $this, 'w3tc_pagecache_flush_url' ) );
-		add_filter( 'w3tc_pagecache_rules_apache_rewrite_cond', array( $this, 'w3tc_pagecache_rules_apache_rewrite_cond' ) );
+		add_filter( 'w3tc_pagecache_flush_url',
+			array( $this, 'w3tc_pagecache_flush_url' ),
+			1000 );
+		add_filter( 'w3tc_pagecache_flush_all_groups',
+			array( $this, 'w3tc_pagecache_flush_all_groups' ),
+			1000 );
+		add_filter( 'w3tc_pagecache_rules_apache_rewrite_cond',
+			array( $this, 'w3tc_pagecache_rules_apache_rewrite_cond' ) );
 	}
 
 	/**
@@ -134,6 +140,37 @@ class Extension_AlwaysCached_Plugin {
 		}
 
 		return array();
+	}
+
+	public function w3tc_pagecache_flush_all_groups( $groups ) {
+		// only empty group catched, which is regular pages
+		$c = Dispatcher::config();
+		if ( !$c->get_boolean( array( 'alwayscached', 'flush_all' ) ) ) {
+			return $groups;
+		}
+
+		if ( in_array( '', $groups ) ) {
+			Extension_AlwaysCached_Queue::add(
+				':flush_group.regenerate',
+				'',
+				array( 'group' => '' ),
+				150
+			);
+			Extension_AlwaysCached_Queue::add(
+				':flush_group.remainder',
+				'',
+				array( 'group' => '', 'before_time' => time() ),
+				200
+			);
+
+			$groups = array_filter(
+				$groups,
+				function( $i) {
+					return !empty($i);
+				} );
+		}
+
+		return $groups;
 	}
 
 	/**

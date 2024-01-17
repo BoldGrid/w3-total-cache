@@ -33,7 +33,7 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @return void
 	 */
-	public static function add( $page_key, $url, $page_key_extension ) {
+	public static function add( $page_key, $url, $page_key_extension, $priority = 100 ) {
 		// Compress page_key_extension by removing empty values.
 		$page_key_extension = array_filter( $page_key_extension );
 
@@ -45,12 +45,13 @@ class Extension_AlwaysCached_Queue {
 		$wpdb->query(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"INSERT INTO `$table` ( page_key, url, page_key_extension, to_process )
-					VALUES ( %s, %s, %s, %s ) ON DUPLICATE KEY UPDATE requests_count = requests_count + 1",
+				"INSERT INTO `$table` ( page_key, url, page_key_extension, priority, to_process )
+					VALUES ( %s, %s, %s, %d, %s ) ON DUPLICATE KEY UPDATE requests_count = requests_count + 1",
 				$page_key,
 				$url,
 				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				serialize( $page_key_extension ),
+				$priority,
 				gmdate( 'Y-m-d G:i:s' )
 			)
 		);
@@ -177,7 +178,12 @@ class Extension_AlwaysCached_Queue {
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM `$table` WHERE to_process $comp %s ORDER BY to_process LIMIT 50",
+				"
+				SELECT *
+				FROM `$table`
+				WHERE to_process $comp %s
+				ORDER BY priority, to_process
+				LIMIT 50",
 				gmdate( 'Y-m-d G:i:s' )
 			),
 			ARRAY_A
@@ -343,6 +349,7 @@ class Extension_AlwaysCached_Queue {
 			`page_key` varchar(500) CHARACTER SET `ascii` NOT NULL,
 			`url` varchar(500) NOT NULL,
 			`page_key_extension` varchar(500) NOT NULL,
+			`priority` tinyint NOT NULL DEFAULT 100,
 			`requests_count` int NOT NULL DEFAULT 1,
 			`to_process` datetime NOT NULL,
 			PRIMARY KEY (`id`),

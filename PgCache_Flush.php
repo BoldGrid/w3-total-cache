@@ -366,6 +366,47 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		}
 	}
 
+	public function get_page_keys_for_url( $data ) {
+		$groups = array(
+			'mobile_groups' => $this->_get_mobile_groups(),
+			'referrer_groups' => $this->_get_referrer_groups(),
+			'cookies' => $this->_get_cookies(),
+			'encryptions' => $this->_get_encryptions(),
+			'compressions' => $this->_get_compressions()
+		);
+
+		$groups = $data['groups_filter']( $groups );
+
+		$output = array();
+
+		foreach ( $groups['mobile_groups'] as $mobile_group ) {
+			foreach ( $groups['referrer_groups'] as $referrer_group ) {
+				foreach ( $groups['cookies'] as $cookie ) {
+					foreach ( $groups['encryptions'] as $encryption ) {
+						foreach ( $groups['compressions'] as $compression ) {
+							$page_key_extension = array(
+								'useragent' => $mobile_group,
+								'referrer' => $referrer_group,
+								'cookie' => $cookie,
+								'encryption' => $encryption,
+								'compression' => $compression,
+								'group' => $data['group']
+							);
+
+							$output[] = array(
+								'page_key_extension' => $page_key_extension,
+								'page_key' => $this->_get_page_key(
+									$page_key_extension,
+									$data['url']
+								)
+							);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Returns array of mobile groups
 	 */
