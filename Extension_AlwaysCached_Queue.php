@@ -100,7 +100,12 @@ class Extension_AlwaysCached_Queue {
 			$item = $wpdb->get_row(
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					"SELECT * FROM `$table` WHERE to_process < %s ORDER BY to_process LIMIT 1",
+					"
+					SELECT *
+					FROM `$table`
+					WHERE to_process <= %s
+					ORDER BY priority DESC, to_process
+					LIMIT 1",
 					gmdate( 'Y-m-d G:i:s' )
 				),
 				ARRAY_A
@@ -172,7 +177,7 @@ class Extension_AlwaysCached_Queue {
 		global $wpdb;
 
 		$table = self::table_name();
-		$comp  = 'postponed' === $mode ? '>=' : '<';
+		$comp  = 'postponed' === $mode ? '>' : '<=';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
@@ -182,7 +187,7 @@ class Extension_AlwaysCached_Queue {
 				SELECT *
 				FROM `$table`
 				WHERE to_process $comp %s
-				ORDER BY priority, to_process
+				ORDER BY priority DESC, to_process
 				LIMIT 50",
 				gmdate( 'Y-m-d G:i:s' )
 			),
@@ -241,13 +246,43 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @return int
 	 */
-	public static function empty () {
+	public static function empty() {
 		global $wpdb;
 
 		$table = self::table_name();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->query( "DELETE FROM `$table`" );
+	}
+
+	/**
+	 * Checks if higher priority items present
+	 *
+	 * @since 2.5.1
+	 *
+	 * @return string
+	 */
+	public static function exists_higher_priority( $item ) {
+		global $wpdb;
+
+		$table = self::table_name();
+
+		$higher_item = $wpdb->get_row(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"
+				SELECT *
+				FROM `$table`
+				WHERE to_process <= %s AND priority > %d
+				ORDER BY priority DESC, to_process
+				LIMIT 1",
+				gmdate( 'Y-m-d G:i:s' ),
+				$item['priority']
+			),
+			ARRAY_A
+		);
+
+		return !empty( $higher_item );
 	}
 
 	/**

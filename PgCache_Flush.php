@@ -405,6 +405,8 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 				}
 			}
 		}
+
+		return $output;
 	}
 
 	/**

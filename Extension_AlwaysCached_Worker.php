@@ -53,13 +53,16 @@ class Extension_AlwaysCached_Worker {
 
 			echo esc_html( sprintf( "\n%d ", $item['id'] ) );
 
-			$success = self::process_item($item);
-			if ( !$success ) {
-				esc_html_e( 'failed', 'w3-total-cache' );
-			} else {
+			$result = self::process_item($item);
+			if ( $result == 'ok' ) {
 				esc_html_e( 'ok', 'w3-total-cache' );
 				Extension_AlwaysCached_Queue::pop_item_finish( $item );
 				update_option( 'w3tc_alwayscached_worker_timestamp', gmdate( 'Y-m-d G:i:s' ) );
+			} elseif ( $result == 'postpone' ) {
+				esc_html_e( 'postponed', 'w3-total-cache' );
+			} else {
+				esc_html_e( 'failed', 'w3-total-cache' );
+
 			}
 		}
 
@@ -84,7 +87,7 @@ class Extension_AlwaysCached_Worker {
 		echo esc_html( sprintf(
 			__( "regenerate %s... ", 'w3-total-cache' ), $item['url'] ) );
 
-		$result = Util_Http::request(
+		$result = wp_remote_request(
 			$item['url'],
 			array(
 				'headers' => array(
@@ -100,15 +103,15 @@ class Extension_AlwaysCached_Worker {
 		) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'failed to handle queue url' . $item['url'] );
-			return false;
+			return 'failed';
 		}
 
 		if ( empty( $result['headers'] ) || empty( $result['headers']['w3tcalwayscached'] ) ) {
 			esc_html_e( "\n  no evidence of cache refresh, will reprocess on next schedule/run\n  ", 'w3-total-cache' );
-			return false;
+			return 'failed';
 		}
 
-		return true;
+		return 'ok';
 	}
 
 
@@ -116,6 +119,7 @@ class Extension_AlwaysCached_Worker {
 	static private function process_item_flush_group_regenerate( $item ) {
 		$c = Dispatcher::config();
 
+		esc_html_e( "\n  building purge-all urls to regenerate\n  ", 'w3-total-cache' );
 
 		if ( $c->get_boolean( array( 'alwayscached', 'flush_all_home' ) ) ) {
 			self::add_url_to_queue( home_url() );
@@ -141,7 +145,7 @@ class Extension_AlwaysCached_Worker {
 			$posts = get_posts( array(
 				'post_type' => 'page',
 				'post_status' => 'publish',
-				'posts_per_page' => $posts_count,
+				'posts_per_page' => $pages_count,
 				'order' => 'DESC',
 				'orderby' => 'modified'
 			) );
@@ -150,7 +154,8 @@ class Extension_AlwaysCached_Worker {
 				self::add_url_to_queue( get_permalink( $post ) );
 			}
 		}
-		return true;
+
+		return 'ok';
 	}
 
 
@@ -160,11 +165,14 @@ class Extension_AlwaysCached_Worker {
 		$items = $provider->get_page_keys_for_url( array(
 			'url' => $url,
 			'group' => '',
-			'groups_filter' => function( $groups ) {
+			'groups_filter' => function( $groups ) use ( $url ) {
+				$is_https = ( substr( $url, 0, 5 ) == 'https' );
+
 				$groups['mobile_groups'] = array( $groups['mobile_groups'][0] );
 				$groups['referrer_groups'] = array( $groups['referrer_groups'][0] );
 				$groups['cookies'] = array( $groups['cookies'][0] );
 				$groups['compressions'] = array( false );
+				$groups['encryptions'] = array( $is_https ? 'ssl' : '' );
 
 				return $groups;
 			}
@@ -182,6 +190,13 @@ class Extension_AlwaysCached_Worker {
 
 
 	static private function process_item_flush_group_remainder( $item ) {
-		return true;
+		if (Extension_AlwaysCached_Queue::exists_higher_priority( $item ) ) {
+			// cant flush when something is still going to be regenerated
+			// in order to prevent pages which are going to be regenerated
+			// to became uncached
+			return 'postpone';
+		}
+
+		return 'ok';
 	}
 }
