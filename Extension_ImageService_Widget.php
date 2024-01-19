@@ -27,8 +27,8 @@ class Extension_ImageService_Widget {
 		$is_pro = Util_Environment::is_w3tc_pro( $config );
 		$o      = new Extension_ImageService_Widget();
 
-		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 2000 );
-		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 2000 );
+		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 300 );
+		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 300 );
 
 		wp_enqueue_script( 'w3tc-dashboard', plugins_url( 'pub/js/google-charts.js', W3TC_FILE ), array(), W3TC_VERSION, true );
 

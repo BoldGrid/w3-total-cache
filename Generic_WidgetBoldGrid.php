@@ -10,13 +10,13 @@ class Generic_WidgetBoldGrid {
 
 		$o = new Generic_WidgetBoldGrid();
 
-		Util_Widget::add2( 'w3tc_boldgrid', 11500,
+		Util_Widget::add2( 'w3tc_boldgrid', 800,
 			'<div class="w3tc-widget-boldgrid-logo"></div>',
 			array( $o, 'widget_form' ),
 			self_admin_url(
 				'plugin-install.php?tab=plugin-information&amp;plugin=boldgrid-backup' .
 				'&amp;TB_iframe=true&amp;width=772&amp;height=550'
-			), 'bottom', __( 'View Details' ), 'thickbox open-plugin-details-modal' );
+			), 'normal', __( 'View Details' ), 'thickbox open-plugin-details-modal' );
 
 		add_thickbox();
 		wp_enqueue_script( 'plugin-install' );

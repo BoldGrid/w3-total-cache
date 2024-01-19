@@ -128,6 +128,72 @@
 	text-align: right;
 }
 
+#w3tc_page_cache,
+#w3tc_object_cache,
+#w3tc_database_cache {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+#w3tc_page_cache #page_cache_chart,
+#w3tc_object_cache #object_cache_chart,
+#w3tc_database_cache #database_cache_chart {
+	width: 100%;
+}
+
+#w3tc_page_cache #page_cache_chart_ad,
+#w3tc_page_cache #page_cache_chart_enable,
+#w3tc_page_cache #page_cache_chart_subenable,
+#w3tc_object_cache #object_cache_chart_ad,
+#w3tc_object_cache #object_cache_chart_enable,
+#w3tc_object_cache #object_cache_chart_subenable,
+#w3tc_database_cache #database_cache_chart_ad,
+#w3tc_database_cache #database_cache_chart_enable,
+#w3tc_database_cache #database_cache_chart_subenable {
+	display: flex;
+  	align-items: center;
+  	justify-content: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: right;
+	width: 100%;
+	height: 100%;
+}
+
+#w3tc_page_cache #page_cache_chart_ad,
+#w3tc_page_cache #page_cache_chart_enable,
+#w3tc_page_cache #page_cache_chart_subenable {
+	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-stats-page-cache.png");
+}
+
+#w3tc_object_cache #object_cache_chart_ad,
+#w3tc_object_cache #object_cache_chart_enable,
+#w3tc_object_cache #object_cache_chart_subenable {
+	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-stats-object-cache.png");
+}
+
+#w3tc_database_cache #database_cache_chart_ad,
+#w3tc_database_cache #database_cache_chart_enable,
+#w3tc_database_cache #database_cache_chart_subenable {
+	background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-stats-database-cache.png");
+}
+  
+#w3tc_page_cache .postbox-header,
+#w3tc_object_cache .postbox-header,
+#w3tc_database_cache .postbox-header {
+	flex: 0 0 auto;
+}
+  
+#w3tc_page_cache .inside,
+#w3tc_object_cache .inside,
+#w3tc_database_cache .inside {
+	flex: 1 1 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 #api_charts {
 	display: flex;
 	justify-content: center;

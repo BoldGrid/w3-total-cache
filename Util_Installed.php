@@ -148,7 +148,7 @@ class Util_Installed {
 			$test_value = array( 'content' => $test_string );
 			$memcached->set( $test_string, $test_value, 60 );
 			$test_value = $memcached->get( $test_string );
-			$results[$key] = ( $test_value['content'] == $test_string );
+			$results[$key] = ( ! empty( $test_value['content'] ) && $test_value['content'] == $test_string );
 		}
 
 		return $results[$key];
