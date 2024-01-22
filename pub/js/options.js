@@ -1672,6 +1672,12 @@ jQuery(function() {
 		)
 	);
 
+	// Target notices without the 'inline' class.
+    jQuery('.notice:not(.inline), .updated:not(.inline), .update-nag:not(.inline), .error:not(.inline), .info:not(.inline), .warning:not(.inline)').each(function() {
+        // Prevent the notice from being moved.
+        jQuery(this).addClass('inline');
+    });
+
 	set_sticky_bar_positions();
 	set_footer_position();
 });
