@@ -498,7 +498,6 @@ a.w3tc-palette-tp {
  */
  
 #w3tc-upgrade {
-	padding: 10px;
 	box-sizing: border-box;
 }
 
@@ -518,6 +517,7 @@ a.w3tc-palette-tp {
 	display: flex;
 	background: #000;
 	border-bottom: 5px solid #30bec4;
+	border-radius: 6px 6px 0 0;
 	color: #fff;
 	height: 75px;
 	position: relative;
@@ -547,4 +547,34 @@ a.w3tc-palette-tp {
 .w3tc_overlay_upgrade_header,
 .w3tc-overlay-upgrade .lightbox-close {
 	background-color: #f1f1f1;
+}
+
+.w3tc_upgrade_content p {
+	position: relative;
+	z-index: 1;
+}
+
+.w3tc_upgrade_footer {
+	background: #fdfdfd;
+	padding: 15px;
+	border-top: 1px dashed #C0C0C0;
+	border-radius: 0 0 6px 6px;
+	text-align: right;
+}
+
+.w3tc_upgrade_footer .btn {
+	border: none;
+	color: #ffffff;
+	background: #2271B1;
+}
+
+.w3tc_upgrade_footer .btn:focus {
+	box-shadow: 0 0 0 1px #fff, 0 0 0 3px #2271b1;
+}
+
+.w3tc_upgrade_footer .btn:hover,
+.w3tc_upgrade_footer .btn:focus {
+	background: #135e96;
+	border-color: #135e96;
+	color: #fff;
 }

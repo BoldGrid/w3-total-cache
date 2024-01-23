@@ -38,7 +38,7 @@ var W3tc_Lightbox = {
 	open: function(options) {
 		this.options = jQuery.extend({
 			id: 'lightbox',
-			close: 'Close window',
+			close: '',
 			width: 0,
 			height: 0,
 			maxWidth: 0,
@@ -393,11 +393,15 @@ function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 		client_id = w3tc_ga_cid;
 	}
 
+	var minWidth = jQuery(window).width() - 30;
+	var minHeight = jQuery(window).height() - 30;
+
   	W3tc_Lightbox.open({
 		id: 'w3tc-overlay',
 		close: '',
-		width: 800,
-		height: 350,
+		maxWidth: 1000,
+		minWidth: ( minWidth < 1000 ? minWidth : 1000 ),
+		minHeight: ( minHeight < 500 ? minHeight : 500 ),
 		url: 'admin.php?page=w3tc_dashboard&w3tc_licensing_upgrade&_wpnonce=' +
 		encodeURIComponent(nonce) + '&data_src=' + encodeURIComponent(data_src) +
 		(renew_key ? '&renew_key=' + encodeURIComponent(renew_key) : '') +
@@ -431,11 +435,14 @@ function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 }
 
 function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
+	var minWidth = jQuery(window).width() - 30;
+	var minHeight = jQuery(window).height() - 30;
+
 	W3tc_Lightbox.open({
-		width: 800,
-		minHeight: 350,
-		maxWidth: jQuery(window).width() - 40,
-		maxHeight: jQuery(window).height() - 40,
+		id: 'w3tc-overlay',
+		maxWidth: 1000,
+		minWidth: ( minWidth < 1000 ? minWidth : 1000 ),
+		minHeight: ( minHeight < 700 ? minHeight : 700 ),
 		url: 'admin.php?page=w3tc_dashboard&w3tc_licensing_buy_plugin' +
 			'&_wpnonce=' + encodeURIComponent(nonce) +
 			'&data_src=' + encodeURIComponent(data_src) +
@@ -477,6 +484,11 @@ function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
 			jQuery('.button-primary', lightbox.container).on( 'click', function() {
 				lightbox.close();
 			});
+
+			// Allow for customizations of the "upgrade" overlay specifically.
+			jQuery( '.w3tc-overlay' ).addClass( 'w3tc-overlay-upgrade' );
+
+			lightbox.resize();
 		}
 	});
 }
