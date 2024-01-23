@@ -50,7 +50,7 @@ class Minify_CSS_Compressor {
 
 
 	protected $_replacementHash = '';
-	protected $_placeholders = [];
+	protected $_placeholders = array();
 	
     /**
      * Constructor
