@@ -69,13 +69,10 @@
 	//flex-grow: 1;
 }
 
-/*
-.widgets-container .meta-box-sortables #w3tc_spreadtheword,
-.widgets-container .meta-box-sortables #w3tc_boldgrid,
-.widgets-container .meta-box-sortables #w3tc_services {
+.widgets-container .meta-box-sortables #w3tc_imageservice,
+.widgets-container .meta-box-sortables #w3tc_bunnycdn {
 	width: calc(50% - 10.5px);
 }
-*/
 
 .widgets-container .meta-box-sortables #w3tc_settings,
 .widgets-container .meta-box-sortables #w3tc_pagespeed {

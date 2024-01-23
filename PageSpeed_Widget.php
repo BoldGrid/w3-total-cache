@@ -25,8 +25,8 @@ class PageSpeed_Widget {
 	 * @return void
 	 */
 	public function run() {
-		add_action( 'w3tc_widget_setup', array( $this, 'wp_dashboard_setup' ), 400 );
-		add_action( 'w3tc_network_dashboard_setup', array( $this, 'wp_dashboard_setup' ), 400 );
+		add_action( 'w3tc_widget_setup', array( $this, 'wp_dashboard_setup' ), 500 );
+		add_action( 'w3tc_network_dashboard_setup', array( $this, 'wp_dashboard_setup' ), 500 );
 		add_action( 'w3tc_ajax_pagespeed_widgetdata', array( $this, 'w3tc_ajax_pagespeed_widgetdata' ) );
 	}
 

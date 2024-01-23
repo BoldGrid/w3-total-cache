@@ -26,8 +26,8 @@ class Generic_WidgetStats {
 	public static function admin_init_w3tc_dashboard() {
 		$o = new Generic_WidgetStats();
 
-		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 600 );
-		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 600 );
+		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 700 );
+		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 700 );
 		wp_enqueue_script( 'w3tc-dashboard', plugins_url( 'pub/js/google-charts.js', W3TC_FILE ), array(), W3TC_VERSION, true );
 		wp_enqueue_script( 'w3tc-stats-widget', plugins_url( 'Generic_WidgetStats.js', W3TC_FILE ), array(), W3TC_VERSION, true );
 	}
