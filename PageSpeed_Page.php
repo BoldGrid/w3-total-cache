@@ -155,7 +155,7 @@ class PageSpeed_Page {
 			} else {
 				$api_response['time']         = time();
 				$api_response['display_time'] = \current_time( 'M jS, Y g:ia', false );
-				update_option( 'w3tc_pagespeed_data_' . $encoded_url, wp_json_encode( $api_response ), 'yes' );
+				update_option( 'w3tc_pagespeed_data_' . $encoded_url, wp_json_encode( $api_response ), 'no' );
 			}
 		}
 
