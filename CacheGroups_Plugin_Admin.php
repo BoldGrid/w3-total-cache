@@ -272,9 +272,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 		return array_unique(
 			array_map(
 				function ( $value ) {
-					$value = strtolower( $value );
-					$value = preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', $value );
-					return $value;
+					return preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', strtolower( $value ) );
 				},
 				$values
 			)
