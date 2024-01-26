@@ -150,7 +150,11 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 
 			$mobile_groups[ $group ]['agents'] = array_unique(
 				array_map(
-					'strtolower',
+					function ( $agent ) {
+						$agent = strtolower( $agent );
+						$agent = preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', $agent );
+						return $agent;
+					},
 					$mobile_groups[ $group ]['agents']
 				)
 			);
@@ -211,7 +215,11 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 
 			$referrer_groups[ $group ]['referrers'] = array_unique(
 				array_map(
-					'strtolower',
+					function ( $referrer ) {
+						$referrer = strtolower( $referrer );
+						$referrer = preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', $referrer );
+						return $referrer;
+					},
 					$referrer_groups[ $group ]['referrers']
 				)
 			);
