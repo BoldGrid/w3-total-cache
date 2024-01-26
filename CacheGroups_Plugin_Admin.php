@@ -148,16 +148,8 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$group_config
 			);
 
-			$mobile_groups[ $group ]['agents'] = array_unique(
-				array_map(
-					function ( $agent ) {
-						$agent = strtolower( $agent );
-						$agent = preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', $agent );
-						return $agent;
-					},
-					$mobile_groups[ $group ]['agents']
-				)
-			);
+			$mobile_groups[ $group ]['agents'] = self::clean_values( $mobile_groups[ $group ]['agents'] );
+
 			sort( $mobile_groups[ $group ]['agents'] );
 		}
 
@@ -213,16 +205,8 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$group_config
 			);
 
-			$referrer_groups[ $group ]['referrers'] = array_unique(
-				array_map(
-					function ( $referrer ) {
-						$referrer = strtolower( $referrer );
-						$referrer = preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', $referrer );
-						return $referrer;
-					},
-					$referrer_groups[ $group ]['referrers']
-				)
-			);
+			$referrer_groups[ $group ]['referrers'] = self::clean_values( $referrer_groups[ $group ]['referrers'] );
+
 			sort( $referrer_groups[ $group ]['referrers'] );
 		}
 
@@ -275,5 +259,25 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 
 		$config->set( 'pgcache.cookiegroups.enabled', $enabled );
 		$config->set( 'pgcache.cookiegroups.groups', $cookiegroups );
+	}
+
+	/**
+	 * Clean entries.
+	 *
+	 * @static
+	 *
+	 * @param array $values Values.
+	 */
+	public static function clean_values( $values ) {
+		return array_unique(
+			array_map(
+				function ( $value ) {
+					$value = strtolower( $value );
+					$value = preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', $value );
+					return $value;
+				},
+				$values
+			)
+		);
 	}
 }
