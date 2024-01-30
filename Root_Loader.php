@@ -94,10 +94,7 @@ class Root_Loader {
 
 			$plugins[] = new PageSpeed_Api();
 			$plugins[] = new PageSpeed_Page();
-
-			if ( $c->get_boolean( 'widget.pagespeed.enabled' ) ) {
-				$plugins[] = new PageSpeed_Widget();
-			}
+			$plugins[] = new PageSpeed_Widget();
 
 			$plugins[] = new Generic_Plugin_AdminCompatibility();
 			$plugins[] = new Licensing_Plugin_Admin();

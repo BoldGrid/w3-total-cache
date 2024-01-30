@@ -102,6 +102,7 @@
 	text-align: center;
 }
 
+#w3tc-webp-widget-stats-container,
 #w3tc-webp-widget-stats-container table {
 	width: 100%;
 }
@@ -130,7 +131,8 @@
 
 #w3tc_page_cache,
 #w3tc_object_cache,
-#w3tc_database_cache {
+#w3tc_database_cache,
+#w3tc_imageservice {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -181,13 +183,15 @@
   
 #w3tc_page_cache .postbox-header,
 #w3tc_object_cache .postbox-header,
-#w3tc_database_cache .postbox-header {
+#w3tc_database_cache .postbox-header,
+#w3tc_imageservice .postbox-header {
 	flex: 0 0 auto;
 }
   
 #w3tc_page_cache .inside,
 #w3tc_object_cache .inside,
-#w3tc_database_cache .inside {
+#w3tc_database_cache .inside,
+#w3tc_imageservice .inside {
 	flex: 1 1 auto;
 	display: flex;
 	align-items: center;
@@ -213,6 +217,21 @@
 
 svg > g:last-child > g:last-child { pointer-events: none }
 div.google-visualization-tooltip { pointer-events: none }
+
+#w3tc_imageservice .w3tc-webp-widget-stats-inactive {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 100%;
+	height: 100%;
+}
+
+#w3tc_imageservice .w3tc-webp-widget-stats-inactive {
+	background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-webp-converter.png");
+}
 
 @media only screen and (max-width: 1200px) {
 	.general-settings-container {
