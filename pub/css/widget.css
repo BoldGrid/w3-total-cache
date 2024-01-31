@@ -71,7 +71,7 @@
 
 .widgets-container .meta-box-sortables #w3tc_imageservice,
 .widgets-container .meta-box-sortables #w3tc_bunnycdn {
-	width: calc(50% - 10.5px);
+	//width: calc(50% - 10.5px);
 }
 
 .widgets-container .meta-box-sortables #w3tc_settings,

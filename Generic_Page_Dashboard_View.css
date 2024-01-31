@@ -233,6 +233,23 @@ div.google-visualization-tooltip { pointer-events: none }
 	background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2)), url("pub/img/w3tc-webp-converter.png");
 }
 
+#w3tc_partners #partner-list li {
+	display: flex;
+	align-items: center;
+	margin-bottom: 2px;
+}
+
+#w3tc_partners #partner-list li .partner-logo {
+	margin-right: 10px;
+	display: flex;
+	align-items: center;
+}
+  
+#w3tc_partners #partner-list li .partner-logo img {
+	display: block;
+	height: auto;
+}
+
 @media only screen and (max-width: 1200px) {
 	.general-settings-container {
 		column-gap: 35px;
