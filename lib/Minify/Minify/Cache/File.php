@@ -7,7 +7,12 @@ namespace W3TCL\Minify;
  */
 
 class Minify_Cache_File {
-
+	private $_path = null;
+	private $_exclude = null;
+	private $_locking = null;
+	private $_flushTimeLimit = null;
+	private $_flush_path = null;
+	
 	public function __construct($path = '', $exclude = array(), $locking = false, $flushTimeLimit = 0, $flush_path = null) {
 		if (! $path) {
 			$path = self::tmp();
@@ -243,11 +248,6 @@ class Minify_Cache_File {
 	public function getPath() {
 		return $this->_path;
 	}
-
-	private $_path = null;
-	private $_exclude = null;
-	private $_locking = null;
-	private $_flushTimeLimit = null;
 
 	/**
 	 * Returns size statistics about cache files
