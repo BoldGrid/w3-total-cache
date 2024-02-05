@@ -53,7 +53,7 @@ $settings = array(
 		'enabled' => $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ),
 	),
 	'debug'         => array(
-		'label'   => esc_html__( 'Debug Cache', 'w3-total-cache' ),
+		'label'   => esc_html__( 'Debug', 'w3-total-cache' ),
 		'enabled' => $config->get_boolean( 'pgcache.debug' )
 			|| $config->get_boolean( 'pgcache.debug_purge' )
 			|| $config->get_boolean( 'minify.debug' )

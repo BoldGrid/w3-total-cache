@@ -23,10 +23,7 @@ class Generic_WidgetAccount {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$licensing   = new Licensing_Plugin_Admin();
-		$license_key = $licensing->get_license_key();
-		$license     = Licensing_Core::check_license( $license_key, W3TC_VERSION );
-		$o           = new Generic_WidgetAccount();
+		$o = new Generic_WidgetAccount();
 		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 100 );
 		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 100 );
 	}

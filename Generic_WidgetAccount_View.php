@@ -4,6 +4,10 @@ namespace W3TC;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
+
+$licensing   = new Licensing_Plugin_Admin();
+$license_key = $licensing->get_license_key();
+$license     = Licensing_Core::check_license( $license_key, W3TC_VERSION );
 ?>
 <table>
 	<tr>
