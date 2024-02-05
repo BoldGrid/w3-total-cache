@@ -302,7 +302,7 @@ class Util_Ui {
 			<?php
 			if ( ! is_network_admin() ) {
 				?>
-				<input type="submit" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
+				<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
 				<button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<span class="sr-only">Toggle Dropdown</span>
 				</button>
@@ -1503,8 +1503,10 @@ class Util_Ui {
 	public static function print_breadcrumb() {
 		$page         = ! empty( Util_Admin::get_current_extension() ) ? Util_Admin::get_current_extension() : Util_Admin::get_current_page();
 		$page_mapping = Util_PageUrls::get_page_mapping( $page );
-		$parent       = isset( $page_mapping['parent_name'] ) ? '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( $page_mapping['parent_link'] ) . '">' . esc_html( $page_mapping['parent_name'] ) . '</a>' : '';
-		$current      = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . esc_html( $page_mapping['page_name'] ) . '</span>';
+		$parent       = isset( $page_mapping['parent_name'] ) ?
+			'<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( $page_mapping['parent_link'] ) . '">' . esc_html( $page_mapping['parent_name'] ) . '</a>' : '';
+		$current      = isset( $page_mapping['page_name'] ) ?
+			'<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . esc_html( $page_mapping['page_name'] ) . '</span>' : '';
 		?>
 		<p id="w3tc-breadcrumb">
 			<span class="dashicons dashicons-admin-home"></span>
@@ -1857,11 +1859,16 @@ class Util_Ui {
 					$subnav_links = array( '<a href="#lazy-loading">' . esc_html__( 'Lazy Loading', 'w3-total-cache' ) . '</a>' );
 
 					if ( UserExperience_DeferScripts_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#application">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#defer-scripts">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
+					}
+
+					if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#remove-cssjs">' . esc_html__( 'Remove CSS/JS - Homepage', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#remove-cssjs-singles">' . esc_html__( 'Remove CSS/JS - Singles', 'w3-total-cache' ) . '</a>';
 					}
 
 					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#application">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#preload-requests">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
 					}
 
 					// If there's only 1 meta box on the page, no need for nav links.

@@ -73,8 +73,14 @@ do_action( 'w3tc-dashboard-footer' );
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/delay-scripts-tool/' ); ?>" alt="<?php esc_attr_e( 'Delay Scripts', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Delay Scripts', 'w3-total-cache' ); ?>
 				</a>
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/' ); ?>" alt="<?php esc_attr_e( 'Preload Requests', 'w3-total-cache' ); ?>">
+					<?php esc_html_e( 'Preload Requests', 'w3-total-cache' ); ?>
+				</a>
 			</div>
 			<div class="w3tc-footer-inner-column-50">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/remove-cssjs/' ); ?>" alt="<?php esc_attr_e( 'Remove CSS/JS', 'w3-total-cache' ); ?>">
+					<?php esc_html_e( 'Remove CSS/JS', 'w3-total-cache' ); ?>
+				</a>
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-lazy-loading-for-your-wordpress-website-with-w3-total-cache/' ); ?>" alt="<?php esc_attr_e( 'Lazy Load Google Maps', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Lazy Load Google Maps', 'w3-total-cache' ); ?>
 				</a>

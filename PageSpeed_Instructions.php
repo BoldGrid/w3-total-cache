@@ -271,9 +271,6 @@ class PageSpeed_Instructions {
 							$allowed_tags
 						) . '</p>',
 				),
-				'preload-lcp-image'            => array(
-					'instructions' => '<p>' . esc_html__( 'Enable lazy load for images.', 'w3-total-cache' ) . '</p>',
-				),
 				'total-byte-weight'            => array(
 					'instructions' =>
 						'<p>' . sprintf(
@@ -507,16 +504,6 @@ class PageSpeed_Instructions {
 						<br/>
 						<p>' . esc_html__( 'Use font-display atribute: The font-display attribute determines how the font is displayed during your page load, based on whether it has been downloaded and is ready for use.', 'w3-total-cache' ) . '</p>',
 				),
-				'first-contentful-paint-3g'        => array(
-					'instructions' =>
-						'<p>' . esc_html__( 'Enable Page Cache using the fastest engine.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'What it represents: How much is visible at a time during load.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'Lighthouse Performance score weighting: 10%', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'What it measures: The Speed Index is the average time at which visible parts of the page are displayed.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'How it\'s measured: Lighthouse\'s Speed Index measurement comes from a node module called Speedline.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'In order for content to be displayed to the user, the browser must first download, parse, and process all external stylesheets it encounters before it can display or render any content to a user\'s screen.', 'w3-total-cache' ) . '</p>
-						<p>' . esc_html__( 'The fastest way to bypass the delay of external resources is to use in-line styles for above-the-fold content.', 'w3-total-cache' ) . '</p>',
-				),
 				'uses-long-cache-ttl'              => array(
 					'instructions' =>
 						'<p>' . sprintf(
@@ -533,16 +520,6 @@ class PageSpeed_Instructions {
 				),
 				'critical-request-chains'          => array(
 					'instructions' => '<p>' . esc_html__( 'Eliminate Render Blocking CSS and apply asynchronous loading where applicable. Additionally, image optimization by way of resizing, lazy loaidng, and webp conversion can impact this metric as well.', 'w3-total-cache' ) . '</p>',
-				),
-				'resource-summary'                 => array(
-					'instructions' =>
-						'<p>Actions that can help:</p>
-						<ul>
-							<li>' . esc_html__( 'Avoid multiple page redirects.', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Combine images using CSS sprites.', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Remove unnecessary third-party scripts.', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Compress your text resources.', 'w3-total-cache' ) . '</li>
-						</ul>',
 				),
 				'largest-contentful-paint-element' => array(
 					'instructions' =>
@@ -571,6 +548,7 @@ class PageSpeed_Instructions {
 						<ul>
 							<li>' . esc_html__( 'Optimize and compress images.', 'w3-total-cache' ) . '</li>
 							<li>' . esc_html__( 'Preload important resources.', 'w3-total-cache' ) . '</li>
+							<li>' . esc_html__( 'Disable "lazy loading" for assets immediately visible on page load.', 'w3-total-cache' ) . '</li>
 							<li>' . esc_html__( 'Compress text files.', 'w3-total-cache' ) . '</li>
 							<li>' . esc_html__( 'Deliver different assets based on the network connection (adaptive serving).', 'w3-total-cache' ) . '</li>
 							<li>' . esc_html__( 'Cache assets using a service worker.', 'w3-total-cache' ) . '</li>
@@ -588,6 +566,7 @@ class PageSpeed_Instructions {
 							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) . '" alt="' . esc_attr__( 'Page Cache', 'w3-total-cache' ) . '">' . esc_html__( 'Page Cache', 'w3-total-cache' ) . '</a></li>
 							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#browser_cache' ) ) . '" alt="' . esc_attr__( 'Browser Cache', 'w3-total-cache' ) . '">' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</a></li>
 							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '" alt="' . esc_attr__( 'CDN', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</a></li>
+							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '" alt="' . esc_attr__( 'Preload Requests', 'w3-total-cache' ) . '">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a></li>
 						</ul>',
 				),
 				'layout-shift-elements'            => array(

@@ -49,6 +49,9 @@ class Minify_CSS_Compressor {
     protected $_inHack = false;
 
 
+	protected $_replacementHash = '';
+	protected $_placeholders = array();
+	
     /**
      * Constructor
      *
