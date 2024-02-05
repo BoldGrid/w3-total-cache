@@ -170,7 +170,7 @@ class Util_PageSpeed {
 	 */
 	public static function get_breakdown_bg( $score, $display_mode ) {
 		$notice = 'notice notice-info inline';
-		if ( isset( $display_mode )	&& in_array( $display_mode, array( 'metric', 'metricSavings') ) && isset( $score ) && is_numeric( $score ) ) {
+		if ( isset( $display_mode ) && in_array( $display_mode, array( 'metric', 'metricSavings' ), true ) && isset( $score ) && is_numeric( $score ) ) {
 			if ( $score >= 90 ) {
 				$notice = 'notice notice-success inline';
 			} elseif ( $score >= 50 && $score < 90 ) {
@@ -192,7 +192,7 @@ class Util_PageSpeed {
 	 */
 	public static function get_breakdown_grade( $score, $display_mode ) {
 		$grade = 'w3tcps_blank';
-		if ( isset( $display_mode )	&& in_array( $display_mode, array( 'metric', 'metricSavings') ) && isset( $score ) && is_numeric( $score ) ) {
+		if ( isset( $display_mode ) && in_array( $display_mode, array( 'metric', 'metricSavings' ), true ) && isset( $score ) && is_numeric( $score ) ) {
 			if ( $score >= 90 ) {
 				$grade = 'w3tcps_pass';
 			} elseif ( $score >= 50 && $score < 90 ) {
@@ -406,7 +406,7 @@ class Util_PageSpeed {
 			}
 
 			$items = ( isset( $items ) ? $items : '<p class="w3tcps-no-items">' . esc_html__( 'No identified items were provided by Google PageSpeed Insights API for this metric', 'w3-total-cache' ) . '</p>' );
-			if ( $opportunity['score'] >= 90 || in_array( $opportunity['scoreDisplayMode'], array( 'notApplicable' ) ) ) {
+			if ( $opportunity['score'] >= 90 || in_array( $opportunity['scoreDisplayMode'], array( 'notApplicable' ), true ) ) {
 				$passed_audits .= '
 					<div class="audits w3tcps_passed_audit' . esc_attr( $audit_classes ) . ' ' . esc_attr( $notice ) . '">
 						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . esc_attr( $grade ) . '" gatitle="' . esc_attr( $opportunity['title'] ) . '">' . esc_html( $opportunity['title'] ) . ( isset( $opportunity['displayValue'] ) ? ' - ' . esc_html( $opportunity['displayValue'] ) : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
@@ -614,7 +614,7 @@ class Util_PageSpeed {
 
 			$items = ( isset( $items ) ? $items : '<p class="w3tcps-no-items">' . esc_html__( 'No identified items were provided by Google PageSpeed Insights API for this metric', 'w3-total-cache' ) . '</p>' );
 
-			if ( $diagnostic['score'] >= 90 || in_array( $diagnostic['scoreDisplayMode'], array( 'notApplicable' ) ) ) {
+			if ( $diagnostic['score'] >= 90 || in_array( $diagnostic['scoreDisplayMode'], array( 'notApplicable' ), true ) ) {
 				$passed_audits .= '
 					<div class="audits w3tcps_passed_audit' . esc_attr( $audit_classes ) . ' ' . esc_attr( $notice ) . '">
 						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . esc_attr( $grade ) . '" gatitle="' . esc_attr( $diagnostic['title'] ) . '">' . esc_html( $diagnostic['title'] ) . ( isset( $diagnostic['displayValue'] ) ? ' - ' . esc_html( $diagnostic['displayValue'] ) : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
