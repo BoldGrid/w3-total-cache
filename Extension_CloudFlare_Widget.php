@@ -11,7 +11,7 @@ class Extension_CloudFlare_Widget {
 		add_action( 'admin_print_scripts-toplevel_page_w3tc_dashboard',
 			array( $this, 'admin_print_scripts_w3tc_dashboard' ) );
 
-		Util_Widget::add2( 'w3tc_cloudflare', 10000,
+		Util_Widget::add2( 'w3tc_cloudflare', 600,
 			'<div class="w3tc_cloudflare_widget_logo"></div>',
 			array( $this, 'widget_form' ),
 			Util_Ui::admin_url( 'admin.php?page=w3tc_general#cloudflare' ),

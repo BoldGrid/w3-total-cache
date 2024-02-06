@@ -4,7 +4,7 @@
 
 .w3tcps_loading .spinner {
 	margin-top: 5px;
-	float: left;
+	float: unset;
 }
 
 .w3tcps_timestamp_container {
@@ -33,13 +33,23 @@
 	margin: 5px !important;
 }
 
+.w3tcps_widget_metrics {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.w3tcps_metric {
+	flex-grow: 1;
+	width: 33%;
+}
+
 .w3tcps_metric_title {
     font-size: 14px;
 }
 
 .w3tcps_metric_title,
 .w3tcps_metric_stats {
-    padding: 8px 12px;
+    padding: 8px 5px;
     margin: 0;
 	text-align: left;
 }
@@ -141,4 +151,20 @@
     left:0;   
     width:100%; 
     text-align: center;
+}
+
+@media only screen and (max-width: 1200px) {
+	.w3tcps_metric {
+		width: 50%;
+	}
+}
+
+@media only screen and (max-width: 782px) {
+	.w3tcps_metric {
+		width: 50%;
+	}
+
+	.w3tcps_metric > * {
+		text-align: center;
+	}
 }
