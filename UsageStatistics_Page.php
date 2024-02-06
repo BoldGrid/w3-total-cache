@@ -159,7 +159,7 @@ class UsageStatistics_Page {
 
 
 	public function summary_item( $id, $name, $checked = false, $extra_class = '', $column_background = '', $link_key = '' ) {
-		echo '<div class="ustats_' . esc_attr( $id ) . ' ' . esc_attr( $extra_class ) . '">\n';
+		echo '<div class="ustats_' . esc_attr( $id ) . ' ' . esc_attr( $extra_class ) . '"><br />';
 		echo '<label>';
 		echo '<input type="checkbox" name="' . esc_attr( 'w3tcus_chart_check_' . $id ) . '" data-name="' .
 			esc_attr( $name ) . '" data-column="' . esc_attr( $id ) . '" ';
@@ -172,11 +172,12 @@ class UsageStatistics_Page {
 		checked( $checked );
 		echo ' />';
 		if ( ! empty( $link_key ) ) {
-			echo '<a href="' . esc_url( 'admin.php?page=w3tc_stats&view=pagecache_requests&status=' . rawurlencode( $link_key ) . '&status_name=' . rawurlencode( $name ) ) . '">$name</a>';
+			echo '<a href="' . esc_url( 'admin.php?page=w3tc_stats&view=pagecache_requests&status=' . rawurlencode( $link_key ) .
+				'&status_name=' . rawurlencode( $name ) ) . '">' . esc_html( $name ) . '</a>';
 		} else {
 			echo esc_html( $name );
 		}
-		echo ": <span></span>\n";
+		echo ': <span></span><br />';
 
 		echo '</label>';
 		echo '</div>';
