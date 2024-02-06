@@ -1665,7 +1665,6 @@ jQuery(function() {
 	jQuery(window).resize(
 		debounce(
 			function() {
-				console.log('resize');
 				set_sticky_bar_positions();
 				set_footer_position();
 			}
