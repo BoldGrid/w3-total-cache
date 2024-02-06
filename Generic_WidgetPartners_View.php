@@ -1,4 +1,12 @@
 <?php
+/**
+ * File: Generic_WidgetPartners_View.php
+ *
+ * @since X.X.X
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

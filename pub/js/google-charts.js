@@ -1,3 +1,12 @@
+/**
+ * Google Charts JS.
+ *
+ * @link   https://www.gstatic.com/charts/loader.js
+ * @file   Google Charts loader.
+ * @author Google.
+ * @since  X.X.X
+ */
+
 (function(){/*
 
  Copyright The Closure Library Authors.

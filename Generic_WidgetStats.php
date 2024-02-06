@@ -2,6 +2,8 @@
 /**
  * File: Generic_WidgetStats.php
  *
+ * @since X.X.X
+ *
  * @package W3TC
  */
 
@@ -11,15 +13,10 @@ namespace W3TC;
  * Class Generic_WidgetStats
  */
 class Generic_WidgetStats {
-
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-	}
-
 	/**
 	 * Dashboard setup action
+	 *
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -34,6 +31,10 @@ class Generic_WidgetStats {
 
 	/**
 	 * W3TC dashboard Stats widgets.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
 	 */
 	public function wp_dashboard_setup() {
 		Util_Widget::add(
@@ -63,6 +64,10 @@ class Generic_WidgetStats {
 
 	/**
 	 * Web Requests widget content.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
 	 */
 	public function page_cache_widget_form() {
 		$chart = self::get_chart_content(
@@ -78,6 +83,10 @@ class Generic_WidgetStats {
 
 	/**
 	 * Object Cache widget content.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
 	 */
 	public function object_cache_widget_form() {
 		$chart = self::get_chart_content(
@@ -93,6 +102,10 @@ class Generic_WidgetStats {
 
 	/**
 	 * Database widget content.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
 	 */
 	public function database_cache_widget_form() {
 		$chart = self::get_chart_content(
@@ -109,7 +122,11 @@ class Generic_WidgetStats {
 	/**
 	 * Get button link allowed tags.
 	 *
+	 * @since X.X.X
+	 *
 	 * @param array $chart_config Chart configuration array.
+	 *
+	 * @return string
 	 */
 	public static function get_chart_content( $chart_config ) {
 		$config        = Dispatcher::config();
@@ -130,6 +147,10 @@ class Generic_WidgetStats {
 
 	/**
 	 * Get button link allowed tags.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
 	 */
 	public static function get_allowed_tags() {
 		return array(

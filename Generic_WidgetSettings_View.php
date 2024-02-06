@@ -1,4 +1,12 @@
 <?php
+/**
+ * File: Generic_WidgetSettings_View.php
+ *
+ * @package W3TC
+ *
+ * @since X.X.X
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

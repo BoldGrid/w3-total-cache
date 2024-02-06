@@ -1,15 +1,27 @@
+/**
+ * W3TC stats widgets Google Charts driver.
+ *
+ * @file    Google Charts driver for W3TC dashboard stats widgets.
+ * @author  W3TC.
+ * @version 1.0
+ * @since   X.X.X
+ */
+
 jQuery(document).ready(function($) {
 	google.charts.load('current', {packages: ['corechart', 'line']});
 	google.charts.setOnLoadCallback(load);
 
+	// Interval to refresh stats widgets every 60 seconds.
 	setInterval(function () {
 		load();
 	}, 60000);
 
+	// Refresh charts on resize.
 	jQuery(window).resize(function(){
 		load();
 	});
 
+	// Load method for stat charts. Fires on document ready, window resize, and on 60 second interval.
 	function load() {
         $.getJSON(
 			ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=ustats_get',
@@ -26,10 +38,15 @@ jQuery(document).ready(function($) {
         );
     }
 
+	// Preprocesses statistics data for chart use.
+	/**
+	 * @param {array} data Statistics data.
+	 * @returns {array} Statistics data in format required for Google charts.
+	 */
 	function preprocess_data(data){
 		var processed_data = {
 			'page_cache':{'data':[],'color':'#6f9654'},
-        	'object_cache':{'data':[],'color':'#e2431e'},
+			'object_cache':{'data':[],'color':'#e2431e'},
 			'database_cache':{'data':[],'color':'#43459d'}
 		};
 		for( var i=40; i<data.history.length; i++){
@@ -42,6 +59,10 @@ jQuery(document).ready(function($) {
 		return processed_data;
 	}
 
+	// Draws the stats charts.
+	/**
+	 * @param {array} data - Preprocessed statistics data.
+	 */
 	function draw_charts(data){
 		for ( var key in data ) {
 			var chart_data = google.visualization.arrayToDataTable(data[key]['data'],true);
@@ -56,12 +77,23 @@ jQuery(document).ready(function($) {
 		};
 	}
 
+	// Formats a timestamp into a human readable string.
+	/**
+	 * @param {Object} d Timestamp.
+	 * @returns {string} Human readable date/time string.
+	 */
 	function dateFormat(d){
 		return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + d.getUTCMinutes()).slice(-2);
 	}
 
+	// Time since last refresh.
 	var seconds_timer_id;
-    function setRefresh(new_seconds_till_refresh) {
+
+	// Interval for the stats refresh.
+	/**
+	 * @param {Number} new_seconds_till_refresh Interval to trigger refresh.
+	 */
+	function setRefresh(new_seconds_till_refresh) {
 		clearTimeout(seconds_timer_id);
 		var seconds_till_refresh = new_seconds_till_refresh;
 		seconds_timer_id = setInterval(function () {

@@ -3,6 +3,8 @@
  * File: Generic_WidgetSettings.php
  *
  * @package W3TC
+ *
+ * @since X.X.X
  */
 
 namespace W3TC;
@@ -12,13 +14,9 @@ namespace W3TC;
  */
 class Generic_WidgetSettings {
 	/**
-	 * Constructor
-	 */
-	public function __construct() {
-	}
-
-	/**
 	 * Dashboard setup action
+	 *
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -30,6 +28,10 @@ class Generic_WidgetSettings {
 
 	/**
 	 * W3TC dashboard Premium Services widget.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
 	 */
 	public function wp_dashboard_setup() {
 		Util_Widget::add(
@@ -43,6 +45,10 @@ class Generic_WidgetSettings {
 
 	/**
 	 * Premium Services widget content.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
 	 */
 	public function widget_form() {
 		include W3TC_DIR . '/Generic_WidgetSettings_View.php';
