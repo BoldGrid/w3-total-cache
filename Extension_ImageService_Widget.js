@@ -1,3 +1,12 @@
+/**
+ * W3TC image service widgets Google Charts driver.
+ *
+ * @file    Google Charts driver for W3TC dashboard image service widget.
+ * @author  W3TC.
+ * @version 1.0
+ * @since   X.X.X
+ */
+
 jQuery( document ).ready(
 	function() {
 		google.charts.load( 'current', { packages: ['corechart', 'gauge'] } );
@@ -7,11 +16,17 @@ jQuery( document ).ready(
 
     	jQuery(window).resize(load); // Redraw charts after resize
 
+		// Load method for image service charts. Fires on document ready, window resize, and on 60 second interval.
 		function load() {
 			processed_data = preprocess_data( w3tc_webp_data );
     	    draw_charts( processed_data );
     	}
 
+		// Preprocesses statistics data for chart use.
+		/**
+		 * @param {array} data Image Service data.
+		 * @returns {array} Image Service data in format required for Google charts.
+		 */
 		function preprocess_data( data ) {
 			var processed_data = {
 				'counts': {
@@ -47,6 +62,10 @@ jQuery( document ).ready(
 			return processed_data;
 		}
 
+		// Draws the stats charts.
+		/**
+		 * @param {array} data - Preprocessed Image Service data.
+		 */
 		function draw_charts( data ) {
 			for ( var key in data ) {
 				if ( data[key]['type'] === 'pie' && document.getElementById( key + '_chart' ) ) {
@@ -113,10 +132,20 @@ jQuery( document ).ready(
 			return `<div style="padding:10px;"><span><strong>Type:</strong> ${dataType}</span><br/><span><strong>Count:</strong> ${count}</span><br/><span><strong>Bytes:</strong> ${formatBytes(bytes)}</span></div>`;
 		}
 
+		// Formats a timestamp into a human readable string.
+		/**
+		 * @param {Object} d Timestamp.
+		 * @returns {string} Human readable date/time string.
+		 */
 		function dateFormat( d ){
 			return ( "0" + d.getUTCHours() ).slice( -2 ) + ":" + ( "0" + d.getUTCMinutes() ).slice( -2 );
 		}
 	
+		// Formats bytes into a human readable string.
+		/**
+		 * @param {Number} x Bytes.
+		 * @returns {string} Human readable string.
+		 */
 		function formatBytes( x ){
 			const units = [ 'bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
 			let l = 0, n = parseInt(x, 10) || 0;
@@ -128,7 +157,13 @@ jQuery( document ).ready(
   			return( n.toFixed( n < 10 && l > 0 ? 1 : 0 ) + ' ' + units[l] );
 		}
 
+		// Time since last refresh.
 		var seconds_timer_id;
+
+		// Interval for the image service data refresh.
+		/**
+		 * @param {Number} new_seconds_till_refresh Interval to trigger refresh.
+		 */
     	function setRefresh( new_seconds_till_refresh ) {
 			clearTimeout( seconds_timer_id );
 			var seconds_till_refresh = new_seconds_till_refresh;

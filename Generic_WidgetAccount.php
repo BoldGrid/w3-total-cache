@@ -11,6 +11,8 @@ namespace W3TC;
 
 /**
  * Class Generic_WidgetAccount
+ *
+ * @since X.X.X
  */
 class Generic_WidgetAccount {
 	/**

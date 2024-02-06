@@ -11,6 +11,8 @@ namespace W3TC;
 
 /**
  * Class Extension_ImageService_Widget
+ *
+ * @since X.X.X
  */
 class Extension_ImageService_Widget {
 	/**

@@ -11,6 +11,8 @@ namespace W3TC;
 
 /**
  * Class Generic_WidgetServices
+ *
+ * @since X.X.X
  */
 class Generic_WidgetPartners {
 	/**
