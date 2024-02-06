@@ -94,5 +94,5 @@ $settings = array(
 	?>
 </div>
 <p class="general-settings-description">
-	<?php esc_html_e( 'Settings can be modified by visiting ', 'w3-total-cache' ); ?><a href="<?php esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>" alt="General Settings"><?php esc_html_e( 'General Settings', 'w3-total-cache' ); ?></a>
+	<?php esc_html_e( 'Settings can be modified by visiting ', 'w3-total-cache' ); ?><a href="<?php echo esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ); ?>" alt="General Settings"><?php esc_html_e( 'General Settings', 'w3-total-cache' ); ?></a>
 </p>
