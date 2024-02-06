@@ -23,20 +23,20 @@ jQuery(document).ready(function($) {
 
 	// Load method for stat charts. Fires on document ready, window resize, and on 60 second interval.
 	function load() {
-        $.getJSON(
+		$.getJSON(
 			ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=ustats_get',
-            function(data) {
-                if(! data.period.seconds){
+			function(data) {
+				if(! data.period.seconds){
 					$('#w3tc_page_cache').addClass('w3tc_none');
 					$('#w3tc_object_cache').addClass('w3tc_none');
 					$('#w3tc_database_cache').addClass('w3tc_none');
-                   	return;
+					return;
 				}
 				processed_data = preprocess_data(data);
 				draw_charts(processed_data);
-            }
-        );
-    }
+			}
+		);
+	}
 
 	// Preprocesses statistics data for chart use.
 	/**
