@@ -1,6 +1,5 @@
 jQuery(function($) {
 	function w3tc_stackpath_resize(o) {
-		o.options.height = jQuery('.w3tc_cdn_stackpath2_fsd_form').height();
 		o.resize();
 	}
 
