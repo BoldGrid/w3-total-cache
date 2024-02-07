@@ -74,8 +74,6 @@ var W3tc_Lightbox = {
 			}
 		}
 
-
-
 		W3tc_Overlay.show();
 		this.container.show();
 	},
