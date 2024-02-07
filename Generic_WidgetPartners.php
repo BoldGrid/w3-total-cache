@@ -38,7 +38,7 @@ class Generic_WidgetPartners {
 	public function wp_dashboard_setup() {
 		Util_Widget::add(
 			'w3tc_partners',
-			'<div class="w3tc-widget-w3tc-logo"></div><div class="w3tc-widget-text">' . __( 'Setup Guies from Partner Hosts', 'w3-total-cache' ) . '</div>',
+			'<div class="w3tc-widget-w3tc-logo"></div><div class="w3tc-widget-text">' . __( 'Setup Guides from Partner Hosts', 'w3-total-cache' ) . '</div>',
 			array( $this, 'widget_form' ),
 			null,
 			'normal'
