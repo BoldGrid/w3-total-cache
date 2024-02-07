@@ -8,6 +8,9 @@ jQuery(function($) {
                 height: 400,
                 url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
                     '&w3tc_action=newrelic_popup',
+				callback: function(lightbox) {
+					lightbox.resize();
+				}
             });
         })
 

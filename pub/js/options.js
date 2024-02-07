@@ -311,6 +311,9 @@ function w3tc_csp_reference() {
 		height: 460,
 		url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
 			'&w3tc_action=browsercache_quick_reference',
+		callback: function(lightbox) {
+			lightbox.resize();
+		}
 	});
 	jQuery('div#overlay,.lightbox-content').on('click', function() {
 		W3tc_Lightbox.close();

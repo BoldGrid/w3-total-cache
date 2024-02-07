@@ -384,14 +384,19 @@ fieldset[disabled] .btn {
     background-image: url(../img/overlay/overlay-logo.png);
 
 }
-.w3tc-overlay .lightbox-close {
-    height: 20px;
-    width: 20px;
-    margin-right: -20px;
-    padding-top: 5px;
+.lightbox-close {
     background-repeat: no-repeat;
     background-position: 0 5px;
     background-image: url(../img/overlay/overlay-close.png);
+	background-color: #f1f1f1;
+	border-radius: 50%;
+	padding: 0;
+	background-position: 8px;
+	margin: 0;
+	top: -12px;
+	right: -12px;
+	width: 25px;
+	height: 25px;
 }
 
 .w3tchelp_content {
@@ -498,26 +503,14 @@ a.w3tc-palette-tp {
  */
  
 #w3tc-upgrade {
-	padding: 10px;
 	box-sizing: border-box;
-}
-
-/* The close button will be different for the upgrade modal. */
-.w3tc-overlay-upgrade .lightbox-close {
-	border-radius: 50%;
-	padding: 0;
-	background-position: 8px;
-	margin: 0;
-	top: -12px;
-	right: -12px;
-	width: 25px;
-	height: 25px;
 }
 
 #w3tc_upgrade_header {
 	display: flex;
 	background: #000;
 	border-bottom: 5px solid #30bec4;
+	border-radius: 6px 6px 0 0;
 	color: #fff;
 	height: 75px;
 	position: relative;
@@ -544,7 +537,36 @@ a.w3tc-palette-tp {
 
 /* Ensure a consistent background with the iframe and the modal elements. */
 .w3tc-overlay-upgrade,
-.w3tc_overlay_upgrade_header,
-.w3tc-overlay-upgrade .lightbox-close {
+.w3tc_overlay_upgrade_header {
 	background-color: #f1f1f1;
+}
+
+.w3tc_upgrade_content p {
+	position: relative;
+	z-index: 1;
+}
+
+.w3tc_upgrade_footer {
+	background: #fdfdfd;
+	padding: 15px;
+	border-top: 1px dashed #C0C0C0;
+	border-radius: 0 0 6px 6px;
+	text-align: right;
+}
+
+.w3tc_upgrade_footer .btn {
+	border: none;
+	color: #ffffff;
+	background: #2271B1;
+}
+
+.w3tc_upgrade_footer .btn:focus {
+	box-shadow: 0 0 0 1px #fff, 0 0 0 3px #2271b1;
+}
+
+.w3tc_upgrade_footer .btn:hover,
+.w3tc_upgrade_footer .btn:focus {
+	background: #135e96;
+	border-color: #135e96;
+	color: #fff;
 }
