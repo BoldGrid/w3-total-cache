@@ -17,12 +17,8 @@ var W3tc_Lightbox = {
 		});
 
 		jQuery('body').append(this.container);
-		me.resize();
-		this.window.resize(function() {
-			me.resize();
-		});
 
-		this.window.scroll(function() {
+		this.window.resize(function() {
 			me.resize();
 		});
 
