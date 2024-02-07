@@ -44,7 +44,6 @@ foreach ( $cards_data as $card_type => $cards ) {
 		$card_classes  = 'w3tc-card';
 		$title_classes = 'w3tc-card-title';
 		$is_premium    = ! empty( $card['is_premium'] );
-		$is_new        = ! empty( $card['is_new'] );
 
 		if ( $is_premium ) {
 			$card_classes  .= ' w3tc-card-premium';
@@ -80,13 +79,13 @@ foreach ( $cards_data as $card_type => $cards ) {
 				</div><div class="w3tc-card-links"><?php echo $card['link']; ?></div>
 			</div>
 			<?php
-			if ( $is_new ) {
+			if ( ! empty( $card['is_new'] ) && ! empty( $card['version'] ) ) {
 				?>
 				<div class="w3tc-card-ribbon-new">
 					<span class="dashicons dashicons-awards"></span>
 					<b><?php esc_html_e( 'New', 'w3-total-cache' ); ?></b>
 					<span>
-						<?php esc_html_e( 'in', 'w3-total-cache' ); ?> W3 Total Cache Pro <?php echo W3TC_VERSION; ?>!
+						<?php esc_html_e( 'in', 'w3-total-cache' ); ?> W3 Total Cache <?php echo $card['version']; ?> !
 					</span>
 				</div>
 				<?php

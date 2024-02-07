@@ -254,6 +254,7 @@ class FeatureShowcase_Plugin_Admin {
 						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'is_premium' => true,
 					'is_new'     => true,
+					'version'    => '2.7.0',
 				),
 				'preload-requests' => array(
 					'title'      => esc_html__( 'Preload Requests', 'w3-total-cache' ),
@@ -269,6 +270,7 @@ class FeatureShowcase_Plugin_Admin {
 						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'is_premium' => true,
 					'is_new'     => true,
+					'version'    => '2.6.1',
 				),
 				'defer-scripts'    => array(
 					'title'      => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
@@ -284,6 +286,7 @@ class FeatureShowcase_Plugin_Admin {
 						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'is_premium' => true,
 					'is_new'     => true,
+					'version'    => '2.6.1',
 				),
 			),
 			'old' => array(
