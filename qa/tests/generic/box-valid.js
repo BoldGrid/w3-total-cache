@@ -31,7 +31,7 @@ describe('Check if box is valid', function() {
 			adminPage.waitForNavigation()
 		]);
 
-		expect(await adminPage.content()).contains('Setup Guies from Partner Hosts');
+		expect(await adminPage.content()).contains('Setup Guides from Partner Hosts');
 	})
 
 
