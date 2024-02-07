@@ -1,6 +1,5 @@
 jQuery(function($) {
 	function w3tc_extension_cloudflare_resize(o) {
-		o.options.height = jQuery('.w3tc_extension_cloudflare_form').height() + 30;
 		o.resize();
 	}
 

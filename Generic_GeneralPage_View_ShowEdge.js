@@ -6,6 +6,9 @@ jQuery(function() {
         width: 800,
         height: 240,
         url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
-            '&w3tc_action=generic_edge'
+            '&w3tc_action=generic_edge',
+		callback: function(lightbox) {
+			lightbox.resize();
+		},
     });
 });
