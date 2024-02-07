@@ -28,7 +28,7 @@ class Cdn_BunnyCdn_Widget {
 
 		Util_Widget::add2(
 			'w3tc_bunnycdn',
-			2000,
+			400,
 			'<div class="w3tc-widget-bunnycdn-logo"></div>',
 			array( $o, 'widget_form' ),
 			Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ),

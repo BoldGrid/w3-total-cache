@@ -2532,10 +2532,6 @@ $keys = array(
 		'type' => 'integer',
 		'default' => 5
 	),
-	'widget.pagespeed.enabled' => array(
-		'type' => 'boolean',
-		'default' => false
-	),
 	'widget.pagespeed.access_token' => array(
 		'type' => 'string',
 		'default' => ''

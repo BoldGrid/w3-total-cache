@@ -115,13 +115,16 @@ class Util_PageSpeed {
 	 * @param array  $data PageSpeed data.
 	 * @param string $metric Metric key.
 	 * @param string $name Metric name.
+	 * @param bool   $widget Widget flag to add line break between desktop/mobile metric.
 	 *
 	 * @return void
 	 */
-	public static function print_bar_combined_with_icon( $data, $metric, $name ) {
+	public static function print_bar_combined_with_icon( $data, $metric, $name, $widget = false ) {
 		if ( ! isset( $data ) || empty( $metric ) || empty( $name ) ) {
 			return;
 		}
+
+		$widget_break = $widget ? '<br/>' : '';
 
 		?>
 		<div class="w3tcps_metric">
@@ -129,6 +132,7 @@ class Util_PageSpeed {
 			<div class="w3tcps_metric_stats">
 				<span class="dashicons dashicons-<?php echo esc_attr( 'desktop' ); ?>"></span>
 				<?php self::print_barline( $data['desktop'][ $metric ] ); ?>
+				<?php echo $widget_break; ?>
 				<span class="dashicons dashicons-<?php echo esc_attr( 'smartphone' ); ?>"></span>
 				<?php self::print_barline( $data['mobile'][ $metric ] ); ?>
 			</div>
@@ -163,18 +167,19 @@ class Util_PageSpeed {
 	/**
 	 * Get PageSpeed metric notice BG.
 	 *
-	 * @param int $score PageSpeed desktop/mobile score.
+	 * @param int    $score        PageSpeed desktop/mobile score.
+	 * @param string $display_mode PageSpeed desktop/mobile score display mode.
 	 *
 	 * @return string
 	 */
-	public static function get_breakdown_bg( $score ) {
+	public static function get_breakdown_bg( $score, $display_mode ) {
 		$notice = 'notice notice-info inline';
-		if ( isset( $score ) && is_numeric( $score ) ) {
+		if ( isset( $display_mode ) && in_array( $display_mode, array( 'metric', 'metricSavings' ), true ) && isset( $score ) && is_numeric( $score ) ) {
 			if ( $score >= 90 ) {
 				$notice = 'notice notice-success inline';
 			} elseif ( $score >= 50 && $score < 90 ) {
 				$noitce = 'notice notice-warning inline';
-			} elseif ( $score > 0 && $score < 50 ) {
+			} elseif ( $score >= 0 && $score < 50 ) {
 				$notice = 'notice notice-error inline';
 			}
 		}
@@ -184,18 +189,19 @@ class Util_PageSpeed {
 	/**
 	 * Get PageSpeed metric grade.
 	 *
-	 * @param int $score PageSpeed desktop/mobile score.
+	 * @param int    $score        PageSpeed desktop/mobile score.
+	 * @param string $display_mode PageSpeed desktop/mobile score display mode.
 	 *
 	 * @return string
 	 */
-	public static function get_breakdown_grade( $score ) {
+	public static function get_breakdown_grade( $score, $display_mode ) {
 		$grade = 'w3tcps_blank';
-		if ( isset( $score ) && is_numeric( $score ) ) {
+		if ( isset( $display_mode ) && in_array( $display_mode, array( 'metric', 'metricSavings' ), true ) && isset( $score ) && is_numeric( $score ) ) {
 			if ( $score >= 90 ) {
 				$grade = 'w3tcps_pass';
 			} elseif ( $score >= 50 && $score < 90 ) {
 				$grade = 'w3tcps_average';
-			} elseif ( $score > 0 && $score < 50 ) {
+			} elseif ( $score >= 0 && $score < 50 ) {
 				$grade = 'w3tcps_fail';
 			}
 		}
@@ -247,17 +253,13 @@ class Util_PageSpeed {
 		$passed_audits = '';
 
 		foreach ( $data['opportunities'] as $opportunity ) {
-			if ( empty( $opportunity['details'] ) ) {
-				continue;
-			}
-
 			$opportunity['score'] *= 100;
 
 			$notice = 'notice notice-info inline';
 			$grade  = 'w3tcps_blank';
 			if ( isset( $opportunity['score'] ) ) {
-				$notice = self::get_breakdown_bg( $opportunity['score'] );
-				$grade  = self::get_breakdown_grade( $opportunity['score'] );
+				$notice = self::get_breakdown_bg( $opportunity['score'], $opportunity['scoreDisplayMode'] );
+				$grade  = self::get_breakdown_grade( $opportunity['score'], $opportunity['scoreDisplayMode'] );
 			}
 
 			$audit_classes = '';
@@ -272,6 +274,7 @@ class Util_PageSpeed {
 			$headers = '';
 			$items   = '';
 
+			$opportunity['details'] = $opportunity['details'] ?? array();
 			foreach ( $opportunity['details'] as $item ) {
 				$headers = '';
 				$items  .= '<tr class="w3tcps_passed_audit_item">';
@@ -279,7 +282,7 @@ class Util_PageSpeed {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
 					if ( filter_var( $item['url'], FILTER_VALIDATE_URL ) !== false ) {
 						// The value is confirmed as a valid URL. We create a HTML link with the full URL value but display it with a trucated value.
-						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['url'] )['path'] ) . '</a></td>';
+						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '"> ' . esc_url( $item['url'] ) . '</a></td>';
 					} else {
 						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
 						$items   .= '<td>' . esc_html( $item['url'] ) . '</td>';
@@ -289,7 +292,7 @@ class Util_PageSpeed {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
 					if ( filter_var( $item['source']['url'], FILTER_VALIDATE_URL ) !== false ) {
 						// The value is confirmed as a valid URL. We create a HTML link with the full URL value but display it with a trucated value.
-						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['source']['url'] )['path'] ) . '</a></td>';
+						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '"> ' . esc_url( $item['url'] ) . '</a></td>';
 					} else {
 						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
 						$items   .= '<td>' . esc_html( $item['source']['url'] ) . '</td>';
@@ -407,8 +410,7 @@ class Util_PageSpeed {
 			}
 
 			$items = ( isset( $items ) ? $items : '<p class="w3tcps-no-items">' . esc_html__( 'No identified items were provided by Google PageSpeed Insights API for this metric', 'w3-total-cache' ) . '</p>' );
-
-			if ( $opportunity['score'] >= 90 ) {
+			if ( $opportunity['score'] >= 90 || in_array( $opportunity['scoreDisplayMode'], array( 'notApplicable' ), true ) ) {
 				$passed_audits .= '
 					<div class="audits w3tcps_passed_audit' . esc_attr( $audit_classes ) . ' ' . esc_attr( $notice ) . '">
 						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . esc_attr( $grade ) . '" gatitle="' . esc_attr( $opportunity['title'] ) . '">' . esc_html( $opportunity['title'] ) . ( isset( $opportunity['displayValue'] ) ? ' - ' . esc_html( $opportunity['displayValue'] ) : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>
@@ -460,17 +462,13 @@ class Util_PageSpeed {
 		}
 
 		foreach ( $data['diagnostics'] as $diagnostic ) {
-			if ( empty( $diagnostic['details'] ) ) {
-				continue;
-			}
-
 			$diagnostic['score'] *= 100;
 
 			$notice = 'notice notice-info inline';
 			$grade  = 'w3tcps_blank';
 			if ( isset( $diagnostic['score'] ) ) {
-				$notice = self::get_breakdown_bg( $diagnostic['score'] );
-				$grade  = self::get_breakdown_grade( $diagnostic['score'] );
+				$notice = self::get_breakdown_bg( $diagnostic['score'], $diagnostic['scoreDisplayMode'] );
+				$grade  = self::get_breakdown_grade( $diagnostic['score'], $diagnostic['scoreDisplayMode'] );
 			}
 
 			$audit_classes = '';
@@ -482,6 +480,8 @@ class Util_PageSpeed {
 
 			$headers = '';
 			$items   = '';
+
+			$diagnostic['details'] = $diagnostic['details'] ?? array();
 			foreach ( $diagnostic['details'] as $item ) {
 				$headers = '';
 				$items  .= '<tr class="w3tcps_passed_audit_item">';
@@ -489,7 +489,7 @@ class Util_PageSpeed {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
 					if ( filter_var( $item['url'], FILTER_VALIDATE_URL ) !== false ) {
 						// The value is confirmed as a valid URL. We create a HTML link with the full URL value but display it with a trucated value.
-						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['url'] )['path'] ) . '</a></td>';
+						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '">' . esc_url( $item['url'] ) . '</a></td>';
 					} else {
 						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
 						$items   .= '<td>' . esc_html( $item['url'] ) . '</td>';
@@ -499,7 +499,7 @@ class Util_PageSpeed {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
 					if ( filter_var( $item['source']['url'], FILTER_VALIDATE_URL ) !== false ) {
 						// The value is confirmed as a valid URL. We create a HTML link with the full URL value but display it with a trucated value.
-						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '"> ...' . esc_url( wp_parse_url( $item['source']['url'] )['path'] ) . '</a></td>';
+						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '">' . esc_url( $item['url'] ) . '</a></td>';
 					} else {
 						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
 						$items   .= '<td>' . esc_html( $item['source']['url'] ) . '</td>';
@@ -618,7 +618,7 @@ class Util_PageSpeed {
 
 			$items = ( isset( $items ) ? $items : '<p class="w3tcps-no-items">' . esc_html__( 'No identified items were provided by Google PageSpeed Insights API for this metric', 'w3-total-cache' ) . '</p>' );
 
-			if ( $diagnostic['score'] >= 90 ) {
+			if ( $diagnostic['score'] >= 90 || in_array( $diagnostic['scoreDisplayMode'], array( 'notApplicable' ), true ) ) {
 				$passed_audits .= '
 					<div class="audits w3tcps_passed_audit' . esc_attr( $audit_classes ) . ' ' . esc_attr( $notice ) . '">
 						<span class="w3tcps_breakdown_items_toggle w3tcps_range ' . esc_attr( $grade ) . '" gatitle="' . esc_attr( $diagnostic['title'] ) . '">' . esc_html( $diagnostic['title'] ) . ( isset( $diagnostic['displayValue'] ) ? ' - ' . esc_html( $diagnostic['displayValue'] ) : '' ) . '<span class="dashicons dashicons-arrow-down-alt2"></span></span>

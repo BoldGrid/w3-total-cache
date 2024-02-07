@@ -10,7 +10,7 @@ class Generic_WidgetBoldGrid {
 
 		$o = new Generic_WidgetBoldGrid();
 
-		Util_Widget::add2( 'w3tc_boldgrid', 5000,
+		Util_Widget::add2( 'w3tc_boldgrid', 800,
 			'<div class="w3tc-widget-boldgrid-logo"></div>',
 			array( $o, 'widget_form' ),
 			self_admin_url(
