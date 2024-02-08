@@ -405,7 +405,7 @@ exports.flushAll = async function(pPage) {
 		await pPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
 			{waitUntil: 'domcontentloaded'});
 
-		let flushAll = '#flush_all';
+		let flushAll = '#wp-admin-bar-w3tc_flush_all a';
 		await Promise.all([
 			pPage.evaluate((flushAll) => document.querySelector(flushAll).click(), flushAll),
 			pPage.waitForNavigation({timeout:0}),
