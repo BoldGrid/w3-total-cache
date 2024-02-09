@@ -285,6 +285,24 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.7.0 =
+* Feature: Performance Dashboard update
+* Feature: Remove unused CSS/JS
+* Fix: Nginx feature and permission policy header syntax
+* Fix: Memcache install check
+* Fix: Cloudfront purge button
+* Fix: Uncaught type error on the install page
+* Fix: Page mapping data
+* Fix: Add missing id for a save settings button
+* Fix: Extension counts
+* Fix: PHP 8.2 deprecation warnings for dynamic class property assignments
+* Fix: Do not autoload WP option for PageSpeed data
+* Fix: Cache groups: Fix spacing in values for htaccess syntax
+* Fix: Refactor Minify cache key mapping to have shorter keys and separate storage
+* Fix: Minify statistics output and PHP warnings
+* Fix: Feature Showcase: New feature version numbers
+* Update: Upgrade modal/popup
+
 = 2.6.1 =
 * Fix: WebP Converter extension activation
 * Fix: Media Library upload may fail when using Bunny CDN
