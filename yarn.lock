@@ -1061,6 +1061,11 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.55.0.tgz#b721d52060f369aa259cf97392403cb9ce892ec6"
   integrity sha512-qQfo2mxH5yVom1kacMtZZJFVdW+E70mqHMJvVg6WTLo+VBuQJ4TojZlfWBjK0ve5BdEeNAVxOsl/nvNMpJOaJA==
 
+"@eslint/js@8.56.0":
+  version "8.56.0"
+  resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.56.0.tgz#ef20350fec605a7f7035a01764731b2de0f3782b"
+  integrity sha512-gMsVel9D7f2HLkBma9VbtzZRehRogVRfbr++f06nL2vnCGCNlzOD+/MUov/F4p8myyAHspEhVobgjpX64q5m6A==
+
 "@humanwhocodes/config-array@^0.11.13":
   version "0.11.13"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.11.13.tgz#075dc9684f40a531d9b26b0822153c1e832ee297"
@@ -1212,7 +1217,7 @@
     picocolors "^1.0.0"
     tslib "^2.6.0"
 
-"@prettier/eslint@npm:prettier-eslint@^16.1.0", prettier-eslint@^16.1.2:
+"@prettier/eslint@npm:prettier-eslint@^16.1.0":
   version "16.1.2"
   resolved "https://registry.yarnpkg.com/prettier-eslint/-/prettier-eslint-16.1.2.tgz#86364fea13dd063f3df715b922678dd8a0fd4be1"
   integrity sha512-mGFGZQbAh11FSnwW3H1zngzQYR2QMmHO8vdfgnAuzOFhnDeUZHYtwpqQvOMOMT0k818Dr1X+J4a/sVE0r34RKQ==
@@ -1393,15 +1398,15 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
-"@wordpress/babel-plugin-import-jsx-pragma@^4.31.0":
-  version "4.31.0"
-  resolved "https://registry.yarnpkg.com/@wordpress/babel-plugin-import-jsx-pragma/-/babel-plugin-import-jsx-pragma-4.31.0.tgz#880abacdb29baa180a664cdf52ad12c41ddc3be3"
-  integrity sha512-WlHCRCLBft3bSqE7FLB09w1gHG6QUQ7WAQpSDdcn6wRuLX45ZeMeT6YDqUdJdlYPRBx6Ke9WzrmAT7PrGLZi1Q==
+"@wordpress/babel-plugin-import-jsx-pragma@^4.34.0":
+  version "4.34.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/babel-plugin-import-jsx-pragma/-/babel-plugin-import-jsx-pragma-4.34.0.tgz#ca14d5f8eea15e02a363d51cf31ad783c9378382"
+  integrity sha512-DOoUJKvfUc8rdiGqcZND5lauoY4B5+cCuuHLh9AztE1t2DlQJBy6DtP6t1bUZb7BYUWOoWgRflMLtOK3ZTf0cg==
 
-"@wordpress/babel-preset-default@^7.32.0":
-  version "7.32.0"
-  resolved "https://registry.yarnpkg.com/@wordpress/babel-preset-default/-/babel-preset-default-7.32.0.tgz#71fa6cb9b8c158d2c387f79b552160c577254627"
-  integrity sha512-B1S+JujsX3kZWp1jnSuvUu+hlJhp9j1TSlOmar+yuVCjH0vx/aW/58onKvCFNPTy3gJ00bSsYa3BctoCHs456A==
+"@wordpress/babel-preset-default@^7.35.0":
+  version "7.35.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/babel-preset-default/-/babel-preset-default-7.35.0.tgz#ba0c042ad18dc1d069a2c6572c7cbb9be9c21ea6"
+  integrity sha512-wgZOezNvzbrJTHn0Cyt8+Si7sb5aJJ+akHOrEgvUUv576LfgWUKHPRz8Ecu1fFlupEp35r1uoQ5J+UviLWrvEg==
   dependencies:
     "@babel/core" "^7.16.0"
     "@babel/plugin-transform-react-jsx" "^7.16.0"
@@ -1409,28 +1414,28 @@
     "@babel/preset-env" "^7.16.0"
     "@babel/preset-typescript" "^7.16.0"
     "@babel/runtime" "^7.16.0"
-    "@wordpress/babel-plugin-import-jsx-pragma" "^4.31.0"
-    "@wordpress/browserslist-config" "^5.31.0"
-    "@wordpress/warning" "^2.48.0"
+    "@wordpress/babel-plugin-import-jsx-pragma" "^4.34.0"
+    "@wordpress/browserslist-config" "^5.34.0"
+    "@wordpress/warning" "^2.51.0"
     browserslist "^4.21.10"
     core-js "^3.31.0"
     react "^18.2.0"
 
-"@wordpress/browserslist-config@^5.31.0":
-  version "5.31.0"
-  resolved "https://registry.yarnpkg.com/@wordpress/browserslist-config/-/browserslist-config-5.31.0.tgz#82a77cf73088e08d1c24fd1a03b8f85ebbe0bd8d"
-  integrity sha512-fjglKNuqMKfGXrxuqea8ndTLkga9MfnyBBYuniGZ7cQo3iOhOn6ZqlfKygZdAuZ19FOwQWaQ+9W9MpOtU/4oCA==
+"@wordpress/browserslist-config@^5.34.0":
+  version "5.34.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/browserslist-config/-/browserslist-config-5.34.0.tgz#e16c2aae109b1c148d67002c46505dc7e5e901a5"
+  integrity sha512-LafF3XoetOAN99bktOzc9hSOv7cPoQEe0/KPgiw24t77xvRqLuWww+zYbiHAHYSzdBGngrlNwRLgloSifnp+hg==
 
-"@wordpress/eslint-plugin@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.yarnpkg.com/@wordpress/eslint-plugin/-/eslint-plugin-17.5.0.tgz#7c2506d0501d9f958bbe0dc78af296716af31742"
-  integrity sha512-wwg4NTMSdiDbkJCFNirn1Oq+Q6wKKWXXmuhsRvK4KsIkayqHavmebnE9bctAiz4ZXI5+URpj8w/IdxYev8acYw==
+"@wordpress/eslint-plugin@^17.8.0":
+  version "17.8.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/eslint-plugin/-/eslint-plugin-17.8.0.tgz#a4279ae209c155bef476182c3a183212039ac636"
+  integrity sha512-Ob0WR21Y9AcX7AFKhj0RtJ1l5odp9+Uq0W5tOMVY0jZBAW0oVF6YeZMbc0zbynPss5PnWljtk0YX3CJCae2p3Q==
   dependencies:
     "@babel/eslint-parser" "^7.16.0"
     "@typescript-eslint/eslint-plugin" "^6.4.1"
     "@typescript-eslint/parser" "^6.4.1"
-    "@wordpress/babel-preset-default" "^7.32.0"
-    "@wordpress/prettier-config" "^3.5.0"
+    "@wordpress/babel-preset-default" "^7.35.0"
+    "@wordpress/prettier-config" "^3.8.0"
     cosmiconfig "^7.0.0"
     eslint-config-prettier "^8.3.0"
     eslint-plugin-import "^2.25.2"
@@ -1444,15 +1449,15 @@
     globals "^13.12.0"
     requireindex "^1.2.0"
 
-"@wordpress/prettier-config@^3.5.0":
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/@wordpress/prettier-config/-/prettier-config-3.5.0.tgz#d3efa0c98b663d1c624d1cb74f613179ca741f87"
-  integrity sha512-Nzp6TWu+nx1fzgqqa34/MdBiRDT/Yoqo8jFHBrYhx1kV3BPg8m5lvyGxNmzqoR3hZQatGkBJYdFlLs0WeAGGDQ==
+"@wordpress/prettier-config@^3.8.0":
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/prettier-config/-/prettier-config-3.8.0.tgz#00c953d92b050875506b2b902c2a2524ea3e97ac"
+  integrity sha512-xKhhI73uTM3UeK7MYjCeyqGgyZvXic4t0rXKiERN6j4aBH7TdAflKli1zj9Xiy0AxFwLJcy0SZqxqLcw0JHSzA==
 
-"@wordpress/warning@^2.48.0":
-  version "2.48.0"
-  resolved "https://registry.yarnpkg.com/@wordpress/warning/-/warning-2.48.0.tgz#e4000454f49d67d96d9c0cd76b39e359d0f69663"
-  integrity sha512-M8KB8OdxHHxLDPy/1DuSi4SKYrR4/LL2jLWS9GkTa0eSe7PKxIscXH3Q0giFwcREkz80J0rFuADCInCuyIr5Kg==
+"@wordpress/warning@^2.51.0":
+  version "2.51.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/warning/-/warning-2.51.0.tgz#c25000c8b622fa97032af83228e80b497fd9fd8a"
+  integrity sha512-e+YbsQY4o/nTY0gT5Rr5766wU2xzwL5m/8S1HET9wBaeCRoZR/0IKyTOvPfihW13uT6FayBne3rqwT/h6F8w6Q==
 
 "PHP_CodeSniffer@https://github.com/squizlabs/PHP_CodeSniffer/":
   version "0.0.0"
@@ -2010,7 +2015,7 @@ domhandler@^5.0.2, domhandler@^5.0.3:
   dependencies:
     domelementtype "^2.3.0"
 
-domutils@^3.0.1:
+domutils@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/domutils/-/domutils-3.1.0.tgz#c47f551278d3dc4b0b1ab8cbb42d751a6f0d824e"
   integrity sha512-H78uMmQtI2AhgDJjWeQmHwJJ2bLPD3GMmO7Zja/ZZh84wkm+4ut+IUnUdRa8uCGX88DiVx1j6FRe1XfxEgjEZA==
@@ -2039,7 +2044,7 @@ emoji-regex@^9.2.2:
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-9.2.2.tgz#840c8803b0d8047f4ff0cf963176b32d4ef3ed72"
   integrity sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==
 
-entities@^4.2.0, entities@^4.4.0:
+entities@^4.2.0, entities@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/entities/-/entities-4.5.0.tgz#5d268ea5e7113ec74c4d033b79ea5a35a488fb48"
   integrity sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==
@@ -2177,12 +2182,12 @@ eslint-module-utils@^2.8.0:
   dependencies:
     debug "^3.2.7"
 
-eslint-plugin-html@^7.1.0:
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-html/-/eslint-plugin-html-7.1.0.tgz#aec2a3772b40ccf51a5be4f972f07600539d3b3e"
-  integrity sha512-fNLRraV/e6j8e3XYOC9xgND4j+U7b1Rq+OygMlLcMg+wI/IpVbF+ubQa3R78EjKB9njT6TQOlcK5rFKBVVtdfg==
+eslint-plugin-html@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-html/-/eslint-plugin-html-8.0.0.tgz#27f72f3c36718bcd54e3e0869ad7102ac368fd8b"
+  integrity sha512-NINLBAXM3mLa3k5Ezr/kNLHAJJwbot6lS7Ro+SUftDw4cA51KMmcDuCf98GP6Q6kTVPY1hIggzskxAdxfUPXSA==
   dependencies:
-    htmlparser2 "^8.0.1"
+    htmlparser2 "^9.1.0"
 
 eslint-plugin-import@^2.25.2:
   version "2.29.0"
@@ -2317,7 +2322,7 @@ eslint-visitor-keys@^3.3.0, eslint-visitor-keys@^3.4.1, eslint-visitor-keys@^3.4
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-3.4.3.tgz#0cd72fe8550e3c2eae156a96a4dddcd1c8ac5800"
   integrity sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag==
 
-eslint@^8.51.0, eslint@^8.55.0, eslint@^8.7.0:
+eslint@^8.51.0, eslint@^8.7.0:
   version "8.55.0"
   resolved "https://registry.yarnpkg.com/eslint/-/eslint-8.55.0.tgz#078cb7b847d66f2c254ea1794fa395bf8e7e03f8"
   integrity sha512-iyUUAM0PCKj5QpwGfmCAG9XXbZCWsqP/eWAWrG/W0umvjuLRBECwSFdt+rCntju0xEH7teIABPwXpahftIaTdA==
@@ -2326,6 +2331,50 @@ eslint@^8.51.0, eslint@^8.55.0, eslint@^8.7.0:
     "@eslint-community/regexpp" "^4.6.1"
     "@eslint/eslintrc" "^2.1.4"
     "@eslint/js" "8.55.0"
+    "@humanwhocodes/config-array" "^0.11.13"
+    "@humanwhocodes/module-importer" "^1.0.1"
+    "@nodelib/fs.walk" "^1.2.8"
+    "@ungap/structured-clone" "^1.2.0"
+    ajv "^6.12.4"
+    chalk "^4.0.0"
+    cross-spawn "^7.0.2"
+    debug "^4.3.2"
+    doctrine "^3.0.0"
+    escape-string-regexp "^4.0.0"
+    eslint-scope "^7.2.2"
+    eslint-visitor-keys "^3.4.3"
+    espree "^9.6.1"
+    esquery "^1.4.2"
+    esutils "^2.0.2"
+    fast-deep-equal "^3.1.3"
+    file-entry-cache "^6.0.1"
+    find-up "^5.0.0"
+    glob-parent "^6.0.2"
+    globals "^13.19.0"
+    graphemer "^1.4.0"
+    ignore "^5.2.0"
+    imurmurhash "^0.1.4"
+    is-glob "^4.0.0"
+    is-path-inside "^3.0.3"
+    js-yaml "^4.1.0"
+    json-stable-stringify-without-jsonify "^1.0.1"
+    levn "^0.4.1"
+    lodash.merge "^4.6.2"
+    minimatch "^3.1.2"
+    natural-compare "^1.4.0"
+    optionator "^0.9.3"
+    strip-ansi "^6.0.1"
+    text-table "^0.2.0"
+
+eslint@^8.56.0:
+  version "8.56.0"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-8.56.0.tgz#4957ce8da409dc0809f99ab07a1b94832ab74b15"
+  integrity sha512-Go19xM6T9puCOWntie1/P997aXxFsOi37JIHRWI514Hc6ZnaHGKY9xFhrU65RT6CcBEzZoGG1e6Nq+DT04ZtZQ==
+  dependencies:
+    "@eslint-community/eslint-utils" "^4.2.0"
+    "@eslint-community/regexpp" "^4.6.1"
+    "@eslint/eslintrc" "^2.1.4"
+    "@eslint/js" "8.56.0"
     "@humanwhocodes/config-array" "^0.11.13"
     "@humanwhocodes/module-importer" "^1.0.1"
     "@nodelib/fs.walk" "^1.2.8"
@@ -2714,15 +2763,15 @@ hasown@^2.0.0:
   dependencies:
     function-bind "^1.1.2"
 
-htmlparser2@^8.0.1:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/htmlparser2/-/htmlparser2-8.0.2.tgz#f002151705b383e62433b5cf466f5b716edaec21"
-  integrity sha512-GYdjWKDkbRLkZ5geuHs5NY1puJ+PXwP7+fHPRz06Eirsb9ugf6d8kkXav6ADhcODhFFPMIXyxkxSuMf3D6NCFA==
+htmlparser2@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/htmlparser2/-/htmlparser2-9.1.0.tgz#cdb498d8a75a51f739b61d3f718136c369bc8c23"
+  integrity sha512-5zfg6mHUoaer/97TxnGpxmbR7zJtPwIYFMZ/H5ucTlPZhKvtum05yiPK3Mgai3a0DyVxv7qYqoweaEd2nrYQzQ==
   dependencies:
     domelementtype "^2.3.0"
     domhandler "^5.0.3"
-    domutils "^3.0.1"
-    entities "^4.4.0"
+    domutils "^3.1.0"
+    entities "^4.5.0"
 
 human-signals@^2.1.0:
   version "2.1.0"
@@ -3512,6 +3561,24 @@ prettier-eslint-cli@^8.0.1:
     loglevel-colored-level-prefix "^1.0.0"
     rxjs "^7.8.1"
     yargs "^17.7.2"
+
+prettier-eslint@^16.3.0:
+  version "16.3.0"
+  resolved "https://registry.yarnpkg.com/prettier-eslint/-/prettier-eslint-16.3.0.tgz#8f7bbc863f35939948e386eafe72ffd653b2d80b"
+  integrity sha512-Lh102TIFCr11PJKUMQ2kwNmxGhTsv/KzUg9QYF2Gkw259g/kPgndZDWavk7/ycbRvj2oz4BPZ1gCU8bhfZH/Xg==
+  dependencies:
+    "@typescript-eslint/parser" "^6.7.5"
+    common-tags "^1.4.0"
+    dlv "^1.1.0"
+    eslint "^8.7.0"
+    indent-string "^4.0.0"
+    lodash.merge "^4.6.0"
+    loglevel-colored-level-prefix "^1.0.0"
+    prettier "^3.0.1"
+    pretty-format "^29.7.0"
+    require-relative "^0.8.7"
+    typescript "^5.2.2"
+    vue-eslint-parser "^9.1.0"
 
 prettier-linter-helpers@^1.0.0:
   version "1.0.0"
