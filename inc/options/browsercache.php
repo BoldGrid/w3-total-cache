@@ -479,14 +479,14 @@ $security_session_values = array(
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.cssjs.compression' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.compression' ); ?>  </label>
+					<?php $this->checkbox( 'browsercache.cssjs.compression' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.compression' ); ?></label>
 					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enable-http-gzip-compression-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.cssjs.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.brotli' ); ?>  </label>
+					<?php $this->checkbox( 'browsercache.cssjs.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.brotli' ); ?></label>
 					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enable-http-brotli-compression-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
 				</th>
@@ -734,7 +734,7 @@ $security_session_values = array(
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.other.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.brotli' ); ?>
+					<?php $this->checkbox( 'browsercache.other.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.brotli' ); ?></label>
 					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#enablehttpbrotli-compression-media' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
 				</th>

@@ -305,7 +305,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php Util_Ui::e_config_label( 'pgcache.purge.feed.types' ); ?><br />
+					<label for="pgcache_purge_feed_types"><?php Util_Ui::e_config_label( 'pgcache.purge.feed.types' ); ?></label><br />
 					<input type="hidden" name="pgcache__purge__feed__types" value="" />
 					<?php foreach ( $feeds as $feed ) : ?>
 						<label>
@@ -498,12 +498,14 @@ if ( ! defined( 'W3TC' ) ) {
 					</tr>
 				<?php endif; ?>
 				<tr>
-					<th><label for="pgcache_reject_request_head"><?php esc_html_e( 'Reject HEAD requests:', 'w3-total-cache' ); ?></label></th>
+					<th><?php esc_html_e( 'Reject HEAD requests:', 'w3-total-cache' ); ?></th>
 					<td>
 						<?php if ( 'file_generic' === $this->_config->get_string( 'pgcache.engine' ) ) : ?>
-							<input id="pgcache_reject_request_head" type="checkbox" name="pgcache__reject__request_head" value="1" disabled="disabled" /> <?php Util_Ui::e_config_label( 'pgcache.reject.request_head' ); ?>
+							<input id="pgcache_reject_request_head" type="checkbox" name="pgcache__reject__request_head" value="1" disabled="disabled" />
+							<label for="pgcache_reject_request_head"><?php Util_Ui::e_config_label( 'pgcache.reject.request_head' ); ?></label>
 						<?php else : ?>
-							<?php $this->checkbox( 'pgcache.reject.request_head', false, '', false ); ?><?php Util_Ui::e_config_label( 'pgcache.reject.request_head' ); ?>
+							<?php $this->checkbox( 'pgcache.reject.request_head', false, '', false ); ?>
+							<?php Util_Ui::e_config_label( 'pgcache.reject.request_head' ); ?></label>
 						<?php endif; ?>
 						<p class="description">
 							<?php
@@ -753,7 +755,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 			<?php if ( 'file_generic' === $this->_config->get_string( 'pgcache.engine' ) ) : ?>
 				<tr>
-					<th><label><?php Util_Ui::e_config_label( 'pgcache.cache.nginx_handle_xml' ); ?></label></th>
+					<th><?php Util_Ui::e_config_label( 'pgcache.cache.nginx_handle_xml' ); ?></th>
 					<td>
 						<?php $this->checkbox( 'pgcache.cache.nginx_handle_xml' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.nginx_handle_xml' ); ?></label>
 						<p class="description">
