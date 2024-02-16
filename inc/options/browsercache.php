@@ -442,13 +442,13 @@ $security_session_values = array(
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.cssjs.compression' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.compression' ); ?>  </label>
+					<?php $this->checkbox( 'browsercache.cssjs.compression' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.compression' ); ?></label>
 					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.cssjs.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.brotli' ); ?>  </label>
+					<?php $this->checkbox( 'browsercache.cssjs.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.brotli' ); ?></label>
 					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
@@ -669,13 +669,13 @@ $security_session_values = array(
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.other.compression' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.compression' ); ?>
+					<?php $this->checkbox( 'browsercache.other.compression' ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.compression' ); ?></label>
 					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'browsercache.other.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.brotli' ); ?>
+					<?php $this->checkbox( 'browsercache.other.brotli', ! function_exists( 'brotli_compress' ) ); ?> <?php Util_Ui::e_config_label( 'browsercache.other.brotli' ); ?></label>
 					<p class="description"><?php esc_html_e( 'Reduce the download time for text-based files.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
