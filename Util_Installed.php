@@ -144,7 +144,7 @@ class Util_Installed {
 					'password'        => $password
 				)
 			);
-			
+
 			if ( is_null( $memcached ) ) {
 				return false;
 			}
@@ -155,7 +155,7 @@ class Util_Installed {
 			$memcached->set( $test_string, $test_value, 60 );
 
 			$test_value      = $memcached->get( $test_string );
-			$results[ $key ] = ( is_array( $test_value ) && array_key_exists( 'content', $results ) && $test_value['content'] === $test_string );
+			$results[ $key ] = ( ! empty( $test_value['content'] ) && $test_value['content'] === $test_string );
 		}
 
 		return $results[ $key ];

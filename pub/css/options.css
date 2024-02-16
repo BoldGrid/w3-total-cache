@@ -9,9 +9,22 @@
 	margin: 1em auto 0;
 }
 
+#wpbody-content>.wrap {
+	margin: unset;
+}
+
 #wpbody-content>.update-nag,
 #wpbody-content>.notice,
-#wpbody-content>.error {
+#wpbody-content>.updated,
+#wpbody-content>.error,
+#wpbody-content>.info,
+#wpbody-content>.warning,
+#wpbody-content>.wrap>.update-nag,
+#wpbody-content>.wrap>.notice,
+#wpbody-content>.wrap>.updated,
+#wpbody-content>.wrap>.error,
+#wpbody-content>.wrap>.info,
+#wpbody-content>.wrap>.warning {
 	max-width: 1200px;
 	margin: 0 auto 5px !important;
 	padding: 10px 12px !important;
@@ -21,14 +34,32 @@
 
 #wpbody-content>.update-nag p,
 #wpbody-content>.notice p,
-#wpbody-content>.error p {
+#wpbody-content>.updated p,
+#wpbody-content>.error p,
+#wpbody-content>.info p,
+#wpbody-content>.warning p,
+#wpbody-content>.wrap>.update-nag p,
+#wpbody-content>.wrap>.notice p,
+#wpbody-content>.wrap>.updated p,
+#wpbody-content>.wrap>.error p,
+#wpbody-content>.wrap>.info p,
+#wpbody-content>.wrap>.warning p {
 	padding: 0 !important;
 	margin: 0 !important;
 }
 
 #wpbody-content>.update-nag.is-dismissible p,
 #wpbody-content>.notice.is-dismissible p,
-#wpbody-content>.error.is-dismissible p {
+#wpbody-content>.updated.is-dismissible p,
+#wpbody-content>.error.is-dismissible p,
+#wpbody-content>.info.is-dismissible p,
+#wpbody-content>.warning.is-dismissible p,
+#wpbody-content>.wrap>.update-nag.is-dismissible p,
+#wpbody-content>.wrap>.notice.is-dismissible p,
+#wpbody-content>.wrap>.updated.is-dismissible p,
+#wpbody-content>.wrap>.error.is-dismissible p,
+#wpbody-content>.wrap>.info.is-dismissible p,
+#wpbody-content>.wrap>.warning.is-dismissible p {
 	padding: 0 29px 0 0 !important;
 }
 

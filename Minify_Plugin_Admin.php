@@ -263,10 +263,10 @@ class Minify_Plugin_Admin {
 			}
 
 			if ( isset( $v['size_used'] ) ) {
-				$a['size_used'] = $v['size_used'];
-				$a['size_items'] = $v['size_items'];
-				$a['size_compression_css'] = $v['size_compression_css'];
-				$a['size_compression_js'] = $v['size_compression_js'];
+				$a['size_used']            = $v['size_used'];
+				$a['size_items']           = empty( $v['size_items'] ) ? null : $v['size_items'];
+				$a['size_compression_css'] = empty( $v['size_compression_css'] ) ? null : $v['size_compression_css'];
+				$a['size_compression_js']  = empty( $v['size_compression_js'] ) ? null : $v['size_compression_js'];
 			}
 		}
 

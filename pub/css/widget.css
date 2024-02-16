@@ -52,16 +52,29 @@
     margin-left: 30px;
 }
 
-#w3tc-dashboard-widgets #normal-sortables .postbox {
-    width:360px;
+.widgets-container .meta-box-sortables {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 20px;
+	margin-bottom: 20px;
+	justify-content: center;
 }
 
-#w3tc-dashboard-widgets #side-sortables .postbox {
-    border:none;
-    box-shadow:none;
-    -webkit-box-shadow: none;
-    -webkit-border-radius: 0;
-    border-radius: 0;
+/* 1/3 width widget column - calc(33.33% - 13.5px)*/
+.widgets-container .meta-box-sortables .postbox {
+	width: calc(33.33% - 13.5px);
+	min-height: 300px;
+	box-sizing: border-box;
+	margin: 0;
+}
+
+/* 1/2 width widget column - calc(50% - 10.5px)*/
+
+/* 2/3 width widget column - calc(66.66% - 7px)*/
+.widgets-container .meta-box-sortables #w3tc_settings,
+.widgets-container .meta-box-sortables #w3tc_pagespeed {
+	width: calc(66.66% - 7px);
 }
 
 #w3tc-dashboard-widgets .handle-actions {
@@ -72,16 +85,6 @@
 	display: block; /* WP 5.5 */
 }
 
-#postbox-container-right {
-    width: 196px;
-    white-space: nowrap;
-    display: inline-block;
-    float: right;
-    margin-left: -200px;
-}
-#w3tc-dashboard-widgets #postbox-container-3 {
-    width: 100%;white-space: normal;
-}
 .w3tc-enabled {
     color: #090;
     font-weight: 700
@@ -92,6 +95,14 @@
     font-weight: 700
 }
 
-#normal-sortables  #w3tc_new_relic {
-    width: 360px;
+@media only screen and (max-width: 1200px) {
+	.widgets-container .meta-box-sortables .postbox {
+		width: calc(50% - 10.5px) !important;
+	}
+}
+
+@media only screen and (max-width: 782px) {
+	.widgets-container .meta-box-sortables .postbox {
+		width: 100%  !important;
+	}
 }

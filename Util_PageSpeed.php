@@ -115,13 +115,16 @@ class Util_PageSpeed {
 	 * @param array  $data PageSpeed data.
 	 * @param string $metric Metric key.
 	 * @param string $name Metric name.
+	 * @param bool   $widget Widget flag to add line break between desktop/mobile metric.
 	 *
 	 * @return void
 	 */
-	public static function print_bar_combined_with_icon( $data, $metric, $name ) {
+	public static function print_bar_combined_with_icon( $data, $metric, $name, $widget = false ) {
 		if ( ! isset( $data ) || empty( $metric ) || empty( $name ) ) {
 			return;
 		}
+
+		$widget_break = $widget ? '<br/>' : '';
 
 		?>
 		<div class="w3tcps_metric">
@@ -129,6 +132,7 @@ class Util_PageSpeed {
 			<div class="w3tcps_metric_stats">
 				<span class="dashicons dashicons-<?php echo esc_attr( 'desktop' ); ?>"></span>
 				<?php self::print_barline( $data['desktop'][ $metric ] ); ?>
+				<?php echo $widget_break; ?>
 				<span class="dashicons dashicons-<?php echo esc_attr( 'smartphone' ); ?>"></span>
 				<?php self::print_barline( $data['mobile'][ $metric ] ); ?>
 			</div>

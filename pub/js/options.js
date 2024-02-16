@@ -311,6 +311,9 @@ function w3tc_csp_reference() {
 		height: 460,
 		url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
 			'&w3tc_action=browsercache_quick_reference',
+		callback: function(lightbox) {
+			lightbox.resize();
+		}
 	});
 	jQuery('div#overlay,.lightbox-content').on('click', function() {
 		W3tc_Lightbox.close();
@@ -1665,12 +1668,17 @@ jQuery(function() {
 	jQuery(window).resize(
 		debounce(
 			function() {
-				console.log('resize');
 				set_sticky_bar_positions();
 				set_footer_position();
 			}
 		)
 	);
+
+	// Target notices without the 'inline' class.
+    jQuery('.notice:not(.inline), .updated:not(.inline), .update-nag:not(.inline), .error:not(.inline), .info:not(.inline), .warning:not(.inline)').each(function() {
+        // Prevent the notice from being moved.
+        jQuery(this).addClass('inline');
+    });
 
 	set_sticky_bar_positions();
 	set_footer_position();

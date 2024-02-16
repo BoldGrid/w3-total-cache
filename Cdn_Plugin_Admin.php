@@ -36,6 +36,9 @@ class Cdn_Plugin_Admin {
 			}
 		}
 
+		// Always show the Bunny CDN widget on dashboard.
+		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
+
 		// Attach to actions without firing class loading at all without need.
 		switch ( $cdn_engine ) {
 			case 'google_drive':
@@ -43,8 +46,6 @@ class Cdn_Plugin_Admin {
 				break;
 			case 'highwinds':
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_Highwinds_Popup', 'w3tc_ajax' ) );
-				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_Highwinds_Widget', 'admin_init_w3tc_dashboard' ) );
-				\add_action( 'w3tc_ajax_cdn_highwinds_widgetdata', array( '\W3TC\Cdn_Highwinds_Widget', 'w3tc_ajax_cdn_highwinds_widgetdata' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_Highwinds_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				break;
 			case 'limelight':
@@ -63,23 +64,17 @@ class Cdn_Plugin_Admin {
 			case 'stackpath':
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_StackPath_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_StackPath_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_StackPath_Widget', 'admin_init_w3tc_dashboard' ) );
-				\add_action( 'w3tc_ajax_cdn_stackpath_widgetdata', array( '\W3TC\Cdn_StackPath_Widget', 'w3tc_ajax_cdn_stackpath_widgetdata' ) );
 				break;
 			case 'stackpath2':
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_StackPath2_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_StackPath2_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_StackPath2_Widget', 'admin_init_w3tc_dashboard' ) );
-				\add_action( 'w3tc_ajax_cdn_stackpath2_widgetdata', array( '\W3TC\Cdn_StackPath2_Widget', 'w3tc_ajax_cdn_stackpath2_widgetdata' ) );
 				break;
 			case 'bunnycdn':
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
 				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
 				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
-				// \add_filter( 'w3tc_dashboard_actions', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_dashboard_actions' ) ); // @todo Revisit this item.
 				break;
 			default:
 				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
