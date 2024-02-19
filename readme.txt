@@ -301,7 +301,9 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Refactor Minify cache key mapping to have shorter keys and separate storage
 * Fix: Minify statistics output and PHP warnings
 * Fix: Feature Showcase: New feature version numbers
+* Fix: Lazy Loading URL pattern match
 * Update: Upgrade modal/popup
+* Update: Added "Learn more" links
 
 = 2.6.1 =
 * Fix: WebP Converter extension activation
