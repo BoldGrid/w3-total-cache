@@ -75,12 +75,12 @@ if ( ! defined( 'W3TC' ) ) {
 		</div>
 		<div id="w3tcps_widget_metrics_container" class="tab-content w3tcps_content">
 			<div class="w3tcps_widget_metrics">
-				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'first-contentful-paint', 'First Contentful Paint' ); ?>
-				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'speed-index', 'Speed Index' ); ?>
-				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'largest-contentful-paint', 'Largest Contentful Paint' ); ?>
-				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'interactive', 'Time to Interactive' ); ?>
-				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'total-blocking-time', 'Total Blocking Time' ); ?>
-				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'cumulative-layout-shift', 'Cumulative Layout Shift' ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'first-contentful-paint', 'First Contentful Paint', true ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'speed-index', 'Speed Index', true ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'largest-contentful-paint', 'Largest Contentful Paint', true ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'interactive', 'Time to Interactive', true ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'total-blocking-time', 'Total Blocking Time', true ); ?>
+				<?php Util_PageSpeed::print_bar_combined_with_icon( $api_response, 'cumulative-layout-shift', 'Cumulative Layout Shift', true ); ?>
 			</div>
 		</div>
 		<?php

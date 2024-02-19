@@ -1172,16 +1172,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</tr>
 				<?php
 			}
-
-			Util_Ui::config_item(
-				array(
-					'key'            => 'widget.pagespeed.enabled',
-					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable Google PageSpeed dashboard widget', 'w3-total-cache' ),
-					'description'    => __( 'Display Google PageSpeed results on the WordPress dashboard.', 'w3-total-cache' ),
-					'label_class'    => 'w3tc_single_column',
-				)
-			);
 			?>
 		</table>
 

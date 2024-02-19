@@ -10,6 +10,9 @@ jQuery(function($) {
 	        width: 800,
 	        height: 500,
 	        url: w3tc_cdn_google_drive_popup_url[0],
+			callback: function(lightbox) {
+				lightbox.resize();
+			},
 	        onClose: function() {
 	        }
 	    });

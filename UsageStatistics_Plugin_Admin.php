@@ -15,14 +15,6 @@ class UsageStatistics_Plugin_Admin {
 				'w3tc_usage_statistics_summary_from_history'
 			), 5, 2 );
 
-		$widget = new UsageStatistics_Widget();
-		$widget->init();
-
-		add_action( 'admin_init_w3tc_dashboard', array(
-				'\W3TC\UsageStatistics_Widget',
-				'admin_init_w3tc_dashboard'
-			) );
-
 		add_action( 'admin_init_w3tc_general', array(
 				'\W3TC\UsageStatistics_GeneralPage',
 				'admin_init_w3tc_general'
