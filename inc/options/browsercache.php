@@ -494,7 +494,7 @@ $security_session_values = array(
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'browsercache.cssjs.replace' ); ?> <?php Util_Ui::e_config_label( 'browsercache.cssjs.replace' ); ?></label>
-					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#remove-query-strings-from-static-resources-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
+					<a class="w3tc-control-after" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#prevent-caching-of-objects-after-settings-change-cssjs' ); ?>"><?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?><span class="dashicons dashicons-external"></span></a>
 					<p class="description"><?php esc_html_e( 'Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
