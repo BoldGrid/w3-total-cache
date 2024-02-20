@@ -7,6 +7,16 @@ if ( ! defined( 'W3TC' ) ) {
 
 require W3TC_INC_DIR . '/options/common/header.php';
 ?>
+
+<form id="w3tc_dashboard" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<div class="w3tc_dashboard_flush_container">
+		<span><?php esc_html_e( 'Flush caches with ', 'w3-total-cache' ); ?></span>
+		<div class="w3tc-button-control-container">
+			<?php Util_Ui::print_flush_split_button(); ?>
+		</div>
+	</div>
+</form>
+
 <form id="w3tc_dashboard" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<?php
 	echo wp_kses(

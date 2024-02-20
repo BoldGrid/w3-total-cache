@@ -3,7 +3,7 @@ namespace W3TC;
 
 
 
-class Cdnfsd_LimeLight_Popup {
+class Cdn_LimeLight_Popup {
 	static public function w3tc_ajax() {
 		$o = new Cdnfsd_LimeLight_Popup();
 

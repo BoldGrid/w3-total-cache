@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.4
-Stable tag: 2.6.1
+Stable tag: 2.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,26 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.7.0 =
+* Feature: Performance Dashboard update
+* Feature: Remove unused CSS/JS
+* Fix: Nginx feature and permission policy header syntax
+* Fix: Memcache install check
+* Fix: Cloudfront purge button
+* Fix: Uncaught type error on the install page
+* Fix: Page mapping data
+* Fix: Add missing id for a save settings button
+* Fix: Extension counts
+* Fix: PHP 8.2 deprecation warnings for dynamic class property assignments
+* Fix: Do not autoload WP option for PageSpeed data
+* Fix: Cache groups: Fix spacing in values for htaccess syntax
+* Fix: Refactor Minify cache key mapping to have shorter keys and separate storage
+* Fix: Minify statistics output and PHP warnings
+* Fix: Feature Showcase: New feature version numbers
+* Fix: Lazy Loading URL pattern match
+* Update: Upgrade modal/popup
+* Update: Added "Learn more" links
 
 = 2.6.1 =
 * Fix: WebP Converter extension activation
