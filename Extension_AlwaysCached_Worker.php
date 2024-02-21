@@ -51,7 +51,7 @@ class Extension_AlwaysCached_Worker {
 				break;
 			}
 
-			echo esc_html( sprintf( "\n%d ", $item['id'] ) );
+			echo esc_html( sprintf( "\n%s ", $item['page_key'] ) );
 
 			$result = self::process_item($item);
 			if ( $result == 'ok' ) {
@@ -91,7 +91,7 @@ class Extension_AlwaysCached_Worker {
 			$item['url'],
 			array(
 				'headers' => array(
-					'w3tcalwayscached' => $item['id'],
+					'w3tcalwayscached' => $item['page_key'],
 				),
 			)
 		);
@@ -196,6 +196,13 @@ class Extension_AlwaysCached_Worker {
 			// to became uncached
 			return 'postpone';
 		}
+
+		$o = Dispatcher::component( 'PgCache_Flush' );
+		$data = @unserialize( $item['page_key_extension'] );
+
+		$o->flush_group_before(
+			empty( $data['group'] ) ? '' : $data['group'],
+			array( 'before_time' => $data['before_time'] ) );
 
 		return 'ok';
 	}

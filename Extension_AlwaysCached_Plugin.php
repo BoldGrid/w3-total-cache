@@ -154,13 +154,13 @@ class Extension_AlwaysCached_Plugin {
 				':flush_group.regenerate',
 				'',
 				array( 'group' => '' ),
-				50
+				125
 			);
 			Extension_AlwaysCached_Queue::add(
 				':flush_group.remainder',
 				'',
 				array( 'group' => '', 'before_time' => time() ),
-				25
+				150
 			);
 
 			$groups = array_filter(

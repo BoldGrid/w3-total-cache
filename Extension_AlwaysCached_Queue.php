@@ -41,18 +41,33 @@ class Extension_AlwaysCached_Queue {
 
 		$table = self::table_name();
 
+		if ( strlen( $page_key ) > 50 ) {
+			$page_key = md5( $page_key );
+		}
+
+		// page_key_extension has to be updated since
+		// for :flush operation it contains timestamp to flush before
+		// has to be refreshed if duplicate found
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"INSERT INTO `$table` ( page_key, url, page_key_extension, priority, to_process )
-					VALUES ( %s, %s, %s, %d, %s ) ON DUPLICATE KEY UPDATE requests_count = requests_count + 1",
+				"
+				INSERT INTO `$table`
+				( page_key, url, page_key_extension, priority, to_process )
+				VALUES
+				( %s, %s, %s, %d, %s )
+				ON DUPLICATE KEY UPDATE
+					page_key_extension = %s,
+					requests_count = requests_count + 1",
 				$page_key,
 				$url,
 				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				serialize( $page_key_extension ),
 				$priority,
-				gmdate( 'Y-m-d G:i:s' )
+				gmdate( 'Y-m-d G:i:s' ),
+				serialize( $page_key_extension ),
 			)
 		);
 	}
@@ -75,7 +90,7 @@ class Extension_AlwaysCached_Queue {
 		return $wpdb->get_row(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT id FROM `$table` WHERE page_key = %s",
+				"SELECT * FROM `$table` WHERE page_key = %s",
 				$page_key
 			),
 			ARRAY_A
@@ -104,7 +119,7 @@ class Extension_AlwaysCached_Queue {
 					SELECT *
 					FROM `$table`
 					WHERE to_process <= %s
-					ORDER BY priority DESC, to_process
+					ORDER BY priority, to_process
 					LIMIT 1",
 					gmdate( 'Y-m-d G:i:s' )
 				),
@@ -121,9 +136,12 @@ class Extension_AlwaysCached_Queue {
 			$count = $wpdb->query(
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					"UPDATE `$table` SET to_process = %s WHERE id = %d AND to_process = %s",
+					"
+					UPDATE `$table`
+					SET to_process = %s
+					WHERE page_key = %s AND to_process = %s",
 					$new_to_process,
-					$item['id'],
+					$item['page_key'],
 					$item['to_process']
 				)
 			);
@@ -156,8 +174,13 @@ class Extension_AlwaysCached_Queue {
 		$wpdb->query(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"DELETE FROM `$table` WHERE id = %d AND to_process = %s AND requests_count = %d",
-				$item['id'],
+				"
+				DELETE FROM `$table`
+				WHERE
+					page_key = %s AND
+					to_process = %s AND
+					requests_count = %d",
+				$item['page_key'],
 				$item['to_process'],
 				$item['requests_count']
 			)
@@ -187,7 +210,7 @@ class Extension_AlwaysCached_Queue {
 				SELECT *
 				FROM `$table`
 				WHERE to_process $comp %s
-				ORDER BY priority DESC, to_process
+				ORDER BY priority, to_process
 				LIMIT 50",
 				gmdate( 'Y-m-d G:i:s' )
 			),
@@ -273,8 +296,8 @@ class Extension_AlwaysCached_Queue {
 				"
 				SELECT *
 				FROM `$table`
-				WHERE to_process <= %s AND priority > %d
-				ORDER BY priority DESC, to_process
+				WHERE to_process <= %s AND priority < %d
+				ORDER BY priority, to_process
 				LIMIT 1",
 				gmdate( 'Y-m-d G:i:s' ),
 				$item['priority']
@@ -379,16 +402,15 @@ class Extension_AlwaysCached_Queue {
 			$charset_collate .= " COLLATE $wpdb->collate";
 		}
 
+		// priority - smaller number is higher priority
 		$sql = "CREATE TABLE IF NOT EXISTS `$table` (
-			`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-			`page_key` varchar(500) CHARACTER SET `ascii` NOT NULL,
+			`page_key` varchar(50) CHARACTER SET `ascii` NOT NULL,
 			`url` varchar(500) NOT NULL,
 			`page_key_extension` varchar(500) NOT NULL,
 			`priority` tinyint NOT NULL DEFAULT 100,
 			`requests_count` int NOT NULL DEFAULT 1,
 			`to_process` datetime NOT NULL,
-			PRIMARY KEY (`id`),
-			UNIQUE KEY `page_key` (`page_key`),
+			PRIMARY KEY (`page_key`),
 			INDEX `to_process` (`to_process`)
 			) $charset_collate";
 

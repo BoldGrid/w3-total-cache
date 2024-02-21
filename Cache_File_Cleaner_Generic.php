@@ -16,9 +16,9 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	 *
 	 * @var int
 	 */
-	var $_expire = 0;
-
-	private $hard_delete = false;
+	private $_expire = 0;
+	private $time_min_valid = -1;
+	private $old_file_time_min_valid = -1;
 
 	/**
 	 * PHP5-style constructor
@@ -32,6 +32,14 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 
 		if ( !$this->_expire || $this->_expire > W3TC_CACHE_FILE_EXPIRE_MAX ) {
 			$this->_expire = 0;
+		}
+
+		if ( !empty( $config['time_min_valid'] ) ) {
+			$this->time_min_valid = $config['time_min_valid'];
+			$this->old_file_time_min_valid = $config['time_min_valid'];
+		} elseif ( $this->_expire > 0 ) {
+			$this->time_min_valid = time() - $this->_expire;
+			$this->old_file_time_min_valid = time() - $this->_expire * 5;
 		}
 	}
 
@@ -49,17 +57,11 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 
 				$full_path = $path . DIRECTORY_SEPARATOR . $entry;
 
-				if ( substr( $entry, -4 ) === '_old' &&
-					!$this->is_old_file_expired( $full_path ) ) {
-					continue;
-				}
-
 				foreach ( $this->_exclude as $mask ) {
 					if ( fnmatch( $mask, basename( $entry ) ) ) {
 						continue 2;
 					}
 				}
-
 
 				if ( @is_dir( $full_path ) ) {
 					$this->_clean( $full_path );
@@ -76,12 +78,15 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 
 	function _clean_file( $entry, $full_path ) {
 		if ( substr( $entry, -4 ) === '_old' ) {
-			$this->processed_count++;
-			@unlink( $full_path );
+			if ( !$this->is_old_file_valid( $full_path ) ) {
+				$this->processed_count++;
+				@unlink( $full_path );
+			}
 		} elseif ( !$this->is_valid( $full_path ) ) {
 			$old_entry_path = $full_path . '_old';
 			$this->processed_count++;
 			if ( !@rename( $full_path, $old_entry_path ) ) {
+
 				// if we can delete old entry -
 				// do second attempt to store in old-entry file
 				if ( @unlink( $old_entry_path ) ) {
@@ -101,29 +106,33 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	 * @return bool
 	 */
 	function is_valid( $file ) {
-		if ( $this->_expire <= 0 )
-			return false;
+		if ( $this->time_min_valid > 0 ) {
+			if ( file_exists( $file ) ) {
+				$ftime = @filemtime( $file );
 
-		if ( file_exists( $file ) ) {
-			$ftime = @filemtime( $file );
-
-			if ( $ftime && $ftime > ( time() - $this->_expire ) ) {
-				return true;
+				if ( $ftime && $ftime >= $this->time_min_valid ) {
+					return true;
+				}
 			}
 		}
 
 		return false;
 	}
 
-	function is_old_file_expired( $file ) {
-		$ftime = @filemtime( $file );
-		$expire = $this->_expire ? $this->_expire * 5 : W3TC_CACHE_FILE_EXPIRE_MAX;
-		if ( $ftime && $ftime < ( time() - $expire ) ) {
-			return true;
+	function is_old_file_valid( $file ) {
+		if ( $this->old_file_time_min_valid > 0 ) {
+			if ( file_exists( $file ) ) {
+				$ftime = @filemtime( $file );
+
+				if ( $ftime && $ftime >= $this->old_file_time_min_valid ) {
+					return true;
+				}
+			}
 		}
 
 		return false;
 	}
+
 	function is_empty_dir( $dir ) {
 		return ( $files = @scandir( $dir ) ) && count( $files ) <= 2;
 	}

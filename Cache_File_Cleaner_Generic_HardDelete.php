@@ -11,8 +11,10 @@ class Cache_File_Cleaner_Generic_HardDelete extends Cache_File_Cleaner_Generic {
 
 	function _clean_file( $entry, $full_path ) {
 		if ( substr( $entry, -4 ) === '_old' ) {
-			$this->processed_count++;
-			@unlink( $full_path );
+			if ( !$this->is_old_file_valid( $full_path ) ) {
+				$this->processed_count++;
+				@unlink( $full_path );
+			}
 		} elseif ( !$this->is_valid( $full_path ) ) {
 			@unlink( $full_path );
 		}

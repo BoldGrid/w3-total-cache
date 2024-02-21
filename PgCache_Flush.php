@@ -328,6 +328,16 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	}
 
 	/**
+	 * Flushes group with before limitation
+	 * Used by Always cached functionality to flush not-regenerated remainder
+	 * of cache.
+	 */
+	public function flush_group_before( $group, $before ) {
+		$cache = $this->_get_cache( $group );
+		$cache->flush_group_before( $group, $before );
+	}
+
+	/**
 	 * Does the actual job - flushing of a single url cache entries
 	 */
 	private function _flush_url( $data ) {

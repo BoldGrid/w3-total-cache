@@ -2183,7 +2183,7 @@ class PgCache_ContentGrabber {
 
 			if ( ! empty( $this->_page_key ) ) {
 				$queue_item = Extension_AlwaysCached_Queue::get_by_page_key( $this->_page_key );
-				header( 'w3tcalwayscached: ' . ( empty( $queue_item ) ? 'none' : $queue_item['id'] ) );
+				header( 'w3tcalwayscached: ' . ( empty( $queue_item ) ? 'none' : $queue_item['page_key'] ) );
 			}
 		}
 

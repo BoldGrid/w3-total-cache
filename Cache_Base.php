@@ -169,6 +169,18 @@ class Cache_Base {
 	}
 
 	/**
+	 * Flushes group with before condition
+	 *
+	 * @abstract
+	 * @param string  $group Used to differentiate between groups of cache values
+	 * @param array   $before Used to set a condition
+	 * @return boolean
+	 */
+	function flush_group_before( $group = '', $before = array() ) {
+		return false;
+	}
+
+	/**
 	 * Checks if engine can function properly in this environment
 	 *
 	 * @return bool

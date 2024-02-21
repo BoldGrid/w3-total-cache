@@ -344,6 +344,28 @@ class Cache_File_Generic extends Cache_File {
 		}
 	}
 
+	function flush_group_before( $group = '', $before = array() ) {
+		$dir = $this->_flush_dir;
+		if ( !empty( $group ) ) {
+			$c = new Cache_File_Cleaner_Generic_HardDelete( array(
+					'cache_dir' => $this->_flush_dir .
+						DIRECTORY_SEPARATOR . $group,
+					'exclude' => $this->_exclude,
+					'clean_timelimit' => $this->_flush_timelimit,
+					'time_min_valid' => $before['before_time']
+				) );
+		} else {
+			$c = new Cache_File_Cleaner_Generic( array(
+					'cache_dir' => $this->_flush_dir,
+					'exclude' => $this->_exclude,
+					'clean_timelimit' => $this->_flush_timelimit,
+					'time_min_valid' => $before['before_time']
+				) );
+		}
+
+		$c->clean();
+	}
+
 	/**
 	 * Returns cache file path by key
 	 *
