@@ -30,13 +30,13 @@ $rows       = Extension_AlwaysCached_Queue::rows( $queue_mode );
 		<?php foreach ( $rows as $r ) : ?>
 			<tr>
 				<td style="white-space: nowrap">
-					<?php if( substr( $r['page_key'], 0, 1 ) == ':' ): ?>
-						<?php if ( $r['page_key'] == ':flush_group.regenerate'): ?>
+					<?php if( substr( $r['key'], 0, 1 ) == ':' ): ?>
+						<?php if ( $r['key'] == ':flush_group.regenerate'): ?>
 							Command: Queue Regeneration on Purge all
-						<?php elseif ( $r['page_key'] == ':flush_group.remainder'): ?>
+						<?php elseif ( $r['key'] == ':flush_group.remainder'): ?>
 							Command: Purge Remainder after Purge all
 						<?php else: ?>
-							command <?php echo esc_html( $r['page_key'] ); ?>
+							command <?php echo esc_html( $r['key'] ); ?>
 						<?php endif ?>
 					<?php else: ?>
 						<?php echo esc_html( $r['url'] ); ?>

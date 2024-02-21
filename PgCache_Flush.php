@@ -328,16 +328,6 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 	}
 
 	/**
-	 * Flushes group with before limitation
-	 * Used by Always cached functionality to flush not-regenerated remainder
-	 * of cache.
-	 */
-	public function flush_group_before( $group, $before ) {
-		$cache = $this->_get_cache( $group );
-		$cache->flush_group_before( $group, $before );
-	}
-
-	/**
 	 * Does the actual job - flushing of a single url cache entries
 	 */
 	private function _flush_url( $data ) {
@@ -376,47 +366,23 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 		}
 	}
 
-	public function get_page_keys_for_url( $data ) {
-		$groups = array(
-			'mobile_groups' => $this->_get_mobile_groups(),
-			'referrer_groups' => $this->_get_referrer_groups(),
-			'cookies' => $this->_get_cookies(),
-			'encryptions' => $this->_get_encryptions(),
-			'compressions' => $this->_get_compressions()
-		);
+	/**
+	 * Gets a key extension for "ahead generation" mode.
+	 * Used by AlwaysCached functionality to regenerate content
+	 */
+	public function get_ahead_generation_extension( $group ) {
+		$cache = $this->_get_cache( $group );
+		return $cache->get_ahead_generation_extension( $group );
+	}
 
-		$groups = $data['groups_filter']( $groups );
-
-		$output = array();
-
-		foreach ( $groups['mobile_groups'] as $mobile_group ) {
-			foreach ( $groups['referrer_groups'] as $referrer_group ) {
-				foreach ( $groups['cookies'] as $cookie ) {
-					foreach ( $groups['encryptions'] as $encryption ) {
-						foreach ( $groups['compressions'] as $compression ) {
-							$page_key_extension = array(
-								'useragent' => $mobile_group,
-								'referrer' => $referrer_group,
-								'cookie' => $cookie,
-								'encryption' => $encryption,
-								'compression' => $compression,
-								'group' => $data['group']
-							);
-
-							$output[] = array(
-								'page_key_extension' => $page_key_extension,
-								'page_key' => $this->_get_page_key(
-									$page_key_extension,
-									$data['url']
-								)
-							);
-						}
-					}
-				}
-			}
-		}
-
-		return $output;
+	/**
+	 * Flushes group with before limitation
+	 * Used by AlwaysCached functionality to flush not-regenerated remainder
+	 * of cache.
+	 */
+	public function flush_group_after_ahead_generation( $group, $extension ) {
+		$cache = $this->_get_cache( $group );
+		$cache->flush_group_after_ahead_generation( $group, $extension );
 	}
 
 	/**

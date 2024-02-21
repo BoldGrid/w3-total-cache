@@ -2169,23 +2169,10 @@ class PgCache_ContentGrabber {
 		$buffers = array();
 		$something_was_set = false;
 
-		if ( ! empty( $this->_page_key_extension['alwayscached'] ) ) {
-			$this->_set_extract_page_key(
-				array_merge(
-					$this->_page_key_extension,
-					array(
-						'compression'  => false,
-						'content_type' => $content_type,
-					)
-				),
-				true
-			);
-
-			if ( ! empty( $this->_page_key ) ) {
-				$queue_item = Extension_AlwaysCached_Queue::get_by_page_key( $this->_page_key );
-				header( 'w3tcalwayscached: ' . ( empty( $queue_item ) ? 'none' : $queue_item['page_key'] ) );
-			}
-		}
+		do_action( 'w3tc_pagecache_before_set', array(
+				'request_url_fragments' => $this->_request_url_fragments,
+				'page_key_extension' => $this->_page_key_extension
+			) );
 
 		foreach ( $compressions_to_store as $_compression ) {
 			$this->_set_extract_page_key(

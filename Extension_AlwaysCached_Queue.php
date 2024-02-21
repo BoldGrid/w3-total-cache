@@ -33,17 +33,14 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @return void
 	 */
-	public static function add( $page_key, $url, $page_key_extension, $priority = 100 ) {
+	public static function add( $url, $extension, $priority = 100 ) {
 		// Compress page_key_extension by removing empty values.
-		$page_key_extension = array_filter( $page_key_extension );
+		$extension = array_filter( $extension );
 
 		global $wpdb;
 
 		$table = self::table_name();
-
-		if ( strlen( $page_key ) > 50 ) {
-			$page_key = md5( $page_key );
-		}
+		$key = self::key_by_url( $url );
 
 		// page_key_extension has to be updated since
 		// for :flush operation it contains timestamp to flush before
@@ -55,25 +52,25 @@ class Extension_AlwaysCached_Queue {
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"
 				INSERT INTO `$table`
-				( page_key, url, page_key_extension, priority, to_process )
+				( `key`, url, extension, priority, to_process )
 				VALUES
 				( %s, %s, %s, %d, %s )
 				ON DUPLICATE KEY UPDATE
-					page_key_extension = %s,
+					extension = %s,
 					requests_count = requests_count + 1",
-				$page_key,
+				$key,
 				$url,
 				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-				serialize( $page_key_extension ),
+				serialize( $extension ),
 				$priority,
 				gmdate( 'Y-m-d G:i:s' ),
-				serialize( $page_key_extension ),
+				serialize( $extension ),
 			)
 		);
 	}
 
 	/**
-	 * Get by page key.
+	 * Get by url
 	 *
 	 * @since 2.5.1
 	 *
@@ -81,7 +78,7 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @return array|object|null|void
 	 */
-	public static function get_by_page_key( $page_key ) {
+	public static function get_by_url( $url ) {
 		global $wpdb;
 
 		$table = self::table_name();
@@ -90,8 +87,8 @@ class Extension_AlwaysCached_Queue {
 		return $wpdb->get_row(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT * FROM `$table` WHERE page_key = %s",
-				$page_key
+				"SELECT * FROM `$table` WHERE `key` = %s",
+				self::key_by_url( $url )
 			),
 			ARRAY_A
 		);
@@ -139,9 +136,9 @@ class Extension_AlwaysCached_Queue {
 					"
 					UPDATE `$table`
 					SET to_process = %s
-					WHERE page_key = %s AND to_process = %s",
+					WHERE `key` = %s AND to_process = %s",
 					$new_to_process,
-					$item['page_key'],
+					$item['key'],
 					$item['to_process']
 				)
 			);
@@ -177,10 +174,10 @@ class Extension_AlwaysCached_Queue {
 				"
 				DELETE FROM `$table`
 				WHERE
-					page_key = %s AND
+					`key` = %s AND
 					to_process = %s AND
 					requests_count = %d",
-				$item['page_key'],
+				$item['key'],
 				$item['to_process'],
 				$item['requests_count']
 			)
@@ -308,6 +305,10 @@ class Extension_AlwaysCached_Queue {
 		return !empty( $higher_item );
 	}
 
+	private static function key_by_url( $url ) {
+		return strlen( $url ) > 50 ? md5( $url ) : $url;
+	}
+
 	/**
 	 * Gets AlwaysCached queue table name.
 	 *
@@ -404,13 +405,13 @@ class Extension_AlwaysCached_Queue {
 
 		// priority - smaller number is higher priority
 		$sql = "CREATE TABLE IF NOT EXISTS `$table` (
-			`page_key` varchar(50) CHARACTER SET `ascii` NOT NULL,
+			`key` varchar(50) CHARACTER SET `ascii` NOT NULL,
 			`url` varchar(500) NOT NULL,
-			`page_key_extension` varchar(500) NOT NULL,
+			`extension` varchar(500) NOT NULL,
 			`priority` tinyint NOT NULL DEFAULT 100,
 			`requests_count` int NOT NULL DEFAULT 1,
 			`to_process` datetime NOT NULL,
-			PRIMARY KEY (`page_key`),
+			PRIMARY KEY (`key`),
 			INDEX `to_process` (`to_process`)
 			) $charset_collate";
 

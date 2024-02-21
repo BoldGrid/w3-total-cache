@@ -51,7 +51,7 @@ class Extension_AlwaysCached_Worker {
 				break;
 			}
 
-			echo esc_html( sprintf( "\n%s ", $item['page_key'] ) );
+			echo esc_html( sprintf( "\n%s ", $item['key'] ) );
 
 			$result = self::process_item($item);
 			if ( $result == 'ok' ) {
@@ -72,9 +72,9 @@ class Extension_AlwaysCached_Worker {
 
 
 	static private function process_item( $item ) {
-		if ( $item['page_key'] == ':flush_group.regenerate' ) {
+		if ( $item['key'] == ':flush_group.regenerate' ) {
 			return self::process_item_flush_group_regenerate( $item );
-		} elseif ( $item['page_key'] == ':flush_group.remainder' ) {
+		} elseif ( $item['key'] == ':flush_group.remainder' ) {
 			return self::process_item_flush_group_remainder( $item );
 		}
 
@@ -91,7 +91,7 @@ class Extension_AlwaysCached_Worker {
 			$item['url'],
 			array(
 				'headers' => array(
-					'w3tcalwayscached' => $item['page_key'],
+					'w3tcalwayscached' => $item['key'],
 				),
 			)
 		);
@@ -117,14 +117,14 @@ class Extension_AlwaysCached_Worker {
 
 
 	static private function process_item_flush_group_regenerate( $item ) {
-		$page_key_extension = @unserialize( $item['page_key_extension'] );
+		$item_extension = @unserialize( $item['extension'] );
 
 		$c = Dispatcher::config();
 
 		esc_html_e( "\n  building purge-all urls to regenerate\n  ", 'w3-total-cache' );
 
 		if ( $c->get_boolean( array( 'alwayscached', 'flush_all_home' ) ) ) {
-			self::add_url_to_queue( home_url(), $page_key_extension );
+			Extension_AlwaysCached_Queue::add( rtrim( home_url(), '/' ) . '/', $item_extension );
 		}
 
 		$posts_count = $c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) );
@@ -138,11 +138,13 @@ class Extension_AlwaysCached_Worker {
 			) );
 
 			foreach ( $posts as $post ) {
-				self::add_url_to_queue( get_permalink( $post ), $page_key_extension );
+				Extension_AlwaysCached_Queue::add(
+					get_permalink( $post ), $item_extension );
 			}
 		}
 
-		$pages_count = $c->get_integer( array( 'alwayscached', 'flush_all_pages_count' ) );
+		$pages_count = $c->get_integer(
+			array( 'alwayscached', 'flush_all_pages_count' ) );
 		if ( $pages_count > 0 ) {
 			$posts = get_posts( array(
 				'post_type' => 'page',
@@ -153,41 +155,12 @@ class Extension_AlwaysCached_Worker {
 			) );
 
 			foreach ( $posts as $post ) {
-				self::add_url_to_queue( get_permalink( $post ), $page_key_extension );
+				Extension_AlwaysCached_Queue::add(
+					get_permalink( $post ), $item_extension );
 			}
 		}
 
 		return 'ok';
-	}
-
-
-
-	static private function add_url_to_queue( $url, $page_key_extension ) {
-		$provider = Dispatcher::component( 'PgCache_Flush' );
-		$items = $provider->get_page_keys_for_url( array(
-			'url' => $url,
-			'group' => '',
-			'page_key_extension_base' => $page_key_extension,
-			'groups_filter' => function( $groups ) use ( $url ) {
-				$is_https = ( substr( $url, 0, 5 ) == 'https' );
-
-				$groups['mobile_groups'] = array( $groups['mobile_groups'][0] );
-				$groups['referrer_groups'] = array( $groups['referrer_groups'][0] );
-				$groups['cookies'] = array( $groups['cookies'][0] );
-				$groups['compressions'] = array( false );
-				$groups['encryptions'] = array( $is_https ? 'ssl' : '' );
-
-				return $groups;
-			}
-		) );
-
-		foreach ( $items as $i ) {
-			Extension_AlwaysCached_Queue::add(
-				$i['page_key'],
-				$url,
-				$i['page_key_extension']
-			);
-		}
 	}
 
 
@@ -200,12 +173,12 @@ class Extension_AlwaysCached_Worker {
 			return 'postpone';
 		}
 
-		$page_key_extension = @unserialize( $item['page_key_extension'] );
+		$extension = @unserialize( $item['extension'] );
 
 		$o = Dispatcher::component( 'PgCache_Flush' );
 		$o->flush_group_after_ahead_generation(
-			empty( $page_key_extension['group'] ) ? '' : $page_key_extension['group'],
-			$page_key_extension );
+			empty( $extension['group'] ) ? '' : $extension['group'],
+			$extension );
 
 		return 'ok';
 	}

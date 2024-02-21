@@ -17,6 +17,8 @@ namespace W3TC;
  * @since 2.5.1
  */
 class Extension_AlwaysCached_Plugin {
+	private $request_queue_item_extension = null;
+
 	/**
 	 * Run method for AlwaysCached.
 	 *
@@ -31,6 +33,10 @@ class Extension_AlwaysCached_Plugin {
 
 		add_action( 'init', array( $this, 'init' ) );
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
+		add_action( 'w3tc_pagecache_before_set',
+			array( $this, 'w3tc_pagecache_before_set' ) );
+		add_filter( 'w3tc_pagecache_set',
+			array( $this, 'w3tc_pagecache_set' ) );
 		add_filter( 'w3tc_pagecache_flush_url',
 			array( $this, 'w3tc_pagecache_flush_url' ),
 			1000 );
@@ -94,6 +100,47 @@ class Extension_AlwaysCached_Plugin {
 		return $rewrite_conditions;
 	}
 
+	public function w3tc_pagecache_before_set( $o ) {
+		if ( empty( $o['page_key_extension']['alwayscached'] ) ) {
+			return;
+		}
+
+		error_log('handling');
+
+		$url =
+			( empty( $o['page_key_extension']['encryption'] ) ? 'http://' : 'https://' ) .
+			$o['request_url_fragments']['host'] .
+			$o['request_url_fragments']['path'] .
+			$o['request_url_fragments']['querystring'];
+
+		error_log($url);
+
+		$queue_item = Extension_AlwaysCached_Queue::get_by_url( $url );
+		error_log(json_encode($queue_item));
+		if ( !empty( $queue_item ) ) {
+			$this->request_queue_item_extension =
+				@unserialize( $queue_item['extension'] );
+
+			header( 'w3tcalwayscached: ' . ( empty( $queue_item ) ? 'none' : $queue_item['key'] ) );
+		}
+	}
+
+	public function w3tc_pagecache_set( $data ) {
+		// in a case of alwayscached-regeneration request - apply
+		// cache's "ahead generation extension" data
+		if ( !empty( $this->request_queue_item_extension ) ) {
+			$keys_to_store = array( 'key_version', 'key_version_at_creation' );
+			foreach ( $keys_to_store as $k ) {
+				if ( isset( $this->request_queue_item_extension[$k] ) ) {
+					$data[$k] = $this->request_queue_item_extension[$k];
+					error_log("adding $k " . $this->request_queue_item_extension[$k]);
+				}
+			}
+		}
+
+		return $data;
+	}
+
 	/**
 	 * Adds AlwaysCached Apache rules.
 	 *
@@ -132,9 +179,8 @@ class Extension_AlwaysCached_Plugin {
 
 			if ( $data['cache']->exists( $page_key, $data['group'] ) ) {
 				Extension_AlwaysCached_Queue::add(
-					$page_key,
 					$data['url'],
-					$page_key_extension
+					array( 'group' => $data['group'] )
 				);
 			}
 		}
@@ -150,16 +196,18 @@ class Extension_AlwaysCached_Plugin {
 		}
 
 		if ( in_array( '', $groups ) ) {
+
+			$o = Dispatcher::component( 'PgCache_Flush' );
+			$extension = $o->get_ahead_generation_extension( '' );
+
 			Extension_AlwaysCached_Queue::add(
 				':flush_group.regenerate',
-				'',
-				array( 'group' => '' ),
+				$extension,
 				125
 			);
 			Extension_AlwaysCached_Queue::add(
 				':flush_group.remainder',
-				'',
-				array( 'group' => '', 'before_time' => time() ),
+				$extension,
 				150
 			);
 
