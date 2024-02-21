@@ -178,7 +178,10 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		if ( $v['key_version'] > $key_version ) {
-			$this->_set_key_version( $v['key_version'], $group );
+			if ( !empty($v['key_version_at_creation']) &&
+					$v['key_version_at_creation'] != $key_version ) {
+				$this->_set_key_version( $v['key_version'], $group );
+			}
 			return array( $v, $has_old_data );
 		}
 

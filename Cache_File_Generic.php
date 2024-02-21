@@ -344,7 +344,13 @@ class Cache_File_Generic extends Cache_File {
 		}
 	}
 
-	function flush_group_before( $group = '', $before = array() ) {
+	public function get_ahead_generation_extension( $group ) {
+		return array(
+			'before_time' => time()
+		);
+	}
+
+	function flush_group_after_ahead_generation( $group, $extension ) {
 		$dir = $this->_flush_dir;
 		if ( !empty( $group ) ) {
 			$c = new Cache_File_Cleaner_Generic_HardDelete( array(
@@ -352,14 +358,14 @@ class Cache_File_Generic extends Cache_File {
 						DIRECTORY_SEPARATOR . $group,
 					'exclude' => $this->_exclude,
 					'clean_timelimit' => $this->_flush_timelimit,
-					'time_min_valid' => $before['before_time']
+					'time_min_valid' => $extension['before_time']
 				) );
 		} else {
 			$c = new Cache_File_Cleaner_Generic( array(
 					'cache_dir' => $this->_flush_dir,
 					'exclude' => $this->_exclude,
 					'clean_timelimit' => $this->_flush_timelimit,
-					'time_min_valid' => $before['before_time']
+					'time_min_valid' => $extension['before_time']
 				) );
 		}
 

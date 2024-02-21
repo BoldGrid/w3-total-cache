@@ -117,12 +117,14 @@ class Extension_AlwaysCached_Worker {
 
 
 	static private function process_item_flush_group_regenerate( $item ) {
+		$page_key_extension = @unserialize( $item['page_key_extension'] );
+
 		$c = Dispatcher::config();
 
 		esc_html_e( "\n  building purge-all urls to regenerate\n  ", 'w3-total-cache' );
 
 		if ( $c->get_boolean( array( 'alwayscached', 'flush_all_home' ) ) ) {
-			self::add_url_to_queue( home_url() );
+			self::add_url_to_queue( home_url(), $page_key_extension );
 		}
 
 		$posts_count = $c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) );
@@ -136,7 +138,7 @@ class Extension_AlwaysCached_Worker {
 			) );
 
 			foreach ( $posts as $post ) {
-				self::add_url_to_queue( get_permalink( $post ) );
+				self::add_url_to_queue( get_permalink( $post ), $page_key_extension );
 			}
 		}
 
@@ -151,7 +153,7 @@ class Extension_AlwaysCached_Worker {
 			) );
 
 			foreach ( $posts as $post ) {
-				self::add_url_to_queue( get_permalink( $post ) );
+				self::add_url_to_queue( get_permalink( $post ), $page_key_extension );
 			}
 		}
 
@@ -160,11 +162,12 @@ class Extension_AlwaysCached_Worker {
 
 
 
-	static private function add_url_to_queue( $url ) {
+	static private function add_url_to_queue( $url, $page_key_extension ) {
 		$provider = Dispatcher::component( 'PgCache_Flush' );
 		$items = $provider->get_page_keys_for_url( array(
 			'url' => $url,
 			'group' => '',
+			'page_key_extension_base' => $page_key_extension,
 			'groups_filter' => function( $groups ) use ( $url ) {
 				$is_https = ( substr( $url, 0, 5 ) == 'https' );
 
@@ -197,12 +200,12 @@ class Extension_AlwaysCached_Worker {
 			return 'postpone';
 		}
 
-		$o = Dispatcher::component( 'PgCache_Flush' );
-		$data = @unserialize( $item['page_key_extension'] );
+		$page_key_extension = @unserialize( $item['page_key_extension'] );
 
-		$o->flush_group_before(
-			empty( $data['group'] ) ? '' : $data['group'],
-			array( 'before_time' => $data['before_time'] ) );
+		$o = Dispatcher::component( 'PgCache_Flush' );
+		$o->flush_group_after_ahead_generation(
+			empty( $page_key_extension['group'] ) ? '' : $page_key_extension['group'],
+			$page_key_extension );
 
 		return 'ok';
 	}

@@ -169,14 +169,24 @@ class Cache_Base {
 	}
 
 	/**
+	 * Gets a key extension for "ahead generation" mode.
+	 * Used by AlwaysCached functionality to regenerate content
+	 *
+	 * @param string  $group Used to differentiate between groups of cache values
+	 */
+	public function get_ahead_generation_extension( $group ) {
+		return array();
+	}
+
+	/**
 	 * Flushes group with before condition
 	 *
 	 * @abstract
 	 * @param string  $group Used to differentiate between groups of cache values
-	 * @param array   $before Used to set a condition
+	 * @param array   $extension Used to set a condition what version to flush
 	 * @return boolean
 	 */
-	function flush_group_before( $group = '', $before = array() ) {
+	function flush_group_after_ahead_generation( $group, $extension ) {
 		return false;
 	}
 
