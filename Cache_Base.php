@@ -109,6 +109,18 @@ class Cache_Base {
 		return array( null, false );
 	}
 
+		/**
+	 * Checks if entry exists
+	 *
+	 * @param string  $key
+	 * @param string  $group Used to differentiate between groups of cache values
+	 * @return boolean true if exists, false otherwise
+	 */
+	function exists( $key, $group = '' ) {
+		list( $data, $has_old ) = $this->get_with_old( $key, $group );
+		return !empty( $data) && !$has_old;
+	}
+
 	/**
 	 * Alias for get for minify cache
 	 *

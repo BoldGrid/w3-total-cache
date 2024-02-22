@@ -105,18 +105,13 @@ class Extension_AlwaysCached_Plugin {
 			return;
 		}
 
-		error_log('handling');
-
 		$url =
 			( empty( $o['page_key_extension']['encryption'] ) ? 'http://' : 'https://' ) .
 			$o['request_url_fragments']['host'] .
 			$o['request_url_fragments']['path'] .
 			$o['request_url_fragments']['querystring'];
 
-		error_log($url);
-
 		$queue_item = Extension_AlwaysCached_Queue::get_by_url( $url );
-		error_log(json_encode($queue_item));
 		if ( !empty( $queue_item ) ) {
 			$this->request_queue_item_extension =
 				@unserialize( $queue_item['extension'] );
@@ -133,7 +128,6 @@ class Extension_AlwaysCached_Plugin {
 			foreach ( $keys_to_store as $k ) {
 				if ( isset( $this->request_queue_item_extension[$k] ) ) {
 					$data[$k] = $this->request_queue_item_extension[$k];
-					error_log("adding $k " . $this->request_queue_item_extension[$k]);
 				}
 			}
 		}

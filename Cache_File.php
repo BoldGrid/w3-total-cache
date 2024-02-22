@@ -282,6 +282,17 @@ class Cache_File extends Cache_Base {
 		return true;
 	}
 
+	public function get_ahead_generation_extension( $group ) {
+		return array(
+			'before_time' => time()
+		);
+	}
+
+	function flush_group_after_ahead_generation( $group, $extension ) {
+		$dir = $this->_flush_dir;
+		$extension['before_time']
+	}
+
 	/**
 	 * Returns modification time of cache file
 	 *

@@ -132,7 +132,9 @@ class Cache_Redis extends Cache_Base {
 	 * @return bool
 	 */
 	public function set( $key, $value, $expire = 0, $group = '' ) {
-		$value['key_version'] = $this->_get_key_version( $group );
+		if ( !isset( $var['key_version'] ) ) {
+			$value['key_version'] = $this->_get_key_version( $group );
+		}
 
 		$storage_key = $this->get_item_key( $key );
 		$accessor    = $this->_get_accessor( $storage_key );
@@ -279,6 +281,21 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		return true;
+	}
+
+	public function get_ahead_generation_extension( $group ) {
+		$v = $this->_get_key_version( $group );
+		return array(
+			'key_version' => $v + 1,
+			'key_version_at_creation' => $v
+		);
+	}
+
+	function flush_group_after_ahead_generation( $group, $extension ) {
+		$v = $this->_get_key_version( $group );
+		if ( $extension['key_version'] > $v ) {
+			$this->_set_key_version( $extension['key_version'], $group );
+		}
 	}
 
 	/**

@@ -40,7 +40,9 @@ class Cache_Xcache extends Cache_Base {
 	 * @return boolean
 	 */
 	function set( $key, $var, $expire = 0, $group = '' ) {
-		$var['key_version'] = $this->_get_key_version( $group );
+		if ( !isset( $var['key_version'] ) ) {
+			$var['key_version'] = $this->_get_key_version( $group );
+		}
 
 		$storage_key = $this->get_item_key( $key );
 		return xcache_set( $storage_key, serialize( $var ), $expire );
@@ -154,6 +156,21 @@ class Cache_Xcache extends Cache_Base {
 		$this->_key_version[$group]++;
 		$this->_set_key_version( $this->_key_version[$group], $group );
 		return true;
+	}
+
+	public function get_ahead_generation_extension( $group ) {
+		$v = $this->_get_key_version( $group );
+		return array(
+			'key_version' => $v + 1,
+			'key_version_at_creation' => $v
+		);
+	}
+
+	function flush_group_after_ahead_generation( $group, $extension ) {
+		$v = $this->_get_key_version( $group );
+		if ( $extension['key_version'] > $v ) {
+			$this->_set_key_version( $extension['key_version'], $group );
+		}
 	}
 
 	/**
