@@ -24,14 +24,14 @@ class Minify_Core {
 		}
 
 		$minify_filename = $key . '.' . $type;
-		$minify_filename = apply_filters(
-			'w3tc_minify_urls_for_minification_to_minify_filename',
-			$minify_filename,
-			$files,
-			$type
-		);
 
 		if ( has_filter( 'w3tc_minify_urls_for_minification_to_minify_filename' ) ) {
+			$minify_filename = apply_filters(
+				'w3tc_minify_urls_for_minification_to_minify_filename',
+				$minify_filename,
+				$files,
+				$type
+			);
 			update_option( 'w3tc_minify_filename_filtermap_' . $minify_filename, $key, false );
 		}
 
