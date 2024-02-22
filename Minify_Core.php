@@ -26,7 +26,14 @@ class Minify_Core {
 		$minify_filename = $key . '.' . $type;
 		$minify_filename = apply_filters(
 			'w3tc_minify_urls_for_minification_to_minify_filename',
-			$minify_filename, $files, $type );
+			$minify_filename,
+			$files,
+			$type
+		);
+
+		if ( has_filter( 'w3tc_minify_urls_for_minification_to_minify_filename' ) ) {
+			update_option( 'w3tc_minify_filename_filtermap_' . $minify_filename, $key, false );
+		}
 
 		return $minify_filename;
 	}
@@ -57,7 +64,9 @@ class Minify_Core {
 	 * @return array
 	 */
 	static public function minify_filename_to_urls_for_minification( $filename, $type ) {
-		$v = get_option( 'w3tc_minify_' . $filename );
+		$hash = has_filter( 'w3tc_minify_urls_for_minification_to_minify_filename' ) ? get_option( 'w3tc_minify_filename_filtermap_' . $filename . '.' . $type ) : $filename;
+		$v    = get_option( 'w3tc_minify_' . $hash );
+
 		$urls_unverified = @json_decode( $v, true );
 		if ( !is_array( $urls_unverified ) ) {
 			return array();
