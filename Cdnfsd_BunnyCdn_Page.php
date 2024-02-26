@@ -2,7 +2,7 @@
 /**
  * File: Cdnfsd_BunnyCdn_Page.php
  *
- * @since   X.X.X
+ * @since   2.6.0
  * @package W3TC
  */
 
@@ -11,13 +11,13 @@ namespace W3TC;
 /**
  * Class: Cdnfsd_BunnyCdn_Page
  *
- * @since X.X.X
+ * @since 2.6.0
  */
 class Cdnfsd_BunnyCdn_Page {
 	/**
 	 * Enqueue scripts.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 */
 	public static function admin_print_scripts_performance_page_w3tc_cdn() {
 		wp_enqueue_script(
@@ -31,7 +31,7 @@ class Cdnfsd_BunnyCdn_Page {
 	/**
 	 * Display settings page.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 */
 	public static function w3tc_settings_box_cdnfsd() {
 		$config = Dispatcher::config();

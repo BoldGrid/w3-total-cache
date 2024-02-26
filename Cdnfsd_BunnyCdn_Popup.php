@@ -2,7 +2,7 @@
 /**
  * File: Cdnfsd_BunnyCdn_Popup.php
  *
- * @since   X.X.X
+ * @since   2.6.0
  * @package W3TC
  */
 
@@ -11,13 +11,13 @@ namespace W3TC;
 /**
  * Class: Cdnfsd_BunnyCdn_Popup
  *
- * @since X.X.X
+ * @since 2.6.0
  */
 class Cdnfsd_BunnyCdn_Popup {
 	/**
 	 * W3TC AJAX: Popup.
 	 *
-	 * @since  X.X.X
+	 * @since  2.6.0
 	 * @static
 	 *
 	 * @return void
@@ -54,7 +54,7 @@ class Cdnfsd_BunnyCdn_Popup {
 	/**
 	 * W3TC AJAX: Intro -- authorization.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_fsd_intro() {
 		$config          = Dispatcher::config();
@@ -71,7 +71,7 @@ class Cdnfsd_BunnyCdn_Popup {
 	/**
 	 * W3TC AJAX: List pull zones.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_fsd_list_pull_zones() {
 		$account_api_key = Util_Request::get_string( 'account_api_key' );
@@ -119,7 +119,7 @@ class Cdnfsd_BunnyCdn_Popup {
 	/**
 	 * W3TC AJAX: Configure pull zone.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @see Cdn_BunnyCdn_Api::get_default_edge_rules()
 	 */
@@ -217,7 +217,7 @@ class Cdnfsd_BunnyCdn_Popup {
 	/**
 	 * W3TC AJAX: Deauthorization form.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_fsd_deauthorization() {
 		$config              = Dispatcher::config();
@@ -237,7 +237,7 @@ class Cdnfsd_BunnyCdn_Popup {
 	 *
 	 * Deauthorize and optionally delete the pull zone.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_fsd_deauthorize() {
 		$config              = Dispatcher::config();
@@ -280,7 +280,7 @@ class Cdnfsd_BunnyCdn_Popup {
 	/**
 	 * Render intro.
 	 *
-	 * @since  X.X.X
+	 * @since  2.6.0
 	 * @access private
 	 *
 	 * @param array $details {

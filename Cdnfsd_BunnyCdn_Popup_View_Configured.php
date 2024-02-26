@@ -2,7 +2,7 @@
 /**
  * File: Cdnfsd_BunnyCdn_Popup_View_Configured.php
  *
- * @since   X.X.X
+ * @since   2.6.0
  * @package W3TC
  */
 

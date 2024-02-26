@@ -4,7 +4,7 @@
  *
  * @package W3TC
  *
- * @since X.X.X
+ * @since 2.7.0
  */
 
 namespace W3TC;

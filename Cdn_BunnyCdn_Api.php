@@ -2,7 +2,7 @@
 /**
  * File: Cdn_BunnyCdn_Api.php
  *
- * @since   X.X.X
+ * @since   2.6.0
  * @package W3TC
  */
 
@@ -11,13 +11,13 @@ namespace W3TC;
 /**
  * Class: Cdn_BunnyCdn_Api
  *
- * @since X.X.X
+ * @since 2.6.0
  */
 class Cdn_BunnyCdn_Api {
 	/**
 	 * Account API Key.
 	 *
-	 * @since  X.X.X
+	 * @since  2.6.0
 	 * @access private
 	 *
 	 * @var string
@@ -27,7 +27,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Storage API Key.
 	 *
-	 * @since  X.X.X
+	 * @since  2.6.0
 	 * @access private
 	 *
 	 * @var string
@@ -37,7 +37,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Stream API Key.
 	 *
-	 * @since  X.X.X
+	 * @since  2.6.0
 	 * @access private
 	 *
 	 * @var string
@@ -49,7 +49,7 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * One of: "account", "storage", "stream".
 	 *
-	 * @since  X.X.X
+	 * @since  2.6.0
 	 * @access private
 	 *
 	 * @var string
@@ -59,7 +59,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Pull zone id.
 	 *
-	 * @since  X.X.X
+	 * @since  2.6.0
 	 * @access private
 	 *
 	 * @var int
@@ -69,7 +69,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Default Edge Rules.
 	 *
-	 * @since  X.X.X
+	 * @since  2.6.0
 	 * @access private
 	 * @static
 	 *
@@ -148,7 +148,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Constructor.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @param array $config Configuration.
 	 */
@@ -162,7 +162,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Increase http request timeout to 60 seconds.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @param int $time Timeout in seconds.
 	 */
@@ -173,7 +173,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Don't check certificate, some users have limited CA list
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @param bool $verify Always false.
 	 */
@@ -184,7 +184,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * List pull zones.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_index
 	 *
@@ -199,7 +199,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Get pull zone details by pull zone id.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_index2
 	 *
@@ -217,7 +217,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Add a pull zone.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_add
 	 *
@@ -253,7 +253,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Update a pull zone.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_updatepullzone
 	 *
@@ -279,7 +279,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Delete a pull zone.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_delete
 	 *
@@ -305,7 +305,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Add a custom hostname to a pull zone.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_addhostname
 	 *
@@ -335,7 +335,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Get the default edge rules.
 	 *
-	 * @since  X.X.X
+	 * @since  2.6.0
 	 * @static
 	 *
 	 * @return array
@@ -347,7 +347,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Add/Update Edge Rule.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @param  array $data Data.
 	 * @param  int   $pull_zone_id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
@@ -387,7 +387,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Purge.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @param  array $data Data for the POST request.
 	 * @return array
@@ -404,7 +404,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Purge an entire pull zone.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @param  int $pull_zone_id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
 	 * @return void
@@ -426,7 +426,7 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * API type can be passed or the class property will be used.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @param  string $type API type: One of "account", "storage", "stream" (optional).
 	 * @return string|null
@@ -451,7 +451,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Decode response from a wp_remote_* call.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @param  array|WP_Error $result Result.
 	 * @return array
@@ -479,7 +479,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Remote GET request.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/wp_remote_get/
 	 * @link https://developer.wordpress.org/reference/classes/wp_http/request/
@@ -513,7 +513,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Remote POST request.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/wp_remote_post/
 	 * @link https://developer.wordpress.org/reference/classes/wp_http/request/

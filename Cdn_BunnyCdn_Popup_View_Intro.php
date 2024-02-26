@@ -5,7 +5,7 @@
  * Assists with configuring Bunny CDN as an object storage CDN.
  * Asks to enter an account API key from the Bunny CDN main account.
  *
- * @since   X.X.X
+ * @since   2.6.0
  * @package W3TC
  *
  * @param array $details {
