@@ -1,7 +1,7 @@
 /**
  * File: Cdn_BunnyCdn_Page_View.js
  *
- * @since   X.X.X
+ * @since   2.6.0
  * @package W3TC
  *
  * @global W3TC_Bunnycdn Localization array for info and language.

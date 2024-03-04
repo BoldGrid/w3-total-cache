@@ -5,7 +5,7 @@
  * @package    W3TC
  * @subpackage W3TC/tests/admin
  * @author     BoldGrid <development@boldgrid.com>
- * @since      X.X.X
+ * @since      2.3.1
  * @link       https://www.boldgrid.com/w3-total-cache/
  */
 
@@ -14,13 +14,13 @@ declare( strict_types = 1 );
 /**
  * Class: W3tc_Admin_Util_File_Test
  *
- * @since X.X.X
+ * @since 2.3.1
  */
 class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test mkdir.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_mkdir() {
 		$test_dir = 'test-dir-' . gmdate( 'c' );
@@ -35,7 +35,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test mkdir_from.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_mkdir_from() {
 		$test_dir = W3TC_DIR . '/test-dir-' . gmdate( 'c' );
@@ -50,7 +50,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test mkdir_from_safe.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_mkdir_from_safe() {
 		$test_dir = W3TC_DIR . '/test-dir-' . gmdate( 'c' );
@@ -65,7 +65,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test rmdir.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_rmdir() {
 		$test_dir = 'test-dir-' . gmdate( 'c' );
@@ -79,7 +79,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test rmdir with contents.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_rmdir_with_contents() {
 		$test_dir1     = 'test-dir-' . gmdate( 'c' );
@@ -102,7 +102,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test emptydir.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_emptydir() {
 		$test_dir1     = 'test-dir-' . gmdate( 'c' );
@@ -127,7 +127,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test is_writable.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_is_writable() {
 		$test_dir1     = 'test-dir-' . gmdate( 'c' );
@@ -154,7 +154,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test is_writable_dir.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_is_writable_dir() {
 		$test_dir      = 'test-dir-' . gmdate( 'c' );
@@ -169,7 +169,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test dirname.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_dirname() {
 		$test_dir      = W3TC_DIR . '/test-dir-' . gmdate( 'c' );
@@ -185,7 +185,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test make_relative_path.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_make_relative_path() {
 		$test_dir      = 'test-dir-' . gmdate( 'c' );
@@ -197,7 +197,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test get_open_basedirs.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_get_open_basedirs() {
 		$this->assertIsArray( \W3TC\Util_File::get_open_basedirs() );
@@ -206,7 +206,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test check_open_basedir.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_check_open_basedir() {
 		$this->assertTrue( \W3TC\Util_File::check_open_basedir( W3TC_DIR ) );
@@ -215,7 +215,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test get_file_permissions.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_get_file_permissions() {
 		$fileperms = \W3TC\Util_File::get_file_permissions( WP_CONTENT_DIR );
@@ -227,7 +227,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test get_file_owner.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_get_file_owner() {
 		$current_user  = posix_getpwuid( posix_geteuid() )['name'];
@@ -243,7 +243,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	 *
 	 * Ensure W3TC_CACHE_TMP_DIR does not exists, create it, check return and if exists, cleanup/delete, and ensure it was deleted.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_create_tmp_dir() {
 		// Delete the temporary directory if needed.
@@ -267,7 +267,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	 *
 	 * Ensure W3TC_CACHE_TMP_DIR does not exists, create a file in it, check if the directory and file exists, cleanup/delete, and ensure it was deleted.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_file_put_contents_atomic() {
 		// Delete the temporary directory if needed.
@@ -298,7 +298,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test format_data_as_settings_file.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_format_data_as_settings_file() {
 		// Create a mock data array.
@@ -321,7 +321,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	/**
 	 * Test format_array_entry_as_settings_file_entry.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_format_array_entry_as_settings_file_entry() {
 		// One tab, string array keys.

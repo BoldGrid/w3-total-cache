@@ -2,7 +2,7 @@
 /**
  * File: Cdn_BunnyCdn_Widget.php
  *
- * @since   X.X.X
+ * @since   2.6.0
  * @package W3TC
  */
 
@@ -11,13 +11,13 @@ namespace W3TC;
 /**
  * Class: Cdn_BunnyCdn_Widget
  *
- * @since X.X.X
+ * @since 2.6.0
  */
 class Cdn_BunnyCdn_Widget {
 	/**
 	 * Initialize the WP Admin Dashboard.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @return void
 	 */
@@ -39,7 +39,7 @@ class Cdn_BunnyCdn_Widget {
 	/**
 	 * Print widget form.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * return void
 	 */
@@ -58,7 +58,7 @@ class Cdn_BunnyCdn_Widget {
 	/**
 	 * Enqueue styles.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @return void
 	 */

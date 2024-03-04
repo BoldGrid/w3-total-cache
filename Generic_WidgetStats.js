@@ -4,7 +4,8 @@
  * @file    Google Charts driver for W3TC dashboard stats widgets.
  * @author  W3TC.
  * @version 1.0
- * @since   X.X.X
+ * @since   2.7.0
+ * @package W3TC
  */
 
 jQuery(document).ready(function($) {

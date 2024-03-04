@@ -4,7 +4,7 @@
  * @link   https://www.gstatic.com/charts/loader.js
  * @file   Google Charts loader.
  * @author Google.
- * @since  X.X.X
+ * @since  2.7.0
  */
 
 (function(){/*

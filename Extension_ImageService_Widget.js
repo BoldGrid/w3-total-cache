@@ -4,7 +4,7 @@
  * @file    Google Charts driver for W3TC dashboard image service widget.
  * @author  W3TC.
  * @version 1.0
- * @since   X.X.X
+ * @since   2.7.0
  */
 
 jQuery( document ).ready(
@@ -140,7 +140,7 @@ jQuery( document ).ready(
 		function dateFormat( d ){
 			return ( "0" + d.getUTCHours() ).slice( -2 ) + ":" + ( "0" + d.getUTCMinutes() ).slice( -2 );
 		}
-	
+
 		// Formats bytes into a human readable string.
 		/**
 		 * @param {Number} x Bytes.

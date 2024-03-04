@@ -325,7 +325,7 @@ function w3tc_csp_reference() {
  *
  * Prevent enabling Bunny CDN ("bunnycdn" engine) for both CDN and CDNFSD.
  *
- * @since X.X.X
+ * @since 2.6.0
  *
  * @returns null
  */
