@@ -693,7 +693,8 @@ class PgCache_Environment {
 			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} br\n";
 			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_br]\n";
 			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
-		} else if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
+		}
+		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
 			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_gzip]\n";
 			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
