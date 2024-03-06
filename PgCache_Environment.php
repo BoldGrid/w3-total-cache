@@ -687,18 +687,23 @@ class PgCache_Environment {
 		$cache_path = str_replace( Util_Environment::document_root(), '', $cache_dir );
 
 		/**
-		 * Set Accept-Encoding
+		 * Set Accept-Encoding brotli
 		 */
 		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.brotli' ) ) {
 			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} br\n";
 			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_br]\n";
 			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
 		}
+
+		/**
+		 * Set Accept-Encoding gzip
+		 */
 		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
 			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_gzip]\n";
 			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
 		}
+
 		$rules .= "    RewriteCond %{HTTP_COOKIE} w3tc_preview [NC]\n";
 		$rules .= "    RewriteRule .* - [E=W3TC_PREVIEW:_preview]\n";
 		$env_W3TC_PREVIEW = '%{ENV:W3TC_PREVIEW}';
