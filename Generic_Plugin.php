@@ -551,7 +551,6 @@ class Generic_Plugin {
 					'newrelic',
 					'cdn',
 					'browsercache',
-					//'pagecache',
 				),
 				$buffer
 			);
