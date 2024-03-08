@@ -551,12 +551,17 @@ class Generic_Plugin {
 					'newrelic',
 					'cdn',
 					'browsercache',
-					'pagecache',
 				),
 				$buffer
 			);
 
 			$buffer = apply_filters( 'w3tc_processed_content', $buffer );
+
+			// Apply the w3tc_processed_content filter before pagecache callback.
+			$buffer = Util_Bus::do_ob_callbacks(
+				array( 'pagecache' ),
+				$buffer
+			);
 		}
 
 		return $buffer;
