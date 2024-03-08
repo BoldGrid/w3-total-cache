@@ -175,7 +175,7 @@ class PgCache_Plugin_Admin {
 		if ( !Util_Environment::is_url( $url ) )
 			$url = home_url( $url );
 
-		$urls = array();
+		$urls = array( $url );
 		$response = Util_Http::get( $url );
 
 		if ( !is_wp_error( $response ) && $response['response']['code'] == 200 ) {
