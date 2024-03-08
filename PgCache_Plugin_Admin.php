@@ -218,7 +218,7 @@ class PgCache_Plugin_Admin {
 
 				arsort( $locs );
 
-				$urls = array_keys( $locs );
+				$urls = array_merge( $urls, array_keys( $locs ) );
 			} elseif ( preg_match_all( '~<rss[^>]*>(.*?)</rss>~is', $response['body'], $sitemap_matches ) ) {
 
 				// rss feed format
