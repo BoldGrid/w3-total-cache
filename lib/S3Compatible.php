@@ -332,13 +332,16 @@ class S3Compatible
 
 	/**
 	* Free signing key from memory, MUST be called if you are using setSigningKey()
-	*
+	* Does nothing if PHP>8.0, as PHP automatically destroys the instance when out of scope.
 	* @return void
 	*/
-	public static function freeSigningKey()
-	{
-		if (self::$__signingKeyResource !== false)
-			openssl_free_key(self::$__signingKeyResource);
+	public static function freeSigningKey() {
+        if(PHP_MAJOR_VERSION < 8) {
+            if (self::$__signingKeyResource !== false) {
+                //phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.openssl_free_keyDeprecated
+                openssl_free_key(self::$__signingKeyResource);
+            }
+        }
 	}
 
 

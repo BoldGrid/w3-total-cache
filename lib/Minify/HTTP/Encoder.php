@@ -90,9 +90,15 @@ class HTTP_Encoder {
 	 */
 	public function __construct($spec)
 	{
-		$this->_useMbStrlen = (function_exists('mb_strlen')
-							   && (ini_get('mbstring.func_overload') !== '')
-							   && ((int)ini_get('mbstring.func_overload') & 2));
+        if(PHP_MAJOR_VERSION < 8) { 
+            //phpcs:disable PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecatedRemoved
+            $this->_useMbStrlen = (function_exists('mb_strlen')
+                && (ini_get('mbstring.func_overload') !== '')
+                && ((int)ini_get('mbstring.func_overload') & 2));
+            //phpcs:enable PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecatedRemoved
+        } else {
+            $this->_useMbStrlen = false;
+        }
 		$this->_content = $spec['content'];
 		$this->_headers['Content-Length'] = $this->_useMbStrlen
 			? (string)mb_strlen($this->_content, '8bit')

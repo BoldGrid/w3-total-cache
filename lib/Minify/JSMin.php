@@ -115,9 +115,12 @@ class JSMin {
 		}
 
 		$mbIntEnc = null;
-		if (function_exists('mb_strlen') && ((int)ini_get('mbstring.func_overload') & 2)) {
-			$mbIntEnc = mb_internal_encoding();
-			mb_internal_encoding('8bit');
+		if(PHP_MAJOR_VERSION < 8) {
+			//phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecatedRemoved
+			if (function_exists('mb_strlen') && ((int)ini_get('mbstring.func_overload') & 2)) {
+				$mbIntEnc = mb_internal_encoding();
+				mb_internal_encoding('8bit');
+			}
 		}
 		$this->input = str_replace("\r\n", "\n", $this->input);
 		$this->inputLength = strlen($this->input);

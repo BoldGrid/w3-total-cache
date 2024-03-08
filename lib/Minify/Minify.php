@@ -358,13 +358,20 @@ class Minify {
 		}
 
 		// add headers
-		if ( !defined( 'W3TC_MINIFY_CONTENT_LENGTH_OFF' ) ) {
-			$headers['Content-Length'] = $cacheIsReady
-				? $cacheContentLength
-				: ((function_exists('mb_strlen') && ((int)ini_get('mbstring.func_overload') & 2))
-					? mb_strlen($content['content'], '8bit')
-					: strlen($content['content'])
-				);
+		if ( !defined( 'W3TC_MINIFY_CONTENT_LENGTH_OFF' ) ) {			
+            if($cacheIsReady) {
+                $headers['Content-Length'] = $cacheContentLength;
+            } else {
+                if(PHP_MAJOR_VERSION < 8) {
+                    if((function_exists('mb_strlen') && ((int)ini_get('mbstring.func_overload') & 2)) {
+                        $headers['Content-Length'] = mb_strlen($content['content'], '8bit');
+                    } else {
+                        $headers['Content-Length'] = strlen($content['content']);
+                    }
+                } else {
+                    $headers['Content-Length'] = strlen($content['content']);
+                }
+            }
 		}
 
 		$headers['Content-Type'] = self::$_options['contentTypeCharset']

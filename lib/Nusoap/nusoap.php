@@ -860,7 +860,7 @@ class nusoap_base {
 			$sec = time();
 			$usec = 0;
 		}
-		return strftime('%Y-%m-%d %H:%M:%S', $sec) . '.' . sprintf('%06d', $usec);
+		return date("Y-m-d H:i:s",$sec) . '.' . sprintf('%06d', $usec);
 	}
 
 	/**
@@ -3666,6 +3666,7 @@ class nusoap_server extends nusoap_base {
 			$this->appendDebug($this->wsdl->getDebug());
 			$this->wsdl->clearDebug();
 			if($err = $this->wsdl->getError()){
+                //phpcs:ignore PHPCompatibility.FunctionDeclarations.RemovedCallingDestructAfterConstructorExit.NeedsInspection
 				die( 'WSDL ERROR: ' . esc_html( $err ) );
 			}
 		}
@@ -6902,7 +6903,12 @@ class nusoap_parser extends nusoap_base {
 			// raw UTF-8 that, e.g., might not map to iso-8859-1
 			// TODO: this can also be handled with xml_parser_set_option($this->parser, XML_OPTION_TARGET_ENCODING, "ISO-8859-1");
 			if($this->decode_utf8){
-				$data = utf8_decode($data);
+                if(PHP_MAJOR_VERSION < 8) {
+                    //phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.utf8_decodeDeprecated
+                    $data = utf8_decode($data);
+                } else {
+                    $data = mb_convert_encoding($data, 'ISO-8859-1', 'UTF-8');
+                }
 			}
 		}
         $this->message[$pos]['cdata'] .= $data;

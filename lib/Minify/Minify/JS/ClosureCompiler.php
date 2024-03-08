@@ -44,26 +44,30 @@ class Minify_JS_ClosureCompiler {
 			: array($this, '_fallback');
 	}
 
-	public function min($js)
-	{
-		if (trim($js) === '')
-			return $js;
-
-		$postBody = $this->_buildPostBody($js);
-		$bytes = (function_exists('mb_strlen') && ((int)ini_get('mbstring.func_overload') & 2))
-			? mb_strlen($postBody, '8bit')
-			: strlen($postBody);
-		if ($bytes > 200000)
-			return $this->fail($js,
-				'File size is larger than Closure Compiler API limit (200000 bytes)');
-
-		$response = $this->_getResponse($postBody);
-		if (preg_match('/^Error\(\d\d?\):/', $response))
-			return $this->fail($response,
-				"Received errors from Closure Compiler API:\n$response");
-
-		return $response;
-	}
+    public function min($js) {
+        if (trim($js) === '') {
+            return $js;
+        }
+        $postBody = $this->_buildPostBody($js);
+        if(PHP_MAJOR_VERSION < 8) {
+            //phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecatedRemoved
+            $bytes = (function_exists('mb_strlen') && ((int)ini_get('mbstring.func_overload') & 2))
+                ? mb_strlen($postBody, '8bit')
+                : strlen($postBody);
+        } else {
+            $bytes = strlen($postBody);
+        }
+        if ($bytes > 200000) {
+            return $this->fail($js,
+                'File size is larger than Closure Compiler API limit (200000 bytes)');
+        }
+        $response = $this->_getResponse($postBody);
+        if (preg_match('/^Error\(\d\d?\):/', $response)) {
+            return $this->fail($response,
+                "Received errors from Closure Compiler API:\n$response");
+        }
+        return $response;
+    }
 
 	private function fail($js, $errorMessage) {
 		Minify::$recoverableError = $errorMessage;

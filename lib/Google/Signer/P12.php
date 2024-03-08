@@ -67,7 +67,8 @@ class W3TCG_Google_Signer_P12 extends W3TCG_Google_Signer_Abstract
 
   public function __destruct()
   {
-    if ($this->privateKey) {
+    if ($this->privateKey && PHP_MAJOR_VERSION < 8) {
+      //phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.openssl_pkey_freeDeprecated
       openssl_pkey_free($this->privateKey);
     }
   }

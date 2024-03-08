@@ -43,6 +43,7 @@ function w3tc_example_class_autoload( $class ) {
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			if ( !file_exists( $filename ) ) {
+                //phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 				debug_print_backtrace();
 			}
 		}

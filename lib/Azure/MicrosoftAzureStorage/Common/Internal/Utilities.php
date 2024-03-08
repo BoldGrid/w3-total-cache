@@ -690,7 +690,7 @@ class Utilities
             (strlen($initializationVector) == 16), 
             sprintf(Resources::INVALID_STRING_LENGTH, 'initializationVector', '16')
         );
-        
+
         $blockCount = ceil(strlen($data) / 16);
     
         $ctrData = '';
@@ -706,7 +706,6 @@ class Utilities
                 $j--;
             } while (($digit == 0x100) && ($j >= 0));
         }
-    
         $encryptCtrData = mcrypt_encrypt(
             MCRYPT_RIJNDAEL_128, 
             $key, 

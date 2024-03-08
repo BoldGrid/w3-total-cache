@@ -1673,6 +1673,7 @@ class JSNode
 
 		if (($numargs = func_num_args()) > 2)
 		{
+			//phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 			$args = func_get_args();
 			for ($i = 2; $i < $numargs; $i++)
 				$this->addNode($args[$i]);

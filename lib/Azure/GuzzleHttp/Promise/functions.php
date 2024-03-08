@@ -219,6 +219,7 @@ function unwrap($promises)
 function all($promises)
 {
     $results = [];
+	//phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.eachDeprecatedRemoved
     return each(
         $promises,
         function ($value, $idx) use (&$results) {
@@ -253,7 +254,7 @@ function some($count, $promises)
 {
     $results = [];
     $rejections = [];
-
+	//phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.eachDeprecatedRemoved
     return each(
         $promises,
         function ($value, $idx, PromiseInterface $p) use (&$results, $count) {
@@ -309,7 +310,7 @@ function any($promises)
 function settle($promises)
 {
     $results = [];
-
+	//phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.eachDeprecatedRemoved
     return each(
         $promises,
         function ($value, $idx) use (&$results) {
