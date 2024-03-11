@@ -27,7 +27,7 @@ class PresignUrlMiddleware
 
     public function __construct(
         array $options,
-        callable $endpointProvider,
+        $endpointProvider,
         AwsClientInterface $client,
         callable $nextHandler
     ) {
@@ -47,7 +47,7 @@ class PresignUrlMiddleware
 
     public static function wrap(
         AwsClientInterface $client,
-        callable $endpointProvider,
+        $endpointProvider,
         array $options = []
     ) {
         return function (callable $handler) use ($endpointProvider, $client, $options) {
@@ -59,7 +59,7 @@ class PresignUrlMiddleware
     public function __invoke(CommandInterface $cmd, RequestInterface $request = null)
     {
         if (in_array($cmd->getName(), $this->commandPool)
-            && (!isset($cmd->{'__skip' . $cmd->getName()}))
+            && (!isset($cmd['__skip' . $cmd->getName()]))
         ) {
             $cmd['DestinationRegion'] = $this->client->getRegion();
             if (!empty($cmd['SourceRegion']) && !empty($cmd[$this->presignParam])) {
@@ -84,19 +84,28 @@ class PresignUrlMiddleware
         $cmdName = $cmd->getName();
         $newCmd = $client->getCommand($cmdName, $cmd->toArray());
         // Avoid infinite recursion by flagging the new command.
-        $newCmd->{'__skip' . $cmdName} = true;
+        $newCmd['__skip' . $cmdName] = true;
 
         // Serialize a request for the operation.
         $request = \Aws\serialize($newCmd);
         // Create the new endpoint for the target endpoint.
-        $endpoint = EndpointProvider::resolve($this->endpointProvider, [
-            'region'  => $cmd['SourceRegion'],
-            'service' => $this->serviceName,
-        ])['endpoint'];
+        if ($this->endpointProvider instanceof \Aws\EndpointV2\EndpointProviderV2) {
+            $providerArgs = array_merge(
+                $this->client->getEndpointProviderArgs(),
+                ['Region' => $cmd['SourceRegion']]
+            );
+            $endpoint = $this->endpointProvider->resolveEndpoint($providerArgs)->getUrl();
+        } else {
+            $endpoint = EndpointProvider::resolve($this->endpointProvider, [
+                'region'  => $cmd['SourceRegion'],
+                'service' => $this->serviceName,
+            ])['endpoint'];
+        }
 
         // Set the request to hit the target endpoint.
         $uri = $request->getUri()->withHost((new Uri($endpoint))->getHost());
         $request = $request->withUri($uri);
+
         // Create a presigned URL for our generated request.
         $signer = new SignatureV4($this->serviceName, $cmd['SourceRegion']);
 
