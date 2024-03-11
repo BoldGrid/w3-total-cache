@@ -36,11 +36,6 @@ class PgCache_Plugin_Admin {
 					$this, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
 		}
 
-		add_action( 'admin_print_scripts-performance_page_w3tc_pgcache', array(
-				'\W3TC\PgCache_Page',
-				'admin_print_scripts_w3tc_pgcache'
-			) );
-
 		// Cache groups.
 		add_action(
 			'w3tc_config_ui_save-w3tc_cachegroups',
@@ -286,8 +281,11 @@ class PgCache_Plugin_Admin {
 
 		if ( $c->get_string( 'pgcache.engine' ) == 'memcached' ) {
 			$memcached_servers = $c->get_array( 'pgcache.memcached.servers' );
+			$memcached_binary_protocol = $c->get_boolean( 'pgcache.memcached.binary_protocol' );
+			$memcached_username = $c->get_string( 'pgcache.memcached.username' );
+			$memcached_password = $c->get_string( 'pgcache.memcached.password' );
 
-			if ( !Util_Installed::is_memcache_available( $memcached_servers ) ) {
+			if ( !Util_Installed::is_memcache_available( $memcached_servers, $memcached_binary_protocol, $memcached_username, $memcached_password ) ) {
 				if ( !isset( $errors['memcache_not_responding.details'] ) )
 					$errors['memcache_not_responding.details'] = array();
 

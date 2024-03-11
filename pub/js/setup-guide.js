@@ -17,8 +17,14 @@ jQuery(function() {
 
 	// GA.
 	if ( w3tc_enable_ga ) {
-		w3tc_ga( 'create', W3TC_SetupGuide.ga_profile, 'auto' );
-		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', 'w3tc-wizard-step-welcome' );
+		w3tc_ga(
+			'event',
+			'button',
+			{
+				eventCategory: 'w3tc_setup_guide',
+				eventLabel: 'w3tc-wizard-step-welcome'
+			}
+		);
 	}
 
 	// Handle the terms of service notice.
@@ -54,28 +60,36 @@ jQuery(function() {
 			if ( 'accept' === choice ) {
 				W3TC_SetupGuide.tos_choice = choice;
 
-				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-					(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-					m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-					})(window,document,'script','https://api.w3-edge.com/v1/analytics','w3tc_ga');
+				var gaScript = document.createElement( 'script' );
+				gaScript.type = 'text/javascript';
+				gaScript.setAttribute( 'async', 'true' );
+				gaScript.setAttribute( 'src', 'https://www.googletagmanager.com/gtag/js?id=' + W3TC_SetupGuide.ga_profile );
+				document.documentElement.firstChild.appendChild( gaScript );
+
+				window.dataLayer = window.dataLayer || [];
+
+				const w3tc_ga = function() { dataLayer.push( arguments ); }
 
 				if (window.w3tc_ga) {
-					w3tc_ga( 'create', W3TC_SetupGuide.ga_profile, 'auto' );
-					w3tc_ga( 'set', {
-						'dimension1': 'w3-total-cache',
-						'dimension2': W3TC_SetupGuide.w3tc_version,
-						'dimension3': W3TC_SetupGuide.wp_version,
-						'dimension4': W3TC_SetupGuide.php_version,
-						'dimension5': W3TC_SetupGuide.server_software,
-						'dimension6': W3TC_SetupGuide.db_version,
-						'dimension7': W3TC_SetupGuide.home_url_host,
-						'dimension9': W3TC_SetupGuide.install_version,
-						'dimension10': W3TC_SetupGuide.w3tc_edition,
-						'dimension11': W3TC_SetupGuide.list_widgets,
-						'page': W3TC_SetupGuide.page
-					});
+					w3tc_enable_ga = true;
 
-					w3tc_ga( 'send', 'pageview' );
+					w3tc_ga( 'js', new Date() );
+
+					w3tc_ga( 'config', W3TC_SetupGuide.ga_profile, {
+						'user_properties': {
+							'plugin': 'w3-total-cache',
+							'w3tc_version': W3TC_SetupGuide.w3tc_version,
+							'wp_version': W3TC_SetupGuide.wp_version,
+							'php_version': W3TC_SetupGuide.php_version,
+							'server_software': W3TC_SetupGuide.server_software,
+							'wpdb_version': W3TC_SetupGuide.db_version,
+							'home_url': W3TC_SetupGuide.home_url_host,
+							'w3tc_install_version': W3TC_SetupGuide.install_version,
+							'w3tc_edition': W3TC_SetupGuide.w3tc_edition,
+							'w3tc_widgets': W3TC_SetupGuide.list_widgets,
+							'page': W3TC_SetupGuide.page
+						}
+					});
 				}
 			}
 		});
@@ -108,6 +122,9 @@ function w3tc_wizard_actions( $slide ) {
 			engine: null
 		},
 		browsercacheSettings = {
+			enabled: null
+		},
+		imageserviceSettings = {
 			enabled: null
 		},
 		lazyloadSettings = {
@@ -321,6 +338,52 @@ function w3tc_wizard_actions( $slide ) {
 	}
 
 	/**
+	 * Configure Image Service.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @param int enable Enable browser cache.
+	 * @return jqXHR
+	 */
+	function configImageservice( enable ) {
+		configSuccess = null;
+
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_config_imageservice',
+				enable: enable
+			}
+		})
+		.done(function( response ) {
+			configSuccess = response.data.success;
+		});
+	}
+
+	/**
+	 * Get Image Service settings.
+	 *
+	 * @since 2.3.4
+	 *
+	 * @return jqXHR
+	 */
+	function getImageserviceSettings() {
+		return jQuery.ajax({
+			method: 'POST',
+			url: ajaxurl,
+			data: {
+				_wpnonce: nonce,
+				action: 'w3tc_get_imageservice_settings'
+			}
+		})
+		.done(function( response ) {
+			imageserviceSettings = response.data;
+		});
+	}
+
+	/**
 	 * Configure Lazy Load.
 	 *
 	 * @since 2.0.0
@@ -400,7 +463,14 @@ function w3tc_wizard_actions( $slide ) {
 
 	// GA.
 	if ( w3tc_enable_ga ) {
-		w3tc_ga( 'send', 'event', 'button', 'w3tc_setup_guide', slideId );
+		w3tc_ga(
+			'event',
+			'button',
+			{
+				eventCategory: 'w3tc_setup_guide',
+				eventLabel: slideId
+			}
+		);
 	}
 
 	switch ( slideId ) {
@@ -833,7 +903,7 @@ function w3tc_wizard_actions( $slide ) {
 			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
 			$container.find( '#w3tc-wizard-step-objectcache' ).addClass( 'is-active' );
 
-			if ( ! $container.find( '#test-results' ).data( 'oc-none' ) ) {
+			if ( ! $container.find( '#test-results' ).data( 'oc-none' ) && ! W3TC_SetupGuide.objcache_disabled ) {
 				$nextButton.prop( 'disabled', 'disabled' );
 			}
 
@@ -1181,7 +1251,7 @@ function w3tc_wizard_actions( $slide ) {
 
 			break;
 
-		case 'w3tc-wizard-slide-ll1':
+		case 'w3tc-wizard-slide-io1':
 			// Save the browser cache setting from the previous slide.
 			var browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val();
 
@@ -1196,6 +1266,38 @@ function w3tc_wizard_actions( $slide ) {
 
 			if ( ! jQuery( '#w3tc-wizard-step-browsercache .dashicons-yes' ).length ) {
 				jQuery( '#w3tc-wizard-step-browsercache' ).append( '<span class="dashicons dashicons-yes"></span>' );
+			}
+
+			// Present the Image Service slide.
+			$container.find( '#w3tc-options-menu li' ).removeClass( 'is-active' );
+			$container.find( '#w3tc-wizard-step-imageservice' ).addClass( 'is-active' );
+			$dashboardButton.closest( 'span' ).hide();
+			$nextButton.closest( 'span' ).show();
+			$nextButton.prop( 'disabled', 'disabled' );
+
+			// Update the Image Service enable chackbox from saved config.
+			getImageserviceSettings()
+				.then( function() {
+					$container.find( 'input#imageservice-enable' ).prop( 'checked', imageserviceSettings.enabled );
+					$nextButton.prop( 'disabled', false );
+				}, configFailed );
+
+			break;
+
+		case 'w3tc-wizard-slide-ll1':
+			// Save the image service setting from the previous slide.
+			var imageserviceEnabled = $container.find( 'input:checked#imageservice-enable' ).val();
+			configImageservice( ( '1' === imageserviceEnabled ? 1 : 0 ) )
+				.fail( function() {
+					$slide.append(
+						'<div class="notice notice-error"><p><strong>' +
+						W3TC_SetupGuide.config_error_msg +
+						'</strong></p></div>'
+					);
+				});
+
+			if ( ! jQuery( '#w3tc-wizard-step-imageservice .dashicons-yes' ).length ) {
+				jQuery( '#w3tc-wizard-step-imageservice' ).append( '<span class="dashicons dashicons-yes"></span>' );
 			}
 
 			// Present the Lazy Load slide.
@@ -1228,9 +1330,10 @@ function w3tc_wizard_actions( $slide ) {
 				objcacheEngineLabel = $container.find( 'input:checked[name="objcache_engine"]' )
 					.closest('td').next('td').text(),
 				browsercacheEnabled = $container.find( 'input:checked[name="browsercache_enable"]' ).val(),
+				imageserviceEnabled = $container.find( 'input#imageservice-enable' ).val(),
 				lazyloadEnabled = $container.find( 'input:checked#lazyload-enable' ).val();
 
-			// Save the lazyload setting from the previous slide.
+			// Save the lazy load setting from the previous slide.
 			configLazyload( ( '1' === lazyloadEnabled ? 1 : 0 ) )
 			.fail( function() {
 				$slide.append(
@@ -1268,8 +1371,12 @@ function w3tc_wizard_actions( $slide ) {
 				browsercacheEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
 			);
 
+			$container.find( '#w3tc-imageservice-setting' ).html(
+				imageserviceEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.notEnabled
+			);
+
 			$container.find( '#w3tc-lazyload-setting' ).html(
-				lazyloadEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.none
+				lazyloadEnabled ? W3TC_SetupGuide.enabled : W3TC_SetupGuide.notEnabled
 			);
 
 			if ( ! jQuery( '#test-results' ).data( 'completed' ) ) {

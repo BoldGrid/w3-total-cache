@@ -115,6 +115,12 @@ class Root_AdminMenu {
 				'visible_always' => true,
 				'order'          => 1200,
 			),
+			'w3tc_pagespeed'          => array(
+				'page_title'     => __( 'Google PageSpeed', 'w3-total-cache' ),
+				'menu_text'      => __( 'Google PageSpeed', 'w3-total-cache' ),
+				'visible_always' => true,
+				'order'          => 1200,
+			),
 			'w3tc_install'          => array(
 				'page_title'     => __( 'Install', 'w3-total-cache' ),
 				'menu_text'      => __( 'Install', 'w3-total-cache' ),
@@ -206,6 +212,18 @@ class Root_AdminMenu {
 			$this->_page = 'w3tc_dashboard';
 		}
 
+<<<<<<< HEAD
+=======
+		/*
+		 * Hidden pages.
+		 */
+		if ( ! empty( Util_Request::get_string( 'w3tc_dbcluster_config' ) ) ) {
+			$options_dbcache = new DbCache_Page();
+			$options_dbcache->dbcluster_config();
+			return;
+		}
+
+>>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 		/**
 		 * Show tab.
 		 */
@@ -260,6 +278,11 @@ class Root_AdminMenu {
 				$options_support->options();
 				break;
 
+			case 'w3tc_pagespeed':
+				$options_pagespeed = new PageSpeed_Page();
+				$options_pagespeed->render();
+				break;
+
 			case 'w3tc_install':
 				$options_install = new Generic_Page_Install();
 				$options_install->options();
@@ -285,8 +308,6 @@ class Root_AdminMenu {
 				$view->options();
 
 				do_action( 'w3tc_settings_page-' . $this->_page ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-
-				$view->render_footer();
 
 				break;
 		}

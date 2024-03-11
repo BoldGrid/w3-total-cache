@@ -127,7 +127,6 @@ class LogFileIterator extends \IteratorIterator
      *
      * @return array|bool
      */
-    #[\ReturnTypeWillChange]
     public function current()
     {
         if ($object = parent::current()) {

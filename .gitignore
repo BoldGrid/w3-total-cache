@@ -1,6 +1,9 @@
 nbproject
 error_log
+.phpunit*
 .DS_Store
+.vscode/
+node_modules/
 /qa/env/000-environment
 /qa/env/200-ami-build
 /qa/env/amis/*

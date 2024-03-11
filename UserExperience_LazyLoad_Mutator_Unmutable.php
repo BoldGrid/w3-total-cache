@@ -3,12 +3,12 @@ namespace W3TC;
 
 class UserExperience_LazyLoad_Mutator_Unmutable {
 	private $placeholders = array();
-
+	private $placeholder_base = '';
 
 
 	public function __construct() {
 		$this->placeholder_base = 'w3tc_lazyload_' .
-			md5( $_SERVER['REQUEST_TIME'] ) . '_';
+			md5( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' ) . '_';
 	}
 
 

@@ -21,16 +21,9 @@ if ( ! defined( 'W3TC' ) ) {
 
 ?>
 <div class="wrap" id="w3tc">
-
-<?php
-// Upgrade banner.
-if ( ! Util_Environment::is_w3tc_pro( $c ) ) {
-	require W3TC_INC_DIR . '/options/parts/dashboard_banner.php';
-}
-?>
-
+<?php Util_Ui::print_breadcrumb(); ?>
 <p>
-	Total Cache Image Service is currently
+	Total Cache WebP Converter is currently
 <?php
 if ( $c->is_extension_active( 'imageservice' ) ) {
 	?>
@@ -46,9 +39,10 @@ if ( $c->is_extension_active( 'imageservice' ) ) {
 </p>
 
 <form id="w3tc-imageservice-settings" action="upload.php?page=w3tc_extension_page_imageservice" method="post">
+	<?php Util_UI::print_control_bar( 'extension_imageservice_form_control' ); ?>
 <div class="metabox-holder">
 
-	<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', '' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', 'configuration' ); ?>
 
 	<table class="form-table" id="w3tc-imageservice-config">
 <?php
@@ -65,6 +59,7 @@ Util_Ui::config_item(
 			'lossless' => 'Lossless',
 		),
 		'description'       => esc_html__( 'Image compression type.', 'w3-total-cache' ),
+		'disabled'          => false,
 	)
 );
 
@@ -81,6 +76,7 @@ Util_Ui::config_item(
 			'disabled' => 'Disabled',
 		),
 		'description'       => esc_html__( 'Auto-convert images on upload.', 'w3-total-cache' ),
+		'disabled'          => false,
 	)
 );
 
@@ -98,16 +94,16 @@ Util_Ui::config_item(
 			'always'    => array( 'label' => __( 'Always', 'w3-total-cache' ) ),
 		),
 		'description'      => esc_html__( 'Show converted image attachments in the Media Library.', 'w3-total-cache' ),
+		'disabled'         => false,
 	)
 );
 ?>
 	</table>
 
 <?php
-Util_Ui::button_config_save( 'extension_imageservice_configuration' );
 Util_Ui::postbox_footer();
 
-Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', '' );
+Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', 'tools' );
 ?>
 
 	<table class="form-table" id="w3tc-imageservice-tools">
@@ -143,7 +139,7 @@ Util_Ui::postbox_footer();
 Util_Ui::postbox_header(
 	esc_html__( 'Statistics', 'w3-total-cache' ),
 	'',
-	'w3tc-imageservice-statistics'
+	'statistics'
 );
 
 ?>
@@ -191,7 +187,7 @@ Util_Ui::postbox_header(
 			</td>
 		</tr>
 		<tr>
-			<th><?php esc_html_e( 'Image Service API usage:', 'w3-total-cache' ); ?></th>
+			<th><?php esc_html_e( 'WebP Converter API usage:', 'w3-total-cache' ); ?></th>
 			<td>
 				<table id="w3tc-imageservice-usage">
 					<tr>
@@ -223,5 +219,3 @@ Util_Ui::postbox_header(
 
 </div>
 </form>
-
-</div>

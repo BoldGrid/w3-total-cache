@@ -15,8 +15,6 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise createArchiveAsync(array $args = [])
  * @method \Aws\Result createConnection(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createConnectionAsync(array $args = [])
- * @method \Aws\Result createEndpoint(array $args = [])
- * @method \GuzzleHttp\Promise\Promise createEndpointAsync(array $args = [])
  * @method \Aws\Result createEventBus(array $args = [])
  * @method \GuzzleHttp\Promise\Promise createEventBusAsync(array $args = [])
  * @method \Aws\Result createPartnerEventSource(array $args = [])
@@ -31,8 +29,6 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise deleteArchiveAsync(array $args = [])
  * @method \Aws\Result deleteConnection(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteConnectionAsync(array $args = [])
- * @method \Aws\Result deleteEndpoint(array $args = [])
- * @method \GuzzleHttp\Promise\Promise deleteEndpointAsync(array $args = [])
  * @method \Aws\Result deleteEventBus(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteEventBusAsync(array $args = [])
  * @method \Aws\Result deletePartnerEventSource(array $args = [])
@@ -45,8 +41,6 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise describeArchiveAsync(array $args = [])
  * @method \Aws\Result describeConnection(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeConnectionAsync(array $args = [])
- * @method \Aws\Result describeEndpoint(array $args = [])
- * @method \GuzzleHttp\Promise\Promise describeEndpointAsync(array $args = [])
  * @method \Aws\Result describeEventBus(array $args = [])
  * @method \GuzzleHttp\Promise\Promise describeEventBusAsync(array $args = [])
  * @method \Aws\Result describeEventSource(array $args = [])
@@ -67,8 +61,6 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listArchivesAsync(array $args = [])
  * @method \Aws\Result listConnections(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listConnectionsAsync(array $args = [])
- * @method \Aws\Result listEndpoints(array $args = [])
- * @method \GuzzleHttp\Promise\Promise listEndpointsAsync(array $args = [])
  * @method \Aws\Result listEventBuses(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listEventBusesAsync(array $args = [])
  * @method \Aws\Result listEventSources(array $args = [])
@@ -115,31 +107,5 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise updateArchiveAsync(array $args = [])
  * @method \Aws\Result updateConnection(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateConnectionAsync(array $args = [])
- * @method \Aws\Result updateEndpoint(array $args = [])
- * @method \GuzzleHttp\Promise\Promise updateEndpointAsync(array $args = [])
  */
-class EventBridgeClient extends AwsClient {
-    public function __construct(array $args)
-    {
-        parent::__construct($args);
-
-        if ($this->isUseEndpointV2()) {
-            $stack = $this->getHandlerList();
-            $isCustomEndpoint = isset($args['endpoint']);
-            $stack->appendBuild(
-                EventBridgeEndpointMiddleware::wrap(
-                    $this->getRegion(),
-                    [
-                        'use_fips_endpoint' =>
-                            $this->getConfig('use_fips_endpoint')->isUseFipsEndpoint(),
-                        'dual_stack' =>
-                            $this->getConfig('use_dual_stack_endpoint')->isUseDualStackEndpoint(),
-                    ],
-                    $this->getConfig('endpoint_provider'),
-                    $isCustomEndpoint
-                ),
-                'eventbridge.endpoint_middleware'
-            );
-        }
-    }
-}
+class EventBridgeClient extends AwsClient {}

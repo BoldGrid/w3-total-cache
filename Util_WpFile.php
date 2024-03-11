@@ -283,10 +283,12 @@ class Util_WpFile {
 	 * If false WP_CONTENT_DIR is assumed
 	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
 	 */
-	static private function request_filesystem_credentials( $method = '', $url = '', $context = false ) {
-		if ( strlen( $url ) <= 0 )
-			$url = $_SERVER['REQUEST_URI'];
-		$url = preg_replace( "/&w3tc_note=([^&]+)/", '', $url );
+	private static function request_filesystem_credentials( $method = '', $url = '', $context = false ) {
+		if ( strlen( $url ) <= 0 ) {
+			$url = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		}
+
+		$url = preg_replace( '/&w3tc_note=([^&]+)/', '', $url );
 
 		// Ensure request_filesystem_credentials() is available.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -314,8 +316,6 @@ class Util_WpFile {
 			$error = $matches[2];
 			$form = str_replace( $matches[0], '', $form );
 		}
-
-		$form = str_replace( '<input ', '<input class="w3tc-ignore-change" ', $form );
 
 		if ( !$success ) {
 			throw new Util_WpFile_FilesystemOperationException( $error, $form );

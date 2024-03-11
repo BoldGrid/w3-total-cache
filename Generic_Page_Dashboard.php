@@ -42,7 +42,6 @@ class Generic_Page_Dashboard extends Base_Page_Settings {
 		$cdn_enabled = $module_status->is_enabled( 'cdn' );
 		$cdn_mirror_purge = Cdn_Util::can_purge_all( $module_status->get_module_engine( 'cdn' ) );
 
-
 		// Required for Update Media Query String button
 		$browsercache_update_media_qs = ( $this->_config->get_boolean( 'browsercache.cssjs.replace' ) || $this->_config->get_boolean( 'browsercache.other.replace' ) );
 

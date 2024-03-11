@@ -18,6 +18,7 @@ class TraceMiddleware
     private $prevOutput;
     private $prevInput;
     private $config;
+
     /** @var Service */
     private $service;
 
@@ -84,7 +85,7 @@ class TraceMiddleware
         return function (callable $next) use ($step, $name) {
             return function (
                 CommandInterface $command,
-                $request = null
+                RequestInterface $request = null
             ) use ($next, $step, $name) {
                 $this->createHttpDebug($command);
                 $start = microtime(true);
@@ -163,19 +164,17 @@ class TraceMiddleware
         ];
     }
 
-    private function requestArray($request = null)
+    private function requestArray(RequestInterface $request = null)
     {
-        return !$request instanceof RequestInterface
-            ? []
-            : array_filter([
-                'instance' => spl_object_hash($request),
-                'method'   => $request->getMethod(),
-                'headers'  => $this->redactHeaders($request->getHeaders()),
-                'body'     => $this->streamStr($request->getBody()),
-                'scheme'   => $request->getUri()->getScheme(),
-                'port'     => $request->getUri()->getPort(),
-                'path'     => $request->getUri()->getPath(),
-                'query'    => $request->getUri()->getQuery(),
+        return !$request ? [] : array_filter([
+            'instance' => spl_object_hash($request),
+            'method'   => $request->getMethod(),
+            'headers'  => $this->redactHeaders($request->getHeaders()),
+            'body'     => $this->streamStr($request->getBody()),
+            'scheme'   => $request->getUri()->getScheme(),
+            'port'     => $request->getUri()->getPort(),
+            'path'     => $request->getUri()->getPath(),
+            'query'    => $request->getUri()->getQuery(),
         ]);
     }
 
@@ -287,11 +286,9 @@ class TraceMiddleware
     private function flushHttpDebug(CommandInterface $command)
     {
         if ($res = $command['@http']['debug']) {
-            if (is_resource($res)) {
-                rewind($res);
-                $this->write(stream_get_contents($res));
-                fclose($res);
-            }
+            rewind($res);
+            $this->write(stream_get_contents($res));
+            fclose($res);
             $command['@http']['debug'] = null;
         }
     }

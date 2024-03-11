@@ -755,9 +755,9 @@ class wsdl extends nusoap_base {
     * @access private
     */
     function webDescription(){
-		if (isset($_SERVER)) {
-			$PHP_SELF = $_SERVER['PHP_SELF'];
-		} else {
+		$PHP_SELF = ! empty( $_SERVER['PHP_SELF'] ) ? sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) ) : '';
+		
+		if ( empty( $PHP_SELF ) ) {
 			$this->setError("_SERVER not available");
 		}
 
@@ -940,7 +940,7 @@ class wsdl extends nusoap_base {
 						        }
 						    }
 						    if (!isset($typePrefix)) {
-						        die("$partType has no namespace!");
+						        die( esc_html( $partType ) . 'has no namespace!' );
 						    }
 						}
 						$ns = $this->getNamespaceFromPrefix($typePrefix);

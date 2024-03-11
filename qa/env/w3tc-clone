@@ -1,25 +1,27 @@
 #!/bin/bash
 
+# Create the "working" directory if needed.
 if [ ! -e ./working ]; then
-	mkdir ./working
+    mkdir ./working
 fi
 
-# reports
+# Create the "working/reports" directory if needed.
 if [ ! -e ./working/reports ]; then
-	mkdir ./working/reports
+    mkdir ./working/reports
 fi
 
-chmod 777 ./working/reports
+# Change the mode of "working/reports" to 0777.
+chmod 0777 ./working/reports
 
-# code
+# Clone or pull in the plugin code.
 if [ ! -e ./working/w3tc ]; then
-	mkdir ./working/w3tc
-	git clone $W3TCQA_GIT_URL -b $W3TCQA_GIT_BRANCH ./working/w3tc
+    mkdir ./working/w3tc
+    git clone $W3TCQA_GIT_URL -b $W3TCQA_GIT_BRANCH ./working/w3tc
 else
-	# new git -C can do it, but not everyone has new version installed
-	cd ./working/w3tc
-	git pull
-	cd ../..
+    # New "git -C" can do it, but not everyone has the new version installed.
+    cd ./working/w3tc
+    git pull -X theirs
+    cd ../..
 fi
 
 if [ ! -z "$W3TCQA_PRO_GIT_URL" ]; then
@@ -35,3 +37,6 @@ if [ ! -z "$W3TCQA_PRO_GIT_URL" ]; then
 else
 	mkdir ./working/w3tc-pro
 fi
+
+# Install Composer dependencies.
+cd ./working/w3tc && composer remove -n --no-update --dev yoast/phpunit-polyfills phpunit/phpunit squizlabs/php_codesniffer wp-coding-standards/wpcs && composer update -o --no-dev -n

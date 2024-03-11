@@ -33,10 +33,8 @@ class JsonRpcErrorParser extends AbstractErrorParser
         }
 
         if (isset($data['parsed']['__type'])) {
-            if (!isset($data['code'])) {
-                $parts = explode('#', $data['parsed']['__type']);
-                $data['code'] = isset($parts[1]) ? $parts[1] : $parts[0];
-            }
+            $parts = explode('#', $data['parsed']['__type']);
+            $data['code'] = isset($parts[1]) ? $parts[1] : $parts[0];
             $data['message'] = isset($data['parsed']['message'])
                 ? $data['parsed']['message']
                 : null;

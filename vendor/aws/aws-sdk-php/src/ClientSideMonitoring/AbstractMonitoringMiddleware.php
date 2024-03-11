@@ -118,12 +118,12 @@ abstract class AbstractMonitoringMiddleware
                 }
             }
             if ($value instanceof \Exception || $value instanceof \Throwable) {
-                return Promise\Create::rejectionFor($value);
+                return Promise\rejection_for($value);
             }
             return $value;
         };
 
-        return Promise\Create::promiseFor($handler($cmd, $request))->then($g, $g);
+        return Promise\promise_for($handler($cmd, $request))->then($g, $g);
     }
 
     private function getClientId()
@@ -224,26 +224,6 @@ abstract class AbstractMonitoringMiddleware
         return $event;
     }
 
-
-    /**
-     * Checks if the socket is created. If PHP version is greater or equals to 8 then,
-     * it will check if the var is instance of \Socket otherwise it will check if is
-     * a resource.
-     *
-     * @return bool Returns true if the socket is created, false otherwise.
-     */
-    private function isSocketCreated(): bool
-    {
-        // Before version 8, sockets are resources
-        // After version 8, sockets are instances of Socket
-        if (PHP_MAJOR_VERSION >= 8) {
-            $socketClass = '\Socket';
-            return self::$socket instanceof $socketClass;
-        } else {
-            return is_resource(self::$socket);
-        }
-    }
-
     /**
      * Creates a UDP socket resource and stores it with the class, or retrieves
      * it if already instantiated and connected. Handles error-checking and
@@ -255,7 +235,7 @@ abstract class AbstractMonitoringMiddleware
      */
     private function prepareSocket($forceNewConnection = false)
     {
-        if (!$this->isSocketCreated()
+        if (!is_resource(self::$socket)
             || $forceNewConnection
             || socket_last_error(self::$socket)
         ) {

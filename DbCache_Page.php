@@ -22,4 +22,19 @@ class DbCache_Page extends Base_Page_Settings {
 
 		include W3TC_INC_DIR . '/options/dbcache.php';
 	}
+
+	/**
+	 * Database cluster config editor
+	 *
+	 * @return void
+	 */
+	function dbcluster_config() {
+		$this->_page = 'w3tc_dbcluster_config';
+		if ( Util_Environment::is_dbcluster( $this->_config ) )
+			$content = @file_get_contents( W3TC_FILE_DB_CLUSTER_CONFIG );
+		else
+			$content = @file_get_contents( W3TC_DIR . '/ini/dbcluster-config-sample.php' );
+
+		include W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster-config.php';
+	}
 }

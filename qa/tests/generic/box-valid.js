@@ -25,12 +25,13 @@ describe('Check if box is valid', function() {
 
 		expect(html).contains('Setup Guide');
 
+		let wizardSkip = '#w3tc-wizard-skip';
 		await Promise.all([
-			adminPage.click('#w3tc-wizard-skip'),
+			adminPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
 			adminPage.waitForNavigation()
 		]);
 
-		expect(await adminPage.content()).contains('Thanks for choosing W3TC');
+		expect(await adminPage.content()).contains('Setup Guides from Partner Hosts');
 	})
 
 

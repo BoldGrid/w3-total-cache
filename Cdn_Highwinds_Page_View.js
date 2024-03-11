@@ -1,6 +1,5 @@
 jQuery(function($) {
 	function w3tchw_resize(o) {
-		o.options.height = jQuery('.w3tc_cdn_highwinds_form').height() + 30;
 		o.resize();
 	}
 

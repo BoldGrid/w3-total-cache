@@ -2598,12 +2598,12 @@ class soap_transport_http extends nusoap_base {
 	* @param    string $data message data
 	* @param    integer $timeout set connection timeout in seconds
 	* @param	integer $response_timeout set response timeout in seconds
-	* @param	array $cookies cookies to send
+	* @param	array $cookies cookies to send (6/12/2023 Made not required to prevent PHP error/warning for required following optional)
 	* @return	string data
 	* @access   public
 	* @deprecated
 	*/
-	function sendHTTPS($data, $timeout=0, $response_timeout=30, $cookies) {
+	function sendHTTPS($data, $timeout=0, $response_timeout=30, $cookies=array()) {
 		return $this->send($data, $timeout, $response_timeout, $cookies);
 	}
 	
@@ -3642,7 +3642,7 @@ class nusoap_server extends nusoap_base {
 			$this->debug("In nusoap_server, set debug_flag=$debug based on global flag");
 			$this->debug_flag = $debug;
 		} elseif (isset($_SERVER['QUERY_STRING'])) {
-			$qs = explode('&', $_SERVER['QUERY_STRING']);
+			$qs = explode( '&', sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) );
 			foreach ($qs as $v) {
 				if (substr($v, 0, 6) == 'debug=') {
 					$this->debug("In nusoap_server, set debug_flag=" . substr($v, 6) . " based on query string #1");
@@ -3666,7 +3666,7 @@ class nusoap_server extends nusoap_base {
 			$this->appendDebug($this->wsdl->getDebug());
 			$this->wsdl->clearDebug();
 			if($err = $this->wsdl->getError()){
-				die('WSDL ERROR: '.$err);
+				die( 'WSDL ERROR: ' . esc_html( $err ) );
 			}
 		}
 	}
@@ -3680,13 +3680,13 @@ class nusoap_server extends nusoap_base {
 	function service($data){
 
 		if (isset($_SERVER['REQUEST_METHOD'])) {
-			$rm = $_SERVER['REQUEST_METHOD'];
+			$rm = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) );
 		} else {
 			$rm = '';
 		}
 
 		if (isset($_SERVER['QUERY_STRING'])) {
-			$qs = $_SERVER['QUERY_STRING'];
+			$qs = sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
 		} else {
 			$qs = '';
 		}
@@ -3723,11 +3723,11 @@ class nusoap_server extends nusoap_base {
 			} elseif ($this->wsdl) {
 				$this->debug("In service, serialize WSDL");
 				header("Content-Type: text/xml; charset=ISO-8859-1\r\n");
-				print $this->wsdl->serialize($this->debug_flag);
+				print esc_html( $this->wsdl->serialize( $this->debug_flag ) );
 				if ($this->debug_flag) {
 					$this->debug('wsdl:');
 					$this->appendDebug($this->varDump($this->wsdl));
-					print $this->getDebugAsXMLComment();
+					print esc_html( $this->getDebugAsXMLComment() );
 				}
 			} else {
 				$this->debug("In service, there is no WSDL");
@@ -3736,7 +3736,7 @@ class nusoap_server extends nusoap_base {
 			}
 		} elseif ($this->wsdl) {
 			$this->debug("In service, return Web description");
-			print $this->wsdl->webDescription();
+			print esc_html( $this->wsdl->webDescription() );
 		} else {
 			$this->debug("In service, no Web description");
 			header("Content-Type: text/html; charset=ISO-8859-1\r\n");
@@ -4242,7 +4242,7 @@ class nusoap_server extends nusoap_base {
 		foreach($this->outgoing_headers as $hdr){
 			header($hdr, false);
 		}
-		print $payload;
+		print wp_kses( $payload, Util_Ui::get_allowed_html_for_wp_kses_from_content( $payload ) );
 		$this->response = join("\r\n",$this->outgoing_headers)."\r\n\r\n".$payload;
 	}
 
@@ -4404,9 +4404,14 @@ class nusoap_server extends nusoap_base {
 		}
 		if(false == $soapaction) {
 			if (isset($_SERVER)) {
-				$SERVER_NAME = $_SERVER['SERVER_NAME'];
-				$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
-				$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off';
+				$SERVER_NAME = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
+				$SCRIPT_NAME = '';
+				if ( isset( $_SERVER['PHP_SELF'] ) ) {
+					$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) );
+				} elseif ( isset( $_SERVER['SCRIPT_NAME'] ) ) {
+					$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
+				}				
+				$HTTPS = isset($_SERVER['HTTPS']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) : 'off';
 			} else {
 				$this->setError("_SERVER not available");
 			}
@@ -4472,10 +4477,15 @@ class nusoap_server extends nusoap_base {
     function configureWSDL($serviceName,$namespace = false,$endpoint = false,$style='rpc', $transport = 'http://schemas.xmlsoap.org/soap/http', $schemaTargetNamespace = false)
     {
 		if (isset($_SERVER)) {
-			$SERVER_NAME = $_SERVER['SERVER_NAME'];
-			$SERVER_PORT = $_SERVER['SERVER_PORT'];
-			$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
-			$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : 'off';
+			$SERVER_NAME = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
+			$SERVER_PORT = isset( $_SERVER['SERVER_PORT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_PORT'] ) ) : '';
+			$SCRIPT_NAME = '';
+			if ( isset( $_SERVER['PHP_SELF'] ) ) {
+				$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) );
+			} elseif ( isset( $_SERVER['SCRIPT_NAME'] ) ) {
+				$SCRIPT_NAME = sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) );
+			}
+			$HTTPS = isset( $_SERVER['HTTPS'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTPS'] ) ) : 'off';
 		} else {
 			$this->setError("_SERVER not available");
 		}
@@ -5296,8 +5306,8 @@ class wsdl extends nusoap_base {
     */
     function webDescription(){
 
-		if (isset($_SERVER)) {
-			$PHP_SELF = $_SERVER['PHP_SELF'];
+		if ( isset($_SERVER['PHP_SELF'] ) ) {
+			$PHP_SELF = sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) );
 		} else {
 			$this->setError("_SERVER not available");
 		}
@@ -5481,7 +5491,7 @@ class wsdl extends nusoap_base {
 						        } 
 						    } 
 						    if (!isset($typePrefix)) {
-						        die("$partType has no namespace!");
+						        die( esc_html( $partType ) . 'has no namespace!' );
 						    } 
 						}
 						$ns = $this->getNamespaceFromPrefix($typePrefix);

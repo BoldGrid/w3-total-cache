@@ -25,8 +25,10 @@ describe('', function() {
 
 	it('copy theme files', async() => {
 		theme = await wp.getCurrentTheme(adminPage);
-		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
-		await sys.copyPhpToPath('../../plugins/minify-manual-theme/*', targetPath);
+		let themePath = env.wpContentPath + 'themes/' + theme;
+		await sys.copyPhpToPath('../../plugins/minify-manual-theme/*', `${themePath}/qa`);
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`,
+			'/qa/minify-placement-sc.php');
 	});
 
 
@@ -74,8 +76,9 @@ describe('', function() {
 		await adminPage.select('#js_use_type_footer', 'blocking');
 
 		log.log('click save');
+		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
-			adminPage.click('#w3tc_save_options_minify_css'),
+			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
 			adminPage.waitForNavigation({timeout: 0})
 		]);
 
@@ -88,8 +91,7 @@ describe('', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'page content',
-			template: 'qa/minify-placement.php'
+			content: 'page content [w3tcqa]'
 		});
 		testPageUrl = testPage.url;
 	});
@@ -97,6 +99,7 @@ describe('', function() {
 
 
 	it('placement', async() => {
+		log.log(testPageUrl);
 		await page.goto(testPageUrl);
 		// checking if <\!-- W3TC-include-css --> was replaced
 		await checkPlacement('W3TC-include-css', 'test css placement', 'css');
@@ -121,7 +124,7 @@ describe('', function() {
 
 
 async function checkPlacement(comments, helperComments, cssOrJs) {
-	log.log('checking placement of ' + cssOrJs);
+	log.log(`checking placement of ${cssOrJs} ${comments}`);
 	let html = await page.content();
 	expect(html).not.contains('<!-- ' + comments + ' -->');
 	let reg;

@@ -65,7 +65,7 @@ class AesDecryptingStream implements AesStreamInterface
         return $this->cipherMethod->getCurrentIv();
     }
 
-    public function getSize(): ?int
+    public function getSize()
     {
         $plainTextSize = $this->stream->getSize();
 
@@ -80,18 +80,16 @@ class AesDecryptingStream implements AesStreamInterface
         return $plainTextSize;
     }
 
-    public function isWritable(): bool
+    public function isWritable()
     {
         return false;
     }
 
-    public function read($length): string
+    public function read($length)
     {
         if ($length > strlen($this->buffer)) {
             $this->buffer .= $this->decryptBlock(
-                (int) (
-                        self::BLOCK_SIZE * ceil(($length - strlen($this->buffer)) / self::BLOCK_SIZE)
-                )
+                self::BLOCK_SIZE * ceil(($length - strlen($this->buffer)) / self::BLOCK_SIZE)
             );
         }
 
@@ -101,7 +99,7 @@ class AesDecryptingStream implements AesStreamInterface
         return $data ? $data : '';
     }
 
-    public function seek($offset, $whence = SEEK_SET): void
+    public function seek($offset, $whence = SEEK_SET)
     {
         if ($offset === 0 && $whence === SEEK_SET) {
             $this->buffer = '';
@@ -121,7 +119,7 @@ class AesDecryptingStream implements AesStreamInterface
 
         $cipherText = '';
         do {
-            $cipherText .= $this->stream->read((int) ($length - strlen($cipherText)));
+            $cipherText .= $this->stream->read($length - strlen($cipherText));
         } while (strlen($cipherText) < $length && !$this->stream->eof());
 
         $options = OPENSSL_RAW_DATA;

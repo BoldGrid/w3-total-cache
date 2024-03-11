@@ -160,7 +160,7 @@ abstract class AbstractRestParser extends AbstractParser
         // Check if the headers are prefixed by a location name
         $result[$name] = [];
         $prefix = $shape['locationName'];
-        $prefixLen = $prefix !== null ? strlen($prefix) : 0;
+        $prefixLen = strlen($prefix);
 
         foreach ($response->getHeaders() as $k => $values) {
             if (!$prefixLen) {

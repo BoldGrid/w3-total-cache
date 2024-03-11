@@ -9,8 +9,6 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise createSuiteDefinitionAsync(array $args = [])
  * @method \Aws\Result deleteSuiteDefinition(array $args = [])
  * @method \GuzzleHttp\Promise\Promise deleteSuiteDefinitionAsync(array $args = [])
- * @method \Aws\Result getEndpoint(array $args = [])
- * @method \GuzzleHttp\Promise\Promise getEndpointAsync(array $args = [])
  * @method \Aws\Result getSuiteDefinition(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getSuiteDefinitionAsync(array $args = [])
  * @method \Aws\Result getSuiteRun(array $args = [])

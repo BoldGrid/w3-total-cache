@@ -30,39 +30,55 @@ class Extensions_Page extends Base_Page_Settings {
 	 * @return void
 	 */
 	function render_content() {
-		$extension = '';
-		$extension_status = 'all';
-
-		if ( isset( $_GET['extension_status'] ) ) {
-			if ( in_array( $_GET['extension_status'], array( 'all', 'active', 'inactive', 'core' ) ) )
-				$extension_status = $_GET['extension_status'];
+		$extension_status     = 'all';
+		$extension_status_val = Util_Request::get_string( 'extension_status' );
+		if ( ! empty( $extension_status_val ) ) {
+			if ( in_array( $extension_status_val, array( 'all', 'active', 'inactive', 'core' ), true ) ) {
+				$extension_status = $extension_status_val;
+			}
 		}
 
-		if ( isset( $_GET['extension'] ) ) {
-			$extension = esc_attr( $_GET['extension'] );
-		}
+		$extension_val = Util_Request::get_string( 'extension' );
+		$extension     = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
 
-		$view = ( isset( $_GET['action'] ) && $_GET['action'] == 'view' );
+		$action_val = Util_Request::get_string( 'action' );
+		$view       = ( ! empty( $action_val ) && 'view' === $action_val );
 
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
+		foreach ( $extensions_active as $key => $ext ) {
+			if ( isset( $ext['public'] ) && false === $ext['public'] ) {
+				unset( $extensions_active[ $key ] );
+			}
+		}
 
 		if ( $extension && $view ) {
 			$all_settings = $this->_config->get_array( 'extensions.settings' );
-			$meta = $extensions_active[$extension];
-			$sub_view = 'settings';
+			$meta         = $extensions_active[ $extension ];
+			$sub_view     = 'settings';
 		} else {
 			$extensions_all = Extensions_Util::get_extensions( $this->_config );
+			foreach ( $extensions_all as $key => $ext ) {
+				if ( isset( $ext['public'] ) && false === $ext['public'] ) {
+					unset( $extensions_all[ $key ] );
+				}
+			}
+
 			$extensions_inactive = Extensions_Util::get_inactive_extensions( $this->_config );
-			$var = "extensions_{$extension_status}";
-			$extensions = $$var;
-			$extension_keys = array_keys($extensions);
-			sort($extension_keys);
+			foreach ( $extensions_inactive as $key => $ext ) {
+				if ( isset( $ext['public'] ) && false === $ext['public'] ) {
+					unset( $extensions_inactive[ $key ] );
+				}
+			}
+
+			$var            = "extensions_{$extension_status}";
+			$extensions     = $$var;
+			$extension_keys = array_keys( $extensions );
+			sort( $extension_keys );
 
 			$sub_view = 'list';
-			$page = 1;
+			$page     = 1;
 		}
 
-		$config = Dispatcher::config();
 		include W3TC_INC_OPTIONS_DIR . '/extensions.php';
 	}
 

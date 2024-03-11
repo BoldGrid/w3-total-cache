@@ -17,8 +17,14 @@ case "${W3D_PHP_VERSION}" in
 	"7.3")
         apt-get install -y apache2 libapache2-mod-php7.3
         ;;
+	"7.4")
+        apt-get install -y apache2 libapache2-mod-php7.4
+        ;;
 	"8.0")
         apt-get install -y apache2 libapache2-mod-php8.0
+        ;;
+	"8.1")
+        apt-get install -y apache2 libapache2-mod-php8.1
         ;;
     *)
         echo "W3D_PHP_VERSION not met conditions, do nothing....."

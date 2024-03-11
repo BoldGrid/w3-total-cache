@@ -241,10 +241,12 @@ class Varnish_Flush {
 	/**
 	 * Flushes varnish post cache
 	 *
-	 * @param integer $post_id
+	 * @param integer $post_id Post ID.
+	 * @param boolean $force   Force flag (optional).
+	 *
 	 * @return boolean
 	 */
-	function flush_post( $post_id ) {
+	function flush_post( $post_id, $force ) {
 		if ( !$post_id ) {
 			$post_id = Util_Environment::detect_post_id();
 		}
@@ -294,7 +296,7 @@ class Varnish_Flush {
 			/**
 			 * Post URL
 			 */
-			if ( $this->_config->get_boolean( 'pgcache.purge.post' ) ) {
+			if ( $this->_config->get_boolean( 'pgcache.purge.post' ) || $force ) {
 				$full_urls = array_merge( $full_urls, Util_PageUrls::get_post_urls( $post_id ) );
 			}
 

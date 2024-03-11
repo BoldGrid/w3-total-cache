@@ -34,15 +34,11 @@ class Signer
         if (!$this->pkHandle = openssl_pkey_get_private($privateKey, $passphrase)) {
             if (!file_exists($privateKey)) {
                 throw new \InvalidArgumentException("PK file not found: $privateKey");
-            }
-
-            $this->pkHandle = openssl_pkey_get_private("file://$privateKey", $passphrase);
-            if (!$this->pkHandle) {
-                $errorMessages = [];
-                while(($newMessage = openssl_error_string()) !== false){
-                    $errorMessages[] = $newMessage;
+            } else {
+                $this->pkHandle = openssl_pkey_get_private("file://$privateKey", $passphrase);
+                if (!$this->pkHandle) {
+                    throw new \InvalidArgumentException(openssl_error_string());
                 }
-                throw new \InvalidArgumentException(implode("\n",$errorMessages));
             }
         }
     }
@@ -51,6 +47,8 @@ class Signer
     {
         if (PHP_MAJOR_VERSION < 8) {
             $this->pkHandle && openssl_pkey_free($this->pkHandle);
+        } else {
+            $this->pkHandle;
         }
     }
 
@@ -72,7 +70,6 @@ class Signer
      * @return array The values needed to construct a signed URL or cookie
      * @throws \InvalidArgumentException  when not provided either a policy or a
      *                                    resource and a expires
-     * @throws \RuntimeException when generated signature is empty
      *
      * @link http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-signed-cookies.html
      */
@@ -114,20 +111,7 @@ class Signer
     private function sign($policy)
     {
         $signature = '';
-        
-        if(!openssl_sign($policy, $signature, $this->pkHandle)) {
-            $errorMessages = [];
-            while(($newMessage = openssl_error_string()) !== false) {
-                $errorMessages[] = $newMessage;
-            }
-            
-            $exceptionMessage = "An error has occurred when signing the policy";
-            if (count($errorMessages) > 0) {
-                $exceptionMessage = implode("\n", $errorMessages);
-            }
-
-            throw new \RuntimeException($exceptionMessage);
-        }
+        openssl_sign($policy, $signature, $this->pkHandle);
 
         return $signature;
     }

@@ -123,28 +123,41 @@ class Util_Installed {
 	 * Check if memcache is available
 	 *
 	 * @param array   $servers
+	 * @param boolean $binary_protocol
+	 * @param string  $username
+	 * @param string  $password
 	 * @return boolean
 	 */
-	static public function is_memcache_available( $servers ) {
+	static public function is_memcache_available( $servers, $binary_protocol, $username, $password ) {
 		static $results = array();
 
 		$key = md5( implode( '', $servers ) );
 
 		if ( !isset( $results[$key] ) ) {
-			$memcached = Cache::instance( 'memcached', array(
-					'servers' => $servers,
-					'persistent' => false
-				) );
-			if ( is_null( $memcached ) )
+			$memcached = Cache::instance(
+				'memcached',
+				array(
+					'servers'         => $servers,
+					'persistent'      => false,
+					'binary_protocol' => $binary_protocol,
+					'username'        => $username,
+					'password'        => $password
+				)
+			);
+
+			if ( is_null( $memcached ) ) {
 				return false;
+			}
 
 			$test_string = sprintf( 'test_' . md5( time() ) );
-			$test_value = array( 'content' => $test_string );
+			$test_value  = array( 'content' => $test_string );
+
 			$memcached->set( $test_string, $test_value, 60 );
-			$test_value = $memcached->get( $test_string );
-			$results[$key] = ( $test_value['content'] == $test_string );
+
+			$test_value      = $memcached->get( $test_string );
+			$results[ $key ] = ( ! empty( $test_value['content'] ) && $test_value['content'] === $test_string );
 		}
 
-		return $results[$key];
+		return $results[ $key ];
 	}
 }

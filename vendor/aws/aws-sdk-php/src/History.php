@@ -21,16 +21,11 @@ class History implements \Countable, \IteratorAggregate
         $this->maxEntries = $maxEntries;
     }
 
-    /**
-     * @return int
-     */
-    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->entries);
     }
 
-    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new \ArrayIterator(array_values($this->entries));

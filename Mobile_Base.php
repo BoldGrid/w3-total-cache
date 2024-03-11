@@ -10,7 +10,7 @@ abstract class Mobile_Base {
 	private $_groups = array();
 	private $_compare_key = '';
 	private $_config_key = '';
-	private $_cacheclass = '';
+	private $_cachecase = '';
 
 	/**
 	 * PHP5-style constructor

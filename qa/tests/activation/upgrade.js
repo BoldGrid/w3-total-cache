@@ -63,9 +63,9 @@ describe('', function() {
 
 		if (env.phpVersion >= 8 || parseFloat(env.wpVersion) >= 5.7) {
 			old = {
-				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.0.1.zip',
-			 	output: '/share/w3tc-2-0-1.zip',
-				content: "'2.0.1'"
+				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.1.0.zip',
+			 	output: '/share/w3tc-2-1-0.zip',
+				content: "'2.1.0'"
 			};
 		}
 
@@ -75,6 +75,15 @@ describe('', function() {
 		console.log(r3);
 		let content = await fs.readFileAsync(env.wpPluginsPath + 'w3-total-cache/w3-total-cache-api.php' );
 		expect(content.indexOf(old.content) > 0).true;
+	});
+
+
+	it('Fix DbCache_WpdbBase.php for WP >= 6.1', async() => {
+		// Prevent deprecated error on older version of W3TC in WP >= 6.1.
+		if (parseFloat(env.wpVersion) >= 6.1) {
+			log.log('Fixing DbCache_WpdbBase.php for WP >= 6.1 (' + env.wpVersion + ')...');
+			await exec('cp -pf /share/w3tc/DbCache_WpdbBase.php ' + env.wpPluginsPath + 'w3-total-cache/');
+		}
 	});
 
 
@@ -127,11 +136,8 @@ describe('', function() {
 		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
 		let content = await page.content();
 
-		expect(content).matches(new RegExp('Object Caching \\d+\\/\\d+ objects using '
-			+ 'disk'), 'Object cache is enabled');
-		expect(content).matches(new RegExp('Page Caching using disk'),
-			'Page caching is enabled');
-		expect(content).matches(new RegExp('Database Caching.+?using disk'),
-			'Database Caching is enabled');
+		expect(content).matches(new RegExp('Object Caching \\d+\\/\\d+ objects using Disk'), 'Object cache is enabled');
+		expect(content).matches(new RegExp('Page Caching using Disk'), 'Page caching is enabled');
+		expect(content).matches(new RegExp('Database Caching.+?using Disk'), 'Database Caching is enabled');
 	});
 });

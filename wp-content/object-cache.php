@@ -53,6 +53,25 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	}
 
 	/**
+	 * Retrieves multiple values from the cache in one call.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $ids  Array of keys under which the cache contents are stored.
+	 * @param string $group Optional. Where the cache contents are grouped. Default 'default'.
+	 * @param bool   $force Optional. Whether to force an update of the local cache
+	 *                      from the persistent cache. Default false.
+	 *
+	 * @return array Array of return values, grouped by key. Each value is either
+	 *               the cache contents on success, or false on failure.
+	 */
+	function wp_cache_get_multiple( $ids, $group = 'default', $force = false ) {
+		global $wp_object_cache;
+
+		return $wp_object_cache->get_multiple( $ids, $group, $force );
+	}
+
+	/**
 	 * Set cache
 	 *
 	 * @param string  $id
@@ -65,6 +84,24 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 		global $wp_object_cache;
 
 		return $wp_object_cache->set( $id, $data, $group, (int)$expire );
+	}
+
+	/**
+	 * Sets multiple values to the cache in one call.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $data   Array of key and value to be set.
+	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
+	 *                       Default 0 (no expiration).
+	 *
+	 * @return bool[] Array of return values, grouped by key. Each value is always true.
+	 */
+	function wp_cache_set_multiple( $data, $group = 'default', $expire = 0 ) {
+		global $wp_object_cache;
+
+		return $wp_object_cache->set_multiple( $data, $group, (int) $expire );
 	}
 
 	/**
@@ -81,6 +118,23 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	}
 
 	/**
+	 * Deletes multiple values from the cache in one call.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $keys  Array of keys to be deleted.
+	 * @param string $group Optional. Where the cache contents are grouped. Default empty.
+	 *
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false if the contents were not deleted.
+	 */
+	function wp_cache_delete_multiple( $keys, $group = 'default' ) {
+		global $wp_object_cache;
+
+		return $wp_object_cache->delete_multiple( $keys, $group );
+	}
+
+	/**
 	 * Add data to cache
 	 *
 	 * @param string  $id
@@ -93,6 +147,24 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 		global $wp_object_cache;
 
 		return $wp_object_cache->add( $id, $data, $group, (int)$expire );
+	}
+
+	/**
+	 * Adds multiple values to the cache in one call, if the cache keys don't already exist.
+	 *
+	 * @since 2.2.8
+	 *
+	 * @param array  $data   Array of keys and values to be added.
+	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
+	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
+	 *                       Default 0 (no expiration).
+	 * @return bool[] Array of return values, grouped by key. Each value is either
+	 *                true on success, or false if cache key and group already exist.
+	 */
+	function wp_cache_add_multiple( array $data, $group = '', $expire = 0 ) {
+		global $wp_object_cache;
+
+		return $wp_object_cache->add_multiple( $data, $group, $expire );
 	}
 
 	/**

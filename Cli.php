@@ -133,7 +133,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 				if ( isset( $vars['post_id'] ) ) {
 					if ( is_numeric( $vars['post_id'] ) ) {
 						try {
-							w3tc_flush_post( $vars['post_id'] );
+							w3tc_flush_post( $vars['post_id'], true );
 						}
 						catch ( \Exception $e ) {
 							\WP_CLI::error( __( 'Flushing the page from cache failed.', 'w3-total-cache' ) );
@@ -252,7 +252,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 				return;
 			}
 
-			echo $v . "\n";
+			echo esc_html( $v ) . "\n";
 		} elseif ( $op == 'set' ) {
 			$type =( isset( $vars['type'] ) ? $vars['type'] : 'string' );
 

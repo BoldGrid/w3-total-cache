@@ -61,7 +61,7 @@ class Util_PageUrls {
 	 * Returns all urls related to a custom post type post
 	 *
 	 * @since 2.1.7
-	 * 
+	 *
 	 * @param unknown $post_id
 	 * @param int     $limit_post_pages default is 10
 	 * @return array
@@ -74,8 +74,8 @@ class Util_PageUrls {
 			$full_urls = array();
 			$post_type = $post->post_type;
 			$archive_link = get_post_type_archive_link($post_type);
-			$posts_page_uri = str_replace( home_url(), '', $archive_link ); 
-			
+			$posts_page_uri = str_replace( home_url(), '', $archive_link );
+
 			if ( $posts_page_uri ) {
 				$full_urls[] = $archive_link;
 				$full_urls = array_merge( $full_urls, self::get_older_pages( $posts_page_uri, $limit_post_pages, $post_type ) );
@@ -83,9 +83,9 @@ class Util_PageUrls {
 
 			$cpt_archive_urls[$limit_post_pages] = $full_urls;
 		}
-		
+
 		return $cpt_archive_urls[$limit_post_pages];
-	}	
+	}
 
 	/**
 	 * Return older pages listing posts
@@ -484,8 +484,8 @@ class Util_PageUrls {
 	 * @param int     $pagenum
 	 * @return string
 	 */
-	static public function get_pagenum_link( $url, $pagenum = 1 ) {
-		$request_uri = $_SERVER['REQUEST_URI'];
+	public static function get_pagenum_link( $url, $pagenum = 1 ) {
+		$request_uri            = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$_SERVER['REQUEST_URI'] = $url;
 
 		if ( is_admin() ) {
@@ -870,5 +870,122 @@ class Util_PageUrls {
 				$archive_slug = $wp_rewrite->root . $archive_slug;
 		}
 		return $archive_slug;
+	}
+
+	/**
+	 * Gets page title based on key.
+	 *
+	 * @since 2.4.0
+	 *
+	 * @param  string $id Page ID.
+	 * @return array
+	 */
+	public static function get_page_mapping( $id ) {
+		$map = array(
+			'w3tc_dashboard'                   => array(
+				'page_name' => esc_html__( 'Dashboard', 'w3-total-cache' ),
+			),
+			'w3tc_feature_showcase'            => array(
+				'page_name' => esc_html__( 'Feature Showcase', 'w3-total-cache' ),
+			),
+			'w3tc_general'                     => array(
+				'page_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+			),
+			'w3tc_pgcache'                     => array(
+				'page_name'   => esc_html__( 'Page Cache', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_minify'                      => array(
+				'page_name'   => esc_html__( 'Minify', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_dbcache'                     => array(
+				'page_name'   => esc_html__( 'Database Cache', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_objectcache'                 => array(
+				'page_name'   => esc_html__( 'Object Cache', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_browsercache'                => array(
+				'page_name'   => esc_html__( 'Browser Cache', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_cachegroups'                 => array(
+				'page_name'   => esc_html__( 'Cache Groups', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_cdn'                         => array(
+				'page_name'   => esc_html__( 'CDN', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_fragmentcache'               => array(
+				'page_name'   => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_support'                     => array(
+				'page_name' => esc_html__( 'Support', 'w3-total-cache' ),
+			),
+			'w3tc_pagespeed'                   => array(
+				'page_name' => esc_html__( 'Google PageSpeed', 'w3-total-cache' ),
+			),
+			'w3tc_userexperience'              => array(
+				'page_name'   => esc_html__( 'User Experience', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_install'                     => array(
+				'page_name' => esc_html__( 'Install', 'w3-total-cache' ),
+			),
+			'w3tc_setup_guide'                 => array(
+				'page_name' => esc_html__( 'Setup Guide', 'w3-total-cache' ),
+			),
+			'w3tc_extensions'                  => array(
+				'page_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
+			),
+			'w3tc_stats'                       => array(
+				'page_name' => esc_html__( 'Statistics', 'w3-total-cache' ),
+			),
+			'w3tc_extension_page_imageservice' => array(
+				'page_name'   => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#imageservice' ) ),
+			),
+			'w3tc_monitoring'                  => array(
+				'page_name'   => esc_html__( 'Monitoring', 'w3-total-cache' ),
+				'parent_name' => esc_html__( 'General Settings', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general' ) ),
+			),
+			'w3tc_about'                       => array(
+				'page_name' => esc_html__( 'About', 'w3-total-cache' ),
+			),
+			'swarmify'                         => array(
+				'page_name'   => 'Swarmify',
+				'parent_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#swarmify' ) ),
+			),
+			'cloudflare'                       => array(
+				'page_name'   => 'CloudFlare',
+				'parent_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#cloudflare' ) ),
+			),
+			'amp'                              => array(
+				'page_name'   => 'AMP',
+				'parent_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
+				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#amp' ) ),
+			),
+		);
+
+		$map = apply_filters( 'w3tc_page_mapping', $map );
+
+		return ! empty( $map[ $id ] ) ? $map[ $id ] : array();
 	}
 }

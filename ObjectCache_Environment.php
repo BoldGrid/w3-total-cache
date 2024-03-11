@@ -21,7 +21,7 @@ class ObjectCache_Environment {
 		$exs = new Util_Environment_Exceptions();
 
 		try {
-			$addin_required = $config->get_boolean( 'objectcache.enabled' );
+			$addin_required = $config->getf_boolean( 'objectcache.enabled' );
 			$addin_required = apply_filters( 'w3tc_objectcache_addin_required',
 				$addin_required );
 
@@ -43,7 +43,7 @@ class ObjectCache_Environment {
 	 * @throws Util_Environment_Exceptions
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
-		if ( $config->get_boolean( 'objectcache.enabled' ) &&
+		if ( $config->getf_boolean( 'objectcache.enabled' ) &&
 			$config->get_string( 'objectcache.engine' ) == 'file' ) {
 			if ( !wp_next_scheduled( 'w3_objectcache_cleanup' ) ) {
 				wp_schedule_event( time(),
@@ -105,26 +105,44 @@ class ObjectCache_Environment {
 		if ( $this->objectcache_installed() ) {
 			if ( $this->is_objectcache_add_in() ) {
 				$script_data = @file_get_contents( $dst );
-				if ( $script_data == @file_get_contents( $src ) )
+				if ( $script_data == @file_get_contents( $src ) ) {
 					return;
-			} else if ( get_transient( 'w3tc_remove_add_in_objectcache' ) == 'yes' ) {
-					// user already manually asked to remove another plugin's add in,
-					// we should try to apply ours
-					// (in case of missing permissions deletion could fail)
-				} else if ( !$this->is_objectcache_old_add_in() ) {
-					if ( isset( $_GET['page'] ) )
-						$url = 'admin.php?page=' . $_GET['page'] . '&amp;';
-					else
-						$url = basename( Util_Environment::remove_query_all(
-								$_SERVER['REQUEST_URI'] ) ) . '?page=w3tc_dashboard&amp;';
-					$remove_url = Util_Ui::admin_url( $url .
-						'w3tc_default_remove_add_in=objectcache' );
-
-					throw new Util_WpFile_FilesystemOperationException(
-						sprintf( __( 'The Object Cache add-in file object-cache.php is not a W3 Total Cache drop-in.
-                    Remove it or disable Object Caching. %s', 'w3-total-cache' ),
-							Util_Ui::button_link( __( 'Yes, remove it for me', 'w3-total-cache' ), wp_nonce_url( $remove_url, 'w3tc' ) ) ) );
 				}
+			} elseif ( 'yes' === get_transient( 'w3tc_remove_add_in_objectcache' ) ) {
+				// user already manually asked to remove another plugin's add in,
+				// we should try to apply ours
+				// (in case of missing permissions deletion could fail).
+			} elseif ( ! $this->is_objectcache_old_add_in() ) {
+				$page_val = Util_Request::get_string( 'page' );
+				if ( ! empty( $page_val ) ) {
+					$url = 'admin.php?page=' . $page_val . '&amp;';
+				} else {
+					$url = basename(
+						Util_Environment::remove_query_all(
+							isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ''
+						)
+					) . '?page=w3tc_dashboard&amp;';
+				}
+
+				$remove_url = Util_Ui::admin_url( $url . 'w3tc_default_remove_add_in=objectcache' );
+
+				throw new Util_WpFile_FilesystemOperationException(
+					sprintf(
+						// translators: 1 HTML button link to remove object-cache.php file.
+						__(
+							'The Object Cache add-in file object-cache.php is not a W3 Total Cache drop-in. Remove it or disable Object Caching. %1$s',
+							'w3-total-cache'
+						),
+						Util_Ui::button_link(
+							__(
+								'Yes, remove it for me',
+								'w3-total-cache'
+							),
+							wp_nonce_url( $remove_url, 'w3tc' )
+						)
+					)
+				);
+			}
 		}
 
 		Util_WpFile::copy_file( $src, $dst );

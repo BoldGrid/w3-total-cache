@@ -29,8 +29,10 @@ describe('', function() {
 
 	it('copy theme files', async() => {
 		theme = await wp.getCurrentTheme(adminPage);
-		let targetPath = env.wpContentPath + 'themes/' + theme + '/qa';
-		await sys.copyPhpToPath('../../plugins/minify-manual-theme/*', targetPath);
+		let themePath = env.wpContentPath + 'themes/' + theme;
+		await sys.copyPhpToPath('../../plugins/minify-manual-theme/*', `${themePath}/qa`);
+		await wp.addQaBootstrap(adminPage, `${themePath}/functions.php`,
+			'/qa/minify-js-sc.php');
 	});
 
 
@@ -75,8 +77,9 @@ describe('', function() {
 		await adminPage.select('#js_use_type_footer', 'nb-async');
 
 		log.log('click save');
+		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
-			adminPage.click('#w3tc_save_options_minify_js'),
+			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
 			adminPage.waitForNavigation({timeout: 0})
 		]);
 
@@ -89,8 +92,7 @@ describe('', function() {
 		let testPage = await wp.postCreate(adminPage, {
 			type: 'page',
 			title: 'test',
-			content: 'page content',
-			template: 'qa/minify-js.php'
+			content: 'page content [w3tcqa]'
 		});
 		testPageUrl = testPage.url;
 	});

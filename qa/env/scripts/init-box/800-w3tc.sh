@@ -6,6 +6,7 @@ echo "alias w3test=\"/share/scripts/w3test \"" >> /root/.bash_aliases
 # ask w3tc to use debug GA profile
 cd $W3D_WP_PATH
 sed -i '2idefine( \"W3TC_DEBUG\", true );' wp-config.php
+sed -i '2idefine( \"W3TC_DEVELOPER\", true );' wp-config.php
 
 # backup before w3tc
 /share/scripts/w3tc-umount.sh

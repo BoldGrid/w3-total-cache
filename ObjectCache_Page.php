@@ -17,7 +17,7 @@ class ObjectCache_Page extends Base_Page_Settings {
 	 * @return void
 	 */
 	function view() {
-		$objectcache_enabled = $this->_config->get_boolean( 'objectcache.enabled' );
+		$objectcache_enabled = $this->_config->getf_boolean( 'objectcache.enabled' );
 
 		include W3TC_INC_DIR . '/options/objectcache.php';
 	}

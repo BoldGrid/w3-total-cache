@@ -68,7 +68,7 @@ class PhpHash implements HashInterface
     private function getContext()
     {
         if (!$this->context) {
-            $key = isset($this->options['key']) ? $this->options['key'] : '';
+            $key = isset($this->options['key']) ? $this->options['key'] : null;
             $this->context = hash_init(
                 $this->algo,
                 $key ? HASH_HMAC : 0,

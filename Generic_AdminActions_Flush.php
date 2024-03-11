@@ -17,13 +17,19 @@ class Generic_AdminActions_Flush {
 	 */
 	function w3tc_flush_all() {
 		w3tc_flush_all( array( 'ui_action' => 'flush_button' ) );
+
+		$state_note = Dispatcher::config_state_note();
+		$state_note->set( 'common.show_note.flush_statics_needed', false );
+		$state_note->set( 'common.show_note.flush_posts_needed', false );
+		$state_note->set( 'common.show_note.plugins_updated', false );
+
 		$this->_redirect_after_flush( 'flush_all' );
 	}
 
 	function w3tc_flush_current_page() {
 		$url = filter_input( INPUT_GET, 'url', FILTER_SANITIZE_URL );
 		if ( empty( $url ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
-			$url = $_SERVER['HTTP_REFERER'];
+			$url = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
 		}
 		w3tc_flush_url( $url );
 
@@ -245,7 +251,7 @@ class Generic_AdminActions_Flush {
 	 */
 	function w3tc_flush_post() {
 		$post_id = Util_Request::get_integer( 'post_id' );
-		w3tc_flush_post( $post_id, array( 'ui_action' => 'flush_button' ) );
+		w3tc_flush_post( $post_id, true, array( 'ui_action' => 'flush_button' ) );
 
 		Util_Admin::redirect( array(
 				'w3tc_note' => 'pgcache_purge_post'
@@ -275,7 +281,7 @@ class Generic_AdminActions_Flush {
 			$this->flush_dbcache();
 		}
 
-		if ( $this->_config->get_string( 'objectcache.engine' ) == $type && $this->_config->get_boolean( 'objectcache.enabled' ) ) {
+		if ( $this->_config->get_string( 'objectcache.engine' ) == $type && $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->flush_objectcache();
 		}
 

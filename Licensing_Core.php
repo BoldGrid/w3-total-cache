@@ -131,4 +131,32 @@ class Licensing_Core {
 			( empty( $renew_key ) ? '' : '&renew_key=' . urlencode( $renew_key ) ) .
 			( empty( $client_id ) ? '' : '&client_id=' . urlencode( $client_id ) );
 	}
+
+	/**
+	 * Get the terms of service choice.
+	 *
+	 * @since 2.2.2
+	 *
+	 * @static
+	 *
+	 * @see \W3TC\Util_Environment::is_w3tc_pro()
+	 * @see \W3TC\Dispatcher::config_state()
+	 * @see \W3TC\Dispatcher::config_state_master()
+	 * @see \W3TC\ConfigState::get_string()
+	 *
+	 * @return string
+	 */
+	public static function get_tos_choice() {
+		$config = Dispatcher::config();
+
+		if ( Util_Environment::is_w3tc_pro( $config ) ) {
+			$state = Dispatcher::config_state();
+			$terms = $state->get_string( 'license.terms' );
+		} else {
+			$state_master = Dispatcher::config_state_master();
+			$terms        = $state_master->get_string( 'license.community_terms' );
+		}
+
+		return $terms;
+	}
 }

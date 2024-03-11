@@ -42,7 +42,7 @@ class Util_WpmuBlogmap {
 			return $blog_data;
 		} else {
 			// try subdir blog
-			$url = $host . $_SERVER['REQUEST_URI'];
+			$url = $host . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' ); // phpcs:ignore
 			$pos = strpos( $url, '?' );
 			if ( $pos !== false )
 				$url = substr( $url, 0, $pos );

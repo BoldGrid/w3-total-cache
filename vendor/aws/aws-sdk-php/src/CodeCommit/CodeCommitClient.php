@@ -96,8 +96,6 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise listAssociatedApprovalRuleTemplatesForRepositoryAsync(array $args = [])
  * @method \Aws\Result listBranches(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listBranchesAsync(array $args = [])
- * @method \Aws\Result listFileCommitHistory(array $args = [])
- * @method \GuzzleHttp\Promise\Promise listFileCommitHistoryAsync(array $args = [])
  * @method \Aws\Result listPullRequests(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listPullRequestsAsync(array $args = [])
  * @method \Aws\Result listRepositories(array $args = [])
@@ -160,8 +158,6 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise updatePullRequestTitleAsync(array $args = [])
  * @method \Aws\Result updateRepositoryDescription(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateRepositoryDescriptionAsync(array $args = [])
- * @method \Aws\Result updateRepositoryEncryptionKey(array $args = [])
- * @method \GuzzleHttp\Promise\Promise updateRepositoryEncryptionKeyAsync(array $args = [])
  * @method \Aws\Result updateRepositoryName(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateRepositoryNameAsync(array $args = [])
  */

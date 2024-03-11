@@ -8,6 +8,7 @@ jQuery(function() {
             '&w3tc_action=generic_support_us',
         callback: function(lightbox) {
             jQuery(".palette-twitter").click(function() {jQuery("#tweeted").val("1");});
+			lightbox.resize();
         }
     });
 });

@@ -222,7 +222,7 @@ class Minify_MinifiedFileRequestHandler {
 			@header( 'X-Powered-By: ' . Util_Environment::w3tc_header() );
 		}
 
-		if ( empty( $_GET['f_array'] ) && empty( $_GET['g'] ) ) {
+		if ( empty( Util_Request::get( 'f_array' ) ) && empty( Util_Request::get_string( 'g' ) ) ) {
 			return $this->finish_with_error( 'Nothing to minify', $quiet, false );
 		}
 
@@ -289,17 +289,25 @@ class Minify_MinifiedFileRequestHandler {
 
 
 	/**
-	 * Flushes cache
+	 * Flushes cache.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	function flush() {
+	public function flush( $extras = array() ) {
 		$cache = $this->_get_cache();
-		// used to debug - which plugin calls flush all the time and breaks
-		// performance
+		// Used to debug - which plugin calls flush all the time and breaks performance.
 		if ( $this->_config->get_boolean( 'minify.debug' ) ) {
 			Minify_Core::log( 'Minify flush called from' );
-			Minify_Core::log( json_encode( debug_backtrace () ) );
+			Minify_Core::log( wp_json_encode( debug_backtrace() ) );
+		}
+
+		/*
+		 * Cleanup of map too often is risky since breaks all old minify urls.
+		 * Particularly minified urls in browsercached/cdn cached html becomes invalid.
+		 */
+		if ( isset( $extras['ui_action'] ) && 'flush_button' === $extras['ui_action'] ) {
+			global $wpdb;
+			$wpdb->query( "DELETE FROM $wpdb->options WHERE `option_name` = 'w3tc_minify' OR `option_name` LIKE 'w3tc_minify_%'" );
 		}
 
 		return $cache->flush();
@@ -511,7 +519,7 @@ class Minify_MinifiedFileRequestHandler {
 		try {
 			$files = Minify_Core::minify_filename_to_urls_for_minification(
 				$hash, $type );
-		} catch ( Exception $e ) {
+		} catch ( \Exception $e ) {
 			$files = array();
 		}
 
@@ -542,6 +550,8 @@ class Minify_MinifiedFileRequestHandler {
 		} else {
 			Minify_Core::debug_error( sprintf( 'Unable to fetch custom files list: "%s.%s"', $hash, $type ), false, 404 );
 		}
+
+		Minify_Core::log( implode("\n", $files ) );
 
 		return $result;
 	}
@@ -579,7 +589,7 @@ class Minify_MinifiedFileRequestHandler {
 
 		if ( defined( 'W3TC_IN_MINIFY' ) ) {
 			status_header( 400 );
-			echo $message;
+			echo esc_html( $message );
 			die();
 		}
 	}
@@ -671,6 +681,7 @@ class Minify_MinifiedFileRequestHandler {
 					'host' =>  Util_Environment::host(),
 					'module' => 'minify',
 					'servers' => $this->_config->get_array( 'minify.redis.servers' ),
+					'verify_tls_certificates' => $this->_config->get_boolean( 'minify.redis.verify_tls_certificates' ),
 					'persistent' => $this->_config->get_boolean( 'minify.redis.persistent' ),
 					'timeout' => $this->_config->get_integer( 'minify.redis.timeout' ),
 					'retry_interval' => $this->_config->get_integer( 'minify.redis.retry_interval' ),

@@ -29,7 +29,7 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
         // PHP insecure by default: realpath() and other FS functions can't handle null bytes.
         foreach (array('g', 'b', 'f') as $key) {
             if (isset($_GET[$key])) {
-                $_GET[$key] = str_replace("\x00", '', (string)$_GET[$key]);
+                $_GET[$key] = str_replace("\x00", '', (string) sanitize_text_field( wp_unslash( $_GET[ $key ] ) ) );
             }
         }
 
@@ -48,14 +48,15 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
         $this->selectionId = '';
         $firstMissingResource = null;
         if (isset($_GET['g'])) {
+			$g = sanitize_text_field( wp_unslash( $_GET['g'] ) );
             // add group(s)
-            $this->selectionId .= 'g=' . $_GET['g'];
-            $keys = explode(',', $_GET['g']);
+            $this->selectionId .= 'g=' . $g;
+            $keys = explode(',', $g);
             if ($keys != array_unique($keys)) {
                 $this->log("Duplicate group key found.");
                 return $options;
             }
-            $keys = explode(',', $_GET['g']);
+            $keys = explode(',', $g);
             foreach ($keys as $key) {
                 if (! isset($cOptions['groups'][$key])) {
                     $this->log("A group configuration for \"{$key}\" was not found");
@@ -74,8 +75,6 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                         continue;
                     }
                     if (0 === strpos($file, '//')) {
-                        //$file = $_SERVER['DOCUMENT_ROOT'] . substr($file, 1);
-
                         // W3TC FIX.
                         $file = $docroot . substr($file, 1);
                     }
@@ -108,15 +107,16 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
 
         if (! $cOptions['groupsOnly'] && isset($_GET['f_array'])) {
             $files = $_GET['f_array'];
-            $ext = $_GET['ext'];
+            $ext   = isset( $_GET['ext'] ) ? sanitize_text_field( wp_unslash( $_GET['ext'] ) ) : '';
 
             if (!empty($_GET['b'])) {
+				$b = sanitize_text_field( wp_unslash( $_GET['b'] ) );
                 // check for validity
-                if (preg_match('@^[^/]+(?:/[^/]+)*$@', $_GET['b'])
-                    && false === strpos($_GET['b'], '..')
-                    && $_GET['b'] !== '.') {
+                if (preg_match('@^[^/]+(?:/[^/]+)*$@', $b)
+                    && false === strpos($b, '..')
+                    && $b !== '.') {
                     // valid base
-                    $base = "/{$_GET['b']}/";
+                    $base = "/{$b}/";
                 } else {
                     $this->log("GET param 'b' invalid (see MinApp.php line 84)");
                     return $options;
@@ -126,8 +126,6 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
             }
             $allowDirs = array();
             foreach ((array)$cOptions['allowDirs'] as $allowDir) {
-                //$allowDirs[] = \W3TC\Util_Environment::realpath(str_replace('//', $_SERVER['DOCUMENT_ROOT'] . '/', $allowDir));
-
                 // W3TC FIX.
                 $allowDirs[] = \W3TC\Util_Environment::realpath(str_replace('//', $docroot . '/', $allowDir));
             }
@@ -139,8 +137,6 @@ class Minify_Controller_MinApp extends Minify_Controller_Base {
                 }
 
                 $uri = $base . $file;
-
-                //$path = $_SERVER['DOCUMENT_ROOT'] . $uri;
 
                 // W3TC FIX.
                 $path = $docroot . $uri;

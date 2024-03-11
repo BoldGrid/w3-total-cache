@@ -110,7 +110,7 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 	 * @return bool
 	 */
 	function purge_all( &$results ) {
-		return $this->purge( array( 'remote_path' => '*' ), $results );
+		return $this->purge( array( array( 'remote_path' => '*' ) ), $results );
 	}
 
 	/**

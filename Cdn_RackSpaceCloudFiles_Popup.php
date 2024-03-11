@@ -34,8 +34,8 @@ class Cdn_RackSpaceCloudFiles_Popup {
 
 
 	public function w3tc_ajax_cdn_rackspace_intro_done() {
-		$user_name = $_REQUEST['user_name'];
-		$api_key = $_REQUEST['api_key'];
+		$user_name = Util_Request::get_string( 'user_name' );
+		$api_key   = Util_Request::get_string( 'api_key' );
 
 		try {
 			$r = Cdn_RackSpace_Api_Tokens::authenticate( $user_name,
@@ -70,12 +70,14 @@ class Cdn_RackSpaceCloudFiles_Popup {
 
 
 	public function w3tc_ajax_cdn_rackspace_regions_done() {
-		$user_name = $_REQUEST['user_name'];
-		$api_key = $_REQUEST['api_key'];
-		$access_token = $_REQUEST['access_token'];
+		$user_name = Util_Request::get_string( 'user_name' );
+		$api_key = Util_Request::get_string( 'api_key' );
+		$access_token = Util_Request::get_string( 'access_token' );
 		$region = Util_Request::get( 'region' );
 		$region_descriptors = json_decode(
-			strtr( $_REQUEST['region_descriptors'], '!^', '"\\' ), true );
+			strtr( Util_Request::get_string( 'region_descriptors' ), '!^', '"\\' ),
+			true
+		);
 
 		if ( !isset( $region_descriptors[$region] ) ) {
 			$details = array(
@@ -123,12 +125,14 @@ class Cdn_RackSpaceCloudFiles_Popup {
 
 
 	public function w3tc_ajax_cdn_rackspace_containers_done() {
-		$user_name = $_REQUEST['user_name'];
-		$api_key = $_REQUEST['api_key'];
-		$access_token = $_REQUEST['access_token'];
+		$user_name = Util_Request::get_string( 'user_name' );
+		$api_key = Util_Request::get_string( 'api_key' );
+		$access_token = Util_Request::get_string( 'access_token' );
 		$access_region_descriptor = json_decode(
-			strtr( $_REQUEST['access_region_descriptor'], '!^', '"\\' ), true );
-		$region = $_REQUEST['region'];
+			strtr( Util_Request::get_string( 'access_region_descriptor' ), '!^', '"\\' ),
+			true
+		);
+		$region = Util_Request::get_string( 'region' );
 		$container = Util_Request::get( 'container' );
 
 		$api_files = new Cdn_RackSpace_Api_CloudFiles( array(
@@ -144,7 +148,8 @@ class Cdn_RackSpaceCloudFiles_Popup {
 
 		try {
 			if ( empty( $container ) ) {
-				$container_new = $_REQUEST['container_new'];
+				$container_new = Util_Request::get_string( 'container_new' );
+
 				if ( empty( $container_new ) )
 					throw new \Exception( 'Please select container' );
 
@@ -182,11 +187,11 @@ class Cdn_RackSpaceCloudFiles_Popup {
 		$state->set( 'cdn.rackspace_cf.access_state', '' );
 		$state->save();
 
-		$postfix = Util_Admin::custom_message_id( array(),
-			array(
-				'cdn_configuration_saved' =>
-				'CDN credentials are saved successfully' ) );
-		echo 'Location admin.php?page=w3tc_cdn&' . $postfix;
+		$postfix = Util_Admin::custom_message_id(
+			array(),
+			array( 'cdn_configuration_saved' => 'CDN credentials are saved successfully' )
+		);
+		echo 'Location admin.php?page=w3tc_cdn&' . wp_kses( $postfix, Util_Ui::get_allowed_html_for_wp_kses_from_content( $postfix ) );
 		exit();
 	}
 }

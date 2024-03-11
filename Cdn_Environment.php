@@ -9,6 +9,10 @@ class Cdn_Environment {
 		add_filter( 'w3tc_browsercache_rules_section_extensions',
 			array( $this, 'w3tc_browsercache_rules_section_extensions' ),
 			10, 3 );
+
+		add_filter( 'w3tc_browsercache_rules_section',
+			array( $this, 'w3tc_browsercache_rules_section' ),
+			10, 3 );
 	}
 
 	/**
@@ -298,7 +302,6 @@ class Cdn_Environment {
 			array(
 				W3TC_MARKER_BEGIN_MINIFY_CORE => 0,
 				W3TC_MARKER_BEGIN_PGCACHE_CORE => 0,
-				W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP => 0,
 				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE => 0,
 				W3TC_MARKER_BEGIN_WORDPRESS => 0,
 				W3TC_MARKER_END_PGCACHE_CACHE => strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
@@ -330,6 +333,9 @@ class Cdn_Environment {
 	private function rules_generate( $config, $cdnftp = false ) {
 		if ( Util_Environment::is_nginx() ) {
 			$o = new Cdn_Environment_Nginx( $config );
+			return $o->generate( $cdnftp );
+		} elseif ( Util_Environment::is_litespeed() ) {
+			$o = new Cdn_Environment_LiteSpeed( $config );
 			return $o->generate( $cdnftp );
 		} else {
 			return $this->rules_generate_apache( $config, $cdnftp );
@@ -414,8 +420,23 @@ class Cdn_Environment {
 			$o = new Cdn_Environment_Nginx( $config );
 			$extensions = $o->w3tc_browsercache_rules_section_extensions(
 				$extensions, $section );
+		} elseif ( Util_Environment::is_litespeed() ) {
+			$o = new Cdn_Environment_LiteSpeed( $config );
+			$extensions = $o->w3tc_browsercache_rules_section_extensions(
+				$extensions, $section );
 		}
 
 		return $extensions;
+	}
+
+
+
+	public function w3tc_browsercache_rules_section( $section_rules, $config, $section ) {
+		if ( Util_Environment::is_litespeed() ) {
+			$o = new Cdn_Environment_LiteSpeed( $config );
+			$section_rules = $o->w3tc_browsercache_rules_section(
+				$section_rules, $section );
+		}
+		return $section_rules;
 	}
 }

@@ -9,34 +9,52 @@ class Minify_Core {
 	 * Encode an array of files into a filename containing all files.
 	 */
 	static public function urls_for_minification_to_minify_filename( $files, $type ) {
-		$v = get_option( 'w3tc_minify' );
-		$minify_filenames = @json_decode( $v, true );
-		if ( !is_array( $minify_filenames ) )
-			$minify_filenames = array();
-
 		$files_string = json_encode( $files );
-		$key = substr( md5( $files_string ), 0, 5 );
 
-		// collision protection
-		if ( isset( $minify_filenames[$key] ) ) {
-			$files_stored = $minify_filenames[$key];
-			if ( json_encode( $files_stored ) != $files_string ) {
-				$key = md5( $files_string );
+		$key = self::urls_for_minification_to_minify_key( $files_string,
+			substr( md5( $files_string ), 0, 5 ) );
+		if ( is_null( $key ) ) {
+			// key collision (rare case), try full md5
+			$key = self::urls_for_minification_to_minify_key( $files_string,
+				md5( $files_string ) );
+			if ( is_null( $key ) ) {
+				// collision of full md5 - unprobable
+				return null;
 			}
 		}
 
 		$minify_filename = $key . '.' . $type;
-		$minify_filename = apply_filters(
-			'w3tc_minify_urls_for_minification_to_minify_filename',
-			$minify_filename, $files, $type );
 
-		$minify_filenames[$minify_filename] = $files;
-		update_option( 'w3tc_minify', json_encode( $minify_filenames ), false );
+		if ( has_filter( 'w3tc_minify_urls_for_minification_to_minify_filename' ) ) {
+			$minify_filename = apply_filters(
+				'w3tc_minify_urls_for_minification_to_minify_filename',
+				$minify_filename,
+				$files,
+				$type
+			);
+			update_option( 'w3tc_minify_filter_' . hash( 'crc32b', $minify_filename ), $key, false );
+		}
 
 		return $minify_filename;
 	}
 
+	/**
+	 * Tries key for minified array of files
+	 */
+	static private function urls_for_minification_to_minify_key( $files_string, $key ) {
+		$v = get_option( 'w3tc_minify_' . $key );
+		$minify_filenames = @json_decode( $v, true );
+		if ( empty( $minify_filenames ) || !is_array( $minify_filenames ) ) {
+			update_option( 'w3tc_minify_' . $key, $files_string, false );
+			return $key;
+		}
 
+		if ( $v === $files_string ) {
+			return $key;
+		}
+
+		return null;
+	}
 
 	/**
 	 * Decode a minify auto filename into an array of files.
@@ -46,16 +64,15 @@ class Minify_Core {
 	 * @return array
 	 */
 	static public function minify_filename_to_urls_for_minification( $filename, $type ) {
-		$v = get_option( 'w3tc_minify' );
-		$minify_filenames = @json_decode( $v, true );
-		if ( !is_array( $minify_filenames ) )
-			$minify_filenames = array();
+		$hash = has_filter( 'w3tc_minify_urls_for_minification_to_minify_filename' ) ?
+			get_option( 'w3tc_minify_filter_' . hash( 'crc32b', $filename . '.' . $type ) ) : $filename;
+		$v    = get_option( 'w3tc_minify_' . $hash );
 
-		$minify_filename = $filename . '.' . $type;
-		if ( !isset( $minify_filenames[$minify_filename] ) )
+		$urls_unverified = @json_decode( $v, true );
+		if ( !is_array( $urls_unverified ) ) {
 			return array();
+		}
 
-		$urls_unverified = $minify_filenames[$minify_filename];
 		$urls = array();
 
 		foreach ( $urls_unverified as $file ) {
@@ -134,7 +151,7 @@ class Minify_Core {
 
 		if ( $debug ) {
 			Minify_Core::log( $error );
-			echo "\r\n/* " . htmlspecialchars( $error ) . " */\r\n";
+			echo "\r\n/* " . esc_html( $error ) . " */\r\n";
 		}
 	}
 
@@ -147,7 +164,14 @@ class Minify_Core {
 	 * @return bool
 	 */
 	static public function log( $msg ) {
-		$data = sprintf( "[%s] [%s] [%s] %s\n", date( 'r' ), $_SERVER['REQUEST_URI'], ( !empty( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '-' ), $msg );
+		$data = sprintf(
+			"[%s] [%s] [%s] %s\n",
+			date( 'r' ),
+			isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '',
+			! empty( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '-',
+			$msg
+		);
+
 		$data = strtr( $data, '<>', '..' );
 
 		$filename = Util_Debug::log_filename( 'minify' );
@@ -175,6 +199,7 @@ class Minify_Core {
 		case 'redis':
 			$engineConfig = array(
 				'servers' => $c->get_array( 'minify.redis.servers' ),
+				'verify_tls_certificates' => $c->get_boolean( 'minify.redis.verify_tls_certificates' ),
 				'persistent' => $c->get_boolean( 'minify.redis.persistent' ),
 				'timeout' => $c->get_integer( 'minify.redis.timeout' ),
 				'retry_interval' => $c->get_integer( 'minify.redis.retry_interval' ),

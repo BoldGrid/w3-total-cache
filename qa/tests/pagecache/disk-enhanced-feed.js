@@ -39,7 +39,7 @@ describe('', function() {
 		let response = await page.goto(env.homeUrl + 'feed/');
 
 		let content = await page.content();
-		expect(content).contains('Page Caching using disk: enhanced (Page is feed)');
+		expect(content).contains('Page Caching using Disk: Enhanced (Page is feed)');
 		expect(content).contains('xmlns:content');
 
 		let headers = response.headers();
@@ -65,7 +65,7 @@ describe('', function() {
 		expect(response.status()).equals(200);
 
 		let content = await page.content();
-		expect(content).matches(/Page Caching using disk: enhanced\s*[\r\n]/);
+		expect(content).matches(/Page Caching using Disk: Enhanced\s*[\r\n]/);
 		expect(content).contains('xmlns:content');
 
 		let headers = response.headers();
@@ -82,7 +82,7 @@ describe('', function() {
 		expect(response.status()).equals(200);
 
 		let content = await page.content();
-		expect(content).matches(/Page Caching using disk: enhanced\s*[\r\n]/);
+		expect(content).matches(/Page Caching using Disk: Enhanced\s*[\r\n]/);
 		expect(content).contains('xmlns:content');
 
 		let headers = response.headers();

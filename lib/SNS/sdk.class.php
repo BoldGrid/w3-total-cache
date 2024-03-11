@@ -1367,7 +1367,7 @@ class CFRuntime
 					if (strpos($headers['_info']['url'], 'monitoring.') !== false)
 					{
 						// CloudWatchWatch incorrectly does nothing when they say deflate.
-						continue;
+						break; //(6/12/2023 Changed from continue to break to prevent PHP error/warning for required following optional)
 					}
 					else
 					{
@@ -1387,7 +1387,7 @@ class CFRuntime
 					if (strpos($headers['_info']['url'], 'monitoring.') !== false)
 					{
 						// CloudWatchWatch incorrectly does nothing when they say br.
-						continue;
+						break; //(6/12/2023 Changed from continue to break to prevent PHP error/warning for required following optional)
 					}
 					else
 					{

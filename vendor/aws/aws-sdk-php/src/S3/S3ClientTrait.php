@@ -6,7 +6,6 @@ use Aws\CommandInterface;
 use Aws\Exception\AwsException;
 use Aws\HandlerList;
 use Aws\ResultInterface;
-use Aws\S3\Exception\PermanentRedirectException;
 use Aws\S3\Exception\S3Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\RejectedPromise;
@@ -97,19 +96,6 @@ trait S3ClientTrait
     public function registerStreamWrapper()
     {
         StreamWrapper::register($this);
-    }
-
-    /**
-     * @see S3ClientInterface::registerStreamWrapperV2()
-     */
-    public function registerStreamWrapperV2()
-    {
-        StreamWrapper::register(
-            $this,
-            's3',
-            null,
-            true
-        );
     }
 
     /**
@@ -275,30 +261,6 @@ trait S3ClientTrait
     }
 
     /**
-     * @see S3ClientInterface::doesBucketExistV2()
-     */
-    public function doesBucketExistV2($bucket, $accept403 = false)
-    {
-        $command = $this->getCommand('HeadBucket', ['Bucket' => $bucket]);
-
-        try {
-            $this->execute($command);
-            return true;
-        } catch (S3Exception $e) {
-            if (
-                ($accept403 && $e->getStatusCode() === 403)
-                || $e instanceof PermanentRedirectException
-            ) {
-                return true;
-            }
-            if ($e->getStatusCode() === 404)  {
-                return false;
-            }
-            throw $e;
-        }
-    }
-
-    /**
      * @see S3ClientInterface::doesObjectExist()
      */
     public function doesObjectExist($bucket, $key, array $options = [])
@@ -309,44 +271,6 @@ trait S3ClientTrait
                     'Key'    => $key
                 ] + $options)
         );
-    }
-
-    /**
-     * @see S3ClientInterface::doesObjectExistV2()
-     */
-    public function doesObjectExistV2(
-        $bucket,
-        $key,
-        $includeDeleteMarkers = false,
-        array $options = []
-    ){
-        $command = $this->getCommand('HeadObject', [
-                'Bucket' => $bucket,
-                'Key'    => $key
-            ] + $options
-        );
-
-        try {
-            $this->execute($command);
-            return true;
-        } catch (S3Exception $e) {
-            if ($includeDeleteMarkers
-                && $this->useDeleteMarkers($e)
-            ) {
-                return true;
-            }
-            if ($e->getStatusCode() === 404) {
-                return false;
-            }
-            throw $e;
-        }
-    }
-
-    private function useDeleteMarkers($exception)
-    {
-        $response = $exception->getResponse();
-        return !empty($response)
-            && $response->getHeader('x-amz-delete-marker');
     }
 
     /**

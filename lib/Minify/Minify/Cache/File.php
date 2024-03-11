@@ -7,7 +7,12 @@ namespace W3TCL\Minify;
  */
 
 class Minify_Cache_File {
-
+	private $_path = null;
+	private $_exclude = null;
+	private $_locking = null;
+	private $_flushTimeLimit = null;
+	private $_flush_path = null;
+	
 	public function __construct($path = '', $exclude = array(), $locking = false, $flushTimeLimit = 0, $flush_path = null) {
 		if (! $path) {
 			$path = self::tmp();
@@ -132,17 +137,19 @@ class Minify_Cache_File {
 	 *
 	 * @param string $id cache id (e.g. a filename)
 	 *
-	 * @return string
+	 * @return string|false
 	 */
 	public function fetch($id)
 	{
 		$path = $this->_path . '/' . $id;
 
 		$data = @file_get_contents($path . '_meta');
-		if ($data) {
+		if ( ! empty( $data ) ) {
 			$data = @unserialize($data);
 			if (!is_array($data))
 				$data = array();
+		} else {
+			$data = array();
 		}
 
 		if (is_readable($path)) {
@@ -241,11 +248,6 @@ class Minify_Cache_File {
 	public function getPath() {
 		return $this->_path;
 	}
-
-	private $_path = null;
-	private $_exclude = null;
-	private $_locking = null;
-	private $_flushTimeLimit = null;
 
 	/**
 	 * Returns size statistics about cache files

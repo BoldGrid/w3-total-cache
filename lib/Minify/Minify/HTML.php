@@ -23,6 +23,11 @@ class Minify_HTML {
 	 * @var boolean
 	 */
 	protected $_jsCleanComments = true;
+	
+	/**
+	 * @var string
+	 */
+	protected $_html = '';
 
 	/**
 	 * "Minify" an HTML page
@@ -97,7 +102,7 @@ class Minify_HTML {
 			$this->_isXhtml = (false !== strpos($this->_html, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML'));
 		}
 
-		$this->_replacementHash = 'MINIFYHTML' . md5($_SERVER['REQUEST_TIME']);
+		$this->_replacementHash = 'MINIFYHTML' . md5( isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '' );
 		$this->_placeholders = array();
 
 		// replace dynamic tags
@@ -164,7 +169,7 @@ class Minify_HTML {
 			,'<$1$2>'
 			,$this->_html);
 
-		// Avoid PREG_JIT_STACKLIMIT_ERROR.  Thanks @ericek111 for https://github.com/W3EDGE/w3-total-cache/issues/190.
+		// Avoid PREG_JIT_STACKLIMIT_ERROR.  Thanks @ericek111 for https://github.com/BoldGrid/w3-total-cache/issues/190.
 		if ( preg_last_error() === PREG_NO_ERROR ) {
 			$this->_html = $_html;
 		}

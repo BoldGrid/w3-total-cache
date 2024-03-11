@@ -22,9 +22,9 @@ class Cdn_GoogleDrive_AdminActions {
 
 	function w3tc_cdn_google_drive_auth_set() {
 		// thanks wp core for wp_magic_quotes hell
-		$client_id = stripslashes( $_POST['client_id'] );
-		$access_token = stripslashes( $_POST['access_token'] );
-		$refresh_token = stripslashes( $_POST['refresh_token'] );
+		$client_id = Util_Request::get_string( 'client_id' );
+		$access_token = Util_Request::get_string( 'access_token' );
+		$refresh_token = Util_Request::get_string( 'refresh_token' );
 
 		$client = new \W3TCG_Google_Client();
 		$client->setClientId( $client_id );
@@ -35,15 +35,15 @@ class Cdn_GoogleDrive_AdminActions {
 		//
 		$service = new \W3TCG_Google_Service_Drive( $client );
 
-		if ( empty( $_POST['folder'] ) ) {
+		if ( empty( Util_Request::get_string( 'folder' ) ) ) {
 			$file = new \W3TCG_Google_Service_Drive_DriveFile( array(
-					'title' => $_POST['folder_new'],
+					'title' => Util_Request::get_string( 'folder_new' ),
 					'mimeType' => 'application/vnd.google-apps.folder' ) );
 
 			$created_file = $service->files->insert( $file );
 			$used_folder_id = $created_file->id;
 		} else {
-			$used_folder_id = $_POST['folder'];
+			$used_folder_id = Util_Request::get_string( 'folder' );
 		}
 
 		$permission = new \W3TCG_Google_Service_Drive_Permission();
