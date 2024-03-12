@@ -36,15 +36,11 @@ class Root_Loader {
 		$plugins   = array();
 		$plugins[] = new Generic_Plugin();
 
-<<<<<<< HEAD
 		if ( Util_Environment::is_w3tc_pro( $c ) ) {
 			$plugins[] = new Update_Plugin();
 		}
 
 		if ( $c->get_boolean( 'dbcache.enabled' ) )
-=======
-		if ( $c->get_boolean( 'dbcache.enabled' ) ) {
->>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 			$plugins[] = new DbCache_Plugin();
 		}
 
@@ -58,17 +54,7 @@ class Root_Loader {
 
 		if ( $c->get_boolean( 'cdn.enabled' ) ) {
 			$plugins[] = new Cdn_Plugin();
-<<<<<<< HEAD
 		if ( $c->get_boolean( 'lazyload.enabled' ) )
-=======
-		}
-
-		if ( $c->get_boolean( 'cdnfsd.enabled' ) ) {
-			$plugins[] = new Cdnfsd_Plugin();
-		}
-
-		if ( $c->get_boolean( 'lazyload.enabled' ) ) {
->>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 			$plugins[] = new UserExperience_LazyLoad_Plugin();
 		}
 
@@ -82,14 +68,6 @@ class Root_Loader {
 
 		if ( $c->get_boolean( 'varnish.enabled' ) ) {
 			$plugins[] = new Varnish_Plugin();
-<<<<<<< HEAD
-=======
-		}
-
-		if ( $c->get_boolean( 'stats.enabled' ) ) {
-			$plugins[] = new UsageStatistics_Plugin();
-		}
->>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 
 		if ( is_admin() ) {
 			$plugins[] = new Generic_Plugin_Admin();
@@ -103,14 +81,10 @@ class Root_Loader {
 			$plugins[] = new SystemOpCache_Plugin_Admin();
 
 			$plugins[] = new Cdn_Plugin_Admin();
-<<<<<<< HEAD
 			$cdn_engine = $c->get_string( 'cdn.engine' );
 			if ( $cdn_engine == 'maxcdn' ) {
 				$plugins[] = new Cdn_Plugin_WidgetMaxCdn();
 			}
-=======
-			$plugins[] = new Cdnfsd_Plugin_Admin();
->>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 
 			$cdn_engine = $c->get_string( 'cdn.engine' );
 

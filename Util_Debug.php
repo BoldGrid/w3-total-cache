@@ -60,8 +60,6 @@ class Util_Debug {
 		return @file_put_contents( $filename, '[' . date( 'r' ) . '] ' .
 			$message . "\n", FILE_APPEND );
 	}
-<<<<<<< HEAD
-=======
 
 
 
@@ -166,5 +164,4 @@ class Util_Debug {
 		error_log(print_r($data,true));
 		error_log('===============Debug ' . $label . ' End===============');
 	}
->>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 }

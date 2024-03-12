@@ -173,10 +173,6 @@ class Util_Environment {
 	 *
 	 * @return bool
 	 */
-<<<<<<< HEAD
-	static public function is_dbcluster() {
-		if ( isset( $GLOBALS['w3tc_dbcluster_config'] ) )
-=======
 	public static function is_dbcluster( $config = null ) {
 		if ( is_null( $config ) ) {
 			// fallback for compatibility with older wp-content/db.php
@@ -188,7 +184,6 @@ class Util_Environment {
 		}
 
 		if ( isset( $GLOBALS['w3tc_dbcluster_config'] ) ) {
->>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 			return true;
 		}
 
@@ -1336,26 +1331,12 @@ class Util_Environment {
 	/**
 	 * Is W3TC Pro.
 	 *
-<<<<<<< HEAD
-=======
 	 * @static
 	 *
->>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 	 * @param Config $config Config.
 	 * @return bool
 	 */
 	public static function is_w3tc_pro( $config = null ) {
-<<<<<<< HEAD
-=======
-		if ( defined( 'W3TC_PRO' ) && W3TC_PRO ) {
-			return true;
-		}
-
-		if ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ) {
-			return true;
-		}
-
->>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 		if ( is_object( $config ) ) {
 			$plugin_type = $config->get_string( 'plugin.type' );
 

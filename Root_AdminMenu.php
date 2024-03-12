@@ -212,18 +212,6 @@ class Root_AdminMenu {
 			$this->_page = 'w3tc_dashboard';
 		}
 
-<<<<<<< HEAD
-=======
-		/*
-		 * Hidden pages.
-		 */
-		if ( ! empty( Util_Request::get_string( 'w3tc_dbcluster_config' ) ) ) {
-			$options_dbcache = new DbCache_Page();
-			$options_dbcache->dbcluster_config();
-			return;
-		}
-
->>>>>>> bc461c2ad0d82cb00cc868bd786a010ff4657f94
 		/**
 		 * Show tab.
 		 */
