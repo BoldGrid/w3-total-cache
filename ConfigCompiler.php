@@ -1,13 +1,19 @@
 <?php
+/**
+ * File: ConfigCompiler.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class: ConfigCompiler
+ */
 class ConfigCompiler {
 	private $_blog_id;
 	private $_preview;
-
 	private $_data;
-
-
 
 	/**
 	 * Returns true is key is not modifiable anymore
@@ -94,11 +100,12 @@ class ConfigCompiler {
 		$this->_blog_id = $blog_id;
 		$this->_preview = $preview;
 
+		// Get the $keys array.
 		include W3TC_DIR . '/ConfigKeys.php';
 
-		// move _date to initial state
-		foreach ( $this->_keys as $key => $value ) {
-			$this->_data[$key] = $value['default'];
+		// MNove _date to initial state.
+		foreach ( $keys as $key => $value ) {
+			$this->_data[ $key ] = $value['default'];
 		}
 
 		$this->_data['version'] = W3TC_VERSION;

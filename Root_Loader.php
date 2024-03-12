@@ -40,7 +40,7 @@ class Root_Loader {
 			$plugins[] = new Update_Plugin();
 		}
 
-		if ( $c->get_boolean( 'dbcache.enabled' ) )
+		if ( $c->get_boolean( 'dbcache.enabled' ) ) {
 			$plugins[] = new DbCache_Plugin();
 		}
 
@@ -54,7 +54,9 @@ class Root_Loader {
 
 		if ( $c->get_boolean( 'cdn.enabled' ) ) {
 			$plugins[] = new Cdn_Plugin();
-		if ( $c->get_boolean( 'lazyload.enabled' ) )
+		}
+
+		if ( $c->get_boolean( 'lazyload.enabled' ) ) {
 			$plugins[] = new UserExperience_LazyLoad_Plugin();
 		}
 
@@ -68,6 +70,7 @@ class Root_Loader {
 
 		if ( $c->get_boolean( 'varnish.enabled' ) ) {
 			$plugins[] = new Varnish_Plugin();
+		}
 
 		if ( is_admin() ) {
 			$plugins[] = new Generic_Plugin_Admin();
@@ -79,19 +82,10 @@ class Root_Loader {
 			$plugins[] = new Minify_Plugin_Admin();
 			$plugins[] = new Generic_WidgetSpreadTheWord_Plugin();
 			$plugins[] = new SystemOpCache_Plugin_Admin();
-
 			$plugins[] = new Cdn_Plugin_Admin();
-			$cdn_engine = $c->get_string( 'cdn.engine' );
-			if ( $cdn_engine == 'maxcdn' ) {
-				$plugins[] = new Cdn_Plugin_WidgetMaxCdn();
-			}
-
-			$cdn_engine = $c->get_string( 'cdn.engine' );
-
 			$plugins[] = new PageSpeed_Api();
 			$plugins[] = new PageSpeed_Page();
 			$plugins[] = new PageSpeed_Widget();
-
 			$plugins[] = new Generic_Plugin_AdminCompatibility();
 			$plugins[] = new Licensing_Plugin_Admin();
 
