@@ -167,7 +167,7 @@ class Licensing_Plugin_Admin {
 						'It looks like your W3 Total Cache Pro license has expired. %1$s to continue using the Pro features',
 						'w3-total-cache'
 					),
-					'<input type="button" class="button button-buy-plugin" data-nonce="' .
+					'<input type="button" class="button button-renew-plugin" data-nonce="' .
 						wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
 						'" data-src="licensing_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />'
 				),
