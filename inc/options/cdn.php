@@ -22,13 +22,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 	<?php
 	echo wp_kses(
 		sprintf(
-			// translators: 1 HTML img tag for Bunny CDN Icon Modern, 2 opening HTML strong tag, 3 closing HTML strong tag,
+			// translators: 1 HTML img tag for Bunny CDN Icon Bunny Rocket, 2 opening HTML strong tag, 3 closing HTML strong tag,
 			// translators: 4 HTML input for Bunny CDN sign up, 5 HTML div tag for Bunny CDN logo svg.
 			__(
 				'%1$s%2$sLooking for a top rated CDN Provider? Try Bunny CDN.%3$s%4$s%5$s',
 				'w3-total-cache'
 			),
-			'<img class="w3tc-bunnycdn-icon-modern" src="' . esc_url( plugins_url( '/pub/img/w3tc_bunnycdn_icon_modern.png', W3TC_FILE ) ) . '" alt="Bunny CDN Icon Modern" width="55">',
+			'<img class="w3tc-bunnycdn-icon-bunny-rocket" src="' . esc_url( plugins_url( '/pub/img/w3tc_bunnycdn_bunny_rocket.png', W3TC_FILE ) ) . '" alt="Bunny CDN Icon Bunny Rocket" width="90">',
 			'<strong>',
 			'</strong>',
 			Util_Ui::button_link(

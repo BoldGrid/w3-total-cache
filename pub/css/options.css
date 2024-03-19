@@ -1255,7 +1255,6 @@ td .w3tc-control-after span {
 
 #w3tc-bunnycdn-ad-cdn,
 #w3tc-bunnycdn-ad-general {
-	padding: 10px;
     display: flex;
 	flex-wrap: wrap;
     justify-content: space-between;
@@ -1264,6 +1263,8 @@ td .w3tc-control-after span {
 
 #w3tc-bunnycdn-ad-cdn {
 	background: linear-gradient(to bottom, #FCFDFF, #E7F1FF);
+	border: 1px solid #c3c4c7;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 }
 
 #w3tc-bunnycdn-ad-general {
@@ -1271,22 +1272,22 @@ td .w3tc-control-after span {
 	margin-top: 10px;
 }
 
-#w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-icon-modern {
-	margin: 5px 10px;
+#w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-icon-bunny-rocket {
+	padding: 5px;
 }
 
 #w3tc-bunnycdn-ad-cdn strong {
 	color: #3E497E;
 	font-weight: 700;
 	margin: 5px 10px;
-	padding: 0 10px;
+	padding: 5px 10px;
 }
 
 #w3tc-bunnycdn-ad-general strong {
 	color: #FFFFFF;
 	font-weight: 700;
 	margin: 5px 10px;
-	padding: 0 10px;
+	padding: 5px 10px;
 }
 
 #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-promotion-button {
@@ -1323,11 +1324,13 @@ td .w3tc-control-after span {
 }
 
 #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-logo {
-	margin: -7px 10px 5px;
+	margin: 5px 10px;
+	padding: 5px;
 }
 
 #w3tc-bunnycdn-ad-general .w3tc-bunnycdn-icon-white {
 	margin: 5px 10px;
+	padding: 5px;
 }
 
 #w3tc-bunnycdn-ad-cdn strong,
@@ -1534,7 +1537,7 @@ td .w3tc-control-after span {
         flex-direction: column;
     }
 
-    #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-icon-modern,
+    #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-icon-bunny-rocket,
     #w3tc-bunnycdn-ad-cdn strong,
     #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-promotion-button,
     #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-logo,
