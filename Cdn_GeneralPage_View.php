@@ -46,34 +46,55 @@ Util_Ui::config_overloading_button(
 	)
 );
 ?>
-<p>
+<div id="w3tc-bunnycdn-ad-general">
 	<?php
 	if ( ! $cdn_enabled ) {
-		echo '&nbsp;' . wp_kses(
+		echo wp_kses(
 			sprintf(
-				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-				// translators: 3 opening HTML a tag, 4 closing HTML a tag.
+				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,
+				// translators: 3 HTML input for Bunny CDN sign up, 4 HTML img tag for Bunny CDN white logo.
 				__(
-					'If you do not have a %1$sCDN%2$s provider try Bunny CDN. %3$sSign up now to enjoy a special offer%4$s!',
+					'%1$sLooking for a top rated CDN Provider? Try Bunny CDN.%2$s%3$s%4$s',
 					'w3-total-cache'
 				),
-				'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-				'</acronym>',
-				'<a href="' . esc_url( wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&w3tc_cdn_bunnycdn_signup' ), 'w3tc' ) ) . '" target="_blank">',
-				'</a>'
+				'<strong>',
+				'</strong>',
+				Util_Ui::button_link(
+					__( 'Sign up now to enjoy a special offer!', 'w3-total-cache' ),
+					esc_url( W3TC_BUNNYCDN_SIGNUP_URL ),
+					true,
+					'w3tc-bunnycdn-promotion-button',
+					'w3tc-bunnycdn-promotion-button'
+				),
+				'<img class="w3tc-bunnycdn-icon-white" src="' . esc_url( plugins_url( '/pub/img/w3tc_bunnycdn_icon_white.png', W3TC_FILE ) ) . '" alt="Bunny CDN Icon White">'
 			),
 			array(
-				'acronym' => array(
-					'title' => array(),
+				'strong' => array(),
+				'img'    => array(
+					'src'   => array(),
+					'alt'   => array(),
+					'width' => array(),
 				),
-				'a'       => array(
-					'href'   => array(),
-					'target' => array(),
+				'img'    => array(
+					'class'  => array(),
+					'src'    => array(),
+					'alt'    => array(),
+					'height' => array(),
+				),
+				'input'  => array(
+					'type'    => array(),
+					'name'    => array(),
+					'class'   => array(),
+					'value'   => array(),
+					'onclick' => array(),
 				),
 			)
 		);
 	}
-
+	?>
+</div>
+<p>
+	<?php
 	$config        = Dispatcher::config();
 	$cdn_engine    = $config->get_string( 'cdn.engine' );
 	$cdnfsd_engine = $config->get_string( 'cdnfsd.engine' );
