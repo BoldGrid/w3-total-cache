@@ -434,7 +434,6 @@ function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 }
 
 function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
-	var client_id = '';
 	if (window.w3tc_ga) {
 		client_id = w3tc_ga_cid;
 	}
