@@ -1577,6 +1577,7 @@ jQuery(function() {
 				);
 			}
 		});
+
 		jQuery('body').on('click', 'input[type="submit"]', function() {
 			var name = jQuery(this).attr('name');
 			var id = jQuery(this).attr('id');
@@ -1626,6 +1627,20 @@ jQuery(function() {
 				);
 			}
 		});
+
+		// Log if the admin notice containing the renew license button is present.
+		if (jQuery('.button-renew-plugin').length > 0) {
+			if (window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'w3tc_error',
+					{
+						eventCategory: 'w3tc_renew_notice',
+						eventLabel: 'Renew Now'
+					}
+				);
+			}
+		}
 	}
 
 	jQuery("a").on('click', function(event) {

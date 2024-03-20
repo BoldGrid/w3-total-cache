@@ -434,6 +434,10 @@ function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 }
 
 function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
+	if (window.w3tc_ga) {
+		client_id = w3tc_ga_cid;
+	}
+
 	var minWidth = jQuery(window).width() - 30;
 	var minHeight = jQuery(window).height() - 30;
 
@@ -526,8 +530,42 @@ jQuery(function() {
 		}
 		var renew_key = jQuery(this).data('renew-key');
 
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				'button',
+				{
+					eventCategory: 'click',
+					eventLabel: 'license_upgrade_' + data_src
+				}
+			);
+		}
+
 		w3tc_lightbox_upgrade(nonce, data_src, renew_key);
 		jQuery('#w3tc-license-instruction').show();
+		return false;
+	});
+
+	jQuery('.button-renew-plugin').on( 'click', function() {
+		var data_src = jQuery(this).data('src');
+		var nonce = jQuery(this).data('nonce');
+		if (!nonce) {
+			nonce = w3tc_nonce;
+		}
+		var renew_key = jQuery(this).data('renew-key');
+
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				'button',
+				{
+					eventCategory: 'click',
+					eventLabel: 'license_renew_' + data_src
+				}
+			);
+		}
+
+		w3tc_lightbox_buy_plugin(nonce, data_src, renew_key);
 		return false;
 	});
 
