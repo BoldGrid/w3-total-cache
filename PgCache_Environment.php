@@ -758,6 +758,27 @@ class PgCache_Environment {
 		if ($config->get_boolean('pgcache.cache.nginx_handle_xml'))
 			$exts[] = '.xml';
 
+		/**
+		 * Filter: Allow adding additional rules at the end of the PGCACHE_CORE block, before the last rule.
+		 *
+		 * @since X.X.X
+		 *
+		 * @param string $rules           Additional rules.
+		 * @param string $use_cache_rules Rewrite conditions for non-POST, empty query string, rejected cookies, and rejected user agents.
+		 * @param string $document_root   Document root.
+		 * @param string $uri_prefix      URI prefix, after the "w3tc_pagecache_rules_apache_uri_prefix" WP filter.
+		 * @param array  $exts            File extensions used; iterate to use them all.
+		 * @param string $env_W3TC_ENC    Encoding string: "", "_br", or "_gzip".
+		 */
+		$rules = \apply_filters(
+			'w3tc_pgcache_rules_apache_last',
+			$rules,
+			$use_cache_rules,
+			$document_root,
+			$uri_prefix,
+			$env_W3TC_ENC
+		);
+
 		foreach ( $exts as $ext ) {
 			$rules .= $use_cache_rules;
 
@@ -1125,6 +1146,15 @@ class PgCache_Environment {
 
 		$key_postfix = $env_w3tc_slash . $env_w3tc_ua . $env_w3tc_ref . $env_w3tc_cookie .
 			$env_w3tc_ssl . $env_w3tc_preview;
+
+		/**
+		 * Filter: Allow modifying the key_postfix string used in the PGCACHE_CORE block.
+		 *
+		 * @since X.X.X
+		 *
+		 * @param string $key_postfix Key postfix string.
+		 */
+		$key_postfix = \apply_filters( 'w3tc_pgcache_postfix_nginx', $key_postfix );
 
 		if ( $pgcache_engine == 'file_generic' ) {
 			$rules .= $this->for_file_generic( $config, $cache_dir,
