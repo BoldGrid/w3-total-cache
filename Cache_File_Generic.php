@@ -328,6 +328,8 @@ class Cache_File_Generic extends Cache_File {
 
 			$c->clean();
 		}
+
+		return true;
 	}
 
 	/**
