@@ -1414,7 +1414,7 @@
   resolved "https://registry.yarnpkg.com/@wordpress/browserslist-config/-/browserslist-config-5.37.0.tgz#0c86e753a2719d6a254fee98365be4004c4f430f"
   integrity sha512-ntFx1d2m4q8qTEqqV8k8GrnRVpREJkcwWv+y8XU8drPwXIGGCGDoO5HqB9d+nJUi3KlBC/re1OkijDfRlCNVbA==
 
-"@wordpress/eslint-plugin@^17.9.0":
+"@wordpress/eslint-plugin@^17.11.0":
   version "17.11.0"
   resolved "https://registry.yarnpkg.com/@wordpress/eslint-plugin/-/eslint-plugin-17.11.0.tgz#b8fd4bca80bcb00b07acb68c432133c65a89ab89"
   integrity sha512-r4fNZskTmb+v2ewzkO9BYe+9rasY4vwqQw7Zs77nuBtZOjJLCY0eX5AsnwnZNz7rq/ClRx93PaL5fvVRkT2smA==
