@@ -11,14 +11,14 @@ jQuery(function() {
 		'click',
 		'#w3tc_remove_cssjs_singles_add',
 		function() {
-			var single = prompt('Enter CSS/JS URL.');
+			var single_path = prompt('Enter CSS/JS URL.');
 
-			if (single !== null) {
+			if (single_path !== null) {
 				var exists = false;
 
 				jQuery('.remove_cssjs_singles_path').each(
 					function() {
-						if (jQuery(this).html() == single) {
+						if (jQuery(this).html() == single_path) {
 							alert('Entry already exists!');
 							exists = true;
 							return false;
@@ -27,21 +27,32 @@ jQuery(function() {
 				);
 
 				if (!exists) {
+					var single_id = single_path.replace(/[^\w-]/g, '_');
+
 					var li = jQuery(
-						'<li id="remove_cssjs_singles_' + single + '">' +
+						'<li id="remove_cssjs_singles_' + single_id + '">' +
 						'<table class="form-table">' +
 						'<tr>' +
 						'<th>CSS/JS path to remove:</th>' +
 						'<td>' +
-						'<span class="remove_cssjs_singles_path">' + single + '</span> ' +
-						'<input type="button" class="button w3tc_remove_cssjs_singles_delete" value="Delete" />' +
+						'<span class="remove_cssjs_singles_path">' + single_path + '</span>' +
+						'<input type="button" class="button remove_cssjs_singles_delete" value="Delete"/>' +
 						'</td>' +
 						'</tr>' +
 						'<tr>' +
-						'<th><label for="remove_cssjs_singles_' + single + '_includes">Remove on these pages:</label></th>' +
+						'<th><label for="remove_cssjs_singles_' + single_id + '_action">Behavior:</label></th>' +
 						'<td>' +
-						'<textarea id="remove_cssjs_singles_' + single + '_includes" name="user-experience-remove-cssjs-singles[' + single + '][includes]" rows="5" cols="50"></textarea>' +
-						'<p class="description">Specify relative/absolute page URLs that the above CSS/JS should be removed from. Include one entry per line.</p>' +
+						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + single_path + '][action]" value="exclude" checked>Exclude</label>' +
+						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + single_path + '][action]" value="include">Include</label>' +
+						'<p class="description">Exclude will only remove this file from the specified URLs.</p>' +
+						'<p class="description">Include will NOT remove this file from the specified URLs but will remove it everywhere else.</p>' +
+						'</td>' +
+						'</tr>' +
+						'<tr>' +
+						'<th><label class="remove_cssjs_singles_' + single_id + '_includes_label" for="remove_cssjs_singles_' + single_id + '_includes">Exclude on these pages:</label></th>' +
+						'<td>' +
+						'<textarea id="remove_cssjs_singles_' + single_id + '_includes" name="user-experience-remove-cssjs-singles[' + single_path + '][includes]" rows="5" cols="50" ></textarea>' +
+						'<p class="description remove_cssjs_singles_' + single_id + '_includes_description">Specify relative/absolute page URLs that the above CSS/JS file should be Excluded from. Include one entry per line.</p>' +
 						'</td>' +
 						'</tr>' +
 						'</table>' +
@@ -50,7 +61,7 @@ jQuery(function() {
 
 					jQuery('#remove_cssjs_singles').append(li);
 					w3tc_remove_cssjs_singles_clear();
-					window.location.hash = '#remove_cssjs_singles_' + single;
+					window.location.hash = '#remove_cssjs_singles_' + single_id;
 					li.find('textarea').focus();
 				}
 			} else {
@@ -61,12 +72,27 @@ jQuery(function() {
 
 	jQuery(document).on(
 		'click',
-		'.w3tc_remove_cssjs_singles_delete',
+		'.remove_cssjs_singles_delete',
 		function () {
 			if (confirm('Are you sure want to delete this entry?')) {
 				jQuery(this).parents('#remove_cssjs_singles li').remove();
 				w3tc_remove_cssjs_singles_clear();
 				w3tc_beforeupload_bind();
+			}
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'.remove_cssjs_singles_behavior_radio',
+		function () {
+			var parent_id = jQuery(this).closest('li').attr('id');
+			if (this.value === 'exclude') {
+				jQuery('.' + parent_id + '_includes_label').text('Exclude on these pages:');
+				jQuery('.' + parent_id + '_includes_description').text('Specify relative/absolute page URLs that the above CSS/JS should be Excluded from. Include one entry per line.');
+			} else {
+				jQuery('.' + parent_id + '_includes_label').text('Include on these pages:');
+				jQuery('.' + parent_id + '_includes_description').text('Specify relative/absolute page URLs that the above CSS/JS should be Included for. Include one entry per line.');
 			}
 		}
 	);
