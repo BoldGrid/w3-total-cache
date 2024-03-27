@@ -52,29 +52,63 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 </p>
 <ul id="remove_cssjs_singles" class="w3tc_remove_cssjs_singles">
 	<?php
-	foreach ( $remove_cssjs_singles['value'] as $single => $single_config ) {
+	foreach ( $remove_cssjs_singles['value'] as $single_path => $single_config ) {
+		$single_id = preg_replace( '/[^\w-]/', '_', $single_path );
 		?>
-		<li id="remove_cssjs_singles_<?php echo esc_attr( $single ); ?>">
+		<li id="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>">
 			<table class="form-table">
 				<tr>
 					<th>
 						<?php esc_html_e( 'CSS/JS path to remove:', 'w3-total-cache' ); ?>
 					</th>
 					<td>
-						<span class="remove_cssjs_singles_path"><?php echo htmlspecialchars( $single ); // phpcs:ignore ?></span>
-						<input type="button" class="button w3tc_remove_cssjs_singles_delete" value="<?php esc_html_e( 'Delete', 'w3-total-cache' ); ?>"/>
+						<span class="remove_cssjs_singles_path"><?php echo htmlspecialchars( $single_path ); // phpcs:ignore ?></span>
+						<input type="button" class="button remove_cssjs_singles_delete" value="<?php esc_html_e( 'Delete', 'w3-total-cache' ); ?>"/>
 					</td>
 				</tr>
-					<tr>
+				<tr>
 					<th>
-						<label for="remove_cssjs_singles_<?php echo esc_attr( $single ); ?>_includes">
-							<?php esc_html_e( 'Remove on these pages:', 'w3-total-cache' ); ?>
+						<label for="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_action">
+							<?php esc_html_e( 'Behavior:', 'w3-total-cache' ); ?>
 						</label>
 					</th>
 					<td>
-						<textarea id="remove_cssjs_singles_<?php echo esc_attr( $single ); ?>_includes" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single ); ?>][includes]" rows="5" cols="50" ><?php echo esc_textarea( implode( "\r\n", (array) $single_config['includes'] ) ); ?></textarea>
-						<p class="description">
-							<?php esc_html_e( 'Specify relative/absolute page URLs that the above CSS/JS should be removed from. Include one entry per line.', 'w3-total-cache' ); ?>
+						<label class="remove_cssjs_singles_behavior">
+							<input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_path ); ?>][action]" value="exclude" <?php echo 'exclude' === $single_config['action'] ? 'checked="checked"' : ''; ?>>
+							<?php esc_html_e( 'Exclude', 'w3-total-cache' ); ?>
+						</label>
+						<label class="remove_cssjs_singles_behavior">
+							<input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_path ); ?>][action]" value="include" <?php echo 'include' === $single_config['action'] ? 'checked="checked"' : ''; ?>>
+							<?php esc_html_e( 'Include', 'w3-total-cache' ); ?>
+						</label>
+						<p class="description"><?php esc_html_e( 'Exclude will only remove this file from the specified URLs.', 'w3-total-cache' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Include will NOT remove this file from the specified URLs but will remove it everywhere else.', 'w3-total-cache' ); ?></p>
+					</td>
+				</tr>
+				<tr id="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_option">
+					<th>
+						<label class="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_label" for="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes">
+							<?php
+							$label = 'exclude' === $single_config['action'] ? __( 'Exclude on these pages:', 'w3-total-cache' ) : __( 'Include on these pages:', 'w3-total-cache' );
+							echo esc_html( $label );
+							?>
+						</label>
+					</th>
+					<td>
+						<textarea id="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_path ); ?>][includes]" rows="5" cols="50" ><?php echo esc_textarea( implode( "\r\n", (array) $single_config['includes'] ) ); ?></textarea>
+						<p class="description remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_description">
+							<?php
+							echo esc_html(
+								sprintf(
+									// translators: 1 action description based on behavior selector.
+									__(
+										'Specify relative/absolute page URLs that the above CSS/JS should be %1$s. Include one entry per line.',
+										'w3-total-cache'
+									),
+									'exclude' === $single_config['action'] ? __( 'Excluded from', 'w3-total-cache' ) : __( 'Included for', 'w3-total-cache' )
+								)
+							);
+							?>
 						</p>
 					</td>
 				</tr>
