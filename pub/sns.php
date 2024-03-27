@@ -10,23 +10,26 @@ try {
 	exit();
 }
 
-if ( isset( $message_object['Type'] ) && isset( $message_object['Message'] ) ) {
-	if ( $message_object['Type'] == 'Notification' ) {
-		$w3tc_message = $message_object['Message'];
-		$w3tc_message_object = json_decode( $w3tc_message );
+if ( !isset( $message_object['Type'] ) || !isset( $message_object['Message'] ) ) {
+	echo 'Unknown message';
+	exit();
+}
 
-		if ( isset( $w3tc_message_object->blog_id ) ) {
-			global $w3_current_blog_id;
-			$w3_current_blog_id = $w3tc_message_object->blog_id;
-		}
-		if ( isset( $w3tc_message_object->host ) && !is_null( $w3tc_message_object->host ) ) {
-			$_SERVER['HTTP_HOST'] = $w3tc_message_object->host;
-		}
+if ( $message_object['Type'] == 'Notification' ) {
+	$w3tc_message = $message_object['Message'];
+	$w3tc_message_object = json_decode( $w3tc_message );
+
+	if ( isset( $w3tc_message_object->blog_id ) ) {
+		global $w3_current_blog_id;
+		$w3_current_blog_id = $w3tc_message_object->blog_id;
 	}
-	else if ( $message_object['Type'] != 'SubscriptionConfirmation' ) {
-			echo 'Unsupported message type';
-			exit();
-		}
+	if ( isset( $w3tc_message_object->host ) && !is_null( $w3tc_message_object->host ) ) {
+		$_SERVER['HTTP_HOST'] = $w3tc_message_object->host;
+	}
+}
+else if ( $message_object['Type'] != 'SubscriptionConfirmation' ) {
+	echo 'Unsupported message type';
+	exit();
 }
 
 /**
