@@ -45,9 +45,11 @@ class W3TCG_Google_Verifier_Pem extends W3TCG_Google_Verifier_Abstract
 
   public function __destruct()
   {
-    if ($this->publicKey) {
+    if ($this->publicKey && PHP_MAJOR_VERSION < 8) {
+      //phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.openssl_x509_freeDeprecated
       openssl_x509_free($this->publicKey);
     }
+
   }
 
   /**

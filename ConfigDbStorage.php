@@ -227,9 +227,11 @@ class _WpdbEssentials {
 				}
 			}
 		} else {
-			if ( WP_DEBUG ) {
+			if ( WP_DEBUG ) {                
+                //phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved,PHPCompatibility.FunctionUse.RemovedFunctions.mysql_connectDeprecatedRemoved
 				$this->dbh = mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
-			} else {
+			} else {                
+                //phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved,PHPCompatibility.FunctionUse.RemovedFunctions.mysql_connectDeprecatedRemoved
 				$this->dbh = @mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
 			}
 		}
@@ -251,6 +253,7 @@ class _WpdbEssentials {
 		if ( $this->use_mysqli ) {
 			$success = mysqli_select_db( $dbh, $db );
 		} else {
+            //phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved,PHPCompatibility.FunctionUse.RemovedFunctions.mysql_select_dbDeprecatedRemoved
 			$success = mysql_select_db( $db, $dbh );
 		}
 		if ( ! $success ) {
@@ -290,6 +293,7 @@ class _WpdbEssentials {
 		if ( $this->use_mysqli ) {
 			return mysqli_real_escape_string( $this->dbh, $string );
 		} else {
+            //phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved,PHPCompatibility.FunctionUse.RemovedFunctions.mysql_real_escape_stringDeprecatedRemoved
 			return mysql_real_escape_string( $string, $this->dbh );
 		}
 	}
@@ -327,6 +331,7 @@ class _WpdbEssentials {
 			}
 		} else {
 			if ( is_resource( $this->dbh ) ) {
+                //phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved,PHPCompatibility.FunctionUse.RemovedFunctions.mysql_errorDeprecatedRemoved
 				$this->last_error = mysql_error( $this->dbh );
 			} else {
 				$this->last_error = 'query: Unable to retrieve the error message from MySQL';
@@ -343,11 +348,13 @@ class _WpdbEssentials {
 		$num_rows = 0;
 		$this->last_result = array();
 		if ( $this->use_mysqli && $this->result instanceof \mysqli_result ) {
+            //phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved,PHPCompatibility.FunctionUse.RemovedFunctions.mysql_fetch_objectDeprecatedRemoved
 			while ( $row = mysqli_fetch_object( $this->result ) ) {
 				$this->last_result[$num_rows] = $row;
 				$num_rows++;
 			}
 		} elseif ( is_resource( $this->result ) ) {
+            //phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved,PHPCompatibility.FunctionUse.RemovedFunctions.mysql_fetch_objectDeprecatedRemoved
 			while ( $row = mysql_fetch_object( $this->result ) ) {
 				$this->last_result[$num_rows] = $row;
 				$num_rows++;
@@ -366,6 +373,7 @@ class _WpdbEssentials {
 		if ( ! empty( $this->dbh ) && $this->use_mysqli ) {
 			$this->result = mysqli_query( $this->dbh, $query );
 		} elseif ( ! empty( $this->dbh ) ) {
+            //phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved,PHPCompatibility.FunctionUse.RemovedFunctions.mysql_queryDeprecatedRemoved
 			$this->result = mysql_query( $query, $this->dbh );
 		}
 	}
@@ -380,6 +388,7 @@ class _WpdbEssentials {
 		if ( $this->use_mysqli ) {
 			$closed = mysqli_close( $this->dbh );
 		} else {
+            //phpcs:ignore PHPCompatibility.Extensions.RemovedExtensions.mysql_DeprecatedRemoved,PHPCompatibility.FunctionUse.RemovedFunctions.mysql_closeDeprecatedRemoved
 			$closed = mysql_close( $this->dbh );
 		}
 

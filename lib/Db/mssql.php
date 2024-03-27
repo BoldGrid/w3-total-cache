@@ -534,7 +534,7 @@ class DbCache_WpdbBase extends \SQL_Translations {
 "/*/WP_I18N_DB_CONN_ERROR*/, $dbhost ), 'db_connect_fail' );
                         if ( defined( 'WP_SETUP_CONFIG' ) )
                             return;
-
+                        //phpcs:ignore PHPCompatibility.FunctionDeclarations.RemovedCallingDestructAfterConstructorExit.Found
                         die();
                 }
 
@@ -862,6 +862,7 @@ class DbCache_WpdbBase extends \SQL_Translations {
                 if ( is_null( $query ) ) {
                         return;
                 }
+                //phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
                 $this->prepare_args = func_get_args();
                 array_shift($this->prepare_args);
                 // If args were passed as an array (as in vsprintf), move them up

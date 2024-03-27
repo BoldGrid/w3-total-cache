@@ -877,7 +877,7 @@ class CFRuntime
 		{
 			$signature_version = 2;
 		}
-
+        //phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue
 		$method_arguments = func_get_args();
 		$headers = array();
 		$signed_headers = array();

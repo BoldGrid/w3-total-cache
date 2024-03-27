@@ -198,8 +198,10 @@ abstract class W3tcOAuthSignatureMethod_RSA_SHA1 extends W3tcOAuthSignatureMetho
     $ok = openssl_sign($base_string, $signature, $privatekeyid);
 
     // Release the key resource
-    openssl_free_key($privatekeyid);
-
+    if(PHP_MAJOR_VERSION < 8) {
+        //phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.openssl_free_keyDeprecated
+        openssl_free_key($privatekeyid);
+    }
     return base64_encode($signature);
   }
 
@@ -218,7 +220,10 @@ abstract class W3tcOAuthSignatureMethod_RSA_SHA1 extends W3tcOAuthSignatureMetho
     $ok = openssl_verify($base_string, $decoded_sig, $publickeyid);
 
     // Release the key resource
-    openssl_free_key($publickeyid);
+    if(PHP_MAJOR_VERSION < 8) {
+        //phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.openssl_free_keyDeprecated
+        openssl_free_key($publickeyid);
+    }
 
     return $ok == 1;
   }

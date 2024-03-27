@@ -205,6 +205,7 @@ function w3tc_class_autoload( $class ) {
 					$filename
 				)
 			);
+			// phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue
 			debug_print_backtrace();
 		}
 	}

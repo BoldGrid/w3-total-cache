@@ -50,14 +50,21 @@ class Minify_Cache_W3TCDerived {
     public function getSize($id)
     {
         $v = $this->fetch($id);
-        if (!isset($v['content'])) {
+        if (!isset($v['content'])) 
+		{
             return false;
         }
-
-        return (function_exists('mb_strlen') && ((int)ini_get('mbstring.func_overload') & 2))
-            ? mb_strlen($v['content'], '8bit')
-            : strlen($v['content']);
+        if(PHP_MAJOR_VERSION < 8) 
+		{
+            //phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.mbstring_func_overloadDeprecatedRemoved
+            return (function_exists('mb_strlen') && ((int)ini_get('mbstring.func_overload') & 2))
+                ? mb_strlen($v['content'], '8bit')
+                : strlen($v['content']);
+        } else {
+            return strlen($v['content']);
+        }
     }
+
 
     /**
      * Does a valid cache entry exist?
