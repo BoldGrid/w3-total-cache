@@ -8,7 +8,7 @@ case "${W3D_OS}" in
 		# For Puppeteer 3.0.0 and up.
 		apt install -y libxcb-dri3-0 libgbm1
 		# For Puppeteer 6.0.0 and up.
-		apt libxshmfence1
+		apt install -y libxshmfence1
 		;;
 	*)
 		apt install -y libnss3-dev libXss-dev
