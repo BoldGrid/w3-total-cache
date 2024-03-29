@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.7.0\n"
+"Project-Id-Version: W3 Total Cache 2.7.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-03-21T16:57:17+00:00\n"
+"POT-Creation-Date: 2024-03-29T20:02:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
@@ -4383,7 +4383,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: Extension_FragmentCache_WpObjectCache.php:534
+#: Extension_FragmentCache_WpObjectCache.php:536
 msgid "Fragment Caching %d/%d fragments using %s%s"
 msgstr ""
 
