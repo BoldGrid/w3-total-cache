@@ -240,7 +240,7 @@ async function addWpConfigConstant(pPage, name, value) {
 
 		log.log(html);
 		log.log('constant is still not defined - waiting PHP to catch filesystem updates');
-		await pPage.waitForTimeout(1000);
+		await new Promise(r => setTimeout(r, 1000));
 	}
 
 	log.error('constant is not defined');

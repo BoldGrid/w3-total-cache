@@ -40,7 +40,7 @@ async function beforeDefault() {
 			'--disable-gpu',
 			'--incognito'
 		]
-		});
+	});
 
 	global.browser  = await puppeteer.launch({
 		ignoreHTTPSErrors: true,
@@ -53,27 +53,27 @@ async function beforeDefault() {
 			'--no-zygote',
 			'--disable-gpu',
 		]
-		});
+	});
 
-		await module.exports.restoreStateFinal();
+	await module.exports.restoreStateFinal();
 
-		// Clear extenal cache engine that may keep state between tests.
-		const r = await exec('/share/scripts/restart-http.rb');
-		expect(r.stdout).contains('restartHttpSuccess');
+	// Clear extenal cache engine that may keep state between tests.
+	const r = await exec('/share/scripts/restart-http.rb');
+	expect(r.stdout).contains('restartHttpSuccess');
 
-		global.adminPage = await browser.newPage();
+	global.adminPage = await browser.newPage();
 
-		adminPage.setViewport({width: 1900, height: 1000});
-		await adminPage.setCacheEnabled(false);
-		await wp.login(adminPage);
+	adminPage.setViewport({width: 1900, height: 1000});
+	await adminPage.setCacheEnabled(false);
+	await wp.login(adminPage);
 
-		await adminPage.on("dialog", async (dialog) => {
-			log.log('adminPage modal dialog appears');
-			if (!adminPage._overwriteSystemDialogPrompt) {
-				log.log('accept');
-				await dialog.accept();
-			}
-		});
+	await adminPage.on("dialog", async (dialog) => {
+		log.log('adminPage modal dialog appears');
+		if (!adminPage._overwriteSystemDialogPrompt) {
+			log.log('accept');
+			await dialog.accept();
+		}
+	});
 
 	global.page   = await browserI.newPage();
 	page.setViewport({width: 1900, height: 1000});
@@ -226,7 +226,7 @@ async function repeatOnFailure(pPage, operation) {
 		}
 
 		log.log(new Date().toISOString() + ' doing next ' + (n <= 0 ? '' : ' attempt' + n));
-		await pPage.waitFor(1000);
+		await new Promise(r => setTimeout(r, 1000));
 	}
 }
 

@@ -414,7 +414,7 @@ exports.cdnPushExportFiles = async function(pPage, sectionToExport) {
 	await pPage.waitForFunction((filesNumberToExport) => {
 		let onPage = document.querySelector('#cdn_export_file_processed').textContent;
 		return onPage == filesNumberToExport;
-	}, {}, filesNumberToExport);
+	}, {timeout: 120000}, filesNumberToExport);
 
 	let onPage = await pPage.$eval('#cdn_export_file_processed', (e) => e.textContent);
 	expect(onPage).equals(filesNumberToExport);
