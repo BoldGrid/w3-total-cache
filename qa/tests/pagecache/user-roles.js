@@ -22,14 +22,10 @@ describe('', function() {
 	before(sys.beforeDefault);
 	after(sys.after);
 
-
-
 	it('copy qa files', async() => {
 		await sys.copyPhpToPath('../../plugins/pagecache/user-roles-single.php',
 			env.wpContentPath + 'mu-plugins');
 	});
-
-
 
 	it('set options', async() => {
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
@@ -48,16 +44,12 @@ describe('', function() {
 		await sys.afterRulesChange();
 	});
 
-
-
 	it('relogin to issue new cookies', async() => {
 		let logoutUrl = await adminPage.$eval('#wp-admin-bar-logout a', (e) => e.href);
 		await adminPage.goto(logoutUrl);
 
 		await wp.login(adminPage);
 	});
-
-
 
 	it('page not cached for the administrator', async() => {
 		await w3tc.gotoWithPotentialW3TCRepeat(adminPage, env.homeUrl);
@@ -66,8 +58,6 @@ describe('', function() {
 			new RegExp('Page Caching using .+? \\(Rejected user role is logged in\\)'));
 		log.success('The page is not cached for the administrator');
 	});
-
-
 
 	it('user signup', async() => {
     	let password = await wp.userSignUp(adminPage, {
@@ -91,8 +81,6 @@ describe('', function() {
 		expect(await page.title()).contains('Profile');
 		log.success('Logged in under subscriber');
 	});
-
-
 
 	it('page cached for subscriber', async() => {
 		await page.goto(env.homeUrl);
