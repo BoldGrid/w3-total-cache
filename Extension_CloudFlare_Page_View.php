@@ -332,7 +332,6 @@ if ( ! defined( 'W3TC' ) ) {
 				?>
 			</table>
 			<?php
-			self::cloudflare_button_save( 'caching' );
 			Util_Ui::postbox_footer();
 
 			Util_Ui::postbox_header( esc_html__( 'CloudFlare: Content Processing', 'w3-total-cache' ), '', 'general' );
@@ -484,7 +483,6 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			echo '</table>';
-			self::cloudflare_button_save( 'content_processing' );
 			Util_Ui::postbox_footer();
 
 			Util_Ui::postbox_header( esc_html__( 'CloudFlare: Image Processing', 'w3-total-cache' ), '', 'general' );
@@ -520,7 +518,6 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			echo '</table>';
-			self::cloudflare_button_save( 'image_processing' );
 			Util_Ui::postbox_footer();
 
 			Util_Ui::postbox_header( esc_html__( 'CloudFlare: Protection', 'w3-total-cache' ), '', 'general' );
@@ -616,7 +613,6 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			echo '</table>';
-			self::cloudflare_button_save( 'protection' );
 			Util_Ui::postbox_footer();
 
 			Util_Ui::postbox_header(
@@ -695,7 +691,6 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			echo '</table>';
-			self::cloudflare_button_save( 'ip' );
 			Util_Ui::postbox_footer();
 
 			Util_Ui::postbox_header(
@@ -864,7 +859,6 @@ if ( ! defined( 'W3TC' ) ) {
 				)
 			);
 			echo '</table>';
-			self::cloudflare_button_save( 'ssl' );
 			Util_Ui::postbox_footer();
 		endif;
 		?>
