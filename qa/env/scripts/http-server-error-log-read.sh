@@ -20,7 +20,7 @@ cat $W3D_HTTP_SERVER_ERROR_LOG_FILENAME |\
 	grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php" |\
 	grep -v 'Function wp_update_https_detection_errors is deprecated' |\
 	grep -Fv 'favicon.ico' |\
-	grep -Fv 'Theme without header.php is deprecated'
+	grep -Ev 'Theme without (header|footer).php is deprecated'
 
 if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 	cat "${W3D_WP_CONTENT_PATH}debug.log" |\
@@ -43,7 +43,7 @@ if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 		grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php" |\
 		grep -v 'Function wp_update_https_detection_errors is deprecated' |\
 		grep -Fv 'favicon.ico' |\
-		grep -Fv 'Theme without header.php is deprecated'
+		grep -Ev 'Theme without (header|footer).php is deprecated'
 fi
 # esc_attr in eval - pagecache/late-init test
 # in php7.0-fpm call stack is printed so should be eliminated
