@@ -203,7 +203,7 @@ if ( ! defined( 'W3TC' ) ) {
 							)
 						),
 						'values'      => array(
-							''         => '',
+							'0'        => '',
 							'30'       => '30',
 							'60'       => '60',
 							'300'      => '300',
@@ -270,7 +270,6 @@ if ( ! defined( 'W3TC' ) ) {
 							)
 						),
 						'values'      => array(
-							''         => '',
 							'300'      => '300',
 							'900'      => '900',
 							'1800'     => '1800',
@@ -310,7 +309,6 @@ if ( ! defined( 'W3TC' ) ) {
 						'key'         => 'edge_cache_ttl',
 						'label'       => esc_html__( 'Edge cache TTL:', 'w3-total-cache' ),
 						'values'      => array(
-							''         => '',
 							'300'      => '300',
 							'900'      => '900',
 							'1800'     => '1800',
