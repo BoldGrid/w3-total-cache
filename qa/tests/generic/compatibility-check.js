@@ -36,11 +36,11 @@ describe('', function() {
 		}
 
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_dashboard');
-		
+
 		let compatibilityCheck = '#w3tc-top-nav-info-menu a.compatiblity-test';
 		await adminPage.evaluate((compatibilityCheck) => document.querySelector(compatibilityCheck).click(), compatibilityCheck);
 
-		await adminPage.waitFor(() => {
+		await adminPage.waitForFunction(() => {
 			return typeof(document.querySelector('div.lightbox-content')) != 'undefined' &&
 				document.querySelector('div.lightbox-loader') == null;
 		});
