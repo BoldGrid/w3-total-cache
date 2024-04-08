@@ -182,7 +182,7 @@ class PgCache_Plugin_Admin {
 			$url_matches = null;
 			$sitemap_matches = null;
 
-			if ( preg_match_all( '~<sitemap>(.*?)</sitemap>~is', $response['body'], $sitemap_matches ) ) {
+			if ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<sitemap>(.*?)</sitemap>~is', $response['body'], $sitemap_matches ) ) {
 				$loc_matches = null;
 
 				foreach ( $sitemap_matches[1] as $sitemap_match ) {
@@ -194,7 +194,7 @@ class PgCache_Plugin_Admin {
 						}
 					}
 				}
-			} elseif ( preg_match_all( '~<url>(.*?)</url>~is', $response['body'], $url_matches ) ) {
+			} elseif ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<url>(.*?)</url>~is', $response['body'], $url_matches ) ) {
 				$locs = array();
 				$loc_matches = null;
 				$priority_matches = null;
@@ -219,7 +219,7 @@ class PgCache_Plugin_Admin {
 				arsort( $locs );
 
 				$urls = array_merge( $urls, array_keys( $locs ) );
-			} elseif ( preg_match_all( '~<rss[^>]*>(.*?)</rss>~is', $response['body'], $sitemap_matches ) ) {
+			} elseif ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<rss[^>]*>(.*?)</rss>~is', $response['body'], $sitemap_matches ) ) {
 
 				// rss feed format
 				if ( preg_match_all( '~<link[^>]*>(.*?)</link>~is', $response['body'], $url_matches ) ) {
