@@ -249,7 +249,15 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'pgcache.prime.post.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.post.enabled' ); ?></label><br />                </th>
+					<?php $this->checkbox( 'pgcache.prime.post.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.post.enabled' ); ?></label>
+					<p class="description"><?php esc_html_e( 'Only applies to pages, posts, and custom post types whose status transitioned from a non-published status to the "published" status.', 'w3-total-cache' ); ?></p>
+				</th>
+			</tr>
+			<tr>
+				<th colspan="2">
+					<?php $this->checkbox( 'pgcache.prime.post.update.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.post.update.enabled' ); ?></label>
+					<p class="description"><?php esc_html_e( 'Applies after updating any page, post, or custom post type with the final status being "published".', 'w3-total-cache' ); ?></p>
+				</th>
 			</tr>
 		</table>
 
