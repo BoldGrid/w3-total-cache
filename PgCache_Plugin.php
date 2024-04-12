@@ -273,7 +273,7 @@ class PgCache_Plugin {
 
 				return false;
 			},
-			10,
+			100001,
 			0
 		);
 	}
