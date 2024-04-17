@@ -205,6 +205,28 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	}
 
 	/**
+	 * Removes all cache items in a group
+	 *
+	 * @return boolean
+	 */
+	function wp_cache_flush_group( string $group ) {
+		global $wp_object_cache;
+
+		return $wp_object_cache->flush_group( $group );
+	}
+
+	/**
+	 * Removes all cache items from the in-memory runtime cache.
+	 *
+	 * @return boolean
+	 */
+	function wp_cache_flush_runtime() {
+		global $wp_object_cache;
+
+		return $wp_object_cache->flush_runtime();
+	}
+
+	/**
 	 * Add global groups
 	 *
 	 * @param array   $groups
