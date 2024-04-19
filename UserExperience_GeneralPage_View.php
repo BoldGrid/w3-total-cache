@@ -120,9 +120,9 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 
 	Util_Ui::config_item_extension_enabled(
 		array(
-			'extension_id'   => 'user-experience-remove-cssjs',
-			'checkbox_label' => esc_html__( 'Remove Unwanted/Unused CSS/JS', 'w3-total-cache' ),
-			'description'    => __(
+			'extension_id'      => 'user-experience-remove-cssjs',
+			'checkbox_label'    => esc_html__( 'Remove Unwanted/Unused CSS/JS', 'w3-total-cache' ),
+			'description'       => __(
 				'Removes specfied CSS/JS tags from the homepage or on a per page basis.',
 				'w3-total-cache'
 			) . (
@@ -145,9 +145,41 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 				)
 				: ''
 			),
-			'label_class'    => 'w3tc_single_column',
-			'pro'            => true,
-			'disabled'       => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'label_class'       => 'w3tc_single_column',
+			'pro'               => true,
+			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'score'             => '27+',
+			'score_description' => ! Util_Environment::is_w3tc_pro( $config )
+				? wp_kses(
+					sprintf(
+						// translators: 1 opening HTML strong tag, 2 closing HTML strong tag, 3 opening HTML a tag, 4 closing HTML a tag,
+						// translators: 5 two HTML br tags, 6 HTML input button to purchase pro license.
+						__(
+							'In a recent test, removing unused CSS and JS added over 27 points to the %1$sGoogle PageSpeed Score%2$s! %3$sRead the documentation%4$s to learn how you can remove unused CSS and JS.%5$s%6$s and improve your PageSpeed Scores today!',
+							'w3-total-cache'
+						),
+						'<strong>',
+						'</strong>',
+						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/' ) . '">',
+						'</a>',
+						'<br /><br />',
+						'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+					),
+					array(
+						'a'      => array(
+							'href' => array(),
+						),
+						'strong' => array(),
+						'br'     => array(),
+						'input'  => array(
+							'type'     => array(),
+							'class'    => array(),
+							'data-src' => array(),
+							'value'    => array(),
+						),
+					)
+				)
+				: '',
 		)
 	);
 

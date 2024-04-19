@@ -1095,6 +1095,11 @@ class Util_Ui {
 			);
 		}
 
+		if ( isset( $a['score'] ) && isset( $a['score_description'] ) ) {
+			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
+		}
+
 		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
 		echo "</tr>\n";
 	}
@@ -1128,6 +1133,11 @@ class Util_Ui {
 
 		if ( isset( $a['description'] ) ) {
 			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
+		}
+
+		if ( isset( $a['score'] ) && isset( $a['score_description'] ) ) {
+			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
 		if ( isset( $a['pro'] ) ) {
@@ -1175,6 +1185,11 @@ class Util_Ui {
 
 		if ( isset( $a['description'] ) ) {
 			self::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
+		}
+
+		if ( isset( $a['score'] ) && isset( $a['score_description'] ) ) {
+			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
 		self::pro_wrap_maybe_end( $a['control_name'] );
@@ -1988,5 +2003,17 @@ class Util_Ui {
 				<?php
 				break;
 		}
+	}
+
+	/**
+	 * Prints the Google PageSpeed score block that is built into the config_item_xxx methods.
+	 * This allows for manual printing in places that may need it.
+	 *
+	 * @param string $score
+	 * @param string $score_description
+	 */
+	public static function print_score_block( $score, $score_description ) {
+		$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $score . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $score_description . '</div></div>';
+		echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 	}
 }
