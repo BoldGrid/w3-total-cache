@@ -47,14 +47,15 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cach
 							'In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s and improve your PageSpeed Scores today!',
 							'w3-total-cache'
 						),
-						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/' ) . '">',
+						'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof' ) . '">',
 						'</a>',
 						'<br /><br />',
 						'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
 					),
 					array(
 						'a'      => array(
-							'href' => array(),
+							'href'   => array(),
+							'target' => array(),
 						),
 						'br'     => array(),
 						'input'  => array(
@@ -130,14 +131,15 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 						'In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s and improve your PageSpeed Scores today!',
 						'w3-total-cache'
 					),
-					'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/' ) . '">',
+					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof' ) . '">',
 					'</a>',
 					'<br /><br />',
 					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
 				),
 				array(
 					'a'      => array(
-						'href' => array(),
+						'href'   => array(),
+						'target' => array(),
 					),
 					'br'     => array(),
 					'input'  => array(
