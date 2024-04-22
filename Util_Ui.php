@@ -1141,7 +1141,8 @@ class Util_Ui {
 		}
 
 		if ( isset( $a['pro'] ) ) {
-			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $a['extension_id'] ) );
+			$show_learn_more = isset( $a['show_learn_more'] ) && is_bool( $a['show_learn_more'] ) ? $a['show_learn_more'] : true;
+			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $a['extension_id'] ), $show_learn_more );
 		}
 
 		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
@@ -1192,7 +1193,8 @@ class Util_Ui {
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
-		self::pro_wrap_maybe_end( $a['control_name'] );
+		$show_learn_more = isset( $a['show_learn_more'] ) && is_bool( $a['show_learn_more'] ) ? $a['show_learn_more'] : true;
+		self::pro_wrap_maybe_end( $a['control_name'], $show_learn_more );
 
 		if ( 'w3tc_no_trtd' !== $a['label_class'] ) {
 			echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
@@ -1328,18 +1330,20 @@ class Util_Ui {
 		}
 	}
 
-	public static function pro_wrap_maybe_end( $button_data_src ) {
+	public static function pro_wrap_maybe_end( $button_data_src, $show_learn_more = true ) {
 		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 			return;
 		}
 
 		?>
 			</div>
+			<?php if ( $show_learn_more ) { ?>
 			<div class="w3tc-gopro-action">
 				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
 					Learn more about Pro
 				</button>
 			</div>
+			<?php } ?>
 		</div>
 		<?php
 	}
@@ -1355,18 +1359,20 @@ class Util_Ui {
 		<?php
 	}
 
-	public static function pro_wrap_maybe_end2( $button_data_src ) {
+	public static function pro_wrap_maybe_end2( $button_data_src, $show_unlock_feature = true ) {
 		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 			return;
 		}
 
 		?>
 			</p>
+			<?php if ( $show_unlock_feature ) { ?>
 			<div style="text-align: right">
 				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
 					Unlock Feature
 				</button>
 			</div>
+			<?php } ?>
 		</div>
 		<?php
 	}

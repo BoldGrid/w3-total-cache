@@ -37,28 +37,25 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cach
 			'disabled'          => ( $is_pro ? null : true ),
 			'description'       => array(),
 			'excerpt'           => esc_html__( 'Specify URLs that should be removed. Include one entry per line, e.g. (googletagmanager.com, gtag/js, myscript.js, and name="myscript")', 'w3-total-cache' ),
+			'show_learn_more'   => false,
 			'score'             => '27+',
 			'score_description' => ! $is_pro
 				? wp_kses(
 					sprintf(
-						// translators: 1 opening HTML strong tag, 2 closing HTML strong tag, 3 opening HTML a tag, 4 closing HTML a tag,
-						// translators: 5 two HTML br tags, 6 HTML input button to purchase pro license.
+						// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
 						__(
-							'In a recent test, removing unused CSS and JS added over 27 points to the %1$sGoogle PageSpeed Score%2$s! %3$sRead the documentation%4$s to learn how you can remove unused CSS and JS.%5$s%6$s and improve your PageSpeed Scores today!',
+							'In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s and improve your PageSpeed Scores today!',
 							'w3-total-cache'
 						),
-						'<strong>',
-						'</strong>',
 						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/' ) . '">',
 						'</a>',
 						'<br /><br />',
-						'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+						'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
 					),
 					array(
 						'a'      => array(
 							'href' => array(),
 						),
-						'strong' => array(),
 						'br'     => array(),
 						'input'  => array(
 							'type'     => array(),
@@ -128,24 +125,20 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 			'27+',
 			wp_kses(
 				sprintf(
-					// translators: 1 opening HTML strong tag, 2 closing HTML strong tag, 3 opening HTML a tag, 4 closing HTML a tag,
-					// translators: 5 two HTML br tags, 6 HTML input button to purchase pro license.
+					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
 					__(
-						'In a recent test, removing unused CSS and JS added over 27 points to the %1$sGoogle PageSpeed Score%2$s! %3$sRead the documentation%4$s to learn how you can remove unused CSS and JS.%5$s%6$s and improve your PageSpeed Scores today!',
+						'In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s and improve your PageSpeed Scores today!',
 						'w3-total-cache'
 					),
-					'<strong>',
-					'</strong>',
 					'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/' ) . '">',
 					'</a>',
 					'<br /><br />',
-					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
 				),
 				array(
 					'a'      => array(
 						'href' => array(),
 					),
-					'strong' => array(),
 					'br'     => array(),
 					'input'  => array(
 						'type'     => array(),
