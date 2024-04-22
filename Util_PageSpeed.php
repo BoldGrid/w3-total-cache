@@ -92,7 +92,7 @@ class Util_PageSpeed {
 		} elseif ( $metric['score'] >= 50 && $metric['score'] < 90 ) {
 			$bar = '<div style="flex-grow: ' . esc_attr( $metric['score'] ) . '"><span class="w3tcps_range w3tcps_average">' . esc_html( $metric['displayValue'] ) . '</span></div>';
 		} elseif ( $metric['score'] < 50 ) {
-			$bar = '<div style="flex-grow: ' . esc_attr( $metric['score'] ) . '"><span class="w3tcps_range w3tcps_fail">' . esc_html( $metric['displayValue'] ) . '<span></div>';
+			$bar = '<div style="flex-grow: ' . esc_attr( $metric['score'] ) . '"><span class="w3tcps_range w3tcps_fail">' . esc_html( $metric['displayValue'] ) . '</span></div>';
 		}
 
 		echo wp_kses(
