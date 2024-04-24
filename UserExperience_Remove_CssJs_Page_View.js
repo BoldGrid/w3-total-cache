@@ -57,7 +57,7 @@ jQuery(function() {
 						'<th><label class="remove_cssjs_singles_' + singleID + '_includes_label" for="remove_cssjs_singles_' + singleID + '_includes">Exclude on these pages:</label></th>' +
 						'<td>' +
 						'<textarea id="remove_cssjs_singles_' + singleID + '_includes" name="user-experience-remove-cssjs-singles[' + singlePath + '][includes]" rows="5" cols="50" ></textarea>' +
-						'<p class="description remove_cssjs_singles_' + singleID + '_includes_description">Specify relative/absolute page URLs that the above CSS/JS file should be excluded from. Include one entry per line.</p>' +
+						'<p class="description remove_cssjs_singles_' + singleID + '_includes_description">Specify the relative or absolute page URLs from which the above CSS/JS file should be excluded. Include one entry per line.</p>' +
 						'</td>' +
 						'</tr>' +
 						'</table>' +
@@ -94,10 +94,10 @@ jQuery(function() {
 			var parentId = jQuery(this).closest('li').attr('id');
 			if (this.value === 'exclude') {
 				jQuery('.' + parentId + '_includes_label').text('Exclude on these pages:');
-				jQuery('.' + parentId + '_includes_description').text('Specify relative/absolute page URLs that the above CSS/JS should be excluded from. Include one entry per line.');
+				jQuery('.' + parentId + '_includes_description').text('Specify the relative or absolute page URLs from which the above CSS/JS file should be excluded. Include one entry per line.');
 			} else {
 				jQuery('.' + parentId + '_includes_label').text('Include on these pages:');
-				jQuery('.' + parentId + '_includes_description').text('Specify relative/absolute page URLs that the above CSS/JS should be included for. Include one entry per line.');
+				jQuery('.' + parentId + '_includes_description').text('Specify the relative or absolute page URLs from which the above CSS/JS file should be included. Include one entry per line.');
 			}
 		}
 	);

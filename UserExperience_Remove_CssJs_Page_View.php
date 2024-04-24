@@ -102,10 +102,10 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 								sprintf(
 									// translators: 1 action description based on behavior selector.
 									__(
-										'Specify relative/absolute page URLs that the above CSS/JS should be %1$s. Include one entry per line.',
+										'Specify the relative or absolute page URLs from which the above CSS/JS file should be %1$s. Include one entry per line.',
 										'w3-total-cache'
 									),
-									'exclude' === $single_config['action'] ? __( 'excluded from', 'w3-total-cache' ) : __( 'included for', 'w3-total-cache' )
+									'exclude' === $single_config['action'] ? __( 'excluded', 'w3-total-cache' ) : __( 'included', 'w3-total-cache' )
 								)
 							);
 							?>
