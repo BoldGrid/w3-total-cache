@@ -59,11 +59,11 @@ def generate_image_descriptors
 		'apache' => {
 			'HTTP_SERVER' => 'apache',
 			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/apache2/wp.sandbox_error.log'
-		},
-		'litespeed' => {
-			'HTTP_SERVER' => 'litespeed',
-			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
-		}
+		}#,
+		#'litespeed' => {
+		#	'HTTP_SERVER' => 'litespeed',
+		#	'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
+		#}
 	})
 
 	# multiply by php
@@ -80,18 +80,18 @@ def generate_image_descriptors
 			]
 		},
 		# litespeed-specific, lighter env to keep scope tight
-		'php80tiny' => {
-			'PHP_VERSION' => '8.0',
-			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
-			'OS' => 'focal',
-			'APC' => '',
-			'MEMCACHE' => '',
-			'REDIS' => '',
-			'_except_name_contains' => [
-				'apache',
-				'nginx',
-			]
-		},
+		#'php80tiny' => {
+		#	'PHP_VERSION' => '8.0',
+		#	'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
+		#	'OS' => 'focal',
+		#	'APC' => '',
+		#	'MEMCACHE' => '',
+		#	'REDIS' => '',
+		#	'_except_name_contains' => [
+		#		'apache',
+		#		'nginx',
+		#	]
+		#},
 		'php74' => {
 			'PHP_VERSION' => '7.4',
 			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
@@ -102,20 +102,20 @@ def generate_image_descriptors
 			'_except_name_contains' => [
 				'litespeed'
 			]
-		},
-		'php56' => {
-			'PHP_VERSION' => '5.6',
-			'PHPFPM_SOCKET_FILE' => '/run/php/php5.6-fpm.sock',
-			'OS' => 'focal',
-			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
-			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis',
-			'_except_name_contains' => [
-				'litespeed',
-				'wp63', # wp6.3 requires php>=7.0
-				'wp64', # wp6.4 requires php>=7.0
-			]
-		}
+		}#,
+		#'php56' => {
+		#	'PHP_VERSION' => '5.6',
+		#	'PHPFPM_SOCKET_FILE' => '/run/php/php5.6-fpm.sock',
+		#	'OS' => 'focal',
+		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+		#	'MEMCACHE' => 'memcached',
+		#	'REDIS' => 'redis',
+		#	'_except_name_contains' => [
+		#		'litespeed',
+		#		'wp63', # wp6.3 requires php>=7.0
+		#		'wp64', # wp6.4 requires php>=7.0
+		#	]
+		#}
 	})
 
 	php_last = php_list.keys.sort[-1]
@@ -138,7 +138,7 @@ def generate_image_descriptors
 				'_except_name_contains' => [
 					'litespeed'
 				]
-			},
+			}
 			#'varnish' => {
 			#	'HTTP_SERVER_PORT' => '8080',
 			#	'WP_MAYBE_COLON_PORT' => '',
@@ -172,9 +172,9 @@ def generate_box_descriptors(image_name)
 		#		'litespeed'
 		#	]
 		#},
-		'wp59' => {
-			'WP_VERSION' => '5.9'
-		},
+		#'wp59' => {
+		#	'WP_VERSION' => '5.9'
+		#},
 		#'wp60' => {
 		#	'WP_VERSION' => '6.0',
 		#	'_except_name_contains' => [
@@ -187,18 +187,25 @@ def generate_box_descriptors(image_name)
 		#		'litespeed'
 		#	]
 		#},
-		'wp63' => {
-			'WP_VERSION' => '6.3',
-			'_except_name_contains' => [
-				'litespeed',
-				'php56' # wp6.3 requires php>=7.0
-			]
-		},
+		#'wp63' => {
+		#	'WP_VERSION' => '6.3',
+		#	'_except_name_contains' => [
+		#		'litespeed',
+		#		'php56' # wp6.3 requires php>=7.0
+		#	]
+		#},
 		'wp64' => {
 			'WP_VERSION' => '6.4',
 			'_except_name_contains' => [
 				'litespeed',
 				'php56' # wp6.4 requires php>=7.0
+			]
+		},
+		'wp65' => {
+			'WP_VERSION' => '6.5-RC4',
+			'_except_name_contains' => [
+				'litespeed',
+				'php56' # wp6.5 requires php>=7.0
 			]
 		}
 	}, image_name)
