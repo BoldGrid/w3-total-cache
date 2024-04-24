@@ -203,15 +203,17 @@ class UserExperience_Remove_CssJs_Extension {
 	 * @param array $old_config Old Config.
 	 */
 	public static function w3tc_config_ui_save_w3tc_userexperience( $new_config, $old_config ) {
-		$cssjs_singles = Util_Request::get_array( 'user-experience-remove-cssjs-singles' );
+		$raw_cssjs_singles = Util_Request::get_array( 'user-experience-remove-cssjs-singles' );
 
-		foreach ( $cssjs_singles as $url => $pages ) {
-			if ( is_string( $pages['includes'] ) ) {
+		$new_cssjs_singles = array();
+		foreach ( $raw_cssjs_singles as $url => $pages ) {
+			if ( esc_url( $url ) && is_string( $pages['includes'] ) && ! empty( $pages['action'] ) ) {
+				$new_cssjs_singles[ $url ]['action']   = $pages['action'];
 				$new_cssjs_singles[ $url ]['includes'] = Util_Environment::textarea_to_array( $pages['includes'] );
 			}
 		}
 
-		$new_config->set( 'user-experience-remove-cssjs-singles', $cssjs_singles );
+		$new_config->set( 'user-experience-remove-cssjs-singles', $new_cssjs_singles );
 
 		$old_cssjs_includes = $old_config->get_array( array( 'user-experience-remove-cssjs', 'includes' ) );
 		$old_cssjs_singles  = $old_config->get_array( 'user-experience-remove-cssjs-singles' );
