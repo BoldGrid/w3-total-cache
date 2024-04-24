@@ -113,7 +113,7 @@ describe('', function() {
 
 			log.log('found ' + followUrl);
 			await page.goto(followUrl);
-			await page.waitFor(function() {
+			await page.waitForFunction(function() {
 				return document.getElementById('pass1-text') &&
 					document.getElementById('pass1-text').value != '';
 			});
@@ -137,7 +137,7 @@ describe('', function() {
 
 			log.log('found ' + followUrl);
 			await page.goto(followUrl);
-			await page.waitFor(function() {
+			await page.waitForFunction(function() {
 				return document.getElementById('pass1') &&
 					document.getElementById('pass1').value != '';
 			});

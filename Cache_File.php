@@ -465,7 +465,7 @@ class Cache_File extends Cache_Base {
 	/**
 	 * Flush cache based on regex
 	 *
-	 * @since X.X.X
+	 * @since 2.7.1
 	 *
 	 * @param string  $regex
 	 */
