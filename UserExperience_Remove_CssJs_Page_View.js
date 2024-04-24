@@ -13,7 +13,12 @@ jQuery(function() {
 		function() {
 			var single_path = prompt('Enter CSS/JS URL.');
 
-			if (single_path !== null) {
+			if (single_path === null) {
+				return;
+			}
+
+			single_path = single_path.trim();
+			if (single_path !== '') {
 				var exists = false;
 
 				jQuery('.remove_cssjs_singles_path').each(

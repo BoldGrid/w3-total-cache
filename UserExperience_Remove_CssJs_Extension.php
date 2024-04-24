@@ -55,7 +55,7 @@ class UserExperience_Remove_CssJs_Extension {
 
 		Util_Bus::add_ob_callback( 'removecssjs', array( $this, 'ob_callback' ) );
 
-		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ) );
+		add_action( 'w3tc_config_ui_save-w3tc_userexperience', array( $this, 'w3tc_config_ui_save_w3tc_userexperience' ), 10, 2 );
 
 		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 12 );
 
@@ -195,32 +195,32 @@ class UserExperience_Remove_CssJs_Extension {
 	/**
 	 * Performs actions on save.
 	 *
-	 * @since 2.7.0
+	 * @since X.X.X
 	 *
-	 * @param array $data Array of save data.
+	 * @static
 	 *
-	 * @return array
+	 * @param array $new_config New Config.
+	 * @param array $old_config Old Config.
 	 */
-	public function w3tc_save_options( $data ) {
-		$new_config = $data['new_config'];
-		$old_config = $data['old_config'];
+	public static function w3tc_config_ui_save_w3tc_userexperience( $new_config, $old_config ) {
+		$cssjs_singles = Util_Request::get_array( 'user-experience-remove-cssjs-singles' );
+
+		foreach ( $cssjs_singles as $url => $pages ) {
+			if ( is_string( $pages['includes'] ) ) {
+				$new_cssjs_singles[ $url ]['includes'] = Util_Environment::textarea_to_array( $pages['includes'] );
+			}
+		}
+
+		$new_config->set( 'user-experience-remove-cssjs-singles', $cssjs_singles );
 
 		$old_cssjs_includes = $old_config->get_array( array( 'user-experience-remove-cssjs', 'includes' ) );
 		$old_cssjs_singles  = $old_config->get_array( 'user-experience-remove-cssjs-singles' );
 		$new_cssjs_includes = $new_config->get_array( array( 'user-experience-remove-cssjs', 'includes' ) );
 		$new_cssjs_singles  = $new_config->get_array( 'user-experience-remove-cssjs-singles' );
 
-		foreach ( $new_cssjs_singles as $url => $pages ) {
-			if ( is_string( $pages['includes'] ) ) {
-				$new_cssjs_singles[ $url ]['includes'] = Util_Environment::textarea_to_array( $pages['includes'] );
-			}
-		}
-
-		$new_config->set( 'user-experience-remove-cssjs-singles', $new_cssjs_singles );
-
 		if ( $new_cssjs_includes !== $old_cssjs_includes || $new_cssjs_singles !== $old_cssjs_singles ) {
-			$minify_enabled  = $this->config->get_boolean( 'minify.enabled' );
-			$pgcache_enabled = $this->config->get_boolean( 'pgcache.enabled' );
+			$minify_enabled  = $new_config->get_boolean( 'minify.enabled' );
+			$pgcache_enabled = $new_config->get_boolean( 'pgcache.enabled' );
 			if ( $minify_enabled || $pgcache_enabled ) {
 				$state = Dispatcher::config_state();
 				if ( $minify_enabled ) {
@@ -232,8 +232,6 @@ class UserExperience_Remove_CssJs_Extension {
 				$state->save();
 			}
 		}
-
-		return $data;
 	}
 
 	/**
