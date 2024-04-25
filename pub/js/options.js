@@ -514,6 +514,15 @@ jQuery(function() {
 			jQuery('#pgcache__cache__nginx_handle_xml').attr('checked', this.checked);
 	});
 
+	w3tc_input_enable('#pgcache_prime_interval', jQuery('#pgcache__prime__enabled:checked').length);
+	w3tc_input_enable('#pgcache_prime_limit', jQuery('#pgcache__prime__enabled:checked').length);
+	w3tc_input_enable('#pgcache_prime_sitemap', jQuery('#pgcache__prime__enabled:checked').length);
+	jQuery('#pgcache__prime__enabled').on('click', function() {
+		w3tc_input_enable('#pgcache_prime_interval', jQuery('#pgcache__prime__enabled:checked').length);
+		w3tc_input_enable('#pgcache_prime_limit', jQuery('#pgcache__prime__enabled:checked').length);
+		w3tc_input_enable('#pgcache_prime_sitemap', jQuery('#pgcache__prime__enabled:checked').length);
+	});
+
 	// Browsercache page.
 	w3tc_toggle2('browsercache_last_modified', ['browsercache__cssjs__last_modified', 'browsercache__html__last_modified',
 		'browsercache__other__last_modified'
