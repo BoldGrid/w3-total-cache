@@ -18,9 +18,10 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 *
 	 * @return array
 	 */
-	static public function regions_list() {
+	public static function regions_list() {
 		return array(
-			'us-east-1'      => __( 'US East (N. Virginia)', 'w3-total-cache' ),
+			'us-east-1'      => __( 'US East (N. Virginia) (default)', 'w3-total-cache' ), // Default; region not included in hostnmae.
+			'us-east-1-e'    => __( 'US East (N. Virginia) (long hostname)', 'w3-total-cache' ), // Explicitly included in hostname.
 			'us-east-2'      => __( 'US East (Ohio)', 'w3-total-cache' ),
 			'us-west-1'      => __( 'US West (N. California)', 'w3-total-cache' ),
 			'us-west-2'      => __( 'US West (Oregon)', 'w3-total-cache' ),

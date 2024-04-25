@@ -61,7 +61,7 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th><label for="cdn_cf_bucket"><?php esc_html_e( 'Bucket:', 'w3-total-cache' ); ?></label></th>
 	<td>
-		<input id="cdn_cf_bucket" type="text" name="cdn__cf__bucket"
+		<input id="cdn_cf_bucket" type="text" name="cdn__cf__bucket" maxlength="63"
 		<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> value="<?php echo esc_attr( strtolower( $this->_config->get_string( 'cdn.cf.bucket' ) ) ); ?>" size="30" />
 			<?php
 			Util_Ui::selectbox(
@@ -73,6 +73,7 @@ if ( ! defined( 'W3TC' ) ) {
 			?>
 		<b>or</b>
 		<input id="cdn_create_container" class="button {type: 'cf', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Create as new bucket with distribution', 'w3-total-cache' ); ?>" /> <span id="cdn_create_container_status" class="w3tc-status w3tc-process"></span>
+		<br /><?php echo esc_html__( 'Bucket hostname', 'w3-total-cache' ); ?>: <span id="cdn-cf-bucket-hostname"><?php echo esc_html__( 'Unknown', 'w3-total-cache' ); ?></span>
 	</td>
 </tr>
 <tr>
