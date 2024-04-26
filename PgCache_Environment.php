@@ -761,7 +761,7 @@ class PgCache_Environment {
 		/**
 		 * Filter: Allow adding additional rules at the end of the PGCACHE_CORE block, before the last rule.
 		 *
-		 * @since X.X.X
+		 * @since 2.7.1
 		 *
 		 * @param string $rules           Additional rules.
 		 * @param string $use_cache_rules Rewrite conditions for non-POST, empty query string, rejected cookies, and rejected user agents.
@@ -1150,7 +1150,7 @@ class PgCache_Environment {
 		/**
 		 * Filter: Allow modifying the key_postfix string used in the PGCACHE_CORE block.
 		 *
-		 * @since X.X.X
+		 * @since 2.7.1
 		 *
 		 * @param string $key_postfix Key postfix string.
 		 */

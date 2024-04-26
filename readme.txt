@@ -1,9 +1,9 @@
-=== Plugin Name ===
+=== W3 Total Cache ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
-Tested up to: 6.4
-Stable tag: 2.7.0
+Tested up to: 6.5
+Stable tag: 2.7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,14 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.7.1 =
+* Fix: Page Cache: Prefer Brotli over Gzip
+* Fix: Page Cache: Purge sitemaps on post creation/edit/trash/delete
+* Fix: Page Cache: Processed content filter
+* Fix: Minify URL to filename filter mapping
+* Update: Added Bunny CDN partner information
+* Update: Added filters for Apache rules and Page Cache postfix
 
 = 2.7.0 =
 * Feature: Performance Dashboard update
