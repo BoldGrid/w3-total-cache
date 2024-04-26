@@ -81,6 +81,20 @@ class UserExperience_Remove_CssJs_Mutator {
 		// Sets singles includes data whose matches will be removed on mated pages.
 		$this->singles_includes = $this->config->get_array( 'user-experience-remove-cssjs-singles' );
 
+		// If old data structure convert to new.
+		// Old data structure used url_pattern as the key for each block. New uses indicies and has url_pattern within.
+		if ( ! is_numeric( key( $this->singles_includes ) ) ) {
+			$new_array = array();
+			foreach ( $this->singles_includes as $match => $data ) {
+				$new_array[] = array(
+					"url_pattern" => $match,
+					"action"      => $data["action"],
+					"includes"    => $data["includes"]
+				);
+			}
+			$this->singles_includes = $new_array;
+		}
+
 		$buffer = preg_replace_callback(
 			'~(<link.*?href.*?/>)|(<script.*?src.*?<\/script>)~is',
 			array( $this, 'remove_content' ),
@@ -141,9 +155,9 @@ class UserExperience_Remove_CssJs_Mutator {
 		);
 
 		// Only removes matched CSS/JS on matching pages.
-		foreach ( $this->singles_includes as $include => $config ) {
+		foreach ( $this->singles_includes as $id => $config ) {
 			// Check if the given single CSS/JS remove rule URL is present in HTML content.
-			if ( ! empty( $config ) && strpos( $content, $include ) !== false ) {
+			if ( ! empty( $config ) && strpos( $content, $config['url_pattern'] ) !== false ) {
 				// Check if current page matches defined pages for given single CSS/JS remove rule.
 				$page_match = array_intersect(
 					$current_pages,

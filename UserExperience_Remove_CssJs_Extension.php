@@ -55,7 +55,7 @@ class UserExperience_Remove_CssJs_Extension {
 
 		Util_Bus::add_ob_callback( 'removecssjs', array( $this, 'ob_callback' ) );
 
-		add_action( 'w3tc_config_ui_save-w3tc_userexperience', array( $this, 'w3tc_config_ui_save_w3tc_userexperience' ), 10, 2 );
+		add_action( 'w3tc_save_options', array( $this, 'w3tc_save_options' ), 10, 2 );
 
 		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 12 );
 
@@ -195,30 +195,36 @@ class UserExperience_Remove_CssJs_Extension {
 	/**
 	 * Performs actions on save.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.0
 	 *
-	 * @static
+	 * @param array $data Array of save data.
+	 * @param array $page String page value.
 	 *
-	 * @param array $new_config New Config.
-	 * @param array $old_config Old Config.
+	 * @return array
 	 */
-	public static function w3tc_config_ui_save_w3tc_userexperience( $new_config, $old_config ) {
-		$raw_cssjs_singles = Util_Request::get_array( 'user-experience-remove-cssjs-singles' );
-
-		$new_cssjs_singles = array();
-		foreach ( $raw_cssjs_singles as $url => $pages ) {
-			if ( esc_url( $url ) && is_string( $pages['includes'] ) && ! empty( $pages['action'] ) ) {
-				$new_cssjs_singles[ $url ]['action']   = $pages['action'];
-				$new_cssjs_singles[ $url ]['includes'] = Util_Environment::textarea_to_array( $pages['includes'] );
-			}
-		}
-
-		$new_config->set( 'user-experience-remove-cssjs-singles', $new_cssjs_singles );
+	public function w3tc_save_options( $data, $page ) {
+		$new_config = $data['new_config'];
+		$old_config = $data['old_config'];
 
 		$old_cssjs_includes = $old_config->get_array( array( 'user-experience-remove-cssjs', 'includes' ) );
 		$old_cssjs_singles  = $old_config->get_array( 'user-experience-remove-cssjs-singles' );
 		$new_cssjs_includes = $new_config->get_array( array( 'user-experience-remove-cssjs', 'includes' ) );
 		$new_cssjs_singles  = $new_config->get_array( 'user-experience-remove-cssjs-singles' );
+
+		if ( $new_cssjs_singles !== $old_cssjs_singles ) {
+			$raw_cssjs_singles = $new_config->get_array( 'user-experience-remove-cssjs-singles' );
+
+			$new_cssjs_singles = array();
+			foreach ( $raw_cssjs_singles as $single_id => $single_config ) {
+				if ( ! empty( $single_config['url_pattern'] ) && ! empty( $single_config['action'] ) && is_string( $single_config['includes'] ) ) {
+					$new_cssjs_singles[ $single_id ]['url_pattern'] = filter_var( $single_config['url_pattern'], FILTER_SANITIZE_URL );
+					$new_cssjs_singles[ $single_id ]['action']      = $single_config['action'];
+					$new_cssjs_singles[ $single_id ]['includes']    = Util_Environment::textarea_to_array( $single_config['includes'] );
+				}
+			}
+
+			$new_config->set( 'user-experience-remove-cssjs-singles', $new_cssjs_singles );
+		}
 
 		if ( $new_cssjs_includes !== $old_cssjs_includes || $new_cssjs_singles !== $old_cssjs_singles ) {
 			$minify_enabled  = $new_config->get_boolean( 'minify.enabled' );
@@ -234,6 +240,8 @@ class UserExperience_Remove_CssJs_Extension {
 				$state->save();
 			}
 		}
+
+		return $data;
 	}
 
 	/**

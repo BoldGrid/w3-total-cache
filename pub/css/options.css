@@ -379,7 +379,9 @@ textarea.w3tc-error {
 }
 
 .w3tc_remove_cssjs_singles .remove_cssjs_singles_path {
-	padding: 5px 10px;
+	margin-top: -5px;
+	width: 75% !important;
+	display: inline-block !important;
 }
 
 .w3tc_remove_cssjs_singles .remove_cssjs_singles_behavior {
