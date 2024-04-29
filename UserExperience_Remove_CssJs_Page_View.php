@@ -26,7 +26,7 @@ if ( ! is_numeric( key( $remove_cssjs_singles ) ) ) {
     foreach ( $remove_cssjs_singles as $match => $data ) {
         $new_array[] = array(
             "url_pattern" => $match,
-            "action"      => $data["action"],
+            "action"      => isset( $data["action"] ) ? $data["action"] : 'exclude',
             "includes"    => $data["includes"]
         );
     }

@@ -88,7 +88,7 @@ class UserExperience_Remove_CssJs_Mutator {
 			foreach ( $this->singles_includes as $match => $data ) {
 				$new_array[] = array(
 					"url_pattern" => $match,
-					"action"      => $data["action"],
+					"action"      => isset( $data["action"] ) ? $data["action"] : 'exclude',
 					"includes"    => $data["includes"]
 				);
 			}
