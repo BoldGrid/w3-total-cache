@@ -155,9 +155,9 @@ class UserExperience_Remove_CssJs_Mutator {
 		);
 
 		// Only removes matched CSS/JS on matching pages.
-		foreach ( $this->singles_includes as $id => $config ) {
+		foreach ( $this->singles_includes as $id => $data ) {
 			// Check if the given single CSS/JS remove rule URL is present in HTML content.
-			if ( ! empty( $config ) && strpos( $content, $config['url_pattern'] ) !== false ) {
+			if ( ! empty( $data ) && strpos( $content, $data['url_pattern'] ) !== false ) {
 				// Check if current page matches defined pages for given single CSS/JS remove rule.
 				$page_match = array_intersect(
 					$current_pages,
@@ -165,15 +165,17 @@ class UserExperience_Remove_CssJs_Mutator {
 						function ($value) {
 							return ltrim($value, '/');
 						},
-						$config['includes']
+						$data['includes']
 					)
 				);
 
-				// If set to exclude, remove the file if the page matches defined URLs.
-				// If set to include, Remove the file if the page doesn't match defined URLs.
-				if ( 'exclude' === $config['action'] && $page_match ) {
+				/**
+				 * If set to exclude, remove the file if the page matches defined URLs.
+				 * If set to include, Remove the file if the page doesn't match defined URLs.
+				 */
+				if ( 'exclude' === $data['action'] && $page_match ) {
 					return true;
-				} elseif ( 'include' === $config['action'] && ! $page_match ) {
+				} elseif ( 'include' === $data['action'] && ! $page_match ) {
 					return true;
 				}
 			}

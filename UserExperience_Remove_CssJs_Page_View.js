@@ -13,7 +13,7 @@ jQuery(function() {
 		'click',
 		'#w3tc_remove_cssjs_singles_add',
 		function() {
-			let singlePath = prompt(W3TCRemoveCssJsData.singlesPrompt);
+			let singlePath = prompt(W3TCRemoveCssJsData.lang.singlesPrompt);
 
 			if (null === singlePath) {
 				return;
@@ -33,7 +33,7 @@ jQuery(function() {
 						}
 
 						if (jQuery(this).val() === singlePath) {
-							alert(W3TCRemoveCssJsData.singlesExists);
+							alert(W3TCRemoveCssJsData.lang.singlesExists);
 							exists = true;
 							return false;
 						}
@@ -47,26 +47,26 @@ jQuery(function() {
 						'<li id="remove_cssjs_singles_' + singleID + '">' +
 						'<table class="form-table">' +
 						'<tr>' +
-						'<th>' + W3TCRemoveCssJsData.singlesPathLabel + '</th>' +
+						'<th>' + W3TCRemoveCssJsData.lang.singlesPathLabel + '</th>' +
 						'<td>' +
 						'<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[' + singleID + '][url_pattern]" value="' + singlePath + '" >' +
-						'<input type="button" class="button remove_cssjs_singles_delete" value="' + W3TCRemoveCssJsData.singlesDelete + '"/>' +
+						'<input type="button" class="button remove_cssjs_singles_delete" value="' + W3TCRemoveCssJsData.lang.singlesDelete + '"/>' +
 						'</td>' +
 						'</tr>' +
 						'<tr>' +
-						'<th><label for="remove_cssjs_singles_' + singleID + '_action">' + W3TCRemoveCssJsData.singlesBehaviorLabel + '</label></th>' +
+						'<th><label for="remove_cssjs_singles_' + singleID + '_action">' + W3TCRemoveCssJsData.lang.singlesBehaviorLabel + '</label></th>' +
 						'<td>' +
-						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="exclude" checked>' + W3TCRemoveCssJsData.singlesBehaviorExcludeText + '</label>' +
-						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="include">' + W3TCRemoveCssJsData.singlesBehaviorIncludeText + '</label>' +
-						'<p class="description">' + W3TCRemoveCssJsData.singlesBehaviorDescription + '</p>' +
-						'<p class="description">' + W3TCRemoveCssJsData.singlesBehaviorDescription2 + '</p>' +
+						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="exclude" checked>' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText + '</label>' +
+						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="include">' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText + '</label>' +
+						'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription + '</p>' +
+						'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription2 + '</p>' +
 						'</td>' +
 						'</tr>' +
 						'<tr>' +
-						'<th><label class="remove_cssjs_singles_' + singleID + '_includes_label" for="remove_cssjs_singles_' + singleID + '_includes">' + W3TCRemoveCssJsData.singlesIncludesLabelExclude + '</label></th>' +
+						'<th><label class="remove_cssjs_singles_' + singleID + '_includes_label" for="remove_cssjs_singles_' + singleID + '_includes">' + W3TCRemoveCssJsData.lang.singlesIncludesLabelExclude + '</label></th>' +
 						'<td>' +
 						'<textarea id="remove_cssjs_singles_' + singleID + '_includes" name="user-experience-remove-cssjs-singles[' + singleID + '][includes]" rows="5" cols="50" ></textarea>' +
-						'<p class="description remove_cssjs_singles_' + singleID + '_includes_description">' + W3TCRemoveCssJsData.singlesIncludesDescriptionExclude + '</p>' +
+						'<p class="description remove_cssjs_singles_' + singleID + '_includes_description">' + W3TCRemoveCssJsData.lang.singlesIncludesDescriptionExclude + '</p>' +
 						'</td>' +
 						'</tr>' +
 						'</table>' +
@@ -79,7 +79,7 @@ jQuery(function() {
 					li.find('textarea').focus();
 				}
 			} else {
-				alert(W3TCRemoveCssJsData.singlesEmptyUrl);
+				alert(W3TCRemoveCssJsData.lang.singlesEmptyUrl);
 			}
 		}
 	);
@@ -103,7 +103,7 @@ jQuery(function() {
 				jQuery('.remove_cssjs_singles_path').not($inputField).each(
 					function() {
 						if (jQuery(this).val() === singlePath) {
-							alert(W3TCRemoveCssJsData.singlesExists);
+							alert(W3TCRemoveCssJsData.lang.singlesExists);
 							exists = true;
 							$inputField.val(originalValue);
 							return false;
@@ -115,7 +115,7 @@ jQuery(function() {
 					$inputField.data('originalValue', singlePath);
 				}
 			} else {
-				alert(W3TCRemoveCssJsData.singlesEmptyUrl);
+				alert(W3TCRemoveCssJsData.lang.singlesEmptyUrl);
 			}
 		}
 	);
@@ -124,10 +124,10 @@ jQuery(function() {
 		'click',
 		'.remove_cssjs_singles_delete',
 		function () {
-			if (confirm(W3TCRemoveCssJsData.singlesDeleteConfirm)) {
+			if (confirm(W3TCRemoveCssJsData.lang.singlesDeleteConfirm)) {
 				jQuery(this).parents('#remove_cssjs_singles li').remove();
 				if (0 === jQuery('#remove_cssjs_singles li').length) {
-					jQuery('#remove_cssjs_singles').append('<li id="remove_cssjs_singles_empty">' + W3TCRemoveCssJsData.singlesNoEntries + '<input type="hidden" name="user-experience-remove-cssjs-singles[]"></li>');
+					jQuery('#remove_cssjs_singles').append('<li id="remove_cssjs_singles_empty">' + W3TCRemoveCssJsData.lang.singlesNoEntries + '<input type="hidden" name="user-experience-remove-cssjs-singles[]"></li>');
 				}
 				w3tc_beforeupload_bind();
 			}
@@ -140,11 +140,11 @@ jQuery(function() {
 		function () {
 			const parentId = jQuery(this).closest('li').attr('id');
 			if (this.value === 'exclude') {
-				jQuery('.' + parentId + '_includes_label').text(W3TCRemoveCssJsData.singlesIncludesLabelExclude);
-				jQuery('.' + parentId + '_includes_description').text(W3TCRemoveCssJsData.singlesIncludesDescriptionExclude);
+				jQuery('.' + parentId + '_includes_label').text(W3TCRemoveCssJsData.lang.singlesIncludesLabelExclude);
+				jQuery('.' + parentId + '_includes_description').text(W3TCRemoveCssJsData.lang.singlesIncludesDescriptionExclude);
 			} else {
-				jQuery('.' + parentId + '_includes_label').text(W3TCRemoveCssJsData.singlesIncludesLabelInclude);
-				jQuery('.' + parentId + '_includes_description').text(W3TCRemoveCssJsData.singlesIncludesDescriptionInclude);
+				jQuery('.' + parentId + '_includes_label').text(W3TCRemoveCssJsData.lang.singlesIncludesLabelInclude);
+				jQuery('.' + parentId + '_includes_description').text(W3TCRemoveCssJsData.lang.singlesIncludesDescriptionInclude);
 			}
 		}
 	);
