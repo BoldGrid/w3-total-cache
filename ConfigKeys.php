@@ -694,6 +694,10 @@ $keys = array(
 		'type' => 'boolean',
 		'default' => false
 	),
+	'pgcache.prime.post.update.enabled' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
 	'pgcache.rest' => array(
 		'type' => 'string',
 		'default' => ''
