@@ -54,6 +54,33 @@ if ( ! defined( 'W3TC' ) ) {
 					<p class="description"><?php esc_html_e( 'Even if using a feed proxy service enabling this option is still recommended.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
+			<?php if ( 'file_generic' === $this->_config->get_string( 'pgcache.engine' ) ) : ?>
+				<tr>
+					<th>
+						<?php $this->checkbox( 'pgcache.cache.nginx_handle_xml' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.nginx_handle_xml' ); ?></label>
+						<p class="description">
+							<?php
+							echo wp_kses(
+								sprintf(
+									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+									__(
+										'Return correct Content-Type header for %1$sXML%2$s files (e.g., feeds and sitemaps).',
+										'w3-total-cache'
+									),
+									'<acronym title="' . esc_attr__( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
+									'</acronym>'
+								),
+								array(
+									'acronym' => array(
+										'title' => array(),
+									),
+								)
+							);
+							?>
+						</p>
+					</th>
+				</tr>
+			<?php endif; ?>
 			<tr>
 				<th>
 					<?php $this->checkbox( 'pgcache.cache.ssl' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.ssl' ); ?></label>
@@ -774,34 +801,6 @@ if ( ! defined( 'W3TC' ) ) {
 					<p class="description"><?php esc_html_e( 'Specify additional page headers to cache.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
-			<?php if ( 'file_generic' === $this->_config->get_string( 'pgcache.engine' ) ) : ?>
-				<tr>
-					<th><?php Util_Ui::e_config_label( 'pgcache.cache.nginx_handle_xml' ); ?></th>
-					<td>
-						<?php $this->checkbox( 'pgcache.cache.nginx_handle_xml' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.nginx_handle_xml' ); ?></label>
-						<p class="description">
-							<?php
-							echo wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-									__(
-										'Return correct Content-Type header for %1$sXML%2$s files (e.g., feeds and sitemaps). Slows down cache engine.',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							);
-							?>
-						</p>
-					</td>
-				</tr>
-			<?php endif; ?>
 		</table>
 
 		<?php Util_Ui::postbox_footer(); ?>

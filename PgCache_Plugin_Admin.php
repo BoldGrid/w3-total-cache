@@ -263,6 +263,10 @@ class PgCache_Plugin_Admin {
 		$new_config = $data['new_config'];
 		$old_config = $data['old_config'];
 
+		if ( $new_config->get_boolean( 'pgcache.cache.feed' ) ) {
+			$new_config->set( 'pgcache.cache.nginx_handle_xml', true );
+		}
+
 		if ( ( !$new_config->get_boolean( 'pgcache.cache.home' ) && $old_config->get_boolean( 'pgcache.cache.home' ) ) ||
 			$new_config->get_boolean( 'pgcache.reject.front_page' ) && !$old_config->get_boolean( 'pgcache.reject.front_page' ) ||
 			!$new_config->get_boolean( 'pgcache.cache.feed' ) && $old_config->get_boolean( 'pgcache.cache.feed' ) ||
