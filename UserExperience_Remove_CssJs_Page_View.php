@@ -89,38 +89,6 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 <p>
 	<?php esc_html_e( 'Use this area to manage individual CSS/JS entries. The target CSS/JS for each rule can be either an absolute/relative URL or file name, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name="myscript", etc.)', 'w3-total-cache' ); ?>
 </p>
-<?php
-if ( ! $is_pro ) {
-	Util_Ui::print_score_block(
-		'27+',
-		wp_kses(
-			sprintf(
-				// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
-				__(
-					'In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!',
-					'w3-total-cache'
-				),
-				'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof' ) . '">',
-				'</a>',
-				'<br /><br /><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-			),
-			array(
-				'a'      => array(
-					'href'   => array(),
-					'target' => array(),
-				),
-				'br'     => array(),
-				'input'  => array(
-					'type'     => array(),
-					'class'    => array(),
-					'data-src' => array(),
-					'value'    => array(),
-				),
-			)
-		)
-	);
-}
-?>
 <div class="w3tc-gopro-manual-wrap">
 	<?php Util_Ui::pro_wrap_maybe_start(); ?>
 	<p>
@@ -196,7 +164,7 @@ if ( ! $is_pro ) {
 		} else {
 			?>
 			<li id="remove_cssjs_singles_empty">
-				<?php esc_html_e( 'No CSS/JS entires added.', 'w3-total-cache' ); ?>
+				<?php esc_html_e( 'No CSS/JS entries added.', 'w3-total-cache' ); ?>
 				<input type="hidden" name="user-experience-remove-cssjs-singles[]">
 			</li>
 			<?php
@@ -204,7 +172,38 @@ if ( ! $is_pro ) {
 		?>
 	</ul>
 	<?php
-	Util_Ui::pro_wrap_maybe_end( 'remove_cssjs_singles' );
+	if ( ! $is_pro ) {
+		Util_Ui::print_score_block(
+			'27+',
+			wp_kses(
+				sprintf(
+					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
+					__(
+						'In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!',
+						'w3-total-cache'
+					),
+					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof' ) . '">',
+					'</a>',
+					'<br /><br /><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+				),
+				array(
+					'a'      => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+					'br'     => array(),
+					'input'  => array(
+						'type'     => array(),
+						'class'    => array(),
+						'data-src' => array(),
+						'value'    => array(),
+					),
+				)
+			)
+		);
+	}
+
+	Util_Ui::pro_wrap_maybe_end( 'remove_cssjs_singles', false );
 	?>
 </div>
 <?php
