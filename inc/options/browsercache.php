@@ -587,6 +587,21 @@ $security_session_values = array(
 						<?php Util_Ui::sealing_disabled( 'browsercache.' ); ?>
 						value="<?php echo esc_attr( $this->_config->get_integer( 'browsercache.html.lifetime' ) ); ?>"
 						size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
+					<p class="description">
+						<?php
+						echo esc_html(
+							sprintf(
+								// translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
+								__(
+									'Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp_config.php.',
+									'w3-total-cache'
+								),
+								'W3TC_CACHE_FILE_EXPIRE_MAX',
+								W3TC_CACHE_FILE_EXPIRE_MAX
+							)
+						);
+						?>
+					</p>
 				</td>
 			</tr>
 			<tr>
