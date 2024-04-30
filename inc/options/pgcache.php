@@ -249,7 +249,15 @@ if ( ! defined( 'W3TC' ) ) {
 			</tr>
 			<tr>
 				<th colspan="2">
-					<?php $this->checkbox( 'pgcache.prime.post.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.post.enabled' ); ?></label><br />                </th>
+					<?php $this->checkbox( 'pgcache.prime.post.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.post.enabled' ); ?></label>
+					<p class="description"><?php esc_html_e( 'Only applies to pages, posts, and custom post types whose status transitioned from a non-published status to the "published" status.', 'w3-total-cache' ); ?></p>
+				</th>
+			</tr>
+			<tr>
+				<th colspan="2">
+					<?php $this->checkbox( 'pgcache.prime.post.update.enabled' ); ?> <?php Util_Ui::e_config_label( 'pgcache.prime.post.update.enabled' ); ?></label>
+					<p class="description"><?php esc_html_e( 'Applies after updating any page, post, or custom post type with the final status being "published".', 'w3-total-cache' ); ?></p>
+				</th>
 			</tr>
 		</table>
 
@@ -530,17 +538,30 @@ if ( ! defined( 'W3TC' ) ) {
 					</td>
 				</tr>
 			<?php endif; ?>
-			<?php if ( 'file_generic' !== $this->_config->get_string( 'pgcache.engine' ) ) : ?>
-				<tr>
-					<th><label for="pgcache_lifetime"><?php Util_Ui::e_config_label( 'pgcache.lifetime' ); ?></label></th>
-					<td>
-						<input id="pgcache_lifetime" type="text" name="pgcache__lifetime"
-							<?php Util_Ui::sealing_disabled( 'pgcache.' ); ?>
-							value="<?php echo esc_attr( $this->_config->get_integer( 'pgcache.lifetime' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
-						<p class="description"><?php esc_html_e( 'Determines the natural expiration time of unchanged cache items. The higher the value, the larger the cache.', 'w3-total-cache' ); ?></p>
-					</td>
-				</tr>
-			<?php endif; ?>
+			<tr>
+				<th><label for="pgcache_lifetime"><?php Util_Ui::e_config_label( 'pgcache.lifetime' ); ?></label></th>
+				<td>
+					<input id="pgcache_lifetime" type="text" name="pgcache__lifetime"
+						<?php Util_Ui::sealing_disabled( 'pgcache.' ); ?>
+						value="<?php echo esc_attr( $this->_config->get_integer( 'pgcache.lifetime' ) ); ?>" size="8" /> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
+					<p class="description"><?php esc_html_e( 'Determines the natural expiration time of cache items. The higher the value, the larger the cache.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php
+						echo esc_html(
+							sprintf(
+								// translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
+								__(
+									'Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp_config.php.',
+									'w3-total-cache'
+								),
+								'W3TC_CACHE_FILE_EXPIRE_MAX',
+								W3TC_CACHE_FILE_EXPIRE_MAX
+							)
+						);
+						?>
+					</p>
+				</td>
+			</tr>
 			<tr>
 				<th><label for="pgcache_file_gc"><?php Util_Ui::e_config_label( 'pgcache.file.gc' ); ?></label></th>
 				<td>
