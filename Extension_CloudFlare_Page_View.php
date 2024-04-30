@@ -203,9 +203,10 @@ if ( ! defined( 'W3TC' ) ) {
 							)
 						),
 						'values'      => array(
-							'0'        => '',
+							'0'        => esc_html__( 'Respect Existing Headers', 'w3-total-cache' ),
 							'30'       => '30',
 							'60'       => '60',
+							'120'      => '120',
 							'300'      => '300',
 							'1200'     => '1200',
 							'1800'     => '1800',
@@ -233,17 +234,23 @@ if ( ! defined( 'W3TC' ) ) {
 						),
 						'description' => wp_kses(
 							sprintf(
-								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag, 3 opening HTML a tag, 4 closing HTML a tag.
 								__(
-									'Browser cache %1$sTTL%2$s (in seconds) specifies how long CloudFlare-cached resources will remain on your visitors\' computers.',
+									'Browser cache %1$sTTL%2$s (in seconds) specifies how long CloudFlare-cached resources will remain on your visitors\' computers. See %3$sFeatures by plan type%4$s for acceptable minimum values based on subscription type.',
 									'w3-total-cache'
 								),
 								'<acronym title="' . esc_attr__( 'Time-to-Live', 'w3-total-cache' ) . '">',
-								'</acronym>'
+								'</acronym>',
+								'<a target="_blank" href="' . esc_url( 'https://developers.cloudflare.com/cache/plans/' ) . '">',
+								'</a>'
 							),
 							array(
 								'acronym' => array(
 									'title' => array(),
+								),
+								'a'       => array(
+									'href'   => array(),
+									'target' => array(),
 								),
 							)
 						),
@@ -337,7 +344,23 @@ if ( ! defined( 'W3TC' ) ) {
 							'16070400' => '16070400',
 							'31536000' => '31536000',
 						),
-						'description' => esc_html__( 'Controls how long CloudFlare\'s edge servers will cache a resource before getting back to your server for a fresh copy.', 'w3-total-cache' ),
+						'description' => wp_kses(
+							sprintf(
+								// translators: 1 opening HTML a tag, 2 closing HTML a tag.
+								__(
+									'Controls how long CloudFlare\'s edge servers will cache a resource before getting back to your server for a fresh copy. See %1$sFeatures by plan type%2$s for acceptable minimum values based on subscription type.',
+									'w3-total-cache'
+								),
+								'<a target="_blank" href="' . esc_url( 'https://developers.cloudflare.com/cache/plans/' ) . '">',
+								'</a>'
+							),
+							array(
+								'a' => array(
+									'href'   => array(),
+									'target' => array(),
+								),
+							)
+						),
 					)
 				);
 				?>
