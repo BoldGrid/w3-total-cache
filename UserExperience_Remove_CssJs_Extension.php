@@ -48,6 +48,13 @@ class UserExperience_Remove_CssJs_Extension {
 	 * @return void
 	 */
 	public function run() {
+		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 12 );
+
+		/**
+		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
+		*/
+		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
+
 		if ( ! Util_Environment::is_w3tc_pro( $this->config ) ) {
 			$this->config->set_extension_active_frontend( 'user-experience-remove-cssjs', false );
 			return;
@@ -169,9 +176,7 @@ class UserExperience_Remove_CssJs_Extension {
 	 * @return void
 	 */
 	public function w3tc_userexperience_page() {
-		if ( self::is_enabled() ) {
-			include __DIR__ . '/UserExperience_Remove_CssJs_Page_View.php';
-		}
+		include __DIR__ . '/UserExperience_Remove_CssJs_Page_View.php';
 	}
 
 	/**

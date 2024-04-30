@@ -120,9 +120,9 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 
 	Util_Ui::config_item_extension_enabled(
 		array(
-			'extension_id'   => 'user-experience-remove-cssjs',
-			'checkbox_label' => esc_html__( 'Remove Unwanted/Unused CSS/JS', 'w3-total-cache' ),
-			'description'    => __(
+			'extension_id'      => 'user-experience-remove-cssjs',
+			'checkbox_label'    => esc_html__( 'Remove Unwanted/Unused CSS/JS', 'w3-total-cache' ),
+			'description'       => __(
 				'Removes specfied CSS/JS tags from the homepage or on a per page basis.',
 				'w3-total-cache'
 			) . (
@@ -145,9 +145,37 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 				)
 				: ''
 			),
-			'label_class'    => 'w3tc_single_column',
-			'pro'            => true,
-			'disabled'       => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'label_class'       => 'w3tc_single_column',
+			'pro'               => true,
+			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'show_learn_more'   => false,
+			'score'             => '27+',
+			'score_description' => wp_kses(
+				sprintf(
+					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
+					__(
+						'In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s and improve your PageSpeed Scores today!',
+						'w3-total-cache'
+					),
+					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof' ) . '">',
+					'</a>',
+					'<br /><br />',
+					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+				),
+				array(
+					'a'      => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+					'br'     => array(),
+					'input'  => array(
+						'type'     => array(),
+						'class'    => array(),
+						'data-src' => array(),
+						'value'    => array(),
+					),
+				)
+			),
 		)
 	);
 

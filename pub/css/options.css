@@ -379,6 +379,10 @@ textarea.w3tc-error {
 	font-weight: bold;
 }
 
+#remove_cssjs_singles_empty {
+	padding: 10px;
+}
+
 .w3tc_remove_cssjs_singles li {
 	cursor: default;
 }
@@ -793,6 +797,16 @@ table:not(.w3tc-pro-feature) .w3tc-gopro {
 	border: 1px solid #c3c4c7;
 }
 
+.w3tc-gopro-manual-wrap .w3tc-gopro {
+	box-shadow: 0 5px 5px -3px #888;
+	background: #efefef;
+	padding: 10px;
+	background-image: linear-gradient( to right, #f0f0f1, #f0f0f1, #f0f0f1, #f0f0f1, #e7f3f3, #56bec1, #16252c);
+	position: relative;
+	padding-right: 280px;
+	border: 1px solid #c3c4c7;
+}
+
 .w3tc-gopro-ribbon {
 	height: 75px;
 	overflow: hidden;
@@ -908,7 +922,8 @@ table.w3tc-pro-feature {
 }
 
 table.w3tc-pro-feature:after,
-table:not(.w3tc-pro-feature) .w3tc-gopro:after {
+table:not(.w3tc-pro-feature) .w3tc-gopro:after,
+.w3tc-gopro-manual-wrap .w3tc-gopro:after {
 	background-image: url("../img/transparent-comet.png");
 	background-repeat: no-repeat;
 	background-position: top right;
@@ -943,7 +958,8 @@ table.w3tc-pro-feature td {
 }
 
 /* Size of comet background for pro features not in a pro table */
-table:not(.w3tc-pro-feature) .w3tc-gopro:after {
+table:not(.w3tc-pro-feature) .w3tc-gopro:after,
+.w3tc-gopro-manual-wrap .w3tc-gopro:after {
 	width: 280px;
 	height: 152px;
 }
@@ -1366,7 +1382,6 @@ td .w3tc-control-after span {
     margin-left: auto;
 }
 
-
 /**
  * Button Save Dropdown
  */
@@ -1536,6 +1551,52 @@ td .w3tc-control-after span {
 	display: none;
 }
 
+/**
+ * W3TC pro wrapper test score block
+ */
+.w3tc-test-container {
+    display: flex;
+    align-items: center;
+	margin: 25px 0;
+}
+
+.w3tc-test-score-container {
+	text-align: center;
+}
+
+.w3tc-test-score-container .w3tc-test-score {
+    display: inline-flex;
+    flex: 0 0 50px;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border: 2px solid #68D500;
+    border-radius: 50%;
+	background: #EEFAEC;
+    color: #000000;
+    font-size: 18px;
+    font-weight: 600;
+    margin-right: 15px;
+}
+
+.w3tc-test-score-container p {
+	margin: 4px 15px 4px 0;
+	font-weight: 600;
+}
+
+.w3tc-test-description {
+	border-left: 1px solid #ddd;
+	padding-left: 15px;
+    display: inline-block;
+    vertical-align: middle;
+	font-weight: 600;
+}
+
+.w3tc-test-description input {
+	font-weight: 600;
+}
+
 @media screen and (max-width: 1200px) {
 	.w3tc_form_bar>#w3tc-options-menu,
 	.w3tc_form_bar>.w3tc-button-control-container {
@@ -1659,12 +1720,14 @@ td .w3tc-control-after span {
 	}
 
 	/* Pro features that aren't a <table>. A <tr> for example - User Experience > Lazy Load Google Maps. */
-	table:not(.w3tc-pro-feature) .w3tc-gopro {
-		padding-right: initial;
+	table:not(.w3tc-pro-feature) .w3tc-gopro,
+	.w3tc-gopro-manual-wrap .w3tc-gopro {
+		padding: 10px;
 		background: #efefef;
 		margin: 5px 0;
 	}
-	table:not(.w3tc-pro-feature) .w3tc-gopro:after {
+	table:not(.w3tc-pro-feature) .w3tc-gopro:after,
+	.w3tc-gopro-manual-wrap .w3tc-gopro:after {
 		background: none;
 	}
 	.w3tc-button-control-container .dropdown-menu .dropdown-item {
@@ -1675,6 +1738,26 @@ td .w3tc-control-after span {
 	#redis_test_status {
 		display: inline-block;
 		vertical-align: middle;
+	}
+
+	.w3tc-test-container {
+		display: block;
+		align-items: unset;
+	}
+
+	.w3tc-test-score-container {
+		margin: 15px 0;
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.w3tc-test-score-container .w3tc-test-score {
+		margin-right: 10px;
+	}
+
+	.w3tc-test-description {
+		border-left: unset;
+		padding: 0;
 	}
 }
 
