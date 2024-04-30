@@ -396,7 +396,7 @@ class Cdn_Core {
 						'key'             => $c->get_string( 'cdn.cf.key' ),
 						'secret'          => $c->get_string( 'cdn.cf.secret' ),
 						'bucket'          => $c->get_string( 'cdn.cf.bucket' ),
-						'bucket_location' => $c->get_string( 'cdn.cf.bucket.location' ),
+						'bucket_location' => self::get_region_id( $c->get_string( 'cdn.cf.bucket.location' ) ),
 						'id'              => $c->get_string( 'cdn.cf.id' ),
 						'cname'           => $c->get_array( 'cdn.cf.cname' ),
 						'ssl'             => $c->get_string( 'cdn.cf.ssl' ),
@@ -533,7 +533,7 @@ class Cdn_Core {
 						'key'             => $c->get_string( 'cdn.s3.key' ),
 						'secret'          => $c->get_string( 'cdn.s3.secret' ),
 						'bucket'          => $c->get_string( 'cdn.s3.bucket' ),
-						'bucket_location' => $c->get_string( 'cdn.s3.bucket.location' ),
+						'bucket_location' => self::get_region_id( $c->get_string( 'cdn.s3.bucket.location' ) ),
 						'cname'           => $c->get_array( 'cdn.s3.cname' ),
 						'ssl'             => $c->get_string( 'cdn.s3.ssl' ),
 						'public_objects'  => $c->get_string( 'cdn.s3.public_objects' ),
@@ -781,5 +781,27 @@ class Cdn_Core {
 		);
 
 		return apply_filters( 'w3tc_build_cdn_file_array', $file );
+	}
+
+	/**
+	 * Get the S3 bucket region ID.
+	 *
+	 * @since  2.7.2
+	 * @static
+	 *
+	 * @param string $bucket_location S3 bucket location.
+	 * @return string
+	 */
+	public static function get_region_id( $bucket_location ) {
+		switch ( $bucket_location ) {
+			case 'us-east-1-e':
+				$region = 'us-east-1';
+				break;
+			default:
+				$region = $bucket_location;
+				break;
+		}
+
+		return $region;
 	}
 }

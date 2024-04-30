@@ -626,15 +626,34 @@ class Generic_Plugin_Admin {
 				// No break.
 			case 'w3tc_userexperience':
 				if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
-					wp_enqueue_script(
+					wp_register_script( 'w3tc_remove_cssjs', plugins_url( 'UserExperience_Remove_CssJs_Page_View.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
+
+					wp_localize_script(
 						'w3tc_remove_cssjs',
-						plugins_url( 'UserExperience_Remove_CssJs_Page_View.js', W3TC_FILE ),
+						'W3TCRemoveCssJsData',
 						array(
-							'jquery',
-						),
-						W3TC_VERSION,
-						true
+							'lang' => array(
+								'singlesPrompt'                     => __( 'Enter target CSS/JS match pattern.', 'w3-total-cache' ),
+								'singlesNoEntries'                  => __( 'No CSS/JS entires added.', 'w3-total-cache' ),
+								'singlesExists'                     => __( 'Entry already exists!', 'w3-total-cache' ),
+								'singlesPathLabel'                  => __( 'Target CSS/JS:', 'w3-total-cache' ),
+								'singlesDelete'                     => __( 'Delete', 'w3-total-cache' ),
+								'singlesBehaviorLabel'              => __( 'Behavior:', 'w3-total-cache' ),
+								'singlesBehaviorExcludeText'        => __( 'Exclude', 'w3-total-cache' ),
+								'singlesBehaviorIncludeText'        => __( 'Include', 'w3-total-cache' ),
+								'singlesBehaviorDescription'        => __( 'Exclude will only remove match(es) from the specified URLs.', 'w3-total-cache' ),
+								'singlesBehaviorDescription2'       => __( 'Include will NOT remove match(es) from the specified URLs but will remove it everywhere else.', 'w3-total-cache' ),
+								'singlesIncludesLabelExclude'       => __( 'Exclude on these pages:', 'w3-total-cache' ),
+								'singlesIncludesLabelInclude'       => __( 'Include on these pages:', 'w3-total-cache' ),
+								'singlesIncludesDescriptionExclude' => __( 'Specify the relative or absolute page URLs from which the above match(es) should be excluded. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesDescriptionInclude' => __( 'Specify the relative or absolute page URLs from which the above match(es) should be included. Include one entry per line.', 'w3-total-cache' ),
+								'singlesEmptyUrl'                   => __( 'Empty match pattern!', 'w3-total-cache' ),
+								'singlesDeleteConfirm'              => __( 'Are you sure want to delete this entry?', 'w3-total-cache' ),
+							),
+						)
 					);
+
+					wp_enqueue_script( 'w3tc_remove_cssjs' );
 				}
 				// No break.
 			case 'w3tc_cdn':

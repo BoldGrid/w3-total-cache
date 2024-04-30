@@ -30,8 +30,10 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 
 		$this->_expire = ( isset( $config['expire'] ) ? (int) $config['expire'] : 0 );
 
-		if ( !$this->_expire || $this->_expire > W3TC_CACHE_FILE_EXPIRE_MAX ) {
+		if ( ! $this->_expire ) {
 			$this->_expire = 0;
+		} elseif ( $this->_expire > W3TC_CACHE_FILE_EXPIRE_MAX ) {
+			$this->_expire = W3TC_CACHE_FILE_EXPIRE_MAX;
 		}
 	}
 

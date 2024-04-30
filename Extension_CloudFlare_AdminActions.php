@@ -50,31 +50,4 @@ class Extension_CloudFlare_AdminActions {
 				'w3tc_note' => 'flush_all'
 			), true );
 	}
-
-
-
-	public function w3tc_cloudflare_save_settings() {
-		$api = Extension_CloudFlare_SettingsForUi::api();
-		$errors = Extension_CloudFlare_SettingsForUi::settings_set( $api );
-
-		if ( empty( $errors ) ) {
-			Util_Admin::redirect_with_custom_messages2( array(
-					'notes' => array(
-						'cloudflare_save_done' =>
-						__( 'CloudFlare settings are successfully updated.',
-							'w3-total-cache' )
-					)
-				) );
-		} else {
-			Util_Admin::redirect_with_custom_messages2( array(
-					'errors' => array(
-						'cloudflare_save_error' =>
-						__( 'Failed to update CloudFlare settings:',
-							'w3-total-cache' ) .
-						"<br />\n" .
-						implode( "<br />\n", $errors )
-					)
-				) );
-		}
-	}
 }

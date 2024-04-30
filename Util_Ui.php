@@ -1863,8 +1863,8 @@ class Util_Ui {
 					}
 
 					if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#remove-cssjs">' . esc_html__( 'Remove CSS/JS - Homepage', 'w3-total-cache' ) . '</a>';
-						$subnav_links[] = '<a href="#remove-cssjs-singles">' . esc_html__( 'Remove CSS/JS - Singles', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#remove-cssjs">' . esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#remove-cssjs-singles">' . esc_html__( 'Remove CSS/JS Individually', 'w3-total-cache' ) . '</a>';
 					}
 
 					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {

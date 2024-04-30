@@ -79,6 +79,8 @@ class Extension_CloudFlare_Plugin_Admin {
 		);
 		$this->_config = $c;
 
+		add_action( 'w3tc_config_ui_save-w3tc_extensions', array( $this, 'w3tc_save_options' ), 10, 0 );
+
 		add_filter( 'w3tc_dashboard_actions', array( $this, 'w3tc_dashboard_actions' ) );
 
 		$widget = new Extension_CloudFlare_Widget();
@@ -344,5 +346,39 @@ class Extension_CloudFlare_Plugin_Admin {
 	public function w3tc_settings_general_boxarea_cloudflare() {
 		$config = $this->_config;
 		include W3TC_DIR . '/Extension_CloudFlare_GeneralPage_View.php';
+	}
+
+	/**
+	 * Applies CloudFlare API settings.
+	 *
+	 * @return void
+	 */
+	public function w3tc_save_options() {
+		if( 'cloudflare' === Util_Request::get_string( 'extension' ) ) {
+			$api = Extension_CloudFlare_SettingsForUi::api();
+			$errors = Extension_CloudFlare_SettingsForUi::settings_set( $api );
+
+			if ( empty( $errors ) ) {
+				Util_Admin::redirect_with_custom_messages2( array(
+						'notes' => array(
+							'cloudflare_save_done' =>
+							__( 'CloudFlare settings are successfully updated.',
+								'w3-total-cache' )
+						)
+					) );
+			} else {
+				Util_Admin::redirect_with_custom_messages2( array(
+						'errors' => array(
+							'cloudflare_save_error' =>
+							__( 'Failed to update CloudFlare settings:',
+								'w3-total-cache' ) .
+							"<br />\n" .
+							implode( "<br />\n", $errors )
+						)
+					) );
+			}
+
+			return $data;
+		}
 	}
 }
