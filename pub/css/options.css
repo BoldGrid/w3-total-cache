@@ -325,6 +325,15 @@ textarea.w3tc-error {
 	color: #999;
 }
 
+#cdn_cf_bucket_location {
+	vertical-align: unset;
+}
+
+#cdn_create_container_status,
+#cdn_test_status {
+	display: inline-block;
+}
+
 #mobile_groups th,
 #referrer_groups th,
 .w3tc_cachegroups th,
