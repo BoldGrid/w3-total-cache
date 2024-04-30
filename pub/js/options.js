@@ -471,7 +471,7 @@ function get_bucket_region( location ) {
 /**
  * Event callback for changing CDN Cloudfront (push) S3 bucket location.
  *
- * @since X.X.X
+ * @since 2.7.2
  *
  * @see get_bucket_region()
  */
@@ -871,11 +871,6 @@ jQuery(function() {
 
 			case 'cf':
 				let region = jQuery('#cdn_cf_bucket_location').val();
-
-				// Exception for 'us-east-1-e'.
-				if ( 'us-east-1-e' === region ) {
-					region = 'us-east-1';
-				}
 
 				jQuery.extend(params, {
 					engine: 'cf',

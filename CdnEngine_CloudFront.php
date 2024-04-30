@@ -24,6 +24,8 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 
 	/**
 	 * Initialize.
+	 *
+	 * @see Cdn_Core::get_region_id()
 	 */
 	public function _init() {
 		if ( ! is_null( $this->api ) ) {
@@ -42,7 +44,7 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 		$this->api = new \Aws\CloudFront\CloudFrontClient(
 			array(
 				'credentials' => $credentials,
-				'region'      => $this->_config['bucket_location'],
+				'region'      => Cdn_Core::get_region_id( $this->_config['bucket_location'] ),
 				'version'     => '2018-11-05',
 			)
 		);
@@ -146,9 +148,9 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	}
 
 	/**
-	 * Get the S3 bucket region id.
+	 * Get the S3 bucket region id used for the hostname.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.2
 	 *
 	 * @return string
 	 */
