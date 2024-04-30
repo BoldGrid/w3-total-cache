@@ -350,10 +350,6 @@ textarea.w3tc-error {
 	-moz-border-radius: 8px;
 }
 
-.w3tc_remove_cssjs_singles li {
-	cursor: default;
-}
-
 #mobile_groups li:hover,
 #referrer_groups li:hover,
 .w3tc_cachegroups li:hover,
@@ -372,6 +368,28 @@ textarea.w3tc-error {
 .referrer_group,
 .cookiegroup_name {
 	font-weight: bold;
+}
+
+#remove_cssjs_singles_empty {
+	padding: 10px;
+}
+
+.w3tc_remove_cssjs_singles li {
+	cursor: default;
+}
+
+.w3tc_remove_cssjs_singles .remove_cssjs_singles_delete {
+	margin-top: -5px;
+}
+
+.w3tc_remove_cssjs_singles .remove_cssjs_singles_path {
+	margin-top: -5px;
+	width: 75% !important;
+	display: inline-block !important;
+}
+
+.w3tc_remove_cssjs_singles .remove_cssjs_singles_behavior {
+	padding-right: 10px;
 }
 
 .w3tc-rules {

@@ -19,6 +19,9 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
+$c      = Dispatcher::config();
+$is_pro = Util_Environment::is_w3tc_pro( $c );
+
 ?>
 <div class="wrap" id="w3tc">
 <?php Util_Ui::print_breadcrumb(); ?>
@@ -105,48 +108,37 @@ Util_Ui::postbox_footer();
 
 Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', 'tools' );
 
-$score_block_pro = ! Util_Environment::is_w3tc_pro( $c )
-	? wp_kses(
-	   sprintf(
-		   // translators: 1 two HTML br tags followed by HTML input button to purchase pro license.
-		   __(
-			   '%1$s to unlock conversion queue priority and higher hourly/monthly limits today!',
-			   'w3-total-cache'
-		   ),
-		   '<br /><br /><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-	   ),
-	   array(
-		   'br'     => array(),
-		   'input'  => array(
-			   'type'     => array(),
-			   'class'    => array(),
-			   'data-src' => array(),
-			   'value'    => array(),
-		   ),
-	   )
-	)
-	: '';
-
-Util_Ui::print_score_block(
-	'9+',
-	wp_kses(
-		sprintf(
-			// translators: 1  opening HTML a tag, 2 closing HTML a tag.
-			__(
-				'In a recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.',
-				'w3-total-cache'
+if ( ! $is_pro ) {
+	Util_Ui::print_score_block(
+		'9+',
+		wp_kses(
+			sprintf(
+				// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
+				__(
+					'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s to unlock conversion queue priority and higher hourly/monthly limits today!',
+					'w3-total-cache'
+				),
+				'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof' ) . '">',
+				'</a>',
+				'<br /><br />',
+				'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
 			),
-			'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof' ) . '">',
-			'</a>',
-		),
-		array(
-			'a' => array(
-				'href'   => array(),
-				'target' => array(),
-			),
+			array(
+				'a'      => array(
+					'href'   => array(),
+					'target' => array(),
+				),
+				'br'     => array(),
+				'input'  => array(
+					'type'     => array(),
+					'class'    => array(),
+					'data-src' => array(),
+					'value'    => array(),
+				),
+			)
 		)
-	) . $score_block_pro
-);
+	);
+}
 ?>
 
 	<table class="form-table" id="w3tc-imageservice-tools">

@@ -1095,7 +1095,7 @@ class Util_Ui {
 			);
 		}
 
-		if ( isset( $a['score'] ) && isset( $a['score_description'] ) ) {
+		if ( $is_w3tc_free && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
 			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
@@ -1105,6 +1105,9 @@ class Util_Ui {
 	}
 
 	public static function config_item_extension_enabled( $a ) {
+		$c      = Dispatcher::config();
+		$is_pro = Util_Environment::is_w3tc_pro( $c );
+
 		if ( 'w3tc_single_column' === $a['label_class'] ) {
 			echo '<tr><th colspan="2">';
 		} else {
@@ -1121,7 +1124,6 @@ class Util_Ui {
 			self::pro_wrap_maybe_start();
 		}
 
-		$c = Dispatcher::config();
 		self::checkbox2(
 			array(
 				'name'     => 'extension__' . self::config_key_to_http_name( $a['extension_id'] ),
@@ -1135,7 +1137,7 @@ class Util_Ui {
 			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
 		}
 
-		if ( isset( $a['score'] ) && isset( $a['score_description'] ) ) {
+		if ( ! $is_pro && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
 			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
@@ -1150,7 +1152,9 @@ class Util_Ui {
 	}
 
 	public static function config_item_pro( $a ) {
-		$a = self::config_item_preprocess( $a );
+		$c      = Dispatcher::config();
+		$is_pro = Util_Environment::is_w3tc_pro( $c );
+		$a      = self::config_item_preprocess( $a );
 
 		if ( 'w3tc_single_column' === $a['label_class'] ) {
 			echo '<tr><th colspan="2">';
@@ -1178,7 +1182,7 @@ class Util_Ui {
 		// If wrap_separate is set we wrap only the description.
 		if ( isset( $a['wrap_separate'] ) ) {
 			// If not pro we add a spacer for better separation of control element and wrapper.
-			if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			if ( ! $is_pro ) {
 				echo '<br/><br/>';
 			}
 			self::pro_wrap_maybe_start();
@@ -1188,7 +1192,7 @@ class Util_Ui {
 			self::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
 		}
 
-		if ( isset( $a['score'] ) && isset( $a['score_description'] ) ) {
+		if ( ! $is_pro && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
 			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
@@ -1884,8 +1888,8 @@ class Util_Ui {
 					}
 
 					if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#remove-cssjs">' . esc_html__( 'Remove CSS/JS - Homepage', 'w3-total-cache' ) . '</a>';
-						$subnav_links[] = '<a href="#remove-cssjs-singles">' . esc_html__( 'Remove CSS/JS - Singles', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#remove-cssjs">' . esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#remove-cssjs-singles">' . esc_html__( 'Remove CSS/JS Individually', 'w3-total-cache' ) . '</a>';
 					}
 
 					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
