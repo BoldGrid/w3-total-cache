@@ -125,7 +125,7 @@ if ( ! $is_pro ) {
 					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof' ) . '">',
 					'</a>',
 					'<br /><br />',
-					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
 				),
 				array(
 					'a'      => array(

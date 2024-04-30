@@ -358,39 +358,39 @@ class Util_Ui {
 					);
 				}
 				if ( $config->get_boolean( 'pgcache.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_html__( 'Empty Page Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_attr__( 'Empty Page Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'browsercache.cssjs.replace' ) || $config->get_boolean( 'browsercache.other.replace' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_browser_cache" value="' . esc_html__( 'Empty Browser Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_browser_cache" value="' . esc_attr__( 'Empty Browser Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'minify.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_minify" value="' . esc_html__( 'Empty Minify Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_minify" value="' . esc_attr__( 'Empty Minify Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'dbcache.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_html__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_attr__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_attr__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'cdn.enabled' ) || $config->get_boolean( 'cdnfsd.enabled' ) ) {
 					$disable = ( $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ) ||
 						( $config->get_boolean( 'cdnfsd.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdnfsd.engine' ) ) ) ?
 							'' : ' disabled="disabled" ';
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_attr__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) && ! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_html__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_attr__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'varnish.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_varnish" value="' . esc_html__( 'Empty Varnish Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_varnish" value="' . esc_attr__( 'Empty Varnish Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->is_extension_active_frontend( 'cloudflare' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush" value="' . esc_html__( 'Empty CloudFlare Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush" value="' . esc_attr__( 'Empty CloudFlare Cache', 'w3-total-cache' ) . '"/>';
 				}
 				$opcode_enabled = ( Util_Installed::opcache() || Util_Installed::apc_opcache() );
 				if ( $opcode_enabled ) {
 					$disable = $opcode_enabled ? '' : ' disabled="disabled" ';
-					echo '<input type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . ' value="' . esc_html__( 'Empty OpCode Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . ' value="' . esc_attr__( 'Empty OpCode Cache', 'w3-total-cache' ) . '"/>';
 				}
 				?>
 			</div>
