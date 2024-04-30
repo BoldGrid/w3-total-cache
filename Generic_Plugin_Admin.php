@@ -634,7 +634,7 @@ class Generic_Plugin_Admin {
 						array(
 							'lang' => array(
 								'singlesPrompt'                     => __( 'Enter target CSS/JS match pattern.', 'w3-total-cache' ),
-								'singlesNoEntries'                  => __( 'No CSS/JS entires added.', 'w3-total-cache' ),
+								'singlesNoEntries'                  => __( 'No CSS/JS entries added.', 'w3-total-cache' ),
 								'singlesExists'                     => __( 'Entry already exists!', 'w3-total-cache' ),
 								'singlesPathLabel'                  => __( 'Target CSS/JS:', 'w3-total-cache' ),
 								'singlesDelete'                     => __( 'Delete', 'w3-total-cache' ),
