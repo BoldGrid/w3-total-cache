@@ -161,6 +161,6 @@ async function fillFtpForm() {
 	let upgradeButton = '#upgrade';
 	await Promise.all([
 		adminPage.evaluate((upgradeButton) => document.querySelector(upgradeButton).click(), upgradeButton),
-		adminPage.waitForNavigation({timeout:0})
+		adminPage.waitForNavigation({timeout: 300000})
 	]);
 }

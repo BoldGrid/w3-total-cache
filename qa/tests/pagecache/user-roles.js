@@ -75,7 +75,7 @@ describe('', function() {
 		let wpSubmit = '#wp-submit';
 		await Promise.all([
 			page.evaluate((wpSubmit) => document.querySelector(wpSubmit).click(), wpSubmit),
-			page.waitForNavigation({timeout:0}),
+			page.waitForNavigation({timeout: 300000}),
 		]);
 
 		expect(await page.title()).contains('Profile');

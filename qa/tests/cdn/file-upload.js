@@ -49,7 +49,7 @@ describe('check that media library works when CDN is active', function() {
 		let htmlUpload = '#html-upload';
 		await Promise.all([
 			adminPage.evaluate((htmlUpload) => document.querySelector(htmlUpload).click(), htmlUpload),
-			adminPage.waitForNavigation({timeout:0})
+			adminPage.waitForNavigation({timeout: 300000})
 		]);
 	});
 
