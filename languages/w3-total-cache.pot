@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-05-02T18:57:49+00:00\n"
+"POT-Creation-Date: 2024-05-02T21:44:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
@@ -1624,7 +1624,7 @@ msgstr ""
 #: inc/popup/cdn_queue.php:67
 #: inc/popup/cdn_queue.php:88
 #: inc/popup/cdn_queue.php:97
-#: UserExperience_Remove_CssJs_Page_View.php:111
+#: UserExperience_Remove_CssJs_Page_View.php:138
 msgid "Delete"
 msgstr ""
 
@@ -4723,8 +4723,8 @@ msgstr ""
 #: Extension_ImageService_Page_View.php:128
 #: inc/options/general.php:1041
 #: UserExperience_GeneralPage_View.php:163
-#: UserExperience_Remove_CssJs_Page_View.php:63
-#: UserExperience_Remove_CssJs_Page_View.php:187
+#: UserExperience_Remove_CssJs_Page_View.php:67
+#: UserExperience_Remove_CssJs_Page_View.php:214
 msgid "Upgrade to"
 msgstr ""
 
@@ -6024,7 +6024,7 @@ msgid "Enter target CSS/JS match pattern."
 msgstr ""
 
 #: Generic_Plugin_Admin.php:637
-#: UserExperience_Remove_CssJs_Page_View.php:167
+#: UserExperience_Remove_CssJs_Page_View.php:194
 msgid "No CSS/JS entries added."
 msgstr ""
 
@@ -6033,42 +6033,42 @@ msgid "Entry already exists!"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:639
-#: UserExperience_Remove_CssJs_Page_View.php:107
+#: UserExperience_Remove_CssJs_Page_View.php:134
 msgid "Target CSS/JS:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:641
-#: UserExperience_Remove_CssJs_Page_View.php:117
+#: UserExperience_Remove_CssJs_Page_View.php:144
 msgid "Behavior:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:642
-#: UserExperience_Remove_CssJs_Page_View.php:123
+#: UserExperience_Remove_CssJs_Page_View.php:150
 msgid "Exclude"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:643
-#: UserExperience_Remove_CssJs_Page_View.php:127
+#: UserExperience_Remove_CssJs_Page_View.php:154
 msgid "Include"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:644
-#: UserExperience_Remove_CssJs_Page_View.php:129
+#: UserExperience_Remove_CssJs_Page_View.php:156
 msgid "Exclude will only remove match(es) from the specified URLs."
 msgstr ""
 
 #: Generic_Plugin_Admin.php:645
-#: UserExperience_Remove_CssJs_Page_View.php:130
+#: UserExperience_Remove_CssJs_Page_View.php:157
 msgid "Include will NOT remove match(es) from the specified URLs but will remove it everywhere else."
 msgstr ""
 
 #: Generic_Plugin_Admin.php:646
-#: UserExperience_Remove_CssJs_Page_View.php:137
+#: UserExperience_Remove_CssJs_Page_View.php:164
 msgid "Exclude on these pages:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:647
-#: UserExperience_Remove_CssJs_Page_View.php:137
+#: UserExperience_Remove_CssJs_Page_View.php:164
 msgid "Include on these pages:"
 msgstr ""
 
@@ -10714,7 +10714,7 @@ msgstr ""
 
 #. translators: 1 W3TC plugin name, 2 opening HTML a tag to Minify setting, 3 closing HTML a tag.
 #: PageSpeed_Instructions.php:278
-msgid "Deffer or async the JS (Select  Non blocking using Defer or  Non blocking using async Embed method in %1$s %2$sMinify%3$s options before head and after body)"
+msgid "Defer or async the JS (Select  Non blocking using Defer or  Non blocking using async Embed method in %1$s %2$sMinify%3$s options before head and after body)"
 msgstr ""
 
 #. translators: 4 opening html a tagl to JS Minify settings, 5 closing HTML a tag.
@@ -10729,7 +10729,7 @@ msgstr ""
 
 #. translators: 1 opening HTML a tag to Browser Caching setting, 2 closing HTML a tag.
 #: PageSpeed_Instructions.php:311
-msgid "Use %1$sBrowser Caching%2$s for static files and HTML  - 1 year for static files 1 hor for html"
+msgid "Use %1$sBrowser Caching%2$s for static files and HTML  - 1 year for static files 1 hour for html"
 msgstr ""
 
 #: PageSpeed_Instructions.php:321
@@ -10897,7 +10897,7 @@ msgid "Use Cloudflare Workers"
 msgstr ""
 
 #: PageSpeed_Instructions.php:431
-msgid "Preload - Lazyload embeded videos."
+msgid "Preload - Lazyload embedded videos."
 msgstr ""
 
 #: PageSpeed_Instructions.php:435
@@ -12599,52 +12599,58 @@ msgstr ""
 msgid "Specify key Document URLs that should be preloaded by browsers. Include one entry per line, e.g. (https://example.com/example.pdf, etc.)"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:37
+#: UserExperience_Remove_CssJs_Page_View.php:41
 #: Util_Ui.php:1891
 msgid "Remove CSS/JS On Homepage"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:40
+#: UserExperience_Remove_CssJs_Page_View.php:44
 msgid "CSS/JS entries added to the below textarea will be removed from the homepage if present."
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:47
+#: UserExperience_Remove_CssJs_Page_View.php:51
 msgid "Remove list:"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:51
+#: UserExperience_Remove_CssJs_Page_View.php:55
 msgid "Specify absolute or relative URLs, or file names to be excluded from loading on the homepage. Include one entry per line, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name=\"myscript\", etc.)"
 msgstr ""
 
 #. translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
-#: UserExperience_Remove_CssJs_Page_View.php:57
-#: UserExperience_Remove_CssJs_Page_View.php:181
+#: UserExperience_Remove_CssJs_Page_View.php:61
+#: UserExperience_Remove_CssJs_Page_View.php:208
 msgid "In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:87
+#. translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.
+#: UserExperience_Remove_CssJs_Page_View.php:94
+#: UserExperience_Remove_CssJs_Page_View.php:235
+msgid "%1$sRemove Unwanted/Unused CSS/JS%2$s is not enabled in the %3$sGeneral Settings%4$s."
+msgstr ""
+
+#: UserExperience_Remove_CssJs_Page_View.php:114
 #: Util_Ui.php:1892
 msgid "Remove CSS/JS Individually"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:90
+#: UserExperience_Remove_CssJs_Page_View.php:117
 msgid "Use this area to manage individual CSS/JS entries. The target CSS/JS for each rule can be either an absolute/relative URL or file name, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name=\"myscript\", etc.)"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:95
+#: UserExperience_Remove_CssJs_Page_View.php:122
 msgid "Add"
 msgstr ""
 
 #. translators: 1 action description based on behavior selector.
-#: UserExperience_Remove_CssJs_Page_View.php:149
+#: UserExperience_Remove_CssJs_Page_View.php:176
 msgid "Specify the absolute or relative URLs from which the above CSS/JS file should be %1$s. Include one entry per line."
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:153
+#: UserExperience_Remove_CssJs_Page_View.php:180
 msgid "excluded"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:153
+#: UserExperience_Remove_CssJs_Page_View.php:180
 msgid "included"
 msgstr ""
 
