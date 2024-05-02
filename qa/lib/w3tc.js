@@ -21,7 +21,7 @@ async function setOptions_loadPage(pPage, queryPage) {
 			let wizardSkip = '#w3tc-wizard-skip';
 			let skipped = await Promise.all([
 				pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-				pPage.waitForNavigation({timeout:0}),
+				pPage.waitForNavigation({timeout: 300000}),
 			]);
 
 			expect(skipped).is.not.null;
@@ -84,7 +84,7 @@ exports.setOptions = async function(pPage, queryPage, values) {
 
 	log.log('click save - ' + saveSelector);
 	await Promise.all([
-		pPage.waitForNavigation({timeout: 0}),
+		pPage.waitForNavigation({timeout: 300000}),
 		pPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector)
 	]);
 
@@ -141,7 +141,7 @@ exports.activateExtension = async function(pPage, extenstion_id) {
 		let wizardSkip = '#w3tc-wizard-skip';
 		let skipped = await Promise.all([
 			pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-			pPage.waitForNavigation({timeout:0}),
+			pPage.waitForNavigation({timeout: 300000}),
 		]);
 
 		expect(skipped).is.not.null;
@@ -174,7 +174,7 @@ exports.followNoteFlushStatics = async function(pPage) {
 		let emptyStaticCache = 'input[value="Empty the static files cache"]';
 		await Promise.all([
 			pPage.evaluate((emptyStaticCache) => document.querySelector(emptyStaticCache).click(), emptyStaticCache),
-			pPage.waitForNavigation({timeout:0}),
+			pPage.waitForNavigation({timeout: 300000}),
 		]);
 	}
 }
@@ -190,7 +190,7 @@ exports.expectW3tcErrors = async function(pPage, ifShouldExist) {
 		let wizardSkip = '#w3tc-wizard-skip';
 		let skipped = await Promise.all([
 			pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-			pPage.waitForNavigation({timeout:0}),
+			pPage.waitForNavigation({timeout: 300000}),
 		]);
 
 		expect(skipped).is.not.null;
@@ -365,7 +365,7 @@ exports.flushAll = async function(pPage) {
 			let wizardSkip = '#w3tc-wizard-skip';
 			let skipped = await Promise.all([
 				pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-				pPage.waitForNavigation({timeout:0}),
+				pPage.waitForNavigation({timeout: 300000}),
 			]);
 
 			expect(skipped).is.not.null;
@@ -377,7 +377,7 @@ exports.flushAll = async function(pPage) {
 		let flushAll = '#flush_all';
 		await Promise.all([
 			pPage.evaluate((flushAll) => document.querySelector(flushAll).click(), flushAll),
-			pPage.waitForNavigation({timeout:0}),
+			pPage.waitForNavigation({timeout: 300000}),
 		]);
 
 		let html = await pPage.content();
@@ -414,7 +414,7 @@ exports.cdnPushExportFiles = async function(pPage, sectionToExport) {
 	await pPage.waitForFunction((filesNumberToExport) => {
 		let onPage = document.querySelector('#cdn_export_file_processed').textContent;
 		return onPage == filesNumberToExport;
-	}, {timeout: 120000}, filesNumberToExport);
+	}, {timeout: 300000}, filesNumberToExport);
 
 	let onPage = await pPage.$eval('#cdn_export_file_processed', (e) => e.textContent);
 	expect(onPage).equals(filesNumberToExport);

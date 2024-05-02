@@ -249,4 +249,4 @@ module.exports,
 );
 
 // Add suiteTimeout.
-module.exports.suiteTimeout = 120000;
+module.exports.suiteTimeout = 300000;

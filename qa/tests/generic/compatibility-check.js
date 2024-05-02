@@ -29,7 +29,7 @@ describe('', function() {
 			let wizardSkip = '#w3tc-wizard-skip';
 			let skipped = await Promise.all([
 				adminPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-				adminPage.waitForNavigation({timeout:0}),
+				adminPage.waitForNavigation({timeout: 300000}),
 			]);
 
 			expect(skipped).is.not.null;

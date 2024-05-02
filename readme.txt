@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.5
-Stable tag: 2.7.1
+Stable tag: 2.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,20 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.7.2 =
+* Fix: Page Cache cleanup purging all if browsercache.html.lifetime > W3TC_CACHE_FILE_EXPIRE_MAX
+* Fix: Page Cache primer: Ignore sitemap XML comments
+* Fix: Page Cache primer: Preload cache for custom post types
+* Fix: Page Cache primer: Add an option to prime cache after updating a post/page/CPT
+* Fix: Redis test logic
+* Fix: Cloudflare extension: Setting values via API
+* Fix: Amazon SNS message validation
+* Fix: Handle XML setting being saved properly
+* Update: Add more options to the Remove CSS/JS feature
+* Update: Add an option for Amazon Cloudfront default region in distribution hostname
+* Update: Add information about feature impact on PageSpeed
+* Update: Reworked the Page Cache Preload settings UI
 
 = 2.7.1 =
 * Fix: Page Cache: Prefer Brotli over Gzip
