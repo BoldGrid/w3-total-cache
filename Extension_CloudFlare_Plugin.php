@@ -8,7 +8,7 @@ define( 'W3TC_MARKER_BEGIN_CLOUDFLARE', '# BEGIN W3TC CloudFlare' );
 define( 'W3TC_MARKER_END_CLOUDFLARE', '# END W3TC CloudFlare' );
 
 /**
- * Class W3_Plugin_CloudFlare
+ * Class: Extension_CloudFlare_Plugin
  */
 class Extension_CloudFlare_Plugin {
 	private $_config;
@@ -103,7 +103,7 @@ class Extension_CloudFlare_Plugin {
 				$api->purge();
 			} catch ( \Exception $ex ) {
 				$action_made['error'] =
-					'CloudFlare cache: ' . $ex->getMessage();
+					'Cloudflare cache: ' . $ex->getMessage();
 			}
 
 			$this->flush_operation_requested = false;
@@ -148,7 +148,7 @@ class Extension_CloudFlare_Plugin {
 		$menu_items = array_merge( $menu_items, array(
 				array(
 					'id' => 'cloudflare',
-					'title' => __( 'CloudFlare', 'w3-total-cache' ),
+					'title' => __( 'Cloudflare', 'w3-total-cache' ),
 					'href' => 'https://www.cloudflare.com'
 				),
 				array(

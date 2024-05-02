@@ -93,7 +93,7 @@ class Cache {
 	}
 
 	/**
-	 * Returns caching engine name
+	 * Returns caching engine name.
 	 *
 	 * @param string $engine Engine key code.
 	 * @param string $module Module.
@@ -159,7 +159,7 @@ class Cache {
 				break;
 
 			case 'cf':
-				$engine_name = 'Amazon Cloudfront';
+				$engine_name = 'Amazon CloudFront';
 				break;
 
 			case 'google_drive':
@@ -171,7 +171,11 @@ class Cache {
 				break;
 
 			case 'cf2':
-				$engine_name = 'Amazon Cloudfront';
+				$engine_name = 'Amazon CloudFront';
+				break;
+
+			case 'cloudfront':
+				$engine_name = 'Amazon CloudFront';
 				break;
 
 			case 'rscf':

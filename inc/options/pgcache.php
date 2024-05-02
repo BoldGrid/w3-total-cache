@@ -364,7 +364,7 @@ if ( ! defined( 'W3TC' ) ) {
 							sprintf(
 								// translators: 1 HTML line break tag.
 								__(
-									'Specify number of pages that lists posts (archive etc) that should be purged on post updates etc, i.e example.com/ ... example.com/page/5. %1$s0 means all pages that lists posts are purged, i.e example.com/page/2 ... .',
+									'Specify number of pages that lists posts (archive etc.) that should be purged on post updates etc., i.e. example.com/ ... example.com/page/5. %1$s0 means all pages that lists posts are purged, i.e. example.com/page/2 ... ',
 									'w3-total-cache'
 								),
 								'<br />'
@@ -578,7 +578,7 @@ if ( ! defined( 'W3TC' ) ) {
 							sprintf(
 								// translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
 								__(
-									'Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp_config.php.',
+									'Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp-config.php.',
 									'w3-total-cache'
 								),
 								'W3TC_CACHE_FILE_EXPIRE_MAX',

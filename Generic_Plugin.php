@@ -289,7 +289,7 @@ class Generic_Plugin {
 					$menu_items['10015.generic'] = array(
 						'id'     => 'w3tc_flush_all_except_cf',
 						'parent' => 'w3tc',
-						'title'  => __( 'Purge All Caches Except CloudFlare', 'w3-total-cache' ),
+						'title'  => __( 'Purge All Caches Except Cloudflare', 'w3-total-cache' ),
 						'href'   => wp_nonce_url(
 							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush_all_except_cf' ),
 							'w3tc'

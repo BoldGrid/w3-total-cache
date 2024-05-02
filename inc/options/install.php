@@ -138,7 +138,7 @@ if ( ! defined( 'W3TC' ) ) {
 					// translators: 11 opening HTML acronym tag, 12 closing HTML acronym tag,
 					// translators: 13 opening HTML acronym tag, 14 closing HTML acronym tag.
 					__(
-						'%1$sRecommended:%2$s If you already have a content delivery network (%3$sCDN%4$s) provider, proceed to the "%5$sContent Delivery Network%6$s" tab and populate the fields and set your preferences. If you do not use the Media Library, you will need to import your images etc into the default locations. Use the Media Library Import Tool on the "Content Delivery Network" tab to perform this task. If you do not have a %7$sCDN%8$s provider, you can still improve your site\'s performance using the "Self-hosted" method. On your own server, create a subdomain and matching %9$sDNS%10$s Zone record; e.g. static.domain.com and configure %11$sFTP%12$s options on the "Content Delivery Network" tab accordingly. Be sure to %13$sFTP%14$s upload the appropriate files, using the available upload buttons.',
+						'%1$sRecommended:%2$s If you already have a content delivery network (%3$sCDN%4$s) provider, proceed to the "%5$sContent Delivery Network%6$s" tab and populate the fields and set your preferences. If you do not use the Media Library, you will need to import your images etc. into the default locations. Use the Media Library Import Tool on the "Content Delivery Network" tab to perform this task. If you do not have a %7$sCDN%8$s provider, you can still improve your site\'s performance using the "Self-hosted" method. On your own server, create a subdomain and matching %9$sDNS%10$s Zone record; e.g. static.domain.com and configure %11$sFTP%12$s options on the "Content Delivery Network" tab accordingly. Be sure to %13$sFTP%14$s upload the appropriate files, using the available upload buttons.',
 						'w3-total-cache'
 					),
 					'<em>',
@@ -294,7 +294,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<a href="https://api.w3-edge.com/v1/redirects/faq/installation"><?php esc_html_e( 'Server Preparation', 'w3-total-cache' ); ?></a>
 		</li>
 		<li>
-			<a href="https://api.w3-edge.com/v1/redirects/faq/installation/memcached"><?php esc_html_e( 'Install Memcached Deamon', 'w3-total-cache' ); ?></a>
+			<a href="https://api.w3-edge.com/v1/redirects/faq/installation/memcached"><?php esc_html_e( 'Install Memcached Daemon', 'w3-total-cache' ); ?></a>
 		</li>
 	</ul>
 	<hr />

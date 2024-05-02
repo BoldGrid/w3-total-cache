@@ -385,7 +385,7 @@ class Util_Ui {
 					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_varnish" value="' . esc_attr__( 'Empty Varnish Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->is_extension_active_frontend( 'cloudflare' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush" value="' . esc_attr__( 'Empty CloudFlare Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush" value="' . esc_attr__( 'Empty Cloudflare Cache', 'w3-total-cache' ) . '"/>';
 				}
 				$opcode_enabled = ( Util_Installed::opcache() || Util_Installed::apc_opcache() );
 				if ( $opcode_enabled ) {

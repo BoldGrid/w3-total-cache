@@ -90,7 +90,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		sprintf(
 			// translators: 1 HTML strong tag containing CDN Engine value, 2 HTML span tag containing CDN Engine enabled/disabled value.
 			__(
-				'Content Delivery Network full-site-delivery support via %1$s is currently %2$s and %3$s.',
+				'Content Delivery Network full-site delivery support via %1$s is currently %2$s and %3$s.',
 				'w3-total-cache'
 			),
 			'<strong>' . Cache::engine_name( $this->_config->get_string( 'cdnfsd.engine' ) ) . '</strong>',

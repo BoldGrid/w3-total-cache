@@ -2,7 +2,7 @@
 
 **March 2015**
 
-* [Make WordPress 10x Faster By W3 Total Cache + CloudFlare](http://www.bloggingspell.com/w3-total-cache-cloudflare/), Abrar Mohi Shafee
+* [Make WordPress 10x Faster By W3 Total Cache + Cloudflare](http://www.bloggingspell.com/w3-total-cache-cloudflare/), Abrar Mohi Shafee
 
 **February 2015**
 
@@ -150,8 +150,8 @@
 * [Supercharge WordPress, Part 3](http://linuxaria.com/article/supercharge-wordpress-part-3?lang=en)
 * [7 Effective Ways To Make Your WordPress Blog Load Faster](http://www.uniquetipsonline.com/7-effective-ways-to-make-your-wordpress-blog-load-faster/)
 * [WordPress Plugins to Speed Up Your Website](http://blog.templatemonster.com/2012/03/01/wordpress-plugins-speed-up-blog-website/), Edward Korcheg
-* [CloudFlare and W3TC (Part I)](http://elimcmakin.com/cloudflare-and-w3tc-not-just-another-cdn-part-i/)
-* [CloudFlare and W3TC (Part II)](http://elimcmakin.com/cloudflare-and-w3tc-part-ii/)
+* [Cloudflare and W3TC (Part I)](http://elimcmakin.com/cloudflare-and-w3tc-not-just-another-cdn-part-i/)
+* [Cloudflare and W3TC (Part II)](http://elimcmakin.com/cloudflare-and-w3tc-part-ii/)
 * [How to speed up WordPress – my experience with slow WordPress](http://bachutha.com/how-to-speed-up-wordpress-my-experience-with-slow-wordpress/)
 * [Make Your WordPress Site Lightning Fast](http://www.helpeverybodyeveryday.com/websocial-media/848-make-your-wordpress-site-lightning-fast), Matt Handal
 * [Speed Up WordPress Websites](http://wordpress-tips.info/speed-up-wordpress-websites/2012/03/27/)
@@ -241,7 +241,7 @@
 * [Using YUI Compressor with the W3 Total Cache plugin](http://secure.delishost.com/knowledgebase/11/Using-YUI-Compressor-with-the-W3-Total-Cache-plugin.html)
 * [(mt):Install APC for use with W3 Total Cache](http://wiki.mediatemple.net/w/(mt):Install_APC_for_use_with_W3_Total_Cache)
 * [The Perfect APC Configuration](http://gregrickaby.com/2012/01/the-perfect-apc-configuration.html), Greg Rickaby
-* [CloudFlare – A Review](http://complete-concrete-concise.com/web-tools/cloudflare-a-review)
+* [Cloudflare – A Review](http://complete-concrete-concise.com/web-tools/cloudflare-a-review)
 * [W3 Total Cache Kurulumu ve Ayarları](http://bcakir.com/w3-total-cache-kurulumu-ve-ayarlari.html)
 
 **December 2011:**
@@ -294,7 +294,7 @@
 * [http://freenuts.com/increase-your-page-speed-to-a-new-level/](Increase Your PageSpeed To A New Level)
 * [7 Plugins That Every WordPress Blog Must Have](http://coderbay.com/7-wordpress-plugins-that-every-wordpress-blog-must-have/), Karim Pattoki
 * [Speeding Up Your WordPress Site With W3 Total Cache](http://www.sohailtech.com/2011/08/10/speeding-wordpress-site-w3-total-cache/)
-* [W3 Total Cache Setup with CloudFlare and CDN : Complete Tutorial Guide](http://thecustomizewindows.com/2011/08/w3-total-cache-setup-with-cloudflare-and-cdn-complete-tutorial-guide/), Abhishek Ghosh
+* [W3 Total Cache Setup with Cloudflare and CDN : Complete Tutorial Guide](http://thecustomizewindows.com/2011/08/w3-total-cache-setup-with-cloudflare-and-cdn-complete-tutorial-guide/), Abhishek Ghosh
 
 **July 2011:**
 
@@ -306,8 +306,8 @@
 **June 2011:**
 
 * [5 Types of WordPress Plugins for Real Estate Sites](http://www.mytechopinion.com/2011/06/5-types-of-wordpress-plugins-for-your-real-estate-site.html), Nicole Nicolay
-* [WordPress Optimization Results: Varnish/Nginx/APC + W3 Total Cache + Amazon S3 + CloudFlare](http://danielmiessler.com/blog/wordpress-optimization-results-varnishnginxapc-w3-total-cache-amazon-s3-cloudflare), Daniel Miessler
-* [Case Study: WordPress, MaxCDN, CloudFlare and W3 Total Cache Integration](http://www.thewebhostinghero.com/articles/case-study-wp-maxcdn-cloudflare.html), Ritesh Sanap
+* [WordPress Optimization Results: Varnish/Nginx/APC + W3 Total Cache + Amazon S3 + Cloudflare](http://danielmiessler.com/blog/wordpress-optimization-results-varnishnginxapc-w3-total-cache-amazon-s3-cloudflare), Daniel Miessler
+* [Case Study: WordPress, MaxCDN, Cloudflare and W3 Total Cache Integration](http://www.thewebhostinghero.com/articles/case-study-wp-maxcdn-cloudflare.html), Ritesh Sanap
 
 **May 2011:**
 
@@ -436,7 +436,7 @@
 
 **March 2010:**
 
-* [Howto: Speed up WordPress sites by using Amazon Cloudfront](http://www.jitscale.com/howto-speed-up-wordpress-sites-by-using-amazon-cloudfront/), Niek Waarbroek
+* [Howto: Speed up WordPress sites by using Amazon CloudFront](http://www.jitscale.com/howto-speed-up-wordpress-sites-by-using-amazon-cloudfront/), Niek Waarbroek
 * [Wordpress Cache Plugin Benchmarks](http://cd34.com/blog/scalability/wordpress-cache-plugin-benchmarks/), Chris Davies
 * [Wordpress + W3 Total Cache + MaxCDN How-To](http://rackerhacker.com/2010/02/13/wordpress-w3-total-cache-maxcdn/), Major Hayden
 

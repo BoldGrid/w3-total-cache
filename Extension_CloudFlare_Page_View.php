@@ -6,7 +6,7 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <p>
-	<?php esc_html_e( 'CloudFlare extension is currently ', 'w3-total-cache' ); ?>
+	<?php esc_html_e( 'Cloudflare extension is currently ', 'w3-total-cache' ); ?>
 	<?php
 	if ( $config->is_extension_active_frontend( 'cloudflare' ) ) {
 		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) . '</span>';
@@ -31,7 +31,7 @@ if ( ! defined( 'W3TC' ) ) {
 			)
 		);
 		?>
-		<input type="submit" name="w3tc_cloudflare_flush" value="<?php esc_html_e( 'Purge CloudFlare cache', 'w3-total-cache' ); ?>" class="button" />
+		<input type="submit" name="w3tc_cloudflare_flush" value="<?php esc_html_e( 'Purge Cloudflare cache', 'w3-total-cache' ); ?>" class="button" />
 		<?php esc_html_e( 'if needed.', 'w3-total-cache' ); ?>
 	</p>
 </form>
@@ -90,7 +90,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<table class="form-table">
 				<tr>
 					<td colspan="2">
-						<?php esc_html__( 'CloudFlare not available: ', 'w3-total-cache' ) . esc_html( $error_message ); ?>
+						<?php esc_html__( 'Cloudflare not available: ', 'w3-total-cache' ) . esc_html( $error_message ); ?>
 					</td>
 				</tr>
 			</table>
@@ -118,7 +118,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'key'         => array( 'cloudflare', 'widget_cache_mins' ),
 						'label'       => esc_html__( 'Cache time:', 'w3-total-cache' ),
 						'control'     => 'textbox',
-						'description' => esc_html__( 'How many minutes data retrieved from CloudFlare: should be stored. Minimum is 1 minute.', 'w3-total-cache' ),
+						'description' => esc_html__( 'How many minutes data retrieved from Cloudflare: should be stored. Minimum is 1 minute.', 'w3-total-cache' ),
 					)
 				);
 
@@ -127,8 +127,8 @@ if ( ! defined( 'W3TC' ) ) {
 						'key'            => array( 'cloudflare', 'pagecache' ),
 						'label'          => esc_html__( 'Page caching:', 'w3-total-cache' ),
 						'control'        => 'checkbox',
-						'checkbox_label' => esc_html__( 'Flush CloudFlare on Post Modifications:', 'w3-total-cache' ),
-						'description'    => esc_html__( 'Enable when you have html pages cached on CloudFlare level.', 'w3-total-cache' ),
+						'checkbox_label' => esc_html__( 'Flush Cloudflare on Post Modifications:', 'w3-total-cache' ),
+						'description'    => esc_html__( 'Enable when you have html pages cached on Cloudflare level.', 'w3-total-cache' ),
 					)
 				);
 
@@ -149,7 +149,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 
 		<?php if ( 'available' === $state ) : ?>
-			<?php Util_Ui::postbox_header( esc_html__( 'CloudFlare: Caching', 'w3-total-cache' ), '', 'general' ); ?>
+			<?php Util_Ui::postbox_header( esc_html__( 'Cloudflare: Caching', 'w3-total-cache' ), '', 'general' ); ?>
 			<table class="form-table">
 				<?php
 				self::cloudflare_checkbox(
@@ -157,7 +157,7 @@ if ( ! defined( 'W3TC' ) ) {
 					array(
 						'key'         => 'development_mode',
 						'label'       => esc_html__( 'Development mode:', 'w3-total-cache' ),
-						'description' => esc_html__( 'Development Mode temporarily allows you to enter development mode for your websites if you need to make changes to your site. This will bypass CloudFlare\'s accelerated cache and slow down your site, but is useful if you are making changes to cacheable content (like images, css, or JavaScript) and would like to see those changes right away.', 'w3-total-cache' ),
+						'description' => esc_html__( 'Development Mode temporarily allows you to enter development mode for your websites if you need to make changes to your site. This will bypass Cloudflare\'s accelerated cache and slow down your site, but is useful if you are making changes to cacheable content (like images, css, or JavaScript) and would like to see those changes right away.', 'w3-total-cache' ),
 					)
 				);
 				self::cloudflare_selectbox(
@@ -171,7 +171,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'basic'      => esc_html__( 'Basic (cache most static resources (i.e., css, images, and JavaScript)', 'w3-total-cache' ),
 							'simplified' => esc_html__( 'Simplified (ignore the query string when delivering a cached resource)', 'w3-total-cache' ),
 						),
-						'description' => esc_html__( 'How the content is cached by CloudFlare', 'w3-total-cache' ),
+						'description' => esc_html__( 'How the content is cached by Cloudflare', 'w3-total-cache' ),
 					)
 				);
 				self::cloudflare_checkbox(
@@ -179,7 +179,7 @@ if ( ! defined( 'W3TC' ) ) {
 					array(
 						'key'         => 'sort_query_string_for_cache',
 						'label'       => esc_html__( 'Query string sorting:', 'w3-total-cache' ),
-						'description' => esc_html__( 'CloudFlare will treat files with the same query strings as the same file in cache, regardless of the order of the query strings.', 'w3-total-cache' ),
+						'description' => esc_html__( 'Cloudflare will treat files with the same query strings as the same file in cache, regardless of the order of the query strings.', 'w3-total-cache' ),
 					)
 				);
 				self::cloudflare_selectbox(
@@ -236,7 +236,7 @@ if ( ! defined( 'W3TC' ) ) {
 							sprintf(
 								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag, 3 opening HTML a tag, 4 closing HTML a tag.
 								__(
-									'Browser cache %1$sTTL%2$s (in seconds) specifies how long CloudFlare-cached resources will remain on your visitors\' computers. See %3$sFeatures by plan type%4$s for acceptable minimum values based on subscription type.',
+									'Browser cache %1$sTTL%2$s (in seconds) specifies how long Cloudflare cached resources will remain on your visitors\' computers. See %3$sFeatures by plan type%4$s for acceptable minimum values based on subscription type.',
 									'w3-total-cache'
 								),
 								'<acronym title="' . esc_attr__( 'Time-to-Live', 'w3-total-cache' ) . '">',
@@ -348,7 +348,7 @@ if ( ! defined( 'W3TC' ) ) {
 							sprintf(
 								// translators: 1 opening HTML a tag, 2 closing HTML a tag.
 								__(
-									'Controls how long CloudFlare\'s edge servers will cache a resource before getting back to your server for a fresh copy. See %1$sFeatures by plan type%2$s for acceptable minimum values based on subscription type.',
+									'Controls how long Cloudflare\'s edge servers will cache a resource before getting back to your server for a fresh copy. See %1$sFeatures by plan type%2$s for acceptable minimum values based on subscription type.',
 									'w3-total-cache'
 								),
 								'<a target="_blank" href="' . esc_url( 'https://developers.cloudflare.com/cache/plans/' ) . '">',
@@ -368,7 +368,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php
 			Util_Ui::postbox_footer();
 
-			Util_Ui::postbox_header( esc_html__( 'CloudFlare: Content Processing', 'w3-total-cache' ), '', 'general' );
+			Util_Ui::postbox_header( esc_html__( 'Cloudflare: Content Processing', 'w3-total-cache' ), '', 'general' );
 			echo '<table class="form-table">';
 			self::cloudflare_selectbox(
 				$settings,
@@ -473,7 +473,7 @@ if ( ! defined( 'W3TC' ) ) {
 				array(
 					'key'         => 'server_side_exclude',
 					'label'       => esc_html__( 'Server side exclude:', 'w3-total-cache' ),
-					'description' => esc_html__( 'If there is sensitive content on your website that you want visible to real visitors, but that you want to hide from suspicious visitors, all you have to do is wrap the content with CloudFlare SSE tags.', 'w3-total-cache' ),
+					'description' => esc_html__( 'If there is sensitive content on your website that you want visible to real visitors, but that you want to hide from suspicious visitors, all you have to do is wrap the content with Cloudflare SSE tags.', 'w3-total-cache' ),
 				)
 			);
 			self::cloudflare_checkbox(
@@ -489,7 +489,7 @@ if ( ! defined( 'W3TC' ) ) {
 				array(
 					'key'         => 'response_buffering',
 					'label'       => esc_html__( 'Response buffering"', 'w3-total-cache' ),
-					'description' => esc_html__( 'CloudFlare may buffer the whole payload to deliver it at once to the client versus allowing it to be delivered in chunks.', 'w3-total-cache' ),
+					'description' => esc_html__( 'Cloudflare may buffer the whole payload to deliver it at once to the client versus allowing it to be delivered in chunks.', 'w3-total-cache' ),
 				)
 			);
 			self::cloudflare_checkbox(
@@ -497,7 +497,7 @@ if ( ! defined( 'W3TC' ) ) {
 				array(
 					'key'         => 'prefetch_preload',
 					'label'       => esc_html__( 'Prefetch preload:', 'w3-total-cache' ),
-					'description' => esc_html__( 'CloudFlare will prefetch any URLs that are included in the response headers.', 'w3-total-cache' ),
+					'description' => esc_html__( 'Cloudflare will prefetch any URLs that are included in the response headers.', 'w3-total-cache' ),
 				)
 			);
 			self::cloudflare_checkbox(
@@ -513,13 +513,13 @@ if ( ! defined( 'W3TC' ) ) {
 				array(
 					'key'         => 'origin_error_page_pass_thru',
 					'label'       => esc_html__( 'Enable error pages:', 'w3-total-cache' ),
-					'description' => esc_html__( 'CloudFlare will proxy customer error pages on any 502,504 errors on origin server instead of showing a default CloudFlare error page. This does not apply to 522 errors and is limited to Enterprise Zones.', 'w3-total-cache' ),
+					'description' => esc_html__( 'Cloudflare will proxy customer error pages on any 502,504 errors on origin server instead of showing a default Cloudflare error page. This does not apply to 522 errors and is limited to Enterprise Zones.', 'w3-total-cache' ),
 				)
 			);
 			echo '</table>';
 			Util_Ui::postbox_footer();
 
-			Util_Ui::postbox_header( esc_html__( 'CloudFlare: Image Processing', 'w3-total-cache' ), '', 'general' );
+			Util_Ui::postbox_header( esc_html__( 'Cloudflare: Image Processing', 'w3-total-cache' ), '', 'general' );
 			echo '<table class="form-table">';
 			self::cloudflare_checkbox(
 				$settings,
@@ -554,7 +554,7 @@ if ( ! defined( 'W3TC' ) ) {
 			echo '</table>';
 			Util_Ui::postbox_footer();
 
-			Util_Ui::postbox_header( esc_html__( 'CloudFlare: Protection', 'w3-total-cache' ), '', 'general' );
+			Util_Ui::postbox_header( esc_html__( 'Cloudflare: Protection', 'w3-total-cache' ), '', 'general' );
 			echo '<table class="form-table">';
 			self::cloudflare_selectbox(
 				$settings,
@@ -654,7 +654,7 @@ if ( ! defined( 'W3TC' ) ) {
 					sprintf(
 						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 						__(
-							'CloudFlare: %1$sIP%2$s',
+							'Cloudflare: %1$sIP%2$s',
 							'w3-total-cache'
 						),
 						'<acronym title="' . esc_attr__( 'Internet Protocol', 'w3-total-cache' ) . '">',
@@ -694,7 +694,7 @@ if ( ! defined( 'W3TC' ) ) {
 						sprintf(
 							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 							__(
-								'Enable %1$sIP%2$s Geolocation to have CloudFlare geolocate visitors to your website and pass the country code to you.',
+								'Enable %1$sIP%2$s Geolocation to have Cloudflare geolocate visitors to your website and pass the country code to you.',
 								'w3-total-cache'
 							),
 							'<acronym title="' . esc_attr__( 'Internet Protocol', 'w3-total-cache' ) . '">',
@@ -732,7 +732,7 @@ if ( ! defined( 'W3TC' ) ) {
 					sprintf(
 						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 						__(
-							'CloudFlare: %1$sSSL%2$s',
+							'Cloudflare: %1$sSSL%2$s',
 							'w3-total-cache'
 						),
 						'<acronym title="' . esc_attr__( 'Secure Sockets Layer', 'w3-total-cache' ) . '">',
@@ -878,7 +878,7 @@ if ( ! defined( 'W3TC' ) ) {
 						sprintf(
 							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 							__(
-								'%1$sTLS%2$s Client authentication requires CloudFlare to connect to your origin server using a client certificate',
+								'%1$sTLS%2$s Client authentication requires Cloudflare to connect to your origin server using a client certificate',
 								'w3-total-cache'
 							),
 							'<acronym title="' . esc_attr__( 'Transport Layer Security', 'w3-total-cache' ) . '">',

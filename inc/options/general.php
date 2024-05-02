@@ -1027,7 +1027,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'description'    => array(),
 					'label_class'    => 'w3tc_single_column',
 					'wrap_separate'  => true,
-					'score'             => '9+',
+					'score'             => '+9',
 					'score_description' => wp_kses(
 						sprintf(
 							// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.

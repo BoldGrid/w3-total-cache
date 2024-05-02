@@ -40,7 +40,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 			'description' =>
 				'<li>' .
 				__(
-					'Enabling even a single user agent group will set a cookie called "w3tc_referrer." It is used to ensure a consistent user experience across page views. Make sure any reverse proxy servers etc respect this cookie for proper operation.',
+					'Enabling even a single user agent group will set a cookie called "w3tc_referrer." It is used to ensure a consistent user experience across page views. Make sure any reverse proxy servers etc. respect this cookie for proper operation.',
 					'w3-total-cache'
 				) .
 				'</li>' .

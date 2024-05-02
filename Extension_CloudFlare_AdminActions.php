@@ -21,7 +21,7 @@ class Extension_CloudFlare_AdminActions {
 			Util_Admin::redirect_with_custom_messages2( array(
 					'errors' => array(
 						'cloudflare_flush' =>
-						__( 'Failed to purge CloudFlare cache: ', 'w3-total-cache' ) .
+						__( 'Failed to purge Cloudflare cache: ', 'w3-total-cache' ) .
 						$ex->getMessage()
 					)
 				) );
@@ -30,7 +30,7 @@ class Extension_CloudFlare_AdminActions {
 
 		Util_Admin::redirect_with_custom_messages2( array(
 				'notes' => array(
-					'cloudflare_flush' => __( 'CloudFlare cache successfully emptied.', 'w3-total-cache' )
+					'cloudflare_flush' => __( 'Cloudflare cache successfully emptied.', 'w3-total-cache' )
 				)
 			) );
 	}
@@ -38,7 +38,7 @@ class Extension_CloudFlare_AdminActions {
 
 
 	/**
-	 * Flush all caches except CloudFlare action
+	 * Flush all caches except Cloudflare action.
 	 *
 	 * @return void
 	 */

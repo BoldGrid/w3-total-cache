@@ -90,7 +90,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'extension_id'   => 'user-experience-defer-scripts',
 			'checkbox_label' => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
 			'description'    => __(
-				'Delay the loading of specified interal/external JavaScript sources on your pages separate from Minify.',
+				'Delay the loading of specified internal/external JavaScript sources on your pages separate from Minify.',
 				'w3-total-cache'
 			) . (
 				UserExperience_DeferScripts_Extension::is_enabled()
@@ -123,7 +123,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'extension_id'      => 'user-experience-remove-cssjs',
 			'checkbox_label'    => esc_html__( 'Remove Unwanted/Unused CSS/JS', 'w3-total-cache' ),
 			'description'       => __(
-				'Removes specfied CSS/JS tags from the homepage or on a per page basis.',
+				'Removes specified CSS/JS tags from the homepage or on a per page basis.',
 				'w3-total-cache'
 			) . (
 				UserExperience_Remove_CssJs_Extension::is_enabled()
@@ -149,7 +149,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'pro'               => true,
 			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
 			'show_learn_more'   => false,
-			'score'             => '27+',
+			'score'             => '+27',
 			'score_description' => wp_kses(
 				sprintf(
 					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
@@ -184,7 +184,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'extension_id'   => 'user-experience-preload-requests',
 			'checkbox_label' => esc_html__( 'Preload Requests', 'w3-total-cache' ),
 			'description'    => __(
-				'DNS prefetching, preconnecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks.',
+				'DNS prefetching, pre-connecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks.',
 				'w3-total-cache'
 			) . (
 				UserExperience_Preload_Requests_Extension::is_enabled()

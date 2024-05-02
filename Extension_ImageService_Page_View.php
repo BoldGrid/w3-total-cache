@@ -114,7 +114,7 @@ if ( ! $is_pro ) {
 		<?php
 		Util_Ui::pro_wrap_maybe_start();
 		Util_Ui::print_score_block(
-			'9+',
+			'+9',
 			wp_kses(
 				sprintf(
 					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
@@ -189,7 +189,7 @@ Util_Ui::postbox_header(
 
 	<table class="form-table" id="w3tc-imageservice-stats">
 		<tr>
-			<th><?php esc_html_e( 'Counts and filesizes by status:', 'w3-total-cache' ); ?></th>
+			<th><?php esc_html_e( 'Counts and file sizes by status:', 'w3-total-cache' ); ?></th>
 			<td>
 				<table id="w3tc-imageservice-counts">
 					<tr>
