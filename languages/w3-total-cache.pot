@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-04-30T23:12:40+00:00\n"
+"POT-Creation-Date: 2024-05-02T18:57:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
@@ -344,7 +344,7 @@ msgid "Controls whether the current document is allowed to gather information ab
 msgstr ""
 
 #: BrowserCache_Page_View_SectionSecurity.php:30
-msgid "Controls whether the current document is allowed to autoplay media requested through the HTMLMediaElement interface."
+msgid "Controls whether the current document is allowed to auto-play media requested through the HTMLMediaElement interface."
 msgstr ""
 
 #: BrowserCache_Page_View_SectionSecurity.php:34
@@ -655,7 +655,7 @@ msgid "Yes = Don't Enforce HPKP"
 msgstr ""
 
 #: BrowserCache_Page_View_SectionSecurity.php:531
-msgid "This header restricts the values of the referer header in outbound links."
+msgid "This header restricts the values of the Referer header in outbound links."
 msgstr ""
 
 #: BrowserCache_Page_View_SectionSecurity.php:544
@@ -679,7 +679,7 @@ msgstr ""
 
 #: BrowserCache_Page_View_SectionSecurity.php:605
 #: BrowserCache_Page_View_SectionSecurity.php:927
-msgid "The referenced \"group\" should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers."
+msgid "The referenced \"group\" should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via .htaccess or another method of modifying HTTP headers."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -863,14 +863,14 @@ msgstr ""
 msgid "Browser Cache Content-Security-Policy-Report-Only Settings"
 msgstr ""
 
-#: Cache.php:206
+#: Cache.php:210
 #: inc/options/minify/csstidy2.php:23
 #: SetupGuide_Plugin_Admin.php:969
 msgid "None"
 msgstr ""
 
 #: CacheGroups_Plugin_Admin.php:42
-msgid "Enabling even a single user agent group will set a cookie called \"w3tc_referrer.\" It is used to ensure a consistent user experience across page views. Make sure any reverse proxy servers etc respect this cookie for proper operation."
+msgid "Enabling even a single user agent group will set a cookie called \"w3tc_referrer.\" It is used to ensure a consistent user experience across page views. Make sure any reverse proxy servers etc. respect this cookie for proper operation."
 msgstr ""
 
 #: CacheGroups_Plugin_Admin.php:48
@@ -1961,7 +1961,7 @@ msgid "Amazon CloudFront"
 msgstr ""
 
 #: Cdnfsd_Plugin_Admin.php:78
-msgid "CloudFlare (extension not activated)"
+msgid "Cloudflare (extension not activated)"
 msgstr ""
 
 #: Cdnfsd_Plugin_Admin.php:83
@@ -3085,7 +3085,7 @@ msgstr ""
 
 #: Cdn_RackSpaceCdn_Popup_View_Intro.php:35
 #: Cdn_RackSpaceCloudFiles_Popup_View_Intro.php:36
-#: Extension_CloudFlare_Plugin_Admin.php:40
+#: Extension_CloudFlare_Plugin_Admin.php:39
 #: Extension_CloudFlare_Popup_View_Intro.php:36
 #: Extension_NewRelic_GeneralPage_View.php:65
 #: Extension_NewRelic_Popup_View_Intro.php:29
@@ -3611,11 +3611,11 @@ msgid "Adds compatibility for accelerated mobile pages (AMP) to minify."
 msgstr ""
 
 #: Extension_CloudFlare_AdminActions.php:24
-msgid "Failed to purge CloudFlare cache: "
+msgid "Failed to purge Cloudflare cache: "
 msgstr ""
 
 #: Extension_CloudFlare_AdminActions.php:33
-msgid "CloudFlare cache successfully emptied."
+msgid "Cloudflare cache successfully emptied."
 msgstr ""
 
 #: Extension_CloudFlare_Cdn_Page_View.php:13
@@ -3623,16 +3623,16 @@ msgid "Configuration:"
 msgstr ""
 
 #: Extension_CloudFlare_GeneralPage_View.php:9
-msgid "Network Performance &amp; Security powered by CloudFlare"
+msgid "Network Performance &amp; Security powered by Cloudflare"
 msgstr ""
 
 #: Extension_CloudFlare_GeneralPage_View.php:10
 msgid ""
-"CloudFlare is a powerful content delivery network (CDN) and security service that can greatly enhance \n"
-"\t\t\tthe performance and security of your WordPress website. By integrating CloudFlare with W3 Total Cache, \n"
-"\t\t\tyou can take advantage of its global network of servers to deliver your website's content faster to \n"
-"\t\t\tvisitors from around the world, resulting in reduced loading times and improved user experience. \n"
-"\t\t\tAdditionally, CloudFlare offers various optimization features like minification, caching, and image \n"
+"Cloudflare is a powerful content delivery network (CDN) and security service that can greatly enhance\n"
+"\t\t\tthe performance and security of your WordPress website. By integrating Cloudflare with W3 Total Cache,\n"
+"\t\t\tyou can take advantage of its global network of servers to deliver your website's content faster to\n"
+"\t\t\tvisitors from around the world, resulting in reduced loading times and improved user experience.\n"
+"\t\t\tAdditionally, Cloudflare offers various optimization features like minification, caching, and image\n"
 "\t\t\toptimization, further accelerating your website's loading speed and overall performance."
 msgstr ""
 
@@ -3643,7 +3643,7 @@ msgid "Cache time:"
 msgstr ""
 
 #: Extension_CloudFlare_GeneralPage_View.php:33
-msgid "How many minutes data retrieved from CloudFlare should be stored. Minimum is 1 minute."
+msgid "How many minutes data retrieved from Cloudflare should be stored. Minimum is 1 minute."
 msgstr ""
 
 #: Extension_CloudFlare_GeneralPage_View.php:40
@@ -3651,16 +3651,16 @@ msgid "Page Caching:"
 msgstr ""
 
 #: Extension_CloudFlare_GeneralPage_View.php:42
-msgid "Flush CloudFlare on Post Modifications"
+msgid "Flush Cloudflare on Post Modifications"
 msgstr ""
 
 #: Extension_CloudFlare_GeneralPage_View.php:43
 #: Extension_CloudFlare_Page_View.php:131
-msgid "Enable when you have html pages cached on CloudFlare level."
+msgid "Enable when you have html pages cached on Cloudflare level."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:9
-msgid "CloudFlare extension is currently "
+msgid "Cloudflare extension is currently "
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:14
@@ -3680,7 +3680,7 @@ msgid "disabled"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:34
-msgid "Purge CloudFlare cache"
+msgid "Purge Cloudflare cache"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:35
@@ -3719,7 +3719,7 @@ msgid "Authenticate your account in order to access settings."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:93
-msgid "CloudFlare not available: "
+msgid "Cloudflare not available: "
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:103
@@ -3751,7 +3751,7 @@ msgid "Last month"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:121
-msgid "How many minutes data retrieved from CloudFlare: should be stored. Minimum is 1 minute."
+msgid "How many minutes data retrieved from Cloudflare: should be stored. Minimum is 1 minute."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:128
@@ -3759,7 +3759,7 @@ msgid "Page caching:"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:130
-msgid "Flush CloudFlare on Post Modifications:"
+msgid "Flush Cloudflare on Post Modifications:"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:138
@@ -3775,7 +3775,7 @@ msgid "Exclusion achieved by adding data-cfasync=\"false\" to script tags."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:152
-msgid "CloudFlare: Caching"
+msgid "Cloudflare: Caching"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:159
@@ -3783,7 +3783,7 @@ msgid "Development mode:"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:160
-msgid "Development Mode temporarily allows you to enter development mode for your websites if you need to make changes to your site. This will bypass CloudFlare's accelerated cache and slow down your site, but is useful if you are making changes to cacheable content (like images, css, or JavaScript) and would like to see those changes right away."
+msgid "Development Mode temporarily allows you to enter development mode for your websites if you need to make changes to your site. This will bypass Cloudflare's accelerated cache and slow down your site, but is useful if you are making changes to cacheable content (like images, css, or JavaScript) and would like to see those changes right away."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:167
@@ -3803,7 +3803,7 @@ msgid "Simplified (ignore the query string when delivering a cached resource)"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:174
-msgid "How the content is cached by CloudFlare"
+msgid "How the content is cached by Cloudflare"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:181
@@ -3811,7 +3811,7 @@ msgid "Query string sorting:"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:182
-msgid "CloudFlare will treat files with the same query strings as the same file in cache, regardless of the order of the query strings."
+msgid "Cloudflare will treat files with the same query strings as the same file in cache, regardless of the order of the query strings."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -3832,7 +3832,7 @@ msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag, 3 opening HTML a tag, 4 closing HTML a tag.
 #: Extension_CloudFlare_Page_View.php:238
-msgid "Browser cache %1$sTTL%2$s (in seconds) specifies how long CloudFlare-cached resources will remain on your visitors' computers. See %3$sFeatures by plan type%4$s for acceptable minimum values based on subscription type."
+msgid "Browser cache %1$sTTL%2$s (in seconds) specifies how long Cloudflare cached resources will remain on your visitors' computers. See %3$sFeatures by plan type%4$s for acceptable minimum values based on subscription type."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -3851,11 +3851,11 @@ msgstr ""
 
 #. translators: 1 opening HTML a tag, 2 closing HTML a tag.
 #: Extension_CloudFlare_Page_View.php:350
-msgid "Controls how long CloudFlare's edge servers will cache a resource before getting back to your server for a fresh copy. See %1$sFeatures by plan type%2$s for acceptable minimum values based on subscription type."
+msgid "Controls how long Cloudflare's edge servers will cache a resource before getting back to your server for a fresh copy. See %1$sFeatures by plan type%2$s for acceptable minimum values based on subscription type."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:371
-msgid "CloudFlare: Content Processing"
+msgid "Cloudflare: Content Processing"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:377
@@ -3919,7 +3919,7 @@ msgid "Server side exclude:"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:476
-msgid "If there is sensitive content on your website that you want visible to real visitors, but that you want to hide from suspicious visitors, all you have to do is wrap the content with CloudFlare SSE tags."
+msgid "If there is sensitive content on your website that you want visible to real visitors, but that you want to hide from suspicious visitors, all you have to do is wrap the content with Cloudflare SSE tags."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:483
@@ -3935,7 +3935,7 @@ msgid "Response buffering\""
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:492
-msgid "CloudFlare may buffer the whole payload to deliver it at once to the client versus allowing it to be delivered in chunks."
+msgid "Cloudflare may buffer the whole payload to deliver it at once to the client versus allowing it to be delivered in chunks."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:499
@@ -3943,7 +3943,7 @@ msgid "Prefetch preload:"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:500
-msgid "CloudFlare will prefetch any URLs that are included in the response headers."
+msgid "Cloudflare will prefetch any URLs that are included in the response headers."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:507
@@ -3959,11 +3959,11 @@ msgid "Enable error pages:"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:516
-msgid "CloudFlare will proxy customer error pages on any 502,504 errors on origin server instead of showing a default CloudFlare error page. This does not apply to 522 errors and is limited to Enterprise Zones."
+msgid "Cloudflare will proxy customer error pages on any 502,504 errors on origin server instead of showing a default Cloudflare error page. This does not apply to 522 errors and is limited to Enterprise Zones."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:522
-msgid "CloudFlare: Image Processing"
+msgid "Cloudflare: Image Processing"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:528
@@ -3999,7 +3999,7 @@ msgid "Strips metadata and compresses your images for faster page load times."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:557
-msgid "CloudFlare: Protection"
+msgid "Cloudflare: Protection"
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:563
@@ -4073,7 +4073,7 @@ msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: Extension_CloudFlare_Page_View.php:656
-msgid "CloudFlare: %1$sIP%2$s"
+msgid "Cloudflare: %1$sIP%2$s"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -4083,7 +4083,7 @@ msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: Extension_CloudFlare_Page_View.php:696
-msgid "Enable %1$sIP%2$s Geolocation to have CloudFlare geolocate visitors to your website and pass the country code to you."
+msgid "Enable %1$sIP%2$s Geolocation to have Cloudflare geolocate visitors to your website and pass the country code to you."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:715
@@ -4104,7 +4104,7 @@ msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: Extension_CloudFlare_Page_View.php:734
-msgid "CloudFlare: %1$sSSL%2$s"
+msgid "Cloudflare: %1$sSSL%2$s"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -4155,12 +4155,12 @@ msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: Extension_CloudFlare_Page_View.php:880
-msgid "%1$sTLS%2$s Client authentication requires CloudFlare to connect to your origin server using a client certificate"
+msgid "%1$sTLS%2$s Client authentication requires Cloudflare to connect to your origin server using a client certificate"
 msgstr ""
 
 #: Extension_CloudFlare_Plugin.php:151
-#: Extension_CloudFlare_Plugin_Admin.php:164
-msgid "CloudFlare"
+#: Extension_CloudFlare_Plugin_Admin.php:163
+msgid "Cloudflare"
 msgstr ""
 
 #: Extension_CloudFlare_Plugin.php:157
@@ -4176,30 +4176,30 @@ msgstr ""
 msgid "Account"
 msgstr ""
 
-#. translators: 7 opening HTML a tag to CloudFlare help page, 8 closing HTML a tag.
-#: Extension_CloudFlare_Plugin_Admin.php:34
-msgid "CloudFlare protects and accelerates websites. %1$sSign up now for free%2$s to get started, or if you have an account simply log in to obtain your %3$sAPI%4$s token / global key from the %5$saccount page%6$s to enter it on the General Settings box that appears after plugin activation. Contact the CloudFlare %7$ssupport team%8$s with any questions."
+#. translators: 7 opening HTML a tag to Cloudflare help page, 8 closing HTML a tag.
+#: Extension_CloudFlare_Plugin_Admin.php:33
+msgid "Cloudflare protects and accelerates websites. %1$sSign up now for free%2$s to get started, or if you have an account simply log in to obtain your %3$sAPI%4$s token / global key from the %5$saccount page%6$s to enter it on the General Settings box that appears after plugin activation. Contact the Cloudflare %7$ssupport team%8$s with any questions."
 msgstr ""
 
 #. translators: 3 closing HTML p tag followed by closing HTML div tag.
-#: Extension_CloudFlare_Plugin_Admin.php:136
-msgid "%1$sCloudFlare plugin detected. We recommend removing the plugin as it offers no additional capabilities when W3 Total Cache is installed. This message will disappear when CloudFlare is removed. %2$s%3$s"
+#: Extension_CloudFlare_Plugin_Admin.php:135
+msgid "%1$sCloudflare plugin detected. We recommend removing the plugin as it offers no additional capabilities when W3 Total Cache is installed. This message will disappear when Cloudflare is removed. %2$s%3$s"
 msgstr ""
 
-#: Extension_CloudFlare_Plugin_Admin.php:301
-msgid "Empty All Caches Except CloudFlare"
+#: Extension_CloudFlare_Plugin_Admin.php:300
+msgid "Empty All Caches Except Cloudflare"
 msgstr ""
 
-#: Extension_CloudFlare_Plugin_Admin.php:365
-msgid "CloudFlare settings are successfully updated."
+#: Extension_CloudFlare_Plugin_Admin.php:362
+msgid "Cloudflare settings are successfully updated."
 msgstr ""
 
-#: Extension_CloudFlare_Plugin_Admin.php:373
-msgid "Failed to update CloudFlare settings:"
+#: Extension_CloudFlare_Plugin_Admin.php:370
+msgid "Failed to update Cloudflare settings:"
 msgstr ""
 
 #: Extension_CloudFlare_Popup_View_Intro.php:16
-msgid "Your CloudFlare API token / global key"
+msgid "Your Cloudflare API token / global key"
 msgstr ""
 
 #: Extension_CloudFlare_Popup_View_Intro.php:19
@@ -4757,7 +4757,7 @@ msgid "Statistics"
 msgstr ""
 
 #: Extension_ImageService_Page_View.php:192
-msgid "Counts and filesizes by status:"
+msgid "Counts and file sizes by status:"
 msgstr ""
 
 #: Extension_ImageService_Page_View.php:196
@@ -5446,7 +5446,7 @@ msgid "Remove Unused CSS/JS"
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:246
-msgid "Removes specfied CSS/JS tags from the homepage or on a per page basis. Can be used to eliminate unused CSS/JS on pages that do not require them."
+msgid "Removes specified CSS/JS tags from the homepage or on a per page basis. Can be used to eliminate unused CSS/JS on pages that do not require them."
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:254
@@ -5488,7 +5488,7 @@ msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:262
 #: UserExperience_GeneralPage_View.php:186
-msgid "DNS prefetching, preconnecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks."
+msgid "DNS prefetching, pre-connecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks."
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:276
@@ -5501,6 +5501,7 @@ msgid "Delay Scripts"
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:278
+#: UserExperience_GeneralPage_View.php:92
 msgid "Delay the loading of specified internal/external JavaScript sources on your pages separate from Minify."
 msgstr ""
 
@@ -5939,7 +5940,7 @@ msgid "Purge All Caches Except Bunny CDN"
 msgstr ""
 
 #: Generic_Plugin.php:292
-msgid "Purge All Caches Except CloudFlare"
+msgid "Purge All Caches Except Cloudflare"
 msgstr ""
 
 #: Generic_Plugin.php:304
@@ -6525,7 +6526,7 @@ msgid "Hosting Environment Troubleshooting"
 msgstr ""
 
 #: Generic_WidgetServices.php:64
-msgid "Eliminate render-blocking Javascripts"
+msgid "Eliminate render-blocking JavaScript"
 msgstr ""
 
 #: Generic_WidgetServices.php:65
@@ -7405,7 +7406,7 @@ msgstr ""
 #. translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
 #: inc/options/browsercache.php:595
 #: inc/options/pgcache.php:580
-msgid "Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp_config.php."
+msgid "Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp-config.php."
 msgstr ""
 
 #: inc/options/browsercache.php:631
@@ -7439,7 +7440,7 @@ msgstr ""
 
 #. translators: 1 HTML strong tag containing CDN Engine value, 2 HTML span tag containing CDN Engine enabled/disabled value.
 #: inc/options/cdn.php:92
-msgid "Content Delivery Network full-site-delivery support via %1$s is currently %2$s and %3$s."
+msgid "Content Delivery Network full-site delivery support via %1$s is currently %2$s and %3$s."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -8777,7 +8778,7 @@ msgstr ""
 
 #. translators: 13 opening HTML acronym tag, 14 closing HTML acronym tag.
 #: inc/options/install.php:140
-msgid "%1$sRecommended:%2$s If you already have a content delivery network (%3$sCDN%4$s) provider, proceed to the \"%5$sContent Delivery Network%6$s\" tab and populate the fields and set your preferences. If you do not use the Media Library, you will need to import your images etc into the default locations. Use the Media Library Import Tool on the \"Content Delivery Network\" tab to perform this task. If you do not have a %7$sCDN%8$s provider, you can still improve your site's performance using the \"Self-hosted\" method. On your own server, create a subdomain and matching %9$sDNS%10$s Zone record; e.g. static.domain.com and configure %11$sFTP%12$s options on the \"Content Delivery Network\" tab accordingly. Be sure to %13$sFTP%14$s upload the appropriate files, using the available upload buttons."
+msgid "%1$sRecommended:%2$s If you already have a content delivery network (%3$sCDN%4$s) provider, proceed to the \"%5$sContent Delivery Network%6$s\" tab and populate the fields and set your preferences. If you do not use the Media Library, you will need to import your images etc. into the default locations. Use the Media Library Import Tool on the \"Content Delivery Network\" tab to perform this task. If you do not have a %7$sCDN%8$s provider, you can still improve your site's performance using the \"Self-hosted\" method. On your own server, create a subdomain and matching %9$sDNS%10$s Zone record; e.g. static.domain.com and configure %11$sFTP%12$s options on the \"Content Delivery Network\" tab accordingly. Be sure to %13$sFTP%14$s upload the appropriate files, using the available upload buttons."
 msgstr ""
 
 #. translators: 3 opening HTML a tag to W3TC DatabaseCache admin page, 4 closing HTML a tag.
@@ -8819,7 +8820,7 @@ msgid "Server Preparation"
 msgstr ""
 
 #: inc/options/install.php:297
-msgid "Install Memcached Deamon"
+msgid "Install Memcached Daemon"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
@@ -9090,7 +9091,7 @@ msgstr ""
 
 #. translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
 #: inc/options/minify.php:896
-msgid "Max interval is limited by the %1$s constant (%2$s seconds) which can be overridden in wp_config.php."
+msgid "Max interval is limited by the %1$s constant (%2$s seconds) which can be overridden in wp-config.php."
 msgstr ""
 
 #: inc/options/minify.php:913
@@ -9533,7 +9534,7 @@ msgstr ""
 
 #. translators: 1 HTML line break tag.
 #: inc/options/pgcache.php:366
-msgid "Specify number of pages that lists posts (archive etc) that should be purged on post updates etc, i.e example.com/ ... example.com/page/5. %1$s0 means all pages that lists posts are purged, i.e example.com/page/2 ... ."
+msgid "Specify number of pages that lists posts (archive etc.) that should be purged on post updates etc., i.e. example.com/ ... example.com/page/5. %1$s0 means all pages that lists posts are purged, i.e. example.com/page/2 ... "
 msgstr ""
 
 #: inc/options/pgcache.php:386
@@ -10496,7 +10497,7 @@ msgid "Performance &raquo; Minify &raquo; CSS"
 msgstr ""
 
 #: PageSpeed_Instructions.php:62
-msgid "Some themes and plugins are loading CSS files or parts of the CSS files on all pages and not only on the pages that should be loading on. For eaxmple if you are using some contact form plugin, there is a chance that the CSS file of that plugin will load not only on the /contact/ page, but on all other pages as well and this is why the unused CSS should be removed."
+msgid "Some themes and plugins are loading CSS files or parts of the CSS files on all pages and not only on the pages that should be loading on. For example if you are using some contact form plugin, there is a chance that the CSS file of that plugin will load not only on the /contact/ page, but on all other pages as well and this is why the unused CSS should be removed."
 msgstr ""
 
 #: PageSpeed_Instructions.php:63
@@ -10544,7 +10545,7 @@ msgid "JS"
 msgstr ""
 
 #: PageSpeed_Instructions.php:105
-msgid "Some themes and plugins are loading JS files or parts of the JS files on all pages and not only on the pages that should be loading on. For eaxmple if you are using some contact form plugin, there is a chance that the JS file of that plugin will load not only on the /contact/ page, but on all other pages as well and this is why the unused JS should be removed."
+msgid "Some themes and plugins are loading JS files or parts of the JS files on all pages and not only on the pages that should be loading on. For example if you are using some contact form plugin, there is a chance that the JS file of that plugin will load not only on the /contact/ page, but on all other pages as well and this is why the unused JS should be removed."
 msgstr ""
 
 #: PageSpeed_Instructions.php:110
@@ -10553,7 +10554,7 @@ msgstr ""
 
 #. translators: 1 HTML a tag to helpx.adobe.com for optimizing-image-jped-format.
 #: PageSpeed_Instructions.php:117
-msgid "It's important to prepare images before uloading them to the website. This should be done before the Image is uploaded and can be done by using some image optimization tool like %1$s."
+msgid "It's important to prepare images before uploading them to the website. This should be done before the Image is uploaded and can be done by using some image optimization tool like %1$s."
 msgstr ""
 
 #: PageSpeed_Instructions.php:121
@@ -10604,7 +10605,7 @@ msgstr ""
 
 #. translators: 1 W3TC plugin name, 2 HTML a tag to kjdev php-ext-brotli.
 #: PageSpeed_Instructions.php:166
-msgid "Use %1$s Browser Caching - Peformance>Browser Cache - Enable Gzip compression or Brotli compression (Gzip compression is most common and for Brotli compression you need to install %2$s on your server."
+msgid "Use %1$s Browser Caching - Performance>Browser Cache - Enable Gzip compression or Brotli compression (Gzip compression is most common and for Brotli compression you need to install %2$s on your server."
 msgstr ""
 
 #: PageSpeed_Instructions.php:171
@@ -10723,7 +10724,7 @@ msgstr ""
 
 #. translators: 1 W3TC plugin name, 2 opening HTML a tag to W3TC extensions, 3 closing HTML a tag.
 #: PageSpeed_Instructions.php:301
-msgid "Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use Webp conversion via the %1$s %2$sWebP Converter%3$s extension."
+msgid "Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use WebP conversion via the %1$s %2$sWebP Converter%3$s extension."
 msgstr ""
 
 #. translators: 1 opening HTML a tag to Browser Caching setting, 2 closing HTML a tag.
@@ -10980,7 +10981,7 @@ msgid "Preload fonts with a plugin or manually:"
 msgstr ""
 
 #: PageSpeed_Instructions.php:505
-msgid "Use font-display atribute: The font-display attribute determines how the font is displayed during your page load, based on whether it has been downloaded and is ready for use."
+msgid "Use font-display attribute: The font-display attribute determines how the font is displayed during your page load, based on whether it has been downloaded and is ready for use."
 msgstr ""
 
 #. translators: 1 opening HTML a tag to Browswer Cache settings, 2 closing HTML a tag, 3 W3TC plugin name.
@@ -10993,7 +10994,7 @@ msgid "Use default values for best results"
 msgstr ""
 
 #: PageSpeed_Instructions.php:522
-msgid "Eliminate Render Blocking CSS and apply asynchronous loading where applicable. Additionally, image optimization by way of resizing, lazy loaidng, and webp conversion can impact this metric as well."
+msgid "Eliminate Render Blocking CSS and apply asynchronous loading where applicable. Additionally, image optimization by way of resizing, lazy loading, and WebP conversion can impact this metric as well."
 msgstr ""
 
 #: PageSpeed_Instructions.php:526
@@ -11093,7 +11094,7 @@ msgid "Use another rendering strategy."
 msgstr ""
 
 #: PageSpeed_Instructions.php:563
-msgid "Features that will help performace of the above:"
+msgid "Features that will help performance of the above:"
 msgstr ""
 
 #: PageSpeed_Instructions.php:574
@@ -11166,7 +11167,7 @@ msgstr ""
 
 #. translators: 1 cache lifetime.
 #: PageSpeed_Page_View.php:29
-msgid "This tool will analyze your website's homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explaination of the metric and our recommendation for achieving improvments via W3 Total Cache features/extensions if available. Results will be cached for %1$s but will forcibly refresh via the \"Refresh Analysis\" button."
+msgid "This tool will analyze your website's homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explanation of the metric and our recommendation for achieving improvements via W3 Total Cache features/extensions if available. Results will be cached for %1$s but will forcibly refresh via the \"Refresh Analysis\" button."
 msgstr ""
 
 #: PageSpeed_Page_View.php:43
@@ -12394,10 +12395,6 @@ msgstr ""
 msgid "Remove emojis support from your website."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:92
-msgid "Delay the loading of specified interal/external JavaScript sources on your pages separate from Minify."
-msgstr ""
-
 #. translators: 1 opening HTML a tag to W3TC User Experience page, 2 closing HTML a tag.
 #: UserExperience_GeneralPage_View.php:100
 #: UserExperience_GeneralPage_View.php:133
@@ -12410,7 +12407,7 @@ msgid "Remove Unwanted/Unused CSS/JS"
 msgstr ""
 
 #: UserExperience_GeneralPage_View.php:125
-msgid "Removes specfied CSS/JS tags from the homepage or on a per page basis."
+msgid "Removes specified CSS/JS tags from the homepage or on a per page basis."
 msgstr ""
 
 #. translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
@@ -12519,11 +12516,11 @@ msgid "%1$sWP Google Maps%2$s plugin"
 msgstr ""
 
 #: UserExperience_Preload_Requests_Page_View.php:20
-msgid "DNS prefetching, preconnecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks. DNS prefetching involves resolving domain names to IP addresses before they are needed, reducing the time it takes for the browser to initiate a connection. Preconnecting establishes early connections to servers to expedite resource fetching, anticipating the need for subsequent requests. Preloading involves instructing the browser to fetch and cache critical resources in advance, ensuring a smoother user experience during page load."
+msgid "DNS prefetching, pre-connecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks. DNS prefetching involves resolving domain names to IP addresses before they are needed, reducing the time it takes for the browser to initiate a connection. Pre-connecting establishes early connections to servers to expedite resource fetching, anticipating the need for subsequent requests. Preloading involves instructing the browser to fetch and cache critical resources in advance, ensuring a smoother user experience during page load."
 msgstr ""
 
 #: UserExperience_Preload_Requests_Page_View.php:21
-msgid "However, it's important to note a significant caveat: if a webpage requires connections to numerous third-party domains, indiscriminate preconnecting to all of them can actually hinder performance. Preconnecting to an excessive number of domains can overwhelm the browser and degrade overall speed, as each connection consumes resources. It's crucial for web developers to judiciously implement preconnecting, considering the optimal number and relevance of third-party domains to ensure efficient website loading."
+msgid "However, it's important to note a significant caveat: if a webpage requires connections to numerous third-party domains, indiscriminate pre-connecting to all of them can actually hinder performance. Pre-connecting to an excessive number of domains can overwhelm the browser and degrade overall speed, as each connection consumes resources. It's crucial for web developers to judiciously implement pre-connecting, considering the optimal number and relevance of third-party domains to ensure efficient website loading."
 msgstr ""
 
 #: UserExperience_Preload_Requests_Page_View.php:22
@@ -12962,7 +12959,7 @@ msgid "Empty Varnish Cache"
 msgstr ""
 
 #: Util_Ui.php:388
-msgid "Empty CloudFlare Cache"
+msgid "Empty Cloudflare Cache"
 msgstr ""
 
 #: Util_Ui.php:393
