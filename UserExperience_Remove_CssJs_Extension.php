@@ -62,7 +62,7 @@ class UserExperience_Remove_CssJs_Extension {
 
 		Util_Bus::add_ob_callback( 'removecssjs', array( $this, 'ob_callback' ) );
 
-		add_action( 'w3tc_save_options', array( $this, 'w3tc_save_options' ), 10, 2 );
+		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ), 10, 2 );
 
 		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 12 );
 

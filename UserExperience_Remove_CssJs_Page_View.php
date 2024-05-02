@@ -23,15 +23,19 @@ $remove_cssjs_singles = $c->get_array( 'user-experience-remove-cssjs-singles' );
 // If old data structure convert to new.
 // Old data structure used url_pattern as the key for each block. New uses indicies and has url_pattern within.
 if ( ! is_numeric( key( $remove_cssjs_singles ) ) ) {
-    $new_array = array();
-    foreach ( $remove_cssjs_singles as $match => $data ) {
-        $new_array[] = array(
-            "url_pattern" => $match,
-            "action"      => isset( $data["action"] ) ? $data["action"] : 'exclude',
-            "includes"    => $data["includes"]
-        );
-    }
-    $remove_cssjs_singles = $new_array;
+	$new_array = array();
+	foreach ( $remove_cssjs_singles as $match => $data ) {
+		if ( empty( $data['includes'] ) ) {
+			continue;
+		}
+
+		$new_array[] = array(
+			'url_pattern' => $match,
+			'action'      => isset( $data['action'] ) ? $data['action'] : 'exclude',
+			'includes'    => $data['includes'],
+		);
+	}
+	$remove_cssjs_singles = $new_array;
 }
 
 Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cache' ), '', 'remove-cssjs' );
@@ -46,7 +50,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cach
 			'key'               => array( 'user-experience-remove-cssjs', 'includes' ),
 			'label'             => esc_html__( 'Remove list:', 'w3-total-cache' ),
 			'control'           => 'textarea',
-			'disabled'          => ( $is_pro ? null : true ),
+			'disabled'          => ! UserExperience_Remove_CssJs_Extension::is_enabled(),
 			'description'       => array(),
 			'excerpt'           => esc_html__( 'Specify absolute or relative URLs, or file names to be excluded from loading on the homepage. Include one entry per line, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name="myscript", etc.)', 'w3-total-cache' ),
 			'show_learn_more'   => false,
@@ -82,6 +86,29 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cach
 	?>
 </table>
 <?php
+
+if ( $is_pro && ! UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+	echo wp_kses(
+		sprintf(
+			// translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.
+			__(
+				'%1$sRemove Unwanted/Unused CSS/JS%2$s is not enabled in the %3$sGeneral Settings%4$s.',
+				'w3-total-cache'
+			),
+			'<em>',
+			'</em>',
+			'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
+			'</a>'
+		),
+		array(
+			'a'  => array(
+				'href' => array(),
+			),
+			'em' => array(),
+		)
+	);
+}
+
 Util_Ui::postbox_footer();
 
 Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cache' ), '', 'remove-cssjs-singles' );
@@ -92,7 +119,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 <div class="w3tc-gopro-manual-wrap">
 	<?php Util_Ui::pro_wrap_maybe_start(); ?>
 	<p>
-		<input id="w3tc_remove_cssjs_singles_add" type="button" class="button" value="<?php esc_html_e( 'Add', 'w3-total-cache' ); ?>" <?php echo $is_pro ? '' : 'disabled="disabled"'; ?>/>
+		<input id="w3tc_remove_cssjs_singles_add" type="button" class="button" value="<?php esc_html_e( 'Add', 'w3-total-cache' ); ?>" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled="disabled"'; ?>/>
 	</p>
 	<ul id="remove_cssjs_singles" class="w3tc_remove_cssjs_singles">
 
@@ -107,8 +134,8 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 								<?php esc_html_e( 'Target CSS/JS:', 'w3-total-cache' ); ?>
 							</th>
 							<td>
-								<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][url_pattern]" value="<?php echo esc_attr( $single_config['url_pattern'] ); ?>" <?php echo ! $is_pro ? 'disabled' : ''; ?>>
-								<input type="button" class="button remove_cssjs_singles_delete" value="<?php esc_html_e( 'Delete', 'w3-total-cache' ); ?>" <?php echo ! $is_pro ? 'disabled' : ''; ?>/>
+								<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][url_pattern]" value="<?php echo esc_attr( $single_config['url_pattern'] ); ?>" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>>
+								<input type="button" class="button remove_cssjs_singles_delete" value="<?php esc_html_e( 'Delete', 'w3-total-cache' ); ?>" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>/>
 							</td>
 						</tr>
 						<tr>
@@ -119,11 +146,11 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 							</th>
 							<td>
 								<label class="remove_cssjs_singles_behavior">
-									<input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][action]" value="exclude" <?php echo 'exclude' === $single_config['action'] ? 'checked="checked"' : ''; ?> <?php echo ! $is_pro ? 'disabled' : ''; ?>>
+									<input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][action]" value="exclude" <?php echo 'exclude' === $single_config['action'] ? 'checked="checked"' : ''; ?> <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>>
 									<?php esc_html_e( 'Exclude', 'w3-total-cache' ); ?>
 								</label>
 								<label class="remove_cssjs_singles_behavior">
-									<input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][action]" value="include" <?php echo 'include' === $single_config['action'] ? 'checked="checked"' : ''; ?> <?php echo ! $is_pro ? 'disabled' : ''; ?>>
+									<input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][action]" value="include" <?php echo 'include' === $single_config['action'] ? 'checked="checked"' : ''; ?> <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>>
 									<?php esc_html_e( 'Include', 'w3-total-cache' ); ?>
 								</label>
 								<p class="description"><?php esc_html_e( 'Exclude will only remove match(es) from the specified URLs.', 'w3-total-cache' ); ?></p>
@@ -140,7 +167,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 								</label>
 							</th>
 							<td>
-								<textarea id="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][includes]" rows="5" cols="50" <?php echo ! $is_pro ? 'disabled' : ''; ?>><?php echo esc_textarea( implode( "\r\n", (array) $single_config['includes'] ) ); ?></textarea>
+								<textarea id="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][includes]" rows="5" cols="50" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>><?php echo esc_textarea( implode( "\r\n", (array) $single_config['includes'] ) ); ?></textarea>
 								<p class="description remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_description">
 									<?php
 									echo esc_html(
@@ -199,6 +226,26 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 						'value'    => array(),
 					),
 				)
+			)
+		);
+	} elseif ( ! UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+		echo wp_kses(
+			sprintf(
+				// translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.
+				__(
+					'%1$sRemove Unwanted/Unused CSS/JS%2$s is not enabled in the %3$sGeneral Settings%4$s.',
+					'w3-total-cache'
+				),
+				'<em>',
+				'</em>',
+				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
+				'</a>'
+			),
+			array(
+				'a'  => array(
+					'href' => array(),
+				),
+				'em' => array(),
 			)
 		);
 	}
