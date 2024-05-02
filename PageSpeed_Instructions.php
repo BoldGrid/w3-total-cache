@@ -276,7 +276,7 @@ class PageSpeed_Instructions {
 						'<p>' . sprintf(
 							// translators: 1 W3TC plugin name, 2 opening HTML a tag to Minify setting, 3 closing HTML a tag.
 							esc_html__(
-								'Deffer or async the JS (Select  Non blocking using Defer or  Non blocking using async Embed method in %1$s %2$sMinify%3$s options before head and after body)',
+								'Defer or async the JS (Select  Non blocking using Defer or  Non blocking using async Embed method in %1$s %2$sMinify%3$s options before head and after body)',
 								'w3-total-cache'
 							),
 							'W3 Total Cache',
@@ -309,7 +309,7 @@ class PageSpeed_Instructions {
 						<p>' . sprintf(
 							// translators: 1 opening HTML a tag to Browser Caching setting, 2 closing HTML a tag.
 							esc_html__(
-								'Use %1$sBrowser Caching%2$s for static files and HTML  - 1 year for static files 1 hor for html',
+								'Use %1$sBrowser Caching%2$s for static files and HTML  - 1 year for static files 1 hour for html',
 								'w3-total-cache'
 							),
 							'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#browser_cache' ) ) . '" alt="' . esc_attr__( 'Browser Cache', 'w3-total-cache' ) . '">',
@@ -428,7 +428,7 @@ class PageSpeed_Instructions {
 						</ol>',
 				),
 				'third-party-facades'          => array(
-					'instructions' => '<p>' . esc_html__( 'Preload - Lazyload embeded videos.', 'w3-total-cache' ) . '</p>',
+					'instructions' => '<p>' . esc_html__( 'Preload - Lazyload embedded videos.', 'w3-total-cache' ) . '</p>',
 				),
 				'lcp-lazy-loaded'              => array(
 					'instructions' =>
