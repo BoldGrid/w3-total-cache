@@ -2,21 +2,16 @@
 namespace W3TC;
 
 class UsageStatistics_Page {
-	static public function admin_print_scripts_w3tc_stats() {
-		wp_enqueue_style( 'w3tc-widget-usage-statistics',
-			plugins_url( 'UsageStatistics_Page_View.css', W3TC_FILE ),
-			array(), W3TC_VERSION );
+	public static function admin_print_scripts_w3tc_stats() {
+		$config = Dispatcher::config();
 
-		wp_enqueue_script( 'w3tc-canvasjs',
-			plugins_url( 'pub/js/chartjs.min.js', W3TC_FILE ),
-			array(), W3TC_VERSION );
-		wp_enqueue_script( 'w3tc-widget-usage-statistics',
-			plugins_url( 'UsageStatistics_Page_View.js', W3TC_FILE ),
-			array( 'w3tc-canvasjs' ), W3TC_VERSION );
+		wp_enqueue_style( 'w3tc-widget-usage-statistics', plugins_url( 'UsageStatistics_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION );
+		wp_enqueue_script( 'w3tc-widget-usage-statistics', plugins_url( 'UsageStatistics_Page_View.js', W3TC_FILE ), array( 'w3tc-canvasjs' ), W3TC_VERSION );
 
+		if ( Util_Environment::is_w3tc_pro( $config ) && $config->get_boolean( 'stats.enabled' ) ) {
+			wp_enqueue_script( 'w3tc-canvasjs', plugins_url( 'pub/js/chartjs.min.js', W3TC_FILE ), array(), W3TC_VERSION );
+		}
 	}
-
-
 
 	public function render() {
 		$c = Dispatcher::config();
