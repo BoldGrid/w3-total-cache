@@ -14,7 +14,7 @@ namespace W3TC;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
-
+Util_Debug::debug('api', $api_response);
 /**
  * Get the active tab and icon from the $_GET param.
  *

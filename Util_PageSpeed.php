@@ -178,7 +178,7 @@ class Util_PageSpeed {
 			if ( $score >= 90 ) {
 				$notice = 'notice notice-success inline';
 			} elseif ( $score >= 50 && $score < 90 ) {
-				$noitce = 'notice notice-warning inline';
+				$notice = 'notice notice-warning inline';
 			} elseif ( $score >= 0 && $score < 50 ) {
 				$notice = 'notice notice-error inline';
 			}
@@ -809,23 +809,23 @@ class Util_PageSpeed {
 	 */
 	public static function seconds_to_str( $seconds ) {
 		$buffer = '';
-		if ( $seconds >= 86400 ) {
-			$days    = floor( $seconds / 86400 );
-			$seconds = $seconds % 86400;
-			$buffer .= $days . ' day' . ( $days > 1 ? 's' : '' ) . ( $seconds > 0 ? ', ' : '' );
+		if ( $seconds >= DAY_IN_SECONDS ) {
+			$days    = floor( $seconds / DAY_IN_SECONDS );
+			$seconds = $seconds % DAY_IN_SECONDS;
+			$buffer .= $days . esc_html__( ' day', 'w3-total-cache' ) . ( $days > 1 ? 's' : '' ) . ( $seconds > 0 ? ', ' : '' );
 		}
-		if ( $seconds >= 3600 ) {
-			$hours   = floor( $seconds / 3600 );
-			$seconds = $seconds % 3600;
-			$buffer .= $hours . ' hour' . ( $hours > 1 ? 's' : '' ) . ( $seconds > 0 ? ', ' : '' );
+		if ( $seconds >= HOUR_IN_SECONDS ) {
+			$hours   = floor( $seconds / HOUR_IN_SECONDS );
+			$seconds = $seconds % HOUR_IN_SECONDS;
+			$buffer .= $hours . esc_html__( ' hour' ) . ( $hours > 1 ? 's' : '' ) . ( $seconds > 0 ? ', ' : '' );
 		}
-		if ( $seconds >= 60 ) {
-			$minutes = floor( $seconds / 60 );
-			$seconds = $seconds % 60;
-			$buffer .= $minutes . ' minute' . ( $minutes > 1 ? 's' : '' ) . ( $seconds > 0 ? ', ' : '' );
+		if ( $seconds >= MINUTE_IN_SECONDS ) {
+			$minutes = floor( $seconds / MINUTE_IN_SECONDS );
+			$seconds = $seconds % MINUTE_IN_SECONDS;
+			$buffer .= $minutes . esc_html__( ' minute' ) . ( $minutes > 1 ? 's' : '' ) . ( $seconds > 0 ? ', ' : '' );
 		}
 		if ( $seconds > 0 ) {
-			$buffer .= $seconds . ' second' . ( $seconds > 1 ? 's' : '' );
+			$buffer .= $seconds . esc_html__( ' second' ) . ( $seconds > 1 ? 's' : '' );
 		}
 		return $buffer;
 	}

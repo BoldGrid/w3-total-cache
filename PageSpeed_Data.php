@@ -28,6 +28,7 @@ class PageSpeed_Data {
 	 * @return array
 	 */
 	public static function prepare_pagespeed_data( $data ) {
+		Util_Debug::debug('data',$data);
 		return array(
 			'score'                    => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'categories', 'performance', 'score' ) ) * 100,
 			'first-contentful-paint'   => array(
