@@ -4,7 +4,7 @@
  *
  * AlwaysCached queue controller.
  *
- * @since 2.5.1
+ * @since X.X.X
  *
  * @package W3TC
  */
@@ -18,18 +18,18 @@ if ( ! defined( 'W3TC_ALWAYSCACHED_TABLE_QUEUE' ) ) {
 /**
  * AlwaysCached queue model.
  *
- * @since 2.5.1
+ * @since X.X.X
  */
 class Extension_AlwaysCached_Queue {
 
 	/**
 	 * Queue add.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
-	 * @param string $page_key           Page key.
-	 * @param string $url                URL.
-	 * @param string $page_key_extension Page key extension.
+	 * @param string  $url       URL.
+	 * @param array   $extension Extension data.
+	 * @param integer $priority  Priority.
 	 *
 	 * @return void
 	 */
@@ -40,31 +40,30 @@ class Extension_AlwaysCached_Queue {
 		global $wpdb;
 
 		$table = self::table_name();
-		$key = self::key_by_url( $url );
+		$key   = self::key_by_url( $url );
 
-		// page_key_extension has to be updated since
-		// for :flush operation it contains timestamp to flush before
-		// has to be refreshed if duplicate found
+		/**
+		 * The page_key_extension has to be updated since for :flush operation it contains timestamp
+		 * to flush before has to be refreshed if duplicate found.
+		 */
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"
-				INSERT INTO `$table`
-				( `key`, url, extension, priority, to_process )
-				VALUES
-				( %s, %s, %s, %d, %s )
-				ON DUPLICATE KEY UPDATE
+				"INSERT INTO `$table`
+					( `key`, url, extension, priority, to_process )
+					VALUES
+					( %s, %s, %s, %d, %s )
+					ON DUPLICATE KEY UPDATE
 					extension = %s,
 					requests_count = requests_count + 1",
 				$key,
 				$url,
-				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-				serialize( $extension ),
+				serialize( $extension ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				$priority,
 				gmdate( 'Y-m-d G:i:s' ),
-				serialize( $extension ),
+				serialize( $extension ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			)
 		);
 	}
@@ -72,9 +71,9 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Get by url
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
-	 * @param string $page_key Page key.
+	 * @param string $url URL.
 	 *
 	 * @return array|object|null|void
 	 */
@@ -97,7 +96,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retreives the first 10 items in queue.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return array|null
 	 */
@@ -112,12 +111,10 @@ class Extension_AlwaysCached_Queue {
 			$item = $wpdb->get_row(
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					"
-					SELECT *
-					FROM `$table`
-					WHERE to_process <= %s
-					ORDER BY priority, to_process
-					LIMIT 1",
+					"SELECT * FROM `$table`
+						WHERE to_process <= %s
+						ORDER BY priority, to_process
+						LIMIT 1",
 					gmdate( 'Y-m-d G:i:s' )
 				),
 				ARRAY_A
@@ -133,10 +130,9 @@ class Extension_AlwaysCached_Queue {
 			$count = $wpdb->query(
 				$wpdb->prepare(
 					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-					"
-					UPDATE `$table`
-					SET to_process = %s
-					WHERE `key` = %s AND to_process = %s",
+					"UPDATE `$table`
+						SET to_process = %s
+						WHERE `key` = %s AND to_process = %s",
 					$new_to_process,
 					$item['key'],
 					$item['to_process']
@@ -155,7 +151,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Deletes queue item after pop.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @param array $item Queue item.
 	 *
@@ -171,9 +167,8 @@ class Extension_AlwaysCached_Queue {
 		$wpdb->query(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"
-				DELETE FROM `$table`
-				WHERE
+				"DELETE FROM `$table`
+					WHERE
 					`key` = %s AND
 					to_process = %s AND
 					requests_count = %d",
@@ -187,7 +182,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retrives queue rows.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @param string $mode Queue mode.
 	 *
@@ -203,12 +198,9 @@ class Extension_AlwaysCached_Queue {
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"
-				SELECT *
-				FROM `$table`
-				WHERE to_process $comp %s
-				ORDER BY priority, to_process
-				LIMIT 50",
+				"SELECT * FROM `$table` WHERE to_process $comp %s
+					ORDER BY priority, to_process
+					LIMIT 50",
 				gmdate( 'Y-m-d G:i:s' )
 			),
 			ARRAY_A
@@ -218,7 +210,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retrives queue pending row count.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return string|null
 	 */
@@ -240,7 +232,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retrives queue postponed row count.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return string|null
 	 */
@@ -262,11 +254,11 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Deletes all queue rows.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
-	 * @return int
+	 * @return int|bool
 	 */
-	public static function empty() {
+	public static function empty() { // phpcs:ignore WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceAfterOpenParenthesis
 		global $wpdb;
 
 		$table = self::table_name();
@@ -278,33 +270,43 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Checks if higher priority items present
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
-	 * @return string
+	 * @param array $item Item data.
+	 *
+	 * @return bool
 	 */
 	public static function exists_higher_priority( $item ) {
 		global $wpdb;
 
 		$table = self::table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$higher_item = $wpdb->get_row(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"
-				SELECT *
-				FROM `$table`
-				WHERE to_process <= %s AND priority < %d
-				ORDER BY priority, to_process
-				LIMIT 1",
+				"SELECT * FROM `$table`
+					WHERE to_process <= %s AND priority < %d
+					ORDER BY priority, to_process
+					LIMIT 1",
 				gmdate( 'Y-m-d G:i:s' ),
 				$item['priority']
 			),
 			ARRAY_A
 		);
 
-		return !empty( $higher_item );
+		return ! empty( $higher_item );
 	}
 
+	/**
+	 * Gets key based on URL
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $url URL.
+	 *
+	 * @return string
+	 */
 	private static function key_by_url( $url ) {
 		return strlen( $url ) > 50 ? md5( $url ) : $url;
 	}
@@ -312,7 +314,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Gets AlwaysCached queue table name.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return string
 	 */
@@ -325,11 +327,11 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Drops the AwaysCached queue table.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void
 	 *
-	 *  @throws Util_Environment_Exception Exception.
+	 * @throws Util_Environment_Exception Exception.
 	 */
 	public static function drop_table() {
 		global $wpdb;
@@ -345,7 +347,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Creates AlwaysCached queue table.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void
 	 *
@@ -367,7 +369,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retrives AlwaysCached queue table drop SQL.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return string
 	 */
@@ -384,7 +386,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retrives AlwaysCached queue table create SQL.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return string
 	 */
@@ -403,7 +405,7 @@ class Extension_AlwaysCached_Queue {
 			$charset_collate .= " COLLATE $wpdb->collate";
 		}
 
-		// priority - smaller number is higher priority
+		// priority - smaller number is higher priority.
 		$sql = "CREATE TABLE IF NOT EXISTS `$table` (
 			`key` varchar(50) CHARACTER SET `ascii` NOT NULL,
 			`url` varchar(500) NOT NULL,

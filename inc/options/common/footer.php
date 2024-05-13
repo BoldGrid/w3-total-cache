@@ -36,6 +36,12 @@ do_action( 'w3tc-dashboard-footer' );
 					?>
 				</h2>
 			</a>
+			<?php
+			if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+				echo '<input type="button" class="button button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
+					data-src="footer" value="' . esc_html__( 'Learn more about Pro!', 'w3-total-cache' ) . '" />';
+			}
+			?>
 		</div>
 		<div class="w3tc-footer-column-1">
 			<h2><?php esc_html_e( 'Documentation', 'w3-total-cache' ); ?></h2>
@@ -45,8 +51,6 @@ do_action( 'w3tc-dashboard-footer' );
 			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://github.com/BoldGrid/w3-total-cache' ); ?>" alt="<?php esc_attr_e( 'GitHub', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'GitHub', 'w3-total-cache' ); ?>
 			</a>
-		</div>
-		<div class="w3tc-footer-column-1">
 			<h2><?php esc_html_e( 'Support', 'w3-total-cache' ); ?></h2>
 			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/forum/w3-total-cache/' ); ?>" alt="<?php esc_attr_e( 'Forums', 'w3-total-cache' ); ?>">
 				<?php esc_html_e( 'Forums', 'w3-total-cache' ); ?>
@@ -70,8 +74,17 @@ do_action( 'w3tc-dashboard-footer' );
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify/render-blocking-css/' ); ?>" alt="<?php esc_attr_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Eliminate Render Blocking CSS', 'w3-total-cache' ); ?>
 				</a>
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/delay-scripts-tool/' ); ?>" alt="<?php esc_attr_e( 'Delay Scripts', 'w3-total-cache' ); ?>">
+					<?php esc_html_e( 'Delay Scripts', 'w3-total-cache' ); ?>
+				</a>
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests/' ); ?>" alt="<?php esc_attr_e( 'Preload Requests', 'w3-total-cache' ); ?>">
+					<?php esc_html_e( 'Preload Requests', 'w3-total-cache' ); ?>
+				</a>
 			</div>
 			<div class="w3tc-footer-inner-column-50">
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/remove-cssjs/' ); ?>" alt="<?php esc_attr_e( 'Remove CSS/JS', 'w3-total-cache' ); ?>">
+					<?php esc_html_e( 'Remove CSS/JS', 'w3-total-cache' ); ?>
+				</a>
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-lazy-loading-for-your-wordpress-website-with-w3-total-cache/' ); ?>" alt="<?php esc_attr_e( 'Lazy Load Google Maps', 'w3-total-cache' ); ?>">
 					<?php esc_html_e( 'Lazy Load Google Maps', 'w3-total-cache' ); ?>
 				</a>
@@ -85,12 +98,6 @@ do_action( 'w3tc-dashboard-footer' );
 					<?php esc_html_e( 'Purge Logs', 'w3-total-cache' ); ?>
 				</a>
 			</div>
-			<?php
-			if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
-				echo '<input type="button" class="button button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
-					data-src="footer" value="' . esc_html__( 'Learn more about Pro!', 'w3-total-cache' ) . '" />';
-			}
-			?>
 		</div>
 		<div class="w3tc-footer-column-1">
 			<h2><?php esc_html_e( 'Follow Us', 'w3-total-cache' ); ?></h2>
@@ -102,6 +109,12 @@ do_action( 'w3tc-dashboard-footer' );
 			</a>
 			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.facebook.com/boldgrid/' ); ?>" alt="<?php esc_attr_e( 'BoldGrid', 'w3-total-cache' ); ?>">
 				<span class="dashicons dashicons-facebook"></span><?php esc_html_e( 'BoldGrid', 'w3-total-cache' ); ?>
+			</a>
+		</div>
+		<div class="w3tc-footer-column-1">
+			<h2><?php esc_html_e( 'Partners', 'w3-total-cache' ); ?></h2>
+			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( W3TC_BUNNYCDN_SIGNUP_URL ); ?>" alt="Bunny CDN">
+				<div class="w3tc-bunnycdn-logo"></div>
 			</a>
 		</div>
 	</div>

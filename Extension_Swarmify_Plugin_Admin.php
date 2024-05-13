@@ -33,10 +33,6 @@ class Extension_Swarmify_Plugin_Admin {
 	function run() {
 		add_action( 'w3tc_config_save', array( $this, 'w3tc_config_save' ), 10, 1 );
 
-		add_action( 'admin_init_w3tc_dashboard', array(
-				'\W3TC\Extension_Swarmify_Widget',
-				'admin_init_w3tc_dashboard' ) );
-
 		add_action( 'w3tc_extension_page_swarmify',
 			array( $this, 'w3tc_extension_page_swarmify' ) );
 

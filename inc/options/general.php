@@ -960,12 +960,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				? Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' )
 				: ''
 		);
-
-		if ( $this->_config->get_boolean( 'extension.imageservice' ) ) {
-			Extensions_Util::activate_extension( 'imageservice', $this->_config );
-		} else {
-			Extensions_Util::deactivate_extension( 'imageservice', $this->_config );
-		}
 		?>
 		<table class="form-table">
 			<?php
@@ -1033,6 +1027,33 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'description'    => array(),
 					'label_class'    => 'w3tc_single_column',
 					'wrap_separate'  => true,
+					'score'             => '+9',
+					'score_description' => wp_kses(
+						sprintf(
+							// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
+							__(
+								'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s to unlock conversion queue priority and higher hourly/monthly limits today!',
+								'w3-total-cache'
+							),
+							'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof' ) . '">',
+							'</a>',
+							'<br /><br />',
+							'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+						),
+						array(
+							'a'      => array(
+								'href'   => array(),
+								'target' => array(),
+							),
+							'br'     => array(),
+							'input'  => array(
+								'type'     => array(),
+								'class'    => array(),
+								'data-src' => array(),
+								'value'    => array(),
+							),
+						)
+					),
 				)
 			);
 			?>
@@ -1178,16 +1199,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</tr>
 				<?php
 			}
-
-			Util_Ui::config_item(
-				array(
-					'key'            => 'widget.pagespeed.enabled',
-					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable Google PageSpeed dashboard widget', 'w3-total-cache' ),
-					'description'    => __( 'Display Google PageSpeed results on the WordPress dashboard.', 'w3-total-cache' ),
-					'label_class'    => 'w3tc_single_column',
-				)
-			);
 			?>
 		</table>
 

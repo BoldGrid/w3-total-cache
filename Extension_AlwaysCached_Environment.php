@@ -4,7 +4,7 @@
  *
  * Controller for AlwaysCached extension environment.
  *
- * @since 2.5.1
+ * @since X.X.X
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * AlwaysCached Admin Environment.
  *
- * @since 2.5.1
+ * @since X.X.X
  */
 class Extension_AlwaysCached_Environment {
 
 	/**
 	 * Fixes environment on admin request.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void|null
 	 */
@@ -36,7 +36,7 @@ class Extension_AlwaysCached_Environment {
 	/**
 	 * Fixes environment once event occurs.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @param Config      $config     Config data.
 	 * @param string      $event      Event key.
@@ -71,7 +71,7 @@ class Extension_AlwaysCached_Environment {
 	/**
 	 * Fixes environment after plugin deactivation.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @throws Util_Environment_Exceptions Exception.
 	 *
@@ -95,7 +95,7 @@ class Extension_AlwaysCached_Environment {
 	/**
 	 * Sets requirment instructions for AlwaysCached on install page.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @param Config $config Config data.
 	 *

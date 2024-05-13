@@ -4,7 +4,7 @@
  *
  * Render the AlwaysCached settings page - queue box.
  *
- * @since 2.5.1
+ * @since X.X.X
  *
  * @package W3TC
  */
@@ -92,8 +92,10 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 		<tr>
 			<th></th>
 			<td>
+				<input type="submit" name="w3tc_alwayscached_process"
+					value="<?php esc_html_e( 'Regenerate All', 'w3-total-cache' ); ?>" class="button" />
 				<input type="submit" name="w3tc_alwayscached_empty"
-					value="<?php esc_html_e( 'Empty Queue', 'w3-total-cache' ); ?>" class="button" />
+					value="<?php esc_html_e( 'Clear Queue', 'w3-total-cache' ); ?>" class="button" />
 			</td>
 		</tr>
 	</table>

@@ -51,9 +51,9 @@ class Cache_File_Cleaner {
 	/**
 	 * Run clean operation
 	 *
-	 * @return boolean
+	 * @return void
 	 */
-	function clean_before( $before_time ) {
+	public function clean_before( $before_time ) {
 		@set_time_limit( $this->_clean_timelimit );
 
 		$this->_clean( $this->_cache_dir, false );

@@ -4,7 +4,7 @@
  *
  * Render the AlwaysCached settings page - flush all box.
  *
- * @since 2.5.1
+ * @since X.X.X
  *
  * @package W3TC
  */
@@ -15,6 +15,9 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
+$c        = Dispatcher::config();
+$disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
+
 ?>
 <div class="metabox-holder">
 	<?php Util_Ui::postbox_header( esc_html__( 'Purge All', 'w3-total-cache' ), '', 'credentials' ); ?>
@@ -23,14 +26,14 @@ if ( ! defined( 'W3TC' ) ) {
 
 		Util_Ui::config_item(
 			array(
-				'key'               => array(
+				'key'            => array(
 					'alwayscached',
 					'flush_all',
 				),
-				'label'             => __( 'Handle Purge All Requests', 'w3-total-cache' ),
-				'checkbox_label'	=> __( 'Enable', 'w3-total-cache' ),
-				'control'           => 'checkbox',
-				'description'       => esc_html__( 'Handle Purge All Requests', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Handle Purge All Requests', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'control'        => 'checkbox',
+				'description'    => esc_html__( 'Handle Purge All Requests', 'w3-total-cache' ),
 			)
 		);
 
@@ -43,37 +46,40 @@ if ( ! defined( 'W3TC' ) ) {
 
 		Util_Ui::config_item(
 			array(
-				'key'               => array(
+				'key'            => array(
 					'alwayscached',
 					'flush_all_home',
 				),
-				'label'             => __( 'Homepage', 'w3-total-cache' ),
-				'checkbox_label'	=> __( 'Enable', 'w3-total-cache' ),
-				'control'           => 'checkbox'
+				'label'          => esc_html__( 'Homepage', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'control'        => 'checkbox',
+				'disabled'       => $disabled,
 			)
 		);
 
 		Util_Ui::config_item(
 			array(
-				'key'               => array(
+				'key'         => array(
 					'alwayscached',
 					'flush_all_posts_count',
 				),
-				'label'             => __( 'Number of Latest Posts:', 'w3-total-cache' ),
-				'description'       => esc_html__( 'Number of latest posts to regenerate', 'w3-total-cache' ),
-				'control'           => 'textbox'
+				'label'       => esc_html__( 'Number of Latest Posts:', 'w3-total-cache' ),
+				'description' => esc_html__( 'Number of latest posts to regenerate', 'w3-total-cache' ),
+				'control'     => 'textbox',
+				'disabled'    => $disabled,
 			)
 		);
 
 		Util_Ui::config_item(
 			array(
-				'key'               => array(
+				'key'         => array(
 					'alwayscached',
 					'flush_all_pages_count',
 				),
-				'label'             => __( 'Number of Latest Pages:', 'w3-total-cache' ),
-				'description'       => esc_html__( 'Number of latest pages to regenerate', 'w3-total-cache' ),
-				'control'           => 'textbox'
+				'label'       => esc_html__( 'Number of Latest Pages:', 'w3-total-cache' ),
+				'description' => esc_html__( 'Number of latest pages to regenerate', 'w3-total-cache' ),
+				'control'     => 'textbox',
+				'disabled'    => $disabled,
 			)
 		);
 

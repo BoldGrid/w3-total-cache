@@ -1,16 +1,50 @@
-(function() {
-	document.querySelectorAll('.w3tc_alwayscached_queue').forEach(function(i) {
-		i.addEventListener('click', function(e) {
-			let mode = e.target.dataset.mode;
-			let elContainer = e.target.parentElement.querySelector('section');
+/**
+ * File: Extension_AlwaysCached_Page_View.js
+ *
+ * JavaScript for the Always Cached settings page.
+ *
+ * @since X.X.X
+ *
+ * @global w3tcData Localized data.
+ */
 
-			fetch(ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
-            		'&w3tc_action=extension_alwayscached_queue&mode=' + mode)
-				.then(function(response) {
-					return response.text();
-				}).then(function(data) {
-					elContainer.innerHTML = data;
-				});
-		});
-	});
-}());
+jQuery(function() {
+	jQuery(document).on(
+		'click',
+		'.w3tc_alwayscached_queue',
+		function(e) {
+			e.preventDefault();
+
+			var mode = jQuery(this).data('mode');
+			var elContainer = jQuery(this).parent().find('section');
+
+			jQuery.ajax(
+				{
+					url: ajaxurl,
+					method: 'GET',
+					data: {
+						action: 'w3tc_ajax',
+						_wpnonce: w3tc_nonce[0],
+						w3tc_action: 'extension_alwayscached_queue',
+						mode: mode
+					},
+					success: function(data) {
+						elContainer.html(data);
+					}
+				}
+			);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#alwayscached___flush_all',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+        
+        	jQuery('#alwayscached___flush_all_home').prop('disabled', ! $enabled);
+       		jQuery('#alwayscached___flush_all_posts_count').prop('disabled', ! $enabled);
+        	jQuery('#alwayscached___flush_all_pages_count').prop('disabled', ! $enabled);
+		}
+	);
+});

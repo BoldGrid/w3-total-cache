@@ -6,10 +6,7 @@ const sys = require('./sys');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-
-
-// just load ?page=w3tc_bla page
-// regular place of failures so with retries
+// Just load ?page=w3tc_bla page. Regular place of failures so with retries.
 async function setOptions_loadPage(pPage, queryPage) {
 	await sys.repeatOnFailure(pPage, async() => {
 		log.log('opening options page ' + queryPage);
@@ -24,7 +21,7 @@ async function setOptions_loadPage(pPage, queryPage) {
 			let wizardSkip = '#w3tc-wizard-skip';
 			let skipped = await Promise.all([
 				pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-				pPage.waitForNavigation({timeout:0}),
+				pPage.waitForNavigation({timeout: 300000}),
 			]);
 
 			expect(skipped).is.not.null;
@@ -37,8 +34,6 @@ async function setOptions_loadPage(pPage, queryPage) {
 		expect(nonce).not.empty;
 	});
 }
-
-
 
 exports.setOptions = async function(pPage, queryPage, values) {
 	await setOptions_loadPage(pPage, queryPage);
@@ -89,7 +84,7 @@ exports.setOptions = async function(pPage, queryPage, values) {
 
 	log.log('click save - ' + saveSelector);
 	await Promise.all([
-		pPage.waitForNavigation({timeout: 0}),
+		pPage.waitForNavigation({timeout: 300000}),
 		pPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector)
 	]);
 
@@ -124,8 +119,6 @@ exports.setOptions = async function(pPage, queryPage, values) {
 	log.success('w3tc options modified successfully');
 }
 
-
-
 exports.setOptionInternal = async function(pPage, name, value) {
 	let r = await exec('cp ../../plugins/w3tc-set-option-internal.php ' +
 		env.wpPath + 'w3tc-set-option-internal.php');
@@ -139,8 +132,6 @@ exports.setOptionInternal = async function(pPage, name, value) {
 	expect(html).contains('ok');
 }
 
-
-
 exports.activateExtension = async function(pPage, extenstion_id) {
 	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions', {waitUntil: 'domcontentloaded'});
 
@@ -150,7 +141,7 @@ exports.activateExtension = async function(pPage, extenstion_id) {
 		let wizardSkip = '#w3tc-wizard-skip';
 		let skipped = await Promise.all([
 			pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-			pPage.waitForNavigation({timeout:0}),
+			pPage.waitForNavigation({timeout: 300000}),
 		]);
 
 		expect(skipped).is.not.null;
@@ -174,8 +165,6 @@ exports.activateExtension = async function(pPage, extenstion_id) {
 	log.success(extenstion_id + ' extension activated successfully');
 }
 
-
-
 /**
  * Called when html content of static files has been changed and note appears about
  * required flush
@@ -185,12 +174,10 @@ exports.followNoteFlushStatics = async function(pPage) {
 		let emptyStaticCache = 'input[value="Empty the static files cache"]';
 		await Promise.all([
 			pPage.evaluate((emptyStaticCache) => document.querySelector(emptyStaticCache).click(), emptyStaticCache),
-			pPage.waitForNavigation({timeout:0}),
+			pPage.waitForNavigation({timeout: 300000}),
 		]);
 	}
 }
-
-
 
 exports.expectW3tcErrors = async function(pPage, ifShouldExist) {
 	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general',
@@ -203,7 +190,7 @@ exports.expectW3tcErrors = async function(pPage, ifShouldExist) {
 		let wizardSkip = '#w3tc-wizard-skip';
 		let skipped = await Promise.all([
 			pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-			pPage.waitForNavigation({timeout:0}),
+			pPage.waitForNavigation({timeout: 300000}),
 		]);
 
 		expect(skipped).is.not.null;
@@ -221,8 +208,6 @@ exports.expectW3tcErrors = async function(pPage, ifShouldExist) {
 		expect(errorExists).false;
 	}
 }
-
-
 
 exports.updateCacheEntry = async function(pPage, url, addParam, cacheEngineLabel, cacheEngineName) {
 	log.log('updating cache entry for ' + url);
@@ -247,8 +232,6 @@ exports.updateCacheEntry = async function(pPage, url, addParam, cacheEngineLabel
 	expect(html).contains('Page Caching using ' + cacheEngineName);
 }
 
-
-
 exports.gotoWithPotentialW3TCRepeat = async function(pPage, url) {
 	let response = await pPage.goto(url, {waitUntil: 'domcontentloaded'});
 	if (pPage.url().indexOf("repeat=w3tc") >= 0) {
@@ -258,8 +241,6 @@ exports.gotoWithPotentialW3TCRepeat = async function(pPage, url) {
 
 	return response;
 }
-
-
 
 exports.expectPageCachingMethod = function(pageContent, cacheEngineName) {
 	let regex = new RegExp('Page Caching using ' + cacheEngineName + '(\\s*\\(([^)])+\\))?');
@@ -271,8 +252,6 @@ exports.expectPageCachingMethod = function(pageContent, cacheEngineName) {
 		expect(false).is.true;
 	}
 }
-
-
 
 exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngineName, url, pageKeyPostfix) {
 	if (cacheEngineLabel == null) {
@@ -297,8 +276,6 @@ exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngi
 	expect(await pPage.content()).contains('Page Caching using ' + cacheEngineName);
 }
 
-
-
 function updateUTimes(filename) {
 	let stat = fs.statSync(filename);
 	let newTime = stat.mtime;
@@ -307,8 +284,6 @@ function updateUTimes(filename) {
 	fs.utimesSync(filename, newTime, newTime);
 	log.success('updated timestamp for ' + filename);
 }
-
-
 
 exports.pageCacheFileGenericChangeFileTimestamp = async function(url, extension) {
 	log.log("Changing timestamp for the old cache file of " + url);
@@ -337,8 +312,6 @@ exports.pageCacheFileGenericChangeFileTimestamp = async function(url, extension)
 	}
 }
 
-
-
 exports.pageCacheFileGenericUrlToFilename = function(url, extension, postfix = '') {
 	if (!extension) {
 		extension = 'html';
@@ -356,8 +329,6 @@ exports.pageCacheFileGenericUrlToFilename = function(url, extension, postfix = '
 	return env.wpContentPath + 'cache/page_enhanced/' +
 		m[1].toString().toLowerCase() + uri + cf;
 }
-
-
 
 exports.commentTimestamp = async function(pPage, cacheEngineName) {
 	if (cacheEngineName == null) {
@@ -382,8 +353,6 @@ exports.commentTimestamp = async function(pPage, cacheEngineName) {
     return matches[0];
 }
 
-
-
 exports.flushAll = async function(pPage) {
 	await sys.repeatOnFailure(pPage, async() => {
 		await pPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
@@ -396,7 +365,7 @@ exports.flushAll = async function(pPage) {
 			let wizardSkip = '#w3tc-wizard-skip';
 			let skipped = await Promise.all([
 				pPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-				pPage.waitForNavigation({timeout:0}),
+				pPage.waitForNavigation({timeout: 300000}),
 			]);
 
 			expect(skipped).is.not.null;
@@ -408,7 +377,7 @@ exports.flushAll = async function(pPage) {
 		let flushAll = '#flush_all';
 		await Promise.all([
 			pPage.evaluate((flushAll) => document.querySelector(flushAll).click(), flushAll),
-			pPage.waitForNavigation({timeout:0}),
+			pPage.waitForNavigation({timeout: 300000}),
 		]);
 
 		let html = await pPage.content();
@@ -416,13 +385,9 @@ exports.flushAll = async function(pPage) {
 	});
 }
 
-
-
 exports.regExpForOption = function(string) {
   return string.replace(/\//g, '\\/').replace(/\./g, '\\.').replace(/\?/g, '\\?').replace(/\\/g, '\\');
 }
-
-
 
 exports.cdnPushExportFiles = async function(pPage, sectionToExport) {
 	log.log('Exporting ' + sectionToExport + ' files...');
@@ -446,23 +411,21 @@ exports.cdnPushExportFiles = async function(pPage, sectionToExport) {
 
 	let cdnExportStart = '#cdn_export_file_start';
 	await pPage.evaluate((cdnExportStart) => document.querySelector(cdnExportStart).click(), cdnExportStart);
-	await pPage.waitFor((filesNumberToExport) => {
+	await pPage.waitForFunction((filesNumberToExport) => {
 		let onPage = document.querySelector('#cdn_export_file_processed').textContent;
 		return onPage == filesNumberToExport;
-	}, {}, filesNumberToExport);
+	}, {timeout: 300000}, filesNumberToExport);
 
 	let onPage = await pPage.$eval('#cdn_export_file_processed', (e) => e.textContent);
 	expect(onPage).equals(filesNumberToExport);
 }
-
-
 
 exports.setOptionsMinifyAddJsEntry = async function(pPage, i, inputValue, optionValue) {
 	log.log('click add');
 	let jsAdd = '#js_file_add';
 	await pPage.evaluate((jsAdd) => document.querySelector(jsAdd).click(), jsAdd);
 
-	await pPage.waitFor((ii) => {
+	await pPage.waitForFunction((ii) => {
 		return document.querySelectorAll('#js_files li table').length >= ii;
 	}, {}, i);
 
@@ -482,14 +445,12 @@ exports.setOptionsMinifyAddJsEntry = async function(pPage, i, inputValue, option
 	);
 }
 
-
-
 exports.setOptionsMinifyAddCssEntry = async function(pPage, i, inputValue, optionValue) {
 	log.log('click add');
 	let cssAdd = '#css_file_add';
 	await pPage.evaluate((cssAdd) => document.querySelector(cssAdd).click(), cssAdd);
 
-	await pPage.waitFor((ii) => {
+	await pPage.waitForFunction((ii) => {
 		return document.querySelectorAll('#css_files li table').length >= ii;
 	}, {}, i);
 
@@ -508,8 +469,6 @@ exports.setOptionsMinifyAddCssEntry = async function(pPage, i, inputValue, optio
 		i, inputValue, optionValue
 	);
 }
-
-
 
 exports.w3tcComment = async function(pPage) {
 	let html = await pPage.content();

@@ -175,14 +175,14 @@ class PgCache_Plugin_Admin {
 		if ( !Util_Environment::is_url( $url ) )
 			$url = home_url( $url );
 
-		$urls = array();
+		$urls = array( $url );
 		$response = Util_Http::get( $url );
 
 		if ( !is_wp_error( $response ) && $response['response']['code'] == 200 ) {
 			$url_matches = null;
 			$sitemap_matches = null;
 
-			if ( preg_match_all( '~<sitemap>(.*?)</sitemap>~is', $response['body'], $sitemap_matches ) ) {
+			if ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<sitemap>(.*?)</sitemap>~is', $response['body'], $sitemap_matches ) ) {
 				$loc_matches = null;
 
 				foreach ( $sitemap_matches[1] as $sitemap_match ) {
@@ -194,7 +194,7 @@ class PgCache_Plugin_Admin {
 						}
 					}
 				}
-			} elseif ( preg_match_all( '~<url>(.*?)</url>~is', $response['body'], $url_matches ) ) {
+			} elseif ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<url>(.*?)</url>~is', $response['body'], $url_matches ) ) {
 				$locs = array();
 				$loc_matches = null;
 				$priority_matches = null;
@@ -218,8 +218,8 @@ class PgCache_Plugin_Admin {
 
 				arsort( $locs );
 
-				$urls = array_keys( $locs );
-			} elseif ( preg_match_all( '~<rss[^>]*>(.*?)</rss>~is', $response['body'], $sitemap_matches ) ) {
+				$urls = array_merge( $urls, array_keys( $locs ) );
+			} elseif ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<rss[^>]*>(.*?)</rss>~is', $response['body'], $sitemap_matches ) ) {
 
 				// rss feed format
 				if ( preg_match_all( '~<link[^>]*>(.*?)</link>~is', $response['body'], $url_matches ) ) {
@@ -262,6 +262,10 @@ class PgCache_Plugin_Admin {
 	public function w3tc_save_options( $data ) {
 		$new_config = $data['new_config'];
 		$old_config = $data['old_config'];
+
+		if ( $new_config->get_boolean( 'pgcache.cache.feed' ) ) {
+			$new_config->set( 'pgcache.cache.nginx_handle_xml', true );
+		}
 
 		if ( ( !$new_config->get_boolean( 'pgcache.cache.home' ) && $old_config->get_boolean( 'pgcache.cache.home' ) ) ||
 			$new_config->get_boolean( 'pgcache.reject.front_page' ) && !$old_config->get_boolean( 'pgcache.reject.front_page' ) ||

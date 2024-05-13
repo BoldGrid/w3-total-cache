@@ -113,8 +113,9 @@ class Root_Environment {
 			if ( method_exists( $h, 'get_required_rules' ) ) {
 				$required_rules_current = $h->get_required_rules( $config );
 
-				if ( !is_null( $required_rules_current ) )
+				if ( ! is_null( $required_rules_current ) ) {
 					$required_rules = array_merge( $required_rules, $required_rules_current );
+				}
 			}
 		}
 

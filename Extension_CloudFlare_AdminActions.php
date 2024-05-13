@@ -21,7 +21,7 @@ class Extension_CloudFlare_AdminActions {
 			Util_Admin::redirect_with_custom_messages2( array(
 					'errors' => array(
 						'cloudflare_flush' =>
-						__( 'Failed to purge CloudFlare cache: ', 'w3-total-cache' ) .
+						__( 'Failed to purge Cloudflare cache: ', 'w3-total-cache' ) .
 						$ex->getMessage()
 					)
 				) );
@@ -30,7 +30,7 @@ class Extension_CloudFlare_AdminActions {
 
 		Util_Admin::redirect_with_custom_messages2( array(
 				'notes' => array(
-					'cloudflare_flush' => __( 'CloudFlare cache successfully emptied.', 'w3-total-cache' )
+					'cloudflare_flush' => __( 'Cloudflare cache successfully emptied.', 'w3-total-cache' )
 				)
 			) );
 	}
@@ -38,7 +38,7 @@ class Extension_CloudFlare_AdminActions {
 
 
 	/**
-	 * Flush all caches except CloudFlare action
+	 * Flush all caches except Cloudflare action.
 	 *
 	 * @return void
 	 */
@@ -49,32 +49,5 @@ class Extension_CloudFlare_AdminActions {
 		Util_Admin::redirect( array(
 				'w3tc_note' => 'flush_all'
 			), true );
-	}
-
-
-
-	public function w3tc_cloudflare_save_settings() {
-		$api = Extension_CloudFlare_SettingsForUi::api();
-		$errors = Extension_CloudFlare_SettingsForUi::settings_set( $api );
-
-		if ( empty( $errors ) ) {
-			Util_Admin::redirect_with_custom_messages2( array(
-					'notes' => array(
-						'cloudflare_save_done' =>
-						__( 'CloudFlare settings are successfully updated.',
-							'w3-total-cache' )
-					)
-				) );
-		} else {
-			Util_Admin::redirect_with_custom_messages2( array(
-					'errors' => array(
-						'cloudflare_save_error' =>
-						__( 'Failed to update CloudFlare settings:',
-							'w3-total-cache' ) .
-						"<br />\n" .
-						implode( "<br />\n", $errors )
-					)
-				) );
-		}
 	}
 }

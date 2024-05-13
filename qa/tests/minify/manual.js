@@ -80,7 +80,7 @@ describe('', function() {
 		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
 			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
-			adminPage.waitForNavigation({timeout: 0})
+			adminPage.waitForNavigation({timeout: 300000})
 		]);
 
 		await sys.afterRulesChange();

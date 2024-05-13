@@ -134,23 +134,30 @@ class Util_Installed {
 		$key = md5( implode( '', $servers ) );
 
 		if ( !isset( $results[$key] ) ) {
-			$memcached = Cache::instance( 'memcached', array(
-					'servers' => $servers,
-					'persistent' => false,
+			$memcached = Cache::instance(
+				'memcached',
+				array(
+					'servers'         => $servers,
+					'persistent'      => false,
 					'binary_protocol' => $binary_protocol,
-					'username' => $username,
-					'password' => $password
-				) );
-			if ( is_null( $memcached ) )
+					'username'        => $username,
+					'password'        => $password
+				)
+			);
+
+			if ( is_null( $memcached ) ) {
 				return false;
+			}
 
 			$test_string = sprintf( 'test_' . md5( time() ) );
-			$test_value = array( 'content' => $test_string );
+			$test_value  = array( 'content' => $test_string );
+
 			$memcached->set( $test_string, $test_value, 60 );
-			$test_value = $memcached->get( $test_string );
-			$results[$key] = ( $test_value['content'] == $test_string );
+
+			$test_value      = $memcached->get( $test_string );
+			$results[ $key ] = ( ! empty( $test_value['content'] ) && $test_value['content'] === $test_string );
 		}
 
-		return $results[$key];
+		return $results[ $key ];
 	}
 }

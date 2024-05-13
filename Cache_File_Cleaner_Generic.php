@@ -11,13 +11,26 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	 * @var integer
 	 */
 	var $processed_count = 0;
+
 	/**
 	 * Cache expire time
 	 *
 	 * @var int
 	 */
 	private $_expire = 0;
+
+	/**
+	 * ???
+	 *
+	 * @var int
+	 */
 	private $time_min_valid = -1;
+
+	/**
+	 * ???
+	 *
+	 * @var int
+	 */
 	private $old_file_time_min_valid = -1;
 
 	/**
@@ -30,15 +43,17 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 
 		$this->_expire = ( isset( $config['expire'] ) ? (int) $config['expire'] : 0 );
 
-		if ( !$this->_expire || $this->_expire > W3TC_CACHE_FILE_EXPIRE_MAX ) {
+		if ( ! $this->_expire ) {
 			$this->_expire = 0;
+		} elseif ( $this->_expire > W3TC_CACHE_FILE_EXPIRE_MAX ) {
+			$this->_expire = W3TC_CACHE_FILE_EXPIRE_MAX;
 		}
 
-		if ( !empty( $config['time_min_valid'] ) ) {
-			$this->time_min_valid = $config['time_min_valid'];
+		if ( ! empty( $config['time_min_valid'] ) ) {
+			$this->time_min_valid          = $config['time_min_valid'];
 			$this->old_file_time_min_valid = $config['time_min_valid'];
 		} elseif ( $this->_expire > 0 ) {
-			$this->time_min_valid = time() - $this->_expire;
+			$this->time_min_valid          = time() - $this->_expire;
 			$this->old_file_time_min_valid = time() - $this->_expire * 5;
 		}
 	}
@@ -78,9 +93,9 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 
 	function _clean_file( $entry, $full_path ) {
 		if ( substr( $entry, -4 ) === '_old' ) {
-			if ( !$this->is_old_file_valid( $full_path ) ) {
+			if ( ! $this->is_old_file_valid( $full_path ) ) {
 				$this->processed_count++;
-				@unlink( $full_path );
+				@unlink( $full_path ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			}
 		} elseif ( !$this->is_valid( $full_path ) ) {
 			$old_entry_path = $full_path . '_old';
@@ -106,27 +121,22 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	 * @return bool
 	 */
 	function is_valid( $file ) {
-		if ( $this->time_min_valid > 0 ) {
-			if ( file_exists( $file ) ) {
-				$ftime = @filemtime( $file );
-
-				if ( $ftime && $ftime >= $this->time_min_valid ) {
-					return true;
-				}
+		if ( $this->time_min_valid > 0 && file_exists( $file ) ) {
+			$ftime = @filemtime( $file );
+			if ( $ftime && $ftime >= $this->time_min_valid ) {
+				return true;
 			}
 		}
 
 		return false;
 	}
 
-	function is_old_file_valid( $file ) {
-		if ( $this->old_file_time_min_valid > 0 ) {
-			if ( file_exists( $file ) ) {
-				$ftime = @filemtime( $file );
+	public function is_old_file_valid( $file ) {
+		if ( $this->old_file_time_min_valid > 0 && file_exists( $file ) ) {
+			$ftime = @filemtime( $file );
 
-				if ( $ftime && $ftime >= $this->old_file_time_min_valid ) {
-					return true;
-				}
+			if ( $ftime && $ftime >= $this->old_file_time_min_valid ) {
+				return true;
 			}
 		}
 

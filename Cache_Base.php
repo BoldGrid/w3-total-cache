@@ -118,7 +118,7 @@ class Cache_Base {
 	 */
 	function exists( $key, $group = '' ) {
 		list( $data, $has_old ) = $this->get_with_old( $key, $group );
-		return !empty( $data) && !$has_old;
+		return ! empty( $data) && ! $has_old;
 	}
 
 	/**
@@ -184,7 +184,11 @@ class Cache_Base {
 	 * Gets a key extension for "ahead generation" mode.
 	 * Used by AlwaysCached functionality to regenerate content
 	 *
-	 * @param string  $group Used to differentiate between groups of cache values
+	 * @abstract
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
+	 * @return array
 	 */
 	public function get_ahead_generation_extension( $group ) {
 		return array();
@@ -194,11 +198,13 @@ class Cache_Base {
 	 * Flushes group with before condition
 	 *
 	 * @abstract
-	 * @param string  $group Used to differentiate between groups of cache values
-	 * @param array   $extension Used to set a condition what version to flush
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param array  $extension Used to set a condition what version to flush.
+	 *
 	 * @return boolean
 	 */
-	function flush_group_after_ahead_generation( $group, $extension ) {
+	public function flush_group_after_ahead_generation( $group, $extension ) {
 		return false;
 	}
 

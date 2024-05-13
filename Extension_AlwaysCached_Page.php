@@ -4,7 +4,7 @@
  *
  * Controls the AlwaysCached settings page.
  *
- * @since 2.5.1
+ * @since X.X.X
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * AlwaysCached Page.
  *
- * @since 2.5.1
+ * @since X.X.X
  */
 class Extension_AlwaysCached_Page {
 
 	/**
 	 * Prints the admin scripts.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -40,7 +40,7 @@ class Extension_AlwaysCached_Page {
 	/**
 	 * Prints the settings page.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -52,7 +52,7 @@ class Extension_AlwaysCached_Page {
 	/**
 	 * Adds AJAX actions.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -69,7 +69,7 @@ class Extension_AlwaysCached_Page {
 	/**
 	 * Prints the queue content via AJAX.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */

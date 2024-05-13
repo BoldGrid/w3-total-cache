@@ -42,7 +42,6 @@ jQuery(document).ready(function ($) {
 				$('.w3tcps_buttons').removeClass('w3tc_none');
 				$('.w3tc-gps-widget').html(data.w3tcps_widget);
 				$('.w3tc-gps-widget').removeClass('w3tc_none').fadeIn('slow');
-				$('#normal-sortables').masonry();
 			}
 		).fail(function (jqXHR, textStatus, errorThrown) {
 			$('.w3tcps_error').html(w3tcData.lang.pagespeed_widget_data_error + jqXHR.responseText);

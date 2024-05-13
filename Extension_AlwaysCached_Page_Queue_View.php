@@ -4,7 +4,7 @@
  *
  * Controller for AlwaysCached queue.
  *
- * @since 2.5.1
+ * @since X.X.X
  *
  * @package W3TC
  */
@@ -30,15 +30,15 @@ $rows       = Extension_AlwaysCached_Queue::rows( $queue_mode );
 		<?php foreach ( $rows as $r ) : ?>
 			<tr>
 				<td style="white-space: nowrap">
-					<?php if( substr( $r['key'], 0, 1 ) == ':' ): ?>
-						<?php if ( $r['key'] == ':flush_group.regenerate'): ?>
+					<?php if ( ':' === substr( $r['key'], 0, 1 ) ) : ?>
+						<?php if ( ':flush_group.regenerate' === $r['key'] ) : ?>
 							Command: Queue Regeneration on Purge all
-						<?php elseif ( $r['key'] == ':flush_group.remainder'): ?>
+						<?php elseif ( ':flush_group.remainder' === $r['key'] ) : ?>
 							Command: Purge Remainder after Purge all
-						<?php else: ?>
+						<?php else : ?>
 							command <?php echo esc_html( $r['key'] ); ?>
 						<?php endif ?>
-					<?php else: ?>
+					<?php else : ?>
 						<?php echo esc_html( $r['url'] ); ?>
 					<?php endif ?>
 				</td>

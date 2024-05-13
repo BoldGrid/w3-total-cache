@@ -873,10 +873,12 @@ class Util_PageUrls {
 	}
 
 	/**
-	 * Gets page title based on key
+	 * Gets page title based on key.
+	 *
+	 * @since 2.4.0
 	 *
 	 * @param  string $id Page ID.
-	 * @return string
+	 * @return array
 	 */
 	public static function get_page_mapping( $id ) {
 		$map = array(
@@ -971,7 +973,7 @@ class Util_PageUrls {
 				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#swarmify' ) ),
 			),
 			'cloudflare'                       => array(
-				'page_name'   => 'CloudFlare',
+				'page_name'   => 'Cloudflare',
 				'parent_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
 				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#cloudflare' ) ),
 			),
@@ -980,13 +982,15 @@ class Util_PageUrls {
 				'parent_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
 				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#amp' ) ),
 			),
-			'alwayscached' => array(
+			'alwayscached'                     => array(
 				'page_name'   => esc_html__( 'Always Cached', 'w3-total-cache' ),
 				'parent_name' => esc_html__( 'Extensions', 'w3-total-cache' ),
 				'parent_link' => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#alwayscached' ) ),
 			),
 		);
 
-		return ! empty( $map[ $id ] ) ? $map[ $id ] : '';
+		$map = apply_filters( 'w3tc_page_mapping', $map );
+
+		return ! empty( $map[ $id ] ) ? $map[ $id ] : array();
 	}
 }

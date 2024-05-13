@@ -4,7 +4,7 @@
  *
  * AlwaysCached worker model.
  *
- * @since 2.5.1
+ * @since X.X.X
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * AlwaysCached worker model.
  *
- * @since 2.5.1
+ * @since X.X.X
  */
 class Extension_AlwaysCached_Worker {
 
 	/**
 	 * Run method for AlwaysCached worker.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -53,39 +53,57 @@ class Extension_AlwaysCached_Worker {
 
 			echo esc_html( sprintf( "\n%s ", $item['key'] ) );
 
-			$result = self::process_item($item);
-			if ( $result == 'ok' ) {
+			$result = self::process_item( $item );
+			if ( 'ok' === $result ) {
 				esc_html_e( 'ok', 'w3-total-cache' );
 				Extension_AlwaysCached_Queue::pop_item_finish( $item );
 				update_option( 'w3tc_alwayscached_worker_timestamp', gmdate( 'Y-m-d G:i:s' ) );
-			} elseif ( $result == 'postpone' ) {
+			} elseif ( 'postpone' === $result ) {
 				esc_html_e( 'postponed', 'w3-total-cache' );
 			} else {
 				esc_html_e( 'failed', 'w3-total-cache' );
-
 			}
 		}
 
 		echo "\n</div>\n";
 	}
 
-
-
-	static private function process_item( $item ) {
-		if ( $item['key'] == ':flush_group.regenerate' ) {
+	/**
+	 * Process item.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $item Item.
+	 *
+	 * @return string
+	 */
+	private static function process_item( $item ) {
+		if ( ':flush_group.regenerate' === $item['key'] ) {
 			return self::process_item_flush_group_regenerate( $item );
-		} elseif ( $item['key'] == ':flush_group.remainder' ) {
+		} elseif ( ':flush_group.remainder' === $item['key'] ) {
 			return self::process_item_flush_group_remainder( $item );
 		}
 
 		return self::process_item_url( $item );
 	}
 
-
-
-	static private function process_item_url( $item ) {
-		echo esc_html( sprintf(
-			__( "regenerate %s... ", 'w3-total-cache' ), $item['url'] ) );
+	/**
+	 * Process item by URL.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $item Item.
+	 *
+	 * @return string
+	 */
+	private static function process_item_url( $item ) {
+		echo esc_html(
+			sprintf(
+				// translators: 1 item URL.
+				__( 'regenerate %s... ', 'w3-total-cache' ),
+				$item['url']
+			)
+		);
 
 		$result = wp_remote_request(
 			$item['url'],
@@ -114,9 +132,17 @@ class Extension_AlwaysCached_Worker {
 		return 'ok';
 	}
 
-
-
-	static private function process_item_flush_group_regenerate( $item ) {
+	/**
+	 * Process item flush group regenerate.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $item Item.
+	 *
+	 * @return string
+	 */
+	private static function process_item_flush_group_regenerate( $item ) {
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 		$item_extension = @unserialize( $item['extension'] );
 
 		$c = Dispatcher::config();
@@ -129,56 +155,68 @@ class Extension_AlwaysCached_Worker {
 
 		$posts_count = $c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) );
 		if ( $posts_count > 0 ) {
-			$posts = get_posts( array(
-				'post_type' => 'post',
-				'post_status' => 'publish',
-				'posts_per_page' => $posts_count,
-				'order' => 'DESC',
-				'orderby' => 'modified'
-			) );
+			$posts = get_posts(
+				array(
+					'post_type'      => 'post',
+					'post_status'    => 'publish',
+					'posts_per_page' => $posts_count,
+					'order'          => 'DESC',
+					'orderby'        => 'modified',
+				)
+			);
 
 			foreach ( $posts as $post ) {
-				Extension_AlwaysCached_Queue::add(
-					get_permalink( $post ), $item_extension );
+				Extension_AlwaysCached_Queue::add( get_permalink( $post ), $item_extension );
 			}
 		}
 
-		$pages_count = $c->get_integer(
-			array( 'alwayscached', 'flush_all_pages_count' ) );
+		$pages_count = $c->get_integer( array( 'alwayscached', 'flush_all_pages_count' ) );
 		if ( $pages_count > 0 ) {
-			$posts = get_posts( array(
-				'post_type' => 'page',
-				'post_status' => 'publish',
-				'posts_per_page' => $pages_count,
-				'order' => 'DESC',
-				'orderby' => 'modified'
-			) );
+			$posts = get_posts(
+				array(
+					'post_type'      => 'page',
+					'post_status'    => 'publish',
+					'posts_per_page' => $pages_count,
+					'order'          => 'DESC',
+					'orderby'        => 'modified',
+				)
+			);
 
 			foreach ( $posts as $post ) {
-				Extension_AlwaysCached_Queue::add(
-					get_permalink( $post ), $item_extension );
+				Extension_AlwaysCached_Queue::add( get_permalink( $post ), $item_extension );
 			}
 		}
 
 		return 'ok';
 	}
 
-
-
-	static private function process_item_flush_group_remainder( $item ) {
-		if (Extension_AlwaysCached_Queue::exists_higher_priority( $item ) ) {
-			// cant flush when something is still going to be regenerated
-			// in order to prevent pages which are going to be regenerated
-			// to became uncached
+	/**
+	 * Process item flush group remainder.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $item Item.
+	 *
+	 * @return string
+	 */
+	private static function process_item_flush_group_remainder( $item ) {
+		/**
+		 * Cant flush when something is still going to be regenerated
+		 * in order to prevent pages which are going to be regenerated
+		 * to became uncached
+		 */
+		if ( Extension_AlwaysCached_Queue::exists_higher_priority( $item ) ) {
 			return 'postpone';
 		}
 
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 		$extension = @unserialize( $item['extension'] );
 
 		$o = Dispatcher::component( 'PgCache_Flush' );
 		$o->flush_group_after_ahead_generation(
 			empty( $extension['group'] ) ? '' : $extension['group'],
-			$extension );
+			$extension
+		);
 
 		return 'ok';
 	}

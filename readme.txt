@@ -1,9 +1,9 @@
-=== Plugin Name ===
+=== W3 Total Cache ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
-Tested up to: 6.3
-Stable tag: 2.5.0
+Tested up to: 6.5
+Stable tag: 2.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -285,12 +285,70 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.7.2 =
+* Fix: Page Cache cleanup purging all if browsercache.html.lifetime > W3TC_CACHE_FILE_EXPIRE_MAX
+* Fix: Page Cache primer: Ignore sitemap XML comments
+* Fix: Page Cache primer: Preload cache for custom post types
+* Fix: Page Cache primer: Add an option to prime cache after updating a post/page/CPT
+* Fix: Redis test logic
+* Fix: Cloudflare extension: Setting values via API
+* Fix: Amazon SNS message validation
+* Fix: Handle XML setting being saved properly
+* Update: Add more options to the Remove CSS/JS feature
+* Update: Add an option for Amazon CloudFront default region in distribution hostname
+* Update: Add information about feature impact on PageSpeed
+* Update: Reworked the Page Cache Preload settings UI
+
+= 2.7.1 =
+* Fix: Page Cache: Prefer Brotli over Gzip
+* Fix: Page Cache: Purge sitemaps on post creation/edit/trash/delete
+* Fix: Page Cache: Processed content filter
+* Fix: Minify URL to filename filter mapping
+* Update: Added Bunny CDN partner information
+* Update: Added filters for Apache rules and Page Cache postfix
+
+= 2.7.0 =
+* Feature: Performance Dashboard update
+* Feature: Remove unused CSS/JS
+* Fix: Nginx feature and permission policy header syntax
+* Fix: Memcache install check
+* Fix: CloudFront purge button
+* Fix: Uncaught type error on the install page
+* Fix: Page mapping data
+* Fix: Add missing id for a save settings button
+* Fix: Extension counts
+* Fix: PHP 8.2 deprecation warnings for dynamic class property assignments
+* Fix: Do not autoload WP option for PageSpeed data
+* Fix: Cache groups: Fix spacing in values for htaccess syntax
+* Fix: Refactor Minify cache key mapping to have shorter keys and separate storage
+* Fix: Minify statistics output and PHP warnings
+* Fix: Feature Showcase: New feature version numbers
+* Fix: Lazy Loading URL pattern match
+* Update: Upgrade modal/popup
+* Update: Added "Learn more" links
+
+= 2.6.1 =
+* Fix: WebP Converter extension activation
+* Fix: Media Library upload may fail when using Bunny CDN
+* Fix: Cloudflare API error when updating certain settings
+* Fix: Lazy Loading issue with the Delay Scripts feature enabled
+* Update: Allow custom hostname changes for Bunny CDN
+
+= 2.6.0 =
+* Feature: Added support for Bunny.Net CDN
+* Feature: Preload requests (Pro)
+* Fix: Error when changing CDN cookie domain setting
+* Fix: Admin notice when flushing cache from the admin bar
+* Fix: Error in some Minify cache file operations
+* Fix: PHP 8 compatibility
+* Update: Delay scripts UI changes
+
 = 2.5.0 =
 * Feature: Added Delay Scripts (Pro)
 * Fix: Several PHP 8 warnings
 * Fix: Fragment Cache extension PHP warnings when no engine was selected
 * Fix: Fragment Cache engine selection disabled for pro license under certain conditions
-* Fix: Added Database Cluster compatiblity for older db.php files
+* Fix: Added Database Cluster compatibility for older db.php files
 * Fix: Fixed one PageSpeed tool metric not outputting data and adjusted a few labels
 * Fix: Multiple anchor links for PageSpeed block on General Settings page
 * Fix: Cache Groups validation on save
@@ -383,7 +441,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Enhancement: Page cache: Added query string exemptions
 
 = 2.2.6 =
-* Fix: Error clearing all cache when using Cloudfront full CDN in Pro
+* Fix: Error clearing all cache when using CloudFront full CDN in Pro
 
 = 2.2.5 =
 * Fix: Revert WooCommerce Variation Image Gallery plugin CDN filter
@@ -647,7 +705,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Improved Vary User-Agent header usage
 * Improved various features with AMP pages and HTTP2
 * Improved redis connection string to allow for tls://host:port format
-* Fixed file headers for Cloudfront S3 CDN
+* Fixed file headers for CloudFront S3 CDN
 * Fixed fatal error on with flush / SNS
 * Fixed comments with URLs within minify debug mode
 * Fixed ObjectCache statistics within footer
@@ -676,7 +734,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Improved protection of unexpected values in global variables
 * Added more Amazon S3 regions
 * Added support for memcached binary protocol when available
-* Added caching for webp MIME type
+* Added caching for WebP MIME type
 * Updated S3 bucket creation by settings CORS policy
 * Updated blogmap to allow urls with custom ports
 * Fixed usage of base url with minify
@@ -723,7 +781,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fixed writing to PHP error log rather than WordPress debug log
 * Fixed default referrer policy should be "no-referrer-when-downgrade"
 * Fixed php_flag error related to browser cache, using ini_set instead
-* Fixed CloudFlare IPv6 check undefined offset
+* Fixed Cloudflare IPv6 check undefined offset
 * Fixed Undefined constant WP_ROOT
 * Fixed frame-ancestors being overwritten by frame-src
 * Fixed missing semicolon in nginx configuration
@@ -816,7 +874,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Improved handling of # in URLs
 * Improved handling of exclusions for e-commerce in Genesis Framework
 * Improved handling of headers for Microsoft Azure
-* Improved functionality with existing Cloudfront Distributions when configuring Full Site Delivery
+* Improved functionality with existing CloudFront Distributions when configuring Full Site Delivery
 * Improved minify debug logging
 * Improved handling of URLs that omit the protocol
 * Improved handling of custom files with CDN (via amiga-500)
@@ -829,7 +887,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fixed security issue with the creation of dot folders that could be abused
 * Fixed handling HTTP compression for uncached pages
 * Fixed handling of .svgz files
-* Added expiration headers to webP images
+* Added expiration headers to WebP images
 * Added support for Microsoft Azure’s latest API
 * Added ability to cache WP Admin. Recommended setting, is off. (Improved WP Admin performance with object caching enabled)
 * Added HTTP/2 Push support for minified files
@@ -955,7 +1013,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Added capability check for save options
 * Added FeedBurner extension
 * Added woff support to Browser Cache
-* Added new CloudFlare IPs
+* Added new Cloudflare IPs
 * Added support for WordPress defined charset and collate in CDN queue table creation
 * Added WordPress SEO by Yoast extension
 * Added *.less to CDN theme uploads and MIME
@@ -967,7 +1025,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Added support for use of existing zones without refresh
 * Added new mime types
 * Added support for separate domains for frontend and admin backend
-* Added CloudFlare as an extension
+* Added Cloudflare as an extension
 * Added nofollow to blogroll links
 * Added DEV mode support to PRO version
 * Added EDGE MODE functionality

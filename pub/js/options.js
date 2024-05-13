@@ -311,12 +311,66 @@ function w3tc_csp_reference() {
 		height: 460,
 		url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
 			'&w3tc_action=browsercache_quick_reference',
+		callback: function(lightbox) {
+			lightbox.resize();
+		}
 	});
 	jQuery('div#overlay,.lightbox-content').on('click', function() {
 		W3tc_Lightbox.close();
 	});
 }
 
+/**
+ * Bunny CDN check.
+ *
+ * Prevent enabling Bunny CDN ("bunnycdn" engine) for both CDN and CDNFSD.
+ *
+ * @since 2.6.0
+ *
+ * @returns null
+ */
+function cdn_bunnycdn_check() {
+	// Prevents JS error for non W3TC pages.
+	if (typeof w3tcData === 'undefined') {
+		return;
+	}
+
+	var $cdn_enabled = jQuery('#cdn__enabled'),
+		$cdn_engine = jQuery('#cdn__engine'),
+		$cdnfsd_enabled = jQuery('#cdnfsd__enabled'),
+		$cdnfsd_engine = jQuery('#cdnfsd__engine'),
+		cdn_enabled = $cdn_enabled.is(':checked'),
+		cdn_engine = $cdn_engine.find(':selected').val(),
+		cdnfsd_enabled = $cdnfsd_enabled.is(':checked'),
+		cdnfsd_engine = $cdnfsd_engine.find(':selected').val(),
+		$cdn_inside = jQuery('#cdn .inside');
+
+	if (cdn_enabled && cdnfsd_enabled && 'bunnycdn' === cdn_engine && cdnfsd_engine === cdn_engine ) {
+		// Reset to what was last saved.
+		$cdn_enabled.prop('checked', w3tcData.cdnEnabled);
+		$cdn_engine.val(w3tcData.cdnEngine).change();
+		$cdnfsd_enabled.prop('checked', w3tcData.cdnfsdEnabled);
+		$cdnfsd_engine.val(w3tcData.cdnfsdEngine).change();
+
+		// Display a warning.
+		jQuery('<div/>', {
+			class: 'notice notice-warning',
+			id: 'w3tc-bunnycdn-warning',
+			text: w3tcData.bunnyCdnWarning
+		}).prependTo($cdn_inside);
+	} else {
+		// Remove the warning.
+		jQuery('#w3tc-bunnycdn-warning').remove();
+	}
+}
+
+/**
+ * Cloudfront CDN check.
+ *
+ * When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
+ *
+ * @returns null
+ */
 function cdn_cf_check() {
 	// Prevents JS error for non W3TC pages.
 	if (typeof w3tcData === 'undefined') {
@@ -387,8 +441,54 @@ function debounce(func){
 	};
 }
 
+/**
+ * Get the S3 bucket region from the selected location to be used for the hostname.
+ *
+ * The default location (us-east-1) returns an empty string.  All other regions return the region with a trailing dot.
+ *
+ * @since X.X.X
+ *
+ * @param {string} location Bucket location.
+ * @returns string
+ */
+function get_bucket_region( location ) {
+	let region = '';
+
+	switch ( location ) {
+		case 'us-east-1':
+			break;
+		case 'us-east-1-e':
+			region = 'us-east-1.';
+			break;
+		default:
+			region = location + '.';
+			break;
+	}
+
+	return region;
+}
+
+/**
+ * Event callback for changing CDN Cloudfront (push) S3 bucket location.
+ *
+ * @since 2.7.2
+ *
+ * @see get_bucket_region()
+ */
+function cdn_cf_bucket_location() {
+	const id = jQuery( '#cdn_cf_bucket' ).val();
+
+	jQuery( '#cdn-cf-bucket-hostname' )
+		.text( id + '.s3.' + get_bucket_region( jQuery( '#cdn_cf_bucket_location' ).val() ) + 'amazonaws.com' );
+}
+
+// On document ready.
 jQuery(function() {
-	// general page
+	// Global vars.
+	var $cdn_enabled = jQuery('#cdn__enabled'),
+		$cdn_engine = jQuery('#cdn__engine');
+
+	// General page.
 	jQuery('.w3tc_read_technical_info').on('click', function() {
 		jQuery('.w3tc_technical_info').toggle();
 	});
@@ -424,10 +524,16 @@ jQuery(function() {
 		});
 	});
 
+	// Prevent enabling Bunny CDN for both CDN and CDNFSD.
+	$cdn_enabled.on('click', cdn_bunnycdn_check);
+	$cdn_engine.on('change', cdn_bunnycdn_check);
+	jQuery('#cdnfsd__enabled').on('click', cdn_bunnycdn_check);
+	jQuery('#cdnfsd__engine').on('change', cdn_bunnycdn_check);
+
 	// When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
 	cdn_cf_check();
-	jQuery('#cdn__enabled').on('click', cdn_cf_check);
-	jQuery('#cdn__engine').on('change', cdn_cf_check);
+	$cdn_enabled.on('click', cdn_cf_check);
+	$cdn_engine.on('change', cdn_cf_check);
 
 	/**
 	 * CDN page.
@@ -435,21 +541,13 @@ jQuery(function() {
 	 */
 	jQuery('[name="cdn__flush_manually"]').on('click', cdn_cf_check);
 
-	// pagecache page
+	// Pagecache page.
 	w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
 	jQuery('#pgcache__reject__logged_roles').on('click', function() {
 		w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
 	});
 
-	if (jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-		jQuery('#pgcache__cache__nginx_handle_xml').attr('checked', jQuery('#pgcache__cache__feed').is(':checked'));
-
-	jQuery('#pgcache__cache__feed').on('change', function() {
-		if (jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-			jQuery('#pgcache__cache__nginx_handle_xml').attr('checked', this.checked);
-	});
-
-	// browsercache page
+	// Browsercache page.
 	w3tc_toggle2('browsercache_last_modified', ['browsercache__cssjs__last_modified', 'browsercache__html__last_modified',
 		'browsercache__other__last_modified'
 	]);
@@ -477,7 +575,7 @@ jQuery(function() {
 
 	w3tc_security_headers();
 
-	// minify page
+	// Minify page.
 	w3tc_input_enable('.html_enabled', jQuery('#minify__html__enable:checked').length);
 	w3tc_input_enable('.js_enabled', jQuery('#minify__js__enable:checked').length);
 	w3tc_input_enable('.css_enabled', jQuery('#minify__css__enable:checked').length);
@@ -663,7 +761,7 @@ jQuery(function() {
 		return true;
 	});
 
-	// CDN
+	// CDN.
 	jQuery('.w3tc-tab').on('click', function() {
 		jQuery('.w3tc-tab-content').hide();
 		jQuery(this.rel).show();
@@ -755,12 +853,14 @@ jQuery(function() {
 				break;
 
 			case 'cf':
+				let region = jQuery('#cdn_cf_bucket_location').val();
+
 				jQuery.extend(params, {
 					engine: 'cf',
 					'config[key]': jQuery('#cdn_cf_key').val(),
 					'config[secret]': jQuery('#cdn_cf_secret').val(),
 					'config[bucket]': jQuery('#cdn_cf_bucket').val(),
-					'config[bucket_location]': jQuery('#cdn_cf_bucket_location').val(),
+					'config[bucket_location]': region,
 					'config[id]': jQuery('#cdn_cf_id').val()
 				});
 
@@ -1126,7 +1226,7 @@ jQuery(function() {
 		}, 'json');
 	});
 
-	// CDN cnames
+	// CDN cnames.
 	jQuery('body').on('click', '#cdn_cname_add', function() {
 		jQuery('#cdn_cnames').append('<li><input type="text" name="cdn_cnames[]" value="" size="60" /> <input class="button cdn_cname_delete" type="button" value="Delete" /> <span></span></li>');
 		w3tc_cdn_cnames_assign();
@@ -1164,7 +1264,7 @@ jQuery(function() {
 		return ret;
 	});
 
-	// add sortable
+	// Add sortable.
 	if (jQuery.ui && jQuery.ui.sortable) {
 		jQuery('#js_files,#css_files').sortable({
 			axis: 'y',
@@ -1199,7 +1299,7 @@ jQuery(function() {
 		});
 	}
 
-	// show hide rules
+	// Show hide rules.
 	jQuery('.w3tc-show-rules').on('click', function() {
 		var btn = jQuery(this),
 			rules = btn.parent().find('.w3tc-rules');
@@ -1214,7 +1314,7 @@ jQuery(function() {
 	});
 
 
-	// show hide missing files
+	// Show hide missing files.
 	jQuery('.w3tc-show-required-changes').on('click', function() {
 		var btn = jQuery(this),
 			rules = jQuery('.w3tc-required-changes');
@@ -1228,7 +1328,7 @@ jQuery(function() {
 		}
 	});
 
-	// show hide missing files
+	// Show hide missing files.
 	jQuery('.w3tc-show-ftp-form').on('click', function() {
 		var btn = jQuery(this),
 			rules = jQuery('.w3tc-ftp-form');
@@ -1242,7 +1342,7 @@ jQuery(function() {
 		}
 	});
 
-	// show hide missing files
+	// Show hide missing files.
 	jQuery('.w3tc-show-technical-info').on('click', function() {
 		var btn = jQuery(this),
 			info = jQuery('.w3tc-technical-info');
@@ -1256,18 +1356,18 @@ jQuery(function() {
 		}
 	});
 
-	// add ignore class to the ftp form elements
+	// Add ignore class to the ftp form elements.
 	jQuery('#ftp_upload_form').find('input').each(function() {
 		jQuery(this).addClass('w3tc-ignore-change');
 	});
 
-	// toggle hiddent content
+	// Toggle hidden content.
 	jQuery('.w3tc_link_more').on('click', function() {
 		var target_class = jQuery(this).metadata().for_class;
 		jQuery('.' + target_class).slideToggle();
 	});
 
-	// check for unsaved changes
+	// Check for unsaved changes.
 	jQuery('#w3tc input,#w3tc select,#w3tc textarea').on('change', function() {
 		var ignore = false;
 		jQuery(this).parents().addBack().each(function() {
@@ -1283,7 +1383,6 @@ jQuery(function() {
 	});
 
 	jQuery('body').on('click', '.w3tc-button-save', w3tc_beforeupload_unbind);
-
 
 	jQuery('.contextual-help-tabs ul li a').on('click', function() {
 		var id = jQuery(this).attr('aria-controls');
@@ -1321,7 +1420,7 @@ jQuery(function() {
 		});
 	}
 
-	// extensions page
+	// Extensions page.
 	jQuery('.w3tc_extensions_manage_input_checkall').on('click', function(v) {
 		var c = jQuery(this).is(':checked');
 
@@ -1332,7 +1431,7 @@ jQuery(function() {
 		});
 	});
 
-	// gopro block
+	// Go Pro block.
 	jQuery('.w3tc-gopro-more').on('click', function(e) {
 		e.preventDefault();
 		if (!jQuery(this).data('expanded')) {
@@ -1357,13 +1456,13 @@ jQuery(function() {
 		}
 	});
 
-	// Bootstrap dropdown toggle
+	// Bootstrap dropdown toggle.
 	jQuery('.dropdown-toggle').on('click', function() {
 		jQuery('.dropdown-toggle').not(this).next().hide();
 		jQuery(this).next().toggle();
 	});
 
-	// Bootstrap dropdown hide on click away
+	// Bootstrap dropdown hide on click away.
 	jQuery(document).mouseup(function(e) {
 		var dropdowns = jQuery('.dropdown-toggle');
 		if (!dropdowns.is(e.target) && dropdowns.has(e.target).length === 0) {
@@ -1371,7 +1470,7 @@ jQuery(function() {
 		}
 	});
 
-	// Options menu achor links
+	// Options menu anchor links.
 	jQuery('#w3tc-top-nav-bar a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
@@ -1385,7 +1484,7 @@ jQuery(function() {
 		}
 	});
 
-	// Options menu achor links
+	// Options menu anchor links.
 	jQuery('#w3tc-options-menu a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
@@ -1399,7 +1498,7 @@ jQuery(function() {
 		}
 	});
 
-	// Form control bar buttons
+	// Form control bar buttons.
 	jQuery('.w3tc_form_bar input').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
@@ -1413,7 +1512,7 @@ jQuery(function() {
 		}
 	});
 
-	// Footer links
+	// Footer links.
 	jQuery('#w3tc-footer a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
@@ -1427,7 +1526,7 @@ jQuery(function() {
 		}
 	});
 
-	// General settings advanced options links
+	// General settings advanced options links.
 	jQuery('.advanced-settings a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
@@ -1441,7 +1540,7 @@ jQuery(function() {
 		}
 	});
 
-	// Extra links
+	// Extra links.
 	jQuery('.extra-link a').on('click', function(e) {
 		if (window.w3tc_ga) {
 			w3tc_ga(
@@ -1513,6 +1612,7 @@ jQuery(function() {
 				);
 			}
 		});
+
 		jQuery('body').on('click', 'input[type="submit"]', function() {
 			var name = jQuery(this).attr('name');
 			var id = jQuery(this).attr('id');
@@ -1562,6 +1662,22 @@ jQuery(function() {
 				);
 			}
 		});
+
+		// Log if the admin notice containing the renew license button is present.
+		if (jQuery('.button-renew-plugin').length > 0) {
+			alert('it is here');
+			if (window.w3tc_ga) {
+				alert('fire');
+				w3tc_ga(
+					'event',
+					'w3tc_error',
+					{
+						eventCategory: 'w3tc_renew_notice',
+						eventLabel: 'Renew Now'
+					}
+				);
+			}
+		}
 	}
 
 	jQuery("a").on('click', function(event) {
@@ -1582,13 +1698,13 @@ jQuery(function() {
 
 	var hash = window.location.hash;
 	if (hash !== "") {
-		// Start at top of page rather than instantly loading at the anchor point
+		// Start at top of page rather than instantly loading at the anchor point.
 		window.scrollTo(0, 0);
 		var wpadminbar_height = (jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0,
 			nav_bar_height = (jQuery('#w3tc-top-nav-bar').length) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0,
 			options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
 			form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
-		// Scroll to taget after .5 seconds
+		// Scroll to taget after .5 seconds.
 		setTimeout(
 			function() {
 				jQuery('html, body').animate({
@@ -1604,13 +1720,24 @@ jQuery(function() {
 	jQuery(window).resize(
 		debounce(
 			function() {
-				console.log('resize');
 				set_sticky_bar_positions();
 				set_footer_position();
 			}
 		)
 	);
 
+	// Target notices without the 'inline' class.
+    jQuery('.notice:not(.inline), .updated:not(.inline), .update-nag:not(.inline), .error:not(.inline), .info:not(.inline), .warning:not(.inline)').each(function() {
+        // Prevent the notice from being moved.
+        jQuery(this).addClass('inline');
+    });
+
+	// Update the CDN Cloudfront (push) S3 bucket location hostname.
+	jQuery( 'body' ).on( 'change', '#cdn_cf_bucket_location', cdn_cf_bucket_location );
+	jQuery( 'body' ).on( 'keyup', '#cdn_cf_bucket', cdn_cf_bucket_location );
+
+	// Run functions after the page is loaded.
+	cdn_cf_bucket_location();
 	set_sticky_bar_positions();
 	set_footer_position();
 });

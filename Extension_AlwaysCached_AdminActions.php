@@ -4,7 +4,7 @@
  *
  * Controller for AlwaysCached extension admin actions.
  *
- * @since 2.5.1
+ * @since X.X.X
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * AlwaysCached Admin Actions.
  *
- * @since 2.5.1
+ * @since X.X.X
  */
 class Extension_AlwaysCached_AdminActions {
 
 	/**
 	 * Handles regenerate page/post request.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -64,9 +64,28 @@ class Extension_AlwaysCached_AdminActions {
 	}
 
 	/**
+	 * Process queue.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_alwayscached_process() {
+		Extension_AlwaysCached_Worker::run();
+
+		Util_Admin::redirect_with_custom_messages2(
+			array(
+				'notes' => array(
+					'alwayscached_process' => __( 'Queue successfully processed.', 'w3-total-cache' ),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Handles empty queue request.
 	 *
-	 * @since 2.5.1
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
