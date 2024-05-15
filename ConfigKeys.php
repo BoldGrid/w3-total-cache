@@ -660,7 +660,7 @@ $keys = array(
 	),
 	'pgcache.purge.sitemap_regex' => array(
 		'type' => 'string',
-		'default' => '([a-z0-9_\-]*?)sitemap([a-z0-9_\-]*)?\.xml'
+		'default' => '([a-z0-9_\-]*?)sitemap([a-z0-9_\-]*)?\.(?:xml|xsl)'
 	),
 	'pgcache.prime.enabled' => array(
 		'type' => 'boolean',
@@ -679,6 +679,10 @@ $keys = array(
 		'default' => ''
 	),
 	'pgcache.prime.post.enabled' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
+	'pgcache.prime.post.update.enabled' => array(
 		'type' => 'boolean',
 		'default' => false
 	),
@@ -2519,10 +2523,6 @@ $keys = array(
 	'widget.latest_news.items' => array(
 		'type' => 'integer',
 		'default' => 5
-	),
-	'widget.pagespeed.enabled' => array(
-		'type' => 'boolean',
-		'default' => false
 	),
 	'widget.pagespeed.access_token' => array(
 		'type' => 'string',

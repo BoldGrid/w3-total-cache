@@ -1,6 +1,5 @@
 jQuery(function($) {
 	function w3tc_popup_resize(o) {
-		o.options.height = jQuery('.w3tc_popup_form').height() + 30;
 		o.resize();
 	}
 

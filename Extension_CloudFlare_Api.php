@@ -4,7 +4,7 @@ namespace W3TC;
 
 
 /**
- * CloudFlare API
+ * Cloudflare API.
  */
 class Extension_CloudFlare_Api {
 	static private $_root_uri = 'https://api.cloudflare.com/client/v4';
@@ -111,6 +111,11 @@ class Extension_CloudFlare_Api {
 
 
 	public function zone_setting_set( $name, $value ) {
+		// Convert numeric values to the integer type.
+		if ( is_numeric( $value ) ) {
+			$value = intval( $value );
+		}
+
 		return $this->_wp_remote_request( 'PATCH',
 			self::$_root_uri . '/zones/' . $this->_zone_id . '/settings/' . $name,
 			json_encode( array( 'value' => $value ) ) );

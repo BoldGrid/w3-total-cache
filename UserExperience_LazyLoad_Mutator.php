@@ -200,7 +200,7 @@ class UserExperience_LazyLoad_Mutator {
 		preg_match( '~background(-image)?:\s*(url\([^>]+\))~is', $v, $url_match );
 		$v = preg_replace( '~background(-image)?:\s*url\([^>]+\)[;]?\s*~is', '', $v );
 
-		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . $url_match[2] . $quote;
+		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . ( isset( $url_match[2] ) ? $url_match[2] : '' ) . $quote;
 	}
 
 

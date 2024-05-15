@@ -7,9 +7,7 @@
 
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die;
 
 Util_Ui::postbox_header_tabs(
 	wp_kses(
@@ -29,12 +27,12 @@ Util_Ui::postbox_header_tabs(
 		)
 	),
 	esc_html__(
-		'Content Delivery Network (CDN) is a powerful feature that can significantly enhance the performance of 
-			your WordPress website. By leveraging a distributed network of servers located worldwide, a CDN helps 
-			deliver your website\'s static files, such as images, CSS, and JavaScript, to visitors more efficiently. 
-			This reduces the latency and improves the loading speed of your website, resulting in a faster and 
-			smoother browsing experience for your users. With W3 Total Cache\'s CDN integration, you can easily 
-			configure and connect your website to a CDN service of your choice, unleashing the full potential of 
+		'Content Delivery Network (CDN) is a powerful feature that can significantly enhance the performance of
+			your WordPress website. By leveraging a distributed network of servers located worldwide, a CDN helps
+			deliver your website\'s static files, such as images, CSS, and JavaScript, to visitors more efficiently.
+			This reduces the latency and improves the loading speed of your website, resulting in a faster and
+			smoother browsing experience for your users. With W3 Total Cache\'s CDN integration, you can easily
+			configure and connect your website to a CDN service of your choice, unleashing the full potential of
 			your WordPress site\'s speed optimization.',
 		'w3-total-cache'
 	),
@@ -48,6 +46,53 @@ Util_Ui::config_overloading_button(
 	)
 );
 ?>
+<div id="w3tc-bunnycdn-ad-general">
+	<?php
+	if ( ! $cdn_enabled ) {
+		echo wp_kses(
+			sprintf(
+				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,
+				// translators: 3 HTML input for Bunny CDN sign up, 4 HTML img tag for Bunny CDN white logo.
+				__(
+					'%1$sLooking for a top rated CDN Provider? Try Bunny CDN.%2$s%3$s%4$s',
+					'w3-total-cache'
+				),
+				'<strong>',
+				'</strong>',
+				Util_Ui::button_link(
+					__( 'Sign up now to enjoy a special offer!', 'w3-total-cache' ),
+					esc_url( W3TC_BUNNYCDN_SIGNUP_URL ),
+					true,
+					'w3tc-bunnycdn-promotion-button',
+					'w3tc-bunnycdn-promotion-button'
+				),
+				'<img class="w3tc-bunnycdn-icon-white" src="' . esc_url( plugins_url( '/pub/img/w3tc_bunnycdn_icon_white.png', W3TC_FILE ) ) . '" alt="Bunny CDN Icon White">'
+			),
+			array(
+				'strong' => array(),
+				'img'    => array(
+					'src'   => array(),
+					'alt'   => array(),
+					'width' => array(),
+				),
+				'img'    => array(
+					'class'  => array(),
+					'src'    => array(),
+					'alt'    => array(),
+					'height' => array(),
+				),
+				'input'  => array(
+					'type'    => array(),
+					'name'    => array(),
+					'class'   => array(),
+					'value'   => array(),
+					'onclick' => array(),
+				),
+			)
+		);
+	}
+	?>
+</div>
 <p>
 	<?php
 	$config        = Dispatcher::config();
@@ -61,16 +106,16 @@ Util_Ui::config_overloading_button(
 			<p>
 				<?php
 				// StackPath sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
-				$date_time_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
-				printf(
+				$date_time_format = \get_option( 'date_format' ) . ' ' . \get_option( 'time_format' );
+				\printf(
 					// translators: 1 StackPath sunset datetime.
-					__(
+					\esc_html__(
 						'StackPath will cease operations at %1$s.',
 						'w3-total-cache'
 					),
-					wp_date( $date_time_format, '1700629200' )
+					\wp_date( $date_time_format, '1700629200' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
-				?>	
+				?>
 			</p>
 		</div>
 		<?php
@@ -80,16 +125,16 @@ Util_Ui::config_overloading_button(
 			<p>
 				<?php
 				// HighWinds sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
-				$date_time_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
-				printf(
+				$date_time_format = \get_option( 'date_format' ) . ' ' . \get_option( 'time_format' );
+				\printf(
 					// translators: 1 HighWinds sunset datetime.
-					__(
+					\esc_html__(
 						'HighWinds will cease operations at %1$s.',
 						'w3-total-cache'
 					),
-					wp_date( $date_time_format, '1700629200' )
+					\wp_date( $date_time_format, '1700629200' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
-				?>	
+				?>
 			</p>
 		</div>
 		<?php
@@ -108,7 +153,7 @@ Util_Ui::config_overloading_button(
 					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
 					// translators: 3 opening HTML acronym tag, 4 closing acronym tag.
 					__(
-						'Theme files, media library attachments, %1$sCSS%2$s, %3$sJS%4$s files etc will quickly for site visitors.',
+						'Theme files, media library attachments, %1$sCSS%2$s, and %3$sJS%4$s files will load quickly for site visitors.',
 						'w3-total-cache'
 					),
 					'<acronym title="' . __( 'Cascading Style Sheet', 'w3-total-cache' ) . '">',

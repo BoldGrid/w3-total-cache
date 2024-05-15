@@ -24,7 +24,8 @@ class Util_AttachToActions {
 		// posts.
 		add_action( 'pre_post_update', array( $o, 'on_pre_post_update' ), 0, 2 );
 		add_action( 'save_post', array( $o, 'on_post_change' ), 0, 2 );
-		add_action( 'wp_trash_post', array( $o, 'on_post_change' ), 0, 2 );
+		add_filter( 'pre_trash_post', array( $o, 'on_post_change' ), 0, 2 );
+		add_action( 'before_delete_post', array( $o, 'on_post_change' ), 0, 2 );
 
 		// comments.
 		add_action( 'comment_post', array( $o, 'on_comment_change' ), 0 );
@@ -93,7 +94,7 @@ class Util_AttachToActions {
 	 * @param integer $post_id Post ID.
 	 * @param WP_Post $post    Post.
 	 *
-	 * @return void
+	 * @return int|bool|null
 	 */
 	public function on_post_change( $post_id, $post = null ) {
 		if ( is_null( $post ) ) {
@@ -109,11 +110,13 @@ class Util_AttachToActions {
 		}
 
 		if ( ! Util_Environment::is_flushable_post( $post, 'posts', Dispatcher::config() ) ) {
-			return;
+			return $post_id;
 		}
 
 		$cacheflush = Dispatcher::component( 'CacheFlush' );
 		$cacheflush->flush_post( $post_id );
+
+		return $post_id;
 	}
 
 	/**

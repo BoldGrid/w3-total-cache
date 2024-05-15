@@ -687,17 +687,23 @@ class PgCache_Environment {
 		$cache_path = str_replace( Util_Environment::document_root(), '', $cache_dir );
 
 		/**
-		 * Set Accept-Encoding
+		 * Set Accept-Encoding gzip
+		 */
+		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
+			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} gzip\n";
+			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_gzip]\n";
+			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
+		}
+
+		/**
+		 * Set Accept-Encoding brotli
 		 */
 		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.brotli' ) ) {
 			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} br\n";
 			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_br]\n";
 			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
-		} else if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
-			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_gzip]\n";
-			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
 		}
+
 		$rules .= "    RewriteCond %{HTTP_COOKIE} w3tc_preview [NC]\n";
 		$rules .= "    RewriteRule .* - [E=W3TC_PREVIEW:_preview]\n";
 		$env_W3TC_PREVIEW = '%{ENV:W3TC_PREVIEW}';
@@ -751,6 +757,27 @@ class PgCache_Environment {
 		$exts = array( '.html' );
 		if ($config->get_boolean('pgcache.cache.nginx_handle_xml'))
 			$exts[] = '.xml';
+
+		/**
+		 * Filter: Allow adding additional rules at the end of the PGCACHE_CORE block, before the last rule.
+		 *
+		 * @since 2.7.1
+		 *
+		 * @param string $rules           Additional rules.
+		 * @param string $use_cache_rules Rewrite conditions for non-POST, empty query string, rejected cookies, and rejected user agents.
+		 * @param string $document_root   Document root.
+		 * @param string $uri_prefix      URI prefix, after the "w3tc_pagecache_rules_apache_uri_prefix" WP filter.
+		 * @param array  $exts            File extensions used; iterate to use them all.
+		 * @param string $env_W3TC_ENC    Encoding string: "", "_br", or "_gzip".
+		 */
+		$rules = \apply_filters(
+			'w3tc_pgcache_rules_apache_last',
+			$rules,
+			$use_cache_rules,
+			$document_root,
+			$uri_prefix,
+			$env_W3TC_ENC
+		);
 
 		foreach ( $exts as $ext ) {
 			$rules .= $use_cache_rules;
@@ -1096,17 +1123,6 @@ class PgCache_Environment {
 		}
 
 		if ( $config->get_boolean( 'browsercache.enabled' ) &&
-			 $config->get_boolean( 'browsercache.html.brotli' ) ) {
-			$rules .= "set \$w3tc_enc \"\";\n";
-
-			$rules .= "if (\$http_accept_encoding ~ br) {\n";
-			$rules .= "    set \$w3tc_enc _br;\n";
-			$rules .= "}\n";
-
-			$env_w3tc_enc = '$w3tc_enc';
-		}
-
-		if ( $config->get_boolean( 'browsercache.enabled' ) &&
 			$config->get_boolean( 'browsercache.html.compression' ) ) {
 			$rules .= "set \$w3tc_enc \"\";\n";
 
@@ -1117,8 +1133,28 @@ class PgCache_Environment {
 			$env_w3tc_enc = '$w3tc_enc';
 		}
 
+		if ( $config->get_boolean( 'browsercache.enabled' ) &&
+			$config->get_boolean( 'browsercache.html.brotli' ) ) {
+			$rules .= "set \$w3tc_enc \"\";\n";
+
+			$rules .= "if (\$http_accept_encoding ~ br) {\n";
+			$rules .= "    set \$w3tc_enc _br;\n";
+			$rules .= "}\n";
+
+			$env_w3tc_enc = '$w3tc_enc';
+		}
+
 		$key_postfix = $env_w3tc_slash . $env_w3tc_ua . $env_w3tc_ref . $env_w3tc_cookie .
 			$env_w3tc_ssl . $env_w3tc_preview;
+
+		/**
+		 * Filter: Allow modifying the key_postfix string used in the PGCACHE_CORE block.
+		 *
+		 * @since 2.7.1
+		 *
+		 * @param string $key_postfix Key postfix string.
+		 */
+		$key_postfix = \apply_filters( 'w3tc_pgcache_postfix_nginx', $key_postfix );
 
 		if ( $pgcache_engine == 'file_generic' ) {
 			$rules .= $this->for_file_generic( $config, $cache_dir,

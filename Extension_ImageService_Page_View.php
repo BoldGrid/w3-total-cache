@@ -19,6 +19,9 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
+$c      = Dispatcher::config();
+$is_pro = Util_Environment::is_w3tc_pro( $c );
+
 ?>
 <div class="wrap" id="w3tc">
 <?php Util_Ui::print_breadcrumb(); ?>
@@ -104,6 +107,46 @@ Util_Ui::config_item(
 Util_Ui::postbox_footer();
 
 Util_Ui::postbox_header( esc_html__( 'Tools', 'w3-total-cache' ), '', 'tools' );
+
+if ( ! $is_pro ) {
+	?>
+	<div class="w3tc-gopro-manual-wrap">
+		<?php
+		Util_Ui::pro_wrap_maybe_start();
+		Util_Ui::print_score_block(
+			'+9',
+			wp_kses(
+				sprintf(
+					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
+					__(
+						'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s to unlock conversion queue priority and higher hourly/monthly limits today!',
+						'w3-total-cache'
+					),
+					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof' ) . '">',
+					'</a>',
+					'<br /><br />',
+					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+				),
+				array(
+					'a'      => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+					'br'     => array(),
+					'input'  => array(
+						'type'     => array(),
+						'class'    => array(),
+						'data-src' => array(),
+						'value'    => array(),
+					),
+				)
+			)
+		);
+		Util_Ui::pro_wrap_maybe_end( 'imageservice_settings', false );
+		?>
+	</div>
+	<?php
+}
 ?>
 
 	<table class="form-table" id="w3tc-imageservice-tools">
@@ -146,7 +189,7 @@ Util_Ui::postbox_header(
 
 	<table class="form-table" id="w3tc-imageservice-stats">
 		<tr>
-			<th><?php esc_html_e( 'Counts and filesizes by status:', 'w3-total-cache' ); ?></th>
+			<th><?php esc_html_e( 'Counts and file sizes by status:', 'w3-total-cache' ); ?></th>
 			<td>
 				<table id="w3tc-imageservice-counts">
 					<tr>

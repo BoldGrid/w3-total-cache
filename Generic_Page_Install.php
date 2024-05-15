@@ -18,6 +18,7 @@ class Generic_Page_Install extends Base_Page_Settings {
 	 */
 	function view() {
 		$rewrite_rules_descriptors = array();
+		$other_areas = array();
 
 		if ( Util_Rule::can_check_rules() ) {
 			$e = Dispatcher::component( 'Root_Environment' );

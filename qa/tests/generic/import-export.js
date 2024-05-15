@@ -81,7 +81,7 @@ describe('import/export config', function() {
 		let configImport = 'input[name=w3tc_config_import]';
 		await Promise.all([
 			adminPage.evaluate((configImport) => document.querySelector(configImport).click(), configImport),
-			adminPage.waitForNavigation({timeout:0})
+			adminPage.waitForNavigation({timeout: 300000})
 		]);
 
 		//checking if all settings was exported

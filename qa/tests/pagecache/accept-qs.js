@@ -68,9 +68,9 @@ async function checkCached(url, isCached) {
 
 	let content = await page.content();
 	if (isCached) {
-		expect(content).matches(/Page Caching using ([a-z: ]+)[\r\n]/);
+		expect(content).matches(/Page Caching using ([a-zA-Z: ]+)[\r\n]/);
 	} else {
-		expect(content).matches(/Page Caching using ([a-z: ]+)\([^\)]+\)\s*[\r\n]/);
+		expect(content).matches(/Page Caching using ([a-zA-Z: ]+)\([^\)]+\)\s*[\r\n]/);
 	}
 
 	log.log('opened ' + url);
@@ -78,9 +78,9 @@ async function checkCached(url, isCached) {
 
 	content = await page.content();
 	if (isCached) {
-		expect(content).matches(/Page Caching using ([a-z: ]+)[\r\n]/);
+		expect(content).matches(/Page Caching using ([a-zA-Z: ]+)[\r\n]/);
 	} else {
-		expect(content).matches(/Page Caching using ([a-z: ]+)\([^\)]+\)\s*[\r\n]/);
+		expect(content).matches(/Page Caching using ([a-zA-Z: ]+)\([^\)]+\)\s*[\r\n]/);
 	}
 
 	if (env.cacheEngineLabel == 'file_generic') {

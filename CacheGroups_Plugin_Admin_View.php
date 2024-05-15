@@ -122,7 +122,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</li>
 			<?php endforeach; ?>
 		</ul>
-		<div id="mobile_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All user agents recieve the same page and minify cache results.', 'w3-total-cache' ); ?></div>
+		<div id="mobile_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All user agents receive the same page and minify cache results.', 'w3-total-cache' ); ?></div>
 
 		<?php
 		Util_Ui::postbox_footer();
@@ -226,7 +226,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</li>
 			<?php endforeach; ?>
 		</ul>
-		<div id="referrer_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All referrers recieve the same page and minify cache results.', 'w3-total-cache' ); ?></div>
+		<div id="referrer_groups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All referrers receive the same page and minify cache results.', 'w3-total-cache' ); ?></div>
 
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
@@ -310,7 +310,7 @@ if ( ! defined( 'W3TC' ) ) {
 			</li>
 			<?php endforeach; ?>
 		</ul>
-		<div id="cookiegroups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All Cookies recieve the same page and minify cache results.', 'w3-total-cache' ); ?></div>
+		<div id="cookiegroups_empty" style="display: none;"><?php esc_html_e( 'No groups added. All Cookies receive the same page and minify cache results.', 'w3-total-cache' ); ?></div>
 
 		<?php
 		Util_Ui::postbox_footer();

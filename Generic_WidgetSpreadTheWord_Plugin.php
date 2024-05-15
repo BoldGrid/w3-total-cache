@@ -22,14 +22,8 @@ class Generic_WidgetSpreadTheWord_Plugin {
 		if ( Util_Admin::get_current_wp_page() == 'w3tc_dashboard' )
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 
-		add_action( 'w3tc_widget_setup', array(
-				$this,
-				'wp_dashboard_setup'
-			), 4000 );
-		add_action( 'w3tc_network_dashboard_setup', array(
-				$this,
-				'wp_dashboard_setup'
-			), 4000 );
+		add_action( 'w3tc_widget_setup', array( $this, 'wp_dashboard_setup' ), 900 );
+		add_action( 'w3tc_network_dashboard_setup', array( $this, 'wp_dashboard_setup' ), 900 );
 	}
 
 	/**
@@ -45,7 +39,7 @@ class Generic_WidgetSpreadTheWord_Plugin {
 			'</div>',
 			array( $this, 'widget_form' ),
 			null,
-			'normal' );
+			'bottom' );
 	}
 
 	function widget_form() {

@@ -3,7 +3,7 @@ namespace W3TC;
 
 class UserExperience_LazyLoad_Mutator_Unmutable {
 	private $placeholders = array();
-
+	private $placeholder_base = '';
 
 
 	public function __construct() {

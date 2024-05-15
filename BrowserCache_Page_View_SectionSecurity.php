@@ -27,7 +27,7 @@ $feature_policies = array(
 	),
 	array(
 		'label'       => 'autoplay',
-		'description' => esc_html__( 'Controls whether the current document is allowed to autoplay media requested through the HTMLMediaElement interface.', 'w3-total-cache' ),
+		'description' => esc_html__( 'Controls whether the current document is allowed to auto-play media requested through the HTMLMediaElement interface.', 'w3-total-cache' ),
 	),
 	array(
 		'label'       => 'battery',
@@ -528,7 +528,7 @@ $feature_policies = array(
 		<th colspan="2">
 			<?php $this->checkbox( 'browsercache.security.referrer.policy' ); ?> <?php Util_Ui::e_config_label( 'browsercache.security.referrer.policy' ); ?></label>
 			<p class="description">
-				<?php esc_html_e( 'This header restricts the values of the referer header in outbound links.', 'w3-total-cache' ); ?>
+				<?php esc_html_e( 'This header restricts the values of the Referer header in outbound links.', 'w3-total-cache' ); ?>
 			</p>
 		</th>
 	</tr>
@@ -602,7 +602,7 @@ $feature_policies = array(
 			<div>
 				<i><?php esc_html_e( 'Defines a reporting endpoint "group" to which violation reports should to be sent.', 'w3-total-cache' ); ?></i>
 				<br/><br/>
-				<i><?php esc_html_e( 'The referenced "group" should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
+				<i><?php esc_html_e( 'The referenced "group" should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via .htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
 			</div>
 		</td>
 	</tr>
@@ -924,7 +924,7 @@ $feature_policies = array(
 			<div>
 				<i><?php esc_html_e( 'Defines a reporting endpoint "group" to which violation reports should to be sent.', 'w3-total-cache' ); ?></i>
 				<br/><br/>
-				<i><?php esc_html_e( 'The referenced "group" should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
+				<i><?php esc_html_e( 'The referenced "group" should be defined in either the Report-To or Reporting-Endpoints HTTP headers. These will need to be manually defined either via .htaccess or another method of modifying HTTP headers.', 'w3-total-cache' ); ?></i>
 			</div>
 		</td>
 	</tr>

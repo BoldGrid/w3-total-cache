@@ -54,6 +54,7 @@ def init(name, ip):
 		root_ip, '/share/scripts')
 
 	print 'make init scripts executable'
+
 	shell.ssh(root_ip, 'chmod 755 /share/scripts/*.sh')
 
 	shell.ssh(root_ip, '/share/scripts/init-image/100-init.sh')

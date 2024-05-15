@@ -2,17 +2,16 @@ function requireRoot(p) {
 	return require('../../' + p);
 }
 
-const expect = require('chai').expect;
-const log = require('mocha-logger');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+const expect    = require('chai').expect;
+const log       = require('mocha-logger');
+const util      = require('util');
+const exec      = util.promisify(require('child_process').exec);
 const puppeteer = require('puppeteer');
-
-const dom = requireRoot('lib/dom');
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
-const wp = requireRoot('lib/wp');
+const dom       = requireRoot('lib/dom');
+const env       = requireRoot('lib/environment');
+const sys       = requireRoot('lib/sys');
+const w3tc      = requireRoot('lib/w3tc');
+const wp        = requireRoot('lib/wp');
 
 /**environments: environments('blog') */
 
@@ -20,28 +19,43 @@ describe('', function() {
 	this.timeout(sys.suiteTimeout);
 	after(sys.after);
 
-
-
 	before(async() => {
-		global.adminPage = null;
-		global.page = null;
-		global.browser = await puppeteer.launch({
+		global.browserI  = await puppeteer.launch({
 			ignoreHTTPSErrors: true,
-			args: ['--no-sandbox']
+			args: [
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				'--disable-dev-shm-usage',
+				'--disable-accelerated-2d-canvas',
+				'--no-first-run',
+				'--no-zygote',
+				'--disable-gpu',
+				'--incognito'
+			]
+		});
+
+		global.browser  = await puppeteer.launch({
+			ignoreHTTPSErrors: true,
+			args: [
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				'--disable-dev-shm-usage',
+				'--disable-accelerated-2d-canvas',
+				'--no-first-run',
+				'--no-zygote',
+				'--disable-gpu',
+			]
 		});
 
 		await sys.restoreStateW3tcInactive();
 
 		global.adminPage = await browser.newPage();
-		adminPage.setViewport({width: 1187, height: 1000});
+		adminPage.setViewport({width: 1900, height: 1000});
 		await wp.login(adminPage);
 
-		const context = await browser.createIncognitoBrowserContext();
-		global.page = await context.newPage();
-		page.setViewport({width: 1187, height: 1000});
+		global.page = await browserI.newPage();
+		page.setViewport({width: 1900, height: 1000});
 	});
-
-
 
 	it('activate w3tc', async() => {
 		await wp.networkActivatePlugin(adminPage, 'w3-total-cache/w3-total-cache.php');
@@ -54,11 +68,7 @@ describe('', function() {
 
 	it('check page caching works', expectPageCachingWorks);
 
-
-
-	//
-	// checking with changed rights
-	//
+	// Checking with changed rights.
 	it('restore initial state with locked permissions', async() => {
 		await sys.restoreStateW3tcInactive();
 
@@ -109,25 +119,20 @@ describe('', function() {
 	it('check page caching works', expectPageCachingWorks);
 });
 
-
-
 async function expectPageCachingWorks() {
-	// fill the cache (twice to pass through w3tc=repeat)
+	// Fill the cache (twice to pass through w3tc=repeat).
 	log.log('filling cache by requesting homepage');
 	await page.goto(env.homeUrl, {waitUntil: 'domcontentloaded'});
 	await page.goto(env.homeUrl, {waitUntil: 'domcontentloaded'});
 
-	// trying to write a dummy word into the cached file
-	await w3tc.updateCacheEntry(adminPage, env.homeUrl, false, 'file', 'disk');
-	//box.onPageChangedOutside(test);
+	// Trying to write a dummy word into the cached file.
+	await w3tc.updateCacheEntry(adminPage, env.homeUrl, false, 'file', 'Disk');
 
 	log.log('checking content of updated cache entry');
 	await page.goto(env.homeUrl, {waitUntil: 'domcontentloaded'});
 	const html = await page.content();
 	expect(html).contain('Test of cache');
 }
-
-
 
 async function setBasicOptions() {
 	await w3tc.setOptions(adminPage, 'w3tc_general', {
@@ -138,8 +143,6 @@ async function setBasicOptions() {
 		browsercache__enabled: false
 	});
 }
-
-
 
 async function fillFtpForm() {
 	expect(await adminPage.$('.w3tc-show-ftp-form')).not.null;
@@ -158,6 +161,6 @@ async function fillFtpForm() {
 	let upgradeButton = '#upgrade';
 	await Promise.all([
 		adminPage.evaluate((upgradeButton) => document.querySelector(upgradeButton).click(), upgradeButton),
-		adminPage.waitForNavigation({timeout:0})
+		adminPage.waitForNavigation({timeout: 300000})
 	]);
 }
