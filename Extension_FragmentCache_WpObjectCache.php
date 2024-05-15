@@ -327,6 +327,11 @@ class Extension_FragmentCache_WpObjectCache {
 		}
 	}
 
+	/**
+	 * Flushes runtime.
+	 *
+	 * @return bool
+	 */
 	public function flush_runtime() {
 		$this->cache = array();
 

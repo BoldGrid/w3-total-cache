@@ -339,8 +339,8 @@ $keys = array(
 		'default' => 0
 	),
 	'objectcache.groups.global' => array(
-		'type' => 'array',
-		'default' => array()
+		'type'    => 'array',
+		'default' => array(),
 	),
 	'objectcache.groups.nonpersistent' => array(
 		'type' => 'array',

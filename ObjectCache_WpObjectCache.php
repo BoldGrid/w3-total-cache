@@ -184,6 +184,11 @@ class ObjectCache_WpObjectCache {
 		return $result;
 	}
 
+	/**
+	 * Flush group.
+	 *
+	 * @return boolean
+	 */
 	function flush_group( $group ) {
 		$result = true;
 		foreach ( $this->_caches as $engine )
@@ -191,6 +196,11 @@ class ObjectCache_WpObjectCache {
 		return $result;
 	}
 
+	/**
+	 * Flush runtime.
+	 *
+	 * @return boolean
+	 */
 	function flush_runtime() {
 		$result = true;
 		foreach ( $this->_caches as $engine )

@@ -163,10 +163,12 @@ class ObjectCache_WpObjectCache_Regular {
 
 			$cache_total_inc = 1;
 
-			if ( is_array( $v ) &&
-					isset( $v['content'] ) &&
-					isset( $v['key_version_all'] ) &&
-					intval( $v['key_version_all'] ) >= $this->key_version_all_get() ) {
+			if (
+				is_array( $v )
+				&& isset( $v['content'] )
+				&& isset( $v['key_version_all'] )
+				&& intval( $v['key_version_all'] ) >= $this->key_version_all_get()
+			) {
 				$found = true;
 				$value = $v['content'];
 				$cache_hits_inc = 1;
@@ -310,14 +312,18 @@ class ObjectCache_WpObjectCache_Regular {
 				}
 			}
 
-			$v = array(
-				'content' => $data,
-				'key_version_all' => $this->key_version_all_get()
+			$v              = array(
+				'content'         => $data,
+				'key_version_all' => $this->key_version_all_get(),
 			);
 			$cache_sets_inc = 1;
-			$ext_return = $cache->set( $key, $v,
-				( $expire ? $expire : $this->_lifetime ), $group );
-			$return = $ext_return;
+			$ext_return     = $cache->set(
+				$key,
+				$v,
+				( $expire ? $expire : $this->_lifetime ),
+				$group
+			);
+			$return         = $ext_return;
 		}
 
 		if ( $this->_is_transient_group( $group ) &&
@@ -389,8 +395,9 @@ class ObjectCache_WpObjectCache_Regular {
 			return false;
 		}
 
-		$key = $this->_get_cache_key( $id, $group );
+		$key    = $this->_get_cache_key( $id, $group );
 		$return = true;
+
 		unset( $this->cache[$key] );
 
 		if ( $this->_caching && !in_array( $group, $this->nonpersistent_groups ) ) {
@@ -522,7 +529,7 @@ class ObjectCache_WpObjectCache_Regular {
 				$this->key_version_all_increment( $blog->userblog_id );
 			}
 		} else {
-			if ( $this->_blog_id != 0 ) {
+			if ( 0 !== $this->_blog_id ) {
 				$this->key_version_all_increment( 0 );
 			}
 
@@ -551,6 +558,11 @@ class ObjectCache_WpObjectCache_Regular {
 		return true;
 	}
 
+	/**
+	 * Flush runtime.
+	 *
+	 * @return boolean
+	 */
 	public function flush_runtime() {
 		$this->cache = array();
 
@@ -559,25 +571,33 @@ class ObjectCache_WpObjectCache_Regular {
 			$this->time_total += $time;
 
 			if ( $this->_debug ) {
-				$this->log_call( array(
-					date( 'r' ),
-					'flush_runtime',
-					'',
-					'',
-					'',
-					0,
-					0
-				) );
+				$this->log_call(
+					array(
+						gmdate( 'r' ),
+						'flush_runtime',
+						'',
+						'',
+						'',
+						0,
+						0,
+					)
+				);
 			}
 		}
 
 		return true;
 	}
 
+	/**
+	 * Flush group.
+	 *
+	 * @return boolean
+	 */
 	public function flush_group( $group ) {
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
+
 		if ( $this->_config->get_boolean( 'objectcache.debug_purge' ) ) {
 			Util_Debug::log_purge( 'objectcache', 'flush', $reason );
 		}
@@ -585,13 +605,14 @@ class ObjectCache_WpObjectCache_Regular {
 		$this->cache = array();
 
 		global $w3_multisite_blogs;
+
 		if ( isset( $w3_multisite_blogs ) ) {
 			foreach ( $w3_multisite_blogs as $blog ) {
 				$cache = $this->_get_cache( $blog->userblog_id );
 				$cache->flush( $group );
 			}
 		} else {
-			if ( $this->_blog_id != 0 ) {
+			if ( 0 !== $this->_blog_id ) {
 				$cache = $this->_get_cache( 0 );
 				$cache->flush( $group );
 			}
@@ -608,15 +629,17 @@ class ObjectCache_WpObjectCache_Regular {
 			$this->time_total += $time;
 
 			if ( $this->_debug ) {
-				$this->log_call( array(
-					date( 'r' ),
-					'flush_group',
-					'',
-					'',
-					'',
-					0,
-					(int)($time * 1000000)
-				) );
+				$this->log_call(
+					array(
+						date( 'r' ),
+						'flush_group',
+						'',
+						'',
+						'',
+						0,
+						(int) ( $time * 1000000 ),
+					)
+				);
 			}
 		}
 
@@ -815,23 +838,36 @@ class ObjectCache_WpObjectCache_Regular {
 		$this->_blog_id = $blog_id;
 	}
 
+	/**
+	 * Global key fetch.
+	 *
+	 * @param integer $blog_id Blog ID.
+	 *
+	 * @return string
+	 */
 	private function key_version_all_get( $blog_id = null ) {
 		if ( is_null( $this->key_version_all ) ) {
 			$cache = $this->_get_cache( $blog_id, 'key_version_all' );
-			$v = $cache->get( 'key_version_all', 'key_version_all' );
+			$v     = $cache->get( 'key_version_all', 'key_version_all' );
 
-			$this->key_version_all = empty( $v['content'] ) ? 1 :
-				max( 1, intval( $v['content'] ) );
+			$this->key_version_all = empty( $v['content'] ) ? 1 : max( 1, intval( $v['content'] ) );
 		}
 
 		return $this->key_version_all;
 	}
 
+	/**
+	 * Global key increment.
+	 *
+	 * @param integer $blog_id Blog ID.
+	 *
+	 * @return void
+	 */
 	private function key_version_all_increment( $blog_id = null ) {
 		$cache = $this->_get_cache( $blog_id, 'key_version_all' );
 		$cache->set(
 			'key_version_all',
-			$a = array( 'content' => $this->key_version_all_get( $blog_id ) + 1 ),
+			array( 'content' => $this->key_version_all_get( $blog_id ) + 1 ),
 			0,
 			'key_version_all'
 		);
