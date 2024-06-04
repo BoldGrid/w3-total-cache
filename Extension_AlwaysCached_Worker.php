@@ -74,17 +74,18 @@ class Extension_AlwaysCached_Worker {
 	 * @since X.X.X
 	 *
 	 * @param array $item Item.
+	 * @param bool  $ajax Ajax flag.
 	 *
 	 * @return string
 	 */
-	private static function process_item( $item ) {
+	public static function process_item( $item, $ajax = false ) {
 		if ( ':flush_group.regenerate' === $item['key'] ) {
-			return self::process_item_flush_group_regenerate( $item );
+			return self::process_item_flush_group_regenerate( $item, $ajax );
 		} elseif ( ':flush_group.remainder' === $item['key'] ) {
-			return self::process_item_flush_group_remainder( $item );
+			return self::process_item_flush_group_remainder( $item, $ajax );
 		}
 
-		return self::process_item_url( $item );
+		return self::process_item_url( $item, $ajax );
 	}
 
 	/**
@@ -93,17 +94,20 @@ class Extension_AlwaysCached_Worker {
 	 * @since X.X.X
 	 *
 	 * @param array $item Item.
+	 * @param bool  $ajax Ajax flag.
 	 *
 	 * @return string
 	 */
-	private static function process_item_url( $item ) {
-		echo esc_html(
-			sprintf(
-				// translators: 1 item URL.
-				__( 'regenerate %s... ', 'w3-total-cache' ),
-				$item['url']
-			)
-		);
+	private static function process_item_url( $item, $ajax = false ) {
+		if ( ! $ajax) {
+			echo esc_html(
+				sprintf(
+					// translators: 1 item URL.
+					__( 'regenerate %s... ', 'w3-total-cache' ),
+					$item['url']
+				)
+			);
+		}
 
 		$result = wp_remote_request(
 			$item['url'],
@@ -125,7 +129,9 @@ class Extension_AlwaysCached_Worker {
 		}
 
 		if ( empty( $result['headers'] ) || empty( $result['headers']['w3tcalwayscached'] ) ) {
-			esc_html_e( "\n  no evidence of cache refresh, will reprocess on next schedule/run\n  ", 'w3-total-cache' );
+			if ( ! $ajax ) {
+				esc_html_e( "\n  no evidence of cache refresh, will reprocess on next schedule/run\n  ", 'w3-total-cache' );
+			}
 			return 'failed';
 		}
 
@@ -138,16 +144,19 @@ class Extension_AlwaysCached_Worker {
 	 * @since X.X.X
 	 *
 	 * @param array $item Item.
+	 * @param bool  $ajax Ajax flag.
 	 *
 	 * @return string
 	 */
-	private static function process_item_flush_group_regenerate( $item ) {
+	private static function process_item_flush_group_regenerate( $item, $ajax = false ) {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 		$item_extension = @unserialize( $item['extension'] );
 
 		$c = Dispatcher::config();
 
-		esc_html_e( "\n  building purge-all urls to regenerate\n  ", 'w3-total-cache' );
+		if ( ! $ajax ) {
+			esc_html_e( "\n  building purge-all urls to regenerate\n  ", 'w3-total-cache' );
+		}
 
 		if ( $c->get_boolean( array( 'alwayscached', 'flush_all_home' ) ) ) {
 			Extension_AlwaysCached_Queue::add( rtrim( home_url(), '/' ) . '/', $item_extension );
@@ -196,10 +205,11 @@ class Extension_AlwaysCached_Worker {
 	 * @since X.X.X
 	 *
 	 * @param array $item Item.
+	 * @param bool  $ajax Ajax flag.
 	 *
 	 * @return string
 	 */
-	private static function process_item_flush_group_remainder( $item ) {
+	private static function process_item_flush_group_remainder( $item, $ajax = false ) {
 		/**
 		 * Cant flush when something is still going to be regenerated
 		 * in order to prevent pages which are going to be regenerated

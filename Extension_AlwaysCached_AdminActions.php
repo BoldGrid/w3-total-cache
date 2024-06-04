@@ -64,6 +64,25 @@ class Extension_AlwaysCached_AdminActions {
 	}
 
 	/**
+	 * Process queue item.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_alwayscached_process_item() {
+		Extension_AlwaysCached_Worker::run();
+
+		Util_Admin::redirect_with_custom_messages2(
+			array(
+				'notes' => array(
+					'alwayscached_process' => __( 'Queue successfully processed.', 'w3-total-cache' ),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Process queue.
 	 *
 	 * @since X.X.X

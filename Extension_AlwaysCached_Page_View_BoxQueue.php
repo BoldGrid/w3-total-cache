@@ -26,7 +26,7 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 		<tr>
 			<th style="width: 300px;">
 				<label>
-					<?php esc_html_e( 'Pending pages in a queue:', 'w3-total-cache' ); ?>
+					<?php esc_html_e( 'Pending pages in queue:', 'w3-total-cache' ); ?>
 				</label>
 			</th>
 			<td>
@@ -36,14 +36,14 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 					<a href="#" class="w3tc_alwayscached_queue" data-mode="pending">
 						<?php esc_html_e( 'View', 'w3-total-cache' ); ?>
 					</a>
-					<section></section>
+					<section class="w3tc_alwayscached_queue_section"></section>
 				<?php endif ?>
 			</td>
 		</tr>
 		<tr>
 			<th>
 				<label>
-					<?php esc_html_e( 'Postponed pages in a queue:', 'w3-total-cache' ); ?>
+					<?php esc_html_e( 'Postponed pages in queue:', 'w3-total-cache' ); ?>
 				</label>
 			</th>
 			<td>
@@ -53,7 +53,7 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 					<a href="#" class="w3tc_alwayscached_queue" data-mode="postponed">
 						<?php esc_html_e( 'View', 'w3-total-cache' ); ?>
 					</a>
-					<section></section>
+					<section class="w3tc_alwayscached_queue_section"></section>
 				<?php endif ?>
 			</td>
 		</tr>

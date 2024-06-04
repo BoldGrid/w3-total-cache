@@ -64,6 +64,42 @@ class Extension_AlwaysCached_Page {
 				'w3tc_ajax_extension_alwayscached_queue',
 			)
 		);
+
+		add_action(
+			'w3tc_ajax_extension_alwayscached_queue_filter',
+			array(
+				'\W3TC\Extension_AlwaysCached_Page',
+				'w3tc_ajax_extension_alwayscached_queue_filter',
+			)
+		);
+
+		add_action(
+			'w3tc_ajax_extension_alwayscached_process_queue_item',
+			array(
+				'\W3TC\Extension_AlwaysCached_Page',
+				'w3tc_ajax_extension_alwayscached_process_queue_item',
+			)
+		);
+	}
+
+	/**
+	 * Regenerates queue item.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public static function w3tc_ajax_extension_alwayscached_process_queue_item() {
+		$item_url = Util_Request::get_string( 'item_url' );
+		$item     = Extension_AlwaysCached_Queue::get_by_url( $item_url );
+		$result   = Extension_AlwaysCached_Worker::process_item( $item, true );
+
+		if ( 'ok' === $result ) {
+			Extension_AlwaysCached_Queue::pop_item_finish( $item, true );
+			wp_send_json_success( 'ok' );
+		} else {
+			wp_send_json_error( 'failed' );
+		}
 	}
 
 	/**
@@ -76,5 +112,35 @@ class Extension_AlwaysCached_Page {
 	public static function w3tc_ajax_extension_alwayscached_queue() {
 		include W3TC_DIR . '/Extension_AlwaysCached_Page_Queue_View.php';
 		exit();
+	}
+
+	/**
+	 * Queue filter & pagination.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public static function w3tc_ajax_extension_alwayscached_queue_filter() {
+		$queue_mode   = Util_Request::get_string( 'mode' );
+		$search_query = Util_Request::get_string( 'search', '' );
+		$current_page = Util_Request::get_integer( 'page', 1 );
+		$limit        = 15;
+		$offset       = ( $current_page - 1 ) * $limit;
+		$rows         = Extension_AlwaysCached_Queue::rows( $queue_mode, $offset, $limit, $search_query );
+
+		if ( 'postponed' === $queue_mode ) {
+			$total_rows = Extension_AlwaysCached_Queue::row_count_postponed( $search_query );
+		} else {
+			$total_rows = Extension_AlwaysCached_Queue::row_count_pending( $search_query );
+		}
+
+		wp_send_json(
+			array(
+				'rows'         => $rows,
+				'total_pages'  => ceil( $total_rows / $limit ),
+				'current_page' => $current_page,
+			)
+		);
 	}
 }

@@ -184,11 +184,14 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @since X.X.X
 	 *
-	 * @param string $mode Queue mode.
+	 * @param string  $mode         Queue mode.
+	 * @param integer $offset       Pagination offset.
+	 * @param integer $limit        Pagination page entries limit.
+	 * @param string  $search_query Search query.
 	 *
 	 * @return array|object|null
 	 */
-	public static function rows( $mode ) {
+	public static function rows( $mode, $offset = 0, $limit = 15, $search_query = '' ) {
 		global $wpdb;
 
 		$table = self::table_name();
@@ -199,9 +202,13 @@ class Extension_AlwaysCached_Queue {
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT * FROM `$table` WHERE to_process $comp %s
+					AND url LIKE %s
 					ORDER BY priority, to_process
-					LIMIT 50",
-				gmdate( 'Y-m-d G:i:s' )
+					LIMIT %d OFFSET %d",
+				gmdate( 'Y-m-d G:i:s' ),
+				'%' . $wpdb->esc_like( $search_query ) . '%',
+				$limit,
+				$offset
 			),
 			ARRAY_A
 		);
@@ -212,9 +219,11 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @since X.X.X
 	 *
+	 * @param string $search_query Search query.
+	 *
 	 * @return string|null
 	 */
-	public static function row_count_pending() {
+	public static function row_count_pending( $search_query = '' ) {
 		global $wpdb;
 
 		$table = self::table_name();
@@ -223,8 +232,10 @@ class Extension_AlwaysCached_Queue {
 		return $wpdb->get_var(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT COUNT(*) FROM `$table` WHERE to_process < %s",
-				gmdate( 'Y-m-d G:i:s' )
+				"SELECT COUNT(*) FROM `$table` WHERE to_process < %s
+					AND url LIKE %s",
+				gmdate( 'Y-m-d G:i:s' ),
+				'%' . $wpdb->esc_like( $search_query ) . '%'
 			)
 		);
 	}
@@ -234,9 +245,11 @@ class Extension_AlwaysCached_Queue {
 	 *
 	 * @since X.X.X
 	 *
+	 * @param string $search_query Search query.
+	 *
 	 * @return string|null
 	 */
-	public static function row_count_postponed() {
+	public static function row_count_postponed( $search_query = '' ) {
 		global $wpdb;
 
 		$table = self::table_name();
@@ -245,8 +258,10 @@ class Extension_AlwaysCached_Queue {
 		return $wpdb->get_var(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT COUNT(*) FROM `$table` WHERE to_process >= %s",
-				gmdate( 'Y-m-d G:i:s' )
+				"SELECT COUNT(*) FROM `$table` WHERE to_process >= %s
+					AND url LIKE %s",
+				gmdate( 'Y-m-d G:i:s' ),
+				'%' . $wpdb->esc_like( $search_query ) . '%'
 			)
 		);
 	}

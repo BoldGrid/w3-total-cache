@@ -10,7 +10,7 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	 *
 	 * @var integer
 	 */
-	var $processed_count = 0;
+	private $processed_count = 0;
 
 	/**
 	 * Cache expire time

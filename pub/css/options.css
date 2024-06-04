@@ -346,6 +346,24 @@ textarea.w3tc-error {
 	padding: 10px 10px 10px 15px;
 }
 
+.w3tc_alwayscached_queue_view_table {
+	margin-top: 10px;
+}
+
+.w3tc_alwayscached_queue_view_table th {
+	font-weight: 600 !important;
+}
+
+.w3tc_alwayscached_queue_view_table th,
+.w3tc_alwayscached_queue_view_table td {
+	padding: 3px 10px !important;
+}
+
+.w3tc_alwayscached_queue_item {
+	color: #2271b1;
+	cursor: pointer;
+}
+
 #mobile_groups li,
 #referrer_groups li,
 .w3tc_cachegroups li,
@@ -377,6 +395,43 @@ textarea.w3tc-error {
 .referrer_group,
 .cookiegroup_name {
 	font-weight: bold;
+}
+
+.w3tc_alwayscached_queue_section {
+	display: none;
+	padding: 10px;
+	background: #f9f9f9;
+	margin-top: 1em;
+	border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+}
+
+.w3tc_alwayscached_queue_view_table .w3tc_alwayscached_regen_item {
+	text-decoration: none;
+}
+
+.w3tc_alwayscached_queue_view_pagination_page_input {
+	width: 90px;
+}
+
+.w3tc_alwayscached_queue_view_pagination_page_input,
+.w3tc_alwayscached_queue_view_pagination_page_input_submit {
+	margin-top: 10px !important;
+}
+
+.w3tc_alwayscached_queue_view_pagination_container {
+	margin-top: 10px;
+}
+
+.w3tc_alwayscached_queue_view_pagination_container a {
+	padding: 0 3px;
+}
+
+.w3tc_alwayscached_queue_view_pagination_container a.active {
+	color: #3c434a;
+	text-decoration: none;
+	pointer-events: none;
 }
 
 #remove_cssjs_singles_empty {

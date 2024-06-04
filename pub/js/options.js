@@ -1665,9 +1665,7 @@ jQuery(function() {
 
 		// Log if the admin notice containing the renew license button is present.
 		if (jQuery('.button-renew-plugin').length > 0) {
-			alert('it is here');
 			if (window.w3tc_ga) {
-				alert('fire');
 				w3tc_ga(
 					'event',
 					'w3tc_error',

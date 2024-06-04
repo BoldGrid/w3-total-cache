@@ -30,17 +30,18 @@ $disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 					'alwayscached',
 					'flush_all',
 				),
-				'label'          => esc_html__( 'Handle Purge All Requests', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Queue Purge All Requests', 'w3-total-cache' ),
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
-				'description'    => esc_html__( 'Handle Purge All Requests', 'w3-total-cache' ),
+				'description'    => esc_html__( 'With this enabled, the "Purge All Caches" action will instead queue items based on the below settings. If this is NOT enabled, the "Flush All" action will purge all caches and clear all queue entries as pending changes will be applied.', 'w3-total-cache' ),
 			)
 		);
 
 		?>
 		<tr>
 			<th></th>
-			<td><strong>On Purge All, regenerate:</strong></td>
+			
+			<td><strong><?php esc_html_e( 'When Queue is processed, regenerate:', 'w3-total-cache' ); ?></strong></td>
 		</tr>
 		<?php
 

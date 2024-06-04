@@ -119,6 +119,7 @@ class Extension_AlwaysCached_Plugin {
 			$o['request_url_fragments']['querystring'];
 
 		$queue_item = Extension_AlwaysCached_Queue::get_by_url( $url );
+
 		if ( ! empty( $queue_item ) ) {
 			$this->request_queue_item_extension = @unserialize( $queue_item['extension'] );
 			header( 'w3tcalwayscached: ' . ( empty( $queue_item ) ? 'none' : $queue_item['key'] ) );
@@ -149,7 +150,7 @@ class Extension_AlwaysCached_Plugin {
 	}
 
 	/**
-	 * Adds AlwaysCached Apache rules.
+	 * Flush URL.
 	 *
 	 * Data format expected:
 	 * array(
@@ -205,9 +206,11 @@ class Extension_AlwaysCached_Plugin {
 	 * @return array
 	 */
 	public function w3tc_pagecache_flush_all_groups( $groups ) {
-		// only empty group catched, which is regular pages.
 		$c = Dispatcher::config();
+
+		// Flush all action will purge the queue as any queued changes will now be live.
 		if ( ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) ) ) {
+			Extension_AlwaysCached_Queue::empty();
 			return $groups;
 		}
 
