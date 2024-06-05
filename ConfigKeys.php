@@ -709,8 +709,7 @@ $keys = array(
 	'pgcache.cookiegroups.groups' => array(
 		'type' => 'array',
 		'default' => array(
-			array(
-				'name' => 'mobile',
+			'mobile' => array(
 				'enabled' => false,
 				'cache' => true,
 				'cookies' => array(
@@ -718,16 +717,14 @@ $keys = array(
 					'wptouch-pro-cache-state=mobile'
 				)
 			),
-			array(
-				'name' => 'loggedin',
+			'loggedin' => array(
 				'enabled' => false,
 				'cache' => true,
 				'cookies' => array(
 					'wordpress_logged_in_.*'
 				)
 			),
-			array(
-				'name' => 'subscribers',
+			'subscribers' => array(
 				'enabled' => false,
 				'cache' => true,
 				'cookies' => array(
@@ -2256,8 +2253,7 @@ $keys = array(
 	'mobile.rgroups' => array(
 		'type' => 'array',
 		'default' => array(
-			array(
-				'name' => 'tablets',
+			'tablets' => array(
 				'theme' => '',
 				'enabled' => false,
 				'redirect' => '',
@@ -2332,8 +2328,7 @@ $keys = array(
 					'voltaire'
 				)
 			),
-			array(
-				'name' => 'phones',
+			'phones' => array(
 				'theme' => '',
 				'enabled' => false,
 				'redirect' => '',
@@ -2501,8 +2496,7 @@ $keys = array(
 	'referrer.rgroups' => array(
 		'type' => 'array',
 		'default' => array(
-			array(
-				'name' => 'search_engines',
+			'search_engines' => array(
 				'theme' => '',
 				'enabled' => false,
 				'redirect' => '',

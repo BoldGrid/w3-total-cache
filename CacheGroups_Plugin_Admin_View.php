@@ -46,27 +46,19 @@ if ( ! defined( 'W3TC' ) ) {
 			$index = 0;
 
 			foreach ( $useragent_groups['value'] as $group => $group_config ) :
-				$group_config['name'] = ! empty( $group_config['name'] ) ? $group_config['name'] : $group;
 				$index++;
 				?>
 			<li id="mobile_group_<?php echo esc_attr( $group ); ?>">
 				<table class="form-table">
 					<tr>
 						<th>
-							<label for="mobile_groups_<?php echo esc_attr( $group ); ?>_name"><?php esc_html_e( 'Group Name:', 'w3-total-cache' ); ?></label>
+							<?php esc_html_e( 'Group name:', 'w3-total-cache' ); ?>
 						</th>
 						<td>
-							<span class="mobile_group_number"><?php echo esc_attr( $index ); ?>.</span>
-							<input id="mobile_groups_<?php echo esc_attr( $group ); ?>_name"
-								class="mobile_group_name" type="text"
-								name="mobile_groups[<?php echo esc_attr( $group ); ?>][name]"
-								value="<?php echo esc_attr( $group_config['name'] ); ?>"
-								<?php disabled( $useragent_groups['disabled'] ); ?>
-								size="60" />
+							<span class="mobile_group_number"><?php echo esc_attr( $index ); ?>.</span> <span class="mobile_group"><?php echo esc_html( $group ); // phpcs:ignore ?></span>
 							<input type="button" class="button mobile_delete"
 								value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>"
 								<?php disabled( $useragent_groups['disabled'] ); ?> />
-							<p class="description"><?php esc_html_e( 'Enter group name (only "0-9", "a-z", "_" symbols are allowed).', 'w3-total-cache' ); ?></p>
 						</td>
 					</tr>
 					<tr>
@@ -88,7 +80,6 @@ if ( ! defined( 'W3TC' ) ) {
 						</th>
 						<td>
 							<select id="mobile_groups_<?php echo esc_attr( $group ); ?>_theme"
-								class="mobile_group_theme"
 								name="mobile_groups[<?php echo esc_attr( $group ); ?>][theme]"
 								<?php disabled( $useragent_groups['disabled'] ); ?> >
 								<option value=""><?php esc_html_e( '-- Pass-through --', 'w3-total-cache' ); ?></option>
@@ -107,8 +98,7 @@ if ( ! defined( 'W3TC' ) ) {
 						</th>
 						<td>
 							<input id="mobile_groups_<?php echo esc_attr( $group ); ?>_redirect"
-								class="mobile_group_redirect" type="text"
-								name="mobile_groups[<?php echo esc_attr( $group ); ?>][redirect]"
+								type="text" name="mobile_groups[<?php echo esc_attr( $group ); ?>][redirect]"
 								value="<?php echo esc_attr( $group_config['redirect'] ); ?>"
 								<?php disabled( $useragent_groups['disabled'] ); ?>
 								size="60" />
@@ -121,7 +111,6 @@ if ( ! defined( 'W3TC' ) ) {
 						</th>
 						<td>
 							<textarea id="mobile_groups_<?php echo esc_attr( $group ); ?>_agents"
-								class="mobile_group_agents"
 								name="mobile_groups[<?php echo esc_attr( $group ); ?>][agents]"
 								rows="10" cols="50" <?php disabled( $useragent_groups['disabled'] ); ?>><?php echo esc_textarea( implode( "\r\n", (array) $group_config['agents'] ) ); ?></textarea>
 							<p class="description">
@@ -177,26 +166,16 @@ if ( ! defined( 'W3TC' ) ) {
 			$index = 0;
 
 			foreach ( $referrer_groups as $group => $group_config ) :
-				$group_config['name'] = ! empty( $group_config['name'] ) ? $group_config['name'] : $group;
 				$index++;
 				?>
 			<li id="referrer_group_<?php echo esc_attr( $group ); ?>">
 				<table class="form-table">
 					<tr>
 						<th>
-							<label for="referrer_groups_<?php echo esc_attr( $group ); ?>_name"><?php esc_html_e( 'Group Name:', 'w3-total-cache' ); ?></label>
+							<?php esc_html_e( 'Group name:', 'w3-total-cache' ); ?>
 						</th>
 						<td>
-							<span class="referrer_group_number"><?php echo esc_attr( $index ); ?>.</span>
-							<input id="referrer_groups_<?php echo esc_attr( $group ); ?>_name"
-								class="referrer_group_name" type="text"
-								name="referrer_groups[<?php echo esc_attr( $group ); ?>][name]"
-								value="<?php echo esc_attr( $group_config['name'] ); ?>"
-								<?php disabled( $useragent_groups['disabled'] ); ?>
-								size="60" />
-							<input type="button" class="button referrer_delete"
-								value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>" />
-							<p class="description"><?php esc_html_e( 'Enter group name (only "0-9", "a-z", "_" symbols are allowed).', 'w3-total-cache' ); ?></p>
+							<span class="referrer_group_number"><?php echo esc_attr( $index ); ?>.</span> <span class="referrer_group"><?php echo esc_html( $group ); ?></span> <input type="button" class="button referrer_delete" value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>" />
 						</td>
 					</tr>
 					<tr>
@@ -216,9 +195,7 @@ if ( ! defined( 'W3TC' ) ) {
 							<label for="referrer_groups_<?php echo esc_attr( $group ); ?>_theme"><?php esc_html_e( 'Theme:', 'w3-total-cache' ); ?></label>
 						</th>
 						<td>
-							<select id="referrer_groups_<?php echo esc_attr( $group ); ?>_theme"
-								class="referrer_group_theme"
-								name="referrer_groups[<?php echo esc_attr( $group ); ?>][theme]">
+							<select id="referrer_groups_<?php echo esc_attr( $group ); ?>_theme" name="referrer_groups[<?php echo esc_attr( $group ); ?>][theme]">
 								<option value=""><?php esc_html_e( '-- Pass-through --', 'w3-total-cache' ); ?></option>
 								<?php foreach ( $referrer_themes as $theme_key => $theme_name ) : ?>
 								<option value="<?php echo esc_attr( $theme_key ); ?>"<?php selected( $theme_key, $group_config['theme'] ); ?>><?php echo esc_html( $theme_name ); ?></option>
@@ -232,11 +209,7 @@ if ( ! defined( 'W3TC' ) ) {
 							<label for="referrer_groups_<?php echo esc_attr( $group ); ?>_redirect"><?php esc_html_e( 'Redirect users to:', 'w3-total-cache' ); ?></label>
 						</th>
 						<td>
-							<input id="referrer_groups_<?php echo esc_attr( $group ); ?>_redirect"
-								class="referrer_group_redirect" type="text"
-								name="referrer_groups[<?php echo esc_attr( $group ); ?>][redirect]"
-								value="<?php echo esc_attr( $group_config['redirect'] ); ?>"
-								size="60" />
+							<input id="referrer_groups_<?php echo esc_attr( $group ); ?>_redirect" type="text" name="referrer_groups[<?php echo esc_attr( $group ); ?>][redirect]" value="<?php echo esc_attr( $group_config['redirect'] ); ?>" size="60" />
 							<p class="description"><?php esc_html_e( 'A 302 redirect is used to send this group of referrers to another hostname (domain).', 'w3-total-cache' ); ?></p>
 						</td>
 					</tr>
@@ -245,13 +218,8 @@ if ( ! defined( 'W3TC' ) ) {
 							<label for="referrer_groups_<?php echo esc_attr( $group ); ?>_referrers"><?php esc_html_e( 'Referrers:', 'w3-total-cache' ); ?></label>
 						</th>
 						<td>
-							<textarea id="referrer_groups_<?php echo esc_attr( $group ); ?>_referrers"
-								class="referrer_group_referrers"
-								name="referrer_groups[<?php echo esc_attr( $group ); ?>][referrers]"
-								rows="10" cols="50"><?php echo esc_textarea( implode( "\r\n", (array) $group_config['referrers'] ) ); ?></textarea>
-							<p class="description">
-								<?php esc_html_e( 'Specify the referrers for this group. Remember to escape special characters like spaces, dots or dashes with a backslash. Regular expressions are also supported.', 'w3-total-cache' ); ?>
-							</p>
+							<textarea id="referrer_groups_<?php echo esc_attr( $group ); ?>_referrers" name="referrer_groups[<?php echo esc_attr( $group ); ?>][referrers]" rows="10" cols="50"><?php echo esc_textarea( implode( "\r\n", (array) $group_config['referrers'] ) ); ?></textarea>
+							<p class="description"><?php esc_html_e( 'Specify the referrers for this group. Remember to escape special characters like spaces, dots or dashes with a backslash. Regular expressions are also supported.', 'w3-total-cache' ); ?></p>
 						</td>
 					</tr>
 				</table>
@@ -268,7 +236,7 @@ if ( ! defined( 'W3TC' ) ) {
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Manage Cookie Groups', 'w3-total-cache' ), '', 'manage-cg' ); ?>
 		<p>
-			<input id="cookiegroup_add" type="button" class="button"
+			<input id="w3tc_cookiegroup_add" type="button" class="button"
 				<?php disabled( $cookie_groups['disabled'] ); ?>
 				value="<?php esc_html_e( 'Create a group', 'w3-total-cache' ); ?>" />
 			<?php esc_html_e( 'of Cookies by specifying names in the Cookies field. Assign a set of Cookies to ensure that a unique cache is created for each Cookie group. Drag and drop groups into order (if needed) to determine their priority (top -&gt; down).', 'w3-total-cache' ); ?>
@@ -278,27 +246,20 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php
 			$index = 0;
 			foreach ( $cookie_groups['value'] as $group => $group_config ) :
-				$group_config['name'] = ! empty( $group_config['name'] ) ? $group_config['name'] : $group;
 				$index++;
 				?>
 			<li id="cookiegroup_<?php echo esc_attr( $group ); ?>">
 				<table class="form-table">
 					<tr>
 						<th>
-							<label for="cookiegroups_<?php echo esc_attr( $group ); ?>_name"><?php esc_html_e( 'Group Name:', 'w3-total-cache' ); ?></label>
+							<?php esc_html_e( 'Group name:', 'w3-total-cache' ); ?>
 						</th>
 						<td>
 							<span class="cookiegroup_number"><?php echo esc_attr( $index ); ?>.</span>
-							<input id="cookiegroups_<?php echo esc_attr( $group ); ?>_name"
-								class="cookiegroup_name" type="text"
-								name="cookiegroups[<?php echo esc_attr( $group ); ?>][name]"
-								value="<?php echo esc_attr( $group_config['name'] ); ?>"
-								<?php disabled( $useragent_groups['disabled'] ); ?>
-								size="60" />
-							<input type="button" class="button cookiegroup_delete"
+							<span class="cookiegroup_name"><?php echo htmlspecialchars( $group ); // phpcs:ignore ?></span>
+							<input type="button" class="button w3tc_cookiegroup_delete"
 								value="<?php esc_html_e( 'Delete group', 'w3-total-cache' ); ?>"
-								<?php disabled( $useragent_groups['disabled'] ); ?> />
-							<p class="description"><?php esc_html_e( 'Enter group name (only "0-9", "a-z", "_" symbols are allowed).', 'w3-total-cache' ); ?></p>
+								<?php disabled( $cookie_groups['disabled'] ); ?> />
 						</td>
 					</tr>
 					<tr>
@@ -323,7 +284,7 @@ if ( ! defined( 'W3TC' ) ) {
 						</th>
 						<td>
 							<input id="cookiegroup_<?php echo esc_attr( $group ); ?>_cache"
-								class="cookiegroup_cache" type="checkbox"
+								type="checkbox"
 								name="cookiegroups[<?php echo esc_attr( $group ); ?>][cache]"
 								<?php disabled( $cookie_groups['disabled'] ); ?> value="1"
 								<?php checked( $group_config['cache'], true ); ?> /> <?php esc_html_e( 'Enable', 'w3-total-cache' ); ?>
@@ -338,7 +299,6 @@ if ( ! defined( 'W3TC' ) ) {
 						</th>
 						<td>
 							<textarea id="cookiegroup_<?php echo esc_attr( $group ); ?>_cookies"
-								class="cookiegroup_cookies"
 								name="cookiegroups[<?php echo esc_attr( $group ); ?>][cookies]"
 								rows="10" cols="50" <?php disabled( $cookie_groups['disabled'] ); ?>><?php echo esc_textarea( implode( "\r\n", (array) $group_config['cookies'] ) ); ?></textarea>
 							<p class="description">
