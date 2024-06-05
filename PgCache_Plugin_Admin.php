@@ -94,7 +94,7 @@ class PgCache_Plugin_Admin {
 						'.htaccess'
 					),
 					'cache_dir' => $flush_dir,
-					'expire' => $this->_config->get_integer( 'browsercache.html.lifetime' ),
+					'expire' => $this->_config->get_integer( 'pgcache.lifetime' ),
 					'clean_timelimit' => $this->_config->get_integer( 'timelimit.cache_gc' )
 				) );
 
