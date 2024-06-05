@@ -573,7 +573,7 @@ class PgCache_Environment {
 		if ( $config->get_boolean( 'mobile.enabled' ) ) {
 			$mobile_groups = $config->get_array( 'mobile.rgroups' );
 
-			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
+			foreach ( $mobile_groups as $index => $mobile_config ) {
 				$mobile_enabled = ( isset( $mobile_config['enabled'] ) ? (boolean) $mobile_config['enabled'] : false );
 				$mobile_agents = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
 				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
@@ -591,7 +591,7 @@ class PgCache_Environment {
 		if ( $config->get_boolean( 'referrer.enabled' ) ) {
 			$referrer_groups = $config->get_array( 'referrer.rgroups' );
 
-			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
+			foreach ( $referrer_groups as $index => $referrer_config ) {
 				$referrer_enabled = ( isset( $referrer_config['enabled'] ) ? (boolean) $referrer_config['enabled'] : false );
 				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
 				$referrer_redirect = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
@@ -609,14 +609,15 @@ class PgCache_Environment {
 		if ( $config->get_boolean( 'mobile.enabled' ) ) {
 			$mobile_groups = array_reverse( $config->get_array( 'mobile.rgroups' ) );
 
-			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
+			foreach ( $mobile_groups as $index => $mobile_config ) {
+				$mobile_name = ( isset( $mobile_config['name'] ) ? $mobile_config['name'] : '' );
 				$mobile_enabled = ( isset( $mobile_config['enabled'] ) ? (boolean) $mobile_config['enabled'] : false );
 				$mobile_agents = ( isset( $mobile_config['agents'] ) ? (array) $mobile_config['agents'] : '' );
 				$mobile_redirect = ( isset( $mobile_config['redirect'] ) ? $mobile_config['redirect'] : '' );
 
 				if ( $mobile_enabled && count( $mobile_agents ) && !$mobile_redirect ) {
 					$rules .= "    RewriteCond %{HTTP_USER_AGENT} (" . implode( '|', $mobile_agents ) . ") [NC]\n";
-					$rules .= "    RewriteRule .* - [E=W3TC_UA:_" . $mobile_group . "]\n";
+					$rules .= "    RewriteRule .* - [E=W3TC_UA:_" . $mobile_name . "]\n";
 					$env_W3TC_UA = '%{ENV:W3TC_UA}';
 				}
 			}
@@ -628,14 +629,15 @@ class PgCache_Environment {
 		if ( $config->get_boolean( 'referrer.enabled' ) ) {
 			$referrer_groups = array_reverse( $config->get_array( 'referrer.rgroups' ) );
 
-			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
+			foreach ( $referrer_groups as $index => $referrer_config ) {
+				$referrer_name = ( isset( $referrer_config['name'] ) ? $referrer_config['name'] : '' );
 				$referrer_enabled = ( isset( $referrer_config['enabled'] ) ? (boolean) $referrer_config['enabled'] : false );
 				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ? (array) $referrer_config['referrers'] : '' );
 				$referrer_redirect = ( isset( $referrer_config['redirect'] ) ? $referrer_config['redirect'] : '' );
 
 				if ( $referrer_enabled && count( $referrer_referrers ) && !$referrer_redirect ) {
 					$rules .= "    RewriteCond %{HTTP_COOKIE} w3tc_referrer=.*(" . implode( '|', $referrer_referrers ) . ") [NC]\n";
-					$rules .= "    RewriteRule .* - [E=W3TC_REF:_" . $referrer_group . "]\n";
+					$rules .= "    RewriteRule .* - [E=W3TC_REF:_" . $referrer_name . "]\n";
 					$env_W3TC_REF = '%{ENV:W3TC_REF}';
 				}
 			}
@@ -647,10 +649,11 @@ class PgCache_Environment {
 		if ( $config->get_boolean( 'pgcache.cookiegroups.enabled' ) ) {
 			$cookie_groups = $config->get_array( 'pgcache.cookiegroups.groups' );
 
-			foreach ( $cookie_groups as $group_name => $g ) {
-				if ( isset( $g['enabled'] ) && $g['enabled'] ) {
+			foreach ( $cookie_groups as $index => $group_config ) {
+				if ( isset( $group_config['enabled'] ) && $group_config['enabled'] ) {
+					$cookie_name = ( isset( $group_config['name'] ) ? $group_config['name'] : '' );
 					$cookies = array();
-					foreach ($g['cookies'] as $cookie ) {
+					foreach ($group_config['cookies'] as $cookie ) {
 						$cookie = trim( $cookie );
 						if ( !empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
@@ -664,7 +667,7 @@ class PgCache_Environment {
 					if ( count( $cookies ) > 0 ) {
 						$cookies_regexp = '^(.*;\s*)?(' . implode( '|', $cookies ) . ')(\s*;.*)?$';
 						$rules .= "    RewriteCond %{HTTP_COOKIE} $cookies_regexp [NC]\n";
-						$rules .= "    RewriteRule .* - [E=W3TC_COOKIE:_" . $group_name . "]\n";
+						$rules .= "    RewriteRule .* - [E=W3TC_COOKIE:_" . $cookie_name . "]\n";
 						$env_W3TC_COOKIE = '%{ENV:W3TC_COOKIE}';
 					}
 				}
@@ -918,7 +921,7 @@ class PgCache_Environment {
 		if ( $config->get_boolean( 'mobile.enabled' ) ) {
 			$mobile_groups = $config->get_array( 'mobile.rgroups' );
 
-			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
+			foreach ( $mobile_groups as $index => $mobile_config ) {
 				$mobile_enabled = ( isset( $mobile_config['enabled'] ) ?
 					(boolean) $mobile_config['enabled'] : false );
 				$mobile_agents = ( isset( $mobile_config['agents'] ) ?
@@ -941,7 +944,7 @@ class PgCache_Environment {
 		if ( $config->get_boolean( 'referrer.enabled' ) ) {
 			$referrer_groups = $config->get_array( 'referrer.rgroups' );
 
-			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
+			foreach ( $referrer_groups as $index => $referrer_config ) {
 				$referrer_enabled = ( isset( $referrer_config['enabled'] ) ?
 					(boolean) $referrer_config['enabled'] : false );
 				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ?
@@ -1008,7 +1011,9 @@ class PgCache_Environment {
 			$mobile_groups = array_reverse( $config->get_array( 'mobile.rgroups' ) );
 			$set_ua_var = true;
 
-			foreach ( $mobile_groups as $mobile_group => $mobile_config ) {
+			foreach ( $mobile_groups as $index => $mobile_config ) {
+				$mobile_name = ( isset( $mobile_config['name'] ) ?
+					$mobile_config['name'] : '' );
 				$mobile_enabled = ( isset( $mobile_config['enabled'] ) ?
 					(boolean) $mobile_config['enabled'] : false );
 				$mobile_agents = ( isset( $mobile_config['agents'] ) ?
@@ -1024,7 +1029,7 @@ class PgCache_Environment {
 					}
 					$rules .= "if (\$http_user_agent ~* \"(" .
 						implode( '|', $mobile_agents ) . ")\") {\n";
-					$rules .= "    set \$w3tc_ua _" . $mobile_group . ";\n";
+					$rules .= "    set \$w3tc_ua _" . $mobile_name . ";\n";
 					$rules .= "}\n";
 
 					$env_w3tc_ua = "\$w3tc_ua";
@@ -1047,7 +1052,9 @@ class PgCache_Environment {
 		if ( $config->get_boolean( 'referrer.enabled' ) ) {
 			$referrer_groups = array_reverse( $config->get_array( 'referrer.rgroups' ) );
 			$set_ref_var = true;
-			foreach ( $referrer_groups as $referrer_group => $referrer_config ) {
+			foreach ( $referrer_groups as $index => $referrer_config ) {
+				$referrer_name = ( isset( $referrer_config['name'] ) ?
+					$referrer_config['name'] : '' );
 				$referrer_enabled = ( isset( $referrer_config['enabled'] ) ?
 					(boolean) $referrer_config['enabled'] : false );
 				$referrer_referrers = ( isset( $referrer_config['referrers'] ) ?
@@ -1063,7 +1070,7 @@ class PgCache_Environment {
 					}
 					$rules .= "if (\$http_cookie ~* \"w3tc_referrer=.*(" .
 						implode( '|', $referrer_referrers ) . ")\") {\n";
-					$rules .= "    set \$w3tc_ref _" . $referrer_group . ";\n";
+					$rules .= "    set \$w3tc_ref _" . $referrer_name . ";\n";
 					$rules .= "}\n";
 
 					$env_w3tc_ref = "\$w3tc_ref";
@@ -1078,10 +1085,12 @@ class PgCache_Environment {
 			$cookie_groups = $config->get_array( 'pgcache.cookiegroups.groups' );
 			$set_cookie_var = true;
 
-			foreach ( $cookie_groups as $group_name => $g ) {
-				if ( isset( $g['enabled'] ) && $g['enabled'] ) {
+			foreach ( $cookie_groups as $index => $group_config ) {
+				if ( isset( $group_config['enabled'] ) && $group_config['enabled'] ) {
+					$cookie_name = ( isset( $group_config['name'] ) ?
+						$group_config['name'] : '' );
 					$cookies = array();
-					foreach ($g['cookies'] as $cookie ) {
+					foreach ($group_config['cookies'] as $cookie ) {
 						$cookie = trim( $cookie );
 						if ( !empty( $cookie ) ) {
 							$cookie = str_replace( '+', ' ', $cookie );
@@ -1100,7 +1109,7 @@ class PgCache_Environment {
 							$set_cookie_var = false;
 						}
 						$rules .= "if (\$http_cookie ~* $cookies_regexp) {\n";
-						$rules .= "    set \$w3tc_cookie _" . $group_name . ";\n";
+						$rules .= "    set \$w3tc_cookie _" . $cookie_name . ";\n";
 						$rules .= "}\n";
 
 						$env_w3tc_cookie = "\$w3tc_cookie";

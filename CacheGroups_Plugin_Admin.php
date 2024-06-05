@@ -35,7 +35,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 
 		// User agent groups.
 		$useragent_groups = array(
-			'value'       => $c->get_array( 'mobile.rgroups' ),
+			'value'       => self::fix_mobile_groups_format( $c->get_array( 'mobile.rgroups' ) ),
 			'disabled'    => $c->is_sealed( 'mobile.rgroups' ),
 			'description' =>
 				'<li>' .
@@ -56,14 +56,13 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 		$w3_mobile        = Dispatcher::component( 'Mobile_UserAgent' );
 		$useragent_themes = $w3_mobile->get_themes();
 
-		// Referrer groups.
-		$referrer_groups = $this->_config->get_array( 'referrer.rgroups' );
+		$referrer_groups = self::fix_referrer_groups_format( $this->_config->get_array( 'referrer.rgroups' ) );
 		$w3_referrer     = Dispatcher::component( 'Mobile_Referrer' );
 		$referrer_themes = $w3_referrer->get_themes();
 
 		// Cookie groups.
 		$cookie_groups = array(
-			'value'    => $c->get_array( 'pgcache.cookiegroups.groups' ),
+			'value'    => self::fix_cookiegroups_format( $c->get_array( 'pgcache.cookiegroups.groups' ) ),
 			'disabled' => $c->is_sealed( 'pgcache.cookiegroups.groups' ),
 		);
 		$cookie_groups = apply_filters( 'w3tc_ui_config_item_pgcache.cookiegroups.groups', $cookie_groups ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
@@ -87,44 +86,45 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 		$mobile_groups        = array();
 		$cached_mobile_groups = array();
 
-		foreach ( $useragent_groups as $group => $group_config ) {
-			$group = strtolower( $group );
-			$group = preg_replace( '~[^0-9a-z_]+~', '_', $group );
-			$group = trim( $group, '_' );
+		foreach ( $useragent_groups as $index => $group_config ) {
+			$name     = $group_config['name'];
+			$name     = strtolower( $name );
+			$name     = preg_replace( '~[^0-9a-z_]+~', '_', $name );
+			$name     = trim( $name, '_' );
+			$theme    = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
+			$enabled  = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
+			$redirect = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
+			$agents   = isset( $group_config['agents'] ) ? Util_Environment::textarea_to_array( $group_config['agents'] ) : array();
 
-			if ( $group ) {
-				$theme    = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
-				$enabled  = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
-				$redirect = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
-				$agents   = isset( $group_config['agents'] ) ? Util_Environment::textarea_to_array( $group_config['agents'] ) : array();
+			$mobile_groups[ $index ] = array(
+				'name'     => $name,
+				'theme'    => $theme,
+				'enabled'  => $enabled,
+				'redirect' => $redirect,
+				'agents'   => $agents,
+			);
 
-				$mobile_groups[ $group ] = array(
-					'theme'    => $theme,
-					'enabled'  => $enabled,
-					'redirect' => $redirect,
-					'agents'   => $agents,
-				);
-
-				$cached_mobile_groups[ $group ] = $agents;
-			}
+			$cached_mobile_groups[ $name ] = $agents;
 		}
 
 		// Allow plugins modify WPSC mobile groups.
 		$cached_mobile_groups = apply_filters( 'cached_mobile_groups', $cached_mobile_groups );
 
 		// Merge existent and delete removed groups.
-		foreach ( $mobile_groups as $group => $group_config ) {
-			if ( isset( $cached_mobile_groups[ $group ] ) ) {
-				$mobile_groups[ $group ]['agents'] = (array) $cached_mobile_groups[ $group ];
+		foreach ( $mobile_groups as $index => $group_config ) {
+			if ( isset( $cached_mobile_groups[ $group_config['name'] ] ) ) {
+				$mobile_groups[ $index ]['agents'] = (array) $cached_mobile_groups[ $group_config['name'] ];
 			} else {
-				unset( $mobile_groups[ $group ] );
+				unset( $mobile_groups[ $index ] );
 			}
 		}
 
-		// Add new groups.
-		foreach ( $cached_mobile_groups as $group => $agents ) {
-			if ( ! isset( $mobile_groups[ $group ] ) ) {
-				$mobile_groups[ $group ] = array(
+		// Convert mobile_groups to associative array for easy lookup by name and add new groups from cached_mobile_groups.
+		$mobile_groups_by_name = array_column( $mobile_groups, null, 'name' );
+		foreach ( $cached_mobile_groups as $name => $agents ) {
+			if ( ! isset( $mobile_groups_by_name[ $name ] ) ) {
+				$mobile_groups[] = array(
+					'name'     => $name,
 					'theme'    => '',
 					'enabled'  => true,
 					'redirect' => '',
@@ -134,12 +134,13 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 		}
 
 		// Allow plugins modify W3TC mobile groups.
-		$mobile_groups = apply_filters( 'w3tc_mobile_groups', $mobile_groups );
+		$mobile_groups = self::fix_mobile_groups_format( apply_filters( 'w3tc_mobile_groups', $mobile_groups ) );
 
 		// Sanitize mobile groups.
-		foreach ( $mobile_groups as $group => $group_config ) {
-			$mobile_groups[ $group ] = array_merge(
+		foreach ( $mobile_groups as $index => $group_config ) {
+			$mobile_groups[ $index ] = array_merge(
 				array(
+					'name'     => '',
 					'theme'    => '',
 					'enabled'  => true,
 					'redirect' => '',
@@ -148,9 +149,9 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$group_config
 			);
 
-			$mobile_groups[ $group ]['agents'] = self::clean_values( $mobile_groups[ $group ]['agents'] );
+			$mobile_groups[ $index ]['agents'] = self::clean_values( $mobile_groups[ $index ]['agents'] );
 
-			sort( $mobile_groups[ $group ]['agents'] );
+			sort( $mobile_groups[ $index ]['agents'] );
 		}
 
 		$enable_mobile = false;
@@ -170,33 +171,33 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 
 		$referrer_groups = array();
 
-		foreach ( $ref_groups as $group => $group_config ) {
-			$group = strtolower( $group );
-			$group = preg_replace( '~[^0-9a-z_]+~', '_', $group );
-			$group = trim( $group, '_' );
+		foreach ( $ref_groups as $index => $group_config ) {
+			$name      = $group_config['name'];
+			$name      = strtolower( $name );
+			$name      = preg_replace( '~[^0-9a-z_]+~', '_', $name );
+			$name      = trim( $name, '_' );
+			$theme     = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
+			$enabled   = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
+			$redirect  = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
+			$referrers = isset( $group_config['referrers'] ) ? Util_Environment::textarea_to_array( $group_config['referrers'] ) : array();
 
-			if ( $group ) {
-				$theme     = isset( $group_config['theme'] ) ? trim( $group_config['theme'] ) : 'default';
-				$enabled   = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : true;
-				$redirect  = isset( $group_config['redirect'] ) ? trim( $group_config['redirect'] ) : '';
-				$referrers = isset( $group_config['referrers'] ) ? Util_Environment::textarea_to_array( $group_config['referrers'] ) : array();
-
-				$referrer_groups[ $group ] = array(
-					'theme'     => $theme,
-					'enabled'   => $enabled,
-					'redirect'  => $redirect,
-					'referrers' => $referrers,
-				);
-			}
+			$referrer_groups[ $index ] = array(
+				'name'      => $name,
+				'theme'     => $theme,
+				'enabled'   => $enabled,
+				'redirect'  => $redirect,
+				'referrers' => $referrers,
+			);
 		}
 
 		// Allow plugins modify W3TC referrer groups.
-		$referrer_groups = apply_filters( 'w3tc_referrer_groups', $referrer_groups );
+		$referrer_groups = self::fix_referrer_groups_format( apply_filters( 'w3tc_referrer_groups', $referrer_groups ) );
 
-		// Sanitize mobile groups.
-		foreach ( $referrer_groups as $group => $group_config ) {
-			$referrer_groups[ $group ] = array_merge(
+		// Sanitize referrer groups.
+		foreach ( $referrer_groups as $index => $group_config ) {
+			$referrer_groups[ $index ] = array_merge(
 				array(
+					'name'      => '',
 					'theme'     => '',
 					'enabled'   => true,
 					'redirect'  => '',
@@ -205,9 +206,9 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$group_config
 			);
 
-			$referrer_groups[ $group ]['referrers'] = self::clean_values( $referrer_groups[ $group ]['referrers'] );
+			$referrer_groups[ $index ]['referrers'] = self::clean_values( $referrer_groups[ $index ]['referrers'] );
 
-			sort( $referrer_groups[ $group ]['referrers'] );
+			sort( $referrer_groups[ $index ]['referrers'] );
 		}
 
 		$enable_referrer = false;
@@ -223,30 +224,28 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 		$config->set( 'referrer.rgroups', $referrer_groups );
 
 		// * Cookie groups.
-		$mobile_groups        = array();
-		$cached_mobile_groups = array();
-		$cookie_groups        = Util_Request::get_array( 'cookiegroups' );
+		$mobile_groups = array();
+		$cookie_groups = Util_Request::get_array( 'cookiegroups' );
 
-		foreach ( $cookie_groups as $group => $group_config ) {
-			$group = strtolower( $group );
-			$group = preg_replace( '~[^0-9a-z_]+~', '_', $group );
-			$group = trim( $group, '_' );
+		foreach ( $cookie_groups as $index => $group_config ) {
+			$name    = $group_config['name'];
+			$name    = strtolower( $name );
+			$name    = preg_replace( '~[^0-9a-z_]+~', '_', $name );
+			$name    = trim( $name, '_' );
+			$enabled = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : false;
+			$cache   = isset( $group_config['cache'] ) ? (bool) $group_config['cache'] : false;
+			$cookies = isset( $group_config['cookies'] ) ? Util_Environment::textarea_to_array( $group_config['cookies'] ) : array();
 
-			if ( $group ) {
-				$enabled = isset( $group_config['enabled'] ) ? (bool) $group_config['enabled'] : false;
-				$cache   = isset( $group_config['cache'] ) ? (bool) $group_config['cache'] : false;
-				$cookies = isset( $group_config['cookies'] ) ? Util_Environment::textarea_to_array( $group_config['cookies'] ) : array();
-
-				$cookiegroups[ $group ] = array(
-					'enabled' => $enabled,
-					'cache'   => $cache,
-					'cookies' => $cookies,
-				);
-			}
+			$cookiegroups[ $index ] = array(
+				'name'    => $name,
+				'enabled' => $enabled,
+				'cache'   => $cache,
+				'cookies' => $cookies,
+			);
 		}
 
 		// Allow plugins modify W3TC cookie groups.
-		$cookiegroups = apply_filters( 'w3tc_pgcache_cookiegroups', $cookiegroups );
+		$cookiegroups = self::fix_cookiegroups_format( apply_filters( 'w3tc_pgcache_cookiegroups', $cookiegroups ) );
 
 		$enabled = false;
 
@@ -277,5 +276,85 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$values
 			)
 		);
+	}
+
+	/**
+	 * Converts mobile groups values to new format if old.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $mobile_groups Mobile Groups.
+	 */
+	public static function fix_mobile_groups_format( $mobile_groups ) {
+		// Fix any groups in old format.
+		$fixed_mobile_groups = array();
+		foreach ( $mobile_groups as $index => $group ) {
+			if ( ! is_numeric( $index ) ) {
+				$fixed_mobile_groups[] = array(
+					'name'     => $index,
+					'theme'    => $group['theme'],
+					'enabled'  => $group['enabled'],
+					'redirect' => $group['redirect'],
+					'agents'   => $group['agents'],
+				);
+			} else {
+				$fixed_mobile_groups[] = $group;
+			}
+		}
+
+		return $fixed_mobile_groups;
+	}
+
+	/**
+	 * Converts referrer groups values to new format if old.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $referrer_groups Mobile Groups.
+	 */
+	public static function fix_referrer_groups_format( $referrer_groups ) {
+		// Fix any groups in old format.
+		$fixed_referrer_groups = array();
+		foreach ( $referrer_groups as $index => $group ) {
+			if ( ! is_numeric( $index ) ) {
+				$fixed_referrer_groups[] = array(
+					'name'      => $index,
+					'theme'     => $group['theme'],
+					'enabled'   => $group['enabled'],
+					'redirect'  => $group['redirect'],
+					'referrers' => $group['referrers'],
+				);
+			} else {
+				$fixed_referrer_groups[] = $group;
+			}
+		}
+
+		return $fixed_referrer_groups;
+	}
+
+	/**
+	 * Converts cookie group values to new format if old.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $cookiegroups Mobile Groups.
+	 */
+	public static function fix_cookiegroups_format( $cookiegroups ) {
+		// Fix any groups in old format.
+		$fixed_cookiegroups = array();
+		foreach ( $cookiegroups as $index => $group ) {
+			if ( ! is_numeric( $index ) ) {
+				$fixed_cookiegroups[] = array(
+					'name'    => $index,
+					'enabled' => $group['enabled'],
+					'cache'   => $group['cache'],
+					'cookies' => $group['cookies'],
+				);
+			} else {
+				$fixed_cookiegroups[] = $group;
+			}
+		}
+
+		return $fixed_cookiegroups;
 	}
 }

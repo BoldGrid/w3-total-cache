@@ -373,12 +373,6 @@ textarea.w3tc-error {
 	margin: 0;
 }
 
-.mobile_group,
-.referrer_group,
-.cookiegroup_name {
-	font-weight: bold;
-}
-
 #remove_cssjs_singles_empty {
 	padding: 10px;
 }

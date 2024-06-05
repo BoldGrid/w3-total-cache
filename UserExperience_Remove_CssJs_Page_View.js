@@ -13,91 +13,68 @@ jQuery(function() {
 		'click',
 		'#w3tc_remove_cssjs_singles_add',
 		function() {
-			let singlePath = prompt(W3TCRemoveCssJsData.lang.singlesPrompt);
+			let maxID = -1;
 
-			if (null === singlePath) {
-				return;
-			}
+			jQuery('.remove_cssjs_singles_path').each(
+				function() {
+					const currentID = parseInt(jQuery(this).closest('li').attr('id').replace('remove_cssjs_singles_', ''), 10);
 
-			singlePath = singlePath.trim();
-			if (singlePath) {
-				let exists = false;
-				let maxID = -1;
-
-				jQuery('.remove_cssjs_singles_path').each(
-					function() {
-						const currentID = parseInt(jQuery(this).closest('li').attr('id').replace('remove_cssjs_singles_', ''), 10);
-
-						if (!isNaN(currentID)) {
-							maxID = Math.max(maxID, currentID);
-						}
-
-						if (jQuery(this).val() === singlePath) {
-							alert(W3TCRemoveCssJsData.lang.singlesExists);
-							exists = true;
-							return false;
-						}
+					if (!isNaN(currentID)) {
+						maxID = Math.max(maxID, currentID);
 					}
-				);
-
-				if (!exists) {
-					const singleID = maxID + 1;
-
-					const li = jQuery(
-						'<li id="remove_cssjs_singles_' + singleID + '">' +
-						'<table class="form-table">' +
-						'<tr>' +
-						'<th>' + W3TCRemoveCssJsData.lang.singlesPathLabel + '</th>' +
-						'<td>' +
-						'<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[' + singleID + '][url_pattern]" value="' + singlePath + '" >' +
-						'<input type="button" class="button remove_cssjs_singles_delete" value="' + W3TCRemoveCssJsData.lang.singlesDelete + '"/>' +
-						'</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th><label for="remove_cssjs_singles_' + singleID + '_action">' + W3TCRemoveCssJsData.lang.singlesBehaviorLabel + '</label></th>' +
-						'<td>' +
-						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="exclude" checked>' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText + '</label>' +
-						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="include">' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText + '</label>' +
-						'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription + '</p>' +
-						'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription2 + '</p>' +
-						'</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th><label class="remove_cssjs_singles_' + singleID + '_includes_label" for="remove_cssjs_singles_' + singleID + '_includes">' + W3TCRemoveCssJsData.lang.singlesIncludesLabelExclude + '</label></th>' +
-						'<td>' +
-						'<textarea id="remove_cssjs_singles_' + singleID + '_includes" name="user-experience-remove-cssjs-singles[' + singleID + '][includes]" rows="5" cols="50" ></textarea>' +
-						'<p class="description remove_cssjs_singles_' + singleID + '_includes_description">' + W3TCRemoveCssJsData.lang.singlesIncludesDescriptionExclude + '</p>' +
-						'</td>' +
-						'</tr>' +
-						'</table>' +
-						'</li>'
-					);
-
-					jQuery('#remove_cssjs_singles_empty').remove();
-					jQuery('#remove_cssjs_singles').append(li);
-					window.location.hash = '#remove_cssjs_singles_' + singleID;
-					li.find('textarea').focus();
 				}
-			} else {
-				alert(W3TCRemoveCssJsData.lang.singlesEmptyUrl);
-			}
+			);
+
+			const singleID = maxID + 1;
+
+			const li = jQuery(
+				'<li id="remove_cssjs_singles_' + singleID + '">' +
+				'<table class="form-table">' +
+				'<tr>' +
+				'<th>' + W3TCRemoveCssJsData.lang.singlesPathLabel + '</th>' +
+				'<td>' +
+				'<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[' + singleID + '][url_pattern]" value="" >' +
+				'<input type="button" class="button remove_cssjs_singles_delete" value="' + W3TCRemoveCssJsData.lang.singlesDelete + '"/>' +
+				'</td>' +
+				'</tr>' +
+				'<tr>' +
+				'<th><label for="remove_cssjs_singles_' + singleID + '_action">' + W3TCRemoveCssJsData.lang.singlesBehaviorLabel + '</label></th>' +
+				'<td>' +
+				'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="exclude" checked>' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText + '</label>' +
+				'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="include">' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText + '</label>' +
+				'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription + '</p>' +
+				'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription2 + '</p>' +
+				'</td>' +
+				'</tr>' +
+				'<tr>' +
+				'<th><label class="remove_cssjs_singles_' + singleID + '_includes_label" for="remove_cssjs_singles_' + singleID + '_includes">' + W3TCRemoveCssJsData.lang.singlesIncludesLabelExclude + '</label></th>' +
+				'<td>' +
+				'<textarea id="remove_cssjs_singles_' + singleID + '_includes" name="user-experience-remove-cssjs-singles[' + singleID + '][includes]" rows="5" cols="50" ></textarea>' +
+				'<p class="description remove_cssjs_singles_' + singleID + '_includes_description">' + W3TCRemoveCssJsData.lang.singlesIncludesDescriptionExclude + '</p>' +
+				'</td>' +
+				'</tr>' +
+				'</table>' +
+				'</li>'
+			);
+
+			jQuery('#remove_cssjs_singles_empty').remove();
+			jQuery('#remove_cssjs_singles').append(li);
+			window.location.hash = '#remove_cssjs_singles_' + singleID;
+			li.find('.remove_cssjs_singles_path').focus();
 		}
 	);
 
 	jQuery(document).on(
-		'change',
+		'blur',
 		'.remove_cssjs_singles_path',
 		function() {
 			let $inputField = jQuery(this);
 			let singlePath = $inputField.val();
 			let originalValue = $inputField.data('originalValue');
+		
+			if (singlePath && null !== singlePath) {
+				singlePath = singlePath.trim();
 
-			if (null === singlePath) {
-				return;
-			}
-
-			singlePath = singlePath.trim();
-			if (singlePath) {
 				let exists = false;
 
 				jQuery('.remove_cssjs_singles_path').not($inputField).each(
@@ -106,6 +83,13 @@ jQuery(function() {
 							alert(W3TCRemoveCssJsData.lang.singlesExists);
 							exists = true;
 							$inputField.val(originalValue);
+							// A timeout is needed here as the alert "steals" focus and causes a race condition.
+							setTimeout(
+								function() {
+									$inputField.focus();
+								},
+								100
+							);
 							return false;
 						}
 					}
@@ -116,6 +100,14 @@ jQuery(function() {
 				}
 			} else {
 				alert(W3TCRemoveCssJsData.lang.singlesEmptyUrl);
+				$inputField.val(originalValue);
+				// A timeout is needed here as the alert "steals" focus and causes a race condition.
+				setTimeout(
+					function() {
+						$inputField.focus();
+					},
+					100
+				);
 			}
 		}
 	);

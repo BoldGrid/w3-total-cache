@@ -1703,6 +1703,7 @@ jQuery(function() {
 			options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
 			form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
 		// Scroll to taget after .5 seconds.
+
 		setTimeout(
 			function() {
 				jQuery('html, body').animate({
