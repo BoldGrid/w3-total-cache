@@ -5,9 +5,17 @@
       <directory suffix=".php">./tests/</directory>
     </testsuite>
   </testsuites>
-    <filter>
+  <logging>
+    <log type="coverage-clover" target="coverage.xml"/>
+  </logging>
+  <filter>
     <whitelist>
       <directory suffix=".php">./</directory>
+      <exclude>
+        <directory>node_modules</directory>
+        <directory>qa</directory>
+        <directory>vendor</directory>
+      </exclude>
     </whitelist>
   </filter>
   <groups>
