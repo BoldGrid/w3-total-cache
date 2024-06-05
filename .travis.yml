@@ -45,7 +45,7 @@ script:
 
 after_success:
   # Codecov: Create a code coverage report for PHP 7.2.
-  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "8.0" ]]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -f coverage.xml; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.2" ]]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -f coverage.xml; fi
 
 deploy:
   - provider: script
