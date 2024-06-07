@@ -15,10 +15,6 @@ W3 Total Cache (W3TC) improves the SEO, Core Web Vitals and overall user experie
 
 W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framework for WordPress trusted by millions of publishers, web developers, and web hosts worldwide for more than a decade. It is the total performance solution for optimizing WordPress Websites.
 
-An inside look:
-
-https://youtu.be/7AsNSSrZq4Y
-
 *BENEFITS*
 
 * Improvements in search engine result page rankings, especially for mobile-friendly websites and sites that use SSL
