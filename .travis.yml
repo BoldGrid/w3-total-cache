@@ -1,11 +1,7 @@
 # Travis CI configuraion for the W3 Total Cache WordPress plugin by BoldGrid.
 # @link https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-on-travis-ci
 
-dist: jammy
 language: php
-php:
-  - 7.2
-  - 8.3
 
 services:
   - mysql
@@ -14,9 +10,18 @@ notifications:
   slack:
     secure: Me2FCeSQNVpIx7lvf5o9gTP60+WQiaxwDIeTsE9NB6+fHRDwrt5Jju1sTXbEgbB7CDQWKuAL6CouL4ZOoUUtHe00u6D0ifwDhj1M3IMeD3NjnWr2dbvZltHkMTCLbtdfD6F5VLhYWFTSNLS4EQAOuITCi1Ph4H+WcYttaw4ldbauSmPnKRvaLGh6tHG+/zLzwdhlwUVeT3hGtZdZXB2mibxtvdx+fMJIBcd0q+smI7VIMQXKNsZ/BZ8QW/qRO2neWI3CBYigeNwXuvlxYv/UBBgneBaPGYNo3DcwHARPTSwKByyLzbG+fN4ymx7iRioQ0x74Dex16u7BNhyeOdj8E3MxR3wDTlUkwXXDJI2YpBp/jmB3lPpEu+LPUxlBV5d8HuiMSf1g4vc2VBBUypWBjq2wWCyQzuRcKDwiyc60bFKtSCOHIzRwO+hDHLW7INzDedA2W0JYerLEgmlQj7yVB8Ly4dl38Gals/X4+y4gkpOSKyCsvAOePYcPFs+BIUMRVR3kueF3fu/sWGQEDJD2oTljLm45ue/x7ytyQOHVw94Ao0A0sf1G1nMwqmIFT90z137yGrlwoh8vXHeUWxFfPV6TB75+E8QLFjoo0Gs3nzfi//kd7UMlnRKkuF1+/5Hvo3VS3GTo0nO6Xo3dCHT2f4HZdR5PVZqhTGAPxdgORa8=
 
+matrix:
+  include:
+    -
+      php: 7.2
+      dist: focal
+    -
+      php: 8.3
+      dist: jammy
+
 install:
   - composer self-update
-  - composer update -o
+  - composer update
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost
   - nvm install 20
   - nvm use 20
