@@ -41,6 +41,13 @@ class Minify_Plugin {
 	public $printed_scripts = array();
 
 	/**
+	 * Array of printed styles.
+	 *
+	 * @var array
+	 */
+	public $printed_styles = array();
+
+	/**
 	 * Helper object to use
 	 *
 	 * @var _W3_MinifyHelpers
