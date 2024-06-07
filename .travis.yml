@@ -27,6 +27,20 @@ matrix:
         - composer update
         - bash bin/install-wp-tests.sh wordpress_test root '' localhost
         #- yarn run php-codesniffer
+    -
+      php: 8.2
+      dist: jammy
+      before_script:
+        - composer update
+        - bash bin/install-wp-tests.sh wordpress_test root '' localhost
+        #- yarn run php-codesniffer
+    -
+      php: 8.3
+      dist: jammy
+      before_script:
+        - composer update
+        - bash bin/install-wp-tests.sh wordpress_test root '' localhost
+        #- yarn run php-codesniffer
 
 install:
   - nvm install 20
