@@ -29,8 +29,8 @@ matrix:
         #- yarn run php-codesniffer
 
 install:
-  - nvm install 16
-  - nvm use 16
+  - nvm install 20
+  - nvm use 20
   - yarn install
 
 script:
