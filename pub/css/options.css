@@ -401,6 +401,21 @@ textarea.w3tc-error {
 	padding-right: 10px;
 }
 
+.w3tc_remove_cssjs_singles .description_example_trigger {
+	color: #2271b1;
+	cursor: pointer;
+}
+
+.w3tc_remove_cssjs_singles .description_example .description {
+	display: none;
+}
+
+.w3tc_remove_cssjs_singles .description_example .description strong,
+.w3tc_remove_cssjs_singles .description_example .description code {
+	margin-top: 10px;
+	display: block;
+}
+
 .w3tc-rules {
 	display: none;
 	margin: 1em 0;

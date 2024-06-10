@@ -49,17 +49,27 @@ jQuery(function() {
 						'<tr>' +
 						'<th>' + W3TCRemoveCssJsData.lang.singlesPathLabel + '</th>' +
 						'<td>' +
-						'<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[' + singleID + '][url_pattern]" value="' + singlePath + '" >' +
+						'<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[' + singleID + '][url_pattern]" value="' + singlePath + '" > ' +
 						'<input type="button" class="button remove_cssjs_singles_delete" value="' + W3TCRemoveCssJsData.lang.singlesDelete + '"/>' +
+						'<p>' + W3TCRemoveCssJsData.lang.singlesPathDescription + '</p>' +
+						'<div class="description_example">' +
+						'<p class="description_example_trigger"><span class="dashicons dashicons-editor-help"></span><span class="description_example_text">' + W3TCRemoveCssJsData.lang.singlesExampleTrigger + '</span></p>' +
+						'<div class="description">' +
+						'<strong>' + W3TCRemoveCssJsData.lang.singlesPathExampleDirLabel + '</strong>' +
+						'<code>' + W3TCRemoveCssJsData.lang.singlesPathExampleDir + '</code>' +
+						'<strong>' + W3TCRemoveCssJsData.lang.singlesPathExampleFileLabel + '</strong>' +
+						'<code>' + W3TCRemoveCssJsData.lang.singlesPathExampleFile + '</code>' +
+						'</div>' +
+						'</div>' +
 						'</td>' +
 						'</tr>' +
 						'<tr>' +
 						'<th><label for="remove_cssjs_singles_' + singleID + '_action">' + W3TCRemoveCssJsData.lang.singlesBehaviorLabel + '</label></th>' +
 						'<td>' +
-						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="exclude" checked>' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText + '</label>' +
-						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="include">' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText + '</label>' +
 						'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription + '</p>' +
-						'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription2 + '</p>' +
+						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="exclude" checked><strong>' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText + '</strong> ' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText2 + '</label>' +
+						'<br/>' +
+						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="include"><strong>' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText + '</strong> ' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText2 + '</label>' +
 						'</td>' +
 						'</tr>' +
 						'<tr>' +
@@ -67,6 +77,12 @@ jQuery(function() {
 						'<td>' +
 						'<textarea id="remove_cssjs_singles_' + singleID + '_includes" name="user-experience-remove-cssjs-singles[' + singleID + '][includes]" rows="5" cols="50" ></textarea>' +
 						'<p class="description remove_cssjs_singles_' + singleID + '_includes_description">' + W3TCRemoveCssJsData.lang.singlesIncludesDescriptionExclude + '</p>' +
+						'<div class="description_example">' +
+						'<p class="description_example_trigger"><span class="dashicons dashicons-editor-help"></span><span class="description_example_text">' + W3TCRemoveCssJsData.lang.singlesExampleTrigger + '</span></p>' +
+						'<div class="description">' +
+						'<code>' + W3TCRemoveCssJsData.lang.singlesIncludesExample + '</code>' +
+						'</div>' +
+						'</div>' +
 						'</td>' +
 						'</tr>' +
 						'</table>' +
@@ -117,6 +133,22 @@ jQuery(function() {
 			} else {
 				alert(W3TCRemoveCssJsData.lang.singlesEmptyUrl);
 			}
+		}
+	);
+
+	jQuery(document).on(
+		'click',
+		'.description_example_trigger',
+		function () {
+			var $trigger = jQuery(this).find('.description_example_text');
+			var $description = jQuery(this).siblings('.description');
+        	if ($description.css('display') === 'none') {
+				$trigger.text(W3TCRemoveCssJsData.lang.singlesExampleTriggerClose);
+            	$description.css('display', 'inline-block');
+        	} else {
+				$trigger.text(W3TCRemoveCssJsData.lang.singlesExampleTrigger);
+            	$description.css('display', 'none');
+        	}
 		}
 	);
 

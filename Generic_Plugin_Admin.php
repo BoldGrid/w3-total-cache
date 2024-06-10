@@ -634,19 +634,64 @@ class Generic_Plugin_Admin {
 						array(
 							'lang' => array(
 								'singlesPrompt'                     => __( 'Enter target CSS/JS match pattern.', 'w3-total-cache' ),
+								'singlesPathDescription'            => __( 'Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry.', 'w3-total-cache' ),
+								'singlesExampleTrigger'             => __( 'View Examples', 'w3-total-cache' ),
+								'singlesExampleTriggerClose'        => __( 'Hide Examples', 'w3-total-cache' ),
+								'singlesPathExampleDirLabel'        => __( 'Target all CSS/JS from a plugin/theme:', 'w3-total-cache' ),
+								'singlesPathExampleDir'             => wp_kses(
+									sprintf(
+										// translators: 1  HTML line break tag.
+										__(
+											'https://example.com/wp-content/plugins/example-plugin/%1$s/wp-content/plugins/example-plugin/',
+											'w3-total-cache'
+										),
+										'<br/>'
+									),
+									array(
+										'br' => array(),
+									)
+								),
+								'singlesPathExampleFileLabel'       => __( 'Target a specific CSS/JS file:', 'w3-total-cache' ),
+								'singlesPathExampleFile'            => wp_kses(
+									sprintf(
+										// translators: 1  HTML line break tag.
+										__(
+											'https://example.com/wp-content/themes/example-theme/example-script.js%1$s/wp-content/themes/example-script.js%1$sexample-script.js',
+											'w3-total-cache'
+										),
+										'<br/>'
+									),
+									array(
+										'br' => array(),
+									)
+								),
 								'singlesNoEntries'                  => __( 'No CSS/JS entries added.', 'w3-total-cache' ),
 								'singlesExists'                     => __( 'Entry already exists!', 'w3-total-cache' ),
 								'singlesPathLabel'                  => __( 'Target CSS/JS:', 'w3-total-cache' ),
 								'singlesDelete'                     => __( 'Delete', 'w3-total-cache' ),
-								'singlesBehaviorLabel'              => __( 'Behavior:', 'w3-total-cache' ),
+								'singlesBehaviorLabel'              => __( 'Action:', 'w3-total-cache' ),
 								'singlesBehaviorExcludeText'        => __( 'Exclude', 'w3-total-cache' ),
+								'singlesBehaviorExcludeText2'       => __( '(Remove the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
 								'singlesBehaviorIncludeText'        => __( 'Include', 'w3-total-cache' ),
-								'singlesBehaviorDescription'        => __( 'Exclude will only remove match(es) from the specified URLs.', 'w3-total-cache' ),
-								'singlesBehaviorDescription2'       => __( 'Include will NOT remove match(es) from the specified URLs but will remove it everywhere else.', 'w3-total-cache' ),
-								'singlesIncludesLabelExclude'       => __( 'Exclude on these pages:', 'w3-total-cache' ),
-								'singlesIncludesLabelInclude'       => __( 'Include on these pages:', 'w3-total-cache' ),
-								'singlesIncludesDescriptionExclude' => __( 'Specify the relative or absolute page URLs from which the above match(es) should be excluded. Include one entry per line.', 'w3-total-cache' ),
-								'singlesIncludesDescriptionInclude' => __( 'Specify the relative or absolute page URLs from which the above match(es) should be included. Include one entry per line.', 'w3-total-cache' ),
+								'singlesBehaviorIncludeText2'       => __( '(Allow the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
+								'singlesBehaviorDescription'        => __( 'When the above CSS/JS file is found within your markup.', 'w3-total-cache' ),
+								'singlesIncludesLabelExclude'       => __( 'Exclude on Match:', 'w3-total-cache' ),
+								'singlesIncludesLabelInclude'       => __( 'Include on Match:', 'w3-total-cache' ),
+								'singlesIncludesDescriptionExclude' => __( 'Specify the conditions for which the target file should be excluded. If you wish to exclude the file from specifc pages you can define relative/abosolute page URLs. Otherwise, you can exclude the file by specifing keywords from the page content. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesDescriptionInclude' => __( 'Specify the conditions for which the target file should be included. If you wish to include the file from specifc pages you can define relative/abosolute page URLs. Otherwise, you can include the file by specifing keywords from the page content. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesExample'            => wp_kses(
+									sprintf(
+										// translators: 1  HTML line break tag.
+										__(
+											'https://example.com/example-page/%1$s/example-page/%1$s&lt;div id="example-id"&gt;%1$sname="example-name"',
+											'w3-total-cache'
+										),
+										'<br/>'
+									),
+									array(
+										'br' => array(),
+									)
+								),
 								'singlesEmptyUrl'                   => __( 'Empty match pattern!', 'w3-total-cache' ),
 								'singlesDeleteConfirm'              => __( 'Are you sure want to delete this entry?', 'w3-total-cache' ),
 							),
