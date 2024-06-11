@@ -33,7 +33,7 @@ async function login(pPage, data) {
 		let wpSubmitButton = '#wp-submit';
 		await Promise.all([
 			pPage.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
-			pPage.waitForNavigation({timeout:0}),
+			pPage.waitForNavigation({timeout: 300000}),
 		]);
 
 		expect(await pPage.title()).contains('Dashboard');

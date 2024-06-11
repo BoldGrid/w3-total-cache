@@ -243,7 +243,7 @@ class FeatureShowcase_Plugin_Admin {
 				'remove-cssjs' => array(
 					'title'      => esc_html__( 'Remove Unused CSS/JS', 'w3-total-cache' ),
 					'icon'       => 'dashicons-editor-strikethrough',
-					'text'       => esc_html__( 'Removes specfied CSS/JS tags from the homepage or on a per page basis. Can be used to eliminate unused CSS/JS on pages that do not require them.', 'w3-total-cache' ),
+					'text'       => esc_html__( 'Removes specified CSS/JS tags from the homepage or on a per page basis. Can be used to eliminate unused CSS/JS on pages that do not require them.', 'w3-total-cache' ),
 					'button'     => '<button class="button" onclick="window.location=\'' . (
 						UserExperience_Remove_CssJs_Extension::is_enabled() ?
 							esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#remove-cssjs' ) ) :
@@ -259,7 +259,7 @@ class FeatureShowcase_Plugin_Admin {
 				'preload-requests' => array(
 					'title'      => esc_html__( 'Preload Requests', 'w3-total-cache' ),
 					'icon'       => 'dashicons-controls-repeat',
-					'text'       => esc_html__( 'DNS prefetching, preconnecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks.', 'w3-total-cache' ),
+					'text'       => esc_html__( 'DNS prefetching, pre-connecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks.', 'w3-total-cache' ),
 					'button'     => '<button class="button" onclick="window.location=\'' . (
 						UserExperience_Preload_Requests_Extension::is_enabled() ?
 							esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#preload-requests' ) ) :

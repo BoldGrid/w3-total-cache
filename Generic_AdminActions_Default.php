@@ -488,7 +488,7 @@ class Generic_AdminActions_Default {
 		}
 
 		$data['new_config'] = $config;
-		$data               = apply_filters( 'w3tc_save_options', $data );
+		$data               = apply_filters( 'w3tc_save_options', $data, $this->_page );
 		$config             = $data['new_config'];
 
 		do_action( 'w3tc_config_ui_save', $config, $this->_config );

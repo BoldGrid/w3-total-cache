@@ -61,7 +61,7 @@ class Generic_WidgetServices {
 			__( 'Plugin Configuration', 'w3-total-cache' ),
 			__( 'CDN Configuration: Full-Site Delivery', 'w3-total-cache' ),
 			__( 'Hosting Environment Troubleshooting', 'w3-total-cache' ),
-			__( 'Eliminate render-blocking Javascripts', 'w3-total-cache' ),
+			__( 'Eliminate render-blocking JavaScript', 'w3-total-cache' ),
 			__( 'Investigate Compatibility Issue', 'w3-total-cache' ),
 		);
 	}

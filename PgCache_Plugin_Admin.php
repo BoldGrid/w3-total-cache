@@ -94,7 +94,7 @@ class PgCache_Plugin_Admin {
 						'.htaccess'
 					),
 					'cache_dir' => $flush_dir,
-					'expire' => $this->_config->get_integer( 'browsercache.html.lifetime' ),
+					'expire' => $this->_config->get_integer( 'pgcache.lifetime' ),
 					'clean_timelimit' => $this->_config->get_integer( 'timelimit.cache_gc' )
 				) );
 
@@ -262,6 +262,10 @@ class PgCache_Plugin_Admin {
 	public function w3tc_save_options( $data ) {
 		$new_config = $data['new_config'];
 		$old_config = $data['old_config'];
+
+		if ( $new_config->get_boolean( 'pgcache.cache.feed' ) ) {
+			$new_config->set( 'pgcache.cache.nginx_handle_xml', true );
+		}
 
 		if ( ( !$new_config->get_boolean( 'pgcache.cache.home' ) && $old_config->get_boolean( 'pgcache.cache.home' ) ) ||
 			$new_config->get_boolean( 'pgcache.reject.front_page' ) && !$old_config->get_boolean( 'pgcache.reject.front_page' ) ||

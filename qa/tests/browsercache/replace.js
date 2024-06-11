@@ -99,7 +99,7 @@ describe('', function() {
 		let flushBrowserCache = '#wp-admin-bar-w3tc_flush_browsercache a';
 		await Promise.all([
 			adminPage.evaluate((flushBrowserCache) => document.querySelector(flushBrowserCache).click(), flushBrowserCache),
-			adminPage.waitForNavigation({timeout:0}),
+			adminPage.waitForNavigation({timeout: 300000}),
 		]);
 	});
 

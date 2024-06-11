@@ -4,7 +4,7 @@ namespace W3TC;
 
 
 /**
- * CloudFlare API
+ * Cloudflare API.
  */
 class Extension_CloudFlare_Api {
 	static private $_root_uri = 'https://api.cloudflare.com/client/v4';

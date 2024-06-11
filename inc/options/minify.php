@@ -894,7 +894,7 @@ if ( ! defined( 'W3TC' ) ) {
 							sprintf(
 								// translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
 								__(
-									'Max interval is limited by the %1$s constant (%2$s seconds) which can be overridden in wp_config.php.',
+									'Max interval is limited by the %1$s constant (%2$s seconds) which can be overridden in wp-config.php.',
 									'w3-total-cache'
 								),
 								'W3TC_CACHE_FILE_EXPIRE_MAX',

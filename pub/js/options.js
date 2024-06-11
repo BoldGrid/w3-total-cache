@@ -441,6 +441,47 @@ function debounce(func){
 	};
 }
 
+/**
+ * Get the S3 bucket region from the selected location to be used for the hostname.
+ *
+ * The default location (us-east-1) returns an empty string.  All other regions return the region with a trailing dot.
+ *
+ * @since X.X.X
+ *
+ * @param {string} location Bucket location.
+ * @returns string
+ */
+function get_bucket_region( location ) {
+	let region = '';
+
+	switch ( location ) {
+		case 'us-east-1':
+			break;
+		case 'us-east-1-e':
+			region = 'us-east-1.';
+			break;
+		default:
+			region = location + '.';
+			break;
+	}
+
+	return region;
+}
+
+/**
+ * Event callback for changing CDN Cloudfront (push) S3 bucket location.
+ *
+ * @since 2.7.2
+ *
+ * @see get_bucket_region()
+ */
+function cdn_cf_bucket_location() {
+	const id = jQuery( '#cdn_cf_bucket' ).val();
+
+	jQuery( '#cdn-cf-bucket-hostname' )
+		.text( id + '.s3.' + get_bucket_region( jQuery( '#cdn_cf_bucket_location' ).val() ) + 'amazonaws.com' );
+}
+
 // On document ready.
 jQuery(function() {
 	// Global vars.
@@ -504,23 +545,6 @@ jQuery(function() {
 	w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
 	jQuery('#pgcache__reject__logged_roles').on('click', function() {
 		w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
-	});
-
-	if (jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-		jQuery('#pgcache__cache__nginx_handle_xml').attr('checked', jQuery('#pgcache__cache__feed').is(':checked'));
-
-	jQuery('#pgcache__cache__feed').on('change', function() {
-		if (jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-			jQuery('#pgcache__cache__nginx_handle_xml').attr('checked', this.checked);
-	});
-
-	w3tc_input_enable('#pgcache_prime_interval', jQuery('#pgcache__prime__enabled:checked').length);
-	w3tc_input_enable('#pgcache_prime_limit', jQuery('#pgcache__prime__enabled:checked').length);
-	w3tc_input_enable('#pgcache_prime_sitemap', jQuery('#pgcache__prime__enabled:checked').length);
-	jQuery('#pgcache__prime__enabled').on('click', function() {
-		w3tc_input_enable('#pgcache_prime_interval', jQuery('#pgcache__prime__enabled:checked').length);
-		w3tc_input_enable('#pgcache_prime_limit', jQuery('#pgcache__prime__enabled:checked').length);
-		w3tc_input_enable('#pgcache_prime_sitemap', jQuery('#pgcache__prime__enabled:checked').length);
 	});
 
 	// Browsercache page.
@@ -829,12 +853,14 @@ jQuery(function() {
 				break;
 
 			case 'cf':
+				let region = jQuery('#cdn_cf_bucket_location').val();
+
 				jQuery.extend(params, {
 					engine: 'cf',
 					'config[key]': jQuery('#cdn_cf_key').val(),
 					'config[secret]': jQuery('#cdn_cf_secret').val(),
 					'config[bucket]': jQuery('#cdn_cf_bucket').val(),
-					'config[bucket_location]': jQuery('#cdn_cf_bucket_location').val(),
+					'config[bucket_location]': region,
 					'config[id]': jQuery('#cdn_cf_id').val()
 				});
 
@@ -1715,6 +1741,12 @@ jQuery(function() {
         jQuery(this).addClass('inline');
     });
 
+	// Update the CDN Cloudfront (push) S3 bucket location hostname.
+	jQuery( 'body' ).on( 'change', '#cdn_cf_bucket_location', cdn_cf_bucket_location );
+	jQuery( 'body' ).on( 'keyup', '#cdn_cf_bucket', cdn_cf_bucket_location );
+
+	// Run functions after the page is loaded.
+	cdn_cf_bucket_location();
 	set_sticky_bar_positions();
 	set_footer_position();
 });

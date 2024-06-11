@@ -27,7 +27,7 @@ class Extension_CloudFlare_Popup {
 				'email' => Util_Request::get_string( 'email' ),
 				'key'   => Util_Request::get_string( 'key' ),
 				'page'  => empty( Util_Request::get_integer( 'page' ) ) ? 1 : Util_Request::get_integer( 'page' ),
-			) 
+			)
 		);
 	}
 
@@ -109,7 +109,7 @@ class Extension_CloudFlare_Popup {
 		$postfix = Util_Admin::custom_message_id(
 			array(),
 			array(
-				'extension_cloudflare_configuration_saved' => 'CloudFlare credentials are saved successfully',
+				'extension_cloudflare_configuration_saved' => 'Cloudflare credentials are saved successfully',
 			)
 		);
 		echo 'Location admin.php?page=w3tc_extensions&extension=cloudflare&action=view&' . esc_attr( $postfix );

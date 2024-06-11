@@ -44,7 +44,7 @@ class Generic_AdminActions_Test {
 		$password                = Util_Request::get_string('password', '');
 		$dbid                    = Util_Request::get_integer( 'dbid', 0 );
 
-		if ( count( $servers ) <= 0 ) {
+		if ( empty( $servers ) ) {
 			$success = false;
 		} else {
 			$success = true;
@@ -61,7 +61,7 @@ class Generic_AdminActions_Test {
 					)
 				);
 
-				if ( is_null( $cache ) ) {
+				if ( empty( $cache ) ) {
 					$success = false;
 				}
 
@@ -72,7 +72,7 @@ class Generic_AdminActions_Test {
 
 				$test_value = $cache->get( $test_string );
 
-				if ( isset( $test_value['content'] ) && $test_value['content'] !== $test_string ) {
+				if ( empty( $test_value['content'] ) || $test_value['content'] !== $test_string ) {
 					$success = false;
 				}
 			}

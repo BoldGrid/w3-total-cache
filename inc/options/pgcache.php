@@ -54,6 +54,33 @@ if ( ! defined( 'W3TC' ) ) {
 					<p class="description"><?php esc_html_e( 'Even if using a feed proxy service enabling this option is still recommended.', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
+			<?php if ( 'file_generic' === $this->_config->get_string( 'pgcache.engine' ) ) : ?>
+				<tr>
+					<th>
+						<?php $this->checkbox( 'pgcache.cache.nginx_handle_xml' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.nginx_handle_xml' ); ?></label>
+						<p class="description">
+							<?php
+							echo wp_kses(
+								sprintf(
+									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
+									__(
+										'Return correct Content-Type header for %1$sXML%2$s files (e.g., feeds and sitemaps).',
+										'w3-total-cache'
+									),
+									'<acronym title="' . esc_attr__( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
+									'</acronym>'
+								),
+								array(
+									'acronym' => array(
+										'title' => array(),
+									),
+								)
+							);
+							?>
+						</p>
+					</th>
+				</tr>
+			<?php endif; ?>
 			<tr>
 				<th>
 					<?php $this->checkbox( 'pgcache.cache.ssl' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.ssl' ); ?></label>
@@ -337,7 +364,7 @@ if ( ! defined( 'W3TC' ) ) {
 							sprintf(
 								// translators: 1 HTML line break tag.
 								__(
-									'Specify number of pages that lists posts (archive etc) that should be purged on post updates etc, i.e example.com/ ... example.com/page/5. %1$s0 means all pages that lists posts are purged, i.e example.com/page/2 ... .',
+									'Specify number of pages that lists posts (archive etc.) that should be purged on post updates etc., i.e. example.com/ ... example.com/page/5. %1$s0 means all pages that lists posts are purged, i.e. example.com/page/2 ... ',
 									'w3-total-cache'
 								),
 								'<br />'
@@ -411,6 +438,34 @@ if ( ! defined( 'W3TC' ) ) {
 							'pro_excerpt'     => esc_html__( 'If you\'re using the WordPress API make sure to use caching to scale performance.', 'w3-total-cache' ),
 							'pro_description' => array(
 								esc_html__( 'If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely.', 'w3-total-cache' ),
+							),
+							'show_learn_more'   => false,
+							'score'             => '84.5%',
+							'score_label'       => __( 'API Response Time', 'w3-total-cache' ),
+							'score_description' => wp_kses(
+								sprintf(
+									// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
+									__(
+										'In a recent test, enabling REST API Caching increased API response times by 84.5&#37;! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!',
+										'w3-total-cache'
+									),
+									'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/rest-api-testing/?utm_source=w3tc&utm_medium=rest-api-caching&utm_campaign=proof' ) . '">',
+									'</a>',
+									'<br /><br /><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+								),
+								array(
+									'a'      => array(
+										'href'   => array(),
+										'target' => array(),
+									),
+									'br'     => array(),
+									'input'  => array(
+										'type'     => array(),
+										'class'    => array(),
+										'data-src' => array(),
+										'value'    => array(),
+									),
+								)
 							),
 						),
 						'disable' => wp_kses(
@@ -551,7 +606,7 @@ if ( ! defined( 'W3TC' ) ) {
 							sprintf(
 								// translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
 								__(
-									'Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp_config.php.',
+									'Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp-config.php.',
 									'w3-total-cache'
 								),
 								'W3TC_CACHE_FILE_EXPIRE_MAX',
@@ -774,34 +829,6 @@ if ( ! defined( 'W3TC' ) ) {
 					<p class="description"><?php esc_html_e( 'Specify additional page headers to cache.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
-			<?php if ( 'file_generic' === $this->_config->get_string( 'pgcache.engine' ) ) : ?>
-				<tr>
-					<th><?php Util_Ui::e_config_label( 'pgcache.cache.nginx_handle_xml' ); ?></th>
-					<td>
-						<?php $this->checkbox( 'pgcache.cache.nginx_handle_xml' ); ?> <?php Util_Ui::e_config_label( 'pgcache.cache.nginx_handle_xml' ); ?></label>
-						<p class="description">
-							<?php
-							echo wp_kses(
-								sprintf(
-									// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-									__(
-										'Return correct Content-Type header for %1$sXML%2$s files (e.g., feeds and sitemaps). Slows down cache engine.',
-										'w3-total-cache'
-									),
-									'<acronym title="' . esc_attr__( 'Extensible Markup Language', 'w3-total-cache' ) . '">',
-									'</acronym>'
-								),
-								array(
-									'acronym' => array(
-										'title' => array(),
-									),
-								)
-							);
-							?>
-						</p>
-					</td>
-				</tr>
-			<?php endif; ?>
 		</table>
 
 		<?php Util_Ui::postbox_footer(); ?>

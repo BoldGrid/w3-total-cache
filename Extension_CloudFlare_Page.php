@@ -113,28 +113,4 @@ class Extension_CloudFlare_Page {
 				'description' => $data['description']
 			) );
 	}
-
-
-
-	static private function cloudflare_button_save( $id = '' ) {
-		$b1_id = 'w3tc_cloudflare_save_' . $id;
-
-		echo '<p class="submit">';
-		echo wp_kses(
-			Util_Ui::nonce_field( 'w3tc' ),
-			array(
-				'input' => array(
-					'type'  => array(),
-					'name'  => array(),
-					'value' => array(),
-				),
-			)
-		);
-		echo '<input type="submit" id="' . esc_attr( $b1_id ) .
-			'" name="w3tc_cloudflare_save_settings" ' .
-			' class="w3tc-button-save button-primary" ' .
-			' value="' . esc_attr( __( 'Save CloudFlare settings', 'w3-total-cache' ) ) .
-			'" />';
-		echo '</p>';
-	}
 }

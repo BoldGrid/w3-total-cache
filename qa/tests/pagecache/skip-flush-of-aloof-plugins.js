@@ -62,7 +62,7 @@ describe('', function() {
 
 			let pgcacheFlushButton = 'input[name="w3tc_flush_pgcache"]';
 			await Promise.all([
-				adminPage.waitForNavigation({timeout: 0}),
+				adminPage.waitForNavigation({timeout: 300000}),
 				adminPage.evaluate((pgcacheFlushButton) => document.querySelector(pgcacheFlushButton).click(), pgcacheFlushButton)
 			]);
 
