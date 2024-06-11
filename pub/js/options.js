@@ -1462,6 +1462,17 @@ jQuery(function() {
 		jQuery(this).next().toggle();
 	});
 
+	// Footer subscribe hide response.
+	jQuery('#mc-embedded-subscribe').on('click', function(e) {
+		// Hide response after 20 seconds.
+		setTimeout(
+			function(){
+				jQuery('#w3tc-footer .response').hide();
+			},
+			20000
+		);
+	});
+
 	// Bootstrap dropdown hide on click away.
 	jQuery(document).mouseup(function(e) {
 		var dropdowns = jQuery('.dropdown-toggle');

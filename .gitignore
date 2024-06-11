@@ -11,5 +11,6 @@ vendor/
 /qa/node_modules/*
 .DS_Store
 .phpunit.result.cache
+coverage.xml
 error_log
 nbproject
