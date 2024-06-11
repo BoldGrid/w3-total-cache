@@ -55,6 +55,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cach
 			'excerpt'           => esc_html__( 'Specify absolute or relative URLs, or file names to be excluded from loading on the homepage. Include one entry per line, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name="myscript", etc.)', 'w3-total-cache' ),
 			'show_learn_more'   => false,
 			'score'             => '+27',
+			'score_label'       => __( 'Points', 'w3-total-cache' ),
 			'score_description' => wp_kses(
 				sprintf(
 					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.

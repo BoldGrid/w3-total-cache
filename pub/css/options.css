@@ -793,7 +793,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro {
 	padding: 10px;
 	background-image: linear-gradient( to right, #f0f0f1, #f0f0f1, #f0f0f1, #f0f0f1, #e7f3f3, #56bec1, #16252c);
 	position: relative;
-	padding-right: 280px;
+	padding-right: 270px;
 	border: 1px solid #c3c4c7;
 }
 
@@ -1569,8 +1569,8 @@ td .w3tc-control-after span {
     flex: 0 0 50px;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border: 2px solid #68D500;
     border-radius: 50%;
 	background: #EEFAEC;
@@ -1581,6 +1581,7 @@ td .w3tc-control-after span {
 }
 
 .w3tc-test-score-container p {
+	white-space: nowrap;
 	margin: 4px 15px 4px 0;
 	font-weight: 600;
 }

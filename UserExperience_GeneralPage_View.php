@@ -150,6 +150,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
 			'show_learn_more'   => false,
 			'score'             => '+27',
+			'score_label'       => __( 'Points', 'w3-total-cache' ),
 			'score_description' => wp_kses(
 				sprintf(
 					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
