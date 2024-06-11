@@ -30,9 +30,10 @@ if ( ! is_numeric( key( $remove_cssjs_singles ) ) ) {
 		}
 
 		$new_array[] = array(
-			'url_pattern' => $match,
-			'action'      => isset( $data['action'] ) ? $data['action'] : 'exclude',
-			'includes'    => $data['includes'],
+			'url_pattern'      => $match,
+			'action'           => isset( $data['action'] ) ? $data['action'] : 'exclude',
+			'includes'         => $data['includes'],
+			'includes_content' => $data['includes_content'],
 		);
 	}
 	$remove_cssjs_singles = $new_array;
@@ -126,17 +127,19 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 		<?php
 		if ( ! empty( $remove_cssjs_singles ) ) {
 			foreach ( $remove_cssjs_singles as $single_id => $single_config ) {
-				$single_config['includes'] = implode( "\r\n", (array) $single_config['includes'] );
+				$single_config['includes']         = isset( $single_config['includes'] ) && ! empty( $single_config['includes'] ) ? implode( "\r\n", (array) $single_config['includes'] ) : '';
+				$single_config['includes_content'] = isset( $single_config['includes_content'] ) && ! empty( $single_config['includes_content'] ) ? implode( "\r\n", (array) $single_config['includes_content'] ) : '';
 				?>
 				<li id="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>">
 					<table class="form-table">
-						<tr>
+						<tr class="accordion-header">
 							<th>
 								<?php esc_html_e( 'File Path:', 'w3-total-cache' ); ?>
 							</th>
 							<td>
 								<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][url_pattern]" value="<?php echo esc_attr( $single_config['url_pattern'] ); ?>" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>>
 								<input type="button" class="button remove_cssjs_singles_delete" value="<?php esc_html_e( 'Delete', 'w3-total-cache' ); ?>" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>/>
+								<span class="accordion-toggle dashicons dashicons-arrow-down-alt2"></span>
 								<p class="description">
 									<?php esc_html_e( 'Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry', 'w3-total-cache' ); ?>
 								</p>
@@ -241,7 +244,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 							<th>
 								<label class="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_label" for="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes">
 									<?php
-									$label = 'exclude' === $single_config['action'] ? __( 'Exclude on Match:', 'w3-total-cache' ) : __( 'Include on Match:', 'w3-total-cache' );
+									$label = 'exclude' === $single_config['action'] ? __( 'Exclude on URL Match:', 'w3-total-cache' ) : __( 'Include on URL Match:', 'w3-total-cache' );
 									echo esc_html( $label );
 									?>
 								</label>
@@ -254,7 +257,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 										sprintf(
 											// translators: 1 action description based on behavior selector.
 											__(
-												'Specify the conditions for which the target file should be %1$sd. If you wish to %1$s the file from specifc pages you can define relative/abosolute page URLs. Otherwise, you can %1$s the file by specifing keywords from the page content. Include one entry per line.',
+												'Specify the conditions for which the target file should be %1$sd based on matching absolute/relative page URLs. Include one entry per line.',
 												'w3-total-cache'
 											),
 											'exclude' === $single_config['action'] ? __( 'exclude', 'w3-total-cache' ) : __( 'include', 'w3-total-cache' )
@@ -274,7 +277,59 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 												sprintf(
 													// translators: 1  HTML line break tag.
 													__(
-														'https://example.com/example-page/%1$s/example-page/%1$s&lt;div id="example-id"&gt;%1$sname="example-name"',
+														'https://example.com/example-page/%1$s/example-page/%1$sexample-page?arg=example-arg',
+														'w3-total-cache'
+													),
+													'<br/>'
+												),
+												array(
+													'br' => array(),
+												)
+											);
+											?>
+										</code>
+									</div>
+								</div>
+							</td>
+						</tr>
+						<tr id="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_content_option">
+							<th>
+								<label class="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_content_label" for="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_content">
+									<?php
+									$label = 'exclude' === $single_config['action'] ? __( 'Exclude on Content Match:', 'w3-total-cache' ) : __( 'Include on Content Match:', 'w3-total-cache' );
+									echo esc_html( $label );
+									?>
+								</label>
+							</th>
+							<td>
+								<textarea id="remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_content" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][includes_content]" rows="5" cols="50" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>><?php echo wp_kses( $single_config['includes_content'], Util_UI::get_allowed_html_for_wp_kses_from_content( $single_config['includes_content'] ) ); ?></textarea>
+								<p class="description remove_cssjs_singles_<?php echo esc_attr( $single_id ); ?>_includes_content_description">
+									<?php
+									echo esc_html(
+										sprintf(
+											// translators: 1 action description based on behavior selector.
+											__(
+												'Specify the conditions for which the target file should be %1$sd based on matching page content. Include one entry per line.',
+												'w3-total-cache'
+											),
+											'exclude' === $single_config['action'] ? __( 'exclude', 'w3-total-cache' ) : __( 'include', 'w3-total-cache' )
+										)
+									);
+									?>
+								</p>
+								<div class="description_example">
+									<p class="description_example_trigger">
+										<span class="dashicons dashicons-editor-help"></span>
+										<span class="description_example_text"><?php esc_html_e( 'View Examples', 'w3-total-cache' ); ?></span>
+									</p>
+									<div class="description">
+										<code>
+											<?php
+											echo wp_kses(
+												sprintf(
+													// translators: 1  HTML line break tag.
+													__(
+														'&lt;div id="example-id"&gt;%1$s&lt;span class="example-class"&gt;%1$sname="example-name"',
 														'w3-total-cache'
 													),
 													'<br/>'

@@ -94,16 +94,17 @@ class UserExperience_Remove_CssJs_Mutator {
 			$new_array = array();
 			foreach ( $this->singles_includes as $match => $data ) {
 				$new_array[] = array(
-					'url_pattern' => $match,
-					'action'      => isset( $data['action'] ) ? $data['action'] : 'exclude',
-					'includes'    => $data['includes'],
+					'url_pattern'      => $match,
+					'action'           => isset( $data['action'] ) ? $data['action'] : 'exclude',
+					'includes'         => $data['includes'],
+					'includes_content' => $data['includes_content'],
 				);
 			}
 			$this->singles_includes = $new_array;
 		}
 
 		$this->buffer = preg_replace_callback(
-			'~(<link.*?href.*?/>)|(<script.*?src.*?<\/script>)~is',
+			'~(<link.*?href.*?\/>)|(<script.*?src.*?<\/script>)~is',
 			array( $this, 'remove_content' ),
 			$this->buffer
 		);
@@ -177,9 +178,8 @@ class UserExperience_Remove_CssJs_Mutator {
 
 				// Check if current page content match any defined conditions.
 				$content_match = false;
-				foreach ( $data['includes'] as $include ) {
+				foreach ( $data['includes_content'] as $include ) {
 					// Unescape quotes.
-					$include = str_replace( '\\"', '"', $include );
 					if ( strpos( $this->buffer, $include ) !== false ) {
 						$content_match = true;
 						break;

@@ -223,9 +223,10 @@ class UserExperience_Remove_CssJs_Extension {
 				$new_cssjs_singles = array();
 				foreach ( $raw_cssjs_singles as $single_id => $single_config ) {
 					if ( ! empty( $single_config['url_pattern'] ) && ! empty( $single_config['action'] ) && is_string( $single_config['includes'] ) ) {
-						$new_cssjs_singles[ $single_id ]['url_pattern'] = filter_var( $single_config['url_pattern'], FILTER_SANITIZE_URL );
-						$new_cssjs_singles[ $single_id ]['action']      = $single_config['action'];
-						$new_cssjs_singles[ $single_id ]['includes']    = Util_Environment::textarea_to_array( $single_config['includes'] );
+						$new_cssjs_singles[ $single_id ]['url_pattern']      = filter_var( $single_config['url_pattern'], FILTER_SANITIZE_URL );
+						$new_cssjs_singles[ $single_id ]['action']           = $single_config['action'];
+						$new_cssjs_singles[ $single_id ]['includes']         = Util_Environment::textarea_to_array( $single_config['includes'] );
+						$new_cssjs_singles[ $single_id ]['includes_content'] = Util_Environment::textarea_to_array( $single_config['includes_content'] );
 					}
 				}
 

@@ -343,6 +343,7 @@ textarea.w3tc-error {
 .w3tc_cachegroups td,
 .w3tc_remove_cssjs_singles td,
 #cachegroups_form .form-table th {
+	line-height: 2;
 	padding: 10px 10px 10px 15px;
 }
 
@@ -388,6 +389,7 @@ textarea.w3tc-error {
 }
 
 .w3tc_remove_cssjs_singles .remove_cssjs_singles_delete {
+	vertical-align: baseline;
 	margin-top: -5px;
 }
 
@@ -395,6 +397,8 @@ textarea.w3tc-error {
 	margin-top: -5px;
 	width: 75% !important;
 	display: inline-block !important;
+	text-align: right;
+    direction: rtl;
 }
 
 .w3tc_remove_cssjs_singles .remove_cssjs_singles_behavior {
@@ -406,6 +410,12 @@ textarea.w3tc-error {
 	cursor: pointer;
 }
 
+.w3tc_remove_cssjs_singles li table tr:not(:first-child),
+.w3tc_remove_cssjs_singles li table tr:first-child td .description,
+.w3tc_remove_cssjs_singles li table tr:first-child td .description_example {
+    display: none;
+}
+
 .w3tc_remove_cssjs_singles .description_example .description {
 	display: none;
 }
@@ -414,6 +424,19 @@ textarea.w3tc-error {
 .w3tc_remove_cssjs_singles .description_example .description code {
 	margin-top: 10px;
 	display: block;
+}
+
+.w3tc_remove_cssjs_singles .accordion-toggle {
+	position: absolute;
+	right: 20px;
+    cursor: pointer;
+	color: #135e96;
+	margin-top: 2px;
+    margin-left: 10px;
+    display: inline-block;
+    width: 30px;
+    height: 25px;
+    font-size: 22px;
 }
 
 .w3tc-rules {
