@@ -15,10 +15,6 @@ W3 Total Cache (W3TC) improves the SEO, Core Web Vitals and overall user experie
 
 W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framework for WordPress trusted by millions of publishers, web developers, and web hosts worldwide for more than a decade. It is the total performance solution for optimizing WordPress Websites.
 
-An inside look:
-
-https://youtu.be/7AsNSSrZq4Y
-
 *BENEFITS*
 
 * Improvements in search engine result page rankings, especially for mobile-friendly websites and sites that use SSL
@@ -105,7 +101,7 @@ It's in every web site owner's best interest is to make sure that the performanc
 
 = Which WordPress versions are supported? =
 
-To use all features in the suite, a minimum of version WordPress 3.8 with PHP 5.6 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
+To use all features in the suite, a minimum of version WordPress 5.3 with PHP 7.2.5 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
 
 = Why doesn't minify work for me? =
 

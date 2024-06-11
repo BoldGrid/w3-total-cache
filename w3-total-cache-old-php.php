@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function w3tc_old_php_message() {
-	$m = __( 'Please update your PHP. <strong>W3 Total Cache</strong> requires PHP version 5.6 or above', 'w3-total-cache' );
+	$m = __( 'Please update your PHP. <strong>W3 Total Cache</strong> requires PHP version 7.2.5 or above', 'w3-total-cache' );
 	return $m;
 }
 
