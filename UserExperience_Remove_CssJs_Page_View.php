@@ -83,7 +83,6 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cach
 			),
 		)
 	);
-
 	?>
 </table>
 <?php

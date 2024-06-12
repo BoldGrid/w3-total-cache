@@ -48,6 +48,13 @@ class UserExperience_DeferScripts_Extension {
 	 * @return void
 	 */
 	public function run() {
+		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 11 );
+
+		/**
+		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
+		*/
+		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
+
 		if ( ! Util_Environment::is_w3tc_pro( $this->config ) ) {
 			$this->config->set_extension_active_frontend( 'user-experience-defer-scripts', false );
 			return;
@@ -57,13 +64,6 @@ class UserExperience_DeferScripts_Extension {
 
 		add_filter( 'w3tc_minify_js_script_tags', array( $this, 'w3tc_minify_js_script_tags' ) );
 		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ) );
-
-		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 11 );
-
-		/**
-		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
-		*/
-		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 	}
 
 	/**
@@ -233,9 +233,7 @@ class UserExperience_DeferScripts_Extension {
 	 * @return void
 	 */
 	public function w3tc_userexperience_page() {
-		if ( self::is_enabled() ) {
-			include __DIR__ . '/UserExperience_DeferScripts_Page_View.php';
-		}
+		include __DIR__ . '/UserExperience_DeferScripts_Page_View.php';
 	}
 
 	/**
