@@ -701,7 +701,9 @@ class Util_Ui {
 	 */
 	public static function radiogroup( $name, $value, $values,
 			$disabled = false, $separator = '' ) {
-		$first = true;
+		$c      = Dispatcher::config();
+		$is_pro = Util_Environment::is_w3tc_pro( $c );
+		$first  = true;
 		foreach ( $values as $key => $label_or_array ) {
 			if ( $first ) {
 				$first = false;
@@ -743,7 +745,13 @@ class Util_Ui {
 					$name . '__' . $key
 				);
 
-				self::pro_wrap_maybe_end( $name . '__' . $key );
+				if ( ! $is_pro && isset( $label_or_array['score'] ) && isset( $label_or_array['score_label'] ) && isset( $label_or_array['score_description'] ) ) {
+					$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $label_or_array['score'] . '</div><p>' . $label_or_array['score_label'] . '</p></div><div class="w3tc-test-description">' . $label_or_array['score_description'] . '</div></div>';
+					echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
+				}
+
+				$show_learn_more = isset( $label_or_array['show_learn_more'] ) && is_bool( $label_or_array['show_learn_more'] ) ? $label_or_array['show_learn_more'] : true;
+				self::pro_wrap_maybe_end( $name . '__' . $key, $show_learn_more );
 			}
 		}
 	}
@@ -1096,7 +1104,7 @@ class Util_Ui {
 		}
 
 		if ( $is_w3tc_free && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
-			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html__( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
@@ -1138,7 +1146,7 @@ class Util_Ui {
 		}
 
 		if ( ! $is_pro && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
-			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html__( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
@@ -1192,8 +1200,8 @@ class Util_Ui {
 			self::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
 		}
 
-		if ( ! $is_pro && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
-			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+		if ( ! $is_pro && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) ) {
+			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . $a['score_label'] . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
@@ -2023,7 +2031,7 @@ class Util_Ui {
 	 * @param string $score_description
 	 */
 	public static function print_score_block( $score, $score_description ) {
-		$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $score . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $score_description . '</div></div>';
+		$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $score . '</div><p>' . esc_html__( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $score_description . '</div></div>';
 		echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 	}
 }
