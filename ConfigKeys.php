@@ -1183,7 +1183,7 @@ $keys = array(
 	),
 	'cdn.engine' => array(
 		'type' => 'string',
-		'default' => 'stackpath2'
+		'default' => ''
 	),
 	'cdn.uploads.enable' => array(
 		'type' => 'boolean',
