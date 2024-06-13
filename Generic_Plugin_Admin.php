@@ -633,7 +633,6 @@ class Generic_Plugin_Admin {
 						'W3TCRemoveCssJsData',
 						array(
 							'lang' => array(
-								'singlesPrompt'                            => __( 'Enter target CSS/JS match pattern.', 'w3-total-cache' ),
 								'singlesPathDescription'                   => __( 'Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry.', 'w3-total-cache' ),
 								'singlesExampleTrigger'                    => __( 'View Examples', 'w3-total-cache' ),
 								'singlesExampleTriggerClose'               => __( 'Hide Examples', 'w3-total-cache' ),
@@ -710,7 +709,6 @@ class Generic_Plugin_Admin {
 									)
 								),
 								'singlesEmptyUrl'                          => __( 'Empty match pattern!', 'w3-total-cache' ),
-								'singlesDeleteConfirm'                     => __( 'Are you sure want to delete this entry?', 'w3-total-cache' ),
 							),
 						)
 					);

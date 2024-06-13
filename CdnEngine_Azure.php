@@ -1,43 +1,57 @@
 <?php
+/**
+ * File: CdnEngine_Azure.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Common\ServiceException;
+
 /**
+ * Class: CdnEngine_Azure
+ *
  * Windows Azure Storage CDN engine
  */
 class CdnEngine_Azure extends CdnEngine_Base {
 	/**
 	 * Storage client object
 	 *
-	 * @var Microsoft_WindowsAzure_Storage_Blob
+	 * @var \MicrosoftAzure\Storage\Blob\BlobRestProxy
 	 */
-	var $_client = null;
+	var $_client = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration
 
 	/**
-	 * PHP5 Constructor
+	 * Constructor.
 	 *
-	 * @param array   $config
+	 * @param array $config Configuration.
 	 */
-	function __construct( $config = array() ) {
-		$config = array_merge( array(
+	public function __construct( $config = array() ) {
+		$config = array_merge(
+			array(
 				'user' => '',
 				'key' => '',
 				'container' => '',
 				'cname' => array(),
-			), $config );
+			),
+			$config
+		);
 
 		parent::__construct( $config );
 
-		require_once W3TC_LIB_DIR . DIRECTORY_SEPARATOR . 'Azure' .
-			DIRECTORY_SEPARATOR . 'loader.php';
+		// Load the Composer autoloader.
+		require_once W3TC_DIR . '/vendor/autoload.php';
 	}
 
 	/**
 	 * Inits storage client object
 	 *
-	 * @param string  $error
-	 * @return boolean
+	 * @param string $error Error message.
+	 * @return bool
 	 */
-	function _init( &$error ) {
+	public function _init( &$error ) {
 		if ( empty( $this->_config['user'] ) ) {
 			$error = 'Empty account name.';
 			return false;
@@ -56,17 +70,13 @@ class CdnEngine_Azure extends CdnEngine_Base {
 		}
 
 		try {
-			$connectionString = 'DefaultEndpointsProtocol=https;AccountName=' .
-			$this->_config['user'] .
-			';AccountKey=' . $this->_config['key'];
-
-			$this->_client = \MicrosoftAzure\Storage\Common\ServicesBuilder::getInstance()->createBlobService(
-				$connectionString);
+			$this->_client = BlobRestProxy::createBlobService(
+				'DefaultEndpointsProtocol=https;AccountName=' . $this->_config['user'] . ';AccountKey=' . $this->_config['key']
+			);
 		} catch ( \Exception $ex ) {
 			$error = $ex->getMessage();
 			return false;
 		}
-
 
 		return true;
 	}
@@ -146,12 +156,12 @@ class CdnEngine_Azure extends CdnEngine_Base {
 
 		try {
 			// $headers
-			$options = new \MicrosoftAzure\Storage\Blob\Models\CreateBlobOptions();
-			$options->setBlobContentMD5( $content_md5 );
+			$options = new \MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions();
+			$options->setContentMD5( $content_md5 );
 			if ( isset( $headers['Content-Type'] ) )
-				$options->setBlobContentType( $headers['Content-Type'] );
+				$options->setContentType( $headers['Content-Type'] );
 			if ( isset( $headers['Cache-Control'] ) )
-				$options->setBlobCacheControl( $headers['Cache-Control'] );
+				$options->setCacheControl( $headers['Cache-Control'] );
 
 			$this->_client->createBlockBlob( $this->_config['container'],
 				$remote_path, $contents, $options );

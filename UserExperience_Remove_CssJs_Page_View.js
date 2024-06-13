@@ -13,108 +13,87 @@ jQuery(function() {
 		'click',
 		'#w3tc_remove_cssjs_singles_add',
 		function() {
-			let singlePath = prompt(W3TCRemoveCssJsData.lang.singlesPrompt);
+			let maxId = -1;
 
-			if (null === singlePath) {
-				return;
-			}
+			jQuery('.remove_cssjs_singles_path').each(
+				function() {
+					const currentId = parseInt(jQuery(this).closest('li').attr('id').replace('remove_cssjs_singles_', ''), 10);
 
-			singlePath = singlePath.trim();
-			if (singlePath) {
-				let exists = false;
-				let maxID = -1;
-
-				jQuery('.remove_cssjs_singles_path').each(
-					function() {
-						const currentID = parseInt(jQuery(this).closest('li').attr('id').replace('remove_cssjs_singles_', ''), 10);
-
-						if (!isNaN(currentID)) {
-							maxID = Math.max(maxID, currentID);
-						}
-
-						if (jQuery(this).val() === singlePath) {
-							alert(W3TCRemoveCssJsData.lang.singlesExists);
-							exists = true;
-							return false;
-						}
+					if (!isNaN(currentId)) {
+						maxId = Math.max(maxId, currentId);
 					}
-				);
+			);
 
-				if (!exists) {
-					const singleID = maxID + 1;
+			const singleId = maxId + 1;
 
-					const li = jQuery(
-						'<li id="remove_cssjs_singles_' + singleID + '">' +
-						'<table class="form-table">' +
-						'<tr class="accordion-header">' +
-						'<th>' + W3TCRemoveCssJsData.lang.singlesPathLabel + '</th>' +
-						'<td>' +
-						'<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[' + singleID + '][url_pattern]" value="' + singlePath + '" > ' +
-						'<input type="button" class="button remove_cssjs_singles_delete" value="' + W3TCRemoveCssJsData.lang.singlesDelete + '"/>' +
-						'<span class="accordion-toggle dashicons dashicons-arrow-down-alt2"></span>' +
-						'<p class="description">' + W3TCRemoveCssJsData.lang.singlesPathDescription + '</p>' +
-						'<div class="description_example">' +
-						'<p class="description_example_trigger"><span class="dashicons dashicons-editor-help"></span><span class="description_example_text">' + W3TCRemoveCssJsData.lang.singlesExampleTrigger + '</span></p>' +
-						'<div class="description">' +
-						'<strong>' + W3TCRemoveCssJsData.lang.singlesPathExampleDirLabel + '</strong>' +
-						'<code>' + W3TCRemoveCssJsData.lang.singlesPathExampleDir + '</code>' +
-						'<strong>' + W3TCRemoveCssJsData.lang.singlesPathExampleFileLabel + '</strong>' +
-						'<code>' + W3TCRemoveCssJsData.lang.singlesPathExampleFile + '</code>' +
-						'</div>' +
-						'</div>' +
-						'</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th><label for="remove_cssjs_singles_' + singleID + '_action">' + W3TCRemoveCssJsData.lang.singlesBehaviorLabel + '</label></th>' +
-						'<td>' +
-						'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription + '</p>' +
-						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="exclude" checked><strong>' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText + '</strong> ' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText2 + '</label>' +
-						'<br/>' +
-						'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleID + '][action]" value="include"><strong>' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText + '</strong> ' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText2 + '</label>' +
-						'</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th><label class="remove_cssjs_singles_' + singleID + '_includes_label" for="remove_cssjs_singles_' + singleID + '_includes">' + W3TCRemoveCssJsData.lang.singlesIncludesLabelExclude + '</label></th>' +
-						'<td>' +
-						'<textarea id="remove_cssjs_singles_' + singleID + '_includes" name="user-experience-remove-cssjs-singles[' + singleID + '][includes]" rows="5" cols="50" ></textarea>' +
-						'<p class="description remove_cssjs_singles_' + singleID + '_includes_description">' + W3TCRemoveCssJsData.lang.singlesIncludesDescriptionExclude + '</p>' +
-						'<div class="description_example">' +
-						'<p class="description_example_trigger"><span class="dashicons dashicons-editor-help"></span><span class="description_example_text">' + W3TCRemoveCssJsData.lang.singlesExampleTrigger + '</span></p>' +
-						'<div class="description">' +
-						'<code>' + W3TCRemoveCssJsData.lang.singlesIncludesExample + '</code>' +
-						'</div>' +
-						'</div>' +
-						'</td>' +
-						'</tr>' +
-						'<tr>' +
-						'<th><label class="remove_cssjs_singles_' + singleID + '_includes_content_label" for="remove_cssjs_singles_' + singleID + '_includes_content">' + W3TCRemoveCssJsData.lang.singlesIncludesContentLabelExclude + '</label></th>' +
-						'<td>' +
-						'<textarea id="remove_cssjs_singles_' + singleID + '_includes_content" name="user-experience-remove-cssjs-singles[' + singleID + '][includes_content]" rows="5" cols="50" ></textarea>' +
-						'<p class="description remove_cssjs_singles_' + singleID + '_includes_content_description">' + W3TCRemoveCssJsData.lang.singlesIncludesContentDescriptionExclude + '</p>' +
-						'<div class="description_example">' +
-						'<p class="description_example_trigger"><span class="dashicons dashicons-editor-help"></span><span class="description_example_text">' + W3TCRemoveCssJsData.lang.singlesExampleTrigger + '</span></p>' +
-						'<div class="description">' +
-						'<code>' + W3TCRemoveCssJsData.lang.singlesIncludesContentExample + '</code>' +
-						'</div>' +
-						'</div>' +
-						'</td>' +
-						'</tr>' +
-						'</table>' +
-						'</li>'
-					);
+			const li = jQuery(
+				'<li id="remove_cssjs_singles_' + singleId + '">' +
+				'<table class="form-table">' +
+				'<tr class="accordion-header">' +
+				'<th>' + W3TCRemoveCssJsData.lang.singlesPathLabel + '</th>' +
+				'<td>' +
+				'<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[' + singleId + '][url_pattern]" value="" > ' +
+				'<input type="button" class="button remove_cssjs_singles_delete" value="' + W3TCRemoveCssJsData.lang.singlesDelete + '"/>' +
+				'<span class="accordion-toggle dashicons dashicons-arrow-down-alt2"></span>' +
+				'<p class="description">' + W3TCRemoveCssJsData.lang.singlesPathDescription + '</p>' +
+				'<div class="description_example">' +
+				'<p class="description_example_trigger"><span class="dashicons dashicons-editor-help"></span><span class="description_example_text">' + W3TCRemoveCssJsData.lang.singlesExampleTrigger + '</span></p>' +
+				'<div class="description">' +
+				'<strong>' + W3TCRemoveCssJsData.lang.singlesPathExampleDirLabel + '</strong>' +
+				'<code>' + W3TCRemoveCssJsData.lang.singlesPathExampleDir + '</code>' +
+				'<strong>' + W3TCRemoveCssJsData.lang.singlesPathExampleFileLabel + '</strong>' +
+				'<code>' + W3TCRemoveCssJsData.lang.singlesPathExampleFile + '</code>' +
+				'</div>' +
+				'</div>' +
+				'</td>' +
+				'</tr>' +
+				'<tr>' +
+				'<th><label for="remove_cssjs_singles_' + singleId + '_action">' + W3TCRemoveCssJsData.lang.singlesBehaviorLabel + '</label></th>' +
+				'<td>' +
+				'<p class="description">' + W3TCRemoveCssJsData.lang.singlesBehaviorDescription + '</p>' +
+				'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleId + '][action]" value="exclude" checked><strong>' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText + '</strong> ' + W3TCRemoveCssJsData.lang.singlesBehaviorExcludeText2 + '</label>' +
+				'<br/>' +
+				'<label class="remove_cssjs_singles_behavior"><input class="remove_cssjs_singles_behavior_radio" type="radio" name="user-experience-remove-cssjs-singles[' + singleId + '][action]" value="include"><strong>' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText + '</strong> ' + W3TCRemoveCssJsData.lang.singlesBehaviorIncludeText2 + '</label>' +
+				'</td>' +
+				'</tr>' +
+				'<tr>' +
+				'<th><label class="remove_cssjs_singles_' + singleId + '_includes_label" for="remove_cssjs_singles_' + singleId + '_includes">' + W3TCRemoveCssJsData.lang.singlesIncludesLabelExclude + '</label></th>' +
+				'<td>' +
+				'<textarea id="remove_cssjs_singles_' + singleId + '_includes" name="user-experience-remove-cssjs-singles[' + singleId + '][includes]" rows="5" cols="50" ></textarea>' +
+				'<p class="description remove_cssjs_singles_' + singleId + '_includes_description">' + W3TCRemoveCssJsData.lang.singlesIncludesDescriptionExclude + '</p>' +
+				'<div class="description_example">' +
+				'<p class="description_example_trigger"><span class="dashicons dashicons-editor-help"></span><span class="description_example_text">' + W3TCRemoveCssJsData.lang.singlesExampleTrigger + '</span></p>' +
+				'<div class="description">' +
+				'<code>' + W3TCRemoveCssJsData.lang.singlesIncludesExample + '</code>' +
+				'</div>' +
+				'</div>' +
+				'</td>' +
+				'</tr>' +
+				'<tr>' +
+				'<th><label class="remove_cssjs_singles_' + singleId + '_includes_content_label" for="remove_cssjs_singles_' + singleId + '_includes_content">' + W3TCRemoveCssJsData.lang.singlesIncludesContentLabelExclude + '</label></th>' +
+				'<td>' +
+				'<textarea id="remove_cssjs_singles_' + singleId + '_includes_content" name="user-experience-remove-cssjs-singles[' + singleId + '][includes_content]" rows="5" cols="50" ></textarea>' +
+				'<p class="description remove_cssjs_singles_' + singleId + '_includes_content_description">' + W3TCRemoveCssJsData.lang.singlesIncludesContentDescriptionExclude + '</p>' +
+				'<div class="description_example">' +
+				'<p class="description_example_trigger"><span class="dashicons dashicons-editor-help"></span><span class="description_example_text">' + W3TCRemoveCssJsData.lang.singlesExampleTrigger + '</span></p>' +
+				'<div class="description">' +
+				'<code>' + W3TCRemoveCssJsData.lang.singlesIncludesContentExample + '</code>' +
+				'</div>' +
+				'</div>' +
+				'</td>' +
+				'</tr>' +
+				'</table>' +
+				'</li>'
+			);
 
-					jQuery('#remove_cssjs_singles_empty').remove();
-					jQuery('#remove_cssjs_singles').append(li);
-					window.location.hash = '#remove_cssjs_singles_' + singleID;
-					li.find('tr:not(:first-child)').slideToggle(50);
-					li.find('tr:first-child td .description').first().toggle(50);
-					li.find('tr:first-child td .description_example').toggle(50);
-					li.find('.accordion-toggle').toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
-					li.find('textarea').first().focus();
-				}
-			} else {
-				alert(W3TCRemoveCssJsData.lang.singlesEmptyUrl);
-			}
+			jQuery('#remove_cssjs_singles_empty').remove();
+			jQuery('#remove_cssjs_singles').append(li);
+			window.location.hash = '#remove_cssjs_singles_' + singleId;
+			li.find('tr:not(:first-child)').slideToggle(50);
+			li.find('tr:first-child td .description').first().toggle(50);
+			li.find('tr:first-child td .description_example').toggle(50);
+			li.find('.accordion-toggle').toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
+			li.find('.remove_cssjs_singles_path').focus();
 		}
 	);
 
@@ -125,13 +104,10 @@ jQuery(function() {
 			let $inputField = jQuery(this);
 			let singlePath = $inputField.val();
 			let originalValue = $inputField.data('originalValue');
+		
+			if (singlePath && null !== singlePath) {
+				singlePath = singlePath.trim();
 
-			if (null === singlePath) {
-				return;
-			}
-
-			singlePath = singlePath.trim();
-			if (singlePath) {
 				let exists = false;
 
 				jQuery('.remove_cssjs_singles_path').not($inputField).each(
@@ -140,6 +116,13 @@ jQuery(function() {
 							alert(W3TCRemoveCssJsData.lang.singlesExists);
 							exists = true;
 							$inputField.val(originalValue);
+							// A timeout is needed here as the alert "steals" focus and causes a race condition.
+							setTimeout(
+								function() {
+									$inputField.focus();
+								},
+								100
+							);
 							return false;
 						}
 					}
@@ -150,6 +133,14 @@ jQuery(function() {
 				}
 			} else {
 				alert(W3TCRemoveCssJsData.lang.singlesEmptyUrl);
+				$inputField.val(originalValue);
+				// A timeout is needed here as the alert "steals" focus and causes a race condition.
+				setTimeout(
+					function() {
+						$inputField.focus();
+					},
+					100
+				);
 			}
 		}
 	);
@@ -174,13 +165,11 @@ jQuery(function() {
 		'click',
 		'.remove_cssjs_singles_delete',
 		function () {
-			if (confirm(W3TCRemoveCssJsData.lang.singlesDeleteConfirm)) {
-				jQuery(this).parents('#remove_cssjs_singles li').remove();
-				if (0 === jQuery('#remove_cssjs_singles li').length) {
-					jQuery('#remove_cssjs_singles').append('<li id="remove_cssjs_singles_empty">' + W3TCRemoveCssJsData.lang.singlesNoEntries + '<input type="hidden" name="user-experience-remove-cssjs-singles[]"></li>');
-				}
-				w3tc_beforeupload_bind();
+			jQuery(this).parents('#remove_cssjs_singles li').remove();
+			if (0 === jQuery('#remove_cssjs_singles li').length) {
+				jQuery('#remove_cssjs_singles').append('<li id="remove_cssjs_singles_empty">' + W3TCRemoveCssJsData.lang.singlesNoEntries + '<input type="hidden" name="user-experience-remove-cssjs-singles[]"></li>');
 			}
+			w3tc_beforeupload_bind();
 		}
 	);
 

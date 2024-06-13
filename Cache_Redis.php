@@ -96,9 +96,9 @@ class Cache_Redis extends Cache_Base {
 		$this->_verify_tls_certificates = ( isset( $config['verify_tls_certificates'] ) && $config['verify_tls_certificates'] );
 		$this->_password                = $config['password'];
 		$this->_dbid                    = $config['dbid'];
-		$this->_timeout                 = $config['timeout'];
-		$this->_retry_interval          = $config['retry_interval'];
-		$this->_read_timeout            = $config['read_timeout'];
+		$this->_timeout                 = $config['timeout'] ?? 3600000;
+		$this->_retry_interval          = $config['retry_interval'] ?? 3600000;
+		$this->_read_timeout            = $config['read_timeout'] ?? 60.0;
 
 		/**
 		 * When disabled - no extra requests are made to obtain key version,
