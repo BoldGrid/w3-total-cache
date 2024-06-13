@@ -9,6 +9,11 @@
  */
 
 jQuery(function() {
+	const wpadminbar_height = (jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0,
+		nav_bar_height = (jQuery('#w3tc-top-nav-bar').length) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0,
+		options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
+		form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
+
 	jQuery(document).on(
 		'click',
 		'#w3tc_remove_cssjs_singles_add',
@@ -22,6 +27,7 @@ jQuery(function() {
 					if (!isNaN(currentId)) {
 						maxId = Math.max(maxId, currentId);
 					}
+				}
 			);
 
 			const singleId = maxId + 1;
@@ -88,12 +94,24 @@ jQuery(function() {
 
 			jQuery('#remove_cssjs_singles_empty').remove();
 			jQuery('#remove_cssjs_singles').append(li);
-			window.location.hash = '#remove_cssjs_singles_' + singleId;
 			li.find('tr:not(:first-child)').slideToggle(50);
 			li.find('tr:first-child td .description').first().toggle(50);
 			li.find('tr:first-child td .description_example').toggle(50);
 			li.find('.accordion-toggle').toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
-			li.find('.remove_cssjs_singles_path').focus();
+
+			// Scroll to taget after .5 seconds.
+			setTimeout(
+				function() {
+					jQuery('html, body').animate(
+						{
+							scrollTop: li.find('.remove_cssjs_singles_path').offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height - 10
+						},
+						600
+					);
+					li.find('.remove_cssjs_singles_path').focus();
+				},
+				500
+			);
 		}
 	);
 
