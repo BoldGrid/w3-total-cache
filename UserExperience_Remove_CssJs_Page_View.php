@@ -134,7 +134,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 								<?php esc_html_e( 'Target CSS/JS:', 'w3-total-cache' ); ?>
 							</th>
 							<td>
-								<input class="remove_cssjs_singles_path" type="text" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][url_pattern]" value="<?php echo esc_attr( $single_config['url_pattern'] ); ?>" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>>
+								<input class="remove_cssjs_singles_path" type="text" required="required" name="user-experience-remove-cssjs-singles[<?php echo esc_attr( $single_id ); ?>][url_pattern]" value="<?php echo esc_attr( $single_config['url_pattern'] ); ?>" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>>
 								<input type="button" class="button remove_cssjs_singles_delete" value="<?php esc_html_e( 'Delete', 'w3-total-cache' ); ?>" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled'; ?>/>
 							</td>
 						</tr>

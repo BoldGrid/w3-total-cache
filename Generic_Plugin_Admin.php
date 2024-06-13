@@ -647,7 +647,6 @@ class Generic_Plugin_Admin {
 								'singlesIncludesDescriptionExclude' => __( 'Specify the relative or absolute page URLs from which the above match(es) should be excluded. Include one entry per line.', 'w3-total-cache' ),
 								'singlesIncludesDescriptionInclude' => __( 'Specify the relative or absolute page URLs from which the above match(es) should be included. Include one entry per line.', 'w3-total-cache' ),
 								'singlesEmptyUrl'                   => __( 'Empty match pattern!', 'w3-total-cache' ),
-								'singlesDeleteConfirm'              => __( 'Are you sure want to delete this entry?', 'w3-total-cache' ),
 							),
 						)
 					);
