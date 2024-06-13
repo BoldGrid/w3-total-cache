@@ -74,7 +74,7 @@ Util_Ui::config_overloading_button(
 					'class'  => array(),
 					'src'    => array(),
 					'alt'    => array(),
-					'width' => array(),
+					'width'  => array(),
 					'height' => array(),
 				),
 				'input'  => array(
