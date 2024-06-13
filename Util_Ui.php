@@ -1104,7 +1104,7 @@ class Util_Ui {
 		}
 
 		if ( $is_w3tc_free && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
-			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html__( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
@@ -1146,7 +1146,7 @@ class Util_Ui {
 		}
 
 		if ( ! $is_pro && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
-			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html__( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
@@ -2031,7 +2031,7 @@ class Util_Ui {
 	 * @param string $score_description
 	 */
 	public static function print_score_block( $score, $score_description ) {
-		$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $score . '</div><p>' . esc_html( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $score_description . '</div></div>';
+		$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $score . '</div><p>' . esc_html__( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $score_description . '</div></div>';
 		echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 	}
 }
