@@ -179,7 +179,6 @@ class UserExperience_Remove_CssJs_Mutator {
 				// Check if current page content match any defined conditions.
 				$content_match = false;
 				foreach ( $data['includes_content'] as $include ) {
-					// Unescape quotes.
 					if ( strpos( $this->buffer, $include ) !== false ) {
 						$content_match = true;
 						break;

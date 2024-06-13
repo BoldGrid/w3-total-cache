@@ -639,11 +639,7 @@ class Generic_Plugin_Admin {
 								'singlesPathExampleDirLabel'               => __( 'Target all CSS/JS from a plugin/theme:', 'w3-total-cache' ),
 								'singlesPathExampleDir'                    => wp_kses(
 									sprintf(
-										// translators: 1  HTML line break tag.
-										__(
-											'https://example.com/wp-content/plugins/example-plugin/%1$s/wp-content/plugins/example-plugin/',
-											'w3-total-cache'
-										),
+										'https://example.com/wp-content/plugins/example-plugin/%1$s/wp-content/plugins/example-plugin/',
 										'<br/>'
 									),
 									array(
@@ -653,11 +649,7 @@ class Generic_Plugin_Admin {
 								'singlesPathExampleFileLabel'              => __( 'Target a specific CSS/JS file:', 'w3-total-cache' ),
 								'singlesPathExampleFile'                   => wp_kses(
 									sprintf(
-										// translators: 1  HTML line break tag.
-										__(
-											'https://example.com/wp-content/themes/example-theme/example-script.js%1$s/wp-content/themes/example-script.js%1$sexample-script.js',
-											'w3-total-cache'
-										),
+										'https://example.com/wp-content/themes/example-theme/example-script.js%1$s/wp-content/themes/example-script.js%1$sexample-script.js',
 										'<br/>'
 									),
 									array(
@@ -680,11 +672,7 @@ class Generic_Plugin_Admin {
 								'singlesIncludesDescriptionInclude'        => __( 'Specify the conditions for which the target file should be included based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
 								'singlesIncludesExample'                   => wp_kses(
 									sprintf(
-										// translators: 1  HTML line break tag.
-										__(
-											'https://example.com/example-page/%1$s/example-page/%1$sexample-page?arg=example-arg',
-											'w3-total-cache'
-										),
+										'https://example.com/example-page/%1$s/example-page/%1$sexample-page?arg=example-arg',
 										'<br/>'
 									),
 									array(
@@ -697,11 +685,7 @@ class Generic_Plugin_Admin {
 								'singlesIncludesContentDescriptionInclude' => __( 'Specify the conditions for which the target file should be included based on matching page content. Include one entry per line.', 'w3-total-cache' ),
 								'singlesIncludesContentExample'            => wp_kses(
 									sprintf(
-										// translators: 1  HTML line break tag.
-										__(
-											'&lt;div id="example-id"&gt;%1$s&lt;span class="example-class"&gt;%1$sname="example-name"',
-											'w3-total-cache'
-										),
+										'&lt;div id="example-id"&gt;%1$s&lt;span class="example-class"&gt;%1$sname="example-name"',
 										'<br/>'
 									),
 									array(
