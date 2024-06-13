@@ -104,7 +104,7 @@ class UserExperience_Remove_CssJs_Mutator {
 		}
 
 		$this->buffer = preg_replace_callback(
-			'~(<link.*?href.*?\/>)|(<script.*?src.*?<\/script>)~is',
+			'~(<link.+?href.+?>)|(<script.+?src.+?</script>)~is',
 			array( $this, 'remove_content' ),
 			$this->buffer
 		);
@@ -161,10 +161,15 @@ class UserExperience_Remove_CssJs_Mutator {
 			home_url( $wp->request ),
 			trailingslashit( home_url( $wp->request ) ),
 		);
-
+//Util_Debug::debug('current_pages',$current_pages);
+//Util_Debug::debug('singles_includes',$this->singles_includes);
 		foreach ( $this->singles_includes as $id => $data ) {
+			Util_Debug::debug('match',strpos( $content, $data['url_pattern'] ));
+			Util_Debug::debug('content',$content);
+			Util_Debug::debug('url_pattern',$data['url_pattern'] );
 			// Check if the defined single CSS/JS file is present in HTML content.
 			if ( ! empty( $data ) && strpos( $content, $data['url_pattern'] ) !== false ) {
+				Util_Debug::debug('includes_content',$data['includes']);
 				// Check if current page URL(s) match any defined conditions.
 				$page_match = array_intersect(
 					$current_pages,
@@ -184,7 +189,8 @@ class UserExperience_Remove_CssJs_Mutator {
 						break;
 					}
 				}
-
+				Util_Debug::debug('page_match',$page_match);
+				Util_Debug::debug('content_match',$content_match);
 				/**
 				 * If set to exclude, remove the file if the page matches defined URLs.
 				 * If set to include, Remove the file if the page doesn't match defined URLs.
