@@ -229,7 +229,6 @@ class UserExperience_Remove_CssJs_Extension {
 						$new_cssjs_singles[ $single_id ]['includes_content'] = Util_Environment::textarea_to_array( $single_config['includes_content'] );
 					}
 				}
-Util_Debug::debug('new_cssjs_singles',$new_cssjs_singles);
 				$new_config->set( 'user-experience-remove-cssjs-singles', $new_cssjs_singles );
 			}
 
