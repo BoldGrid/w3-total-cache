@@ -39,6 +39,13 @@ class UserExperience_Remove_CssJs_Mutator {
 	private $singles_includes = array();
 
 	/**
+	 * Page buffer.
+	 *
+	 * @var string
+	 */
+	private $buffer = '';
+
+	/**
 	 * User Experience Remove CSS/JS Mutator constructor.
 	 *
 	 * @since 2.7.0
@@ -68,7 +75,7 @@ class UserExperience_Remove_CssJs_Mutator {
 			)
 		);
 
-		$buffer = $r['buffer'];
+		$this->buffer = $r['buffer'];
 
 		// Sets includes whose matches will be stripped site-wide.
 		$this->includes = $this->config->get_array(
@@ -87,21 +94,22 @@ class UserExperience_Remove_CssJs_Mutator {
 			$new_array = array();
 			foreach ( $this->singles_includes as $match => $data ) {
 				$new_array[] = array(
-					"url_pattern" => $match,
-					"action"      => isset( $data["action"] ) ? $data["action"] : 'exclude',
-					"includes"    => $data["includes"]
+					'url_pattern'      => $match,
+					'action'           => isset( $data['action'] ) ? $data['action'] : 'exclude',
+					'includes'         => $data['includes'],
+					'includes_content' => $data['includes_content'],
 				);
 			}
 			$this->singles_includes = $new_array;
 		}
 
-		$buffer = preg_replace_callback(
-			'~(<link.*?href.*?/>)|(<script.*?src.*?<\/script>)~is',
+		$this->buffer = preg_replace_callback(
+			'~(<link.+?href.+?>)|(<script.+?src.+?</script>)~is',
 			array( $this, 'remove_content' ),
-			$buffer
+			$this->buffer
 		);
 
-		return $buffer;
+		return $this->buffer;
 	}
 
 	/**
@@ -154,28 +162,36 @@ class UserExperience_Remove_CssJs_Mutator {
 			trailingslashit( home_url( $wp->request ) ),
 		);
 
-		// Only removes matched CSS/JS on matching pages.
 		foreach ( $this->singles_includes as $id => $data ) {
-			// Check if the given single CSS/JS remove rule URL is present in HTML content.
+			// Check if the defined single CSS/JS file is present in HTML content.
 			if ( ! empty( $data ) && strpos( $content, $data['url_pattern'] ) !== false ) {
-				// Check if current page matches defined pages for given single CSS/JS remove rule.
+				// Check if current page URL(s) match any defined conditions.
 				$page_match = array_intersect(
 					$current_pages,
 					array_map(
 						function ($value) {
-							return ltrim($value, '/');
+							return ltrim( $value, '/' );
 						},
 						$data['includes']
 					)
 				);
 
+				// Check if current page content match any defined conditions.
+				$content_match = false;
+				foreach ( $data['includes_content'] as $include ) {
+					if ( strpos( $this->buffer, $include ) !== false ) {
+						$content_match = true;
+						break;
+					}
+				}
+
 				/**
 				 * If set to exclude, remove the file if the page matches defined URLs.
 				 * If set to include, Remove the file if the page doesn't match defined URLs.
 				 */
-				if ( 'exclude' === $data['action'] && $page_match ) {
+				if ( 'exclude' === $data['action'] && ( $page_match || $content_match ) ) {
 					return true;
-				} elseif ( 'include' === $data['action'] && ! $page_match ) {
+				} elseif ( 'include' === $data['action'] && ! ( $page_match || $content_match ) ) {
 					return true;
 				}
 			}
