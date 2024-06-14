@@ -371,15 +371,6 @@ class Generic_Plugin {
 					'parent' => 'w3tc',
 					'title'  => __( 'Debug: Overlays', 'w3-total-cache' ),
 				);
-				$menu_items['90020.generic'] = array(
-					'id'     => 'w3tc_overlay_support_us',
-					'parent' => 'w3tc_debug_overlays',
-					'title'  => __( 'Support Us', 'w3-total-cache' ),
-					'href'   => wp_nonce_url(
-						network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=generic_support_us' ),
-						'w3tc'
-					),
-				);
 			}
 
 			$menu_items = apply_filters( 'w3tc_admin_bar_menu', $menu_items );
