@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.5
-Stable tag: 2.7.2
+Stable tag: 2.7.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -280,6 +280,19 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.7.3 =
+* Fix: Page Cache: File Cleaner now uses the correct expiration setting
+* Fix: PHP 8.1 warnings for Redis connect
+* Fix: Google ChartJS error
+* Update: Bumped PHP minimum version to 7.2.5; added support for up to PHP 8.3
+* Update: AWS SDK PHP dependency updated to 3.314.2
+* Update: Microsoft Azure Storage SDK PHP dependency updated to 1.5.4 (blob) and 1.5.2 (common)
+* Update: Several other PHP and NodeJS dependencies updated
+* Update: Made improvements to the Remove CSS/JS feature
+* Update: Removed the newsletter signup popup and added it in the footer
+* Update: Added use-case proof and links to settings pages
+* Update: Changed CDN default to none and updated the StackPath EOL notice
 
 = 2.7.2 =
 * Fix: Page Cache cleanup purging all if browsercache.html.lifetime > W3TC_CACHE_FILE_EXPIRE_MAX
