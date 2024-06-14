@@ -5,7 +5,7 @@
         "symfony/deprecation-contracts": "^2.5",
         "sebastian/comparator": "^3.0.5",
         "sebastian/recursion-context": "^3.0.2",
-        "nikic/php-parser": "^4.15.1",
+        "nikic/php-parser": "^5.0.2",
         "microsoft/azure-storage-blob": "^1.5"
     },
     "require-dev": {
