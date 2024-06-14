@@ -153,14 +153,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 										<code>
 											<?php
 											echo wp_kses(
-												sprintf(
-													// translators: 1  HTML line break tag.
-													__(
-														'https://example.com/wp-content/plugins/example-plugin/%1$s/wp-content/plugins/example-plugin/',
-														'w3-total-cache'
-													),
-													'<br/>'
-												),
+												'https://example.com/wp-content/plugins/example-plugin/<br/>/wp-content/plugins/example-plugin/',
 												array(
 													'br' => array(),
 												)
@@ -171,14 +164,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 										<code>
 											<?php
 											echo wp_kses(
-												sprintf(
-													// translators: 1  HTML line break tag.
-													__(
-														'https://example.com/wp-content/themes/example-theme/example-script.js%1$s/wp-content/themes/example-script.js%1$sexample-script.js',
-														'w3-total-cache'
-													),
-													'<br/>'
-												),
+												'https://example.com/wp-content/themes/example-theme/example-script.js<br/>/wp-content/themes/example-script.js<br/>example-script.js',
 												array(
 													'br' => array(),
 												)
@@ -274,14 +260,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 										<code>
 											<?php
 											echo wp_kses(
-												sprintf(
-													// translators: 1  HTML line break tag.
-													__(
-														'https://example.com/example-page/%1$s/example-page/%1$sexample-page?arg=example-arg',
-														'w3-total-cache'
-													),
-													'<br/>'
-												),
+												'https://example.com/example-page/<br/>/example-page/<br/>example-page?arg=example-arg',
 												array(
 													'br' => array(),
 												)
@@ -326,14 +305,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 										<code>
 											<?php
 											echo wp_kses(
-												sprintf(
-													// translators: 1  HTML line break tag.
-													__(
-														'&lt;div id="example-id"&gt;%1$s&lt;span class="example-class"&gt;%1$sname="example-name"',
-														'w3-total-cache'
-													),
-													'<br/>'
-												),
+												'&lt;div id="example-id"&gt;<br/>&lt;span class="example-class"&gt;<br/>name="example-name"',
 												array(
 													'br' => array(),
 												)
