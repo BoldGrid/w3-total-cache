@@ -163,7 +163,6 @@ class UserExperience_Remove_CssJs_Mutator {
 		);
 
 		foreach ( $this->singles_includes as $id => $data ) {
-			$data['url_pattern'] = preg_replace( '/\?.*$/', '', $data['url_pattern'] );
 			// Check if the defined single CSS/JS file is present in HTML content.
 			if ( ! empty( $data ) && strpos( $content, $data['url_pattern'] ) !== false ) {
 				// Check if current page URL(s) match any defined conditions.
