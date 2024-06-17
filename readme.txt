@@ -1055,6 +1055,9 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Upgrade Notice ==
 
+= 2.7.3 =
+Thanks for using W3 Total Cache! The minimum required PHP version has been raised to PHP 7.2.5.  We recommend using PHP 8.  StackPath CDN has cased all operations and will be removed in a future release.  We recommend switching to Bunny CDN.
+
 = 0.9.7.5 =
 Users running Cloudflare CDN may experience issues beginning June 6th. Please upgrade to W3 Total Cache 0.9.7.5 for the latest Cloudflare patches.
 
