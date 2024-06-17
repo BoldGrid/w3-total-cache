@@ -44,8 +44,8 @@ define( 'W3TC_PARTNER_CONVESIO', 'https://api.w3-edge.com/v1/redirects/partners/
 define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners/dreamhost' );
 
 // Image Service rate constants.
-define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 100 );
-define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 1000 );
+define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 10 );
+define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 100 );
 define( 'W3TC_IMAGE_SERVICE_PRO_HLIMIT', 10000 );
 define( 'W3TC_IMAGE_SERVICE_PRO_MLIMIT', 0 );
 
