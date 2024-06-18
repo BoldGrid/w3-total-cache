@@ -18,7 +18,7 @@ variable_not_equals('W3D_VARNISH', ['varnish'],
 )
 */
 
-let cronPath;
+let cacheFilePath;
 
 describe('', function() {
 	this.timeout(sys.suiteTimeout);
@@ -61,9 +61,9 @@ describe('', function() {
 		await page.goto(env.blogSiteUrl +
 			'garbage-collection.php?action=get_path&' +
 			'blog_id=' + env.blogId + '&url=' + env.homeUrl);
-		cronPath = await page.$eval('#path', (e) => e.textContent);
- 		log.log('Cache file ' + cronPath + ' exists');
-		expect(fs.existsSync(cronPath)).is.true;
+		cacheFilePath = await page.$eval('#path', (e) => e.textContent);
+		log.log('Expect cache file ' + cacheFilePath + ' to exist');
+		expect(fs.existsSync(cacheFilePath)).is.true;
 	});
 
 
@@ -84,7 +84,7 @@ describe('', function() {
 		expect(parseInt(interval[1])).equals(3);
 		log.success('GC Interval set to 3 seconds');
 
-		log.log('check if cache file ' + cronPath + ' was successfully deleted');
-		expect(fs.existsSync(cronPath)).is.false;
+		log.log('check if cache file ' + cacheFilePath + ' was successfully deleted');
+		expect(fs.existsSync(cacheFilePath)).is.false;
 	});
 });
