@@ -58,6 +58,9 @@ describe('', function() {
 		let added = await page.$eval('#added', (e) => e.textContent);
 		expect(added).equals('ok');
 
+		console.log(env.blogSiteUrl +
+			'garbage-collection.php?action=get_path&' +
+			'blog_id=' + env.blogId + '&url=' + env.homeUrl);
 		await page.goto(env.blogSiteUrl +
 			'garbage-collection.php?action=get_path&' +
 			'blog_id=' + env.blogId + '&url=' + env.homeUrl);
@@ -70,8 +73,11 @@ describe('', function() {
 
 	it('run cron hook to delete cache', async() => {
 		// checking in 5 seconds if GS worked out
-		log.log('Waiting 5 seconds to check if the file will be deleted by garbage collection.');
+		log.log('Waiting 5 seconds to check if the file will be deleted by garbage collection');
 		await new Promise(r => setTimeout(r, 5000));
+		console.log(env.blogSiteUrl +
+			'garbage-collection.php?action=garbage_collection&' +
+			'blog_id=' + env.blogId + '&url=' + env.homeUrl);
 		await page.goto(env.blogSiteUrl +
 			'garbage-collection.php?action=garbage_collection&' +
 			'blog_id=' + env.blogId + '&url=' + env.homeUrl);
