@@ -207,7 +207,7 @@ class Extension_ImageService_Api {
 							'</a>'
 						)
 				);
-				set_transient( 'w3tc_imageservice_limited', $result, 5 * MINUTE_IN_SECONDS );
+				set_transient( 'w3tc_imageservice_limited', $result, 30 * MINUTE_IN_SECONDS );
 			} elseif ( isset( $response_body['error']['id'] ) && 'exceeded-monthly' === $response_body['error']['id'] ) {
 				$result['message'] = sprintf(
 					// translators: 1: Monthly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
