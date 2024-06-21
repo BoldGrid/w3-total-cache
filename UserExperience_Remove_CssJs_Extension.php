@@ -63,13 +63,6 @@ class UserExperience_Remove_CssJs_Extension {
 		Util_Bus::add_ob_callback( 'removecssjs', array( $this, 'ob_callback' ) );
 
 		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ), 10, 2 );
-
-		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 12 );
-
-		/**
-		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
-		*/
-		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 	}
 
 	/**

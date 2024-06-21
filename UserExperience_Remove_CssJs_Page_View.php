@@ -127,6 +127,10 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 		<?php
 		if ( ! empty( $remove_cssjs_singles ) ) {
 			foreach ( $remove_cssjs_singles as $single_id => $single_config ) {
+				if ( ! is_array( $single_config ) ) {
+					continue;
+				}
+
 				$single_config['includes']         = isset( $single_config['includes'] ) && ! empty( $single_config['includes'] ) ? implode( "\r\n", (array) $single_config['includes'] ) : '';
 				$single_config['includes_content'] = isset( $single_config['includes_content'] ) && ! empty( $single_config['includes_content'] ) ? implode( "\r\n", (array) $single_config['includes_content'] ) : '';
 				?>
