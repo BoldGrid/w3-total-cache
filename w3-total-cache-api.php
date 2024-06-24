@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.7.2' );
+define( 'W3TC_VERSION', '2.7.3' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -44,8 +44,8 @@ define( 'W3TC_PARTNER_CONVESIO', 'https://api.w3-edge.com/v1/redirects/partners/
 define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners/dreamhost' );
 
 // Image Service rate constants.
-define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 100 );
-define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 1000 );
+define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 10 );
+define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 100 );
 define( 'W3TC_IMAGE_SERVICE_PRO_HLIMIT', 10000 );
 define( 'W3TC_IMAGE_SERVICE_PRO_MLIMIT', 0 );
 

@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.5
-Stable tag: 2.7.2
+Stable tag: 2.7.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,10 +14,6 @@ Search Engine (SEO) &amp; Performance Optimization (WPO) via caching. Integrated
 W3 Total Cache (W3TC) improves the SEO, Core Web Vitals and overall user experience of your site by increasing website performance and reducing load times by leveraging features like content delivery network (CDN) integration and the latest best practices.
 
 W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framework for WordPress trusted by millions of publishers, web developers, and web hosts worldwide for more than a decade. It is the total performance solution for optimizing WordPress Websites.
-
-An inside look:
-
-https://youtu.be/7AsNSSrZq4Y
 
 *BENEFITS*
 
@@ -105,7 +101,7 @@ It's in every web site owner's best interest is to make sure that the performanc
 
 = Which WordPress versions are supported? =
 
-To use all features in the suite, a minimum of version WordPress 3.8 with PHP 5.6 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
+To use all features in the suite, a minimum of version WordPress 5.3 with PHP 7.2.5 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
 
 = Why doesn't minify work for me? =
 
@@ -284,6 +280,19 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.7.3 =
+* Fix: Page Cache: File Cleaner now uses the correct expiration setting
+* Fix: PHP 8.1 warnings for Redis connect
+* Fix: Google ChartJS error
+* Update: Bumped PHP minimum version to 7.2.5; added support for up to PHP 8.3
+* Update: AWS SDK PHP dependency updated to 3.314.2
+* Update: Microsoft Azure Storage SDK PHP dependency updated to 1.5.4 (blob) and 1.5.2 (common)
+* Update: Several other PHP and NodeJS dependencies updated
+* Update: Made improvements to the Remove CSS/JS feature
+* Update: Removed the newsletter signup popup and added it in the footer
+* Update: Added use-case proof and links to settings pages
+* Update: Changed CDN default to none and updated the StackPath EOL notice
 
 = 2.7.2 =
 * Fix: Page Cache cleanup purging all if browsercache.html.lifetime > W3TC_CACHE_FILE_EXPIRE_MAX
@@ -1045,6 +1054,9 @@ Please reach out to all of these people and support their projects if you're so 
 
 
 == Upgrade Notice ==
+
+= 2.7.3 =
+Thanks for using W3 Total Cache! The minimum required PHP version has been raised to PHP 7.2.5.  We recommend using PHP 8.  StackPath CDN has cased all operations and will be removed in a future release.  We recommend switching to Bunny CDN.
 
 = 0.9.7.5 =
 Users running Cloudflare CDN may experience issues beginning June 6th. Please upgrade to W3 Total Cache 0.9.7.5 for the latest Cloudflare patches.
