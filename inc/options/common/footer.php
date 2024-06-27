@@ -110,6 +110,9 @@ do_action( 'w3tc-dashboard-footer' );
 		<div class="w3tc-footer-column-2">
 			<div class="w3tc-footer-inner-column-50">
 				<h2><?php esc_html_e( 'Follow Us', 'w3-total-cache' ); ?></h2>
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/newsletter-signup/' ); ?>">
+				<span class="dashicons dashicons-email-alt"></span><?php esc_html_e( 'Newsletter Sign Up', 'w3-total-cache' ); ?>
+				</a>
 				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://twitter.com/w3edge' ); ?>" alt="<?php esc_attr_e( 'W3 Edge', 'w3-total-cache' ); ?>">
 					<span class="dashicons dashicons-twitter"></span><?php esc_html_e( 'W3 Edge', 'w3-total-cache' ); ?>
 				</a>
@@ -126,34 +129,6 @@ do_action( 'w3tc-dashboard-footer' );
 					<div class="w3tc-bunnycdn-logo"></div>
 				</a>
 			</div>
-			<div class="clear"></div>
-			<h2><?php esc_html_e( 'Join the Newsletter!', 'w3-total-cache' ); ?></h2>
-			<a>
-				<div id="mc_embed_shell">
-					<link href="//cdn-images.mailchimp.com/embedcode/classic-061523.css" rel="stylesheet" type="text/css">
-					<style type="text/css">
-							#mc_embed_signup{background:#fff; width: 250px;"}
-					</style>
-					<div id="mc_embed_signup">
-						<form action="https://w3-edge.us5.list-manage.com/subscribe/post?u=a45a1f769145bb5516d43de7a&amp;id=90e40613ad&amp;f_id=00f4c2e1f0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" style="margin-left: 0;">
-							<div id="mc_embed_signup_scroll">
-								<div class="indicates-required"></div>
-								<div class="mc-field-group"><input type="email" name="EMAIL" class="required email" id="mce-EMAIL" required="" value="" placeholder="Email Address"></div>
-								<div hidden=""><input type="hidden" name="tags" value="1655"></div>
-									<div id="mce-responses" class="clear">
-										<div class="response" id="mce-error-response" style="display: none;"></div>
-										<div class="response" id="mce-success-response" style="display: none;"></div>
-									</div>
-								<div aria-hidden="true" style="position: absolute; left: -5000px;"><input type="text" name="b_a45a1f769145bb5516d43de7a_90e40613ad" tabindex="-1" value=""></div>
-								<div class="clear">
-									<input type="submit" name="subscribe" id="mc-embedded-subscribe" class="button" value="Subscribe" style="font-size: 13px;  background: #135e96;  border-color: #135e96;  color: #fff;">
-								</div>
-							</div>
-						</form>
-					</div>
-					<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
-				</div>
-			</a>
 		</div>
 	</div>
 </div>
