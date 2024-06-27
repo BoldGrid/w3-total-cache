@@ -460,9 +460,9 @@ class Cache_Redis extends Cache_Base {
 
 		if ( substr( $server, 0, 5 ) === 'unix:' ) {
 			$connect_args[] = trim( substr( $server, 5 ) );
-			$connect_args[] = null; // port.
+			$connect_args[] = 0; // Port (int).  For no port, use integer 0.
 		} else {
-			list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
+			list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, 0 ); // Port (int).  For no port, use integer 0.
 			$connect_args[]    = $ip;
 			$connect_args[]    = $port;
 		}
