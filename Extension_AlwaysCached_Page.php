@@ -27,13 +27,27 @@ class Extension_AlwaysCached_Page {
 	 */
 	public static function admin_print_scripts() {
 		if ( 'alwayscached' === Util_Request::get_string( 'extension' ) ) {
-			wp_enqueue_script(
+			wp_register_script( 'w3tc_extension_alwayscached', plugins_url( 'Extension_AlwaysCached_Page_View.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
+
+			wp_localize_script(
 				'w3tc_extension_alwayscached',
-				plugins_url( 'Extension_AlwaysCached_Page_View.js', W3TC_FILE ),
-				array(),
-				'1.0',
-				true
+				'W3TCAlwaysCachedData',
+				array(
+					'lang' => array(
+						'processQueueItemSuccess'   => __( 'Successfully regenerated entry.', 'w3-total-cache' ),
+						'processQueueItemFail'      => __( 'Failed to process queue item.', 'w3-total-cache' ),
+						'processQueueItemFailAlert' => __( 'An unknown error occured!', 'w3-total-cache' ),
+						'queueItemRegenerate'       => __( 'Regenerate', 'w3-total-cache' ),
+						'queueItemCommand'          => __( 'command', 'w3-total-cache' ),
+						'queuePageLabel'            => __( 'Pages:', 'w3-total-cache' ),
+						'queuePageJump'             => __( 'Page #', 'w3-total-cache' ),
+						'queuePageJumpSubmit'       => __( 'Go', 'w3-total-cache' ),
+						'queueLoadFailAlert'        => __( 'An unknown error occured!', 'w3-total-cache' ),
+					),
+				)
 			);
+
+			wp_enqueue_script( 'w3tc_extension_alwayscached' );
 		}
 	}
 

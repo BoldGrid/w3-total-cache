@@ -29,17 +29,18 @@ jQuery(function() {
 						action: 'w3tc_ajax',
 						_wpnonce: w3tc_nonce[0],
 						w3tc_action: 'extension_alwayscached_process_queue_item',
-						item_url: item_url
+						item_url: item_url,
 					},
 					success: function(response) {
 						if ( response.success && 'ok' === response.data ) {
-							alert('Successfully regenerated entry.');
+							alert(W3TCAlwaysCachedData.lang.processQueueItemSuccess);
 							row.remove();
-						} else if ( ! response.success && 'failed' === response.data ) {
-							alert('An unknown error occurred.');
+						} else if ( ! response.success || 'failed' === response.data ) {
+							alert(W3TCAlwaysCachedData.lang.processQueueItemFail);
 						}
 					},
 					error: function( xhr, status, error ) {
+						alert(W3TCAlwaysCachedData.lang.processQueueItemFailAlert);
 						console.error('AJAX error:', status, error );
 					}
 				}
@@ -155,8 +156,8 @@ jQuery(function() {
 						response.rows,
 						function (index, row) {
 							tbody += '<tr>' +
-								'<td><span class="w3tc_alwayscached_queue_item dashicons dashicons-update" title="Regenerate" data-url="' + row.url + '"></span></td>' +
-								'<td style="white-space: nowrap">' + (':' === row.key.charAt(0) ? 'command ' + row.key : row.url) + '</td>' +
+								'<td><span class="w3tc_alwayscached_queue_item dashicons dashicons-update" title="' + W3TCAlwaysCachedData.lang.queueItemRegenerate + '" data-url="' + row.url + '"></span></td>' +
+								'<td style="white-space: nowrap">' + (':' === row.key.charAt(0) ? W3TCAlwaysCachedData.lang.queueItemCommand + ' ' + row.key : row.url) + '</td>' +
 								'<td>' + row.requests_count + '</td>' +
 								'</tr>';
 						}
@@ -164,7 +165,7 @@ jQuery(function() {
 
 					jQuery('.w3tc_alwayscached_queue_view_table[data-mode="' + mode + '"] tbody').html( tbody );
 
-					var pagination = '<span>Pages: </span>';
+					var pagination = '<span>' + W3TCAlwaysCachedData.lang.queuePageLabel + ' </span>';
 					var total_pages = response.total_pages;
 
 					if (10 >= total_pages) {
@@ -202,13 +203,13 @@ jQuery(function() {
 							pagination += '<a href="#" class="w3tc_alwayscached_queue_view_pagination_page" data-mode="' + mode + '" data-page="' + total_pages + '">' + total_pages + '</a>';
 						}
 
-						pagination += '<br><input type="number" min="1" max="' + total_pages + '" class="w3tc_alwayscached_queue_view_pagination_page_input" data-mode="' + mode + '" name="page-jump" placeholder="Page #"><input class="button w3tc_alwayscached_queue_view_pagination_page_input_submit" data-mode="' + mode + '" type="submit" value="Go">';
+						pagination += '<br><input type="number" min="1" max="' + total_pages + '" class="w3tc_alwayscached_queue_view_pagination_page_input" data-mode="' + mode + '" name="page-jump" placeholder="' + W3TCAlwaysCachedData.lang.queuePageJump + '"><input class="button w3tc_alwayscached_queue_view_pagination_page_input_submit" data-mode="' + mode + '" type="submit" value="' + W3TCAlwaysCachedData.lang.queuePageJumpSubmit + '">';
 					}
 
 					jQuery('.w3tc_alwayscached_queue_view_pagination_container[data-mode="' + mode + '"').html(pagination);
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
-					alert('An unknown error occured!');
+					alert(W3TCAlwaysCachedData.lang.queueLoadFailAlert);
 					console.error('AJAX Error: ', textStatus, errorThrown);
 				}
 			}

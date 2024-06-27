@@ -84,6 +84,8 @@ class Extension_AlwaysCached_Plugin_Admin {
 
 		add_filter( 'w3tc_admin_actions', array( $this, 'w3tc_admin_actions' ) );
 
+		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
+
 		add_action(
 			'w3tc_ajax',
 			array(
@@ -105,5 +107,18 @@ class Extension_AlwaysCached_Plugin_Admin {
 	public function w3tc_admin_actions( $handlers ) {
 		$handlers['alwayscached'] = 'Extension_AlwaysCached_AdminActions';
 		return $handlers;
+	}
+
+	public function w3tc_admin_menu( $menu ) {
+		if ( Extension_AlwaysCached_Plugin::is_enabled() ) {
+			$menu['w3tc_extensions&extension=alwayscached&action=view'] = array(
+				'page_title'     => __( 'Page Cache Queue', 'w3-total-cache' ),
+				'menu_text'      => __( 'Page Cache Queue', 'w3-total-cache' ),
+				'visible_always' => false,
+				'order'          => 450
+			);
+		}
+
+		return $menu;
 	}
 }

@@ -214,19 +214,82 @@ class Extension_AlwaysCached_Plugin {
 			return $groups;
 		}
 
-		if ( in_array( '', $groups, true ) ) {
-			$o         = Dispatcher::component( 'PgCache_Flush' );
-			$extension = $o->get_ahead_generation_extension( '' );
+		if ( in_array( '', $groups, true ) && $c->get_boolean( array( 'alwayscached', 'flush_all' ) ) ) {
+			$o             = Dispatcher::component( 'PgCache_Flush' );
+			$extension     = $o->get_ahead_generation_extension( '' );
+			$no_cache_vals = array( 'no-cache', 'no-store', 'must-revalidate', 'private' );
 
-			Extension_AlwaysCached_Queue::add(
-				':flush_group.regenerate',
-				$extension,
-				125
-			);
-			Extension_AlwaysCached_Queue::add(
-				':flush_group.remainder',
-				$extension,
-				150
+			if ( $c->get_boolean( array( 'alwayscached', 'flush_all_home' ) ) ) {
+				$home_url         = rtrim( home_url(), '/' ) . '/';
+				$response_headers = wp_remote_head( $home_url );
+
+				if ( ! is_wp_error( $response_headers ) ) {
+					$cache_control_vals = array_map( 'trim', explode( ',', wp_remote_retrieve_header( $response_headers, 'Cache-Control' ) ) );
+					if ( ! array_intersect( $no_cache_vals, $cache_control_vals ) ) {
+						Extension_AlwaysCached_Queue::add( $home_url, $extension );
+					}
+				}
+			}
+
+			$posts_count = $c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) );
+			if ( $posts_count > 0 ) {
+				$posts = get_posts(
+					array(
+						'post_type'      => 'post',
+						'post_status'    => 'publish',
+						'posts_per_page' => $posts_count,
+						'order'          => 'DESC',
+						'orderby'        => 'modified',
+					)
+				);
+				foreach ( $posts as $post ) {
+					$permalink        = get_permalink( $post );
+					$response_headers = wp_remote_head( $permalink );
+
+					if ( is_wp_error( $response_headers ) ) {
+						continue;
+					}
+
+					$cache_control_vals = array_map( 'trim', explode( ',', wp_remote_retrieve_header( $response_headers, 'Cache-Control' ) ) );
+					if ( array_intersect( $no_cache_vals, $cache_control_vals ) ) {
+						continue;
+					}
+
+					Extension_AlwaysCached_Queue::add( $permalink, $extension );
+				}
+			}
+
+			$pages_count = $c->get_integer( array( 'alwayscached', 'flush_all_pages_count' ) );
+			if ( $pages_count > 0 ) {
+				$posts = get_posts(
+					array(
+						'post_type'      => 'page',
+						'post_status'    => 'publish',
+						'posts_per_page' => $pages_count,
+						'order'          => 'DESC',
+						'orderby'        => 'modified',
+					)
+				);
+				foreach ( $posts as $post ) {
+					$permalink        = get_permalink( $post );
+					$response_headers = wp_remote_head( $permalink );
+
+					if ( is_wp_error( $response_headers ) ) {
+						continue;
+					}
+
+					$cache_control_vals = array_map( 'trim', explode( ',', wp_remote_retrieve_header( $response_headers, 'Cache-Control' ) ) );
+					if ( array_intersect( $no_cache_vals, $cache_control_vals ) ) {
+						continue;
+					}
+
+					Extension_AlwaysCached_Queue::add( $permalink, $extension );
+				}
+			}
+
+			$o->flush_group_after_ahead_generation(
+				empty( $extension['group'] ) ? '' : $extension['group'],
+				$extension
 			);
 
 			$groups = array_filter(

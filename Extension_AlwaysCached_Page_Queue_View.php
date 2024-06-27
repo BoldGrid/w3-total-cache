@@ -44,17 +44,7 @@ if ( 'postponed' === $queue_mode ) {
 					<span class="w3tc_alwayscached_queue_item dashicons dashicons-update" title="<?php esc_attr_e( 'Regenerate', 'w3-total-cache' ); ?>" data-url="<?php echo esc_url( $r['url'] ); ?>"></span>
 				</td>
 				<td style="white-space: nowrap">
-					<?php if ( ':' === substr( $r['key'], 0, 1 ) ) : ?>
-						<?php if ( ':flush_group.regenerate' === $r['key'] ) : ?>
-							Command: Queue Regeneration on Purge all
-						<?php elseif ( ':flush_group.remainder' === $r['key'] ) : ?>
-							Command: Purge Remainder after Purge all
-						<?php else : ?>
-							command <?php echo esc_html( $r['key'] ); ?>
-						<?php endif ?>
-					<?php else : ?>
-						<?php echo esc_html( $r['url'] ); ?>
-					<?php endif ?>
+					<?php echo esc_html( $r['url'] ); ?>
 				</td>
 				<td>
 					<?php echo esc_html( $r['requests_count'] ); ?>
