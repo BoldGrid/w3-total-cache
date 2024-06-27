@@ -10,7 +10,8 @@ vendor/
 /qa/env/working/*
 /qa/node_modules/*
 .DS_Store
-.phpunit.result.cache
+.phpunit.*
+codecov
 coverage.xml
 error_log
 nbproject

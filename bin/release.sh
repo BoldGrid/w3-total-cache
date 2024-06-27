@@ -8,8 +8,8 @@ echo 'Finding and deleting .git folders.'
 find vendor/ -name '.git' -type d -print -exec rm -rf {} +
 
 # Cleanup development and build contents.
-rm -fv package.* phpcs.xml
-rm -rfv qa
+rm -f codecov coverage.xml package.* phpcs.xml
+rm -rf qa
 
 # Find and replace symlinks in the "vendor" directory.
 for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) $i;done
