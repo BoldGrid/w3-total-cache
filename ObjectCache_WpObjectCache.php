@@ -185,6 +185,30 @@ class ObjectCache_WpObjectCache {
 	}
 
 	/**
+	 * Flush group.
+	 *
+	 * @return boolean
+	 */
+	function flush_group( $group ) {
+		$result = true;
+		foreach ( $this->_caches as $engine )
+			$result = $result && $engine->flush_group( $group );
+		return $result;
+	}
+
+	/**
+	 * Flush runtime.
+	 *
+	 * @return boolean
+	 */
+	function flush_runtime() {
+		$result = true;
+		foreach ( $this->_caches as $engine )
+			$result = $result && $engine->flush_runtime();
+		return $result;
+	}
+
+	/**
 	 * Add global groups
 	 *
 	 * @param array   $groups

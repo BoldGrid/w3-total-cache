@@ -10,31 +10,31 @@ class ObjectCache_WpObjectCache_Regular {
 	 *
 	 * @var array
 	 */
-	var $cache = array();
+	private $cache = array();
 
 	/**
 	 * Array of global groups
 	 *
 	 * @var array
 	 */
-	var $global_groups = array();
+	private $global_groups = array();
 
 	/**
 	 * List of non-persistent groups
 	 *
 	 * @var array
 	 */
-	var $nonpersistent_groups = array();
+	private $nonpersistent_groups = array();
 
 	/**
 	 * Total count of calls
 	 */
-	var $cache_total = 0;
+	private $cache_total = 0;
 
 	/**
 	 * Cache hits count
 	 */
-	var $cache_hits = 0;
+	private $cache_hits = 0;
 	/**
 	 * Number of flushes
 	 */
@@ -46,7 +46,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 *
 	 * @var integer
 	 */
-	var $time_total = 0;
+	private $time_total = 0;
 
 	private $log_filehandle = false;
 
@@ -58,30 +58,23 @@ class ObjectCache_WpObjectCache_Regular {
 	private $_blog_id;
 
 	/**
-	 * Key cache
-	 *
-	 * @var array
-	 */
-	var $_key_cache = array();
-
-	/**
 	 * Config
 	 */
-	var $_config = null;
+	private $_config = null;
 
 	/**
 	 * Caching flag
 	 *
 	 * @var boolean
 	 */
-	var $_caching = false;
+	private $_caching = false;
 
 	/**
 	 * Dynamic Caching flag
 	 *
 	 * @var boolean
 	 */
-	var $_can_cache_dynamic = null;
+	private $_can_cache_dynamic = null;
 	/**
 	 * Cache reject reason
 	 *
@@ -94,14 +87,22 @@ class ObjectCache_WpObjectCache_Regular {
 	 *
 	 * @var integer
 	 */
-	var $_lifetime = null;
+	private $_lifetime = null;
+
+	/**
+	 * Current global version of cache.
+	 * It's a level above group's cache version.
+	 *
+	 * @var integer
+	 */
+	private $key_version_all = null;
 
 	/**
 	 * Debug flag
 	 *
 	 * @var boolean
 	 */
-	var $_debug = false;
+	private $_debug = false;
 	private $stats_enabled = false;
 
 	/**
@@ -150,7 +151,7 @@ class ObjectCache_WpObjectCache_Regular {
 			!in_array( $group, $this->nonpersistent_groups ) &&
 			$this->_check_can_cache_runtime( $group ) ) {
 			$cache = $this->_get_cache( null, $group );
-			$v = $cache->get( $key );
+			$v = $cache->get( $key, $group );
 
 			/* for debugging
 				$a = $cache->_get_with_old_raw( $key );
@@ -162,7 +163,12 @@ class ObjectCache_WpObjectCache_Regular {
 
 			$cache_total_inc = 1;
 
-			if ( is_array( $v ) && isset( $v['content'] ) ) {
+			if (
+				is_array( $v )
+				&& isset( $v['content'] )
+				&& isset( $v['key_version_all'] )
+				&& intval( $v['key_version_all'] ) >= $this->key_version_all_get()
+			) {
 				$found = true;
 				$value = $v['content'];
 				$cache_hits_inc = 1;
@@ -248,7 +254,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 *
 	 * @since 2.2.8
 	 *
-	 * @param string $ids   IDs.
+	 * @param array $ids   IDs.
 	 * @param string $group Group.
 	 * @param bool   $force Force flag.
 	 *
@@ -306,11 +312,18 @@ class ObjectCache_WpObjectCache_Regular {
 				}
 			}
 
-			$v = array( 'content' => $data );
+			$v              = array(
+				'content'         => $data,
+				'key_version_all' => $this->key_version_all_get(),
+			);
 			$cache_sets_inc = 1;
-			$ext_return = $cache->set( $key, $v,
-				( $expire ? $expire : $this->_lifetime ) );
-			$return = $ext_return;
+			$ext_return     = $cache->set(
+				$key,
+				$v,
+				( $expire ? $expire : $this->_lifetime ),
+				$group
+			);
+			$return         = $ext_return;
 		}
 
 		if ( $this->_is_transient_group( $group ) &&
@@ -382,13 +395,14 @@ class ObjectCache_WpObjectCache_Regular {
 			return false;
 		}
 
-		$key = $this->_get_cache_key( $id, $group );
+		$key    = $this->_get_cache_key( $id, $group );
 		$return = true;
+
 		unset( $this->cache[$key] );
 
 		if ( $this->_caching && !in_array( $group, $this->nonpersistent_groups ) ) {
 			$cache = $this->_get_cache( null, $group );
-			$return = $cache->delete( $key );
+			$return = $cache->delete( $key, $group );
 		}
 
 		if ( $this->_is_transient_group( $group ) &&
@@ -491,9 +505,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return boolean
 	 */
 	function reset() {
-		$this->cache = array();
-
-		return true;
+		$this->flush_runtime();
 	}
 
 	/**
@@ -514,15 +526,14 @@ class ObjectCache_WpObjectCache_Regular {
 		global $w3_multisite_blogs;
 		if ( isset( $w3_multisite_blogs ) ) {
 			foreach ( $w3_multisite_blogs as $blog ) {
-				$cache = $this->_get_cache( $blog->userblog_id );
-				$cache->flush();
+				$this->key_version_all_increment( $blog->userblog_id );
 			}
 		} else {
-			$cache = $this->_get_cache( 0 );
-			$cache->flush();
+			if ( 0 !== $this->_blog_id ) {
+				$this->key_version_all_increment( 0 );
+			}
 
-			$cache = $this->_get_cache();
-			$cache->flush();
+			$this->key_version_all_increment();
 		}
 
 		if ( $this->_debug || $this->stats_enabled ) {
@@ -541,6 +552,94 @@ class ObjectCache_WpObjectCache_Regular {
 					0,
 					(int)($time * 1000000)
 				) );
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Flush runtime.
+	 *
+	 * @return boolean
+	 */
+	public function flush_runtime() {
+		$this->cache = array();
+
+		if ( $this->_debug || $this->stats_enabled ) {
+			$this->cache_flushes++;
+			$this->time_total += $time;
+
+			if ( $this->_debug ) {
+				$this->log_call(
+					array(
+						gmdate( 'r' ),
+						'flush_runtime',
+						'',
+						'',
+						'',
+						0,
+						0,
+					)
+				);
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Flush group.
+	 *
+	 * @return boolean
+	 */
+	public function flush_group( $group ) {
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time_start = Util_Debug::microtime();
+		}
+
+		if ( $this->_config->get_boolean( 'objectcache.debug_purge' ) ) {
+			Util_Debug::log_purge( 'objectcache', 'flush', $reason );
+		}
+
+		$this->cache = array();
+
+		global $w3_multisite_blogs;
+
+		if ( isset( $w3_multisite_blogs ) ) {
+			foreach ( $w3_multisite_blogs as $blog ) {
+				$cache = $this->_get_cache( $blog->userblog_id );
+				$cache->flush( $group );
+			}
+		} else {
+			if ( 0 !== $this->_blog_id ) {
+				$cache = $this->_get_cache( 0 );
+				$cache->flush( $group );
+			}
+
+			$cache = $this->_get_cache();
+
+			$cache->flush( $group );
+		}
+
+		if ( $this->_debug || $this->stats_enabled ) {
+			$time = Util_Debug::microtime() - $time_start;
+
+			$this->cache_flushes++;
+			$this->time_total += $time;
+
+			if ( $this->_debug ) {
+				$this->log_call(
+					array(
+						date( 'r' ),
+						'flush_group',
+						'',
+						'',
+						'',
+						0,
+						(int) ( $time * 1000000 ),
+					)
+				);
 			}
 		}
 
@@ -737,6 +836,41 @@ class ObjectCache_WpObjectCache_Regular {
 	function switch_blog( $blog_id ) {
 		$this->reset();
 		$this->_blog_id = $blog_id;
+	}
+
+	/**
+	 * Global key fetch.
+	 *
+	 * @param integer $blog_id Blog ID.
+	 *
+	 * @return string
+	 */
+	private function key_version_all_get( $blog_id = null ) {
+		if ( is_null( $this->key_version_all ) ) {
+			$cache = $this->_get_cache( $blog_id, 'key_version_all' );
+			$v     = $cache->get( 'key_version_all', 'key_version_all' );
+
+			$this->key_version_all = empty( $v['content'] ) ? 1 : max( 1, intval( $v['content'] ) );
+		}
+
+		return $this->key_version_all;
+	}
+
+	/**
+	 * Global key increment.
+	 *
+	 * @param integer $blog_id Blog ID.
+	 *
+	 * @return void
+	 */
+	private function key_version_all_increment( $blog_id = null ) {
+		$cache = $this->_get_cache( $blog_id, 'key_version_all' );
+		$cache->set(
+			'key_version_all',
+			array( 'content' => $this->key_version_all_get( $blog_id ) + 1 ),
+			0,
+			'key_version_all'
+		);
 	}
 
 	/**

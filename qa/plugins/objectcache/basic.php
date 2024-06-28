@@ -56,4 +56,13 @@ switch ( $action ) {
 			)
 		);
 		die;
+
+	case 'flushGroup':
+		$result = wp_cache_flush_group( $_REQUEST['group'] );
+		echo $result ? 'flushGroup ok' : 'flushGroup error';
+		die;
+
+	case 'flush':
+		$result = wp_cache_flush();
+		echo $result ? 'flush ok' : 'flush error';
 }
