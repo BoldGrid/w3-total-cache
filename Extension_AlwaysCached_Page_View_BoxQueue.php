@@ -33,10 +33,10 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 				<?php echo esc_html( $count_pending ); ?>
 				<?php if ( $count_pending > 0 ) : ?>
 					&nbsp;
-					<a href="#" class="w3tc_alwayscached_queue" data-mode="pending">
+					<a href="#" class="w3tc-alwayscached-queue" data-mode="pending">
 						<?php esc_html_e( 'View', 'w3-total-cache' ); ?>
 					</a>
-					<section class="w3tc_alwayscached_queue_section"></section>
+					<section class="w3tc-alwayscached-queue-section"></section>
 				<?php endif ?>
 			</td>
 		</tr>
@@ -50,10 +50,10 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 				<?php echo esc_html( $count_postponed ); ?>
 				<?php if ( $count_postponed > 0 ) : ?>
 					&nbsp;
-					<a href="#" class="w3tc_alwayscached_queue" data-mode="postponed">
+					<a href="#" class="w3tc-alwayscached-queue" data-mode="postponed">
 						<?php esc_html_e( 'View', 'w3-total-cache' ); ?>
 					</a>
-					<section class="w3tc_alwayscached_queue_section"></section>
+					<section class="w3tc-alwayscached-queue-section"></section>
 				<?php endif ?>
 			</td>
 		</tr>
@@ -92,9 +92,9 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 		<tr>
 			<th></th>
 			<td>
-				<input id="w3tc_alwayscached_process" type="submit" name="w3tc_alwayscached_process"
+				<input id="w3tc-alwayscached-process" type="submit" name="w3tc_alwayscached_process"
 					value="<?php esc_html_e( 'Regenerate All', 'w3-total-cache' ); ?>" class="button" />
-				<input id="w3tc_alwayscached_empty" type="submit" name="w3tc_alwayscached_empty"
+				<input id="w3tc-alwayscached-empty" type="submit" name="w3tc_alwayscached_empty"
 					value="<?php esc_html_e( 'Clear Queue', 'w3-total-cache' ); ?>" class="button" />
 			</td>
 		</tr>

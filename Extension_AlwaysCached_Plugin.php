@@ -61,14 +61,15 @@ class Extension_AlwaysCached_Plugin {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_REQUEST['w3tc_alwayscached'] ) ) {
 			Extension_AlwaysCached_Worker::run();
-			exit();
+			wp_die();
 		}
 
 		$enabled  = $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 		$interval = $c->get_string( array( 'alwayscached', 'wp_cron_interval' ) );
 		if ( $enabled && ! empty( $interval ) && ! wp_next_scheduled( 'w3tc_alwayscached_wp_cron' ) ) {
-			Util_Debug::debug('cron','set');
 			wp_schedule_event( time(), $interval, 'w3tc_alwayscached_wp_cron' );
+		} elseif ( ! $enabled ) {
+			wp_clear_scheduled_hook( 'w3tc_alwayscached_wp_cron' );
 		}
 	}
 

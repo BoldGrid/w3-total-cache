@@ -29,10 +29,10 @@ $wp_disabled  = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 					'alwayscached',
 					'wp_cron',
 				),
-				'label'          => esc_html__( 'Enable WP Cron Job', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
-				'description'    => esc_html__( 'Enabling this will schedule a WP cron job that will process the queue and regenerate cache files.', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will process the queue and regenerate cache files.', 'w3-total-cache' ),
 			)
 		);
 

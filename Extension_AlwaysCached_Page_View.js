@@ -11,7 +11,7 @@
 jQuery(function() {
 	jQuery(document).on(
 		'click',
-		'.w3tc_alwayscached_queue_item',
+		'.w3tc-alwayscached-queue-item',
 		function(e) {
 			e.preventDefault();
 
@@ -50,12 +50,12 @@ jQuery(function() {
 
 	jQuery(document).on(
 		'click',
-		'#w3tc_alwayscached_process, #w3tc_alwayscached_empty',
+		'#w3tc-alwayscached-process, #w3tc-alwayscached-empty',
 		function(e) {
 			setTimeout(
 				function() {
-					jQuery('#w3tc_alwayscached_process').prop('disabled', true);
-					jQuery('#w3tc_alwayscached_empty').prop('disabled', true);
+					jQuery('#w3tc-alwayscached-process').prop('disabled', true);
+					jQuery('#w3tc-alwayscached-empty').prop('disabled', true);
 				},
 				100
 			);
@@ -64,7 +64,7 @@ jQuery(function() {
 
 	jQuery(document).on(
 		'click',
-		'.w3tc_alwayscached_queue',
+		'.w3tc-alwayscached-queue',
 		function(e) {
 			e.preventDefault();
 
@@ -92,30 +92,30 @@ jQuery(function() {
 
 	jQuery(document).on(
 		'click',
-		'.w3tc_alwayscached_queue_filter_submit',
+		'.w3tc-alwayscached-queue-filter-submit',
 		function(e) {
 			e.preventDefault();
 			var mode = jQuery(this).data('mode');
-			var search = jQuery(this).closest('section').find('.w3tc_alwayscached_queue_filter').val();
+			var search = jQuery(this).closest('section').find('.w3tc-alwayscached-queue-filter').val();
             loadQueueTable( mode, 1, search );
 		}
 	);
 
 	jQuery(document).on(
 		'click',
-		'.w3tc_alwayscached_queue_view_pagination_page',
+		'.w3tc-alwayscached-queue-view-pagination-page',
 		function(e) {
 			e.preventDefault();
             var mode = jQuery(this).data('mode');
 			var page = jQuery(this).data('page');
-			var search = jQuery(this).closest('section').find('.w3tc_alwayscached_queue_filter').val();
+			var search = jQuery(this).closest('section').find('.w3tc-alwayscached-queue-filter').val();
             loadQueueTable( mode, page, search );
 		}
 	);
 
 	jQuery(document).on(
 		'change',
-		'.w3tc_alwayscached_queue_view_pagination_page_input',
+		'.w3tc-alwayscached-queue-view-pagination-page-input',
 		function() {
 			var max = parseInt(jQuery(this).attr('max'));
 			var min = parseInt(jQuery(this).attr('min'));
@@ -129,13 +129,23 @@ jQuery(function() {
 
 	jQuery(document).on(
 		'click',
-		'.w3tc_alwayscached_queue_view_pagination_page_input_submit',
+		'.w3tc-alwayscached-queue-view-pagination-page-input-submit',
 		function(e) {
 			e.preventDefault();
 			var mode = jQuery(this).data('mode');
-			var page = parseInt(jQuery(this).closest('section').find('.w3tc_alwayscached_queue_view_pagination_page_input').val());
-			var search = jQuery(this).closest('section').find('.w3tc_alwayscached_queue_filter').val();
+			var page = parseInt(jQuery(this).closest('section').find('.w3tc-alwayscached-queue-view-pagination-page-input').val());
+			var search = jQuery(this).closest('section').find('.w3tc-alwayscached-queue-filter').val();
 			loadQueueTable( mode, page, search );
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#alwayscached___wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+        
+        	jQuery('#alwayscached___wp_cron_interval').prop('disabled', ! $enabled);
 		}
 	);
 
@@ -170,21 +180,21 @@ jQuery(function() {
 						response.rows,
 						function (index, row) {
 							tbody += '<tr>' +
-								'<td><span class="w3tc_alwayscached_queue_item dashicons dashicons-update" title="' + W3TCAlwaysCachedData.lang.queueItemRegenerate + '" data-url="' + row.url + '"></span></td>' +
+								'<td><span class="w3tc-alwayscached-queue-item dashicons dashicons-update" title="' + W3TCAlwaysCachedData.lang.queueItemRegenerate + '" data-url="' + row.url + '"></span></td>' +
 								'<td style="white-space: nowrap">' + (':' === row.key.charAt(0) ? W3TCAlwaysCachedData.lang.queueItemCommand + ' ' + row.key : row.url) + '</td>' +
 								'<td>' + row.requests_count + '</td>' +
 								'</tr>';
 						}
 					);
 
-					jQuery('.w3tc_alwayscached_queue_view_table[data-mode="' + mode + '"] tbody').html( tbody );
+					jQuery('.w3tc-alwayscached-queue-view-table[data-mode="' + mode + '"] tbody').html( tbody );
 
 					var pagination = '<span>' + W3TCAlwaysCachedData.lang.queuePageLabel + ' </span>';
 					var total_pages = response.total_pages;
 
 					if (10 >= total_pages) {
 						for (var i = 1; i <= total_pages; i++) {
-							pagination += '<a href="#" class="w3tc_alwayscached_queue_view_pagination_page' + (page === i ? ' active' : '') + '" data-mode="' + mode + '" data-page="' + i + '">' + i + '</a>';
+							pagination += '<a href="#" class="w3tc-alwayscached-queue-view-pagination-page' + (page === i ? ' active' : '') + '" data-mode="' + mode + '" data-page="' + i + '">' + i + '</a>';
 						}
 					} else {
 						var start_mid, end_mid;
@@ -200,27 +210,27 @@ jQuery(function() {
 						}
 
 						if (start_mid > 1) {
-							pagination += '<a href="#" class="w3tc_alwayscached_queue_view_pagination_page" data-mode="' + mode + '" data-page="1">1</a>';
+							pagination += '<a href="#" class="w3tc-alwayscached-queue-view-pagination-page" data-mode="' + mode + '" data-page="1">1</a>';
 							if (start_mid > 2) {
 								pagination += '<span>...</span>';
 							}
 						}
 
 						for (var i = start_mid; i <= end_mid; i++) {
-							pagination += '<a href="#" class="w3tc_alwayscached_queue_view_pagination_page' + (page === i ? ' active' : '') + '" data-mode="' + mode + '" data-page="' + i + '">' + i + '</a>';
+							pagination += '<a href="#" class="w3tc-alwayscached-queue-view-pagination-page' + (page === i ? ' active' : '') + '" data-mode="' + mode + '" data-page="' + i + '">' + i + '</a>';
 						}
 
 						if (end_mid < total_pages) {
 							if (end_mid < total_pages - 1) {
 								pagination += '<span>...</span>';
 							}
-							pagination += '<a href="#" class="w3tc_alwayscached_queue_view_pagination_page" data-mode="' + mode + '" data-page="' + total_pages + '">' + total_pages + '</a>';
+							pagination += '<a href="#" class="w3tc-alwayscached-queue-view-pagination-page" data-mode="' + mode + '" data-page="' + total_pages + '">' + total_pages + '</a>';
 						}
 
-						pagination += '<br><input type="number" min="1" max="' + total_pages + '" class="w3tc_alwayscached_queue_view_pagination_page_input" data-mode="' + mode + '" name="page-jump" placeholder="' + W3TCAlwaysCachedData.lang.queuePageJump + '"><input class="button w3tc_alwayscached_queue_view_pagination_page_input_submit" data-mode="' + mode + '" type="submit" value="' + W3TCAlwaysCachedData.lang.queuePageJumpSubmit + '">';
+						pagination += '<br><input type="number" min="1" max="' + total_pages + '" class="w3tc-alwayscached-queue-view-pagination-page-input" data-mode="' + mode + '" name="page-jump" placeholder="' + W3TCAlwaysCachedData.lang.queuePageJump + '"><input class="button w3tc-alwayscached-queue-view-pagination-page-input-submit" data-mode="' + mode + '" type="submit" value="' + W3TCAlwaysCachedData.lang.queuePageJumpSubmit + '">';
 					}
 
-					jQuery('.w3tc_alwayscached_queue_view_pagination_container[data-mode="' + mode + '"').html(pagination);
+					jQuery('.w3tc-alwayscached-queue-view-pagination-container[data-mode="' + mode + '"').html(pagination);
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					alert(W3TCAlwaysCachedData.lang.queueLoadFailAlert);
