@@ -1612,4 +1612,29 @@ class Util_Environment {
 
 		return $values_array;
 	}
+
+	/**
+	 * Is there a partial array intersections match?
+	 *
+	 * @since  X.X.X
+	 * @static
+	 *
+	 * @param array $array1 Array 1.
+	 * @param array $array2 Array 2.
+	 * @return bool
+	 */
+	public static function array_intersect_partial( array $array1, array $array2 ): bool {
+		$result = array();
+
+		foreach ( $array1 as $string1 ) {
+			foreach ( $array2 as $string2 ) {
+				if ( strpos( $string1, $string2 ) !== false || strpos( $string2, $string1 ) !== false ) {
+					$result[] = $string1;
+					break;
+				}
+			}
+		}
+
+		return ! empty( $result );
+	}
 }
