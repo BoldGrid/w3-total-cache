@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Extension_AlwaysCached_Page_View.php
+ * File: Extension_AlwaysCached_Page_View_BoxFlushAll.php
  *
  * Render the AlwaysCached settings page - flush all box.
  *
@@ -20,7 +20,7 @@ $disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 
 ?>
 <div class="metabox-holder">
-	<?php Util_Ui::postbox_header( esc_html__( 'Purge All', 'w3-total-cache' ), '', 'credentials' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Purge All Behavior', 'w3-total-cache' ), '', 'purge-all-behavior' ); ?>
 	<table class="form-table">
 		<?php
 
@@ -59,14 +59,16 @@ $disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 
 		Util_Ui::config_item(
 			array(
-				'key'         => array(
+				'key'          => array(
 					'alwayscached',
 					'flush_all_posts_count',
 				),
-				'label'       => esc_html__( 'Number of Latest Posts:', 'w3-total-cache' ),
-				'description' => esc_html__( 'Number of latest posts to regenerate', 'w3-total-cache' ),
-				'control'     => 'textbox',
-				'disabled'    => $disabled,
+				'label'        => esc_html__( 'Number of Latest Posts:', 'w3-total-cache' ),
+				'description'  => esc_html__( 'Number of latest posts to regenerate', 'w3-total-cache' ),
+				'control'      => 'textbox',
+				'textbox_type' => 'number',
+				'default'      => '10',
+				'disabled'     => $disabled,
 			)
 		);
 
@@ -79,6 +81,8 @@ $disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 				'label'       => esc_html__( 'Number of Latest Pages:', 'w3-total-cache' ),
 				'description' => esc_html__( 'Number of latest pages to regenerate', 'w3-total-cache' ),
 				'control'     => 'textbox',
+				'textbox_type' => 'number',
+				'default'      => '10',
 				'disabled'    => $disabled,
 			)
 		);

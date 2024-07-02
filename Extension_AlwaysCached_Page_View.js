@@ -50,6 +50,20 @@ jQuery(function() {
 
 	jQuery(document).on(
 		'click',
+		'#w3tc_alwayscached_process, #w3tc_alwayscached_empty',
+		function(e) {
+			setTimeout(
+				function() {
+					jQuery('#w3tc_alwayscached_process').prop('disabled', true);
+					jQuery('#w3tc_alwayscached_empty').prop('disabled', true);
+				},
+				100
+			);
+		}
+	);
+
+	jQuery(document).on(
+		'click',
 		'.w3tc_alwayscached_queue',
 		function(e) {
 			e.preventDefault();

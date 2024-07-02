@@ -43,6 +43,9 @@ class Extension_AlwaysCached_Plugin {
 		add_filter( 'w3tc_pagecache_flush_url', array( $this, 'w3tc_pagecache_flush_url' ), 1000 );
 		add_filter( 'w3tc_pagecache_flush_all_groups', array( $this, 'w3tc_pagecache_flush_all_groups' ), 1000 );
 		add_filter( 'w3tc_pagecache_rules_apache_rewrite_cond', array( $this, 'w3tc_pagecache_rules_apache_rewrite_cond' ) );
+		
+		// Cron job.
+		add_action( 'w3tc_alwayscached_wp_cron', array( $this, 'w3tc_alwayscached_wp_cron' ) );
 	}
 
 	/**
@@ -53,10 +56,19 @@ class Extension_AlwaysCached_Plugin {
 	 * @return void
 	 */
 	public function init() {
+		$c = Dispatcher::config();
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_REQUEST['w3tc_alwayscached'] ) ) {
 			Extension_AlwaysCached_Worker::run();
 			exit();
+		}
+
+		$enabled  = $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
+		$interval = $c->get_string( array( 'alwayscached', 'wp_cron_interval' ) );
+		if ( $enabled && ! empty( $interval ) && ! wp_next_scheduled( 'w3tc_alwayscached_wp_cron' ) ) {
+			Util_Debug::debug('cron','set');
+			wp_schedule_event( time(), $interval, 'w3tc_alwayscached_wp_cron' );
 		}
 	}
 
@@ -314,6 +326,17 @@ class Extension_AlwaysCached_Plugin {
 		$config            = Dispatcher::config();
 		$extensions_active = $config->get_array( 'extensions.active' );
 		return Util_Environment::is_w3tc_pro( $config ) && array_key_exists( 'alwayscached', $extensions_active );
+	}
+
+	/**
+	 * Cron job for processing queue via WP cron.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_alwayscached_wp_cron() {
+		Extension_AlwaysCached_Worker::run();
 	}
 }
 

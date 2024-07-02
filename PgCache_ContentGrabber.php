@@ -1506,8 +1506,8 @@ class PgCache_ContentGrabber {
 
 		$key_urlpart =
 			$request_url_fragments['host'] .
-			$request_url_fragments['path'] .
-			$request_url_fragments['querystring'];
+			( $request_url_fragments['path'] ?? '' ) .
+			( $request_url_fragments['querystring'] ?? '' );
 
 		$key_urlpart = $this->_get_page_key_urlpart( $key_urlpart, $page_key_extension );
 

@@ -21,12 +21,12 @@ $count_postponed = Extension_AlwaysCached_Queue::row_count_postponed();
 $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 ?>
 <div class="metabox-holder">
-	<?php Util_Ui::postbox_header( esc_html__( 'Queue', 'w3-total-cache' ), '', 'credentials' ); ?>
+	<?php Util_Ui::postbox_header( esc_html__( 'Queue', 'w3-total-cache' ), '', 'queue' ); ?>
 	<table class="form-table">
 		<tr>
 			<th style="width: 300px;">
 				<label>
-					<?php esc_html_e( 'Pending pages in queue:', 'w3-total-cache' ); ?>
+					<?php esc_html_e( 'Pending in queue:', 'w3-total-cache' ); ?>
 				</label>
 			</th>
 			<td>
@@ -43,7 +43,7 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 		<tr>
 			<th>
 				<label>
-					<?php esc_html_e( 'Postponed pages in queue:', 'w3-total-cache' ); ?>
+					<?php esc_html_e( 'Postponed in queue:', 'w3-total-cache' ); ?>
 				</label>
 			</th>
 			<td>
@@ -60,7 +60,7 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 		<tr>
 			<th>
 				<label>
-					<?php esc_html_e( 'Last regeneration run:', 'w3-total-cache' ); ?>
+					<?php esc_html_e( 'Last processed:', 'w3-total-cache' ); ?>
 				</label>
 			</th>
 			<td>
@@ -92,9 +92,9 @@ $time_lastrun = get_option( 'w3tc_alwayscached_worker_timestamp' );
 		<tr>
 			<th></th>
 			<td>
-				<input type="submit" name="w3tc_alwayscached_process"
+				<input id="w3tc_alwayscached_process" type="submit" name="w3tc_alwayscached_process"
 					value="<?php esc_html_e( 'Regenerate All', 'w3-total-cache' ); ?>" class="button" />
-				<input type="submit" name="w3tc_alwayscached_empty"
+				<input id="w3tc_alwayscached_empty" type="submit" name="w3tc_alwayscached_empty"
 					value="<?php esc_html_e( 'Clear Queue', 'w3-total-cache' ); ?>" class="button" />
 			</td>
 		</tr>
