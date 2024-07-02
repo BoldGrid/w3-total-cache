@@ -2014,6 +2014,15 @@ class Util_Ui {
 						</div>
 						<?php
 						break;
+					case 'alwayscached':
+						?>
+						<div id="w3tc-options-menu">
+							<a href="#queue"><?php esc_html_e( 'Queue', 'w3-total-cache' ); ?></a> |
+							<a href="#cron"><?php esc_html_e( 'Cron', 'w3-total-cache' ); ?></a> |
+							<a href="#purge-all-behavior"><?php esc_html_e( 'Purge All Behavior', 'w3-total-cache' ); ?></a>
+						</div>
+						<?php
+						break;
 				}
 			default:
 				?>
