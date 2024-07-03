@@ -1624,17 +1624,40 @@ class Util_Environment {
 	 * @return bool
 	 */
 	public static function array_intersect_partial( array $array1, array $array2 ): bool {
-		$result = array();
+		$result = false;
 
-		foreach ( $array1 as $string1 ) {
-			foreach ( $array2 as $string2 ) {
-				if ( strpos( $string1, $string2 ) !== false || strpos( $string2, $string1 ) !== false ) {
-					$result[] = $string1;
+		foreach ( $array1 as $url1 ) {
+			$url1 = rtrim( $url1, '/' );
+
+			foreach ( $array2 as $url2 ) {
+				$url2 = rtrim( $url2, '/' );
+
+				// Parse URLs to handle both full URLs and relative paths.
+				$parsed_url1 = wp_parse_url( $url1 );
+				$parsed_url2 = wp_parse_url( $url2 );
+
+				// Check if both parsed URLs have 'path' component.
+				if ( isset( $parsed_url1['path'], $parsed_url2['path'] ) ) {
+					// Check if $parsedUrl1 path ends with $trimmedPath2.
+					if ( substr( $parsed_url1['path'], -strlen( $parsed_url2['path'] ) ) === $parsed_url2['path'] ) {
+						// Check if host matches (if present in both URLs).
+						$is_hosts_match = ! isset( $parsed_url1['host'], $parsed_url2['host'] ) ||
+							( isset( $parsed_url1['host'], $parsed_url2['host'] ) && $parsed_url1['host'] === $parsed_url2['host'] );
+
+						// If both host and path match, consider it a match.
+						if ( $is_hosts_match ) {
+							$result = true;
+							break;
+						}
+					}
+				} elseif ( $url1 === $url2 ) {
+					// Direct comparison for full URLs that are identical.
+					$result = true;
 					break;
 				}
 			}
 		}
 
-		return ! empty( $result );
+		return $result;
 	}
 }
