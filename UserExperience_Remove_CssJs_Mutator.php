@@ -104,7 +104,7 @@ class UserExperience_Remove_CssJs_Mutator {
 		}
 
 		$this->buffer = preg_replace_callback(
-			'~(<link.+?href.+?>)|(<script.+?src.+?</script>)~is',
+			'~(<link[^>]+href[^>]+>)|(<script[^>]+src[^>]+></script>)~is',
 			array( $this, 'remove_content' ),
 			$this->buffer
 		);
