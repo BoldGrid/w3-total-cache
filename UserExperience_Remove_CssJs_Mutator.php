@@ -169,12 +169,7 @@ class UserExperience_Remove_CssJs_Mutator {
 				// Check if current page URL(s) match any defined conditions.
 				$page_match = Util_Environment::array_intersect_partial(
 					$current_pages,
-					array_map(
-						function ( $value ) {
-							return ltrim( $value, '/' );
-						},
-						$data['includes']
-					)
+					$data['includes']
 				);
 
 				// Check if current page content match any defined conditions.

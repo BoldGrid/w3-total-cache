@@ -1624,40 +1624,37 @@ class Util_Environment {
 	 * @return bool
 	 */
 	public static function array_intersect_partial( array $array1, array $array2 ): bool {
-		$result = false;
-
 		foreach ( $array1 as $url1 ) {
-			$url1 = rtrim( $url1, '/' );
-
 			foreach ( $array2 as $url2 ) {
-				$url2 = rtrim( $url2, '/' );
+				// Parse array1 URLs to handle both full URLs and relative paths.
+				// If homepage then 'path' will be null, set to '/'.
+				$parsed_url1           = wp_parse_url( trim( $url1, '/' ) );
+				$parsed_url1['path'] ??= '/';
 
-				// Parse URLs to handle both full URLs and relative paths.
-				$parsed_url1 = wp_parse_url( $url1 );
-				$parsed_url2 = wp_parse_url( $url2 );
+				// Parse array2 URLs to handle both full URLs and relative paths.
+				// If value is '/' for homepage then don't trim, otherwise tirm.
+				$parsed_url2 = wp_parse_url( '/' === $url2 ? '/' : trim( $url2, '/' ) );
 
-				// Check if both parsed URLs have 'path' component.
-				if ( isset( $parsed_url1['path'], $parsed_url2['path'] ) ) {
-					// Check if $parsedUrl1 path ends with $trimmedPath2.
-					if ( substr( $parsed_url1['path'], -strlen( $parsed_url2['path'] ) ) === $parsed_url2['path'] ) {
-						// Check if host matches (if present in both URLs).
-						$is_hosts_match = ! isset( $parsed_url1['host'], $parsed_url2['host'] ) ||
-							( isset( $parsed_url1['host'], $parsed_url2['host'] ) && $parsed_url1['host'] === $parsed_url2['host'] );
+				$is_host_set = isset( $parsed_url1['host'], $parsed_url2['host'] );
 
-						// If both host and path match, consider it a match.
-						if ( $is_hosts_match ) {
-							$result = true;
-							break;
-						}
-					}
-				} elseif ( $url1 === $url2 ) {
+				if ( $url1 === $url2 ) {
 					// Direct comparison for full URLs that are identical.
-					$result = true;
-					break;
+					return true;
+				} elseif (
+					isset( $parsed_url1['path'], $parsed_url2['path'] )
+					&& substr( $parsed_url1['path'], -strlen( $parsed_url2['path'] ) ) === $parsed_url2['path']
+					&& (
+						! $is_host_set
+						|| ( $is_host_set && $parsed_url1['host'] === $parsed_url2['host'] )
+					)
+				) {
+					// Check if both parsed URLs have 'path' and 'host' component and if they match.
+					// If either 'host' is not set but 'path' matches, consider it a match.
+					return true;
 				}
 			}
 		}
 
-		return $result;
+		return false;
 	}
 }
