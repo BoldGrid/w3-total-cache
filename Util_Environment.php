@@ -1628,8 +1628,8 @@ class Util_Environment {
 			foreach ( $array2 as $url2 ) {
 				// Parse array1 URLs to handle both full URLs and relative paths.
 				// If homepage then 'path' will be null, set to '/'.
-				$parsed_url1           = wp_parse_url( trim( $url1, '/' ) );
-				$parsed_url1['path'] ??= '/';
+				$parsed_url1         = wp_parse_url( trim( $url1, '/' ) );
+				$parsed_url1['path'] = $parsed_url1['path'] ?? '/';
 
 				// Parse array2 URLs to handle both full URLs and relative paths.
 				// If value is '/' for homepage then don't trim, otherwise tirm.
