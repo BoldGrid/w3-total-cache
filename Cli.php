@@ -376,6 +376,62 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	}
 
 	/**
+	 * Export configuration file
+	 *
+	 * ## OPTIONS
+	 * <filename>
+	 * : Filename to export -- Sanitized with sanitize_file_name()
+	 *
+	 * [--mode=<mode>]
+	 * : Mode of the file. Default: 0600 (-rw-------)
+	 *
+	 * @global $wp_filesystem
+	 * @see get_filesystem_method()
+	 *
+	 * @param array $args Arguments.
+	 * @param array $vars Variables.
+	 * @throws \Exception Exception.
+	 */
+	public function export( array $args = array(), array $vars = array() ) {
+		if ( 'direct' !== get_filesystem_method() ) {
+			\WP_CLI::error( \__( 'The filesystem must be direct.', 'w3-total-cache' ) );
+		}
+
+		$filename = \sanitize_file_name( \array_shift( $args ) );
+		$mode     = $vars['mode'] ?? '0600';
+
+		// Initialize WP_Filesystem.
+		global $wp_filesystem;
+		WP_Filesystem();
+
+		// Try to export the config and write to file.
+		try {
+			$config = new Config();
+
+			if ( ! $wp_filesystem->put_contents( $filename, $config->export( $filename ), octdec( $mode ) ) ) {
+				throw new \Exception( \__( 'Export failed', 'w3-total-cache' ) );
+			}
+		} catch ( \Exception $e ) {
+			\WP_CLI::error(
+				sprintf(
+					// translators: 1: Error message.
+					\__( 'Config export failed: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
+		}
+
+		\WP_CLI::success(
+			\sprintf(
+				// translators: 1: Filename.
+				\__( 'Configuration successfully exported to "%1$s" with mode "%2$s".', 'w3-total-cache' ),
+				$filename,
+				$mode
+			)
+		);
+	}
+
+	/**
 	 * Update query string for all static files.
 	 */
 	public function querystring() {
