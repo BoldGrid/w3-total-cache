@@ -237,22 +237,31 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 		}
 
 		if ( $op == 'get') {
-			$type =( isset( $vars['type'] ) ? $vars['type'] : 'string' );
+			$type = isset( $vars['type'] ) ? $vars['type'] : 'string';
 
-			if ( $type == 'boolean' )
-				$v = $c->get_boolean( $name ) ? 'true' : 'false';
-			elseif ( $type == 'integer' )
-				$v = $c->get_integer( $name );
-			elseif ( $type == 'string' )
-				$v = $c->get_string( $name );
-			elseif ( $type == 'array' )
-				$v = json_encode( $c->get_array( $name ), JSON_PRETTY_PRINT );
-			else {
-				\WP_CLI::error( __( 'Unknown type ' . $type, 'w3-total-cache' ) );
-				return;
+			switch ( $type ) {
+				case 'boolean':
+					$v = $c->get_boolean( $name ) ? 'true' : 'false';
+					break;
+				case 'integer':
+					$v = $c->get_integer( $name );
+					break;
+				case 'string':
+					$v = $c->get_string( $name );
+					break;
+				case 'array':
+					var_export( $c->get_array( $name ) );
+					echo "\n";
+					return;
+				case 'json':
+					echo \wp_json_encode( $c->get_array( $name ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n";
+					return;
+				default:
+					\WP_CLI::error( \__( 'Unknown type ', 'w3-total-cache' ) . $type );
+					return;
 			}
 
-			echo esc_html( $v ) . "\n";
+			echo \esc_html( $v ) . "\n";
 		} elseif ( $op == 'set' ) {
 			$type =( isset( $vars['type'] ) ? $vars['type'] : 'string' );
 
