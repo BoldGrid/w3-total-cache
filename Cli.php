@@ -241,9 +241,11 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 			switch ( $type ) {
 				case 'boolean':
+				case 'bool':
 					$v = $c->get_boolean( $name ) ? 'true' : 'false';
 					break;
 				case 'integer':
+				case 'int':
 					$v = $c->get_integer( $name );
 					break;
 				case 'string':
@@ -273,6 +275,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 			switch ( $type ) {
 				case 'boolean':
+				case 'bool':
 					if ( $value == 'true' || $value == '1' || $value == 'on' )
 						$v = true;
 					elseif ( $value == 'false' || $value == '0' || $value == 'off' )
@@ -283,6 +286,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 					}
 					break;
 				case 'integer':
+				case 'int':
 					$v = (integer)$value;
 					break;
 				case 'string':
