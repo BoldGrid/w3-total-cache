@@ -1626,13 +1626,17 @@ class Util_Environment {
 	public static function array_intersect_partial( array $array1, array $array2 ): bool {
 		foreach ( $array1 as $url1 ) {
 			foreach ( $array2 as $url2 ) {
-				// Parse array1 URLs to handle both full URLs and relative paths.
-				// If homepage then 'path' will be null, set to '/'.
+				/**
+				 * Parse array1 URLs to handle both full URLs and relative paths.
+				 * If homepage then 'path' will be null, set to '/'.
+				 */
 				$parsed_url1         = wp_parse_url( trim( $url1, '/' ) );
 				$parsed_url1['path'] = $parsed_url1['path'] ?? '/';
 
-				// Parse array2 URLs to handle both full URLs and relative paths.
-				// If value is '/' for homepage then don't trim, otherwise tirm.
+				/**
+				 * Parse array2 URLs to handle both full URLs and relative paths.
+				 * If value is '/' for homepage then don't trim, otherwise tirm.
+				 */
 				$parsed_url2 = wp_parse_url( '/' === $url2 ? '/' : trim( $url2, '/' ) );
 
 				$is_host_set = isset( $parsed_url1['host'], $parsed_url2['host'] );
@@ -1648,8 +1652,10 @@ class Util_Environment {
 						|| ( $is_host_set && $parsed_url1['host'] === $parsed_url2['host'] )
 					)
 				) {
-					// Check if both parsed URLs have 'path' and 'host' component and if they match.
-					// If either 'host' is not set but 'path' matches, consider it a match.
+					/**
+					 * Check if both parsed URLs have 'path' and 'host' component and if they match.
+					 * If either 'host' is not set but 'path' matches, consider it a match.
+					 */
 					return true;
 				}
 			}
