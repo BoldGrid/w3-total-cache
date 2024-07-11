@@ -271,25 +271,33 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			}
 			$value = array_shift( $args );
 
-			if ( $type == 'boolean' ) {
-				if ( $value == 'true' || $value == '1' || $value == 'on' )
-					$v = true;
-				elseif ( $value == 'false' || $value == '0' || $value == 'off' )
-					$v = false;
-				else {
-					\WP_CLI::error( __( '<value> parameter ' . $value . ' is not boolean', 'w3-total-cache' ) );
+			switch ( $type ) {
+				case 'boolean':
+					if ( $value == 'true' || $value == '1' || $value == 'on' )
+						$v = true;
+					elseif ( $value == 'false' || $value == '0' || $value == 'off' )
+						$v = false;
+					else {
+						\WP_CLI::error( __( '<value> parameter ' . $value . ' is not boolean', 'w3-total-cache' ) );
+						return;
+					}
+					break;
+				case 'integer':
+					$v = (integer)$value;
+					break;
+				case 'string':
+					$v = $value;
+					break;
+				case 'array':
+					$delimiter =( isset( $vars['delimiter'] ) ? $vars['delimiter'] : ',' );
+					$v = explode($delimiter, $value );
+					break;
+				case 'json':
+					$v = \json_decode( $value );
+					break;
+				default:
+					\WP_CLI::error( __( 'Unknown type ' . $type, 'w3-total-cache' ) );
 					return;
-				}
-			} elseif ( $type == 'integer' )
-				$v = (integer)$value;
-			elseif ( $type == 'string' )
-				$v = $value;
-			elseif ( $type == 'array' ) {
-				$delimiter =( isset( $vars['delimiter'] ) ? $vars['delimiter'] : ',' );
-				$v = explode($delimiter, $value );
-			} else {
-				\WP_CLI::error( __( 'Unknown type ' . $type, 'w3-total-cache' ) );
-				return;
 			}
 
 			try {
