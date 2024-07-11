@@ -344,11 +344,11 @@ class BrowserCache_Environment_Nginx {
 				}
 
 				if ( ! empty( $feature_v ) ) {
-					$rules[] = 'add_header Feature-Policy "' . implode( ';', $feature_v ) . "\"\n";
+					$rules[] = 'add_header Feature-Policy "' . implode( ';', $feature_v ) . "\";\n";
 				}
 
 				if ( ! empty( $permission_v ) ) {
-					$rules[] = 'add_header Permissions-Policy "' . implode( ',', $permission_v ) . "\"\n";
+					$rules[] = 'add_header Permissions-Policy "' . implode( ',', $permission_v ) . "\";\n";
 				}
 			}
 		}
