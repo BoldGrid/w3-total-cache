@@ -207,7 +207,39 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, tru
 				);
 				?>
 			</div>
-			<?php Util_Ui::pro_wrap_maybe_end( 'lazyload_googlemaps' ); ?>
+			<?php
+			if ( ! $is_pro ) {
+				Util_Ui::print_score_block(
+					'+10',
+					wp_kses(
+						sprintf(
+							// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
+							__(
+								'In a recent test, using the Lazy Load Google Maps feature added +10 points to the Google PageSpeed mobile score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!',
+								'w3-total-cache'
+							),
+							'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/?utm_source=w3tc&utm_medium=lazy-load-maps&utm_campaign=proof' ) . '">',
+							'</a>',
+							'<br /><br /><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+						),
+						array(
+							'a'     => array(
+								'href'   => array(),
+								'target' => array(),
+							),
+							'br'    => array(),
+							'input' => array(
+								'type'     => array(),
+								'class'    => array(),
+								'data-src' => array(),
+								'value'    => array(),
+							),
+						)
+					)
+				);
+			}
+			Util_Ui::pro_wrap_maybe_end( 'lazyload_googlemaps', false );
+			?>
 		</td>
 	</tr>
 </table>
