@@ -104,6 +104,8 @@ class Extension_ImageService_Api {
 	 *
 	 * @since 2.2.0
 	 *
+	 * @see self::set_transient_data()
+	 *
 	 * @param string $filepath Image file path.
 	 * @param array  $options  Optional array of options.  Overrides settings.
 	 * @return array
@@ -172,17 +174,11 @@ class Extension_ImageService_Api {
 
 		// Update usage.
 		if ( isset( $response_body['usage_hourly'] ) ) {
-			set_transient(
-				'w3tc_imageservice_usage',
-				array(
-					'updated_at'    => time(),
-					'usage_hourly'  => $response_body['usage_hourly'],
-					'usage_monthly' => isset( $response_body['usage_monthly'] ) ? $response_body['usage_monthly'] : null,
-					'limit_hourly'  => isset( $response_body['limit_hourly'] ) ? $response_body['limit_hourly'] : null,
-					'limit_monthly' => isset( $response_body['limit_monthly'] ) ? $response_body['limit_monthly'] : null,
-				),
-				DAY_IN_SECONDS
-			);
+			// Ensure that the monthly limit is represented correctly.
+			$response_body['limit_monthly'] = $response_body['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
+
+			// Update usage transient data.
+			$this->set_transient_data( $response_body );
 		}
 
 		// Handle non-200 response codes.
@@ -330,6 +326,8 @@ class Extension_ImageService_Api {
 	 *
 	 * @since 2.2.0
 	 *
+	 * @see self::set_transient_data()
+	 *
 	 * @param bool $refresh Refresh the transient data.
 	 * @return array
 	 */
@@ -374,33 +372,19 @@ class Extension_ImageService_Api {
 		}
 
 		// Convert response body to an array.
-		$response = json_decode( wp_remote_retrieve_body( $response ), true );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// If usage is not obtained, then return error response.
-		if ( ! isset( $response['usage_hourly'] ) ) {
+		if ( ! isset( $response_body['usage_hourly'] ) ) {
 			return $error_response;
 		} else {
 			// Ensure that the monthly limit is represented correctly.
-			$response['limit_monthly'] = $response['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
+			$response_body['limit_monthly'] = $response_body['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
 
 			// Update usage transient data.
-			set_transient(
-				'w3tc_imageservice_usage',
-				array(
-					'updated_at'               => time(),
-					'usage_hourly'             => $response['usage_hourly'] ?? null,
-					'usage_monthly'            => $response['usage_monthly'] ?? null,
-					'limit_hourly'             => $response['limit_hourly'] ?? null,
-					'limit_monthly'            => $response['limit_monthly'], // Validated above.
-					'limit_hourly_unlicensed'  => $response['limit_hourly_unlicensed'] ?? null,
-					'limit_monthly_unlicensed' => $response['limit_monthly_unlicensed'] ?? null,
-					'limit_hourly_licensed'    => $response['limit_hourly_licensed'] ?? null,
-					'limit_monthly_licensed'   => $response['limit_monthly_licensed'] ?? null,
-				),
-				DAY_IN_SECONDS
-			);
+			$this->set_transient_data( $response_body );
 
-			return $response;
+			return $response_body;
 		}
 	}
 
@@ -415,5 +399,34 @@ class Extension_ImageService_Api {
 	private function get_base_url() {
 		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ?
 			esc_url( W3TC_API2_URL, 'https', '' ) : $this->base_url;
+	}
+
+	/**
+	 * Update usage transient data.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $data Usage data.
+	 */
+	private function set_transient_data( array $data ): void {
+			// Ensure that the monthly limit is represented correctly.
+			$data['limit_monthly'] = $data['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
+
+			// Update usage transient data.
+			set_transient(
+				'w3tc_imageservice_usage',
+				array(
+					'updated_at'               => time(),
+					'usage_hourly'             => $data['usage_hourly'] ?? null,
+					'usage_monthly'            => $data['usage_monthly'] ?? null,
+					'limit_hourly'             => $data['limit_hourly'] ?? null,
+					'limit_monthly'            => $data['limit_monthly'], // Validated above.
+					'limit_hourly_unlicensed'  => $data['limit_hourly_unlicensed'] ?? null,
+					'limit_monthly_unlicensed' => $data['limit_monthly_unlicensed'] ?? null,
+					'limit_hourly_licensed'    => $data['limit_hourly_licensed'] ?? null,
+					'limit_monthly_licensed'   => $data['limit_monthly_licensed'] ?? null,
+				),
+				DAY_IN_SECONDS
+			);
 	}
 }
