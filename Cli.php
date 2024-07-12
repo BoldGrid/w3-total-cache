@@ -1,46 +1,63 @@
 <?php
+/**
+ * File: Cli.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * The W3 Total Cache plugin integration
+ * Class: W3TotalCache_Command
+ *
+ * W3 Total Cache plugin WP-CLI integration
  *
  * @package wp-cli
  * @subpackage commands/third-party
  */
 class W3TotalCache_Command extends \WP_CLI_Command {
 	/**
-	 * Creates missing files, writes apache/nginx rules.
+	 * Creates missing files, writes Apache/Nginx rules.
 	 *
 	 * ## OPTIONS
 	 * [<server>]
 	 * : Subcommand defines server type:
-	 *   apache   create rules for apache server
-	 *   nginx    create rules for nginx server
+	 *   apache   Create rules for an Apache server
+	 *   nginx    Create rules for an Nginx server
+	 *
+	 * @param array $args Arguments.
+	 * @param array $vars Variables.
 	 */
-	function fix_environment( $args = array(), $vars = array() ) {
-		$server_type = array_shift( $args );
+	public function fix_environment( array $args = array(), array $vars = array() ) {
+		$server_type = \array_shift( $args );
+
 		switch ( $server_type ) {
-		case 'apache':
-			$_SERVER['SERVER_SOFTWARE'] = 'Apache';
-			break;
-		case 'nginx':
-			$_SERVER['SERVER_SOFTWARE'] = 'nginx';
-			break;
+			case 'apache':
+				$_SERVER['SERVER_SOFTWARE'] = 'Apache';
+				break;
+			case 'nginx':
+				$_SERVER['SERVER_SOFTWARE'] = 'nginx';
+				break;
+			default:
+				break;
 		}
 
 		try {
-			$config = Dispatcher::config();
+			$config      = Dispatcher::config();
 			$environment = Dispatcher::component( 'Root_Environment' );
 			$environment->fix_in_wpadmin( $config, true );
 		} catch ( Util_Environment_Exceptions $e ) {
-			\WP_CLI::error( __( 'Environment adjustment failed with error', 'w3-total-cache' ),
-				$e->getCombinedMessage() );
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: Error message.
+					\__( 'Environment adjustment failed with error: %1$s', 'w3-total-cache' ),
+					$e->getCombinedMessage()
+				)
+			);
 		}
 
-		\WP_CLI::success( __( 'Environment adjusted.', 'w3-total-cache' ) );
+		\WP_CLI::success( \__( 'Environment adjusted.', 'w3-total-cache' ) );
 	}
-
-
 
 	/**
 	 * Clear something from the cache.
@@ -48,18 +65,19 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 * ## OPTIONS
 	 * <cache>
 	 * : Cache to flush
-	 * all         flush all caches
-	 * posts       flush posts (pagecache and further)
-	 * post        flush the page cache
-	 * database    flush the database cache
-	 * object      flush the object cache
-	 * minify      flush the minify cache
+	 * all         Flush all caches
+	 * posts       Flush posts (pagecache and further)
+	 * post        Flush the page cache
+	 * database    Flush the database cache
+	 * db          Flush the database cache
+	 * object      Flush the object cache
+	 * minify      Flush the minify cache
 	 *
 	 * [--post_id=<id>]
-	 * : flush a specific post ID
+	 * : Flush a specific post ID
 	 *
 	 * [--permalink=<post-permalink>]
-	 * : flush a specific permalink
+	 * : Flush a specific permalink
 	 *
 	 * ## EXAMPLES
 	 *     # Flush all
@@ -67,325 +85,438 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 *     # Flush pagecache and reverse proxies
 	 *     $ wp w3-total-cache flush posts
+	 *
+	 * @param array $args Arguments.
+	 * @param array $vars Variables.
 	 */
-	function flush( $args = array(), $vars = array() ) {
-		$args = array_unique( $args );
+	public function flush( array $args = array(), array $vars = array() ) {
+		$args = \array_unique( $args );
 
 		do {
-			$cache_type = array_shift( $args );
+			$cache_type = \array_shift( $args );
 
 			switch ( $cache_type ) {
-			case 'all':
-				try {
-					w3tc_flush_all();
-				}
-				catch ( \Exception $e ) {
-					\WP_CLI::error( __( 'Flushing all failed.', 'w3-total-cache' ) );
-				}
-				\WP_CLI::success( __( 'Everything flushed successfully.', 'w3-total-cache' ) );
-				break;
+				case 'all':
+					try {
+						\w3tc_flush_all();
+					} catch ( \Exception $e ) {
+						\WP_CLI::error( \__( 'Flushing all failed.', 'w3-total-cache' ) );
+					}
 
-			case 'posts':
-				try {
-					w3tc_flush_posts();
-				}
-				catch ( \Exception $e ) {
-					\WP_CLI::error( __( 'Flushing posts/pages failed.', 'w3-total-cache' ) );
-				}
-				\WP_CLI::success( __( 'Posts/pages flushed successfully.', 'w3-total-cache' ) );
-				break;
+					\WP_CLI::success( \__( 'Everything flushed successfully.', 'w3-total-cache' ) );
+					break;
+				case 'posts':
+					try {
+						\w3tc_flush_posts();
+					} catch ( \Exception $e ) {
+						\WP_CLI::error( \__( 'Flushing posts/pages failed.', 'w3-total-cache' ) );
+					}
 
-			case 'db':
-			case 'database':
-				try {
-					$w3_db = Dispatcher::component( 'CacheFlush' );
-					$w3_db->dbcache_flush();
-				}
-				catch ( \Exception $e ) {
-					\WP_CLI::error( __( 'Flushing the DB cache failed.', 'w3-total-cache' ) );
-				}
-				\WP_CLI::success( __( 'The DB cache is flushed successfully.', 'w3-total-cache' ) );
-				break;
+					\WP_CLI::success( \__( 'Posts/pages flushed successfully.', 'w3-total-cache' ) );
+					break;
+				case 'db':
+				case 'database':
+					try {
+						$w3_db = Dispatcher::component( 'CacheFlush' );
+						$w3_db->dbcache_flush();
+					} catch ( \Exception $e ) {
+						\WP_CLI::error( \__( 'Flushing the DB cache failed.', 'w3-total-cache' ) );
+					}
 
-			case 'minify':
-				try {
-					$w3_minify = Dispatcher::component( 'CacheFlush' );
-					$w3_minify->minifycache_flush();
-				}
-				catch ( \Exception $e ) {
-					\WP_CLI::error( __( 'Flushing the minify cache failed.', 'w3-total-cache' ) );
-				}
-				\WP_CLI::success( __( 'The minify cache is flushed successfully.', 'w3-total-cache' ) );
-				break;
+					\WP_CLI::success( \__( 'The DB cache is flushed successfully.', 'w3-total-cache' ) );
+					break;
+				case 'minify':
+					try {
+						$w3_minify = Dispatcher::component( 'CacheFlush' );
+						$w3_minify->minifycache_flush();
+					} catch ( \Exception $e ) {
+						\WP_CLI::error( \__( 'Flushing the minify cache failed.', 'w3-total-cache' ) );
+					}
 
-			case 'object':
-				try {
-					$w3_objectcache = Dispatcher::component( 'CacheFlush' );
-					$w3_objectcache->objectcache_flush();
-				}
-				catch ( \Exception $e ) {
-					\WP_CLI::error( __( 'Flushing the object cache failed.', 'w3-total-cache' ) );
-				}
-				\WP_CLI::success( __( 'The object cache is flushed successfully.', 'w3-total-cache' ) );
-				break;
+					\WP_CLI::success( \__( 'The minify cache is flushed successfully.', 'w3-total-cache' ) );
+					break;
+				case 'object':
+					try {
+						$w3_objectcache = Dispatcher::component( 'CacheFlush' );
+						$w3_objectcache->objectcache_flush();
+					} catch ( \Exception $e ) {
+						\WP_CLI::error( \__( 'Flushing the object cache failed.', 'w3-total-cache' ) );
+					}
 
-			case 'post':
-				if ( isset( $vars['post_id'] ) ) {
-					if ( is_numeric( $vars['post_id'] ) ) {
+					\WP_CLI::success( \__( 'The object cache is flushed successfully.', 'w3-total-cache' ) );
+					break;
+				case 'post':
+					if ( isset( $vars['post_id'] ) ) {
+						if ( \is_numeric( $vars['post_id'] ) ) {
+							try {
+								\w3tc_flush_post( $vars['post_id'], true );
+							} catch ( \Exception $e ) {
+								\WP_CLI::error( \__( 'Flushing the page from cache failed.', 'w3-total-cache' ) );
+							}
+							\WP_CLI::success( \__( 'The page is flushed from cache successfully.', 'w3-total-cache' ) );
+						} else {
+							\WP_CLI::error( \__( 'This is not a valid post id.', 'w3-total-cache' ) );
+						}
+					} elseif ( isset( $vars['permalink'] ) ) {
 						try {
-							w3tc_flush_post( $vars['post_id'], true );
+							\w3tc_flush_url( $vars['permalink'] );
+						} catch ( \Exception $e ) {
+							\WP_CLI::error( \__( 'Flushing the page from cache failed.', 'w3-total-cache' ) );
 						}
-						catch ( \Exception $e ) {
-							\WP_CLI::error( __( 'Flushing the page from cache failed.', 'w3-total-cache' ) );
-						}
-						\WP_CLI::success( __( 'The page is flushed from cache successfully.', 'w3-total-cache' ) );
+
+						\WP_CLI::success( \__( 'The page is flushed from cache successfully.', 'w3-total-cache' ) );
 					} else {
-						\WP_CLI::error( __( 'This is not a valid post id.', 'w3-total-cache' ) );
-					}
-				}
-				elseif ( isset( $vars['permalink'] ) ) {
-					try {
-						w3tc_flush_url( $vars['permalink'] );
-					}
-					catch ( \Exception $e ) {
-						\WP_CLI::error( __( 'Flushing the page from cache failed.', 'w3-total-cache' ) );
-					}
-					\WP_CLI::success( __( 'The page is flushed from cache successfully.', 'w3-total-cache' ) );
-				} else {
-					if ( isset( $flushed_page_cache ) && $flushed_page_cache )
-						break;
+						if ( ! empty( $flushed_page_cache ) ) {
+							break;
+						}
 
-					try {
-						w3tc_flush_posts();
-					}
-					catch ( \Exception $e ) {
-						\WP_CLI::error( __( 'Flushing the page cache failed.', 'w3-total-cache' ) );
-					}
-					\WP_CLI::success( __( 'The page cache is flushed successfully.', 'w3-total-cache' ) );
-				}
-				break;
+						try {
+							\w3tc_flush_posts();
+						} catch ( \Exception $e ) {
+							\WP_CLI::error( \__( 'Flushing the page cache failed.', 'w3-total-cache' ) );
+						}
 
-			default:
-				\WP_CLI::error( __( 'Not specified what to flush', 'w3-total-cache' ) );
+						\WP_CLI::success( \__( 'The page cache is flushed successfully.', 'w3-total-cache' ) );
+					}
+					break;
+
+				default:
+					\WP_CLI::error( __( 'Not specified what to flush', 'w3-total-cache' ) );
 			}
-		} while ( !empty( $args ) );
+		} while ( ! empty( $args ) );
 	}
 
 	/**
 	 * Get or set option.
 	 *
-	 * Options modifications don't update your .htaccess automatically.
-	 * Use fix_environment command afterwards to do it.
+	 * Options modifications do not update your .htaccess file automatically.
+	 * Use the fix_environment command afterwards to do it.
 	 *
 	 * ## OPTIONS
 	 * <operation>
-	 * : operation to do
-	 * get  get option value
-	 * set  set option value
+	 * : Operation to do
+	 * get  Get option value
+	 * set  Set option value
 	 * <name>
-	 * : option name
+	 * : Option name
 	 *
 	 * [<value>]
 	 * : (for set operation) Value to set
 	 *
 	 * [--state]
-	 * : use state, not config
-	 * state is used for backend notifications
+	 * : Use state, not config
+	 * State is used for backend notifications
 	 *
 	 * [--master]
-	 * : use master config/state
-     *
+	 * : Use master config/state
+	 *
 	 * [--type=<type>]
-	 * : type of data used boolean/string/integer/array. Default string
+	 * : Type of data used boolean/bool/string/integer/int/array/json. Default: string
 	 *
 	 * [--delimiter=<delimiter>]
-	 * : delimiter to use for array type values
+	 * : Delimiter to use for array type values
 	 *
 	 * ## EXAMPLES
-	 *     # get if pagecache enabled
+	 *     # Get if pagecache enabled
 	 *     $ wp w3-total-cache option get pgcache.enabled --type=boolean
 	 *
-	 *     # enable pagecache
+	 *     # Rnable pagecache
 	 *     $ wp w3-total-cache option set pgcache.enabled true --type=boolean
 	 *
-	 *     # don't show wp-content permissions notification
+	 *     # Don't show wp-content permissions notification
 	 *     $ wp w3-total-cache option set common.hide_note_wp_content_permissions true --state --type=boolean
+	 *
+	 * @param array $args Arguments.
+	 * @param array $vars Variables.
 	 */
-	function option( $args = array(), $vars = array() ) {
-		$op = array_shift( $args );
-		$name = array_shift( $args );
+	public function option( array $args = array(), array $vars = array() ) {
+		$op   = \array_shift( $args );
+		$name = \array_shift( $args );
+		$c    = null;
 
 		if ( empty( $name ) ) {
-			\WP_CLI::error( __( '<name> parameter is not specified', 'w3-total-cache' ) );
+			\WP_CLI::error( \__( '<name> parameter is not specified', 'w3-total-cache' ) );
 			return;
 		}
-		if ( strpos( $name, '::' ) !== FALSE ) {
-			$name = explode('::', $name);
+		if ( \strpos( $name, '::' ) !== false ) {
+			$name = \explode( '::', $name );
 		}
 
-		$c = null;
 		if ( isset( $vars['state'] ) ) {
-			if ( isset( $vars['master'] ) )
-				$c = Dispatcher::config_state_master();
-			else
-				$c = Dispatcher::config_state();
+			$c = isset( $vars['master'] ) ? Dispatcher::config_state_master() : Dispatcher::config_state();
 		} else {
-			if ( isset( $vars['master'] ) )
-				$c = Dispatcher::config_master();
-			else
-				$c = Dispatcher::config();
+			$c = isset( $vars['master'] ) ? Dispatcher::config_master() : Dispatcher::config();
 		}
 
-		if ( $op == 'get') {
-			$type =( isset( $vars['type'] ) ? $vars['type'] : 'string' );
+		if ( 'get' === $op ) {
+			$type = $vars['type'] ?? 'string';
 
-			if ( $type == 'boolean' )
-				$v = $c->get_boolean( $name ) ? 'true' : 'false';
-			elseif ( $type == 'integer' )
-				$v = $c->get_integer( $name );
-			elseif ( $type == 'string' )
-				$v = $c->get_string( $name );
-			elseif ( $type == 'array' )
-				$v = json_encode( $c->get_array( $name ), JSON_PRETTY_PRINT );
-			else {
-				\WP_CLI::error( __( 'Unknown type ' . $type, 'w3-total-cache' ) );
-				return;
+			switch ( $type ) {
+				case 'boolean':
+				case 'bool':
+					$v = $c->get_boolean( $name ) ? 'true' : 'false';
+					break;
+				case 'integer':
+				case 'int':
+					$v = $c->get_integer( $name );
+					break;
+				case 'string':
+					$v = $c->get_string( $name );
+					break;
+				case 'array':
+					\var_export( $c->get_array( $name ) );
+					echo "\n";
+					return;
+				case 'json':
+					echo \wp_json_encode( $c->get_array( $name ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n";
+					return;
+				default:
+					\WP_CLI::error( \__( 'Unknown type ', 'w3-total-cache' ) . $type );
+					return;
 			}
 
-			echo esc_html( $v ) . "\n";
-		} elseif ( $op == 'set' ) {
-			$type =( isset( $vars['type'] ) ? $vars['type'] : 'string' );
+			echo \esc_html( $v ) . "\n";
+		} elseif ( 'set' === $op ) {
+			$type = $vars['type'] ?? 'string';
 
 			if ( count( $args ) <= 0 ) {
-				\WP_CLI::error( __( '<value> parameter is not specified', 'w3-total-cache' ) );
+				\WP_CLI::error( \__( '<value> parameter is not specified', 'w3-total-cache' ) );
 				return;
 			}
-			$value = array_shift( $args );
 
-			if ( $type == 'boolean' ) {
-				if ( $value == 'true' || $value == '1' || $value == 'on' )
-					$v = true;
-				elseif ( $value == 'false' || $value == '0' || $value == 'off' )
-					$v = false;
-				else {
-					\WP_CLI::error( __( '<value> parameter ' . $value . ' is not boolean', 'w3-total-cache' ) );
+			$value = \array_shift( $args );
+
+			switch ( $type ) {
+				case 'boolean':
+				case 'bool':
+					if ( 'true' === $value || '1' == $value || 'on' === $value ) {
+						$v = true;
+					} elseif ( 'false' === $value || '0' == $value || 'off' === $value ) {
+						$v = false;
+					} else {
+						\WP_CLI::error(
+							\sprintf(
+								// translators: 1: Value being set.
+								\__( '<value> parameter "%1$s" is not boolean', 'w3-total-cache' ),
+								$value
+							)
+						);
+						return;
+					}
+					break;
+				case 'integer':
+				case 'int':
+					$v = (int) $value;
+					break;
+				case 'string':
+					$v = $value;
+					break;
+				case 'array':
+					$delimiter = $vars['delimiter'] ?? ',';
+					$v         = \explode( $delimiter, $value );
+					break;
+				case 'json':
+					$v = \json_decode( $value );
+					break;
+				default:
+					\WP_CLI::error( \__( 'Unknown type ', 'w3-total-cache' ) . $type );
 					return;
-				}
-			} elseif ( $type == 'integer' )
-				$v = (integer)$value;
-			elseif ( $type == 'string' )
-				$v = $value;
-			elseif ( $type == 'array' ) {
-				$delimiter =( isset( $vars['delimiter'] ) ? $vars['delimiter'] : ',' );
-				$v = explode($delimiter, $value );
-			} else {
-				\WP_CLI::error( __( 'Unknown type ' . $type, 'w3-total-cache' ) );
-				return;
 			}
 
 			try {
 				$c->set( $name, $v );
 				$c->save();
-				\WP_CLI::success( __( 'Option updated successfully.', 'w3-total-cache' ) );
+				\WP_CLI::success( \__( 'Option updated successfully.', 'w3-total-cache' ) );
 			} catch ( \Exception $e ) {
-				\WP_CLI::error( __( 'Option value update failed.', 'w3-total-cache' ) );
+				\WP_CLI::error( \__( 'Option value update failed.', 'w3-total-cache' ) );
 			}
 
 		} else {
-			\WP_CLI::error( __( '<operation> parameter is not specified', 'w3-total-cache' ) );
+			\WP_CLI::error( \__( '<operation> parameter is not specified', 'w3-total-cache' ) );
 		}
 	}
 
 	/**
-	 * Imports configuration file
+	 * Import a configuration file
 	 *
 	 * ## OPTIONS
 	 * <filename>
 	 * : Filename to import
+	 *
+	 * @global $wp_filesystem
+	 * @see get_filesystem_method()
+	 *
+	 * @param array $args Arguments.
+	 * @param array $vars Variables.
+	 * @throws \Exception Exception.
 	 */
-	function import( $args = array(), $vars = array() ) {
-		$filename = array_shift( $args );
+	public function import( array $args = array(), array $vars = array() ) {
+		if ( 'direct' !== \get_filesystem_method() ) {
+			\WP_CLI::error( \__( 'The filesystem must be direct.', 'w3-total-cache' ) );
+		}
+
+		$filename = \array_shift( $args );
+
+		// Initialize WP_Filesystem.
+		global $wp_filesystem;
+		WP_Filesystem();
 
 		try {
 			$config = new Config();
-			if ( !file_exists( $filename ) || !is_readable( $filename ) ) {
-				throw new \Exception( 'Cant read file: ' . $filename );
+
+			if ( ! $wp_filesystem->exists( $filename ) || ! $wp_filesystem->is_readable( $filename ) ) {
+				throw new \Exception( \__( 'Cant read file: ', 'w3-total-cache' ) . $filename );
 			}
-			if ( !$config->import( $filename ) ) {
-				throw new \Exception( 'import failed' );
+
+			if ( ! $config->import( $filename ) ) {
+				throw new \Exception( \__( 'Import failed', 'w3-total-cache' ) );
 			}
+
 			$config->save();
 		} catch ( \Exception $e ) {
-			\WP_CLI::error( __( 'Config import failed: ' . $e->getMessage(), 'w3-total-cache' ) );
+			\WP_CLI::error(
+				sprintf(
+					// translators: 1: Error message.
+					\__( 'Config import failed: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
 		}
 
-		\WP_CLI::success( __( 'Configuration successfully imported.', 'w3-total-cache' ) );
+		\WP_CLI::success( \__( 'Configuration successfully imported.', 'w3-total-cache' ) );
 	}
 
 	/**
-	 * Update query string for all static files
+	 * Export configuration file
+	 *
+	 * ## OPTIONS
+	 * <filename>
+	 * : Filename to export -- Sanitized with sanitize_file_name()
+	 *
+	 * [--mode=<mode>]
+	 * : Mode of the file. Default: 0600 (-rw-------)
+	 *
+	 * @global $wp_filesystem
+	 * @see get_filesystem_method()
+	 *
+	 * @param array $args Arguments.
+	 * @param array $vars Variables.
+	 * @throws \Exception Exception.
 	 */
-	function querystring() {
+	public function export( array $args = array(), array $vars = array() ) {
+		if ( 'direct' !== \get_filesystem_method() ) {
+			\WP_CLI::error( \__( 'The filesystem must be direct.', 'w3-total-cache' ) );
+		}
+
+		$filename = \sanitize_file_name( \array_shift( $args ) );
+		$mode     = $vars['mode'] ?? '0600';
+
+		// Initialize WP_Filesystem.
+		global $wp_filesystem;
+		WP_Filesystem();
+
+		// Try to export the config and write to file.
+		try {
+			$config = new Config();
+
+			if ( ! $wp_filesystem->put_contents( $filename, $config->export( $filename ), octdec( $mode ) ) ) {
+				throw new \Exception( \__( 'Export failed', 'w3-total-cache' ) );
+			}
+		} catch ( \Exception $e ) {
+			\WP_CLI::error(
+				sprintf(
+					// translators: 1: Error message.
+					\__( 'Config export failed: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
+		}
+
+		\WP_CLI::success(
+			\sprintf(
+				// translators: 1: Filename.
+				\__( 'Configuration successfully exported to "%1$s" with mode "%2$s".', 'w3-total-cache' ),
+				$filename,
+				$mode
+			)
+		);
+	}
+
+	/**
+	 * Update query string for all static files.
+	 */
+	public function querystring() {
 		try {
 			$w3_querystring = Dispatcher::component( 'CacheFlush' );
 			$w3_querystring->browsercache_flush();
-		}
-		catch ( \Exception $e ) {
-			\WP_CLI::error( sprintf(
-					__( 'updating the query string failed. with error %s', 'w3-total-cache' ),
-					$e ) );
+		} catch ( \Exception $e ) {
+			\WP_CLI::error(
+				sprintf(
+					// translators: 1: Error message.
+					\__( 'updating the query string failed. with error %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
 		}
 
-		\WP_CLI::success( __( 'The query string was updated successfully.', 'w3-total-cache' ) );
-
+		\WP_CLI::success( \__( 'The query string was updated successfully.', 'w3-total-cache' ) );
 	}
 
 	/**
-	 * Purges URL's from cdn and varnish if enabled
+	 * Purges URLs from CDN and varnish if enabled.
 	 *
-	 * @param array $args List if files to be purged, absolute path or relative to wordpress installation path
+	 * @param array $args List of files to be purged, absolute path or relative to WordPress installation path.
 	 */
-	function cdn_purge( $args = array() ) {
+	public function cdn_purge( array $args = array() ) {
 		$purgeitems = array();
+
 		foreach ( $args as $file ) {
 			$cdncommon = Dispatcher::component( 'Cdn_Core' );
-			if (file_exists($file)) {
+			if ( file_exists( $file ) ) {
 				$local_path = $file;
 			} else {
 				$local_path = ABSPATH . $file;
 			}
-			$remote_path = $file;
+
+			$remote_path  = $file;
 			$purgeitems[] = $cdncommon->build_file_descriptor( $local_path, $remote_path );
 		}
 
 		try {
 			$w3_cdn_purge = Dispatcher::component( 'CacheFlush' );
 			$w3_cdn_purge->cdn_purge_files( $purgeitems );
+		} catch ( \Exception $e ) {
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: Error message.
+					\__( 'Files did not successfully purge with error %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
 		}
-		catch ( \Exception $e ) {
-			\WP_CLI::error( __( 'Files did not successfully purge with error %s', 'w3-total-cache' ), $e );
-		}
-		\WP_CLI::success( __( 'Files purged successfully.', 'w3-total-cache' ) );
 
+		\WP_CLI::success( \__( 'Files purged successfully.', 'w3-total-cache' ) );
 	}
 
 	/**
-	 * Generally triggered from a cronjob, performs manual page cache Garbage collection
+	 * Generally triggered from a cronjob, performs manual page cache Garbage collection.
 	 */
-	function pgcache_cleanup() {
+	public function pgcache_cleanup() {
 		try {
 			$o = Dispatcher::component( 'PgCache_Plugin_Admin' );
 			$o->cleanup();
 		} catch ( \Exception $e ) {
-			\WP_CLI::error( __( 'PageCache Garbage cleanup failed: %s',
-				'w3-total-cache' ), $e );
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: Error message.
+					\__( 'PageCache Garbage cleanup failed: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
 		}
 
-		\WP_CLI::success( __( 'PageCache Garbage cleanup triggered successfully.',
-			'w3-total-cache' ) );
+		\WP_CLI::success( \__( 'PageCache Garbage cleanup triggered successfully.', 'w3-total-cache' ) );
 	}
-
-
 
 	/**
 	 * Generally triggered from a cronjob, performs manual page cache priming
@@ -396,35 +527,45 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 * [--limit=<limit>]
 	 * : load no more than <limit> pages
 	 *
+	 * @param array $args Arguments.
+	 * @param array $vars Variables.
 	 */
-	function pgcache_prime( $args = array(), $vars = array() ) {
+	public function pgcache_prime( array $args = array(), array $vars = array() ) {
 		try {
-			$log_callback = function($m) {
-				\WP_CLI::log($m);
+			$log_callback = function( $m ) {
+				\WP_CLI::log( $m );
 			};
 
 			$o = Dispatcher::component( 'PgCache_Plugin_Admin' );
-			$o->prime( ( isset( $vars['start'] ) ? $vars['start'] - 1 : null ),
+
+			$o->prime(
+				( isset( $vars['start'] ) ? $vars['start'] - 1 : null ),
 				( isset( $vars['limit'] ) ? $vars['limit'] : null ),
-				$log_callback );
+				$log_callback
+			);
 
 		} catch ( \Exception $e ) {
-			\WP_CLI::error( __( 'PageCache Priming did failed: %s',
-				'w3-total-cache' ), $e );
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: Error message.
+					\__( 'PageCache Priming did failed: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
 		}
 
-		\WP_CLI::success( __( 'PageCache Priming triggered successfully.',
-			'w3-total-cache' ) );
+		\WP_CLI::success( \__( 'PageCache Priming triggered successfully.', 'w3-total-cache' ) );
 	}
 }
 
-
-
-if ( method_exists( '\WP_CLI', 'add_command' ) ) {
+// Register WP-CLI commands.
+if ( \method_exists( '\WP_CLI', 'add_command' ) ) {
 	\WP_CLI::add_command( 'w3-total-cache', '\W3TC\W3TotalCache_Command' );
 	\WP_CLI::add_command( 'total-cache', '\W3TC\W3TotalCache_Command' );
+	\WP_CLI::add_command( 'w3tc', '\W3TC\W3TotalCache_Command' );
 } else {
-	// backward compatibility
+	// Backward compatibility.
 	\WP_CLI::addCommand( 'w3-total-cache', '\W3TC\W3TotalCache_Command' );
 	\WP_CLI::addCommand( 'total-cache', '\W3TC\W3TotalCache_Command' );
+	\WP_CLI::addCommand( 'w3tc', '\W3TC\W3TotalCache_Command' );
 }
