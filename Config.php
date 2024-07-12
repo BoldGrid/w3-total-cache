@@ -408,25 +408,41 @@ class Config {
 
 
 	/**
-	 * Imports config content
+	 * Imports config content.
+	 *
+	 * @global $wp_filesystem
+	 * @see get_filesystem_method()
+	 *
+	 * @param string $filename Filename/path.
+	 * @return bool
 	 */
-	public function import( $filename ) {
-		if ( file_exists( $filename ) && is_readable( $filename ) ) {
-			$content = file_get_contents( $filename );
-			if ( substr( $content, 0, 14 ) == '<?php exit; ?>' ) {
-				$content = substr( $content, 14 );
+	public function import( string $filename ): bool {
+		if ( 'direct' !== \get_filesystem_method() ) {
+			return false;
+		}
+
+		// Initialize WP_Filesystem.
+		global $wp_filesystem;
+		WP_Filesystem();
+
+		if ( $wp_filesystem->exists( $filename ) && $wp_filesystem->is_readable( $filename ) ) {
+			$content = $wp_filesystem->get_contents( $filename );
+			if ( \substr( $content, 0, 14 ) === '<?php exit; ?>' ) {
+				$content = \substr( $content, 14 );
 			}
 
 			$data = @json_decode( $content, true );
-			if ( is_array( $data ) ) {
-				if ( !isset( $data['version'] ) || $data['version'] != W3TC_VERSION ) {
+
+			if ( \is_array( $data ) ) {
+				if ( ! isset( $data['version'] ) || W3TC_VERSION !== $data['version'] ) {
 					$c = new ConfigCompiler( $this->_blog_id, false );
 					$c->load( $data );
 					$data = $c->get_data();
 				}
 
-				foreach ( $data as $key => $value )
+				foreach ( $data as $key => $value ) {
 					$this->set( $key, $value );
+				}
 
 				return true;
 			}

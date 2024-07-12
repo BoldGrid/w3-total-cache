@@ -343,17 +343,28 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 * <filename>
 	 * : Filename to import
 	 *
+	 * @global $wp_filesystem
+	 * @see get_filesystem_method()
+	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
 	 * @throws \Exception Exception.
 	 */
 	public function import( array $args = array(), array $vars = array() ) {
+		if ( 'direct' !== \get_filesystem_method() ) {
+			\WP_CLI::error( \__( 'The filesystem must be direct.', 'w3-total-cache' ) );
+		}
+
 		$filename = \array_shift( $args );
+
+		// Initialize WP_Filesystem.
+		global $wp_filesystem;
+		WP_Filesystem();
 
 		try {
 			$config = new Config();
 
-			if ( ! \file_exists( $filename ) || ! \is_readable( $filename ) ) {
+			if ( ! $wp_filesystem->exists( $filename ) || ! $wp_filesystem->is_readable( $filename ) ) {
 				throw new \Exception( \__( 'Cant read file: ', 'w3-total-cache' ) . $filename );
 			}
 
@@ -393,7 +404,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 * @throws \Exception Exception.
 	 */
 	public function export( array $args = array(), array $vars = array() ) {
-		if ( 'direct' !== get_filesystem_method() ) {
+		if ( 'direct' !== \get_filesystem_method() ) {
 			\WP_CLI::error( \__( 'The filesystem must be direct.', 'w3-total-cache' ) );
 		}
 
