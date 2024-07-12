@@ -330,15 +330,26 @@ class Extension_ImageService_Api {
 	 *
 	 * @since 2.2.0
 	 *
+	 * @param bool $refresh Refresh the transient data.
 	 * @return array
 	 */
-	public function get_usage() {
+	public function get_usage( bool $refresh = false ): array {
+		$transient_data = get_transient( 'w3tc_imageservice_usage' );
+
+		if ( ! empty( $transient_data ) && isset( $transient_data['usage_hourly'] ) && ! $refresh ) {
+			return $transient_data;
+		}
+
 		$error_message  = __( 'Unknown', 'w3-total-cache' );
 		$error_response = array(
-			'usage_hourly'  => $error_message,
-			'usage_monthly' => $error_message,
-			'limit_hourly'  => $error_message,
-			'limit_monthly' => $error_message,
+			'usage_hourly'             => $error_message,
+			'usage_monthly'            => $error_message,
+			'limit_hourly'             => $error_message,
+			'limit_monthly'            => $error_message,
+			'limit_hourly_unlicensed'  => $error_message,
+			'limit_monthly_unlicensed' => $error_message,
+			'limit_hourly_licensed'    => $error_message,
+			'limit_monthly_licensed'   => $error_message,
 		);
 
 		$response = wp_remote_request(
@@ -369,21 +380,25 @@ class Extension_ImageService_Api {
 		if ( ! isset( $response['usage_hourly'] ) ) {
 			return $error_response;
 		} else {
-			// Update usage.
+			// Ensure that the monthly limit is represented correctly.
+			$response['limit_monthly'] = $response['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
+
+			// Update usage transient data.
 			set_transient(
 				'w3tc_imageservice_usage',
 				array(
-					'updated_at'    => time(),
-					'usage_hourly'  => $response['usage_hourly'],
-					'usage_monthly' => isset( $response['usage_monthly'] ) ? $response['usage_monthly'] : null,
-					'limit_hourly'  => isset( $response['limit_hourly'] ) ? $response['limit_hourly'] : null,
-					'limit_monthly' => isset( $response['limit_monthly'] ) ? $response['limit_monthly'] : null,
+					'updated_at'               => time(),
+					'usage_hourly'             => $response['usage_hourly'] ?? null,
+					'usage_monthly'            => $response['usage_monthly'] ?? null,
+					'limit_hourly'             => $response['limit_hourly'] ?? null,
+					'limit_monthly'            => $response['limit_monthly'], // Validated above.
+					'limit_hourly_unlicensed'  => $response['limit_hourly_unlicensed'] ?? null,
+					'limit_monthly_unlicensed' => $response['limit_monthly_unlicensed'] ?? null,
+					'limit_hourly_licensed'    => $response['limit_hourly_licensed'] ?? null,
+					'limit_monthly_licensed'   => $response['limit_monthly_licensed'] ?? null,
 				),
 				DAY_IN_SECONDS
 			);
-
-			// Ensure that the monthly limit is represented correctly.
-			$response['limit_monthly'] = $response['limit_monthly'] ? $response['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
 
 			return $response;
 		}
