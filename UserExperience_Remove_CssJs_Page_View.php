@@ -57,31 +57,8 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cach
 			'show_learn_more'   => false,
 			'score'             => '+27',
 			'score_label'       => __( 'Points', 'w3-total-cache' ),
-			'score_description' => wp_kses(
-				sprintf(
-					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
-					__(
-						'In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!',
-						'w3-total-cache'
-					),
-					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof' ) . '">',
-					'</a>',
-					'<br /><br /><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-				),
-				array(
-					'a'     => array(
-						'href'   => array(),
-						'target' => array(),
-					),
-					'br'    => array(),
-					'input' => array(
-						'type'     => array(),
-						'class'    => array(),
-						'data-src' => array(),
-						'value'    => array(),
-					),
-				)
-			),
+			'score_description' => __( 'In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!', 'w3-total-cache' ),
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof',
 		)
 	);
 	?>
@@ -338,31 +315,9 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 	if ( ! $is_pro ) {
 		Util_Ui::print_score_block(
 			'+27',
-			wp_kses(
-				sprintf(
-					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
-					__(
-						'In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!',
-						'w3-total-cache'
-					),
-					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof' ) . '">',
-					'</a>',
-					'<br /><br /><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-				),
-				array(
-					'a'     => array(
-						'href'   => array(),
-						'target' => array(),
-					),
-					'br'    => array(),
-					'input' => array(
-						'type'     => array(),
-						'class'    => array(),
-						'data-src' => array(),
-						'value'    => array(),
-					),
-				)
-			)
+			__( 'Points', 'w3-total-cache' ),
+			__( 'In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!', 'w3-total-cache' ),
+			'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof'
 		);
 	} elseif ( ! UserExperience_Remove_CssJs_Extension::is_enabled() ) {
 		echo wp_kses(

@@ -115,6 +115,7 @@ if ( ! $is_pro ) {
 		Util_Ui::pro_wrap_maybe_start();
 		Util_Ui::print_score_block(
 			'+9',
+			__( 'Points', 'w3-total-cache' ),
 			wp_kses(
 				sprintf(
 					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.

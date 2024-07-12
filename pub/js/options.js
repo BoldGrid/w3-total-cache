@@ -1367,6 +1367,22 @@ jQuery(function() {
 		jQuery('.' + target_class).slideToggle();
 	});
 
+	// Test score block hover toggle.
+	jQuery('.w3tc-test-container-intro').click(
+		function() {
+       		var $testContainer = jQuery(this).next('.w3tc-test-container');
+        	var $icon = jQuery(this).find('.dashicons');
+
+        	if ($testContainer.css('display') === 'none') {
+            	$testContainer.css('display', 'flex');
+        	} else {
+            	$testContainer.css('display', 'none');
+        	}
+
+			$icon.toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
+    	}
+	);
+
 	// Check for unsaved changes.
 	jQuery('#w3tc input,#w3tc select,#w3tc textarea').on('change', function() {
 		var ignore = false;
