@@ -1373,6 +1373,6 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_get_usage() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
-		wp_send_json_success( Extension_ImageService_Plugin::get_api()->get_usage() );
+		wp_send_json_success( Extension_ImageService_Plugin::get_api()->get_usage( true ) );
 	}
 }
