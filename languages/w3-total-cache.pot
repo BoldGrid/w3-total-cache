@@ -538,7 +538,7 @@ msgstr ""
 msgid "This will prevent the user's session ID from being transmitted in plain text, making it much harder to hijack the user's session."
 msgstr ""
 
-#. translators: 11 opening HTML acronym tag, 12 closing HTML acornym tag.
+#. translators: 11 opening HTML acronym tag, 12 closing HTML acronym tag.
 #: BrowserCache_Page_View_SectionSecurity.php:246
 msgid "%1$sHTTP%2$s Strict-Transport-Security (%3$sHSTS%4$s) enforces secure (%5$sHTTP%6$s over %7$sSSL%8$s/%9$sTLS%10$s) connections to the server. This can help mitigate adverse effects caused by bugs and session leaks through cookies and links. It also helps defend against man-in-the-middle attacks.  If there are %11$sSSL%12$s negotiation warnings then users will not be permitted to ignore them."
 msgstr ""
@@ -603,7 +603,7 @@ msgstr ""
 msgid "This tells the browser if it is permitted to render a page within a frame-like tag (i.e., &lt;frame&gt;, &lt;iframe&gt; or &lt;object&gt;). This is useful for preventing clickjacking attacks."
 msgstr ""
 
-#. translators: 1 opening HTML acronym tag, 2 closing HTML acornym tag.
+#. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: BrowserCache_Page_View_SectionSecurity.php:324
 msgid "This header enables the %1$sXSS%2$s filter. It helps to stop malicious scripts from being injected into your website. Although this is already built into and enabled by default in most browsers today it is made available here to enforce its reactivation if it was disabled within the user's browser."
 msgstr ""
@@ -617,7 +617,7 @@ msgstr ""
 msgid "This instructs the browser to not MIME-sniff a response outside its declared content-type. It helps to reduce drive-by download attacks and stops sites from serving malevolent content that could masquerade as an executable or dynamic HTML file."
 msgstr ""
 
-#. translators: 5 opening HTML acronym tag, 6 closing HTML acornym tag.
+#. translators: 5 opening HTML acronym tag, 6 closing HTML acronym tag.
 #: BrowserCache_Page_View_SectionSecurity.php:375
 msgid "%1$sHTTP%2$s Public Key Pinning (%3$sHPKP%4$s) is a security feature for %5$sHTTP%6$sS websites that can prevent fraudulently issued certificates from being used to impersonate existing secure websites."
 msgstr ""
@@ -626,7 +626,7 @@ msgstr ""
 msgid "HTTP Public Key Pinning"
 msgstr ""
 
-#. translators: 1 opening HTML acronym tag, 2 closing HTML acornym tag.
+#. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: BrowserCache_Page_View_SectionSecurity.php:410
 msgid "This field is %1$srequired%2$s and represents a %3$sSPKI%4$s fingerprint. This pin is any public key within your current certificate chain."
 msgstr ""
@@ -6911,7 +6911,7 @@ msgstr ""
 msgid "Installed (mime_content_type)"
 msgstr ""
 
-#. translators: 1 opening HTML acornym tag, 2 closing HTML acronym tag.
+#. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: inc/lightbox/self_test.php:243
 msgid "(required for %1$sCDN%2$s support)"
 msgstr ""
