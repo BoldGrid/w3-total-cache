@@ -1371,15 +1371,39 @@ jQuery(function() {
 	jQuery('.w3tc-test-container-intro').click(
 		function() {
        		var $testContainer = jQuery(this).next('.w3tc-test-container');
-        	var $icon = jQuery(this).find('.dashicons');
+			var $score = jQuery(this).find('.w3tc-test-score');
 
-        	if ($testContainer.css('display') === 'none') {
-            	$testContainer.css('display', 'flex');
-        	} else {
-            	$testContainer.css('display', 'none');
-        	}
+			if ($score.css("visibility") === "hidden") {
+				$score.css("visibility", "visible").fadeTo(300, 1); // Fade in score element
+			} else {
+				$score.fadeTo(300, 0, function() { // Fade out score element
+					jQuery(this).css("visibility", "hidden");
+				});
+			}
 
-			$icon.toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
+			jQuery(this).find('.dashicons').toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
+
+			if ($testContainer.is(':visible')) {
+				$testContainer.stop(true, true).animate({
+					height: 'toggle',
+					opacity: 'toggle',
+					marginTop: 'toggle',
+					marginBottom: 'toggle',
+					paddingTop: 'toggle',
+					paddingBottom: 'toggle'
+				}, 300);
+			} else {
+				$testContainer.stop(true, true).css({
+					display: 'flex',
+					opacity: 0,
+					marginTop: 0,
+					marginBottom: 0
+				}).animate({
+					opacity: 1,
+					marginTop: '15px',
+					marginBottom: '15px'
+				}, 300);
+			}
     	}
 	);
 

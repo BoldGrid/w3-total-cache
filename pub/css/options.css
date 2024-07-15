@@ -1640,11 +1640,32 @@ td .w3tc-control-after span {
 }
 
 .w3tc-test-container-intro {
-	margin: 25px 0;
+	margin: 15px 0;
+	cursor: pointer;
+	display: table;
 }
 
 .w3tc-test-container-intro * {
-	cursor: pointer;
+	vertical-align: middle;
+}
+
+.w3tc-test-container-intro .w3tc-test-score {
+    display: inline-flex;
+    margin-right: 10px;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    border: 2px solid #68D500;
+    border-radius: 50%;
+	background: #EEFAEC;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.w3tc-test-container-intro .dashicons {
+	margin-left: 5px;
 }
 
 @media screen and (max-width: 1200px) {

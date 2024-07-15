@@ -210,6 +210,7 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, tru
 			<?php
 			if ( ! $is_pro ) {
 				Util_Ui::print_score_block(
+					__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 					'+10',
 					__( 'Points', 'w3-total-cache' ),
 					__( 'In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!', 'w3-total-cache' ),

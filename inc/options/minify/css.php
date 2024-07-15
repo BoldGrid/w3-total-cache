@@ -35,6 +35,7 @@ Util_Ui::config_item_pro(
 			),
 		),
 		'show_learn_more'   => false,
+		'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 		'score'             => '+17.5',
 		'score_label'       => __( 'Points', 'w3-total-cache' ),
 		'score_description' => __( 'In a recent test, Eliminating render blocking CSS improved our Google PageSpeed score by over 17 points on mobile devices!', 'w3-total-cache' ),

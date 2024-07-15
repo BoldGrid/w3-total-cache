@@ -440,9 +440,10 @@ if ( ! defined( 'W3TC' ) ) {
 								esc_html__( 'If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely.', 'w3-total-cache' ),
 							),
 							'show_learn_more'   => false,
-							'score'             => '84.5%',
+							'intro_label'       => __( 'Potential API Response Time Gain', 'w3-total-cache' ),
+							'score'             => '84%',
 							'score_label'       => __( 'API Response Time', 'w3-total-cache' ),
-							'score_description' => __( 'In a recent test, enabling REST API Caching increased API response times by 84.5&#37;!', 'w3-total-cache' ),
+							'score_description' => __( 'In a recent test, enabling REST API Caching increased API response times by 84&#37;!', 'w3-total-cache' ),
 							'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/rest-api-testing/?utm_source=w3tc&utm_medium=rest-api-caching&utm_campaign=proof',
 						),
 						'disable' => wp_kses(

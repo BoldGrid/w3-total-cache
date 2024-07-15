@@ -973,11 +973,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				) : '';
 			Util_Ui::config_item_pro(
 				array(
-					'key'            => 'extension.imageservice',
-					'label'          => esc_html__( 'WebP Converter', 'w3-total-cache' ),
-					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
-					'excerpt'        => wp_kses(
+					'key'               => 'extension.imageservice',
+					'label'             => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+					'control'           => 'checkbox',
+					'checkbox_label'    => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
+					'excerpt'           => wp_kses(
 						sprintf(
 							// translators: 1 HTML line breaks, 2 license rates for free/pro users, 3 link to image service tool.
 							__(
@@ -1024,9 +1024,10 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							'br' => array(),
 						)
 					),
-					'description'    => array(),
-					'label_class'    => 'w3tc_single_column',
-					'wrap_separate'  => true,
+					'description'       => array(),
+					'label_class'       => 'w3tc_single_column',
+					'wrap_separate'     => true,
+					'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 					'score'             => '+9',
 					'score_label'       => __( 'Points', 'w3-total-cache' ),
 					'score_description' => __( 'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
