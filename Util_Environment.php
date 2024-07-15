@@ -1618,7 +1618,7 @@ class Util_Environment {
 	 *
 	 * Returns true if any entries between the tewo arrays match string endings or in whole.
 	 *
-	 * @since  X.X.X
+	 * @since  2.7.4
 	 * @static
 	 *
 	 * @param array $array1 Array 1.

@@ -446,7 +446,7 @@ function debounce(func){
  *
  * The default location (us-east-1) returns an empty string.  All other regions return the region with a trailing dot.
  *
- * @since X.X.X
+ * @since 2.7.4
  *
  * @param {string} location Bucket location.
  * @returns string

@@ -404,7 +404,7 @@ class Extension_ImageService_Api {
 	/**
 	 * Update usage transient data.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.4
 	 *
 	 * @param array $data Usage data.
 	 */
