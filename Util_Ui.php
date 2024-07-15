@@ -745,8 +745,8 @@ class Util_Ui {
 					$name . '__' . $key
 				);
 
-				if ( ! $is_pro && isset( $label_or_array['score'] ) && isset( $label_or_array['score_label'] ) && isset( $label_or_array['score_description'] ) ) {
-					$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $label_or_array['score'] . '</div><p>' . $label_or_array['score_label'] . '</p></div><div class="w3tc-test-description">' . $label_or_array['score_description'] . '</div></div>';
+				if ( ! $is_pro && isset( $label_or_array['intro_label'] ) && isset( $label_or_array['score'] ) && isset( $label_or_array['score_label'] ) && isset( $label_or_array['score_description'] ) && isset( $label_or_array['score_link'] ) ) {
+					$score_block = self::get_score_block( $label_or_array['intro_label'], $label_or_array['score'], $label_or_array['score_label'], $label_or_array['score_description'], $label_or_array['score_link'] );
 					echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 				}
 
@@ -1103,8 +1103,8 @@ class Util_Ui {
 			);
 		}
 
-		if ( $is_w3tc_free && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
-			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html__( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+		if ( $is_w3tc_free && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
+			$score_block = self::get_score_block( $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
@@ -1145,8 +1145,8 @@ class Util_Ui {
 			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
 		}
 
-		if ( ! $is_pro && isset( $a['score'] ) && isset( $a['score_description'] ) ) {
-			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . esc_html__( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+		if ( ! $is_pro && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
+			$score_block = self::get_score_block( $a['intro_label'], $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
@@ -1200,8 +1200,8 @@ class Util_Ui {
 			self::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
 		}
 
-		if ( ! $is_pro && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) ) {
-			$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $a['score'] . '</div><p>' . $a['score_label'] . '</p></div><div class="w3tc-test-description">' . $a['score_description'] . '</div></div>';
+		if ( ! $is_pro && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
+			$score_block = self::get_score_block( $a['intro_label'], $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
@@ -2024,14 +2024,45 @@ class Util_Ui {
 	}
 
 	/**
+	 * Gets the HTML markup for the Test Score Block.
+	 *
+	 * @param string $intro_label       Intro Label.
+	 * @param string $score             Score Value.
+	 * @param string $score_label       Score Label.
+	 * @param string $score_description Score Description.
+	 * @param string $score_link        Score Link.
+	 */
+	public static function get_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
+		$score_block = '
+			<div class="w3tc-test-container-intro">
+				<span class="w3tc-test-score">' . $score . '</span><b>' . esc_html( $intro_label ) . '</b><span class="dashicons dashicons-arrow-down-alt2" ></span>
+			</div>
+			<div class="w3tc-test-container">
+				<div class="w3tc-test-score-container">
+					<div class="w3tc-test-score">' . $score . '</div>
+					<p class="w3tc-test-score-label">' . $score_label . '</p>
+				</div>
+				<div class="w3tc-test-description">
+					<p>' . $score_description . ' <a target="_blank" href="' . esc_url( $score_link ) . '">' . esc_html__( 'Review the testing results', 'w3-total-cache' ) . '</a>' . esc_html__( ' to see how.', 'w3-total-cache' ) . '</p>
+					<br/>
+					<p><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">' . esc_html__( ' and improve your PageSpeed Scores today!', 'w3-total-cache' ) . '</p>
+				</div>
+			</div>';
+		return $score_block;
+	}
+
+	/**
 	 * Prints the Google PageSpeed score block that is built into the config_item_xxx methods.
 	 * This allows for manual printing in places that may need it.
 	 *
-	 * @param string $score
-	 * @param string $score_description
+	 * @param string $intro_label       Intro Label.
+	 * @param string $score             Score Value.
+	 * @param string $score_label       Score Label.
+	 * @param string $score_description Score Description.
+	 * @param string $score_link        Score Link.
 	 */
-	public static function print_score_block( $score, $score_description ) {
-		$score_block = '<div class="w3tc-test-container"><div class="w3tc-test-score-container"><div class="w3tc-test-score">' . $score . '</div><p>' . esc_html__( 'Points', 'w3-total-cache' ) . '</p></div><div class="w3tc-test-description">' . $score_description . '</div></div>';
+	public static function print_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
+		$score_block = self::get_score_block( $intro_label, $score, $score_label, $score_description, $score_link );
 		echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 	}
 }

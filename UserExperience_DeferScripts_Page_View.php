@@ -57,33 +57,11 @@ if ( is_null( $c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) )
 			'description'       => array(),
 			'excerpt'           => esc_html__( 'Timeout (in milliseconds) to delay the loading of delayed scripts if no user action is taken during page load', 'w3-total-cache' ),
 			'show_learn_more'   => false,
+			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'score'             => '+18',
 			'score_label'       => __( 'Points', 'w3-total-cache' ),
-			'score_description' => wp_kses(
-				sprintf(
-					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
-					__(
-						'In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!',
-						'w3-total-cache'
-					),
-					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/?utm_source=w3tc&utm_medium=defer-js&utm_campaign=proof' ) . '">',
-					'</a>',
-					'<br /><br /><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-				),
-				array(
-					'a'      => array(
-						'href'   => array(),
-						'target' => array(),
-					),
-					'br'     => array(),
-					'input'  => array(
-						'type'     => array(),
-						'class'    => array(),
-						'data-src' => array(),
-						'value'    => array(),
-					),
-				)
-			),
+			'score_description' => __( 'In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score!', 'w3-total-cache' ),
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/?utm_source=w3tc&utm_medium=defer-js&utm_campaign=proof',
 		)
 	);
 
@@ -96,33 +74,11 @@ if ( is_null( $c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) )
 			'description'       => array(),
 			'excerpt'           => esc_html__( 'Specify keywords to match any attribute of script tags containing the "src" attribute. Include one entry per line, e.g. (googletagmanager.com, gtag/js, myscript.js, and name="myscript")', 'w3-total-cache' ),
 			'show_learn_more'   => false,
+			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'score'             => '+18',
 			'score_label'       => __( 'Points', 'w3-total-cache' ),
-			'score_description' => wp_kses(
-				sprintf(
-					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
-					__(
-						'In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!',
-						'w3-total-cache'
-					),
-					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/?utm_source=w3tc&utm_medium=defer-js&utm_campaign=proof' ) . '">',
-					'</a>',
-					'<br /><br /><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-				),
-				array(
-					'a'      => array(
-						'href'   => array(),
-						'target' => array(),
-					),
-					'br'     => array(),
-					'input'  => array(
-						'type'     => array(),
-						'class'    => array(),
-						'data-src' => array(),
-						'value'    => array(),
-					),
-				)
-			),
+			'score_description' => __( 'In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score!', 'w3-total-cache' ),
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/?utm_source=w3tc&utm_medium=defer-js&utm_campaign=proof',
 		)
 	);
 	?>
