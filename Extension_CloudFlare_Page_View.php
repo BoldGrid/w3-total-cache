@@ -658,7 +658,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'w3-total-cache'
 						),
 						'<acronym title="' . esc_attr__( 'Internet Protocol', 'w3-total-cache' ) . '">',
-						'</acornym>'
+						'</acronym>'
 					),
 					array(
 						'acronym' => array(
