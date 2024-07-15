@@ -1370,8 +1370,8 @@ jQuery(function() {
 	// Test score block hover toggle.
 	jQuery('.w3tc-test-container-intro').click(
 		function() {
-       		var $testContainer = jQuery(this).next('.w3tc-test-container');
-			var $score = jQuery(this).find('.w3tc-test-score');
+       		var $testContainer = jQuery(this).next('.w3tc-test-container'),
+			    $score = jQuery(this).find('.w3tc-test-score');
 
 			if ($score.css("visibility") === "hidden") {
 				$score.css("visibility", "visible").fadeTo(300, 1); // Fade in score element
