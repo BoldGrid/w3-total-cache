@@ -5,7 +5,7 @@
  * @package    W3TC
  * @subpackage W3TC/tests/admin
  * @author     BoldGrid <development@boldgrid.com>
- * @since      X.X.X
+ * @since      2.7.4
  * @link       https://www.boldgrid.com/w3-total-cache/
  */
 
@@ -16,13 +16,13 @@ use W3TC\Util_Environment;
 /**
  * Class: W3tc_Admin_Util_File_Test
  *
- * @since X.X.X
+ * @since 2.7.4
  */
 class W3tc_Admin_Util_Environment extends WP_UnitTestCase {
 	/**
 	 * Test array_intersect_partial().
 	 *
-	 * @since X.X.X
+	 * @since 2.7.4
 	 */
 	public function test_array_intersect_partial() {
 		// Ensure matches.
