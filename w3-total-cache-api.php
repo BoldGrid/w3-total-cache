@@ -194,17 +194,26 @@ function w3tc_class_autoload( $class ) {
 			require $filename;
 			return;
 		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			echo esc_html(
-				sprintf(
-					// translators: 1 class name, 2 file name.
-					__(
-						'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
-						'w3-total-cache'
-					),
-					$class,
-					$filename
-				)
-			);
+			if ( function_exists( 'esc_html' ) && function_exists( '__' ) ) {
+				echo esc_html(
+					sprintf(
+						// translators: 1 class name, 2 file name.
+						__(
+							'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
+							'w3-total-cache'
+						),
+						$class,
+						$filename
+					)
+				);
+			} else {
+				printf(
+					'Attempt to create object of class %1$s has been made, but file %2$s doesnt exists',
+					$class, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$filename // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+			}
+
 			debug_print_backtrace();
 		}
 	}
