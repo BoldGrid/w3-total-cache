@@ -198,7 +198,7 @@ Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cac
 												'w3-total-cache'
 											),
 											'<strong>',
-											'</strong>',
+											'</strong>'
 										),
 										array(
 											'strong' => array(),
