@@ -1592,16 +1592,16 @@ td .w3tc-control-after span {
  * W3TC pro wrapper test score block
  */
 .w3tc-test-container {
-    display: flex;
+    display: none;
     align-items: center;
 	margin: 25px 0;
 }
 
-.w3tc-test-score-container {
+.w3tc-test-container .w3tc-test-score-container {
 	text-align: center;
 }
 
-.w3tc-test-score-container .w3tc-test-score {
+.w3tc-test-container .w3tc-test-score-container .w3tc-test-score {
     display: inline-flex;
     flex: 0 0 50px;
     align-items: center;
@@ -1617,13 +1617,13 @@ td .w3tc-control-after span {
     margin-right: 15px;
 }
 
-.w3tc-test-score-container p {
+.w3tc-test-container .w3tc-test-score-container p {
 	white-space: nowrap;
 	margin: 4px 15px 4px 0;
 	font-weight: 600;
 }
 
-.w3tc-test-description {
+.w3tc-test-container .w3tc-test-description {
 	border-left: 1px solid #ddd;
 	padding-left: 15px;
     display: inline-block;
@@ -1631,8 +1631,41 @@ td .w3tc-control-after span {
 	font-weight: 600;
 }
 
-.w3tc-test-description input {
+.w3tc-test-container .w3tc-test-description p {
+	margin: 0;
+}
+
+.w3tc-test-container .w3tc-test-description input {
 	font-weight: 600;
+}
+
+.w3tc-test-container-intro {
+	margin: 15px 0;
+	cursor: pointer;
+	display: table;
+}
+
+.w3tc-test-container-intro * {
+	vertical-align: middle;
+}
+
+.w3tc-test-container-intro .w3tc-test-score {
+    display: inline-flex;
+    margin-right: 10px;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    border: 2px solid #68D500;
+    border-radius: 50%;
+	background: #EEFAEC;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.w3tc-test-container-intro .dashicons {
+	margin-left: 5px;
 }
 
 @media screen and (max-width: 1200px) {
@@ -1783,17 +1816,17 @@ td .w3tc-control-after span {
 		align-items: unset;
 	}
 
-	.w3tc-test-score-container {
+	.w3tc-test-container .w3tc-test-score-container {
 		margin: 15px 0;
 		display: inline-flex;
 		align-items: center;
 	}
 
-	.w3tc-test-score-container .w3tc-test-score {
+	.w3tc-test-container .w3tc-test-score-container .w3tc-test-score {
 		margin-right: 10px;
 	}
 
-	.w3tc-test-description {
+	.w3tc-test-container .w3tc-test-description {
 		border-left: unset;
 		padding: 0;
 	}

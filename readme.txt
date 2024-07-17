@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
-Tested up to: 6.5
-Stable tag: 2.7.3
+Tested up to: 6.6
+Stable tag: 2.7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -280,6 +280,19 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.7.4 =
+* Fix: WP-CLI get option output for array type
+* Fix: Remove CSS/JS URL matching
+* Fix: Nginx rules for feature and permission policies
+* Fix: Redis connect port for unix sockets error
+* Update: Newsletter in footer is now a link to a working form
+* Update: Added JSON type for WP-CLI get/set option
+* Update: Added config export for WP-CLI
+* Update: Added content matching option for Remove CSS/JS individual entries
+* Update: Updated Google PageSpeed score block appearance for cleaner UI
+* Update: Added Google PageSpeed score block for PageCache Lazy Loading Google Maps setting
+* Update: Added Google PageSpeed score block for Minify Eliminate Render Blocking CSS option
 
 = 2.7.3 =
 * Fix: Page Cache: File Cleaner now uses the correct expiration setting

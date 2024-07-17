@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.7.3\n"
+"Project-Id-Version: W3 Total Cache 2.7.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-06-14T20:01:13+00:00\n"
+"POT-Creation-Date: 2024-07-16T16:55:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
@@ -36,10 +36,10 @@ msgstr ""
 
 #. Author of the plugin
 #: w3-total-cache.php
-#: inc/options/common/footer.php:116
-#: inc/options/common/footer.php:117
 #: inc/options/common/footer.php:119
 #: inc/options/common/footer.php:120
+#: inc/options/common/footer.php:122
+#: inc/options/common/footer.php:123
 msgid "BoldGrid"
 msgstr ""
 
@@ -501,7 +501,7 @@ msgstr ""
 #: inc/options/minify.php:549
 #: inc/options/minify.php:823
 #: inc/options/minify.php:1014
-#: inc/options/pgcache.php:852
+#: inc/options/pgcache.php:830
 msgid "Hypertext Transfer Protocol"
 msgstr ""
 
@@ -525,8 +525,8 @@ msgstr ""
 #: inc/options/browsercache.php:514
 #: inc/options/browsercache.php:777
 #: inc/options/pgcache.php:179
-#: inc/options/pgcache.php:582
-#: inc/options/pgcache.php:674
+#: inc/options/pgcache.php:560
+#: inc/options/pgcache.php:652
 msgid "Uniform Resource Locator"
 msgstr ""
 
@@ -1028,8 +1028,8 @@ msgstr ""
 #: inc/options/minify.php:620
 #: inc/options/minify.php:815
 #: inc/options/pgcache.php:163
-#: inc/options/pgcache.php:525
-#: inc/options/pgcache.php:533
+#: inc/options/pgcache.php:503
+#: inc/options/pgcache.php:511
 #: Minify_ConfigLabels.php:17
 #: Minify_ConfigLabels.php:22
 #: Minify_ConfigLabels.php:29
@@ -1624,7 +1624,7 @@ msgstr ""
 #: inc/popup/cdn_queue.php:67
 #: inc/popup/cdn_queue.php:88
 #: inc/popup/cdn_queue.php:97
-#: UserExperience_Remove_CssJs_Page_View.php:141
+#: UserExperience_Remove_CssJs_Page_View.php:123
 msgid "Delete"
 msgstr ""
 
@@ -2827,8 +2827,8 @@ msgstr ""
 #: inc/options/general.php:886
 #: inc/options/minify.php:147
 #: inc/options/minify.php:173
-#: inc/options/pgcache.php:854
-#: inc/options/pgcache.php:883
+#: inc/options/pgcache.php:832
+#: inc/options/pgcache.php:861
 #: Util_Ui.php:1727
 #: Util_Ui.php:1840
 msgid "Hypertext Markup Language"
@@ -3095,7 +3095,7 @@ msgstr ""
 #: inc/options/general.php:564
 #: inc/options/general.php:593
 #: inc/options/pgcache.php:412
-#: inc/options/pgcache.php:481
+#: inc/options/pgcache.php:459
 msgid "Application Programming Interface"
 msgstr ""
 
@@ -3229,146 +3229,180 @@ msgstr ""
 msgid "To obtain API key you can %1$s, log in, and paste the key in above field."
 msgstr ""
 
-#: Cli.php:36
-msgid "Environment adjustment failed with error"
+#. translators: 1: Error message.
+#: Cli.php:53
+msgid "Environment adjustment failed with error: %1$s"
 msgstr ""
 
-#: Cli.php:40
+#: Cli.php:59
 msgid "Environment adjusted."
 msgstr ""
 
-#: Cli.php:83
+#: Cli.php:103
 msgid "Flushing all failed."
 msgstr ""
 
-#: Cli.php:85
+#: Cli.php:106
 msgid "Everything flushed successfully."
 msgstr ""
 
-#: Cli.php:93
+#: Cli.php:112
 msgid "Flushing posts/pages failed."
 msgstr ""
 
-#: Cli.php:95
+#: Cli.php:115
 msgid "Posts/pages flushed successfully."
 msgstr ""
 
-#: Cli.php:105
+#: Cli.php:123
 msgid "Flushing the DB cache failed."
 msgstr ""
 
-#: Cli.php:107
+#: Cli.php:126
 msgid "The DB cache is flushed successfully."
 msgstr ""
 
-#: Cli.php:116
+#: Cli.php:133
 msgid "Flushing the minify cache failed."
 msgstr ""
 
-#: Cli.php:118
+#: Cli.php:136
 msgid "The minify cache is flushed successfully."
 msgstr ""
 
-#: Cli.php:127
+#: Cli.php:143
 msgid "Flushing the object cache failed."
 msgstr ""
 
-#: Cli.php:129
+#: Cli.php:146
 msgid "The object cache is flushed successfully."
 msgstr ""
 
-#: Cli.php:139
-#: Cli.php:151
+#: Cli.php:154
+#: Cli.php:164
 msgid "Flushing the page from cache failed."
 msgstr ""
 
-#: Cli.php:141
-#: Cli.php:153
+#: Cli.php:156
+#: Cli.php:167
 msgid "The page is flushed from cache successfully."
 msgstr ""
 
-#: Cli.php:143
+#: Cli.php:158
 msgid "This is not a valid post id."
 msgstr ""
 
-#: Cli.php:162
+#: Cli.php:176
 msgid "Flushing the page cache failed."
 msgstr ""
 
-#: Cli.php:164
+#: Cli.php:179
 msgid "The page cache is flushed successfully."
 msgstr ""
 
-#: Cli.php:169
+#: Cli.php:184
 msgid "Not specified what to flush"
 msgstr ""
 
-#: Cli.php:219
+#: Cli.php:238
 msgid "<name> parameter is not specified"
 msgstr ""
 
-#: Cli.php:251
-#: Cli.php:282
+#: Cli.php:274
+#: Cli.php:322
 msgid "Unknown type "
 msgstr ""
 
-#: Cli.php:260
+#: Cli.php:283
 msgid "<value> parameter is not specified"
 msgstr ""
 
-#: Cli.php:271
-msgid "<value> parameter "
+#. translators: 1: Value being set.
+#: Cli.php:300
+msgid "<value> parameter \"%1$s\" is not boolean"
 msgstr ""
 
-#: Cli.php:289
+#: Cli.php:329
 msgid "Option updated successfully."
 msgstr ""
 
-#: Cli.php:291
+#: Cli.php:331
 msgid "Option value update failed."
 msgstr ""
 
-#: Cli.php:295
+#: Cli.php:335
 msgid "<operation> parameter is not specified"
 msgstr ""
 
-#: Cli.php:319
-msgid "Config import failed: "
-msgstr ""
-
-#: Cli.php:322
-msgid "Configuration successfully imported."
-msgstr ""
-
-#: Cli.php:335
-msgid "updating the query string failed. with error %s"
-msgstr ""
-
-#: Cli.php:339
-msgid "The query string was updated successfully."
-msgstr ""
-
-#: Cli.php:366
-msgid "Files did not successfully purge with error %s"
+#: Cli.php:355
+#: Cli.php:408
+msgid "The filesystem must be direct."
 msgstr ""
 
 #: Cli.php:368
+msgid "Cant read file: "
+msgstr ""
+
+#: Cli.php:372
+msgid "Import failed"
+msgstr ""
+
+#. translators: 1: Error message.
+#: Cli.php:380
+msgid "Config import failed: %1$s"
+msgstr ""
+
+#: Cli.php:386
+msgid "Configuration successfully imported."
+msgstr ""
+
+#: Cli.php:423
+msgid "Export failed"
+msgstr ""
+
+#. translators: 1: Error message.
+#: Cli.php:429
+msgid "Config export failed: %1$s"
+msgstr ""
+
+#. translators: 1: Filename.
+#: Cli.php:438
+msgid "Configuration successfully exported to \"%1$s\" with mode \"%2$s\"."
+msgstr ""
+
+#. translators: 1: Error message.
+#: Cli.php:456
+msgid "updating the query string failed. with error %1$s"
+msgstr ""
+
+#: Cli.php:462
+msgid "The query string was updated successfully."
+msgstr ""
+
+#. translators: 1: Error message.
+#: Cli.php:492
+msgid "Files did not successfully purge with error %1$s"
+msgstr ""
+
+#: Cli.php:498
 msgid "Files purged successfully."
 msgstr ""
 
-#: Cli.php:380
-msgid "PageCache Garbage cleanup failed: %s"
+#. translators: 1: Error message.
+#: Cli.php:512
+msgid "PageCache Garbage cleanup failed: %1$s"
 msgstr ""
 
-#: Cli.php:384
+#: Cli.php:518
 msgid "PageCache Garbage cleanup triggered successfully."
 msgstr ""
 
-#: Cli.php:412
-msgid "PageCache Priming did failed: %s"
+#. translators: 1: Error message.
+#: Cli.php:551
+msgid "PageCache Priming did failed: %1$s"
 msgstr ""
 
-#: Cli.php:416
+#: Cli.php:557
 msgid "PageCache Priming triggered successfully."
 msgstr ""
 
@@ -3586,7 +3620,7 @@ msgid "Extension <strong>%s</strong> has been successfully activated."
 msgstr ""
 
 #: Extension_Amp_Page_View.php:11
-#: Extension_ImageService_Page_View.php:48
+#: Extension_ImageService_Page_View.php:49
 #: Extension_Swarmify_Page_View.php:22
 #: Util_Ui.php:1971
 #: Util_Ui.php:1993
@@ -4283,7 +4317,7 @@ msgstr ""
 #: inc/options/dbcache.php:46
 #: inc/options/minify.php:858
 #: inc/options/objectcache.php:35
-#: inc/options/pgcache.php:519
+#: inc/options/pgcache.php:497
 #: Util_Ui.php:1707
 #: Util_Ui.php:1780
 #: Util_Ui.php:1790
@@ -4311,9 +4345,9 @@ msgstr ""
 #: inc/options/objectcache.php:50
 #: inc/options/objectcache.php:58
 #: inc/options/pgcache.php:229
-#: inc/options/pgcache.php:601
-#: inc/options/pgcache.php:625
-#: inc/options/pgcache.php:632
+#: inc/options/pgcache.php:579
+#: inc/options/pgcache.php:603
+#: inc/options/pgcache.php:610
 msgid "seconds"
 msgstr ""
 
@@ -4327,7 +4361,7 @@ msgstr ""
 #: inc/options/dbcache.php:71
 #: inc/options/minify.php:890
 #: inc/options/objectcache.php:59
-#: inc/options/pgcache.php:626
+#: inc/options/pgcache.php:604
 msgid "If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best."
 msgstr ""
 
@@ -4357,8 +4391,8 @@ msgstr ""
 
 #: Extension_FragmentCache_Plugin_Admin.php:95
 #: Extension_ImageService_Plugin_Admin.php:132
-#: Extension_ImageService_Plugin_Admin.php:559
-#: Extension_ImageService_Plugin_Admin.php:735
+#: Extension_ImageService_Plugin_Admin.php:555
+#: Extension_ImageService_Plugin_Admin.php:731
 #: FeatureShowcase_Plugin_Admin.php:213
 #: FeatureShowcase_Plugin_Admin.php:252
 #: FeatureShowcase_Plugin_Admin.php:268
@@ -4610,145 +4644,165 @@ msgstr ""
 msgid "Hide this message"
 msgstr ""
 
-#: Extension_ImageService_Api.php:166
-#: Extension_ImageService_Api.php:270
-#: Extension_ImageService_Api.php:308
+#: Extension_ImageService_Api.php:168
+#: Extension_ImageService_Api.php:266
+#: Extension_ImageService_Api.php:304
 msgid "WP Error: "
 msgstr ""
 
-#: Extension_ImageService_Api.php:192
+#: Extension_ImageService_Api.php:178
+#: Extension_ImageService_Api.php:382
+#: Extension_ImageService_Api.php:413
+#: Extension_ImageService_Plugin_Admin.php:474
+msgid "Unlimited"
+msgstr ""
+
+#: Extension_ImageService_Api.php:188
 msgid "Error: Received a non-200 response code: "
 msgstr ""
 
 #. translators: 1: Hourly request limit.
-#: Extension_ImageService_Api.php:200
+#: Extension_ImageService_Api.php:196
 msgid "You reached your hourly limit of %1$d; try again later%2$s."
 msgstr ""
 
 #. translators: 1: Hourly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
-#: Extension_ImageService_Api.php:205
+#: Extension_ImageService_Api.php:201
 msgid " or %1$supgrade to Pro%2$s for higher limits"
 msgstr ""
 
 #. translators: 1: Monthly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
-#: Extension_ImageService_Api.php:214
+#: Extension_ImageService_Api.php:210
 msgid "You reached your monthly limit of %1$d; try again later or %2$supgrade to Pro%3$s for unlimited."
 msgstr ""
 
-#: Extension_ImageService_Api.php:221
+#: Extension_ImageService_Api.php:217
 msgid "Invalid output image MIME type."
 msgstr ""
 
-#: Extension_ImageService_Api.php:223
+#: Extension_ImageService_Api.php:219
 msgid "An image file is required."
 msgstr ""
 
-#: Extension_ImageService_Api.php:225
+#: Extension_ImageService_Api.php:221
 msgid "Valid image data is required."
 msgstr ""
 
-#: Extension_ImageService_Api.php:227
+#: Extension_ImageService_Api.php:223
 msgid "Invalid input image MIME type."
 msgstr ""
 
 #. translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-#: Extension_ImageService_Api.php:231
+#: Extension_ImageService_Api.php:227
 msgid "Please verify your license key in %1$sGeneral Settings%2$s."
 msgstr ""
 
-#: Extension_ImageService_Api.php:336
+#: Extension_ImageService_Api.php:341
 #: Generic_WidgetAccount_View.php:40
 #: inc/options/cdn/cf.php:76
 msgid "Unknown"
-msgstr ""
-
-#: Extension_ImageService_Api.php:386
-#: Extension_ImageService_Plugin_Admin.php:478
-msgid "Unlimited"
 msgstr ""
 
 #: Extension_ImageService_Cron.php:41
 msgid "Every Ten Seconds"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:58
+#: Extension_ImageService_Page_View.php:59
 msgid "Compression type:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:64
+#: Extension_ImageService_Page_View.php:65
 msgid "Image compression type."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:75
+#: Extension_ImageService_Page_View.php:76
 msgid "Auto-convert:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:81
+#: Extension_ImageService_Page_View.php:82
 msgid "Auto-convert images on upload."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:92
+#: Extension_ImageService_Page_View.php:93
 msgid "Visibility:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:95
+#: Extension_ImageService_Page_View.php:96
 msgid "Never"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:96
+#: Extension_ImageService_Page_View.php:97
 msgid "If extension is active"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:97
+#: Extension_ImageService_Page_View.php:98
 msgid "Always"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:99
+#: Extension_ImageService_Page_View.php:100
 msgid "Show converted image attachments in the Media Library."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:109
+#: Extension_ImageService_Page_View.php:110
 #: inc/options/common/top_nav_bar.php:164
 #: inc/options/common/top_nav_bar.php:165
 #: Util_Ui.php:1972
 msgid "Tools"
 msgstr ""
 
-#. translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
-#: Extension_ImageService_Page_View.php:121
-#: inc/options/general.php:1035
-msgid "In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s to unlock conversion queue priority and higher hourly/monthly limits today!"
+#. translators: 1 opening HTML p tag, 2 free user hourly limit, 3 free user monthly limit, 4 two HTML br tags, 5 pro user hourly limit, 6 closing HTML p tag.
+#: Extension_ImageService_Page_View.php:120
+msgid "%1$sFree license users will have a conversion limit of %2$d per hour and %3$d per month.%4$sPro license users will have conversion queue priority as well as a conversion limit of %5$d per hour and unlimited per month.%6$s"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:128
-#: inc/options/general.php:1042
-#: inc/options/pgcache.php:454
-#: UserExperience_DeferScripts_Page_View.php:71
-#: UserExperience_DeferScripts_Page_View.php:110
-#: UserExperience_GeneralPage_View.php:131
-#: UserExperience_GeneralPage_View.php:193
-#: UserExperience_Remove_CssJs_Page_View.php:69
-#: UserExperience_Remove_CssJs_Page_View.php:346
-msgid "Upgrade to"
+#: Extension_ImageService_Page_View.php:137
+#: inc/options/general.php:1030
+#: inc/options/minify/css.php:38
+#: UserExperience_DeferScripts_Page_View.php:60
+#: UserExperience_DeferScripts_Page_View.php:77
+#: UserExperience_GeneralPage_View.php:119
+#: UserExperience_GeneralPage_View.php:158
+#: UserExperience_LazyLoad_Page_View.php:213
+#: UserExperience_Remove_CssJs_Page_View.php:58
+#: UserExperience_Remove_CssJs_Page_View.php:318
+msgid "Potential Google PageSpeed Gain"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:157
+#: Extension_ImageService_Page_View.php:139
+#: inc/options/general.php:1032
+#: inc/options/minify/css.php:40
+#: UserExperience_DeferScripts_Page_View.php:62
+#: UserExperience_DeferScripts_Page_View.php:79
+#: UserExperience_GeneralPage_View.php:121
+#: UserExperience_GeneralPage_View.php:160
+#: UserExperience_LazyLoad_Page_View.php:215
+#: UserExperience_Remove_CssJs_Page_View.php:60
+#: UserExperience_Remove_CssJs_Page_View.php:320
+msgid "Points"
+msgstr ""
+
+#: Extension_ImageService_Page_View.php:140
+#: inc/options/general.php:1033
+msgid "In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!"
+msgstr ""
+
+#: Extension_ImageService_Page_View.php:155
 msgid "Convert all images:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:161
+#: Extension_ImageService_Page_View.php:159
 msgid "Convert all images in the media library."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:168
+#: Extension_ImageService_Page_View.php:166
 msgid "Revert all images:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:172
+#: Extension_ImageService_Page_View.php:170
 msgid "Revert all converted images in the media library."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:183
+#: Extension_ImageService_Page_View.php:181
 #: Generic_WidgetSettings_View.php:55
 #: inc/options/common/top_nav_bar.php:66
 #: UsageStatistics_GeneralPage.php:25
@@ -4760,58 +4814,58 @@ msgstr ""
 msgid "Statistics"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:192
+#: Extension_ImageService_Page_View.php:190
 msgid "Counts and file sizes by status:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:196
+#: Extension_ImageService_Page_View.php:194
 msgid "Total:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:201
+#: Extension_ImageService_Page_View.php:199
 msgid "Converted:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:206
+#: Extension_ImageService_Page_View.php:204
 msgid "Sending:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:211
+#: Extension_ImageService_Page_View.php:209
 msgid "Processing:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:216
+#: Extension_ImageService_Page_View.php:214
 msgid "Not converted:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:221
+#: Extension_ImageService_Page_View.php:219
 msgid "Unconverted:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:227
-#: Extension_ImageService_Page_View.php:254
-#: Extension_ImageService_Plugin_Admin.php:557
+#: Extension_ImageService_Page_View.php:225
+#: Extension_ImageService_Page_View.php:252
+#: Extension_ImageService_Plugin_Admin.php:553
 #: UsageStatistics_Page_View.php:15
 msgid "Refresh"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:233
+#: Extension_ImageService_Page_View.php:231
 msgid "WebP Converter API usage:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:237
+#: Extension_ImageService_Page_View.php:235
 msgid "Hourly requests:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:241
+#: Extension_ImageService_Page_View.php:239
 msgid "Hourly limit:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:245
+#: Extension_ImageService_Page_View.php:243
 msgid "Monthly requests:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:249
+#: Extension_ImageService_Page_View.php:247
 msgid "Monthly limit:"
 msgstr ""
 
@@ -4834,85 +4888,85 @@ msgstr ""
 msgid "Media Library"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:467
+#: Extension_ImageService_Plugin_Admin.php:466
 msgid "Settings saved."
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:492
-#: Extension_ImageService_Plugin_Admin.php:493
+#: Extension_ImageService_Plugin_Admin.php:488
+#: Extension_ImageService_Plugin_Admin.php:489
 msgid "Total Cache WebP Converter"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:545
+#: Extension_ImageService_Plugin_Admin.php:541
+#: Extension_ImageService_Plugin_Admin.php:733
 #: Extension_ImageService_Plugin_Admin.php:737
-#: Extension_ImageService_Plugin_Admin.php:741
 msgid "Convert"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:546
-#: Extension_ImageService_Plugin_Admin.php:725
+#: Extension_ImageService_Plugin_Admin.php:542
+#: Extension_ImageService_Plugin_Admin.php:721
 msgid "Sending..."
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:547
+#: Extension_ImageService_Plugin_Admin.php:543
 msgid "Submitted"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:548
-#: Extension_ImageService_Plugin_Admin.php:728
+#: Extension_ImageService_Plugin_Admin.php:544
+#: Extension_ImageService_Plugin_Admin.php:724
 msgid "Processing..."
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:549
-#: Extension_ImageService_Plugin_Admin.php:731
+#: Extension_ImageService_Plugin_Admin.php:545
+#: Extension_ImageService_Plugin_Admin.php:727
 msgid "Converted"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:550
+#: Extension_ImageService_Plugin_Admin.php:546
 msgid "Not converted"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:551
+#: Extension_ImageService_Plugin_Admin.php:547
 msgid "Reverting..."
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:552
+#: Extension_ImageService_Plugin_Admin.php:548
 msgid "Reverted"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:553
-#: Extension_ImageService_Plugin_Admin.php:753
+#: Extension_ImageService_Plugin_Admin.php:549
+#: Extension_ImageService_Plugin_Admin.php:749
 msgid "Revert"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:554
+#: Extension_ImageService_Plugin_Admin.php:550
 msgid "Error"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:555
+#: Extension_ImageService_Plugin_Admin.php:551
 msgid "Failed to retrieve a response.  Please reload the page to try again."
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:556
+#: Extension_ImageService_Plugin_Admin.php:552
 msgid "API error.  Please reload the page to try again,"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:558
+#: Extension_ImageService_Plugin_Admin.php:554
 msgid "Refreshing..."
 msgstr ""
 
 #. translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-#: Extension_ImageService_Plugin_Admin.php:562
+#: Extension_ImageService_Plugin_Admin.php:558
 msgid "Images queued for conversion.  Progress can be seen in the %1$sMedia Library%2$s."
 msgstr ""
 
 #. translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-#: Extension_ImageService_Plugin_Admin.php:568
-#: Extension_ImageService_Plugin_Admin.php:686
+#: Extension_ImageService_Plugin_Admin.php:564
+#: Extension_ImageService_Plugin_Admin.php:682
 msgid "The converted image would be larger than the original; conversion canceled.  %1$sLearn more%2$s."
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:610
+#: Extension_ImageService_Plugin_Admin.php:606
 #: FeatureShowcase_Plugin_Admin.php:402
 #: inc/options/common/top_nav_bar.php:72
 #: inc/options/general.php:952
@@ -4922,53 +4976,53 @@ msgstr ""
 msgid "WebP Converter"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:758
+#: Extension_ImageService_Plugin_Admin.php:754
 msgid "Attachment id: "
 msgstr ""
 
 #. translators: 1: Submissions.
-#: Extension_ImageService_Plugin_Admin.php:867
+#: Extension_ImageService_Plugin_Admin.php:863
 msgid "Submitted %1$u image for processing."
 msgid_plural "Submitted %1$u images for processing."
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: Successes, 2: Skipped, 3: Errored, 4: Invalid.
-#: Extension_ImageService_Plugin_Admin.php:885
+#: Extension_ImageService_Plugin_Admin.php:881
 msgid "Successful: %1$u | Skipped: %2$u | Errored: %3$u | Invalid: %4$u"
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:906
+#: Extension_ImageService_Plugin_Admin.php:902
 msgid "All selected optimizations have been reverted."
 msgstr ""
 
 #. translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
-#: Extension_ImageService_Plugin_Admin.php:921
+#: Extension_ImageService_Plugin_Admin.php:917
 msgid "Switch to %1$slist mode%2$s for WebP conversions."
 msgstr ""
 
 #. translators: 1: HTML achor open tag, 2: HTML anchor close tag.
-#: Extension_ImageService_Plugin_Admin.php:950
-#: Extension_ImageService_Plugin_Admin.php:1156
+#: Extension_ImageService_Plugin_Admin.php:946
+#: Extension_ImageService_Plugin_Admin.php:1152
 msgid "%1$sLearn more%2$s."
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:1171
-#: Extension_ImageService_Plugin_Admin.php:1257
-#: Extension_ImageService_Plugin_Admin.php:1293
+#: Extension_ImageService_Plugin_Admin.php:1167
+#: Extension_ImageService_Plugin_Admin.php:1253
+#: Extension_ImageService_Plugin_Admin.php:1289
 msgid "Missing input post id."
 msgstr ""
 
 #. translators: 1: Image filepath.
-#: Extension_ImageService_Plugin_Admin.php:1187
+#: Extension_ImageService_Plugin_Admin.php:1183
 msgid "File \"%1$s\" does not exist."
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:1218
+#: Extension_ImageService_Plugin_Admin.php:1214
 msgid "Invalid API response."
 msgstr ""
 
-#: Extension_ImageService_Plugin_Admin.php:1285
+#: Extension_ImageService_Plugin_Admin.php:1281
 msgid "Missing converted attachment id."
 msgstr ""
 
@@ -5484,14 +5538,14 @@ msgstr ""
 #: inc/options/common/footer.php:88
 #: inc/options/common/footer.php:89
 #: PageSpeed_Instructions.php:569
-#: UserExperience_GeneralPage_View.php:215
+#: UserExperience_GeneralPage_View.php:169
 #: UserExperience_Preload_Requests_Page_View.php:19
 #: Util_Ui.php:1904
 msgid "Preload Requests"
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:262
-#: UserExperience_GeneralPage_View.php:216
+#: UserExperience_GeneralPage_View.php:170
 msgid "DNS prefetching, pre-connecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks."
 msgstr ""
 
@@ -6024,9 +6078,9 @@ msgid "Enter the path of the CSS/JS file to be managed. If a directory is used, 
 msgstr ""
 
 #: Generic_Plugin_Admin.php:637
-#: UserExperience_Remove_CssJs_Page_View.php:149
-#: UserExperience_Remove_CssJs_Page_View.php:257
-#: UserExperience_Remove_CssJs_Page_View.php:302
+#: UserExperience_Remove_CssJs_Page_View.php:131
+#: UserExperience_Remove_CssJs_Page_View.php:239
+#: UserExperience_Remove_CssJs_Page_View.php:284
 msgid "View Examples"
 msgstr ""
 
@@ -6035,17 +6089,17 @@ msgid "Hide Examples"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:639
-#: UserExperience_Remove_CssJs_Page_View.php:152
+#: UserExperience_Remove_CssJs_Page_View.php:134
 msgid "Target all CSS/JS from a plugin/theme:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:646
-#: UserExperience_Remove_CssJs_Page_View.php:163
+#: UserExperience_Remove_CssJs_Page_View.php:145
 msgid "Target a specific CSS/JS file:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:653
-#: UserExperience_Remove_CssJs_Page_View.php:326
+#: UserExperience_Remove_CssJs_Page_View.php:308
 msgid "No CSS/JS entries added."
 msgstr ""
 
@@ -6058,7 +6112,7 @@ msgid "Target CSS/JS:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:657
-#: UserExperience_Remove_CssJs_Page_View.php:181
+#: UserExperience_Remove_CssJs_Page_View.php:163
 msgid "Action:"
 msgstr ""
 
@@ -6079,17 +6133,17 @@ msgid "(Allow the script ONLY WHEN a condition below matches)"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:662
-#: UserExperience_Remove_CssJs_Page_View.php:186
+#: UserExperience_Remove_CssJs_Page_View.php:168
 msgid "When the above CSS/JS file is found within your markup."
 msgstr ""
 
 #: Generic_Plugin_Admin.php:663
-#: UserExperience_Remove_CssJs_Page_View.php:233
+#: UserExperience_Remove_CssJs_Page_View.php:215
 msgid "Exclude on URL Match:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:664
-#: UserExperience_Remove_CssJs_Page_View.php:233
+#: UserExperience_Remove_CssJs_Page_View.php:215
 msgid "Include on URL Match:"
 msgstr ""
 
@@ -6102,12 +6156,12 @@ msgid "Specify the conditions for which the target file should be included based
 msgstr ""
 
 #: Generic_Plugin_Admin.php:673
-#: UserExperience_Remove_CssJs_Page_View.php:278
+#: UserExperience_Remove_CssJs_Page_View.php:260
 msgid "Exclude on Content Match:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:674
-#: UserExperience_Remove_CssJs_Page_View.php:278
+#: UserExperience_Remove_CssJs_Page_View.php:260
 msgid "Include on Content Match:"
 msgstr ""
 
@@ -7420,7 +7474,7 @@ msgstr ""
 
 #. translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
 #: inc/options/browsercache.php:595
-#: inc/options/pgcache.php:608
+#: inc/options/pgcache.php:586
 msgid "Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp-config.php."
 msgstr ""
 
@@ -7610,8 +7664,8 @@ msgstr ""
 #: inc/options/dbcache.php:90
 #: inc/options/install.php:83
 #: inc/options/install.php:255
-#: inc/options/pgcache.php:723
-#: inc/options/pgcache.php:794
+#: inc/options/pgcache.php:701
+#: inc/options/pgcache.php:772
 #: PageSpeed_Instructions.php:81
 #: PageSpeed_Instructions.php:98
 #: PageSpeed_Instructions.php:367
@@ -8034,7 +8088,7 @@ msgstr ""
 
 #: inc/options/common/footer.php:93
 #: inc/options/common/footer.php:94
-#: UserExperience_Remove_CssJs_Extension.php:167
+#: UserExperience_Remove_CssJs_Extension.php:160
 msgid "Remove CSS/JS"
 msgstr ""
 
@@ -8047,17 +8101,17 @@ msgstr ""
 msgid "Follow Us"
 msgstr ""
 
-#: inc/options/common/footer.php:113
 #: inc/options/common/footer.php:114
+msgid "Newsletter Sign Up"
+msgstr ""
+
+#: inc/options/common/footer.php:116
+#: inc/options/common/footer.php:117
 msgid "W3 Edge"
 msgstr ""
 
-#: inc/options/common/footer.php:124
+#: inc/options/common/footer.php:127
 msgid "Partners"
-msgstr ""
-
-#: inc/options/common/footer.php:130
-msgid "Join the Newsletter!"
 msgstr ""
 
 #: inc/options/common/top_nav_bar.php:56
@@ -8069,7 +8123,7 @@ msgid "User Experience"
 msgstr ""
 
 #: inc/options/common/top_nav_bar.php:76
-#: inc/options/general.php:1067
+#: inc/options/general.php:1044
 #: PageSpeed_Page_View.php:23
 #: Root_AdminMenu.php:119
 #: Root_AdminMenu.php:120
@@ -8654,127 +8708,115 @@ msgstr ""
 msgid "As a free user you are limited to conversions of %1$s/hour and %2$s/month. The Pro license increases these rates to %3$s/hour and %4$s/month. Conversion rates are subject to change and documentation can be found %5$shere%6$s."
 msgstr ""
 
-#: inc/options/general.php:1031
-#: UserExperience_DeferScripts_Page_View.php:61
-#: UserExperience_DeferScripts_Page_View.php:100
-#: UserExperience_GeneralPage_View.php:120
-#: UserExperience_GeneralPage_View.php:182
-#: UserExperience_Remove_CssJs_Page_View.php:59
-#: Util_Ui.php:1107
-#: Util_Ui.php:1149
-#: Util_Ui.php:2034
-msgid "Points"
-msgstr ""
-
-#: inc/options/general.php:1068
+#: inc/options/general.php:1045
 msgid "The PageSpeed Tool is a powerful feature that can be used to help optimize and enhance the performance of your WordPress website. By leveraging the insights and recommendations provided by Google's PageSpeed Insights API, this tool analyzes your website's speed and suggests improvements to boost its performance. By implementing the recommended optimizations, such as minimizing CSS and JavaScript, optimizing images, and enabling browser caching, you can significantly accelerate your WordPress site, resulting in faster loading times and an improved user experience."
 msgstr ""
 
-#: inc/options/general.php:1075
+#: inc/options/general.php:1052
 msgid "PageSpeed Tool"
 msgstr ""
 
 #. translators: 1 Request response code, 2 Error message.
-#: inc/options/general.php:1098
+#: inc/options/general.php:1075
 msgid "Response Code: %1$s<br/>Response Message: %2$s"
 msgstr ""
 
-#: inc/options/general.php:1108
-#: inc/options/general.php:1122
-#: inc/options/general.php:1163
+#: inc/options/general.php:1085
+#: inc/options/general.php:1099
+#: inc/options/general.php:1140
 msgid "Google PageSpeed Insights API authorization failed."
 msgstr ""
 
-#: inc/options/general.php:1117
+#: inc/options/general.php:1094
 msgid "Google PageSpeed Insights API authorization successful."
 msgstr ""
 
-#: inc/options/general.php:1126
+#: inc/options/general.php:1103
 msgid "Missing refresh token."
 msgstr ""
 
-#: inc/options/general.php:1136
+#: inc/options/general.php:1113
 msgid "Google PageSpeed Insights API authorization successfully reset."
 msgstr ""
 
-#: inc/options/general.php:1144
+#: inc/options/general.php:1121
 msgid "Unique site ID missing for authorize request!"
 msgstr ""
 
-#: inc/options/general.php:1146
+#: inc/options/general.php:1123
 msgid "Authorize URL missing for authorize request!"
 msgstr ""
 
-#: inc/options/general.php:1148
+#: inc/options/general.php:1125
 msgid "Return URL missing for authorize request!"
 msgstr ""
 
-#: inc/options/general.php:1150
+#: inc/options/general.php:1127
 msgid "Failed to process authorize request!"
 msgstr ""
 
-#: inc/options/general.php:1154
+#: inc/options/general.php:1131
 msgid "No authorize code returned to W3-API from Google!"
 msgstr ""
 
-#: inc/options/general.php:1156
+#: inc/options/general.php:1133
 msgid "No W3Key return to W3-API from Google!"
 msgstr ""
 
-#: inc/options/general.php:1158
+#: inc/options/general.php:1135
 msgid "No W3-API matching record found during Google authorization return processing!"
 msgstr ""
 
-#: inc/options/general.php:1181
+#: inc/options/general.php:1158
 msgid "Valid"
 msgstr ""
 
-#: inc/options/general.php:1198
+#: inc/options/general.php:1175
 msgid "Allow W3 Total Cache to connect to the PageSpeed Insights API on your behalf."
 msgstr ""
 
-#: inc/options/general.php:1214
+#: inc/options/general.php:1191
 #: Util_Ui.php:1672
 msgid "Import / Export Settings"
 msgstr ""
 
-#: inc/options/general.php:1215
+#: inc/options/general.php:1192
 msgid "This tool allows users to easily transfer their W3 Total Cache plugin settings between different WordPress installations by exporting the current configuration as a file and importing it on another site, ensuring consistent caching and performance optimizations across multiple websites."
 msgstr ""
 
-#: inc/options/general.php:1235
+#: inc/options/general.php:1212
 msgid "Import configuration:"
 msgstr ""
 
-#: inc/options/general.php:1238
+#: inc/options/general.php:1215
 msgid "Upload"
 msgstr ""
 
-#: inc/options/general.php:1239
+#: inc/options/general.php:1216
 msgid "Upload and replace the active settings file."
 msgstr ""
 
-#: inc/options/general.php:1243
+#: inc/options/general.php:1220
 msgid "Export configuration:"
 msgstr ""
 
-#: inc/options/general.php:1245
+#: inc/options/general.php:1222
 msgid "Download"
 msgstr ""
 
-#: inc/options/general.php:1246
+#: inc/options/general.php:1223
 msgid "Download the active settings file."
 msgstr ""
 
-#: inc/options/general.php:1250
+#: inc/options/general.php:1227
 msgid "Reset configuration:"
 msgstr ""
 
-#: inc/options/general.php:1252
+#: inc/options/general.php:1229
 msgid "Restore Default Settings"
 msgstr ""
 
-#: inc/options/general.php:1253
+#: inc/options/general.php:1230
 msgid "Revert all settings to the defaults. Any settings staged in preview mode will not be modified."
 msgstr ""
 
@@ -9166,9 +9208,9 @@ msgid "The %1$sTTL%2$s of page cache files is set via the \"Expires header lifet
 msgstr ""
 
 #: inc/options/minify.php:1040
-#: inc/options/pgcache.php:643
-#: inc/options/pgcache.php:645
-#: inc/options/pgcache.php:881
+#: inc/options/pgcache.php:621
+#: inc/options/pgcache.php:623
+#: inc/options/pgcache.php:859
 msgid "Time to Live"
 msgstr ""
 
@@ -9192,21 +9234,25 @@ msgstr ""
 msgid "Test Closure Compiler"
 msgstr ""
 
-#: inc/options/minify/css.php:17
+#: inc/options/minify/css.php:21
 msgid "Eliminate render-blocking <acronym title=\"Cascading Style Sheet\">CSS</acronym> by moving it to <acronym title=\"Hypertext Transfer Protocol\">HTTP</acronym> body"
 msgstr ""
 
-#: inc/options/minify/css.php:20
+#: inc/options/minify/css.php:24
 msgid "Website visitors cannot navigate your website until a given page is ready - reduce the wait time with this feature."
 msgstr ""
 
-#: inc/options/minify/css.php:22
+#: inc/options/minify/css.php:26
 msgid "Faster paint time is a key last step in lowering bounce rates even for repeat page views. Enable this feature to significantly enhance your website’s user experience by reducing wait times and ensuring that users can interact with your website as quickly as possible."
 msgstr ""
 
 #. translators: 1 The opening anchor tag linking to our support page, 2 its closing tag.
-#: inc/options/minify/css.php:26
+#: inc/options/minify/css.php:30
 msgid "Need help? Take a look at our %1$spremium support, customization and audit services%2$s."
+msgstr ""
+
+#: inc/options/minify/css.php:41
+msgid "In a recent test, Eliminating render blocking CSS improved our Google PageSpeed score by over 17 points on mobile devices!"
 msgstr ""
 
 #: inc/options/minify/csstidy2.php:9
@@ -9582,7 +9628,7 @@ msgid "%1$sREST%2$s %3$sAPI%4$s"
 msgstr ""
 
 #: inc/options/pgcache.php:410
-#: inc/options/pgcache.php:479
+#: inc/options/pgcache.php:457
 msgid "REpresentational State Transfer"
 msgstr ""
 
@@ -9602,123 +9648,126 @@ msgstr ""
 msgid "If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely."
 msgstr ""
 
-#: inc/options/pgcache.php:444
+#: inc/options/pgcache.php:443
+msgid "Potential API Response Time Gain"
+msgstr ""
+
+#: inc/options/pgcache.php:445
 msgid "API Response Time"
 msgstr ""
 
-#. translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
-#: inc/options/pgcache.php:448
-msgid "In a recent test, enabling REST API Caching increased API response times by 84.5&#37;! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!"
+#: inc/options/pgcache.php:446
+msgid "In a recent test, enabling REST API Caching increased API response times by 84&#37;!"
 msgstr ""
 
 #. translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:475
+#: inc/options/pgcache.php:453
 msgid "Disable %1$sREST%2$s %3$sAPI%4$s"
 msgstr ""
 
 #. translators: 3 opneing HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:496
+#: inc/options/pgcache.php:474
 msgid "Controls WordPress %1$sREST%2$s %3$sAPI%4$s functionality."
 msgstr ""
 
-#: inc/options/pgcache.php:522
+#: inc/options/pgcache.php:500
 msgid "Late initialization:"
 msgstr ""
 
-#: inc/options/pgcache.php:526
+#: inc/options/pgcache.php:504
 msgid "Enables support for WordPress functionality in fragment caching for the page caching engine. Use of this feature may increase response times."
 msgstr ""
 
-#: inc/options/pgcache.php:530
+#: inc/options/pgcache.php:508
 msgid "Late caching:"
 msgstr ""
 
-#: inc/options/pgcache.php:534
+#: inc/options/pgcache.php:512
 msgid "Overwrites key of page caching via custom filters by postponing entry extraction during the init action."
 msgstr ""
 
-#: inc/options/pgcache.php:548
+#: inc/options/pgcache.php:526
 msgid "Compatibility mode:"
 msgstr ""
 
-#: inc/options/pgcache.php:551
+#: inc/options/pgcache.php:529
 msgid "Decreases performance by ~20% at scale in exchange for increasing interoperability with more hosting environments and WordPress idiosyncrasies. Enable this option if you experience issues with the Apache rules."
 msgstr ""
 
-#: inc/options/pgcache.php:556
+#: inc/options/pgcache.php:534
 msgid "Charset:"
 msgstr ""
 
-#: inc/options/pgcache.php:559
+#: inc/options/pgcache.php:537
 msgid "Resolve issues incorrect odd character encoding that may appear in cached pages."
 msgstr ""
 
-#: inc/options/pgcache.php:564
+#: inc/options/pgcache.php:542
 msgid "Reject HEAD requests:"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/pgcache.php:578
+#: inc/options/pgcache.php:556
 msgid "If disabled, HEAD requests can often be cached resulting in \"empty pages\" being returned for subsequent requests for a %1$sURL%2$s."
 msgstr ""
 
-#: inc/options/pgcache.php:602
+#: inc/options/pgcache.php:580
 msgid "Determines the natural expiration time of cache items. The higher the value, the larger the cache."
 msgstr ""
 
 #. translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:639
+#: inc/options/pgcache.php:617
 msgid "Significantly reduce the default %1$sTTL%2$s for comment cookies to reduce the number of authenticated user traffic. Enter -1 to revert to default %3$sTTL%4$s."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/pgcache.php:670
+#: inc/options/pgcache.php:648
 msgid "Always cache %1$sURL%2$ss that use these query string name-value pairs. The value part is not required. But if used, separate name-value pairs with an equals sign (i.e., name=value). Each pair should be on their own line."
 msgstr ""
 
-#: inc/options/pgcache.php:693
+#: inc/options/pgcache.php:671
 msgid "Never send cache pages for these user agents."
 msgstr ""
 
-#: inc/options/pgcache.php:702
+#: inc/options/pgcache.php:680
 msgid "Never cache pages that use the specified cookies."
 msgstr ""
 
 #. translators: 2 opening HTML acronym tag, 3 closing HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:718
+#: inc/options/pgcache.php:696
 msgid "Always ignore the specified pages / directories. Supports regular expressions (See %1$s%2$sFAQ%3$s%4$s)"
 msgstr ""
 
-#: inc/options/pgcache.php:746
+#: inc/options/pgcache.php:724
 msgid "Always ignore all pages filed under the specified category slugs."
 msgstr ""
 
-#: inc/options/pgcache.php:755
+#: inc/options/pgcache.php:733
 msgid "Always ignore all pages filed under the specified tag slugs."
 msgstr ""
 
-#: inc/options/pgcache.php:764
+#: inc/options/pgcache.php:742
 msgid "Always ignore all pages filed under the specified author usernames."
 msgstr ""
 
-#: inc/options/pgcache.php:773
+#: inc/options/pgcache.php:751
 msgid "Always ignore all pages filed under the specified custom fields. Separate name-value pairs with an equals sign (i.e., name=value)."
 msgstr ""
 
 #. translators: 3 closing HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/pgcache.php:789
+#: inc/options/pgcache.php:767
 msgid "Cache the specified pages / directories even if listed in the \"never cache the following pages\" field. Supports regular expression (See %1$s%2$sFAQ%3$s%4$s)"
 msgstr ""
 
-#: inc/options/pgcache.php:819
+#: inc/options/pgcache.php:797
 msgid "Cache the specified pages even if they don't have trailing slash."
 msgstr ""
 
-#: inc/options/pgcache.php:829
+#: inc/options/pgcache.php:807
 msgid "Specify additional page headers to cache."
 msgstr ""
 
-#: inc/options/pgcache.php:836
+#: inc/options/pgcache.php:814
 #: Util_Ui.php:1708
 #: Util_Ui.php:1781
 #: Util_Ui.php:1883
@@ -9726,12 +9775,12 @@ msgid "Note(s)"
 msgstr ""
 
 #. translators: 5 opening HTML a tag to W3TC BrowserCache admin page, 6 closing HTML a tag.
-#: inc/options/pgcache.php:848
+#: inc/options/pgcache.php:826
 msgid "Enable %1$sHTTP%2$s compression in the \"%3$sHTML%4$s\" section on %5$sBrowser Cache</a> Settings tab."
 msgstr ""
 
 #. translators: 5 opening HTML a tag to W3TC BrowserCache admin page, 6 closing HTML a tag.
-#: inc/options/pgcache.php:877
+#: inc/options/pgcache.php:855
 msgid "The %1$sTTL%2$s of page cache files is set via the \"Expires header lifetime\" field in the \"%3$sHTML%4$s\" section on %5$sBrowser Cache%6$s Settings tab."
 msgstr ""
 
@@ -12401,22 +12450,22 @@ msgstr ""
 msgid "Timeout (in milliseconds) to delay the loading of delayed scripts if no user action is taken during page load"
 msgstr ""
 
-#. translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
-#: UserExperience_DeferScripts_Page_View.php:65
-#: UserExperience_DeferScripts_Page_View.php:104
-msgid "In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!"
+#: UserExperience_DeferScripts_Page_View.php:63
+#: UserExperience_DeferScripts_Page_View.php:80
+#: UserExperience_GeneralPage_View.php:122
+msgid "In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score!"
 msgstr ""
 
-#: UserExperience_DeferScripts_Page_View.php:93
+#: UserExperience_DeferScripts_Page_View.php:71
 msgid "Delay list:"
 msgstr ""
 
-#: UserExperience_DeferScripts_Page_View.php:97
+#: UserExperience_DeferScripts_Page_View.php:75
 msgid "Specify keywords to match any attribute of script tags containing the \"src\" attribute. Include one entry per line, e.g. (googletagmanager.com, gtag/js, myscript.js, and name=\"myscript\")"
 msgstr ""
 
 #. translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.
-#: UserExperience_DeferScripts_Page_View.php:135
+#: UserExperience_DeferScripts_Page_View.php:91
 msgid "%1$sDelay Scripts%2$s is not enabled in the %3$sGeneral Settings%4$s."
 msgstr ""
 
@@ -12448,42 +12497,36 @@ msgstr ""
 
 #. translators: 1 opening HTML a tag to W3TC User Experience page, 2 closing HTML a tag.
 #: UserExperience_GeneralPage_View.php:100
-#: UserExperience_GeneralPage_View.php:162
-#: UserExperience_GeneralPage_View.php:224
+#: UserExperience_GeneralPage_View.php:139
+#: UserExperience_GeneralPage_View.php:178
 msgid " Settings can be found on the %1$sUser Experience page%2$s."
 msgstr ""
 
-#. translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
-#: UserExperience_GeneralPage_View.php:124
-msgid "In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s and improve your PageSpeed Scores today!"
-msgstr ""
-
-#: UserExperience_GeneralPage_View.php:153
+#: UserExperience_GeneralPage_View.php:130
 msgid "Remove Unwanted/Unused CSS/JS"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:154
+#: UserExperience_GeneralPage_View.php:131
 msgid "Removes specified CSS/JS tags from the homepage or on a per page basis."
 msgstr ""
 
-#. translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
-#: UserExperience_GeneralPage_View.php:186
-msgid "In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s and improve your PageSpeed Scores today!"
+#: UserExperience_GeneralPage_View.php:161
+msgid "In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:248
+#: UserExperience_GeneralPage_View.php:202
 msgid "Disable wp-embed script"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:249
+#: UserExperience_GeneralPage_View.php:203
 msgid "Remove wp-embed.js script from your website. oEmbed functionality still works but you will not be able to embed other WordPress posts on your pages."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:258
+#: UserExperience_GeneralPage_View.php:212
 msgid "Disable jquery-migrate on the front-end"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:260
+#: UserExperience_GeneralPage_View.php:214
 msgid "Remove jquery-migrate support from your website front-end."
 msgstr ""
 
@@ -12569,6 +12612,10 @@ msgstr ""
 #. translators: 1 opening HTML a tag to WordPress Google Maps, 2 closing HTML a tag.
 #: UserExperience_LazyLoad_Page_View.php:190
 msgid "%1$sWP Google Maps%2$s plugin"
+msgstr ""
+
+#: UserExperience_LazyLoad_Page_View.php:216
+msgid "In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!"
 msgstr ""
 
 #: UserExperience_Preload_Requests_Page_View.php:20
@@ -12672,66 +12719,65 @@ msgstr ""
 msgid "Specify absolute or relative URLs, or file names to be excluded from loading on the homepage. Include one entry per line, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name=\"myscript\", etc.)"
 msgstr ""
 
-#. translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags followed by a HTML input button to purchase pro license.
-#: UserExperience_Remove_CssJs_Page_View.php:63
-#: UserExperience_Remove_CssJs_Page_View.php:340
-msgid "In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s and improve your PageSpeed Scores today!"
+#: UserExperience_Remove_CssJs_Page_View.php:61
+#: UserExperience_Remove_CssJs_Page_View.php:321
+msgid "In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!"
 msgstr ""
 
 #. translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.
-#: UserExperience_Remove_CssJs_Page_View.php:95
-#: UserExperience_Remove_CssJs_Page_View.php:367
+#: UserExperience_Remove_CssJs_Page_View.php:73
+#: UserExperience_Remove_CssJs_Page_View.php:328
 msgid "%1$sRemove Unwanted/Unused CSS/JS%2$s is not enabled in the %3$sGeneral Settings%4$s."
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:115
+#: UserExperience_Remove_CssJs_Page_View.php:93
 #: Util_Ui.php:1900
 msgid "Remove CSS/JS Individually"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:118
+#: UserExperience_Remove_CssJs_Page_View.php:96
 msgid "Use this area to manage individual CSS/JS entries. The target CSS/JS for each rule can be either an absolute/relative URL or file name."
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:123
+#: UserExperience_Remove_CssJs_Page_View.php:101
 msgid "Add"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:137
+#: UserExperience_Remove_CssJs_Page_View.php:119
 msgid "File Path:"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:144
+#: UserExperience_Remove_CssJs_Page_View.php:126
 msgid "Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry"
 msgstr ""
 
 #. translators: 1 HTML opening strong tag, 2 closing HTML strong tag.
-#: UserExperience_Remove_CssJs_Page_View.php:194
+#: UserExperience_Remove_CssJs_Page_View.php:176
 msgid "%1$sExclude%2$s (Remove the script ONLY WHEN a condition below matches)"
 msgstr ""
 
 #. translators: 1 HTML opening strong tag, 2 closing HTML strong tag.
-#: UserExperience_Remove_CssJs_Page_View.php:214
+#: UserExperience_Remove_CssJs_Page_View.php:196
 msgid "%1$sInclude%2$s (Allow the script ONLY WHEN a condition below matches)"
 msgstr ""
 
 #. translators: 1 action description based on behavior selector.
-#: UserExperience_Remove_CssJs_Page_View.php:245
+#: UserExperience_Remove_CssJs_Page_View.php:227
 msgid "Specify the conditions for which the target file should be %1$sd based on matching absolute/relative page URLs. Include one entry per line."
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:249
-#: UserExperience_Remove_CssJs_Page_View.php:294
+#: UserExperience_Remove_CssJs_Page_View.php:231
+#: UserExperience_Remove_CssJs_Page_View.php:276
 msgid "exclude"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:249
-#: UserExperience_Remove_CssJs_Page_View.php:294
+#: UserExperience_Remove_CssJs_Page_View.php:231
+#: UserExperience_Remove_CssJs_Page_View.php:276
 msgid "include"
 msgstr ""
 
 #. translators: 1 action description based on behavior selector.
-#: UserExperience_Remove_CssJs_Page_View.php:290
+#: UserExperience_Remove_CssJs_Page_View.php:272
 msgid "Specify the conditions for which the target file should be %1$sd based on matching page content. Include one entry per line."
 msgstr ""
 
@@ -13105,6 +13151,22 @@ msgstr ""
 msgid "Behavior"
 msgstr ""
 
+#: Util_Ui.php:2046
+msgid "Review the testing results"
+msgstr ""
+
+#: Util_Ui.php:2046
+msgid " to see how."
+msgstr ""
+
+#: Util_Ui.php:2048
+msgid "Upgrade to"
+msgstr ""
+
+#: Util_Ui.php:2048
+msgid " and improve your PageSpeed Scores today!"
+msgstr ""
+
 #: Util_Widget.php:54
 msgid "View all"
 msgstr ""
@@ -13135,7 +13197,7 @@ msgid "Varnish Cache"
 msgstr ""
 
 #. translators: 1 class name, 2 file name.
-#: w3-total-cache-api.php:200
+#: w3-total-cache-api.php:201
 msgid "Attempt to create object of class %1$s has been made, but file %2$s doesnt exists"
 msgstr ""
 

@@ -21,7 +21,8 @@ if ( ! defined( 'W3TC' ) ) {
 
 $c      = Dispatcher::config();
 $is_pro = Util_Environment::is_w3tc_pro( $c );
-
+$usage  = Extension_ImageService_Plugin::get_api()->get_usage();
+Util_Debug::debug('usage',$usage);
 ?>
 <div class="wrap" id="w3tc">
 <?php Util_Ui::print_breadcrumb(); ?>
@@ -113,34 +114,31 @@ if ( ! $is_pro ) {
 	<div class="w3tc-gopro-manual-wrap">
 		<?php
 		Util_Ui::pro_wrap_maybe_start();
-		Util_Ui::print_score_block(
-			'+9',
-			wp_kses(
-				sprintf(
-					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
-					__(
-						'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s to unlock conversion queue priority and higher hourly/monthly limits today!',
-						'w3-total-cache'
-					),
-					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof' ) . '">',
-					'</a>',
-					'<br /><br />',
-					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
+		echo wp_kses(
+			sprintf(
+				// translators: 1 opening HTML p tag, 2 free user hourly limit, 3 free user monthly limit, 4 two HTML br tags, 5 pro user hourly limit, 6 closing HTML p tag.
+				__(
+					'%1$sFree license users will have a conversion limit of %2$d per hour and %3$d per month.%4$sPro license users will have conversion queue priority as well as a conversion limit of %5$d per hour and unlimited per month.%6$s',
+					'w3-total-cache'
 				),
-				array(
-					'a'      => array(
-						'href'   => array(),
-						'target' => array(),
-					),
-					'br'     => array(),
-					'input'  => array(
-						'type'     => array(),
-						'class'    => array(),
-						'data-src' => array(),
-						'value'    => array(),
-					),
-				)
+				'<p>',
+				$usage['limit_hourly_unlicensed'],
+				$usage['limit_monthly_unlicensed'],
+				'<br/><br/>',
+				$usage['limit_hourly_licensed'],
+				'</p>'
+			),
+			array(
+				'p'  => array(),
+				'br' => array(),
 			)
+		);
+		Util_Ui::print_score_block(
+			__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+			'+9',
+			__( 'Points', 'w3-total-cache' ),
+			__( 'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
+			'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof'
 		);
 		Util_Ui::pro_wrap_maybe_end( 'imageservice_settings', false );
 		?>

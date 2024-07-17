@@ -973,11 +973,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				) : '';
 			Util_Ui::config_item_pro(
 				array(
-					'key'            => 'extension.imageservice',
-					'label'          => esc_html__( 'WebP Converter', 'w3-total-cache' ),
-					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
-					'excerpt'        => wp_kses(
+					'key'               => 'extension.imageservice',
+					'label'             => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+					'control'           => 'checkbox',
+					'checkbox_label'    => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
+					'excerpt'           => wp_kses(
 						sprintf(
 							// translators: 1 HTML line breaks, 2 license rates for free/pro users, 3 link to image service tool.
 							__(
@@ -1024,37 +1024,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							'br' => array(),
 						)
 					),
-					'description'    => array(),
-					'label_class'    => 'w3tc_single_column',
-					'wrap_separate'  => true,
+					'description'       => array(),
+					'label_class'       => 'w3tc_single_column',
+					'wrap_separate'     => true,
+					'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 					'score'             => '+9',
 					'score_label'       => __( 'Points', 'w3-total-cache' ),
-					'score_description' => wp_kses(
-						sprintf(
-							// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
-							__(
-								'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s to unlock conversion queue priority and higher hourly/monthly limits today!',
-								'w3-total-cache'
-							),
-							'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof' ) . '">',
-							'</a>',
-							'<br /><br />',
-							'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-						),
-						array(
-							'a'      => array(
-								'href'   => array(),
-								'target' => array(),
-							),
-							'br'     => array(),
-							'input'  => array(
-								'type'     => array(),
-								'class'    => array(),
-								'data-src' => array(),
-								'value'    => array(),
-							),
-						)
-					),
+					'score_description' => __( 'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
+					'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof',
 				)
 			);
 			?>
