@@ -45,8 +45,6 @@ script:
 after_success:
   # Codecov: Create a code coverage report for PHP 7.2.
   - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.2" ]]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -f coverage.xml; fi
-  # Testing WP-CLI.
-  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.2" ]]; then wget -O /tmp/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x /tmp/wp && php -d xdebug.max_nesting_level=512 /tmp/wp i18n make-pot . languages/w3-total-cache.pot; fi
 
 deploy:
   - provider: script
