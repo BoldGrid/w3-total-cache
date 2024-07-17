@@ -90,9 +90,11 @@ class Util_AttachToActions {
 	 * Post changed action
 	 *
 	 * @link https://developer.wordpress.org/reference/hooks/save_post/
+	 * @link https://developer.wordpress.org/reference/hooks/pre_trash_post/
+	 * @link https://developer.wordpress.org/reference/hooks/before_delete_post/
 	 *
-	 * @param integer $post_id Post ID.
-	 * @param WP_Post $post    Post.
+	 * @param int|bool $post_id Post ID or a boolean if running on the "pre_trash"post" hook filter.
+	 * @param WP_Post  $post    Post.
 	 *
 	 * @return int|bool|null
 	 */
@@ -105,16 +107,16 @@ class Util_AttachToActions {
 		// since there are usually attachments content like title
 		// on the page (gallery).
 		if ( isset( $post->post_type ) && 'attachment' === $post->post_type ) {
-			$post_id = $post->post_parent;
-			$post    = get_post( $post_id );
+			$post_parent_id = $post->post_parent;
+			$post_parent    = get_post( $post_id );
 		}
 
-		if ( ! Util_Environment::is_flushable_post( $post, 'posts', Dispatcher::config() ) ) {
+		if ( ! Util_Environment::is_flushable_post( $post_parent, 'posts', Dispatcher::config() ) ) {
 			return $post_id;
 		}
 
 		$cacheflush = Dispatcher::component( 'CacheFlush' );
-		$cacheflush->flush_post( $post_id );
+		$cacheflush->flush_post( $post_parent_id );
 
 		return $post_id;
 	}
