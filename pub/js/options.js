@@ -446,7 +446,7 @@ function debounce(func){
  *
  * The default location (us-east-1) returns an empty string.  All other regions return the region with a trailing dot.
  *
- * @since X.X.X
+ * @since 2.7.4
  *
  * @param {string} location Bucket location.
  * @returns string
@@ -1366,6 +1366,46 @@ jQuery(function() {
 		var target_class = jQuery(this).metadata().for_class;
 		jQuery('.' + target_class).slideToggle();
 	});
+
+	// Test score block hover toggle.
+	jQuery('.w3tc-test-container-intro').click(
+		function() {
+       		var $testContainer = jQuery(this).next('.w3tc-test-container'),
+			    $score = jQuery(this).find('.w3tc-test-score');
+
+			if ($score.css("visibility") === "hidden") {
+				$score.css("visibility", "visible").fadeTo(300, 1); // Fade in score element
+			} else {
+				$score.fadeTo(300, 0, function() { // Fade out score element
+					jQuery(this).css("visibility", "hidden");
+				});
+			}
+
+			jQuery(this).find('.dashicons').toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
+
+			if ($testContainer.is(':visible')) {
+				$testContainer.stop(true, true).animate({
+					height: 'toggle',
+					opacity: 'toggle',
+					marginTop: 'toggle',
+					marginBottom: 'toggle',
+					paddingTop: 'toggle',
+					paddingBottom: 'toggle'
+				}, 300);
+			} else {
+				$testContainer.stop(true, true).css({
+					display: 'flex',
+					opacity: 0,
+					marginTop: 0,
+					marginBottom: 0
+				}).animate({
+					opacity: 1,
+					marginTop: '15px',
+					marginBottom: '15px'
+				}, 300);
+			}
+    	}
+	);
 
 	// Check for unsaved changes.
 	jQuery('#w3tc input,#w3tc select,#w3tc textarea').on('change', function() {

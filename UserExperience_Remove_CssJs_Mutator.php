@@ -104,7 +104,7 @@ class UserExperience_Remove_CssJs_Mutator {
 		}
 
 		$this->buffer = preg_replace_callback(
-			'~(<link.+?href.+?>)|(<script.+?src.+?</script>)~is',
+			'~(<link[^>]+href[^>]+>)|(<script[^>]+src[^>]+></script>)~is',
 			array( $this, 'remove_content' ),
 			$this->buffer
 		);
@@ -154,26 +154,22 @@ class UserExperience_Remove_CssJs_Mutator {
 			}
 		}
 
-		// Build array of possible current page relative/absolute URLs.
+		// Build array of possible current page URLs.
 		$current_pages = array(
-			$wp->request,
-			trailingslashit( $wp->request ),
-			home_url( $wp->request ),
-			trailingslashit( home_url( $wp->request ) ),
+			esc_url( trailingslashit( home_url( $wp->request ) ) ),
 		);
+
+		if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
+			$current_pages[] = esc_url( trailingslashit( home_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) ) );
+		}
 
 		foreach ( $this->singles_includes as $id => $data ) {
 			// Check if the defined single CSS/JS file is present in HTML content.
 			if ( ! empty( $data ) && strpos( $content, $data['url_pattern'] ) !== false ) {
 				// Check if current page URL(s) match any defined conditions.
-				$page_match = array_intersect(
+				$page_match = Util_Environment::array_intersect_partial(
 					$current_pages,
-					array_map(
-						function ($value) {
-							return ltrim( $value, '/' );
-						},
-						$data['includes']
-					)
+					$data['includes']
 				);
 
 				// Check if current page content match any defined conditions.

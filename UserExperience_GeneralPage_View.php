@@ -46,11 +46,11 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 
 	Util_Ui::config_item_pro(
 		array(
-			'key'         => 'lazyload_googlemaps_general_settings',
-			'control'     => 'none',
-			'label_class' => 'w3tc_single_column',
-			'none_label'  => esc_html__( 'Lazy Load Google Maps', 'w3-total-cache' ),
-			'excerpt'     => wp_kses(
+			'key'               => 'lazyload_googlemaps_general_settings',
+			'control'           => 'none',
+			'label_class'       => 'w3tc_single_column',
+			'none_label'        => esc_html__( 'Lazy Load Google Maps', 'w3-total-cache' ),
+			'excerpt'           => wp_kses(
 				sprintf(
 					// translators: 1 opening HTML strong tag, 2 closing HTML strong tag, 3 opening HTML strong tag, 4 closing HTML strong tag,
 					// translators: 5 opening HTML a tag to W3TC User Experience page, 6 closing HTML a tag.
@@ -72,7 +72,13 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 					'strong' => array(),
 				)
 			),
-			'description' => array(),
+			'description'       => array(),
+			'show_learn_more'   => false,
+			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+			'score'             => '+10',
+			'score_label'       => __( 'Points', 'w3-total-cache' ),
+			'score_description' => __( 'In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!', 'w3-total-cache' ),
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/?utm_source=w3tc&utm_medium=lazy-load-maps&utm_campaign=proof'
 		)
 	);
 
@@ -116,34 +122,11 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'pro'               => true,
 			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
 			'show_learn_more'   => false,
+			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'score'             => '+18',
 			'score_label'       => __( 'Points', 'w3-total-cache' ),
-			'score_description' => wp_kses(
-				sprintf(
-					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
-					__(
-						'In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s and improve your PageSpeed Scores today!',
-						'w3-total-cache'
-					),
-					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/?utm_source=w3tc&utm_medium=defer-js&utm_campaign=proof' ) . '">',
-					'</a>',
-					'<br /><br />',
-					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-				),
-				array(
-					'a'      => array(
-						'href'   => array(),
-						'target' => array(),
-					),
-					'br'     => array(),
-					'input'  => array(
-						'type'     => array(),
-						'class'    => array(),
-						'data-src' => array(),
-						'value'    => array(),
-					),
-				)
-			),
+			'score_description' => __( 'In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score!', 'w3-total-cache' ),
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/?utm_source=w3tc&utm_medium=defer-js&utm_campaign=proof',
 		)
 	);
 
@@ -178,34 +161,11 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'pro'               => true,
 			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
 			'show_learn_more'   => false,
+			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 			'score'             => '+27',
 			'score_label'       => __( 'Points', 'w3-total-cache' ),
-			'score_description' => wp_kses(
-				sprintf(
-					// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
-					__(
-						'In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s and improve your PageSpeed Scores today!',
-						'w3-total-cache'
-					),
-					'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof' ) . '">',
-					'</a>',
-					'<br /><br />',
-					'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-				),
-				array(
-					'a'      => array(
-						'href'   => array(),
-						'target' => array(),
-					),
-					'br'     => array(),
-					'input'  => array(
-						'type'     => array(),
-						'class'    => array(),
-						'data-src' => array(),
-						'value'    => array(),
-					),
-				)
-			),
+			'score_description' => __( 'In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!', 'w3-total-cache' ),
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof',
 		)
 	);
 
