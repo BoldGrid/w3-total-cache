@@ -18,8 +18,8 @@ for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) 
 wget -O /tmp/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 chmod +x /tmp/wp
 
-# Update the POT language file.
-/tmp/wp i18n make-pot . languages/w3-total-cache.pot
+# Update the POT language file.  Set "xdebug.max_nesting_level=512" to avoid errors.
+php -d xdebug.max_nesting_level=512 /tmp/wp i18n make-pot . languages/w3-total-cache.pot
 
 # Create a tag in the Wordpress.org SVN repo when after your build succeeds via Travis.
 # @link https://github.com/BoldGrid/wordpress-tag-sync
