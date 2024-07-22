@@ -1751,20 +1751,12 @@ jQuery(function() {
 		{
 			action: 'w3tc_ajax',
 			_wpnonce: w3tc_nonce[0],
-			w3tc_action: 'get_sales'
+			w3tc_action: 'get_notices'
 		},
 		function(response) {
 			if (response.success) {
-				var salesData = response.data.salesData;
-				var currentTime = new Date();
-
-				var activeSales = salesData.filter(function(sale) {
-					var startTime = new Date(sale.start_at);
-					var endTime = new Date(sale.end_at);
-					return sale.is_active && currentTime >= startTime && currentTime <= endTime;
-				});
-
-				if (activeSales.length > 0) {
+				var noticeData = response.data.noticeData;
+				if (noticeData.length > 0) {
 					jQuery.get(
 						ajaxurl,
 						{
@@ -1776,25 +1768,25 @@ jQuery(function() {
 							if (response.success) {
 								dismissedNotices = response.data;
 
-								// Now process activeSales only after dismissedNotices is set
-								activeSales.forEach(
-									function(sale) {
-										var noticeId = 'notice-' + sale.name;
-										var $saleContent = jQuery(sale.content).attr('id', noticeId);
+								// Now process noticeData only after dismissedNotices is set
+								noticeData.forEach(
+									function(notice) {
+										var noticeId = 'notice-' + notice.id;
+										var $noticeContent = jQuery(notice.content).attr('id', noticeId);
 										if (dismissedNotices.indexOf(noticeId) === -1) {
 											// Check if the notice is dismissible but lacks the dismiss button.
-											if ($saleContent.hasClass('is-dismissible') && $saleContent.find('.notice-dismiss').length === 0) {
-												$saleContent.append(
+											if ($noticeContent.hasClass('is-dismissible') && $noticeContent.find('.notice-dismiss').length === 0) {
+												$noticeContent.append(
 													'<button type="button" class="notice-dismiss">' +
 													'<span class="screen-reader-text">Dismiss this notice.</span>' +
 													'</button>'
 												);
 											}
 
-											jQuery('#w3tc-top-nav-bar').after($saleContent);
+											jQuery('#w3tc-top-nav-bar').after($noticeContent);
 
 											// Manually initialize the dismiss button
-											$saleContent.on(
+											$noticeContent.on(
 												'click',
 												'.notice-dismiss',
 												function() {
@@ -1808,14 +1800,14 @@ jQuery(function() {
 														}
 													);
 
-													$saleContent.fadeTo(
+													$noticeContent.fadeTo(
 														100,
 														0,
 														function() {
-															$saleContent.slideUp(
+															$noticeContent.slideUp(
 																100,
 																function() {
-																	$saleContent.remove();
+																	$noticeContent.remove();
 																}
 															);
 														}

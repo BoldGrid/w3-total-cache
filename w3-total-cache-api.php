@@ -45,7 +45,7 @@ define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners
 
 // Admin notices from API.
 if ( ! defined( 'W3TC_NOTICE_FEED' ) ) {
-	define( 'W3TC_NOTICE_FEED', 'https://api.w3-edge.com/v1/notices' );
+	define( 'W3TC_NOTICE_FEED', 'https://api2.w3-edge.com/notices' );
 }
 
 // Image Service rate constants.
