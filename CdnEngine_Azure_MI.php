@@ -64,7 +64,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	}
 
 	/**
-	 * Uploads files to S3
+	 * Uploads files to Azure Blob Storage
 	 *
 	 * @param array   $files
 	 * @param array   $results
@@ -193,7 +193,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	}
 
 	/**
-	 * Tests S3
+	 * Tests Azure Blob Storage
 	 *
 	 * @param string  $error
 	 * @return boolean

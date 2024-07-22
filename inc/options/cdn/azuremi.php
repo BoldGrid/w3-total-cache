@@ -13,7 +13,7 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <tr>
-	<th><label for="cdn_azuremi_clientid"><?php esc_html_e( 'Entra client id:', 'w3-total-cache' ); ?></label></th>
+	<th><label for="cdn_azuremi_clientid"><?php esc_html_e( 'Entra client ID:', 'w3-total-cache' ); ?></label></th>
 	<td>
 		<input id="cdn_azuremi_clientid" class="w3tc-ignore-change"
 			<?php Util_Ui::sealing_disabled( 'cdn.' ); ?> type="text" name="cdn__azuremi__clientid" value="<?php echo esc_attr( $this->_config->get_string( 'cdn.azuremi.clientid' ) ); ?>" size="60" />
