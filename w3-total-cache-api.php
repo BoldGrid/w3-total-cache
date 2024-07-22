@@ -43,6 +43,11 @@ define( 'W3TC_PARTNER_A2', 'https://api.w3-edge.com/v1/redirects/partners/a2' );
 define( 'W3TC_PARTNER_CONVESIO', 'https://api.w3-edge.com/v1/redirects/partners/convesio' );
 define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners/dreamhost' );
 
+// Admin notices from API.
+if ( ! defined( 'W3TC_NOTICE_FEED' ) ) {
+	define( 'W3TC_NOTICE_FEED', 'https://api.w3-edge.com/v1/notices' );
+}
+
 // Image Service rate constants.
 define( 'W3TC_IMAGE_SERVICE_FREE_HLIMIT', 10 );
 define( 'W3TC_IMAGE_SERVICE_FREE_MLIMIT', 100 );

@@ -791,12 +791,7 @@ class Generic_Plugin_Admin {
 	 * @return void
 	 */
 	public function w3tc_ajax_get_sales() {
-		$response = wp_remote_get(
-			'https://api2-dev-joec.w3-edge.com/notices',
-			array(
-				'timeout' => 60,
-			)
-		);
+		$response = wp_remote_get( W3TC_NOTICE_FEED );
 
 		if ( is_wp_error( $response ) ) {
 			wp_send_json_error( array( 'message' => $response->get_error_message() ) );
