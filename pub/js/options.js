@@ -1745,6 +1745,98 @@ jQuery(function() {
 		}
 	});
 
+	// Sale notices.
+	jQuery.get(
+		ajaxurl,
+		{
+			action: 'w3tc_ajax',
+			_wpnonce: w3tc_nonce[0],
+			w3tc_action: 'get_sales'
+		},
+		function(response) {
+			if (response.success) {
+				var salesData = response.data.salesData;
+				var currentTime = new Date();
+
+				var activeSales = salesData.filter(function(sale) {
+					var startTime = new Date(sale.start_at);
+					var endTime = new Date(sale.end_at);
+					return sale.is_active && currentTime >= startTime && currentTime <= endTime;
+				});
+
+				if (activeSales.length > 0) {
+					jQuery.get(
+						ajaxurl,
+						{
+							action: 'w3tc_ajax',
+							_wpnonce: w3tc_nonce[0],
+							w3tc_action: 'get_dismissed_notices'
+						},
+						function(response) {
+							if (response.success) {
+								dismissedNotices = response.data;
+
+								// Now process activeSales only after dismissedNotices is set
+								activeSales.forEach(
+									function(sale) {
+										var noticeId = 'notice-' + sale.name;
+										var $saleContent = jQuery(sale.content).attr('id', noticeId);
+										if (dismissedNotices.indexOf(noticeId) === -1) {
+											// Check if the notice is dismissible but lacks the dismiss button.
+											if ($saleContent.hasClass('is-dismissible') && $saleContent.find('.notice-dismiss').length === 0) {
+												$saleContent.append(
+													'<button type="button" class="notice-dismiss">' +
+													'<span class="screen-reader-text">Dismiss this notice.</span>' +
+													'</button>'
+												);
+											}
+
+											jQuery('#w3tc-top-nav-bar').after($saleContent);
+
+											// Manually initialize the dismiss button
+											$saleContent.on(
+												'click',
+												'.notice-dismiss',
+												function() {
+													jQuery.post(
+														ajaxurl,
+														{
+															action: 'w3tc_ajax',
+															_wpnonce: w3tc_nonce[0],
+															w3tc_action: 'dismiss_notice',
+															notice_id: noticeId
+														}
+													);
+
+													$saleContent.fadeTo(
+														100,
+														0,
+														function() {
+															$saleContent.slideUp(
+																100,
+																function() {
+																	$saleContent.remove();
+																}
+															);
+														}
+													);
+												}
+											);
+										}
+									}
+								);
+							} else {
+								console.log('Error fetching dismissed notices');
+							}
+						}
+					);
+				}
+			} else {
+				console.log('Error: ', response.data.message);
+			}
+		}
+	);
+
 	var hash = window.location.hash;
 	if (hash) {
 		var $element = jQuery('#' + hash.substring(1));

@@ -97,6 +97,9 @@ class Generic_Plugin_Admin {
 		add_filter( 'w3tc_errors', array( $admin_notes, 'w3tc_errors' ), 1000 );
 
 		add_action( 'w3tc_ajax_faq', array( $this, 'w3tc_ajax_faq' ) );
+		add_action( 'w3tc_ajax_get_sales', array( $this, 'w3tc_ajax_get_sales' ) );
+		add_action( 'w3tc_ajax_dismiss_notice', array( $this, 'w3tc_ajax_dismiss_notice' ) );
+		add_action( 'w3tc_ajax_get_dismissed_notices', array( $this, 'w3tc_ajax_get_dismissed_notices' ) );
 
 		// Load w3tc_message.
 		$message_id = Util_Request::get_string( 'w3tc_message' );
@@ -778,6 +781,67 @@ class Generic_Plugin_Admin {
 		ob_end_clean();
 
 		echo wp_json_encode( array( 'content' => $content ) );
+	}
+
+	/**
+	 * Get sales ajax handler.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_get_sales() {
+		$response = wp_remote_get(
+			'https://api2-dev-joec.w3-edge.com/notices',
+			array(
+				'timeout' => 60,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( array( 'message' => $response->get_error_message() ) );
+		} else {
+			$body = wp_remote_retrieve_body( $response );
+			$body = json_decode( $body, true );
+
+			if ( json_last_error() === JSON_ERROR_NONE ) {
+				wp_send_json_success( array( 'salesData' => $body ) );
+			} else {
+				wp_send_json_error( array( 'message' => 'Failed to decode JSON response' ) );
+			}
+		}
+	}
+
+	/**
+	 * Get dismissed admin notices ajax handler.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_get_dismissed_notices() {
+		$dismissed_notices = get_option( 'dismissed_notices', array() );
+		wp_send_json_success( $dismissed_notices );
+	}
+
+	/**
+	 * Dismiss admin notice ajax handler.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_dismiss_notice() {
+		$notice_id = Util_Request::get_string( 'notice_id' );
+
+		if ( $notice_id ) {
+			$dismissed_notices   = get_option( 'dismissed_notices', array() );
+			$dismissed_notices[] = $notice_id;
+			update_option( 'dismissed_notices', array_unique( $dismissed_notices ) );
+			wp_send_json_success();
+		}
+
+		wp_send_json_error( 'Invalid notice ID' );
 	}
 
 	/**
