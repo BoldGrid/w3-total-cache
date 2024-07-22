@@ -231,7 +231,7 @@ class Cdn_AdminNotes {
 			break;
 
 		case ( $cdn_engine == 'azuremi' && ( $c->get_string( 'cdn.azuremi.user' ) == '' || $c->get_string( 'cdn.azuremi.clientid' ) == '' || $c->get_string( 'cdn.azuremi.container' ) == '' ) ):
-			$error = __( 'The <strong>"Account name", "Entra Client Id" and "Container"</strong> fields cannot be empty.', 'w3-total-cache' );
+			$error = __( 'The <strong>"Account name", "Entra client ID" and "Container"</strong> fields cannot be empty.', 'w3-total-cache' );
 			break;
 		case ( $cdn_engine == 'mirror' && !count( $c->get_array( 'cdn.mirror.domain' ) ) ):
 			$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
