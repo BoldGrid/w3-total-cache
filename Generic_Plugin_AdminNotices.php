@@ -179,11 +179,11 @@ class Generic_Plugin_AdminNotices {
 			) {
 				switch ( $notice['audience'] ) {
 					case 'licensed':
-						if ( ! $this->is_pro ) {
+						if ( $this->is_pro ) {
 							continue 2;
 						}
 					case 'unlicensed':
-						if ( $this->is_pro ) {
+						if ( ! $this->is_pro ) {
 							continue 2;
 						}
 				}
