@@ -182,10 +182,14 @@ class Generic_Plugin_AdminNotices {
 						if ( ! $this->is_pro ) {
 							continue 2;
 						}
+						break;
 					case 'unlicensed':
 						if ( $this->is_pro ) {
 							continue 2;
 						}
+						break;
+					default:
+						break;
 				}
 
 				$notice['content'] = wp_kses(
