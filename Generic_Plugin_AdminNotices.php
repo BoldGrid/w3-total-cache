@@ -3,16 +3,22 @@
  * File: Generic_Plugin_AdminNotices.php
  *
  * @package W3TC
+ *
+ * @since X.X.X
  */
 
 namespace W3TC;
 
 /**
  * Class Generic_Plugin_AdminNotices
+ *
+ * @since X.X.X
  */
 class Generic_Plugin_AdminNotices {
 	/**
 	 * Config.
+	 *
+	 * @since X.X.X
 	 *
 	 * @var Config
 	 */
@@ -21,12 +27,16 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Is Pro.
 	 *
+	 * @since X.X.X
+	 *
 	 * @var Bool
 	 */
 	private $is_pro = null;
 
 	/**
 	 * Cached Notices.
+	 *
+	 * @since X.X.X
 	 *
 	 * @var Array
 	 */
@@ -35,6 +45,8 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Active Notices.
 	 *
+	 * @since X.X.X
+	 *
 	 * @var Array
 	 */
 	private $active_notices = null;
@@ -42,12 +54,16 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Dismissed Notices.
 	 *
+	 * @since X.X.X
+	 *
 	 * @var Array
 	 */
 	private $dismissed_notices = null;
 
 	/**
 	 * Constructor.
+	 *
+	 * @since X.X.X
 	 */
 	public function __construct() {
 		$this->config            = Dispatcher::config();
@@ -59,6 +75,8 @@ class Generic_Plugin_AdminNotices {
 
 	/**
 	 * Runs plugin
+	 *
+	 * @since X.X.X
 	 */
 	public function run() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
@@ -68,6 +86,8 @@ class Generic_Plugin_AdminNotices {
 
 	/**
 	 * Enqueue admin scripts.
+	 *
+	 * @since X.X.X
 	 */
 	public function admin_enqueue_scripts() {
 		wp_enqueue_script( 'w3tc-admin-notices', plugins_url( 'Generic_Plugin_AdminNotices.js', W3TC_FILE ), array(), W3TC_VERSION, false );
@@ -81,11 +101,10 @@ class Generic_Plugin_AdminNotices {
 	 * @return void
 	 */
 	public function w3tc_ajax_get_notices() {
-		Util_Debug::debug('cached', $this->cached_notices);
 		if ( $this->cached_notices !== null ) {
 			wp_send_json_success( array( 'noticeData' => $this->cached_notices ) );
 		}
-		Util_Debug::debug('active', $this->active_notices);
+
 		wp_send_json_success( array( 'noticeData' => $this->active_notices ) );
 	}
 
@@ -101,7 +120,7 @@ class Generic_Plugin_AdminNotices {
 
 		if ( $notice_id ) {
 			$this->dismissed_notices[] = $notice_id;
-			update_option( 'dismissed_notices', array_unique( $this->dismissed_notices ) );
+			update_option( 'w3tc_dismissed_notices', array_unique( $this->dismissed_notices ) );
 			wp_send_json_success();
 		}
 
@@ -116,7 +135,7 @@ class Generic_Plugin_AdminNotices {
 	 * @return array|null
 	 */
 	private function get_dismissed_notices() {
-		return get_option( 'dismissed_notices', array() );
+		return get_option( 'w3tc_dismissed_notices', array() );
 	}
 
 	/**
@@ -137,7 +156,7 @@ class Generic_Plugin_AdminNotices {
 			return null;
 		}
 
-		$body           = wp_remote_retrieve_body( $api_response );
+		$body    = wp_remote_retrieve_body( $api_response );
 		$notices = json_decode( $body, true );
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
@@ -149,13 +168,13 @@ class Generic_Plugin_AdminNotices {
 
 		foreach ( $notices as $notice ) {
 			$start_time = new \DateTime( $notice['start_at'] );
-			$end_time   = new \DateTime( $notice['end_at'] );
+			$end_time   = isset( $notice['end_at'] ) ? new \DateTime( $notice['end_at'] ) : null;
 
 			if (
 				$notice['is_active'] === 1
 					&& isset( $notice['content'] )
 					&& $current_time >= $start_time
-					&& $current_time <= $end_time
+					&& ( $end_time === null || $current_time <= $end_time )
 					&& ! in_array( 'notice-' . $notice['id'], $this->dismissed_notices, true )
 			) {
 				switch ( $notice['audience'] ) {
@@ -178,7 +197,7 @@ class Generic_Plugin_AdminNotices {
 			}
 		}
 
-		update_option( 'cached_notices', json_encode( array( 'time' => time(), 'notices' => $active_notices ) ) );
+		update_option( 'w3tc_cached_notices', json_encode( array( 'time' => time(), 'notices' => $active_notices ) ) );
 
 		return $active_notices;
 	}
@@ -191,7 +210,7 @@ class Generic_Plugin_AdminNotices {
 	 * @return array|null
 	 */
 	private function get_cached_notices() {
-		$cached_notices = get_option( 'cached_notices', '' );
+		$cached_notices = get_option( 'w3tc_cached_notices', '' );
 		$cached_notices = json_decode( $cached_notices, true );
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
