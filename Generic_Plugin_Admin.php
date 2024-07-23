@@ -97,9 +97,6 @@ class Generic_Plugin_Admin {
 		add_filter( 'w3tc_errors', array( $admin_notes, 'w3tc_errors' ), 1000 );
 
 		add_action( 'w3tc_ajax_faq', array( $this, 'w3tc_ajax_faq' ) );
-		add_action( 'w3tc_ajax_get_notices', array( $this, 'w3tc_ajax_get_notices' ) );
-		add_action( 'w3tc_ajax_dismiss_notice', array( $this, 'w3tc_ajax_dismiss_notice' ) );
-		add_action( 'w3tc_ajax_get_dismissed_notices', array( $this, 'w3tc_ajax_get_dismissed_notices' ) );
 
 		// Load w3tc_message.
 		$message_id = Util_Request::get_string( 'w3tc_message' );
@@ -781,120 +778,6 @@ class Generic_Plugin_Admin {
 		ob_end_clean();
 
 		echo wp_json_encode( array( 'content' => $content ) );
-	}
-
-	/**
-	 * Get notices ajax handler.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return void
-	 */
-	public function w3tc_ajax_get_notices() {
-		//update_option( 'cached_notices', '' );
-		$cached_notices = $this->get_cached_notices();
-
-		if ( $cached_notices !== null ) {
-			wp_send_json_success( array( 'noticeData' => $cached_notices ) );
-		}
-
-		$api_response = wp_remote_get( esc_url( W3TC_NOTICE_FEED ) );
-
-		if ( is_wp_error( $api_response ) ) {
-			wp_send_json_error( array( 'message' => $api_response->get_error_message() ) );
-		}
-
-		$body     = wp_remote_retrieve_body( $api_response );
-		$response = json_decode( $body, true );
-
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			wp_send_json_error( array( 'message' => 'Failed to decode JSON response' ) );
-		}
-
-		$active_notices = $this->get_active_notices( $response );
-
-		update_option( 'cached_notices', json_encode( array( 'time' => time(), 'notices' => $active_notices ) ) );
-
-		wp_send_json_success( array( 'noticeData' => $active_notices ) );
-	}
-
-	/**
-	 * Get cached notices.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return array|null
-	 */
-	private function get_cached_notices() {
-		$cached_notices = get_option( 'cached_notices', '' );
-		$cached_notices = json_decode( $cached_notices, true );
-
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			return null;
-		}
-
-		if ( is_array( $cached_notices ) && isset( $cached_notices['time'] ) && $cached_notices['time'] >= time() - DAY_IN_SECONDS ) {
-			return $cached_notices['notices'];
-		}
-
-		return null;
-	}
-
-	/**
-	 * Get active notices.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param array $notices Notices.
-	 *
-	 * @return array
-	 */
-	private function get_active_notices( $notices ) {
-		$active_notices = [];
-		$current_time   = new \DateTime();
-
-		foreach ( $notices as $notice ) {
-			$start_time = new \DateTime( $notice['start_at'] );
-			$end_time   = new \DateTime( $notice['end_at'] );
-
-			if ( $notice['is_active'] === 1 && $current_time >= $start_time && $current_time <= $end_time ) {
-				$active_notices[] = $notice;
-			}
-		}
-
-		return $active_notices;
-	}
-
-	/**
-	 * Get dismissed admin notices ajax handler.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return void
-	 */
-	public function w3tc_ajax_get_dismissed_notices() {
-		$dismissed_notices = get_option( 'dismissed_notices', array() );
-		wp_send_json_success( $dismissed_notices );
-	}
-
-	/**
-	 * Dismiss admin notice ajax handler.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return void
-	 */
-	public function w3tc_ajax_dismiss_notice() {
-		$notice_id = Util_Request::get_string( 'notice_id' );
-
-		if ( $notice_id ) {
-			$dismissed_notices   = get_option( 'dismissed_notices', array() );
-			$dismissed_notices[] = $notice_id;
-			update_option( 'dismissed_notices', array_unique( $dismissed_notices ) );
-			wp_send_json_success();
-		}
-
-		wp_send_json_error( 'Invalid notice ID' );
 	}
 
 	/**
