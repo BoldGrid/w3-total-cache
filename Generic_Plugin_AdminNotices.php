@@ -22,7 +22,7 @@ class Generic_Plugin_AdminNotices {
 	 *
 	 * @var Config
 	 */
-	private $config = null;
+	private $config;
 
 	/**
 	 * Is Pro.
@@ -31,7 +31,7 @@ class Generic_Plugin_AdminNotices {
 	 *
 	 * @var Bool
 	 */
-	private $is_pro = null;
+	private $is_pro;
 
 	/**
 	 * Cached Notices.
@@ -40,7 +40,7 @@ class Generic_Plugin_AdminNotices {
 	 *
 	 * @var Array
 	 */
-	private $cached_notices = null;
+	private $cached_notices;
 	
 	/**
 	 * Active Notices.
@@ -49,7 +49,7 @@ class Generic_Plugin_AdminNotices {
 	 *
 	 * @var Array
 	 */
-	private $active_notices = null;
+	private $active_notices;
 
 	/**
 	 * Dismissed Notices.
@@ -58,7 +58,7 @@ class Generic_Plugin_AdminNotices {
 	 *
 	 * @var Array
 	 */
-	private $dismissed_notices = null;
+	private $dismissed_notices;
 
 	/**
 	 * Constructor.
