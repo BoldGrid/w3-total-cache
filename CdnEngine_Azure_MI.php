@@ -220,12 +220,10 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 		$container = null;
 
-		if ( isset( $containers['Containers'] ) && isset( $containers['Containers']['Container'] ) ) {
-			foreach ( $containers['Containers']['Container'] as $_container ) {
-				if ( $_container['Name'] == $this->_config['container'] ) {
-					$container = $_container;
-					break;
-				}
+		foreach ( $containers as $_container ) {
+			if ( $_container['Name'] == $this->_config['container'] ) {
+				$container = $_container;
+				break;
 			}
 		}
 
@@ -349,12 +347,10 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 			throw new \Exception( $error );
 		}
 
-		if ( isset( $containers['Containers']) && isset( $containers['Containers']['Container'] ) ) {
-			foreach ( $containers['Containers']['Container'] as $_container ) {
-				if ( $_container['Name'] == $this->_config['container'] ) {
-					$error = sprintf( 'Container already exists: %s.', $this->_config['container'] );
-					throw new \Exception( $error );
-				}
+		foreach ( $containers as $_container ) {
+			if ( $_container['Name'] == $this->_config['container'] ) {
+				$error = sprintf( 'Container already exists: %s.', $this->_config['container'] );
+				throw new \Exception( $error );
 			}
 		}
 
