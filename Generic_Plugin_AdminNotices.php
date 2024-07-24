@@ -34,15 +34,6 @@ class Generic_Plugin_AdminNotices {
 	private $is_pro;
 
 	/**
-	 * Cached Notices.
-	 *
-	 * @since X.X.X
-	 *
-	 * @var Array
-	 */
-	private $cached_notices;
-	
-	/**
 	 * Active Notices.
 	 *
 	 * @since X.X.X
@@ -52,25 +43,14 @@ class Generic_Plugin_AdminNotices {
 	private $active_notices;
 
 	/**
-	 * Dismissed Notices.
-	 *
-	 * @since X.X.X
-	 *
-	 * @var Array
-	 */
-	private $dismissed_notices;
-
-	/**
 	 * Constructor.
 	 *
 	 * @since X.X.X
 	 */
 	public function __construct() {
-		$this->config            = Dispatcher::config();
-		$this->is_pro            = Util_Environment::is_w3tc_pro( $this->config );
-		$this->dismissed_notices = $this->get_dismissed_notices();
-		$this->cached_notices    = $this->get_cached_notices();
-		$this->active_notices    = $this->get_active_notices();
+		$this->config         = Dispatcher::config();
+		$this->is_pro         = Util_Environment::is_w3tc_pro( $this->config );
+		$this->active_notices = $this->get_active_notices();
 	}
 
 	/**
@@ -101,10 +81,6 @@ class Generic_Plugin_AdminNotices {
 	 * @return void
 	 */
 	public function w3tc_ajax_get_notices() {
-		if ( $this->cached_notices !== null ) {
-			wp_send_json_success( array( 'noticeData' => $this->cached_notices ) );
-		}
-
 		wp_send_json_success( array( 'noticeData' => $this->active_notices ) );
 	}
 
@@ -116,11 +92,32 @@ class Generic_Plugin_AdminNotices {
 	 * @return void
 	 */
 	public function w3tc_ajax_dismiss_notice() {
-		$notice_id = Util_Request::get_string( 'notice_id' );
+		$notice_id         = Util_Request::get_string( 'notice_id' );
+		$dismissed_notices = $this->get_dismissed_notices();
 
 		if ( $notice_id ) {
-			$this->dismissed_notices[] = $notice_id;
-			update_option( 'w3tc_dismissed_notices', array_unique( $this->dismissed_notices ) );
+			$dismissed_notices[] = $notice_id;
+			update_option( 'w3tc_dismissed_notices', array_unique( $dismissed_notices ) );
+
+			// Update cached notices.
+			$cached_notices = $this->get_cached_notices();
+			if ( $cached_notices ) {
+				foreach ( $cached_notices as $key => $cached_notice ) {
+					if ( str_contains( $notice['content'], $notice_id ) ) {
+						unset( $cached_notices[ $key ] );
+					}
+				}
+				update_option(
+					'w3tc_cached_notices',
+					wp_json_encode(
+						array(
+							'time'    => time(),
+							'notices' => $active_notices,
+						)
+					)
+				);
+			}
+
 			wp_send_json_success();
 		}
 
@@ -146,8 +143,9 @@ class Generic_Plugin_AdminNotices {
 	 * @return array|null
 	 */
 	private function get_active_notices() {
-		if ( $this->cached_notices ) {
-			return $this->cached_notices;
+		$cached_notices = $this->get_cached_notices();
+		if ( $cached_notices ) {
+			return $cached_notices;
 		}
 
 		$api_response = wp_remote_get( esc_url( W3TC_NOTICE_FEED ) );
@@ -163,19 +161,20 @@ class Generic_Plugin_AdminNotices {
 			return null;
 		}
 
-		$active_notices = array();
-		$current_time   = new \DateTime();
+		$active_notices    = array();
+		$dismissed_notices = $this->get_dismissed_notices();
+		$current_time      = new \DateTime();
 
 		foreach ( $notices as $notice ) {
 			$start_time = new \DateTime( $notice['start_at'] );
 			$end_time   = isset( $notice['end_at'] ) ? new \DateTime( $notice['end_at'] ) : null;
 
 			if (
-				$notice['is_active'] === 1
+				1 === $notice['is_active']
 					&& isset( $notice['content'] )
 					&& $current_time >= $start_time
-					&& ( $end_time === null || $current_time <= $end_time )
-					&& ! in_array( 'notice-' . $notice['id'], $this->dismissed_notices, true )
+					&& ( null === $end_time || $current_time <= $end_time )
+					&& ! in_array( 'notice-' . $notice['id'], $dismissed_notices, true )
 			) {
 				switch ( $notice['audience'] ) {
 					case 'licensed':
@@ -197,11 +196,29 @@ class Generic_Plugin_AdminNotices {
 					$this->get_allowed_wp_kses()
 				);
 
+				if ( preg_match( '/<div\s+class=".*?notice.*?".*?>/', $notice['content'] ) && ! preg_match( '/id="notice-\d+"/', $notice['content'] ) ) {
+					$id                = 'notice-' . $notice['id'];
+					$notice['content'] = preg_replace( '/(<div\s+class="notice.*?)(>)/', '$1 id="' . $id . '"$2', $notice['content'] );
+				}
+
+				if ( preg_match( '/<div\s+class=".*?notice.*?is-dismissible.*?".*?>/', $notice['content'] ) && ! preg_match( '/<button\s+type="button"\s+class="notice-dismiss">/', $notice['content'] ) ) {
+					$dismiss_button    = '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
+					$notice['content'] = preg_replace( '/(<\/div>)/', $dismiss_button . '$1', $notice['content'] );
+				}
+
 				$active_notices[] = $notice;
 			}
 		}
 
-		update_option( 'w3tc_cached_notices', json_encode( array( 'time' => time(), 'notices' => $active_notices ) ) );
+		update_option(
+			'w3tc_cached_notices',
+			wp_json_encode(
+				array(
+					'time'    => time(),
+					'notices' => $active_notices,
+				)
+			)
+		);
 
 		return $active_notices;
 	}

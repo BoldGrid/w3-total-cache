@@ -19,17 +19,7 @@ jQuery(document).ready(function($) {
 				if (noticeData.length > 0) {
 					noticeData.forEach(
 						function(notice) {
-							var noticeId = 'notice-' + notice.id;
-							var $noticeContent = $(notice.content).attr('id', noticeId);
-							
-							// Check if the notice is dismissible but lacks the dismiss button.
-							if ($noticeContent.hasClass('is-dismissible') && $noticeContent.find('.notice-dismiss').length === 0) {
-								$noticeContent.append(
-									'<button type="button" class="notice-dismiss">' +
-									'<span class="screen-reader-text">Dismiss this notice.</span>' +
-									'</button>'
-								);
-							}
+							var $noticeContent = $(notice.content);
 
 							$('#w3tc-top-nav-bar').after($noticeContent);
 
@@ -44,7 +34,7 @@ jQuery(document).ready(function($) {
 											action: 'w3tc_ajax',
 											_wpnonce: w3tc_nonce[0],
 											w3tc_action: 'dismiss_notice',
-											notice_id: noticeId
+											notice_id: $noticeContent.attr('id')
 										}
 									);
 		
