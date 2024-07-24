@@ -49,9 +49,9 @@ class CdnEngine_Azure_MI_Utility {
         $response = curl_exec($ch);
 
         if (curl_errno($ch)) {
+            $error = curl_error($ch);
             curl_close($ch);
             throw new \RuntimeException("Error: getAccessToken - cURL request failed: $error");
-            return $access_token;
         }
 
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -99,6 +99,7 @@ class CdnEngine_Azure_MI_Utility {
         
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
+            $error = curl_error($ch);
             curl_close($ch);
             throw new \RuntimeException("Error: getBlobProperties - cURL request failed: $error");
         }
@@ -149,6 +150,7 @@ class CdnEngine_Azure_MI_Utility {
 
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
+            $error = curl_error($ch);
             curl_close($ch);
             throw new \RuntimeException("Error: createBlockBlob - cURL request failed: $error");
         }
@@ -187,6 +189,7 @@ class CdnEngine_Azure_MI_Utility {
 
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
+            $error = curl_error($ch);
             curl_close($ch);
             throw new \RuntimeException("Error: deleteBlob - cURL request failed: $error");
         }
@@ -230,6 +233,7 @@ class CdnEngine_Azure_MI_Utility {
         
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
+            $error = curl_error($ch);
             curl_close($ch);
             throw new \RuntimeException("Error: createContainer - cURL request failed: $error");
         }
@@ -266,6 +270,7 @@ class CdnEngine_Azure_MI_Utility {
         
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
+            $error = curl_error($ch);
             curl_close($ch);
             throw new \RuntimeException("Error: listContainers - cURL request failed: $error");
         }
@@ -285,7 +290,11 @@ class CdnEngine_Azure_MI_Utility {
         $json = json_encode($xml);
         $response = json_decode($json,TRUE);        
 
-        return $response;
+        $array_response=array();
+		if ( isset( $response['Containers'] ) && isset( $response['Containers']['Container'] ) ) {
+            $array_response=self::getArray($response['Containers']['Container']);
+		}
+        return $array_response;
     }
 
     public static function getBlob($entra_client_id, $storage_account, $container, $blob) {
@@ -308,6 +317,7 @@ class CdnEngine_Azure_MI_Utility {
 
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
+            $error = curl_error($ch);
             curl_close($ch);
             throw new \RuntimeException("Error: getBlob - cURL request failed: $error");
         }
@@ -334,6 +344,19 @@ class CdnEngine_Azure_MI_Utility {
         return $response;
     }
 
+    public static function getArray($var)
+    {
+        if (is_null($var) || empty($var)) {
+            return array();
+        }
+
+        foreach ($var as $value) {
+            if (!is_array($value)) {
+                return array($var);
+            }
+            return $var;
+        }
+    }
 
     public static function parseHeaders($header) {
         $headers = [];
