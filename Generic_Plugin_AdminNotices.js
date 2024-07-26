@@ -34,7 +34,7 @@ jQuery(document).ready(function($) {
 											action: 'w3tc_ajax',
 											_wpnonce: w3tc_nonce[0],
 											w3tc_action: 'dismiss_notice',
-											notice_id: $noticeContent.attr('id')
+											notice_id: $noticeContent.data('id')
 										}
 									);
 		

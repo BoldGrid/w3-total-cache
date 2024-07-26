@@ -92,7 +92,7 @@ class Generic_Plugin_AdminNotices {
 	 * @return void
 	 */
 	public function w3tc_ajax_dismiss_notice() {
-		$notice_id         = Util_Request::get_string( 'notice_id' );
+		$notice_id         = Util_Request::get_integer( 'notice_id' );
 		$dismissed_notices = $this->get_dismissed_notices();
 
 		if ( $notice_id ) {
@@ -103,16 +103,17 @@ class Generic_Plugin_AdminNotices {
 			$cached_notices = $this->get_cached_notices();
 			if ( $cached_notices ) {
 				foreach ( $cached_notices as $key => $cached_notice ) {
-					if ( str_contains( $cached_notice['content'], $notice_id ) ) {
+					if ( $cached_notice['id'] === $notice_id ) {
 						unset( $cached_notices[ $key ] );
 					}
 				}
+
 				update_option(
 					'w3tc_cached_notices',
 					wp_json_encode(
 						array(
 							'time'    => time(),
-							'notices' => $cached_notices,
+							'notices' => array_values( $cached_notices ),
 						)
 					)
 				);
@@ -174,7 +175,7 @@ class Generic_Plugin_AdminNotices {
 					&& isset( $notice['content'] )
 					&& $current_time >= $start_time
 					&& ( null === $end_time || $current_time <= $end_time )
-					&& ! in_array( 'notice-' . $notice['id'], $dismissed_notices, true )
+					&& ! in_array( $notice['id'], $dismissed_notices, true )
 			) {
 				switch ( $notice['audience'] ) {
 					case 'licensed':
@@ -196,9 +197,9 @@ class Generic_Plugin_AdminNotices {
 					$this->get_allowed_wp_kses()
 				);
 
-				if ( preg_match( '/<div\s+class=".*?notice.*?".*?>/', $notice['content'] ) && ! preg_match( '/id="notice-\d+"/', $notice['content'] ) ) {
-					$id                = 'notice-' . $notice['id'];
-					$notice['content'] = preg_replace( '/(<div\s+class="notice.*?)(>)/', '$1 id="' . $id . '"$2', $notice['content'] );
+				if ( preg_match( '/<div\s+class=".*?notice.*?".*?>/', $notice['content'] ) && ! preg_match( '/id="w3tc-notice-\d+" data-id="\d+"/', $notice['content'] ) ) {
+					$id                = 'w3tc-notice-' . $notice['id'];
+					$notice['content'] = preg_replace( '/(<div\s+class="notice.*?)(>)/', '$1 id="' . $id . '" data-id="' . $notice['id'] . '"$2', $notice['content'] );
 				}
 
 				if ( preg_match( '/<div\s+class=".*?notice.*?is-dismissible.*?".*?>/', $notice['content'] ) && ! preg_match( '/<button\s+type="button"\s+class="notice-dismiss">/', $notice['content'] ) ) {
