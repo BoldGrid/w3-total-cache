@@ -103,7 +103,7 @@ class Generic_Plugin_AdminNotices {
 			$cached_notices = $this->get_cached_notices();
 			if ( $cached_notices ) {
 				foreach ( $cached_notices as $key => $cached_notice ) {
-					if ( str_contains( $notice['content'], $notice_id ) ) {
+					if ( str_contains( $cached_notice['content'], $notice_id ) ) {
 						unset( $cached_notices[ $key ] );
 					}
 				}
@@ -112,7 +112,7 @@ class Generic_Plugin_AdminNotices {
 					wp_json_encode(
 						array(
 							'time'    => time(),
-							'notices' => $active_notices,
+							'notices' => $cached_notices,
 						)
 					)
 				);
