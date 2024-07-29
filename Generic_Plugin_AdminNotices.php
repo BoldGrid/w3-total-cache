@@ -16,44 +16,6 @@ namespace W3TC;
  */
 class Generic_Plugin_AdminNotices {
 	/**
-	 * Config.
-	 *
-	 * @since X.X.X
-	 *
-	 * @var Config
-	 */
-	private $config;
-
-	/**
-	 * Is Pro.
-	 *
-	 * @since X.X.X
-	 *
-	 * @var Bool
-	 */
-	private $is_pro;
-
-	/**
-	 * Active Notices.
-	 *
-	 * @since X.X.X
-	 *
-	 * @var Array
-	 */
-	private $active_notices;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since X.X.X
-	 */
-	public function __construct() {
-		$this->config         = Dispatcher::config();
-		$this->is_pro         = Util_Environment::is_w3tc_pro( $this->config );
-		$this->active_notices = $this->get_active_notices();
-	}
-
-	/**
 	 * Runs plugin
 	 *
 	 * @since X.X.X
@@ -78,10 +40,12 @@ class Generic_Plugin_AdminNotices {
 	 *
 	 * @since X.X.X
 	 *
+	 * @see self::get_active_notices()
+	 *
 	 * @return void
 	 */
 	public function w3tc_ajax_get_notices() {
-		wp_send_json_success( array( 'noticeData' => $this->active_notices ) );
+		wp_send_json_success( array( 'noticeData' => $this->get_active_notices() ) );
 	}
 
 	/**
@@ -141,6 +105,9 @@ class Generic_Plugin_AdminNotices {
 	 *
 	 * @since X.X.X
 	 *
+	 * @see Dispatcher::config()
+	 * @see Util_Environment::is_w3tc_pro()
+	 *
 	 * @return array|null
 	 */
 	private function get_active_notices() {
@@ -165,6 +132,7 @@ class Generic_Plugin_AdminNotices {
 		$active_notices    = array();
 		$dismissed_notices = $this->get_dismissed_notices();
 		$current_time      = new \DateTime();
+		$is_pro            = Util_Environment::is_w3tc_pro( Dispatcher::config() );
 
 		foreach ( $notices as $notice ) {
 			$start_time = new \DateTime( $notice['start_at'] );
@@ -179,12 +147,12 @@ class Generic_Plugin_AdminNotices {
 			) {
 				switch ( $notice['audience'] ) {
 					case 'licensed':
-						if ( ! $this->is_pro ) {
+						if ( ! $is_pro ) {
 							continue 2;
 						}
 						break;
 					case 'unlicensed':
-						if ( $this->is_pro ) {
+						if ( $is_pro ) {
 							continue 2;
 						}
 						break;
