@@ -197,9 +197,8 @@ class Generic_Plugin_AdminNotices {
 					$this->get_allowed_wp_kses()
 				);
 
-				if ( preg_match( '/<div\s+class=".*?notice.*?".*?>/', $notice['content'] ) && ! preg_match( '/id="w3tc-notice-\d+" data-id="\d+"/', $notice['content'] ) ) {
-					$id                = 'w3tc-notice-' . $notice['id'];
-					$notice['content'] = preg_replace( '/(<div\s+class="notice.*?)(>)/', '$1 id="' . $id . '" data-id="' . $notice['id'] . '"$2', $notice['content'] );
+				if ( preg_match( '/<div\s+class=".*?notice.*?".*?>/', $notice['content'] ) && ! preg_match( '/data-id="\d+"/', $notice['content'] ) ) {
+					$notice['content'] = preg_replace( '/(<div\s+class="notice.*?)(>)/', '$1 data-id="' . $notice['id'] . '"$2', $notice['content'] );
 				}
 
 				if ( preg_match( '/<div\s+class=".*?notice.*?is-dismissible.*?".*?>/', $notice['content'] ) && ! preg_match( '/<button\s+type="button"\s+class="notice-dismiss">/', $notice['content'] ) ) {
