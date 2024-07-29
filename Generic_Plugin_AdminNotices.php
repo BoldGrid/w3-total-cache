@@ -70,7 +70,7 @@ class Generic_Plugin_AdminNotices {
 	 * @since X.X.X
 	 */
 	public function admin_enqueue_scripts() {
-		wp_enqueue_script( 'w3tc-admin-notices', plugins_url( 'Generic_Plugin_AdminNotices.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+		wp_enqueue_script( 'w3tc-admin-notices', plugins_url( 'Generic_Plugin_AdminNotices.js', W3TC_FILE ), array(), W3TC_VERSION, true );
 	}
 
 	/**
