@@ -26,6 +26,7 @@ class Util_AttachToActions {
 		add_action( 'save_post', array( $o, 'on_post_change' ), 0, 2 );
 		add_filter( 'pre_trash_post', array( $o, 'on_post_change' ), 0, 2 );
 		add_action( 'before_delete_post', array( $o, 'on_post_change' ), 0, 2 );
+		add_action( 'attachment_updated', array( $o, 'on_post_change' ), 0, 2 );
 
 		// comments.
 		add_action( 'comment_post', array( $o, 'on_comment_change' ), 0 );
@@ -93,7 +94,7 @@ class Util_AttachToActions {
 	 * @link https://developer.wordpress.org/reference/hooks/pre_trash_post/
 	 * @link https://developer.wordpress.org/reference/hooks/before_delete_post/
 	 *
-	 * @param int|bool $post_id Post ID or a boolean if running on the "pre_trash"post" hook filter.
+	 * @param int|bool $post_id Post ID or a boolean if running on the "pre_trash_post" hook filter.
 	 * @param WP_Post  $post    Post.
 	 *
 	 * @return int|bool|null
@@ -106,24 +107,15 @@ class Util_AttachToActions {
 		$config     = Dispatcher::config();
 		$cacheflush = Dispatcher::component( 'CacheFlush' );
 
-		// Initialize variables for parent post.
-		$post_parent_id = null;
-		$post_parent    = null;
-
-		// If the post is an attachment, we need to get its parent post.
-		if ( isset( $post->post_type ) && 'attachment' === $post->post_type ) {
-			$post_parent_id = $post->post_parent;
-			$post_parent    = get_post( $post_parent_id );
+		// If the post is an attachment, we need to get and flush its parent post.
+		if ( isset( $post->post_type ) && 'attachment' === $post->post_type &&
+			Util_Environment::is_flushable_post( get_post( $post->post_parent ), 'posts', $config ) ) {
+				$cacheflush->flush_post( $post->post_parent );
 		}
 
 		// Check if the original post is flushable.
 		if ( Util_Environment::is_flushable_post( $post, 'posts', $config ) ) {
 			$cacheflush->flush_post( $post_id );
-		}
-
-		// Check if the parent post is flushable and different from the original post.
-		if ( $post_parent && Util_Environment::is_flushable_post( $post_parent, 'posts', $config ) ) {
-			$cacheflush->flush_post( $post_parent_id );
 		}
 
 		return $post_id;
