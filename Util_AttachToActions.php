@@ -103,20 +103,28 @@ class Util_AttachToActions {
 			$post = get_post( $post_id );
 		}
 
-		// if attachment changed - parent post has to be flushed
-		// since there are usually attachments content like title
-		// on the page (gallery).
+		$config     = Dispatcher::config();
+		$cacheflush = Dispatcher::component( 'CacheFlush' );
+
+		// Initialize variables for parent post.
+		$post_parent_id = null;
+		$post_parent    = null;
+
+		// If the post is an attachment, we need to get its parent post.
 		if ( isset( $post->post_type ) && 'attachment' === $post->post_type ) {
 			$post_parent_id = $post->post_parent;
-			$post_parent    = get_post( $post_id );
+			$post_parent    = get_post( $post_parent_id );
 		}
 
-		if ( ! Util_Environment::is_flushable_post( $post_parent, 'posts', Dispatcher::config() ) ) {
-			return $post_id;
+		// Check if the original post is flushable.
+		if ( Util_Environment::is_flushable_post( $post, 'posts', $config ) ) {
+			$cacheflush->flush_post( $post_id );
 		}
 
-		$cacheflush = Dispatcher::component( 'CacheFlush' );
-		$cacheflush->flush_post( $post_parent_id );
+		// Check if the parent post is flushable and different from the original post.
+		if ( $post_parent && Util_Environment::is_flushable_post( $post_parent, 'posts', $config ) ) {
+			$cacheflush->flush_post( $post_parent_id );
+		}
 
 		return $post_id;
 	}
