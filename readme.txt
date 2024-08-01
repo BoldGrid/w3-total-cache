@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
 Requires at least: 5.3
 Tested up to: 6.6
-Stable tag: 2.7.4
+Stable tag: 2.7.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -341,8 +341,6 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
-<<<<<<< Updated upstream
-=======
 = 2.7.5 =
 * Feature: Added dismissable notifications
 * Fix: PHP error in Page Cache when deleting media
@@ -351,7 +349,6 @@ Please reach out to all of these people and support their projects if you're so 
 * Update: Condenced Google PageSpeed proof block format for certain settings/features
 * Update: Added missing Google PageSpeed score block for PageCache Lazy Loading Google Maps setting on General Settings page
 
->>>>>>> Stashed changes
 = 2.7.4 =
 * Fix: WP-CLI get option output for array type
 * Fix: Remove CSS/JS URL matching
