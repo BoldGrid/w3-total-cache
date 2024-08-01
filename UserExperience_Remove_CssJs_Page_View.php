@@ -41,62 +41,74 @@ if ( ! is_numeric( key( $remove_cssjs_singles ) ) ) {
 
 Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cache' ), '', 'remove-cssjs' );
 ?>
-<p>
-	<?php esc_html_e( 'CSS/JS entries added to the below textarea will be removed from the homepage if present.', 'w3-total-cache' ); ?>
-</p>
-<table class="form-table">
+<div class="w3tc-gopro-manual-wrap">
+	<?php Util_Ui::pro_wrap_maybe_start(); ?>
+	<p>
+		<?php esc_html_e( 'CSS/JS entries added to the below textarea will be removed from the homepage if present.', 'w3-total-cache' ); ?>
+	</p>
 	<?php
-	Util_Ui::config_item_pro(
-		array(
-			'key'               => array( 'user-experience-remove-cssjs', 'includes' ),
-			'label'             => esc_html__( 'Remove list:', 'w3-total-cache' ),
-			'control'           => 'textarea',
-			'disabled'          => ! UserExperience_Remove_CssJs_Extension::is_enabled(),
-			'description'       => array(),
-			'excerpt'           => esc_html__( 'Specify absolute or relative URLs, or file names to be excluded from loading on the homepage. Include one entry per line, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name="myscript", etc.)', 'w3-total-cache' ),
-			'show_learn_more'   => false,
-			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
-			'score'             => '+27',
-			'score_label'       => __( 'Points', 'w3-total-cache' ),
-			'score_description' => __( 'In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!', 'w3-total-cache' ),
-			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof',
-		)
-	);
+	if ( ! $is_pro ) {
+		Util_Ui::print_score_block(
+			__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+			'+27',
+			__( 'Points', 'w3-total-cache' ),
+			__( 'In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!', 'w3-total-cache' ),
+			'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof'
+		);
+	}
 	?>
-</table>
+	<table class="form-table">
+		<?php
+		Util_Ui::config_item_pro(
+			array(
+				'key'             => array( 'user-experience-remove-cssjs', 'includes' ),
+				'label'           => esc_html__( 'Remove list:', 'w3-total-cache' ),
+				'control'         => 'textarea',
+				'disabled'        => ! UserExperience_Remove_CssJs_Extension::is_enabled(),
+				'description'     => array(),
+				'excerpt'         => esc_html__( 'Specify absolute or relative URLs, or file names to be excluded from loading on the homepage. Include one entry per line, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name="myscript", etc.)', 'w3-total-cache' ),
+				'show_learn_more' => false,
+				'no_wrap'         => true,
+			)
+		);
+		?>
+	</table>
+	<?php
+
+	if ( $is_pro && ! UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+		echo wp_kses(
+			sprintf(
+				// translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.
+				__(
+					'%1$sRemove Unwanted/Unused CSS/JS%2$s is not enabled in the %3$sGeneral Settings%4$s.',
+					'w3-total-cache'
+				),
+				'<em>',
+				'</em>',
+				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
+				'</a>'
+			),
+			array(
+				'a'  => array(
+					'href' => array(),
+				),
+				'em' => array(),
+			)
+		);
+	}
+	Util_Ui::pro_wrap_maybe_end( 'remove_cssjs_home', false );
+	?>
+</div>
 <?php
-
-if ( $is_pro && ! UserExperience_Remove_CssJs_Extension::is_enabled() ) {
-	echo wp_kses(
-		sprintf(
-			// translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.
-			__(
-				'%1$sRemove Unwanted/Unused CSS/JS%2$s is not enabled in the %3$sGeneral Settings%4$s.',
-				'w3-total-cache'
-			),
-			'<em>',
-			'</em>',
-			'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '">',
-			'</a>'
-		),
-		array(
-			'a'  => array(
-				'href' => array(),
-			),
-			'em' => array(),
-		)
-	);
-}
-
 Util_Ui::postbox_footer();
 
 Util_Ui::postbox_header( esc_html__( 'Remove CSS/JS Individually', 'w3-total-cache' ), '', 'remove-cssjs-singles' );
 ?>
-<p>
-	<?php esc_html_e( 'Use this area to manage individual CSS/JS entries. The target CSS/JS for each rule can be either an absolute/relative URL or file name.', 'w3-total-cache' ); ?>
-</p>
 <div class="w3tc-gopro-manual-wrap">
 	<?php Util_Ui::pro_wrap_maybe_start(); ?>
+	<p>
+		<?php esc_html_e( 'Use this area to manage individual CSS/JS entries. The target CSS/JS for each rule can be either an absolute/relative URL or file name.', 'w3-total-cache' ); ?>
+	</p>
 	<p>
 		<input id="w3tc_remove_cssjs_singles_add" type="button" class="button" value="<?php esc_html_e( 'Add', 'w3-total-cache' ); ?>" <?php echo UserExperience_Remove_CssJs_Extension::is_enabled() ? '' : 'disabled="disabled"'; ?>/>
 	</p>
