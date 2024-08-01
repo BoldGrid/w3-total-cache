@@ -59,58 +59,65 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Reverse proxy integration via Nginx or Varnish
 * WebP Converter extension provides WebP image format conversion from common image formats (on upload and on demand)
 
-*PAGESPEED SCORE IMPROVEMENTS*
+<h3>PAGESPEED SCORE IMPROVEMENTS</h3>
 
 To help you understand the impact of individual features on your website's performance, we've tested each feature separately to see its effect on Google PageSpeed scores. While optimal results come from configuring several different caching tools together, the following individual features also show significant improvements on their own:
 
-<font size="5">**[Remove Unused CSS/JS](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/)**</font>
+<h4>Remove Unused CSS/JS</h4>
 
 This feature removes CSS and JavaScript files that are not needed for the current page, reducing the load time.
 
 * Added over 27 points to the Google PageSpeed score (Before: 57.2 / After: 86.7)
 * Reduced the Potential Savings From Unused JavaScript from 127.5 KiB to 84 KiB
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/)
 
-<font size="5">**[Full Site Delivery](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/fsd-full-site-delivery/)**</font>
+<h4>Full Site Delivery</h4>
 
 Full Site Delivery optimizes the delivery of your entire site, enhancing the server response time.
 
 * Added a 99% performance enhancement  to the Average Server Response Time (Before: 3413 ms / After: 34 ms)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/fsd-full-site-delivery/)
 
-<font size="5">**[Eliminate Render Blocking CSS](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/eliminate-render-blocking-css/)**</font>
+<h4>Eliminate Render Blocking CSS</h4>
 
 This feature eliminates CSS that blocks the rendering of your page, speeding up the initial load time.
 
 * Added over 17 points to the Google PageSpeed score (Before: 53.75 / After: 71)
 * Reduced the Potential Savings From Render-Blocking Resources by over 94% (Before: 2432.5 ms / After: 125 ms)
 * Improved the Largest Contentful Paint time by over 56% (Before: 7s / After: 3.04s)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/eliminate-render-blocking-css/)
 
-<font size="5">**[Delay Scripts](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/)**</font>
+<h4>Delay Scripts</h4>
 
 Delay Scripts postpones the loading of certain scripts until they are needed, reducing initial load times.
 
 * Added 14 points to the Google PageSpeed Performance score (Before: 54.25 / After: 68.5)
 * Reduced the Time Third-Party Code Blocked The Main Thread For by 62% (Before: 825 ms / After: 197.5 ms)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/)
 
-<font size="5">**[Rest API Caching](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/rest-api-testing/)**</font>
+<h4>Rest API Caching</h4>
 
 This feature caches API responses, reducing server load and speeding up API interactions.
 
 * Reduced the Average Server Load by 40% (Before: 0.62 / After: 0.37)
 * Sped up API Responses by 84.5% (Before: 968ms / After: 150ms)
 * Reduced the Average Server Load by 24% under during a major traffic spike (Before: 34.55 / After: 26.19)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/rest-api-testing/)
 
-<font size="5">**[WebP Images](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/)**</font>
+<h4>WebP Images</h4>
 
 Converts images to the WebP format, which is more efficient and faster to load.
 
 * Added over 9 points to the Google PageSpeed score (Before: 84.67 / After: 93.83)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/)
 
-<font size="5">**[Lazy Load Google Maps](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/)**</font>
+<h4>Lazy Load Google Maps</h4>
 
 Delays the loading of Google Maps until the user interacts with them, reducing initial load time.
 
 * Added 10 points to the Google PageSpeed score (Before: 66 / After: 76)
 * Reduced the Total Blocking Time Performance score by 72% (Before: 287.5 ms / After: 80 ms)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/)
 
 Speed up your site tremendously, improve core web vitals and the overall user experience for your visitors without having to change your WordPress host, theme, plugins or your content production workflow.
 
@@ -334,6 +341,17 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+<<<<<<< Updated upstream
+=======
+= 2.7.5 =
+* Feature: Added dismissable notifications
+* Fix: PHP error in Page Cache when deleting media
+* Fix: PHP warning in Page Cache when modifying an attachement
+* Update: Added addtional default query strings for page cache exemptions
+* Update: Condenced Google PageSpeed proof block format for certain settings/features
+* Update: Added missing Google PageSpeed score block for PageCache Lazy Loading Google Maps setting on General Settings page
+
+>>>>>>> Stashed changes
 = 2.7.4 =
 * Fix: WP-CLI get option output for array type
 * Fix: Remove CSS/JS URL matching
