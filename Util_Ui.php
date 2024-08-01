@@ -1177,7 +1177,7 @@ class Util_Ui {
 		}
 
 		// If wrap_separate is not set we wrap everything.
-		if ( ! isset( $a['wrap_separate'] ) ) {
+		if ( ! isset( $a['wrap_separate'] ) && ! isset( $a['no_wrap'] ) ) {
 			self::pro_wrap_maybe_start();
 		}
 
@@ -1188,7 +1188,7 @@ class Util_Ui {
 		}
 
 		// If wrap_separate is set we wrap only the description.
-		if ( isset( $a['wrap_separate'] ) ) {
+		if ( isset( $a['wrap_separate'] ) && ! isset( $a['no_wrap'] ) ) {
 			// If not pro we add a spacer for better separation of control element and wrapper.
 			if ( ! $is_pro ) {
 				echo '<br/><br/>';
@@ -1200,13 +1200,15 @@ class Util_Ui {
 			self::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
 		}
 
-		if ( ! $is_pro && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
+		if ( ! $is_pro && ! isset( $a['no_wrap'] ) && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
 			$score_block = self::get_score_block( $a['intro_label'], $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
 			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 		}
 
-		$show_learn_more = isset( $a['show_learn_more'] ) && is_bool( $a['show_learn_more'] ) ? $a['show_learn_more'] : true;
-		self::pro_wrap_maybe_end( $a['control_name'], $show_learn_more );
+		if ( ! isset( $a['no_wrap'] ) ) {
+			$show_learn_more = isset( $a['show_learn_more'] ) && is_bool( $a['show_learn_more'] ) ? $a['show_learn_more'] : true;
+			self::pro_wrap_maybe_end( $a['control_name'], $show_learn_more );
+		}
 
 		if ( 'w3tc_no_trtd' !== $a['label_class'] ) {
 			echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
