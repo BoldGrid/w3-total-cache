@@ -112,7 +112,7 @@ class Generic_Plugin_AdminNotices {
 	 */
 	private function get_active_notices() {
 		$cached_notices = $this->get_cached_notices();
-		if ( $cached_notices ) {
+		if ( null !== $cached_notices ) {
 			return $cached_notices;
 		}
 
