@@ -25,5 +25,5 @@ case "${W3D_OS}" in
 esac
 
 
-npm i puppeteer@22.6.1 -g --unsafe-perm
+npm i puppeteer@22.15.1 -g --unsafe-perm
 npm i -g mocha@5.2.0 chai@4.4.1 mocha-logger@1.0.8
