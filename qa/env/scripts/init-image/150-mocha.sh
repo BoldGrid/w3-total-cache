@@ -9,6 +9,8 @@ case "${W3D_OS}" in
 		apt install -y libxcb-dri3-0 libgbm1
 		# For Puppeteer 6.0.0 and up.
 		apt install -y libxshmfence1
+		# For Puppeteer 22 and up.
+		NEEDRESTART_MODE=a apt-get install -y ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libdrm2 libexpat1 libfontconfig1 libgcc-s1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libstdc++6 libuuid1 libx11-6 libx11-xcb1 libxcb-dri3-0 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxkbcommon0 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
 		;;
 	"focal") echo "Installing for focal"
 		apt install -y libnss3-dev libnss3 libxss-dev
@@ -17,6 +19,8 @@ case "${W3D_OS}" in
 		apt install -y libxcb-dri3-0 libgbm1
 		# For Puppeteer 6.0.0 and up.
 		apt install -y libxshmfence1
+		# For Puppeteer 22 and up.
+		NEEDRESTART_MODE=a apt-get install -y ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libdrm2 libexpat1 libfontconfig1 libgcc-s1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libstdc++6 libuuid1 libx11-6 libx11-xcb1 libxcb-dri3-0 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxkbcommon0 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
 		;;
 	*)
 		apt install -y libnss3-dev libXss-dev
@@ -24,6 +28,5 @@ case "${W3D_OS}" in
         ;;
 esac
 
-
-npm i puppeteer@22.15.1 -g --unsafe-perm
+npm i -g puppeteer@22.15.1 --unsafe-perm
 npm i -g mocha@5.2.0 chai@4.4.1 mocha-logger@1.0.8
