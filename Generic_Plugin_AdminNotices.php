@@ -19,11 +19,15 @@ class Generic_Plugin_AdminNotices {
 	 * Runs plugin
 	 *
 	 * @since 2.7.5
+	 *
+	 * @see Util_Admin::is_w3tc_admin_page()
 	 */
 	public function run() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_action( 'w3tc_ajax_get_notices', array( $this, 'w3tc_ajax_get_notices' ) );
-		add_action( 'w3tc_ajax_dismiss_notice', array( $this, 'w3tc_ajax_dismiss_notice' ) );
+		if ( Util_Admin::is_w3tc_admin_page() ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+			add_action( 'w3tc_ajax_get_notices', array( $this, 'w3tc_ajax_get_notices' ) );
+			add_action( 'w3tc_ajax_dismiss_notice', array( $this, 'w3tc_ajax_dismiss_notice' ) );
+		}
 	}
 
 	/**
