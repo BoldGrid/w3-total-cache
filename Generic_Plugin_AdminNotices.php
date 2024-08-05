@@ -4,7 +4,7 @@
  *
  * @package W3TC
  *
- * @since X.X.X
+ * @since 2.7.5
  */
 
 namespace W3TC;
@@ -12,13 +12,13 @@ namespace W3TC;
 /**
  * Class Generic_Plugin_AdminNotices
  *
- * @since X.X.X
+ * @since 2.7.5
  */
 class Generic_Plugin_AdminNotices {
 	/**
 	 * Runs plugin
 	 *
-	 * @since X.X.X
+	 * @since 2.7.5
 	 */
 	public function run() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
@@ -29,7 +29,7 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Enqueue admin scripts.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.5
 	 */
 	public function admin_enqueue_scripts() {
 		wp_enqueue_script( 'w3tc-admin-notices', plugins_url( 'Generic_Plugin_AdminNotices.js', W3TC_FILE ), array(), W3TC_VERSION, true );
@@ -38,7 +38,7 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Get notices ajax handler.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.5
 	 *
 	 * @see self::get_active_notices()
 	 *
@@ -51,7 +51,7 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Dismiss admin notice ajax handler.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.5
 	 *
 	 * @return void
 	 */
@@ -92,7 +92,7 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Get dismissed notices.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.5
 	 *
 	 * @return array|null
 	 */
@@ -103,7 +103,7 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Get active notices.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.5
 	 *
 	 * @see Dispatcher::config()
 	 * @see Util_Environment::is_w3tc_pro()
@@ -194,7 +194,7 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Get cached notices.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.5
 	 *
 	 * @return array|null
 	 */
@@ -216,7 +216,7 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Get allowed wp_kses.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.5
 	 *
 	 * @return array
 	 */
