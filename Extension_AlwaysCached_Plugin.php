@@ -43,7 +43,7 @@ class Extension_AlwaysCached_Plugin {
 		add_filter( 'w3tc_pagecache_flush_url', array( $this, 'w3tc_pagecache_flush_url' ), 1000 );
 		add_filter( 'w3tc_pagecache_flush_all_groups', array( $this, 'w3tc_pagecache_flush_all_groups' ), 1000 );
 		add_filter( 'w3tc_pagecache_rules_apache_rewrite_cond', array( $this, 'w3tc_pagecache_rules_apache_rewrite_cond' ) );
-		
+
 		// Cron job.
 		add_action( 'w3tc_alwayscached_wp_cron', array( $this, 'w3tc_alwayscached_wp_cron' ) );
 	}
@@ -134,7 +134,7 @@ class Extension_AlwaysCached_Plugin {
 		$queue_item = Extension_AlwaysCached_Queue::get_by_url( $url );
 
 		if ( ! empty( $queue_item ) ) {
-			$this->request_queue_item_extension = @unserialize( $queue_item['extension'] );
+			$this->request_queue_item_extension = @unserialize( $queue_item['extension'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 			header( 'w3tcalwayscached: ' . ( empty( $queue_item ) ? 'none' : $queue_item['key'] ) );
 		}
 	}

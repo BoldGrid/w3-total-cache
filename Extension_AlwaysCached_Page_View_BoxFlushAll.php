@@ -74,16 +74,16 @@ $disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 
 		Util_Ui::config_item(
 			array(
-				'key'         => array(
+				'key'          => array(
 					'alwayscached',
 					'flush_all_pages_count',
 				),
-				'label'       => esc_html__( 'Number of Latest Pages:', 'w3-total-cache' ),
-				'description' => esc_html__( 'Number of latest pages to regenerate', 'w3-total-cache' ),
-				'control'     => 'textbox',
+				'label'        => esc_html__( 'Number of Latest Pages:', 'w3-total-cache' ),
+				'description'  => esc_html__( 'Number of latest pages to regenerate', 'w3-total-cache' ),
+				'control'      => 'textbox',
 				'textbox_type' => 'number',
 				'default'      => '10',
-				'disabled'    => $disabled,
+				'disabled'     => $disabled,
 			)
 		);
 

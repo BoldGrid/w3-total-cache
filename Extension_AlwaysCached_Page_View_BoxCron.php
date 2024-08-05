@@ -15,8 +15,8 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c            = Dispatcher::config();
-$wp_disabled  = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
+$c           = Dispatcher::config();
+$wp_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 ?>
 <div class="metabox-holder">
 	<?php Util_Ui::postbox_header( esc_html__( 'Cron', 'w3-total-cache' ), '', 'cron' ); ?>
@@ -38,20 +38,20 @@ $wp_disabled  = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 
 		Util_Ui::config_item(
 			array(
-				'key'      => array(
+				'key'              => array(
 					'alwayscached',
 					'wp_cron_interval',
 				),
-				'label'    => esc_html__( 'Interval', 'w3-total-cache' ),
-				'control'  => 'selectbox',
-					'selectbox_values' => array(
-						''           => esc_html__( 'Never', 'w3-total-cache' ),
-						'hourly'     => esc_html__( 'Hourly', 'w3-total-cache' ),
-						'twicedaily' => esc_html__( 'Twice Daily', 'w3-total-cache' ),
-						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
-						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
-					),
-				'disabled' => $wp_disabled,
+				'label'            => esc_html__( 'Interval', 'w3-total-cache' ),
+				'control'          => 'selectbox',
+				'selectbox_values' => array(
+					''           => esc_html__( 'Never', 'w3-total-cache' ),
+					'hourly'     => esc_html__( 'Hourly', 'w3-total-cache' ),
+					'twicedaily' => esc_html__( 'Twice Daily', 'w3-total-cache' ),
+					'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
+					'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
+				),
+				'disabled'         => $wp_disabled,
 			)
 		);
 		?>
