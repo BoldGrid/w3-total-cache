@@ -210,18 +210,6 @@ class PageSpeed_Data {
 						'LCP',
 					),
 				),
-				'uses-rel-preload'             => array(
-					'title'            => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'uses-rel-preload', 'title' ) ),
-					'description'      => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'uses-rel-preload', 'description' ) ),
-					'score'            => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'uses-rel-preload', 'score' ) ),
-					'scoreDisplayMode' => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'uses-rel-preload', 'scoreDisplayMode' ) ),
-					'displayValue'     => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'uses-rel-preload', 'displayValue' ) ),
-					'details'          => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'uses-rel-preload', 'details', 'items' ) ),
-					'type'             => array(
-						'FCP',
-						'LCP',
-					),
-				),
 				'efficient-animated-content'   => array(
 					'title'            => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'efficient-animated-content', 'title' ) ),
 					'description'      => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'efficient-animated-content', 'description' ) ),
@@ -429,17 +417,6 @@ class PageSpeed_Data {
 					'details'          => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'largest-contentful-paint-element', 'details', 'items' ) ),
 					'type'             => array(
 						'LCP',
-					),
-				),
-				'layout-shift-elements'            => array(
-					'title'            => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'layout-shift-elements', 'title' ) ),
-					'description'      => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'layout-shift-elements', 'description' ) ),
-					'score'            => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'layout-shift-elements', 'score' ) ),
-					'scoreDisplayMode' => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'layout-shift-elements', 'scoreDisplayMode' ) ),
-					'displayValue'     => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'layout-shift-elements', 'displayValue' ) ),
-					'details'          => Util_PageSpeed::get_value_recursive( $data, array( 'lighthouseResult', 'audits', 'layout-shift-elements', 'details', 'items' ) ),
-					'type'             => array(
-						'CLS',
 					),
 				),
 				'long-tasks'                       => array(
