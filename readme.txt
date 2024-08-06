@@ -346,6 +346,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: PHP error in Page Cache when deleting media
 * Fix: PHP warning in Page Cache when modifying an attachment
 * Update: Added additional default query strings for page cache exemptions
+* Update: Removed obsolete Google PageSpeed metrics
 * Update: Condensed Google PageSpeed proof block format for certain settings/features
 * Update: Added missing Google PageSpeed score block for PageCache Lazy Loading Google Maps setting on General Settings page
 
