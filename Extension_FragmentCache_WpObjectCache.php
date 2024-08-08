@@ -330,6 +330,17 @@ class Extension_FragmentCache_WpObjectCache {
 	}
 
 	/**
+	 * Flushes runtime.
+	 *
+	 * @return bool
+	 */
+	public function flush_runtime() {
+		$this->cache = array();
+
+		return true;
+	}
+
+	/**
 	 * Purges all transients that belong to a transient group
 	 *
 	 * @param string  $fragment_group fragment grouping
