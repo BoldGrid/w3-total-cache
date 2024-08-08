@@ -75,9 +75,47 @@ class ObjectCache_Plugin {
 		add_filter( 'w3tc_usage_statistics_sources', array( $this, 'w3tc_usage_statistics_sources' ) );
 
 		if ( Util_Environment::is_wpmu() ) {
-			add_action( 'wp_uninitialize_site', array( $this, 'on_change' ), 0 );
-			add_action( 'wp_update_site', array( $this, 'on_change' ), 0 );
-			add_action( 'switch_blog', array( $this, 'switch_blog' ), 0, 2 );
+			$util_attachtoactions = new Util_AttachToActions();
+
+			/**
+			 * Fires once a site has been deleted from the database.
+			 *
+			 * @since 5.1.0
+			 *
+			 * @see w3tc_flush_posts()
+			 *
+			 * @link https://developer.wordpress.org/reference/hooks/wp_delete_site/
+			 *
+			 * @param WP_Site $old_site Deleted site object.
+			 */
+			add_action( 'wp_delete_site', 'w3tc_flush_posts', 0, 0 );
+
+			/**
+			 * Fires once a site has been updated in the database.
+			 *
+			 * @since 5.1.0
+			 *
+			 * @link https://developer.wordpress.org/reference/hooks/wp_update_site/
+			 *
+			 * @param WP_Site $new_site New site object.
+			 * @param WP_Site $old_site Old site object.
+			 */
+			add_action( 'wp_update_site', array( $util_attachtoactions, 'on_update_site' ), 0, 2 );
+
+			/**
+			 * Fires when the blog is switched.
+			 *
+			 * @since MU (3.0.0)
+			 * @since 5.4.0 The `$context` parameter was added.
+			 *
+			 * @link https://developer.wordpress.org/reference/hooks/switch_blog/
+			 *
+			 * @param int    $new_blog_id  New blog ID.
+			 * @param int    $prev_blog_id Previous blog ID.
+			 * @param string $context      Additional context. Accepts 'switch' when called from switch_to_blog()
+			 *                             or 'restore' when called from restore_current_blog().
+			 */
+			add_action( 'switch_blog', array( $this, 'switch_blog' ), 0, 1 );
 		}
 	}
 
@@ -202,9 +240,8 @@ class ObjectCache_Plugin {
 	 * Switch blog action
 	 *
 	 * @param integer $blog_id Blog ID.
-	 * @param integer $previous_blog_id Previous Blog ID.
 	 */
-	public function switch_blog( $blog_id, $previous_blog_id ) {
+	public function switch_blog( $blog_id ) {
 		$o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
 		$o->switch_blog( $blog_id );
 	}
