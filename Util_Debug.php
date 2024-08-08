@@ -160,8 +160,11 @@ class Util_Debug {
 	 * Clean debug output with label headers.
 	 */
 	static public function debug( $label, $data ) {
-		error_log('===============Debug ' . $label . ' Start===============');
-		error_log(print_r($data,true));
-		error_log('===============Debug ' . $label . ' End===============');
+		error_log(
+			"\n\n" . '===============Debug ' . $label . ' Start===============' . "\n" .
+			'Microtime: ' . microtime( true ) . "\n" .
+			'Content  : ' . print_r( $data, true ) . "\n" .
+			'===============Debug ' . $label . ' End===============' . "\n"
+		);
 	}
 }
