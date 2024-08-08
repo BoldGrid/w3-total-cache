@@ -110,10 +110,13 @@ class Root_Environment {
 	public function get_required_rules( $config ) {
 		$required_rules = array();
 		foreach ( $this->get_handlers() as $h ) {
-			$required_rules_current = $h->get_required_rules( $config );
+			if ( method_exists( $h, 'get_required_rules' ) ) {
+				$required_rules_current = $h->get_required_rules( $config );
 
-			if ( !is_null( $required_rules_current ) )
-				$required_rules = array_merge( $required_rules, $required_rules_current );
+				if ( ! is_null( $required_rules_current ) ) {
+					$required_rules = array_merge( $required_rules, $required_rules_current );
+				}
+			}
 		}
 
 		$required_rules = apply_filters( 'w3tc_environment_get_required_rules',
@@ -174,6 +177,7 @@ class Root_Environment {
 			new DbCache_Environment(),
 			new Cdn_Environment(),
 			new Extension_ImageService_Environment(),
+			new Extension_AlwaysCached_Environment(),
 		);
 
 		return $a;

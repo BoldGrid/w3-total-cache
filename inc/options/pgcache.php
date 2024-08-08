@@ -29,6 +29,36 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 </p>
 
+<p>
+	<?php
+	$alwayscached_enabled = Extension_AlwaysCached_Plugin::is_enabled();
+	$status_class         = $alwayscached_enabled ? 'w3tc-enabled' : 'w3tc-disabled';
+	$status_label         = $alwayscached_enabled ? __( 'enabled', 'w3-total-cache' ) : __( 'disabled', 'w3-total-cache' );
+	$manage_label         = $alwayscached_enabled ? __( 'Manage the queue and settings', 'w3-total-cache' ) : __( 'To enable the extension click', 'w3-total-cache' );
+	$manage_link          = $alwayscached_enabled ? Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ) : Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' );
+	echo wp_kses(
+		// translators: 1 HTML span tag for feature status, 2 manage queue label, 3 HTML a tag to enable feature or manage settings.
+		sprintf(
+			__(
+				'Always Cached extension is currently %1$s. %2$s %3$s.',
+				'w3-total-cache'
+			),
+			'<span class="' . $status_class . '">' . $status_label . '</span>',
+			$manage_label,
+			'<a href="' . esc_url( $manage_link ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+		),
+		array(
+			'span' => array(
+				'class' => array(),
+			),
+			'a'    => array(
+				'href' => array(),
+			),
+		)
+	);
+	?>
+<p>
+
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<?php Util_UI::print_control_bar( 'pagecache_form_control' ); ?>
 	<div class="metabox-holder">
