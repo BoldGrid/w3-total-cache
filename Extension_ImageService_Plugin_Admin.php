@@ -436,7 +436,6 @@ class Extension_ImageService_Plugin_Admin {
 	public function settings_page() {
 		$c      = $this->config;
 		$counts = $this->get_counts();
-		$usage  = get_transient( 'w3tc_imageservice_usage' );
 
 		// Delete transient for displaying activation notice.
 		delete_transient( 'w3tc_activation_imageservice' );
@@ -469,10 +468,7 @@ class Extension_ImageService_Plugin_Admin {
 			<?php
 		}
 
-		// If usage is not stored, then retrieve it from the API.
-		if ( empty( $usage ) ) {
-			$usage = Extension_ImageService_Plugin::get_api()->get_usage();
-		}
+		$usage = Extension_ImageService_Plugin::get_api()->get_usage();
 
 		// Ensure that the monthly limit is represented correctly.
 		$usage['limit_monthly'] = $usage['limit_monthly'] ? $usage['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
@@ -1377,6 +1373,6 @@ class Extension_ImageService_Plugin_Admin {
 	public function ajax_get_usage() {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
-		wp_send_json_success( Extension_ImageService_Plugin::get_api()->get_usage() );
+		wp_send_json_success( Extension_ImageService_Plugin::get_api()->get_usage( true ) );
 	}
 }

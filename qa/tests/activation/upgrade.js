@@ -64,8 +64,6 @@ describe('', function() {
 	});
 
 	it('take old w3tc', async() => {
-		log.log('Installing old w3tc...');
-
 		let old = {
 			repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.0.9.5.zip',
 		 	output: '/share/w3tc-9-5.zip',
@@ -79,6 +77,8 @@ describe('', function() {
 				content: "'2.2.7'"
 			};
 		}
+
+		log.log('Installing old W3TC (' + old.content + ')...');
 
 		const r1 = await exec('curl --silent ' + old.repo + ' --output ' + old.output);
 		const r2 = await exec('/share/scripts/w3tc-umount.sh');

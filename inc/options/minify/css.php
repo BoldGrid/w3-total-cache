@@ -1,24 +1,28 @@
 <?php
 namespace W3TC;
 
-if ( !defined( 'W3TC' ) )
+if ( ! defined( 'W3TC' ) ) {
 	die();
+}
 
 $is_pro = Util_Environment::is_w3tc_pro( $this->_config );
 
 ?>
-<?php $this->checkbox( 'minify.css.strip.comments', false, 'css_' ) ?> <?php Util_Ui::e_config_label( 'minify.css.strip.comments' ) ?></label><br />
-<?php $this->checkbox( 'minify.css.strip.crlf', false, 'css_' ) ?> <?php Util_Ui::e_config_label( 'minify.css.strip.crlf' ) ?></label><br />
+
+<?php $this->checkbox( 'minify.css.strip.comments', false, 'css_' ); ?> <?php Util_Ui::e_config_label( 'minify.css.strip.comments' ); ?></label><br />
+
+<?php $this->checkbox( 'minify.css.strip.crlf', false, 'css_' ); ?> <?php Util_Ui::e_config_label( 'minify.css.strip.crlf' ); ?></label><br />
 
 <?php
-Util_Ui::config_item_pro( array(
-		'key' => 'minify.css.embed',
-		'control' => 'checkbox',
-		'checkbox_label' => __( 'Eliminate render-blocking <acronym title="Cascading Style Sheet">CSS</acronym> by moving it to <acronym title="Hypertext Transfer Protocol">HTTP</acronym> body', 'w3-total-cache' ),
-		'disabled' => ( $is_pro ? null : true ),
-		'label_class' => 'w3tc_no_trtd',
-		'excerpt' => __( 'Website visitors cannot navigate your website until a given page is ready - reduce the wait time with this feature.', 'w3-total-cache' ),
-		'description' => array(
+Util_Ui::config_item_pro(
+	array(
+		'key'               => 'minify.css.embed',
+		'control'           => 'checkbox',
+		'checkbox_label'    => __( 'Eliminate render-blocking <acronym title="Cascading Style Sheet">CSS</acronym> by moving it to <acronym title="Hypertext Transfer Protocol">HTTP</acronym> body', 'w3-total-cache' ),
+		'disabled'          => ( $is_pro ? null : true ),
+		'label_class'       => 'w3tc_no_trtd',
+		'excerpt'           => __( 'Website visitors cannot navigate your website until a given page is ready - reduce the wait time with this feature.', 'w3-total-cache' ),
+		'description'       => array(
 			__( 'Faster paint time is a key last step in lowering bounce rates even for repeat page views. Enable this feature to significantly enhance your website’s user experience by reducing wait times and ensuring that users can interact with your website as quickly as possible.', 'w3-total-cache' ),
 			wp_kses(
 				sprintf(
@@ -30,7 +34,14 @@ Util_Ui::config_item_pro( array(
 				array( 'a' => array( 'href' => array() ) )
 			),
 		),
-	) );
+		'show_learn_more'   => false,
+		'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+		'score'             => '+17.5',
+		'score_label'       => __( 'Points', 'w3-total-cache' ),
+		'score_description' => __( 'In a recent test, Eliminating render blocking CSS improved our Google PageSpeed score by over 17 points on mobile devices!', 'w3-total-cache' ),
+		'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/eliminate-render-blocking-css/?utm_source=w3tc&utm_medium=eliminate-render-blocking-css&utm_campaign=proof',
+	)
+);
 ?>
 
 <br />

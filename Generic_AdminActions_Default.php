@@ -677,7 +677,7 @@ class Generic_AdminActions_Default {
 
 		foreach ( $request as $request_key => $request_value ) {
 			if ( is_array( $request_value ) ) {
-				array_map( 'stripslashes_deep', $request_value );
+				$request_value = array_map( 'stripslashes_deep', $request_value );
 			} else {
 				$request_value = stripslashes( $request_value );
 			}

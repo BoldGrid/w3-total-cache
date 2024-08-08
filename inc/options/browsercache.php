@@ -337,7 +337,7 @@ $security_session_values = array(
 					'key'            => 'browsercache.rewrite',
 					'disabled'       => Util_Ui::sealing_disabled( 'browsercache.' ),
 					'control'        => 'checkbox',
-					'control_after'  => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#rewriteurlstructure-of-objects' ) . '">' . esc_html( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+					'control_after'  => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache#rewriteurlstructure-of-objects' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'checkbox_label' => wp_kses(
 						sprintf(
 							// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.

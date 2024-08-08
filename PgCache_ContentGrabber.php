@@ -770,25 +770,25 @@ class PgCache_ContentGrabber {
 			}
 		}
 
-		if ( !empty( $response_headers['kv']['Content-Encoding'] ) ) {
+		if ( !empty( $response_headers['kv']['content-encoding'] ) ) {
 			$this->cache_reject_reason = 'Response is compressed';
 			$this->process_status = 'miss_compressed';
 			return false;
 		}
 
-		if ( empty( $buffer ) && empty( $response_headers['kv']['Location'] ) ) {
+		if ( empty( $buffer ) && empty( $response_headers['kv']['location'] ) ) {
 			$this->cache_reject_reason = 'Empty response';
 			$this->process_status = 'miss_empty_response';
 			return false;
 		}
 
-		if ( isset( $response_headers['kv']['Location'] ) ) {
+		if ( isset( $response_headers['kv']['location'] ) ) {
 			// dont cache query-string normalization redirects
 			// (e.g. from wp core)
 			// when cache key is normalized, since that cause redirect loop
 
 			if ( $this->_get_page_key( $this->_page_key_extension ) ==
-					$this->_get_page_key( $this->_page_key_extension, $response_headers['kv']['Location'] ) ) {
+					$this->_get_page_key( $this->_page_key_extension, $response_headers['kv']['location'] ) ) {
 				$this->cache_reject_reason = 'Normalization redirect';
 				$this->process_status = 'miss_normalization_redirect';
 				return false;
@@ -1384,7 +1384,7 @@ class PgCache_ContentGrabber {
 						$header_name = $header;
 						$header_value = '';
 					}
-					$headers_kv[$header_name] = $header_value;
+					$headers_kv[strtolower($header_name)] = $header_value;
 					$headers_plain[] = array(
 						'name' => $header_name,
 						'value' => $header_value
@@ -2124,7 +2124,7 @@ class PgCache_ContentGrabber {
 		if ( $this->_enhanced_mode ) {
 			// redirect issued, if we have some old cache entries
 			// they will be turned into fresh files and catch further requests
-			if ( isset( $response_headers['kv']['Location'] ) ) {
+			if ( isset( $response_headers['kv']['location'] ) ) {
 				$cache = $this->_get_cache( $this->_page_key_extension['group'] );
 
 				foreach ( $compressions_to_store as $_compression ) {
@@ -2145,8 +2145,8 @@ class PgCache_ContentGrabber {
 					'_check_rules_present'
 				) );
 
-			if ( isset( $response_headers['kv']['Content-Type'] ) ) {
-				$content_type = $response_headers['kv']['Content-Type'];
+			if ( isset( $response_headers['kv']['content-type'] ) ) {
+				$content_type = $response_headers['kv']['content-type'];
 			}
 		}
 
