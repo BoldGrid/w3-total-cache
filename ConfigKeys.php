@@ -1515,6 +1515,26 @@ $keys = array(
 		'type' => 'string',
 		'default' => 'auto'
 	),
+	'cdn.azuremi.user' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'cdn.azuremi.clientid' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'cdn.azuremi.container' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'cdn.azuremi.cname' => array(
+		'type' => 'array',
+		'default' => array()
+	),
+	'cdn.azuremi.ssl' => array(
+		'type' => 'string',
+		'default' => 'auto'
+	),
 	'cdn.mirror.domain' => array(
 		'type' => 'array',
 		'default' => array()

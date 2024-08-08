@@ -191,6 +191,11 @@ class Cdn_Plugin_Admin {
 			'optgroup' => $optgroup_push,
 		);
 
+		$engine_values['azuremi'] = array(
+			'label'    => \__( 'Microsoft Azure Storage (Managed Identity)', 'w3-total-cache' ),
+			'optgroup' => $optgroup_push,
+		);
+
 		$engine_values['rscf'] = array(
 			'disabled' => ! Util_Installed::curl() ? true : null,
 			'label'    => \__( 'Rackspace Cloud Files', 'w3-total-cache' ),

@@ -467,6 +467,7 @@ class Cdn_AdminActions {
 			case 'cf':
 			case 'cf2':
 			case 'azure':
+			case 'azuremi':				
 				$w3_cdn = CdnEngine::instance( $engine, $config );
 
 				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) );

@@ -186,6 +186,10 @@ class Cache {
 				$engine_name = 'Microsoft Azure Storage';
 				break;
 
+			case 'azuremi':
+				$engine_name = 'Microsoft Azure Storage (Managed Identity)';
+				break;
+
 			case 'edgecast':
 				$engine_name = 'Media Template ProCDN / EdgeCast';
 				break;
