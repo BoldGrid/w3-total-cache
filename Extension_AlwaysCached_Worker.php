@@ -93,7 +93,7 @@ class Extension_AlwaysCached_Worker {
 	 * @return string
 	 */
 	private static function process_item_url( $item, $ajax = false ) {
-		if ( ! $ajax) {
+		if ( ! $ajax ) {
 			echo esc_html(
 				sprintf(
 					// translators: 1 item URL.

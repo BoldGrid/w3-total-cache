@@ -109,13 +109,22 @@ class Extension_AlwaysCached_Plugin_Admin {
 		return $handlers;
 	}
 
+	/**
+	 * Adds admin menu item for AlwaysCached.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $menu Menu array.
+	 *
+	 * @return array
+	 */
 	public function w3tc_admin_menu( $menu ) {
 		if ( Extension_AlwaysCached_Plugin::is_enabled() ) {
 			$menu['w3tc_extensions&extension=alwayscached&action=view'] = array(
 				'page_title'     => __( 'Page Cache Queue', 'w3-total-cache' ),
 				'menu_text'      => __( 'Page Cache Queue', 'w3-total-cache' ),
 				'visible_always' => false,
-				'order'          => 450
+				'order'          => 450,
 			);
 		}
 

@@ -32,7 +32,7 @@ $wp_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 				'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
-				'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will process the queue and regenerate cache files.', 'w3-total-cache' ),
+				'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will process the queue and regenerate cache files. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc alwayscached_process".', 'w3-total-cache' ),
 			)
 		);
 
