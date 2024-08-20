@@ -3,7 +3,7 @@
  *
  * JavaScript for W3TC Admin Notices.
  *
- * @since X.X.X
+ * @since 2.7.5
  */
 jQuery(document).ready(function($) {
 	$.get(
@@ -37,7 +37,7 @@ jQuery(document).ready(function($) {
 											notice_id: $noticeContent.data('id')
 										}
 									);
-		
+
 									$noticeContent.fadeTo(
 										100,
 										0,
