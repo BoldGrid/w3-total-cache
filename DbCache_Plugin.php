@@ -59,9 +59,34 @@ class DbCache_Plugin {
 		// Profile.
 		add_action( 'edit_user_profile_update', array( $this, 'on_change' ), 0 );
 
+		// Multisite.
 		if ( Util_Environment::is_wpmu() ) {
-			add_action( 'wp_uninitialize_site', array( $this, 'on_change' ), 0 );
-			add_action( 'wp_update_site', array( $this, 'on_change' ), 0 );
+			$util_attachtoactions = new Util_AttachToActions();
+
+			/**
+			 * Fires once a site has been deleted from the database.
+			 *
+			 * @since 5.1.0
+			 *
+			 * @see w3tc_flush_posts()
+			 *
+			 * @link https://developer.wordpress.org/reference/hooks/wp_delete_site/
+			 *
+			 * @param WP_Site $old_site Deleted site object.
+			 */
+			add_action( 'wp_delete_site', 'w3tc_flush_posts', 0, 0 );
+
+			/**
+			 * Fires once a site has been updated in the database.
+			 *
+			 * @since 5.1.0
+			 *
+			 * @link https://developer.wordpress.org/reference/hooks/wp_update_site/
+			 *
+			 * @param WP_Site $new_site New site object.
+			 * @param WP_Site $old_site Old site object.
+			 */
+			add_action( 'wp_update_site', array( $util_attachtoactions, 'on_update_site' ), 0, 2 );
 		}
 
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
