@@ -1,375 +1,510 @@
 <?php
+/**
+ * File: CdnEngine_Azure_MI_Utility.php
+ *
+ * Microsoft Azure Managed Identities are available only for services running on Azure when a "system assigned" identity is enabled.
+ *
+ * A system assigned managed identity is restricted to one per resource and is tied to the lifecycle of a resource.
+ * You can grant permissions to the managed identity by using Azure role-based access control (Azure RBAC).
+ * The managed identity is authenticated with Microsoft Entra ID, so you don’t have to store any credentials in code.
+ *
+ * @package W3TC
+ * @since   X.X.X
+ */
 
 namespace W3TC;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	die;
-}
-
 /**
- * 
+ * Class: CdnEngine_Azure_MI_Utility
+ *
  * This class defines utility functions for Azure blob storage access using Managed Identity.
+ *
+ * @since   X.X.X
  * @author  Zubair <zmohammed@microsoft.com>
+ * @author  BoldGrid <development@boldgrid.com>
  */
 class CdnEngine_Azure_MI_Utility {
+	/**
+	 * Entra API version.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const ENTRA_API_VERSION  = '2019-08-01';
 
-    const ENTRA_API_VERSION = '2019-08-01';
-    const ENTRA_RESOURCE_URI = 'https://storage.azure.com';
-    const BLOB_API_VERSION = '2020-10-02';
+	/**
+	 * Entra resource URI.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const ENTRA_RESOURCE_URI = 'https://storage.azure.com';
 
-    /**
-     * This function retrieves the access token from the managed identity endpoint.
-     * @return string $access_token
-     * @throws RuntimeException
-     */
-    public static function getAccessToken($entra_client_id) {
-        // Get environment variables
-        $identity_header = getenv('IDENTITY_HEADER');
-        $identity_endpoint = getenv('IDENTITY_ENDPOINT');
+	/**
+	 * Blob API version.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const BLOB_API_VERSION   = '2020-10-02';
 
-         // Validate variables
-        if (empty($identity_endpoint) || empty($identity_header) || empty($entra_client_id)) {
-            throw new \RuntimeException("Error: getAccessToken - missing required environment variables.");
-        }
+	/**
+	 * This function retrieves the access token from the managed identity endpoint.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $entra_client_id Entra ID.
+	 * @return string $access_token
+	 * @throws \RuntimeException Runtine Exception.
+	 */
+	public static function get_access_token( string $entra_client_id ): string {
+		// Get environment variables.
+		$identity_header   = getenv( 'IDENTITY_HEADER' );
+		$identity_endpoint = getenv( 'IDENTITY_ENDPOINT' );
 
-        // Construct URL for cURL request
-        $url = $identity_endpoint . '?' . http_build_query([
-            'api-version' => self::ENTRA_API_VERSION,
-            'resource' => self::ENTRA_RESOURCE_URI,
-            'client_id' => $entra_client_id,
-        ]);
+		 // Validate variables.
+		if ( empty( $identity_endpoint ) || empty( $identity_header ) || empty( $entra_client_id ) ) {
+			throw new \RuntimeException( 'Error: get_access_token - missing required environment variables.' );
+		}
 
-        // Initialize and execute cURL request
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ["X-IDENTITY-HEADER: $identity_header"]);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
+		// Construct URL for cURL request.
+		$url = $identity_endpoint . '?' . http_build_query(
+			array(
+				'api-version' => self::ENTRA_API_VERSION,
+				'resource'    => self::ENTRA_RESOURCE_URI,
+				'client_id'   => $entra_client_id,
+			)
+		);
 
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            throw new \RuntimeException("Error: getAccessToken - cURL request failed: $error");
-        }
+		// Initialize and execute cURL request.
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'GET' );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'X-IDENTITY-HEADER: ' . $identity_header ) );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		$response = curl_exec( $ch );
 
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $response_headers = curl_getinfo($ch);
+		if ( curl_errno( $ch ) ) {
+			$error = curl_error( $ch );
+			curl_close( $ch );
+			throw new \RuntimeException( 'Error: get_access_token - cURL request failed: ' . esc_html( $error ) );
+		}
 
-        curl_close($ch);
-        if ($httpCode != 200) {
-            throw new \RuntimeException("Error: getAccessToken - HTTP request failed with status code $httpCode");
-        }
-        if (!$response) {
-            throw new \RuntimeException("Error: getAccessToken - invalid response data: $response");
-        }
+		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
 
-        // Parse JSON response and extract access_token
-        $json_response = json_decode($response, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException("Error: getAccessToken - failed to parse the JSON response: " . json_last_error_msg());
-        }
-        if (!isset($json_response['access_token'])) {
-            throw new \RuntimeException("Error: getAccessToken - no token found in response data: $response");
-        }
+		if ( 200 !== $http_code ) {
+			throw new \RuntimeException( 'Error: get_access_token - HTTP request failed with status code :' . esc_html( $http_code ) );
+		}
+		if ( empty( $response ) ) {
+			throw new \RuntimeException( 'Error: get_access_token - invalid response data: ' . esc_html( $response ) );
+		}
 
-        return $json_response['access_token'];
-    }
+		// Parse JSON response and extract access_token.
+		$json_response = json_decode( $response, true );
 
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			throw new \RuntimeException( 'Error: get_access_token - failed to parse the JSON response: ' . esc_html( json_last_error_msg() ) );
+		}
 
-    public static function getBlobProperties($entra_client_id, $storage_account, $container, $blob) {
-        $access_token = self::getAccessToken($entra_client_id);
-        $url = "https://$storage_account.blob.core.windows.net/$container/$blob";
-        $date = gmdate('D, d M Y H:i:s T', time());
+		if ( empty( $json_response['access_token'] ) ) {
+			throw new \RuntimeException( 'Error: get_access_token - no token found in response data: ' . esc_html( $response ) );
+		}
 
-		$headers = [
-            "Authorization: Bearer " . $access_token,
-            "x-ms-version: " . self::BLOB_API_VERSION,
-            "x-ms-date: $date",
-		];
+		return $json_response['access_token'];
+	}
+
+	/**
+	 * Get storage blob properties.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $entra_client_id Entra ID.
+	 * @param string $storage_account Storage account name.
+	 * @param string $container_id    Container ID.
+	 * @param string $blob             Blob ID.
+	 * @return array
+	 * @throws \RuntimeException Runtine Exception.
+	 */
+	public static function get_blob_properties( string $entra_client_id, string $storage_account, string $container_id, $blob ): array {
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, 'https://' . $storage_account . '.blob.core.windows.net/' . $container_id . '/' . $blob );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
+		curl_setopt(
+			$ch,
+			CURLOPT_HTTPHEADER,
+			array(
+				'Authorization: Bearer ' . self::get_access_token( $entra_client_id ),
+				'x-ms-version: ' . self::BLOB_API_VERSION,
+				'x-ms-date: ' . \gmdate( 'D, d M Y H:i:s T', time() ),
+			)
+		);
+		curl_setopt( $ch, CURLOPT_HEADER, true );
+		curl_setopt( $ch, CURLOPT_NOBODY, true );
+
+		$response = curl_exec( $ch );
+
+		if ( curl_errno( $ch ) ) {
+			$error = curl_error( $ch );
+			curl_close( $ch );
+			throw new \RuntimeException( 'Error: get_blob_properties - cURL request failed: ' . esc_html( $error ) );
+		}
+
+		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
+
+		if ( 200 !== $http_code ) {
+			throw new \RuntimeException( 'Error: get_blob_properties - HTTP request failed with status code: ' . esc_html( $http_code ) );
+		}
+
+		if ( empty( $response ) ) {
+			throw new \RuntimeException( 'Error: get_blob_properties - invalid response data: ' . esc_html( $response ) );
+		}
+
+		return self::parse_header( $response );
+	}
+
+	/**
+	 * Create block blob.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $entra_client_id Entra ID.
+	 * @param string $storage_account Storage account name.
+	 * @param string $container_id    Container ID.
+	 * @param string $blob            Blob ID.
+	 * @param mixed  $contents        Contents.
+	 * @param string $content_type    Content type.
+	 * @param string $content_md5     Content MD5 hash.
+	 * @param string $cache_control   Cache control header value.
+	 * @return array
+	 * @throws \RuntimeException Runtine Exception.
+	 */
+	public static function create_block_blob(
+		string $entra_client_id,
+		string $storage_account,
+		string $container_id,
+		string $blob,
+		$contents,
+		string $content_type = null,
+		string $content_md5 = null,
+		string $cache_control = null
+	): array {
+		$headers = array(
+			'Authorization: Bearer ' . self::get_access_token( $entra_client_id ),
+			'x-ms-version: ' . self::BLOB_API_VERSION,
+			'x-ms-date: ' . \gmdate( 'D, d M Y H:i:s T', time() ),
+			'x-ms-blob-type: BlockBlob',
+		);
+
+		if ( $content_type ) {
+			$headers[] = 'x-ms-blob-content-type: ' . $content_type;
+		}
+		if ( $content_md5 ) {
+			$headers[] = 'x-ms-blob-content-md5: ' . $content_md5;
+		}
+		if ( $cache_control ) {
+			$headers[] = 'x-ms-blob-cache-control: ' . $cache_control;
+		}
 
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_NOBODY, true);
-        
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            throw new \RuntimeException("Error: getBlobProperties - cURL request failed: $error");
-        }
+		curl_setopt( $ch, CURLOPT_URL, 'https://' . $storage_account . '.blob.core.windows.net/' . $container_id . '/' . $blob );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'PUT' );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $contents );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, true );
 
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($httpCode != 200) {
-            throw new \RuntimeException("Error: getBlobProperties - HTTP request failed with status code $httpCode");
-        }
+		$response = curl_exec( $ch );
 
-        if (!$response) {
-            throw new \RuntimeException("Error: getBlobProperties - invalid response data: $response");
-        }
-        return self::parseHeaders($response);
-    }
-
-
-    public static function createBlockBlob($entra_client_id, $storage_account, $container, $blob, $contents, $content_type=null, $content_md5=null, $cache_control=null) {
-        $access_token = self::getAccessToken($entra_client_id);
-        $url = "https://$storage_account.blob.core.windows.net/$container/$blob";
-        $date = gmdate('D, d M Y H:i:s T', time());
-        
-		$headers = [
-            "Authorization: Bearer " . $access_token,
-            "x-ms-version: " . self::BLOB_API_VERSION,
-            "x-ms-date: $date",
-            "x-ms-blob-type: BlockBlob",
-        ];
-
-        if ($content_type) {
-            $headers[] = "x-ms-blob-content-type: $content_type";
-        }
-        if ($content_md5) {
-            $headers[] = "x-ms-blob-content-md5: $content_md5";
-        }
-        if ($cache_control) {
-            $headers[] = "x-ms-blob-cache-control: $cache_control";
-        }
-
-        $ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $contents);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            throw new \RuntimeException("Error: createBlockBlob - cURL request failed: $error");
-        }
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($httpCode != 201) {
-            throw new \RuntimeException("Error: createBlockBlob - HTTP request failed with status code $httpCode");
-        }
-
-        if (!$response) {
-            throw new \RuntimeException("Error: createBlockBlob - invalid response data: $response");
-        }
-        return self::parseHeaders($response);
-    }
-
-    
-    public static function deleteBlob($entra_client_id, $storage_account, $container, $blob) {
-        $access_token = self::getAccessToken($entra_client_id);
-        $url = "https://$storage_account.blob.core.windows.net/$container/$blob";
-        $date = gmdate('D, d M Y H:i:s T', time());
-        
-        $headers = [
-            "Authorization: Bearer " . $access_token,
-            "x-ms-version: " . self::BLOB_API_VERSION,
-            "x-ms-date: $date",
-        ];
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            throw new \RuntimeException("Error: deleteBlob - cURL request failed: $error");
-        }
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($httpCode != 202) {
-            throw new \RuntimeException("Error: deleteBlob - HTTP request failed with status code $httpCode");
-        }
-
-        if (!$response) {
-            throw new \RuntimeException("Error: deleteBlob - invalid response data: $response");
-        }
-        return self::parseHeaders($response);
-    }
-
-
-    public static function createContainer($entra_client_id, $storage_account, $container, $public_access_type='blob') {
-        $access_token = self::getAccessToken($entra_client_id);
-        $url = "https://$storage_account.blob.core.windows.net/$container?restype=container";
-        $date = gmdate('D, d M Y H:i:s T', time());
-        
-        $headers = [
-            "Authorization: Bearer " . $access_token,
-            "x-ms-version: " . self::BLOB_API_VERSION,
-            "x-ms-date: $date",
-            "Content-Length: 0",
-        ];
-
-        if ($public_access_type) {
-            $headers[] = "x-ms-blob-public-access: $public_access_type";
-        }
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            throw new \RuntimeException("Error: createContainer - cURL request failed: $error");
-        }
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($httpCode != 201) {
-            throw new \RuntimeException("Error: createContainer - HTTP request failed with status code $httpCode");
-        }
-
-        if (!$response) {
-            throw new \RuntimeException("Error: createContainer - invalid response data: $response");
-        }
-        return self::parseHeaders($response);
-    }
-
-
-    public static function listContainers($entra_client_id, $storage_account) {
-        $access_token = self::getAccessToken($entra_client_id);
-        $url = "https://$storage_account.blob.core.windows.net/?comp=list";
-        $date = gmdate('D, d M Y H:i:s T', time());
-        
-        $headers = [
-            "Authorization: Bearer " . $access_token,
-            "x-ms-version: " . self::BLOB_API_VERSION,
-            "x-ms-date: $date",
-        ];
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            throw new \RuntimeException("Error: listContainers - cURL request failed: $error");
-        }
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($httpCode != 200) {
-            throw new \RuntimeException("Error: listContainers - HTTP request failed with status code $httpCode");
-        }
-
-        if (!$response) {
-            throw new \RuntimeException("Error: listContainers - invalid response data: $response");
-        }
-
-        # Parse XML response to array
-        $xml = simplexml_load_string($response);
-        $json = json_encode($xml);
-        $response = json_decode($json,TRUE);        
-
-        $array_response=array();
-		if ( isset( $response['Containers'] ) && isset( $response['Containers']['Container'] ) ) {
-            $array_response=self::getArray($response['Containers']['Container']);
+		if ( curl_errno( $ch ) ) {
+			$error = curl_error( $ch );
+			curl_close( $ch );
+			throw new \RuntimeException( 'Error: create_block_blob - cURL request failed: ' . esc_html( $error ) );
 		}
-        return $array_response;
-    }
 
-    public static function getBlob($entra_client_id, $storage_account, $container, $blob) {
-        $access_token = self::getAccessToken($entra_client_id);
-        $url = "https://$storage_account.blob.core.windows.net/$container/$blob";
-        $date = gmdate('D, d M Y H:i:s T', time());
+		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
 
-        $headers = [
-            "Authorization Bearer " . $access_token,
-            "x-ms-version: " . self::BLOB_API_VERSION,
-            "x-ms-date: $date",
-        ];
+		if ( 201 !== $http_code ) {
+			throw new \RuntimeException( 'Error: create_block_blob - HTTP request failed with status code ' . esc_html( $http_code ) );
+		}
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_HEADER, true);
+		if ( empty( $response ) ) {
+			throw new \RuntimeException( 'Error: create_block_blob - invalid response data: ' . esc_html( $response ) );
+		}
+		return self::parse_header( $response );
+	}
 
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            throw new \RuntimeException("Error: getBlob - cURL request failed: $error");
-        }
+	/**
+	 * Delete blob.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $entra_client_id Entra ID.
+	 * @param string $storage_account Storage account name.
+	 * @param string $container_id    Container ID.
+	 * @param string $blob            Blob ID.
+	 * @return array
+	 * @throws \RuntimeException Runtine Exception.
+	 */
+	public static function delete_blob( string $entra_client_id, string $storage_account, string $container_id, string $blob ) {
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, 'https://' . $storage_account . '.blob.core.windows.net/' . $container_id . '/' . $blob );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'DELETE' );
+		curl_setopt(
+			$ch,
+			CURLOPT_HTTPHEADER,
+			array(
+				'Authorization: Bearer ' . self::get_access_token( $entra_client_id ),
+				'x-ms-version: ' . self::BLOB_API_VERSION,
+				'x-ms-date: ' . \gmdate( 'D, d M Y H:i:s T', time() ),
+			)
+		);
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, true );
 
-        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($httpCode != 200) {
-            throw new \RuntimeException("Error: getBlob - HTTP request failed with status code $httpCode");
-        }
+		$response = curl_exec( $ch );
 
-        if (!$response) {
-            throw new \RuntimeException("Error: getBlob - invalid response data: $response");
-        }
+		if ( curl_errno( $ch ) ) {
+			$error = curl_error( $ch );
+			curl_close( $ch );
+			throw new \RuntimeException( 'Error: delete_blob - cURL request failed: ' . esc_html( $error ) );
+		}
 
-        $header = substr($response, 0, $header_size);
-        $body = substr($response, $header_size);
-        $headers = self::parseHeaders($header);
+		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
 
-        $response = [
-            'headers' => $headers,
-            'data' => $body
-        ];
-        return $response;
-    }
+		if ( 202 !== $http_code ) {
+			throw new \RuntimeException( 'Error: delete_blob - HTTP request failed with status code ' . esc_html( $http_code ) );
+		}
 
-    public static function getArray($var)
-    {
-        if (is_null($var) || empty($var)) {
-            return array();
-        }
+		if ( empty( $response ) ) {
+			throw new \RuntimeException( 'Error: delete_blob - invalid response data: ' . esc_html( $response ) );
+		}
+		return self::parse_header( $response );
+	}
 
-        foreach ($var as $value) {
-            if (!is_array($value)) {
-                return array($var);
-            }
-            return $var;
-        }
-    }
+	/**
+	 * Create a storage container.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $entra_client_id    Entra ID.
+	 * @param string $storage_account    Storage account name.
+	 * @param string $container_id       Container ID.
+	 * @param string $public_access_type Public access type.
+	 * @return array
+	 * @throws \RuntimeException Runtine Exception.
+	 */
+	public static function create_container(
+		string $entra_client_id,
+		string $storage_account,
+		string $container_id,
+		string $public_access_type = 'blob'
+	): array {
+		$headers = array(
+			'Authorization: Bearer ' . self::get_access_token( $entra_client_id ),
+			'x-ms-version: ' . self::BLOB_API_VERSION,
+			'x-ms-date: ' . \gmdate( 'D, d M Y H:i:s T', time() ),
+			'Content-Length: 0',
+		);
 
-    public static function parseHeaders($header) {
-        $headers = [];
-        $header_text = substr($header, 0, strpos($header, "\r\n\r\n"));
-        $header_parts = explode("\r\n", $header_text);
-        foreach ($header_parts as $header) {
-            if (strpos($header, ':') !== false) {
-                $header_parts = explode(":", $header);
-                $headers[$header_parts[0]] = trim($header_parts[1]);
-            }
-        }
-        return $headers;
-    }
+		if ( $public_access_type ) {
+			$headers[] = "x-ms-blob-public-access: $public_access_type";
+		}
+
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, 'https://' . $storage_account . '.blob.core.windows.net/' . $container_id . '?restype=container' );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'PUT' );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, true );
+
+		$response = curl_exec( $ch );
+
+		if ( curl_errno( $ch ) ) {
+			$error = curl_error( $ch );
+			curl_close( $ch );
+			throw new \RuntimeException( 'Error: create_container - cURL request failed: ' . esc_html( $error ) );
+		}
+
+		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
+
+		if ( 201 !== $http_code ) {
+			throw new \RuntimeException( 'Error: create_container - HTTP request failed with status code: ' . esc_html( $http_code ) );
+		}
+
+		if ( empty( $response ) ) {
+			throw new \RuntimeException( 'Error: create_container - invalid response data: ' . esc_html( $response ) );
+		}
+		return self::parse_header( $response );
+	}
+
+	/**
+	 * List containers.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $entra_client_id Entra ID.
+	 * @param string $storage_account Storage account name.
+	 * @return array
+	 * @throws \RuntimeException Runtine Exception.
+	 */
+	public static function list_containers( string $entra_client_id, string $storage_account ): array {
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, 'https://' . $storage_account . '.blob.core.windows.net/?comp=list' );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt(
+			$ch,
+			CURLOPT_HTTPHEADER,
+			array(
+				'Authorization: Bearer ' . self::get_access_token( $entra_client_id ),
+				'x-ms-version: ' . self::BLOB_API_VERSION,
+				'x-ms-date: ' . \gmdate( 'D, d M Y H:i:s T', time() ),
+			)
+		);
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
+
+		$response = curl_exec( $ch );
+
+		if ( curl_errno( $ch ) ) {
+			$error = curl_error( $ch );
+			curl_close( $ch );
+			throw new \RuntimeException( 'Error: list_containers - cURL request failed: ' . esc_html( $error ) );
+		}
+
+		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
+
+		if ( 200 !== $http_code ) {
+			throw new \RuntimeException( 'Error: list_containers - HTTP request failed with status code: ' . esc_html( $http_code ) );
+		}
+
+		if ( empty( $response ) ) {
+			throw new \RuntimeException( 'Error: list_containers - Invalid response data: ' . esc_html( $response ) );
+		}
+
+		// Parse XML response to array.
+		$xml      = \simplexml_load_string( $response );
+		$json     = \json_encode( $xml );
+		$response = \json_decode( $json, true );
+
+		$array_response = array();
+
+		if ( ! empty( $response['Containers']['Container'] ) ) {
+			$array_response = self::get_array( $response['Containers']['Container'] );
+		}
+
+		return $array_response;
+	}
+
+	/**
+	 * Get blob.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $entra_client_id Entra ID.
+	 * @param string $storage_account Storage account name.
+	 * @param string $container_id    Container ID.
+	 * @param string $blob            Blob ID.
+	 * @return array
+	 * @throws \RuntimeException Runtine Exception.
+	 */
+	public static function get_blob( string $entra_client_id, string $storage_account, string $container_id, string $blob ): array {
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, 'https://' . $storage_account . '.blob.core.windows.net/' . $container_id . '/' . $blob );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt(
+			$ch,
+			CURLOPT_HTTPHEADER,
+			array(
+				'Authorization: Bearer ' . self::get_access_token( $entra_client_id ),
+				'x-ms-version: ' . self::BLOB_API_VERSION,
+				'x-ms-date: ' . \gmdate( 'D, d M Y H:i:s T', time() ),
+			)
+		);
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, true );
+		curl_setopt( $ch, CURLOPT_HEADER, true );
+
+		$response = curl_exec( $ch );
+		if ( curl_errno( $ch ) ) {
+			$error = curl_error( $ch );
+			curl_close( $ch );
+			throw new \RuntimeException( 'Error: get_blob - cURL request failed: ' . esc_html( $error ) );
+		}
+
+		$header_size = curl_getinfo( $ch, CURLINFO_HEADER_SIZE );
+		$http_code   = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
+
+		if ( 200 !== $http_code ) {
+			throw new \RuntimeException( 'Error: get_blob - HTTP request failed with status code: ' . esc_html( $http_code ) );
+		}
+
+		if ( empty( $response ) ) {
+			throw new \RuntimeException( 'Error: get_blob - Invalid response data: ' . esc_html( $response ) );
+		}
+
+		return array(
+			'headers' => self::parse_header( substr( $response, 0, $header_size ) ),
+			'data'    => substr( $response, $header_size ),
+		);
+	}
+
+	/**
+	 * Get array.
+	 *
+	 * @since  X.X.X
+	 * @access private
+	 *
+	 * @param mixed $var Variable used to get array.
+	 * @return array
+	 */
+	private static function get_array( $var ): array {
+		if ( empty( $var ) || ! is_array( $var ) ) {
+			return array();
+		}
+
+		foreach ( $var as $value ) {
+			if ( ! is_array( $value ) ) {
+				return array( $var );
+			}
+
+			return $var;
+		}
+	}
+
+	/**
+	 * Parse header from string to array.
+	 *
+	 * @since  X.X.X
+	 * @access private
+	 *
+	 * @param string $header Header.
+	 * @return array
+	 */
+	private static function parse_header( string $header ): array {
+		$headers      = array();
+		$header_text  = \substr( $header, 0, \strpos( $header, "\r\n\r\n" ) );
+		$header_parts = \explode( "\r\n", $header_text );
+
+		foreach ( $header_parts as $header ) {
+			if ( \strpos( $header, ':' ) !== false ) {
+				$header_parts                = explode( ':', $header );
+				$headers[ $header_parts[0] ] = trim( $header_parts[1] );
+			}
+		}
+
+		return $headers;
+	}
 }
-
-?>

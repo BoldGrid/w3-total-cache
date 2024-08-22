@@ -2,7 +2,14 @@
 /**
  * File: CdnEngine_Azure.php
  *
+ * Microsoft Azure Managed Identities are available only for services running on Azure when a "system assigned" identity is enabled.
+ *
+ * A system assigned managed identity is restricted to one per resource and is tied to the lifecycle of a resource.
+ * You can grant permissions to the managed identity by using Azure role-based access control (Azure RBAC).
+ * The managed identity is authenticated with Microsoft Entra ID, so you don’t have to store any credentials in code.
+ *
  * @package W3TC
+ * @since   X.X.X
  */
 
 namespace W3TC;
@@ -121,12 +128,16 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 		if ( !$force_rewrite ) {
 			try {
-				$p = CdnEngine_Azure_MI_Utility::getBlobProperties( $this->_config['clientid'],
-					$this->_config['user'], $this->_config['container'], $remote_path );
+				$p = CdnEngine_Azure_MI_Utility::get_blob_properties(
+					$this->_config['clientid'],
+					$this->_config['user'],
+					$this->_config['container'],
+					$remote_path
+				);
 				$local_size = @filesize( $local_path );
 
 				//check if Content-Length is available in $p array
-				if ( isset( $p['Content-Length']) && $local_size == $p['Content-Length'] 
+				if ( isset( $p['Content-Length']) && $local_size == $p['Content-Length']
 					&& isset( $p['Content-MD5']) && $content_md5 === $p['Content-MD5'] ) {
 					return $this->_get_result( $local_path, $remote_path,
 						W3TC_CDN_RESULT_OK, 'File up-to-date.', $file );
@@ -141,9 +152,17 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 			$contentType = isset($headers['Content-Type']) ? $headers['Content-Type'] : 'application/octet-stream';
 			$cacheControl = isset($headers['Cache-Control']) ? $headers['Cache-Control'] : '';
 
-			CdnEngine_Azure_MI_Utility::createBlockBlob( $this->_config['clientid'], $this->_config['user'], 
-				$this->_config['container'], $remote_path, $contents, $contentType, $content_md5, $cacheControl);
-			
+			CdnEngine_Azure_MI_Utility::create_block_blob(
+				$this->_config['clientid'],
+				$this->_config['user'],
+				$this->_config['container'],
+				$remote_path,
+				$contents,
+				$contentType,
+				$content_md5,
+				$cacheControl
+			);
+
 		} catch ( \Exception $exception ) {
 			return $this->_get_result( $local_path, $remote_path,
 				W3TC_CDN_RESULT_ERROR,
@@ -177,8 +196,11 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 			try {
 
-				CdnEngine_Azure_MI_Utility::deleteBlob( $this->_config['clientid'], $this->_config['user'], 
-					$this->_config['container'], $remote_path );
+				CdnEngine_Azure_MI_Utility::delete_blob(
+					$this->_config['clientid'],
+					$this->_config['user'],
+					$this->_config['container'], $remote_path
+				);
 				$results[] = $this->_get_result( $local_path, $remote_path,
 					W3TC_CDN_RESULT_OK, 'OK', $file );
 			} catch ( \Exception $exception ) {
@@ -210,8 +232,10 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		}
 
 		try {
-			$containers = CdnEngine_Azure_MI_Utility::listContainers( $this->_config['clientid'],
-				$this->_config['user']);
+			$containers = CdnEngine_Azure_MI_Utility::list_containers(
+				$this->_config['clientid'],
+				$this->_config['user']
+			);
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to list containers (%s).', $exception->getMessage() );
 
@@ -234,8 +258,12 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		}
 
 		try {
-			CdnEngine_Azure_MI_Utility::createBlockBlob( $this->_config['clientid'],
-				$this->_config['user'], $this->_config['container'],  $string, $string );
+			CdnEngine_Azure_MI_Utility::create_block_blob(
+				$this->_config['clientid'],
+				$this->_config['user'],
+				$this->_config['container'],
+				$string, $string
+			);
 
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to create blob (%s).', $exception->getMessage() );
@@ -243,8 +271,12 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		}
 
 		try {
-			$p = CdnEngine_Azure_MI_Utility::getBlobProperties( $this->_config['clientid'],
-				$this->_config['user'], $this->_config['container'], $string );
+			$p = CdnEngine_Azure_MI_Utility::get_blob_properties(
+				$this->_config['clientid'],
+				$this->_config['user'],
+				$this->_config['container'],
+				$string
+			);
 
 			$size = isset( $p['Content-Length']) ? $p['Content-Length'] : -1;
 			$md5 = isset( $p['Content-MD5']) ? $p['Content-MD5'] : '';
@@ -255,8 +287,12 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 		if ( $size != strlen( $string ) || $this->_get_content_md5( md5( $string ) ) != $md5 ) {
 			try {
-				CdnEngine_Azure_MI_Utility::deleteBlob( $this->_config['clientid'],
-					$this->_config['user'], $this->_config['container'], $string );
+				CdnEngine_Azure_MI_Utility::delete_blob(
+					$this->_config['clientid'],
+					$this->_config['user'],
+					$this->_config['container'],
+					$string
+				);
 
 			} catch ( \Exception $exception ) {
 			}
@@ -266,8 +302,12 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		}
 
 		try {
-			$blob_response = CdnEngine_Azure_MI_Utility::getBlob( $this->_config['clientid'],
-					$this->_config['user'], $this->_config['container'], $string );
+			$blob_response = CdnEngine_Azure_MI_Utility::get_blob(
+				$this->_config['clientid'],
+				$this->_config['user'],
+				$this->_config['container'],
+				$string
+			);
 
 			$data = isset( $blob_response['data'] ) ? $blob_response['data'] : '';
 		} catch ( \Exception $exception ) {
@@ -278,8 +318,12 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 		if ( $data != $string ) {
 			try {
-				CdnEngine_Azure_MI_Utility::deleteBlob( $this->_config['clientid'],
-					$this->_config['user'], $this->_config['container'], $string );
+				CdnEngine_Azure_MI_Utility::delete_blob(
+					$this->_config['clientid'],
+					$this->_config['user'],
+					$this->_config['container'],
+					$string
+				);
 			} catch ( \Exception $exception ) {
 			}
 
@@ -288,8 +332,12 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		}
 
 		try {
-			CdnEngine_Azure_MI_Utility::deleteBlob( $this->_config['clientid'],
-					$this->_config['user'], $this->_config['container'], $string );
+			CdnEngine_Azure_MI_Utility::delete_blob(
+				$this->_config['clientid'],
+				$this->_config['user'],
+				$this->_config['container'],
+				$string
+			);
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to delete blob (%s).', $exception->getMessage() );
 
@@ -339,8 +387,10 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		}
 
 		try {
-			$containers = CdnEngine_Azure_MI_Utility::listContainers( $this->_config['clientid'],
-				$this->_config['user']);
+			$containers = CdnEngine_Azure_MI_Utility::list_containers(
+				$this->_config['clientid'],
+				$this->_config['user']
+			);
 
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to list containers (%s).', $exception->getMessage() );
@@ -355,8 +405,11 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 		}
 
 		try {
-			CdnEngine_Azure_MI_Utility::createContainer( $this->_config['clientid'],
-				$this->_config['user'], $this->_config['container'] );
+			CdnEngine_Azure_MI_Utility::create_container(
+				$this->_config['clientid'],
+				$this->_config['user'],
+				$this->_config['container']
+			);
 
 			} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to create container: %s (%s)', $this->_config['container'], $exception->getMessage() );
