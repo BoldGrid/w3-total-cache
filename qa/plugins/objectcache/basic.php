@@ -47,8 +47,8 @@ switch ( $action ) {
 	case 'doubleGetFromCache':
 		$found1 = null;
 		$value1 = wp_cache_get( $_REQUEST['id'], $_REQUEST['group'], false, $found1 );
-		$found = null;
-		$value = wp_cache_get( $_REQUEST['id'], $_REQUEST['group'], false, $found );
+		$found  = null;
+		$value  = wp_cache_get( $_REQUEST['id'], $_REQUEST['group'], false, $found );
 		echo wp_json_encode(
 			array(
 				'value' => $value,

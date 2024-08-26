@@ -1,8 +1,16 @@
 <?php
+/**
+ * File: ObjectCache_WpObjectCache_Regular.php
+ *
+ * @package W3TC
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore, PSR2.Methods.MethodDeclaration.Underscore
+ */
+
 namespace W3TC;
 
 /**
- * W3 Object Cache object
+ * W3 Object Cache Regular object
  */
 class ObjectCache_WpObjectCache_Regular {
 	/**
@@ -28,17 +36,30 @@ class ObjectCache_WpObjectCache_Regular {
 
 	/**
 	 * Total count of calls
+	 *
+	 * @var integer
 	 */
 	private $cache_total = 0;
 
 	/**
 	 * Cache hits count
+	 *
+	 * @var integer
 	 */
 	private $cache_hits = 0;
+
 	/**
 	 * Number of flushes
+	 *
+	 * @var integer
 	 */
 	private $cache_flushes = 0;
+
+	/**
+	 * Number of cache sets
+	 *
+	 * @var integer
+	 */
 	private $cache_sets = 0;
 
 	/**
@@ -48,6 +69,11 @@ class ObjectCache_WpObjectCache_Regular {
 	 */
 	private $time_total = 0;
 
+	/**
+	 * Log filehande
+	 *
+	 * @var boolean
+	 */
 	private $log_filehandle = false;
 
 	/**
@@ -59,6 +85,8 @@ class ObjectCache_WpObjectCache_Regular {
 
 	/**
 	 * Config
+	 *
+	 * @var object
 	 */
 	private $_config = null;
 
@@ -103,20 +131,25 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @var boolean
 	 */
 	private $_debug = false;
+
+	/**
+	 * Stats enabled flag
+	 *
+	 * @var boolean
+	 */
 	private $stats_enabled = false;
 
 	/**
 	 * PHP5 style constructor
 	 */
-	function __construct() {
-		$this->_config = Dispatcher::config();
-		$this->_lifetime = $this->_config->get_integer( 'objectcache.lifetime' );
-		$this->_debug = $this->_config->get_boolean( 'objectcache.debug' );
-		$this->_caching = $this->_can_cache();
-		$this->global_groups = $this->_config->get_array( 'objectcache.groups.global' );
-		$this->nonpersistent_groups = $this->_config->get_array(
-			'objectcache.groups.nonpersistent' );
-		$this->stats_enabled = $this->_config->get_boolean( 'stats.enabled' );
+	public function __construct() {
+		$this->_config              = Dispatcher::config();
+		$this->_lifetime            = $this->_config->get_integer( 'objectcache.lifetime' );
+		$this->_debug               = $this->_config->get_boolean( 'objectcache.debug' );
+		$this->_caching             = $this->_can_cache();
+		$this->global_groups        = $this->_config->get_array( 'objectcache.groups.global' );
+		$this->nonpersistent_groups = $this->_config->get_array( 'objectcache.groups.nonpersistent' );
+		$this->stats_enabled        = $this->_config->get_boolean( 'stats.enabled' );
 
 		$this->_blog_id = Util_Environment::blog_id();
 	}
@@ -124,11 +157,14 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Get from the cache
 	 *
-	 * @param string  $id
-	 * @param string  $group
+	 * @param string    $id    ID.
+	 * @param string    $group Group.
+	 * @param bool      $force Force.
+	 * @param bool|null $found Found.
+	 *
 	 * @return mixed
 	 */
-	function get( $id, $group = 'default', $force = false, &$found = null ) {
+	public function get( $id, $group = 'default', $force = false, &$found = null ) {
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
@@ -137,23 +173,26 @@ class ObjectCache_WpObjectCache_Regular {
 			$group = 'default';
 		}
 
-		$key = $this->_get_cache_key( $id, $group );
-		$in_incall_cache = isset( $this->cache[$key] );
-		$fallback_used = false;
+		$key             = $this->_get_cache_key( $id, $group );
+		$in_incall_cache = isset( $this->cache[ $key ] );
+		$fallback_used   = false;
 
 		$cache_total_inc = 0;
-		$cache_hits_inc = 0;
+		$cache_hits_inc  = 0;
 
-		if ( $in_incall_cache && !$force ) {
+		if ( $in_incall_cache && ! $force ) {
 			$found = true;
-			$value = $this->cache[$key];
-		} elseif ( $this->_caching &&
-			!in_array( $group, $this->nonpersistent_groups ) &&
-			$this->_check_can_cache_runtime( $group ) ) {
+			$value = $this->cache[ $key ];
+		} elseif (
+			$this->_caching
+				&& ! in_array( $group, $this->nonpersistent_groups, true )
+				&& $this->_check_can_cache_runtime( $group )
+		) {
 			$cache = $this->_get_cache( null, $group );
-			$v = $cache->get( $key, $group );
+			$v     = $cache->get( $key, $group );
 
-			/* for debugging
+			/* // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+				For debugging
 				$a = $cache->_get_with_old_raw( $key );
 				$path = $cache->get_full_path( $key);
 				$returned = 'x ' . $path . ' ' .
@@ -165,12 +204,12 @@ class ObjectCache_WpObjectCache_Regular {
 
 			if (
 				is_array( $v )
-				&& isset( $v['content'] )
-				&& isset( $v['key_version_all'] )
-				&& intval( $v['key_version_all'] ) >= $this->key_version_all_get()
+					&& isset( $v['content'] )
+					&& isset( $v['key_version_all'] )
+					&& intval( $v['key_version_all'] ) >= $this->key_version_all_get()
 			) {
-				$found = true;
-				$value = $v['content'];
+				$found          = true;
+				$value          = $v['content'];
 				$cache_hits_inc = 1;
 			} else {
 				$found = false;
@@ -181,7 +220,7 @@ class ObjectCache_WpObjectCache_Regular {
 			$value = false;
 		}
 
-		if ( $value === null ) {
+		if ( null === $value ) {
 			$value = false;
 		}
 
@@ -189,40 +228,40 @@ class ObjectCache_WpObjectCache_Regular {
 			$value = clone $value;
 		}
 
-		if ( !$found &&
-			$this->_is_transient_group( $group ) &&
-			$this->_config->get_boolean( 'objectcache.fallback_transients' ) ) {
+		if (
+			! $found
+				&& $this->_is_transient_group( $group )
+				&& $this->_config->get_boolean( 'objectcache.fallback_transients' )
+		) {
 			$fallback_used = true;
-			$value = $this->_transient_fallback_get( $id, $group );
-			$found = ( $value !== false );
+			$value         = $this->_transient_fallback_get( $id, $group );
+			$found         = ( false !== $value );
 		}
 
-		if ( $found ) {
-			if ( !$in_incall_cache ) {
-				$this->cache[$key] = $value;
-			}
+		if ( $found && ! $in_incall_cache ) {
+			$this->cache[ $key ] = $value;
 		}
 
 		/**
 		 * Add debug info
 		 */
-		if ( !$in_incall_cache ) {
+		if ( ! $in_incall_cache ) {
 			$this->cache_total += $cache_total_inc;
-			$this->cache_hits += $cache_hits_inc;
+			$this->cache_hits  += $cache_hits_inc;
 
 			if ( $this->_debug || $this->stats_enabled ) {
-				$time = Util_Debug::microtime() - $time_start;
+				$time              = Util_Debug::microtime() - $time_start;
 				$this->time_total += $time;
 
 				if ( $this->_debug ) {
 					if ( $fallback_used ) {
-						if ( !$found ) {
+						if ( ! $found ) {
 							$returned = 'not in db';
 						} else {
 							$returned = 'from db fallback';
 						}
 					} else {
-						if ( !$found ) {
+						if ( ! $found ) {
 							if ( $cache_total_inc <= 0 ) {
 								$returned = 'not tried cache';
 							} else {
@@ -233,15 +272,17 @@ class ObjectCache_WpObjectCache_Regular {
 						}
 					}
 
-					$this->log_call( array(
-						date( 'r' ),
-						'get',
-						$group,
-						$id,
-						$returned,
-						( $value ? strlen( serialize( $value ) ) : 0 ),
-						(int)($time * 1000000)
-					) );
+					$this->log_call(
+						array(
+							gmdate( 'r' ),
+							'get',
+							$group,
+							$id,
+							$returned,
+							( $value ? strlen( serialize( $value ) ) : 0 ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+							(int) ( $time * 1000000 ),
+						)
+					);
 				}
 			}
 		}
@@ -254,7 +295,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 *
 	 * @since 2.2.8
 	 *
-	 * @param array $ids   IDs.
+	 * @param array  $ids   IDs.
 	 * @param string $group Group.
 	 * @param bool   $force Force flag.
 	 *
@@ -262,22 +303,25 @@ class ObjectCache_WpObjectCache_Regular {
 	 */
 	public function get_multiple( $ids, $group = 'default', $force = false ) {
 		$found_cache = array();
+
 		foreach ( $ids as $id ) {
 			$found_cache[ $id ] = $this->get( $id, $group, $force );
 		}
+
 		return $found_cache;
 	}
 
 	/**
 	 * Set to the cache
 	 *
-	 * @param string  $id
-	 * @param mixed   $data
-	 * @param string  $group
-	 * @param integer $expire
+	 * @param string  $id     ID.
+	 * @param mixed   $data   Data.
+	 * @param string  $group  Group.
+	 * @param integer $expire Expire.
+	 *
 	 * @return boolean
 	 */
-	function set( $id, $data, $group = 'default', $expire = 0 ) {
+	public function set( $id, $data, $group = 'default', $expire = 0 ) {
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
@@ -292,22 +336,23 @@ class ObjectCache_WpObjectCache_Regular {
 			$data = clone $data;
 		}
 
-		$this->cache[$key] = $data;
-		$return = true;
-		$ext_return = NULL;
-		$cache_sets_inc = 0;
+		$this->cache[ $key ] = $data;
+		$return              = true;
+		$ext_return          = null;
+		$cache_sets_inc      = 0;
 
-		if ( $this->_caching &&
-			!in_array( $group, $this->nonpersistent_groups ) &&
-			$this->_check_can_cache_runtime( $group ) ) {
+		if (
+			$this->_caching
+				&& ! in_array( $group, $this->nonpersistent_groups, true )
+				&& $this->_check_can_cache_runtime( $group )
+		) {
 			$cache = $this->_get_cache( null, $group );
 
-			if ( $id == 'alloptions' && $group == 'options' ) {
-				// alloptions are deserialized on the start when some classes are not loaded yet
-				// so postpone it until requested
+			if ( 'alloptions' === $id && 'options' === $group ) {
+				// alloptions are deserialized on the start when some classes are not loaded yet so postpone it until requested.
 				foreach ( $data as $k => $v ) {
 					if ( is_object( $v ) ) {
-						$data[$k] = serialize( $v );
+						$data[ $k ] = serialize( $v ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 					}
 				}
 			}
@@ -340,21 +385,23 @@ class ObjectCache_WpObjectCache_Regular {
 			if ( $this->_debug ) {
 				if ( is_null( $ext_return ) ) {
 					$reason = 'not set ' . $this->cache_reject_reason;
-				} else if ( $ext_return ) {
-					 $reason = 'put in cache';
+				} elseif ( $ext_return ) {
+					$reason = 'put in cache';
 				} else {
 					$reason = 'failed';
 				}
 
-				$this->log_call( array(
-					date( 'r' ),
-					'set',
-					$group,
-					$id,
-					$reason,
-					( $data ? strlen( serialize( $data ) ) : 0 ),
-					(int)($time * 1000000)
-				) );
+				$this->log_call(
+					array(
+						gmdate( 'r' ),
+						'set',
+						$group,
+						$id,
+						$reason,
+						( $data ? strlen( serialize( $data ) ) : 0 ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+						(int) ( $time * 1000000 ),
+					)
+				);
 			}
 		}
 
@@ -385,23 +432,24 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Delete from the cache
 	 *
-	 * @param string  $id
-	 * @param string  $group
-	 * @param bool    $force
+	 * @param string $id    ID.
+	 * @param string $group Group.
+	 * @param bool   $force Force.
+	 *
 	 * @return boolean
 	 */
-	function delete( $id, $group = 'default', $force = false ) {
-		if ( !$force && $this->get( $id, $group ) === false ) {
+	public function delete( $id, $group = 'default', $force = false ) {
+		if ( ! $force && $this->get( $id, $group ) === false ) {
 			return false;
 		}
 
 		$key    = $this->_get_cache_key( $id, $group );
 		$return = true;
 
-		unset( $this->cache[$key] );
+		unset( $this->cache[ $key ] );
 
-		if ( $this->_caching && !in_array( $group, $this->nonpersistent_groups ) ) {
-			$cache = $this->_get_cache( null, $group );
+		if ( $this->_caching && ! in_array( $group, $this->nonpersistent_groups, true ) ) {
+			$cache  = $this->_get_cache( null, $group );
 			$return = $cache->delete( $key, $group );
 		}
 
@@ -411,15 +459,17 @@ class ObjectCache_WpObjectCache_Regular {
 		}
 
 		if ( $this->_debug ) {
-			$this->log_call( array(
-				date( 'r' ),
-				'delete',
-				$group,
-				$id,
-				( $return ? 'deleted' : 'discarded' ),
-				0,
-				0
-			) );
+			$this->log_call(
+				array(
+					gmdate( 'r' ),
+					'delete',
+					$group,
+					$id,
+					( $return ? 'deleted' : 'discarded' ),
+					0,
+					0,
+				)
+			);
 		}
 
 		return $return;
@@ -447,13 +497,14 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Add to the cache
 	 *
-	 * @param string  $id
-	 * @param mixed   $data
-	 * @param string  $group
-	 * @param integer $expire
+	 * @param string  $id     ID.
+	 * @param mixed   $data   Data.
+	 * @param string  $group  Group.
+	 * @param integer $expire Expire.
+	 *
 	 * @return boolean
 	 */
-	function add( $id, $data, $group = 'default', $expire = 0 ) {
+	public function add( $id, $data, $group = 'default', $expire = 0 ) {
 		if ( $this->get( $id, $group ) !== false ) {
 			return false;
 		}
@@ -485,13 +536,14 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Replace in the cache
 	 *
-	 * @param string  $id
-	 * @param mixed   $data
-	 * @param string  $group
-	 * @param integer $expire
+	 * @param string  $id     ID.
+	 * @param mixed   $data   Data.
+	 * @param string  $group  Group.
+	 * @param integer $expire Expire.
+	 *
 	 * @return boolean
 	 */
-	function replace( $id, $data, $group = 'default', $expire = 0 ) {
+	public function replace( $id, $data, $group = 'default', $expire = 0 ) {
 		if ( $this->get( $id, $group ) === false ) {
 			return false;
 		}
@@ -502,18 +554,20 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Reset keys
 	 *
-	 * @return boolean
+	 * @return void
 	 */
-	function reset() {
+	public function reset() {
 		$this->flush_runtime();
 	}
 
 	/**
 	 * Flush cache
 	 *
+	 * @param string $reason Reason.
+	 *
 	 * @return boolean
 	 */
-	function flush( $reason = '' ) {
+	public function flush( $reason = '' ) {
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
@@ -543,15 +597,17 @@ class ObjectCache_WpObjectCache_Regular {
 			$this->time_total += $time;
 
 			if ( $this->_debug ) {
-				$this->log_call( array(
-					date( 'r' ),
-					'flush',
-					'',
-					'',
-					$reason,
-					0,
-					(int)($time * 1000000)
-				) );
+				$this->log_call(
+					array(
+						gmdate( 'r' ),
+						'flush',
+						'',
+						'',
+						$reason,
+						0,
+						(int) ( $time * 1000000 ),
+					)
+				);
 			}
 		}
 
@@ -590,6 +646,8 @@ class ObjectCache_WpObjectCache_Regular {
 
 	/**
 	 * Flush group.
+	 *
+	 * @param string $group Group.
 	 *
 	 * @return boolean
 	 */
@@ -631,7 +689,7 @@ class ObjectCache_WpObjectCache_Regular {
 			if ( $this->_debug ) {
 				$this->log_call(
 					array(
-						date( 'r' ),
+						gmdate( 'r' ),
 						'flush_group',
 						'',
 						'',
@@ -649,11 +707,12 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Add global groups
 	 *
-	 * @param array   $groups
+	 * @param array $groups Groups.
+	 *
 	 * @return void
 	 */
-	function add_global_groups( $groups ) {
-		if ( !is_array( $groups ) ) {
+	public function add_global_groups( $groups ) {
+		if ( ! is_array( $groups ) ) {
 			$groups = (array) $groups;
 		}
 
@@ -664,11 +723,12 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Add non-persistent groups
 	 *
-	 * @param array   $groups
+	 * @param array $groups Groups.
+	 *
 	 * @return void
 	 */
-	function add_nonpersistent_groups( $groups ) {
-		if ( !is_array( $groups ) ) {
+	public function add_nonpersistent_groups( $groups ) {
+		if ( ! is_array( $groups ) ) {
 			$groups = (array) $groups;
 		}
 
@@ -679,88 +739,117 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Increment numeric cache item's value
 	 *
-	 * @param int|string $key    The cache key to increment
-	 * @param int     $offset The amount by which to increment the item's value. Default is 1.
-	 * @param string  $group  The group the key is in.
+	 * @param int|string $key    The cache key to increment.
+	 * @param int        $offset The amount by which to increment the item's value. Default is 1.
+	 * @param string     $group  The group the key is in.
+	 *
 	 * @return bool|int False on failure, the item's new value on success.
 	 */
-	function incr( $key, $offset = 1, $group = 'default' ) {
+	public function incr( $key, $offset = 1, $group = 'default' ) {
 		$value = $this->get( $key, $group );
-		if ( $value === false )
-			return false;
 
-		if ( !is_numeric( $value ) )
+		if ( false === $value ) {
+			return false;
+		}
+
+		if ( ! is_numeric( $value ) ) {
 			$value = 0;
+		}
 
 		$offset = (int) $offset;
 		$value += $offset;
 
-		if ( $value < 0 )
+		if ( $value < 0 ) {
 			$value = 0;
+		}
+
 		$this->replace( $key, $value, $group );
+
 		return $value;
 	}
 
 	/**
 	 * Decrement numeric cache item's value
 	 *
-	 * @param int|string $key    The cache key to increment
-	 * @param int     $offset The amount by which to decrement the item's value. Default is 1.
-	 * @param string  $group  The group the key is in.
+	 * @param int|string $key    The cache key to increment.
+	 * @param int        $offset The amount by which to decrement the item's value. Default is 1.
+	 * @param string     $group  The group the key is in.
+	 *
 	 * @return bool|int False on failure, the item's new value on success.
 	 */
-	function decr( $key, $offset = 1, $group = 'default' ) {
+	public function decr( $key, $offset = 1, $group = 'default' ) {
 		$value = $this->get( $key, $group );
-		if ( $value === false )
-			return false;
 
-		if ( !is_numeric( $value ) )
+		if ( false === $value ) {
+			return false;
+		}
+
+		if ( ! is_numeric( $value ) ) {
 			$value = 0;
+		}
 
 		$offset = (int) $offset;
 		$value -= $offset;
 
-		if ( $value < 0 )
+		if ( $value < 0 ) {
 			$value = 0;
+		}
+
 		$this->replace( $key, $value, $group );
+
 		return $value;
 	}
 
+	/**
+	 * Get transient fallback
+	 *
+	 * @param string $transient Transient key.
+	 * @param string $group     The group the key is in.
+	 *
+	 * @return bool|int False on failure, the item's new value on success.
+	 */
 	private function _transient_fallback_get( $transient, $group ) {
-		if ( $group == 'transient' ) {
+		if ( 'transient' === $group ) {
 			$transient_option = '_transient_' . $transient;
-			if ( function_exists( 'wp_installing') && ! wp_installing() ) {
-				// If option is not in alloptions, it is not autoloaded and thus has a timeout
+
+			if ( function_exists( 'wp_installing' ) && ! wp_installing() ) {
+				// If option is not in alloptions, it is not autoloaded and thus has a timeout.
 				$alloptions = wp_load_alloptions();
-				if ( !isset( $alloptions[$transient_option] ) ) {
+
+				if ( ! isset( $alloptions[ $transient_option ] ) ) {
 					$transient_timeout = '_transient_timeout_' . $transient;
-					$timeout = get_option( $transient_timeout );
+					$timeout           = get_option( $transient_timeout );
+
 					if ( false !== $timeout && $timeout < time() ) {
-						delete_option( $transient_option  );
+						delete_option( $transient_option );
 						delete_option( $transient_timeout );
 						$value = false;
 					}
 				}
 			}
 
-			if ( ! isset( $value ) )
+			if ( ! isset( $value ) ) {
 				$value = get_option( $transient_option );
-		} elseif ( $group == 'site-transient' ) {
+			}
+		} elseif ( 'site-transient' === $group ) {
 			// Core transients that do not have a timeout. Listed here so querying timeouts can be avoided.
-			$no_timeout = array('update_core', 'update_plugins', 'update_themes');
+			$no_timeout       = array( 'update_core', 'update_plugins', 'update_themes' );
 			$transient_option = '_site_transient_' . $transient;
-			if ( ! in_array( $transient, $no_timeout ) ) {
+
+			if ( ! in_array( $transient, $no_timeout, true ) ) {
 				$transient_timeout = '_site_transient_timeout_' . $transient;
-				$timeout = get_site_option( $transient_timeout );
+				$timeout           = get_site_option( $transient_timeout );
+
 				if ( false !== $timeout && $timeout < time() ) {
-					delete_site_option( $transient_option  );
+					delete_site_option( $transient_option );
 					delete_site_option( $transient_timeout );
 					$value = false;
 				}
 			}
 
-			if ( ! isset( $value ) )
+			if ( ! isset( $value ) ) {
 				$value = get_site_option( $transient_option );
+			}
 		} else {
 			$value = false;
 		}
@@ -768,26 +857,47 @@ class ObjectCache_WpObjectCache_Regular {
 		return $value;
 	}
 
+	/**
+	 * Delete transient fallback
+	 *
+	 * @param string $transient Transient key.
+	 * @param string $group     The group the key is in.
+	 *
+	 * @return void
+	 */
 	private function _transient_fallback_delete( $transient, $group ) {
-		if ( $group == 'transient' ) {
+		if ( 'transient' === $group ) {
 			$option_timeout = '_transient_timeout_' . $transient;
-			$option = '_transient_' . $transient;
-			$result = delete_option( $option );
-			if ( $result )
+			$option         = '_transient_' . $transient;
+			$result         = delete_option( $option );
+
+			if ( $result ) {
 				delete_option( $option_timeout );
-		} elseif ( $group == 'site-transient' ) {
+			}
+		} elseif ( 'site-transient' === $group ) {
 			$option_timeout = '_site_transient_timeout_' . $transient;
-			$option = '_site_transient_' . $transient;
-			$result = delete_site_option( $option );
-			if ( $result )
+			$option         = '_site_transient_' . $transient;
+			$result         = delete_site_option( $option );
+			if ( $result ) {
 				delete_site_option( $option_timeout );
+			}
 		}
 	}
 
+	/**
+	 * Set transient fallback
+	 *
+	 * @param string    $transient Transient key.
+	 * @param mixed     $value     Transient value.
+	 * @param string    $group     The group the key is in.
+	 * @param bool|null $expiration Expiration.
+	 *
+	 * @return void
+	 */
 	private function _transient_fallback_set( $transient, $value, $group, $expiration ) {
-		if ( $group == 'transient' ) {
+		if ( 'transient' === $group ) {
 			$transient_timeout = '_transient_timeout_' . $transient;
-			$transient_option = '_transient_' . $transient;
+			$transient_option  = '_transient_' . $transient;
 			if ( false === get_option( $transient_option ) ) {
 				$autoload = 'yes';
 				if ( $expiration ) {
@@ -813,16 +923,21 @@ class ObjectCache_WpObjectCache_Regular {
 					$result = update_option( $transient_option, $value );
 				}
 			}
-		} elseif ( $group == 'site-transient' ) {
+		} elseif ( 'site-transient' === $group ) {
 			$transient_timeout = '_site_transient_timeout_' . $transient;
-			$option = '_site_transient_' . $transient;
+			$option            = '_site_transient_' . $transient;
+
 			if ( false === get_site_option( $option ) ) {
-				if ( $expiration )
+				if ( $expiration ) {
 					add_site_option( $transient_timeout, time() + $expiration );
+				}
+
 				$result = add_site_option( $option, $value );
 			} else {
-				if ( $expiration )
+				if ( $expiration ) {
 					update_site_option( $transient_timeout, time() + $expiration );
+				}
+
 				$result = update_site_option( $option, $value );
 			}
 		}
@@ -831,9 +946,11 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Switches context to another blog
 	 *
-	 * @param integer $blog_id
+	 * @param integer $blog_id Blog ID.
+	 *
+	 * @return void
 	 */
-	function switch_blog( $blog_id ) {
+	public function switch_blog( $blog_id ) {
 		$this->reset();
 		$this->_blog_id = $blog_id;
 	}
@@ -876,122 +993,133 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Returns cache key
 	 *
-	 * @param string  $id
-	 * @param string  $group
+	 * @param string $id    ID.
+	 * @param string $group Group.
+	 *
 	 * @return string
 	 */
-	function _get_cache_key( $id, $group = 'default' ) {
-		if ( !$group ) {
+	private function _get_cache_key( $id, $group = 'default' ) {
+		if ( ! $group ) {
 			$group = 'default';
 		}
 
 		$blog_id = $this->_blog_id;
-		if ( in_array( $group, $this->global_groups ) )
+
+		if ( in_array( $group, $this->global_groups, true ) ) {
 			$blog_id = 0;
+		}
 
 		return $blog_id . $group . $id;
 	}
 
+	/**
+	 * Get usage statistics cache config.
+	 *
+	 * @return array
+	 */
 	public function get_usage_statistics_cache_config() {
 		$engine = $this->_config->get_string( 'objectcache.engine' );
 
 		switch ( $engine ) {
-		case 'memcached':
-			$engineConfig = array(
-				'servers' => $this->_config->get_array( 'objectcache.memcached.servers' ),
-				'persistent' => $this->_config->get_boolean( 'objectcache.memcached.persistent' ),
-				'aws_autodiscovery' => $this->_config->get_boolean( 'objectcache.memcached.aws_autodiscovery' ),
-				'username' => $this->_config->get_string( 'objectcache.memcached.username' ),
-				'password' => $this->_config->get_string( 'objectcache.memcached.password' ),
-				'binary_protocol' => $this->_config->get_boolean( 'objectcache.memcached.binary_protocol' )
-			);
-			break;
+			case 'memcached':
+				$engine_config = array(
+					'servers'           => $this->_config->get_array( 'objectcache.memcached.servers' ),
+					'persistent'        => $this->_config->get_boolean( 'objectcache.memcached.persistent' ),
+					'aws_autodiscovery' => $this->_config->get_boolean( 'objectcache.memcached.aws_autodiscovery' ),
+					'username'          => $this->_config->get_string( 'objectcache.memcached.username' ),
+					'password'          => $this->_config->get_string( 'objectcache.memcached.password' ),
+					'binary_protocol'   => $this->_config->get_boolean( 'objectcache.memcached.binary_protocol' ),
+				);
+				break;
 
-		case 'redis':
-			$engineConfig = array(
-				'servers' => $this->_config->get_array( 'objectcache.redis.servers' ),
-				'verify_tls_certificates' => $this->_config->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
-				'persistent' => $this->_config->get_boolean( 'objectcache.redis.persistent' ),
-				'timeout' => $this->_config->get_integer( 'objectcache.redis.timeout' ),
-				'retry_interval' => $this->_config->get_integer( 'objectcache.redis.retry_interval' ),
-				'read_timeout' => $this->_config->get_integer( 'objectcache.redis.read_timeout' ),
-				'dbid' => $this->_config->get_integer( 'objectcache.redis.dbid' ),
-				'password' => $this->_config->get_string( 'objectcache.redis.password' )
-			);
-			break;
+			case 'redis':
+				$engine_config = array(
+					'servers'                 => $this->_config->get_array( 'objectcache.redis.servers' ),
+					'verify_tls_certificates' => $this->_config->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
+					'persistent'              => $this->_config->get_boolean( 'objectcache.redis.persistent' ),
+					'timeout'                 => $this->_config->get_integer( 'objectcache.redis.timeout' ),
+					'retry_interval'          => $this->_config->get_integer( 'objectcache.redis.retry_interval' ),
+					'read_timeout'            => $this->_config->get_integer( 'objectcache.redis.read_timeout' ),
+					'dbid'                    => $this->_config->get_integer( 'objectcache.redis.dbid' ),
+					'password'                => $this->_config->get_string( 'objectcache.redis.password' ),
+				);
+				break;
 
-		default:
-			$engineConfig = array();
+			default:
+				$engine_config = array();
 		}
 
-		$engineConfig['engine'] = $engine;
-		return $engineConfig;
+		$engine_config['engine'] = $engine;
+
+		return $engine_config;
 	}
 
 	/**
 	 * Returns cache object
 	 *
-	 * @param int|null $blog_id
-	 * @param string  $group
+	 * @param int|null $blog_id Blog ID.
+	 * @param string   $group   Group.
+	 *
 	 * @return W3_Cache_Base
 	 */
-	function _get_cache( $blog_id = null, $group = '' ) {
+	private function _get_cache( $blog_id = null, $group = '' ) {
 		static $cache = array();
 
-		if ( is_null( $blog_id ) && !in_array( $group, $this->global_groups ) )
+		if ( is_null( $blog_id ) && ! in_array( $group, $this->global_groups, true ) ) {
 			$blog_id = $this->_blog_id;
-		elseif ( is_null( $blog_id ) )
+		} elseif ( is_null( $blog_id ) ) {
 			$blog_id = 0;
+		}
 
-		if ( !isset( $cache[$blog_id] ) ) {
+		if ( ! isset( $cache[ $blog_id ] ) ) {
 			$engine = $this->_config->get_string( 'objectcache.engine' );
 
 			switch ( $engine ) {
-			case 'memcached':
-				$engineConfig = array(
-					'servers' => $this->_config->get_array( 'objectcache.memcached.servers' ),
-					'persistent' => $this->_config->get_boolean(
-						'objectcache.memcached.persistent' ),
-					'aws_autodiscovery' => $this->_config->get_boolean( 'objectcache.memcached.aws_autodiscovery' ),
-					'username' => $this->_config->get_string( 'objectcache.memcached.username' ),
-					'password' => $this->_config->get_string( 'objectcache.memcached.password' ),
-					'binary_protocol' => $this->_config->get_boolean( 'objectcache.memcached.binary_protocol' )
-				);
-				break;
+				case 'memcached':
+					$engine_config = array(
+						'servers'           => $this->_config->get_array( 'objectcache.memcached.servers' ),
+						'persistent'        => $this->_config->get_boolean( 'objectcache.memcached.persistent' ),
+						'aws_autodiscovery' => $this->_config->get_boolean( 'objectcache.memcached.aws_autodiscovery' ),
+						'username'          => $this->_config->get_string( 'objectcache.memcached.username' ),
+						'password'          => $this->_config->get_string( 'objectcache.memcached.password' ),
+						'binary_protocol'   => $this->_config->get_boolean( 'objectcache.memcached.binary_protocol' ),
+					);
+					break;
 
-			case 'redis':
-				$engineConfig = array(
-					'servers' => $this->_config->get_array( 'objectcache.redis.servers' ),
-					'verify_tls_certificates' => $this->_config->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
-					'persistent' => $this->_config->get_boolean( 'objectcache.redis.persistent' ),
-					'timeout' => $this->_config->get_integer( 'objectcache.redis.timeout' ),
-					'retry_interval' => $this->_config->get_integer( 'objectcache.redis.retry_interval' ),
-					'read_timeout' => $this->_config->get_integer( 'objectcache.redis.read_timeout' ),
-					'dbid' => $this->_config->get_integer( 'objectcache.redis.dbid' ),
-					'password' => $this->_config->get_string( 'objectcache.redis.password' )
-				);
-				break;
+				case 'redis':
+					$engine_config = array(
+						'servers'                 => $this->_config->get_array( 'objectcache.redis.servers' ),
+						'verify_tls_certificates' => $this->_config->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
+						'persistent'              => $this->_config->get_boolean( 'objectcache.redis.persistent' ),
+						'timeout'                 => $this->_config->get_integer( 'objectcache.redis.timeout' ),
+						'retry_interval'          => $this->_config->get_integer( 'objectcache.redis.retry_interval' ),
+						'read_timeout'            => $this->_config->get_integer( 'objectcache.redis.read_timeout' ),
+						'dbid'                    => $this->_config->get_integer( 'objectcache.redis.dbid' ),
+						'password'                => $this->_config->get_string( 'objectcache.redis.password' ),
+					);
+					break;
 
-			case 'file':
-				$engineConfig = array(
-					'section' => 'object',
-					'locking' => $this->_config->get_boolean( 'objectcache.file.locking' ),
-					'flush_timelimit' => $this->_config->get_integer( 'timelimit.cache_flush' )
-				);
-				break;
+				case 'file':
+					$engine_config = array(
+						'section'         => 'object',
+						'locking'         => $this->_config->get_boolean( 'objectcache.file.locking' ),
+						'flush_timelimit' => $this->_config->get_integer( 'timelimit.cache_flush' ),
+					);
+					break;
 
-			default:
-				$engineConfig = array();
+				default:
+					$engine_config = array();
 			}
-			$engineConfig['blog_id'] = $blog_id;
-			$engineConfig['module'] = 'object';
-			$engineConfig['host'] = Util_Environment::host();
-			$engineConfig['instance_id'] = Util_Environment::instance_id();
 
-			$cache[$blog_id] = Cache::instance( $engine, $engineConfig );
+			$engine_config['blog_id']     = $blog_id;
+			$engine_config['module']      = 'object';
+			$engine_config['host']        = Util_Environment::host();
+			$engine_config['instance_id'] = Util_Environment::instance_id();
+
+			$cache[ $blog_id ] = Cache::instance( $engine, $engine_config );
 		}
 
-		return $cache[$blog_id];
+		return $cache[ $blog_id ];
 	}
 
 	/**
@@ -999,11 +1127,11 @@ class ObjectCache_WpObjectCache_Regular {
 	 *
 	 * @return boolean
 	 */
-	function _can_cache() {
+	private function _can_cache() {
 		/**
 		 * Skip if disabled
 		 */
-		if ( !$this->_config->getf_boolean( 'objectcache.enabled' ) ) {
+		if ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->cache_reject_reason = 'objectcache.disabled';
 
 			return false;
@@ -1024,37 +1152,56 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Returns if we can cache, that condition can change in runtime
 	 *
-	 * @param unknown $group
+	 * @param unknown $group Group.
+	 *
 	 * @return boolean
 	 */
-	function _check_can_cache_runtime( $group ) {
-		//Need to be handled in wp admin as well as frontend
-		if ( $this->_is_transient_group( $group ) )
+	private function _check_can_cache_runtime( $group ) {
+		// Need to be handled in wp admin as well as frontend.
+		if ( $this->_is_transient_group( $group ) ) {
 			return true;
+		}
 
-		if ( $this->_can_cache_dynamic != null )
+		if ( null !== $this->_can_cache_dynamic ) {
 			return $this->_can_cache_dynamic;
+		}
 
 		if ( $this->_config->get_boolean( 'objectcache.enabled_for_wp_admin' ) ) {
 			$this->_can_cache_dynamic = true;
 		} else {
-			if ( $this->_caching ) {
-				if ( defined( 'WP_ADMIN' ) &&
-					( !defined( 'DOING_AJAX' ) || !DOING_AJAX ) ) {
-					$this->_can_cache_dynamic = false;
-					$this->cache_reject_reason = 'WP_ADMIN defined';
-					return $this->_can_cache_dynamic;
-				}
+			if (
+				$this->_caching
+					&& defined( 'WP_ADMIN' )
+					&& ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX )
+			) {
+				$this->_can_cache_dynamic  = false;
+				$this->cache_reject_reason = 'WP_ADMIN defined';
+
+				return $this->_can_cache_dynamic;
 			}
 		}
 
 		return $this->_caching;
 	}
 
+	/**
+	 * Is transient group.
+	 *
+	 * @param unknown $group Group.
+	 *
+	 * @return boolean
+	 */
 	private function _is_transient_group( $group ) {
-		return in_array( $group, array( 'transient', 'site-transient' ) ) ;
+		return in_array( $group, array( 'transient', 'site-transient' ), true );
 	}
 
+	/**
+	 * Modify footer comment.
+	 *
+	 * @param array $strings Strings.
+	 *
+	 * @return array
+	 */
 	public function w3tc_footer_comment( $strings ) {
 		$reason = $this->get_reject_reason();
 		$append = empty( $reason ) ? '' : sprintf( ' (%1$s)', $reason );
@@ -1070,16 +1217,23 @@ class ObjectCache_WpObjectCache_Regular {
 
 		if ( $this->_config->get_boolean( 'objectcache.debug' ) ) {
 			$strings[] = '';
-			$strings[] = 'Object Cache debug info:';
-			$strings[] = sprintf( "%s%s", str_pad( 'Caching: ', 20 ),
-				( $this->_caching ? 'enabled' : 'disabled' ) );
+			$strings[] = __( 'Object Cache debug info:', 'w3-total-cache' );
+			$strings[] = sprintf( '%s%s', str_pad( 'Caching: ', 20 ), ( $this->_caching ? 'enabled' : 'disabled' ) );
+			$strings[] = sprintf( '%s%d', str_pad( 'Total calls: ', 20 ), $this->cache_total );
+			$strings[] = sprintf( '%s%d', str_pad( 'Cache hits: ', 20 ), $this->cache_hits );
+			$strings[] = sprintf( '%s%.4f', str_pad( 'Total time: ', 20 ), $this->time_total );
 
-			$strings[] = sprintf( "%s%d", str_pad( 'Total calls: ', 20 ), $this->cache_total );
-			$strings[] = sprintf( "%s%d", str_pad( 'Cache hits: ', 20 ), $this->cache_hits );
-			$strings[] = sprintf( "%s%.4f", str_pad( 'Total time: ', 20 ), $this->time_total );
+			global $wp_filesystem;
+
+			// Initialize the WP_Filesystem if not already done.
+			if ( ! $wp_filesystem ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				WP_Filesystem();
+			}
 
 			if ( $this->log_filehandle ) {
-				fclose( $this->log_filehandle );
+				// Safely close the file using WP_Filesystem's put_contents with an empty string to ensure any buffers are flushed.
+				$wp_filesystem->put_contents( $this->log_filehandle, '', FS_CHMOD_FILE | FILE_APPEND );
 				$this->log_filehandle = false;
 			}
 		}
@@ -1087,48 +1241,83 @@ class ObjectCache_WpObjectCache_Regular {
 		return $strings;
 	}
 
+	/**
+	 * Usage statistics of request.
+	 *
+	 * @param object $storage Storage.
+	 *
+	 * @return void
+	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
 		$storage->counter_add( 'objectcache_get_total', $this->cache_total );
 		$storage->counter_add( 'objectcache_get_hits', $this->cache_hits );
 		$storage->counter_add( 'objectcache_sets', $this->cache_sets );
 		$storage->counter_add( 'objectcache_flushes', $this->cache_flushes );
-		$storage->counter_add( 'objectcache_time_ms', (int)($this->time_total * 1000) );
+		$storage->counter_add( 'objectcache_time_ms', (int) ( $this->time_total * 1000 ) );
 	}
 
+	/**
+	 * Get reject reason.
+	 *
+	 * @return string
+	 */
 	public function get_reject_reason() {
-		if ( is_null( $this->cache_reject_reason ) )
+		if ( is_null( $this->cache_reject_reason ) ) {
 			return '';
+		}
+
 		return $this->_get_reject_reason_message( $this->cache_reject_reason );
 	}
 
 	/**
+	 * Get reject reason message.
 	 *
+	 * @param unknown $key Key.
 	 *
-	 * @param unknown $key
-	 * @return string|void
+	 * @return string
 	 */
 	private function _get_reject_reason_message( $key ) {
-		if ( !function_exists( '__' ) )
+		if ( ! function_exists( '__' ) ) {
 			return $key;
+		}
 
 		switch ( $key ) {
-		case 'objectcache.disabled':
-			return __( 'Object caching is disabled', 'w3-total-cache' );
-		case 'DONOTCACHEOBJECT':
-			return __( 'DONOTCACHEOBJECT constant is defined', 'w3-total-cache' );
-		default:
-			return '';
+			case 'objectcache.disabled':
+				return __( 'Object caching is disabled', 'w3-total-cache' );
+			case 'DONOTCACHEOBJECT':
+				return __( 'DONOTCACHEOBJECT constant is defined', 'w3-total-cache' );
+			default:
+				return '';
 		}
 	}
 
-
-
+	/**
+	 * Log call.
+	 *
+	 * @param string $line Line.
+	 *
+	 * @return void
+	 */
 	private function log_call( $line ) {
-		if ( !$this->log_filehandle ) {
-			$filename = Util_Debug::log_filename( 'objectcache-calls' );
-			$this->log_filehandle = fopen( $filename, 'a' );
+		global $wp_filesystem;
+
+		// Initialize the WP_Filesystem if not already done.
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
 		}
 
-		fputcsv ( $this->log_filehandle, $line, "\t" );
+		if ( ! $this->log_filehandle ) {
+			$filename             = Util_Debug::log_filename( 'objectcache-calls' );
+			$this->log_filehandle = $wp_filesystem->get_contents( $filename );
+		}
+
+		// Check if file handle is available before writing.
+		if ( $this->log_filehandle ) {
+			$line_content = implode( "\t", (array) $line ) . PHP_EOL;
+
+			// Append the line to the file.
+			$wp_filesystem->put_contents( $this->log_filehandle, $line_content, FS_CHMOD_FILE | FILE_APPEND );
+		}
 	}
 }
