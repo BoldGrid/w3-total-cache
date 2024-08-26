@@ -122,7 +122,7 @@ class Generic_Plugin_AdminNotices {
 
 		$api_response = wp_remote_get( esc_url( W3TC_NOTICE_FEED ) );
 
-		if ( is_wp_error( $api_response ) ) {
+		if ( is_wp_error( $api_response ) || wp_remote_retrieve_response_code( $api_response ) !== 200 ) {
 			return null;
 		}
 
