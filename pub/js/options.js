@@ -915,7 +915,7 @@ jQuery(function() {
 				jQuery.extend(params, {
 					engine: 'azuremi',
 					'config[user]': jQuery('#cdn_azuremi_user').val(),
-					'config[clientid]': jQuery('#cdn_azuremi_clientid').val(),
+					'config[client_id]': jQuery('#cdn_azuremi_clientid').val(),
 					'config[container]': jQuery('#cdn_azuremi_container').val()
 				});
 
@@ -1115,7 +1115,7 @@ jQuery(function() {
 					params['config[cname][]'] = cnames;
 				}
 				break;
-			
+
 			case 'azuremi':
 				jQuery.extend(params, {
 					engine: 'azuremi',
@@ -1127,7 +1127,7 @@ jQuery(function() {
 				if (cnames.length) {
 					params['config[cname][]'] = cnames;
 				}
-				break;			
+				break;
 		}
 
 		var status = jQuery('#cdn_create_container_status');

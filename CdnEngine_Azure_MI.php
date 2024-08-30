@@ -15,22 +15,26 @@
 namespace W3TC;
 
 /**
- * Windows Azure Storage CDN engine
+ * Class: CdnEngine_Azure_MI
+ *
+ * Windows Azure Storage CDN engine.
  */
 class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 	/**
 	 * Constructor.
 	 *
+	 * @since X.X.X
+	 *
 	 * @param array $config Configuration.
 	 */
 	public function __construct( $config = array() ) {
 		$config = array_merge(
 			array(
-				'user' => '',
-				'clientid' => getenv('ENTRA_CLIENT_ID')?: '',
-				'container' => '',
-				'cname' => array(),
+				'user'      => (string) getenv( 'STORAGE_ACCOUNT_NAME' ),
+				'client_id' => (string) getenv( 'ENTRA_CLIENT_ID' ),
+				'container' => (string) getenv( 'BLOB_CONTAINER_NAME' ),
+				'cname'     => empty( getenv( 'BLOB_STORAGE_URL' ) ) ? array() : array( (string) getenv( 'BLOB_STORAGE_URL' ) ),
 			),
 			$config
 		);
@@ -42,7 +46,9 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	}
 
 	/**
-	 * Inits storage client object
+	 * Initialize storage client object.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param string $error Error message.
 	 * @return bool
@@ -53,12 +59,9 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 			return false;
 		}
 
-		if ( empty( $this->_config['clientid'] ) ) {
-			$this->_config['clientid'] = getenv('ENTRA_CLIENT_ID');
-			if ( empty( $this->_config['clientid'] ) ) {
-				$error = 'Empty entra client id.';
-				return false;
-			}
+		if ( empty( $this->_config['client_id'] ) ) {
+			$error = 'Empty Entra client ID.';
+			return false;
 		}
 
 		if ( empty( $this->_config['container'] ) ) {
@@ -71,230 +74,237 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	}
 
 	/**
-	 * Uploads files to Azure Blob Storage
+	 * Upload files to Azure Blob Storage.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @param boolean $force_rewrite
-	 * @return boolean
+	 * @since X.X.X
+	 *
+	 * @param array    $files         Files.
+	 * @param array    $results       Results.
+	 * @param bool     $force_rewrite Force rewrite.
+	 * @param int|null $timeout_time Timeout time.
+	 * @return bool
 	 */
-	function upload( $files, &$results, $force_rewrite = false,
-		$timeout_time = NULL ) {
+	public function upload( $files, &$results, $force_rewrite = false, $timeout_time = null ) {
 		$error = null;
 
-		if ( !$this->_init( $error ) ) {
+		if ( ! $this->_init( $error ) ) {
 			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, $error );
 
 			return false;
 		}
 
 		foreach ( $files as $file ) {
-			$remote_path = $file['remote_path'];
-			$local_path = $file['local_path'];
-
-			// process at least one item before timeout so that progress goes on
-			if ( !empty( $results ) ) {
-				if ( !is_null( $timeout_time ) && time() > $timeout_time ) {
-					return 'timeout';
+			// Process at least one item before timeout so that progress goes on.
+			if ( ! empty( $results ) ) {
+				if ( ! is_null( $timeout_time ) && time() > $timeout_time ) {
+					// Timeout.
+					return false;
 				}
 			}
 
 			$results[] = $this->_upload( $file, $force_rewrite );
 		}
 
-		return !$this->_is_error( $results );
+		return ! $this->_is_error( $results );
 	}
 
 	/**
-	 * Uploads file
+	 * Upload file to Azure Blob Storage.
 	 *
-	 * @param string  $local_path
-	 * @param string  $remote_path
-	 * @param bool    $force_rewrite
+	 * @since X.X.X
+	 *
+	 * @param string $file File path.
+	 * @param bool   $force_rewrite Force rewrite.
 	 * @return array
 	 */
-	function _upload( $file, $force_rewrite = false ) {
-		$local_path = $file['local_path'];
+	public function _upload( $file, $force_rewrite = false ) {
+		$local_path  = $file['local_path'];
 		$remote_path = $file['remote_path'];
 
-		if ( !file_exists( $local_path ) ) {
-			return $this->_get_result( $local_path, $remote_path,
-				W3TC_CDN_RESULT_ERROR, 'Source file not found.', $file );
+		if ( ! file_exists( $local_path ) ) {
+			return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_ERROR, 'Source file not found.', $file );
 		}
 
-		$contents = @file_get_contents( $local_path );
-		$md5 = md5( $contents );   // @md5_file( $local_path );
+		$contents    = @file_get_contents( $local_path );
+		$md5         = md5( $contents );
 		$content_md5 = $this->_get_content_md5( $md5 );
 
-		if ( !$force_rewrite ) {
+		if ( ! $force_rewrite ) {
 			try {
 				$p = CdnEngine_Azure_MI_Utility::get_blob_properties(
-					$this->_config['clientid'],
+					$this->_config['client_id'],
 					$this->_config['user'],
 					$this->_config['container'],
 					$remote_path
 				);
+
 				$local_size = @filesize( $local_path );
 
-				//check if Content-Length is available in $p array
-				if ( isset( $p['Content-Length']) && $local_size == $p['Content-Length']
-					&& isset( $p['Content-MD5']) && $content_md5 === $p['Content-MD5'] ) {
-					return $this->_get_result( $local_path, $remote_path,
-						W3TC_CDN_RESULT_OK, 'File up-to-date.', $file );
+				// Check if Content-Length is available in $p array.
+				if ( isset( $p['Content-Length'] ) && $local_size == $p['Content-Length'] && isset( $p['Content-MD5'] ) && $content_md5 === $p['Content-MD5'] ) {
+					return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'File up-to-date.', $file );
 				}
-			} catch ( \Exception $exception ) {
+			} catch ( \Exception $exception ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			}
 		}
 
 		$headers = $this->get_headers_for_file( $file );
 
 		try {
-			$contentType = isset($headers['Content-Type']) ? $headers['Content-Type'] : 'application/octet-stream';
-			$cacheControl = isset($headers['Cache-Control']) ? $headers['Cache-Control'] : '';
+			$content_type  = isset( $headers['Content-Type'] ) ? $headers['Content-Type'] : 'application/octet-stream';
+			$cache_control = isset( $headers['Cache-Control'] ) ? $headers['Cache-Control'] : '';
 
 			CdnEngine_Azure_MI_Utility::create_block_blob(
-				$this->_config['clientid'],
+				$this->_config['client_id'],
 				$this->_config['user'],
 				$this->_config['container'],
 				$remote_path,
 				$contents,
-				$contentType,
+				$content_type,
 				$content_md5,
-				$cacheControl
+				$cache_control
 			);
 
 		} catch ( \Exception $exception ) {
-			return $this->_get_result( $local_path, $remote_path,
+			return $this->_get_result(
+				$local_path,
+				$remote_path,
 				W3TC_CDN_RESULT_ERROR,
-				sprintf( 'Unable to put blob (%s).', $exception->getMessage() ),
-				$file );
+				sprintf( 'Unable to put blob (%1$s).', $exception->getMessage() ),
+				$file
+			);
 		}
 
-		return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK,
-			'OK', $file );
+		return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $file );
 	}
 
 	/**
-	 * Deletes files from storage
+	 * Delete files from Azure Blob Storage.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @return boolean
+	 * @since X.X.X
+	 *
+	 * @param array $files   Files.
+	 * @param array $results Results.
+	 * @return bool
 	 */
-	function delete( $files, &$results ) {
+	public function delete( $files, &$results ) {
 		$error = null;
 
-		if ( !$this->_init( $error ) ) {
+		if ( ! $this->_init( $error ) ) {
 			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, $error );
 
 			return false;
 		}
 
 		foreach ( $files as $file ) {
-			$local_path = $file['local_path'];
+			$local_path  = $file['local_path'];
 			$remote_path = $file['remote_path'];
 
 			try {
-
 				CdnEngine_Azure_MI_Utility::delete_blob(
-					$this->_config['clientid'],
+					$this->_config['client_id'],
 					$this->_config['user'],
-					$this->_config['container'], $remote_path
+					$this->_config['container'],
+					$remote_path
 				);
-				$results[] = $this->_get_result( $local_path, $remote_path,
-					W3TC_CDN_RESULT_OK, 'OK', $file );
+
+				$results[] = $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'OK', $file );
 			} catch ( \Exception $exception ) {
-				$results[] = $this->_get_result( $local_path, $remote_path,
+				$results[] = $this->_get_result(
+					$local_path,
+					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
-					sprintf( 'Unable to delete blob (%s).', $exception->getMessage() ),
-					$file );
+					sprintf( 'Unable to delete blob (%1$s).', $exception->getMessage() ),
+					$file
+				);
 			}
 		}
 
-		return !$this->_is_error( $results );
+		return ! $this->_is_error( $results );
 	}
 
 	/**
-	 * Tests Azure Blob Storage
+	 * Test Azure Blob Storage.
 	 *
-	 * @param string  $error
-	 * @return boolean
+	 * @since X.X.X
+	 *
+	 * @param string $error Error message.
+	 * @return bool
 	 */
-	function test( &$error ) {
-		if ( !parent::test( $error ) ) {
+	public function test( &$error ) {
+		if ( ! parent::test( $error ) ) {
 			return false;
 		}
 
 		$string = 'test_azure_' . md5( time() );
 
-		if ( !$this->_init( $error ) ) {
+		if ( ! $this->_init( $error ) ) {
 			return false;
 		}
 
 		try {
 			$containers = CdnEngine_Azure_MI_Utility::list_containers(
-				$this->_config['clientid'],
+				$this->_config['client_id'],
 				$this->_config['user']
 			);
 		} catch ( \Exception $exception ) {
-			$error = sprintf( 'Unable to list containers (%s).', $exception->getMessage() );
-
+			$error = sprintf( 'Unable to list containers (%1$s).', $exception->getMessage() );
 			return false;
 		}
 
 		$container = null;
 
 		foreach ( $containers as $_container ) {
-			if ( $_container['Name'] == $this->_config['container'] ) {
+			if ( $_container['Name'] === $this->_config['container'] ) {
 				$container = $_container;
 				break;
 			}
 		}
 
-		if ( !$container ) {
-			$error = sprintf( 'Container doesn\'t exist: %s.', $this->_config['container'] );
-
+		if ( ! $container ) {
+			$error = sprintf( 'Container doesn\'t exist: %1$s.', $this->_config['container'] );
 			return false;
 		}
 
 		try {
 			CdnEngine_Azure_MI_Utility::create_block_blob(
-				$this->_config['clientid'],
+				$this->_config['client_id'],
 				$this->_config['user'],
 				$this->_config['container'],
-				$string, $string
+				$string,
+				$string
 			);
 
 		} catch ( \Exception $exception ) {
-			$error = sprintf( 'Unable to create blob (%s).', $exception->getMessage() );
+			$error = sprintf( 'Unable to create blob (%1$s).', $exception->getMessage() );
 			return false;
 		}
 
 		try {
 			$p = CdnEngine_Azure_MI_Utility::get_blob_properties(
-				$this->_config['clientid'],
+				$this->_config['client_id'],
 				$this->_config['user'],
 				$this->_config['container'],
 				$string
 			);
 
-			$size = isset( $p['Content-Length']) ? $p['Content-Length'] : -1;
-			$md5 = isset( $p['Content-MD5']) ? $p['Content-MD5'] : '';
+			$size = isset( $p['Content-Length'] ) ? (int) $p['Content-Length'] : -1;
+			$md5  = isset( $p['Content-MD5'] ) ? $p['Content-MD5'] : '';
 		} catch ( \Exception $exception ) {
-			$error = sprintf( 'Unable to get blob properties (%s).', $exception->getMessage() );
+			$error = sprintf( 'Unable to get blob properties (%1$s).', $exception->getMessage() );
 			return false;
 		}
 
-		if ( $size != strlen( $string ) || $this->_get_content_md5( md5( $string ) ) != $md5 ) {
+		if ( strlen( $string ) !== $size || $this->_get_content_md5( md5( $string ) ) !== $md5 ) {
 			try {
 				CdnEngine_Azure_MI_Utility::delete_blob(
-					$this->_config['clientid'],
+					$this->_config['client_id'],
 					$this->_config['user'],
 					$this->_config['container'],
 					$string
 				);
 
-			} catch ( \Exception $exception ) {
+			} catch ( \Exception $exception ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			}
 
 			$error = 'Blob data properties are not equal.';
@@ -303,7 +313,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 		try {
 			$blob_response = CdnEngine_Azure_MI_Utility::get_blob(
-				$this->_config['clientid'],
+				$this->_config['client_id'],
 				$this->_config['user'],
 				$this->_config['container'],
 				$string
@@ -311,20 +321,19 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 			$data = isset( $blob_response['data'] ) ? $blob_response['data'] : '';
 		} catch ( \Exception $exception ) {
-			$error = sprintf( 'Unable to get blob data (%s).', $exception->getMessage() );
+			$error = sprintf( 'Unable to get blob data (%1$s).', $exception->getMessage() );
 			return false;
 		}
-
 
 		if ( $data != $string ) {
 			try {
 				CdnEngine_Azure_MI_Utility::delete_blob(
-					$this->_config['clientid'],
+					$this->_config['client_id'],
 					$this->_config['user'],
 					$this->_config['container'],
 					$string
 				);
-			} catch ( \Exception $exception ) {
+			} catch ( \Exception $exception ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			}
 
 			$error = 'Blob datas are not equal.';
@@ -333,7 +342,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 
 		try {
 			CdnEngine_Azure_MI_Utility::delete_blob(
-				$this->_config['clientid'],
+				$this->_config['client_id'],
 				$this->_config['user'],
 				$this->_config['container'],
 				$string
@@ -348,97 +357,104 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	}
 
 	/**
-	 * Returns CDN domain
+	 * Returns CDN domains.
+	 *
+	 * @since X.X.X
 	 *
 	 * @return array
 	 */
-	function get_domains() {
-		if ( !empty( $this->_config['cname'] ) ) {
+	public function get_domains() {
+		if ( ! empty( $this->_config['cname'] ) ) {
 			return (array) $this->_config['cname'];
-		} elseif ( !empty( $this->_config['user'] ) ) {
-			$domain = sprintf( '%s.blob.core.windows.net', $this->_config['user'] );
-
-			return array(
-				$domain
-			);
+		} elseif ( ! empty( $this->_config['user'] ) ) {
+			$domain = sprintf( '%1$s.blob.core.windows.net', $this->_config['user'] );
+			return array( $domain );
 		}
 
 		return array();
 	}
 
 	/**
-	 * Returns via string
+	 * Returns via string.
+	 *
+	 * @since X.X.X
 	 *
 	 * @return string
 	 */
-	function get_via() {
-		return sprintf( 'Windows Azure Storage: %s', parent::get_via() );
+	public function get_via() {
+		return sprintf( 'Windows Azure Storage: %1$s', parent::get_via() );
 	}
 
 	/**
-	 * Creates bucket
+	 * Create an Azure Blob Storage container/bucket.
 	 *
-	 * @param string  $error
-	 * @return boolean
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 * @throws \Exception Exception.
 	 */
-	function create_container() {
-		if ( !$this->_init( $error ) ) {
-			throw new \Exception( $error );
+	public function create_container() {
+		if ( ! $this->_init( $error ) ) {
+			throw new \Exception( esc_html( $error ) );
 		}
 
 		try {
 			$containers = CdnEngine_Azure_MI_Utility::list_containers(
-				$this->_config['clientid'],
+				$this->_config['client_id'],
 				$this->_config['user']
 			);
-
 		} catch ( \Exception $exception ) {
-			$error = sprintf( 'Unable to list containers (%s).', $exception->getMessage() );
-			throw new \Exception( $error );
+			$error = sprintf( 'Unable to list containers (%1$s).', $exception->getMessage() );
+			throw new \Exception( esc_html( $error ) );
 		}
 
 		foreach ( $containers as $_container ) {
-			if ( $_container['Name'] == $this->_config['container'] ) {
-				$error = sprintf( 'Container already exists: %s.', $this->_config['container'] );
-				throw new \Exception( $error );
+			if ( $_container['Name'] === $this->_config['container'] ) {
+				$error = sprintf( 'Container already exists: %1$s.', $this->_config['container'] );
+				throw new \Exception( esc_html( $error ) );
 			}
 		}
 
 		try {
-			CdnEngine_Azure_MI_Utility::create_container(
-				$this->_config['clientid'],
+			$result = CdnEngine_Azure_MI_Utility::create_container(
+				$this->_config['client_id'],
 				$this->_config['user'],
 				$this->_config['container']
 			);
 
-			} catch ( \Exception $exception ) {
-			$error = sprintf( 'Unable to create container: %s (%s)', $this->_config['container'], $exception->getMessage() );
-			throw new \Exception( $error );
+			return true; // Maybe return container ID.
+		} catch ( \Exception $exception ) {
+			$error = sprintf( 'Unable to create container: %1$s (%2$s)', $this->_config['container'], $exception->getMessage() );
+			throw new \Exception( esc_html( $error ) );
 		}
 	}
 
 	/**
-	 * Returns Content-MD5 header value
+	 * Return Content-MD5 header value.
 	 *
-	 * @param string  $string
-	 * @return string
+	 * @since X.X.X
+	 *
+	 * @param string $md5 MD5 hash.
+	 * @return string Base64-encoded packed (hex string, high nibble first, repeating to the end of the input data) data from the input MD% string.
 	 */
-	function _get_content_md5( $md5 ) {
+	public function _get_content_md5( $md5 ) {
 		return base64_encode( pack( 'H*', $md5 ) );
 	}
 
 	/**
-	 * Formats object URL
+	 * Format object URL.
 	 *
-	 * @param string  $path
-	 * @return string
+	 * @since X.X.X
+	 *
+	 * @param string $path Path.
+	 * @return string|false
 	 */
-	function _format_url( $path ) {
+	public function _format_url( $path ) {
 		$domain = $this->get_domain( $path );
 
-		if ( $domain && !empty( $this->_config['container'] ) ) {
+		if ( $domain && ! empty( $this->_config['container'] ) ) {
 			$scheme = $this->_get_scheme();
-			$url = sprintf( '%s://%s/%s/%s', $scheme, $domain, $this->_config['container'], $path );
+			$url    = sprintf( '%1$s://%2$s/%3$s/%4$s', $scheme, $domain, $this->_config['container'], $path );
 
 			return $url;
 		}
@@ -447,17 +463,27 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	}
 
 	/**
-	 * How and if headers should be set
+	 * How and if headers should be set.
 	 *
-	 * @return string W3TC_CDN_HEADER_NONE, W3TC_CDN_HEADER_UPLOADABLE, W3TC_CDN_HEADER_MIRRORING
+	 * @since X.X.X
+	 *
+	 * @return string W3TC_CDN_HEADER_NONE, W3TC_CDN_HEADER_UPLOADABLE, or W3TC_CDN_HEADER_MIRRORING.
 	 */
-	function headers_support() {
+	public function headers_support() {
 		return W3TC_CDN_HEADER_UPLOADABLE;
 	}
 
-	function get_prepend_path( $path ) {
+	/**
+	 * Get prepend path.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $path Path.
+	 * @return string
+	 */
+	public function get_prepend_path( $path ) {
 		$path = parent::get_prepend_path( $path );
-		$path = $this->_config['container'] ? trim( $path, '/' ) . '/' . trim( $this->_config['container'], '/' ): $path;
+		$path = $this->_config['container'] ? trim( $path, '/' ) . '/' . trim( $this->_config['container'], '/' ) : $path;
 		return $path;
 	}
 }
