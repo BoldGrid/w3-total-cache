@@ -206,7 +206,14 @@ class BrowserCache_Environment_LiteSpeed {
 				$add_header_rules[] = 'unset Pragma';
 				$add_header_rules[] = 'set Pragma "no-cache";';
 				$add_header_rules[] = 'unset Cache-Control';
-				$add_header_rules[] = 'set Cache-Control "max-age=0, private, no-store, no-cache, must-revalidate"';
+				$add_header_rules[] = 'set Cache-Control "private, no-cache"';
+				break;
+
+			case 'no_store':
+				$add_header_rules[] = 'unset Pragma';
+				$add_header_rules[] = 'set Pragma "no-store";';
+				$add_header_rules[] = 'unset Cache-Control';
+				$add_header_rules[] = 'set Cache-Control "no-store"';
 				break;
 			}
 		}

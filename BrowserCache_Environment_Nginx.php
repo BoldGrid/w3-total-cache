@@ -491,7 +491,12 @@ class BrowserCache_Environment_Nginx {
 
 			case 'no_cache':
 				$add_header_rules[] = 'add_header Pragma "no-cache";';
-				$add_header_rules[] = 'add_header Cache-Control "max-age=0, private, no-store, no-cache, must-revalidate";';
+				$add_header_rules[] = 'add_header Cache-Control "private, no-cache";';
+				break;
+
+			case 'no_store':
+				$add_header_rules[] = 'add_header Pragma "no-store";';
+				$add_header_rules[] = 'add_header Cache-Control "no-store";';
 				break;
 			}
 		}

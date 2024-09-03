@@ -456,7 +456,8 @@ $security_session_values = array(
 						<option value="cache_validation"<?php selected( $value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
 						<option value="cache_maxage"<?php selected( $value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $cssjs_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
 						<option value="cache_noproxy"<?php selected( $value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("max-age=0, private, no-store, no-cache, must-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
+						<option value="no_store"<?php selected( $value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
 					</select>
 					<?php if ( $is_nginx && $cssjs_expires ) : ?>
 						<p class="description"><?php esc_html_e( 'The Expires header already sets the max-age.', 'w3-total-cache' ); ?></p>
@@ -628,7 +629,8 @@ $security_session_values = array(
 						<option value="cache_validation"<?php selected( $value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
 						<option value="cache_maxage"<?php selected( $value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $html_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
 						<option value="cache_noproxy"<?php selected( $value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'no-cache ("max-age=0, private, no-store, no-cache, must-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
+						<option value="no_store"<?php selected( $value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
 					</select>
 					<?php if ( $is_nginx && $html_expires ) : ?>
 						<p class="description"><?php esc_html_e( 'The Expires header already sets the max-age.', 'w3-total-cache' ); ?></p>
@@ -719,7 +721,8 @@ $security_session_values = array(
 						<option value="cache_validation"<?php selected( $value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
 						<option value="cache_maxage"<?php selected( $value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $other_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
 						<option value="cache_noproxy"<?php selected( $value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
-						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'no-cache ("max-age=0, private, no-store, no-cache, must-revalidate")', 'w3-total-cache' ); ?></option>
+						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
+						<option value="no_store"<?php selected( $value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
 					</select>
 					<?php if ( $is_nginx && $other_expires ) : ?>
 						<p class="description"><?php esc_html_e( 'The Expires header already sets the max-age.', 'w3-total-cache' ); ?></p>
