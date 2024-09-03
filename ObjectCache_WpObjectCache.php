@@ -42,6 +42,26 @@ class ObjectCache_WpObjectCache {
 	private $_cache_by_group = array();
 
 	/**
+	 * Supported features
+	 *
+	 * @var array
+	 */
+	private $supported_features = array(
+		'flush_runtime',
+		'flush_group',
+		'add_multiple',
+		'set_multiple',
+		'get_multiple',
+		'delete_multiple',
+		'incr',
+		'decr',
+		'groups',
+		'global_groups',
+		'non_persistent',
+		'persistent',
+	);
+
+	/**
 	 * PHP5 style constructor
 	 */
 	public function __construct() {
@@ -268,6 +288,17 @@ class ObjectCache_WpObjectCache {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Check supported features.
+	 *
+	 * @param string $feature Feature.
+	 *
+	 * @return boolean
+	 */
+	public function supports( string $feature ) {
+		return in_array( $feature, $this->supported_features, true );
 	}
 
 	/**

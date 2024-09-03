@@ -245,6 +245,19 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 	}
 
 	/**
+	 * Checks if the object cache supports a particular feature.
+	 *
+	 * @param string $feature Feature name.
+	 *
+	 * @return bool True if the feature is supported, false otherwise.
+	 */
+	function wp_cache_supports( string $feature ) {
+		global $wp_object_cache;
+
+		return $wp_object_cache->supports( $feature );
+	}
+
+	/**
 	 * Add global groups
 	 *
 	 * @param array $groups Groups.
