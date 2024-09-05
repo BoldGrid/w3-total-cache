@@ -1468,7 +1468,12 @@ class PgCache_Environment {
 
 			case 'no_cache':
 				$header_rules .= "    Header set Pragma \"no-cache\"\n";
-				$header_rules .= "    Header set Cache-Control \"max-age=0, private, no-store, no-cache, must-revalidate\"\n";
+				$header_rules .= "    Header set Cache-Control \"private, no-cache\"\n";
+				break;
+
+			case 'no_store':
+				$header_rules .= "    Header set Pragma \"no-store\"\n";
+				$header_rules .= "    Header set Cache-Control \"no-store\"\n";
 				break;
 			}
 		}
