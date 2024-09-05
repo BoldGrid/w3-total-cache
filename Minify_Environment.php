@@ -691,6 +691,11 @@ class Minify_Environment {
 					$rules .= "    Header set Pragma \"no-cache\"\n";
 					$rules .= "    Header set Cache-Control \"max-age=0, private, no-store, no-cache, must-revalidate\"\n";
 					break;
+
+				case 'no_store':
+					$rules .= "    Header set Pragma \"no-store\"\n";
+					$rules .= "    Header set Cache-Control \"no-store\"\n";
+					break;
 				}
 			}
 
