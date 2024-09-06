@@ -7,7 +7,7 @@
     },
     "devDependencies": {
         "@boldgrid/wordpress-tag-sync": "^1.3.0",
-        "@wordpress/eslint-plugin": "^18",
+        "@wordpress/eslint-plugin": "^21",
         "eslint": "^8.57.0",
         "eslint-plugin-html": "^8.1.1",
         "php-codesniffer": "^1.0.2",
