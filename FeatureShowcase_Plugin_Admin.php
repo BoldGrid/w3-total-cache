@@ -333,7 +333,7 @@ class FeatureShowcase_Plugin_Admin {
 					'button'     => '<button class="button" onclick="window.location=\'' .
 						esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ) . '\'">' .
 						__( 'Settings', 'w3-total-cache' ) . '</button>',
-					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/wpml/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_extensions' ) .
+					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/achieve-ultimate-wordpress-performanc[…]w3tc&utm_medium=feature_showcase&utm_campaign=pro_extensions' ) .
 						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'is_premium' => true,
 					'is_new'     => false,
