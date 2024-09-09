@@ -734,16 +734,12 @@ td.w3tc_config_value_text {
 	margin-right: auto;
 }
 
-.w3tc_menu_item_pro {
+.w3tc_menu_item_pro, #toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"] {
 	color: #0FA9B5;
 }
 
-.w3tc_menu_item_pro:hover {
+.w3tc_menu_item_pro:hover, #toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"]:hover {
 	color: #ddd;
-}
-
-#toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"] {
-	color: #72aee6;
 }
 
 .w3tc_popup_form {
