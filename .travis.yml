@@ -1,5 +1,6 @@
 # Travis CI configuraion for the W3 Total Cache WordPress plugin by BoldGrid.
 # @link https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-on-travis-ci
+# @link https://docs.travis-ci.com/user/job-lifecycle
 
 language: php
 
@@ -15,13 +16,13 @@ matrix:
     -
       php: 7.2
       dist: bionic
-      before_script:
+      before_install:
       - nvm install 18
       - nvm use 18
     -
       php: 8.3
       dist: jammy
-      before_script:
+      before_install:
         - nvm install 20
         - nvm use 20
 
