@@ -661,7 +661,12 @@ class BrowserCache_Environment {
 
 			case 'no_cache':
 				$headers_rules .= "        Header set Pragma \"no-cache\"\n";
-				$headers_rules .= "        Header set Cache-Control \"max-age=0, private, no-store, no-cache, must-revalidate\"\n";
+				$headers_rules .= "        Header set Cache-Control \"private, no-cache\"\n";
+				break;
+
+			case 'no_store':
+				$headers_rules .= "        Header set Pragma \"no-store\"\n";
+				$headers_rules .= "        Header set Cache-Control \"no-store\"\n";
 				break;
 			}
 		}
