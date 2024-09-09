@@ -446,7 +446,12 @@ class BrowserCache_Plugin {
 
 			case 'no_cache':
 				$headers['Pragma'] = 'no-cache';
-				$headers['Cache-Control'] = 'max-age=0, private, no-store, no-cache, must-revalidate';
+				$headers['Cache-Control'] = 'private, no-cache';
+				break;
+
+			case 'no_store':
+				$headers['Pragma']        = 'no-store';
+				$headers['Cache-Control'] = 'no-store';
 				break;
 			}
 		}
