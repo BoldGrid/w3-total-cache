@@ -205,7 +205,7 @@ class ObjectCache_Plugin {
 			<p><b>' . esc_html__( 'Warning: Disk-Based Object Caching Selected', 'w3-total-cache' ) . '</b></p>
 			<p>' . esc_html__( 'Using disk as the cache engine for object caching is not recommended due to its potential for 
 			slow performance depending on storage device types and server configuration. For optimal performance, consider 
-			using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ) . '</p><p><a target="_blank" href="' . esc_url( '#' ) . '">' . esc_html__( '---', 'w3-total-cache' ) . '</a></p></div>';
+			using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ) . '</p><p><a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ) . '">' . esc_html__( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ) . '</a></p></div>';
 		}
 	}
 }
