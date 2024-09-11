@@ -394,7 +394,7 @@ class Cdn_Core {
 				case 'azuremi':
 					$engine_config = array(
 						'user'        => $c->get_string( 'cdn.azuremi.user' ),
-						'clientid'         => $c->get_string( 'cdn.azuremi.clientid' ),
+						'clientid'    => $c->get_string( 'cdn.azuremi.clientid' ),
 						'container'   => $c->get_string( 'cdn.azuremi.container' ),
 						'cname'       => $c->get_array( 'cdn.azuremi.cname' ),
 						'ssl'         => $c->get_string( 'cdn.azuremi.ssl' ),
