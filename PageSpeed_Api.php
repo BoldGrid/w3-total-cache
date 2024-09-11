@@ -32,13 +32,6 @@ class PageSpeed_Api {
 	public $client;
 
 	/**
-	 * W3TC Google Client JSON. Overwritten by W3TC_GOOGLE_CLIENT_JSON constant.
-	 *
-	 * @var string
-	 */
-	private $google_client_json = '{"web":{"client_id":"887173527583-mvtpm465985h8pokb3os715s9s3emv78.apps.googleusercontent.com","project_id":"w3tc-testing","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","redirect_uris":["google/authorize-in/","google/authorize-out/","google/refresh-token/"]}}';
-
-	/**
 	 * W3TC API server base URL. Overwritten by W3TC_API2_URL constant.
 	 *
 	 * @var string
@@ -234,7 +227,7 @@ class PageSpeed_Api {
 	public function maybe_refresh_token() {
 		$site_id            = Util_Http::generate_site_id();
 		$w3tc_pagespeed_key = $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' );
-		if ( /*$this->client->isAccessTokenExpired()*/1 && ! empty( $w3tc_pagespeed_key ) ) {
+		if ( $this->client->isAccessTokenExpired() && ! empty( $w3tc_pagespeed_key ) ) {
 			$this->refresh_token( $site_id, $w3tc_pagespeed_key );
 		}
 	}
