@@ -94,6 +94,9 @@ class DbCache_Plugin {
 		// usage statistics handling.
 		add_filter( 'w3tc_usage_statistics_metrics', array( $this, 'w3tc_usage_statistics_metrics' ) );
 		add_filter( 'w3tc_usage_statistics_sources', array( $this, 'w3tc_usage_statistics_sources' ) );
+
+		// disk usage warning.
+		add_action( 'admin_notices', array( $this, 'disk_warning_notice' ) );
 	}
 
 	/**
@@ -283,5 +286,22 @@ class DbCache_Plugin {
 		}
 
 		return $sources;
+	}
+
+	/**
+	 * Displays admin notice for disk/disk-enhanced engine.
+	 *
+	 * @since X.X.X
+	 */
+	public function disk_warning_notice() {
+		if ( current_user_can( 'manage_options' ) && 'file' === $this->_config->get_string( 'dbcache.engine' ) ) {
+			?>
+			<div class="notice notice-warning is-dismissible">
+				<p><b><?php esc_html_e( 'Warning: Disk-Based Database Caching Selected', 'w3-total-cache' ); ?></b></p>
+				<p><?php esc_html_e( 'Using disk as the cache engine for dababase caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?></p>
+				<p><a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"><?php esc_html_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?></a></p>
+			</div>
+			<?php
+		}
 	}
 }
