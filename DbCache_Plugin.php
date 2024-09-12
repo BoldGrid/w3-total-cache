@@ -298,7 +298,7 @@ class DbCache_Plugin {
 			?>
 			<div class="notice notice-warning is-dismissible">
 				<p><b><?php esc_html_e( 'Warning: Disk-Based Database Caching Selected', 'w3-total-cache' ); ?></b></p>
-				<p><?php esc_html_e( 'Using disk as the cache engine for dababase caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?></p>
+				<p><?php esc_html_e( 'Using disk as the cache engine for database caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?></p>
 				<p><a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"><?php esc_html_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?></a></p>
 			</div>
 			<?php
