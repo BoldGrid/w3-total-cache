@@ -257,7 +257,7 @@ class PageSpeed_Api {
 				'timeout' => 60,
 			)
 		);
-		
+
 		$response_body_json = wp_remote_retrieve_body( $response );
 		$response_body      = json_decode( $response_body_json, true );
 
@@ -290,12 +290,17 @@ class PageSpeed_Api {
 				$message
 			);
 
+			// Reset the token and key.
+			$this->config->set( 'widget.pagespeed.access_token', '' );
+			$this->config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
+			$this->config->save();
+
 			return;
 		}
 
 		$access_token = $response_body_json;
 
-		if ( empty( $access_token ) ) {
+		if ( empty( $access_token ) || empty( $response_body['access_token'] ) ) {
 			update_option(
 				'w3tcps_refresh_fail',
 				__( 'Google PageSpeed access token refresh failed due to response missing access token.', 'w3-total-cache' )
@@ -356,19 +361,19 @@ class PageSpeed_Api {
 					echo '<div class="updated is-dismissible"><p>' . esc_html( get_option( 'w3tcps_authorize_success' ) ) . '</p></div>';
 					delete_option( 'w3tcps_authorize_success' );
 					break;
-		
+
 				case get_option( 'w3tcps_authorize_fail' ):
 					echo '<div class="error is-dismissible"><p>' . esc_html( get_option( 'w3tcps_authorize_fail' ) ) . '</p><p>' . wp_kses( get_option( 'w3tcps_authorize_fail_message' ), Util_PageSpeed::get_allowed_tags() ) . '</p></div>';
 					delete_option( 'w3tcps_authorize_fail' );
 					delete_option( 'w3tcps_authorize_fail_message' );
 					break;
-		
+
 				case get_option( 'w3tcps_refresh_fail' ):
 					echo '<div class="error is-dismissible"><p>' . esc_html( get_option( 'w3tcps_refresh_fail' ) ) . '</p><p>' . wp_kses( get_option( 'w3tcps_refresh_fail_message' ), Util_PageSpeed::get_allowed_tags() ) . '</p></div>';
 					delete_option( 'w3tcps_refresh_fail' );
 					delete_option( 'w3tcps_refresh_fail_message' );
 					break;
-		
+
 				case get_option( 'w3tcps_revoke_fail' ):
 					echo '<div class="error is-dismissible"><p>' . esc_html( get_option( 'w3tcps_revoke_fail' ) ) . '</p><p>' . wp_kses( get_option( 'w3tcps_revoke_fail_message' ), Util_PageSpeed::get_allowed_tags() ) . '</p></div>';
 					delete_option( 'w3tcps_revoke_fail' );
