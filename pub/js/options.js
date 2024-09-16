@@ -501,6 +501,19 @@ jQuery(function() {
 		}
     });
 
+  // Database cache disk usage warning
+	if ( jQuery('#dbcache__engine').val() === 'file' ) {
+		jQuery('.dbcache_disk_notice').show();
+	}
+
+	jQuery('#dbcache__engine').change( function() {
+		if ( jQuery(this).val() === 'file' ) {
+			jQuery('.dbcache_disk_notice').show();
+		} else {
+			jQuery('.dbcache_disk_notice').hide();
+		}
+	});
+
 	// General page.
 	jQuery('.w3tc_read_technical_info').on('click', function() {
 		jQuery('.w3tc_technical_info').toggle();

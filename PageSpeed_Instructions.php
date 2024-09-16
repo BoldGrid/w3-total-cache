@@ -211,18 +211,6 @@ class PageSpeed_Instructions {
 						<p>' . esc_html__( 'Similarly, remove temporary redirects if not needed anymore.', 'w3-total-cache' ) . '</p>
 						<p>' . esc_html__( 'Remember that combining multiple redirects into a single redirect is the most effective way to improve web performance.', 'w3-total-cache' ) . '</p>',
 				),
-				'uses-rel-preload'             => array(
-					'instructions' =>
-						'<p>' . sprintf(
-							// translators: 1 W3TC plugin name.
-							esc_html__(
-								'JS and CSS - Use HTTP2/Push for %1$s Minified files',
-								'w3-total-cache'
-							),
-							'W3 Total Cache'
-						) . '</p>
-						<p>' . esc_html__( 'Preload fonts hosted on the server: ', 'w3-total-cache' ) . '<code>' . esc_html( '<link rel="preload" target="_blank" href="fontname" as="font" type="font/format" crossorigin>' ) . '</code></p>',
-				),
 				'efficient-animated-content'   => array(
 					'instructions' =>
 						'<p>' . sprintf(
@@ -567,17 +555,6 @@ class PageSpeed_Instructions {
 							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#browser_cache' ) ) . '" alt="' . esc_attr__( 'Browser Cache', 'w3-total-cache' ) . '">' . esc_html__( 'Browser Cache', 'w3-total-cache' ) . '</a></li>
 							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '" alt="' . esc_attr__( 'CDN', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</a></li>
 							<li><a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) ) . '" alt="' . esc_attr__( 'Preload Requests', 'w3-total-cache' ) . '">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a></li>
-						</ul>',
-				),
-				'layout-shift-elements'            => array(
-					'instructions' =>
-						'<p>' . esc_html__( 'Without completely redesigning your web page from scratch, typically you cannot resolve this warning.  Understand that this warning is significant and if you get it for more than one or two pages in your site, you should consider:', 'w3-total-cache' ) . '</p>
-						<br/>
-						<ul>
-							<li>' . esc_html__( 'Reducing the amount of widgets / sections within your web pages or page layouts', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Using a simpler web page builder as many page builders add a lot of code bloat', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Using a different theme', 'w3-total-cache' ) . '</li>
-							<li>' . esc_html__( 'Using a different slider', 'w3-total-cache' ) . '</li>
 						</ul>',
 				),
 				'long-tasks'                       => array(
