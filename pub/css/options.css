@@ -1663,6 +1663,7 @@ td .w3tc-control-after span {
 	margin-left: 5px;
 }
 
+.objectcache_disk_notice,
 .dbcache_disk_notice {
 	display: none;
 }

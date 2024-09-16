@@ -1,37 +1,101 @@
 <?php
+/**
+ * File: ObjectCache_WpObjectCache.php
+ *
+ * @package W3TC
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore, PSR2.Methods.MethodDeclaration.Underscore
+ */
+
 namespace W3TC;
 
+/**
+ * W3 Object Cache object
+ */
 class ObjectCache_WpObjectCache {
+	/**
+	 * Config
+	 *
+	 * @var object|null
+	 */
 	private $_config = null;
+
+	/**
+	 * Default cache
+	 *
+	 * @var object
+	 */
 	private $_default_cache;
+
+	/**
+	 * Caches
+	 *
+	 * @var array
+	 */
 	private $_caches = array();
+
+	/**
+	 * Cache by group
+	 *
+	 * @var array
+	 */
 	private $_cache_by_group = array();
 
-	function __construct() {
-		$this->_config = Dispatcher::config();
-		$this->_default_cache = Dispatcher::component(
-			'ObjectCache_WpObjectCache_Regular' );
-		$this->_caches[] = $this->_default_cache;
+	/**
+	 * Supported features
+	 *
+	 * @var array
+	 */
+	private $supported_features = array(
+		'flush_runtime',
+		'flush_group',
+		'add_multiple',
+		'set_multiple',
+		'get_multiple',
+		'delete_multiple',
+		'incr',
+		'decr',
+		'groups',
+		'global_groups',
+		'non_persistent',
+		'persistent',
+	);
+
+	/**
+	 * PHP5 style constructor
+	 */
+	public function __construct() {
+		$this->_config        = Dispatcher::config();
+		$this->_default_cache = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
+		$this->_caches[]      = $this->_default_cache;
 	}
 
 	/**
 	 * Registers cache object so that its used for specific groups of
 	 * object cache instead of default cache
+	 *
+	 * @param object $cache                 Cache.
+	 * @param array  $use_for_object_groups Use for object groups.
 	 */
 	public function register_cache( $cache, $use_for_object_groups ) {
 		$this->_caches[] = $cache;
-		foreach ( $use_for_object_groups as $group )
-			$this->_cache_by_group[$group] = $cache;
+
+		foreach ( $use_for_object_groups as $group ) {
+			$this->_cache_by_group[ $group ] = $cache;
+		}
 	}
 
 	/**
 	 * Get from the cache
 	 *
-	 * @param string  $id
-	 * @param string  $group
+	 * @param string    $id    ID.
+	 * @param string    $group Group.
+	 * @param bool      $force Force.
+	 * @param bool|null $found Found.
+	 *
 	 * @return mixed
 	 */
-	function get( $id, $group = 'default', $force = false, &$found = null ) {
+	public function get( $id, $group = 'default', $force = false, &$found = null ) {
 		$cache = $this->_get_engine( $group );
 		return $cache->get( $id, $group, $force, $found );
 	}
@@ -57,13 +121,14 @@ class ObjectCache_WpObjectCache {
 	/**
 	 * Set to the cache
 	 *
-	 * @param string  $id
-	 * @param mixed   $data
-	 * @param string  $group
-	 * @param integer $expire
+	 * @param string  $id     ID.
+	 * @param mixed   $data   Data.
+	 * @param string  $group  Group.
+	 * @param integer $expire Expire.
+	 *
 	 * @return boolean
 	 */
-	function set( $id, $data, $group = 'default', $expire = 0 ) {
+	public function set( $id, $data, $group = 'default', $expire = 0 ) {
 		$cache = $this->_get_engine( $group );
 		return $cache->set( $id, $data, $group, $expire );
 	}
@@ -88,12 +153,13 @@ class ObjectCache_WpObjectCache {
 	/**
 	 * Delete from the cache
 	 *
-	 * @param string  $id
-	 * @param string  $group
-	 * @param bool    $force
+	 * @param string $id    ID.
+	 * @param string $group Group.
+	 * @param bool   $force Force.
+	 *
 	 * @return boolean
 	 */
-	function delete( $id, $group = 'default', $force = false ) {
+	public function delete( $id, $group = 'default', $force = false ) {
 		$cache = $this->_get_engine( $group );
 		return $cache->delete( $id, $group, $force );
 	}
@@ -117,13 +183,14 @@ class ObjectCache_WpObjectCache {
 	/**
 	 * Add to the cache
 	 *
-	 * @param string  $id
-	 * @param mixed   $data
-	 * @param string  $group
-	 * @param integer $expire
+	 * @param string  $id     ID.
+	 * @param mixed   $data   Data.
+	 * @param string  $group  Group.
+	 * @param integer $expire Expire.
+	 *
 	 * @return boolean
 	 */
-	function add( $id, $data, $group = 'default', $expire = 0 ) {
+	public function add( $id, $data, $group = 'default', $expire = 0 ) {
 		$cache = $this->_get_engine( $group );
 		return $cache->add( $id, $data, $group, $expire );
 	}
@@ -149,13 +216,14 @@ class ObjectCache_WpObjectCache {
 	/**
 	 * Replace in the cache
 	 *
-	 * @param string  $id
-	 * @param mixed   $data
-	 * @param string  $group
-	 * @param integer $expire
+	 * @param string  $id     ID.
+	 * @param mixed   $data   Data.
+	 * @param string  $group  Group.
+	 * @param integer $expire Expire.
+	 *
 	 * @return boolean
 	 */
-	function replace( $id, $data, $group = 'default', $expire = 0 ) {
+	public function replace( $id, $data, $group = 'default', $expire = 0 ) {
 		$cache = $this->_get_engine( $group );
 		return $cache->replace( $id, $data, $group, $expire );
 	}
@@ -165,10 +233,13 @@ class ObjectCache_WpObjectCache {
 	 *
 	 * @return boolean
 	 */
-	function reset() {
+	public function reset() {
 		$result = true;
-		foreach ( $this->_caches as $engine )
+
+		foreach ( $this->_caches as $engine ) {
 			$result = $result && $engine->reset();
+		}
+
 		return $result;
 	}
 
@@ -177,22 +248,70 @@ class ObjectCache_WpObjectCache {
 	 *
 	 * @return boolean
 	 */
-	function flush() {
+	public function flush() {
 		$result = true;
-		foreach ( $this->_caches as $engine )
+
+		foreach ( $this->_caches as $engine ) {
 			$result = $result && $engine->flush();
+		}
+
 		return $result;
+	}
+
+	/**
+	 * Flush group.
+	 *
+	 * @param string $group Group.
+	 *
+	 * @return boolean
+	 */
+	public function flush_group( $group ) {
+		$result = true;
+
+		foreach ( $this->_caches as $engine ) {
+			$result = $result && $engine->flush_group( $group );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Flush runtime.
+	 *
+	 * @return boolean
+	 */
+	public function flush_runtime() {
+		$result = true;
+
+		foreach ( $this->_caches as $engine ) {
+			$result = $result && $engine->flush_runtime();
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Check supported features.
+	 *
+	 * @param string $feature Feature.
+	 *
+	 * @return boolean
+	 */
+	public function supports( string $feature ) {
+		return in_array( $feature, $this->supported_features, true );
 	}
 
 	/**
 	 * Add global groups
 	 *
-	 * @param array   $groups
+	 * @param array $groups Groups.
+	 *
 	 * @return void
 	 */
-	function add_global_groups( $groups ) {
-		if ( !is_array( $groups ) )
+	public function add_global_groups( $groups ) {
+		if ( ! is_array( $groups ) ) {
 			$groups = array( $groups );
+		}
 
 		foreach ( $groups as $group ) {
 			$cache = $this->_get_engine( $group );
@@ -203,12 +322,14 @@ class ObjectCache_WpObjectCache {
 	/**
 	 * Add non-persistent groups
 	 *
-	 * @param array   $groups
+	 * @param array $groups Groups.
+	 *
 	 * @return void
 	 */
-	function add_nonpersistent_groups( $groups ) {
-		if ( !is_array( $groups ) )
+	public function add_nonpersistent_groups( $groups ) {
+		if ( ! is_array( $groups ) ) {
 			$groups = array( $groups );
+		}
 
 		foreach ( $groups as $group ) {
 			$cache = $this->_get_engine( $group );
@@ -219,12 +340,14 @@ class ObjectCache_WpObjectCache {
 	/**
 	 * Return engine based on which group the OC value belongs to.
 	 *
-	 * @param string  $group
+	 * @param string $group Group.
+	 *
 	 * @return mixed
 	 */
 	private function _get_engine( $group = '' ) {
-		if ( isset( $this->_cache_by_group[$group] ) )
-			return $this->_cache_by_group[$group];
+		if ( isset( $this->_cache_by_group[ $group ] ) ) {
+			return $this->_cache_by_group[ $group ];
+		}
 
 		return $this->_default_cache;
 	}
@@ -232,12 +355,13 @@ class ObjectCache_WpObjectCache {
 	/**
 	 * Decrement numeric cache item's value
 	 *
-	 * @param int|string $id     The cache key to increment
-	 * @param int     $offset The amount by which to decrement the item's value. Default is 1.
-	 * @param string  $group  The group the key is in.
+	 * @param int|string $id     The cache key to increment.
+	 * @param int        $offset The amount by which to decrement the item's value. Default is 1.
+	 * @param string     $group  The group the key is in.
+	 *
 	 * @return bool|int False on failure, the item's new value on success.
 	 */
-	function decr( $id, $offset = 1, $group = 'default' ) {
+	public function decr( $id, $offset = 1, $group = 'default' ) {
 		$cache = $this->_get_engine( $group );
 		return $cache->decr( $id, $offset, $group );
 	}
@@ -245,18 +369,27 @@ class ObjectCache_WpObjectCache {
 	/**
 	 * Increment numeric cache item's value
 	 *
-	 * @param int|string $id     The cache key to increment
-	 * @param int     $offset The amount by which to increment the item's value. Default is 1.
-	 * @param string  $group  The group the key is in.
+	 * @param int|string $id     The cache key to increment.
+	 * @param int        $offset The amount by which to increment the item's value. Default is 1.
+	 * @param string     $group  The group the key is in.
+	 *
 	 * @return false|int False on failure, the item's new value on success.
 	 */
-	function incr( $id, $offset = 1, $group = 'default' ) {
+	public function incr( $id, $offset = 1, $group = 'default' ) {
 		$cache = $this->_get_engine( $group );
 		return $cache->incr( $id, $offset, $group );
 	}
 
-	function switch_to_blog( $blog_id ) {
-		foreach ( $this->_caches as $cache )
+	/**
+	 * Switch to blog
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @return void
+	 */
+	public function switch_to_blog( $blog_id ) {
+		foreach ( $this->_caches as $cache ) {
 			$cache->switch_blog( $blog_id );
+		}
 	}
 }
