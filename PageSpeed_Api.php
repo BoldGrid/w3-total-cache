@@ -249,7 +249,7 @@ class PageSpeed_Api {
 			return;
 		}
 
-		$request = $this->get_w3tc_api_url( 'google/refresh-token' ) . '/' . urlencode( $site_id ) . '/' . urlencode( $w3tc_pagespeed_key );
+		$request = $this->get_w3tc_api_url( 'google/refresh-token' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $w3tc_pagespeed_key );
 
 		$response = wp_remote_get(
 			$request,
@@ -401,7 +401,7 @@ class PageSpeed_Api {
 			return;
 		}
 
-		$request = $this->get_w3tc_api_url( 'google/revoke-token' ) . '/' . urlencode( $access_token ) . '/' . urlencode( $site_id ) . '/' . urlencode( $w3tc_pagespeed_key );
+		$request = $this->get_w3tc_api_url( 'google/revoke-token' ) . '/' . rawurlencode( $access_token ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $w3tc_pagespeed_key );
 
 		$response = wp_remote_get(
 			$request,
