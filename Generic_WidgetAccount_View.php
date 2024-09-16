@@ -28,6 +28,7 @@ $license     = Licensing_Core::check_license( $license_key, W3TC_VERSION );
 			if ( ! empty( $license ) ) {
 				switch ( $license ) {
 					case 'active.by_rooturi' === $license->license_status:
+					case 'active.by_ip' === $license->license_status:
 						esc_html_e( 'Active', 'w3-total-cache' );
 						break;
 					case 'inactive.expired' === $license->license_status:
