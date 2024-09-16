@@ -1663,6 +1663,10 @@ td .w3tc-control-after span {
 	margin-left: 5px;
 }
 
+.objectcache_disk_notice {
+	display: none;
+}
+
 @media screen and (max-width: 1200px) {
 	.w3tc_form_bar>#w3tc-options-menu,
 	.w3tc_form_bar>.w3tc-button-control-container {

@@ -55,11 +55,6 @@ class ObjectCache_Plugin {
 		add_action( 'w3tc_usage_statistics_of_request', array( $this, 'w3tc_usage_statistics_of_request' ), 10, 1 );
 		add_filter( 'w3tc_usage_statistics_metrics', array( $this, 'w3tc_usage_statistics_metrics' ) );
 		add_filter( 'w3tc_usage_statistics_sources', array( $this, 'w3tc_usage_statistics_sources' ) );
-
-		// disk usage warning.
-		if ( Util_Admin::is_w3tc_admin_page() ) {
-			add_action( 'admin_notices', array( $this, 'disk_warning_notice' ) );
-		}
 	}
 
 	/**
@@ -194,22 +189,5 @@ class ObjectCache_Plugin {
 		}
 
 		return $sources;
-	}
-
-	/**
-	 * Displays admin notice for disk/disk-enhanced engine.
-	 *
-	 * @since X.X.X
-	 */
-	public function disk_warning_notice() {
-		if ( current_user_can( 'manage_options' ) && 'file' === $this->_config->get_string( 'objectcache.engine' ) ) {
-			?>
-			<div class="notice notice-warning is-dismissible">
-				<p><b><?php esc_html_e( 'Warning: Disk-Based Object Caching Selected', 'w3-total-cache' ); ?></b></p>
-				<p><?php esc_html_e( 'Using disk as the cache engine for object caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?></p>
-				<p><a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"><?php esc_html_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?></a></p>
-			</div>
-			<?php
-		}
 	}
 }
