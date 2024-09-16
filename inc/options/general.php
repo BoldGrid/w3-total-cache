@@ -391,17 +391,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				$objectcache_config_item['disabled'] = true;
 			}
 			Util_Ui::config_item( $objectcache_config_item );
-
-			if ( $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
-				?>
-				<div class="objectcache_disk_notice notice notice-warning">
-					<p><b><?php esc_html_e( 'Warning: Disk-Based Object Caching Selected', 'w3-total-cache' ); ?></b></p>
-					<p><?php esc_html_e( 'Using disk as the cache engine for object caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?></p>
-					<p><a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"><?php esc_html_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?></a></p>
-				</div>
-				<?php
-			}
-
+			?>
+			<div class="objectcache_disk_notice notice notice-warning">
+				<p><b><?php esc_html_e( 'Warning: Disk-Based Object Caching Selected', 'w3-total-cache' ); ?></b></p>
+				<p><?php esc_html_e( 'Using disk as the cache engine for object caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?></p>
+				<p><a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"><?php esc_html_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?></a></p>
+			</div>
+			<?php
 			Util_Ui::config_item_engine( array( 'key' => 'objectcache.engine' ) );
 			?>
 		</table>
