@@ -96,7 +96,9 @@ class DbCache_Plugin {
 		add_filter( 'w3tc_usage_statistics_sources', array( $this, 'w3tc_usage_statistics_sources' ) );
 
 		// disk usage warning.
-		add_action( 'admin_notices', array( $this, 'disk_warning_notice' ) );
+		if ( Util_Admin::is_w3tc_admin_page() ) {
+			add_action( 'admin_notices', array( $this, 'disk_warning_notice' ) );
+		}
 	}
 
 	/**
