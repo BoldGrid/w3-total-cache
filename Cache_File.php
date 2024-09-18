@@ -322,9 +322,7 @@ class Cache_File extends Cache_Base {
 		else
 			$hash = md5( $key );
 
-		$path = sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
-
-		return $path;
+		return ( $group ? $group . DIRECTORY_SEPARATOR : '' ) . sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
 	}
 
 	public function get_stats_size( $timeout_time ) {
@@ -448,8 +446,7 @@ class Cache_File extends Cache_Base {
 		$storage_key = $this->get_item_key( $key );
 
 		$sub_path = $this->_get_path( $storage_key, $group );
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) . $sub_path;
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
 
 		$dir = dirname( $path );
 
