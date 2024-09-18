@@ -16,7 +16,7 @@ class ObjectCache_Plugin {
 	/**
 	 * Config.
 	 *
-	 * @var array
+	 * @var Config
 	 */
 	private $_config = null;
 
@@ -40,7 +40,9 @@ class ObjectCache_Plugin {
 	 * Runs plugin
 	 */
 	public function run() {
-		// phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
+		// @link https://developer.wordpress.org/reference/hooks/updated_option/
+		add_action( 'updated_option', array( $this, 'delete_option_cache' ), 10, 0 );
+
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
 
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
@@ -55,6 +57,19 @@ class ObjectCache_Plugin {
 		add_action( 'w3tc_usage_statistics_of_request', array( $this, 'w3tc_usage_statistics_of_request' ), 10, 1 );
 		add_filter( 'w3tc_usage_statistics_metrics', array( $this, 'w3tc_usage_statistics_metrics' ) );
 		add_filter( 'w3tc_usage_statistics_sources', array( $this, 'w3tc_usage_statistics_sources' ) );
+	}
+
+	/**
+	 * Delete the options cache object.
+	 *
+	 * @since X.X.X
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/wp_cache_delete/
+	 *
+	 * @return bool
+	 */
+	public function delete_option_cache() {
+		return wp_cache_delete( 'alloptions', 'options' );
 	}
 
 	/**
