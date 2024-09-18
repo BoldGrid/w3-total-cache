@@ -149,9 +149,7 @@ class Cache_File extends Cache_Base {
 
 		$storage_key = $this->get_item_key( $key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
 		if ( !is_readable( $path ) )
 			return array( null, $has_old_data );
 
@@ -226,9 +224,7 @@ class Cache_File extends Cache_Base {
 	function delete( $key, $group = '' ) {
 		$storage_key = $this->get_item_key( $key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
 
 		if ( !file_exists( $path ) )
 			return true;
@@ -299,9 +295,7 @@ class Cache_File extends Cache_Base {
 	 */
 	function mtime( $key, $group = '' ) {
 		$path =
-			$this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $key, $group );
+			$this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
 
 		if ( file_exists( $path ) ) {
 			return @filemtime( $path );
