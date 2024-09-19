@@ -32,7 +32,8 @@ describe('', function() {
 				'--no-first-run',
 				'--no-zygote',
 				'--disable-gpu',
-				'--incognito'
+				'--incognito',
+				'--ignore-certificate-errors'
 			]
 		});
 
@@ -46,6 +47,7 @@ describe('', function() {
 				'--no-first-run',
 				'--no-zygote',
 				'--disable-gpu',
+				'--ignore-certificate-errors'
 			]
 		});
 
