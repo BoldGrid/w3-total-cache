@@ -149,9 +149,7 @@ class Cache_File extends Cache_Base {
 
 		$storage_key = $this->get_item_key( $key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
 		if ( !is_readable( $path ) )
 			return array( null, $has_old_data );
 
@@ -226,9 +224,7 @@ class Cache_File extends Cache_Base {
 	function delete( $key, $group = '' ) {
 		$storage_key = $this->get_item_key( $key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
 
 		if ( !file_exists( $path ) )
 			return true;
@@ -299,9 +295,7 @@ class Cache_File extends Cache_Base {
 	 */
 	function mtime( $key, $group = '' ) {
 		$path =
-			$this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $key, $group );
+			$this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
 
 		if ( file_exists( $path ) ) {
 			return @filemtime( $path );
@@ -322,9 +316,7 @@ class Cache_File extends Cache_Base {
 		else
 			$hash = md5( $key );
 
-		$path = sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
-
-		return $path;
+		return ( $group ? $group . DIRECTORY_SEPARATOR : '' ) . sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
 	}
 
 	public function get_stats_size( $timeout_time ) {
@@ -448,8 +440,7 @@ class Cache_File extends Cache_Base {
 		$storage_key = $this->get_item_key( $key );
 
 		$sub_path = $this->_get_path( $storage_key, $group );
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) . $sub_path;
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
 
 		$dir = dirname( $path );
 
