@@ -382,6 +382,9 @@ class JSMin {
 		$comment = '';
 		while (true) {
 			$get = $this->get();
+			if ( null === $get ) {
+				return;
+			}
 			$comment .= $get;
 			if (ord($get) <= self::ORD_LF) { // end of line reached
 				// if IE conditional comment
