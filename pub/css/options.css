@@ -734,16 +734,12 @@ td.w3tc_config_value_text {
 	margin-right: auto;
 }
 
-.w3tc_menu_item_pro {
+.w3tc_menu_item_pro, #toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"] {
 	color: #0FA9B5;
 }
 
-.w3tc_menu_item_pro:hover {
+.w3tc_menu_item_pro:hover, #toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"]:hover {
 	color: #ddd;
-}
-
-#toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"] {
-	color: red;
 }
 
 .w3tc_popup_form {
@@ -1667,6 +1663,11 @@ td .w3tc-control-after span {
 	margin-left: 5px;
 }
 
+.objectcache_disk_notice,
+.dbcache_disk_notice {
+	display: none;
+}
+
 @media screen and (max-width: 1200px) {
 	.w3tc_form_bar>#w3tc-options-menu,
 	.w3tc_form_bar>.w3tc-button-control-container {
@@ -1685,7 +1686,7 @@ td .w3tc-control-after span {
 		float: none;
 		margin: 1em auto;
 	}
-	
+
 	#w3tc-bunnycdn-ad-cdn,
 	#w3tc-bunnycdn-ad-general {
         flex-direction: column;

@@ -32,28 +32,29 @@ class Extension_Wpml_Plugin_Admin {
 		return $notes;
 	}
 
-	static public function w3tc_extensions( $extensions, $config ) {
+	public static function w3tc_extensions( $extensions, $config ) {
 		$base_plugin_active = self::base_plugin_active();
 		$enabled = $base_plugin_active;
 		$disabled_message = '';
 
 		$requirements = array();
-		if ( !$base_plugin_active )
-			$requirements[] = 'Ensure "WPML" plugin compatibility, which is not currently active.';
-		if ( empty( $requirements ) && !Util_Environment::is_w3tc_pro( $config ) ) {
+		if ( ! $base_plugin_active ) {
+			$requirements[] = 'Install and activate WPML or TranslatePress.';
+		}
+
+		if ( empty( $requirements ) && ! Util_Environment::is_w3tc_pro( $config ) ) {
 			$enabled = false;
 		}
 
 		$extensions['wpml'] = array(
 			'name' => 'WPML',
 			'author' => 'W3 EDGE',
-			'description' => __( 'Improves page caching interoperability with WPML.',
-				'w3-total-cache' ),
+			'description' => __( 'Improves page caching interoperability with WPML and TranslatePress.', 'w3-total-cache' ),
 			'author_uri' => 'https://www.w3-edge.com/',
 			'extension_uri' => 'https://www.w3-edge.com/',
 			'extension_id' => 'wpml',
 			'pro_feature' => true,
-			'pro_excerpt' => __( 'Improve the caching performance of websites localized by WPML.', 'w3-total-cache'),
+			'pro_excerpt' => __( 'Improve the caching performance of websites localized by WPML.', 'w3-total-cache' ),
 			'pro_description' => array(
 				__( 'Localization is a type of personalization that makes websites more difficult to scale. This extension reduces the response time of websites localized by WPML.', 'w3-total-cache')
 			),
@@ -62,7 +63,7 @@ class Extension_Wpml_Plugin_Admin {
 			'enabled' => $enabled,
 			'disabled_message' => $disabled_message,
 			'requirements' => implode( ', ', $requirements ),
-			'path' => 'w3-total-cache/Extension_Wpml_Plugin.php'
+			'path' => 'w3-total-cache/Extension_Wpml_Plugin.php',
 		);
 
 
@@ -70,8 +71,15 @@ class Extension_Wpml_Plugin_Admin {
 		return $extensions;
 	}
 
-	static public function base_plugin_active() {
-		return defined( 'ICL_SITEPRESS_VERSION' );
+	/**
+	 * Check if WPML or TranslatePress is active.
+	 *
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function base_plugin_active() {
+		return defined( 'ICL_SITEPRESS_VERSION' ) || defined( 'TRP_PLUGIN_VERSION' );
 	}
 
 	/**
