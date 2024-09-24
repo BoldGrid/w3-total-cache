@@ -192,6 +192,7 @@ class Cdn_Plugin_Admin {
 		);
 
 		$engine_values['azuremi'] = array(
+			'disabled' => empty( getenv( 'APPSETTING_WEBSITE_SITE_NAME' ) ),
 			'label'    => \__( 'Microsoft Azure Storage (Managed Identity)', 'w3-total-cache' ),
 			'optgroup' => $optgroup_push,
 		);
