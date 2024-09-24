@@ -303,7 +303,7 @@ class Cdn_AdminNotes {
 		global $wpdb;
 		$wpdb->hide_errors();
 
-		$result = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %s', $wpdb->base_prefix . W3TC_CDN_TABLE_QUEUE ) );
+		$result = $wpdb->get_var( sprintf( 'SELECT COUNT(`id`) FROM `%s`', $wpdb->base_prefix . W3TC_CDN_TABLE_QUEUE ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( ( $error = $wpdb->last_error ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
 			if ( strpos( $error, "doesn't exist" ) !== false ) {
