@@ -72,8 +72,32 @@ class Extensions_Plugin_Admin {
 	 * @return array
 	 */
 	public function w3tc_admin_menu( $menu ) {
+		$extension_val = Util_Request::get_string( 'extension' );
+		$extension     = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
+		$page_title    = '';
+
+		switch ( $extension ) {
+			case 'alwayscached':
+				$page_title = __( 'Always Cached Extension Settings', 'w3-total-cache' );
+				break;
+			case 'amp':
+				$page_title = __( 'AMP Extension Settings', 'w3-total-cache' );
+				break;
+			case 'cloudflare':
+				$page_title = __( 'Cloudflare Extension Settings', 'w3-total-cache' );
+				break;
+			case 'swarmify':
+				$page_title = __( 'Swarmify Extension Settings', 'w3-total-cache' );
+				break;
+			case 'genesis.theme':
+				$page_title = __( 'Genesis Extension Settings', 'w3-total-cache' );
+				break;
+			default:
+				$page_title = __( 'Extensions', 'w3-total-cache' );
+		}
+
 		$menu['w3tc_extensions'] = array(
-			'page_title'     => __( 'Extensions', 'w3-total-cache' ),
+			'page_title'     => $page_title,
 			'menu_text'      => __( 'Extensions', 'w3-total-cache' ),
 			'visible_always' => false,
 			'order'          => 1900,
