@@ -67,7 +67,6 @@ $wp_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 				'label'            => esc_html__( 'Interval', 'w3-total-cache' ),
 				'control'          => 'selectbox',
 				'selectbox_values' => array(
-					''           => esc_html__( 'Never', 'w3-total-cache' ),
 					'hourly'     => esc_html__( 'Hourly', 'w3-total-cache' ),
 					'twicedaily' => esc_html__( 'Twice Daily', 'w3-total-cache' ),
 					'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
