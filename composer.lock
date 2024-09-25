@@ -121,16 +121,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.318.0",
+            "version": "3.321.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "3f9cc3fe95f5dfa9fbd535c4d3bc78e7ac0adf44"
+                "reference": "ccb1871998fb05ec1075468a743afba51a36e2c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/3f9cc3fe95f5dfa9fbd535c4d3bc78e7ac0adf44",
-                "reference": "3f9cc3fe95f5dfa9fbd535c4d3bc78e7ac0adf44",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/ccb1871998fb05ec1075468a743afba51a36e2c4",
+                "reference": "ccb1871998fb05ec1075468a743afba51a36e2c4",
                 "shasum": ""
             },
             "require": {
@@ -213,9 +213,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.318.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.321.12"
             },
-            "time": "2024-08-06T18:05:56+00:00"
+            "time": "2024-09-16T18:15:56+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -640,16 +640,16 @@
         },
         {
             "name": "mtdowling/jmespath.php",
-            "version": "2.7.0",
+            "version": "2.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jmespath/jmespath.php.git",
-                "reference": "bbb69a935c2cbb0c03d7f481a238027430f6440b"
+                "reference": "a2a865e05d5f420b50cc2f85bb78d565db12a6bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jmespath/jmespath.php/zipball/bbb69a935c2cbb0c03d7f481a238027430f6440b",
-                "reference": "bbb69a935c2cbb0c03d7f481a238027430f6440b",
+                "url": "https://api.github.com/repos/jmespath/jmespath.php/zipball/a2a865e05d5f420b50cc2f85bb78d565db12a6bc",
+                "reference": "a2a865e05d5f420b50cc2f85bb78d565db12a6bc",
                 "shasum": ""
             },
             "require": {
@@ -666,7 +666,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.7-dev"
+                    "dev-master": "2.8-dev"
                 }
             },
             "autoload": {
@@ -700,9 +700,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jmespath/jmespath.php/issues",
-                "source": "https://github.com/jmespath/jmespath.php/tree/2.7.0"
+                "source": "https://github.com/jmespath/jmespath.php/tree/2.8.0"
             },
-            "time": "2023-08-25T10:54:48+00:00"
+            "time": "2024-09-04T18:46:31+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -2784,12 +2784,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
-                "reference": "cdb29b5a7c145ea30a84bcdf254b4aafaccf349c"
+                "reference": "7f766304b0654cee7c1dfa8e548f65fce197e05c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/cdb29b5a7c145ea30a84bcdf254b4aafaccf349c",
-                "reference": "cdb29b5a7c145ea30a84bcdf254b4aafaccf349c",
+                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/7f766304b0654cee7c1dfa8e548f65fce197e05c",
+                "reference": "7f766304b0654cee7c1dfa8e548f65fce197e05c",
                 "shasum": ""
             },
             "require": {
@@ -2843,20 +2843,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2024-07-27T13:10:40+00:00"
+            "time": "2024-08-28T05:05:46+00:00"
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "2.0.1",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "4a088f125c970d6d6ea52c927f96fe39b330d0f1"
+                "reference": "562f449a2ec8ab92fe7b30d94da9622c7b1345fe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/4a088f125c970d6d6ea52c927f96fe39b330d0f1",
-                "reference": "4a088f125c970d6d6ea52c927f96fe39b330d0f1",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/562f449a2ec8ab92fe7b30d94da9622c7b1345fe",
+                "reference": "562f449a2ec8ab92fe7b30d94da9622c7b1345fe",
                 "shasum": ""
             },
             "require": {
@@ -2871,7 +2871,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.x-dev"
+                    "dev-main": "3.x-dev"
                 }
             },
             "autoload": {
@@ -2906,7 +2906,7 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2024-04-05T16:36:44+00:00"
+            "time": "2024-09-06T22:38:28+00:00"
         }
     ],
     "aliases": [],

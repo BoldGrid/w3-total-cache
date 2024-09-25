@@ -32,13 +32,6 @@ class PageSpeed_Api {
 	public $client;
 
 	/**
-	 * W3TC Google Client JSON. Overwritten by W3TC_GOOGLE_CLIENT_JSON constant.
-	 *
-	 * @var string
-	 */
-	private $google_client_json = '{"web":{"client_id":"887173527583-mvtpm465985h8pokb3os715s9s3emv78.apps.googleusercontent.com","project_id":"w3tc-testing","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"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","redirect_uris":["google/authorize-in/","google/authorize-out/","google/update-token/","google/get-token/"]}}';
-
-	/**
 	 * W3TC API server base URL. Overwritten by W3TC_API2_URL constant.
 	 *
 	 * @var string
@@ -70,8 +63,6 @@ class PageSpeed_Api {
 		$this->config = Dispatcher::config();
 		$this->client = new \W3TCG_Google_Client();
 		$this->client->setApplicationName( 'W3TC PageSpeed Analyzer' );
-		$this->client->setAuthConfig( $this->get_client_json() );
-		$this->client->setRedirectUri( $this->get_w3tc_api_url( 'google/authorize-out/' ) );
 		$this->client->addScope( 'openid' );
 		$this->client->setAccessType( 'offline' );
 		$this->client->setApprovalPrompt( 'force' );
@@ -90,7 +81,7 @@ class PageSpeed_Api {
 	 * @return void
 	 */
 	public function run() {
-		add_action( 'admin_notices', array( $this, 'authorize_notice' ) );
+		add_action( 'admin_notices', array( $this, 'errors_notice' ) );
 	}
 	/**
 	 * Fully analyze URL via PageSpeed API.
@@ -234,253 +225,31 @@ class PageSpeed_Api {
 	 * @return void
 	 */
 	public function maybe_refresh_token() {
-		if ( $this->client->isAccessTokenExpired() && ! empty( $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) ) ) {
-			$this->refresh_token();
+		$site_id            = Util_Http::generate_site_id();
+		$w3tc_pagespeed_key = $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' );
+		if ( $this->client->isAccessTokenExpired() && ! empty( $w3tc_pagespeed_key ) ) {
+			$this->refresh_token( $site_id, $w3tc_pagespeed_key );
 		}
 	}
 
 	/**
 	 * Refreshes the Google access token if a valid refresh token is defined.
 	 *
-	 * @return string
-	 */
-	public function refresh_token() {
-		$initial_refresh_token = $this->client->getRefreshToken();
-		if ( empty( $initial_refresh_token ) ) {
-			$initial_refresh_token_json = $this->get_refresh_token( Util_Http::generate_site_id(), $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) );
-			$initial_refresh_token      = json_decode( $initial_refresh_token_json );
-			if ( ! empty( $initial_refresh_token->error ) ) {
-				$refresh_url   = $this->get_w3tc_api_url( 'google/get-token' ) . '/' . Util_Http::generate_site_id() . '/' . $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' );
-				$error_code    = ! empty( $initial_refresh_token->error->code ) ? $initial_refresh_token->error->code : 'N/A';
-				$error_message = ! empty( $initial_refresh_token->error->message ) ? $initial_refresh_token->error->message : 'N/A';
-				return wp_json_encode(
-					array(
-						'error' => '<p><strong>' . esc_html__( 'API request error!', 'w3-total-cache' ) . '</strong></p>
-							<p>' . esc_html__( 'Refresh URL : ', 'w3-total-cache' ) . $refresh_url . '</p>
-							<p>' . esc_html__( 'Response Code : ', 'w3-total-cache' ) . $error_code . '</p>
-							<p>' . esc_html__( 'Response Message : ', 'w3-total-cache' ) . $error_message . '</p>',
-					)
-				);
-			}
-		}
-
-		try {
-			$this->client->refreshToken( $initial_refresh_token->refresh_token );
-		} catch ( \Exception $e ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => 500,
-						'message' => $e->getMessage(),
-					),
-				)
-			);
-		}
-
-		$new_access_token = json_decode( $this->client->getAccessToken() );
-
-		if ( ! empty( $new_access_token->refresh_token ) ) {
-			$new_refresh_token = $new_access_token->refresh_token;
-			unset( $new_access_token->refresh_token );
-
-			$request = Util_Environment::url_format(
-				$this->get_w3tc_api_url( 'google/update-token' ),
-				array(
-					'site_id'            => Util_Http::generate_site_id(),
-					'w3tc_pagespeed_key' => $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ),
-					'refresh_token'      => $new_refresh_token,
-				)
-			);
-
-			$response = wp_remote_get(
-				$request,
-				array(
-					'timeout' => 60,
-				)
-			);
-
-			if ( is_wp_error( $response ) ) {
-				return wp_json_encode(
-					array(
-						'error' => array(
-							'code'    => $response->get_error_code(),
-							'message' => $response->get_error_message(),
-						),
-					)
-				);
-			} elseif ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
-				if ( 'update-token-missing-site-id' === $response['error']['id'] ) {
-					$message = __( 'No site ID provided for Google access record update!', 'w3-total-cache' );
-				} elseif ( 'update-token-missing-w3tc-pagespeed-key' === $response['error']['id'] ) {
-					$message = __( 'No W3 key provided for Google access record update!', 'w3-total-cache' );
-				} elseif ( 'update-token-missing-refresh-token' === $response['error']['id'] ) {
-					$message = __( 'No refresh token provided for Google access record update!', 'w3-total-cache' );
-				} elseif ( 'update-token-not-found' === $response['error']['id'] ) {
-					$message = __( 'No matching Google access record found for W3 key!', 'w3-total-cache' );
-				}
-
-				return wp_json_encode(
-					array(
-						'error' => array(
-							'code'    => $response['error']['code'],
-							'message' => $message,
-						),
-					)
-				);
-			}
-		}
-
-		$this->config->set( 'widget.pagespeed.access_token', wp_json_encode( $new_access_token ) );
-		$this->config->save();
-
-		return wp_json_encode( array( 'access_key' => $new_access_token ) );
-	}
-
-	/**
-	 * Creates new Google access token from authorize request response.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @param string $gacode             New Google access authentication code.
-	 * @param string $w3tc_pagespeed_key W3 API access key.
-	 *
-	 * @return string
-	 */
-	public function process_authorization_response( $gacode, $w3tc_pagespeed_key ) {
-		if ( empty( $gacode ) ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => 409,
-						'message' => __( 'Missing/invalid Google access authentication code.', 'w3-total-cache' ),
-					),
-				)
-			);
-		} elseif ( empty( $w3tc_pagespeed_key ) ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => 409,
-						'message' => __( 'Missing/invalid W3 API key.', 'w3-total-cache' ),
-					),
-				)
-			);
-		}
-
-		try {
-			$this->client->authenticate( $gacode );
-		} catch ( \Exception $e ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => 500,
-						'message' => $e->getMessage(),
-					),
-				)
-			);
-		}
-
-		$access_token_json = $this->client->getAccessToken();
-
-		if ( empty( $access_token_json ) ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => 409,
-						'message' => __( 'Missing/invalid Google access token JSON setting after authentication.', 'w3-total-cache' ),
-					),
-				)
-			);
-		}
-
-		$access_token = ( ! empty( $access_token_json ) ? json_decode( $access_token_json ) : '' );
-
-		$request = Util_Environment::url_format(
-			$this->get_w3tc_api_url( 'google/update-token' ),
-			array(
-				'site_id'            => Util_Http::generate_site_id(),
-				'w3tc_pagespeed_key' => $w3tc_pagespeed_key,
-				'refresh_token'      => $access_token->refresh_token,
-			)
-		);
-
-		$response = wp_remote_get(
-			$request,
-			array(
-				'timeout' => 60,
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => $response->get_error_code(),
-						'message' => $response->get_error_message(),
-					),
-				)
-			);
-		} elseif ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
-			if ( 'update-token-missing-site-id' === $response['error']['id'] ) {
-				$message = __( 'No site ID provided for Google access record update!', 'w3-total-cache' );
-			} elseif ( 'update-token-missing-w3tc-pagespeed-key' === $response['error']['id'] ) {
-				$message = __( 'No W3 key provided for Google access record update!', 'w3-total-cache' );
-			} elseif ( 'update-token-missing-refresh-token' === $response['error']['id'] ) {
-				$message = __( 'No refresh token provided for Google access record update!', 'w3-total-cache' );
-			} elseif ( 'update-token-not-found' === $response['error']['id'] ) {
-				$message = __( 'No matching Google access record found for W3 key!', 'w3-total-cache' );
-			}
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => $response['error']['code'],
-						'message' => $message,
-					),
-				)
-			);
-		}
-
-		unset( $access_token->refresh_token );
-
-		$this->config->set( 'widget.pagespeed.access_token', wp_json_encode( $access_token ) );
-		$this->config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
-		$this->config->save();
-
-		return wp_json_encode( array( 'refresh_token' => $access_token ) );
-	}
-
-	/**
-	 * Fetches Google refresh token from W3 API server.
-	 *
-	 * @since 2.3.0
-	 *
 	 * @param string $site_id            Site ID.
 	 * @param string $w3tc_pagespeed_key W3 API access key.
 	 *
 	 * @return string
 	 */
-	public function get_refresh_token( $site_id, $w3tc_pagespeed_key ) {
-		if ( empty( $site_id ) ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => 409,
-						'message' => __( 'Missing/invalid Site ID.', 'w3-total-cache' ),
-					),
-				)
+	public function refresh_token( $site_id, $w3tc_pagespeed_key ) {
+		if ( empty( $site_id ) || empty( $w3tc_pagespeed_key ) ) {
+			update_option(
+				'w3tcps_refresh_fail',
+				__( 'Google PageSpeed access token refresh missing required parameters!', 'w3-total-cache' )
 			);
-		} elseif ( empty( $w3tc_pagespeed_key ) ) {
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => 409,
-						'message' => __( 'Missing/invalid W3 API key.', 'w3-total-cache' ),
-					),
-				)
-			);
+			return;
 		}
 
-		$request = $this->get_w3tc_api_url( 'google/get-token' ) . '/' . $site_id . '/' . $w3tc_pagespeed_key;
+		$request = $this->get_w3tc_api_url( 'google/refresh-token' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $w3tc_pagespeed_key );
 
 		$response = wp_remote_get(
 			$request,
@@ -488,6 +257,9 @@ class PageSpeed_Api {
 				'timeout' => 60,
 			)
 		);
+
+		$response_body_json = wp_remote_retrieve_body( $response );
+		$response_body      = json_decode( $response_body_json, true );
 
 		if ( is_wp_error( $response ) ) {
 			return wp_json_encode(
@@ -498,45 +270,46 @@ class PageSpeed_Api {
 					),
 				)
 			);
-		} elseif ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
-			if ( 'get-token-missing-site-id' === $response['error']['id'] ) {
-				$message = __( 'No site ID provided for Google access record update!', 'w3-total-cache' );
-			} elseif ( 'get-token-missing-w3tc-pagespeed-key' === $response['error']['id'] ) {
-				$message = __( 'No W3 key provided for Google access record update!', 'w3-total-cache' );
-			} elseif ( 'get-token-not-found' === $response['error']['id'] ) {
-				$message = __( 'No matching Google access record found for W3 key!', 'w3-total-cache' );
-			} elseif ( 'get-token-bad-record' === $response['error']['id'] ) {
+		} elseif ( isset( $response_body['error']['code'] ) && 200 !== $response_body['error']['code'] ) {
+			if ( 'refresh-token-missing-site-id' === $response_body['error']['id'] ) {
+				$message = __( 'No site ID provided for access key refresh!', 'w3-total-cache' );
+			} elseif ( 'refresh-token-missing-w3tc-pagespeed-key' === $response_body['error']['id'] ) {
+				$message = __( 'No W3TC API key provided for access key refresh!', 'w3-total-cache' );
+			} elseif ( 'refresh-token-not-found' === $response_body['error']['id'] ) {
+				$message = __( 'No matching Google access record found for W3TC API key!', 'w3-total-cache' );
+			} elseif ( 'refresh-token-missing-refresh-token' === $response_body['error']['id'] ) {
 				$message = __( 'Matching Google access record found but the refresh token value is blank!', 'w3-total-cache' );
 			}
 
-			return wp_json_encode(
-				array(
-					'error' => array(
-						'code'    => $response['error']['code'],
-						'message' => $message,
-					),
-				)
+			update_option(
+				'w3tcps_refresh_fail',
+				__( 'Google PageSpeed access token refresh failed.', 'w3-total-cache' )
 			);
+			update_option(
+				'w3tcps_refresh_fail_message',
+				$message
+			);
+
+			// Reset the token and key.
+			$this->config->set( 'widget.pagespeed.access_token', '' );
+			$this->config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
+			$this->config->save();
+
+			return;
 		}
 
-		// Response body should contain a JSON format string.
-		return wp_remote_retrieve_body( $response );
-	}
+		$access_token = $response_body_json;
 
-	/**
-	 * Get Google Client JSON config.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @return string
-	 */
-	public function get_client_json() {
-		$client_json = defined( 'W3TC_GOOGLE_CLIENT_JSON' ) && W3TC_GOOGLE_CLIENT_JSON ? W3TC_GOOGLE_CLIENT_JSON : $this->google_client_json;
-		$client      = json_decode( $client_json );
-		foreach ( $client->web->redirect_uris as $redirect_uri_key => $redirect_uri_value ) {
-			$client->web->redirect_uris[ $redirect_uri_key ] = $this->get_w3tc_api_url( $redirect_uri_value );
+		if ( empty( $access_token ) || empty( $response_body['access_token'] ) ) {
+			update_option(
+				'w3tcps_refresh_fail',
+				__( 'Google PageSpeed access token refresh failed due to response missing access token.', 'w3-total-cache' )
+			);
+			return;
 		}
-		return wp_json_encode( $client );
+
+		$this->config->set( 'widget.pagespeed.access_token', $access_token );
+		$this->config->save();
 	}
 
 	/**
@@ -581,14 +354,32 @@ class PageSpeed_Api {
 	 *
 	 * @since 2.3.0
 	 */
-	public function authorize_notice() {
-		if ( current_user_can( 'manage_options' ) && get_option( 'w3tcps_authorize_success' ) ) {
-			echo '<div class="updated is-dismissible"><p>' . esc_html( get_option( 'w3tcps_authorize_success' ) ) . '</p></div>';
-			delete_option( 'w3tcps_authorize_success ' );
-		} elseif ( current_user_can( 'manage_options' ) && get_option( 'w3tcps_authorize_fail' ) ) {
-			echo '<div class="error is-dismissible"><p>' . esc_html( get_option( 'w3tcps_authorize_fail' ) ) . '</p><p>' . wp_kses( get_option( 'w3tcps_authorize_fail_message' ), Util_PageSpeed::get_allowed_tags() ) . '</p></div>';
-			delete_option( 'w3tcps_authorize_fail ' );
-			delete_option( 'w3tcps_authorize_fail_message ' );
+	public function errors_notice() {
+		if ( current_user_can( 'manage_options' ) ) {
+			switch ( true ) {
+				case get_option( 'w3tcps_authorize_success' ):
+					echo '<div class="updated is-dismissible"><p>' . esc_html( get_option( 'w3tcps_authorize_success' ) ) . '</p></div>';
+					delete_option( 'w3tcps_authorize_success' );
+					break;
+
+				case get_option( 'w3tcps_authorize_fail' ):
+					echo '<div class="error is-dismissible"><p>' . esc_html( get_option( 'w3tcps_authorize_fail' ) ) . '</p><p>' . wp_kses( get_option( 'w3tcps_authorize_fail_message' ), Util_PageSpeed::get_allowed_tags() ) . '</p></div>';
+					delete_option( 'w3tcps_authorize_fail' );
+					delete_option( 'w3tcps_authorize_fail_message' );
+					break;
+
+				case get_option( 'w3tcps_refresh_fail' ):
+					echo '<div class="error is-dismissible"><p>' . esc_html( get_option( 'w3tcps_refresh_fail' ) ) . '</p><p>' . wp_kses( get_option( 'w3tcps_refresh_fail_message' ), Util_PageSpeed::get_allowed_tags() ) . '</p></div>';
+					delete_option( 'w3tcps_refresh_fail' );
+					delete_option( 'w3tcps_refresh_fail_message' );
+					break;
+
+				case get_option( 'w3tcps_revoke_fail' ):
+					echo '<div class="error is-dismissible"><p>' . esc_html( get_option( 'w3tcps_revoke_fail' ) ) . '</p><p>' . wp_kses( get_option( 'w3tcps_revoke_fail_message' ), Util_PageSpeed::get_allowed_tags() ) . '</p></div>';
+					delete_option( 'w3tcps_revoke_fail' );
+					delete_option( 'w3tcps_revoke_fail_message' );
+					break;
+			}
 		}
 	}
 
@@ -598,10 +389,62 @@ class PageSpeed_Api {
 	 * @since 2.3.0
 	 */
 	public function reset() {
-		$access_token = $this->client->getAccessToken();
-		$this->client->revokeToken( $access_token );
+		$access_token       = $this->client->getAccessToken();
+		$site_id            = Util_Http::generate_site_id();
+		$w3tc_pagespeed_key = $this->config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' );
+
+		if ( empty( $access_token ) || empty( $site_id ) || empty( $w3tc_pagespeed_key ) ) {
+			update_option(
+				'w3tcps_revoke_fail',
+				__( 'Google PageSpeed access token revocation missing required parameters!', 'w3-total-cache' )
+			);
+			return;
+		}
+
+		$request = $this->get_w3tc_api_url( 'google/revoke-token' ) . '/' . rawurlencode( $access_token ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $w3tc_pagespeed_key );
+
+		$response = wp_remote_get(
+			$request,
+			array(
+				'timeout' => 60,
+			)
+		);
+
+		$response_body_json = wp_remote_retrieve_body( $response );
+		$response_body      = json_decode( $response_body_json, true );
+
+		if ( is_wp_error( $response ) ) {
+			return wp_json_encode(
+				array(
+					'error' => array(
+						'code'    => $response->get_error_code(),
+						'message' => $response->get_error_message(),
+					),
+				)
+			);
+		} elseif ( isset( $response_body['error']['code'] ) && 200 !== $response_body['error']['code'] ) {
+			if ( 'revoke-token-access-token-missing' === $response_body['error']['id'] ) {
+				$message = __( 'No access token provided for revoke!', 'w3-total-cache' );
+			} elseif ( 'revoke-token-api-key-missing' === $response_body['error']['id'] ) {
+				$message = __( 'No W3TC API key provided for revoke!', 'w3-total-cache' );
+			} elseif ( 'revoke-token-not-found' === $response_body['error']['id'] ) {
+				$message = __( 'No matching Google access record found for W3TC API key!', 'w3-total-cache' );
+			}
+
+			update_option(
+				'w3tcps_revoke_fail',
+				__( 'Google PageSpeed Access Token revocation failed.', 'w3-total-cache' )
+			);
+			update_option(
+				'w3tcps_revoke_fail_message',
+				$message
+			);
+
+			return;
+		}
+
 		$this->config->set( 'widget.pagespeed.access_token', '' );
-		$this->config->set( 'widget.pagespeed.w3key', '' );
+		$this->config->set( 'widget.pagespeed.w3tc_pagespeed_key', '' );
 		$this->config->save();
 	}
 }

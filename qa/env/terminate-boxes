@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Function to list instances and display them in a table
+list_instances() {
+  aws ec2 describe-instances \
+    --filters "Name=tag:Type,Values=w3tcqa-box" "Name=instance-state-code,Values=0,16" \
+    --query "Reservations[].Instances[].{InstanceId: InstanceId, State: State.Name, Name: Tags[?Key==\`Name\`]|[0].Value, PublicIp: PublicIpAddress}" \
+    --output table
+}
+
+# Function to display instance IDs for selection
+select_instances() {
+  echo "Fetching list of running instances..."
+  instance_list=$(aws ec2 describe-instances \
+    --filters "Name=tag:Type,Values=w3tcqa-box" "Name=instance-state-code,Values=0,16" \
+    --query "Reservations[].Instances[].InstanceId" \
+    --output text)
+
+  # Convert instance list to an array
+  instance_array=($instance_list)
+
+  # Check if instances are available
+  if [ -z "$instance_list" ]; then
+    echo "No running instances found."
+    exit 1
+  fi
+
+  echo "Select the instances you want to terminate (separate multiple numbers with spaces):"
+
+  # List instances with a number for selection
+  for i in "${!instance_array[@]}"; do
+    echo "$i) ${instance_array[$i]}"
+  done
+
+  # Read the user input (the numbers of instances to terminate)
+  read -p "Enter your choice: " selected_indices
+
+  # Convert selected indices to an array
+  selected_instances=()
+  for index in $selected_indices; do
+    selected_instances+=("${instance_array[$index]}")
+  done
+
+  echo "You have selected the following instances to terminate:"
+  for instance in "${selected_instances[@]}"; do
+    echo "$instance"
+  done
+
+  # Confirm termination
+  read -p "Are you sure you want to terminate the selected instances? (y/n): " confirm
+  if [[ "$confirm" == "y" ]]; then
+    terminate_instances "${selected_instances[@]}"
+  else
+    echo "Termination canceled."
+  fi
+}
+
+# Function to terminate instances
+terminate_instances() {
+  echo "Terminating instances..."
+  aws ec2 terminate-instances --instance-ids "$@" --output table
+  echo "Termination process initiated."
+}
+
+# Main script execution
+list_instances
+select_instances

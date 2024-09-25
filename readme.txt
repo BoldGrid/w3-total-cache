@@ -1,9 +1,9 @@
 === W3 Total Cache ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
-Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
+Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.6
-Stable tag: 2.7.5
+Stable tag: 2.7.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,6 +58,26 @@ W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framew
 * Extension framework for customization or extensibility for Cloudflare, WPML and much more
 * Reverse proxy integration via Nginx or Varnish
 * WebP Converter extension provides WebP image format conversion from common image formats (on upload and on demand)
+
+<h3>W3 Total Cache Pro Features</h3>
+
+With over a million active installs, W3 Total Cache is the most comprehensive WordPress caching plugin available and has robust premium features that help deliver an exceptional user experience.
+
+* Full Site Delivery: Serve your entire site from a Content Delivery Network (CDN), ensuring faster load times worldwide.
+* Fragment Cache: Optimize the caching of dynamic content while still improving performance.
+* REST API Caching: Speed up your headless WordPress site by caching REST API calls.
+* Eliminate Render-Blocking CSS: Ensure your CSS doesn't hold up page loading, providing faster initial paint.
+* Delay Scripts: Improve performance by delaying the loading of non-essential scripts until they are needed.
+* Preload Requests: Boost page performance by preloading critical resources before they're requested.
+* Remove CSS/JS: Clean up unnecessary CSS and JavaScript files that slow down your pages.
+* Lazy Load Google Maps: Load Google Maps only when it's visible, reducing unnecessary requests.
+* WPML Extension: Optimize performance on multilingual sites powered by WPML.
+* Caching Statistics: Get detailed insights on cache usage and performance improvements.
+* Purge Logs: Keep your site clean by automatically purging unnecessary cache logs.
+
+<h3>30-Day Money-Back Guarantee</h3>
+
+Try [W3 Total Cache Pro](https://www.boldgrid.com/w3-total-cache/) risk-free with our 30-day money-back guarantee. If you're not satisfied, we will refund your purchase.
 
 <h3>PAGESPEED SCORE IMPROVEMENTS</h3>
 
@@ -340,6 +360,20 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.7.6 =
+* Fix: Improved cache flushing on actions/updates
+* Fix: Google PageSpeed authorization
+* Fix: Remove Fragment Cache link if extension is disabled
+* Fix: License status fix
+* Fix: Statistics PHP warning when some data is stale
+* Fix: API improvement for non-200 responses
+* Update: Object cache improvements
+* Update: Allow WPML extension activation for TranslatePress
+* Update: Added notices when choosing Disk for object and database cache engines
+* Update: Added more information for selections in the setup guide wizard
+* Update: Updated cache header directive choices (no-cache/no-store)
+* Update: Nginx configuration examples
 
 = 2.7.5 =
 * Feature: Added dismissible notifications
