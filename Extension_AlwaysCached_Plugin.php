@@ -70,13 +70,37 @@ class Extension_AlwaysCached_Plugin {
 		}
 
 		$enabled  = $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
-		$time     = $c->get_boolean( array( 'alwayscached', 'wp_cron_time' ) );
+		$time     = $c->get_string( array( 'alwayscached', 'wp_cron_time' ) );
 		$interval = $c->get_string( array( 'alwayscached', 'wp_cron_interval' ) );
-		if ( $enabled && ! empty ( $time ) && ! empty( $interval ) && ! wp_next_scheduled( 'w3tc_alwayscached_wp_cron' ) ) {
+
+		// Retrieve stored previous time and interval
+		$prev_time     = get_option( 'w3tc_alwayscached_wp_cron_time', '' );
+		$prev_interval = get_option( 'w3tc_alwayscached_wp_cron_interval', '' );
+
+		// Check if cron needs updating or scheduling
+		if ( $enabled && ! empty( $time ) && ! empty( $interval ) ) {
+			// Convert the time to a timestamp for scheduling
 			$start_time = strtotime( gmdate( 'Y-m-d' ) . ' ' . $time );
-			wp_schedule_event( $start_time, $interval, 'w3tc_alwayscached_wp_cron' );
+
+			// If no event is scheduled or the time/interval have changed, update the cron
+			if ( ! wp_next_scheduled( 'w3tc_alwayscached_wp_cron' ) || $time !== $prev_time || $interval !== $prev_interval ) {
+				// Clear existing scheduled event
+				wp_clear_scheduled_hook( 'w3tc_alwayscached_wp_cron' );
+
+				// Schedule the new event
+				wp_schedule_event( $start_time, $interval, 'w3tc_alwayscached_wp_cron' );
+
+				// Store the new time and interval
+				update_option( 'w3tc_alwayscached_wp_cron_time', $time );
+				update_option( 'w3tc_alwayscached_wp_cron_interval', $interval );
+			}
 		} elseif ( ! $enabled ) {
+			// Clear the cron job if it's disabled
 			wp_clear_scheduled_hook( 'w3tc_alwayscached_wp_cron' );
+
+			// Remove the stored values
+			delete_option( 'w3tc_alwayscached_wp_cron_time' );
+			delete_option( 'w3tc_alwayscached_wp_cron_interval' );
 		}
 	}
 

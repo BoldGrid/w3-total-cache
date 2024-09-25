@@ -145,6 +145,7 @@ jQuery(function() {
 		function() {
 			let $enabled = jQuery(this).prop('checked');
         
+			jQuery('#alwayscached___wp_cron_time').prop('disabled', ! $enabled);
         	jQuery('#alwayscached___wp_cron_interval').prop('disabled', ! $enabled);
 		}
 	);
