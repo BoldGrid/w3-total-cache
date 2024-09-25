@@ -1163,7 +1163,11 @@ class SetupGuide_Plugin_Admin {
 							'provides many options to help your website perform faster.  While the ideal settings vary for every website, there are a few settings we recommend that you enable now.',
 							'w3-total-cache'
 						) . '</p>
-						' .
+						<p><strong>' .
+							esc_html__(
+							'If a caching method shows as unavailable you do not have the necessary modules installed. You may need to reach out to your host for installation availablity and directions.',
+							'w3-total-cache'
+						) . '</strong></p>' .
 						sprintf(
 							// translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
 							esc_html__(

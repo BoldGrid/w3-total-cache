@@ -38,7 +38,8 @@ async function beforeDefault() {
 			'--no-first-run',
 			'--no-zygote',
 			'--disable-gpu',
-			'--incognito'
+			'--incognito',
+			'--ignore-certificate-errors'
 		]
 	});
 
@@ -52,6 +53,7 @@ async function beforeDefault() {
 			'--no-first-run',
 			'--no-zygote',
 			'--disable-gpu',
+			'--ignore-certificate-errors'
 		]
 	});
 
