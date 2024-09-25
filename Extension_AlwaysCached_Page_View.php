@@ -51,6 +51,7 @@ if ( ! defined( 'W3TC' ) ) {
 	);
 
 	require __DIR__ . '/Extension_AlwaysCached_Page_View_BoxQueue.php';
+	require __DIR__ . '/Extension_AlwaysCached_Page_View_Exclusions.php';
 	require __DIR__ . '/Extension_AlwaysCached_Page_View_BoxCron.php';
 	require __DIR__ . '/Extension_AlwaysCached_Page_View_BoxFlushAll.php';
 

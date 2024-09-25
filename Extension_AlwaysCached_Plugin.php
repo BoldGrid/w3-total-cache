@@ -46,6 +46,11 @@ class Extension_AlwaysCached_Plugin {
 
 		// Cron job.
 		add_action( 'w3tc_alwayscached_wp_cron', array( $this, 'w3tc_alwayscached_wp_cron' ) );
+
+		/**
+		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
+		*/
+		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 	}
 
 	/**
@@ -65,9 +70,11 @@ class Extension_AlwaysCached_Plugin {
 		}
 
 		$enabled  = $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
+		$time     = $c->get_boolean( array( 'alwayscached', 'wp_cron_time' ) );
 		$interval = $c->get_string( array( 'alwayscached', 'wp_cron_interval' ) );
-		if ( $enabled && ! empty( $interval ) && ! wp_next_scheduled( 'w3tc_alwayscached_wp_cron' ) ) {
-			wp_schedule_event( time(), $interval, 'w3tc_alwayscached_wp_cron' );
+		if ( $enabled && ! empty ( $time ) && ! empty( $interval ) && ! wp_next_scheduled( 'w3tc_alwayscached_wp_cron' ) ) {
+			$start_time = strtotime( gmdate( 'Y-m-d' ) . ' ' . $time );
+			wp_schedule_event( $start_time, $interval, 'w3tc_alwayscached_wp_cron' );
 		} elseif ( ! $enabled ) {
 			wp_clear_scheduled_hook( 'w3tc_alwayscached_wp_cron' );
 		}
@@ -197,13 +204,28 @@ class Extension_AlwaysCached_Plugin {
 			);
 
 			$page_key = $data['parent']->_get_page_key( $page_key_extension, $data['url'] );
-
-			if ( $data['cache']->exists( $page_key, $data['group'] ) ) {
-				Extension_AlwaysCached_Queue::add(
-					$data['url'],
-					array( 'group' => $data['group'] )
-				);
+			
+			// If the URL is excluded, store the data for later flushing
+			if ( self::is_excluded( $data['url'] ) ) {
+				$excluded_data = $data;
+				continue;
 			}
+			
+			// If cache key doesn't exist, skip to the next iteration
+			if ( ! $data['cache']->exists( $page_key, $data['group'] ) ) {
+				continue;
+			}
+	
+			// Queue the URL for later processing if it's not excluded and exists in cache
+			Extension_AlwaysCached_Queue::add(
+				$data['url'],
+				array( 'group' => $data['group'] )
+			);
+		}
+
+		// Return the excluded URLs if any were found, so they can be flushed
+		if ( ! empty( $excluded_data ) ) {
+			return $excluded_data;
 		}
 
 		return array();
@@ -219,7 +241,8 @@ class Extension_AlwaysCached_Plugin {
 	 * @return array
 	 */
 	public function w3tc_pagecache_flush_all_groups( $groups ) {
-		$c = Dispatcher::config();
+		$c             = Dispatcher::config();
+		$excluded_data = array();
 
 		// Flush all action will purge the queue as any queued changes will now be live.
 		if ( ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) ) ) {
@@ -238,8 +261,10 @@ class Extension_AlwaysCached_Plugin {
 
 				if ( ! is_wp_error( $response_headers ) ) {
 					$cache_control_vals = array_map( 'trim', explode( ',', wp_remote_retrieve_header( $response_headers, 'Cache-Control' ) ) );
-					if ( ! array_intersect( $no_cache_vals, $cache_control_vals ) ) {
+					if ( ! self::is_excluded( $home_url ) && ! array_intersect( $no_cache_vals, $cache_control_vals ) ) {
 						Extension_AlwaysCached_Queue::add( $home_url, $extension );
+					} else {
+						$o->flush_url( $home_url );
 					}
 				}
 			}
@@ -268,7 +293,11 @@ class Extension_AlwaysCached_Plugin {
 						continue;
 					}
 
-					Extension_AlwaysCached_Queue::add( $permalink, $extension );
+					if ( ! self::is_excluded( $permalink ) ) {
+						Extension_AlwaysCached_Queue::add( $permalink, $extension );
+					} else {
+						$o->flush_url( $permalink );
+					}
 				}
 			}
 
@@ -296,24 +325,16 @@ class Extension_AlwaysCached_Plugin {
 						continue;
 					}
 
-					Extension_AlwaysCached_Queue::add( $permalink, $extension );
+					if ( ! self::is_excluded( $permalink ) ) {
+						Extension_AlwaysCached_Queue::add( $permalink, $extension );
+					} else {
+						$o->flush_url( $permalink );
+					}
 				}
 			}
-
-			$o->flush_group_after_ahead_generation(
-				empty( $extension['group'] ) ? '' : $extension['group'],
-				$extension
-			);
-
-			$groups = array_filter(
-				$groups,
-				function( $i ) {
-					return ! empty( $i );
-				}
-			);
 		}
 
-		return $groups;
+		return array();
 	}
 
 	/**
@@ -338,6 +359,51 @@ class Extension_AlwaysCached_Plugin {
 	 */
 	public function w3tc_alwayscached_wp_cron() {
 		Extension_AlwaysCached_Worker::run();
+	}
+
+	/**
+	 * Specify config key typing for fields that need it.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $descriptor Descriptor.
+	 * @param mixed $key Compound key array.
+	 *
+	 * @return array
+	 */
+	public function w3tc_config_key_descriptor( $descriptor, $key ) {
+		if ( is_array( $key ) && 'alwayscached.exclusions' === implode( '.', $key ) ) {
+			$descriptor = array( 'type' => 'array' );
+		}
+
+		return $descriptor;
+	}
+
+	/**
+	 * Checks if the given URL matches any exclusions.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $url URL.
+	 *
+	 * @return bool
+	 */
+	private function is_excluded( $url ) {
+		$c          = Dispatcher::config();
+		$exclusions = $c->get_array( array( 'alwayscached', 'exclusions' ) );
+		
+		// Normalize the URL to handle trailing slashes and parse the path
+		$parsed_url     = rtrim( parse_url( $url, PHP_URL_PATH ), '/' );
+		$url_with_slash = $parsed_url . '/';
+		
+		foreach ( $exclusions as $exclusion ) {
+			// Check both with and without trailing slash
+			if ( fnmatch( $exclusion, $parsed_url ) || fnmatch( $exclusion, $url_with_slash ) ) {
+				return true;
+			}
+		}
+	
+		return false;
 	}
 }
 

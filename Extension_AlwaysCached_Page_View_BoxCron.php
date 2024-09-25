@@ -36,6 +36,28 @@ $wp_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 			)
 		);
 
+		$time_options = array();
+		for ( $hour = 0; $hour < 24; $hour++ ) {
+			foreach ( array( '00', '30' ) as $minute ) {
+				$time_value                  = sprintf( '%02d:%s', $hour, $minute );
+				$time_label                  = gmdate( 'g:i a', strtotime( $time_value ) );
+				$time_options[ $time_value ] = $time_label;
+			}
+		}
+
+		Util_Ui::config_item(
+			array(
+				'key'              => array(
+					'alwayscached',
+					'wp_cron_time',
+				),
+				'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
+				'control'          => 'selectbox',
+				'selectbox_values' => $time_options,
+				'disabled'         => $wp_disabled,
+			)
+		);
+
 		Util_Ui::config_item(
 			array(
 				'key'              => array(

@@ -2020,6 +2020,7 @@ class Util_Ui {
 						?>
 						<div id="w3tc-options-menu">
 							<a href="#queue"><?php esc_html_e( 'Queue', 'w3-total-cache' ); ?></a> |
+							<a href="#exclusions"><?php esc_html_e( 'Exclusions', 'w3-total-cache' ); ?></a> |
 							<a href="#cron"><?php esc_html_e( 'Cron', 'w3-total-cache' ); ?></a> |
 							<a href="#purge-all-behavior"><?php esc_html_e( 'Purge All Behavior', 'w3-total-cache' ); ?></a>
 						</div>
