@@ -361,6 +361,9 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.8.0-beta.1 =
+* Feature: CDN: Microsoft Azure EntraID Managed identity support
+
 = 2.7.6 =
 * Fix: Improved cache flushing on actions/updates
 * Fix: Google PageSpeed authorization
