@@ -204,18 +204,18 @@ class Extension_AlwaysCached_Plugin {
 			);
 
 			$page_key = $data['parent']->_get_page_key( $page_key_extension, $data['url'] );
-			
+
 			// If the URL is excluded, store the data for later flushing
 			if ( self::is_excluded( $data['url'] ) ) {
 				$excluded_data = $data;
 				continue;
 			}
-			
+
 			// If cache key doesn't exist, skip to the next iteration
 			if ( ! $data['cache']->exists( $page_key, $data['group'] ) ) {
 				continue;
 			}
-	
+
 			// Queue the URL for later processing if it's not excluded and exists in cache
 			Extension_AlwaysCached_Queue::add(
 				$data['url'],
@@ -391,18 +391,18 @@ class Extension_AlwaysCached_Plugin {
 	private function is_excluded( $url ) {
 		$c          = Dispatcher::config();
 		$exclusions = $c->get_array( array( 'alwayscached', 'exclusions' ) );
-		
+
 		// Normalize the URL to handle trailing slashes and parse the path
 		$parsed_url     = rtrim( parse_url( $url, PHP_URL_PATH ), '/' );
 		$url_with_slash = $parsed_url . '/';
-		
+
 		foreach ( $exclusions as $exclusion ) {
 			// Check both with and without trailing slash
 			if ( fnmatch( $exclusion, $parsed_url ) || fnmatch( $exclusion, $url_with_slash ) ) {
 				return true;
 			}
 		}
-	
+
 		return false;
 	}
 }
