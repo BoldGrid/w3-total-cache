@@ -339,20 +339,8 @@ $keys = array(
 		'default' => 0
 	),
 	'objectcache.groups.global' => array(
-		'type' => 'array',
-		'default' => array(
-			'users',
-			'userlogins',
-			'usermeta',
-			'user_meta',
-			'site-transient',
-			'site-options',
-			'site-lookup',
-			'blog-lookup',
-			'blog-details',
-			'rss',
-			'global-posts'
-		)
+		'type'    => 'array',
+		'default' => array(),
 	),
 	'objectcache.groups.nonpersistent' => array(
 		'type' => 'array',
@@ -672,7 +660,7 @@ $keys = array(
 	),
 	'pgcache.purge.sitemap_regex' => array(
 		'type' => 'string',
-		'default' => '([a-z0-9_\-]*?)sitemap([a-z0-9_\-]*)?\.xml'
+		'default' => '([a-z0-9_\-]*?)sitemap([a-z0-9_\-]*)?\.(?:xml|xsl)'
 	),
 	'pgcache.prime.enabled' => array(
 		'type' => 'boolean',
@@ -691,6 +679,10 @@ $keys = array(
 		'default' => ''
 	),
 	'pgcache.prime.post.enabled' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
+	'pgcache.prime.post.update.enabled' => array(
 		'type' => 'boolean',
 		'default' => false
 	),
@@ -1179,7 +1171,7 @@ $keys = array(
 	),
 	'cdn.engine' => array(
 		'type' => 'string',
-		'default' => 'stackpath2'
+		'default' => ''
 	),
 	'cdn.uploads.enable' => array(
 		'type' => 'boolean',
@@ -2531,10 +2523,6 @@ $keys = array(
 	'widget.latest_news.items' => array(
 		'type' => 'integer',
 		'default' => 5
-	),
-	'widget.pagespeed.enabled' => array(
-		'type' => 'boolean',
-		'default' => false
 	),
 	'widget.pagespeed.access_token' => array(
 		'type' => 'string',

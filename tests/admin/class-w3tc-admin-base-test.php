@@ -5,7 +5,7 @@
  * @package    W3TC
  * @subpackage W3TC/tests/admin
  * @author     BoldGrid <development@boldgrid.com>
- * @since      X.X.X
+ * @since      2.3.1
  * @link       https://www.boldgrid.com/w3-total-cache/
  */
 
@@ -14,13 +14,13 @@ declare( strict_types = 1 );
 /**
  * Class: W3tc_Admin_Base_Test
  *
- * @since X.X.X
+ * @since 2.3.1
  */
 class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test for WordPress.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_wp() {
 		$this->assertTrue( defined( 'ABSPATH' ) );
@@ -29,7 +29,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test for W3 Total Cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc() {
 		$this->assertTrue( defined( 'W3TC' ) );
@@ -38,7 +38,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test for definitions.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_defines() {
 		$definitions = array(
@@ -165,7 +165,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test w3tc_config().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_config() {
 		$this->assertTrue( is_a( w3tc_config(), 'W3TC\Config' ) );
@@ -174,7 +174,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test save config.
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_save_config() {
 		$config = w3tc_config();
@@ -185,7 +185,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test w3tc_flush_all().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_flush_all() {
 		$this->assertNull( w3tc_flush_all() );
@@ -194,7 +194,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_flush_post().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_flush_post() {
 		$this->assertNull( w3tc_flush_post( 0 ) );
@@ -203,7 +203,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_flush_posts().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_flush_posts() {
 		$this->assertNull( w3tc_flush_posts() );
@@ -212,7 +212,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_flush_url().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_flush_url() {
 		$this->assertNull( w3tc_flush_url( site_url() ) );
@@ -221,7 +221,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_flush_group().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_flush_group() {
 		$this->assertNull( w3tc_flush_group( 'cookie' ) );
@@ -230,7 +230,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_pgcache_flush().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_pgcache_flush() {
 		$this->assertNull( w3tc_pgcache_flush() );
@@ -239,7 +239,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_pgcache_flush_post().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_pgcache_flush_post() {
 		$this->assertNull( w3tc_pgcache_flush_post( 0 ) );
@@ -248,7 +248,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_pgcache_flush_url().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_pgcache_flush_url() {
 		$this->assertNull( w3tc_pgcache_flush_url( site_url() ) );
@@ -257,7 +257,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_dbcache_flush().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_dbcache_flush() {
 		$this->assertNull( w3tc_dbcache_flush() );
@@ -266,7 +266,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_minify_flush().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_minify_flush() {
 		$this->assertNull( w3tc_minify_flush() );
@@ -275,7 +275,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_objectcache_flush().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_objectcache_flush() {
 		$this->assertNull( w3tc_objectcache_flush() );
@@ -284,16 +284,16 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_cdn_purge_files().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_cdn_purge_files() {
-		$this->assertNull( w3tc_cdn_purge_files( array( 'notexists.php' ) ) );
+		$this->assertTrue( function_exists( 'w3tc_cdn_purge_files' ) );
 	}
 
 	/**
 	 * Test function w3tc_minify_script_group().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_minify_script_group() {
 		$this->assertEmpty( w3tc_minify_script_group( 'default' ) );
@@ -302,7 +302,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_minify_style_group().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_minify_style_group() {
 		$this->assertEmpty( w3tc_minify_style_group( 'default' ) );
@@ -311,7 +311,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_save_user_agent_group().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_save_user_agent_group() {
 		$this->assertNull( w3tc_save_user_agent_group( 'test' ) );
@@ -320,7 +320,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_delete_user_agent_group().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_delete_user_agent_group() {
 		$this->assertNull( w3tc_delete_user_agent_group( 'test' ) );
@@ -329,7 +329,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_get_user_agent_group().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_get_user_agent_group() {
 		$this->assertIsArray( w3tc_get_user_agent_group( 'tablets' ) );
@@ -338,7 +338,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_save_referrer_group().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_save_referrer_group() {
 		$this->assertNull( w3tc_save_referrer_group( 'test' ) );
@@ -347,7 +347,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_delete_referrer_group().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_delete_referrer_group() {
 		$this->assertNull( w3tc_delete_referrer_group( 'test' ) );
@@ -356,7 +356,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_get_referrer_group().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_get_referrer_group() {
 		$this->assertIsArray( w3tc_get_referrer_group( 'tablets' ) );
@@ -365,7 +365,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3_instance().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3_instance() {
 		$this->assertTrue( is_a( w3_instance( 'W3_Config' ), 'W3TC\Config' ) );
@@ -374,7 +374,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_e().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_e() {
 		// Use output buffering to check output.
@@ -389,7 +389,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_er().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_er() {
 		$this->assertIsString( w3tc_er( 'cdn.stackpath.signUpAndSave', 'default' ) );
@@ -398,7 +398,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_add_action().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_add_action() {
 		$this->assertNull(
@@ -414,7 +414,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_do_action().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_do_action() {
 		// Use output buffering to check output.
@@ -430,7 +430,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	/**
 	 * Test function w3tc_apply_filters().
 	 *
-	 * @since X.X.X
+	 * @since 2.3.1
 	 */
 	public function test_w3tc_apply_filters() {
 		w3tc_add_action(

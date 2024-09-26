@@ -10,7 +10,6 @@ class Cdnfsd_StackPath_Engine {
 
 
 	function __construct( $config = array() ) {
-error_log( __METHOD__ . ': ' . print_r( debug_backtrace( 0 ), true ) );
 		$this->api_key = $config['api_key'];
 		$this->zone_id = $config['zone_id'];
 	}

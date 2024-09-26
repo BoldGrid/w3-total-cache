@@ -1,9 +1,9 @@
-=== Plugin Name ===
+=== W3 Total Cache ===
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
-Tags: seo, cache, CDN, pagespeed, caching, performance, compression, optimize, cloudflare, nginx, apache, varnish, redis, aws, amazon web services, s3, cloudfront, azure
+Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
-Tested up to: 6.4
-Stable tag: 2.6.1
+Tested up to: 6.6
+Stable tag: 2.7.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,10 +14,6 @@ Search Engine (SEO) &amp; Performance Optimization (WPO) via caching. Integrated
 W3 Total Cache (W3TC) improves the SEO, Core Web Vitals and overall user experience of your site by increasing website performance and reducing load times by leveraging features like content delivery network (CDN) integration and the latest best practices.
 
 W3TC is the **only** web host agnostic Web Performance Optimization (WPO) framework for WordPress trusted by millions of publishers, web developers, and web hosts worldwide for more than a decade. It is the total performance solution for optimizing WordPress Websites.
-
-An inside look:
-
-https://youtu.be/7AsNSSrZq4Y
 
 *BENEFITS*
 
@@ -63,6 +59,86 @@ https://youtu.be/7AsNSSrZq4Y
 * Reverse proxy integration via Nginx or Varnish
 * WebP Converter extension provides WebP image format conversion from common image formats (on upload and on demand)
 
+<h3>W3 Total Cache Pro Features</h3>
+
+With over a million active installs, W3 Total Cache is the most comprehensive WordPress caching plugin available and has robust premium features that help deliver an exceptional user experience.
+
+* Full Site Delivery: Serve your entire site from a Content Delivery Network (CDN), ensuring faster load times worldwide.
+* Fragment Cache: Optimize the caching of dynamic content while still improving performance.
+* REST API Caching: Speed up your headless WordPress site by caching REST API calls.
+* Eliminate Render-Blocking CSS: Ensure your CSS doesn't hold up page loading, providing faster initial paint.
+* Delay Scripts: Improve performance by delaying the loading of non-essential scripts until they are needed.
+* Preload Requests: Boost page performance by preloading critical resources before they're requested.
+* Remove CSS/JS: Clean up unnecessary CSS and JavaScript files that slow down your pages.
+* Lazy Load Google Maps: Load Google Maps only when it's visible, reducing unnecessary requests.
+* WPML Extension: Optimize performance on multilingual sites powered by WPML.
+* Caching Statistics: Get detailed insights on cache usage and performance improvements.
+* Purge Logs: Keep your site clean by automatically purging unnecessary cache logs.
+
+<h3>30-Day Money-Back Guarantee</h3>
+
+Try [W3 Total Cache Pro](https://www.boldgrid.com/w3-total-cache/) risk-free with our 30-day money-back guarantee. If you're not satisfied, we will refund your purchase.
+
+<h3>PAGESPEED SCORE IMPROVEMENTS</h3>
+
+To help you understand the impact of individual features on your website's performance, we've tested each feature separately to see its effect on Google PageSpeed scores. While optimal results come from configuring several different caching tools together, the following individual features also show significant improvements on their own:
+
+<h4>Remove Unused CSS/JS</h4>
+
+This feature removes CSS and JavaScript files that are not needed for the current page, reducing the load time.
+
+* Added over 27 points to the Google PageSpeed score (Before: 57.2 / After: 86.7)
+* Reduced the Potential Savings From Unused JavaScript from 127.5 KiB to 84 KiB
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/)
+
+<h4>Full Site Delivery</h4>
+
+Full Site Delivery optimizes the delivery of your entire site, enhancing the server response time.
+
+* Added a 99% performance enhancement  to the Average Server Response Time (Before: 3413 ms / After: 34 ms)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/fsd-full-site-delivery/)
+
+<h4>Eliminate Render Blocking CSS</h4>
+
+This feature eliminates CSS that blocks the rendering of your page, speeding up the initial load time.
+
+* Added over 17 points to the Google PageSpeed score (Before: 53.75 / After: 71)
+* Reduced the Potential Savings From Render-Blocking Resources by over 94% (Before: 2432.5 ms / After: 125 ms)
+* Improved the Largest Contentful Paint time by over 56% (Before: 7s / After: 3.04s)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/eliminate-render-blocking-css/)
+
+<h4>Delay Scripts</h4>
+
+Delay Scripts postpones the loading of certain scripts until they are needed, reducing initial load times.
+
+* Added 14 points to the Google PageSpeed Performance score (Before: 54.25 / After: 68.5)
+* Reduced the Time Third-Party Code Blocked The Main Thread For by 62% (Before: 825 ms / After: 197.5 ms)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/)
+
+<h4>Rest API Caching</h4>
+
+This feature caches API responses, reducing server load and speeding up API interactions.
+
+* Reduced the Average Server Load by 40% (Before: 0.62 / After: 0.37)
+* Sped up API Responses by 84.5% (Before: 968ms / After: 150ms)
+* Reduced the Average Server Load by 24% under during a major traffic spike (Before: 34.55 / After: 26.19)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/rest-api-testing/)
+
+<h4>WebP Images</h4>
+
+Converts images to the WebP format, which is more efficient and faster to load.
+
+* Added over 9 points to the Google PageSpeed score (Before: 84.67 / After: 93.83)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/)
+
+<h4>Lazy Load Google Maps</h4>
+
+Delays the loading of Google Maps until the user interacts with them, reducing initial load time.
+
+* Added 10 points to the Google PageSpeed score (Before: 66 / After: 76)
+* Reduced the Total Blocking Time Performance score by 72% (Before: 287.5 ms / After: 80 ms)
+* [View the test results](https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/)
+
 Speed up your site tremendously, improve core web vitals and the overall user experience for your visitors without having to change your WordPress host, theme, plugins or your content production workflow.
 
 == Frequently Asked Questions ==
@@ -105,7 +181,7 @@ It's in every web site owner's best interest is to make sure that the performanc
 
 = Which WordPress versions are supported? =
 
-To use all features in the suite, a minimum of version WordPress 3.8 with PHP 5.6 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
+To use all features in the suite, a minimum of version WordPress 5.3 with PHP 7.2.5 is required. Earlier versions will benefit from our Media Library Importer to get them back on the upgrade path and into a CDN of their choosing.
 
 = Why doesn't minify work for me? =
 
@@ -285,6 +361,97 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.7.6 =
+* Fix: Improved cache flushing on actions/updates
+* Fix: Google PageSpeed authorization
+* Fix: Remove Fragment Cache link if extension is disabled
+* Fix: License status fix
+* Fix: Statistics PHP warning when some data is stale
+* Fix: API improvement for non-200 responses
+* Update: Object cache improvements
+* Update: Allow WPML extension activation for TranslatePress
+* Update: Added notices when choosing Disk for object and database cache engines
+* Update: Added more information for selections in the setup guide wizard
+* Update: Updated cache header directive choices (no-cache/no-store)
+* Update: Nginx configuration examples
+
+= 2.7.5 =
+* Feature: Added dismissible notifications
+* Fix: PHP error in Page Cache when deleting media
+* Fix: PHP warning in Page Cache when modifying an attachment
+* Update: Added additional default query strings for page cache exemptions
+* Update: Removed obsolete Google PageSpeed metrics
+* Update: Condensed Google PageSpeed proof block format for certain settings/features
+* Update: Added missing Google PageSpeed score block for PageCache Lazy Loading Google Maps setting on General Settings page
+
+= 2.7.4 =
+* Fix: WP-CLI get option output for array type
+* Fix: Remove CSS/JS URL matching
+* Fix: Nginx rules for feature and permission policies
+* Fix: Redis connect port for unix sockets error
+* Update: Newsletter in footer is now a link to a working form
+* Update: Added JSON type for WP-CLI get/set option
+* Update: Added config export for WP-CLI
+* Update: Added content matching option for Remove CSS/JS individual entries
+* Update: Updated Google PageSpeed score block appearance for cleaner UI
+* Update: Added Google PageSpeed score block for PageCache Lazy Loading Google Maps setting
+* Update: Added Google PageSpeed score block for Minify Eliminate Render Blocking CSS option
+
+= 2.7.3 =
+* Fix: Page Cache: File Cleaner now uses the correct expiration setting
+* Fix: PHP 8.1 warnings for Redis connect
+* Fix: Google ChartJS error
+* Update: Bumped PHP minimum version to 7.2.5; added support for up to PHP 8.3
+* Update: AWS SDK PHP dependency updated to 3.314.2
+* Update: Microsoft Azure Storage SDK PHP dependency updated to 1.5.4 (blob) and 1.5.2 (common)
+* Update: Several other PHP and NodeJS dependencies updated
+* Update: Made improvements to the Remove CSS/JS feature
+* Update: Removed the newsletter signup popup and added it in the footer
+* Update: Added use-case proof and links to settings pages
+* Update: Changed CDN default to none and updated the StackPath EOL notice
+
+= 2.7.2 =
+* Fix: Page Cache cleanup purging all if browsercache.html.lifetime > W3TC_CACHE_FILE_EXPIRE_MAX
+* Fix: Page Cache primer: Ignore sitemap XML comments
+* Fix: Page Cache primer: Preload cache for custom post types
+* Fix: Page Cache primer: Add an option to prime cache after updating a post/page/CPT
+* Fix: Redis test logic
+* Fix: Cloudflare extension: Setting values via API
+* Fix: Amazon SNS message validation
+* Fix: Handle XML setting being saved properly
+* Update: Add more options to the Remove CSS/JS feature
+* Update: Add an option for Amazon CloudFront default region in distribution hostname
+* Update: Add information about feature impact on PageSpeed
+* Update: Reworked the Page Cache Preload settings UI
+
+= 2.7.1 =
+* Fix: Page Cache: Prefer Brotli over Gzip
+* Fix: Page Cache: Purge sitemaps on post creation/edit/trash/delete
+* Fix: Page Cache: Processed content filter
+* Fix: Minify URL to filename filter mapping
+* Update: Added Bunny CDN partner information
+* Update: Added filters for Apache rules and Page Cache postfix
+
+= 2.7.0 =
+* Feature: Performance Dashboard update
+* Feature: Remove unused CSS/JS
+* Fix: Nginx feature and permission policy header syntax
+* Fix: Memcache install check
+* Fix: CloudFront purge button
+* Fix: Uncaught type error on the install page
+* Fix: Page mapping data
+* Fix: Add missing id for a save settings button
+* Fix: Extension counts
+* Fix: PHP 8.2 deprecation warnings for dynamic class property assignments
+* Fix: Do not autoload WP option for PageSpeed data
+* Fix: Cache groups: Fix spacing in values for htaccess syntax
+* Fix: Refactor Minify cache key mapping to have shorter keys and separate storage
+* Fix: Minify statistics output and PHP warnings
+* Fix: Feature Showcase: New feature version numbers
+* Fix: Lazy Loading URL pattern match
+* Update: Upgrade modal/popup
+* Update: Added "Learn more" links
+
 = 2.6.1 =
 * Fix: WebP Converter extension activation
 * Fix: Media Library upload may fail when using Bunny CDN
@@ -399,7 +566,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Enhancement: Page cache: Added query string exemptions
 
 = 2.2.6 =
-* Fix: Error clearing all cache when using Cloudfront full CDN in Pro
+* Fix: Error clearing all cache when using CloudFront full CDN in Pro
 
 = 2.2.5 =
 * Fix: Revert WooCommerce Variation Image Gallery plugin CDN filter
@@ -663,7 +830,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Improved Vary User-Agent header usage
 * Improved various features with AMP pages and HTTP2
 * Improved redis connection string to allow for tls://host:port format
-* Fixed file headers for Cloudfront S3 CDN
+* Fixed file headers for CloudFront S3 CDN
 * Fixed fatal error on with flush / SNS
 * Fixed comments with URLs within minify debug mode
 * Fixed ObjectCache statistics within footer
@@ -692,7 +859,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Improved protection of unexpected values in global variables
 * Added more Amazon S3 regions
 * Added support for memcached binary protocol when available
-* Added caching for webp MIME type
+* Added caching for WebP MIME type
 * Updated S3 bucket creation by settings CORS policy
 * Updated blogmap to allow urls with custom ports
 * Fixed usage of base url with minify
@@ -739,7 +906,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fixed writing to PHP error log rather than WordPress debug log
 * Fixed default referrer policy should be "no-referrer-when-downgrade"
 * Fixed php_flag error related to browser cache, using ini_set instead
-* Fixed CloudFlare IPv6 check undefined offset
+* Fixed Cloudflare IPv6 check undefined offset
 * Fixed Undefined constant WP_ROOT
 * Fixed frame-ancestors being overwritten by frame-src
 * Fixed missing semicolon in nginx configuration
@@ -832,7 +999,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Improved handling of # in URLs
 * Improved handling of exclusions for e-commerce in Genesis Framework
 * Improved handling of headers for Microsoft Azure
-* Improved functionality with existing Cloudfront Distributions when configuring Full Site Delivery
+* Improved functionality with existing CloudFront Distributions when configuring Full Site Delivery
 * Improved minify debug logging
 * Improved handling of URLs that omit the protocol
 * Improved handling of custom files with CDN (via amiga-500)
@@ -845,7 +1012,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fixed security issue with the creation of dot folders that could be abused
 * Fixed handling HTTP compression for uncached pages
 * Fixed handling of .svgz files
-* Added expiration headers to webP images
+* Added expiration headers to WebP images
 * Added support for Microsoft Azure’s latest API
 * Added ability to cache WP Admin. Recommended setting, is off. (Improved WP Admin performance with object caching enabled)
 * Added HTTP/2 Push support for minified files
@@ -971,7 +1138,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Added capability check for save options
 * Added FeedBurner extension
 * Added woff support to Browser Cache
-* Added new CloudFlare IPs
+* Added new Cloudflare IPs
 * Added support for WordPress defined charset and collate in CDN queue table creation
 * Added WordPress SEO by Yoast extension
 * Added *.less to CDN theme uploads and MIME
@@ -983,7 +1150,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Added support for use of existing zones without refresh
 * Added new mime types
 * Added support for separate domains for frontend and admin backend
-* Added CloudFlare as an extension
+* Added Cloudflare as an extension
 * Added nofollow to blogroll links
 * Added DEV mode support to PRO version
 * Added EDGE MODE functionality
@@ -1003,6 +1170,9 @@ Please reach out to all of these people and support their projects if you're so 
 
 
 == Upgrade Notice ==
+
+= 2.7.3 =
+Thanks for using W3 Total Cache! The minimum required PHP version has been raised to PHP 7.2.5.  We recommend using PHP 8.  StackPath CDN has cased all operations and will be removed in a future release.  We recommend switching to Bunny CDN.
 
 = 0.9.7.5 =
 Users running Cloudflare CDN may experience issues beginning June 6th. Please upgrade to W3 Total Cache 0.9.7.5 for the latest Cloudflare patches.

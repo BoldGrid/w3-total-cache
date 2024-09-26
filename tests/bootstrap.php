@@ -7,7 +7,7 @@
  * @package    W3TC
  * @subpackage W3TC/tests
  * @author     BoldGrid <development@boldgrid.com>
- * @since      X.X.X
+ * @since      2.3.1
  */
 
 $_tests_dir = rtrim( getenv( 'WP_TESTS_DIR' ), '/' );
@@ -43,7 +43,7 @@ foreach ( $files as $file ) {
 /**
  * Debug to console.
  *
- * @since X.X.X
+ * @since 2.3.1
  *
  * @param mixed $var Message to write to STDERR.
  */
@@ -59,7 +59,7 @@ function phpunit_error_log( $var ) {
 /**
  * Manually load the plugin being tested.
  *
- * @since X.X.X
+ * @since 2.3.1
  */
 function _manually_load_plugin() {
 	require W3TC_DIR . '/w3-total-cache.php';

@@ -1,6 +1,5 @@
 jQuery(function($) {
 	function w3tc_rackspace_resize(o) {
-		o.options.height = jQuery('.w3tc_cdn_rackspace_form').height() + 30;
 		o.resize();
 	}
 

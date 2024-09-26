@@ -4,7 +4,7 @@
  *
  * Bunny CDN settings page section view.
  *
- * @since   X.X.X
+ * @since   2.6.0
  * @package W3TC
  *
  * @param array $config W3TC configuration.

@@ -149,9 +149,7 @@ class Cache_File extends Cache_Base {
 
 		$storage_key = $this->get_item_key( $key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
 		if ( !is_readable( $path ) )
 			return array( null, $has_old_data );
 
@@ -226,9 +224,7 @@ class Cache_File extends Cache_Base {
 	function delete( $key, $group = '' ) {
 		$storage_key = $this->get_item_key( $key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
 
 		if ( !file_exists( $path ) )
 			return true;
@@ -274,11 +270,19 @@ class Cache_File extends Cache_Base {
 	 */
 	function flush( $group = '' ) {
 		@set_time_limit( $this->_flush_timelimit );
-		$flush_dir = $group ?
-			$this->_cache_dir . DIRECTORY_SEPARATOR . $group .
-			DIRECTORY_SEPARATOR :
-			$this->_flush_dir;
-		Util_File::emptydir( $flush_dir, $this->_exclude );
+
+		if ( 'sitemaps' === $group ) {
+			$config = Dispatcher::config();
+			$sitemap_regex = $config->get_string( 'pgcache.purge.sitemap_regex' );
+			$this->_flush_based_on_regex( $sitemap_regex );
+		} else {
+			$flush_dir = $group ?
+				$this->_cache_dir . DIRECTORY_SEPARATOR . $group .
+				DIRECTORY_SEPARATOR :
+				$this->_flush_dir;
+			Util_File::emptydir( $flush_dir, $this->_exclude );
+		}
+
 		return true;
 	}
 
@@ -291,9 +295,7 @@ class Cache_File extends Cache_Base {
 	 */
 	function mtime( $key, $group = '' ) {
 		$path =
-			$this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $key, $group );
+			$this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
 
 		if ( file_exists( $path ) ) {
 			return @filemtime( $path );
@@ -314,9 +316,7 @@ class Cache_File extends Cache_Base {
 		else
 			$hash = md5( $key );
 
-		$path = sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
-
-		return $path;
+		return ( $group ? $group . DIRECTORY_SEPARATOR : '' ) . sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
 	}
 
 	public function get_stats_size( $timeout_time ) {
@@ -440,8 +440,7 @@ class Cache_File extends Cache_Base {
 		$storage_key = $this->get_item_key( $key );
 
 		$sub_path = $this->_get_path( $storage_key, $group );
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) . $sub_path;
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
 
 		$dir = dirname( $path );
 
@@ -452,5 +451,39 @@ class Cache_File extends Cache_Base {
 
 		$fp = @fopen( $path, $mode );
 		return $fp;
+	}
+
+	/**
+	 * Flush cache based on regex
+	 *
+	 * @since 2.7.1
+	 *
+	 * @param string  $regex
+	 */
+	private function _flush_based_on_regex( $regex ) {
+		if ( Util_Environment::is_wpmu() && ! Util_Environment::is_wpmu_subdomain() ) {
+			$domain    = get_home_url();
+			$parsed    = parse_url( $domain );
+			$host      = $parsed['host'];
+			$path      = isset( $parsed['path'] ) ? '/' . trim( $parsed['path'], '/' ) : '';
+			$flush_dir = W3TC_CACHE_PAGE_ENHANCED_DIR . DIRECTORY_SEPARATOR . $host . $path;
+		} else {
+			$flush_dir = W3TC_CACHE_PAGE_ENHANCED_DIR . DIRECTORY_SEPARATOR . Util_Environment::host();
+		}
+
+		$dir = @opendir( $flush_dir );
+		if ( $dir ) {
+			while ( ( $entry = @readdir( $dir ) ) !== false ) {
+				if ( '.' === $entry || '..' === $entry ) {
+					continue;
+				}
+
+				if ( preg_match( '~' . $regex . '~', basename( $entry ) ) ) {
+					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $entry );
+				}
+			}
+
+			@closedir( $dir );
+		}
 	}
 }

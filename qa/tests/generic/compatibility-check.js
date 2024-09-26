@@ -29,18 +29,18 @@ describe('', function() {
 			let wizardSkip = '#w3tc-wizard-skip';
 			let skipped = await Promise.all([
 				adminPage.evaluate((wizardSkip) => document.querySelector(wizardSkip).click(), wizardSkip),
-				adminPage.waitForNavigation({timeout:0}),
+				adminPage.waitForNavigation({timeout: 300000}),
 			]);
 
 			expect(skipped).is.not.null;
 		}
 
 		await adminPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_dashboard');
-		
+
 		let compatibilityCheck = '#w3tc-top-nav-info-menu a.compatiblity-test';
 		await adminPage.evaluate((compatibilityCheck) => document.querySelector(compatibilityCheck).click(), compatibilityCheck);
 
-		await adminPage.waitFor(() => {
+		await adminPage.waitForFunction(() => {
 			return typeof(document.querySelector('div.lightbox-content')) != 'undefined' &&
 				document.querySelector('div.lightbox-loader') == null;
 		});

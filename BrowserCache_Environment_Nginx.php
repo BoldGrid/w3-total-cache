@@ -344,11 +344,11 @@ class BrowserCache_Environment_Nginx {
 				}
 
 				if ( ! empty( $feature_v ) ) {
-					$rules[] = 'add_header Feature-Policy "' . implode( ';', $feature_v ) . "\"\n";
+					$rules[] = 'add_header Feature-Policy "' . implode( ';', $feature_v ) . "\";\n";
 				}
 
 				if ( ! empty( $permission_v ) ) {
-					$rules[] = 'add_header Permissions-Policy "' . implode( ',', $permission_v ) . "\"\n";
+					$rules[] = 'add_header Permissions-Policy "' . implode( ',', $permission_v ) . "\";\n";
 				}
 			}
 		}
@@ -491,7 +491,12 @@ class BrowserCache_Environment_Nginx {
 
 			case 'no_cache':
 				$add_header_rules[] = 'add_header Pragma "no-cache";';
-				$add_header_rules[] = 'add_header Cache-Control "max-age=0, private, no-store, no-cache, must-revalidate";';
+				$add_header_rules[] = 'add_header Cache-Control "private, no-cache";';
+				break;
+
+			case 'no_store':
+				$add_header_rules[] = 'add_header Pragma "no-store";';
+				$add_header_rules[] = 'add_header Cache-Control "no-store";';
 				break;
 			}
 		}

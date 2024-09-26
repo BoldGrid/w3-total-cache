@@ -1,7 +1,7 @@
 /**
  * File: Cdn_BunnyCdn_Page_View.js
  *
- * @since   X.X.X
+ * @since   2.6.0
  * @package W3TC
  *
  * @global W3TC_Bunnycdn Localization array for info and language.
@@ -14,7 +14,6 @@ jQuery(function($) {
 	 * @param object o W3tc_Lightbox object.
 	 */
 	function w3tc_bunnycdn_resize(o) {
-		o.options.height = $('.w3tc_cdn_bunnycdn_form').height();
 		o.resize();
 	}
 

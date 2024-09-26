@@ -56,9 +56,13 @@ class Generic_Plugin_Admin {
 		$this->is_w3tc_page = Util_Admin::is_w3tc_admin_page();
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetAccount', 'admin_init_w3tc_dashboard' ) );
+		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetSettings', 'admin_init_w3tc_dashboard' ) );
+		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetPartners', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetServices', 'admin_init_w3tc_dashboard' ) );
-		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetCommunity', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetBoldGrid', 'admin_init_w3tc_dashboard' ) );
+		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetStats', 'admin_init_w3tc_dashboard' ) );
+		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Extension_ImageService_Widget', 'admin_init_w3tc_dashboard' ) );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'admin_print_styles-toplevel_page_w3tc_dashboard', array( '\W3TC\Generic_Page_Dashboard', 'admin_print_styles_w3tc_dashboard' ) );
@@ -384,18 +388,6 @@ class Generic_Plugin_Admin {
 			}
 		}
 
-		if ( 'w3tc_dashboard' === $page ) {
-			?>
-			<script type="text/javascript">
-				jQuery( function() {
-					jQuery('#normal-sortables').masonry( {
-						itemSelector: '.postbox'
-					} );
-				} );
-			</script>
-			<?php
-		}
-
 		if ( $this->_config->get_boolean( 'common.track_usage' ) && $this->is_w3tc_page ) {
 
 			$current_user = wp_get_current_user();
@@ -631,6 +623,70 @@ class Generic_Plugin_Admin {
 					W3TC_VERSION,
 					true
 				);
+				// No break.
+			case 'w3tc_userexperience':
+				if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+					wp_register_script( 'w3tc_remove_cssjs', plugins_url( 'UserExperience_Remove_CssJs_Page_View.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
+
+					wp_localize_script(
+						'w3tc_remove_cssjs',
+						'W3TCRemoveCssJsData',
+						array(
+							'lang' => array(
+								'singlesPathDescription'                   => __( 'Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry.', 'w3-total-cache' ),
+								'singlesExampleTrigger'                    => __( 'View Examples', 'w3-total-cache' ),
+								'singlesExampleTriggerClose'               => __( 'Hide Examples', 'w3-total-cache' ),
+								'singlesPathExampleDirLabel'               => __( 'Target all CSS/JS from a plugin/theme:', 'w3-total-cache' ),
+								'singlesPathExampleDir'                    => wp_kses(
+									'https://example.com/wp-content/plugins/example-plugin/<br/>/wp-content/plugins/example-plugin/',
+									array(
+										'br' => array(),
+									)
+								),
+								'singlesPathExampleFileLabel'              => __( 'Target a specific CSS/JS file:', 'w3-total-cache' ),
+								'singlesPathExampleFile'                   => wp_kses(
+									'https://example.com/wp-content/themes/example-theme/example-script.js<br/>/wp-content/themes/example-script.js<br/>example-script.js',
+									array(
+										'br' => array(),
+									)
+								),
+								'singlesNoEntries'                         => __( 'No CSS/JS entries added.', 'w3-total-cache' ),
+								'singlesExists'                            => __( 'Entry already exists!', 'w3-total-cache' ),
+								'singlesPathLabel'                         => __( 'Target CSS/JS:', 'w3-total-cache' ),
+								'singlesDelete'                            => __( 'Delete', 'w3-total-cache' ),
+								'singlesBehaviorLabel'                     => __( 'Action:', 'w3-total-cache' ),
+								'singlesBehaviorExcludeText'               => __( 'Exclude', 'w3-total-cache' ),
+								'singlesBehaviorExcludeText2'              => __( '(Remove the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
+								'singlesBehaviorIncludeText'               => __( 'Include', 'w3-total-cache' ),
+								'singlesBehaviorIncludeText2'              => __( '(Allow the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
+								'singlesBehaviorDescription'               => __( 'When the above CSS/JS file is found within your markup.', 'w3-total-cache' ),
+								'singlesIncludesLabelExclude'              => __( 'Exclude on URL Match:', 'w3-total-cache' ),
+								'singlesIncludesLabelInclude'              => __( 'Include on URL Match:', 'w3-total-cache' ),
+								'singlesIncludesDescriptionExclude'        => __( 'Specify the conditions for which the target file should be excluded based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesDescriptionInclude'        => __( 'Specify the conditions for which the target file should be included based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesExample'                   => wp_kses(
+									'https://example.com/example-page/<br/>/example-page/<br/>example-page?arg=example-arg',
+									array(
+										'br' => array(),
+									)
+								),
+								'singlesIncludesContentLabelExclude'       => __( 'Exclude on Content Match:', 'w3-total-cache' ),
+								'singlesIncludesContentLabelInclude'       => __( 'Include on Content Match:', 'w3-total-cache' ),
+								'singlesIncludesContentDescriptionExclude' => __( 'Specify the conditions for which the target file should be excluded based on matching page content. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesContentDescriptionInclude' => __( 'Specify the conditions for which the target file should be included based on matching page content. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesContentExample'            => wp_kses(
+									'&lt;div id="example-id"&gt;<br/>&lt;span class="example-class"&gt;<br/>name="example-name"',
+									array(
+										'br' => array(),
+									)
+								),
+								'singlesEmptyUrl'                          => __( 'Empty match pattern!', 'w3-total-cache' ),
+							),
+						)
+					);
+
+					wp_enqueue_script( 'w3tc_remove_cssjs' );
+				}
 				// No break.
 			case 'w3tc_cdn':
 				wp_enqueue_script( 'jquery-ui-sortable' );

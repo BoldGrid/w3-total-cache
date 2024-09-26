@@ -1,5 +1,6 @@
 # Travis CI configuraion for the W3 Total Cache WordPress plugin by BoldGrid.
 # @link https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-on-travis-ci
+# @link https://docs.travis-ci.com/user/job-lifecycle
 
 language: php
 
@@ -13,45 +14,38 @@ notifications:
 matrix:
   include:
     -
-      php: 7.4
-      dist: focal
-      before_script:
-        - composer self-update
-        - composer update
-        - bash bin/install-wp-tests.sh wordpress_test root '' localhost
-        #- yarn run php-codesniffer
+      php: 7.2
+      dist: bionic
+      before_install:
+      - nvm install 16
+      - nvm use 16
     -
-      php: 5.6
-      dist: xenial
-      before_script:
-        # Downgrade to composer v1 for PHP 5.6.
-        - composer self-update --1
-        # Lock file has phpunit 9. Remove it and install phpunit 5 for php 5.6.
-        - composer remove --no-update --dev phpunit/phpunit yoast/phpunit-polyfills
-        - composer require --no-update --dev phpunit/phpunit yoast/phpunit-polyfills
-        - composer update
-        - bash bin/install-wp-tests.sh wordpress_test root '' localhost 6.2
-        #- yarn run php-codesniffer
-    -
-      php: 8.0
-      dist: focal
-      before_script:
-        - composer update
-        - bash bin/install-wp-tests.sh wordpress_test root '' localhost
-        #- yarn run php-codesniffer
+      php: 8.3
+      dist: jammy
+      before_install:
+        - nvm install 20
+        - nvm use 20
 
 install:
-  - nvm install 16
-  - nvm use 16
+  - composer self-update
+  - composer update -o
+  - bash bin/install-wp-tests.sh wordpress_test root '' localhost
   - yarn install
+  #- yarn run php-codesniffer
 
 script:
-  - vendor/phpunit/phpunit/phpunit --debug --verbose
+  # PHPUnit: Run unit tests.
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.2" ]]; then vendor/phpunit/phpunit/phpunit --debug --verbose --coverage-clover=coverage.xml; else vendor/phpunit/phpunit/phpunit --debug --verbose; fi
+  # JavaScript lint.
   #- yarn run js-lint
   # Remove dev dependencies.
   - composer install --no-dev -o
   # PHP lint.
   - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
+
+after_success:
+  # Codecov: Create a code coverage report for PHP 7.2.
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.2" ]]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -f coverage.xml; fi
 
 deploy:
   - provider: script
@@ -59,11 +53,11 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      php: 5.6
+      php: 7.2
   - provider: releases
     api_key: "${GITHUB_TOKEN}"
     file: "w3-total-cache.zip"
     skip_cleanup: true
     on:
       tags: true
-      php: 5.6
+      php: 7.2

@@ -17,7 +17,10 @@ cat $W3D_HTTP_SERVER_ERROR_LOG_FILENAME |\
 	grep -v "Undefined index: no_update in /var/www/.*/update.php" |\
 	grep -v "Only the first byte will be assigned to the string offset in /var/www/.*/class.wp-scripts.php" |\
 	grep -v "Undefined array key .no_update. in /var/www/.*/update.php" |\
-	grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php"
+	grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php" |\
+	grep -v 'Function wp_update_https_detection_errors is ' |\
+	grep -Fv 'favicon.ico' |\
+	grep -Ev 'Theme without (header|footer).php'
 
 if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 	cat "${W3D_WP_CONTENT_PATH}debug.log" |\
@@ -37,7 +40,10 @@ if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 		grep -v "Undefined index: no_update in /var/www/.*/update.php" |\
 		grep -v "Only the first byte will be assigned to the string offset in /var/www/.*/class.wp-scripts.php" |\
 		grep -v "Undefined array key .no_update. in /var/www/.*/update.php" |\
-		grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php"
+		grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php" |\
+		grep -v 'Function wp_update_https_detection_errors is ' |\
+		grep -Fv 'favicon.ico' |\
+		grep -Ev 'Theme without (header|footer).php'
 fi
 # esc_attr in eval - pagecache/late-init test
 # in php7.0-fpm call stack is printed so should be eliminated

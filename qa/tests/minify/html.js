@@ -65,7 +65,7 @@ describe('minify html', function() {
 	it('load test page', async() => {
 		log.log('opening ' + testPageUrl);
 		await page.goto(testPageUrl, {
-			timeout: 0,
+			timeout: 300000,
 			waitUntil: 'domcontentloaded'
 		});
 

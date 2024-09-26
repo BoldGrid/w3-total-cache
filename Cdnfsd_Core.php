@@ -91,7 +91,7 @@ class Cdnfsd_Core {
 						array(
 							'account_api_key' => $c->get_string( 'cdn.bunnycdn.account_api_key' ),
 							'pull_zone_id'    => $c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
-						),
+						)
 					);
 					break;
 

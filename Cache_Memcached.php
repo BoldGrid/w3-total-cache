@@ -247,7 +247,7 @@ class Cache_Memcached extends Cache_Base {
 
 	public function get_statistics() {
 		$a = $this->_memcache->getStats();
-		if ( count( $a ) > 0 ) {
+		if ( ! empty( $a ) && count( $a ) > 0 ) {
 			$keys = array_keys( $a );
 			$key = $keys[0];
 			return $a[$key];

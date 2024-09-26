@@ -17,12 +17,8 @@ var W3tc_Lightbox = {
 		});
 
 		jQuery('body').append(this.container);
-		me.resize();
-		this.window.resize(function() {
-			me.resize();
-		});
 
-		this.window.scroll(function() {
+		this.window.resize(function() {
 			me.resize();
 		});
 
@@ -38,7 +34,7 @@ var W3tc_Lightbox = {
 	open: function(options) {
 		this.options = jQuery.extend({
 			id: 'lightbox',
-			close: 'Close window',
+			close: '',
 			width: 0,
 			height: 0,
 			maxWidth: 0,
@@ -53,7 +49,6 @@ var W3tc_Lightbox = {
 		}, options);
 
 		this.create();
-		this.resize();
 
 		if (this.options.content) {
 			this.content(this.options.content);
@@ -78,8 +73,6 @@ var W3tc_Lightbox = {
 				}
 			}
 		}
-
-
 
 		W3tc_Overlay.show();
 		this.container.show();
@@ -370,6 +363,8 @@ function w3tc_lightbox_minify_recommendations(nonce) {
 
 				lightbox.close();
 			});
+
+			lightbox.resize();
 		}
 	});
 }
@@ -380,9 +375,11 @@ function w3tc_lightbox_self_test(nonce) {
 		minHeight: 300,
 		url: 'admin.php?page=w3tc_dashboard&w3tc_test_self&_wpnonce=' + w3tc_nonce,
 		callback: function(lightbox) {
-				jQuery('.button-primary', lightbox.container).on( 'click', function() {
+			jQuery('.button-primary', lightbox.container).on( 'click', function() {
 				lightbox.close();
 			});
+
+			lightbox.resize();
 		}
 	});
 }
@@ -393,49 +390,62 @@ function w3tc_lightbox_upgrade(nonce, data_src, renew_key) {
 		client_id = w3tc_ga_cid;
 	}
 
+	var minWidth = jQuery(window).width() - 30;
+	var minHeight = jQuery(window).height() - 30;
+
   	W3tc_Lightbox.open({
 		id: 'w3tc-overlay',
 		close: '',
-		width: 800,
-		height: 350,
+		maxWidth: 1000,
+		minWidth: ( minWidth < 1000 ? minWidth : 1000 ),
+		minHeight: ( minHeight < 500 ? minHeight : 500 ),
 		url: 'admin.php?page=w3tc_dashboard&w3tc_licensing_upgrade&_wpnonce=' +
-		encodeURIComponent(nonce) + '&data_src=' + encodeURIComponent(data_src) +
-		(renew_key ? '&renew_key=' + encodeURIComponent(renew_key) : '') +
-		(client_id ? '&client_id=' + encodeURIComponent(client_id) : ''),
-	callback: function(lightbox) {
-		lightbox.options.height = jQuery('#w3tc-upgrade').outerHeight();
+			encodeURIComponent(nonce) + '&data_src=' + encodeURIComponent(data_src) +
+			(renew_key ? '&renew_key=' + encodeURIComponent(renew_key) : '') +
+			(client_id ? '&client_id=' + encodeURIComponent(client_id) : ''),
+		callback: function(lightbox) {
+			lightbox.options.height = jQuery('#w3tc-upgrade').outerHeight();
 
-		jQuery('.button-primary', lightbox.container).on( 'click', function() {
-			lightbox.close();
-		});
-		jQuery('#w3tc-purchase', lightbox.container).on( 'click', function() {
-			lightbox.close();
-			w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id);
-		});
-		jQuery('#w3tc-purchase-link', lightbox.container).on( 'click', function() {
-			lightbox.close();
+			jQuery('.button-primary', lightbox.container).on( 'click', function() {
+				lightbox.close();
+			});
 
-			if ( jQuery('#licensing').length ) {
-				jQuery([document.documentElement, document.body]).animate({
-					scrollTop: jQuery('#licensing').offset().top
-				}, 2000);
-			}
-		});
+			jQuery('#w3tc-purchase', lightbox.container).on( 'click', function() {
+				lightbox.close();
+				w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id);
+			});
 
-		// Allow for customizations of the "upgrade" overlay specifically.
-		jQuery( '.w3tc-overlay' ).addClass( 'w3tc-overlay-upgrade' );
+			jQuery('#w3tc-purchase-link', lightbox.container).on( 'click', function() {
+				lightbox.close();
 
-		lightbox.resize();
-	}
-  });
+				if ( jQuery('#licensing').length ) {
+					jQuery([document.documentElement, document.body]).animate({
+						scrollTop: jQuery('#licensing').offset().top
+					}, 2000);
+				}
+			});
+
+			// Allow for customizations of the "upgrade" overlay specifically.
+			jQuery( '.w3tc-overlay' ).addClass( 'w3tc-overlay-upgrade' );
+
+			lightbox.resize();
+		}
+	});
 }
 
 function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
+	if (window.w3tc_ga) {
+		client_id = w3tc_ga_cid;
+	}
+
+	var minWidth = jQuery(window).width() - 30;
+	var minHeight = jQuery(window).height() - 30;
+
 	W3tc_Lightbox.open({
-		width: 800,
-		minHeight: 350,
-		maxWidth: jQuery(window).width() - 40,
-		maxHeight: jQuery(window).height() - 40,
+		id: 'w3tc-overlay',
+		maxWidth: 1000,
+		minWidth: ( minWidth < 1000 ? minWidth : 1000 ),
+		minHeight: ( minHeight < 700 ? minHeight : 700 ),
 		url: 'admin.php?page=w3tc_dashboard&w3tc_licensing_buy_plugin' +
 			'&_wpnonce=' + encodeURIComponent(nonce) +
 			'&data_src=' + encodeURIComponent(data_src) +
@@ -477,21 +487,26 @@ function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
 			jQuery('.button-primary', lightbox.container).on( 'click', function() {
 				lightbox.close();
 			});
+
+			// Allow for customizations of the "upgrade" overlay specifically.
+			jQuery( '.w3tc-overlay' ).addClass( 'w3tc-overlay-upgrade' );
+
+			lightbox.resize();
 		}
 	});
 }
 
 function w3tc_lightbox_save_license_key(license_key, nonce, callback) {
-  jQuery('#plugin_license_key').val(license_key);
-  var params = {
-	w3tc_default_save_license_key: 1,
-	license_key: license_key,
-	_wpnonce: ('array' === jQuery.type(nonce)) ? nonce[0] : nonce
-  };
+	jQuery('#plugin_license_key').val(license_key);
+	var params = {
+		w3tc_default_save_license_key: 1,
+		license_key: license_key,
+		_wpnonce: ('array' === jQuery.type(nonce)) ? nonce[0] : nonce
+	};
 
-  jQuery.post('admin.php?page=w3tc_dashboard', params, function(data) {
-	callback();
-  }, 'json').fail(callback);
+	jQuery.post('admin.php?page=w3tc_dashboard', params, function(data) {
+		callback();
+	}, 'json').fail(callback);
 }
 
 jQuery(function() {
@@ -515,8 +530,42 @@ jQuery(function() {
 		}
 		var renew_key = jQuery(this).data('renew-key');
 
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				'button',
+				{
+					eventCategory: 'click',
+					eventLabel: 'license_upgrade_' + data_src
+				}
+			);
+		}
+
 		w3tc_lightbox_upgrade(nonce, data_src, renew_key);
 		jQuery('#w3tc-license-instruction').show();
+		return false;
+	});
+
+	jQuery('.button-renew-plugin').on( 'click', function() {
+		var data_src = jQuery(this).data('src');
+		var nonce = jQuery(this).data('nonce');
+		if (!nonce) {
+			nonce = w3tc_nonce;
+		}
+		var renew_key = jQuery(this).data('renew-key');
+
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				'button',
+				{
+					eventCategory: 'click',
+					eventLabel: 'license_renew_' + data_src
+				}
+			);
+		}
+
+		w3tc_lightbox_buy_plugin(nonce, data_src, renew_key);
 		return false;
 	});
 

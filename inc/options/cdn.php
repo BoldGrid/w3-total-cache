@@ -18,6 +18,50 @@ $can_purge = Cdn_Util::can_purge( $cdn_engine );
 require W3TC_INC_DIR . '/options/common/header.php';
 
 ?>
+<div id="w3tc-bunnycdn-ad-cdn">
+	<?php
+	echo wp_kses(
+		sprintf(
+			// translators: 1 HTML img tag for Bunny CDN Icon Bunny Rocket, 2 opening HTML strong tag, 3 closing HTML strong tag,
+			// translators: 4 HTML input for Bunny CDN sign up, 5 HTML div tag for Bunny CDN logo svg.
+			__(
+				'%1$s%2$sLooking for a top rated CDN Provider? Try Bunny CDN.%3$s%4$s%5$s',
+				'w3-total-cache'
+			),
+			'<img class="w3tc-bunnycdn-icon-bunny-rocket" src="' . esc_url( plugins_url( '/pub/img/w3tc_bunnycdn_bunny_rocket.png', W3TC_FILE ) ) . '" alt="Bunny CDN Icon Bunny Rocket" width="90">',
+			'<strong>',
+			'</strong>',
+			Util_Ui::button_link(
+				__( 'Sign up now to enjoy a special offer!', 'w3-total-cache' ),
+				esc_url( W3TC_BUNNYCDN_SIGNUP_URL ),
+				true,
+				'w3tc-bunnycdn-promotion-button',
+				'w3tc-bunnycdn-promotion-button'
+			),
+			'<div class="w3tc-bunnycdn-logo"></div>'
+		),
+		array(
+			'strong' => array(),
+			'img'    => array(
+				'class' => array(),
+				'src'   => array(),
+				'alt'   => array(),
+				'width' => array(),
+			),
+			'div'    => array(
+				'class' => array(),
+			),
+			'input'  => array(
+				'type'    => array(),
+				'name'    => array(),
+				'class'   => array(),
+				'value'   => array(),
+				'onclick' => array(),
+			),
+		)
+	);
+	?>
+</div>
 <p>
 	<?php
 	echo wp_kses(
@@ -46,7 +90,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		sprintf(
 			// translators: 1 HTML strong tag containing CDN Engine value, 2 HTML span tag containing CDN Engine enabled/disabled value.
 			__(
-				'Content Delivery Network full-site-delivery support via %1$s is currently %2$s and %3$s.',
+				'Content Delivery Network full-site delivery support via %1$s is currently %2$s and %3$s.',
 				'w3-total-cache'
 			),
 			'<strong>' . Cache::engine_name( $this->_config->get_string( 'cdnfsd.engine' ) ) . '</strong>',
@@ -87,6 +131,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'acronym' => array(
 							'title' => array(),
 						),
+						'input'   => array(
+							'class' => array(),
+							'id'    => array(),
+							'type'  => array(),
+							'value' => array(),
+						),
 					)
 				);
 				?>
@@ -97,8 +147,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				<p>
 					<?php
 					$cdn_purge_button        = $can_purge ?
-						'<input id="cdn_purge" class="button {nonce: ' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
-							'}" type="button" value="Purge" /> objects from the <acronym title="Content Delivery Network">CDN</acronym>' :
+						'<input id="cdn_purge" class="button {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
+							'\'}" type="button" value="Purge" /> objects from the <acronym title="Content Delivery Network">CDN</acronym>' :
 						'';
 					$cdn_mirror_purge_button = $cdn_mirror_purge_all ?
 						( $can_purge ? ' or ' : '' ) . '<input class="button" type="submit" name="w3tc_flush_cdn" value="purge CDN completely" />' :

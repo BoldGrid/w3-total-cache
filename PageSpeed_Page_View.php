@@ -27,7 +27,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				sprintf(
 					// translators: 1 cache lifetime.
 					__(
-						'This tool will analyze your website\'s homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explaination of the metric and our recommendation for achieving improvments via W3 Total Cache features/extensions if available. Results will be cached for %1$s but will forcibly refresh via the "Refresh Analysis" button.',
+						'This tool will analyze your website\'s homepage using the Google PageSpeed Insights API to gather desktop/mobile performance metrics. Additionally for each metric W3 Total Cache will include an explanation of the metric and our recommendation for achieving improvements via W3 Total Cache features/extensions if available. Results will be cached for %1$s but will forcibly refresh via the "Refresh Analysis" button.',
 						'w3-total-cache'
 					),
 					Util_PageSpeed::seconds_to_str( Util_PageSpeed::get_cache_life() )

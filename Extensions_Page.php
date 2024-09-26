@@ -38,34 +38,47 @@ class Extensions_Page extends Base_Page_Settings {
 			}
 		}
 
-		$extension     = '';
 		$extension_val = Util_Request::get_string( 'extension' );
-		if ( ! empty( $extension_val ) ) {
-			$extension = esc_attr( $extension_val );
-		}
+		$extension     = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
 
 		$action_val = Util_Request::get_string( 'action' );
 		$view       = ( ! empty( $action_val ) && 'view' === $action_val );
 
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
+		foreach ( $extensions_active as $key => $ext ) {
+			if ( isset( $ext['public'] ) && false === $ext['public'] ) {
+				unset( $extensions_active[ $key ] );
+			}
+		}
 
 		if ( $extension && $view ) {
 			$all_settings = $this->_config->get_array( 'extensions.settings' );
-			$meta = $extensions_active[$extension];
-			$sub_view = 'settings';
+			$meta         = $extensions_active[ $extension ];
+			$sub_view     = 'settings';
 		} else {
 			$extensions_all = Extensions_Util::get_extensions( $this->_config );
+			foreach ( $extensions_all as $key => $ext ) {
+				if ( isset( $ext['public'] ) && false === $ext['public'] ) {
+					unset( $extensions_all[ $key ] );
+				}
+			}
+
 			$extensions_inactive = Extensions_Util::get_inactive_extensions( $this->_config );
-			$var = "extensions_{$extension_status}";
-			$extensions = $$var;
-			$extension_keys = array_keys($extensions);
-			sort($extension_keys);
+			foreach ( $extensions_inactive as $key => $ext ) {
+				if ( isset( $ext['public'] ) && false === $ext['public'] ) {
+					unset( $extensions_inactive[ $key ] );
+				}
+			}
+
+			$var            = "extensions_{$extension_status}";
+			$extensions     = $$var;
+			$extension_keys = array_keys( $extensions );
+			sort( $extension_keys );
 
 			$sub_view = 'list';
-			$page = 1;
+			$page     = 1;
 		}
 
-		$config = Dispatcher::config();
 		include W3TC_INC_OPTIONS_DIR . '/extensions.php';
 	}
 

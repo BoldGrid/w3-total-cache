@@ -289,7 +289,7 @@ class Generic_Plugin {
 					$menu_items['10015.generic'] = array(
 						'id'     => 'w3tc_flush_all_except_cf',
 						'parent' => 'w3tc',
-						'title'  => __( 'Purge All Caches Except CloudFlare', 'w3-total-cache' ),
+						'title'  => __( 'Purge All Caches Except Cloudflare', 'w3-total-cache' ),
 						'href'   => wp_nonce_url(
 							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush_all_except_cf' ),
 							'w3tc'
@@ -370,15 +370,6 @@ class Generic_Plugin {
 					'id'     => 'w3tc_debug_overlays',
 					'parent' => 'w3tc',
 					'title'  => __( 'Debug: Overlays', 'w3-total-cache' ),
-				);
-				$menu_items['90020.generic'] = array(
-					'id'     => 'w3tc_overlay_support_us',
-					'parent' => 'w3tc_debug_overlays',
-					'title'  => __( 'Support Us', 'w3-total-cache' ),
-					'href'   => wp_nonce_url(
-						network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=generic_support_us' ),
-						'w3tc'
-					),
 				);
 			}
 
@@ -545,17 +536,23 @@ class Generic_Plugin {
 				array(
 					'swarmify',
 					'lazyload',
+					'removecssjs',
 					'deferscripts',
 					'minify',
 					'newrelic',
 					'cdn',
 					'browsercache',
-					'pagecache',
 				),
 				$buffer
 			);
 
 			$buffer = apply_filters( 'w3tc_processed_content', $buffer );
+
+			// Apply the w3tc_processed_content filter before pagecache callback.
+			$buffer = Util_Bus::do_ob_callbacks(
+				array( 'pagecache' ),
+				$buffer
+			);
 		}
 
 		return $buffer;

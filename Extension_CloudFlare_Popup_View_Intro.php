@@ -13,7 +13,7 @@ if ( ! defined( 'W3TC' ) ) {
 	}
 	?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( esc_html__( 'Your CloudFlare API token / global key', 'w3-total-cache' ) ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Your Cloudflare API token / global key', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Email:', 'w3-total-cache' ); ?></td>

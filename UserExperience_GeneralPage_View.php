@@ -46,11 +46,11 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 
 	Util_Ui::config_item_pro(
 		array(
-			'key'         => 'lazyload_googlemaps_general_settings',
-			'control'     => 'none',
-			'label_class' => 'w3tc_single_column',
-			'none_label'  => esc_html__( 'Lazy Load Google Maps', 'w3-total-cache' ),
-			'excerpt'     => wp_kses(
+			'key'               => 'lazyload_googlemaps_general_settings',
+			'control'           => 'none',
+			'label_class'       => 'w3tc_single_column',
+			'none_label'        => esc_html__( 'Lazy Load Google Maps', 'w3-total-cache' ),
+			'excerpt'           => wp_kses(
 				sprintf(
 					// translators: 1 opening HTML strong tag, 2 closing HTML strong tag, 3 opening HTML strong tag, 4 closing HTML strong tag,
 					// translators: 5 opening HTML a tag to W3TC User Experience page, 6 closing HTML a tag.
@@ -72,7 +72,13 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 					'strong' => array(),
 				)
 			),
-			'description' => array(),
+			'description'       => array(),
+			'show_learn_more'   => false,
+			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+			'score'             => '+10',
+			'score_label'       => __( 'Points', 'w3-total-cache' ),
+			'score_description' => __( 'In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!', 'w3-total-cache' ),
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/?utm_source=w3tc&utm_medium=lazy-load-maps&utm_campaign=proof'
 		)
 	);
 
@@ -87,10 +93,10 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 
 	Util_Ui::config_item_extension_enabled(
 		array(
-			'extension_id'   => 'user-experience-defer-scripts',
-			'checkbox_label' => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
-			'description'    => __(
-				'Delay the loading of specified interal/external JavaScript sources on your pages separate from Minify.',
+			'extension_id'      => 'user-experience-defer-scripts',
+			'checkbox_label'    => esc_html__( 'Delay Scripts', 'w3-total-cache' ),
+			'description'       => __(
+				'Delay the loading of specified internal/external JavaScript sources on your pages separate from Minify.',
 				'w3-total-cache'
 			) . (
 				UserExperience_DeferScripts_Extension::is_enabled()
@@ -101,7 +107,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 							' Settings can be found on the %1$sUser Experience page%2$s.',
 							'w3-total-cache'
 						),
-						'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#application' ) . '">',
+						'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#defer-scripts' ) . '">',
 						'</a>'
 					),
 					array(
@@ -112,9 +118,54 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 				)
 				: ''
 			),
-			'label_class'    => 'w3tc_single_column',
-			'pro'            => true,
-			'disabled'       => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'label_class'       => 'w3tc_single_column',
+			'pro'               => true,
+			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'show_learn_more'   => false,
+			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+			'score'             => '+18',
+			'score_label'       => __( 'Points', 'w3-total-cache' ),
+			'score_description' => __( 'In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score!', 'w3-total-cache' ),
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/delay-scripts-test/?utm_source=w3tc&utm_medium=defer-js&utm_campaign=proof',
+		)
+	);
+
+	Util_Ui::config_item_extension_enabled(
+		array(
+			'extension_id'      => 'user-experience-remove-cssjs',
+			'checkbox_label'    => esc_html__( 'Remove Unwanted/Unused CSS/JS', 'w3-total-cache' ),
+			'description'       => __(
+				'Removes specified CSS/JS tags from the homepage or on a per page basis.',
+				'w3-total-cache'
+			) . (
+				UserExperience_Remove_CssJs_Extension::is_enabled()
+				? wp_kses(
+					sprintf(
+						// translators: 1 opening HTML a tag to W3TC User Experience page, 2 closing HTML a tag.
+						__(
+							' Settings can be found on the %1$sUser Experience page%2$s.',
+							'w3-total-cache'
+						),
+						'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#remove-cssjs' ) . '">',
+						'</a>'
+					),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				)
+				: ''
+			),
+			'label_class'       => 'w3tc_single_column',
+			'pro'               => true,
+			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'show_learn_more'   => false,
+			'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+			'score'             => '+27',
+			'score_label'       => __( 'Points', 'w3-total-cache' ),
+			'score_description' => __( 'In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!', 'w3-total-cache' ),
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/remove-scripts/?utm_source=w3tc&utm_medium=remove-css-js&utm_campaign=proof',
 		)
 	);
 
@@ -123,7 +174,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'extension_id'   => 'user-experience-preload-requests',
 			'checkbox_label' => esc_html__( 'Preload Requests', 'w3-total-cache' ),
 			'description'    => __(
-				'DNS prefetching, preconnecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks.',
+				'DNS prefetching, pre-connecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks.',
 				'w3-total-cache'
 			) . (
 				UserExperience_Preload_Requests_Extension::is_enabled()

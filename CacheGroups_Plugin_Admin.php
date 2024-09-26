@@ -40,7 +40,7 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 			'description' =>
 				'<li>' .
 				__(
-					'Enabling even a single user agent group will set a cookie called "w3tc_referrer." It is used to ensure a consistent user experience across page views. Make sure any reverse proxy servers etc respect this cookie for proper operation.',
+					'Enabling even a single user agent group will set a cookie called "w3tc_referrer." It is used to ensure a consistent user experience across page views. Make sure any reverse proxy servers etc. respect this cookie for proper operation.',
 					'w3-total-cache'
 				) .
 				'</li>' .
@@ -148,12 +148,8 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$group_config
 			);
 
-			$mobile_groups[ $group ]['agents'] = array_unique(
-				array_map(
-					'strtolower',
-					$mobile_groups[ $group ]['agents']
-				)
-			);
+			$mobile_groups[ $group ]['agents'] = self::clean_values( $mobile_groups[ $group ]['agents'] );
+
 			sort( $mobile_groups[ $group ]['agents'] );
 		}
 
@@ -209,12 +205,8 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 				$group_config
 			);
 
-			$referrer_groups[ $group ]['referrers'] = array_unique(
-				array_map(
-					'strtolower',
-					$referrer_groups[ $group ]['referrers']
-				)
-			);
+			$referrer_groups[ $group ]['referrers'] = self::clean_values( $referrer_groups[ $group ]['referrers'] );
+
 			sort( $referrer_groups[ $group ]['referrers'] );
 		}
 
@@ -267,5 +259,23 @@ class CacheGroups_Plugin_Admin extends Base_Page_Settings {
 
 		$config->set( 'pgcache.cookiegroups.enabled', $enabled );
 		$config->set( 'pgcache.cookiegroups.groups', $cookiegroups );
+	}
+
+	/**
+	 * Clean entries.
+	 *
+	 * @static
+	 *
+	 * @param array $values Values.
+	 */
+	public static function clean_values( $values ) {
+		return array_unique(
+			array_map(
+				function ( $value ) {
+					return preg_replace( '/(?<!\\\\)' . wp_spaces_regexp() . '/', '\ ', strtolower( $value ) );
+				},
+				$values
+			)
+		);
 	}
 }

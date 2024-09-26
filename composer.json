@@ -1,21 +1,27 @@
 {
     "require": {
-        "aws/aws-sdk-php": "3.183.8",
-        "aws/aws-php-sns-message-validator": "^1.8"
+        "aws/aws-sdk-php": "^3.308",
+        "aws/aws-php-sns-message-validator": "^1.9",
+        "symfony/deprecation-contracts": "^2.5",
+        "sebastian/comparator": "^3.0.5",
+        "sebastian/recursion-context": "^3.0.2",
+        "nikic/php-parser": "^4.15.1",
+        "microsoft/azure-storage-blob": "^1.5"
     },
     "require-dev": {
-        "yoast/phpunit-polyfills": "^1.0",
-        "phpunit/phpunit": "^9.6",
-        "squizlabs/php_codesniffer": "^3.7",
-        "wp-coding-standards/wpcs": "dev-develop"
+        "squizlabs/php_codesniffer": "^3.10",
+        "wp-coding-standards/wpcs": "dev-develop",
+        "phpunit/phpunit": "^8.5",
+        "yoast/phpunit-polyfills": "^2.0"
     },
     "replace": {
-        "symfony/polyfill-php56": "*",
-        "symfony/polyfill-php70": "*",
-        "symfony/polyfill-php71": "*",
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php73": "*",
         "symfony/polyfill-php74": "*",
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*",
+        "symfony/polyfill-php82": "*",
+        "symfony/polyfill-php83": "*",
         "symfony/polyfill-mbstring": "*"
     },
     "config": {

@@ -78,6 +78,7 @@ class Root_Loader {
 
 		if ( is_admin() ) {
 			$plugins[] = new Generic_Plugin_Admin();
+			$plugins[] = new Generic_Plugin_AdminNotices();
 			$plugins[] = new BrowserCache_Plugin_Admin();
 			$plugins[] = new DbCache_Plugin_Admin();
 			$plugins[] = new UserExperience_Plugin_Admin();
@@ -85,8 +86,6 @@ class Root_Loader {
 			$plugins[] = new PgCache_Plugin_Admin();
 			$plugins[] = new Minify_Plugin_Admin();
 			$plugins[] = new Generic_WidgetSpreadTheWord_Plugin();
-			$plugins[] = new Generic_Plugin_WidgetNews();
-			$plugins[] = new Generic_Plugin_WidgetForum();
 			$plugins[] = new SystemOpCache_Plugin_Admin();
 
 			$plugins[] = new Cdn_Plugin_Admin();
@@ -96,10 +95,7 @@ class Root_Loader {
 
 			$plugins[] = new PageSpeed_Api();
 			$plugins[] = new PageSpeed_Page();
-
-			if ( $c->get_boolean( 'widget.pagespeed.enabled' ) ) {
-				$plugins[] = new PageSpeed_Widget();
-			}
+			$plugins[] = new PageSpeed_Widget();
 
 			$plugins[] = new Generic_Plugin_AdminCompatibility();
 			$plugins[] = new Licensing_Plugin_Admin();
@@ -109,7 +105,6 @@ class Root_Loader {
 			}
 
 			$plugins[] = new Extensions_Plugin_Admin();
-			$plugins[] = new Generic_Plugin_AdminNotifications();
 			$plugins[] = new UsageStatistics_Plugin_Admin();
 			$plugins[] = new SetupGuide_Plugin_Admin();
 			$plugins[] = new FeatureShowcase_Plugin_Admin();

@@ -75,7 +75,7 @@ class Cdnfsd_Plugin_Admin {
 		);
 
 		$cdnfsd_engine_values['cloudflare'] = array(
-			'label' => __( 'CloudFlare (extension not activated)', 'w3-total-cache' ),
+			'label' => __( 'Cloudflare (extension not activated)', 'w3-total-cache' ),
 			'disabled' => true,
 		);
 

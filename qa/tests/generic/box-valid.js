@@ -31,7 +31,7 @@ describe('Check if box is valid', function() {
 			adminPage.waitForNavigation()
 		]);
 
-		expect(await adminPage.content()).contains('Thanks for choosing W3TC');
+		expect(await adminPage.content()).contains('Setup Guides from Partner Hosts');
 	})
 
 

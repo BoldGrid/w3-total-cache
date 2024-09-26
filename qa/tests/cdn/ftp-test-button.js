@@ -51,7 +51,7 @@ describe('', function() {
 		await adminPage.evaluate((cdnTest) => document.querySelector(cdnTest).click(), cdnTest);
 
 		await adminPage.waitForSelector('#cdn_test_status', {visible: true});
-		await adminPage.waitFor(function() {
+		await adminPage.waitForFunction(function() {
 			return document.querySelector('#cdn_test_status').textContent != 'Testing...';
 		});
 
