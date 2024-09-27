@@ -524,17 +524,16 @@ jQuery(function() {
 		});
 	});
 
-	// General Page Premium Support tab actions.
+	// General Page Premium Services tab actions.
 	jQuery('.w3tc-pro-services-content').hide();
 	jQuery('.w3tc-pro-services').on('click', function() {
 		var parentDivId = jQuery(this).closest('div').attr('id');
 
 		jQuery('#' + parentDivId).find('table.form-table').hide();
 		jQuery('#' + parentDivId).find('div.w3tc-pro-services-content').show();
-
 	});
 
-	// General Page Premium Support tab close actions.
+	// General Page Premium Services tab close actions.
 	jQuery('.w3tc-basic-settings').on('click', function() {
 		var parentDivId = jQuery(this).closest('div').attr('id');
 
