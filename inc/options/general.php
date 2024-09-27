@@ -102,7 +102,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'page_cache',
-			Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'pgcache.configuration_overloaded' ) );
 		?>
@@ -176,6 +177,20 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
+		<div class="w3tc-pro-services-content">
+			<h3> <?php esc_html_e( 'Optimize Your WordPress Site with a Performance Audit & Consultation', 'w3-total-cache' ); ?> </h3>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Avoid harmful configurations like improper minification or caching.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Receive a detailed performance report with improvements and recommendations.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Proven to boost your site speed—ideal for unique traffic and site needs.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Start your optimization journey with W3 Total Cache as the foundation.', 'w3-total-cache' ); ?> </p>
+
+			<div class="cta-button">
+				<a href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ); ?>"><?php esc_html_e( 'Click here to purchase this premium service' ); ?></a>
+			</div>
+		</div>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -187,7 +202,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'minify',
-			Util_UI::admin_url( 'admin.php?page=w3tc_minify' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_minify' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'minify.configuration_overloaded' ) );
 		?>
@@ -303,6 +319,20 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
+		<div class="w3tc-pro-services-content">
+			<h3> <?php esc_html_e( 'Optimize Your WordPress Site with a Performance Audit & Consultation', 'w3-total-cache' ); ?> </h3>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Avoid harmful configurations like improper minification or caching.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Receive a detailed performance report with improvements and recommendations.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Proven to boost your site speed—ideal for unique traffic and site needs.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Start your optimization journey with W3 Total Cache as the foundation.', 'w3-total-cache' ); ?> </p>
+
+			<div class="cta-button">
+				<a href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ); ?>"><?php esc_html_e( 'Click here to purchase this premium service' ); ?></a>
+			</div>
+		</div>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 
@@ -317,7 +347,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'database_cache',
-			Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'dbcache.configuration_overloaded' ) );
 		?>
@@ -351,7 +382,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'object_cache',
-			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
 		echo ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline" style="margin-top:10px !important;">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' );
@@ -395,6 +427,20 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
+		<div class="w3tc-pro-services-content">
+			<h3> <?php esc_html_e( 'Optimize Your WordPress Site with a Performance Audit & Consultation', 'w3-total-cache' ); ?> </h3>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Avoid harmful configurations like improper minification or caching.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Receive a detailed performance report with improvements and recommendations.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Proven to boost your site speed—ideal for unique traffic and site needs.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Start your optimization journey with W3 Total Cache as the foundation.', 'w3-total-cache' ); ?> </p>
+
+			<div class="cta-button">
+				<a href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ); ?>"><?php esc_html_e( 'Click here to purchase this premium service' ); ?></a>
+			</div>
+		</div>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -406,7 +452,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'browser_cache',
-			Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'browsercache.configuration_overloaded' ) );
 		?>
@@ -438,6 +485,20 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			);
 			?>
 		</table>
+
+		<div class="w3tc-pro-services-content">
+			<h3> <?php esc_html_e( 'Optimize Your WordPress Site with a Performance Audit & Consultation', 'w3-total-cache' ); ?> </h3>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Avoid harmful configurations like improper minification or caching.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Receive a detailed performance report with improvements and recommendations.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Proven to boost your site speed—ideal for unique traffic and site needs.', 'w3-total-cache' ); ?> </p>
+			<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Start your optimization journey with W3 Total Cache as the foundation.', 'w3-total-cache' ); ?> </p>
+
+			<div class="cta-button">
+				<a href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ); ?>"><?php esc_html_e( 'Click here to purchase this premium service' ); ?></a>
+			</div>
+		</div>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -1048,6 +1109,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'google_pagespeed',
+			'',
 			'',
 			array( esc_html__( 'PageSpeed Tool', 'w3-total-cache' ) => Util_UI::admin_url( 'admin.php?page=w3tc_pagespeed' ) )
 		);

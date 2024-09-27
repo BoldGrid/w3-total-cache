@@ -524,6 +524,24 @@ jQuery(function() {
 		});
 	});
 
+	// General Page Premium Support tab actions.
+	jQuery('.w3tc-pro-services-content').hide();
+	jQuery('.w3tc-pro-services').on('click', function() {
+		var parentDivId = jQuery(this).closest('div').attr('id');
+
+		jQuery('#' + parentDivId).find('table.form-table').hide();
+		jQuery('#' + parentDivId).find('div.w3tc-pro-services-content').show();
+
+	});
+
+	// General Page Premium Support tab close actions.
+	jQuery('.w3tc-basic-settings').on('click', function() {
+		var parentDivId = jQuery(this).closest('div').attr('id');
+
+		jQuery('#' + parentDivId).find('table').show();
+		jQuery('#' + parentDivId).find('div.w3tc-pro-services-content').hide();
+	});
+
 	// Prevent enabling Bunny CDN for both CDN and CDNFSD.
 	$cdn_enabled.on('click', cdn_bunnycdn_check);
 	$cdn_engine.on('change', cdn_bunnycdn_check);

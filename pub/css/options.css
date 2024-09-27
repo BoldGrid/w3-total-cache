@@ -493,6 +493,10 @@ textarea.w3tc-error {
 	/* WP 5.5 */
 }
 
+.w3tc-pro-services-content p span.dashicons-yes-alt {
+	color:green;
+}
+
 .performance_page_w3tc_general #preview-button {
 	padding: 0;
 	color: #2271b1;
@@ -555,6 +559,7 @@ textarea.w3tc-error {
 
 #w3tc .postbox-tabs .nav-tab-wrapper .nav-tab {
 	border-bottom: 1px solid #c3c4c7;
+	cursor: pointer;
 	margin: 0 .5em -1px 0;
 	padding: 2px 8px;
 	font-size: 14px;

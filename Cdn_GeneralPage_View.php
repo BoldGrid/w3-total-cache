@@ -38,7 +38,8 @@ Util_Ui::postbox_header_tabs(
 	),
 	'',
 	'cdn',
-	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' )
+	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' ),
+	'w3tc_premium_services'
 );
 Util_Ui::config_overloading_button(
 	array(
