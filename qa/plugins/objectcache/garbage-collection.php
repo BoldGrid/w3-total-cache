@@ -46,7 +46,7 @@ switch ( $action ) {
 		);
 
 		$storage_key = $instance->get_item_key( $cache_key );
-		$sub_path    = $instance->_get_path( $storage_key );
+		$sub_path    = $instance->_get_path( $storage_key, $group );
 		$cache_dir   = \W3TC\Util_Environment::cache_blog_dir( 'object', $blog_id );
 		$path        = $cache_dir . DIRECTORY_SEPARATOR . $sub_path;
 

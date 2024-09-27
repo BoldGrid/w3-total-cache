@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.6
-Stable tag: 2.7.5
+Stable tag: 2.7.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -360,6 +360,20 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.7.6 =
+* Fix: Improved cache flushing on actions/updates
+* Fix: Google PageSpeed authorization
+* Fix: Remove Fragment Cache link if extension is disabled
+* Fix: License status fix
+* Fix: Statistics PHP warning when some data is stale
+* Fix: API improvement for non-200 responses
+* Update: Object cache improvements
+* Update: Allow WPML extension activation for TranslatePress
+* Update: Added notices when choosing Disk for object and database cache engines
+* Update: Added more information for selections in the setup guide wizard
+* Update: Updated cache header directive choices (no-cache/no-store)
+* Update: Nginx configuration examples
 
 = 2.7.5 =
 * Feature: Added dismissible notifications

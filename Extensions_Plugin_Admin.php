@@ -35,6 +35,7 @@ class Extensions_Plugin_Admin {
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions_hooks' ) );
 		add_filter( 'w3tc_notes_genesis_theme', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_notes_genesis_theme' ) );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_AlwaysCached_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_NewRelic_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Swarmify_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_WordPressSeo_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
@@ -71,8 +72,32 @@ class Extensions_Plugin_Admin {
 	 * @return array
 	 */
 	public function w3tc_admin_menu( $menu ) {
+		$extension_val = Util_Request::get_string( 'extension' );
+		$extension     = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
+		$page_title    = '';
+
+		switch ( $extension ) {
+			case 'alwayscached':
+				$page_title = __( 'Always Cached Extension Settings', 'w3-total-cache' );
+				break;
+			case 'amp':
+				$page_title = __( 'AMP Extension Settings', 'w3-total-cache' );
+				break;
+			case 'cloudflare':
+				$page_title = __( 'Cloudflare Extension Settings', 'w3-total-cache' );
+				break;
+			case 'swarmify':
+				$page_title = __( 'Swarmify Extension Settings', 'w3-total-cache' );
+				break;
+			case 'genesis.theme':
+				$page_title = __( 'Genesis Extension Settings', 'w3-total-cache' );
+				break;
+			default:
+				$page_title = __( 'Extensions', 'w3-total-cache' );
+		}
+
 		$menu['w3tc_extensions'] = array(
-			'page_title'     => __( 'Extensions', 'w3-total-cache' ),
+			'page_title'     => $page_title,
 			'menu_text'      => __( 'Extensions', 'w3-total-cache' ),
 			'visible_always' => false,
 			'order'          => 1900,
