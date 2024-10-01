@@ -249,7 +249,7 @@ class BrowserCache_Environment {
 		$rules = '';
 
 		if ( count( $mime_types ) ) {
-			$rules .= "<IfModule mod_mime.c>\n";
+			$apache_mime_rules = "<IfModule mod_mime.c>\n";
 
 			foreach ( $mime_types as $ext => $mime_type ) {
 				$extensions = explode( '|', $ext );
@@ -257,28 +257,29 @@ class BrowserCache_Environment {
 				if ( !is_array( $mime_type ) )
 					$mime_type = (array)$mime_type;
 				foreach ( $mime_type as $mime_type2 ) {
-					$rules .= "    AddType " . $mime_type2;
+					$apache_mime_rules .= "    AddType " . $mime_type2;
 					foreach ( $extensions as $extension ) {
-						$rules .= " ." . $extension;
+						$apache_mime_rules .= " ." . $extension;
 					}
-					$rules .= "\n";
+					$apache_mime_rules .= "\n";
 				}
 			}
 
-			$rules .= "</IfModule>\n";
+			$apache_mime_rules .= "</IfModule>\n";
+			$rules .= apply_filters( 'w3tc_browsercache_apache_mime_rules', $apache_mime_rules );
 
-			$rules .= "<IfModule mod_expires.c>\n";
-			$rules .= "    ExpiresActive On\n";
+			$apache_expires_rules = "<IfModule mod_expires.c>\n";
+			$apache_expires_rules .= "    ExpiresActive On\n";
 
 			if ( $cssjs_expires && $cssjs_lifetime ) {
 				foreach ( $cssjs_types as $mime_type ) {
-					$rules .= "    ExpiresByType " . $mime_type . " A" . $cssjs_lifetime . "\n";
+					$apache_expires_rules .= "    ExpiresByType " . $mime_type . " A" . $cssjs_lifetime . "\n";
 				}
 			}
 
 			if ( $html_expires && $html_lifetime ) {
 				foreach ( $html_types as $mime_type ) {
-					$rules .= "    ExpiresByType " . $mime_type . " A" . $html_lifetime . "\n";
+					$apache_expires_rules .= "    ExpiresByType " . $mime_type . " A" . $html_lifetime . "\n";
 				}
 			}
 
@@ -286,13 +287,14 @@ class BrowserCache_Environment {
 				foreach ( $other_types as $mime_type ) {
 					if ( is_array( $mime_type ) )
 						foreach ( $mime_type as $mime_type2 )
-							$rules .= "    ExpiresByType " . $mime_type2 . " A" . $other_lifetime . "\n";
+							$apache_expires_rules .= "    ExpiresByType " . $mime_type2 . " A" . $other_lifetime . "\n";
 						else
-							$rules .= "    ExpiresByType " . $mime_type . " A" . $other_lifetime . "\n";
+							$apache_expires_rules .= "    ExpiresByType " . $mime_type . " A" . $other_lifetime . "\n";
 				}
 			}
 
-			$rules .= "</IfModule>\n";
+			$apache_expires_rules .= "</IfModule>\n";
+			$rules .= apply_filters( 'w3tc_browsercache_apache_expires_rules', $apache_expires_rules );
 		}
 
 		$cssjs_brotli = $config->get_boolean( 'browsercache.cssjs.brotli' );
@@ -315,20 +317,21 @@ class BrowserCache_Environment {
 					$other_compression_types );
 			}
 
-			$rules .= "<IfModule mod_brotli.c>\n";
+			$apache_brotli_rules = "<IfModule mod_brotli.c>\n";
 			if ( version_compare( Util_Environment::get_server_version(), '2.3.7', '>=' ) ) {
 				$rules .= "    <IfModule mod_filter.c>\n";
 			}
-			$rules .= "        AddOutputFilterByType BROTLI_COMPRESS " . implode( ' ', $brotli_types ) . "\n";
-			$rules .= "    <IfModule mod_mime.c>\n";
-			$rules .= "        # BROTLI_COMPRESS by extension\n";
-			$rules .= "        AddOutputFilter BROTLI_COMPRESS js css htm html xml\n";
-			$rules .= "    </IfModule>\n";
+			$apache_brotli_rules .= "        AddOutputFilterByType BROTLI_COMPRESS " . implode( ' ', $brotli_types ) . "\n";
+			$apache_brotli_rules .= "    <IfModule mod_mime.c>\n";
+			$apache_brotli_rules .= "        # BROTLI_COMPRESS by extension\n";
+			$apache_brotli_rules .= "        AddOutputFilter BROTLI_COMPRESS js css htm html xml\n";
+			$apache_brotli_rules .= "    </IfModule>\n";
 
 			if ( version_compare( Util_Environment::get_server_version(), '2.3.7', '>=' ) ) {
-				$rules .= "    </IfModule>\n";
+				$apache_brotli_rules .= "    </IfModule>\n";
 			}
-			$rules .= "</IfModule>\n";
+			$apache_brotli_rules .= "</IfModule>\n";
+			$rules .= apply_filters( 'w3tc_browsercache_apache_brotli_rules', $apache_brotli_rules );
 		}
 
 		$cssjs_compression = $config->get_boolean( 'browsercache.cssjs.compression' );
@@ -351,28 +354,29 @@ class BrowserCache_Environment {
 					$other_compression_types );
 			}
 
-			$rules .= "<IfModule mod_deflate.c>\n";
+			$apache_deflate_rules = "<IfModule mod_deflate.c>\n";
 			if ( $compatibility ) {
-				$rules .= "    <IfModule mod_setenvif.c>\n";
-				$rules .= "        BrowserMatch ^Mozilla/4 gzip-only-text/html\n";
-				$rules .= "        BrowserMatch ^Mozilla/4\\.0[678] no-gzip\n";
-				$rules .= "        BrowserMatch \\bMSIE !no-gzip !gzip-only-text/html\n";
-				$rules .= "        BrowserMatch \\bMSI[E] !no-gzip !gzip-only-text/html\n";
-				$rules .= "    </IfModule>\n";
+				$apache_deflate_rules .= "    <IfModule mod_setenvif.c>\n";
+				$apache_deflate_rules .= "        BrowserMatch ^Mozilla/4 gzip-only-text/html\n";
+				$apache_deflate_rules .= "        BrowserMatch ^Mozilla/4\\.0[678] no-gzip\n";
+				$apache_deflate_rules .= "        BrowserMatch \\bMSIE !no-gzip !gzip-only-text/html\n";
+				$apache_deflate_rules .= "        BrowserMatch \\bMSI[E] !no-gzip !gzip-only-text/html\n";
+				$apache_deflate_rules .= "    </IfModule>\n";
 			}
 			if ( version_compare( Util_Environment::get_server_version(), '2.3.7', '>=' ) ) {
-				$rules .= "    <IfModule mod_filter.c>\n";
+				$apache_deflate_rules .= "    <IfModule mod_filter.c>\n";
 			}
-			$rules .= "        AddOutputFilterByType DEFLATE " . implode( ' ', $compression_types ) . "\n";
-			$rules .= "    <IfModule mod_mime.c>\n";
-			$rules .= "        # DEFLATE by extension\n";
-			$rules .= "        AddOutputFilter DEFLATE js css htm html xml\n";
-			$rules .= "    </IfModule>\n";
+			$apache_deflate_rules .= "        AddOutputFilterByType DEFLATE " . implode( ' ', $compression_types ) . "\n";
+			$apache_deflate_rules .= "    <IfModule mod_mime.c>\n";
+			$apache_deflate_rules .= "        # DEFLATE by extension\n";
+			$apache_deflate_rules .= "        AddOutputFilter DEFLATE js css htm html xml\n";
+			$apache_deflate_rules .= "    </IfModule>\n";
 
 			if ( version_compare( Util_Environment::get_server_version(), '2.3.7', '>=' ) ) {
-				$rules .= "    </IfModule>\n";
+				$apache_deflate_rules .= "    </IfModule>\n";
 			}
-			$rules .= "</IfModule>\n";
+			$apache_deflate_rules .= "</IfModule>\n";
+			$rules .= apply_filters( 'w3tc_browsercache_apache_deflate_rules', $apache_deflate_rules );
 		}
 
 		$rules .= $this->_rules_cache_generate_apache_for_type( $config,
@@ -574,7 +578,7 @@ class BrowserCache_Environment {
 		}
 
 		$g = new BrowserCache_Environment_Apache( $config );
-		$rules .= $g->rules_rewrite();
+		$rules .= apply_filters( 'w3tc_browsercache_apache_rewrite_rules', $g->rules_rewrite() );
 
 		return $rules;
 	}
