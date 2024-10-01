@@ -35,27 +35,71 @@ class DbCache_Environment {
 	}
 
 	/**
-	 * Fixes environment once event occurs
+	 * Fixes environment once event occurs.
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exception.
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
-		if ( $config->get_boolean( 'dbcache.enabled' ) &&
-			$config->get_string( 'dbcache.engine' ) == 'file' ) {
-			if ( !wp_next_scheduled( 'w3_dbcache_cleanup' ) ) {
-				wp_schedule_event( time(),
-					'w3_dbcache_cleanup', 'w3_dbcache_cleanup' );
+		$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
+		$engine          = $config->get_string( 'dbcache.engine' );
+
+		if ( $dbcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$new_interval = $config->get_integer( 'dbcache.file.gc' );
+			$old_interval = $old_config ? $old_config->get_integer( 'dbcache.file.gc' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
+				$this->unschedule_gc();
+			}
+
+			if ( ! wp_next_scheduled( 'w3_dbcache_cleanup' ) ) {
+				wp_schedule_event( time(), 'w3_dbcache_cleanup', 'w3_dbcache_cleanup' );
 			}
 		} else {
-			$this->unschedule();
+			$this->unschedule_gc();
+		}
+
+		// Schedule purge.
+		if ( $dbcache_enabled && $config->get_boolean( 'dbcache.wp_cron' ) ) {
+			$new_wp_cron_time     = $config->get_integer( 'dbcache.wp_cron_time' );
+			$old_wp_cron_time     = $old_config ? $old_config->get_integer( 'dbcache.wp_cron_time' ) : -1;
+			$new_wp_cron_interval = $config->get_integer( 'dbcache.wp_cron_interval' );
+			$old_wp_cron_interval = $old_config ? $old_config->get_integer( 'dbcache.wp_cron_interval' ) : -1;
+
+			if ( $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval ) {
+				$this->unschedule_purge_wpcron();
+			}
+
+			// Calculate the start time based on the selected cron time.
+			$current_time   = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+			$start_of_today = strtotime( 'today', $current_time ); // Get the start of today in WordPress timezone.
+			$hour           = floor( $new_wp_cron_time / 60 ); // Convert the selected time into hours.
+			$minute         = $new_wp_cron_time % 60; // Convert the selected time into minutes.
+			$scheduled_time = strtotime( "$hour:$minute", $start_of_today ); // Create a timestamp for the selected time today.
+
+			// If the selected time has already passed today, schedule it for tomorrow.
+			if ( $scheduled_time <= $current_time ) {
+				$scheduled_time = strtotime( '+1 day', $scheduled_time );
+			}
+
+			if ( ! wp_next_scheduled( 'w3tc_dbcache_purge_wpcron' ) ) {
+				wp_schedule_event( $scheduled_time, 'w3tc_dbcache_purge_wpcron', 'w3tc_dbcache_purge_wpcron' );
+			}
+		} else {
+			$this->unschedule_purge_wpcron();
 		}
 	}
 
 	/**
 	 * Fixes environment after plugin deactivation
 	 *
-	 * @throws Util_Environment_Exceptions
-	 * @return array
+	 * @throws Util_Environment_Exceptions Exception.
+	 * @throws Util_WpFile_FilesystemOperationException Exception.
+	 *
+	 * @return void
 	 */
 	public function fix_after_deactivation() {
 		$exs = new Util_Environment_Exceptions();
@@ -66,10 +110,12 @@ class DbCache_Environment {
 			$exs->push( $ex );
 		}
 
-		$this->unschedule();
+		$this->unschedule_gc();
+		$this->unschedule_purge_wpcron();
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
@@ -83,11 +129,26 @@ class DbCache_Environment {
 	}
 
 	/**
-	 * scheduling stuff
+	 * Remove Garbage collection cron job.
+	 *
+	 * @return void
 	 */
-	private function unschedule() {
+	private function unschedule_gc() {
 		if ( wp_next_scheduled( 'w3_dbcache_cleanup' ) ) {
 			wp_clear_scheduled_hook( 'w3_dbcache_cleanup' );
+		}
+	}
+
+	/**
+	 * Remove cron job for pagecache purge.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function unschedule_purge_wpcron() {
+		if ( wp_next_scheduled( 'w3tc_dbcache_purge_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_dbcache_purge_wpcron' );
 		}
 	}
 

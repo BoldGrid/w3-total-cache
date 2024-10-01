@@ -44,6 +44,7 @@ class CacheFlush {
 	 * Flushes database cache
 	 */
 	function dbcache_flush() {
+		Util_Debug::debug('flushdb',true);
 		if ( $this->_config->get_boolean( 'dbcache.enabled' ) ) {
 			$this->_executor->dbcache_flush();
 		}
@@ -53,6 +54,7 @@ class CacheFlush {
 	 * Flushes minify cache
 	 */
 	function minifycache_flush() {
+		Util_Debug::debug('flushminify',true);
 		if ( $this->_config->get_boolean( 'minify.enabled' ) ) {
 			$this->_executor->minifycache_flush();
 		}
@@ -62,6 +64,7 @@ class CacheFlush {
 	 * Flushes object cache
 	 */
 	function objectcache_flush() {
+		Util_Debug::debug('flushobject',true);
 		if ( $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->_executor->objectcache_flush();
 		}
@@ -140,6 +143,7 @@ class CacheFlush {
 	 * Purges/Flushes all posts
 	 */
 	function flush_posts( $extras = null ) {
+		Util_Debug::debug('flushpg',true);
 		return $this->_executor->flush_posts( $extras );
 	}
 
@@ -150,6 +154,7 @@ class CacheFlush {
 		static $flushed = false;
 		if ( !$flushed ) {
 			$flushed = true;
+			Util_Debug::debug('flushall',true);
 			$this->_executor->flush_all( $extras );
 		}
 	}

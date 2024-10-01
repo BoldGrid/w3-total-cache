@@ -46,6 +46,35 @@ class Generic_Environment {
 	 * @throws Util_Environment_Exceptions
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
+		// Schedule purge.
+		if ( $config->get_boolean( 'allcache.wp_cron' ) ) {
+			$new_wp_cron_time     = $config->get_integer( 'allcache.wp_cron_time' );
+			$old_wp_cron_time     = $old_config ? $old_config->get_integer( 'allcache.wp_cron_time' ) : -1;
+			$new_wp_cron_interval = $config->get_integer( 'allcache.wp_cron_interval' );
+			$old_wp_cron_interval = $old_config ? $old_config->get_integer( 'allcache.wp_cron_interval' ) : -1;
+
+			if ( $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval ) {
+				$this->unschedule_purge_wpcron();
+			}
+
+			// Calculate the start time based on the selected cron time.
+			$current_time   = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+			$start_of_today = strtotime( 'today', $current_time ); // Get the start of today in WordPress timezone.
+			$hour           = floor( $new_wp_cron_time / 60 ); // Convert the selected time into hours.
+			$minute         = $new_wp_cron_time % 60; // Convert the selected time into minutes.
+			$scheduled_time = strtotime( "$hour:$minute", $start_of_today ); // Create a timestamp for the selected time today.
+
+			// If the selected time has already passed today, schedule it for tomorrow.
+			if ( $scheduled_time <= $current_time ) {
+				$scheduled_time = strtotime( '+1 day', $scheduled_time );
+			}
+
+			if ( ! wp_next_scheduled( 'w3tc_purgeall_wpcron' ) ) {
+				$result = wp_schedule_event( $scheduled_time, 'w3tc_purgeall_wpcron', 'w3tc_purgeall_wpcron' );
+			}
+		} else {
+			$this->unschedule_purge_wpcron();
+		}
 	}
 
 	/**
@@ -58,6 +87,8 @@ class Generic_Environment {
 		$exs = new Util_Environment_Exceptions();
 
 		$this->delete_required_files( $exs );
+
+		$this->unschedule_purge_wpcron();
 
 		if ( count( $exs->exceptions() ) > 0 )
 			throw $exs;
@@ -206,5 +237,18 @@ class Generic_Environment {
 	public function is_advanced_cache_add_in() {
 		return ( ( $script_data = @file_get_contents( W3TC_ADDIN_FILE_ADVANCED_CACHE ) )
 			&& strstr( $script_data, 'PgCache_ContentGrabber' ) !== false );
+	}
+
+	/**
+	 * Remove cron job for purge all caches.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function unschedule_purge_wpcron() {
+		if ( wp_next_scheduled( 'w3tc_purgeall_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_purgeall_wpcron' );
+		}
 	}
 }

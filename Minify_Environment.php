@@ -67,34 +67,69 @@ class Minify_Environment {
 	/**
 	 * Fixes environment once event occurs
 	 *
-	 * @param Config  $config
-	 * @param string  $event
-	 * @param null|Config $old_config
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
 	 * @throws Util_Environment_Exceptions
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
-		// Schedules events
-		if ( $config->get_boolean( 'minify.enabled' ) &&
-			$config->get_string( 'minify.engine' ) == 'file' ) {
-			if ( $old_config != null &&
-				$config->get_integer( 'minify.file.gc' ) !=
-				$old_config->get_integer( 'minify.file.gc' ) ) {
-				$this->unschedule();
+		$minify_enabled = $config->get_boolean( 'minify.enabled' );
+		$engine         = $config->get_string( 'minify.engine' );
+
+		// Schedules events.
+		if ( $minify_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$new_interval = $config->get_integer( 'minify.file.gc' );
+			$old_interval = $old_config ? $old_config->get_integer( 'minify.file.gc' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
+				$this->unschedule_gc();
 			}
 
-			if ( !wp_next_scheduled( 'w3_minify_cleanup' ) ) {
-				wp_schedule_event( time(),
-					'w3_minify_cleanup', 'w3_minify_cleanup' );
+			if ( ! wp_next_scheduled( 'w3_minify_cleanup' ) ) {
+				wp_schedule_event( time(), 'w3_minify_cleanup', 'w3_minify_cleanup' );
 			}
 		} else {
-			$this->unschedule();
+			$this->unschedule_gc();
+		}
+
+		// Schedule purge.
+		if ( $minify_enabled && $config->get_boolean( 'minify.wp_cron' ) ) {
+			$new_wp_cron_time     = $config->get_integer( 'minify.wp_cron_time' );
+			$old_wp_cron_time     = $old_config ? $old_config->get_integer( 'minify.wp_cron_time' ) : -1;
+			$new_wp_cron_interval = $config->get_integer( 'minify.wp_cron_interval' );
+			$old_wp_cron_interval = $old_config ? $old_config->get_integer( 'minify.wp_cron_interval' ) : -1;
+
+			if ( $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval ) {
+				$this->unschedule_purge_wpcron();
+			}
+
+			// Calculate the start time based on the selected cron time.
+			$current_time   = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+			$start_of_today = strtotime( 'today', $current_time ); // Get the start of today in WordPress timezone.
+			$hour           = floor( $new_wp_cron_time / 60 ); // Convert the selected time into hours.
+			$minute         = $new_wp_cron_time % 60; // Convert the selected time into minutes.
+			$scheduled_time = strtotime( "$hour:$minute", $start_of_today ); // Create a timestamp for the selected time today.
+
+			// If the selected time has already passed today, schedule it for tomorrow.
+			if ( $scheduled_time <= $current_time ) {
+				$scheduled_time = strtotime( '+1 day', $scheduled_time );
+			}
+
+			if ( ! wp_next_scheduled( 'w3tc_minifycache_purge_wpcron' ) ) {
+				wp_schedule_event( $scheduled_time, 'w3tc_minifycache_purge_wpcron', 'w3tc_minifycache_purge_wpcron' );
+			}
+		} else {
+			$this->unschedule_purge_wpcron();
 		}
 	}
 
 	/**
 	 * Fixes environment after plugin deactivation
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Exception.
+	 *
+	 * @return void
 	 */
 	public function fix_after_deactivation() {
 		$exs = new Util_Environment_Exceptions();
@@ -102,10 +137,12 @@ class Minify_Environment {
 		$this->rules_core_remove( $exs );
 		$this->rules_cache_remove( $exs );
 
-		$this->unschedule();
+		$this->unschedule_gc();
+		$this->unschedule_purge_wpcron();
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
@@ -298,14 +335,28 @@ class Minify_Environment {
 
 
 	/**
-	 * scheduling stuff
+	 * Remove Garbage collection cron job.
+	 *
+	 * @return void
 	 */
-	private function unschedule() {
+	private function unschedule_gc() {
 		if ( wp_next_scheduled( 'w3_minify_cleanup' ) ) {
 			wp_clear_scheduled_hook( 'w3_minify_cleanup' );
 		}
 	}
 
+	/**
+	 * Remove cron job for minify purge.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function unschedule_purge_wpcron() {
+		if ( wp_next_scheduled( 'w3tc_minifycache_purge_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_minifycache_purge_wpcron' );
+		}
+	}
 
 
 	/**

@@ -131,5 +131,58 @@ if ( ! defined( 'W3TC' ) ) {
 		</table>
 
 		<?php Util_Ui::postbox_footer(); ?>
+
+		<?php Util_Ui::postbox_header( esc_html__( 'Purge Via WP Cron', 'w3-total-cache' ), '', 'dbcache_wp_cron' ); ?>
+		<table class="form-table">
+			<?php
+			$c           = Dispatcher::config();
+			$wp_disabled = ! $c->get_boolean( 'dbcache.wp_cron' );
+
+			Util_Ui::config_item(
+				array(
+					'key'            => 'dbcache.wp_cron',
+					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'control'        => 'checkbox',
+					'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will flush the Database Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush db".', 'w3-total-cache' ),
+				)
+			);
+
+			$time_options = array();
+			for ( $hour = 0; $hour < 24; $hour++ ) {
+				foreach ( array( '00', '30' ) as $minute ) {
+					$time_value                  = $hour * 60 + intval( $minute );
+					$time_label                  = gmdate( 'g:i a', strtotime( sprintf( '%02d:%s', $hour, $minute ) ) );
+					$time_options[ $time_value ] = $time_label;
+				}
+			}
+
+			Util_Ui::config_item(
+				array(
+					'key'              => 'dbcache.wp_cron_time',
+					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
+					'control'          => 'selectbox',
+					'selectbox_values' => $time_options,
+					'disabled'         => $wp_disabled,
+				)
+			);
+
+			Util_Ui::config_item(
+				array(
+					'key'              => 'dbcache.wp_cron_interval',
+					'label'            => esc_html__( 'Interval', 'w3-total-cache' ),
+					'control'          => 'selectbox',
+					'selectbox_values' => array(
+						3600   => esc_html__( 'Hourly', 'w3-total-cache' ),
+						43200  => esc_html__( 'Twice Daily', 'w3-total-cache' ),
+						86400  => esc_html__( 'Daily', 'w3-total-cache' ),
+						604800 => esc_html__( 'Weekly', 'w3-total-cache' ),
+					),
+					'disabled'         => $wp_disabled,
+				)
+			);
+			?>
+		</table>
+		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
