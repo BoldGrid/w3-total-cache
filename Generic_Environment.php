@@ -42,7 +42,18 @@ class Generic_Environment {
 		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
 		}
+	}
 
+	/**
+	 * Fixes environment once event occurs
+	 *
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exceptions.
+	 */
+	public function fix_on_event( $config, $event, $old_config = null ) {
 		// Schedule purge.
 		if ( $config->get_boolean( 'allcache.wp_cron' ) ) {
 			$new_wp_cron_time     = $config->get_integer( 'allcache.wp_cron_time' );
@@ -72,18 +83,6 @@ class Generic_Environment {
 		} else {
 			$this->unschedule_purge_wpcron();
 		}
-	}
-
-	/**
-	 * Fixes environment once event occurs
-	 *
-	 * @param Config      $config     Config.
-	 * @param string      $event      Event.
-	 * @param null|Config $old_config Old Config.
-	 *
-	 * @throws Util_Environment_Exceptions Exceptions.
-	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
 	}
 
 	/**

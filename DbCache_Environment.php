@@ -22,8 +22,7 @@ class DbCache_Environment {
 		$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
 
 		try {
-			if ( $config->get_boolean( 'dbcache.enabled' ) ||
-					Util_Environment::is_dbcluster( $config ) ) {
+			if ( $dbcache_enabled || Util_Environment::is_dbcluster( $config ) ) {
 				$this->create_addin();
 			} else {
 				$this->delete_addin();
@@ -34,6 +33,35 @@ class DbCache_Environment {
 
 		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
+	}
+
+	/**
+	 * Fixes environment once event occurs.
+	 *
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exception.
+	 */
+	public function fix_on_event( $config, $event, $old_config = null ) {
+		$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
+		$engine          = $config->get_string( 'dbcache.engine' );
+
+		if ( $dbcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$new_interval = $config->get_integer( 'dbcache.file.gc' );
+			$old_interval = $old_config ? $old_config->get_integer( 'dbcache.file.gc' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
+				$this->unschedule_gc();
+			}
+
+			if ( ! wp_next_scheduled( 'w3_dbcache_cleanup' ) ) {
+				wp_schedule_event( time(), 'w3_dbcache_cleanup', 'w3_dbcache_cleanup' );
+			}
+		} else {
+			$this->unschedule_gc();
 		}
 
 		// Schedule purge.
@@ -64,35 +92,6 @@ class DbCache_Environment {
 			}
 		} else {
 			$this->unschedule_purge_wpcron();
-		}
-	}
-
-	/**
-	 * Fixes environment once event occurs.
-	 *
-	 * @param Config      $config     Config.
-	 * @param string      $event      Event.
-	 * @param null|Config $old_config Old Config.
-	 *
-	 * @throws Util_Environment_Exceptions Exception.
-	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
-		$engine          = $config->get_string( 'dbcache.engine' );
-
-		if ( $dbcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
-			$new_interval = $config->get_integer( 'dbcache.file.gc' );
-			$old_interval = $old_config ? $old_config->get_integer( 'dbcache.file.gc' ) : -1;
-
-			if ( null !== $old_config && $new_interval !== $old_interval ) {
-				$this->unschedule_gc();
-			}
-
-			if ( ! wp_next_scheduled( 'w3_dbcache_cleanup' ) ) {
-				wp_schedule_event( time(), 'w3_dbcache_cleanup', 'w3_dbcache_cleanup' );
-			}
-		} else {
-			$this->unschedule_gc();
 		}
 	}
 
