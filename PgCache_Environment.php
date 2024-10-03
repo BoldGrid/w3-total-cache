@@ -8,15 +8,17 @@ class PgCache_Environment {
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
-	 * @param Config  $config
-	 * @param bool    $force_all_checks
+	 * @param Config $config           Config.
+	 * @param bool   $force_all_checks Force checks flag.
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Excpetions.
 	 */
 	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
-		$exs = new Util_Environment_Exceptions();
+		$exs             = new Util_Environment_Exceptions();
+		$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
+		$engine          = $config->get_string( 'pgcache.engine' );
 
-		if ( ( !defined( 'WP_CACHE' ) || !WP_CACHE ) ) {
+		if ( ( ! defined( 'WP_CACHE' ) || ! WP_CACHE ) ) {
 			try {
 				$this->wp_config_add_directive();
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
@@ -36,23 +38,54 @@ class PgCache_Environment {
 			}
 		}
 
-		// if no errors so far - check if rewrite actually works
+		// if no errors so far - check if rewrite actually works.
 		if ( count( $exs->exceptions() ) <= 0 ) {
 			try {
-				if ( $config->get_boolean( 'pgcache.enabled' ) &&
-					$config->get_string( 'pgcache.engine' ) == 'file_generic' ) {
+				if ( $pgcache_enabled && 'file_generic' === $engine ) {
 					$this->verify_file_generic_compatibility();
 
-					if ( $config->get_boolean( 'pgcache.debug' ) )
+					if ( $config->get_boolean( 'pgcache.debug' ) ) {
 						$this->verify_file_generic_rewrite_working();
+					}
 				}
 			} catch ( \Exception $ex ) {
 				$exs->push( $ex );
 			}
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
+
+		// Schedule purge.
+		if ( $pgcache_enabled && $config->get_boolean( 'pgcache.wp_cron' ) ) {
+			$new_wp_cron_time     = $config->get_integer( 'pgcache.wp_cron_time' );
+			$old_wp_cron_time     = $old_config ? $old_config->get_integer( 'pgcache.wp_cron_time' ) : -1;
+			$new_wp_cron_interval = $config->get_integer( 'pgcache.wp_cron_interval' );
+			$old_wp_cron_interval = $old_config ? $old_config->get_integer( 'pgcache.wp_cron_interval' ) : -1;
+
+			if ( $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval ) {
+				$this->unschedule_purge_wpcron();
+			}
+
+			// Calculate the start time based on the selected cron time.
+			$current_time   = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+			$start_of_today = strtotime( 'today', $current_time ); // Get the start of today in WordPress timezone.
+			$hour           = floor( $new_wp_cron_time / 60 ); // Convert the selected time into hours.
+			$minute         = $new_wp_cron_time % 60; // Convert the selected time into minutes.
+			$scheduled_time = strtotime( "$hour:$minute", $start_of_today ); // Create a timestamp for the selected time today.
+
+			// If the selected time has already passed today, schedule it for tomorrow.
+			if ( $scheduled_time <= $current_time ) {
+				$scheduled_time = strtotime( '+1 day', $scheduled_time );
+			}
+
+			if ( ! wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) ) {
+				$result = wp_schedule_event( $scheduled_time, 'w3tc_pgcache_purge_wpcron', 'w3tc_pgcache_purge_wpcron' );
+			}
+		} else {
+			$this->unschedule_purge_wpcron();
+		}
 	}
 
 	/**

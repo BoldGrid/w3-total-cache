@@ -18,51 +18,23 @@ class ObjectCache_Environment {
 	 * @throws Util_Environment_Exceptions
 	 */
 	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
-		$exs = new Util_Environment_Exceptions();
+		$exs                 = new Util_Environment_Exceptions();
+		$objectcache_enabled = $config->get_boolean( 'objectcache.enabled' );
 
 		try {
-			$addin_required = $config->getf_boolean( 'objectcache.enabled' );
-			$addin_required = apply_filters( 'w3tc_objectcache_addin_required',
-				$addin_required );
+			$addin_required = apply_filters( 'w3tc_objectcache_addin_required', $objectcache_enabled );
 
-			if ( $addin_required )
+			if ( $addin_required ) {
 				$this->create_addin();
-			else
+			} else {
 				$this->delete_addin();
+			}
 		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 			$exs->push( $ex );
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
-	}
-
-	/**
-	 * Fixes environment once event occurs.
-	 *
-	 * @param Config      $config     Config.
-	 * @param string      $event      Event.
-	 * @param null|Config $old_config Old Config.
-	 *
-	 * @throws Util_Environment_Exceptions Exception.
-	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		$objectcache_enabled = $config->get_boolean( 'objectcache.enabled' );
-		$engine              = $config->get_string( 'objectcache.engine' );
-
-		if ( $objectcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
-			$new_interval = $config->get_integer( 'objectcache.file.gc' );
-			$old_interval = $old_config ? $old_config->get_integer( 'objectcache.file.gc' ) : -1;
-
-			if ( null !== $old_config && $new_interval !== $old_interval ) {
-				$this->unschedule_gc();
-			}
-
-			if ( ! wp_next_scheduled( 'w3_objectcache_cleanup' ) ) {
-				wp_schedule_event( time(), 'w3_objectcache_cleanup', 'w3_objectcache_cleanup' );
-			}
-		} else {
-			$this->unschedule_gc();
 		}
 
 		// Schedule purge.
@@ -93,6 +65,35 @@ class ObjectCache_Environment {
 			}
 		} else {
 			$this->unschedule_purge_wpcron();
+		}
+	}
+
+	/**
+	 * Fixes environment once event occurs.
+	 *
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exception.
+	 */
+	public function fix_on_event( $config, $event, $old_config = null ) {
+		$objectcache_enabled = $config->get_boolean( 'objectcache.enabled' );
+		$engine              = $config->get_string( 'objectcache.engine' );
+
+		if ( $objectcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$new_interval = $config->get_integer( 'objectcache.file.gc' );
+			$old_interval = $old_config ? $old_config->get_integer( 'objectcache.file.gc' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
+				$this->unschedule_gc();
+			}
+
+			if ( ! wp_next_scheduled( 'w3_objectcache_cleanup' ) ) {
+				wp_schedule_event( time(), 'w3_objectcache_cleanup', 'w3_objectcache_cleanup' );
+			}
+		} else {
+			$this->unschedule_gc();
 		}
 	}
 

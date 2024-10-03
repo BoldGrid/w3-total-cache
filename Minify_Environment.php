@@ -18,79 +18,50 @@ class Minify_Environment {
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
-	 * @param Config  $config
-	 * @param bool    $force_all_checks
+	 * @param Config $config           Config.
+	 * @param bool   $force_all_checks Force checks flag.
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
 	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
-		$exs = new Util_Environment_Exceptions();
+		$exs            = new Util_Environment_Exceptions();
+		$minify_enabled = $config->get_boolean( 'minify.enabled' );
+		$engine         = $config->get_string( 'minify.engine' );
+		$rewrite        = $config->get_boolean( 'minify.rewrite' );
 
 		$this->fix_folders( $config, $exs );
 
 		if ( $config->get_boolean( 'config.check' ) || $force_all_checks ) {
-			if ( $config->get_boolean( 'minify.enabled' ) &&
-				Util_Rule::can_check_rules() &&
-				$config->get_boolean( 'minify.rewrite' ) ) {
+			if ( $minify_enabled && Util_Rule::can_check_rules() && $rewrite ) {
 				$this->rules_core_add( $config, $exs );
 			} else {
 				$this->rules_core_remove( $exs );
 			}
 
-			if ( $config->get_boolean( 'minify.enabled' ) &&
-				$config->get_string( 'minify.engine' ) == 'file' ) {
+			if ( $minify_enabled && 'file' === $engine ) {
 				$this->rules_cache_add( $config, $exs );
 			} else {
 				$this->rules_cache_remove( $exs );
 			}
 		}
 
-		// if no errors so far - check if rewrite actually works
+		// if no errors so far - check if rewrite actually works.
 		if ( count( $exs->exceptions() ) <= 0 ) {
 			try {
-				if ( $config->get_boolean( 'minify.enabled' ) &&
-					$config->get_boolean( 'minify.rewrite' ) &&
-					$config->get_boolean( 'minify.debug' ) )
+				if ( $minify_enabled && $rewrite && $config->get_boolean( 'minify.debug' ) ) {
 					$this->verify_rewrite_working();
+				}
 			} catch ( \Exception $ex ) {
 				$exs->push( $ex );
 			}
 
-			if ( $config->get_boolean( 'minify.enabled' ) )
+			if ( $minify_enabled ) {
 				$this->verify_engine_working( $config, $exs );
+			}
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
-	}
-
-	/**
-	 * Fixes environment once event occurs
-	 *
-	 * @param Config      $config     Config.
-	 * @param string      $event      Event.
-	 * @param null|Config $old_config Old Config.
-	 *
-	 * @throws Util_Environment_Exceptions
-	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		$minify_enabled = $config->get_boolean( 'minify.enabled' );
-		$engine         = $config->get_string( 'minify.engine' );
-
-		// Schedules events.
-		if ( $minify_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
-			$new_interval = $config->get_integer( 'minify.file.gc' );
-			$old_interval = $old_config ? $old_config->get_integer( 'minify.file.gc' ) : -1;
-
-			if ( null !== $old_config && $new_interval !== $old_interval ) {
-				$this->unschedule_gc();
-			}
-
-			if ( ! wp_next_scheduled( 'w3_minify_cleanup' ) ) {
-				wp_schedule_event( time(), 'w3_minify_cleanup', 'w3_minify_cleanup' );
-			}
-		} else {
-			$this->unschedule_gc();
 		}
 
 		// Schedule purge.
@@ -121,6 +92,36 @@ class Minify_Environment {
 			}
 		} else {
 			$this->unschedule_purge_wpcron();
+		}
+	}
+
+	/**
+	 * Fixes environment once event occurs
+	 *
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exceptions.
+	 */
+	public function fix_on_event( $config, $event, $old_config = null ) {
+		$minify_enabled = $config->get_boolean( 'minify.enabled' );
+		$engine         = $config->get_string( 'minify.engine' );
+
+		// Schedules events.
+		if ( $minify_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$new_interval = $config->get_integer( 'minify.file.gc' );
+			$old_interval = $old_config ? $old_config->get_integer( 'minify.file.gc' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
+				$this->unschedule_gc();
+			}
+
+			if ( ! wp_next_scheduled( 'w3_minify_cleanup' ) ) {
+				wp_schedule_event( time(), 'w3_minify_cleanup', 'w3_minify_cleanup' );
+			}
+		} else {
+			$this->unschedule_gc();
 		}
 	}
 
