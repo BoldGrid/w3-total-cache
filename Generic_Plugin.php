@@ -364,6 +364,19 @@ class Generic_Plugin {
 					'w3tc'
 				),
 			);
+
+			if ( Extension_AlwaysCached_Plugin::is_enabled() ) {
+				$menu_items['40015.alwayscached'] = array(
+					'id'     => 'w3tc_alwayscached',
+					'parent' => 'w3tc',
+					'title'  => __( 'Page Cache Queue', 'w3-total-cache' ),
+					'href'   => wp_nonce_url(
+						network_admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ),
+						'w3tc'
+					),
+				);
+			}
+
 			$menu_items['40020.generic'] = array(
 				'id'     => 'w3tc_settings_extensions',
 				'parent' => 'w3tc',
