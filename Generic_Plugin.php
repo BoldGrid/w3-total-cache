@@ -115,18 +115,6 @@ class Generic_Plugin {
 			)
 		);
 
-		if ( $c->get_boolean( 'allcache.wp_cron' ) ) {
-			$interval                          = $c->get_string( 'allcache.wp_cron_interval' );
-			$schedules['w3tc_purgeall_wpcron'] = array(
-				'interval' => $interval,
-				'display'  => sprintf(
-					// translators: 1 interval in seconds.
-					__( '[W3TC] Purge all caches (every %d seconds)', 'w3-total-cache' ),
-					$interval
-				),
-			);
-		}
-
 		return $schedules;
 	}
 

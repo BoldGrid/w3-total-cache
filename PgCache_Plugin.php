@@ -168,18 +168,6 @@ class PgCache_Plugin {
 			);
 		}
 
-		if ( $pgcache_enabled && $c->get_boolean( 'pgcache.wp_cron' ) ) {
-			$interval                      = $c->get_string( 'pgcache.wp_cron_interval' );
-			$schedules['w3tc_pgcache_purge_wpcron'] = array(
-				'interval' => $interval,
-				'display'  => sprintf(
-					// translators: 1 interval in seconds.
-					__( '[W3TC] Page Cache purge (every %d seconds)', 'w3-total-cache' ),
-					$interval
-				),
-			);
-		}
-
 		return $schedules;
 	}
 

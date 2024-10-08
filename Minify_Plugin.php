@@ -159,18 +159,6 @@ class Minify_Plugin {
 			);
 		}
 
-		if ( $minify_enabled && $c->get_boolean( 'minify.wp_cron' ) ) {
-			$interval                      = $c->get_string( 'minify.wp_cron_interval' );
-			$schedules['w3tc_minifycache_purge_wpcron'] = array(
-				'interval' => $interval,
-				'display'  => sprintf(
-					// translators: 1 interval in seconds.
-					__( '[W3TC] Minify Cache purge (every %d seconds)', 'w3-total-cache' ),
-					$interval
-				),
-			);
-		}
-
 		return $schedules;
 	}
 

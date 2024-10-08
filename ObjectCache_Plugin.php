@@ -113,18 +113,6 @@ class ObjectCache_Plugin {
 			);
 		}
 
-		if ( $objectcache_enabled && $c->get_boolean( 'objectcache.wp_cron' ) ) {
-			$interval                          = $c->get_string( 'objectcache.wp_cron_interval' );
-			$schedules['w3tc_objectcache_purge_wpcron'] = array(
-				'interval' => $interval,
-				'display'  => sprintf(
-					// translators: 1 interval in seconds.
-					__( '[W3TC] Minify Cache purge (every %d seconds)', 'w3-total-cache' ),
-					$interval
-				),
-			);
-		}
-
 		return $schedules;
 	}
 

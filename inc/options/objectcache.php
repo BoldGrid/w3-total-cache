@@ -158,10 +158,10 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'            => esc_html__( 'Interval', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => array(
-						3600   => esc_html__( 'Hourly', 'w3-total-cache' ),
-						43200  => esc_html__( 'Twice Daily', 'w3-total-cache' ),
-						86400  => esc_html__( 'Daily', 'w3-total-cache' ),
-						604800 => esc_html__( 'Weekly', 'w3-total-cache' ),
+						'hourly'     => esc_html__( 'Hourly', 'w3-total-cache' ),
+						'twicedaily' => esc_html__( 'Twice Daily', 'w3-total-cache' ),
+						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
+						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
 					'disabled'         => $wp_disabled,
 				)

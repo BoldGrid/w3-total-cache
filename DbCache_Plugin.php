@@ -137,18 +137,6 @@ class DbCache_Plugin {
 			);
 		}
 
-		if ( $dbcache_enabled && $c->get_boolean( 'dbcache.wp_cron' ) ) {
-			$interval                               = $c->get_string( 'dbcache.wp_cron_interval' );
-			$schedules['w3tc_dbcache_purge_wpcron'] = array(
-				'interval' => $interval,
-				'display'  => sprintf(
-					// translators: 1 interval in seconds.
-					__( '[W3TC] Database Cache purge (every %d seconds)', 'w3-total-cache' ),
-					$interval
-				),
-			);
-		}
-
 		return $schedules;
 	}
 

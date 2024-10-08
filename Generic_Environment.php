@@ -65,20 +65,9 @@ class Generic_Environment {
 				$this->unschedule_purge_wpcron();
 			}
 
-			// Calculate the start time based on the selected cron time.
-			$current_time   = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
-			$start_of_today = strtotime( 'today', $current_time ); // Get the start of today in WordPress timezone.
-			$hour           = floor( $new_wp_cron_time / 60 ); // Convert the selected time into hours.
-			$minute         = $new_wp_cron_time % 60; // Convert the selected time into minutes.
-			$scheduled_time = strtotime( "$hour:$minute", $start_of_today ); // Create a timestamp for the selected time today.
-
-			// If the selected time has already passed today, schedule it for tomorrow.
-			if ( $scheduled_time <= $current_time ) {
-				$scheduled_time = strtotime( '+1 day', $scheduled_time );
-			}
-
 			if ( ! wp_next_scheduled( 'w3tc_purgeall_wpcron' ) ) {
-				$result = wp_schedule_event( $scheduled_time, 'w3tc_purgeall_wpcron', 'w3tc_purgeall_wpcron' );
+				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
+				wp_schedule_event( $scheduled_time, 'w3tc_purgeall_wpcron', 'w3tc_purgeall_wpcron' );
 			}
 		} else {
 			$this->unschedule_purge_wpcron();
