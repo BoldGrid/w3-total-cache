@@ -65,6 +65,11 @@ class UserExperience_Plugin_Admin {
 			'extension_id' => 'user-experience-remove-cssjs',
 			'path'         => 'w3-total-cache/UserExperience_Remove_CssJs_Extension.php',
 		);
+		$extensions['user-experience-partytown']     = array(
+			'public'       => false,
+			'extension_id' => 'user-experience-partytown',
+			'path'         => 'w3-total-cache/UserExperience_PartyTown_Extension.php',
+		);
 		$extensions['user-experience-emoji']            = array(
 			'public'       => false,
 			'extension_id' => 'user-experience-emoji',

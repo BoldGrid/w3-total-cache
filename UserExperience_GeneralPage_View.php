@@ -171,6 +171,40 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 
 	Util_Ui::config_item_extension_enabled(
 		array(
+			'extension_id'      => 'user-experience-partytown',
+			'checkbox_label'    => esc_html__( 'Enable PartyTown', 'w3-total-cache' ),
+			'description'       => __(
+				'This feature allows you to optimize third-party scripts by offloading them to web workers using PartyTown.',
+				'w3-total-cache'
+			) . (
+				UserExperience_PartyTown_Extension::is_enabled()
+				? wp_kses(
+					sprintf(
+						// translators: 1 opening HTML a tag to W3TC User Experience page, 2 closing HTML a tag.
+						__(
+							' Settings can be found on the %1$sUser Experience page%2$s.',
+							'w3-total-cache'
+						),
+						'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#partytown' ) . '">',
+						'</a>'
+					),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				)
+				: ''
+			),
+			'label_class'       => 'w3tc_single_column',
+			'pro'               => true,
+			'disabled'          => ! Util_Environment::is_w3tc_pro( $config ) ? true : false,
+			'show_learn_more'   => true,
+		)
+	);
+
+	Util_Ui::config_item_extension_enabled(
+		array(
 			'extension_id'   => 'user-experience-preload-requests',
 			'checkbox_label' => esc_html__( 'Preload Requests', 'w3-total-cache' ),
 			'description'    => __(
