@@ -48,7 +48,7 @@ class UserExperience_PartyTown_Extension {
 	 * @return void
 	 */
 	public function run() {
-		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 12 );
+		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 14 );
 
 		/**
 		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
@@ -63,6 +63,34 @@ class UserExperience_PartyTown_Extension {
 		Util_Bus::add_ob_callback( 'partytown', array( $this, 'ob_callback' ) );
 
 		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ), 10, 2 );
+
+		add_action( 'wp_enqueue_scripts', 'w3tc_enqueue_partytown' );
+	}
+
+	/**
+	 * Enqueue main PartyTown script.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_enqueue_partytown() {
+		wp_enqueue_script( 'partytown', plugins_url( 'lib/partytown/partytown.js', __FILE__ ), array(), '0.10.2', true );
+		if ( $this->config->get_boolean( array( 'user-experience-partytown', 'preload' ) ) ) {
+			wp_script_add_data( 'partytown', 'preload', 'true' );
+		}
+
+		wp_enqueue_script( 'partytown-init', plugins_url( 'lib/partytown/partytown-init.js', __FILE__ ), array( 'partytown' ), '0.10.2', true);
+		wp_localize_script(
+			'partytown-init',
+			'partytownConfig',
+			array(
+				'serviceWorkerUrl'       => plugins_url( 'lib/partytown/partytown-sw.js', __FILE__ ),
+				'debugMode'              => $this->config->get_boolean( array( 'user-experience-partytown', 'debug' ) ) ?? false,
+				'timeoutSetting'         => $this->config->get_integer( array( 'user-experience-partytown', 'timeout' ) ) ?? 2000,
+				'workerConcurrencyLimit' => $this->config->get_integer( array( 'user-experience-partytown', 'workers' ) ) ?? 5,
+			)
+		);
 	}
 
 	/**

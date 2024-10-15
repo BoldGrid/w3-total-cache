@@ -1890,25 +1890,12 @@ class Util_Ui {
 			case 'w3tc_userexperience':
 				?>
 				<div id="w3tc-options-menu">
-					<?php
-					$subnav_links = array( '<a href="#lazy-loading">' . esc_html__( 'Lazy Loading', 'w3-total-cache' ) . '</a>' );
-
-					if ( UserExperience_DeferScripts_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#defer-scripts">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
-					}
-
-					if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#remove-cssjs">' . esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cache' ) . '</a>';
-						$subnav_links[] = '<a href="#remove-cssjs-singles">' . esc_html__( 'Remove CSS/JS Individually', 'w3-total-cache' ) . '</a>';
-					}
-
-					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#preload-requests">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
-					}
-
-					// If there's only 1 meta box on the page, no need for nav links.
-					echo count( $subnav_links ) > 1 ? implode( ' | ', $subnav_links ) : '';
-					?>
+					<a href="#lazy-loading"><?php esc_html_e( 'Lazy Loading', 'w3-total-cache' ); ?></a> |
+					<a href="#defer-scripts"><?php esc_html_e( 'Delay Scripts', 'w3-total-cache' ); ?></a> |
+					<a href="#remove-cssjs"><?php esc_html_e( 'Remove CSS/JS On Homepage', 'w3-total-cache' ); ?></a> |
+					<a href="#remove-cssjs-singles"><?php esc_html_e( 'Remove CSS/JS Individually', 'w3-total-cache' ); ?></a> |
+					<a href="#partytown"><?php esc_html_e( 'PartyTown', 'w3-total-cache' ); ?></a> |
+					<a href="#preload-requests"><?php esc_html_e( 'Preload Requests', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
 				break;

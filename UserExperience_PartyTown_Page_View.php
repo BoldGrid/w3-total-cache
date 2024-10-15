@@ -18,7 +18,7 @@ if ( ! defined( 'W3TC' ) ) {
 $c          = Dispatcher::config();
 $is_pro     = Util_Environment::is_w3tc_pro( $c );
 $is_enabled = UserExperience_PartyTown_Extension::is_enabled();
-
+Util_Debug::debug('show pt',true);
 $partytown_singles = $c->get_array( 'user-experience-partytown-includes' );
 
 Util_Ui::postbox_header( esc_html__( 'PartyTown', 'w3-total-cache' ), '', 'partytown' );
@@ -48,9 +48,10 @@ Util_Ui::postbox_header( esc_html__( 'PartyTown', 'w3-total-cache' ), '', 'party
 				'key'             => array( 'user-experience-partytown', 'preload' ),
 				'label'           => esc_html__( 'Preload Resources:', 'w3-total-cache' ),
 				'control'         => 'checkbox',
+				'checkbox_label'  => esc_html__( 'Enable preload.', 'w3-total-cache' ),
 				'disabled'        => ! $is_enabled,
 				'description'     => array(),
-				'excerpt'         => esc_html__( 'Enable preloading of PartyTown worker assets for faster performance.', 'w3-total-cache' ),
+				'excerpt'         => esc_html__( 'Preloading the PartyTown JavaScript assets further improves performance.', 'w3-total-cache' ),
 				'show_learn_more' => false,
 				'no_wrap'         => true,
 			)
@@ -60,9 +61,10 @@ Util_Ui::postbox_header( esc_html__( 'PartyTown', 'w3-total-cache' ), '', 'party
 				'key'             => array( 'user-experience-partytown', 'debug' ),
 				'label'           => esc_html__( 'Debug Mode:', 'w3-total-cache' ),
 				'control'         => 'checkbox',
+				'checkbox_label'  => esc_html__( 'Enable debug mode.', 'w3-total-cache' ),
 				'disabled'        => ! $is_enabled,
 				'description'     => array(),
-				'excerpt'         => esc_html__( 'Enable debug mode to help troubleshoot issues.', 'w3-total-cache' ),
+				'excerpt'         => esc_html__( 'Debug mode can help troubleshoot issues.', 'w3-total-cache' ),
 				'show_learn_more' => false,
 				'no_wrap'         => true,
 			)
@@ -118,7 +120,7 @@ Util_Ui::postbox_header( esc_html__( 'PartyTown', 'w3-total-cache' ), '', 'party
 			)
 		);
 	}
-	Util_Ui::pro_wrap_maybe_end( 'partytown_home', false );
+	Util_Ui::pro_wrap_maybe_end( 'partytown_home', true );
 	?>
 </div>
 <?php

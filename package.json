@@ -15,5 +15,8 @@
         "prettier-eslint-cli": "^8.0.1",
         "wpcs": "^1.7.3"
     },
-    "type": "commonjs"
+    "type": "commonjs",
+    "dependencies": {
+        "@builder.io/partytown": "^0.10.2"
+    }
 }

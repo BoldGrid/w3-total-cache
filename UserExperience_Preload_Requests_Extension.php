@@ -41,6 +41,12 @@ class UserExperience_Preload_Requests_Extension {
 	 * @return void
 	 */
 	public function run() {
+		// Renders the Preload Reqeusts settings metabox on the User Expereince advanced setting page.
+		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 20 );
+
+		// This filter is documented in Generic_AdminActions_Default.php under the read_request method.
+		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
+
 		if ( ! Util_Environment::is_w3tc_pro( $this->config ) ) {
 			$this->config->set_extension_active_frontend( 'user-experience-preload-requests', false );
 			return;
@@ -48,12 +54,6 @@ class UserExperience_Preload_Requests_Extension {
 
 		// Applies logic to display page cache flush notice if Preload Requests settings are altered and saved.
 		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ) );
-
-		// Renders the Preload Reqeusts settings metabox on the User Expereince advanced setting page.
-		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 20 );
-
-		// This filter is documented in Generic_AdminActions_Default.php under the read_request method.
-		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 
 		// Applies dns-prefetch, preconnect, and preload headers.
 		add_action( 'wp_head', array( $this, 'w3tc_preload_requests_headers' ) );
@@ -68,9 +68,7 @@ class UserExperience_Preload_Requests_Extension {
 	 * @return void
 	 */
 	public function w3tc_userexperience_page() {
-		if ( self::is_enabled() ) {
-			include __DIR__ . '/UserExperience_Preload_Requests_Page_View.php';
-		}
+		include __DIR__ . '/UserExperience_Preload_Requests_Page_View.php';
 	}
 
 	/**

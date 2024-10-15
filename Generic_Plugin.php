@@ -550,6 +550,7 @@ class Generic_Plugin {
 					'swarmify',
 					'lazyload',
 					'removecssjs',
+					'partytown',
 					'deferscripts',
 					'minify',
 					'newrelic',
