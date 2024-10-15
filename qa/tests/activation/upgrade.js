@@ -32,7 +32,8 @@ describe('', function() {
 				'--no-first-run',
 				'--no-zygote',
 				'--disable-gpu',
-				'--incognito'
+				'--incognito',
+				'--ignore-certificate-errors'
 			]
 		});
 
@@ -46,6 +47,7 @@ describe('', function() {
 				'--no-first-run',
 				'--no-zygote',
 				'--disable-gpu',
+				'--ignore-certificate-errors'
 			]
 		});
 
@@ -64,8 +66,6 @@ describe('', function() {
 	});
 
 	it('take old w3tc', async() => {
-		log.log('Installing old w3tc...');
-
 		let old = {
 			repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.0.9.5.zip',
 		 	output: '/share/w3tc-9-5.zip',
@@ -74,11 +74,13 @@ describe('', function() {
 
 		if (env.phpVersion >= 8 || parseFloat(env.wpVersion) >= 5.7) {
 			old = {
-				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.2.7.zip',
-				output: '/share/w3tc-2-2-7.zip',
-				content: "'2.2.7'"
+				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.7.5.zip',
+				output: '/share/w3tc-2-7-5.zip',
+				content: "'2.7.5'"
 			};
 		}
+
+		log.log('Installing old W3TC (' + old.content + ')...');
 
 		const r1 = await exec('curl --silent ' + old.repo + ' --output ' + old.output);
 		const r2 = await exec('/share/scripts/w3tc-umount.sh');

@@ -446,7 +446,7 @@ function debounce(func){
  *
  * The default location (us-east-1) returns an empty string.  All other regions return the region with a trailing dot.
  *
- * @since X.X.X
+ * @since 2.7.4
  *
  * @param {string} location Bucket location.
  * @returns string
@@ -487,6 +487,32 @@ jQuery(function() {
 	// Global vars.
 	var $cdn_enabled = jQuery('#cdn__enabled'),
 		$cdn_engine = jQuery('#cdn__engine');
+
+	// Object cache disk usage warning
+	if ( jQuery('#objectcache__engine').val() === 'file' ) {
+		jQuery('.objectcache_disk_notice').show();
+	}
+
+	jQuery('#objectcache__engine').change( function() {
+        if ( jQuery(this).val() === 'file' ) {
+			jQuery('.objectcache_disk_notice').show();
+        } else {
+			jQuery('.objectcache_disk_notice').hide();
+		}
+    });
+
+  // Database cache disk usage warning
+	if ( jQuery('#dbcache__engine').val() === 'file' ) {
+		jQuery('.dbcache_disk_notice').show();
+	}
+
+	jQuery('#dbcache__engine').change( function() {
+		if ( jQuery(this).val() === 'file' ) {
+			jQuery('.dbcache_disk_notice').show();
+		} else {
+			jQuery('.dbcache_disk_notice').hide();
+		}
+	});
 
 	// General page.
 	jQuery('.w3tc_read_technical_info').on('click', function() {
@@ -1367,6 +1393,46 @@ jQuery(function() {
 		jQuery('.' + target_class).slideToggle();
 	});
 
+	// Test score block hover toggle.
+	jQuery('.w3tc-test-container-intro').click(
+		function() {
+       		var $testContainer = jQuery(this).next('.w3tc-test-container'),
+			    $score = jQuery(this).find('.w3tc-test-score');
+
+			if ($score.css("visibility") === "hidden") {
+				$score.css("visibility", "visible").fadeTo(300, 1); // Fade in score element
+			} else {
+				$score.fadeTo(300, 0, function() { // Fade out score element
+					jQuery(this).css("visibility", "hidden");
+				});
+			}
+
+			jQuery(this).find('.dashicons').toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
+
+			if ($testContainer.is(':visible')) {
+				$testContainer.stop(true, true).animate({
+					height: 'toggle',
+					opacity: 'toggle',
+					marginTop: 'toggle',
+					marginBottom: 'toggle',
+					paddingTop: 'toggle',
+					paddingBottom: 'toggle'
+				}, 300);
+			} else {
+				$testContainer.stop(true, true).css({
+					display: 'flex',
+					opacity: 0,
+					marginTop: 0,
+					marginBottom: 0
+				}).animate({
+					opacity: 1,
+					marginTop: '15px',
+					marginBottom: '15px'
+				}, 300);
+			}
+    	}
+	);
+
 	// Check for unsaved changes.
 	jQuery('#w3tc input,#w3tc select,#w3tc textarea').on('change', function() {
 		var ignore = false;
@@ -1460,6 +1526,17 @@ jQuery(function() {
 	jQuery('.dropdown-toggle').on('click', function() {
 		jQuery('.dropdown-toggle').not(this).next().hide();
 		jQuery(this).next().toggle();
+	});
+
+	// Footer subscribe hide response.
+	jQuery('#mc-embedded-subscribe').on('click', function(e) {
+		// Hide response after 20 seconds.
+		setTimeout(
+			function(){
+				jQuery('#w3tc-footer .response').hide();
+			},
+			20000
+		);
 	});
 
 	// Bootstrap dropdown hide on click away.
@@ -1695,24 +1772,27 @@ jQuery(function() {
 	});
 
 	var hash = window.location.hash;
-	if (hash !== "") {
-		// Start at top of page rather than instantly loading at the anchor point.
-		window.scrollTo(0, 0);
-		var wpadminbar_height = (jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0,
-			nav_bar_height = (jQuery('#w3tc-top-nav-bar').length) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0,
-			options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
-			form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
-		// Scroll to taget after .5 seconds.
-		setTimeout(
-			function() {
-				jQuery('html, body').animate({
-						scrollTop: jQuery(hash.replace(/\./g, '\\.')).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
-					},
-					600
-				);
-			},
-			500
-		);
+	if (hash) {
+		var $element = jQuery('#' + hash.substring(1));
+        if ($element.length) {
+			// Start at top of page rather than instantly loading at the anchor point.
+			window.scrollTo(0, 0);
+			var wpadminbar_height = (jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0,
+				nav_bar_height = (jQuery('#w3tc-top-nav-bar').length) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0,
+				options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
+				form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
+			// Scroll to taget after .5 seconds.
+			setTimeout(
+				function() {
+					jQuery('html, body').animate({
+							scrollTop: $element.offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
+						},
+						600
+					);
+				},
+				500
+			);
+		}
 	}
 
 	jQuery(window).resize(

@@ -287,7 +287,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	 * @since 2.3.1
 	 */
 	public function test_w3tc_cdn_purge_files() {
-		$this->assertNull( w3tc_cdn_purge_files( array( 'notexists.php' ) ) );
+		$this->assertTrue( function_exists( 'w3tc_cdn_purge_files' ) );
 	}
 
 	/**

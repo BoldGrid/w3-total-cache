@@ -94,7 +94,7 @@ class PgCache_Plugin_Admin {
 						'.htaccess'
 					),
 					'cache_dir' => $flush_dir,
-					'expire' => $this->_config->get_integer( 'browsercache.html.lifetime' ),
+					'expire' => $this->_config->get_integer( 'pgcache.lifetime' ),
 					'clean_timelimit' => $this->_config->get_integer( 'timelimit.cache_gc' )
 				) );
 
@@ -348,11 +348,9 @@ class PgCache_Plugin_Admin {
 				}
 			}
 		} else {
-			// all request counts data available
-			$pagecache['requests'] = $summary['php']['php_requests_v'];
-			$pagecache['requests_hit'] =
-				isset( $summary['php']['php_requests_pagecache_hit'] ) ?
-				$summary['php']['php_requests_pagecache_hit'] : 0;
+			// all request counts data available.
+			$pagecache['requests']     = isset( $summary['php']['php_requests_v'] ) ? $summary['php']['php_requests_v'] : 0;
+			$pagecache['requests_hit'] = isset( $summary['php']['php_requests_pagecache_hit'] ) ? $summary['php']['php_requests_pagecache_hit'] : 0;
 
 			$requests_time_ms = Util_UsageStatistics::sum( $history,
 				'pagecache_requests_time_10ms' ) * 10;

@@ -335,6 +335,19 @@ class Generic_Plugin {
 					'w3tc'
 				),
 			);
+
+			if ( Extension_AlwaysCached_Plugin::is_enabled() ) {
+				$menu_items['40015.alwayscached'] = array(
+					'id'     => 'w3tc_alwayscached',
+					'parent' => 'w3tc',
+					'title'  => __( 'Page Cache Queue', 'w3-total-cache' ),
+					'href'   => wp_nonce_url(
+						network_admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ),
+						'w3tc'
+					),
+				);
+			}
+
 			$menu_items['40020.generic'] = array(
 				'id'     => 'w3tc_settings_extensions',
 				'parent' => 'w3tc',
@@ -370,15 +383,6 @@ class Generic_Plugin {
 					'id'     => 'w3tc_debug_overlays',
 					'parent' => 'w3tc',
 					'title'  => __( 'Debug: Overlays', 'w3-total-cache' ),
-				);
-				$menu_items['90020.generic'] = array(
-					'id'     => 'w3tc_overlay_support_us',
-					'parent' => 'w3tc_debug_overlays',
-					'title'  => __( 'Support Us', 'w3-total-cache' ),
-					'href'   => wp_nonce_url(
-						network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=generic_support_us' ),
-						'w3tc'
-					),
 				);
 			}
 

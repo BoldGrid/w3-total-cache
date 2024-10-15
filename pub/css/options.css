@@ -343,7 +343,26 @@ textarea.w3tc-error {
 .w3tc_cachegroups td,
 .w3tc_remove_cssjs_singles td,
 #cachegroups_form .form-table th {
+	line-height: 2;
 	padding: 10px 10px 10px 15px;
+}
+
+.w3tc-alwayscached-queue-view-table {
+	margin-top: 10px;
+}
+
+.w3tc-alwayscached-queue-view-table th {
+	font-weight: 600 !important;
+}
+
+.w3tc-alwayscached-queue-view-table th,
+.w3tc-alwayscached-queue-view-table td {
+	padding: 3px 10px !important;
+}
+
+.w3tc-alwayscached-queue-item {
+	color: #2271b1;
+	cursor: pointer;
 }
 
 #mobile_groups li,
@@ -379,6 +398,43 @@ textarea.w3tc-error {
 	font-weight: bold;
 }
 
+.w3tc-alwayscached-queue-section {
+	display: none;
+	padding: 10px;
+	background: #f9f9f9;
+	margin-top: 1em;
+	border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+}
+
+.w3tc-alwayscached-queue-view-table .w3tc-alwayscached-regen-item {
+	text-decoration: none;
+}
+
+.w3tc-alwayscached-queue-view-pagination-page-input {
+	width: 90px;
+}
+
+.w3tc-alwayscached-queue-view-pagination-page-input,
+.w3tc-alwayscached-queue-view-pagination-page-input-submit {
+	margin-top: 10px !important;
+}
+
+.w3tc-alwayscached-queue-view-pagination-container {
+	margin-top: 10px;
+}
+
+.w3tc-alwayscached-queue-view-pagination-container a {
+	padding: 0 3px;
+}
+
+.w3tc-alwayscached-queue-view-pagination-container a.active {
+	color: #3c434a;
+	text-decoration: none;
+	pointer-events: none;
+}
+
 #remove_cssjs_singles_empty {
 	padding: 10px;
 }
@@ -388,6 +444,7 @@ textarea.w3tc-error {
 }
 
 .w3tc_remove_cssjs_singles .remove_cssjs_singles_delete {
+	vertical-align: baseline;
 	margin-top: -5px;
 }
 
@@ -395,10 +452,45 @@ textarea.w3tc-error {
 	margin-top: -5px;
 	width: 75% !important;
 	display: inline-block !important;
+	text-align: right;
 }
 
 .w3tc_remove_cssjs_singles .remove_cssjs_singles_behavior {
 	padding-right: 10px;
+}
+
+.w3tc_remove_cssjs_singles .description_example_trigger {
+	color: #2271b1;
+	cursor: pointer;
+}
+
+.w3tc_remove_cssjs_singles li table tr:not(:first-child),
+.w3tc_remove_cssjs_singles li table tr:first-child td .description,
+.w3tc_remove_cssjs_singles li table tr:first-child td .description_example {
+    display: none;
+}
+
+.w3tc_remove_cssjs_singles .description_example .description {
+	display: none;
+}
+
+.w3tc_remove_cssjs_singles .description_example .description strong,
+.w3tc_remove_cssjs_singles .description_example .description code {
+	margin-top: 10px;
+	display: block;
+}
+
+.w3tc_remove_cssjs_singles .accordion-toggle {
+	position: absolute;
+	right: 20px;
+    cursor: pointer;
+	color: #135e96;
+	margin-top: 2px;
+    margin-left: 10px;
+    display: inline-block;
+    width: 30px;
+    height: 25px;
+    font-size: 22px;
 }
 
 .w3tc-rules {
@@ -697,16 +789,12 @@ td.w3tc_config_value_text {
 	margin-right: auto;
 }
 
-.w3tc_menu_item_pro {
+.w3tc_menu_item_pro, #toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"] {
 	color: #0FA9B5;
 }
 
-.w3tc_menu_item_pro:hover {
+.w3tc_menu_item_pro:hover, #toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"]:hover {
 	color: #ddd;
-}
-
-#toplevel_page_w3tc_dashboard li a[href="admin.php?page=w3tc_support"] {
-	color: red;
 }
 
 .w3tc_popup_form {
@@ -793,7 +881,7 @@ table:not(.w3tc-pro-feature) .w3tc-gopro {
 	padding: 10px;
 	background-image: linear-gradient( to right, #f0f0f1, #f0f0f1, #f0f0f1, #f0f0f1, #e7f3f3, #56bec1, #16252c);
 	position: relative;
-	padding-right: 280px;
+	padding-right: 270px;
 	border: 1px solid #c3c4c7;
 }
 
@@ -969,7 +1057,6 @@ table:not(.w3tc-pro-feature) .w3tc-gopro:after,
 	width: 196px;
 	height: 106px;
 }
-
 
 /**
  * Banner ad on dashboard
@@ -1555,22 +1642,22 @@ td .w3tc-control-after span {
  * W3TC pro wrapper test score block
  */
 .w3tc-test-container {
-    display: flex;
+    display: none;
     align-items: center;
 	margin: 25px 0;
 }
 
-.w3tc-test-score-container {
+.w3tc-test-container .w3tc-test-score-container {
 	text-align: center;
 }
 
-.w3tc-test-score-container .w3tc-test-score {
+.w3tc-test-container .w3tc-test-score-container .w3tc-test-score {
     display: inline-flex;
     flex: 0 0 50px;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border: 2px solid #68D500;
     border-radius: 50%;
 	background: #EEFAEC;
@@ -1580,12 +1667,13 @@ td .w3tc-control-after span {
     margin-right: 15px;
 }
 
-.w3tc-test-score-container p {
+.w3tc-test-container .w3tc-test-score-container p {
+	white-space: nowrap;
 	margin: 4px 15px 4px 0;
 	font-weight: 600;
 }
 
-.w3tc-test-description {
+.w3tc-test-container .w3tc-test-description {
 	border-left: 1px solid #ddd;
 	padding-left: 15px;
     display: inline-block;
@@ -1593,8 +1681,46 @@ td .w3tc-control-after span {
 	font-weight: 600;
 }
 
-.w3tc-test-description input {
+.w3tc-test-container .w3tc-test-description p {
+	margin: 0;
+}
+
+.w3tc-test-container .w3tc-test-description input {
 	font-weight: 600;
+}
+
+.w3tc-test-container-intro {
+	margin: 15px 0;
+	cursor: pointer;
+	display: table;
+}
+
+.w3tc-test-container-intro * {
+	vertical-align: middle;
+}
+
+.w3tc-test-container-intro .w3tc-test-score {
+    display: inline-flex;
+    margin-right: 10px;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    border: 2px solid #68D500;
+    border-radius: 50%;
+	background: #EEFAEC;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.w3tc-test-container-intro .dashicons {
+	margin-left: 5px;
+}
+
+.objectcache_disk_notice,
+.dbcache_disk_notice {
+	display: none;
 }
 
 @media screen and (max-width: 1200px) {
@@ -1615,7 +1741,7 @@ td .w3tc-control-after span {
 		float: none;
 		margin: 1em auto;
 	}
-	
+
 	#w3tc-bunnycdn-ad-cdn,
 	#w3tc-bunnycdn-ad-general {
         flex-direction: column;
@@ -1745,17 +1871,17 @@ td .w3tc-control-after span {
 		align-items: unset;
 	}
 
-	.w3tc-test-score-container {
+	.w3tc-test-container .w3tc-test-score-container {
 		margin: 15px 0;
 		display: inline-flex;
 		align-items: center;
 	}
 
-	.w3tc-test-score-container .w3tc-test-score {
+	.w3tc-test-container .w3tc-test-score-container .w3tc-test-score {
 		margin-right: 10px;
 	}
 
-	.w3tc-test-description {
+	.w3tc-test-container .w3tc-test-description {
 		border-left: unset;
 		padding: 0;
 	}

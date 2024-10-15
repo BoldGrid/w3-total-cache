@@ -29,6 +29,36 @@ if ( ! defined( 'W3TC' ) ) {
 	?>
 </p>
 
+<p>
+	<?php
+	$alwayscached_enabled = Extension_AlwaysCached_Plugin::is_enabled();
+	$status_class         = $alwayscached_enabled ? 'w3tc-enabled' : 'w3tc-disabled';
+	$status_label         = $alwayscached_enabled ? __( 'enabled', 'w3-total-cache' ) : __( 'disabled', 'w3-total-cache' );
+	$manage_label         = $alwayscached_enabled ? __( 'Manage the queue and settings', 'w3-total-cache' ) : __( 'To enable the extension click', 'w3-total-cache' );
+	$manage_link          = $alwayscached_enabled ? Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ) : Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' );
+	echo wp_kses(
+		// translators: 1 HTML span tag for feature status, 2 manage queue label, 3 HTML a tag to enable feature or manage settings.
+		sprintf(
+			__(
+				'Always Cached extension is currently %1$s. %2$s %3$s.',
+				'w3-total-cache'
+			),
+			'<span class="' . $status_class . '">' . $status_label . '</span>',
+			$manage_label,
+			'<a href="' . esc_url( $manage_link ) . '">' . esc_html__( 'here', 'w3-total-cache' ) . '</a>'
+		),
+		array(
+			'span' => array(
+				'class' => array(),
+			),
+			'a'    => array(
+				'href' => array(),
+			),
+		)
+	);
+	?>
+<p>
+
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
 	<?php Util_UI::print_control_bar( 'pagecache_form_control' ); ?>
 	<div class="metabox-holder">
@@ -439,6 +469,12 @@ if ( ! defined( 'W3TC' ) ) {
 							'pro_description' => array(
 								esc_html__( 'If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely.', 'w3-total-cache' ),
 							),
+							'show_learn_more'   => false,
+							'intro_label'       => __( 'Potential API Response Time Gain', 'w3-total-cache' ),
+							'score'             => '84%',
+							'score_label'       => __( 'API Response Time', 'w3-total-cache' ),
+							'score_description' => __( 'In a recent test, enabling REST API Caching increased API response times by 84&#37;!', 'w3-total-cache' ),
+							'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/rest-api-testing/?utm_source=w3tc&utm_medium=rest-api-caching&utm_campaign=proof',
 						),
 						'disable' => wp_kses(
 							sprintf(

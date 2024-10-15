@@ -339,20 +339,8 @@ $keys = array(
 		'default' => 0
 	),
 	'objectcache.groups.global' => array(
-		'type' => 'array',
-		'default' => array(
-			'users',
-			'userlogins',
-			'usermeta',
-			'user_meta',
-			'site-transient',
-			'site-options',
-			'site-lookup',
-			'blog-lookup',
-			'blog-details',
-			'rss',
-			'global-posts'
-		)
+		'type'    => 'array',
+		'default' => array(),
 	),
 	'objectcache.groups.nonpersistent' => array(
 		'type' => 'array',
@@ -1183,7 +1171,7 @@ $keys = array(
 	),
 	'cdn.engine' => array(
 		'type' => 'string',
-		'default' => 'stackpath2'
+		'default' => ''
 	),
 	'cdn.uploads.enable' => array(
 		'type' => 'boolean',

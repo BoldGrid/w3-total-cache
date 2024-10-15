@@ -240,7 +240,23 @@ class FeatureShowcase_Plugin_Admin {
 
 		return array(
 			'new' => array(
-				'remove-cssjs' => array(
+				'alwayscached'     => array(
+					'title'      => esc_html__( 'Always Cached', 'w3-total-cache' ),
+					'icon'       => 'dashicons-yes',
+					'text'       => esc_html__( 'The Always Cached extension prevents page/post updates from clearing corresponding cache entries and instead adds them to a queue that can be manually cleared or scheduled to clear via cron.', 'w3-total-cache' ),
+					'button'     => '<button class="button" onclick="window.location=\'' . (
+						Extension_AlwaysCached_Plugin::is_enabled()
+							? esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ) )
+							: esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#alwayscached' ) )
+						) . '\'">' .
+						__( 'Settings', 'w3-total-cache' ) . '</button>',
+					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/alwayscached-extension/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=alwayscached-extension' ) .
+						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+					'is_premium' => true,
+					'is_new'     => true,
+					'version'    => 'X.X.X',
+				),
+				'remove-cssjs'     => array(
 					'title'      => esc_html__( 'Remove Unused CSS/JS', 'w3-total-cache' ),
 					'icon'       => 'dashicons-editor-strikethrough',
 					'text'       => esc_html__( 'Removes specified CSS/JS tags from the homepage or on a per page basis. Can be used to eliminate unused CSS/JS on pages that do not require them.', 'w3-total-cache' ),
@@ -321,7 +337,7 @@ class FeatureShowcase_Plugin_Admin {
 					'button'     => '<button class="button" onclick="window.location=\'' .
 						esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_minify#css' ) ) . '\'">' .
 						__( 'Settings', 'w3-total-cache' ) . '</button>',
-					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_minify_CSS' ) .
+					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/render-blocking-css/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_render_blocking_css' ) .
 						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'is_premium' => true,
 					'is_new'     => false,
@@ -333,7 +349,7 @@ class FeatureShowcase_Plugin_Admin {
 					'button'     => '<button class="button" onclick="window.location=\'' .
 						esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ) ) . '\'">' .
 						__( 'Settings', 'w3-total-cache' ) . '</button>',
-					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/extension-framework-pro/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_extensions' ) .
+					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/achieve-ultimate-wordpress-performance-with-w3-total-cache-pro/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_extensions#extension-framework' ) .
 						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'is_premium' => true,
 					'is_new'     => false,
@@ -357,7 +373,7 @@ class FeatureShowcase_Plugin_Admin {
 					'button'     => '<button class="button" onclick="window.location=\'' .
 						esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_pgcache#rest' ) ) . '\'">' .
 						__( 'Settings', 'w3-total-cache' ) . '</button>',
-					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/achieve-ultimate-wordpress-performance-with-w3-total-cache-pro/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_rest_api_caching' ) .
+					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/rest-api/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=pro_rest_api_caching' ) .
 						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'is_premium' => true,
 					'is_new'     => false,
@@ -466,7 +482,7 @@ class FeatureShowcase_Plugin_Admin {
 					'button'     => '<button class="button" onclick="window.location=\'' .
 						esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '\'">' .
 						__( 'Settings', 'w3-total-cache' ) . '</button>',
-					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/configuring-w3-total-cache-with-stackpath-for-cdn-objects/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=cdn' ) .
+					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/bunny-cdn-setup/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=cdn' ) .
 						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'is_premium' => false,
 					'is_new'     => false,

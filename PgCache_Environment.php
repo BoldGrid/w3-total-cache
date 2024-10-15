@@ -740,6 +740,11 @@ class PgCache_Environment {
 				array_map( array( '\W3TC\Util_Environment', 'preg_quote' ), $reject_user_agents ) ) . ") [NC]\n";
 		}
 
+		$use_cache_rules = apply_filters(
+			'w3tc_pagecache_rules_apache_rewrite_cond',
+			$use_cache_rules
+		);
+
 		/**
 		 * Make final rewrites for specific files
 		 */
@@ -1468,7 +1473,12 @@ class PgCache_Environment {
 
 			case 'no_cache':
 				$header_rules .= "    Header set Pragma \"no-cache\"\n";
-				$header_rules .= "    Header set Cache-Control \"max-age=0, private, no-store, no-cache, must-revalidate\"\n";
+				$header_rules .= "    Header set Cache-Control \"private, no-cache\"\n";
+				break;
+
+			case 'no_store':
+				$header_rules .= "    Header set Pragma \"no-store\"\n";
+				$header_rules .= "    Header set Cache-Control \"no-store\"\n";
 				break;
 			}
 		}

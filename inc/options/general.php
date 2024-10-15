@@ -332,6 +332,15 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'description'    => esc_html__( 'Caching database objects decreases the response time of your site. Best used if object caching is not possible.', 'w3-total-cache' ),
 				)
 			);
+
+			?>
+			<div class="dbcache_disk_notice notice notice-warning">
+				<p><b><?php esc_html_e( 'Warning: Disk-Based Database Caching Selected', 'w3-total-cache' ); ?></b></p>
+				<p><?php esc_html_e( 'Using disk as the cache engine for database caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?></p>
+				<p><a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"><?php esc_html_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?></a></p>
+			</div>
+			<?php
+
 			Util_Ui::config_item_engine( array( 'key' => 'dbcache.engine' ) );
 			?>
 
@@ -391,6 +400,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				$objectcache_config_item['disabled'] = true;
 			}
 			Util_Ui::config_item( $objectcache_config_item );
+			?>
+			<div class="objectcache_disk_notice notice notice-warning">
+				<p><b><?php esc_html_e( 'Warning: Disk-Based Object Caching Selected', 'w3-total-cache' ); ?></b></p>
+				<p><?php esc_html_e( 'Using disk as the cache engine for object caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?></p>
+				<p><a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"><?php esc_html_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?></a></p>
+			</div>
+			<?php
 			Util_Ui::config_item_engine( array( 'key' => 'objectcache.engine' ) );
 			?>
 		</table>
@@ -973,11 +989,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				) : '';
 			Util_Ui::config_item_pro(
 				array(
-					'key'            => 'extension.imageservice',
-					'label'          => esc_html__( 'WebP Converter', 'w3-total-cache' ),
-					'control'        => 'checkbox',
-					'checkbox_label' => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
-					'excerpt'        => wp_kses(
+					'key'               => 'extension.imageservice',
+					'label'             => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+					'control'           => 'checkbox',
+					'checkbox_label'    => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
+					'excerpt'           => wp_kses(
 						sprintf(
 							// translators: 1 HTML line breaks, 2 license rates for free/pro users, 3 link to image service tool.
 							__(
@@ -1024,36 +1040,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							'br' => array(),
 						)
 					),
-					'description'    => array(),
-					'label_class'    => 'w3tc_single_column',
-					'wrap_separate'  => true,
+					'description'       => array(),
+					'label_class'       => 'w3tc_single_column',
+					'wrap_separate'     => true,
+					'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
 					'score'             => '+9',
-					'score_description' => wp_kses(
-						sprintf(
-							// translators: 1  opening HTML a tag, 2 closing HTML a tag, 3 two HTML br tags, 4 HTML input button to purchase pro license.
-							__(
-								'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score! %1$sReview the testing results%2$s to see how.%3$s%4$s to unlock conversion queue priority and higher hourly/monthly limits today!',
-								'w3-total-cache'
-							),
-							'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof' ) . '">',
-							'</a>',
-							'<br /><br />',
-							'<input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_html__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">'
-						),
-						array(
-							'a'      => array(
-								'href'   => array(),
-								'target' => array(),
-							),
-							'br'     => array(),
-							'input'  => array(
-								'type'     => array(),
-								'class'    => array(),
-								'data-src' => array(),
-								'value'    => array(),
-							),
-						)
-					),
+					'score_label'       => __( 'Points', 'w3-total-cache' ),
+					'score_description' => __( 'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
+					'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof',
 				)
 			);
 			?>
@@ -1081,62 +1075,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		$site_id            = Util_Http::generate_site_id();
 		$return_url         = Util_Ui::admin_url( 'admin.php?page=w3tc_general' );
 		$w3tc_pagespeed_key = ! empty( $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) : '';
-		$auth_url           = $w3_pagespeed->client->createAuthUrl();
 
-		$new_gacode             = Util_Request::get( 'w3tc_new_gacode' );
-		$new_w3tc_pagespeed_key = Util_Request::get( 'w3tc_new_w3tc_pagespeed_key' );
-		$authorize_error        = Util_Request::get( 'w3tc_authorize_error' );
-		$deauthorize            = Util_Request::get( 'w3tc_deauthorize' );
+		$access_token       = Util_Request::get( 'w3tc_access_token' );
+		$w3tc_pagespeed_key = Util_Request::get( 'w3tc_pagespeed_key' );
+		$authorize_error    = Util_Request::get( 'w3tc_authorize_error' );
+		$deauthorize        = Util_Request::get( 'w3tc_deauthorize' );
 
-		if ( ! empty( $new_gacode ) && ! empty( $new_w3tc_pagespeed_key ) ) {
-			$response = json_decode( $w3_pagespeed->process_authorization_response( $new_gacode, $new_w3tc_pagespeed_key ), true );
-
-			if ( isset( $response['error']['code'] ) && 200 !== $response['error']['code'] ) {
-				$response_error = sprintf(
-					// translators: 1 Request response code, 2 Error message.
-					__(
-						'Response Code: %1$s<br/>Response Message: %2$s',
-						'w3-total-cache'
-					),
-					! empty( $response['error']['code'] ) ? $response['error']['code'] : 'N/A',
-					! empty( $response['error']['message'] ) ? $response['error']['message'] : 'N/A'
-				);
-
-				update_option(
-					'w3tcps_authorize_fail',
-					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
-				);
-				update_option(
-					'w3tcps_authorize_fail_message',
-					$response_error
-				);
-			} elseif ( ! empty( $response['refresh_token'] ) ) {
-				update_option(
-					'w3tcps_authorize_success',
-					__( 'Google PageSpeed Insights API authorization successful.', 'w3-total-cache' )
-				);
-			} else {
-				update_option(
-					'w3tcps_authorize_fail',
-					__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
-				);
-				update_option(
-					'w3tcps_authorize_fail_message',
-					__( 'Missing refresh token.', 'w3-total-cache' )
-				);
-			}
-
-			wp_safe_redirect( $return_url );
-			exit;
-		} elseif ( $deauthorize ) {
-			$w3_pagespeed->reset();
-			update_option(
-				'w3tcps_authorize_success',
-				__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
-			);
-			wp_safe_redirect( $return_url );
-			exit;
-		} elseif ( ! empty( $authorize_error ) ) {
+		if ( ! empty( $authorize_error ) ) {
 			$authorize_error = json_decode( $authorize_error );
 
 			if ( 'authorize-in-missing-site-id' === $authorize_error->error->id ) {
@@ -1155,6 +1100,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				$message = __( 'No W3Key return to W3-API from Google!', 'w3-total-cache' );
 			} elseif ( 'authorize-out-not-found' === $authorize_error->error->id ) {
 				$message = __( 'No W3-API matching record found during Google authorization return processing!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-token-missing' === $authorize_error->error->id ) {
+				$message = __( 'No Google access token found during Google authorization return processing!', 'w3-total-cache' );
 			}
 
 			update_option(
@@ -1166,6 +1113,21 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				$message
 			);
 
+			wp_safe_redirect( $return_url );
+			exit;
+		} elseif ( ! empty( $access_token ) && ! empty( $w3tc_pagespeed_key ) ) {
+			$this->_config->set( 'widget.pagespeed.access_token', $access_token );
+			$this->_config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
+			$this->_config->save();
+
+			wp_safe_redirect( $return_url );
+			exit;
+		} elseif ( $deauthorize ) {
+			$w3_pagespeed->reset();
+			update_option(
+				'w3tcps_authorize_success',
+				__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
+			);
 			wp_safe_redirect( $return_url );
 			exit;
 		}
@@ -1193,7 +1155,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						<label for="widget_pagespeed_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label>
 					</th>
 					<td>
-						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $w3_pagespeed->get_w3tc_api_url( 'google/authorize-in' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $auth_url ) . '/' . rawurlencode( $return_url ) ); ?>"><?php esc_html_e( 'Authorize' ); ?></a>
+						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $w3_pagespeed->get_w3tc_api_url( 'google/authorize-in' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $return_url ) ); ?>"><?php esc_html_e( 'Authorize' ); ?></a>
 						<p><?php esc_html_e( 'Allow W3 Total Cache to connect to the PageSpeed Insights API on your behalf.', 'w3-total-cache' ); ?></p>
 					</td>
 				</tr>

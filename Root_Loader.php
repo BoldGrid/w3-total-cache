@@ -78,6 +78,7 @@ class Root_Loader {
 
 		if ( is_admin() ) {
 			$plugins[] = new Generic_Plugin_Admin();
+			$plugins[] = new Generic_Plugin_AdminNotices();
 			$plugins[] = new BrowserCache_Plugin_Admin();
 			$plugins[] = new DbCache_Plugin_Admin();
 			$plugins[] = new UserExperience_Plugin_Admin();
@@ -104,7 +105,6 @@ class Root_Loader {
 			}
 
 			$plugins[] = new Extensions_Plugin_Admin();
-			$plugins[] = new Generic_Plugin_AdminNotifications();
 			$plugins[] = new UsageStatistics_Plugin_Admin();
 			$plugins[] = new SetupGuide_Plugin_Admin();
 			$plugins[] = new FeatureShowcase_Plugin_Admin();

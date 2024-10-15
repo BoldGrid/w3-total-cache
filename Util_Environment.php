@@ -1612,4 +1612,56 @@ class Util_Environment {
 
 		return $values_array;
 	}
+
+	/**
+	 * Is there a partial array intersections match?
+	 *
+	 * Returns true if any entries between the tewo arrays match string endings or in whole.
+	 *
+	 * @since  2.7.4
+	 * @static
+	 *
+	 * @param array $array1 Array 1.
+	 * @param array $array2 Array 2.
+	 * @return bool
+	 */
+	public static function array_intersect_partial( array $array1, array $array2 ): bool {
+		foreach ( $array1 as $url1 ) {
+			foreach ( $array2 as $url2 ) {
+				/**
+				 * Parse array1 URLs to handle both full URLs and relative paths.
+				 * If homepage then 'path' will be null, set to '/'.
+				 */
+				$parsed_url1         = \wp_parse_url( \trim( $url1, '/' ) );
+				$parsed_url1['path'] = $parsed_url1['path'] ?? '/';
+
+				/**
+				 * Parse array2 URLs to handle both full URLs and relative paths.
+				 * If value is '/' for homepage then don't trim, otherwise tirm.
+				 */
+				$parsed_url2 = \wp_parse_url( '/' === $url2 ? '/' : \trim( $url2, '/' ) );
+
+				$is_host_set = isset( $parsed_url1['host'], $parsed_url2['host'] );
+
+				if ( $url1 === $url2 ) {
+					// Direct comparison for full URLs that are identical.
+					return true;
+				} elseif (
+					isset( $parsed_url1['path'], $parsed_url2['path'] )
+					&& (
+						\substr( $parsed_url1['path'], -\strlen( $parsed_url2['path'] ) ) === $parsed_url2['path'] ||
+						\substr( $parsed_url2['path'], -\strlen( $parsed_url1['path'] ) ) === $parsed_url1['path']
+					) && ( ! $is_host_set || ( $is_host_set && $parsed_url1['host'] === $parsed_url2['host'] ) )
+				) {
+					/**
+					 * Check if both parsed URLs have 'path' and 'host' component and if they match.
+					 * If either 'host' is not set but 'path' matches, consider it a match.
+					 */
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 }

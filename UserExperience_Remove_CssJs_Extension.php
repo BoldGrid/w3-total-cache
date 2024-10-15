@@ -63,13 +63,6 @@ class UserExperience_Remove_CssJs_Extension {
 		Util_Bus::add_ob_callback( 'removecssjs', array( $this, 'ob_callback' ) );
 
 		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ), 10, 2 );
-
-		add_action( 'w3tc_userexperience_page', array( $this, 'w3tc_userexperience_page' ), 12 );
-
-		/**
-		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
-		*/
-		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 	}
 
 	/**
@@ -222,13 +215,13 @@ class UserExperience_Remove_CssJs_Extension {
 
 				$new_cssjs_singles = array();
 				foreach ( $raw_cssjs_singles as $single_id => $single_config ) {
-					if ( ! empty( $single_config['url_pattern'] ) && ! empty( $single_config['action'] ) && is_string( $single_config['includes'] ) ) {
-						$new_cssjs_singles[ $single_id ]['url_pattern'] = filter_var( $single_config['url_pattern'], FILTER_SANITIZE_URL );
-						$new_cssjs_singles[ $single_id ]['action']      = $single_config['action'];
-						$new_cssjs_singles[ $single_id ]['includes']    = Util_Environment::textarea_to_array( $single_config['includes'] );
+					if ( ! empty( $single_config['url_pattern'] ) && ! empty( $single_config['action'] ) && ( is_string( $single_config['includes'] ) || is_string( $single_config['includes_content'] ) ) ) {
+						$new_cssjs_singles[ $single_id ]['url_pattern']      = preg_replace( '/\?.*$/', '', filter_var( $single_config['url_pattern'], FILTER_SANITIZE_URL ) );
+						$new_cssjs_singles[ $single_id ]['action']           = $single_config['action'];
+						$new_cssjs_singles[ $single_id ]['includes']         = Util_Environment::textarea_to_array( $single_config['includes'] );
+						$new_cssjs_singles[ $single_id ]['includes_content'] = Util_Environment::textarea_to_array( $single_config['includes_content'] );
 					}
 				}
-
 				$new_config->set( 'user-experience-remove-cssjs-singles', $new_cssjs_singles );
 			}
 

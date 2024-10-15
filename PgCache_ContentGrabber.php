@@ -220,10 +220,15 @@ class PgCache_ContentGrabber {
 		}
 
 		$this->_page_key_extension = $this->_get_key_extension();
+
 		if ( !$this->_page_key_extension['cache'] ) {
 			$this->_caching = false;
 			$this->cache_reject_reason =
 				$this->_page_key_extension['cache_reject_reason'];
+		}
+
+		if ( ! empty( $_SERVER['HTTP_W3TCALWAYSCACHED'] ) ) {
+			$this->_page_key_extension['alwayscached'] = true;
 		}
 
 		if ( $this->_caching && !$this->_late_caching ) {
@@ -248,6 +253,7 @@ class PgCache_ContentGrabber {
 		/**
 		 * Start output buffering
 		 */
+
 		Util_Bus::add_ob_callback( 'pagecache', array( $this, 'ob_callback' ) );
 	}
 
@@ -279,6 +285,10 @@ class PgCache_ContentGrabber {
 	 * @return boolean
 	 */
 	function _extract_cached_page( $with_filter ) {
+		if ( ! empty( $this->_page_key_extension['alwayscached'] ) ) {
+			return null;
+		}
+
 		$cache = $this->_get_cache( $this->_page_key_extension['group'] );
 
 		$mobile_group = $this->_page_key_extension['useragent'];
@@ -770,25 +780,25 @@ class PgCache_ContentGrabber {
 			}
 		}
 
-		if ( !empty( $response_headers['kv']['Content-Encoding'] ) ) {
+		if ( !empty( $response_headers['kv']['content-encoding'] ) ) {
 			$this->cache_reject_reason = 'Response is compressed';
 			$this->process_status = 'miss_compressed';
 			return false;
 		}
 
-		if ( empty( $buffer ) && empty( $response_headers['kv']['Location'] ) ) {
+		if ( empty( $buffer ) && empty( $response_headers['kv']['location'] ) ) {
 			$this->cache_reject_reason = 'Empty response';
 			$this->process_status = 'miss_empty_response';
 			return false;
 		}
 
-		if ( isset( $response_headers['kv']['Location'] ) ) {
+		if ( isset( $response_headers['kv']['location'] ) ) {
 			// dont cache query-string normalization redirects
 			// (e.g. from wp core)
 			// when cache key is normalized, since that cause redirect loop
 
 			if ( $this->_get_page_key( $this->_page_key_extension ) ==
-					$this->_get_page_key( $this->_page_key_extension, $response_headers['kv']['Location'] ) ) {
+					$this->_get_page_key( $this->_page_key_extension, $response_headers['kv']['location'] ) ) {
 				$this->cache_reject_reason = 'Normalization redirect';
 				$this->process_status = 'miss_normalization_redirect';
 				return false;
@@ -1384,7 +1394,7 @@ class PgCache_ContentGrabber {
 						$header_name = $header;
 						$header_value = '';
 					}
-					$headers_kv[$header_name] = $header_value;
+					$headers_kv[strtolower($header_name)] = $header_value;
 					$headers_plain[] = array(
 						'name' => $header_name,
 						'value' => $header_value
@@ -1496,8 +1506,8 @@ class PgCache_ContentGrabber {
 
 		$key_urlpart =
 			$request_url_fragments['host'] .
-			$request_url_fragments['path'] .
-			$request_url_fragments['querystring'];
+			( $request_url_fragments['path'] ?? '' ) .
+			( $request_url_fragments['querystring'] ?? '' );
 
 		$key_urlpart = $this->_get_page_key_urlpart( $key_urlpart, $page_key_extension );
 
@@ -1749,7 +1759,12 @@ class PgCache_ContentGrabber {
 
 				case 'no_cache':
 					$headers['Pragma'] = 'no-cache';
-					$headers['Cache-Control'] = 'max-age=0, private, no-store, no-cache, must-revalidate';
+					$headers['Cache-Control'] = 'private, no-cache';
+					break;
+
+				case 'no_store':
+					$headers['Pragma'] = 'no-store';
+					$headers['Cache-Control'] = 'no-store';
 					break;
 				}
 			}
@@ -2124,7 +2139,7 @@ class PgCache_ContentGrabber {
 		if ( $this->_enhanced_mode ) {
 			// redirect issued, if we have some old cache entries
 			// they will be turned into fresh files and catch further requests
-			if ( isset( $response_headers['kv']['Location'] ) ) {
+			if ( isset( $response_headers['kv']['location'] ) ) {
 				$cache = $this->_get_cache( $this->_page_key_extension['group'] );
 
 				foreach ( $compressions_to_store as $_compression ) {
@@ -2145,8 +2160,8 @@ class PgCache_ContentGrabber {
 					'_check_rules_present'
 				) );
 
-			if ( isset( $response_headers['kv']['Content-Type'] ) ) {
-				$content_type = $response_headers['kv']['Content-Type'];
+			if ( isset( $response_headers['kv']['content-type'] ) ) {
+				$content_type = $response_headers['kv']['content-type'];
 			}
 		}
 
@@ -2159,14 +2174,21 @@ class PgCache_ContentGrabber {
 		$buffers = array();
 		$something_was_set = false;
 
+		do_action( 'w3tc_pagecache_before_set', array(
+				'request_url_fragments' => $this->_request_url_fragments,
+				'page_key_extension' => $this->_page_key_extension
+			) );
+
 		foreach ( $compressions_to_store as $_compression ) {
 			$this->_set_extract_page_key(
-				array_merge( $this->_page_key_extension,
-					array(
+				array_merge( $this->_page_key_extension, [
 						'compression' => $_compression,
-						'content_type' => $content_type ) ), true );
-			if ( empty( $this->_page_key ) )
+						'content_type' => $content_type
+					] ),
+				true );
+			if ( empty( $this->_page_key ) ) {
 				continue;
+			}
 
 			// Compress content
 			$buffers[$_compression] = $this->_compress( $buffer, $_compression );

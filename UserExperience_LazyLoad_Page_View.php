@@ -207,7 +207,18 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, tru
 				);
 				?>
 			</div>
-			<?php Util_Ui::pro_wrap_maybe_end( 'lazyload_googlemaps' ); ?>
+			<?php
+			if ( ! $is_pro ) {
+				Util_Ui::print_score_block(
+					__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+					'+10',
+					__( 'Points', 'w3-total-cache' ),
+					__( 'In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!', 'w3-total-cache' ),
+					'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/?utm_source=w3tc&utm_medium=lazy-load-maps&utm_campaign=proof'
+				);
+			}
+			Util_Ui::pro_wrap_maybe_end( 'lazyload_googlemaps', false );
+			?>
 		</td>
 	</tr>
 </table>
