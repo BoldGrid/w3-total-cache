@@ -243,7 +243,7 @@ class Util_AttachToActions {
 	/**
 	 * Callback: Flush posts after a multisite blog is updated.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.6
 	 *
 	 * @link https://developer.wordpress.org/reference/hooks/wp_update_site/
 	 * @param \WP_Site $new_site New site object.

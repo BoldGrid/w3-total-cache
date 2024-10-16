@@ -973,11 +973,8 @@ class soap_transport_http extends nusoap_base {
 			$this->setError($err);
 			curl_close($this->ch);
 	    	return false;
-		} else {
-			//echo '<pre>';
-			//var_dump(curl_getinfo($this->ch));
-			//echo '</pre>';
 		}
+
 		// close curl
 		$this->debug('No cURL error, closing cURL');
 		curl_close($this->ch);

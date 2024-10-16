@@ -181,9 +181,6 @@ class Cdn_StackPath2_Api {
 
 
 	private function _wp_remote_get( $url, $data = array() ) {
-		//var_dump( $url );
-		//var_dump( array( 'headers' => 'authorization: Bearer ' . $this->access_token ) );
-
 		if ( !empty( $this->access_token ) ) {
 			$result = wp_remote_get(
 				$url . ( empty( $data ) ? '' : '?' . http_build_query( $data ) ),

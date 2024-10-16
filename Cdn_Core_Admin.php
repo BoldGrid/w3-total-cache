@@ -739,6 +739,10 @@ WHERE p.post_type = "attachment" AND (pm.meta_value IS NOT NULL OR pm2.meta_valu
 			$running = false;
 			break;
 
+		case ( $cdn_engine == 'azuremi' && ( $this->_config->get_string( 'cdn.azuremi.user' ) == '' || $this->_config->get_string( 'cdn.azuremi.clientid' ) == '' || $this->_config->get_string( 'cdn.azuremi.container' ) == '' ) ):
+			$running = false;
+			break;
+
 		case ( $cdn_engine == 'mirror' && !count( $this->_config->get_array( 'cdn.mirror.domain' ) ) ):
 			$running = false;
 			break;

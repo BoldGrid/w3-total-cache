@@ -398,6 +398,10 @@ class Generic_AdminActions_Default {
 					$config->set( 'cdn.azure.cname', $cdn_domains );
 					break;
 
+				case 'azuremi':
+					$config->set( 'cdn.azuremi.cname', $cdn_domains );
+					break;
+
 				case 'cf':
 					$config->set( 'cdn.cf.cname', $cdn_domains );
 					break;

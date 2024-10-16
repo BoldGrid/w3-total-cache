@@ -22,7 +22,6 @@ if ( ! defined( 'W3TC' ) ) {
 $c      = Dispatcher::config();
 $is_pro = Util_Environment::is_w3tc_pro( $c );
 $usage  = Extension_ImageService_Plugin::get_api()->get_usage();
-Util_Debug::debug('usage',$usage);
 ?>
 <div class="wrap" id="w3tc">
 <?php Util_Ui::print_breadcrumb(); ?>

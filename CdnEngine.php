@@ -36,6 +36,10 @@ class CdnEngine {
 					$instances[ $instance_key ] = new CdnEngine_Azure( $config );
 					break;
 
+				case 'azuremi':
+					$instances[ $instance_key ] = new CdnEngine_Azure_MI( $config );
+					break;
+
 				case 'bunnycdn':
 					$instances[ $instance_key ] = new CdnEngine_Mirror_BunnyCdn( $config );
 					break;
