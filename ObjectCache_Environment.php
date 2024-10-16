@@ -12,52 +12,87 @@ class ObjectCache_Environment {
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
-	 * @param Config  $config
-	 * @param bool    $force_all_checks
+	 * @param Config $config           Config.
+	 * @param bool   $force_all_checks Force checks flag.
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
 	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
-		$exs = new Util_Environment_Exceptions();
+		$exs                 = new Util_Environment_Exceptions();
+		$objectcache_enabled = $config->get_boolean( 'objectcache.enabled' );
 
 		try {
-			$addin_required = $config->getf_boolean( 'objectcache.enabled' );
-			$addin_required = apply_filters( 'w3tc_objectcache_addin_required',
-				$addin_required );
+			$addin_required = apply_filters( 'w3tc_objectcache_addin_required', $objectcache_enabled );
 
-			if ( $addin_required )
+			if ( $addin_required ) {
 				$this->create_addin();
-			else
+			} else {
 				$this->delete_addin();
+			}
 		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 			$exs->push( $ex );
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
-	}
-
-	/**
-	 * Fixes environment once event occurs
-	 *
-	 * @throws Util_Environment_Exceptions
-	 */
-	public function fix_on_event( $config, $event, $old_config = null ) {
-		if ( $config->getf_boolean( 'objectcache.enabled' ) &&
-			$config->get_string( 'objectcache.engine' ) == 'file' ) {
-			if ( !wp_next_scheduled( 'w3_objectcache_cleanup' ) ) {
-				wp_schedule_event( time(),
-					'w3_objectcache_cleanup', 'w3_objectcache_cleanup' );
-			}
-		} else {
-			$this->unschedule();
 		}
 	}
 
 	/**
-	 * Fixes environment after plugin deactivation
+	 * Fixes environment once event occurs.
 	 *
-	 * @return array
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exception.
+	 */
+	public function fix_on_event( $config, $event, $old_config = null ) {
+		$objectcache_enabled = $config->get_boolean( 'objectcache.enabled' );
+		$engine              = $config->get_string( 'objectcache.engine' );
+
+		if ( $objectcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$new_interval = $config->get_integer( 'objectcache.file.gc' );
+			$old_interval = $old_config ? $old_config->get_integer( 'objectcache.file.gc' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
+				$this->unschedule_gc();
+			}
+
+			if ( ! wp_next_scheduled( 'w3_objectcache_cleanup' ) ) {
+				wp_schedule_event( time(), 'w3_objectcache_cleanup', 'w3_objectcache_cleanup' );
+			}
+		} else {
+			$this->unschedule_gc();
+		}
+
+		// Schedule purge.
+		if ( $objectcache_enabled && $config->get_boolean( 'objectcache.wp_cron' ) ) {
+			$new_wp_cron_time     = $config->get_integer( 'objectcache.wp_cron_time' );
+			$old_wp_cron_time     = $old_config ? $old_config->get_integer( 'objectcache.wp_cron_time' ) : -1;
+			$new_wp_cron_interval = $config->get_integer( 'objectcache.wp_cron_interval' );
+			$old_wp_cron_interval = $old_config ? $old_config->get_integer( 'objectcache.wp_cron_interval' ) : -1;
+
+			if ( $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval ) {
+				$this->unschedule_purge_wpcron();
+			}
+
+			if ( ! wp_next_scheduled( 'w3tc_objectcache_purge_wpcron' ) ) {
+				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
+				wp_schedule_event( $scheduled_time, 'w3tc_objectcache_purge_wpcron', 'w3tc_objectcache_purge_wpcron' );
+			}
+		} else {
+			$this->unschedule_purge_wpcron();
+		}
+	}
+
+	/**
+	 * Fixes environment after plugin deactivation.
+	 *
+	 * @throws Util_Environment_Exceptions Exception.
+	 * @throws Util_WpFile_FilesystemOperationException Exception.
+	 *
+	 * @return void
 	 */
 	public function fix_after_deactivation() {
 		$exs = new Util_Environment_Exceptions();
@@ -68,10 +103,12 @@ class ObjectCache_Environment {
 			$exs->push( $ex );
 		}
 
-		$this->unschedule();
+		$this->unschedule_gc();
+		$this->unschedule_purge_wpcron();
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
@@ -87,9 +124,22 @@ class ObjectCache_Environment {
 	/**
 	 * scheduling stuff
 	 */
-	private function unschedule() {
+	private function unschedule_gc() {
 		if ( wp_next_scheduled( 'w3_objectcache_cleanup' ) ) {
 			wp_clear_scheduled_hook( 'w3_objectcache_cleanup' );
+		}
+	}
+
+	/**
+	 * Remove cron job for object cache purge.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private function unschedule_purge_wpcron() {
+		if ( wp_next_scheduled( 'w3tc_objectcache_purge_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_objectcache_purge_wpcron' );
 		}
 	}
 

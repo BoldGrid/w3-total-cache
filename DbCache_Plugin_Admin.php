@@ -3,6 +3,8 @@ namespace W3TC;
 
 class DbCache_Plugin_Admin {
 	function run() {
+		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ) );
+
 		$config_labels = new DbCache_ConfigLabels();
 		add_filter( 'w3tc_config_labels', array( $config_labels, 'config_labels' ) );
 
@@ -67,5 +69,34 @@ class DbCache_Plugin_Admin {
 		}
 
 		return $errors;
+	}
+
+	public function w3tc_save_options( $data ) {
+		$new_config = $data['new_config'];
+		$old_config = $data['old_config'];
+
+		// Schedule purge if enabled.
+		if ( $new_config->get_boolean( 'dbcache.enabled' ) && $new_config->get_boolean( 'dbcache.wp_cron' ) ) {
+			$new_wp_cron_time      = $new_config->get_integer( 'dbcache.wp_cron_time' );
+			$old_wp_cron_time      = $old_config ? $old_config->get_integer( 'dbcache.wp_cron_time' ) : -1;
+			$new_wp_cron_interval  = $new_config->get_string( 'dbcache.wp_cron_interval' );
+			$old_wp_cron_interval  = $old_config ? $old_config->get_string( 'dbcache.wp_cron_interval' ) : -1;
+			$schedule_needs_update = $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval;
+
+			// Clear the scheduled hook if a change in time or interval is detected.
+			if ( wp_next_scheduled( 'w3tc_dbcache_purge_wpcron' ) && $schedule_needs_update ) {
+				wp_clear_scheduled_hook( 'w3tc_dbcache_purge_wpcron' );
+			}
+
+			// Schedule if no existing cron event or settings have changed.
+			if ( ! wp_next_scheduled( 'w3tc_dbcache_purge_wpcron' ) || $schedule_needs_update ) {
+				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
+				wp_schedule_event( $scheduled_timestamp_server, $new_wp_cron_interval, 'w3tc_dbcache_purge_wpcron' );
+			}
+		} elseif ( wp_next_scheduled( 'w3tc_dbcache_purge_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_dbcache_purge_wpcron' );
+		}
+
+		return $data;
 	}
 }
