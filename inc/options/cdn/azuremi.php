@@ -2,7 +2,7 @@
 /**
  * File: azuremi.php
  *
- * @since   X.X.X
+ * @since   2.7.7
  * @package W3TC
  */
 
@@ -15,7 +15,7 @@ $cdn_azuremi_config = array_map(
 	/**
 	 * Anonymous function to populate unset config keys using defaults.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string|array $default Default configuration .
 	 * @param string|array $config  Stored configuration values.
