@@ -366,6 +366,8 @@ class Util_Admin {
 						'cdn.rscf.ssl',
 						'cdn.azure.cname',
 						'cdn.azure.ssl',
+						'cdn.azuremi.cname',
+						'cdn.azuremi.ssl',						
 						'cdn.mirror.domain',
 						'cdn.mirror.ssl',
 						'cdn.cotendo.domain',
