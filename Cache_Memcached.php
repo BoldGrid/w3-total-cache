@@ -3,6 +3,7 @@ namespace W3TC;
 
 /**
  * PECL Memcached class
+ * Preferred upon Memcache
  */
 class Cache_Memcached extends Cache_Base {
 	/**
@@ -120,7 +121,9 @@ class Cache_Memcached extends Cache_Base {
 	 * @return boolean
 	 */
 	function set( $key, $var, $expire = 0, $group = '' ) {
-		$var['key_version'] = $this->_get_key_version( $group );
+		if ( ! isset( $var['key_version'] ) ) {
+			$var['key_version'] = $this->_get_key_version( $group );
+		}
 
 		$storage_key = $this->get_item_key( $key );
 		return @$this->_memcache->set( $storage_key, $var, $expire );
@@ -147,7 +150,10 @@ class Cache_Memcached extends Cache_Base {
 			return array( $v, $has_old_data );
 
 		if ( $v['key_version'] > $key_version ) {
-			$this->_set_key_version( $v['key_version'], $group );
+			if ( ! empty( $v['key_version_at_creation'] ) && $v['key_version_at_creation'] !== $key_version ) {
+				$this->_set_key_version( $v['key_version'], $group );
+			}
+
 			return array( $v, $has_old_data );
 		}
 
@@ -234,6 +240,37 @@ class Cache_Memcached extends Cache_Base {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Gets a key extension for "ahead generation" mode.
+	 * Used by AlwaysCached functionality to regenerate content
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
+	 * @return array
+	 */
+	public function get_ahead_generation_extension( $group ) {
+		$v = $this->_get_key_version( $group );
+		return array(
+			'key_version'             => $v + 1,
+			'key_version_at_creation' => $v,
+		);
+	}
+
+	/**
+	 * Flushes group with before condition
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param array  $extension Used to set a condition what version to flush.
+	 *
+	 * @return void
+	 */
+	public function flush_group_after_ahead_generation( $group, $extension ) {
+		$v = $this->_get_key_version( $group );
+		if ( $extension['key_version'] > $v ) {
+			$this->_set_key_version( $extension['key_version'], $group );
+		}
 	}
 
 	/**
