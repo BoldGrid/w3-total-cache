@@ -287,6 +287,33 @@ class Cache_File extends Cache_Base {
 	}
 
 	/**
+	 * Gets a key extension for "ahead generation" mode.
+	 * Used by AlwaysCached functionality to regenerate content
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
+	 * @return array
+	 */
+	public function get_ahead_generation_extension( $group ) {
+		return array(
+			'before_time' => time(),
+		);
+	}
+
+	/**
+	 * Flushes group with before condition
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param array  $extension Used to set a condition what version to flush.
+	 *
+	 * @return void
+	 */
+	public function flush_group_after_ahead_generation( $group, $extension ) {
+		$dir = $this->_flush_dir;
+		$extension['before_time'];
+	}
+
+	/**
 	 * Returns modification time of cache file
 	 *
 	 * @param integer $key

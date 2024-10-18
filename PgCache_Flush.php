@@ -299,14 +299,23 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 					if ( !isset( $caches[$group] ) ) {
 						$caches[$group] = $this->_get_cache( $group );
 					}
-					$this->_flush_url( $url, $caches[$group], $mobile_groups,
-						$referrer_groups, $cookies, $encryptions, $compressions,
-						$group == '*' ? '' : $group );
+					$this->_flush_url(
+						array(
+							'url'             => $url,
+							'cache'           => $caches[ $group ],
+							'mobile_groups'   => $mobile_groups,
+							'referrer_groups' => $referrer_groups,
+							'cookies'         => $cookies,
+							'encryptions'     => $encryptions,
+							'compressions'    => $compressions,
+							'group'           => '*' === $group ? '' : $group,
+						)
+					);
 				}
 
 				$count += count( $this->queued_urls );
 
-				// Purge sitemaps if a sitemap option has a regex
+				// Purge sitemaps if a sitemap option has a regex.
 				if ( $this->_config->get_string( 'pgcache.purge.sitemap_regex' ) ) {
 					$cache = $this->_get_cache( 'sitemaps' );
 					$cache->flush( 'sitemaps' );
@@ -322,41 +331,72 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 
 	/**
 	 * Does the actual job - flushing of a single url cache entries
+	 *
+	 * @param array $data Data.
+	 *
+	 * @return void
 	 */
-	private function _flush_url( $url, $cache, $mobile_groups, $referrer_groups,
-		$cookies, $encryptions, $compressions, $group ) {
-		if ( empty( $url ) ) {
+	private function _flush_url( $data ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+		$data['parent'] = $this;
+		$data           = apply_filters( 'w3tc_pagecache_flush_url', $data );
+		if ( empty( $data ) || empty( $data['url'] ) ) {
 			return;
 		}
 
-		foreach ( $mobile_groups as $mobile_group ) {
-			foreach ( $referrer_groups as $referrer_group ) {
-				foreach ( $cookies as $cookie ) {
-					foreach ( $encryptions as $encryption ) {
-						foreach ( $compressions as $compression ) {
-							$page_keys = array();
+		foreach ( $data['mobile_groups'] as $mobile_group ) {
+			foreach ( $data['referrer_groups'] as $referrer_group ) {
+				foreach ( $data['cookies'] as $cookie ) {
+					foreach ( $data['encryptions'] as $encryption ) {
+						foreach ( $data['compressions'] as $compression ) {
+							$page_keys   = array();
 							$page_keys[] = $this->_get_page_key(
 								array(
-									'useragent' => $mobile_group,
-									'referrer' => $referrer_group,
-									'cookie' => $cookie,
-									'encryption' => $encryption,
+									'useragent'   => $mobile_group,
+									'referrer'    => $referrer_group,
+									'cookie'      => $cookie,
+									'encryption'  => $encryption,
 									'compression' => $compression,
-									'group' => $group
+									'group'       => $data['group'],
 								),
-								$url );
+								$data['url']
+							);
 
-							$page_keys = apply_filters(
-								'w3tc_pagecache_flush_url_keys', $page_keys );
+							$page_keys = apply_filters( 'w3tc_pagecache_flush_url_keys', $page_keys );
 
 							foreach ( $page_keys as $page_key ) {
-								$cache->delete( $page_key, $group );
+								$data['cache']->delete( $page_key, $data['group'] );
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * Gets a key extension for "ahead generation" mode.
+	 * Used by AlwaysCached functionality to regenerate content
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
+	 * @return array
+	 */
+	public function get_ahead_generation_extension( $group ) {
+		$cache = $this->_get_cache( $group );
+		return $cache->get_ahead_generation_extension( $group );
+	}
+
+	/**
+	 * Flushes group with before condition
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param array  $extension Used to set a condition what version to flush.
+	 *
+	 * @return void
+	 */
+	public function flush_group_after_ahead_generation( $group, $extension ) {
+		$cache = $this->_get_cache( $group );
+		$cache->flush_group_after_ahead_generation( $group, $extension );
 	}
 
 	/**

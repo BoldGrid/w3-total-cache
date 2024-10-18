@@ -109,6 +109,18 @@ class Cache_Base {
 		return array( null, false );
 	}
 
+		/**
+	 * Checks if entry exists
+	 *
+	 * @param string  $key
+	 * @param string  $group Used to differentiate between groups of cache values
+	 * @return boolean true if exists, false otherwise
+	 */
+	function exists( $key, $group = '' ) {
+		list( $data, $has_old ) = $this->get_with_old( $key, $group );
+		return ! empty( $data) && ! $has_old;
+	}
+
 	/**
 	 * Alias for get for minify cache
 	 *
@@ -165,6 +177,34 @@ class Cache_Base {
 	 * @return boolean
 	 */
 	function flush( $group = '' ) {
+		return false;
+	}
+
+	/**
+	 * Gets a key extension for "ahead generation" mode.
+	 * Used by AlwaysCached functionality to regenerate content
+	 *
+	 * @abstract
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
+	 * @return array
+	 */
+	public function get_ahead_generation_extension( $group ) {
+		return array();
+	}
+
+	/**
+	 * Flushes group with before condition
+	 *
+	 * @abstract
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param array  $extension Used to set a condition what version to flush.
+	 *
+	 * @return boolean
+	 */
+	public function flush_group_after_ahead_generation( $group, $extension ) {
 		return false;
 	}
 

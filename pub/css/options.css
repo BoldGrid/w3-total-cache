@@ -347,6 +347,24 @@ textarea.w3tc-error {
 	padding: 10px 10px 10px 15px;
 }
 
+.w3tc-alwayscached-queue-view-table {
+	margin-top: 10px;
+}
+
+.w3tc-alwayscached-queue-view-table th {
+	font-weight: 600 !important;
+}
+
+.w3tc-alwayscached-queue-view-table th,
+.w3tc-alwayscached-queue-view-table td {
+	padding: 3px 10px !important;
+}
+
+.w3tc-alwayscached-queue-item {
+	color: #2271b1;
+	cursor: pointer;
+}
+
 #mobile_groups li,
 #referrer_groups li,
 .w3tc_cachegroups li,
@@ -378,6 +396,43 @@ textarea.w3tc-error {
 .referrer_group,
 .cookiegroup_name {
 	font-weight: bold;
+}
+
+.w3tc-alwayscached-queue-section {
+	display: none;
+	padding: 10px;
+	background: #f9f9f9;
+	margin-top: 1em;
+	border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+}
+
+.w3tc-alwayscached-queue-view-table .w3tc-alwayscached-regen-item {
+	text-decoration: none;
+}
+
+.w3tc-alwayscached-queue-view-pagination-page-input {
+	width: 90px;
+}
+
+.w3tc-alwayscached-queue-view-pagination-page-input,
+.w3tc-alwayscached-queue-view-pagination-page-input-submit {
+	margin-top: 10px !important;
+}
+
+.w3tc-alwayscached-queue-view-pagination-container {
+	margin-top: 10px;
+}
+
+.w3tc-alwayscached-queue-view-pagination-container a {
+	padding: 0 3px;
+}
+
+.w3tc-alwayscached-queue-view-pagination-container a.active {
+	color: #3c434a;
+	text-decoration: none;
+	pointer-events: none;
 }
 
 #remove_cssjs_singles_empty {
