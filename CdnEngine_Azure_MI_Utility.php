@@ -9,7 +9,7 @@
  * The managed identity is authenticated with Microsoft Entra ID, so you don’t have to store any credentials in code.
  *
  * @package W3TC
- * @since   X.X.X
+ * @since   2.7.7
  */
 
 namespace W3TC;
@@ -19,7 +19,7 @@ namespace W3TC;
  *
  * This class defines utility functions for Azure blob storage access using Managed Identity.
  *
- * @since   X.X.X
+ * @since   2.7.7
  * @author  Zubair <zmohammed@microsoft.com>
  * @author  BoldGrid <development@boldgrid.com>
  */
@@ -27,7 +27,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Entra API version.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @var string
 	 */
@@ -36,7 +36,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Entra resource URI.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @var string
 	 */
@@ -45,7 +45,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Blob API version.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @var string
 	 */
@@ -54,7 +54,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Retrieves an access token from the Managed Identity endpoint.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $entra_client_id Entra ID.
 	 * @return string $access_token
@@ -123,7 +123,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Get Azure Blob Storage blob properties.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $entra_client_id Entra ID.
 	 * @param string $storage_account Storage account name.
@@ -175,7 +175,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Create block blob.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $entra_client_id Entra ID.
 	 * @param string $storage_account Storage account name.
@@ -249,7 +249,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Delete blob.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $entra_client_id Entra ID.
 	 * @param string $storage_account Storage account name.
@@ -300,7 +300,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Create an Azure Blob Storage container/bucket.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $entra_client_id    Entra ID.
 	 * @param string $storage_account    Storage account name.
@@ -359,7 +359,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * List Azure Blob Storage containers.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $entra_client_id Entra ID.
 	 * @param string $storage_account Storage account name.
@@ -418,7 +418,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Get blob.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $entra_client_id Entra ID.
 	 * @param string $storage_account Storage account name.
@@ -473,7 +473,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Get array.
 	 *
-	 * @since  X.X.X
+	 * @since  2.7.7
 	 * @access private
 	 *
 	 * @param mixed $var Variable used to get array.
@@ -496,7 +496,7 @@ class CdnEngine_Azure_MI_Utility {
 	/**
 	 * Parse header from string to array.
 	 *
-	 * @since  X.X.X
+	 * @since  2.7.7
 	 * @access private
 	 *
 	 * @param string $header Header.

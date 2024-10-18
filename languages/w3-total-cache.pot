@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.7.4\n"
+"Project-Id-Version: W3 Total Cache 2.7.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-07-16T16:55:37+00:00\n"
+"POT-Creation-Date: 2024-10-17T14:24:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
@@ -18,9 +18,9 @@ msgstr ""
 #: w3-total-cache.php
 #: Generic_Plugin_Admin.php:1109
 #: SetupGuide_Plugin_Admin.php:1161
-#: SetupGuide_Plugin_Admin.php:1207
-#: SetupGuide_Plugin_Admin.php:1279
-#: SetupGuide_Plugin_Admin.php:1308
+#: SetupGuide_Plugin_Admin.php:1211
+#: SetupGuide_Plugin_Admin.php:1283
+#: SetupGuide_Plugin_Admin.php:1312
 msgid "W3 Total Cache"
 msgstr ""
 
@@ -476,7 +476,7 @@ msgid "Controls whether the current document is allowed to use the WebXR Device 
 msgstr ""
 
 #: BrowserCache_Page_View_SectionSecurity.php:164
-#: Util_Ui.php:1854
+#: Util_Ui.php:1856
 msgid "Security Headers"
 msgstr ""
 
@@ -496,7 +496,7 @@ msgstr ""
 #: inc/options/browsercache.php:176
 #: inc/options/cdn.php:457
 #: inc/options/cdn.php:1006
-#: inc/options/general.php:428
+#: inc/options/general.php:444
 #: inc/options/install.php:114
 #: inc/options/minify.php:549
 #: inc/options/minify.php:823
@@ -522,8 +522,8 @@ msgstr ""
 #: BrowserCache_Page_View_SectionSecurity.php:1080
 #: Generic_Plugin_Admin.php:916
 #: inc/options/browsercache.php:217
-#: inc/options/browsercache.php:514
-#: inc/options/browsercache.php:777
+#: inc/options/browsercache.php:515
+#: inc/options/browsercache.php:780
 #: inc/options/pgcache.php:179
 #: inc/options/pgcache.php:560
 #: inc/options/pgcache.php:652
@@ -572,6 +572,8 @@ msgstr ""
 #: inc/options/cdn/att.php:63
 #: inc/options/cdn/azure.php:42
 #: inc/options/cdn/azure.php:72
+#: inc/options/cdn/azuremi.php:87
+#: inc/options/cdn/azuremi.php:117
 #: inc/options/cdn/cf.php:90
 #: inc/options/cdn/cf.php:120
 #: inc/options/cdn/cf2.php:81
@@ -752,9 +754,9 @@ msgstr ""
 #: Minify_HelpPopup_View.php:110
 #: PageSpeed_Instructions.php:79
 #: PageSpeed_Instructions.php:96
-#: PageSpeed_Instructions.php:365
-#: Util_Ui.php:1769
-#: Util_Ui.php:1817
+#: PageSpeed_Instructions.php:353
+#: Util_Ui.php:1771
+#: Util_Ui.php:1819
 msgid "Cascading Style Sheet"
 msgstr ""
 
@@ -840,30 +842,30 @@ msgstr ""
 #: FeatureShowcase_Plugin_Admin.php:511
 #: Generic_WidgetSettings_View.php:43
 #: inc/options/common/top_nav_bar.php:40
-#: inc/options/general.php:402
-#: PageSpeed_Instructions.php:315
-#: PageSpeed_Instructions.php:515
-#: PageSpeed_Instructions.php:567
+#: inc/options/general.php:418
+#: PageSpeed_Instructions.php:303
+#: PageSpeed_Instructions.php:503
+#: PageSpeed_Instructions.php:555
 #: Root_AdminMenu.php:85
 #: Root_AdminMenu.php:86
 #: SetupGuide_Plugin_Admin.php:1136
-#: SetupGuide_Plugin_Admin.php:1301
-#: SetupGuide_Plugin_Admin.php:1334
+#: SetupGuide_Plugin_Admin.php:1305
+#: SetupGuide_Plugin_Admin.php:1338
 #: Util_PageUrls.php:915
-#: Util_Ui.php:1624
+#: Util_Ui.php:1626
 msgid "Browser Cache"
 msgstr ""
 
 #. translators: 1 opening HTML a tag to Browser Cache CSP-Report-Only settings, 2 closing HTML a tag.
-#: BrowserCache_Plugin.php:484
+#: BrowserCache_Plugin.php:489
 msgid "The Content Security Policy - Report Only requires the \"report-uri\" and/or \"report-to\" directives. Please define one or both of these directives %1$shere%2$s."
 msgstr ""
 
-#: BrowserCache_Plugin.php:488
+#: BrowserCache_Plugin.php:493
 msgid "Browser Cache Content-Security-Policy-Report-Only Settings"
 msgstr ""
 
-#: Cache.php:210
+#: Cache.php:214
 #: inc/options/minify/csstidy2.php:23
 #: SetupGuide_Plugin_Admin.php:969
 msgid "None"
@@ -879,7 +881,7 @@ msgid "Per the above, make sure that visitors are notified about the cookie as p
 msgstr ""
 
 #: CacheGroups_Plugin_Admin_View.php:36
-#: Util_Ui.php:1862
+#: Util_Ui.php:1864
 msgid "Manage User Agent Groups"
 msgstr ""
 
@@ -957,7 +959,7 @@ msgid "Note(s):"
 msgstr ""
 
 #: CacheGroups_Plugin_Admin_View.php:159
-#: Util_Ui.php:1863
+#: Util_Ui.php:1865
 msgid "Manage Referrer Groups"
 msgstr ""
 
@@ -987,7 +989,7 @@ msgid "No groups added. All referrers receive the same page and minify cache res
 msgstr ""
 
 #: CacheGroups_Plugin_Admin_View.php:237
-#: Util_Ui.php:1864
+#: Util_Ui.php:1866
 msgid "Manage Cookie Groups"
 msgstr ""
 
@@ -1021,8 +1023,8 @@ msgstr ""
 #: inc/options/general.php:116
 #: inc/options/general.php:201
 #: inc/options/general.php:331
-#: inc/options/general.php:365
-#: inc/options/general.php:420
+#: inc/options/general.php:374
+#: inc/options/general.php:436
 #: inc/options/minify.php:262
 #: inc/options/minify.php:541
 #: inc/options/minify.php:620
@@ -1476,6 +1478,7 @@ msgstr ""
 #: inc/options/cdn/att.php:61
 #: inc/options/cdn/att.php:93
 #: inc/options/cdn/azure.php:70
+#: inc/options/cdn/azuremi.php:115
 #: inc/options/cdn/cf.php:118
 #: inc/options/cdn/cf2.php:109
 #: inc/options/cdn/cotendo.php:68
@@ -1494,7 +1497,7 @@ msgstr ""
 #: inc/popup/cdn_purge.php:19
 #: Root_AdminMenu.php:97
 #: Root_AdminMenu.php:100
-#: Util_Ui.php:1635
+#: Util_Ui.php:1637
 msgid "Content Delivery Network"
 msgstr ""
 
@@ -1523,6 +1526,7 @@ msgstr ""
 #: Cdn_StackPath_Page_View.php:48
 #: Cdn_StackPath_Page_View.php:88
 #: inc/options/cdn/azure.php:103
+#: inc/options/cdn/azuremi.php:149
 #: inc/options/cdn/cf.php:154
 #: inc/options/cdn/cf2.php:145
 #: inc/options/cdn/ftp.php:327
@@ -1615,7 +1619,7 @@ msgstr ""
 #: Cdnfsd_BunnyCdn_Popup_View_Deauthorize.php:44
 #: Cdn_BunnyCdn_Popup_View_Deauthorize.php:44
 #: Generic_Plugin_Admin.php:656
-#: inc/options/cdn/common/cnames.php:58
+#: inc/options/cdn/common/cnames.php:63
 #: inc/options/minify.php:496
 #: inc/options/minify.php:770
 #: inc/popup/cdn_queue.php:25
@@ -1624,7 +1628,7 @@ msgstr ""
 #: inc/popup/cdn_queue.php:67
 #: inc/popup/cdn_queue.php:88
 #: inc/popup/cdn_queue.php:97
-#: UserExperience_Remove_CssJs_Page_View.php:123
+#: UserExperience_Remove_CssJs_Page_View.php:135
 msgid "Delete"
 msgstr ""
 
@@ -1897,11 +1901,11 @@ msgstr ""
 #: Extension_NewRelic_AdminNotes.php:23
 #: Generic_Plugin_Admin.php:1009
 #: Generic_WidgetSettings_View.php:47
-#: PageSpeed_Instructions.php:391
-#: PageSpeed_Instructions.php:405
-#: PageSpeed_Instructions.php:568
+#: PageSpeed_Instructions.php:379
+#: PageSpeed_Instructions.php:393
+#: PageSpeed_Instructions.php:556
+#: PageSpeed_Instructions.php:588
 #: PageSpeed_Instructions.php:611
-#: PageSpeed_Instructions.php:634
 #: Util_PageUrls.php:925
 msgid "CDN"
 msgstr ""
@@ -1984,8 +1988,8 @@ msgstr ""
 
 #: Cdnfsd_StackPath2_Engine.php:19
 #: Cdnfsd_StackPath2_Engine.php:49
-#: Cdnfsd_StackPath_Engine.php:22
-#: Cdnfsd_StackPath_Engine.php:44
+#: Cdnfsd_StackPath_Engine.php:21
+#: Cdnfsd_StackPath_Engine.php:43
 #: Cdnfsd_TransparentCDN_Engine.php:252
 #: Cdnfsd_TransparentCDN_Engine.php:280
 msgid "API key not specified."
@@ -2170,126 +2174,137 @@ msgstr ""
 
 #: Cdn_AdminActions.php:433
 #: Cdn_AdminActions.php:437
-#: Cdn_AdminActions.php:482
+#: Cdn_AdminActions.php:483
 msgid "Error: %s"
 msgstr ""
 
-#: Cdn_AdminActions.php:479
+#: Cdn_AdminActions.php:480
 msgid "Created successfully."
 msgstr ""
 
-#: Cdn_AdminActions.php:491
+#: Cdn_AdminActions.php:492
 msgid "Incorrect type."
 msgstr ""
 
-#: Cdn_AdminNotes.php:26
-msgid "The active theme has changed, please %s now to ensure proper operation. %s"
+#. translators: 1: Button code, 2: Button code.
+#: Cdn_AdminNotes.php:33
+msgid "The active theme has changed, please %1$s now to ensure proper operation. %2$s"
 msgstr ""
 
-#: Cdn_AdminNotes.php:29
+#: Cdn_AdminNotes.php:34
 msgid "upload active theme files"
 msgstr ""
 
-#: Cdn_AdminNotes.php:43
-msgid "Upgraded WordPress? Please %s files now to ensure proper operation. %s"
+#. translators: 1: Button code, 2: Button code.
+#: Cdn_AdminNotes.php:51
+msgid "Upgraded WordPress? Please %1$s files now to ensure proper operation. %2$s"
 msgstr ""
 
-#: Cdn_AdminNotes.php:85
-msgid "Make sure to %s and upload the %s, files to the <acronym title=\"Content Delivery Network\">CDN</acronym> to ensure proper operation. %s"
+#. translators: 1: Button code, 2: Button code, 3: Button code.
+#: Cdn_AdminNotes.php:93
+msgid "Make sure to %1$s and upload the %2$s, files to the <acronym title=\"Content Delivery Network\">CDN</acronym> to ensure proper operation. %3$s"
 msgstr ""
 
-#: Cdn_AdminNotes.php:98
-msgid "Settings that affect Browser Cache settings for files hosted by the CDN have been changed. To apply the new settings %s and %s. %s"
+#. translators: 1: Button code, 2: Button code, 3: Button code.
+#: Cdn_AdminNotes.php:112
+msgid "Settings that affect Browser Cache settings for files hosted by the CDN have been changed. To apply the new settings %1$s and %2$s. %3$s"
 msgstr ""
 
-#: Cdn_AdminNotes.php:101
+#: Cdn_AdminNotes.php:116
 msgid "export the media library"
 msgstr ""
 
-#: Cdn_AdminNotes.php:119
-msgid "The <strong>CURL PHP</strong> extension is not available. Please install it to enable S3 or CloudFront functionality. %s"
+#. translators: 1: Button code.
+#: Cdn_AdminNotes.php:136
+msgid "The <strong>CURL PHP</strong> extension is not available. Please install it to enable S3 or CloudFront functionality. %1$s"
 msgstr ""
 
 #. translators: 1: Opening anchor tag with a link to the CDN settings page, 2: closing anchor tag, 3 opening anchor tag to MaxCDN/StackPath migration guide.
-#: Cdn_AdminNotes.php:130
+#: Cdn_AdminNotes.php:150
 msgid "MaxCDN has been replaced with StackPath CDN. As a result your configuration is now invalid and requires reconfiguration to a new %1$sCDN provider%2$s. You can migrate to StackPath using %3$sthis guide%2$s."
 msgstr ""
 
-#: Cdn_AdminNotes.php:156
-msgid "The %s has unresolved errors. Empty the queue to restore normal operation."
+#. translators: 1: Button code.
+#: Cdn_AdminNotes.php:182
+msgid "The %1$s has unresolved errors. Empty the queue to restore normal operation."
 msgstr ""
 
-#: Cdn_AdminNotes.php:159
+#: Cdn_AdminNotes.php:183
 msgid "unsuccessful transfer queue"
 msgstr ""
 
-#: Cdn_AdminNotes.php:181
-msgid "The uploads directory is not available. Default WordPress directories will be created: <strong>%s</strong>."
+#. translators: 1: Upload path.
+#: Cdn_AdminNotes.php:207
+msgid "The uploads directory is not available. Default WordPress directories will be created: <strong>%1$s</strong>."
 msgstr ""
 
-#: Cdn_AdminNotes.php:188
-msgid "The uploads path found in the database (%s) is inconsistent with the actual path. Please manually adjust the upload path either in miscellaneous settings or if not using a custom path %s automatically to resolve the issue."
+#. translators: 1: Upload path, 2: Button code.
+#: Cdn_AdminNotes.php:215
+msgid "The uploads path found in the database (%1$s) is inconsistent with the actual path. Please manually adjust the upload path either in miscellaneous settings or if not using a custom path %2$s automatically to resolve the issue."
 msgstr ""
 
-#: Cdn_AdminNotes.php:191
+#: Cdn_AdminNotes.php:220
 msgid "update the path"
 msgstr ""
 
-#: Cdn_AdminNotes.php:204
-msgid ""
-"A configuration issue prevents <acronym title=\"Content Delivery Network\">CDN</acronym> from working:\n"
-"                                        The <strong>\"Replace default hostname with\"</strong>\n"
-"                                        field cannot be empty. Enter <acronym\n"
-"                                        title=\"Content Delivery Network\">CDN</acronym>\n"
-"                                        provider hostname <a href=\"?page=w3tc_cdn#configuration\">here</a>.\n"
-"                                        <em>(This is the hostname used in order to view objects\n"
-"                                        in a browser.)</em>"
+#: Cdn_AdminNotes.php:232
+msgid "A configuration issue prevents <acronym title=\"Content Delivery Network\">CDN</acronym> from working: The <strong>\"Replace default hostname with\"</strong> field cannot be empty. Enter <acronym title=\"Content Delivery Network\">CDN</acronym> provider hostname <a href=\"?page=w3tc_cdn#configuration\">here</a>. <em>(This is the hostname used in order to view objects in a browser.)</em>"
 msgstr ""
 
-#: Cdn_AdminNotes.php:214
+#: Cdn_AdminNotes.php:239
 msgid "The <strong>\"Access key\", \"Secret key\" and \"Bucket\"</strong> fields cannot be empty."
 msgstr ""
 
-#: Cdn_AdminNotes.php:218
+#: Cdn_AdminNotes.php:243
 msgid "The <strong>\"Access key\", \"Secret key\", \"Bucket\" and \"Replace default hostname with\"</strong> fields cannot be empty."
 msgstr ""
 
-#: Cdn_AdminNotes.php:222
+#: Cdn_AdminNotes.php:247
 msgid "The <strong>\"Access key\", \"Secret key\" and \"Replace default hostname with\"</strong> fields cannot be empty."
 msgstr ""
 
-#: Cdn_AdminNotes.php:226
+#: Cdn_AdminNotes.php:251
 msgid "The <strong>\"Username\", \"API key\", \"Container\" and \"Replace default hostname with\"</strong> fields cannot be empty."
 msgstr ""
 
-#: Cdn_AdminNotes.php:230
+#: Cdn_AdminNotes.php:255
 msgid "The <strong>\"Account name\", \"Account key\" and \"Container\"</strong> fields cannot be empty."
 msgstr ""
 
-#: Cdn_AdminNotes.php:234
-#: Cdn_AdminNotes.php:238
-#: Cdn_AdminNotes.php:242
-#: Cdn_AdminNotes.php:246
+#: Cdn_AdminNotes.php:259
+msgid "Microsoft Azure using Managed Identities is only available for \"WordPress on App Service\"."
+msgstr ""
+
+#: Cdn_AdminNotes.php:263
+msgid "The <strong>\"Account name\", \"Entra client ID\" and \"Container\"</strong> fields cannot be empty."
+msgstr ""
+
+#: Cdn_AdminNotes.php:267
+#: Cdn_AdminNotes.php:271
+#: Cdn_AdminNotes.php:275
+#: Cdn_AdminNotes.php:279
 msgid "The <strong>\"Replace default hostname with\"</strong> field cannot be empty."
 msgstr ""
 
-#: Cdn_AdminNotes.php:255
+#: Cdn_AdminNotes.php:288
 msgid "A configuration issue prevents <acronym title=\"Content Delivery Network\">CDN</acronym> from working: "
 msgstr ""
 
-#: Cdn_AdminNotes.php:255
+#: Cdn_AdminNotes.php:289
 msgid " <a href=\"?page=w3tc_cdn#configuration\">Specify it here</a>."
 msgstr ""
 
-#: Cdn_AdminNotes.php:277
-msgid "Encountered issue with CDN: %s. See %s for instructions of creating correct table."
+#. translators: 1: Error message, 2: Install link.
+#: Cdn_AdminNotes.php:314
+msgid "Encountered issue with CDN: %1$s. See %2$s for instructions of creating correct table."
 msgstr ""
 
-#: Cdn_AdminNotes.php:279
+#: Cdn_AdminNotes.php:316
 msgid "Install page"
 msgstr ""
 
-#: Cdn_AdminNotes.php:282
+#. translators: 1: Error message.
+#: Cdn_AdminNotes.php:323
 msgid "Encountered issue with CDN: %s."
 msgstr ""
 
@@ -2573,7 +2588,7 @@ msgstr ""
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #. translators: 1 opening HTML abbr tag, 2 closing HTML abbr tag.
 #: Cdn_GeneralPage_View.php:16
-#: Util_Ui.php:1631
+#: Util_Ui.php:1633
 msgid "%1$sCDN%2$s"
 msgstr ""
 
@@ -2632,9 +2647,9 @@ msgstr ""
 #: Minify_HelpPopup_View.php:114
 #: PageSpeed_Instructions.php:80
 #: PageSpeed_Instructions.php:97
-#: PageSpeed_Instructions.php:366
-#: Util_Ui.php:1749
-#: Util_Ui.php:1819
+#: PageSpeed_Instructions.php:354
+#: Util_Ui.php:1751
+#: Util_Ui.php:1821
 msgid "JavaScript"
 msgstr ""
 
@@ -2682,6 +2697,7 @@ msgstr ""
 #: inc/options/cdn/akamai.php:55
 #: inc/options/cdn/att.php:29
 #: inc/options/cdn/azure.php:38
+#: inc/options/cdn/azuremi.php:83
 #: inc/options/cdn/cf.php:86
 #: inc/options/cdn/cf2.php:77
 #: inc/options/cdn/cotendo.php:36
@@ -2702,6 +2718,7 @@ msgstr ""
 #: inc/options/cdn/akamai.php:73
 #: inc/options/cdn/att.php:47
 #: inc/options/cdn/azure.php:56
+#: inc/options/cdn/azuremi.php:101
 #: inc/options/cdn/cf.php:104
 #: inc/options/cdn/cf2.php:95
 #: inc/options/cdn/cotendo.php:54
@@ -2720,6 +2737,7 @@ msgstr ""
 #: inc/options/cdn/akamai.php:74
 #: inc/options/cdn/att.php:48
 #: inc/options/cdn/azure.php:57
+#: inc/options/cdn/azuremi.php:102
 #: inc/options/cdn/cf.php:105
 #: inc/options/cdn/cf2.php:96
 #: inc/options/cdn/cotendo.php:55
@@ -2738,6 +2756,7 @@ msgstr ""
 #: inc/options/cdn/akamai.php:75
 #: inc/options/cdn/att.php:49
 #: inc/options/cdn/azure.php:58
+#: inc/options/cdn/azuremi.php:103
 #: inc/options/cdn/cf.php:106
 #: inc/options/cdn/cf2.php:97
 #: inc/options/cdn/cotendo.php:56
@@ -2759,6 +2778,7 @@ msgstr ""
 #: inc/options/cdn/akamai.php:83
 #: inc/options/cdn/att.php:57
 #: inc/options/cdn/azure.php:66
+#: inc/options/cdn/azuremi.php:111
 #: inc/options/cdn/cf.php:114
 #: inc/options/cdn/cf2.php:105
 #: inc/options/cdn/cotendo.php:64
@@ -2781,6 +2801,7 @@ msgstr ""
 #: inc/options/cdn/akamai.php:103
 #: inc/options/cdn/att.php:77
 #: inc/options/cdn/azure.php:86
+#: inc/options/cdn/azuremi.php:131
 #: inc/options/cdn/cf.php:134
 #: inc/options/cdn/cf2.php:125
 #: inc/options/cdn/cotendo.php:84
@@ -2814,7 +2835,7 @@ msgstr ""
 #: Cdn_StackPath2_Page_View.php:277
 #: Cdn_StackPath_Page_View.php:223
 #: inc/options/about.php:76
-#: inc/options/browsercache.php:548
+#: inc/options/browsercache.php:549
 #: inc/options/cdn/akamai.php:121
 #: inc/options/cdn/att.php:95
 #: inc/options/cdn/cotendo.php:102
@@ -2823,14 +2844,14 @@ msgstr ""
 #: inc/options/cdn/mirror.php:81
 #: inc/options/cdn/rscf.php:135
 #: inc/options/general.php:211
-#: inc/options/general.php:845
-#: inc/options/general.php:886
+#: inc/options/general.php:861
+#: inc/options/general.php:902
 #: inc/options/minify.php:147
 #: inc/options/minify.php:173
 #: inc/options/pgcache.php:832
 #: inc/options/pgcache.php:861
-#: Util_Ui.php:1727
-#: Util_Ui.php:1840
+#: Util_Ui.php:1729
+#: Util_Ui.php:1842
 msgid "Hypertext Markup Language"
 msgstr ""
 
@@ -3028,10 +3049,14 @@ msgid "Microsoft Azure Storage"
 msgstr ""
 
 #: Cdn_Plugin_Admin.php:196
-msgid "Rackspace Cloud Files"
+msgid "Microsoft Azure Storage (Managed Identity)"
 msgstr ""
 
 #: Cdn_Plugin_Admin.php:202
+msgid "Rackspace Cloud Files"
+msgstr ""
+
+#: Cdn_Plugin_Admin.php:208
 msgid "Self-hosted / File Transfer Protocol Upload"
 msgstr ""
 
@@ -3091,9 +3116,9 @@ msgstr ""
 #: Extension_NewRelic_Popup_View_Intro.php:29
 #: inc/options/cdn/cotendo.php:40
 #: inc/options/cdn/rscf.php:26
-#: inc/options/general.php:375
-#: inc/options/general.php:564
-#: inc/options/general.php:593
+#: inc/options/general.php:384
+#: inc/options/general.php:580
+#: inc/options/general.php:609
 #: inc/options/pgcache.php:412
 #: inc/options/pgcache.php:459
 msgid "Application Programming Interface"
@@ -3144,6 +3169,7 @@ msgstr ""
 
 #: Cdn_RackSpaceCloudFiles_Page_View.php:35
 #: inc/options/cdn/azure.php:23
+#: inc/options/cdn/azuremi.php:68
 #: inc/options/cdn/rscf.php:56
 msgid "Container:"
 msgstr ""
@@ -3423,9 +3449,9 @@ msgid "Database Cache:"
 msgstr ""
 
 #: DbCache_ConfigLabels.php:9
-#: DbCache_Plugin.php:240
-#: DbCache_Plugin.php:247
-#: DbCache_Plugin.php:256
+#: DbCache_Plugin.php:265
+#: DbCache_Plugin.php:272
+#: DbCache_Plugin.php:281
 #: FeatureShowcase_Plugin_Admin.php:487
 #: Generic_WidgetSettings_View.php:35
 #: inc/options/common/top_nav_bar.php:32
@@ -3433,11 +3459,11 @@ msgstr ""
 #: Root_AdminMenu.php:73
 #: Root_AdminMenu.php:74
 #: SetupGuide_Plugin_Admin.php:1128
-#: SetupGuide_Plugin_Admin.php:1238
-#: SetupGuide_Plugin_Admin.php:1249
+#: SetupGuide_Plugin_Admin.php:1242
+#: SetupGuide_Plugin_Admin.php:1253
 #: UsageStatistics_Page_View.php:316
 #: Util_PageUrls.php:905
-#: Util_Ui.php:1616
+#: Util_Ui.php:1618
 msgid "Database Cache"
 msgstr ""
 
@@ -3482,11 +3508,11 @@ msgid "Remove it for me"
 msgstr ""
 
 #. translators: 1 interval in seconds.
-#: DbCache_Plugin.php:107
+#: DbCache_Plugin.php:132
 msgid "[W3TC] Database Cache file GC (every %d seconds)"
 msgstr ""
 
-#: DbCache_Plugin.php:192
+#: DbCache_Plugin.php:217
 #: UsageStatistics_Page_View.php:311
 msgid "Database"
 msgstr ""
@@ -3573,7 +3599,7 @@ msgstr ""
 #: Extensions_Plugin_Admin.php:75
 #: Extensions_Plugin_Admin.php:76
 #: FeatureShowcase_Plugin_Admin.php:523
-#: inc/options/common/top_nav_bar.php:62
+#: inc/options/common/top_nav_bar.php:58
 #: Util_PageUrls.php:952
 #: Util_PageUrls.php:959
 #: Util_PageUrls.php:972
@@ -3620,11 +3646,11 @@ msgid "Extension <strong>%s</strong> has been successfully activated."
 msgstr ""
 
 #: Extension_Amp_Page_View.php:11
-#: Extension_ImageService_Page_View.php:49
+#: Extension_ImageService_Page_View.php:48
 #: Extension_Swarmify_Page_View.php:22
-#: Util_Ui.php:1971
-#: Util_Ui.php:1993
-#: Util_Ui.php:2001
+#: Util_Ui.php:1973
+#: Util_Ui.php:1995
+#: Util_Ui.php:2003
 msgid "Configuration"
 msgstr ""
 
@@ -3722,7 +3748,7 @@ msgid "if needed."
 msgstr ""
 
 #: Extension_CloudFlare_Page_View.php:42
-#: Util_Ui.php:1984
+#: Util_Ui.php:1986
 msgid "Credentials"
 msgstr ""
 
@@ -3738,13 +3764,13 @@ msgstr ""
 #: inc/options/general.php:22
 #: inc/options/minify.php:73
 #: inc/options/pgcache.php:35
-#: Util_Ui.php:1600
-#: Util_Ui.php:1702
-#: Util_Ui.php:1716
-#: Util_Ui.php:1789
-#: Util_Ui.php:1806
-#: Util_Ui.php:1872
-#: Util_Ui.php:1985
+#: Util_Ui.php:1602
+#: Util_Ui.php:1704
+#: Util_Ui.php:1718
+#: Util_Ui.php:1791
+#: Util_Ui.php:1808
+#: Util_Ui.php:1874
+#: Util_Ui.php:1987
 msgid "General"
 msgstr ""
 
@@ -4263,8 +4289,8 @@ msgstr ""
 #: Generic_WidgetSettings_View.php:59
 #: inc/options/common/footer.php:76
 #: inc/options/common/footer.php:77
-#: inc/options/common/top_nav_bar.php:52
-#: inc/options/general.php:868
+#: inc/options/common/top_nav_bar.php:109
+#: inc/options/general.php:884
 #: Util_PageUrls.php:930
 msgid "Fragment Cache"
 msgstr ""
@@ -4296,7 +4322,7 @@ msgstr ""
 
 #: Extension_FragmentCache_Page_View.php:39
 #: Extension_NewRelic_Widget_View_Apm.php:14
-#: Util_Ui.php:1952
+#: Util_Ui.php:1954
 msgid "Overview"
 msgstr ""
 
@@ -4318,12 +4344,12 @@ msgstr ""
 #: inc/options/minify.php:858
 #: inc/options/objectcache.php:35
 #: inc/options/pgcache.php:497
-#: Util_Ui.php:1707
-#: Util_Ui.php:1780
-#: Util_Ui.php:1790
-#: Util_Ui.php:1798
-#: Util_Ui.php:1882
-#: Util_Ui.php:1953
+#: Util_Ui.php:1709
+#: Util_Ui.php:1782
+#: Util_Ui.php:1792
+#: Util_Ui.php:1800
+#: Util_Ui.php:1884
+#: Util_Ui.php:1955
 msgid "Advanced"
 msgstr ""
 
@@ -4334,8 +4360,8 @@ msgstr ""
 #: Extension_FragmentCache_Page_View.php:75
 #: Extension_FragmentCache_Page_View.php:82
 #: inc/options/browsercache.php:431
-#: inc/options/browsercache.php:589
-#: inc/options/browsercache.php:694
+#: inc/options/browsercache.php:590
+#: inc/options/browsercache.php:696
 #: inc/options/cdn.php:765
 #: inc/options/cdn.php:774
 #: inc/options/dbcache.php:62
@@ -4416,14 +4442,23 @@ msgstr ""
 #: FeatureShowcase_Plugin_Admin.php:528
 #: FeatureShowcase_Plugin_Admin.php:540
 #: Generic_Plugin_Admin.php:791
-#: inc/options/common/top_nav_bar.php:142
-#: inc/options/common/top_nav_bar.php:143
+#: inc/options/common/top_nav_bar.php:147
+#: inc/options/common/top_nav_bar.php:148
 #: inc/options/extensions/list.php:102
 msgid "Settings"
 msgstr ""
 
-#: Extension_FragmentCache_WpObjectCache.php:536
-msgid "Fragment Caching %d/%d fragments using %s%s"
+#. translators: 1 cache hits, 2 cache total, 3 engine name, 4 reject reason.
+#: Extension_FragmentCache_WpObjectCache.php:594
+msgid "Fragment Caching %1$d/%2$d fragments using %3$s%4$s"
+msgstr ""
+
+#: Extension_FragmentCache_WpObjectCache.php:603
+msgid "Fragment Cache debug info:"
+msgstr ""
+
+#: Extension_FragmentCache_WpObjectCache.php:609
+msgid "W3TC Fragment Cache info:"
 msgstr ""
 
 #: Extension_Genesis_Page_View.php:9
@@ -4432,7 +4467,7 @@ msgstr ""
 
 #: Extension_Genesis_Page_View.php:21
 #: Extension_Genesis_Page_View.php:212
-#: Util_Ui.php:2010
+#: Util_Ui.php:2012
 msgid "Header"
 msgstr ""
 
@@ -4469,7 +4504,7 @@ msgid "Caches secondary navigation filter; per page."
 msgstr ""
 
 #: Extension_Genesis_Page_View.php:65
-#: Util_Ui.php:2011
+#: Util_Ui.php:2013
 msgid "Content"
 msgstr ""
 
@@ -4539,7 +4574,7 @@ msgstr ""
 
 #: Extension_Genesis_Page_View.php:143
 #: Extension_Genesis_Page_View.php:214
-#: Util_Ui.php:2012
+#: Util_Ui.php:2014
 msgid "Sidebar"
 msgstr ""
 
@@ -4585,7 +4620,7 @@ msgid "Disable fragment cache:"
 msgstr ""
 
 #: Extension_Genesis_Page_View.php:203
-#: Util_Ui.php:2013
+#: Util_Ui.php:2015
 msgid "Exclusions"
 msgstr ""
 
@@ -4639,7 +4674,7 @@ msgstr ""
 
 #: Extension_Genesis_Plugin_Admin.php:130
 #: Extension_WordPressSeo_Plugin_Admin.php:95
-#: Extension_Wpml_Plugin_Admin.php:126
+#: Extension_Wpml_Plugin_Admin.php:134
 #: Util_Ui.php:103
 msgid "Hide this message"
 msgstr ""
@@ -4698,7 +4733,7 @@ msgid "Please verify your license key in %1$sGeneral Settings%2$s."
 msgstr ""
 
 #: Extension_ImageService_Api.php:341
-#: Generic_WidgetAccount_View.php:40
+#: Generic_WidgetAccount_View.php:47
 #: inc/options/cdn/cf.php:76
 msgid "Unknown"
 msgstr ""
@@ -4707,170 +4742,170 @@ msgstr ""
 msgid "Every Ten Seconds"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:59
+#: Extension_ImageService_Page_View.php:58
 msgid "Compression type:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:65
+#: Extension_ImageService_Page_View.php:64
 msgid "Image compression type."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:76
+#: Extension_ImageService_Page_View.php:75
 msgid "Auto-convert:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:82
+#: Extension_ImageService_Page_View.php:81
 msgid "Auto-convert images on upload."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:93
+#: Extension_ImageService_Page_View.php:92
 msgid "Visibility:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:96
+#: Extension_ImageService_Page_View.php:95
 msgid "Never"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:97
+#: Extension_ImageService_Page_View.php:96
 msgid "If extension is active"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:98
+#: Extension_ImageService_Page_View.php:97
 msgid "Always"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:100
+#: Extension_ImageService_Page_View.php:99
 msgid "Show converted image attachments in the Media Library."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:110
-#: inc/options/common/top_nav_bar.php:164
-#: inc/options/common/top_nav_bar.php:165
-#: Util_Ui.php:1972
+#: Extension_ImageService_Page_View.php:109
+#: inc/options/common/top_nav_bar.php:169
+#: inc/options/common/top_nav_bar.php:170
+#: Util_Ui.php:1974
 msgid "Tools"
 msgstr ""
 
 #. translators: 1 opening HTML p tag, 2 free user hourly limit, 3 free user monthly limit, 4 two HTML br tags, 5 pro user hourly limit, 6 closing HTML p tag.
-#: Extension_ImageService_Page_View.php:120
+#: Extension_ImageService_Page_View.php:119
 msgid "%1$sFree license users will have a conversion limit of %2$d per hour and %3$d per month.%4$sPro license users will have conversion queue priority as well as a conversion limit of %5$d per hour and unlimited per month.%6$s"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:137
-#: inc/options/general.php:1030
+#: Extension_ImageService_Page_View.php:136
+#: inc/options/general.php:1046
 #: inc/options/minify/css.php:38
-#: UserExperience_DeferScripts_Page_View.php:60
-#: UserExperience_DeferScripts_Page_View.php:77
-#: UserExperience_GeneralPage_View.php:119
-#: UserExperience_GeneralPage_View.php:158
+#: UserExperience_DeferScripts_Page_View.php:54
+#: UserExperience_GeneralPage_View.php:77
+#: UserExperience_GeneralPage_View.php:125
+#: UserExperience_GeneralPage_View.php:164
 #: UserExperience_LazyLoad_Page_View.php:213
-#: UserExperience_Remove_CssJs_Page_View.php:58
-#: UserExperience_Remove_CssJs_Page_View.php:318
+#: UserExperience_Remove_CssJs_Page_View.php:52
+#: UserExperience_Remove_CssJs_Page_View.php:330
 msgid "Potential Google PageSpeed Gain"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:139
-#: inc/options/general.php:1032
+#: Extension_ImageService_Page_View.php:138
+#: inc/options/general.php:1048
 #: inc/options/minify/css.php:40
-#: UserExperience_DeferScripts_Page_View.php:62
-#: UserExperience_DeferScripts_Page_View.php:79
-#: UserExperience_GeneralPage_View.php:121
-#: UserExperience_GeneralPage_View.php:160
+#: UserExperience_DeferScripts_Page_View.php:56
+#: UserExperience_GeneralPage_View.php:79
+#: UserExperience_GeneralPage_View.php:127
+#: UserExperience_GeneralPage_View.php:166
 #: UserExperience_LazyLoad_Page_View.php:215
-#: UserExperience_Remove_CssJs_Page_View.php:60
-#: UserExperience_Remove_CssJs_Page_View.php:320
+#: UserExperience_Remove_CssJs_Page_View.php:54
+#: UserExperience_Remove_CssJs_Page_View.php:332
 msgid "Points"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:140
-#: inc/options/general.php:1033
+#: Extension_ImageService_Page_View.php:139
+#: inc/options/general.php:1049
 msgid "In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:155
+#: Extension_ImageService_Page_View.php:154
 msgid "Convert all images:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:159
+#: Extension_ImageService_Page_View.php:158
 msgid "Convert all images in the media library."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:166
+#: Extension_ImageService_Page_View.php:165
 msgid "Revert all images:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:170
+#: Extension_ImageService_Page_View.php:169
 msgid "Revert all converted images in the media library."
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:181
+#: Extension_ImageService_Page_View.php:180
 #: Generic_WidgetSettings_View.php:55
-#: inc/options/common/top_nav_bar.php:66
+#: inc/options/common/top_nav_bar.php:62
 #: UsageStatistics_GeneralPage.php:25
 #: UsageStatistics_GeneralPage_View.php:18
 #: UsageStatistics_Plugin_Admin.php:67
 #: UsageStatistics_Plugin_Admin.php:68
 #: Util_PageUrls.php:955
-#: Util_Ui.php:1973
+#: Util_Ui.php:1975
 msgid "Statistics"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:190
+#: Extension_ImageService_Page_View.php:189
 msgid "Counts and file sizes by status:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:194
+#: Extension_ImageService_Page_View.php:193
 msgid "Total:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:199
+#: Extension_ImageService_Page_View.php:198
 msgid "Converted:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:204
+#: Extension_ImageService_Page_View.php:203
 msgid "Sending:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:209
+#: Extension_ImageService_Page_View.php:208
 msgid "Processing:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:214
+#: Extension_ImageService_Page_View.php:213
 msgid "Not converted:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:219
+#: Extension_ImageService_Page_View.php:218
 msgid "Unconverted:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:225
-#: Extension_ImageService_Page_View.php:252
+#: Extension_ImageService_Page_View.php:224
+#: Extension_ImageService_Page_View.php:251
 #: Extension_ImageService_Plugin_Admin.php:553
 #: UsageStatistics_Page_View.php:15
 msgid "Refresh"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:231
+#: Extension_ImageService_Page_View.php:230
 msgid "WebP Converter API usage:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:235
+#: Extension_ImageService_Page_View.php:234
 msgid "Hourly requests:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:239
+#: Extension_ImageService_Page_View.php:238
 msgid "Hourly limit:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:243
+#: Extension_ImageService_Page_View.php:242
 msgid "Monthly requests:"
 msgstr ""
 
-#: Extension_ImageService_Page_View.php:247
+#: Extension_ImageService_Page_View.php:246
 msgid "Monthly limit:"
 msgstr ""
 
 #: Extension_ImageService_Plugin_Admin.php:79
-#: SetupGuide_Plugin_Admin.php:1352
+#: SetupGuide_Plugin_Admin.php:1356
 msgid "Adds the ability to convert images in the Media Library to the modern WebP format for better performance."
 msgstr ""
 
@@ -4968,11 +5003,11 @@ msgstr ""
 
 #: Extension_ImageService_Plugin_Admin.php:606
 #: FeatureShowcase_Plugin_Admin.php:402
-#: inc/options/common/top_nav_bar.php:72
-#: inc/options/general.php:952
-#: inc/options/general.php:977
+#: inc/options/common/top_nav_bar.php:68
+#: inc/options/general.php:968
+#: inc/options/general.php:993
 #: Util_PageUrls.php:958
-#: Util_Ui.php:1664
+#: Util_Ui.php:1666
 msgid "WebP Converter"
 msgstr ""
 
@@ -5039,7 +5074,7 @@ msgid "API Use Limits"
 msgstr ""
 
 #: Extension_ImageService_Widget_View.php:33
-#: SetupGuide_Plugin_Admin.php:1358
+#: SetupGuide_Plugin_Admin.php:1362
 msgid "Enable WebP Converter"
 msgstr ""
 
@@ -5049,7 +5084,7 @@ msgstr ""
 #: inc/options/common/top_nav_bar.php:24
 #: inc/options/general.php:98
 #: PageSpeed_Instructions.php:201
-#: PageSpeed_Instructions.php:566
+#: PageSpeed_Instructions.php:554
 #: PgCache_ConfigLabels.php:9
 #: PgCache_Plugin.php:315
 #: PgCache_Plugin.php:323
@@ -5058,10 +5093,10 @@ msgstr ""
 #: Root_AdminMenu.php:61
 #: Root_AdminMenu.php:62
 #: SetupGuide_Plugin_Admin.php:1124
-#: SetupGuide_Plugin_Admin.php:1195
+#: SetupGuide_Plugin_Admin.php:1199
 #: UsageStatistics_Page_View.php:28
 #: Util_PageUrls.php:895
-#: Util_Ui.php:1604
+#: Util_Ui.php:1606
 msgid "Page Cache"
 msgstr ""
 
@@ -5076,14 +5111,14 @@ msgstr ""
 #: Minify_ConfigLabels.php:9
 #: PageSpeed_Instructions.php:78
 #: PageSpeed_Instructions.php:95
-#: PageSpeed_Instructions.php:283
-#: PageSpeed_Instructions.php:364
-#: PageSpeed_Instructions.php:565
+#: PageSpeed_Instructions.php:271
+#: PageSpeed_Instructions.php:352
+#: PageSpeed_Instructions.php:553
 #: Root_AdminMenu.php:67
 #: Root_AdminMenu.php:68
 #: UsageStatistics_Page_View.php:214
 #: Util_PageUrls.php:900
-#: Util_Ui.php:1608
+#: Util_Ui.php:1610
 msgid "Minify"
 msgstr ""
 
@@ -5188,7 +5223,7 @@ msgstr ""
 
 #: Extension_NewRelic_Page_View_Apm.php:188
 #: Extension_Swarmify_Page_View.php:39
-#: Util_Ui.php:2002
+#: Util_Ui.php:2004
 msgid "Behavior Settings"
 msgstr ""
 
@@ -5220,7 +5255,7 @@ msgstr ""
 #: Extension_NewRelic_Page_View_Apm.php:314
 #: inc/options/install.php:310
 #: inc/options/parts/memcached.php:47
-#: Util_Ui.php:1934
+#: Util_Ui.php:1936
 msgid "Hypertext Preprocessor"
 msgstr ""
 
@@ -5464,19 +5499,19 @@ msgstr ""
 msgid "W3 Total Cache's Page caching cannot work effectively when WPML Language URL format is \"Language name added as a parameter\" used. Please consider another URL format. Visit the WPML -&gt; Languages settings. %s"
 msgstr ""
 
-#: Extension_Wpml_Plugin_Admin.php:50
-msgid "Improves page caching interoperability with WPML."
+#: Extension_Wpml_Plugin_Admin.php:52
+msgid "Improves page caching interoperability with WPML and TranslatePress."
 msgstr ""
 
-#: Extension_Wpml_Plugin_Admin.php:56
+#: Extension_Wpml_Plugin_Admin.php:57
 msgid "Improve the caching performance of websites localized by WPML."
 msgstr ""
 
-#: Extension_Wpml_Plugin_Admin.php:58
+#: Extension_Wpml_Plugin_Admin.php:59
 msgid "Localization is a type of personalization that makes websites more difficult to scale. This extension reduces the response time of websites localized by WPML."
 msgstr ""
 
-#: Extension_Wpml_Plugin_Admin.php:121
+#: Extension_Wpml_Plugin_Admin.php:129
 msgid "Activating the <a href=\"%s\">WPML</a> extension for W3 Total Cache may be helpful for your site. %s%s"
 msgstr ""
 
@@ -5537,15 +5572,15 @@ msgstr ""
 #: FeatureShowcase_Plugin_Admin.php:260
 #: inc/options/common/footer.php:88
 #: inc/options/common/footer.php:89
-#: PageSpeed_Instructions.php:569
-#: UserExperience_GeneralPage_View.php:169
+#: PageSpeed_Instructions.php:557
+#: UserExperience_GeneralPage_View.php:175
 #: UserExperience_Preload_Requests_Page_View.php:19
-#: Util_Ui.php:1904
+#: Util_Ui.php:1906
 msgid "Preload Requests"
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:262
-#: UserExperience_GeneralPage_View.php:170
+#: UserExperience_GeneralPage_View.php:176
 msgid "DNS prefetching, pre-connecting, and preloading are essential web optimization techniques that enhance website performance by proactively resolving network-related tasks."
 msgstr ""
 
@@ -5553,13 +5588,13 @@ msgstr ""
 #: inc/options/common/footer.php:85
 #: inc/options/common/footer.php:86
 #: UserExperience_DeferScripts_Page_View.php:27
-#: UserExperience_GeneralPage_View.php:91
-#: Util_Ui.php:1895
+#: UserExperience_GeneralPage_View.php:97
+#: Util_Ui.php:1897
 msgid "Delay Scripts"
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:278
-#: UserExperience_GeneralPage_View.php:92
+#: UserExperience_GeneralPage_View.php:98
 msgid "Delay the loading of specified internal/external JavaScript sources on your pages separate from Minify."
 msgstr ""
 
@@ -5664,7 +5699,7 @@ msgid "Reduce load time by decreasing the size and number of CSS and JS files."
 msgstr ""
 
 #: FeatureShowcase_Plugin_Admin.php:451
-#: SetupGuide_Plugin_Admin.php:1370
+#: SetupGuide_Plugin_Admin.php:1374
 #: UserExperience_GeneralPage_View.php:41
 msgid "Lazy Load Images"
 msgstr ""
@@ -5686,7 +5721,7 @@ msgstr ""
 #: SystemOpCache_GeneralPage_View.php:9
 #: SystemOpCache_GeneralPage_View.php:29
 #: SystemOpCache_Plugin_Admin.php:55
-#: Util_Ui.php:1612
+#: Util_Ui.php:1614
 msgid "Opcode Cache"
 msgstr ""
 
@@ -5701,21 +5736,21 @@ msgstr ""
 #: FeatureShowcase_Plugin_Admin.php:499
 #: Generic_WidgetSettings_View.php:39
 #: inc/options/common/top_nav_bar.php:36
-#: inc/options/general.php:347
+#: inc/options/general.php:356
 #: ObjectCache_ConfigLabels.php:9
-#: ObjectCache_Plugin.php:251
-#: ObjectCache_Plugin.php:311
-#: ObjectCache_Plugin.php:319
-#: ObjectCache_Plugin.php:328
+#: ObjectCache_Plugin.php:125
+#: ObjectCache_Plugin.php:185
+#: ObjectCache_Plugin.php:193
+#: ObjectCache_Plugin.php:202
 #: Root_AdminMenu.php:79
 #: Root_AdminMenu.php:80
 #: SetupGuide_Plugin_Admin.php:1132
-#: SetupGuide_Plugin_Admin.php:1272
-#: SetupGuide_Plugin_Admin.php:1286
+#: SetupGuide_Plugin_Admin.php:1276
+#: SetupGuide_Plugin_Admin.php:1290
 #: UsageStatistics_Page_View.php:250
 #: UsageStatistics_Page_View.php:255
 #: Util_PageUrls.php:910
-#: Util_Ui.php:1620
+#: Util_Ui.php:1622
 msgid "Object Cache"
 msgstr ""
 
@@ -5772,7 +5807,7 @@ msgstr ""
 msgid "You do not have the rights to perform this action."
 msgstr ""
 
-#: Generic_AdminActions_Default.php:597
+#: Generic_AdminActions_Default.php:601
 msgid "Added by W3 Total Cache"
 msgstr ""
 
@@ -5852,7 +5887,7 @@ msgid "One or more plugins have been activated or deactivated, please %1$s. %2$s
 msgstr ""
 
 #: Generic_AdminNotes.php:259
-#: PageSpeed_Instructions.php:258
+#: PageSpeed_Instructions.php:246
 msgid " and "
 msgstr ""
 
@@ -5903,8 +5938,8 @@ msgid "Topic <acronym title=\"Identification\">ID</acronym>:"
 msgstr ""
 
 #: Generic_ConfigLabels.php:12
-#: inc/options/general.php:502
-#: Util_Ui.php:1581
+#: inc/options/general.php:518
+#: Util_Ui.php:1583
 msgid "Message Bus"
 msgstr ""
 
@@ -5951,8 +5986,8 @@ msgstr ""
 
 #: Generic_ConfigLabels.php:26
 #: Generic_WidgetSettings_View.php:51
-#: inc/options/general.php:448
-#: Util_Ui.php:1647
+#: inc/options/general.php:464
+#: Util_Ui.php:1649
 msgid "Reverse Proxy"
 msgstr ""
 
@@ -6010,7 +6045,7 @@ msgid "Purge Modules"
 msgstr ""
 
 #: Generic_Plugin.php:322
-#: inc/options/common/top_nav_bar.php:90
+#: inc/options/common/top_nav_bar.php:86
 #: Root_AdminMenu.php:49
 #: Root_AdminMenu.php:50
 #: Util_PageUrls.php:889
@@ -6044,7 +6079,7 @@ msgstr ""
 #: Generic_Plugin.php:351
 #: PageSpeed_Instructions.php:81
 #: PageSpeed_Instructions.php:98
-#: PageSpeed_Instructions.php:367
+#: PageSpeed_Instructions.php:355
 #: Root_AdminMenu.php:106
 #: Root_AdminMenu.php:107
 msgid "FAQ"
@@ -6052,8 +6087,8 @@ msgstr ""
 
 #: Generic_Plugin.php:361
 #: inc/options/common/footer.php:62
-#: inc/options/common/top_nav_bar.php:207
-#: inc/options/common/top_nav_bar.php:208
+#: inc/options/common/top_nav_bar.php:212
+#: inc/options/common/top_nav_bar.php:213
 #: Root_AdminMenu.php:113
 #: Root_AdminMenu.php:114
 #: Util_PageUrls.php:935
@@ -6078,9 +6113,9 @@ msgid "Enter the path of the CSS/JS file to be managed. If a directory is used, 
 msgstr ""
 
 #: Generic_Plugin_Admin.php:637
-#: UserExperience_Remove_CssJs_Page_View.php:131
-#: UserExperience_Remove_CssJs_Page_View.php:239
-#: UserExperience_Remove_CssJs_Page_View.php:284
+#: UserExperience_Remove_CssJs_Page_View.php:143
+#: UserExperience_Remove_CssJs_Page_View.php:251
+#: UserExperience_Remove_CssJs_Page_View.php:296
 msgid "View Examples"
 msgstr ""
 
@@ -6089,17 +6124,17 @@ msgid "Hide Examples"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:639
-#: UserExperience_Remove_CssJs_Page_View.php:134
+#: UserExperience_Remove_CssJs_Page_View.php:146
 msgid "Target all CSS/JS from a plugin/theme:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:646
-#: UserExperience_Remove_CssJs_Page_View.php:145
+#: UserExperience_Remove_CssJs_Page_View.php:157
 msgid "Target a specific CSS/JS file:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:653
-#: UserExperience_Remove_CssJs_Page_View.php:308
+#: UserExperience_Remove_CssJs_Page_View.php:320
 msgid "No CSS/JS entries added."
 msgstr ""
 
@@ -6112,7 +6147,7 @@ msgid "Target CSS/JS:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:657
-#: UserExperience_Remove_CssJs_Page_View.php:163
+#: UserExperience_Remove_CssJs_Page_View.php:175
 msgid "Action:"
 msgstr ""
 
@@ -6133,17 +6168,17 @@ msgid "(Allow the script ONLY WHEN a condition below matches)"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:662
-#: UserExperience_Remove_CssJs_Page_View.php:168
+#: UserExperience_Remove_CssJs_Page_View.php:180
 msgid "When the above CSS/JS file is found within your markup."
 msgstr ""
 
 #: Generic_Plugin_Admin.php:663
-#: UserExperience_Remove_CssJs_Page_View.php:215
+#: UserExperience_Remove_CssJs_Page_View.php:227
 msgid "Exclude on URL Match:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:664
-#: UserExperience_Remove_CssJs_Page_View.php:215
+#: UserExperience_Remove_CssJs_Page_View.php:227
 msgid "Include on URL Match:"
 msgstr ""
 
@@ -6156,12 +6191,12 @@ msgid "Specify the conditions for which the target file should be included based
 msgstr ""
 
 #: Generic_Plugin_Admin.php:673
-#: UserExperience_Remove_CssJs_Page_View.php:260
+#: UserExperience_Remove_CssJs_Page_View.php:272
 msgid "Exclude on Content Match:"
 msgstr ""
 
 #: Generic_Plugin_Admin.php:674
-#: UserExperience_Remove_CssJs_Page_View.php:260
+#: UserExperience_Remove_CssJs_Page_View.php:272
 msgid "Include on Content Match:"
 msgstr ""
 
@@ -6502,15 +6537,15 @@ msgstr ""
 msgid "Request professional %1$ssupport%2$s or troubleshoot issues using the common questions below:"
 msgstr ""
 
-#: Generic_WidgetAccount_View.php:22
+#: Generic_WidgetAccount_View.php:25
 msgid "Pro"
 msgstr ""
 
-#: Generic_WidgetAccount_View.php:22
+#: Generic_WidgetAccount_View.php:26
 msgid "Free"
 msgstr ""
 
-#: Generic_WidgetAccount_View.php:25
+#: Generic_WidgetAccount_View.php:31
 #: inc/popup/cdn_export_file.php:38
 #: inc/popup/cdn_export_library.php:28
 #: inc/popup/cdn_import_library.php:29
@@ -6518,30 +6553,30 @@ msgstr ""
 msgid "Status:"
 msgstr ""
 
-#: Generic_WidgetAccount_View.php:31
+#: Generic_WidgetAccount_View.php:38
 #: lib/NetDNA/NetDNAPresentation.php:66
 msgid "Active"
 msgstr ""
 
-#: Generic_WidgetAccount_View.php:34
+#: Generic_WidgetAccount_View.php:41
 msgid "Expired"
 msgstr ""
 
-#: Generic_WidgetAccount_View.php:37
-#: Generic_WidgetAccount_View.php:43
+#: Generic_WidgetAccount_View.php:44
+#: Generic_WidgetAccount_View.php:50
 msgid "Free license, no expiration"
 msgstr ""
 
-#: Generic_WidgetAccount_View.php:50
+#: Generic_WidgetAccount_View.php:57
 msgid "Renewal Date:"
 msgstr ""
 
 #. Translators: 1 opening HTML strong tag, 2 closing HTML strong tag.
-#: Generic_WidgetAccount_View.php:63
+#: Generic_WidgetAccount_View.php:70
 msgid "Upgrade to %1$sW3 Total Cache Pro%2$s now to unlock additional settings and features that can further improve your site's performance and Google PageSpeed ratings."
 msgstr ""
 
-#: Generic_WidgetAccount_View.php:72
+#: Generic_WidgetAccount_View.php:79
 #: inc/options/parts/dashboard_banner.php:57
 msgid "Learn more about Pro"
 msgstr ""
@@ -6631,8 +6666,8 @@ msgid "Preview Mode"
 msgstr ""
 
 #: Generic_WidgetSettings_View.php:63
-#: inc/options/general.php:837
-#: Util_Ui.php:1660
+#: inc/options/general.php:853
+#: Util_Ui.php:1662
 msgid "Debug"
 msgstr ""
 
@@ -7248,34 +7283,34 @@ msgstr ""
 #: inc/options/browsercache.php:426
 #: inc/options/browsercache.php:437
 #: inc/options/browsercache.php:444
-#: inc/options/browsercache.php:469
-#: inc/options/browsercache.php:476
-#: inc/options/browsercache.php:483
-#: inc/options/browsercache.php:490
-#: inc/options/browsercache.php:497
-#: inc/options/browsercache.php:504
-#: inc/options/browsercache.php:530
-#: inc/options/browsercache.php:569
-#: inc/options/browsercache.php:576
-#: inc/options/browsercache.php:583
-#: inc/options/browsercache.php:610
-#: inc/options/browsercache.php:617
-#: inc/options/browsercache.php:641
-#: inc/options/browsercache.php:648
-#: inc/options/browsercache.php:655
-#: inc/options/browsercache.php:662
-#: inc/options/browsercache.php:675
-#: inc/options/browsercache.php:682
-#: inc/options/browsercache.php:689
-#: inc/options/browsercache.php:700
-#: inc/options/browsercache.php:707
-#: inc/options/browsercache.php:732
-#: inc/options/browsercache.php:739
-#: inc/options/browsercache.php:746
-#: inc/options/browsercache.php:753
-#: inc/options/browsercache.php:760
-#: inc/options/browsercache.php:767
-#: inc/options/browsercache.php:793
+#: inc/options/browsercache.php:470
+#: inc/options/browsercache.php:477
+#: inc/options/browsercache.php:484
+#: inc/options/browsercache.php:491
+#: inc/options/browsercache.php:498
+#: inc/options/browsercache.php:505
+#: inc/options/browsercache.php:531
+#: inc/options/browsercache.php:570
+#: inc/options/browsercache.php:577
+#: inc/options/browsercache.php:584
+#: inc/options/browsercache.php:611
+#: inc/options/browsercache.php:618
+#: inc/options/browsercache.php:643
+#: inc/options/browsercache.php:650
+#: inc/options/browsercache.php:657
+#: inc/options/browsercache.php:664
+#: inc/options/browsercache.php:677
+#: inc/options/browsercache.php:684
+#: inc/options/browsercache.php:691
+#: inc/options/browsercache.php:702
+#: inc/options/browsercache.php:709
+#: inc/options/browsercache.php:735
+#: inc/options/browsercache.php:742
+#: inc/options/browsercache.php:749
+#: inc/options/browsercache.php:756
+#: inc/options/browsercache.php:763
+#: inc/options/browsercache.php:770
+#: inc/options/browsercache.php:796
 #: inc/options/general.php:225
 #: inc/options/general.php:244
 #: inc/options/general.php:253
@@ -7294,36 +7329,36 @@ msgstr ""
 
 #: inc/options/browsercache.php:92
 #: inc/options/browsercache.php:413
-#: inc/options/browsercache.php:570
-#: inc/options/browsercache.php:676
+#: inc/options/browsercache.php:571
+#: inc/options/browsercache.php:678
 msgid "Set the Last-Modified header to enable 304 Not Modified response."
 msgstr ""
 
 #: inc/options/browsercache.php:103
 #: inc/options/browsercache.php:420
-#: inc/options/browsercache.php:577
-#: inc/options/browsercache.php:683
+#: inc/options/browsercache.php:578
+#: inc/options/browsercache.php:685
 msgid "Set the expires header to encourage browser caching of files."
 msgstr ""
 
 #: inc/options/browsercache.php:112
 #: inc/options/browsercache.php:438
-#: inc/options/browsercache.php:611
-#: inc/options/browsercache.php:701
+#: inc/options/browsercache.php:612
+#: inc/options/browsercache.php:703
 msgid "Set pragma and cache-control headers to encourage browser caching of files."
 msgstr ""
 
 #: inc/options/browsercache.php:122
-#: inc/options/browsercache.php:470
-#: inc/options/browsercache.php:642
-#: inc/options/browsercache.php:733
+#: inc/options/browsercache.php:471
+#: inc/options/browsercache.php:644
+#: inc/options/browsercache.php:736
 msgid "Set the ETag header to encourage browser caching of files."
 msgstr ""
 
 #: inc/options/browsercache.php:131
-#: inc/options/browsercache.php:477
-#: inc/options/browsercache.php:649
-#: inc/options/browsercache.php:740
+#: inc/options/browsercache.php:478
+#: inc/options/browsercache.php:651
+#: inc/options/browsercache.php:743
 msgid "Set this header to assist in identifying optimized files."
 msgstr ""
 
@@ -7334,12 +7369,12 @@ msgstr ""
 
 #: inc/options/browsercache.php:159
 #: inc/options/browsercache.php:188
-#: inc/options/browsercache.php:484
-#: inc/options/browsercache.php:491
-#: inc/options/browsercache.php:656
-#: inc/options/browsercache.php:663
-#: inc/options/browsercache.php:747
-#: inc/options/browsercache.php:754
+#: inc/options/browsercache.php:485
+#: inc/options/browsercache.php:492
+#: inc/options/browsercache.php:658
+#: inc/options/browsercache.php:665
+#: inc/options/browsercache.php:750
+#: inc/options/browsercache.php:757
 msgid "Reduce the download time for text-based files."
 msgstr ""
 
@@ -7349,21 +7384,21 @@ msgid "Enable %1$sHTTP%2$s (brotli) compression"
 msgstr ""
 
 #: inc/options/browsercache.php:198
-#: inc/options/browsercache.php:498
-#: inc/options/browsercache.php:761
+#: inc/options/browsercache.php:499
+#: inc/options/browsercache.php:764
 msgid "Whenever settings are changed, a new query string will be generated and appended to objects allowing the new policy to be applied."
 msgstr ""
 
 #: inc/options/browsercache.php:205
-#: inc/options/browsercache.php:503
-#: inc/options/browsercache.php:766
+#: inc/options/browsercache.php:504
+#: inc/options/browsercache.php:769
 msgid "Remove query strings from static resources"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: inc/options/browsercache.php:213
-#: inc/options/browsercache.php:510
-#: inc/options/browsercache.php:773
+#: inc/options/browsercache.php:511
+#: inc/options/browsercache.php:776
 msgid "Resources with a \"?\" in the %1$sURL%2$s are not cached by some proxy caching servers."
 msgstr ""
 
@@ -7377,8 +7412,8 @@ msgid "Don't set cookies for static files"
 msgstr ""
 
 #: inc/options/browsercache.php:271
-#: inc/options/browsercache.php:531
-#: inc/options/browsercache.php:794
+#: inc/options/browsercache.php:532
+#: inc/options/browsercache.php:797
 msgid "Removes Set-Cookie header for responses."
 msgstr ""
 
@@ -7412,7 +7447,7 @@ msgstr ""
 
 #. translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
 #: inc/options/browsercache.php:387
-#: Util_Ui.php:1813
+#: Util_Ui.php:1815
 msgid "%1$sCSS%2$s &amp; %3$sJS%4$s"
 msgstr ""
 
@@ -7421,69 +7456,72 @@ msgid "Specify browser cache policy for Cascading Style Sheets and JavaScript fi
 msgstr ""
 
 #: inc/options/browsercache.php:455
-#: inc/options/browsercache.php:627
-#: inc/options/browsercache.php:718
+#: inc/options/browsercache.php:628
+#: inc/options/browsercache.php:720
 msgid "cache with max-age (\"public, max-age=EXPIRES_SECONDS\")"
 msgstr ""
 
 #: inc/options/browsercache.php:456
-#: inc/options/browsercache.php:628
-#: inc/options/browsercache.php:719
+#: inc/options/browsercache.php:629
+#: inc/options/browsercache.php:721
 msgid "cache with validation (\"public, must-revalidate, proxy-revalidate\")"
 msgstr ""
 
 #: inc/options/browsercache.php:457
-#: inc/options/browsercache.php:629
-#: inc/options/browsercache.php:720
+#: inc/options/browsercache.php:630
+#: inc/options/browsercache.php:722
 msgid "cache with max-age and validation (\"max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate\")"
 msgstr ""
 
 #: inc/options/browsercache.php:458
-#: inc/options/browsercache.php:630
-#: inc/options/browsercache.php:721
+#: inc/options/browsercache.php:631
+#: inc/options/browsercache.php:723
 msgid "cache without proxy (\"private, must-revalidate\")"
 msgstr ""
 
 #: inc/options/browsercache.php:459
-msgid "don't cache (\"max-age=0, private, no-store, no-cache, must-revalidate\")"
+#: inc/options/browsercache.php:632
+#: inc/options/browsercache.php:724
+msgid "don't cache (\"private, no-cache\")"
 msgstr ""
 
-#: inc/options/browsercache.php:462
-#: inc/options/browsercache.php:634
+#: inc/options/browsercache.php:460
+#: inc/options/browsercache.php:633
 #: inc/options/browsercache.php:725
+msgid "don't store (\"no-store\")"
+msgstr ""
+
+#: inc/options/browsercache.php:463
+#: inc/options/browsercache.php:636
+#: inc/options/browsercache.php:728
 msgid "The Expires header already sets the max-age."
 msgstr ""
 
 #. translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/browsercache.php:544
+#: inc/options/browsercache.php:545
 #: inc/options/minify.php:143
-#: Util_Ui.php:1723
-#: Util_Ui.php:1836
+#: Util_Ui.php:1725
+#: Util_Ui.php:1838
 msgid "%1$sHTML%2$s &amp; %3$sXML%4$s"
 msgstr ""
 
-#: inc/options/browsercache.php:550
+#: inc/options/browsercache.php:551
 #: inc/options/pgcache.php:70
 #: inc/options/pgcache.php:260
 msgid "Extensible Markup Language"
 msgstr ""
 
-#: inc/options/browsercache.php:563
+#: inc/options/browsercache.php:564
 msgid "Specify browser cache policy for posts, pages, feeds and text-based files."
 msgstr ""
 
 #. translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
-#: inc/options/browsercache.php:595
+#: inc/options/browsercache.php:596
 #: inc/options/pgcache.php:586
 msgid "Max lifetime is limited by the %1$s constant (%2$s seconds) which can be overridden in wp-config.php."
 msgstr ""
 
-#: inc/options/browsercache.php:631
-#: inc/options/browsercache.php:722
-msgid "no-cache (\"max-age=0, private, no-store, no-cache, must-revalidate\")"
-msgstr ""
-
-#: inc/options/browsercache.php:670
+#: inc/options/browsercache.php:672
 msgid "Media &amp; Other Files"
 msgstr ""
 
@@ -7537,7 +7575,7 @@ msgstr ""
 #: inc/options/cdn.php:198
 #: inc/options/cdn.php:502
 #: inc/popup/cdn_purge.php:75
-#: Util_Ui.php:1880
+#: Util_Ui.php:1882
 msgid "Purge"
 msgstr ""
 
@@ -7668,7 +7706,7 @@ msgstr ""
 #: inc/options/pgcache.php:772
 #: PageSpeed_Instructions.php:81
 #: PageSpeed_Instructions.php:98
-#: PageSpeed_Instructions.php:367
+#: PageSpeed_Instructions.php:355
 msgid "Frequently Asked Questions"
 msgstr ""
 
@@ -7785,6 +7823,7 @@ msgid "Token:"
 msgstr ""
 
 #: inc/options/cdn/azure.php:9
+#: inc/options/cdn/azuremi.php:54
 msgid "Account name:"
 msgstr ""
 
@@ -7793,17 +7832,24 @@ msgid "Account key:"
 msgstr ""
 
 #: inc/options/cdn/azure.php:27
+#: inc/options/cdn/azuremi.php:72
 #: inc/options/cdn/rscf.php:61
 msgid "Create container"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: inc/options/cdn/azure.php:99
+#: inc/options/cdn/azuremi.php:145
 msgid " or %1$sCNAME%2$s:"
 msgstr ""
 
 #: inc/options/cdn/azure.php:120
+#: inc/options/cdn/azuremi.php:166
 msgid "Test Microsoft Azure Storage upload"
+msgstr ""
+
+#: inc/options/cdn/azuremi.php:61
+msgid "Entra client ID:"
 msgstr ""
 
 #. translators: 9 closing HTML acronym tag, 10 closing HTML a tag.
@@ -7886,26 +7932,26 @@ msgid "Test CloudFront distribution"
 msgstr ""
 
 #: inc/options/cdn/common/cnames-readonly.php:18
-#: inc/options/cdn/common/cnames.php:33
+#: inc/options/cdn/common/cnames.php:38
 msgid "(reserved for CSS)"
 msgstr ""
 
 #: inc/options/cdn/common/cnames-readonly.php:20
-#: inc/options/cdn/common/cnames.php:37
+#: inc/options/cdn/common/cnames.php:42
 msgid "(reserved for JS in <head>)"
 msgstr ""
 
 #: inc/options/cdn/common/cnames-readonly.php:22
-#: inc/options/cdn/common/cnames.php:41
+#: inc/options/cdn/common/cnames.php:46
 msgid "(reserved for JS after <body>)"
 msgstr ""
 
 #: inc/options/cdn/common/cnames-readonly.php:24
-#: inc/options/cdn/common/cnames.php:45
+#: inc/options/cdn/common/cnames.php:50
 msgid "(reserved for JS before </body>)"
 msgstr ""
 
-#: inc/options/cdn/common/cnames.php:66
+#: inc/options/cdn/common/cnames.php:71
 msgid "Add CNAME"
 msgstr ""
 
@@ -8050,7 +8096,7 @@ msgstr ""
 
 #. translators: 1 opening HTML span tag, 2 opening HTML sup tag, 3 closing HTML sup tag, 4 closing HTML span tag.
 #: inc/options/common/footer.php:30
-#: inc/options/common/top_nav_bar.php:120
+#: inc/options/common/top_nav_bar.php:125
 msgid "W3 Total Cache %1$sby W3 EDGE %2$s&reg;%3$s%4$s"
 msgstr ""
 
@@ -8114,7 +8160,7 @@ msgstr ""
 msgid "Partners"
 msgstr ""
 
-#: inc/options/common/top_nav_bar.php:56
+#: inc/options/common/top_nav_bar.php:52
 #: UserExperience_GeneralPage_View.php:18
 #: UserExperience_Plugin_Admin.php:35
 #: UserExperience_Plugin_Admin.php:36
@@ -8122,17 +8168,17 @@ msgstr ""
 msgid "User Experience"
 msgstr ""
 
-#: inc/options/common/top_nav_bar.php:76
-#: inc/options/general.php:1044
+#: inc/options/common/top_nav_bar.php:72
+#: inc/options/general.php:1060
 #: PageSpeed_Page_View.php:23
 #: Root_AdminMenu.php:119
 #: Root_AdminMenu.php:120
 #: Util_PageUrls.php:938
-#: Util_Ui.php:1668
+#: Util_Ui.php:1670
 msgid "Google PageSpeed"
 msgstr ""
 
-#: inc/options/common/top_nav_bar.php:80
+#: inc/options/common/top_nav_bar.php:76
 #: Root_AdminMenu.php:131
 #: Root_AdminMenu.php:132
 #: SetupGuide_Plugin_Admin.php:931
@@ -8140,39 +8186,39 @@ msgstr ""
 msgid "Setup Guide"
 msgstr ""
 
-#: inc/options/common/top_nav_bar.php:86
+#: inc/options/common/top_nav_bar.php:82
 #: Root_AdminMenu.php:137
 #: Root_AdminMenu.php:138
 #: Util_PageUrls.php:968
 msgid "About"
 msgstr ""
 
-#: inc/options/common/top_nav_bar.php:94
+#: inc/options/common/top_nav_bar.php:90
 #: Root_AdminMenu.php:125
 #: Root_AdminMenu.php:126
 #: Util_PageUrls.php:946
 msgid "Install"
 msgstr ""
 
-#: inc/options/common/top_nav_bar.php:98
+#: inc/options/common/top_nav_bar.php:94
 msgid "Compatibility Test"
 msgstr ""
 
-#: inc/options/common/top_nav_bar.php:138
-#: inc/options/common/top_nav_bar.php:139
+#: inc/options/common/top_nav_bar.php:143
+#: inc/options/common/top_nav_bar.php:144
 #: Root_AdminMenu.php:43
 #: Root_AdminMenu.php:44
 #: Util_PageUrls.php:886
-#: Util_Ui.php:1962
+#: Util_Ui.php:1964
 msgid "Dashboard"
 msgstr ""
 
-#: inc/options/common/top_nav_bar.php:186
-#: inc/options/common/top_nav_bar.php:187
+#: inc/options/common/top_nav_bar.php:191
+#: inc/options/common/top_nav_bar.php:192
 msgid "Info"
 msgstr ""
 
-#: inc/options/common/top_nav_bar.php:213
+#: inc/options/common/top_nav_bar.php:218
 #: Licensing_Plugin_Admin.php:58
 msgid "Upgrade"
 msgstr ""
@@ -8223,8 +8269,8 @@ msgid "Please enter the license key you received after successful checkout %1$s.
 msgstr ""
 
 #: inc/options/edd/buy.php:46
-#: PageSpeed_Instructions.php:269
-#: PageSpeed_Instructions.php:491
+#: PageSpeed_Instructions.php:257
+#: PageSpeed_Instructions.php:479
 #: PageSpeed_Page.php:113
 #: PageSpeed_Widget.php:104
 #: PageSpeed_Widget.php:152
@@ -8346,28 +8392,28 @@ msgstr ""
 
 #: inc/options/general.php:135
 #: SystemOpCache_GeneralPage_View.php:43
-#: Util_Ui.php:1265
+#: Util_Ui.php:1267
 msgid "Opcode: Alternative PHP Cache (APC / APCu)"
 msgstr ""
 
 #: inc/options/general.php:140
-#: Util_Ui.php:1270
+#: Util_Ui.php:1272
 msgid "Opcode: eAccelerator"
 msgstr ""
 
 #: inc/options/general.php:145
-#: Util_Ui.php:1275
+#: Util_Ui.php:1277
 msgid "Opcode: XCache"
 msgstr ""
 
 #: inc/options/general.php:150
-#: Util_Ui.php:1280
+#: Util_Ui.php:1282
 msgid "Opcode: WinCache"
 msgstr ""
 
 #: inc/options/general.php:155
 #: UsageStatistics_Page_View.php:405
-#: Util_Ui.php:1285
+#: Util_Ui.php:1287
 msgid "Memcached"
 msgstr ""
 
@@ -8381,7 +8427,7 @@ msgstr ""
 
 #: inc/options/general.php:165
 #: UsageStatistics_Page_View.php:434
-#: Util_Ui.php:1290
+#: Util_Ui.php:1292
 msgid "Redis"
 msgstr ""
 
@@ -8390,12 +8436,12 @@ msgid "Shared Server (disk enhanced is best):"
 msgstr ""
 
 #: inc/options/general.php:171
-#: Util_Ui.php:1302
+#: Util_Ui.php:1304
 msgid "Dedicated / Virtual Server:"
 msgstr ""
 
 #: inc/options/general.php:172
-#: Util_Ui.php:1303
+#: Util_Ui.php:1305
 msgid "Multiple Servers:"
 msgstr ""
 
@@ -8482,346 +8528,356 @@ msgstr ""
 msgid "Caching database objects decreases the response time of your site. Best used if object caching is not possible."
 msgstr ""
 
-#: inc/options/general.php:348
-msgid "Enable this option to utilize an object cache mechanism, which significantly enhances the performance of your WordPress website. Object caching stores frequently accessed database queries and complex data structures in memory, reducing the need to retrieve them from the database repeatedly. By doing so, it minimizes the processing time required to generate dynamic content, resulting in faster page loading times and improved overall site speed. Enabling object cache is particularly beneficial for websites with heavy database usage or high traffic volumes, as it helps alleviate the strain on the server by efficiently serving cached data."
+#: inc/options/general.php:338
+msgid "Warning: Disk-Based Database Caching Selected"
+msgstr ""
+
+#: inc/options/general.php:339
+msgid "Using disk as the cache engine for database caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached."
+msgstr ""
+
+#: inc/options/general.php:340
+#: inc/options/general.php:407
+msgid "Comparing Disk, Redis, and Memcached: Understanding Caching Solutions"
 msgstr ""
 
 #: inc/options/general.php:357
-#: SetupGuide_Plugin_Admin.php:1282
+msgid "Enable this option to utilize an object cache mechanism, which significantly enhances the performance of your WordPress website. Object caching stores frequently accessed database queries and complex data structures in memory, reducing the need to retrieve them from the database repeatedly. By doing so, it minimizes the processing time required to generate dynamic content, resulting in faster page loading times and improved overall site speed. Enabling object cache is particularly beneficial for websites with heavy database usage or high traffic volumes, as it helps alleviate the strain on the server by efficiently serving cached data."
+msgstr ""
+
+#: inc/options/general.php:366
+#: SetupGuide_Plugin_Admin.php:1286
 msgid "Object Cache is disabled via filter."
 msgstr ""
 
 #. translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
-#: inc/options/general.php:370
+#: inc/options/general.php:379
 msgid "Object caching greatly increases performance for highly dynamic sites that use the %1$sObject Cache %2$sAPI%3$s%4$s."
 msgstr ""
 
-#: inc/options/general.php:403
+#: inc/options/general.php:405
+msgid "Warning: Disk-Based Object Caching Selected"
+msgstr ""
+
+#: inc/options/general.php:406
+msgid "Using disk as the cache engine for object caching is not recommended due to its potential for slow performance depending on storage device types and server configuration. For optimal performance, consider using a memory-based caching solution like Redis or Memcached."
+msgstr ""
+
+#: inc/options/general.php:419
 msgid "Enabling browser caching will instruct visitors' web browsers to store static files from your WordPress website, such as images, CSS, and JavaScript files, locally on their devices. By doing so, subsequent visits to your site will retrieve these cached files from the browser's storage, reducing the need for repeated downloads. This results in faster page loading times and a smoother browsing experience for your visitors, ultimately improving the overall speed and performance of your WordPress website."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:424
+#: inc/options/general.php:440
 msgid "Enable %1$sHTTP%2$s compression and add headers to reduce server load and decrease file load time."
 msgstr ""
 
-#: inc/options/general.php:449
+#: inc/options/general.php:465
 msgid "A reverse proxy is a server that sits between a client and a web server, acting as an intermediary for requests. It retrieves resources on behalf of the client from the server, and then returns the response to the client. By utilizing a reverse proxy, such as Varnish or Nginx, in conjunction with W3 Total Cache, you can significantly enhance the performance of your WordPress website by caching and serving static content directly from the reverse proxy server, reducing the load on your WordPress server and improving response times for visitors."
 msgstr ""
 
 #. translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-#: inc/options/general.php:476
+#: inc/options/general.php:492
 msgid "Specify the IP addresses of your varnish instances above. The %1$sVCL%2$s's %3$sACL%4$s must allow this request."
 msgstr ""
 
-#: inc/options/general.php:480
+#: inc/options/general.php:496
 msgid "Varnish Configuration Language"
 msgstr ""
 
-#: inc/options/general.php:482
+#: inc/options/general.php:498
 msgid "Access Control List"
 msgstr ""
 
-#: inc/options/general.php:503
+#: inc/options/general.php:519
 msgid "Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then synchronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:531
+#: inc/options/general.php:547
 msgid "Specify the Amazon %1$sSNS%2$s service endpoint hostname. If empty, then default \"sns.us-east-1.amazonaws.com\" will be used."
 msgstr ""
 
-#: inc/options/general.php:535
-#: inc/options/general.php:622
+#: inc/options/general.php:551
+#: inc/options/general.php:638
 msgid "Simple Notification Service"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:560
+#: inc/options/general.php:576
 msgid "Specify the %1$sAPI%2$s Key."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:589
+#: inc/options/general.php:605
 msgid "Specify the %1$sAPI%2$s secret."
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:618
+#: inc/options/general.php:634
 msgid "Specify the %1$sSNS%2$s topic."
 msgstr ""
 
-#: inc/options/general.php:649
-#: Util_Ui.php:1591
+#: inc/options/general.php:665
+#: Util_Ui.php:1593
 msgid "Licensing"
 msgstr ""
 
-#: inc/options/general.php:650
+#: inc/options/general.php:666
 msgid "The plugin license is a key that unlocks advanced features and support for the W3 Total Cache WordPress plugin. By activating the license, users gain access to enhanced caching mechanisms, optimization tools, enabling them to significantly speed up their WordPress websites and improve overall performance."
 msgstr ""
 
-#: inc/options/general.php:666
+#: inc/options/general.php:682
 msgid "Verify license key"
 msgstr ""
 
 #. translators: 1 HTML a tag to W3TC marketing page.
-#: inc/options/general.php:673
+#: inc/options/general.php:689
 msgid "Please enter the license key provided after %1$s."
 msgstr ""
 
-#: inc/options/general.php:677
+#: inc/options/general.php:693
 msgid "upgrading"
 msgstr ""
 
-#: inc/options/general.php:699
-#: Util_Ui.php:1656
+#: inc/options/general.php:715
+#: Util_Ui.php:1658
 msgid "Miscellaneous"
 msgstr ""
 
-#: inc/options/general.php:700
+#: inc/options/general.php:716
 msgid "Miscellaneous settings provide additional options and configurations to optimize and speed up your WordPress website."
 msgstr ""
 
-#: inc/options/general.php:714
+#: inc/options/general.php:730
 msgid "Only one configuration file for whole network will be created and used. Recommended if all sites have the same configuration."
 msgstr ""
 
-#: inc/options/general.php:723
+#: inc/options/general.php:739
 msgid "If empty the default path will be used.."
 msgstr ""
 
 #. translators: 1 opening HTML a tag to W3TC install admin page.
-#: inc/options/general.php:736
+#: inc/options/general.php:752
 msgid "Notify of server configuration errors, if this option is disabled, the server configuration for active settings can be found on the %1$sinstall%2$s tab."
 msgstr ""
 
-#: inc/options/general.php:756
+#: inc/options/general.php:772
 msgid "Enable file locking"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:762
+#: inc/options/general.php:778
 msgid "Not recommended for %1$sNFS%2$s systems."
 msgstr ""
 
-#: inc/options/general.php:766
-#: inc/options/general.php:792
+#: inc/options/general.php:782
+#: inc/options/general.php:808
 msgid "Network File System"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:788
+#: inc/options/general.php:804
 msgid "Optimize disk enhanced page and Minify disk caching for %1$sNFS%2$s"
 msgstr ""
 
-#: inc/options/general.php:803
+#: inc/options/general.php:819
 msgid "Try this option if your hosting environment uses a network based file system for a possible performance improvement."
 msgstr ""
 
-#: inc/options/general.php:811
+#: inc/options/general.php:827
 msgid "Fix document root path"
 msgstr ""
 
 #. translators: 1: WordPress ABSPATH value, 2: Server document root value.
-#: inc/options/general.php:815
+#: inc/options/general.php:831
 msgid "Fix incorrect server document root path.  Uses the WordPress ABSPATH (\"%1$s\") in place of the current server document root (\"%2$s\")."
 msgstr ""
 
-#: inc/options/general.php:826
+#: inc/options/general.php:842
 msgid "Anonymously track usage to improve product quality"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:841
+#: inc/options/general.php:857
 msgid "Detailed information about each cache will be appended in (publicly available) %1$sHTML%2$s comments in the page's source code. Performance in this mode will not be optimal, use sparingly and disable when not in use."
 msgstr ""
 
-#: inc/options/general.php:861
+#: inc/options/general.php:877
 msgid "Debug mode:"
 msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
-#: inc/options/general.php:882
+#: inc/options/general.php:898
 msgid "If selected, detailed caching information will appear at the end of each page in a %1$sHTML%2$s comment. View a page's source code to review."
 msgstr ""
 
-#: inc/options/general.php:902
+#: inc/options/general.php:918
 msgid "Purge Logs:"
 msgstr ""
 
-#: inc/options/general.php:909
+#: inc/options/general.php:925
 msgid "Page Cache Purge Log"
 msgstr ""
 
-#: inc/options/general.php:910
-#: inc/options/general.php:919
-#: inc/options/general.php:928
+#: inc/options/general.php:926
+#: inc/options/general.php:935
+#: inc/options/general.php:944
 msgid "view log"
 msgstr ""
 
-#: inc/options/general.php:918
+#: inc/options/general.php:934
 msgid "Database Cache Purge Log"
 msgstr ""
 
-#: inc/options/general.php:927
+#: inc/options/general.php:943
 msgid "Object Cache Purge Log"
 msgstr ""
 
-#: inc/options/general.php:935
+#: inc/options/general.php:951
 msgid "Purge Logs provide information on when your cache has been purged and what triggered it."
 msgstr ""
 
-#: inc/options/general.php:937
+#: inc/options/general.php:953
 msgid "Sometimes, you'll encounter a complex issue involving your cache being purged for an unknown reason. The Purge Logs functionality can help you easily resolve those issues."
 msgstr ""
 
-#: inc/options/general.php:953
+#: inc/options/general.php:969
 msgid "The WebP Converter tool can be used to generate WebP versions of media library images which offer superior lossless and lossy compression."
 msgstr ""
 
 #. Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
-#: inc/options/general.php:969
+#: inc/options/general.php:985
 msgid "The tool and its settings can be found on the %1$s %2$sWebP Converter%3$s page."
 msgstr ""
 
-#: inc/options/general.php:979
+#: inc/options/general.php:995
 msgid "Enable WebP Converter Extension"
 msgstr ""
 
 #. translators: 1 HTML line breaks, 2 license rates for free/pro users, 3 link to image service tool.
-#: inc/options/general.php:983
+#: inc/options/general.php:999
 msgid "This extension allows for optimizing media library images to WebP format.%1$s%2$s%1$s%3$s"
 msgstr ""
 
 #. translators: 4 closing HTML a tag.
-#: inc/options/general.php:992
+#: inc/options/general.php:1008
 msgid "As a Pro license holder you are granted conversion rates of %1$s/hour and %2$s/month. Conversion rates are subject to change and documentation can be found %3$shere%4$s."
 msgstr ""
 
-#: inc/options/general.php:998
-#: inc/options/general.php:1013
+#: inc/options/general.php:1014
+#: inc/options/general.php:1029
 msgid "unlimited"
 msgstr ""
 
 #. translators: 5 opening HTML a tag to documentation URL, 6 closing HTML a tag.
-#: inc/options/general.php:1005
+#: inc/options/general.php:1021
 msgid "As a free user you are limited to conversions of %1$s/hour and %2$s/month. The Pro license increases these rates to %3$s/hour and %4$s/month. Conversion rates are subject to change and documentation can be found %5$shere%6$s."
 msgstr ""
 
-#: inc/options/general.php:1045
+#: inc/options/general.php:1061
 msgid "The PageSpeed Tool is a powerful feature that can be used to help optimize and enhance the performance of your WordPress website. By leveraging the insights and recommendations provided by Google's PageSpeed Insights API, this tool analyzes your website's speed and suggests improvements to boost its performance. By implementing the recommended optimizations, such as minimizing CSS and JavaScript, optimizing images, and enabling browser caching, you can significantly accelerate your WordPress site, resulting in faster loading times and an improved user experience."
 msgstr ""
 
-#: inc/options/general.php:1052
+#: inc/options/general.php:1068
 msgid "PageSpeed Tool"
 msgstr ""
 
-#. translators: 1 Request response code, 2 Error message.
-#: inc/options/general.php:1075
-msgid "Response Code: %1$s<br/>Response Message: %2$s"
-msgstr ""
-
-#: inc/options/general.php:1085
-#: inc/options/general.php:1099
-#: inc/options/general.php:1140
-msgid "Google PageSpeed Insights API authorization failed."
-msgstr ""
-
-#: inc/options/general.php:1094
-msgid "Google PageSpeed Insights API authorization successful."
-msgstr ""
-
-#: inc/options/general.php:1103
-msgid "Missing refresh token."
-msgstr ""
-
-#: inc/options/general.php:1113
-msgid "Google PageSpeed Insights API authorization successfully reset."
-msgstr ""
-
-#: inc/options/general.php:1121
+#: inc/options/general.php:1088
 msgid "Unique site ID missing for authorize request!"
 msgstr ""
 
-#: inc/options/general.php:1123
+#: inc/options/general.php:1090
 msgid "Authorize URL missing for authorize request!"
 msgstr ""
 
-#: inc/options/general.php:1125
+#: inc/options/general.php:1092
 msgid "Return URL missing for authorize request!"
 msgstr ""
 
-#: inc/options/general.php:1127
+#: inc/options/general.php:1094
 msgid "Failed to process authorize request!"
 msgstr ""
 
-#: inc/options/general.php:1131
+#: inc/options/general.php:1098
 msgid "No authorize code returned to W3-API from Google!"
 msgstr ""
 
-#: inc/options/general.php:1133
+#: inc/options/general.php:1100
 msgid "No W3Key return to W3-API from Google!"
 msgstr ""
 
-#: inc/options/general.php:1135
+#: inc/options/general.php:1102
 msgid "No W3-API matching record found during Google authorization return processing!"
 msgstr ""
 
-#: inc/options/general.php:1158
+#: inc/options/general.php:1104
+msgid "No Google access token found during Google authorization return processing!"
+msgstr ""
+
+#: inc/options/general.php:1109
+msgid "Google PageSpeed Insights API authorization failed."
+msgstr ""
+
+#: inc/options/general.php:1129
+msgid "Google PageSpeed Insights API authorization successfully reset."
+msgstr ""
+
+#: inc/options/general.php:1142
 msgid "Valid"
 msgstr ""
 
-#: inc/options/general.php:1175
+#: inc/options/general.php:1159
 msgid "Allow W3 Total Cache to connect to the PageSpeed Insights API on your behalf."
 msgstr ""
 
-#: inc/options/general.php:1191
-#: Util_Ui.php:1672
+#: inc/options/general.php:1175
+#: Util_Ui.php:1674
 msgid "Import / Export Settings"
 msgstr ""
 
-#: inc/options/general.php:1192
+#: inc/options/general.php:1176
 msgid "This tool allows users to easily transfer their W3 Total Cache plugin settings between different WordPress installations by exporting the current configuration as a file and importing it on another site, ensuring consistent caching and performance optimizations across multiple websites."
 msgstr ""
 
-#: inc/options/general.php:1212
+#: inc/options/general.php:1196
 msgid "Import configuration:"
 msgstr ""
 
-#: inc/options/general.php:1215
+#: inc/options/general.php:1199
 msgid "Upload"
 msgstr ""
 
-#: inc/options/general.php:1216
+#: inc/options/general.php:1200
 msgid "Upload and replace the active settings file."
 msgstr ""
 
-#: inc/options/general.php:1220
+#: inc/options/general.php:1204
 msgid "Export configuration:"
 msgstr ""
 
-#: inc/options/general.php:1222
+#: inc/options/general.php:1206
 msgid "Download"
 msgstr ""
 
-#: inc/options/general.php:1223
+#: inc/options/general.php:1207
 msgid "Download the active settings file."
 msgstr ""
 
-#: inc/options/general.php:1227
+#: inc/options/general.php:1211
 msgid "Reset configuration:"
 msgstr ""
 
-#: inc/options/general.php:1229
+#: inc/options/general.php:1213
 msgid "Restore Default Settings"
 msgstr ""
 
-#: inc/options/general.php:1230
+#: inc/options/general.php:1214
 msgid "Revert all settings to the defaults. Any settings staged in preview mode will not be modified."
 msgstr ""
 
 #: inc/options/install.php:11
-#: Util_Ui.php:1917
+#: Util_Ui.php:1919
 msgid "Initial Installation"
 msgstr ""
 
@@ -8879,12 +8935,12 @@ msgid "Rewrite Rules (based on active settings)"
 msgstr ""
 
 #: inc/options/install.php:282
-#: Util_Ui.php:1922
+#: Util_Ui.php:1924
 msgid "Other"
 msgstr ""
 
 #: inc/options/install.php:291
-#: Util_Ui.php:1924
+#: Util_Ui.php:1926
 msgid "Services"
 msgstr ""
 
@@ -8898,7 +8954,7 @@ msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: inc/options/install.php:306
-#: Util_Ui.php:1930
+#: Util_Ui.php:1932
 msgid "%1$sPHP%2$s Modules"
 msgstr ""
 
@@ -8997,8 +9053,8 @@ msgid "Notify when minify cache creation errors occur."
 msgstr ""
 
 #: inc/options/minify.php:149
-#: Util_Ui.php:1729
-#: Util_Ui.php:1842
+#: Util_Ui.php:1731
+#: Util_Ui.php:1844
 msgid "eXtensible Markup Language"
 msgstr ""
 
@@ -9013,7 +9069,7 @@ msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: inc/options/minify.php:236
-#: Util_Ui.php:1745
+#: Util_Ui.php:1747
 msgid "%1$sJS%2$s"
 msgstr ""
 
@@ -9126,7 +9182,7 @@ msgstr ""
 
 #. translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 #: inc/options/minify.php:587
-#: Util_Ui.php:1765
+#: Util_Ui.php:1767
 msgid "%1$sCSS%2$s"
 msgstr ""
 
@@ -9553,7 +9609,7 @@ msgid "Select user roles that should not receive cached pages:"
 msgstr ""
 
 #: inc/options/pgcache.php:155
-#: Util_Ui.php:1703
+#: Util_Ui.php:1705
 msgid "Aliases"
 msgstr ""
 
@@ -9576,7 +9632,7 @@ msgid "Specify full home %1$sURL%2$ss of your mirrors so that plugin will flush 
 msgstr ""
 
 #: inc/options/pgcache.php:217
-#: Util_Ui.php:1704
+#: Util_Ui.php:1706
 msgid "Cache Preload"
 msgstr ""
 
@@ -9768,9 +9824,9 @@ msgid "Specify additional page headers to cache."
 msgstr ""
 
 #: inc/options/pgcache.php:814
-#: Util_Ui.php:1708
-#: Util_Ui.php:1781
-#: Util_Ui.php:1883
+#: Util_Ui.php:1710
+#: Util_Ui.php:1783
+#: Util_Ui.php:1885
 msgid "Note(s)"
 msgstr ""
 
@@ -10071,12 +10127,12 @@ msgid "The W3 Total Cache license key is activated for this site."
 msgstr ""
 
 #: Licensing_Plugin_Admin.php:265
-#: SetupGuide_Plugin_Admin.php:1189
+#: SetupGuide_Plugin_Admin.php:1193
 msgid "Accept"
 msgstr ""
 
 #: Licensing_Plugin_Admin.php:269
-#: SetupGuide_Plugin_Admin.php:1190
+#: SetupGuide_Plugin_Admin.php:1194
 msgid "Decline"
 msgstr ""
 
@@ -10437,7 +10493,7 @@ msgid "Purges Log"
 msgstr ""
 
 #. translators: 1 interval in seconds.
-#: ObjectCache_Plugin.php:117
+#: ObjectCache_Plugin.php:108
 msgid "[W3TC] Object Cache file GC (every %d seconds)"
 msgstr ""
 
@@ -10450,88 +10506,69 @@ msgid "Empty the object cache"
 msgstr ""
 
 #. translators: 1: Cache hits, 2: Cache total cache objects, 3: Engine anme, 4: Reason.
-#: ObjectCache_WpObjectCache_Regular.php:930
+#: ObjectCache_WpObjectCache_Regular.php:1242
 msgid "Object Caching %1$d/%2$d objects using %3$s%4$s"
 msgstr ""
 
-#: ObjectCache_WpObjectCache_Regular.php:982
+#: ObjectCache_WpObjectCache_Regular.php:1251
+msgid "Object Cache debug info:"
+msgstr ""
+
+#: ObjectCache_WpObjectCache_Regular.php:1317
 msgid "Object caching is disabled"
 msgstr ""
 
-#: ObjectCache_WpObjectCache_Regular.php:984
+#: ObjectCache_WpObjectCache_Regular.php:1319
 msgid "DONOTCACHEOBJECT constant is defined"
 msgstr ""
 
-#: PageSpeed_Api.php:167
+#: PageSpeed_Api.php:158
 msgid "Missing Google access token."
 msgstr ""
 
-#: PageSpeed_Api.php:258
-#: PageSpeed_Page.php:134
-#: PageSpeed_Page.php:147
-#: PageSpeed_Widget.php:173
-#: PageSpeed_Widget.php:186
-msgid "API request error!"
+#: PageSpeed_Api.php:247
+msgid "Google PageSpeed access token refresh missing required parameters!"
 msgstr ""
 
-#: PageSpeed_Api.php:259
-msgid "Refresh URL : "
+#: PageSpeed_Api.php:275
+msgid "No site ID provided for access key refresh!"
 msgstr ""
 
-#: PageSpeed_Api.php:260
-#: PageSpeed_Page.php:136
-#: PageSpeed_Widget.php:175
-msgid "Response Code : "
+#: PageSpeed_Api.php:277
+msgid "No W3TC API key provided for access key refresh!"
 msgstr ""
 
-#: PageSpeed_Api.php:261
-#: PageSpeed_Page.php:137
-#: PageSpeed_Widget.php:176
-msgid "Response Message : "
-msgstr ""
-
-#: PageSpeed_Api.php:313
-#: PageSpeed_Api.php:425
-#: PageSpeed_Api.php:503
-msgid "No site ID provided for Google access record update!"
-msgstr ""
-
-#: PageSpeed_Api.php:315
-#: PageSpeed_Api.php:427
-#: PageSpeed_Api.php:505
-msgid "No W3 key provided for Google access record update!"
-msgstr ""
-
-#: PageSpeed_Api.php:317
-#: PageSpeed_Api.php:429
-msgid "No refresh token provided for Google access record update!"
-msgstr ""
-
-#: PageSpeed_Api.php:319
+#: PageSpeed_Api.php:279
 #: PageSpeed_Api.php:431
-#: PageSpeed_Api.php:507
-msgid "No matching Google access record found for W3 key!"
+msgid "No matching Google access record found for W3TC API key!"
 msgstr ""
 
-#: PageSpeed_Api.php:355
-msgid "Missing/invalid Google access authentication code."
-msgstr ""
-
-#: PageSpeed_Api.php:364
-#: PageSpeed_Api.php:477
-msgid "Missing/invalid W3 API key."
-msgstr ""
-
-#: PageSpeed_Api.php:390
-msgid "Missing/invalid Google access token JSON setting after authentication."
-msgstr ""
-
-#: PageSpeed_Api.php:468
-msgid "Missing/invalid Site ID."
-msgstr ""
-
-#: PageSpeed_Api.php:509
+#: PageSpeed_Api.php:281
 msgid "Matching Google access record found but the refresh token value is blank!"
+msgstr ""
+
+#: PageSpeed_Api.php:286
+msgid "Google PageSpeed access token refresh failed."
+msgstr ""
+
+#: PageSpeed_Api.php:306
+msgid "Google PageSpeed access token refresh failed due to response missing access token."
+msgstr ""
+
+#: PageSpeed_Api.php:399
+msgid "Google PageSpeed access token revocation missing required parameters!"
+msgstr ""
+
+#: PageSpeed_Api.php:427
+msgid "No access token provided for revoke!"
+msgstr ""
+
+#: PageSpeed_Api.php:429
+msgid "No W3TC API key provided for revoke!"
+msgstr ""
+
+#: PageSpeed_Api.php:436
+msgid "Google PageSpeed Access Token revocation failed."
 msgstr ""
 
 #. translators: 5 HTML a tag to W3TC Minify CSS admin page, 6 HTML line break tag.
@@ -10547,9 +10584,9 @@ msgid ""
 msgstr ""
 
 #: PageSpeed_Instructions.php:51
-#: PageSpeed_Instructions.php:296
-#: PageSpeed_Instructions.php:389
-#: PageSpeed_Instructions.php:609
+#: PageSpeed_Instructions.php:284
+#: PageSpeed_Instructions.php:377
+#: PageSpeed_Instructions.php:586
 msgid "Minify JS"
 msgstr ""
 
@@ -10575,9 +10612,9 @@ msgid "Performance &raquo; User Experience"
 msgstr ""
 
 #: PageSpeed_Instructions.php:54
-#: PageSpeed_Instructions.php:294
-#: PageSpeed_Instructions.php:403
-#: PageSpeed_Instructions.php:632
+#: PageSpeed_Instructions.php:282
+#: PageSpeed_Instructions.php:391
+#: PageSpeed_Instructions.php:609
 msgid "Minify CSS"
 msgstr ""
 
@@ -10617,19 +10654,19 @@ msgstr ""
 #. translators: 1 HTML a tag to W3TC Minify JS admin page, 2 HTML acronym for CSS, 3 HTML acronym for JS, 4 HTML a tag to W3 API FAQ page containing HTML acronym tag for FAQ.
 #: PageSpeed_Instructions.php:74
 #: PageSpeed_Instructions.php:91
-#: PageSpeed_Instructions.php:360
+#: PageSpeed_Instructions.php:348
 msgid "On the %1$s tab all of the recommended settings are preset. Use the help button to simplify discovery of your %2$s and %3$s files and groups. Pay close attention to the method and location of your %3$s group embeddings. See the plugin's %4$s for more information on usage."
 msgstr ""
 
 #: PageSpeed_Instructions.php:79
 #: PageSpeed_Instructions.php:96
-#: PageSpeed_Instructions.php:365
+#: PageSpeed_Instructions.php:353
 msgid "CSS"
 msgstr ""
 
 #: PageSpeed_Instructions.php:80
 #: PageSpeed_Instructions.php:97
-#: PageSpeed_Instructions.php:366
+#: PageSpeed_Instructions.php:354
 msgid "JS"
 msgstr ""
 
@@ -10681,14 +10718,14 @@ msgstr ""
 #. translators: 1 W3TC plugin name, opening HTML a tag to Image Service extension, 3 closing HTML a tag.
 #: PageSpeed_Instructions.php:139
 #: PageSpeed_Instructions.php:152
-#: PageSpeed_Instructions.php:230
+#: PageSpeed_Instructions.php:218
 msgid "Use %1$s %2$sWebP Converter%3$s to convert media library images to WebP."
 msgstr ""
 
 #: PageSpeed_Instructions.php:144
 #: PageSpeed_Instructions.php:157
-#: PageSpeed_Instructions.php:235
-#: PageSpeed_Instructions.php:306
+#: PageSpeed_Instructions.php:223
+#: PageSpeed_Instructions.php:294
 msgid "W3TC Extensions"
 msgstr ""
 
@@ -10750,457 +10787,440 @@ msgstr ""
 msgid "Remember that combining multiple redirects into a single redirect is the most effective way to improve web performance."
 msgstr ""
 
-#. translators: 1 W3TC plugin name.
-#: PageSpeed_Instructions.php:218
-msgid "JS and CSS - Use HTTP2/Push for %1$s Minified files"
-msgstr ""
-
-#: PageSpeed_Instructions.php:224
-msgid "Preload fonts hosted on the server: "
-msgstr ""
-
-#: PageSpeed_Instructions.php:241
+#: PageSpeed_Instructions.php:229
 msgid "Incorporate good site building practices into your development workflow to ensure you avoid duplication of JavaScript modules in the first place."
 msgstr ""
 
 #. translators: 1 HTML a tag to Zillow Webpack-Stats-Duplicates.
-#: PageSpeed_Instructions.php:246
+#: PageSpeed_Instructions.php:234
 msgid "To fix this audit, use a tool like %1$s to identify duplicate modules"
 msgstr ""
 
-#: PageSpeed_Instructions.php:250
+#: PageSpeed_Instructions.php:238
 msgid "webpack-stats-duplicates"
 msgstr ""
 
-#: PageSpeed_Instructions.php:257
+#: PageSpeed_Instructions.php:245
 msgid "One way to deal with this issue is to load polyfills, only when needed, which can provide feature-detection support at JavaScript runtime. However, it is often very difficult to implement in practice."
 msgstr ""
 
-#: PageSpeed_Instructions.php:258
+#: PageSpeed_Instructions.php:246
 msgid "Implement modern feature-detection using "
 msgstr ""
 
-#: PageSpeed_Instructions.php:259
+#: PageSpeed_Instructions.php:247
 msgid "Every browser that supports "
 msgstr ""
 
-#: PageSpeed_Instructions.php:259
+#: PageSpeed_Instructions.php:247
 msgid " also supports most of the ES6 features. This lets you load regular JavaScript files with ES6 features, knowing that the browser can handle it."
 msgstr ""
 
-#: PageSpeed_Instructions.php:260
+#: PageSpeed_Instructions.php:248
 msgid "For browsers that don't support "
 msgstr ""
 
-#: PageSpeed_Instructions.php:260
+#: PageSpeed_Instructions.php:248
 msgid " you can use the translated ES5 code instead. In this manner, you are always serving modern code to modern browsers."
 msgstr ""
 
 #. translators: 1 HTML a tag to philipwalton.com for deplying-es2015-code-in-production-today.
-#: PageSpeed_Instructions.php:265
+#: PageSpeed_Instructions.php:253
 msgid "Learn more about implementing this technique %1$s."
 msgstr ""
 
 #. translators: 1 W3TC plugin name, 2 opening HTML a tag to Minify setting, 3 closing HTML a tag.
-#: PageSpeed_Instructions.php:278
+#: PageSpeed_Instructions.php:266
 msgid "Defer or async the JS (Select  Non blocking using Defer or  Non blocking using async Embed method in %1$s %2$sMinify%3$s options before head and after body)"
 msgstr ""
 
 #. translators: 4 opening html a tagl to JS Minify settings, 5 closing HTML a tag.
-#: PageSpeed_Instructions.php:289
+#: PageSpeed_Instructions.php:277
 msgid "Compress your HTML, CSS, and JavaScript files and Minify your CSS and JavaScript to ensure your text-based resources are as small as they can be. Use the %1$s Minify %2$sJS%3$s and %4$sCSS%5$s features to accomplish this."
 msgstr ""
 
 #. translators: 1 W3TC plugin name, 2 opening HTML a tag to W3TC extensions, 3 closing HTML a tag.
-#: PageSpeed_Instructions.php:301
+#: PageSpeed_Instructions.php:289
 msgid "Optimize your image delivery by sizing them properly and compressing them for smaller sizes. Use WebP conversion via the %1$s %2$sWebP Converter%3$s extension."
 msgstr ""
 
 #. translators: 1 opening HTML a tag to Browser Caching setting, 2 closing HTML a tag.
-#: PageSpeed_Instructions.php:311
+#: PageSpeed_Instructions.php:299
 msgid "Use %1$sBrowser Caching%2$s for static files and HTML  - 1 year for static files 1 hour for html"
 msgstr ""
 
-#: PageSpeed_Instructions.php:321
+#: PageSpeed_Instructions.php:309
 msgid "Without completely redesigning your web page from scratch, typically you cannot resolve this warning. Understand that this warning is significant and if you get it for more than one or two pages in your site, you should consider:"
 msgstr ""
 
-#: PageSpeed_Instructions.php:323
-#: PageSpeed_Instructions.php:577
+#: PageSpeed_Instructions.php:311
 msgid "Reducing the amount of widgets / sections within your web pages or page layouts"
 msgstr ""
 
-#: PageSpeed_Instructions.php:324
-#: PageSpeed_Instructions.php:578
+#: PageSpeed_Instructions.php:312
 msgid "Using a simpler web page builder as many page builders add a lot of code bloat"
 msgstr ""
 
-#: PageSpeed_Instructions.php:325
-#: PageSpeed_Instructions.php:579
+#: PageSpeed_Instructions.php:313
 msgid "Using a different theme"
 msgstr ""
 
-#: PageSpeed_Instructions.php:326
-#: PageSpeed_Instructions.php:580
+#: PageSpeed_Instructions.php:314
 msgid "Using a different slider"
 msgstr ""
 
 #. translators: HTML a tag to developer.mozilla.org for User_Timing_API.
-#: PageSpeed_Instructions.php:334
+#: PageSpeed_Instructions.php:322
 msgid "The %1$s gives you a way to measure your app's JavaScript performance."
 msgstr ""
 
-#: PageSpeed_Instructions.php:338
+#: PageSpeed_Instructions.php:326
 msgid "User Timing API"
 msgstr ""
 
-#: PageSpeed_Instructions.php:342
+#: PageSpeed_Instructions.php:330
 msgid "You do that by inserting API calls in your JavaScript and then extracting detailed timing data that you can use to optimize your code."
 msgstr ""
 
 #. translators: 1 HTML a tag to developer.chrome.com for devtools/evaluate-performance/reference.
-#: PageSpeed_Instructions.php:346
+#: PageSpeed_Instructions.php:334
 msgid "You can access those data from JavaScript using the API or by viewing them on your %1$s."
 msgstr ""
 
-#: PageSpeed_Instructions.php:350
+#: PageSpeed_Instructions.php:338
 msgid "Chrome DevTools Timeline Recordings"
 msgstr ""
 
-#: PageSpeed_Instructions.php:374
-#: PageSpeed_Instructions.php:585
+#: PageSpeed_Instructions.php:362
+#: PageSpeed_Instructions.php:562
 msgid "Optimizing third-party JavaScript"
 msgstr ""
 
-#: PageSpeed_Instructions.php:375
+#: PageSpeed_Instructions.php:363
 msgid "Review your website's third-party code and remove the ones\tthat aren't adding any value to your website."
 msgstr ""
 
-#: PageSpeed_Instructions.php:376
-#: PageSpeed_Instructions.php:591
+#: PageSpeed_Instructions.php:364
+#: PageSpeed_Instructions.php:568
 msgid "Debouncing your input handlers"
 msgstr ""
 
-#: PageSpeed_Instructions.php:377
-#: PageSpeed_Instructions.php:593
+#: PageSpeed_Instructions.php:365
+#: PageSpeed_Instructions.php:570
 msgid "Avoid using long-running input handlers (which may block scrolling) and do not make style changes in input handlers (which is likely to cause repainting of pixels)."
 msgstr ""
 
-#: PageSpeed_Instructions.php:378
-#: PageSpeed_Instructions.php:596
+#: PageSpeed_Instructions.php:366
+#: PageSpeed_Instructions.php:573
 msgid "Debouncing your input handlers helps solve both of the above problems."
 msgstr ""
 
-#: PageSpeed_Instructions.php:379
-#: PageSpeed_Instructions.php:598
+#: PageSpeed_Instructions.php:367
+#: PageSpeed_Instructions.php:575
 msgid "Delay 3rd-party JS"
 msgstr ""
 
-#: PageSpeed_Instructions.php:380
-#: PageSpeed_Instructions.php:600
+#: PageSpeed_Instructions.php:368
+#: PageSpeed_Instructions.php:577
 msgid "Reducing JavaScript execution time"
 msgstr ""
 
 #. translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
-#: PageSpeed_Instructions.php:384
+#: PageSpeed_Instructions.php:372
 msgid "Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use %1$s Minify for %2$sJS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server."
 msgstr ""
 
-#: PageSpeed_Instructions.php:394
-#: PageSpeed_Instructions.php:622
+#: PageSpeed_Instructions.php:382
+#: PageSpeed_Instructions.php:599
 msgid "Reducing CSS parsing time"
 msgstr ""
 
 #. translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
-#: PageSpeed_Instructions.php:398
+#: PageSpeed_Instructions.php:386
 msgid "Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use %1$s Minify for %2$sCSS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server."
 msgstr ""
 
-#: PageSpeed_Instructions.php:408
+#: PageSpeed_Instructions.php:396
+#: PageSpeed_Instructions.php:593
 #: PageSpeed_Instructions.php:616
-#: PageSpeed_Instructions.php:639
 msgid "Only using compositor properties"
 msgstr ""
 
-#: PageSpeed_Instructions.php:409
-#: PageSpeed_Instructions.php:469
+#: PageSpeed_Instructions.php:397
+#: PageSpeed_Instructions.php:457
+#: PageSpeed_Instructions.php:595
 #: PageSpeed_Instructions.php:618
-#: PageSpeed_Instructions.php:641
 msgid "Stick to using compositor properties to keep events away from the main-thread. Compositor properties are run on a separate compositor thread, freeing the main-thread for longer and improving your page load performance."
 msgstr ""
 
-#: PageSpeed_Instructions.php:414
+#: PageSpeed_Instructions.php:402
 msgid "Find Slow Third-Party-Code"
 msgstr ""
 
-#: PageSpeed_Instructions.php:415
+#: PageSpeed_Instructions.php:403
 msgid "Lazy Load YouTube Videos"
 msgstr ""
 
-#: PageSpeed_Instructions.php:416
+#: PageSpeed_Instructions.php:404
 msgid "Host Google Fonts Locally"
 msgstr ""
 
-#: PageSpeed_Instructions.php:417
+#: PageSpeed_Instructions.php:405
 msgid "Host Google Analytics Locally"
 msgstr ""
 
-#: PageSpeed_Instructions.php:418
+#: PageSpeed_Instructions.php:406
 msgid "Host Facebook Pixel Locally"
 msgstr ""
 
-#: PageSpeed_Instructions.php:419
+#: PageSpeed_Instructions.php:407
 msgid "Host Gravatars Locally"
 msgstr ""
 
-#: PageSpeed_Instructions.php:420
+#: PageSpeed_Instructions.php:408
 msgid "Delay Third-Party JavaScript"
 msgstr ""
 
-#: PageSpeed_Instructions.php:421
+#: PageSpeed_Instructions.php:409
 msgid "Defer Parsing Of JavaScript"
 msgstr ""
 
-#: PageSpeed_Instructions.php:422
+#: PageSpeed_Instructions.php:410
 msgid "Prefetch Or Preconnect Third-Party Scripts"
 msgstr ""
 
-#: PageSpeed_Instructions.php:423
+#: PageSpeed_Instructions.php:411
 msgid "Avoid Google AdSense And Maps"
 msgstr ""
 
-#: PageSpeed_Instructions.php:424
+#: PageSpeed_Instructions.php:412
 msgid "Don't Overtrack In Google Tag Manager"
 msgstr ""
 
-#: PageSpeed_Instructions.php:425
+#: PageSpeed_Instructions.php:413
 msgid "Replace Embeds With Screenshots"
 msgstr ""
 
-#: PageSpeed_Instructions.php:426
+#: PageSpeed_Instructions.php:414
 msgid "Use A Lightweight Social Sharing Plugin"
 msgstr ""
 
-#: PageSpeed_Instructions.php:427
+#: PageSpeed_Instructions.php:415
 msgid "Use Cloudflare Workers"
 msgstr ""
 
-#: PageSpeed_Instructions.php:431
+#: PageSpeed_Instructions.php:419
 msgid "Preload - Lazyload embedded videos."
 msgstr ""
 
-#: PageSpeed_Instructions.php:435
+#: PageSpeed_Instructions.php:423
 msgid "Don't lazy load images that appear \"above the fold\" just use a standard "
 msgstr ""
 
-#: PageSpeed_Instructions.php:435
+#: PageSpeed_Instructions.php:423
 msgid " or "
 msgstr ""
 
-#: PageSpeed_Instructions.php:435
+#: PageSpeed_Instructions.php:423
 msgid "\telement."
 msgstr ""
 
 #. translators: 1 W3TC plugin name.
-#: PageSpeed_Instructions.php:438
+#: PageSpeed_Instructions.php:426
 msgid "Exclude the image from being lazy-loaded if the %1$s Lazy load is enabled in Performance &raquo; User Experience &raquo; Exclude words."
 msgstr ""
 
-#: PageSpeed_Instructions.php:447
+#: PageSpeed_Instructions.php:435
 msgid "Add a passive flag to every event listener that Lighthouse identified."
 msgstr ""
 
-#: PageSpeed_Instructions.php:448
+#: PageSpeed_Instructions.php:436
 msgid "If you're only supporting browsers that have passive event listener support, just add the flag."
 msgstr ""
 
-#: PageSpeed_Instructions.php:449
-#: PageSpeed_Instructions.php:474
+#: PageSpeed_Instructions.php:437
+#: PageSpeed_Instructions.php:462
 msgid "For example:"
 msgstr ""
 
-#: PageSpeed_Instructions.php:451
+#: PageSpeed_Instructions.php:439
 msgid "If you're supporting older browsers that don't support passive event listeners, you'll need to use feature detection or a polyfill. See the Feature Detection section of the WICG Passive event listeners explainer document for more information."
 msgstr ""
 
-#: PageSpeed_Instructions.php:455
+#: PageSpeed_Instructions.php:443
 msgid "You can fix this audit by preferably eliminating document.write() altogether, wherever possible."
 msgstr ""
 
-#: PageSpeed_Instructions.php:456
+#: PageSpeed_Instructions.php:444
 msgid "Avoiding the use of document.write() should ideally be built into your development workflow so that your production website is optimized for web performance from the beginning."
 msgstr ""
 
 #. translators: 1 W3TC plugin name.
-#: PageSpeed_Instructions.php:459
+#: PageSpeed_Instructions.php:447
 msgid "Using %1$s JS Minify and deferring or using async may also help."
 msgstr ""
 
-#: PageSpeed_Instructions.php:468
+#: PageSpeed_Instructions.php:456
 msgid "Only using compositor properties:"
 msgstr ""
 
-#: PageSpeed_Instructions.php:473
+#: PageSpeed_Instructions.php:461
 msgid "To fix this audit, simply specify, both, the width and height for your webpage's image and video elements. This ensures that the correct spacing is used for images and videos."
 msgstr ""
 
-#: PageSpeed_Instructions.php:476
+#: PageSpeed_Instructions.php:464
 msgid "Where width and height have been declared as 640 and 360 pixels respectively."
 msgstr ""
 
-#: PageSpeed_Instructions.php:477
+#: PageSpeed_Instructions.php:465
 msgid "Note that modern browsers automatically calculate the aspect ratio for an image/video based on the declared width and height attributes."
 msgstr ""
 
-#: PageSpeed_Instructions.php:481
+#: PageSpeed_Instructions.php:469
 msgid "Use the \"viewport\" <meta> tag to control the viewport's size and shape form mobile friendly website:"
 msgstr ""
 
 #. translators: 1 HTML a tag to developer.mozilla.org for documentation on viewport_meta_tag.
-#: PageSpeed_Instructions.php:487
+#: PageSpeed_Instructions.php:475
 msgid "More details %1$s."
 msgstr ""
 
-#: PageSpeed_Instructions.php:500
+#: PageSpeed_Instructions.php:488
 msgid "It's advisable to host the fonts on the server instead of using Google CDN"
 msgstr ""
 
-#: PageSpeed_Instructions.php:501
+#: PageSpeed_Instructions.php:489
 msgid "Preload fonts with a plugin or manually:"
 msgstr ""
 
-#: PageSpeed_Instructions.php:505
+#: PageSpeed_Instructions.php:493
 msgid "Use font-display attribute: The font-display attribute determines how the font is displayed during your page load, based on whether it has been downloaded and is ready for use."
 msgstr ""
 
 #. translators: 1 opening HTML a tag to Browswer Cache settings, 2 closing HTML a tag, 3 W3TC plugin name.
-#: PageSpeed_Instructions.php:511
+#: PageSpeed_Instructions.php:499
 msgid "Use %1$sBrowser Caching%2$s in %3$s and set the Expires header and cache control header for static files and HTML."
 msgstr ""
 
-#: PageSpeed_Instructions.php:519
+#: PageSpeed_Instructions.php:507
 msgid "Use default values for best results"
 msgstr ""
 
-#: PageSpeed_Instructions.php:522
+#: PageSpeed_Instructions.php:510
 msgid "Eliminate Render Blocking CSS and apply asynchronous loading where applicable. Additionally, image optimization by way of resizing, lazy loading, and WebP conversion can impact this metric as well."
 msgstr ""
 
-#: PageSpeed_Instructions.php:526
+#: PageSpeed_Instructions.php:514
 msgid "How To Fix Poor LCP"
 msgstr ""
 
-#: PageSpeed_Instructions.php:528
+#: PageSpeed_Instructions.php:516
 msgid "If the cause is slow server response time:"
 msgstr ""
 
-#: PageSpeed_Instructions.php:530
+#: PageSpeed_Instructions.php:518
 msgid "Optimize your server."
 msgstr ""
 
-#: PageSpeed_Instructions.php:531
+#: PageSpeed_Instructions.php:519
 msgid "Route users to a nearby CDN."
 msgstr ""
 
-#: PageSpeed_Instructions.php:532
+#: PageSpeed_Instructions.php:520
 msgid "Cache assets."
 msgstr ""
 
-#: PageSpeed_Instructions.php:533
+#: PageSpeed_Instructions.php:521
 msgid "Serve HTML pages cache-first."
 msgstr ""
 
-#: PageSpeed_Instructions.php:534
+#: PageSpeed_Instructions.php:522
 msgid "Establish third-party connections early."
 msgstr ""
 
-#: PageSpeed_Instructions.php:537
+#: PageSpeed_Instructions.php:525
 msgid "If the cause is render-blocking JavaScript and CSS:"
 msgstr ""
 
-#: PageSpeed_Instructions.php:539
+#: PageSpeed_Instructions.php:527
 msgid "Minify CSS."
 msgstr ""
 
-#: PageSpeed_Instructions.php:540
+#: PageSpeed_Instructions.php:528
 msgid "Defer non-critical CSS."
 msgstr ""
 
-#: PageSpeed_Instructions.php:541
+#: PageSpeed_Instructions.php:529
 msgid "Inline critical CSS."
 msgstr ""
 
-#: PageSpeed_Instructions.php:542
+#: PageSpeed_Instructions.php:530
 msgid "Minify and compress JavaScript files."
 msgstr ""
 
-#: PageSpeed_Instructions.php:543
+#: PageSpeed_Instructions.php:531
 msgid "Defer unused JavaScript."
 msgstr ""
 
-#: PageSpeed_Instructions.php:544
+#: PageSpeed_Instructions.php:532
 msgid "Minimize unused polyfills."
 msgstr ""
 
-#: PageSpeed_Instructions.php:547
+#: PageSpeed_Instructions.php:535
 msgid "If the cause is resource load times:"
 msgstr ""
 
-#: PageSpeed_Instructions.php:549
+#: PageSpeed_Instructions.php:537
 msgid "Optimize and compress images."
 msgstr ""
 
-#: PageSpeed_Instructions.php:550
+#: PageSpeed_Instructions.php:538
 msgid "Preload important resources."
 msgstr ""
 
-#: PageSpeed_Instructions.php:551
+#: PageSpeed_Instructions.php:539
 msgid "Disable \"lazy loading\" for assets immediately visible on page load."
 msgstr ""
 
-#: PageSpeed_Instructions.php:552
+#: PageSpeed_Instructions.php:540
 msgid "Compress text files."
 msgstr ""
 
-#: PageSpeed_Instructions.php:553
+#: PageSpeed_Instructions.php:541
 msgid "Deliver different assets based on the network connection (adaptive serving)."
 msgstr ""
 
-#: PageSpeed_Instructions.php:554
+#: PageSpeed_Instructions.php:542
 msgid "Cache assets using a service worker."
 msgstr ""
 
-#: PageSpeed_Instructions.php:557
+#: PageSpeed_Instructions.php:545
 msgid "If the cause is client-side rendering:"
 msgstr ""
 
-#: PageSpeed_Instructions.php:559
+#: PageSpeed_Instructions.php:547
 msgid "Minimize critical JavaScript."
 msgstr ""
 
-#: PageSpeed_Instructions.php:560
+#: PageSpeed_Instructions.php:548
 msgid "Use another rendering strategy."
 msgstr ""
 
-#: PageSpeed_Instructions.php:563
+#: PageSpeed_Instructions.php:551
 msgid "Features that will help performance of the above:"
 msgstr ""
 
-#: PageSpeed_Instructions.php:574
-msgid "Without completely redesigning your web page from scratch, typically you cannot resolve this warning.  Understand that this warning is significant and if you get it for more than one or two pages in your site, you should consider:"
-msgstr ""
-
-#: PageSpeed_Instructions.php:588
+#: PageSpeed_Instructions.php:565
 msgid "Review your website's third-party code and remove the ones that aren't adding any value to your website."
 msgstr ""
 
 #. translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
-#: PageSpeed_Instructions.php:604
+#: PageSpeed_Instructions.php:581
 msgid "Reduce your JavaScript payload by implementing code splitting, minifying and compressing your JavaScript code, removing unused code, and following the PRPL pattern. (Use %1$s %2$sMinify for JS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server."
 msgstr ""
 
 #. translators: 4 opening HTML a tag to CDN setting, 5 closing HTML a tag.
-#: PageSpeed_Instructions.php:627
+#: PageSpeed_Instructions.php:604
 msgid "Reduce the time spent parsing CSS by minifying, or deferring non-critical CSS, or removing unused CSS. (Use %1$s %2$sMinify for CSS%3$s and compression.) Use %4$sCDN%5$s and HTTP2 Push if available on server."
 msgstr ""
 
@@ -11232,6 +11252,23 @@ msgstr ""
 #: PageSpeed_Widget.php:174
 #: PageSpeed_Widget.php:187
 msgid "Analyze URL : "
+msgstr ""
+
+#: PageSpeed_Page.php:134
+#: PageSpeed_Page.php:147
+#: PageSpeed_Widget.php:173
+#: PageSpeed_Widget.php:186
+msgid "API request error!"
+msgstr ""
+
+#: PageSpeed_Page.php:136
+#: PageSpeed_Widget.php:175
+msgid "Response Code : "
+msgstr ""
+
+#: PageSpeed_Page.php:137
+#: PageSpeed_Widget.php:176
+msgid "Response Message : "
 msgstr ""
 
 #: PageSpeed_Page.php:149
@@ -11681,7 +11718,7 @@ msgid "Unavailable"
 msgstr ""
 
 #: SetupGuide_Plugin_Admin.php:970
-#: Util_Ui.php:1260
+#: Util_Ui.php:1262
 msgid "Disk"
 msgstr ""
 
@@ -11694,12 +11731,12 @@ msgid "Welcome"
 msgstr ""
 
 #: SetupGuide_Plugin_Admin.php:1140
-#: SetupGuide_Plugin_Admin.php:1349
+#: SetupGuide_Plugin_Admin.php:1353
 msgid "Image Optimization"
 msgstr ""
 
 #: SetupGuide_Plugin_Admin.php:1144
-#: SetupGuide_Plugin_Admin.php:1361
+#: SetupGuide_Plugin_Admin.php:1365
 msgid "Lazy Load"
 msgstr ""
 
@@ -11719,214 +11756,218 @@ msgstr ""
 msgid "provides many options to help your website perform faster.  While the ideal settings vary for every website, there are a few settings we recommend that you enable now."
 msgstr ""
 
+#: SetupGuide_Plugin_Admin.php:1167
+msgid "If a caching method shows as unavailable you do not have the necessary modules installed. You may need to reach out to your host for installation availablity and directions."
+msgstr ""
+
 #. translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
-#: SetupGuide_Plugin_Admin.php:1169
+#: SetupGuide_Plugin_Admin.php:1173
 msgid "If you prefer to configure the settings on your own, you can %1$sskip this setup guide%2$s."
 msgstr ""
 
 #. translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
-#: SetupGuide_Plugin_Admin.php:1181
+#: SetupGuide_Plugin_Admin.php:1185
 msgid "By allowing us to collect data about how W3 Total Cache is used, we can improve our features and experience for everyone. This data will not include any personally identifiable information.  Feel free to review our %1$sterms of use and privacy policy%2$s."
 msgstr ""
 
 #. translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-#: SetupGuide_Plugin_Admin.php:1199
+#: SetupGuide_Plugin_Admin.php:1203
 msgid "The time it takes between a visitor's browser page request and receiving the first byte of a response is referred to as %1$sTime to First Byte%2$s."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1208
+#: SetupGuide_Plugin_Admin.php:1212
 msgid "can help you speed up"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1209
-#: SetupGuide_Plugin_Admin.php:1220
+#: SetupGuide_Plugin_Admin.php:1213
+#: SetupGuide_Plugin_Admin.php:1224
 msgid "Time to First Byte"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1212
+#: SetupGuide_Plugin_Admin.php:1216
 msgid "We'll test your homepage with Page Cache disabled and then with several storage engines.  You should review the test results and choose the best for your website."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1218
+#: SetupGuide_Plugin_Admin.php:1222
 msgid "Test Page Cache"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1219
+#: SetupGuide_Plugin_Admin.php:1223
 msgid "Measuring"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1224
+#: SetupGuide_Plugin_Admin.php:1228
 msgid "Test URL:"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1229
-#: SetupGuide_Plugin_Admin.php:1255
-#: SetupGuide_Plugin_Admin.php:1292
+#: SetupGuide_Plugin_Admin.php:1233
+#: SetupGuide_Plugin_Admin.php:1259
+#: SetupGuide_Plugin_Admin.php:1296
 msgid "Select"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1230
-#: SetupGuide_Plugin_Admin.php:1256
-#: SetupGuide_Plugin_Admin.php:1293
+#: SetupGuide_Plugin_Admin.php:1234
+#: SetupGuide_Plugin_Admin.php:1260
+#: SetupGuide_Plugin_Admin.php:1297
 msgid "Storage Engine"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1231
-#: SetupGuide_Plugin_Admin.php:1257
-#: SetupGuide_Plugin_Admin.php:1294
+#: SetupGuide_Plugin_Admin.php:1235
+#: SetupGuide_Plugin_Admin.php:1261
+#: SetupGuide_Plugin_Admin.php:1298
 msgid "Time (ms)"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1241
+#: SetupGuide_Plugin_Admin.php:1245
 msgid "Many database queries are made in every dynamic page request.  A database cache may speed up the generation of dynamic pages.  Database Cache serves query results directly from a storage engine."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1247
+#: SetupGuide_Plugin_Admin.php:1251
 msgid "Test Database Cache"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1248
-#: SetupGuide_Plugin_Admin.php:1285
-#: SetupGuide_Plugin_Admin.php:1333
+#: SetupGuide_Plugin_Admin.php:1252
+#: SetupGuide_Plugin_Admin.php:1289
+#: SetupGuide_Plugin_Admin.php:1337
 msgid "Testing"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1265
+#: SetupGuide_Plugin_Admin.php:1269
 msgid "By default, this feature is disabled.  We recommend using Redis or Memcached, otherwise leave this feature disabled as the server database engine may be faster than using disk caching."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1275
+#: SetupGuide_Plugin_Admin.php:1279
 msgid "WordPress caches objects used to build pages, but does not reuse them for future page requests."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1280
+#: SetupGuide_Plugin_Admin.php:1284
 msgid "can help you speed up dynamic pages by persistently storing objects."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1284
+#: SetupGuide_Plugin_Admin.php:1288
 msgid "Test Object Cache"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1304
+#: SetupGuide_Plugin_Admin.php:1308
 msgid "To render your website, browsers must download many different types of assets, including javascript files, CSS stylesheets, images, and more.  For most assets, once a browser has downloaded them, they shouldn't have to download them again."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1309
+#: SetupGuide_Plugin_Admin.php:1313
 msgid "can help ensure browsers are properly caching your assets."
 msgstr ""
 
 #. translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-#: SetupGuide_Plugin_Admin.php:1315
+#: SetupGuide_Plugin_Admin.php:1319
 msgid "The %1$sCache-Control%2$s header tells your browser how it should cache specific files.  The %1$smax-age%2$s setting tells your browser how long, in seconds, it should use its cached version of a file before requesting an updated one."
 msgstr ""
 
 #. translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-#: SetupGuide_Plugin_Admin.php:1324
+#: SetupGuide_Plugin_Admin.php:1328
 msgid "To improve %1$sBrowser Cache%2$s, we recommend enabling %1$sBrowser Cache%2$s."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1332
+#: SetupGuide_Plugin_Admin.php:1336
 msgid "Test Browser Cache"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1340
+#: SetupGuide_Plugin_Admin.php:1344
 msgid "Setting"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1341
+#: SetupGuide_Plugin_Admin.php:1345
 msgid "File"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1342
+#: SetupGuide_Plugin_Admin.php:1346
 msgid "Cache-Control Header"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1364
+#: SetupGuide_Plugin_Admin.php:1368
 msgid "Pages containing images and other objects can have their load time reduced by deferring them until they are needed.  For example, images can be loaded when a visitor scrolls down the page to make them visible."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1373
+#: SetupGuide_Plugin_Admin.php:1377
 msgid "Setup Complete!"
 msgstr ""
 
 #. translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
-#: SetupGuide_Plugin_Admin.php:1378
+#: SetupGuide_Plugin_Admin.php:1382
 msgid "%1$sPage Cache%2$s engine set to %1$s%3$s%2$s"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1384
-#: SetupGuide_Plugin_Admin.php:1406
-#: SetupGuide_Plugin_Admin.php:1430
-#: SetupGuide_Plugin_Admin.php:1443
-#: SetupGuide_Plugin_Admin.php:1453
-#: SetupGuide_Plugin_Admin.php:1463
+#: SetupGuide_Plugin_Admin.php:1388
+#: SetupGuide_Plugin_Admin.php:1410
+#: SetupGuide_Plugin_Admin.php:1434
+#: SetupGuide_Plugin_Admin.php:1447
+#: SetupGuide_Plugin_Admin.php:1457
+#: SetupGuide_Plugin_Admin.php:1467
 msgid "UNKNOWN"
 msgstr ""
 
 #. translators: 1: HTML strong open tag, 2: HTML strong close tag.
-#: SetupGuide_Plugin_Admin.php:1389
+#: SetupGuide_Plugin_Admin.php:1393
 msgid "%1$sTime to First Byte%2$s has changed by %1$s%3$s%2$s"
 msgstr ""
 
 #. translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
-#: SetupGuide_Plugin_Admin.php:1400
+#: SetupGuide_Plugin_Admin.php:1404
 msgid "%1$sDatabase Cache%2$s engine set to %1$s%3$s%2$s"
 msgstr ""
 
 #. translators: 1: HTML strong open tag, 2: HTML strong close tag.
-#: SetupGuide_Plugin_Admin.php:1414
+#: SetupGuide_Plugin_Admin.php:1418
 msgid "%1$sObject Cache%2$s is %1$sdisabled via filter%2$s"
 msgstr ""
 
 #. translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
-#: SetupGuide_Plugin_Admin.php:1424
+#: SetupGuide_Plugin_Admin.php:1428
 msgid "%1$sObject Cache%2$s engine set to %1$s%3$s%2$s"
 msgstr ""
 
 #. translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
-#: SetupGuide_Plugin_Admin.php:1437
+#: SetupGuide_Plugin_Admin.php:1441
 msgid "%1$sBrowser Cache%2$s headers set for JavaScript, CSS, and images? %1$s%3$s%2$s"
 msgstr ""
 
 #. translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
-#: SetupGuide_Plugin_Admin.php:1447
+#: SetupGuide_Plugin_Admin.php:1451
 msgid "%1$sImage Optimization%2$s enabled? %1$s%3$s%2$s"
 msgstr ""
 
 #. translators: 1: HTML strong open tag, 2: HTML strong close tag, 3: Label.
-#: SetupGuide_Plugin_Admin.php:1457
+#: SetupGuide_Plugin_Admin.php:1461
 msgid "%1$sLazy Load%2$s images? %1$s%3$s%2$s"
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1465
+#: SetupGuide_Plugin_Admin.php:1469
 msgid "What's Next?"
 msgstr ""
 
 #. translators: 1: HTML emphesis open tag, 2: HTML emphesis close tag.
-#: SetupGuide_Plugin_Admin.php:1469
+#: SetupGuide_Plugin_Admin.php:1473
 msgid "Your website's performance can still be improved by configuring %1$sminify%2$s settings, setting up a %1$sCDN%2$s, and more!"
 msgstr ""
 
 #. translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
-#: SetupGuide_Plugin_Admin.php:1479
+#: SetupGuide_Plugin_Admin.php:1483
 msgid "Please visit %1$sGeneral Settings%2$s to learn more about these features."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1486
+#: SetupGuide_Plugin_Admin.php:1490
 msgid "Google PageSpeed Tool"
 msgstr ""
 
 #. translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
-#: SetupGuide_Plugin_Admin.php:1489
+#: SetupGuide_Plugin_Admin.php:1493
 msgid "Google PageSpeed Insights can be used to analyze your homepage and provide an explanation of metrics and recommendations for improvements using W3 Total Cache features/extensions.  This tool is enabled by default but will not function until authorization is granted, which can be done on the %1$sGeneral Settings%2$s page."
 msgstr ""
 
-#: SetupGuide_Plugin_Admin.php:1496
+#: SetupGuide_Plugin_Admin.php:1500
 msgid "Need help?"
 msgstr ""
 
 #. translators: 1: Anchor/link open tag, 2: Anchor/link close tag.
-#: SetupGuide_Plugin_Admin.php:1500
+#: SetupGuide_Plugin_Admin.php:1504
 msgid "We're here to help you!  Visit our %1$sSupport Center%2$s for helpful information and to ask questions."
 msgstr ""
 
@@ -12434,38 +12475,37 @@ msgstr ""
 msgid "Failed to open file"
 msgstr ""
 
-#: UserExperience_DeferScripts_Page_View.php:28
+#: UserExperience_DeferScripts_Page_View.php:30
 msgid "For best results it is recommended to enable the Minify feature to optimize internal sources and to then use this feature to handle external sources and/or any internal sources excluded from Minify."
 msgstr ""
 
-#: UserExperience_DeferScripts_Page_View.php:33
+#: UserExperience_DeferScripts_Page_View.php:35
 msgid "To identify render-blocking JavaScript sources, use the %1$sGoogle PageSpeed%2$s tool and add appropirate URLs from the \"Eliminate render-blocking resources\" section to the Delay List textarea below."
 msgstr ""
 
-#: UserExperience_DeferScripts_Page_View.php:54
-msgid "Timeout:"
-msgstr ""
-
-#: UserExperience_DeferScripts_Page_View.php:58
-msgid "Timeout (in milliseconds) to delay the loading of delayed scripts if no user action is taken during page load"
-msgstr ""
-
-#: UserExperience_DeferScripts_Page_View.php:63
-#: UserExperience_DeferScripts_Page_View.php:80
-#: UserExperience_GeneralPage_View.php:122
+#: UserExperience_DeferScripts_Page_View.php:57
+#: UserExperience_GeneralPage_View.php:128
 msgid "In a recent test, using the Delay Scripts feature added 18 points on mobile devices to the Google PageSpeed score!"
 msgstr ""
 
+#: UserExperience_DeferScripts_Page_View.php:67
+msgid "Timeout:"
+msgstr ""
+
 #: UserExperience_DeferScripts_Page_View.php:71
+msgid "Timeout (in milliseconds) to delay the loading of delayed scripts if no user action is taken during page load"
+msgstr ""
+
+#: UserExperience_DeferScripts_Page_View.php:80
 msgid "Delay list:"
 msgstr ""
 
-#: UserExperience_DeferScripts_Page_View.php:75
+#: UserExperience_DeferScripts_Page_View.php:84
 msgid "Specify keywords to match any attribute of script tags containing the \"src\" attribute. Include one entry per line, e.g. (googletagmanager.com, gtag/js, myscript.js, and name=\"myscript\")"
 msgstr ""
 
 #. translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.
-#: UserExperience_DeferScripts_Page_View.php:91
+#: UserExperience_DeferScripts_Page_View.php:96
 msgid "%1$sDelay Scripts%2$s is not enabled in the %3$sGeneral Settings%4$s."
 msgstr ""
 
@@ -12487,52 +12527,57 @@ msgstr ""
 msgid "In addition to lazy loading images, with %1$sW3 Total Cache Pro%2$s you can lazy load %3$sGoogle Maps%4$s! More information and settings can be found on the %5$sUser Experience page%6$s."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:82
+#: UserExperience_GeneralPage_View.php:80
+#: UserExperience_LazyLoad_Page_View.php:216
+msgid "In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!"
+msgstr ""
+
+#: UserExperience_GeneralPage_View.php:88
 msgid "Disable Emoji"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:83
+#: UserExperience_GeneralPage_View.php:89
 msgid "Remove emojis support from your website."
 msgstr ""
 
 #. translators: 1 opening HTML a tag to W3TC User Experience page, 2 closing HTML a tag.
-#: UserExperience_GeneralPage_View.php:100
-#: UserExperience_GeneralPage_View.php:139
-#: UserExperience_GeneralPage_View.php:178
+#: UserExperience_GeneralPage_View.php:106
+#: UserExperience_GeneralPage_View.php:145
+#: UserExperience_GeneralPage_View.php:184
 msgid " Settings can be found on the %1$sUser Experience page%2$s."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:130
+#: UserExperience_GeneralPage_View.php:136
 msgid "Remove Unwanted/Unused CSS/JS"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:131
+#: UserExperience_GeneralPage_View.php:137
 msgid "Removes specified CSS/JS tags from the homepage or on a per page basis."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:161
+#: UserExperience_GeneralPage_View.php:167
 msgid "In one recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:202
+#: UserExperience_GeneralPage_View.php:208
 msgid "Disable wp-embed script"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:203
+#: UserExperience_GeneralPage_View.php:209
 msgid "Remove wp-embed.js script from your website. oEmbed functionality still works but you will not be able to embed other WordPress posts on your pages."
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:212
+#: UserExperience_GeneralPage_View.php:218
 msgid "Disable jquery-migrate on the front-end"
 msgstr ""
 
-#: UserExperience_GeneralPage_View.php:214
+#: UserExperience_GeneralPage_View.php:220
 msgid "Remove jquery-migrate support from your website front-end."
 msgstr ""
 
 #: UserExperience_LazyLoad_Page_View.php:17
 #: UserExperience_LazyLoad_Plugin.php:123
-#: Util_Ui.php:1892
+#: Util_Ui.php:1894
 msgid "Lazy Loading"
 msgstr ""
 
@@ -12612,10 +12657,6 @@ msgstr ""
 #. translators: 1 opening HTML a tag to WordPress Google Maps, 2 closing HTML a tag.
 #: UserExperience_LazyLoad_Page_View.php:190
 msgid "%1$sWP Google Maps%2$s plugin"
-msgstr ""
-
-#: UserExperience_LazyLoad_Page_View.php:216
-msgid "In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!"
 msgstr ""
 
 #: UserExperience_Preload_Requests_Page_View.php:20
@@ -12703,81 +12744,81 @@ msgid "Specify key Document URLs that should be preloaded by browsers. Include o
 msgstr ""
 
 #: UserExperience_Remove_CssJs_Page_View.php:42
-#: Util_Ui.php:1899
+#: Util_Ui.php:1901
 msgid "Remove CSS/JS On Homepage"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:45
+#: UserExperience_Remove_CssJs_Page_View.php:47
 msgid "CSS/JS entries added to the below textarea will be removed from the homepage if present."
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:52
-msgid "Remove list:"
-msgstr ""
-
-#: UserExperience_Remove_CssJs_Page_View.php:56
-msgid "Specify absolute or relative URLs, or file names to be excluded from loading on the homepage. Include one entry per line, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name=\"myscript\", etc.)"
-msgstr ""
-
-#: UserExperience_Remove_CssJs_Page_View.php:61
-#: UserExperience_Remove_CssJs_Page_View.php:321
+#: UserExperience_Remove_CssJs_Page_View.php:55
+#: UserExperience_Remove_CssJs_Page_View.php:333
 msgid "In a recent test, removing unused CSS and JS added over 27 points to the Google PageSpeed score!"
 msgstr ""
 
+#: UserExperience_Remove_CssJs_Page_View.php:65
+msgid "Remove list:"
+msgstr ""
+
+#: UserExperience_Remove_CssJs_Page_View.php:69
+msgid "Specify absolute or relative URLs, or file names to be excluded from loading on the homepage. Include one entry per line, e.g. (googletagmanager.com, /wp-content/plugins/woocommerce/, myscript.js, name=\"myscript\", etc.)"
+msgstr ""
+
 #. translators: 1: Opening HTML em tag, 2: Closing HTML em tag, 3: Opening HTML a tag with a link to General Settings, 4: Closing HTML a tag.
-#: UserExperience_Remove_CssJs_Page_View.php:73
-#: UserExperience_Remove_CssJs_Page_View.php:328
+#: UserExperience_Remove_CssJs_Page_View.php:82
+#: UserExperience_Remove_CssJs_Page_View.php:340
 msgid "%1$sRemove Unwanted/Unused CSS/JS%2$s is not enabled in the %3$sGeneral Settings%4$s."
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:93
-#: Util_Ui.php:1900
+#: UserExperience_Remove_CssJs_Page_View.php:105
+#: Util_Ui.php:1902
 msgid "Remove CSS/JS Individually"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:96
+#: UserExperience_Remove_CssJs_Page_View.php:110
 msgid "Use this area to manage individual CSS/JS entries. The target CSS/JS for each rule can be either an absolute/relative URL or file name."
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:101
+#: UserExperience_Remove_CssJs_Page_View.php:113
 msgid "Add"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:119
+#: UserExperience_Remove_CssJs_Page_View.php:131
 msgid "File Path:"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:126
+#: UserExperience_Remove_CssJs_Page_View.php:138
 msgid "Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry"
 msgstr ""
 
 #. translators: 1 HTML opening strong tag, 2 closing HTML strong tag.
-#: UserExperience_Remove_CssJs_Page_View.php:176
+#: UserExperience_Remove_CssJs_Page_View.php:188
 msgid "%1$sExclude%2$s (Remove the script ONLY WHEN a condition below matches)"
 msgstr ""
 
 #. translators: 1 HTML opening strong tag, 2 closing HTML strong tag.
-#: UserExperience_Remove_CssJs_Page_View.php:196
+#: UserExperience_Remove_CssJs_Page_View.php:208
 msgid "%1$sInclude%2$s (Allow the script ONLY WHEN a condition below matches)"
 msgstr ""
 
 #. translators: 1 action description based on behavior selector.
-#: UserExperience_Remove_CssJs_Page_View.php:227
+#: UserExperience_Remove_CssJs_Page_View.php:239
 msgid "Specify the conditions for which the target file should be %1$sd based on matching absolute/relative page URLs. Include one entry per line."
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:231
-#: UserExperience_Remove_CssJs_Page_View.php:276
+#: UserExperience_Remove_CssJs_Page_View.php:243
+#: UserExperience_Remove_CssJs_Page_View.php:288
 msgid "exclude"
 msgstr ""
 
-#: UserExperience_Remove_CssJs_Page_View.php:231
-#: UserExperience_Remove_CssJs_Page_View.php:276
+#: UserExperience_Remove_CssJs_Page_View.php:243
+#: UserExperience_Remove_CssJs_Page_View.php:288
 msgid "include"
 msgstr ""
 
 #. translators: 1 action description based on behavior selector.
-#: UserExperience_Remove_CssJs_Page_View.php:272
+#: UserExperience_Remove_CssJs_Page_View.php:284
 msgid "Specify the conditions for which the target file should be %1$sd based on matching page content. Include one entry per line."
 msgstr ""
 
@@ -13099,71 +13140,71 @@ msgstr ""
 msgid "Empty OpCode Cache"
 msgstr ""
 
-#: Util_Ui.php:1301
+#: Util_Ui.php:1303
 msgid "Shared Server:"
 msgstr ""
 
-#: Util_Ui.php:1341
+#: Util_Ui.php:1343
 msgid "Show More"
 msgstr ""
 
-#: Util_Ui.php:1406
+#: Util_Ui.php:1408
 msgid "Use common settings"
 msgstr ""
 
-#: Util_Ui.php:1409
+#: Util_Ui.php:1411
 msgid "Use specific settings"
 msgstr ""
 
-#: Util_Ui.php:1436
+#: Util_Ui.php:1438
 msgid "Preview"
 msgstr ""
 
-#: Util_Ui.php:1705
+#: Util_Ui.php:1707
 msgid "Purge Policy"
 msgstr ""
 
-#: Util_Ui.php:1706
+#: Util_Ui.php:1708
 msgid "Rest API"
 msgstr ""
 
-#: Util_Ui.php:1853
+#: Util_Ui.php:1855
 msgid "Media"
 msgstr ""
 
-#: Util_Ui.php:1874
+#: Util_Ui.php:1876
 msgid "Configuration (Objects)"
 msgstr ""
 
-#: Util_Ui.php:1877
+#: Util_Ui.php:1879
 msgid "Configuration (FSD)"
 msgstr ""
 
-#: Util_Ui.php:1919
+#: Util_Ui.php:1921
 msgid "Rewrite Rules"
 msgstr ""
 
-#: Util_Ui.php:1961
+#: Util_Ui.php:1963
 msgid "Application"
 msgstr ""
 
-#: Util_Ui.php:1963
+#: Util_Ui.php:1965
 msgid "Behavior"
 msgstr ""
 
-#: Util_Ui.php:2046
+#: Util_Ui.php:2048
 msgid "Review the testing results"
 msgstr ""
 
-#: Util_Ui.php:2046
+#: Util_Ui.php:2048
 msgid " to see how."
 msgstr ""
 
-#: Util_Ui.php:2048
+#: Util_Ui.php:2050
 msgid "Upgrade to"
 msgstr ""
 
-#: Util_Ui.php:2048
+#: Util_Ui.php:2050
 msgid " and improve your PageSpeed Scores today!"
 msgstr ""
 
@@ -13197,7 +13238,7 @@ msgid "Varnish Cache"
 msgstr ""
 
 #. translators: 1 class name, 2 file name.
-#: w3-total-cache-api.php:201
+#: w3-total-cache-api.php:204
 msgid "Attempt to create object of class %1$s has been made, but file %2$s doesnt exists"
 msgstr ""
 

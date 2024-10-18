@@ -9,7 +9,7 @@
  * The managed identity is authenticated with Microsoft Entra ID, so you don’t have to store any credentials in code.
  *
  * @package W3TC
- * @since   X.X.X
+ * @since   2.7.7
  */
 
 namespace W3TC;
@@ -24,7 +24,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Constructor.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param array $config Configuration.
 	 */
@@ -48,7 +48,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Initialize storage client object.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $error Error message.
 	 * @return bool
@@ -76,7 +76,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Upload files to Azure Blob Storage.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param array    $files         Files.
 	 * @param array    $results       Results.
@@ -111,7 +111,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Upload file to Azure Blob Storage.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $file File path.
 	 * @param bool   $force_rewrite Force rewrite.
@@ -181,7 +181,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Delete files from Azure Blob Storage.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param array $files   Files.
 	 * @param array $results Results.
@@ -226,7 +226,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Test Azure Blob Storage.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $error Error message.
 	 * @return bool
@@ -359,7 +359,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Returns CDN domains.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @return array
 	 */
@@ -377,7 +377,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Returns via string.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @return string
 	 */
@@ -388,7 +388,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Create an Azure Blob Storage container/bucket.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @return bool
 	 * @throws \Exception Exception.
@@ -432,7 +432,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Return Content-MD5 header value.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $md5 MD5 hash.
 	 * @return string Base64-encoded packed (hex string, high nibble first, repeating to the end of the input data) data from the input MD% string.
@@ -444,7 +444,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Format object URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $path Path.
 	 * @return string|false
@@ -465,7 +465,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * How and if headers should be set.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @return string W3TC_CDN_HEADER_NONE, W3TC_CDN_HEADER_UPLOADABLE, or W3TC_CDN_HEADER_MIRRORING.
 	 */
@@ -476,7 +476,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	/**
 	 * Get prepend path.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.7
 	 *
 	 * @param string $path Path.
 	 * @return string
