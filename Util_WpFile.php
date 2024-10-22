@@ -19,6 +19,11 @@ class Util_WpFile {
 	 * @param string $extra Extra markup for an error message.
 	 */
 	public static function ajax_check_credentials( $extra = null ) {
+
+		if ( ! function_exists( 'get_filesystem_method' ) ) {
+			require_once ABSPATH . '/wp-admin/includes/file.php';
+		}
+
 		$access_type = get_filesystem_method();
 		ob_start();
 		$credentials = request_filesystem_credentials(
