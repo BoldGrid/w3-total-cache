@@ -60,8 +60,16 @@ class Cache_File_Generic extends Cache_File {
 		@fputs( $fp, $var['content'] );
 		@fclose( $fp );
 
-		if ( $this->_locking )
+		$chmod = 0644;
+		if ( defined( 'FS_CHMOD_FILE' ) ) {
+			$chmod = FS_CHMOD_FILE;
+		}
+
+		@chmod( $tmppath, $chmod );
+
+		if ( $this->_locking ) {
 			@flock( $fp, LOCK_UN );
+		}
 
 		// some hostings create files with restrictive permissions
 		// not allowing apache to read it later
@@ -134,9 +142,17 @@ class Cache_File_Generic extends Cache_File {
 				}
 			}
 
-			if ( !empty($rules) ) {
-				@file_put_contents( dirname( $path ) .
-					DIRECTORY_SEPARATOR . '.htaccess', $rules );
+			if ( ! empty( $rules ) ) {
+				$htaccess_path = dirname( $path ) . DIRECTORY_SEPARATOR . '.htaccess';
+
+				@file_put_contents( $htaccess_path, $rules );
+
+				$chmod = 0644;
+				if ( defined( 'FS_CHMOD_FILE' ) ) {
+					$chmod = FS_CHMOD_FILE;
+				}
+
+				@chmod( $htaccess_path, $chmod );
 			}
 		}
 

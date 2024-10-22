@@ -62,8 +62,16 @@ class Util_WpFile {
 	 * @return void
 	 */
 	static public function write_to_file( $filename, $content ) {
-		if ( @file_put_contents( $filename, $content ) )
+		$chmod = 0644;
+
+		if ( defined( 'FS_CHMOD_FILE' ) ) {
+			$chmod = FS_CHMOD_FILE;
+		}
+
+		if ( @file_put_contents( $filename, $content ) ) {
+			@chmod( $filename, $chmod );
 			return;
+		}
 
 		try {
 			self::request_filesystem_credentials();
@@ -73,7 +81,7 @@ class Util_WpFile {
 		}
 
 		global $wp_filesystem;
-		if ( !$wp_filesystem->put_contents( $filename, $content ) ) {
+		if ( ! $wp_filesystem->put_contents( $filename, $content, $chmod ) ) {
 			throw new Util_WpFile_FilesystemWriteException(
 				'FTP credentials don\'t allow to write to file <strong>' .
 				$filename . '</strong>', self::get_filesystem_credentials_form(),
