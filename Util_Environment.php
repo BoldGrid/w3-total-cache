@@ -1679,9 +1679,9 @@ class Util_Environment {
 	 * @since X.X.X
 	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L14-L55
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
-	public static function is_wpcron_working() {
+	public static function is_wpcron_working(): bool {
 		if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
 			$errormsg = 'The DISABLE_WP_CRON constant is set to true. WP-Cron spawning is disabled.';
 			return false;
