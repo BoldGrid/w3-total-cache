@@ -922,6 +922,22 @@ class Extension_ImageService_Plugin_Admin {
 					</p>
 				</div>
 				<?php
+			} elseif ( ! Util_Environment::is_wpcron_working() ) {
+				// WP Cron is now functioning correctly.
+				?>
+				<div class="notice notice-error is-dismissible">
+					<p>
+						<?php
+						printf(
+							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+							esc_html__( 'WP Cron is not working as expected, which is required for WebP conversions.  %1$sLearn more%2$s.', 'w3-total-cache' ),
+							'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/enable-wp-cron/?utm_source=w3tc&utm_medium=wp_cron&utm_campaign=imageservice' ) . '">',
+							'</a>'
+						);
+						?>
+					</p>
+				</div>
+				<?php
 			}
 		}
 	}
