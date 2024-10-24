@@ -1666,6 +1666,53 @@ class Util_Environment {
 	}
 
 	/**
+	 * Generates an appropriate timestamp for WP cron using a selected time during the day in the form of an integer.
+	 * Adjusts for discrepacy in timezones between WP and system and adds a day if the result is in the past.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @static
+	 *
+	 * @param int $cron_time Cron schedule time.
+	 *
+	 * @return int
+	 */
+	public static function get_cron_schedule_time( int $cron_time = 0 ): bool {
+		// WordPress timezone.
+		$timezone_string = get_option( 'timezone_string' );
+		$wp_timezone     = new \DateTimeZone( $timezone_string ? $timezone_string : 'UTC' );
+		$server_timezone = new \DateTimeZone( date_default_timezone_get() );
+
+		// Get the current time in WP timezone and the start of today.
+		$current_time_wp   = new \DateTime( 'now', $wp_timezone );
+		$start_of_today_wp = new \DateTime( 'today', $wp_timezone );
+
+		// Convert the selected cron time into hours and minutes.
+		$hour   = floor( $cron_time / 60 );
+		$minute = $cron_time % 60;
+		$start_of_today_wp->setTime( $hour, $minute );
+
+		// Convert WP timestamp to server timestamp.
+		$scheduled_timestamp_wp = $start_of_today_wp->getTimestamp();
+		$current_timestamp_wp   = $current_time_wp->getTimestamp();
+		$scheduled_time_server  = new \DateTime( '@' . $scheduled_timestamp_wp );
+		$scheduled_time_server->setTimezone( $server_timezone );
+		$scheduled_timestamp_server = $scheduled_time_server->getTimestamp();
+
+		// Get the current server time.
+		$current_time_server      = new \DateTime( 'now', $server_timezone );
+		$current_timestamp_server = $current_time_server->getTimestamp();
+
+		// If the selected time has already passed today in server timezone, schedule for tomorrow.
+		if ( $scheduled_timestamp_server <= $current_timestamp_server ) {
+			$scheduled_time_server->modify( '+1 day' );
+			$scheduled_timestamp_server = $scheduled_time_server->getTimestamp();
+		}
+
+		return $scheduled_timestamp_server;
+	}
+
+	/**
 	 * Tests the WP Cron spawning system and reports back its status.
 	 *
 	 * This command tests the spawning system by performing the following steps:
