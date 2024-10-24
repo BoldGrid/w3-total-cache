@@ -53,12 +53,34 @@ class Extension_ImageService_Plugin_Admin {
 	private $api;
 
 	/**
+	 * Was the WP Cron error notice already printed?
+	 *
+	 * @since  X.X.X
+	 * @static
+	 * @access private
+	 *
+	 * @var bool
+	 */
+	private static $wpcron_notice_printed = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 2.2.0
 	 */
 	public function __construct() {
 		$this->config = Dispatcher::config();
+	}
+
+	/**
+	 * Get config.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return Config
+	 */
+	public function get_config(): Config {
+		return $this->config;
 	}
 
 	/**
@@ -257,6 +279,11 @@ class Extension_ImageService_Plugin_Admin {
 
 		// Add admin menu items.
 		add_action( 'admin_menu', array( $o, 'admin_menu' ) );
+
+		// If auto-convert is enabled, then check WP Cron.
+		if ( ! empty( $o->get_config()->get_array( 'imageservice' )['auto'] ) && 'enabled' === $o->get_config()->get_array( 'imageservice' )['auto'] ) {
+			add_action( 'pre-upload-ui', array( $o, 'check_wpcron' ) );
+		}
 	}
 
 	/**
@@ -468,11 +495,16 @@ class Extension_ImageService_Plugin_Admin {
 			<?php
 		}
 
+		// Get Image Service usage from the API.
 		$usage = Extension_ImageService_Plugin::get_api()->get_usage();
 
 		// Ensure that the monthly limit is represented correctly.
 		$usage['limit_monthly'] = $usage['limit_monthly'] ? $usage['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
 
+		// Display a notice if WP Cron is not working as expected.
+		$this->check_wpcron();
+
+		// Load the page view.
 		require W3TC_DIR . '/Extension_ImageService_Page_View.php';
 	}
 
@@ -828,6 +860,9 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @since 2.2.0
 	 *
+	 * @see Util_Environment::is_wpcron_working()
+	 * @see self::check_wpcron()
+	 *
 	 * @uses $_GET['w3tc_imageservice_submitted']  Number of submittions.
 	 * @uses $_GET['w3tc_imageservice_successful'] Number of successful submissions.
 	 * @uses $_GET['w3tc_imageservice_skipped']    Number of skipped submissions.
@@ -836,6 +871,8 @@ class Extension_ImageService_Plugin_Admin {
 	 */
 	public function display_notices() {
 		$submitted = Util_Request::get_integer( 'w3tc_imageservice_submitted' );
+		$is_auto   = ! empty( $this->config->get_array( 'imageservice' )['auto'] ) && 'enabled' === $this->config->get_array( 'imageservice' )['auto'];
+
 		if ( ! empty( $submitted ) ) {
 			$successful_val = Util_Request::get_integer( 'w3tc_imageservice_successful' );
 			$successful     = ! empty( $successful_val ) ? $successful_val : 0;
@@ -922,7 +959,11 @@ class Extension_ImageService_Plugin_Admin {
 					</p>
 				</div>
 				<?php
+			} else {
+				$this->check_wpcron();
 			}
+		} elseif ( $is_auto && 'media' === get_current_screen()->id ) {
+			$this->check_wpcron();
 		}
 	}
 
@@ -1374,5 +1415,40 @@ class Extension_ImageService_Plugin_Admin {
 		check_ajax_referer( 'w3tc_imageservice_submit' );
 
 		wp_send_json_success( Extension_ImageService_Plugin::get_api()->get_usage( true ) );
+	}
+
+	/**
+	 * Check if WP Cron is working as expected and print an error notice if not.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see Util_Environment::is_wpcron_working()
+	 *
+	 * @return bool
+	 */
+	public function check_wpcron(): bool {
+		if ( ! self::$wpcron_notice_printed && ! Util_Environment::is_wpcron_working() ) {
+			?>
+			<div class="notice notice-error is-dismissible">
+				<p>
+					<?php
+					printf(
+						// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+						esc_html__( 'WP Cron is not working as expected, which is required for %1$s WebP conversions.  %2$sLearn more%3$s.', 'w3-total-cache' ),
+						'W3 Total Cache',
+						'<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/enable-wp-cron/?utm_source=w3tc&utm_medium=wp_cron&utm_campaign=imageservice' ) . '">',
+						'</a>'
+					);
+					?>
+				</p>
+			</div>
+			<?php
+
+			self::$wpcron_notice_printed = true;
+
+			return false;
+		} else {
+			return true;
+		}
 	}
 }

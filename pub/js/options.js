@@ -937,6 +937,19 @@ jQuery(function() {
 				}
 				break;
 
+			case 'azuremi':
+				jQuery.extend(params, {
+					engine: 'azuremi',
+					'config[user]': jQuery('#cdn_azuremi_user').val(),
+					'config[client_id]': jQuery('#cdn_azuremi_clientid').val(),
+					'config[container]': jQuery('#cdn_azuremi_container').val()
+				});
+
+				if (cnames.length) {
+					params['config[cname][]'] = cnames;
+				}
+				break;
+
 			case 'mirror':
 				jQuery.extend(params, {
 					engine: 'mirror'
@@ -1122,6 +1135,19 @@ jQuery(function() {
 					'config[user]': jQuery('#cdn_azure_user').val(),
 					'config[key]': jQuery('#cdn_azure_key').val(),
 					'config[container]': jQuery('#cdn_azure_container').val()
+				});
+
+				if (cnames.length) {
+					params['config[cname][]'] = cnames;
+				}
+				break;
+
+			case 'azuremi':
+				jQuery.extend(params, {
+					engine: 'azuremi',
+					'config[user]': jQuery('#cdn_azuremi_user').val(),
+					'config[clientid]': jQuery('#cdn_azuremi_clientid').val(),
+					'config[container]': jQuery('#cdn_azuremi_container').val()
 				});
 
 				if (cnames.length) {
