@@ -460,7 +460,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'WP Cron', 'w3-total-cache' ),
-			esc_html__( 'Enabling this will schedule a WP-Cron event that will flush all Caches. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush all".', 'w3-total-cache' ),
+			esc_html__( 'Enabling this will schedule a WP-Cron event that will flush all enabled Caches. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush all". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache.', 'w3-total-cache' ),
 			'',
 			'allcache_wp_cron'
 		);

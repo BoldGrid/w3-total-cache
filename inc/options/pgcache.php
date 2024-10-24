@@ -853,7 +853,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
-					'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will flush the Page Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush posts".', 'w3-total-cache' ),
+					'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will flush the Page Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush posts". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache.', 'w3-total-cache' ),
 				)
 			);
 
