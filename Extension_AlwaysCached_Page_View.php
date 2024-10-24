@@ -18,6 +18,7 @@ if ( ! defined( 'W3TC' ) ) {
 $config = Dispatcher::config();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 if ( ! $config->get_boolean( 'pgcache.enabled' ) ) {
 	echo wp_kses(
 		sprintf(
@@ -41,6 +42,8 @@ if ( ! $config->get_boolean( 'pgcache.enabled' ) ) {
 	);
 }
 
+=======
+>>>>>>> 33b25193 (Updated descriptions of many of the settings for more clarity on function and purpose. Several other tweaks.)
 =======
 >>>>>>> 33b25193 (Updated descriptions of many of the settings for more clarity on function and purpose. Several other tweaks.)
 ?>
