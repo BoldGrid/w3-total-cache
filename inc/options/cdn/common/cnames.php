@@ -1,9 +1,14 @@
 <?php
+/**
+ * File: cnames.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die();
+
 ?>
 <ol id="cdn_cnames" style="margin: 0">
 <?php
