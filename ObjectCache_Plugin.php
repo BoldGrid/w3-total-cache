@@ -62,7 +62,7 @@ class ObjectCache_Plugin {
 	/**
 	 * Delete the options cache object.
 	 *
-	 * @since X.X.X
+	 * @since 2.7.6
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/wp_cache_delete/
 	 *

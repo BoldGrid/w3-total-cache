@@ -27,7 +27,7 @@ $config = Dispatcher::config();
 		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled.', 'w3-total-cache' ) . '</span>';
 	}
 	?>
-<p>
+</p>
 <p>
 	<?php esc_html_e( 'AlwaysCached extension is currently ', 'w3-total-cache' ); ?>
 	<?php
@@ -37,7 +37,7 @@ $config = Dispatcher::config();
 		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled.', 'w3-total-cache' ) . '</span>';
 	}
 	?>
-<p>
+</p>
 <p>
 	<?php esc_html_e( 'The Always Cached extension prevents page/post updates from clearing corresponding cache entries and instead adds them to a queue that can be manually cleared or scheduled to clear via cron.', 'w3-total-cache' ); ?>
 </p>

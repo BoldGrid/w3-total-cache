@@ -19,6 +19,11 @@ class Util_WpFile {
 	 * @param string $extra Extra markup for an error message.
 	 */
 	public static function ajax_check_credentials( $extra = null ) {
+
+		if ( ! function_exists( 'get_filesystem_method' ) ) {
+			require_once ABSPATH . '/wp-admin/includes/file.php';
+		}
+
 		$access_type = get_filesystem_method();
 		ob_start();
 		$credentials = request_filesystem_credentials(
@@ -62,8 +67,16 @@ class Util_WpFile {
 	 * @return void
 	 */
 	static public function write_to_file( $filename, $content ) {
-		if ( @file_put_contents( $filename, $content ) )
+		$chmod = 0644;
+
+		if ( defined( 'FS_CHMOD_FILE' ) ) {
+			$chmod = FS_CHMOD_FILE;
+		}
+
+		if ( @file_put_contents( $filename, $content ) ) {
+			@chmod( $filename, $chmod );
 			return;
+		}
 
 		try {
 			self::request_filesystem_credentials();
@@ -73,7 +86,7 @@ class Util_WpFile {
 		}
 
 		global $wp_filesystem;
-		if ( !$wp_filesystem->put_contents( $filename, $content ) ) {
+		if ( ! $wp_filesystem->put_contents( $filename, $content, $chmod ) ) {
 			throw new Util_WpFile_FilesystemWriteException(
 				'FTP credentials don\'t allow to write to file <strong>' .
 				$filename . '</strong>', self::get_filesystem_credentials_form(),
