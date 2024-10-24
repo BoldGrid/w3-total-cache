@@ -172,6 +172,8 @@ if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 	define( 'W3TC_FEED_REGEXP', '~/feed(/|$)~' );
 }
 
+define( 'W3TC_INSTALL_FILE_PARTYTOWN_SRC', W3TC_DIR . '/pub/js/PartyTown/' );
+
 @ini_set( 'pcre.backtrack_limit', 4194304 );
 @ini_set( 'pcre.recursion_limit', 4194304 );
 

@@ -18,7 +18,7 @@ if ( ! defined( 'W3TC' ) ) {
 $c          = Dispatcher::config();
 $is_pro     = Util_Environment::is_w3tc_pro( $c );
 $is_enabled = UserExperience_PartyTown_Extension::is_enabled();
-Util_Debug::debug('show pt',true);
+
 $partytown_singles = $c->get_array( 'user-experience-partytown-includes' );
 
 Util_Ui::postbox_header( esc_html__( 'PartyTown', 'w3-total-cache' ), '', 'partytown' );
@@ -27,7 +27,7 @@ Util_Ui::postbox_header( esc_html__( 'PartyTown', 'w3-total-cache' ), '', 'party
 <div class="w3tc-gopro-manual-wrap">
 	<?php Util_Ui::pro_wrap_maybe_start(); ?>
 	<p>
-		<?php esc_html_e( 'CSS/JS entries added to the below textarea will be removed from the homepage if present.', 'w3-total-cache' ); ?>
+		<?php esc_html_e( 'JS entries added to the below textarea will be offloaded from the main thread via the PartyTown service worker if present.', 'w3-total-cache' ); ?>
 	</p>
 	<table class="form-table">
 		<?php

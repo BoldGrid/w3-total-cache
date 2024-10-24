@@ -62,9 +62,9 @@ class UserExperience_PartyTown_Extension {
 
 		Util_Bus::add_ob_callback( 'partytown', array( $this, 'ob_callback' ) );
 
-		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ), 10, 2 );
+		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ), 11, 2 );
 
-		add_action( 'wp_enqueue_scripts', 'w3tc_enqueue_partytown' );
+		add_action( 'wp_enqueue_scripts', array( $this, 'w3tc_enqueue_partytown' ) );
 	}
 
 	/**
@@ -75,20 +75,26 @@ class UserExperience_PartyTown_Extension {
 	 * @return void
 	 */
 	public function w3tc_enqueue_partytown() {
-		wp_enqueue_script( 'partytown', plugins_url( 'lib/partytown/partytown.js', __FILE__ ), array(), '0.10.2', true );
+		//$party_path = plugins_url( '/lib/PartyTown', W3TC_LIB_DIR );
+		//$init_path  = plugins_url( '/pub/js', W3TC_LIB_DIR );
+		$party_path = '/wp-content/plugins/w3-total-cache/lib/PartyTown';
+		$init_path  = '/wp-content/plugins/w3-total-cache/pub/js';
+
+		wp_enqueue_script( 'partytown', $party_path . '/lib/partytown.js', array(), '0.10.2', false );
+
 		if ( $this->config->get_boolean( array( 'user-experience-partytown', 'preload' ) ) ) {
 			wp_script_add_data( 'partytown', 'preload', 'true' );
 		}
 
-		wp_enqueue_script( 'partytown-init', plugins_url( 'lib/partytown/partytown-init.js', __FILE__ ), array( 'partytown' ), '0.10.2', true);
+		wp_enqueue_script( 'partytown-init', $init_path . '/partytown-init.js', array( 'partytown' ), '0.10.2', true );
 		wp_localize_script(
 			'partytown-init',
 			'partytownConfig',
 			array(
-				'serviceWorkerUrl'       => plugins_url( 'lib/partytown/partytown-sw.js', __FILE__ ),
-				'debugMode'              => $this->config->get_boolean( array( 'user-experience-partytown', 'debug' ) ) ?? false,
-				'timeoutSetting'         => $this->config->get_integer( array( 'user-experience-partytown', 'timeout' ) ) ?? 2000,
-				'workerConcurrencyLimit' => $this->config->get_integer( array( 'user-experience-partytown', 'workers' ) ) ?? 5,
+				'lib'               => $party_path . '/lib/',
+				'debug'             => $this->config->get_boolean( array( 'user-experience-partytown', 'debug' ) ) ?? false,
+				'timeout'           => $this->config->get_integer( array( 'user-experience-partytown', 'timeout' ) ) ?? 2000,
+				'workerConcurrency' => $this->config->get_integer( array( 'user-experience-partytown', 'workers' ) ) ?? 5,
 			)
 		);
 	}

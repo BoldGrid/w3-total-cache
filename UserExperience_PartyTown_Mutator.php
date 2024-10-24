@@ -79,7 +79,7 @@ class UserExperience_PartyTown_Mutator {
 		);
 
 		$this->buffer = preg_replace_callback(
-			'~(<link[^>]+href[^>]+>)|(<script[^>]+src[^>]+></script>)~is',
+			'~(<script[^>]+src[^>]+></script>)~is',
 			array( $this, 'modify_content' ),
 			$this->buffer
 		);
@@ -100,13 +100,18 @@ class UserExperience_PartyTown_Mutator {
 		$content = $matches[0];
 
 		// Early return if not the main query or content not a match.
-		if ( ! is_main_query() || ! $this->is_content_included( $content ) ) {
+		if ( ! $this->is_content_included( $content ) ) {
 			return $content;
 		}
 
 		// Check if it's a script tag and type="text/partytown" is not already present.
 		if ( strpos( $content, '<script' ) !== false && strpos( $content, 'type="text/partytown"' ) === false ) {
-			$content = preg_replace( '/<script(\s|>)/', '<script type="text/partytown"$1', $content, 1 );
+			$content = preg_replace( '/<script(\s|>)/', '<script type="text/partytown"$1', $content );
+		}
+
+		// Add the data-partytown attribute if not already present.
+		if ( strpos( $content, 'data-partytown' ) === false ) {
+			$content = preg_replace( '/<script(\s|>)/', '<script data-partytown$1', $content );
 		}
 
 		return $content;

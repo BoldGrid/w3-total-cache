@@ -240,6 +240,22 @@ class FeatureShowcase_Plugin_Admin {
 
 		return array(
 			'new' => array(
+				'partytown'     => array(
+					'title'      => esc_html__( 'PartyTown', 'w3-total-cache' ),
+					'icon'       => 'dashicons-performance',
+					'text'       => esc_html__( 'This feature allows you to optimize third-party scripts by offloading them to web workers using PartyTown. It significantly improves your site\'s performance by moving heavy JavaScript tasks off the main thread.', 'w3-total-cache' ),
+					'button'     => '<button class="button" onclick="window.location=\'' . (
+						UserExperience_PartyTown_Extension::is_enabled() ?
+							esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience#partytown' ) ) :
+							esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#userexperience' ) )
+						) . '\'">' .
+						__( 'Settings', 'w3-total-cache' ) . '</button>',
+					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/partytown/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=partytown' ) .
+						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+					'is_premium' => true,
+					'is_new'     => true,
+					'version'    => 'X.X.X',
+				),
 				'alwayscached'     => array(
 					'title'      => esc_html__( 'Always Cached', 'w3-total-cache' ),
 					'icon'       => 'dashicons-yes',
