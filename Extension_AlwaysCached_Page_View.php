@@ -15,7 +15,19 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
+$config = Dispatcher::config();
+
 ?>
+<p>
+	<?php esc_html_e( 'Page Cache is currently ', 'w3-total-cache' ); ?>
+	<?php
+	if ( $config->get_boolean( 'pgcache.enabled' ) ) {
+		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled.', 'w3-total-cache' ) . '</span>';
+	} else {
+		echo '<span class="w3tc-disabled">' . esc_html__( 'disabled.', 'w3-total-cache' ) . '</span>';
+	}
+	?>
+<p>
 <p>
 	<?php esc_html_e( 'AlwaysCached extension is currently ', 'w3-total-cache' ); ?>
 	<?php
@@ -28,12 +40,6 @@ if ( ! defined( 'W3TC' ) ) {
 <p>
 <p>
 	<?php esc_html_e( 'The Always Cached extension prevents page/post updates from clearing corresponding cache entries and instead adds them to a queue that can be manually cleared or scheduled to clear via cron.', 'w3-total-cache' ); ?>
-</p>
-<p>
-	<?php esc_html_e( 'The "Pending in queue" represent pages/posts that have been updated but are still serving the pre-update cache entry.', 'w3-total-cache' ); ?>
-</p>
-<p>
-	<?php esc_html_e( 'The "Postponed in queue" represent pages/posts that failed to process either due to an error or due to the queue processor exceeding its allocated time slot. These entries will be processed on the next scheduled queue processor execution.', 'w3-total-cache' ); ?>
 </p>
 <form action="admin.php?page=w3tc_extensions&amp;extension=alwayscached&amp;action=view" method="post">
 	<?php

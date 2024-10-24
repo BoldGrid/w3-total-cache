@@ -15,8 +15,9 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c        = Dispatcher::config();
-$disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
+$c                 = Dispatcher::config();
+$pgcache_disabled  = ! $c->get_boolean( 'pgcache.enabled' );
+$flushall_disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 
 ?>
 <div class="metabox-holder">
@@ -34,6 +35,7 @@ $disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
 				'description'    => esc_html__( 'With this enabled, the "Purge All Caches" action will instead queue items based on the below settings. If this is NOT enabled, the "Flush All" action will purge all caches and clear all queue entries as pending changes will be applied. Note that enabling this can cause the "Flush All" action to take longer, especially if the "Number of Latests Pages/Posts" are set at a high value.', 'w3-total-cache' ),
+				'disabled'       => $pgcache_disabled,
 			)
 		);
 
@@ -51,9 +53,10 @@ $disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 					'flush_all_home',
 				),
 				'label'          => esc_html__( 'Homepage', 'w3-total-cache' ),
+				'description'    => esc_html__( 'This setting controls whether the homepage should be added to the queue when a flush all operation occurs.', 'w3-total-cache' ),
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
-				'disabled'       => $disabled,
+				'disabled'       => $pgcache_disabled || $flushall_disabled,
 			)
 		);
 
@@ -64,11 +67,11 @@ $disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 					'flush_all_posts_count',
 				),
 				'label'        => esc_html__( 'Number of Latest Posts:', 'w3-total-cache' ),
-				'description'  => esc_html__( 'Number of latest posts to regenerate', 'w3-total-cache' ),
+				'description'  => esc_html__( 'This setting controls the number of latest posts that will be added to the queue when a flush all operation occurs. If this field is left blank it will default to the latest 15 posts.', 'w3-total-cache' ),
 				'control'      => 'textbox',
 				'textbox_type' => 'number',
 				'default'      => '10',
-				'disabled'     => $disabled,
+				'disabled'     => $pgcache_disabled || $flushall_disabled,
 			)
 		);
 
@@ -79,11 +82,11 @@ $disabled = ! $c->get_boolean( array( 'alwayscached', 'flush_all' ) );
 					'flush_all_pages_count',
 				),
 				'label'        => esc_html__( 'Number of Latest Pages:', 'w3-total-cache' ),
-				'description'  => esc_html__( 'Number of latest pages to regenerate', 'w3-total-cache' ),
+				'description'  => esc_html__( 'This setting controls the number of latest pages that will be added to the queue when a flush all operation occurs. If this field is left blank it will default to the latest 15 pages.', 'w3-total-cache' ),
 				'control'      => 'textbox',
 				'textbox_type' => 'number',
 				'default'      => '10',
-				'disabled'     => $disabled,
+				'disabled'     => $pgcache_disabled || $flushall_disabled,
 			)
 		);
 
