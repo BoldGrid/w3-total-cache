@@ -556,6 +556,20 @@ jQuery(function() {
 		var parentDivId = jQuery(this).closest('div').attr('id');
 
 		jQuery('#' + parentDivId).find('table.form-table').hide();
+
+		// Hide the BunnyCDN ad if it exists.
+		var bunnyCdnAd = jQuery('#' + parentDivId).find('#w3tc-bunnycdn-ad-general');
+
+		if (bunnyCdnAd.length) {
+			bunnyCdnAd.hide();
+		}
+
+		// Hide the postbox notice if one exists.
+		var w3tcPostboxNotice = jQuery('#' + parentDivId).find('.w3tc-postbox-notice');
+		if (w3tcPostboxNotice.length) {
+			w3tcPostboxNotice.hide();
+		}
+
 		jQuery('#' + parentDivId).find('div.w3tc-pro-services-content').show();
 	});
 
@@ -564,6 +578,19 @@ jQuery(function() {
 		var parentDivId = jQuery(this).closest('div').attr('id');
 
 		jQuery('#' + parentDivId).find('table').show();
+
+		// Show the BunnyCDN ad if it exists.
+		var bunnyCdnAd = jQuery('#' + parentDivId).find('#w3tc-bunnycdn-ad-general');
+		if (bunnyCdnAd.length) {
+			bunnyCdnAd.show();
+		}
+
+		// Show the postbox notice if one exists.
+		var w3tcPostboxNotice = jQuery('#' + parentDivId).find('.w3tc-postbox-notice');
+		if (w3tcPostboxNotice.length) {
+			w3tcPostboxNotice.show();
+		}
+
 		jQuery('#' + parentDivId).find('div.w3tc-pro-services-content').hide();
 	});
 

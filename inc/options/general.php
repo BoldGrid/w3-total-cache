@@ -395,7 +395,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
-		echo ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline" style="margin-top:10px !important;">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' );
+		echo ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline w3tc-postbox-notice" style="margin-top:10px !important;">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' );
 		?>
 
 		<table class="form-table">
