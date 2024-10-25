@@ -17,6 +17,29 @@ if ( ! defined( 'W3TC' ) ) {
 
 $config = Dispatcher::config();
 
+if ( ! $config->get_boolean( 'pgcache.enabled' ) ) {
+	echo wp_kses(
+		sprintf(
+			// Translators: 1 opening HTML div tag followed by opening HTML p tag, 2 opening HTML a tag to general settings page,
+			// Translators: 3 closing HTML a tag, 4 closing HTML p tag followed by closing HTML div tag.
+			__( '%1$sPage Cache is required for the Always Cached extension. Please enable it %2$shere.%3$s%4$s', 'w3-total-cache' ),
+			'<div class="notice notice-error inline"><p>',
+			'<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) . '">',
+			'</a>',
+			'</p></div>'
+		),
+		array(
+			'div' => array(
+				'class' => array(),
+			),
+			'p'   => array(),
+			'a'   => array(
+				'href' => array(),
+			),
+		)
+	);
+}
+
 ?>
 <p>
 	<?php esc_html_e( 'Page Cache is currently ', 'w3-total-cache' ); ?>
