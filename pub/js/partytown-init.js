@@ -1,19 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-	// Check if partytownConfig is defined
+	// Check if partytownConfig is defined.
 	if (typeof partytownConfig !== 'undefined') {
 		console.log('Initializing Partytown with:', partytownConfig);
 
-		// Initialize Partytown with settings from partytownConfig
+		// Initialize Partytown with settings from partytownConfig.
 		if (window.Partytown) {
-			Partytown({
-				lib: partytownConfig.lib,  // Use the configured lib path
+			partytown({
+				lib: partytownConfig.lib,  // Use the configured lib path.
 				debug: partytownConfig.debug,
 				timeout: partytownConfig.timeout,
 				workerConcurrency: partytownConfig.workerConcurrency,
 			});
 
-			// Debug logging if enabled
+			// Debug logging if enabled.
 			if (partytownConfig.debug) {
 				console.log('PartyTown Debug Mode is enabled');
 				console.log('Lib Path:', partytownConfig.lib);
@@ -24,10 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.error('Partytown is not defined in the window.');
 		}
 
-		// Register the service worker
+		// Register the service worker.
 		if ('serviceWorker' in navigator) {
 			window.addEventListener('load', function() {
-				navigator.serviceWorker.register(partytownConfig.lib + 'partytown-sw.js', { scope: '/' })
+				navigator.serviceWorker.register(partytownConfig.lib + 'partytown-sw.js')
 					.then(registration => {
 						console.log('Service Worker registered with scope:', registration.scope);
 						return navigator.serviceWorker.ready;

@@ -75,18 +75,16 @@ class UserExperience_PartyTown_Extension {
 	 * @return void
 	 */
 	public function w3tc_enqueue_partytown() {
-		//$party_path = plugins_url( '/lib/PartyTown', W3TC_LIB_DIR );
-		//$init_path  = plugins_url( '/pub/js', W3TC_LIB_DIR );
-		$party_path = '/wp-content/plugins/w3-total-cache/lib/PartyTown';
-		$init_path  = '/wp-content/plugins/w3-total-cache/pub/js';
+		$party_path = substr( plugins_url( '/lib/PartyTown', W3TC_LIB_DIR ), strlen( site_url() ) );
+		$init_path  = substr( plugins_url( '/pub/js', W3TC_LIB_DIR ), strlen( site_url() ) );
 
-		wp_enqueue_script( 'partytown', $party_path . '/lib/partytown.js', array(), '0.10.2', false );
+		wp_enqueue_script( 'partytown', $party_path . '/lib/debug/partytown.js', array(), W3TC_VERSION, false );
 
 		if ( $this->config->get_boolean( array( 'user-experience-partytown', 'preload' ) ) ) {
 			wp_script_add_data( 'partytown', 'preload', 'true' );
 		}
 
-		wp_enqueue_script( 'partytown-init', $init_path . '/partytown-init.js', array( 'partytown' ), '0.10.2', true );
+		wp_register_script( 'partytown-init', $init_path . '/partytown-init.js', array( 'partytown' ), W3TC_VERSION, true );
 		wp_localize_script(
 			'partytown-init',
 			'partytownConfig',
@@ -97,6 +95,7 @@ class UserExperience_PartyTown_Extension {
 				'workerConcurrency' => $this->config->get_integer( array( 'user-experience-partytown', 'workers' ) ) ?? 5,
 			)
 		);
+		wp_enqueue_script( 'partytown-init' );
 	}
 
 	/**
