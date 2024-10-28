@@ -208,8 +208,8 @@ class Util_Ui {
 	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $adv_link = '', $premium_link = '', $extra_links = array() ) {
 		$display_id         = ( ! empty( $id ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
-		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="nav-tab nav-tab-active no-link w3tc-basic-settings">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
-		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '</a>' : '';
+		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="w3tc-basic-settings nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
+		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
 		$premium_link_tab   = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . ' w3tc-pro-services" >' . esc_html__( 'Premium Services', 'w3-total-cache' ) . '</a>' : '';
 
 		$extra_link_tabs = '';
@@ -240,8 +240,6 @@ class Util_Ui {
 	 */
 	public static function add_premium_services_tab() {
 
-		error_log( 'add_premium_services_tab' );
-
 		echo '<div class="w3tc-pro-services-content">
 			<h3>' . esc_html( 'Optimize Your WordPress Site with a Performance Audit & Consultation', 'w3-total-cache' ) . '</h3>
 			<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ) . '</p>
@@ -252,7 +250,7 @@ class Util_Ui {
 			<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html( 'Start your optimization journey with W3 Total Cache as the foundation.', 'w3-total-cache' ) . '</p>
 
 			<div class="cta-button">
-				<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html_e( 'Click here to purchase this premium service' ) . ' </a>
+				<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 			</div>
 			</div>';
 	}
