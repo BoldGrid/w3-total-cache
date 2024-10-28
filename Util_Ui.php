@@ -3,6 +3,7 @@ namespace W3TC;
 
 use DOMDocument;
 
+
 class Util_Ui {
 	/**
 	 * Returns button html
@@ -236,23 +237,15 @@ class Util_Ui {
 	/**
 	 * Adds premium services tab for general settings page.
 	 *
-	 * @return void
+	 * @param string $key The type of cache key to get from config.
+	 *
+	 * @return string The HTML for the premium services tab.
 	 */
-	public static function add_premium_services_tab() {
+	public static function has_premium_service_tab( $key ) {
+		require_once W3TC_DIR . '/inc/options/configsettings.php';
+		$configs = W3_Config_Settings::get_config( $key );
 
-		echo '<div class="w3tc-pro-services-content">
-			<h3>' . esc_html( 'Optimize Your WordPress Site with a Performance Audit & Consultation', 'w3-total-cache' ) . '</h3>
-			<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ) . '</p>
-			<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ) . '</p>
-			<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html( 'Avoid harmful configurations like improper minification or caching.', 'w3-total-cache' ) . '</p>
-			<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html( 'Receive a detailed performance report with improvements and recommendations.', 'w3-total-cache' ) . '</p>
-			<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html( 'Proven to boost your site speed—ideal for unique traffic and site needs.', 'w3-total-cache' ) . '</p>
-			<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html( 'Start your optimization journey with W3 Total Cache as the foundation.', 'w3-total-cache' ) . '</p>
-
-			<div class="cta-button">
-				<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
-			</div>
-			</div>';
+		return $configs['tabs']['premium_support'];
 	}
 
 

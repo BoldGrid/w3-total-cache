@@ -121,15 +121,4 @@ defined( 'W3TC' ) || die;
 	);
 	?>
 </table>
-<div class="w3tc-pro-services-content">
-	<h3> <?php esc_html_e( 'Optimize Your WordPress Site with the Full Site Delivery (FSD) CDN service', 'w3-total-cache' ); ?> </h3>
-	<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'FSD CDN accelerates website load times by caching and delivering entire web pages.', 'w3-total-cache' ); ?> </p>
-	<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Acts as a proxy server to retrieve and serve content faster, reducing server response time.', 'w3-total-cache' ); ?> </p>
-	<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Optimized for full page delivery, not just static files, enhancing overall site performance.', 'w3-total-cache' ); ?> </p>
-	<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Setup includes integration with W3 Total Cache FSD CDN Pro for seamless performance.', 'w3-total-cache' ); ?> </p>
-	<p><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e( 'Compatible with top CDN providers like Bunny CDN, Transparent CDN, Amazon, and Cloudflare.', 'w3-total-cache' ); ?> </p>
-
-	<div class="cta-button">
-		<a href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ); ?>"><?php esc_html_e( 'Click here to purchase this premium service' ); ?></a>
-	</div>
-</div>
+<?php echo wp_kses_post( Util_Ui::has_premium_service_tab( 'cdn' ) ); ?>
