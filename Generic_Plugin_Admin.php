@@ -443,6 +443,18 @@ class Generic_Plugin_Admin {
 				cidPromise.then((cid) => {
 					w3tc_ga_cid = cid;
 				});
+
+
+				// Track clicks on W3TC Pro Services tab.
+				document.addEventListener('click', function(event) {
+					if ( jQuery( event.target ).hasClass( 'w3tc-pro-services') ) {
+						w3tc_ga('event', 'click', {
+							'event_category': 'w3tc-pro-services',
+							'event_label': event.target.innerText,
+							'event_value': 1,
+						});
+					}
+				});
 			</script>
 			<?php
 		}

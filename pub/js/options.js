@@ -550,6 +550,55 @@ jQuery(function() {
 		});
 	});
 
+	// General Page Premium Services tab actions.
+	jQuery('.w3tc-pro-services-content').hide();
+	jQuery('.w3tc-pro-services').on('click', function() {
+		var parentDivId = jQuery(this).closest('div').attr('id');
+
+		jQuery('#' + parentDivId).find('table.form-table').hide();
+		jQuery('a.w3tc-basic-settings').removeClass('nav-tab-active').removeClass('no-link').addClass('link-tab');
+
+		// Hide the BunnyCDN ad if it exists.
+		var bunnyCdnAd = jQuery('#' + parentDivId).find('#w3tc-bunnycdn-ad-general');
+
+		if ( bunnyCdnAd.length ) {
+			bunnyCdnAd.hide();
+		}
+
+		// Hide the postbox notice if one exists.
+		var w3tcPostboxNotice = jQuery('#' + parentDivId).find('.w3tc-postbox-notice');
+
+		if ( w3tcPostboxNotice.length ) {
+			w3tcPostboxNotice.hide();
+		}
+
+		jQuery('#' + parentDivId ).find('div.w3tc-pro-services-content').show();
+		jQuery('a.w3tc-pro-services').addClass( 'nav-tab-active').addClass('no-link').removeClass( 'link-tab');
+	});
+
+	// General Page Premium Services tab close actions.
+	jQuery('.w3tc-basic-settings').on('click', function() {
+		var parentDivId = jQuery(this).closest('div').attr('id');
+
+		jQuery('#' + parentDivId).find('table').show();
+		jQuery('a.w3tc-basic-settings').removeClass('link-tab').addClass('nav-tab-active').addClass('no-link');
+
+		// Show the BunnyCDN ad if it exists.
+		var bunnyCdnAd = jQuery('#' + parentDivId).find('#w3tc-bunnycdn-ad-general');
+		if ( bunnyCdnAd.length ) {
+			bunnyCdnAd.show();
+		}
+
+		// Show the postbox notice if one exists.
+		var w3tcPostboxNotice = jQuery('#' + parentDivId).find('.w3tc-postbox-notice');
+		if ( w3tcPostboxNotice.length ) {
+			w3tcPostboxNotice.show();
+		}
+
+		jQuery('#' + parentDivId).find('div.w3tc-pro-services-content').hide();
+		jQuery('a.w3tc-pro-services').addClass('link-tab').removeClass('nav-tab-active').removeClass('no-link');
+	});
+
 	// Prevent enabling Bunny CDN for both CDN and CDNFSD.
 	$cdn_enabled.on('click', cdn_bunnycdn_check);
 	$cdn_engine.on('change', cdn_bunnycdn_check);
