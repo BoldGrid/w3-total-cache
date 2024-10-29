@@ -176,7 +176,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::has_premium_service_tab( 'page_cache' ) ); ?>
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'page_cache' ) ); ?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -306,7 +306,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::has_premium_service_tab( 'minify' ) ); ?>
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'minify' ) ); ?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -418,7 +418,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::has_premium_service_tab( 'database_cache' ) ); ?>
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'database_cache' ) ); ?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -465,7 +465,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::has_premium_service_tab( 'browser_cache' ) ); ?>
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'browser_cache' ) ); ?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 

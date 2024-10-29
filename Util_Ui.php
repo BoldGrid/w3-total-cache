@@ -235,17 +235,17 @@ class Util_Ui {
 	}
 
 	/**
-	 * Adds premium services tab for general settings page.
+	 * Retrieves the premium services tab HTML from the general settings page configuration.
 	 *
 	 * @param string $key The type of cache key to get from config.
 	 *
 	 * @return string The HTML for the premium services tab.
 	 */
-	public static function has_premium_service_tab( $key ) {
+	public static function get_premium_service_tab( $key ) {
 		require_once 'ConfigSettingsTabs.php';
 		$configs = Config_Tab_Settings::get_config( $key );
 
-		return $configs['tabs']['premium_support'];
+		return isset( $configs['tabs']['premium_support'] ) ? $configs['tabs']['premium_support'] : null;
 	}
 
 

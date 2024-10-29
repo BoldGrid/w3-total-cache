@@ -1,6 +1,6 @@
 <?php
 /**
- * File: configsettingsfile.php
+ * File: ConfigSettingsTabsKeys.php
  *
  * @package W3TC
  */
