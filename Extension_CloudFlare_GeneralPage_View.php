@@ -17,7 +17,8 @@ Util_Ui::postbox_header_tabs(
 		'w3-total-cache'
 	),
 	'',
-	'cloudflare'
+	'cloudflare',
+	Util_UI::admin_url( 'admin.php?page=w3tc_extensions&extension=cloudflare&action=view' )
 );
 Util_Ui::config_overloading_button( array( 'key' => 'cloudflare.configuration_overloaded' ) );
 

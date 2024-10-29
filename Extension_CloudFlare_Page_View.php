@@ -80,7 +80,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
 
 		<div>
-			<h3> <a style="text-decoration:none" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_general' ) ); ?>" target="_blank"> <?php esc_html_e( 'Click here', 'w3-total-cache' ); ?> </a> <?php esc_html_e( 'for the general settings for Cloudflare ', 'w3-total-cache' ); ?> </h3>
+			<h3> <a style="text-decoration:none" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_general#cloudflare' ) ); ?>"> <?php esc_html_e( 'Click here', 'w3-total-cache' ); ?> </a> <?php esc_html_e( 'for the general settings for Cloudflare ', 'w3-total-cache' ); ?> </h3>
 		</div>
 
 
