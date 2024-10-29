@@ -237,7 +237,7 @@ class Util_Ui {
 	/**
 	 * Retrieves the premium services tab HTML from the general settings page configuration.
 	 *
-	 * @since 2.7.8
+	 * @since x.x.x
 	 *
 	 * @param string $key The type of cache key to get from config.
 	 *
