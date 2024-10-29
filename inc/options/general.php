@@ -420,7 +420,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'database_cache' ) ); ?>
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'object_cache' ) ); ?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 

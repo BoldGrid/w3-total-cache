@@ -16,9 +16,11 @@ class Config_Tab_Settings {
 	/**
 	 * Get the configuration settings.
 	 *
+	 * @since 2.7.8
+	 *
 	 * @return array The configuration settings.
 	 */
-	public static function get_configs() {
+	public static function get_configs() : array {
 		$configs = include 'ConfigSettingsTabsKeys.php';
 		return $configs;
 	}
@@ -26,12 +28,14 @@ class Config_Tab_Settings {
 	/**
 	 * Get the configuration setting.
 	 *
+	 * @since 2.7.8
+	 *
 	 * @param string $key The key of the configuration setting.
 	 * @param array  $default The default value of the configuration setting.
 	 *
 	 * @return array The configuration setting.
 	 */
-	public static function get_config( $key, $default = array() ) {
+	public static function get_config( string $key, $default = array() ) : array {
 		$configs = self::get_configs();
 
 		return isset( $configs[ $key ] ) ? $configs[ $key ] : $default;

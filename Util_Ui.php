@@ -237,17 +237,24 @@ class Util_Ui {
 	/**
 	 * Retrieves the premium services tab HTML from the general settings page configuration.
 	 *
+	 * @since 2.7.8
+	 *
 	 * @param string $key The type of cache key to get from config.
 	 *
 	 * @return string The HTML for the premium services tab.
 	 */
-	public static function get_premium_service_tab( $key ) {
+	public static function get_premium_service_tab( string $key ) : string {
+
+		// If for any reason the key is empty, return an empty string.
+		if ( empty( $key ) ) {
+			return '';
+		}
+
 		require_once 'ConfigSettingsTabs.php';
 		$configs = Config_Tab_Settings::get_config( $key );
 
 		return isset( $configs['tabs']['premium_support'] ) ? $configs['tabs']['premium_support'] : null;
 	}
-
 
 	public static function button_config_save( $id = '', $extra = '' ) {
 		$b1_id = 'w3tc_save_options_' . $id;
