@@ -27,6 +27,22 @@ Util_Ui::config_overloading_button( array( 'key' => 'cloudflare.configuration_ov
 	<?php
 	Util_Ui::config_item(
 		array(
+			'key'              => array( 'cloudflare', 'widget_interval' ),
+			'label'            => esc_html__( 'Widget statistics interval:', 'w3-total-cache' ),
+			'control'          => 'selectbox',
+			'selectbox_values' => array(
+				'-30'    => esc_html__( 'Last 30 minutes', 'w3-total-cache' ),
+				'-360'   => esc_html__( 'Last 6 hours', 'w3-total-cache' ),
+				'-720'   => esc_html__( 'Last 12 hours', 'w3-total-cache' ),
+				'-1440'  => esc_html__( 'Last 24 hours', 'w3-total-cache' ),
+				'-10080' => esc_html__( 'Last week', 'w3-total-cache' ),
+				'-43200' => esc_html__( 'Last month', 'w3-total-cache' ),
+			),
+		)
+	);
+
+	Util_Ui::config_item(
+		array(
 			'key'         => array( 'cloudflare', 'widget_cache_mins' ),
 			'label'       => esc_html__( 'Cache time:', 'w3-total-cache' ),
 			'control'     => 'textbox',
@@ -43,6 +59,17 @@ Util_Ui::config_overloading_button( array( 'key' => 'cloudflare.configuration_ov
 			'description'    => esc_html__( 'Enable when you have html pages cached on Cloudflare level.', 'w3-total-cache' ),
 		)
 	);
+
+	Util_Ui::config_item(
+		array(
+			'key'            => array( 'cloudflare', 'minify_js_rl_exclude' ),
+			'label'          => esc_html__( 'Minified JS Rocket Loader Exclude:', 'w3-total-cache' ),
+			'checkbox_label' => esc_html__( 'Exclude minified JS files from being processed by Rocket Loader:', 'w3-total-cache' ),
+			'control'        => 'checkbox',
+			'description'    => esc_html__( 'Exclusion achieved by adding data-cfasync="false" to script tags.', 'w3-total-cache' ),
+		)
+	);
+
 	?>
 </table>
 
