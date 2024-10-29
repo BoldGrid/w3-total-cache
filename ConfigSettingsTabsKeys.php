@@ -11,7 +11,7 @@ return array(
 	'page_cache'     => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
-				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can setup page cache for you?', 'w3-total-cache' ) . '</h3>
+				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can set up page cache for you?', 'w3-total-cache' ) . '</h3>
 				<h4>' . esc_html__( 'Our more popular package is the Plugin Configuration package. Not only will we configure page caching for you, we will configure the object cache, database cache, and most other items too.', 'w3-total-cache' ) . '</h4>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ) . '</p>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ) . '</p>
@@ -29,7 +29,7 @@ return array(
 	'minify'         => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
-				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can setup page cache for you?', 'w3-total-cache' ) . '</h3>
+				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can set up minify options for you?', 'w3-total-cache' ) . '</h3>
 				<h4>' . esc_html__( 'Our more popular package is the Plugin Configuration package. Not only will we configure page caching for you, we will configure the object cache, database cache, and most other items too.', 'w3-total-cache' ) . '</h4>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ) . '</p>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ) . '</p>
@@ -47,7 +47,7 @@ return array(
 	'database_cache' => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
-				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can setup page cache for you?', 'w3-total-cache' ) . '</h3>
+				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can set up database cache for you?', 'w3-total-cache' ) . '</h3>
 				<h4>' . esc_html__( 'Our more popular package is the Plugin Configuration package. Not only will we configure page caching for you, we will configure the object cache, database cache, and most other items too.', 'w3-total-cache' ) . '</h4>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ) . '</p>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ) . '</p>
@@ -65,7 +65,7 @@ return array(
 	'object_cache'   => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
-				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can setup page cache for you?', 'w3-total-cache' ) . '</h3>
+				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can set up object cache for you?', 'w3-total-cache' ) . '</h3>
 				<h4>' . esc_html__( 'Our more popular package is the Plugin Configuration package. Not only will we configure page caching for you, we will configure the object cache, database cache, and most other items too.', 'w3-total-cache' ) . '</h4>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ) . '</p>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ) . '</p>
@@ -83,7 +83,7 @@ return array(
 	'browser_cache'  => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
-				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can setup page cache for you?', 'w3-total-cache' ) . '</h3>
+				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can set up browser cache for you?', 'w3-total-cache' ) . '</h3>
 				<h4>' . esc_html__( 'Our more popular package is the Plugin Configuration package. Not only will we configure page caching for you, we will configure the object cache, database cache, and most other items too.', 'w3-total-cache' ) . '</h4>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Tailored W3 Total Cache setup, customized for your theme, plugins, and server.', 'w3-total-cache' ) . '</p>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Expert optimization based on WordPress-specific performance needs (WPO).', 'w3-total-cache' ) . '</p>
