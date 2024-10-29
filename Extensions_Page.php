@@ -51,7 +51,7 @@ class Extensions_Page extends Base_Page_Settings {
 			}
 		}
 
-		if ( $extension && $view ) {
+		if ( $extension && $view && ! empty( $extensions_active[ $extension ] ) ) {
 			$all_settings = $this->_config->get_array( 'extensions.settings' );
 			$meta         = $extensions_active[ $extension ];
 			$sub_view     = 'settings';

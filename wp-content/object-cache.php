@@ -1,18 +1,28 @@
 <?php
-//ObjectCache Version: 1.4
 /**
+ * File: object-cache.php
+ *
+ * @package W3TC
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ */
+
+/**
+ * ObjectCache Version: 1.4
+ *
  * W3 Total Cache Object Cache
  */
-if ( !defined( 'ABSPATH' ) ) {
+
+if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
 
-if ( !defined( 'W3TC_DIR' ) ) {
+if ( ! defined( 'W3TC_DIR' ) ) {
 	define( 'W3TC_DIR', ( defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins' ) . '/w3-total-cache' );
 }
 
-if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' ) ) {
-	if ( !defined( 'WP_ADMIN' ) ) { // lets don't show error on front end
+if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php' ) ) {
+	if ( ! defined( 'WP_ADMIN' ) ) { // lets don't show error on front end.
 		require_once ABSPATH . WPINC . '/cache.php';
 	} else {
 		echo sprintf( '<strong>W3 Total Cache Error:</strong> some files appear to be missing or out of place. Please re-install plugin or remove <strong>%s</strong>. <br />', __FILE__ );
@@ -26,8 +36,7 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	 * @return void
 	 */
 	function wp_cache_init() {
-		$GLOBALS['wp_object_cache'] =
-			\W3TC\Dispatcher::component( 'ObjectCache_WpObjectCache' );
+		$GLOBALS['wp_object_cache'] = \W3TC\Dispatcher::component( 'ObjectCache_WpObjectCache' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	}
 
 	/**
@@ -42,8 +51,11 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	/**
 	 * Get cache
 	 *
-	 * @param string  $id
-	 * @param string  $group
+	 * @param string    $id    ID.
+	 * @param string    $group Group.
+	 * @param bool      $force Force.
+	 * @param bool|null $found Found.
+	 *
 	 * @return mixed
 	 */
 	function wp_cache_get( $id, $group = 'default', $force = false, &$found = null ) {
@@ -74,16 +86,17 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	/**
 	 * Set cache
 	 *
-	 * @param string  $id
-	 * @param mixed   $data
-	 * @param string  $group
-	 * @param integer $expire
+	 * @param string  $id     ID.
+	 * @param mixed   $data   Data.
+	 * @param string  $group  Group.
+	 * @param integer $expire Expire.
+	 *
 	 * @return boolean
 	 */
 	function wp_cache_set( $id, $data, $group = 'default', $expire = 0 ) {
 		global $wp_object_cache;
 
-		return $wp_object_cache->set( $id, $data, $group, (int)$expire );
+		return $wp_object_cache->set( $id, $data, $group, (int) $expire );
 	}
 
 	/**
@@ -107,8 +120,9 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	/**
 	 * Delete from cache
 	 *
-	 * @param string  $id
-	 * @param string  $group
+	 * @param string $id    ID.
+	 * @param string $group Group.
+	 *
 	 * @return boolean
 	 */
 	function wp_cache_delete( $id, $group = 'default' ) {
@@ -137,16 +151,17 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	/**
 	 * Add data to cache
 	 *
-	 * @param string  $id
-	 * @param mixed   $data
-	 * @param string  $group
-	 * @param integer $expire
+	 * @param string  $id     ID.
+	 * @param mixed   $data   Data.
+	 * @param string  $group  Group.
+	 * @param integer $expire Expire.
+	 *
 	 * @return boolean
 	 */
 	function wp_cache_add( $id, $data, $group = 'default', $expire = 0 ) {
 		global $wp_object_cache;
 
-		return $wp_object_cache->add( $id, $data, $group, (int)$expire );
+		return $wp_object_cache->add( $id, $data, $group, (int) $expire );
 	}
 
 	/**
@@ -170,16 +185,17 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	/**
 	 * Replace data in cache
 	 *
-	 * @param string  $id
-	 * @param mixed   $data
-	 * @param string  $group
-	 * @param integer $expire
+	 * @param string  $id     ID.
+	 * @param mixed   $data   Data.
+	 * @param string  $group  Group.
+	 * @param integer $expire Expire.
+	 *
 	 * @return boolean
 	 */
 	function wp_cache_replace( $id, $data, $group = 'default', $expire = 0 ) {
 		global $wp_object_cache;
 
-		return $wp_object_cache->replace( $id, $data, $group, (int)$expire );
+		return $wp_object_cache->replace( $id, $data, $group, (int) $expire );
 	}
 
 	/**
@@ -205,9 +221,47 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	}
 
 	/**
+	 * Removes all cache items in a group.
+	 *
+	 * @param string $group Group.
+	 *
+	 * @return boolean
+	 */
+	function wp_cache_flush_group( string $group ) {
+		global $wp_object_cache;
+
+		return $wp_object_cache->flush_group( $group );
+	}
+
+	/**
+	 * Removes all cache items from the in-memory runtime cache.
+	 *
+	 * @return boolean
+	 */
+	function wp_cache_flush_runtime() {
+		global $wp_object_cache;
+
+		return $wp_object_cache->flush_runtime();
+	}
+
+	/**
+	 * Checks if the object cache supports a particular feature.
+	 *
+	 * @param string $feature Feature name.
+	 *
+	 * @return bool True if the feature is supported, false otherwise.
+	 */
+	function wp_cache_supports( string $feature ) {
+		global $wp_object_cache;
+
+		return $wp_object_cache->supports( $feature );
+	}
+
+	/**
 	 * Add global groups
 	 *
-	 * @param array   $groups
+	 * @param array $groups Groups.
+	 *
 	 * @return void
 	 */
 	function wp_cache_add_global_groups( $groups ) {
@@ -219,7 +273,8 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	/**
 	 * Add non-persistent groups
 	 *
-	 * @param array   $groups
+	 * @param array $groups Groups.
+	 *
 	 * @return void
 	 */
 	function wp_cache_add_non_persistent_groups( $groups ) {
@@ -231,9 +286,10 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	/**
 	 * Increment numeric cache item's value
 	 *
-	 * @param int|string $key    The cache key to increment
-	 * @param int     $offset The amount by which to increment the item's value. Default is 1.
-	 * @param string  $group  The group the key is in.
+	 * @param int|string $key    The cache key to increment.
+	 * @param int        $offset The amount by which to increment the item's value. Default is 1.
+	 * @param string     $group  The group the key is in.
+	 *
 	 * @return bool|int False on failure, the item's new value on success.
 	 */
 	function wp_cache_incr( $key, $offset = 1, $group = 'default' ) {
@@ -245,9 +301,10 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	/**
 	 * Decrement numeric cache item's value
 	 *
-	 * @param int|string $key    The cache key to increment
-	 * @param int     $offset The amount by which to decrement the item's value. Default is 1.
-	 * @param string  $group  The group the key is in.
+	 * @param int|string $key    The cache key to increment.
+	 * @param int        $offset The amount by which to decrement the item's value. Default is 1.
+	 * @param string     $group  The group the key is in.
+	 *
 	 * @return bool|int False on failure, the item's new value on success.
 	 */
 	function wp_cache_decr( $key, $offset = 1, $group = 'default' ) {
@@ -261,11 +318,13 @@ if ( !@is_dir( W3TC_DIR ) || !file_exists( W3TC_DIR . '/w3-total-cache-api.php' 
 	 *
 	 * This changes the blog id used to create keys in blog specific groups.
 	 *
-	 * @param int     $blog_id Blog ID
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @return void
 	 */
 	function wp_cache_switch_to_blog( $blog_id ) {
 		global $wp_object_cache;
 
-		return $wp_object_cache->switch_to_blog( $blog_id );
+		$wp_object_cache->switch_to_blog( $blog_id );
 	}
 }

@@ -488,6 +488,32 @@ jQuery(function() {
 	var $cdn_enabled = jQuery('#cdn__enabled'),
 		$cdn_engine = jQuery('#cdn__engine');
 
+	// Object cache disk usage warning
+	if ( jQuery('#objectcache__engine').val() === 'file' ) {
+		jQuery('.objectcache_disk_notice').show();
+	}
+
+	jQuery('#objectcache__engine').change( function() {
+        if ( jQuery(this).val() === 'file' ) {
+			jQuery('.objectcache_disk_notice').show();
+        } else {
+			jQuery('.objectcache_disk_notice').hide();
+		}
+    });
+
+  // Database cache disk usage warning
+	if ( jQuery('#dbcache__engine').val() === 'file' ) {
+		jQuery('.dbcache_disk_notice').show();
+	}
+
+	jQuery('#dbcache__engine').change( function() {
+		if ( jQuery(this).val() === 'file' ) {
+			jQuery('.dbcache_disk_notice').show();
+		} else {
+			jQuery('.dbcache_disk_notice').hide();
+		}
+	});
+
 	// General page.
 	jQuery('.w3tc_read_technical_info').on('click', function() {
 		jQuery('.w3tc_technical_info').toggle();
@@ -911,6 +937,19 @@ jQuery(function() {
 				}
 				break;
 
+			case 'azuremi':
+				jQuery.extend(params, {
+					engine: 'azuremi',
+					'config[user]': jQuery('#cdn_azuremi_user').val(),
+					'config[client_id]': jQuery('#cdn_azuremi_clientid').val(),
+					'config[container]': jQuery('#cdn_azuremi_container').val()
+				});
+
+				if (cnames.length) {
+					params['config[cname][]'] = cnames;
+				}
+				break;
+
 			case 'mirror':
 				jQuery.extend(params, {
 					engine: 'mirror'
@@ -1096,6 +1135,19 @@ jQuery(function() {
 					'config[user]': jQuery('#cdn_azure_user').val(),
 					'config[key]': jQuery('#cdn_azure_key').val(),
 					'config[container]': jQuery('#cdn_azure_container').val()
+				});
+
+				if (cnames.length) {
+					params['config[cname][]'] = cnames;
+				}
+				break;
+
+			case 'azuremi':
+				jQuery.extend(params, {
+					engine: 'azuremi',
+					'config[user]': jQuery('#cdn_azuremi_user').val(),
+					'config[clientid]': jQuery('#cdn_azuremi_clientid').val(),
+					'config[container]': jQuery('#cdn_azuremi_container').val()
 				});
 
 				if (cnames.length) {

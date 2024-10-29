@@ -15,90 +15,86 @@ $config = Dispatcher::config();
 
 $menu_array = array(
 	'settings' => array(
-		array(
+		0 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_general' ),
 			'text' => __( 'General Settings', 'w3-total-cache' ),
 		),
-		array(
+		1 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_pgcache' ),
 			'text' => __( 'Page Cache', 'w3-total-cache' ),
 		),
-		array(
+		2 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_minify' ),
 			'text' => __( 'Minify', 'w3-total-cache' ),
 		),
-		array(
+		3 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_dbcache' ),
 			'text' => __( 'Database Cache', 'w3-total-cache' ),
 		),
-		array(
+		4 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_objectcache' ),
 			'text' => __( 'Object Cache', 'w3-total-cache' ),
 		),
-		array(
+		5 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache' ),
 			'text' => __( 'Browser Cache', 'w3-total-cache' ),
 		),
-		array(
+		6 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_cachegroups' ),
 			'text' => __( 'Cache Groups', 'w3-total-cache' ),
 		),
-		array(
+		7 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ),
 			'text' => 'CDN',
 		),
-		array(
-			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_fragmentcache' ),
-			'text' => __( 'Fragment Cache', 'w3-total-cache' ),
-		),
-		array(
+		9 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_userexperience' ),
 			'text' => __( 'User Experience', 'w3-total-cache' ),
 		),
 	),
 	'tools'    => array(
-		array(
+		0 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' ),
 			'text' => __( 'Extensions', 'w3-total-cache' ),
 		),
-		array(
+		1 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_stats' ),
 			'text' => __( 'Statistics', 'w3-total-cache' ),
 		),
-		array(
+		2 => array(
 			'url'  => $config->is_extension_active( 'imageservice' )
 				? Util_Ui::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' )
 				: Util_Ui::admin_url( 'admin.php?page=w3tc_general#image_service' ),
 			'text' => __( 'WebP Converter', 'w3-total-cache' ),
 		),
-		array(
+		3 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_pagespeed' ),
 			'text' => __( 'Google PageSpeed', 'w3-total-cache' ),
 		),
-		array(
+		4 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_setup_guide' ),
 			'text' => __( 'Setup Guide', 'w3-total-cache' ),
 		),
 	),
 	'info'    => array(
-		array(
+		0 => array(
 			'url'  => Util_UI::admin_url( 'admin.php?page=w3tc_about' ),
 			'text' => __( 'About', 'w3-total-cache' ),
 		),
-		array(
+		1 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_feature_showcase' ),
 			'text' => __( 'Feature Showcase', 'w3-total-cache' ),
 		),
-		array(
+		2 => array(
 			'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_install' ),
 			'text' => __( 'Install', 'w3-total-cache' ),
 		),
-		array(
+		3 => array(
 			'url'   => '#',
 			'text'  => __( 'Compatibility Test', 'w3-total-cache' ),
 			'class' => 'compatiblity-test button-self-test',
 		),
-		array(
+		4 => array(
 			'url'      => 'https://api.w3-edge.com/v1/redirects/faq',
 			'text'     => 'FAQ',
 			'target'   => '_blank',
@@ -106,6 +102,15 @@ $menu_array = array(
 		),
 	),
 );
+
+if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) ) {
+	$menu_array['settings'][8] = array(
+		'url'  => Util_Ui::admin_url( 'admin.php?page=w3tc_fragmentcache' ),
+		'text' => __( 'Fragment Cache', 'w3-total-cache' ),
+	);
+}
+
+ksort( $menu_array['settings'] );
 
 do_action( 'w3tc_dashboard_top_nav_bar' );
 ?>
@@ -144,7 +149,7 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				</a>
 				<div id="w3tc-top-nav-settings-menu" class="w3tc-top-nav-dropdown-content">
 					<?php
-					foreach ( $menu_array['settings'] as $entry ) {
+					foreach ( $menu_array['settings'] as $index => $entry ) {
 						$output = sprintf(
 							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
 							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
