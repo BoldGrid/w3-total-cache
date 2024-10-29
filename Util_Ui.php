@@ -242,8 +242,8 @@ class Util_Ui {
 	 * @return string The HTML for the premium services tab.
 	 */
 	public static function has_premium_service_tab( $key ) {
-		require_once W3TC_DIR . '/inc/options/configsettings.php';
-		$configs = W3_Config_Settings::get_config( $key );
+		require_once 'ConfigSettingsTabs.php';
+		$configs = Config_Tab_Settings::get_config( $key );
 
 		return $configs['tabs']['premium_support'];
 	}

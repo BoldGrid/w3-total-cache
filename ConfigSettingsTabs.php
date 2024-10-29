@@ -1,23 +1,25 @@
 <?php
-	namespace W3TC;
 /**
- * W3 Total Cache Config settings class.
- *
- * This class is used to manage the configuration file that includes settings, options, and tabs for W3 Total Cache settings page.
- *
- * File: configsettings.php
+ * File: ConfigSettingsTabs.php
  *
  * @package W3TC
  */
 
-class W3_Config_Settings {
+namespace W3TC;
+
+/**
+ * W3 Total Cache Config settings class.
+ *
+ * This class is used to manage the configuration file that includes settings, options, and tabs for W3 Total Cache settings page.
+ */
+class Config_Tab_Settings {
 	/**
 	 * Get the configuration settings.
 	 *
 	 * @return array The configuration settings.
 	 */
 	public static function get_configs() {
-		$configs = include 'configsettingsfile.php';
+		$configs = include 'ConfigSettingsTabsKeys.php';
 		return $configs;
 	}
 

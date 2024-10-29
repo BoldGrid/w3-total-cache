@@ -8,7 +8,7 @@
 namespace W3TC;
 
 return array(
-	'page_cache' => array(
+	'page_cache'     => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
 				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can setup page cache for you?', 'w3-total-cache' ) . '</h3>
@@ -26,7 +26,7 @@ return array(
 				</div>',
 		),
 	),
-	'minify'     => array(
+	'minify'         => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
 				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can setup page cache for you?', 'w3-total-cache' ) . '</h3>
@@ -62,7 +62,7 @@ return array(
 				</div>',
 		),
 	),
-	'object_cache' => array(
+	'object_cache'   => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
 				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can setup page cache for you?', 'w3-total-cache' ) . '</h3>
@@ -80,7 +80,7 @@ return array(
 				</div>',
 		),
 	),
-	'browser_cache' => array(
+	'browser_cache'  => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
 				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can setup page cache for you?', 'w3-total-cache' ) . '</h3>
@@ -98,7 +98,7 @@ return array(
 				</div>',
 		),
 	),
-	'cdn' => array(
+	'cdn'            => array(
 		'tabs' => array(
 			'premium_support' => '<div class="w3tc-pro-services-content">
 				<h3>' . esc_html__( 'Did you know that W3 Total Cache has premium services available, and can help you with your Full Site Delivery via CDN?', 'w3-total-cache' ) . '</h3>
