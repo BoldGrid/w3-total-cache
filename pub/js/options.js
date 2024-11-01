@@ -550,54 +550,36 @@ jQuery(function() {
 		});
 	});
 
-	// General Page Premium Services tab actions.
-	jQuery('.w3tc-pro-services-content').hide();
-	jQuery('.w3tc-pro-services').on('click', function() {
-		var parentDivId = jQuery(this).closest('div').attr('id');
+	// General Settings Tab actions.
+	jQuery( '.postbox-tabs .inside' ).children( "[data-tab-type]" ).hide();
 
-		jQuery('#' + parentDivId).find('table.form-table').hide();
-		jQuery('a.w3tc-basic-settings').removeClass('nav-tab-active').removeClass('no-link').addClass('link-tab');
+	jQuery( document ).on( 'click', '.performance_page_w3tc_general .nav-tab', function(){
+   		var $tab = jQuery( this ),
+		$nav_tab_wrapper = $tab.closest( ".nav-tab-wrapper" )
+    	tab_type = $tab.attr( "data-tab-type" ),
+    	$inside = $tab.closest( ".postbox-tabs" ).find( ".inside" );
 
-		// Hide the BunnyCDN ad if it exists.
-		var bunnyCdnAd = jQuery('#' + parentDivId).find('#w3tc-bunnycdn-ad-general');
+		// Highlight the selected tab.
+		$nav_tab_wrapper.find( "a" ).removeClass( "nav-tab-active" );
+		$tab.addClass( "nav-tab-active" );
 
-		if ( bunnyCdnAd.length ) {
-			bunnyCdnAd.hide();
+		// If the tab is a link, don't do anything.
+		if ( $tab.is('[href]') ) {
+			return;
 		}
 
-		// Hide the postbox notice if one exists.
-		var w3tcPostboxNotice = jQuery('#' + parentDivId).find('.w3tc-postbox-notice');
+		// Start off by hiding everything.
+		$inside.children().hide();
 
-		if ( w3tcPostboxNotice.length ) {
-			w3tcPostboxNotice.hide();
-		}
 
-		jQuery('#' + parentDivId ).find('div.w3tc-pro-services-content').show();
-		jQuery('a.w3tc-pro-services').addClass( 'nav-tab-active').addClass('no-link').removeClass( 'link-tab');
-	});
-
-	// General Page Premium Services tab close actions.
-	jQuery('.w3tc-basic-settings').on('click', function() {
-		var parentDivId = jQuery(this).closest('div').attr('id');
-
-		jQuery('#' + parentDivId).find('table').show();
-		jQuery('a.w3tc-basic-settings').removeClass('link-tab').addClass('nav-tab-active').addClass('no-link');
-
-		// Show the BunnyCDN ad if it exists.
-		var bunnyCdnAd = jQuery('#' + parentDivId).find('#w3tc-bunnycdn-ad-general');
-		if ( bunnyCdnAd.length ) {
-			bunnyCdnAd.show();
-		}
-
-		// Show the postbox notice if one exists.
-		var w3tcPostboxNotice = jQuery('#' + parentDivId).find('.w3tc-postbox-notice');
-		if ( w3tcPostboxNotice.length ) {
-			w3tcPostboxNotice.show();
-		}
-
-		jQuery('#' + parentDivId).find('div.w3tc-pro-services-content').hide();
-		jQuery('a.w3tc-pro-services').addClass('link-tab').removeClass('nav-tab-active').removeClass('no-link');
-	});
+		if (! tab_type) {
+        	// Show children without a data-tab-type attribute.
+        	$inside.children(':not([data-tab-type])').show(); // Show those without data-tab-type
+    	} else {
+			// Show children with the matching data-tab-type attribute.
+			$inside.children('[data-tab-type="' + tab_type + '"]').show();
+    	}
+	} );
 
 	// Prevent enabling Bunny CDN for both CDN and CDNFSD.
 	$cdn_enabled.on('click', cdn_bunnycdn_check);
