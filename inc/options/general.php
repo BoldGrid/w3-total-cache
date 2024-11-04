@@ -10,7 +10,6 @@ namespace W3TC;
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
-
 require W3TC_INC_DIR . '/options/common/header.php';
 
 ?>
@@ -102,7 +101,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'page_cache',
-			Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'pgcache.configuration_overloaded' ) );
 		?>
@@ -176,6 +176,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'page_cache' ) ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -187,7 +189,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'minify',
-			Util_UI::admin_url( 'admin.php?page=w3tc_minify' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_minify' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'minify.configuration_overloaded' ) );
 		?>
@@ -303,6 +306,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'minify' ) ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 
@@ -317,7 +322,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'database_cache',
-			Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'dbcache.configuration_overloaded' ) );
 		?>
@@ -349,6 +355,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php endif; ?>
 		</table>
 
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'database_cache' ) ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -360,10 +368,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'object_cache',
-			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
-		echo ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline" style="margin-top:10px !important;">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' );
+		echo ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline w3tc-postbox-notice" style="margin-top:10px !important;">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' );
 		?>
 
 		<table class="form-table">
@@ -411,6 +420,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'object_cache' ) ); ?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
@@ -422,7 +433,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'browser_cache',
-			Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' )
+			Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' ),
+			'w3tc_premium_services'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'browsercache.configuration_overloaded' ) );
 		?>
@@ -454,6 +466,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			);
 			?>
 		</table>
+
+		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'browser_cache' ) ); ?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -1123,6 +1137,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			),
 			'',
 			'google_pagespeed',
+			'',
 			'',
 			array( esc_html__( 'PageSpeed Tool', 'w3-total-cache' ) => Util_UI::admin_url( 'admin.php?page=w3tc_pagespeed' ) )
 		);

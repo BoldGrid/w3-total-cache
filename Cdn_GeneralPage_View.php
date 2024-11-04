@@ -38,7 +38,8 @@ Util_Ui::postbox_header_tabs(
 	),
 	'',
 	'cdn',
-	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' )
+	Util_UI::admin_url( 'admin.php?page=w3tc_cdn' ),
+	'w3tc_premium_services'
 );
 Util_Ui::config_overloading_button(
 	array(
@@ -98,7 +99,7 @@ Util_Ui::config_overloading_button(
 
 	if ( in_array( $cdn_engine, $stackpaths, true ) || in_array( $cdnfsd_engine, $stackpaths, true ) ) {
 		?>
-		<div class="notice notice-warning inline">
+		<div class="notice notice-warning inline w3tc-postbox-notice">
 			<p>
 				<?php
 				// StackPath sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).
@@ -116,7 +117,7 @@ Util_Ui::config_overloading_button(
 		<?php
 	} elseif ( 'highwinds' === $cdn_engine || 'highwinds' === $cdnfsd_engine ) {
 		?>
-		<div class="notice notice-warning inline">
+		<div class="notice notice-warning inline w3tc-postbox-notice">
 			<p>
 				<?php
 				// HighWinds sunset is 12:00 am Central (UTC-6:00) on November, 22, 2023 (1700629200).

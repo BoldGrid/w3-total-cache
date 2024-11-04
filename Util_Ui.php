@@ -3,6 +3,7 @@ namespace W3TC;
 
 use DOMDocument;
 
+
 class Util_Ui {
 	/**
 	 * Returns button html
@@ -201,24 +202,26 @@ class Util_Ui {
 	 * @param string $class
 	 * @param string $id
 	 * @param string $adv_link
+	 * @param string $premium_link
 	 * @param array  $extra_links
 	 * @return void
 	 */
-	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $adv_link = '', $extra_links = array() ) {
+	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $adv_link = '', $premium_link = '', $extra_links = array() ) {
 		$display_id         = ( ! empty( $id ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
-		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
+		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="w3tc-basic-settings nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
 		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
+		$premium_link_tab   = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . ' w3tc-pro-services" >' . esc_html__( 'Premium Services', 'w3-total-cache' ) . '</a>' : '';
 
 		$extra_link_tabs = '';
 		foreach ( $extra_links as $extra_link_text => $extra_link ) {
-			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>';
+			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '</a>';
 		}
 
 		echo '<div' . $display_id . ' class="postbox-tabs ' . esc_attr( $class ) . '">
 			<h3 class="postbox-title"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
 			' . $description . '
-			<h2 class="nav-tab-wrapper">' . $basic_settings_tab . $adv_settings_tab . $extra_link_tabs . '</h2>
+			<h2 class="nav-tab-wrapper">' . $basic_settings_tab . $adv_settings_tab . $premium_link_tab . $extra_link_tabs . '</h2>
 			<div class="inside">';
 	}
 
@@ -229,6 +232,28 @@ class Util_Ui {
 	 */
 	public static function postbox_footer() {
 		echo '</div></div>';
+	}
+
+	/**
+	 * Retrieves the premium services tab HTML from the general settings page configuration.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $key The type of cache key to get from config.
+	 *
+	 * @return string The HTML for the premium services tab.
+	 */
+	public static function get_premium_service_tab( string $key ) : string {
+
+		// If for any reason the key is empty, return an empty string.
+		if ( empty( $key ) ) {
+			return '';
+		}
+
+		require_once 'ConfigSettingsTabs.php';
+		$configs = Config_Tab_Settings::get_config( $key );
+
+		return isset( $configs['tabs']['premium_support'] ) ? $configs['tabs']['premium_support'] : null;
 	}
 
 	public static function button_config_save( $id = '', $extra = '' ) {
