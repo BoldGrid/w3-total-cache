@@ -101,7 +101,7 @@ class ObjectCache_Plugin {
 		$objectcache_enabled = $c->get_boolean( 'objectcache.enabled' );
 		$engine              = $c->get_string( 'objectcache.engine' );
 
-		if ( $objectcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+		if ( $objectcache_enabled && 'file' === $engine ) {
 			$interval                            = $c->get_integer( 'objectcache.file.gc' );
 			$schedules['w3_objectcache_cleanup'] = array(
 				'interval' => $interval,

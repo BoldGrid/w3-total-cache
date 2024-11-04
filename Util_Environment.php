@@ -1677,39 +1677,31 @@ class Util_Environment {
 	 *
 	 * @return int
 	 */
-	public static function get_cron_schedule_time( int $cron_time = 0 ): bool {
-		// WordPress timezone.
-		$timezone_string = get_option( 'timezone_string' );
-		$wp_timezone     = new \DateTimeZone( $timezone_string ? $timezone_string : 'UTC' );
-		$server_timezone = new \DateTimeZone( date_default_timezone_get() );
+	public static function get_cron_schedule_time(int $cron_time = 0): int {
+		// Fetch the current user's timezone from user meta.
+		$user_timezone = new \DateTimeZone( get_user_meta( get_current_user_id(), 'timezone', true ) ?: wp_timezone()->getName() );
 
-		// Get the current time in WP timezone and the start of today.
-		$current_time_wp   = new \DateTime( 'now', $wp_timezone );
-		$start_of_today_wp = new \DateTime( 'today', $wp_timezone );
+		// Get the current time in WordPress timezone.
+		$current_time_wp = new \DateTime( 'now', wp_timezone() );
 
 		// Convert the selected cron time into hours and minutes.
 		$hour   = floor( $cron_time / 60 );
 		$minute = $cron_time % 60;
-		$start_of_today_wp->setTime( $hour, $minute );
 
-		// Convert WP timestamp to server timestamp.
-		$scheduled_timestamp_wp = $start_of_today_wp->getTimestamp();
-		$current_timestamp_wp   = $current_time_wp->getTimestamp();
-		$scheduled_time_server  = new \DateTime( '@' . $scheduled_timestamp_wp );
-		$scheduled_time_server->setTimezone( $server_timezone );
-		$scheduled_timestamp_server = $scheduled_time_server->getTimestamp();
+		// Create a DateTime for today at the specified hour and minute in the user's timezone.
+		$scheduled_time_user = new \DateTime( "today", $user_timezone );
+		$scheduled_time_user->setTime( $hour, $minute );
 
-		// Get the current server time.
-		$current_time_server      = new \DateTime( 'now', $server_timezone );
-		$current_timestamp_server = $current_time_server->getTimestamp();
+		// Convert the user's scheduled time to UTC for WordPress.
+		$scheduled_time_utc = clone $scheduled_time_user;
+		$scheduled_time_utc->setTimezone( new \DateTimeZone('UTC') );
 
-		// If the selected time has already passed today in server timezone, schedule for tomorrow.
-		if ( $scheduled_timestamp_server <= $current_timestamp_server ) {
-			$scheduled_time_server->modify( '+1 day' );
-			$scheduled_timestamp_server = $scheduled_time_server->getTimestamp();
+		// If the selected time has already passed today in UTC, schedule for tomorrow.
+		if ( $scheduled_time_utc <= $current_time_wp ) {
+			$scheduled_time_utc->modify( '+1 day' );
 		}
 
-		return $scheduled_timestamp_server;
+		return $scheduled_time_utc->getTimestamp();
 	}
 
 	/**

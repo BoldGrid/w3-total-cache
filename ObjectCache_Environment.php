@@ -51,7 +51,7 @@ class ObjectCache_Environment {
 		$objectcache_enabled = $config->get_boolean( 'objectcache.enabled' );
 		$engine              = $config->get_string( 'objectcache.engine' );
 
-		if ( $objectcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+		if ( $objectcache_enabled && 'file' === $engine ) {
 			$new_interval = $config->get_integer( 'objectcache.file.gc' );
 			$old_interval = $old_config ? $old_config->get_integer( 'objectcache.file.gc' ) : -1;
 
@@ -79,7 +79,7 @@ class ObjectCache_Environment {
 
 			if ( ! wp_next_scheduled( 'w3tc_objectcache_purge_wpcron' ) ) {
 				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
-				wp_schedule_event( $scheduled_time, 'w3tc_objectcache_purge_wpcron', 'w3tc_objectcache_purge_wpcron' );
+				wp_schedule_event( $scheduled_timestamp_server, 'w3tc_objectcache_purge_wpcron', 'w3tc_objectcache_purge_wpcron' );
 			}
 		} else {
 			$this->unschedule_purge_wpcron();

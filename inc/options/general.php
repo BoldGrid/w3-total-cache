@@ -494,11 +494,14 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			);
 
 			$time_options = array();
+			$timezone     = new \DateTimeZone( get_user_meta( get_current_user_id(), 'timezone', true ) ?: wp_timezone()->getName() );
+
 			for ( $hour = 0; $hour < 24; $hour++ ) {
-				foreach ( array( '00', '30' ) as $minute ) {
-					$time_value                  = $hour * 60 + intval( $minute );
-					$time_label                  = gmdate( 'g:i a', strtotime( sprintf( '%02d:%s', $hour, $minute ) ) );
-					$time_options[ $time_value ] = $time_label;
+				foreach ( array('00', '30') as $minute ) {
+					$time_value                = $hour * 60 + intval( $minute );
+					$scheduled_time            = new \DateTime( "{$hour}:{$minute}", $timezone );
+					$time_label                = $scheduled_time->format( 'g:i a' );
+					$time_options[$time_value] = $time_label;
 				}
 			}
 

@@ -845,7 +845,31 @@ if ( ! defined( 'W3TC' ) ) {
 		<table class="form-table">
 			<?php
 			$c           = Dispatcher::config();
+			$disabled    = ! $c->get_boolean( 'pgcache.enabled' );
 			$wp_disabled = ! $c->get_boolean( 'pgcache.wp_cron' );
+
+			if ( $disabled ) {
+				echo wp_kses(
+					sprintf(
+						// Translators: 1 opening HTML div tag followed by opening HTML p tag, 2 opening HTML a tag,
+						// Translators: 3 closing HTML a tag, 4 closing HTML p tag followed by closing HTML div tag.
+						__( '%1$sPage Cache is disabled! Enable it %2$shere%3$s to enable this feature.%4$s', 'w3-total-cache' ),
+						'<div class="notice notice-error inline"><p>',
+						'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#page_cache' ) ) . '">',
+						'</a>',
+						'</p></div>'
+					),
+					array(
+						'div' => array(
+							'class' => array(),
+						),
+						'p'   => array(),
+						'a'   => array(
+							'href' => array(),
+						),
+					)
+				);
+			}
 
 			Util_Ui::config_item(
 				array(
@@ -854,15 +878,19 @@ if ( ! defined( 'W3TC' ) ) {
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
 					'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will flush the Page Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush posts". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache.', 'w3-total-cache' ),
+					'disabled'       => $disabled,
 				)
 			);
 
 			$time_options = array();
+			$timezone     = new \DateTimeZone( get_user_meta( get_current_user_id(), 'timezone', true ) ?: wp_timezone()->getName() );
+
 			for ( $hour = 0; $hour < 24; $hour++ ) {
-				foreach ( array( '00', '30' ) as $minute ) {
-					$time_value                  = $hour * 60 + intval( $minute );
-					$time_label                  = gmdate( 'g:i a', strtotime( sprintf( '%02d:%s', $hour, $minute ) ) );
-					$time_options[ $time_value ] = $time_label;
+				foreach ( array('00', '30') as $minute ) {
+					$time_value                = $hour * 60 + intval( $minute );
+					$scheduled_time            = new \DateTime( "{$hour}:{$minute}", $timezone );
+					$time_label                = $scheduled_time->format( 'g:i a' );
+					$time_options[$time_value] = $time_label;
 				}
 			}
 
@@ -872,7 +900,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => $time_options,
-					'disabled'         => $wp_disabled,
+					'disabled'         => $disabled || $wp_disabled,
 				)
 			);
 
@@ -887,7 +915,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
-					'disabled'         => $wp_disabled,
+					'disabled'         => $disabled || $wp_disabled,
 				)
 			);
 			?>
