@@ -211,7 +211,7 @@ class Util_Ui {
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
 		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="w3tc-basic-settings nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
 		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
-		$premium_link_tab   = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . ' w3tc-pro-services" >' . esc_html__( 'Premium Services', 'w3-total-cache' ) . '</a>' : '';
+		$premium_link_tab   = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . ' w3tc-pro-services" data-tab-type="premium-services">' . esc_html__( 'Premium Services', 'w3-total-cache' ) . '</a>' : '';
 
 		$extra_link_tabs = '';
 		foreach ( $extra_links as $extra_link_text => $extra_link ) {
@@ -253,7 +253,7 @@ class Util_Ui {
 		require_once 'ConfigSettingsTabs.php';
 		$configs = Config_Tab_Settings::get_config( $key );
 
-		return isset( $configs['tabs']['premium_support'] ) ? $configs['tabs']['premium_support'] : null;
+		return isset( $configs['tabs']['premium_support'] ) ? '<div data-tab-type="premium-services">' . $configs['tabs']['premium_support'] . '</div>' : null;
 	}
 
 	public static function button_config_save( $id = '', $extra = '' ) {

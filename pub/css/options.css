@@ -608,27 +608,12 @@ textarea.w3tc-error {
 	border-bottom: unset;
 }
 
-#w3tc .postbox-tabs .nav-tab-wrapper .nav-tab-active {
-	background: #ffffff;
+#w3tc .postbox-tabs .nav-tab-active {
+	background: #fff;
 }
 
 #w3tc .postbox-tabs .nav-tab-wrapper .nav-tab {
-	border-bottom: 1px solid #c3c4c7;
 	cursor: pointer;
-	margin: 0 .5em -1px 0;
-	padding: 2px 8px;
-	font-size: 14px;
-	font-weight: normal;
-}
-
-#w3tc .postbox-tabs .nav-tab-wrapper .nav-tab.link-tab {
-	background: #ffffff;
-	color: #2271b1;
-}
-
-#w3tc .postbox-tabs .nav-tab-wrapper .nav-tab.link-tab:hover {
-	background: #f6f7f7;
-	color: #135e96;
 }
 
 #w3tc .postbox-tabs .nav-tab-wrapper .nav-tab .dashicons {
