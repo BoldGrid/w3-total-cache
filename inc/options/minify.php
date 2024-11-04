@@ -1038,12 +1038,10 @@ if ( ! defined( 'W3TC' ) ) {
 			);
 
 			$time_options = array();
-			$timezone     = new \DateTimeZone( get_user_meta( get_current_user_id(), 'timezone', true ) ?: wp_timezone()->getName() );
-
 			for ( $hour = 0; $hour < 24; $hour++ ) {
 				foreach ( array('00', '30') as $minute ) {
 					$time_value                = $hour * 60 + intval( $minute );
-					$scheduled_time            = new \DateTime( "{$hour}:{$minute}", $timezone );
+					$scheduled_time            = new \DateTime( "{$hour}:{$minute}", wp_timezone()->getName() );
 					$time_label                = $scheduled_time->format( 'g:i a' );
 					$time_options[$time_value] = $time_label;
 				}

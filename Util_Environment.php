@@ -1678,9 +1678,6 @@ class Util_Environment {
 	 * @return int
 	 */
 	public static function get_cron_schedule_time(int $cron_time = 0): int {
-		// Fetch the current user's timezone from user meta.
-		$user_timezone = new \DateTimeZone( get_user_meta( get_current_user_id(), 'timezone', true ) ?: wp_timezone()->getName() );
-
 		// Get the current time in WordPress timezone.
 		$current_time_wp = new \DateTime( 'now', wp_timezone() );
 
@@ -1689,7 +1686,7 @@ class Util_Environment {
 		$minute = $cron_time % 60;
 
 		// Create a DateTime for today at the specified hour and minute in the user's timezone.
-		$scheduled_time_user = new \DateTime( "today", $user_timezone );
+		$scheduled_time_user = new \DateTime( "today", wp_timezone()->getName() );
 		$scheduled_time_user->setTime( $hour, $minute );
 
 		// Convert the user's scheduled time to UTC for WordPress.
