@@ -147,6 +147,7 @@ define( 'W3TC_MARKER_BEGIN_MINIFY_CACHE', '# BEGIN W3TC Minify cache' );
 define( 'W3TC_MARKER_BEGIN_MINIFY_LEGACY', '# BEGIN W3TC Minify' );
 define( 'W3TC_MARKER_BEGIN_CDN', '# BEGIN W3TC CDN' );
 define( 'W3TC_MARKER_BEGIN_WEBP', '# BEGIN W3TC WEBP' );
+define( 'W3TC_MARKER_BEGIN_PARTYTOWN', '# BEGIN W3TC PartyTown' );
 
 define( 'W3TC_MARKER_END_WORDPRESS', '# END WordPress' );
 define( 'W3TC_MARKER_END_PGCACHE_CORE', '# END W3TC Page Cache core' );
@@ -160,6 +161,7 @@ define( 'W3TC_MARKER_END_MINIFY_LEGACY', '# END W3TC Minify' );
 define( 'W3TC_MARKER_END_CDN', '# END W3TC CDN' );
 define( 'W3TC_MARKER_END_NEW_RELIC_CORE', '# END W3TC New Relic core' );
 define( 'W3TC_MARKER_END_WEBP', '# END W3TC WEBP' );
+define( 'W3TC_MARKER_END_PARTYTOWN', '# END W3TC PartyTown' );
 
 if ( ! defined( 'W3TC_EXTENSION_DIR' ) ) {
 	define( 'W3TC_EXTENSION_DIR', ( defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : WP_CONTENT_DIR . '/plugins' ) );
@@ -172,7 +174,7 @@ if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 	define( 'W3TC_FEED_REGEXP', '~/feed(/|$)~' );
 }
 
-define( 'W3TC_INSTALL_FILE_PARTYTOWN_SRC', W3TC_DIR . '/pub/js/PartyTown/' );
+define( 'W3TC_INSTALL_FILE_PARTYTOWN_SRC', W3TC_DIR . '/lib/PartyTown/' );
 
 @ini_set( 'pcre.backtrack_limit', 4194304 );
 @ini_set( 'pcre.recursion_limit', 4194304 );

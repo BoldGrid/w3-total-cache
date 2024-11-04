@@ -45,6 +45,19 @@ Util_Ui::postbox_header( esc_html__( 'PartyTown', 'w3-total-cache' ), '', 'party
 		);
 		Util_Ui::config_item_pro(
 			array(
+				'key'             => array( 'user-experience-partytown', 'atomics' ),
+				'label'           => esc_html__( 'Atomics Support:', 'w3-total-cache' ),
+				'control'         => 'checkbox',
+				'checkbox_label'  => esc_html__( 'Add required Atomics headers.', 'w3-total-cache' ),
+				'disabled'        => ! $is_enabled,
+				'description'     => array(),
+				'excerpt'         => esc_html__( 'Adds the required headers (Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy) to support atomic operations in PartyTown. This setting does not explicitly enable atomics, as PartyTown will automatically utilize them if available. Enabling these headers may improve performance but could impact site compatibility, especially with embedded cross-origin content.', 'w3-total-cache' ),
+				'show_learn_more' => false,
+				'no_wrap'         => true,
+			)
+		);
+		Util_Ui::config_item_pro(
+			array(
 				'key'             => array( 'user-experience-partytown', 'preload' ),
 				'label'           => esc_html__( 'Preload Resources:', 'w3-total-cache' ),
 				'control'         => 'checkbox',

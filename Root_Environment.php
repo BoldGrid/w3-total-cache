@@ -178,6 +178,7 @@ class Root_Environment {
 			new Cdn_Environment(),
 			new Extension_ImageService_Environment(),
 			new Extension_AlwaysCached_Environment(),
+			new UserExperience_PartyTown_Environment(),
 		);
 
 		return $a;

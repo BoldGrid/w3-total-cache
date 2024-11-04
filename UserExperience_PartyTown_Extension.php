@@ -75,27 +75,43 @@ class UserExperience_PartyTown_Extension {
 	 * @return void
 	 */
 	public function w3tc_enqueue_partytown() {
-		$party_path = substr( plugins_url( '/lib/PartyTown', W3TC_LIB_DIR ), strlen( site_url() ) );
-		$init_path  = substr( plugins_url( '/pub/js', W3TC_LIB_DIR ), strlen( site_url() ) );
+		$party_path         = wp_make_link_relative( plugins_url( 'lib/PartyTown/lib/', __FILE__ ) );
+		$debug              = $this->config->get_boolean( array( 'user-experience-partytown', 'debug' ) ) ? 'true' : 'false';
+		$timeout            = $this->config->get_integer( array( 'user-experience-partytown', 'timeout' ) ) ?? 5000;
+		$worker_concurrency = $this->config->get_integer( array( 'user-experience-partytown', 'workers' ) ) ?? 5;
 
-		wp_enqueue_script( 'partytown', $party_path . '/lib/debug/partytown.js', array(), W3TC_VERSION, false );
+		wp_register_script( 'partytown', $party_path . 'partytown.js', array(), '', true );
 
+		// Preload Partytown if enabled.
 		if ( $this->config->get_boolean( array( 'user-experience-partytown', 'preload' ) ) ) {
 			wp_script_add_data( 'partytown', 'preload', 'true' );
 		}
 
-		wp_register_script( 'partytown-init', $init_path . '/partytown-init.js', array( 'partytown' ), W3TC_VERSION, true );
-		wp_localize_script(
-			'partytown-init',
-			'partytownConfig',
-			array(
-				'lib'               => $party_path . '/lib/',
-				'debug'             => $this->config->get_boolean( array( 'user-experience-partytown', 'debug' ) ) ?? false,
-				'timeout'           => $this->config->get_integer( array( 'user-experience-partytown', 'timeout' ) ) ?? 2000,
-				'workerConcurrency' => $this->config->get_integer( array( 'user-experience-partytown', 'workers' ) ) ?? 5,
-			)
-		);
-		wp_enqueue_script( 'partytown-init' );
+		// Prepare configuration for Partytown.
+		$inline_script = "
+			window.partytown = {
+				lib: '/',
+				debug: {$debug},
+				timeout: {$timeout},
+				workerConcurrency: {$worker_concurrency},
+			};
+
+			// This was added due to the fact it's not applying on initial page load. The iframe added by partytown.js is removed afterwards due to no service worker being available.
+			/*
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.addEventListener('controllerchange', () => {
+					// This event is triggered when the service worker is installed and takes control
+					console.log('Service worker installed and controlling the page. Reloading...');
+					window.location.reload();
+				});
+			}
+			*/
+		";
+
+		// Add inline script to configure Partytown.
+		wp_add_inline_script( 'partytown', $inline_script, 'before' );
+
+		wp_enqueue_script( 'partytown' );
 	}
 
 	/**
