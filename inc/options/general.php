@@ -497,7 +497,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			for ( $hour = 0; $hour < 24; $hour++ ) {
 				foreach ( array('00', '30') as $minute ) {
 					$time_value                = $hour * 60 + intval( $minute );
-					$scheduled_time            = new \DateTime( "{$hour}:{$minute}", wp_timezone()->getName() );
+					$scheduled_time            = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
 					$time_label                = $scheduled_time->format( 'g:i a' );
 					$time_options[$time_value] = $time_label;
 				}

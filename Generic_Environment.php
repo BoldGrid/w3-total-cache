@@ -67,7 +67,7 @@ class Generic_Environment {
 
 			if ( ! wp_next_scheduled( 'w3tc_purgeall_wpcron' ) ) {
 				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
-				wp_schedule_event( $scheduled_time, 'w3tc_purgeall_wpcron', 'w3tc_purgeall_wpcron' );
+				wp_schedule_event( $scheduled_timestamp_server, 'w3tc_purgeall_wpcron', 'w3tc_purgeall_wpcron' );
 			}
 		} else {
 			$this->unschedule_purge_wpcron();

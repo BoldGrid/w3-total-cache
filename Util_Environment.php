@@ -1686,7 +1686,7 @@ class Util_Environment {
 		$minute = $cron_time % 60;
 
 		// Create a DateTime for today at the specified hour and minute in the user's timezone.
-		$scheduled_time_user = new \DateTime( "today", wp_timezone()->getName() );
+		$scheduled_time_user = new \DateTime( "today", wp_timezone() );
 		$scheduled_time_user->setTime( $hour, $minute );
 
 		// Convert the user's scheduled time to UTC for WordPress.
