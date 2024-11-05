@@ -18,7 +18,7 @@ class Generic_Plugin {
 	 */
 	function run() {
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ), 5 );
-		add_action( 'w3tc_purgeall_wpcron', array( $this, 'w3tc_purgeall_wpcron' ) );
+		add_action( 'w3tc_purge_all_wpcron', array( $this, 'w3tc_purgeall_wpcron' ) );
 
 		/* need this to run before wp-cron to issue w3tc redirect */
 		add_action( 'init', array( $this, 'init' ), 1 );

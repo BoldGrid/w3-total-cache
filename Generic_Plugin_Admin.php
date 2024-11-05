@@ -161,17 +161,17 @@ class Generic_Plugin_Admin {
 			$schedule_needs_update = $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval;
 
 			// Clear the scheduled hook if a change in time or interval is detected.
-			if ( wp_next_scheduled( 'w3tc_purgeall_wpcron' ) && $schedule_needs_update ) {
-				wp_clear_scheduled_hook( 'w3tc_purgeall_wpcron' );
+			if ( wp_next_scheduled( 'w3tc_purge_all_wpcron' ) && $schedule_needs_update ) {
+				wp_clear_scheduled_hook( 'w3tc_purge_all_wpcron' );
 			}
 
 			// Schedule if no existing cron event or settings have changed.
-			if ( ! wp_next_scheduled( 'w3tc_purgeall_wpcron' ) || $schedule_needs_update ) {
+			if ( ! wp_next_scheduled( 'w3tc_purge_all_wpcron' ) || $schedule_needs_update ) {
 				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
-				wp_schedule_event( $scheduled_timestamp_server, $new_wp_cron_interval, 'w3tc_purgeall_wpcron' );
+				wp_schedule_event( $scheduled_timestamp_server, $new_wp_cron_interval, 'w3tc_purge_all_wpcron' );
 			}
-		} elseif ( wp_next_scheduled( 'w3tc_purgeall_wpcron' ) ) {
-			wp_clear_scheduled_hook( 'w3tc_purgeall_wpcron' );
+		} elseif ( wp_next_scheduled( 'w3tc_purge_all_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_purge_all_wpcron' );
 		}
 
 		return $data;
