@@ -841,7 +841,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( esc_html__( 'Purge Via WP Cron', 'w3-total-cache' ), '', 'pgcache_wp_cron' ); ?>
+		<?php Util_Ui::postbox_header( esc_html__( 'Purge via WP Cron', 'w3-total-cache' ), '', 'pgcache_wp_cron' ); ?>
 		<table class="form-table">
 			<?php
 			$c           = Dispatcher::config();

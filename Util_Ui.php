@@ -1652,7 +1652,7 @@ class Util_Ui {
 						),
 						array(
 							'id'   => 'allcache_wp_cron',
-							'text' => esc_html__( 'Purge Via WP Cron', 'w3-total-cache' ),
+							'text' => esc_html__( 'Purge via WP Cron', 'w3-total-cache' ),
 						),
 						array(
 							'id'   => 'cdn',
@@ -1736,7 +1736,7 @@ class Util_Ui {
 					<a href="#purge_policy"><?php esc_html_e( 'Purge Policy', 'w3-total-cache' ); ?></a> |
 					<a href="#rest"><?php esc_html_e( 'Rest API', 'w3-total-cache' ); ?></a> |
 					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
-					<a href="#pgcache_wp_cron"><?php esc_html_e( 'Purge Via WP Cron', 'w3-total-cache' ); ?></a> |
+					<a href="#pgcache_wp_cron"><?php esc_html_e( 'Purge via WP Cron', 'w3-total-cache' ); ?></a> |
 					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
@@ -1810,7 +1810,7 @@ class Util_Ui {
 						?>
 					</a> |
 					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
-					<a href="#minify_wp_cron"><?php esc_html_e( 'Purge Via WP Cron', 'w3-total-cache' ); ?></a> |
+					<a href="#minify_wp_cron"><?php esc_html_e( 'Purge via WP Cron', 'w3-total-cache' ); ?></a> |
 					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
@@ -1821,7 +1821,7 @@ class Util_Ui {
 				<div id="w3tc-options-menu">
 					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
-					<a href="#dbcache_wp_cron"><?php esc_html_e( 'Purge Via WP Cron', 'w3-total-cache' ); ?></a>
+					<a href="#dbcache_wp_cron"><?php esc_html_e( 'Purge via WP Cron', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
 				break;
@@ -1830,7 +1830,7 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
-					<a href="#objectcache_wp_cron"><?php esc_html_e( 'Purge Via WP Cron', 'w3-total-cache' ); ?></a>
+					<a href="#objectcache_wp_cron"><?php esc_html_e( 'Purge via WP Cron', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
 				break;
