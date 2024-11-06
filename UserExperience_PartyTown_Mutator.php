@@ -109,11 +109,6 @@ class UserExperience_PartyTown_Mutator {
 			$content = preg_replace( '/<script(\s|>)/', '<script type="text/partytown"$1', $content );
 		}
 
-		// Add the data-partytown attribute if not already present.
-		if ( strpos( $content, 'data-partytown' ) === false ) {
-			$content = preg_replace( '/<script(\s|>)/', '<script data-partytown$1', $content );
-		}
-
 		return $content;
 	}
 

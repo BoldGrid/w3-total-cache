@@ -80,7 +80,7 @@ class UserExperience_PartyTown_Extension {
 		$timeout            = $this->config->get_integer( array( 'user-experience-partytown', 'timeout' ) ) ?? 5000;
 		$worker_concurrency = $this->config->get_integer( array( 'user-experience-partytown', 'workers' ) ) ?? 5;
 
-		wp_register_script( 'partytown', $party_path . 'partytown.js', array(), '', true );
+		wp_register_script( 'partytown', $party_path . 'partytown.js', array(), W3TC_VERSION, true );
 
 		// Preload Partytown if enabled.
 		if ( $this->config->get_boolean( array( 'user-experience-partytown', 'preload' ) ) ) {
@@ -90,7 +90,7 @@ class UserExperience_PartyTown_Extension {
 		// Prepare configuration for Partytown.
 		$inline_script = "
 			window.partytown = {
-				lib: '/',
+				lib: '{$party_path}',
 				debug: {$debug},
 				timeout: {$timeout},
 				workerConcurrency: {$worker_concurrency},
