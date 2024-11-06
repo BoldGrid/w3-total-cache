@@ -93,25 +93,6 @@ class Minify_Environment {
 		} else {
 			$this->unschedule_gc();
 		}
-
-		// Schedule purge.
-		if ( $minify_enabled && $config->get_boolean( 'minify.wp_cron' ) ) {
-			$new_wp_cron_time     = $config->get_integer( 'minify.wp_cron_time' );
-			$old_wp_cron_time     = $old_config ? $old_config->get_integer( 'minify.wp_cron_time' ) : -1;
-			$new_wp_cron_interval = $config->get_integer( 'minify.wp_cron_interval' );
-			$old_wp_cron_interval = $old_config ? $old_config->get_integer( 'minify.wp_cron_interval' ) : -1;
-
-			if ( $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval ) {
-				$this->unschedule_purge_wpcron();
-			}
-
-			if ( ! wp_next_scheduled( 'w3tc_minifycache_purge_wpcron' ) ) {
-				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
-				wp_schedule_event( $scheduled_timestamp_server, 'w3tc_minifycache_purge_wpcron', 'w3tc_minifycache_purge_wpcron' );
-			}
-		} else {
-			$this->unschedule_purge_wpcron();
-		}
 	}
 
 	/**
