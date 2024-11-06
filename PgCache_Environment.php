@@ -102,25 +102,6 @@ class PgCache_Environment {
 		} else {
 			$this->unschedule_prime();
 		}
-
-		// Schedule purge.
-		if ( $pgcache_enabled && $config->get_boolean( 'pgcache.wp_cron' ) ) {
-			$new_wp_cron_time     = $config->get_integer( 'pgcache.wp_cron_time' );
-			$old_wp_cron_time     = $old_config ? $old_config->get_integer( 'pgcache.wp_cron_time' ) : -1;
-			$new_wp_cron_interval = $config->get_string( 'pgcache.wp_cron_interval' );
-			$old_wp_cron_interval = $old_config ? $old_config->get_integer( 'pgcache.wp_cron_interval' ) : -1;
-
-			if ( $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval ) {
-				$this->unschedule_purge_wpcron();
-			}
-
-			if ( ! wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) ) {
-				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
-				wp_schedule_event( $scheduled_timestamp_server, $new_wp_cron_interval, 'w3tc_pgcache_purge_wpcron' );
-			}
-		} else {
-			$this->unschedule_purge_wpcron();
-		}
 	}
 
 	/**
