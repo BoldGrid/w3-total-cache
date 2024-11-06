@@ -57,7 +57,7 @@ $wp_cron_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 				'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 				'control'          => 'selectbox',
 				'selectbox_values' => $time_options,
-				'description'      => esc_html__( 'This setting controls the initial start time of the Cron Job based on the configured WordPress timezone. It will automatically adjust the timestamp used to accommodate differences between the configured WordPress and server timezones. If the selected time has already passed, it will add a day so that it begins the next day.', 'w3-total-cache' ),
+				'description'      => esc_html__( 'This setting controls the initial start time of the cron job based on the configured WordPress timezone. It will automatically adjust the timestamp to accommodate differences between the configured WordPress and server timezones. If the selected time has already passed, it will add a day so that it begins the next day.', 'w3-total-cache' ),
 				'disabled'         => $pgcache_disabled || $wp_cron_disabled,
 			)
 		);
@@ -76,7 +76,7 @@ $wp_cron_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 					'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
 					'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 				),
-				'description'      => esc_html__( 'This setting controls the interval that the Cron Job should occur.', 'w3-total-cache' ),
+				'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
 				'disabled'         => $pgcache_disabled || $wp_cron_disabled,
 			)
 		);
