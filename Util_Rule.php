@@ -359,6 +359,12 @@ class Util_Rule {
 					return;
 				}
 			}
+
+			$chmod = 0644;
+			if ( defined( 'FS_CHMOD_FILE' ) ) {
+				$chmod = FS_CHMOD_FILE;
+			}
+			@chmod( $path, $chmod );
 		}
 
 		Util_Rule::after_rules_modified();

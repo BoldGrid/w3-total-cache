@@ -240,7 +240,23 @@ class FeatureShowcase_Plugin_Admin {
 
 		return array(
 			'new' => array(
-				'remove-cssjs' => array(
+				'alwayscached'     => array(
+					'title'      => esc_html__( 'Always Cached', 'w3-total-cache' ),
+					'icon'       => 'dashicons-yes',
+					'text'       => esc_html__( 'The Always Cached extension prevents page/post updates from clearing corresponding cache entries and instead adds them to a queue that can be manually cleared or scheduled to clear via cron.', 'w3-total-cache' ),
+					'button'     => '<button class="button" onclick="window.location=\'' . (
+						Extension_AlwaysCached_Plugin::is_enabled()
+							? esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ) )
+							: esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#alwayscached' ) )
+						) . '\'">' .
+						__( 'Settings', 'w3-total-cache' ) . '</button>',
+					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/alwayscached-extension/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=alwayscached-extension' ) .
+						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+					'is_premium' => true,
+					'is_new'     => true,
+					'version'    => 'X.X.X',
+				),
+				'remove-cssjs'     => array(
 					'title'      => esc_html__( 'Remove Unused CSS/JS', 'w3-total-cache' ),
 					'icon'       => 'dashicons-editor-strikethrough',
 					'text'       => esc_html__( 'Removes specified CSS/JS tags from the homepage or on a per page basis. Can be used to eliminate unused CSS/JS on pages that do not require them.', 'w3-total-cache' ),

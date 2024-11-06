@@ -49,6 +49,17 @@ class Cache_File_Cleaner {
 	}
 
 	/**
+	 * Run clean operation
+	 *
+	 * @return void
+	 */
+	public function clean_before( $before_time ) {
+		@set_time_limit( $this->_clean_timelimit );
+
+		$this->_clean( $this->_cache_dir, false );
+	}
+
+	/**
 	 * Clean
 	 *
 	 * @param string  $path

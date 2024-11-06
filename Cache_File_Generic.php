@@ -60,8 +60,16 @@ class Cache_File_Generic extends Cache_File {
 		@fputs( $fp, $var['content'] );
 		@fclose( $fp );
 
-		if ( $this->_locking )
+		$chmod = 0644;
+		if ( defined( 'FS_CHMOD_FILE' ) ) {
+			$chmod = FS_CHMOD_FILE;
+		}
+
+		@chmod( $tmppath, $chmod );
+
+		if ( $this->_locking ) {
 			@flock( $fp, LOCK_UN );
+		}
 
 		// some hostings create files with restrictive permissions
 		// not allowing apache to read it later
@@ -134,9 +142,17 @@ class Cache_File_Generic extends Cache_File {
 				}
 			}
 
-			if ( !empty($rules) ) {
-				@file_put_contents( dirname( $path ) .
-					DIRECTORY_SEPARATOR . '.htaccess', $rules );
+			if ( ! empty( $rules ) ) {
+				$htaccess_path = dirname( $path ) . DIRECTORY_SEPARATOR . '.htaccess';
+
+				@file_put_contents( $htaccess_path, $rules );
+
+				$chmod = 0644;
+				if ( defined( 'FS_CHMOD_FILE' ) ) {
+					$chmod = FS_CHMOD_FILE;
+				}
+
+				@chmod( $htaccess_path, $chmod );
 			}
 		}
 
@@ -281,6 +297,20 @@ class Cache_File_Generic extends Cache_File {
 	}
 
 	/**
+	 * Checks if entry exists
+	 *
+	 * @param string $key Key.
+	 * @param string $group Used to differentiate between groups of cache values.
+	 * @return boolean true if exists, false otherwise
+	 */
+	public function exists( $key, $group = '' ) {
+		$key  = $this->get_item_key( $key );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
+
+		return file_exists( $path );
+	}
+
+	/**
 	 * Key to delete, deletes _old and primary if exists.
 	 *
 	 * @param unknown $key
@@ -330,6 +360,53 @@ class Cache_File_Generic extends Cache_File {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Gets a key extension for "ahead generation" mode.
+	 * Used by AlwaysCached functionality to regenerate content
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
+	 * @return array
+	 */
+	public function get_ahead_generation_extension( $group ) {
+		return array(
+			'before_time' => time()
+		);
+	}
+
+	/**
+	 * Flushes group with before condition
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param array  $extension Used to set a condition what version to flush.
+	 *
+	 * @return void
+	 */
+	public function flush_group_after_ahead_generation( $group, $extension ) {
+		$dir = $this->_flush_dir;
+		if ( ! empty( $group ) ) {
+			$c = new Cache_File_Cleaner_Generic_HardDelete(
+				array(
+					'cache_dir'       => $this->_flush_dir . DIRECTORY_SEPARATOR . $group,
+					'exclude'         => $this->_exclude,
+					'clean_timelimit' => $this->_flush_timelimit,
+					'time_min_valid'  => $extension['before_time'],
+				)
+			);
+		} else {
+			$c = new Cache_File_Cleaner_Generic(
+				array(
+					'cache_dir'       => $this->_flush_dir,
+					'exclude'         => $this->_exclude,
+					'clean_timelimit' => $this->_flush_timelimit,
+					'time_min_valid'  => $extension['before_time'],
+				)
+			);
+		}
+
+		$c->clean();
 	}
 
 	/**

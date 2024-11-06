@@ -1664,4 +1664,128 @@ class Util_Environment {
 
 		return false;
 	}
+
+	/**
+	 * Generates an appropriate timestamp for WP cron using a selected time during the day in the form of an integer.
+	 * Adjusts for discrepacy in timezones between WP and system and adds a day if the result is in the past.
+	 *
+	 * @since  X.X.X
+	 *
+	 * @static
+	 *
+	 * @param int $cron_time Cron schedule time.
+	 *
+	 * @return int
+	 */
+	public static function get_cron_schedule_time(int $cron_time = 0): int {
+		// Get the current time in WordPress timezone.
+		$current_time_wp = new \DateTime( 'now', wp_timezone() );
+
+		// Convert the selected cron time into hours and minutes.
+		$hour   = floor( $cron_time / 60 );
+		$minute = $cron_time % 60;
+
+		// Create a DateTime for today at the specified hour and minute in the user's timezone.
+		$scheduled_time_user = new \DateTime( "today", wp_timezone() );
+		$scheduled_time_user->setTime( $hour, $minute );
+
+		// Convert the user's scheduled time to UTC for WordPress.
+		$scheduled_time_utc = clone $scheduled_time_user;
+		$scheduled_time_utc->setTimezone( new \DateTimeZone('UTC') );
+
+		// If the selected time has already passed today in UTC, schedule for tomorrow.
+		if ( $scheduled_time_utc <= $current_time_wp ) {
+			$scheduled_time_utc->modify( '+1 day' );
+		}
+
+		return $scheduled_time_utc->getTimestamp();
+	}
+
+	/**
+	 * Tests the WP Cron spawning system and reports back its status.
+	 *
+	 * This command tests the spawning system by performing the following steps:
+	 *
+	 * * Checks to see if the `DISABLE_WP_CRON` constant is set; errors if true
+	 * because WP-Cron is disabled.
+	 * * Checks to see if the `ALTERNATE_WP_CRON` constant is set; warns if true.
+	 * * Attempts to spawn WP-Cron over HTTP; warns if non 200 response code is
+	 * returned.
+	 *
+	 * @since X.X.X
+	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L14-L55
+	 *
+	 * @return bool
+	 */
+	public static function is_wpcron_working(): bool {
+		if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
+			$errormsg = 'The DISABLE_WP_CRON constant is set to true. WP-Cron spawning is disabled.';
+			return false;
+		}
+
+		if ( defined( 'ALTERNATE_WP_CRON' ) && ALTERNATE_WP_CRON ) {
+			$errormsg = 'The ALTERNATE_WP_CRON constant is set to true. WP-Cron spawning is not asynchronous.';
+			return false;
+		}
+
+		$spawn = self::get_cron_spawn();
+
+		if ( is_wp_error( $spawn ) ) {
+			$errormsg = sprintf( 'WP-Cron spawn failed with error: %s', $spawn->get_error_message() );
+			return false;
+		}
+
+		$code    = wp_remote_retrieve_response_code( $spawn );
+		$message = wp_remote_retrieve_response_message( $spawn );
+
+		if ( 200 === $code ) {
+			// WP-Cron spawning is working as expected.
+			return true;
+		} else {
+			$errormsg = sprintf( 'WP-Cron spawn returned HTTP status code: %1$s %2$s', $code, $message );
+			return false;
+		}
+	}
+
+	/**
+	 * Spawns a request to `wp-cron.php` and return the response.
+	 *
+	 * This function is designed to mimic the functionality in `spawn_cron()`
+	 * with the addition of returning the result of the `wp_remote_post()`
+	 * request.
+	 *
+	 * @since X.X.X
+	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L57-L91
+	 *
+	 * @global $wp_version WordPress version string.
+	 *
+	 * @return WP_Error|array The response or WP_Error on failure.
+	 */
+	protected static function get_cron_spawn() {
+		global $wp_version;
+
+		$sslverify     = version_compare( $wp_version, 4.0, '<' );
+		$doing_wp_cron = sprintf( '%.22F', microtime( true ) );
+
+		$cron_request_array = array(
+			'url'  => site_url( 'wp-cron.php?doing_wp_cron=' . $doing_wp_cron ),
+			'key'  => $doing_wp_cron,
+			'args' => array(
+				'timeout'   => 3,
+				'blocking'  => true,
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
+				'sslverify' => apply_filters( 'https_local_ssl_verify', $sslverify ),
+			),
+		);
+
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
+		$cron_request = apply_filters( 'cron_request', $cron_request_array );
+
+		// Enforce a blocking request in case something that's hooked onto the 'cron_request' filter sets it to false.
+		$cron_request['args']['blocking'] = true;
+
+		$result = wp_remote_post( $cron_request['url'], $cron_request['args'] );
+
+		return $result;
+	}
 }

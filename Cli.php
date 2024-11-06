@@ -556,6 +556,66 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 		\WP_CLI::success( \__( 'PageCache Priming triggered successfully.', 'w3-total-cache' ) );
 	}
+
+	/**
+	 * Generally triggered from a cronjob, processes always cached queue.
+	 */
+	public function alwayscached_process() {
+		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: Error message.
+					\__( 'Always Cached feature is not enabled: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
+			return;
+		}
+
+		try {
+			Extension_AlwaysCached_Worker::run();
+		} catch ( \Exception $e ) {
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: Error message.
+					\__( 'Always Cached queue processer failed: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
+		}
+
+		\WP_CLI::success( \__( 'Always Cached queue processed successfully.', 'w3-total-cache' ) );
+	}
+
+	/**
+	 * Generally triggered from a cronjob, processes AlwaysCached queue.
+	 */
+	public function alwayscached_clear() {
+		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: Error message.
+					\__( 'Always Cached feature is not enabled: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
+			return;
+		}
+
+		try {
+			Extension_AlwaysCached_Queue::empty();
+		} catch ( \Exception $e ) {
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: Error message.
+					\__( 'Always Cached queue empty failed: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
+		}
+
+		\WP_CLI::success( \__( 'Always Cached queue emptied successfully.', 'w3-total-cache' ) );
+	}
 }
 
 // Register WP-CLI commands.

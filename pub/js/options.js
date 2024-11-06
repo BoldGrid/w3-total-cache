@@ -482,37 +482,47 @@ function cdn_cf_bucket_location() {
 		.text( id + '.s3.' + get_bucket_region( jQuery( '#cdn_cf_bucket_location' ).val() ) + 'amazonaws.com' );
 }
 
+/**
+ * Toggle the disk notice for dbcache.
+ *
+ * @since X.X.X
+ */
+function toggle_dbcache_notice() {
+	if ( jQuery('#dbcache__engine').val() === 'file' && jQuery('#dbcache__enabled').is(':checked') ) {
+		jQuery('.dbcache_disk_notice').show();
+	} else {
+		jQuery('.dbcache_disk_notice').hide();
+	}
+}
+
+/**
+ * Toggle the disk notice for objectcache.
+ *
+ * @since X.X.X
+ */
+function toggle_objectcache_notice() {
+	if ( jQuery('#objectcache__engine').val() === 'file' && jQuery('#objectcache__enabled').is(':checked') ) {
+		jQuery('.objectcache_disk_notice').show();
+	} else {
+		jQuery('.objectcache_disk_notice').hide();
+	}
+}
+
 // On document ready.
 jQuery(function() {
 	// Global vars.
 	var $cdn_enabled = jQuery('#cdn__enabled'),
 		$cdn_engine = jQuery('#cdn__engine');
 
-	// Object cache disk usage warning
-	if ( jQuery('#objectcache__engine').val() === 'file' ) {
-		jQuery('.objectcache_disk_notice').show();
-	}
+	// Database cache disk usage warning.
+	toggle_dbcache_notice();
+	jQuery('#dbcache__enabled').change(toggle_dbcache_notice);
+	jQuery('#dbcache__engine').change(toggle_dbcache_notice);
 
-	jQuery('#objectcache__engine').change( function() {
-        if ( jQuery(this).val() === 'file' ) {
-			jQuery('.objectcache_disk_notice').show();
-        } else {
-			jQuery('.objectcache_disk_notice').hide();
-		}
-    });
-
-  // Database cache disk usage warning
-	if ( jQuery('#dbcache__engine').val() === 'file' ) {
-		jQuery('.dbcache_disk_notice').show();
-	}
-
-	jQuery('#dbcache__engine').change( function() {
-		if ( jQuery(this).val() === 'file' ) {
-			jQuery('.dbcache_disk_notice').show();
-		} else {
-			jQuery('.dbcache_disk_notice').hide();
-		}
-	});
+	// Object cache disk usage warning.
+	toggle_objectcache_notice();
+	jQuery('#objectcache__enabled').change(toggle_objectcache_notice);
+	jQuery('#objectcache__engine').change(toggle_objectcache_notice);
 
 	// General page.
 	jQuery('.w3tc_read_technical_info').on('click', function() {
@@ -549,6 +559,37 @@ jQuery(function() {
 			jQuery('.w3tc_license_verification').html('Check failed');
 		});
 	});
+
+	// General Settings Tab actions.
+	jQuery( '.postbox-tabs .inside' ).children( "[data-tab-type]" ).hide();
+
+	jQuery( document ).on( 'click', '.performance_page_w3tc_general .nav-tab', function(){
+   		var $tab = jQuery( this ),
+		$nav_tab_wrapper = $tab.closest( ".nav-tab-wrapper" )
+    	tab_type = $tab.attr( "data-tab-type" ),
+    	$inside = $tab.closest( ".postbox-tabs" ).find( ".inside" );
+
+		// Highlight the selected tab.
+		$nav_tab_wrapper.find( "a" ).removeClass( "nav-tab-active" );
+		$tab.addClass( "nav-tab-active" );
+
+		// If the tab is a link, don't do anything.
+		if ( $tab.is('[href]') ) {
+			return;
+		}
+
+		// Start off by hiding everything.
+		$inside.children().hide();
+
+
+		if (! tab_type) {
+        	// Show children without a data-tab-type attribute.
+        	$inside.children(':not([data-tab-type])').show(); // Show those without data-tab-type
+    	} else {
+			// Show children with the matching data-tab-type attribute.
+			$inside.children('[data-tab-type="' + tab_type + '"]').show();
+    	}
+	} );
 
 	// Prevent enabling Bunny CDN for both CDN and CDNFSD.
 	$cdn_enabled.on('click', cdn_bunnycdn_check);
@@ -1486,6 +1527,62 @@ jQuery(function() {
 		var i = jQuery('.w3tchelp_content').first();
 		w3tc_load_faq_section(i);
 	});
+
+	// wp cron settings.
+	jQuery(document).on(
+		'change',
+		'#allcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#allcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#allcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#pgcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#pgcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#pgcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#dbcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#dbcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#dbcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#minify__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#minify__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#minify__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#objectcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#objectcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#objectcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
 
 	var w3tchelp_loaded = {};
 

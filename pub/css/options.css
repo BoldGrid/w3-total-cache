@@ -347,6 +347,24 @@ textarea.w3tc-error {
 	padding: 10px 10px 10px 15px;
 }
 
+.w3tc-alwayscached-queue-view-table {
+	margin-top: 10px;
+}
+
+.w3tc-alwayscached-queue-view-table th {
+	font-weight: 600 !important;
+}
+
+.w3tc-alwayscached-queue-view-table th,
+.w3tc-alwayscached-queue-view-table td {
+	padding: 3px 10px !important;
+}
+
+.w3tc-alwayscached-queue-item {
+	color: #2271b1;
+	cursor: pointer;
+}
+
 #mobile_groups li,
 #referrer_groups li,
 .w3tc_cachegroups li,
@@ -378,6 +396,43 @@ textarea.w3tc-error {
 .referrer_group,
 .cookiegroup_name {
 	font-weight: bold;
+}
+
+.w3tc-alwayscached-queue-section {
+	display: none;
+	padding: 10px;
+	background: #f9f9f9;
+	margin-top: 1em;
+	border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+}
+
+.w3tc-alwayscached-queue-view-table .w3tc-alwayscached-regen-item {
+	text-decoration: none;
+}
+
+.w3tc-alwayscached-queue-view-pagination-page-input {
+	width: 90px;
+}
+
+.w3tc-alwayscached-queue-view-pagination-page-input,
+.w3tc-alwayscached-queue-view-pagination-page-input-submit {
+	margin-top: 10px !important;
+}
+
+.w3tc-alwayscached-queue-view-pagination-container {
+	margin-top: 10px;
+}
+
+.w3tc-alwayscached-queue-view-pagination-container a {
+	padding: 0 3px;
+}
+
+.w3tc-alwayscached-queue-view-pagination-container a.active {
+	color: #3c434a;
+	text-decoration: none;
+	pointer-events: none;
 }
 
 #remove_cssjs_singles_empty {
@@ -493,6 +548,10 @@ textarea.w3tc-error {
 	/* WP 5.5 */
 }
 
+.w3tc-pro-services-content p span.dashicons-yes-alt {
+	color:green;
+}
+
 .performance_page_w3tc_general #preview-button {
 	padding: 0;
 	color: #2271b1;
@@ -549,26 +608,12 @@ textarea.w3tc-error {
 	border-bottom: unset;
 }
 
-#w3tc .postbox-tabs .nav-tab-wrapper .nav-tab-active {
-	background: #ffffff;
+#w3tc .postbox-tabs .nav-tab-active {
+	background: #fff;
 }
 
 #w3tc .postbox-tabs .nav-tab-wrapper .nav-tab {
-	border-bottom: 1px solid #c3c4c7;
-	margin: 0 .5em -1px 0;
-	padding: 2px 8px;
-	font-size: 14px;
-	font-weight: normal;
-}
-
-#w3tc .postbox-tabs .nav-tab-wrapper .nav-tab.link-tab {
-	background: #ffffff;
-	color: #2271b1;
-}
-
-#w3tc .postbox-tabs .nav-tab-wrapper .nav-tab.link-tab:hover {
-	background: #f6f7f7;
-	color: #135e96;
+	cursor: pointer;
 }
 
 #w3tc .postbox-tabs .nav-tab-wrapper .nav-tab .dashicons {

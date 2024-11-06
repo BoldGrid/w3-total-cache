@@ -78,72 +78,12 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '', 'general' ); ?>
-		<?php if ( 'not_configured' === $state ) : ?>
-			<table class="form-table">
-				<tr>
-					<td colspan="2">
-						<?php esc_html_e( 'Authenticate your account in order to access settings.', 'w3-total-cache' ); ?>
-					</td>
-				</tr>
-			</table>
-		<?php elseif ( 'not_available' === $state ) : ?>
-			<table class="form-table">
-				<tr>
-					<td colspan="2">
-						<?php esc_html__( 'Cloudflare not available: ', 'w3-total-cache' ) . esc_html( $error_message ); ?>
-					</td>
-				</tr>
-			</table>
-		<?php elseif ( 'available' === $state ) : ?>
-			<table class="form-table">
-				<?php
-				Util_Ui::config_item(
-					array(
-						'key'              => array( 'cloudflare', 'widget_interval' ),
-						'label'            => esc_html__( 'Widget statistics interval:', 'w3-total-cache' ),
-						'control'          => 'selectbox',
-						'selectbox_values' => array(
-							'-30'    => esc_html__( 'Last 30 minutes', 'w3-total-cache' ),
-							'-360'   => esc_html__( 'Last 6 hours', 'w3-total-cache' ),
-							'-720'   => esc_html__( 'Last 12 hours', 'w3-total-cache' ),
-							'-1440'  => esc_html__( 'Last 24 hours', 'w3-total-cache' ),
-							'-10080' => esc_html__( 'Last week', 'w3-total-cache' ),
-							'-43200' => esc_html__( 'Last month', 'w3-total-cache' ),
-						),
-					)
-				);
 
-				Util_Ui::config_item(
-					array(
-						'key'         => array( 'cloudflare', 'widget_cache_mins' ),
-						'label'       => esc_html__( 'Cache time:', 'w3-total-cache' ),
-						'control'     => 'textbox',
-						'description' => esc_html__( 'How many minutes data retrieved from Cloudflare: should be stored. Minimum is 1 minute.', 'w3-total-cache' ),
-					)
-				);
+		<div>
+			<h3> <a style="text-decoration:none" href="<?php echo esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_general#cloudflare' ) ); ?>"> <?php esc_html_e( 'Click here', 'w3-total-cache' ); ?> </a> <?php esc_html_e( 'for the general settings for Cloudflare ', 'w3-total-cache' ); ?> </h3>
+		</div>
 
-				Util_Ui::config_item(
-					array(
-						'key'            => array( 'cloudflare', 'pagecache' ),
-						'label'          => esc_html__( 'Page caching:', 'w3-total-cache' ),
-						'control'        => 'checkbox',
-						'checkbox_label' => esc_html__( 'Flush Cloudflare on Post Modifications:', 'w3-total-cache' ),
-						'description'    => esc_html__( 'Enable when you have html pages cached on Cloudflare level.', 'w3-total-cache' ),
-					)
-				);
 
-				Util_Ui::config_item(
-					array(
-						'key'            => array( 'cloudflare', 'minify_js_rl_exclude' ),
-						'label'          => esc_html__( 'Minified JS Rocket Loader Exclude:', 'w3-total-cache' ),
-						'checkbox_label' => esc_html__( 'Exclude minified JS files from being processed by Rocket Loader:', 'w3-total-cache' ),
-						'control'        => 'checkbox',
-						'description'    => esc_html__( 'Exclusion achieved by adding data-cfasync="false" to script tags.', 'w3-total-cache' ),
-					)
-				);
-				?>
-			</table>
-		<?php endif; ?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 

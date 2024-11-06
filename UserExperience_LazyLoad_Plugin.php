@@ -157,7 +157,7 @@ class UserExperience_LazyLoad_Plugin {
 
 			$embed_script =
 				'<style>img.lazy{min-height:1px}</style>' .
-				'<link rel="preload" href="' . esc_url( $js_url ) . '" as="script">';
+				'<link href="' . esc_url( $js_url ) . '" as="script">';
 
 			$buffer = preg_replace( '~<head(\s+[^>]*)*>~Ui',
 				'\\0' . $embed_script, $buffer, 1 );
