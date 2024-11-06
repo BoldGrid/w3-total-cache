@@ -42,8 +42,9 @@ $wp_cron_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 		$time_options = array();
 		for ( $hour = 0; $hour < 24; $hour++ ) {
 			foreach ( array( '00', '30' ) as $minute ) {
-				$time_value                  = sprintf( '%02d:%s', $hour, $minute );
-				$time_label                  = gmdate( 'g:i a', strtotime( $time_value ) );
+				$time_value                  = $hour * 60 + intval( $minute );
+				$scheduled_time              = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
+				$time_label                  = $scheduled_time->format( 'g:i a' );
 				$time_options[ $time_value ] = $time_label;
 			}
 		}
