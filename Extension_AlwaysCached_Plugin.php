@@ -293,7 +293,7 @@ class Extension_AlwaysCached_Plugin {
 				}
 			}
 
-			$posts_count = $c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) );
+			$posts_count = $c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) ) ?? 15;
 			if ( $posts_count > 0 ) {
 				$posts = get_posts(
 					array(
@@ -325,7 +325,7 @@ class Extension_AlwaysCached_Plugin {
 				}
 			}
 
-			$pages_count = $c->get_integer( array( 'alwayscached', 'flush_all_pages_count' ) );
+			$pages_count = $c->get_integer( array( 'alwayscached', 'flush_all_pages_count' ) ) ?? 15;
 			if ( $pages_count > 0 ) {
 				$posts = get_posts(
 					array(
