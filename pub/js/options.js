@@ -1528,6 +1528,62 @@ jQuery(function() {
 		w3tc_load_faq_section(i);
 	});
 
+	// wp cron settings.
+	jQuery(document).on(
+		'change',
+		'#allcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#allcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#allcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#pgcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#pgcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#pgcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#dbcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#dbcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#dbcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#minify__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#minify__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#minify__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#objectcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#objectcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#objectcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
 	var w3tchelp_loaded = {};
 
 	function w3tc_load_faq_section(i) {

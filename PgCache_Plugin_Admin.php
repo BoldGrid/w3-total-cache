@@ -277,6 +277,28 @@ class PgCache_Plugin_Admin {
 			$state->save();
 		}
 
+		// Schedule purge if enabled.
+		if ( $new_config->get_boolean( 'pgcache.enabled' ) && $new_config->get_boolean( 'pgcache.wp_cron' ) ) {
+			$new_wp_cron_time      = $new_config->get_integer( 'pgcache.wp_cron_time' );
+			$old_wp_cron_time      = $old_config ? $old_config->get_integer( 'pgcache.wp_cron_time' ) : -1;
+			$new_wp_cron_interval  = $new_config->get_string( 'pgcache.wp_cron_interval' );
+			$old_wp_cron_interval  = $old_config ? $old_config->get_string( 'pgcache.wp_cron_interval' ) : -1;
+			$schedule_needs_update = $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval;
+
+			// Clear the scheduled hook if a change in time or interval is detected.
+			if ( wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) && $schedule_needs_update ) {
+				wp_clear_scheduled_hook( 'w3tc_pgcache_purge_wpcron' );
+			}
+
+			// Schedule if no existing cron event or settings have changed.
+			if ( ! wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) || $schedule_needs_update ) {
+				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
+				wp_schedule_event( $scheduled_timestamp_server, $new_wp_cron_interval, 'w3tc_pgcache_purge_wpcron' );
+			}
+		} elseif ( wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_pgcache_purge_wpcron' );
+		}
+
 		return $data;
 	}
 

@@ -131,5 +131,84 @@ if ( ! defined( 'W3TC' ) ) {
 		</table>
 
 		<?php Util_Ui::postbox_footer(); ?>
+
+		<?php Util_Ui::postbox_header( esc_html__( 'Purge via WP Cron', 'w3-total-cache' ), '', 'dbcache_wp_cron' ); ?>
+		<table class="form-table">
+			<?php
+			$c           = Dispatcher::config();
+			$disabled    = ! $c->get_boolean( 'dbcache.enabled' );
+			$wp_disabled = ! $c->get_boolean( 'dbcache.wp_cron' );
+
+			if ( $disabled ) {
+				echo wp_kses(
+					sprintf(
+						// Translators: 1 opening HTML div tag followed by opening HTML p tag, 2 opening HTML a tag,
+						// Translators: 3 closing HTML a tag, 4 closing HTML p tag followed by closing HTML div tag.
+						__( '%1$sDatabase Cache is disabled! Enable it %2$shere%3$s to enable this feature.%4$s', 'w3-total-cache' ),
+						'<div class="notice notice-error inline"><p>',
+						'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#database_cache' ) ) . '">',
+						'</a>',
+						'</p></div>'
+					),
+					array(
+						'div' => array(
+							'class' => array(),
+						),
+						'p'   => array(),
+						'a'   => array(
+							'href' => array(),
+						),
+					)
+				);
+			}
+
+			Util_Ui::config_item(
+				array(
+					'key'            => 'dbcache.wp_cron',
+					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'control'        => 'checkbox',
+					'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will flush the Database Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush db".', 'w3-total-cache' ),
+					'disabled'       => $disabled,
+				)
+			);
+
+			$time_options = array();
+			for ( $hour = 0; $hour < 24; $hour++ ) {
+				foreach ( array('00', '30') as $minute ) {
+					$time_value                = $hour * 60 + intval( $minute );
+					$scheduled_time            = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
+					$time_label                = $scheduled_time->format( 'g:i a' );
+					$time_options[$time_value] = $time_label;
+				}
+			}
+
+			Util_Ui::config_item(
+				array(
+					'key'              => 'dbcache.wp_cron_time',
+					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
+					'control'          => 'selectbox',
+					'selectbox_values' => $time_options,
+					'disabled'         => $disabled || $wp_disabled,
+				)
+			);
+
+			Util_Ui::config_item(
+				array(
+					'key'              => 'dbcache.wp_cron_interval',
+					'label'            => esc_html__( 'Interval', 'w3-total-cache' ),
+					'control'          => 'selectbox',
+					'selectbox_values' => array(
+						'hourly'     => esc_html__( 'Hourly', 'w3-total-cache' ),
+						'twicedaily' => esc_html__( 'Twice Daily', 'w3-total-cache' ),
+						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
+						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
+					),
+					'disabled'         => $disabled || $wp_disabled,
+				)
+			);
+			?>
+		</table>
+		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
