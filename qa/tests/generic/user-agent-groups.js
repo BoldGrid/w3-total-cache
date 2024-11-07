@@ -137,7 +137,7 @@ describe('', function() {
 				(e) => e.innerHTML);
 		} else if (['twentytwentyfour', 'twentytwentyfive'].includes(theme[0])) {
 			css = await page.$eval(
-				parseFloat(env.wpVersion) == 6.7 ? '.wp-fonts-local': '#wp-fonts-local',
+				parseFloat(env.wpVersion) >= 6.7 ? '.wp-fonts-local': '#wp-fonts-local',
 				(e) => e.innerHTML
 			);
 		} else {
