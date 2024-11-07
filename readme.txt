@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
-Tested up to: 6.6
-Stable tag: 2.7.7
+Tested up to: 6.7
+Stable tag: 2.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -361,6 +361,17 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.8.0 =
+* Feature: Always Cached extension
+* Feature: Purge caches on WP-Cron schedules
+* Fix: Cloudflare: Some settings were not saved correctly
+* Fix: Check and update file mode/permissions for cache files
+* Fix: Issue prompting for credentials for some non-direct filesystem types
+* Enhancement: Added an admin notice if WP-Cron is not functioning correctly
+* Enhancement: Added Browser Cache filters
+* Update: Upgraded JSMin library to 2.4.3
+* Update: Added Premium Services tabs
+
 = 2.7.7 =
 * Update: CDN: Added support for Microsoft Azure EntraID Managed identities
 
@@ -371,9 +382,9 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: License status fix
 * Fix: Statistics PHP warning when some data is stale
 * Fix: API improvement for non-200 responses
+* Enhancement: Added notices when choosing Disk for object and database cache engines
 * Update: Object cache improvements
 * Update: Allow WPML extension activation for TranslatePress
-* Update: Added notices when choosing Disk for object and database cache engines
 * Update: Added more information for selections in the setup guide wizard
 * Update: Updated cache header directive choices (no-cache/no-store)
 * Update: Nginx configuration examples
