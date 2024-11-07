@@ -22,12 +22,10 @@ return array(
 				<div class="cta-button">
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
-			'tutorials'       => '<h3>' . esc_html__( 'Need help setting up Page Cache?', 'w3-total-cache' ) . '</h3>
-				<h4>' . esc_html__( 'We have a couple tutorials that can help!', 'w3-total-cache' ) . '</h4>
-				<h3>' . esc_html__( 'Documentation: ', 'w3-total-cache' ) . '</h4>
-				<a href="https://www.boldgrid.com/support/w3-total-cache/page-caching/" target="_blank">' . esc_html__( 'How to set up Page Cache', 'w3-total-cache' ) . '</a>
-				<h3>' . esc_html__( 'Videos: ', 'w3-total-cache' ) . '</h4>
-				<a href="https://www.youtube.com/watch?v=vdp0OrJ8hAg" target="_blank">' . esc_html__( 'What is Page Cache', 'w3-total-cache' ) . '</a>',
+			'tutorials'       => '<p><span class="dashicons dashicons-text-page"></span>
+				<a href="https://www.boldgrid.com/support/w3-total-cache/page-caching/" target="_blank">' . esc_html__( 'How to set up Page Cache', 'w3-total-cache' ) . '</a><p>
+				<p><span class="dashicons dashicons-video-alt3"></span>
+				<a href="https://www.youtube.com/watch?v=vdp0OrJ8hAg" target="_blank">' . esc_html__( 'What is Page Cache', 'w3-total-cache' ) . '</a></p>',
 		),
 	),
 	'minify'         => array(
@@ -44,10 +42,8 @@ return array(
 				<div class="cta-button">
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
-			'tutorials'       => '<h3>' . esc_html__( 'Need help setting up Page Cache?', 'w3-total-cache' ) . '</h3>
-				<h4>' . esc_html__( 'We have a tutorial that can help!', 'w3-total-cache' ) . '</h4>
-				<h3>' . esc_html__( 'Documentation: ', 'w3-total-cache' ) . '</h4>
-				<a href="https://www.boldgrid.com/support/w3-total-cache/minify-cache/" target="_blank">' . esc_html__( 'Minify Cache Settings Guide', 'w3-total-cache' ) . '</a>',
+			'tutorials'       => '<p><span class="dashicons dashicons-text-page"></span>
+				<a href="https://www.boldgrid.com/support/w3-total-cache/minify-cache/" target="_blank">' . esc_html__( 'Minify Cache Settings Guide', 'w3-total-cache' ) . '</a></p>',
 		),
 	),
 	'database_cache' => array(
@@ -64,12 +60,10 @@ return array(
 				<div class="cta-button">
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
-			'tutorials'       => '<h3>' . esc_html__( 'Need help setting up Database Cache?', 'w3-total-cache' ) . '</h3>
-				<h4>' . esc_html__( 'We have a couple tutorials that can help!', 'w3-total-cache' ) . '</h4>
-				<h3>' . esc_html__( 'Documentation: ', 'w3-total-cache' ) . '</h4>
-				<a href="https://www.boldgrid.com/support/w3-total-cache/database-caching/" target="_blank">' . esc_html__( 'How to set up Database Cache', 'w3-total-cache' ) . '</a>
-				<h3>' . esc_html__( 'Videos: ', 'w3-total-cache' ) . '</h4>
-				<a href="https://www.youtube.com/watch?v=OWJckWamEvA" target="_blank">' . esc_html__( 'What is Database Cache', 'w3-total-cache' ) . '</a>',
+			'tutorials'       => '<p><span class="dashicons dashicons-text-page"></span>
+				<a href="https://www.boldgrid.com/support/w3-total-cache/database-caching/" target="_blank">' . esc_html__( 'How to set up Database Cache', 'w3-total-cache' ) . '</a></p>
+				<p><span class="dashicons dashicons-video-alt3"></span>
+				<a href="https://www.youtube.com/watch?v=OWJckWamEvA" target="_blank">' . esc_html__( 'What is Database Cache', 'w3-total-cache' ) . '</a></p>',
 		),
 	),
 	'object_cache'   => array(
@@ -86,10 +80,8 @@ return array(
 				<div class="cta-button">
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
-			'tutorials'       => '<h3>' . esc_html__( 'Need help setting up Object Cache?', 'w3-total-cache' ) . '</h3>
-				<h4>' . esc_html__( 'We have a tutorial that can help!', 'w3-total-cache' ) . '</h4>
-				<h3>' . esc_html__( 'Documentation: ', 'w3-total-cache' ) . '</h4>
-				<a href="https://www.boldgrid.com/support/w3-total-cache/object-cache-settings-guide/" target="_blank">' . esc_html__( 'Object Cache Settings Guide', 'w3-total-cache' ) . '</a>',
+			'tutorials'       => '<p><span class="dashicons dashicons-text-page"></span>
+				<a href="https://www.boldgrid.com/support/w3-total-cache/object-cache-settings-guide/" target="_blank">' . esc_html__( 'Object Cache Settings Guide', 'w3-total-cache' ) . '</a></p>',
 		),
 	),
 	'browser_cache'  => array(
@@ -106,10 +98,8 @@ return array(
 				<div class="cta-button">
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
-			'tutorials'       => '<h3>' . esc_html__( 'Need help setting up Browser Cache?', 'w3-total-cache' ) . '</h3>
-				<h4>' . esc_html__( 'We have a tutorial that can help!', 'w3-total-cache' ) . '</h4>
-				<h3>' . esc_html__( 'Documentation: ', 'w3-total-cache' ) . '</h4>
-				<a href="https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/" target="_blank">' . esc_html__( 'How to configure Browser Cache', 'w3-total-cache' ) . '</a>',
+			'tutorials'       => '<p><span class="dashicons dashicons-text-page"></span>
+				<a href="https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/" target="_blank">' . esc_html__( 'How to configure Browser Cache', 'w3-total-cache' ) . '</a></p>',
 		),
 	),
 	'cdn'            => array(
@@ -125,11 +115,10 @@ return array(
 				<div class="cta-button">
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
-			'tutorials'       => '<h3>' . esc_html__( 'Need help setting up your CDN?', 'w3-total-cache' ) . '</h3>
-				<h4>' . esc_html__( 'We have a couple tutorials that can help!', 'w3-total-cache' ) . '</h4>
-				<h3>' . esc_html__( 'Documentation: ', 'w3-total-cache' ) . '</h4>
-				<a href="https://www.boldgrid.com/support/w3-total-cache/how-to-configure-cloudflare-in-wordpress-with-w3-total-cache/" target="_blank">' . esc_html__( 'How to configure CloudFlare with W3 Total Cache', 'w3-total-cache' ) . '</a><br>
-				<a href="https://www.boldgrid.com/support/w3-total-cache/full-site-delivery-fds/" target="_blank">' . esc_html__( 'Enhancing WordPress Performance with Full Site Delivery (FSD)', 'w3-total-cache' ) . '</a>',
+			'tutorials'       => '<p><span class="dashicons dashicons-text-page"></span>
+				<a href="https://www.boldgrid.com/support/w3-total-cache/how-to-configure-cloudflare-in-wordpress-with-w3-total-cache/" target="_blank">' . esc_html__( 'How to configure CloudFlare with W3 Total Cache', 'w3-total-cache' ) . '</a></p>
+				<p><span class="dashicons dashicons-text-page"></span>
+				<a href="https://www.boldgrid.com/support/w3-total-cache/full-site-delivery-fds/" target="_blank">' . esc_html__( 'Enhancing WordPress Performance with Full Site Delivery (FSD)', 'w3-total-cache' ) . '</a></p>',
 		),
 	),
 );
