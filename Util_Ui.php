@@ -212,7 +212,7 @@ class Util_Ui {
 		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="w3tc-basic-settings nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
 		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
 		$premium_link_tab   = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . '" data-tab-type="premium-services">' . esc_html__( 'Premium Services', 'w3-total-cache' ) . '</a>' : '';
-		$tutorials_tab      = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . '" data-tab-type="tutorials">' . esc_html__( 'Tutorials', 'w3-total-cache' ) . '</a>' : '';
+		$tutorials_tab      = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . '" data-tab-type="help">' . esc_html__( 'Help', 'w3-total-cache' ) . '</a>' : '';
 
 		$extra_link_tabs = '';
 		foreach ( $extra_links as $extra_link_text => $extra_link ) {
@@ -237,6 +237,8 @@ class Util_Ui {
 
 	/**
 	 * Retrieves a specific tab's content based on the provided key and tab type.
+	 *
+	 * @since X.X.X
 	 *
 	 * This function dynamically loads content for a specified tab type (e.g., tutorials, premium services)
 	 * based on a given configuration key. It uses a mapping to fetch the correct tab content, which is then
@@ -264,7 +266,7 @@ class Util_Ui {
 
 		// Define a mapping of tab types to the corresponding config keys.
 		$tab_mapping = array(
-			'tutorials'        => 'tutorials',
+			'help'             => 'help',
 			'premium-services' => 'premium_support',
 		);
 

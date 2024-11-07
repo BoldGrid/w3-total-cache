@@ -178,7 +178,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</table>
 
 		<?php
-			echo wp_kses_post( Util_Ui::get_tab( 'page_cache', 'tutorials' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'page_cache', 'help' ) );
 			echo wp_kses_post( Util_Ui::get_tab( 'page_cache', 'premium-services' ) );
 		?>
 
@@ -312,7 +312,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</table>
 
 		<?php
-			echo wp_kses_post( Util_Ui::get_tab( 'minify', 'tutorials' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'minify', 'help' ) );
 			echo wp_kses_post( Util_Ui::get_tab( 'minify', 'premium-services' ) );
 		?>
 
@@ -365,7 +365,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</table>
 
 		<?php
-			echo wp_kses_post( Util_Ui::get_tab( 'database_cache', 'tutorials' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'database_cache', 'help' ) );
 			echo wp_kses_post( Util_Ui::get_tab( 'database_cache', 'premium-services' ) );
 		?>
 
@@ -434,7 +434,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</table>
 
 		<?php
-			echo wp_kses_post( Util_Ui::get_tab( 'object_cache', 'tutorials' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'object_cache', 'help' ) );
 			echo wp_kses_post( Util_Ui::get_tab( 'object_cache', 'premium-services' ) );
 		?>
 
@@ -485,7 +485,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</table>
 
 		<?php
-			echo wp_kses_post( Util_Ui::get_tab( 'browser_cache', 'tutorials' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'browser_cache', 'help' ) );
 			echo wp_kses_post( Util_Ui::get_tab( 'browser_cache', 'premium-services' ) );
 		?>
 
