@@ -551,7 +551,9 @@ class Minify_MinifiedFileRequestHandler {
 			Minify_Core::debug_error( sprintf( 'Unable to fetch custom files list: "%s.%s"', $hash, $type ), false, 404 );
 		}
 
-		Minify_Core::log( implode("\n", $files ) );
+		if ( $this->_config->get_boolean( 'minify.debug' ) ) {
+			Minify_Core::log( implode( "\n", $files ) );
+		}
 
 		return $result;
 	}
