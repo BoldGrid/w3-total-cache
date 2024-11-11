@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-06T19:17:18+00:00\n"
+"POT-Creation-Date: 2024-11-11T19:54:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
@@ -3656,13 +3656,13 @@ msgstr ""
 msgid "Reject query words:"
 msgstr ""
 
-#: DbCache_Environment.php:155
+#: DbCache_Environment.php:157
 msgid ""
 "The Database add-in file db.php is not a W3 Total Cache drop-in.\n"
 "                Remove it or disable Database Caching. %s"
 msgstr ""
 
-#: DbCache_Environment.php:157
+#: DbCache_Environment.php:159
 msgid "Remove it for me"
 msgstr ""
 
@@ -4159,7 +4159,7 @@ msgstr ""
 msgid "Can't drop table "
 msgstr ""
 
-#: Extension_AlwaysCached_Queue.php:380
+#: Extension_AlwaysCached_Queue.php:378
 msgid "Can't create table "
 msgstr ""
 
@@ -12245,11 +12245,11 @@ msgid "Please %1$snetwork activate%2$s W3 Total Cache when using WordPress Multi
 msgstr ""
 
 #. translators: 8 closing HTML p tag followed by closing HTML div tag.
-#: Root_AdminActivation.php:104
+#: Root_AdminActivation.php:108
 msgid "%1$s%2$sW3 Total Cache Error:%3$s Files and directories could not be automatically removed to complete the deactivation. %4$sPlease execute commands manually:%5$s%6$s%7$s%8$s"
 msgstr ""
 
-#: Root_AdminActivation.php:108
+#: Root_AdminActivation.php:112
 msgid "error"
 msgstr ""
 
