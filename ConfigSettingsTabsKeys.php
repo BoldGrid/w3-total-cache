@@ -28,7 +28,9 @@ return array(
 				<p><span class="dashicons dashicons-video-alt3"></span>
 				<a href="https://www.youtube.com/watch?v=vdp0OrJ8hAg" target="_blank">' . esc_html__( 'What is Page Cache', 'w3-total-cache' ) . '</a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
-				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_page_cache"></div>',
+				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_page_cache"></div>
+				<a href="https://www.boldgrid.com/support/topic-tag/page-cache/" target="_blank">' . esc_html__( 'View all questions in Page Cache forum', 'w3-total-cache' ) . '</a><br>
+				<div class="ask-help-forums"><a class="button button-secondary" href="https://www.boldgrid.com/support/ask-a-question/" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a><p>' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p></div>',
 		),
 	),
 	'minify'         => array(
@@ -49,7 +51,9 @@ return array(
 				<p><span class="dashicons dashicons-text-page"></span>
 				<a href="https://www.boldgrid.com/support/w3-total-cache/minify-cache/" target="_blank">' . esc_html__( 'Minify Cache Settings Guide', 'w3-total-cache' ) . '</a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
-				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_minify_cache"></div>',
+				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_minify_cache"></div>
+				<a href="https://www.boldgrid.com/support/topic-tag/minify/" target="_blank">' . esc_html__( 'View all questions in Minify Cache forum', 'w3-total-cache' ) . '</a>
+				<div class="ask-help-forums"><a class="button button-secondary" href="https://www.boldgrid.com/support/ask-a-question/" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a><p>' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p></div>',
 		),
 	),
 	'database_cache' => array(
@@ -72,7 +76,9 @@ return array(
 				<p><span class="dashicons dashicons-video-alt3"></span>
 				<a href="https://www.youtube.com/watch?v=OWJckWamEvA" target="_blank">' . esc_html__( 'What is Database Cache', 'w3-total-cache' ) . '</a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
-				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_database_cache"></div>',
+				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_database_cache"></div>
+				<a href="https://www.boldgrid.com/support/topic-tag/database-cache/" target="_blank">' . esc_html__( 'View all questions in Database Cache forum', 'w3-total-cache' ) . '</a>
+				<div class="ask-help-forums"><a class="button button-secondary" href="https://www.boldgrid.com/support/ask-a-question/" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a><p>' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p></div>',
 		),
 	),
 	'object_cache'   => array(
@@ -93,7 +99,9 @@ return array(
 				<p><span class="dashicons dashicons-text-page"></span>
 				<a href="https://www.boldgrid.com/support/w3-total-cache/object-cache-settings-guide/" target="_blank">' . esc_html__( 'Object Cache Settings Guide', 'w3-total-cache' ) . '</a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
-				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_object_cache"></div>',
+				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_object_cache"></div>
+				<a href="https://www.boldgrid.com/support/topic-tag/object-cache/" target="_blank">' . esc_html__( 'View all questions in Object Cache forum', 'w3-total-cache' ) . '</a>
+				<div class="ask-help-forums"><a class="button button-secondary" href="https://www.boldgrid.com/support/ask-a-question/" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a><p>' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p></div>',
 		),
 	),
 	'browser_cache'  => array(
@@ -114,7 +122,9 @@ return array(
 				<p><span class="dashicons dashicons-text-page"></span>
 				<a href="https://www.boldgrid.com/support/w3-total-cache/configuring-browser-caching-in-w3-total-cache/" target="_blank">' . esc_html__( 'How to configure Browser Cache', 'w3-total-cache' ) . '</a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
-				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_browser_cache"></div>',
+				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_browser_cache"></div>
+				<a href="https://www.boldgrid.com/support/topic-tag/browser-cache/" target="_blank">' . esc_html__( 'View all questions in Browser Cache forum', 'w3-total-cache' ) . '</a>
+				<div class="ask-help-forums"><a class="button button-secondary" href="https://www.boldgrid.com/support/ask-a-question/" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a><p>' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p></div>',
 		),
 	),
 	'cdn'            => array(
@@ -136,7 +146,9 @@ return array(
 				<p><span class="dashicons dashicons-text-page"></span>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>
 				<a href="https://www.boldgrid.com/support/w3-total-cache/full-site-delivery-fds/" target="_blank">' . esc_html__( 'Enhancing WordPress Performance with Full Site Delivery (FSD)', 'w3-total-cache' ) . '</a></p>
-				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_cdn"></div>',
+				<div class="help-forum-topics" data-loaded="0" data-tab-id="tab_cdn"></div>
+				<a href="https://www.boldgrid.com/support/topic-tag/cdn/" target="_blank">' . esc_html__( 'View all questions in the CDN forum', 'w3-total-cache' ) . '</a>
+				<div class="ask-help-forums"><a class="button button-secondary" href="https://www.boldgrid.com/support/ask-a-question/" target="_blank">' . esc_html__( 'Ask a question', 'w3-total-cache' ) . '</a><p>' . esc_html__( 'in the forums. It may show up here!', 'w3-total-cache' ) . '</p></div>',
 		),
 	),
 );

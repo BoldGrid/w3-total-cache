@@ -628,6 +628,19 @@ textarea.w3tc-error {
 	/* WP 5.5 */
 }
 
+#w3tc .ask-help-forums {
+	margin: 5px 0;
+	display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#w3tc .ask-help-forums p {
+	padding-left: 10px;
+}
+
 #pgcache_reject_roles label,
 #newrelic_accept_roles label,
 #cdn_reject_roles label {
