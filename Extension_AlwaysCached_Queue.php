@@ -63,7 +63,7 @@ class Extension_AlwaysCached_Queue {
 				serialize( $extension ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				$priority,
 				gmdate( 'Y-m-d G:i:s' ),
-				serialize( $extension ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+				serialize( $extension ) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			)
 		);
 	}
