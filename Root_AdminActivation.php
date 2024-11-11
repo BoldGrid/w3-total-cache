@@ -66,6 +66,10 @@ class Root_AdminActivation {
 					// missing exception handle?
 				}
 			}
+
+			if ( ! get_option( 'w3tc_install_date' ) ) {
+				update_option( 'w3tc_install_date', current_time( 'mysql' ) );
+			}
 		} catch ( Util_Environment_Exceptions $e ) {
 			// missing exception handle?
 		} catch ( \Exception $e ) {
