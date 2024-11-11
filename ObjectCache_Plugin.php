@@ -119,7 +119,7 @@ class ObjectCache_Plugin {
 	/**
 	 * Cron job for processing purging object cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */

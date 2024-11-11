@@ -221,7 +221,7 @@ class Generic_Environment {
 	/**
 	 * Remove cron job for purge all caches.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */

@@ -485,7 +485,7 @@ function cdn_cf_bucket_location() {
 /**
  * Toggle the disk notice for dbcache.
  *
- * @since X.X.X
+ * @since 2.8.0
  */
 function toggle_dbcache_notice() {
 	if ( jQuery('#dbcache__engine').val() === 'file' && jQuery('#dbcache__enabled').is(':checked') ) {
@@ -498,7 +498,7 @@ function toggle_dbcache_notice() {
 /**
  * Toggle the disk notice for objectcache.
  *
- * @since X.X.X
+ * @since 2.8.0
  */
 function toggle_objectcache_notice() {
 	if ( jQuery('#objectcache__engine').val() === 'file' && jQuery('#objectcache__enabled').is(':checked') ) {

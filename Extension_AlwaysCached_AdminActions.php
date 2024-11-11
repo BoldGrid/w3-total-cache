@@ -4,7 +4,7 @@
  *
  * Controller for AlwaysCached extension admin actions.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * AlwaysCached Admin Actions.
  *
- * @since X.X.X
+ * @since 2.8.0
  */
 class Extension_AlwaysCached_AdminActions {
 
 	/**
 	 * Handles regenerate page/post request.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */
@@ -66,7 +66,7 @@ class Extension_AlwaysCached_AdminActions {
 	/**
 	 * Process queue item.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */
@@ -85,7 +85,7 @@ class Extension_AlwaysCached_AdminActions {
 	/**
 	 * Process queue.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */
@@ -104,7 +104,7 @@ class Extension_AlwaysCached_AdminActions {
 	/**
 	 * Handles empty queue request.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */
