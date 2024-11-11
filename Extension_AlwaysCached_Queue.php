@@ -355,7 +355,7 @@ class Extension_AlwaysCached_Queue {
 		$wpdb->query( self::drop_table_sql() );
 
 		if ( ! $wpdb->result ) {
-			throw new Util_Environment_Exception( esc_html__( 'Can\'t drop table ', 'w3-total-cache' ) . $table );
+			throw new Util_Environment_Exception( esc_html__( 'Can\'t drop table ', 'w3-total-cache' ) . esc_html( self::table_name() ) );
 		}
 	}
 
@@ -375,9 +375,7 @@ class Extension_AlwaysCached_Queue {
 		$wpdb->query( self::create_table_sql() );
 
 		if ( ! $wpdb->result ) {
-			$table = self::table_name();
-
-			throw new Util_Environment_Exception( esc_html__( 'Can\'t create table ', 'w3-total-cache' ) . $table );
+			throw new Util_Environment_Exception( esc_html__( 'Can\'t create table ', 'w3-total-cache' ) . esc_html( self::table_name() ) );
 		}
 	}
 
