@@ -121,7 +121,7 @@ class Generic_Plugin {
 	/**
 	 * Cron job for processing purging page cache.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */

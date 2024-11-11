@@ -237,7 +237,7 @@ class Util_Ui {
 	/**
 	 * Retrieves the premium services tab HTML from the general settings page configuration.
 	 *
-	 * @since x.x.x
+	 * @since 2.8.0
 	 *
 	 * @param string $key The type of cache key to get from config.
 	 *
@@ -253,7 +253,7 @@ class Util_Ui {
 		require_once 'ConfigSettingsTabs.php';
 		$configs = Config_Tab_Settings::get_config( $key );
 
-		return isset( $configs['tabs']['premium_support'] ) ? '<div data-tab-type="premium-services">' . $configs['tabs']['premium_support'] . '</div>' : null;
+		return isset( $configs['tabs']['premium_support'] ) ? '<div class="hidden" data-tab-type="premium-services">' . $configs['tabs']['premium_support'] . '</div>' : null;
 	}
 
 	public static function button_config_save( $id = '', $extra = '' ) {

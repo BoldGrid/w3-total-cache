@@ -254,7 +254,7 @@ class FeatureShowcase_Plugin_Admin {
 						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 					'is_premium' => true,
 					'is_new'     => true,
-					'version'    => 'X.X.X',
+					'version'    => '2.8.0',
 				),
 				'remove-cssjs'     => array(
 					'title'      => esc_html__( 'Remove Unused CSS/JS', 'w3-total-cache' ),

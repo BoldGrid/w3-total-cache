@@ -1669,7 +1669,7 @@ class Util_Environment {
 	 * Generates an appropriate timestamp for WP cron using a selected time during the day in the form of an integer.
 	 * Adjusts for discrepacy in timezones between WP and system and adds a day if the result is in the past.
 	 *
-	 * @since  X.X.X
+	 * @since  2.8.0
 	 *
 	 * @static
 	 *
@@ -1712,7 +1712,7 @@ class Util_Environment {
 	 * * Attempts to spawn WP-Cron over HTTP; warns if non 200 response code is
 	 * returned.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L14-L55
 	 *
 	 * @return bool
@@ -1754,7 +1754,7 @@ class Util_Environment {
 	 * with the addition of returning the result of the `wp_remote_post()`
 	 * request.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L57-L91
 	 *
 	 * @global $wp_version WordPress version string.

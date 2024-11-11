@@ -4,7 +4,7 @@
  *
  * AlwaysCached plugin admin controller.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @package W3TC
  */
@@ -14,7 +14,7 @@ namespace W3TC;
 /**
  * AlwaysCached Plugin.
  *
- * @since X.X.X
+ * @since 2.8.0
  */
 class Extension_AlwaysCached_Plugin {
 	/**
@@ -27,7 +27,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Run method for AlwaysCached.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void|null
 	 */
@@ -56,7 +56,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Init for AlwaysCached.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */
@@ -107,7 +107,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Adds admin bar menu links.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $menu_items Menu items.
 	 *
@@ -132,7 +132,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Adds AlwaysCached Apache rules.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string $rewrite_conditions Apache rules buffer.
 	 *
@@ -146,7 +146,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * ???
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $o Page data.
 	 *
@@ -173,7 +173,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * ???
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $data Page data.
 	 *
@@ -209,7 +209,7 @@ class Extension_AlwaysCached_Plugin {
 	 *  'parent' => object with _get_page_key method
 	 * )
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $data Data for flush request.
 	 *
@@ -258,7 +258,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Flush all groups.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $groups Groups.
 	 *
@@ -364,7 +364,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Gets the enabled status of the extension.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return bool
 	 */
@@ -377,7 +377,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Cron job for processing queue via WP cron.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */
@@ -388,7 +388,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Specify config key typing for fields that need it.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param mixed $descriptor Descriptor.
 	 * @param mixed $key Compound key array.
@@ -406,7 +406,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Checks if the given URL matches any exclusions.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string $url URL.
 	 *

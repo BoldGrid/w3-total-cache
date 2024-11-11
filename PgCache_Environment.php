@@ -321,7 +321,7 @@ class PgCache_Environment {
 	/**
 	 * Remove cron job for pagecache purge.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */

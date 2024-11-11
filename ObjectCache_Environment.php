@@ -114,7 +114,7 @@ class ObjectCache_Environment {
 	/**
 	 * Remove cron job for object cache purge.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */

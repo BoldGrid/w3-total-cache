@@ -4,7 +4,7 @@
  *
  * AlwaysCached queue controller.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @package W3TC
  */
@@ -18,14 +18,14 @@ if ( ! defined( 'W3TC_ALWAYSCACHED_TABLE_QUEUE' ) ) {
 /**
  * AlwaysCached queue model.
  *
- * @since X.X.X
+ * @since 2.8.0
  */
 class Extension_AlwaysCached_Queue {
 
 	/**
 	 * Queue add.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string  $url       URL.
 	 * @param array   $extension Extension data.
@@ -71,7 +71,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Get by url
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string $url URL.
 	 *
@@ -96,7 +96,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retreives the first 10 items in queue.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return array|null
 	 */
@@ -151,7 +151,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Deletes queue item after pop.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $item Queue item.
 	 *
@@ -182,7 +182,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retrives queue rows.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string  $mode         Queue mode.
 	 * @param integer $offset       Pagination offset.
@@ -217,7 +217,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retrives queue pending row count.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string $search_query Search query.
 	 *
@@ -243,7 +243,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retrives queue postponed row count.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string $search_query Search query.
 	 *
@@ -269,7 +269,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Deletes all queue rows.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return int|bool
 	 */
@@ -285,7 +285,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Checks if higher priority items present
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $item Item data.
 	 *
@@ -316,7 +316,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Gets key based on URL
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string $url URL.
 	 *
@@ -329,7 +329,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Gets AlwaysCached queue table name.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return string
 	 */
@@ -342,7 +342,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Drops the AwaysCached queue table.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 *
@@ -355,14 +355,14 @@ class Extension_AlwaysCached_Queue {
 		$wpdb->query( self::drop_table_sql() );
 
 		if ( ! $wpdb->result ) {
-			throw new Util_Environment_Exception( esc_html__( 'Can\'t drop table ', 'w3-total-cache' ) . $table );
+			throw new Util_Environment_Exception( esc_html__( 'Can\'t drop table ', 'w3-total-cache' ) . esc_html( self::table_name() ) );
 		}
 	}
 
 	/**
 	 * Creates AlwaysCached queue table.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 *
@@ -375,16 +375,14 @@ class Extension_AlwaysCached_Queue {
 		$wpdb->query( self::create_table_sql() );
 
 		if ( ! $wpdb->result ) {
-			$table = self::table_name();
-
-			throw new Util_Environment_Exception( esc_html__( 'Can\'t create table ', 'w3-total-cache' ) . $table );
+			throw new Util_Environment_Exception( esc_html__( 'Can\'t create table ', 'w3-total-cache' ) . esc_html( self::table_name() ) );
 		}
 	}
 
 	/**
 	 * Retrives AlwaysCached queue table drop SQL.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return string
 	 */
@@ -401,7 +399,7 @@ class Extension_AlwaysCached_Queue {
 	/**
 	 * Retrives AlwaysCached queue table create SQL.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return string
 	 */

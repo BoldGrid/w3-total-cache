@@ -319,7 +319,7 @@ class Minify_Environment {
 	/**
 	 * Remove cron job for minify purge.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */

@@ -4,7 +4,7 @@
  *
  * AlwaysCached plugin admin controller.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @package W3TC
  */
@@ -14,13 +14,13 @@ namespace W3TC;
 /**
  * AlwaysCached Plugin Admin.
  *
- * @since X.X.X
+ * @since 2.8.0
  */
 class Extension_AlwaysCached_Plugin_Admin {
 	/**
 	 * Adds the AlwaysCached extension to extensions list.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array  $extensions Extensions list.
 	 * @param Config $config     Config data.
@@ -57,7 +57,7 @@ class Extension_AlwaysCached_Plugin_Admin {
 	/**
 	 * Run method for AlwaysCached admin.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void|null
 	 */
@@ -98,7 +98,7 @@ class Extension_AlwaysCached_Plugin_Admin {
 	/**
 	 * Adds admin actions for AlwaysCached.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $handlers Handlers array.
 	 *
@@ -112,7 +112,7 @@ class Extension_AlwaysCached_Plugin_Admin {
 	/**
 	 * Adds admin menu item for AlwaysCached.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $menu Menu array.
 	 *

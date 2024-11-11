@@ -55,7 +55,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Was the WP Cron error notice already printed?
 	 *
-	 * @since  X.X.X
+	 * @since  2.8.0
 	 * @static
 	 * @access private
 	 *
@@ -75,7 +75,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Get config.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return Config
 	 */
@@ -1420,7 +1420,7 @@ class Extension_ImageService_Plugin_Admin {
 	/**
 	 * Check if WP Cron is working as expected and print an error notice if not.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @see Util_Environment::is_wpcron_working()
 	 *
