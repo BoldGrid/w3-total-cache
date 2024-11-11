@@ -464,7 +464,9 @@ class Generic_Plugin_Admin {
 						'w3tc_install_version': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
 						'w3tc_edition': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
 						'w3tc_widgets': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
-						'page': '<?php echo esc_attr( $page ); ?>'
+						'page': '<?php echo esc_attr( $page ); ?>',
+						// Was intended to be w3tc_install_date but was put as install_date which can't be modified in GA afterwards.
+						'install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>'
 					}
 				});
 
@@ -480,9 +482,8 @@ class Generic_Plugin_Admin {
 				document.addEventListener('click', function(event) {
 					if ( jQuery( event.target ).hasClass( 'w3tc-pro-services') ) {
 						w3tc_ga('event', 'click', {
-							'event_category': 'w3tc-pro-services',
-							'event_label': event.target.innerText,
-							'event_value': 1,
+							'eventCategory': 'w3tc-pro-services',
+							'eventLabel': event.target.innerText,
 						});
 					}
 				});
