@@ -79,7 +79,7 @@ class UserExperience_PartyTown_Mutator {
 		);
 
 		$this->buffer = preg_replace_callback(
-			'~(<script[^>]+src[^>]+></script>)~is',
+			'~(<script\b[^>]*>.*?</script>)~is',
 			array( $this, 'modify_content' ),
 			$this->buffer
 		);
