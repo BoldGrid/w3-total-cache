@@ -75,11 +75,11 @@ class UserExperience_PartyTown_Extension {
 	 * @return void
 	 */
 	public function w3tc_enqueue_partytown() {
-		$party_path         = wp_make_link_relative( plugins_url( 'lib/PartyTown/lib/', __FILE__ ) );
+		$party_path         = wp_make_link_relative( plugin_dir_url( __FILE__ ) . 'lib/PartyTown/lib/' );
 		$debug              = $this->config->get_boolean( array( 'user-experience-partytown', 'debug' ) ) ? 'true' : 'false';
 		$timeout            = $this->config->get_integer( array( 'user-experience-partytown', 'timeout' ) ) ?? 5000;
 		$worker_concurrency = $this->config->get_integer( array( 'user-experience-partytown', 'workers' ) ) ?? 5;
-
+Util_Debug::debug('party_path',$party_path);
 		wp_register_script( 'partytown', $party_path . 'partytown.js', array(), W3TC_VERSION, true );
 
 		// Preload Partytown if enabled.
