@@ -474,7 +474,23 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Purge via WP Cron', 'w3-total-cache' ),
-			esc_html__( 'Enabling this will schedule a WP-Cron event that will flush all enabled Caches. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush all". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache.', 'w3-total-cache' ),
+			wp_kses(
+				sprintf(
+					// Translators: 1 opening HTML a tag, 2 closing HTML a tag.
+					__(
+						'Enabling this will schedule a WP-Cron event that will flush all enabled Caches via a single cron job. Each cache\'s advanced settings page features similar settings to this if you wish to schedule purges for specific caches only. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush all". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache. Visit %1$shere%2$s for more information.',
+						'w3-total-cache'
+					),
+					'<a href="' . esc_url( 'https://www.boldgrid.com/support/page-builder/schedule-cache-purges/' ) . '" target="_blank">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+				)
+			),
 			'',
 			'allcache_wp_cron'
 		);
@@ -509,6 +525,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => $time_options,
+					'description'      => esc_html__( 'This setting controls the initial start time of the cron job based on the configured WordPress timezone. It will automatically adjust the timestamp to accommodate differences between the configured WordPress and server timezones. If the selected time has already passed, it will add a day so that it begins the next day.', 'w3-total-cache' ),
 					'disabled'         => $wp_disabled,
 				)
 			);
@@ -524,6 +541,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
+					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
 					'disabled'         => $wp_disabled,
 				)
 			);
