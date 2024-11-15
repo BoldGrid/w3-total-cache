@@ -592,43 +592,48 @@ jQuery(function() {
 	} );
 
 	// Tutorial page forum links via API.
-	jQuery(document).on('click', '[data-tab-type="help"]', function() {
+	jQuery(document).on( 'click', '[data-tab-type="help"]', function() {
 
 		var $helpTab          = jQuery( this ),
 		$inside               = $helpTab.closest( ".postbox-tabs" ).find( ".inside" );
-		$forumTopicsContainer = $inside.find('.help-forum-topics');
-		isLoaded              = $forumTopicsContainer.attr('data-loaded') === "1";
-		tabId                 = $forumTopicsContainer.attr('data-tab-id');
+		$forumTopicsContainer = $inside.find( '.help-forum-topics' );
+		isLoaded              = $forumTopicsContainer.attr( 'data-loaded' ) === "1";
+		tabId                 = $forumTopicsContainer.attr( 'data-tab-id' );
 
 		// Check if topics are already loaded
-		if (isLoaded) return;
+		if ( isLoaded ) return;
 		// Construct the API URL with the tab ID
 		const apiUrl = `https://boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=${tabId}`;
+
+		console.log( 'Fetching forum topics from API...' );
+
 		// Fetch topics from the API
 		jQuery.ajax({
 			url: apiUrl,
 			method: 'GET',
 			dataType: 'json',
-			success: function(data) {
+			success: function( data ) {
 				// Check for errors or empty results
-				if (data.code === 'no_topics' || !data.length) {
-					$forumTopicsContainer.html("<p>No forum topics found.</p>");
+				if ( Array.isArray( data ) && data.length === 0 ) {
+					$forumTopicsContainer.html( "<p>No forum topics found.</p>" );
 				} else {
 					// Create a list of topics
-					const $ul = jQuery('<ul></ul>');
-					jQuery.each(data, function(index, topic) {
-						const $li = jQuery('<li></li>');
-						const $link = jQuery('<a></a>').attr('href', topic.link).text(topic.title).attr('target', '_blank'); // Open in new tab
-						$li.append($link);
-						$ul.append($li);
+					const $ul = jQuery( '<ul></ul>' );
+					jQuery.each( data, function( index, topic ) {
+						const $li = jQuery( '<li></li>' );
+						const $link = jQuery( '<a></a>' ).addClass('w3tc-control-after').attr( 'href', topic.link ).text( topic.title ).attr( 'target', '_blank' ); // Open in new tab
+						const $icon = jQuery( '<span></span>' ).addClass( 'dashicons dashicons-external' );
+						$link.append( $icon );
+						$li.append( $link );
+						$ul.append( $li );
 					});
-					$forumTopicsContainer.append($ul);
+					$forumTopicsContainer.append( $ul );
 				}
 				// Mark topics as loaded to prevent duplicate requests
-				$forumTopicsContainer.attr('data-loaded', "1");
+				$forumTopicsContainer.attr( 'data-loaded', "1" );
 			},
 			error: function() {
-				$forumTopicsContainer.html("<p>Error loading topics. Please try again later.</p>");
+				$forumTopicsContainer.html( "<p>Error loading topics. Please try again later.</p>" );
 			}
 		});
 	});
