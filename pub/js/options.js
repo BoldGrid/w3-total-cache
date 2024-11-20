@@ -605,8 +605,6 @@ jQuery(function() {
 		// Construct the API URL with the tab ID
 		const apiUrl = `https://boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=${tabId}`;
 
-		console.log( 'Fetching forum topics from API...' );
-
 		// Fetch topics from the API
 		jQuery.ajax({
 			url: apiUrl,
