@@ -625,7 +625,7 @@ jQuery(function() {
 						$li.append( $link );
 						$ul.append( $li );
 					});
-					$forumTopicsContainer.append( $ul );
+					$forumTopicsContainer.html( $ul );
 				}
 				// Mark topics as loaded to prevent duplicate requests
 				$forumTopicsContainer.attr( 'data-loaded', "1" );

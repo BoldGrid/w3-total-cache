@@ -146,7 +146,6 @@ return array(
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Optimized for full page delivery, not just static files, enhancing overall site performance.', 'w3-total-cache' ) . '</p>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Setup includes integration with W3 Total Cache FSD CDN Pro for seamless performance.', 'w3-total-cache' ) . '</p>
 				<p><span class="dashicons dashicons-yes-alt"></span>' . esc_html__( 'Compatible with top CDN providers like Bunny CDN, Transparent CDN, Amazon, and Cloudflare.', 'w3-total-cache' ) . '</p>
-
 				<div class="cta-button">
 					<a href="' . esc_url( Util_UI::admin_url( 'admin.php?page=w3tc_support' ) ) . '"> ' . esc_html__( 'Click here to purchase this premium service', 'w3-total-cache' ) . ' </a>
 				</div>',
