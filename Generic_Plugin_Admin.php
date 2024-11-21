@@ -475,11 +475,11 @@ class Generic_Plugin_Admin {
 						'w3tc_widgets': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
 						'page': '<?php echo esc_attr( $page ); ?>',
 						'w3tc_install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>',
-						'w3tc_pro': '<?php Util_Environment::is_w3tc_pro( $_config ); ?>',
-						'w3tc_has_key': '<?php $config->get_string( 'plugin.license_key' ) ? true : false; ?>',
-						'w3tc_pro_c': '<?php echo W3TC_PRO ? true : false; ?>',
-						'w3tc_eterprise_c': '<?php echo W3TC_ENTERPRISE ? true : false; ?>',
-						'w3tc_plugin_type': '<?php echo esc_attr( $_config->get_string( 'plugin.type' ) ); ?>',
+						'w3tc_pro': '<?php echo Util_Environment::is_w3tc_pro( $this->_config ) ? 1 : 0; ?>',
+						'w3tc_has_key': '<?php $this->_config->get_string( 'plugin.license_key' ) ? 1 : 0; ?>',
+						'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO') && W3TC_PRO ? 1 : 0; ?>',
+						'w3tc_eterprise_c': '<?php echo defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ? 1 : 0; ?>',
+						'w3tc_plugin_type': '<?php echo esc_attr( $this->_config->get_string( 'plugin.type' ) ); ?>',
 					}
 				});
 

@@ -21,21 +21,21 @@ class Cache_File_Cleaner {
 	 *
 	 * @var string
 	 */
-	private $_cache_dir = '';
+	protected $_cache_dir = '';
 
 	/**
 	 * Clean operation time limit
 	 *
 	 * @var int
 	 */
-	private $_clean_timelimit = 0;
+	protected $_clean_timelimit = 0;
 
 	/**
 	 * Exclude files
 	 *
 	 * @var array
 	 */
-	private $_exclude = array();
+	protected $_exclude = array();
 
 	/**
 	 * PHP5-style constructor
