@@ -8,8 +8,9 @@
 namespace W3TC;
 
 /**
- * Attaches to wp actions related to content change, which should fire
- * flushes of html content
+ * Class Util_AttachToActions
+ *
+ * Attaches to wp actions related to content change, which should fire flushes of html content
  */
 class Util_AttachToActions {
 	/**

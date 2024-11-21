@@ -1,10 +1,19 @@
 <?php
+/**
+ * FIle: Generic_Environment.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-
-
+/**
+ * Class: Generic_Environment
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ */
 class Generic_Environment {
-
 	/**
 	 * Fixes environment
 	 *
@@ -59,8 +68,9 @@ class Generic_Environment {
 	/**
 	 * Fixes environment after plugin deactivation
 	 *
-	 * @throws Util_Environment_Exceptions
-	 * @return array
+	 * @throws Util_Environment_Exceptions Environment exception.
+	 *
+	 * @return void
 	 */
 	public function fix_after_deactivation() {
 		$exs = new Util_Environment_Exceptions();
@@ -69,25 +79,29 @@ class Generic_Environment {
 
 		$this->unschedule_purge_wpcron();
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
 	 * Returns required rules for module
 	 *
-	 * @var Config $config
-	 * @return array
+	 * @param Config $config Config.
+	 *
+	 * @return null
 	 */
-	function get_required_rules( $config ) {
+	public function get_required_rules( $config ) {
 		return null;
 	}
 
 	/**
 	 * Checks if addins in wp-content is available and correct version.
 	 *
-	 * @param unknown $config
-	 * @param Util_Environment_Exceptions $exs
+	 * @param unknown                     $config Config.
+	 * @param Util_Environment_Exceptions $exs    Enfironment exceptions.
+	 *
+	 * @return void
 	 */
 	private function create_required_files( $config, $exs ) {
 		$src = W3TC_INSTALL_FILE_ADVANCED_CACHE;
@@ -95,22 +109,35 @@ class Generic_Environment {
 
 		if ( $this->advanced_cache_installed() ) {
 			if ( $this->is_advanced_cache_add_in() ) {
-				$script_data = @file_get_contents( $dst );
-				if ( $script_data == @file_get_contents( $src ) )
-					return;
-			} else if ( get_transient( 'w3tc_remove_add_in_pgcache' ) == 'yes' ) {
-					// user already manually asked to remove another plugin's add in,
-					// we should try to apply ours
-					// (in case of missing permissions deletion could fail)
-				} else if ( !$this->advanced_cache_check_old_add_in() ) {
-					$remove_url = Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_default_remove_add_in=pgcache' );
-
-					$exs->push( new Util_WpFile_FilesystemOperationException(
-							sprintf( __( 'The Page Cache add-in file advanced-cache.php is not a W3 Total Cache drop-in.
-                    It should be removed. %s', 'w3-total-cache' ),
-								Util_Ui::button_link( __( 'Yes, remove it for me', 'w3-total-cache' ), wp_nonce_url( $remove_url, 'w3tc' ) ) ) ) );
+				$script_data = @wp_remote_get( $dst );
+				if ( @wp_remote_get( $src ) === $script_data ) {
 					return;
 				}
+			} elseif ( 'yes' === get_transient( 'w3tc_remove_add_in_pgcache' ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElseif
+				/**
+				 * User already manually asked to remove another plugin's add in, we should
+				 * try to apply ours (in case of missing permissions deletion could fail).
+				 */
+			} elseif ( ! $this->advanced_cache_check_old_add_in() ) {
+				$remove_url = Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_default_remove_add_in=pgcache' );
+
+				$exs->push(
+					new Util_WpFile_FilesystemOperationException(
+						sprintf(
+							// Translators: 1 button link.
+							__(
+								'The Page Cache add-in file advanced-cache.php is not a W3 Total Cache drop-in. It should be removed. %s',
+								'w3-total-cache'
+							),
+							Util_Ui::button_link(
+								__( 'Yes, remove it for me', 'w3-total-cache' ),
+								wp_nonce_url( $remove_url, 'w3tc' )
+							)
+						)
+					)
+				);
+				return;
+			}
 		}
 
 		try {
@@ -123,12 +150,15 @@ class Generic_Environment {
 	/**
 	 * Checks if addins in wp-content are available and deletes them.
 	 *
-	 * @param Util_Environment_Exceptions $exs
+	 * @param Util_Environment_Exceptions $exs Environment exceptions.
+	 *
+	 * @return void
 	 */
 	private function delete_required_files( $exs ) {
 		try {
-			if ( $this->is_advanced_cache_add_in() )
+			if ( $this->is_advanced_cache_add_in() ) {
 				Util_WpFile::delete_file( W3TC_ADDIN_FILE_ADVANCED_CACHE );
+			}
 		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 			$exs->push( $ex );
 		}
@@ -137,38 +167,41 @@ class Generic_Environment {
 	/**
 	 * Checks if addins in wp-content is available and correct version.
 	 *
-	 * @param Util_Environment_Exceptions $exs
+	 * @param Util_Environment_Exceptions $exs Environment exceptions.
+	 *
+	 * @return void
 	 */
 	private function create_required_folders( $exs ) {
-		// folders that we create if not exists
+		// Folders that we create if not exists.
 		$directories = array(
-			W3TC_CACHE_DIR
+			W3TC_CACHE_DIR,
 		);
 
-		if ( !(defined( 'W3TC_CONFIG_DATABASE' ) && W3TC_CONFIG_DATABASE ) ) {
+		if ( ! ( defined( 'W3TC_CONFIG_DATABASE' ) && W3TC_CONFIG_DATABASE ) ) {
 			$directories[] = W3TC_CONFIG_DIR;
 		}
 
 		foreach ( $directories as $directory ) {
-			try{
+			try {
 				Util_WpFile::create_writeable_folder( $directory, WP_CONTENT_DIR );
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
 				$exs->push( $ex );
 			}
 		}
 
-		// folders that we delete if exists and not writeable
+		// folders that we delete if exists and not writeable.
 		$directories = array(
 			W3TC_CACHE_TMP_DIR,
 			W3TC_CACHE_BLOGMAP_FILENAME,
 			W3TC_CACHE_DIR . '/object',
-			W3TC_CACHE_DIR . '/db'
+			W3TC_CACHE_DIR . '/db',
 		);
 
 		foreach ( $directories as $directory ) {
-			try{
-				if ( file_exists( $directory ) && !is_writeable( $directory ) )
+			try {
+				if ( file_exists( $directory ) && ! is_writeable( $directory ) ) {
 					Util_WpFile::delete_folder( $directory );
+				}
 			} catch ( Util_WpFile_FilesystemRmdirException $ex ) {
 				$exs->push( $ex );
 			}
@@ -177,15 +210,20 @@ class Generic_Environment {
 
 	/**
 	 * Adds index files
+	 *
+	 * @return void
 	 */
 	private function add_index_to_folders() {
 		$directories = array(
 			W3TC_CACHE_DIR,
-			W3TC_CONFIG_DIR );
+			W3TC_CONFIG_DIR,
+		);
+
 		$add_files = array();
 		foreach ( $directories as $dir ) {
-			if ( is_dir( $dir ) && !file_exists( $dir . '/index.html' ) )
+			if ( is_dir( $dir ) && ! file_exists( $dir . '/index.html' ) ) {
 				@file_put_contents( $dir . '/index.html', '' );
+			}
 		}
 	}
 
@@ -204,8 +242,8 @@ class Generic_Environment {
 	 * @return boolean
 	 */
 	public function advanced_cache_check_old_add_in() {
-		return ( ( $script_data = @file_get_contents( W3TC_ADDIN_FILE_ADVANCED_CACHE ) )
-			&& strstr( $script_data, 'w3_instance' ) !== false );
+		$script_data = @file_get_contents( W3TC_ADDIN_FILE_ADVANCED_CACHE );
+		return ( $script_data && strstr( $script_data, 'w3_instance' ) !== false );
 	}
 
 	/**
@@ -214,8 +252,8 @@ class Generic_Environment {
 	 * @return boolean
 	 */
 	public function is_advanced_cache_add_in() {
-		return ( ( $script_data = @file_get_contents( W3TC_ADDIN_FILE_ADVANCED_CACHE ) )
-			&& strstr( $script_data, 'PgCache_ContentGrabber' ) !== false );
+		$script_data = @file_get_contents( W3TC_ADDIN_FILE_ADVANCED_CACHE );
+		return ( $script_data && strstr( $script_data, 'PgCache_ContentGrabber' ) !== false );
 	}
 
 	/**
