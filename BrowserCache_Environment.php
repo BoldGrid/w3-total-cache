@@ -302,7 +302,7 @@ class BrowserCache_Environment {
 			/**
 			 * Filter: w3tc_browsercache_rules_apache_mime
 			 *
-			 * @since X.X.X
+			 * @since 2.8.0
 			 *
 			 * @param string $rules_mime Apache rules for MIME types.
 			 * @return string
@@ -354,7 +354,7 @@ class BrowserCache_Environment {
 			/**
 			 * Filter: w3tc_browsercache_rules_apache_brotli
 			 *
-			 * @since X.X.X
+			 * @since 2.8.0
 			 *
 			 * @param string $rules_brotli Apache rules for mod_brotli.
 			 * @return string
@@ -415,7 +415,7 @@ class BrowserCache_Environment {
 			/**
 			 * Filter: w3tc_browsercache_rules_apache_deflate
 			 *
-			 * @since X.X.X
+			 * @since 2.8.0
 			 *
 			 * @param string $rules_deflate Apache rules for mod_deflate.
 			 * @return string
@@ -430,7 +430,7 @@ class BrowserCache_Environment {
 		/**
 		 * Filter: w3tc_browsercache_rules_apache_cssjs
 		 *
-		 * @since X.X.X
+		 * @since 2.8.0
 		 *
 		 * @param string $this->_rules_cache_generate_apache_for_type( $config, $mime_types2['cssjs'], 'cssjs' ) Apache rules for CSS/JS MIME types.
 		 * @return string
@@ -440,7 +440,7 @@ class BrowserCache_Environment {
 		/**
 		 * Filter: w3tc_browsercache_rules_apache_html
 		 *
-		 * @since X.X.X
+		 * @since 2.8.0
 		 *
 		 * @param string $this->_rules_cache_generate_apache_for_type( $config, $mime_types2['html'], 'html' ) Apache rules for HTML MIME types.
 		 * @return string
@@ -450,7 +450,7 @@ class BrowserCache_Environment {
 		/**
 		 * Filter: w3tc_browsercache_rules_apache_other
 		 *
-		 * @since X.X.X
+		 * @since 2.8.0
 		 *
 		 * @param string $this->_rules_cache_generate_apache_for_type( $config, $mime_types2['other'], 'other' ) Apache rules for other MIME types.
 		 * @return string
@@ -659,7 +659,7 @@ class BrowserCache_Environment {
 			/**
 			 * Filter: w3tc_browsercache_rules_apache_headers
 			 *
-			 * @since X.X.X
+			 * @since 2.8.0
 			 *
 			 * @param string $rules_mime Apache rules for mod_headers.
 			 * @return string
@@ -674,7 +674,7 @@ class BrowserCache_Environment {
 		/**
 		 * Filter: w3tc_browsercache_rules_apache_rewrite
 		 *
-		 * @since X.X.X
+		 * @since 2.8.0
 		 *
 		 * @param string $rules_mime Apache rules for mod_rewrite.
 		 * @return string

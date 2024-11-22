@@ -55,6 +55,8 @@ class Generic_Plugin_Admin {
 	public function run() {
 		$this->is_w3tc_page = Util_Admin::is_w3tc_admin_page();
 
+		add_filter( 'w3tc_save_options', array( $this, 'w3tc_save_options' ) );
+
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetAccount', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetSettings', 'admin_init_w3tc_dashboard' ) );
@@ -144,6 +146,35 @@ class Generic_Plugin_Admin {
 
 			exit();
 		}
+	}
+
+	public function w3tc_save_options( $data ) {
+		$new_config = $data['new_config'];
+		$old_config = $data['old_config'];
+
+		// Schedule purge if enabled.
+		if ( $new_config->get_boolean( 'allcache.wp_cron' ) ) {
+			$new_wp_cron_time      = $new_config->get_integer( 'allcache.wp_cron_time' );
+			$old_wp_cron_time      = $old_config ? $old_config->get_integer( 'allcache.wp_cron_time' ) : -1;
+			$new_wp_cron_interval  = $new_config->get_string( 'allcache.wp_cron_interval' );
+			$old_wp_cron_interval  = $old_config ? $old_config->get_string( 'allcache.wp_cron_interval' ) : -1;
+			$schedule_needs_update = $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval;
+
+			// Clear the scheduled hook if a change in time or interval is detected.
+			if ( wp_next_scheduled( 'w3tc_purge_all_wpcron' ) && $schedule_needs_update ) {
+				wp_clear_scheduled_hook( 'w3tc_purge_all_wpcron' );
+			}
+
+			// Schedule if no existing cron event or settings have changed.
+			if ( ! wp_next_scheduled( 'w3tc_purge_all_wpcron' ) || $schedule_needs_update ) {
+				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
+				wp_schedule_event( $scheduled_timestamp_server, $new_wp_cron_interval, 'w3tc_purge_all_wpcron' );
+			}
+		} elseif ( wp_next_scheduled( 'w3tc_purge_all_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_purge_all_wpcron' );
+		}
+
+		return $data;
 	}
 
 	/**
@@ -433,7 +464,8 @@ class Generic_Plugin_Admin {
 						'w3tc_install_version': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
 						'w3tc_edition': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
 						'w3tc_widgets': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
-						'page': '<?php echo esc_attr( $page ); ?>'
+						'page': '<?php echo esc_attr( $page ); ?>',
+						'w3tc_install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>'
 					}
 				});
 
@@ -449,9 +481,8 @@ class Generic_Plugin_Admin {
 				document.addEventListener('click', function(event) {
 					if ( jQuery( event.target ).hasClass( 'w3tc-pro-services') ) {
 						w3tc_ga('event', 'click', {
-							'event_category': 'w3tc-pro-services',
-							'event_label': event.target.innerText,
-							'event_value': 1,
+							'eventCategory': 'w3tc-pro-services',
+							'eventLabel': event.target.innerText
 						});
 					}
 				});

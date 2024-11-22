@@ -1,27 +1,30 @@
 <?php
+/**
+ * File: DbCache_Environment.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * W3 PgCache plugin - administrative interface
- */
-
-/**
- * class DbCache_Environment
+ * Class: DbCache_Environment
  */
 class DbCache_Environment {
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
-	 * @param Config  $config
-	 * @param bool    $force_all_checks
+	 * @param Config $config           Config.
+	 * @param bool   $force_all_checks Force checks flag.
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
 	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
-		$exs = new Util_Environment_Exceptions();
+		$exs             = new Util_Environment_Exceptions();
+		$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
+
 		try {
-			if ( $config->get_boolean( 'dbcache.enabled' ) ||
-					Util_Environment::is_dbcluster( $config ) ) {
+			if ( $dbcache_enabled || Util_Environment::is_dbcluster( $config ) ) {
 				$this->create_addin();
 			} else {
 				$this->delete_addin();
@@ -30,32 +33,47 @@ class DbCache_Environment {
 			$exs->push( $ex );
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
-	 * Fixes environment once event occurs
+	 * Fixes environment once event occurs.
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exception.
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
-		if ( $config->get_boolean( 'dbcache.enabled' ) &&
-			$config->get_string( 'dbcache.engine' ) == 'file' ) {
-			if ( !wp_next_scheduled( 'w3_dbcache_cleanup' ) ) {
-				wp_schedule_event( time(),
-					'w3_dbcache_cleanup', 'w3_dbcache_cleanup' );
+		$dbcache_enabled = $config->get_boolean( 'dbcache.enabled' );
+		$engine          = $config->get_string( 'dbcache.engine' );
+
+		if ( $dbcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$new_interval = $config->get_integer( 'dbcache.file.gc' );
+			$old_interval = $old_config ? $old_config->get_integer( 'dbcache.file.gc' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
+				$this->unschedule_gc();
+			}
+
+			if ( ! wp_next_scheduled( 'w3_dbcache_cleanup' ) ) {
+				wp_schedule_event( time(), 'w3_dbcache_cleanup', 'w3_dbcache_cleanup' );
 			}
 		} else {
-			$this->unschedule();
+			$this->unschedule_gc();
 		}
 	}
 
 	/**
 	 * Fixes environment after plugin deactivation
 	 *
-	 * @throws Util_Environment_Exceptions
-	 * @return array
+	 * @throws Util_Environment_Exceptions Exception.
+	 * @throws Util_WpFile_FilesystemOperationException Exception.
+	 *
+	 * @return void
 	 */
 	public function fix_after_deactivation() {
 		$exs = new Util_Environment_Exceptions();
@@ -66,10 +84,12 @@ class DbCache_Environment {
 			$exs->push( $ex );
 		}
 
-		$this->unschedule();
+		$this->unschedule_gc();
+		$this->unschedule_purge_wpcron();
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
@@ -83,11 +103,26 @@ class DbCache_Environment {
 	}
 
 	/**
-	 * scheduling stuff
+	 * Remove Garbage collection cron job.
+	 *
+	 * @return void
 	 */
-	private function unschedule() {
+	private function unschedule_gc() {
 		if ( wp_next_scheduled( 'w3_dbcache_cleanup' ) ) {
 			wp_clear_scheduled_hook( 'w3_dbcache_cleanup' );
+		}
+	}
+
+	/**
+	 * Remove cron job for pagecache purge.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	private function unschedule_purge_wpcron() {
+		if ( wp_next_scheduled( 'w3tc_dbcache_purge_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_dbcache_purge_wpcron' );
 		}
 	}
 

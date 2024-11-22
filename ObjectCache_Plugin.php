@@ -44,6 +44,7 @@ class ObjectCache_Plugin {
 		add_action( 'updated_option', array( $this, 'delete_option_cache' ), 10, 0 );
 
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
+		add_action( 'w3tc_objectcache_purge_wpcron', array( $this, 'w3tc_objectcache_purge_wpcron' ) );
 
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
 
@@ -96,21 +97,35 @@ class ObjectCache_Plugin {
 	 * @return array
 	 */
 	public function cron_schedules( $schedules ) {
-		$gc = $this->_config->get_integer( 'objectcache.file.gc' );
+		$c                   = $this->_config;
+		$objectcache_enabled = $c->get_boolean( 'objectcache.enabled' );
+		$engine              = $c->get_string( 'objectcache.engine' );
 
-		return array_merge(
-			$schedules,
-			array(
-				'w3_objectcache_cleanup' => array(
-					'interval' => $gc,
-					'display'  => sprintf(
-						// translators: 1 interval in seconds.
-						__( '[W3TC] Object Cache file GC (every %d seconds)', 'w3-total-cache' ),
-						$gc
-					),
+		if ( $objectcache_enabled && 'file' === $engine ) {
+			$interval                            = $c->get_integer( 'objectcache.file.gc' );
+			$schedules['w3_objectcache_cleanup'] = array(
+				'interval' => $interval,
+				'display'  => sprintf(
+					// translators: 1 interval in seconds.
+					__( '[W3TC] Object Cache file GC (every %d seconds)', 'w3-total-cache' ),
+					$interval
 				),
-			)
-		);
+			);
+		}
+
+		return $schedules;
+	}
+
+	/**
+	 * Cron job for processing purging object cache.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	public function w3tc_objectcache_purge_wpcron() {
+		$flusher = Dispatcher::component( 'CacheFlush' );
+		$flusher->objectcache_flush();
 	}
 
 	/**

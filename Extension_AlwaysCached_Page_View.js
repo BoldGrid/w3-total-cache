@@ -3,7 +3,7 @@
  *
  * JavaScript for the Always Cached settings page.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @global w3tcData Localized data.
  */
@@ -144,7 +144,7 @@ jQuery(function() {
 		'#alwayscached___wp_cron',
 		function() {
 			let $enabled = jQuery(this).prop('checked');
-        
+
 			jQuery('#alwayscached___wp_cron_time').prop('disabled', ! $enabled);
         	jQuery('#alwayscached___wp_cron_interval').prop('disabled', ! $enabled);
 		}
@@ -155,7 +155,7 @@ jQuery(function() {
 		'#alwayscached___flush_all',
 		function() {
 			let $enabled = jQuery(this).prop('checked');
-        
+
         	jQuery('#alwayscached___flush_all_home').prop('disabled', ! $enabled);
        		jQuery('#alwayscached___flush_all_posts_count').prop('disabled', ! $enabled);
         	jQuery('#alwayscached___flush_all_pages_count').prop('disabled', ! $enabled);

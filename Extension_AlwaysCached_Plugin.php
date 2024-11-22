@@ -4,7 +4,7 @@
  *
  * AlwaysCached plugin admin controller.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @package W3TC
  */
@@ -14,7 +14,7 @@ namespace W3TC;
 /**
  * AlwaysCached Plugin.
  *
- * @since X.X.X
+ * @since 2.8.0
  */
 class Extension_AlwaysCached_Plugin {
 	/**
@@ -27,7 +27,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Run method for AlwaysCached.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void|null
 	 */
@@ -56,7 +56,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Init for AlwaysCached.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */
@@ -73,32 +73,32 @@ class Extension_AlwaysCached_Plugin {
 		$time     = $c->get_string( array( 'alwayscached', 'wp_cron_time' ) );
 		$interval = $c->get_string( array( 'alwayscached', 'wp_cron_interval' ) );
 
-		// Retrieve stored previous time and interval
+		// Retrieve stored previous time and interval.
 		$prev_time     = get_option( 'w3tc_alwayscached_wp_cron_time', '' );
 		$prev_interval = get_option( 'w3tc_alwayscached_wp_cron_interval', '' );
 
-		// Check if cron needs updating or scheduling
+		// Check if cron needs updating or scheduling.
 		if ( $enabled && ! empty( $time ) && ! empty( $interval ) ) {
-			// Convert the time to a timestamp for scheduling
-			$start_time = strtotime( gmdate( 'Y-m-d' ) . ' ' . $time );
-
-			// If no event is scheduled or the time/interval have changed, update the cron
+			// If no event is scheduled or the time/interval have changed, update the cron.
 			if ( ! wp_next_scheduled( 'w3tc_alwayscached_wp_cron' ) || $time !== $prev_time || $interval !== $prev_interval ) {
-				// Clear existing scheduled event
+				// Clear existing scheduled event.
 				wp_clear_scheduled_hook( 'w3tc_alwayscached_wp_cron' );
 
-				// Schedule the new event
+				// Convert the time to a timestamp for scheduling.
+				$start_time = Util_Environment::get_cron_schedule_time( $time );
+
+				// Schedule the new event.
 				wp_schedule_event( $start_time, $interval, 'w3tc_alwayscached_wp_cron' );
 
-				// Store the new time and interval
+				// Store the new time and interval.
 				update_option( 'w3tc_alwayscached_wp_cron_time', $time );
 				update_option( 'w3tc_alwayscached_wp_cron_interval', $interval );
 			}
 		} elseif ( ! $enabled ) {
-			// Clear the cron job if it's disabled
+			// Clear the cron job if it's disabled.
 			wp_clear_scheduled_hook( 'w3tc_alwayscached_wp_cron' );
 
-			// Remove the stored values
+			// Remove the stored values.
 			delete_option( 'w3tc_alwayscached_wp_cron_time' );
 			delete_option( 'w3tc_alwayscached_wp_cron_interval' );
 		}
@@ -107,7 +107,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Adds admin bar menu links.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $menu_items Menu items.
 	 *
@@ -132,7 +132,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Adds AlwaysCached Apache rules.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string $rewrite_conditions Apache rules buffer.
 	 *
@@ -146,7 +146,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * ???
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $o Page data.
 	 *
@@ -173,7 +173,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * ???
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $data Page data.
 	 *
@@ -209,7 +209,7 @@ class Extension_AlwaysCached_Plugin {
 	 *  'parent' => object with _get_page_key method
 	 * )
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $data Data for flush request.
 	 *
@@ -229,25 +229,25 @@ class Extension_AlwaysCached_Plugin {
 
 			$page_key = $data['parent']->_get_page_key( $page_key_extension, $data['url'] );
 
-			// If the URL is excluded, store the data for later flushing
+			// If the URL is excluded, store the data for later flushing.
 			if ( self::is_excluded( $data['url'] ) ) {
 				$excluded_data = $data;
 				continue;
 			}
 
-			// If cache key doesn't exist, skip to the next iteration
+			// If cache key doesn't exist, skip to the next iteration.
 			if ( ! $data['cache']->exists( $page_key, $data['group'] ) ) {
 				continue;
 			}
 
-			// Queue the URL for later processing if it's not excluded and exists in cache
+			// Queue the URL for later processing if it's not excluded and exists in cache.
 			Extension_AlwaysCached_Queue::add(
 				$data['url'],
 				array( 'group' => $data['group'] )
 			);
 		}
 
-		// Return the excluded URLs if any were found, so they can be flushed
+		// Return the excluded URLs if any were found, so they can be flushed.
 		if ( ! empty( $excluded_data ) ) {
 			return $excluded_data;
 		}
@@ -258,7 +258,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Flush all groups.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $groups Groups.
 	 *
@@ -293,7 +293,7 @@ class Extension_AlwaysCached_Plugin {
 				}
 			}
 
-			$posts_count = $c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) );
+			$posts_count = $c->get_integer( array( 'alwayscached', 'flush_all_posts_count' ) ) ?? 15;
 			if ( $posts_count > 0 ) {
 				$posts = get_posts(
 					array(
@@ -325,7 +325,7 @@ class Extension_AlwaysCached_Plugin {
 				}
 			}
 
-			$pages_count = $c->get_integer( array( 'alwayscached', 'flush_all_pages_count' ) );
+			$pages_count = $c->get_integer( array( 'alwayscached', 'flush_all_pages_count' ) ) ?? 15;
 			if ( $pages_count > 0 ) {
 				$posts = get_posts(
 					array(
@@ -364,7 +364,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Gets the enabled status of the extension.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return bool
 	 */
@@ -377,7 +377,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Cron job for processing queue via WP cron.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */
@@ -388,7 +388,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Specify config key typing for fields that need it.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param mixed $descriptor Descriptor.
 	 * @param mixed $key Compound key array.
@@ -406,7 +406,7 @@ class Extension_AlwaysCached_Plugin {
 	/**
 	 * Checks if the given URL matches any exclusions.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param string $url URL.
 	 *
@@ -416,12 +416,12 @@ class Extension_AlwaysCached_Plugin {
 		$c          = Dispatcher::config();
 		$exclusions = $c->get_array( array( 'alwayscached', 'exclusions' ) );
 
-		// Normalize the URL to handle trailing slashes and parse the path
-		$parsed_url     = rtrim( parse_url( $url, PHP_URL_PATH ), '/' );
+		// Normalize the URL to handle trailing slashes and parse the path.
+		$parsed_url     = rtrim( wp_parse_url( $url, PHP_URL_PATH ), '/' );
 		$url_with_slash = $parsed_url . '/';
 
 		foreach ( $exclusions as $exclusion ) {
-			// Check both with and without trailing slash
+			// Check both with and without trailing slash.
 			if ( fnmatch( $exclusion, $parsed_url ) || fnmatch( $exclusion, $url_with_slash ) ) {
 				return true;
 			}

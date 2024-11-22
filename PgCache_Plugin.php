@@ -43,6 +43,7 @@ class PgCache_Plugin {
 
 		// phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
+		add_action( 'w3tc_pgcache_purge_wpcron', array( $this, 'w3tc_pgcache_purge_wpcron' ) );
 
 		$o = Dispatcher::component( 'PgCache_ContentGrabber' );
 
@@ -139,36 +140,47 @@ class PgCache_Plugin {
 	 * @return array
 	 */
 	public function cron_schedules( $schedules ) {
-		$c = $this->_config;
+		$c               = $this->_config;
+		$pgcache_enabled = $c->get_boolean( 'pgcache.enabled' );
+		$engine          = $c->get_string( 'pgcache.engine' );
 
-		if ( $c->get_boolean( 'pgcache.enabled' ) &&
-			( 'file' === $c->get_string( 'pgcache.engine' ) ||
-			'file_generic' === $c->get_string( 'pgcache.engine' ) ) ) {
-			$v                               = $c->get_integer( 'pgcache.file.gc' );
+		if ( $pgcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$interval                        = $c->get_integer( 'pgcache.file.gc' );
 			$schedules['w3_pgcache_cleanup'] = array(
-				'interval' => $v,
+				'interval' => $interval,
 				'display'  => sprintf(
 					// translators: 1 interval in seconds.
 					__( '[W3TC] Page Cache file GC (every %d seconds)', 'w3-total-cache' ),
-					$v
+					$interval
 				),
 			);
 		}
 
-		if ( $c->get_boolean( 'pgcache.enabled' ) &&
-			$c->get_boolean( 'pgcache.prime.enabled' ) ) {
-			$v                             = $c->get_integer( 'pgcache.prime.interval' );
+		if ( $pgcache_enabled && $c->get_boolean( 'pgcache.prime.enabled' ) ) {
+			$interval                      = $c->get_integer( 'pgcache.prime.interval' );
 			$schedules['w3_pgcache_prime'] = array(
-				'interval' => $v,
+				'interval' => $interval,
 				'display'  => sprintf(
 					// translators: 1 interval in seconds.
 					__( '[W3TC] Page Cache prime (every %d seconds)', 'w3-total-cache' ),
-					$v
+					$interval
 				),
 			);
 		}
 
 		return $schedules;
+	}
+
+	/**
+	 * Cron job for processing purging page cache.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	public function w3tc_pgcache_purge_wpcron() {
+		$flusher = Dispatcher::component( 'CacheFlush' );
+		$flusher->flush_posts();
 	}
 
 	/**

@@ -8,15 +8,17 @@ class PgCache_Environment {
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
-	 * @param Config  $config
-	 * @param bool    $force_all_checks
+	 * @param Config $config           Config.
+	 * @param bool   $force_all_checks Force checks flag.
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Excpetions.
 	 */
 	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
-		$exs = new Util_Environment_Exceptions();
+		$exs             = new Util_Environment_Exceptions();
+		$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
+		$engine          = $config->get_string( 'pgcache.engine' );
 
-		if ( ( !defined( 'WP_CACHE' ) || !WP_CACHE ) ) {
+		if ( ( ! defined( 'WP_CACHE' ) || ! WP_CACHE ) ) {
 			try {
 				$this->wp_config_add_directive();
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
@@ -36,64 +38,66 @@ class PgCache_Environment {
 			}
 		}
 
-		// if no errors so far - check if rewrite actually works
+		// if no errors so far - check if rewrite actually works.
 		if ( count( $exs->exceptions() ) <= 0 ) {
 			try {
-				if ( $config->get_boolean( 'pgcache.enabled' ) &&
-					$config->get_string( 'pgcache.engine' ) == 'file_generic' ) {
+				if ( $pgcache_enabled && 'file_generic' === $engine ) {
 					$this->verify_file_generic_compatibility();
 
-					if ( $config->get_boolean( 'pgcache.debug' ) )
+					if ( $config->get_boolean( 'pgcache.debug' ) ) {
 						$this->verify_file_generic_rewrite_working();
+					}
 				}
 			} catch ( \Exception $ex ) {
 				$exs->push( $ex );
 			}
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
 	 * Fixes environment once event occurs
 	 *
-	 * @param Config  $config
-	 * @param string  $event
-	 * @param null|Config $old_config
-	 * @throws Util_Environment_Exceptions
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exception.
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
-		// Schedules events
-		if ( $config->get_boolean( 'pgcache.enabled' ) &&
-			( $config->get_string( 'pgcache.engine' ) == 'file' ||
-				$config->get_string( 'pgcache.engine' ) == 'file_generic' ) ) {
-			if ( $old_config != null &&
-				$config->get_integer( 'pgcache.file.gc' ) !=
-				$old_config->get_integer( 'pgcache.file.gc' ) ) {
+		$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
+		$engine          = $config->get_string( 'pgcache.engine' );
+
+		// Schedules events.
+		if ( $pgcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$new_interval = $config->get_integer( 'pgcache.file.gc' );
+			$old_interval = $old_config ? $old_config->get_integer( 'pgcache.file.gc' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
 				$this->unschedule_gc();
 			}
 
-			if ( !wp_next_scheduled( 'w3_pgcache_cleanup' ) ) {
-				wp_schedule_event( time(),
-					'w3_pgcache_cleanup', 'w3_pgcache_cleanup' );
+			if ( ! wp_next_scheduled( 'w3_pgcache_cleanup' ) ) {
+				wp_schedule_event( time(), 'w3_pgcache_cleanup', 'w3_pgcache_cleanup' );
 			}
 		} else {
 			$this->unschedule_gc();
 		}
 
-		// Schedule prime event
-		if ( $config->get_boolean( 'pgcache.enabled' ) &&
-			$config->get_boolean( 'pgcache.prime.enabled' ) ) {
-			if ( $old_config != null &&
-				$config->get_integer( 'pgcache.prime.interval' ) !=
-				$old_config->get_integer( 'pgcache.prime.interval' ) ) {
+		// Schedule prime event.
+		if ( $pgcache_enabled && $config->get_boolean( 'pgcache.prime.enabled' ) ) {
+			$new_interval = $config->get_integer( 'pgcache.prime.interval' );
+			$old_interval = $old_config ? $old_config->get_integer( 'pgcache.prime.interval' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
 				$this->unschedule_prime();
 			}
 
-			if ( !wp_next_scheduled( 'w3_pgcache_prime' ) ) {
-				wp_schedule_event( time(),
-					'w3_pgcache_prime', 'w3_pgcache_prime' );
+			if ( ! wp_next_scheduled( 'w3_pgcache_prime' ) ) {
+				wp_schedule_event( time(), 'w3_pgcache_prime', 'w3_pgcache_prime' );
 			}
 		} else {
 			$this->unschedule_prime();
@@ -103,7 +107,9 @@ class PgCache_Environment {
 	/**
 	 * Fixes environment after plugin deactivation
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Exception.
+	 *
+	 * @return void
 	 */
 	public function fix_after_deactivation() {
 		$exs = new Util_Environment_Exceptions();
@@ -119,9 +125,11 @@ class PgCache_Environment {
 
 		$this->unschedule_gc();
 		$this->unschedule_prime();
+		$this->unschedule_purge_wpcron();
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
@@ -289,19 +297,39 @@ class PgCache_Environment {
 
 
 	/**
-	 * scheduling stuff
+	 * Remove Garbage collection cron job.
+	 *
+	 * @return void
 	 */
 	private function unschedule_gc() {
-		if ( wp_next_scheduled( 'w3_pgcache_cleanup' ) )
+		if ( wp_next_scheduled( 'w3_pgcache_cleanup' ) ) {
 			wp_clear_scheduled_hook( 'w3_pgcache_cleanup' );
+		}
 	}
 
+	/**
+	 * Remove Prime Cache cron job.
+	 *
+	 * @return void
+	 */
 	private function unschedule_prime() {
-		if ( wp_next_scheduled( 'w3_pgcache_prime' ) )
+		if ( wp_next_scheduled( 'w3_pgcache_prime' ) ) {
 			wp_clear_scheduled_hook( 'w3_pgcache_prime' );
+		}
 	}
 
-
+	/**
+	 * Remove cron job for pagecache purge.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	private function unschedule_purge_wpcron() {
+		if ( wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_pgcache_purge_wpcron' );
+		}
+	}
 
 	/*
 	 * wp-config modification

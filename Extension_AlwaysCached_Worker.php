@@ -4,7 +4,7 @@
  *
  * AlwaysCached worker model.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @package W3TC
  */
@@ -14,14 +14,14 @@ namespace W3TC;
 /**
  * AlwaysCached worker model.
  *
- * @since X.X.X
+ * @since 2.8.0
  */
 class Extension_AlwaysCached_Worker {
 
 	/**
 	 * Run method for AlwaysCached worker.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */
@@ -71,7 +71,7 @@ class Extension_AlwaysCached_Worker {
 	/**
 	 * Process item.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $item Item.
 	 * @param bool  $ajax Ajax flag.
@@ -85,7 +85,7 @@ class Extension_AlwaysCached_Worker {
 	/**
 	 * Process item by URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @param array $item Item.
 	 * @param bool  $ajax Ajax flag.

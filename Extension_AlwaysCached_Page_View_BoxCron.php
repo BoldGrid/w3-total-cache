@@ -4,7 +4,7 @@
  *
  * Render the AlwaysCached settings page - cron box.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @package W3TC
  */
@@ -15,8 +15,10 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c           = Dispatcher::config();
-$wp_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
+$c                = Dispatcher::config();
+$pgcache_disabled = ! $c->get_boolean( 'pgcache.enabled' );
+$wp_cron_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
+
 ?>
 <div class="metabox-holder">
 	<?php Util_Ui::postbox_header( esc_html__( 'Cron', 'w3-total-cache' ), '', 'cron' ); ?>
@@ -33,14 +35,16 @@ $wp_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
 				'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will process the queue and regenerate cache files. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc alwayscached_process".', 'w3-total-cache' ),
+				'disabled'       => $pgcache_disabled,
 			)
 		);
 
 		$time_options = array();
 		for ( $hour = 0; $hour < 24; $hour++ ) {
 			foreach ( array( '00', '30' ) as $minute ) {
-				$time_value                  = sprintf( '%02d:%s', $hour, $minute );
-				$time_label                  = gmdate( 'g:i a', strtotime( $time_value ) );
+				$time_value                  = $hour * 60 + intval( $minute );
+				$scheduled_time              = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
+				$time_label                  = $scheduled_time->format( 'g:i a' );
 				$time_options[ $time_value ] = $time_label;
 			}
 		}
@@ -54,7 +58,8 @@ $wp_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 				'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 				'control'          => 'selectbox',
 				'selectbox_values' => $time_options,
-				'disabled'         => $wp_disabled,
+				'description'      => esc_html__( 'This setting controls the initial start time of the cron job based on the configured WordPress timezone. It will automatically adjust the timestamp to accommodate differences between the configured WordPress and server timezones. If the selected time has already passed, it will add a day so that it begins the next day.', 'w3-total-cache' ),
+				'disabled'         => $pgcache_disabled || $wp_cron_disabled,
 			)
 		);
 
@@ -72,7 +77,8 @@ $wp_disabled = ! $c->get_boolean( array( 'alwayscached', 'wp_cron' ) );
 					'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
 					'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 				),
-				'disabled'         => $wp_disabled,
+				'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
+				'disabled'         => $pgcache_disabled || $wp_cron_disabled,
 			)
 		);
 		?>

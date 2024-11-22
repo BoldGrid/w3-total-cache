@@ -33,6 +33,7 @@ class DbCache_Plugin {
 	public function run() {
 		// phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
+		add_action( 'w3tc_dbcache_purge_wpcron', array( $this, 'w3tc_dbcache_purge_wpcron' ) );
 
 		if ( 'file' === $this->_config->get_string( 'dbcache.engine' ) ) {
 			add_action( 'w3_dbcache_cleanup', array( $this, 'cleanup' ) );
@@ -120,21 +121,35 @@ class DbCache_Plugin {
 	 * @return array
 	 */
 	public function cron_schedules( $schedules ) {
-		$gc = $this->_config->get_integer( 'dbcache.file.gc' );
+		$c               = $this->_config;
+		$dbcache_enabled = $c->get_boolean( 'dbcache.enabled' );
+		$engine          = $c->get_string( 'dbcache.engine' );
 
-		return array_merge(
-			$schedules,
-			array(
-				'w3_dbcache_cleanup' => array(
-					'interval' => $gc,
-					'display'  => sprintf(
-						// translators: 1 interval in seconds.
-						__( '[W3TC] Database Cache file GC (every %d seconds)', 'w3-total-cache' ),
-						$gc
-					),
+		if ( $dbcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$interval                        = $c->get_integer( 'dbcache.file.gc' );
+			$schedules['w3_dbcache_cleanup'] = array(
+				'interval' => $interval,
+				'display'  => sprintf(
+					// translators: 1 interval in seconds.
+					__( '[W3TC] Database Cache file GC (every %d seconds)', 'w3-total-cache' ),
+					$interval
 				),
-			)
-		);
+			);
+		}
+
+		return $schedules;
+	}
+
+	/**
+	 * Cron job for processing purging database cache.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	public function w3tc_dbcache_purge_wpcron() {
+		$flusher = Dispatcher::component( 'CacheFlush' );
+		$flusher->dbcache_flush();
 	}
 
 	/**

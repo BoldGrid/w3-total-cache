@@ -18,6 +18,7 @@ class Generic_Plugin {
 	 */
 	function run() {
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ), 5 );
+		add_action( 'w3tc_purge_all_wpcron', array( $this, 'w3tc_purgeall_wpcron' ) );
 
 		/* need this to run before wp-cron to issue w3tc redirect */
 		add_action( 'init', array( $this, 'init' ), 1 );
@@ -65,16 +66,18 @@ class Generic_Plugin {
 	/**
 	 * Cron schedules filter
 	 *
-	 * @param array   $schedules
+	 * Sets default values which are overriden by apropriate plugins if they are enabled
+	 *
+	 * Absense of keys (if e.g. pgcaching became disabled, but there is cron event scheduled in db) causes PHP notices.
+	 *
+	 * @param array $schedules Schedules.
+	 *
 	 * @return array
 	 */
-	function cron_schedules( $schedules ) {
-		// Sets default values which are overriden by apropriate plugins
-		// if they are enabled
-		//
-		// absense of keys (if e.g. pgcaching became disabled, but there is
-		// cron event scheduled in db) causes PHP notices.
-		return array_merge(
+	public function cron_schedules( $schedules ) {
+		$c = $this->_config;
+
+		$schedules = array_merge(
 			$schedules,
 			array(
 				'w3_cdn_cron_queue_process' => array(
@@ -111,6 +114,20 @@ class Generic_Plugin {
 				),
 			)
 		);
+
+		return $schedules;
+	}
+
+	/**
+	 * Cron job for processing purging page cache.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	public function w3tc_purgeall_wpcron() {
+		$flusher = Dispatcher::component( 'CacheFlush' );
+		$flusher->flush_all();
 	}
 
 	/**

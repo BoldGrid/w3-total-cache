@@ -8,22 +8,24 @@ class Generic_Environment {
 	/**
 	 * Fixes environment
 	 *
-	 * @param Config  $config
-	 * @param bool    $force_all_checks
-	 * @throws Util_Environment_Exceptions
+	 * @param Config $config           Config.
+	 * @param bool   $force_all_checks Force checks flag.
+	 *
+	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
-	function fix_on_wpadmin_request( $config, $force_all_checks ) {
+	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
 		$exs = new Util_Environment_Exceptions();
-		// create add-ins
+
+		// create add-ins.
 		$this->create_required_files( $config, $exs );
 
-		// create folders
+		// create folders.
 		$this->create_required_folders( $exs );
 		$this->add_index_to_folders();
 
 		if ( count( $exs->exceptions() ) <= 0 ) {
-			// save actual version of config is it's built on legacy configs
-			$f = ConfigUtil::is_item_exists( 0, false );
+			// save actual version of config is it's built on legacy configs.
+			$f  = ConfigUtil::is_item_exists( 0, false );
 			$f2 = file_exists( Config::util_config_filename_legacy_v2( 0, false ) );
 
 			$c = Dispatcher::config_master();
@@ -32,18 +34,24 @@ class Generic_Environment {
 				$f = ConfigUtil::is_item_exists( 0, false );
 			}
 
-			if ( $f && $f2 )
+			if ( $f && $f2 ) {
 				@unlink( Config::util_config_filename_legacy_v2( 0, false ) );
+			}
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
 	 * Fixes environment once event occurs
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exceptions.
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
 	}
@@ -58,6 +66,8 @@ class Generic_Environment {
 		$exs = new Util_Environment_Exceptions();
 
 		$this->delete_required_files( $exs );
+
+		$this->unschedule_purge_wpcron();
 
 		if ( count( $exs->exceptions() ) > 0 )
 			throw $exs;
@@ -206,5 +216,18 @@ class Generic_Environment {
 	public function is_advanced_cache_add_in() {
 		return ( ( $script_data = @file_get_contents( W3TC_ADDIN_FILE_ADVANCED_CACHE ) )
 			&& strstr( $script_data, 'PgCache_ContentGrabber' ) !== false );
+	}
+
+	/**
+	 * Remove cron job for purge all caches.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	private function unschedule_purge_wpcron() {
+		if ( wp_next_scheduled( 'w3tc_purgeall_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_purgeall_wpcron' );
+		}
 	}
 }

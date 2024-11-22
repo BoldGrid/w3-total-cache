@@ -1666,6 +1666,42 @@ class Util_Environment {
 	}
 
 	/**
+	 * Generates an appropriate timestamp for WP cron using a selected time during the day in the form of an integer.
+	 * Adjusts for discrepacy in timezones between WP and system and adds a day if the result is in the past.
+	 *
+	 * @since  2.8.0
+	 *
+	 * @static
+	 *
+	 * @param int $cron_time Cron schedule time.
+	 *
+	 * @return int
+	 */
+	public static function get_cron_schedule_time(int $cron_time = 0): int {
+		// Get the current time in WordPress timezone.
+		$current_time_wp = new \DateTime( 'now', wp_timezone() );
+
+		// Convert the selected cron time into hours and minutes.
+		$hour   = floor( $cron_time / 60 );
+		$minute = $cron_time % 60;
+
+		// Create a DateTime for today at the specified hour and minute in the user's timezone.
+		$scheduled_time_user = new \DateTime( "today", wp_timezone() );
+		$scheduled_time_user->setTime( $hour, $minute );
+
+		// Convert the user's scheduled time to UTC for WordPress.
+		$scheduled_time_utc = clone $scheduled_time_user;
+		$scheduled_time_utc->setTimezone( new \DateTimeZone('UTC') );
+
+		// If the selected time has already passed today in UTC, schedule for tomorrow.
+		if ( $scheduled_time_utc <= $current_time_wp ) {
+			$scheduled_time_utc->modify( '+1 day' );
+		}
+
+		return $scheduled_time_utc->getTimestamp();
+	}
+
+	/**
 	 * Tests the WP Cron spawning system and reports back its status.
 	 *
 	 * This command tests the spawning system by performing the following steps:
@@ -1676,7 +1712,7 @@ class Util_Environment {
 	 * * Attempts to spawn WP-Cron over HTTP; warns if non 200 response code is
 	 * returned.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L14-L55
 	 *
 	 * @return bool
@@ -1718,7 +1754,7 @@ class Util_Environment {
 	 * with the addition of returning the result of the `wp_remote_post()`
 	 * request.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L57-L91
 	 *
 	 * @global $wp_version WordPress version string.

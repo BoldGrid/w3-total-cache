@@ -41,7 +41,7 @@ script:
   # Remove dev dependencies.
   - composer install --no-dev -o
   # PHP lint.
-  - find . -name composer -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
+  - find . -name vendor -prune -o -name node_modules -prune -o -name '*.php' -exec php -lf {} \; > /dev/null
 
 after_success:
   # Codecov: Create a code coverage report for PHP 7.2.

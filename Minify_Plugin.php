@@ -74,6 +74,7 @@ class Minify_Plugin {
 	public function run() {
 		add_action( 'init', array( $this, 'init' ) );
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
+		add_action( 'w3tc_minifycache_purge_wpcron', array( $this, 'w3tc_minifycache_purge_wpcron' ) );
 
 		add_filter( 'w3tc_admin_bar_menu',
 			array( $this, 'w3tc_admin_bar_menu' ) );
@@ -137,18 +138,40 @@ class Minify_Plugin {
 	/**
 	 * Cron schedules filter
 	 *
-	 * @param array   $schedules
+	 * @param array $schedules Schedules.
+	 *
 	 * @return array
 	 */
-	function cron_schedules( $schedules ) {
-		$gc = $this->_config->get_integer( 'minify.file.gc' );
+	public function cron_schedules( $schedules ) {
+		$c              = $this->_config;
+		$minify_enabled = $c->get_boolean( 'minify.enabled' );
+		$engine         = $c->get_string( 'minify.engine' );
 
-		return array_merge( $schedules, array(
-				'w3_minify_cleanup' => array(
-					'interval' => $gc,
-					'display' => sprintf( '[W3TC] Minify file GC (every %d seconds)', $gc )
-				)
-			) );
+		if ( $minify_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$interval                       = $c->get_integer( 'minify.file.gc' );
+			$schedules['w3_minify_cleanup'] = array(
+				'interval' => $interval,
+				'display'  => sprintf(
+					// translators: 1 interval in seconds.
+					__( '[W3TC] Minify Cache file GC (every %d seconds)', 'w3-total-cache' ),
+					$interval
+				),
+			);
+		}
+
+		return $schedules;
+	}
+
+	/**
+	 * Cron job for processing purging database cache.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	public function w3tc_minifycache_purge_wpcron() {
+		$flusher = Dispatcher::component( 'CacheFlush' );
+		$flusher->minifycache_flush();
 	}
 
 	/**
