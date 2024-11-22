@@ -151,7 +151,9 @@ return array(
 				</div>',
 			'help'            => '<h3>' . esc_html__( 'Documentation', 'w3-total-cache' ) . '</h3>
 				<p><span class="dashicons dashicons-text-page"></span>
-				<a class="w3tc-control-after" href="https://www.boldgrid.com/support/w3-total-cache/how-to-configure-cloudflare-in-wordpress-with-w3-total-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab" target="_blank">' . esc_html__( 'How to configure CloudFlare with W3 Total Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+				<a class="w3tc-control-after" href="https://www.boldgrid.com/support/w3-total-cache/how-to-configure-cloudflare-in-wordpress-with-w3-total-cache/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab" target="_blank">' . esc_html__( 'How to configure Cloudflare with W3 Total Cache', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
+				<p><span class="dashicons dashicons-text-page"></span>
+				<a class="w3tc-control-after" href="https://www.boldgrid.com/support/w3-total-cache/bunny-cdn-setup/#configure-w3-total-cache?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab" target="_blank">' . esc_html__( 'Full Site Delivery with Bunny CDN', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
 				<p><span class="dashicons dashicons-text-page"></span>
 				<a class="w3tc-control-after" href="https://www.boldgrid.com/support/w3-total-cache/full-site-delivery-fds/?utm_source=w3tc&utm_medium=documentation&utm_campaign=helptab" target="_blank">' . esc_html__( 'Enhancing WordPress Performance with Full Site Delivery (FSD)', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a></p>
 				<h3>' . esc_html__( 'Popular questions from the forums', 'w3-total-cache' ) . '</h3>

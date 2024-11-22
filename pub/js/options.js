@@ -561,7 +561,6 @@ jQuery(function() {
 	});
 
 	// General Settings Tab actions.
-	jQuery( '.postbox-tabs .inside' ).children( "[data-tab-type]" ).hide();
 
 	jQuery( document ).on( 'click', '.performance_page_w3tc_general .nav-tab', function(){
    		var $tab = jQuery( this ),
