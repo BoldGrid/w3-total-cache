@@ -561,12 +561,11 @@ jQuery(function() {
 	});
 
 	// General Settings Tab actions.
-
 	jQuery( document ).on( 'click', '.performance_page_w3tc_general .nav-tab', function(){
-   		var $tab = jQuery( this ),
+   		const $tab         = jQuery( this ),
 		$nav_tab_wrapper = $tab.closest( ".nav-tab-wrapper" )
-    	tab_type = $tab.attr( "data-tab-type" ),
-    	$inside = $tab.closest( ".postbox-tabs" ).find( ".inside" );
+    	tab_type         = $tab.attr( "data-tab-type" ),
+    	$inside          = $tab.closest( ".postbox-tabs" ).find( ".inside" );
 
 		// Highlight the selected tab.
 		$nav_tab_wrapper.find( "a" ).removeClass( "nav-tab-active" );
@@ -593,7 +592,7 @@ jQuery(function() {
 	// Tutorial page forum links via API.
 	jQuery(document).on( 'click', '[data-tab-type="help"]', function() {
 
-		var $helpTab          = jQuery( this ),
+		const $helpTab          = jQuery( this ),
 		$inside               = $helpTab.closest( ".postbox-tabs" ).find( ".inside" );
 		$forumTopicsContainer = $inside.find( '.help-forum-topics' );
 		isLoaded              = $forumTopicsContainer.attr( 'data-loaded' ) === "1";
