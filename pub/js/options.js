@@ -561,13 +561,11 @@ jQuery(function() {
 	});
 
 	// General Settings Tab actions.
-	jQuery( '.postbox-tabs .inside' ).children( "[data-tab-type]" ).hide();
-
 	jQuery( document ).on( 'click', '.performance_page_w3tc_general .nav-tab', function(){
-   		var $tab = jQuery( this ),
+   		const $tab         = jQuery( this ),
 		$nav_tab_wrapper = $tab.closest( ".nav-tab-wrapper" )
-    	tab_type = $tab.attr( "data-tab-type" ),
-    	$inside = $tab.closest( ".postbox-tabs" ).find( ".inside" );
+    	tab_type         = $tab.attr( "data-tab-type" ),
+    	$inside          = $tab.closest( ".postbox-tabs" ).find( ".inside" );
 
 		// Highlight the selected tab.
 		$nav_tab_wrapper.find( "a" ).removeClass( "nav-tab-active" );
@@ -590,6 +588,51 @@ jQuery(function() {
 			$inside.children('[data-tab-type="' + tab_type + '"]').show();
     	}
 	} );
+
+	// Tutorial page forum links via API.
+	jQuery(document).on( 'click', '[data-tab-type="help"]', function() {
+
+		const $helpTab          = jQuery( this ),
+		$inside               = $helpTab.closest( ".postbox-tabs" ).find( ".inside" );
+		$forumTopicsContainer = $inside.find( '.help-forum-topics' );
+		isLoaded              = $forumTopicsContainer.attr( 'data-loaded' ) === "1";
+		tabId                 = $forumTopicsContainer.attr( 'data-tab-id' );
+
+		// Check if topics are already loaded
+		if ( isLoaded ) return;
+		// Construct the API URL with the tab ID
+		const apiUrl = `https://boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=${tabId}`;
+
+		// Fetch topics from the API
+		jQuery.ajax({
+			url: apiUrl,
+			method: 'GET',
+			dataType: 'json',
+			success: function( data ) {
+				// Check for errors or empty results
+				if ( Array.isArray( data ) && data.length === 0 ) {
+					$forumTopicsContainer.html( "<p>No forum topics found.</p>" );
+				} else {
+					// Create a list of topics
+					const $ul = jQuery( '<ul></ul>' );
+					jQuery.each( data, function( index, topic ) {
+						const $li = jQuery( '<li></li>' );
+						const $link = jQuery( '<a></a>' ).addClass('w3tc-control-after').attr( 'href', topic.link ).text( topic.title ).attr( 'target', '_blank' ); // Open in new tab
+						const $icon = jQuery( '<span></span>' ).addClass( 'dashicons dashicons-external' );
+						$link.append( $icon );
+						$li.append( $link );
+						$ul.append( $li );
+					});
+					$forumTopicsContainer.html( $ul );
+				}
+				// Mark topics as loaded to prevent duplicate requests
+				$forumTopicsContainer.attr( 'data-loaded', "1" );
+			},
+			error: function() {
+				$forumTopicsContainer.html( "<p>Error loading topics. Please try again later.</p>" );
+			}
+		});
+	});
 
 	// Prevent enabling Bunny CDN for both CDN and CDNFSD.
 	$cdn_enabled.on('click', cdn_bunnycdn_check);
