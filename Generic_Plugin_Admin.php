@@ -478,7 +478,7 @@ class Generic_Plugin_Admin {
 						'w3tc_pro': '<?php echo Util_Environment::is_w3tc_pro( $this->_config ) ? 1 : 0; ?>',
 						'w3tc_has_key': '<?php $this->_config->get_string( 'plugin.license_key' ) ? 1 : 0; ?>',
 						'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO') && W3TC_PRO ? 1 : 0; ?>',
-						'w3tc_eterprise_c': '<?php echo defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ? 1 : 0; ?>',
+						'w3tc_enterprise_c': '<?php echo defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ? 1 : 0; ?>',
 						'w3tc_plugin_type': '<?php echo esc_attr( $this->_config->get_string( 'plugin.type' ) ); ?>',
 					}
 				});
