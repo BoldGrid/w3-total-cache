@@ -60,7 +60,7 @@ $license     = Licensing_Core::check_license( $license_key, W3TC_VERSION );
 	-->
 </table>
 <?php
-if ( empty( $license ) || ( ! empty( $license ) && $license->license_status === 'invalid.not_present' ) ) {
+if ( empty( $license ) || ( ! empty( $license ) && 'invalid.not_present' === $license->license_status ) ) {
 	?>
 	<p>
 		<?php

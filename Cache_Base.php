@@ -1,20 +1,28 @@
 <?php
+/**
+ * File: Cache_Base.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * Base cache class
- */
-
-/**
- * class Cache_Base
+ * Class Cache_Base
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
 class Cache_Base {
-	/*
-     * Blog id
-     *
-     * @var integer
-     */
-	protected  $_blog_id = 0;
+	/**
+	 * Blog id
+	 *
+	 * @var integer
+	 */
+	protected $_blog_id = 0;
 
 	/**
 	 * To separate the caching for different modules
@@ -37,37 +45,41 @@ class Cache_Base {
 	 */
 	protected $_instance_id = 0;
 
-	/*
-     * If we are going to return expired data when some other process
-     * is working on new data calculation
-     *
-     * @var boolean
-     */
+	/**
+	 * If we are going to return expired data when some other process
+	 * is working on new data calculation
+	 *
+	 * @var boolean
+	 */
 	protected $_use_expired_data = false;
 
 	/**
 	 * Constructor
 	 *
-	 * @param array   $config
+	 * @param array $config Config.
+	 *
+	 * @return void
 	 */
 	public function __construct( $config = array() ) {
-		$this->_blog_id = $config['blog_id'];
-		$this->_use_expired_data = isset( $config['use_expired_data'] )?$config['use_expired_data']:false;
-		$this->_module = isset( $config['module'] ) ? $config['module'] : 'default';
-		$this->_host = isset( $config['host'] ) ? $config['host'] : '';
-		$this->_instance_id = isset( $config['instance_id'] ) ? $config['instance_id'] : 0;
+		$this->_blog_id          = $config['blog_id'];
+		$this->_use_expired_data = isset( $config['use_expired_data'] ) ? $config['use_expired_data'] : false;
+		$this->_module           = isset( $config['module'] ) ? $config['module'] : 'default';
+		$this->_host             = isset( $config['host'] ) ? $config['host'] : '';
+		$this->_instance_id      = isset( $config['instance_id'] ) ? $config['instance_id'] : 0;
 	}
 	/**
 	 * Adds data
 	 *
 	 * @abstract
-	 * @param string  $key
-	 * @param mixed   $data
-	 * @param integer $expire
-	 * @param string  $group  Used to differentiate between groups of cache values
+	 *
+	 * @param string  $key    Key.
+	 * @param mixed   $data   Data.
+	 * @param integer $expire Time to expire.
+	 * @param string  $group  Used to differentiate between groups of cache values.
+	 *
 	 * @return boolean
 	 */
-	function add( $key, &$data, $expire = 0, $group = '' ) {
+	public function add( $key, &$data, $expire = 0, $group = '' ) {
 		return false;
 	}
 
@@ -75,24 +87,29 @@ class Cache_Base {
 	 * Sets data
 	 *
 	 * @abstract
-	 * @param string  $key
-	 * @param mixed   $data
-	 * @param integer $expire
-	 * @param string  $group  Used to differentiate between groups of cache values
+	 *
+	 * @param string  $key    Key.
+	 * @param mixed   $data   Data.
+	 * @param integer $expire Time to expire.
+	 * @param string  $group  Used to differentiate between groups of cache values.
+	 *
 	 * @return boolean
 	 */
-	function set( $key, $data, $expire = 0, $group = '' ) {
+	public function set( $key, $data, $expire = 0, $group = '' ) {
 		return false;
 	}
 
 	/**
 	 * Returns data
 	 *
-	 * @param string  $key
-	 * @param string  $group Used to differentiate between groups of cache values
+	 * @abstract
+	 *
+	 * @param string $key   Key.
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
 	 * @return mixed
 	 */
-	function get( $key, $group = '' ) {
+	public function get( $key, $group = '' ) {
 		list( $data, $has_old ) = $this->get_with_old( $key, $group );
 		return $data;
 	}
@@ -101,34 +118,42 @@ class Cache_Base {
 	 * Return primary data and if old exists
 	 *
 	 * @abstract
-	 * @param string  $key
-	 * @param string  $group Used to differentiate between groups of cache values
+	 *
+	 * @param string $key   Key.
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
 	 * @return array|mixed
 	 */
-	function get_with_old( $key, $group = '' ) {
+	public function get_with_old( $key, $group = '' ) {
 		return array( null, false );
 	}
 
-		/**
+	/**
 	 * Checks if entry exists
 	 *
-	 * @param string  $key
-	 * @param string  $group Used to differentiate between groups of cache values
+	 * @abstract
+	 *
+	 * @param string $key   Key.
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
 	 * @return boolean true if exists, false otherwise
 	 */
-	function exists( $key, $group = '' ) {
+	public function exists( $key, $group = '' ) {
 		list( $data, $has_old ) = $this->get_with_old( $key, $group );
-		return ! empty( $data) && ! $has_old;
+		return ! empty( $data ) && ! $has_old;
 	}
 
 	/**
 	 * Alias for get for minify cache
 	 *
-	 * @param string  $key
-	 * @param string  $group Used to differentiate between groups of cache values
+	 * @abstract
+	 *
+	 * @param string $key   Key.
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
 	 * @return mixed
 	 */
-	function fetch( $key, $group = '' ) {
+	public function fetch( $key, $group = '' ) {
 		return $this->get( $key, $group = '' );
 	}
 
@@ -136,13 +161,15 @@ class Cache_Base {
 	 * Replaces data
 	 *
 	 * @abstract
-	 * @param string  $key
-	 * @param mixed   $data
-	 * @param integer $expire
-	 * @param string  $group  Used to differentiate between groups of cache values
+	 *
+	 * @param string  $key    Key.
+	 * @param mixed   $data   Data.
+	 * @param integer $expire Time to expire.
+	 * @param string  $group  Used to differentiate between groups of cache values.
+	 *
 	 * @return boolean
 	 */
-	function replace( $key, &$data, $expire = 0, $group = '' ) {
+	public function replace( $key, &$data, $expire = 0, $group = '' ) {
 		return false;
 	}
 
@@ -150,11 +177,13 @@ class Cache_Base {
 	 * Deletes data
 	 *
 	 * @abstract
-	 * @param string  $key
-	 * @param string  $group Used to differentiate between groups of cache values
+	 *
+	 * @param string $key   Key.
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
 	 * @return boolean
 	 */
-	function delete( $key, $group = '' ) {
+	public function delete( $key, $group = '' ) {
 		return false;
 	}
 
@@ -162,10 +191,13 @@ class Cache_Base {
 	 * Deletes primary data and old data
 	 *
 	 * @abstract
-	 * @param string  $key
+	 *
+	 * @param string $key   Key.
+	 * @param string $group Group.
+	 *
 	 * @return boolean
 	 */
-	function hard_delete( $key, $group = '' ) {
+	public function hard_delete( $key, $group = '' ) {
 		return false;
 	}
 
@@ -173,10 +205,12 @@ class Cache_Base {
 	 * Flushes all data
 	 *
 	 * @abstract
-	 * @param string  $group Used to differentiate between groups of cache values
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
 	 * @return boolean
 	 */
-	function flush( $group = '' ) {
+	public function flush( $group = '' ) {
 		return false;
 	}
 
@@ -211,6 +245,8 @@ class Cache_Base {
 	/**
 	 * Checks if engine can function properly in this environment
 	 *
+	 * @abstract
+	 *
 	 * @return bool
 	 */
 	public function available() {
@@ -220,38 +256,65 @@ class Cache_Base {
 	/**
 	 * Constructs key version key
 	 *
-	 * @param unknown $group
+	 * @abstract
+	 *
+	 * @param unknown $group Group.
+	 *
 	 * @return string
 	 */
 	protected function _get_key_version_key( $group = '' ) {
-		return sprintf( 'w3tc_%d_%d_%s_%s_key_version',
-			$this->_instance_id, $this->_blog_id,
-			$this->_module, $group );
+		return sprintf(
+			'w3tc_%d_%d_%s_%s_key_version',
+			$this->_instance_id,
+			$this->_blog_id,
+			$this->_module,
+			$group
+		);
 	}
 
 	/**
 	 * Constructs item key
 	 *
-	 * @param unknown $name
+	 * @abstract
+	 *
+	 * @param unknown $name Name.
+	 *
 	 * @return string
 	 */
 	public function get_item_key( $name ) {
-		$key = sprintf( 'w3tc_%d_%s_%d_%s_%s',
-			$this->_instance_id, $this->_host, $this->_blog_id,
-			$this->_module, $name );
-		return $key;
+		return sprintf(
+			'w3tc_%d_%s_%d_%s_%s',
+			$this->_instance_id,
+			$this->_host,
+			$this->_blog_id,
+			$this->_module,
+			$name
+		);
 	}
 
-
 	/**
-	 * Use key as a counter and add integet value to it
+	 * Use key as a counter and add integer value to it
+	 *
+	 * @abstract
+	 *
+	 * @param string $key   Key.
+	 * @param int    $value Value.
+	 *
+	 * @return bool
 	 */
 	public function counter_add( $key, $value ) {
 		return false;
 	}
 
 	/**
-	 * Use key as a counter and add integet value to it
+	 * Use key as a counter and add integer value to it
+	 *
+	 * @abstract
+	 *
+	 * @param string $key   Key.
+	 * @param int    $value Value.
+	 *
+	 * @return bool
 	 */
 	public function counter_set( $key, $value ) {
 		return false;
@@ -259,6 +322,12 @@ class Cache_Base {
 
 	/**
 	 * Get counter's value
+	 *
+	 * @abstract
+	 *
+	 * @param string $key Key.
+	 *
+	 * @return bool
 	 */
 	public function counter_get( $key ) {
 		return false;

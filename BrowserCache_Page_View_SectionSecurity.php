@@ -5,6 +5,7 @@
  * @package W3TC
  *
  * phpcs:disable WordPress.Security.EscapeOutput
+ * phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
  */
 
 namespace W3TC;

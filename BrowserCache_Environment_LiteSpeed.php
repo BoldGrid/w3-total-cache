@@ -1,57 +1,84 @@
 <?php
+/**
+ * File: BrowserCache_Environment_LiteSpeed.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
+ * Class BrowserCache_Environment_LiteSpeed
+ *
+ * phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired
+ *
  * Rules generation for OpenLiteSpeed
  */
 class BrowserCache_Environment_LiteSpeed {
+	/**
+	 * Config
+	 *
+	 * @var Config
+	 */
 	private $c;
 
-
-
+	/**
+	 * Constructor
+	 *
+	 * @param Config $config Config.
+	 *
+	 * @return void
+	 */
 	public function __construct( $config ) {
 		$this->c = $config;
 	}
 
-
-
+	/**
+	 * Get required rules
+	 *
+	 * @param array $mime_types Mime types.
+	 *
+	 * @return string
+	 */
 	public function get_required_rules( $mime_types ) {
 		$rewrite_rules = array();
 
 		$rewrite_rules[] = array(
 			'filename' => Util_Rule::get_litespeed_rules_path(),
-			'content' => $this->generate( $mime_types )
+			'content'  => $this->generate( $mime_types ),
 		);
 
-		if ( $this->c->get_boolean( 'browsercache.rewrite' ) ||
-				$this->c->get_boolean( 'browsercache.no404wp' ) ) {
-			$g = new BrowserCache_Environment_Apache( $this->c );
+		if ( $this->c->get_boolean( 'browsercache.rewrite' ) || $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+			$g               = new BrowserCache_Environment_Apache( $this->c );
 			$rewrite_rules[] = array(
 				'filename' => Util_Rule::get_apache_rules_path(),
-				'content' =>
+				'content'  =>
 					W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n" .
 					$g->rules_rewrite() .
 					$g->rules_no404wp( $mime_types ) .
-					W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n"
+					W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n",
 			);
 		}
 
 		return $rewrite_rules;
 	}
 
-
-
 	/**
-	 * Returns cache rules
+	 * Generate cache rules
+	 *
+	 * @param array $mime_types Mime types.
+	 * @param bool  $cdnftp     CDN FTP flag.
+	 *
+	 * @return array
 	 */
 	public function generate( $mime_types, $cdnftp = false ) {
-		$cssjs_types = $mime_types['cssjs'];
-		$cssjs_types = array_unique( $cssjs_types );
-		$html_types = $mime_types['html'];
-		$other_types = $mime_types['other'];
+		$cssjs_types             = $mime_types['cssjs'];
+		$cssjs_types             = array_unique( $cssjs_types );
+		$html_types              = $mime_types['html'];
+		$other_types             = $mime_types['other'];
 		$other_compression_types = $mime_types['other_compression'];
 
-		$rules = '';
+		$rules  = '';
 		$rules .= W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n";
 
 		$this->generate_section( $rules, $mime_types['cssjs'], 'cssjs' );
@@ -59,13 +86,12 @@ class BrowserCache_Environment_LiteSpeed {
 		$this->generate_section( $rules, $mime_types['other'], 'other' );
 
 		if ( $this->c->get_boolean( 'browsercache.rewrite' ) ) {
-			$core = Dispatcher::component( 'BrowserCache_Core' );
+			$core       = Dispatcher::component( 'BrowserCache_Core' );
 			$extensions = $core->get_replace_extensions( $this->c );
 
 			$rules .= "<IfModule mod_rewrite.c>\n";
 			$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
-			$rules .= '    RewriteRule ^(.+)\.(x[0-9]{5})\.(' .
-				implode( '|', $extensions ) . ')$ $1.$3 [L]' . "\n";
+			$rules .= '    RewriteRule ^(.+)\.(x[0-9]{5})\.(' . implode( '|', $extensions ) . ')$ $1.$3 [L]' . "\n";
 			$rules .= "</IfModule>\n";
 		}
 
@@ -74,14 +100,13 @@ class BrowserCache_Environment_LiteSpeed {
 		return $rules;
 	}
 
-
-
 	/**
 	 * Adds cache rules for type to &$rules.
 	 *
 	 * @param string $rules      Rules.
 	 * @param array  $mime_types MIME types.
 	 * @param string $section    Section.
+	 *
 	 * @return void
 	 */
 	private function generate_section( &$rules, $mime_types, $section ) {
@@ -97,7 +122,8 @@ class BrowserCache_Environment_LiteSpeed {
 				$this->c,
 				$section
 			);
-			$extensions  = array_keys( $mime_types2 );
+
+			$extensions = array_keys( $mime_types2 );
 
 			// Remove ext from filesmatch if its the same as permalink extension.
 			$pext = strtolower( pathinfo( get_option( 'permalink_structure' ), PATHINFO_EXTENSION ) );
@@ -108,14 +134,12 @@ class BrowserCache_Environment_LiteSpeed {
 
 			$extensions_string = implode( '|', $extensions );
 
-
 			$section_rules = self::section_rules( $section );
-			$section_rules = apply_filters( 'w3tc_browsercache_rules_section',
-				$section_rules, $this->c, $section );
+			$section_rules = apply_filters( 'w3tc_browsercache_rules_section', $section_rules, $this->c, $section );
 
 			$context_rules = $section_rules['other'];
 
-			if ( !empty( $section_rules['add_header'] ) ) {
+			if ( ! empty( $section_rules['add_header'] ) ) {
 				$context_rules[] = "    extraHeaders <<<END_extraHeaders";
 				foreach ( $section_rules['add_header'] as $line ) {
 					$context_rules[] = '        ' . $line;
@@ -138,13 +162,16 @@ class BrowserCache_Environment_LiteSpeed {
 	}
 
 	/**
-	 * Returns directives plugin applies to files of specific section
-	 * Without location
+	 * Returns directives plugin applies to files of specific section * Without location
+	 *
+	 * @param string $section Section.
+	 *
+	 * @return array
 	 */
 	public function section_rules( $section ) {
-		$rules = [];
+		$rules = array();
 
-		$expires = $this->c->get_boolean( "browsercache.$section.expires" );
+		$expires  = $this->c->get_boolean( "browsercache.$section.expires" );
 		$lifetime = $this->c->get_integer( "browsercache.$section.lifetime" );
 
 		if ( $expires ) {
@@ -156,8 +183,8 @@ class BrowserCache_Environment_LiteSpeed {
 		}
 
 		/*
+		Lastmod support not implemented
 		if ( $this->c->get_boolean( "browsercache.$section.last_modified" ) )
-		lastmod support not implemented
 		*/
 
 		$add_header_rules = array();
@@ -165,72 +192,81 @@ class BrowserCache_Environment_LiteSpeed {
 			$cache_policy = $this->c->get_string( "browsercache.$section.cache.policy" );
 
 			switch ( $cache_policy ) {
-			case 'cache':
-				$add_header_rules[] = 'unset Pragma';
-				$add_header_rules[] = 'set Pragma public';
-				$add_header_rules[] = 'set Cache-Control public';
-				break;
+				case 'cache':
+					$add_header_rules[] = 'unset Pragma';
+					$add_header_rules[] = 'set Pragma public';
+					$add_header_rules[] = 'set Cache-Control public';
+					break;
 
-			case 'cache_public_maxage':
-				$add_header_rules[] = 'unset Pragma';
-				$add_header_rules[] = 'set Pragma public';
-				break;
+				case 'cache_public_maxage':
+					$add_header_rules[] = 'unset Pragma';
+					$add_header_rules[] = 'set Pragma public';
+					break;
 
-			case 'cache_validation':
-				$add_header_rules[] = 'unset Pragma';
-				$add_header_rules[] = 'set Pragma public';
-				$add_header_rules[] = 'unset Cache-Control';
-				$add_header_rules[] = 'set Cache-Control "public, must-revalidate, proxy-revalidate"';
-				break;
-
-			case 'cache_noproxy':
-				$add_header_rules[] = 'unset Pragma';
-				$add_header_rules[] = 'set Pragma public';
-				$add_header_rules[] = 'unset Cache-Control';
-				$add_header_rules[] = 'set Cache-Control "private, must-revalidate"';
-				break;
-
-			case 'cache_maxage':
-				$add_header_rules[] = 'unset Pragma';
-				$add_header_rules[] = 'set Pragma "public"';
-
-				$add_header_rules[] = 'unset Cache-Control';
-				if ( $expires ) {
+				case 'cache_validation':
+					$add_header_rules[] = 'unset Pragma';
+					$add_header_rules[] = 'set Pragma public';
+					$add_header_rules[] = 'unset Cache-Control';
 					$add_header_rules[] = 'set Cache-Control "public, must-revalidate, proxy-revalidate"';
-				} else {
-					$add_header_rules[] = "set Cache-Control \"max-age=$lifetime, public, must-revalidate, proxy-revalidate\"";
-				}
-				break;
+					break;
 
-			case 'no_cache':
-				$add_header_rules[] = 'unset Pragma';
-				$add_header_rules[] = 'set Pragma "no-cache"';
-				$add_header_rules[] = 'unset Cache-Control';
-				$add_header_rules[] = 'set Cache-Control "private, no-cache"';
-				break;
+				case 'cache_noproxy':
+					$add_header_rules[] = 'unset Pragma';
+					$add_header_rules[] = 'set Pragma public';
+					$add_header_rules[] = 'unset Cache-Control';
+					$add_header_rules[] = 'set Cache-Control "private, must-revalidate"';
+					break;
 
-			case 'no_store':
-				$add_header_rules[] = 'unset Pragma';
-				$add_header_rules[] = 'set Pragma "no-store"';
-				$add_header_rules[] = 'unset Cache-Control';
-				$add_header_rules[] = 'set Cache-Control "no-store"';
-				break;
+				case 'cache_maxage':
+					$add_header_rules[] = 'unset Pragma';
+					$add_header_rules[] = 'set Pragma "public"';
+
+					$add_header_rules[] = 'unset Cache-Control';
+
+					if ( $expires ) {
+						$add_header_rules[] = 'set Cache-Control "public, must-revalidate, proxy-revalidate"';
+					} else {
+						$add_header_rules[] = "set Cache-Control \"max-age=$lifetime, public, must-revalidate, proxy-revalidate\"";
+					}
+					break;
+
+				case 'no_cache':
+					$add_header_rules[] = 'unset Pragma';
+					$add_header_rules[] = 'set Pragma "no-cache"';
+					$add_header_rules[] = 'unset Cache-Control';
+					$add_header_rules[] = 'set Cache-Control "private, no-cache"';
+					break;
+
+				case 'no_store':
+					$add_header_rules[] = 'unset Pragma';
+					$add_header_rules[] = 'set Pragma "no-store"';
+					$add_header_rules[] = 'unset Cache-Control';
+					$add_header_rules[] = 'set Cache-Control "no-store"';
+					break;
 			}
 		}
 
-		// need htaccess for rewrites
+		// Need htaccess for rewrites.
 		$rewrite = $this->c->get_boolean( 'browsercache.rewrite' );
 
-		return array( 'add_header' => $add_header_rules, 'other' => $rules, 'rewrite' => $rewrite );
+		return array(
+			'add_header' => $add_header_rules,
+			'other'      => $rules,
+			'rewrite'    => $rewrite,
+		);
 	}
 
-
-
+	/**
+	 * Returns CDN rules section
+	 *
+	 * @param array $section_rules Section rules.
+	 *
+	 * @return array
+	 */
 	public function w3tc_cdn_rules_section( $section_rules ) {
-		$section_rules_bc = $this->section_rules( 'other' );
-		$section_rules['other'] = array_merge( $section_rules['other'], $section_rules_bc['other'] );
-		$section_rules['add_header'] = array_merge(
-			$section_rules['add_header'], $section_rules_bc['add_header'] );
+		$section_rules_bc            = $this->section_rules( 'other' );
+		$section_rules['other']      = array_merge( $section_rules['other'], $section_rules_bc['other'] );
+		$section_rules['add_header'] = array_merge( $section_rules['add_header'], $section_rules_bc['add_header'] );
 
 		return $section_rules;
 	}
