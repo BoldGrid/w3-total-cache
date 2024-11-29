@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Generic_Plugin_Admin_View_Faq.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
