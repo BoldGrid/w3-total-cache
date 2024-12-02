@@ -137,6 +137,10 @@ class Extension_ImageService_Api {
 			'optimize'    => $options['optimize'],
 		);
 
+		if ( ( defined( 'W3TC_PRO' ) && W3TC_PRO ) || ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ) ) {
+			$post_fields['pro_c'] = 1;
+		}
+
 		foreach ( $post_fields as $k => $v ) {
 			$body .= '--' . $boundary . "\r\n";
 			$body .= 'Content-Disposition: form-data; name="' . $k . '"' . "\r\n\r\n";
