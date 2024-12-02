@@ -918,7 +918,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => $time_options,
-					'description'      => esc_html__( 'This setting controls the initial start time of the cron job based on the configured WordPress timezone. It will automatically adjust the timestamp to accommodate differences between the configured WordPress and server timezones. If the selected time has already passed, it will add a day so that it begins the next day.', 'w3-total-cache' ),
+					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
 					'disabled'         => $disabled || $wp_disabled,
 				)
 			);
