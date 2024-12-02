@@ -852,7 +852,7 @@ if ( ! defined( 'W3TC' ) ) {
 							'Enabling this will schedule a WP-Cron event that will flush the Page Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush posts". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache. Visit %1$shere%2$s for more information.',
 							'w3-total-cache'
 						),
-						'<a href="' . esc_url( 'https://www.boldgrid.com/support/page-builder/schedule-cache-purges/' ) . '" target="_blank">',
+						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
 						'</a>'
 					),
 					array(
