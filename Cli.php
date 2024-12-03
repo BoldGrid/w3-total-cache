@@ -27,6 +27,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
 	 */
 	public function fix_environment( array $args = array(), array $vars = array() ) {
 		$server_type = \array_shift( $args );
@@ -88,6 +90,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
 	 */
 	public function flush( array $args = array(), array $vars = array() ) {
 		$args = \array_unique( $args );
@@ -228,6 +232,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
 	 */
 	public function option( array $args = array(), array $vars = array() ) {
 		$op   = \array_shift( $args );
@@ -264,7 +270,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 					$v = $c->get_string( $name );
 					break;
 				case 'array':
-					\var_export( $c->get_array( $name ) );
+					\var_export( $c->get_array( $name ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 					echo "\n";
 					return;
 				case 'json':
@@ -289,9 +295,9 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			switch ( $type ) {
 				case 'boolean':
 				case 'bool':
-					if ( 'true' === $value || '1' == $value || 'on' === $value ) {
+					if ( 'true' === $value || '1' === $value || 'on' === $value ) {
 						$v = true;
-					} elseif ( 'false' === $value || '0' == $value || 'off' === $value ) {
+					} elseif ( 'false' === $value || '0' === $value || 'off' === $value ) {
 						$v = false;
 					} else {
 						\WP_CLI::error(
@@ -330,7 +336,6 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			} catch ( \Exception $e ) {
 				\WP_CLI::error( \__( 'Option value update failed.', 'w3-total-cache' ) );
 			}
-
 		} else {
 			\WP_CLI::error( \__( '<operation> parameter is not specified', 'w3-total-cache' ) );
 		}
@@ -348,6 +353,9 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
+	 *
 	 * @throws \Exception Exception.
 	 */
 	public function import( array $args = array(), array $vars = array() ) {
@@ -401,6 +409,9 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
+	 *
 	 * @throws \Exception Exception.
 	 */
 	public function export( array $args = array(), array $vars = array() ) {
@@ -444,6 +455,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 	/**
 	 * Update query string for all static files.
+	 *
+	 * @return void
 	 */
 	public function querystring() {
 		try {
@@ -466,6 +479,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 * Purges URLs from CDN and varnish if enabled.
 	 *
 	 * @param array $args List of files to be purged, absolute path or relative to WordPress installation path.
+	 *
+	 * @return void
 	 */
 	public function cdn_purge( array $args = array() ) {
 		$purgeitems = array();
@@ -500,6 +515,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 	/**
 	 * Generally triggered from a cronjob, performs manual page cache Garbage collection.
+	 *
+	 * @return void
 	 */
 	public function pgcache_cleanup() {
 		try {
@@ -529,6 +546,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
 	 */
 	public function pgcache_prime( array $args = array(), array $vars = array() ) {
 		try {
@@ -559,6 +578,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 	/**
 	 * Generally triggered from a cronjob, processes always cached queue.
+	 *
+	 * @return void
 	 */
 	public function alwayscached_process() {
 		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
@@ -589,6 +610,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 	/**
 	 * Generally triggered from a cronjob, processes AlwaysCached queue.
+	 *
+	 * @return void
 	 */
 	public function alwayscached_clear() {
 		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {

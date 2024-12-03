@@ -40,7 +40,7 @@ defined( 'W3TC' ) || die();
 					}
 
 					// Get the CDN hostname and custom hostnames.
-					$cdn_hostname = '?';
+					$cdn_hostname     = '?';
 					$custom_hostnames = array();
 
 					foreach ( $pull_zone['Hostnames'] as $hostname ) {

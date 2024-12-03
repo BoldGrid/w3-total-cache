@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_GoogleDrive_Popup_AuthReturn_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

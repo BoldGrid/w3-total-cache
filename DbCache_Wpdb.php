@@ -1,33 +1,42 @@
 <?php
+/**
+ * File: DbCache_Plugin_Admin.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * class Db
+ * Class DbCache_Wpdb
+ *
  * Database access mediator
  */
 class DbCache_Wpdb extends DbCache_WpdbBase {
 	/**
-	 * Returns object instance. Called by WP engine
+	 * Returns the singleton instance of the class.
 	 *
-	 * @return DbCache_Wpdb
+	 * Ensures only one instance of the class is created and provides access to it.
+	 *
+	 * @return DbCache_WpdbLegacy|DbCache_WpdbNew The instance of the class.
 	 */
-	static function instance() {
+	public static function instance() {
 		static $instance = null;
 
 		if ( is_null( $instance ) ) {
-			$processors = array();
+			$processors               = array();
 			$call_default_constructor = true;
 
-			// no caching during activation
+			// no caching during activation.
 			$is_installing = ( defined( 'WP_INSTALLING' ) && WP_INSTALLING );
 
 			$config = Dispatcher::config();
-			if ( !$is_installing && $config->get_boolean( 'dbcache.enabled' ) ) {
+			if ( ! $is_installing && $config->get_boolean( 'dbcache.enabled' ) ) {
 				$processors[] = new DbCache_WpdbInjection_QueryCaching();
 			}
 			if ( Util_Environment::is_dbcluster( $config ) ) {
-				// dbcluster use mysqli only since other is obsolete now
-				if ( !defined( 'WP_USE_EXT_MYSQL' ) ) {
+				// dbcluster use mysqli only since other is obsolete now.
+				if ( ! defined( 'WP_USE_EXT_MYSQL' ) ) {
 					define( 'WP_USE_EXT_MYSQL', false );
 				}
 
@@ -37,7 +46,7 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 			$processors[] = new DbCache_WpdbInjection();
 
 			global $wp_version;
-			if (version_compare( $wp_version, '5.3') >= 0) {
+			if ( version_compare( $wp_version, '5.3' ) >= 0 ) {
 				$o = new DbCache_WpdbNew( $processors );
 			} else {
 				$o = new DbCache_WpdbLegacy( $processors );
@@ -49,7 +58,7 @@ class DbCache_Wpdb extends DbCache_WpdbBase {
 				$processor->initialize_injection( $o, $next_injection );
 			}
 
-			// initialize after processors configured
+			// initialize after processors configured.
 			$o->initialize();
 
 			$instance = $o;

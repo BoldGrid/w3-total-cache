@@ -2,6 +2,8 @@
 /**
  * File: Cdnfsd_TransparentCDN_Page_View.php
  *
+ * @package W3TC
+ *
  * @since 0.15.0
  */
 

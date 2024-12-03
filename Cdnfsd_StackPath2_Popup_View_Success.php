@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdnfsd_StackPath2_Popup_View_Success.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

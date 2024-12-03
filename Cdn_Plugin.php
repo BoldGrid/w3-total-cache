@@ -43,7 +43,9 @@ class Cdn_Plugin {
 	private $_attachments_action = array();
 
 	/**
-	 * Constructor.
+	 * Constructor for initializing CDN plugin configuration and debug flag.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
@@ -51,7 +53,9 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Runs plugin
+	 * Runs the CDN plugin by setting up necessary hooks and actions.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
@@ -101,16 +105,18 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Instantiates worker with admin functionality on demand
+	 * Retrieves the admin component for the CDN plugin.
 	 *
-	 * @return Cdn_Core_Admin
+	 * @return Cdn_Core_Admin Admin component of the CDN plugin.
 	 */
 	public function get_admin() {
 		return Dispatcher::component( 'Cdn_Core_Admin' );
 	}
 
 	/**
-	 * Cron queue process event
+	 * Processes the CDN queue via cron.
+	 *
+	 * @return int The number of items successfully processed.
 	 */
 	public function cron_queue_process() {
 		$queue_limit = $this->_config->get_integer( 'cdn.queue.limit' );
@@ -118,7 +124,9 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Cron upload event
+	 * Uploads files to the CDN via cron.
+	 *
+	 * @return void
 	 */
 	public function cron_upload() {
 		$files = $this->get_files();
@@ -138,12 +146,12 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Check attachement insert
+	 * Handles the insertion of new attachments by tracking their action (insert or update).
 	 *
-	 * @param array $data Attachement processed data.
-	 * @param array $postarr Attachement un-processed data.
+	 * @param array $data     Attachment data.
+	 * @param array $postarr  Post data for the attachment.
 	 *
-	 * @return array
+	 * @return array Modified attachment data.
 	 */
 	public function check_inserting_new_attachment( $data, $postarr ) {
 		$this->_attachments_action[ $postarr['file'] ] = empty( $postarr['ID'] ) ? 'insert' : 'update';
@@ -152,12 +160,12 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Preflush CDN.
+	 * Preflushes CDN files based on user settings.
 	 *
-	 * @param bool  $do_flush Flush flag.
-	 * @param array $extras Extras.
+	 * @param bool  $do_flush Whether or not to flush the CDN.
+	 * @param array $extras   Extra parameters.
 	 *
-	 * @return bool
+	 * @return bool Whether or not the flush should occur.
 	 */
 	public function w3tc_preflush_cdn_all( $do_flush, $extras = array() ) {
 		$default_override = Cdn_Util::get_flush_manually_default_override( $this->_config->get_string( 'cdn.engine' ) );
@@ -171,13 +179,11 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Update attachment file
+	 * Updates the attached file on the CDN.
 	 *
-	 * Upload _wp_attached_file
+	 * @param string $attached_file The attached file path.
 	 *
-	 * @param string $attached_file Attchement file path.
-	 *
-	 * @return string
+	 * @return string The attached file path after potential modifications.
 	 */
 	public function update_attached_file( $attached_file ) {
 		$common = Dispatcher::component( 'Cdn_Core' );
@@ -199,11 +205,11 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * On attachment delete action
+	 * Deletes the attachment from the CDN when it is deleted from WordPress.
 	 *
-	 * Delete _wp_attached_file, _wp_attachment_metadata, _wp_attachment_backup_sizes
+	 * @param int $attachment_id The ID of the attachment to delete.
 	 *
-	 * @param integer $attachment_id Attchement ID.
+	 * @return void
 	 */
 	public function delete_attachment( $attachment_id ) {
 		$common = Dispatcher::component( 'Cdn_Core' );
@@ -221,13 +227,11 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Update attachment metadata filter
+	 * Updates attachment metadata on the CDN.
 	 *
-	 * Upload _wp_attachment_metadata
+	 * @param array $metadata The attachment metadata.
 	 *
-	 * @param array $metadata Metadata.
-	 *
-	 * @return array
+	 * @return array The updated attachment metadata.
 	 */
 	public function update_attachment_metadata( $metadata ) {
 		$common = Dispatcher::component( 'Cdn_Core' );
@@ -249,11 +253,11 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Cron schedules filter
+	 * Adds custom cron schedules for CDN tasks.
 	 *
-	 * @param array $schedules Schedules.
+	 * @param array $schedules The existing cron schedules.
 	 *
-	 * @return array
+	 * @return array Modified cron schedules.
 	 */
 	public function cron_schedules( $schedules ) {
 		$c = $this->_config;
@@ -296,7 +300,9 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Switch theme action.
+	 * Handles actions when the theme is switched.
+	 *
+	 * @return void
 	 */
 	public function switch_theme() {
 		$state = Dispatcher::config_state();
@@ -304,10 +310,13 @@ class Cdn_Plugin {
 		$state->save();
 	}
 
+
 	/**
-	 * WP Upgrade action hack.
+	 * Handles the feedback message for database upgrades.
 	 *
-	 * @param string $message Message.
+	 * @param string $message The feedback message to handle.
+	 *
+	 * @return void
 	 */
 	public function update_feedback( $message ) {
 		if ( 'Upgrading database' === $message ) {
@@ -318,11 +327,11 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * OB Callback.
+	 * Callback function for output buffering to process the buffer content.
 	 *
-	 * @param string $buffer Buffer.
+	 * @param string $buffer The content to be processed.
 	 *
-	 * @return string
+	 * @return string The processed buffer content.
 	 */
 	public function ob_callback( $buffer ) {
 		if ( '' !== $buffer && Util_Content::is_html_xml( $buffer ) ) {
@@ -341,9 +350,9 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Returns array of files to upload.
+	 * Retrieves an array of files to be processed based on configuration settings.
 	 *
-	 * @return array
+	 * @return array List of files to be processed.
 	 */
 	public function get_files() {
 		$files = array();
@@ -368,9 +377,9 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Exports includes to CDN
+	 * Retrieves an array of files from the includes directory to be processed.
 	 *
-	 * @return array
+	 * @return array List of files from the includes directory.
 	 */
 	public function get_files_includes() {
 		$includes_root = Util_Environment::normalize_path( ABSPATH . WPINC );
@@ -387,9 +396,9 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Exports theme to CDN
+	 * Retrieves an array of files from the theme directory to be processed.
 	 *
-	 * @return array
+	 * @return array List of theme files to be processed.
 	 */
 	public function get_files_theme() {
 		// If mobile or referrer support enabled we should upload whole themes directory.
@@ -411,9 +420,9 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Exports min files to CDN.
+	 * Retrieves an array of minified files to be processed.
 	 *
-	 * @return array
+	 * @return array List of minified files to be processed.
 	 */
 	public function get_files_minify() {
 		$files = array();
@@ -472,9 +481,9 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Exports custom files to CDN
+	 * Retrieves an array of custom files to be processed based on configuration settings.
 	 *
-	 * @return array
+	 * @return array List of custom files to be processed.
 	 */
 	public function get_files_custom() {
 		$files         = array();
@@ -525,9 +534,10 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Check if we can do CDN logic
+	 * Checks whether CDN can be applied based on various conditions such as admin access,
+	 * user agent, request URI, and SSL settings.
 	 *
-	 * @return boolean
+	 * @return bool True if CDN can be applied, false otherwise.
 	 */
 	public function can_cdn() {
 		// Skip if admin.
@@ -569,11 +579,13 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Returns true if we can do CDN logic
+	 * Determines whether CDN processing is allowed based on various conditions.
 	 *
-	 * @param unknown $buffer Buffer.
+	 * Checks for the presence of the DONOTCDN constant, user roles, and request URI conditions.
 	 *
-	 * @return string
+	 * @param string $buffer The content buffer to be processed.
+	 *
+	 * @return bool True if CDN is allowed, false otherwise.
 	 */
 	public function can_cdn2( $buffer ) {
 		// Check for DONOTCDN constant.
@@ -594,9 +606,9 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Checks User Agent.
+	 * Checks the User-Agent (UA) for any rejection conditions based on configuration.
 	 *
-	 * @return boolean
+	 * @return bool True if the User-Agent is allowed, false if rejected.
 	 */
 	public function check_ua() {
 		$uas = array_merge(
@@ -616,9 +628,11 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Checks request URI.
+	 * Checks the request URI for any patterns that should reject the request.
 	 *
-	 * @return boolean
+	 * Evaluates if the current request URI matches any configured rejection patterns.
+	 *
+	 * @return bool True if the request URI is allowed, false otherwise.
 	 */
 	public function _check_request_uri() {
 		$reject_uri = $this->_config->get_array( 'cdn.reject.uri' );
@@ -639,10 +653,13 @@ class Cdn_Plugin {
 
 		return true;
 	}
+
 	/**
-	 * Check if logged in user role is allwed to use CDN
+	 * Checks if the current logged-in user's role is allowed to bypass CDN restrictions.
 	 *
-	 * @return boolean
+	 * Verifies whether the logged-in user’s role is listed in the rejection roles configuration.
+	 *
+	 * @return bool True if the user's role is allowed, false otherwise.
 	 */
 	private function _check_logged_in_role_allowed() {
 		$current_user = wp_get_current_user();
@@ -667,23 +684,27 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Media row actions filter.
+	 * Filters the media row actions for the admin dashboard.
 	 *
-	 * @param array  $actions Actions.
-	 * @param object $post Post.
+	 * Allows the modification of actions related to media items.
 	 *
-	 * @return array
+	 * @param array   $actions The list of available actions for the media item.
+	 * @param WP_Post $post    The post object representing the media item.
+	 *
+	 * @return array The modified list of actions.
 	 */
 	public function media_row_actions( $actions, $post ) {
 		return $this->get_admin()->media_row_actions( $actions, $post );
 	}
 
 	/**
-	 * Get CDN running status.
+	 * Determines if the CDN system is currently running.
 	 *
-	 * @param unknown $current_state Current state.
+	 * Checks the current status of the CDN system.
 	 *
-	 * @return bool
+	 * @param bool $current_state The current state of the CDN system.
+	 *
+	 * @return bool True if the CDN system is running, false otherwise.
 	 */
 	public function cdn_is_running( $current_state ) {
 		$admin = $this->get_admin();
@@ -691,7 +712,11 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Change canonical header
+	 * Changes the canonical header for the current request.
+	 *
+	 * Modifies the canonical header for the page, if necessary.
+	 *
+	 * @return void
 	 */
 	public function change_canonical_header() {
 		$admin = $this->get_admin();
@@ -699,11 +724,13 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Adjusts attachment urls to cdn. This is for those who rely on wp_prepare_attachment_for_js().
+	 * Prepares attachment data for JavaScript use, modifying URLs if necessary.
 	 *
-	 * @param array $response Mixed collection of data about the attachment object.
+	 * Modifies the URLs of attachments to point to the appropriate CDN locations.
 	 *
-	 * @return array
+	 * @param array $response The attachment data.
+	 *
+	 * @return array The modified attachment data.
 	 */
 	public function wp_prepare_attachment_for_js( $response ) {
 		$response['url']  = $this->wp_prepare_attachment_for_js_url( $response['url'] );
@@ -719,11 +746,11 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * An attachment's local url to modify into a cdn url.
+	 * Prepares a URL for use in JavaScript, modifying it if necessary.
 	 *
-	 * @param string $url the local url to modify.
+	 * @param string $url The original URL.
 	 *
-	 * @return string
+	 * @return string The potentially modified URL.
 	 */
 	private function wp_prepare_attachment_for_js_url( $url ) {
 		$url = trim( $url );
@@ -748,9 +775,13 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Mutate http/2 header links
+	 * Prepares a URL for HTTP2 preload by modifying it to point to the CDN.
 	 *
-	 * @param array $data Data.
+	 * Modifies the result link to point to the CDN URL for HTTP2 preload.
+	 *
+	 * @param array $data The data containing the result link.
+	 *
+	 * @return array The modified data with the CDN URL.
 	 */
 	public function w3tc_minify_http2_preload_url( $data ) {
 		$url = $data['result_link'];
@@ -779,9 +810,13 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Get admin bar menu items.
+	 * Adds CDN-related items to the WordPress admin bar menu.
 	 *
-	 * @param array $menu_items Menu items.
+	 * Modifies the admin bar menu to include CDN cache options if applicable.
+	 *
+	 * @param array $menu_items The current admin bar menu items.
+	 *
+	 * @return array The modified admin bar menu items.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
 		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
@@ -809,9 +844,13 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Add CDN mark to footer.
+	 * Appends a footer comment to indicate the CDN engine and rejection reason.
 	 *
-	 * @param array $strings Footer strings.
+	 * Adds details about the CDN engine and any rejection reasons to the footer comment.
+	 *
+	 * @param array $strings The current strings to be included in the footer comment.
+	 *
+	 * @return array The modified footer comment strings.
 	 */
 	public function w3tc_footer_comment( $strings ) {
 		$common = Dispatcher::component( 'Cdn_Core' );
@@ -836,10 +875,14 @@ class Cdn_Plugin {
 	}
 
 	/**
-	 * Add after footer CDN mark.
+	 * Appends debug information about replaced URLs for CDN to the footer.
 	 *
-	 * @param string $buffer Buffer.
-	 * @param array  $replaced_urls Replaced URLs.
+	 * Adds debug information about replaced URLs to the footer comment.
+	 *
+	 * @param string $buffer        The content buffer being processed.
+	 * @param array  $replaced_urls The array of replaced URLs.
+	 *
+	 * @return string The modified content buffer with the appended debug information.
 	 */
 	public function w3tc_footer_comment_after( $buffer, $replaced_urls ) {
 		$strings = array();
@@ -907,18 +950,20 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	private static $_upload_scheduled = false;
 
 	/**
-	 * Constructor.
+	 * Initializes the CDN plugin with configuration from the Dispatcher.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Replace all links.
+	 * Replaces all links in the given buffer with appropriate CDN URLs.
 	 *
-	 * @param string $buffer Buffer.
+	 * @param string $buffer The content to process and replace URLs in.
 	 *
-	 * @return string
+	 * @return string The modified content with replaced links.
 	 */
 	public function replace_all_links( $buffer ) {
 		$this->fill_regexps();
@@ -964,11 +1009,11 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Link replace callback.
+	 * Callback function to replace URLs in `srcset` attributes with CDN URLs.
 	 *
-	 * @param array $matches Matches.
+	 * @param array $matches The matches from the regular expression.
 	 *
-	 * @return string
+	 * @return string The modified `srcset` attribute value.
 	 */
 	public function _link_replace_callback( $matches ) {
 		list( $match, $quote, $url, , , , $path ) = $matches;
@@ -983,11 +1028,11 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Srcset replace callback.
+	 * Callback function to replace a link URL with the appropriate CDN URL.
 	 *
-	 * @param array $matches Matches.
+	 * @param array $matches The matches from the regular expression.
 	 *
-	 * @return string
+	 * @return string|null The modified URL or null if no replacement is necessary.
 	 */
 	public function _srcset_replace_callback( $matches ) {
 		list( $match, $srcset ) = $matches;
@@ -1031,11 +1076,11 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Replace placeholders.
+	 * Replaces placeholders in the buffer with actual URLs or content.
 	 *
-	 * @param string $buffer Buffer.
+	 * @param string $buffer The content to process and replace placeholders in.
 	 *
-	 * @return string
+	 * @return string The modified content with replaced placeholders.
 	 */
 	private function replace_placeholders( $buffer ) {
 		foreach ( $this->_placeholders as $srcset_id => $srcset_content ) {
@@ -1045,11 +1090,11 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Gets regexp for minified files
+	 * Generates a regular expression for matching minified URLs.
 	 *
-	 * @param string $filename_mask Filename mask.
+	 * @param string $filename_mask The filename mask for minified files.
 	 *
-	 * @return string
+	 * @return string The generated regular expression for matching minified URLs.
 	 */
 	private function minify_url_regexp( $filename_mask ) {
 		$minify_base_url = Util_Environment::filename_to_url(
@@ -1078,14 +1123,14 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Uploads regex.
+	 * Generates regular expressions for matching upload URLs.
 	 *
-	 * @param unknown $domain_url_regexp Domain URL regular expression.
-	 * @param unknown $baseurl Base URL.
-	 * @param unknown $upload_info Upload info.
-	 * @param unknown $regexps Regular expressions.
+	 * @param string $domain_url_regexp The domain URL regular expression.
+	 * @param string $baseurl The base URL for uploads.
+	 * @param array  $upload_info Information about the uploads directory.
+	 * @param array  $regexps The array of existing regular expressions.
 	 *
-	 * @return array
+	 * @return array The updated array of regular expressions.
 	 */
 	private function make_uploads_regexes( $domain_url_regexp, $baseurl, $upload_info, $regexps ) {
 		if ( preg_match( '~' . $domain_url_regexp . '~i', $baseurl ) ) {
@@ -1111,7 +1156,9 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Fill regular expressions.
+	 * Fills the array of regular expressions for matching different URLs (uploads, includes, theme, etc.).
+	 *
+	 * @return void
 	 */
 	private function fill_regexps() {
 		$regexps = array();
@@ -1251,14 +1298,19 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Link replace callback, basic checks step.
+	 * Callback to perform checks before replacing URLs in links.
 	 *
-	 * @param string $match Match.
-	 * @param string $quote Quote.
-	 * @param string $url URL.
-	 * @param string $path Path.
+	 * This method checks if a given URL has already been replaced, evaluates the URL against rejected file patterns,
+	 * and determines if the URL is queued for replacement. If the URL matches any rejection pattern or is already
+	 * queued, the method returns the original match without replacing it. This method is used as part of the URL
+	 * replacement process to ensure only accepted URLs are replaced.
 	 *
-	 * @return null|string
+	 * @param string $match The matched URL string.
+	 * @param string $quote The quote character around the matched URL.
+	 * @param string $url The original URL to be replaced.
+	 * @param string $path The path portion of the matched URL.
+	 *
+	 * @return string|null Returns the replaced URL if accepted; otherwise, the original match.
 	 */
 	public function _link_replace_callback_checks( $match, $quote, $url, $path ) {
 		global $wpdb;
@@ -1317,14 +1369,18 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Link replace callback, url replacement using cdn engine
+	 * Callback to request a replacement URL from the CDN.
 	 *
-	 * @param string $match Matc.
-	 * @param string $quote Quote.
-	 * @param string $url URL.
-	 * @param string $path Path.
+	 * This method checks if a given URL has a valid replacement URL in the CDN and replaces it. If the URL does not
+	 * have a valid CDN replacement, it returns the original matched URL. This method is used to replace URLs with
+	 * CDN-hosted versions when such replacements are supported and valid.
 	 *
-	 * @return null|string
+	 * @param string $match The matched URL string.
+	 * @param string $quote The quote character around the matched URL.
+	 * @param string $url The original URL to be replaced.
+	 * @param string $path The path portion of the matched URL.
+	 *
+	 * @return string The replaced URL if a valid replacement is found; otherwise, the original match.
 	 */
 	public function _link_replace_callback_ask_cdn( $match, $quote, $url, $path ) {
 		$common  = Dispatcher::component( 'Cdn_Core' );
@@ -1338,11 +1394,15 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Link replace callback for urls from minify module using auto mode and in cdn of push type.
+	 * Callback to replace URLs with CDN-hosted versions during minification.
 	 *
-	 * @param array $matches Matches.
+	 * This method is used to replace matched URLs with CDN-hosted versions when performing minification. If the URL
+	 * does not have a valid replacement in the CDN, it queues the URL for later processing. This method handles URLs
+	 * found during the minification process and attempts to replace them with their CDN-hosted equivalents.
 	 *
-	 * @return string
+	 * @param array $matches Array containing match details: full match, quote character, original URL, etc.
+	 *
+	 * @return string The replaced URL if accepted; otherwise, the original match.
 	 */
 	public function _minify_auto_pushcdn_link_replace_callback( $matches ) {
 		static $dispatcher = null;
@@ -1372,9 +1432,12 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	}
 
 	/**
-	 * Get replaced URLs.
+	 * Retrieves the list of replaced URLs.
 	 *
-	 * @return array
+	 * This method returns an array of URLs that have been replaced with their CDN-hosted versions during the link
+	 * replacement process. This list can be used for debugging, analysis, and verification of CDN replacements.
+	 *
+	 * @return array An associative array of replaced URLs.
 	 */
 	public function get_replaced_urls() {
 		return $this->_replaced_urls;

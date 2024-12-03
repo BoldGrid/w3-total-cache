@@ -1,24 +1,34 @@
 <?php
+/**
+ * File: Util_Ui.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 use DOMDocument;
 
-
+/**
+ * Class Util_Ui
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ */
 class Util_Ui {
 	/**
 	 * Returns button html
 	 *
-	 * @param string $text
-	 * @param string $onclick
-	 * @param string $class
+	 * @param string $text    Text.
+	 * @param string $onclick On click.
+	 * @param string $class   Class.
+	 * @param string $name    Name.
+	 *
 	 * @return string
 	 */
-	public static function button( $text, $onclick = '', $class = 'button',
-		$name = '' ) {
+	public static function button( $text, $onclick = '', $class = 'button', $name = '' ) {
 		$maybe_name = ( empty( $name ) ? '' : ' name="' . esc_attr( $name ) . '"' );
-		return '<input type="button"' . $maybe_name . ' class="' .
-			esc_attr( $class ) . '" value="' . esc_attr( $text ) .
-			'" onclick="' . esc_attr( $onclick ) . '" />';
+		return '<input type="button"' . $maybe_name . ' class="' . esc_attr( $class ) . '" value="' .
+			esc_attr( $text ) . '" onclick="' . esc_attr( $onclick ) . '" />';
 	}
 
 	/**
@@ -29,6 +39,7 @@ class Util_Ui {
 	 * @param bool   $new_window Open link in a new window.
 	 * @param string $class      Class.
 	 * @param string $name       Name.
+	 *
 	 * @return string
 	 */
 	public static function button_link( $text, $url, $new_window = false, $class = 'button', $name = '' ) {
@@ -49,6 +60,13 @@ class Util_Ui {
 		return self::button( $text, $onclick, $class, $name );
 	}
 
+	/**
+	 * Generates URL with nonce.
+	 *
+	 * @param array $addon Addon.
+	 *
+	 * @return string
+	 */
 	public static function url( $addon ) {
 		if ( ! isset( $addon['page'] ) ) {
 			$addon['page'] = Util_Request::get_string( 'page', 'w3tc_dashboard' );
@@ -58,7 +76,7 @@ class Util_Ui {
 		$amp = '?';
 		foreach ( $addon as $key => $value ) {
 			$url .= $amp . rawurlencode( $key ) . '=' . rawurlencode( $value );
-			$amp = '&';
+			$amp  = '&';
 		}
 
 		$url = wp_nonce_url( $url, 'w3tc' );
@@ -69,12 +87,13 @@ class Util_Ui {
 	/**
 	 * Returns hide note button html
 	 *
-	 * @param string  $text
-	 * @param string  $note
-	 * @param string  $redirect
-	 * @param boolean $admin         if to use config admin.
-	 * @param string  $page
-	 * @param string  $custom_method
+	 * @param string  $text          Text.
+	 * @param string  $note          Note.
+	 * @param string  $redirect      Redirect.
+	 * @param boolean $admin         If to use config admin.
+	 * @param string  $page          Page.
+	 * @param string  $custom_method Custom method.
+	 *
 	 * @return string
 	 */
 	public static function button_hide_note( $text, $note, $redirect = '',
@@ -99,6 +118,13 @@ class Util_Ui {
 		return self::button_link( $text, $url, false, 'button', 'w3tc_hide_' . $custom_method );
 	}
 
+	/**
+	 * Hide note button
+	 *
+	 * @param array $parameters Parameters.
+	 *
+	 * @return string
+	 */
 	public static function button_hide_note2( $parameters ) {
 		return self::button_link(
 			__( 'Hide this message', 'w3-total-cache' ),
@@ -109,18 +135,28 @@ class Util_Ui {
 		);
 	}
 
-	public static function action_button( $action, $url, $class = '',
-		$new_window = false ) {
+	/**
+	 * Action button
+	 *
+	 * @param string $action     Action.
+	 * @param string $url        URL.
+	 * @param string $class      Class.
+	 * @param bool   $new_window New window flag.
+	 *
+	 * @return string
+	 */
+	public static function action_button( $action, $url, $class = '', $new_window = false ) {
 		return self::button_link( $action, $url, $new_window, $class );
 	}
 	/**
 	 * Returns popup button html
 	 *
-	 * @param string  $text
-	 * @param string  $action
-	 * @param string  $params
-	 * @param integer $width
-	 * @param integer $height
+	 * @param string  $text   Text.
+	 * @param string  $action Action.
+	 * @param string  $params Parameters.
+	 * @param integer $width  Width.
+	 * @param integer $height Height.
+	 *
 	 * @return string
 	 */
 	public static function button_popup( $text, $action, $params = '', $width = 800, $height = 600 ) {
@@ -135,8 +171,9 @@ class Util_Ui {
 	/**
 	 * Returns label string for a config key.
 	 *
-	 * @param string $config_key
-	 * @param string $area
+	 * @param string $config_key Config key.
+	 *
+	 * @return string
 	 */
 	public static function config_label( $config_key ) {
 		static $config_labels = null;
@@ -154,8 +191,9 @@ class Util_Ui {
 	/**
 	 * Prints the label string for a config key.
 	 *
-	 * @param string $config_key
-	 * @param string $area
+	 * @param string $config_key Config key.
+	 *
+	 * @return void
 	 */
 	public static function e_config_label( $config_key ) {
 		$config_label = self::config_label( $config_key );
@@ -173,18 +211,24 @@ class Util_Ui {
 	 * a "WP 5.5" comment.
 	 *
 	 * @todo Add .postbox-header to our postboxes and cleanup css.
+	 *
 	 * @link https://github.com/BoldGrid/w3-total-cache/issues/237
 	 *
-	 * @param string $title
-	 * @param string $class
-	 * @param string $id
+	 * @param string $title Title.
+	 * @param string $class Class.
+	 * @param string $id    ID.
+	 *
 	 * @return void
 	 */
 	public static function postbox_header( $title, $class = '', $id = '' ) {
 		$id = ( ! empty( $id ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
-		echo '<div' . $id . ' class="postbox ' . esc_attr( $class ) . '">
-			<h3 class="postbox-title"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
-			<div class="inside">';
+		?>
+		<div <?php echo esc_attr( $id ); ?> class="postbox <?php echo esc_attr( $class ); ?>">
+			<h3 class="postbox-title">
+				<span><?php echo wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ); ?></span>
+			</h3>
+			<div class="inside">
+		<?php
 	}
 
 	/**
@@ -194,16 +238,20 @@ class Util_Ui {
 	 * resolved by adding additional css to /pub/css/options.css and pub/css/widget.css tagged with
 	 * a "WP 5.5" comment.
 	 *
+	 * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+	 *
 	 * @todo Add .postbox-header to our postboxes and cleanup css.
+	 *
 	 * @link https://github.com/BoldGrid/w3-total-cache/issues/237
 	 *
-	 * @param string $title
-	 * @param string $description
-	 * @param string $class
-	 * @param string $id
-	 * @param string $adv_link
-	 * @param string $premium_link
-	 * @param array  $extra_links
+	 * @param string $title        Title.
+	 * @param string $description  Description.
+	 * @param string $class        Class.
+	 * @param string $id           ID.
+	 * @param string $adv_link     Advanced link.
+	 * @param string $premium_link Premium Link.
+	 * @param array  $extra_links  Extra Links.
+	 *
 	 * @return void
 	 */
 	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $adv_link = '', $premium_link = '', $extra_links = array() ) {
@@ -218,11 +266,15 @@ class Util_Ui {
 			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '</a>';
 		}
 
-		echo '<div' . $display_id . ' class="postbox-tabs ' . esc_attr( $class ) . '">
-			<h3 class="postbox-title"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
-			' . $description . '
-			<h2 class="nav-tab-wrapper">' . $basic_settings_tab . $adv_settings_tab . $premium_link_tab . $extra_link_tabs . '</h2>
-			<div class="inside">';
+		?>
+		<div <?php echo $display_id; ?> class="postbox-tabs <?php echo esc_attr( $class ); ?>">
+			<h3 class="postbox-title">
+				<span><?php echo wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ); ?></span>
+			</h3>
+			<?php echo $description; ?>
+			<h2 class="nav-tab-wrapper"><?php echo $basic_settings_tab . $adv_settings_tab . $premium_link_tab . $extra_link_tabs; ?></h2>
+			<div class="inside">
+		<?php
 	}
 
 	/**
@@ -241,7 +293,7 @@ class Util_Ui {
 	 *
 	 * @param string $key The type of cache key to get from config.
 	 *
-	 * @return string The HTML for the premium services tab.
+	 * @return string|null
 	 */
 	public static function get_premium_service_tab( string $key ) : string {
 
@@ -256,39 +308,45 @@ class Util_Ui {
 		return isset( $configs['tabs']['premium_support'] ) ? '<div class="hidden" data-tab-type="premium-services">' . $configs['tabs']['premium_support'] . '</div>' : null;
 	}
 
+	/**
+	 * Config save button.
+	 *
+	 * @param string $id    ID.
+	 * @param string $extra Extra.
+	 *
+	 * @return void
+	 */
 	public static function button_config_save( $id = '', $extra = '' ) {
 		$b1_id = 'w3tc_save_options_' . $id;
 		$b2_id = 'w3tc_default_save_and_flush_' . $id;
 
+		$nonce_field = self::nonce_field( 'w3tc' );
+		$nonce_html  = wp_kses( $nonce_field, self::get_allowed_html_for_wp_kses_from_content( $nonce_field ) );
+		$extra_html  = wp_kses( $extra, self::get_allowed_html_for_wp_kses_from_content( $extra ) );
+
 		?>
 		<p class="submit">
+			<?php echo $nonce_html; ?>
+			<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>" name="w3tc_save_options" class="w3tc-button-save button-primary" value="<?php esc_attr_e( 'Save all settings', 'w3-total-cache' ); ?>" />
+			<?php echo $extra_html; ?>
 			<?php
-			$nonce_field = self::nonce_field( 'w3tc' );
-			echo wp_kses(
-				$nonce_field,
-				self::get_allowed_html_for_wp_kses_from_content( $nonce_field )
-			);
+			if ( ! is_network_admin() ) {
+				echo '<input type="submit" id="' . esc_attr( $b2_id ) . '" name="w3tc_default_save_and_flush" style="float: right"
+					class="w3tc-button-save button-primary" value="' . esc_attr__( 'Save Settings & Purge Caches', 'w3-total-cache' ) . '" />';
+			}
 			?>
-			<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>"
-				name="w3tc_save_options"
-				class="w3tc-button-save button-primary"
-				value="<?php esc_attr_e( 'Save all settings', 'w3-total-cache' ); ?>" />
-			<?php
-			echo wp_kses(
-				$extra,
-				self::get_allowed_html_for_wp_kses_from_content( $extra )
-			);
-			?>
-			<?php if ( ! is_network_admin() ) : ?>
-			<input type="submit" id="<?php echo esc_attr( $b2_id ); ?>"
-				name="w3tc_default_save_and_flush" style="float: right"
-				class="w3tc-button-save button-primary"
-				value="<?php esc_attr_e( 'Save Settings & Purge Caches', 'w3-total-cache' ); ?>" />
-			<?php endif ?>
 		</p>
 		<?php
 	}
 
+	/**
+	 * Config save button with dropdown.
+	 *
+	 * @param string $id    ID.
+	 * @param string $extra Extra.
+	 *
+	 * @return void
+	 */
 	public static function button_config_save_dropdown( $id = '', $extra = '' ) {
 		?>
 		<div class="w3tc-button-control-container">
@@ -305,6 +363,7 @@ class Util_Ui {
 	 *
 	 * @param string $id     ID value.
 	 * @param string $extra Extra values.
+	 *
 	 * @return void
 	 */
 	public static function print_save_split_button( $id = '', $extra = '' ) {
@@ -426,7 +485,8 @@ class Util_Ui {
 	/**
 	 * Prints the form control bar
 	 *
-	 * @param string $id
+	 * @param string $id ID.
+	 *
 	 * @return void
 	 */
 	public static function print_control_bar( $id = '' ) {
@@ -441,6 +501,13 @@ class Util_Ui {
 		<?php
 	}
 
+	/**
+	 * Sealing disabled
+	 *
+	 * @param string $key Key.
+	 *
+	 * @return void
+	 */
 	public static function sealing_disabled( $key ) {
 		$c = Dispatcher::config();
 		if ( $c->is_sealed( $key ) ) {
@@ -451,10 +518,10 @@ class Util_Ui {
 	/**
 	 * Returns nonce field HTML
 	 *
-	 * @param string $action
-	 * @param string $name
-	 * @param bool   $referer
-	 * @internal param bool $echo
+	 * @param string|int $action  Action.
+	 * @param string     $name    Name.
+	 * @param bool       $referer Referrer.
+	 *
 	 * @return string
 	 */
 	public static function nonce_field( $action = -1, $name = '_wpnonce', $referer = true ) {
@@ -470,8 +537,9 @@ class Util_Ui {
 	/**
 	 * Returns an notification box
 	 *
-	 * @param string $message
-	 * @param string $id      adds an id to the notification box.
+	 * @param string $message Message.
+	 * @param string $id      Adds an id to the notification box.
+	 *
 	 * @return string
 	 */
 	public static function get_notification_box( $message, $id = '' ) {
@@ -495,8 +563,10 @@ class Util_Ui {
 	/**
 	 * Echos an notification box
 	 *
-	 * @param string $message
+	 * @param string $message Message.
 	 * @param string $id      adds an id to the notification box.
+	 *
+	 * @return void
 	 */
 	public static function e_notification_box( $message, $id = '' ) {
 		$notification_box = self::get_notification_box( $message, $id );
@@ -511,6 +581,8 @@ class Util_Ui {
 	 *
 	 * @param string $message Message.
 	 * @param string $id      Id.
+	 *
+	 * @return void
 	 */
 	public static function error_box( $message, $id = '' ) {
 		$page_val = Util_Request::get_string( 'page' );
@@ -539,8 +611,11 @@ class Util_Ui {
 	/**
 	 * Format bytes into B, KB, MB, GB and TB
 	 *
-	 * @param unknown $bytes
-	 * @param int     $precision
+	 * phpcs:disable Squiz.PHP.CommentedOutCode.Found
+	 *
+	 * @param int $bytes     Bytes.
+	 * @param int $precision Precision.
+	 *
 	 * @return string
 	 */
 	public static function format_bytes( $bytes, $precision = 2 ) {
@@ -557,6 +632,16 @@ class Util_Ui {
 		return round( $bytes, $precision ) . ' ' . $units[ $pow ];
 	}
 
+	/**
+	 * Format mbytes into B, KB, MB, GB and TB
+	 *
+	 * phpcs:disable Squiz.PHP.CommentedOutCode.Found
+	 *
+	 * @param int $bytes     Bytes.
+	 * @param int $precision Precision.
+	 *
+	 * @return string
+	 */
 	public static function format_mbytes( $bytes, $precision = 2 ) {
 		$units = array( 'B', 'KB', 'MB', 'GB', 'TB' );
 
@@ -572,28 +657,26 @@ class Util_Ui {
 	}
 
 	/**
-	 * Returns an input text element
+	 * Returns an hidden input text element
 	 *
-	 * @param string $id
-	 * @param string $name
-	 * @param string $value
-	 * @param bool   $disabled
-	 * @param int    $size
+	 * @param string $id       ID.
+	 * @param string $name     Name.
+	 * @param string $value    Value.
+	 *
+	 * @return string
 	 */
 	public static function r_hidden( $id, $name, $value ) {
-		return '<input type="hidden" id="' . esc_attr( $id ) .
-			'" name="' . esc_attr( $name ) .
-			'" value="' . esc_attr( $value ) . '" />';
+		return '<input type="hidden" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" />';
 	}
 
 	/**
-	 * Echos an input text element
+	 * Echos a hidden input text element
 	 *
-	 * @param string $id
-	 * @param string $name
-	 * @param string $value
-	 * @param bool   $disabled
-	 * @param int    $size
+	 * @param string $id    ID.
+	 * @param string $name  Name.
+	 * @param string $value Value.
+	 *
+	 * @return void
 	 */
 	public static function hidden( $id, $name, $value ) {
 		$hidden = self::r_hidden( $id, $name, $value );
@@ -606,8 +689,10 @@ class Util_Ui {
 	/**
 	 * Echos an label element
 	 *
-	 * @param string $id
-	 * @param string $text
+	 * @param string $id   ID.
+	 * @param string $text Text.
+	 *
+	 * @return void
 	 */
 	public static function label( $id, $text ) {
 		$label = '<label for="' . esc_attr( $id ) . '">' . $text . '</label>';
@@ -620,60 +705,53 @@ class Util_Ui {
 	/**
 	 * Echos an input text element
 	 *
-	 * @param string $id
-	 * @param string $name
-	 * @param string $value
-	 * @param bool   $disabled
-	 * @param int    $size
+	 * @param string $id          ID.
+	 * @param string $name        Name.
+	 * @param string $value       Value.
+	 * @param bool   $disabled    Disabled.
+	 * @param int    $size        Size.
+	 * @param string $type        Type.
+	 * @param string $placeholder Placeholder.
+	 *
+	 * @return void
 	 */
-	public static function textbox( $id, $name, $value, $disabled = false,
-			$size = 40, $type = 'text', $placeholder = '' ) {
-		echo '<input class="enabled" type="' . esc_attr( $type ) . '"
-			 id="' . esc_attr( $id ) . '"
-			 name="' . esc_attr( $name ) . '"
-			 value="' . esc_attr( $value ) . '" ';
-		disabled( $disabled );
-		echo ' size="' . esc_attr( $size ) . '"';
+	public static function textbox( $id, $name, $value, $disabled = false, $size = 40, $type = 'text', $placeholder = '' ) {
+		$placeholder = ! empty( $placeholder ) ? ' placeholder="' . esc_attr( $placeholder ) . '"' : '';
 
-		if ( ! empty( $placeholder ) ) {
-			echo ' placeholder="' . esc_attr( $placeholder ) . '"';
-		}
-
-		echo ' />';
+		echo '<input class="enabled" type="' . esc_attr( $type ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"
+			 value="' . esc_attr( $value ) . '" ' . disabled( $disabled ) . ' size="' . esc_attr( $size ) . '"' . $placeholder . ' />';
 	}
 
 	/**
 	 * Echos an input password element
 	 *
-	 * @param string $id
-	 * @param string $name
-	 * @param string $value
-	 * @param bool   $disabled
-	 * @param int    $size
+	 * @param string $id       ID.
+	 * @param string $name     Name.
+	 * @param string $value    Value.
+	 * @param bool   $disabled Diabled.
+	 * @param int    $size     Size.
+	 *
+	 * @return void
 	 */
 	public static function passwordbox( $id, $name, $value, $disabled = false, $size = 40 ) {
-		echo '<input class="enabled" type="password"
-			 id="' . esc_attr( $id ) . '"
-			 name="' . esc_attr( $name ) . '"
-			 value="' . esc_attr( $value ) . '" ';
-		disabled( $disabled );
-		echo ' size="' . esc_attr( $size ) . '" />';
+		echo '<input class="enabled" type="password" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"
+			 value="' . esc_attr( $value ) . '" ' . disabled( $disabled ) . ' size="' . esc_attr( $size ) . '" />';
 	}
 
 	/**
 	 * Echos an select element
 	 *
-	 * @param string $id
-	 * @param string $name
-	 * @param bool   $state     whether checked or not.
-	 * @param bool   $disabled
-	 * @param array  $optgroups
+	 * @param string $id        ID.
+	 * @param string $name      Name.
+	 * @param string $value     Value.
+	 * @param array  $values    Values.
+	 * @param bool   $disabled  Disabled.
+	 * @param array  $optgroups Optgroups.
+	 *
+	 * @return void
 	 */
-	public static function selectbox( $id, $name, $value, $values,
-			$disabled = false, $optgroups = null ) {
-		echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" ';
-		disabled( $disabled );
-		echo ">\n";
+	public static function selectbox( $id, $name, $value, $values, $disabled = false, $optgroups = null ) {
+		echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" ' . disabled( $disabled ) . ">\n";
 
 		if ( ! is_array( $optgroups ) ) {
 			// simle control.
@@ -704,6 +782,15 @@ class Util_Ui {
 		echo '</select>';
 	}
 
+	/**
+	 * Echos a select option
+	 *
+	 * @param string $key            Key.
+	 * @param string $selected_value Name.
+	 * @param string $descriptor     Descriptor.
+	 *
+	 * @return void
+	 */
 	private static function option( $key, $selected_value, $descriptor ) {
 		if ( ! is_array( $descriptor ) ) {
 			$label    = $descriptor;
@@ -713,19 +800,22 @@ class Util_Ui {
 			$disabled = ! empty( $descriptor['disabled'] );
 		}
 
-		echo '<option value="' . esc_attr( $key ) . '" ';
-		selected( $selected_value, $key );
-		disabled( $disabled );
-		echo '>' . wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</option>' . "\n";
+		echo '<option value="' . esc_attr( $key ) . '" ' . selected( $selected_value, $key ) . disabled( $disabled ) . '>' .
+			wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</option>' . "\n";
 	}
 
 	/**
-	 * Echos a group of radio elements
-	 * values: value => label pair or
-	 * value => array(label, disabled, postfix).
+	 * Echos a group of radio elements values: value => label pair or value => array(label, disabled, postfix)
+	 *
+	 * @param string $name      Name.
+	 * @param string $value     Value.
+	 * @param array  $values    Values.
+	 * @param bool   $disabled  Disabled.
+	 * @param string $separator Separator.
+	 *
+	 * @return void
 	 */
-	public static function radiogroup( $name, $value, $values,
-			$disabled = false, $separator = '' ) {
+	public static function radiogroup( $name, $value, $values, $disabled = false, $separator = '' ) {
 		$c      = Dispatcher::config();
 		$is_pro = Util_Environment::is_w3tc_pro( $c );
 		$first  = true;
@@ -756,13 +846,12 @@ class Util_Ui {
 			if ( $pro_feature ) {
 				self::pro_wrap_maybe_start();
 			}
-			echo '<label><input type="radio"
-				 id="' . esc_attr( $name . '__' . $key ) . '"
-				 name="' . esc_attr( $name ) . '"
-				 value="' . esc_attr( $key ) . '"';
-			checked( $value, $key );
-			disabled( $disabled || $item_disabled );
-			echo ' />' . wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</label>' . wp_kses( $postfix, self::get_allowed_html_for_wp_kses_from_content( $postfix ) ) . "\n";
+
+			echo '<label><input type="radio" id="' . esc_attr( $name . '__' . $key ) . '" name="' . esc_attr( $name ) .
+				'" value="' . esc_attr( $key ) . '"' . checked( $value, $key ) . disabled( $disabled || $item_disabled ) . ' />' .
+				wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</label>' .
+				wp_kses( $postfix, self::get_allowed_html_for_wp_kses_from_content( $postfix ) ) . "\n";
+
 			if ( $pro_feature ) {
 				self::pro_wrap_description(
 					$label_or_array['pro_excerpt'],
@@ -784,39 +873,40 @@ class Util_Ui {
 	/**
 	 * Echos an input text element
 	 *
-	 * @param string $id
-	 * @param string $name
-	 * @param string $value
-	 * @param bool   $disabled
+	 * @param string $id       ID.
+	 * @param string $name     Name.
+	 * @param string $value    Value.
+	 * @param bool   $disabled Disabled.
+	 *
+	 * @return void
 	 */
 	public static function textarea( $id, $name, $value, $disabled = false ) {
 		?>
-		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>"
-			name="<?php echo esc_attr( $name ); ?>" rows="5" cols=25 style="width: 100%"
-			<?php disabled( $disabled ); ?>><?php echo esc_textarea( $value ); ?></textarea>
+		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5" cols=25 style="width: 100%" <?php disabled( $disabled ); ?>>
+			<?php echo esc_textarea( $value ); ?>
+		</textarea>
 		<?php
 	}
 
 	/**
 	 * Echos an input checkbox element
 	 *
-	 * @param string $id
-	 * @param string $name
-	 * @param bool   $state    whether checked or not.
-	 * @param bool   $disabled
+	 * @param string $id       ID.
+	 * @param string $name     Name.
+	 * @param bool   $state    Whether checked or not.
+	 * @param bool   $disabled Disabled.
+	 * @param string $label    Label.
+	 *
+	 * @return void
 	 */
 	public static function checkbox( $id, $name, $state, $disabled = false, $label = null ) {
 		if ( ! is_null( $label ) ) {
 			echo '<label>';
 		}
 
-		echo '<input type="hidden" name="' . esc_attr( $name ) . '"
-			 value="' . esc_attr( ( ! $disabled ? '0' : ( $state ? '1' : '0' ) ) ) . '">' . "\n";
-		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $id ) . '"
-			 name="' . esc_attr( $name ) . '" value="1" ';
-		checked( $state );
-		disabled( $disabled );
-		echo ' /> ';
+		echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( ( ! $disabled ? '0' : ( $state ? '1' : '0' ) ) ) . '">' . "\n";
+		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) .
+			'" value="1" ' . checked( $state ) . disabled( $disabled ) . ' /> ';
 
 		if ( ! is_null( $label ) ) {
 			echo wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</label>';
@@ -826,11 +916,13 @@ class Util_Ui {
 	/**
 	 * Echos an element
 	 *
-	 * @param string $type
-	 * @param string $id
-	 * @param string $name
-	 * @param mixed  $value
-	 * @param bool   $disabled
+	 * @param string $type     Type.
+	 * @param string $id       ID.
+	 * @param string $name     Name.
+	 * @param mixed  $value    Value.
+	 * @param bool   $disabled Disabled.
+	 *
+	 * @return void
 	 */
 	public static function element( $type, $id, $name, $value, $disabled = false ) {
 		switch ( $type ) {
@@ -850,6 +942,13 @@ class Util_Ui {
 		}
 	}
 
+	/**
+	 * Checkbox
+	 *
+	 * @param array $e Config.
+	 *
+	 * @return void
+	 */
 	public static function checkbox2( $e ) {
 		self::checkbox(
 			$e['name'],
@@ -860,6 +959,13 @@ class Util_Ui {
 		);
 	}
 
+	/**
+	 * Radio
+	 *
+	 * @param array $e Config.
+	 *
+	 * @return void
+	 */
 	public static function radiogroup2( $e ) {
 		self::radiogroup(
 			$e['name'],
@@ -870,6 +976,13 @@ class Util_Ui {
 		);
 	}
 
+	/**
+	 * Select
+	 *
+	 * @param array $e Config.
+	 *
+	 * @return void
+	 */
 	public static function selectbox2( $e ) {
 		self::selectbox(
 			$e['name'],
@@ -881,6 +994,13 @@ class Util_Ui {
 		);
 	}
 
+	/**
+	 * Textbox
+	 *
+	 * @param array $e Config.
+	 *
+	 * @return void
+	 */
 	public static function textbox2( $e ) {
 		self::textbox(
 			$e['name'],
@@ -893,6 +1013,13 @@ class Util_Ui {
 		);
 	}
 
+	/**
+	 * Textarea
+	 *
+	 * @param array $e Config.
+	 *
+	 * @return void
+	 */
 	public static function textarea2( $e ) {
 		self::textarea(
 			$e['name'],
@@ -902,6 +1029,13 @@ class Util_Ui {
 		);
 	}
 
+	/**
+	 * Control
+	 *
+	 * @param array $a Config.
+	 *
+	 * @return void
+	 */
 	public static function control2( $a ) {
 		if ( 'checkbox' === $a['control'] ) {
 			self::checkbox2(
@@ -984,8 +1118,11 @@ class Util_Ui {
 	 * label =>
 	 * label_class =>
 	 * <control> => details
-	 * style - default is label,controls view,
-	 *         alternative is one-column view
+	 * style - default is label, controls view, alternative is one-column view
+	 *
+	 * @param array $a Config.
+	 *
+	 * @return void
 	 */
 	public static function table_tr( $a ) {
 		$id = isset( $a['id'] ) ? $a['id'] : '';
@@ -1060,20 +1197,22 @@ class Util_Ui {
 
 	/**
 	 * Prints configuration item UI based on description
-	 *   key => configuration key
-	 *   label => configuration key's as its introduced to the user
-	 *   value => it's value
-	 *   disabled => if disabled
+	 * key => configuration key
+	 * label => configuration key's as its introduced to the user
+	 * value => it's value
+	 * disabled => if disabled
+	 * control => checkbox | radiogroup | selectbox | textbox
+	 * checkbox_label => text shown after the textbox
+	 * radiogroup_values => array of possible values for radiogroup
+	 * selectbox_values => array of possible values for dropdown
+	 * selectbox_optgroups =>
+	 * textbox_size =>
+	 * control_after => something after control to add
+	 * description => description shown to the user below
 	 *
-	 *   control => checkbox | radiogroup | selectbox | textbox
-	 *   checkbox_label => text shown after the textbox
-	 *   radiogroup_values => array of possible values for radiogroup
-	 *   selectbox_values => array of possible values for dropdown
-	 *   selectbox_optgroups =>
-	 *   textbox_size =>
+	 * @param array $a Config.
 	 *
-	 *   control_after => something after control to add
-	 *   description => description shown to the user below
+	 * @return void
 	 */
 	public static function config_item( $a ) {
 		/*
@@ -1137,6 +1276,13 @@ class Util_Ui {
 		echo "</tr>\n";
 	}
 
+	/**
+	 * Config item extension enabled.
+	 *
+	 * @param array $a Config.
+	 *
+	 * @return void
+	 */
 	public static function config_item_extension_enabled( $a ) {
 		$c      = Dispatcher::config();
 		$is_pro = Util_Environment::is_w3tc_pro( $c );
@@ -1184,6 +1330,13 @@ class Util_Ui {
 		echo "</tr>\n";
 	}
 
+	/**
+	 * Config item pro
+	 *
+	 * @param array $a Config.
+	 *
+	 * @return void
+	 */
 	public static function config_item_pro( $a ) {
 		$c      = Dispatcher::config();
 		$is_pro = Util_Environment::is_w3tc_pro( $c );
@@ -1241,6 +1394,13 @@ class Util_Ui {
 		}
 	}
 
+	/**
+	 * Config item preprocess
+	 *
+	 * @param array $a Config.
+	 *
+	 * @return array
+	 */
 	public static function config_item_preprocess( $a ) {
 		$c = Dispatcher::config();
 
@@ -1275,6 +1435,10 @@ class Util_Ui {
 
 	/**
 	 * Displays config item - caching engine selectbox
+	 *
+	 * @param array $a Config.
+	 *
+	 * @return void
 	 */
 	public static function config_item_engine( $a ) {
 		if ( isset( $a['empty_value'] ) && $a['empty_value'] ) {
@@ -1339,6 +1503,11 @@ class Util_Ui {
 		}
 	}
 
+	/**
+	 * Pro wrap start
+	 *
+	 * @return void
+	 */
 	public static function pro_wrap_maybe_start() {
 		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 			return;
@@ -1351,6 +1520,15 @@ class Util_Ui {
 		<?php
 	}
 
+	/**
+	 * Pro wrap description
+	 *
+	 * @param string $excerpt_clean Clean exerpt.
+	 * @param string $description   Description.
+	 * @param string $data_href     Data link.
+	 *
+	 * @return void
+	 */
 	public static function pro_wrap_description( $excerpt_clean, $description, $data_href ) {
 		echo '<p class="description w3tc-gopro-excerpt">' . wp_kses( $excerpt_clean, self::get_allowed_html_for_wp_kses_from_content( $excerpt_clean ) ) . '</p>';
 
@@ -1369,6 +1547,14 @@ class Util_Ui {
 		}
 	}
 
+	/**
+	 * Pro wrap end
+	 *
+	 * @param string $button_data_src Butta href.
+	 * @param bool   $show_learn_more Show more flag.
+	 *
+	 * @return void
+	 */
 	public static function pro_wrap_maybe_end( $button_data_src, $show_learn_more = true ) {
 		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 			return;
@@ -1387,6 +1573,11 @@ class Util_Ui {
 		<?php
 	}
 
+	/**
+	 * Pro wrap start - version 2
+	 *
+	 * @return void
+	 */
 	public static function pro_wrap_maybe_start2() {
 		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 			return;
@@ -1398,6 +1589,14 @@ class Util_Ui {
 		<?php
 	}
 
+	/**
+	 * Pro wrap end - version 2
+	 *
+	 * @param string $button_data_src     Button link.
+	 * @param bool   $show_unlock_feature Show unlock feature flag.
+	 *
+	 * @return void
+	 */
 	public static function pro_wrap_maybe_end2( $button_data_src, $show_unlock_feature = true ) {
 		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 			return;
@@ -1416,11 +1615,13 @@ class Util_Ui {
 		<?php
 	}
 
-
-
 	/**
 	 * On subblogs - shows button to enable/disable custom configuration
-	 *   $a['key'] - config key *_overloaded which are managed
+	 *  $a['key'] - config key *_overloaded which are managed
+	 *
+	 * @param array $a Config.
+	 *
+	 * @return void
 	 */
 	public static function config_overloading_button( $a ) {
 		$c = Dispatcher::config();
@@ -1437,9 +1638,7 @@ class Util_Ui {
 		}
 
 		echo '<div style="float: right">';
-		echo '<input type="submit" class="button"
-			 name="' . esc_attr( $name ) . '"
-			 value="' . esc_attr( $value ) . '" />';
+		echo '<input type="submit" class="button" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" />';
 		echo '</div>';
 	}
 
@@ -1447,6 +1646,7 @@ class Util_Ui {
 	 * Get the admin URL based on the path and the interface (network or site).
 	 *
 	 * @param  string $path Admin path/URI.
+	 *
 	 * @return string
 	 */
 	public static function admin_url( $path ) {
@@ -1469,8 +1669,9 @@ class Util_Ui {
 	/**
 	 * Takes seconds and converts to array('Nh ','Nm ', 'Ns ', 'Nms ') or "Nh Nm Ns Nms"
 	 *
-	 * @param unknown $input
-	 * @param bool    $string
+	 * @param unknown $input  Input.
+	 * @param bool    $string String.
+	 *
 	 * @return array|string
 	 */
 	public static function secs_to_time( $input, $string = true ) {
@@ -1521,9 +1722,12 @@ class Util_Ui {
 		return str_replace( '.', '__', $id );
 	}
 
-	/*
-	 * Converts configuration key returned in http _GET/_POST
-	 * to configuration key
+	/**
+	 * Converts configuration key returned in http _GET/_POST to configuration key
+	 *
+	 * @param string $http_key HTTP key.
+	 *
+	 * @return string
 	 */
 	public static function config_key_from_http_name( $http_key ) {
 		$a = explode( '___', $http_key );
@@ -1536,6 +1740,15 @@ class Util_Ui {
 		return str_replace( '__', '.', $http_key );
 	}
 
+	/**
+	 * Get allowed HTML fro wpkses
+	 *
+	 * phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	 *
+	 * @param string $content Content.
+	 *
+	 * @return array
+	 */
 	public static function get_allowed_html_for_wp_kses_from_content( $content ) {
 		$allowed_html = array();
 
@@ -1552,6 +1765,7 @@ class Util_Ui {
 			}
 			$allowed_html[ $tagname ] = empty( $allowed_html[ $tagname ] ) ? array() : $allowed_html[ $tagname ];
 		}
+
 		return $allowed_html;
 	}
 
@@ -1580,7 +1794,11 @@ class Util_Ui {
 	/**
 	 * Prints the options anchor menu
 	 *
+	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
+	 * phpcs:disable PSR2.ControlStructures.SwitchDeclaration.TerminatingComment
+	 *
 	 * @param array $custom_areas Custom Areas.
+	 *
 	 * @return void
 	 */
 	public static function print_options_menu( $custom_areas = array() ) {
@@ -2049,6 +2267,7 @@ class Util_Ui {
 						</div>
 						<?php
 						break;
+
 					case 'alwayscached':
 						?>
 						<div id="w3tc-options-menu">
@@ -2076,6 +2295,8 @@ class Util_Ui {
 	 * @param string $score_label       Score Label.
 	 * @param string $score_description Score Description.
 	 * @param string $score_link        Score Link.
+	 *
+	 * @return string
 	 */
 	public static function get_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
 		$score_block = '
@@ -2093,6 +2314,7 @@ class Util_Ui {
 					<p><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">' . esc_html__( ' and improve your PageSpeed Scores today!', 'w3-total-cache' ) . '</p>
 				</div>
 			</div>';
+
 		return $score_block;
 	}
 
@@ -2105,6 +2327,8 @@ class Util_Ui {
 	 * @param string $score_label       Score Label.
 	 * @param string $score_description Score Description.
 	 * @param string $score_link        Score Link.
+	 *
+	 * @return void
 	 */
 	public static function print_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
 		$score_block = self::get_score_block( $intro_label, $score, $score_label, $score_description, $score_link );

@@ -8,11 +8,9 @@
 namespace W3TC;
 
 /**
- * W3 Request object
- */
-
-/**
  * Class: Util_Request
+ *
+ * W3 Request object
  */
 class Util_Request {
 	/**
@@ -20,6 +18,7 @@ class Util_Request {
 	 *
 	 * @param string $key     Key.
 	 * @param mixed  $default Default value.
+	 *
 	 * @return mixed
 	 */
 	public static function get( $key, $default = null ) {
@@ -44,6 +43,7 @@ class Util_Request {
 	 * @param string $key     Key.
 	 * @param string $default Default value.
 	 * @param bool   $trim    Trim.
+	 *
 	 * @return string
 	 */
 	public static function get_string( $key, $default = '', $trim = true ) {
@@ -57,6 +57,7 @@ class Util_Request {
 	 *
 	 * @param string $key     Key.
 	 * @param string $default Default value.
+	 *
 	 * @return string
 	 */
 	public static function get_label( $key, $default = '' ) {
@@ -69,6 +70,7 @@ class Util_Request {
 	 *
 	 * @param string $key     Key.
 	 * @param int    $default Default value.
+	 *
 	 * @return int
 	 */
 	public static function get_integer( $key, $default = 0 ) {
@@ -80,6 +82,7 @@ class Util_Request {
 	 *
 	 * @param string       $key     Key.
 	 * @param double|float $default Default value.
+	 *
 	 * @return double
 	 */
 	public static function get_double( $key, $default = 0. ) {
@@ -91,6 +94,7 @@ class Util_Request {
 	 *
 	 * @param string $key     Key.
 	 * @param bool   $default Default value.
+	 *
 	 * @return bool
 	 */
 	public static function get_boolean( $key, $default = false ) {
@@ -102,6 +106,7 @@ class Util_Request {
 	 *
 	 * @param string $key     Key.
 	 * @param array  $default Default value.
+	 *
 	 * @return array
 	 */
 	public static function get_array( $key, $default = array() ) {
@@ -121,6 +126,7 @@ class Util_Request {
 	 *
 	 * @param string $prefix  Prefix.
 	 * @param array  $default Default value.
+	 *
 	 * @return array
 	 */
 	public static function get_as_array( $prefix, $default = array() ) {
@@ -137,6 +143,8 @@ class Util_Request {
 
 	/**
 	 * Returns request array.
+	 *
+	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 *
 	 * @return array
 	 */

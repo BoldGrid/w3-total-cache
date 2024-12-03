@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class: CdnEngine
+ *
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
  */
 class CdnEngine {
 	/**
@@ -16,6 +18,7 @@ class CdnEngine {
 	 *
 	 * @param string $engine CDN engine.
 	 * @param array  $config Configuration.
+	 *
 	 * @return CdnEngine_Base
 	 */
 	public static function instance( $engine, array $config = array() ) {
@@ -105,7 +108,7 @@ class CdnEngine {
 					break;
 
 				default:
-					empty( $engine ) || trigger_error( 'Incorrect CDN engine', E_USER_WARNING );
+					empty( $engine ) || trigger_error( 'Incorrect CDN engine', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 
 					$instances[ $instance_key ] = new CdnEngine_Base();
 					break;

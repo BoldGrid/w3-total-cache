@@ -1,18 +1,29 @@
 <?php
+/**
+ * File: Util_Rule.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Util_Rule
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ */
 class Util_Rule {
 	/**
 	 * Check if WP permalink directives exists
 	 *
 	 * @return boolean
 	 */
-	static public function is_permalink_rules() {
-		if ( ( Util_Environment::is_apache() || Util_Environment::is_litespeed() ) && !Util_Environment::is_wpmu() ) {
-			$path = Util_Rule::get_pgcache_rules_core_path();
-
-			return ( $data = @file_get_contents( $path ) ) &&
-				strstr( $data, W3TC_MARKER_BEGIN_WORDPRESS ) !== false;
+	public static function is_permalink_rules() {
+		if ( ( Util_Environment::is_apache() || Util_Environment::is_litespeed() ) && ! Util_Environment::is_wpmu() ) {
+			$path = self::get_pgcache_rules_core_path();
+			$data = @file_get_contents( $path );
+			return $data && strstr( $data, W3TC_MARKER_BEGIN_WORDPRESS ) !== false;
 		}
 
 		return true;
@@ -20,11 +31,16 @@ class Util_Rule {
 
 	/**
 	 * Removes empty elements
+	 *
+	 * @param array $a Input array.
+	 *
+	 * @return void
 	 */
-	static public function array_trim( &$a ) {
+	public static function array_trim( &$a ) {
 		for ( $n = count( $a ) - 1; $n >= 0; $n-- ) {
-			if ( empty( $a[$n] ) )
+			if ( empty( $a[ $n ] ) ) {
 				array_splice( $a, $n, 1 );
+			}
 		}
 	}
 
@@ -33,12 +49,12 @@ class Util_Rule {
 	 *
 	 * @return string
 	 */
-	static public function get_nginx_rules_path() {
+	public static function get_nginx_rules_path() {
 		$config = Dispatcher::config();
 
 		$path = $config->get_string( 'config.path' );
 
-		if ( !$path ) {
+		if ( ! $path ) {
 			$path = Util_Environment::site_path() . 'nginx.conf';
 		}
 
@@ -50,12 +66,12 @@ class Util_Rule {
 	 *
 	 * @return string
 	 */
-	static public function get_litespeed_rules_path() {
+	public static function get_litespeed_rules_path() {
 		$config = Dispatcher::config();
 
 		$path = $config->get_string( 'config.path' );
 
-		if ( !$path ) {
+		if ( ! $path ) {
 			$path = Util_Environment::site_path() . 'litespeed.conf';
 		}
 
@@ -67,7 +83,7 @@ class Util_Rule {
 	 *
 	 * @return string
 	 */
-	static public function get_apache_rules_path() {
+	public static function get_apache_rules_path() {
 		return Util_Environment::site_path() . '.htaccess';
 	}
 
@@ -76,14 +92,14 @@ class Util_Rule {
 	 *
 	 * @return string
 	 */
-	static public function get_pgcache_rules_core_path() {
+	public static function get_pgcache_rules_core_path() {
 		switch ( true ) {
-		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
-			return Util_Rule::get_apache_rules_path();
+			case Util_Environment::is_apache():
+			case Util_Environment::is_litespeed():
+				return self::get_apache_rules_path();
 
-		case Util_Environment::is_nginx():
-			return Util_Rule::get_nginx_rules_path();
+			case Util_Environment::is_nginx():
+				return self::get_nginx_rules_path();
 		}
 
 		return false;
@@ -94,12 +110,12 @@ class Util_Rule {
 	 *
 	 * @return string
 	 */
-	static public function get_browsercache_rules_cache_path() {
+	public static function get_browsercache_rules_cache_path() {
 		if ( Util_Environment::is_litespeed() ) {
-			return Util_Rule::get_litespeed_rules_path();
+			return self::get_litespeed_rules_path();
 		}
 
-		return Util_Rule::get_pgcache_rules_core_path();
+		return self::get_pgcache_rules_core_path();
 	}
 
 	/**
@@ -107,14 +123,14 @@ class Util_Rule {
 	 *
 	 * @return string
 	 */
-	static public function get_minify_rules_core_path() {
+	public static function get_minify_rules_core_path() {
 		switch ( true ) {
-		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
-			return W3TC_CACHE_MINIFY_DIR . DIRECTORY_SEPARATOR . '.htaccess';
+			case Util_Environment::is_apache():
+			case Util_Environment::is_litespeed():
+				return W3TC_CACHE_MINIFY_DIR . DIRECTORY_SEPARATOR . '.htaccess';
 
-		case Util_Environment::is_nginx():
-			return Util_Rule::get_nginx_rules_path();
+			case Util_Environment::is_nginx():
+				return self::get_nginx_rules_path();
 		}
 
 		return false;
@@ -125,14 +141,14 @@ class Util_Rule {
 	 *
 	 * @return string
 	 */
-	static public function get_minify_rules_cache_path() {
+	public static function get_minify_rules_cache_path() {
 		switch ( true ) {
-		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
-			return W3TC_CACHE_MINIFY_DIR . DIRECTORY_SEPARATOR . '.htaccess';
+			case Util_Environment::is_apache():
+			case Util_Environment::is_litespeed():
+				return W3TC_CACHE_MINIFY_DIR . DIRECTORY_SEPARATOR . '.htaccess';
 
-		case Util_Environment::is_nginx():
-			return Util_Rule::get_nginx_rules_path();
+			case Util_Environment::is_nginx():
+				return self::get_nginx_rules_path();
 		}
 
 		return false;
@@ -143,37 +159,43 @@ class Util_Rule {
 	 *
 	 * @return string
 	 */
-	static public function get_cdn_rules_path() {
+	public static function get_cdn_rules_path() {
 		switch ( true ) {
-		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
-			return '.htaccess';
+			case Util_Environment::is_apache():
+			case Util_Environment::is_litespeed():
+				return '.htaccess';
 
-		case Util_Environment::is_nginx():
-			return 'nginx.conf';
+			case Util_Environment::is_nginx():
+				return 'nginx.conf';
 		}
 
 		return false;
 	}
 
-	static public function get_new_relic_rules_core_path() {
-		return Util_Rule::get_pgcache_rules_core_path();
+	/**
+	 * Get NewRelic rules core path
+	 *
+	 * @return string
+	 */
+	public static function get_new_relic_rules_core_path() {
+		return self::get_pgcache_rules_core_path();
 	}
 
 	/**
 	 * Returns true if we can modify rules
 	 *
-	 * @param string  $path
+	 * @param string $path Path.
+	 *
 	 * @return boolean
 	 */
-	static public function can_modify_rules( $path ) {
+	public static function can_modify_rules( $path ) {
 		if ( Util_Environment::is_wpmu() ) {
 			if ( Util_Environment::is_apache() || Util_Environment::is_litespeed() || Util_Environment::is_nginx() ) {
 				switch ( $path ) {
-				case Util_Rule::get_pgcache_rules_cache_path():
-				case Util_Rule::get_minify_rules_core_path():
-				case Util_Rule::get_minify_rules_cache_path():
-					return true;
+					case self::get_pgcache_rules_cache_path():
+					case self::get_minify_rules_core_path():
+					case self::get_minify_rules_cache_path():
+						return true;
 				}
 			}
 
@@ -186,13 +208,14 @@ class Util_Rule {
 	/**
 	 * Trim rules
 	 *
-	 * @param string  $rules
+	 * @param string $rules Rules.
+	 *
 	 * @return string
 	 */
-	static public function trim_rules( $rules ) {
+	public static function trim_rules( $rules ) {
 		$rules = trim( $rules );
 
-		if ( $rules != '' ) {
+		if ( '' !== $rules ) {
 			$rules .= "\n";
 		}
 
@@ -202,13 +225,14 @@ class Util_Rule {
 	/**
 	 * Cleanup rewrite rules
 	 *
-	 * @param string  $rules
+	 * @param string $rules Rules.
+	 *
 	 * @return string
 	 */
-	static public function clean_rules( $rules ) {
+	public static function clean_rules( $rules ) {
 		$rules = preg_replace( '~[\r\n]+~', "\n", $rules );
 		$rules = preg_replace( '~^\s+~m', '', $rules );
-		$rules = Util_Rule::trim_rules( $rules );
+		$rules = self::trim_rules( $rules );
 
 		return $rules;
 	}
@@ -216,16 +240,17 @@ class Util_Rule {
 	/**
 	 * Erases text from start to end
 	 *
-	 * @param string  $rules
-	 * @param string  $start
-	 * @param string  $end
+	 * @param string $rules Rules.
+	 * @param string $start Star.
+	 * @param string $end   End.
+	 *
 	 * @return string
 	 */
-	static public function erase_rules( $rules, $start, $end ) {
+	public static function erase_rules( $rules, $start, $end ) {
 		$r = '~' . Util_Environment::preg_quote( $start ) . "\n.*?" . Util_Environment::preg_quote( $end ) . "\n*~s";
 
 		$rules = preg_replace( $r, '', $rules );
-		$rules = Util_Rule::trim_rules( $rules );
+		$rules = self::trim_rules( $rules );
 
 		return $rules;
 	}
@@ -233,29 +258,30 @@ class Util_Rule {
 	/**
 	 * Check if rules exist
 	 *
-	 * @param string  $rules
-	 * @param string  $start
-	 * @param string  $end
+	 * @param string $rules Rules.
+	 * @param string $start Start.
+	 * @param string $end   End.
+	 *
 	 * @return int
 	 */
-	static public function has_rules( $rules, $start, $end ) {
+	public static function has_rules( $rules, $start, $end ) {
 		return preg_match( '~' . Util_Environment::preg_quote( $start ) . "\n.*?" . Util_Environment::preg_quote( $end ) . "\n*~s", $rules );
 	}
 
 	/**
+	 * Add rules
 	 *
+	 * @param Util_Environment_Exceptions $exs exceptions to fill on error.
+	 * @param string                      $path        Filename of rules file to modify.
+	 * @param string                      $rules       Rules to add.
+	 * @param string                      $start       Start marker.
+	 * @param string                      $end         End marker.
+	 * @param array                       $order       Order where to place if some marker exists.
+	 * @param boolean                     $remove_wpsc If WPSC rules should be removed to avoid inconsistent rules generation.
 	 *
-	 * @param Util_Environment_Exceptions $exs exceptions to fill on error
-	 * @param string  $path filename of rules file to modify
-	 * @param string  $rules rules to add
-	 * @param string  $start start marker
-	 * @param string  $end end marker
-	 * @param array   $order order where to place if some marker exists
-	 * @param boolean $remove_wpsc if WPSC rules should be removed to avoid
-	 *                  inconsistent rules generation
+	 * @return void
 	 */
-	static public function add_rules( $exs, $path, $rules, $start, $end, $order,
-			$remove_wpsc = false ) {
+	public static function add_rules( $exs, $path, $rules, $start, $end, $order, $remove_wpsc = false ) {
 		if ( empty( $path ) ) {
 			return;
 		}
@@ -267,40 +293,44 @@ class Util_Rule {
 
 		$modified = false;
 		if ( $remove_wpsc ) {
-			if ( Util_Rule::has_rules(
+			if (
+				self::has_rules(
 					$data,
 					W3TC_MARKER_BEGIN_PGCACHE_WPSC,
-					W3TC_MARKER_END_PGCACHE_WPSC ) ) {
-				$data = Util_Rule::erase_rules(
+					W3TC_MARKER_END_PGCACHE_WPSC
+				)
+			) {
+				$data     = self::erase_rules(
 					$data,
 					W3TC_MARKER_BEGIN_PGCACHE_WPSC,
-					W3TC_MARKER_END_PGCACHE_WPSC );
+					W3TC_MARKER_END_PGCACHE_WPSC
+				);
 				$modified = true;
 			}
 		}
 
 		if ( empty( $rules ) ) {
-			// rules removal mode
+			// rules removal mode.
 			$rules_present = ( strpos( $data, $start ) !== false );
-			if ( !$modified && !$rules_present ) {
+			if ( ! $modified && ! $rules_present ) {
 				return;
 			}
 		} else {
-			// rules creation mode
-			$rules_missing = ( strstr( Util_Rule::clean_rules( $data ), Util_Rule::clean_rules( $rules ) ) === false );
-			if ( !$modified && !$rules_missing ) {
+			// rules creation mode.
+			$rules_missing = ( strstr( self::clean_rules( $data ), self::clean_rules( $rules ) ) === false );
+			if ( ! $modified && ! $rules_missing ) {
 				return;
 			}
 		}
 
 		$replace_start = strpos( $data, $start );
-		$replace_end = strpos( $data, $end );
+		$replace_end   = strpos( $data, $end );
 
-		if ( $replace_start !== false && $replace_end !== false && $replace_start < $replace_end ) {
-			// old rules exists, replace mode
+		if ( false !== $replace_start && false !== $replace_end && $replace_start < $replace_end ) {
+			// old rules exists, replace mode.
 			$replace_length = $replace_end - $replace_start + strlen( $end ) + 1;
 		} else {
-			$replace_start = false;
+			$replace_start  = false;
 			$replace_length = 0;
 
 			$search = $order;
@@ -308,46 +338,68 @@ class Util_Rule {
 			foreach ( $search as $string => $length ) {
 				$replace_start = strpos( $data, $string );
 
-				if ( $replace_start !== false ) {
+				if ( false !== $replace_start ) {
 					$replace_start += $length;
 					break;
 				}
 			}
 		}
 
-		if ( $replace_start !== false ) {
-			$data = Util_Rule::trim_rules( substr_replace( $data, $rules, $replace_start, $replace_length ) );
+		if ( false !== $replace_start ) {
+			$data = self::trim_rules( substr_replace( $data, $rules, $replace_start, $replace_length ) );
 		} else {
-			$data = Util_Rule::trim_rules( rtrim( $data ) . "\n" . $rules );
+			$data = self::trim_rules( rtrim( $data ) . "\n" . $rules );
 		}
 
 		if ( strpos( $path, W3TC_CACHE_DIR ) === false || Util_Environment::is_nginx() ) {
-			// writing to system rules file, may be potentially write-protected
+			// writing to system rules file, may be potentially write-protected.
 			try {
 				Util_WpFile::write_to_file( $path, $data );
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
-				if ( $replace_start !== false ) {
-					$message = sprintf( __( 'Edit file <strong>%s</strong> and replace all lines between and including <strong>%s</strong> and <strong>%s</strong> markers with:',
-						'w3-total-cache' ), $path, $start, $end );
+				if ( false !== $replace_start ) {
+					$message = sprintf(
+						// Translators: 1 path, 2 starting line, 3 ending line, 4 opening HTML strong tag, 5 closing HTML strong tag.
+						__(
+							'Edit file %4$s%1$s%5$s and replace all lines between and including %4$s%2$s%5$s and %4$s%3$s%5$s markers with:',
+							'w3-total-cache'
+						),
+						$path,
+						$start,
+						$end,
+						'<strong>',
+						'</strong>'
+					);
 				} else {
-					$message = sprintf( __( 'Edit file <strong>%s</strong> and add the following rules above the WordPress directives:',
-						'w3-total-cache' ), $path );
+					$message = sprintf(
+						// Translators: 1 path, 2 opening HTML strong tag, 3 closing HTML strong tag.
+						__(
+							'Edit file %2$s%1$s%3$s and add the following rules above the WordPress directives:',
+							'w3-total-cache'
+						),
+						$path,
+						'<strong>',
+						'</strong>'
+					);
 				}
 
 				$ex = new Util_WpFile_FilesystemModifyException(
-					$ex->getMessage(), $ex->credentials_form(),
-					$message, $path, $rules );
+					$ex->getMessage(),
+					$ex->credentials_form(),
+					$message,
+					$path,
+					$rules
+				);
 
 				$exs->push( $ex );
 				return;
 			}
 		} else {
-			// writing to own rules file in cache folder
-			if ( !@file_exists( dirname( $path ) ) ) {
+			// writing to own rules file in cache folder.
+			if ( ! @file_exists( dirname( $path ) ) ) {
 				Util_File::mkdir_from( dirname( $path ), W3TC_CACHE_DIR );
 			}
 
-			if ( !@file_put_contents( $path, $data ) ) {
+			if ( ! @file_put_contents( $path, $data ) ) {
 				try {
 					Util_WpFile::delete_folder(
 						dirname( $path ),
@@ -367,15 +419,15 @@ class Util_Rule {
 			@chmod( $path, $chmod );
 		}
 
-		Util_Rule::after_rules_modified();
+		self::after_rules_modified();
 	}
-
-
 
 	/**
 	 * Called when rules are modified, sets notification
+	 *
+	 * @return void
 	 */
-	static public function after_rules_modified() {
+	public static function after_rules_modified() {
 		if ( Util_Environment::is_nginx() ) {
 			$state = Dispatcher::config_state_master();
 			$state->set( 'common.show_note.nginx_restart_required', true );
@@ -383,31 +435,54 @@ class Util_Rule {
 		}
 	}
 
-
-
 	/**
 	 * Remove rules
+	 *
+	 * @param Util_Environment_Exceptions $exs exceptions to fill on error.
+	 * @param string                      $path        Filename of rules file to modify.
+	 * @param string                      $start       Start marker.
+	 * @param string                      $end         End marker.
+	 *
+	 * @return void
 	 */
-	static public function remove_rules( $exs, $path, $start, $end ) {
-		if ( !file_exists( $path ) )
+	public static function remove_rules( $exs, $path, $start, $end ) {
+		if ( ! file_exists( $path ) ) {
 			return;
+		}
 
 		$data = @file_get_contents( $path );
-		if ( $data === false )
+		if ( false === $data ) {
 			return;
-		if ( strstr( $data, $start ) === false )
-			return;
+		}
 
-		$data = Util_Rule::erase_rules( $data, $start,
-			$end );
+		if ( false === strstr( $data, $start ) ) {
+			return;
+		}
+
+		$data = self::erase_rules( $data, $start, $end );
 
 		try {
 			Util_WpFile::write_to_file( $path, $data );
 		} catch ( Util_WpFile_FilesystemOperationException $ex ) {
-			$exs->push( new Util_WpFile_FilesystemModifyException(
-					$ex->getMessage(), $ex->credentials_form(),
-					sprintf( __( 'Edit file <strong>%s</strong> and remove all lines between and including <strong>%s</strong>
-				and <strong>%s</strong> markers.', 'w3-total-cache' ), $path, $start, $end ), $path ) );
+			$exs->push(
+				new Util_WpFile_FilesystemModifyException(
+					$ex->getMessage(),
+					$ex->credentials_form(),
+					sprintf(
+						// Translators: 1 path, 2 starting line, 3 ending line, 4 opening HTML strong tag, 5 closing HTML strong tag.
+						__(
+							'Edit file %4$s%1$s%5$s and remove all lines between and including %4$s%2$s%5$s and %4$s%3$s%5$s markers.',
+							'w3-total-cache'
+						),
+						$path,
+						$start,
+						$end,
+						'<strong>',
+						'</strong>'
+					),
+					$path
+				)
+			);
 		}
 	}
 
@@ -417,25 +492,24 @@ class Util_Rule {
 	 *
 	 * @return string
 	 */
-	static public function get_pgcache_rules_cache_path() {
+	public static function get_pgcache_rules_cache_path() {
 		switch ( true ) {
-		case Util_Environment::is_apache():
-		case Util_Environment::is_litespeed():
-			if ( Util_Environment::is_wpmu() ) {
-				$url = get_home_url();
-				$match = null;
-				if ( preg_match( '~http(s)?://(.+?)(/)?$~', $url, $match ) ) {
-					$home_path = $match[2];
+			case Util_Environment::is_apache():
+			case Util_Environment::is_litespeed():
+				if ( Util_Environment::is_wpmu() ) {
+					$url   = get_home_url();
+					$match = null;
+					if ( preg_match( '~http(s)?://(.+?)(/)?$~', $url, $match ) ) {
+						$home_path = $match[2];
 
-					return W3TC_CACHE_PAGE_ENHANCED_DIR . DIRECTORY_SEPARATOR .
-						$home_path . DIRECTORY_SEPARATOR . '.htaccess';
+						return W3TC_CACHE_PAGE_ENHANCED_DIR . DIRECTORY_SEPARATOR . $home_path . DIRECTORY_SEPARATOR . '.htaccess';
+					}
 				}
-			}
 
-			return W3TC_CACHE_PAGE_ENHANCED_DIR . DIRECTORY_SEPARATOR . '.htaccess';
+				return W3TC_CACHE_PAGE_ENHANCED_DIR . DIRECTORY_SEPARATOR . '.htaccess';
 
-		case Util_Environment::is_nginx():
-			return Util_Rule::get_nginx_rules_path();
+			case Util_Environment::is_nginx():
+				return self::get_nginx_rules_path();
 		}
 
 		return false;
@@ -446,7 +520,7 @@ class Util_Rule {
 	 *
 	 * @return bool
 	 */
-	static public function can_check_rules() {
+	public static function can_check_rules() {
 		return Util_Environment::is_apache() ||
 			Util_Environment::is_litespeed() ||
 			Util_Environment::is_nginx() ||
@@ -475,21 +549,22 @@ class Util_Rule {
 	/**
 	 * Takes an array of extensions single per row and/or extensions delimited by |
 	 *
-	 * @param unknown $extensions
-	 * @param unknown $ext
+	 * @param unknown $extensions Extensions.
+	 * @param unknown $ext        Extension.
+	 *
 	 * @return array
 	 */
-	static public function remove_extension_from_list( $extensions, $ext ) {
-		for ( $i = 0; $i < sizeof( $extensions ); $i++ ) {
-			if ( $extensions[$i] == $ext ) {
-				unset( $extensions[$i] );
+	public static function remove_extension_from_list( $extensions, $ext ) {
+		$size = count( $extensions );
+		for ( $i = 0; $i < $size; $i++ ) {
+			if ( $extensions[ $i ] === $ext ) {
+				unset( $extensions[ $i ] );
 				return $extensions;
-			} elseif ( strpos( $extensions[$i], $ext ) !== false &&
-				strpos( $extensions[$i], '|' ) !== false ) {
-				$exts = explode( '|', $extensions[$i] );
-				$key = array_search( $ext, $exts );
-				unset( $exts[$key] );
-				$extensions[$i] = implode( '|', $exts );
+			} elseif ( false !== strpos( $extensions[ $i ], $ext ) && false !== strpos( $extensions[ $i ], '|' ) ) {
+				$exts = explode( '|', $extensions[ $i ] );
+				$key  = array_search( $ext, $exts, true );
+				unset( $exts[ $key ] );
+				$extensions[ $i ] = implode( '|', $exts );
 				return $extensions;
 			}
 		}

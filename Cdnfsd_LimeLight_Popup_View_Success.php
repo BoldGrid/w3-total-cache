@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdnfsd_LimeLight_Popup_View_Success.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
