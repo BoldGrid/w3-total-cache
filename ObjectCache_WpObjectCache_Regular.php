@@ -644,7 +644,7 @@ class ObjectCache_WpObjectCache_Regular {
 
 		if ( $this->_debug || $this->stats_enabled ) {
 			$this->cache_flushes++;
-			$this->time_total += $time;
+			$this->time_total += Util_Debug::microtime();
 
 			if ( $this->_debug ) {
 				$this->log_call(
