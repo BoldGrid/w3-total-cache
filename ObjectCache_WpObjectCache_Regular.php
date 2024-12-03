@@ -643,6 +643,8 @@ class ObjectCache_WpObjectCache_Regular {
 		$this->cache = array();
 
 		if ( $this->_debug || $this->stats_enabled ) {
+			$time = Util_Debug::microtime();
+
 			$this->cache_flushes++;
 			$this->time_total += $time;
 
@@ -655,7 +657,7 @@ class ObjectCache_WpObjectCache_Regular {
 						'',
 						'',
 						0,
-						0,
+						(int) ( $time * 1000000 ),
 					)
 				);
 			}
