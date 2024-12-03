@@ -36,6 +36,11 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 	 * @return void
 	 */
 	function wp_cache_init() {
+		$config = \W3TC\Dispatcher::config();
+		if ( ! $config->get_boolean( 'objectcache.enabled' ) ) {
+			return;
+		}
+
 		$GLOBALS['wp_object_cache'] = \W3TC\Dispatcher::component( 'ObjectCache_WpObjectCache' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	}
 
