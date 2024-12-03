@@ -28,6 +28,13 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 		echo sprintf( '<strong>W3 Total Cache Error:</strong> some files appear to be missing or out of place. Please re-install plugin or remove <strong>%s</strong>. <br />', __FILE__ );
 	}
 } else {
+	$w3tc_config = \W3TC\Dispatcher::config();
+	if ( ! $w3tc_config->get_boolean( 'objectcache.enabled' ) ) {
+		// Fallback to default WordPress caching.
+		require_once ABSPATH . WPINC . '/cache.php';
+		return;
+	}
+
 	require_once W3TC_DIR . '/w3-total-cache-api.php';
 
 	/**
@@ -36,11 +43,6 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 	 * @return void
 	 */
 	function wp_cache_init() {
-		$config = \W3TC\Dispatcher::config();
-		if ( ! $config->get_boolean( 'objectcache.enabled' ) ) {
-			return;
-		}
-
 		$GLOBALS['wp_object_cache'] = \W3TC\Dispatcher::component( 'ObjectCache_WpObjectCache' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	}
 
