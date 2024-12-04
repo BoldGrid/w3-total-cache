@@ -493,10 +493,10 @@ class Generic_Plugin_Admin {
 
 				// Track clicks on W3TC Pro Services tab.
 				document.addEventListener('click', function(event) {
-					if ( jQuery( event.target ).hasClass( 'w3tc-pro-services') ) {
+					if ( jQuery( event.target ).attr( 'data-tab-type') ) {
 						w3tc_ga('event', 'click', {
-							'eventCategory': 'w3tc-pro-services',
-							'eventLabel': event.target.innerText
+							'eventCategory': 'w3tc-tabs',
+							'eventLabel': event.target.getAttribute('data-tab-type'),
 						});
 					}
 				});
