@@ -497,7 +497,6 @@ class Generic_Plugin_Admin {
 						w3tc_ga('event', 'click', {
 							'eventCategory': 'w3tc-tabs',
 							'eventLabel': event.target.getAttribute('data-tab-type'),
-							'eventText': event.target.innerText,
 						});
 					}
 				});
