@@ -441,8 +441,12 @@ class SetupGuide_Plugin_Admin {
 					if ( $is_updating ) {
 						$config->save();
 
+						// Flush Database Cache.
 						$f = Dispatcher::component( 'CacheFlush' );
 						$f->dbcache_flush();
+
+						// Fix environment on event.
+						Util_Admin::fix_on_event( $config, 'setupguide_dbcache' );
 					}
 
 					if ( $config->get_boolean( 'dbcache.enabled' ) === $enable &&
@@ -584,8 +588,12 @@ class SetupGuide_Plugin_Admin {
 					if ( $is_updating ) {
 						$config->save();
 
+						// Flush Object Cache.
 						$f = Dispatcher::component( 'CacheFlush' );
 						$f->objectcache_flush();
+
+						// Fix environment on event.
+						Util_Admin::fix_on_event( $config, 'setupguide_objectcache' );
 					}
 
 					if ( $config->getf_boolean( 'objectcache.enabled' ) === $enable &&
