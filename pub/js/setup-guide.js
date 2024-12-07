@@ -908,15 +908,11 @@ function w3tc_wizard_actions( $slide ) {
 						}
 
 						$dbcacheEngine.on('change', function () {
-							const $this = jQuery(this);
+							const $this = jQuery(this),
+								isFile = $this.is(':checked') && $this.val() === 'file';
 
-							if ( $this.is(':checked') && $this.val() === 'file' ) {
-								$container.find('#w3tc-dbcache-recommended').hide();
-								w3tc_disk_warning();
-							} else {
-								w3tc_disk_warning(false);
-								$container.find('#w3tc-dbcache-recommended').show();
-							}
+							$container.find('#w3tc-dbcache-recommended').toggle(! isFile);
+							w3tc_disk_warning(isFile);
 						});
 
 						return true;
@@ -1138,11 +1134,7 @@ function w3tc_wizard_actions( $slide ) {
 						$objcacheEngine.on('change', function () {
 							const $this = jQuery(this);
 
-							if ( $this.is(':checked') && $this.val() === 'file' ) {
-								w3tc_disk_warning();
-							} else {
-								w3tc_disk_warning(false);
-							}
+							w3tc_disk_warning(( $this.is(':checked') && $this.val() === 'file' ));
 						});
 
 						return true;
