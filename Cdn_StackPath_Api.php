@@ -202,7 +202,7 @@ class Cdn_StackPath_Api {
 	 * @throws Exception If the response code is not 200 or 201.
 	 */
 	private function execute_await_200( $selected_call, $method_type, $params ) {
-		$r = wp_json_decode( $this->execute( $selected_call, $method_type, $params ), true );
+		$r = json_decode( $this->execute( $selected_call, $method_type, $params ), true );
 		if ( ! preg_match( '(200|201)', $r['code'] ) ) {
 			throw $this->to_exception( $r );
 		}

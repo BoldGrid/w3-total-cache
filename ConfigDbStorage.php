@@ -28,7 +28,7 @@ class ConfigDbStorage {
 	 */
 	public static function util_array_from_storage( $blog_id, $preview ) {
 		$content = self::load_content( $blog_id, $preview );
-		$config  = @wp_json_decode( $content, true );
+		$config  = @json_decode( $content, true );
 
 		if ( is_array( $config ) ) {
 			return $config;

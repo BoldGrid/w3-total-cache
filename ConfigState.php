@@ -95,7 +95,7 @@ class ConfigState {
 			$data_raw = get_option( 'w3tc_state' );
 		}
 
-		$this->_data = @wp_json_decode( $data_raw, true );
+		$this->_data = @json_decode( $data_raw, true );
 		if ( ! is_array( $this->_data ) ) {
 			$this->_data = array();
 			$this->apply_defaults();

@@ -79,7 +79,7 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 		$this->_new_access_state_callback = $config['new_access_state_callback'];
 
 		// init access state.
-		$this->_access_state = @wp_json_decode( $config['access_state'], true );
+		$this->_access_state = @json_decode( $config['access_state'], true );
 		if ( ! is_array( $this->_access_state ) ) {
 			$this->_access_state = array();
 		}

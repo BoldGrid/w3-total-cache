@@ -152,7 +152,8 @@ class Util_PageUrls {
 			$uris[]            = $post_uri;
 			$post              = get_post( $post_id );
 			$matches           = array();
-			$post_pages_number = preg_match_all( '/\<\!\-\-nextpage\-\-\>/', $post->post_content, $matches )
+			$post_pages_number = preg_match_all( '/\<\!\-\-nextpage\-\-\>/', $post->post_content, $matches );
+
 			if ( $post && $post_pages_number > 0 ) {
 				global $wp_rewrite;
 				$post_pages_number++;

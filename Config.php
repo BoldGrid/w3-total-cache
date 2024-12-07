@@ -105,7 +105,7 @@ class Config {
 			// including file directly instead of read+eval causes constant problems with APC, ZendCache, and
 			// WSOD in a case of broken config file.
 			$content = @file_get_contents( $filename );
-			$config  = @wp_json_decode( substr( $content, 14 ), true );
+			$config  = @json_decode( substr( $content, 14 ), true );
 
 			if ( is_array( $config ) ) {
 				return $config;

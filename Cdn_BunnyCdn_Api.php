@@ -468,7 +468,7 @@ class Cdn_BunnyCdn_Api {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
 		}
 
-		$response_body = @\wp_json_decode( $result['body'], true );
+		$response_body = @\json_decode( $result['body'], true );
 
 		// Throw an exception if the response code/status is not ok.
 		if ( ! \in_array( $result['response']['code'], array( 200, 201, 204 ), true ) ) {

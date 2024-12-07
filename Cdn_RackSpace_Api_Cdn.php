@@ -301,7 +301,7 @@ class Cdn_RackSpace_Api_Cdn {
 				);
 			}
 
-			$response_json = @wp_json_decode( $result['body'], true );
+			$response_json = @json_decode( $result['body'], true );
 			if ( is_null( $response_json ) ) {
 				throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
 			}
@@ -350,7 +350,7 @@ class Cdn_RackSpace_Api_Cdn {
 			}
 
 			// try to decode response.
-			$response_json = @wp_json_decode( $result['body'], true );
+			$response_json = @json_decode( $result['body'], true );
 			if ( is_null( $response_json ) || ! isset( $response_json['message'] ) ) {
 				throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['response']['message'] );
 			} else {

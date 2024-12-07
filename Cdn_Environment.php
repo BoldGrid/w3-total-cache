@@ -106,7 +106,7 @@ class Cdn_Environment {
 		if ( $config->get_boolean( 'cdn.enabled' ) ) {
 			try {
 				$this->handle_tables(
-					'activate' === $event // drop state on activation.
+					'activate' === $event, // drop state on activation.
 					true
 				);
 			} catch ( \Exception $ex ) {

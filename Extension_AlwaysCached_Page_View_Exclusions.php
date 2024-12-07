@@ -24,7 +24,7 @@ $pgcache_disabled = ! $c->get_boolean( 'pgcache.enabled' )
 		<?php
 		Util_Ui::config_item(
 			array(
-				'key'            => array(
+				'key'         => array(
 					'alwayscached',
 					'exclusions',
 				),

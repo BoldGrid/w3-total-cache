@@ -233,7 +233,7 @@ class Cdn_RackSpace_Api_CloudFilesCdn {
 		if ( empty( $result['body'] ) ) {
 			$response_json = array();
 		} else {
-			$response_json = @wp_json_decode( $result['body'], true );
+			$response_json = @json_decode( $result['body'], true );
 			if ( is_null( $response_json ) ) {
 				throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
 			}

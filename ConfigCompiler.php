@@ -132,7 +132,7 @@ class ConfigCompiler {
 			// including file directly instead of read+eval causes constant problems
 			// with APC, ZendCache, and WSOD in a case of broken config file.
 			$content = @file_get_contents( $filename );
-			$config  = @wp_json_decode( $content, true );
+			$config  = @json_decode( $content, true );
 
 			if ( is_array( $config ) ) {
 				return $config;

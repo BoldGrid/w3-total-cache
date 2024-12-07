@@ -146,7 +146,7 @@ class Cdnfsd_LimeLight_Api {
 			throw new \Exception( 'Failed to reach API endpoint' );
 		}
 
-		$response_json = @wp_json_decode( $result['body'], true );
+		$response_json = @json_decode( $result['body'], true );
 		if ( is_null( $response_json ) ) {
 			throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
 		}
