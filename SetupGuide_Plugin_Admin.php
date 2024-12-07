@@ -982,6 +982,10 @@ class SetupGuide_Plugin_Admin {
 							'notEnabled'        => __( 'Not Enabled', 'w3-total-cache' ),
 							'dashboardUrl'      => esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard' ) ),
 							'objcache_disabled' => ( ! $config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ),
+							'warning_disk'      => __(
+								'Warning: Using disk storage for this setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account.',
+								'w3-total-cache'
+							),
 						),
 					),
 				),
