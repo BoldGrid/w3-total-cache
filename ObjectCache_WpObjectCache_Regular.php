@@ -185,6 +185,11 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return mixed
 	 */
 	public function get( $id, $group = 'default', $force = false, &$found = null ) {
+		// Abort if this is a WP-CLI call and objectcache engine is set to Disk.
+		if ( $this->is_wpcli_disk() ) {
+			return false;
+		}
+
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
@@ -342,6 +347,11 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return boolean
 	 */
 	public function set( $id, $data, $group = 'default', $expire = 0 ) {
+		// Abort if this is a WP-CLI call and objectcache engine is set to Disk.
+		if ( $this->is_wpcli_disk() ) {
+			return false;
+		}
+
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
@@ -1350,5 +1360,18 @@ class ObjectCache_WpObjectCache_Regular {
 			// Append the line to the file.
 			$wp_filesystem->put_contents( $this->log_filehandle, $line_content, FS_CHMOD_FILE | FILE_APPEND );
 		}
+	}
+
+	/**
+	 * Check if this is a WP-CLI call and objectcache.engine is using Disk.
+	 *
+	 * @since  2.8.1
+	 * @access private
+	 *
+	 * @return bool
+	 */
+	private function is_wpcli_disk(): bool {
+		$engine = $this->_config->get_string( 'objectcache.engine' );
+		return defined( 'WP_CLI' ) && WP_CLI && 'file' === $engine;
 	}
 }
