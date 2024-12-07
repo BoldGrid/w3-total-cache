@@ -907,7 +907,7 @@ function w3tc_wizard_actions( $slide ) {
 							w3tc_disk_warning();
 						}
 
-						$dbcacheEngine.on('click', function () {
+						$dbcacheEngine.on('change', function () {
 							const $this = jQuery(this);
 
 							if ( $this.is(':checked') && $this.val() === 'file' ) {
@@ -1135,7 +1135,7 @@ function w3tc_wizard_actions( $slide ) {
 							w3tc_disk_warning();
 						}
 
-						$objcacheEngine.on('click', function () {
+						$objcacheEngine.on('change', function () {
 							const $this = jQuery(this);
 
 							if ( $this.is(':checked') && $this.val() === 'file' ) {
