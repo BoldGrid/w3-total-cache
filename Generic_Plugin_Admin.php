@@ -1292,16 +1292,18 @@ class Generic_Plugin_Admin {
 	 * @return void
 	 */
 	public function upgrader_process_complete( object $upgrader, array $hook_extra ): void {
-		// Check if this is a plugin update.
-		if ( isset( $hook_extra['type'] ) && 'plugin' === $hook_extra['type'] ) {
-			if ( isset( $hook_extra['plugins'] ) && is_array( $hook_extra['plugins'] ) ) {
-				foreach ( $hook_extra['plugins'] as $plugin ) {
-					// Check if this plugin was updated.
-					if ( W3TC_FILE === $plugin ) {
-						update_option( 'w3tc_plugin_updated', true, false );
-					}
-				}
-			}
+		// Ensure this is a plugin update and the plugins array is set.
+		if (
+			! isset( $hook_extra['type'], $hook_extra['plugins'] ) ||
+			'plugin' !== $hook_extra['type'] ||
+			! is_array( $hook_extra['plugins'] )
+		) {
+			return;
+		}
+
+		// Check if W3TC was updated.
+		if ( in_array( W3TC_FILE, $hook_extra['plugins'], true ) ) {
+			update_option( 'w3tc_plugin_updated', true, false );
 		}
 	}
 }
