@@ -343,8 +343,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<div class="dbcache_disk_notice notice notice-warning">
 				<p><b><?php esc_html_e( 'Warning: Disk-Based Database Caching Selected', 'w3-total-cache' ); ?></b></p>
 				<p>
-					<li><?php esc_html_e( 'Using disk as the cache engine for database caching is not recommended due to its potential for slow performance depending on storage device types and server configuration.', 'w3-total-cache' ); ?></li>
-					<li><?php esc_html_e( 'This setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account.', 'w3-total-cache' ); ?></li>
+					<li style="margin-left:15px;"><?php esc_html_e( 'Using disk as the cache engine for database caching is not recommended due to its potential for slow performance depending on storage device types and server configuration.', 'w3-total-cache' ); ?></li>
+					<li style="margin-left:15px;"><?php esc_html_e( 'This setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account.', 'w3-total-cache' ); ?></li>
 				</p>
 				<p>
 					<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
@@ -421,8 +421,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<div class="objectcache_disk_notice notice notice-warning">
 				<p><b><?php esc_html_e( 'Warning: Disk-Based Object Caching Selected', 'w3-total-cache' ); ?></b></p>
 				<p>
-					<li><?php esc_html_e( 'Using disk as the cache engine for object caching is not recommended due to its potential for slow performance depending on storage device types and server configuration.', 'w3-total-cache' ); ?></li>
-					<li><?php esc_html_e( 'This setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account.', 'w3-total-cache' ); ?></li>
+					<li style="margin-left:15px;"><?php esc_html_e( 'Using disk as the cache engine for object caching is not recommended due to its potential for slow performance depending on storage device types and server configuration.', 'w3-total-cache' ); ?></li>
+					<li style="margin-left:15px;"><?php esc_html_e( 'This setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account.', 'w3-total-cache' ); ?></li>
 				</p>
 				<p>
 					<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
