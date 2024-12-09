@@ -683,27 +683,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'cdn.reject.uri' ) ) ); ?></textarea>
 					<p class="description">
 						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML a tag to W3TC FAQ admin page, 2 opening HTML acronym tag,
-								// translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
-								__(
-									'Always ignore the specified pages / directories. Supports regular expression (See %1$s%2$sFAQ%3$s%4$s)'
-								),
-								'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_faq' ) ) . '">',
-								'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
-								'</acronym>',
-								'</a>'
-							),
-							array(
-								'a'       => array(
-									'href' => array(),
-								),
-								'acronym' => array(
-									'title' => array(),
-								),
-							)
-						);
+							esc_html_e( 'Always ignore the specified pages / directories. Supports regular expression.', 'w3-total-cache' );
 						?>
 					</p>
 				</td>

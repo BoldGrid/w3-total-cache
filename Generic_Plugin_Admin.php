@@ -854,9 +854,7 @@ class Generic_Plugin_Admin {
 	 */
 	public function w3tc_ajax_faq() {
 		$section = Util_Request::get_string( 'section' );
-
-		$entries  = Generic_Faq::parse( $section );
-		$response = array();
+		$entries = Generic_Faq::parse( $section );
 
 		ob_start();
 		include W3TC_DIR . '/Generic_Plugin_Admin_View_Faq.php';
