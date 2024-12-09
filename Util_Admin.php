@@ -844,4 +844,19 @@ class Util_Admin {
 	public static function get_current_wp_page() {
 		return Util_Request::get_string( 'page' );
 	}
+
+	/**
+	 * Fix environment once an event occurs.
+	 *
+	 * @since  2.8.1
+	 * @static
+	 *
+	 * @param  Config $config W3TC configuration object.
+	 * @param  string $event Event name (optional).
+	 * @return void
+	 */
+	public static function fix_on_event( Config $config, ?string $event = '' ): void {
+		$environment = Dispatcher::component( 'Root_Environment' );
+		$environment->fix_on_event( $config, $event );
+	}
 }

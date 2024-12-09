@@ -153,6 +153,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$this->query_total++;
 
 		$caching = $this->_can_cache( $query, $reject_reason );
+
 		if ( preg_match( '~^\s*start transaction\b~is', $query ) ) {
 			$this->cache_reject_reason = 'transaction';
 			$reject_reason             = $this->cache_reject_reason;
@@ -165,6 +166,14 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			$caching                   = false;
 			$flush_after_query         = true;
 		}
+
+		// Reject if this is a WP-CLI call and dbcache engine is set to Disk.
+		if ( $this->is_wpcli_disk() ) {
+			$this->cache_reject_reason = 'wp-cli and dbcache set to disk';
+			$reject_reason             = $this->cache_reject_reason;
+			$caching                   = false;
+		}
+
 
 		if ( $this->use_filters && function_exists( 'apply_filters' ) ) {
 			$reject_reason = apply_filters(
@@ -942,5 +951,18 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		}
 
 		fputcsv( $this->log_filehandle, $line, "\t" );
+	}
+
+	/**
+	 * Check if this is a WP-CLI call and objectcache.engine is using Disk.
+	 *
+	 * @since  2.8.1
+	 * @access private
+	 *
+	 * @return bool
+	 */
+	private function is_wpcli_disk(): bool {
+		$engine = $this->_config->get_string( 'dbcache.engine' );
+		return defined( 'WP_CLI' ) && WP_CLI && 'file' === $engine;
 	}
 }
