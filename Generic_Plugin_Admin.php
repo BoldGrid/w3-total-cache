@@ -1304,6 +1304,12 @@ class Generic_Plugin_Admin {
 		// Check if W3TC was updated.
 		if ( in_array( W3TC_FILE, $hook_extra['plugins'], true ) ) {
 			update_option( 'w3tc_plugin_updated', true, false );
+
+			// Adjust "objectcache.file.gc".
+			if ( $this->_config->get_integer( 'objectcache.file.gc' ) === 3600 ) {
+				$this->_config->set( 'objectcache.file.gc', 600 );
+				$this->_config->save();
+			}
 		}
 	}
 }

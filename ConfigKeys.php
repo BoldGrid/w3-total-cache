@@ -272,7 +272,7 @@ $keys = array(
 	),
 	'objectcache.file.gc' => array(
 		'type' => 'integer',
-		'default' => 3600
+		'default' => 600,
 	),
 	'objectcache.file.locking' => array(
 		'type' => 'boolean',
