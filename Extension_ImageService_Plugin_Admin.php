@@ -526,7 +526,7 @@ class Extension_ImageService_Plugin_Admin {
 	}
 
 	/**
-	 * Enqueue scripts and styles for admin pages.
+	 * Enqueue scripts and styles for admin pages (author or higher).
 	 *
 	 * Runs on the "admin_enqueue_scripts" action.
 	 *
@@ -536,6 +536,10 @@ class Extension_ImageService_Plugin_Admin {
 	 * @see Licensing_Core::get_tos_choice()
 	 */
 	public function admin_enqueue_scripts() {
+		if ( ! \user_can( \get_current_user_id(), 'upload_files' ) ) {
+			return;
+		}
+
 		// Enqueue JavaScript for the Media Library (upload) and extension settings admin pages.
 		$page_val         = Util_Request::get_string( 'page' );
 		$is_settings_page = ! empty( $page_val ) && 'w3tc_extension_page_imageservice' === $page_val;

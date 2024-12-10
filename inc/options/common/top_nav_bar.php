@@ -213,7 +213,7 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 				<?php esc_html_e( 'Support', 'w3-total-cache' ); ?>
 			</a>
 			<?php
-			if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+			if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $config ) ) {
 				echo '<input type="button" class="button-primary button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
 					data-src="top_nav_bar" value="' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '" />';
 			}

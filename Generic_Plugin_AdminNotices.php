@@ -31,16 +31,18 @@ class Generic_Plugin_AdminNotices {
 	}
 
 	/**
-	 * Enqueue admin scripts.
+	 * Enqueue admin scripts (administrators only).
 	 *
 	 * @since 2.7.5
 	 */
 	public function admin_enqueue_scripts() {
-		wp_enqueue_script( 'w3tc-admin-notices', plugins_url( 'Generic_Plugin_AdminNotices.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+		if ( \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			wp_enqueue_script( 'w3tc-admin-notices', plugins_url( 'Generic_Plugin_AdminNotices.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+		}
 	}
 
 	/**
-	 * Get notices ajax handler.
+	 * Get notices ajax handler (administrators only).
 	 *
 	 * @since 2.7.5
 	 *
@@ -49,17 +51,23 @@ class Generic_Plugin_AdminNotices {
 	 * @return void
 	 */
 	public function w3tc_ajax_get_notices() {
-		wp_send_json_success( array( 'noticeData' => $this->get_active_notices() ) );
+		if ( \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			wp_send_json_success( array( 'noticeData' => $this->get_active_notices() ) );
+		}
 	}
 
 	/**
-	 * Dismiss admin notice ajax handler.
+	 * Dismiss admin notice ajax handler (administrators only).
 	 *
 	 * @since 2.7.5
 	 *
 	 * @return void
 	 */
 	public function w3tc_ajax_dismiss_notice() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$notice_id         = Util_Request::get_integer( 'notice_id' );
 		$dismissed_notices = $this->get_dismissed_notices();
 

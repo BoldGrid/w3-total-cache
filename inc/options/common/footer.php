@@ -45,7 +45,7 @@ do_action( 'w3tc-dashboard-footer' );
 				</h2>
 			</a>
 			<?php
-			if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+			if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $config ) ) {
 				echo '<input type="button" class="button button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
 					data-src="footer" value="' . esc_html__( 'Learn more about Pro!', 'w3-total-cache' ) . '" />';
 			}

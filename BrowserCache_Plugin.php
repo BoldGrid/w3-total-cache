@@ -573,7 +573,13 @@ class BrowserCache_Plugin {
 	 * @since 2.2.13
 	 */
 	public function admin_notices() {
-		if ( $this->_config->get_boolean( 'browsercache.security.cspro' ) && empty( $this->_config->get_string( 'browsercache.security.cspro.reporturi' ) ) && empty( $this->_config->get_string( 'browsercache.security.cspro.reportto' ) ) ) {
+		// Check if the current user is a contributor or higher.
+		if (
+			\user_can( \get_current_user_id(), 'manage_options' ) &&
+			$this->_config->get_boolean( 'browsercache.security.cspro' ) &&
+			empty( $this->_config->get_string( 'browsercache.security.cspro.reporturi' ) ) &&
+			empty( $this->_config->get_string( 'browsercache.security.cspro.reportto' ) )
+		) {
 			$message = '<p>' . sprintf(
 				// translators: 1 opening HTML a tag to Browser Cache CSP-Report-Only settings, 2 closing HTML a tag.
 				esc_html__(
