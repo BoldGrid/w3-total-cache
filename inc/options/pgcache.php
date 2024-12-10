@@ -790,27 +790,9 @@ if ( ! defined( 'W3TC' ) ) {
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.accept.files' ) ) ); ?></textarea>
 					<p class="description">
 						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML a tag to W3TC FAQ admin page, 2 opening HTML acronym tag,
-								// translators: 3 closing HTML acronym tag, 4 closing HTML acronym tag.
-								__(
-									'Cache the specified pages / directories even if listed in the "never cache the following pages" field. Supports regular expression (See %1$s%2$sFAQ%3$s%4$s)',
-									'w3-total-cache'
-								),
-								'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_faq' ) ) . '">',
-								'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
-								'</acronym>',
-								'</a>'
-							),
-							array(
-								'a'       => array(
-									'href' => array(),
-								),
-								'acronym' => array(
-									'title' => array(),
-								),
-							)
+						esc_html_e(
+							'Cache the specified pages / directories even if listed in the "never cache the following pages" field. Supports regular expression.',
+							'w3-total-cache'
 						);
 						?>
 					</p>

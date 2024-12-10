@@ -114,6 +114,9 @@ class Generic_Plugin_Admin {
 				delete_option( 'w3tc_message' );
 			}
 		}
+
+		// Run post-update tasks.
+		$this->post_update_tasks();
 	}
 
 	/**
@@ -825,9 +828,7 @@ class Generic_Plugin_Admin {
 	 */
 	public function w3tc_ajax_faq() {
 		$section = Util_Request::get_string( 'section' );
-
-		$entries  = Generic_Faq::parse( $section );
-		$response = array();
+		$entries = Generic_Faq::parse( $section );
 
 		ob_start();
 		include W3TC_DIR . '/Generic_Plugin_Admin_View_Faq.php';
@@ -1223,6 +1224,41 @@ class Generic_Plugin_Admin {
 					esc_attr( $key ),
 					$error // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
+		}
+	}
+
+	/**
+	 * Run post-update tasks.
+	 *
+	 * @since 2.8.1
+	 *
+	 * @see Util_Admin::fix_on_event()
+	 *
+	 * @return void
+	 */
+	public function post_update_tasks(): void {
+		// Check if W3TC was updated.
+		$state            = Dispatcher::config_state();
+		$last_run_version = $state->get_string( 'tasks.last_run_version' );
+
+		if ( empty( $last_run_version ) || version_compare( W3TC_VERSION, $last_run_version, '>' ) ) {
+			switch ( W3TC_VERSION ) {
+				case '2.8.1':
+					// Fix environment.
+					Util_Admin::fix_on_event( $this->_config, 'w3tc_plugin_updated' );
+
+					// Adjust "objectcache.file.gc".
+					if ( $this->_config->get_integer( 'objectcache.file.gc' ) === 3600 ) {
+						$this->_config->set( 'objectcache.file.gc', 600 );
+						$this->_config->save();
+					}
+					break;
+				default:
+					break;
+			}
+
+			$state->set( 'tasks.last_run_version', W3TC_VERSION );
+			$state->save();
 		}
 	}
 }

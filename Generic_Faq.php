@@ -1,6 +1,6 @@
 <?php
 /**
- * FIle: Generic_Faq.php
+ * File: Generic_Faq.php
  *
  * @package W3TC
  */
@@ -12,12 +12,11 @@ namespace W3TC;
  */
 class Generic_Faq {
 	/**
-	 * Get sections
+	 * Return FAQ section URLs.
 	 *
 	 * @return array
 	 */
-	public static function sections() {
-		// name => column where to show.
+	public static function sections(): array {
 		return array(
 			'General'            => 'https://api.w3-edge.com/v1/faq/general',
 			'Usage'              => 'https://api.w3-edge.com/v1/faq/usage',
@@ -34,61 +33,56 @@ class Generic_Faq {
 	}
 
 	/**
-	 * Returns list of questions for section
+	 * Returns list of questions for section.
+	 *
+	 * @static
+	 *
+	 * @see self::sections()
 	 *
 	 * @param string $section Section.
-	 *
 	 * @return array|null
 	 */
-	public static function parse( $section ) {
-		$faq = array();
-
+	public static function parse( string $section ): ?array {
 		$sections = self::sections();
+
 		if ( ! isset( $sections[ $section ] ) ) {
 			return null;
 		}
 
-		$url = $sections[ $section ];
-
+		$url      = $sections[ $section ];
 		$response = wp_remote_get( $url );
+
 		if ( is_wp_error( $response ) ) {
 			return null;
 		}
 
-		$html      = $response['body'];
 		$questions = array();
-
-		$m = array();
-		preg_match_all(
-			'~<h1>\s*<a[^>]+href="(#[^"]+)[^>]+>.*?</a>([^<]+)</h1>~mi',
-			$html,
-			$m
+		$regexes   = array(
+			'~<h1[^>]*>(.*?)</h1>.*?<a[^>]*href="(#[^"]+)"~mi',
+			'~<li>.*?<a[^>]*href="/BoldGrid/w3-total-cache/wiki/FAQ([^"]+)"[^>]*>(.*?)</a>.*?</li>~mi',
 		);
 
-		if ( is_array( $m ) && count( $m ) > 1 ) {
-			$count = count( $m[1] );
-			for ( $n = 0; $n < $count; $n++ ) {
-				$questions[] = array(
-					'q' => $m[2][ $n ],
-					'a' => $url . $m[1][ $n ],
-				);
-			}
-		}
+		foreach ( $regexes as $i => $regex ) {
+			preg_match_all( $regex, $response['body'], $m );
 
-		$m = array();
-		preg_match_all(
-			'~<li>\s*<a[^>]+href="([^"]+)[^>]+>(.*?)</a>\s*[.]s*</li>~mi',
-			$html,
-			$m
-		);
+			if ( is_array( $m ) && count( $m ) > 1 ) {
+				$c = count( $m[1] );
 
-		if ( is_array( $m ) && count( $m ) > 1 ) {
-			$count = count( $m[1] );
-			for ( $n = 0; $n < $count; $n++ ) {
-				$questions[] = array(
-					'q' => $m[2][ $n ],
-					'a' => $m[1][ $n ],
-				);
+				for ( $n = 0; $n < $c; $n++ ) {
+					if ( 0 === $i ) {
+						// Index 0 has the question first then the URL fragment.
+						$questions[] = array(
+							'q' => $m[1][ $n ],
+							'a' => $url . $m[2][ $n ],
+						);
+					} else {
+						// Index 1 has the URL fragment first then the name.  Just use the original URL.
+						$questions[] = array(
+							'q' => $m[2][ $n ],
+							'a' => $url,
+						);
+					}
+				}
 			}
 		}
 
