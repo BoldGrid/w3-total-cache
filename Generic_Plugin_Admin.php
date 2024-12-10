@@ -392,10 +392,10 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Render sticky top navigation bar on all W3TC admin pages.
+	 * Render sticky top navigation bar on all W3TC admin pages (administrators only).
 	 */
 	public function top_nav_bar() {
-		if ( Util_Admin::is_w3tc_admin_page() ) {
+		if ( \user_can( \get_current_user_id(), 'manage_options' ) && Util_Admin::is_w3tc_admin_page() ) {
 			require W3TC_INC_DIR . '/options/common/top_nav_bar.php';
 		}
 	}
@@ -529,7 +529,7 @@ class Generic_Plugin_Admin {
 	 * Defines the W3TC footer
 	 */
 	public function admin_footer() {
-		if ( $this->is_w3tc_page ) {
+		if ( \user_can( \get_current_user_id(), 'manage_options' ) && $this->is_w3tc_page ) {
 			require W3TC_INC_DIR . '/options/common/footer.php';
 		}
 	}
@@ -614,9 +614,13 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Print scripts.
+	 * Print scripts (administrators only).
 	 */
 	public function admin_print_scripts() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		wp_enqueue_script( 'w3tc-metadata' );
 		wp_enqueue_script( 'w3tc-options' );
 		wp_enqueue_script( 'w3tc-lightbox' );
@@ -774,7 +778,7 @@ class Generic_Plugin_Admin {
 	 */
 	public function print_plugins_page_css() {
 		?>
-		<style type=\"text/css\">
+		<style type="text/css">
 			.w3tc-missing-files ul {
 				margin-left: 20px;
 				list-style-type: disc;
@@ -940,11 +944,15 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Admin notices action
+	 * Admin notices action (administrators only).
 	 *
 	 * @return void
 	 */
 	public function admin_notices() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$cookie_domain = Util_Admin::get_cookie_domain();
 
 		$error_messages = array(

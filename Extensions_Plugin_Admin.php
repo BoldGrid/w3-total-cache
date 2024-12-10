@@ -236,13 +236,17 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Display admin notices.
+	 * Display admin notices (administrators only).
 	 *
 	 * @since 2.2.0
 	 *
 	 * @see Extensions_Util::get_active_extensions()
 	 */
 	public function admin_notices() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
 
 		foreach ( $extensions_active as $id => $info ) {
