@@ -111,40 +111,8 @@ class Generic_Plugin_Admin {
 			}
 		}
 
-		/**
-		 * Set up plugin post-update task on action "upgrader_process_complete".
-		 *
-		 * Fires when the upgrader process is complete.
-		 *
-		 * See also {@see 'upgrader_package_options'}.
-		 *
-		 * @since 3.6.0
-		 * @since 3.7.0 Added to WP_Upgrader::run().
-		 * @since 4.6.0 `$translations` was added as a possible argument to `$hook_extra`.
-		 *
-		 * @param object $upgrader   WP_Upgrader instance. In other contexts this might be a
-		 *                           Theme_Upgrader, Plugin_Upgrader, Core_Upgrade, or Language_Pack_Upgrader instance.
-		 *                           ** Plugin_Upgrader is expected for W3TC plugin updates.
-		 * @param array  $hook_extra {
-		 *     Array of bulk item update data.
-		 *
-		 *     @type string $action       Type of action. Default 'update'.
-		 *     @type string $type         Type of update process. Accepts 'plugin', 'theme', 'translation', or 'core'.
-		 *     @type bool   $bulk         Whether the update process is a bulk update. Default true.
-		 *     @type array  $plugins      Array of the basename paths of the plugins' main files.
-		 *     @type array  $themes       The theme slugs.
-		 *     @type array  $translations {
-		 *         Array of translations update data.
-		 *
-		 *         @type string $language The locale the translation is for.
-		 *         @type string $type     Type of translation. Accepts 'plugin', 'theme', or 'core'.
-		 *         @type string $slug     Text domain the translation is for. The slug of a theme/plugin or
-		 *                                'default' for core translations.
-		 *         @type string $version  The version of a theme, plugin, or core.
-		 *     }
-		 * }
-		 */
-		add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete' ), 10, 2 );
+		// Run post-update tasks.
+		$this->post_update_tasks();
 	}
 
 	/**
@@ -369,14 +337,6 @@ class Generic_Plugin_Admin {
 		$page_val = Util_Request::get_string( 'page' );
 		if ( ! empty( $page_val ) ) {
 			do_action( 'admin_init_' . $page_val );
-		}
-
-		// Run tasks after plugin update.
-		if ( get_option( 'w3tc_plugin_updated' ) ) {
-			// Fix environment.
-			Util_Admin::fix_on_event( $c, 'w3tc_plugin_updated' );
-
-			delete_option( 'w3tc_plugin_updated' );
 		}
 	}
 
@@ -1254,60 +1214,37 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Callback: Add post-update tasks on action "upgrader_process_complete".
+	 * Run post-update tasks.
 	 *
 	 * @since 2.8.1
 	 *
-	 * Fires when the upgrader process is complete.
+	 * @see Util_Admin::fix_on_event()
 	 *
-	 * See also {@see 'upgrader_package_options'}.
-	 *
-	 * @since 3.6.0
-	 * @since 3.7.0 Added to WP_Upgrader::run().
-	 * @since 4.6.0 `$translations` was added as a possible argument to `$hook_extra`.
-	 *
-	 * @param object $upgrader   WP_Upgrader instance. In other contexts this might be a
-	 *                           Theme_Upgrader, Plugin_Upgrader, Core_Upgrade, or Language_Pack_Upgrader instance.
-	 *                           ** Plugin_Upgrader is expected for W3TC plugin updates.
-	 * @param array  $hook_extra {
-	 *     Array of bulk item update data.
-	 *
-	 *     @type string $action       Type of action. Default 'update'.
-	 *     @type string $type         Type of update process. Accepts 'plugin', 'theme', 'translation', or 'core'.
-	 *     @type bool   $bulk         Whether the update process is a bulk update. Default true.
-	 *     @type array  $plugins      Array of the basename paths of the plugins' main files.
-	 *     @type array  $themes       The theme slugs.
-	 *     @type array  $translations {
-	 *         Array of translations update data.
-	 *
-	 *         @type string $language The locale the translation is for.
-	 *         @type string $type     Type of translation. Accepts 'plugin', 'theme', or 'core'.
-	 *         @type string $slug     Text domain the translation is for. The slug of a theme/plugin or
-	 *                                'default' for core translations.
-	 *         @type string $version  The version of a theme, plugin, or core.
-	 *     }
-	 * }
 	 * @return void
 	 */
-	public function upgrader_process_complete( object $upgrader, array $hook_extra ): void {
-		// Ensure this is a plugin update and the plugins array is set.
-		if (
-			! isset( $hook_extra['type'], $hook_extra['plugins'] ) ||
-			'plugin' !== $hook_extra['type'] ||
-			! is_array( $hook_extra['plugins'] )
-		) {
-			return;
-		}
-
+	public function post_update_tasks(): void {
 		// Check if W3TC was updated.
-		if ( in_array( W3TC_FILE, $hook_extra['plugins'], true ) ) {
-			update_option( 'w3tc_plugin_updated', true, false );
+		$state            = Dispatcher::config_state();
+		$last_run_version = $state->get_string( 'tasks.last_run_version' );
 
-			// Adjust "objectcache.file.gc".
-			if ( $this->_config->get_integer( 'objectcache.file.gc' ) === 3600 ) {
-				$this->_config->set( 'objectcache.file.gc', 600 );
-				$this->_config->save();
+		if ( empty( $last_run_version ) || version_compare( W3TC_VERSION, $last_run_version, '>' ) ) {
+			switch ( W3TC_VERSION ) {
+				case '2.8.1':
+					// Fix environment.
+					Util_Admin::fix_on_event( $this->_config, 'w3tc_plugin_updated' );
+
+					// Adjust "objectcache.file.gc".
+					if ( $this->_config->get_integer( 'objectcache.file.gc' ) === 3600 ) {
+						$this->_config->set( 'objectcache.file.gc', 600 );
+						$this->_config->save();
+					}
+					break;
+				default:
+					break;
 			}
+
+			$state->set( 'tasks.last_run_version', W3TC_VERSION );
+			$state->save();
 		}
 	}
 }
