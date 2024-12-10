@@ -15,6 +15,7 @@ class Generic_AdminNotes {
 	 * W3TC admin notices.
 	 *
 	 * @param array $notes Notices.
+	 *
 	 * @return string
 	 */
 	public function w3tc_notes( $notes ) {

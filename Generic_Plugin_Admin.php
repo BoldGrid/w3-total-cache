@@ -43,7 +43,9 @@ class Generic_Plugin_Admin {
 	private $w3tc_message = null;
 
 	/**
-	 * Constructor.
+	 * Constructor
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
@@ -51,6 +53,8 @@ class Generic_Plugin_Admin {
 
 	/**
 	 * Runs plugin
+	 *
+	 * @return void
 	 */
 	public function run() {
 		$this->is_w3tc_page = Util_Admin::is_w3tc_admin_page();
@@ -151,6 +155,13 @@ class Generic_Plugin_Admin {
 		}
 	}
 
+	/**
+	 * Save settings handler.
+	 *
+	 * @param array $data Data.
+	 *
+	 * @return array
+	 */
 	public function w3tc_save_options( $data ) {
 		$new_config = $data['new_config'];
 		$old_config = $data['old_config'];
@@ -453,8 +464,6 @@ class Generic_Plugin_Admin {
 
 				function w3tc_ga(){dataLayer.push(arguments);}
 
-				w3tc_ga('js', new Date());
-
 				w3tc_ga('config', '<?php echo esc_attr( $profile ); ?>', {
 					'user_properties': {
 						'plugin': 'w3-total-cache',
@@ -468,7 +477,12 @@ class Generic_Plugin_Admin {
 						'w3tc_edition': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
 						'w3tc_widgets': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
 						'page': '<?php echo esc_attr( $page ); ?>',
-						'w3tc_install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>'
+						'w3tc_install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>',
+						'w3tc_pro': '<?php echo Util_Environment::is_w3tc_pro( $this->_config ) ? 1 : 0; ?>',
+						'w3tc_has_key': '<?php $this->_config->get_string( 'plugin.license_key' ) ? 1 : 0; ?>',
+						'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO') && W3TC_PRO ? 1 : 0; ?>',
+						'w3tc_enterprise_c': '<?php echo defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ? 1 : 0; ?>',
+						'w3tc_plugin_type': '<?php echo esc_attr( $this->_config->get_string( 'plugin.type' ) ); ?>',
 					}
 				});
 
@@ -482,10 +496,10 @@ class Generic_Plugin_Admin {
 
 				// Track clicks on W3TC Pro Services tab.
 				document.addEventListener('click', function(event) {
-					if ( jQuery( event.target ).hasClass( 'w3tc-pro-services') ) {
+					if ( jQuery( event.target ).attr( 'data-tab-type') ) {
 						w3tc_ga('event', 'click', {
-							'eventCategory': 'w3tc-pro-services',
-							'eventLabel': event.target.innerText
+							'eventCategory': 'w3tc-tabs',
+							'eventLabel': event.target.getAttribute('data-tab-type'),
 						});
 					}
 				});
@@ -679,54 +693,54 @@ class Generic_Plugin_Admin {
 						'W3TCRemoveCssJsData',
 						array(
 							'lang' => array(
-								'singlesPathDescription'                   => __( 'Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry.', 'w3-total-cache' ),
-								'singlesExampleTrigger'                    => __( 'View Examples', 'w3-total-cache' ),
-								'singlesExampleTriggerClose'               => __( 'Hide Examples', 'w3-total-cache' ),
-								'singlesPathExampleDirLabel'               => __( 'Target all CSS/JS from a plugin/theme:', 'w3-total-cache' ),
-								'singlesPathExampleDir'                    => wp_kses(
+								'singlesPathDescription' => __( 'Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry.', 'w3-total-cache' ),
+								'singlesExampleTrigger'  => __( 'View Examples', 'w3-total-cache' ),
+								'singlesExampleTriggerClose' => __( 'Hide Examples', 'w3-total-cache' ),
+								'singlesPathExampleDirLabel' => __( 'Target all CSS/JS from a plugin/theme:', 'w3-total-cache' ),
+								'singlesPathExampleDir'  => wp_kses(
 									'https://example.com/wp-content/plugins/example-plugin/<br/>/wp-content/plugins/example-plugin/',
 									array(
 										'br' => array(),
 									)
 								),
-								'singlesPathExampleFileLabel'              => __( 'Target a specific CSS/JS file:', 'w3-total-cache' ),
-								'singlesPathExampleFile'                   => wp_kses(
+								'singlesPathExampleFileLabel' => __( 'Target a specific CSS/JS file:', 'w3-total-cache' ),
+								'singlesPathExampleFile' => wp_kses(
 									'https://example.com/wp-content/themes/example-theme/example-script.js<br/>/wp-content/themes/example-script.js<br/>example-script.js',
 									array(
 										'br' => array(),
 									)
 								),
-								'singlesNoEntries'                         => __( 'No CSS/JS entries added.', 'w3-total-cache' ),
-								'singlesExists'                            => __( 'Entry already exists!', 'w3-total-cache' ),
-								'singlesPathLabel'                         => __( 'Target CSS/JS:', 'w3-total-cache' ),
-								'singlesDelete'                            => __( 'Delete', 'w3-total-cache' ),
-								'singlesBehaviorLabel'                     => __( 'Action:', 'w3-total-cache' ),
-								'singlesBehaviorExcludeText'               => __( 'Exclude', 'w3-total-cache' ),
-								'singlesBehaviorExcludeText2'              => __( '(Remove the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
-								'singlesBehaviorIncludeText'               => __( 'Include', 'w3-total-cache' ),
-								'singlesBehaviorIncludeText2'              => __( '(Allow the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
-								'singlesBehaviorDescription'               => __( 'When the above CSS/JS file is found within your markup.', 'w3-total-cache' ),
-								'singlesIncludesLabelExclude'              => __( 'Exclude on URL Match:', 'w3-total-cache' ),
-								'singlesIncludesLabelInclude'              => __( 'Include on URL Match:', 'w3-total-cache' ),
-								'singlesIncludesDescriptionExclude'        => __( 'Specify the conditions for which the target file should be excluded based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
-								'singlesIncludesDescriptionInclude'        => __( 'Specify the conditions for which the target file should be included based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
-								'singlesIncludesExample'                   => wp_kses(
+								'singlesNoEntries'       => __( 'No CSS/JS entries added.', 'w3-total-cache' ),
+								'singlesExists'          => __( 'Entry already exists!', 'w3-total-cache' ),
+								'singlesPathLabel'       => __( 'Target CSS/JS:', 'w3-total-cache' ),
+								'singlesDelete'          => __( 'Delete', 'w3-total-cache' ),
+								'singlesBehaviorLabel'   => __( 'Action:', 'w3-total-cache' ),
+								'singlesBehaviorExcludeText' => __( 'Exclude', 'w3-total-cache' ),
+								'singlesBehaviorExcludeText2' => __( '(Remove the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
+								'singlesBehaviorIncludeText' => __( 'Include', 'w3-total-cache' ),
+								'singlesBehaviorIncludeText2' => __( '(Allow the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
+								'singlesBehaviorDescription' => __( 'When the above CSS/JS file is found within your markup.', 'w3-total-cache' ),
+								'singlesIncludesLabelExclude' => __( 'Exclude on URL Match:', 'w3-total-cache' ),
+								'singlesIncludesLabelInclude' => __( 'Include on URL Match:', 'w3-total-cache' ),
+								'singlesIncludesDescriptionExclude' => __( 'Specify the conditions for which the target file should be excluded based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesDescriptionInclude' => __( 'Specify the conditions for which the target file should be included based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesExample' => wp_kses(
 									'https://example.com/example-page/<br/>/example-page/<br/>example-page?arg=example-arg',
 									array(
 										'br' => array(),
 									)
 								),
-								'singlesIncludesContentLabelExclude'       => __( 'Exclude on Content Match:', 'w3-total-cache' ),
-								'singlesIncludesContentLabelInclude'       => __( 'Include on Content Match:', 'w3-total-cache' ),
+								'singlesIncludesContentLabelExclude' => __( 'Exclude on Content Match:', 'w3-total-cache' ),
+								'singlesIncludesContentLabelInclude' => __( 'Include on Content Match:', 'w3-total-cache' ),
 								'singlesIncludesContentDescriptionExclude' => __( 'Specify the conditions for which the target file should be excluded based on matching page content. Include one entry per line.', 'w3-total-cache' ),
 								'singlesIncludesContentDescriptionInclude' => __( 'Specify the conditions for which the target file should be included based on matching page content. Include one entry per line.', 'w3-total-cache' ),
-								'singlesIncludesContentExample'            => wp_kses(
+								'singlesIncludesContentExample' => wp_kses(
 									'&lt;div id="example-id"&gt;<br/>&lt;span class="example-class"&gt;<br/>name="example-name"',
 									array(
 										'br' => array(),
 									)
 								),
-								'singlesEmptyUrl'                          => __( 'Empty match pattern!', 'w3-total-cache' ),
+								'singlesEmptyUrl'        => __( 'Empty match pattern!', 'w3-total-cache' ),
 							),
 						)
 					);

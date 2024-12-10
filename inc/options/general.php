@@ -102,7 +102,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'',
 			'page_cache',
 			Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' ),
-			'w3tc_premium_services'
+			'w3tc_premium_services',
+			'w3tc_tutorial'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'pgcache.configuration_overloaded' ) );
 		?>
@@ -176,7 +177,10 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'page_cache' ) ); ?>
+		<?php
+			echo wp_kses_post( Util_Ui::get_tab( 'page_cache', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'page_cache', 'premium-services' ) );
+		?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -190,7 +194,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'',
 			'minify',
 			Util_UI::admin_url( 'admin.php?page=w3tc_minify' ),
-			'w3tc_premium_services'
+			'w3tc_premium_services',
+			'w3tc_tutorial'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'minify.configuration_overloaded' ) );
 		?>
@@ -306,7 +311,10 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'minify' ) ); ?>
+		<?php
+			echo wp_kses_post( Util_Ui::get_tab( 'minify', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'minify', 'premium-services' ) );
+		?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -323,7 +331,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'',
 			'database_cache',
 			Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' ),
-			'w3tc_premium_services'
+			'w3tc_premium_services',
+			'w3tc_tutorial'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'dbcache.configuration_overloaded' ) );
 		?>
@@ -363,7 +372,10 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php endif; ?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'database_cache' ) ); ?>
+		<?php
+			echo wp_kses_post( Util_Ui::get_tab( 'database_cache', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'database_cache', 'premium-services' ) );
+		?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -377,7 +389,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'',
 			'object_cache',
 			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' ),
-			'w3tc_premium_services'
+			'w3tc_premium_services',
+			'w3tc_tutorial'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
 		echo ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline w3tc-postbox-notice" style="margin-top:10px !important;">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' );
@@ -436,7 +449,10 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'object_cache' ) ); ?>
+		<?php
+			echo wp_kses_post( Util_Ui::get_tab( 'object_cache', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'object_cache', 'premium-services' ) );
+		?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
@@ -450,7 +466,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			'',
 			'browser_cache',
 			Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' ),
-			'w3tc_premium_services'
+			'w3tc_premium_services',
+			'w3tc_tutorial'
 		);
 		Util_Ui::config_overloading_button( array( 'key' => 'browsercache.configuration_overloaded' ) );
 		?>
@@ -483,14 +500,33 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'browser_cache' ) ); ?>
+		<?php
+			echo wp_kses_post( Util_Ui::get_tab( 'browser_cache', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'browser_cache', 'premium-services' ) );
+		?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
 		Util_Ui::postbox_header_tabs(
 			esc_html__( 'Purge via WP Cron', 'w3-total-cache' ),
-			esc_html__( 'Enabling this will schedule a WP-Cron event that will flush all enabled Caches. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush all". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache.', 'w3-total-cache' ),
+			wp_kses(
+				sprintf(
+					// Translators: 1 opening HTML a tag, 2 closing HTML a tag.
+					__(
+						'Enabling this will schedule a WP-Cron event that will flush all enabled Caches via a single cron job. Each cache\'s advanced settings page features similar settings to this if you wish to schedule purges for specific caches only. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush all". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache. Visit %1$shere%2$s for more information.',
+						'w3-total-cache'
+					),
+					'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+				)
+			),
 			'',
 			'allcache_wp_cron'
 		);
@@ -525,6 +561,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => $time_options,
+					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
 					'disabled'         => $wp_disabled,
 				)
 			);
@@ -540,6 +577,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
+					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
 					'disabled'         => $wp_disabled,
 				)
 			);

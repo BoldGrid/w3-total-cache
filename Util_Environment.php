@@ -9,12 +9,15 @@ namespace W3TC;
 
 /**
  * Class: Util_Environment
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
 class Util_Environment {
 	/**
 	 * Is using ,aster config.
 	 *
 	 * @var bool
+	 *
 	 * @static
 	 */
 	private static $is_using_master_config = null;
@@ -28,6 +31,7 @@ class Util_Environment {
 	 * @param array  $params     Parameters.
 	 * @param bool   $skip_empty Skip empty.
 	 * @param string $separator  Separate.
+	 *
 	 * @return string
 	 */
 	public static function url_format( $url = '', $params = array(), $skip_empty = false, $separator = '&' ) {
@@ -50,7 +54,7 @@ class Util_Environment {
 					$url .= $parse_url['host'];
 				}
 
-				if ( ! empty( $parse_url['port'] ) && $parse_url['port'] != 80 ) {
+				if ( ! empty( $parse_url['port'] ) && 80 !== $parse_url['port'] ) {
 					$url .= ':' . (int) $parse_url['port'];
 				}
 			}
@@ -94,6 +98,7 @@ class Util_Environment {
 	 * @param array  $params     Parameters.
 	 * @param bool   $skip_empty Skip empty.
 	 * @param string $separator  Separator.
+	 *
 	 * @return string
 	 */
 	public static function url_query( $params = array(), $skip_empty = false, $separator = '&' ) {
@@ -134,6 +139,7 @@ class Util_Environment {
 	 *
 	 * @param string $filename Filename.
 	 * @param bool   $use_site_url Use siteurl.
+	 *
 	 * @return string
 	 */
 	public static function filename_to_url( $filename, $use_site_url = false ) {
@@ -144,10 +150,10 @@ class Util_Environment {
 		if ( substr( $filename, 0, strlen( WP_CONTENT_DIR ) ) === WP_CONTENT_DIR ) {
 			// This is the default location of the wp-content/cache directory.
 			$location = WP_CONTENT_DIR;
-		} else if ( substr( $filename, 0, strlen( W3TC_CACHE_DIR ) ) === W3TC_CACHE_DIR ) {
+		} elseif ( substr( $filename, 0, strlen( W3TC_CACHE_DIR ) ) === W3TC_CACHE_DIR ) {
 			// This is needed in the event the cache directory is moved outside of wp-content and replace with a symbolic link.
 			$location = substr( W3TC_CACHE_DIR, 0, -strlen( '/cache' ) );
-		} else if ( substr( $filename, 0, strlen( W3TC_CONFIG_DIR ) ) === W3TC_CONFIG_DIR ) {
+		} elseif ( substr( $filename, 0, strlen( W3TC_CONFIG_DIR ) ) === W3TC_CONFIG_DIR ) {
 			// This is needed in the event the cache directory is moved outside of wp-content and replace with a symbolic link.
 			$location = substr( W3TC_CONFIG_DIR, 0, -strlen( '/w3tc-config' ) );
 		} else {
@@ -156,7 +162,7 @@ class Util_Environment {
 
 		$uri_from_location = substr( $filename, strlen( $location ) );
 
-		if ( DIRECTORY_SEPARATOR != '/' ) {
+		if ( '/' !== DIRECTORY_SEPARATOR ) {
 			$uri_from_location = str_replace( DIRECTORY_SEPARATOR, '/', $uri_from_location );
 		}
 
@@ -171,15 +177,17 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
+	 * @param Config $config Config.
+	 *
 	 * @return bool
 	 */
 	public static function is_dbcluster( $config = null ) {
 		if ( is_null( $config ) ) {
-			// fallback for compatibility with older wp-content/db.php
+			// fallback for compatibility with older wp-content/db.php.
 			$config = \W3TC\Dispatcher::config();
 		}
 
-		if ( !self::is_w3tc_pro( $config ) ) {
+		if ( ! self::is_w3tc_pro( $config ) ) {
 			return false;
 		}
 
@@ -271,6 +279,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $url URL.
+	 *
 	 * @return bool
 	 */
 	public static function is_url( $url ) {
@@ -304,6 +313,8 @@ class Util_Environment {
 
 	/**
 	 * Moves user to preview-mode or opposite.
+	 *
+	 * @param bool $is_enabled Is enabled.
 	 *
 	 * @static
 	 */
@@ -382,6 +393,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $url URL.
+	 *
 	 * @return string
 	 */
 	public static function url_to_host( $url ) {
@@ -402,7 +414,7 @@ class Util_Environment {
 	 * @param string $url URL.
 	 */
 	public static function url_to_uri( $url ) {
-		$uri = @parse_url( $url, PHP_URL_PATH );
+		$uri = @wp_parse_url( $url, PHP_URL_PATH );
 
 		// Convert FALSE and other return values to string.
 		if ( empty( $uri ) ) {
@@ -455,8 +467,9 @@ class Util_Environment {
 
 		$blog_id = self::blog_id();
 
-		if ( ! isset( $values_by_blog[ $blog_id ] ) )
+		if ( ! isset( $values_by_blog[ $blog_id ] ) ) {
 			$values_by_blog[ $blog_id ] = wp_upload_dir();
+		}
 
 		return $values_by_blog[ $blog_id ];
 	}
@@ -467,6 +480,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $section Section.
+	 *
 	 * @return string
 	 */
 	public static function cache_dir( $section ) {
@@ -480,6 +494,7 @@ class Util_Environment {
 	 *
 	 * @param string $section  Section.
 	 * @param int    $blog_id Blog id.
+	 *
 	 * @return string
 	 */
 	public static function cache_blog_dir( $section, $blog_id = null ) {
@@ -514,7 +529,7 @@ class Util_Environment {
 	public static function cache_blog_minify_dir() {
 		// when minify manual used with a shared config - shared
 		// minify urls has to be used too, since CDN upload is possible
-		// only from network admin
+		// only from network admin.
 		if ( self::is_wpmu() && self::is_using_master_config() && ! Dispatcher::config()->get_boolean( 'minify.auto' ) ) {
 			$path = self::cache_blog_dir( 'minify', 0 );
 		} else {
@@ -530,6 +545,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $url URL.
+	 *
 	 * @return string
 	 */
 	public static function get_url_regexp( $url ) {
@@ -547,6 +563,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $url URL.
+	 *
 	 * @return string
 	 */
 	public static function url_to_maybe_https( $url ) {
@@ -564,7 +581,6 @@ class Util_Environment {
 	 *
 	 * @return string
 	 */
-
 	public static function home_domain_root_url() {
 		$home_url  = get_home_url();
 		$parse_url = @parse_url( $home_url ); // phpcs:ignore
@@ -604,7 +620,7 @@ class Util_Environment {
 	 */
 	public static function home_url_maybe_https() {
 		$home_url = get_home_url();
-		$ssl = self::url_to_maybe_https( $home_url );
+		$ssl      = self::url_to_maybe_https( $home_url );
 
 		return $ssl;
 	}
@@ -618,7 +634,7 @@ class Util_Environment {
 	 */
 	public static function home_url_regexp() {
 		$home_url = get_home_url();
-		$regexp = self::get_url_regexp( $home_url );
+		$regexp   = self::get_url_regexp( $home_url );
 
 		return $regexp;
 	}
@@ -652,13 +668,13 @@ class Util_Environment {
 			if ( false !== $pos ) {
 				$home_path = substr( $script_filename, 0, $pos );
 				$home_path = trailingslashit( $home_path );
-			} else if ( defined( 'WP_CLI' ) ) {
+			} elseif ( defined( 'WP_CLI' ) ) {
 				$pos = strripos(
 					str_replace( '\\', '/', ABSPATH ),
 					trailingslashit( $wp_path_rel_to_home )
 				);
 
-				if ( $pos !== false ) {
+				if ( false !== $pos ) {
 					$home_path = substr( ABSPATH, 0, $pos );
 					$home_path = trailingslashit( $home_path );
 				}
@@ -698,7 +714,7 @@ class Util_Environment {
 			$php_self        = self::normalize_path(
 				htmlspecialchars( stripslashes( $_SERVER['PHP_SELF'] ) ) // phpcs:ignore
 			);
-			if ( substr( $script_filename, -strlen( $php_self ) ) == $php_self ) {
+			if ( substr( $script_filename, -strlen( $php_self ) ) === $php_self ) {
 				$document_root = substr( $script_filename, 0, -strlen( $php_self ) );
 				$document_root = realpath( $document_root );
 				return $document_root;
@@ -814,7 +830,7 @@ class Util_Environment {
 		 * a non-relative URI even though scheme is set to relative.
 		 */
 		if ( self::is_url( $uri ) ) {
-			$uri = parse_url( $uri, PHP_URL_PATH );
+			$uri = wp_parse_url( $uri, PHP_URL_PATH );
 		}
 
 		if ( empty( $uri ) ) {
@@ -858,7 +874,7 @@ class Util_Environment {
 
 		$pos = strpos( $host_port, ':' );
 
-		if ( $pos === false ) {
+		if ( false === $pos ) {
 			return $host_port;
 		}
 
@@ -893,6 +909,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $path Path.
+	 *
 	 * @return mixed
 	 */
 	public static function parse_path( $path ) {
@@ -924,13 +941,14 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $file File path.
+	 *
 	 * @return string
 	 */
 	public static function normalize_file( $file ) {
 		if ( self::is_url( $file ) ) {
 			if ( strstr( $file, '?' ) === false ) {
 				$home_url_regexp = '~' . self::home_url_regexp() . '~i';
-				$file = preg_replace( $home_url_regexp, '', $file );
+				$file            = preg_replace( $home_url_regexp, '', $file );
 			}
 		}
 
@@ -950,14 +968,15 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string  $file
+	 * @param string $file File.
+	 *
 	 * @return string
 	 */
 	public static function normalize_file_minify( $file ) {
 		if ( self::is_url( $file ) ) {
 			if ( strstr( $file, '?' ) === false ) {
 				$domain_url_regexp = '~' . self::home_domain_root_url_regexp() . '~i';
-				$file = preg_replace( $domain_url_regexp, '', $file );
+				$file              = preg_replace( $domain_url_regexp, '', $file );
 			}
 		}
 
@@ -976,13 +995,14 @@ class Util_Environment {
 	 *
 	 * @static
 	 *
-	 * @param string $file File path.
+	 * @param string $url URL.
+	 *
 	 * @return string
 	 */
 	public static function url_to_docroot_filename( $url ) {
 		$data = array(
 			'home_url' => get_home_url(),
-			'url' => $url,
+			'url'      => $url,
 		);
 
 		$data = apply_filters( 'w3tc_url_to_docroot_filename', $data );
@@ -1003,15 +1023,14 @@ class Util_Environment {
 		$path_relative_to_home = str_replace( $home_url, '', $normalized_url );
 		$home                  = set_url_scheme( get_option( 'home' ), 'http' );
 		$siteurl               = set_url_scheme( get_option( 'siteurl' ), 'http' );
-		$home_path             = rtrim( Util_Environment::site_path(), '/' );
+		$home_path             = rtrim( self::site_path(), '/' );
 
 		// Adjust home_path if site is not is home.
 		if ( ! empty( $home ) && 0 !== strcasecmp( $home, $siteurl ) ) {
 			// $siteurl - $home/
 			$wp_path_rel_to_home = rtrim( str_ireplace( $home, '', $siteurl ), '/' );
 
-			if ( substr( $home_path, -strlen( $wp_path_rel_to_home ) ) ==
-				$wp_path_rel_to_home ) {
+			if ( substr( $home_path, -strlen( $wp_path_rel_to_home ) ) === $wp_path_rel_to_home ) {
 				$home_path = substr( $home_path, 0, -strlen( $wp_path_rel_to_home ) );
 			}
 		}
@@ -1024,7 +1043,7 @@ class Util_Environment {
 
 		$docroot = self::document_root();
 
-		if ( substr( $full_filename, 0, strlen( $docroot ) ) == $docroot ) {
+		if ( substr( $full_filename, 0, strlen( $docroot ) ) === $docroot ) {
 			$docroot_filename = substr( $full_filename, strlen( $docroot ) );
 		} else {
 			$docroot_filename = $path_relative_to_home;
@@ -1046,10 +1065,11 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $docroot_filename Document filename.
-	 * @return strin
+	 *
+	 * @return string
 	 */
 	public static function docroot_to_full_filename( $docroot_filename ) {
-		return rtrim( Util_Environment::document_root(), DIRECTORY_SEPARATOR ) .
+		return rtrim( self::document_root(), DIRECTORY_SEPARATOR ) .
 			DIRECTORY_SEPARATOR . $docroot_filename;
 	}
 
@@ -1057,6 +1077,10 @@ class Util_Environment {
 	 * Removes WP query string from URL.
 	 *
 	 * @static
+	 *
+	 * @param string $url URL.
+	 *
+	 * @return string
 	 */
 	public static function remove_query( $url ) {
 		$url = preg_replace( '~(\?|&amp;|&#038;|&)+ver=[a-z0-9-_\.]+~i', '', $url );
@@ -1070,11 +1094,12 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $url URL.
+	 *
 	 * @return string
 	 */
 	public static function remove_query_all( $url ) {
 		$pos = strpos( $url, '?' );
-		if ( $pos === false ) {
+		if ( false === $pos ) {
 			return $url;
 		}
 
@@ -1087,6 +1112,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $path Path.
+	 *
 	 * @return string
 	 */
 	public static function normalize_path( $path ) {
@@ -1102,6 +1128,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $path Path.
+	 *
 	 * @return string
 	 */
 	public static function realpath( $path ) {
@@ -1110,11 +1137,11 @@ class Util_Environment {
 		$absolutes = array();
 
 		foreach ( $parts as $part ) {
-			if ( '.' == $part ) {
+			if ( '.' === $part ) {
 				continue;
 			}
 
-			if ( '..' == $part ) {
+			if ( '..' === $part ) {
 				array_pop( $absolutes );
 			} else {
 				$absolutes[] = $part;
@@ -1130,17 +1157,18 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $path Path.
+	 *
 	 * @return string
 	 */
 	public static function path_remove_dots( $path ) {
-		$parts = explode( '/', $path );
+		$parts     = explode( '/', $path );
 		$absolutes = array();
 
 		foreach ( $parts as $part ) {
-			if ( '.' == $part ) {
+			if ( '.' === $part ) {
 				continue;
 			}
-			if ( '..' == $part ) {
+			if ( '..' === $part ) {
 				array_pop( $absolutes );
 			} else {
 				$absolutes[] = $part;
@@ -1156,24 +1184,26 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $relative_url Relative URL.
+	 *
 	 * @return string
 	 */
 	public static function url_relative_to_full( $relative_url ) {
 		$relative_url = self::path_remove_dots( $relative_url );
 
 		if ( version_compare( PHP_VERSION, '5.4.7' ) < 0 ) {
-			if ( substr( $relative_url, 0, 2 ) === '//'  ) {
+			if ( substr( $relative_url, 0, 2 ) === '//' ) {
 				$relative_url = ( self::is_https() ? 'https' : 'http' ) . ':' . $relative_url;
 			}
 		}
 
-		$rel = parse_url( $relative_url );
-		// it's full url already
-		if ( isset( $rel['scheme'] ) || isset( $rel['host'] ) )
+		$rel = wp_parse_url( $relative_url );
+		// it's full url already.
+		if ( isset( $rel['scheme'] ) || isset( $rel['host'] ) ) {
 			return $relative_url;
+		}
 
-		if ( !isset( $rel['host'] ) ) {
-			$home_parsed = parse_url( get_home_url() );
+		if ( ! isset( $rel['host'] ) ) {
+			$home_parsed = wp_parse_url( get_home_url() );
 			$rel['host'] = $home_parsed['host'];
 			if ( isset( $home_parsed['port'] ) ) {
 				$rel['port'] = $home_parsed['port'];
@@ -1181,10 +1211,10 @@ class Util_Environment {
 		}
 
 		$scheme = isset( $rel['scheme'] ) ? $rel['scheme'] . '://' : '//';
-		$host = isset( $rel['host'] ) ? $rel['host'] : '';
-		$port = isset( $rel['port'] ) ? ':' . $rel['port'] : '';
-		$path = isset( $rel['path'] ) ? $rel['path'] : '';
-		$query = isset( $rel['query'] ) ? '?' . $rel['query'] : '';
+		$host   = isset( $rel['host'] ) ? $rel['host'] : '';
+		$port   = isset( $rel['port'] ) ? ':' . $rel['port'] : '';
+		$path   = isset( $rel['path'] ) ? $rel['path'] : '';
+		$query  = isset( $rel['query'] ) ? '?' . $rel['query'] : '';
 		return "$scheme$host$port$path$query";
 	}
 
@@ -1195,6 +1225,8 @@ class Util_Environment {
 	 *
 	 * @param string $url    URL.
 	 * @param array  $params Parameters.
+	 *
+	 * @return void
 	 */
 	public static function redirect( $url = '', $params = array() ) {
 		$url = self::url_format( $url, $params );
@@ -1214,6 +1246,8 @@ class Util_Environment {
 	 * @param string $url           URL.
 	 * @param array  $params        Parameters.
 	 * @param bool   $safe_redirect Safe redirect or not.
+	 *
+	 * @return void
 	 */
 	public static function safe_redirect_temp( $url = '', $params = array(), $safe_redirect = false ) {
 		$url = self::url_format( $url, $params );
@@ -1253,6 +1287,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param string $url URL.
+	 *
 	 * @return string
 	 */
 	public static function wp_safe_redirect_fallback( $url ) {
@@ -1314,6 +1349,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param Config $config Config.
+	 *
 	 * @return string
 	 */
 	public static function w3tc_edition( $config = null ) {
@@ -1334,17 +1370,10 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param Config $config Config.
+	 *
 	 * @return bool
 	 */
 	public static function is_w3tc_pro( $config = null ) {
-		if ( defined( 'W3TC_PRO' ) && W3TC_PRO ) {
-			return true;
-		}
-
-		if ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ) {
-			return true;
-		}
-
 		if ( is_object( $config ) ) {
 			$plugin_type = $config->get_string( 'plugin.type' );
 
@@ -1374,6 +1403,7 @@ class Util_Environment {
 	 *
 	 * @param string $string    String.
 	 * @param string $delimiter Delimeter.
+	 *
 	 * @return string
 	 */
 	public static function preg_quote( $string, $delimiter = '~' ) {
@@ -1403,6 +1433,7 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param mixed $var Value.
+	 *
 	 * @return mixed
 	 */
 	public static function stripslashes( $var ) {
@@ -1423,6 +1454,7 @@ class Util_Environment {
 	 * @param object $post Post object.
 	 * @param string $module Which cache module to check against (pgcache, varnish, dbcache or objectcache).
 	 * @param Config $config Config.
+	 *
 	 * @return bool
 	 */
 	public static function is_flushable_post( $post, $module, $config ) {
@@ -1461,9 +1493,11 @@ class Util_Environment {
 	 * Checks if post belongs to a custom post type.
 	 *
 	 * @since 2.1.7
+	 *
 	 * @static
 	 *
 	 * @param object $post Post object.
+	 *
 	 * @return bool
 	 */
 	public static function is_custom_post_type( $post ) {
@@ -1488,32 +1522,33 @@ class Util_Environment {
 	 * @static
 	 *
 	 * @param mixed $value Value.
+	 *
 	 * @return bool
 	 */
 	public static function to_boolean( $value ) {
 		if ( is_string( $value ) ) {
 			switch ( strtolower( $value ) ) {
-			case '+':
-			case '1':
-			case 'y':
-			case 'on':
-			case 'yes':
-			case 'true':
-			case 'enabled':
-				return true;
+				case '+':
+				case '1':
+				case 'y':
+				case 'on':
+				case 'yes':
+				case 'true':
+				case 'enabled':
+					return true;
 
-			case '-':
-			case '0':
-			case 'n':
-			case 'no':
-			case 'off':
-			case 'false':
-			case 'disabled':
-				return false;
+				case '-':
+				case '0':
+				case 'n':
+				case 'no':
+				case 'off':
+				case 'false':
+				case 'disabled':
+					return false;
 			}
 		}
 
-		return (boolean) $value;
+		return (bool) $value;
 	}
 
 	/**
@@ -1539,13 +1574,18 @@ class Util_Environment {
 	 * Checks if current request is REST REQUEST.
 	 *
 	 * @static
+	 *
+	 * @param string $url URL.
+	 *
+	 * @return string
 	 */
 	public static function is_rest_request( $url ) {
-		if ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 			return true;
+		}
 
 		// in case when called before constant is set
-		// wp filters are not available in that case
+		// wp filters are not available in that case.
 		return preg_match( '~' . W3TC_WP_JSON_URI . '~', $url );
 	}
 
@@ -1553,6 +1593,8 @@ class Util_Environment {
 	 * Reset microcache.
 	 *
 	 * @static
+	 *
+	 * @return void
 	 */
 	public static function reset_microcache() {
 		global $w3_current_blog_id;
@@ -1619,10 +1661,12 @@ class Util_Environment {
 	 * Returns true if any entries between the tewo arrays match string endings or in whole.
 	 *
 	 * @since  2.7.4
+	 *
 	 * @static
 	 *
 	 * @param array $array1 Array 1.
 	 * @param array $array2 Array 2.
+	 *
 	 * @return bool
 	 */
 	public static function array_intersect_partial( array $array1, array $array2 ): bool {
@@ -1677,7 +1721,7 @@ class Util_Environment {
 	 *
 	 * @return int
 	 */
-	public static function get_cron_schedule_time(int $cron_time = 0): int {
+	public static function get_cron_schedule_time( int $cron_time = 0 ): int {
 		// Get the current time in WordPress timezone.
 		$current_time_wp = new \DateTime( 'now', wp_timezone() );
 
@@ -1686,12 +1730,12 @@ class Util_Environment {
 		$minute = $cron_time % 60;
 
 		// Create a DateTime for today at the specified hour and minute in the user's timezone.
-		$scheduled_time_user = new \DateTime( "today", wp_timezone() );
+		$scheduled_time_user = new \DateTime( 'today', wp_timezone() );
 		$scheduled_time_user->setTime( $hour, $minute );
 
 		// Convert the user's scheduled time to UTC for WordPress.
 		$scheduled_time_utc = clone $scheduled_time_user;
-		$scheduled_time_utc->setTimezone( new \DateTimeZone('UTC') );
+		$scheduled_time_utc->setTimezone( new \DateTimeZone( 'UTC' ) );
 
 		// If the selected time has already passed today in UTC, schedule for tomorrow.
 		if ( $scheduled_time_utc <= $current_time_wp ) {
@@ -1713,6 +1757,7 @@ class Util_Environment {
 	 * returned.
 	 *
 	 * @since 2.8.0
+	 *
 	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L14-L55
 	 *
 	 * @return bool
@@ -1755,6 +1800,7 @@ class Util_Environment {
 	 * request.
 	 *
 	 * @since 2.8.0
+	 *
 	 * @link  https://github.com/wp-cli/cron-command/blob/v2.3.1/src/Cron_Command.php#L57-L91
 	 *
 	 * @global $wp_version WordPress version string.

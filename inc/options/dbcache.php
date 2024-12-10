@@ -134,6 +134,27 @@ if ( ! defined( 'W3TC' ) ) {
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Purge via WP Cron', 'w3-total-cache' ), '', 'dbcache_wp_cron' ); ?>
 		<table class="form-table">
+			<p>
+				<?php
+				echo wp_kses(
+					sprintf(
+						// Translators: 1 opening HTML a tag, 2 closing HTML a tag.
+						__(
+							'Enabling this will schedule a WP-Cron event that will flush the Database Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush db". Visit %1$shere%2$s for more information.',
+							'w3-total-cache'
+						),
+						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
+						'</a>'
+					),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
+				);
+				?>
+			</p>
 			<?php
 			$c           = Dispatcher::config();
 			$disabled    = ! $c->get_boolean( 'dbcache.enabled' );
@@ -168,7 +189,6 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
-					'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will flush the Database Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush db".', 'w3-total-cache' ),
 					'disabled'       => $disabled,
 				)
 			);
@@ -189,6 +209,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => $time_options,
+					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
 					'disabled'         => $disabled || $wp_disabled,
 				)
 			);
@@ -204,6 +225,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
+					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
 					'disabled'         => $disabled || $wp_disabled,
 				)
 			);

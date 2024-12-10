@@ -73,8 +73,6 @@ jQuery(function() {
 				if (window.w3tc_ga) {
 					w3tc_enable_ga = true;
 
-					w3tc_ga( 'js', new Date() );
-
 					w3tc_ga( 'config', W3TC_SetupGuide.ga_profile, {
 						'user_properties': {
 							'plugin': 'w3-total-cache',
@@ -87,7 +85,8 @@ jQuery(function() {
 							'w3tc_install_version': W3TC_SetupGuide.install_version,
 							'w3tc_edition': W3TC_SetupGuide.w3tc_edition,
 							'w3tc_widgets': W3TC_SetupGuide.list_widgets,
-							'page': W3TC_SetupGuide.page
+							'page': W3TC_SetupGuide.page,
+							'w3tc_install_date': W3TC_SetupGuide.w3tc_install_date,
 						}
 					});
 				}

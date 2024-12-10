@@ -1,23 +1,36 @@
 <?php
+/**
+ * File: BrowserCache_Environment.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * class BrowserCache_Environment
+ * Class BrowserCache_Environment
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired
  */
 class BrowserCache_Environment {
+	/**
+	 * Constructor
+	 *
+	 * @return void
+	 */
 	public function __construct() {
-		add_filter( 'w3tc_cdn_rules_section',
-			array( $this, 'w3tc_cdn_rules_section' ), 10, 2 );
+		add_filter( 'w3tc_cdn_rules_section', array( $this, 'w3tc_cdn_rules_section' ), 10, 2 );
 	}
-
-
 
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
-	 * @param Config  $config
-	 * @param bool    $force_all_checks
-	 * @throws Util_Environment_Exceptions
+	 * @param Config $config           Config.
+	 * @param bool   $force_all_checks Force all checks flag.
+	 *
+	 * @throws Util_Environment_Exceptions Environment exceptions.
 	 */
 	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
 		$exs = new Util_Environment_Exceptions();
@@ -30,14 +43,19 @@ class BrowserCache_Environment {
 			}
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
 	 * Fixes environment once event occurs
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @param Config $config     Config.
+	 * @param string $event      Event.
+	 * @param Config $old_config Old config.
+	 *
+	 * @throws Util_Environment_Exceptions Environment Exceptions.
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
 	}
@@ -45,21 +63,23 @@ class BrowserCache_Environment {
 	/**
 	 * Fixes environment after plugin deactivation
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Environment Exceptions.
 	 */
 	public function fix_after_deactivation() {
 		$exs = new Util_Environment_Exceptions();
 
 		$this->rules_cache_remove( $exs );
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
 	 * Returns required rules for module
 	 *
-	 * @param Config  $config
+	 * @param Config $config Config.
+	 *
 	 * @return array
 	 */
 	public function get_required_rules( $config ) {
@@ -72,26 +92,25 @@ class BrowserCache_Environment {
 		switch ( true ) {
 			case Util_Environment::is_apache():
 				$generator_apache = new BrowserCache_Environment_Apache( $config );
-				$rewrite_rules = array(
+				$rewrite_rules    = array(
 					array(
 						'filename' => Util_Rule::get_apache_rules_path(),
-						'content' =>
-							W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n" .
+						'content'  => W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE . "\n" .
 							$this->rules_cache_generate_apache( $config ) .
 							$generator_apache->rules_no404wp( $mime_types ) .
-							W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n"
-					)
+							W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n",
+					),
 				);
 				break;
 
 			case Util_Environment::is_litespeed():
 				$generator_litespeed = new BrowserCache_Environment_LiteSpeed( $config );
-				$rewrite_rules = $generator_litespeed->get_required_rules( $mime_types );
+				$rewrite_rules       = $generator_litespeed->get_required_rules( $mime_types );
 				break;
 
 			case Util_Environment::is_nginx():
 				$generator_nginx = new BrowserCache_Environment_Nginx( $config );
-				$rewrite_rules = $generator_nginx->get_required_rules( $mime_types );
+				$rewrite_rules   = $generator_nginx->get_required_rules( $mime_types );
 				break;
 
 			default:
@@ -140,39 +159,39 @@ class BrowserCache_Environment {
 	/**
 	 * Generate rules for FTP upload
 	 *
-	 * @param Config  $config
+	 * @param Config $config Config.
+	 *
 	 * @return string
 	 */
 	public function rules_cache_generate_for_ftp( $config ) {
 		return $this->rules_cache_generate_apache( $config );
 	}
 
-
-
-	/*
-	 * rules cache
-	 */
-
 	/**
 	 * Writes cache rules
 	 *
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
+	 * @param Config $config Config.
+	 * @param array  $exs    Extras.
+	 *
+	 * @throws Util_WpFile_FilesystemOperationException FilesystemOperation Exceptions.
+	 * With S/FTP form if it can't get the required filesystem credentials.
 	 */
 	private function rules_cache_add( $config, $exs ) {
 		$rules = $this->get_required_rules( $config );
 
 		foreach ( $rules as $i ) {
-			Util_Rule::add_rules( $exs,
+			Util_Rule::add_rules(
+				$exs,
 				$i['filename'],
 				$i['content'],
 				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
 				W3TC_MARKER_END_BROWSERCACHE_CACHE,
 				array(
-					W3TC_MARKER_BEGIN_MINIFY_CORE => 0,
+					W3TC_MARKER_BEGIN_MINIFY_CORE  => 0,
 					W3TC_MARKER_BEGIN_PGCACHE_CORE => 0,
-					W3TC_MARKER_BEGIN_WORDPRESS => 0,
-					W3TC_MARKER_END_PGCACHE_CACHE => strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
-					W3TC_MARKER_END_MINIFY_CACHE => strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1
+					W3TC_MARKER_BEGIN_WORDPRESS    => 0,
+					W3TC_MARKER_END_PGCACHE_CACHE  => strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
+					W3TC_MARKER_END_MINIFY_CACHE   => strlen( W3TC_MARKER_END_MINIFY_CACHE ) + 1,
 				)
 			);
 		}
@@ -181,31 +200,36 @@ class BrowserCache_Environment {
 	/**
 	 * Removes cache directives
 	 *
-	 * @throws Util_WpFile_FilesystemOperationException with S/FTP form if it can't get the required filesystem credentials
+	 * @param array $exs Extras.
+	 *
+	 * @throws Util_WpFile_FilesystemOperationException FilesystemOperation Exceptions.
+	 * With S/FTP form if it can't get the required filesystem credentials.
 	 */
 	private function rules_cache_remove( $exs ) {
 		$filenames = array();
 
 		switch ( true ) {
-		case Util_Environment::is_apache():
-			$filenames[] = Util_Rule::get_apache_rules_path();
-			break;
+			case Util_Environment::is_apache():
+				$filenames[] = Util_Rule::get_apache_rules_path();
+				break;
 
-		case Util_Environment::is_litespeed():
-			$filenames[] = Util_Rule::get_apache_rules_path();
-			$filenames[] = Util_Rule::get_litespeed_rules_path();
-			break;
+			case Util_Environment::is_litespeed():
+				$filenames[] = Util_Rule::get_apache_rules_path();
+				$filenames[] = Util_Rule::get_litespeed_rules_path();
+				break;
 
-		case Util_Environment::is_nginx():
-			$filenames[] = Util_Rule::get_nginx_rules_path();
-			break;
+			case Util_Environment::is_nginx():
+				$filenames[] = Util_Rule::get_nginx_rules_path();
+				break;
 		}
 
 		foreach ( $filenames as $i ) {
-			Util_Rule::remove_rules( $exs,
+			Util_Rule::remove_rules(
+				$exs,
 				$i,
 				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE,
-				W3TC_MARKER_END_BROWSERCACHE_CACHE );
+				W3TC_MARKER_END_BROWSERCACHE_CACHE
+			);
 		}
 	}
 
@@ -213,6 +237,7 @@ class BrowserCache_Environment {
 	 * Returns cache rules.
 	 *
 	 * @param Config $config Configuration.
+	 *
 	 * @return string
 	 */
 	private function rules_cache_generate_apache( Config $config ): string {
@@ -314,7 +339,7 @@ class BrowserCache_Environment {
 
 		// For mod_brotli.
 		$cssjs_brotli = $config->get_boolean( 'browsercache.cssjs.brotli' );
-		$html_brotli = $config->get_boolean( 'browsercache.html.brotli' );
+		$html_brotli  = $config->get_boolean( 'browsercache.html.brotli' );
 		$other_brotli = $config->get_boolean( 'browsercache.other.brotli' );
 
 		if ( $cssjs_brotli || $html_brotli || $other_brotli ) {
@@ -366,7 +391,7 @@ class BrowserCache_Environment {
 
 		// For mod_deflate.
 		$cssjs_compression = $config->get_boolean( 'browsercache.cssjs.compression' );
-		$html_compression = $config->get_boolean( 'browsercache.html.compression' );
+		$html_compression  = $config->get_boolean( 'browsercache.html.compression' );
 		$other_compression = $config->get_boolean( 'browsercache.other.compression' );
 
 		if ( $cssjs_compression || $html_compression || $other_compression ) {
@@ -459,15 +484,15 @@ class BrowserCache_Environment {
 
 		// For mod_headers.
 		if ( $config->get_boolean( 'browsercache.hsts' ) ||
-			 $config->get_boolean( 'browsercache.security.xfo' ) ||
-			 $config->get_boolean( 'browsercache.security.xss' ) ||
-			 $config->get_boolean( 'browsercache.security.xcto' ) ||
-			 $config->get_boolean( 'browsercache.security.pkp' ) ||
-			 $config->get_boolean( 'browsercache.security.referrer.policy' ) ||
-			 $config->get_boolean( 'browsercache.security.csp' ) ||
-			 $config->get_boolean( 'browsercache.security.cspro' ) ||
-			 $config->get_boolean( 'browsercache.security.fp' )
-		   ) {
+			$config->get_boolean( 'browsercache.security.xfo' ) ||
+			$config->get_boolean( 'browsercache.security.xss' ) ||
+			$config->get_boolean( 'browsercache.security.xcto' ) ||
+			$config->get_boolean( 'browsercache.security.pkp' ) ||
+			$config->get_boolean( 'browsercache.security.referrer.policy' ) ||
+			$config->get_boolean( 'browsercache.security.csp' ) ||
+			$config->get_boolean( 'browsercache.security.cspro' ) ||
+			$config->get_boolean( 'browsercache.security.fp' )
+		) {
 			$lifetime = $config->get_integer( 'browsercache.other.lifetime' );
 
 			// Rules for mod_headers.
@@ -506,7 +531,7 @@ class BrowserCache_Environment {
 				$pinbak         = trim( $config->get_string( 'browsercache.security.pkp.pin.backup' ) );
 				$extra          = $config->get_string( 'browsercache.security.pkp.extra' );
 				$url            = trim( $config->get_string( 'browsercache.security.pkp.report.url' ) );
-				$rep_only       = $config->get_string( 'browsercache.security.pkp.report.only' ) == '1' ? true : false;
+				$rep_only       = '1' === $config->get_string( 'browsercache.security.pkp.report.only' ) ? true : false;
 				$rules_headers .= '    Header set ' . ( $rep_only ? 'Public-Key-Pins-Report-Only' : 'Public-Key-Pins' ) .
 					' "pin-sha256="$pin"; pin-sha256="$pinbak"; max-age=' . $lifetime . ( strpos( $extra, 'inc' ) ? '; includeSubDomains' : '' ) .
 					( ! empty( $url ) ? '; report-uri="$url"' : '' ) . "\"\n";
@@ -687,26 +712,25 @@ class BrowserCache_Environment {
 	/**
 	 * Writes cache rules
 	 *
-	 * @param Config  $config
-	 * @param array   $mime_types
-	 * @param string  $section
+	 * @param Config $config     Config.
+	 * @param array  $mime_types Mime types.
+	 * @param string $section    Section.
+	 *
 	 * @return string
 	 */
 	private function _rules_cache_generate_apache_for_type( $config, $mime_types, $section ) {
-		$is_disc_enhanced = $config->get_boolean( 'pgcache.enabled' ) &&
-			$config->get_string( 'pgcache.engine' ) == 'file_generic';
-		$cache_control = $config->get_boolean( 'browsercache.' . $section . '.cache.control' );
-		$etag = $config->get_boolean( 'browsercache.' . $section . '.etag' );
-		$w3tc = $config->get_boolean( 'browsercache.' . $section . '.w3tc' );
-		$unset_setcookie = $config->get_boolean( 'browsercache.' . $section . '.nocookies' );
+		$is_disc_enhanced  = $config->get_boolean( 'pgcache.enabled' ) && 'file_generic' === $config->get_string( 'pgcache.engine' );
+		$cache_control     = $config->get_boolean( 'browsercache.' . $section . '.cache.control' );
+		$etag              = $config->get_boolean( 'browsercache.' . $section . '.etag' );
+		$w3tc              = $config->get_boolean( 'browsercache.' . $section . '.w3tc' );
+		$unset_setcookie   = $config->get_boolean( 'browsercache.' . $section . '.nocookies' );
 		$set_last_modified = $config->get_boolean( 'browsercache.' . $section . '.last_modified' );
-		$compatibility = $config->get_boolean( 'pgcache.compatibility' );
+		$compatibility     = $config->get_boolean( 'pgcache.compatibility' );
 
-		$mime_types2 = apply_filters( 'w3tc_browsercache_rules_section_extensions',
-			$mime_types, $config, $section );
-		$extensions = array_keys( $mime_types2 );
+		$mime_types2 = apply_filters( 'w3tc_browsercache_rules_section_extensions', $mime_types, $config, $section );
+		$extensions  = array_keys( $mime_types2 );
 
-		// Remove ext from filesmatch if its the same as permalink extension
+		// Remove ext from filesmatch if its the same as permalink extension.
 		$pext = strtolower( pathinfo( get_option( 'permalink_structure' ), PATHINFO_EXTENSION ) );
 		if ( $pext ) {
 			$extensions = Util_Rule::remove_extension_from_list( $extensions, $pext );
@@ -715,63 +739,65 @@ class BrowserCache_Environment {
 		$extensions_lowercase = array_map( 'strtolower', $extensions );
 		$extensions_uppercase = array_map( 'strtoupper', $extensions );
 
-		$rules = '';
+		$rules         = '';
 		$headers_rules = '';
 
 		if ( $cache_control ) {
 			$cache_policy = $config->get_string( 'browsercache.' . $section . '.cache.policy' );
 
 			switch ( $cache_policy ) {
-			case 'cache':
-				$headers_rules .= "        Header set Pragma \"public\"\n";
-				$headers_rules .= "        Header set Cache-Control \"public\"\n";
-				break;
+				case 'cache':
+					$headers_rules .= "        Header set Pragma \"public\"\n";
+					$headers_rules .= "        Header set Cache-Control \"public\"\n";
+					break;
 
-			case 'cache_public_maxage':
-				$expires = $config->get_boolean( 'browsercache.' . $section . '.expires' );
-				$lifetime = $config->get_integer( 'browsercache.' . $section . '.lifetime' );
+				case 'cache_public_maxage':
+					$expires  = $config->get_boolean( 'browsercache.' . $section . '.expires' );
+					$lifetime = $config->get_integer( 'browsercache.' . $section . '.lifetime' );
 
-				$headers_rules .= "        Header set Pragma \"public\"\n";
+					$headers_rules .= "        Header set Pragma \"public\"\n";
 
-				if ( $expires )
-					$headers_rules .= "        Header append Cache-Control \"public\"\n";
-				else
-					$headers_rules .= "        Header set Cache-Control \"max-age=" . $lifetime . ", public\"\n";
+					if ( $expires ) {
+						$headers_rules .= "        Header append Cache-Control \"public\"\n";
+					} else {
+						$headers_rules .= "        Header set Cache-Control \"max-age=" . $lifetime . ", public\"\n";
+					}
 
-				break;
+					break;
 
-			case 'cache_validation':
-				$headers_rules .= "        Header set Pragma \"public\"\n";
-				$headers_rules .= "        Header set Cache-Control \"public, must-revalidate, proxy-revalidate\"\n";
-				break;
+				case 'cache_validation':
+					$headers_rules .= "        Header set Pragma \"public\"\n";
+					$headers_rules .= "        Header set Cache-Control \"public, must-revalidate, proxy-revalidate\"\n";
+					break;
 
-			case 'cache_noproxy':
-				$headers_rules .= "        Header set Pragma \"public\"\n";
-				$headers_rules .= "        Header set Cache-Control \"private, must-revalidate\"\n";
-				break;
+				case 'cache_noproxy':
+					$headers_rules .= "        Header set Pragma \"public\"\n";
+					$headers_rules .= "        Header set Cache-Control \"private, must-revalidate\"\n";
+					break;
 
-			case 'cache_maxage':
-				$expires = $config->get_boolean( 'browsercache.' . $section . '.expires' );
-				$lifetime = $config->get_integer( 'browsercache.' . $section . '.lifetime' );
+				case 'cache_maxage':
+					$expires  = $config->get_boolean( 'browsercache.' . $section . '.expires' );
+					$lifetime = $config->get_integer( 'browsercache.' . $section . '.lifetime' );
 
-				$headers_rules .= "        Header set Pragma \"public\"\n";
+					$headers_rules .= "        Header set Pragma \"public\"\n";
 
-				if ( $expires )
-					$headers_rules .= "        Header append Cache-Control \"public, must-revalidate, proxy-revalidate\"\n";
-				else
-					$headers_rules .= "        Header set Cache-Control \"max-age=" . $lifetime . ", public, must-revalidate, proxy-revalidate\"\n";
+					if ( $expires ) {
+						$headers_rules .= "        Header append Cache-Control \"public, must-revalidate, proxy-revalidate\"\n";
+					} else {
+						$headers_rules .= "        Header set Cache-Control \"max-age=" . $lifetime . ", public, must-revalidate, proxy-revalidate\"\n";
+					}
 
-				break;
+					break;
 
-			case 'no_cache':
-				$headers_rules .= "        Header set Pragma \"no-cache\"\n";
-				$headers_rules .= "        Header set Cache-Control \"private, no-cache\"\n";
-				break;
+				case 'no_cache':
+					$headers_rules .= "        Header set Pragma \"no-cache\"\n";
+					$headers_rules .= "        Header set Cache-Control \"private, no-cache\"\n";
+					break;
 
-			case 'no_store':
-				$headers_rules .= "        Header set Pragma \"no-store\"\n";
-				$headers_rules .= "        Header set Cache-Control \"no-store\"\n";
-				break;
+				case 'no_store':
+					$headers_rules .= "        Header set Pragma \"no-store\"\n";
+					$headers_rules .= "        Header set Cache-Control \"no-store\"\n";
+					break;
 			}
 		}
 
@@ -779,20 +805,22 @@ class BrowserCache_Environment {
 			$rules .= "    FileETag MTime Size\n";
 		} else {
 			if ( $compatibility ) {
-				$rules .= "    FileETag None\n";
+				$rules         .= "    FileETag None\n";
 				$headers_rules .= "        Header unset ETag\n";
 			}
 		}
 
-		if ( $unset_setcookie )
+		if ( $unset_setcookie ) {
 			$headers_rules .= "        Header unset Set-Cookie\n";
+		}
 
-		if ( !$set_last_modified )
+		if ( ! $set_last_modified ) {
 			$headers_rules .= "        Header unset Last-Modified\n";
+		}
 
-		if ( $w3tc )
-			$headers_rules .= "        Header set X-Powered-By \"" .
-				Util_Environment::w3tc_header() . "\"\n";
+		if ( $w3tc ) {
+			$headers_rules .= "        Header set X-Powered-By \"" . Util_Environment::w3tc_header() . "\"\n";
+		}
 
 		if ( strlen( $headers_rules ) > 0 ) {
 			$rules .= "    <IfModule mod_headers.c>\n";
@@ -801,22 +829,24 @@ class BrowserCache_Environment {
 		}
 
 		if ( strlen( $rules ) > 0 ) {
-			$rules = "<FilesMatch \"\\.(" . implode( '|',
-				array_merge( $extensions_lowercase, $extensions_uppercase ) ) .
-				")$\">\n" . $rules;
+			$rules  = "<FilesMatch \"\\.(" . implode( '|', array_merge( $extensions_lowercase, $extensions_uppercase ) ) . ")$\">\n" . $rules;
 			$rules .= "</FilesMatch>\n";
 		}
 
 		return $rules;
 	}
 
-	/*
-	 * rules_no404wp
+	/**
+	 * Return CDN rules section
+	 *
+	 * @param array  $section_rules Section rules.
+	 * @param Config $config        Config.
+	 *
+	 * @return array
 	 */
-
 	public function w3tc_cdn_rules_section( $section_rules, $config ) {
 		if ( Util_Environment::is_litespeed() ) {
-			$o = new BrowserCache_Environment_LiteSpeed( $config );
+			$o             = new BrowserCache_Environment_LiteSpeed( $config );
 			$section_rules = $o->w3tc_cdn_rules_section( $section_rules );
 		}
 
