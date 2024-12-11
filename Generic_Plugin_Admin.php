@@ -220,9 +220,13 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Admin init.
+	 * Admin init (administrators only).
 	 */
 	public function admin_init() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		// Special handling for deactivation link, it's plugins.php file.
 		if ( 'w3tc_deactivate_plugin' === Util_Request::get_string( 'action' ) ) {
 			Util_Activation::deactivate_plugin();
@@ -352,9 +356,13 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Enqueue admin scripts.
+	 * Enqueue admin scripts (administrators only).
 	 */
 	public function admin_enqueue_scripts() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		wp_register_style( 'w3tc-options', plugins_url( 'pub/css/options.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-lightbox', plugins_url( 'pub/css/lightbox.css', W3TC_FILE ), array(), W3TC_VERSION );
 		wp_register_style( 'w3tc-bootstrap-css', plugins_url( 'pub/css/bootstrap-buttons.css', W3TC_FILE ), array(), W3TC_VERSION );
@@ -401,11 +409,15 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Define icon styles for the custom post type.
+	 * Define icon styles for the custom post type (administrators only).
 	 *
 	 * @throws \Exception Exception.
 	 */
 	public function admin_head() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		global $wp_version;
 		global $wpdb;
 
@@ -603,11 +615,15 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Print styles
+	 * Print styles (administrators only).
 	 *
 	 * @return void
 	 */
 	public function admin_print_styles() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		wp_enqueue_style( 'w3tc-options' );
 		wp_enqueue_style( 'w3tc-bootstrap-css' );
 		wp_enqueue_style( 'w3tc-lightbox' );
@@ -767,9 +783,13 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Load plugins page JS.
+	 * Load plugins page JS (administrators only).
 	 */
 	public function load_plugins_page_js() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		wp_enqueue_script( 'w3tc-options' );
 	}
 
