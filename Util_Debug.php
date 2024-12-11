@@ -64,6 +64,9 @@ class Util_Debug {
 			Util_File::mkdir_from_safe( dirname( $filename ), $from_dir );
 		}
 
+		// Ensure .htaccess exists in $dir_path.
+		Util_File::check_htaccess( $dir_path );
+
 		return $filename;
 	}
 
