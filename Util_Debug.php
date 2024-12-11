@@ -59,6 +59,9 @@ class Util_Debug {
 			$dir_path = Util_Environment::cache_dir( 'log' );
 		}
 
+		// Prefix the postfix (log subdirectory).
+		$postfix = hash( 'crc32b', W3TC_DIR . WP_CACHE_KEY_SALT ) . '-' . $postfix;
+
 		$filename = $dir_path . '/' . $postfix . '/' . $module . '.log';
 		if ( ! is_dir( dirname( $filename ) ) ) {
 			Util_File::mkdir_from_safe( dirname( $filename ), $from_dir );
