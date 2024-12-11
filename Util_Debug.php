@@ -212,4 +212,20 @@ class Util_Debug {
 			'===============Debug ' . $label . ' End===============' . "\n"
 		);
 	}
+
+	/**
+	 * Redacts the value of the _wpnonce parameter in a log line.
+	 *
+	 * @param  string $log_line The log line containing the nonce parameter.
+	 * @return string The log line with the nonce value redacted.
+	 */
+	public static function redact_wpnonce( string $log_line ): string {
+		// Regular expression to match the nonce parameter and its value.
+		$pattern = '/(nonce=)[^&\]]+/';
+
+		// Replace the value of nonce with "REDACTED".
+		$redacted_log_line = preg_replace( $pattern, '$1REDACTED', $log_line );
+
+		return $redacted_log_line;
+	}
 }
