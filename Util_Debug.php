@@ -59,10 +59,16 @@ class Util_Debug {
 			$dir_path = Util_Environment::cache_dir( 'log' );
 		}
 
+		// Prefix the postfix (log subdirectory).
+		$postfix = hash( 'crc32b', W3TC_DIR . WP_CACHE_KEY_SALT ) . '-' . $postfix;
+
 		$filename = $dir_path . '/' . $postfix . '/' . $module . '.log';
 		if ( ! is_dir( dirname( $filename ) ) ) {
 			Util_File::mkdir_from_safe( dirname( $filename ), $from_dir );
 		}
+
+		// Ensure .htaccess exists in $dir_path.
+		Util_File::check_htaccess( $dir_path );
 
 		return $filename;
 	}
@@ -205,5 +211,21 @@ class Util_Debug {
 			'Content  : ' . print_r( $data, true ) . "\n" .
 			'===============Debug ' . $label . ' End===============' . "\n"
 		);
+	}
+
+	/**
+	 * Redacts the value of the _wpnonce parameter in a log line.
+	 *
+	 * @param  string $log_line The log line containing the nonce parameter.
+	 * @return string The log line with the nonce value redacted.
+	 */
+	public static function redact_wpnonce( string $log_line ): string {
+		// Regular expression to match the nonce parameter and its value.
+		$pattern = '/(nonce=)[^&\]]+/';
+
+		// Replace the value of nonce with "REDACTED".
+		$redacted_log_line = preg_replace( $pattern, '$1REDACTED', $log_line );
+
+		return $redacted_log_line;
 	}
 }
