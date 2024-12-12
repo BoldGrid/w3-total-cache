@@ -22,12 +22,21 @@ if ( ! defined( 'W3TC_DIR' ) ) {
 }
 
 if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php' ) ) {
-	if ( ! defined( 'WP_ADMIN' ) ) { // lets don't show error on front end.
-		require_once ABSPATH . WPINC . '/cache.php';
+	if ( ! defined( 'WP_ADMIN' ) ) { // Don't show error on front end.
+			require_once ABSPATH . WPINC . '/cache.php';
 	} else {
-		echo sprintf( '<strong>W3 Total Cache Error:</strong> some files appear to be missing or out of place. Please re-install plugin or remove <strong>%s</strong>. <br />', __FILE__ );
+		printf(
+			'<strong>W3 Total Cache Error:</strong> some files appear to be missing or out of place. Please re-install plugin or remove <strong>%s</strong>. <br />',
+			__FILE__
+		);
 	}
 } else {
+	if ( ! ( class_exists( 'W3TC\Dispatcher' ) && ( new \W3TC\Dispatcher() )->config()->get_boolean( 'objectcache.enabled' ) ) ) {
+			// Fallback to default WordPress caching.
+			require_once ABSPATH . WPINC . '/cache.php';
+			return;
+	}
+
 	require_once W3TC_DIR . '/w3-total-cache-api.php';
 
 	/**
