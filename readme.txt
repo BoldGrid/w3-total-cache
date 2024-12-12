@@ -366,7 +366,7 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Added additional user capability checks
 * Fix: Ensure Object Cache garbage collection (disk) WP Cron event is scheduled
 * Fix: Added additional checks when loading the Object Cache dropin
-* Fix: Disable Database, Object, and Fragement Cache when using WP-CLI
+* Fix: Disable Database, Object, and Fragment Cache when using WP-CLI
 * Fix: Object Cache debug logging
 * Fix: FAQ help tabs
 * Update: Coding standards
