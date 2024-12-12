@@ -492,10 +492,10 @@ class Generic_Plugin_Admin {
 
 
 				// Track clicks on W3TC Pro Services tab.
-				document.addEventListener('click', function( event ) {
-					if ( event.target.getAttribute( 'data-tab-type') ) {
+				document.addEventListener('click', function(event) {
+					if (event.target.getAttribute('data-tab-type')) {
 						w3tc_ga('event', 'click', {
-							'eventCategory': event.target.closest(".postbox-tabs").getAttribute("id"),
+							'eventCategory': event.target.closest('.postbox-tabs').getAttribute('id'),
 							'eventLabel': event.target.getAttribute('data-tab-type'),
 						});
 					}
