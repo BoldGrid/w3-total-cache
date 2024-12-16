@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Generic_AdminActions_Config.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 use RecursiveDirectoryIterator;
@@ -8,9 +14,27 @@ use RegexIterator;
 
 define( 'W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN', '~define\s*\(\s*[\'"]COOKIE_DOMAIN[\'"]\s*,.*?\)~is' );
 
+/**
+ * Class Generic_AdminActions_Default
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.NamingConventions.ValidHookName.UseUnderscores
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ */
 class Generic_AdminActions_Default {
+	/**
+	 * Config
+	 *
+	 * @var Config
+	 */
+	private $_config = null;
 
-	private $_config        = null;
+	/**
+	 * Config master
+	 *
+	 * @var Config
+	 */
 	private $_config_master = null;
 
 	/**
@@ -20,7 +44,12 @@ class Generic_AdminActions_Default {
 	 */
 	private $_page = null;
 
-	function __construct() {
+	/**
+	 * Initializes the class instance and loads configuration settings.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
 		$this->_config        = Dispatcher::config();
 		$this->_config_master = Dispatcher::config_master();
 
@@ -28,27 +57,33 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Start previewing
+	 * Enables preview mode and redirects to the home URL.
+	 *
+	 * @return void
 	 */
-	function w3tc_default_previewing() {
+	public function w3tc_default_previewing() {
 		Util_Environment::set_preview( true );
 		Util_Environment::redirect( get_home_url() );
 	}
 
 	/**
-	 * Stop previewing the site
+	 * Disables preview mode and redirects to the current page.
+	 *
+	 * @return void
 	 */
-	function w3tc_default_stop_previewing() {
+	public function w3tc_default_stop_previewing() {
 		Util_Environment::set_preview( false );
 		Util_Admin::redirect( array(), true );
 	}
 
 	/**
-	 * Hide note action
+	 * Saves the provided license key to the configuration.
 	 *
 	 * @return void
+	 *
+	 * @throws \Exception If saving the license key or configuration fails.
 	 */
-	function w3tc_default_save_license_key() {
+	public function w3tc_default_save_license_key() {
 		$license = Util_Request::get_string( 'license_key' );
 		try {
 			$old_config = new Config();
@@ -64,16 +99,17 @@ class Generic_AdminActions_Default {
 			echo wp_json_encode( array( 'result' => 'failed' ) );
 			exit();
 		}
+
 		echo wp_json_encode( array( 'result' => 'success' ) );
 		exit();
 	}
 
 	/**
-	 * Hide note action
+	 * Hides a specified admin note and updates the configuration.
 	 *
 	 * @return void
 	 */
-	function w3tc_default_hide_note() {
+	public function w3tc_default_hide_note() {
 		$note    = Util_Request::get_string( 'note' );
 		$setting = sprintf( 'notes.%s', $note );
 
@@ -84,7 +120,12 @@ class Generic_AdminActions_Default {
 		Util_Admin::redirect( array(), true );
 	}
 
-	function w3tc_default_config_state() {
+	/**
+	 * Updates a specified configuration state value and saves the changes.
+	 *
+	 * @return void
+	 */
+	public function w3tc_default_config_state() {
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
@@ -94,7 +135,12 @@ class Generic_AdminActions_Default {
 		Util_Admin::redirect( array(), true );
 	}
 
-	function w3tc_default_config_state_master() {
+	/**
+	 * Updates a specified master configuration state value and saves the changes.
+	 *
+	 * @return void
+	 */
+	public function w3tc_default_config_state_master() {
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
@@ -105,7 +151,12 @@ class Generic_AdminActions_Default {
 		Util_Admin::redirect( array(), true );
 	}
 
-	function w3tc_default_config_state_note() {
+	/**
+	 * Updates a specified note configuration state and redirects.
+	 *
+	 * @return void
+	 */
+	public function w3tc_default_config_state_note() {
 		$key   = Util_Request::get_string( 'key' );
 		$value = Util_Request::get_string( 'value' );
 
@@ -116,14 +167,21 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Hide note custom action
+	 * Hides a custom admin note and redirects.
+	 *
+	 * @return void
 	 */
-	function w3tc_default_hide_note_custom() {
+	public function w3tc_default_hide_note_custom() {
 		$note = Util_Request::get_string( 'note' );
 		do_action( "w3tc_hide_button_custom-{$note}" );
 		Util_Admin::redirect( array(), true );
 	}
 
+	/**
+	 * Clears the purge log for the specified module.
+	 *
+	 * @return void
+	 */
 	public function w3tc_default_purgelog_clear() {
 		$module       = Util_Request::get_label( 'module' );
 		$log_filename = Util_Debug::log_filename( $module . '-purge' );
@@ -142,7 +200,12 @@ class Generic_AdminActions_Default {
 		);
 	}
 
-	function w3tc_default_remove_add_in() {
+	/**
+	 * Removes an add-in module, handles deletion, and performs necessary replacements.
+	 *
+	 * @return void
+	 */
+	public function w3tc_default_remove_add_in() {
 
 		$module = Util_Request::get_string( 'w3tc_default_remove_add_in' );
 
@@ -157,8 +220,7 @@ class Generic_AdminActions_Default {
 				$dst = W3TC_ADDIN_FILE_ADVANCED_CACHE;
 				try {
 					Util_WpFile::copy_file( $src, $dst );
-				} catch ( Util_WpFile_FilesystemOperationException $ex ) {
-					// missing exception handle?
+				} catch ( Util_WpFile_FilesystemOperationException $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				}
 				break;
 			case 'dbcache':
@@ -177,17 +239,17 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Options save action
+	 * Saves configuration options and processes the save request.
 	 *
 	 * @return void
 	 */
-	function w3tc_save_options() {
+	public function w3tc_save_options() {
 		$redirect_data = $this->_w3tc_save_options_process();
 		Util_Admin::redirect_with_custom_messages2( $redirect_data );
 	}
 
 	/**
-	 * Save&flush all action
+	 * Saves configuration options, flushes caches, and updates necessary states.
 	 *
 	 * @return void
 	 */
@@ -207,6 +269,11 @@ class Generic_AdminActions_Default {
 		Util_Admin::redirect_with_custom_messages2( $redirect_data );
 	}
 
+	/**
+	 * Processes saving options for the W3 Total Cache plugin.
+	 *
+	 * @return array
+	 */
 	private function _w3tc_save_options_process() {
 		$data = array(
 			'old_config'            => $this->_config,
@@ -542,6 +609,13 @@ class Generic_AdminActions_Default {
 		);
 	}
 
+	/**
+	 * Deletes all .htaccess files in the specified directory and its subdirectories.
+	 *
+	 * @param string $dir Directory path where .htaccess files will be deleted.
+	 *
+	 * @return void
+	 */
 	private function _delete_all_htaccess_files( $dir ) {
 		if ( ! is_dir( $dir ) ) {
 			return;
@@ -552,7 +626,12 @@ class Generic_AdminActions_Default {
 			return;
 		}
 
-		while ( false !== ( $file = readdir( $handle ) ) ) {
+		while ( true ) {
+			$file = readdir( $handle );
+			if ( false === $file ) {
+				break;
+			}
+
 			if ( '.' === $file || '..' === $file ) {
 				continue;
 			}
@@ -569,9 +648,9 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Enables COOKIE_DOMAIN
+	 * Enables COOKIE_DOMAIN by modifying the wp-config.php file.
 	 *
-	 * @return bool
+	 * @return bool True if COOKIE_DOMAIN is successfully enabled, false otherwise.
 	 */
 	public function enable_cookie_domain() {
 		WP_Filesystem();
@@ -614,9 +693,9 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Disables COOKIE_DOMAIN
+	 * Disables COOKIE_DOMAIN by modifying the wp-config.php file.
 	 *
-	 * @return bool
+	 * @return bool True if COOKIE_DOMAIN is successfully disabled, false otherwise.
 	 */
 	public function disable_cookie_domain() {
 		WP_Filesystem();
@@ -649,32 +728,35 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Checks COOKIE_DOMAIN definition existence
+	 * Checks if COOKIE_DOMAIN is defined in the given configuration content.
 	 *
-	 * @param string $content
-	 * @return int
+	 * @param string $content The configuration file content to check.
+	 *
+	 * @return bool True if COOKIE_DOMAIN is defined, false otherwise.
 	 */
-	function is_cookie_domain_define( $content ) {
+	public function is_cookie_domain_define( $content ) {
 		return preg_match( W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN, $content );
 	}
 
-
 	/**
-	 * Returns true if config section is sealed
+	 * Checks if a configuration section is sealed.
 	 *
-	 * @param string $section
-	 * @return boolean
+	 * @param string $section The section name to check.
+	 *
+	 * @return bool Always returns true, indicating the section is sealed.
 	 */
 	protected function is_sealed( $section ) {
 		return true;
 	}
 
 	/**
-	 * Reads config from request
+	 * Reads configuration settings from a request and updates the configuration object.
 	 *
-	 * @param Config $config
+	 * @param object $config Configuration object to update.
+	 *
+	 * @return void
 	 */
-	function read_request( $config ) {
+	public function read_request( $config ) {
 		$request = Util_Request::get_request();
 
 		include W3TC_DIR . '/ConfigKeys.php';   // define $keys.

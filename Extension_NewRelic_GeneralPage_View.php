@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Extension_NewRelic_GeneralPage_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

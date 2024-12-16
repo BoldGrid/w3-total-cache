@@ -19,14 +19,18 @@ class Extensions_Plugin_Admin {
 	private $_config = null; // phpcs:ignore
 
 	/**
-	 * Constructor.
+	 * Constructor for initializing the configuration.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Runs plugin.
+	 * Runs the plugin, setting up various hooks and filters for extensions.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		// Attach w3tc-bundled extensions.
@@ -65,11 +69,13 @@ class Extensions_Plugin_Admin {
 		}
 	}
 
+
 	/**
-	 * Adds menu.
+	 * Modifies the admin menu based on the active extension.
 	 *
-	 * @param array $menu Menu.
-	 * @return array
+	 * @param array $menu Existing menu array to be modified.
+	 *
+	 * @return array Modified menu array.
 	 */
 	public function w3tc_admin_menu( $menu ) {
 		$extension_val = Util_Request::get_string( 'extension' );
@@ -107,7 +113,9 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Loads options page and corresponding view.
+	 * Renders the settings page for extensions.
+	 *
+	 * @return void
 	 */
 	public function w3tc_settings_page_w3tc_extensions() {
 		$o = new Extensions_Page();
@@ -115,10 +123,11 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Delete hooks option before updating active plugins option.
+	 * Pre-processes the update of the active plugins option.
 	 *
-	 * @param mixed $o Option value.
-	 * @return mixed
+	 * @param mixed $o Option value to be updated.
+	 *
+	 * @return mixed Modified option value.
 	 */
 	public function pre_update_option_active_plugins( $o ) {
 		delete_option( 'w3tc_extensions_hooks' );
@@ -127,7 +136,9 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Admin init.
+	 * Initializes settings for the admin interface.
+	 *
+	 * @return void
 	 */
 	public function admin_init() {
 		// Used to load even inactive extensions if they want to.
@@ -181,7 +192,9 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Alters the active state of multiple extensions.
+	 * Changes the status of selected extensions (activate/deactivate).
+	 *
+	 * @return void
 	 */
 	public function change_extensions_status() {
 		$message    = '';
@@ -215,7 +228,9 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Alters the active state of an extension.
+	 * Changes the status of a specific extension (activate/deactivate).
+	 *
+	 * @return void
 	 */
 	public function change_extension_status() {
 		$action = Util_Request::get_string( 'action' );
@@ -236,11 +251,11 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Display admin notices.
-	 *
-	 * @since 2.2.0
+	 * Displays admin notices related to active extensions.
 	 *
 	 * @see Extensions_Util::get_active_extensions()
+	 *
+	 * @return void
 	 */
 	public function admin_notices() {
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
