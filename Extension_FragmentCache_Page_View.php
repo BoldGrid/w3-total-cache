@@ -29,8 +29,32 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 		}
 		?>
 	<?php endif; ?>
-
-	<?php Util_Ui::pro_wrap_maybe_end2( 'fragmentcache_header' ); ?>
+	<?php
+	if ( empty( $engine ) ) {
+		?>
+		<p>
+			<?php
+			echo wp_kses(
+				sprintf(
+					// Translators: 1 opening HTML link to fragment cache block on general settings page, 2 closing HTML link.
+					__(
+						'To enable this feature please select an engine for Fragment Cache %1$shere%2$s.',
+						'w3-total-cache'
+					),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#fragmentcache' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			);
+			?>
+		</p>
+		<?php
+	}
+	Util_Ui::pro_wrap_maybe_end2( 'fragmentcache_header' ); ?>
 </p>
 
 <form action="admin.php?page=w3tc_fragmentcache" method="post">
