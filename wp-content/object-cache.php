@@ -31,10 +31,36 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 		);
 	}
 } else {
-	if ( ! ( class_exists( 'W3TC\Dispatcher' ) && ( new \W3TC\Dispatcher() )->config()->get_boolean( 'objectcache.enabled' ) ) ) {
-			// Fallback to default WordPress caching.
-			require_once ABSPATH . WPINC . '/cache.php';
-			return;
+	/**
+	 * Check if this dropin should be used.
+	 *
+	 * @since 2.8.2
+	 *
+	 * @return bool
+	 */
+	function w3tc_use_ocdropin(): bool {
+		if ( class_exists( 'W3TC\Dispatcher' ) ) {
+			$config = ( new \W3TC\Dispatcher() )->config();
+
+			if (
+				$config->get_boolean( 'objectcache.enabled' ) ||
+				(
+					$config->is_extension_active( 'fragmentcache' ) &&
+					! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) &&
+					$config->is_extension_active_frontend( 'fragmentcache' )
+				)
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	if ( ! w3tc_use_ocdropin() ) {
+		// Fallback to default WordPress caching.
+		require_once ABSPATH . WPINC . '/cache.php';
+		return;
 	}
 
 	require_once W3TC_DIR . '/w3-total-cache-api.php';
