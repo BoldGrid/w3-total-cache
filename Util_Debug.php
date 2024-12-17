@@ -60,7 +60,7 @@ class Util_Debug {
 		}
 
 		// Prefix the postfix (log subdirectory).
-		$postfix = hash( 'crc32b', W3TC_DIR . WP_CACHE_KEY_SALT ) . '-' . $postfix;
+		$postfix = hash( 'crc32b', W3TC_DIR . \WP_CACHE_KEY_SALT ) . '-' . $postfix;
 
 		$filename = $dir_path . '/' . $postfix . '/' . $module . '.log';
 		if ( ! is_dir( dirname( $filename ) ) ) {
