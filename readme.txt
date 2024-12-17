@@ -373,7 +373,7 @@ Please reach out to all of these people and support their projects if you're so 
 
 = 2.8.1=
 * Fix: Ensure WP Cron events get scheduled when using the Setup Guide wizard and on upgrade
-* FiX: Undefined variable when the Object Cache purge debug log is enabled
+* Fix: Undefined variable when the Object Cache purge debug log is enabled
 * Update: Added warnings in the Setup Guide and the General Settings page when using Disk for Database and Object Caches
 * Update: Skip Database and Object caches when using WP-CLI
 
