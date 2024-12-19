@@ -600,22 +600,25 @@ jQuery(function() {
 
 		// Check if topics are already loaded
 		if ( isLoaded ) return;
-		// Construct the API URL with the tab ID
-		const apiUrl = `https://boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=${tabId}`;
 
 		// Fetch topics from the API
 		jQuery.ajax({
-			url: apiUrl,
-			method: 'GET',
-			dataType: 'json',
+			url: ajaxurl,
+			method: 'POST',
+			data: {
+				action: 'w3tc_forums_api',
+				_wpnonce: w3tc_nonce[0],
+				tabId: tabId
+			},
 			success: function( data ) {
 				// Check for errors or empty results
 				if ( Array.isArray( data ) && data.length === 0 ) {
 					$forumTopicsContainer.html( "<p>No forum topics found.</p>" );
 				} else {
 					// Create a list of topics
-					const $ul = jQuery( '<ul></ul>' );
-					jQuery.each( data, function( index, topic ) {
+					const $ul       = jQuery( '<ul></ul>' );
+					const forumData = JSON.parse(data.body);
+					jQuery.each( forumData, function( index, topic ) {
 						const $li = jQuery( '<li></li>' );
 						const $link = jQuery( '<a></a>' ).addClass('w3tc-control-after').attr( 'href', topic.link ).text( topic.title ).attr( 'target', '_blank' ); // Open in new tab
 						const $icon = jQuery( '<span></span>' ).addClass( 'dashicons dashicons-external' );
@@ -628,7 +631,8 @@ jQuery(function() {
 				// Mark topics as loaded to prevent duplicate requests
 				$forumTopicsContainer.attr( 'data-loaded', "1" );
 			},
-			error: function() {
+			error: function( data ) {
+				console.log( data );
 				$forumTopicsContainer.html( "<p>Error loading topics. Please try again later.</p>" );
 			}
 		});
