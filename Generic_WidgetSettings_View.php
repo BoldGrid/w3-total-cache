@@ -57,7 +57,7 @@ $settings = array(
 	),
 	'fragmentcache' => array(
 		'label'   => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
-		'enabled' => $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ),
+		'enabled' => $config->is_extension_active_frontend( 'fragmentcache' ),
 	),
 	'debug'         => array(
 		'label'   => esc_html__( 'Debug', 'w3-total-cache' ),

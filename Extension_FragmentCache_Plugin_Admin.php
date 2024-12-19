@@ -141,6 +141,7 @@ class Extension_FragmentCache_Plugin_Admin {
 	public function w3tc_config_save( $config ) {
 		// frontend activity.
 		$is_frontend_active = (
+			$config->is_extension_active( 'fragmentcache' ) &&
 			! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) &&
 			Util_Environment::is_w3tc_pro( $config )
 		);

@@ -508,6 +508,19 @@ function toggle_objectcache_notice() {
 	}
 }
 
+/**
+ * Toggle the disk notice for fragmentcache.
+ *
+ * @since 2.8.0
+ */
+function toggle_fragmentcache_notice() {
+	if ( jQuery('#fragmentcache___engine').val() === 'file' ) {
+		jQuery('.fragmentcache_disk_notice').show();
+	} else {
+		jQuery('.fragmentcache_disk_notice').hide();
+	}
+}
+
 // On document ready.
 jQuery(function() {
 	// Global vars.
@@ -523,6 +536,10 @@ jQuery(function() {
 	toggle_objectcache_notice();
 	jQuery('#objectcache__enabled').change(toggle_objectcache_notice);
 	jQuery('#objectcache__engine').change(toggle_objectcache_notice);
+
+	// Fragment cache disk usage warning.
+	toggle_fragmentcache_notice();
+	jQuery('#fragmentcache___engine').change(toggle_fragmentcache_notice);
 
 	// General page.
 	jQuery('.w3tc_read_technical_info').on('click', function() {
