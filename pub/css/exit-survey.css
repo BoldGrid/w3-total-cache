@@ -1,0 +1,9 @@
+#w3tc-exit-survey-modal {
+	padding: 0 15px;
+}
+#w3tc-exit-survey-skip {
+	float: right;
+}
+#w3tc_exit_survey_uninstall_reason_other {
+	display: none;
+}
