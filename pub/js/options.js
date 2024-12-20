@@ -488,11 +488,7 @@ function cdn_cf_bucket_location() {
  * @since 2.8.0
  */
 function toggle_dbcache_notice() {
-	if ( jQuery('#dbcache__engine').val() === 'file' && jQuery('#dbcache__enabled').is(':checked') ) {
-		jQuery('.dbcache_disk_notice').show();
-	} else {
-		jQuery('.dbcache_disk_notice').hide();
-	}
+	jQuery('.dbcache_disk_notice').toggle(jQuery('#dbcache__engine').val() === 'file' && jQuery('#dbcache__enabled').is(':checked'));
 }
 
 /**
@@ -501,11 +497,7 @@ function toggle_dbcache_notice() {
  * @since 2.8.0
  */
 function toggle_objectcache_notice() {
-	if ( jQuery('#objectcache__engine').val() === 'file' && jQuery('#objectcache__enabled').is(':checked') ) {
-		jQuery('.objectcache_disk_notice').show();
-	} else {
-		jQuery('.objectcache_disk_notice').hide();
-	}
+	jQuery('.objectcache_disk_notice').toggle(jQuery('#objectcache__engine').val() === 'file' && jQuery('#objectcache__enabled').is(':checked'));
 }
 
 /**
@@ -514,11 +506,7 @@ function toggle_objectcache_notice() {
  * @since 2.8.0
  */
 function toggle_fragmentcache_notice() {
-	if ( jQuery('#fragmentcache___engine').val() === 'file' ) {
-		jQuery('.fragmentcache_disk_notice').show();
-	} else {
-		jQuery('.fragmentcache_disk_notice').hide();
-	}
+	jQuery('.fragmentcache_disk_notice').toggle(jQuery('#fragmentcache___engine').val() === 'file');
 }
 
 // On document ready.
