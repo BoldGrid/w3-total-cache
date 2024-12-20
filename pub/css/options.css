@@ -1712,6 +1712,7 @@ td .w3tc-control-after span {
 	margin-left: 5px;
 }
 
+.fragmentcache_disk_notice,
 .objectcache_disk_notice,
 .dbcache_disk_notice {
 	display: none;
