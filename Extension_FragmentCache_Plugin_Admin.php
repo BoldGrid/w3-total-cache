@@ -90,7 +90,7 @@ class Extension_FragmentCache_Plugin_Admin {
 	public function w3tc_extension_plugin_links( $links ) {
 		$links = array();
 
-		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
+		if ( $this->_config->is_extension_active( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			$links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_fragmentcache' ) ) . '">'
 				. __( 'Settings', 'w3-total-cache' ) . '</a>';
 		}
@@ -102,7 +102,7 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_admin_menu( $menu ) {
-		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
+		if ( $this->_config->is_extension_active( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			$menu['w3tc_fragmentcache'] = array(
 				'page_title'     => __( 'Fragment Cache', 'w3-total-cache' ),
 				'menu_text'      => '<span class="w3tc_menu_item_pro">' . __( 'Fragment Cache', 'w3-total-cache' ) . '</span>',
@@ -117,7 +117,7 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_admin_bar_menu( $menu_items ) {
-		if ( $this->_config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
+		if ( $this->_config->is_extension_active( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			$menu_items['20510.fragmentcache'] = array(
 				'id'     => 'w3tc_flush_fragmentcache',
 				'parent' => 'w3tc_flush',
@@ -139,12 +139,12 @@ class Extension_FragmentCache_Plugin_Admin {
 
 
 	public function w3tc_config_save( $config ) {
+		// frontend activity.
 		$is_frontend_active = (
 			$config->is_extension_active( 'fragmentcache' ) &&
 			! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) &&
 			Util_Environment::is_w3tc_pro( $config )
 		);
-
 		$config->set_extension_active_frontend( 'fragmentcache', $is_frontend_active );
 	}
 
