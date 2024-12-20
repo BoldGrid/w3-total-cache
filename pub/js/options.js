@@ -488,11 +488,7 @@ function cdn_cf_bucket_location() {
  * @since 2.8.0
  */
 function toggle_dbcache_notice() {
-	if ( jQuery('#dbcache__engine').val() === 'file' && jQuery('#dbcache__enabled').is(':checked') ) {
-		jQuery('.dbcache_disk_notice').show();
-	} else {
-		jQuery('.dbcache_disk_notice').hide();
-	}
+	jQuery('.dbcache_disk_notice').toggle(jQuery('#dbcache__engine').val() === 'file' && jQuery('#dbcache__enabled').is(':checked'));
 }
 
 /**
@@ -501,11 +497,16 @@ function toggle_dbcache_notice() {
  * @since 2.8.0
  */
 function toggle_objectcache_notice() {
-	if ( jQuery('#objectcache__engine').val() === 'file' && jQuery('#objectcache__enabled').is(':checked') ) {
-		jQuery('.objectcache_disk_notice').show();
-	} else {
-		jQuery('.objectcache_disk_notice').hide();
-	}
+	jQuery('.objectcache_disk_notice').toggle(jQuery('#objectcache__engine').val() === 'file' && jQuery('#objectcache__enabled').is(':checked'));
+}
+
+/**
+ * Toggle the disk notice for fragmentcache.
+ *
+ * @since 2.8.0
+ */
+function toggle_fragmentcache_notice() {
+	jQuery('.fragmentcache_disk_notice').toggle(jQuery('#fragmentcache___engine').val() === 'file');
 }
 
 // On document ready.
@@ -523,6 +524,10 @@ jQuery(function() {
 	toggle_objectcache_notice();
 	jQuery('#objectcache__enabled').change(toggle_objectcache_notice);
 	jQuery('#objectcache__engine').change(toggle_objectcache_notice);
+
+	// Fragment cache disk usage warning.
+	toggle_fragmentcache_notice();
+	jQuery('#fragmentcache___engine').change(toggle_fragmentcache_notice);
 
 	// General page.
 	jQuery('.w3tc_read_technical_info').on('click', function() {
