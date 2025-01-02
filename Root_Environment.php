@@ -203,4 +203,24 @@ class Root_Environment {
 		}
 		return $instructions_descriptors;
 	}
+
+	/**
+	 * Deletes all W3 Total Cache data from the database.
+	 *
+	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public static function delete_plugin_data() {
+		global $wpdb;
+
+		// Delete all options with the 'w3tc_' prefix.
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'w3tc_%'" );
+
+		// Delete all transients with the 'w3tc_' prefix.
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_w3tc_%' OR option_name LIKE '_transient_timeout_w3tc_%'" );
+	}
 }

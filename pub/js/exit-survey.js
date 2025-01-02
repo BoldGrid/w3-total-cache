@@ -7,7 +7,7 @@ function w3tc_exit_survey_render() {
 	W3tc_Lightbox.open({
 		id: 'w3tc-overlay',
 		maxWidth: 600,
-		maxHeight: 425,
+		maxHeight: 485,
 		url: ajaxurl +
 			'?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=exit_survey_render' +
 			(w3tc_ga_cid ? '&client_id=' + encodeURIComponent(w3tc_ga_cid) : ''),
@@ -52,6 +52,7 @@ function w3tc_exit_survey_render() {
 				// Collect form data
 				var reason = jQuery('input[name="reason"]:checked', lightbox.container).val();
 				var other = jQuery('input[name="other"]', lightbox.container).val();
+				var remove = jQuery('input[name="remove"]', lightbox.container).val();
 				
 				// Build the params object
 				var params = {
@@ -59,7 +60,8 @@ function w3tc_exit_survey_render() {
 					_wpnonce: w3tc_nonce,
 					w3tc_action: 'exit_survey_submit',
 					reason: reason,
-					other: other
+					other: other,
+					remove: remove
 				};
 
                 // Send the survey data to your API server

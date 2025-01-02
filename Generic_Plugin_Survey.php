@@ -125,6 +125,7 @@ class Generic_Plugin_Survey {
 		// Collect survey data.
 		$uninstall_reason = sanitize_text_field( Util_Request::get_string( 'reason' ) );
 		$other_reason     = sanitize_text_field( Util_Request::get_string( 'other' ) );
+		$remove_data      = sanitize_text_field( Util_Request::get_string( 'remove' ) );
 
 		// Prepare the data to send to the API.
 		$data = array(
@@ -162,6 +163,10 @@ class Generic_Plugin_Survey {
 		$api_response  = json_decode( $response_body );
 
 		if ( $api_response && isset( $api_response->status ) && 'Created' === $api_response->status ) {
+			if ( 'yes' === $remove_data ) {
+				update_option( 'w3tc_remove_data', true );
+			}
+
 			wp_send_json_success( array( 'message' => 'Thank you for your feedback!' ) );
 		} else {
 			wp_send_json_error( array( 'message' => 'API error: ' . $api_response->message ) );
