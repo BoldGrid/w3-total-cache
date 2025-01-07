@@ -157,7 +157,7 @@ class Licensing_Plugin_Admin {
 		$state  = Dispatcher::config_state();
 		$status = $state->get_string( 'license.status' );
 
-		if ( defined( 'W3TC_PRO' ) ) {
+		if ( Util_Environment::is_pro_constant( $this->_config ) ) {
 		} elseif ( 'no_key' === $status ) {
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
 			$message = wp_kses(
@@ -254,7 +254,7 @@ class Licensing_Plugin_Admin {
 		$terms        = '';
 		$state_master = Dispatcher::config_state_master();
 
-		if ( defined( 'W3TC_PRO' ) ) {
+		if ( Util_Environment::is_pro_constant( $this->_config ) ) {
 			$terms = 'accept';
 		} elseif ( ! Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			$terms = $state_master->get_string( 'license.community_terms' );

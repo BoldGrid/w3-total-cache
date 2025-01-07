@@ -21,15 +21,6 @@ class Generic_Plugin_Survey {
 	private $_config = null;
 
 	/**
-	 * API Base URL.
-	 *
-	 * @since X.X.X
-	 *
-	 * @var string
-	 */
-	private $base_url = 'https://api2.w3-edge.com';
-
-	/**
 	 * W3TC Pro license key.
 	 *
 	 * @since X.X.X
@@ -66,11 +57,10 @@ class Generic_Plugin_Survey {
 
 		if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			$this->license_key = $this->_config->get_string( 'plugin.license_key' );
-			$this->home_url    = network_home_url();
 			$this->item_name   = W3TC_PURCHASE_PRODUCT_NAME;
-		} else {
-			$this->home_url = network_home_url();
 		}
+
+		$this->home_url = network_home_url();
 	}
 
 	/**
@@ -81,17 +71,6 @@ class Generic_Plugin_Survey {
 	public function run() {
 		add_action( 'w3tc_ajax_exit_survey_render', array( $this, 'w3tc_ajax_exit_survey_render' ) );
 		add_action( 'w3tc_ajax_exit_survey_submit', array( $this, 'w3tc_ajax_exit_survey_submit' ) );
-	}
-
-	/**
-	 * Get API base URL.
-	 *
-	 * @since X.X.X
-	 *
-	 * @access private
-	 */
-	private function get_base_url() {
-		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ? esc_url( W3TC_API2_URL, 'https', '' ) : $this->base_url;
 	}
 
 	/**
@@ -137,13 +116,13 @@ class Generic_Plugin_Survey {
 			'other'       => $other_reason,
 		);
 
-		if ( ( defined( 'W3TC_PRO' ) && W3TC_PRO ) || ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ) ) {
+		if ( Util_Environment::is_pro_constant( $this->_config ) ) {
 			$data['pro_c'] = 1;
 		}
 
 		// Send the data to your API server using wp_remote_post.
 		$response = wp_remote_post(
-			$this->get_base_url() . '/surveys',
+			Util_Environment::get_api_base_url() . '/surveys',
 			array(
 				'method'  => 'POST',
 				'headers' => array(

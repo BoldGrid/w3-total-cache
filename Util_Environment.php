@@ -1397,6 +1397,23 @@ class Util_Environment {
 	}
 
 	/**
+	 * Pro constants?
+	 *
+	 * @static
+	 *
+	 * @param Config $config Config.
+	 *
+	 * @return bool
+	 */
+	public static function is_pro_constant( $config = null ) {
+		if ( ( defined( 'W3TC_PRO' ) && W3TC_PRO ) || ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Quotes regular expression string.
 	 *
 	 * @static
@@ -1833,5 +1850,18 @@ class Util_Environment {
 		$result = wp_remote_post( $cron_request['url'], $cron_request['args'] );
 
 		return $result;
+	}
+
+	/**
+	 * Gets the BoldGrid API URL
+	 *
+	 * This URL can be overridden by defining W3TC_API2_URL
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string The API URL to use for requests.
+	 */
+	public static function get_api_base_url() {
+		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ? esc_url( W3TC_API2_URL, 'https', '' ) : 'https://api2.w3-edge.com';
 	}
 }

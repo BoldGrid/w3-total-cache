@@ -388,9 +388,9 @@ class Generic_Plugin_Admin {
 		// Conditional loading for the exit survey on the plugins page.
 		$current_screen = get_current_screen();
 		if ( isset( $current_screen->id ) && 'plugins' === $current_screen->id ) {
-			wp_register_style( 'w3tc-exit-survey', plugins_url( 'pub/css/exit-survey.css', W3TC_FILE ), array(), W3TC_VERSION );
+			wp_register_style( 'w3tc-exit-survey', plugins_url( 'pub/css/exit-survey.css', W3TC_FILE ), array(), W3TC_VERSION, false );
 			wp_enqueue_style( 'w3tc-exit-survey' );
-			wp_register_script( 'w3tc-exit-survey', plugins_url( 'pub/js/exit-survey.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+			wp_register_script( 'w3tc-exit-survey', plugins_url( 'pub/js/exit-survey.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 			wp_localize_script(
 				'w3tc-exit-survey',
 				'w3tc_nonce',
@@ -514,7 +514,7 @@ class Generic_Plugin_Admin {
 						'w3tc_install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>',
 						'w3tc_pro': '<?php echo Util_Environment::is_w3tc_pro( $this->_config ) ? 1 : 0; ?>',
 						'w3tc_has_key': '<?php $this->_config->get_string( 'plugin.license_key' ) ? 1 : 0; ?>',
-						'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO') && W3TC_PRO ? 1 : 0; ?>',
+						'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO' ) && W3TC_PRO ? 1 : 0; ?>',
 						'w3tc_enterprise_c': '<?php echo defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ? 1 : 0; ?>',
 						'w3tc_plugin_type': '<?php echo esc_attr( $this->_config->get_string( 'plugin.type' ) ); ?>',
 					}

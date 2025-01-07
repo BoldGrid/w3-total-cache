@@ -226,7 +226,7 @@ var W3tc_Overlay = {
 			opacity: 0.6
 		});
 
-		jQuery('#w3tc').append(this.container);
+		jQuery('body').append(this.container);
 
 		this.window.resize(function() {
 			me.resize();

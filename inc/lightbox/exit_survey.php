@@ -12,15 +12,8 @@
 	<div class="w3tc-modal-content">
 		<!-- Survey Form -->
 		<form id="w3tc-exit-survey-form">
-			<h2><?php esc_html_e( 'Why are you leaving W3 Total Cache?', 'w3-total-cache' ); ?></h2>
-			<p><?php esc_html_e( 'Please select the primary reason:', 'w3-total-cache' ); ?></p>
-
-			<div class="w3tc-exit-survey-option">
-				<label>
-					<input type="radio" name="reason" value="performance_issues">
-					<?php esc_html_e( 'I experienced performance issues (e.g., slow website speed)', 'w3-total-cache' ); ?>
-				</label>
-			</div>
+			<h2><?php esc_html_e( 'We\'re sorry to see you go!', 'w3-total-cache' ); ?></h2>
+			<p><?php esc_html_e( 'Before you deactivate W3 Total Cache, could you take a moment to let us know why? Your feedback is incredibly valuable and helps us make W3 Total Cache better for everyone.', 'w3-total-cache' ); ?></p>
 
 			<div class="w3tc-exit-survey-option">
 				<label>
@@ -38,43 +31,8 @@
 
 			<div class="w3tc-exit-survey-option">
 				<label>
-					<input type="radio" name="reason" value="technical_errors">
-					<?php esc_html_e( 'The plugin caused technical errors on my website (e.g., 500 errors, broken pages)', 'w3-total-cache' ); ?>
-				</label>
-			</div>
-
-			<div class="w3tc-exit-survey-option">
-				<label>
 					<input type="radio" name="reason" value="no_improvement">
 					<?php esc_html_e( 'I didn’t see an improvement in website speed or performance', 'w3-total-cache' ); ?>
-				</label>
-			</div>
-
-			<div class="w3tc-exit-survey-option">
-				<label>
-					<input type="radio" name="reason" value="switched_plugin">
-					<?php esc_html_e( 'I switched to another caching plugin', 'w3-total-cache' ); ?>
-				</label>
-			</div>
-
-			<div class="w3tc-exit-survey-option">
-				<label>
-					<input type="radio" name="reason" value="no_longer_needed">
-					<?php esc_html_e( 'I no longer need a caching plugin', 'w3-total-cache' ); ?>
-				</label>
-			</div>
-
-			<div class="w3tc-exit-survey-option">
-				<label>
-					<input type="radio" name="reason" value="hosting_managed_caching">
-					<?php esc_html_e( 'I’m using a hosting provider that manages caching for me', 'w3-total-cache' ); ?>
-				</label>
-			</div>
-
-			<div class="w3tc-exit-survey-option">
-				<label>
-					<input type="radio" name="reason" value="premium_features">
-					<?php esc_html_e( 'I was unaware of the premium features or didn’t find them worth it', 'w3-total-cache' ); ?>
 				</label>
 			</div>
 
@@ -88,6 +46,7 @@
 			</div>
 
 			<h2><?php esc_html_e( 'Remove all plugin data?', 'w3-total-cache' ); ?></h2>
+			<p><?php esc_html_e( 'Selecting "Yes" will permanently delete all W3 Total Cache settings, cached data, and other plugin-related information from your site. This action cannot be undone.', 'w3-total-cache' ); ?></p>
 
 			<div class="w3tc-exit-survey-remove-data">
 				<label>
@@ -106,7 +65,12 @@
 			<!-- Submit and Cancel Buttons -->
 			<div class="w3tc-exit-survey-actions" style="margin-top: 15px;">
 				<button type="submit" id="w3tc-exit-survey-submit" class="button button-primary" disabled><?php esc_html_e( 'Submit & Deactivate', 'w3-total-cache' ); ?></button>
-				<button type="button" id="w3tc-exit-survey-skip" class="button button-secondary"><?php esc_html_e( 'Skip & Deactivate', 'w3-total-cache' ); ?></button>
+				<a href="#" id="w3tc-exit-survey-skip"><?php esc_html_e( 'Skip & Deactivate', 'w3-total-cache' ); ?></a>
+			</div>
+
+			<!-- Spinner -->
+			<div id="w3tc-exit-surey-spinner" class="w3tc-exit-surey-spinner" style="display: none;">
+				<span class="dashicons dashicons-update"></span>
 			</div>
 		</form>
 	</div>

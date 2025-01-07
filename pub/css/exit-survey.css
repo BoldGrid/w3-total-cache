@@ -1,9 +1,38 @@
 #w3tc-exit-survey-modal {
-	padding: 0 15px;
+	padding: 15px;
+}
+.w3tc-modal-content {
+	margin-top: -15px;
 }
 #w3tc-exit-survey-skip {
 	float: right;
+	text-decoration: none;
+	margin: 6px 0;
 }
 #w3tc_exit_survey_uninstall_reason_other {
 	display: none;
+}
+#w3tc-exit-surey-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+}
+#w3tc-exit-surey-spinner .dashicons-update {
+    font-size: 35px;
+    color: #000000;
+	display: inline-block;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+	animation: rotate-spinner 1s linear infinite;
+}
+@keyframes rotate-spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
