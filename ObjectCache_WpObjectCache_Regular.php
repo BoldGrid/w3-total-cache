@@ -4,7 +4,9 @@
  *
  * @package W3TC
  *
- * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore, PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 
 namespace W3TC;
@@ -153,7 +155,9 @@ class ObjectCache_WpObjectCache_Regular {
 	);
 
 	/**
-	 * PHP5 style constructor
+	 * Constructs the object cache instance and initializes various settings.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config              = Dispatcher::config();
@@ -168,14 +172,14 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Get from the cache
+	 * Retrieves a cached object from the object cache.
 	 *
-	 * @param string    $id    ID.
-	 * @param string    $group Group.
-	 * @param bool      $force Force.
-	 * @param bool|null $found Found.
+	 * @param string $id    The cache key.
+	 * @param string $group The cache group.
+	 * @param bool   $force Whether to force a cache refresh.
+	 * @param bool   $found A reference to a boolean variable indicating whether the cache was found.
 	 *
-	 * @return mixed
+	 * @return mixed The cached object or false if not found.
 	 */
 	public function get( $id, $group = 'default', $force = false, &$found = null ) {
 		// Abort if this is a WP-CLI call and objectcache engine is set to Disk.
@@ -260,9 +264,7 @@ class ObjectCache_WpObjectCache_Regular {
 			$this->cache[ $key ] = $value;
 		}
 
-		/**
-		 * Add debug info
-		 */
+		// Add debug info.
 		if ( ! $in_incall_cache ) {
 			$this->cache_total += $cache_total_inc;
 			$this->cache_hits  += $cache_hits_inc;
@@ -309,15 +311,15 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Get multiple from the cache
+	 * Retrieves multiple cached objects.
 	 *
 	 * @since 2.2.8
 	 *
-	 * @param array  $ids   IDs.
-	 * @param string $group Group.
-	 * @param bool   $force Force flag.
+	 * @param array  $ids    An array of cache keys.
+	 * @param string $group  The cache group.
+	 * @param bool   $force  Whether to force a cache refresh.
 	 *
-	 * @return mixed
+	 * @return array An associative array of cached objects, indexed by cache key.
 	 */
 	public function get_multiple( $ids, $group = 'default', $force = false ) {
 		$found_cache = array();
@@ -330,14 +332,14 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Set to the cache
+	 * Sets a cached object in the object cache.
 	 *
-	 * @param string  $id     ID.
-	 * @param mixed   $data   Data.
-	 * @param string  $group  Group.
-	 * @param integer $expire Expire.
+	 * @param string $id      The cache key.
+	 * @param mixed  $data    The data to cache.
+	 * @param string $group   The cache group.
+	 * @param int    $expire  The expiration time, in seconds.
 	 *
-	 * @return boolean
+	 * @return bool True if the cache was set successfully, false otherwise.
 	 */
 	public function set( $id, $data, $group = 'default', $expire = 0 ) {
 		// Abort if this is a WP-CLI call and objectcache engine is set to Disk.
@@ -432,17 +434,15 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Sets multiple values to the cache in one call.
+	 * Sets multiple cached objects.
 	 *
 	 * @since 2.2.8
 	 *
-	 * @param array  $data   Array of keys and values to be set.
-	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
-	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
-	 *                       Default 0 (no expiration).
+	 * @param array  $data   An associative array of data to cache, indexed by cache key.
+	 * @param string $group  The cache group.
+	 * @param int    $expire The expiration time, in seconds.
 	 *
-	 * @return bool[] Array of return values, grouped by key. Each value is either
-	 *                true on success, or false on failure.
+	 * @return array An associative array of cache set results, indexed by cache key.
 	 */
 	public function set_multiple( array $data, $group = '', $expire = 0 ) {
 		$values = array();
@@ -453,13 +453,13 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Delete from the cache
+	 * Deletes a cached object from the object cache.
 	 *
-	 * @param string $id    ID.
-	 * @param string $group Group.
-	 * @param bool   $force Force.
+	 * @param string $id    The cache key.
+	 * @param string $group The cache group.
+	 * @param bool   $force Whether to force a cache deletion.
 	 *
-	 * @return boolean
+	 * @return bool True if the cache was deleted, false otherwise.
 	 */
 	public function delete( $id, $group = 'default', $force = false ) {
 		if ( ! $force && $this->get( $id, $group ) === false ) {
@@ -499,15 +499,14 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Deletes multiple values from the cache in one call.
+	 * Deletes multiple cached objects.
 	 *
 	 * @since 2.2.8
 	 *
-	 * @param array  $keys  Array of keys under which the cache to deleted.
-	 * @param string $group Optional. Where the cache contents are grouped. Default empty.
+	 * @param array  $keys   An array of cache keys to delete.
+	 * @param string $group  The cache group.
 	 *
-	 * @return bool[] Array of return values, grouped by key. Each value is either
-	 *                true on success, or false if the contents were not deleted.
+	 * @return array An associative array of cache delete results, indexed by cache key.
 	 */
 	public function delete_multiple( array $keys, $group = '' ) {
 		$values = array();
@@ -518,14 +517,14 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Add to the cache
+	 * Adds a cached object to the object cache if it doesn't already exist.
 	 *
-	 * @param string  $id     ID.
-	 * @param mixed   $data   Data.
-	 * @param string  $group  Group.
-	 * @param integer $expire Expire.
+	 * @param string $id     The cache key.
+	 * @param mixed  $data   The data to cache.
+	 * @param string $group  The cache group.
+	 * @param int    $expire The expiration time, in seconds.
 	 *
-	 * @return boolean
+	 * @return bool True if the cache was added, false otherwise.
 	 */
 	public function add( $id, $data, $group = 'default', $expire = 0 ) {
 		if ( $this->get( $id, $group ) !== false ) {
@@ -536,17 +535,15 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Add multiple to the cache
+	 * Adds multiple cached objects to the object cache if they don't already exist.
 	 *
 	 * @since 2.2.8
 	 *
-	 * @param array  $data   Array of keys and values to be added.
-	 * @param string $group  Optional. Where the cache contents are grouped. Default empty.
-	 * @param int    $expire Optional. When to expire the cache contents, in seconds.
-	 *                       Default 0 (no expiration).
+	 * @param array  $data   An associative array of data to cache, indexed by cache key.
+	 * @param string $group  The cache group.
+	 * @param int    $expire The expiration time, in seconds.
 	 *
-	 * @return bool[] Array of return values, grouped by key. Each value is either
-	 *                true on success, or false if cache key and group already exist.
+	 * @return array An associative array of cache add results, indexed by cache key.
 	 */
 	public function add_multiple( array $data, $group = '', $expire = 0 ) {
 		$values = array();
@@ -557,14 +554,14 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Replace in the cache
+	 * Replaces a cached object in the object cache if it already exists.
 	 *
-	 * @param string  $id     ID.
-	 * @param mixed   $data   Data.
-	 * @param string  $group  Group.
-	 * @param integer $expire Expire.
+	 * @param string $id     The cache key.
+	 * @param mixed  $data   The data to cache.
+	 * @param string $group  The cache group.
+	 * @param int    $expire The expiration time, in seconds.
 	 *
-	 * @return boolean
+	 * @return bool True if the cache was replaced, false otherwise.
 	 */
 	public function replace( $id, $data, $group = 'default', $expire = 0 ) {
 		if ( $this->get( $id, $group ) === false ) {
@@ -575,7 +572,7 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Reset keys
+	 * Resets the cache by flushing runtime data.
 	 *
 	 * @return void
 	 */
@@ -584,11 +581,11 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Flush cache
+	 * Flushes the entire object cache.
 	 *
-	 * @param string $reason Reason.
+	 * @param string $reason The reason for flushing the cache.
 	 *
-	 * @return boolean
+	 * @return bool Always returns true.
 	 */
 	public function flush( $reason = '' ) {
 		if ( $this->_debug || $this->stats_enabled ) {
@@ -638,9 +635,9 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Flush runtime.
+	 * Clears all cached data in runtime.
 	 *
-	 * @return boolean
+	 * @return bool Returns true on success.
 	 */
 	public function flush_runtime() {
 		$this->cache = array();
@@ -670,22 +667,22 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Check supported features.
+	 * Checks if a specific feature is supported.
 	 *
-	 * @param string $feature Feature.
+	 * @param string $feature Feature to check for.
 	 *
-	 * @return boolean
+	 * @return bool Returns true if the feature is supported.
 	 */
 	public function supports( string $feature ) {
 		return in_array( $feature, $this->supported_features, true );
 	}
 
 	/**
-	 * Flush group.
+	 * Clears the cache for a specific group.
 	 *
-	 * @param string $group Group.
+	 * @param string $group The cache group to flush.
 	 *
-	 * @return boolean
+	 * @return bool Returns true on success.
 	 */
 	public function flush_group( $group ) {
 		if ( $this->_debug || $this->stats_enabled ) {
@@ -741,9 +738,9 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Add global groups
+	 * Adds global groups to be cached.
 	 *
-	 * @param array $groups Groups.
+	 * @param array|string $groups Groups to be added.
 	 *
 	 * @return void
 	 */
@@ -757,9 +754,9 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Add non-persistent groups
+	 * Adds non-persistent groups to be cached.
 	 *
-	 * @param array $groups Groups.
+	 * @param array|string $groups Groups to be added.
 	 *
 	 * @return void
 	 */
@@ -773,13 +770,13 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Increment numeric cache item's value
+	 * Increments the value of a cached key.
 	 *
-	 * @param int|string $key    The cache key to increment.
-	 * @param int        $offset The amount by which to increment the item's value. Default is 1.
-	 * @param string     $group  The group the key is in.
+	 * @param string $key    The cache key to increment.
+	 * @param int    $offset The value to increment by.
+	 * @param string $group  The group the cache belongs to.
 	 *
-	 * @return bool|int False on failure, the item's new value on success.
+	 * @return int|false Returns the new value on success, or false if the key does not exist.
 	 */
 	public function incr( $key, $offset = 1, $group = 'default' ) {
 		$value = $this->get( $key, $group );
@@ -805,13 +802,13 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Decrement numeric cache item's value
+	 * Decrements the value of a cached key.
 	 *
-	 * @param int|string $key    The cache key to increment.
-	 * @param int        $offset The amount by which to decrement the item's value. Default is 1.
-	 * @param string     $group  The group the key is in.
+	 * @param string $key    The cache key to decrement.
+	 * @param int    $offset The value to decrement by.
+	 * @param string $group  The group the cache belongs to.
 	 *
-	 * @return bool|int False on failure, the item's new value on success.
+	 * @return int|false Returns the new value on success, or false if the key does not exist.
 	 */
 	public function decr( $key, $offset = 1, $group = 'default' ) {
 		$value = $this->get( $key, $group );
@@ -837,12 +834,12 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Get transient fallback
+	 * Fallback function to retrieve transient data.
 	 *
-	 * @param string $transient Transient key.
-	 * @param string $group     The group the key is in.
+	 * @param string $transient The transient key.
+	 * @param string $group     The cache group.
 	 *
-	 * @return bool|int False on failure, the item's new value on success.
+	 * @return mixed|null The cached value, or null if not found.
 	 */
 	private function _transient_fallback_get( $transient, $group ) {
 		if ( 'transient' === $group ) {
@@ -894,10 +891,10 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Delete transient fallback
+	 * Fallback function to delete transient data.
 	 *
-	 * @param string $transient Transient key.
-	 * @param string $group     The group the key is in.
+	 * @param string $transient The transient key.
+	 * @param string $group     The cache group.
 	 *
 	 * @return void
 	 */
@@ -921,12 +918,12 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Set transient fallback
+	 * Fallback function to set transient data.
 	 *
-	 * @param string    $transient Transient key.
-	 * @param mixed     $value     Transient value.
-	 * @param string    $group     The group the key is in.
-	 * @param bool|null $expiration Expiration.
+	 * @param string $transient  The transient key.
+	 * @param mixed  $value      The value to store.
+	 * @param string $group      The cache group.
+	 * @param int    $expiration The expiration time in seconds.
 	 *
 	 * @return void
 	 */
@@ -980,9 +977,9 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Switches context to another blog
+	 * Switches the blog context for caching.
 	 *
-	 * @param integer $blog_id Blog ID.
+	 * @param int $blog_id The blog ID to switch to.
 	 *
 	 * @return void
 	 */
@@ -992,11 +989,11 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Global key fetch.
+	 * Retrieves the version number for all keys in the cache.
 	 *
-	 * @param integer $blog_id Blog ID.
+	 * @param int|null $blog_id The blog ID to get the version for.
 	 *
-	 * @return string
+	 * @return int The version number.
 	 */
 	private function key_version_all_get( $blog_id = null ) {
 		if ( is_null( $this->key_version_all ) ) {
@@ -1010,9 +1007,9 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Global key increment.
+	 * Increments the version number for all keys in the cache.
 	 *
-	 * @param integer $blog_id Blog ID.
+	 * @param int|null $blog_id The blog ID to increment the version for.
 	 *
 	 * @return void
 	 */
@@ -1027,12 +1024,12 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Returns cache key
+	 * Retrieves the cache key for a given ID and group.
 	 *
-	 * @param string $id    ID.
-	 * @param string $group Group.
+	 * @param string $id    The cache ID.
+	 * @param string $group The cache group.
 	 *
-	 * @return string
+	 * @return string The generated cache key.
 	 */
 	private function _get_cache_key( $id, $group = 'default' ) {
 		if ( ! $group ) {
@@ -1049,9 +1046,9 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Get usage statistics cache config.
+	 * Retrieves the cache configuration for usage statistics.
 	 *
-	 * @return array
+	 * @return array The cache configuration.
 	 */
 	public function get_usage_statistics_cache_config() {
 		$engine = $this->_config->get_string( 'objectcache.engine' );
@@ -1091,12 +1088,12 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Returns cache object
+	 * Retrieves the cache instance for a given blog ID and group.
 	 *
-	 * @param int|null $blog_id Blog ID.
-	 * @param string   $group   Group.
+	 * @param int|null $blog_id The blog ID.
+	 * @param string   $group   The cache group.
 	 *
-	 * @return W3_Cache_Base
+	 * @return Cache The cache instance.
 	 */
 	private function _get_cache( $blog_id = null, $group = '' ) {
 		static $cache = array();
@@ -1159,23 +1156,19 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Check if caching allowed on init
+	 * Determines whether caching is enabled based on configuration.
 	 *
-	 * @return boolean
+	 * @return bool Returns true if caching is enabled, false otherwise.
 	 */
 	private function _can_cache() {
-		/**
-		 * Skip if disabled
-		 */
+		// Skip if disabled.
 		if ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) ) {
 			$this->cache_reject_reason = 'objectcache.disabled';
 
 			return false;
 		}
 
-		/**
-		 * Check for DONOTCACHEOBJECT constant
-		 */
+		// Check for DONOTCACHEOBJECT constant.
 		if ( defined( 'DONOTCACHEOBJECT' ) && DONOTCACHEOBJECT ) {
 			$this->cache_reject_reason = 'DONOTCACHEOBJECT';
 
@@ -1186,11 +1179,11 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Returns if we can cache, that condition can change in runtime
+	 * Checks if caching is allowed for runtime based on the group.
 	 *
-	 * @param unknown $group Group.
+	 * @param string $group The cache group to check.
 	 *
-	 * @return boolean
+	 * @return bool Returns true if caching is allowed for the group.
 	 */
 	private function _check_can_cache_runtime( $group ) {
 		// Need to be handled in wp admin as well as frontend.
@@ -1221,22 +1214,22 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Is transient group.
+	 * Determines whether the specified group is a transient group.
 	 *
-	 * @param unknown $group Group.
+	 * @param string $group The cache group to check.
 	 *
-	 * @return boolean
+	 * @return bool Returns true if the group is transient.
 	 */
 	private function _is_transient_group( $group ) {
 		return in_array( $group, array( 'transient', 'site-transient' ), true );
 	}
 
 	/**
-	 * Modify footer comment.
+	 * Appends information about object cache usage to the footer comment.
 	 *
-	 * @param array $strings Strings.
+	 * @param array $strings The array of strings to append the data to.
 	 *
-	 * @return array
+	 * @return array The modified array of strings.
 	 */
 	public function w3tc_footer_comment( $strings ) {
 		$reason = $this->get_reject_reason();
@@ -1264,9 +1257,9 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Usage statistics of request.
+	 * Tracks object cache usage statistics.
 	 *
-	 * @param object $storage Storage.
+	 * @param Storage $storage The storage instance to track statistics in.
 	 *
 	 * @return void
 	 */
@@ -1278,10 +1271,11 @@ class ObjectCache_WpObjectCache_Regular {
 		$storage->counter_add( 'objectcache_time_ms', (int) ( $this->time_total * 1000 ) );
 	}
 
+
 	/**
-	 * Get reject reason.
+	 * Retrieves the reason why the cache is being rejected.
 	 *
-	 * @return string
+	 * @return string The rejection reason.
 	 */
 	public function get_reject_reason() {
 		if ( is_null( $this->cache_reject_reason ) ) {
@@ -1292,11 +1286,11 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Get reject reason message.
+	 * Retrieves a rejection message based on a given key.
 	 *
-	 * @param unknown $key Key.
+	 * @param string $key The rejection key.
 	 *
-	 * @return string
+	 * @return string The rejection message.
 	 */
 	private function _get_reject_reason_message( $key ) {
 		if ( ! function_exists( '__' ) ) {
@@ -1313,10 +1307,12 @@ class ObjectCache_WpObjectCache_Regular {
 		}
 	}
 
+
 	/**
-	 * Log call.
+	 * Logs cache-related calls for debugging purposes.
 	 *
-	 * @param  array $data Log data.
+	 * @param array $data The data to log.
+	 *
 	 * @return void
 	 */
 	private function log_call( array $data ): void {
@@ -1327,12 +1323,11 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Check if this is a WP-CLI call and objectcache.engine is using Disk.
+	 * Checks if the current environment is running WP-CLI with a file-based object cache.
 	 *
 	 * @since  2.8.1
-	 * @access private
 	 *
-	 * @return bool
+	 * @return bool True if running WP-CLI with a file-based object cache, false otherwise.
 	 */
 	private function is_wpcli_disk(): bool {
 		$engine = $this->_config->get_string( 'objectcache.engine' );

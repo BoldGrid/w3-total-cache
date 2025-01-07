@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: ObjectCache_Page_View_PurgeLog.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

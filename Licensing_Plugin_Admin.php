@@ -1,22 +1,60 @@
 <?php
+/**
+ * File: Licensing_Plugin_Admin.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Licensing_Plugin_Admin
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.EmptyStatement
+ */
 class Licensing_Plugin_Admin {
+	/**
+	 * Site deactivated flag
+	 *
+	 * @var bool
+	 */
 	private $site_inactivated = false;
-	private $site_activated   = false;
+
+	/**
+	 * Site activated flag
+	 *
+	 * @var bool
+	 */
+	private $site_activated = false;
+
 	/**
 	 * Config
+	 *
+	 * @var Config
 	 */
 	private $_config = null;
 
-	function __construct() {
+	/**
+	 * Constructor for the Licensing Plugin Admin class.
+	 *
+	 * Initializes the configuration.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Runs plugin
+	 * Registers hooks for the plugin's admin functionality.
+	 *
+	 * Adds actions and filters for admin initialization, AJAX, UI updates, and admin bar menu.
+	 *
+	 * @return void
 	 */
-	function run() {
+	public function run() {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'wp_ajax_w3tc_verify_plugin_license_key', array( $this, 'action_verify_plugin_license_key' ) );
 		add_action( 'w3tc_config_ui_save-w3tc_general', array( $this, 'possible_state_change' ), 2, 10 );
@@ -26,6 +64,13 @@ class Licensing_Plugin_Admin {
 		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
 	}
 
+	/**
+	 * Adds licensing menu items to the admin bar.
+	 *
+	 * @param array $menu_items Existing admin bar menu items.
+	 *
+	 * @return array Modified admin bar menu items.
+	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
 		if ( ! Util_Environment::is_w3tc_pro( $this->_config ) ) {
 			$menu_items['00020.licensing'] = array(
@@ -63,10 +108,22 @@ class Licensing_Plugin_Admin {
 		return $menu_items;
 	}
 
+	/**
+	 * Handles the licensing upgrade action.
+	 *
+	 * Adds a hook to modify the admin head for licensing upgrades.
+	 *
+	 * @return void
+	 */
 	public function w3tc_message_action_licensing_upgrade() {
 		add_action( 'admin_head', array( $this, 'admin_head_licensing_upgrade' ) );
 	}
 
+	/**
+	 * Outputs JavaScript for the licensing upgrade page.
+	 *
+	 * @return void
+	 */
 	public function admin_head_licensing_upgrade() {
 		?>
 		<script type="text/javascript">
@@ -79,12 +136,14 @@ class Licensing_Plugin_Admin {
 	}
 
 	/**
+	 * Handles possible state changes for plugin licensing.
 	 *
+	 * @param object $config     Current configuration object.
+	 * @param object $old_config Previous configuration object.
 	 *
-	 * @param Config  $config
-	 * @param Config  $old_config
+	 * @return void
 	 */
-	function possible_state_change( $config, $old_config ) {
+	public function possible_state_change( $config, $old_config ) {
 		$changed = false;
 
 		if ( $old_config->get_string( 'plugin.license_key' ) !== '' && $config->get_string( 'plugin.license_key' ) === '' ) {
@@ -118,9 +177,13 @@ class Licensing_Plugin_Admin {
 	}
 
 	/**
-	 * Setup notices actions
+	 * Initializes admin-specific features and hooks.
+	 *
+	 * Adds admin notices, UI filters, and license status checks.
+	 *
+	 * @return void
 	 */
-	function admin_init() {
+	public function admin_init() {
 		$capability = apply_filters( 'w3tc_capability_admin_notices', 'manage_options' );
 
 		$this->maybe_update_license_status();
@@ -142,6 +205,14 @@ class Licensing_Plugin_Admin {
 		}
 	}
 
+	/**
+	 * Checks if a status starts with a specific prefix.
+	 *
+	 * @param string $s           The status string.
+	 * @param string $starts_with The prefix to check against.
+	 *
+	 * @return bool True if the status starts with the prefix, false otherwise.
+	 */
 	private function _status_is( $s, $starts_with ) {
 		$s           .= '.';
 		$starts_with .= '.';
@@ -149,16 +220,23 @@ class Licensing_Plugin_Admin {
 	}
 
 	/**
-	 * Run license status check and display messages
+	 * Displays admin notices related to licensing.
+	 *
+	 * phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
+	 * phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+	 *
+	 * @return void
 	 */
-	function admin_notices() {
+	public function admin_notices() {
 		$message = '';
 
 		$state  = Dispatcher::config_state();
 		$status = $state->get_string( 'license.status' );
 
 		if ( defined( 'W3TC_PRO' ) ) {
+			// Do nothing.
 		} elseif ( 'no_key' === $status ) {
+			// Do nothing.
 		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
 			$message = wp_kses(
 				sprintf(
@@ -250,7 +328,14 @@ class Licensing_Plugin_Admin {
 		}
 	}
 
-	function w3tc_notes( $notes ) {
+	/**
+	 * Modifies the notes displayed in the W3TC UI.
+	 *
+	 * @param array $notes Existing notes to display.
+	 *
+	 * @return array Modified notes with licensing terms.
+	 */
+	public function w3tc_notes( $notes ) {
 		$terms        = '';
 		$state_master = Dispatcher::config_state_master();
 
@@ -317,9 +402,11 @@ class Licensing_Plugin_Admin {
 	}
 
 	/**
+	 * Updates the license status if needed.
 	 *
+	 * Performs a license check and updates the configuration state accordingly.
 	 *
-	 * @return string
+	 * @return string The updated license status.
 	 */
 	private function maybe_update_license_status() {
 		$state = Dispatcher::config_state();
@@ -356,9 +443,13 @@ class Licensing_Plugin_Admin {
 		}
 
 		if ( 'no_key' === $status ) {
+			// Do nothing.
 		} elseif ( $this->_status_is( $status, 'invalid' ) ) {
+			// Do nothing.
 		} elseif ( $this->_status_is( $status, 'inactive' ) ) {
+			// Do nothing.
 		} elseif ( $this->_status_is( $status, 'active' ) ) {
+			// Do nothing.
 		} else {
 			$check_timeout = 60;
 		}
@@ -372,14 +463,19 @@ class Licensing_Plugin_Admin {
 			try {
 				$this->_config->set( 'plugin.type', $plugin_type );
 				$this->_config->save();
-			} catch ( \Exception $ex ) {
+			} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				// missing exception handle?
 			}
 		}
 		return $status;
 	}
 
-	function get_license_key() {
+	/**
+	 * Retrieves the license key for the plugin.
+	 *
+	 * @return string The license key.
+	 */
+	public function get_license_key() {
 		$license_key = $this->_config->get_string( 'plugin.license_key', '' );
 		if ( '' === $license_key ) {
 			$license_key = ini_get( 'w3tc.license_key' );
@@ -387,7 +483,14 @@ class Licensing_Plugin_Admin {
 		return $license_key;
 	}
 
-	function action_verify_plugin_license_key() {
+	/**
+	 * Handles the AJAX action to verify the plugin license key.
+	 *
+	 * Validates the license key and outputs the license status.
+	 *
+	 * @return void
+	 */
+	public function action_verify_plugin_license_key() {
 		$license = Util_Request::get_string( 'license_key', '' );
 
 		if ( $license ) {
