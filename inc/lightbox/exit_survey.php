@@ -67,11 +67,6 @@
 				<button type="submit" id="w3tc-exit-survey-submit" class="button button-primary" disabled><?php esc_html_e( 'Submit & Deactivate', 'w3-total-cache' ); ?></button>
 				<a href="#" id="w3tc-exit-survey-skip"><?php esc_html_e( 'Skip & Deactivate', 'w3-total-cache' ); ?></a>
 			</div>
-
-			<!-- Spinner -->
-			<div id="w3tc-exit-surey-spinner" class="w3tc-exit-surey-spinner" style="display: none;">
-				<span class="dashicons dashicons-update"></span>
-			</div>
 		</form>
 	</div>
 </div>

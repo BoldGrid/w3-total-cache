@@ -83,6 +83,11 @@ class Generic_Plugin_Survey {
 			return;
 		}
 
+		// Verify nonce.
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
+		}
+
 		include W3TC_INC_DIR . '/lightbox/exit_survey.php';
 	}
 

@@ -6,6 +6,7 @@
 function w3tc_exit_survey_render() {
 	W3tc_Lightbox.open({
 		id: 'w3tc-overlay',
+		height: 'auto',
 		maxWidth: 600,
 		url: ajaxurl +
 			'?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=exit_survey_render' +
@@ -17,7 +18,7 @@ function w3tc_exit_survey_render() {
 			// Cancel button action
 			jQuery('#w3tc-exit-survey-skip', lightbox.container).on( 'click', function() {
 				// Show spinner and disable interactions
-				showSpinner();
+				lightbox.show_spinner();
 
 				if (window.w3tc_ga) {
 					w3tc_ga(
@@ -41,7 +42,7 @@ function w3tc_exit_survey_render() {
 				event.preventDefault();
 
 				// Show spinner and disable interactions
-				showSpinner();
+				lightbox.show_spinner();
 
 				if (window.w3tc_ga) {
 					w3tc_ga(
@@ -72,13 +73,21 @@ function w3tc_exit_survey_render() {
 				// Send the survey data to your API server
 				jQuery.post( ajaxurl, params, function(response) {
 					if(response.success) {
-						alert(response.data.message);
 						lightbox.close();
 						window.location.href = deactivateUrl;
 					} else {
-						alert(response.data.message);
-						// Hide spinner and re-enable buttons/links
-						hideSpinner();
+						if (window.w3tc_ga) {
+							w3tc_ga(
+								'event',
+								'w3tc_error',
+								{
+									eventCategory: 'exit_survey',
+									eventLabel: 'api_error'
+								}
+							);
+						}
+						lightbox.close();
+						window.location.href = deactivateUrl;
 					}
 				});
 			});
@@ -86,20 +95,6 @@ function w3tc_exit_survey_render() {
 			lightbox.resize();
 		}
 	});
-}
-
-// Show the loading spinner and gray out the modal
-function showSpinner() {
-    jQuery('#w3tc-exit-surey-spinner').show();  // Show the spinner
-    jQuery('#w3tc-exit-survey-modal').css('opacity', '0.5');  // Gray out the modal
-    jQuery('#w3tc-exit-survey-form').find('input, button, a').prop('disabled', true);  // Disable other interactions
-}
-
-// Hide the loading spinner and restore interaction
-function hideSpinner() {
-    jQuery('#w3tc-exit-surey-spinner').hide();  // Hide the spinner
-    jQuery('#w3tc-exit-survey-modal').css('opacity', '1');  // Restore the modal opacity
-    jQuery('#w3tc-exit-survey-form').find('input, button, a').prop('disabled', false);  // Enable interactions
 }
 
 // On document ready.
