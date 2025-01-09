@@ -59,8 +59,15 @@ class Util_Debug {
 			$dir_path = Util_Environment::cache_dir( 'log' );
 		}
 
-		// Prefix the postfix (log subdirectory).
-		$postfix = hash( 'crc32b', W3TC_DIR . WP_CACHE_KEY_SALT ) . '-' . $postfix;
+		/**
+		 * Prefix the postfix (log subdirectory).
+		 *
+		 * Uses a definition/contant that should exist in "wp-config.php".
+		 *
+		 * @link https://api.wordpress.org/secret-key/1.1/salt/
+		 */
+		$salt    = defined( 'NONCE_SALT' ) ? NONCE_SALT : '';
+		$postfix = hash( 'crc32b', W3TC_DIR . $salt ) . '-' . $postfix;
 
 		$filename = $dir_path . '/' . $postfix . '/' . $module . '.log';
 		if ( ! is_dir( dirname( $filename ) ) ) {
