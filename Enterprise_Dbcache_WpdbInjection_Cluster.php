@@ -349,7 +349,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			return false;
 		}
 
-		$table_from_query        = $this->_get_table_from_query( $query )
+		$table_from_query        = $this->_get_table_from_query( $query );
 		$this->_last_table       = $table_from_query;
 		$this->wpdb_mixin->table = $table_from_query;
 

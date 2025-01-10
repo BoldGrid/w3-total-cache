@@ -30,7 +30,7 @@ class DbCache_ConfigLabels {
 				'dbcache.file.gc'       => __( 'Garbage collection interval:', 'w3-total-cache' ),
 				'dbcache.reject.uri'    => __( 'Never cache the following pages:', 'w3-total-cache' ),
 				'dbcache.reject.sql'    => __( 'Ignored query stems:', 'w3-total-cache' ),
-				'dbcache.reject.words'  => __( 'Reject query words:', 'w3-total-cache' )
+				'dbcache.reject.words'  => __( 'Reject query words:', 'w3-total-cache' ),
 			)
 		);
 	}

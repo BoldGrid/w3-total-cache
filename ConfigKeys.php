@@ -5,6 +5,7 @@
  * @package W3TC
  *
  * phpcs:disable WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
+ * phpcs:disable phpcs:ignore Squiz.PHP.CommentedOutCode.Found
  */
 
 /**
@@ -2636,7 +2637,7 @@ $keys = array(
 	),
 );
 
-/**
+/*
  * extensions keys:
  *
  *  cloudflare =>

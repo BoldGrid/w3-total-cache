@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return string The warning message about outdated PHP.
  */
-public function w3tc_old_php_message() {
+function w3tc_old_php_message() {
 	$m = __( 'Please update your PHP. <strong>W3 Total Cache</strong> requires PHP version 7.2.5 or above', 'w3-total-cache' );
 	return $m;
 }
@@ -28,7 +28,7 @@ public function w3tc_old_php_message() {
  *
  * @return void
  */
-public function w3tc_old_php_activate() {
+function w3tc_old_php_activate() {
 	echo esc_html( w3tc_old_php_message() );
 	exit();
 }
@@ -40,7 +40,7 @@ public function w3tc_old_php_activate() {
  *
  * @return void
  */
-public function w3tc_old_php_admin_notices() {
+function w3tc_old_php_admin_notices() {
 	?>
 	<div class="notice error notice-error">
 		<p><?php echo esc_html( w3tc_old_php_message() ); ?></p>

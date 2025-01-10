@@ -26,6 +26,7 @@ class Util_WpFile_FilesystemRmdirException extends Util_WpFile_FilesystemOperati
 	 *
 	 * @param string      $message          The message to associate with the object.
 	 * @param string|null $credentials_form Optional. The credentials form content. Defaults to null if not provided.
+	 * @param string      $folder           The folder that caused the exception.
 	 */
 	public function __construct( $message, $credentials_form, $folder ) {
 		parent::__construct( $message, $credentials_form );
