@@ -1,4 +1,13 @@
-<?php include W3TC_INC_DIR . '/options/common/header.php'; ?>
+<?php
+/**
+ * File: Support_Page_View_PageContent.php
+ *
+ * @package W3TC
+ */
+
+namespace W3TC;
+
+require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
 <div id="wufoo-m5pom8z0qy59rm"></div>
 <form>

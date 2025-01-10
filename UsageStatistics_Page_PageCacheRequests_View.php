@@ -1,4 +1,12 @@
 <?php
+/**
+ * File: UsageStatistics_Page_PageCacheRequests_View.php
+ *
+ * phpcs:disable WordPress.Security.NonceVerification.Recommended
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

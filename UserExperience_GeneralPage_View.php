@@ -78,7 +78,7 @@ Util_Ui::config_overloading_button( array( 'key' => 'lazyload.configuration_over
 			'score'             => '+10',
 			'score_label'       => __( 'Points', 'w3-total-cache' ),
 			'score_description' => __( 'In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!', 'w3-total-cache' ),
-			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/?utm_source=w3tc&utm_medium=lazy-load-maps&utm_campaign=proof'
+			'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/?utm_source=w3tc&utm_medium=lazy-load-maps&utm_campaign=proof',
 		)
 	);
 

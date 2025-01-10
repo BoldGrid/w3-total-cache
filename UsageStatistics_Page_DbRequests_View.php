@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: UsageStatistics_Page_DbRequests_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

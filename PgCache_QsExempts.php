@@ -12,7 +12,9 @@ namespace W3TC;
  */
 class PgCache_QsExempts {
 	/**
-	 * Returns list of default accepted QS key/values to be ignored when generating the Page Cache.
+	 * Retrieves an array of query string parameters that are exempt from processing.
+	 *
+	 * @return array List of query string parameter names that are exempt.
 	 */
 	public static function get_qs_exempts() {
 		return array(

@@ -1,3 +1,13 @@
+<?php
+/**
+ * File: UsageStatistics_Page_View_Ad.php
+ *
+ * @package W3TC
+ */
+
+namespace W3TC;
+
+?>
 <p>
 	<?php esc_html_e( 'Users who upgrade to W3 Total Cache Pro will have access to the new Statistics page, which provides an in-depth view of the performance of your site.', 'w3-total-cache' ); ?>
 </p>
