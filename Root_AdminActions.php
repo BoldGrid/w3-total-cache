@@ -33,7 +33,7 @@ class Root_AdminActions {
 	public function execute( $action ) {
 		$handler_class          = $this->_get_handler( $action );
 		$handler_class_fullname = '\\W3TC\\' . $handler_class;
-		$handler_object         = new ( $handler_class_fullname );
+		$handler_object         = new $handler_class_fullname();
 
 		$action_details = explode( '~', $action );
 
