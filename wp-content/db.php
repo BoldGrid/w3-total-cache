@@ -1,6 +1,13 @@
 <?php
 /**
- * W3 Total Cache Database module
+ * File: db.php
+ *
+ * W3 Total Cache Database module.
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+ *
+ * @package W3TC
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
