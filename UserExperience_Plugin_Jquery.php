@@ -12,6 +12,8 @@ namespace W3TC;
 /**
  * Class: UserExperience_Plugin_Jquery
  *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ *
  * @since 0.14.4
  */
 class UserExperience_Plugin_Jquery {

@@ -14,20 +14,22 @@ namespace W3TC;
 /**
  * UserExperience DeferScripts Extension.
  *
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ *
  * @since 2.4.2
  */
 class UserExperience_DeferScripts_Extension {
 	/**
 	 * Config.
 	 *
-	 * @var object
+	 * @var Config
 	 */
 	private $config;
 
 	/**
 	 * Mutator.
 	 *
-	 * @var object
+	 * @var UserExperience_DeferScripts_Mutator
 	 */
 	private $mutator;
 

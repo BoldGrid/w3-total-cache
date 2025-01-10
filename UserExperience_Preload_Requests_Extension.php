@@ -85,8 +85,8 @@ class UserExperience_Preload_Requests_Extension {
 	 */
 	public function w3tc_config_key_descriptor( $descriptor, $key ) {
 		if (
-			is_array( $key )
-			&& in_array(
+			is_array( $key ) &&
+			in_array(
 				implode( '.', $key ),
 				array(
 					'user-experience-preload-requests.dns-prefetch',
@@ -98,7 +98,8 @@ class UserExperience_Preload_Requests_Extension {
 					'user-experience-preload-requests.preload-videos',
 					'user-experience-preload-requests.preload-audio',
 					'user-experience-preload-requests.preload-documents',
-				)
+				),
+				true
 			)
 		) {
 			$descriptor = array( 'type' => 'array' );
