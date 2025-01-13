@@ -164,7 +164,7 @@ class Generic_Plugin_Survey {
 		$response_body = wp_remote_retrieve_body( $response );
 		$api_response  = json_decode( $response_body );
 
-		if ( $api_response && 201 === wp_remote_retrieve_response_code( $api_response ) ) {
+		if ( $api_response && 201 === wp_remote_retrieve_response_code( $response ) ) {
 			if ( 'yes' === $remove_data ) {
 				update_option( 'w3tc_remove_data', true );
 			}

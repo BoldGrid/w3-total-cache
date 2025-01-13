@@ -243,15 +243,7 @@ class Root_Environment {
 		);
 
 		foreach ( $directories as $dir ) {
-			if ( file_exists( $dir ) ) {
-				try {
-					if ( ! Util_File::rmdir( $dir ) ) {
-						error_log( 'Failed to delete directory: ' . $dir );
-					}
-				} catch ( Exception $e ) {
-					error_log( 'Error deleting directory ' . $dir . ': ' . $e->getMessage() );
-				}
-			}
+			Util_File::rmdir( $dir );
 		}
 	}
 }
