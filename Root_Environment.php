@@ -209,6 +209,7 @@ class Root_Environment {
 	 *
 	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
 	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	 *
 	 * @since X.X.X
 	 *
@@ -217,20 +218,40 @@ class Root_Environment {
 	public static function delete_plugin_data() {
 		global $wpdb;
 
-		// Delete all options with the 'w3tc_' prefix.
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'w3tc_%'" );
+		// Define prefixes for options and transients.
+		$prefixes = array(
+			'w3tc_',                    // General options prefix.
+			'w3tcps_',                  // Additional options prefix.
+			'_transient_w3tc_',         // Transient prefix.
+			'_transient_timeout_w3tc_', // Transient timeout prefix.
+		);
 
-		// Delete all transients with the 'w3tc_' prefix.
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_w3tc_%' OR option_name LIKE '_transient_timeout_w3tc_%'" );
-
-		// Remove plugin-created cache directory.
-		if ( defined( 'W3TC_CACHE_DIR' ) && file_exists( W3TC_CACHE_DIR ) ) {
-			Util_File::rmdir( W3TC_CACHE_DIR );
+		// Delete options and transients with defined prefixes.
+		foreach ( $prefixes as $prefix ) {
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+					$prefix . '%'
+				)
+			);
 		}
-	
-		// Remove plugin-created config directory.
-		if ( defined( 'W3TC_CONFIG_DIR' ) && file_exists( W3TC_CONFIG_DIR ) ) {
-			Util_File::rmdir( W3TC_CONFIG_DIR );
+
+		// Remove plugin-created directories.
+		$directories = array(
+			defined( 'W3TC_CACHE_DIR' ) ? W3TC_CACHE_DIR : WP_CONTENT_DIR . '/cache',
+			defined( 'W3TC_CONFIG_DIR' ) ? W3TC_CONFIG_DIR : WP_CONTENT_DIR . '/w3tc-config',
+		);
+
+		foreach ( $directories as $dir ) {
+			if ( file_exists( $dir ) ) {
+				try {
+					if ( ! Util_File::rmdir( $dir ) ) {
+						error_log( 'Failed to delete directory: ' . $dir );
+					}
+				} catch ( Exception $e ) {
+					error_log( 'Error deleting directory ' . $dir . ': ' . $e->getMessage() );
+				}
+			}
 		}
 	}
 }
