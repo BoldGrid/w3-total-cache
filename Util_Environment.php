@@ -1399,6 +1399,8 @@ class Util_Environment {
 	/**
 	 * Pro constants?
 	 *
+	 * @since X.X.X
+	 *
 	 * @static
 	 *
 	 * @param Config $config Config.
@@ -1406,11 +1408,7 @@ class Util_Environment {
 	 * @return bool
 	 */
 	public static function is_pro_constant( $config = null ) {
-		if ( ( defined( 'W3TC_PRO' ) && W3TC_PRO ) || ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ) ) {
-			return true;
-		}
-
-		return false;
+		return ( defined( 'W3TC_PRO' ) && W3TC_PRO ) || ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE );
 	}
 
 	/**
@@ -1862,6 +1860,6 @@ class Util_Environment {
 	 * @return string The API URL to use for requests.
 	 */
 	public static function get_api_base_url() {
-		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ? esc_url( W3TC_API2_URL, 'https', '' ) : 'https://api2.w3-edge.com';
+		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ? esc_url( W3TC_API2_URL, array( 'https' ), '' ) : 'https://api2.w3-edge.com';
 	}
 }

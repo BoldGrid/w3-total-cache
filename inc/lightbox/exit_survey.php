@@ -42,7 +42,7 @@
 					<input type="radio" name="reason" value="other">
 					<?php esc_html_e( 'Other (please specify):', 'w3-total-cache' ); ?>
 				</label>
-				<input type="text" id="w3tc_exit_survey_uninstall_reason_other" name="other" placeholder="<?php esc_attr_e( 'Please specify...', 'w3-total-cache' ); ?>" style="width: 100%; margin-top: 5px;" />
+				<input type="text" id="w3tc_exit_survey_uninstall_reason_other" class="hidden" name="other" placeholder="<?php esc_attr_e( 'Please specify...', 'w3-total-cache' ); ?>" />
 			</div>
 
 			<h2><?php esc_html_e( 'Remove all plugin data?', 'w3-total-cache' ); ?></h2>
@@ -63,7 +63,7 @@
 			</div>
 
 			<!-- Submit and Cancel Buttons -->
-			<div class="w3tc-exit-survey-actions" style="margin-top: 15px;">
+			<div class="w3tc-exit-survey-actions">
 				<button type="submit" id="w3tc-exit-survey-submit" class="button button-primary" disabled><?php esc_html_e( 'Submit & Deactivate', 'w3-total-cache' ); ?></button>
 				<a href="#" id="w3tc-exit-survey-skip"><?php esc_html_e( 'Skip & Deactivate', 'w3-total-cache' ); ?></a>
 			</div>

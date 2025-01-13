@@ -1,4 +1,14 @@
 /**
+ * File: exit-survey.js
+ *
+ * JavaScript for the exit survey modal.
+ *
+ * @since X.X.X
+ *
+ * @global w3tcData Localized array variable.
+ */
+
+/**
  * Display the exit servey modal on plugin deactivation.
  *
  * @since X.X.X
@@ -9,15 +19,15 @@ function w3tc_exit_survey_render() {
 		height: 'auto',
 		maxWidth: 600,
 		url: ajaxurl +
-			'?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=exit_survey_render' +
+			'?action=w3tc_ajax&_wpnonce=' + w3tcData.nonce + '&w3tc_action=exit_survey_render' +
 			(w3tc_ga_cid ? '&client_id=' + encodeURIComponent(w3tc_ga_cid) : ''),
 		callback: function(lightbox) {
-			// Retrieve the original deactivation URL
+			// Retrieve the original deactivation URL.
 			var deactivateUrl = jQuery('#deactivate-w3-total-cache').attr('href');
 
 			// Cancel button action
 			jQuery('#w3tc-exit-survey-skip', lightbox.container).on( 'click', function() {
-				// Show spinner and disable interactions
+				// Show spinner and disable interactions.
 				lightbox.show_spinner();
 
 				if (window.w3tc_ga) {
@@ -31,17 +41,17 @@ function w3tc_exit_survey_render() {
 					);
 				}
 
-				// Close the lightbox
+				// Close the lightbox.
 				lightbox.close();
-				// Proceed with plugin deactivation
+				// Proceed with plugin deactivation.
 				window.location.href = deactivateUrl;
 			});
 
-			// Handle form submission
+			// Handle form submission.
 			jQuery('#w3tc-exit-survey-form', lightbox.container).on('submit', function(event) {
 				event.preventDefault();
 
-				// Show spinner and disable interactions
+				// Show spinner and disable interactions.
 				lightbox.show_spinner();
 
 				if (window.w3tc_ga) {
@@ -55,22 +65,22 @@ function w3tc_exit_survey_render() {
 					);
 				}
 
-				// Collect form data
+				// Collect form data.
 				var reason = jQuery('input[name="reason"]:checked', lightbox.container).val();
 				var other = jQuery('input[name="other"]', lightbox.container).val();
 				var remove = jQuery('input[name="remove"]:checked', lightbox.container).val();
 				
-				// Build the params object
+				// Build the params object.
 				var params = {
 					action: 'w3tc_ajax',
-					_wpnonce: w3tc_nonce,
+					_wpnonce: w3tcData.nonce,
 					w3tc_action: 'exit_survey_submit',
 					reason: reason,
 					other: other,
 					remove: remove
 				};
 
-				// Send the survey data to your API server
+				// Send the survey data to the API server.
 				jQuery.post( ajaxurl, params, function(response) {
 					if(response.success) {
 						lightbox.close();
@@ -122,18 +132,18 @@ jQuery(function() {
 		return false;
 	});
 
-	// Listen for changes on the radio buttons
+	// Listen for changes on the radio buttons.
 	jQuery(document).on('change', 'input[name="reason"]', function() {
-		// Enable Submit & Deactivate button once an option is selected
+		// Enable Submit & Deactivate button once an option is selected.
 		if (jQuery('input[name="reason"]:checked').length > 0) {
 			jQuery('#w3tc-exit-survey-submit').prop('disabled', false);
 		}
 
-		// If the "Other" option is selected, show the text box
+		// If the "Other" option is selected, show the text box.
 		if (jQuery(this).val() === 'other') {
 			jQuery('#w3tc_exit_survey_uninstall_reason_other').show();
 		} else {
-			jQuery('#w3tc_exit_survey_uninstall_reason_other').hide().val(''); // Clear the "Other" input when not selected
+			jQuery('#w3tc_exit_survey_uninstall_reason_other').hide();
 		}
 	});
 });

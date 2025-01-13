@@ -2,6 +2,8 @@
 /**
  * File: Generic_Plugin_Survey.php
  *
+ * @since X.X.X
+ *
  * @package W3TC
  */
 
@@ -10,15 +12,19 @@ namespace W3TC;
 /**
  * Class Generic_Plugin_Survey
  *
+ * @since X.X.X
+ *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 class Generic_Plugin_Survey {
 	/**
 	 * Config
 	 *
+	 * @since X.X.X
+	 *
 	 * @var Config
 	 */
-	private $_config = null;
+	private $_config;
 
 	/**
 	 * W3TC Pro license key.
@@ -50,6 +56,8 @@ class Generic_Plugin_Survey {
 	/**
 	 * Constructor
 	 *
+	 * @since X.X.X
+	 *
 	 * @return void
 	 */
 	public function __construct() {
@@ -66,6 +74,8 @@ class Generic_Plugin_Survey {
 	/**
 	 * Runs plugin
 	 *
+	 * @since X.X.X
+	 *
 	 * @return void
 	 */
 	public function run() {
@@ -76,6 +86,8 @@ class Generic_Plugin_Survey {
 	/**
 	 * Renders the exit survey lightbox content
 	 *
+	 * @since X.X.X
+	 *
 	 * @return void
 	 */
 	public function w3tc_ajax_exit_survey_render() {
@@ -84,7 +96,7 @@ class Generic_Plugin_Survey {
 		}
 
 		// Verify nonce.
-		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
 		}
 
@@ -93,6 +105,8 @@ class Generic_Plugin_Survey {
 
 	/**
 	 * Processes the exit survey submission and sends it to the API.
+	 *
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -118,8 +132,12 @@ class Generic_Plugin_Survey {
 			'home_url'    => $this->home_url,
 			'item_name'   => $this->item_name,
 			'reason'      => $uninstall_reason,
-			'other'       => $other_reason,
 		);
+
+		// Add 'other' to $data only if the uninstall reason is "other" and $other_reason is non-blank.
+		if ( 'other' === $uninstall_reason && ! empty( $other_reason ) ) {
+			$data['other'] = $other_reason;
+		}
 
 		if ( Util_Environment::is_pro_constant( $this->_config ) ) {
 			$data['pro_c'] = 1;
@@ -146,7 +164,7 @@ class Generic_Plugin_Survey {
 		$response_body = wp_remote_retrieve_body( $response );
 		$api_response  = json_decode( $response_body );
 
-		if ( $api_response && isset( $api_response->status ) && 'Created' === $api_response->status ) {
+		if ( $api_response && 201 === wp_remote_retrieve_response_code( $api_response ) ) {
 			if ( 'yes' === $remove_data ) {
 				update_option( 'w3tc_remove_data', true );
 			}

@@ -6,7 +6,7 @@ var W3tc_Lightbox = {
 	create: function() {
 		var me = this;
 
-		this.container = jQuery('<div class="' + this.options.id + '"><div class="lightbox-close">' + this.options.close + '</div><div id="w3tc_lightbox_content" class="lightbox-content"></div><!-- Spinner --><div id="lightbox-spinner" class="lightbox-spinner" style="display: none;"><span class="dashicons dashicons-update"></span></div></div>').css({
+		this.container = jQuery('<div class="' + this.options.id + '"><div class="lightbox-close">' + this.options.close + '</div><div id="w3tc_lightbox_content" class="lightbox-content"></div><!-- Spinner --><div id="lightbox-spinner" class="lightbox-spinner hidden"><span class="dashicons dashicons-update"></span></div></div>').css({
 			top: 0,
 			left: 0,
 			width: 0,

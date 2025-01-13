@@ -388,13 +388,14 @@ class Generic_Plugin_Admin {
 		// Conditional loading for the exit survey on the plugins page.
 		$current_screen = get_current_screen();
 		if ( isset( $current_screen->id ) && 'plugins' === $current_screen->id ) {
-			wp_register_style( 'w3tc-exit-survey', plugins_url( 'pub/css/exit-survey.css', W3TC_FILE ), array(), W3TC_VERSION, false );
-			wp_enqueue_style( 'w3tc-exit-survey' );
+			wp_enqueue_style( 'w3tc-exit-survey', plugins_url( 'pub/css/exit-survey.css', W3TC_FILE ), array(), W3TC_VERSION, false );
 			wp_register_script( 'w3tc-exit-survey', plugins_url( 'pub/js/exit-survey.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 			wp_localize_script(
 				'w3tc-exit-survey',
-				'w3tc_nonce',
-				wp_create_nonce( 'w3tc' )
+				'w3tcData',
+				array(
+					'nonce' => wp_create_nonce( 'w3tc' ),
+				)
 			);
 			wp_enqueue_script( 'w3tc-exit-survey' );
 

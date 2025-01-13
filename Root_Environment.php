@@ -222,5 +222,15 @@ class Root_Environment {
 
 		// Delete all transients with the 'w3tc_' prefix.
 		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_w3tc_%' OR option_name LIKE '_transient_timeout_w3tc_%'" );
+
+		// Remove plugin-created cache directory.
+		if ( defined( 'W3TC_CACHE_DIR' ) && file_exists( W3TC_CACHE_DIR ) ) {
+			Util_File::rmdir( W3TC_CACHE_DIR );
+		}
+	
+		// Remove plugin-created config directory.
+		if ( defined( 'W3TC_CONFIG_DIR' ) && file_exists( W3TC_CONFIG_DIR ) ) {
+			Util_File::rmdir( W3TC_CONFIG_DIR );
+		}
 	}
 }
