@@ -16,16 +16,6 @@ namespace W3TC;
  */
 class Extension_ImageService_Api {
 	/**
-	 * API Base URL.
-	 *
-	 * @since 2.2.0
-	 * @access private
-	 *
-	 * @var string
-	 */
-	private $base_url = 'https://api2.w3-edge.com';
-
-	/**
 	 * W3TC Pro license key.
 	 *
 	 * @since 2.2.0
@@ -137,7 +127,7 @@ class Extension_ImageService_Api {
 			'optimize'    => $options['optimize'],
 		);
 
-		if ( ( defined( 'W3TC_PRO' ) && W3TC_PRO ) || ( defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ) ) {
+		if ( Util_Environment::is_pro_constant( $config ) ) {
 			$post_fields['pro_c'] = 1;
 		}
 
@@ -153,7 +143,7 @@ class Extension_ImageService_Api {
 
 		// Send request.
 		$response = wp_remote_request(
-			$this->get_base_url() . $this->endpoints['convert']['uri'],
+			Util_Environment::get_api_base_url() . $this->endpoints['convert']['uri'],
 			array(
 				'method'    => $this->endpoints['convert']['method'],
 				'sslverify' => false,
@@ -254,7 +244,7 @@ class Extension_ImageService_Api {
 	 */
 	public function get_status( $job_id, $signature ) {
 		$response = wp_remote_request(
-			$this->get_base_url() . $this->endpoints['status']['uri'] . '/' . $job_id . '/' . $signature,
+			Util_Environment::get_api_base_url() . $this->endpoints['status']['uri'] . '/' . $job_id . '/' . $signature,
 			array(
 				'method'    => $this->endpoints['status']['method'],
 				'sslverify' => false,
@@ -295,7 +285,7 @@ class Extension_ImageService_Api {
 	 */
 	public function download( $job_id, $signature ) {
 		$response = wp_remote_request(
-			$this->get_base_url() . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature,
+			Util_Environment::get_api_base_url() . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature,
 			array(
 				'method'    => $this->endpoints['download']['method'],
 				'sslverify' => false,
@@ -356,7 +346,7 @@ class Extension_ImageService_Api {
 
 		$response = wp_remote_request(
 			esc_url(
-				$this->get_base_url() . $this->endpoints['usage']['uri'] .
+				Util_Environment::get_api_base_url() . $this->endpoints['usage']['uri'] .
 					'/' . rawurlencode( $this->license_key ) .
 					'/' . urlencode( $this->item_name ) . // phpcs:ignore
 					'/' . rawurlencode( $this->home_url )
@@ -390,19 +380,6 @@ class Extension_ImageService_Api {
 
 			return $response_body;
 		}
-	}
-
-	/**
-	 * Get base URL.
-	 *
-	 * @since 2.2.0
-	 * @access private
-	 *
-	 * @returns string
-	 */
-	private function get_base_url() {
-		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ?
-			esc_url( W3TC_API2_URL, 'https', '' ) : $this->base_url;
 	}
 
 	/**
