@@ -2,7 +2,7 @@
     "require": {
         "aws/aws-sdk-php": "^3.308",
         "aws/aws-php-sns-message-validator": "^1.9",
-        "symfony/deprecation-contracts": "^2.5",
+        "symfony/deprecation-contracts": "^3.5",
         "sebastian/comparator": "^3.0.5",
         "sebastian/recursion-context": "^3.0.2",
         "nikic/php-parser": "^4.15.1",
