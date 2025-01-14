@@ -923,7 +923,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	public function replace_all_links( $buffer ) {
 		$this->fill_regexps();
 
-		$srcset_pattern = '~srcset\s*=\s*[\"\'](.*?)[\"\']~';
+		$srcset_pattern = '~srcset\s*=\s*[\"\'](.*?)[\"\']~s';
 		$buffer         = preg_replace_callback(
 			$srcset_pattern,
 			array( $this, '_srcset_replace_callback' ),
