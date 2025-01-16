@@ -102,6 +102,33 @@ th.minify-files-add, td.minify-files-add {
     color: #999;
 }
 
+.lightbox-spinner {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 10000;
+}
+
+.lightbox-spinner .dashicons-update {
+	font-size: 35px;
+	color: #000000;
+	display: inline-block;
+	width: 35px;
+	height: 35px;
+	border-radius: 50%;
+	animation: rotate-spinner 1s linear infinite;
+}
+
+@keyframes rotate-spinner {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
 /**
 ###################
 ## Overlays
