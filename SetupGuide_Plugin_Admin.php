@@ -894,7 +894,8 @@ class SetupGuide_Plugin_Admin {
 	 * @return bool
 	 */
 	private function maybe_ask_tos() {
-		if ( defined( 'W3TC_PRO' ) ) {
+		$config = new Config();
+		if ( Util_Environment::is_pro_constant( $config ) ) {
 			return false;
 		}
 

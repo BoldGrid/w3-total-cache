@@ -385,6 +385,24 @@ class Generic_Plugin_Admin {
 
 		wp_enqueue_script( 'w3tc-feature-counter' );
 
+		// Conditional loading for the exit survey on the plugins page.
+		$current_screen = get_current_screen();
+		if ( isset( $current_screen->id ) && 'plugins' === $current_screen->id ) {
+			wp_enqueue_style( 'w3tc-exit-survey', plugins_url( 'pub/css/exit-survey.css', W3TC_FILE ), array(), W3TC_VERSION, false );
+			wp_register_script( 'w3tc-exit-survey', plugins_url( 'pub/js/exit-survey.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+			wp_localize_script(
+				'w3tc-exit-survey',
+				'w3tcData',
+				array(
+					'nonce' => wp_create_nonce( 'w3tc' ),
+				)
+			);
+			wp_enqueue_script( 'w3tc-exit-survey' );
+
+			wp_enqueue_style( 'w3tc-lightbox' );
+			wp_enqueue_script( 'w3tc-lightbox' );
+		}
+
 		// Messages.
 		if ( ! is_null( $this->w3tc_message ) && isset( $this->w3tc_message['actions'] ) && is_array( $this->w3tc_message['actions'] ) ) {
 			foreach ( $this->w3tc_message['actions'] as $action ) {
@@ -421,7 +439,13 @@ class Generic_Plugin_Admin {
 		global $wp_version;
 		global $wpdb;
 
+		// Attempt to get the 'page' parameter from the request.
 		$page = Util_Request::get_string( 'page', null );
+
+		// If 'page' is null or an empty string, fallback to current screen ID.
+		if ( empty( $page ) ) {
+			$page = get_current_screen()->id ?? null;
+		}
 
 		if ( ( ! is_multisite() || is_super_admin() ) && false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
 			$state_master = Dispatcher::config_state_master();
@@ -445,8 +469,7 @@ class Generic_Plugin_Admin {
 			}
 		}
 
-		if ( $this->_config->get_boolean( 'common.track_usage' ) && $this->is_w3tc_page ) {
-
+		if ( $this->_config->get_boolean( 'common.track_usage' ) && ( $this->is_w3tc_page || 'plugins' === $page ) ) {
 			$current_user = wp_get_current_user();
 			$page         = Util_Request::get_string( 'page' );
 			if ( 'w3tc_extensions' === $page ) {
@@ -492,7 +515,7 @@ class Generic_Plugin_Admin {
 						'w3tc_install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>',
 						'w3tc_pro': '<?php echo Util_Environment::is_w3tc_pro( $this->_config ) ? 1 : 0; ?>',
 						'w3tc_has_key': '<?php $this->_config->get_string( 'plugin.license_key' ) ? 1 : 0; ?>',
-						'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO') && W3TC_PRO ? 1 : 0; ?>',
+						'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO' ) && W3TC_PRO ? 1 : 0; ?>',
 						'w3tc_enterprise_c': '<?php echo defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ? 1 : 0; ?>',
 						'w3tc_plugin_type': '<?php echo esc_attr( $this->_config->get_string( 'plugin.type' ) ); ?>',
 					}
