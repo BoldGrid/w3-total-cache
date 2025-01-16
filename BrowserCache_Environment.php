@@ -798,6 +798,17 @@ class BrowserCache_Environment {
 					$headers_rules .= "        Header set Pragma \"no-store\"\n";
 					$headers_rules .= "        Header set Cache-Control \"no-store\"\n";
 					break;
+
+				case 'cache_immutable':
+					$lifetime       = $config->get_integer( 'browsercache.' . $section . '.lifetime' );
+					$headers_rules .= "        Header set Pragma \"public\"\n";
+					$headers_rules .= "        Header set Cache-Control \"public, max-age=" . $lifetime . ", immutable\"\n";
+					break;
+
+				case 'cache_immutable_nomaxage':
+					$headers_rules .= "        Header set Pragma \"public\"\n";
+					$headers_rules .= "        Header set Cache-Control \"public, immutable\"\n";
+					break;
 			}
 		}
 

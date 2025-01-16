@@ -674,50 +674,60 @@ class Minify_Environment {
 				$cache_policy = $config->get_string( 'browsercache.cssjs.cache.policy' );
 
 				switch ( $cache_policy ) {
-				case 'cache':
-					$rules .= "    Header set Pragma \"public\"\n";
-					$rules .= "    Header set Cache-Control \"public\"\n";
-					break;
+					case 'cache':
+						$rules .= "    Header set Pragma \"public\"\n";
+						$rules .= "    Header set Cache-Control \"public\"\n";
+						break;
 
-				case 'cache_public_maxage':
-					$rules .= "    Header set Pragma \"public\"\n";
+					case 'cache_public_maxage':
+						$rules .= "    Header set Pragma \"public\"\n";
 
-					if ( $expires ) {
-						$rules .= "    Header append Cache-Control \"public\"\n";
-					} else {
-						$rules .= "    Header set Cache-Control \"max-age=" . $lifetime . ", public\"\n";
-					}
-					break;
+						if ( $expires ) {
+							$rules .= "    Header append Cache-Control \"public\"\n";
+						} else {
+							$rules .= "    Header set Cache-Control \"max-age=" . $lifetime . ", public\"\n";
+						}
+						break;
 
-				case 'cache_validation':
-					$rules .= "    Header set Pragma \"public\"\n";
-					$rules .= "    Header set Cache-Control \"public, must-revalidate, proxy-revalidate\"\n";
-					break;
+					case 'cache_validation':
+						$rules .= "    Header set Pragma \"public\"\n";
+						$rules .= "    Header set Cache-Control \"public, must-revalidate, proxy-revalidate\"\n";
+						break;
 
-				case 'cache_noproxy':
-					$rules .= "    Header set Pragma \"public\"\n";
-					$rules .= "    Header set Cache-Control \"private, must-revalidate\"\n";
-					break;
+					case 'cache_noproxy':
+						$rules .= "    Header set Pragma \"public\"\n";
+						$rules .= "    Header set Cache-Control \"private, must-revalidate\"\n";
+						break;
 
-				case 'cache_maxage':
-					$rules .= "    Header set Pragma \"public\"\n";
+					case 'cache_maxage':
+						$rules .= "    Header set Pragma \"public\"\n";
 
-					if ( $expires ) {
-						$rules .= "    Header append Cache-Control \"public, must-revalidate, proxy-revalidate\"\n";
-					} else {
-						$rules .= "    Header set Cache-Control \"max-age=" . $lifetime . ", public, must-revalidate, proxy-revalidate\"\n";
-					}
-					break;
+						if ( $expires ) {
+							$rules .= "    Header append Cache-Control \"public, must-revalidate, proxy-revalidate\"\n";
+						} else {
+							$rules .= "    Header set Cache-Control \"max-age=" . $lifetime . ", public, must-revalidate, proxy-revalidate\"\n";
+						}
+						break;
 
-				case 'no_cache':
-					$rules .= "    Header set Pragma \"no-cache\"\n";
-					$rules .= "    Header set Cache-Control \"max-age=0, private, no-store, no-cache, must-revalidate\"\n";
-					break;
+					case 'no_cache':
+						$rules .= "    Header set Pragma \"no-cache\"\n";
+						$rules .= "    Header set Cache-Control \"max-age=0, private, no-store, no-cache, must-revalidate\"\n";
+						break;
 
-				case 'no_store':
-					$rules .= "    Header set Pragma \"no-store\"\n";
-					$rules .= "    Header set Cache-Control \"no-store\"\n";
-					break;
+					case 'no_store':
+						$rules .= "    Header set Pragma \"no-store\"\n";
+						$rules .= "    Header set Cache-Control \"no-store\"\n";
+						break;
+
+					case 'cache_immutable':
+						$rules .= "    Header set Pragma \"public\"\n";
+						$rules .= "    Header set Cache-Control \"public, max-age=" . $lifetime . ", immutable\"\n";
+						break;
+
+					case 'cache_immutable_nomaxage':
+						$rules .= "    Header set Pragma \"public\"\n";
+						$rules .= "    Header set Cache-Control \"public, immutable\"\n";
+						break;
 				}
 			}
 
