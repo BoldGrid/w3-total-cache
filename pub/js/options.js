@@ -596,15 +596,16 @@ jQuery(function() {
 
 	// Tutorial page forum links via API.
 	jQuery(document).on( 'click', '[data-tab-type="help"]', function() {
-
-		const $helpTab          = jQuery( this ),
-		$inside               = $helpTab.closest( ".postbox-tabs" ).find( ".inside" );
-		$forumTopicsContainer = $inside.find( '.help-forum-topics' );
-		isLoaded              = $forumTopicsContainer.attr( 'data-loaded' ) === "1";
-		tabId                 = $forumTopicsContainer.attr( 'data-tab-id' );
+		const $helpTab        = jQuery(this),
+		$inside               = $helpTab.closest('.postbox-tabs').find('.inside');
+		$forumTopicsContainer = $inside.find('.help-forum-topics');
+		isLoaded              = $forumTopicsContainer.attr('data-loaded') === '1';
+		tabId                 = $forumTopicsContainer.attr('data-tab-id');
 
 		// Check if topics are already loaded
-		if ( isLoaded ) return;
+		if (isLoaded) {
+			return;
+		}
 
 		// Fetch topics from the API
 		jQuery.ajax({
@@ -615,33 +616,38 @@ jQuery(function() {
 				_wpnonce: w3tc_nonce[0],
 				tabId: tabId
 			},
-			success: function( data ) {
+			success: function(data) {
 				// Check for timeout
 				if ( data.errors && data.errors.http_request_failed ) {
-					$forumTopicsContainer.html("HTTP Error:", data.errors.http_request_failed);
+					$forumTopicsContainer.html('HTTP Error:', data.errors.http_request_failed);
 				}
 				// Check for empty results
-				else if ( Array.isArray( data ) && data.length === 0 ) {
-					$forumTopicsContainer.html( "<p>No forum topics found.</p>" );
+				else if (Array.isArray(data) && data.length === 0) {
+					$forumTopicsContainer.html('<p>No forum topics found.</p>');
 				} else {
 					// Create a list of topics
-					const $ul       = jQuery( '<ul></ul>' );
-					const forumData = JSON.parse( data.body );
-					jQuery.each( forumData, function( index, topic ) {
-						const $li = jQuery( '<li></li>' );
-						const $link = jQuery( '<a></a>' ).addClass('w3tc-control-after').attr( 'href', topic.link ).text( topic.title ).attr( 'target', '_blank' ); // Open in new tab
-						const $icon = jQuery( '<span></span>' ).addClass( 'dashicons dashicons-external' );
-						$link.append( $icon );
-						$li.append( $link );
-						$ul.append( $li );
+					const $ul       = jQuery('<ul></ul>');
+					const forumData = JSON.parse(data.body);
+					jQuery.each(forumData, function(index, topic) {
+						const $li = jQuery('<li></li>');
+						const $link = jQuery('<a></a>').addClass('w3tc-control-after').attr('href', topic.link).attr('target', '_blank'); // Open in new tab
+
+						// Decode HTML entities in topic.title
+						const decodedTitle = jQuery('<textarea />').html(topic.title).text();
+						$link.text(decodedTitle);
+
+						const $icon = jQuery('<span></span>').addClass('dashicons dashicons-external');
+						$link.append($icon);
+						$li.append($link);
+						$ul.append($li);
 					});
-					$forumTopicsContainer.html( $ul );
+					$forumTopicsContainer.html($ul);
 				}
 				// Mark topics as loaded to prevent duplicate requests
-				$forumTopicsContainer.attr( 'data-loaded', "1" );
+				$forumTopicsContainer.attr('data-loaded', '1');
 			},
 			error: function() {
-				$forumTopicsContainer.html( "<p>Error loading topics. Please try again later.</p>" );
+				$forumTopicsContainer.html('<p>Error loading topics. Please try again later.</p>');
 			}
 		});
 	});
