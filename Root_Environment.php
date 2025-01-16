@@ -203,4 +203,47 @@ class Root_Environment {
 		}
 		return $instructions_descriptors;
 	}
+
+	/**
+	 * Deletes all W3 Total Cache data from the database.
+	 *
+	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public static function delete_plugin_data() {
+		global $wpdb;
+
+		// Define prefixes for options and transients.
+		$prefixes = array(
+			'w3tc_',                    // General options prefix.
+			'w3tcps_',                  // Additional options prefix.
+			'_transient_w3tc_',         // Transient prefix.
+			'_transient_timeout_w3tc_', // Transient timeout prefix.
+		);
+
+		// Delete options and transients with defined prefixes.
+		foreach ( $prefixes as $prefix ) {
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+					$prefix . '%'
+				)
+			);
+		}
+
+		// Remove plugin-created directories.
+		$directories = array(
+			defined( 'W3TC_CACHE_DIR' ) ? W3TC_CACHE_DIR : WP_CONTENT_DIR . '/cache',
+			defined( 'W3TC_CONFIG_DIR' ) ? W3TC_CONFIG_DIR : WP_CONTENT_DIR . '/w3tc-config',
+		);
+
+		foreach ( $directories as $dir ) {
+			Util_File::rmdir( $dir );
+		}
+	}
 }
