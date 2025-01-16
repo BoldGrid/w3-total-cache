@@ -103,7 +103,7 @@ defined( 'W3TC' ) || die();
 				'cdn.bunnycdn.widget.v2.no_cdn',
 				\sprintf(
 					// translators: 1 configured CDN name, 2 HTML acronym for Content Delivery Network (CDN).
-					\__( 'W3 Total Cache has detected that you have the %1$s %2$s configured which is fine, but we recommend using BunnyCDN instead.', 'w3-total-cache' ),
+					\__( 'W3 Total Cache has detected that you are using the %1$s %2$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
 					$cdn_name,
 					'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 				)
