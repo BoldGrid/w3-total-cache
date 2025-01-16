@@ -24,7 +24,7 @@ if ( $config->is_extension_active( 'imageservice' ) ) {
 		<div id="api_charts"></div>
 		<?php if ( ! Util_Environment::is_w3tc_pro( $config ) ) : ?>
 			<div class="notice notice-info" style="margin: 0;">
-				<p><?php esc_html_e( 'Do you need higher hourly and monthly limits? Upgrade to Pro now to gain a much higher hourly limit and no monthly limit!', 'w3-total-cache' ); ?></p>
+				<p><?php esc_html_e( 'Need higher API limits? Upgrade to Pro for significantly higher hourly limits and no monthly cap!', 'w3-total-cache' ); ?></p>
 				<p><input type="button" class="button-primary button-buy-plugin" data-src="account_widget" value="<?php esc_attr_e( 'Learn more about Pro', 'w3-total-cache' ); ?>" /></p>
 			</div>
 		<?php endif ?>
