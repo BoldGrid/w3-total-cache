@@ -257,7 +257,7 @@ class BrowserCache_Environment_Nginx {
 				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.scriptelem' ) );
 				$scriptattr      = trim( $this->c->get_string( 'browsercache.security.csp.scriptattr' ) );
 				$styleelem       = trim( $this->c->get_string( 'browsercache.security.csp.styleelem' ) );
-				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
+				$styleattr       = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
 				$worker          = trim( $this->c->get_string( 'browsercache.security.csp.worker' ) );
 				$default         = trim( $this->c->get_string( 'browsercache.security.csp.default' ) );
 
@@ -312,7 +312,7 @@ class BrowserCache_Environment_Nginx {
 				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.scriptelem' ) );
 				$scriptattr      = trim( $this->c->get_string( 'browsercache.security.csp.scriptattr' ) );
 				$styleelem       = trim( $this->c->get_string( 'browsercache.security.csp.styleelem' ) );
-				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
+				$styleattr       = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
 				$worker          = trim( $this->c->get_string( 'browsercache.security.csp.worker' ) );
 				$default         = trim( $this->c->get_string( 'browsercache.security.cspro.default' ) );
 
@@ -520,6 +520,16 @@ class BrowserCache_Environment_Nginx {
 				case 'no_store':
 					$add_header_rules[] = 'add_header Pragma "no-store";';
 					$add_header_rules[] = 'add_header Cache-Control "no-store";';
+					break;
+
+				case 'cache_immutable':
+					$add_header_rules[] = 'add_header Pragma "public";';
+					$add_header_rules[] = "add_header Cache-Control \"public, max-age=$lifetime, immutable\";";
+					break;
+
+				case 'cache_immutable_nomaxage':
+					$add_header_rules[] = 'add_header Pragma "public";';
+					$add_header_rules[] = 'add_header Cache-Control "public, immutable";';
 					break;
 			}
 		}
