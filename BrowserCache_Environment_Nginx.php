@@ -257,7 +257,7 @@ class BrowserCache_Environment_Nginx {
 				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.scriptelem' ) );
 				$scriptattr      = trim( $this->c->get_string( 'browsercache.security.csp.scriptattr' ) );
 				$styleelem       = trim( $this->c->get_string( 'browsercache.security.csp.styleelem' ) );
-				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
+				$styleattr       = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
 				$worker          = trim( $this->c->get_string( 'browsercache.security.csp.worker' ) );
 				$default         = trim( $this->c->get_string( 'browsercache.security.csp.default' ) );
 
@@ -312,7 +312,7 @@ class BrowserCache_Environment_Nginx {
 				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.scriptelem' ) );
 				$scriptattr      = trim( $this->c->get_string( 'browsercache.security.csp.scriptattr' ) );
 				$styleelem       = trim( $this->c->get_string( 'browsercache.security.csp.styleelem' ) );
-				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
+				$styleattr       = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
 				$worker          = trim( $this->c->get_string( 'browsercache.security.csp.worker' ) );
 				$default         = trim( $this->c->get_string( 'browsercache.security.cspro.default' ) );
 

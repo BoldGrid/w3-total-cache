@@ -563,7 +563,7 @@ class BrowserCache_Environment {
 				$scriptelem      = trim( $config->get_string( 'browsercache.security.csp.scriptelem' ) );
 				$scriptattr      = trim( $config->get_string( 'browsercache.security.csp.scriptattr' ) );
 				$styleelem       = trim( $config->get_string( 'browsercache.security.csp.styleelem' ) );
-				$scriptelem      = trim( $config->get_string( 'browsercache.security.csp.styleattr' ) );
+				$styleattr       = trim( $config->get_string( 'browsercache.security.csp.styleattr' ) );
 				$worker          = trim( $config->get_string( 'browsercache.security.csp.worker' ) );
 				$default         = trim( $config->get_string( 'browsercache.security.csp.default' ) );
 
