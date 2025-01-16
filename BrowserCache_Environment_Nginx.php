@@ -521,6 +521,26 @@ class BrowserCache_Environment_Nginx {
 					$add_header_rules[] = 'add_header Pragma "no-store";';
 					$add_header_rules[] = 'add_header Cache-Control "no-store";';
 					break;
+
+				case 'cache_immutable':
+					$add_header_rules[] = 'add_header Pragma "public";';
+					$add_header_rules[] = "add_header Cache-Control \"public, max-age=$lifetime, immutable\";";
+					break;
+
+				case 'cache_immutable_noproxy':
+					$add_header_rules[] = 'add_header Pragma "private";';
+					$add_header_rules[] = "add_header Cache-Control \"private, max-age=$lifetime, immutable\";";
+					break;
+
+				case 'cache_immutable_nomaxage':
+					$add_header_rules[] = 'add_header Pragma "public";';
+					$add_header_rules[] = 'add_header Cache-Control "public, immutable";';
+					break;
+
+				case 'cache_immutable_validation':
+					$add_header_rules[] = 'add_header Pragma "public";';
+					$add_header_rules[] = 'add_header Cache-Control "public, immutable, must-revalidate, proxy-revalidate";';
+					break;
 			}
 		}
 
