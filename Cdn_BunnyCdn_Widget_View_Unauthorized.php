@@ -15,118 +15,88 @@ defined( 'W3TC' ) || die();
 
 <div id="bunnycdn-widget" class="w3tc_bunnycdn_signup">
 	<?php
-	$cdn_engine = $c->get_string( 'cdn.engine' );
-	$cdn_name   = '';
-	switch ( true ) {
-		case ( 'ftp' === $cdn_engine ):
-			$cdn_name = 'Self-hosted / File Transfer Protocol Upload';
-			break;
+	$cdn_engine     = $c->get_string( 'cdn.engine' );
+	$cdn_enabled    = $config->get_boolean( 'cdn.enabled' );
+	$cdn_name    = Cache::engine_name( $cdn_engine );
 
-		case ( 's3' === $cdn_engine ):
-			$cdn_name = 'Amazon Simple Storage Service (S3)';
-			break;
+	$cdnfsd_engine  = $config->get_string( 'cdnfsd.engine' );
+	$cdnfsd_enabled = $config->get_boolean( 'cdnfsd.enabled' );
+	$cdnfsd_name    = Cache::engine_name( $cdnfsd_engine );
 
-		case ( 's3_compatible' === $cdn_engine ):
-			$cdn_name = 'Amazon Simple Storage Service (S3) Compatible';
-			break;
+	// Check if BunnyCDN is selected but not fully configured
+    $is_bunny_cdn_incomplete = (
+        (
+			'bunnycdn' === $cdn_engine &&
+			$cdn_enabled &&
+			empty( $c->get_integer( 'cdn.bunnycdn.pull_zone_id' ) )
+		) ||
+        (
+			'bunnycdn' === $cdnfsd_engine &&
+			$cdnfsd_enabled &&
+			empty( $c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) )
+		)
+    );
 
-		case ( 'cf' === $cdn_engine ):
-			$cdn_name = 'Amazon CloudFront over S3';
-			break;
+    // Check if a non-BunnyCDN is configured
+    $is_other_cdn_configured = (
+        (
+			$cdn_enabled &&
+			! empty( $cdn_name ) &&
+			'bunnycdn' !== $cdn_engine
+		) ||
+        (
+			$cdnfsd_enabled &&
+			! empty( $cdnfsd_name ) &&
+			'bunnycdn' !== $cdnfsd_engine
+		)
+    );
 
-		case ( 'cf2' === $cdn_engine ):
-			$cdn_name = 'Amazon CloudFront';
-			break;
-
-		case ( 'rscf' === $cdn_engine ):
-			$cdn_name = 'Rackspace Cloud Files';
-			break;
-
-		case ( 'azure' === $cdn_engine ):
-			$cdn_name = 'Microsoft Azure Storage';
-			break;
-
-		case ( 'azuremi' === $cdn_engine ):
-			$cdn_name = 'Microsoft Azure Storage (Managed Identity)';
-			break;
-
-		case ( 'google_drive' === $cdn_engine ):
-			$cdn_name = 'Google Drive';
-			break;
-
-		case ( 'mirror' === $cdn_engine ):
-			$cdn_name = 'Generic Mirror';
-			break;
-
-		case ( 'cotendo' === $cdn_engine ):
-			$cdn_name = 'Cotendo (Akamai)';
-			break;
-
-		case ( 'edgecast' === $cdn_engine ):
-			$cdn_name = 'Verizon Digital Media Services (EdgeCast) / Media Temple ProCDN';
-			break;
-
-		case ( 'att' === $cdn_engine ):
-			$cdn_name = 'AT&T';
-			break;
-
-		case ( 'akamai' === $cdn_engine ):
-			$cdn_name = 'Akamai';
-			break;
-
-		case ( 'highwinds' === $cdn_engine ):
-			$cdn_name = 'Highwinds';
-			break;
-
-		case ( 'limelight' === $cdn_engine ):
-			$cdn_name = 'LimeLight';
-			break;
-
-		case ( 'rackspace_cdn' === $cdn_engine ):
-			$cdn_name = 'RackSpace';
-			break;
-
-		case ( 'stackpath' === $cdn_engine ):
-			$cdn_name = 'StackPath SecureCDN (Legacy)';
-			break;
-
-		case ( 'stackpath2' === $cdn_engine ):
-			$cdn_name = 'StackPath';
-			break;
-	}
-
-	if ( ! empty( $cdn_name ) ) {
-		?>
-		<p class="notice notice-error">
-			<?php
-			w3tc_e(
-				'cdn.bunnycdn.widget.v2.no_cdn',
-				\sprintf(
-					// translators: 1 configured CDN name, 2 HTML acronym for Content Delivery Network (CDN).
-					\__( 'W3 Total Cache has detected that you are using the %1$s %2$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
-					$cdn_name,
-					'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
-				)
-			);
-			?>
-		</p>
-		<?php
-	} else {
-		?>
-		<p class="notice notice-error">
-			<?php
-			w3tc_e(
-				'cdn.bunnycdn.widget.v2.no_cdn',
-				\sprintf(
-					// translators: 1 HTML acronym for Content Delivery Network (CDN).
-					\__( 'W3 Total Cache has detected that you do not have a %1$s configured', 'w3-total-cache' ),
-					'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
-				)
-			);
-			?>
-		</p>
-		<?php
-	}
+    if ( $is_bunny_cdn_incomplete ) {
+        // BunnyCDN selected but not fully configured
+        ?>
+        <p class="notice notice-error">
+            <?php
+            w3tc_e(
+                'cdn.bunnycdn.widget.v2.incomplete',
+                __( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please provide your pull zone ID to complete the setup.', 'w3-total-cache' )
+            );
+            ?>
+        </p>
+        <?php
+    } elseif ( $is_other_cdn_configured ) {
+        // A CDN is configured but it is not BunnyCDN
+        ?>
+        <p class="notice notice-error">
+            <?php
+            w3tc_e(
+                'cdn.bunnycdn.widget.v2.no_cdn',
+                sprintf(
+                    // translators: 1 configured CDN name, 2 HTML acronym for Content Delivery Network (CDN).
+                    __( 'W3 Total Cache has detected that you are using the %1$s %2$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
+                    $cdn_name,
+                    '<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+                )
+            );
+            ?>
+        </p>
+        <?php
+    } else {
+        // No CDN is configured
+        ?>
+        <p class="notice notice-error">
+            <?php
+            w3tc_e(
+                'cdn.bunnycdn.widget.v2.no_cdn',
+                sprintf(
+                    // translators: 1 HTML acronym for Content Delivery Network (CDN).
+                    __( 'W3 Total Cache has detected that you do not have a %1$s configured. For optimal performance and value, we recommend considering BunnyCDN.', 'w3-total-cache' ),
+                    '<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+                )
+            );
+            ?>
+        </p>
+        <?php
+    }
 
 	?>
 	<p>
