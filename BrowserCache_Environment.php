@@ -805,20 +805,9 @@ class BrowserCache_Environment {
 					$headers_rules .= "        Header set Cache-Control \"public, max-age=" . $lifetime . ", immutable\"\n";
 					break;
 
-				case 'cache_immutable_noproxy':
-					$lifetime       = $config->get_integer( 'browsercache.' . $section . '.lifetime' );
-					$headers_rules .= "        Header set Pragma \"private\"\n";
-					$headers_rules .= "        Header set Cache-Control \"private, max-age=" . $lifetime . ", immutable\"\n";
-					break;
-
 				case 'cache_immutable_nomaxage':
 					$headers_rules .= "        Header set Pragma \"public\"\n";
 					$headers_rules .= "        Header set Cache-Control \"public, immutable\"\n";
-					break;
-
-				case 'cache_immutable_validation':
-					$headers_rules .= "        Header set Pragma \"public\"\n";
-					$headers_rules .= "        Header set Cache-Control \"public, immutable, must-revalidate, proxy-revalidate\"\n";
 					break;
 			}
 		}

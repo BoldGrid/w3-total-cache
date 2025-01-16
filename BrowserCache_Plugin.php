@@ -546,19 +546,9 @@ class BrowserCache_Plugin {
 					$headers['Cache-Control'] = "max-age=$lifetime, public, immutable";
 					break;
 
-				case 'cache_immutable_noproxy':
-					$headers['Pragma']        = 'private';
-					$headers['Cache-Control'] = "max-age=$lifetime, private, immutable";
-					break;
-
 				case 'cache_immutable_nomaxage':
 					$headers['Pragma']        = 'public';
 					$headers['Cache-Control'] = 'public, immutable';
-					break;
-
-				case 'cache_immutable_validation':
-					$headers['Pragma']        = 'public';
-					$headers['Cache-Control'] = 'public, immutable, must-revalidate, proxy-revalidate';
 					break;
 			}
 		}

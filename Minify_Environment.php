@@ -724,19 +724,9 @@ class Minify_Environment {
 						$rules .= "    Header set Cache-Control \"public, max-age=" . $lifetime . ", immutable\"\n";
 						break;
 
-					case 'cache_immutable_noproxy':
-						$rules .= "    Header set Pragma \"private\"\n";
-						$rules .= "    Header set Cache-Control \"private, max-age=" . $lifetime . ", immutable\"\n";
-						break;
-
 					case 'cache_immutable_nomaxage':
 						$rules .= "    Header set Pragma \"public\"\n";
 						$rules .= "    Header set Cache-Control \"public, immutable\"\n";
-						break;
-
-					case 'cache_immutable_validation':
-						$rules .= "    Header set Pragma \"public\"\n";
-						$rules .= "    Header set Cache-Control \"public, immutable, must-revalidate, proxy-revalidate\"\n";
 						break;
 				}
 			}

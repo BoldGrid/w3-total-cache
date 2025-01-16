@@ -251,25 +251,11 @@ class BrowserCache_Environment_LiteSpeed {
 					$add_header_rules[] = "set Cache-Control \"public, max-age=$lifetime, immutable\"";
 					break;
 
-				case 'cache_immutable_noproxy':
-					$add_header_rules[] = 'unset Pragma';
-					$add_header_rules[] = 'set Pragma private';
-					$add_header_rules[] = 'unset Cache-Control';
-					$add_header_rules[] = "set Cache-Control \"private, max-age=$lifetime, immutable\"";
-					break;
-
 				case 'cache_immutable_nomaxage':
 					$add_header_rules[] = 'unset Pragma';
 					$add_header_rules[] = 'set Pragma public';
 					$add_header_rules[] = 'unset Cache-Control';
 					$add_header_rules[] = 'set Cache-Control "public, immutable"';
-					break;
-
-				case 'cache_immutable_validation':
-					$add_header_rules[] = 'unset Pragma';
-					$add_header_rules[] = 'set Pragma public';
-					$add_header_rules[] = 'unset Cache-Control';
-					$add_header_rules[] = 'set Cache-Control "public, immutable, must-revalidate, proxy-revalidate"';
 					break;
 			}
 		}
