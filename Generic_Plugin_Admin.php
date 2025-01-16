@@ -240,7 +240,7 @@ class Generic_Plugin_Admin {
 		$tag   = Util_Request::get_string( 'tabId' );
 		$posts = wp_remote_get( W3TC_BOLDGRID_FORUM_API . $tag, array( 'timeout' => 10 ) );
 
-		wp_send_json( $posts, 200 );
+		wp_send_json( $posts );
 	}
 
 	/**

@@ -616,13 +616,17 @@ jQuery(function() {
 				tabId: tabId
 			},
 			success: function( data ) {
-				// Check for errors or empty results
-				if ( Array.isArray( data ) && data.length === 0 ) {
+				// Check for timeout
+				if ( data.errors && data.errors.http_request_failed ) {
+					$forumTopicsContainer.html("HTTP Error:", data.errors.http_request_failed);
+				}
+				// Check for empty results
+				else if ( Array.isArray( data ) && data.length === 0 ) {
 					$forumTopicsContainer.html( "<p>No forum topics found.</p>" );
 				} else {
 					// Create a list of topics
 					const $ul       = jQuery( '<ul></ul>' );
-					const forumData = JSON.parse(data.body);
+					const forumData = JSON.parse( data.body );
 					jQuery.each( forumData, function( index, topic ) {
 						const $li = jQuery( '<li></li>' );
 						const $link = jQuery( '<a></a>' ).addClass('w3tc-control-after').attr( 'href', topic.link ).text( topic.title ).attr( 'target', '_blank' ); // Open in new tab
@@ -636,8 +640,7 @@ jQuery(function() {
 				// Mark topics as loaded to prevent duplicate requests
 				$forumTopicsContainer.attr( 'data-loaded', "1" );
 			},
-			error: function( data ) {
-				console.log( data );
+			error: function() {
 				$forumTopicsContainer.html( "<p>Error loading topics. Please try again later.</p>" );
 			}
 		});
