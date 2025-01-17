@@ -16,87 +16,85 @@ defined( 'W3TC' ) || die();
 <div id="bunnycdn-widget" class="w3tc_bunnycdn_signup">
 	<?php
 	$cdn_engine     = $c->get_string( 'cdn.engine' );
-	$cdn_enabled    = $config->get_boolean( 'cdn.enabled' );
+	$cdn_enabled    = $c->get_boolean( 'cdn.enabled' );
 	$cdn_name    = Cache::engine_name( $cdn_engine );
 
-	$cdnfsd_engine  = $config->get_string( 'cdnfsd.engine' );
-	$cdnfsd_enabled = $config->get_boolean( 'cdnfsd.enabled' );
+	$cdnfsd_engine  = $c->get_string( 'cdnfsd.engine' );
+	$cdnfsd_enabled = $c->get_boolean( 'cdnfsd.enabled' );
 	$cdnfsd_name    = Cache::engine_name( $cdnfsd_engine );
 
 	// Check if BunnyCDN is selected but not fully configured
-    $is_bunny_cdn_incomplete = (
-        (
+	$is_bunny_cdn_incomplete = (
+		(
 			'bunnycdn' === $cdn_engine &&
 			$cdn_enabled &&
 			empty( $c->get_integer( 'cdn.bunnycdn.pull_zone_id' ) )
 		) ||
-        (
+		(
 			'bunnycdn' === $cdnfsd_engine &&
 			$cdnfsd_enabled &&
 			empty( $c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) )
 		)
-    );
+	);
 
-    // Check if a non-BunnyCDN is configured
-    $is_other_cdn_configured = (
-        (
+	// Check if a non-BunnyCDN is configured
+	$is_other_cdn_configured = (
+		(
 			$cdn_enabled &&
-			! empty( $cdn_name ) &&
 			'bunnycdn' !== $cdn_engine
 		) ||
-        (
+		(
 			$cdnfsd_enabled &&
-			! empty( $cdnfsd_name ) &&
 			'bunnycdn' !== $cdnfsd_engine
 		)
-    );
+	);
 
-    if ( $is_bunny_cdn_incomplete ) {
-        // BunnyCDN selected but not fully configured
-        ?>
-        <p class="notice notice-error">
-            <?php
-            w3tc_e(
-                'cdn.bunnycdn.widget.v2.incomplete',
-                __( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please provide your pull zone ID to complete the setup.', 'w3-total-cache' )
-            );
-            ?>
-        </p>
-        <?php
-    } elseif ( $is_other_cdn_configured ) {
-        // A CDN is configured but it is not BunnyCDN
-        ?>
-        <p class="notice notice-error">
-            <?php
-            w3tc_e(
-                'cdn.bunnycdn.widget.v2.no_cdn',
-                sprintf(
-                    // translators: 1 configured CDN name, 2 HTML acronym for Content Delivery Network (CDN).
-                    __( 'W3 Total Cache has detected that you are using the %1$s %2$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
-                    $cdn_name,
-                    '<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
-                )
-            );
-            ?>
-        </p>
-        <?php
-    } else {
-        // No CDN is configured
-        ?>
-        <p class="notice notice-error">
-            <?php
-            w3tc_e(
-                'cdn.bunnycdn.widget.v2.no_cdn',
-                sprintf(
-                    // translators: 1 HTML acronym for Content Delivery Network (CDN).
-                    __( 'W3 Total Cache has detected that you do not have a %1$s configured. For optimal performance and value, we recommend considering BunnyCDN.', 'w3-total-cache' ),
-                    '<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
-                )
-            );
-            ?>
-        </p>
-        <?php
-    }
+	if ( $is_bunny_cdn_incomplete ) {
+		// BunnyCDN selected but not fully configured
+		?>
+		<p class="notice notice-error">
+			<?php
+			w3tc_e(
+				'cdn.bunnycdn.widget.v2.incomplete',
+				__( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please use the "Authorize" button on the CDN page to connect a pull zone.', 'w3-total-cache' )
+			);
+			?>
+		</p>
+		<?php
+	} elseif ( $is_other_cdn_configured ) {
+		// A CDN is configured but it is not BunnyCDN
+		?>
+		<p class="notice notice-error">
+			<?php
+			w3tc_e(
+				'cdn.bunnycdn.widget.v2.no_cdn',
+				sprintf(
+					// translators: 1 configured CDN name, 2 HTML acronym for Content Delivery Network (CDN).
+					__( 'W3 Total Cache has detected that you are using the %1$s %2$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
+					$cdn_name,
+					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				)
+			);
+			?>
+		</p>
+		<?php
+	} else {
+		// No CDN is configured
+		?>
+		<p class="notice notice-error">
+			<?php
+			w3tc_e(
+				'cdn.bunnycdn.widget.v2.no_cdn',
+				sprintf(
+					// translators: 1 HTML acronym for Content Delivery Network (CDN).
+					__( 'W3 Total Cache has detected that you do not have a %1$s configured. For optimal performance and value, we recommend considering BunnyCDN.', 'w3-total-cache' ),
+					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				)
+			);
+			?>
+		</p>
+		<?php
+	}
 
 	?>
 	<p>
@@ -111,6 +109,7 @@ defined( 'W3TC' ) || die();
 		);
 		?>
 	</p>
+
 	<h4 class="w3tc_bunnycdn_signup_h4"><?php \esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
 
 	<p>
@@ -121,30 +120,34 @@ defined( 'W3TC' ) || die();
 		);
 		?>
 	</p>
+
 	<a class="button-primary" href="<?php echo esc_url( W3TC_BUNNYCDN_SIGNUP_URL ); ?>" target="_blank">
 		<?php \esc_html_e( 'Sign Up Now ', 'w3-total-cache' ); ?>
 	</a>
+
+	<h4 class="w3tc_bunnycdn_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
+	
 	<p>
-		<h4 class="w3tc_bunnycdn_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
-		<p>
-			<?php
-			w3tc_e(
-				'cdn.bunnycdn.widget.v2.existing',
-				\sprintf(
-					// translators: 1 HTML acronym for Content Delivery Network (CDN).
-					\__(
-						'If you\'re an existing Bunny CDN customer, enable %1$s and authorize. If you need help configuring your %1$s, we also offer Premium Services to assist you.',
-						'w3-total-cache'
-					),
-					'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
-				)
-			);
-			?>
-		</p>
-		<a class="button-primary" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ), 'w3tc' ) ); ?>">
-			<?php \esc_html_e( 'Authorize', 'w3-total-cache' ); ?>
-		</a>
-		<a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), 'w3tc' ) ); ?>">
-			<?php \esc_html_e( 'Premium Services', 'w3-total-cache' ); ?>
-		</a>
+		<?php
+		w3tc_e(
+			'cdn.bunnycdn.widget.v2.existing',
+			\sprintf(
+				// translators: 1 HTML acronym for Content Delivery Network (CDN).
+				\__(
+					'If you\'re an existing Bunny CDN customer, enable %1$s and authorize. If you need help configuring your %1$s, we also offer Premium Services to assist you.',
+					'w3-total-cache'
+				),
+				'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
+			)
+		);
+		?>
+	</p>
+
+	<a class="button-primary" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ), 'w3tc' ) ); ?>">
+		<?php \esc_html_e( 'Authorize', 'w3-total-cache' ); ?>
+	</a>
+
+	<a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), 'w3tc' ) ); ?>">
+		<?php \esc_html_e( 'Premium Services', 'w3-total-cache' ); ?>
+	</a>
 </div>
