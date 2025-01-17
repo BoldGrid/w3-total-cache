@@ -54,10 +54,7 @@ defined( 'W3TC' ) || die();
 		?>
 		<p class="notice notice-error">
 			<?php
-			w3tc_e(
-				'cdn.bunnycdn.widget.v2.incomplete',
-				__( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please use the "Authorize" button on the CDN page to connect a pull zone.', 'w3-total-cache' )
-			);
+			esc_html_e( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please use the "Authorize" button on the CDN page to connect a pull zone.', 'w3-total-cache' );
 			?>
 		</p>
 		<?php
@@ -66,13 +63,17 @@ defined( 'W3TC' ) || die();
 		?>
 		<p class="notice notice-error">
 			<?php
-			w3tc_e(
-				'cdn.bunnycdn.widget.v2.no_cdn',
+			echo wp_kses(
 				sprintf(
 					// translators: 1 configured CDN name, 2 HTML acronym for Content Delivery Network (CDN).
 					__( 'W3 Total Cache has detected that you are using the %1$s %2$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
 					$cdn_name,
 					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
 				)
 			);
 			?>
@@ -83,12 +84,16 @@ defined( 'W3TC' ) || die();
 		?>
 		<p class="notice notice-error">
 			<?php
-			w3tc_e(
-				'cdn.bunnycdn.widget.v2.no_cdn',
+			echo wp_kses(
 				sprintf(
 					// translators: 1 HTML acronym for Content Delivery Network (CDN).
 					__( 'W3 Total Cache has detected that you do not have a %1$s configured. For optimal performance and value, we recommend considering BunnyCDN.', 'w3-total-cache' ),
 					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				),
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
 				)
 			);
 			?>
