@@ -17,13 +17,12 @@ defined( 'W3TC' ) || die();
 	<?php
 	$cdn_engine     = $c->get_string( 'cdn.engine' );
 	$cdn_enabled    = $c->get_boolean( 'cdn.enabled' );
-	$cdn_name    = Cache::engine_name( $cdn_engine );
-
+	$cdn_name       = Cache::engine_name( $cdn_engine );
 	$cdnfsd_engine  = $c->get_string( 'cdnfsd.engine' );
 	$cdnfsd_enabled = $c->get_boolean( 'cdnfsd.enabled' );
 	$cdnfsd_name    = Cache::engine_name( $cdnfsd_engine );
 
-	// Check if BunnyCDN is selected but not fully configured
+	// Check if BunnyCDN is selected but not fully configured.
 	$is_bunny_cdn_incomplete = (
 		(
 			'bunnycdn' === $cdn_engine &&
@@ -37,7 +36,7 @@ defined( 'W3TC' ) || die();
 		)
 	);
 
-	// Check if a non-BunnyCDN is configured
+	// Check if a non-BunnyCDN is configured.
 	$is_other_cdn_configured = (
 		(
 			$cdn_enabled &&
@@ -50,7 +49,7 @@ defined( 'W3TC' ) || die();
 	);
 
 	if ( $is_bunny_cdn_incomplete ) {
-		// BunnyCDN selected but not fully configured
+		// BunnyCDN selected but not fully configured.
 		?>
 		<p class="notice notice-error">
 			<?php
@@ -59,7 +58,7 @@ defined( 'W3TC' ) || die();
 		</p>
 		<?php
 	} elseif ( $is_other_cdn_configured ) {
-		// A CDN is configured but it is not BunnyCDN
+		// A CDN is configured but it is not BunnyCDN.
 		?>
 		<p class="notice notice-error">
 			<?php
@@ -80,7 +79,7 @@ defined( 'W3TC' ) || die();
 		</p>
 		<?php
 	} else {
-		// No CDN is configured
+		// No CDN is configured.
 		?>
 		<p class="notice notice-error">
 			<?php
@@ -131,7 +130,7 @@ defined( 'W3TC' ) || die();
 	</a>
 
 	<h4 class="w3tc_bunnycdn_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
-	
+
 	<p>
 		<?php
 		w3tc_e(
