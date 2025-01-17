@@ -473,7 +473,7 @@ $keys = array(
 	// name backwards-compatible. in reality works for apache too
 	'pgcache.cache.nginx_handle_xml' => array(
 		'type' => 'boolean',
-		'default' => false
+		'default' => true
 	),
 	'pgcache.cache.ssl' => array(
 		'type' => 'boolean',
