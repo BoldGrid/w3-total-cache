@@ -40,6 +40,7 @@ define( 'W3TC_PARTNER_IMH', 'https://api.w3-edge.com/v1/redirects/partners/imh' 
 define( 'W3TC_PARTNER_A2', 'https://api.w3-edge.com/v1/redirects/partners/a2' );
 define( 'W3TC_PARTNER_CONVESIO', 'https://api.w3-edge.com/v1/redirects/partners/convesio' );
 define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners/dreamhost' );
+define( 'W3TC_BOLDGRID_FORUM_API', 'https://www.boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=' );
 
 // Admin notices from API.
 if ( ! defined( 'W3TC_NOTICE_FEED' ) ) {

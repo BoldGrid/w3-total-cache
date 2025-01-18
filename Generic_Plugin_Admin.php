@@ -73,6 +73,7 @@ class Generic_Plugin_Admin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'admin_print_styles-toplevel_page_w3tc_dashboard', array( '\W3TC\Generic_Page_Dashboard', 'admin_print_styles_w3tc_dashboard' ) );
 		add_action( 'wp_ajax_w3tc_ajax', array( $this, 'wp_ajax_w3tc_ajax' ) );
+		add_action( 'wp_ajax_w3tc_forums_api', array( $this, 'wp_ajax_w3tc_forums_api' ), 10, 1 );
 
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
 		add_action( 'admin_footer', array( $this, 'admin_footer' ) );
@@ -217,6 +218,29 @@ class Generic_Plugin_Admin {
 		}
 
 		exit();
+	}
+
+	/**
+	 * Forums API Callback
+	 *
+	 * This function reached out to the W3TC forums API to get the posts with the corresponding cache tag
+	 * on boldgrid.com/support.
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_w3tc_forums_api() {
+		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+			wp_nonce_ays( 'w3tc' );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'no permissions', 403 );
+		}
+
+		$tag   = Util_Request::get_string( 'tabId' );
+		$posts = wp_remote_get( W3TC_BOLDGRID_FORUM_API . $tag, array( 'timeout' => 10 ) );
+
+		wp_send_json( $posts );
 	}
 
 	/**
