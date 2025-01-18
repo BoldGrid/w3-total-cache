@@ -19,7 +19,7 @@ $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdn.bunn
 Util_Ui::postbox_header(
 	esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ),
 	'',
-	'configuration'
+	'configuration-fsd'
 );
 
 ?>
