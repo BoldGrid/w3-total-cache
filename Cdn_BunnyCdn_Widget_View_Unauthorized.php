@@ -25,39 +25,43 @@ defined( 'W3TC' ) || die();
 	// Check if BunnyCDN is selected but not fully configured.
 	$is_bunny_cdn_incomplete = (
 		(
-			'bunnycdn' === $cdn_engine &&
 			$cdn_enabled &&
+			'bunnycdn' === $cdn_engine &&
 			empty( $c->get_integer( 'cdn.bunnycdn.pull_zone_id' ) )
 		) ||
 		(
-			'bunnycdn' === $cdnfsd_engine &&
 			$cdnfsd_enabled &&
+			'bunnycdn' === $cdnfsd_engine &&
 			empty( $c->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ) )
 		)
 	);
 
-	// Check if a non-BunnyCDN is configured.
-	$is_other_cdn_configured = (
-		(
-			$cdn_enabled &&
-			'bunnycdn' !== $cdn_engine
-		) ||
-		(
-			$cdnfsd_enabled &&
-			'bunnycdn' !== $cdnfsd_engine
-		)
-	);
+	// Check if a non-Bunny CDN is configured.
+	$is_other_cdn_configured    = $cdn_enabled && ! empty( $cdn_engine ) && 'bunnycdn' !== $cdn_engine;
+	$is_other_cdnfsd_configured = $cdnfsd_enabled && ! empty( $cdnfsd_engine ) && 'bunnycdn' !== $cdnfsd_engine;
 
 	if ( $is_bunny_cdn_incomplete ) {
 		// BunnyCDN selected but not fully configured.
 		?>
 		<p class="notice notice-error">
 			<?php
-			esc_html_e( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please use the "Authorize" button on the CDN page to connect a pull zone.', 'w3-total-cache' );
+			echo wp_kses(
+				sprintf(
+					// translators: 1: HTML link open, 2: HTML link close.
+					__( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please use the "Authorize" button on the %1$sCDN settings page%2$s to connect a pull zone.', 'w3-total-cache' ),
+					'<a href="' . esc_url_raw( Util_UI::admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			);
 			?>
 		</p>
 		<?php
-	} elseif ( $is_other_cdn_configured ) {
+	} elseif ( $is_other_cdn_configured || $is_other_cdnfsd_configured ) {
 		// A CDN is configured but it is not BunnyCDN.
 		?>
 		<p class="notice notice-error">
@@ -66,7 +70,7 @@ defined( 'W3TC' ) || die();
 				sprintf(
 					// translators: 1 configured CDN name, 2 HTML acronym for Content Delivery Network (CDN).
 					__( 'W3 Total Cache has detected that you are using the %1$s %2$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
-					$cdn_name,
+					esc_html( $is_other_cdn_configured ? $cdn_name : $cdnfsd_name ),
 					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
 				),
 				array(
