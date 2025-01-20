@@ -3,7 +3,7 @@
  *
  * JavaScript for the exit survey modal.
  *
- * @since X.X.X
+ * @since 2.8.3
  *
  * @global w3tcData Localized array variable.
  */
@@ -11,7 +11,7 @@
 /**
  * Display the exit servey modal on plugin deactivation.
  *
- * @since X.X.X
+ * @since 2.8.3
  */
 function w3tc_exit_survey_render() {
 	W3tc_Lightbox.open({
@@ -112,7 +112,7 @@ jQuery(function() {
 	/**
 	 * Trigger display of exit survey on plugin deactivation link click.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 */
 	jQuery('#deactivate-w3-total-cache').on( 'click', function(e) {
 		e.preventDefault();

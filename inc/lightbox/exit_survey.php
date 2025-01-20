@@ -2,7 +2,7 @@
 /**
  * File: exit_survey.php
  *
- * @since X.X.X
+ * @since 2.8.3
  *
  * @package W3TC
  */

@@ -2,7 +2,7 @@
 /**
  * File: Generic_Plugin_Survey.php
  *
- * @since X.X.X
+ * @since 2.8.3
  *
  * @package W3TC
  */
@@ -12,7 +12,7 @@ namespace W3TC;
 /**
  * Class Generic_Plugin_Survey
  *
- * @since X.X.X
+ * @since 2.8.3
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
@@ -20,7 +20,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * Config
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @var Config
 	 */
@@ -29,7 +29,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * W3TC Pro license key.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @var string
 	 */
@@ -38,7 +38,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * W3TC Pro licensed home URL.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @var string
 	 */
@@ -47,7 +47,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * W3TC Pro licensed product item name.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @var string
 	 */
@@ -56,7 +56,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * Constructor
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @return void
 	 */
@@ -74,7 +74,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * Runs plugin
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @return void
 	 */
@@ -86,7 +86,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * Renders the exit survey lightbox content
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @return void
 	 */
@@ -106,7 +106,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * Processes the exit survey submission and sends it to the API.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @return void
 	 */
