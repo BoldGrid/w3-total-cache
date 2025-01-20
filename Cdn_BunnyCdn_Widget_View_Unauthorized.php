@@ -41,10 +41,12 @@ defined( 'W3TC' ) || die();
 	$is_other_cdn_configured = (
 		(
 			$cdn_enabled &&
+			! empty( $cdn_engine ) &&
 			'bunnycdn' !== $cdn_engine
 		) ||
 		(
 			$cdnfsd_enabled &&
+			! empty( $cdnfsd_engine ) &&
 			'bunnycdn' !== $cdnfsd_engine
 		)
 	);
