@@ -1399,7 +1399,7 @@ class Util_Environment {
 	/**
 	 * Pro constants?
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @static
 	 *
@@ -1855,7 +1855,7 @@ class Util_Environment {
 	 *
 	 * This URL can be overridden by defining W3TC_API2_URL
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @return string The API URL to use for requests.
 	 */

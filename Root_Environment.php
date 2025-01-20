@@ -211,7 +211,7 @@ class Root_Environment {
 	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
 	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * @return void
 	 */
