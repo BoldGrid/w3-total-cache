@@ -17,13 +17,13 @@ defined( 'W3TC' ) || die();
 	<?php
 	$cdn_engine     = $c->get_string( 'cdn.engine' );
 	$cdn_enabled    = $c->get_boolean( 'cdn.enabled' );
-	$cdn_name    = Cache::engine_name( $cdn_engine );
+	$cdn_name       = Cache::engine_name( $cdn_engine );
 
 	$cdnfsd_engine  = $c->get_string( 'cdnfsd.engine' );
 	$cdnfsd_enabled = $c->get_boolean( 'cdnfsd.enabled' );
 	$cdnfsd_name    = Cache::engine_name( $cdnfsd_engine );
-
-	// Check if BunnyCDN is selected but not fully configured
+Util_Debug::debug('cdnfsd',$cdnfsd_name);
+	// Check if BunnyCDN is selected but not fully configured.
 	$is_bunny_cdn_incomplete = (
 		(
 			'bunnycdn' === $cdn_engine &&
@@ -37,7 +37,7 @@ defined( 'W3TC' ) || die();
 		)
 	);
 
-	// Check if a non-BunnyCDN is configured
+	// Check if a non-BunnyCDN is configured.
 	$is_other_cdn_configured = (
 		(
 			$cdn_enabled &&
@@ -50,25 +50,57 @@ defined( 'W3TC' ) || die();
 	);
 
 	if ( $is_bunny_cdn_incomplete ) {
-		// BunnyCDN selected but not fully configured
-		?>
-		<p class="notice notice-error">
-			<?php
-			esc_html_e( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please use the "Authorize" button on the CDN page to connect a pull zone.', 'w3-total-cache' );
-			?>
-		</p>
-		<?php
-	} elseif ( $is_other_cdn_configured ) {
-		// A CDN is configured but it is not BunnyCDN
+		// BunnyCDN selected but not fully configured.
 		?>
 		<p class="notice notice-error">
 			<?php
 			echo wp_kses(
 				sprintf(
-					// translators: 1 configured CDN name, 2 HTML acronym for Content Delivery Network (CDN).
-					__( 'W3 Total Cache has detected that you are using the %1$s %2$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
-					$cdn_name,
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
+					// translators: 1 opening HTML a tag to CDN settings page, 2 closing HTML a tag.
+					__( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please use the "Authorize" button on the %1$sCDN%2$s page to connect a pull zone.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			);
+			?>
+		</p>
+		<?php
+	} elseif ( $is_other_cdn_configured ) {
+		// A CDN is configured but it is not BunnyCDN.
+		?>
+		<p class="notice notice-error">
+			<?php
+			if ( 'None' !== $cdn_name && 'None' !== $cdnfsd_name ) {
+				$cdn_label =
+					$cdn_name .
+					' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym> ' .
+					__( ' and ', 'w3-total-cache' ) .
+					$cdnfsd_name .
+					' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDNFSD', 'w3-total-cache' ) . '</acronym>';
+			} elseif ( 'None' !== $cdn_name && 'None' === $cdnfsd_name ) {
+				$cdn_label =
+					$cdn_name .
+					' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>';
+			} elseif ( 'None' === $cdn_name && 'None' !== $cdnfsd_name ) {
+				$cdn_label =
+					$cdnfsd_name .
+					' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDNFSD', 'w3-total-cache' ) . '</acronym>';
+			} else {
+				$cdn_label =
+					__( 'Unknown', 'w3-total-cache' ) .
+					' <acronym title="' . __( 'Content Delivery Network / Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN / CDNFSD', 'w3-total-cache' ) . '</acronym>';
+			}
+
+			echo wp_kses(
+				sprintf(
+					// translators: 1 configured CDN/CDNFSD label.
+					__( 'W3 Total Cache has detected that you are using the %1$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
+					$cdn_label
 				),
 				array(
 					'acronym' => array(
@@ -80,7 +112,7 @@ defined( 'W3TC' ) || die();
 		</p>
 		<?php
 	} else {
-		// No CDN is configured
+		// No CDN is configured.
 		?>
 		<p class="notice notice-error">
 			<?php
