@@ -58,7 +58,7 @@ defined( 'W3TC' ) || die();
 				sprintf(
 					// translators: 1 opening HTML a tag to CDN settings page, 2 closing HTML a tag.
 					__( 'W3 Total Cache has detected that BunnyCDN is selected but not fully configured. Please use the "Authorize" button on the %1$sCDN%2$s settings page to connect a pull zone.', 'w3-total-cache' ),
-					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
+					'<a href="' . esc_url_raw( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
 					'</a>'
 				),
 				array(
@@ -75,18 +75,18 @@ defined( 'W3TC' ) || die();
 		?>
 		<p class="notice notice-error">
 			<?php
-			if ( $cdn_enabled && 'None' !== $cdn_name && $cdnfsd_enabled && 'None' !== $cdnfsd_name ) {
+			if ( $cdn_enabled && ! empty( $cdn_engine ) && $cdnfsd_enabled && ! empty( $cdnfsd_engine ) ) {
 				$cdn_label =
 					$cdn_name .
 					' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym> ' .
 					__( ' and ', 'w3-total-cache' ) .
 					$cdnfsd_name .
 					' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDNFSD', 'w3-total-cache' ) . '</acronym>';
-			} elseif ( $cdn_enabled && 'None' !== $cdn_name) {
+			} elseif ( $cdn_enabled && ! empty( $cdn_engine ) ) {
 				$cdn_label =
 					$cdn_name .
 					' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>';
-			} elseif ( $cdnfsd_enabled && 'None' !== $cdnfsd_name ) {
+			} elseif ( $cdnfsd_enabled && ! empty( $cdnfsd_engine ) ) {
 				$cdn_label =
 					$cdnfsd_name .
 					' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDNFSD', 'w3-total-cache' ) . '</acronym>';
