@@ -625,7 +625,7 @@ if ( \method_exists( '\WP_CLI', 'add_command' ) ) {
 	\WP_CLI::add_command( 'w3tc', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
 } else {
 	// Backward compatibility.
-	\WP_CLI::addCommand( 'w3-total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
-	\WP_CLI::addCommand( 'total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
-	\WP_CLI::addCommand( 'w3tc', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
+	\WP_CLI::addCommand( 'w3-total-cache', '\W3TC\W3TotalCache_Command' );
+	\WP_CLI::addCommand( 'total-cache', '\W3TC\W3TotalCache_Command' );
+	\WP_CLI::addCommand( 'w3tc', '\W3TC\W3TotalCache_Command' );
 }
