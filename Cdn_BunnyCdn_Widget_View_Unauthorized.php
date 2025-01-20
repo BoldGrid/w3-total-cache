@@ -75,30 +75,38 @@ defined( 'W3TC' ) || die();
 		?>
 		<p class="notice notice-error">
 			<?php
-			if ( $cdn_enabled && ! empty( $cdn_engine ) && $cdnfsd_enabled && ! empty( $cdnfsd_engine ) ) {
-				$cdn_label =
-					$cdn_name .
-					' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym> ' .
-					__( ' and ', 'w3-total-cache' ) .
-					$cdnfsd_name .
-					' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDNFSD', 'w3-total-cache' ) . '</acronym>';
-			} elseif ( $cdn_enabled && ! empty( $cdn_engine ) ) {
-				$cdn_label =
-					$cdn_name .
-					' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>';
-			} elseif ( $cdnfsd_enabled && ! empty( $cdnfsd_engine ) ) {
-				$cdn_label =
-					$cdnfsd_name .
-					' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDNFSD', 'w3-total-cache' ) . '</acronym>';
-			} else {
-				$cdn_label =
-					__( 'Unknown', 'w3-total-cache' ) .
-					' <acronym title="' . __( 'Content Delivery Network / Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN / CDNFSD', 'w3-total-cache' ) . '</acronym>';
+			switch (true) {
+				case $cdn_enabled && ! empty( $cdn_engine ) && $cdnfsd_enabled && ! empty( $cdnfsd_engine ):
+					$cdn_label =
+						$cdn_name .
+						' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>' .
+						' ' . __( 'and', 'w3-total-cache' ) . ' ' .
+						$cdnfsd_name .
+						' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN FSD', 'w3-total-cache' ) . '</acronym>';
+					break;
+			
+				case $cdn_enabled && ! empty( $cdn_engine ):
+					$cdn_label =
+						$cdn_name .
+						' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>';
+					break;
+			
+				case $cdnfsd_enabled && ! empty( $cdnfsd_engine ):
+					$cdn_label =
+						$cdnfsd_name .
+						' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN FSD', 'w3-total-cache' ) . '</acronym>';
+					break;
+			
+				default:
+					$cdn_label =
+						__( 'Unknown', 'w3-total-cache' ) .
+						' <acronym title="' . __( 'Content Delivery Network / Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN / CDN FSD', 'w3-total-cache' ) . '</acronym>';
+					break;
 			}
 
 			echo wp_kses(
 				sprintf(
-					// translators: 1 configured CDN/CDNFSD label.
+					// translators: 1 configured CDN/CDN FSD label.
 					__( 'W3 Total Cache has detected that you are using the %1$s, which is fully supported and compatible. For optimal performance and value, we recommend considering BunnyCDN as an alternative.', 'w3-total-cache' ),
 					$cdn_label
 				),
