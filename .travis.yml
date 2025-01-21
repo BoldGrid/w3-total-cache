@@ -19,8 +19,6 @@ matrix:
       before_install:
       - nvm install 16
       - nvm use 16
-      - gem update --system
-      - gem install bundler
 
     -
       php: 8.3
@@ -49,6 +47,13 @@ script:
 after_success:
   # Codecov: Create a code coverage report for PHP 7.2.
   - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.2" ]]; then curl -Os https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov && ./codecov -f coverage.xml; fi
+
+before_deploy:
+  - yes | gem update --system --force
+  - gem install bundler
+  - gem install faraday-net_http -v '3.3.0'
+  - gem install uri
+  - gem install logger
 
 deploy:
   - provider: script

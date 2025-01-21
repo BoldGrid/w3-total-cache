@@ -3,7 +3,7 @@
         "js-lint": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --list-different",
         "js-lint-fix": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --write",
         "install-codesniffs": "php node_modules/php_codesniffer_master/bin/phpcs --config-set installed_paths node_modules/wpcs/scripts/wordpress-coding-standards/",
-        "php-codesniffer": "npm run install-codesniffs && node_modules/php_codesniffer_master/bin/phpcs -p -s --report=emacs --report-width=220 --standard=WordPress-Docs --standard=WordPress-Extra --ignore=*/node_modules/*,*/vendor/* --extensions=php ."
+        "php-codesniffer": "npm run install-codesniffs && node_modules/php_codesniffer_master/bin/phpcs --standard=phpcs.xml ."
     },
     "devDependencies": {
         "@boldgrid/wordpress-tag-sync": "^1.3.0",
