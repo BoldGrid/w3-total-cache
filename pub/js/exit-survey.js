@@ -14,14 +14,11 @@
  * @since 2.8.3
  */
 function w3tc_exit_survey_render() {
-	const clientIdParam = (typeof w3tc_ga_cid !== 'undefined' && w3tc_ga_cid) ? `&client_id=${encodeURIComponent(w3tc_ga_cid)}` : '';
-	const url = `${ajaxurl}?action=w3tc_ajax&_wpnonce=${w3tcData.nonce}&w3tc_action=exit_survey_render${clientIdParam}`;
-
 	W3tc_Lightbox.open({
 		id: 'w3tc-overlay',
 		height: 'auto',
 		maxWidth: 600,
-		url: url,
+		url: `${ajaxurl}?action=w3tc_ajax&_wpnonce=${w3tcData.nonce}&w3tc_action=exit_survey_render`,
 		callback: function(lightbox) {
 			// Retrieve the original deactivation URL.
 			var deactivateUrl = jQuery('#deactivate-w3-total-cache').attr('href');
