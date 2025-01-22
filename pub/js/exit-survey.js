@@ -14,13 +14,14 @@
  * @since 2.8.3
  */
 function w3tc_exit_survey_render() {
+	const clientIdParam = (typeof w3tc_ga_cid !== 'undefined' && w3tc_ga_cid) ? `&client_id=${encodeURIComponent(w3tc_ga_cid)}` : '';
+	const url = `${ajaxurl}?action=w3tc_ajax&_wpnonce=${w3tcData.nonce}&w3tc_action=exit_survey_render${clientIdParam}`;
+
 	W3tc_Lightbox.open({
 		id: 'w3tc-overlay',
 		height: 'auto',
 		maxWidth: 600,
-		url: ajaxurl +
-			'?action=w3tc_ajax&_wpnonce=' + w3tcData.nonce + '&w3tc_action=exit_survey_render' +
-			(w3tc_ga_cid ? '&client_id=' + encodeURIComponent(w3tc_ga_cid) : ''),
+		url: url,
 		callback: function(lightbox) {
 			// Retrieve the original deactivation URL.
 			var deactivateUrl = jQuery('#deactivate-w3-total-cache').attr('href');
@@ -69,7 +70,7 @@ function w3tc_exit_survey_render() {
 				var reason = jQuery('input[name="reason"]:checked', lightbox.container).val();
 				var other = jQuery('input[name="other"]', lightbox.container).val();
 				var remove = jQuery('input[name="remove"]:checked', lightbox.container).val();
-				
+
 				// Build the params object.
 				var params = {
 					action: 'w3tc_ajax',
@@ -116,7 +117,7 @@ jQuery(function() {
 	 */
 	jQuery('#deactivate-w3-total-cache').on( 'click', function(e) {
 		e.preventDefault();
-	
+
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
@@ -127,7 +128,7 @@ jQuery(function() {
 				}
 			);
 		}
-	
+
 		w3tc_exit_survey_render();
 		return false;
 	});
