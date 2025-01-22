@@ -517,8 +517,6 @@ class Generic_Plugin_Admin {
 			);
 			?>
 			<script type="application/javascript">
-				var w3tc_ga_cid;
-
 				window.dataLayer = window.dataLayer || [];
 
 				function w3tc_ga(){dataLayer.push(arguments);}
@@ -545,13 +543,19 @@ class Generic_Plugin_Admin {
 					}
 				});
 
-				const cidPromise = new Promise(resolve => {
-					w3tc_ga('get', '<?php echo esc_attr( $profile ); ?>', 'client_id', resolve);
-				});
-				cidPromise.then((cid) => {
-					w3tc_ga_cid = cid;
-				});
+				function getGACookie() {
+					const match = document.cookie.match(/_ga=([^;]+)/);
+					if (match) {
+						const parts = match[1].split('.');
+						if (parts.length > 2) {
+							return parts[2] + '.' + parts[3];
+						}
+					}
+					console.error('GA cookie not found or not set yet.');
+					return null;
+				}
 
+				const w3tc_ga_cid = getGACookie();
 
 				// Track clicks on W3TC Pro Services tab.
 				document.addEventListener('click', function(event) {
