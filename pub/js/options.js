@@ -1736,9 +1736,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_topnav_bar',
-					eventAction: 'link',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1750,9 +1750,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'anchor',
 				{
 					eventCategory: 'w3tc_options_menu',
-					eventAction: 'anchor',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1764,9 +1764,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'button',
 				{
 					eventCategory: 'w3tc_form_bar',
-					eventAction: 'button',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1778,9 +1778,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_footer',
-					eventAction: 'link',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1792,9 +1792,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_general_advanced_tab',
-					eventAction: 'link',
 					eventLabel: jQuery(this).attr('gatitle')
 				}
 			);
@@ -1806,9 +1806,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_general_extra_link_tab',
-					eventAction: 'link',
 					eventLabel: jQuery(this).attr('gatitle')
 				}
 			);
