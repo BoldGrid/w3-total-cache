@@ -513,13 +513,15 @@ class Generic_Plugin_Admin {
 				'https://www.googletagmanager.com/gtag/js?id=' . esc_attr( $profile ),
 				array(),
 				W3TC_VERSION,
-				true
+				false
 			);
 			?>
 			<script type="application/javascript">
 				window.dataLayer = window.dataLayer || [];
 
 				function w3tc_ga(){dataLayer.push(arguments);}
+
+				w3tc_ga('js', new Date());
 
 				w3tc_ga('config', '<?php echo esc_attr( $profile ); ?>', {
 					'user_properties': {
