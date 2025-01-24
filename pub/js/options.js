@@ -1734,7 +1734,6 @@ jQuery(function() {
 	// Options menu anchor links.
 	jQuery('#w3tc-top-nav-bar a').on('click', function(e) {
 		if (window.w3tc_ga) {
-			e.preventDefault;
 			w3tc_ga(
 				'event',
 				'link',
