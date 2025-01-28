@@ -116,16 +116,16 @@ class Licensing_Plugin_Admin {
 
 			if ( $result ) {
 				if ( strpos( $result->license_status, 'inactive.expired.' ) === 0 ) {
-					$license_update_result = __( 'Your W3 Total Cache - PRO license key has expired. Please renew it.', 'w3-total-cache' );
+					$license_update_result = __( 'Your Pro license key has expired. Please renew it.', 'w3-total-cache' );
 				} elseif (
 					strpos( $result->license_status, 'active.' ) === 0 ||
 					strpos( $result->license_status, 'inactive.by_rooturi.activations_limit_not_reached.' ) === 0
 				) {
-					$license_update_result = __( 'Your W3 Total Cache - PRO license key is correct and has been applied.', 'w3-total-cache' );
+					$license_update_result = __( 'Your Pro license key is correct and has been applied.', 'w3-total-cache' );
 				} elseif ( strpos( $result->license_status, 'inactive.by_rooturi.' ) === 0 ) {
-					$license_update_result = __( 'Your W3 Total Cache - PRO license key is correct but is already in use on another site. See the FAQ for how to enable Pro version in development mode.', 'w3-total-cache' );
+					$license_update_result = __( 'Your Pro license key is correct but is already in use on another site.', 'w3-total-cache' );
 				} else {
-					$license_update_result = __( 'Your W3 Total Cache - PRO license key is not valid. Please check it and try again.', 'w3-total-cache' );
+					$license_update_result = __( 'Your Pro license key is not valid. Please check it and try again.', 'w3-total-cache' );
 				}
 
 				update_option( 'w3tc_license_update', $license_update_result );
