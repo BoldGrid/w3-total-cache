@@ -18,7 +18,6 @@ class Licensing_Plugin_Admin {
 	 */
 	function run() {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
-		add_action( 'wp_ajax_w3tc_verify_plugin_license_key', array( $this, 'action_verify_plugin_license_key' ) );
 		add_action( 'w3tc_config_ui_save-w3tc_general', array( $this, 'possible_state_change' ), 2, 10 );
 
 		add_action( 'w3tc_message_action_licensing_upgrade', array( $this, 'w3tc_message_action_licensing_upgrade' ) );
@@ -114,6 +113,23 @@ class Licensing_Plugin_Admin {
 			$state->save();
 
 			delete_transient( 'w3tc_imageservice_limited' );
+
+			if ( $result ) {
+				if ( strpos( $result->license_status, 'inactive.expired.' ) === 0 ) {
+					$license_update_result = __( 'Your W3 Total Cache - PRO license key has expired. Please renew it.', 'w3-total-cache' );
+				} elseif (
+					strpos( $result->license_status, 'active.' ) === 0 ||
+					strpos( $result->license_status, 'inactive.by_rooturi.activations_limit_not_reached.' ) === 0
+				) {
+					$license_update_result = __( 'Your W3 Total Cache - PRO license key is correct and has been applied.', 'w3-total-cache' );
+				} elseif ( strpos( $result->license_status, 'inactive.by_rooturi.' ) === 0 ) {
+					$license_update_result = __( 'Your W3 Total Cache - PRO license key is correct but is already in use on another site. See the FAQ for how to enable Pro version in development mode.', 'w3-total-cache' );
+				} else {
+					$license_update_result = __( 'Your W3 Total Cache - PRO license key is not valid. Please check it and try again.', 'w3-total-cache' );
+				}
+
+				update_option( 'w3tc_license_update', $license_update_result );
+			}
 		}
 	}
 
@@ -313,6 +329,12 @@ class Licensing_Plugin_Admin {
 			}
 		}
 
+		$license_update_result = get_option( 'w3tc_license_update' );
+		if ( $license_update_result ) {
+			$notes['license_update'] = $license_update_result;
+			delete_option( 'w3tc_license_update' );
+		}
+
 		return $notes;
 	}
 
@@ -385,17 +407,5 @@ class Licensing_Plugin_Admin {
 			$license_key = ini_get( 'w3tc.license_key' );
 		}
 		return $license_key;
-	}
-
-	function action_verify_plugin_license_key() {
-		$license = Util_Request::get_string( 'license_key', '' );
-
-		if ( $license ) {
-			$status = Licensing_Core::check_license( $license, W3TC_VERSION );
-			echo esc_html( $status->license_status );
-		} else {
-			echo 'invalid';
-		}
-		exit();
 	}
 }
