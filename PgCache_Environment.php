@@ -1227,7 +1227,7 @@ class PgCache_Environment {
 			$rules .= 'set $w3tc_ext "";' . "\n";
 			$rules .= 'if (-f "$document_root' . $uri_prefix . '.html' .
 				$env_w3tc_enc . '") {' . "\n";
-			$rules .= '  set $w3tc_ext .html;' . "\n";
+			$rules .= '    set $w3tc_ext .html;' . "\n";
 			$rules .= "}\n";
 
 			$rules .= 'if (-f "$document_root' . $uri_prefix . '.xml' .
