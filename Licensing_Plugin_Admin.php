@@ -4,6 +4,14 @@ namespace W3TC;
 class Licensing_Plugin_Admin {
 	private $site_inactivated = false;
 	private $site_activated   = false;
+
+	/**
+	 * Flag for license swap from old to new.
+	 *
+	 * @var bool
+	 */
+	private $site_activated_swap = false;
+
 	/**
 	 * Config
 	 */
@@ -85,24 +93,33 @@ class Licensing_Plugin_Admin {
 	 */
 	function possible_state_change( $config, $old_config ) {
 		$changed = false;
+		$new_key = $config->get_string( 'plugin.license_key' );
+		$old_key = $old_config->get_string( 'plugin.license_key' );
 
-		if ( $old_config->get_string( 'plugin.license_key' ) !== '' && $config->get_string( 'plugin.license_key' ) === '' ) {
-			$result = Licensing_Core::deactivate_license( $old_config->get_string( 'plugin.license_key' ) );
+		if ( '' === $new_key && '' === $old_key ) {
+			// No new key or old key. Do nothing.
+			return;
+		} elseif ( '' === $new_key && '' !== $old_key ) {
+			// Current key set but new is blank, deactivating old.
+			$result = Licensing_Core::deactivate_license( $old_key );
 			if ( $result ) {
 				$this->site_inactivated = true;
 			}
 			$changed = true;
-		} elseif ( $old_config->get_string( 'plugin.license_key' ) === '' && $config->get_string( 'plugin.license_key' ) !== '' ) {
-			$result = Licensing_Core::activate_license( $config->get_string( 'plugin.license_key' ), W3TC_VERSION );
+		} elseif ( '' !== $new_key && $old_key === '' ) {
+			// Current key is blank but new is not, activating new.
+			$result = Licensing_Core::activate_license( $new_key, W3TC_VERSION );
 			if ( $result ) {
 				$this->site_activated = true;
 				$config->set( 'common.track_usage', true );
 			}
 			$changed = true;
-		} elseif ( $old_config->get_string( 'plugin.license_key' ) !== $config->get_string( 'plugin.license_key' ) ) {
-			$result = Licensing_Core::activate_license( $config->get_string( 'plugin.license_key' ), W3TC_VERSION );
-			if ( $result ) {
-				$this->site_activated = true;
+		} elseif ( '' !== $new_key && '' !== $old_key && $new_key !== $old_key ) {
+			// Current key is set and new different key provided. Deactivating old and activating new.
+			$deactivate_result = Licensing_Core::deactivate_license( $old_key );
+			$activate_result   = Licensing_Core::activate_license( $new_key, W3TC_VERSION );
+			if ( $deactivate_result && $activate_result ) {
+				$this->site_activated_swap = true;
 			}
 			$changed = true;
 		}
@@ -263,6 +280,10 @@ class Licensing_Plugin_Admin {
 
 		if ( $this->site_activated ) {
 			Util_Ui::error_box( '<p>' . __( 'The W3 Total Cache license key is activated for this site.', 'w3-total-cache' ) . '</p>' );
+		}
+
+		if ( $this->site_activated_swap ) {
+			Util_Ui::error_box( '<p>' . __( 'The old W3 Total Cache license key is deactivated and the new W3 Total Cache license key is activated for this site.', 'w3-total-cache' ) . '</p>' );
 		}
 	}
 
