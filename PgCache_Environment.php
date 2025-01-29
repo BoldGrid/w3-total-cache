@@ -1245,6 +1245,10 @@ class PgCache_Environment {
 			'" last;' . "\n";
 		$rules .= "}\n";
 
+		$rules .= 'location / {' . "\n";
+		$rules .= '  try_files $uri $uri/ /index.php?$args;' . "\n";
+		$rules .= "}\n";
+
 		return $rules;
 	}
 
