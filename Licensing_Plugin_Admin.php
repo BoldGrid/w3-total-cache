@@ -8,6 +8,8 @@ class Licensing_Plugin_Admin {
 	/**
 	 * Flag for license swap from old to new.
 	 *
+	 * @since X.X.X
+	 *
 	 * @var bool
 	 */
 	private $site_activated_swap = false;
