@@ -131,11 +131,24 @@ class Licensing_Plugin_Admin {
 
 				switch ( true ) {
 					case ( strpos( $status, 'inactive.expired.' ) === 0 ):
-						$messages[] = __( 'Your previous Pro license key is expired and will remain registered to this domain.', 'w3-total-cache' );
+						$messages[] = array(
+							'message' => __( 'Your previous W3 Total Cache Pro license key is expired and will remain registered to this domain.', 'w3-total-cache' ),
+							'type'    => 'error',
+						);
 						break;
 
-					default:
-						$messages[] = __( 'Your previous Pro license key has been deactivated.', 'w3-total-cache' );
+					case ( strpos( $status, 'inactive' ) === 0 ):
+						$messages[] = array(
+							'message' => __( 'Your previous W3 Total Cache Pro license key has been deactivated.', 'w3-total-cache' ),
+							'type'    => 'info',
+						);
+						break;
+
+					case ( strpos( $status, 'invalid' ) === 0 ):
+						$messages[] = array(
+							'message' => __( 'Your previous W3 Total Cache Pro license key is invalid and cannot be deactivated.', 'w3-total-cache' ),
+							'type'    => 'error',
+						);
 				}
 			}
 
@@ -144,25 +157,24 @@ class Licensing_Plugin_Admin {
 				$status = $activate_result->license_status;
 
 				switch ( true ) {
-					case ( strpos( $status, 'inactive.expired.' ) === 0 ):
-						$messages[] = __( 'The Pro license key you provided has expired. Please renew it.', 'w3-total-cache' );
+					case ( strpos( $status, 'active.past_due' ) === 0 ):
+						$messages[] = array(
+							'message' => __( 'The W3 Total Cache Pro license key you provided is valid and has been applied, however there is a balance due.', 'w3-total-cache' ),
+							'type'    => 'info',
+						);
 						break;
 
-					case ( strpos( $status, 'active.' ) === 0 || strpos( $status, 'inactive.by_rooturi.activations_limit_not_reached.' ) === 0 ):
-						$messages[] = __( 'The Pro license key you provided is valid and has been applied.', 'w3-total-cache' );
+					case ( strpos( $status, 'active' ) === 0 ):
+						$messages[] = array(
+							'message' => __( 'The W3 Total Cache Pro license key you provided is valid and has been applied.', 'w3-total-cache' ),
+							'type'    => 'info',
+						);
 						break;
-
-					case ( strpos( $status, 'inactive.by_rooturi.' ) === 0 ):
-						$messages[] = __( 'The Pro license key you provided is valid but is already in use on another site.', 'w3-total-cache' );
-						break;
-
-					default:
-						$messages[] = __( 'The Pro license key you provided is not valid. Please check it and try again.', 'w3-total-cache' );
 				}
 			}
 
-			// Combine messages with a space only if both exist.
-			update_option( 'license_update_message', implode( ' ', $messages ) );
+			// Store messages for processing.
+			update_option( 'license_update_messages', $messages );
 		}
 	}
 
@@ -206,14 +218,12 @@ class Licensing_Plugin_Admin {
 		$state  = Dispatcher::config_state();
 		$status = $state->get_string( 'license.status' );
 
-		if ( Util_Environment::is_pro_constant( $this->_config ) ) {
-		} elseif ( 'no_key' === $status ) {
-		} elseif ( $this->_status_is( $status, 'inactive.expired' ) ) {
+		if ( $this->_status_is( $status, 'inactive.expired' ) ) {
 			$message = wp_kses(
 				sprintf(
 					// translators: 1 HTML input button for renewing license.
 					__(
-						'It looks like your W3 Total Cache Pro license has expired. %1$s to continue using the Pro features',
+						'Your W3 Total Cache Pro license key has expired. %1$s to continue using the Pro features',
 						'w3-total-cache'
 					),
 					'<input type="button" class="button button-renew-plugin" data-nonce="' .
@@ -231,10 +241,6 @@ class Licensing_Plugin_Admin {
 					),
 				)
 			);
-		} elseif ( $this->_status_is( $status, 'invalid' ) ) {
-			$message = __( 'The W3 Total Cache license key you entered is not valid.', 'w3-total-cache' ) .
-				'<a href="' . ( is_network_admin() ? network_admin_url( 'admin.php?page=w3tc_general#licensing' ) :
-				admin_url( 'admin.php?page=w3tc_general#licensing' ) ) . '"> ' . __( 'Please enter it again.', 'w3-total-cache' ) . '</a>';
 		} elseif ( $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_not_reached' ) ) {
 			$message = __( 'The W3 Total Cache license key is not active for this site.', 'w3-total-cache' );
 		} elseif ( $this->_status_is( $status, 'inactive.by_rooturi' ) ) {
@@ -242,7 +248,7 @@ class Licensing_Plugin_Admin {
 				sprintf(
 					// translators: HTML a tag to W3TC Licence Reset.
 					__(
-						'The W3 Total Cache license key is not active for this site. You can switch your license to this website following %1$sthis link%2$s',
+						'Your W3 Total Cache license key is not active for this site. You can switch your license to this website following %1$sthis link%2$s',
 						'w3-total-cache'
 					),
 					'<a class="w3tc_licensing_reset_rooturi" href="' . Util_Ui::url(
@@ -260,9 +266,23 @@ class Licensing_Plugin_Admin {
 					),
 				)
 			);
+		} elseif ( $this->_status_is( $status, 'invalid' ) ) {
+			$license_url         = admin_url( 'admin.php?page=w3tc_general#licensing' );
+			$network_license_url = network_admin_url( 'admin.php?page=w3tc_general#licensing' );
+
+			$message = sprintf(
+				// Translators: 1 opening HTML a tag to license setting, 2 closing HTML a tag.
+				__(
+					'Your current W3 Total Cache Pro license key is not valid. %1$sPlease confirm it%2$s.',
+					'w3-total-cache'
+				),
+				'<a href="' . ( is_network_admin() ? $network_license_url : $license_url ) . '">',
+				'</a>'
+			);
 		} elseif ( $this->_status_is( $status, 'inactive' ) ) {
 			$message = __( 'The W3 Total Cache license key is not active.', 'w3-total-cache' );
-		} elseif ( $this->_status_is( $status, 'active' ) ) {
+		} elseif ( 'no_key' === $status || $this->_status_is( $status, 'active' ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElseif
+			// License is active, do nothing.
 		} else {
 			$message = __( 'The W3 Total Cache license key can\'t be verified.', 'w3-total-cache' );
 		}
@@ -273,27 +293,20 @@ class Licensing_Plugin_Admin {
 				echo '<link rel="stylesheet" id="w3tc-lightbox-css"  href="' . esc_url( plugins_url( 'pub/css/lightbox.css', W3TC_FILE ) ) . '" type="text/css" media="all" />';
 			}
 
-			Util_Ui::error_box(
-				sprintf(
-					'%1$s%2$s. %3$scheck license status again</a></p>',
-					'<p>',
-					$message,
-					'<a class="w3tc_licensing_check" href="' . Util_Ui::url(
-						array(
-							'page'                     => 'w3tc_general',
-							'w3tc_licensing_check_key' => 'y',
-						)
-					) . '">',
-					'</a>',
-					'</p>'
-				)
-			);
+			Util_Ui::error_box( '<p>' . $message . '</p>' );
 		}
 
-		$license_update_message = get_option( 'license_update_message' );
-		if ( $license_update_message ) {
-			Util_Ui::e_notification_box( '<p>' . $license_update_message . '</p>' );
-			delete_option( $license_update_message );
+		$license_update_messages = get_option( 'license_update_messages' );
+
+		if ( $license_update_messages ) {
+			foreach ( $license_update_messages as $message_data ) {
+				if ( 'error' === $message_data['type'] ) {
+					Util_Ui::error_box( '<p>' . $message_data['message'] . '</p>' );
+				} elseif ( 'info' === $message_data['type'] ) {
+					Util_Ui::e_notification_box( '<p>' . $message_data['message'] . '</p>' );
+				}
+			}
+			delete_option( 'license_update_messages' );
 		}
 	}
 
