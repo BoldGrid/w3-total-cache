@@ -2,18 +2,6 @@
 namespace W3TC;
 
 class Licensing_Plugin_Admin {
-	private $site_inactivated = false;
-	private $site_activated   = false;
-
-	/**
-	 * Flag for license swap from old to new.
-	 *
-	 * @since X.X.X
-	 *
-	 * @var bool
-	 */
-	private $site_activated_swap = false;
-
 	/**
 	 * Config
 	 */
@@ -94,36 +82,38 @@ class Licensing_Plugin_Admin {
 	 * @param Config  $old_config
 	 */
 	function possible_state_change( $config, $old_config ) {
-		$changed = false;
-		$new_key = $config->get_string( 'plugin.license_key' );
-		$old_key = $old_config->get_string( 'plugin.license_key' );
+		$changed     = false;
+		$new_key     = $config->get_string( 'plugin.license_key' );
+		$new_key_set = ! empty( $new_key );
+		$old_key     = $old_config->get_string( 'plugin.license_key' );
+		$old_key_set = ! empty( $old_key );
 
-		if ( '' === $new_key && '' === $old_key ) {
+		switch ( true ) {
 			// No new key or old key. Do nothing.
-			return;
-		} elseif ( '' === $new_key && '' !== $old_key ) {
+			case ( ! $new_key_set && ! $old_key_set ):
+				return;
+
 			// Current key set but new is blank, deactivating old.
-			$result = Licensing_Core::deactivate_license( $old_key );
-			if ( $result ) {
-				$this->site_inactivated = true;
-			}
-			$changed = true;
-		} elseif ( '' !== $new_key && $old_key === '' ) {
+			case ( ! $new_key_set && $old_key_set ):
+				$deactivate_result = Licensing_Core::deactivate_license( $old_key );
+				$changed           = true;
+				break;
+
 			// Current key is blank but new is not, activating new.
-			$result = Licensing_Core::activate_license( $new_key, W3TC_VERSION );
-			if ( $result ) {
-				$this->site_activated = true;
-				$config->set( 'common.track_usage', true );
-			}
-			$changed = true;
-		} elseif ( '' !== $new_key && '' !== $old_key && $new_key !== $old_key ) {
+			case ( $new_key_set && ! $old_key_set ):
+				$activate_result = Licensing_Core::activate_license( $new_key, W3TC_VERSION );
+				$changed         = true;
+				if ( $activate_result ) {
+					$config->set( 'common.track_usage', true );
+				}
+				break;
+
 			// Current key is set and new different key provided. Deactivating old and activating new.
-			$deactivate_result = Licensing_Core::deactivate_license( $old_key );
-			$activate_result   = Licensing_Core::activate_license( $new_key, W3TC_VERSION );
-			if ( $deactivate_result && $activate_result ) {
-				$this->site_activated_swap = true;
-			}
-			$changed = true;
+			case ( $new_key_set && $old_key_set && $new_key !== $old_key ):
+				$deactivate_result = Licensing_Core::deactivate_license( $old_key );
+				$activate_result   = Licensing_Core::activate_license( $new_key, W3TC_VERSION );
+				$changed           = true;
+				break;
 		}
 
 		if ( $changed ) {
@@ -133,22 +123,46 @@ class Licensing_Plugin_Admin {
 
 			delete_transient( 'w3tc_imageservice_limited' );
 
-			if ( $result ) {
-				if ( strpos( $result->license_status, 'inactive.expired.' ) === 0 ) {
-					$license_update_result = __( 'Your Pro license key has expired. Please renew it.', 'w3-total-cache' );
-				} elseif (
-					strpos( $result->license_status, 'active.' ) === 0 ||
-					strpos( $result->license_status, 'inactive.by_rooturi.activations_limit_not_reached.' ) === 0
-				) {
-					$license_update_result = __( 'Your Pro license key is correct and has been applied.', 'w3-total-cache' );
-				} elseif ( strpos( $result->license_status, 'inactive.by_rooturi.' ) === 0 ) {
-					$license_update_result = __( 'Your Pro license key is correct but is already in use on another site.', 'w3-total-cache' );
-				} else {
-					$license_update_result = __( 'Your Pro license key is not valid. Please check it and try again.', 'w3-total-cache' );
-				}
+			$messages = array();
 
-				update_option( 'w3tc_license_update', $license_update_result );
+			// If the old key was deactivated, add a message.
+			if ( isset( $deactivate_result ) ) {
+				$status = $deactivate_result->license_status;
+
+				switch ( true ) {
+					case ( strpos( $status, 'inactive.expired.' ) === 0 ):
+						$messages[] = __( 'Your previous Pro license key is expired and will remain registered to this domain.', 'w3-total-cache' );
+						break;
+
+					default:
+						$messages[] = __( 'Your previous Pro license key has been deactivated.', 'w3-total-cache' );
+				}
 			}
+
+			// Handle new activation status.
+			if ( isset( $activate_result ) ) {
+				$status = $activate_result->license_status;
+
+				switch ( true ) {
+					case ( strpos( $status, 'inactive.expired.' ) === 0 ):
+						$messages[] = __( 'The Pro license key you provided has expired. Please renew it.', 'w3-total-cache' );
+						break;
+
+					case ( strpos( $status, 'active.' ) === 0 || strpos( $status, 'inactive.by_rooturi.activations_limit_not_reached.' ) === 0 ):
+						$messages[] = __( 'The Pro license key you provided is valid and has been applied.', 'w3-total-cache' );
+						break;
+
+					case ( strpos( $status, 'inactive.by_rooturi.' ) === 0 ):
+						$messages[] = __( 'The Pro license key you provided is valid but is already in use on another site.', 'w3-total-cache' );
+						break;
+
+					default:
+						$messages[] = __( 'The Pro license key you provided is not valid. Please check it and try again.', 'w3-total-cache' );
+				}
+			}
+
+			// Combine messages with a space only if both exist.
+			update_option( 'license_update_message', implode( ' ', $messages ) );
 		}
 	}
 
@@ -276,16 +290,10 @@ class Licensing_Plugin_Admin {
 			);
 		}
 
-		if ( $this->site_inactivated ) {
-			Util_Ui::error_box( '<p>' . __( 'The W3 Total Cache license key is deactivated for this site.', 'w3-total-cache' ) . '</p>' );
-		}
-
-		if ( $this->site_activated ) {
-			Util_Ui::error_box( '<p>' . __( 'The W3 Total Cache license key is activated for this site.', 'w3-total-cache' ) . '</p>' );
-		}
-
-		if ( $this->site_activated_swap ) {
-			Util_Ui::error_box( '<p>' . __( 'The old W3 Total Cache license key is deactivated and the new W3 Total Cache license key is activated for this site.', 'w3-total-cache' ) . '</p>' );
+		$license_update_message = get_option( 'license_update_message' );
+		if ( $license_update_message ) {
+			Util_Ui::e_notification_box( '<p>' . $license_update_message . '</p>' );
+			delete_option( $license_update_message );
 		}
 	}
 
@@ -350,12 +358,6 @@ class Licensing_Plugin_Admin {
 				) .
 					$buttons;
 			}
-		}
-
-		$license_update_result = get_option( 'w3tc_license_update' );
-		if ( $license_update_result ) {
-			$notes['license_update'] = $license_update_result;
-			delete_option( 'w3tc_license_update' );
 		}
 
 		return $notes;
