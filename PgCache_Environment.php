@@ -1227,7 +1227,7 @@ class PgCache_Environment {
 			$rules .= 'set $w3tc_ext "";' . "\n";
 			$rules .= 'if (-f "$document_root' . $uri_prefix . '.html' .
 				$env_w3tc_enc . '") {' . "\n";
-			$rules .= '  set $w3tc_ext .html;' . "\n";
+			$rules .= '    set $w3tc_ext .html;' . "\n";
 			$rules .= "}\n";
 
 			$rules .= 'if (-f "$document_root' . $uri_prefix . '.xml' .
@@ -1236,13 +1236,17 @@ class PgCache_Environment {
 			$rules .= "}\n";
 
 			$rules .= 'if ($w3tc_ext = "") {' . "\n";
-			$rules .= '  set $w3tc_rewrite 0;' . "\n";
+			$rules .= '    set $w3tc_rewrite 0;' . "\n";
 			$rules .= "}\n";
 		}
 
 		$rules .= 'if ($w3tc_rewrite = 1) {' . "\n";
 		$rules .= '    rewrite .* "' . $uri_prefix . $env_w3tc_ext . $env_w3tc_enc .
 			'" last;' . "\n";
+		$rules .= "}\n";
+
+		$rules .= 'location / {' . "\n";
+		$rules .= '    try_files $uri $uri/ /index.php$is_args$args;' . "\n";
 		$rules .= "}\n";
 
 		return $rules;
