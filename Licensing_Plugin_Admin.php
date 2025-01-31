@@ -270,7 +270,7 @@ class Licensing_Plugin_Admin {
 				);
 				break;
 
-			case $this->_status_is( status, 'inactive.by_rooturi.activations_limit_reached' ):
+			case $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_reached' ):
 				$message = __(
 					'Your W3 Total Cache license key is not active and cannot be activated due to the license activation limit being reached.',
 					'w3-total-cache'
