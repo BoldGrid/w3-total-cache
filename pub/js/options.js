@@ -981,14 +981,12 @@ jQuery(function() {
 				break;
 
 			case 'cf':
-				let region = jQuery('#cdn_cf_bucket_location').val();
-
 				jQuery.extend(params, {
 					engine: 'cf',
 					'config[key]': jQuery('#cdn_cf_key').val(),
 					'config[secret]': jQuery('#cdn_cf_secret').val(),
 					'config[bucket]': jQuery('#cdn_cf_bucket').val(),
-					'config[bucket_location]': region,
+					'config[bucket_location]': jQuery('#cdn_cf_bucket_location').val(),
 					'config[id]': jQuery('#cdn_cf_id').val()
 				});
 
