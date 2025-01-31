@@ -48,7 +48,7 @@ class Cdn_Page extends Base_Page_Settings {
 		$browsercache_update_media_qs = ( $config->get_boolean( 'browsercache.cssjs.replace' ) || $config->get_boolean( 'browsercache.other.replace' ) );
 
 		// Get CDN and CDN FSD status.
-		$is_cdn_authorized = ( new Cdn_Core() )->is_cdn_authorized();
+		$is_cdn_authorized    = ( new Cdn_Core() )->is_cdn_authorized();
 		$is_cdnfsd_authorized = ( new Cdn_Core() )->is_cdnfsd_authorized();
 
 		include W3TC_INC_DIR . '/options/cdn.php';
