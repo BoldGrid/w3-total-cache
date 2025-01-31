@@ -221,7 +221,9 @@ class Root_Environment {
 		global $wpdb;
 
 		$license_key = $config->get_string( 'plugin.license_key' );
-		Licensing_Core::deactivate_license( $license_key );
+		if ( ! emtpy( $license_key ) ) {
+			Licensing_Core::deactivate_license( $license_key );
+		}
 
 		// Define prefixes for options and transients.
 		$prefixes = array(
