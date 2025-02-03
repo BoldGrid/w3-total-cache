@@ -534,37 +534,6 @@ jQuery(function() {
 		jQuery('.w3tc_technical_info').toggle();
 	});
 
-	jQuery('#plugin_license_key_verify').on('click', function() {
-		jQuery('.w3tc_license_verification').html("Checking...");
-
-		var license_key = jQuery('#plugin_license_key').val();
-
-		if (!license_key) {
-			jQuery('.w3tc_license_verification').html('Please enter an license key and try again.');
-			return;
-		}
-		var params = {
-			action: 'w3tc_verify_plugin_license_key',
-			license_key: license_key
-		};
-
-		jQuery.get(ajaxurl, params, function(data) {
-			if (w3tc_starts_with(data + '.', 'inactive.expired.')) {
-				jQuery('.w3tc_license_verification').html('The license key has expired. Please renew it.');
-			} else if (w3tc_starts_with(data + '.', 'active.')) {
-				jQuery('.w3tc_license_verification').html('License key is correct.');
-			} else if (w3tc_starts_with(data + '.', 'inactive.by_rooturi.activations_limit_not_reached.')) {
-				jQuery('.w3tc_license_verification').html('License key is correct and can be activated now.');
-			} else if (w3tc_starts_with(data + '.', 'inactive.by_rooturi.')) {
-				jQuery('.w3tc_license_verification').html('License key is correct but already in use on another site. See the FAQ for how to enable Pro version in development mode.');
-			} else {
-				jQuery('.w3tc_license_verification').html('The license key is not valid. Please check it and try again.');
-			}
-		}).fail(function() {
-			jQuery('.w3tc_license_verification').html('Check failed');
-		});
-	});
-
 	// General Settings Tab actions.
 	jQuery( document ).on( 'click', '.performance_page_w3tc_general .nav-tab', function(){
    		const $tab         = jQuery( this ),
