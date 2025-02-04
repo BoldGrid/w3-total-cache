@@ -143,7 +143,8 @@ class Root_AdminActivation {
 
 		// Check if data cleanup is required.
 		if ( get_option( 'w3tc_remove_data' ) ) {
-			Root_Environment::delete_plugin_data();
+			$config = Dispatcher::config();
+			Root_Environment::delete_plugin_data( $config );
 		}
 	}
 }

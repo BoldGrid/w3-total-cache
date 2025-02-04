@@ -807,7 +807,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						</th>
 						<td>
 							<input id="plugin_license_key" name="plugin__license_key" type="text" value="<?php echo esc_attr( $this->_config->get_string( 'plugin.license_key' ) ); ?>" size="45"/>
-							<input id="plugin_license_key_verify" type="button" class="button" value="<?php esc_attr_e( 'Verify license key', 'w3-total-cache' ); ?>"/>
 							<span class="w3tc_license_verification"></span>
 							<p class="description">
 								<?php
