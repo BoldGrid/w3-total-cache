@@ -362,6 +362,11 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 2.8.5 =
+* Fix: Nginx rules for Disk Enhanced Page Cache
+* Fix: CDN: Amazon S3 long hostname for default region
+* Enhancement: Simplified license messsaging
+
 = 2.8.4 =
 * Fix: Deactivation modal JS error
 
