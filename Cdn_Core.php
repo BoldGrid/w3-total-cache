@@ -821,7 +821,7 @@ class Cdn_Core {
 	/**
 	 * Is the configured CDN authorized?
 	 *
-	 * @since X.X.X
+	 * @since 2.8.5
 	 *
 	 * @return bool
 	 */
@@ -938,7 +938,7 @@ class Cdn_Core {
 	/**
 	 * Is the configured CDN FSD authorized?
 	 *
-	 * @since X.X.X
+	 * @since 2.8.5
 	 *
 	 * @return bool
 	 */
