@@ -563,11 +563,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	public function alwayscached_process() {
 		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
 			\WP_CLI::error(
-				\sprintf(
-					// translators: 1: Error message.
-					\__( 'Always Cached feature is not enabled: %1$s', 'w3-total-cache' ),
-					$e->getMessage()
-				)
+				\__( 'Always Cached feature is not enabled: %1$s', 'w3-total-cache' )
 			);
 			return;
 		}
