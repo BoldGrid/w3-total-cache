@@ -23,9 +23,11 @@ class Extension_AlwaysCached_Worker {
 	 *
 	 * @since 2.8.0
 	 *
+	 * @param bool $no_html No HTML flag.
+	 *
 	 * @return void
 	 */
-	public static function run() {
+	public static function run( $no_html = false ) {
 		$timeslot_seconds = 60;
 		$timeslot_seconds = apply_filters(
 			'w3tc_alwayscached_worker_timeslot',
@@ -34,7 +36,9 @@ class Extension_AlwaysCached_Worker {
 
 		$time_exit = time() + $timeslot_seconds;
 
-		echo '<div style="white-space: pre-line;">';
+		if ( ! $no_html ) {
+			echo '<div style="white-space: pre-line;">';
+		}
 
 		esc_html_e( "Processing queue.\n", 'w3-total-cache' );
 
@@ -65,7 +69,9 @@ class Extension_AlwaysCached_Worker {
 			}
 		}
 
-		echo "\n</div>\n";
+		if ( ! $no_html ) {
+			echo "\n</div>\n";
+		}
 	}
 
 	/**
