@@ -364,6 +364,8 @@ Please reach out to all of these people and support their projects if you're so 
 
 = 2.8.5 =
 * Fix: CDN: Amazon S3 long hostname for default region
+* Fix: WP-CLI: Error running "wp w3tc alwayscached_*" commands
+* Fix: WP-CLI: Remove HTML in output
 * Enhancement: Simplified license messsaging
 
 = 2.8.4 =
