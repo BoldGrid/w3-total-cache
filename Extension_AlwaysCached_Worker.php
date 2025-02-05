@@ -23,9 +23,11 @@ class Extension_AlwaysCached_Worker {
 	 *
 	 * @since 2.8.0
 	 *
+	 * @param bool $html Print HTML.
+	 *
 	 * @return void
 	 */
-	public static function run() {
+	public static function run( $html = true ) {
 		$timeslot_seconds = 60;
 		$timeslot_seconds = apply_filters(
 			'w3tc_alwayscached_worker_timeslot',
@@ -34,26 +36,30 @@ class Extension_AlwaysCached_Worker {
 
 		$time_exit = time() + $timeslot_seconds;
 
-		echo '<div style="white-space: pre-line;">';
+		if ( $html ) {
+			echo '<div style="white-space: pre-line;">';
+		}
 
-		esc_html_e( "Processing queue.\n", 'w3-total-cache' );
+		esc_html_e( 'Processing queue.', 'w3-total-cache' );
 
-		for ( ; ; ) {
+		// Infinite loop to process queue items until the time slot is exhausted or the queue is empty.
+		while ( true ) {
 			if ( time() >= $time_exit ) {
-				esc_html_e( "\n\nQueue worker time slot exhaused.", 'w3-total-cache' );
+				esc_html_e( "\nQueue worker time slot exhaused.", 'w3-total-cache' );
 				break;
 			}
 
 			$item = Extension_AlwaysCached_Queue::pop_item_begin();
 
 			if ( empty( $item ) ) {
-				esc_html_e( "\n\nQueue is empty.", 'w3-total-cache' );
+				esc_html_e( "\nQueue is empty.", 'w3-total-cache' );
 				break;
 			}
 
 			echo esc_html( sprintf( "\n%s ", $item['key'] ) );
 
 			$result = self::process_item( $item );
+
 			if ( 'ok' === $result ) {
 				esc_html_e( 'ok', 'w3-total-cache' );
 				Extension_AlwaysCached_Queue::pop_item_finish( $item );
@@ -65,7 +71,11 @@ class Extension_AlwaysCached_Worker {
 			}
 		}
 
-		echo "\n</div>\n";
+		if ( $html ) {
+			echo "\n</div>\n";
+		} else {
+			echo "\n";
+		}
 	}
 
 	/**
