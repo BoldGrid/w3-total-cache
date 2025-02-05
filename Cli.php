@@ -569,7 +569,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 		}
 
 		try {
-			Extension_AlwaysCached_Worker::run( true );
+			Extension_AlwaysCached_Worker::run( false );
 		} catch ( \Exception $e ) {
 			\WP_CLI::error(
 				\sprintf(
