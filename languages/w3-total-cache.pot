@@ -9,14 +9,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-04T16:01:05+00:00\n"
+"POT-Creation-Date: 2025-02-05T23:37:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
 
 #. Plugin Name of the plugin
 #: w3-total-cache.php
-#: Generic_Plugin_Admin.php:1248
+#: Generic_Plugin_Admin.php:1252
 #: SetupGuide_Plugin_Admin.php:1175
 #: SetupGuide_Plugin_Admin.php:1225
 #: SetupGuide_Plugin_Admin.php:1297
@@ -520,7 +520,7 @@ msgstr ""
 #: BrowserCache_Page_View_SectionSecurity.php:759
 #: BrowserCache_Page_View_SectionSecurity.php:949
 #: BrowserCache_Page_View_SectionSecurity.php:1081
-#: Generic_Plugin_Admin.php:1055
+#: Generic_Plugin_Admin.php:1059
 #: inc/options/browsercache.php:217
 #: inc/options/browsercache.php:517
 #: inc/options/browsercache.php:784
@@ -1453,7 +1453,7 @@ msgstr ""
 #: Cdn_StackPath_Page_View.php:84
 #: Cdn_StackPath_Page_View.php:189
 #: Cdn_StackPath_Page_View.php:221
-#: Generic_Plugin_Admin.php:1148
+#: Generic_Plugin_Admin.php:1152
 #: inc/lightbox/self_test.php:122
 #: inc/lightbox/self_test.php:247
 #: inc/lightbox/self_test.php:318
@@ -1629,7 +1629,7 @@ msgstr ""
 
 #: Cdnfsd_BunnyCdn_Popup_View_Deauthorize.php:44
 #: Cdn_BunnyCdn_Popup_View_Deauthorize.php:44
-#: Generic_Plugin_Admin.php:789
+#: Generic_Plugin_Admin.php:793
 #: inc/options/cdn/common/cnames.php:63
 #: inc/options/minify.php:496
 #: inc/options/minify.php:770
@@ -1912,7 +1912,7 @@ msgstr ""
 #: Cdn_BunnyCdn_Widget_View_Unauthorized.php:154
 #: Cdn_BunnyCdn_Widget_View_Unauthorized.php:187
 #: Extension_NewRelic_AdminNotes.php:23
-#: Generic_Plugin_Admin.php:1148
+#: Generic_Plugin_Admin.php:1152
 #: Generic_WidgetSettings_View.php:47
 #: PageSpeed_Instructions.php:379
 #: PageSpeed_Instructions.php:393
@@ -3485,33 +3485,35 @@ msgstr ""
 msgid "PageCache Priming triggered successfully."
 msgstr ""
 
-#. translators: 1: Error message.
-#: Cli.php:568
-#: Cli.php:598
-msgid "Always Cached feature is not enabled: %1$s"
+#: Cli.php:566
+msgid "Always Cached feature is not enabled."
 msgstr ""
 
 #. translators: 1: Error message.
-#: Cli.php:581
+#: Cli.php:577
 msgid "Always Cached queue processer failed: %1$s"
 msgstr ""
 
-#: Cli.php:587
+#: Cli.php:583
 msgid "Always Cached queue processed successfully."
 msgstr ""
 
+#: Cli.php:592
+msgid "Always Cached feature is not enabled"
+msgstr ""
+
 #. translators: 1: Error message.
-#: Cli.php:611
+#: Cli.php:603
 msgid "Always Cached queue empty failed: %1$s"
 msgstr ""
 
-#: Cli.php:617
+#: Cli.php:609
 msgid "Always Cached queue emptied successfully."
 msgstr ""
 
-#: Cli.php:623
-#: Cli.php:624
-#: Cli.php:625
+#: Cli.php:615
+#: Cli.php:616
+#: Cli.php:617
 msgid "Manage W3TC settings, flush, and prime the cache."
 msgstr ""
 
@@ -4041,7 +4043,7 @@ msgid "Search"
 msgstr ""
 
 #: Extension_AlwaysCached_Page_Queue_View.php:36
-#: Generic_Plugin_Admin.php:1055
+#: Generic_Plugin_Admin.php:1059
 #: Util_PageSpeed.php:282
 #: Util_PageSpeed.php:292
 #: Util_PageSpeed.php:489
@@ -4323,44 +4325,40 @@ msgstr ""
 msgid "Can't create table "
 msgstr ""
 
-#: Extension_AlwaysCached_Worker.php:39
-msgid ""
-"Processing queue.\n"
-""
+#: Extension_AlwaysCached_Worker.php:43
+msgid "Processing queue."
 msgstr ""
 
-#: Extension_AlwaysCached_Worker.php:43
+#: Extension_AlwaysCached_Worker.php:48
 msgid ""
-"\n"
 "\n"
 "Queue worker time slot exhaused."
 msgstr ""
 
-#: Extension_AlwaysCached_Worker.php:50
+#: Extension_AlwaysCached_Worker.php:55
 msgid ""
-"\n"
 "\n"
 "Queue is empty."
 msgstr ""
 
-#: Extension_AlwaysCached_Worker.php:58
+#: Extension_AlwaysCached_Worker.php:64
 msgid "ok"
 msgstr ""
 
-#: Extension_AlwaysCached_Worker.php:62
+#: Extension_AlwaysCached_Worker.php:68
 msgid "postponed"
 msgstr ""
 
-#: Extension_AlwaysCached_Worker.php:64
+#: Extension_AlwaysCached_Worker.php:70
 msgid "failed"
 msgstr ""
 
 #. translators: 1 item URL.
-#: Extension_AlwaysCached_Worker.php:100
+#: Extension_AlwaysCached_Worker.php:110
 msgid "regenerate %s... "
 msgstr ""
 
-#: Extension_AlwaysCached_Worker.php:127
+#: Extension_AlwaysCached_Worker.php:137
 msgid ""
 "\n"
 "  no evidence of cache refresh, will reprocess on next schedule/run\n"
@@ -5240,7 +5238,7 @@ msgstr ""
 #: FeatureShowcase_Plugin_Admin.php:532
 #: FeatureShowcase_Plugin_Admin.php:544
 #: FeatureShowcase_Plugin_Admin.php:556
-#: Generic_Plugin_Admin.php:926
+#: Generic_Plugin_Admin.php:930
 #: inc/options/common/top_nav_bar.php:147
 #: inc/options/common/top_nav_bar.php:148
 #: inc/options/extensions/list.php:102
@@ -6828,14 +6826,14 @@ msgid "Clear Log"
 msgstr ""
 
 #: Generic_Plugin.php:297
-#: Generic_Plugin_Admin.php:268
-#: Generic_Plugin_Admin.php:274
-#: Generic_Plugin_Admin.php:280
-#: Generic_Plugin_Admin.php:286
-#: Generic_Plugin_Admin.php:292
-#: Generic_Plugin_Admin.php:330
-#: Generic_Plugin_Admin.php:361
-#: Generic_Plugin_Admin.php:368
+#: Generic_Plugin_Admin.php:272
+#: Generic_Plugin_Admin.php:278
+#: Generic_Plugin_Admin.php:284
+#: Generic_Plugin_Admin.php:290
+#: Generic_Plugin_Admin.php:296
+#: Generic_Plugin_Admin.php:334
+#: Generic_Plugin_Admin.php:365
+#: Generic_Plugin_Admin.php:372
 #: Root_AdminMenu.php:166
 #: Root_AdminMenu.php:167
 msgid "Performance"
@@ -6917,198 +6915,198 @@ msgid "Debug: Overlays"
 msgstr ""
 
 #. translators: 4: HTML line break tag, 5: HTML opening a tag to purge CDN manually, 6: HTML closing a tag.
-#: Generic_Plugin_Admin.php:720
+#: Generic_Plugin_Admin.php:724
 msgid "Please see %1$sAmazon's CloudFront documentation -- Paying for file invalidation%2$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%3$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%5$s."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:738
+#: Generic_Plugin_Admin.php:742
 msgid "Bunny CDN should only be enabled as either a CDN for objects or full-site delivery, not both at the same time.  The CDN settings have been reverted."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:769
+#: Generic_Plugin_Admin.php:773
 msgid "Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:770
+#: Generic_Plugin_Admin.php:774
 #: UserExperience_Remove_CssJs_Page_View.php:143
 #: UserExperience_Remove_CssJs_Page_View.php:251
 #: UserExperience_Remove_CssJs_Page_View.php:296
 msgid "View Examples"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:771
+#: Generic_Plugin_Admin.php:775
 msgid "Hide Examples"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:772
+#: Generic_Plugin_Admin.php:776
 #: UserExperience_Remove_CssJs_Page_View.php:146
 msgid "Target all CSS/JS from a plugin/theme:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:779
+#: Generic_Plugin_Admin.php:783
 #: UserExperience_Remove_CssJs_Page_View.php:157
 msgid "Target a specific CSS/JS file:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:786
+#: Generic_Plugin_Admin.php:790
 #: UserExperience_Remove_CssJs_Page_View.php:320
 msgid "No CSS/JS entries added."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:787
+#: Generic_Plugin_Admin.php:791
 msgid "Entry already exists!"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:788
+#: Generic_Plugin_Admin.php:792
 msgid "Target CSS/JS:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:790
+#: Generic_Plugin_Admin.php:794
 #: UserExperience_Remove_CssJs_Page_View.php:175
 msgid "Action:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:791
+#: Generic_Plugin_Admin.php:795
 msgid "Exclude"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:792
+#: Generic_Plugin_Admin.php:796
 msgid "(Remove the script ONLY WHEN a condition below matches)"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:793
+#: Generic_Plugin_Admin.php:797
 msgid "Include"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:794
+#: Generic_Plugin_Admin.php:798
 msgid "(Allow the script ONLY WHEN a condition below matches)"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:795
+#: Generic_Plugin_Admin.php:799
 #: UserExperience_Remove_CssJs_Page_View.php:180
 msgid "When the above CSS/JS file is found within your markup."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:796
+#: Generic_Plugin_Admin.php:800
 #: UserExperience_Remove_CssJs_Page_View.php:227
 msgid "Exclude on URL Match:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:797
+#: Generic_Plugin_Admin.php:801
 #: UserExperience_Remove_CssJs_Page_View.php:227
 msgid "Include on URL Match:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:798
+#: Generic_Plugin_Admin.php:802
 msgid "Specify the conditions for which the target file should be excluded based on matching absolute/relative page URLs. Include one entry per line."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:799
+#: Generic_Plugin_Admin.php:803
 msgid "Specify the conditions for which the target file should be included based on matching absolute/relative page URLs. Include one entry per line."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:806
+#: Generic_Plugin_Admin.php:810
 #: UserExperience_Remove_CssJs_Page_View.php:272
 msgid "Exclude on Content Match:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:807
+#: Generic_Plugin_Admin.php:811
 #: UserExperience_Remove_CssJs_Page_View.php:272
 msgid "Include on Content Match:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:808
+#: Generic_Plugin_Admin.php:812
 msgid "Specify the conditions for which the target file should be excluded based on matching page content. Include one entry per line."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:809
+#: Generic_Plugin_Admin.php:813
 msgid "Specify the conditions for which the target file should be included based on matching page content. Include one entry per line."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:816
+#: Generic_Plugin_Admin.php:820
 msgid "Empty match pattern!"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:927
+#: Generic_Plugin_Admin.php:931
 msgid "Premium Support"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:948
+#: Generic_Plugin_Admin.php:952
 msgid "Empty Caches"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:995
+#: Generic_Plugin_Admin.php:999
 msgid "Take a minute to update, here's why:"
 msgstr ""
 
 #. translators: 1 enable button link.
-#: Generic_Plugin_Admin.php:1034
+#: Generic_Plugin_Admin.php:1038
 msgid "Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling enhanced disk mode."
 msgstr ""
 
 #. translators: 1 enable button link.
-#: Generic_Plugin_Admin.php:1042
+#: Generic_Plugin_Admin.php:1046
 msgid "Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling the 'Do not process 404 errors for static objects with WordPress'."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1048
+#: Generic_Plugin_Admin.php:1052
 msgid "Please select request type."
 msgstr ""
 
 #. translators: 1 HTML acronym URL (uniform resource locator).
-#: Generic_Plugin_Admin.php:1051
+#: Generic_Plugin_Admin.php:1055
 msgid "Please enter the address of the site in the site %1$s field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1057
+#: Generic_Plugin_Admin.php:1061
 msgid "Please enter your name in the Name field"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1058
+#: Generic_Plugin_Admin.php:1062
 msgid "Please enter valid email address in the E-Mail field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1059
+#: Generic_Plugin_Admin.php:1063
 msgid "Please enter your phone in the phone field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1060
+#: Generic_Plugin_Admin.php:1064
 msgid "Please enter subject in the subject field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1061
+#: Generic_Plugin_Admin.php:1065
 msgid "Please describe the issue in the issue description field."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1062
+#: Generic_Plugin_Admin.php:1066
 msgid "Please enter an administrator login. Create a temporary one just for this support case if needed."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1063
+#: Generic_Plugin_Admin.php:1067
 msgid "Please enter WP Admin password, be sure it's spelled correctly."
 msgstr ""
 
 #. translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-#: Generic_Plugin_Admin.php:1066
+#: Generic_Plugin_Admin.php:1070
 msgid "Please enter %1$s or %2$s host for the site."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1070
-#: Generic_Plugin_Admin.php:1079
-#: Generic_Plugin_Admin.php:1088
+#: Generic_Plugin_Admin.php:1074
+#: Generic_Plugin_Admin.php:1083
+#: Generic_Plugin_Admin.php:1092
 #: inc/options/cdn/ftp.php:240
 msgid "Secure Shell"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1070
-#: Generic_Plugin_Admin.php:1079
-#: Generic_Plugin_Admin.php:1088
+#: Generic_Plugin_Admin.php:1074
+#: Generic_Plugin_Admin.php:1083
+#: Generic_Plugin_Admin.php:1092
 msgid "SSH"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1071
-#: Generic_Plugin_Admin.php:1080
-#: Generic_Plugin_Admin.php:1089
+#: Generic_Plugin_Admin.php:1075
+#: Generic_Plugin_Admin.php:1084
+#: Generic_Plugin_Admin.php:1093
 #: inc/lightbox/self_test.php:120
 #: inc/lightbox/self_test.php:316
 #: inc/options/cdn/ftp.php:19
@@ -7123,201 +7121,201 @@ msgstr ""
 msgid "File Transfer Protocol"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1071
-#: Generic_Plugin_Admin.php:1080
-#: Generic_Plugin_Admin.php:1089
+#: Generic_Plugin_Admin.php:1075
+#: Generic_Plugin_Admin.php:1084
+#: Generic_Plugin_Admin.php:1093
 msgid "FTP"
 msgstr ""
 
 #. translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-#: Generic_Plugin_Admin.php:1075
+#: Generic_Plugin_Admin.php:1079
 msgid "Please enter %1$s or %2$s login for the server. Create a temporary one just for this support case if needed."
 msgstr ""
 
 #. translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-#: Generic_Plugin_Admin.php:1084
+#: Generic_Plugin_Admin.php:1088
 msgid "Please enter %1$s or %2$s password for the %2$s account."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1091
+#: Generic_Plugin_Admin.php:1095
 msgid "Unable to send the support request."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1092
+#: Generic_Plugin_Admin.php:1096
 msgid "Please select config file."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1093
+#: Generic_Plugin_Admin.php:1097
 msgid "Unable to upload config file."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1094
+#: Generic_Plugin_Admin.php:1098
 msgid "Configuration file could not be imported."
 msgstr ""
 
 #. translators: 1 W3TC config director path.
-#: Generic_Plugin_Admin.php:1097
+#: Generic_Plugin_Admin.php:1101
 msgid "Default settings could not be restored. Please run %1$s to make the configuration file write-able, then try again."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1103
+#: Generic_Plugin_Admin.php:1107
 msgid "Unable to purge attachment."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1104
+#: Generic_Plugin_Admin.php:1108
 msgid "Unable to purge post."
 msgstr ""
 
 #. translators: 1 absolute path to wp-config.php, 2 cookie domain definition, 3 require once wp-setting.php definition.
-#: Generic_Plugin_Admin.php:1107
+#: Generic_Plugin_Admin.php:1111
 msgid "%1$s could not be written, please edit config and add: %2$s before %3$s."
 msgstr ""
 
 #. translators: 1 absolute path to wp-config.php, 2 cooke domain definition, 3 require once wp-setting.php definition.
-#: Generic_Plugin_Admin.php:1117
+#: Generic_Plugin_Admin.php:1121
 msgid "%1$s could not be written, please edit config and add:%2$s before %3$s."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1125
+#: Generic_Plugin_Admin.php:1129
 msgid "Pull Zone could not be automatically created."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1129
+#: Generic_Plugin_Admin.php:1133
 msgid "Plugin configuration successfully updated."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1130
+#: Generic_Plugin_Admin.php:1134
 msgid "Plugin configuration successfully updated and all caches successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1131
+#: Generic_Plugin_Admin.php:1135
 msgid "All caches successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1132
+#: Generic_Plugin_Admin.php:1136
 msgid "Memcached cache(s) successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1133
+#: Generic_Plugin_Admin.php:1137
 msgid "Opcode cache(s) successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1134
+#: Generic_Plugin_Admin.php:1138
 msgid "Disk cache(s) successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1135
+#: Generic_Plugin_Admin.php:1139
 msgid "Page cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1136
+#: Generic_Plugin_Admin.php:1140
 msgid "Database cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1137
+#: Generic_Plugin_Admin.php:1141
 msgid "Object cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1138
+#: Generic_Plugin_Admin.php:1142
 msgid "Fragment cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1139
+#: Generic_Plugin_Admin.php:1143
 msgid "Minify cache successfully emptied."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1140
+#: Generic_Plugin_Admin.php:1144
 msgid "Media Query string has been successfully updated."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1141
+#: Generic_Plugin_Admin.php:1145
 msgid "Varnish servers successfully purged."
 msgstr ""
 
 #. translators: 1 HTML acronym for CDN (content delivery network).
-#: Generic_Plugin_Admin.php:1144
+#: Generic_Plugin_Admin.php:1148
 msgid "%1$s was successfully purged."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1150
+#: Generic_Plugin_Admin.php:1154
 msgid "The support request has been successfully sent."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1151
+#: Generic_Plugin_Admin.php:1155
 msgid "Settings successfully imported."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1152
+#: Generic_Plugin_Admin.php:1156
 msgid "Settings successfully restored."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1153
+#: Generic_Plugin_Admin.php:1157
 msgid "Preview mode was successfully enabled"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1154
+#: Generic_Plugin_Admin.php:1158
 msgid "Preview mode was successfully disabled"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1155
+#: Generic_Plugin_Admin.php:1159
 msgid "Preview settings successfully deployed. Preview mode remains enabled until it's disabled. Continue testing new settings or disable preview mode if done."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1156
+#: Generic_Plugin_Admin.php:1160
 msgid "Attachment successfully purged."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1157
+#: Generic_Plugin_Admin.php:1161
 msgid "Post successfully purged."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1158
+#: Generic_Plugin_Admin.php:1162
 msgid "New relic settings have been updated."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1159
+#: Generic_Plugin_Admin.php:1163
 msgid "The add-in has been removed."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1160
+#: Generic_Plugin_Admin.php:1164
 msgid "Edge mode has been enabled."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1161
+#: Generic_Plugin_Admin.php:1165
 msgid "Edge mode has been disabled."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1162
+#: Generic_Plugin_Admin.php:1166
 msgid "Pull Zone was automatically created."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1212
+#: Generic_Plugin_Admin.php:1216
 msgid "Required files and directories have been automatically created"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1239
+#: Generic_Plugin_Admin.php:1243
 msgid "W3 Total Cache Error:"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1240
+#: Generic_Plugin_Admin.php:1244
 msgid "Files and directories could not be automatically created to complete the installation."
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1243
+#: Generic_Plugin_Admin.php:1247
 #: Util_Activation.php:304
 msgid "Please execute commands manually"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1244
+#: Generic_Plugin_Admin.php:1248
 #: Util_Activation.php:307
 msgid "View required changes"
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1247
+#: Generic_Plugin_Admin.php:1251
 msgid "or use FTP form to allow "
 msgstr ""
 
-#: Generic_Plugin_Admin.php:1249
+#: Generic_Plugin_Admin.php:1253
 msgid "make it automatically."
 msgstr ""
 
@@ -14128,6 +14126,6 @@ msgid "%1$sW3 Total Cache Error:%2$s some files appear to be missing or out of p
 msgstr ""
 
 #. translators: 1 opening HTML strong tag, 2 closing HTML strong tag, 3 database driver file path.
-#: wp-content/db.php:67
+#: wp-content/db.php:69
 msgid "%1$sW3 Total Cache Error:%2$s database driver doesn't exist: %3$s."
 msgstr ""
