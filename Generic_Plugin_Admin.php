@@ -67,8 +67,12 @@ class Generic_Plugin_Admin {
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetPartners', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetServices', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetBoldGrid', 'admin_init_w3tc_dashboard' ) );
-		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetStats', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Extension_ImageService_Widget', 'admin_init_w3tc_dashboard' ) );
+
+		// Pro widgets.
+		if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
+			add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetStats', 'admin_init_w3tc_dashboard' ) );
+		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'admin_print_styles-toplevel_page_w3tc_dashboard', array( '\W3TC\Generic_Page_Dashboard', 'admin_print_styles_w3tc_dashboard' ) );

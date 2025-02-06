@@ -449,7 +449,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	/**
 	 * Get the S3 bucket region id used for domains.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.5
 	 *
 	 * @return string
 	 */
