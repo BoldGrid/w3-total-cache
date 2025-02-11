@@ -130,7 +130,7 @@ class Util_File {
 	 * @return void
 	 */
 	static public function rmdir( $path, $exclude = array(), $remove = true ) {
-		$dir = @opendir( $path );
+		$dir = file_exists( $path ) ? opendir( $path ) : false;
 
 		if ( $dir ) {
 			while ( ( $entry = @readdir( $dir ) ) !== false ) {
