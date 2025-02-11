@@ -176,6 +176,10 @@ $keys = array(
 			'\bfound_rows\(\)'
 		)
 	),
+	'dbcache.wpcli_disk' => array(
+		'type' => 'boolean',
+		'default' => false,
+	),
 
 	'docroot_fix.enable' => array(
 		'type' => 'boolean',
@@ -356,6 +360,10 @@ $keys = array(
 	'objectcache.purge.all' => array(
 		'type' => 'boolean',
 		'default' => false
+	),
+	'objectcache.wpcli_disk' => array(
+		'type' => 'boolean',
+		'default' => false,
 	),
 
 	'pgcache.configuration_overloaded' => array(

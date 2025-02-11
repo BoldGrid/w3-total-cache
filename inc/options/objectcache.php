@@ -1,9 +1,8 @@
 <?php
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die();
+
 ?>
 <?php require W3TC_INC_DIR . '/options/common/header.php'; ?>
 
@@ -85,7 +84,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<tr>
 				<th colspan="2">
 					<?php $this->checkbox( 'objectcache.fallback_transients' ); ?><?php esc_html_e( 'Store transients in database', 'w3-total-cache' ); ?></label>
-					<p class="description"><?php esc_html_e( 'Use that to store transients in database even when external cache is used. That allows transient values to survive object cache cleaning / expiration', 'w3-total-cache' ); ?></p>
+					<p class="description"><?php esc_html_e( 'Store transients in database even when external cache is used, which allows transient values to survive object cache cleaning/expiration', 'w3-total-cache' ); ?></p>
 				</th>
 			</tr>
 			<?php if ( $this->_config->get_boolean( 'cluster.messagebus.enabled' ) ) : ?>
@@ -112,7 +111,18 @@ if ( ! defined( 'W3TC' ) ) {
 					</p>
 				</th>
 			</tr>
-			<?php endif ?>
+			<?php endif; ?>
+			<?php
+			Util_Ui::config_item(
+				array(
+					'key'            => 'objectcache.wpcli_disk',
+					'label'          => esc_html__( 'Enable for WP-CLI', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'control'        => 'checkbox',
+					'disabled'       => ! $objectcache_enabled,
+				)
+			);
+			?>
 		</table>
 
 		<?php Util_Ui::postbox_footer(); ?>
@@ -141,11 +151,8 @@ if ( ! defined( 'W3TC' ) ) {
 				?>
 			</p>
 			<?php
-			$c           = Dispatcher::config();
-			$disabled    = ! $c->get_boolean( 'objectcache.enabled' );
-			$wp_disabled = ! $c->get_boolean( 'objectcache.wp_cron' );
 
-			if ( $disabled ) {
+			if ( ! $objectcache_enabled ) {
 				echo wp_kses(
 					sprintf(
 						// Translators: 1 opening HTML div tag followed by opening HTML p tag, 2 opening HTML a tag,
@@ -174,7 +181,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
-					'disabled'       => $disabled,
+					'disabled'       => ! $objectcache_enabled,
 				)
 			);
 
@@ -188,6 +195,8 @@ if ( ! defined( 'W3TC' ) ) {
 				}
 			}
 
+			$wp_disabled = ! $this->_config->get_boolean( 'objectcache.wp_cron' );
+
 			Util_Ui::config_item(
 				array(
 					'key'              => 'objectcache.wp_cron_time',
@@ -195,7 +204,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'control'          => 'selectbox',
 					'selectbox_values' => $time_options,
 					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
-					'disabled'         => $disabled || $wp_disabled,
+					'disabled'         => ! $objectcache_enabled || $wp_disabled,
 				)
 			);
 
@@ -211,7 +220,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
 					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
-					'disabled'         => $disabled || $wp_disabled,
+					'disabled'         => ! $objectcache_enabled || $wp_disabled,
 				)
 			);
 			?>
