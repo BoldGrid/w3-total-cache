@@ -14,11 +14,11 @@ declare( strict_types = 1 );
 use W3TC\Util_Environment;
 
 /**
- * Class: W3tc_Admin_Util_File_Test
+ * Class: W3tc_Admin_Util_Environment_Test
  *
  * @since 2.7.4
  */
-class W3tc_Admin_Util_Environment extends WP_UnitTestCase {
+class W3tc_Admin_Util_Environment_Test extends WP_UnitTestCase {
 	/**
 	 * Test array_intersect_partial().
 	 *
