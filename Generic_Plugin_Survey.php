@@ -122,6 +122,7 @@ class Generic_Plugin_Survey {
 
 		// Collect survey data.
 		$uninstall_reason = sanitize_text_field( Util_Request::get_string( 'reason' ) );
+		$email            = sanitize_email( Util_Request::get_string( 'email' ) );
 		$other_reason     = sanitize_text_field( Util_Request::get_string( 'other' ) );
 		$remove_data      = sanitize_text_field( Util_Request::get_string( 'remove' ) );
 
@@ -133,6 +134,11 @@ class Generic_Plugin_Survey {
 			'item_name'   => $this->item_name,
 			'reason'      => $uninstall_reason,
 		);
+
+		// Add 'email' to $data only if the $emal is non-blank.
+		if ( ! empty( $email ) ) {
+			$data['email'] = $email;
+		}
 
 		// Add 'other' to $data only if the uninstall reason is "other" and $other_reason is non-blank.
 		if ( 'other' === $uninstall_reason && ! empty( $other_reason ) ) {
