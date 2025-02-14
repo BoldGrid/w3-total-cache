@@ -8,7 +8,7 @@
  *
  * W3 Total Cache Object Cache
  *
- * ObjectCache Version: 1.4 // This line is used in ObjectCache_Environment::is_objectcache_add_in(), which looks for "ObjectCache Version: 1.4".
+ * ObjectCache Version: 1.5 // This line is used in ObjectCache_Environment::is_objectcache_add_in(), which looks for "ObjectCache Version: 1.5".
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
