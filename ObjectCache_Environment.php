@@ -222,6 +222,6 @@ class ObjectCache_Environment {
 			return false;
 
 		return ( ( $script_data = @file_get_contents( W3TC_ADDIN_FILE_OBJECT_CACHE ) )
-			&& strstr( $script_data, 'ObjectCache Version: 1.4' ) !== false );
+			&& strstr( $script_data, 'ObjectCache Version: 1.5' ) !== false );
 	}
 }
