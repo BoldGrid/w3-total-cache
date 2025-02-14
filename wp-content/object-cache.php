@@ -8,7 +8,7 @@
  *
  * W3 Total Cache Object Cache
  *
- * ObjectCache Version: 1.4 // This line is used in ObjectCache_Environment::is_objectcache_add_in(), which looks for "ObjectCache Version: 1.4".
+ * ObjectCache Version: 1.5 // This line is used in ObjectCache_Environment::is_objectcache_add_in(), which looks for "ObjectCache Version: 1.5".
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -40,8 +40,19 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 		if ( class_exists( 'W3TC\Dispatcher' ) ) {
 			$config = ( new \W3TC\Dispatcher() )->config();
 
+			// Don't use dropin if running in WP-CLI, object cache is enabled, set to disk, and not allows in settings.
 			if (
-				$config->get_boolean( 'objectcache.enabled' ) ||
+				defined( 'WP_CLI' ) && \WP_CLI &&
+				$config->getf_boolean( 'objectcache.enabled' ) &&
+				'file' === $config->get_string( 'objectcache.engine' ) &&
+				! $config->get_boolean( 'objectcache.wpcli_disk' )
+			) {
+				return false;
+			}
+
+			// Use dropin if obect cache is enabled or fragment cache is enabled.
+			if (
+				$config->getf_boolean( 'objectcache.enabled' ) ||
 				(
 					$config->is_extension_active( 'fragmentcache' ) &&
 					! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) &&
