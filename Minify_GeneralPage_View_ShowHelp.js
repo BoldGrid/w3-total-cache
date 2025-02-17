@@ -10,6 +10,12 @@ function w3tc_show_minify_help() {
       		jQuery('.btn-primary', lightbox.container).click(function() {
         		lightbox.close();
 			});
+			jQuery( '.lightbox-close' ).click(
+				function() {
+					jQuery( '#minify__enabled' ).prop('checked', false);
+					lightbox.close();
+				}
+			);
 			lightbox.resize();
 		}
 	});

@@ -1,3 +1,7 @@
+ul {
+	list-style-type: disc;
+}
+
 #w3tc_lightbox_content .metabox-holder {
 	padding-top: 0;
 }
