@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: ObjectCache_DiskPopup_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
