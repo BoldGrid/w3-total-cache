@@ -116,6 +116,8 @@ class Generic_Plugin_AdminNotices {
 	/**
 	 * Get active notices.
 	 *
+	 * Retrieve notices that have not expired or been dismissed.
+	 *
 	 * @since 2.7.5
 	 *
 	 * @see Dispatcher::config()
@@ -178,10 +180,12 @@ class Generic_Plugin_AdminNotices {
 					$this->get_allowed_wp_kses()
 				);
 
+				// Add data-id attribute if needed.
 				if ( preg_match( '/<div\s+class=".*?notice.*?".*?>/', $notice['content'] ) && ! preg_match( '/data-id="\d+"/', $notice['content'] ) ) {
 					$notice['content'] = preg_replace( '/(<div\s+class="notice.*?)(>)/', '$1 data-id="' . $notice['id'] . '"$2', $notice['content'] );
 				}
 
+				// Add dismiss button if needed.
 				if ( preg_match( '/<div\s+class=".*?notice.*?is-dismissible.*?".*?>/', $notice['content'] ) && ! preg_match( '/<button\s+type="button"\s+class="notice-dismiss">/', $notice['content'] ) ) {
 					$dismiss_button    = '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button>';
 					$notice['content'] = preg_replace( '/(<\/div>)/', $dismiss_button . '$1', $notice['content'] );
@@ -207,6 +211,8 @@ class Generic_Plugin_AdminNotices {
 
 	/**
 	 * Get cached notices.
+	 *
+	 * Notices are cached for 1 day.
 	 *
 	 * @since 2.7.5
 	 *
