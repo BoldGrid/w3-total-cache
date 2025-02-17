@@ -73,7 +73,7 @@ class Generic_Plugin_AdminNotices {
 
 		if ( $notice_id ) {
 			$dismissed_notices[] = $notice_id;
-			update_option( 'w3tc_dismissed_notices', array_unique( $dismissed_notices ) );
+			update_option( 'w3tc_dismissed_notices', array_unique( $dismissed_notices ), false );
 
 			// Update cached notices.
 			$cached_notices = $this->get_cached_notices();
@@ -91,7 +91,8 @@ class Generic_Plugin_AdminNotices {
 							'time'    => time(),
 							'notices' => array_values( $cached_notices ),
 						)
-					)
+					),
+					false
 				);
 			}
 
@@ -197,7 +198,8 @@ class Generic_Plugin_AdminNotices {
 					'time'    => time(),
 					'notices' => $active_notices,
 				)
-			)
+			),
+			false
 		);
 
 		return $active_notices;
