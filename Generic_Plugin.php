@@ -847,6 +847,9 @@ class Generic_Plugin {
 				// Mark the task as ran.
 				$ran_versions[] = '2.8.6';
 				update_option( 'w3tc_post_update_tasks_ran_versions', $ran_versions, false );
+
+				// Delete cached notices.
+				delete_option( 'w3tc_cached_notices' );
 			}
 
 			// Mark the task runner as ran for the current version.
