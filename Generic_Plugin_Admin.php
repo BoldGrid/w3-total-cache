@@ -1313,7 +1313,9 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Run post-update tasks.
+	 * Run post-update admin tasks.
+	 *
+	 * Post-update admin tasks are run only once per version.
 	 *
 	 * @since 2.8.1
 	 *

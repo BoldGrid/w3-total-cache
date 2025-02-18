@@ -1,0 +1,8 @@
+#wpbody-content>.notice,
+.w3tc-notices-custom {
+	max-width: 1200px;
+    margin: 0 auto 5px !important;
+    padding: 10px 12px !important;
+    display: block;
+    box-sizing: border-box;
+}
