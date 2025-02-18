@@ -409,7 +409,7 @@ class Generic_Plugin_AdminNotices {
 					\sprintf(
 						// translators: 1: A link to the settings page.
 						\esc_html__(
-							'W3 Total Cache has automatically disabled object caching because it was configured to write cache files to disk. This change was made to prevent potential performance issues and excessive file creation on your server. If you wish to re-enable object caching, you can do so in the %1$s. Learn more about this change and alternative caching solutions. %2$s',
+							'W3 Total Cache has automatically disabled object caching because it was configured to write cache files to disk. This change was made to prevent potential performance issues and excessive file creation on your server. If you wish to re-enable object caching, you can do so in the %1$s. %2$s about this change and alternative caching solutions.',
 							'w3-total-cache'
 						),
 						'<a href="' . \esc_url( \network_admin_url( 'admin.php?page=w3tc_general#object_cache' ), null, 'link' ) . '">' .
