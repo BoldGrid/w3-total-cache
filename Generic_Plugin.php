@@ -835,18 +835,24 @@ class Generic_Plugin {
 
 			// Check if W3TC was updated to 2.8.6 or higher.
 			if ( \version_compare( W3TC_VERSION, '2.8.6', '>=' ) && ! in_array( '2.8.6', $ran_versions, true ) ) {
-				// Disable Object Cache if using Disk and show a notice in wp-admin.
+				// Disable Object Cache if using Disk, purge the cache files, and show a notice in wp-admin.
 				if ( $this->_config->get_boolean( 'objectcache.enabled' ) && 'file' === $this->_config->get_string( 'objectcache.engine' ) ) {
 					$this->_config->set( 'objectcache.enabled', false );
 					$this->_config->save();
-				}
 
-				// Set the flag to show the notice.
-				$state->set( 'tasks.notices.disabled_objdisk', true );
+					// Purge the Object Cache files.
+					Util_File::rmdir( Util_Environment::cache_blog_dir( 'object' ) );
+
+					// Set the flag to show the notice.
+					$state->set( 'tasks.notices.disabled_objdisk', true );
+				}
 
 				// Mark the task as ran.
 				$ran_versions[] = '2.8.6';
 				update_option( 'w3tc_post_update_tasks_ran_versions', $ran_versions, false );
+
+				// Delete cached notices.
+				delete_option( 'w3tc_cached_notices' );
 			}
 
 			// Mark the task runner as ran for the current version.

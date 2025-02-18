@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.7
-Stable tag: 2.8.5
+Stable tag: 2.8.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -361,6 +361,15 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.8.6 =
+* Fix: Error deactivating when selected to delete plugin data
+* Fix: WP-CLI: Enable Object Cache depending on settings
+* Fix: Delete all plugin WordPress Options if selected on deactivation
+* Enhancement: Automatically disable Object Cache after plugin update if set to Disk and display a notice
+* Enhancement: WP-CLI: Added settings to enable Object and DB Cache for WP-CLI
+* Enhancement: Added an email field to the exit survey for requesting help
+* Enhancement: Added a popup modal to accept the risk when enabling Object Cache using Disk
 
 = 2.8.5 =
 * Fix: CDN: Amazon S3 long hostname for default region

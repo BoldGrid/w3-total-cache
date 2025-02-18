@@ -1,7 +1,7 @@
 /**
  * File: ObjectCache_DiskPopup.js
  *
- * @since X.X.X
+ * @since 2.8.6
  *
  * @package W3TC
  */
@@ -9,7 +9,7 @@
 /**
  * Modal for object cache disk usage risk acceptance.
  *
- * @since X.X.X
+ * @since 2.8.6
  *
  * @return void
  */

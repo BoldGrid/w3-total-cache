@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-05T23:37:14+00:00\n"
+"POT-Creation-Date: 2025-02-18T18:00:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
@@ -1022,7 +1022,8 @@ msgstr ""
 #: Extension_Genesis_Page_View.php:175
 #: Extension_Genesis_Page_View.php:184
 #: Extension_Genesis_Page_View.php:193
-#: inc/options/dbcache.php:190
+#: inc/options/dbcache.php:135
+#: inc/options/dbcache.php:198
 #: inc/options/general.php:86
 #: inc/options/general.php:117
 #: inc/options/general.php:209
@@ -1035,7 +1036,8 @@ msgstr ""
 #: inc/options/minify.php:620
 #: inc/options/minify.php:815
 #: inc/options/minify.php:1054
-#: inc/options/objectcache.php:175
+#: inc/options/objectcache.php:120
+#: inc/options/objectcache.php:182
 #: inc/options/pgcache.php:193
 #: inc/options/pgcache.php:533
 #: inc/options/pgcache.php:541
@@ -2990,12 +2992,12 @@ msgid "[W3TC] CDN auto upload (every %1$d seconds)"
 msgstr ""
 
 #: Cdn_Plugin.php:535
-#: DbCache_WpdbInjection_QueryCaching.php:866
+#: DbCache_WpdbInjection_QueryCaching.php:865
 msgid "wp-admin"
 msgstr ""
 
 #: Cdn_Plugin.php:542
-#: DbCache_WpdbInjection_QueryCaching.php:868
+#: DbCache_WpdbInjection_QueryCaching.php:867
 msgid "Short init"
 msgstr ""
 
@@ -3832,73 +3834,73 @@ msgstr ""
 msgid "Database Cache: %s."
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:831
+#: DbCache_WpdbInjection_QueryCaching.php:830
 msgid "Request-wide "
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:850
+#: DbCache_WpdbInjection_QueryCaching.php:849
 msgid "Database caching is disabled"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:852
+#: DbCache_WpdbInjection_QueryCaching.php:851
 msgid "DONOTCACHEDB constant is defined"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:854
+#: DbCache_WpdbInjection_QueryCaching.php:853
 msgid "Doing AJAX"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:856
+#: DbCache_WpdbInjection_QueryCaching.php:855
 msgid "Request URI is rejected"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:858
+#: DbCache_WpdbInjection_QueryCaching.php:857
 msgid "Cookie is rejected"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:860
+#: DbCache_WpdbInjection_QueryCaching.php:859
 msgid "Doing cron"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:862
+#: DbCache_WpdbInjection_QueryCaching.php:861
 msgid "Application request"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:864
+#: DbCache_WpdbInjection_QueryCaching.php:863
 msgid "XMLRPC request"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:870
+#: DbCache_WpdbInjection_QueryCaching.php:869
 msgid "Query is rejected"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:872
+#: DbCache_WpdbInjection_QueryCaching.php:871
 msgid "User is logged in"
 msgstr ""
 
 #. translators: 1: Query hits, 2: Total queries, 3: Total time, 4: Engine name, 5: Reject reason.
-#: DbCache_WpdbInjection_QueryCaching.php:892
+#: DbCache_WpdbInjection_QueryCaching.php:891
 msgid "Database Caching %1$d/%2$d queries in %3$.3f seconds using %4$s%5$s"
 msgstr ""
 
 #. translators: 1: Engine name, 2: Reject reason.
-#: DbCache_WpdbInjection_QueryCaching.php:902
+#: DbCache_WpdbInjection_QueryCaching.php:901
 msgid "Database Caching using %1$s%2$s"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:910
+#: DbCache_WpdbInjection_QueryCaching.php:909
 msgid "Db cache debug info:"
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:911
+#: DbCache_WpdbInjection_QueryCaching.php:910
 msgid "Total queries: "
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:912
+#: DbCache_WpdbInjection_QueryCaching.php:911
 msgid "Cached queries: "
 msgstr ""
 
-#: DbCache_WpdbInjection_QueryCaching.php:913
+#: DbCache_WpdbInjection_QueryCaching.php:912
 msgid "Total query time: "
 msgstr ""
 
@@ -3934,9 +3936,9 @@ msgstr ""
 #: inc/options/browsercache.php:27
 #: inc/options/cdn.php:75
 #: inc/options/cdn.php:97
-#: inc/options/dbcache.php:20
+#: inc/options/dbcache.php:19
 #: inc/options/minify.php:31
-#: inc/options/objectcache.php:20
+#: inc/options/objectcache.php:19
 #: inc/options/pgcache.php:20
 #: inc/options/pgcache.php:36
 msgid "enabled"
@@ -4089,10 +4091,10 @@ msgid "Cron"
 msgstr ""
 
 #: Extension_AlwaysCached_Page_View_BoxCron.php:34
-#: inc/options/dbcache.php:189
+#: inc/options/dbcache.php:197
 #: inc/options/general.php:542
 #: inc/options/minify.php:1053
-#: inc/options/objectcache.php:174
+#: inc/options/objectcache.php:181
 #: inc/options/pgcache.php:880
 msgid "Enable WP-Cron Event"
 msgstr ""
@@ -4102,10 +4104,10 @@ msgid "Enabling this will schedule a WP-Cron event that will process the queue a
 msgstr ""
 
 #: Extension_AlwaysCached_Page_View_BoxCron.php:58
-#: inc/options/dbcache.php:209
+#: inc/options/dbcache.php:217
 #: inc/options/general.php:561
 #: inc/options/minify.php:1073
-#: inc/options/objectcache.php:194
+#: inc/options/objectcache.php:203
 #: inc/options/pgcache.php:900
 #: Util_PageSpeed.php:334
 #: Util_PageSpeed.php:541
@@ -4113,64 +4115,64 @@ msgid "Start Time"
 msgstr ""
 
 #: Extension_AlwaysCached_Page_View_BoxCron.php:61
-#: inc/options/dbcache.php:212
+#: inc/options/dbcache.php:220
 #: inc/options/general.php:564
 #: inc/options/minify.php:1076
-#: inc/options/objectcache.php:197
+#: inc/options/objectcache.php:206
 #: inc/options/pgcache.php:903
 msgid "This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time."
 msgstr ""
 
 #: Extension_AlwaysCached_Page_View_BoxCron.php:72
-#: inc/options/dbcache.php:220
+#: inc/options/dbcache.php:228
 #: inc/options/general.php:572
 #: inc/options/minify.php:1084
-#: inc/options/objectcache.php:205
+#: inc/options/objectcache.php:214
 #: inc/options/pgcache.php:911
 msgid "Interval"
 msgstr ""
 
 #: Extension_AlwaysCached_Page_View_BoxCron.php:75
-#: inc/options/dbcache.php:223
+#: inc/options/dbcache.php:231
 #: inc/options/general.php:575
 #: inc/options/minify.php:1087
-#: inc/options/objectcache.php:208
+#: inc/options/objectcache.php:217
 #: inc/options/pgcache.php:914
 msgid "Hourly"
 msgstr ""
 
 #: Extension_AlwaysCached_Page_View_BoxCron.php:76
-#: inc/options/dbcache.php:224
+#: inc/options/dbcache.php:232
 #: inc/options/general.php:576
 #: inc/options/minify.php:1088
-#: inc/options/objectcache.php:209
+#: inc/options/objectcache.php:218
 #: inc/options/pgcache.php:915
 msgid "Twice Daily"
 msgstr ""
 
 #: Extension_AlwaysCached_Page_View_BoxCron.php:77
-#: inc/options/dbcache.php:225
+#: inc/options/dbcache.php:233
 #: inc/options/general.php:577
 #: inc/options/minify.php:1089
-#: inc/options/objectcache.php:210
+#: inc/options/objectcache.php:219
 #: inc/options/pgcache.php:916
 msgid "Daily"
 msgstr ""
 
 #: Extension_AlwaysCached_Page_View_BoxCron.php:78
-#: inc/options/dbcache.php:226
+#: inc/options/dbcache.php:234
 #: inc/options/general.php:578
 #: inc/options/minify.php:1090
-#: inc/options/objectcache.php:211
+#: inc/options/objectcache.php:220
 #: inc/options/pgcache.php:917
 msgid "Weekly"
 msgstr ""
 
 #: Extension_AlwaysCached_Page_View_BoxCron.php:80
-#: inc/options/dbcache.php:228
+#: inc/options/dbcache.php:236
 #: inc/options/general.php:580
 #: inc/options/minify.php:1092
-#: inc/options/objectcache.php:213
+#: inc/options/objectcache.php:222
 #: inc/options/pgcache.php:919
 msgid "This setting controls the interval that the cron job should occur."
 msgstr ""
@@ -4313,7 +4315,7 @@ msgstr ""
 
 #: Extension_AlwaysCached_Plugin_Admin.php:124
 #: Extension_AlwaysCached_Plugin_Admin.php:125
-#: Generic_Plugin.php:402
+#: Generic_Plugin.php:405
 msgid "Page Cache Queue"
 msgstr ""
 
@@ -4490,9 +4492,9 @@ msgstr ""
 #: inc/options/browsercache.php:27
 #: inc/options/cdn.php:75
 #: inc/options/cdn.php:97
-#: inc/options/dbcache.php:20
+#: inc/options/dbcache.php:19
 #: inc/options/minify.php:31
-#: inc/options/objectcache.php:20
+#: inc/options/objectcache.php:19
 #: inc/options/pgcache.php:20
 #: inc/options/pgcache.php:36
 msgid "disabled"
@@ -4519,7 +4521,7 @@ msgstr ""
 #: Extension_CloudFlare_Page_View.php:80
 #: inc/options/browsercache.php:80
 #: inc/options/cdn.php:243
-#: inc/options/dbcache.php:34
+#: inc/options/dbcache.php:33
 #: inc/options/general.php:21
 #: inc/options/minify.php:73
 #: inc/options/pgcache.php:65
@@ -5018,22 +5020,26 @@ msgstr ""
 #: Extension_FragmentCache_GeneralPage_View.php:32
 #: inc/options/general.php:356
 #: inc/options/general.php:438
+#: ObjectCache_DiskPopup_View.php:26
 msgid "This setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account."
 msgstr ""
 
 #: Extension_FragmentCache_GeneralPage_View.php:35
 #: inc/options/general.php:359
 #: inc/options/general.php:441
+#: ObjectCache_DiskPopup_View.php:29
 msgid "For optimal performance, consider using a memory-based caching solution like Redis or Memcached."
 msgstr ""
 
 #: Extension_FragmentCache_GeneralPage_View.php:37
 #: inc/options/general.php:361
 #: inc/options/general.php:443
+#: ObjectCache_DiskPopup_View.php:31
 msgid "Comparing Disk, Redis, and Memcached: Understanding Caching Solutions"
 msgstr ""
 
 #: Extension_FragmentCache_GeneralPage_View.php:38
+#: Generic_Plugin_AdminNotices.php:419
 #: inc/options/browsercache.php:91
 #: inc/options/browsercache.php:102
 #: inc/options/browsercache.php:111
@@ -5087,6 +5093,7 @@ msgstr ""
 #: inc/options/general.php:278
 #: inc/options/general.php:362
 #: inc/options/general.php:444
+#: ObjectCache_DiskPopup_View.php:32
 #: UserExperience_Preload_Requests_Page_View.php:30
 #: UserExperience_Preload_Requests_Page_View.php:39
 #: UserExperience_Preload_Requests_Page_View.php:48
@@ -5140,9 +5147,9 @@ msgstr ""
 
 #: Extension_FragmentCache_Page_View.php:85
 #: inc/options/cdn.php:508
-#: inc/options/dbcache.php:46
+#: inc/options/dbcache.php:45
 #: inc/options/minify.php:858
-#: inc/options/objectcache.php:35
+#: inc/options/objectcache.php:34
 #: inc/options/pgcache.php:527
 #: Util_Ui.php:1760
 #: Util_Ui.php:1834
@@ -5164,12 +5171,12 @@ msgstr ""
 #: inc/options/browsercache.php:698
 #: inc/options/cdn.php:745
 #: inc/options/cdn.php:754
-#: inc/options/dbcache.php:62
-#: inc/options/dbcache.php:70
+#: inc/options/dbcache.php:61
+#: inc/options/dbcache.php:69
 #: inc/options/minify.php:874
 #: inc/options/minify.php:889
-#: inc/options/objectcache.php:50
-#: inc/options/objectcache.php:58
+#: inc/options/objectcache.php:49
+#: inc/options/objectcache.php:57
 #: inc/options/pgcache.php:259
 #: inc/options/pgcache.php:609
 #: inc/options/pgcache.php:633
@@ -5178,15 +5185,15 @@ msgid "seconds"
 msgstr ""
 
 #: Extension_FragmentCache_Page_View.php:100
-#: inc/options/dbcache.php:63
-#: inc/options/objectcache.php:51
+#: inc/options/dbcache.php:62
+#: inc/options/objectcache.php:50
 msgid "Determines the natural expiration time of unchanged cache items. The higher the value, the larger the cache."
 msgstr ""
 
 #: Extension_FragmentCache_Page_View.php:107
-#: inc/options/dbcache.php:71
+#: inc/options/dbcache.php:70
 #: inc/options/minify.php:890
-#: inc/options/objectcache.php:59
+#: inc/options/objectcache.php:58
 #: inc/options/pgcache.php:634
 msgid "If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best."
 msgstr ""
@@ -6825,7 +6832,7 @@ msgstr ""
 msgid "Clear Log"
 msgstr ""
 
-#: Generic_Plugin.php:297
+#: Generic_Plugin.php:300
 #: Generic_Plugin_Admin.php:272
 #: Generic_Plugin_Admin.php:278
 #: Generic_Plugin_Admin.php:284
@@ -6839,27 +6846,27 @@ msgstr ""
 msgid "Performance"
 msgstr ""
 
-#: Generic_Plugin.php:309
+#: Generic_Plugin.php:312
 msgid "Purge All Caches"
 msgstr ""
 
-#: Generic_Plugin.php:329
+#: Generic_Plugin.php:332
 msgid "Purge All Caches Except Bunny CDN"
 msgstr ""
 
-#: Generic_Plugin.php:351
+#: Generic_Plugin.php:354
 msgid "Purge All Caches Except Cloudflare"
 msgstr ""
 
-#: Generic_Plugin.php:363
+#: Generic_Plugin.php:366
 msgid "Purge Current Page"
 msgstr ""
 
-#: Generic_Plugin.php:374
+#: Generic_Plugin.php:377
 msgid "Purge Modules"
 msgstr ""
 
-#: Generic_Plugin.php:381
+#: Generic_Plugin.php:384
 #: inc/options/common/top_nav_bar.php:86
 #: Root_AdminMenu.php:49
 #: Root_AdminMenu.php:50
@@ -6867,7 +6874,7 @@ msgstr ""
 msgid "Feature Showcase"
 msgstr ""
 
-#: Generic_Plugin.php:391
+#: Generic_Plugin.php:394
 #: Generic_WidgetSettings.php:38
 #: Generic_WidgetSettings_View.php:96
 #: inc/options/common/top_nav_bar.php:20
@@ -6887,11 +6894,11 @@ msgstr ""
 msgid "General Settings"
 msgstr ""
 
-#: Generic_Plugin.php:413
+#: Generic_Plugin.php:416
 msgid "Manage Extensions"
 msgstr ""
 
-#: Generic_Plugin.php:423
+#: Generic_Plugin.php:426
 #: PageSpeed_Instructions.php:81
 #: PageSpeed_Instructions.php:98
 #: PageSpeed_Instructions.php:355
@@ -6900,7 +6907,7 @@ msgstr ""
 msgid "FAQ"
 msgstr ""
 
-#: Generic_Plugin.php:433
+#: Generic_Plugin.php:436
 #: inc/options/common/footer.php:62
 #: inc/options/common/top_nav_bar.php:212
 #: inc/options/common/top_nav_bar.php:213
@@ -6910,7 +6917,7 @@ msgstr ""
 msgid "Support"
 msgstr ""
 
-#: Generic_Plugin.php:444
+#: Generic_Plugin.php:447
 msgid "Debug: Overlays"
 msgstr ""
 
@@ -7333,6 +7340,19 @@ msgstr ""
 msgid "Deactivate"
 msgstr ""
 
+#. translators: 1: A link to the settings page.
+#: Generic_Plugin_AdminNotices.php:411
+msgid "W3 Total Cache has automatically disabled object caching because it was configured to write cache files to disk. This change was made to prevent potential performance issues and excessive file creation on your server. If you wish to re-enable object caching, you can do so in the %1$s. %2$s about this change and alternative caching solutions."
+msgstr ""
+
+#: Generic_Plugin_AdminNotices.php:416
+msgid "settings"
+msgstr ""
+
+#: Generic_Plugin_AdminNotices.php:418
+msgid "Disabling Object Cache using Disk"
+msgstr ""
+
 #: Generic_Plugin_AdminRowActions.php:44
 #: Generic_Plugin_AdminRowActions.php:76
 #: Generic_Plugin_AdminRowActions.php:113
@@ -7602,26 +7622,38 @@ msgid "Please specify..."
 msgstr ""
 
 #: inc/lightbox/exit_survey.php:48
-msgid "Remove all plugin data?"
+msgid "May we contact you?"
 msgstr ""
 
 #: inc/lightbox/exit_survey.php:49
+msgid "We're serious about making W3 Total Cache better, and sometimes that means reaching out to users like you to get a few more details about your experience. Would you be open to us contacting you for further feedback? If so, please enter your email address below."
+msgstr ""
+
+#: inc/lightbox/exit_survey.php:52
+msgid "Email address..."
+msgstr ""
+
+#: inc/lightbox/exit_survey.php:55
+msgid "Remove all plugin data?"
+msgstr ""
+
+#: inc/lightbox/exit_survey.php:56
 msgid "Selecting \"Yes\" will permanently delete all W3 Total Cache settings, cached data, and other plugin-related information from your site. This action cannot be undone."
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:54
+#: inc/lightbox/exit_survey.php:61
 msgid "Yes"
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:61
+#: inc/lightbox/exit_survey.php:68
 msgid "No"
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:67
+#: inc/lightbox/exit_survey.php:74
 msgid "Submit & Deactivate"
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:68
+#: inc/lightbox/exit_survey.php:75
 msgid "Skip & Deactivate"
 msgstr ""
 
@@ -9021,20 +9053,20 @@ msgid "Flush caches with "
 msgstr ""
 
 #. translators: 1 Database cache engine name, 2 HTML span indicating DB cache enabled/disabled.
-#: inc/options/dbcache.php:15
+#: inc/options/dbcache.php:14
 msgid "Database caching via %1$s is currently %2$s."
 msgstr ""
 
-#: inc/options/dbcache.php:39
+#: inc/options/dbcache.php:38
 msgid "Enabling this option is recommended to maintain default WordPress behavior."
 msgstr ""
 
 #. translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
-#: inc/options/dbcache.php:85
+#: inc/options/dbcache.php:84
 msgid "Always ignore the specified pages / directories. Supports regular expressions (See %1$s%2$sFAQ%3$s%4$s)."
 msgstr ""
 
-#: inc/options/dbcache.php:90
+#: inc/options/dbcache.php:89
 #: inc/options/install.php:83
 #: inc/options/pgcache.php:731
 #: PageSpeed_Instructions.php:81
@@ -9043,22 +9075,27 @@ msgstr ""
 msgid "Frequently Asked Questions"
 msgstr ""
 
-#: inc/options/dbcache.php:112
+#: inc/options/dbcache.php:111
 msgid "Do not cache queries that contain these terms. Any entered prefix (set in wp-config.php) will be replaced with current database prefix (default: wp_). Query stems can be identified using debug mode."
 msgstr ""
 
-#: inc/options/dbcache.php:120
+#: inc/options/dbcache.php:119
 msgid "Do not cache queries that contain these words or regular expressions."
 msgstr ""
 
-#: inc/options/dbcache.php:128
+#: inc/options/dbcache.php:127
 msgid "Disable caching once specified constants defined."
 msgstr ""
 
-#: inc/options/dbcache.php:135
+#: inc/options/dbcache.php:134
+#: inc/options/objectcache.php:119
+msgid "Enable for WP-CLI"
+msgstr ""
+
+#: inc/options/dbcache.php:145
 #: inc/options/general.php:512
 #: inc/options/minify.php:999
-#: inc/options/objectcache.php:120
+#: inc/options/objectcache.php:130
 #: inc/options/pgcache.php:826
 #: Util_Ui.php:1677
 #: Util_Ui.php:1761
@@ -9069,12 +9106,12 @@ msgid "Purge via WP Cron"
 msgstr ""
 
 #. Translators: 1 opening HTML a tag, 2 closing HTML a tag.
-#: inc/options/dbcache.php:142
+#: inc/options/dbcache.php:152
 msgid "Enabling this will schedule a WP-Cron event that will flush the Database Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: \"wp w3tc flush db\". Visit %1$shere%2$s for more information."
 msgstr ""
 
 #. Translators: 3 closing HTML a tag, 4 closing HTML p tag followed by closing HTML div tag.
-#: inc/options/dbcache.php:168
+#: inc/options/dbcache.php:176
 msgid "%1$sDatabase Cache is disabled! Enable it %2$shere%3$s to enable this feature.%4$s"
 msgstr ""
 
@@ -9377,10 +9414,12 @@ msgid "Object caching greatly increases performance for highly dynamic sites tha
 msgstr ""
 
 #: inc/options/general.php:435
+#: ObjectCache_DiskPopup_View.php:20
 msgid "Warning: Disk-Based Object Caching Selected"
 msgstr ""
 
 #: inc/options/general.php:437
+#: ObjectCache_DiskPopup_View.php:25
 msgid "Using disk as the cache engine for object caching is not recommended due to its potential for slow performance depending on storage device types and server configuration."
 msgstr ""
 
@@ -10211,50 +10250,50 @@ msgid "symbols (set to 0 to disable)"
 msgstr ""
 
 #. translators: 1 HTML strong tag containing Objectcache Engine value, 2 HTML span tag containing Objectcache Engine enabled/disabled value.
-#: inc/options/objectcache.php:15
+#: inc/options/objectcache.php:14
 msgid "Object caching via %1$s is currently %2$s."
 msgstr ""
 
-#: inc/options/objectcache.php:20
+#: inc/options/objectcache.php:19
 msgid " via filter"
 msgstr ""
 
-#: inc/options/objectcache.php:67
+#: inc/options/objectcache.php:66
 msgid "Groups shared amongst sites in network mode."
 msgstr ""
 
-#: inc/options/objectcache.php:75
+#: inc/options/objectcache.php:74
 msgid "Groups that should not be cached."
 msgstr ""
 
-#: inc/options/objectcache.php:81
+#: inc/options/objectcache.php:80
 msgid "Enable caching for wp-admin requests"
 msgstr ""
 
-#: inc/options/objectcache.php:82
+#: inc/options/objectcache.php:81
 msgid "Enabling this option will increase wp-admin performance, but may cause side-effects"
 msgstr ""
 
-#: inc/options/objectcache.php:87
+#: inc/options/objectcache.php:86
 msgid "Store transients in database"
 msgstr ""
 
-#: inc/options/objectcache.php:88
-msgid "Use that to store transients in database even when external cache is used. That allows transient values to survive object cache cleaning / expiration"
+#: inc/options/objectcache.php:87
+msgid "Store transients in database even when external cache is used, which allows transient values to survive object cache cleaning/expiration"
 msgstr ""
 
 #. translators: 1 opening HTML em tag, 2 closing HTML em tag.
-#: inc/options/objectcache.php:100
+#: inc/options/objectcache.php:99
 msgid "Enabling this option will increase load on server on certain actions but will guarantee that the Object Cache is always clean and contains latest changes. %1$sEnable if you are experiencing issues with options displaying wrong value/state (checkboxes etc).%2$2"
 msgstr ""
 
 #. Translators: 1 opening HTML a tag, 2 closing HTML a tag.
-#: inc/options/objectcache.php:127
+#: inc/options/objectcache.php:137
 msgid "Enabling this will schedule a WP-Cron event that will flush the Object Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: \"wp w3tc flush object\". Visit %1$shere%2$s for more information."
 msgstr ""
 
 #. Translators: 3 closing HTML a tag, 4 closing HTML p tag followed by closing HTML div tag.
-#: inc/options/objectcache.php:153
+#: inc/options/objectcache.php:160
 msgid "%1$sObject Cache is disabled! Enable it %2$shere%3$s to enable this feature.%4$s"
 msgstr ""
 
@@ -11282,6 +11321,7 @@ msgid ""
 msgstr ""
 
 #: Minify_HelpPopup_View.php:129
+#: ObjectCache_DiskPopup_View.php:36
 msgid "I Understand the Risks"
 msgstr ""
 
@@ -11308,7 +11348,7 @@ msgid "Minify: %s."
 msgstr ""
 
 #: Minify_Plugin_Admin.php:186
-#: ObjectCache_Plugin_Admin.php:89
+#: ObjectCache_Plugin_Admin.php:92
 msgid "The setting change(s) made either invalidate the cached data or modify the behavior of the site. %s now to provide a consistent user experience."
 msgstr ""
 
@@ -11345,6 +11385,15 @@ msgstr ""
 msgid "Flush all cache on post, comment etc changes."
 msgstr ""
 
+#: ObjectCache_DiskPopup_View.php:22
+msgid "Using disk as the object cache engine comes with risks:"
+msgstr ""
+
+#: ObjectCache_DiskPopup_View.php:38
+#: Util_Widget.php:160
+msgid "Cancel"
+msgstr ""
+
 #. translators: 1 HTML button link to remove object-cache.php file.
 #: ObjectCache_Environment.php:163
 msgid "The Object Cache add-in file object-cache.php is not a W3 Total Cache drop-in. Remove it or disable Object Caching. %1$s"
@@ -11363,11 +11412,11 @@ msgstr ""
 msgid "[W3TC] Object Cache file GC (every %d seconds)"
 msgstr ""
 
-#: ObjectCache_Plugin_Admin.php:67
+#: ObjectCache_Plugin_Admin.php:70
 msgid "Object Cache: %s."
 msgstr ""
 
-#: ObjectCache_Plugin_Admin.php:92
+#: ObjectCache_Plugin_Admin.php:95
 msgid "Empty the object cache"
 msgstr ""
 
@@ -14084,10 +14133,6 @@ msgstr ""
 
 #: Util_Widget.php:54
 msgid "View all"
-msgstr ""
-
-#: Util_Widget.php:160
-msgid "Cancel"
 msgstr ""
 
 #. translators: 1: Filesystem access method: "direct", "ssh2", "ftpext" or "ftpsockets".

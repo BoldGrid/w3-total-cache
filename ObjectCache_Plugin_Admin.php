@@ -131,7 +131,7 @@ class ObjectCache_Plugin_Admin {
 	/**
 	 * Enqueue disk usage risk acceptance script.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.6
 	 *
 	 * @return void
 	 */
@@ -151,7 +151,7 @@ class ObjectCache_Plugin_Admin {
 	/**
 	 * Popup modal for Object Cache disk usage risk acceptance.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.6
 	 *
 	 * @return void
 	 */

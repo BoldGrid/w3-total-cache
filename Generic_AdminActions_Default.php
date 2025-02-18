@@ -333,6 +333,18 @@ class Generic_AdminActions_Default {
 			}
 
 			/**
+			 * Check for Object Cache using Disk being disabled or changed to another engine.
+			 *
+			 * @since 2.8.6
+			 */
+			if (
+				$this->_config->get_boolean( 'objectcache.enabled' ) && 'file' === $this->_config->get_string( 'objectcache.engine' ) &&
+				( ! $config->get_boolean( 'objectcache.enabled' ) || 'file' !== $config->get_string( 'objectcache.engine' ) )
+			) {
+				Util_File::rmdir( Util_Environment::cache_blog_dir( 'object' ) );
+			}
+
+			/**
 			 * Check for Image Service extension status changes.
 			 */
 			if ( $config->get_boolean( 'extension.imageservice' ) !== $this->_config->get_boolean( 'extension.imageservice' ) ) {

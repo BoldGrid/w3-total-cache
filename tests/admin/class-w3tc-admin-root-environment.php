@@ -5,7 +5,7 @@
  * @package    W3TC
  * @subpackage W3TC/tests/admin
  * @author     BoldGrid <development@boldgrid.com>
- * @since      X.X.X
+ * @since      2.8.6
  * @link       https://www.boldgrid.com/w3-total-cache/
  */
 
@@ -16,13 +16,13 @@ use W3TC\Root_Environment;
 /**
  * Class: W3tc_Admin_Root_Environment_Test
  *
- * @since X.X.X
+ * @since 2.8.6
  */
 class W3tc_Admin_Root_Environment_Test extends WP_UnitTestCase {
 	/**
 	 * Test delete_plugin_data().
 	 *
-	 * @since X.X.X
+	 * @since 2.8.6
 	 *
 	 * @see w3tc_config()
 	 *
