@@ -137,7 +137,7 @@ class ObjectCache_Plugin_Admin {
 	 */
 	public function admin_enqueue_scripts() {
 		$page_val = Util_Request::get_string( 'page' );
-		if ( ! empty( $page_val ) && 'w3tc_general' === $page_val ) {
+		if ( 'w3tc_general' === $page_val ) {
 			wp_enqueue_script(
 				'w3tc-objectcache-diskpopup',
 				plugins_url( 'ObjectCache_DiskPopup.js', W3TC_FILE ),

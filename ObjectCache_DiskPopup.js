@@ -1,11 +1,13 @@
 /**
  * File: ObjectCache_DiskPopup.js
  *
+ * @since X.X.X
+ *
  * @package W3TC
  */
 
 /**
- * Modal for object cache disk usage risk acceptance
+ * Modal for object cache disk usage risk acceptance.
  *
  * @since X.X.X
  *
@@ -20,35 +22,40 @@ function w3tc_show_objectcache_diskpopup(previous, triggeredByEngineChange) {
 		url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=objectcache_diskpopup',
 		callback: function(lightbox) {
 			jQuery('.btn-primary', lightbox.container).click(function() {
+				jQuery(document).off('keyup.w3tc_lightbox'); // Cleanup event listener.
 				lightbox.close();
 			});
 
 			jQuery('.btn-secondary, .lightbox-close').click(function() {
 				if (triggeredByEngineChange) {
-					// Case 2: Revert engine selection to previous
+					// Case 2: Revert engine selection to previous.
 					if (previous) {
 						jQuery('#objectcache__engine').val(previous);
 					}
 				} else {
-					// Case 1: Uncheck enable checkbox
+					// Case 1: Uncheck enable checkbox.
 					jQuery('#objectcache__enabled').prop('checked', false);
 				}
 
-				jQuery(document).off('keyup.w3tc_lightbox'); // Cleanup event listener
+				jQuery('.objectcache_disk_notice').hide();
+				jQuery(document).off('keyup.w3tc_lightbox'); // Cleanup event listener.
 				lightbox.close();
 			});
 
 			jQuery(document).on('keyup.w3tc_lightbox', function(e) {
-				if (e.key === "Escape") {
+				if ('Escape' === e.key) {
 					if (triggeredByEngineChange) {
+						// Case 2: Revert engine selection to previous.
 						if (previous) {
 							jQuery('#objectcache__engine').val(previous);
 						}
 					} else {
+						// Case 1: Uncheck enable checkbox.
 						jQuery('#objectcache__enabled').prop('checked', false);
 					}
 
-					jQuery(document).off('keyup.w3tc_lightbox'); // Cleanup event listener
+					jQuery('.objectcache_disk_notice').hide();
+					jQuery(document).off('keyup.w3tc_lightbox'); // Cleanup event listener.
 					lightbox.close();
 				}
 			});
@@ -60,14 +67,14 @@ function w3tc_show_objectcache_diskpopup(previous, triggeredByEngineChange) {
 
 jQuery(function($) {
 	$('#objectcache__enabled').click(function() {
-		var checked = $(this).is(':checked');
-		var engine = $('#objectcache__engine').val();
+		const checked = $(this).is(':checked'),
+      		  engine = $('#objectcache__engine').val();
 
 		if (!checked) {
 			return;
 		}
 
-		if (engine === 'file') {
+		if ('file' === engine) {
 			w3tc_show_objectcache_diskpopup(null, false);
 		}
 	});
@@ -77,17 +84,17 @@ jQuery(function($) {
 	$('#objectcache__engine').on('focus', function() {
 		previous = this.value;
 	}).change(function() {
-		var checked = $('#objectcache__enabled').is(':checked');
-		var engine = $(this).val();
+		const checked = $('#objectcache__enabled').is(':checked'),
+			  engine = $(this).val();
 
 		if (!checked) {
 			return;
 		}
 
-		if (engine === 'file') {
+		if ('file' === engine) {
 			w3tc_show_objectcache_diskpopup(previous, true);
 		} else {
-			// Only update `previous` if the new selection is NOT 'file'
+			// Only update `previous` if the new selection is NOT 'file'.
 			previous = engine;
 		}
 	});
