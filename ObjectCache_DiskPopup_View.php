@@ -2,7 +2,7 @@
 /**
  * File: ObjectCache_DiskPopup_View.php
  *
- * @since X.X.X
+ * @since 2.8.6
  *
  * @package W3TC
  */
