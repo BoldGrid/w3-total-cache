@@ -479,7 +479,7 @@ exports.w3tcMarkGenericTasksVersionsComplete = async function(versions) {
 	const versionsJSON = JSON.stringify(versions);
 
 	// Build and execute the command using the JSON array.
-	await exec(`sudo -u www-data wp option update w3tc_post_update_tasks_ran_versions '${versionsJSON}' --autoload=no --path=${env.wpPath} --format=json || true`);
+	await exec(`sudo -u www-data wp option update w3tc_post_update_generic_tasks_ran_versions '${versionsJSON}' --autoload=no --path=${env.wpPath} --format=json || true`);
 }
 
 // Close modal by clicking "I Understand the Risks" button.
