@@ -831,7 +831,8 @@ class Generic_Plugin {
 		$last_run_version = $state->get_string( 'tasks.generic.last_run_version' );
 
 		if ( empty( $last_run_version ) || \version_compare( W3TC_VERSION, $last_run_version, '>' ) ) {
-			$ran_versions = get_option( 'w3tc_post_update_tasks_ran_versions', array() );
+			$ran_versions  = get_option( 'w3tc_post_update_generic_tasks_ran_versions', array() );
+			$has_completed = false;
 
 			// Check if W3TC was updated to 2.8.6 or higher.
 			if ( \version_compare( W3TC_VERSION, '2.8.6', '>=' ) && ! in_array( '2.8.6', $ran_versions, true ) ) {
@@ -849,10 +850,15 @@ class Generic_Plugin {
 
 				// Mark the task as ran.
 				$ran_versions[] = '2.8.6';
-				update_option( 'w3tc_post_update_tasks_ran_versions', $ran_versions, false );
+				$has_completed  = true;
 
 				// Delete cached notices.
 				delete_option( 'w3tc_cached_notices' );
+			}
+
+			// Mark completed tasks as ran.
+			if ( $has_completed ) {
+				update_option( 'w3tc_post_update_generic_tasks_ran_versions', $ran_versions, false );
 			}
 
 			// Mark the task runner as ran for the current version.
