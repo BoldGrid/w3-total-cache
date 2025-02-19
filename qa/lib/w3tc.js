@@ -54,20 +54,8 @@ exports.setOptions = async function(pPage, queryPage, values) {
 			if ((checked && !values[key]) || (!checked && values[key])) {
 				await pPage.evaluate((keySelector) => document.querySelector(keySelector).click(), keySelector);
 			}
-			if (key == 'minify__enabled') {
-				await pPage.waitForSelector('.lightbox-close', {
-					visible: true
-				});
-				log.log('click minify popup close');
-				await pPage.screenshot({path: '/var/www/wp-sandbox/01.png'});
-
-				let lightboxClose = '.lightbox-close';
-				await pPage.evaluate((lightboxClose) => document.querySelector(lightboxClose).click(), lightboxClose);
-
-				await pPage.waitForSelector('.lightbox-close', {
-					hidden: true
-				});
-				log.log('minify popup closed');
+			if ('minify__enabled' == key || 'objectcache__enabled' == key) {
+				exports.w3tcCloseModalBySubmit(pPage);
 
 				// very weird issue - first button click hangs, while all other
 				// works in that case. it cant scroll up?
@@ -478,4 +466,36 @@ exports.w3tcComment = async function(pPage) {
 	}
 
 	return m[0];
+}
+
+// This function is used to mark generic tasks for a specific versions as completed.
+exports.w3tcMarkGenericTasksVersionsComplete = async function(versions) {
+	// Ensure we have an array.
+	if (!Array.isArray(versions)) {
+		versions = [versions];
+	}
+
+	// Convert the versions array into a JSON string.
+	const versionsJSON = JSON.stringify(versions);
+
+	// Build and execute the command using the JSON array.
+	await exec(`sudo -u www-data wp option update w3tc_post_update_tasks_ran_versions '${versionsJSON}' --autoload=no --path=${env.wpPath} --format=json || true`);
+}
+
+// Close modal by clicking "I Understand the Risks" button.
+exports.w3tcCloseModalBySubmit = async function(pPage) {
+	let lightboxSubmit = '#w3tc_lightbox_content input[type="submit"]';
+
+	await pPage.waitForSelector(lightboxSubmit, {
+		visible: true
+	});
+
+	log.log('Click popup "I Understand the Risks"...');
+
+	await pPage.evaluate((lightboxSubmit) => document.querySelector(lightboxSubmit).click(), lightboxSubmit);
+
+	await pPage.waitForSelector(lightboxSubmit, {
+		hidden: true
+	});
+	log.log('Popup closed by clicking "I Understand the Risks".');
 }
