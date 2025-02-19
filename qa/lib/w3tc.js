@@ -54,7 +54,7 @@ exports.setOptions = async function(pPage, queryPage, values) {
 			if ((checked && !values[key]) || (!checked && values[key])) {
 				await pPage.evaluate((keySelector) => document.querySelector(keySelector).click(), keySelector);
 			}
-			if ('minify__enabled' == key || 'objectcache__enabled' == key) {
+			if (!checked && values[key] && ('minify__enabled' == key || 'objectcache__enabled' == key)) {
 				exports.w3tcCloseModalBySubmit(pPage);
 
 				// very weird issue - first button click hangs, while all other
