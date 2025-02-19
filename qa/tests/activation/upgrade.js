@@ -98,6 +98,10 @@ describe('', function() {
 		}
 	});
 
+	it('Mark 2.8.6 generic tasks complete', async() => {
+		await w3tc.w3tcMarkGenericTasksVersionComplete('2.8.6');
+	});
+
 	it('activate w3tc', async() => {
 		await wp.networkActivatePlugin(adminPage, 'w3-total-cache/w3-total-cache.php');
 	});

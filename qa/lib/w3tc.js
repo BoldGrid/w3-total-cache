@@ -61,13 +61,13 @@ exports.setOptions = async function(pPage, queryPage, values) {
 				log.log('click minify popup close');
 				await pPage.screenshot({path: '/var/www/wp-sandbox/01.png'});
 
-				let lightboxClose = '.lightbox-close';
-				await pPage.evaluate((lightboxClose) => document.querySelector(lightboxClose).click(), lightboxClose);
+				let lightboxSubmit = '#w3tc_lightbox_content input[type="submit"]';
+				await pPage.evaluate((lightboxSubmit) => document.querySelector(lightboxSubmit).click(), lightboxSubmit);
 
-				await pPage.waitForSelector('.lightbox-close', {
+				await pPage.waitForSelector(lightboxSubmit, {
 					hidden: true
 				});
-				log.log('minify popup closed');
+				log.log('Minify popup closed by clicking "I Understand the Risks".');
 
 				// very weird issue - first button click hangs, while all other
 				// works in that case. it cant scroll up?
@@ -478,4 +478,18 @@ exports.w3tcComment = async function(pPage) {
 	}
 
 	return m[0];
+}
+
+// This function is used to mark generic tasks for a specific versions as completed.
+exports.w3tcMarkGenericTasksVersionsComplete = async function(versions) {
+	// Ensure we have an array.
+	if (!Array.isArray(versions)) {
+		versions = [versions];
+	}
+
+	// Convert the versions array into a JSON string.
+	const versionsJSON = JSON.stringify(versions);
+
+	// Build and execute the command using the JSON array.
+	await exec(`sudo -u www-data wp option update w3tc_post_update_tasks_ran_versions '${versionsJSON}' --autoload=no --path=${env.wpPath} --format=json`);
 }
