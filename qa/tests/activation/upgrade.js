@@ -99,7 +99,7 @@ describe('', function() {
 	});
 
 	it('Mark 2.8.6 generic tasks complete', async() => {
-		await w3tc.w3tcMarkGenericTasksVersionComplete('2.8.6');
+		await w3tc.w3tcMarkGenericTasksVersionsComplete('2.8.6');
 	});
 
 	it('activate w3tc', async() => {
