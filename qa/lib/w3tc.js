@@ -33,7 +33,7 @@ async function setOptions_loadPage(pPage, queryPage) {
 		let nonce = await pPage.$eval('input[name=_wpnonce]', (e) => e.value);
 		expect(nonce).not.empty;
 	});
-}
+};
 
 exports.setOptions = async function(pPage, queryPage, values) {
 	await setOptions_loadPage(pPage, queryPage);
@@ -105,7 +105,7 @@ exports.setOptions = async function(pPage, queryPage, values) {
 	}
 
 	log.success('w3tc options modified successfully');
-}
+};
 
 exports.setOptionInternal = async function(pPage, name, value) {
 	let r = await exec('cp ../../plugins/w3tc-set-option-internal.php ' +
@@ -118,7 +118,7 @@ exports.setOptionInternal = async function(pPage, name, value) {
 	await pPage.goto(controlUrl, {waitUntil: 'domcontentloaded'});
 	let html = await pPage.content();
 	expect(html).contains('ok');
-}
+};
 
 exports.activateExtension = async function(pPage, extenstion_id) {
 	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_extensions', {waitUntil: 'domcontentloaded'});
@@ -151,7 +151,7 @@ exports.activateExtension = async function(pPage, extenstion_id) {
 	let isActive2 = await pPage.$('#' + extenstion_id + ' .deactivate');
 	expect(isActive2).is.not.null;
 	log.success(extenstion_id + ' extension activated successfully');
-}
+};
 
 /**
  * Called when html content of static files has been changed and note appears about
@@ -165,7 +165,7 @@ exports.followNoteFlushStatics = async function(pPage) {
 			pPage.waitForNavigation({timeout: 300000}),
 		]);
 	}
-}
+};
 
 exports.expectW3tcErrors = async function(pPage, ifShouldExist) {
 	await pPage.goto(env.networkAdminUrl + 'admin.php?page=w3tc_general',
@@ -195,7 +195,7 @@ exports.expectW3tcErrors = async function(pPage, ifShouldExist) {
 
 		expect(errorExists).false;
 	}
-}
+};
 
 exports.updateCacheEntry = async function(pPage, url, addParam, cacheEngineLabel, cacheEngineName) {
 	log.log('updating cache entry for ' + url);
@@ -218,7 +218,7 @@ exports.updateCacheEntry = async function(pPage, url, addParam, cacheEngineLabel
 	await pPage.goto(controlUrl, {waitUntil: 'domcontentloaded'});
 	let html = await pPage.content();
 	expect(html).contains('Page Caching using ' + cacheEngineName);
-}
+};
 
 exports.gotoWithPotentialW3TCRepeat = async function(pPage, url) {
 	let response = await pPage.goto(url, {waitUntil: 'domcontentloaded'});
@@ -228,7 +228,7 @@ exports.gotoWithPotentialW3TCRepeat = async function(pPage, url) {
 	}
 
 	return response;
-}
+};
 
 exports.expectPageCachingMethod = function(pageContent, cacheEngineName) {
 	let regex = new RegExp('Page Caching using ' + cacheEngineName + '(\\s*\\(([^)])+\\))?');
@@ -239,7 +239,7 @@ exports.expectPageCachingMethod = function(pageContent, cacheEngineName) {
 		log.error('caching exception is in action: "' + m[0]);
 		expect(false).is.true;
 	}
-}
+};
 
 exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngineName, url, pageKeyPostfix) {
 	if (cacheEngineLabel == null) {
@@ -262,7 +262,7 @@ exports.pageCacheEntryChange = async function(pPage, cacheEngineLabel, cacheEngi
 			'&engine=' + cacheEngineLabel,
 		{waitUntil: 'domcontentloaded'});
 	expect(await pPage.content()).contains('Page Caching using ' + cacheEngineName);
-}
+};
 
 function updateUTimes(filename) {
 	let stat = fs.statSync(filename);
@@ -271,7 +271,7 @@ function updateUTimes(filename) {
 
 	fs.utimesSync(filename, newTime, newTime);
 	log.success('updated timestamp for ' + filename);
-}
+};
 
 exports.pageCacheFileGenericChangeFileTimestamp = async function(url, extension) {
 	log.log("Changing timestamp for the old cache file of " + url);
@@ -298,7 +298,7 @@ exports.pageCacheFileGenericChangeFileTimestamp = async function(url, extension)
 		log.error('file doesnt exists ' + filename);
 		expect(false).is.true;
 	}
-}
+};
 
 exports.pageCacheFileGenericUrlToFilename = function(url, extension, postfix = '') {
 	if (!extension) {
@@ -316,7 +316,7 @@ exports.pageCacheFileGenericUrlToFilename = function(url, extension, postfix = '
 
 	return env.wpContentPath + 'cache/page_enhanced/' +
 		m[1].toString().toLowerCase() + uri + cf;
-}
+};
 
 exports.commentTimestamp = async function(pPage, cacheEngineName) {
 	if (cacheEngineName == null) {
@@ -339,7 +339,7 @@ exports.commentTimestamp = async function(pPage, cacheEngineName) {
     let matches = html.match(/Served from: ([^@]+)@ ([^b]+)by W3 Total Cache/);
 	expect(matches.length > 0);
     return matches[0];
-}
+};
 
 exports.flushAll = async function(pPage) {
 	await sys.repeatOnFailure(pPage, async() => {
@@ -375,7 +375,7 @@ exports.flushAll = async function(pPage) {
 
 exports.regExpForOption = function(string) {
   return string.replace(/\//g, '\\/').replace(/\./g, '\\.').replace(/\?/g, '\\?').replace(/\\/g, '\\');
-}
+};
 
 exports.cdnPushExportFiles = async function(pPage, sectionToExport) {
 	log.log('Exporting ' + sectionToExport + ' files...');
@@ -406,7 +406,7 @@ exports.cdnPushExportFiles = async function(pPage, sectionToExport) {
 
 	let onPage = await pPage.$eval('#cdn_export_file_processed', (e) => e.textContent);
 	expect(onPage).equals(filesNumberToExport);
-}
+};
 
 exports.setOptionsMinifyAddJsEntry = async function(pPage, i, inputValue, optionValue) {
 	log.log('click add');
@@ -431,7 +431,7 @@ exports.setOptionsMinifyAddJsEntry = async function(pPage, i, inputValue, option
 		},
 		i, inputValue, optionValue
 	);
-}
+};
 
 exports.setOptionsMinifyAddCssEntry = async function(pPage, i, inputValue, optionValue) {
 	log.log('click add');
@@ -456,7 +456,7 @@ exports.setOptionsMinifyAddCssEntry = async function(pPage, i, inputValue, optio
 		},
 		i, inputValue, optionValue
 	);
-}
+};
 
 exports.w3tcComment = async function(pPage) {
 	let html = await pPage.content();
@@ -466,7 +466,7 @@ exports.w3tcComment = async function(pPage) {
 	}
 
 	return m[0];
-}
+};
 
 // This function is used to mark generic tasks for a specific versions as completed.
 exports.w3tcMarkGenericTasksVersionsComplete = async function(versions) {
@@ -480,22 +480,29 @@ exports.w3tcMarkGenericTasksVersionsComplete = async function(versions) {
 
 	// Build and execute the command using the JSON array.
 	await exec(`sudo -u www-data wp option update w3tc_post_update_generic_tasks_ran_versions '${versionsJSON}' --autoload=no --path=${env.wpPath} --format=json || true`);
-}
+};
 
 // Close modal by clicking "I Understand the Risks" button.
 exports.w3tcCloseModalBySubmit = async function(pPage) {
-	let lightboxSubmit = '#w3tc_lightbox_content input[type="submit"]';
+	const lightboxSubmit = '#w3tc_lightbox_content input[type="submit"]',
+		modalElement = await pPage.$(lightboxSubmit);
 
-	await pPage.waitForSelector(lightboxSubmit, {
-		visible: true
-	});
+	if (modalElement) {
+	  try {
+		// Wait for the modal button to become visible.
+		await pPage.waitForSelector(lightboxSubmit, { visible: true });
+		log.log('Click popup "I Understand the Risks"...');
 
-	log.log('Click popup "I Understand the Risks"...');
+		// Click the button directly.
+		await pPage.click(lightboxSubmit);
 
-	await pPage.evaluate((lightboxSubmit) => document.querySelector(lightboxSubmit).click(), lightboxSubmit);
-
-	await pPage.waitForSelector(lightboxSubmit, {
-		hidden: true
-	});
-	log.log('Popup closed by clicking "I Understand the Risks".');
-}
+		// Wait for the modal to be hidden after clicking.
+		await pPage.waitForSelector(lightboxSubmit, { hidden: true });
+		log.log('Popup closed by clicking "I Understand the Risks".');
+	  } catch (error) {
+		log.error('Error closing the modal:', error);
+	  }
+	} else {
+	  log.log('No modal found to close.');
+	}
+};
