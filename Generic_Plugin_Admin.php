@@ -1326,25 +1326,48 @@ class Generic_Plugin_Admin {
 	public function post_update_tasks(): void {
 		// Check if W3TC was updated.
 		$state            = Dispatcher::config_state();
-		$last_run_version = $state->get_string( 'tasks.last_run_version' );
+		$last_run_version = $state->get_string( 'tasks.admin.last_run_version' );
 
-		if ( empty( $last_run_version ) || version_compare( W3TC_VERSION, $last_run_version, '>' ) ) {
-			switch ( W3TC_VERSION ) {
-				case '2.8.1':
-					// Fix environment.
-					Util_Admin::fix_on_event( $this->_config, 'w3tc_plugin_updated' );
+		if ( empty( $last_run_version ) || \version_compare( W3TC_VERSION, $last_run_version, '>' ) ) {
+			$ran_versions  = get_option( 'w3tc_post_update_admin_tasks_ran_versions', array() );
+			$has_completed = false;
 
-					// Adjust "objectcache.file.gc".
-					if ( $this->_config->get_integer( 'objectcache.file.gc' ) === 3600 ) {
-						$this->_config->set( 'objectcache.file.gc', 600 );
-						$this->_config->save();
-					}
-					break;
-				default:
-					break;
+			// Check if W3TC was updated to 2.8.1 or higher and not already run.
+			if ( \version_compare( W3TC_VERSION, '2.8.1', '>=' ) && ! in_array( '2.8.1', $ran_versions, true ) ) {
+				// Fix environment.
+				Util_Admin::fix_on_event( $this->_config, 'w3tc_plugin_updated' );
+
+				// Adjust "objectcache.file.gc".
+				if ( $this->_config->get_integer( 'objectcache.file.gc' ) === 3600 ) {
+					$this->_config->set( 'objectcache.file.gc', 600 );
+					$this->_config->save();
+				}
+
+				// Mark the task as ran.
+				$ran_versions[] = '2.8.1';
+				$has_completed  = true;
 			}
 
-			$state->set( 'tasks.last_run_version', W3TC_VERSION );
+			// Check if W3TC was updated to 2.8.6 or higher and not already run.
+			if ( \version_compare( W3TC_VERSION, '2.8.6', '>=' ) && ! in_array( '2.8.6', $ran_versions, true ) ) {
+				// Delete old option.
+				delete_option( 'w3tc_post_update_tasks_ran_versions' );
+
+				// Null old state key.
+				$state->set( 'tasks.last_run_version', null );
+
+				// Mark the task as ran.
+				$ran_versions[] = '2.8.6';
+				$has_completed  = true;
+			}
+
+			// Mark completed tasks as ran.
+			if ( $has_completed ) {
+				update_option( 'w3tc_post_update_admin_tasks_ran_versions', $ran_versions, false );
+			}
+
+			// Mark the task runner as ran for the current version.
+			$state->set( 'tasks.admin.last_run_version', W3TC_VERSION );
 			$state->save();
 		}
 	}
