@@ -499,7 +499,7 @@ class Generic_Plugin_Admin {
 
 		if ( $this->_config->get_boolean( 'common.track_usage' ) && ( $this->is_w3tc_page || 'plugins' === $page ) ) {
 			$current_user = wp_get_current_user();
-			$page         = Util_Request::get_string( 'page' );
+
 			if ( 'w3tc_extensions' === $page ) {
 				$page = 'extensions/' . Util_Request::get_string( 'extension' );
 			}
@@ -510,8 +510,6 @@ class Generic_Plugin_Admin {
 				$profile = 'G-5TFS8M5TTY';
 			}
 
-			$state = Dispatcher::config_state();
-
 			wp_enqueue_script(
 				'w3tc_ga',
 				'https://www.googletagmanager.com/gtag/js?id=' . esc_attr( $profile ),
@@ -519,61 +517,67 @@ class Generic_Plugin_Admin {
 				W3TC_VERSION,
 				false
 			);
-			?>
-			<script type="application/javascript">
-				window.dataLayer = window.dataLayer || [];
 
-				function w3tc_ga(){dataLayer.push(arguments);}
+			// Only log user config data if on a W3TC page.
+			if ( $this->is_w3tc_page ) {
+				$state = Dispatcher::config_state();
 
-				w3tc_ga('js', new Date());
+				?>
+				<script type="application/javascript">
+					window.dataLayer = window.dataLayer || [];
 
-				w3tc_ga('config', '<?php echo esc_attr( $profile ); ?>', {
-					'user_properties': {
-						'plugin': 'w3-total-cache',
-						'w3tc_version': '<?php echo esc_html( W3TC_VERSION ); ?>',
-						'wp_version': '<?php echo esc_html( $wp_version ); ?>',
-						'php_version': 'php<?php echo esc_html( phpversion() ); ?>',
-						'server_software': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
-						'wpdb_version': 'mysql<?php echo esc_attr( $wpdb->db_version() ); ?>',
-						'home_url': '<?php echo esc_url( Util_Environment::home_url_host() ); ?>',
-						'w3tc_install_version': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
-						'w3tc_edition': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
-						'w3tc_widgets': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
-						'page': '<?php echo esc_attr( $page ); ?>',
-						'w3tc_install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>',
-						'w3tc_pro': '<?php echo Util_Environment::is_w3tc_pro( $this->_config ) ? 1 : 0; ?>',
-						'w3tc_has_key': '<?php $this->_config->get_string( 'plugin.license_key' ) ? 1 : 0; ?>',
-						'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO' ) && W3TC_PRO ? 1 : 0; ?>',
-						'w3tc_enterprise_c': '<?php echo defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ? 1 : 0; ?>',
-						'w3tc_plugin_type': '<?php echo esc_attr( $this->_config->get_string( 'plugin.type' ) ); ?>',
-					}
-				});
+					function w3tc_ga(){dataLayer.push(arguments);}
 
-				function getGACookie() {
-					const match = document.cookie.match(/_ga=([^;]+)/);
-					if (match) {
-						const parts = match[1].split('.');
-						if (parts.length > 2) {
-							return parts[2] + '.' + parts[3];
+					w3tc_ga('js', new Date());
+
+					w3tc_ga('config', '<?php echo esc_attr( $profile ); ?>', {
+						'user_properties': {
+							'plugin': 'w3-total-cache',
+							'w3tc_version': '<?php echo esc_html( W3TC_VERSION ); ?>',
+							'wp_version': '<?php echo esc_html( $wp_version ); ?>',
+							'php_version': 'php<?php echo esc_html( phpversion() ); ?>',
+							'server_software': '<?php echo esc_attr( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' ); ?>',
+							'wpdb_version': 'mysql<?php echo esc_attr( $wpdb->db_version() ); ?>',
+							'home_url': '<?php echo esc_url( Util_Environment::home_url_host() ); ?>',
+							'w3tc_install_version': '<?php echo esc_attr( $state->get_string( 'common.install_version' ) ); ?>',
+							'w3tc_edition': '<?php echo esc_attr( Util_Environment::w3tc_edition( $this->_config ) ); ?>',
+							'w3tc_widgets': '<?php echo esc_attr( Util_Widget::list_widgets() ); ?>',
+							'page': '<?php echo esc_attr( $page ); ?>',
+							'w3tc_install_date': '<?php echo esc_attr( get_option( 'w3tc_install_date' ) ); ?>',
+							'w3tc_pro': '<?php echo Util_Environment::is_w3tc_pro( $this->_config ) ? 1 : 0; ?>',
+							'w3tc_has_key': '<?php $this->_config->get_string( 'plugin.license_key' ) ? 1 : 0; ?>',
+							'w3tc_pro_c': '<?php echo defined( 'W3TC_PRO' ) && W3TC_PRO ? 1 : 0; ?>',
+							'w3tc_enterprise_c': '<?php echo defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE ? 1 : 0; ?>',
+							'w3tc_plugin_type': '<?php echo esc_attr( $this->_config->get_string( 'plugin.type' ) ); ?>',
 						}
-					}
-					console.error('GA cookie not found or not set yet.');
-					return null;
-				}
+					});
 
-				const w3tc_ga_cid = getGACookie();
-
-				// Track clicks on W3TC Pro Services tab.
-				document.addEventListener('click', function(event) {
-					if (event.target.getAttribute('data-tab-type')) {
-						w3tc_ga('event', 'click', {
-							'eventCategory': event.target.closest('.postbox-tabs').getAttribute('id'),
-							'eventLabel': event.target.getAttribute('data-tab-type'),
-						});
+					function getGACookie() {
+						const match = document.cookie.match(/_ga=([^;]+)/);
+						if (match) {
+							const parts = match[1].split('.');
+							if (parts.length > 2) {
+								return parts[2] + '.' + parts[3];
+							}
+						}
+						console.error('GA cookie not found or not set yet.');
+						return null;
 					}
-				});
-			</script>
-			<?php
+
+					const w3tc_ga_cid = getGACookie();
+
+					// Track clicks on W3TC Pro Services tab.
+					document.addEventListener('click', function(event) {
+						if (event.target.getAttribute('data-tab-type')) {
+							w3tc_ga('event', 'click', {
+								'eventCategory': event.target.closest('.postbox-tabs').getAttribute('id'),
+								'eventLabel': event.target.getAttribute('data-tab-type'),
+							});
+						}
+					});
+				</script>
+				<?php
+			}
 		}
 
 		?>
