@@ -41,7 +41,7 @@ function w3tc_exit_survey_render() {
 
 				var remove = jQuery('input[name="remove"]:checked', lightbox.container).val();
 
-				if ( 'Yes' === remove ) {
+				if ( 'yes' === remove ) {
 					// Build the params object.
 					var params = {
 						action: 'w3tc_ajax',
@@ -50,7 +50,7 @@ function w3tc_exit_survey_render() {
 						remove: remove
 					};
 
-					// Send the survey data to the API server.
+					// Send the remove data flag via AJAX.
 					jQuery.post( ajaxurl, params, function(response) {
 						if(response.error && window.w3tc_ga) {
 							w3tc_ga(
@@ -62,11 +62,11 @@ function w3tc_exit_survey_render() {
 								}
 							);
 						}
-
-						lightbox.close();
-						window.location.href = deactivateUrl;
 					});
 				}
+
+				lightbox.close();
+				window.location.href = deactivateUrl;
 			});
 
 			// Handle form submission.
