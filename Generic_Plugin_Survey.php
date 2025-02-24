@@ -200,7 +200,7 @@ class Generic_Plugin_Survey {
 		}
 
 		// Collect remove data flag.
-		$remove_data = sanitize_text_field( Util_Request::get_string( 'remove' ) );
+		$remove_data = Util_Request::get_string( 'remove' );
 
 		if ( 'yes' === $remove_data ) {
 			update_option( 'w3tc_remove_data', true );

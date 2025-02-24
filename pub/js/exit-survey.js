@@ -154,6 +154,7 @@ jQuery(function() {
 	jQuery(document).on('change', 'input[name="reason"]', function() {
 		// Enable Submit & Deactivate button once an option is selected.
 		if (jQuery('input[name="reason"]:checked').length > 0) {
+			jQuery('.w3tc-exit-survey-email #email').prop('disabled', false);
 			jQuery('#w3tc-exit-survey-submit').prop('disabled', false);
 		}
 
