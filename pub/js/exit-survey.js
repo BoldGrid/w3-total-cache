@@ -39,9 +39,33 @@ function w3tc_exit_survey_render() {
 					);
 				}
 
-				// Close the lightbox.
+				var remove = jQuery('input[name="remove"]:checked', lightbox.container).val();
+
+				if ( 'yes' === remove ) {
+					// Build the params object.
+					var params = {
+						action: 'w3tc_ajax',
+						_wpnonce: w3tcData.nonce,
+						w3tc_action: 'exit_survey_skip',
+						remove: remove
+					};
+
+					// Send the remove data flag via AJAX.
+					jQuery.post( ajaxurl, params, function(response) {
+						if(response.error && window.w3tc_ga) {
+							w3tc_ga(
+								'event',
+								'w3tc_error',
+								{
+									eventCategory: 'exit_survey',
+									eventLabel: 'skip_error'
+								}
+							);
+						}
+					});
+				}
+
 				lightbox.close();
-				// Proceed with plugin deactivation.
 				window.location.href = deactivateUrl;
 			});
 
@@ -80,23 +104,19 @@ function w3tc_exit_survey_render() {
 
 				// Send the survey data to the API server.
 				jQuery.post( ajaxurl, params, function(response) {
-					if(response.success) {
-						lightbox.close();
-						window.location.href = deactivateUrl;
-					} else {
-						if (window.w3tc_ga) {
-							w3tc_ga(
-								'event',
-								'w3tc_error',
-								{
-									eventCategory: 'exit_survey',
-									eventLabel: 'api_error'
-								}
-							);
-						}
-						lightbox.close();
-						window.location.href = deactivateUrl;
+					if(response.error && window.w3tc_ga) {
+						w3tc_ga(
+							'event',
+							'w3tc_error',
+							{
+								eventCategory: 'exit_survey',
+								eventLabel: 'api_error'
+							}
+						);
 					}
+
+					lightbox.close();
+					window.location.href = deactivateUrl;
 				});
 			});
 
@@ -134,6 +154,7 @@ jQuery(function() {
 	jQuery(document).on('change', 'input[name="reason"]', function() {
 		// Enable Submit & Deactivate button once an option is selected.
 		if (jQuery('input[name="reason"]:checked').length > 0) {
+			jQuery('.w3tc-exit-survey-email #email').prop('disabled', false);
 			jQuery('#w3tc-exit-survey-submit').prop('disabled', false);
 		}
 

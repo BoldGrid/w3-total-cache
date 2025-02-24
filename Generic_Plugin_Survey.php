@@ -81,6 +81,7 @@ class Generic_Plugin_Survey {
 	public function run() {
 		add_action( 'w3tc_ajax_exit_survey_render', array( $this, 'w3tc_ajax_exit_survey_render' ) );
 		add_action( 'w3tc_ajax_exit_survey_submit', array( $this, 'w3tc_ajax_exit_survey_submit' ) );
+		add_action( 'w3tc_ajax_exit_survey_skip', array( $this, 'w3tc_ajax_exit_survey_skip' ) );
 	}
 
 	/**
@@ -178,6 +179,32 @@ class Generic_Plugin_Survey {
 			wp_send_json_success( array( 'message' => 'Thank you for your feedback!' ) );
 		} else {
 			wp_send_json_error( array( 'message' => 'API error: ' . $api_response->message ) );
+		}
+	}
+
+	/**
+	 * Skips the exit survey and processes removing plugin data.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_exit_survey_skip() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
+		// Verify nonce.
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
+		}
+
+		// Collect remove data flag.
+		$remove_data = Util_Request::get_string( 'remove' );
+
+		if ( 'yes' === $remove_data ) {
+			update_option( 'w3tc_remove_data', true );
+			wp_send_json_success( array( 'message' => 'Plugin data will be removed!' ) );
 		}
 	}
 }
