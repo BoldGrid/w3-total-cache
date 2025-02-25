@@ -57,6 +57,8 @@ class Base_Page_Settings {
 
 	/**
 	 * Constructor.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config        = Dispatcher::config();
@@ -66,6 +68,8 @@ class Base_Page_Settings {
 
 	/**
 	 * Render header.
+	 *
+	 * @return void
 	 */
 	public function options() {
 		$this->view();
@@ -73,6 +77,8 @@ class Base_Page_Settings {
 
 	/**
 	 * Render footer.
+	 *
+	 * @return void
 	 */
 	public function render_footer() {
 		include W3TC_INC_OPTIONS_DIR . '/common/footer.php';
@@ -106,6 +112,8 @@ class Base_Page_Settings {
 	 * @param string $class_prefix Class prefix.
 	 * @param bool   $label        Label.
 	 * @param bool   $force_value  Override value.
+	 *
+	 * @return void
 	 */
 	protected function checkbox( $option_id, $disabled = false, $class_prefix = '', $label = true, $force_value = null ) {
 		$disabled = $disabled || $this->_config->is_sealed( $option_id );
@@ -149,6 +157,8 @@ class Base_Page_Settings {
 	 * @param unknown $value        Value.
 	 * @param bool    $disabled     Disabled flag.
 	 * @param string  $class_prefix Class prefix.
+	 *
+	 * @return void
 	 */
 	protected function radio( $option_id, $value, $disabled = false, $class_prefix = '' ) {
 		if ( is_bool( $value ) ) {
@@ -176,6 +186,8 @@ class Base_Page_Settings {
 	 * Prints checkbox for debug option.
 	 *
 	 * @param string $option_id Option ID.
+	 *
+	 * @return void
 	 */
 	protected function checkbox_debug( $option_id ) {
 		if ( is_array( $option_id ) ) {
@@ -211,6 +223,8 @@ class Base_Page_Settings {
 	 * @param string  $option_id Option ID.
 	 * @param unknown $label     Label.
 	 * @param unknown $label_pro Pro label.
+	 *
+	 * @return void
 	 */
 	protected function checkbox_debug_pro( $option_id, $label, $label_pro ) {
 		if ( is_array( $option_id ) ) {
@@ -263,6 +277,8 @@ class Base_Page_Settings {
 	 * @param string  $option_id           Option ID.
 	 * @param bool    $disabled            Disabled flag.
 	 * @param unknown $value_when_disabled Override value when disabled.
+	 *
+	 * @return void
 	 */
 	protected function value_with_disabled( $option_id, $disabled, $value_when_disabled ) {
 		if ( $disabled ) {
@@ -274,6 +290,8 @@ class Base_Page_Settings {
 
 	/**
 	 * Render header.
+	 *
+	 * @return void
 	 */
 	protected function view() {
 		include W3TC_INC_DIR . '/options/common/header.php';

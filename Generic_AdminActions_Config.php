@@ -11,6 +11,7 @@ namespace W3TC;
  * Class Generic_AdminActions_Config
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  * phpcs:disable WordPress.WP.AlternativeFunctions
  */

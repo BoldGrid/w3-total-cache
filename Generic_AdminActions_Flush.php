@@ -56,17 +56,18 @@ class Generic_AdminActions_Flush {
 		if ( empty( $url ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
 			$url = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
 		}
+
 		w3tc_flush_url( $url );
 
 		?>
 		<div style="text-align: center; margin-top: 30px">
-		<h3>Page has been flushed successfully</h3>
-		<a id="w3tc_return" href="<?php echo esc_attr( $url ); ?>">Return</a>
+			<h3><?php esc_html_e( 'Page has been flushed successfully', 'w3-total-cache' ); ?></h3>
+			<a id="w3tc_return" href="<?php echo esc_attr( $url ); ?>"><?php esc_html_e( 'Return', 'w3-total-cache' ); ?></a>
 		</div>
 		<script>
-		setTimeout(function() {
-			window.location = document.getElementById('w3tc_return').href;
-		}, 2000);
+			setTimeout(function() {
+				window.location = document.getElementById('w3tc_return').href;
+			}, 2000);
 		</script>
 		<?php
 		exit();
@@ -224,7 +225,6 @@ class Generic_AdminActions_Flush {
 		$this->flush_fragmentcache();
 
 		$this->_config->set( 'notes.need_empty_fragmentcache', false );
-
 		$this->_config->save();
 
 		Util_Admin::redirect(

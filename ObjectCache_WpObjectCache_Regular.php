@@ -70,13 +70,6 @@ class ObjectCache_WpObjectCache_Regular {
 	private $time_total = 0;
 
 	/**
-	 * Log filehande
-	 *
-	 * @var boolean
-	 */
-	private $log_filehandle = false;
-
-	/**
 	 * Blog id of cache
 	 *
 	 * @var integer
@@ -185,6 +178,11 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return mixed
 	 */
 	public function get( $id, $group = 'default', $force = false, &$found = null ) {
+		// Abort if this is a WP-CLI call, objectcache engine is set to Disk, and is disabled for WP-CLI.
+		if ( $this->is_wpcli_disk() ) {
+			return false;
+		}
+
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
@@ -342,6 +340,11 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return boolean
 	 */
 	public function set( $id, $data, $group = 'default', $expire = 0 ) {
+		// Abort if this is a WP-CLI call, objectcache engine is set to Disk, and is disabled for WP-CLI.
+		if ( $this->is_wpcli_disk() ) {
+			return false;
+		}
+
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time_start = Util_Debug::microtime();
 		}
@@ -643,6 +646,8 @@ class ObjectCache_WpObjectCache_Regular {
 		$this->cache = array();
 
 		if ( $this->_debug || $this->stats_enabled ) {
+			$time = Util_Debug::microtime();
+
 			$this->cache_flushes++;
 			$this->time_total += $time;
 
@@ -655,7 +660,7 @@ class ObjectCache_WpObjectCache_Regular {
 						'',
 						'',
 						0,
-						0,
+						(int) ( $time * 1000000 ),
 					)
 				);
 			}
@@ -688,7 +693,7 @@ class ObjectCache_WpObjectCache_Regular {
 		}
 
 		if ( $this->_config->get_boolean( 'objectcache.debug_purge' ) ) {
-			Util_Debug::log_purge( 'objectcache', 'flush', $reason );
+			Util_Debug::log_purge( 'objectcache', 'flush' );
 		}
 
 		$this->cache = array();
@@ -1253,20 +1258,6 @@ class ObjectCache_WpObjectCache_Regular {
 			$strings[] = sprintf( '%s%d', str_pad( 'Total calls: ', 20 ), $this->cache_total );
 			$strings[] = sprintf( '%s%d', str_pad( 'Cache hits: ', 20 ), $this->cache_hits );
 			$strings[] = sprintf( '%s%.4f', str_pad( 'Total time: ', 20 ), $this->time_total );
-
-			global $wp_filesystem;
-
-			// Initialize the WP_Filesystem if not already done.
-			if ( ! $wp_filesystem ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-				WP_Filesystem();
-			}
-
-			if ( $this->log_filehandle ) {
-				// Safely close the file using WP_Filesystem's put_contents with an empty string to ensure any buffers are flushed.
-				$wp_filesystem->put_contents( $this->log_filehandle, '', FS_CHMOD_FILE | FILE_APPEND );
-				$this->log_filehandle = false;
-			}
 		}
 
 		return $strings;
@@ -1325,30 +1316,27 @@ class ObjectCache_WpObjectCache_Regular {
 	/**
 	 * Log call.
 	 *
-	 * @param string $line Line.
-	 *
+	 * @param  array $data Log data.
 	 * @return void
 	 */
-	private function log_call( $line ) {
-		global $wp_filesystem;
+	private function log_call( array $data ): void {
+		$filepath = Util_Debug::log_filename( 'objectcache-calls' );
+		$content  = implode( "\t", $data ) . PHP_EOL;
 
-		// Initialize the WP_Filesystem if not already done.
-		if ( ! $wp_filesystem ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-			WP_Filesystem();
-		}
+		file_put_contents( $filepath, $content, FILE_APPEND );
+	}
 
-		if ( ! $this->log_filehandle ) {
-			$filename             = Util_Debug::log_filename( 'objectcache-calls' );
-			$this->log_filehandle = $wp_filesystem->get_contents( $filename );
-		}
-
-		// Check if file handle is available before writing.
-		if ( $this->log_filehandle ) {
-			$line_content = implode( "\t", (array) $line ) . PHP_EOL;
-
-			// Append the line to the file.
-			$wp_filesystem->put_contents( $this->log_filehandle, $line_content, FS_CHMOD_FILE | FILE_APPEND );
-		}
+	/**
+	 * Check if this is a WP-CLI call and objectcache.engine is using Disk and disabled for WP-CLI.
+	 *
+	 * @since  2.8.1
+	 * @access private
+	 *
+	 * @return bool
+	 */
+	private function is_wpcli_disk(): bool {
+		$is_engine_disk = 'file' === $this->_config->get_string( 'objectcache.engine' );
+		$is_wpcli_disk  = $this->_config->get_boolean( 'objectcache.wpcli_disk' );
+		return defined( 'WP_CLI' ) && \WP_CLI && $is_engine_disk && ! $is_wpcli_disk;
 	}
 }

@@ -73,8 +73,6 @@ jQuery(function() {
 				if (window.w3tc_ga) {
 					w3tc_enable_ga = true;
 
-					w3tc_ga( 'js', new Date() );
-
 					w3tc_ga( 'config', W3TC_SetupGuide.ga_profile, {
 						'user_properties': {
 							'plugin': 'w3-total-cache',
@@ -87,7 +85,8 @@ jQuery(function() {
 							'w3tc_install_version': W3TC_SetupGuide.install_version,
 							'w3tc_edition': W3TC_SetupGuide.w3tc_edition,
 							'w3tc_widgets': W3TC_SetupGuide.list_widgets,
-							'page': W3TC_SetupGuide.page
+							'page': W3TC_SetupGuide.page,
+							'w3tc_install_date': W3TC_SetupGuide.w3tc_install_date,
 						}
 					});
 				}
@@ -99,6 +98,28 @@ jQuery(function() {
 jQuery( '#w3tc-wizard-step-welcome' )
 	.addClass( 'is-active' )
 	.append( '<span class="dashicons dashicons-yes"></span>' );
+
+/**
+ * Display a disk warning.
+ *
+ * Used for dbcache and objectcache.
+ *
+ * @since 2.8.1
+ *
+ * @param bool show Print the warning or not.
+ */
+function w3tc_disk_warning( show = true ) {
+	if (show) {
+		jQuery( '#w3tc-wizard-container .w3tc-wizard-slides:visible' ).append(
+			'<div class="notice notice-warning w3tc-disk-warning"><p><strong>' +
+			W3TC_SetupGuide.warning_disk +
+			'</strong></p></div>'
+		);
+	} else {
+		jQuery( '#w3tc-wizard-container .w3tc-wizard-slides:visible .w3tc-disk-warning').remove();
+	}
+
+}
 
  /**
   * Wizard actions.
@@ -136,7 +157,8 @@ function w3tc_wizard_actions( $slide ) {
 		$nextButton = $container.find( '#w3tc-wizard-next' ),
 		$prevButton = $container.find( '#w3tc-wizard-previous' ),
 		$skipButton = $container.find( '#w3tc-wizard-skip' ),
-		$dashboardButton = $container.find( '#w3tc-wizard-dashboard' );
+		$dashboardButton = $container.find( '#w3tc-wizard-dashboard' ),
+		$objcacheEngine = $container.find( 'input[name="objcache_engine"]' );
 
 	/**
 	 * Configure Page Cache.
@@ -713,6 +735,10 @@ function w3tc_wizard_actions( $slide ) {
 				$prevButton.prop( 'disabled', 'disabled' );
 				$nextButton.prop( 'disabled', 'disabled' );
 
+				// Hide disk warning if using file.
+				w3tc_disk_warning(false);
+
+				// Show spinner.
 				$spinnerParent.show();
 
 				/**
@@ -869,8 +895,28 @@ function w3tc_wizard_actions( $slide ) {
 						$nextButton.prop( 'disabled', false );
 						return true;
 					}, testFailed )
+					// Show disk warning if using file.
 					.then( function() {
 						$container.find( '#w3tc-dbcache-recommended' ).show();
+
+						var $dbcacheEngine = $container.find( 'input[name="dbcache_engine"]' );
+
+						if ( $dbcacheEngine.parent().find(':checked').val() === 'file' ) {
+							$container.find('#w3tc-dbcache-recommended').hide();
+							w3tc_disk_warning();
+						}
+
+						$dbcacheEngine.on('change', function () {
+							const $this = jQuery(this),
+								isFile = $this.is(':checked') && $this.val() === 'file';
+
+							$container.find('#w3tc-dbcache-recommended').toggle(! isFile);
+							w3tc_disk_warning(isFile);
+						});
+
+						return true;
+					})
+					.then( function() {
 						// Restore the original database cache settings.
 						return configDbcache( ( dbcacheSettings.enabled ? 1 : 0 ), dbcacheSettings.engine );
 					},
@@ -917,6 +963,10 @@ function w3tc_wizard_actions( $slide ) {
 				$prevButton.prop( 'disabled', 'disabled' );
 				$nextButton.prop( 'disabled', 'disabled' );
 
+				// Hide disk warning if using file.
+				w3tc_disk_warning(false);
+
+				// Show spinner.
 				$spinnerParent.show();
 
 				/**
@@ -1072,6 +1122,22 @@ function w3tc_wizard_actions( $slide ) {
 						$nextButton.prop( 'disabled', false );
 						return true;
 					}, testFailed )
+					// Show disk warning if using file.
+					.then( function() {
+						var $objcacheEngine = $container.find( 'input[name="objcache_engine"]' );
+
+						if ( $objcacheEngine.parent().find(':checked').val() === 'file' ) {
+							w3tc_disk_warning();
+						}
+
+						$objcacheEngine.on('change', function () {
+							const $this = jQuery(this);
+
+							w3tc_disk_warning(( $this.is(':checked') && $this.val() === 'file' ));
+						});
+
+						return true;
+					})
 					// Restore the original object cache settings.
 					.then( function() {
 						return configObjcache( ( objcacheSettings.enabled ? 1 : 0 ), objcacheSettings.engine );

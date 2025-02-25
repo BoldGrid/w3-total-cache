@@ -64,6 +64,15 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	private $_tablename_pathmap;
 
 	/**
+	 * Callback function to handle the updated access token.
+	 *
+	 * This callback is invoked with the new access token whenever the token is refreshed.
+	 *
+	 * @var callable
+	 */
+	private $_new_access_token_callback;
+
+	/**
 	 * Constructor to initialize the Google Drive CDN engine.
 	 *
 	 * @param array $config Configuration options for the Google Drive CDN engine.

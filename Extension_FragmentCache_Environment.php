@@ -40,6 +40,10 @@ class Extension_FragmentCache_Environment {
 	 * @return void
 	 */
 	public static function deactivate_extension() {
+		$config = Dispatcher::config();
+		$config->set_extension_active_frontend( 'fragmentcache', false );
+		$config->save();
+
 		self::unschedule();
 	}
 

@@ -78,6 +78,10 @@ class Extensions_Plugin_Admin {
 	 * @return array Modified menu array.
 	 */
 	public function w3tc_admin_menu( $menu ) {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$extension_val = Util_Request::get_string( 'extension' );
 		$extension     = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
 		$page_title    = '';
@@ -136,11 +140,15 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Initializes settings for the admin interface.
+	 * Initializes settings for the admin interface (administrators only).
 	 *
 	 * @return void
 	 */
 	public function admin_init() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		// Used to load even inactive extensions if they want to.
 		$s     = get_option( 'w3tc_extensions_hooks' );
 		$hooks = @json_decode( $s, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
@@ -192,11 +200,15 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Changes the status of selected extensions (activate/deactivate).
+	 * Changes the status of selected extensions (activate/deactivate and administrators only).
 	 *
 	 * @return void
 	 */
 	public function change_extensions_status() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$message    = '';
 		$extensions = Util_Request::get_array( 'checked' );
 		$action     = Util_Request::get( 'action' );
@@ -228,11 +240,15 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Changes the status of a specific extension (activate/deactivate).
+	 * Changes the status of a specific extension (activate/deactivate and administrators only).
 	 *
 	 * @return void
 	 */
 	public function change_extension_status() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$action = Util_Request::get_string( 'action' );
 
 		if ( in_array( $action, array( 'activate', 'deactivate' ), true ) ) {
@@ -251,13 +267,17 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Displays admin notices related to active extensions.
+	 * Displays admin notices related to active extensions (administrators only).
 	 *
 	 * @see Extensions_Util::get_active_extensions()
 	 *
 	 * @return void
 	 */
 	public function admin_notices() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
 
 		foreach ( $extensions_active as $id => $info ) {

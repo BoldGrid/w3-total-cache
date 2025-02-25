@@ -120,20 +120,24 @@ class Cache_File extends Cache_Base {
 	}
 
 	/**
-	 * Sets a value in the cache, overwriting any existing value.
-	 *
 	 * Stores the value in the cache with the specified expiration time. The data is serialized and written to a file with a
 	 * header indicating the expiration time. File locking can be used for write operations if enabled.
 	 *
-	 * @param string $key    The cache key.
-	 * @param mixed  $var    The variable to store in the cache.
-	 * @param int    $expire Optional. Time in seconds until the cache entry expires. Default is 0 (no expiration).
-	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $key        An MD5 of the DB query.
+	 * @param mixed  $content    Data to be cached.
+	 * @param int    $expiration Optional. Time in seconds until the cache entry expires. Default is 0 (no expiration).
+	 * @param string $group      Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function set( $key, $var, $expire = 0, $group = '' ) {
+	public function set( $key, $content, $expiration = 0, $group = '' ) {
+		/**
+		 * Get the file pointer of the cache file.
+		 * The $key is transformed to a storage key (format "w3tc_INSTANCEID_HOST_BLOGID_dbcache_HASH").
+		 * The file path is in the format: CACHEDIR/db/BLOGID/GROUP/[0-9a-f]{3}/[0-9a-f]{3}/[0-9a-f]{32}.
+		 */
 		$fp = $this->fopen_write( $key, $group, 'wb' );
+
 		if ( ! $fp ) {
 			return false;
 		}
@@ -142,14 +146,14 @@ class Cache_File extends Cache_Base {
 			@flock( $fp, LOCK_EX );
 		}
 
-		if ( $expire <= 0 || $expire > W3TC_CACHE_FILE_EXPIRE_MAX ) {
-			$expire = W3TC_CACHE_FILE_EXPIRE_MAX;
+		if ( $expiration <= 0 || $expiration > W3TC_CACHE_FILE_EXPIRE_MAX ) {
+			$expiration = W3TC_CACHE_FILE_EXPIRE_MAX;
 		}
 
-		$expires_at = time() + $expire;
+		$expires_at = time() + $expiration;
 		@fputs( $fp, pack( 'L', $expires_at ) );
 		@fputs( $fp, '<?php exit; ?>' );
-		@fputs( $fp, @serialize( $var ) );
+		@fputs( $fp, @serialize( $content ) );
 		@fclose( $fp );
 
 		if ( $this->_locking ) {
@@ -402,21 +406,21 @@ class Cache_File extends Cache_Base {
 	}
 
 	/**
-	 * Constructs the file path for a cache entry.
+	 * Returns subpath for the cache file (format: [0-9a-f]{3}/[0-9a-f]{3}/[0-9a-f]{32}).
 	 *
 	 * Creates the file path for the cache file based on the key and group. A hash of the key is used to create subdirectories
 	 * for organizational purposes.
 	 *
-	 * @param string $key    The cache key.
-	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
+	 * @param string $key   Storage key (format: "w3tc_INSTANCEID_HOST_BLOGID_dbcache_HASH").
+	 * @param string $group Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return string The file path for the cache entry.
 	 */
 	public function _get_path( $key, $group = '' ) {
 		if ( $this->_use_wp_hash && function_exists( 'wp_hash' ) ) {
-			$hash = wp_hash( $key );
+			$hash = wp_hash( $key ); // Most common.
 		} else {
-			$hash = md5( $key );
+			$hash = md5( $key ); // Less common, but still used in some cases.
 		}
 
 		return ( $group ? $group . DIRECTORY_SEPARATOR : '' ) . sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
@@ -600,22 +604,27 @@ class Cache_File extends Cache_Base {
 	}
 
 	/**
-	 * Opens a file for writing based on the given key and group.
+	 * Open the cache file for writing and return the file pointer.
 	 *
 	 * Ensures the directory structure exists before attempting to open the file.
 	 *
-	 * @param string $key   Cache key.
+	 * @param string $key An MD5 of the DB query.
 	 * @param string $group Cache group.
-	 * @param string $mode  File open mode (e.g., 'a', 'wb').
+	 * @param string $mode File mode.  For example: 'wb' for write binary.
 	 *
-	 * @return resource|false File pointer resource on success, or false on failure.
+	 * @return resource|false File pointer on success, false on failure.
 	 */
 	private function fopen_write( $key, $group, $mode ) {
+		// Get the storage key (format: "w3tc_INSTANCEID_HOST_BLOGID_dbcache_$key").
 		$storage_key = $this->get_item_key( $key );
 
+		// Get the subpath for the cache file (format: [0-9a-f]{3}/[0-9a-f]{3}/[0-9a-f]{32}).
 		$sub_path = $this->_get_path( $storage_key, $group );
-		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
 
+		// Ge the entire path of the cache file.
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
+
+		// Create the directory if it does not exist.
 		$dir = dirname( $path );
 
 		if ( ! @is_dir( $dir ) ) {
@@ -624,9 +633,8 @@ class Cache_File extends Cache_Base {
 			}
 		}
 
-		$fp = @fopen( $path, $mode );
-
-		return $fp;
+		// Open the cache file for writing.
+		return @fopen( $path, $mode );
 	}
 
 	/**

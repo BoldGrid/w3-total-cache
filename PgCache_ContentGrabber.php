@@ -2265,12 +2265,14 @@ class PgCache_ContentGrabber {
 	 */
 	static protected function log( $msg ) {
 		$data = sprintf(
-			"[%s] [%s] [%s] %s\n", date( 'r' ),
+			'[%1$s] [%2$s] [%3$s] %4$s ' . "\n",
+			date( 'r' ),
 			isset( $_SERVER['REQUEST_URI'] ) ? filter_var( stripslashes( $_SERVER['REQUEST_URI'] ), FILTER_SANITIZE_URL ) : '',
 			! empty( $_SERVER['HTTP_REFERER'] ) ? htmlspecialchars( $_SERVER['HTTP_REFERER'] ) : '-',
 			$msg
 		);
 		$data = strtr( $data, '<>', '..' );
+		$date = Util_Debug::redact_wpnonce( $data );
 
 		$filename = Util_Debug::log_filename( 'pagecache' );
 

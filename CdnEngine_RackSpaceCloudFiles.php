@@ -47,6 +47,16 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 	private $_api_cdn;
 
 	/**
+	 * Callback function to handle the updated access state.
+	 *
+	 * This callback is invoked with a JSON-encoded string containing the new access state
+	 * whenever authentication occurs and the access state is refreshed.
+	 *
+	 * @var callable
+	 */
+	private $_new_access_state_callback;
+
+	/**
 	 * Initializes the CdnEngine_RackSpaceCloudFiles class with configuration.
 	 *
 	 * @param array $config Configuration options for the class.

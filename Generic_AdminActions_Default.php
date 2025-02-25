@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Generic_AdminActions_Config.php
+ * File: Generic_AdminActions_Default.php
  *
  * @package W3TC
  */
@@ -206,7 +206,6 @@ class Generic_AdminActions_Default {
 	 * @return void
 	 */
 	public function w3tc_default_remove_add_in() {
-
 		$module = Util_Request::get_string( 'w3tc_default_remove_add_in' );
 
 		// in the case of missing permissions to delete
@@ -221,6 +220,7 @@ class Generic_AdminActions_Default {
 				try {
 					Util_WpFile::copy_file( $src, $dst );
 				} catch ( Util_WpFile_FilesystemOperationException $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					// missing exception handle?
 				}
 				break;
 			case 'dbcache':
@@ -337,6 +337,18 @@ class Generic_AdminActions_Default {
 
 				$config->set( 'pgcache.enabled', false );
 				$data['response_errors'][] = 'fancy_permalinks_disabled_pgcache';
+			}
+
+			/**
+			 * Check for Object Cache using Disk being disabled or changed to another engine.
+			 *
+			 * @since 2.8.6
+			 */
+			if (
+				$this->_config->get_boolean( 'objectcache.enabled' ) && 'file' === $this->_config->get_string( 'objectcache.engine' ) &&
+				( ! $config->get_boolean( 'objectcache.enabled' ) || 'file' !== $config->get_string( 'objectcache.engine' ) )
+			) {
+				Util_File::rmdir( Util_Environment::cache_blog_dir( 'object' ) );
 			}
 
 			/**
@@ -732,7 +744,7 @@ class Generic_AdminActions_Default {
 	 *
 	 * @param string $content The configuration file content to check.
 	 *
-	 * @return bool True if COOKIE_DOMAIN is defined, false otherwise.
+	 * @return int|bool True if COOKIE_DOMAIN is defined, false otherwise.
 	 */
 	public function is_cookie_domain_define( $content ) {
 		return preg_match( W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN, $content );
