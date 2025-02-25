@@ -1,4 +1,9 @@
 {
+    "name": "boldgrid/w3-total-cache",
+    "type": "wordpress-plugin",
+    "description": "W3 Total Cache (W3TC) improves the SEO, Core Web Vitals and overall user experience of your site by increasing website performance and reducing load times by leveraging features like content delivery network (CDN) integration and the latest best practices.",
+    "homepage": "https://www.boldgrid.com/w3-total-cache/",
+    "license": "GPL-2.0-or-later",
     "require": {
         "aws/aws-sdk-php": "^3.308",
         "aws/aws-php-sns-message-validator": "^1.9",
@@ -9,7 +14,7 @@
         "microsoft/azure-storage-blob": "^1.5"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^3.10",
+        "squizlabs/php_codesniffer": "^3.11",
         "wp-coding-standards/wpcs": "^3.1",
         "phpunit/phpunit": "^8.5",
         "yoast/phpunit-polyfills": "^3.0"

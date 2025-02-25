@@ -1,9 +1,9 @@
 === W3 Total Cache ===
-Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
+Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.7
-Stable tag: 2.8.2
+Stable tag: 2.8.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -361,6 +361,40 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.8.6 =
+* Fix: Error deactivating when selected to delete plugin data
+* Fix: WP-CLI: Enable Object Cache depending on settings
+* Fix: Delete all plugin WordPress Options if selected on deactivation
+* Enhancement: Automatically disable Object Cache after plugin update if set to Disk and display a notice
+* Enhancement: WP-CLI: Added settings to enable Object and DB Cache for WP-CLI
+* Enhancement: Added an email field to the exit survey for requesting help
+* Enhancement: Added a popup modal to accept the risk when enabling Object Cache using Disk
+
+= 2.8.5 =
+* Fix: CDN: Amazon S3 long hostname for default region
+* Fix: WP-CLI: Error running "wp w3tc alwayscached_*" commands
+* Fix: WP-CLI: Remove HTML in output
+* Enhancement: Simplified license messsaging
+
+= 2.8.4 =
+* Fix: Deactivation modal JS error
+
+= 2.8.3 =
+* Fix: HTTP API calls for checking required files
+* Fix: script-src-elem and style-src-attr security headers
+* Fix: Handle multiple line srcset attributes for CDN URL replacement
+* Fix: Fragment Cache: Fixed logic for navigation links
+* Fix: Check for modified advanced-cache.php dropin/addin file
+* Fix: Log directory name is made unique
+* Enhancement: Added an exit survey with option to delete plugin data on deactivation
+* Enhancement: Fragment Cache: Added notices for configuration
+* Enhancement: Use admin-ajax for settings help tab content links
+* Update: Handle XML MIME types in cache by default
+* Update: Added "immutable" options for cache-control headers
+* Update: Added WP-CLI command descriptions
+* Update: CDN widget notices for BunnyCDN
+* Update: WebP Converter widget notice
 
 = 2.8.2 =
 * Fix: Added additional user capability checks

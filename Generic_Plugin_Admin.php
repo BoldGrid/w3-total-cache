@@ -67,12 +67,17 @@ class Generic_Plugin_Admin {
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetPartners', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetServices', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetBoldGrid', 'admin_init_w3tc_dashboard' ) );
-		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetStats', 'admin_init_w3tc_dashboard' ) );
 		add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Extension_ImageService_Widget', 'admin_init_w3tc_dashboard' ) );
+
+		// Pro widgets.
+		if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
+			add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Generic_WidgetStats', 'admin_init_w3tc_dashboard' ) );
+		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'admin_print_styles-toplevel_page_w3tc_dashboard', array( '\W3TC\Generic_Page_Dashboard', 'admin_print_styles_w3tc_dashboard' ) );
 		add_action( 'wp_ajax_w3tc_ajax', array( $this, 'wp_ajax_w3tc_ajax' ) );
+		add_action( 'wp_ajax_w3tc_forums_api', array( $this, 'wp_ajax_w3tc_forums_api' ), 10, 1 );
 
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
 		add_action( 'admin_footer', array( $this, 'admin_footer' ) );
@@ -217,6 +222,29 @@ class Generic_Plugin_Admin {
 		}
 
 		exit();
+	}
+
+	/**
+	 * Forums API Callback
+	 *
+	 * This function reached out to the W3TC forums API to get the posts with the corresponding cache tag
+	 * on boldgrid.com/support.
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_w3tc_forums_api() {
+		if ( ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+			wp_nonce_ays( 'w3tc' );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'no permissions', 403 );
+		}
+
+		$tag   = Util_Request::get_string( 'tabId' );
+		$posts = wp_remote_get( W3TC_BOLDGRID_FORUM_API . $tag, array( 'timeout' => 10 ) );
+
+		wp_send_json( $posts );
 	}
 
 	/**
@@ -385,6 +413,24 @@ class Generic_Plugin_Admin {
 
 		wp_enqueue_script( 'w3tc-feature-counter' );
 
+		// Conditional loading for the exit survey on the plugins page.
+		$current_screen = get_current_screen();
+		if ( isset( $current_screen->id ) && 'plugins' === $current_screen->id ) {
+			wp_enqueue_style( 'w3tc-exit-survey', plugins_url( 'pub/css/exit-survey.css', W3TC_FILE ), array(), W3TC_VERSION, false );
+			wp_register_script( 'w3tc-exit-survey', plugins_url( 'pub/js/exit-survey.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+			wp_localize_script(
+				'w3tc-exit-survey',
+				'w3tcData',
+				array(
+					'nonce' => wp_create_nonce( 'w3tc' ),
+				)
+			);
+			wp_enqueue_script( 'w3tc-exit-survey' );
+
+			wp_enqueue_style( 'w3tc-lightbox' );
+			wp_enqueue_script( 'w3tc-lightbox' );
+		}
+
 		// Messages.
 		if ( ! is_null( $this->w3tc_message ) && isset( $this->w3tc_message['actions'] ) && is_array( $this->w3tc_message['actions'] ) ) {
 			foreach ( $this->w3tc_message['actions'] as $action ) {
@@ -421,7 +467,13 @@ class Generic_Plugin_Admin {
 		global $wp_version;
 		global $wpdb;
 
+		// Attempt to get the 'page' parameter from the request.
 		$page = Util_Request::get_string( 'page', null );
+
+		// If 'page' is null or an empty string, fallback to current screen ID.
+		if ( empty( $page ) ) {
+			$page = get_current_screen()->id ?? null;
+		}
 
 		if ( ( ! is_multisite() || is_super_admin() ) && false !== strpos( $page, 'w3tc' ) && 'w3tc_setup_guide' !== $page && ! get_site_option( 'w3tc_setupguide_completed' ) ) {
 			$state_master = Dispatcher::config_state_master();
@@ -445,8 +497,7 @@ class Generic_Plugin_Admin {
 			}
 		}
 
-		if ( $this->_config->get_boolean( 'common.track_usage' ) && $this->is_w3tc_page ) {
-
+		if ( $this->_config->get_boolean( 'common.track_usage' ) && ( $this->is_w3tc_page || 'plugins' === $page ) ) {
 			$current_user = wp_get_current_user();
 			$page         = Util_Request::get_string( 'page' );
 			if ( 'w3tc_extensions' === $page ) {
@@ -466,15 +517,15 @@ class Generic_Plugin_Admin {
 				'https://www.googletagmanager.com/gtag/js?id=' . esc_attr( $profile ),
 				array(),
 				W3TC_VERSION,
-				true
+				false
 			);
 			?>
 			<script type="application/javascript">
-				var w3tc_ga_cid;
-
 				window.dataLayer = window.dataLayer || [];
 
 				function w3tc_ga(){dataLayer.push(arguments);}
+
+				w3tc_ga('js', new Date());
 
 				w3tc_ga('config', '<?php echo esc_attr( $profile ); ?>', {
 					'user_properties': {
@@ -498,13 +549,19 @@ class Generic_Plugin_Admin {
 					}
 				});
 
-				const cidPromise = new Promise(resolve => {
-					w3tc_ga('get', '<?php echo esc_attr( $profile ); ?>', 'client_id', resolve);
-				});
-				cidPromise.then((cid) => {
-					w3tc_ga_cid = cid;
-				});
+				function getGACookie() {
+					const match = document.cookie.match(/_ga=([^;]+)/);
+					if (match) {
+						const parts = match[1].split('.');
+						if (parts.length > 2) {
+							return parts[2] + '.' + parts[3];
+						}
+					}
+					console.error('GA cookie not found or not set yet.');
+					return null;
+				}
 
+				const w3tc_ga_cid = getGACookie();
 
 				// Track clicks on W3TC Pro Services tab.
 				document.addEventListener('click', function(event) {
@@ -1256,7 +1313,9 @@ class Generic_Plugin_Admin {
 	}
 
 	/**
-	 * Run post-update tasks.
+	 * Run post-update admin tasks.
+	 *
+	 * Post-update admin tasks are run only once per version.
 	 *
 	 * @since 2.8.1
 	 *
@@ -1267,25 +1326,48 @@ class Generic_Plugin_Admin {
 	public function post_update_tasks(): void {
 		// Check if W3TC was updated.
 		$state            = Dispatcher::config_state();
-		$last_run_version = $state->get_string( 'tasks.last_run_version' );
+		$last_run_version = $state->get_string( 'tasks.admin.last_run_version' );
 
-		if ( empty( $last_run_version ) || version_compare( W3TC_VERSION, $last_run_version, '>' ) ) {
-			switch ( W3TC_VERSION ) {
-				case '2.8.1':
-					// Fix environment.
-					Util_Admin::fix_on_event( $this->_config, 'w3tc_plugin_updated' );
+		if ( empty( $last_run_version ) || \version_compare( W3TC_VERSION, $last_run_version, '>' ) ) {
+			$ran_versions  = get_option( 'w3tc_post_update_admin_tasks_ran_versions', array() );
+			$has_completed = false;
 
-					// Adjust "objectcache.file.gc".
-					if ( $this->_config->get_integer( 'objectcache.file.gc' ) === 3600 ) {
-						$this->_config->set( 'objectcache.file.gc', 600 );
-						$this->_config->save();
-					}
-					break;
-				default:
-					break;
+			// Check if W3TC was updated to 2.8.1 or higher and not already run.
+			if ( \version_compare( W3TC_VERSION, '2.8.1', '>=' ) && ! in_array( '2.8.1', $ran_versions, true ) ) {
+				// Fix environment.
+				Util_Admin::fix_on_event( $this->_config, 'w3tc_plugin_updated' );
+
+				// Adjust "objectcache.file.gc".
+				if ( $this->_config->get_integer( 'objectcache.file.gc' ) === 3600 ) {
+					$this->_config->set( 'objectcache.file.gc', 600 );
+					$this->_config->save();
+				}
+
+				// Mark the task as ran.
+				$ran_versions[] = '2.8.1';
+				$has_completed  = true;
 			}
 
-			$state->set( 'tasks.last_run_version', W3TC_VERSION );
+			// Check if W3TC was updated to 2.8.6 or higher and not already run.
+			if ( \version_compare( W3TC_VERSION, '2.8.6', '>=' ) && ! in_array( '2.8.6', $ran_versions, true ) ) {
+				// Delete old option.
+				delete_option( 'w3tc_post_update_tasks_ran_versions' );
+
+				// Null old state key.
+				$state->set( 'tasks.last_run_version', null );
+
+				// Mark the task as ran.
+				$ran_versions[] = '2.8.6';
+				$has_completed  = true;
+			}
+
+			// Mark completed tasks as ran.
+			if ( $has_completed ) {
+				update_option( 'w3tc_post_update_admin_tasks_ran_versions', $ran_versions, false );
+			}
+
+			// Mark the task runner as ran for the current version.
+			$state->set( 'tasks.admin.last_run_version', W3TC_VERSION );
 			$state->save();
 		}
 	}

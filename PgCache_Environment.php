@@ -1243,7 +1243,7 @@ class PgCache_Environment {
 			$rules .= "}\n";
 
 			$rules .= 'if ($w3tc_ext = "") {' . "\n";
-			$rules .= '  set $w3tc_rewrite 0;' . "\n";
+			$rules .= '    set $w3tc_rewrite 0;' . "\n";
 			$rules .= "}\n";
 		}
 

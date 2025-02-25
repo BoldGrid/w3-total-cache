@@ -182,7 +182,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return mixed The cached object or false if not found.
 	 */
 	public function get( $id, $group = 'default', $force = false, &$found = null ) {
-		// Abort if this is a WP-CLI call and objectcache engine is set to Disk.
+		// Abort if this is a WP-CLI call, objectcache engine is set to Disk, and is disabled for WP-CLI.
 		if ( $this->is_wpcli_disk() ) {
 			return false;
 		}
@@ -342,7 +342,7 @@ class ObjectCache_WpObjectCache_Regular {
 	 * @return bool True if the cache was set successfully, false otherwise.
 	 */
 	public function set( $id, $data, $group = 'default', $expire = 0 ) {
-		// Abort if this is a WP-CLI call and objectcache engine is set to Disk.
+		// Abort if this is a WP-CLI call, objectcache engine is set to Disk, and is disabled for WP-CLI.
 		if ( $this->is_wpcli_disk() ) {
 			return false;
 		}
@@ -1323,14 +1323,15 @@ class ObjectCache_WpObjectCache_Regular {
 	}
 
 	/**
-	 * Checks if the current environment is running WP-CLI with a file-based object cache.
+	 * Check if this is a WP-CLI call and objectcache.engine is using Disk and disabled for WP-CLI.
 	 *
 	 * @since  2.8.1
 	 *
 	 * @return bool True if running WP-CLI with a file-based object cache, false otherwise.
 	 */
 	private function is_wpcli_disk(): bool {
-		$engine = $this->_config->get_string( 'objectcache.engine' );
-		return defined( 'WP_CLI' ) && WP_CLI && 'file' === $engine;
+		$is_engine_disk = 'file' === $this->_config->get_string( 'objectcache.engine' );
+		$is_wpcli_disk  = $this->_config->get_boolean( 'objectcache.wpcli_disk' );
+		return defined( 'WP_CLI' ) && \WP_CLI && $is_engine_disk && ! $is_wpcli_disk;
 	}
 }

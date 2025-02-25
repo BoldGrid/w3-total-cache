@@ -238,7 +238,7 @@ class Util_Ui {
 	/**
 	 * Retrieves a specific tab's content based on the provided key and tab type.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.3
 	 *
 	 * This function dynamically loads content for a specified tab type (e.g., tutorials, premium services)
 	 * based on a given configuration key. It uses a mapping to fetch the correct tab content, which is then

@@ -749,6 +749,16 @@ class Minify_Environment {
 						$rules .= "    Header set Pragma \"no-store\"\n";
 						$rules .= "    Header set Cache-Control \"no-store\"\n";
 						break;
+
+					case 'cache_immutable':
+						$rules .= "    Header set Pragma \"public\"\n";
+						$rules .= "    Header set Cache-Control \"public, max-age=" . $lifetime . ", immutable\"\n";
+						break;
+
+					case 'cache_immutable_nomaxage':
+						$rules .= "    Header set Pragma \"public\"\n";
+						$rules .= "    Header set Cache-Control \"public, immutable\"\n";
+						break;
 				}
 			}
 

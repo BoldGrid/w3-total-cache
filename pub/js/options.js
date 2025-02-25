@@ -534,37 +534,6 @@ jQuery(function() {
 		jQuery('.w3tc_technical_info').toggle();
 	});
 
-	jQuery('#plugin_license_key_verify').on('click', function() {
-		jQuery('.w3tc_license_verification').html("Checking...");
-
-		var license_key = jQuery('#plugin_license_key').val();
-
-		if (!license_key) {
-			jQuery('.w3tc_license_verification').html('Please enter an license key and try again.');
-			return;
-		}
-		var params = {
-			action: 'w3tc_verify_plugin_license_key',
-			license_key: license_key
-		};
-
-		jQuery.get(ajaxurl, params, function(data) {
-			if (w3tc_starts_with(data + '.', 'inactive.expired.')) {
-				jQuery('.w3tc_license_verification').html('The license key has expired. Please renew it.');
-			} else if (w3tc_starts_with(data + '.', 'active.')) {
-				jQuery('.w3tc_license_verification').html('License key is correct.');
-			} else if (w3tc_starts_with(data + '.', 'inactive.by_rooturi.activations_limit_not_reached.')) {
-				jQuery('.w3tc_license_verification').html('License key is correct and can be activated now.');
-			} else if (w3tc_starts_with(data + '.', 'inactive.by_rooturi.')) {
-				jQuery('.w3tc_license_verification').html('License key is correct but already in use on another site. See the FAQ for how to enable Pro version in development mode.');
-			} else {
-				jQuery('.w3tc_license_verification').html('The license key is not valid. Please check it and try again.');
-			}
-		}).fail(function() {
-			jQuery('.w3tc_license_verification').html('Check failed');
-		});
-	});
-
 	// General Settings Tab actions.
 	jQuery( document ).on( 'click', '.performance_page_w3tc_general .nav-tab', function(){
    		const $tab         = jQuery( this ),
@@ -596,45 +565,58 @@ jQuery(function() {
 
 	// Tutorial page forum links via API.
 	jQuery(document).on( 'click', '[data-tab-type="help"]', function() {
-
-		const $helpTab          = jQuery( this ),
-		$inside               = $helpTab.closest( ".postbox-tabs" ).find( ".inside" );
-		$forumTopicsContainer = $inside.find( '.help-forum-topics' );
-		isLoaded              = $forumTopicsContainer.attr( 'data-loaded' ) === "1";
-		tabId                 = $forumTopicsContainer.attr( 'data-tab-id' );
+		const $helpTab        = jQuery(this),
+		$inside               = $helpTab.closest('.postbox-tabs').find('.inside');
+		$forumTopicsContainer = $inside.find('.help-forum-topics');
+		isLoaded              = $forumTopicsContainer.attr('data-loaded') === '1';
+		tabId                 = $forumTopicsContainer.attr('data-tab-id');
 
 		// Check if topics are already loaded
-		if ( isLoaded ) return;
-		// Construct the API URL with the tab ID
-		const apiUrl = `https://boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=${tabId}`;
+		if (isLoaded) {
+			return;
+		}
 
 		// Fetch topics from the API
 		jQuery.ajax({
-			url: apiUrl,
-			method: 'GET',
-			dataType: 'json',
-			success: function( data ) {
-				// Check for errors or empty results
-				if ( Array.isArray( data ) && data.length === 0 ) {
-					$forumTopicsContainer.html( "<p>No forum topics found.</p>" );
+			url: ajaxurl,
+			method: 'POST',
+			data: {
+				action: 'w3tc_forums_api',
+				_wpnonce: w3tc_nonce[0],
+				tabId: tabId
+			},
+			success: function(data) {
+				// Check for timeout
+				if ( data.errors && data.errors.http_request_failed ) {
+					$forumTopicsContainer.html('HTTP Error:', data.errors.http_request_failed);
+				}
+				// Check for empty results
+				else if (Array.isArray(data) && data.length === 0) {
+					$forumTopicsContainer.html('<p>No forum topics found.</p>');
 				} else {
 					// Create a list of topics
-					const $ul = jQuery( '<ul></ul>' );
-					jQuery.each( data, function( index, topic ) {
-						const $li = jQuery( '<li></li>' );
-						const $link = jQuery( '<a></a>' ).addClass('w3tc-control-after').attr( 'href', topic.link ).text( topic.title ).attr( 'target', '_blank' ); // Open in new tab
-						const $icon = jQuery( '<span></span>' ).addClass( 'dashicons dashicons-external' );
-						$link.append( $icon );
-						$li.append( $link );
-						$ul.append( $li );
+					const $ul       = jQuery('<ul></ul>');
+					const forumData = JSON.parse(data.body);
+					jQuery.each(forumData, function(index, topic) {
+						const $li = jQuery('<li></li>');
+						const $link = jQuery('<a></a>').addClass('w3tc-control-after').attr('href', topic.link).attr('target', '_blank'); // Open in new tab
+
+						// Decode HTML entities in topic.title
+						const decodedTitle = jQuery('<textarea />').html(topic.title).text();
+						$link.text(decodedTitle);
+
+						const $icon = jQuery('<span></span>').addClass('dashicons dashicons-external');
+						$link.append($icon);
+						$li.append($link);
+						$ul.append($li);
 					});
-					$forumTopicsContainer.html( $ul );
+					$forumTopicsContainer.html($ul);
 				}
 				// Mark topics as loaded to prevent duplicate requests
-				$forumTopicsContainer.attr( 'data-loaded', "1" );
+				$forumTopicsContainer.attr('data-loaded', '1');
 			},
 			error: function() {
-				$forumTopicsContainer.html( "<p>Error loading topics. Please try again later.</p>" );
+				$forumTopicsContainer.html('<p>Error loading topics. Please try again later.</p>');
 			}
 		});
 	});
@@ -968,14 +950,12 @@ jQuery(function() {
 				break;
 
 			case 'cf':
-				let region = jQuery('#cdn_cf_bucket_location').val();
-
 				jQuery.extend(params, {
 					engine: 'cf',
 					'config[key]': jQuery('#cdn_cf_key').val(),
 					'config[secret]': jQuery('#cdn_cf_secret').val(),
 					'config[bucket]': jQuery('#cdn_cf_bucket').val(),
-					'config[bucket_location]': region,
+					'config[bucket_location]': jQuery('#cdn_cf_bucket_location').val(),
 					'config[id]': jQuery('#cdn_cf_id').val()
 				});
 
@@ -1723,9 +1703,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_topnav_bar',
-					eventAction: 'link',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1737,9 +1717,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'anchor',
 				{
 					eventCategory: 'w3tc_options_menu',
-					eventAction: 'anchor',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1751,9 +1731,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'button',
 				{
 					eventCategory: 'w3tc_form_bar',
-					eventAction: 'button',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1765,9 +1745,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_footer',
-					eventAction: 'link',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1779,9 +1759,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_general_advanced_tab',
-					eventAction: 'link',
 					eventLabel: jQuery(this).attr('gatitle')
 				}
 			);
@@ -1793,9 +1773,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_general_extra_link_tab',
-					eventAction: 'link',
 					eventLabel: jQuery(this).attr('gatitle')
 				}
 			);

@@ -86,6 +86,9 @@ class Generic_Plugin {
 
 			ob_start( array( $this, 'ob_callback' ) );
 		}
+
+		// Run tasks after updating this plugin.
+		$this->post_update_tasks();
 	}
 
 	/**
@@ -811,5 +814,60 @@ class Generic_Plugin {
 		global $l10n;
 
 		unset( $l10n['w3-total-cache'] );
+	}
+
+	/**
+	 * Run post-update generic (non-admin) tasks.
+	 *
+	 * Post-update generic (non-admin) tasks are run only once per version.
+	 *
+	 * @since 2.8.6
+	 *
+	 * @return void
+	 */
+	public function post_update_tasks(): void {
+		// Check if W3TC was updated.
+		$state            = Dispatcher::config_state();
+		$last_run_version = $state->get_string( 'tasks.generic.last_run_version' );
+
+		if ( empty( $last_run_version ) || \version_compare( W3TC_VERSION, $last_run_version, '>' ) ) {
+			$ran_versions  = get_option( 'w3tc_post_update_generic_tasks_ran_versions', array() );
+			$has_completed = false;
+
+			// Check if W3TC was updated to 2.8.6 or higher.
+			if ( \version_compare( W3TC_VERSION, '2.8.6', '>=' ) && ! in_array( '2.8.6', $ran_versions, true ) ) {
+				// Disable Object Cache if using Disk, purge the cache files, and show a notice in wp-admin.  Only for main/blog ID 1.
+				if (
+					1 === get_current_blog_id() &&
+					$this->_config->get_boolean( 'objectcache.enabled' ) &&
+					'file' === $this->_config->get_string( 'objectcache.engine' )
+				) {
+					$this->_config->set( 'objectcache.enabled', false );
+					$this->_config->save();
+
+					// Purge the Object Cache files.
+					Util_File::rmdir( Util_Environment::cache_blog_dir( 'object' ) );
+
+					// Set the flag to show the notice.
+					$state->set( 'tasks.notices.disabled_objdisk', true );
+				}
+
+				// Mark the task as ran.
+				$ran_versions[] = '2.8.6';
+				$has_completed  = true;
+
+				// Delete cached notices.
+				delete_option( 'w3tc_cached_notices' );
+			}
+
+			// Mark completed tasks as ran.
+			if ( $has_completed ) {
+				update_option( 'w3tc_post_update_generic_tasks_ran_versions', $ran_versions, false );
+			}
+
+			// Mark the task runner as ran for the current version.
+			$state->set( 'tasks.generic.last_run_version', W3TC_VERSION );
+			$state->save();
+		}
 	}
 }
