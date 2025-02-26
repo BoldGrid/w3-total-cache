@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-php-sns-message-validator",
-            "version": "1.9.0",
+            "version": "1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-php-sns-message-validator.git",
-                "reference": "de457eaf8fbfa05f2f611d546d7357c6fdec86f8"
+                "reference": "80850e8d93fb57889ce609e113895dd2f1d7eed6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-php-sns-message-validator/zipball/de457eaf8fbfa05f2f611d546d7357c6fdec86f8",
-                "reference": "de457eaf8fbfa05f2f611d546d7357c6fdec86f8",
+                "url": "https://api.github.com/repos/aws/aws-php-sns-message-validator/zipball/80850e8d93fb57889ce609e113895dd2f1d7eed6",
+                "reference": "80850e8d93fb57889ce609e113895dd2f1d7eed6",
                 "shasum": ""
             },
             "require": {
@@ -115,9 +115,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sns-message-validator/issues",
-                "source": "https://github.com/aws/aws-php-sns-message-validator/tree/1.9.0"
+                "source": "https://github.com/aws/aws-php-sns-message-validator/tree/1.9.1"
             },
-            "time": "2023-12-18T17:03:51+00:00"
+            "time": "2025-02-25T22:19:51+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
@@ -2919,5 +2919,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
