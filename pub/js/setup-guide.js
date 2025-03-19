@@ -8,12 +8,14 @@
  * @global W3TC-setup-guide Localized array variable.
  */
 
-var w3tc_enable_ga = ( 'accept' === W3TC_SetupGuide.tos_choice && W3TC_SetupGuide.track_usage && window.w3tc_ga );
+var w3tc_enable_ga;
 
 jQuery(function() {
 	var $container = jQuery( '#w3tc-wizard-container'),
 		$nextButton = $container.find( '#w3tc-wizard-next '),
 		$tosNotice = $container.find( '#w3tc-licensing-terms' );
+
+	w3tc_enable_ga = !!( 'accept' === W3TC_SetupGuide.tos_choice && W3TC_SetupGuide.track_usage && window.w3tc_ga );
 
 	// GA.
 	if ( w3tc_enable_ga ) {
@@ -72,6 +74,8 @@ jQuery(function() {
 
 				if (window.w3tc_ga) {
 					w3tc_enable_ga = true;
+
+					w3tc_ga( 'js', new Date() );
 
 					w3tc_ga( 'config', W3TC_SetupGuide.ga_profile, {
 						'user_properties': {
