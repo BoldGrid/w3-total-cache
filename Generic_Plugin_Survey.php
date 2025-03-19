@@ -141,7 +141,7 @@ class Generic_Plugin_Survey {
 			$data['email'] = $email;
 		}
 
-		// Add 'other' to $data only $other_reason is non-blank.
+		// Add 'other' to $data only $other is non-blank.
 		if ( ! empty( $other ) ) {
 			$data['other'] = $other;
 		}
