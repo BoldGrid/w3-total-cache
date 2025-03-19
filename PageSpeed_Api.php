@@ -32,13 +32,6 @@ class PageSpeed_Api {
 	public $client;
 
 	/**
-	 * W3TC API server base URL. Overwritten by W3TC_API2_URL constant.
-	 *
-	 * @var string
-	 */
-	private $w3tc_api_base_url = 'https://api2.w3-edge.com';
-
-	/**
 	 * Retry Attemps. Overwritten by W3TC_PAGESPEED_MAX_ATTEMPTS constant.
 	 *
 	 * @var string
@@ -249,7 +242,7 @@ class PageSpeed_Api {
 			return;
 		}
 
-		$request = $this->get_w3tc_api_url( 'google/refresh-token' ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $w3tc_pagespeed_key );
+		$request = Util_Environment::get_api_base_url() . '/google/refresh-token/' . rawurlencode( $site_id ) . '/' . rawurlencode( $w3tc_pagespeed_key );
 
 		$response = wp_remote_get(
 			$request,
@@ -335,21 +328,6 @@ class PageSpeed_Api {
 	}
 
 	/**
-	 * Get W3TC API server URL target.
-	 *
-	 * @since 2.3.0
-	 *
-	 * @param string $target API target URI.
-	 *
-	 * @return string
-	 */
-	public function get_w3tc_api_url( $target ) {
-		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ?
-			trailingslashit( W3TC_API2_URL ) . $target :
-			trailingslashit( $this->w3tc_api_base_url ) . $target;
-	}
-
-	/**
 	 * PageSpeed authorize admin notice.
 	 *
 	 * @since 2.3.0
@@ -401,7 +379,7 @@ class PageSpeed_Api {
 			return;
 		}
 
-		$request = $this->get_w3tc_api_url( 'google/revoke-token' ) . '/' . rawurlencode( $access_token ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $w3tc_pagespeed_key );
+		$request = Util_Environment::get_api_base_url() . '/google/revoke-token/' . rawurlencode( $access_token ) . '/' . rawurlencode( $site_id ) . '/' . rawurlencode( $w3tc_pagespeed_key );
 
 		$response = wp_remote_get(
 			$request,

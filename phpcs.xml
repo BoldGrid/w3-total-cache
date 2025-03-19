@@ -1,24 +1,38 @@
 <?xml version="1.0"?>
 <ruleset name="BG-WordPress">
-  <!-- Scan all files in directory -->
-  <file>.</file>
+    <description>BoldGrid WordPress Coding Standards.</description>
+    <!-- Scan all files in directory -->
+    <directory>.</directory>
 
-  <!-- Ignore Composer dependencies -->
-  <exclude-pattern>vendor/</exclude-pattern>
+    <!-- Ignore Composer dependencies -->
+    <exclude-pattern>vendor/</exclude-pattern>
 
-  <!-- Show colors in console -->
-  <arg value="-colors"/>
+    <!-- Show colors in console -->
+    <arg value="-colors"/>
 
-  <!-- Show sniff codes in all reports -->
-  <arg value="ns"/>
+    <!-- Show sniff codes in all reports -->
+    <arg value="ps"/>
+    <arg name="report" value="emacs"/>
+    <arg name="report-width" value="220"/>
 
-  <!-- Use PSR-1 as a base -->
-  <rule ref="WordPress"/>
+    <!-- Scan all PHP files -->
+    <arg name="extensions" value="php"/>
 
-  <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
-      <severity>0</severity>
-  </rule>
-  <rule ref="WordPress.Files.FileName.InvalidClassFileName">
-      <severity>0</severity>
-  </rule>
+    <!-- Use WordPress, WordPress-Core, WordPress-Docs, and WordPress-Extra as a base -->
+    <rule ref="WordPress"/>
+    <rule ref="WordPress-Core"/>
+    <rule ref="WordPress-Docs"/>
+    <rule ref="WordPress-Extra"/>
+
+    <!-- Ignore some sniffs -->
+    <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+        <severity>0</severity>
+    </rule>
+    <rule ref="WordPress.Files.FileName.InvalidClassFileName">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Exclude dependency packages -->
+    <exclude-pattern>./node_modules/*</exclude-pattern>
+    <exclude-pattern>./vendor/*</exclude-pattern>
 </ruleset>

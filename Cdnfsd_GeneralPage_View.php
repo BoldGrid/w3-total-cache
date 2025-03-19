@@ -121,4 +121,7 @@ defined( 'W3TC' ) || die;
 	);
 	?>
 </table>
-<?php echo wp_kses_post( Util_Ui::get_premium_service_tab( 'cdn' ) ); ?>
+<?php
+	echo wp_kses_post( Util_Ui::get_tab( 'cdn', 'help' ) );
+	echo wp_kses_post( Util_Ui::get_tab( 'cdn', 'premium-services' ) );
+?>

@@ -4,7 +4,7 @@
  *
  * Controller for AlwaysCached queue.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @package W3TC
  */

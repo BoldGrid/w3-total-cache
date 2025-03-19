@@ -149,6 +149,11 @@ class Extension_FragmentCache_WpObjectCache {
 	 * @return mixed
 	 */
 	public function get( $id, $group = 'transient', $force = false, &$found = null ) {
+		// Abort if this is a WP-CLI call and fragmentcache engine is set to Disk.
+		if ( $this->is_wpcli_disk() ) {
+			return false;
+		}
+
 		if ( $this->_debug ) {
 			$time_start = Util_Debug::microtime();
 		}
@@ -228,9 +233,14 @@ class Extension_FragmentCache_WpObjectCache {
 	 * @param string  $group  Group.
 	 * @param integer $expire Expire.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function set( $id, $data, $group = 'transient', $expire = 0 ) {
+		// Abort if this is a WP-CLI call and fragmentcache engine is set to Disk.
+		if ( $this->is_wpcli_disk() ) {
+			return false;
+		}
+
 		$key = $this->_get_cache_key( $id );
 
 		if ( is_object( $data ) ) {
@@ -686,5 +696,18 @@ class Extension_FragmentCache_WpObjectCache {
 	public function w3tc_usage_statistics_of_request( $storage ) {
 		$storage->counter_add( 'fragmentcache_calls_total', $this->cache_total );
 		$storage->counter_add( 'fragmentcache_calls_hits', $this->cache_hits );
+	}
+
+	/**
+	 * Check if this is a WP-CLI call and fragmentcache[engine] is using Disk.
+	 *
+	 * @since  2.8.1
+	 * @access private
+	 *
+	 * @return bool
+	 */
+	private function is_wpcli_disk(): bool {
+		$engine = $this->_config->get_string( array( 'fragmentcache', 'engine' ) );
+		return defined( 'WP_CLI' ) && WP_CLI && 'file' === $engine;
 	}
 }

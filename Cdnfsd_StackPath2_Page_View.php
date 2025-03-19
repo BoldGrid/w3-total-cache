@@ -10,11 +10,7 @@ $authorized = ! empty( $key );
 
 ?>
 		<?php
-		Util_Ui::postbox_header(
-			esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ),
-			'',
-			'configuration'
-		);
+		Util_Ui::postbox_header( esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ), '', 'configuration-fsd' );
 		?>
 		<table class="form-table">
 			<tr>

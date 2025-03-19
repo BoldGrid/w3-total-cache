@@ -8,7 +8,22 @@ function w3tc_show_minify_help() {
     		'&w3tc_action=minify_help',
     	callback: function(lightbox) {
       		jQuery('.btn-primary', lightbox.container).click(function() {
+				jQuery(document).off('keyup.w3tc_lightbox'); // Cleanup event listener.
         		lightbox.close();
+			});
+			jQuery( '.lightbox-close' ).click(
+				function() {
+					jQuery( '#minify__enabled' ).prop('checked', false);
+					jQuery(document).off('keyup.w3tc_lightbox'); // Cleanup event listener.
+					lightbox.close();
+				}
+			);
+			jQuery(document).on('keyup.w3tc_lightbox', function(e) {
+				if ('Escape' === e.key) {
+					jQuery('#minify__enabled').prop('checked', false);
+					jQuery(document).off('keyup.w3tc_lightbox'); // Cleanup event listener.
+					lightbox.close();
+				}
 			});
 			lightbox.resize();
 		}

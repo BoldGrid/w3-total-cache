@@ -57,8 +57,6 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				'cname' => array(),
 			), $config );
 
-		$config['bucket_location'] = Cdn_Core::get_region_id( $config['bucket_location'] );
-
 		parent::__construct( $config );
 	}
 
@@ -122,7 +120,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		$this->api = new \Aws\S3\S3Client(
 			array(
 				'credentials'    => $credentials,
-				'region'         => Cdn_Core::get_region_id( $this->_config['bucket_location'] ),
+				'region'         => preg_replace( '/-e$/', '', $this->_config['bucket_location'] ),
 				'version'        => '2006-03-01',
 				'use_arn_region' => true,
 			)
@@ -449,22 +447,47 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	}
 
 	/**
+	 * Get the S3 bucket region id used for domains.
+	 *
+	 * @since 2.8.5
+	 *
+	 * @return string
+	 */
+	public function get_region() {
+		$location = $this->_config['bucket_loc_id'] ?? $this->_config['bucket_location'];
+
+		switch ( $location ) {
+			case 'us-east-1':
+				$region = '';
+				break;
+			case 'us-east-1-e':
+				$region = 'us-east-1.';
+				break;
+			default:
+				$region = $location . '.';
+				break;
+		}
+
+		return $region;
+	}
+
+	/**
 	 * Returns CDN domain
+	 *
+	 * @see self::get_region()
 	 *
 	 * @return array
 	 */
 	public function get_domains() {
-		if ( !empty( $this->_config['cname'] ) ) {
-			return (array) $this->_config['cname'];
-		} elseif ( !empty( $this->_config['bucket'] ) ) {
-			$domain = sprintf( '%s.s3.amazonaws.com', $this->_config['bucket'] );
+		$domains = array();
 
-			return array(
-				$domain
-			);
+		if ( ! empty( $this->_config['cname'] ) ) {
+			$domains = (array) $this->_config['cname'];
+		} elseif ( ! empty( $this->_config['bucket'] ) ) {
+			$domains = array( sprintf( '%1$s.s3.%2$samazonaws.com', $this->_config['bucket'], $this->get_region() ) );
 		}
 
-		return array();
+		return $domains;
 	}
 
 	/**

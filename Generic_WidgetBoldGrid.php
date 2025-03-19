@@ -1,32 +1,54 @@
 <?php
+/**
+ * File: Generic_WidgetBoldGrid.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Generic_WidgetBoldGrid
+ */
 class Generic_WidgetBoldGrid {
-	static public function admin_init_w3tc_dashboard() {
+	/**
+	 * Admin init for dashboard
+	 *
+	 * @return void
+	 */
+	public static function admin_init_w3tc_dashboard() {
 		$show = apply_filters( 'w3tc_generic_boldgrid_show', self::should_show_widget() );
-		if ( !$show ) {
+		if ( ! $show ) {
 			return;
 		}
 
 		$o = new Generic_WidgetBoldGrid();
 
-		Util_Widget::add2( 'w3tc_boldgrid', 800,
+		Util_Widget::add2(
+			'w3tc_boldgrid',
+			800,
 			'<div class="w3tc-widget-boldgrid-logo"></div>',
 			array( $o, 'widget_form' ),
 			self_admin_url(
-				'plugin-install.php?tab=plugin-information&amp;plugin=boldgrid-backup' .
-				'&amp;TB_iframe=true&amp;width=772&amp;height=550'
-			), 'normal', __( 'View Details' ), 'thickbox open-plugin-details-modal' );
+				'plugin-install.php?tab=plugin-information&amp;plugin=boldgrid-backup&amp;TB_iframe=true&amp;width=772&amp;height=550'
+			),
+			'normal',
+			__( 'View Details', 'w3-total-cache' ),
+			'thickbox open-plugin-details-modal'
+		);
 
 		add_thickbox();
+
 		wp_enqueue_script( 'plugin-install' );
 
-		wp_enqueue_script( 'w3tc-boldgrid-widget',
+		wp_enqueue_script(
+			'w3tc-boldgrid-widget',
 			plugins_url( 'Generic_WidgetBoldGrid_View.js', W3TC_FILE ),
-			array( 'thickbox' ), W3TC_VERSION );
+			array( 'thickbox' ),
+			W3TC_VERSION,
+			false
+		);
 	}
-
-
 
 	/**
 	 * Determine whether or not we should show the backup widget.
@@ -38,7 +60,7 @@ class Generic_WidgetBoldGrid {
 	 *
 	 * @return bool
 	 */
-	static private function should_show_widget() {
+	private static function should_show_widget() {
 		$plugins = get_option( 'active_plugins' );
 
 		$backup_plugins = array(
@@ -47,7 +69,7 @@ class Generic_WidgetBoldGrid {
 			'boldgrid-backup/boldgrid-backup.php',
 			'duplicator/duplicator.php',
 			'updraftplus/updraftplus.php',
-			'wpvivid-backuprestore/wpvivid-backuprestore.php'
+			'wpvivid-backuprestore/wpvivid-backuprestore.php',
 		);
 
 		foreach ( $plugins as $plugin ) {
@@ -59,12 +81,14 @@ class Generic_WidgetBoldGrid {
 		return true;
 	}
 
-
-
+	/**
+	 * Widget form
+	 *
+	 * @return void
+	 */
 	public function widget_form() {
-		$install_url = wp_nonce_url(
-			'admin.php?page=w3tc_dashboard&w3tc_boldgrid_install', 'w3tc' );
+		$install_url = wp_nonce_url( 'admin.php?page=w3tc_dashboard&w3tc_boldgrid_install', 'w3tc' );
 
-		include  W3TC_DIR . '/Generic_WidgetBoldGrid_View.php';
+		include W3TC_DIR . '/Generic_WidgetBoldGrid_View.php';
 	}
 }

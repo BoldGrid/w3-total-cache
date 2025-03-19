@@ -19,12 +19,25 @@ Util_Ui::postbox_header_tabs(
 	),
 	'',
 	'fragmentcache',
-	Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' )
+	Util_Environment::is_w3tc_pro( $config ) ? Util_UI::admin_url( 'admin.php?page=w3tc_fragmentcache' ) : ''
 );
 
 ?>
 
 <table class="form-table">
+	<div class="fragmentcache_disk_notice notice notice-warning">
+		<p><b><?php esc_html_e( 'Warning: Disk-Based Fragment Caching Selected', 'w3-total-cache' ); ?></b></p>
+		<p>
+			<li style="margin-left:15px;"><?php esc_html_e( 'Using disk as the cache engine for fragment caching is not recommended due to its potential for slow performance depending on storage device types and server configuration.', 'w3-total-cache' ); ?></li>
+			<li style="margin-left:15px;"><?php esc_html_e( 'This setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account.', 'w3-total-cache' ); ?></li>
+		</p>
+		<p>
+			<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
+			<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"
+				title="<?php esc_attr_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?>">
+				<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?> <span class="dashicons dashicons-external"></span></a>
+		</p>
+	</div>
 	<?php
 	$fragmentcache_config = array(
 		'key'         => array( 'fragmentcache', 'engine' ),

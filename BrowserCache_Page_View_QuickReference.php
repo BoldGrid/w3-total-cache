@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: BrowserCache_Page_View_QuickReference.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

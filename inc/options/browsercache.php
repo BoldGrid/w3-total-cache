@@ -458,6 +458,8 @@ $security_session_values = array(
 						<option value="cache_noproxy"<?php selected( $value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
 						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
 						<option value="no_store"<?php selected( $value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
+						<option value="cache_immutable"<?php selected( $value, 'cache_immutable' ); ?>><?php esc_html_e( 'cache immutable ("public, max-age=EXPIRES_SECONDS, immutable")', 'w3-total-cache' ); ?></option>
+						<option value="cache_immutable_nomaxage"<?php selected( $value, 'cache_immutable_nomaxage' ); ?>><?php esc_html_e( 'cache immutable no max-age ("public, immutable")', 'w3-total-cache' ); ?></option>
 					</select>
 					<?php if ( $is_nginx && $cssjs_expires ) : ?>
 						<p class="description"><?php esc_html_e( 'The Expires header already sets the max-age.', 'w3-total-cache' ); ?></p>
@@ -723,6 +725,8 @@ $security_session_values = array(
 						<option value="cache_noproxy"<?php selected( $value, 'cache_noproxy' ); ?>><?php esc_html_e( 'cache without proxy ("private, must-revalidate")', 'w3-total-cache' ); ?></option>
 						<option value="no_cache"<?php selected( $value, 'no_cache' ); ?>><?php esc_html_e( 'don\'t cache ("private, no-cache")', 'w3-total-cache' ); ?></option>
 						<option value="no_store"<?php selected( $value, 'no_store' ); ?>><?php esc_html_e( 'don\'t store ("no-store")', 'w3-total-cache' ); ?></option>
+						<option value="cache_immutable"<?php selected( $value, 'cache_immutable' ); ?>><?php esc_html_e( 'cache immutable ("public, max-age=EXPIRES_SECONDS, immutable")', 'w3-total-cache' ); ?></option>
+						<option value="cache_immutable_nomaxage"<?php selected( $value, 'cache_immutable_nomaxage' ); ?>><?php esc_html_e( 'cache immutable no max-age ("public, immutable")', 'w3-total-cache' ); ?></option>
 					</select>
 					<?php if ( $is_nginx && $other_expires ) : ?>
 						<p class="description"><?php esc_html_e( 'The Expires header already sets the max-age.', 'w3-total-cache' ); ?></p>

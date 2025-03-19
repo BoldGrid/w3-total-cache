@@ -1,13 +1,34 @@
 <?php
+/**
+ * File: Generic_AdminActions_Config.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-
-
+/**
+ * Class Generic_AdminActions_Config
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ */
 class Generic_AdminActions_Config {
-
+	/**
+	 * Config
+	 *
+	 * @var Config
+	 */
 	private $_config = null;
 
-	function __construct() {
+	/**
+	 * Constructor
+	 *
+	 * @return void
+	 */
+	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
@@ -50,9 +71,18 @@ class Generic_AdminActions_Config {
 	 *
 	 * @return void
 	 */
-	function w3tc_config_export() {
-		$filename = substr( get_home_url(), strpos( get_home_url(), '//' )+2 );
-		@header( sprintf( __( 'Content-Disposition: attachment; filename=%s.json', 'w3-total-cache' ), $filename ) );
+	public function w3tc_config_export() {
+		$filename = substr( get_home_url(), strpos( get_home_url(), '//' ) + 2 );
+		@header(
+			sprintf(
+				// Translators: 1 filename.
+				__(
+					'Content-Disposition: attachment; filename=%s.json',
+					'w3-total-cache'
+				),
+				$filename
+			)
+		);
 		echo $this->_config->export(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		die();
 	}
@@ -62,7 +92,7 @@ class Generic_AdminActions_Config {
 	 *
 	 * @return void
 	 */
-	function w3tc_config_reset() {
+	public function w3tc_config_reset() {
 		$config = new Config();
 		$config->set_defaults();
 		Util_Admin::config_save( $this->_config, $config );
@@ -75,24 +105,28 @@ class Generic_AdminActions_Config {
 		$config_state->reset();
 		$config_state->save();
 
-		Util_Admin::redirect( array(
-				'w3tc_note' => 'config_reset'
-			), true );
+		Util_Admin::redirect(
+			array(
+				'w3tc_note' => 'config_reset',
+			),
+			true
+		);
 	}
-
 
 	/**
 	 * Save preview option
 	 *
 	 * @return void
 	 */
-	function w3tc_config_preview_enable() {
+	public function w3tc_config_preview_enable() {
 		ConfigUtil::preview_production_copy( Util_Environment::blog_id(), -1 );
 		Util_Environment::set_preview( true );
 
-		Util_Admin::redirect( array(
-				'w3tc_note' => 'preview_enable'
-			) );
+		Util_Admin::redirect(
+			array(
+				'w3tc_note' => 'preview_enable',
+			)
+		);
 	}
 
 	/**
@@ -100,14 +134,16 @@ class Generic_AdminActions_Config {
 	 *
 	 * @return void
 	 */
-	function w3tc_config_preview_disable() {
+	public function w3tc_config_preview_disable() {
 		$blog_id = Util_Environment::blog_id();
 		ConfigUtil::remove_item( $blog_id, true );
 		Util_Environment::set_preview( false );
 
-		Util_Admin::redirect( array(
-				'w3tc_note' => 'preview_disable'
-			) );
+		Util_Admin::redirect(
+			array(
+				'w3tc_note' => 'preview_disable',
+			)
+		);
 	}
 
 	/**
@@ -115,38 +151,35 @@ class Generic_AdminActions_Config {
 	 *
 	 * @return void
 	 */
-	function w3tc_config_preview_deploy() {
+	public function w3tc_config_preview_deploy() {
 		ConfigUtil::preview_production_copy( Util_Environment::blog_id(), 1 );
 		Util_Environment::set_preview( false );
 
-		Util_Admin::redirect( array(
-				'w3tc_note' => 'preview_deploy'
-			) );
+		Util_Admin::redirect(
+			array(
+				'w3tc_note' => 'preview_deploy',
+			)
+		);
 	}
-
-
 
 	/**
 	 * Save dbcluster config action
 	 *
 	 * @return void
 	 */
-	function w3tc_config_dbcluster_config_save() {
+	public function w3tc_config_dbcluster_config_save() {
 		$params = array( 'page' => 'w3tc_general' );
 
-		if ( !file_put_contents( W3TC_FILE_DB_CLUSTER_CONFIG,
-			Util_Request::get_string( 'newcontent' ) ) ) {
+		if ( ! file_put_contents( W3TC_FILE_DB_CLUSTER_CONFIG, Util_Request::get_string( 'newcontent' ) ) ) {
 			try {
 				Util_Activation::throw_on_write_error( W3TC_FILE_DB_CLUSTER_CONFIG );
 			} catch ( \Exception $e ) {
 				$error = $e->getMessage();
-				Util_Admin::redirect_with_custom_messages( $params, array(
-						'dbcluster_save_failed' => $error ) );
+				Util_Admin::redirect_with_custom_messages( $params, array( 'dbcluster_save_failed' => $error ) );
 			}
 		}
 
-		Util_Admin::redirect_with_custom_messages( $params, null,
-			array( 'dbcluster_save' => __( 'Database Cluster configuration file has been successfully saved', 'w3-total-cache' ) ) );
+		Util_Admin::redirect_with_custom_messages( $params, null, array( 'dbcluster_save' => __( 'Database Cluster configuration file has been successfully saved', 'w3-total-cache' ) ) );
 	}
 
 	/**
@@ -154,9 +187,9 @@ class Generic_AdminActions_Config {
 	 *
 	 * @return void
 	 */
-	function w3tc_config_save_support_us() {
-		$tweeted = Util_Request::get_boolean( 'tweeted' );
-		$signmeup = Util_Request::get_boolean( 'signmeup' );
+	public function w3tc_config_save_support_us() {
+		$tweeted      = Util_Request::get_boolean( 'tweeted' );
+		$signmeup     = Util_Request::get_boolean( 'signmeup' );
 		$accept_terms = Util_Request::get_boolean( 'accept_terms' );
 		$this->_config->set( 'common.tweeted', $tweeted );
 
@@ -168,20 +201,30 @@ class Generic_AdminActions_Config {
 		$state_master->save();
 
 		if ( $signmeup ) {
-			if ( Util_Environment::is_w3tc_pro( $this->_config ) )
+			if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
 				$license = 'pro';
-			else
+			} else {
 				$license = 'community';
+			}
+
 			$email = filter_input( INPUT_POST, 'email', FILTER_SANITIZE_EMAIL );
-			wp_remote_post( W3TC_MAILLINGLIST_SIGNUP_URL, array(
-					'body' => array( 'email' => $email, 'license' => $license )
-				) );
+			wp_remote_post(
+				W3TC_MAILLINGLIST_SIGNUP_URL,
+				array(
+					'body' => array(
+						'email'   => $email,
+						'license' => $license,
+					),
+				)
+			);
 		}
 		$this->_config->save();
 
-		Util_Admin::redirect( array(
-				'w3tc_note' => 'config_save'
-			) );
+		Util_Admin::redirect(
+			array(
+				'w3tc_note' => 'config_save',
+			)
+		);
 	}
 
 	/**
@@ -189,14 +232,21 @@ class Generic_AdminActions_Config {
 	 *
 	 * @return void
 	 */
-	function w3tc_config_update_upload_path() {
+	public function w3tc_config_update_upload_path() {
 		update_option( 'upload_path', '' );
 
 		Util_Admin::redirect();
 	}
 
+	/**
+	 * Config overload disable.
+	 *
+	 * @param string $http_key HTTP Key.
+	 *
+	 * @return void
+	 */
 	public function w3tc_config_overloaded_disable( $http_key ) {
-		$c = Dispatcher::config();
+		$c   = Dispatcher::config();
 		$key = Util_Ui::config_key_from_http_name( $http_key );
 		$c->set( $key, false );
 		$c->save();
@@ -204,8 +254,15 @@ class Generic_AdminActions_Config {
 		Util_Admin::redirect( array() );
 	}
 
+	/**
+	 * Config overload enable.
+	 *
+	 * @param string $http_key HTTP Key.
+	 *
+	 * @return void
+	 */
 	public function w3tc_config_overloaded_enable( $http_key ) {
-		$c = Dispatcher::config();
+		$c   = Dispatcher::config();
 		$key = Util_Ui::config_key_from_http_name( $http_key );
 		$c->set( $key, true );
 		$c->save();

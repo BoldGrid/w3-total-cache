@@ -21,6 +21,7 @@ const util      = require('util');
 const exec      = util.promisify(require('child_process').exec);
 const wp        = requireRoot('lib/wp');
 const env       = requireRoot('lib/environment');
+const w3tc      = require('./w3tc');
 
 /**
 * beforeDefault.
@@ -62,6 +63,9 @@ async function beforeDefault() {
 	// Clear extenal cache engine that may keep state between tests.
 	const r = await exec('/share/scripts/restart-http.rb');
 	expect(r.stdout).contains('restartHttpSuccess');
+
+	// Mark generic tasks complete for "2.8.6".
+	await w3tc.w3tcMarkGenericTasksVersionsComplete('2.8.6');
 
 	global.adminPage = await browser.newPage();
 

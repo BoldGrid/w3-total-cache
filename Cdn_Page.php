@@ -25,13 +25,10 @@ class Cdn_Page extends Base_Page_Settings {
 	 */
 	public function view() {
 		$config               = Dispatcher::config();
-		$account_api_key      = $config->get_string( 'cdn.bunnycdn.account_api_key' );
 		$cdn_engine           = $config->get_string( 'cdn.engine' );
 		$cdn_enabled          = $config->get_boolean( 'cdn.enabled' );
-		$is_cdn_authorized    = ! empty( $account_api_key ) && ! empty( $config->get_string( 'cdn.bunnycdn.pull_zone_id' ) );
 		$cdnfsd_engine        = $config->get_string( 'cdnfsd.engine' );
 		$cdnfsd_enabled       = $config->get_boolean( 'cdnfsd.enabled' );
-		$is_cdnfsd_authorized = ! empty( $account_api_key ) && ! empty( $config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
 		$cdn_mirror           = Cdn_Util::is_engine_mirror( $cdn_engine );
 		$cdn_mirror_purge_all = Cdn_Util::can_purge_all( $cdn_engine );
 		$cdn_common           = Dispatcher::component( 'Cdn_Core' );
@@ -49,6 +46,11 @@ class Cdn_Page extends Base_Page_Settings {
 		// Required for Update Media Query String button.
 		$browsercache_enabled         = $config->get_boolean( 'browsercache.enabled' );
 		$browsercache_update_media_qs = ( $config->get_boolean( 'browsercache.cssjs.replace' ) || $config->get_boolean( 'browsercache.other.replace' ) );
+
+		// Get CDN and CDN FSD status.
+		$cdn_core             = new Cdn_Core();
+		$is_cdn_authorized    = $cdn_core->is_cdn_authorized();
+		$is_cdnfsd_authorized = $cdn_core->is_cdnfsd_authorized();
 
 		include W3TC_INC_DIR . '/options/cdn.php';
 	}

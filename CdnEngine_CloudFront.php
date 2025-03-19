@@ -44,7 +44,7 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 		$this->api = new \Aws\CloudFront\CloudFrontClient(
 			array(
 				'credentials' => $credentials,
-				'region'      => Cdn_Core::get_region_id( $this->_config['bucket_location'] ),
+				'region'      => $this->_config['bucket_location'],
 				'version'     => '2018-11-05',
 			)
 		);

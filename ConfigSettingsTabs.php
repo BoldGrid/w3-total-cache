@@ -16,7 +16,7 @@ class Config_Tab_Settings {
 	/**
 	 * Get the configuration settings.
 	 *
-	 * @since x.x.x
+	 * @since 2.8.0
 	 *
 	 * @return array The configuration settings.
 	 */
@@ -28,7 +28,7 @@ class Config_Tab_Settings {
 	/**
 	 * Get the configuration setting.
 	 *
-	 * @since x.x.x
+	 * @since 2.8.0
 	 *
 	 * @param string $key The key of the configuration setting.
 	 * @param array  $default The default value of the configuration setting.

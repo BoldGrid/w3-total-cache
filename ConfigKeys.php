@@ -176,6 +176,10 @@ $keys = array(
 			'\bfound_rows\(\)'
 		)
 	),
+	'dbcache.wpcli_disk' => array(
+		'type' => 'boolean',
+		'default' => false,
+	),
 
 	'docroot_fix.enable' => array(
 		'type' => 'boolean',
@@ -272,7 +276,7 @@ $keys = array(
 	),
 	'objectcache.file.gc' => array(
 		'type' => 'integer',
-		'default' => 3600
+		'default' => 600,
 	),
 	'objectcache.file.locking' => array(
 		'type' => 'boolean',
@@ -356,6 +360,10 @@ $keys = array(
 	'objectcache.purge.all' => array(
 		'type' => 'boolean',
 		'default' => false
+	),
+	'objectcache.wpcli_disk' => array(
+		'type' => 'boolean',
+		'default' => false,
 	),
 
 	'pgcache.configuration_overloaded' => array(
@@ -473,7 +481,7 @@ $keys = array(
 	// name backwards-compatible. in reality works for apache too
 	'pgcache.cache.nginx_handle_xml' => array(
 		'type' => 'boolean',
-		'default' => false
+		'default' => true
 	),
 	'pgcache.cache.ssl' => array(
 		'type' => 'boolean',

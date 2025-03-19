@@ -203,4 +203,54 @@ class Root_Environment {
 		}
 		return $instructions_descriptors;
 	}
+
+	/**
+	 * Deletes all W3 Total Cache data from the database.
+	 *
+	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
+	 *
+	 * @since 2.8.3
+	 *
+	 * @param Config $config Config.
+	 *
+	 * @return void
+	 */
+	public static function delete_plugin_data( $config ) {
+		global $wpdb;
+
+		$license_key = $config->get_string( 'plugin.license_key' );
+		if ( ! empty( $license_key ) ) {
+			Licensing_Core::deactivate_license( $license_key );
+		}
+
+		// Define prefixes for options and transients.
+		$prefixes = array(
+			'w3tc_',                    // General options prefix.
+			'w3tcps_',                  // Additional options prefix.
+			'_transient_w3tc_',         // Transient prefix.
+			'_transient_timeout_w3tc_', // Transient timeout prefix.
+		);
+
+		// Delete options and transients with defined prefixes.
+		foreach ( $prefixes as $prefix ) {
+			$query        = 'SELECT `option_name` FROM ' . $wpdb->options . ' WHERE `option_name` LIKE "' . $prefix . '%";';
+			$option_names = $wpdb->get_col( $query ); // phpcs:ignore WordPress.DB.PreparedSQL
+
+			foreach ( $option_names as $option_name ) {
+				delete_option( $option_name );
+			}
+		}
+
+		// Remove plugin-created directories.
+		$directories = array(
+			defined( 'W3TC_CACHE_DIR' ) ? W3TC_CACHE_DIR : WP_CONTENT_DIR . '/cache',
+			defined( 'W3TC_CONFIG_DIR' ) ? W3TC_CONFIG_DIR : WP_CONTENT_DIR . '/w3tc-config',
+		);
+
+		foreach ( $directories as $dir ) {
+			Util_File::rmdir( $dir );
+		}
+	}
 }

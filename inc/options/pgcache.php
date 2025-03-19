@@ -790,27 +790,9 @@ if ( ! defined( 'W3TC' ) ) {
 						cols="40" rows="5"><?php echo esc_textarea( implode( "\r\n", $this->_config->get_array( 'pgcache.accept.files' ) ) ); ?></textarea>
 					<p class="description">
 						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HTML a tag to W3TC FAQ admin page, 2 opening HTML acronym tag,
-								// translators: 3 closing HTML acronym tag, 4 closing HTML acronym tag.
-								__(
-									'Cache the specified pages / directories even if listed in the "never cache the following pages" field. Supports regular expression (See %1$s%2$sFAQ%3$s%4$s)',
-									'w3-total-cache'
-								),
-								'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_faq' ) ) . '">',
-								'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
-								'</acronym>',
-								'</a>'
-							),
-							array(
-								'a'       => array(
-									'href' => array(),
-								),
-								'acronym' => array(
-									'title' => array(),
-								),
-							)
+						esc_html_e(
+							'Cache the specified pages / directories even if listed in the "never cache the following pages" field. Supports regular expression.',
+							'w3-total-cache'
 						);
 						?>
 					</p>
@@ -843,6 +825,27 @@ if ( ! defined( 'W3TC' ) ) {
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Purge via WP Cron', 'w3-total-cache' ), '', 'pgcache_wp_cron' ); ?>
 		<table class="form-table">
+			<p>
+				<?php
+				echo wp_kses(
+					sprintf(
+						// Translators: 1 opening HTML a tag, 2 closing HTML a tag.
+						__(
+							'Enabling this will schedule a WP-Cron event that will flush the Page Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush posts". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache. Visit %1$shere%2$s for more information.',
+							'w3-total-cache'
+						),
+						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
+						'</a>'
+					),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
+				);
+				?>
+			</p>
 			<?php
 			$c           = Dispatcher::config();
 			$disabled    = ! $c->get_boolean( 'pgcache.enabled' );
@@ -877,7 +880,6 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
 					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 					'control'        => 'checkbox',
-					'description'    => esc_html__( 'Enabling this will schedule a WP-Cron event that will flush the Page Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush posts". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache.', 'w3-total-cache' ),
 					'disabled'       => $disabled,
 				)
 			);
@@ -898,6 +900,7 @@ if ( ! defined( 'W3TC' ) ) {
 					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
 					'control'          => 'selectbox',
 					'selectbox_values' => $time_options,
+					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
 					'disabled'         => $disabled || $wp_disabled,
 				)
 			);
@@ -913,6 +916,7 @@ if ( ! defined( 'W3TC' ) ) {
 						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
 						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
 					),
+					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
 					'disabled'         => $disabled || $wp_disabled,
 				)
 			);

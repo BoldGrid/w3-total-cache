@@ -9,6 +9,9 @@ namespace W3TC;
 
 /**
  * Class: Util_Admin
+ *
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
 class Util_Admin {
 	/**
@@ -149,7 +152,7 @@ class Util_Admin {
 
 		$first_key = array_keys( $a );
 		$first_key = $first_key[0];
-		$pos = strpos( $a[ $first_key ], ' ' );
+		$pos       = strpos( $a[ $first_key ], ' ' );
 
 		if ( false === $pos ) {
 			return true;
@@ -178,15 +181,15 @@ class Util_Admin {
 	public static function config_save( $current_config, $new_config ) {
 		$master_config = ( $new_config->is_master() ? $new_config : Dispatcher::config_master() );
 
-		if ( $master_config->get_integer( 'common.instance_id', 0 ) == 0 ) {
-			$master_config->set( 'common.instance_id', mt_rand() );
+		if ( $master_config->get_integer( 'common.instance_id', 0 ) === 0 ) {
+			$master_config->set( 'common.instance_id', wp_rand() );
 
 			if ( ! $new_config->is_master() ) {
 				$master_config->save();
 			}
 		}
 
-		$old_config = new Config();
+		$old_config                = new Config();
 		$browsercache_dependencies = array();
 
 		if ( $new_config->get_boolean( 'browsercache.enabled' ) ) {
@@ -253,7 +256,7 @@ class Util_Admin {
 				$new_bc_dependencies_values[] = $new_config->get( $key );
 			}
 
-			if ( serialize( $old_bc_dependencies_values ) != serialize( $new_bc_dependencies_values ) ) {
+			if ( serialize( $old_bc_dependencies_values ) !== serialize( $new_bc_dependencies_values ) ) {
 				$state_note = Dispatcher::config_state_note();
 				$state_note->set( 'common.show_note.flush_statics_needed', true );
 			}
@@ -367,7 +370,7 @@ class Util_Admin {
 						'cdn.azure.cname',
 						'cdn.azure.ssl',
 						'cdn.azuremi.cname',
-						'cdn.azuremi.ssl',						
+						'cdn.azuremi.ssl',
 						'cdn.mirror.domain',
 						'cdn.mirror.ssl',
 						'cdn.cotendo.domain',
@@ -413,7 +416,7 @@ class Util_Admin {
 				$new_pgcache_dependencies_values[] = $new_config->get( $pgcache_dependency );
 			}
 
-			if ( serialize( $old_pgcache_dependencies_values ) != serialize( $new_pgcache_dependencies_values ) ) {
+			if ( serialize( $old_pgcache_dependencies_values ) !== serialize( $new_pgcache_dependencies_values ) ) {
 				$state_note = Dispatcher::config_state_note();
 				$state_note->set( 'common.show_note.flush_posts_needed', true );
 			}
@@ -510,7 +513,7 @@ class Util_Admin {
 				$new_minify_dependencies_values[] = $new_config->get( $minify_dependency );
 			}
 
-			if ( serialize( $old_minify_dependencies_values ) != serialize( $new_minify_dependencies_values ) ) {
+			if ( serialize( $old_minify_dependencies_values ) !== serialize( $new_minify_dependencies_values ) ) {
 				$state_note = Dispatcher::config_state_note();
 				$state_note->set( 'minify.show_note.need_flush', true );
 			}
@@ -589,7 +592,7 @@ class Util_Admin {
 				$new_objectcache_dependencies_values[] = $new_config->get( $objectcache_dependency );
 			}
 
-			if ( serialize( $old_objectcache_dependencies_values ) != serialize( $new_objectcache_dependencies_values ) ) {
+			if ( serialize( $old_objectcache_dependencies_values ) !== serialize( $new_objectcache_dependencies_values ) ) {
 				$state_note = Dispatcher::config_state_note();
 				$state_note->set( 'objectcache.show_note.flush_needed', true );
 			}
@@ -626,31 +629,28 @@ class Util_Admin {
 		/**
 		 * Empty caches on engine change or cache enable/disable
 		 */
-		if ( $old_config->get_string( 'pgcache.engine' ) !=
-			$new_config->get_string( 'pgcache.engine' ) ||
-			$old_config->get_string( 'pgcache.enabled' ) !=
-			$new_config->get_string( 'pgcache.enabled' ) ) {
+		if ( $old_config->get_string( 'pgcache.engine' ) !== $new_config->get_string( 'pgcache.engine' ) || $old_config->get_string( 'pgcache.enabled' ) !== $new_config->get_string( 'pgcache.enabled' ) ) {
 			$pgcacheflush = Dispatcher::component( 'PgCache_Flush' );
-			$v = $pgcacheflush->flush();
+			$v            = $pgcacheflush->flush();
 		}
 
-		if ( $old_config->get_string( 'dbcache.engine' ) != $new_config->get_string( 'dbcache.engine' ) || $old_config->get_string( 'dbcache.enabled' ) != $new_config->get_string( 'dbcache.enabled' ) ) {
+		if ( $old_config->get_string( 'dbcache.engine' ) !== $new_config->get_string( 'dbcache.engine' ) || $old_config->get_string( 'dbcache.enabled' ) !== $new_config->get_string( 'dbcache.enabled' ) ) {
 			w3tc_dbcache_flush();
 		}
 
-		if ( $old_config->get_string( 'objectcache.engine' ) != $new_config->get_string( 'objectcache.engine' ) || $old_config->getf_boolean( 'objectcache.enabled' ) !== $new_config->getf_boolean( 'objectcache.enabled' ) ) {
+		if ( $old_config->get_string( 'objectcache.engine' ) !== $new_config->get_string( 'objectcache.engine' ) || $old_config->getf_boolean( 'objectcache.enabled' ) !== $new_config->getf_boolean( 'objectcache.enabled' ) ) {
 			w3tc_objectcache_flush();
 		}
 
-		if ( $old_config->get_string( 'minify.engine' ) != $new_config->get_string( 'minify.engine' ) || $old_config->get_string( 'minify.enabled' ) != $new_config->get_string( 'minify.enabled' ) ) {
+		if ( $old_config->get_string( 'minify.engine' ) !== $new_config->get_string( 'minify.engine' ) || $old_config->get_string( 'minify.enabled' ) !== $new_config->get_string( 'minify.enabled' ) ) {
 			w3tc_minify_flush();
 		}
 
 		/**
 		 * Update CloudFront CNAMEs
 		 */
-		if ( $new_config->get_boolean( 'cdn.enabled' ) && in_array( $new_config->get_string( 'cdn.engine' ), array( 'cf', 'cf2' ) ) ) {
-			if ( $new_config->get_string( 'cdn.engine' ) == 'cf' ) {
+		if ( $new_config->get_boolean( 'cdn.enabled' ) && in_array( $new_config->get_string( 'cdn.engine' ), array( 'cf', 'cf2' ), true ) ) {
+			if ( 'cf' === $new_config->get_string( 'cdn.engine' ) ) {
 				$old_cnames = $old_config->get_array( 'cdn.cf.cname' );
 				$new_cnames = $new_config->get_array( 'cdn.cf.cname' );
 			} else {
@@ -673,7 +673,7 @@ class Util_Admin {
 		/**
 		 * Auto upload browsercache files to CDN
 		 */
-		if ( $new_config->get_boolean( 'cdn.enabled' ) && $new_config->get_string( 'cdn.engine' ) == 'ftp' ) {
+		if ( $new_config->get_boolean( 'cdn.enabled' ) && 'ftp' === $new_config->get_string( 'cdn.engine' ) ) {
 			self::cdn_delete_browsercache( $current_config );
 			self::cdn_upload_browsercache( $current_config );
 		}
@@ -692,11 +692,11 @@ class Util_Admin {
 	 */
 	public static function cdn_upload_minify() {
 		$w3_plugin_cdn = Dispatcher::component( 'Cdn_Plugin' );
-		$common = Dispatcher::component( 'Cdn_Core' );
+		$common        = Dispatcher::component( 'Cdn_Core' );
 
 		$files = $w3_plugin_cdn->get_files_minify();
 
-		$upload = array();
+		$upload  = array();
 		$results = array();
 
 		foreach ( $files as $file ) {
@@ -722,20 +722,20 @@ class Util_Admin {
 
 		Dispatcher::component( 'Cdn_Core_Admin' );
 
-		$ce = Dispatcher::component( 'Cdn_Environment' );
+		$ce    = Dispatcher::component( 'Cdn_Environment' );
 		$rules = $ce->rules_generate_for_ftp( $config );
 
 		if ( $config->get_boolean( 'browsercache.enabled' ) ) {
-			$be = Dispatcher::component( 'BrowserCache_Environment' );
+			$be     = Dispatcher::component( 'BrowserCache_Environment' );
 			$rules .= $be->rules_cache_generate_for_ftp( $config );
 		}
 
 		$cdn_path = Util_Rule::get_cdn_rules_path();
 		$tmp_path = W3TC_CACHE_TMP_DIR . '/' . $cdn_path;
 
-		if ( @file_put_contents( $tmp_path, $rules ) ) {
+		if ( @file_put_contents( $tmp_path, $rules ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
 			$results = array();
-			$upload = array( $common->build_file_descriptor( $tmp_path, $cdn_path ) );
+			$upload  = array( $common->build_file_descriptor( $tmp_path, $cdn_path ) );
 
 			$common->upload( $upload, true, $results );
 		}
@@ -767,8 +767,8 @@ class Util_Admin {
 	 * @return string
 	 */
 	public static function get_cookie_domain() {
-		$site_url = get_option( 'siteurl' );
-		$parse_url = @parse_url( $site_url );
+		$site_url  = get_option( 'siteurl' );
+		$parse_url = @wp_parse_url( $site_url );
 
 		if ( $parse_url && ! empty( $parse_url['host'] ) ) {
 			return $parse_url['host'];
@@ -843,5 +843,20 @@ class Util_Admin {
 	 */
 	public static function get_current_wp_page() {
 		return Util_Request::get_string( 'page' );
+	}
+
+	/**
+	 * Fix environment once an event occurs.
+	 *
+	 * @since  2.8.1
+	 * @static
+	 *
+	 * @param  Config $config W3TC configuration object.
+	 * @param  string $event Event name (optional).
+	 * @return void
+	 */
+	public static function fix_on_event( Config $config, ?string $event = '' ): void {
+		$environment = Dispatcher::component( 'Root_Environment' );
+		$environment->fix_on_event( $config, $event );
 	}
 }

@@ -1,12 +1,14 @@
 <?php
+/**
+ * File: DbCache_Environment.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * W3 PgCache plugin - administrative interface
- */
-
-/**
- * class DbCache_Environment
+ * Class: DbCache_Environment
  */
 class DbCache_Environment {
 	/**
@@ -114,7 +116,7 @@ class DbCache_Environment {
 	/**
 	 * Remove cron job for pagecache purge.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.0
 	 *
 	 * @return void
 	 */

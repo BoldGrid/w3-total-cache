@@ -4,7 +4,7 @@
  *
  * Render the AlwaysCached settings page.
  *
- * @since X.X.X
+ * @since 2.8.0
  *
  * @package W3TC
  */

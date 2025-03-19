@@ -15,6 +15,9 @@ class ObjectCache_Plugin_Admin {
 			add_filter( 'w3tc_usage_statistics_summary_from_history', array(
 					$this, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
 		}
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'w3tc_ajax_objectcache_diskpopup', array( $this, 'w3tc_ajax_objectcache_diskpopup' ) );
 	}
 
 	public function w3tc_save_options( $data ) {
@@ -123,5 +126,36 @@ class ObjectCache_Plugin_Admin {
 		);
 
 		return $summary;
+	}
+
+	/**
+	 * Enqueue disk usage risk acceptance script.
+	 *
+	 * @since 2.8.6
+	 *
+	 * @return void
+	 */
+	public function admin_enqueue_scripts() {
+		$page_val = Util_Request::get_string( 'page' );
+		if ( 'w3tc_general' === $page_val ) {
+			wp_enqueue_script(
+				'w3tc-objectcache-diskpopup',
+				plugins_url( 'ObjectCache_DiskPopup.js', W3TC_FILE ),
+				array(),
+				W3TC_VERSION,
+				false
+			);
+		}
+	}
+
+	/**
+	 * Popup modal for Object Cache disk usage risk acceptance.
+	 *
+	 * @since 2.8.6
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_objectcache_diskpopup() {
+		include W3TC_DIR . '/ObjectCache_DiskPopup_View.php';
 	}
 }

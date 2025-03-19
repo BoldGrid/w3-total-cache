@@ -1,9 +1,9 @@
 === W3 Total Cache ===
-Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91
+Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.7
-Stable tag: 2.8.0
+Stable tag: 2.8.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -356,10 +356,60 @@ It's quite difficult to recall all of the innovators that have shared their thou
 * [Gopal Vijayaraghavan](http://notmysock.org/)
 * [Bart Vanbraban](http://eaccelerator.net/)
 * [mOo](http://xcache.lighttpd.net/)
+* [villu164] (https://www.wordfence.com/threat-intel/vulnerabilities/researchers/villu164)
 
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.8.6 =
+* Fix: Error deactivating when selected to delete plugin data
+* Fix: WP-CLI: Enable Object Cache depending on settings
+* Fix: Delete all plugin WordPress Options if selected on deactivation
+* Enhancement: Automatically disable Object Cache after plugin update if set to Disk and display a notice
+* Enhancement: WP-CLI: Added settings to enable Object and DB Cache for WP-CLI
+* Enhancement: Added an email field to the exit survey for requesting help
+* Enhancement: Added a popup modal to accept the risk when enabling Object Cache using Disk
+
+= 2.8.5 =
+* Fix: CDN: Amazon S3 long hostname for default region
+* Fix: WP-CLI: Error running "wp w3tc alwayscached_*" commands
+* Fix: WP-CLI: Remove HTML in output
+* Enhancement: Simplified license messsaging
+
+= 2.8.4 =
+* Fix: Deactivation modal JS error
+
+= 2.8.3 =
+* Fix: HTTP API calls for checking required files
+* Fix: script-src-elem and style-src-attr security headers
+* Fix: Handle multiple line srcset attributes for CDN URL replacement
+* Fix: Fragment Cache: Fixed logic for navigation links
+* Fix: Check for modified advanced-cache.php dropin/addin file
+* Fix: Log directory name is made unique
+* Enhancement: Added an exit survey with option to delete plugin data on deactivation
+* Enhancement: Fragment Cache: Added notices for configuration
+* Enhancement: Use admin-ajax for settings help tab content links
+* Update: Handle XML MIME types in cache by default
+* Update: Added "immutable" options for cache-control headers
+* Update: Added WP-CLI command descriptions
+* Update: CDN widget notices for BunnyCDN
+* Update: WebP Converter widget notice
+
+= 2.8.2 =
+* Fix: Added additional user capability checks
+* Fix: Ensure Object Cache garbage collection (disk) WP Cron event is scheduled
+* Fix: Added additional checks when loading the Object Cache dropin
+* Fix: Disable Database, Object, and Fragment Cache when using WP-CLI
+* Fix: Object Cache debug logging
+* Fix: FAQ help tabs
+* Update: Coding standards
+
+= 2.8.1=
+* Fix: Ensure WP Cron events get scheduled when using the Setup Guide wizard and on upgrade
+* Fix: Undefined variable when the Object Cache purge debug log is enabled
+* Update: Added warnings in the Setup Guide and the General Settings page when using Disk for Database and Object Caches
+* Update: Skip Database and Object caches when using WP-CLI
 
 = 2.8.0 =
 * Feature: Always Cached extension
@@ -1184,6 +1234,12 @@ Please reach out to all of these people and support their projects if you're so 
 
 
 == Upgrade Notice ==
+
+= 2.8.2
+This is a security update.  All users are encouraged to update to this version.
+
+= 2.8.1 =
+Users with Object Cache enabled using Disk storage should upgrade to this version to ensure proper garbage collection.  A memory-based engine is recommended for database and object cache engines.  Using the Disk option can lead to a large number of cache files.  Hosting accounts with inode limits may experience issues, including downtime, if limits are reached.
 
 = 2.7.3 =
 Thanks for using W3 Total Cache! The minimum required PHP version has been raised to PHP 7.2.5.  We recommend using PHP 8.  StackPath CDN has cased all operations and will be removed in a future release.  We recommend switching to Bunny CDN.

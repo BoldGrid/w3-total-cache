@@ -216,7 +216,7 @@ def generate_box_descriptors(image_name)
 			]
 		},
 		'wp67' => {
-			'WP_VERSION' => '6.7-RC3',
+			'WP_VERSION' => '6.7',
 			'_except_name_contains' => [
 				'litespeed',
 				'php56' # wp6.7 requires php>=7.0

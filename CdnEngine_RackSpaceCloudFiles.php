@@ -9,7 +9,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 	private $_container;
 	private $_api_files;
 	private $_api_cdn;
-
+	private $_new_access_state_callback;
 
 
 	function __construct( $config = array() ) {

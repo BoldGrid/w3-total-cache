@@ -628,6 +628,10 @@ textarea.w3tc-error {
 	/* WP 5.5 */
 }
 
+#w3tc div.inside div[data-tab-type] {
+	display: none;
+}
+
 #pgcache_reject_roles label,
 #newrelic_accept_roles label,
 #cdn_reject_roles label {
@@ -1708,6 +1712,7 @@ td .w3tc-control-after span {
 	margin-left: 5px;
 }
 
+.fragmentcache_disk_notice,
 .objectcache_disk_notice,
 .dbcache_disk_notice {
 	display: none;

@@ -1,0 +1,18 @@
+#w3tc-exit-survey-modal {
+	padding: 15px;
+}
+.w3tc-modal-content {
+	margin-top: -15px;
+}
+.w3tc-exit-survey-actions {
+	margin-top: 15px;
+}
+#w3tc-exit-survey-skip {
+	float: right;
+	text-decoration: none;
+	margin: 6px 0;
+}
+#w3tc_exit_survey_uninstall_reason_other {
+	width: 100%;
+	margin-top: 5px;
+}

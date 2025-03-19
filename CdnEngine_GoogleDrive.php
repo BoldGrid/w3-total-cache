@@ -9,9 +9,9 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	private $_refresh_token;
 	private $_root_folder_id;
 	private $_root_url;
-
 	private $_service;
 	private $_tablename_pathmap;
+	private $_new_access_token_callback;
 
 
 

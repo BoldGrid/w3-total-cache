@@ -1,8 +1,19 @@
 <?php
+/**
+ * File: Cache_File_Cleaner.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * File cache cleaner class
+ * Class Cache_File_Cleaner
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class Cache_File_Cleaner {
 	/**
@@ -10,39 +21,41 @@ class Cache_File_Cleaner {
 	 *
 	 * @var string
 	 */
-	var $_cache_dir = '';
+	protected $_cache_dir = '';
 
 	/**
 	 * Clean operation time limit
 	 *
 	 * @var int
 	 */
-	var $_clean_timelimit = 0;
+	protected $_clean_timelimit = 0;
 
 	/**
 	 * Exclude files
 	 *
 	 * @var array
 	 */
-	var $_exclude = array();
+	protected $_exclude = array();
 
 	/**
 	 * PHP5-style constructor
 	 *
-	 * @param array   $config
+	 * @param array $config Config.
+	 *
+	 * @return void
 	 */
-	function __construct( $config = array() ) {
-		$this->_cache_dir = ( isset( $config['cache_dir'] ) ? trim( $config['cache_dir'] ) : 'cache' );
+	public function __construct( $config = array() ) {
+		$this->_cache_dir       = ( isset( $config['cache_dir'] ) ? trim( $config['cache_dir'] ) : 'cache' );
 		$this->_clean_timelimit = ( isset( $config['clean_timelimit'] ) ? (int) $config['clean_timelimit'] : 180 );
-		$this->_exclude = ( isset( $config['exclude'] ) ? (array) $config['exclude'] : array() );
+		$this->_exclude         = ( isset( $config['exclude'] ) ? (array) $config['exclude'] : array() );
 	}
 
 	/**
 	 * Run clean operation
 	 *
-	 * @return boolean
+	 * @return void
 	 */
-	function clean() {
+	public function clean() {
 		@set_time_limit( $this->_clean_timelimit );
 
 		$this->_clean( $this->_cache_dir, false );
@@ -53,7 +66,7 @@ class Cache_File_Cleaner {
 	 *
 	 * @return void
 	 */
-	public function clean_before( $before_time ) {
+	public function clean_before() {
 		@set_time_limit( $this->_clean_timelimit );
 
 		$this->_clean( $this->_cache_dir, false );
@@ -62,16 +75,17 @@ class Cache_File_Cleaner {
 	/**
 	 * Clean
 	 *
-	 * @param string  $path
-	 * @param bool    $remove
+	 * @param string $path   Path.
+	 * @param bool   $remove Remove flag.
+	 *
 	 * @return void
 	 */
-	function _clean( $path, $remove = true ) {
+	public function _clean( $path, $remove = true ) {
 		$dir = @opendir( $path );
 
 		if ( $dir ) {
-			while ( ( $entry = @readdir( $dir ) ) !== false ) {
-				if ( $entry == '.' || $entry == '..' ) {
+			while ( ( $entry = @readdir( $dir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+				if ( '.' === $entry || '..' === $entry ) {
 					continue;
 				}
 
@@ -85,7 +99,7 @@ class Cache_File_Cleaner {
 
 				if ( @is_dir( $full_path ) ) {
 					$this->_clean( $full_path );
-				} elseif ( !$this->is_valid( $full_path ) ) {
+				} elseif ( ! $this->is_valid( $full_path ) ) {
 					@unlink( $full_path );
 				}
 			}
@@ -101,10 +115,11 @@ class Cache_File_Cleaner {
 	/**
 	 * Check if file is valid
 	 *
-	 * @param string  $file
+	 * @param string $file File.
+	 *
 	 * @return bool
 	 */
-	function is_valid( $file ) {
+	public function is_valid( $file ) {
 		$valid = false;
 
 		if ( file_exists( $file ) ) {
@@ -113,9 +128,9 @@ class Cache_File_Cleaner {
 			if ( $fp ) {
 				$expires = @fread( $fp, 4 );
 
-				if ( $expires !== false ) {
+				if ( false !== $expires ) {
 					list( , $expires_at ) = @unpack( 'L', $expires );
-					$valid = ( time() < $expires_at );
+					$valid                = ( time() < $expires_at );
 				}
 
 				@fclose( $fp );

@@ -45,7 +45,7 @@ describe('', function() {
 
 
 async function testWithDifferentOptions(oc, db, autoload) {
-	log.log('testing ' + oc + ' ' + db + ' ' + autoload);
+	log.log('Testing Object Cache set to "' + oc + '" and Database Cache set to "' + db + '" with options autoload set to "' + autoload + '"...');
 	await w3tc.setOptions(adminPage, 'w3tc_general', {
 		dbcache__enabled: db,
 		objectcache__enabled: oc,

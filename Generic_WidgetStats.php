@@ -13,19 +13,21 @@ namespace W3TC;
  */
 class Generic_WidgetStats {
 	/**
-	 * Dashboard setup action
+	 * Dashboard setup action (administrators only).
 	 *
 	 * @since 2.7.0
 	 *
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$o = new Generic_WidgetStats();
+		if ( \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			$o = new Generic_WidgetStats();
 
-		add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 700 );
-		add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 700 );
-		wp_enqueue_script( 'w3tc-dashboard', plugins_url( 'pub/js/google-charts.js', W3TC_FILE ), array(), W3TC_VERSION, true );
-		wp_enqueue_script( 'w3tc-stats-widget', plugins_url( 'Generic_WidgetStats.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+			add_action( 'w3tc_widget_setup', array( $o, 'wp_dashboard_setup' ), 700 );
+			add_action( 'w3tc_network_dashboard_setup', array( $o, 'wp_dashboard_setup' ), 700 );
+			wp_enqueue_script( 'w3tc-dashboard', plugins_url( 'pub/js/google-charts.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+			wp_enqueue_script( 'w3tc-stats-widget', plugins_url( 'Generic_WidgetStats.js', W3TC_FILE ), array(), W3TC_VERSION, true );
+		}
 	}
 
 	/**
@@ -131,7 +133,7 @@ class Generic_WidgetStats {
 		$config        = Dispatcher::config();
 		$chart_id      = $chart_config['chart_id'];
 		$chart_content = '';
-		if ( ! Util_Environment::is_w3tc_pro( $config ) ) {
+		if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $config ) ) {
 			$chart_id     .= '_ad';
 			$chart_content = '<input type="button" class="button-primary button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}" data-src="' . $chart_id . '_cache_chart" value="' . esc_html__( 'Unlock Feature', 'w3-total-cache' ) . '" />';
 		} elseif ( ! $config->get_boolean( 'stats.enabled' ) ) {

@@ -57,7 +57,7 @@ $settings = array(
 	),
 	'fragmentcache' => array(
 		'label'   => esc_html__( 'Fragment Cache', 'w3-total-cache' ),
-		'enabled' => $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ),
+		'enabled' => $config->is_extension_active_frontend( 'fragmentcache' ),
 	),
 	'debug'         => array(
 		'label'   => esc_html__( 'Debug', 'w3-total-cache' ),
@@ -78,14 +78,14 @@ $settings = array(
 ?>
 <div class="general-settings-container">
 	<?php
-	$enabled  = esc_html__( 'enabled', 'w3-total-cache' );
-	$disabled = esc_html__( 'disabled', 'w3-total-cache' );
+	$enabled  = __( 'enabled', 'w3-total-cache' );
+	$disabled = __( 'disabled', 'w3-total-cache' );
 	foreach ( $settings as $setting ) {
 		?>
 		<div class="general-setting">
-			<span><b><?php echo $setting['label']; ?></b></span>
+			<span><b><?php echo esc_html( $setting['label'] ); ?></b></span>
 			<span class="general-setting-enabled<?php echo $setting['enabled'] ? ' setting-enabled' : ''; ?>">
-				<?php echo $setting['enabled'] ? $enabled : $disabled; ?>
+				<?php echo esc_html( $setting['enabled'] ? $enabled : $disabled ); ?>
 			</span>
 		</div>
 		<?php

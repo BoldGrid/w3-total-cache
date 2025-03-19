@@ -1,33 +1,50 @@
 <?php
+/**
+ * File: Util_Content.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Util_Content
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ */
 class Util_Content {
 	/**
 	 * Check if content is HTML
 	 *
-	 * @param string  $content
+	 * @param string $content Content.
+	 *
 	 * @return boolean
 	 */
-	static public function is_html( $content ) {
-		$content = Util_Content::_is_html_prepare( $content );
-		return stripos( $content, '<html' ) === 0 ||
-			stripos( $content, '<!DOCTYPE' ) === 0;
+	public static function is_html( $content ) {
+		$content = self::_is_html_prepare( $content );
+		return stripos( $content, '<html' ) === 0 || stripos( $content, '<!DOCTYPE' ) === 0;
 	}
 
 	/**
 	 * Check if content is HTML or XML
 	 *
-	 * @param string  $content
+	 * @param string $content Content.
+	 *
 	 * @return boolean
 	 */
-	static public function is_html_xml( $content ) {
-		$content = Util_Content::_is_html_prepare( $content );
-		return stripos( $content, '<?xml' ) === 0 ||
-			stripos( $content, '<html' ) === 0 ||
-			stripos( $content, '<!DOCTYPE' ) === 0;
+	public static function is_html_xml( $content ) {
+		$content = self::_is_html_prepare( $content );
+		return stripos( $content, '<?xml' ) === 0 || stripos( $content, '<html' ) === 0 || stripos( $content, '<!DOCTYPE' ) === 0;
 	}
 
-	static private function _is_html_prepare( $content ) {
+	/**
+	 * Prepare HTML
+	 *
+	 * @param string $content Content.
+	 *
+	 * @return string
+	 */
+	private static function _is_html_prepare( $content ) {
 		if ( strlen( $content ) > 1000 ) {
 			$content = substr( $content, 0, 1000 );
 		}
@@ -37,38 +54,44 @@ class Util_Content {
 		}
 
 		$content = ltrim( $content, "\x00\x09\x0A\x0D\x20\xBB\xBF\xEF" );
+
 		return $content;
 	}
 
 	/**
 	 * If content can handle HTML comments, can disable printout per request using filter 'w3tc_can_print_comment'
 	 *
-	 * @param unknown $buffer
+	 * @param unknown $buffer Buffer.
+	 *
 	 * @return bool
 	 */
-	static public function can_print_comment( $buffer ) {
-		if ( function_exists( 'apply_filters' ) )
-			return apply_filters( 'w3tc_can_print_comment', Util_Content::is_html_xml( $buffer ) && !defined( 'DOING_AJAX' ) );
-		return Util_Content::is_html_xml( $buffer ) && !defined( 'DOING_AJAX' );
+	public static function can_print_comment( $buffer ) {
+		if ( function_exists( 'apply_filters' ) ) {
+			return apply_filters( 'w3tc_can_print_comment', self::is_html_xml( $buffer ) && ! defined( 'DOING_AJAX' ) );
+		}
+
+		return self::is_html_xml( $buffer ) && ! defined( 'DOING_AJAX' );
 	}
 
 	/**
 	 * Returns GMT date
 	 *
-	 * @param integer $time
+	 * @param integer $time Time.
+	 *
 	 * @return string
 	 */
-	static public function http_date( $time ) {
+	public static function http_date( $time ) {
 		return gmdate( 'D, d M Y H:i:s \G\M\T', $time );
 	}
 
 	/**
 	 * Escapes HTML comment
 	 *
-	 * @param string  $comment
+	 * @param string $comment Comment.
+	 *
 	 * @return mixed
 	 */
-	static public function escape_comment( $comment ) {
+	public static function escape_comment( $comment ) {
 		while ( strstr( $comment, '--' ) !== false ) {
 			$comment = str_replace( '--', '- -', $comment );
 		}
@@ -76,17 +99,15 @@ class Util_Content {
 		return $comment;
 	}
 
-
-
 	/**
 	 * Deprecated. Added to prevent loading-order errors during upgrades
 	 * from older w3tc plugin versions
-	 **/
-	static public function is_database_error() {
+	 *
+	 * @return bool
+	 */
+	public static function is_database_error() {
 		return false;
 	}
-
-
 
 	/**
 	 * Converts
@@ -96,15 +117,21 @@ class Util_Content {
 	 *
 	 * Doesnt fit to that class perfectly but selected due to common usage
 	 * of loaded classes
+	 *
+	 * @param string $server       Server.
+	 * @param int    $port_default Port default.
+	 *
+	 * @return array
 	 */
-	static public function endpoint_to_host_port( $server, $port_default = 0 ) {
+	public static function endpoint_to_host_port( $server, $port_default = 0 ) {
 		$p = strrpos( $server, ':' );
-		if ( substr( $server, 0, 5 ) == 'unix:' || $p === false ) {
+		if ( 'unix:' === substr( $server, 0, 5 ) || false === $p ) {
 			return array( trim( $server ), $port_default );
 		}
 
 		return array(
 			trim( substr( $server, 0, $p ) ),
-			(int)substr( $server, $p + 1 ) );
+			(int) substr( $server, $p + 1 ),
+		);
 	}
 }

@@ -52,7 +52,12 @@ class Extension_ImageService_Widget {
 
 		// Validate hourly data. If no data then set usage to 0 and appropriate limits.
 		$usage['usage_hourly'] = 'Unknown' !== $usage['usage_hourly'] ? $usage['usage_hourly'] : 0;
-		$usage['limit_hourly'] = 'Unknown' !== $usage['limit_hourly'] ? $usage['limit_hourly'] : ( $is_pro ? 10000 : 100 );
+
+		if ( $is_pro ) {
+			$usage['limit_hourly'] = 'Unknown' !== $usage['limit_hourly_licensed'] ? $usage['limit_hourly_licensed'] : 10000;
+		} else {
+			$usage['limit_hourly'] = 'Unknown' !== $usage['limit_hourly'] ? $usage['limit_hourly'] : 100;
+		}
 
 		// Validate monthly data. If no data then set usage to 0 and appropriate limits.
 		// Remove if pro as we don't show a gauge for pro usage.

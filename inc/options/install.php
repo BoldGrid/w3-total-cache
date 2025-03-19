@@ -242,33 +242,6 @@ if ( ! defined( 'W3TC' ) ) {
 		</li>
 	</ol>
 
-	<p>
-		<?php
-		echo wp_kses(
-			sprintf(
-				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-				// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-				__(
-					'Check out the %1$sFAQ%2$s for more details on %3$susage</a>.',
-					'w3-total-cache'
-				),
-				'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
-				'</acronym>',
-				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_faq' ) ) . '">',
-				'</a>'
-			),
-			array(
-				'a'       => array(
-					'href' => array(),
-				),
-				'acronym' => array(
-					'title' => array(),
-				),
-			)
-		);
-		?>
-	</p>
-
 	<hr />
 	<?php if ( count( $rewrite_rules_descriptors ) ) : ?>
 		<h3 id="rules"><?php esc_html_e( 'Rewrite Rules (based on active settings)', 'w3-total-cache' ); ?></h3>

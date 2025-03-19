@@ -97,18 +97,18 @@ jQuery( document ).ready(
 					var chart_data = google.visualization.arrayToDataTable( data[key]['data'], true );
 					var yellow_from, yellow_to, red_from;
 
-					if ( data[key]['limit'] > 100 && data[key]['limit'] <= 1000 ) {
-						yellow_from = data[key]['limit'] - 200;
-						yellow_to = data[key]['limit'] - 100;
-						red_from = data[key]['limit'] - 100;
-					} else if ( data[key]['limit'] > 1000 ) {
-						yellow_from = data[key]['limit'] - 2000;
+					if ( data[key]['limit'] > 10 && data[key]['limit'] <= 100 ) {
+						yellow_from = data[key]['limit'] - 40;
+						yellow_to = data[key]['limit'] - 10;
+						red_from = data[key]['limit'] - 10;
+					} else if ( data[key]['limit'] > 100 ) {
+						yellow_from = data[key]['limit'] - 4000;
 						yellow_to = data[key]['limit'] - 1000;
 						red_from = data[key]['limit'] - 1000;
 					} else {
-						yellow_from = data[key]['limit'] - 20;
-						yellow_to = data[key]['limit'] - 10;
-						red_from = data[key]['limit'] - 10;
+						yellow_from = data[key]['limit'] - 4;
+						yellow_to = data[key]['limit'] - 1;
+						red_from = data[key]['limit'] - 1;
 					}
 
 					var chart_options = {

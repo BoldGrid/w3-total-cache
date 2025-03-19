@@ -130,7 +130,7 @@ class Util_File {
 	 * @return void
 	 */
 	static public function rmdir( $path, $exclude = array(), $remove = true ) {
-		$dir = @opendir( $path );
+		$dir = file_exists( $path ) ? opendir( $path ) : false;
 
 		if ( $dir ) {
 			while ( ( $entry = @readdir( $dir ) ) !== false ) {
@@ -474,5 +474,32 @@ class Util_File {
 		$item .= $data . ",\r\n";
 
 		return $item;
+	}
+
+	/**
+	 * Ensure that ".htaccess" exists in the specified directory.
+	 *
+	 * If the WP_Filesystem is "direct", then create the file (with mode 0644) if needed.
+	 *
+	 * @since 2.8.2
+	 *
+	 * @param  string $dir Directory.
+	 * @return bool
+	 */
+	public static function check_htaccess( string $dir ): bool {
+		$filepath = $dir . DIRECTORY_SEPARATOR . '.htaccess';
+
+		if ( ! @file_exists( $filepath ) ) {
+			$chmod = 0644;
+
+			if ( defined( 'FS_CHMOD_FILE' ) ) {
+				$chmod = FS_CHMOD_FILE;
+			}
+
+			$contents = "<IfModule mod_authz_core.c>\n    # Apache 2.4\n    Require all denied\n</IfModule>\n\n<IfModule !mod_authz_core.c>\n    # Apache 2.2\n    Deny from all\n</IfModule>\n";
+			return @file_put_contents( $filepath, $contents ) && chmod( $filepath, $chmod );
+		}
+
+		return false;
 	}
 }

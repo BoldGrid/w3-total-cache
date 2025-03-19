@@ -6,7 +6,7 @@ var W3tc_Lightbox = {
 	create: function() {
 		var me = this;
 
-		this.container = jQuery('<div class="' + this.options.id + '"><div class="lightbox-close">' + this.options.close + '</div><div id="w3tc_lightbox_content" class="lightbox-content"></div></div>').css({
+		this.container = jQuery('<div class="' + this.options.id + '"><div class="lightbox-close">' + this.options.close + '</div><div id="w3tc_lightbox_content" class="lightbox-content"></div><!-- Spinner --><div id="lightbox-spinner" class="lightbox-spinner hidden"><span class="dashicons dashicons-update"></span></div></div>').css({
 			top: 0,
 			left: 0,
 			width: 0,
@@ -205,7 +205,19 @@ var W3tc_Lightbox = {
 			this.container.find('.lightbox-content').addClass('lightbox-loader');
 		else
 			this.container.find('.lightbox-content').removeClass('lightbox-loader');
-	}
+	},
+
+	show_spinner: function() {
+		this.container.find('.lightbox-spinner').show();  // Show the spinner
+		this.container.find('.lightbox-content').css('opacity', '0.5');  // Gray out the modal
+		this.container.find('input, button, a').prop('disabled', true);  // Disable other interactions
+	},
+
+	hide_spinner: function() {
+		this.container.find('.lightbox-spinner').hide();  // Hide the spinner
+		this.container.find('.lightbox-content').css('opacity', '1');  // Restore the modal opacity
+		this.container.find('input, button, a').prop('disabled', false);  // Enable interactions
+    }
 };
 
 var W3tc_Overlay = {
@@ -226,7 +238,7 @@ var W3tc_Overlay = {
 			opacity: 0.6
 		});
 
-		jQuery('#w3tc').append(this.container);
+		jQuery('body').append(this.container);
 
 		this.window.resize(function() {
 			me.resize();

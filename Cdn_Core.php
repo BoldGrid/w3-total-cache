@@ -408,6 +408,7 @@ class Cdn_Core {
 						'secret'          => $c->get_string( 'cdn.cf.secret' ),
 						'bucket'          => $c->get_string( 'cdn.cf.bucket' ),
 						'bucket_location' => self::get_region_id( $c->get_string( 'cdn.cf.bucket.location' ) ),
+						'bucket_loc_id'   => $c->get_string( 'cdn.cf.bucket.location' ),
 						'id'              => $c->get_string( 'cdn.cf.id' ),
 						'cname'           => $c->get_array( 'cdn.cf.cname' ),
 						'ssl'             => $c->get_string( 'cdn.cf.ssl' ),
@@ -545,6 +546,7 @@ class Cdn_Core {
 						'secret'          => $c->get_string( 'cdn.s3.secret' ),
 						'bucket'          => $c->get_string( 'cdn.s3.bucket' ),
 						'bucket_location' => self::get_region_id( $c->get_string( 'cdn.s3.bucket.location' ) ),
+						'bucket_loc_id'   => $c->get_string( 'cdn.s3.bucket.location' ),
 						'cname'           => $c->get_array( 'cdn.s3.cname' ),
 						'ssl'             => $c->get_string( 'cdn.s3.ssl' ),
 						'public_objects'  => $c->get_string( 'cdn.s3.public_objects' ),
@@ -814,5 +816,181 @@ class Cdn_Core {
 		}
 
 		return $region;
+	}
+
+	/**
+	 * Is the configured CDN authorized?
+	 *
+	 * @since 2.8.5
+	 *
+	 * @return bool
+	 */
+	public function is_cdn_authorized() {
+		switch ( $this->_config->get_string( 'cdn.engine' ) ) {
+			case 'akamai':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.akamai.username' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.akamai.password' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.akamai.zone' ) );
+				break;
+			case 'att':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.att.account' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.att.token' ) );
+				break;
+			case 'azure':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.azure.user' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.azure.key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.azure.container' ) ) &&
+					! empty( $this->_config->get_array( 'cdn.azure.cname' ) );
+				break;
+			case 'azuremi':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.azuremi.user' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.azuremi.clientid' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.azure.container' ) ) &&
+					! empty( $this->_config->get_array( 'cdn.azure.cname' ) );
+				break;
+			case 'bunnycdn':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.bunnycdn.account_api_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.bunnycdn.pull_zone_id' ) );
+				break;
+			case 'cf':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.cf.key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.cf.secret' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.cf.bucket' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.cf.bucket.location' ) );
+				break;
+			case 'cf2':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.cf2.key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.cf2.secret' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.cf2.id' ) );
+				break;
+			case 'cotendo':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.cotendo.username' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.cotendo.password' ) ) &&
+					! empty( $this->_config->get_array( 'cdn.cotendo.domain' ) ) &&
+					! empty( $this->_config->get_array( 'cdn.cotendo.zones' ) );
+				break;
+			case 'edgecast':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.edgecast.account' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.edgecast.token' ) ) &&
+					! empty( $this->_config->get_array( 'cdn.edgecast.domain' ) );
+				break;
+			case 'ftp':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.ftp.host' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.ftp.type' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.ftp.user' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.ftp.pass' ) );
+				break;
+			case 'google_drive':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.google_drive.client_id' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.google_drive.refresh_token' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.google_drive.folder.id' ) );
+				break;
+			case 'highwinds':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.highwinds.account_hash' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.highwinds.api_token' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.highwinds.host.hash_code' ) );
+				break;
+			case 'limelight':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.limelight.short_name' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.limelight.username' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.limelight.api_key' ) );
+				break;
+			case 'mirror':
+				$is_cdn_authorized = ! empty( $this->_config->get_array( 'cdn.mirror.domain' ) );
+				break;
+			case 'rackspace_cdn':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.rackspace_cdn.user_name' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.rackspace_cdn.api_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.rackspace_cdn.region' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.rackspace_cdn.service.id' ) );
+				break;
+			case 'rscf':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.rscf.user' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.rscf.key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.rscf.container' ) );
+				break;
+			case 's3':
+			case 's3_compatible':
+					$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.s3.key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.s3.secret' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.s3.bucket' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.s3.bucket.location' ) );
+				break;
+			case 'stackpath':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.stackpath.autorization_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.stackpath.zone_id' ) );
+				break;
+			case 'stackpath2':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.stackpath.client_id' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.stackpath.client_secret' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.stackpath.stack_id' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.stackpath.site_id' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.stackpath.site_root_domain' ) );
+				break;
+			default:
+				$is_cdn_authorized = false;
+				break;
+		}
+
+		return $is_cdn_authorized;
+	}
+
+	/**
+	 * Is the configured CDN FSD authorized?
+	 *
+	 * @since 2.8.5
+	 *
+	 * @return bool
+	 */
+	public function is_cdnfsd_authorized() {
+	$cloudflare_config = $this->_config->get_array( 'cloudflare' );
+
+		switch ( $this->_config->get_string( 'cdnfsd.engine' ) ) {
+			case 'bunnycdn':
+				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdn.bunnycdn.account_api_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
+				break;
+			case 'cloudflare':
+				$is_cdnfsd_authorized = ! empty( $cloudflare_config['email'] ) &&
+					! empty( $cloudflare_config['key'] ) &&
+					! empty( $cloudflare_config['zone_id'] ) &&
+					! empty( $cloudflare_config['zone_name'] );
+				break;
+			case 'cloudfront':
+				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.cloudfront.access_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.cloudfront.secret_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.cloudfront.distribution_id' ) );
+				break;
+			case 'limelight':
+				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.limelight.short_name' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.limelight.username' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.limelight.api_key' ) );
+				break;
+			case 'maxcdn':
+					$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.maxcdn.api_key' ) ) &&
+						! empty( $this->_config->get_string( 'cdnfsd.maxcdn.zone_id' ) );
+				break;
+			case 'stackpath':
+				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.stackpath.api_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.stackpath.zone_id' ) );
+				break;
+			case 'stackpath2':
+				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.stackpath2.client_id' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.stackpath2.client_secret' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.stackpath2.stack_id' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.stackpath2.site_id' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.stackpath2.site_root_domain' ) );
+				break;
+			case 'transparentcdn':
+				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.transparentcdn.client_id' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.transparentcdn.client_secret' ) ) &&
+					! empty( $this->_config->get_string( 'cdnfsd.transparentcdn.company_id' ) );
+				break;
+			default:
+				$is_cdnfsd_authorized = false;
+				break;
+		}
+
+		return $is_cdnfsd_authorized;
 	}
 }
