@@ -90,6 +90,7 @@ function w3tc_exit_survey_render() {
 				// Collect form data.
 				var reason = jQuery('input[name="reason"]:checked', lightbox.container).val();
 				var other = jQuery('input[name="other"]', lightbox.container).val();
+				var email = jQuery('input[name="email"]', lightbox.container).val();
 				var remove = jQuery('input[name="remove"]:checked', lightbox.container).val();
 
 				// Build the params object.
@@ -99,6 +100,7 @@ function w3tc_exit_survey_render() {
 					w3tc_action: 'exit_survey_submit',
 					reason: reason,
 					other: other,
+					email: email,
 					remove: remove
 				};
 
@@ -158,11 +160,7 @@ jQuery(function() {
 			jQuery('#w3tc-exit-survey-submit').prop('disabled', false);
 		}
 
-		// If the "Other" option is selected, show the text box.
-		if (jQuery(this).val() === 'other') {
-			jQuery('#w3tc_exit_survey_uninstall_reason_other').show();
-		} else {
-			jQuery('#w3tc_exit_survey_uninstall_reason_other').hide();
-		}
+		// Show more info input box.
+		jQuery('#w3tc_exit_survey_uninstall_reason_more_info').show();
 	});
 });
