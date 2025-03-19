@@ -367,7 +367,6 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Setup Guide analytics
 * Update: Allow deleting plugin data when skipping the exit survey on deactivation
 * Update: aws/aws-php-sns-message-validator (1.9.0 => 1.9.1)
-* Update: squizlabs/php_codesniffer (3.11.3 => 3.12.0)
 
 = 2.8.6 =
 * Fix: Error deactivating when selected to delete plugin data
