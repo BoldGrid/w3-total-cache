@@ -18,7 +18,7 @@ class PgCache_Environment {
 	/**
 	 * Fixes environment settings on WP admin request.
 	 *
-	 * @param object $config         Configuration object containing environment settings.
+	 * @param Config $config         Configuration object containing environment settings.
 	 * @param bool   $force_all_checks Whether to force all checks regardless of current configuration.
 	 *
 	 * @return void
@@ -73,9 +73,9 @@ class PgCache_Environment {
 	/**
 	 * Adjusts settings based on a specific event.
 	 *
-	 * @param object      $config     Configuration object with settings.
+	 * @param Config      $config     W3TC Config containing relevant settings.
 	 * @param string      $event      The name of the event triggering the adjustment.
-	 * @param object|null $old_config Optional. Previous configuration object for comparison.
+	 * @param Config|null $old_config Optional. Previous W3TC Config object for comparison.
 	 *
 	 * @return void
 	 */
@@ -149,7 +149,7 @@ class PgCache_Environment {
 	 *
 	 * @since 0.9.7.3
 	 *
-	 * @param object $c Configuration object.
+	 * @param Config $c W3TC Config containing relevant settings.
 	 *
 	 * @return bool True if rules are required, false otherwise.
 	 */
@@ -162,7 +162,7 @@ class PgCache_Environment {
 	/**
 	 * Retrieves the required rules for the environment.
 	 *
-	 * @param object $config Configuration object.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return array|null Array of required rules or null if none are required.
 	 */
@@ -191,7 +191,7 @@ class PgCache_Environment {
 	/**
 	 * Ensures folders meet the required settings for caching.
 	 *
-	 * @param object $config Configuration object.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 * @param object $exs    Exception handler object.
 	 *
 	 * @return void
@@ -229,7 +229,7 @@ class PgCache_Environment {
 	private function verify_file_generic_compatibility() {
 		$permalink_structure = get_option( 'permalink_structure' );
 
-		if ( '' === $permalink_structure ) {
+		if ( empty( $permalink_structure ) ) {
 			throw new Util_Environment_Exception( 'Disk Enhanced mode can\'t work with "Default" permalinks structure' );
 		}
 	}
@@ -460,7 +460,7 @@ class PgCache_Environment {
 	/**
 	 * Adds core rules to the configuration.
 	 *
-	 * @param object $config Configuration object.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 * @param object $exs    Exception handler object.
 	 *
 	 * @return void
@@ -502,7 +502,7 @@ class PgCache_Environment {
 	/**
 	 * Generates the core rules based on the server environment.
 	 *
-	 * @param object $config Configuration object.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated rules as a string.
 	 */
@@ -1209,7 +1209,7 @@ class PgCache_Environment {
 	/**
 	 * Generates the cache rules for file-based generic cache handling.
 	 *
-	 * @param object $config          The configuration object containing settings for cache handling.
+	 * @param Config $config          W3TC Config containing relevant settings.
 	 * @param string $cache_dir       The directory where cache files are stored.
 	 * @param string $env_request_uri The request URI for the environment.
 	 * @param string $key_postfix     The key postfix to be used in cache keys.
@@ -1257,7 +1257,7 @@ class PgCache_Environment {
 	/**
 	 * Generates the cache rules for nginx with memcached support.
 	 *
-	 * @param object $config          The configuration object containing settings for cache handling.
+	 * @param Config $config          W3TC Config containing relevant settings.
 	 * @param string $cache_dir       The directory where cache files are stored.
 	 * @param string $env_request_uri The request URI for the environment.
 	 * @param string $key_postfix     The key postfix to be used in cache keys.
@@ -1301,8 +1301,8 @@ class PgCache_Environment {
 	/**
 	 * Adds cache rules to a given set of existing rules.
 	 *
-	 * @param object $config The configuration object containing settings for cache handling.
-	 * @param array  $exs    The existing set of rules to which new cache rules will be added.
+	 * @param Config                      $config W3TC Config containing relevant settings.
+	 * @param Util_Environment_Exceptions $exs    The existing set of rules to which new cache rules will be added.
 	 *
 	 * @return void
 	 */
@@ -1326,7 +1326,7 @@ class PgCache_Environment {
 	/**
 	 * Removes cache rules from a given set of existing rules.
 	 *
-	 * @param array $exs The existing set of rules from which cache rules will be removed.
+	 * @param Util_Environment_Exceptions $exs The existing set of rules from which cache rules will be removed.
 	 *
 	 * @return void
 	 */
@@ -1347,7 +1347,7 @@ class PgCache_Environment {
 	/**
 	 * Generates cache rules based on the environment (Apache or Nginx).
 	 *
-	 * @param object $config The configuration object containing settings for cache handling.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return string The generated cache rules based on the server environment.
 	 */
@@ -1367,7 +1367,7 @@ class PgCache_Environment {
 	/**
 	 * Generates cache rules for Apache-based environments.
 	 *
-	 * @param object $config The configuration object containing settings for cache handling.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return string The generated cache rules for Apache-based environments.
 	 */
@@ -1537,7 +1537,7 @@ class PgCache_Environment {
 	/**
 	 * Generates cache rules for Nginx-based environments.
 	 *
-	 * @param object $config The configuration object containing settings for cache handling.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return string The generated cache rules for Nginx-based environments.
 	 */

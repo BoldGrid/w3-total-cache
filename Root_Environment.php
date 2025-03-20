@@ -14,8 +14,8 @@ class Root_Environment {
 	/**
 	 * Fixes the environment configuration in the WordPress admin panel.
 	 *
-	 * @param object $config            Configuration object to be applied during the fix process.
-	 * @param bool   $force_all_checks  Whether to force all environment checks.
+	 * @param Config $config           W3TC Config containing relevant settings.
+	 * @param bool   $force_all_checks Whether to force all environment checks.
 	 *
 	 * @return void
 	 *
@@ -58,9 +58,9 @@ class Root_Environment {
 	/**
 	 * Fixes the environment configuration based on specific events.
 	 *
-	 * @param object      $config     Configuration object to be applied during the fix process.
+	 * @param Config      $config     W3TC Config containing relevant settings.
 	 * @param string      $event      Name of the triggering event.
-	 * @param object|null $old_config Optional old configuration object for comparison.
+	 * @param Config|null $old_config Optional old W3TC Config object for comparison.
 	 *
 	 * @return void
 	 *
@@ -122,7 +122,7 @@ class Root_Environment {
 	/**
 	 * Retrieves the rules required for the environment configuration.
 	 *
-	 * @param object $config Configuration object used to determine required rules.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return array Array of descriptors for required rewrite rules.
 	 */
@@ -206,7 +206,7 @@ class Root_Environment {
 	/**
 	 * Retrieves additional instructions for the environment configuration.
 	 *
-	 * @param object $config Configuration object used to determine additional instructions.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return array Array of descriptors for additional instructions, grouped by area.
 	 */
@@ -240,7 +240,7 @@ class Root_Environment {
 	 *
 	 * @since 2.8.3
 	 *
-	 * @param Config $config Config.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return void
 	 */

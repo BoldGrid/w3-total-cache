@@ -19,7 +19,7 @@ class ObjectCache_Environment {
 	/**
 	 * Fixes the object cache configuration on a WP admin request.
 	 *
-	 * @param object $config           Configuration object.
+	 * @param Config $config           W3TC Config containing relevant settings.
 	 * @param bool   $force_all_checks Whether to force all checks.
 	 *
 	 * @return void
@@ -50,9 +50,9 @@ class ObjectCache_Environment {
 	/**
 	 * Fixes the object cache configuration based on a specific event.
 	 *
-	 * @param object      $config     Configuration object.
+	 * @param Config      $config     W3TC Config containing relevant settings.
 	 * @param string      $event      Event name.
-	 * @param object|null $old_config Optional old configuration object.
+	 * @param Config|null $old_config Optional old W3TC Config containing relevant settings.
 	 *
 	 * @return void
 	 */
@@ -103,7 +103,7 @@ class ObjectCache_Environment {
 	/**
 	 * Retrieves the required rules for the object cache.
 	 *
-	 * @param object $config Configuration object.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return null Always returns null.
 	 */

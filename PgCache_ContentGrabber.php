@@ -27,7 +27,21 @@ class PgCache_ContentGrabber {
 	 *
 	 * @var Config
 	 */
-	private $_config = null;
+	protected $_config = null;
+
+	/**
+	 * Mobile object
+	 *
+	 * @var W3_Mobile
+	 */
+	protected $_mobile = null;
+
+	/**
+	 * Referrer object
+	 *
+	 * @var W3_Referrer
+	 */
+	protected $_referrer = null;
 
 	/**
 	 * Caching flag
@@ -101,20 +115,6 @@ class PgCache_ContentGrabber {
 	 * @var string
 	 */
 	private $_shutdown_buffer = '';
-
-	/**
-	 * Mobile object
-	 *
-	 * @var W3_Mobile
-	 */
-	private $_mobile = null;
-
-	/**
-	 * Referrer object
-	 *
-	 * @var W3_Referrer
-	 */
-	private $_referrer = null;
 
 	/**
 	 * Cache reject reason
@@ -396,8 +396,17 @@ class PgCache_ContentGrabber {
 	/**
 	 * Sets the page key and group for cache extraction.
 	 *
-	 * @param array $page_key_extension Cache key extension data.
-	 * @param bool  $with_filter        Whether to apply filters to the cache keys.
+	 * @param array $page_key_extension {
+	 *     Cache key extension data.
+	 *
+	 *     @type string $group        The cache group.
+	 *     @type string $useragent    The user agent string.
+	 *     @type string $referrer     The referrer URL.
+	 *     @type string $encryption   Encryption type.
+	 *     @type string $compression  Compression type.
+	 *     @type string $content_type The content type.
+	 * }
+	 * @param bool  $with_filter Whether to apply filters to the cache keys.
 	 *
 	 * @return bool True if the page key was set successfully, false otherwise.
 	 */
@@ -447,7 +456,16 @@ class PgCache_ContentGrabber {
 	/**
 	 * Processes the cached page and terminates execution.
 	 *
-	 * @param array $data Cached page data.
+	 * @param array $data {
+	 *     Cached page data.
+	 *
+	 *     @type bool   $404        Whether the page is a 404 response. Defaults to false.
+	 *     @type array  $headers    Headers to be sent with the response.
+	 *     @type string $content    Cached page content.
+	 *     @type bool   $has_dynamic Whether the page contains dynamic content.
+	 *     @type int    $time       Timestamp of when the page was cached.
+	 *     @type string $compression Compression type used for the cached page.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -615,7 +633,7 @@ class PgCache_ContentGrabber {
 		}
 
 		// Skip if session defined.
-		if ( defined( 'SID' ) && SID !== '' ) {
+		if ( defined( 'SID' ) && ! empty( SID ) ) {
 			$this->cache_reject_reason = 'Session started';
 			return false;
 		}
@@ -716,8 +734,12 @@ class PgCache_ContentGrabber {
 	/**
 	 * Determines if the cache can be written for the given buffer and response headers.
 	 *
-	 * @param string $buffer           The content buffer to potentially cache.
-	 * @param array  $response_headers Response headers from the current request.
+	 * @param string $buffer The content buffer to potentially cache.
+	 * @param array  $response_headers {
+	 *     Response headers from the current request.
+	 *
+	 *     @type array $kv Key-value pairs of response headers.
+	 * }
 	 *
 	 * @return bool True if cache can be written, false otherwise.
 	 */
@@ -1350,9 +1372,15 @@ class PgCache_ContentGrabber {
 	}
 
 	/**
-	 * Fills the key extension with cookie-related information.
+	 * Fills the key extension array with cookie-related information based on configured cookie groups.
 	 *
-	 * @param array $extension Reference to the key extension array.
+	 * @param array $extension {
+	 *     Reference to the key extension array.
+	 *
+	 *     @type string|null $cookie              The name of the matched cookie group, if any.
+	 *     @type bool|null   $cache               Whether caching is allowed. Set to false if a matching group disallows caching.
+	 *     @type string|null $cache_reject_reason Reason for cache rejection if caching is disabled.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1533,7 +1561,7 @@ class PgCache_ContentGrabber {
 			if ( strpos( $ua, 'Mozilla/4.0 (compatible; MSIE ' ) === 0 && strpos( $ua, 'Opera' ) === false ) {
 				$version = (float) substr( $ua, 30 );
 
-				return $version < 6 || ( 6 === $version && false === strpos( $ua, 'SV1' ) );
+				return $version < 6 || ( 6.0 === $version && false === strpos( $ua, 'SV1' ) );
 			}
 		}
 
@@ -1543,9 +1571,22 @@ class PgCache_ContentGrabber {
 	/**
 	 * Filters and retrieves cached headers from the response.
 	 *
-	 * @param array $response_headers An array of response headers.
+	 * @param array $response_headers {
+	 *     An array of response headers.
 	 *
-	 * @return array An array of cached headers.
+	 *     @type string[] $name  The header name.
+	 *     @type string   $value The header value.
+	 * }
+	 *
+	 * @return array {
+	 *     An array of cached headers.
+	 *
+	 *     @type int      $Status-Code  The HTTP status code (if available).
+	 *     @type string[] $n            The repeated header name.
+	 *     @type string   $v            The repeated header value.
+	 *     @type string   $header_name  Cached header name.
+	 *     @type string   $header_value Cached header value.
+	 * }
 	 */
 	public function _get_cached_headers( $response_headers ) {
 		$data_headers  = array();
@@ -1591,8 +1632,18 @@ class PgCache_ContentGrabber {
 	/**
 	 * Constructs a unique cache key for the page.
 	 *
-	 * @param array  $page_key_extension An array of page key extensions.
-	 * @param string $request_url        Optional. The request URL.
+	 * @param array  $page_key_extension {
+	 *     An array of page key extensions.
+	 *
+	 *     @type string $useragent    User agent key extension.
+	 *     @type string $referrer     Referrer key extension.
+	 *     @type string $cookie       Cookie key extension.
+	 *     @type string $encryption   Encryption key extension.
+	 *     @type string $group        Optional. Cache group key extension.
+	 *     @type string $content_type Optional. Content type for XML handling.
+	 *     @type string $compression  Optional. Compression type key extension.
+	 * }
+	 * @param string $request_url Optional. The request URL.
 	 *
 	 * @return string The constructed cache key.
 	 */
@@ -1677,8 +1728,12 @@ class PgCache_ContentGrabber {
 	/**
 	 * Normalizes and modifies the URL part of the page key.
 	 *
-	 * @param string $key               The URL part of the cache key.
-	 * @param array  $page_key_extension An array of page key extensions.
+	 * @param string $key  The URL part of the cache key.
+	 * @param array  $page_key_extension {
+	 *     An array of page key extensions.
+	 *
+	 *     @type string $group Optional. Group identifier for the page key.
+	 * }
 	 *
 	 * @return string The normalized URL part of the cache key.
 	 */
@@ -1772,7 +1827,12 @@ class PgCache_ContentGrabber {
 	/**
 	 * Sends the provided headers.
 	 *
-	 * @param array $headers An associative array of headers to send.
+	 * @param array $headers {
+	 *     An associative array of headers to send.
+	 *
+	 *     @type string       $name  The header name.
+	 *     @type string|array $value The header value or an array with 'n' for the name and 'v' for the value.
+	 * }
 	 *
 	 * @return bool True on success, false if headers were already sent.
 	 */
@@ -2188,7 +2248,11 @@ class PgCache_ContentGrabber {
 	/**
 	 * Normalizes URL fragments.
 	 *
-	 * @param array $fragments The URL fragments to normalize.
+	 * @param array $fragments {
+	 *     The URL fragments to normalize.
+	 *
+	 *     @type string $querystring The query string to normalize.
+	 * }
 	 *
 	 * @return array The normalized URL fragments.
 	 */
@@ -2294,7 +2358,7 @@ class PgCache_ContentGrabber {
 
 		$headers = $this->_get_cached_headers( $response_headers['plain'] );
 		if ( ! empty( $headers['Status-Code'] ) ) {
-			$is_404 = ( 404 === $headers['Status-Code'] );
+			$is_404 = ( '404' === $headers['Status-Code'] );
 		} elseif ( function_exists( 'is_404' ) ) {
 			$is_404 = is_404();
 		} else {

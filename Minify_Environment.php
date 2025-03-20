@@ -27,7 +27,7 @@ class Minify_Environment {
 	/**
 	 * Fixes issues related to the WordPress admin area requests.
 	 *
-	 * @param object $config           Configuration object for Minify settings.
+	 * @param Config $config           W3TC Config containing Minify settings.
 	 * @param bool   $force_all_checks Whether to force all checks regardless of configuration state.
 	 *
 	 * @return void
@@ -79,9 +79,9 @@ class Minify_Environment {
 	/**
 	 * Handles configuration adjustments triggered by events.
 	 *
-	 * @param object $config     Configuration object for Minify settings.
+	 * @param Config $config     W3TC Config containing Minify settings.
 	 * @param string $event      The event that triggered this function.
-	 * @param object $old_config Optional previous configuration object for comparison.
+	 * @param Config $old_config Optional previous W3TC Config for comparison.
 	 *
 	 * @return void
 	 */
@@ -130,7 +130,7 @@ class Minify_Environment {
 	/**
 	 * Retrieves the required rewrite rules based on the current configuration.
 	 *
-	 * @param object $config Configuration object for Minify settings.
+	 * @param Config $config W3TC Config containing Minify settings.
 	 *
 	 * @return array|null Array of rewrite rules or null if Minify is disabled.
 	 */
@@ -161,7 +161,7 @@ class Minify_Environment {
 	/**
 	 * Fixes folder-related issues for the Minify engine.
 	 *
-	 * @param object $config Configuration object for Minify settings.
+	 * @param Config $config W3TC Config containing Minify settings.
 	 * @param object $exs    Collection of exceptions encountered during the process.
 	 *
 	 * @return void
@@ -188,7 +188,7 @@ class Minify_Environment {
 	/**
 	 * Verifies that the Minify engine is working correctly.
 	 *
-	 * @param object $config Configuration object for Minify settings.
+	 * @param Config $config W3TC Config containing Minify settings.
 	 * @param object $exs    Collection of exceptions encountered during the process.
 	 *
 	 * @return void
@@ -343,7 +343,7 @@ class Minify_Environment {
 	/**
 	 * Adds core rewrite rules for Minify.
 	 *
-	 * @param object $config Configuration object for Minify settings.
+	 * @param Config $config W3TC Config containing Minify settings.
 	 * @param object $exs    Collection of exceptions encountered during the process.
 	 *
 	 * @return void
@@ -389,7 +389,7 @@ class Minify_Environment {
 	/**
 	 * Generates the core rewrite rules for Minify based on the server environment.
 	 *
-	 * @param object $config Configuration object for Minify settings.
+	 * @param Config $config W3TC Config containing Minify settings.
 	 *
 	 * @return string The generated rules.
 	 */
@@ -425,7 +425,7 @@ class Minify_Environment {
 	/**
 	 * Generates Apache rewrite rules for core minification functionality.
 	 *
-	 * @param object $config Configuration object containing relevant settings.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated Apache rewrite rules.
 	 */
@@ -489,7 +489,7 @@ class Minify_Environment {
 	/**
 	 * Generates NGINX rewrite rules for core minification functionality.
 	 *
-	 * @param object $config Configuration object containing relevant settings.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated NGINX rewrite rules.
 	 */
@@ -559,7 +559,7 @@ class Minify_Environment {
 	/**
 	 * Adds cache rules for minification.
 	 *
-	 * @param object $config Configuration object containing relevant settings.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 * @param array  $exs    Array of existing rules to be modified or added to.
 	 *
 	 * @return void
@@ -606,7 +606,7 @@ class Minify_Environment {
 	/**
 	 * Generates cache rules based on the server environment.
 	 *
-	 * @param object $config Configuration object containing relevant settings.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated cache rules.
 	 */
@@ -626,7 +626,7 @@ class Minify_Environment {
 	/**
 	 * Generates Apache cache rules for minification.
 	 *
-	 * @param object $config Configuration object containing relevant settings.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated Apache cache rules.
 	 */
@@ -773,7 +773,7 @@ class Minify_Environment {
 	/**
 	 * Generates NGINX cache rules for minification.
 	 *
-	 * @param object $config Configuration object containing relevant settings.
+	 * @param Config $config W3TC Config containing relevant settings.
 	 *
 	 * @return string Generated NGINX cache rules.
 	 */
@@ -837,7 +837,7 @@ class Minify_Environment {
 	 * Modifies or generates LiteSpeed browser cache rules for a specific section.
 	 *
 	 * @param string $section_rules Existing rules for the specified section.
-	 * @param object $config        Configuration object containing relevant settings.
+	 * @param Config $config        W3TC Config containing relevant settings.
 	 * @param string $section       Section name to modify or generate rules for.
 	 *
 	 * @return string Modified or generated rules for the specified section.

@@ -28,14 +28,14 @@ class Minify_MinifiedFileRequestHandler {
 	 *
 	 * @var Config
 	 */
-	public $_config = null;
+	private $_config = null;
 
 	/**
 	 * Tracks if an error has occurred.
 	 *
 	 * @var bool
 	 */
-	public $_error_occurred = false;
+	private $_error_occurred = false;
 
 	/**
 	 * Constructor for the Minify_MinifiedFileRequestHandler class.
@@ -314,7 +314,11 @@ class Minify_MinifiedFileRequestHandler {
 	 *
 	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 	 *
-	 * @param array $extras Optional associative array of extra parameters for the flush operation.
+	 * @param array $extras {
+	 *     Optional. Associative array of extra parameters for the flush operation.
+	 *
+	 *     @type string $ui_action If set to 'flush_button', performs additional UI-specific actions like clearing options.
+	 * }
 	 *
 	 * @return bool True if the cache flush was successful, false otherwise.
 	 */
@@ -886,8 +890,16 @@ class Minify_MinifiedFileRequestHandler {
 	/**
 	 * Generates an ID based on the given sources and type.
 	 *
-	 * @param array  $sources The sources to generate the ID from.
-	 * @param string $type    The type of the sources (e.g., CSS or JS).
+	 * This method takes an array of sources and a type (CSS or JS) and generates a unique ID by
+	 * hashing the contents of the sources and additional configuration options based on the type.
+	 *
+	 * @param array  $sources {
+	 *     The sources to generate the ID from.
+	 *
+	 *     @type string|object $source A source can either be a string representing a file path or an object
+	 *                                 containing a `filepath` property.
+	 * }
+	 * @param string $type    The type of the sources (e.g., 'css' or 'js').
 	 *
 	 * @return string|false The generated ID or false if generation fails.
 	 */

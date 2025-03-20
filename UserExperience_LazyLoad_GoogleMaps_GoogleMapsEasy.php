@@ -21,13 +21,15 @@ class UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy {
 	/**
 	 * Modifies the buffer to optimize script loading for Google Maps integration.
 	 *
-	 * This method adjusts the output buffer to include a preload tag for the script associated with
-	 * Google Maps if the script URL matches certain criteria. It also ensures the buffer is updated
-	 * for lazy loading and adds necessary filters.
+	 * Adjusts the output buffer to include a preload tag for the Google Maps script if applicable.
+	 * It also modifies the buffer for lazy loading and applies necessary filters.
 	 *
-	 * @param array $data An array containing the buffer and a modified flag.
-	 *                    - `buffer` (string): The HTML buffer to be modified.
-	 *                    - `modified` (bool): A flag indicating if the buffer was modified.
+	 * @param array $data {
+	 *     An array containing the buffer and a modified flag.
+	 *
+	 *     @type string $buffer   The HTML buffer to be modified.
+	 *     @type bool   $modified A flag indicating if the buffer was modified.
+	 * }
 	 *
 	 * @return array The modified `$data` array.
 	 */
@@ -61,11 +63,15 @@ class UserExperience_LazyLoad_GoogleMaps_GoogleMapsEasy {
 	/**
 	 * Processes a script tag to identify and handle specific Google Maps scripts.
 	 *
-	 * This method examines the script tag to check if it matches the Google Maps Easy plugin's
-	 * frontend script. If a match is found, it updates the `$preload_url` and removes the tag from the buffer.
+	 * Examines the script tag to check if it matches the Google Maps Easy plugin's
+	 * frontend script. If a match is found, it updates `$preload_url` and removes
+	 * the tag from the buffer.
 	 *
-	 * @param array $m Matches from the regular expression applied to the buffer.
-	 *                 - $m[0] (string): The full matched script tag.
+	 * @param array $m {
+	 *     Matches from the regular expression applied to the buffer.
+	 *
+	 *     @type string $0 The full matched script tag.
+	 * }
 	 *
 	 * @return string The modified or original script tag.
 	 */
