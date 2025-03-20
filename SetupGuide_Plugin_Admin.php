@@ -889,13 +889,14 @@ class SetupGuide_Plugin_Admin {
 	 * @since  2.0.0
 	 * @access private
 	 *
+	 * @see Util_Environment::is_w3tc_pro()
 	 * @see Licensing_Core::get_tos_choice()
 	 *
 	 * @return bool
 	 */
 	private function maybe_ask_tos() {
 		$config = new Config();
-		if ( Util_Environment::is_pro_constant( $config ) ) {
+		if ( Util_Environment::is_w3tc_pro( $config ) ) {
 			return false;
 		}
 
@@ -960,6 +961,11 @@ class SetupGuide_Plugin_Admin {
 							'w3tc_install_date' => get_option( 'w3tc_install_date' ),
 							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $config ) ),
 							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
+							'w3tc_pro'          => Util_Environment::is_w3tc_pro( $config ),
+							'w3tc_has_key'      => $config->get_string( 'plugin.license_key' ),
+							'w3tc_pro_c'        => defined( 'W3TC_PRO' ) && W3TC_PRO,
+							'w3tc_enterprise_c' => defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE,
+							'w3tc_plugin_type'  => esc_attr( $config->get_string( 'plugin.type' ) ),
 							'ga_profile'        => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
 							'tos_choice'        => Licensing_Core::get_tos_choice(),
 							'track_usage'       => $config->get_boolean( 'common.track_usage' ),

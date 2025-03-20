@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.7
-Stable tag: 2.8.6
+Stable tag: 2.8.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -361,6 +361,12 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.8.7 =
+* Fix: Exit survey email field submission
+* Fix: Setup Guide analytics
+* Update: Allow deleting plugin data when skipping the exit survey on deactivation
+* Update: aws/aws-php-sns-message-validator (1.9.0 => 1.9.1)
 
 = 2.8.6 =
 * Fix: Error deactivating when selected to delete plugin data

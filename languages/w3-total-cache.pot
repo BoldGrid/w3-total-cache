@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.8.5\n"
+"Project-Id-Version: W3 Total Cache 2.8.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-18T18:00:06+00:00\n"
+"POT-Creation-Date: 2025-03-19T18:15:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
@@ -6622,7 +6622,7 @@ msgstr ""
 msgid "You do not have the rights to perform this action."
 msgstr ""
 
-#: Generic_AdminActions_Default.php:668
+#: Generic_AdminActions_Default.php:680
 msgid "Added by W3 Total Cache"
 msgstr ""
 
@@ -7614,46 +7614,48 @@ msgid "I didn’t see an improvement in website speed or performance"
 msgstr ""
 
 #: inc/lightbox/exit_survey.php:43
-msgid "Other (please specify):"
+#: inc/options/install.php:255
+#: Util_Ui.php:1979
+msgid "Other"
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:45
-msgid "Please specify..."
-msgstr ""
-
-#: inc/lightbox/exit_survey.php:48
-msgid "May we contact you?"
+#: inc/lightbox/exit_survey.php:47
+msgid "Please provide details..."
 msgstr ""
 
 #: inc/lightbox/exit_survey.php:49
+msgid "May we contact you?"
+msgstr ""
+
+#: inc/lightbox/exit_survey.php:50
 msgid "We're serious about making W3 Total Cache better, and sometimes that means reaching out to users like you to get a few more details about your experience. Would you be open to us contacting you for further feedback? If so, please enter your email address below."
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:52
+#: inc/lightbox/exit_survey.php:53
 msgid "Email address..."
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:55
+#: inc/lightbox/exit_survey.php:56
 msgid "Remove all plugin data?"
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:56
+#: inc/lightbox/exit_survey.php:57
 msgid "Selecting \"Yes\" will permanently delete all W3 Total Cache settings, cached data, and other plugin-related information from your site. This action cannot be undone."
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:61
+#: inc/lightbox/exit_survey.php:62
 msgid "Yes"
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:68
+#: inc/lightbox/exit_survey.php:69
 msgid "No"
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:74
+#: inc/lightbox/exit_survey.php:75
 msgid "Submit & Deactivate"
 msgstr ""
 
-#: inc/lightbox/exit_survey.php:75
+#: inc/lightbox/exit_survey.php:76
 msgid "Skip & Deactivate"
 msgstr ""
 
@@ -9788,11 +9790,6 @@ msgstr ""
 
 #: inc/options/install.php:247
 msgid "Rewrite Rules (based on active settings)"
-msgstr ""
-
-#: inc/options/install.php:255
-#: Util_Ui.php:1979
-msgid "Other"
 msgstr ""
 
 #: inc/options/install.php:264
