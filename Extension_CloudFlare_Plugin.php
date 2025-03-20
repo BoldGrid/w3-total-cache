@@ -72,7 +72,17 @@ class Extension_CloudFlare_Plugin {
 	/**
 	 * Modifies default configuration values for Cloudflare.
 	 *
-	 * @param array $default_values Default configuration values.
+	 * @param array $default_values {
+	 *     Default configuration values.
+	 *
+	 *     @type array $cloudflare {
+	 *         Cloudflare specific settings.
+	 *
+	 *         @type int $widget_interval Interval for the widget in seconds. Default is 30.
+	 *         @type int $widget_cache_mins Cache duration for the widget in minutes. Default is 5.
+	 *         @type int $timelimit.api_request Time limit for API requests in seconds. Default is 180.
+	 *     }
+	 * }
 	 *
 	 * @return array Modified configuration values.
 	 */
@@ -89,7 +99,11 @@ class Extension_CloudFlare_Plugin {
 	/**
 	 * Flushes all caches for Cloudflare, unless specified otherwise.
 	 *
-	 * @param array $extras Optional extra parameters for flushing.
+	 * @param array $extras {
+	 *     Optional extra parameters for flushing.
+	 *
+	 *     @type string $cloudflare If set to 'skip', skips Cloudflare cache flushing.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -117,7 +131,12 @@ class Extension_CloudFlare_Plugin {
 	/**
 	 * Executes delayed flush operations for Cloudflare.
 	 *
-	 * @param array $actions_made Array of actions performed.
+	 * @param array $actions_made {
+	 *     Array of actions performed.
+	 *
+	 *     @type string $module The module that performed the action.
+	 *     @type string $error  (Optional) Error message if an error occurred.
+	 * }
 	 *
 	 * @return array Modified actions array after execution.
 	 */
@@ -196,7 +215,14 @@ class Extension_CloudFlare_Plugin {
 	/**
 	 * Adds Cloudflare-related items to the WordPress admin menu bar.
 	 *
-	 * @param array $menu_items Existing menu items.
+	 * @param array $menu_items {
+	 *     Existing menu items.
+	 *
+	 *     @type string      $id     The menu item ID.
+	 *     @type string      $title  The menu item title.
+	 *     @type string      $href   The URL for the menu item link.
+	 *     @type string|null $parent The ID of the parent menu item, if applicable.
+	 * }
 	 *
 	 * @return array Modified menu items with Cloudflare entries.
 	 */
@@ -470,7 +496,7 @@ class Extension_CloudFlare_Plugin {
 		// Check to see if the last IP block (part after ::) is set.
 		$last_piece = '';
 		$size       = count( $main_ip_pieces );
-		if ( '' !== trim( $last_ip_piece ) ) {
+		if ( ! empty( trim( $last_ip_piece ) ) ) {
 			$last_piece = str_pad( $last_ip_piece, 4, '0', STR_PAD_LEFT );
 
 			// Build the full form of the IPV6 address considering the last IP block set.

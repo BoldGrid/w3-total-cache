@@ -1,6 +1,6 @@
 <?php
 /**
- * FIle: Cache_Memcached_Stats.php
+ * File: Cache_Memcached_Stats.php
  *
  * @package W3TC
  */

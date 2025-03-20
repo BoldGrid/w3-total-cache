@@ -61,11 +61,15 @@ class Util_Ui {
 	}
 
 	/**
-	 * Generates URL with nonce.
+	 * Generates a URL with a nonce.
 	 *
-	 * @param array $addon Addon.
+	 * @param array $addon {
+	 *     Addon parameters used to build the URL.
 	 *
-	 * @return string
+	 *     @type string $page Optional. The page parameter. Defaults to 'w3tc_dashboard'.
+	 * }
+	 *
+	 * @return string The generated URL with a nonce.
 	 */
 	public static function url( $addon ) {
 		if ( ! isset( $addon['page'] ) ) {
@@ -119,11 +123,15 @@ class Util_Ui {
 	}
 
 	/**
-	 * Hide note button
+	 * Hide note button.
 	 *
-	 * @param array $parameters Parameters.
+	 * @param array $parameters {
+	 *     Parameters for generating the hide note button.
 	 *
-	 * @return string
+	 *     @type string $key The configuration key used to generate the button ID.
+	 * }
+	 *
+	 * @return string The generated button HTML.
 	 */
 	public static function button_hide_note2( $parameters ) {
 		return self::button_link(
@@ -221,9 +229,9 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function postbox_header( $title, $class = '', $id = '' ) {
-		$id = ( ! empty( $id ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
+		$id = ( ! empty( $id, self::get_allowed_html_for_wp_kses_from_content( $id ) ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
 		?>
-		<div <?php echo esc_attr( $id ); ?> class="postbox <?php echo esc_attr( $class ); ?>">
+		<div <?php echo wp_kses( $id ); ?> class="postbox <?php echo esc_attr( $class ); ?>">
 			<h3 class="postbox-title">
 				<span><?php echo wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ); ?></span>
 			</h3>
@@ -232,26 +240,31 @@ class Util_Ui {
 	}
 
 	/**
-	 * Returns postbox header with tabs and links (used on the General settings page exclusively)
+	 * Returns postbox header with tabs and links (used on the General settings page exclusively).
 	 *
 	 * WordPress 5.5 introduced .postbox-header, which broke the styles of our postboxes. This was
-	 * resolved by adding additional css to /pub/css/options.css and pub/css/widget.css tagged with
+	 * resolved by adding additional CSS to `/pub/css/options.css` and `/pub/css/widget.css` tagged with
 	 * a "WP 5.5" comment.
 	 *
 	 * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 	 *
-	 * @todo Add .postbox-header to our postboxes and cleanup css.
+	 * @todo Add .postbox-header to our postboxes and clean up CSS.
 	 *
 	 * @link https://github.com/BoldGrid/w3-total-cache/issues/237
 	 *
-	 * @param string $title         Title.
-	 * @param string $description   Description.
-	 * @param string $class         Class.
-	 * @param string $id            ID.
-	 * @param string $adv_link      Advanced link.
-	 * @param string $premium_link  Premium Link.
-	 * @param string $tutorials_tab Tuturials link.
-	 * @param array  $extra_links   Extra Links.
+	 * @param string $title        The title of the postbox.
+	 * @param string $description  Optional. Description of the postbox. Default empty.
+	 * @param string $class        Optional. Additional CSS class for styling. Default empty.
+	 * @param string $id           Optional. HTML ID attribute. Default empty.
+	 * @param string $adv_link     Optional. URL for the "Advanced Settings" tab. Default empty.
+	 * @param string $premium_link Optional. URL for the "Premium Services" tab. Default empty.
+	 * @param string $tutorials_tab Optional. URL for the "Help" tab. Default empty.
+	 * @param array  $extra_links {
+	 *     Optional. Additional links for the postbox navigation.
+	 *
+	 *     @type string $text  Link text.
+	 *     @type string $url   URL for the extra link.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -758,14 +771,19 @@ class Util_Ui {
 	}
 
 	/**
-	 * Echos an select element
+	 * Echoes a select element.
 	 *
-	 * @param string $id        ID.
-	 * @param string $name      Name.
-	 * @param string $value     Value.
-	 * @param array  $values    Values.
-	 * @param bool   $disabled  Disabled.
-	 * @param array  $optgroups Optgroups.
+	 * @param string $id        The ID attribute for the select element.
+	 * @param string $name      The name attribute for the select element.
+	 * @param string $value     The selected value.
+	 * @param array  $values    An array of options, where the key is the option value and the value is the label.
+	 * @param bool   $disabled  Whether the select element should be disabled. Default false.
+	 * @param array  $optgroups {
+	 *     Optional. An associative array of optgroup labels.
+	 *
+	 *     @type int|string $key The optgroup identifier.
+	 *     @type string     $label The label for the optgroup.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -824,13 +842,28 @@ class Util_Ui {
 	}
 
 	/**
-	 * Echos a group of radio elements values: value => label pair or value => array(label, disabled, postfix)
+	 * Echos a group of radio elements values: value => label pair or value => array(label, disabled, postfix).
 	 *
 	 * @param string $name      Name.
 	 * @param string $value     Value.
-	 * @param array  $values    Values.
-	 * @param bool   $disabled  Disabled.
-	 * @param string $separator Separator.
+	 * @param array  $values    {
+	 *     Values.
+	 *
+	 *     @type string $label             Label for the radio button.
+	 *     @type bool   $disabled          Whether the radio button is disabled.
+	 *     @type string $postfix           Postfix to be appended to the label.
+	 *     @type bool   $pro_feature       Whether the radio button is a pro feature.
+	 *     @type string $pro_excerpt       Excerpt for pro feature description.
+	 *     @type string $pro_description   Full description for the pro feature.
+	 *     @type string $intro_label       Intro label for pro feature.
+	 *     @type string $score             Score associated with the pro feature.
+	 *     @type string $score_label       Label for the score.
+	 *     @type string $score_description Description for the score.
+	 *     @type string $score_link        Link related to the score.
+	 *     @type bool   $show_learn_more   Whether to show the "learn more" option for the pro feature.
+	 * }
+	 * @param bool   $disabled  Disabled flag for all radio buttons.
+	 * @param string $separator Separator to be used between radio buttons.
 	 *
 	 * @return void
 	 */
@@ -964,7 +997,14 @@ class Util_Ui {
 	/**
 	 * Checkbox
 	 *
-	 * @param array $e Config.
+	 * @param array $e {
+	 *     Config.
+	 *
+	 *     @type string $name    The name of the checkbox.
+	 *     @type mixed  $value   The value of the checkbox.
+	 *     @type bool   $disabled Optional. Whether the checkbox is disabled. Defaults to false.
+	 *     @type string $label   Optional. The label for the checkbox. Defaults to null.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -981,7 +1021,15 @@ class Util_Ui {
 	/**
 	 * Radio
 	 *
-	 * @param array $e Config.
+	 * @param array $e {
+	 *     Config.
+	 *
+	 *     @type string $name       The name of the radio group.
+	 *     @type mixed  $value      The selected value.
+	 *     @type array  $values     Array of radio button options.
+	 *     @type bool   $disabled   Whether the radio group is disabled.
+	 *     @type string $separator  The separator between radio buttons.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -998,7 +1046,15 @@ class Util_Ui {
 	/**
 	 * Select
 	 *
-	 * @param array $e Config.
+	 * @param array $e {
+	 *     Config.
+	 *
+	 *     @type string   $name      The name of the select element.
+	 *     @type mixed    $value     The selected value.
+	 *     @type array    $values    The available options.
+	 *     @type bool     $disabled  Optional. Whether the select should be disabled. Default false.
+	 *     @type array|null $optgroups Optional. The optgroups for grouping options. Default null.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1016,7 +1072,16 @@ class Util_Ui {
 	/**
 	 * Textbox
 	 *
-	 * @param array $e Config.
+	 * @param array $e {
+	 *     Config.
+	 *
+	 *     @type string $name        Name of the textbox.
+	 *     @type string $value       Value of the textbox.
+	 *     @type bool   $disabled    Whether the textbox is disabled. Default is false.
+	 *     @type int    $size        Size of the textbox. Default is 20.
+	 *     @type string $type        Type of the textbox. Default is 'text'.
+	 *     @type string $placeholder Placeholder text for the textbox. Default is an empty string.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1035,7 +1100,13 @@ class Util_Ui {
 	/**
 	 * Textarea
 	 *
-	 * @param array $e Config.
+	 * @param array $e {
+	 *     Config.
+	 *
+	 *     @type string  $name      Name of the textarea.
+	 *     @type string  $value     Value of the textarea.
+	 *     @type bool    $disabled  Whether the textarea is disabled. Default is false.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1049,9 +1120,28 @@ class Util_Ui {
 	}
 
 	/**
-	 * Control
+	 * Control various types of input elements based on configuration.
 	 *
-	 * @param array $a Config.
+	 * Handles rendering of different input controls (checkbox, radiogroup, selectbox, textbox, textarea, none, and button)
+	 * based on the configuration provided in the input array.
+	 *
+	 * @param array $a {
+	 *     Configuration for the control.
+	 *
+	 *     @type string  $control              The type of control to render. Possible values are 'checkbox', 'radiogroup', 'selectbox', 'textbox', 'textarea', 'none', 'button'.
+	 *     @type string  $control_name         The name of the control.
+	 *     @type mixed   $value                The value of the control.
+	 *     @type bool    $disabled             Whether the control is disabled.
+	 *     @type string  $checkbox_label       The label for the checkbox (if applicable).
+	 *     @type array   $radiogroup_values    The values for the radiogroup (if applicable).
+	 *     @type string  $radiogroup_separator The separator for the radiogroup (if applicable).
+	 *     @type array   $selectbox_values     The values for the selectbox (if applicable).
+	 *     @type mixed   $selectbox_optgroups  The optgroups for the selectbox (if applicable).
+	 *     @type string  $textbox_type         The type of the textbox (if applicable).
+	 *     @type int     $textbox_size         The size of the textbox (if applicable).
+	 *     @type string  $textbox_placeholder  The placeholder text for the textbox (if applicable).
+	 *     @type string  $none_label           The label for 'none' or 'button' controls.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1132,14 +1222,27 @@ class Util_Ui {
 	}
 
 	/**
-	 * Renders <tr> element with controls
-	 * id =>
-	 * label =>
-	 * label_class =>
-	 * <control> => details
-	 * style - default is label, controls view, alternative is one-column view
+	 * Renders <tr> element with controls.
 	 *
-	 * @param array $a Config.
+	 * Renders a table row with various controls, such as checkboxes, select boxes, textboxes, etc.
+	 * The control type is determined by the keys in the `$a` array.
+	 *
+	 * @param array $a {
+	 *     Configuration options for rendering the controls.
+	 *
+	 *     @type string $id          The ID for the control.
+	 *     @type string $label       The label for the control.
+	 *     @type string $label_class The class to apply to the label.
+	 *     @type string $style       The style of the table row. Default is 'label', alternative is 'one-column'.
+	 *     @type array  $checkbox    The configuration for a checkbox control.
+	 *     @type string $description The description to display below the control.
+	 *     @type array  $hidden      The configuration for hidden inputs.
+	 *     @type string $html        Raw HTML to insert.
+	 *     @type array  $radiogroup  The configuration for a radio group.
+	 *     @type array  $selectbox   The configuration for a select box.
+	 *     @type array  $textbox     The configuration for a textbox.
+	 *     @type array  $textarea    The configuration for a textarea.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1215,21 +1318,33 @@ class Util_Ui {
 	}
 
 	/**
-	 * Prints configuration item UI based on description
-	 * key => configuration key
-	 * label => configuration key's as its introduced to the user
-	 * value => it's value
-	 * disabled => if disabled
-	 * control => checkbox | radiogroup | selectbox | textbox
-	 * checkbox_label => text shown after the textbox
-	 * radiogroup_values => array of possible values for radiogroup
-	 * selectbox_values => array of possible values for dropdown
-	 * selectbox_optgroups =>
-	 * textbox_size =>
-	 * control_after => something after control to add
-	 * description => description shown to the user below
+	 * Prints configuration item UI based on description.
 	 *
-	 * @param array $a Config.
+	 * @param array $a {
+	 *     Config.
+	 *
+	 *     @type string $key                 Configuration key.
+	 *     @type string $label               Configuration key's label as introduced to the user.
+	 *     @type mixed  $value               The value of the configuration item.
+	 *     @type bool   $disabled            If the control is disabled.
+	 *     @type string $control             Type of control (checkbox, radiogroup, selectbox, textbox).
+	 *     @type string $checkbox_label      Text shown after the checkbox.
+	 *     @type array  $radiogroup_values   Array of possible values for radiogroup.
+	 *     @type array  $selectbox_values    Array of possible values for dropdown.
+	 *     @type array  $selectbox_optgroups Option groups for selectbox.
+	 *     @type string $textbox_size        Size of the textbox.
+	 *     @type string $control_after       Content to add after control.
+	 *     @type string $description         Description shown to the user below the control.
+	 *     @type bool   $show_in_free        Whether to show the item in the free edition. Defaults to true.
+	 *     @type string $label_class         CSS class for the label.
+	 *     @type string $control_name        Name attribute for the control.
+	 *     @type string $intro_label         Introductory label for the score block.
+	 *     @type mixed  $score               Score for the item.
+	 *     @type string $score_label         Label for the score.
+	 *     @type string $score_description   Description for the score.
+	 *     @type string $score_link          Link for more information about the score.
+	 *     @type string $style               CSS style for the control.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1298,7 +1413,28 @@ class Util_Ui {
 	/**
 	 * Config item extension enabled.
 	 *
-	 * @param array $a Config.
+	 * Outputs the HTML for the config item extension, including a checkbox for enabling the extension,
+	 * and additional information such as description, score block, and pro features.
+	 *
+	 * @param array $a {
+	 *     Config.
+	 *
+	 *     @type string $label_class       The label class for the config item.
+	 *     @type string $control_name      The control name for the config item.
+	 *     @type string $label             The label for the config item.
+	 *     @type string $checkbox_label    The label for the checkbox.
+	 *     @type string $extension_id      The extension ID.
+	 *     @type bool   $disabled          Whether the checkbox should be disabled.
+	 *     @type string $description       The description for the config item.
+	 *     @type string $intro_label       The intro label for the score block (if applicable).
+	 *     @type int    $score             The score for the score block (if applicable).
+	 *     @type string $score_label       The label for the score (if applicable).
+	 *     @type string $score_description The description for the score (if applicable).
+	 *     @type string $score_link        The link for the score (if applicable).
+	 *     @type bool   $pro               Whether the config item is pro.
+	 *     @type bool   $show_learn_more   Whether to show the "learn more" link (if applicable).
+	 *     @type string $style             Custom style for the config item (optional).
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1350,9 +1486,26 @@ class Util_Ui {
 	}
 
 	/**
-	 * Config item pro
+	 * Config item pro.
 	 *
-	 * @param array $a Config.
+	 * @param array $a {
+	 *     Configuration settings for the item.
+	 *
+	 *     @type string $label_class       The CSS class for the label.
+	 *     @type string $control_name      The name of the control.
+	 *     @type string $label             The label text for the control.
+	 *     @type string $wrap_separate     Whether to wrap the description separately.
+	 *     @type string $no_wrap           Whether to disable wrapping.
+	 *     @type string $control_after     HTML to output after the control.
+	 *     @type string $description       The description of the control.
+	 *     @type string $excerpt           The excerpt text for the description.
+	 *     @type string $intro_label       The intro label for the score block.
+	 *     @type string $score             The score value.
+	 *     @type string $score_label       The label for the score.
+	 *     @type string $score_description The description for the score.
+	 *     @type string $score_link        The link associated with the score.
+	 *     @type bool   $show_learn_more   Whether to show the "Learn More" link.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1414,11 +1567,23 @@ class Util_Ui {
 	}
 
 	/**
-	 * Config item preprocess
+	 * Config item preprocess.
 	 *
-	 * @param array $a Config.
+	 * Processes the configuration item and applies necessary defaults or values based on the config.
 	 *
-	 * @return array
+	 * @param array $a {
+	 *     Config.
+	 *
+	 *     @type string $key          The key of the configuration item.
+	 *     @type mixed  $value        The value of the configuration item. If not set, defaults are applied.
+	 *     @type bool   $disabled     Whether the configuration item is disabled. Defaults to a sealed state.
+	 *     @type string $label        The label of the configuration item. Defaults to generated label.
+	 *     @type string $control_name The control name for the configuration item.
+	 *     @type string $label_class  The CSS class for the label. Defaults to an empty string or 'w3tc_config_checkbox' for checkboxes.
+	 *     @type string $control      The type of control (e.g., checkbox).
+	 * }
+	 *
+	 * @return array Processed configuration item.
 	 */
 	public static function config_item_preprocess( $a ) {
 		$c = Dispatcher::config();
@@ -1453,9 +1618,18 @@ class Util_Ui {
 	}
 
 	/**
-	 * Displays config item - caching engine selectbox
+	 * Displays config item - caching engine selectbox.
 	 *
-	 * @param array $a Config.
+	 * @param array $a {
+	 *     Config settings.
+	 *
+	 *     @type string $key           The key for the config item.
+	 *     @type string $label         Optional. The label for the selectbox.
+	 *     @type bool   $disabled      Optional. Whether the config item should be disabled.
+	 *     @type bool   $empty_value   Optional. Whether to include an empty value option. Default is false.
+	 *     @type string $control_after Optional. Additional content to display after the control.
+	 *     @type bool   $pro           Optional. If set, calls the pro version of the config item function.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -1635,10 +1809,13 @@ class Util_Ui {
 	}
 
 	/**
-	 * On subblogs - shows button to enable/disable custom configuration
-	 *  $a['key'] - config key *_overloaded which are managed
+	 * On subblogs - shows button to enable/disable custom configuration.
 	 *
-	 * @param array $a Config.
+	 * @param array $a {
+	 *     Config.
+	 *
+	 *     @type string $key Config key *_overloaded which are managed.
+	 * }
 	 *
 	 * @return void
 	 */

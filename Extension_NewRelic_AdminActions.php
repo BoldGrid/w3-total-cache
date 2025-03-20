@@ -37,8 +37,8 @@ class Extension_NewRelic_AdminActions {
 	public function w3tc_save_new_relic() {
 		$service                       = Dispatcher::component( 'Extension_NewRelic_Service' );
 		$application                   = Util_Request::get_array( 'application' );
-		$application['alerts_enabled'] = 1 === $application['alerts_enabled'] ? 'true' : 'false';
-		$application['rum_enabled']    = 1 === $application['rum_enabled'] ? 'true' : 'false';
+		$application['alerts_enabled'] = empty( $application['alerts_enabled'] ) ? 'false' : 'true';
+		$application['rum_enabled']    = empty( $application['rum_enabled'] ) ? 'false' : 'true';
 		$result                        = $service->update_application_settings( $application );
 		Util_Admin::redirect(
 			array(

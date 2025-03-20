@@ -82,10 +82,13 @@ class Cdn_RackSpace_Api_Tokens {
 	 *
 	 * @param array $services The array of service descriptors from Rackspace.
 	 *
-	 * @return array An associative array of regions with their service endpoints, including:
-	 *               - 'object-store.publicURL': Public URL for object storage.
-	 *               - 'object-store.internalURL': Internal URL for object storage.
-	 *               - 'object-cdn.publicURL': Public URL for CDN services.
+	 * @return array {
+	 *     An associative array of regions with their service endpoints, including:
+	 *
+	 *     @type string $object-store.publicURL   Public URL for object storage.
+	 *     @type string $object-store.internalURL Internal URL for object storage.
+	 *     @type string $object-cdn.publicURL     Public URL for CDN services.
+	 * }
 	 */
 	public static function cloudfiles_services_by_region( $services ) {
 		$by_region = array();
@@ -125,8 +128,11 @@ class Cdn_RackSpace_Api_Tokens {
 	 *
 	 * @param array $services The array of service descriptors from Rackspace.
 	 *
-	 * @return array An associative array of regions with their CDN endpoints, including:
-	 *               - 'cdn.publicURL': Public URL for CDN services.
+	 * @return array {
+	 *     An associative array of regions with their CDN endpoints, including:
+	 *
+	 *     @type string $cdn.publicURL Public URL for CDN services.
+	 * }
 	 */
 	public static function cdn_services_by_region( $services ) {
 		$by_region = array();
@@ -207,7 +213,7 @@ class Cdn_RackSpace_Api_Tokens {
 			throw new \Exception( $response_json['unauthorized']['message'] );
 		}
 
-		if ( '200' !== $result['response']['code'] && '201' !== $result['response']['code'] ) {
+		if ( ! in_array( (int) $result['response']['code'], array( 200, 201 ), true ) ) {
 			throw new \Exception( $result['body'] );
 		}
 

@@ -270,8 +270,17 @@ class Cdn_StackPath_Popup {
 	/**
 	 * Renders a text box for zone details and handles value changes.
 	 *
-	 * @param array  $details Zone details including current and new values.
-	 * @param string $field   The field name being rendered and managed.
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
+	 * @param string $field The field name being rendered and managed.
 	 *
 	 * @return void
 	 */
@@ -297,8 +306,17 @@ class Cdn_StackPath_Popup {
 	/**
 	 * Renders a boolean field for zone details and handles value changes.
 	 *
-	 * @param array  $details Zone details including current and new values.
-	 * @param string $field   The field name being rendered and managed.
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
+	 * @param string $field The field name being rendered and managed.
 	 *
 	 * @return void
 	 */
@@ -324,12 +342,12 @@ class Cdn_StackPath_Popup {
 	/**
 	 * Renders a boolean field's status as a string.
 	 *
-	 * @param int $v The value representing the boolean status (0 for disabled, 1 for enabled).
+	 * @param mixed $v The value representing the boolean status.
 	 *
 	 * @return void
 	 */
 	private function render_zone_boolean( $v ) {
-		if ( 0 === $v ) {
+		if ( empty( $v ) ) {
 			echo 'disabled';
 		} else {
 			echo 'enabled';

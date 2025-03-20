@@ -224,7 +224,16 @@ class Cdnfsd_CloudFront_Popup {
 	/**
 	 * Renders changes in a zone value for a given field.
 	 *
-	 * @param array  $details Zone details containing current and new values.
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
 	 * @param string $field   Field name to render changes for.
 	 *
 	 * @return void
@@ -245,8 +254,17 @@ class Cdnfsd_CloudFront_Popup {
 	/**
 	 * Renders changes in a boolean zone value for a given field.
 	 *
-	 * @param array  $details Zone details containing current and new values.
-	 * @param string $field   Field name to render changes for.
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
+	 * @param string $field The field name to render changes for.
 	 *
 	 * @return void
 	 */
@@ -272,7 +290,7 @@ class Cdnfsd_CloudFront_Popup {
 	 * @return void
 	 */
 	private function render_zone_boolean( $v ) {
-		if ( 0 === $v ) {
+		if ( empty( $v ) ) {
 			echo 'disabled';
 		} else {
 			echo 'enabled';
@@ -282,7 +300,16 @@ class Cdnfsd_CloudFront_Popup {
 	/**
 	 * Renders changes in a zone IP value for a given field.
 	 *
-	 * @param array  $details Zone details containing current and new values.
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
 	 * @param string $field   Field name to render changes for.
 	 *
 	 * @return void

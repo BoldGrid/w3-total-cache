@@ -90,9 +90,12 @@ class Util_UsageStatistics {
 	 *
 	 * If either property is missing or the denominator is zero, a fallback value is returned.
 	 *
-	 * @param array      $a         The input array containing the properties.
-	 * @param string|int $property1 The key for the numerator value.
-	 * @param string|int $property2 The key for the denominator value.
+	 * @param array $a {
+	 *     The input array containing the properties.
+	 *
+	 *     @type string|int $property1 The key for the numerator value.
+	 *     @type string|int $property2 The key for the denominator value.
+	 * }
 	 *
 	 * @return string The calculated percentage as a string (e.g., '75 %'), 'n/a' if properties
 	 *                are missing, or '0 %' if $a[$property2] is 0.
@@ -100,7 +103,7 @@ class Util_UsageStatistics {
 	public static function percent2( $a, $property1, $property2 ) {
 		if ( ! isset( $a[ $property1 ] ) || ! isset( $a[ $property2 ] ) ) {
 			return 'n/a';
-		} elseif ( 0 === $a[ $property2 ] ) {
+		} elseif ( empty( $a[ $property2 ] ) ) {
 			return '0 %';
 		} else {
 			return sprintf( '%d', $a[ $property1 ] / $a[ $property2 ] * 100 ) . ' %';
@@ -219,7 +222,7 @@ class Util_UsageStatistics {
 	 * @return string The formatted result, or 'n/a' if the divisor is zero.
 	 */
 	public static function integer_divideby( $v, $divide_by ) {
-		if ( 0 === $divide_by ) {
+		if ( empty( $divide_by ) ) {
 			return 'n/a';
 		}
 
@@ -336,7 +339,7 @@ class Util_UsageStatistics {
 	public static function value_per_second( $a, $property1, $property2 ) {
 		if ( ! isset( $a[ $property1 ] ) || ! isset( $a[ $property2 ] ) ) {
 			return 'n/a';
-		} elseif ( 0 === $a[ $property2 ] ) {
+		} elseif ( empty( $a[ $property2 ] ) ) {
 			return '0';
 		} else {
 			return sprintf( '%.1f', $a[ $property1 ] / $a[ $property2 ] * 100 );
@@ -349,8 +352,16 @@ class Util_UsageStatistics {
 	 * This method divides a total value by the number of seconds in a period,
 	 * which is retrieved from the provided summary array.
 	 *
-	 * @param float $total   The total value to divide.
-	 * @param array $summary The summary array containing the period details, including seconds.
+	 * @param float $total The total value to divide.
+	 * @param array $summary {
+	 *     The summary array containing the period details.
+	 *
+	 *     @type array $period {
+	 *         Details about the period.
+	 *
+	 *         @type int $seconds The number of seconds in the period.
+	 *     }
+	 * }
 	 *
 	 * @return string The calculated value per second (formatted to 1 decimal place), or 'n/a'
 	 *                if the period's seconds value is missing or empty.
@@ -374,11 +385,22 @@ class Util_UsageStatistics {
 	 * period defined in the summary.
 	 *
 	 * @param string $transient The name of the transient to retrieve or initialize.
-	 * @param array  $summary   The summary array containing the current period's timestamp details.
+	 * @param array  $summary {
+	 *     Summary array containing the current period's timestamp details.
 	 *
-	 * @return array An array containing:
-	 *               - The transient value (existing or initialized).
-	 *               - A boolean indicating whether counting is required (`true` for initialization).
+	 *     @type array $period {
+	 *         Information about the summary period.
+	 *
+	 *         @type int $timestamp_end The end timestamp of the current period.
+	 *     }
+	 * }
+	 *
+	 * @return array {
+	 *     An array containing the transient value and a flag indicating if counting is required.
+	 *
+	 *     @type array $0 The transient value (existing or initialized).
+	 *     @type bool  $1 Whether counting is required (`true` for initialization).
+	 * }
 	 */
 	public static function get_or_init_size_transient( $transient, $summary ) {
 		$should_count = false;

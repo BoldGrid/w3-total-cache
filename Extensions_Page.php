@@ -11,14 +11,6 @@ namespace W3TC;
  * Class Extensions_Page
  *
  * phpcs:disable Generic.Commenting.DocComment.LongNotCapital
- *
- * function extensions_sort_cmp_name( $a, $b ) {
- *     if ( $a['name'] === $b['name'] ) {
- *         return 0;
- *     }
- *     return ( $a['name'] < $b['name'] ) ? -1 : 1;
- * }
- *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 class Extensions_Page extends Base_Page_Settings {
@@ -108,7 +100,22 @@ class Extensions_Page extends Base_Page_Settings {
 	 *
 	 * Merges the provided metadata with a set of default values.
 	 *
-	 * @param array $meta Array of extension metadata to be merged with defaults.
+	 * @param array $meta {
+	 *     Array of extension metadata to be merged with defaults.
+	 *
+	 *     @type string  $name          Extension name.
+	 *     @type string  $author        Author name.
+	 *     @type string  $description   Extension description.
+	 *     @type string  $author_uri    Author URL.
+	 *     @type string  $extension_uri Extension URL.
+	 *     @type string  $extension_id  Unique extension ID.
+	 *     @type string  $version       Extension version.
+	 *     @type bool    $enabled       Whether the extension is enabled. Default true.
+	 *     @type array   $requirements  List of extension requirements.
+	 *     @type bool    $core          Whether the extension is a core feature. Default false.
+	 *     @type bool    $public        Whether the extension is publicly available. Default true.
+	 *     @type string  $path          File path to the extension.
+	 * }
 	 *
 	 * @return array Merged array of default and provided extension metadata.
 	 */

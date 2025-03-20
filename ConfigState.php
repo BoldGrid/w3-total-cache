@@ -156,7 +156,7 @@ class ConfigState {
 	 */
 	public function get_boolean( $key, $default = false ) {
 		$v = $this->get( $key, $default );
-		if ( 'false' === $v || 0 === $v ) {
+		if ( 'false' === $v || empty( $v ) ) {
 			$v = false;
 		}
 

@@ -44,9 +44,9 @@ class Cdn_RackSpace_Api_CloudFiles {
 	 * @param array $config {
 	 *     Configuration parameters for the client.
 	 *
-	 *     @type string $access_token              The access token for API authentication.
-	 *     @type array  $access_region_descriptor  Describes the region for API calls.
-	 *     @type callable $new_access_required     Callback to handle token renewal.
+	 *     @type string   $access_token             The access token for API authentication.
+	 *     @type array    $access_region_descriptor Describes the region for API calls.
+	 *     @type callable $new_access_required      Callback to handle token renewal.
 	 * }
 	 *
 	 * @return void
@@ -271,12 +271,7 @@ class Cdn_RackSpace_Api_CloudFiles {
 			throw new \Exception( 'Failed to reach API endpoint' );
 		}
 
-		if (
-			'200' !== $result['response']['code'] &&
-			'201' !== $result['response']['code'] &&
-			'202' !== $result['response']['code'] &&
-			'204' !== $result['response']['code']
-		) {
+		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
 
 			if ( 'Unauthorized' === $result['response']['message'] ) {
 				return array(

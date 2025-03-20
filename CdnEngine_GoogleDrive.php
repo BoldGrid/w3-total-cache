@@ -75,14 +75,16 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	/**
 	 * Constructor to initialize the Google Drive CDN engine.
 	 *
-	 * @param array $config Configuration options for the Google Drive CDN engine.
-	 *                      Expected keys:
-	 *                          'client_id',
-	 *                          'refresh_token',
-	 *                          'root_folder_id',
-	 *                          'root_url',
-	 *                          'new_access_token_callback',
-	 *                          'access_token'.
+	 * @param array $config {
+	 *     Configuration options for the Google Drive CDN engine.
+	 *
+	 *     @type string   $client_id                 The client ID for the Google Drive API.
+	 *     @type string   $refresh_token             The refresh token for authentication.
+	 *     @type string   $root_folder_id            The root folder ID for the Google Drive.
+	 *     @type string   $root_url                  The root URL for the Google Drive CDN.
+	 *     @type callable $new_access_token_callback Callback function for new access token.
+	 *     @type string   $access_token              The access token for authentication.
+	 * }
 	 */
 	public function __construct( $config = array() ) {
 		parent::__construct( $config );
@@ -140,7 +142,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 
 		if ( is_wp_error( $result ) ) {
 			throw new \Exception( $result );
-		} elseif ( '200' !== $result['response']['code'] ) {
+		} elseif ( 200 !== (int) $result['response']['code'] ) {
 			throw new \Exception( $result['body'] );
 		}
 

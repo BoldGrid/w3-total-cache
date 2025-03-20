@@ -145,7 +145,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 				$local_size = @filesize( $local_path );
 
 				// Check if Content-Length is available in $p array.
-				if ( isset( $p['Content-Length'] ) && $local_size === $p['Content-Length'] && isset( $p['Content-MD5'] ) && $content_md5 === $p['Content-MD5'] ) {
+				if ( isset( $p['Content-Length'] ) && (int) $local_size === (int) $p['Content-Length'] && isset( $p['Content-MD5'] ) && $content_md5 === $p['Content-MD5'] ) {
 					return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'File up-to-date.', $file );
 				}
 			} catch ( \Exception $exception ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch

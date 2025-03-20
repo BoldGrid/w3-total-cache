@@ -1,6 +1,6 @@
 <?php
 /**
- * FIle: Cache_Wincache.php
+ * File: Cache_Wincache.php
  *
  * @package W3TC
  */
@@ -220,8 +220,12 @@ class Cache_Wincache extends Cache_Base {
 	 * This method flushes the cache for a given group if the generated extension has a higher key version. It ensures
 	 * that the cache version is updated appropriately to avoid serving outdated data.
 	 *
-	 * @param string $group    The group to which the cache belongs.
-	 * @param array  $extension The extension data containing the new key version.
+	 * @param string $group     The group to which the cache belongs.
+	 * @param array  $extension {
+	 *     The extension data containing the new key version.
+	 *
+	 *     @type string $key_version The new key version.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -289,7 +293,11 @@ class Cache_Wincache extends Cache_Base {
 	 * Note: This method does not guarantee atomicity as file locks may fail.
 	 *
 	 * @param string $key       The unique key to identify the cached item.
-	 * @param array  $old_value The old value to compare against, should include a 'content' key.
+	 * @param array  $old_value {
+	 *     The old value to compare against, should include a 'content' key.
+	 *
+	 *     @type mixed $content The content to compare.
+	 * }
 	 * @param mixed  $new_value The new value to be stored in the cache.
 	 *
 	 * @return bool True on success, false on failure (e.g., if the old value does not match).

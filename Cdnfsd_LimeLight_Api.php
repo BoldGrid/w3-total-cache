@@ -110,7 +110,14 @@ class Cdnfsd_LimeLight_Api {
 	/**
 	 * Adds necessary headers for the API request.
 	 *
-	 * @param array  $headers The existing headers to modify.
+	 * @param array  $headers {
+	 *     The headers for the request.
+	 *
+	 *     @type string $Content-Type              The content type for the request, usually 'application/json'.
+	 *     @type string $X-LLNW-Security-Principal The security principal for authentication.
+	 *     @type string $X-LLNW-Security-Timestamp The timestamp for the request, in milliseconds.
+	 *     @type string $X-LLNW-Security-Token     The HMAC token for security, based on the method, URL, timestamp, and body.
+	 * }
 	 * @param string $url     The URL of the API endpoint.
 	 * @param string $method  The HTTP method to use ('GET' or 'POST').
 	 * @param string $body    The body data to include with the request.
@@ -135,7 +142,12 @@ class Cdnfsd_LimeLight_Api {
 	/**
 	 * Decodes the response from the API and handles errors.
 	 *
-	 * @param array $result The result from the API request.
+	 * @param array $result {
+	 *     The result from the API request.
+	 *
+	 *     @type string $body The body of the API response.
+	 *     @type array  $response Response metadata including status code.
+	 * }
 	 *
 	 * @return array The decoded JSON response.
 	 *
@@ -151,12 +163,7 @@ class Cdnfsd_LimeLight_Api {
 			throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
 		}
 
-		if (
-			'200' !== $result['response']['code'] &&
-			'201' !== $result['response']['code'] &&
-			'202' !== $result['response']['code'] &&
-			'204' !== $result['response']['code']
-		) {
+		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
 			if ( isset( $response_json['errors'] ) &&
 				isset( $response_json['errors'][0]['description'] ) ) {
 				throw new \Exception( $response_json['errors'][0]['description'] );

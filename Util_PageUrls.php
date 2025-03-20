@@ -159,7 +159,7 @@ class Util_PageUrls {
 				$post_pages_number++;
 
 				for ( $pagenum = 2; $pagenum <= $post_pages_number; $pagenum++ ) {
-					if ( 'page' === get_option( 'show_on_front' ) && get_option( 'page_on_front' ) === $post->ID ) {
+					if ( 'page' === get_option( 'show_on_front' ) && (int) get_option( 'page_on_front' ) === $post->ID ) {
 						$post_pagenum_link = trailingslashit( $post_link ) . user_trailingslashit( "$wp_rewrite->pagination_base/" . $pagenum, 'single_paged' );
 					} else {
 						$post_pagenum_link = trailingslashit( $post_link ) . user_trailingslashit( $pagenum, 'single_paged' );
@@ -738,7 +738,7 @@ class Util_PageUrls {
 		}
 
 		if ( '' !== get_option( 'permalink_structure' ) ) {
-			if ( 'page' === get_option( 'show_on_front' ) && get_option( 'page_on_front' ) === $post_id ) {
+			if ( 'page' === get_option( 'show_on_front' ) && (int) get_option( 'page_on_front' ) === $post_id ) {
 				$url = _get_page_link( $post_id );
 			} else {
 				$url = get_permalink( $post_id );

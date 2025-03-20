@@ -23,7 +23,12 @@ class Extension_Wpml_Plugin_Admin {
 	/**
 	 * Modifies the notes array to include WPML-related information.
 	 *
-	 * @param array $notes Existing notes.
+	 * @param array $notes {
+	 *     Existing notes.
+	 *
+	 *     @type string $key Note identifier.
+	 *     @type string $message Note message.
+	 * }
 	 *
 	 * @return array Modified notes with WPML-related information added.
 	 */
@@ -35,7 +40,7 @@ class Extension_Wpml_Plugin_Admin {
 			$config->get_boolean( 'pgcache.enabled' ) &&
 			'file_generic' === $config->get_string( 'pgcache.engine' ) &&
 			isset( $settings['language_negotiation_type'] ) &&
-			3 === $settings['language_negotiation_type']
+			3 === (int) $settings['language_negotiation_type']
 		) {
 			$state = Dispatcher::config_state();
 
@@ -63,8 +68,30 @@ class Extension_Wpml_Plugin_Admin {
 	/**
 	 * Registers WPML extension details.
 	 *
-	 * @param array  $extensions Existing list of extensions.
-	 * @param object $config     Configuration object.
+	 * @param array  $extensions {
+	 *     Existing list of extensions.
+	 *
+	 *     @type array $wpml {
+	 *         Details for the WPML extension.
+	 *
+	 *         @type string   $name             Name of the extension.
+	 *         @type string   $author           Author of the extension.
+	 *         @type string   $description      Description of the extension.
+	 *         @type string   $author_uri       URL to the author's website.
+	 *         @type string   $extension_uri    URL to the extension's page.
+	 *         @type string   $extension_id     Unique ID of the extension.
+	 *         @type bool     $pro_feature      Whether this is a pro feature.
+	 *         @type string   $pro_excerpt      Short description for the pro feature.
+	 *         @type array    $pro_description  Detailed description for the pro feature.
+	 *         @type bool     $settings_exists  Whether settings exist for the extension.
+	 *         @type string   $version          Version of the extension.
+	 *         @type bool     $enabled          Whether the extension is enabled.
+	 *         @type string   $disabled_message Message displayed when the extension is disabled.
+	 *         @type string   $requirements     List of requirements for enabling the extension.
+	 *         @type string   $path             Path to the extension file.
+	 *     }
+	 * }
+	 * @param object $config Configuration object.
 	 *
 	 * @return array Modified extensions with WPML details.
 	 */
@@ -117,7 +144,15 @@ class Extension_Wpml_Plugin_Admin {
 	/**
 	 * Modifies the hooks to include the WPML notes filter.
 	 *
-	 * @param array $hooks Existing hooks.
+	 * @param array $hooks {
+	 *     Existing hooks.
+	 *
+	 *     @type array $filters {
+	 *         List of filter hooks.
+	 *
+	 *         @type array $w3tc_notes WPML notes filter hooks.
+	 *     }
+	 * }
 	 *
 	 * @return array Modified hooks with WPML notes filter.
 	 */
@@ -160,7 +195,11 @@ class Extension_Wpml_Plugin_Admin {
 	/**
 	 * Modifies the notes array to include WPML activation suggestion.
 	 *
-	 * @param array $notes Existing notes.
+	 * @param array $notes {
+	 *     Existing notes.
+	 *
+	 *     @type string $wpml Message suggesting WPML activation.
+	 * }
 	 *
 	 * @return array Modified notes with WPML activation suggestion.
 	 */

@@ -31,21 +31,21 @@ class CdnEngine_Base {
 	 *
 	 * @var array
 	 */
-	private $_config = array();
+	protected $_config = array();
 
 	/**
 	 * Gzip extension
 	 *
 	 * @var string
 	 */
-	private $_gzip_extension = '.gzip';
+	protected $_gzip_extension = '.gzip';
 
 	/**
 	 * Last error
 	 *
 	 * @var string
 	 */
-	private $_last_error = '';
+	protected $_last_error = '';
 
 	/**
 	 * Constructor method for initializing the CdnEngine_Base object with configuration settings.

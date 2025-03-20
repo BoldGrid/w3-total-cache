@@ -1,6 +1,6 @@
 <?php
 /**
- * FIle: Cache_File.php
+ * File: Cache_File.php
  *
  * @package W3TC
  */
@@ -66,7 +66,16 @@ class Cache_File extends Cache_Base {
 	 * time limits, locking behavior, and flushing directory based on the configuration. If specific configurations are not provided,
 	 * defaults are determined using environment utilities.
 	 *
-	 * @param array $config Optional. Configuration options for the cache file.
+	 * @param array $config {
+	 *     Optional. Configuration options for the cache file.
+	 *
+	 *     @type string $cache_dir        The directory where cache files are stored.
+	 *     @type array  $exclude          List of items to exclude from caching.
+	 *     @type int    $flush_timelimit  The time limit for flushing the cache.
+	 *     @type bool   $locking          Whether to use locking for cache file access.
+	 *     @type string $flush_dir        The directory where cache flush operations occur.
+	 *     @type bool   $use_wp_hash     Whether to use WordPress-specific hashing for cache files.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -374,8 +383,12 @@ class Cache_File extends Cache_Base {
 	 *
 	 * Performs any cleanup or flushing required for a cache group after an ahead-of-generation operation.
 	 *
-	 * @param string $group     The cache group.
-	 * @param array  $extension An extension array with generation metadata.
+	 * @param string $group The cache group.
+	 * @param array  $extension {
+	 *     An extension array with generation metadata.
+	 *
+	 *     @type mixed $before_time The time before the generation.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -455,7 +468,13 @@ class Cache_File extends Cache_Base {
 	 * Checks for timeouts every 1000 items.
 	 *
 	 * @param string $path         The directory path.
-	 * @param array  $size         The size data array.
+	 * @param array  $size         {
+	 *     The size data array.
+	 *
+	 *     @type int $bytes             The total size of the directory in bytes.
+	 *     @type int $items             The total number of items (files/subdirectories).
+	 *     @type bool $timeout_occurred Flag indicating whether a timeout has occurred.
+	 * }
 	 * @param int    $timeout_time The timeout timestamp.
 	 *
 	 * @return array Updated size data.

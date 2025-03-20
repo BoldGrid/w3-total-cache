@@ -14,12 +14,15 @@ class CdnEngine_Mirror_StackPath extends CdnEngine_Mirror {
 	/**
 	 * Constructs the CdnEngine_Mirror_StackPath class.
 	 *
-	 * @param array $config Configuration settings for the StackPath CDN engine. Keys include:
-	 *                      - 'authorization_key' (string): The authorization key for API access.
-	 *                      - 'alias' (string): The account alias.
-	 *                      - 'consumerkey' (string): The consumer key for API access.
-	 *                      - 'consumersecret' (string): The consumer secret for API access.
-	 *                      - 'zone_id' (int): The zone ID for the StackPath configuration.
+	 * @param array $config {
+	 *     Configuration settings for the StackPath CDN engine. Keys include.
+	 *
+	 *     @type string $authorization_key The authorization key for API access.
+	 *     @type string $alias             The account alias.
+	 *     @type string $consumerkey       The consumer key for API access.
+	 *     @type string $consumersecret    The consumer secret for API access.
+	 *     @type int    $zone_id           The zone ID for the StackPath configuration.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -79,7 +82,7 @@ class CdnEngine_Mirror_StackPath extends CdnEngine_Mirror {
 		try {
 			$zone_id = $this->_config['zone_id'];
 
-			if ( 0 === $zone_id || is_null( $zone_id ) ) {
+			if ( empty( $zone_id ) ) {
 				$results[] = $this->_get_result(
 					'',
 					'',
@@ -152,7 +155,7 @@ class CdnEngine_Mirror_StackPath extends CdnEngine_Mirror {
 		try {
 			$zone_id = $this->_config['zone_id'];
 
-			if ( 0 === $zone_id || is_null( $zone_id ) ) {
+			if ( empty( $zone_id ) ) {
 				$results[] = $this->_get_result(
 					'',
 					'',

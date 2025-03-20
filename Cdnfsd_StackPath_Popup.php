@@ -185,7 +185,16 @@ class Cdnfsd_StackPath_Popup {
 	/**
 	 * Renders the zone's value change for a given field.
 	 *
-	 * @param array  $details Array containing zone details.
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
 	 * @param string $field   The field to be rendered.
 	 *
 	 * @return void
@@ -206,7 +215,16 @@ class Cdnfsd_StackPath_Popup {
 	/**
 	 * Renders the boolean change for a zone field.
 	 *
-	 * @param array  $details Array containing zone details.
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
 	 * @param string $field   The boolean field to be rendered.
 	 *
 	 * @return void
@@ -240,7 +258,7 @@ class Cdnfsd_StackPath_Popup {
 	 * @return void
 	 */
 	private function render_zone_boolean( $v ) {
-		if ( 0 === $v ) {
+		if ( empty( $v ) ) {
 			echo 'disabled';
 		} else {
 			echo 'enabled';
@@ -250,7 +268,16 @@ class Cdnfsd_StackPath_Popup {
 	/**
 	 * Renders the IP change for a zone field.
 	 *
-	 * @param array  $details Array containing zone details.
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
 	 * @param string $field   The field representing the IP.
 	 *
 	 * @return void

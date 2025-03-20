@@ -168,7 +168,31 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	/**
 	 * Applies configuration to the database cluster.
 	 *
-	 * @param array $c Configuration array for the database cluster.
+	 * @param array $c {
+	 *     Configuration array for the database cluster.
+	 *
+	 *     @type bool   $persistent               Whether to enable persistent connections.
+	 *     @type bool   $check_tcp_responsiveness Whether to check TCP responsiveness.
+	 *     @type bool   $use_master_in_backend    Whether to use the master database in the backend.
+	 *     @type string $charset                  Database character set.
+	 *     @type string $collate                  Database collation.
+	 *     @type array  $filters {
+	 *         List of filter callbacks to add.
+	 *
+	 *         @type string $function_to_add Function to add as a filter.
+	 *         @type string $tag             Tag for the filter.
+	 *     }
+	 *     @type array  $databases {
+	 *         List of databases to add.
+	 *
+	 *         @type array $db Database configuration.
+	 *     }
+	 *     @type array  $zones {
+	 *         List of zones to add.
+	 *
+	 *         @type array $zone Zone configuration, with 'name' assigned as the key.
+	 *     }
+	 * }
 	 *
 	 * @return void
 	 */
@@ -242,7 +266,11 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	/**
 	 * Adds a zone to the database cluster configuration.
 	 *
-	 * @param array $zone Zone configuration data.
+	 * @param array $zone {
+	 *     Zone configuration data.
+	 *
+	 *     @type array $zone_priorities Zone priority settings. Must be defined.
+	 * }
 	 *
 	 * @throws \Exception If the zone priorities key is not defined.
 	 *
@@ -262,7 +290,17 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	/**
 	 * Adds a database to the cluster configuration.
 	 *
-	 * @param array $db Database configuration data.
+	 * @param array $db {
+	 *     Database configuration data.
+	 *
+	 *     @type string  $dataset  Dataset name. Defaults to 'global'.
+	 *     @type bool    $read     Whether the database is for reading. Defaults to true.
+	 *     @type bool    $write    Whether the database is for writing. Defaults to true.
+	 *     @type string  $zone     Availability zone. Defaults to 'all'.
+	 *     @type float   $timeout  Connection timeout. Defaults to 0.2 if not set.
+	 *     @type string  $name     Database name. Defaults to the host if not set.
+	 *     @type string  $host     Database host.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -410,6 +448,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 		// Make a list of at least $this->min_tries connections to try, repeating as necessary.
 		$servers      = array();
 		$server_count = 0;
+		$retry_count  = 0;
 		do {
 			foreach ( $this->_current_zone['zone_priorities'] as $zone ) {
 				if ( isset( $this->_cluster_servers[ $dataset ][ $operation ][ $zone ] ) ) {
@@ -424,8 +463,12 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 					}
 				}
 			}
+
 			$server_count = count( $servers );
-		} while ( $server_count < $this->min_tries );
+
+			// Increment the retry count and check if we've exceeded the maximum retries.
+			$retry_count++;
+		} while ( $server_count < $this->min_tries && $retry_count < 3 );
 
 		// Connect to a database server.
 		$success = false;
@@ -500,7 +543,12 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 	/**
 	 * Checks if a given zone is the current zone.
 	 *
-	 * @param array $zone Zone configuration data.
+	 * @param array $zone {
+	 *     Zone configuration data.
+	 *
+	 *     @type string   $SERVER_NAME  (Obsolete) Specific server name to match.
+	 *     @type string[] $server_names List of server names to match. Supports wildcard '*'.
+	 * }
 	 *
 	 * @return bool True if the zone matches the current zone, otherwise false.
 	 */

@@ -39,7 +39,13 @@ class Cdn_RackSpace_Api_Cdn {
 	/**
 	 * Constructor for initializing the API client with configuration.
 	 *
-	 * @param array $config Configuration array containing 'access_token', 'access_region_descriptor', and 'new_access_required'.
+	 * @param array $config {
+	 *     Configuration array containing the following keys.
+	 *
+	 *     @type string $access_token             Access token for API authentication.
+	 *     @type string $access_region_descriptor Region descriptor for the API.
+	 *     @type bool   $new_access_required      Flag indicating if new access is required.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -88,7 +94,11 @@ class Cdn_RackSpace_Api_Cdn {
 	/**
 	 * Creates a new service with the given data.
 	 *
-	 * @param array $data The data used to create the service.
+	 * @param array $data {
+	 *     The data used to create the service.
+	 *
+	 *     @type string $flavor_id The flavor ID for the service. Defaults to 'cdn'.
+	 * }
 	 *
 	 * @return mixed The response from the API on success, or an error on failure.
 	 */
@@ -173,7 +183,11 @@ class Cdn_RackSpace_Api_Cdn {
 	 *
 	 * @param string $uri     The URI to request.
 	 * @param array  $body    The body of the request.
-	 * @param array  $headers The headers for the request.
+	 * @param array  $headers {
+	 *     The headers for the request.
+	 *
+	 *     @type string $X-Auth-Token The authentication token for the request.
+	 * }
 	 *
 	 * @return mixed The response from the API on success.
 	 */
@@ -211,7 +225,11 @@ class Cdn_RackSpace_Api_Cdn {
 	 *
 	 * @param string $uri     The URI to request.
 	 * @param array  $body    The body of the request.
-	 * @param array  $headers The headers for the request.
+	 * @param array  $headers {
+	 *     The headers for the request.
+	 *
+	 *     @type string $X-Auth-Token The authentication token for the request.
+	 * }
 	 *
 	 * @return mixed The response from the API on success.
 	 */
@@ -246,8 +264,12 @@ class Cdn_RackSpace_Api_Cdn {
 	/**
 	 * Makes a DELETE request to the specified URI with the given headers.
 	 *
-	 * @param string $uri     The URI to request.
-	 * @param array  $headers The headers for the request.
+	 * @param string $uri The URI to request.
+	 * @param array  $headers {
+	 *     The headers for the request.
+	 *
+	 *     @type string $X-Auth-Token The authentication token for the request.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -307,12 +329,7 @@ class Cdn_RackSpace_Api_Cdn {
 			}
 		}
 
-		if (
-			'200' !== $result['response']['code'] &&
-			'201' !== $result['response']['code'] &&
-			'202' !== $result['response']['code'] &&
-			'204' !== $result['response']['code']
-		) {
+		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
 			throw new \Exception( $result['body'] );
 		}
 
@@ -336,12 +353,7 @@ class Cdn_RackSpace_Api_Cdn {
 			throw new \Exception( 'Failed to reach API endpoint' );
 		}
 
-		if (
-			'200' !== $result['response']['code'] &&
-			'201' !== $result['response']['code'] &&
-			'202' !== $result['response']['code'] &&
-			'204' !== $result['response']['code']
-		) {
+		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
 			if ( 'Unauthorized' === $result['response']['message'] ) {
 				return array(
 					'response_json' => array(),

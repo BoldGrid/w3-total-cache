@@ -1,6 +1,6 @@
 <?php
 /**
- * FIle: Cache_Xcache.php
+ * File: Cache_Xcache.php
  *
  * @package W3TC
  */
@@ -223,8 +223,12 @@ class Cache_Xcache extends Cache_Base {
 	 *
 	 * If the provided key version is higher than the current version, the key version is updated.
 	 *
-	 * @param string $group     The cache group to update.
-	 * @param array  $extension The extension data containing 'key_version'.
+	 * @param string $group The cache group to update.
+	 * @param array  $extension {
+	 *     The extension data containing 'key_version'.
+	 *
+	 *     @type string $key_version The version of the cache key.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -283,7 +287,11 @@ class Cache_Xcache extends Cache_Base {
 	 * match the old value, the operation fails.
 	 *
 	 * @param string $key       The cache key to update.
-	 * @param array  $old_value The expected current value.
+	 * @param array  $old_value {
+	 *     The expected current value.
+	 *
+	 *     @type string $content The expected content to compare.
+	 * }
 	 * @param array  $new_value The new value to set.
 	 *
 	 * @return bool True if the operation succeeds, false otherwise.

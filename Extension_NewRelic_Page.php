@@ -43,10 +43,11 @@ class Extension_NewRelic_Page extends Base_Page_Settings {
 			$application_settings = array();
 		}
 
-		if ( Util_Request::get_boolean( 'view_metric', false ) ) {
+		$view_metric = Util_Request::get_boolean( 'view_metric', false );
+		if ( ! empty( $view_metric ) ) {
 			$metric_names = $nerser->get_metric_names( Util_Request::get_string( 'regex', '' ) );
 		}
 
-		include W3TC_DIR . '/Extension_NewRelic_Page_View_Apm.php';
+		require W3TC_DIR . '/Extension_NewRelic_Page_View_Apm.php';
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * FIle: Cache_Memcache.php
+ * File: Cache_Memcache.php
  *
  * @package W3TC
  */
@@ -37,10 +37,13 @@ class Cache_Memcache extends Cache_Base {
 	 *
 	 * Initializes the Memcache connection and sets up servers based on the provided configuration.
 	 *
-	 * @param array $config Configuration for Memcache, including:
-	 *                      - 'servers' (array): List of Memcache server endpoints.
-	 *                      - 'persistent' (bool): Whether to use persistent connections.
-	 *                      - 'key_version_mode' (string): Mode for key versioning ('disabled' to disable it).
+	 * @param array $config {
+	 *     Configuration for Memcache, including.
+	 *
+	 *     @type array  $servers          List of Memcache server endpoints.
+	 *     @type bool   $persistent       Whether to use persistent connections.
+	 *     @type string $key_version_mode Mode for key versioning ('disabled' to disable it).
+	 * }
 	 *
 	 * @return bool
 	 */
@@ -247,8 +250,12 @@ class Cache_Memcache extends Cache_Base {
 	/**
 	 * Updates the cache key version after an ahead-generation operation.
 	 *
-	 * @param string $group     Cache group.
-	 * @param array  $extension The extension data with the new key version.
+	 * @param string $group Cache group.
+	 * @param array  $extension {
+	 *     The extension data with the new key version.
+	 *
+	 *     @type string $key_version The new cache key version.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -396,7 +403,11 @@ class Cache_Memcache extends Cache_Base {
 	 * Since Memcache does not support Compare-And-Swap (CAS), atomicity cannot be guaranteed.
 	 *
 	 * @param string $key       The cache key.
-	 * @param array  $old_value The expected old value.
+	 * @param array  $old_value {
+	 *     The expected old value.
+	 *
+	 *     @type mixed $content The content to match against.
+	 * }
 	 * @param array  $new_value The new value to set if the old value matches.
 	 *
 	 * @return bool True if the value was set, false otherwise.

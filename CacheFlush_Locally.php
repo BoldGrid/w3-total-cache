@@ -30,8 +30,11 @@ class CacheFlush_Locally {
 	 * Triggers the `w3tc_flush_dbcache` action and attempts to clear the database cache
 	 * if supported by the `$wpdb` global.
 	 *
-	 * @param array $extras Optional. Additional parameters for flushing. Default empty array.
-	 *                      - 'only': (string) Flush specific cache type. Defaults to 'dbcache'.
+	 * @param array $extras {
+	 *     Optional. Additional parameters for flushing. Default empty array.
+	 *
+	 *     @type string $only Flush specific cache type.
+	 * }
 	 *
 	 * @return bool|void True if cache flushed successfully, false otherwise, void if not applicable.
 	 */
@@ -55,8 +58,11 @@ class CacheFlush_Locally {
 	 * Triggers the `w3tc_flush_objectcache` and `w3tc_flush_after_objectcache` actions
 	 * and clears the object cache using the appropriate component.
 	 *
-	 * @param array $extras Optional. Additional parameters for flushing. Default empty array.
-	 *                      - 'only': (string) Flush specific cache type. Defaults to 'objectcache'.
+	 * @param array $extras {
+	 *     Optional. Additional parameters for flushing. Default empty array.
+	 *
+	 *     @type string $only Flush specific cache type.
+	 * }
 	 *
 	 * @return bool True if cache flushed successfully, false otherwise.
 	 */
@@ -80,8 +86,11 @@ class CacheFlush_Locally {
 	 * Triggers the `w3tc_flush_fragmentcache` and `w3tc_flush_after_fragmentcache` actions
 	 * and clears the fragment cache.
 	 *
-	 * @param array $extras Optional. Additional parameters for flushing. Default empty array.
-	 *                      - 'only': (string) Flush specific cache type. Defaults to 'fragment'.
+	 * @param array $extras {
+	 *     Optional. Additional parameters for flushing. Default empty array.
+	 *
+	 *     @type string $only Flush specific cache type.
+	 * }
 	 *
 	 * @return bool Always true.
 	 */
@@ -118,8 +127,11 @@ class CacheFlush_Locally {
 	 * Triggers the `w3tc_flush_minify` and `w3tc_flush_after_minify` actions and clears
 	 * the minify cache using the appropriate component.
 	 *
-	 * @param array $extras Optional. Additional parameters for flushing. Default empty array.
-	 *                      - 'only': (string) Flush specific cache type. Defaults to 'minify'.
+	 * @param array $extras {
+	 *     Optional. Additional parameters for flushing. Default empty array.
+	 *
+	 *     @type string $only Flush specific cache type.
+	 * }
 	 *
 	 * @return bool True if cache flushed successfully, false otherwise.
 	 */
@@ -155,8 +167,11 @@ class CacheFlush_Locally {
 	 * Triggers the `w3tc_flush_browsercache` and `w3tc_flush_after_browsercache` actions
 	 * and updates the browser cache flush timestamp.
 	 *
-	 * @param array $extras Optional. Additional parameters for flushing. Default empty array.
-	 *                      - 'only': (string) Flush specific cache type. Defaults to 'browsercache'.
+	 * @param array $extras {
+	 *     Optional. Additional parameters for flushing. Default empty array.
+	 *
+	 *     @type string $only Flush specific cache type. Defaults to 'browsercache'.
+	 * }
 	 *
 	 * @return void
 	 */

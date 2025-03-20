@@ -367,7 +367,7 @@ class Cdn_Highwinds_Api {
 
 		$response_json = @json_decode( $result['body'], true );
 		if ( is_null( $response_json ) ) {
-			if ( 200 === $result['response']['code'] && empty( $result['body'] ) ) {
+			if ( 200 === (int) $result['response']['code'] && empty( $result['body'] ) ) {
 				return array(
 					'response_json' => array(),
 					'auth_required' => false,
@@ -378,7 +378,7 @@ class Cdn_Highwinds_Api {
 		}
 
 		if ( isset( $response_json['error'] ) ) {
-			if ( isset( $response_json['code'] ) && '203' === $response_json['code'] ) {
+			if ( isset( $response_json['code'] ) && 203 === (int) $response_json['code'] ) {
 				return array(
 					'response_json' => $response_json,
 					'auth_required' => true,
@@ -388,7 +388,7 @@ class Cdn_Highwinds_Api {
 			throw new \Exception( $response_json['error'] );
 		}
 
-		if ( '200' !== $result['response']['code'] && '201' !== $result['response']['code'] ) {
+		if ( 200 !== (int) $result['response']['code'] && 201 !== (int) $result['response']['code'] ) {
 			throw new \Exception( $result['body'] );
 		}
 

@@ -261,7 +261,12 @@ class Cdn_StackPath_Api {
 	/**
 	 * Converts an API response into an exception object.
 	 *
-	 * @param array $response The API response to convert.
+	 * @param array $response {
+	 *     The API response to convert.
+	 *
+	 *     @type string $error['message'] Error message from the response.
+	 *     @type array  $data['errors']  Array of errors from the response data.
+	 * }
 	 *
 	 * @return \W3tcWpHttpException Exception object containing the error details.
 	 */

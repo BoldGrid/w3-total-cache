@@ -45,9 +45,9 @@ class Cdn_RackSpace_Api_CloudFilesCdn {
 	 * @param array $config {
 	 *     Configuration parameters for the API.
 	 *
-	 *     @type string $access_token             The access token for API authentication.
-	 *     @type array  $access_region_descriptor Region-specific API endpoint details.
-	 *     @type callable $new_access_required   Callback function to handle access renewal.
+	 *     @type string   $access_token             The access token for API authentication.
+	 *     @type array    $access_region_descriptor Region-specific API endpoint details.
+	 *     @type callable $new_access_required      Callback function to handle access renewal.
 	 * }
 	 *
 	 * @return void
@@ -239,12 +239,7 @@ class Cdn_RackSpace_Api_CloudFilesCdn {
 			}
 		}
 
-		if (
-			'200' !== $result['response']['code'] &&
-			'201' !== $result['response']['code'] &&
-			'202' !== $result['response']['code'] &&
-			'204' !== $result['response']['code']
-		) {
+		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
 			throw new \Exception( $result['body'] );
 		}
 
@@ -274,12 +269,7 @@ class Cdn_RackSpace_Api_CloudFilesCdn {
 			throw new \Exception( 'Failed to reach API endpoint' );
 		}
 
-		if (
-			'200' !== $result['response']['code'] &&
-			'201' !== $result['response']['code'] &&
-			'202' !== $result['response']['code'] &&
-			'204' !== $result['response']['code']
-		) {
+		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
 			if ( 'Unauthorized' === $result['response']['message'] ) {
 				return array(
 					'auth_required' => true,

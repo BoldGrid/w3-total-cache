@@ -104,7 +104,7 @@ class Extension_CloudFlare_SettingsForUi {
 				continue;
 			}
 
-			if ( '' === $value ) {
+			if ( empty( $value ) ) {
 				continue;
 			}
 

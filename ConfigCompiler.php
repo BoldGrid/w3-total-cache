@@ -307,7 +307,16 @@ class ConfigCompiler {
 	 * This method ensures that configuration data is updated and migrated
 	 * to match the structure and settings of the latest version.
 	 *
-	 * @param array $file_data The configuration data to upgrade.
+	 * @param array $file_data {
+	 *     The configuration data to upgrade.
+	 *
+	 *     @type string $version       The current version of the configuration.
+	 *     @type array  $minify        Minify settings such as JS and CSS.
+	 *     @type array  $cdnfsd        CDN settings for file storage and distribution.
+	 *     @type array  $extensions    Active extensions settings.
+	 *     @type array  $newrelic      New Relic monitoring settings.
+	 *     @type array  $fragmentcache Fragment cache settings.
+	 * }
 	 *
 	 * @return array The upgraded configuration data.
 	 */
@@ -357,7 +366,7 @@ class ConfigCompiler {
 		// changes in 0.9.7.
 		if (
 			isset( $file_data['cdnfsd.enabled'] ) &&
-			'1' === $file_data['cdnfsd.enabled'] &&
+			! empty( $file_data['cdnfsd.enabled'] ) &&
 			empty( $file_data['cdnfsd.engine'] )
 		) {
 			$file_data['cdnfsd.enabled'] = '0';
@@ -377,7 +386,7 @@ class ConfigCompiler {
 			// dont show minify tips if already enabled.
 			if (
 				isset( $file_data['minify.enabled'] ) &&
-				'true' === $file_data['minify.enabled'] &&
+				! empty( $file_data['minify.enabled'] ) &&
 				function_exists( 'get_option' )
 			) {
 				$cs = Dispatcher::config_state();

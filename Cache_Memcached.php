@@ -1,6 +1,6 @@
 <?php
 /**
- * FIle: Cache_Memcached.php
+ * File: Cache_Memcached.php
  *
  * @package W3TC
  */
@@ -42,7 +42,11 @@ class Cache_Memcached extends Cache_Base {
 	/**
 	 * Constructor to initialize the Memcached client with provided configuration.
 	 *
-	 * @param array $config Configuration settings for the Memcached client, including server details, options, and credentials.
+	 * @param array $config {
+	 *     Configuration settings for the Memcached client, including server details, options, and credentials.
+	 *
+	 *     @type bool $persistent Whether to use persistent connections.
+	 * }
 	 *
 	 * @return bool True on successful initialization, false on failure.
 	 */
@@ -68,7 +72,16 @@ class Cache_Memcached extends Cache_Base {
 	/**
 	 * Initializes the Memcached client with the given configuration.
 	 *
-	 * @param array $config Configuration settings for the Memcached client, including server details, options, and credentials.
+	 * @param array $config {
+	 *     Configuration settings for the Memcached client, including server details, options, and credentials.
+	 *
+	 *     @type array|string $servers           List of Memcached server endpoints (host:port).
+	 *     @type bool         $binary_protocol   Enable binary protocol if true.
+	 *     @type bool         $aws_autodiscovery Enable AWS autodiscovery if true.
+	 *     @type string       $username          Username for SASL authentication.
+	 *     @type string       $password          Password for SASL authentication.
+	 *     @type string       $key_version_mode  Key versioning mode (disabled to skip versioning).
+	 * }
 	 *
 	 * @return bool True on successful initialization, false on failure.
 	 */
@@ -296,8 +309,12 @@ class Cache_Memcached extends Cache_Base {
 	 *
 	 * If the provided extension's key version is greater than the current version, it updates the key version.
 	 *
-	 * @param string $group    The cache group to update.
-	 * @param array  $extension The extension data containing the new key version.
+	 * @param string $group The cache group to update.
+	 * @param array  $extension {
+	 *     The extension data containing the new key version.
+	 *
+	 *     @type string $key_version The new key version to set.
+	 * }
 	 *
 	 * @return void
 	 */
@@ -466,7 +483,11 @@ class Cache_Memcached extends Cache_Base {
 	 * This method uses CAS (Compare and Swap) to atomically update the cache item.
 	 *
 	 * @param string $key       The cache key to update.
-	 * @param array  $old_value The current value to compare against.
+	 * @param array  $old_value {
+	 *     The current value to compare against.
+	 *
+	 *     @type mixed $content The content to compare in the old value.
+	 * }
 	 * @param array  $new_value The new value to set if the old value matches.
 	 *
 	 * @return bool True if the item was updated, false otherwise.
