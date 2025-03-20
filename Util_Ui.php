@@ -229,9 +229,9 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function postbox_header( $title, $class = '', $id = '' ) {
-		$id = ( ! empty( $id, self::get_allowed_html_for_wp_kses_from_content( $id ) ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
+		$id = ! empty( $id ) ? ' id="' . esc_attr( $id ) . '"' : '';
 		?>
-		<div <?php echo wp_kses( $id ); ?> class="postbox <?php echo esc_attr( $class ); ?>">
+		<div <?php echo wp_kses( $id, self::get_allowed_html_for_wp_kses_from_content( $id ) ); ?> class="postbox <?php echo esc_attr( $class ); ?>">
 			<h3 class="postbox-title">
 				<span><?php echo wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ); ?></span>
 			</h3>
