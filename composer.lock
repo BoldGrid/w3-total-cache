@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-php-sns-message-validator",
-            "version": "1.9.0",
+            "version": "1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-php-sns-message-validator.git",
-                "reference": "de457eaf8fbfa05f2f611d546d7357c6fdec86f8"
+                "reference": "80850e8d93fb57889ce609e113895dd2f1d7eed6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-php-sns-message-validator/zipball/de457eaf8fbfa05f2f611d546d7357c6fdec86f8",
-                "reference": "de457eaf8fbfa05f2f611d546d7357c6fdec86f8",
+                "url": "https://api.github.com/repos/aws/aws-php-sns-message-validator/zipball/80850e8d93fb57889ce609e113895dd2f1d7eed6",
+                "reference": "80850e8d93fb57889ce609e113895dd2f1d7eed6",
                 "shasum": ""
             },
             "require": {
@@ -115,9 +115,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sns-message-validator/issues",
-                "source": "https://github.com/aws/aws-php-sns-message-validator/tree/1.9.0"
+                "source": "https://github.com/aws/aws-php-sns-message-validator/tree/1.9.1"
             },
-            "time": "2023-12-18T17:03:51+00:00"
+            "time": "2025-02-25T22:19:51+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
@@ -2650,16 +2650,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.11.3",
+            "version": "3.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "ba05f990e79cbe69b9f35c8c1ac8dca7eecc3a10"
+                "reference": "2d1b63db139c3c6ea0c927698e5160f8b3b8d630"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/ba05f990e79cbe69b9f35c8c1ac8dca7eecc3a10",
-                "reference": "ba05f990e79cbe69b9f35c8c1ac8dca7eecc3a10",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/2d1b63db139c3c6ea0c927698e5160f8b3b8d630",
+                "reference": "2d1b63db139c3c6ea0c927698e5160f8b3b8d630",
                 "shasum": ""
             },
             "require": {
@@ -2726,11 +2726,11 @@
                     "type": "open_collective"
                 },
                 {
-                    "url": "https://thanks.dev/phpcsstandards",
+                    "url": "https://thanks.dev/u/gh/phpcsstandards",
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-01-23T17:04:15+00:00"
+            "time": "2025-03-18T05:04:51+00:00"
         },
         {
             "name": "theseer/tokenizer",
