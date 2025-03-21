@@ -32,6 +32,7 @@ if ( is_null( $c->get( array( 'user-experience-defer-scripts', 'timeout' ) ) ) )
 		<?php
 		echo wp_kses(
 			sprintf(
+				// Translators: 1 opening HTML a tag to pagespeed settings page, 2 closing HTML a tag.
 				__(
 					'To identify render-blocking JavaScript sources, use the %1$sGoogle PageSpeed%2$s tool and add appropirate URLs from the "Eliminate render-blocking resources" section to the Delay List textarea below.',
 					'w3-total-cache'

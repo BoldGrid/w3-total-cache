@@ -73,7 +73,7 @@ class Generic_WidgetBoldGrid {
 		);
 
 		foreach ( $plugins as $plugin ) {
-			if ( in_array( $plugin, $backup_plugins ) ) {
+			if ( in_array( $plugin, $backup_plugins, true ) ) {
 				return false;
 			}
 		}
