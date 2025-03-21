@@ -751,7 +751,7 @@ class Util_Ui {
 		$placeholder = ! empty( $placeholder ) ? ' placeholder="' . esc_attr( $placeholder ) . '"' : '';
 
 		echo '<input class="enabled" type="' . esc_attr( $type ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"
-			 value="' . esc_attr( $value ) . '" ' . disabled( $disabled ) . ' size="' . esc_attr( $size ) . '"' . $placeholder . ' />';
+			 value="' . esc_attr( $value ) . '" ' . disabled( $disabled, true, false ) . ' size="' . esc_attr( $size ) . '"' . $placeholder . ' />';
 	}
 
 	/**
@@ -767,7 +767,7 @@ class Util_Ui {
 	 */
 	public static function passwordbox( $id, $name, $value, $disabled = false, $size = 40 ) {
 		echo '<input class="enabled" type="password" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"
-			 value="' . esc_attr( $value ) . '" ' . disabled( $disabled ) . ' size="' . esc_attr( $size ) . '" />';
+			 value="' . esc_attr( $value ) . '" ' . disabled( $disabled, true, false ) . ' size="' . esc_attr( $size ) . '" />';
 	}
 
 	/**
@@ -788,7 +788,7 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function selectbox( $id, $name, $value, $values, $disabled = false, $optgroups = null ) {
-		echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" ' . disabled( $disabled ) . ">\n";
+		echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" ' . disabled( $disabled, true, false ) . ">\n";
 
 		if ( ! is_array( $optgroups ) ) {
 			// simle control.
@@ -837,7 +837,7 @@ class Util_Ui {
 			$disabled = ! empty( $descriptor['disabled'] );
 		}
 
-		echo '<option value="' . esc_attr( $key ) . '" ' . selected( $selected_value, $key ) . disabled( $disabled ) . '>' .
+		echo '<option value="' . esc_attr( $key ) . '" ' . selected( $selected_value, $key ) . disabled( $disabled, true, false ) . '>' .
 			wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</option>' . "\n";
 	}
 
@@ -900,7 +900,7 @@ class Util_Ui {
 			}
 
 			echo '<label><input type="radio" id="' . esc_attr( $name . '__' . $key ) . '" name="' . esc_attr( $name ) .
-				'" value="' . esc_attr( $key ) . '"' . checked( $value, $key ) . disabled( $disabled || $item_disabled ) . ' />' .
+				'" value="' . esc_attr( $key ) . '"' . checked( $value, $key, false ) . disabled( $disabled || $item_disabled, true, false ) . ' />' .
 				wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</label>' .
 				wp_kses( $postfix, self::get_allowed_html_for_wp_kses_from_content( $postfix ) ) . "\n";
 
@@ -934,7 +934,7 @@ class Util_Ui {
 	 */
 	public static function textarea( $id, $name, $value, $disabled = false ) {
 		?>
-		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5" cols=25 style="width: 100%" <?php disabled( $disabled ); ?>>
+		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5" cols=25 style="width: 100%" <?php disabled( $disabled, true, true ); ?>>
 			<?php echo esc_textarea( $value ); ?>
 		</textarea>
 		<?php
@@ -958,7 +958,7 @@ class Util_Ui {
 
 		echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( ( ! $disabled ? '0' : ( $state ? '1' : '0' ) ) ) . '">' . "\n";
 		echo '<input class="enabled" type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) .
-			'" value="1" ' . checked( $state ) . disabled( $disabled ) . ' /> ';
+			'" value="1" ' . checked( $state, true, false ) . disabled( $disabled, true, false ) . ' /> ';
 
 		if ( ! is_null( $label ) ) {
 			echo wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) ) . '</label>';
