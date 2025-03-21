@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: UserExperience_LazyLoad_Page_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -8,10 +14,10 @@ if ( ! defined( 'W3TC' ) ) {
 $c      = Dispatcher::config();
 $is_pro = Util_Environment::is_w3tc_pro( $c );
 
-$plugins                 = get_option( 'active_plugins' );
-$is_wp_google_maps       = ( in_array( 'wp-google-maps/wpGoogleMaps.php', $plugins, true ) );
-$is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugin.php', $plugins, true ) );
-$is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, true ) );
+$active_plugins          = get_option( 'active_plugins' );
+$is_wp_google_maps       = ( in_array( 'wp-google-maps/wpGoogleMaps.php', $active_plugins, true ) );
+$is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugin.php', $active_plugins, true ) );
+$is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $active_plugins, true ) );
 
 ?>
 <?php Util_Ui::postbox_header( esc_html__( 'Lazy Loading', 'w3-total-cache' ), '', 'lazy-loading' ); ?>

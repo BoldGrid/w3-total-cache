@@ -30,17 +30,24 @@ class ObjectCache_Plugin {
 	private static $flushed = false;
 
 	/**
-	 * Constructor.
+	 * Constructs the ObjectCache_Plugin class and initializes configuration.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Runs plugin
+	 * Registers necessary actions and filters for object cache functionality.
+	 *
+	 * phpcs:disable WordPress.WP.CronInterval.ChangeDetected
+	 *
+	 * @link https://developer.wordpress.org/reference/hooks/updated_option/
+	 *
+	 * @return void
 	 */
 	public function run() {
-		// @link https://developer.wordpress.org/reference/hooks/updated_option/
 		add_action( 'updated_option', array( $this, 'delete_option_cache' ), 10, 0 );
 
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
@@ -61,20 +68,18 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Delete the options cache object.
+	 * Deletes the cache for all options.
 	 *
 	 * @since 2.7.6
 	 *
-	 * @link https://developer.wordpress.org/reference/functions/wp_cache_delete/
-	 *
-	 * @return bool
+	 * @return bool True on successful removal, false on failure.
 	 */
 	public function delete_option_cache() {
 		return wp_cache_delete( 'alloptions', 'options' );
 	}
 
 	/**
-	 * Does disk cache cleanup
+	 * Cleans up object cache files based on the configured time limit.
 	 *
 	 * @return void
 	 */
@@ -90,11 +95,11 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Cron schedules filter
+	 * Adds custom cron schedules for object cache cleanup.
 	 *
-	 * @param array $schedules Schedules.
+	 * @param array $schedules Existing cron schedules.
 	 *
-	 * @return array
+	 * @return array Modified cron schedules.
 	 */
 	public function cron_schedules( $schedules ) {
 		$c                   = $this->_config;
@@ -117,7 +122,7 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Cron job for processing purging object cache.
+	 * Purges the object cache via WP-Cron.
 	 *
 	 * @since 2.8.0
 	 *
@@ -129,9 +134,11 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Setup admin menu elements
+	 * Adds an item to the admin bar menu for object cache flushing.
 	 *
-	 * @param array $menu_items Menu items.
+	 * @param array $menu_items Existing menu items.
+	 *
+	 * @return array Modified menu items.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
 		$menu_items['20410.objectcache'] = array(
@@ -145,9 +152,11 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Setup admin menu elements
+	 * Adds a footer comment related to object cache to the strings.
 	 *
-	 * @param array $strings Strings.
+	 * @param string $strings Existing footer strings.
+	 *
+	 * @return string Modified footer strings.
 	 */
 	public function w3tc_footer_comment( $strings ) {
 		$o       = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
@@ -157,9 +166,11 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Usage statistics of request filter
+	 * Collects usage statistics for the object cache.
 	 *
-	 * @param object $storage Storage object.
+	 * @param mixed $storage Data storage to collect statistics.
+	 *
+	 * @return void
 	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
 		$o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
@@ -167,9 +178,11 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Retrive usage statistics metrics
+	 * Adds object cache metrics to the usage statistics.
 	 *
-	 * @param array $metrics Metrics.
+	 * @param array $metrics Existing metrics.
+	 *
+	 * @return array Modified metrics.
 	 */
 	public function w3tc_usage_statistics_metrics( $metrics ) {
 		$metrics = array_merge(
@@ -187,11 +200,11 @@ class ObjectCache_Plugin {
 	}
 
 	/**
-	 * Usage Statisitcs sources filter.
+	 * Adds object cache sources to the usage statistics.
 	 *
-	 * @param array $sources Sources.
+	 * @param array $sources Existing sources.
 	 *
-	 * @return array
+	 * @return array Modified sources.
 	 */
 	public function w3tc_usage_statistics_sources( $sources ) {
 		$c = Dispatcher::config();
