@@ -22,6 +22,8 @@ namespace W3TC;
  * @since   2.7.7
  * @author  Zubair <zmohammed@microsoft.com>
  * @author  BoldGrid <development@boldgrid.com>
+ *
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class CdnEngine_Azure_MI_Utility {
 	/**
@@ -31,7 +33,7 @@ class CdnEngine_Azure_MI_Utility {
 	 *
 	 * @var string
 	 */
-	const ENTRA_API_VERSION  = '2019-08-01';
+	const ENTRA_API_VERSION = '2019-08-01';
 
 	/**
 	 * Entra resource URI.
@@ -49,7 +51,7 @@ class CdnEngine_Azure_MI_Utility {
 	 *
 	 * @var string
 	 */
-	const BLOB_API_VERSION   = '2020-10-02';
+	const BLOB_API_VERSION = '2020-10-02';
 
 	/**
 	 * Retrieves an access token from the Managed Identity endpoint.
@@ -65,7 +67,7 @@ class CdnEngine_Azure_MI_Utility {
 		$identity_header   = \getenv( 'IDENTITY_HEADER' );
 		$identity_endpoint = \getenv( 'IDENTITY_ENDPOINT' );
 
-		 // Validate variables.
+		// Validate variables.
 		if ( empty( $identity_endpoint ) || empty( $identity_header ) || empty( $entra_client_id ) ) {
 			throw new \RuntimeException( 'Error: get_access_token - missing required environment variables.' );
 		}

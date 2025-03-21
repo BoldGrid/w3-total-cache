@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_Highwinds_Popup_View_SelectHost.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

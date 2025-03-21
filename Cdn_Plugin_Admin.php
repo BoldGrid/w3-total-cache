@@ -9,11 +9,11 @@
 namespace W3TC;
 
 /**
- * Class: Cdn_Plugin_Admin
+ * Class Cdn_Plugin_Admin
  */
 class Cdn_Plugin_Admin {
 	/**
-	 * Run.
+	 * Runs the CDN plugin by setting up various hooks and filters.
 	 *
 	 * @return void
 	 */
@@ -85,7 +85,7 @@ class Cdn_Plugin_Admin {
 	}
 
 	/**
-	 * CDN settings.
+	 * Adds configuration options for CDN settings in the general settings box area.
 	 *
 	 * @return void
 	 */
@@ -216,19 +216,20 @@ class Cdn_Plugin_Admin {
 	}
 
 	/**
-	 * Adjusts attachment urls to cdn. This is for those who rely on wp_get_attachment_url().
+	 * Filters the attachment URL for the WordPress admin area based on CDN settings.
 	 *
-	 * @param  string $url The local url to modify.
-	 * @return string
+	 * @param string $url The URL of the attachment.
+	 *
+	 * @return string The filtered URL of the attachment.
 	 */
 	public function wp_get_attachment_url( $url ) {
 		if ( defined( 'WP_ADMIN' ) ) {
 			$url = trim( $url );
 
 			if ( ! empty( $url ) ) {
-				$parsed          = \parse_url( $url );
+				$parsed          = \wp_parse_url( $url );
 				$uri             = ( isset( $parsed['path'] ) ? $parsed['path'] : '/' ) .
-						   ( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
+					( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
 				$wp_upload_dir   = \wp_upload_dir();
 				$upload_base_url = $wp_upload_dir['baseurl'];
 

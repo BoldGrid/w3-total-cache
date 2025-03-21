@@ -15,7 +15,10 @@ namespace W3TC;
  */
 class Cdn_BunnyCdn_Widget {
 	/**
-	 * Initialize the WP Admin Dashboard.
+	 * Initializes the W3TC BunnyCDN widget in the admin dashboard.
+	 *
+	 * This method adds the necessary actions to initialize the BunnyCDN widget on the W3TC dashboard. It creates an instance
+	 * of the widget class, registers the required styles, and hooks the widget form display to the proper location on the admin page.
 	 *
 	 * @since 2.6.0
 	 *
@@ -37,11 +40,14 @@ class Cdn_BunnyCdn_Widget {
 	}
 
 	/**
-	 * Print widget form.
+	 * Displays the widget form for BunnyCDN configuration.
+	 *
+	 * This method checks whether the user is authorized to view the BunnyCDN widget. If authorized, it includes a view that
+	 * shows the authorized settings. If the user is not authorized, a view indicating that they are unauthorized will be shown.
 	 *
 	 * @since 2.6.0
 	 *
-	 * return void
+	 * @return void
 	 */
 	public function widget_form() {
 		$c          = Dispatcher::config();
@@ -56,7 +62,10 @@ class Cdn_BunnyCdn_Widget {
 	}
 
 	/**
-	 * Enqueue styles.
+	 * Enqueues the styles for the BunnyCDN widget in the admin area.
+	 *
+	 * This method enqueues the required CSS files for the BunnyCDN widget in the WordPress admin area. It ensures that the
+	 * widget's styles are applied correctly on the dashboard page.
 	 *
 	 * @since 2.6.0
 	 *

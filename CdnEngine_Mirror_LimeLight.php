@@ -1,46 +1,83 @@
 <?php
+/**
+ * File: CdnEngine_Mirror_Highwinds.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * class CdnEngine_Mirror_Highwinds
+ * Class CdnEngine_Mirror_LimeLight
  */
 class CdnEngine_Mirror_LimeLight extends CdnEngine_Mirror {
+	/**
+	 * Short name
+	 *
+	 * @var string
+	 */
 	private $short_name;
+
+	/**
+	 * Username
+	 *
+	 * @var string
+	 */
 	private $username;
+
+	/**
+	 * API key
+	 *
+	 * @var string
+	 */
 	private $api_key;
+
+	/**
+	 * Debug flag
+	 *
+	 * @var bool
+	 */
 	private $debug;
+
+	/**
+	 * Domains
+	 *
+	 * @var array
+	 */
 	private $domains;
 
 	/**
-	 * PHP5 Constructor
+	 * Initializes the CdnEngine_Mirror_LimeLight class with configuration parameters.
 	 *
-	 * @param array   $config
-	 * account_hash
-	 * username
-	 * password
+	 * @param array $config Configuration parameters including 'short_name', 'username', 'api_key', 'debug', and 'domains'.
+	 *
+	 * @return void
 	 */
-	function __construct( $config = array() ) {
+	public function __construct( $config = array() ) {
 		$this->short_name = $config['short_name'];
-		$this->username = $config['username'];
-		$this->api_key = $config['api_key'];
-		$this->debug = $config['debug'];
+		$this->username   = $config['username'];
+		$this->api_key    = $config['api_key'];
+		$this->debug      = $config['debug'];
 
-		$this->domains = (array)$config['domains'];
+		$this->domains = (array) $config['domains'];
 
 		parent::__construct( $config );
 	}
 
 	/**
-	 * Purges remote files
+	 * Purges specific files from the LimeLight CDN cache.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @return boolean
+	 * @param array $files   Array of file descriptors to purge from the CDN.
+	 * @param array $results Reference to an array where the purge results will be stored.
+	 *
+	 * @return bool True if the purge was successful, false otherwise.
+	 *
+	 * @throws \Exception If credentials are not specified.
 	 */
-	function purge( $files, &$results ) {
-		if ( empty( $this->short_name ) || empty( $this->username ) ||
-			empty( $this->api_key ) )
+	public function purge( $files, &$results ) {
+		if ( empty( $this->short_name ) || empty( $this->username ) || empty( $this->api_key ) ) {
 			throw new \Exception( __( 'Credentials are not specified.', 'w3-total-cache' ) );
+		}
 
 		$api = new Cdnfsd_LimeLight_Api( $this->short_name, $this->username, $this->api_key );
 
@@ -48,18 +85,18 @@ class CdnEngine_Mirror_LimeLight extends CdnEngine_Mirror {
 		try {
 			$items = array();
 			foreach ( $files as $file ) {
-				$url = $this->_format_url( $file['remote_path'] );
+				$url     = $this->_format_url( $file['remote_path'] );
 				$items[] = array(
 					'pattern' => $url,
-					'exact' => true,
-					'evict' => false,
-					'incqs' => false
+					'exact'   => true,
+					'evict'   => false,
+					'incqs'   => false,
 				);
 
-				// max number of items per request based on API docs
+				// max number of items per request based on API docs.
 				if ( count( $items ) >= 100 ) {
 					if ( $this->debug ) {
-						Util_Debug::log( 'cdn', json_encode( $items, JSON_PRETTY_PRINT ) );
+						Util_Debug::log( 'cdn', wp_json_encode( $items, JSON_PRETTY_PRINT ) );
 					}
 
 					$api->purge( $items );
@@ -68,30 +105,42 @@ class CdnEngine_Mirror_LimeLight extends CdnEngine_Mirror {
 			}
 
 			if ( $this->debug ) {
-				Util_Debug::log( 'cdn', json_encode( $items, JSON_PRETTY_PRINT ) );
+				Util_Debug::log( 'cdn', wp_json_encode( $items, JSON_PRETTY_PRINT ) );
 			}
 
 			$api->purge( $items );
 
-			$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_OK, 'OK' );
+			$results[] = $this->_get_result(
+				'',
+				'',
+				W3TC_CDN_RESULT_OK,
+				'OK'
+			);
 		} catch ( \Exception $e ) {
-			$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_HALT,
-				__( 'Failed to purge: ', 'w3-total-cache' ) . $e->getMessage() );
+			$results[] = $this->_get_result(
+				'',
+				'',
+				W3TC_CDN_RESULT_HALT,
+				__( 'Failed to purge: ', 'w3-total-cache' ) . $e->getMessage()
+			);
 		}
 
-		return !$this->_is_error( $results );
+		return ! $this->_is_error( $results );
 	}
 
 	/**
-	 * Purge CDN completely
+	 * Purges all content from the LimeLight CDN cache for all configured domains.
 	 *
-	 * @param unknown $results
-	 * @return bool
+	 * @param array $results Reference to an array where the purge results will be stored.
+	 *
+	 * @return bool True if the purge was successful, false otherwise.
+	 *
+	 * @throws \Exception If access key is not specified.
 	 */
-	function purge_all( &$results ) {
-		if ( empty( $this->short_name ) || empty( $this->username ) ||
-			empty( $this->api_key ) )
+	public function purge_all( &$results ) {
+		if ( empty( $this->short_name ) || empty( $this->username ) || empty( $this->api_key ) ) {
 			throw new \Exception( __( 'Access key not specified.', 'w3-total-cache' ) );
+		}
 
 		$api = new Cdnfsd_LimeLight_Api( $this->short_name, $this->username, $this->api_key );
 
@@ -101,36 +150,48 @@ class CdnEngine_Mirror_LimeLight extends CdnEngine_Mirror {
 			foreach ( $this->domains as $domain ) {
 				$items[] = array(
 					'pattern' => 'http://' . $domain . '/*',
-					'exact' => false,
-					'evict' => false,
-					'incqs' => false
+					'exact'   => false,
+					'evict'   => false,
+					'incqs'   => false,
 				);
 				$items[] = array(
 					'pattern' => 'https://' . $domain . '/*',
-					'exact' => false,
-					'evict' => false,
-					'incqs' => false
+					'exact'   => false,
+					'evict'   => false,
+					'incqs'   => false,
 				);
 			}
 
 			if ( $this->debug ) {
-				Util_Debug::log( 'cdn', json_encode( $items, JSON_PRETTY_PRINT ) );
+				Util_Debug::log( 'cdn', wp_json_encode( $items, JSON_PRETTY_PRINT ) );
 			}
 
 			$api->purge( $items );
 
-			$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_OK, 'OK' );
+			$results[] = $this->_get_result(
+				'',
+				'',
+				W3TC_CDN_RESULT_OK,
+				'OK'
+			);
 		} catch ( \Exception $e ) {
-			$results[] = $this->_get_result( '', '', W3TC_CDN_RESULT_HALT,
-				__( 'Failed to purge all: ', 'w3-total-cache' ) . $e->getMessage() );
+			$results[] = $this->_get_result(
+				'',
+				'',
+				W3TC_CDN_RESULT_HALT,
+				__( 'Failed to purge all: ', 'w3-total-cache' ) . $e->getMessage()
+			);
 		}
 
-		return !$this->_is_error( $results );
+		return ! $this->_is_error( $results );
 	}
 
-
-
-	function get_domains() {
+	/**
+	 * Retrieves the list of domains associated with this CDN engine.
+	 *
+	 * @return array List of domains.
+	 */
+	public function get_domains() {
 		return $this->domains;
 	}
 }

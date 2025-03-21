@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdnfsd_StackPath_Popup_View_Zones.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

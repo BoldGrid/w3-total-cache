@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_StackPath2_Page_View_Stacks.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

@@ -1,8 +1,19 @@
 <?php
+/**
+ * File: DbCache_Page.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-
-
+/**
+ * Class DbCache_Page
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+ */
 class DbCache_Page extends Base_Page_Settings {
 	/**
 	 * Current page
@@ -11,29 +22,29 @@ class DbCache_Page extends Base_Page_Settings {
 	 */
 	protected $_page = 'w3tc_dbcache';
 
-
 	/**
-	 * Database cache tab
+	 * Renders the database cache view page.
 	 *
 	 * @return void
 	 */
-	function view() {
+	public function view() {
 		$dbcache_enabled = $this->_config->get_boolean( 'dbcache.enabled' );
 
 		include W3TC_INC_DIR . '/options/dbcache.php';
 	}
 
 	/**
-	 * Database cluster config editor
+	 * Configures the database cluster settings.
 	 *
 	 * @return void
 	 */
-	function dbcluster_config() {
+	public function dbcluster_config() {
 		$this->_page = 'w3tc_dbcluster_config';
-		if ( Util_Environment::is_dbcluster( $this->_config ) )
+		if ( Util_Environment::is_dbcluster( $this->_config ) ) {
 			$content = @file_get_contents( W3TC_FILE_DB_CLUSTER_CONFIG );
-		else
+		} else {
 			$content = @file_get_contents( W3TC_DIR . '/ini/dbcluster-config-sample.php' );
+		}
 
 		include W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster-config.php';
 	}

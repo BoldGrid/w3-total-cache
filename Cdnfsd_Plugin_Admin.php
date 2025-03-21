@@ -12,7 +12,9 @@ namespace W3TC;
  */
 class Cdnfsd_Plugin_Admin {
 	/**
-	 * Run.
+	 * Registers actions based on the selected CDNFSD engine.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		$c             = Dispatcher::config();
@@ -52,7 +54,9 @@ class Cdnfsd_Plugin_Admin {
 	}
 
 	/**
-	 * Print the general settings page CDN footer.
+	 * Displays the CDNFSD settings footer for the general settings page.
+	 *
+	 * @return void
 	 */
 	public function w3tc_settings_general_boxarea_cdn_footer() {
 		$config               = Dispatcher::config();
@@ -75,7 +79,7 @@ class Cdnfsd_Plugin_Admin {
 		);
 
 		$cdnfsd_engine_values['cloudflare'] = array(
-			'label' => __( 'Cloudflare (extension not activated)', 'w3-total-cache' ),
+			'label'    => __( 'Cloudflare (extension not activated)', 'w3-total-cache' ),
 			'disabled' => true,
 		);
 

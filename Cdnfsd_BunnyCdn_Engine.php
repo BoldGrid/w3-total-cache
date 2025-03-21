@@ -61,7 +61,7 @@ class Cdnfsd_BunnyCdn_Engine {
 		try {
 			$api->purge( array( 'items' => $items ) );
 		} catch ( \Exception $ex ) {
-			if ( $ex->getMessage() == 'Validation Failure: Purge url must contain one of your hostnames' ) {
+			if ( 'Validation Failure: Purge url must contain one of your hostnames' === $ex->getMessage() ) {
 				throw new \Exception( esc_html__( 'CDN site is not configured correctly: Delivery Domain must match your site domain', 'w3-total-cache' ) );
 			} else {
 				throw $ex;

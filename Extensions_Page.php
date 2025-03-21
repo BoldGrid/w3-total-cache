@@ -1,19 +1,18 @@
 <?php
+/**
+ * File: Extensions_AdminActions.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-
-
-/* todo - sort by name
-function extensions_sort_cmp_name($a, $b)
-{
-	if ($a['name'] == $b['name']) {
-		return 0;
-	}
-	return ($a['name'] < $b['name']) ? -1 : 1;
-}*/
-
-
-
+/**
+ * Class Extensions_Page
+ *
+ * phpcs:disable Generic.Commenting.DocComment.LongNotCapital
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ */
 class Extensions_Page extends Base_Page_Settings {
 	/**
 	 * Current page
@@ -21,15 +20,29 @@ class Extensions_Page extends Base_Page_Settings {
 	 * @var string
 	 */
 	protected $_page = 'w3tc_extensions';
+
+	/**
+	 * Active tab
+	 *
+	 * @var string
+	 */
 	protected $_active_tab;
+
+	/**
+	 * Config settings
+	 *
+	 * @var array
+	 */
 	protected $_config_settings = array();
 
 	/**
-	 * Extensions view
+	 * Renders the content for extensions page.
+	 *
+	 * Retrieves and processes extension-related data based on the current request parameters, and includes the appropriate view template.
 	 *
 	 * @return void
 	 */
-	function render_content() {
+	public function render_content() {
 		$extension_status     = 'all';
 		$extension_status_val = Util_Request::get_string( 'extension_status' );
 		if ( ! empty( $extension_status_val ) ) {
@@ -83,25 +96,43 @@ class Extensions_Page extends Base_Page_Settings {
 	}
 
 	/**
-	 * Sets default values for lacking extension meta keys
+	 * Returns the default metadata for an extension.
 	 *
-	 * @param unknown $meta
-	 * @return array
+	 * Merges the provided metadata with a set of default values.
+	 *
+	 * @param array $meta {
+	 *     Array of extension metadata to be merged with defaults.
+	 *
+	 *     @type string  $name          Extension name.
+	 *     @type string  $author        Author name.
+	 *     @type string  $description   Extension description.
+	 *     @type string  $author_uri    Author URL.
+	 *     @type string  $extension_uri Extension URL.
+	 *     @type string  $extension_id  Unique extension ID.
+	 *     @type string  $version       Extension version.
+	 *     @type bool    $enabled       Whether the extension is enabled. Default true.
+	 *     @type array   $requirements  List of extension requirements.
+	 *     @type bool    $core          Whether the extension is a core feature. Default false.
+	 *     @type bool    $public        Whether the extension is publicly available. Default true.
+	 *     @type string  $path          File path to the extension.
+	 * }
+	 *
+	 * @return array Merged array of default and provided extension metadata.
 	 */
-	function default_meta( $meta ) {
-		$default = array (
-			'name' => '',
-			'author' => '',
-			'description' => '',
-			'author_uri' => '',
+	public function default_meta( $meta ) {
+		$default = array(
+			'name'          => '',
+			'author'        => '',
+			'description'   => '',
+			'author_uri'    => '',
 			'extension_uri' => '',
-			'extension_id' => '',
-			'version' => '',
-			'enabled' => true,
-			'requirements' => array(),
-			'core' => false,
-			'public' => true,
-			'path' => ''
+			'extension_id'  => '',
+			'version'       => '',
+			'enabled'       => true,
+			'requirements'  => array(),
+			'core'          => false,
+			'public'        => true,
+			'path'          => '',
 		);
 		return array_merge( $default, $meta );
 	}

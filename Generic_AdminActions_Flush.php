@@ -22,7 +22,7 @@ class Generic_AdminActions_Flush {
 	private $_config = null;
 
 	/**
-	 * Constructor
+	 * Initializes the class and sets up configurations.
 	 *
 	 * @return void
 	 */
@@ -31,7 +31,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush all caches action
+	 * Flushes all caches and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -47,7 +47,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush current page
+	 * Flushes the cache for the current page and outputs a success message.
 	 *
 	 * @return void
 	 */
@@ -74,7 +74,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush memcache cache action
+	 * Flushes Memcached cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush opcode caches action
+	 * Flushes opcode cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -106,7 +106,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush file caches action
+	 * Flushes file cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -122,7 +122,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush from static files and further
+	 * Flushes static files cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -147,7 +147,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush posts
+	 * Flushes posts cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -162,7 +162,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush page cache action
+	 * Flushes page cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -182,7 +182,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush database cache action
+	 * Flushes database cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -198,7 +198,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush object cache action
+	 * Flushes object cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -217,7 +217,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush fragment cache action
+	 * Flushes fragment cache and updates configurations.
 	 *
 	 * @return void
 	 */
@@ -236,7 +236,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush minify action
+	 * Flushes minify cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -255,7 +255,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush browser cache action
+	 * Flushes browser cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -276,7 +276,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush varnish cache
+	 * Flushes Varnish cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -292,7 +292,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush CDN mirror
+	 * Flushes CDN cache and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -307,9 +307,8 @@ class Generic_AdminActions_Flush {
 		);
 	}
 
-
 	/**
-	 * PgCache purge post
+	 * Flushes cache for a specific post and redirects after the operation.
 	 *
 	 * @return void
 	 */
@@ -326,9 +325,9 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush specified cache
+	 * Flushes caches based on the given type.
 	 *
-	 * @param string $type Type.
+	 * @param string $type The type of cache to flush.
 	 *
 	 * @return void
 	 */
@@ -364,7 +363,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush memcached cache
+	 * Flushes Memcached cache.
 	 *
 	 * @return void
 	 */
@@ -373,7 +372,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush APC cache
+	 * Flushes opcode cache.
 	 *
 	 * @return void
 	 */
@@ -383,7 +382,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush file cache
+	 * Flushes file cache.
 	 *
 	 * @return void
 	 */
@@ -393,7 +392,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush database cache
+	 * Flushes database cache.
 	 *
 	 * @return void
 	 */
@@ -403,7 +402,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush object cache
+	 * Flushes object cache.
 	 *
 	 * @return void
 	 */
@@ -413,7 +412,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush fragment cache
+	 * Flushes fragment cache.
 	 *
 	 * @return void
 	 */
@@ -423,7 +422,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush minify cache
+	 * Flushes minify cache.
 	 *
 	 * @return void
 	 */
@@ -433,13 +432,12 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush varnish cache
+	 * Flushes Varnish cache.
 	 *
 	 * @return void
 	 */
 	public function flush_varnish() {
-		// this attaches execute_delayed_operations! otherwise
-		// specific module flush will not have effect.
+		// this attaches execute_delayed_operations! otherwise specific module flush will not have effect.
 		$cacheflush = Dispatcher::component( 'CacheFlush' );
 
 		$varnishflush = Dispatcher::component( 'Varnish_Flush' );
@@ -447,9 +445,9 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush CDN mirror
+	 * Flushes CDN cache with optional additional parameters.
 	 *
-	 * @param array $extras Extras.
+	 * @param array $extras Additional parameters for the cache flush operation.
 	 *
 	 * @return void
 	 */
@@ -459,9 +457,9 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Redirect after flush
+	 * Redirects after a successful flush operation and handles errors.
 	 *
-	 * @param string $success_note Success note.
+	 * @param string $success_note A note to indicate the success of the flush operation.
 	 *
 	 * @return void
 	 */

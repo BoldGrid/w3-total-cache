@@ -1,54 +1,79 @@
 <?php
+/**
+ * File: Cdnfsd_StackPath_Popup.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-
-
+/**
+ * Class Cdnfsd_StackPath_Popup
+ */
 class Cdnfsd_StackPath_Popup {
-	static public function w3tc_ajax() {
+	/**
+	 * Registers AJAX actions for handling CDN StackPath functionality.
+	 *
+	 * @return void
+	 */
+	public static function w3tc_ajax() {
 		$o = new Cdnfsd_StackPath_Popup();
 
-		add_action( 'w3tc_ajax_cdn_stackpath_fsd_intro',
-			array( $o, 'w3tc_ajax_cdn_stackpath_fsd_intro' ) );
-		add_action( 'w3tc_ajax_cdn_stackpath_fsd_list_zones',
-			array( $o, 'w3tc_ajax_cdn_stackpath_fsd_list_zones' ) );
-		add_action( 'w3tc_ajax_cdn_stackpath_fsd_view_zone',
-			array( $o, 'w3tc_ajax_cdn_stackpath_fsd_view_zone' ) );
-		add_action( 'w3tc_ajax_cdn_stackpath_fsd_configure_zone',
-			array( $o, 'w3tc_ajax_cdn_stackpath_fsd_configure_zone' ) );
-		add_action( 'w3tc_ajax_cdn_stackpath_fsd_configure_zone_skip',
-			array( $o, 'w3tc_ajax_cdn_stackpath_fsd_configure_zone_skip' ) );
+		add_action( 'w3tc_ajax_cdn_stackpath_fsd_intro', array( $o, 'w3tc_ajax_cdn_stackpath_fsd_intro' ) );
+		add_action( 'w3tc_ajax_cdn_stackpath_fsd_list_zones', array( $o, 'w3tc_ajax_cdn_stackpath_fsd_list_zones' ) );
+		add_action( 'w3tc_ajax_cdn_stackpath_fsd_view_zone', array( $o, 'w3tc_ajax_cdn_stackpath_fsd_view_zone' ) );
+		add_action( 'w3tc_ajax_cdn_stackpath_fsd_configure_zone', array( $o, 'w3tc_ajax_cdn_stackpath_fsd_configure_zone' ) );
+		add_action( 'w3tc_ajax_cdn_stackpath_fsd_configure_zone_skip', array( $o, 'w3tc_ajax_cdn_stackpath_fsd_configure_zone_skip' ) );
 	}
 
-
-
+	/**
+	 * Displays the introductory configuration page for StackPath CDN.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_cdn_stackpath_fsd_intro() {
 		$config = Dispatcher::config();
 
-		$this->render_intro( array(
-				'api_key' => $config->get_string( 'cdnfsd.stackpath.api_key' ) ) );
+		$this->render_intro(
+			array(
+				'api_key' => $config->get_string( 'cdnfsd.stackpath.api_key' ),
+			)
+		);
 	}
 
-
-
+	/**
+	 * Renders the introductory page with API key details.
+	 *
+	 * @param array $details Array containing API key details.
+	 *
+	 * @return void
+	 */
 	private function render_intro( $details ) {
-		$config = Dispatcher::config();
+		$config         = Dispatcher::config();
 		$url_obtain_key = W3TC_STACKPATH_AUTHORIZE_URL;
 
-		include  W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Intro.php';
+		include W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Intro.php';
 		exit();
 	}
 
-
-
+	/**
+	 * Lists the zones available for the StackPath CDN.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If the API key is invalid or authentication fails.
+	 */
 	public function w3tc_ajax_cdn_stackpath_fsd_list_zones() {
 		$api_key = Util_Request::get_string( 'api_key' );
 
 		$api = Cdn_StackPath_Api::create( $api_key );
-		if ( !$api->is_valid() ) {
-			$this->render_intro( array(
-					'api_key' => $api_key,
-					'error_message' => 'Can\'t authenticate: API key not valid'
-				) );
+		if ( ! $api->is_valid() ) {
+			$this->render_intro(
+				array(
+					'api_key'       => $api_key,
+					'error_message' => 'Can\'t authenticate: API key not valid',
+				)
+			);
 			exit();
 		}
 
@@ -61,63 +86,72 @@ class Cdnfsd_StackPath_Popup {
 				$error_message .= '. You can whitelist IP ' .
 					'<a target="_blank" href="https://app.stackpath.com/account/api/whitelist">here</a>';
 			}
-			$this->render_intro( array(
-					'api_key' => $api_key,
-					'error_message' => $error_message
-				) );
+			$this->render_intro(
+				array(
+					'api_key'       => $api_key,
+					'error_message' => $error_message,
+				)
+			);
 			exit();
 		}
 
 		$details = array(
 			'api_key' => $api_key,
-			'zones' => $zones
+			'zones'   => $zones,
 		);
 
-		include  W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Zones.php';
+		include W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Zones.php';
 		exit();
 	}
 
-
-
+	/**
+	 * Views a specific zone configuration in StackPath CDN.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If unable to retrieve zone details.
+	 */
 	public function w3tc_ajax_cdn_stackpath_fsd_view_zone() {
 		$api_key = Util_Request::get_string( 'api_key' );
 		$zone_id = Util_Request::get( 'zone_id', '' );
 
 		$details = array(
-			'api_key' => $api_key,
-			'zone_id' => $zone_id,
-			'name' => '',
-			'url' => array(
-				'new' => get_home_url() ),
-			'ip' => array(),
-			// needs to be off since original DNS will be replaced with stackpath's
-			'dns_check' => array(
-				'new' => 0
+			'api_key'              => $api_key,
+			'zone_id'              => $zone_id,
+			'name'                 => '',
+			'url'                  => array(
+				'new' => get_home_url(),
 			),
-			// needs to be off, since WP issues no-cache headers for wp-admin
-			// and logged-in users
+			'ip'                   => array(),
+			// needs to be off since original DNS will be replaced with stackpath's.
+			'dns_check'            => array(
+				'new' => 0,
+			),
+			// needs to be off, since WP issues no-cache headers for wp-admin and logged-in users.
 			'ignore_cache_control' => array(
-				'new' => 0
+				'new' => 0,
 			),
-			'custom_domain' => array(
-				'new' => Util_Environment::home_url_host()
-			)
+			'custom_domain'        => array(
+				'new' => Util_Environment::home_url_host(),
+			),
 		);
 
 		if ( empty( $zone_id ) ) {
-			// create new zone mode
-			$details['name'] = Util_Request::get( 'zone_new_name' );
+			// create new zone mode.
+			$details['name']      = Util_Request::get( 'zone_new_name' );
 			$details['ip']['new'] = Cdnfsd_Util::get_suggested_home_ip();
 		} else {
 			$api = Cdn_StackPath_Api::create( $api_key );
 			try {
-				$zone = $api->get_site( $zone_id );
+				$zone           = $api->get_site( $zone_id );
 				$custom_domains = $api->get_custom_domains( $zone_id );
 			} catch ( \Exception $ex ) {
-				$this->render_intro( array(
-						'api_key' => $api_key,
-						'error_message' => 'Can\'t obtain zone: ' . $ex->getMessage()
-					) );
+				$this->render_intro(
+					array(
+						'api_key'       => $api_key,
+						'error_message' => 'Can\'t obtain zone: ' . $ex->getMessage(),
+					)
+				);
 				exit();
 			}
 
@@ -125,107 +159,159 @@ class Cdnfsd_StackPath_Popup {
 
 			foreach ( $custom_domains as $d ) {
 				$details['custom_domain']['current'] = $d;
-				if ( $d == Util_Environment::home_url_host() )
+				if ( Util_Environment::home_url_host() === $d ) {
 					break;
+				}
 			}
 
-			$details['name'] = $zone['name'];
+			$details['name']                 = $zone['name'];
 			$details['dns_check']['current'] = $zone['dns_check'];
 			$details['ignore_cache_control'] = $zone['ignore_cache_control'];
-			$details['url']['current'] = $zone['url'];
-			$details['ip']['current'] = $zone['ip'];
+			$details['url']['current']       = $zone['url'];
+			$details['ip']['current']        = $zone['ip'];
 
 			$origin_ip = Cdnfsd_Util::get_suggested_home_ip();
-			$cdn_ip = gethostbyname( $zone['tmp_url'] );
+			$cdn_ip    = gethostbyname( $zone['tmp_url'] );
 
-			if ( $origin_ip != $cdn_ip )
+			if ( $origin_ip !== $cdn_ip ) {
 				$details['ip']['new'] = $origin_ip;
+			}
 		}
 
-
-
-		include  W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Zone.php';
+		include W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Zone.php';
 		exit();
 	}
 
-
-
+	/**
+	 * Renders the zone's value change for a given field.
+	 *
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
+	 * @param string $field   The field to be rendered.
+	 *
+	 * @return void
+	 */
 	private function render_zone_value_change( $details, $field ) {
-		Util_Ui::hidden( '', $field, $details[$field]['new'] );
+		Util_Ui::hidden( '', $field, $details[ $field ]['new'] );
 
-		if ( !isset( $details[$field]['current'] ) ||
-			$details[$field]['current'] == $details[$field]['new'] )
+		if ( ! isset( $details[ $field ]['current'] ) || $details[ $field ]['current'] === $details[ $field ]['new'] ) {
 			echo esc_html( $details[ $field ]['new'] );
-		else {
+		} else {
 			echo 'currently set to <strong>' .
-				esc_html( empty( $details[ $field ]['current'] ) ?
-				'<empty>' : $details[$field]['current'] ) .
+				esc_html( empty( $details[ $field ]['current'] ) ? '<empty>' : $details[ $field ]['current'] ) .
 				'</strong><br />';
-			echo 'will be changed to <strong>' .
-				esc_html( $details[ $field ]['new'] ) . '</strong><br />';
+			echo 'will be changed to <strong>' . esc_html( $details[ $field ]['new'] ) . '</strong><br />';
 		}
 	}
 
-
-
+	/**
+	 * Renders the boolean change for a zone field.
+	 *
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
+	 * @param string $field   The boolean field to be rendered.
+	 *
+	 * @return void
+	 */
 	private function render_zone_boolean_change( $details, $field ) {
-		Util_Ui::hidden( '', $field, $details[$field]['new'] );
+		Util_Ui::hidden( '', $field, $details[ $field ]['new'] );
 
-		if ( !isset( $details[$field]['current'] ) ) {
+		if ( ! isset( $details[ $field ]['current'] ) ) {
 			echo 'will be set to <strong>';
 			echo esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) );
 			echo '</strong>';
-		} else if ( $details[$field]['current'] == $details[$field]['new'] ) {
-				echo '<strong>';
-				echo esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) );
-				echo '</strong>';
-			} else {
+		} elseif ( $details[ $field ]['current'] === $details[ $field ]['new'] ) {
+			echo '<strong>';
+			echo esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) );
+			echo '</strong>';
+		} else {
 			echo 'currently set to <strong>';
-			$this->render_zone_boolean( $details[$field]['current'] );
+			$this->render_zone_boolean( $details[ $field ]['current'] );
 			echo '</strong><br />';
 			echo 'will be changed to <strong>';
-			$this->render_zone_boolean( $details[$field]['new'] );
+			$this->render_zone_boolean( $details[ $field ]['new'] );
 			echo '</strong><br />';
 		}
 	}
 
-
-
+	/**
+	 * Renders the boolean representation of a value.
+	 *
+	 * @param int $v The value to be rendered as boolean.
+	 *
+	 * @return void
+	 */
 	private function render_zone_boolean( $v ) {
-		if ( $v == 0 )
+		if ( empty( $v ) ) {
 			echo 'disabled';
-		else
+		} else {
 			echo 'enabled';
+		}
 	}
 
-
-
+	/**
+	 * Renders the IP change for a zone field.
+	 *
+	 * @param array  $details {
+	 *     Zone details containing current and new values.
+	 *
+	 *     @type array $field {
+	 *         The field name to render changes for.
+	 *
+	 *         @type string $current The current value of the field.
+	 *         @type string $new The new value of the field.
+	 *     }
+	 * }
+	 * @param string $field   The field representing the IP.
+	 *
+	 * @return void
+	 */
 	private function render_zone_ip_change( $details, $field ) {
-		Util_Ui::textbox( '', $field, $details[$field]['new'] );
+		Util_Ui::textbox( '', $field, $details[ $field ]['new'] );
 
-		if ( isset( $details[$field]['current'] ) &&
-			$details[$field]['current'] != $details[$field]['new'] ) {
+		if ( isset( $details[ $field ]['current'] ) && $details[ $field ]['current'] !== $details[ $field ]['new'] ) {
 			echo '<p class="description">currently set to <strong>' .
 				esc_html( $details[ $field ]['current'] ) . '</strong></p>';
 		}
 	}
 
-
-
+	/**
+	 * Configures the StackPath CDN zone.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If there is an issue creating or updating the zone.
+	 */
 	public function w3tc_ajax_cdn_stackpath_fsd_configure_zone() {
 		$api_key = Util_Request::get_string( 'api_key' );
 		$zone_id = Util_Request::get( 'zone_id', '' );
 
 		$zone = array(
-			'name' => Util_Request::get( 'name' ),
-			'label' => Util_Request::get( 'name' ),
-			'url' => Util_Request::get( 'url' ),
-			'use_stale' => 1,
-			'queries' => 1,
-			'compress' => 1,
+			'name'             => Util_Request::get( 'name' ),
+			'label'            => Util_Request::get( 'name' ),
+			'url'              => Util_Request::get( 'url' ),
+			'use_stale'        => 1,
+			'queries'          => 1,
+			'compress'         => 1,
 			'backend_compress' => 1,
-			'dns_check' => Util_Request::get( 'dns_check' ),
-			'ip' => Util_Request::get( 'ip' )
+			'dns_check'        => Util_Request::get( 'dns_check' ),
+			'ip'               => Util_Request::get( 'ip' ),
 		);
 
 		if ( empty( $zone['ip'] ) ) {
@@ -237,29 +323,31 @@ class Cdnfsd_StackPath_Popup {
 		try {
 			if ( empty( $zone_id ) ) {
 				$response = $api->create_site( $zone );
-				$zone_id = $response['id'];
+				$zone_id  = $response['id'];
 			} else {
 				$response = $api->update_site( $zone_id, $zone );
 			}
 
 			$custom_domains = $api->get_custom_domains( $zone_id );
-			$custom_domain = Util_Request::get( 'custom_domain' );
+			$custom_domain  = Util_Request::get( 'custom_domain' );
 
 			$added = false;
 			foreach ( $custom_domains as $d ) {
-				if ( $d == $custom_domain ) {
+				if ( $d === $custom_domain ) {
 					$added = true;
 					break;
 				}
 			}
-			if ( !$added ) {
+			if ( ! $added ) {
 				$api->create_custom_domain( $zone_id, $custom_domain );
 			}
 		} catch ( \Exception $ex ) {
-			$this->render_intro( array(
-					'api_key' => $api_key,
-					'error_message' => 'Failed to configure custom domain ' . $custom_domain . ': ' . $ex->getMessage()
-				) );
+			$this->render_intro(
+				array(
+					'api_key'       => $api_key,
+					'error_message' => 'Failed to configure custom domain ' . $custom_domain . ': ' . $ex->getMessage(),
+				)
+			);
 			exit();
 		}
 
@@ -272,17 +360,22 @@ class Cdnfsd_StackPath_Popup {
 		$c->save();
 
 		$details = array(
-			'name' => $zone['name'],
-			'home_domain' => Util_Environment::home_url_host(),
+			'name'             => $zone['name'],
+			'home_domain'      => Util_Environment::home_url_host(),
 			'dns_cname_target' => $zone_domain,
 		);
 
-		include  W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Success.php';
+		include W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Success.php';
 		exit();
 	}
 
-
-
+	/**
+	 * Skips the configuration of a StackPath CDN zone.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If there is an issue retrieving zone information.
+	 */
 	public function w3tc_ajax_cdn_stackpath_fsd_configure_zone_skip() {
 		$api_key = Util_Request::get_string( 'api_key' );
 		$zone_id = Util_Request::get( 'zone_id', '' );
@@ -292,10 +385,12 @@ class Cdnfsd_StackPath_Popup {
 		try {
 			$zone = $api->get_site( $zone_id );
 		} catch ( \Exception $ex ) {
-			$this->render_intro( array(
-					'api_key' => $api_key,
-					'error_message' => 'Failed to obtain custom domains: ' . $ex->getMessage()
-				) );
+			$this->render_intro(
+				array(
+					'api_key'       => $api_key,
+					'error_message' => 'Failed to obtain custom domains: ' . $ex->getMessage(),
+				)
+			);
 			exit();
 		}
 
@@ -308,12 +403,12 @@ class Cdnfsd_StackPath_Popup {
 		$c->save();
 
 		$details = array(
-			'name' => $zone['name'],
-			'home_domain' => Util_Environment::home_url_host(),
+			'name'             => $zone['name'],
+			'home_domain'      => Util_Environment::home_url_host(),
 			'dns_cname_target' => $zone_domain,
 		);
 
-		include  W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Success.php';
+		include W3TC_DIR . '/Cdnfsd_StackPath_Popup_View_Success.php';
 		exit();
 	}
 }

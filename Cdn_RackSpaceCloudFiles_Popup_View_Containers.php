@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_RackSpaceCloudFiles_Popup_View_Containers.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

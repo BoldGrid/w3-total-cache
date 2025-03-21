@@ -1,54 +1,101 @@
 <?php
+/**
+ * File: Util_Installed.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
+ * Class Util_Installed
+ *
  * Checks if different server modules are enabled and installed
  */
 class Util_Installed {
-	static public function opcache() {
+	/**
+	 * Check for opcache
+	 *
+	 * @return bool
+	 */
+	public static function opcache() {
 		return function_exists( 'opcache_reset' ) && ini_get( 'opcache.enable' );
 	}
 
-	static public function apc() {
+	/**
+	 * Check for apc
+	 *
+	 * @return bool
+	 */
+	public static function apc() {
 		return function_exists( 'apc_store' ) || function_exists( 'apcu_store' );
 	}
 
-	static public function apc_opcache() {
+	/**
+	 * Check for apc opcache
+	 *
+	 * @return bool
+	 */
+	public static function apc_opcache() {
 		return function_exists( 'apc_compile_file' ) && ini_get( 'apc.enable' );
 	}
 
+	/**
+	 * Checks for opcache valid timestamps
+	 *
+	 * @return string|bool
+	 */
 	public static function is_opcache_validate_timestamps() {
-		return  ini_get( 'opcache.validate_timestamps' );
+		return ini_get( 'opcache.validate_timestamps' );
 	}
 
+	/**
+	 * Checks for apc valid timestamps
+	 *
+	 * @return string|bool
+	 */
 	public static function is_apc_validate_timestamps() {
 		return ini_get( 'apc.stat' );
 	}
 
-	static public function curl() {
+	/**
+	 * Check for curl
+	 *
+	 * @return bool
+	 */
+	public static function curl() {
 		return function_exists( 'curl_init' );
 	}
 
-
-
-	static public function eaccelerator() {
+	/**
+	 * Check for eaccelerator
+	 *
+	 * @return bool
+	 */
+	public static function eaccelerator() {
 		return function_exists( 'eaccelerator_put' );
 	}
 
-
-
-	static public function ftp() {
+	/**
+	 * Check for ftp
+	 *
+	 * @return bool
+	 */
+	public static function ftp() {
 		return function_exists( 'ftp_connect' );
 	}
 
-
-
-	static public function memcached_auth() {
+	/**
+	 * Check for memcached auth
+	 *
+	 * @return bool
+	 */
+	public static function memcached_auth() {
 		static $r = null;
 		if ( is_null( $r ) ) {
-			if ( !class_exists( '\Memcached' ) )
+			if ( ! class_exists( '\Memcached' ) ) {
 				$r = false;
-			else {
+			} else {
 				$o = new \Memcached();
 				$r = method_exists( $o, 'setSaslAuthData' );
 			}
@@ -57,34 +104,44 @@ class Util_Installed {
 		return $r;
 	}
 
-
-
-	static public function memcached() {
+	/**
+	 * Check for memcache/memcached
+	 *
+	 * @return bool
+	 */
+	public static function memcached() {
 		return class_exists( 'Memcache' ) || class_exists( 'Memcached' );
 	}
 
-
-
-	static public function memcached_memcached() {
+	/**
+	 * Check for memcached
+	 *
+	 * @return bool
+	 */
+	public static function memcached_memcached() {
 		return class_exists( 'Memcached' );
 	}
 
-
-
-	static public function memcached_aws() {
-		return class_exists( '\Memcached' ) &&
-			defined( '\Memcached::OPT_CLIENT_MODE' ) &&
-			defined( '\Memcached::DYNAMIC_CLIENT_MODE' );
+	/**
+	 * Check for memcached aws
+	 *
+	 * @return bool
+	 */
+	public static function memcached_aws() {
+		return class_exists( '\Memcached' ) && defined( '\Memcached::OPT_CLIENT_MODE' ) && defined( '\Memcached::DYNAMIC_CLIENT_MODE' );
 	}
 
-
-
-	static function memcache_auth() {
+	/**
+	 * Check for memcache auth
+	 *
+	 * @return bool
+	 */
+	public static function memcache_auth() {
 		static $r = null;
 		if ( is_null( $r ) ) {
-			if ( !class_exists( '\Memcached' ) )
+			if ( ! class_exists( '\Memcached' ) ) {
 				$r = false;
-			else {
+			} else {
 				$o = new \Memcached();
 				$r = method_exists( $o, 'setSaslAuthData' );
 			}
@@ -93,47 +150,58 @@ class Util_Installed {
 		return $r;
 	}
 
-
-
-	static public function redis() {
+	/**
+	 * Check for redis
+	 *
+	 * @return bool
+	 */
+	public static function redis() {
 		return class_exists( 'Redis' );
 	}
 
-
-
-	static public function tidy() {
+	/**
+	 * Check for tidy
+	 *
+	 * @return bool
+	 */
+	public static function tidy() {
 		return class_exists( 'tidy' );
 	}
 
-
-
-	static public function wincache() {
+	/**
+	 * Check for wincache
+	 *
+	 * @return bool
+	 */
+	public static function wincache() {
 		return function_exists( 'wincache_ucache_set' );
 	}
 
-
-
-	static public function xcache() {
+	/**
+	 * Check for xcache
+	 *
+	 * @return bool
+	 */
+	public static function xcache() {
 		return function_exists( 'xcache_set' );
 	}
-
-
 
 	/**
 	 * Check if memcache is available
 	 *
-	 * @param array   $servers
-	 * @param boolean $binary_protocol
-	 * @param string  $username
-	 * @param string  $password
+	 * @param array   $servers         Servers.
+	 * @param boolean $binary_protocol Binary protocol.
+	 * @param string  $username        Username.
+	 * @param string  $password        Password.
+	 *
 	 * @return boolean
 	 */
-	static public function is_memcache_available( $servers, $binary_protocol, $username, $password ) {
+	public static function is_memcache_available( $servers, $binary_protocol, $username, $password ) {
 		static $results = array();
 
 		$key = md5( implode( '', $servers ) );
 
-		if ( !isset( $results[$key] ) ) {
+		if ( ! isset( $results[ $key ] ) ) {
 			$memcached = Cache::instance(
 				'memcached',
 				array(
@@ -141,7 +209,7 @@ class Util_Installed {
 					'persistent'      => false,
 					'binary_protocol' => $binary_protocol,
 					'username'        => $username,
-					'password'        => $password
+					'password'        => $password,
 				)
 			);
 
