@@ -24,10 +24,10 @@ class UsageStatistics_Page {
 		$config = Dispatcher::config();
 
 		wp_enqueue_style( 'w3tc-widget-usage-statistics', plugins_url( 'UsageStatistics_Page_View.css', W3TC_FILE ), array(), W3TC_VERSION );
-		wp_enqueue_script( 'w3tc-widget-usage-statistics', plugins_url( 'UsageStatistics_Page_View.js', W3TC_FILE ), array( 'w3tc-canvasjs' ), W3TC_VERSION, false );
 
 		if ( Util_Environment::is_w3tc_pro( $config ) && $config->get_boolean( 'stats.enabled' ) ) {
 			wp_enqueue_script( 'w3tc-canvasjs', plugins_url( 'pub/js/chartjs.min.js', W3TC_FILE ), array(), W3TC_VERSION, false );
+			wp_enqueue_script( 'w3tc-widget-usage-statistics', plugins_url( 'UsageStatistics_Page_View.js', W3TC_FILE ), array( 'w3tc-canvasjs' ), W3TC_VERSION, false );
 		}
 	}
 
