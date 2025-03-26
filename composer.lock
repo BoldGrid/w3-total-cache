@@ -62,25 +62,25 @@
         },
         {
             "name": "aws/aws-php-sns-message-validator",
-            "version": "1.9.1",
+            "version": "1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-php-sns-message-validator.git",
-                "reference": "80850e8d93fb57889ce609e113895dd2f1d7eed6"
+                "reference": "d92d199179cbbf4d99601d4f23f61b9b8cc5da28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-php-sns-message-validator/zipball/80850e8d93fb57889ce609e113895dd2f1d7eed6",
-                "reference": "80850e8d93fb57889ce609e113895dd2f1d7eed6",
+                "url": "https://api.github.com/repos/aws/aws-php-sns-message-validator/zipball/d92d199179cbbf4d99601d4f23f61b9b8cc5da28",
+                "reference": "d92d199179cbbf4d99601d4f23f61b9b8cc5da28",
                 "shasum": ""
             },
             "require": {
                 "ext-openssl": "*",
-                "php": ">=7.2.5",
-                "psr/http-message": "^1.0 || ^2.0"
+                "php": ">=8.1",
+                "psr/http-message": "^2.0"
             },
             "require-dev": {
-                "guzzlehttp/psr7": "^1.9.1 || ^2.4.5",
+                "guzzlehttp/psr7": "^2.4.5",
                 "phpunit/phpunit": "^5.6.3 || ^8.5 || ^9.5",
                 "squizlabs/php_codesniffer": "^2.3",
                 "yoast/phpunit-polyfills": "^1.0"
@@ -115,9 +115,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sns-message-validator/issues",
-                "source": "https://github.com/aws/aws-php-sns-message-validator/tree/1.9.1"
+                "source": "https://github.com/aws/aws-php-sns-message-validator/tree/1.10.0"
             },
-            "time": "2025-02-25T22:19:51+00:00"
+            "time": "2025-03-05T22:22:58+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
