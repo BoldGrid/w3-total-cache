@@ -40,7 +40,7 @@ class Util_WpFile_FilesystemWriteException extends Util_WpFile_FilesystemOperati
 		$file_contents ) {
 		parent::__construct( $message, $credentials_form );
 
-		$this->filename = $filename;
+		$this->filename      = $filename;
 		$this->file_contents = $file_contents;
 	}
 

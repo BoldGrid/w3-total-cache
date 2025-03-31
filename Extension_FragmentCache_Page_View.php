@@ -60,7 +60,8 @@ $engine = $config->get_string( array( 'fragmentcache', 'engine' ) );
 		</p>
 		<?php
 	}
-	Util_Ui::pro_wrap_maybe_end2( 'fragmentcache_header' ); ?>
+	Util_Ui::pro_wrap_maybe_end2( 'fragmentcache_header' );
+	?>
 </p>
 
 <form action="admin.php?page=w3tc_fragmentcache" method="post">

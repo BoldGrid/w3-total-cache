@@ -1,8 +1,6 @@
 <?php
 namespace W3TCExample;
 
-
-
 class Extension_Example {
 	/**
 	 * W3 Total cache config
@@ -19,8 +17,9 @@ class Extension_Example {
 		$this->config = w3tc_config();
 
 		// get value of config option and use it
-		if ( $this->config->get_boolean( array( 'example' , 'is_title_postfix' ) ) )
+		if ( $this->config->get_boolean( array( 'example', 'is_title_postfix' ) ) ) {
 			add_filter( 'the_title', array( $this, 'the_title' ), 10, 2 );
+		}
 	}
 
 
@@ -32,7 +31,7 @@ class Extension_Example {
 	 */
 	public function the_title( $title, $id ) {
 		return $title .
-			$this->config->get_string( array( 'example' , 'title_postfix' ) );
+			$this->config->get_string( array( 'example', 'title_postfix' ) );
 	}
 }
 
