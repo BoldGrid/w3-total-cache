@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class Generic_Plugin_Admin {
 	/**
@@ -900,7 +901,7 @@ class Generic_Plugin_Admin {
 					'content' => $content,
 				)
 			);
-			$n++;
+			++$n;
 		}
 	}
 
@@ -1221,7 +1222,7 @@ class Generic_Plugin_Admin {
 
 			foreach ( $r['before_errors'] as $e ) {
 				$errors[ 'generic_env_' . $n ] = $e;
-				$n++;
+				++$n;
 			}
 
 			if ( strlen( $r['required_changes'] ) > 0 ) {
@@ -1264,7 +1265,7 @@ class Generic_Plugin_Admin {
 
 			foreach ( $r['later_errors'] as $e ) {
 				$errors[ 'generic_env_' . $n ] = $e;
-				$n++;
+				++$n;
 			}
 		}
 

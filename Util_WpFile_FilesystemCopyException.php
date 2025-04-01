@@ -37,8 +37,12 @@ class Util_WpFile_FilesystemCopyException extends Util_WpFile_FilesystemOperatio
 	 * @param string $source_filename      The name of the source file.
 	 * @param string $destination_filename The name of the destination file.
 	 */
-	public function __construct( $message, $credentials_form,
-		$source_filename, $destination_filename ) {
+	public function __construct(
+		$message,
+		$credentials_form,
+		$source_filename,
+		$destination_filename
+	) {
 		parent::__construct( $message, $credentials_form );
 
 		$this->source_filename      = $source_filename;

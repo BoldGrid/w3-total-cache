@@ -325,12 +325,18 @@ class Cdn_RackSpace_Api_Cdn {
 
 			$response_json = @json_decode( $result['body'], true );
 			if ( is_null( $response_json ) ) {
-				throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
+				throw new \Exception(
+					sprintf(
+						// Translators: 1 Result body.
+						\esc_html__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						\wp_kses_post( $result['body'] )
+					)
+				);
 			}
 		}
 
 		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
-			throw new \Exception( $result['body'] );
+			throw new \Exception( \wp_kses_post( $result['body'] ) );
 		}
 
 		return array(
@@ -364,7 +370,15 @@ class Cdn_RackSpace_Api_Cdn {
 			// try to decode response.
 			$response_json = @json_decode( $result['body'], true );
 			if ( is_null( $response_json ) || ! isset( $response_json['message'] ) ) {
-				throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['response']['message'] );
+				throw new \Exception(
+					\esc_html(
+						sprintf(
+							// Translators: 1 Response message.
+							\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+							$result['response']['message']
+						)
+					)
+				);
 			} else {
 				$errors = array();
 				if ( is_string( $response_json['message'] ) ) {
@@ -375,7 +389,7 @@ class Cdn_RackSpace_Api_Cdn {
 					}
 				}
 
-				throw new \Exception( implode( ';', $errors ) );
+				throw new \Exception( \esc_html( implode( ';', $errors ) ) );
 			}
 		}
 

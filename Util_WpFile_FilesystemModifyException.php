@@ -45,7 +45,13 @@ class Util_WpFile_FilesystemModifyException extends Util_WpFile_FilesystemOperat
 	 * @param string $filename The name of the file associated with the modification.
 	 * @param string $file_contents Optional. The contents of the file. Defaults to an empty string.
 	 */
-	public function __construct( $message, $credentials_form, $modification_description, $filename, $file_contents = '' ) {
+	public function __construct(
+		$message,
+		$credentials_form,
+		$modification_description,
+		$filename,
+		$file_contents = ''
+	) {
 		parent::__construct( $message, $credentials_form );
 
 		$this->modification_description = $modification_description;

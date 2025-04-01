@@ -165,7 +165,7 @@ class Cdn_Core_Admin {
 				foreach ( $queue as $result ) {
 					$files[]                    = $common->build_file_descriptor( $result->local_path, $result->remote_path );
 					$map[ $result->local_path ] = $result->id;
-					$items++;
+					++$items;
 				}
 
 				switch ( $command ) {

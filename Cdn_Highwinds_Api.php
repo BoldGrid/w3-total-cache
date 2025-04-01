@@ -92,8 +92,7 @@ class Cdn_Highwinds_Api {
 	 *
 	 * @return array The response containing the analytics data.
 	 */
-	public function analytics_transfer( $host, $granularity, $platforms,
-		$start_date, $end_date ) {
+	public function analytics_transfer( $host, $granularity, $platforms, $start_date, $end_date ) {
 		return $this->_wp_remote_get(
 			self::$root_uri . '/api/v1/accounts/' . $this->account_hash .
 			'/analytics/transfer?startDate=' . rawurlencode( $start_date ) .
@@ -374,7 +373,15 @@ class Cdn_Highwinds_Api {
 				);
 			}
 
-			throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Result body.
+						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						\wp_kses_post( $result['body'] )
+					)
+				)
+			);
 		}
 
 		if ( isset( $response_json['error'] ) ) {
@@ -385,11 +392,13 @@ class Cdn_Highwinds_Api {
 				);
 			}
 
-			throw new \Exception( $response_json['error'] );
+			throw new \Exception( \esc_html( $response_json['error'] ) );
 		}
 
 		if ( 200 !== (int) $result['response']['code'] && 201 !== (int) $result['response']['code'] ) {
-			throw new \Exception( $result['body'] );
+			throw new \Exception(
+				wp_kses_post( $result['body'] )
+			);
 		}
 
 		return array(

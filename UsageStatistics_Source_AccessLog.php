@@ -379,10 +379,10 @@ class UsageStatistics_Source_AccessLog {
 		$m = null;
 		preg_match( '~\\.([a-zA-Z0-9]+)(\?.+)?$~', $uri, $m );
 		if ( $m && 'php' !== $m[1] ) {
-			$this->history_current_item['static_count']++;
+			++$this->history_current_item['static_count'];
 			$this->history_current_item['static_timetaken_ms'] += $time_ms;
 		} else {
-			$this->history_current_item['dynamic_count']++;
+			++$this->history_current_item['dynamic_count'];
 			$this->history_current_item['dynamic_timetaken_ms'] += $time_ms;
 		}
 	}
@@ -430,12 +430,12 @@ class UsageStatistics_Source_AccessLog {
 	 * This method handles the conversion of quoted log elements (e.g., request lines) from Apache log format
 	 * to the corresponding regular expression pattern.
 	 *
-	 * @param array $match The matched portion of the log format.
+	 * @param array $matched_value The matched portion of the log format.
 	 *
 	 * @return string The regular expression for the quoted log element.
 	 */
-	public function logformat_to_regexp_apache_element_quoted( $match ) {
-		$v = $match[1];
+	public function logformat_to_regexp_apache_element_quoted( $matched_value ) {
+		$v = $matched_value[1];
 
 		if ( '%r' === $v ) {
 			return '\"(?<request_line>[^"]+)\"';
@@ -451,12 +451,12 @@ class UsageStatistics_Source_AccessLog {
 	 * This method handles the conversion of unquoted log elements (e.g., timestamps or status codes) from
 	 * Apache log format to the corresponding regular expression pattern.
 	 *
-	 * @param array $match The matched portion of the log format.
+	 * @param array $matched_value The matched portion of the log format.
 	 *
 	 * @return string The regular expression for the non-quoted log element.
 	 */
-	public function logformat_to_regexp_apache_element_naked( $match ) {
-		$v = $match[1];
+	public function logformat_to_regexp_apache_element_naked( $matched_value ) {
+		$v = $matched_value[1];
 
 		if ( '%t' === $v ) {
 			return '\[(?<date>[^\]]+)\]';
@@ -512,12 +512,12 @@ class UsageStatistics_Source_AccessLog {
 	 * This method ensures that any quotes in the Nginx log format are properly escaped for use in a regular
 	 * expression.
 	 *
-	 * @param array $match The matched quote from the Nginx log format.
+	 * @param array $matched_value The matched quote from the Nginx log format.
 	 *
 	 * @return string The escaped quote.
 	 */
-	public function logformat_to_regexp_nginx_quote( $match ) {
-		return '\\' . $match[1];
+	public function logformat_to_regexp_nginx_quote( $matched_value ) {
+		return '\\' . $matched_value[1];
 	}
 
 	/**
@@ -526,12 +526,12 @@ class UsageStatistics_Source_AccessLog {
 	 * This method handles the conversion of quoted log elements (e.g., request lines) from Nginx log format
 	 * to the corresponding regular expression pattern.
 	 *
-	 * @param array $match The matched portion of the log format.
+	 * @param array $matched_value The matched portion of the log format.
 	 *
 	 * @return string The regular expression for the quoted log element.
 	 */
-	public function logformat_to_regexp_nginx_element_quoted( $match ) {
-		$v = $match[1];
+	public function logformat_to_regexp_nginx_element_quoted( $matched_value ) {
+		$v = $matched_value[1];
 
 		if ( '$request' === $v ) {
 			return '\"(?<request_line>[^"]+)\"';
@@ -547,12 +547,12 @@ class UsageStatistics_Source_AccessLog {
 	 * This method handles the conversion of unquoted log elements (e.g., timestamps or request times) from
 	 * Nginx log format to the corresponding regular expression pattern.
 	 *
-	 * @param array $match The matched portion of the log format.
+	 * @param array $matched_value The matched portion of the log format.
 	 *
 	 * @return string The regular expression for the non-quoted log element.
 	 */
-	public function logformat_to_regexp_nginx_element_naked( $match ) {
-		$v = $match[1];
+	public function logformat_to_regexp_nginx_element_naked( $matched_value ) {
+		$v = $matched_value[1];
 
 		if ( '$time_local' === $v ) {
 			return '(?<date>[^\]]+)';

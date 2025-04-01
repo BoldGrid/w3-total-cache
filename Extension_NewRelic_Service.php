@@ -470,8 +470,7 @@ class Extension_NewRelic_Service {
 	 *
 	 * @return array An array of formatted metric data.
 	 */
-	public function get_metric_data( $metrics, $field, $days = 7, $summary = true,
-		$use_subgroup = true ) {
+	public function get_metric_data( $metrics, $field, $days = 7, $summary = true, $use_subgroup = true ) {
 		if ( ! is_array( $metrics ) ) {
 			$metrics = array( $metrics );
 		}

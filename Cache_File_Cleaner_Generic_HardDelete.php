@@ -13,6 +13,7 @@ namespace W3TC;
  * phpcs:disable Generic.CodeAnalysis.UselessOverridingMethod.Found
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions.unlink_unlink
  */
 class Cache_File_Cleaner_Generic_HardDelete extends Cache_File_Cleaner_Generic {
 	/**
@@ -36,7 +37,7 @@ class Cache_File_Cleaner_Generic_HardDelete extends Cache_File_Cleaner_Generic {
 	 */
 	public function _clean_file( $entry, $full_path ) {
 		if ( substr( $entry, -4 ) === '_old' && ! $this->is_old_file_valid( $full_path ) ) {
-			$this->processed_count++;
+			++$this->processed_count;
 			@unlink( $full_path );
 		} elseif ( ! $this->is_valid( $full_path ) ) {
 			@unlink( $full_path );

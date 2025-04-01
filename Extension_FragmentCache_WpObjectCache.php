@@ -191,14 +191,14 @@ class Extension_FragmentCache_WpObjectCache {
 		}
 
 		$this->cache[ $fragment_group ][ $key ] = $value;
-		$this->cache_total++;
+		++$this->cache_total;
 
 		if ( false !== $value ) {
 			$cached = true;
-			$this->cache_hits++;
+			++$this->cache_hits;
 		} else {
 			$cached = false;
-			$this->cache_misses++;
+			++$this->cache_misses;
 		}
 
 		/**
@@ -518,14 +518,14 @@ class Extension_FragmentCache_WpObjectCache {
 	/**
 	 * Returns cache object
 	 *
-	 * @param bool $global Global.
+	 * @param bool $global_flag Global.
 	 *
 	 * @return W3_Cache_Base
 	 */
-	private function _get_cache( $global = false ) {
+	private function _get_cache( $global_flag = false ) {
 		static $cache = array();
 
-		if ( ! $global ) {
+		if ( ! $global_flag ) {
 			$blog_id = $this->_blog_id;
 		} else {
 			$blog_id = 0;

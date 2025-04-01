@@ -107,7 +107,7 @@ class Generic_Plugin_AdminRowActions {
 					)
 				);
 
-				echo sprintf(
+				printf(
 					'<div><a href="%s">%s</a></div>',
 					esc_url( $url ),
 					esc_html__( 'Purge from cache', 'w3-total-cache' )

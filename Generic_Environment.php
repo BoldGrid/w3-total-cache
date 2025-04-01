@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  * phpcs:disable WordPress.WP.AlternativeFunctions
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Generic_Environment {
 	/**

@@ -13,6 +13,8 @@ namespace W3TC;
  * phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired
  *
  * Rules generation for OpenLiteSpeed
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class BrowserCache_Environment_LiteSpeed {
 	/**

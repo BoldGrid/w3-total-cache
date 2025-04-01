@@ -24,7 +24,7 @@ class Config_Tab_Settings {
 	 *
 	 * @return array An array containing all configuration settings.
 	 */
-	public static function get_configs() : array {
+	public static function get_configs(): array {
 		$configs = include 'ConfigSettingsTabsKeys.php';
 		return $configs;
 	}
@@ -34,14 +34,14 @@ class Config_Tab_Settings {
 	 *
 	 * @since 2.8.0
 	 *
-	 * @param string $key     The key of the configuration to retrieve.
-	 * @param array  $default The default value to return if the key does not exist. Defaults to an empty array.
+	 * @param string $key           The key of the configuration to retrieve.
+	 * @param array  $default_value The default value to return if the key does not exist. Defaults to an empty array.
 	 *
 	 * @return array The configuration value associated with the provided key, or the default value if the key does not exist.
 	 */
-	public static function get_config( string $key, $default = array() ) : array {
+	public static function get_config( string $key, $default_value = array() ): array {
 		$configs = self::get_configs();
 
-		return isset( $configs[ $key ] ) ? $configs[ $key ] : $default;
+		return isset( $configs[ $key ] ) ? $configs[ $key ] : $default_value;
 	}
 }

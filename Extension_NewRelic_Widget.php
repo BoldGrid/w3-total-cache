@@ -13,6 +13,7 @@ namespace W3TC;
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_NewRelic_Widget {
 	/**

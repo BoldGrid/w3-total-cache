@@ -11,6 +11,8 @@ namespace W3TC;
  * Class Util_AttachToActions
  *
  * Attaches to wp actions related to content change, which should fire flushes of html content
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Util_AttachToActions {
 	/**

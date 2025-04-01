@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class Extension_Swarmify_Plugin_Admin
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_Swarmify_Plugin_Admin {
 	/**

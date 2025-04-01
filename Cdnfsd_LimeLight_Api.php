@@ -155,21 +155,29 @@ class Cdnfsd_LimeLight_Api {
 	 */
 	private function _decode_response( $result ) {
 		if ( is_wp_error( $result ) ) {
-			throw new \Exception( 'Failed to reach API endpoint' );
+			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
 		}
 
 		$response_json = @json_decode( $result['body'], true );
 		if ( is_null( $response_json ) ) {
-			throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Result body.
+						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						$result['body']
+					)
+				)
+			);
 		}
 
 		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
 			if ( isset( $response_json['errors'] ) &&
 				isset( $response_json['errors'][0]['description'] ) ) {
-				throw new \Exception( $response_json['errors'][0]['description'] );
+				throw new \Exception( \esc_html( $response_json['errors'][0]['description'] ) );
 			}
 
-			throw new \Exception( $result['body'] );
+			throw new \Exception( \esc_html( $result['body'] ) );
 		}
 
 		return $response_json;

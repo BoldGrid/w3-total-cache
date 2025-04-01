@@ -277,7 +277,10 @@ class PgCache_Environment {
 				admin_url( 'admin.php?page=w3tc_install' ) .
 				'">the install page</a>  for the rules for your server.';
 
-			throw new Util_Environment_Exception( $error, $tech_message );
+			throw new Util_Environment_Exception(
+				esc_html( $error ),
+				esc_html( $tech_message )
+			);
 		}
 	}
 
@@ -358,6 +361,8 @@ class PgCache_Environment {
 	 * @return void
 	 *
 	 * @throws \Util_WpFile_FilesystemModifyException If modifications to the file fail.
+	 *
+	 * phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 	 */
 	private function wp_config_add_directive() {
 		$config_path = Util_Environment::wp_config_path();
