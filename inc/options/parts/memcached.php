@@ -69,7 +69,7 @@ if ( ! defined( 'W3TC' ) ) {
 </tr>
 
 <tr>
-	<th><label for="memcached_username"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.username' ), array( 'acronym' => array( 'title' => array() ) )); ?></label></th>
+	<th><label for="memcached_username"><?php echo wp_kses( Util_ConfigLabel::get( 'memcached.username' ), array( 'acronym' => array( 'title' => array() ) ) ); ?></label></th>
 	<td>
 		<input id="memcached_username" name="<?php echo esc_attr( $module ); ?>__memcached__username" type="text"
 			<?php Util_Ui::sealing_disabled( $module ); ?>

@@ -101,7 +101,7 @@ class Template {
 		do_action( 'w3tc-dashboard-head' );
 		?>
 <div class="wrap" id="w3tc">
-	<?php \W3TC\Util_Ui::print_breadcrumb(); ?>
+		<?php \W3TC\Util_Ui::print_breadcrumb(); ?>
 	<div id="w3tc-wizard-container">
 
 		<div id="w3tc_wizard_header">

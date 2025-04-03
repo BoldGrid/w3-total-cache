@@ -76,7 +76,7 @@ $menu_array = array(
 			'text' => __( 'Setup Guide', 'w3-total-cache' ),
 		),
 	),
-	'info'    => array(
+	'info'     => array(
 		0 => array(
 			'url'  => Util_UI::admin_url( 'admin.php?page=w3tc_about' ),
 			'text' => __( 'About', 'w3-total-cache' ),
@@ -153,7 +153,7 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 						$output = sprintf(
 							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
 							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
-							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ': '',
+							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ' : '',
 							esc_url( $entry['url'] ),
 							esc_attr( $entry['text'] ),
 							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
@@ -175,7 +175,7 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 						$output = sprintf(
 							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
 							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
-							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ': '',
+							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ' : '',
 							esc_url( $entry['url'] ),
 							esc_attr( $entry['text'] ),
 							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),
@@ -197,7 +197,7 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 						$output = sprintf(
 							// translators: 1 link class, 2 link href URL , 3 link alt text, 4 link target, 5 link text, 6 link text dashicon.
 							'<a %1$s href="%2$s" alt="%3$s"%4$s>%5$s%6$s</a>',
-							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ': '',
+							! empty( $entry['class'] ) ? ' class="' . esc_attr( $entry['class'] ) . '" ' : '',
 							esc_url( $entry['url'] ),
 							esc_attr( $entry['text'] ),
 							( ! empty( $entry['target'] ) ? ' target="' . esc_attr( $entry['target'] ) . '"' : '' ),

@@ -1020,7 +1020,7 @@ class Cdn_Core {
 	 * @return bool
 	 */
 	public function is_cdnfsd_authorized() {
-	$cloudflare_config = $this->_config->get_array( 'cloudflare' );
+		$cloudflare_config = $this->_config->get_array( 'cloudflare' );
 
 		switch ( $this->_config->get_string( 'cdnfsd.engine' ) ) {
 			case 'bunnycdn':
