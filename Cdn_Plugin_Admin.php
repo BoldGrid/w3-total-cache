@@ -75,6 +75,11 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
 				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
 				break;
+			case 'totalcdn':
+				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_TotalCdn_Popup', 'w3tc_ajax' ) );
+				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
+				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
+				break;
 			default:
 				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
 				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
@@ -100,6 +105,11 @@ class Cdn_Plugin_Admin {
 
 		$engine_values[''] = array(
 			'label' => 'Select a provider',
+		);
+
+		$engine_values['totalcdn'] = array(
+			'label'    => \__( 'TotalCDN', 'w3-total-cache' ),
+			'optgroup' => $optgroup_pull,
 		);
 
 		$engine_values['akamai'] = array(

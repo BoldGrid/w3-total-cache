@@ -304,6 +304,9 @@ class Generic_Plugin_Admin {
 			case 'bunnycdn':
 				$cdn_class = '\W3TC\Cdn_BunnyCdn_Page';
 				break;
+			case 'totalcdn':
+				$cdn_class = '\W3TC\Cdn_TotalCdn_Page';
+				break;
 			case 'google_drive':
 				$cdn_class = '\W3TC\Cdn_GoogleDrive_Page';
 				break;

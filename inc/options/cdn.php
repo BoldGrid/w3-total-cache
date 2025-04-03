@@ -476,6 +476,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<table class="form-table">
 				<?php
 				$known_engines = array(
+					'totalcdn',
 					'bunnycdn',
 					'google_drive',
 					'highwinds',
@@ -485,6 +486,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'stackpath',
 					'stackpath2',
 				);
+
 				if ( in_array( $cdn_engine, $known_engines, true ) ) {
 					do_action( 'w3tc_settings_cdn_boxarea_configuration' );
 				} elseif ( Cdn_Util::is_engine( $cdn_engine ) ) {
