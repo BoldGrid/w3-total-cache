@@ -188,20 +188,20 @@ class Config {
 	/**
 	 * Retrieves a configuration value for a given key or returns cached/uncached default value if not found.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param mixed  $default The default value to return if the key is not found.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param mixed  $default_value The default value to return if the key is not found.
 	 *
 	 * @return mixed The configuration value, or the default if not found.
 	 */
-	public function get( $key, $default = null ) {
+	public function get( $key, $default_value = null ) {
 		$v = $this->_get( $this->_data, $key );
 		if ( ! is_null( $v ) ) {
 			return $v;
 		}
 
 		// take default value.
-		if ( ! empty( $default ) || ! function_exists( 'apply_filters' ) ) {
-			return $default;
+		if ( ! empty( $default_value ) || ! function_exists( 'apply_filters' ) ) {
+			return $default_value;
 		}
 
 		// try cached default values.
@@ -223,7 +223,7 @@ class Config {
 			return $v;
 		}
 
-		return $default;
+		return $default_value;
 	}
 
 	/**
@@ -253,14 +253,14 @@ class Config {
 	/**
 	 * Retrieves a string configuration value for a given key.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param string $default The default string value to return if the key is not found.
-	 * @param bool   $trim    Whether to trim the value.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param string $default_value The default string value to return if the key is not found.
+	 * @param bool   $trim          Whether to trim the value.
 	 *
 	 * @return string The configuration value as a string.
 	 */
-	public function get_string( $key, $default = '', $trim = true ) {
-		$value = (string) $this->get( $key, $default );
+	public function get_string( $key, $default_value = '', $trim = true ) {
+		$value = (string) $this->get( $key, $default_value );
 
 		return $trim ? trim( $value ) : $value;
 	}
@@ -268,63 +268,63 @@ class Config {
 	/**
 	 * Retrieves an integer configuration value for a given key.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param int    $default The default integer value to return if the key is not found.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param int    $default_value The default integer value to return if the key is not found.
 	 *
 	 * @return int The configuration value as an integer.
 	 */
-	public function get_integer( $key, $default = 0 ) {
-		return (int) $this->get( $key, $default );
+	public function get_integer( $key, $default_value = 0 ) {
+		return (int) $this->get( $key, $default_value );
 	}
 
 	/**
 	 * Retrieves a boolean configuration value for a given key.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param bool   $default The default boolean value to return if the key is not found.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param bool   $default_value The default boolean value to return if the key is not found.
 	 *
 	 * @return bool The configuration value as a boolean.
 	 */
-	public function get_boolean( $key, $default = false ) {
-		return (bool) $this->get( $key, $default );
+	public function get_boolean( $key, $default_value = false ) {
+		return (bool) $this->get( $key, $default_value );
 	}
 
 	/**
 	 * Retrieves an array configuration value for a given key.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param array  $default The default array value to return if the key is not found.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param array  $default_value The default array value to return if the key is not found.
 	 *
 	 * @return array The configuration value as an array.
 	 */
-	public function get_array( $key, $default = array() ) {
-		return (array) $this->get( $key, $default );
+	public function get_array( $key, $default_value = array() ) {
+		return (array) $this->get( $key, $default_value );
 	}
 
 	/**
 	 * Retrieves a filtered configuration value for a given key.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param mixed  $default The default value to return if the key is not found.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param mixed  $default_value The default value to return if the key is not found.
 	 *
 	 * @return mixed The configuration value, potentially filtered.
 	 */
-	public function getf( $key, $default = null ) {
-		$v = $this->get( $key, $default );
+	public function getf( $key, $default_value = null ) {
+		$v = $this->get( $key, $default_value );
 		return apply_filters( 'w3tc_config_item_' . $key, $v );
 	}
 
 	/**
 	 * Retrieves a filtered string configuration value for a given key.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param string $default The default string value to return if the key is not found.
-	 * @param bool   $trim    Whether to trim the value.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param string $default_value The default string value to return if the key is not found.
+	 * @param bool   $trim          Whether to trim the value.
 	 *
 	 * @return string The filtered configuration value as a string.
 	 */
-	public function getf_string( $key, $default = '', $trim = true ) {
-		$value = (string) $this->getf( $key, $default );
+	public function getf_string( $key, $default_value = '', $trim = true ) {
+		$value = (string) $this->getf( $key, $default_value );
 
 		return $trim ? trim( $value ) : $value;
 	}
@@ -332,37 +332,37 @@ class Config {
 	/**
 	 * Retrieves a filtered integer configuration value for a given key.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param int    $default The default integer value to return if the key is not found.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param int    $default_value The default integer value to return if the key is not found.
 	 *
 	 * @return int The filtered configuration value as an integer.
 	 */
-	public function getf_integer( $key, $default = 0 ) {
-		return (int) $this->getf( $key, $default );
+	public function getf_integer( $key, $default_value = 0 ) {
+		return (int) $this->getf( $key, $default_value );
 	}
 
 	/**
 	 * Retrieves a filtered boolean configuration value for a given key.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param bool   $default The default boolean value to return if the key is not found.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param bool   $default_value The default boolean value to return if the key is not found.
 	 *
 	 * @return bool The filtered configuration value as a boolean.
 	 */
-	public function getf_boolean( $key, $default = false ) {
-		return (bool) $this->getf( $key, $default );
+	public function getf_boolean( $key, $default_value = false ) {
+		return (bool) $this->getf( $key, $default_value );
 	}
 
 	/**
 	 * Retrieves a filtered array configuration value for a given key.
 	 *
-	 * @param string $key     The key to look up in the configuration.
-	 * @param array  $default The default array value to return if the key is not found.
+	 * @param string $key           The key to look up in the configuration.
+	 * @param array  $default_value The default array value to return if the key is not found.
 	 *
 	 * @return array The filtered configuration value as an array.
 	 */
-	public function getf_array( $key, $default = array() ) {
-		return (array) $this->getf( $key, $default );
+	public function getf_array( $key, $default_value = array() ) {
+		return (array) $this->getf( $key, $default_value );
 	}
 
 	/**
@@ -397,8 +397,7 @@ class Config {
 	 *
 	 * @return void
 	 */
-	public function set_extension_active_frontend( $extension,
-		$is_active_frontend ) {
+	public function set_extension_active_frontend( $extension, $is_active_frontend ) {
 		$a = $this->get_array( 'extensions.active_frontend' );
 		if ( ! $is_active_frontend ) {
 			unset( $a[ $extension ] );
@@ -417,8 +416,7 @@ class Config {
 	 *
 	 * @return void
 	 */
-	public function set_extension_active_dropin( $extension,
-		$is_active_dropin ) {
+	public function set_extension_active_dropin( $extension, $is_active_dropin ) {
 		$a = $this->get_array( 'extensions.active_dropin' );
 		if ( ! $is_active_dropin ) {
 			unset( $a[ $extension ] );

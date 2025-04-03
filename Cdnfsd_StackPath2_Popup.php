@@ -11,6 +11,7 @@ namespace W3TC;
  * Class Cdnfsd_StackPath2_Popup
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdnfsd_StackPath2_Popup {
 	/**
@@ -92,7 +93,7 @@ class Cdnfsd_StackPath2_Popup {
 		$stack_id = '';
 		foreach ( $stacks as $i ) {
 			if ( 'ACTIVE' === $i['status'] ) {
-				$count++;
+				++$count;
 				$stack_id = $i['id'];
 			}
 		}

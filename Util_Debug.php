@@ -11,6 +11,7 @@ namespace W3TC;
  * Class Util_Debug
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class Util_Debug {
 	/**
@@ -125,7 +126,7 @@ class Util_Debug {
 			$method            = ( ! empty( $i['class'] ) ? $i['class'] . '--' : '' ) . $i['function'];
 			$args              = ' ' . self::encode_params( $i['args'] );
 			$backtrace_lines[] = "\t#" . ( $pos ) . ' ' . $filename . '(' . $line . '): ' . $method . $args;
-			$pos++;
+			++$pos;
 		}
 
 		$message = $message;

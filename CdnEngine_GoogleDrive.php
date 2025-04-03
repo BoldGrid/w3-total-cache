@@ -114,7 +114,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	 */
 	private function _init_service( $access_token ) {
 		if ( empty( $this->_client_id ) || empty( $access_token ) ) {
-			throw new \Exception( 'service not configured' );
+			throw new \Exception( \esc_html__( 'Service not configured.', 'w3-total-cache' ) );
 		}
 
 		$client = new \W3TCG_Google_Client();
@@ -141,9 +141,9 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 		);
 
 		if ( is_wp_error( $result ) ) {
-			throw new \Exception( $result );
+			throw new \Exception( esc_html( $result ) );
 		} elseif ( 200 !== (int) $result['response']['code'] ) {
-			throw new \Exception( $result['body'] );
+			throw new \Exception( wp_kses_post( $result['body'] ) );
 		}
 
 		$access_token = $result['body'];
@@ -251,7 +251,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 			$p->value     = $chunk;
 			$properties[] = $p;
 
-			$i++;
+			++$i;
 		}
 
 		return $properties;
@@ -270,8 +270,7 @@ class CdnEngine_GoogleDrive extends CdnEngine_Base {
 	 *
 	 * @throws \W3TCG_Google_Auth_Exception If the file update/insert fails.
 	 */
-	private function _upload_chunk( $files, &$results, $force_rewrite,
-		$timeout_time, $allow_refresh_token ) {
+	private function _upload_chunk( $files, &$results, $force_rewrite, $timeout_time, $allow_refresh_token ) {
 		list( $result, $listed_files ) = $this->list_files_chunk( $files, $allow_refresh_token, $timeout_time );
 		if ( 'success' !== $result ) {
 			return $result;

@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class BrowserCache_Environment
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class BrowserCache_Plugin_Admin {
 	/**

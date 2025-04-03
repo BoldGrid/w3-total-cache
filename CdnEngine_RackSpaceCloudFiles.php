@@ -158,13 +158,21 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 	private function _on_new_access_requested() {
 		$r = Cdn_RackSpace_Api_Tokens::authenticate( $this->_config['user_name'], $this->_config['api_key'] );
 		if ( ! isset( $r['access_token'] ) || ! isset( $r['services'] ) ) {
-			throw new \Exception( 'Authentication failed' );
+			throw new \Exception( \esc_html__( 'Authentication failed.', 'w3-total-cache' ) );
 		}
 
 		$r['regions'] = Cdn_RackSpace_Api_Tokens::cloudfiles_services_by_region( $r['services'] );
 
 		if ( ! isset( $r['regions'][ $this->_config['region'] ] ) ) {
-			throw new \Exception( 'Region ' . $this->_config['region'] . ' not found' );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// translators: 1: Region name.
+						\__( 'Region %1$s not found.', 'w3-total-cache' ),
+						$this->_config['region']
+					)
+				)
+			);
 		}
 
 		$this->_access_state['access_token']             = $r['access_token'];
@@ -191,7 +199,7 @@ class CdnEngine_RackSpaceCloudFiles extends CdnEngine_Base {
 	 * @throws \Exception Always throws an exception for failed authentication.
 	 */
 	private function _on_new_access_requested_second_time() {
-		throw new \Exception( 'Authentication failed' );
+		throw new \Exception( \esc_html__( 'Authentication failed.', 'w3-total-cache' ) );
 	}
 
 	/**

@@ -308,24 +308,22 @@ class Varnish_Flush {
 					}
 					$this->_purge( $url );
 				}
+			} elseif ( ! Util_Environment::is_wpmu_subdomain() ) {
+				$this->_purge( get_home_url() . '/.*' );
 			} else {
-				if ( ! Util_Environment::is_wpmu_subdomain() ) {
-					$this->_purge( get_home_url() . '/.*' );
-				} else {
-					$blogs = $wpdb->get_results(
-						"
-						SELECT domain, path
-						FROM {$wpdb->blogs}
-						WHERE site_id = '{$wpdb->siteid}'
-						AND spam = 0
-						AND deleted = 0
-						AND archived = '0'"
-					);
+				$blogs = $wpdb->get_results(
+					"
+					SELECT domain, path
+					FROM {$wpdb->blogs}
+					WHERE site_id = '{$wpdb->siteid}'
+					AND spam = 0
+					AND deleted = 0
+					AND archived = '0'"
+				);
 
-					foreach ( $blogs as $blog ) {
-						$url = $protocall . $blog->domain . ( strlen( $blog->path ) > 1 ? '/' . trim( $blog->path, '/' ) : '' ) . '/.*';
-						$this->_purge( $url );
-					}
+				foreach ( $blogs as $blog ) {
+					$url = $protocall . $blog->domain . ( strlen( $blog->path ) > 1 ? '/' . trim( $blog->path, '/' ) : '' ) . '/.*';
+					$this->_purge( $url );
 				}
 			}
 		}

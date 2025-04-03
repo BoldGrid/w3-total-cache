@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Minify_Plugin {
 	/**
@@ -677,6 +678,7 @@ var extsrc=null;
 	 *
 	 * phpcs:disable WordPress.CodeAnalysis.AssignmentInCondition.Found
 	 * phpcs:disable Squiz.PHP.DisallowMultipleAssignments.Found
+	 * phpcs:disable Generic.CodeAnalysis.AssignmentInCondition.Found
 	 *
 	 * @return string Template identifier.
 	 */
@@ -1287,10 +1289,8 @@ class _W3_MinifyHelpers {
 				if ( ! preg_match( '~' . $item . '~', $url ) ) {
 					continue;
 				}
-			} else {
-				if ( ! preg_match( '~^' . Util_Environment::get_url_regexp( $item ) . '~', $url ) ) {
-					continue;
-				}
+			} elseif ( ! preg_match( '~^' . Util_Environment::get_url_regexp( $item ) . '~', $url ) ) {
+				continue;
 			}
 
 			if ( $this->debug ) {
@@ -1339,12 +1339,12 @@ class _W3_MinifyHelpers {
 	/**
 	 * Adds an HTTP/2 header for preloading a given URL.
 	 *
-	 * @param string $url URL to be preloaded.
-	 * @param string $as  Resource type (e.g., 'script', 'style').
+	 * @param string $url  URL to be preloaded.
+	 * @param string $type Resource type (e.g., 'script', 'style').
 	 *
 	 * @return void
 	 */
-	public function http2_header_add( $url, $as ) {
+	public function http2_header_add( $url, $type ) {
 		if ( empty( $url ) ) {
 			return;
 		}
@@ -1363,7 +1363,7 @@ class _W3_MinifyHelpers {
 			)
 		);
 
-		header( 'Link: <' . $data['result_link'] . '>; rel=preload; as=' . $as, false );
+		header( 'Link: <' . $data['result_link'] . '>; rel=preload; as=' . $type, false );
 	}
 
 	/**

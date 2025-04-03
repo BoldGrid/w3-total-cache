@@ -16,6 +16,7 @@ namespace W3TC;
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound
  */
 class Cache_Memcache extends Cache_Base {
 	/**
@@ -44,8 +45,6 @@ class Cache_Memcache extends Cache_Base {
 	 *     @type bool   $persistent       Whether to use persistent connections.
 	 *     @type string $key_version_mode Mode for key versioning ('disabled' to disable it).
 	 * }
-	 *
-	 * @return bool
 	 */
 	public function __construct( $config ) {
 		parent::__construct( $config );
@@ -78,14 +77,14 @@ class Cache_Memcache extends Cache_Base {
 	 * If the key already exists, it will overwrite the value. This method is functionally equivalent to `set()`.
 	 *
 	 * @param string $key    Cache key.
-	 * @param mixed  $var    Value to store.
+	 * @param mixed  $value  Value to store.
 	 * @param int    $expire Time to live for the cached item in seconds. Default is 0 (no expiration).
 	 * @param string $group  Cache group. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function add( $key, &$var, $expire = 0, $group = '' ) {
-		return $this->set( $key, $var, $expire, $group );
+	public function add( $key, &$value, $expire = 0, $group = '' ) {
+		return $this->set( $key, $value, $expire, $group );
 	}
 
 	/**
@@ -95,20 +94,20 @@ class Cache_Memcache extends Cache_Base {
 	 * mechanism to handle key updates.
 	 *
 	 * @param string $key    Cache key.
-	 * @param mixed  $var    Value to store.
+	 * @param mixed  $value  Value to store.
 	 * @param int    $expire Time to live for the cached item in seconds. Default is 0 (no expiration).
 	 * @param string $group  Cache group. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function set( $key, $var, $expire = 0, $group = '' ) {
-		if ( ! isset( $var['key_version'] ) ) {
-			$var['key_version'] = $this->_get_key_version( $group );
+	public function set( $key, $value, $expire = 0, $group = '' ) {
+		if ( ! isset( $value['key_version'] ) ) {
+			$value['key_version'] = $this->_get_key_version( $group );
 		}
 
 		$storage_key = $this->get_item_key( $key );
 
-		return @$this->_memcache->set( $storage_key, $var, false, $expire );
+		return @$this->_memcache->set( $storage_key, $value, false, $expire );
 	}
 
 	/**
@@ -169,14 +168,14 @@ class Cache_Memcache extends Cache_Base {
 	 * This method is functionally equivalent to `set()`.
 	 *
 	 * @param string $key    Cache key.
-	 * @param mixed  $var    Value to store.
+	 * @param mixed  $value  Value to store.
 	 * @param int    $expire Time to live for the cached item in seconds. Default is 0 (no expiration).
 	 * @param string $group  Cache group. Default is an empty string.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function replace( $key, &$var, $expire = 0, $group = '' ) {
-		return $this->set( $key, $var, $expire, $group );
+	public function replace( $key, &$value, $expire = 0, $group = '' ) {
+		return $this->set( $key, $value, $expire, $group );
 	}
 
 	/**
@@ -387,7 +386,7 @@ class Cache_Memcache extends Cache_Base {
 					if ( substr( $key, 0, strlen( $key_prefix ) ) === $key_prefix ) {
 						if ( count( $size_expiration ) > 0 ) {
 							$size['bytes'] += $size_expiration[0];
-							$size['items']++;
+							++$size['items'];
 						}
 					}
 				}

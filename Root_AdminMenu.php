@@ -160,7 +160,7 @@ class Root_AdminMenu {
 
 		uasort(
 			$pages,
-			function( $a, $b ) {
+			function ( $a, $b ) {
 				return ( $a['order'] - $b['order'] );
 			}
 		);

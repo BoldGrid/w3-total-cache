@@ -137,13 +137,21 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 	public function _on_new_access_requested_api() {
 		$r = Cdn_RackSpace_Api_Tokens::authenticate( $this->_config['user_name'], $this->_config['api_key'] );
 		if ( ! isset( $r['access_token'] ) || ! isset( $r['services'] ) ) {
-			throw new \Exception( 'Authentication failed' );
+			throw new \Exception( \esc_html__( 'Authentication failed.', 'w3-total-cache' ) );
 		}
 
 		$r['regions'] = Cdn_RackSpace_Api_Tokens::cdn_services_by_region( $r['services'] );
 
 		if ( ! isset( $r['regions'][ $this->_config['region'] ] ) ) {
-			throw new \Exception( 'Region ' . $this->_config['region'] . ' not found' );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// translators: 1: Region name.
+						\__( 'Region %1$s not found.', 'w3-total-cache' ),
+						$this->_config['region']
+					)
+				)
+			);
 		}
 
 		$this->_access_state['access_token']             = $r['access_token'];
@@ -166,7 +174,7 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 	 * @throws \Exception Always throws an exception indicating authentication failure.
 	 */
 	private function _on_new_access_requested_second_time() {
-		throw new \Exception( 'Authentication failed' );
+		throw new \Exception( \esc_html__( 'Authentication failed', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -192,7 +200,7 @@ class CdnEngine_Mirror_RackSpaceCdn extends CdnEngine_Mirror {
 				'',
 				'',
 				W3TC_CDN_RESULT_HALT,
-				__( 'Failed to purge: ', 'w3-total-cache' ) . $e->getMessage()
+				\__( 'Failed to purge: ', 'w3-total-cache' ) . $e->getMessage()
 			);
 		}
 

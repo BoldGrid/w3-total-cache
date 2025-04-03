@@ -76,7 +76,10 @@ class Extension_NewRelic_Api {
 					$message = $response['response']['message'];
 			}
 
-			throw new \Exception( $message, $response['response']['code'] );
+			throw new \Exception(
+				\esc_html( $message ),
+				\esc_html( $response['response']['code'] )
+			);
 		}
 		return $return;
 	}
@@ -105,7 +108,10 @@ class Extension_NewRelic_Api {
 		} elseif ( 200 === $response['response']['code'] ) {
 			$return = true;
 		} else {
-			throw new \Exception( $response['response']['message'], $response['response']['code'] );
+			throw new \Exception(
+				\esc_html( $response['response']['message'] ),
+				\esc_html( $response['response']['code'] )
+			);
 		}
 		return $return;
 	}

@@ -12,6 +12,8 @@ namespace W3TC;
  * Class: Cdn_BunnyCdn_Popup
  *
  * @since 2.6.0
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_BunnyCdn_Popup {
 	/**

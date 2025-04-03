@@ -64,7 +64,7 @@ class Cdnfsd_LimeLight_Engine {
 	 */
 	public function flush_urls( $urls ) {
 		if ( empty( $this->short_name ) || empty( $this->username ) || empty( $this->api_key ) ) {
-			throw new \Exception( __( 'Credentials are not specified.', 'w3-total-cache' ) );
+			throw new \Exception( \esc_html__( 'Credentials are not specified.', 'w3-total-cache' ) );
 		}
 
 		$api   = new Cdnfsd_LimeLight_Api( $this->short_name, $this->username, $this->api_key );
@@ -105,7 +105,7 @@ class Cdnfsd_LimeLight_Engine {
 	 */
 	public function flush_all() {
 		if ( empty( $this->short_name ) || empty( $this->username ) || empty( $this->api_key ) ) {
-			throw new \Exception( __( 'Access key not specified.', 'w3-total-cache' ) );
+			throw new \Exception( \esc_html__( 'Access key not specified.', 'w3-total-cache' ) );
 		}
 
 		$api = new Cdnfsd_LimeLight_Api( $this->short_name, $this->username, $this->api_key );

@@ -13,6 +13,7 @@ namespace W3TC;
  * W3 PgCache plugin
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class PgCache_Plugin {
 	/**
@@ -206,7 +207,7 @@ class PgCache_Plugin {
 		$request_host = Util_Environment::host();
 
 		// host not known, potentially we are in console mode not http request.
-		if ( empty( $request_host ) || defined( 'WP_CLI' ) && WP_CLI ) {
+		if ( empty( $request_host ) || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 			return;
 		}
 

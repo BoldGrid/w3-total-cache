@@ -12,6 +12,7 @@ namespace W3TC;
  * Class: Cdn_BunnyCdn_Api
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  *
  * @since 2.6.0
  */

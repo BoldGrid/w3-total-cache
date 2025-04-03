@@ -362,19 +362,19 @@ class CdnEngine_Azure extends CdnEngine_Base {
 	 */
 	public function create_container() {
 		if ( ! $this->_init( $error ) ) {
-			throw new \Exception( $error );
+			throw new \Exception( esc_html( $error ) );
 		}
 
 		try {
 			$containers = $this->_client->listContainers();
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to list containers (%s).', $exception->getMessage() );
-			throw new \Exception( $error );
+			throw new \Exception( esc_html( $error ) );
 		}
 
 		if ( in_array( $this->_config['container'], (array) $containers, true ) ) {
 			$error = sprintf( 'Container already exists: %s.', $this->_config['container'] );
-			throw new \Exception( $error );
+			throw new \Exception( esc_html( $error ) );
 		}
 
 		try {
@@ -384,7 +384,7 @@ class CdnEngine_Azure extends CdnEngine_Base {
 			$this->_client->createContainer( $this->_config['container'], $create_container_options );
 		} catch ( \Exception $exception ) {
 			$error = sprintf( 'Unable to create container: %s (%s)', $this->_config['container'], $exception->getMessage() );
-			throw new \Exception( $error );
+			throw new \Exception( esc_html( $error ) );
 		}
 	}
 

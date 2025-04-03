@@ -467,7 +467,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			$server_count = count( $servers );
 
 			// Increment the retry count and check if we've exceeded the maximum retries.
-			$retry_count++;
+			++$retry_count;
 		} while ( $server_count < $this->min_tries && $retry_count < 3 );
 
 		// Connect to a database server.
@@ -726,7 +726,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 
 			while ( $i < @mysqli_num_fields( $this->wpdb_mixin->result ) ) {
 				$col_info[ $i ] = @mysqli_fetch_field( $this->wpdb_mixin->result );
-				$i++;
+				++$i;
 			}
 
 			$this->wpdb_mixin->col_info    = $col_info;
@@ -737,7 +737,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 				$row = @mysqli_fetch_object( $this->wpdb_mixin->result );
 				if ( $row ) {
 					$this->wpdb_mixin->last_result[ $num_rows ] = $row;
-					$num_rows++;
+					++$num_rows;
 				}
 			} while ( $row );
 
@@ -835,7 +835,7 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 
 			case 'set_charset':
 				return version_compare( $version, '5.0.7', '>=' );
-		};
+		}
 
 		return false;
 	}

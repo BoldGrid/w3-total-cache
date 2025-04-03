@@ -36,8 +36,7 @@ class Util_WpFile_FilesystemWriteException extends Util_WpFile_FilesystemOperati
 	 * @param string $filename The name or path of the file associated with the object.
 	 * @param string $file_contents The contents of the file.
 	 */
-	public function __construct( $message, $credentials_form, $filename,
-		$file_contents ) {
+	public function __construct( $message, $credentials_form, $filename, $file_contents ) {
 		parent::__construct( $message, $credentials_form );
 
 		$this->filename      = $filename;

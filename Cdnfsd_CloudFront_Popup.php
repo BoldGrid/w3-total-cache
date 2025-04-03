@@ -15,6 +15,7 @@ if ( ! defined( 'W3TC_SKIPLIB_AWS' ) ) {
  * Class Cdnfsd_CloudFront_Popup
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdnfsd_CloudFront_Popup {
 	/**

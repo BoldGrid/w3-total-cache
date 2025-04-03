@@ -11,6 +11,7 @@ namespace W3TC;
  * Class Cdn_StackPath_Popup
  *
  * phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_StackPath_Popup {
 	/**
@@ -236,10 +237,8 @@ class Cdn_StackPath_Popup {
 			if ( empty( $zone_id ) ) {
 				$response = $api->create_site( $zone );
 				$zone_id  = $response['id'];
-			} else {
-				if ( count( array_keys( $zone ) ) > 0 ) {
-					$response = $api->update_site( $zone_id, $zone );
-				}
+			} elseif ( count( array_keys( $zone ) ) > 0 ) {
+				$response = $api->update_site( $zone_id, $zone );
 			}
 
 			$response = $api->get_site( $zone_id );

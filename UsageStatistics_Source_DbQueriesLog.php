@@ -72,7 +72,15 @@ class UsageStatistics_Source_DbQueriesLog {
 		$log_filename = Util_Debug::log_filename( 'dbcache-queries' );
 		$h            = @fopen( $log_filename, 'rb' );
 		if ( ! $h ) {
-			throw new \Exception( 'Failed to open log file' . $log_filename );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// translators: 1 Log filename.
+						\__( 'Failed to open log file %1$s.', 'w3-total-cache' ),
+						$log_filename
+					)
+				)
+			);
 		}
 
 		fseek( $h, 0, SEEK_END );
@@ -110,7 +118,7 @@ class UsageStatistics_Source_DbQueriesLog {
 
 		usort(
 			$output,
-			function( $a, $b ) {
+			function ( $a, $b ) {
 				return (int) ( $b[ $this->sort_column ] ) - (int) ( $a[ $this->sort_column ] );
 			}
 		);
@@ -202,9 +210,9 @@ class UsageStatistics_Source_DbQueriesLog {
 			);
 		}
 
-		$this->by_query[ $query ]['count_total']++;
+		++$this->by_query[ $query ]['count_total'];
 		if ( $hit ) {
-			$this->by_query[ $query ]['count_hit']++;
+			++$this->by_query[ $query ]['count_hit'];
 		}
 		$this->by_query[ $query ]['sum_size']    += $size;
 		$this->by_query[ $query ]['sum_time_ms'] += $time_taken_ms;

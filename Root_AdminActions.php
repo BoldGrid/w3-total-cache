@@ -44,22 +44,18 @@ class Root_AdminActions {
 				$handler_object->$method( $action_details[1] );
 				return;
 			}
-		} else {
-			// regular action.
-			if ( method_exists( $handler_object, $action ) ) {
-				$handler_object->$action();
-				return;
-			}
+		} elseif ( method_exists( $handler_object, $action ) ) {
+			$handler_object->$action();
+			return;
 		}
 
 		throw new \Exception(
-			sprintf(
-				// Translators: 1 action name.
-				__(
-					'action %1$s does not exist',
-					'w3-total-cache'
-				),
-				$action
+			\esc_html(
+				sprintf(
+					// Translators: 1 action name.
+					\__( 'Action %1$s does not exist.', 'w3-total-cache' ),
+					$action
+				)
 			)
 		);
 	}

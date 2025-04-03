@@ -14,6 +14,8 @@ require_once W3TC_LIB_NETDNA_DIR . '/W3tcWpHttpException.php';
  * Class Cdn_StackPath_Api
  *
  * StackPath REST Client Library
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_StackPath_Api {
 	/**
@@ -158,10 +160,14 @@ class Cdn_StackPath_Api {
 		// catch errors.
 		if ( is_wp_error( $response ) ) {
 			throw new \W3tcWpHttpException(
-				"ERROR: {$response->get_error_message()}, Output: $json_output",
-				$response_code,
+				sprintf(
+					'ERROR: %s, Output: %s',
+					\esc_html( $response->get_error_message() ),
+					\esc_html( $json_output )
+				),
+				\esc_html( $response_code ),
 				null,
-				$headers
+				\esc_html( $headers )
 			);
 		}
 
@@ -204,7 +210,7 @@ class Cdn_StackPath_Api {
 	private function execute_await_200( $selected_call, $method_type, $params ) {
 		$r = json_decode( $this->execute( $selected_call, $method_type, $params ), true );
 		if ( ! preg_match( '(200|201)', $r['code'] ) ) {
-			throw $this->to_exception( $r );
+			throw $this->to_exception( $r ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 
 		return $r;
@@ -287,7 +293,7 @@ class Cdn_StackPath_Api {
 			}
 		}
 
-		return new \W3tcWpHttpException( $message );
+		return new \W3tcWpHttpException( \esc_html( $message ) );
 	}
 
 	/**

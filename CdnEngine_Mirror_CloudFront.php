@@ -332,18 +332,24 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 
 		} catch ( \Aws\Exception\AwsException $ex ) {
 			throw new \Exception(
-				sprintf(
-					'Unable to create distribution for origin %s: %s',
-					$origin_domain,
-					$ex->getAwsErrorMessage()
+				\esc_html(
+					sprintf(
+						// Translators: 1 Origin domain name, 2 AWS error message.
+						\__( 'Unable to create distribution for origin %1$s: %2$s', 'w3-total-cache' ),
+						$origin_domain,
+						$ex->getAwsErrorMessage()
+					)
 				)
 			);
 		} catch ( \Exception $ex ) {
 			throw new \Exception(
-				sprintf(
-					'Unable to create distribution for origin %s: %s',
-					$origin_domain,
-					$ex->getMessage()
+				\esc_html(
+					sprintf(
+						// Translators: 1 Origin domain name, 2 Error message.
+						\__( 'Unable to create distribution for origin %1$s: %2$s', 'w3-total-cache' ),
+						$origin_domain,
+						$ex->getMessage()
+					)
 				)
 			);
 		}
@@ -376,7 +382,7 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 		}
 
 		if ( ! isset( $dists['DistributionList']['Items'] ) || ! count( $dists['DistributionList']['Items'] ) ) {
-			throw new \Exception( 'No distributions found.' );
+			throw new \Exception( \esc_html__( 'No distributions found.', 'w3-total-cache' ) );
 		}
 
 		$dist   = false;
@@ -393,6 +399,14 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 			}
 		}
 
-		throw new \Exception( sprintf( 'Distribution for origin "%s" not found.', $origin ) );
+		throw new \Exception(
+			\esc_html(
+				sprintf(
+					// Translators: 1 Origin name.
+					\__( 'Distribution for origin "%1$s" not found.', 'w3-total-cache' ),
+					$origin
+				)
+			)
+		);
 	}
 }

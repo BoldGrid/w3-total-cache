@@ -198,6 +198,7 @@ class Extension_Genesis_Plugin {
 	 *
 	 * phpcs:disable WordPress.CodeAnalysis.AssignmentInCondition.Found
 	 * phpcs:disable Squiz.PHP.DisallowMultipleAssignments.Found
+	 * phpcs:disable Generic.CodeAnalysis.AssignmentInCondition
 	 *
 	 * @param string $hook         The current hook being processed.
 	 * @param bool   $current_menu Whether the current menu is relevant to caching.

@@ -41,8 +41,7 @@ class CdnEngine_Mirror extends CdnEngine_Base {
 	 *
 	 * @return bool True on success, false otherwise.
 	 */
-	public function upload( $files, &$results, $force_rewrite = false,
-		$timeout_time = null ) {
+	public function upload( $files, &$results, $force_rewrite = false, $timeout_time = null ) {
 		$results = $this->_get_results( $files, W3TC_CDN_RESULT_OK, 'OK' );
 
 		return true;

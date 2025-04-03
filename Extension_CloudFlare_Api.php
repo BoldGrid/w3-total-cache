@@ -265,7 +265,7 @@ class Extension_CloudFlare_Api {
 	 */
 	private function _wp_remote_request( $method, $url, $body = array() ) {
 		if ( empty( $this->_email ) || empty( $this->_key ) ) {
-			throw new \Exception( 'Not authenticated' );
+			throw new \Exception( \esc_html__( 'Not authenticated.', 'w3-total-cache' ) );
 		}
 
 		$headers = $this->_generate_wp_remote_request_headers();
@@ -281,13 +281,19 @@ class Extension_CloudFlare_Api {
 		);
 
 		if ( is_wp_error( $result ) ) {
-			throw new \Exception( 'Failed to reach API endpoint' );
+			throw new \Exception( \esc_html__( 'Failed to reach API endpoint.', 'w3-total-cache' ) );
 		}
 
 		$response_json = @json_decode( $result['body'], true );
 		if ( is_null( $response_json ) || ! isset( $response_json['success'] ) ) {
 			throw new \Exception(
-				'Failed to reach API endpoint, got unexpected response ' . str_replace( '<', '.', str_replace( '>', '.', $result['body'] ) )
+				\esc_html(
+					sprintf(
+						// Translators: 1 Result body.
+						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						str_replace( '<', '.', str_replace( '>', '.', $result['body'] ) )
+					)
+				)
 			);
 		}
 
@@ -306,7 +312,7 @@ class Extension_CloudFlare_Api {
 				$errors[] = 'Request failed';
 			}
 
-			throw new \Exception( implode( ', ', $errors ) );
+			throw new \Exception( \esc_html( implode( ', ', $errors ) ) );
 		}
 
 		if ( isset( $response_json['result'] ) ) {
@@ -329,7 +335,7 @@ class Extension_CloudFlare_Api {
 	 */
 	private function _wp_remote_request_with_meta( $method, $url, $body = array() ) {
 		if ( empty( $this->_email ) || empty( $this->_key ) ) {
-			throw new \Exception( 'Not authenticated' );
+			throw new \Exception( \esc_html__( 'Not authenticated.', 'w3-total-cache' ) );
 		}
 
 		$headers = $this->_generate_wp_remote_request_headers();
@@ -345,13 +351,19 @@ class Extension_CloudFlare_Api {
 		);
 
 		if ( is_wp_error( $result ) ) {
-			throw new \Exception( 'Failed to reach API endpoint' );
+			throw new \Exception( \esc_html__( 'Failed to reach API endpoint.', 'w3-total-cache' ) );
 		}
 
 		$response_json = @json_decode( $result['body'], true );
 		if ( is_null( $response_json ) || ! isset( $response_json['success'] ) ) {
 			throw new \Exception(
-				'Failed to reach API endpoint, got unexpected response ' . $result['body']
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response body.
+						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						$result['body']
+					)
+				)
 			);
 		}
 
@@ -370,7 +382,7 @@ class Extension_CloudFlare_Api {
 				$errors[] = 'Request failed';
 			}
 
-			throw new \Exception( implode( ', ', $errors ) );
+			throw new \Exception( \esc_html( implode( ', ', $errors ) ) );
 		}
 
 		if ( isset( $response_json['result'] ) ) {
@@ -393,7 +405,7 @@ class Extension_CloudFlare_Api {
 	 */
 	private function _wp_remote_request_graphql( $method, $url, $body ) {
 		if ( empty( $this->_email ) || empty( $this->_key ) ) {
-			throw new \Exception( 'Not authenticated' );
+			throw new \Exception( \esc_html__( 'Not authenticated.', 'w3-total-cache' ) );
 		}
 
 		$headers = $this->_generate_wp_remote_request_headers();
@@ -411,13 +423,19 @@ class Extension_CloudFlare_Api {
 		);
 
 		if ( is_wp_error( $result ) ) {
-			throw new \Exception( 'Failed to reach API endpoint' );
+			throw new \Exception( \esc_html__( 'Failed to reach API endpoint.', 'w3-total-cache' ) );
 		}
 
 		$response_json = @json_decode( $result['body'], true );
 		if ( is_null( $response_json ) ) {
 			throw new \Exception(
-				'Failed to reach API endpoint, got unexpected response ' . str_replace( '<', '.', str_replace( '>', '.', $result['body'] ) )
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response body.
+						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						str_replace( '<', '.', str_replace( '>', '.', $result['body'] ) )
+					)
+				)
 			);
 		}
 
@@ -434,7 +452,7 @@ class Extension_CloudFlare_Api {
 				$errors[] = 'Request failed';
 			}
 
-			throw new \Exception( implode( ', ', $errors ) );
+			throw new \Exception( \esc_html( implode( ', ', $errors ) ) );
 		}
 
 		if ( isset( $response_json['data'] ) ) {
@@ -453,7 +471,7 @@ class Extension_CloudFlare_Api {
 	 */
 	private function _generate_wp_remote_request_headers() {
 		if ( empty( $this->_email ) || empty( $this->_key ) ) {
-			throw new \Exception( 'Missing authentication email and/or API token / global key' );
+			throw new \Exception( \esc_html__( 'Missing authentication email and/or API token / global key.', 'w3-total-cache' ) );
 		}
 
 		$headers = array();
@@ -470,7 +488,7 @@ class Extension_CloudFlare_Api {
 				'X-Auth-Email' => $this->_email,
 			);
 		} else {
-			throw new \Exception( 'Improper API token / global key length' );
+			throw new \Exception( \esc_html__( 'Improper API token / global key length.', 'w3-total-cache' ) );
 		}
 
 		return $headers;

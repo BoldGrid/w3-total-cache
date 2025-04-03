@@ -21,6 +21,8 @@ define( 'W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN', '~define\s*\(\s*[\'"]COOKI
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.NamingConventions.ValidHookName.UseUnderscores
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Generic_AdminActions_Default {
 	/**
@@ -598,17 +600,15 @@ class Generic_AdminActions_Default {
 							)
 						);
 					}
-				} else {
-					if ( ! $this->disable_cookie_domain() ) {
-						Util_Admin::redirect(
-							array_merge(
-								$data['response_query_string'],
-								array(
-									'w3tc_error' => 'disable_cookie_domain',
-								)
+				} elseif ( ! $this->disable_cookie_domain() ) {
+					Util_Admin::redirect(
+						array_merge(
+							$data['response_query_string'],
+							array(
+								'w3tc_error' => 'disable_cookie_domain',
 							)
-						);
-					}
+						)
+					);
 				}
 			}
 		}

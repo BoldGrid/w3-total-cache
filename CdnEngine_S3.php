@@ -38,30 +38,30 @@ class CdnEngine_S3 extends CdnEngine_Base {
 	 */
 	public static function regions_list() {
 		return array(
-			'us-east-1'      => __( 'US East (N. Virginia) (default)', 'w3-total-cache' ), // Default; region not included in hostnmae.
-			'us-east-1-e'    => __( 'US East (N. Virginia) (long hostname)', 'w3-total-cache' ), // Explicitly included in hostname.
-			'us-east-2'      => __( 'US East (Ohio)', 'w3-total-cache' ),
-			'us-west-1'      => __( 'US West (N. California)', 'w3-total-cache' ),
-			'us-west-2'      => __( 'US West (Oregon)', 'w3-total-cache' ),
-			'af-south-1'     => __( 'Africa (Cape Town)', 'w3-total-cache' ),
-			'ap-east-1'      => __( 'Asia Pacific (Hong Kong)', 'w3-total-cache' ),
-			'ap-northeast-1' => __( 'Asia Pacific (Tokyo)', 'w3-total-cache' ),
-			'ap-northeast-2' => __( 'Asia Pacific (Seoul)', 'w3-total-cache' ),
-			'ap-northeast-3' => __( 'Asia Pacific (Osaka-Local)', 'w3-total-cache' ),
-			'ap-south-1'     => __( 'Asia Pacific (Mumbai)', 'w3-total-cache' ),
-			'ap-southeast-1' => __( 'Asia Pacific (Singapore)', 'w3-total-cache' ),
-			'ap-southeast-2' => __( 'Asia Pacific (Sydney)', 'w3-total-cache' ),
-			'ca-central-1'   => __( 'Canada (Central)', 'w3-total-cache' ),
-			'cn-north-1'     => __( 'China (Beijing)', 'w3-total-cache' ),
-			'cn-northwest-1' => __( 'China (Ningxia)', 'w3-total-cache' ),
-			'eu-central-1'   => __( 'Europe (Frankfurt)', 'w3-total-cache' ),
-			'eu-north-1'     => __( 'Europe (Stockholm)', 'w3-total-cache' ),
-			'eu-south-1'     => __( 'Europe (Milan)', 'w3-total-cache' ),
-			'eu-west-1'      => __( 'Europe (Ireland)', 'w3-total-cache' ),
-			'eu-west-2'      => __( 'Europe (London)', 'w3-total-cache' ),
-			'eu-west-3'      => __( 'Europe (Paris)', 'w3-total-cache' ),
-			'me-south-1'     => __( 'Middle East (Bahrain)', 'w3-total-cache' ),
-			'sa-east-1'      => __( 'South America (São Paulo)', 'w3-total-cache' ),
+			'us-east-1'      => \__( 'US East (N. Virginia) (default)', 'w3-total-cache' ), // Default; region not included in hostnmae.
+			'us-east-1-e'    => \__( 'US East (N. Virginia) (long hostname)', 'w3-total-cache' ), // Explicitly included in hostname.
+			'us-east-2'      => \__( 'US East (Ohio)', 'w3-total-cache' ),
+			'us-west-1'      => \__( 'US West (N. California)', 'w3-total-cache' ),
+			'us-west-2'      => \__( 'US West (Oregon)', 'w3-total-cache' ),
+			'af-south-1'     => \__( 'Africa (Cape Town)', 'w3-total-cache' ),
+			'ap-east-1'      => \__( 'Asia Pacific (Hong Kong)', 'w3-total-cache' ),
+			'ap-northeast-1' => \__( 'Asia Pacific (Tokyo)', 'w3-total-cache' ),
+			'ap-northeast-2' => \__( 'Asia Pacific (Seoul)', 'w3-total-cache' ),
+			'ap-northeast-3' => \__( 'Asia Pacific (Osaka-Local)', 'w3-total-cache' ),
+			'ap-south-1'     => \__( 'Asia Pacific (Mumbai)', 'w3-total-cache' ),
+			'ap-southeast-1' => \__( 'Asia Pacific (Singapore)', 'w3-total-cache' ),
+			'ap-southeast-2' => \__( 'Asia Pacific (Sydney)', 'w3-total-cache' ),
+			'ca-central-1'   => \__( 'Canada (Central)', 'w3-total-cache' ),
+			'cn-north-1'     => \__( 'China (Beijing)', 'w3-total-cache' ),
+			'cn-northwest-1' => \__( 'China (Ningxia)', 'w3-total-cache' ),
+			'eu-central-1'   => \__( 'Europe (Frankfurt)', 'w3-total-cache' ),
+			'eu-north-1'     => \__( 'Europe (Stockholm)', 'w3-total-cache' ),
+			'eu-south-1'     => \__( 'Europe (Milan)', 'w3-total-cache' ),
+			'eu-west-1'      => \__( 'Europe (Ireland)', 'w3-total-cache' ),
+			'eu-west-2'      => \__( 'Europe (London)', 'w3-total-cache' ),
+			'eu-west-3'      => \__( 'Europe (Paris)', 'w3-total-cache' ),
+			'me-south-1'     => \__( 'Middle East (Bahrain)', 'w3-total-cache' ),
+			'sa-east-1'      => \__( 'South America (São Paulo)', 'w3-total-cache' ),
 		);
 	}
 
@@ -125,18 +125,18 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		}
 
 		if ( empty( $this->_config['bucket'] ) ) {
-			throw new \Exception( 'Empty bucket.' );
+			throw new \Exception( \esc_html__( 'Empty bucket.', 'w3-total-cache' ) );
 		}
 
 		if ( empty( $this->_config['key'] ) && empty( $this->_config['secret'] ) ) {
 			$credentials = \Aws\Credentials\CredentialProvider::defaultProvider();
 		} else {
 			if ( empty( $this->_config['key'] ) ) {
-				throw new \Exception( 'Empty access key.' );
+				throw new \Exception( \esc_html__( 'Empty access key.', 'w3-total-cache' ) );
 			}
 
 			if ( empty( $this->_config['secret'] ) ) {
-				throw new \Exception( 'Empty secret key.' );
+				throw new \Exception( \esc_html__( 'Empty secret key.', 'w3-total-cache' ) );
 			}
 
 			$credentials = new \Aws\Credentials\Credentials(
@@ -522,10 +522,12 @@ class CdnEngine_S3 extends CdnEngine_Base {
 
 		if ( ! $bucket_found ) {
 			throw new \Exception(
-				sprintf(
-					// translators: 1: AWS S3 bucket name.
-					esc_html__( 'Bucket doesn\'t exist: %1$s.', 'w3-total-cache' ),
-					$this->_config['bucket']
+				\esc_html(
+					sprintf(
+						// translators: 1: Bucket name.
+						\__( 'Bucket doesn\'t exist: %1$s.', 'w3-total-cache' ),
+						$this->_config['bucket']
+					)
 				)
 			);
 		}
@@ -645,12 +647,28 @@ class CdnEngine_S3 extends CdnEngine_Base {
 		try {
 			$buckets = $this->api->listBuckets();
 		} catch ( \Exception $ex ) {
-			throw new \Exception( 'Unable to list buckets: ' . $ex->getMessage() );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// translators: 1 Error message.
+						\__( 'Unable to list buckets: %1$s.', 'w3-total-cache' ),
+						$ex->getMessage()
+					)
+				)
+			);
 		}
 
 		foreach ( $buckets['Buckets'] as $bucket ) {
 			if ( $bucket['Name'] === $this->_config['bucket'] ) {
-				throw new \Exception( 'Bucket already exists: ' . $this->_config['bucket'] );
+				throw new \Exception(
+					\esc_html(
+						sprintf(
+							// translators: 1 Bucket name.
+							\__( 'Bucket already exists: %1$s.', 'w3-total-cache' ),
+							$this->_config['bucket']
+						)
+					)
+				);
 			}
 		}
 
@@ -676,7 +694,15 @@ class CdnEngine_S3 extends CdnEngine_Base {
 				)
 			);
 		} catch ( \Exception $e ) {
-			throw new \Exception( 'Failed to create bucket: ' . $ex->getMessage() );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// translators: 1 Error message.
+						\__( 'Failed to create bucket: %1$s.', 'w3-total-cache' ),
+						$ex->getMessage()
+					)
+				)
+			);
 		}
 	}
 

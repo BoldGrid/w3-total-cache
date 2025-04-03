@@ -38,6 +38,8 @@ class Generic_AdminActions_Config {
 	 * Imports the configuration settings from an uploaded file.
 	 *
 	 * @return void
+	 *
+	 * phpcs:disable WordPress.Security.NonceVerification.Missing
 	 */
 	public function w3tc_config_import() {
 		$error = '';

@@ -279,7 +279,15 @@ class Cdn_RackSpace_Api_CloudFiles {
 				);
 			}
 
-			throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['response']['message'] );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Reponse message.
+						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						$result['response']['message']
+					)
+				)
+			);
 		}
 
 		return array( 'auth_required' => false );

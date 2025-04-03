@@ -25,6 +25,7 @@ if ( ! defined( 'W3TC_CDN_TRANSPARENTCDN_AUTHORIZATION_URL' ) ) {
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_TransparentCDN_Api {
 	/**
@@ -275,19 +276,19 @@ class Cdnfsd_TransparentCDN_Engine {
 	 */
 	public function flush_urls( $urls ) {
 		if ( empty( $this->config['client_id'] ) ) {
-			throw new \Exception( __( 'API key not specified.', 'w3-total-cache' ) );
+			throw new \Exception( \esc_html__( 'API key not specified.', 'w3-total-cache' ) );
 		}
 
 		$api = new Cdn_TransparentCDN_Api( $this->config );
 
 		try {
 			$result = $api->purge( $urls );
-			throw new \Exception( __( 'Problem purging', 'w3-total-cache' ) );
+			throw new \Exception( \esc_html__( 'Problem purging', 'w3-total-cache' ) );
 
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
 				throw new \Exception(
-					__(
+					\esc_html__(
 						'CDN site is not configured correctly: Delivery Domain must match your site domain',
 						'w3-total-cache'
 					)
@@ -309,7 +310,7 @@ class Cdnfsd_TransparentCDN_Engine {
 	 */
 	public function flush_all() {
 		if ( empty( $this->config['client_id'] ) ) {
-			throw new \Exception( __( 'API key not specified.', 'w3-total-cache' ) );
+			throw new \Exception( \esc_html__( 'API key not specified.', 'w3-total-cache' ) );
 		}
 
 		$api = new Cdn_TransparentCDN_Api( $this->config );
@@ -325,7 +326,7 @@ class Cdnfsd_TransparentCDN_Engine {
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
 				throw new \Exception(
-					__(
+					\esc_html__(
 						'CDN site is not configured correctly: Delivery Domain must match your site domain',
 						'w3-total-cache'
 					)

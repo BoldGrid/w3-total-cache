@@ -14,6 +14,7 @@ namespace W3TC;
  * without inheritance
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class DbCache_WpdbInjection {
 	/**

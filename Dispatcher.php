@@ -26,17 +26,17 @@ class Dispatcher {
 	/**
 	 * Retrieves a component instance by class name.
 	 *
-	 * @param string $class The class name of the component to retrieve.
+	 * @param string $class_name The class name of the component to retrieve.
 	 *
 	 * @return object The requested component instance.
 	 */
-	public static function component( $class ) {
-		if ( ! isset( self::$instances[ $class ] ) ) {
-			$full_class                = '\\W3TC\\' . $class;
-			self::$instances[ $class ] = new $full_class();
+	public static function component( $class_name ) {
+		if ( ! isset( self::$instances[ $class_name ] ) ) {
+			$full_class                     = '\\W3TC\\' . $class_name;
+			self::$instances[ $class_name ] = new $full_class();
 		}
 
-		$v = self::$instances[ $class ]; // Don't return reference.
+		$v = self::$instances[ $class_name ]; // Don't return reference.
 		return $v;
 	}
 
@@ -294,8 +294,7 @@ class Dispatcher {
 	 *
 	 * @return void
 	 */
-	public static function usage_statistics_apply_before_init_and_exit(
-		$metrics_function ) {
+	public static function usage_statistics_apply_before_init_and_exit( $metrics_function ) {
 		$c = self::config();
 		if ( ! $c->get_boolean( 'stats.enabled' ) ) {
 			exit();

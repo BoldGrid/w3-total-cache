@@ -280,16 +280,14 @@ class ObjectCache_WpObjectCache_Regular {
 						} else {
 							$returned = 'from db fallback';
 						}
-					} else {
-						if ( ! $found ) {
-							if ( $cache_total_inc <= 0 ) {
-								$returned = 'not tried cache';
-							} else {
-								$returned = 'not in cache';
-							}
+					} elseif ( ! $found ) {
+						if ( $cache_total_inc <= 0 ) {
+							$returned = 'not tried cache';
 						} else {
-							$returned = 'from persistent cache';
+							$returned = 'not in cache';
 						}
+					} else {
+						$returned = 'from persistent cache';
 					}
 
 					$this->log_call(
@@ -613,7 +611,7 @@ class ObjectCache_WpObjectCache_Regular {
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time = Util_Debug::microtime() - $time_start;
 
-			$this->cache_flushes++;
+			++$this->cache_flushes;
 			$this->time_total += $time;
 
 			if ( $this->_debug ) {
@@ -645,7 +643,7 @@ class ObjectCache_WpObjectCache_Regular {
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time = Util_Debug::microtime();
 
-			$this->cache_flushes++;
+			++$this->cache_flushes;
 			$this->time_total += $time;
 
 			if ( $this->_debug ) {
@@ -716,7 +714,7 @@ class ObjectCache_WpObjectCache_Regular {
 		if ( $this->_debug || $this->stats_enabled ) {
 			$time = Util_Debug::microtime() - $time_start;
 
-			$this->cache_flushes++;
+			++$this->cache_flushes;
 			$this->time_total += $time;
 
 			if ( $this->_debug ) {
@@ -1197,17 +1195,15 @@ class ObjectCache_WpObjectCache_Regular {
 
 		if ( $this->_config->get_boolean( 'objectcache.enabled_for_wp_admin' ) ) {
 			$this->_can_cache_dynamic = true;
-		} else {
-			if (
-				$this->_caching
-					&& defined( 'WP_ADMIN' )
-					&& ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX )
-			) {
-				$this->_can_cache_dynamic  = false;
-				$this->cache_reject_reason = 'WP_ADMIN defined';
+		} elseif (
+			$this->_caching
+				&& defined( 'WP_ADMIN' )
+				&& ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX )
+		) {
+			$this->_can_cache_dynamic  = false;
+			$this->cache_reject_reason = 'WP_ADMIN defined';
 
-				return $this->_can_cache_dynamic;
-			}
+			return $this->_can_cache_dynamic;
 		}
 
 		return $this->_caching;

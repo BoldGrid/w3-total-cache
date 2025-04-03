@@ -11,6 +11,7 @@ namespace W3TC;
  * Class Extension_NewRelic_Plugin_Admin
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_NewRelic_Plugin_Admin {
 	/**

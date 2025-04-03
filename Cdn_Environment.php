@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable WordPress.DB.DirectDatabaseQuery
  * phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_Environment {
 	/**
@@ -268,7 +269,15 @@ class Cdn_Environment {
 
 		$wpdb->query( $sql );
 		if ( ! $wpdb->result ) {
-			throw new Util_Environment_Exception( 'Can\'t create table ' . $tablename_queue );
+			throw new Util_Environment_Exception(
+				esc_html(
+					sprintf(
+						// Translators: 1 Tablename for queue.
+						__( 'Can\'t create table %1$s.', 'w3-total-cache' ),
+						$tablename_queue
+					)
+				)
+			);
 		}
 
 		$sql = "CREATE TABLE IF NOT EXISTS `$tablename_map` (
@@ -286,7 +295,15 @@ class Cdn_Environment {
 
 		$wpdb->query( $sql );
 		if ( ! $wpdb->result ) {
-			throw new Util_Environment_Exception( 'Can\'t create table ' . $tablename_map );
+			throw new Util_Environment_Exception(
+				esc_html(
+					sprintf(
+						// Translators: 1 Tablename for map.
+						__( 'Can\'t create table %1$s.', 'w3-total-cache' ),
+						$tablename_map
+					)
+				)
+			);
 		}
 	}
 
@@ -529,8 +546,7 @@ class Cdn_Environment {
 	 *
 	 * @return array The updated list of extensions with CDN-related rules.
 	 */
-	public function w3tc_browsercache_rules_section_extensions(
-			$extensions, $config, $section ) {
+	public function w3tc_browsercache_rules_section_extensions( $extensions, $config, $section ) {
 		if ( Util_Environment::is_nginx() ) {
 			$o          = new Cdn_Environment_Nginx( $config );
 			$extensions = $o->w3tc_browsercache_rules_section_extensions( $extensions, $section );

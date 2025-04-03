@@ -24,6 +24,7 @@ define( 'W3TC_CDN_HEADER_MIRRORING', 'mirroring' );
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  * phpcs:disable WordPress.WP.AlternativeFunctions
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class CdnEngine_Base {
 	/**
@@ -153,7 +154,7 @@ class CdnEngine_Base {
 	 * @throws \Exception If the method is not implemented.
 	 */
 	public function create_container() {
-		throw new \Exception( 'Not implemented.' );
+		throw new \Exception( \esc_html__( 'Not implemented.', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -560,11 +561,11 @@ class CdnEngine_Base {
 	public function _get_domain( $domains, $path ) {
 		$count = count( $domains );
 		if ( isset( $domains['http_default'] ) ) {
-			$count--;
+			--$count;
 		}
 
 		if ( isset( $domains['https_default'] ) ) {
-			$count--;
+			--$count;
 		}
 
 		if ( $count ) {

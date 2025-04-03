@@ -13,6 +13,7 @@ namespace W3TC;
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_RackSpace_Api_CloudFilesCdn {
 	/**
@@ -235,12 +236,18 @@ class Cdn_RackSpace_Api_CloudFilesCdn {
 		} else {
 			$response_json = @json_decode( $result['body'], true );
 			if ( is_null( $response_json ) ) {
-				throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
+				throw new \Exception(
+					sprintf(
+						// Translators: 1 Result body.
+						\esc_html__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						\wp_kses_post( $result['body'] )
+					)
+				);
 			}
 		}
 
 		if ( ! in_array( (int) $result['response']['code'], array( 200, 201, 202, 204 ), true ) ) {
-			throw new \Exception( $result['body'] );
+			throw new \Exception( \wp_kses_post( $result['body'] ) );
 		}
 
 		return array(
@@ -276,7 +283,15 @@ class Cdn_RackSpace_Api_CloudFilesCdn {
 				);
 			}
 
-			throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['response']['message'] );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response message.
+						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						$result['response']['message']
+					)
+				)
+			);
 		}
 
 		return array( 'auth_required' => false );

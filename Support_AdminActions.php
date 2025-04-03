@@ -56,13 +56,18 @@ class Support_AdminActions {
 		);
 
 		// Attach config files.
-		if ( $handle = opendir( W3TC_CONFIG_DIR ) ) {
-			while ( ( $entry = @readdir( $handle ) ) !== false ) {
+		$handle = opendir( W3TC_CONFIG_DIR );
+		if ( $handle ) {
+			$entry = @readdir( $handle );
+			while ( false !== $entry ) {
 				if ( '.' === $entry || '..' === $entry || 'index.html' === $entry ) {
+					$entry = @readdir( $handle );
 					continue;
 				}
 
 				$attach_file[] = W3TC_CONFIG_DIR . '/' . $entry;
+
+				$entry = @readdir( $handle );
 			}
 			closedir( $handle );
 		}

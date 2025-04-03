@@ -13,6 +13,8 @@ namespace W3TC;
  * Class Generic_Plugin_AdminNotices
  *
  * @since 2.7.5
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Generic_Plugin_AdminNotices {
 	/**

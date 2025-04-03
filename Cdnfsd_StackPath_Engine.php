@@ -46,7 +46,7 @@ class Cdnfsd_StackPath_Engine {
 	 */
 	public function flush_urls( $urls ) {
 		if ( empty( $this->api_key ) || empty( $this->zone_id ) ) {
-			throw new \Exception( __( 'API key not specified.', 'w3-total-cache' ) );
+			throw new \Exception( \esc_html__( 'API key not specified.', 'w3-total-cache' ) );
 		}
 
 		$api = Cdn_StackPath_Api::create( $this->api_key );
@@ -70,7 +70,7 @@ class Cdnfsd_StackPath_Engine {
 	 */
 	public function flush_all() {
 		if ( empty( $this->api_key ) || empty( $this->zone_id ) ) {
-			throw new \Exception( __( 'API key not specified.', 'w3-total-cache' ) );
+			throw new \Exception( \esc_html__( 'API key not specified.', 'w3-total-cache' ) );
 		}
 
 		$api = Cdn_StackPath_Api::create( $this->api_key );

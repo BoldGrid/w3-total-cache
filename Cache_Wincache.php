@@ -32,14 +32,14 @@ class Cache_Wincache extends Cache_Base {
 	 * time and group. It is used for storing data that is not already present in the cache.
 	 *
 	 * @param string $key    The unique key to identify the cached item.
-	 * @param mixed  $var    The value to be stored in the cache, passed by reference.
+	 * @param mixed  $value  The value to be stored in the cache, passed by reference.
 	 * @param int    $expire The expiration time in seconds. Default is 0 (no expiration).
 	 * @param string $group  The group to which the cache item belongs. Default is an empty string (no group).
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function add( $key, &$var, $expire = 0, $group = '' ) {
-		return $this->set( $key, $var, $expire, $group );
+	public function add( $key, &$value, $expire = 0, $group = '' ) {
+		return $this->set( $key, $value, $expire, $group );
 	}
 
 	/**
@@ -49,20 +49,20 @@ class Cache_Wincache extends Cache_Base {
 	 * and group. The value is serialized before storing to ensure it can handle complex data types.
 	 *
 	 * @param string $key    The unique key to identify the cached item.
-	 * @param mixed  $var    The value to be stored in the cache.
+	 * @param mixed  $value  The value to be stored in the cache.
 	 * @param int    $expire The expiration time in seconds. Default is 0 (no expiration).
 	 * @param string $group  The group to which the cache item belongs. Default is an empty string (no group).
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function set( $key, $var, $expire = 0, $group = '' ) {
-		if ( ! isset( $var['key_version'] ) ) {
-			$var['key_version'] = $this->_get_key_version( $group );
+	public function set( $key, $value, $expire = 0, $group = '' ) {
+		if ( ! isset( $value['key_version'] ) ) {
+			$value['key_version'] = $this->_get_key_version( $group );
 		}
 
 		$storage_key = $this->get_item_key( $key );
 
-		return wincache_ucache_set( $storage_key, serialize( $var ), $expire );
+		return wincache_ucache_set( $storage_key, serialize( $value ), $expire );
 	}
 
 	/**
@@ -124,15 +124,15 @@ class Cache_Wincache extends Cache_Base {
 	 * If the key does not exist, it returns false.
 	 *
 	 * @param string $key    The unique key to identify the cached item.
-	 * @param mixed  $var    The new value to be stored in the cache, passed by reference.
+	 * @param mixed  $value  The new value to be stored in the cache, passed by reference.
 	 * @param int    $expire The expiration time in seconds. Default is 0 (no expiration).
 	 * @param string $group  The group to which the cache item belongs. Default is an empty string (no group).
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function replace( $key, &$var, $expire = 0, $group = '' ) {
+	public function replace( $key, &$value, $expire = 0, $group = '' ) {
 		if ( $this->get( $key, $group ) !== false ) {
-			return $this->set( $key, $var, $expire, $group );
+			return $this->set( $key, $value, $expire, $group );
 		}
 
 		return false;
@@ -191,7 +191,7 @@ class Cache_Wincache extends Cache_Base {
 	 */
 	public function flush( $group = '' ) {
 		$this->_get_key_version( $group ); // initialize $this->_key_version.
-		$this->_key_version[ $group ]++;
+		++$this->_key_version[ $group ];
 		$this->_set_key_version( $this->_key_version[ $group ], $group );
 		return true;
 	}

@@ -55,11 +55,11 @@ class Enterprise_SnsBase {
 				$credentials = \Aws\Credentials\CredentialProvider::defaultProvider();
 			} else {
 				if ( empty( $this->_api_key ) ) {
-					throw new \Exception( 'API Key is not configured' );
+					throw new \Exception( \esc_html__( 'API Key is not configured.', 'w3-total-cache' ) );
 				}
 
 				if ( empty( $this->_api_secret ) ) {
-					throw new \Exception( 'API Secret is not configured' );
+					throw new \Exception( \esc_html__( 'API Secret is not configured.', 'w3-total-cache' ) );
 				}
 
 				$credentials = new \Aws\Credentials\Credentials( $this->_api_key, $this->_api_secret );

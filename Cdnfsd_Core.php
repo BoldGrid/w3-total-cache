@@ -101,7 +101,15 @@ class Cdnfsd_Core {
 					break;
 
 				default:
-					throw new \Exception( esc_html( __( 'Unknown engine', 'w3-total-cache' ) . ' ' . $engine ) );
+					throw new \Exception(
+						\esc_html(
+							sprintf(
+								// Translators: 1 Engine name.
+								\__( 'Unknown engine: %1$s', 'w3-total-cache' ),
+								$engine
+							)
+						)
+					);
 			}
 		}
 

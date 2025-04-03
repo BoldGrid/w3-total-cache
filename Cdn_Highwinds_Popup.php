@@ -11,6 +11,7 @@ namespace W3TC;
  * Class Cdn_Highwinds_Popup
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_Highwinds_Popup {
 
@@ -195,7 +196,16 @@ class Cdn_Highwinds_Popup {
 
 				$origin_id = $origin_response['id'];
 			} catch ( \Exception $ex ) {
-				throw new \Exception( 'Can\'t create origin ' . $home_domain . ': ' . $ex->getMessage() );
+				throw new \Exception(
+					esc_html(
+						sprintf(
+							// Translators: 1 Home domain, 2 Error message.
+							__( 'Can\'t create origin %1$s: %2$s', 'w3-total-cache' ),
+							$home_domain,
+							$ex->getMessage()
+						)
+					)
+				);
 			}
 		}
 
@@ -209,7 +219,15 @@ class Cdn_Highwinds_Popup {
 			);
 			$host          = $host_response['hashCode'];
 		} catch ( \Exception $ex ) {
-			throw new \Exception( 'Can\'t create new host: ' . $ex->getMessage() );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Error message.
+						\__( 'Can\'t create new host: %1$s', 'w3-total-cache' ),
+						$ex->getMessage()
+					)
+				)
+			);
 		}
 
 		// configure host.
@@ -244,7 +262,15 @@ class Cdn_Highwinds_Popup {
 		try {
 			$configuration_response = $api->configure_scope_set( $host, $scope_id, $configuration );
 		} catch ( \Exception $ex ) {
-			throw new \Exception( 'Cant\'t configure host: ' . $ex->getMessage() );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Error message.
+						\__( 'Cant\'t configure host: %1$s', 'w3-total-cache' ),
+						$ex->getMessage()
+					)
+				)
+			);
 		}
 
 		return $host;

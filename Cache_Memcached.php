@@ -16,6 +16,7 @@ namespace W3TC;
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound
  */
 class Cache_Memcached extends Cache_Base {
 	/**
@@ -133,29 +134,29 @@ class Cache_Memcached extends Cache_Base {
 	 * Adds a new key-value pair to the Memcached server, or updates it if it already exists.
 	 *
 	 * @param string $key    The key under which the data will be stored.
-	 * @param mixed  $var    The data to store.
+	 * @param mixed  $value  The data to store.
 	 * @param int    $expire The expiration time in seconds (default is 0 for no expiration).
 	 * @param string $group  The group to which the item belongs (default is an empty string).
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function add( $key, &$var, $expire = 0, $group = '' ) {
-		return $this->set( $key, $var, $expire, $group );
+	public function add( $key, &$value, $expire = 0, $group = '' ) {
+		return $this->set( $key, $value, $expire, $group );
 	}
 
 	/**
 	 * Sets a key-value pair in the Memcached server, or updates it if it already exists.
 	 *
 	 * @param string $key    The key under which the data will be stored.
-	 * @param mixed  $var    The data to store.
+	 * @param mixed  $value  The data to store.
 	 * @param int    $expire The expiration time in seconds (default is 0 for no expiration).
 	 * @param string $group  The group to which the item belongs (default is an empty string).
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function set( $key, $var, $expire = 0, $group = '' ) {
-		if ( ! isset( $var['key_version'] ) ) {
-			$var['key_version'] = $this->_get_key_version( $group );
+	public function set( $key, $value, $expire = 0, $group = '' ) {
+		if ( ! isset( $value['key_version'] ) ) {
+			$value['key_version'] = $this->_get_key_version( $group );
 		}
 
 		$storage_key = $this->get_item_key( $key );
@@ -219,21 +220,21 @@ class Cache_Memcached extends Cache_Base {
 	 * Replaces an existing key-value pair in Memcached if it already exists.
 	 *
 	 * @param string $key    The key under which the data will be stored.
-	 * @param mixed  $var    The data to store.
+	 * @param mixed  $value  The data to store.
 	 * @param int    $expire The expiration time in seconds (default is 0 for no expiration).
 	 * @param string $group  The group to which the item belongs (default is an empty string).
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function replace( $key, &$var, $expire = 0, $group = '' ) {
-		return $this->set( $key, $var, $expire, $group );
+	public function replace( $key, &$value, $expire = 0, $group = '' ) {
+		return $this->set( $key, $value, $expire, $group );
 	}
 
 	/**
 	 * Deletes a key-value pair from Memcached.
 	 *
-	 * @param string $key    The key to delete from the Memcached server.
-	 * @param string $group  The group the item belongs to (default is an empty string).
+	 * @param string $key   The key to delete from the Memcached server.
+	 * @param string $group The group the item belongs to (default is an empty string).
 	 *
 	 * @return bool True on success, false on failure.
 	 */
@@ -450,7 +451,7 @@ class Cache_Memcached extends Cache_Base {
 						continue;
 					}
 
-					$n++;
+					++$n;
 					if ( 0 === $n % 10 ) {
 						$size['timeout_occurred'] = ( time() > $timeout_time );
 						if ( $size['timeout_occurred'] ) {
@@ -463,7 +464,7 @@ class Cache_Memcached extends Cache_Base {
 
 					if ( substr( $key, 0, strlen( $key_prefix ) ) === $key_prefix ) {
 						$size['bytes'] += $bytes;
-						$size['items']++;
+						++$size['items'];
 					}
 				}
 			}

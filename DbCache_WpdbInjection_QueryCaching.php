@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
@@ -153,7 +154,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$group             = '';
 		$flush_after_query = false;
 
-		$this->query_total++;
+		++$this->query_total;
 
 		$caching = $this->_can_cache( $query, $reject_reason );
 
@@ -197,7 +198,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 		if ( is_array( $data ) ) {
 			$is_cache_hit = true;
-			$this->query_hits++;
+			++$this->query_hits;
 
 			$this->wpdb_mixin->last_error  = $data['last_error'];
 			$this->wpdb_mixin->last_query  = $data['last_query'];
@@ -206,7 +207,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			$this->wpdb_mixin->num_rows    = $data['num_rows'];
 			$return_val                    = $data['return_val'];
 		} else {
-			$this->query_misses++;
+			++$this->query_misses;
 
 			$this->wpdb_mixin->timer_start();
 			$return_val = $this->next_injection->query( $query );
@@ -416,7 +417,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$flush_groups = $this->_get_flush_groups( $group, $extras );
 		$v            = true;
 
-		$this->cache_flushes++;
+		++$this->cache_flushes;
 
 		foreach ( $flush_groups as $f_group => $nothing ) {
 			if ( $this->debug ) {
@@ -916,7 +917,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		}
 
 		if ( $this->log_filehandle ) {
-			fclose( $this->log_filehandle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+			fclose( $this->log_filehandle );
 			$this->log_filehandle = false;
 		}
 		return $strings;
@@ -947,7 +948,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	private function log_query( $line ) {
 		if ( ! $this->log_filehandle ) {
 			$filename             = Util_Debug::log_filename( 'dbcache-queries' );
-			$this->log_filehandle = fopen( $filename, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+			$this->log_filehandle = fopen( $filename, 'a' );
 		}
 
 		fputcsv( $this->log_filehandle, $line, "\t" );

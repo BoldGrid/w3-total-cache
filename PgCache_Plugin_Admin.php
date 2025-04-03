@@ -75,7 +75,6 @@ class PgCache_Plugin_Admin {
 		} else {
 			$this->cleanup_local();
 		}
-
 	}
 
 	/**

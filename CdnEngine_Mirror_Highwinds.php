@@ -83,7 +83,7 @@ class CdnEngine_Mirror_Highwinds extends CdnEngine_Mirror {
 				'',
 				'',
 				W3TC_CDN_RESULT_HALT,
-				__( 'Failed to purge: ', 'w3-total-cache' ) . $e->getMessage()
+				\__( 'Failed to purge: ', 'w3-total-cache' ) . $e->getMessage()
 			);
 		}
 
@@ -119,7 +119,7 @@ class CdnEngine_Mirror_Highwinds extends CdnEngine_Mirror {
 				'',
 				'',
 				W3TC_CDN_RESULT_HALT,
-				__( 'Failed to purge all: ', 'w3-total-cache' ) . $e->getMessage()
+				\__( 'Failed to purge all: ', 'w3-total-cache' ) . $e->getMessage()
 			);
 		}
 
@@ -154,17 +154,17 @@ class CdnEngine_Mirror_Highwinds extends CdnEngine_Mirror {
 			$end_date
 		);
 		if ( ! isset( $response['series'] ) || ! is_array( $response['series'] ) || count( $response['series'] ) < 1 ) {
-			throw new \Exception( 'cant parse response' );
+			throw new \Exception( \esc_html__( 'Cant parse response.', 'w3-total-cache' ) );
 		}
 
 		$series = $response['series'][0];
 		if ( ! isset( $series['metrics'] ) || ! is_array( $series['metrics'] ) ) {
-			throw new \Exception( 'cant parse response - no metrics' );
+			throw new \Exception( \esc_html__( 'Cant parse response - no metrics.', 'w3-total-cache' ) );
 		}
 
 		$metrics = $series['metrics'];
 		if ( ! isset( $series['metrics'] ) || ! is_array( $series['data'] ) ) {
-			throw new \Exception( 'cant parse response - no metrics' );
+			throw new \Exception( \esc_html__( 'Cant parse response - no metrics.', 'w3-total-cache' ) );
 		}
 
 		$output = array();
@@ -238,6 +238,6 @@ class CdnEngine_Mirror_Highwinds extends CdnEngine_Mirror {
 			}
 		}
 
-		throw new Exception( 'scope CDN hasnt been created' );
+		throw new Exception( \esc_html__( 'Scope CDN hasnt been created.', 'w3-total-cache' ) );
 	}
 }

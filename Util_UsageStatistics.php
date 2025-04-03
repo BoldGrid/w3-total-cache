@@ -90,12 +90,14 @@ class Util_UsageStatistics {
 	 *
 	 * If either property is missing or the denominator is zero, a fallback value is returned.
 	 *
-	 * @param array $a {
+	 * @param array      $a {
 	 *     The input array containing the properties.
 	 *
 	 *     @type string|int $property1 The key for the numerator value.
 	 *     @type string|int $property2 The key for the denominator value.
 	 * }
+	 * @param string|int $property1 The key for the numerator value.
+	 * @param string|int $property2 The key for the denominator value.
 	 *
 	 * @return string The calculated percentage as a string (e.g., '75 %'), 'n/a' if properties
 	 *                are missing, or '0 %' if $a[$property2] is 0.
@@ -150,7 +152,7 @@ class Util_UsageStatistics {
 			$item_value = self::v3( $i, $property );
 			if ( ! empty( $item_value ) ) {
 				$v += $item_value;
-				$count++;
+				++$count;
 			}
 		}
 		return ( $count <= 0 ? 0 : $v / $count );

@@ -158,13 +158,16 @@ class Util_File {
 		$dir = file_exists( $path ) ? opendir( $path ) : false;
 
 		if ( $dir ) {
-			while ( ( $entry = @readdir( $dir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$entry = @readdir( $dir );
+			while ( false !== $entry ) {
 				if ( '.' === $entry || '..' === $entry ) {
+					$entry = @readdir( $dir );
 					continue;
 				}
 
 				foreach ( $exclude as $mask ) {
 					if ( fnmatch( $mask, basename( $entry ) ) ) {
+						$entry = @readdir( $dir );
 						continue 2;
 					}
 				}
@@ -176,6 +179,8 @@ class Util_File {
 				} else {
 					@unlink( $full_path );
 				}
+
+				$entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );
@@ -374,18 +379,17 @@ class Util_File {
 					$filegroup = $filegroup['name'];
 				}
 			}
-		} else {
-			if ( function_exists( 'getmyuid' ) && function_exists( 'getmygid' ) ) {
-				$fileowner = @getmyuid();
-				$filegroup = @getmygid();
-				if ( function_exists( 'posix_getpwuid' ) && function_exists( 'posix_getgrgid' ) ) {
-					$fileowner = @posix_getpwuid( $fileowner );
-					$fileowner = $fileowner['name'];
-					$filegroup = @posix_getgrgid( $filegroup );
-					$filegroup = $filegroup['name'];
-				}
+		} elseif ( function_exists( 'getmyuid' ) && function_exists( 'getmygid' ) ) {
+			$fileowner = @getmyuid();
+			$filegroup = @getmygid();
+			if ( function_exists( 'posix_getpwuid' ) && function_exists( 'posix_getgrgid' ) ) {
+				$fileowner = @posix_getpwuid( $fileowner );
+				$fileowner = $fileowner['name'];
+				$filegroup = @posix_getgrgid( $filegroup );
+				$filegroup = $filegroup['name'];
 			}
 		}
+
 		return $fileowner . ':' . $filegroup;
 	}
 
@@ -404,7 +408,16 @@ class Util_File {
 				$e           = error_get_last();
 				$description = ( isset( $e['message'] ) ? $e['message'] : '' );
 
-				throw new \Exception( 'Can\'t create folder <strong>' . W3TC_CACHE_TMP_DIR . '</strong>: ' . $description );
+				throw new \Exception(
+					\wp_kses_post(
+						sprintf(
+							// Translators: 1 Cache TMP dir path surround by HTML strong tag, 2 Description.
+							\__( 'Can\'t create folder %1$s: %2$s', 'w3-total-cache' ),
+							'<strong>' . W3TC_CACHE_TMP_DIR . '</strong>',
+							$description
+						)
+					)
+				);
 			}
 		}
 

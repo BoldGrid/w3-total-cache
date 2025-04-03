@@ -171,7 +171,7 @@ class Extensions_Plugin_Admin {
 				if ( is_array( $actions_to_call ) ) {
 					add_action(
 						$hook,
-						function() use ( $actions_to_call ) {
+						function () use ( $actions_to_call ) {
 							foreach ( $actions_to_call as $action ) {
 								do_action( $action );
 							}
@@ -186,7 +186,7 @@ class Extensions_Plugin_Admin {
 				if ( is_array( $filters_to_call ) ) {
 					add_filter(
 						$hook,
-						function( $v ) use ( $filters_to_call ) {
+						function ( $v ) use ( $filters_to_call ) {
 							foreach ( $filters_to_call as $filter ) {
 								$v = apply_filters( $filter, $v );
 							}

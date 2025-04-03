@@ -11,6 +11,7 @@ namespace W3TC;
  * Class Minify_Environment
  *
  * phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class Minify_Environment {
 	/**
@@ -276,7 +277,10 @@ class Minify_Environment {
 				'Please ask your server administrator for assistance. Also refer to <a href="' .
 				admin_url( 'admin.php?page=w3tc_install' ) . '">the install page</a>  for the rules for your server.';
 
-			throw new Util_Environment_Exception( $error, $tech_message );
+			throw new Util_Environment_Exception(
+				esc_html( $error ),
+				esc_html( $tech_message )
+			);
 		}
 	}
 
@@ -302,12 +306,10 @@ class Minify_Environment {
 
 			if ( $is_ok ) {
 				$result = 'ok';
+			} elseif ( is_wp_error( $response ) ) {
+				$result = $response->get_error_message();
 			} else {
-				if ( is_wp_error( $response ) ) {
-					$result = $response->get_error_message();
-				} else {
-					$result = '<pre>' . print_r( $response['response'], true ) . '</pre>'; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-				}
+				$result = '<pre>' . print_r( $response['response'], true ) . '</pre>'; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 			}
 
 			set_site_transient( $key, $result, 30 );
@@ -600,7 +602,6 @@ class Minify_Environment {
 			W3TC_MARKER_BEGIN_MINIFY_CACHE,
 			W3TC_MARKER_END_MINIFY_CACHE
 		);
-
 	}
 
 	/**

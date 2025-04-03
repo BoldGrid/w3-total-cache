@@ -252,11 +252,11 @@ class Minify_Page extends Base_Page_Settings {
 					// Handle category.php.
 					case ( 'category' === $template ):
 						$category_ids = get_terms(
-							'category',
 							array(
-								'orderby' => 'id',
-								'number'  => 1,
-								'fields'  => 'ids',
+								'taxonomy' => 'category',
+								'orderby'  => 'id',
+								'number'   => 1,
+								'fields'   => 'ids',
 							)
 						);
 
@@ -267,10 +267,17 @@ class Minify_Page extends Base_Page_Settings {
 
 					// Handle tag.php.
 					case ( 'tag' === $template ):
-						$term_ids = get_terms( 'post_tag', 'fields=ids' );
+						$term_ids = get_terms(
+							array(
+								'taxonomy' => 'post_tag',
+								'fields'   => 'ids',
+							)
+						);
+
 						if ( is_array( $term_ids ) && count( $term_ids ) ) {
 							$link = get_term_link( $term_ids[0], 'post_tag' );
 						}
+
 						break;
 
 					// Handle taxonomy.php.
@@ -297,11 +304,12 @@ class Minify_Page extends Base_Page_Settings {
 
 						if ( $taxonomy ) {
 							$terms = get_terms(
-								$taxonomy,
 								array(
-									'number' => 1,
+									'taxonomy' => $taxonomy,
+									'number'   => 1,
 								)
 							);
+
 							if ( is_array( $terms ) && count( $terms ) ) {
 								$link = get_term_link( $terms[0], $taxonomy );
 							}
@@ -407,14 +415,16 @@ class Minify_Page extends Base_Page_Settings {
 					// Handle taxonomy-taxonomy.php.
 					case preg_match( '~^taxonomy-(.+)$~', $template, $matches ):
 						$terms = get_terms(
-							$matches[1],
 							array(
-								'number' => 1,
+								'taxonomy' => $matches[1],
+								'number'   => 1,
 							)
 						);
+
 						if ( is_array( $terms ) && count( $terms ) ) {
 							$link = get_term_link( $terms[0], $matches[1] );
 						}
+
 						break;
 
 					// Handle MIME_type.php.
@@ -566,7 +576,7 @@ class Minify_Page extends Base_Page_Settings {
 					$all_files[ $file ] = 0;
 				}
 
-				$all_files[ $file ]++;
+				++$all_files[ $file ];
 			}
 		}
 

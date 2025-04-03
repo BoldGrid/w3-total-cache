@@ -13,6 +13,7 @@ namespace W3TC;
  * W3 FragmentCache plugin
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_FragmentCache_Plugin {
 	/**
@@ -140,14 +141,14 @@ class Extension_FragmentCache_Plugin {
 	/**
 	 * Flushes a specific fragment cache group.
 	 *
-	 * @param string $group  The name of the cache group.
-	 * @param bool   $global Whether to flush globally or locally.
+	 * @param string $group       The name of the cache group.
+	 * @param bool   $global_flag Whether to flush globally or locally.
 	 *
 	 * @return void
 	 */
-	public function w3tc_flush_fragmentcache_group( $group, $global = false ) {
+	public function w3tc_flush_fragmentcache_group( $group, $global_flag = false ) {
 		$cache = Dispatcher::component( 'Extension_FragmentCache_WpObjectCache' );
-		$cache->flush_group( $group, $global );
+		$cache->flush_group( $group, $global_flag );
 	}
 
 	/**

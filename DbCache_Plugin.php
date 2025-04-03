@@ -3,8 +3,6 @@
  * File: DbCache_Plugin.php
  *
  * @package W3TC
- *
- * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 
 namespace W3TC;
@@ -13,6 +11,9 @@ namespace W3TC;
  * Class DbCache_Plugin
  *
  * W3 DbCache plugin
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class DbCache_Plugin {
 	/**

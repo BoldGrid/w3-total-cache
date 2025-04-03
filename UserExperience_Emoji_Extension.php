@@ -52,7 +52,7 @@ class UserExperience_Emoji_Extension {
 
 		return array_filter(
 			$plugins,
-			function( $v ) {
+			function ( $v ) {
 				return 'wpemoji' !== $v;
 			}
 		);
@@ -77,7 +77,7 @@ class UserExperience_Emoji_Extension {
 		// remove s.w.org dns-prefetch used by emojis.
 		return array_filter(
 			$urls,
-			function( $v ) {
+			function ( $v ) {
 				return ( 'https://s.w.org/' !== substr( $v, 0, 16 ) );
 			}
 		);

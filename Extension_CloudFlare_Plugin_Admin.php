@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_CloudFlare_Plugin_Admin {
 	/**
@@ -57,7 +58,7 @@ class Extension_CloudFlare_Plugin_Admin {
 			'author'          => 'W3 EDGE',
 			'description'     => wp_kses(
 				sprintf(
-					// translators:	1 opening HTML a tag to Cloudflare signup page with affiliate association, 2 closing HTML a tag,
+					// translators: 1 opening HTML a tag to Cloudflare signup page with affiliate association, 2 closing HTML a tag,
 					// translators: 3 opening HTML abbr tag, 4 closing HTML abbr tag,
 					// translators: 5 opening HTML a tag to Cloudflare account page, 6 closing HTML a tag,
 					// translators: 7 opening HTML a tag to Cloudflare help page, 8 closing HTML a tag.

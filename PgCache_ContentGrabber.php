@@ -720,12 +720,10 @@ class PgCache_ContentGrabber {
 				$this->process_status      = 'miss_logged_in';
 				return false;
 			}
-		} else {
-			if ( ! $this->_check_logged_in_role_allowed() ) {
-				$this->cache_reject_reason = 'Rejected user role is logged in';
-				$this->process_status      = 'miss_logged_in';
-				return false;
-			}
+		} elseif ( ! $this->_check_logged_in_role_allowed() ) {
+			$this->cache_reject_reason = 'Rejected user role is logged in';
+			$this->process_status      = 'miss_logged_in';
+			return false;
 		}
 
 		return true;
@@ -1076,7 +1074,7 @@ class PgCache_ContentGrabber {
 
 		$accept_uri = array_filter(
 			$accept_uri,
-			function( $val ) {
+			function ( $val ) {
 				return '' !== $val;
 			}
 		);

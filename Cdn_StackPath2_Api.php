@@ -14,6 +14,7 @@ namespace W3TC;
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_StackPath2_Api {
 	/**
@@ -105,11 +106,11 @@ class Cdn_StackPath2_Api {
 
 		$r = $this->_decode_response( $result );
 		if ( $r['auth_required'] ) {
-			throw new \Exception( 'Authentication failed' );
+			throw new \Exception( \esc_html__( 'Authentication failed', 'w3-total-cache' ) );
 		}
 
 		if ( ! isset( $r['response_json']['access_token'] ) ) {
-			throw new \Exception( 'Unexpected authentication response: access token not found' );
+			throw new \Exception( \esc_html__( 'Unexpected authentication response: access token not found', 'w3-total-cache' ) );
 		}
 
 		$this->access_token = $r['response_json']['access_token'];
@@ -266,12 +267,20 @@ class Cdn_StackPath2_Api {
 	 */
 	private function _decode_response( $result ) {
 		if ( is_wp_error( $result ) ) {
-			throw new \Exception( 'Failed to reach API endpoint' );
+			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
 		}
 
 		$response_json = @json_decode( $result['body'], true );
 		if ( is_null( $response_json ) ) {
-			throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Result body.
+						\__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+						$result['body']
+					)
+				)
+			);
 		}
 
 		if ( '401' === $result['response']['code'] ) {
@@ -283,9 +292,18 @@ class Cdn_StackPath2_Api {
 
 		if ( '200' !== $result['response']['code'] && '201' !== $result['response']['code'] ) {
 			if ( isset( $response_json['message'] ) ) {
-				throw new \Exception( $response_json['message'] );
+				throw new \Exception( \esc_html( $response_json['message'] ) );
 			} else {
-				throw new \Exception( 'response code ' . $result['response']['code'] . ' with ' . $result['body'] );
+				throw new \Exception(
+					\esc_html(
+						sprintf(
+							// Translators: 1 Response status code, 2 Response body.
+							\__( 'Response code %1$s with %2$s.', 'w3-total-cache' ),
+							$result['response']['code'],
+							$result['body']
+						)
+					)
+				);
 			}
 		}
 

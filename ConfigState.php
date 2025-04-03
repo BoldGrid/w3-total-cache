@@ -106,14 +106,14 @@ class ConfigState {
 	/**
 	 * Retrieves a value from the configuration state by key.
 	 *
-	 * @param string $key     The key to retrieve.
-	 * @param mixed  $default The default value to return if the key is not set.
+	 * @param string $key           The key to retrieve.
+	 * @param mixed  $default_value The default value to return if the key is not set.
 	 *
 	 * @return mixed The value associated with the key, or the default value.
 	 */
-	public function get( $key, $default ) {
+	public function get( $key, $default_value ) {
 		if ( ! isset( $this->_data[ $key ] ) ) {
-			return $default;
+			return $default_value;
 		}
 
 		return $this->_data[ $key ];
@@ -122,14 +122,14 @@ class ConfigState {
 	/**
 	 * Retrieves a string value from the configuration state.
 	 *
-	 * @param string $key     The key to retrieve.
-	 * @param string $default The default string to return if the key is not set. Default is an empty string.
-	 * @param bool   $trim    Whether to trim the returned string. Default is true.
+	 * @param string $key           The key to retrieve.
+	 * @param string $default_value The default string to return if the key is not set. Default is an empty string.
+	 * @param bool   $trim          Whether to trim the returned string. Default is true.
 	 *
 	 * @return string The string value associated with the key, or the default string.
 	 */
-	public function get_string( $key, $default = '', $trim = true ) {
-		$value = (string) $this->get( $key, $default );
+	public function get_string( $key, $default_value = '', $trim = true ) {
+		$value = (string) $this->get( $key, $default_value );
 
 		return $trim ? trim( $value ) : $value;
 	}
@@ -137,25 +137,25 @@ class ConfigState {
 	/**
 	 * Retrieves an integer value from the configuration state.
 	 *
-	 * @param string $key     The key to retrieve.
-	 * @param int    $default The default integer to return if the key is not set. Default is 0.
+	 * @param string $key           The key to retrieve.
+	 * @param int    $default_value The default integer to return if the key is not set. Default is 0.
 	 *
 	 * @return int The integer value associated with the key, or the default integer.
 	 */
-	public function get_integer( $key, $default = 0 ) {
-		return (int) $this->get( $key, $default );
+	public function get_integer( $key, $default_value = 0 ) {
+		return (int) $this->get( $key, $default_value );
 	}
 
 	/**
 	 * Retrieves a boolean value from the configuration state.
 	 *
-	 * @param string $key     The key to retrieve.
-	 * @param bool   $default The default boolean to return if the key is not set. Default is false.
+	 * @param string $key           The key to retrieve.
+	 * @param bool   $default_value The default boolean to return if the key is not set. Default is false.
 	 *
 	 * @return bool The boolean value associated with the key, or the default boolean.
 	 */
-	public function get_boolean( $key, $default = false ) {
-		$v = $this->get( $key, $default );
+	public function get_boolean( $key, $default_value = false ) {
+		$v = $this->get( $key, $default_value );
 		if ( 'false' === $v || empty( $v ) ) {
 			$v = false;
 		}
@@ -166,13 +166,13 @@ class ConfigState {
 	/**
 	 * Retrieves an array value from the configuration state.
 	 *
-	 * @param string $key     The key to retrieve.
-	 * @param array  $default The default array to return if the key is not set. Default is an empty array.
+	 * @param string $key           The key to retrieve.
+	 * @param array  $default_value The default array to return if the key is not set. Default is an empty array.
 	 *
 	 * @return array The array value associated with the key, or the default array.
 	 */
-	public function get_array( $key, $default = array() ) {
-		return (array) $this->get( $key, $default );
+	public function get_array( $key, $default_value = array() ) {
+		return (array) $this->get( $key, $default_value );
 	}
 
 	/**

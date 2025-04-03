@@ -69,7 +69,15 @@ class UsageStatistics_Source_ObjectCacheLog {
 		$log_filename = Util_Debug::log_filename( 'objectcache-calls' );
 		$h            = @fopen( $log_filename, 'rb' );
 		if ( ! $h ) {
-			throw new \Exception( 'Failed to open log file' . $log_filename );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Log filename.
+						\__( 'Failed to open log file %1$s.', 'w3-total-cache' ),
+						$log_filename
+					)
+				)
+			);
 		}
 
 		fseek( $h, 0, SEEK_END );
@@ -108,7 +116,7 @@ class UsageStatistics_Source_ObjectCacheLog {
 
 		usort(
 			$output,
-			function( $a, $b ) {
+			function ( $a, $b ) {
 				return (int) ( $b[ $this->sort_column ] ) - (int) ( $a[ $this->sort_column ] );
 			}
 		);
@@ -201,14 +209,14 @@ class UsageStatistics_Source_ObjectCacheLog {
 		}
 
 		if ( 'get' === $op ) {
-			$this->by_group[ $group ]['count_total']++;
-			$this->by_group[ $group ]['count_get_total']++;
+			++$this->by_group[ $group ]['count_total'];
+			++$this->by_group[ $group ]['count_get_total'];
 			if ( 'from persistent cache' === $reason ) {
-				$this->by_group[ $group ]['count_get_hit']++;
+				++$this->by_group[ $group ]['count_get_hit'];
 			}
 		} elseif ( 'set' === $op ) {
-			$this->by_group[ $group ]['count_total']++;
-			$this->by_group[ $group ]['count_set']++;
+			++$this->by_group[ $group ]['count_total'];
+			++$this->by_group[ $group ]['count_set'];
 		}
 
 		$this->by_group[ $group ]['sum_size']    += $size;

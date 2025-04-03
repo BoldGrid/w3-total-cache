@@ -59,14 +59,14 @@ class Extension_FragmentCache_Core {
 	 *
 	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 	 *
-	 * @param string $group     Name of the group to register.
-	 * @param array  $actions   List of actions associated with the group.
-	 * @param int    $expiration Expiration time for the group in seconds.
-	 * @param bool   $global    Whether the group is global.
+	 * @param string $group       Name of the group to register.
+	 * @param array  $actions     List of actions associated with the group.
+	 * @param int    $expiration  Expiration time for the group in seconds.
+	 * @param bool   $global_flag Whether the group is global.
 	 *
 	 * @return void
 	 */
-	private function _register_group( $group, $actions, $expiration, $global ) {
+	private function _register_group( $group, $actions, $expiration, $global_flag ) {
 		if ( empty( $group ) ) {
 			return;
 		}
@@ -79,7 +79,7 @@ class Extension_FragmentCache_Core {
 		$this->_fragment_groups[ $group ] = array(
 			'actions'    => $actions,
 			'expiration' => $expiration,
-			'global'     => $global,
+			'global'     => $global_flag,
 		);
 
 		foreach ( $actions as $action ) {

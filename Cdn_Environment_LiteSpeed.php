@@ -11,6 +11,8 @@ namespace W3TC;
  * Class Cdn_Environment_LiteSpeed
  *
  * CDN rules generation for LiteSpeed
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_Environment_LiteSpeed {
 	/**
