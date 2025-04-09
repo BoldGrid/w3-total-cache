@@ -566,7 +566,7 @@ class Cache_Redis extends Cache_Base {
 
 				$accessor->select( $this->_dbid );
 			} catch ( \Exception $e ) {
-				error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				$accessor = null;
 			}
 
