@@ -1395,7 +1395,6 @@ class PgCache_ContentGrabber {
 					$cookie = trim( $cookie );
 					if ( ! empty( $cookie ) ) {
 						$cookie = str_replace( '+', ' ', $cookie );
-						$cookie = Util_Environment::preg_quote( $cookie );
 						if ( strpos( $cookie, '=' ) === false ) {
 							$cookie .= '=.*';
 						}
