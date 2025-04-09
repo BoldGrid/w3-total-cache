@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class Cdn_LimeLight_Popup
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_LimeLight_Popup {
 	/**

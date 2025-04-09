@@ -166,7 +166,7 @@ class UserExperience_DeferScripts_Mutator {
 		return array_values(
 			array_filter(
 				$script_tags,
-				function( $i ) {
+				function ( $i ) {
 					return ! preg_match( '~\sdata-lazy="w3tc"\s~', $i );
 				}
 			)

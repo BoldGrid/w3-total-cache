@@ -67,7 +67,7 @@ class DbCache_WpdbLegacy extends DbCache_WpdbBase {
 
 		// cant force empty parameter list due to wp requirements.
 		if ( ! is_array( $processors ) ) {
-			throw new Exception( 'called incorrectly, use instance()' );
+			throw new Exception( esc_html__( 'Called incorrectly, use instance().', 'w3-total-cache' ) );
 		}
 
 		$this->processors              = $processors;
@@ -96,7 +96,6 @@ class DbCache_WpdbLegacy extends DbCache_WpdbBase {
 
 		add_filter( 'w3tc_footer_comment', array( $o, 'w3tc_footer_comment' ) );
 		add_action( 'w3tc_usage_statistics_of_request', array( $o, 'w3tc_usage_statistics_of_request' ), 10, 1 );
-
 	}
 
 	/**

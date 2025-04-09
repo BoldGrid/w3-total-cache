@@ -156,7 +156,7 @@ class Util_PageUrls {
 
 			if ( $post && $post_pages_number > 0 ) {
 				global $wp_rewrite;
-				$post_pages_number++;
+				++$post_pages_number;
 
 				for ( $pagenum = 2; $pagenum <= $post_pages_number; $pagenum++ ) {
 					if ( 'page' === get_option( 'show_on_front' ) && (int) get_option( 'page_on_front' ) === $post->ID ) {
@@ -271,7 +271,6 @@ class Util_PageUrls {
 		}
 
 		return $post_terms_urls[ $key ];
-
 	}
 
 	/**

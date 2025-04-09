@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class Extension_NewRelic_Popup
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_NewRelic_Popup {
 	/**

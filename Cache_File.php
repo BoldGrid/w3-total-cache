@@ -93,13 +93,11 @@ class Cache_File extends Cache_Base {
 
 		if ( isset( $config['flush_dir'] ) ) {
 			$this->_flush_dir = $config['flush_dir'];
+		} elseif ( $config['blog_id'] <= 0 && ! isset( $config['cache_dir'] ) ) {
+			// Clear whole section if we operate on master cache and in a mode when cache_dir not strictly specified.
+			$this->_flush_dir = Util_Environment::cache_dir( $config['section'] );
 		} else {
-			if ( $config['blog_id'] <= 0 && ! isset( $config['cache_dir'] ) ) {
-				// Clear whole section if we operate on master cache and in a mode when cache_dir not strictly specified.
-				$this->_flush_dir = Util_Environment::cache_dir( $config['section'] );
-			} else {
-				$this->_flush_dir = $this->_cache_dir;
-			}
+			$this->_flush_dir = $this->_cache_dir;
 		}
 
 		if ( isset( $config['use_wp_hash'] ) && $config['use_wp_hash'] ) {
@@ -114,15 +112,15 @@ class Cache_File extends Cache_Base {
 	 * added with the specified expiration time.
 	 *
 	 * @param string $key    The cache key.
-	 * @param mixed  $var    The variable to store in the cache.
+	 * @param mixed  $value  The variable to store in the cache.
 	 * @param int    $expire Optional. Time in seconds until the cache entry expires. Default is 0 (no expiration).
 	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return bool True if the value was added, false if it already exists or on failure.
 	 */
-	public function add( $key, &$var, $expire = 0, $group = '' ) {
+	public function add( $key, &$value, $expire = 0, $group = '' ) {
 		if ( $this->get( $key, $group ) === false ) {
-			return $this->set( $key, $var, $expire, $group );
+			return $this->set( $key, $value, $expire, $group );
 		}
 
 		return false;
@@ -266,15 +264,15 @@ class Cache_File extends Cache_Base {
 	 * Updates the cache entry for the specified key and group if it already exists. If the key does not exist, no action is taken.
 	 *
 	 * @param string $key    The cache key.
-	 * @param mixed  $var    The variable to store in the cache.
+	 * @param mixed  $value  The variable to store in the cache.
 	 * @param int    $expire Optional. Time in seconds until the cache entry expires. Default is 0 (no expiration).
 	 * @param string $group  Optional. The group to which the cache belongs. Default is an empty string.
 	 *
 	 * @return bool True if the value was replaced, false otherwise.
 	 */
-	public function replace( $key, &$var, $expire = 0, $group = '' ) {
+	public function replace( $key, &$value, $expire = 0, $group = '' ) {
 		if ( false !== $this->get( $key, $group ) ) {
-			return $this->set( $key, $var, $expire, $group );
+			return $this->set( $key, $value, $expire, $group );
 		}
 
 		return false;
@@ -483,8 +481,10 @@ class Cache_File extends Cache_Base {
 		$dir = @opendir( $path );
 
 		if ( $dir ) {
-			while ( ! $size['timeout_occurred'] && ( $entry = @readdir( $dir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$entry = @readdir( $dir );
+			while ( ! $size['timeout_occurred'] && false !== $entry ) {
 				if ( '.' === $entry || '..' === $entry ) {
+					$entry = @readdir( $dir );
 					continue;
 				}
 
@@ -496,11 +496,13 @@ class Cache_File extends Cache_Base {
 					$size['bytes'] += @filesize( $full_path );
 
 					// dont check time() for each file, quite expensive.
-					$size['items']++;
+					++$size['items'];
 					if ( 0 === $size['items'] % 1000 ) {
 						$size['timeout_occurred'] |= ( time() > $timeout_time );
 					}
 				}
+
+				$entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );
@@ -680,14 +682,18 @@ class Cache_File extends Cache_Base {
 
 		$dir = @opendir( $flush_dir );
 		if ( $dir ) {
-			while ( ( $entry = @readdir( $dir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$entry = @readdir( $dir );
+			while ( false !== $entry ) {
 				if ( '.' === $entry || '..' === $entry ) {
+					$entry = @readdir( $dir );
 					continue;
 				}
 
 				if ( preg_match( '~' . $regex . '~', basename( $entry ) ) ) {
 					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $entry );
 				}
+
+				$entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );

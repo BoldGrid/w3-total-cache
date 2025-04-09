@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class Root_Environment
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Root_Environment {
 	/**

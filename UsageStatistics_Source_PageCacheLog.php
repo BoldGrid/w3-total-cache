@@ -82,7 +82,15 @@ class UsageStatistics_Source_PageCacheLog {
 		$log_filename = Util_Debug::log_filename( 'pagecache' );
 		$h            = @fopen( $log_filename, 'rb' );
 		if ( ! $h ) {
-			throw new \Exception( 'Failed to open pagecache log file' . $log_filename );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Log filename.
+						\__( 'Failed to open pagecache log file %1$s.', 'w3-total-cache' ),
+						$log_filename
+					)
+				)
+			);
 		}
 
 		fseek( $h, 0, SEEK_END );
@@ -119,7 +127,7 @@ class UsageStatistics_Source_PageCacheLog {
 
 		usort(
 			$output,
-			function( $a, $b ) {
+			function ( $a, $b ) {
 				return (int) ( $b[ $this->sort_column ] ) - (int) ( $a[ $this->sort_column ] );
 			}
 		);
@@ -217,7 +225,7 @@ class UsageStatistics_Source_PageCacheLog {
 			);
 		}
 
-		$this->by_uri[ $uri ]['count']++;
+		++$this->by_uri[ $uri ]['count'];
 		$this->by_uri[ $uri ]['sum_size']    += $size;
 		$this->by_uri[ $uri ]['sum_time_ms'] += $time_taken_ms;
 

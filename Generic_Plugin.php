@@ -218,10 +218,8 @@ class Generic_Plugin {
 					$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 					if ( strpos( $request_uri, '?' ) === false ) {
 						Util_Environment::safe_redirect_temp( $request_uri . '?repeat=w3tc' );
-					} else {
-						if ( strpos( $request_uri, 'repeat=w3tc' ) === false ) {
-							Util_Environment::safe_redirect_temp( $request_uri . '&repeat=w3tc' );
-						}
+					} elseif ( strpos( $request_uri, 'repeat=w3tc' ) === false ) {
+						Util_Environment::safe_redirect_temp( $request_uri . '&repeat=w3tc' );
 					}
 				}
 			}

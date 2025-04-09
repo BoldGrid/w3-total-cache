@@ -11,6 +11,7 @@ namespace W3TC;
  * Class: Base_Page_Settings
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Base_Page_Settings {
 	/**

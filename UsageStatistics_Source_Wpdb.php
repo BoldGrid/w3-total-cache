@@ -104,7 +104,7 @@ class UsageStatistics_Source_Wpdb {
 	 * @return string The original SQL query.
 	 */
 	public function query( $q ) {
-		$this->query_total++;
+		++$this->query_total;
 		return $q;
 	}
 }

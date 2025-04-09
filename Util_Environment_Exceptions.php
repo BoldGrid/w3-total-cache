@@ -92,5 +92,4 @@ class Util_Environment_Exceptions extends \Exception {
 
 		return $s;
 	}
-
 }

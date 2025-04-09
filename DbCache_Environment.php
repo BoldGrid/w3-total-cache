@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  * phpcs:disable WordPress.WP.AlternativeFunctions
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class DbCache_Environment {
 	/**
@@ -161,11 +162,11 @@ class DbCache_Environment {
 				throw new Util_WpFile_FilesystemOperationException(
 					sprintf(
 						// Translators: 1 remove button with link.
-						__(
+						esc_html__(
 							'The Database add-in file db.php is not a W3 Total Cache drop-in. Remove it or disable Database Caching. %1$s',
 							'w3-total-cache'
 						),
-						Util_Ui::button_link( __( 'Remove it for me', 'w3-total-cache' ), wp_nonce_url( $remove_url, 'w3tc' ) )
+						wp_kses_post( Util_Ui::button_link( __( 'Remove it for me', 'w3-total-cache' ), wp_nonce_url( $remove_url, 'w3tc' ) ) )
 					)
 				);
 			}

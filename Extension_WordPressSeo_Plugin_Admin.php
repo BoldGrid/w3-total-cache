@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class Extension_WordPressSeo_Plugin_Admin
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_WordPressSeo_Plugin_Admin {
 	/**

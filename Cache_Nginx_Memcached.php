@@ -14,6 +14,7 @@ namespace W3TC;
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound
  */
 class Cache_Nginx_Memcached extends Cache_Base {
 	/**
@@ -109,15 +110,15 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * This method adds a new item to Memcached. It first calls the `set` method to store the item. This is typically used for
 	 * storing objects or arrays in Memcached.
 	 *
-	 * @param string $key     The key under which the item is stored.
-	 * @param mixed  $var     The variable to store in Memcached.
-	 * @param int    $expire  The expiration time for the item in seconds. Default is 0 (no expiration).
-	 * @param string $group   An optional group to categorize the item.
+	 * @param string $key    The key under which the item is stored.
+	 * @param mixed  $value  The variable to store in Memcached.
+	 * @param int    $expire The expiration time for the item in seconds. Default is 0 (no expiration).
+	 * @param string $group  An optional group to categorize the item.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function add( $key, &$var, $expire = 0, $group = '' ) {
-		return $this->set( $key, $var, $expire, $group );
+	public function add( $key, &$value, $expire = 0, $group = '' ) {
+		return $this->set( $key, $value, $expire, $group );
 	}
 
 	/**
@@ -126,17 +127,17 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * This method stores an item in Memcached under the specified key. The item will be serialized and stored, and an expiration
 	 * time can be set.
 	 *
-	 * @param string $key     The key under which the item is stored.
-	 * @param mixed  $var     The variable to store in Memcached.
-	 * @param int    $expire  The expiration time in seconds. Default is 0 (no expiration).
-	 * @param string $group   An optional group to categorize the item.
+	 * @param string $key    The key under which the item is stored.
+	 * @param mixed  $value  The variable to store in Memcached.
+	 * @param int    $expire The expiration time in seconds. Default is 0 (no expiration).
+	 * @param string $group  An optional group to categorize the item.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function set( $key, $var, $expire = 0, $group = '' ) {
-		$this->_memcache->setOption( \Memcached::OPT_USER_FLAGS, ( isset( $var['c'] ) ? 1 : 0 ) );
+	public function set( $key, $value, $expire = 0, $group = '' ) {
+		$this->_memcache->setOption( \Memcached::OPT_USER_FLAGS, ( isset( $value['c'] ) ? 1 : 0 ) );
 
-		return @$this->_memcache->set( $key, $var['content'], $expire );
+		return @$this->_memcache->set( $key, $value['content'], $expire );
 	}
 
 	/**
@@ -169,15 +170,15 @@ class Cache_Nginx_Memcached extends Cache_Base {
 	 * This method replaces an existing item in Memcached. It calls the `set` method to store the new value under the same key.
 	 * If the key doesn't exist, it behaves like a regular set.
 	 *
-	 * @param string $key     The key under which the item is stored.
-	 * @param mixed  $var     The variable to store in Memcached.
-	 * @param int    $expire  The expiration time in seconds. Default is 0 (no expiration).
-	 * @param string $group   An optional group to categorize the item.
+	 * @param string $key    The key under which the item is stored.
+	 * @param mixed  $value  The variable to store in Memcached.
+	 * @param int    $expire The expiration time in seconds. Default is 0 (no expiration).
+	 * @param string $group  An optional group to categorize the item.
 	 *
 	 * @return bool True on success, false on failure.
 	 */
-	public function replace( $key, &$var, $expire = 0, $group = '' ) {
-		return $this->set( $key, $var, $expire, $group );
+	public function replace( $key, &$value, $expire = 0, $group = '' ) {
+		return $this->set( $key, $value, $expire, $group );
 	}
 
 	/**
@@ -294,7 +295,7 @@ class Cache_Nginx_Memcached extends Cache_Base {
 						continue;
 					}
 
-					$n++;
+					++$n;
 					if ( 0 === $n % 10 ) {
 						$size['timeout_occurred'] = ( time() > $timeout_time );
 						if ( $size['timeout_occurred'] ) {
@@ -307,7 +308,7 @@ class Cache_Nginx_Memcached extends Cache_Base {
 
 					if ( substr( $key, 0, strlen( $key_prefix ) ) === $key_prefix ) {
 						$size['bytes'] += $bytes;
-						$size['items']++;
+						++$size['items'];
 					}
 				}
 			}

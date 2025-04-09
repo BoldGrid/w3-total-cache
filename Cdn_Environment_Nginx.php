@@ -11,6 +11,8 @@ namespace W3TC;
  * Class Cdn_Environment_Nginx
  *
  * CDN rules generation for Nginx
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_Environment_Nginx {
 	/**
@@ -98,8 +100,7 @@ class Cdn_Environment_Nginx {
 	 *
 	 * @return array The modified list of extensions for the browser cache rules section.
 	 */
-	public function w3tc_browsercache_rules_section_extensions(
-			$extensions, $section ) {
+	public function w3tc_browsercache_rules_section_extensions( $extensions, $section ) {
 		// CDN adds own rules for those extensions.
 		if ( $this->c->get_boolean( 'cdn.cors_header' ) ) {
 			unset( $extensions['ttf|ttc'] );

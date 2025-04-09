@@ -13,6 +13,7 @@ namespace W3TC;
  * Rules generation for Nginx
  *
  * phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class BrowserCache_Environment_Nginx {
 	/**

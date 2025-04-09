@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class: Cdn_Util
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
 class Cdn_Util {
 	/**
@@ -180,8 +182,8 @@ class Cdn_Util {
 		$dir = @opendir( $search_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		if ( $dir ) {
-			// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.PHP.NoSilencedErrors.Discouraged
-			while ( ( $entry = @readdir( $dir ) ) !== false ) {
+			$entry = @readdir( $dir ); // Initialize before the loop.
+			while ( false !== $entry ) {
 				if ( '.' !== $entry && '..' !== $entry && ! in_array( $entry, $ignore, true ) ) {
 					$path = $search_dir . '/' . $entry;
 
@@ -208,6 +210,8 @@ class Cdn_Util {
 						}
 					}
 				}
+
+				$entry = @readdir( $dir ); // Re-assign for the next iteration.
 			}
 
 			@closedir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged

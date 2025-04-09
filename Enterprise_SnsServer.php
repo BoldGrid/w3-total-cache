@@ -35,7 +35,15 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 				$topic_arn = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
 
 				if ( empty( $topic_arn ) || $topic_arn !== $message['TopicArn'] ) {
-					throw new \Exception( 'Not my Topic. Request came from ' . $message['TopicArn'] );
+					throw new \Exception(
+						\esc_html(
+							sprintf(
+								// Translators: 1 Error message.
+								\__( 'Not my Topic. Request came from %1$s.', 'w3-total-cache' ),
+								$message['TopicArn']
+							)
+						)
+					);
 				}
 
 				if ( 'SubscriptionConfirmation' === $message['Type'] ) {
@@ -154,7 +162,15 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 		} elseif ( 'prime_post' === $action ) {
 			$executor->prime_post( $m['post_id'] );
 		} else {
-			throw new \Exception( 'Unknown action ' . $action );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Unknown action name.
+						\__( 'Unknown action %1$s.', 'w3-total-cache' ),
+						$action
+					)
+				)
+			);
 		}
 
 		$executor->execute_delayed_operations();

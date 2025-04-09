@@ -12,6 +12,8 @@ namespace W3TC;
  *
  * Provides access to config cache, used mostly when config is stored in
  * database to not issue config loading database queries on each http request
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class ConfigCache {
 	/**

@@ -428,7 +428,7 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 				if ( $this->_config->get_string( 'pgcache.purge.sitemap_regex' ) ) {
 					$cache = $this->_get_cache( 'sitemaps' );
 					$cache->flush( 'sitemaps' );
-					$count++;
+					++$count;
 				}
 
 				$this->queued_urls = array();
@@ -626,7 +626,12 @@ class PgCache_Flush extends PgCache_ContentGrabber {
 				return $terms;
 			}
 
-			$new_terms = get_terms( array_keys( $taxonomies ), array( 'include' => $include_ids ) );
+			$new_terms = get_terms(
+				array(
+					'taxonomy' => array_keys( $taxonomies ),
+					'include'  => $include_ids,
+				)
+			);
 
 			$terms                  = array_merge( $terms, $new_terms );
 			$terms_to_check_parents = $new_terms;

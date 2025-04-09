@@ -84,9 +84,16 @@ class Util_Widget {
 	 * @param string   $header_text Header text.
 	 * @param string   $header_class Header class.
 	 */
-	public static function add2( $widget_id, $priority, $widget_name, $callback,
-			$control_callback = null, $location = 'normal', $header_text = null,
-			$header_class = '' ) {
+	public static function add2(
+		$widget_id,
+		$priority,
+		$widget_name,
+		$callback,
+		$control_callback = null,
+		$location = 'normal',
+		$header_text = null,
+		$header_class = ''
+	) {
 		$o = new _Util_Widget_Postponed(
 			array(
 				'widget_id'        => $widget_id,
@@ -127,9 +134,15 @@ class Util_Widget {
 	 * @param string   $header_text      Header text.
 	 * @param string   $header_class     Header class.
 	 */
-	public static function add( $widget_id, $widget_name, $callback,
-			$control_callback = null, $location = 'normal', $header_text = null,
-			$header_class = '' ) {
+	public static function add(
+		$widget_id,
+		$widget_name,
+		$callback,
+		$control_callback = null,
+		$location = 'normal',
+		$header_text = null,
+		$header_class = ''
+	) {
 		$screen = get_current_screen();
 
 		global $w3tc_dashboard_control_callbacks;
