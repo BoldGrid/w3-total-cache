@@ -161,7 +161,7 @@ class Cache_Memcached extends Cache_Base {
 
 		$storage_key = $this->get_item_key( $key );
 
-		return @$this->_memcache->set( $storage_key, $var, $expire );
+		return @$this->_memcache->set( $storage_key, $value, $expire );
 	}
 
 	/**
