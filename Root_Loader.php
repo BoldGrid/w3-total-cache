@@ -239,7 +239,11 @@ class Root_Loader {
 			return;
 		}
 
-		$screen = get_current_screen();
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen = get_current_screen();
+		} else {
+			return;
+		}
 
 		if ( ! $screen || 'upload' !== $screen->id || 'attachment' !== $screen->post_type ) {
 			return;
