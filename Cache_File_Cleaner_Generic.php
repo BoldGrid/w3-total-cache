@@ -97,6 +97,7 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 
 				foreach ( $this->_exclude as $mask ) {
 					if ( fnmatch( $mask, basename( $entry ) ) ) {
+						$entry = @readdir( $dir );
 						continue 2;
 					}
 				}
