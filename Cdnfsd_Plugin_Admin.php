@@ -26,18 +26,6 @@ class Cdnfsd_Plugin_Admin {
 				add_action( 'w3tc_ajax', array( '\W3TC\Cdnfsd_CloudFront_Popup', 'w3tc_ajax' ) );
 				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_CloudFront_Page', 'w3tc_settings_box_cdnfsd' ) );
 				break;
-			case 'limelight':
-				add_action( 'w3tc_ajax', array( '\W3TC\Cdnfsd_LimeLight_Popup', 'w3tc_ajax' ) );
-				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_LimeLight_Page', 'w3tc_settings_box_cdnfsd' ) );
-				break;
-			case 'stackpath':
-				add_action( 'w3tc_ajax', array( '\W3TC\Cdnfsd_StackPath_Popup', 'w3tc_ajax' ) );
-				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_StackPath_Page', 'w3tc_settings_box_cdnfsd' ) );
-				break;
-			case 'stackpath2':
-				add_action( 'w3tc_ajax', array( '\W3TC\Cdnfsd_StackPath2_Popup', 'w3tc_ajax' ) );
-				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_StackPath2_Page', 'w3tc_settings_box_cdnfsd' ) );
-				break;
 			case 'transparentcdn':
 				add_action( 'init', array( '\W3TC\Cdnfsd_TransparentCDN_Page', 'admin_test_api_parameters_transparentcdn' ) );
 				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_TransparentCDN_Page', 'w3tc_settings_box_cdnfsd' ) );
@@ -83,26 +71,12 @@ class Cdnfsd_Plugin_Admin {
 			'disabled' => true,
 		);
 
-		$cdnfsd_engine_values['limelight'] = array(
-			'label' => __( 'Limelight', 'w3-total-cache' ),
-		);
-
-		$cdnfsd_engine_values['stackpath'] = array(
-			'label' => __( 'StackPath SecureCDN (Legacy)', 'w3-total-cache' ),
-		);
-
-		$cdnfsd_engine_values['stackpath2'] = array(
-			'label' => __( 'StackPath', 'w3-total-cache' ),
-		);
-
 		$cdnfsd_engine_values['transparentcdn'] = array(
 			'label' => __( 'TransparentCDN', 'w3-total-cache' ),
 		);
 
 		if ( 'cloudfront' === $cdnfsd_engine ) {
 			$tag = 'https://api.w3-edge.com/v1/redirects/faq/cdn-fsd/cloudfront';
-		} elseif ( 'stackpath' === $cdnfsd_engine || 'stackpath2' === $cdnfsd_engine ) {
-			$tag = 'https://api.w3-edge.com/v1/redirects/faq/cdn-fsd/stackpath';
 		}
 
 		$cdnfsd_engine_extra_description = empty( $tag ) ? '' : ' See <a href="' . $tag . '">setup instructions</a>';

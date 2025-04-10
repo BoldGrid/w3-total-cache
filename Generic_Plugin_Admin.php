@@ -305,27 +305,19 @@ class Generic_Plugin_Admin {
 			case 'bunnycdn':
 				$cdn_class = '\W3TC\Cdn_BunnyCdn_Page';
 				break;
+
 			case 'google_drive':
 				$cdn_class = '\W3TC\Cdn_GoogleDrive_Page';
 				break;
-			case 'highwinds':
-				$cdn_class = '\W3TC\Cdn_Highwinds_Page';
-				break;
-			case 'limelight':
-				$cdn_class = '\W3TC\Cdn_LimeLight_Page';
-				break;
+
 			case 'rackspace_cdn':
 				$cdn_class = '\W3TC\Cdn_RackSpaceCdn_Page';
 				break;
+
 			case 'rscf':
 				$cdn_class = '\W3TC\Cdn_RackSpaceCloudFiles_Page';
 				break;
-			case 'stackpath':
-				$cdn_class = '\W3TC\Cdn_StackPath_Page';
-				break;
-			case 'stackpath2':
-				$cdn_class = '\W3TC\Cdn_StackPath2_Page';
-				break;
+
 			default:
 				break;
 		}
@@ -342,21 +334,15 @@ class Generic_Plugin_Admin {
 			case 'bunnycdn':
 				$cdnfsd_class = '\W3TC\Cdnfsd_BunnyCdn_Page';
 				break;
+
 			case 'cloudflare':
 				$cdnfsd_class = '\W3TC\Extension_CloudFlare_Page';
 				break;
+
 			case 'cloudfront':
 				$cdnfsd_class = '\W3TC\Cdnfsd_CloudFront_Page';
 				break;
-			case 'limelight':
-				$cdnfsd_class = '\W3TC\Cdnfsd_LimeLight_Page';
-				break;
-			case 'stackpath':
-				$cdnfsd_class = '\W3TC\Cdnfsd_StackPath_Page';
-				break;
-			case 'stackpath2':
-				$cdnfsd_class = '\W3TC\Cdnfsd_StackPath2_Page';
-				break;
+
 			default:
 				break;
 		}

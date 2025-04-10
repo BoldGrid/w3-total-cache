@@ -43,7 +43,6 @@ namespace W3TC;
  *   cdn.google_drive.access_token
  *   cdn.rackspace_cf.access_state
  *   cdn.rackspace_cdn.access_state
- *   cdn.stackpath2.access_token
  *   cdn.show_note_theme_changed
  *   cdn.show_note_wp_upgraded
  *   cdn.show_note_cdn_upload
@@ -59,7 +58,6 @@ namespace W3TC;
  *   objectcache.show_note.flush_needed.timestamp - when the note was set
  *   extension.<extension_id>.hide_note_suggest_activation
  *   track.bunnycdn_signup
- *   track.stackpath_signup
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
