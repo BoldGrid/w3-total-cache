@@ -126,5 +126,48 @@ $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.t
 			</p>
 		</td>
 	</tr>
+	<tr>
+		<th>
+			<label>
+				<?php
+				echo esc_html__(
+					'Set Custom Hostname:',
+					'w3-total-cache'
+				);
+				?>
+			</label>
+		</th>
+		<td class="w3tc_config_value_text">
+		<input id="w3tc_totalcdn_custom_hostname" type="text" name="cdn__totalcdn__custom_hostname"
+			size="100" />
+			<p class="description">
+				<?php
+				echo wp_kses(
+					sprintf(
+						// translators: 1: Opening HTML acronym tag, 2: Closing HTML acronym tag.
+						esc_html__(
+							'The Custom hostname is used by the %1$sCDN%2$s in media links on pages.  For example: cdn.domain.net',
+							'w3-total-cache'
+						),
+						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+						'</acronym>'
+					),
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+					)
+				);
+				?>
+			</p>
+		</td>
+		<td>
+			<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary"
+				type="button"
+				value="<?php esc_attr_e( 'Set Hostname', 'w3-total-cache' ); ?>"
+			/>
+
+		</td>
+	</tr>
 	<?php endif; ?>
 </table>

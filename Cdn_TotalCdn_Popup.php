@@ -172,9 +172,11 @@ class Cdn_TotalCdn_Popup {
 					)
 				);
 
+				error_log( 'Pull Zone Created: ' . json_encode( $response ) ) ;
+
 				$pull_zone_id = (int) $response['Id'];
 				$name         = $response['Name'];
-				$cdn_hostname = $response['Hostnames'][0]['Value'];
+				$cdn_hostname = $response['ZoneDomain'];
 			} catch ( \Exception $ex ) {
 				// Reauthorize: Ask for a new account API key.
 				$this->render_intro(

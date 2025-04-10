@@ -484,6 +484,7 @@ class Cdn_AdminActions {
 				'rackspace_cdn' === $engine ||
 				'rscf' === $engine ||
 				'bunnycdn' === $engine ||
+				'totalcdn' === $engine ||
 				's3_compatible' === $engine
 			) {
 				// those use already stored w3tc config.

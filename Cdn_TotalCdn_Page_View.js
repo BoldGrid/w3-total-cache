@@ -125,6 +125,42 @@ jQuery(function($) {
 			});
 		})
 
+		.on( 'click', '.w3tc_cdn_totalcdn_add_custom_hostname', function() {
+			var $custom_hostname_input = $( '#w3tc_totalcdn_custom_hostname' ),
+				custom_hostname = $custom_hostname_input.val();
+
+			console.log( 'Adding custom hostname: ' + custom_hostname );
+
+			// Abort if Total CDN is not authorized.
+			if ( ! W3TC_Totalcdn.is_authorized ) {
+				return;
+			}
+
+			$.ajax({
+				method: 'POST',
+				url: ajaxurl,
+				data: {
+					_wpnonce: w3tc_nonce[0],
+					action: 'w3tc_ajax',
+					w3tc_action: 'cdn_totalcdn_add_custom_hostname',
+					custom_hostname: custom_hostname
+				}
+			} ).then( function( response ) {
+				if ( typeof response.success !== 'undefined' ) {
+					if ( response.success ) {
+						// reload the page to show the new custom hostname.
+						window.location = window.location + '&';
+					} else {
+						console.log( 'Error', { response } );
+					}
+				} else {
+					console.log( 'Error', { response } );
+				}
+			} ).fail(function( error ) {
+				console.log( 'Error', { error } );
+			  });
+		} )
+
 		// Deauthorize and optionally delete the pull zone.
 		.on('click', '.w3tc_cdn_totalcdn_deauthorize', function() {
 			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +

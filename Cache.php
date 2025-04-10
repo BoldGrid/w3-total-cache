@@ -208,6 +208,9 @@ class Cache {
 			case 'bunnycdn':
 				$engine_name = 'Bunny CDN';
 				break;
+			case 'totalcdn':
+				$engine_name = 'Total CDN';
+				break;
 
 			case '':
 				$engine_name = __( 'None', 'w3-total-cache' );
