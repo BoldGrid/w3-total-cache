@@ -154,19 +154,6 @@ class Cdn_AdminNotes {
 			);
 		}
 
-		if ( 'maxcdn' === $cdn_engine ) {
-			$notes[] = sprintf(
-				// translators: 1: Opening anchor tag with a link to the CDN settings page, 2: closing anchor tag, 3 opening anchor tag to MaxCDN/StackPath migration guide.
-				__(
-					'MaxCDN has been replaced with StackPath CDN. As a result your configuration is now invalid and requires reconfiguration to a new %1$sCDN provider%2$s. You can migrate to StackPath using %3$sthis guide%2$s.',
-					'w3-total-cache'
-				),
-				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
-				'</a>',
-				'<a href="' . esc_url( 'https://support.stackpath.com/hc/en-us/articles/10408946467739-MaxCDN-Migration-to-StackPath-Instructions' ) . '" target="_blank">'
-			);
-		}
-
 		return $notes;
 	}
 

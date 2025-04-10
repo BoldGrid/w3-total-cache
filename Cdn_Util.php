@@ -34,15 +34,11 @@ class Cdn_Util {
 				'edgecast',
 				'ftp',
 				'google_drive',
-				'highwinds',
-				'limelight',
 				'mirror',
 				'rscf',
 				'rackspace_cdn',
 				's3',
 				's3_compatible',
-				'stackpath',
-				'stackpath2',
 			),
 			true
 		);
@@ -66,11 +62,7 @@ class Cdn_Util {
 				'akamai',
 				'edgecast',
 				'att',
-				'highwinds',
-				'limelight',
 				'rackspace_cdn',
-				'stackpath',
-				'stackpath2',
 				'bunnycdn',
 			),
 			true
@@ -104,10 +96,6 @@ class Cdn_Util {
 				'cf2',
 				'cotendo',
 				'edgecast',
-				'highwinds',
-				'limelight',
-				'stackpath',
-				'stackpath2',
 			),
 			true
 		);
@@ -133,13 +121,9 @@ class Cdn_Util {
 				'cotendo',
 				'edgecast',
 				'ftp',
-				'highwinds',
-				'limelight',
 				'rscf',
 				's3',
 				's3_compatible',
-				'stackpath',
-				'stackpath2',
 			),
 			true
 		);

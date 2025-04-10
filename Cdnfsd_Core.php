@@ -54,43 +54,6 @@ class Cdnfsd_Core {
 					);
 					break;
 
-				case 'limelight':
-					$engine_object = new Cdnfsd_LimeLight_Engine(
-						array(
-							'short_name' => $c->get_string( 'cdnfsd.limelight.short_name' ),
-							'username'   => $c->get_string( 'cdnfsd.limelight.username' ),
-							'api_key'    => $c->get_string( 'cdnfsd.limelight.api_key' ),
-							'debug'      => $c->get_string( 'cdnfsd.debug' ),
-						)
-					);
-					break;
-
-				case 'stackpath':
-					$engine_object = new Cdnfsd_StackPath_Engine(
-						array(
-							'api_key' => $c->get_string( 'cdnfsd.stackpath.api_key' ),
-							'zone_id' => $c->get_integer( 'cdnfsd.stackpath.zone_id' ),
-						)
-					);
-					break;
-
-				case 'stackpath2':
-					$state = Dispatcher::config_state();
-
-					$engine_object = new Cdnfsd_StackPath2_Engine(
-						array(
-							'client_id'           => $c->get_string( 'cdnfsd.stackpath2.client_id' ),
-							'client_secret'       => $c->get_string( 'cdnfsd.stackpath2.client_secret' ),
-							'stack_id'            => $c->get_string( 'cdnfsd.stackpath2.stack_id' ),
-							'site_root_domain'    => $c->get_string( 'cdnfsd.stackpath2.site_root_domain' ),
-							'domain'              => $c->get_array( 'cdnfsd.stackpath2.domain' ),
-							'ssl'                 => $c->get_string( 'cdnfsd.stackpath2.ssl' ),
-							'access_token'        => $state->get_string( 'cdnfsd.stackpath2.access_token' ),
-							'on_new_access_token' => array( $this, 'on_stackpath2_new_access_token' ),
-						)
-					);
-					break;
-
 				case 'bunnycdn':
 					$engine_object = new Cdnfsd_BunnyCdn_Engine(
 						array(
@@ -114,20 +77,5 @@ class Cdnfsd_Core {
 		}
 
 		return $engine_object;
-	}
-
-	/**
-	 * Handles the event when a new access token is generated for StackPath v2.
-	 *
-	 * Updates the configuration state with the new access token.
-	 *
-	 * @param string $access_token The new access token to be saved.
-	 *
-	 * @return void
-	 */
-	public function on_stackpath2_new_access_token( $access_token ) {
-		$state = Dispatcher::config_state();
-		$state->set( 'cdnfsd.stackpath2.access_token', $access_token );
-		$state->save();
 	}
 }

@@ -476,11 +476,7 @@ class Cdn_AdminActions {
 		if ( $result ) {
 			if (
 				'google_drive' === $engine ||
-				'highwinds' === $engine ||
-				'limelight' === $engine ||
-				'stackpath' === $engine ||
 				'transparentcdn' === $engine ||
-				'stackpath2' === $engine ||
 				'rackspace_cdn' === $engine ||
 				'rscf' === $engine ||
 				'bunnycdn' === $engine ||

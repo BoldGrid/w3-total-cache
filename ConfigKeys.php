@@ -1326,26 +1326,6 @@ $keys = array(
 		'type'    => 'string',
 		'default' => '',
 	),
-	'cdn.highwinds.account_hash'                           => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.highwinds.api_token'                              => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.highwinds.host.hash_code'                         => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.highwinds.host.domains'                           => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.highwinds.ssl'                                    => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
 	'cdn.s3.key'                                           => array(
 		'type'    => 'string',
 		'default' => '',
@@ -1534,26 +1514,6 @@ $keys = array(
 		'type'    => 'string',
 		'default' => 'auto',
 	),
-	'cdn.limelight.short_name'                             => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.limelight.username'                               => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.limelight.api_key'                                => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.limelight.host.domains'                           => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.limelight.ssl'                                    => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
 	'cdn.cotendo.username'                                 => array(
 		'type'    => 'string',
 		'default' => '',
@@ -1634,50 +1594,6 @@ $keys = array(
 		'type'    => 'string',
 		'default' => 'auto',
 	),
-	'cdn.stackpath.authorization_key'                      => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.stackpath.domain'                                 => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.stackpath.ssl'                                    => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
-	'cdn.stackpath.zone_id'                                => array(
-		'type'    => 'integer',
-		'default' => 0,
-	),
-	'cdn.stackpath2.client_id'                             => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.stackpath2.client_secret'                         => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.stackpath2.stack_id'                              => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdn.stackpath2.site_id'                               => array(
-		'type'    => 'string',
-		'default' => 0,
-	),
-	'cdn.stackpath2.site_root_domain'                      => array(
-		'type'    => 'string',
-		'default' => 0,
-	),
-	'cdn.stackpath2.domain'                                => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdn.stackpath2.ssl'                                   => array(
-		'type'    => 'string',
-		'default' => 'auto',
-	),
 	'cdn.reject.admins'                                    => array(
 		'type'    => 'boolean',
 		'default' => false,
@@ -1733,54 +1649,6 @@ $keys = array(
 	'cdnfsd.cloudfront.distribution_id'                    => array(
 		'type'    => 'string',
 		'default' => '',
-	),
-	'cdnfsd.limelight.short_name'                          => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdnfsd.limelight.username'                            => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdnfsd.limelight.api_key'                             => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdnfsd.stackpath.api_key'                             => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdnfsd.stackpath.zone_id'                             => array(
-		'type'    => 'integer',
-		'default' => 0,
-	),
-	'cdnfsd.stackpath2.client_id'                          => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdnfsd.stackpath2.client_secret'                      => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdnfsd.stackpath2.stack_id'                           => array(
-		'type'    => 'string',
-		'default' => '',
-	),
-	'cdnfsd.stackpath2.site_id'                            => array(
-		'type'    => 'string',
-		'default' => 0,
-	),
-	'cdnfsd.stackpath2.site_root_domain'                   => array(
-		'type'    => 'string',
-		'default' => 0,
-	),
-	'cdnfsd.stackpath2.domain'                             => array(
-		'type'    => 'array',
-		'default' => array(),
-	),
-	'cdnfsd.stackpath2.ssl'                                => array(
-		'type'    => 'string',
-		'default' => 'auto',
 	),
 	'cdnfsd.transparentcdn.client_id'                      => array(
 		'type'    => 'string',
