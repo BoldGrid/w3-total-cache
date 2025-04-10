@@ -12,11 +12,10 @@ namespace W3TC;
  * Class: Cdn_BunnyCdn_Api
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
- * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  *
  * @since 2.6.0
  */
-class Cdn_BunnyCdn_Api {
+class Cdn_TotalCdn_Api {
 	/**
 	 * Account API Key.
 	 *
@@ -63,6 +62,15 @@ class Cdn_BunnyCdn_Api {
 	 * @var int
 	 */
 	private $pull_zone_id;
+
+	/**
+	 * Base URL for the API.
+	 *
+	 * @since SINCEVERSION
+	 *
+	 * @var string
+	 */
+	private $api_base_url = 'https://cdn-api-dev-jamesros.boldgrid.com/api/v1';
 
 	/**
 	 * Default edge rules.
@@ -193,7 +201,7 @@ class Cdn_BunnyCdn_Api {
 	public function list_pull_zones() {
 		$this->api_type = 'account';
 
-		return $this->wp_remote_get( \esc_url( 'https://api.bunny.net/pullzone' ) );
+		return $this->wp_remote_get( \esc_url( $this->api_base_url . '/zones' ) );
 	}
 
 	/**
@@ -211,7 +219,7 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 
 		return $this->wp_remote_get(
-			\esc_url( 'https://api.bunny.net/pullzone/id' . $id )
+			\esc_url( $this->api_base_url . '/pullzone/' . $id )
 		);
 	}
 
@@ -240,8 +248,8 @@ class Cdn_BunnyCdn_Api {
 		}
 
 		return $this->wp_remote_post(
-			'https://api.bunny.net/pullzone',
-			$data,
+			$this->api_base_url . '/zone',
+			$data
 		);
 	}
 
@@ -268,7 +276,7 @@ class Cdn_BunnyCdn_Api {
 		}
 
 		return $this->wp_remote_post(
-			'https://api.bunny.net/pullzone/' . $id,
+			$this->api_base_url . '/zone/' . $id,
 			$data
 		);
 	}
@@ -295,7 +303,7 @@ class Cdn_BunnyCdn_Api {
 		}
 
 		return $this->wp_remote_post(
-			\esc_url( 'https://api.bunny.net/pullzone/' . $id ),
+			\esc_url( $this->api_base_url . '/zone/' . $id ),
 			array(),
 			array( 'method' => 'DELETE' )
 		);
@@ -319,6 +327,11 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
+		// Convert pullzone to int if it's a string.
+		if ( \is_string( $pull_zone_id ) ) {
+			$pull_zone_id = (int) $pull_zone_id;
+		}
+
 		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
@@ -328,8 +341,8 @@ class Cdn_BunnyCdn_Api {
 		}
 
 		$this->wp_remote_post(
-			\esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/addHostname' ),
-			array( 'Hostname' => $hostname )
+			\esc_url( $this->api_base_url . '/zone/' . $pull_zone_id . '/addCustomHostname' ),
+			array( 'CustomHostName' => $hostname )
 		);
 	}
 
@@ -381,7 +394,7 @@ class Cdn_BunnyCdn_Api {
 		}
 
 		$this->wp_remote_post(
-			\esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/edgerules/addOrUpdate' ),
+			\esc_url( $this->api_base_url . '/zone/' . $pull_zone_id . '/edgerule' ),
 			$data
 		);
 	}
@@ -399,7 +412,7 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 
 		return $this->wp_remote_get(
-			\esc_url( 'https://api.bunny.net/purge' ),
+			\esc_url( $this->api_base_url . '/purge' ),
 			$data
 		);
 	}
@@ -423,7 +436,7 @@ class Cdn_BunnyCdn_Api {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
-		$this->wp_remote_post( \esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/purgeCache' ) );
+		$this->wp_remote_post( \esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/purgeCache' ) );
 	}
 
 	/**
@@ -508,8 +521,8 @@ class Cdn_BunnyCdn_Api {
 			$url . ( empty( $data ) ? '' : '?' . \http_build_query( $data ) ),
 			array(
 				'headers' => array(
-					'AccessKey' => $api_key,
-					'Accept'    => 'application/json',
+					'ApiKey' => $api_key,
+					'Accept' => 'application/json',
 				),
 			)
 		);
@@ -548,7 +561,7 @@ class Cdn_BunnyCdn_Api {
 			\array_merge(
 				array(
 					'headers' => array(
-						'AccessKey'    => $api_key,
+						'ApiKey'    => $api_key,
 						'Accept'       => 'application/json',
 						'Content-Type' => 'application/json',
 					),

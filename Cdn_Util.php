@@ -72,6 +72,7 @@ class Cdn_Util {
 				'stackpath',
 				'stackpath2',
 				'bunnycdn',
+				'totalcdn',
 			),
 			true
 		);
@@ -101,6 +102,7 @@ class Cdn_Util {
 			array(
 				'att',
 				'bunnycdn',
+				'totalcdn',
 				'cf2',
 				'cotendo',
 				'edgecast',
