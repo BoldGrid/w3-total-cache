@@ -221,6 +221,13 @@ def generate_box_descriptors(image_name)
 				'litespeed',
 				'php56' # wp6.7 requires php>=7.0
 			]
+		},
+		'wp68' => {
+			'WP_VERSION' => '6.8-RC3',
+			'_except_name_contains' => [
+				'litespeed',
+				'php56' # wp6.8 requires php>=7.2
+			]
 		}
 	}, image_name)
 
