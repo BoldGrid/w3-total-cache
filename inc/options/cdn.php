@@ -478,12 +478,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				$known_engines = array(
 					'bunnycdn',
 					'google_drive',
-					'highwinds',
-					'limelight',
 					'rackspace_cdn',
 					'rscf',
-					'stackpath',
-					'stackpath2',
 				);
 				if ( in_array( $cdn_engine, $known_engines, true ) ) {
 					do_action( 'w3tc_settings_cdn_boxarea_configuration' );
