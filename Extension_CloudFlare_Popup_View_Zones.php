@@ -14,10 +14,10 @@ if ( ! defined( 'W3TC' ) ) {
 <form action="admin.php?page=w3tc_cdn" method="post" style="padding: 20px"
 	class="w3tc_extension_cloudflare_form">
 	<?php
-	Util_Ui::hidden( '', 'w3tc_action', 'extension_cloudflare_zones_done' );
-	Util_Ui::hidden( '', 'email', $details['email'] );
-	Util_Ui::hidden( '', 'key', $details['key'] );
-	Util_Ui::hidden( '', 'page', '' );
+	Util_Ui::hidden( 'w3tc-rackspace-action', 'w3tc_action', 'extension_cloudflare_zones_done' );
+	Util_Ui::hidden( 'w3tc-rackspace-email', 'email', $details['email'] );
+	Util_Ui::hidden( 'w3tc-rackspace-key', 'key', $details['key'] );
+	Util_Ui::hidden( 'w3tc-rackspace-page', 'page', '' );
 	echo wp_kses(
 		Util_Ui::nonce_field( 'w3tc' ),
 		array(

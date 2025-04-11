@@ -620,7 +620,7 @@ class Cdn_RackSpaceCdn_Popup {
 	 * @return void
 	 */
 	private function render_service_value_change( $details, $field ) {
-		Util_Ui::hidden( '', $field, $details[ $field ]['new'] );
+		Util_Ui::hidden( 'w3tc-rackspace-value-' . $field, $field, $details[ $field ]['new'] );
 
 		if ( ! isset( $details[ $field ]['current'] ) || $details[ $field ]['current'] === $details[ $field ]['new'] ) {
 			echo esc_html( $details[ $field ]['new'] );
