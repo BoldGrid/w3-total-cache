@@ -17,6 +17,27 @@ namespace W3TC;
  */
 class W3TotalCache_Command extends \WP_CLI_Command {
 	/**
+	 * Register WP-CLI commands.
+	 *
+	 * @since  X.X.X
+	 * @static
+	 *
+	 * @return void
+	 */
+	public static function register_commands() {
+		if ( \method_exists( '\WP_CLI', 'add_command' ) ) {
+			\WP_CLI::add_command( 'w3-total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
+			\WP_CLI::add_command( 'total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
+			\WP_CLI::add_command( 'w3tc', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
+		} else {
+			// Backward compatibility.
+			\WP_CLI::addCommand( 'w3-total-cache', '\W3TC\W3TotalCache_Command' );
+			\WP_CLI::addCommand( 'total-cache', '\W3TC\W3TotalCache_Command' );
+			\WP_CLI::addCommand( 'w3tc', '\W3TC\W3TotalCache_Command' );
+		}
+	}
+
+	/**
 	 * Creates missing files, writes Apache/Nginx rules.
 	 *
 	 * ## OPTIONS
@@ -642,13 +663,4 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 }
 
 // Register WP-CLI commands.
-if ( \method_exists( '\WP_CLI', 'add_command' ) ) {
-	\WP_CLI::add_command( 'w3-total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
-	\WP_CLI::add_command( 'total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
-	\WP_CLI::add_command( 'w3tc', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
-} else {
-	// Backward compatibility.
-	\WP_CLI::addCommand( 'w3-total-cache', '\W3TC\W3TotalCache_Command' );
-	\WP_CLI::addCommand( 'total-cache', '\W3TC\W3TotalCache_Command' );
-	\WP_CLI::addCommand( 'w3tc', '\W3TC\W3TotalCache_Command' );
-}
+add_action( 'init', array( '\W3TC\W3TotalCache_Command', 'register_commands' ), 10, 0 );
