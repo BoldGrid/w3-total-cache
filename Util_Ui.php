@@ -938,10 +938,9 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function textarea( $id, $name, $value, $disabled = false ) {
+		// The "textarea" element must not have padding around the value.
 		?>
-		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5" cols=25 style="width: 100%" <?php disabled( $disabled, true, true ); ?>>
-			<?php echo esc_textarea( $value ); ?>
-		</textarea>
+		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5" cols=25 style="width: 100%" <?php disabled( $disabled, true, true ); ?>><?php echo esc_textarea( $value ); ?></textarea>
 		<?php
 	}
 
