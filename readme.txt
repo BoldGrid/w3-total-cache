@@ -2,7 +2,7 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
-Tested up to: 6.7
+Tested up to: 6.8
 Stable tag: 2.8.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -366,6 +366,9 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Usage Statistics JavaScript error
 * Fix: Regex matching for Cookie Cache Groups
 * Fix: Image Service: Error when get_current_screen() is run before admin_init
+* Fix: _load_textdomain_just_in_time timing issue for WP-CLI and the Setup Guide
+* Fix: "DOMDocument::loadHTML(): ID  already defined in Entity" errors
+* Fix: Cloudflare: Saving settings with a value of 0
 * Update: Removed StackPath, Limelight, and Highwinds CDNs due to end of service
 
 = 2.8.7 =
