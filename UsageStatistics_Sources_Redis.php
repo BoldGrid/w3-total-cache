@@ -8,20 +8,28 @@
 namespace W3TC;
 
 /**
+ * Class UsageStatistics_Sources_Redis
+ *
  * Usage Statistics Sources for Redis
  */
 class UsageStatistics_Sources_Redis {
 	/**
-	 * Servers.
+	 * An associative array holding Redis server configurations, indexed by host and port.
 	 *
 	 * @var array
 	 */
 	private $servers;
 
 	/**
-	 * Constructor.
+	 * Constructor for initializing Redis server configurations.
 	 *
-	 * @param array $server_descriptors Server desriptors.
+	 * This method processes the given server descriptors and sets up a mapping of server configurations,
+	 * where each server is identified by its host and port, along with associated module names, password,
+	 * and database ID. This allows for organized management of Redis server connections.
+	 *
+	 * @param array $server_descriptors An array of server descriptor arrays, each containing 'servers', 'password', 'dbid', and 'name'.
+	 *
+	 * @return void
 	 */
 	public function __construct( $server_descriptors ) {
 		$this->servers = array();
@@ -42,7 +50,13 @@ class UsageStatistics_Sources_Redis {
 	}
 
 	/**
-	 * Get snapshot stats.
+	 * Retrieves a snapshot of Redis memory usage and keyspace statistics across all servers.
+	 *
+	 * This method aggregates memory usage, total get calls, and get hits from all configured Redis servers.
+	 * It connects to each Redis server, fetches its statistics, and updates the totals accordingly.
+	 * The result is an array containing the total memory used, total get calls, and get hits.
+	 *
+	 * @return array An associative array containing the total 'size_used', 'get_calls', and 'get_hits'.
 	 */
 	public function get_snapshot() {
 		$size_used = 0;
@@ -79,7 +93,14 @@ class UsageStatistics_Sources_Redis {
 	}
 
 	/**
-	 * Get stats summary.
+	 * Retrieves a summary of Redis usage statistics across all servers.
+	 *
+	 * This method gathers a variety of statistics from each Redis server, including module names,
+	 * memory usage, keyspace hit/miss statistics, eviction rates, and uptime. It aggregates these statistics
+	 * and formats them into a summary for reporting.
+	 *
+	 * @return array An associative array containing a summary of Redis statistics, including 'module_names', 'size_used',
+	 *               'get_hit_rate', and 'evictions_per_second'.
 	 */
 	public function get_summary() {
 		$sum = array(

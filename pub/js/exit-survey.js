@@ -39,9 +39,33 @@ function w3tc_exit_survey_render() {
 					);
 				}
 
-				// Close the lightbox.
+				var remove = jQuery('input[name="remove"]:checked', lightbox.container).val();
+
+				if ( 'yes' === remove ) {
+					// Build the params object.
+					var params = {
+						action: 'w3tc_ajax',
+						_wpnonce: w3tcData.nonce,
+						w3tc_action: 'exit_survey_skip',
+						remove: remove
+					};
+
+					// Send the remove data flag via AJAX.
+					jQuery.post( ajaxurl, params, function(response) {
+						if(response.error && window.w3tc_ga) {
+							w3tc_ga(
+								'event',
+								'w3tc_error',
+								{
+									eventCategory: 'exit_survey',
+									eventLabel: 'skip_error'
+								}
+							);
+						}
+					});
+				}
+
 				lightbox.close();
-				// Proceed with plugin deactivation.
 				window.location.href = deactivateUrl;
 			});
 
@@ -66,6 +90,7 @@ function w3tc_exit_survey_render() {
 				// Collect form data.
 				var reason = jQuery('input[name="reason"]:checked', lightbox.container).val();
 				var other = jQuery('input[name="other"]', lightbox.container).val();
+				var email = jQuery('input[name="email"]', lightbox.container).val();
 				var remove = jQuery('input[name="remove"]:checked', lightbox.container).val();
 
 				// Build the params object.
@@ -75,28 +100,25 @@ function w3tc_exit_survey_render() {
 					w3tc_action: 'exit_survey_submit',
 					reason: reason,
 					other: other,
+					email: email,
 					remove: remove
 				};
 
 				// Send the survey data to the API server.
 				jQuery.post( ajaxurl, params, function(response) {
-					if(response.success) {
-						lightbox.close();
-						window.location.href = deactivateUrl;
-					} else {
-						if (window.w3tc_ga) {
-							w3tc_ga(
-								'event',
-								'w3tc_error',
-								{
-									eventCategory: 'exit_survey',
-									eventLabel: 'api_error'
-								}
-							);
-						}
-						lightbox.close();
-						window.location.href = deactivateUrl;
+					if(response.error && window.w3tc_ga) {
+						w3tc_ga(
+							'event',
+							'w3tc_error',
+							{
+								eventCategory: 'exit_survey',
+								eventLabel: 'api_error'
+							}
+						);
 					}
+
+					lightbox.close();
+					window.location.href = deactivateUrl;
 				});
 			});
 
@@ -134,14 +156,11 @@ jQuery(function() {
 	jQuery(document).on('change', 'input[name="reason"]', function() {
 		// Enable Submit & Deactivate button once an option is selected.
 		if (jQuery('input[name="reason"]:checked').length > 0) {
+			jQuery('.w3tc-exit-survey-email #email').prop('disabled', false);
 			jQuery('#w3tc-exit-survey-submit').prop('disabled', false);
 		}
 
-		// If the "Other" option is selected, show the text box.
-		if (jQuery(this).val() === 'other') {
-			jQuery('#w3tc_exit_survey_uninstall_reason_other').show();
-		} else {
-			jQuery('#w3tc_exit_survey_uninstall_reason_other').hide();
-		}
+		// Show more info input box.
+		jQuery('#w3tc_exit_survey_uninstall_reason_more_info').show();
 	});
 });

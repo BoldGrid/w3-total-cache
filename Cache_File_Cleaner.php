@@ -84,8 +84,10 @@ class Cache_File_Cleaner {
 		$dir = @opendir( $path );
 
 		if ( $dir ) {
-			while ( ( $entry = @readdir( $dir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$entry = @readdir( $dir );
+			while ( false !== $entry ) {
 				if ( '.' === $entry || '..' === $entry ) {
+					$entry = @readdir( $dir );
 					continue;
 				}
 
@@ -102,6 +104,8 @@ class Cache_File_Cleaner {
 				} elseif ( ! $this->is_valid( $full_path ) ) {
 					@unlink( $full_path );
 				}
+
+				$entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );

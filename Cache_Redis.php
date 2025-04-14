@@ -113,13 +113,13 @@ class Cache_Redis extends Cache_Base {
 	 * Adds data.
 	 *
 	 * @param string  $key    Key.
-	 * @param mixed   $var    Var.
+	 * @param mixed   $value  Var.
 	 * @param integer $expire Expire.
 	 * @param string  $group  Used to differentiate between groups of cache values.
 	 * @return bool
 	 */
-	public function add( $key, &$var, $expire = 0, $group = '' ) {
-		return $this->set( $key, $var, $expire, $group );
+	public function add( $key, &$value, $expire = 0, $group = '' ) {
+		return $this->set( $key, $value, $expire, $group );
 	}
 
 	/**
@@ -132,7 +132,7 @@ class Cache_Redis extends Cache_Base {
 	 * @return bool
 	 */
 	public function set( $key, $value, $expire = 0, $group = '' ) {
-		if ( ! isset( $var['key_version'] ) ) {
+		if ( ! isset( $value['key_version'] ) ) {
 			$value['key_version'] = $this->_get_key_version( $group );
 		}
 
@@ -275,7 +275,7 @@ class Cache_Redis extends Cache_Base {
 	public function flush( $group = '' ) {
 		$this->_get_key_version( $group );   // Initialize $this->_key_version.
 		if ( isset( $this->_key_version[ $group ] ) ) {
-			$this->_key_version[ $group ]++;
+			++$this->_key_version[ $group ];
 			$this->_set_key_version( $this->_key_version[ $group ], $group );
 		}
 
@@ -566,7 +566,7 @@ class Cache_Redis extends Cache_Base {
 
 				$accessor->select( $this->_dbid );
 			} catch ( \Exception $e ) {
-				error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				$accessor = null;
 			}
 

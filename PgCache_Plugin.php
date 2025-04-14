@@ -3,14 +3,17 @@
  * File: PgCache_Plugin.php
  *
  * @package W3TC
- *
- * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 
 namespace W3TC;
 
 /**
+ * Class PgCache_Plugin
+ *
  * W3 PgCache plugin
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class PgCache_Plugin {
 	/**
@@ -21,14 +24,18 @@ class PgCache_Plugin {
 	private $_config = null;
 
 	/**
-	 * Constructor.
+	 * Initializes the PgCache Plugin.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Runs plugin
+	 * Registers actions, filters, and other operations for the PgCache plugin.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		add_action( 'w3tc_flush_all', array( $this, 'w3tc_flush_posts' ), 1100, 1 );
@@ -73,15 +80,19 @@ class PgCache_Plugin {
 
 		if ( ( $this->_config->get_boolean( 'pgcache.late_init' ) ||
 			$this->_config->get_boolean( 'pgcache.late_caching' ) ) &&
-			! is_admin() ) {
+			! is_admin()
+		) {
 			$o = Dispatcher::component( 'PgCache_ContentGrabber' );
 			add_action( 'init', array( $o, 'delayed_cache_print' ), 99999 );
 		}
 
-		if ( ! $this->_config->get_boolean( 'pgcache.mirrors.enabled' ) &&
-			! Util_Environment::is_wpmu_subdomain() ) {
+		if (
+			! $this->_config->get_boolean( 'pgcache.mirrors.enabled' ) &&
+			! Util_Environment::is_wpmu_subdomain()
+		) {
 			add_action( 'init', array( $this, 'redirect_on_foreign_domain' ) );
 		}
+
 		if ( 'disable' === $this->_config->get_string( 'pgcache.rest' ) ) {
 			// remove XMLRPC edit link.
 			remove_action( 'xmlrpc_rsd_apis', 'rest_output_rsd' );
@@ -95,11 +106,11 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Get authentication WP Error.
+	 * Handles REST API authentication errors.
 	 *
-	 * @param mixed $result Result.
+	 * @param mixed $result The result of the authentication attempt.
 	 *
-	 * @return WP_Error
+	 * @return \WP_Error Authentication error message.
 	 */
 	public function rest_authentication_errors( $result ) {
 		$error_message = __( 'REST API disabled.', 'w3-total-cache' );
@@ -108,7 +119,7 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Does disk cache cleanup
+	 * Performs cache cleanup.
 	 *
 	 * @return void
 	 */
@@ -117,7 +128,7 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Prime cache
+	 * Priming process for the page cache.
 	 *
 	 * @return void
 	 */
@@ -126,18 +137,20 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Instantiates worker on demand
+	 * Returns an instance of the PgCache Plugin Admin component.
+	 *
+	 * @return \PgCache_Plugin_Admin The PgCache Plugin Admin instance.
 	 */
 	private function get_admin() {
 		return Dispatcher::component( 'PgCache_Plugin_Admin' );
 	}
 
 	/**
-	 * Cron schedules filter
+	 * Modifies the available cron schedules.
 	 *
-	 * @param array $schedules Schedules.
+	 * @param array $schedules Existing cron schedules.
 	 *
-	 * @return array
+	 * @return array Modified cron schedules.
 	 */
 	public function cron_schedules( $schedules ) {
 		$c               = $this->_config;
@@ -172,11 +185,13 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Cron job for processing purging page cache.
+	 * Purges the page cache via WP Cron.
 	 *
 	 * @since 2.8.0
 	 *
 	 * @return void
+	 *
+	 * @throws \Exception If there is an error while purging the cache.
 	 */
 	public function w3tc_pgcache_purge_wpcron() {
 		$flusher = Dispatcher::component( 'CacheFlush' );
@@ -184,13 +199,15 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Redirect if foreign domain or WP_CLI.
+	 * Redirects to the correct domain if on a foreign domain.
+	 *
+	 * @return void
 	 */
 	public function redirect_on_foreign_domain() {
 		$request_host = Util_Environment::host();
 
 		// host not known, potentially we are in console mode not http request.
-		if ( empty( $request_host ) || defined( 'WP_CLI' ) && WP_CLI ) {
+		if ( empty( $request_host ) || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 			return;
 		}
 
@@ -225,9 +242,11 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Get comment cookie lifetime
+	 * Modifies the comment cookie lifetime.
 	 *
-	 * @param integer $lifetime Comment cookie lifetime.
+	 * @param int $lifetime The current cookie lifetime.
+	 *
+	 * @return int The modified cookie lifetime.
 	 */
 	public function comment_cookie_lifetime( $lifetime ) {
 		$l = $this->_config->get_integer( 'pgcache.comment_cookie_ttl' );
@@ -239,14 +258,18 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Add cookie on logout to circumvent pagecache due to browser cache resulting in 304s
+	 * Handles actions upon user logout.
+	 *
+	 * @return void
 	 */
 	public function on_logout() {
 		setcookie( 'w3tc_logged_out' );
 	}
 
 	/**
-	 * Remove logout cookie on logins
+	 * Handles actions upon user login.
+	 *
+	 * @return void
 	 */
 	public function on_login() {
 		if ( isset( $_COOKIE['w3tc_logged_out'] ) ) {
@@ -255,11 +278,11 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Primes post.
+	 * Priming the post cache upon post publish or update.
 	 *
-	 * @param integer $post_id Post ID.
-	 * @param object  $post    Post object.
-	 * @param boolean $update  Update flag.
+	 * @param int      $post_id The post ID.
+	 * @param \WP_Post $post    The post object.
+	 * @param bool     $update  Whether the post is being updated.
 	 *
 	 * @return void
 	 */
@@ -289,9 +312,11 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Retrive usage statistics metrics
+	 * Merges additional page cache metrics into the provided array.
 	 *
-	 * @param array $metrics Metrics.
+	 * @param array $metrics Array of existing metrics.
+	 *
+	 * @return array Merged array of metrics.
 	 */
 	public function w3tc_usage_statistics_metrics( $metrics ) {
 		return array_merge(
@@ -314,11 +339,11 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Usage Statisitcs sources filter.
+	 * Adds page cache engine information to the statistics sources array based on the configuration.
 	 *
-	 * @param array $sources Sources.
+	 * @param array $sources Existing sources array.
 	 *
-	 * @return array
+	 * @return array Modified sources array with added page cache engine information.
 	 */
 	public function w3tc_usage_statistics_sources( $sources ) {
 		$c = Dispatcher::config();
@@ -348,9 +373,11 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Setup admin menu elements
+	 * Adds page cache-related items to the admin bar menu.
 	 *
-	 * @param array $menu_items Menu items.
+	 * @param array $menu_items Existing admin menu items.
+	 *
+	 * @return array Modified admin menu items with page cache options.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
 		$menu_items['20110.pagecache'] = array(
@@ -379,10 +406,12 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Flush cache group.
+	 * Flushes the specified page cache group.
 	 *
-	 * @param string $group Group name.
-	 * @param array  $extras Additionals to flush.
+	 * @param string $group  The group to flush.
+	 * @param array  $extras Optional extra parameters.
+	 *
+	 * @return mixed Result of the flush operation.
 	 */
 	public function w3tc_flush_group( $group, $extras = array() ) {
 		if ( isset( $extras['only'] ) && 'pagecache' !== (string) $extras['only'] ) {
@@ -396,11 +425,11 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Flushes all caches
+	 * Flushes the entire page cache for posts.
 	 *
-	 * @param array $extras Additionals to flush.
+	 * @param array $extras Optional extra parameters.
 	 *
-	 * @return boolean
+	 * @return mixed Result of the flush operation.
 	 */
 	public function w3tc_flush_posts( $extras = array() ) {
 		if ( isset( $extras['only'] ) && 'pagecache' !== (string) $extras['only'] ) {
@@ -414,12 +443,12 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Flushes post cache
+	 * Flushes the page cache for a specific post.
 	 *
-	 * @param integer $post_id Post ID.
-	 * @param boolean $force   Force flag (optional).
+	 * @param int  $post_id Post ID to flush.
+	 * @param bool $force   Whether to force the flush.
 	 *
-	 * @return boolean
+	 * @return mixed Result of the flush operation.
 	 */
 	public function w3tc_flush_post( $post_id, $force = false ) {
 		$pgcacheflush = Dispatcher::component( 'PgCache_Flush' );
@@ -429,11 +458,11 @@ class PgCache_Plugin {
 	}
 
 	/**
-	 * Flushes post cache
+	 * Flushes the page cache for a specific URL.
 	 *
-	 * @param string $url URL.
+	 * @param string $url URL to flush.
 	 *
-	 * @return boolean
+	 * @return mixed Result of the flush operation.
 	 */
 	public function w3tc_flush_url( $url ) {
 		$pgcacheflush = Dispatcher::component( 'PgCache_Flush' );
@@ -442,16 +471,14 @@ class PgCache_Plugin {
 		return $v;
 	}
 
-
-
 	/**
-	 * By default headers are not cached by file_generic
+	 * Sets the page cache header for file_generic engine.
 	 *
-	 * @param mixed  $header New header.
-	 * @param mixed  $header_original Original header.
-	 * @param string $pagecache_engine Engine name.
+	 * @param string $header            The current header.
+	 * @param string $header_original   The original header.
+	 * @param string $pagecache_engine  The page cache engine type.
 	 *
-	 * @return mixed|null
+	 * @return string|null The modified header or null if no change.
 	 */
 	public function w3tc_pagecache_set_header( $header, $header_original, $pagecache_engine ) {
 		if ( 'file_generic' === (string) $pagecache_engine ) {

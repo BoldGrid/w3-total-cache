@@ -51,6 +51,7 @@ class CdnEngine_Mirror_BunnyCdn extends CdnEngine_Mirror {
 	 *
 	 * @param  array $files   Local and remote file paths.
 	 * @param  array $results Results.
+	 *
 	 * @return bool
 	 */
 	public function purge( $files, &$results ) {
@@ -98,6 +99,7 @@ class CdnEngine_Mirror_BunnyCdn extends CdnEngine_Mirror {
 	 * @since 2.6.0
 	 *
 	 * @param  array $results Results.
+	 *
 	 * @return bool
 	 */
 	public function purge_all( &$results ) {

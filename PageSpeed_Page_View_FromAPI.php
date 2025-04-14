@@ -7,6 +7,8 @@
  * @since 2.3.0 Update to utilize OAuth2.0 and overhaul of feature.
  *
  * @package W3TC
+ *
+ * phpcs:disable WordPress.Security.NonceVerification
  */
 
 namespace W3TC;

@@ -1,177 +1,266 @@
 <?php
+/**
+ * File: Enterprise_CacheFlush_MakeSnsEvent.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
+ * Class Enterprise_CacheFlush_MakeSnsEvent
+ *
  * Purge using AmazonSNS object
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
 class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
-
+	/**
+	 * Messages
+	 *
+	 * @var array
+	 */
 	private $messages = array();
+
+	/**
+	 * Messages by signature
+	 *
+	 * @var array
+	 */
 	private $messages_by_signature = array();
 
 	/**
-	 * Flushes DB caches
+	 * Flushes the database cache.
 	 *
+	 * @return void
 	 */
-	function dbcache_flush() {
+	public function dbcache_flush() {
 		$this->_prepare_message( array( 'action' => 'dbcache_flush' ) );
 	}
 
 	/**
-	 * Flushes minify caches
+	 * Flushes the minify cache.
 	 *
+	 * @return void
 	 */
-	function minifycache_flush() {
+	public function minifycache_flush() {
 		$this->_prepare_message( array( 'action' => 'minifycache_flush' ) );
 	}
 
 	/**
-	 * Flushes object caches
+	 * Flushes the object cache.
 	 *
+	 * @return void
 	 */
-	function objectcache_flush() {
+	public function objectcache_flush() {
 		$this->_prepare_message( array( 'action' => 'objectcache_flush' ) );
 	}
 
 	/**
-	 * Flushes fragment caches
+	 * Flushes the fragment cache.
 	 *
+	 * @return void
 	 */
-	function fragmentcache_flush() {
+	public function fragmentcache_flush() {
 		$this->_prepare_message( array( 'action' => 'fragmentcache_flush' ) );
 	}
 
 	/**
-	 * Flushes fragment cache based on group
+	 * Flushes a specific fragment cache group.
 	 *
+	 * @param string $group The cache group to flush.
+	 *
+	 * @return void
 	 */
-	function fragmentcache_flush_group( $group ) {
-		$this->_prepare_message( array( 'action' => 'fragmentcache_flush_group',
-				'group' => $group ) );
+	public function fragmentcache_flush_group( $group ) {
+		$this->_prepare_message(
+			array(
+				'action' => 'fragmentcache_flush_group',
+				'group'  => $group,
+			)
+		);
 	}
 
 	/**
-	 * Flushes query string
+	 * Flushes the browser cache.
 	 *
+	 * @return void
 	 */
-	function browsercache_flush() {
+	public function browsercache_flush() {
 		$this->_prepare_message( array( 'action' => 'browsercache_flush' ) );
 	}
 
-	function cdn_purge_all( $extras = null ) {
-		return $this->_prepare_message( array(
-			'action' => 'cdn_purge_all',
-			'extras' => $extras ) );
-	}
-
 	/**
-	 * Purges Files from Varnish (If enabled) and CDN
+	 * Purges all CDN cache.
 	 *
+	 * @param mixed|null $extras Optional additional data for purging.
+	 *
+	 * @return bool
 	 */
-	function cdn_purge_files( $purgefiles ) {
-		$this->_prepare_message( array( 'action' => 'cdn_purge_files', 'purgefiles' => $purgefiles ) );
+	public function cdn_purge_all( $extras = null ) {
+		return $this->_prepare_message(
+			array(
+				'action' => 'cdn_purge_all',
+				'extras' => $extras,
+			)
+		);
 	}
 
 	/**
-	 * Performs garbage collection on the pgcache
+	 * Purges specific files from the CDN cache.
+	 *
+	 * @param array $purgefiles List of files to purge.
+	 *
+	 * @return void
 	 */
-	function pgcache_cleanup() {
+	public function cdn_purge_files( $purgefiles ) {
+		$this->_prepare_message(
+			array(
+				'action'     => 'cdn_purge_files',
+				'purgefiles' => $purgefiles,
+			)
+		);
+	}
+
+	/**
+	 * Cleans up the page cache.
+	 *
+	 * @return void
+	 */
+	public function pgcache_cleanup() {
 		$this->_prepare_message( array( 'action' => 'pgcache_cleanup' ) );
 	}
 
 	/**
-	 * Flushes the system APC
+	 * Flushes the OPcache.
 	 *
-	 * @return bool
+	 * @return void
 	 */
-	function opcache_flush() {
+	public function opcache_flush() {
 		$this->_prepare_message( array( 'action' => 'opcache_flush' ) );
 	}
 
 	/**
-	 * Purges/Flushes post page
+	 * Flushes the cache for a specific post.
 	 *
-	 * @param unknown $post_id
-	 * @return boolean
+	 * @param int        $post_id The ID of the post to flush.
+	 * @param mixed|null $extras  Optional additional data for flushing.
+	 *
+	 * @return bool
 	 */
-	function flush_post( $post_id, $extras = null ) {
-		return $this->_prepare_message( array(
-			'action' => 'flush_post',
-			'post_id' => $post_id,
-			'extras' => $extras ) );
+	public function flush_post( $post_id, $extras = null ) {
+		return $this->_prepare_message(
+			array(
+				'action'  => 'flush_post',
+				'post_id' => $post_id,
+				'extras'  => $extras,
+			)
+		);
 	}
 
 	/**
-	 * Purges/Flushes posts from caches
+	 * Flushes the cache for multiple posts.
 	 *
-	 * @param unknown $extras
-	 * @return boolean
+	 * @param mixed $extras Additional data for flushing.
+	 *
+	 * @return bool
 	 */
-	function flush_posts( $extras ) {
-		return $this->_prepare_message( array(
+	public function flush_posts( $extras ) {
+		return $this->_prepare_message(
+			array(
 				'action' => 'flush_posts',
-				'extras' => $extras ) );
+				'extras' => $extras,
+			)
+		);
 	}
 
 	/**
-	 * Purges/Flushes all enabled caches
+	 * Flushes all caches.
 	 *
-	 * @return boolean
+	 * @param mixed $extras Additional data for flushing.
+	 *
+	 * @return bool
 	 */
-	function flush_all( $extras ) {
-		return $this->_prepare_message( array(
+	public function flush_all( $extras ) {
+		return $this->_prepare_message(
+			array(
 				'action' => 'flush_all',
-				'extras' => $extras
-			) );
+				'extras' => $extras,
+			)
+		);
 	}
 
-	function flush_group( $group, $extras ) {
-		return $this->_prepare_message( array(
+	/**
+	 * Flushes a specific cache group.
+	 *
+	 * @param string $group  The group to flush.
+	 * @param mixed  $extras Additional data for flushing.
+	 *
+	 * @return bool
+	 */
+	public function flush_group( $group, $extras ) {
+		return $this->_prepare_message(
+			array(
 				'action' => 'flush_group',
-				'group' => $group,
-				'extras' => $extras
-			) );
+				'group'  => $group,
+				'extras' => $extras,
+			)
+		);
 	}
 
-
 	/**
-	 * Purges/Flushes url
+	 * Flushes the cache for a specific URL.
 	 *
-	 * @param string  $url
-	 * @return boolean
+	 * @param string $url    The URL to flush.
+	 * @param mixed  $extras Additional data for flushing.
+	 *
+	 * @return bool
 	 */
-	function flush_url( $url, $extras ) {
-		return $this->_prepare_message( array(
-			'action' => 'flush_url',
-			'url' => $url,
-			'extras' => $extras ) );
+	public function flush_url( $url, $extras ) {
+		return $this->_prepare_message(
+			array(
+				'action' => 'flush_url',
+				'url'    => $url,
+				'extras' => $extras,
+			)
+		);
 	}
 
 	/**
-	 * Makes get request to url specific to post, ie permalinks
+	 * Primes the cache for a specific post.
 	 *
-	 * @param unknown $post_id
-	 * @return mixed
+	 * @param int $post_id The ID of the post to prime.
+	 *
+	 * @return bool
 	 */
-	function prime_post( $post_id ) {
-		return $this->_prepare_message( array( 'action' => 'prime_post', 'post_id' => $post_id ) );
+	public function prime_post( $post_id ) {
+		return $this->_prepare_message(
+			array(
+				'action'  => 'prime_post',
+				'post_id' => $post_id,
+			)
+		);
 	}
 
 	/**
-	 * Setups message list and if it should be combined or separate
+	 * Prepares a message for the caching system.
 	 *
-	 * @param unknown $message
-	 * @return boolean
+	 * @param array $message The message to prepare.
+	 *
+	 * @return bool
 	 */
 	private function _prepare_message( $message ) {
-		$message_signature = json_encode( $message );
-		if ( isset( $this->messages_by_signature[$message_signature] ) )
+		$message_signature = wp_json_encode( $message );
+		if ( isset( $this->messages_by_signature[ $message_signature ] ) ) {
 			return true;
-		$this->messages_by_signature[$message_signature] = '*';
-		$this->messages[] = $message;
+		}
+
+		$this->messages_by_signature[ $message_signature ] = '*';
+		$this->messages[]                                  = $message;
 
 		$action = $this->_get_action();
-		if ( !$action ) {
+		if ( ! $action ) {
 			$this->execute_delayed_operations();
 			return true;
 		}
@@ -180,53 +269,66 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 	}
 
 	/**
-	 * Sends messages stored in $messages
+	 * Executes delayed cache operations.
 	 *
-	 * @return boolean
+	 * @return bool
+	 *
+	 * @throws \Exception If an error occurs during API publishing.
 	 */
 	public function execute_delayed_operations() {
-		if ( count( $this->messages ) <= 0 )
+		if ( count( $this->messages ) <= 0 ) {
 			return true;
+		}
 
 		$this->_log( $this->_get_action() . ' sending messages' );
 
-		$message = array();
-		$message['actions'] = $this->messages;
-		$message['blog_id'] = Util_Environment::blog_id();
-		$message['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : null;
+		$message             = array();
+		$message['actions']  = $this->messages;
+		$message['blog_id']  = Util_Environment::blog_id();
+		$message['host']     = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : null;
 		$message['hostname'] = @gethostname();
-		$v = json_encode( $message );
+		$v                   = wp_json_encode( $message );
 
 		try {
 			$api = $this->_get_api();
-			if ( defined( 'WP_CLI' ) && WP_CLI )
+			if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				$origin = 'WP CLI';
-			else
+			} else {
 				$origin = 'WP';
+			}
+
 			$this->_log( $origin . ' sending message ' . $v );
 			$this->_log( 'Host: ' . $message['host'] );
-			if ( isset( $_SERVER['REQUEST_URI'] ) )
-				$this->_log( 'URL: ' . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
-			if ( function_exists( 'current_filter' ) )
-				$this->_log( 'Current WP hook: ' . current_filter() );
 
-			$backtrace = debug_backtrace();
+			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+				$this->_log( 'URL: ' . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+			}
+
+			if ( function_exists( 'current_filter' ) ) {
+				$this->_log( 'Current WP hook: ' . current_filter() );
+			}
+
+			$backtrace           = debug_backtrace(); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 			$backtrace_optimized = array();
 			foreach ( $backtrace as $b ) {
-				$opt = isset( $b['function'] ) ? $b['function'] . ' ' : '';
-				$opt .= isset( $b['file'] ) ? $b['file'] . ' ' : '';
-				$opt .= isset( $b['line'] ) ?  '#' . $b['line'] . ' ' : '';
+				$opt                   = isset( $b['function'] ) ? $b['function'] . ' ' : '';
+				$opt                  .= isset( $b['file'] ) ? $b['file'] . ' ' : '';
+				$opt                  .= isset( $b['line'] ) ? '#' . $b['line'] . ' ' : '';
 				$backtrace_optimized[] = $opt;
 
 			}
+
 			$this->_log( 'Backtrace ', $backtrace_optimized );
 
-			$r = $api->publish( array(
-				'Message' => $v,
-				'TopicArn' => $this->_topic_arn ) );
-			if ( $r['@metadata']['statusCode'] != 200 ) {
-				$this->_log( "Error" );
-				$this->_log( json_encode($r) );
+			$r = $api->publish(
+				array(
+					'Message'  => $v,
+					'TopicArn' => $this->_topic_arn,
+				)
+			);
+			if ( 200 !== $r['@metadata']['statusCode'] ) {
+				$this->_log( 'Error' );
+				$this->_log( wp_json_encode( $r ) );
 				return false;
 			}
 		} catch ( \Exception $e ) {
@@ -234,21 +336,23 @@ class Enterprise_CacheFlush_MakeSnsEvent extends Enterprise_SnsBase {
 			return false;
 		}
 
-		// on success - reset messages array, but not hash (not resent repeatedly the same messages)
+		// on success - reset messages array, but not hash (not resent repeatedly the same messages).
 		$this->messages = array();
 
 		return true;
 	}
 
 	/**
-	 * Gets the current running WP action if any. Returns empty string if not found.
+	 * Retrieves the current action name.
 	 *
-	 * @return string
+	 * @return string The current action name.
 	 */
 	private function _get_action() {
 		$action = '';
-		if ( function_exists( 'current_filter' ) )
+		if ( function_exists( 'current_filter' ) ) {
 			$action = current_filter();
+		}
+
 		return $action;
 	}
 }

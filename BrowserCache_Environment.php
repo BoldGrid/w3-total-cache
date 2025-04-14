@@ -814,11 +814,9 @@ class BrowserCache_Environment {
 
 		if ( $etag ) {
 			$rules .= "    FileETag MTime Size\n";
-		} else {
-			if ( $compatibility ) {
-				$rules         .= "    FileETag None\n";
-				$headers_rules .= "        Header unset ETag\n";
-			}
+		} elseif ( $compatibility ) {
+			$rules         .= "    FileETag None\n";
+			$headers_rules .= "        Header unset ETag\n";
 		}
 
 		if ( $unset_setcookie ) {

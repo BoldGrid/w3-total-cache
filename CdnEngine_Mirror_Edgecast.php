@@ -1,7 +1,16 @@
 <?php
+/**
+ * File: CdnEngine_Mirror_Edgecast.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-if ( !defined( 'W3TC_CDN_EDGECAST_PURGE_URL' ) ) define( 'W3TC_CDN_EDGECAST_PURGE_URL', 'http://api.edgecast.com/v2/mcc/customers/%s/edge/purge' );
+if ( ! defined( 'W3TC_CDN_EDGECAST_PURGE_URL' ) ) {
+	define( 'W3TC_CDN_EDGECAST_PURGE_URL', 'http://api.edgecast.com/v2/mcc/customers/%s/edge/purge' );
+}
+
 define( 'W3TC_CDN_EDGECAST_MEDIATYPE_WINDOWS_MEDIA_STREAMING', 1 );
 define( 'W3TC_CDN_EDGECAST_MEDIATYPE_FLASH_MEDIA_STREAMING', 2 );
 define( 'W3TC_CDN_EDGECAST_MEDIATYPE_HTTP_LARGE_OBJECT', 3 );
@@ -9,31 +18,39 @@ define( 'W3TC_CDN_EDGECAST_MEDIATYPE_HTTP_SMALL_OBJECT', 8 );
 define( 'W3TC_CDN_EDGECAST_MEDIATYPE_APPLICATION_DELIVERY_NETWORK', 14 );
 
 /**
- * class CdnEngine_Mirror_Edgecast
+ * Class CdnEngine_Mirror_Edgecast
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class CdnEngine_Mirror_Edgecast extends CdnEngine_Mirror {
 	/**
-	 * PHP5 Constructor
+	 * Constructor for the class.
 	 *
-	 * @param array   $config
+	 * @param array $config Configuration array with API credentials and other settings.
+	 *
+	 * @return void
 	 */
-	function __construct( $config = array() ) {
-		$config = array_merge( array(
-				'apiid' => '',
-				'apikey' => ''
-			), $config );
+	public function __construct( $config = array() ) {
+		$config = array_merge(
+			array(
+				'apiid'  => '',
+				'apikey' => '',
+			),
+			$config
+		);
 
 		parent::__construct( $config );
 	}
 
 	/**
-	 * Purges remote files
+	 * Purges specified files from the CDN.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @return boolean
+	 * @param array $files  Array of files to purge.
+	 * @param array $results Reference to an array where the purge results will be stored.
+	 *
+	 * @return bool True if all files were purged successfully, false otherwise.
 	 */
-	function purge( $files, &$results ) {
+	public function purge( $files, &$results ) {
 		if ( empty( $this->_config['account'] ) ) {
 			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, __( 'Empty account #.', 'w3-total-cache' ) );
 
@@ -47,7 +64,7 @@ class CdnEngine_Mirror_Edgecast extends CdnEngine_Mirror {
 		}
 
 		foreach ( $files as $file ) {
-			$local_path = $file['local_path'];
+			$local_path  = $file['local_path'];
 			$remote_path = $file['remote_path'];
 
 			$url = $this->format_url( $remote_path );
@@ -55,51 +72,78 @@ class CdnEngine_Mirror_Edgecast extends CdnEngine_Mirror {
 			$error = null;
 
 			if ( $this->_purge_content( $url, W3TC_CDN_EDGECAST_MEDIATYPE_HTTP_SMALL_OBJECT, $error ) ) {
-				$results[] = $this->_get_result( $local_path, $remote_path,
-					W3TC_CDN_RESULT_OK, __( 'OK', 'w3-total-cache' ), $file );
+				$results[] = $this->_get_result(
+					$local_path,
+					$remote_path,
+					W3TC_CDN_RESULT_OK,
+					__( 'OK', 'w3-total-cache' ),
+					$file
+				);
 			} else {
-				$results[] = $this->_get_result( $local_path, $remote_path,
+				$results[] = $this->_get_result(
+					$local_path,
+					$remote_path,
 					W3TC_CDN_RESULT_ERROR,
-					sprintf( __( 'Unable to purge (%s).', 'w3-total-cache' ), $error ),
-					$file );
+					sprintf(
+						// Translators: 1 error message.
+						__(
+							'Unable to purge (%1$s).',
+							'w3-total-cache'
+						),
+						$error
+					),
+					$file
+				);
 			}
 		}
 
-		return !$this->_is_error( $results );
+		return ! $this->_is_error( $results );
 	}
 
 	/**
-	 * Purges CDN completely
+	 * Purges all files from the CDN.
 	 *
-	 * @param unknown $results
-	 * @return bool
-	 */
-	function purge_all( &$results ) {
-		return $this->purge( array( array( 'local_path'=>'*', 'remote_path'=> '*' ) ), $results );
-	}
-
-	/**
-	 * Purge content
+	 * @param array $results Reference to an array where the purge results will be stored.
 	 *
-	 * @param string  $path
-	 * @param int     $type
-	 * @param string  $error
-	 * @return boolean
+	 * @return bool True if the purge was successful, false otherwise.
 	 */
-	function _purge_content( $path, $type, &$error ) {
-		$url = sprintf( W3TC_CDN_EDGECAST_PURGE_URL, $this->_config['account'] );
-		$args = array(
-			'method' => 'PUT',
-			'user-agent' => W3TC_POWERED_BY,
-			'headers' => array(
-				'Accept' => 'application/json',
-				'Content-Type' => 'application/json',
-				'Authorization' => sprintf( 'TOK:%s', $this->_config['token'] )
+	public function purge_all( &$results ) {
+		return $this->purge(
+			array(
+				array(
+					'local_path'  => '*',
+					'remote_path' => '*',
+				),
 			),
-			'body' => json_encode( array(
+			$results
+		);
+	}
+
+	/**
+	 * Sends a request to purge content from the CDN.
+	 *
+	 * @param string $path   The path of the content to purge.
+	 * @param string $type   The type of the content to purge.
+	 * @param string $error  Reference to a variable where any error message will be stored.
+	 *
+	 * @return bool True if the purge request was successful, false otherwise.
+	 */
+	public function _purge_content( $path, $type, &$error ) {
+		$url  = sprintf( W3TC_CDN_EDGECAST_PURGE_URL, $this->_config['account'] );
+		$args = array(
+			'method'     => 'PUT',
+			'user-agent' => W3TC_POWERED_BY,
+			'headers'    => array(
+				'Accept'        => 'application/json',
+				'Content-Type'  => 'application/json',
+				'Authorization' => sprintf( 'TOK:%s', $this->_config['token'] ),
+			),
+			'body'       => wp_json_encode(
+				array(
 					'MediaPath' => $path,
-					'MediaType' => $type
-				) )
+					'MediaType' => $type,
+				)
+			),
 		);
 
 		$response = wp_remote_request( $url, $args );
@@ -111,28 +155,28 @@ class CdnEngine_Mirror_Edgecast extends CdnEngine_Mirror {
 		}
 
 		switch ( $response['response']['code'] ) {
-		case 200:
-			return true;
+			case 200:
+				return true;
 
-		case 400:
-			$error = __( 'Invalid Request Parameter', 'w3-total-cache' );
-			return false;
+			case 400:
+				$error = __( 'Invalid Request Parameter', 'w3-total-cache' );
+				return false;
 
-		case 403:
-			$error = __( 'Authentication Failure or Insufficient Access Rights', 'w3-total-cache' );
-			return false;
+			case 403:
+				$error = __( 'Authentication Failure or Insufficient Access Rights', 'w3-total-cache' );
+				return false;
 
-		case 404:
-			$error = __( 'Invalid Request URI', 'w3-total-cache' );
-			return false;
+			case 404:
+				$error = __( 'Invalid Request URI', 'w3-total-cache' );
+				return false;
 
-		case 405:
-			$error = __( 'Invalid Request', 'w3-total-cache' );
-			return false;
+			case 405:
+				$error = __( 'Invalid Request', 'w3-total-cache' );
+				return false;
 
-		case 500:
-			$error = __( 'Server Error', 'w3-total-cache' );
-			return false;
+			case 500:
+				$error = __( 'Server Error', 'w3-total-cache' );
+				return false;
 		}
 
 		$error = 'Unknown error';

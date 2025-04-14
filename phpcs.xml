@@ -33,6 +33,9 @@
     </rule>
 
     <!-- Exclude dependency packages -->
+    <exclude-pattern>./lib/*</exclude-pattern>
     <exclude-pattern>./node_modules/*</exclude-pattern>
+    <exclude-pattern>./qa/*</exclude-pattern>
+    <exclude-pattern>./tests/*</exclude-pattern>
     <exclude-pattern>./vendor/*</exclude-pattern>
 </ruleset>

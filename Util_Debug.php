@@ -11,6 +11,7 @@ namespace W3TC;
  * Class Util_Debug
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class Util_Debug {
 	/**
@@ -125,7 +126,7 @@ class Util_Debug {
 			$method            = ( ! empty( $i['class'] ) ? $i['class'] . '--' : '' ) . $i['function'];
 			$args              = ' ' . self::encode_params( $i['args'] );
 			$backtrace_lines[] = "\t#" . ( $pos ) . ' ' . $filename . '(' . $line . '): ' . $method . $args;
-			$pos++;
+			++$pos;
 		}
 
 		$message = $message;
@@ -190,7 +191,7 @@ class Util_Debug {
 			$args_strings[] = $s;
 		} else {
 			foreach ( $args as $arg ) {
-				$s = json_encode( $arg, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+				$s = wp_json_encode( $arg, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 				if ( strlen( $s ) > 100 ) {
 					$s = substr( $s, 0, 98 ) . '..';
 				}

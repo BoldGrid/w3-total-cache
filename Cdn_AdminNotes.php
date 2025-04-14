@@ -9,13 +9,23 @@ namespace W3TC;
 
 /**
  * Class: Cdn_AdminNotes
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.DB.DirectDatabaseQuery
  */
 class Cdn_AdminNotes {
 	/**
-	 * Process admin notices.
+	 * Adds CDN-related notes to the provided array of admin notices.
 	 *
-	 * @param array $notes Notes.
-	 * @return array
+	 * This method checks various conditions related to the CDN configuration,
+	 * WordPress upgrades, theme changes, and other CDN settings to determine
+	 * which admin notices should be displayed.
+	 *
+	 * phpcs:disable WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
+	 *
+	 * @param array $notes Array of existing admin notices.
+	 *
+	 * @return array Updated array of admin notices.
 	 */
 	public function w3tc_notes( array $notes ): array {
 		$config     = Dispatcher::config();
@@ -144,27 +154,19 @@ class Cdn_AdminNotes {
 			);
 		}
 
-		if ( 'maxcdn' === $cdn_engine ) {
-			$notes[] = sprintf(
-				// translators: 1: Opening anchor tag with a link to the CDN settings page, 2: closing anchor tag, 3 opening anchor tag to MaxCDN/StackPath migration guide.
-				__(
-					'MaxCDN has been replaced with StackPath CDN. As a result your configuration is now invalid and requires reconfiguration to a new %1$sCDN provider%2$s. You can migrate to StackPath using %3$sthis guide%2$s.',
-					'w3-total-cache'
-				),
-				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
-				'</a>',
-				'<a href="' . esc_url( 'https://support.stackpath.com/hc/en-us/articles/10408946467739-MaxCDN-Migration-to-StackPath-Instructions' ) . '" target="_blank">'
-			);
-		}
-
 		return $notes;
 	}
 
 	/**
-	 * Process error messages.
+	 * Adds CDN-related errors to the provided array of admin errors.
 	 *
-	 * @param array $errors Errors.
-	 * @return array
+	 * This method checks for issues such as upload queue errors, configuration
+	 * inconsistencies, and missing settings. It ensures the errors array includes
+	 * relevant information for resolving CDN-related problems.
+	 *
+	 * @param array $errors Array of existing admin errors.
+	 *
+	 * @return array Updated array of admin errors.
 	 */
 	public function w3tc_errors( array $errors ): array {
 		$c          = Dispatcher::config();
@@ -176,7 +178,8 @@ class Cdn_AdminNotes {
 			 * Show notification if upload queue is not empty.
 			 */
 			try {
-				if ( ! ( $error = get_transient( 'w3tc_cdn_error' ) ) && ! $this->_is_queue_empty() ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
+				$error = get_transient( 'w3tc_cdn_error' );
+				if ( ! $error && ! $this->_is_queue_empty() ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
 					$errors['cdn_unsuccessful_queue'] = sprintf(
 						// translators: 1: Button code.
 						__( 'The %1$s has unresolved errors. Empty the queue to restore normal operation.', 'w3-total-cache' ),
@@ -292,12 +295,18 @@ class Cdn_AdminNotes {
 		return $errors;
 	}
 
-
 	/**
-	 * Returns true if upload queue is empty
+	 * Checks if the CDN queue is empty.
 	 *
-	 * @return bool
-	 * @throws \Exception Exception.
+	 * This method checks if there are any items in the CDN queue by querying the corresponding table in the database.
+	 * If the queue is empty, it returns true. If the table doesn't exist or there is another database error, an exception
+	 * is thrown with a detailed error message.
+	 *
+	 * @global wpdb $wpdb WordPress database object.
+	 *
+	 * @throws \Exception If there is a database error or the table doesn't exist.
+	 *
+	 * @return bool True if the queue is empty, false otherwise.
 	 */
 	private function _is_queue_empty(): bool {
 		global $wpdb;
@@ -305,7 +314,8 @@ class Cdn_AdminNotes {
 
 		$result = $wpdb->get_var( sprintf( 'SELECT COUNT(`id`) FROM `%s`', $wpdb->base_prefix . W3TC_CDN_TABLE_QUEUE ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		if ( ( $error = $wpdb->last_error ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
+		$error = $wpdb->last_error;
+		if ( $error ) {
 			if ( strpos( $error, "doesn't exist" ) !== false ) {
 				$url = is_network_admin() ? network_admin_url( 'admin.php?page=w3tc_install' ) : admin_url( 'admin.php?page=w3tc_install' );
 				throw new \Exception(

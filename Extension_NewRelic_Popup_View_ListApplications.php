@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Extension_NewRelic_Popup_View_ListApplications.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -7,7 +13,7 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <form style="padding: 20px" class="w3tcnr_form">
 	<?php
-	Util_Ui::hidden( '', 'api_key', $details['api_key'] );
+	Util_Ui::hidden( 'w3tc-rackspace-api-key', 'api_key', $details['api_key'] );
 	?>
 
 	<div class="metabox-holder">

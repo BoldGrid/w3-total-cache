@@ -11,7 +11,7 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
-$c = Dispatcher::config();
+$c      = Dispatcher::config();
 $is_pro = Util_Environment::is_w3tc_pro( $c );
 
 Util_Ui::postbox_header_tabs(
@@ -101,15 +101,15 @@ Util_Ui::config_item(
 
 Util_Ui::config_item(
 	array(
-		'key'          => 'stats.access_log.webserver',
-		'label'        => __( 'Webserver:', 'w3-total-cache' ),
-		'control'      => 'selectbox',
+		'key'              => 'stats.access_log.webserver',
+		'label'            => __( 'Webserver:', 'w3-total-cache' ),
+		'control'          => 'selectbox',
 		'selectbox_values' => array(
 			'apache' => 'Apache',
 			'nginx'  => 'Nginx',
 		),
-		'description'  => __( 'Webserver type generating access logs.', 'w3-total-cache' ),
-		'show_in_free' => false,
+		'description'      => __( 'Webserver type generating access logs.', 'w3-total-cache' ),
+		'show_in_free'     => false,
 	)
 );
 

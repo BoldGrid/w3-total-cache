@@ -28,15 +28,15 @@ class Cache_Apcu extends Cache_Base {
 	 * Adds data
 	 *
 	 * @param string  $key    Key.
-	 * @param mixed   $var    Value.
+	 * @param mixed   $value  Value.
 	 * @param integer $expire Time to expire.
 	 * @param string  $group  Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function add( $key, &$var, $expire = 0, $group = '' ) {
+	public function add( $key, &$value, $expire = 0, $group = '' ) {
 		if ( $this->get( $key, $group ) === false ) {
-			return $this->set( $key, $var, $expire, $group );
+			return $this->set( $key, $value, $expire, $group );
 		}
 
 		return false;
@@ -46,20 +46,20 @@ class Cache_Apcu extends Cache_Base {
 	 * Sets data
 	 *
 	 * @param string  $key    Key.
-	 * @param mixed   $var    Value.
+	 * @param mixed   $value  Value.
 	 * @param integer $expire Time to expire.
 	 * @param string  $group  Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function set( $key, $var, $expire = 0, $group = '' ) {
-		if ( ! isset( $var['key_version'] ) ) {
-			$var['key_version'] = $this->_get_key_version( $group );
+	public function set( $key, $value, $expire = 0, $group = '' ) {
+		if ( ! isset( $value['key_version'] ) ) {
+			$value['key_version'] = $this->_get_key_version( $group );
 		}
 
 		$storage_key = $this->get_item_key( $key );
 
-		return apcu_store( $storage_key, serialize( $var ), $expire );
+		return apcu_store( $storage_key, serialize( $value ), $expire );
 	}
 
 	/**
@@ -115,15 +115,15 @@ class Cache_Apcu extends Cache_Base {
 	 * Replaces data
 	 *
 	 * @param string  $key    Key.
-	 * @param mixed   $var    Value.
+	 * @param mixed   $value  Value.
 	 * @param integer $expire Time to expire.
 	 * @param string  $group  Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function replace( $key, &$var, $expire = 0, $group = '' ) {
+	public function replace( $key, &$value, $expire = 0, $group = '' ) {
 		if ( $this->get( $key, $group ) !== false ) {
-			return $this->set( $key, $var, $expire, $group );
+			return $this->set( $key, $value, $expire, $group );
 		}
 
 		return false;
@@ -174,7 +174,7 @@ class Cache_Apcu extends Cache_Base {
 	 */
 	public function flush( $group = '' ) {
 		$this->_get_key_version( $group );  // initialize $this->_key_version.
-		$this->_key_version[ $group ]++;
+		++$this->_key_version[ $group ];
 		$this->_set_key_version( $this->_key_version[ $group ], $group );
 
 		return true;

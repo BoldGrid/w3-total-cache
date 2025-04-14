@@ -81,6 +81,7 @@ class Generic_Plugin_Survey {
 	public function run() {
 		add_action( 'w3tc_ajax_exit_survey_render', array( $this, 'w3tc_ajax_exit_survey_render' ) );
 		add_action( 'w3tc_ajax_exit_survey_submit', array( $this, 'w3tc_ajax_exit_survey_submit' ) );
+		add_action( 'w3tc_ajax_exit_survey_skip', array( $this, 'w3tc_ajax_exit_survey_skip' ) );
 	}
 
 	/**
@@ -123,7 +124,7 @@ class Generic_Plugin_Survey {
 		// Collect survey data.
 		$uninstall_reason = sanitize_text_field( Util_Request::get_string( 'reason' ) );
 		$email            = sanitize_email( Util_Request::get_string( 'email' ) );
-		$other_reason     = sanitize_text_field( Util_Request::get_string( 'other' ) );
+		$other            = sanitize_text_field( Util_Request::get_string( 'other' ) );
 		$remove_data      = sanitize_text_field( Util_Request::get_string( 'remove' ) );
 
 		// Prepare the data to send to the API.
@@ -135,14 +136,14 @@ class Generic_Plugin_Survey {
 			'reason'      => $uninstall_reason,
 		);
 
-		// Add 'email' to $data only if the $emal is non-blank.
+		// Add 'email' to $data only if the $email is non-blank.
 		if ( ! empty( $email ) ) {
 			$data['email'] = $email;
 		}
 
-		// Add 'other' to $data only if the uninstall reason is "other" and $other_reason is non-blank.
-		if ( 'other' === $uninstall_reason && ! empty( $other_reason ) ) {
-			$data['other'] = $other_reason;
+		// Add 'other' to $data only $other is non-blank.
+		if ( ! empty( $other ) ) {
+			$data['other'] = $other;
 		}
 
 		if ( Util_Environment::is_pro_constant( $this->_config ) ) {
@@ -178,6 +179,32 @@ class Generic_Plugin_Survey {
 			wp_send_json_success( array( 'message' => 'Thank you for your feedback!' ) );
 		} else {
 			wp_send_json_error( array( 'message' => 'API error: ' . $api_response->message ) );
+		}
+	}
+
+	/**
+	 * Skips the exit survey and processes removing plugin data.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_exit_survey_skip() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
+		// Verify nonce.
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid nonce.' ) );
+		}
+
+		// Collect remove data flag.
+		$remove_data = Util_Request::get_string( 'remove' );
+
+		if ( 'yes' === $remove_data ) {
+			update_option( 'w3tc_remove_data', true );
+			wp_send_json_success( array( 'message' => 'Plugin data will be removed!' ) );
 		}
 	}
 }

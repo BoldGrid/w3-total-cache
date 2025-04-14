@@ -12,13 +12,18 @@ namespace W3TC;
  * Class: Cdn_BunnyCdn_Popup
  *
  * @since 2.6.0
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_BunnyCdn_Popup {
 	/**
-	 * W3TC AJAX.
+	 * Handles the AJAX request for BunnyCDN related actions.
 	 *
-	 * @since  2.6.0
-	 * @static
+	 * This method registers multiple AJAX actions related to BunnyCDN,
+	 * including displaying the intro, pulling a list of pull zones, configuring
+	 * a pull zone, deauthorizing, and deactivating BunnyCDN.
+	 *
+	 * @since 2.6.0
 	 *
 	 * @return void
 	 */
@@ -52,7 +57,11 @@ class Cdn_BunnyCdn_Popup {
 	}
 
 	/**
-	 * W3TC AJAX: Render intro.
+	 * Handles the AJAX request to render the BunnyCDN introduction page.
+	 *
+	 * This method fetches the account API key and renders the introductory
+	 * page for BunnyCDN configuration, including the option to provide the
+	 * account API key if missing.
 	 *
 	 * @since 2.6.0
 	 *
@@ -71,9 +80,15 @@ class Cdn_BunnyCdn_Popup {
 	}
 
 	/**
-	 * W3TC AJAX: List pull zones.
+	 * Handles the AJAX request to list BunnyCDN pull zones.
+	 *
+	 * This method retrieves and displays a list of pull zones from BunnyCDN
+	 * after authenticating with the provided account API key. If an error
+	 * occurs, the user is prompted to reauthorize.
 	 *
 	 * @since 2.6.0
+	 *
+	 * @return void
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_list_pull_zones() {
 		$account_api_key = Util_Request::get_string( 'account_api_key' );
@@ -107,7 +122,7 @@ class Cdn_BunnyCdn_Popup {
 		$details = array(
 			'pull_zones'           => $pull_zones,
 			'suggested_origin_url' => \home_url(), // Suggested origin URL or IP.
-			'suggested_zone_name'  => \substr( \str_replace( '.', '-', \parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
+			'suggested_zone_name'  => \substr( \str_replace( '.', '-', \wp_parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
 			'pull_zone_id'         => $config->get_integer( 'cdn.bunnycdn.pull_zone_id' ),
 		);
 
@@ -116,11 +131,17 @@ class Cdn_BunnyCdn_Popup {
 	}
 
 	/**
-	 * W3TC AJAX: Configure pull zone.
+	 * Handles the AJAX request to configure a BunnyCDN pull zone.
+	 *
+	 * This method configures an existing or new pull zone in BunnyCDN. If
+	 * a pull zone is not selected, a new one is created. The method also
+	 * applies default edge rules to the newly created pull zone.
 	 *
 	 * @since 2.6.0
 	 *
 	 * @see Cdn_BunnyCdn_Api::get_default_edge_rules()
+	 *
+	 * @return void
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_configure_pull_zone() {
 		$config          = Dispatcher::config();
@@ -145,7 +166,7 @@ class Cdn_BunnyCdn_Popup {
 						'EnableTLS1'            => false, // TLS 1.0 was deprecated in 2018.
 						'EnableTLS1_1'          => false, // TLS 1.1 was EOL's on March 31,2020.
 						'ErrorPageWhitelabel'   => true, // Any bunny.net branding will be removed from the error page and replaced with a generic term.
-						'OriginHostHeader'      => \parse_url( \home_url(), PHP_URL_HOST ), // Sets the host header that will be sent to the origin.
+						'OriginHostHeader'      => \wp_parse_url( \home_url(), PHP_URL_HOST ), // Sets the host header that will be sent to the origin.
 						'UseStaleWhileUpdating' => true, // Serve stale content while updating.  If Stale While Updating is enabled, cache will not be refreshed if the origin responds with a non-cacheable resource.
 						'UseStaleWhileOffline'  => true, // Serve stale content if the origin is offline.
 					)
@@ -197,9 +218,14 @@ class Cdn_BunnyCdn_Popup {
 	}
 
 	/**
-	 * W3TC AJAX: Deauthorization form.
+	 * Handles the AJAX request for deauthorization of BunnyCDN.
+	 *
+	 * This method renders a page that allows the user to deauthorize BunnyCDN
+	 * and optionally delete the pull zone associated with the current configuration.
 	 *
 	 * @since 2.6.0
+	 *
+	 * @return void
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_deauthorization() {
 		$config              = Dispatcher::config();
@@ -215,11 +241,14 @@ class Cdn_BunnyCdn_Popup {
 	}
 
 	/**
-	 * W3TC AJAX: Deauthorize.
+	 * Handles the AJAX request to deauthorize BunnyCDN and optionally delete the pull zone.
 	 *
-	 * Deauthorize and optionally delete the pull zone.
+	 * This method removes the BunnyCDN pull zone configuration and deauthorizes
+	 * the API key. It also provides an option to delete the pull zone if requested.
 	 *
 	 * @since 2.6.0
+	 *
+	 * @return void
 	 */
 	public function w3tc_ajax_cdn_bunnycdn_deauthorize() {
 		$config              = Dispatcher::config();
@@ -260,17 +289,16 @@ class Cdn_BunnyCdn_Popup {
 	}
 
 	/**
-	 * Render intro.
+	 * Renders the introductory page for BunnyCDN setup.
 	 *
-	 * @since  2.6.0
-	 * @access private
+	 * This private method is used to render the introductory page that includes
+	 * the BunnyCDN setup information and the option to input the account API key.
 	 *
-	 * @param array $details {
-	 *     Details for the modal.
+	 * @since 2.6.0
 	 *
-	 *     @type string $account_api_key Account API key.
-	 *     @type string $error_message Error message (optional).
-	 * }
+	 * @param array $details Details to pass to the view.
+	 *
+	 * @return void
 	 */
 	private function render_intro( array $details ) {
 		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Intro.php';

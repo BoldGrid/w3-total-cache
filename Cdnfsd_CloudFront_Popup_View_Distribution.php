@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdnfsd_CloudFront_Popup_View_Distribution.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -7,10 +13,10 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <form class="w3tc_popup_form" method="post">
 	<?php
-	Util_Ui::hidden( '', 'access_key', $details['access_key'] );
-	Util_Ui::hidden( '', 'secret_key', $details['secret_key'] );
-	Util_Ui::hidden( '', 'distribution_id', $details['distribution_id'] );
-	Util_Ui::hidden( '', 'distribution_comment', $details['distribution_comment'] );
+	Util_Ui::hidden( 'w3tc-cloudfront-access-key', 'access_key', $details['access_key'] );
+	Util_Ui::hidden( 'w3tc-cloudfront-secret-key', 'secret_key', $details['secret_key'] );
+	Util_Ui::hidden( 'w3tc-cloudfront-distribution-id', 'distribution_id', $details['distribution_id'] );
+	Util_Ui::hidden( 'w3tc-cloudfront-distribution-comment', 'distribution_comment', $details['distribution_comment'] );
 	?>
 
 	<div class="metabox-holder">

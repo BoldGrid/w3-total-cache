@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdnfsd_CloudFront_Page_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

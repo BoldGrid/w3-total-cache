@@ -462,11 +462,11 @@ if ( ! defined( 'W3TC' ) ) {
 					'radiogroup_values'    => array(
 						''        => __( 'Don\'t cache', 'w3-total-cache' ),
 						'cache'   => array(
-							'label'           => __( 'Cache', 'w3-total-cache' ),
-							'disabled'        => ! Util_Environment::is_w3tc_pro( $this->_config ),
-							'pro_feature'     => true,
-							'pro_excerpt'     => esc_html__( 'If you\'re using the WordPress API make sure to use caching to scale performance.', 'w3-total-cache' ),
-							'pro_description' => array(
+							'label'             => __( 'Cache', 'w3-total-cache' ),
+							'disabled'          => ! Util_Environment::is_w3tc_pro( $this->_config ),
+							'pro_feature'       => true,
+							'pro_excerpt'       => esc_html__( 'If you\'re using the WordPress API make sure to use caching to scale performance.', 'w3-total-cache' ),
+							'pro_description'   => array(
 								esc_html__( 'If you use WordPress as a backend for integrations, API caching may be for you. Similar to page caching, repeat requests will benefit by having significantly lower response times and consume fewer resources to deliver. If WordPress is not used as a backend, for additional security, the API can be disabled completely.', 'w3-total-cache' ),
 							),
 							'show_learn_more'   => false,
@@ -886,11 +886,11 @@ if ( ! defined( 'W3TC' ) ) {
 
 			$time_options = array();
 			for ( $hour = 0; $hour < 24; $hour++ ) {
-				foreach ( array('00', '30') as $minute ) {
-					$time_value                = $hour * 60 + intval( $minute );
-					$scheduled_time            = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
-					$time_label                = $scheduled_time->format( 'g:i a' );
-					$time_options[$time_value] = $time_label;
+				foreach ( array( '00', '30' ) as $minute ) {
+					$time_value                  = $hour * 60 + intval( $minute );
+					$scheduled_time              = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
+					$time_label                  = $scheduled_time->format( 'g:i a' );
+					$time_options[ $time_value ] = $time_label;
 				}
 			}
 

@@ -8,11 +8,16 @@
 namespace W3TC;
 
 /**
- * UserExperience Plugin Admin.
+ * Class UserExperience_Plugin_Admin
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class UserExperience_Plugin_Admin {
 	/**
-	 * Runs the user experience feature.
+	 * Initializes the admin hooks for the User Experience plugin.
+	 *
+	 * This method registers WordPress filters and actions necessary for the
+	 * integration of the User Experience plugin into the W3 Total Cache admin area.
 	 *
 	 * @return void
 	 */
@@ -24,11 +29,13 @@ class UserExperience_Plugin_Admin {
 	}
 
 	/**
-	 * Set user experience admin menu item.
+	 * Adds a custom menu entry for the User Experience plugin.
 	 *
-	 * @param array $menu Menu array.
+	 * This method adds a "User Experience" menu item to the W3 Total Cache admin menu.
 	 *
-	 * @return array
+	 * @param array $menu The existing admin menu items.
+	 *
+	 * @return array The modified admin menu items, including the User Experience menu.
 	 */
 	public function w3tc_admin_menu( $menu ) {
 		$menu['w3tc_userexperience'] = array(
@@ -42,12 +49,15 @@ class UserExperience_Plugin_Admin {
 	}
 
 	/**
-	 * Configures extensions for user experience.
+	 * Registers User Experience-related extensions for W3 Total Cache.
 	 *
-	 * @param array  $extensions Extensions array.
-	 * @param object $config     Config object.
+	 * This method adds several custom extensions to W3 Total Cache that handle specific
+	 * User Experience features like deferring scripts, preloading requests, and more.
 	 *
-	 * @return array
+	 * @param array  $extensions The existing W3TC extensions.
+	 * @param object $config     The W3TC configuration object.
+	 *
+	 * @return array The modified W3TC extensions array with added User Experience extensions.
 	 */
 	public static function w3tc_extensions( $extensions, $config ) {
 		$extensions['user-experience-defer-scripts']    = array(
@@ -80,7 +90,10 @@ class UserExperience_Plugin_Admin {
 	}
 
 	/**
-	 * Render user experience advanced settings page.
+	 * Renders the settings page for the User Experience plugin.
+	 *
+	 * This method initializes and displays the settings page content for the
+	 * User Experience plugin in the W3 Total Cache admin area.
 	 *
 	 * @return void
 	 */

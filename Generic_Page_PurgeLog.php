@@ -26,7 +26,7 @@ class Generic_Page_PurgeLog {
 	 * @return void
 	 */
 	public function __construct() {
-		$p = dirname( dirname( __FILE__ ) );
+		$p = dirname( __DIR__ );
 		if ( $this->starts_with( $p, ABSPATH ) ) {
 			$p = substr( $p, strlen( ABSPATH ) );
 		}

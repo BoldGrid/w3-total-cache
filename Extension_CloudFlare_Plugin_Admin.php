@@ -1,10 +1,42 @@
 <?php
+/**
+ * File: Extension_CloudFlare_Plugin_Admin.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Extension_CloudFlare_Plugin_Admin
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
+ */
 class Extension_CloudFlare_Plugin_Admin {
+	/**
+	 * Config
+	 *
+	 * @var Config
+	 */
 	private $_config;
+
+	/**
+	 * CloudFlare API
+	 *
+	 * @var Extension_CloudFlare_Api
+	 */
 	private $api;
 
+	/**
+	 * Adds Cloudflare to the list of extensions.
+	 *
+	 * @param array $extensions Existing extensions.
+	 * @param mixed $config     Current configuration.
+	 *
+	 * @return array Updated extensions list.
+	 */
 	public static function w3tc_extensions( $extensions, $config ) {
 		$current_user            = wp_get_current_user();
 		$message                 = array( 'Cloudflare' );
@@ -26,7 +58,7 @@ class Extension_CloudFlare_Plugin_Admin {
 			'author'          => 'W3 EDGE',
 			'description'     => wp_kses(
 				sprintf(
-					// translators:	1 opening HTML a tag to Cloudflare signup page with affiliate association, 2 closing HTML a tag,
+					// translators: 1 opening HTML a tag to Cloudflare signup page with affiliate association, 2 closing HTML a tag,
 					// translators: 3 opening HTML abbr tag, 4 closing HTML abbr tag,
 					// translators: 5 opening HTML a tag to Cloudflare account page, 6 closing HTML a tag,
 					// translators: 7 opening HTML a tag to Cloudflare help page, 8 closing HTML a tag.
@@ -66,7 +98,12 @@ class Extension_CloudFlare_Plugin_Admin {
 		return $extensions;
 	}
 
-	function run() {
+	/**
+	 * Initializes and runs the Cloudflare extension.
+	 *
+	 * @return void
+	 */
+	public function run() {
 		$c             = Dispatcher::config();
 		$this->api     = new Extension_CloudFlare_Api(
 			array(
@@ -122,7 +159,9 @@ class Extension_CloudFlare_Plugin_Admin {
 	}
 
 	/**
-	 * Admin notices.
+	 * Displays admin notices related to Cloudflare.
+	 *
+	 * @return void
 	 */
 	public function admin_notices() {
 		$plugins = get_plugins();
@@ -156,6 +195,13 @@ class Extension_CloudFlare_Plugin_Admin {
 		}
 	}
 
+	/**
+	 * Adds Cloudflare-specific menu items to the WordPress admin bar.
+	 *
+	 * @param array $menu_items Existing admin bar menu items.
+	 *
+	 * @return array Updated admin bar menu items.
+	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
 		$menu_items['20810.cloudflare'] = array(
 			'id'     => 'w3tc_flush_cloudflare',
@@ -168,9 +214,11 @@ class Extension_CloudFlare_Plugin_Admin {
 	}
 
 	/**
-	 * Check if last check has expired.  If so update Cloudflare IPs.
+	 * Checks and updates IP versions for Cloudflare.
+	 *
+	 * @return void
 	 */
-	function check_ip_versions() {
+	public function check_ip_versions() {
 		$state = Dispatcher::config_state_master();
 
 		if ( $state->get_integer( 'extension.cloudflare.next_ips_check' ) < time() ) {
@@ -180,7 +228,7 @@ class Extension_CloudFlare_Plugin_Admin {
 			$data = array();
 			try {
 				$data = $this->api->get_ip_ranges();
-			} catch ( \Exception $ex ) {
+			} catch ( \Exception $ex ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				// Missing exception handling?
 			}
 
@@ -197,11 +245,13 @@ class Extension_CloudFlare_Plugin_Admin {
 	}
 
 	/**
-	 * Send Cloudflare API request.
+	 * Handles AJAX requests for Cloudflare API actions.
 	 *
 	 * @return void
+	 *
+	 * @throws \Exception If API request fails.
 	 */
-	function action_cloudflare_api_request() {
+	public function action_cloudflare_api_request() {
 		$result   = false;
 		$response = null;
 		$actions  = array(
@@ -264,13 +314,22 @@ class Extension_CloudFlare_Plugin_Admin {
 	}
 
 	/**
-	 * W3TC Dashboard page modifications
+	 * Adds Cloudflare admin actions for handling configuration.
+	 *
+	 * @param array $handlers Existing handlers.
+	 *
+	 * @return array Updated handlers.
 	 */
 	public function w3tc_admin_actions( $handlers ) {
 		$handlers['cloudflare'] = 'Extension_CloudFlare_AdminActions';
 		return $handlers;
 	}
 
+	/**
+	 * Enqueues scripts for the Cloudflare dashboard.
+	 *
+	 * @return void
+	 */
 	public function admin_print_scripts_w3tc_dashboard() {
 		wp_enqueue_script(
 			'w3tc_extension_cloudflare_dashboard',
@@ -281,6 +340,13 @@ class Extension_CloudFlare_Plugin_Admin {
 		);
 	}
 
+	/**
+	 * Adds Cloudflare-related actions to the W3 Total Cache dashboard.
+	 *
+	 * @param array $actions Existing actions.
+	 *
+	 * @return array Updated actions.
+	 */
 	public function w3tc_dashboard_actions( $actions ) {
 		$email = $this->_config->get_string( array( 'cloudflare', 'email' ) );
 		$key   = $this->_config->get_string( array( 'cloudflare', 'key' ) );
@@ -298,13 +364,19 @@ class Extension_CloudFlare_Plugin_Admin {
 		$actions[] = sprintf(
 			'<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush_all_except_cf" value="%1$s"%2$s>',
 			esc_attr__( 'Empty All Caches Except Cloudflare', 'w3-total-cache' ),
-			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish )
-				? ' disabled="disabled"' : ''
+			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
 		);
 
 		return $actions;
 	}
 
+	/**
+	 * Modifies the configuration for enabling the CDN functionality.
+	 *
+	 * @param array $a Configuration array.
+	 *
+	 * @return array Updated configuration.
+	 */
 	public function w3tc_ui_config_item_cdnfsd_enabled( $a ) {
 		$c             = Dispatcher::config();
 		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
@@ -317,6 +389,13 @@ class Extension_CloudFlare_Plugin_Admin {
 		return $a;
 	}
 
+	/**
+	 * Modifies the engine configuration for the CDN functionality.
+	 *
+	 * @param array $a Configuration array.
+	 *
+	 * @return array Updated configuration.
+	 */
 	public function w3tc_ui_config_item_cdnfsd_engine( $a ) {
 		$c             = Dispatcher::config();
 		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
@@ -334,6 +413,13 @@ class Extension_CloudFlare_Plugin_Admin {
 		return $a;
 	}
 
+	/**
+	 * Adds Cloudflare anchors to the general settings page.
+	 *
+	 * @param array $anchors Existing anchors.
+	 *
+	 * @return array Updated anchors.
+	 */
 	public function w3tc_settings_general_anchors( $anchors ) {
 		$anchors[] = array(
 			'id'   => 'cloudflare',
@@ -342,17 +428,24 @@ class Extension_CloudFlare_Plugin_Admin {
 		return $anchors;
 	}
 
+	/**
+	 * Displays the Cloudflare box area in the general settings page.
+	 *
+	 * @return void
+	 */
 	public function w3tc_settings_general_boxarea_cloudflare() {
 		$config = $this->_config;
 		include W3TC_DIR . '/Extension_CloudFlare_GeneralPage_View.php';
 	}
 
 	/**
-	 * Applies Cloudflare API settings.
+	 * Saves Cloudflare-specific options.
+	 *
+	 * @return void
 	 */
 	public function w3tc_save_options() {
-		if( 'cloudflare' === Util_Request::get_string( 'extension' ) ) {
-			$api = Extension_CloudFlare_SettingsForUi::api();
+		if ( 'cloudflare' === Util_Request::get_string( 'extension' ) ) {
+			$api    = Extension_CloudFlare_SettingsForUi::api();
 			$errors = Extension_CloudFlare_SettingsForUi::settings_set( $api );
 
 			if ( empty( $errors ) ) {

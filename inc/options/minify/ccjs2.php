@@ -62,9 +62,9 @@ $compilation_level = $c->get_string( 'minify.ccjs.options.compilation_level' );
 		<select id="minify_ccjs_options_compilation_level" class="js_enabled"
 			name="minify__ccjs__options__compilation_level"
 			<?php Util_Ui::sealing_disabled( 'minify.' ); ?>>
-			<?php foreach ( $compilation_levels as $compilation_level_key => $compilation_level_name ): ?>
+			<?php foreach ( $compilation_levels as $compilation_level_key => $compilation_level_name ) : ?>
 				<option value="<?php echo esc_attr( $compilation_level_key ); ?>"
-					<?php selected( $compilation_level, $compilation_level_key ) ?>>
+					<?php selected( $compilation_level, $compilation_level_key ); ?>>
 					<?php esc_html_e( $compilation_level_name, 'w3-total-cache' ); ?>
 				</option>
 			<?php endforeach ?>

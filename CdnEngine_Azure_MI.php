@@ -18,6 +18,10 @@ namespace W3TC;
  * Class: CdnEngine_Azure_MI
  *
  * Windows Azure Storage CDN engine.
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class CdnEngine_Azure_MI extends CdnEngine_Base {
 
@@ -141,7 +145,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 				$local_size = @filesize( $local_path );
 
 				// Check if Content-Length is available in $p array.
-				if ( isset( $p['Content-Length'] ) && $local_size == $p['Content-Length'] && isset( $p['Content-MD5'] ) && $content_md5 === $p['Content-MD5'] ) {
+				if ( isset( $p['Content-Length'] ) && (int) $local_size === (int) $p['Content-Length'] && isset( $p['Content-MD5'] ) && $content_md5 === $p['Content-MD5'] ) {
 					return $this->_get_result( $local_path, $remote_path, W3TC_CDN_RESULT_OK, 'File up-to-date.', $file );
 				}
 			} catch ( \Exception $exception ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -325,7 +329,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 			return false;
 		}
 
-		if ( $data != $string ) {
+		if ( $data !== $string ) {
 			try {
 				CdnEngine_Azure_MI_Utility::delete_blob(
 					$this->_config['client_id'],
@@ -438,7 +442,7 @@ class CdnEngine_Azure_MI extends CdnEngine_Base {
 	 * @return string Base64-encoded packed (hex string, high nibble first, repeating to the end of the input data) data from the input MD% string.
 	 */
 	public function _get_content_md5( $md5 ) {
-		return base64_encode( pack( 'H*', $md5 ) );
+		return base64_encode( pack( 'H*', $md5 ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 	}
 
 	/**

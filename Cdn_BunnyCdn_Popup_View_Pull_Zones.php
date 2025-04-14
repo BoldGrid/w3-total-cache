@@ -46,7 +46,7 @@ defined( 'W3TC' ) || die();
 					}
 
 					// Get the CDN hostname and custom hostnames.
-					$cdn_hostname = '?';
+					$cdn_hostname     = '?';
 					$custom_hostnames = array();
 
 					// Get the CDN hostname.  It should be the system hostname.

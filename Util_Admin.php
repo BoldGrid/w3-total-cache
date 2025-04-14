@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class Util_Admin {
 	/**
@@ -619,7 +620,15 @@ class Util_Admin {
 				$new_config->save();
 			} catch ( \Exception $ex ) {
 				throw new \Exception(
-					'<strong>Can\'t change configuration</strong>: ' . $ex->getMessage()
+					\wp_kses_post(
+						sprintf(
+							// Translators: 1 Opening HTML strong tag, 2 Closing HTML strong tag, 3 Error message.
+							\__( '%1$sCan\'t change configuration%2$s: %3$2', 'w3-total-cache' ),
+							'<strong>',
+							'</strong>',
+							$ex->getMessage()
+						)
+					)
 				);
 			}
 		}

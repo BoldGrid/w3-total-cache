@@ -10,7 +10,7 @@ $w3tc_dbcluster_config = array(
 	 * of this setting may vary and should be carefully tested.
 	 * Default: false
 	 */
-	'persistent' => false,
+	'persistent'               => false,
 
 	/**
 	 * check_tcp_responsiveness
@@ -32,20 +32,20 @@ $w3tc_dbcluster_config = array(
 	 * server and will see old content/configuration until that point in time - You should test this
 	 * in your environment fully.
 	 */
-	'use_master_in_backend' => true,
+	'use_master_in_backend'    => true,
 
 	/**
 	 * This set the charset that the db connection should use.
 	 * If DB_CHARSET is set there is no need to set $wpdb_cluster->charset.
 	 */
-	'charset' => DB_CHARSET,
+	'charset'                  => DB_CHARSET,
 
 	/**
 	 * This set the charset that the db connection should use.
 	 * If DB_COLLATE is set there is no need to set $wpdb_cluster->collate.
 	 */
-	'collate' => DB_COLLATE,
-	/** Configuration Functions **/
+	'collate'                  => DB_COLLATE,
+	/** Configuration Functions */
 
 	/**
 	 * database is an associative array with these parameters:
@@ -54,7 +54,7 @@ $w3tc_dbcluster_config = array(
 	 * password         (required) MySQL user password.
 	 * name             (required) MySQL database name.
 	 * read             (optional) Whether server is readable. Default is 1 (readable).
-	 *			    Also used to assign preference.
+	 *              Also used to assign preference.
 	 * write            (optional) Whether server is writable. Default is 1 (writable).
 	 *                             Also used to assign preference in multi-master mode.
 	 * dataset          (optional) Name of dataset. Default is 'global'.
@@ -79,15 +79,14 @@ $w3tc_dbcluster_config = array(
 	 * there are many slaves available and the master is very busy with writes.
 	 *   'write' => true,
 	 *   'read'  => false,
-	 *
 	 */
-	'databases' => array(
+	'databases'                => array(
 		'master' => array(
 			'host'     => DB_HOST,     // If port is other than 3306, use host:port.
 			'user'     => DB_USER,
 			'password' => DB_PASSWORD,
-			'name'     => DB_NAME
-		)
+			'name'     => DB_NAME,
+		),
 	),
 
 	/**
@@ -115,8 +114,7 @@ $w3tc_dbcluster_config = array(
 	 * As a result it will try to connect to servers in zone A first, then servers
 	 * in zone B.
 	 */
-	'zones' => array(
-	),
+	'zones'                    => array(),
 
 	/**
 	 * Filters
@@ -140,8 +138,7 @@ $w3tc_dbcluster_config = array(
 
 	 * );
 	 */
-	'filters' => array(
-	)
+	'filters'                  => array(),
 );
 
 
@@ -170,7 +167,7 @@ $w3tc_dbcluster_config = array(
 ));
 */
 
-/** Sample Configuration 2: Partitioning **/
+/** Sample Configuration 2: Partitioning */
 
 /**
  * This example shows a setup where the multisite blog tables have been
@@ -195,14 +192,14 @@ $w3tc_dbcluster_config = array(
 	)
 	'filters' => array(
 		array(
-		    'tag' => 'blog_dataset',
-		    'function_to_add' => 'my_db_callback'
+			'tag' => 'blog_dataset',
+			'function_to_add' => 'my_db_callback'
 		)
 	)
 );
 
 function my_db_callback($blog_id, $wpdb_cluster) {
-    if ($blog_id > 5))
-        return 'blog2';
+	if ($blog_id > 5))
+		return 'blog2';
 }
 */

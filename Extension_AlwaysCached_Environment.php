@@ -15,6 +15,8 @@ namespace W3TC;
  * AlwaysCached Admin Environment.
  *
  * @since 2.8.0
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_AlwaysCached_Environment {
 

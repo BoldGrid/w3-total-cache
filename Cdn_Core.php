@@ -9,6 +9,11 @@ namespace W3TC;
 
 /**
  * Class: Cdn_Core
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.DB.DirectDatabaseQuery
  */
 class Cdn_Core {
 	/**
@@ -26,21 +31,24 @@ class Cdn_Core {
 	private $debug;
 
 	/**
-	 * Constructor
+	 * Constructor method for initializing the class.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
-		$this->debug = $this->_config->get_boolean( 'cdn.debug' );
+		$this->debug   = $this->_config->get_boolean( 'cdn.debug' );
 	}
 
 	/**
-	 * Adds file to queue.
+	 * Adds a file to the CDN queue.
 	 *
-	 * @param string $local_path  Local path.
-	 * @param string $remote_path Remote path.
-	 * @param int    $command     Command number.
-	 * @param string $last_error  Last error.
-	 * @return int
+	 * @param string $local_path  Local file path.
+	 * @param string $remote_path Remote file path.
+	 * @param int    $command     Command type (upload, delete, etc.).
+	 * @param string $last_error  Last error message, if any.
+	 *
+	 * @return bool True if the file was successfully added or already exists.
 	 */
 	public function queue_add( $local_path, $remote_path, $command, $last_error ) {
 		global $wpdb;
@@ -57,7 +65,7 @@ class Cdn_Core {
 		$already_exists = false;
 
 		foreach ( $rows as $row ) {
-			if ( $row->command != $command ) {
+			if ( $row->command !== $command ) {
 				$wpdb->query(
 					$wpdb->prepare(
 						'DELETE FROM ' . $table . ' WHERE id = %d', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -86,10 +94,11 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Returns array of array('local_path' => '', 'remote_path' => '') for specified file.
+	 * Retrieves a list of files to be uploaded based on a local file path.
 	 *
-	 * @param  string $file File.
-	 * @return array
+	 * @param string $file Local file path.
+	 *
+	 * @return array Array of file descriptors for upload.
 	 */
 	public function get_files_for_upload( $file ) {
 		$files       = array();
@@ -98,7 +107,7 @@ class Cdn_Core {
 		if ( $upload_info ) {
 			$file        = $this->normalize_attachment_file( $file );
 			$local_file  = $upload_info['basedir'] . '/' . $file;
-			$parsed      = parse_url( rtrim( $upload_info['baseurl'], '/' ) . '/' . $file );
+			$parsed      = wp_parse_url( rtrim( $upload_info['baseurl'], '/' ) . '/' . $file );
 			$local_uri   = $parsed['path'];
 			$remote_uri  = $this->uri_to_cdn_uri( $local_uri );
 			$remote_file = ltrim( $remote_uri, '/' );
@@ -109,11 +118,12 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Returns array of files from sizes array.
+	 * Retrieves a list of size-specific files for upload based on the attachment file and its sizes.
 	 *
-	 * @param  string $attached_file Attached file.
-	 * @param  array  $sizes         Sizes.
-	 * @return array
+	 * @param string $attached_file Path to the attached file.
+	 * @param array  $sizes         Array of sizes for the attached file.
+	 *
+	 * @return array Array of file descriptors for each size.
 	 */
 	public function _get_sizes_files( $attached_file, $sizes ) {
 		$files    = array();
@@ -135,10 +145,11 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Returns attachment files by metadata.
+	 * Retrieves all files associated with an attachment, including its sizes and metadata.
 	 *
-	 * @param  array $metadata Metadata.
-	 * @return array
+	 * @param array $metadata Metadata for the attachment.
+	 *
+	 * @return array Array of file descriptors for the attachment and its sizes.
 	 */
 	public function get_metadata_files( $metadata ) {
 		$files = array();
@@ -151,10 +162,11 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Returns attachment files by attachment id.
+	 * Retrieves a list of files associated with a given attachment.
 	 *
-	 * @param  int $attachment_id Attachment id.
-	 * @return array
+	 * @param int $attachment_id The ID of the attachment.
+	 *
+	 * @return array Array of file descriptors for the attachment and its sizes.
 	 */
 	public function get_attachment_files( $attachment_id ) {
 		$files = array();
@@ -184,17 +196,18 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Uploads files to CDN.
+	 * Uploads files to the CDN.
 	 *
-	 * @param array $files        Files.
-	 * @param bool  $queue_failed Is queue failed.
-	 * @param array $results      Results.
-	 * @param int   $timeout_time Timeout time.
-	 * @return bool
+	 * @param array $files         List of files to upload.
+	 * @param bool  $queue_failed  Whether to queue failed uploads.
+	 * @param array $results       Array to store the results of the upload.
+	 * @param int   $timeout_time  Optional timeout time for the upload.
+	 *
+	 * @return bool True if the upload was successful, false otherwise.
 	 */
 	public function upload( $files, $queue_failed, &$results, $timeout_time = null ) {
 		if ( $this->debug ) {
-			Util_Debug::log( 'cdn', 'upload: ' . json_encode( $files, JSON_PRETTY_PRINT ) );
+			Util_Debug::log( 'cdn', 'upload: ' . wp_json_encode( $files, JSON_PRETTY_PRINT ) );
 		}
 
 		$cdn           = $this->get_cdn();
@@ -217,12 +230,13 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Deletes files from CDN.
+	 * Deletes files from the CDN.
 	 *
-	 * @param array $files        Files.
-	 * @param bool  $queue_failed Is queue failed.
-	 * @param array $results      Results.
-	 * @return bool
+	 * @param array $files        List of files to delete.
+	 * @param bool  $queue_failed Whether to queue failed deletions.
+	 * @param array $results      Array to store the results of the deletion.
+	 *
+	 * @return bool True if the deletion was successful, false otherwise.
 	 */
 	public function delete( $files, $queue_failed, &$results ) {
 		$cdn = $this->get_cdn();
@@ -231,7 +245,7 @@ class Cdn_Core {
 
 		$return = $cdn->delete( $files, $results );
 		if ( $this->debug ) {
-			Util_Debug::log( 'cdn', 'delete: ' . json_encode( $files, JSON_PRETTY_PRINT ) );
+			Util_Debug::log( 'cdn', 'delete: ' . wp_json_encode( $files, JSON_PRETTY_PRINT ) );
 		}
 
 		if ( ! $return && $queue_failed ) {
@@ -246,15 +260,16 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Purges files from CDN.
+	 * Purges files from the CDN.
 	 *
-	 * @param array $files   Files; consisting of array( 'local_path'=>'', 'remote_path'=>'' ).
-	 * @param array $results Results.
-	 * @return bool
+	 * @param array $files   List of files to purge.
+	 * @param array $results Array to store the results of the purge.
+	 *
+	 * @return bool True if the purge was successful, false otherwise.
 	 */
 	public function purge( $files, &$results ) {
 		if ( $this->debug ) {
-			Util_Debug::log( 'cdn', 'purge: ' . json_encode( $files, JSON_PRETTY_PRINT ) );
+			Util_Debug::log( 'cdn', 'purge: ' . wp_json_encode( $files, JSON_PRETTY_PRINT ) );
 		}
 
 		/**
@@ -290,10 +305,11 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Purge CDN completely.
+	 * Purges all files from the CDN.
 	 *
-	 * @param  unknown $results Results of the purge.
-	 * @return mixed
+	 * @param array $results Array to store the results of the purge.
+	 *
+	 * @return bool True if the purge was successful, false otherwise.
 	 */
 	public function purge_all( &$results ) {
 		$cdn = $this->get_cdn();
@@ -304,11 +320,10 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Queues file upload.
+	 * Adds a URL to the CDN upload queue.
 	 *
-	 * Links wp_cron call to do that by the end of request processing.
+	 * @param string $url URL to be queued for upload.
 	 *
-	 * @param string $url Url.
 	 * @return void
 	 */
 	public function queue_upload_url( $url ) {
@@ -319,17 +334,18 @@ class Cdn_Core {
 
 		$filename = Util_Environment::docroot_to_full_filename( $docroot_filename );
 
-		$a               = \parse_url( $url );
+		$a               = \wp_parse_url( $url );
 		$remote_filename = $this->uri_to_cdn_uri( $a['path'] );
 
 		$this->queue_add( $filename, $remote_filename, W3TC_CDN_COMMAND_UPLOAD, 'Pending' );
 	}
 
 	/**
-	 * Normalizes attachment file.
+	 * Normalizes the attachment file path.
 	 *
-	 * @param  string $file Filename.
-	 * @return string
+	 * @param string $file The file path to normalize.
+	 *
+	 * @return string The normalized file path.
 	 */
 	public function normalize_attachment_file( $file ) {
 		$upload_info = Util_Http::upload_info();
@@ -347,7 +363,16 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Returns CDN object.
+	 * Retrieves the CDN configuration based on the specified CDN engine.
+	 *
+	 * This method checks the current configuration settings and returns an array
+	 * containing the appropriate configuration for the specified CDN engine.
+	 * The configuration details are dependent on the engine selected, such as
+	 * Akamai, Cloudflare, or S3, and include settings such as API keys, domain,
+	 * SSL configurations, and compression options. The method caches the configuration
+	 * after the first retrieval for subsequent calls.
+	 *
+	 * @return array|null The CDN configuration array or null if not configured.
 	 */
 	public function get_cdn() {
 		static $cdn = null;
@@ -477,28 +502,6 @@ class Cdn_Core {
 					);
 					break;
 
-				case 'highwinds':
-					$state = Dispatcher::config_state();
-
-					$engine_config = array(
-						'domains'        => $c->get_array( 'cdn.highwinds.host.domains' ),
-						'ssl'            => $c->get_string( 'cdn.highwinds.ssl' ),
-						'api_token'      => $c->get_string( 'cdn.highwinds.api_token' ),
-						'account_hash'   => $c->get_string( 'cdn.highwinds.account_hash' ),
-						'host_hash_code' => $c->get_string( 'cdn.highwinds.host.hash_code' ),
-					);
-					break;
-
-				case 'limelight':
-					$engine_config = array(
-						'short_name' => $c->get_string( 'cdn.limelight.short_name' ),
-						'username'   => $c->get_string( 'cdn.limelight.username' ),
-						'api_key'    => $c->get_string( 'cdn.limelight.api_key' ),
-						'domains'    => $c->get_array( 'cdn.limelight.host.domains' ),
-						'debug'      => $c->get_string( 'cdn.debug' ),
-					);
-					break;
-
 				case 'mirror':
 					$engine_config = array(
 						'domain'      => $c->get_array( 'cdn.mirror.domain' ),
@@ -566,31 +569,6 @@ class Cdn_Core {
 					);
 					break;
 
-				case 'stackpath':
-					$engine_config = array(
-						'authorization_key' => $c->get_string( 'cdn.stackpath.authorization_key' ),
-						'zone_id'           => $c->get_integer( 'cdn.stackpath.zone_id' ),
-						'domain'            => $c->get_array( 'cdn.stackpath.domain' ),
-						'ssl'               => $c->get_string( 'cdn.stackpath.ssl' ),
-						'compression'       => false,
-					);
-					break;
-
-				case 'stackpath2':
-					$state = Dispatcher::config_state();
-
-					$engine_config = array(
-						'client_id'           => $c->get_string( 'cdn.stackpath2.client_id' ),
-						'client_secret'       => $c->get_string( 'cdn.stackpath2.client_secret' ),
-						'stack_id'            => $c->get_string( 'cdn.stackpath2.stack_id' ),
-						'site_root_domain'    => $c->get_string( 'cdn.stackpath2.site_root_domain' ),
-						'domain'              => $c->get_array( 'cdn.stackpath2.domain' ),
-						'ssl'                 => $c->get_string( 'cdn.stackpath2.ssl' ),
-						'access_token'        => $state->get_string( 'cdn.stackpath2.access_token' ),
-						'on_new_access_token' => array( $this, 'on_stackpath2_new_access_token' ),
-					);
-					break;
-
 				case 'bunnycdn':
 					$engine_config = array(
 						'account_api_key' => $c->get_string( 'cdn.bunnycdn.account_api_key' ),
@@ -621,9 +599,15 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Called when a new access token is issued by cdnengine.
+	 * Handles the storage of a new Google Drive access token in the configuration state.
 	 *
-	 * @param string $access_token Access token.
+	 * This method sets the provided Google Drive access token into the configuration state
+	 * for later use, ensuring that the token is saved and accessible for operations related
+	 * to Google Drive integration.
+	 *
+	 * @param string $access_token The new access token for Google Drive.
+	 *
+	 * @return void
 	 */
 	public function on_google_drive_new_access_token( $access_token ) {
 		$state = Dispatcher::config_state();
@@ -632,9 +616,14 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Called when a new access state is issued by cdnengine
+	 * Handles the storage of a new Rackspace CDN access state in the configuration state.
 	 *
-	 * @param string $access_state Access state.
+	 * This method sets the provided access state into the configuration state for Rackspace CDN,
+	 * ensuring that the state is saved and accessible for future operations related to Rackspace CDN.
+	 *
+	 * @param string $access_state The new access state for Rackspace CDN.
+	 *
+	 * @return void
 	 */
 	public function on_rackspace_cdn_new_access_state( $access_state ) {
 		$state = Dispatcher::config_state();
@@ -643,9 +632,14 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Called when a new access state is issued by cdnengine
+	 * Handles the storage of a new Rackspace Cloud Files access state in the configuration state.
 	 *
-	 * @param string $access_state Access state.
+	 * This method sets the provided access state into the configuration state for Rackspace Cloud Files,
+	 * ensuring that the state is saved and accessible for future operations related to Rackspace Cloud Files.
+	 *
+	 * @param string $access_state The new access state for Rackspace Cloud Files.
+	 *
+	 * @return void
 	 */
 	public function on_rackspace_cf_new_access_state( $access_state ) {
 		$state = Dispatcher::config_state();
@@ -654,21 +648,14 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Called when a new access token is issued by cdnengine.
+	 * Converts a file path to its corresponding URI, removing multisite-specific path components.
 	 *
-	 * @param string $access_token Access token.
-	 */
-	public function on_stackpath2_new_access_token( $access_token ) {
-		$state = Dispatcher::config_state();
-		$state->set( 'cdn.stackpath2.access_token', $access_token );
-		$state->save();
-	}
-
-	/**
-	 * Convert relative file which is relative to ABSPATH (wp folder on disc) to path uri.
+	 * This method transforms a given file path to a URI by stripping off any multisite subsite path
+	 * and ensuring the result is a valid URI format.
 	 *
-	 * @param  string $file Filename.
-	 * @return string
+	 * @param string $file The file path to convert.
+	 *
+	 * @return string The corresponding URI for the file.
 	 */
 	public function docroot_filename_to_uri( $file ) {
 		$file = ltrim( $file, '/' );
@@ -678,17 +665,21 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Convert a relative path (relative to ABSPATH (wp folder on disc) into a absolute path.
+	 * Converts a file path to its absolute filesystem path.
 	 *
-	 * @param  string $file Filename.
-	 * @return string
+	 * This method takes a relative file path and returns its absolute path based on the document root,
+	 * ensuring proper handling of directory separators for different environments.
+	 *
+	 * @param string $file The file path to convert.
+	 *
+	 * @return string The absolute filesystem path.
 	 */
 	public function docroot_filename_to_absolute_path( $file ) {
 		if ( is_file( $file ) ) {
 			return $file;
 		}
 
-		if ( DIRECTORY_SEPARATOR != '/' ) {
+		if ( '/' !== DIRECTORY_SEPARATOR ) {
 			$file = str_replace( '/', DIRECTORY_SEPARATOR, $file );
 		}
 
@@ -696,10 +687,14 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Convert local uri path to CDN type specific path.
+	 * Converts a local URI to a corresponding CDN URI based on the environment and configuration.
 	 *
-	 * @param  string $local_uri Local URI.
-	 * @return string
+	 * This method converts a local URI to a CDN URI by considering various conditions such as
+	 * the use of WordPress multisite and specific CDN engine configurations.
+	 *
+	 * @param string $local_uri The local URI to convert.
+	 *
+	 * @return string The corresponding CDN URI.
 	 */
 	public function uri_to_cdn_uri( $local_uri ) {
 		$local_uri  = ltrim( $local_uri, '/' );
@@ -736,13 +731,17 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Need to pass full URL and it's URI.
-	 * URI passed to prevent redundant parsing, normally it's available for caller.
+	 * Converts a local URL and path to a full CDN URL.
 	 *
-	 * @param  string $url  URL.
-	 * @param  string $path Path.
-	 * @return string|null
-	 **/
+	 * This method combines a base CDN URL with the corresponding CDN path, resulting in a full URL
+	 * that points to the resource on the CDN. The path is first converted to a CDN URI using
+	 * the `uri_to_cdn_uri()` method.
+	 *
+	 * @param string $url  The base URL to convert.
+	 * @param string $path The relative path to the resource.
+	 *
+	 * @return string|null The full CDN URL, or null if the conversion fails.
+	 */
 	public function url_to_cdn_url( $url, $path ) {
 		$cdn         = $this->get_cdn();
 		$remote_path = $this->uri_to_cdn_uri( $path );
@@ -759,20 +758,28 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Takes an absolute path and converts to a relative path to root.
+	 * Converts an absolute filesystem path to a relative path based on the document root.
 	 *
-	 * @param  string $path Path.
-	 * @return mixed
+	 * This method removes the document root from the provided path, returning a relative path
+	 * that can be used in a URL or CDN context.
+	 *
+	 * @param string $path The absolute filesystem path to convert.
+	 *
+	 * @return string The corresponding relative path.
 	 */
 	public function abspath_to_relative_path( $path ) {
 		return str_replace( Util_Environment::document_root(), '', $path );
 	}
 
 	/**
-	 * Takes a root relative path and converts to a full URI.
+	 * Converts a relative path to a full URL based on the site's home domain.
 	 *
-	 * @param  string $path Path.
-	 * @return string
+	 * This method constructs a full URL from a relative path by appending the path to the
+	 * site's home domain root URL.
+	 *
+	 * @param string $path The relative path to convert.
+	 *
+	 * @return string The corresponding full URL.
 	 */
 	public function relative_path_to_url( $path ) {
 		return rtrim( Util_Environment::home_domain_root_url(), '/' ) . '/' .
@@ -780,11 +787,15 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Constructs a CDN file descriptor.
+	 * Builds a file descriptor array with local and remote paths, as well as the original URL.
 	 *
-	 * @param string $local_path  Local path.
-	 * @param string $remote_path Remote path.
-	 * @return array
+	 * This method creates an array that describes a file, including its local and remote paths
+	 * and the original URL for the file. The array is filtered through the `w3tc_build_cdn_file_array` filter.
+	 *
+	 * @param string $local_path  The local path of the file.
+	 * @param string $remote_path The remote path of the file.
+	 *
+	 * @return array The file descriptor array with local, remote, and URL information.
 	 */
 	public function build_file_descriptor( $local_path, $remote_path ) {
 		$file = array(
@@ -797,13 +808,16 @@ class Cdn_Core {
 	}
 
 	/**
-	 * Get the S3 bucket region ID.
+	 * Returns the region ID corresponding to a given bucket location.
+	 *
+	 * This static method translates a given bucket location into its corresponding region ID.
+	 * For example, it converts 'us-east-1-e' to 'us-east-1'.
 	 *
 	 * @since  2.7.2
-	 * @static
 	 *
-	 * @param string $bucket_location S3 bucket location.
-	 * @return string
+	 * @param string $bucket_location The location of the bucket.
+	 *
+	 * @return string The corresponding region ID.
 	 */
 	public static function get_region_id( $bucket_location ) {
 		switch ( $bucket_location ) {
@@ -832,83 +846,87 @@ class Cdn_Core {
 					! empty( $this->_config->get_string( 'cdn.akamai.password' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.akamai.zone' ) );
 				break;
+
 			case 'att':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.att.account' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.att.token' ) );
 				break;
+
 			case 'azure':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.azure.user' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.azure.key' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.azure.container' ) ) &&
 					! empty( $this->_config->get_array( 'cdn.azure.cname' ) );
 				break;
+
 			case 'azuremi':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.azuremi.user' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.azuremi.clientid' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.azure.container' ) ) &&
 					! empty( $this->_config->get_array( 'cdn.azure.cname' ) );
 				break;
+
 			case 'bunnycdn':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.bunnycdn.account_api_key' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.bunnycdn.pull_zone_id' ) );
 				break;
+
 			case 'cf':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.cf.key' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.cf.secret' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.cf.bucket' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.cf.bucket.location' ) );
 				break;
+
 			case 'cf2':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.cf2.key' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.cf2.secret' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.cf2.id' ) );
 				break;
+
 			case 'cotendo':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.cotendo.username' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.cotendo.password' ) ) &&
 					! empty( $this->_config->get_array( 'cdn.cotendo.domain' ) ) &&
 					! empty( $this->_config->get_array( 'cdn.cotendo.zones' ) );
 				break;
+
 			case 'edgecast':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.edgecast.account' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.edgecast.token' ) ) &&
 					! empty( $this->_config->get_array( 'cdn.edgecast.domain' ) );
 				break;
+
 			case 'ftp':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.ftp.host' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.ftp.type' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.ftp.user' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.ftp.pass' ) );
 				break;
+
 			case 'google_drive':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.google_drive.client_id' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.google_drive.refresh_token' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.google_drive.folder.id' ) );
 				break;
-			case 'highwinds':
-				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.highwinds.account_hash' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.highwinds.api_token' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.highwinds.host.hash_code' ) );
-				break;
-			case 'limelight':
-				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.limelight.short_name' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.limelight.username' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.limelight.api_key' ) );
-				break;
+
 			case 'mirror':
 				$is_cdn_authorized = ! empty( $this->_config->get_array( 'cdn.mirror.domain' ) );
 				break;
+
 			case 'rackspace_cdn':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.rackspace_cdn.user_name' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.rackspace_cdn.api_key' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.rackspace_cdn.region' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.rackspace_cdn.service.id' ) );
 				break;
+
 			case 'rscf':
 				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.rscf.user' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.rscf.key' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.rscf.container' ) );
 				break;
+
 			case 's3':
 			case 's3_compatible':
 					$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.s3.key' ) ) &&
@@ -916,17 +934,7 @@ class Cdn_Core {
 					! empty( $this->_config->get_string( 'cdn.s3.bucket' ) ) &&
 					! empty( $this->_config->get_string( 'cdn.s3.bucket.location' ) );
 				break;
-			case 'stackpath':
-				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.stackpath.autorization_key' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.stackpath.zone_id' ) );
-				break;
-			case 'stackpath2':
-				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.stackpath.client_id' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.stackpath.client_secret' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.stackpath.stack_id' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.stackpath.site_id' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.stackpath.site_root_domain' ) );
-				break;
+
 			default:
 				$is_cdn_authorized = false;
 				break;
@@ -943,49 +951,33 @@ class Cdn_Core {
 	 * @return bool
 	 */
 	public function is_cdnfsd_authorized() {
-	$cloudflare_config = $this->_config->get_array( 'cloudflare' );
+		$cloudflare_config = $this->_config->get_array( 'cloudflare' );
 
 		switch ( $this->_config->get_string( 'cdnfsd.engine' ) ) {
 			case 'bunnycdn':
 				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdn.bunnycdn.account_api_key' ) ) &&
 					! empty( $this->_config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
 				break;
+
 			case 'cloudflare':
 				$is_cdnfsd_authorized = ! empty( $cloudflare_config['email'] ) &&
 					! empty( $cloudflare_config['key'] ) &&
 					! empty( $cloudflare_config['zone_id'] ) &&
 					! empty( $cloudflare_config['zone_name'] );
 				break;
+
 			case 'cloudfront':
 				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.cloudfront.access_key' ) ) &&
 					! empty( $this->_config->get_string( 'cdnfsd.cloudfront.secret_key' ) ) &&
 					! empty( $this->_config->get_string( 'cdnfsd.cloudfront.distribution_id' ) );
 				break;
-			case 'limelight':
-				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.limelight.short_name' ) ) &&
-					! empty( $this->_config->get_string( 'cdnfsd.limelight.username' ) ) &&
-					! empty( $this->_config->get_string( 'cdnfsd.limelight.api_key' ) );
-				break;
-			case 'maxcdn':
-					$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.maxcdn.api_key' ) ) &&
-						! empty( $this->_config->get_string( 'cdnfsd.maxcdn.zone_id' ) );
-				break;
-			case 'stackpath':
-				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.stackpath.api_key' ) ) &&
-					! empty( $this->_config->get_string( 'cdnfsd.stackpath.zone_id' ) );
-				break;
-			case 'stackpath2':
-				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.stackpath2.client_id' ) ) &&
-					! empty( $this->_config->get_string( 'cdnfsd.stackpath2.client_secret' ) ) &&
-					! empty( $this->_config->get_string( 'cdnfsd.stackpath2.stack_id' ) ) &&
-					! empty( $this->_config->get_string( 'cdnfsd.stackpath2.site_id' ) ) &&
-					! empty( $this->_config->get_string( 'cdnfsd.stackpath2.site_root_domain' ) );
-				break;
+
 			case 'transparentcdn':
 				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdnfsd.transparentcdn.client_id' ) ) &&
 					! empty( $this->_config->get_string( 'cdnfsd.transparentcdn.client_secret' ) ) &&
 					! empty( $this->_config->get_string( 'cdnfsd.transparentcdn.company_id' ) );
 				break;
+
 			default:
 				$is_cdnfsd_authorized = false;
 				break;

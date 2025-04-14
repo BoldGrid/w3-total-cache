@@ -19,8 +19,10 @@ define( 'W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN', '~define\s*\(\s*[\'"]COOKI
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
- * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  * phpcs:disable WordPress.NamingConventions.ValidHookName.UseUnderscores
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Generic_AdminActions_Default {
 	/**
@@ -45,7 +47,7 @@ class Generic_AdminActions_Default {
 	private $_page = null;
 
 	/**
-	 * Constructor
+	 * Initializes the class instance and loads configuration settings.
 	 *
 	 * @return void
 	 */
@@ -57,7 +59,9 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Start previewing
+	 * Enables preview mode and redirects to the home URL.
+	 *
+	 * @return void
 	 */
 	public function w3tc_default_previewing() {
 		Util_Environment::set_preview( true );
@@ -65,7 +69,9 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Stop previewing the site
+	 * Disables preview mode and redirects to the current page.
+	 *
+	 * @return void
 	 */
 	public function w3tc_default_stop_previewing() {
 		Util_Environment::set_preview( false );
@@ -73,9 +79,11 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Hide note action
+	 * Saves the provided license key to the configuration.
 	 *
 	 * @return void
+	 *
+	 * @throws \Exception If saving the license key or configuration fails.
 	 */
 	public function w3tc_default_save_license_key() {
 		$license = Util_Request::get_string( 'license_key' );
@@ -93,12 +101,13 @@ class Generic_AdminActions_Default {
 			echo wp_json_encode( array( 'result' => 'failed' ) );
 			exit();
 		}
+
 		echo wp_json_encode( array( 'result' => 'success' ) );
 		exit();
 	}
 
 	/**
-	 * Hide note action
+	 * Hides a specified admin note and updates the configuration.
 	 *
 	 * @return void
 	 */
@@ -114,7 +123,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Set default config state
+	 * Updates a specified configuration state value and saves the changes.
 	 *
 	 * @return void
 	 */
@@ -129,7 +138,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Set default config state master
+	 * Updates a specified master configuration state value and saves the changes.
 	 *
 	 * @return void
 	 */
@@ -145,7 +154,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Set default config state note
+	 * Updates a specified note configuration state and redirects.
 	 *
 	 * @return void
 	 */
@@ -160,7 +169,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Hide note custom action
+	 * Hides a custom admin note and redirects.
 	 *
 	 * @return void
 	 */
@@ -171,7 +180,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Clear purge log
+	 * Clears the purge log for the specified module.
 	 *
 	 * @return void
 	 */
@@ -194,7 +203,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Remove add-in
+	 * Removes an add-in module, handles deletion, and performs necessary replacements.
 	 *
 	 * @return void
 	 */
@@ -232,7 +241,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Options save action
+	 * Saves configuration options and processes the save request.
 	 *
 	 * @return void
 	 */
@@ -242,7 +251,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Save&flush all action
+	 * Saves configuration options, flushes caches, and updates necessary states.
 	 *
 	 * @return void
 	 */
@@ -263,7 +272,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Process save options
+	 * Processes saving options for the W3 Total Cache plugin.
 	 *
 	 * @return array
 	 */
@@ -494,14 +503,6 @@ class Generic_AdminActions_Default {
 					$config->set( 'cdn.ftp.domain', $cdn_domains );
 					break;
 
-				case 'highwinds':
-					$config->set( 'cdn.highwinds.host.domains', $cdn_domains );
-					break;
-
-				case 'limelight':
-					$config->set( 'cdn.limelight.host.domains', $cdn_domains );
-					break;
-
 				case 'mirror':
 					$config->set( 'cdn.mirror.domain', $cdn_domains );
 					break;
@@ -517,20 +518,6 @@ class Generic_AdminActions_Default {
 				case 's3':
 				case 's3_compatible':
 					$config->set( 'cdn.s3.cname', $cdn_domains );
-					break;
-
-				case 'stackpath':
-					$v = $config->get( 'cdn.stackpath.domain' );
-					if ( isset( $v['http_default'] ) ) {
-						$cdn_domains['http_default'] = $v['http_default'];
-					}
-					if ( isset( $v['https_default'] ) ) {
-						$cdn_domains['https_default'] = $v['https_default'];
-					}
-					$config->set( 'cdn.stackpath.domain', $cdn_domains );
-					break;
-				case 'stackpath2':
-					$config->set( 'cdn.stackpath2.domain', $cdn_domains );
 					break;
 			}
 		}
@@ -591,17 +578,15 @@ class Generic_AdminActions_Default {
 							)
 						);
 					}
-				} else {
-					if ( ! $this->disable_cookie_domain() ) {
-						Util_Admin::redirect(
-							array_merge(
-								$data['response_query_string'],
-								array(
-									'w3tc_error' => 'disable_cookie_domain',
-								)
+				} elseif ( ! $this->disable_cookie_domain() ) {
+					Util_Admin::redirect(
+						array_merge(
+							$data['response_query_string'],
+							array(
+								'w3tc_error' => 'disable_cookie_domain',
 							)
-						);
-					}
+						)
+					);
 				}
 			}
 		}
@@ -615,9 +600,9 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Delete htaccess files
+	 * Deletes all .htaccess files in the specified directory and its subdirectories.
 	 *
-	 * @param string $dir directory.
+	 * @param string $dir Directory path where .htaccess files will be deleted.
 	 *
 	 * @return void
 	 */
@@ -631,7 +616,12 @@ class Generic_AdminActions_Default {
 			return;
 		}
 
-		while ( false !== ( $file = readdir( $handle ) ) ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( true ) {
+			$file = readdir( $handle );
+			if ( false === $file ) {
+				break;
+			}
+
 			if ( '.' === $file || '..' === $file ) {
 				continue;
 			}
@@ -648,9 +638,9 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Enables COOKIE_DOMAIN
+	 * Enables COOKIE_DOMAIN by modifying the wp-config.php file.
 	 *
-	 * @return bool
+	 * @return bool True if COOKIE_DOMAIN is successfully enabled, false otherwise.
 	 */
 	public function enable_cookie_domain() {
 		WP_Filesystem();
@@ -693,9 +683,9 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Disables COOKIE_DOMAIN
+	 * Disables COOKIE_DOMAIN by modifying the wp-config.php file.
 	 *
-	 * @return bool
+	 * @return bool True if COOKIE_DOMAIN is successfully disabled, false otherwise.
 	 */
 	public function disable_cookie_domain() {
 		WP_Filesystem();
@@ -728,32 +718,31 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Checks COOKIE_DOMAIN definition existence
+	 * Checks if COOKIE_DOMAIN is defined in the given configuration content.
 	 *
-	 * @param string $content Content.
+	 * @param string $content The configuration file content to check.
 	 *
-	 * @return int|bool
+	 * @return int|bool True if COOKIE_DOMAIN is defined, false otherwise.
 	 */
 	public function is_cookie_domain_define( $content ) {
 		return preg_match( W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN, $content );
 	}
 
-
 	/**
-	 * Returns true if config section is sealed
+	 * Checks if a configuration section is sealed.
 	 *
-	 * @param string $section Section.
+	 * @param string $section The section name to check.
 	 *
-	 * @return boolean
+	 * @return bool Always returns true, indicating the section is sealed.
 	 */
 	protected function is_sealed( $section ) {
 		return true;
 	}
 
 	/**
-	 * Reads config from request
+	 * Reads configuration settings from a request and updates the configuration object.
 	 *
-	 * @param Config $config Config.
+	 * @param object $config Configuration object to update.
 	 *
 	 * @return void
 	 */

@@ -12,6 +12,8 @@ namespace W3TC;
  * Class: Cdnfsd_BunnyCdn_Popup
  *
  * @since 2.6.0
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdnfsd_BunnyCdn_Popup {
 	/**
@@ -102,14 +104,14 @@ class Cdnfsd_BunnyCdn_Popup {
 		$server_ip            = ! empty( $_SERVER['SERVER_ADDR'] ) && \filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_VALIDATE_IP ) ?
 			\filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_SANITIZE_URL ) : null;
 		$suggested_origin_url = 'http' . ( \is_ssl() ? 's' : '' ) . '://' .
-			( empty( $server_ip ) ? \parse_url( \home_url(), PHP_URL_HOST ) : $server_ip );
+			( empty( $server_ip ) ? \wp_parse_url( \home_url(), PHP_URL_HOST ) : $server_ip );
 
 		$details = array(
-			'pull_zones'                 => $pull_zones,
-			'suggested_origin_url'       => $suggested_origin_url, // Suggested origin URL or IP.
-			'suggested_zone_name'        => \substr( \str_replace( '.', '-', \parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
-			'pull_zone_id'               => $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
-			'suggested_custom_hostname'  => \parse_url( \home_url(), PHP_URL_HOST ), // Suggested custom hostname.
+			'pull_zones'                => $pull_zones,
+			'suggested_origin_url'      => $suggested_origin_url, // Suggested origin URL or IP.
+			'suggested_zone_name'       => \substr( \str_replace( '.', '-', \wp_parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
+			'pull_zone_id'              => $config->get_integer( 'cdnfsd.bunnycdn.pull_zone_id' ),
+			'suggested_custom_hostname' => \wp_parse_url( \home_url(), PHP_URL_HOST ), // Suggested custom hostname.
 		);
 
 		include W3TC_DIR . '/Cdnfsd_BunnyCdn_Popup_View_Pull_Zones.php';

@@ -25,8 +25,6 @@ describe('', function() {
 	before(sys.beforeDefault);
 	after(sys.after);
 
-
-
 	it('set options', async() => {
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
 			dbcache__enabled: true,
@@ -46,10 +44,13 @@ describe('', function() {
 		await sys.afterRulesChange();
 	});
 
-
+	it('Prime the blog site', async() => {
+		log.log(env.blogSiteUrl);
+		await page.goto(env.blogSiteUrl);
+	});
 
 	it('add cache', async() => {
-		console.log(env.blogSiteUrl +
+		log.log(env.blogSiteUrl +
 			'garbage-collection.php?action=add_cache&' +
 			'blog_id=' + env.blogId + '&url=' + env.homeUrl);
 		await page.goto(env.blogSiteUrl +
@@ -58,7 +59,7 @@ describe('', function() {
 		let added = await page.$eval('#added', (e) => e.textContent);
 		expect(added).equals('ok');
 
-		console.log(env.blogSiteUrl +
+		log.log(env.blogSiteUrl +
 			'garbage-collection.php?action=get_path&' +
 			'blog_id=' + env.blogId + '&url=' + env.homeUrl);
 		await page.goto(env.blogSiteUrl +
@@ -69,13 +70,11 @@ describe('', function() {
 		expect(fs.existsSync(cacheFilePath)).is.true;
 	});
 
-
-
 	it('run cron hook to delete cache', async() => {
 		// checking in 5 seconds if GS worked out
 		log.log('Waiting 5 seconds to check if the file will be deleted by garbage collection');
 		await new Promise(r => setTimeout(r, 5000));
-		console.log(env.blogSiteUrl +
+		log.log(env.blogSiteUrl +
 			'garbage-collection.php?action=garbage_collection&' +
 			'blog_id=' + env.blogId + '&url=' + env.homeUrl);
 		await page.goto(env.blogSiteUrl +

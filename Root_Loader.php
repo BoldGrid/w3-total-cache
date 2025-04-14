@@ -28,7 +28,11 @@ class Root_Loader {
 	private $_loaded_extensions = array();
 
 	/**
-	 * Constructor.
+	 * Constructor for the Root_Loader class.
+	 *
+	 * Initializes and loads the required plugins based on the current configuration.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$c = Dispatcher::config();
@@ -109,10 +113,8 @@ class Root_Loader {
 			$plugins[] = new UsageStatistics_Plugin_Admin();
 			$plugins[] = new SetupGuide_Plugin_Admin();
 			$plugins[] = new FeatureShowcase_Plugin_Admin();
-		} else {
-			if ( $c->get_boolean( 'jquerymigrate.disabled' ) ) {
-				$plugins[] = new UserExperience_Plugin_Jquery();
-			}
+		} elseif ( $c->get_boolean( 'jquerymigrate.disabled' ) ) {
+			$plugins[] = new UserExperience_Plugin_Jquery();
 		}
 
 		$this->_loaded_plugins = $plugins;
@@ -129,7 +131,11 @@ class Root_Loader {
 	}
 
 	/**
-	 * Run plugins
+	 * Runs all loaded plugins and initializes extensions.
+	 *
+	 * Executes the `on_w3tc_plugins_loaded` method if it exists in `$GLOBALS['wpdb']`.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		foreach ( $this->_loaded_plugins as $plugin ) {
@@ -145,23 +151,31 @@ class Root_Loader {
 	}
 
 	/**
-	 * Activation action hook
+	 * Activates the plugin, performing necessary setup actions.
 	 *
-	 * @param bool $network_wide Network wide flag.
+	 * @param bool $network_wide Whether the activation is for a network-wide installation.
+	 *
+	 * @return void
 	 */
 	public function activate( $network_wide ) {
 		Root_AdminActivation::activate( $network_wide );
 	}
 
 	/**
-	 * Deactivation action hook
+	 * Deactivates the plugin, performing necessary cleanup actions.
+	 *
+	 * @return void
 	 */
 	public function deactivate() {
 		Root_AdminActivation::deactivate();
 	}
 
 	/**
-	 * Loads extensions stored in config
+	 * Loads and runs the active extensions for both frontend and admin environments.
+	 *
+	 * Includes extension files and triggers extension-related actions.
+	 *
+	 * @return void
 	 */
 	public function run_extensions() {
 		$c          = Dispatcher::config();
@@ -214,9 +228,9 @@ class Root_Loader {
 	}
 
 	/**
-	 * Modify query object to hide Image Service converted images.
+	 * Modifies the main query to exclude Image Service converted images from the media library.
 	 *
-	 * @param object $query WP_Query object.
+	 * @param \WP_Query $query The main query object.
 	 *
 	 * @return void
 	 */
@@ -225,7 +239,11 @@ class Root_Loader {
 			return;
 		}
 
-		$screen = get_current_screen();
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen = get_current_screen();
+		} else {
+			return;
+		}
 
 		if ( ! $screen || 'upload' !== $screen->id || 'attachment' !== $screen->post_type ) {
 			return;
@@ -242,11 +260,11 @@ class Root_Loader {
 	}
 
 	/**
-	 * Filter AJAX query arguments for attachements to hide Image Service converted images.
+	 * Filters AJAX attachment query arguments to exclude Image Service converted images.
 	 *
-	 * @param string $args arguments.
+	 * @param array $args The query arguments for AJAX attachments.
 	 *
-	 * @return void
+	 * @return array Modified query arguments.
 	 */
 	public function w3tc_filter_ajax_args( $args ) {
 		if ( ! is_admin() ) {

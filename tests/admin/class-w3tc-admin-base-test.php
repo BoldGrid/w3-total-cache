@@ -62,8 +62,6 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 			'W3TC_TERMS_ACCEPT_URL',
 			'W3TC_MAILLINGLIST_SIGNUP_URL',
 			'W3TC_NEWRELIC_SIGNUP_URL',
-			'W3TC_STACKPATH_AUTHORIZE_URL',
-			'W3TC_STACKPATH2_AUTHORIZE_URL',
 			'W3TC_GOOGLE_DRIVE_AUTHORIZE_URL',
 			'W3TC_BUNNYCDN_SETTINGS_URL',
 			'W3TC_BUNNYCDN_CDN_URL',
@@ -379,7 +377,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	public function test_w3tc_e() {
 		// Use output buffering to check output.
 		ob_start();
-		w3tc_e( 'cdn.stackpath.signUpAndSave', 'default' );
+		w3tc_e( 'cdn.bunnycdn.widget.v2.works_magically', 'default' );
 		$output = ob_get_contents();
 		ob_end_clean();
 
@@ -392,7 +390,7 @@ class W3tc_Admin_Base_Test extends WP_UnitTestCase {
 	 * @since 2.3.1
 	 */
 	public function test_w3tc_er() {
-		$this->assertIsString( w3tc_er( 'cdn.stackpath.signUpAndSave', 'default' ) );
+		$this->assertIsString( w3tc_er( 'cdn.bunnycdn.widget.v2.works_magically', 'default' ) );
 	}
 
 	/**

@@ -15,6 +15,7 @@ namespace W3TC;
  * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
  * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cache_Base {
 	/**

@@ -9,11 +9,11 @@
 namespace W3TC;
 
 /**
- * Class: Cdn_Plugin_Admin
+ * Class Cdn_Plugin_Admin
  */
 class Cdn_Plugin_Admin {
 	/**
-	 * Run.
+	 * Runs the CDN plugin by setting up various hooks and filters.
 	 *
 	 * @return void
 	 */
@@ -43,31 +43,18 @@ class Cdn_Plugin_Admin {
 			case 'google_drive':
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_GoogleDrive_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				break;
-			case 'highwinds':
-				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_Highwinds_Popup', 'w3tc_ajax' ) );
-				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_Highwinds_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				break;
-			case 'limelight':
-				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_LimeLight_Popup', 'w3tc_ajax' ) );
-				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_LimeLight_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				break;
+
 			case 'rackspace_cdn':
 				\add_filter( 'w3tc_admin_actions', array( '\W3TC\Cdn_RackSpaceCdn_Page', 'w3tc_admin_actions' ) );
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_RackSpaceCdn_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_RackSpaceCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				break;
+
 			case 'rscf':
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_RackSpaceCloudFiles_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_RackSpaceCloudFiles_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				break;
-			case 'stackpath':
-				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_StackPath_Popup', 'w3tc_ajax' ) );
-				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_StackPath_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				break;
-			case 'stackpath2':
-				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_StackPath2_Popup', 'w3tc_ajax' ) );
-				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_StackPath2_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				break;
+
 			case 'bunnycdn':
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Popup', 'w3tc_ajax' ) );
@@ -75,6 +62,7 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
 				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
 				break;
+
 			default:
 				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
 				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
@@ -85,7 +73,7 @@ class Cdn_Plugin_Admin {
 	}
 
 	/**
-	 * CDN settings.
+	 * Adds configuration options for CDN settings in the general settings box area.
 	 *
 	 * @return void
 	 */
@@ -133,28 +121,8 @@ class Cdn_Plugin_Admin {
 			'optgroup' => $optgroup_pull,
 		);
 
-		$engine_values['highwinds'] = array(
-			'label'    => \__( 'Highwinds', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
-		$engine_values['limelight'] = array(
-			'label'    => \__( 'LimeLight', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
 		$engine_values['rackspace_cdn'] = array(
 			'label'    => \__( 'RackSpace CDN', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
-		$engine_values['stackpath2'] = array(
-			'label'    => \__( 'StackPath', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
-		);
-
-		$engine_values['stackpath'] = array(
-			'label'    => \__( 'StackPath SecureCDN (Legacy)', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);
 
@@ -216,19 +184,20 @@ class Cdn_Plugin_Admin {
 	}
 
 	/**
-	 * Adjusts attachment urls to cdn. This is for those who rely on wp_get_attachment_url().
+	 * Filters the attachment URL for the WordPress admin area based on CDN settings.
 	 *
-	 * @param  string $url The local url to modify.
-	 * @return string
+	 * @param string $url The URL of the attachment.
+	 *
+	 * @return string The filtered URL of the attachment.
 	 */
 	public function wp_get_attachment_url( $url ) {
 		if ( defined( 'WP_ADMIN' ) ) {
 			$url = trim( $url );
 
 			if ( ! empty( $url ) ) {
-				$parsed          = \parse_url( $url );
+				$parsed          = \wp_parse_url( $url );
 				$uri             = ( isset( $parsed['path'] ) ? $parsed['path'] : '/' ) .
-						   ( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
+					( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
 				$wp_upload_dir   = \wp_upload_dir();
 				$upload_base_url = $wp_upload_dir['baseurl'];
 

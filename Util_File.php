@@ -1,29 +1,42 @@
 <?php
+/**
+ * File: Util_File.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Util_File
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ */
 class Util_File {
 	/**
 	 * Recursive creates directory
 	 *
-	 * @param string  $path
-	 * @param integer $mask
-	 * @param string  $curr_path
+	 * @param string  $path      Path.
+	 * @param integer $mask      Mask.
+	 * @param string  $curr_path Current Path.
+	 *
 	 * @return boolean
 	 */
-	static public function mkdir( $path, $mask = 0777, $curr_path = '' ) {
+	public static function mkdir( $path, $mask = 0777, $curr_path = '' ) {
 		$path = Util_Environment::realpath( $path );
 		$path = trim( $path, '/' );
 		$dirs = explode( '/', $path );
 
 		foreach ( $dirs as $dir ) {
-			if ( $dir == '' ) {
+			if ( '' === $dir ) {
 				return false;
 			}
 
-			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
+			$curr_path .= ( '' === $curr_path ? '' : '/' ) . $dir;
 
-			if ( !@file_exists( $curr_path ) ) {
-				if ( !@mkdir( $curr_path, $mask ) ) {
+			if ( ! @file_exists( $curr_path ) ) {
+				if ( ! @mkdir( $curr_path, $mask ) ) {
 					return false;
 				}
 			}
@@ -36,17 +49,19 @@ class Util_File {
 	 * Recursive creates directory from some directory
 	 * Does not try to create directory before from
 	 *
-	 * @param string  $path
-	 * @param string  $from_path
-	 * @param integer $mask
+	 * @param string  $path      Path.
+	 * @param string  $from_path From path.
+	 * @param integer $mask      Mask.
+	 *
 	 * @return boolean
 	 */
-	static public function mkdir_from( $path, $from_path = '', $mask = 0777 ) {
+	public static function mkdir_from( $path, $from_path = '', $mask = 0777 ) {
 		$path = Util_Environment::realpath( $path );
 
 		$from_path = Util_Environment::realpath( $from_path );
-		if ( substr( $path, 0, strlen( $from_path ) ) != $from_path )
+		if ( substr( $path, 0, strlen( $from_path ) ) !== $from_path ) {
 			return false;
+		}
 
 		$path = substr( $path, strlen( $from_path ) );
 
@@ -56,14 +71,16 @@ class Util_File {
 		$curr_path = $from_path;
 
 		foreach ( $dirs as $dir ) {
-			if ( $dir == '' )
+			if ( '' === $dir ) {
 				return false;
+			}
 
-			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
+			$curr_path .= ( '' === $curr_path ? '' : '/' ) . $dir;
 
-			if ( !@file_exists( $curr_path ) ) {
-				if ( !@mkdir( $curr_path, $mask, true ) )
+			if ( ! @file_exists( $curr_path ) ) {
+				if ( ! @mkdir( $curr_path, $mask, true ) ) {
 					return false;
+				}
 			}
 		}
 
@@ -76,44 +93,51 @@ class Util_File {
 	 * (no .htaccess folders which cause 403 error later)
 	 * Does not try to create directory before from
 	 *
-	 * @param string  $path
-	 * @param string  $from_path
-	 * @param integer $mask
+	 * @param string  $path      Path.
+	 * @param string  $from_path From path.
+	 * @param integer $mask      Mask.
+	 *
 	 * @return boolean
 	 */
-	static public function mkdir_from_safe( $path, $from_path = '', $mask = 0777 ) {
+	public static function mkdir_from_safe( $path, $from_path = '', $mask = 0777 ) {
 		$path = Util_Environment::realpath( $path );
 
 		$from_path = Util_Environment::realpath( $from_path );
-		if ( substr( $path, 0, strlen( $from_path ) ) != $from_path )
+		if ( substr( $path, 0, strlen( $from_path ) ) !== $from_path ) {
 			return false;
+		}
 
 		$path = substr( $path, strlen( $from_path ) );
 
 		$path = trim( $path, '/' );
 		$dirs = explode( '/', $path );
 
-		$curr_path = realpath( $from_path );   // use canonicalization
+		$curr_path          = realpath( $from_path );   // use canonicalization.
 		$curr_path_previous = $curr_path;
 
 		foreach ( $dirs as $dir ) {
-			if ( $dir == '' )
+			if ( '' === $dir ) {
 				return false;
-			if ( substr( $dir, 0, 1 ) == '.' )   // (no .htaccess folders)
+			}
+
+			if ( '.' === substr( $dir, 0, 1 ) ) { // (no .htaccess folders).
 				return false;
+			}
 
-			$curr_path .= ( $curr_path == '' ? '' : '/' ) . $dir;
+			$curr_path .= ( '' === $curr_path ? '' : '/' ) . $dir;
 
-			if ( !@file_exists( $curr_path ) ) {
-				if ( !@mkdir( $curr_path, $mask, true ) ) {
+			if ( ! @file_exists( $curr_path ) ) {
+				if ( ! @mkdir( $curr_path, $mask, true ) ) {
 					return false;
 				}
+
 				$curr_path = realpath( $curr_path );
-				// make sure we grow from previous step and dont jump elsewhere
+				// make sure we grow from previous step and dont jump elsewhere.
 				if ( strlen( $curr_path ) <= 0 ||
-						substr( $curr_path, 0, strlen( $curr_path_previous ) ) != $curr_path_previous ) {
+						substr( $curr_path, 0, strlen( $curr_path_previous ) ) !== $curr_path_previous ) {
 					return false;
 				}
+
 				$curr_path_previous = $curr_path;
 			}
 		}
@@ -124,22 +148,26 @@ class Util_File {
 	/**
 	 * Recursive remove dir
 	 *
-	 * @param string  $path
-	 * @param array   $exclude
-	 * @param bool    $remove
+	 * @param string $path    Path.
+	 * @param array  $exclude Exclude.
+	 * @param bool   $remove  Remove.
+	 *
 	 * @return void
 	 */
-	static public function rmdir( $path, $exclude = array(), $remove = true ) {
+	public static function rmdir( $path, $exclude = array(), $remove = true ) {
 		$dir = file_exists( $path ) ? opendir( $path ) : false;
 
 		if ( $dir ) {
-			while ( ( $entry = @readdir( $dir ) ) !== false ) {
-				if ( $entry == '.' || $entry == '..' ) {
+			$entry = @readdir( $dir );
+			while ( false !== $entry ) {
+				if ( '.' === $entry || '..' === $entry ) {
+					$entry = @readdir( $dir );
 					continue;
 				}
 
 				foreach ( $exclude as $mask ) {
 					if ( fnmatch( $mask, basename( $entry ) ) ) {
+						$entry = @readdir( $dir );
 						continue 2;
 					}
 				}
@@ -147,10 +175,12 @@ class Util_File {
 				$full_path = $path . DIRECTORY_SEPARATOR . $entry;
 
 				if ( @is_dir( $full_path ) ) {
-					Util_File::rmdir( $full_path, $exclude );
+					self::rmdir( $full_path, $exclude );
 				} else {
 					@unlink( $full_path );
 				}
+
+				$entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );
@@ -164,21 +194,23 @@ class Util_File {
 	/**
 	 * Recursive empty dir
 	 *
-	 * @param string  $path
-	 * @param array   $exclude
+	 * @param string $path    Path.
+	 * @param array  $exclude Exclude.
+	 *
 	 * @return void
 	 */
-	static public function emptydir( $path, $exclude = array() ) {
-		Util_File::rmdir( $path, $exclude, false );
+	public static function emptydir( $path, $exclude = array() ) {
+		self::rmdir( $path, $exclude, false );
 	}
 
 	/**
 	 * Check if file is write-able
 	 *
-	 * @param string  $file
+	 * @param string $file File.
+	 *
 	 * @return boolean
 	 */
-	static public function is_writable( $file ) {
+	public static function is_writable( $file ) {
 		$exists = file_exists( $file );
 
 		$fp = @fopen( $file, 'a' );
@@ -186,7 +218,7 @@ class Util_File {
 		if ( $fp ) {
 			fclose( $fp );
 
-			if ( !$exists ) {
+			if ( ! $exists ) {
 				@unlink( $file );
 			}
 
@@ -199,48 +231,60 @@ class Util_File {
 	/**
 	 * Cehck if dir is write-able
 	 *
-	 * @param string  $dir
+	 * @param string $dir Directory.
+	 *
 	 * @return boolean
 	 */
-	static public function is_writable_dir( $dir ) {
+	public static function is_writable_dir( $dir ) {
 		$file = $dir . '/' . uniqid( mt_rand() ) . '.tmp';
 
-		return Util_File::is_writable( $file );
+		return self::is_writable( $file );
 	}
 
 	/**
 	 * Returns dirname of path
 	 *
-	 * @param string  $path
+	 * @param string $path Path.
+	 *
 	 * @return string
 	 */
-	static public function dirname( $path ) {
+	public static function dirname( $path ) {
 		$dirname = dirname( $path );
 
-		if ( $dirname == '.' || $dirname == '/' || $dirname == '\\' ) {
+		if ( '.' === $dirname || '/' === $dirname || '\\' === $dirname ) {
 			$dirname = '';
 		}
 
 		return $dirname;
 	}
 
-	static public function make_relative_path( $filename, $base_dir ) {
+	/**
+	 * Make path relative
+	 *
+	 * @param string $filename File name.
+	 * @param string $base_dir Base directory.
+	 *
+	 * @return string
+	 */
+	public static function make_relative_path( $filename, $base_dir ) {
 		$filename = Util_Environment::realpath( $filename );
 		$base_dir = Util_Environment::realpath( $base_dir );
 
 		$filename_parts = explode( '/', trim( $filename, '/' ) );
 		$base_dir_parts = explode( '/', trim( $base_dir, '/' ) );
 
-		// count number of equal path parts
+		// count number of equal path parts.
 		for ( $equal_number = 0;;$equal_number++ ) {
-			if ( $equal_number >= count( $filename_parts ) ||
-				$equal_number >= count( $base_dir_parts ) )
+			if ( $equal_number >= count( $filename_parts ) || $equal_number >= count( $base_dir_parts ) ) {
 				break;
-			if ( $filename_parts[$equal_number] != $base_dir_parts[$equal_number] )
+			}
+
+			if ( $filename_parts[ $equal_number ] !== $base_dir_parts[ $equal_number ] ) {
 				break;
+			}
 		}
 
-		$relative_dir = str_repeat( '../', count( $base_dir_parts ) - $equal_number );
+		$relative_dir  = str_repeat( '../', count( $base_dir_parts ) - $equal_number );
 		$relative_dir .= implode( '/', array_slice( $filename_parts, $equal_number ) );
 
 		return $relative_dir;
@@ -251,14 +295,14 @@ class Util_File {
 	 *
 	 * @return array
 	 */
-	static public function get_open_basedirs() {
+	public static function get_open_basedirs() {
 		$open_basedir_ini = ini_get( 'open_basedir' );
-		$open_basedirs = ( W3TC_WIN ? preg_split( '~[;,]~', $open_basedir_ini ) : explode( ':', $open_basedir_ini ) );
-		$result = array();
+		$open_basedirs    = ( W3TC_WIN ? preg_split( '~[;,]~', $open_basedir_ini ) : explode( ':', $open_basedir_ini ) );
+		$result           = array();
 
 		foreach ( $open_basedirs as $open_basedir ) {
 			$open_basedir = trim( $open_basedir );
-			if ( !empty( $open_basedir ) && $open_basedir != '' ) {
+			if ( ! empty( $open_basedir ) && '' !== $open_basedir ) {
 				$result[] = Util_Environment::realpath( $open_basedir );
 			}
 		}
@@ -269,14 +313,15 @@ class Util_File {
 	/**
 	 * Checks if path is restricted by open_basedir
 	 *
-	 * @param string  $path
+	 * @param string $path Path.
+	 *
 	 * @return boolean
 	 */
-	static public function check_open_basedir( $path ) {
-		$path = Util_Environment::realpath( $path );
-		$open_basedirs = Util_File::get_open_basedirs();
+	public static function check_open_basedir( $path ) {
+		$path          = Util_Environment::realpath( $path );
+		$open_basedirs = self::get_open_basedirs();
 
-		if ( !count( $open_basedirs ) ) {
+		if ( ! count( $open_basedirs ) ) {
 			return true;
 		}
 
@@ -293,6 +338,7 @@ class Util_File {
 	 * Get the octal file permission number of a file or directory.
 	 *
 	 * @param string $file File path.
+	 *
 	 * @return int
 	 */
 	public static function get_file_permissions( $file ) {
@@ -311,8 +357,17 @@ class Util_File {
 		return intval( decoct( $fileperms ) );
 	}
 
-	static public function get_file_owner( $file = '' ) {
-		$fileowner = $filegroup = 'unknown';
+	/**
+	 * Get file owner
+	 *
+	 * @param string $file File path.
+	 *
+	 * @return string
+	 */
+	public static function get_file_owner( $file = '' ) {
+		$fileowner = 'unknown';
+		$filegroup = 'unknown';
+
 		if ( $file ) {
 			if ( function_exists( 'fileowner' ) && function_exists( 'fileowner' ) ) {
 				$fileowner = @fileowner( $file );
@@ -324,37 +379,45 @@ class Util_File {
 					$filegroup = $filegroup['name'];
 				}
 			}
-		} else {
-			if ( function_exists( 'getmyuid' ) && function_exists( 'getmygid' ) ) {
-				$fileowner = @getmyuid();
-				$filegroup = @getmygid();
-				if ( function_exists( 'posix_getpwuid' ) && function_exists( 'posix_getgrgid' ) ) {
-					$fileowner = @posix_getpwuid( $fileowner );
-					$fileowner = $fileowner['name'];
-					$filegroup = @posix_getgrgid( $filegroup );
-					$filegroup = $filegroup['name'];
-				}
+		} elseif ( function_exists( 'getmyuid' ) && function_exists( 'getmygid' ) ) {
+			$fileowner = @getmyuid();
+			$filegroup = @getmygid();
+			if ( function_exists( 'posix_getpwuid' ) && function_exists( 'posix_getgrgid' ) ) {
+				$fileowner = @posix_getpwuid( $fileowner );
+				$fileowner = $fileowner['name'];
+				$filegroup = @posix_getgrgid( $filegroup );
+				$filegroup = $filegroup['name'];
 			}
 		}
+
 		return $fileowner . ':' . $filegroup;
 	}
 
 	/**
 	 * Creates W3TC_CACHE_TMP_DIR dir if required
 	 *
-	 * @throws Exception
+	 * @throws \Exception Exception.
+	 *
 	 * @return string
 	 */
-	static public function create_tmp_dir() {
-		if ( !is_dir( W3TC_CACHE_TMP_DIR ) || !is_writable( W3TC_CACHE_TMP_DIR ) ) {
-			Util_File::mkdir_from( W3TC_CACHE_TMP_DIR, W3TC_CACHE_DIR );
+	public static function create_tmp_dir() {
+		if ( ! is_dir( W3TC_CACHE_TMP_DIR ) || ! is_writable( W3TC_CACHE_TMP_DIR ) ) {
+			self::mkdir_from( W3TC_CACHE_TMP_DIR, W3TC_CACHE_DIR );
 
-			if ( !is_dir( W3TC_CACHE_TMP_DIR ) || !is_writable( W3TC_CACHE_TMP_DIR ) ) {
-				$e = error_get_last();
+			if ( ! is_dir( W3TC_CACHE_TMP_DIR ) || ! is_writable( W3TC_CACHE_TMP_DIR ) ) {
+				$e           = error_get_last();
 				$description = ( isset( $e['message'] ) ? $e['message'] : '' );
 
-				throw new \Exception( 'Can\'t create folder <strong>' .
-					W3TC_CACHE_TMP_DIR . '</strong>: ' . $description );
+				throw new \Exception(
+					\wp_kses_post(
+						sprintf(
+							// Translators: 1 Cache TMP dir path surround by HTML strong tag, 2 Description.
+							\__( 'Can\'t create folder %1$s: %2$s', 'w3-total-cache' ),
+							'<strong>' . W3TC_CACHE_TMP_DIR . '</strong>',
+							$description
+						)
+					)
+				);
 			}
 		}
 
@@ -364,44 +427,52 @@ class Util_File {
 	/**
 	 * Atomically writes file inside W3TC_CACHE_DIR dir
 	 *
-	 * @param unknown $filename
-	 * @param unknown $content
-	 * @throws Exception
+	 * @param unknown $filename Filename.
+	 * @param unknown $content  Content.
+	 *
+	 * @throws \Exception Exception.
+	 *
 	 * @return void
 	 */
-	static public function file_put_contents_atomic( $filename, $content ) {
-		Util_File::create_tmp_dir();
+	public static function file_put_contents_atomic( $filename, $content ) {
+		self::create_tmp_dir();
 		$temp = tempnam( W3TC_CACHE_TMP_DIR, 'temp' );
 
 		try {
-			if ( !( $f = @fopen( $temp, 'wb' ) ) ) {
-				if ( file_exists( $temp ) )
+			$f = @fopen( $temp, 'wb' );
+			if ( ! $f ) {
+				if ( file_exists( $temp ) ) {
 					@unlink( $temp );
-				throw new \Exception( 'Can\'t write to temporary file <strong>' .
-					$temp . '</strong>' );
+				}
+
+				throw new \Exception( 'Can\'t write to temporary file <strong>' . $temp . '</strong>' );
 			}
 
 			fwrite( $f, $content );
 			fclose( $f );
 
-			if ( !@rename( $temp, $filename ) ) {
+			if ( ! @rename( $temp, $filename ) ) {
 				@unlink( $filename );
-				if ( !@rename( $temp, $filename ) ) {
-					Util_File::mkdir_from( dirname( $filename ), W3TC_CACHE_DIR );
-					if ( !@rename( $temp, $filename ) ) {
-						throw new \Exception( 'Can\'t write to file <strong>' .
-							$filename . '</strong>' );
+				if ( ! @rename( $temp, $filename ) ) {
+					self::mkdir_from( dirname( $filename ), W3TC_CACHE_DIR );
+
+					if ( ! @rename( $temp, $filename ) ) {
+						throw new \Exception( 'Can\'t write to file <strong>' . $filename . '</strong>' );
 					}
 				}
 			}
 
 			$chmod = 0644;
-			if ( defined( 'FS_CHMOD_FILE' ) )
+			if ( defined( 'FS_CHMOD_FILE' ) ) {
 				$chmod = FS_CHMOD_FILE;
+			}
+
 			@chmod( $filename, $chmod );
 		} catch ( \Exception $ex ) {
-			if ( file_exists( $temp ) )
+			if ( file_exists( $temp ) ) {
 				@unlink( $temp );
+			}
+
 			throw $ex;
 		}
 	}
@@ -410,65 +481,71 @@ class Util_File {
 	/**
 	 * Takes a W3TC settings array and formats it to a PHP String
 	 *
-	 * @param unknown $data
+	 * @param unknown $data Data.
+	 *
 	 * @return string
 	 */
-	static public function format_data_as_settings_file( $data ) {
+	public static function format_data_as_settings_file( $data ) {
 		$config = "<?php\r\n\r\nreturn array(\r\n";
-		foreach ( $data as $key => $value )
-			$config .= Util_File::format_array_entry_as_settings_file_entry( 1, $key, $value );
-		$config .= ");";
+		foreach ( $data as $key => $value ) {
+			$config .= self::format_array_entry_as_settings_file_entry( 1, $key, $value );
+		}
+
+		$config .= ');';
+
 		return $config;
 	}
-
 
 	/**
 	 * Writes array item to file
 	 *
-	 * @param int     $tabs
-	 * @param string  $key
-	 * @param mixed   $value
+	 * @param int    $tabs  Tabs.
+	 * @param string $key   Key.
+	 * @param mixed  $value Value.
+	 *
 	 * @return string
 	 */
-	static public function format_array_entry_as_settings_file_entry( $tabs, $key, $value ) {
+	public static function format_array_entry_as_settings_file_entry( $tabs, $key, $value ) {
 		$item = str_repeat( "\t", $tabs );
 
-		if ( is_numeric( $key ) && (string)(int)$key === (string)$key ) {
-			$item .= sprintf( "%d => ", $key );
+		if ( is_numeric( $key ) && (string) (int) $key === (string) $key ) {
+			$item .= sprintf( '%d => ', $key );
 		} else {
 			$item .= sprintf( "'%s' => ", addcslashes( $key, "'\\" ) );
 		}
 
 		switch ( gettype( $value ) ) {
-		case 'object':
-		case 'array':
-			$item .= "array(\r\n";
-			foreach ( (array)$value as $k => $v ) {
-				$item .= Util_File::format_array_entry_as_settings_file_entry( $tabs + 1, $k, $v );
-			}
-			$item .= sprintf( "%s),\r\n", str_repeat( "\t", $tabs ) );
-			return $item;
+			case 'object':
+			case 'array':
+				$item .= "array(\r\n";
+				foreach ( (array) $value as $k => $v ) {
+					$item .= self::format_array_entry_as_settings_file_entry( $tabs + 1, $k, $v );
+				}
 
-		case 'integer':
-			$data = (string)$value;
-			break;
+				$item .= sprintf( "%s),\r\n", str_repeat( "\t", $tabs ) );
 
-		case 'double':
-			$data = (string)$value;
-			break;
+				return $item;
 
-		case 'boolean':
-			$data = ( $value ? 'true' : 'false' );
-			break;
+			case 'integer':
+				$data = (string) $value;
+				break;
 
-		case 'NULL':
-			$data = 'null';
-			break;
+			case 'double':
+				$data = (string) $value;
+				break;
 
-		default:
-		case 'string':
-			$data = "'" . addcslashes( $value, "'\\" ) . "'";
-			break;
+			case 'boolean':
+				$data = ( $value ? 'true' : 'false' );
+				break;
+
+			case 'NULL':
+				$data = 'null';
+				break;
+
+			default:
+			case 'string':
+				$data = "'" . addcslashes( $value, "'\\" ) . "'";
+				break;
 		}
 
 		$item .= $data . ",\r\n";

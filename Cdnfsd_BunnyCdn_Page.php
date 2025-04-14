@@ -24,7 +24,8 @@ class Cdnfsd_BunnyCdn_Page {
 			'w3tc_cdn_bunnycdn_fsd',
 			plugins_url( 'Cdnfsd_BunnyCdn_Page_View.js', W3TC_FILE ),
 			array( 'jquery' ),
-			'1.0'
+			'1.0',
+			false
 		);
 	}
 

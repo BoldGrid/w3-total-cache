@@ -8,20 +8,25 @@
 namespace W3TC;
 
 /**
+ * Class Cdnfsd_Core
+ *
  * Core for FSD CDN.
  */
 class Cdnfsd_Core {
 	/**
-	 * Get the CDN engine object.
+	 * Retrieves the engine object for the CDNFSd configuration.
 	 *
-	 * @returns object
-	 * @throws \Exception Exception.
+	 * Initializes the appropriate engine based on the configuration settings.
+	 *
+	 * @return object|null The engine object or null if no engine is set.
+	 *
+	 * @throws \Exception If an unknown engine is specified in the configuration.
 	 */
 	public function get_engine() {
 		static $engine_object = null;
 
 		if ( is_null( $engine_object ) ) {
-			$c = Dispatcher::config();
+			$c      = Dispatcher::config();
 			$engine = $c->get_string( 'cdnfsd.engine' );
 
 			switch ( $engine ) {
@@ -49,43 +54,6 @@ class Cdnfsd_Core {
 					);
 					break;
 
-				case 'limelight':
-					$engine_object = new Cdnfsd_LimeLight_Engine(
-						array(
-							'short_name' => $c->get_string( 'cdnfsd.limelight.short_name' ),
-							'username'   => $c->get_string( 'cdnfsd.limelight.username' ),
-							'api_key'    => $c->get_string( 'cdnfsd.limelight.api_key' ),
-							'debug'      => $c->get_string( 'cdnfsd.debug' ),
-						)
-					);
-					break;
-
-				case 'stackpath':
-					$engine_object = new Cdnfsd_StackPath_Engine(
-						array(
-							'api_key' => $c->get_string( 'cdnfsd.stackpath.api_key' ),
-							'zone_id' => $c->get_integer( 'cdnfsd.stackpath.zone_id' ),
-						)
-					);
-					break;
-
-				case 'stackpath2':
-					$state = Dispatcher::config_state();
-
-					$engine_object = new Cdnfsd_StackPath2_Engine(
-						array(
-							'client_id' => $c->get_string( 'cdnfsd.stackpath2.client_id' ),
-							'client_secret' => $c->get_string( 'cdnfsd.stackpath2.client_secret' ),
-							'stack_id' => $c->get_string( 'cdnfsd.stackpath2.stack_id' ),
-							'site_root_domain' => $c->get_string( 'cdnfsd.stackpath2.site_root_domain' ),
-							'domain' => $c->get_array( 'cdnfsd.stackpath2.domain' ),
-							'ssl' => $c->get_string( 'cdnfsd.stackpath2.ssl' ),
-							'access_token' => $state->get_string( 'cdnfsd.stackpath2.access_token' ),
-							'on_new_access_token' => array( $this, 'on_stackpath2_new_access_token' ),
-						)
-					);
-					break;
-
 				case 'bunnycdn':
 					$engine_object = new Cdnfsd_BunnyCdn_Engine(
 						array(
@@ -96,22 +64,18 @@ class Cdnfsd_Core {
 					break;
 
 				default:
-					throw new \Exception( esc_html( __( 'Unknown engine', 'w3-total-cache' ) . ' ' . $engine ) );
-					break;
+					throw new \Exception(
+						\esc_html(
+							sprintf(
+								// Translators: 1 Engine name.
+								\__( 'Unknown engine: %1$s', 'w3-total-cache' ),
+								$engine
+							)
+						)
+					);
 			}
 		}
 
 		return $engine_object;
-	}
-
-	/**
-	 * Save new StackPath access token.
-	 *
-	 * @param string $access_token Access token.
-	 */
-	public function on_stackpath2_new_access_token( $access_token ) {
-		$state = Dispatcher::config_state();
-		$state->set( 'cdnfsd.stackpath2.access_token', $access_token );
-		$state->save();
 	}
 }

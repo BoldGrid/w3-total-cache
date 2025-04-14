@@ -1,10 +1,20 @@
 <?php
+/**
+ * File: DbCache_WpdbInjection.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * class DbCache_WpdbInjection
+ * Class DbCache_WpdbInjection
+ *
  * Allows to perform own operation instead of default behaviour of wpdb
  * without inheritance
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class DbCache_WpdbInjection {
 	/**
@@ -24,147 +34,230 @@ class DbCache_WpdbInjection {
 	protected $next_injection = null;
 
 	/**
-	 * initialization of object so that it can be used
+	 * Initializes the injection with the provided database mixin and next injection.
+	 *
+	 * @param object $wpdb_mixin     The database mixin to be used.
+	 * @param mixed  $next_injection The next injection to be processed.
+	 *
+	 * @return void
 	 */
-	function initialize_injection( $wpdb_mixin, $next_injection ) {
-		$this->wpdb_mixin = $wpdb_mixin;
+	public function initialize_injection( $wpdb_mixin, $next_injection ) {
+		$this->wpdb_mixin     = $wpdb_mixin;
 		$this->next_injection = $next_injection;
 	}
 
 	/**
-	 * Placeholder for database initialization
+	 * Initializes the database connection.
+	 *
+	 * @return mixed The result of the default initialization.
 	 */
-	function initialize() {
+	public function initialize() {
 		return $this->wpdb_mixin->default_initialize();
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Inserts data into the specified table.
+	 *
+	 * @param string $table  The table name.
+	 * @param array  $data   The data to insert.
+	 * @param mixed  $format Optional. Format of the data.
+	 *
+	 * @return mixed The result of the default insert operation.
 	 */
-	function insert( $table, $data, $format = null ) {
+	public function insert( $table, $data, $format = null ) {
 		return $this->wpdb_mixin->default_insert( $table, $data, $format );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Executes a query on the database.
+	 *
+	 * @param string $query The SQL query to execute.
+	 *
+	 * @return mixed The result of the default query execution.
 	 */
-	function query( $query ) {
+	public function query( $query ) {
 		return $this->wpdb_mixin->default_query( $query );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Escapes the given data to be safely used in a query.
+	 *
+	 * @param mixed $data The data to escape.
+	 *
+	 * @return mixed The escaped data.
 	 */
-	function _escape( $data ) {
+	public function _escape( $data ) {
 		return $this->wpdb_mixin->default__escape( $data );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Prepares a SQL query with the provided arguments.
+	 *
+	 * @param string $query The SQL query.
+	 * @param array  $args  The arguments to bind to the query.
+	 *
+	 * @return mixed The prepared query.
 	 */
-	function prepare( $query, $args ) {
+	public function prepare( $query, $args ) {
 		return $this->wpdb_mixin->default_prepare( $query, $args );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Replaces data in the specified table.
+	 *
+	 * @param string $table  The table name.
+	 * @param array  $data   The data to replace.
+	 * @param mixed  $format Optional. Format of the data.
+	 *
+	 * @return mixed The result of the default replace operation.
 	 */
-	function replace( $table, $data, $format = null ) {
+	public function replace( $table, $data, $format = null ) {
 		return $this->wpdb_mixin->default_replace( $table, $data, $format );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Updates data in the specified table.
+	 *
+	 * @param string $table       The table name.
+	 * @param array  $data        The data to update.
+	 * @param array  $where       The conditions for the update.
+	 * @param mixed  $format      Optional. Format of the data.
+	 * @param mixed  $where_format Optional. Format of the where conditions.
+	 *
+	 * @return mixed The result of the default update operation.
 	 */
-	function update( $table, $data, $where, $format = null, $where_format = null ) {
+	public function update( $table, $data, $where, $format = null, $where_format = null ) {
 		return $this->wpdb_mixin->default_update( $table, $data, $where, $format, $where_format );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Deletes data from the specified table.
+	 *
+	 * @param string $table        The table name.
+	 * @param array  $where        The conditions for the delete.
+	 * @param mixed  $where_format Optional. Format of the where conditions.
+	 *
+	 * @return mixed The result of the default delete operation.
 	 */
-	function delete( $table, $where, $where_format = null ) {
+	public function delete( $table, $where, $where_format = null ) {
 		return $this->wpdb_mixin->default_delete( $table, $where, $where_format );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Initializes the character set for the database connection.
+	 *
+	 * @return mixed The result of the default charset initialization.
 	 */
-	function init_charset() {
+	public function init_charset() {
 		return $this->wpdb_mixin->default_init_charset();
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Sets the character set and collation for the database connection.
+	 *
+	 * @param object $dbh     The database handler.
+	 * @param string $charset Optional. The character set to set.
+	 * @param string $collate Optional. The collation to set.
+	 *
+	 * @return mixed The result of the default set charset operation.
 	 */
-	function set_charset( $dbh, $charset = null, $collate = null ) {
+	public function set_charset( $dbh, $charset = null, $collate = null ) {
 		return $this->wpdb_mixin->default_set_charset( $dbh, $charset, $collate );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Sets the SQL mode for the database.
+	 *
+	 * @param array $modes Optional. An array of modes to set.
+	 *
+	 * @return mixed The result of the default set SQL mode operation.
 	 */
-	function set_sql_mode( $modes = array() ) {
+	public function set_sql_mode( $modes = array() ) {
 		return $this->wpdb_mixin->default_set_sql_mode( $modes );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Flushes the database cache.
+	 *
+	 * @return mixed The result of the default flush operation.
 	 */
-	function flush() {
+	public function flush() {
 		return $this->wpdb_mixin->default_flush();
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Checks the database version.
+	 *
+	 * @param mixed $dbh_or_table Optional. The database handler or table to check.
+	 *
+	 * @return mixed The database version.
 	 */
-	function check_database_version( $dbh_or_table = false ) {
+	public function check_database_version( $dbh_or_table = false ) {
 		return $this->wpdb_mixin->default_check_database_version( $dbh_or_table );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Checks if the database supports collation.
+	 *
+	 * @param mixed $dbh_or_table Optional. The database handler or table to check.
+	 *
+	 * @return bool True if collation is supported, false otherwise.
 	 */
-	function supports_collation( $dbh_or_table = false ) {
+	public function supports_collation( $dbh_or_table = false ) {
 		return $this->wpdb_mixin->default_supports_collation( $dbh_or_table );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Checks if the database has a specific capability.
+	 *
+	 * @param string $db_cap        The capability to check.
+	 * @param mixed  $dbh_or_table  Optional. The database handler or table to check.
+	 *
+	 * @return bool True if the capability is supported, false otherwise.
 	 */
-	function has_cap( $db_cap, $dbh_or_table = false ) {
+	public function has_cap( $db_cap, $dbh_or_table = false ) {
 		return $this->wpdb_mixin->default_has_cap( $db_cap, $dbh_or_table );
 	}
 
 	/**
-	 * Placeholder for apropriate wp_db method replacement.
-	 * By default calls wp_db implementation
+	 * Retrieves the database version.
+	 *
+	 * @param mixed $dbh_or_table Optional. The database handler or table to check.
+	 *
+	 * @return mixed The database version.
 	 */
-	function db_version( $dbh_or_table = false ) {
+	public function db_version( $dbh_or_table = false ) {
 		return $this->wpdb_mixin->default_db_version( $dbh_or_table );
 	}
 
+	/**
+	 * Adds a footer comment to the W3TC output.
+	 *
+	 * @param string $strings The current footer comment.
+	 *
+	 * @return string The modified footer comment.
+	 */
 	public function w3tc_footer_comment( $strings ) {
 		return $strings;
 	}
 
+	/**
+	 * Logs the usage statistics of the request.
+	 *
+	 * @param mixed $storage The storage mechanism for the usage statistics.
+	 *
+	 * @return void
+	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
 	}
 
+	/**
+	 * Flushes the cache with additional parameters.
+	 *
+	 * @param array $extras Optional. Additional parameters to include in the flush operation.
+	 *
+	 * @return bool Always returns true.
+	 */
 	public function flush_cache( $extras = array() ) {
 		return true;
 	}

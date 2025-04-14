@@ -12,9 +12,13 @@ namespace W3TC;
  */
 class Cdn_GoogleDrive_Page {
 	/**
-	 * Print scripts.
+	 * Enqueues scripts for the Google Drive CDN integration in the WordPress admin.
 	 *
-	 * Called from plugin-admin.
+	 * This method enqueues the JavaScript file necessary for the Google Drive CDN integration and localizes script
+	 * data with authorization URLs and a return URL. It also handles the Google OAuth callback by passing relevant
+	 * data through to the script.
+	 *
+	 * @return void
 	 */
 	public static function admin_print_scripts_w3tc_cdn() {
 		wp_enqueue_script(
@@ -56,7 +60,12 @@ class Cdn_GoogleDrive_Page {
 	}
 
 	/**
-	 * Load view.
+	 * Displays the configuration settings for the Google Drive CDN integration in the W3 Total Cache settings page.
+	 *
+	 * This method loads the Google Drive CDN settings section in the W3 Total Cache settings page by including a
+	 * specific view file and passing configuration data.
+	 *
+	 * @return void
 	 */
 	public static function w3tc_settings_cdn_boxarea_configuration() {
 		$config = Dispatcher::config();

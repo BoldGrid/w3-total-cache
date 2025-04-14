@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Extension_CloudFlare_Widget_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

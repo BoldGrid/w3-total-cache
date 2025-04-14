@@ -50,7 +50,7 @@ $placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \h
 						'div' => array(
 							'class' => array(),
 						),
-						'p' => array(),
+						'p'   => array(),
 					)
 				);
 				else :

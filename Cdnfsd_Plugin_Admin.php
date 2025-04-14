@@ -12,7 +12,9 @@ namespace W3TC;
  */
 class Cdnfsd_Plugin_Admin {
 	/**
-	 * Run.
+	 * Registers actions based on the selected CDNFSD engine.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		$c             = Dispatcher::config();
@@ -23,18 +25,6 @@ class Cdnfsd_Plugin_Admin {
 			case 'cloudfront':
 				add_action( 'w3tc_ajax', array( '\W3TC\Cdnfsd_CloudFront_Popup', 'w3tc_ajax' ) );
 				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_CloudFront_Page', 'w3tc_settings_box_cdnfsd' ) );
-				break;
-			case 'limelight':
-				add_action( 'w3tc_ajax', array( '\W3TC\Cdnfsd_LimeLight_Popup', 'w3tc_ajax' ) );
-				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_LimeLight_Page', 'w3tc_settings_box_cdnfsd' ) );
-				break;
-			case 'stackpath':
-				add_action( 'w3tc_ajax', array( '\W3TC\Cdnfsd_StackPath_Popup', 'w3tc_ajax' ) );
-				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_StackPath_Page', 'w3tc_settings_box_cdnfsd' ) );
-				break;
-			case 'stackpath2':
-				add_action( 'w3tc_ajax', array( '\W3TC\Cdnfsd_StackPath2_Popup', 'w3tc_ajax' ) );
-				add_action( 'w3tc_settings_box_cdnfsd', array( '\W3TC\Cdnfsd_StackPath2_Page', 'w3tc_settings_box_cdnfsd' ) );
 				break;
 			case 'transparentcdn':
 				add_action( 'init', array( '\W3TC\Cdnfsd_TransparentCDN_Page', 'admin_test_api_parameters_transparentcdn' ) );
@@ -52,7 +42,9 @@ class Cdnfsd_Plugin_Admin {
 	}
 
 	/**
-	 * Print the general settings page CDN footer.
+	 * Displays the CDNFSD settings footer for the general settings page.
+	 *
+	 * @return void
 	 */
 	public function w3tc_settings_general_boxarea_cdn_footer() {
 		$config               = Dispatcher::config();
@@ -75,20 +67,8 @@ class Cdnfsd_Plugin_Admin {
 		);
 
 		$cdnfsd_engine_values['cloudflare'] = array(
-			'label' => __( 'Cloudflare (extension not activated)', 'w3-total-cache' ),
+			'label'    => __( 'Cloudflare (extension not activated)', 'w3-total-cache' ),
 			'disabled' => true,
-		);
-
-		$cdnfsd_engine_values['limelight'] = array(
-			'label' => __( 'Limelight', 'w3-total-cache' ),
-		);
-
-		$cdnfsd_engine_values['stackpath'] = array(
-			'label' => __( 'StackPath SecureCDN (Legacy)', 'w3-total-cache' ),
-		);
-
-		$cdnfsd_engine_values['stackpath2'] = array(
-			'label' => __( 'StackPath', 'w3-total-cache' ),
 		);
 
 		$cdnfsd_engine_values['transparentcdn'] = array(
@@ -97,8 +77,6 @@ class Cdnfsd_Plugin_Admin {
 
 		if ( 'cloudfront' === $cdnfsd_engine ) {
 			$tag = 'https://api.w3-edge.com/v1/redirects/faq/cdn-fsd/cloudfront';
-		} elseif ( 'stackpath' === $cdnfsd_engine || 'stackpath2' === $cdnfsd_engine ) {
-			$tag = 'https://api.w3-edge.com/v1/redirects/faq/cdn-fsd/stackpath';
 		}
 
 		$cdnfsd_engine_extra_description = empty( $tag ) ? '' : ' See <a href="' . $tag . '">setup instructions</a>';

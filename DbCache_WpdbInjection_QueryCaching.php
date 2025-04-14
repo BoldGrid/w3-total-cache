@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	/**
@@ -120,7 +121,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	private $can_cache_once_per_request_result = null;
 
 	/**
-	 * Constructor.
+	 * Constructor method to initialize the object with configuration values.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$c                      = Dispatcher::config();
@@ -133,10 +136,11 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Executes query.
+	 * Handles SQL queries and caches results when applicable.
 	 *
-	 * @param string $query Query.
-	 * @return int
+	 * @param string $query SQL query string to execute.
+	 *
+	 * @return mixed Query result, either from cache or execution.
 	 */
 	public function query( $query ) {
 		if ( ! $this->wpdb_mixin->ready ) {
@@ -150,7 +154,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$group             = '';
 		$flush_after_query = false;
 
-		$this->query_total++;
+		++$this->query_total;
 
 		$caching = $this->_can_cache( $query, $reject_reason );
 
@@ -194,7 +198,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 
 		if ( is_array( $data ) ) {
 			$is_cache_hit = true;
-			$this->query_hits++;
+			++$this->query_hits;
 
 			$this->wpdb_mixin->last_error  = $data['last_error'];
 			$this->wpdb_mixin->last_query  = $data['last_query'];
@@ -203,7 +207,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 			$this->wpdb_mixin->num_rows    = $data['num_rows'];
 			$return_val                    = $data['return_val'];
 		} else {
-			$this->query_misses++;
+			++$this->query_misses;
 
 			$this->wpdb_mixin->timer_start();
 			$return_val = $this->next_injection->query( $query );
@@ -277,52 +281,58 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Escape.
+	 * Escapes data for safe SQL usage.
 	 *
-	 * @param array $data Data.
+	 * @param mixed $data Data to escape.
+	 *
+	 * @return mixed Escaped data.
 	 */
 	public function _escape( $data ) {
 		return $this->next_injection->_escape( $data );
 	}
 
 	/**
-	 * Prepare.
+	 * Prepares an SQL query for execution with arguments.
 	 *
-	 * @param string $query Query.
-	 * @param array  $args  Arguments.
+	 * @param string $query SQL query string.
+	 * @param array  $args  Array of arguments for the query.
+	 *
+	 * @return string Prepared SQL query.
 	 */
 	public function prepare( $query, $args ) {
 		return $this->next_injection->prepare( $query, $args );
 	}
 
 	/**
-	 * Initializes object, calls underlying processor.
+	 * Initializes the database injection.
+	 *
+	 * @return mixed
 	 */
 	public function initialize() {
 		return $this->next_injection->initialize();
 	}
 
 	/**
-	 * Insert a row into a table.
+	 * Inserts data into a database table.
 	 *
-	 * @param string       $table  Table.
-	 * @param array        $data   Data.
-	 * @param array|string $format Format.
+	 * @param string $table  The table to insert data into.
+	 * @param array  $data   Data to insert into the table.
+	 * @param array  $format Optional format for the data.
 	 *
-	 * @return int|false
+	 * @return bool True on success, false on failure.
 	 */
 	public function insert( $table, $data, $format = null ) {
 		return $this->next_injection->insert( $table, $data, $format );
 	}
 
 	/**
-	 * Replace a row into a table.
+	 * Replaces data in a database table.
 	 *
-	 * @param string       $table  Table.
-	 * @param array        $data   Data.
-	 * @param array|string $format Format.
+	 * @param string $table  The table to replace data in.
+	 * @param array  $data   Data to replace in the table.
+	 * @param array  $format Optional format for the data.
 	 *
-	 * @return int|false
+	 * @return bool True on success, false on failure.
 	 */
 	public function replace( $table, $data, $format = null ) {
 		$group = $this->_get_group( $table );
@@ -335,15 +345,15 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Update a row in the table
+	 * Updates data in a database table.
 	 *
-	 * @param string       $table        Table.
-	 * @param array        $data         Data.
-	 * @param array        $where        Where.
-	 * @param array|string $format       Format.
-	 * @param array|string $where_format Format where.
+	 * @param string $table        The table to update data in.
+	 * @param array  $data         Data to update in the table.
+	 * @param array  $where        Conditions for the update.
+	 * @param array  $format       Optional format for the data.
+	 * @param array  $where_format Optional format for the conditions.
 	 *
-	 * @return int|false
+	 * @return bool True on success, false on failure.
 	 */
 	public function update( $table, $data, $where, $format = null, $where_format = null ) {
 		$group = $this->_get_group( $table );
@@ -352,13 +362,13 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Deletes from table.
+	 * Deletes data from a database table.
 	 *
-	 * @param string       $table        Table.
-	 * @param array        $where        Where.
-	 * @param array|string $where_format Format where.
+	 * @param string $table        The table to delete data from.
+	 * @param array  $where        Conditions for the deletion.
+	 * @param array  $where_format Optional format for the conditions.
 	 *
-	 * @return int|false
+	 * @return bool True on success, false on failure.
 	 */
 	public function delete( $table, $where, $where_format = null ) {
 		$group = $this->_get_group( $table );
@@ -367,25 +377,23 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Flushes cache.
+	 * Flushes the cache based on specified extras.
 	 *
-	 * @param array $extras Extra arguments.
+	 * @param array $extras Optional extra parameters for cache flushing.
 	 *
-	 * @return bool
+	 * @return bool True on success, false on failure.
 	 */
 	public function flush_cache( $extras = array() ) {
 		return $this->_flush_cache_for_sql_group( 'remaining', $extras );
 	}
 
 	/**
-	 * Flush cache for SQL groups.
+	 * Flushed the cache for a specific SQL query group.
 	 *
-	 * @access private
+	 * @param string $group  The group to flush the cache for.
+	 * @param array  $extras Optional extra parameters for cache flushing.
 	 *
-	 * @param string $group  Group.
-	 * @param array  $extras Extra arguments.
-	 *
-	 * @return bool
+	 * @return bool True on success, false on failure.
 	 */
 	private function _flush_cache_for_sql_group( $group, $extras = array() ) {
 		$this->wpdb_mixin->timer_start();
@@ -409,7 +417,7 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		$flush_groups = $this->_get_flush_groups( $group, $extras );
 		$v            = true;
 
-		$this->cache_flushes++;
+		++$this->cache_flushes;
 
 		foreach ( $flush_groups as $f_group => $nothing ) {
 			if ( $this->debug ) {
@@ -424,9 +432,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Returns cache object.
+	 * Retrieves the cache instance.
 	 *
-	 * @return W3_Cache_Base
+	 * @return object Cache instance.
 	 */
 	public function _get_cache() {
 		static $cache = array();
@@ -482,12 +490,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Check if can cache sql.
+	 * Determines if a query can be cached.
 	 *
-	 * @param string $sql                 SQL query.
-	 * @param string $cache_reject_reason Cache reject reason.
+	 * @param string $sql                 SQL query string.
+	 * @param string $cache_reject_reason Reason for rejecting cache (if any).
 	 *
-	 * @return boolean
+	 * @return bool True if the query can be cached, false otherwise.
 	 */
 	public function _can_cache( $sql, &$cache_reject_reason ) {
 		/**
@@ -571,9 +579,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Check if can cache sql, checks which have constant results during whole request.
+	 * Checks conditions once per request if caching can be performed.
 	 *
-	 * @return bool
+	 * @return bool True if caching is allowed, false otherwise.
 	 */
 	public function _can_cache_once_per_request() {
 		/**
@@ -605,11 +613,11 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Check SQL
+	 * Checks if a SQL query is cacheable.
 	 *
-	 * @param string $sql SQL query.
+	 * @param string $sql SQL query string.
 	 *
-	 * @return bool
+	 * @return bool True if the SQL query is cacheable, false otherwise.
 	 */
 	public function _check_sql( $sql ) {
 
@@ -633,9 +641,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Check request URI
+	 * Checks if the current request URI is cacheable.
 	 *
-	 * @return boolean
+	 * @return bool True if the request URI is cacheable, false otherwise.
 	 */
 	public function _check_request_uri() {
 		$auto_reject_uri = array(
@@ -666,9 +674,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Checks for WordPress cookies.
+	 * Checks if cookies are cacheable.
 	 *
-	 * @return bool
+	 * @return bool True if cookies are cacheable, false otherwise.
 	 */
 	public function _check_cookies() {
 		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
@@ -692,9 +700,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Check if user is logged in.
+	 * Checks if the user is logged in.
 	 *
-	 * @return bool
+	 * @return bool True if the user is not logged in, false otherwise.
 	 */
 	public function _check_logged_in() {
 		foreach ( array_keys( $_COOKIE ) as $cookie_name ) {
@@ -707,13 +715,11 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Get group.
+	 * Determines the group for caching based on the SQL query.
 	 *
-	 * @access private
+	 * @param string $sql SQL query string.
 	 *
-	 * @param string $sql SQL query.
-	 *
-	 * @return string
+	 * @return string The cache group.
 	 */
 	private function _get_group( $sql ) {
 		$sql = strtolower( $sql );
@@ -750,13 +756,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Contains only tables.
+	 * Determines if the query contains only allowed tables.
 	 *
-	 * @accress private
+	 * @param array $tables List of tables used in the query.
+	 * @param array $allowed Allowed tables.
 	 *
-	 * @param array $tables  Tables.
-	 *
-	 * @param array $allowed Allowed.
+	 * @return bool True if only allowed tables are used, false otherwise.
 	 */
 	private function contains_only_tables( $tables, $allowed ) {
 		if ( empty( $tables ) ) {
@@ -773,13 +778,12 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Get flush groups
+	 * Retrieves the groups to flush based on the cache group.
 	 *
-	 * @access private
+	 * @param string $group  The cache group to flush.
+	 * @param array  $extras Optional extra parameters for flushing.
 	 *
-	 * @param string $group  Group.
-	 *
-	 * @param array  $extras Extra arguments.
+	 * @return array The groups to flush.
 	 */
 	private function _get_flush_groups( $group, $extras = array() ) {
 		$groups_to_flush = array();
@@ -817,9 +821,9 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Get reject reason.
+	 * Retrieves the reject reason message for the database cache.
 	 *
-	 * @return string
+	 * @return string The reject reason message, or an empty string if no reason is set.
 	 */
 	public function get_reject_reason() {
 		if ( is_null( $this->cache_reject_reason ) ) {
@@ -833,11 +837,11 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Get reject reason message.
+	 * Retrieves a specific reject reason message based on the given key.
 	 *
-	 * @param string $key Key.
+	 * @param string $key The key to identify the reject reason.
 	 *
-	 * @return string|void
+	 * @return string The reject reason message.
 	 */
 	private function _get_reject_reason_message( $key ) {
 		if ( ! function_exists( '__' ) ) {
@@ -875,11 +879,11 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Footer comment.
+	 * Appends the database cache status information to the footer comment.
 	 *
-	 * @param array $strings Strings.
+	 * @param array $strings An array of strings to append additional information to.
 	 *
-	 * @return array
+	 * @return array The updated array of strings with appended database cache status.
 	 */
 	public function w3tc_footer_comment( $strings ) {
 		$reject_reason = $this->get_reject_reason();
@@ -913,16 +917,16 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 		}
 
 		if ( $this->log_filehandle ) {
-			fclose( $this->log_filehandle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+			fclose( $this->log_filehandle );
 			$this->log_filehandle = false;
 		}
 		return $strings;
 	}
 
 	/**
-	 * Usage statistics of request.
+	 * Records the usage statistics related to the database cache.
 	 *
-	 * @param object $storage Storage object.
+	 * @param object $storage The storage object where the statistics are saved.
 	 *
 	 * @return void
 	 */
@@ -935,18 +939,16 @@ class DbCache_WpdbInjection_QueryCaching extends DbCache_WpdbInjection {
 	}
 
 	/**
-	 * Log query.
+	 * Logs a query line to the log file.
 	 *
-	 * @access private
-	 *
-	 * @param string $line Line to add.
+	 * @param string $line The query line to log.
 	 *
 	 * @return void
 	 */
 	private function log_query( $line ) {
 		if ( ! $this->log_filehandle ) {
 			$filename             = Util_Debug::log_filename( 'dbcache-queries' );
-			$this->log_filehandle = fopen( $filename, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+			$this->log_filehandle = fopen( $filename, 'a' );
 		}
 
 		fputcsv( $this->log_filehandle, $line, "\t" );

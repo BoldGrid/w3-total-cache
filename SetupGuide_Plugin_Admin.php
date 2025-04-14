@@ -47,9 +47,22 @@ class SetupGuide_Plugin_Admin {
 			require_once W3TC_INC_DIR . '/wizard/template.php';
 
 			if ( is_null( self::$template ) ) {
-				self::$template = new Wizard\Template( $this->get_config() );
+				\add_action( 'init', array( $this, 'set_template' ), 10, 0 );
 			}
 		}
+	}
+
+	/**
+	 * Set the template.
+	 *
+	 * @since X.X.X
+	 *
+	 * @see self::get_config()
+	 *
+	 * @return void
+	 */
+	public function set_template() {
+		self::$template = new Wizard\Template( $this->get_config() );
 	}
 
 	/**
@@ -889,13 +902,14 @@ class SetupGuide_Plugin_Admin {
 	 * @since  2.0.0
 	 * @access private
 	 *
+	 * @see Util_Environment::is_w3tc_pro()
 	 * @see Licensing_Core::get_tos_choice()
 	 *
 	 * @return bool
 	 */
 	private function maybe_ask_tos() {
 		$config = new Config();
-		if ( Util_Environment::is_pro_constant( $config ) ) {
+		if ( Util_Environment::is_w3tc_pro( $config ) ) {
 			return false;
 		}
 
@@ -960,6 +974,11 @@ class SetupGuide_Plugin_Admin {
 							'w3tc_install_date' => get_option( 'w3tc_install_date' ),
 							'w3tc_edition'      => esc_attr( Util_Environment::w3tc_edition( $config ) ),
 							'list_widgets'      => esc_attr( Util_Widget::list_widgets() ),
+							'w3tc_pro'          => Util_Environment::is_w3tc_pro( $config ),
+							'w3tc_has_key'      => $config->get_string( 'plugin.license_key' ),
+							'w3tc_pro_c'        => defined( 'W3TC_PRO' ) && W3TC_PRO,
+							'w3tc_enterprise_c' => defined( 'W3TC_ENTERPRISE' ) && W3TC_ENTERPRISE,
+							'w3tc_plugin_type'  => esc_attr( $config->get_string( 'plugin.type' ) ),
 							'ga_profile'        => ( defined( 'W3TC_DEVELOPER' ) && W3TC_DEVELOPER ) ? 'G-Q3CHQJWERM' : 'G-5TFS8M5TTY',
 							'tos_choice'        => Licensing_Core::get_tos_choice(),
 							'track_usage'       => $config->get_boolean( 'common.track_usage' ),
@@ -1177,8 +1196,8 @@ class SetupGuide_Plugin_Admin {
 							'provides many options to help your website perform faster.  While the ideal settings vary for every website, there are a few settings we recommend that you enable now.',
 							'w3-total-cache'
 						) . '</p>
-						<p><strong>' .
-							esc_html__(
+						<p><strong>
+						' . esc_html__(
 							'If a caching method shows as unavailable you do not have the necessary modules installed. You may need to reach out to your host for installation availablity and directions.',
 							'w3-total-cache'
 						) . '</strong></p>' .

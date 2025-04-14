@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_Page_View_Fsd_HeaderActions.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

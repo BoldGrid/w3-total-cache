@@ -22,6 +22,8 @@ namespace W3TC;
  * @since   2.7.7
  * @author  Zubair <zmohammed@microsoft.com>
  * @author  BoldGrid <development@boldgrid.com>
+ *
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class CdnEngine_Azure_MI_Utility {
 	/**
@@ -31,7 +33,7 @@ class CdnEngine_Azure_MI_Utility {
 	 *
 	 * @var string
 	 */
-	const ENTRA_API_VERSION  = '2019-08-01';
+	const ENTRA_API_VERSION = '2019-08-01';
 
 	/**
 	 * Entra resource URI.
@@ -49,7 +51,7 @@ class CdnEngine_Azure_MI_Utility {
 	 *
 	 * @var string
 	 */
-	const BLOB_API_VERSION   = '2020-10-02';
+	const BLOB_API_VERSION = '2020-10-02';
 
 	/**
 	 * Retrieves an access token from the Managed Identity endpoint.
@@ -65,9 +67,9 @@ class CdnEngine_Azure_MI_Utility {
 		$identity_header   = \getenv( 'IDENTITY_HEADER' );
 		$identity_endpoint = \getenv( 'IDENTITY_ENDPOINT' );
 
-		 // Validate variables.
+		// Validate variables.
 		if ( empty( $identity_endpoint ) || empty( $identity_header ) || empty( $entra_client_id ) ) {
-			throw new \RuntimeException( 'Error: get_access_token - missing required environment variables.' );
+			throw new \RuntimeException( \esc_html__( 'Error: get_access_token - missing required environment variables.', 'w3-total-cache' ) );
 		}
 
 		// Construct URL for cURL request.
@@ -93,28 +95,68 @@ class CdnEngine_Azure_MI_Utility {
 		if ( \curl_errno( $ch ) ) {
 			$error = \curl_error( $ch );
 			\curl_close( $ch );
-			throw new \RuntimeException( 'Error: get_access_token - cURL request failed: ' . \esc_html( $error ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Error message.
+						\__( 'Error: get_access_token - cURL request failed: %1$s', 'w3-total-cache' ),
+						$error
+					)
+				)
+			);
 		}
 
 		$http_code = \curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 		\curl_close( $ch );
 
 		if ( 200 !== $http_code ) {
-			throw new \RuntimeException( 'Error: get_access_token - HTTP request failed with status code :' . \esc_html( $http_code ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 HTTP status code.
+						\__( 'Error: get_access_token - HTTP request failed with status code: %1$s', 'w3-total-cache' ),
+						$http_code
+					)
+				)
+			);
 		}
 		if ( empty( $response ) ) {
-			throw new \RuntimeException( 'Error: get_access_token - invalid response data: ' . \esc_html( $response ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response.
+						\__( 'Error: get_access_token - invalid response data: %1$s', 'w3-total-cache' ),
+						$response
+					)
+				)
+			);
 		}
 
 		// Parse JSON response and extract access_token.
 		$json_response = \json_decode( $response, true );
 
 		if ( \json_last_error() !== JSON_ERROR_NONE ) {
-			throw new \RuntimeException( 'Error: get_access_token - failed to parse the JSON response: ' . \esc_html( \json_last_error_msg() ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 JSON last error message.
+						\__( 'Error: get_access_token - failed to parse the JSON response: %1$s', 'w3-total-cache' ),
+						\json_last_error_msg()
+					)
+				)
+			);
 		}
 
 		if ( empty( $json_response['access_token'] ) ) {
-			throw new \RuntimeException( 'Error: get_access_token - no token found in response data: ' . \esc_html( $response ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response.
+						\__( 'Error: get_access_token - no token found in response data: %1$s', 'w3-total-cache' ),
+						$response
+					)
+				)
+			);
 		}
 
 		return $json_response['access_token'];
@@ -155,18 +197,42 @@ class CdnEngine_Azure_MI_Utility {
 		if ( \curl_errno( $ch ) ) {
 			$error = \curl_error( $ch );
 			\curl_close( $ch );
-			throw new \RuntimeException( 'Error: get_blob_properties - cURL request failed: ' . \esc_html( $error ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Error message.
+						\__( 'Error: get_blob_properties - cURL request failed: %1$s', 'w3-total-cache' ),
+						$error
+					)
+				)
+			);
 		}
 
 		$http_code = \curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 		\curl_close( $ch );
 
 		if ( 200 !== $http_code ) {
-			throw new \RuntimeException( 'Error: get_blob_properties - HTTP request failed with status code: ' . \esc_html( $http_code ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 HTTP status code.
+						\__( 'Error: get_blob_properties - HTTP request failed with status code: %1$s', 'w3-total-cache' ),
+						$http_code
+					)
+				)
+			);
 		}
 
 		if ( empty( $response ) ) {
-			throw new \RuntimeException( 'Error: get_blob_properties - invalid response data: ' . \esc_html( $response ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response.
+						\__( 'Error: get_blob_properties - invalid response data: %1$s', 'w3-total-cache' ),
+						$response
+					)
+				)
+			);
 		}
 
 		return self::parse_header( $response );
@@ -230,18 +296,42 @@ class CdnEngine_Azure_MI_Utility {
 		if ( \curl_errno( $ch ) ) {
 			$error = \curl_error( $ch );
 			\curl_close( $ch );
-			throw new \RuntimeException( 'Error: create_block_blob - cURL request failed: ' . \esc_html( $error ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Error message.
+						\__( 'Error: create_block_blob - cURL request failed: %1$s', 'w3-total-cache' ),
+						$error
+					)
+				)
+			);
 		}
 
 		$http_code = \curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 		\curl_close( $ch );
 
 		if ( 201 !== $http_code ) {
-			throw new \RuntimeException( 'Error: create_block_blob - HTTP request failed with status code ' . \esc_html( $http_code ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 HTTP status code.
+						\__( 'Error: create_block_blob - HTTP request failed with status code: %1$s', 'w3-total-cache' ),
+						$http_code
+					)
+				)
+			);
 		}
 
 		if ( empty( $response ) ) {
-			throw new \RuntimeException( 'Error: create_block_blob - invalid response data: ' . \esc_html( $response ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response.
+						\__( 'Error: create_block_blob - invalid response data: %1$s', 'w3-total-cache' ),
+						$response
+					)
+				)
+			);
 		}
 		return self::parse_header( $response );
 	}
@@ -281,18 +371,42 @@ class CdnEngine_Azure_MI_Utility {
 		if ( \curl_errno( $ch ) ) {
 			$error = \curl_error( $ch );
 			\curl_close( $ch );
-			throw new \RuntimeException( 'Error: delete_blob - cURL request failed: ' . \esc_html( $error ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Error message.
+						\__( 'Error: delete_blob - cURL request failed: %1$s', 'w3-total-cache' ),
+						$error
+					)
+				)
+			);
 		}
 
 		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 		curl_close( $ch );
 
 		if ( 202 !== $http_code ) {
-			throw new \RuntimeException( 'Error: delete_blob - HTTP request failed with status code ' . \esc_html( $http_code ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 HTTP status code.
+						\__( 'Error: delete_blob - HTTP request failed with status code: %1$s', 'w3-total-cache' ),
+						$http_code
+					)
+				)
+			);
 		}
 
 		if ( empty( $response ) ) {
-			throw new \RuntimeException( 'Error: delete_blob - invalid response data: ' . \esc_html( $response ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response.
+						\__( 'Error: delete_blob - invalid response data: %1$s', 'w3-total-cache' ),
+						$response
+					)
+				)
+			);
 		}
 		return self::parse_header( $response );
 	}
@@ -340,18 +454,34 @@ class CdnEngine_Azure_MI_Utility {
 		if ( \curl_errno( $ch ) ) {
 			$error = \curl_error( $ch );
 			\curl_close( $ch );
-			throw new \RuntimeException( 'Error: create_container - cURL request failed: ' . \esc_html( $error ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Error message.
+						\__( 'Error: create_container - cURL request failed: %1$s', 'w3-total-cache' ),
+						$error
+					)
+				)
+			);
 		}
 
 		$http_code = \curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 		\curl_close( $ch );
 
 		if ( 201 !== $http_code ) {
-			throw new \RuntimeException( 'Error: create_container - HTTP request failed with status code: ' . \esc_html( $http_code ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 HTTP status code.
+						\__( 'Error: create_container - HTTP request failed with status code: %1$s', 'w3-total-cache' ),
+						$http_code
+					)
+				)
+			);
 		}
 
 		if ( empty( $response ) ) {
-			throw new \RuntimeException( 'Error: create_container - empty response.' );
+			throw new \RuntimeException( \esc_html__( 'Error: create_container - empty response.', 'w3-total-cache' ) );
 		}
 		return self::parse_header( $response );
 	}
@@ -387,18 +517,42 @@ class CdnEngine_Azure_MI_Utility {
 		if ( \curl_errno( $ch ) ) {
 			$error = \curl_error( $ch );
 			\curl_close( $ch );
-			throw new \RuntimeException( 'Error: list_containers - cURL request failed: ' . \esc_html( $error ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Error message.
+						\__( 'Error: list_containers - cURL request failed: %1$s', 'w3-total-cache' ),
+						$error
+					)
+				)
+			);
 		}
 
 		$http_code = \curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 		\curl_close( $ch );
 
 		if ( 200 !== $http_code ) {
-			throw new \RuntimeException( 'Error: list_containers - HTTP request failed with status code: ' . \esc_html( $http_code ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 HTTP status code.
+						\__( 'Error: list_containers - HTTP request failed with status code: %1$s', 'w3-total-cache' ),
+						$http_code
+					)
+				)
+			);
 		}
 
 		if ( empty( $response ) ) {
-			throw new \RuntimeException( 'Error: list_containers - Invalid response data: ' . \esc_html( $response ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response.
+						\__( 'Error: list_containers - Invalid response data: %1$s', 'w3-total-cache' ),
+						$response
+					)
+				)
+			);
 		}
 
 		// Parse XML response to array.
@@ -449,7 +603,15 @@ class CdnEngine_Azure_MI_Utility {
 		if ( \curl_errno( $ch ) ) {
 			$error = \curl_error( $ch );
 			\curl_close( $ch );
-			throw new \RuntimeException( 'Error: get_blob - cURL request failed: ' . \esc_html( $error ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Error message.
+						\__( 'Error: get_blob - cURL request failed: %1$s', 'w3-total-cache' ),
+						$error
+					)
+				)
+			);
 		}
 
 		$header_size = \curl_getinfo( $ch, CURLINFO_HEADER_SIZE );
@@ -457,11 +619,27 @@ class CdnEngine_Azure_MI_Utility {
 		\curl_close( $ch );
 
 		if ( 200 !== $http_code ) {
-			throw new \RuntimeException( 'Error: get_blob - HTTP request failed with status code: ' . \esc_html( $http_code ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 HTTP status code.
+						\__( 'Error: get_blob - HTTP request failed with status code: %1$s', 'w3-total-cache' ),
+						$http_code
+					)
+				)
+			);
 		}
 
 		if ( empty( $response ) ) {
-			throw new \RuntimeException( 'Error: get_blob - Invalid response data: ' . \esc_html( $response ) );
+			throw new \RuntimeException(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Response.
+						\__( 'Error: get_blob - Invalid response data: %1$s', 'w3-total-cache' ),
+						$response
+					)
+				)
+			);
 		}
 
 		return array(
@@ -476,20 +654,21 @@ class CdnEngine_Azure_MI_Utility {
 	 * @since  2.7.7
 	 * @access private
 	 *
-	 * @param mixed $var Variable used to get array.
+	 * @param mixed $input Variable used to get array.
+	 *
 	 * @return array
 	 */
-	private static function get_array( $var ): array {
-		if ( empty( $var ) || ! \is_array( $var ) ) {
+	private static function get_array( $input ): array {
+		if ( empty( $input ) || ! \is_array( $input ) ) {
 			return array();
 		}
 
-		foreach ( $var as $value ) {
+		foreach ( $input as $value ) {
 			if ( ! \is_array( $value ) ) {
-				return array( $var );
+				return array( $input );
 			}
 
-			return $var;
+			return $input;
 		}
 	}
 

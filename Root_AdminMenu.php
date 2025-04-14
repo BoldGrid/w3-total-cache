@@ -26,16 +26,18 @@ class Root_AdminMenu {
 	private $_config; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 	/**
-	 * Constructor.
+	 * Constructor to initialize the Root_AdminMenu class and configuration.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Generate menu array.
+	 * Generates an array of menu items for the admin menu.
 	 *
-	 * @return array
+	 * @return array Associative array of menu items with details.
 	 */
 	public function generate_menu_array() {
 		$pages = array(
@@ -115,7 +117,7 @@ class Root_AdminMenu {
 				'visible_always' => true,
 				'order'          => 1200,
 			),
-			'w3tc_pagespeed'          => array(
+			'w3tc_pagespeed'        => array(
 				'page_title'     => __( 'Google PageSpeed', 'w3-total-cache' ),
 				'menu_text'      => __( 'Google PageSpeed', 'w3-total-cache' ),
 				'visible_always' => true,
@@ -147,17 +149,18 @@ class Root_AdminMenu {
 	}
 
 	/**
-	 * Generate menu.
+	 * Generates the admin menu and submenu pages.
 	 *
-	 * @param  string $base_capability Base compatibility.
-	 * @return array
+	 * @param string $base_capability Capability required to access the menu.
+	 *
+	 * @return array List of submenu page hooks.
 	 */
 	public function generate( $base_capability ) {
 		$pages = $this->generate_menu_array();
 
 		uasort(
 			$pages,
-			function( $a, $b ) {
+			function ( $a, $b ) {
 				return ( $a['order'] - $b['order'] );
 			}
 		);
@@ -203,7 +206,9 @@ class Root_AdminMenu {
 	}
 
 	/**
-	 * Options page.
+	 * Handles the display of the options page.
+	 *
+	 * @return void
 	 */
 	public function options() {
 		$this->_page = Util_Request::get_string( 'page' );
@@ -212,18 +217,14 @@ class Root_AdminMenu {
 			$this->_page = 'w3tc_dashboard';
 		}
 
-		/*
-		 * Hidden pages.
-		 */
+		// Hidden pages.
 		if ( ! empty( Util_Request::get_string( 'w3tc_dbcluster_config' ) ) ) {
 			$options_dbcache = new DbCache_Page();
 			$options_dbcache->dbcluster_config();
 			return;
 		}
 
-		/**
-		 * Show tab.
-		 */
+		// Show tab.
 		switch ( $this->_page ) {
 			case 'w3tc_dashboard':
 				$options_dashboard = new Generic_Page_Dashboard();

@@ -3,14 +3,17 @@
  * File: DbCache_Plugin.php
  *
  * @package W3TC
- *
- * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  */
 
 namespace W3TC;
 
 /**
+ * Class DbCache_Plugin
+ *
  * W3 DbCache plugin
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class DbCache_Plugin {
 	/**
@@ -21,14 +24,22 @@ class DbCache_Plugin {
 	private $_config = null;
 
 	/**
-	 * Constructor.
+	 * Constructor for the DbCache_Plugin class.
+	 *
+	 * Initializes the configuration for the plugin.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Runs plugin
+	 * Runs the initialization logic for the DbCache plugin.
+	 *
+	 * Hooks into various WordPress actions and filters to manage database cache operations.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		// phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
@@ -98,7 +109,9 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Does disk cache cleanup
+	 * Cleans up expired database cache files.
+	 *
+	 * Instantiates and executes the Cache_File_Cleaner with the specified configurations.
 	 *
 	 * @return void
 	 */
@@ -114,11 +127,11 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Cron schedules filter
+	 * Modifies the WordPress cron schedules to include custom schedules for database cache cleanup.
 	 *
-	 * @param array $schedules Schedules.
+	 * @param array $schedules Existing WordPress cron schedules.
 	 *
-	 * @return array
+	 * @return array Modified array of cron schedules.
 	 */
 	public function cron_schedules( $schedules ) {
 		$c               = $this->_config;
@@ -141,9 +154,9 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Cron job for processing purging database cache.
+	 * Triggers the purging of the database cache via wp-cron.
 	 *
-	 * @since 2.8.0
+	 * Dispatches the CacheFlush component to handle the flush operation.
 	 *
 	 * @return void
 	 */
@@ -153,7 +166,11 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Change action
+	 * Handles generic cache changes triggered by various events.
+	 *
+	 * Ensures the database cache is flushed only once during a request cycle.
+	 *
+	 * @return void
 	 */
 	public function on_change() {
 		static $flushed = false;
@@ -167,10 +184,14 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Change post action
+	 * Handles cache changes triggered by post-related actions.
 	 *
-	 * @param int   $post_id Post ID.
-	 * @param mixed $post Post.
+	 * Validates the post before initiating a database cache flush.
+	 *
+	 * @param int          $post_id The ID of the post being changed.
+	 * @param WP_Post|null $post    Optional post object.
+	 *
+	 * @return void
 	 */
 	public function on_post_change( $post_id = 0, $post = null ) {
 		static $flushed = false;
@@ -192,9 +213,13 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Comment change action
+	 * Handles cache changes triggered by comment-related actions.
 	 *
-	 * @param integer $comment_id Comment ID.
+	 * Flushes the database cache based on the post associated with the comment.
+	 *
+	 * @param int $comment_id The ID of the comment being changed.
+	 *
+	 * @return void
 	 */
 	public function on_comment_change( $comment_id ) {
 		$post_id = 0;
@@ -208,22 +233,27 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Comment status action fired immediately after transitioning a comment’s status from one to another
-	 * in the database and removing the comment from the database cache, but prior to all status transition hooks.
+	 * Handles comment status updates and triggers a cache flush.
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/wp_set_comment_status/
 	 *
-	 * @param integer $comment_id Comment ID.
-	 * @param string  $status Status.
+	 * @param int    $comment_id The ID of the comment being updated.
+	 * @param string $status     The new comment status.
+	 *
+	 * @return void
 	 */
 	public function on_comment_status( $comment_id, $status ) {
 		$this->on_comment_change( $comment_id );
 	}
 
 	/**
-	 * Setup admin menu elements
+	 * Modifies the W3 Total Cache admin bar menu items.
 	 *
-	 * @param array $menu_items Menu items.
+	 * Adds a menu item for flushing the database cache.
+	 *
+	 * @param array $menu_items Existing admin bar menu items.
+	 *
+	 * @return array Modified admin bar menu items.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
 		$menu_items['20310.dbcache'] = array(
@@ -240,9 +270,13 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Usage statistics of request filter
+	 * Collects usage statistics for the current request related to the database cache.
 	 *
-	 * @param object $storage Storage object.
+	 * Delegates the request statistics to the ObjectCache_WpObjectCache_Regular component.
+	 *
+	 * @param array $storage The storage array for request usage statistics.
+	 *
+	 * @return void
 	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
 		$o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
@@ -250,9 +284,11 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Retrive usage statistics metrics
+	 * Adds custom metrics for usage statistics related to the database cache.
 	 *
-	 * @param array $metrics Metrics.
+	 * @param array $metrics Existing usage statistics metrics.
+	 *
+	 * @return array Modified array of metrics.
 	 */
 	public function w3tc_usage_statistics_metrics( $metrics ) {
 		return array_merge(
@@ -267,11 +303,11 @@ class DbCache_Plugin {
 	}
 
 	/**
-	 * Usage Statisitcs sources filter.
+	 * Adds custom sources for usage statistics based on the configured database cache engine.
 	 *
-	 * @param array $sources Sources.
+	 * @param array $sources Existing usage statistics sources.
 	 *
-	 * @return array
+	 * @return array Modified array of sources.
 	 */
 	public function w3tc_usage_statistics_sources( $sources ) {
 		$c = Dispatcher::config();

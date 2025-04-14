@@ -47,13 +47,13 @@ class Cache_File_Generic extends Cache_File {
 	 * Sets data
 	 *
 	 * @param string $key    Key.
-	 * @param string $var    Value.
+	 * @param string $value  Value.
 	 * @param int    $expire Time to expire.
 	 * @param string $group  Used to differentiate between groups of cache values.
 	 *
 	 * @return boolean
 	 */
-	public function set( $key, $var, $expire = 0, $group = '' ) {
+	public function set( $key, $value, $expire = 0, $group = '' ) {
 		$key      = $this->get_item_key( $key );
 		$sub_path = $this->_get_path( $key, $group );
 		$path     = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
@@ -77,7 +77,7 @@ class Cache_File_Generic extends Cache_File {
 			@flock( $fp, LOCK_EX );
 		}
 
-		@fputs( $fp, $var['content'] );
+		@fputs( $fp, $value['content'] );
 		@fclose( $fp );
 
 		$chmod = 0644;
@@ -104,10 +104,10 @@ class Cache_File_Generic extends Cache_File {
 		$old_entry_path = $path . '_old';
 		@unlink( $old_entry_path );
 
-		if ( Util_Environment::is_apache() && isset( $var['headers'] ) ) {
+		if ( Util_Environment::is_apache() && isset( $value['headers'] ) ) {
 			$rules = '';
 
-			if ( isset( $var['headers']['Content-Type'] ) && 'text/xml' === substr( $var['headers']['Content-Type'], 0, 8 ) ) {
+			if ( isset( $value['headers']['Content-Type'] ) && 'text/xml' === substr( $value['headers']['Content-Type'], 0, 8 ) ) {
 
 				$rules .= "<IfModule mod_mime.c>\n";
 				$rules .= "    RemoveType .html_gzip\n";
@@ -117,9 +117,9 @@ class Cache_File_Generic extends Cache_File {
 				$rules .= "</IfModule>\n";
 			}
 
-			if ( isset( $var['headers'] ) ) {
+			if ( isset( $value['headers'] ) ) {
 				$headers = array();
-				foreach ( $var['headers'] as $h ) {
+				foreach ( $value['headers'] as $h ) {
 					if ( isset( $h['n'] ) && isset( $h['v'] ) ) {
 						$h2 = apply_filters( 'w3tc_pagecache_set_header', $h, $h, 'file_generic' );
 
@@ -505,13 +505,18 @@ class Cache_File_Generic extends Cache_File {
 
 		$dir = @opendir( $flush_dir );
 		if ( $dir ) {
-			while ( ( $entry = @readdir( $dir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$entry = @readdir( $dir );
+			while ( false !== $entry ) {
 				if ( '.' === $entry || '..' === $entry ) {
+					$entry = @readdir( $dir );
 					continue;
 				}
+
 				if ( preg_match( '~' . $regex . '~', basename( $entry ) ) ) {
 					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $entry );
 				}
+
+				$entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );

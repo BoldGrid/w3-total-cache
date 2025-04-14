@@ -46,7 +46,7 @@ if ( ! defined( 'W3TC' ) ) {
 			$index = 0;
 
 			foreach ( $useragent_groups['value'] as $group => $group_config ) :
-				$index++;
+				++$index;
 				?>
 			<li id="mobile_group_<?php echo esc_attr( $group ); ?>">
 				<table class="form-table">
@@ -166,7 +166,7 @@ if ( ! defined( 'W3TC' ) ) {
 			$index = 0;
 
 			foreach ( $referrer_groups as $group => $group_config ) :
-				$index++;
+				++$index;
 				?>
 			<li id="referrer_group_<?php echo esc_attr( $group ); ?>">
 				<table class="form-table">
@@ -246,7 +246,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php
 			$index = 0;
 			foreach ( $cookie_groups['value'] as $group => $group_config ) :
-				$index++;
+				++$index;
 				?>
 			<li id="cookiegroup_<?php echo esc_attr( $group ); ?>">
 				<table class="form-table">

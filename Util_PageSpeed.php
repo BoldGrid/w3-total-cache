@@ -132,7 +132,7 @@ class Util_PageSpeed {
 			<div class="w3tcps_metric_stats">
 				<span class="dashicons dashicons-<?php echo esc_attr( 'desktop' ); ?>"></span>
 				<?php self::print_barline( $data['desktop'][ $metric ] ); ?>
-				<?php echo $widget_break; ?>
+				<?php echo wp_kses( $widget_break, array( 'br' => array() ) ); ?>
 				<span class="dashicons dashicons-<?php echo esc_attr( 'smartphone' ); ?>"></span>
 				<?php self::print_barline( $data['mobile'][ $metric ] ); ?>
 			</div>
@@ -282,20 +282,20 @@ class Util_PageSpeed {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
 					if ( filter_var( $item['url'], FILTER_VALIDATE_URL ) !== false ) {
 						// The value is confirmed as a valid URL. We create a HTML link with the full URL value but display it with a trucated value.
-						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '"> ' . esc_url( $item['url'] ) . '</a></td>';
+						$items .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '"> ' . esc_url( $item['url'] ) . '</a></td>';
 					} else {
 						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
-						$items   .= '<td>' . esc_html( $item['url'] ) . '</td>';
+						$items .= '<td>' . esc_html( $item['url'] ) . '</td>';
 					}
 				}
 				if ( isset( $item['source'] ) ) {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
 					if ( filter_var( $item['source']['url'], FILTER_VALIDATE_URL ) !== false ) {
 						// The value is confirmed as a valid URL. We create a HTML link with the full URL value but display it with a trucated value.
-						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '"> ' . esc_url( $item['url'] ) . '</a></td>';
+						$items .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '"> ' . esc_url( $item['url'] ) . '</a></td>';
 					} else {
 						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
-						$items   .= '<td>' . esc_html( $item['source']['url'] ) . '</td>';
+						$items .= '<td>' . esc_html( $item['source']['url'] ) . '</td>';
 					}
 				}
 				if ( isset( $item['totalBytes'] ) ) {
@@ -380,27 +380,27 @@ class Util_PageSpeed {
 					$items   .= '</td>';
 				}
 				if ( isset( $item['headings'] ) && isset( $item['items'] ) ) {
-					$items   .= '<td><table class="w3tcps_breakdown_subitems_table"><tr class="w3tcps_passed_audit_subitem_header">';
+					$items .= '<td><table class="w3tcps_breakdown_subitems_table"><tr class="w3tcps_passed_audit_subitem_header">';
 					foreach ( $item['headings'] as $heading ) {
-						$items .= '<th>' . esc_html( $heading['label'], 'w3-total-cache' ) . '</th>';
+						$items .= '<th>' . esc_html( $heading['label'] ) . '</th>';
 					}
-					$items  .= '</tr>';
+					$items .= '</tr>';
 					foreach ( $item['items'] as $sub_item ) {
 						$items .= '<tr class="w3tcps_passed_audit_subitem">';
 						if ( isset( $sub_item['node'] ) ) {
-							$items   .= '<td>';
-							$items   .= '<p><b>' . __( 'Snippet', 'w3-total-cache' ) . ': </b>' . esc_html( $sub_item['node']['snippet'] ) . '</p>';
-							$items   .= '<p><b>' . __( 'Selector', 'w3-total-cache' ) . ': </b>' . esc_html( $sub_item['node']['selector'] ) . '</p>';
-							$items   .= '</td>';
+							$items .= '<td>';
+							$items .= '<p><b>' . __( 'Snippet', 'w3-total-cache' ) . ': </b>' . esc_html( $sub_item['node']['snippet'] ) . '</p>';
+							$items .= '<p><b>' . __( 'Selector', 'w3-total-cache' ) . ': </b>' . esc_html( $sub_item['node']['selector'] ) . '</p>';
+							$items .= '</td>';
 						}
 						if ( isset( $sub_item['phase'] ) && isset( $sub_item['timing'] ) && isset( $sub_item['percent'] ) ) {
-							$items   .= '<td>' . esc_html( $sub_item['phase'] ) . '</td>';
-							$items   .= '<td>' . esc_html( $sub_item['percent'] ) . '</td>';
-							$items   .= '<td>' . esc_html( $sub_item['timing'] ) . ' ms</td>';
+							$items .= '<td>' . esc_html( $sub_item['phase'] ) . '</td>';
+							$items .= '<td>' . esc_html( $sub_item['percent'] ) . '</td>';
+							$items .= '<td>' . esc_html( $sub_item['timing'] ) . ' ms</td>';
 						}
 						$items .= '</tr>';
 					}
-					$items  .= '</table></td>';
+					$items .= '</table></td>';
 				}
 				if ( isset( $item['responseTime'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Response Time', 'w3-total-cache' ) . '</th>';
@@ -489,20 +489,20 @@ class Util_PageSpeed {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
 					if ( filter_var( $item['url'], FILTER_VALIDATE_URL ) !== false ) {
 						// The value is confirmed as a valid URL. We create a HTML link with the full URL value but display it with a trucated value.
-						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '">' . esc_url( $item['url'] ) . '</a></td>';
+						$items .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['url'] ) . '"></span><a href="' . esc_url( $item['url'] ) . '" target="_blank" title="' . esc_url( $item['url'] ) . '">' . esc_url( $item['url'] ) . '</a></td>';
 					} else {
 						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
-						$items   .= '<td>' . esc_html( $item['url'] ) . '</td>';
+						$items .= '<td>' . esc_html( $item['url'] ) . '</td>';
 					}
 				}
 				if ( isset( $item['source'] ) ) {
 					$headers .= '<th>' . esc_html__( 'URL', 'w3-total-cache' ) . '</th>';
 					if ( filter_var( $item['source']['url'], FILTER_VALIDATE_URL ) !== false ) {
 						// The value is confirmed as a valid URL. We create a HTML link with the full URL value but display it with a trucated value.
-						$items   .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '">' . esc_url( $item['url'] ) . '</a></td>';
+						$items .= '<td><span class="copyurl dashicons dashicons-admin-page" title="' . esc_attr__( 'Copy Full URL', 'w3-total-cache' ) . '" copyurl="' . esc_url( $item['source']['url'] ) . '"></span><a href="' . esc_url( $item['source']['url'] ) . '" target="_blank" title="' . esc_url( $item['source']['url'] ) . '">' . esc_url( $item['url'] ) . '</a></td>';
 					} else {
 						// For certain metrics Google uses the 'url' field for non-URL values. These are often HTML/CSS that shouldn't be escaped and will be displayed as plain text.
-						$items   .= '<td>' . esc_html( $item['source']['url'] ) . '</td>';
+						$items .= '<td>' . esc_html( $item['source']['url'] ) . '</td>';
 					}
 				}
 				if ( isset( $item['totalBytes'] ) ) {
@@ -573,7 +573,7 @@ class Util_PageSpeed {
 					$items   .= '<td>';
 					if ( isset( $item['node'] ) ) {
 						$items .= '<p><b>' . __( 'Snippet', 'w3-total-cache' ) . ': </b>' . esc_html( $item['node']['snippet'] ) . '</p>';
-						$items .= '<p><b>' . __( 'Selector', 'w3-total-cache' ) . ': </b>' .esc_html( $item['node']['selector'] ) . '</p>';
+						$items .= '<p><b>' . __( 'Selector', 'w3-total-cache' ) . ': </b>' . esc_html( $item['node']['selector'] ) . '</p>';
 					}
 					$items .= '</td>';
 
@@ -587,27 +587,27 @@ class Util_PageSpeed {
 					$items   .= '</td>';
 				}
 				if ( isset( $item['headings'] ) && isset( $item['items'] ) ) {
-					$items   .= '<td><table class="w3tcps_breakdown_subitems_table"><tr class="w3tcps_passed_audit_subitem_header">';
+					$items .= '<td><table class="w3tcps_breakdown_subitems_table"><tr class="w3tcps_passed_audit_subitem_header">';
 					foreach ( $item['headings'] as $heading ) {
-						$items .= '<th>' . esc_html( $heading['label'], 'w3-total-cache' ) . '</th>';
+						$items .= '<th>' . esc_html( $heading['label'] ) . '</th>';
 					}
-					$items  .= '</tr>';
+					$items .= '</tr>';
 					foreach ( $item['items'] as $sub_item ) {
 						$items .= '<tr class="w3tcps_passed_audit_subitem">';
 						if ( isset( $sub_item['node'] ) ) {
-							$items   .= '<td>';
-							$items   .= '<p><b>' . __( 'Snippet', 'w3-total-cache' ) . ': </b>' . esc_html( $sub_item['node']['snippet'] ) . '</p>';
-							$items   .= '<p><b>' . __( 'Selector', 'w3-total-cache' ) . ': </b>' . esc_html( $sub_item['node']['selector'] ) . '</p>';
-							$items   .= '</td>';
+							$items .= '<td>';
+							$items .= '<p><b>' . __( 'Snippet', 'w3-total-cache' ) . ': </b>' . esc_html( $sub_item['node']['snippet'] ) . '</p>';
+							$items .= '<p><b>' . __( 'Selector', 'w3-total-cache' ) . ': </b>' . esc_html( $sub_item['node']['selector'] ) . '</p>';
+							$items .= '</td>';
 						}
 						if ( isset( $sub_item['phase'] ) && isset( $sub_item['timing'] ) && isset( $sub_item['percent'] ) ) {
-							$items   .= '<td>' . esc_html( $sub_item['phase'] ) . '</td>';
-							$items   .= '<td>' . esc_html( $sub_item['percent'] ) . '</td>';
-							$items   .= '<td>' . esc_html( $sub_item['timing'] ) . ' ms</td>';
+							$items .= '<td>' . esc_html( $sub_item['phase'] ) . '</td>';
+							$items .= '<td>' . esc_html( $sub_item['percent'] ) . '</td>';
+							$items .= '<td>' . esc_html( $sub_item['timing'] ) . ' ms</td>';
 						}
 						$items .= '</tr>';
 					}
-					$items  .= '</table></td>';
+					$items .= '</table></td>';
 				}
 				if ( isset( $item['responseTime'] ) ) {
 					$headers .= '<th>' . esc_html__( 'Response Time', 'w3-total-cache' ) . '</th>';

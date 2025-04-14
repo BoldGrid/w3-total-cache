@@ -8,17 +8,21 @@
 namespace W3TC;
 
 /**
+ * Class ConfigCache
+ *
  * Provides access to config cache, used mostly when config is stored in
  * database to not issue config loading database queries on each http request
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class ConfigCache {
 	/**
-	 * Reads config from config cache
+	 * Retrieves configuration data from the cache.
 	 *
-	 * @param int  $blog_id Blog ID.
-	 * @param bool $preview Preview flag.
+	 * @param int  $blog_id Blog ID for which the configuration is retrieved.
+	 * @param bool $preview Whether to fetch the preview configuration.
 	 *
-	 * @return array|null
+	 * @return array|null Returns an array of configuration data or null if not found.
 	 */
 	public static function util_array_from_storage( $blog_id, $preview ) {
 		$cache = self::get_cache();
@@ -32,11 +36,12 @@ class ConfigCache {
 	}
 
 	/**
-	 * Removes config cache entry so that it can be read from original source
-	 * on next attempt
+	 * Removes configuration items from the cache.
 	 *
-	 * @param int  $blog_id Blog ID.
-	 * @param bool $preview Preview flag.
+	 * @param int  $blog_id Blog ID for which the configuration is removed.
+	 * @param bool $preview Whether to remove the preview configuration.
+	 *
+	 * @return void
 	 */
 	public static function remove_item( $blog_id, $preview ) {
 		$cache = self::get_cache();
@@ -46,11 +51,13 @@ class ConfigCache {
 	}
 
 	/**
-	 * Saves config cache entry.
+	 * Saves configuration items to the cache.
 	 *
-	 * @param int   $blog_id Blog ID.
-	 * @param bool  $preview Preview flag.
-	 * @param mixed $data Data.
+	 * @param int   $blog_id Blog ID for which the configuration is saved.
+	 * @param bool  $preview Whether to save the preview configuration.
+	 * @param array $data    Configuration data to save.
+	 *
+	 * @return void
 	 */
 	public static function save_item( $blog_id, $preview, $data ) {
 		$cache = self::get_cache();
@@ -59,9 +66,9 @@ class ConfigCache {
 	}
 
 	/**
-	 * Retrieves cache instance.
+	 * Retrieves the cache instance for the selected cache engine.
 	 *
-	 * @return object
+	 * @return \Cache Returns the cache instance.
 	 */
 	private static function get_cache() {
 		static $cache = null;
@@ -133,12 +140,12 @@ class ConfigCache {
 	}
 
 	/**
-	 * Retrieves config cache key.
+	 * Constructs a unique cache key for the given blog and preview status if set.
 	 *
-	 * @param int  $blog_id Blog ID.
-	 * @param bool $preview Preview flag.
+	 * @param int  $blog_id Blog ID for which the cache key is generated.
+	 * @param bool $preview Whether to generate the preview key.
 	 *
-	 * @return string
+	 * @return string The generated cache key.
 	 */
 	private static function get_key( $blog_id, $preview ) {
 		return 'w3tc_config_' . $blog_id . ( $preview ? '_preview' : '' );

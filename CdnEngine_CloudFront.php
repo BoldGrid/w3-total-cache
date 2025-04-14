@@ -1,21 +1,52 @@
 <?php
+/**
+ * File: CdnEngine_CloudFront.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
+if ( ! defined( 'W3TC_SKIPLIB_AWS' ) ) {
 	require_once W3TC_DIR . '/vendor/autoload.php';
 }
 
 /**
+ * Class CdnEngine_CloudFront
+ *
  * Amazon CloudFront (S3 origin) CDN engine
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class CdnEngine_CloudFront extends CdnEngine_Base {
+	/**
+	 * CDN Engine S3 object
+	 *
+	 * @var CdnEngine_S3
+	 */
 	private $s3;
+
+	/**
+	 * CloudFront Client API object
+	 *
+	 * @var CloudFrontClient
+	 */
 	private $api;
 
-	function __construct( $config = array() ) {
-		$config = array_merge( array(
-				'id' => ''
-			), $config );
+	/**
+	 * Constructs the CDN Engine CloudFront instance.
+	 *
+	 * @param array $config Configuration settings.
+	 *
+	 * @return void
+	 */
+	public function __construct( $config = array() ) {
+		$config = array_merge(
+			array(
+				'id' => '',
+			),
+			$config
+		);
 
 		parent::__construct( $config );
 
@@ -23,9 +54,9 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	}
 
 	/**
-	 * Initialize.
+	 * Initializes the CloudFront API client.
 	 *
-	 * @see Cdn_Core::get_region_id()
+	 * @return bool Returns true if the initialization is successful.
 	 */
 	public function _init() {
 		if ( ! is_null( $this->api ) ) {
@@ -53,17 +84,21 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	}
 
 	/**
-	 * Formats URL
+	 * Formats the URL based on the provided path.
+	 *
+	 * @param string $path The file path to format.
+	 *
+	 * @return string|false Returns the formatted URL or false if the domain is not found.
 	 */
-	function _format_url( $path ) {
+	public function _format_url( $path ) {
 		$domain = $this->get_domain( $path );
 
 		if ( $domain ) {
 			$scheme = $this->_get_scheme();
 
-			// it does not support '+', requires '%2B'
+			// it does not support '+', requires '%2B'.
 			$path = str_replace( '+', '%2B', $path );
-			$url = sprintf( '%s://%s/%s', $scheme, $domain, $path );
+			$url  = sprintf( '%s://%s/%s', $scheme, $domain, $path );
 
 			return $url;
 		}
@@ -72,39 +107,41 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	}
 
 	/**
-	 * Upload files
+	 * Uploads files to the CloudFront CDN.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @param boolean $force_rewrite
-	 * @return boolean
+	 * @param array $files         Files to upload.
+	 * @param array $results       Reference to store the results of the upload.
+	 * @param bool  $force_rewrite Whether to force file overwrite.
+	 * @param int   $timeout_time  Timeout duration for the upload.
+	 *
+	 * @return bool Returns true if upload is successful, false otherwise.
 	 */
-	function upload( $files, &$results, $force_rewrite = false,
-		$timeout_time = NULL ) {
-		return $this->s3->upload( $files, $results, $force_rewrite,
-			$timeout_time );
+	public function upload( $files, &$results, $force_rewrite = false, $timeout_time = null ) {
+		return $this->s3->upload( $files, $results, $force_rewrite, $timeout_time );
 	}
 
 	/**
-	 * Delete files from CDN
+	 * Deletes files from the CloudFront CDN.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @return boolean
+	 * @param array $files   Files to delete.
+	 * @param array $results Reference to store the results of the delete operation.
+	 *
+	 * @return bool Returns true if delete is successful, false otherwise.
 	 */
-	function delete( $files, &$results ) {
+	public function delete( $files, &$results ) {
 		return $this->s3->delete( $files, $results );
 	}
 
 	/**
-	 * Purge files from CDN
+	 * Purges files from the CloudFront CDN and uploads them to S3.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @return boolean
+	 * @param array $files   Files to purge.
+	 * @param array $results Reference to store the results of the purge operation.
+	 *
+	 * @return bool Returns true if purge is successful, false otherwise.
 	 */
-	function purge( $files, &$results ) {
-		if ( !$this->s3->upload( $files, $results, true ) ) {
+	public function purge( $files, &$results ) {
+		if ( ! $this->s3->upload( $files, $results, true ) ) {
 			return false;
 		}
 
@@ -120,39 +157,41 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 
 		foreach ( $files as $file ) {
 			$remote_file = $file['remote_path'];
-			$paths[] = '/' . $remote_file;
+			$paths[]     = '/' . $remote_file;
 		}
 
 		try {
-			$invalidation = $this->api->createInvalidation( array(
-					'DistributionId' => $dist['Id'],
+			$invalidation = $this->api->createInvalidation(
+				array(
+					'DistributionId'    => $dist['Id'],
 					'InvalidationBatch' => array(
-						'CallerReference' => 'w3tc-' . 	microtime(),
-						'Paths' => array(
-							'Items' => $paths,
+						'CallerReference' => 'w3tc-' . microtime(),
+						'Paths'           => array(
+							'Items'    => $paths,
 							'Quantity' => count( $paths ),
 						),
-					)
+					),
 				)
 			);
 		} catch ( \Exception $ex ) {
-			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT,
-				sprintf( 'Unable to create invalidation batch (%s).',
-				$ex->getMessage() ) );
+			$results = $this->_get_results(
+				$files,
+				W3TC_CDN_RESULT_HALT,
+				sprintf( 'Unable to create invalidation batch (%s).', $ex->getMessage() )
+			);
 
 			return false;
 		}
 
 		$results = $this->_get_results( $files, W3TC_CDN_RESULT_OK, 'OK' );
+
 		return true;
 	}
 
 	/**
-	 * Get the S3 bucket region id used for the hostname.
+	 * Retrieves the region based on the bucket location.
 	 *
-	 * @since 2.7.2
-	 *
-	 * @return string
+	 * @return string The region for the CDN.
 	 */
 	public function get_region() {
 		switch ( $this->_config['bucket_location'] ) {
@@ -171,27 +210,27 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	}
 
 	/**
-	 * Get the S3 bucket origin hostname.
+	 * Gets the origin URL for the CloudFront CDN.
 	 *
-	 * @see self::get_region()
-	 *
-	 * @return string
+	 * @return string The origin URL.
 	 */
 	public function _get_origin() {
 		return sprintf( '%1$s.s3.%2$samazonaws.com', $this->_config['bucket'], $this->get_region() );
 	}
 
 	/**
-	 * Returns array of CDN domains
+	 * Retrieves the list of domains for the CloudFront distribution.
+	 *
+	 * @return array An array of domains associated with the CDN.
 	 */
 	public function get_domains() {
-		if ( !empty( $this->_config['cname'] ) ) {
+		if ( ! empty( $this->_config['cname'] ) ) {
 			return (array) $this->_config['cname'];
-		} elseif ( !empty( $this->_config['id'] ) ) {
+		} elseif ( ! empty( $this->_config['id'] ) ) {
 			$domain = sprintf( '%s.cloudfront.net', $this->_config['id'] );
 
 			return array(
-				$domain
+				$domain,
 			);
 		}
 
@@ -199,11 +238,15 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	}
 
 	/**
-	 * Test CDN connectivity
+	 * Tests the connection and configuration of the CloudFront CDN.
+	 *
+	 * @param string $error Reference to store any error message if the test fails.
+	 *
+	 * @return bool Returns true if the test passes, false otherwise.
 	 */
-	function test( &$error ) {
+	public function test( &$error ) {
 		$this->_init();
-		if ( !$this->s3->test( $error ) ) {
+		if ( ! $this->s3->test( $error ) ) {
 			return false;
 		}
 
@@ -212,47 +255,47 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 		 */
 		$dists = $this->api->listDistributions();
 
-		if ( !isset( $dists['DistributionList']['Items'] ) ) {
+		if ( ! isset( $dists['DistributionList']['Items'] ) ) {
 			$error = 'Unable to list distributions.';
 			return false;
 		}
 
-		if ( !count( $dists['DistributionList']['Items'] ) ) {
+		if ( ! count( $dists['DistributionList']['Items'] ) ) {
 			$error = 'No distributions found.';
 
 			return false;
 		}
 
 		$dist = $this->_get_distribution( $dists );
-		if ( $dist["Status"] != 'Deployed' ) {
-			$error = sprintf( 'Distribution status is not Deployed, but "%s".', $dist["Status"] );
+		if ( 'Deployed' !== $dist['Status'] ) {
+			$error = sprintf( 'Distribution status is not Deployed, but "%s".', $dist['Status'] );
 			return false;
 		}
 
-		if ( !$dist['Enabled'] ) {
+		if ( ! $dist['Enabled'] ) {
 			$error = sprintf( 'Distribution for origin "%s" is disabled.', $this->_get_origin() );
 			return false;
 		}
 
-		if ( !empty( $this->_config['cname'] ) ) {
+		if ( ! empty( $this->_config['cname'] ) ) {
 			$domains = (array) $this->_config['cname'];
-			$cnames = ( isset( $dist['Aliases']['Items'] ) ? (array) $dist['Aliases']['Items'] : array() );
+			$cnames  = ( isset( $dist['Aliases']['Items'] ) ? (array) $dist['Aliases']['Items'] : array() );
 
 			foreach ( $domains as $domain ) {
 				$_domains = array_map( 'trim', explode( ',', $domain ) );
 
 				foreach ( $_domains as $_domain ) {
-					if ( !in_array( $_domain, $cnames ) ) {
+					if ( ! in_array( $_domain, $cnames, true ) ) {
 						$error = sprintf( 'Domain name %s is not in distribution <acronym title="Canonical Name">CNAME</acronym> list.', $_domain );
 
 						return false;
 					}
 				}
 			}
-		} elseif ( !empty( $this->_config['id'] ) ) {
+		} elseif ( ! empty( $this->_config['id'] ) ) {
 			$domain = $this->get_domain();
 
-			if ( $domain != $dist['DomainName'] ) {
+			if ( $domain !== $dist['DomainName'] ) {
 				$error = sprintf( 'Distribution domain name mismatch (%s != %s).', $domain, $dist['DomainName'] );
 
 				return false;
@@ -263,82 +306,91 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 	}
 
 	/**
-	 * Create bucket
+	 * Creates a CloudFront distribution container and returns the container ID.
+	 *
+	 * This method initializes the container, creates a CloudFront distribution using the provided
+	 * configuration, and extracts the domain name from the distribution result. It handles CNAMEs
+	 * and origins and returns the distribution's container ID based on the CloudFront domain.
+	 *
+	 * @return string The container ID associated with the CloudFront distribution.
+	 *
+	 * @throws \Exception If unable to create the distribution for the origin.
 	 */
-	function create_container() {
+	public function create_container() {
 		$this->_init();
 		$this->s3->create_container();
 
-		// plugin cant set CNAMEs list since it CloudFront requires
-		// certificate to be specified associated with it
+		// plugin cant set CNAMEs list since it CloudFront requires certificate to be specified associated with it.
 		$cnames = array();
 
-		// make distibution
-		$originDomain = $this->_get_origin();
+		// make distibution.
+		$origin_domain = $this->_get_origin();
 
 		try {
-			$result = $this->api->createDistribution(array(
-				'DistributionConfig' => array(
-					'CallerReference' => $originDomain,
-					'Comment' => 'Created by W3-Total-Cache',
-					'DefaultCacheBehavior' => array(
-						'AllowedMethods' => array(
-							'CachedMethods' => array(
-								'Items' => array( 'HEAD', 'GET' ),
-								'Quantity' => 2,
+			$result = $this->api->createDistribution(
+				array(
+					'DistributionConfig' => array(
+						'CallerReference'      => $origin_domain,
+						'Comment'              => 'Created by W3-Total-Cache',
+						'DefaultCacheBehavior' => array(
+							'AllowedMethods'             => array(
+								'CachedMethods' => array(
+									'Items'    => array( 'HEAD', 'GET' ),
+									'Quantity' => 2,
+								),
+								'Items'         => array( 'HEAD', 'GET' ),
+								'Quantity'      => 2,
 							),
-							'Items' => array( 'HEAD', 'GET' ),
-							'Quantity' => 2,
-						),
-						'Compress' => true,
-						'DefaultTTL' => 86400,
-						'FieldLevelEncryptionId' => '',
-						'ForwardedValues' => array(
-							'Cookies' => array(
-								'Forward' => 'none',
-							),
-							'Headers' => array(
-								'Quantity' => 0,
-							),
-							'QueryString' => false,
-							'QueryStringCacheKeys' => array(
-								'Quantity' => 0,
-							),
-						),
-						'LambdaFunctionAssociations' => array( 'Quantity' => 0),
-						'MinTTL' => 0,
-						'SmoothStreaming' => false,
-						'TargetOriginId' => $originDomain,
-						'TrustedSigners' => array(
-							'Enabled' => false,
-							'Quantity' => 0,
-						),
-						'ViewerProtocolPolicy' => 'allow-all',
-					),
-					'Enabled' => true,
-					'Origins' => array(
-						'Items' => array(
-							array(
-								'DomainName' => $originDomain,
-								'Id' => $originDomain,
-								'OriginPath' => '',
-								'CustomHeaders' => array( 'Quantity' => 0 ),
-								'S3OriginConfig' => array(
-									'OriginAccessIdentity' => ''
+							'Compress'                   => true,
+							'DefaultTTL'                 => 86400,
+							'FieldLevelEncryptionId'     => '',
+							'ForwardedValues'            => array(
+								'Cookies'              => array(
+									'Forward' => 'none',
+								),
+								'Headers'              => array(
+									'Quantity' => 0,
+								),
+								'QueryString'          => false,
+								'QueryStringCacheKeys' => array(
+									'Quantity' => 0,
 								),
 							),
+							'LambdaFunctionAssociations' => array( 'Quantity' => 0 ),
+							'MinTTL'                     => 0,
+							'SmoothStreaming'            => false,
+							'TargetOriginId'             => $origin_domain,
+							'TrustedSigners'             => array(
+								'Enabled'  => false,
+								'Quantity' => 0,
+							),
+							'ViewerProtocolPolicy'       => 'allow-all',
 						),
-						'Quantity' => 1,
+						'Enabled'              => true,
+						'Origins'              => array(
+							'Items'    => array(
+								array(
+									'DomainName'     => $origin_domain,
+									'Id'             => $origin_domain,
+									'OriginPath'     => '',
+									'CustomHeaders'  => array( 'Quantity' => 0 ),
+									'S3OriginConfig' => array(
+										'OriginAccessIdentity' => '',
+									),
+								),
+							),
+							'Quantity' => 1,
+						),
+						'Aliases'              => array(
+							'Items'    => $cnames,
+							'Quantity' => count( $cnames ),
+						),
 					),
-					'Aliases' => array(
-						'Items' => $cnames,
-						'Quantity' => count( $cnames )
-					)
 				)
-			));
+			);
 
-			// extract domain dynamic part stored later in a config
-			$domain = $result['Distribution']['DomainName'];
+			// extract domain dynamic part stored later in a config.
+			$domain       = $result['Distribution']['DomainName'];
 			$container_id = '';
 			if ( preg_match( '~^(.+)\.cloudfront\.net$~', $domain, $matches ) ) {
 				$container_id = $matches[1];
@@ -347,48 +399,79 @@ class CdnEngine_CloudFront extends CdnEngine_Base {
 			return $container_id;
 
 		} catch ( \Exception $ex ) {
-			throw new \Exception( sprintf(
-				'Unable to create distribution for origin %s: %s', $originDomain,
-				$ex->getMessage() ) );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Origin domain name, 2 Error message.
+						\__( 'Unable to create distribution for origin %1$s: %2$s', 'w3-total-cache' ),
+						$origin_domain,
+						$ex->getMessage()
+					)
+				)
+			);
 		}
 	}
 
 	/**
-	 * Returns via string
+	 * Retrieves the "via" information for the CloudFront distribution.
 	 *
-	 * @return string
+	 * This method fetches the domain and formats the "via" string in the format:
+	 * 'Amazon Web Services: CloudFront: <domain>', returning 'N/A' if the domain is not set.
+	 *
+	 * @return string The formatted "via" information.
 	 */
-	function get_via() {
+	public function get_via() {
 		$domain = $this->get_domain();
-		$via = ( $domain ? $domain : 'N/A' );
+		$via    = ( $domain ? $domain : 'N/A' );
 
 		return sprintf( 'Amazon Web Services: CloudFront: %s', $via );
 	}
 
+	/**
+	 * Retrieves the CloudFront distribution based on the origin.
+	 *
+	 * This method checks for an existing distribution matching the provided origin. If no
+	 * distribution is found, it throws an exception. It can also accept an optional parameter
+	 * to provide a list of distributions.
+	 *
+	 * @param array|null $dists Optional. A list of distributions to search through. If null,
+	 *                          the list is fetched from the CloudFront API.
+	 *
+	 * @return array The distribution details associated with the origin.
+	 *
+	 * @throws \Exception If no distribution is found for the origin.
+	 */
 	private function _get_distribution( $dists = null ) {
 		if ( is_null( $dists ) ) {
 			$dists = $this->api->listDistributions();
 		}
 
-		if ( !isset( $dists['DistributionList']['Items'] ) ||
-				!count( $dists['DistributionList']['Items'] ) ) {
-			throw new \Exception( 'No distributions found.' );
+		if ( ! isset( $dists['DistributionList']['Items'] ) || ! count( $dists['DistributionList']['Items'] ) ) {
+			throw new \Exception( \esc_html__( 'No distributions found.', 'w3-total-cache' ) );
 		}
 
-		$dist = false;
+		$dist   = false;
 		$origin = $this->_get_origin();
 
 		$items = $dists['DistributionList']['Items'];
 		foreach ( $items as $dist ) {
 			if ( isset( $dist['Origins']['Items'] ) ) {
 				foreach ( $dist['Origins']['Items'] as $o ) {
-					if ( isset( $o['DomainName'] ) && $o['DomainName'] == $origin ) {
+					if ( isset( $o['DomainName'] ) && $o['DomainName'] === $origin ) {
 						return $dist;
 					}
 				}
 			}
 		}
 
-		throw new \Exception( sprintf( 'Distribution for origin "%s" not found.', $origin ) );
+		throw new \Exception(
+			\esc_html(
+				sprintf(
+					// Translators: 1 Origin name.
+					\__( 'Distribution for origin "%1$s" not found.', 'w3-total-cache' ),
+					$origin
+				)
+			)
+		);
 	}
 }

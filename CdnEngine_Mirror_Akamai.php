@@ -1,35 +1,50 @@
 <?php
+/**
+ * File: CdnEngine_Mirror_Akamai.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 define( 'W3TC_CDN_MIRROR_AKAMAI_WSDL', 'https://ccuapi.akamai.com/ccuapi-axis.wsdl' );
 define( 'W3TC_CDN_MIRROR_AKAMAI_NAMESPACE', 'http://www.akamai.com/purge' );
 
+/**
+ * Class CdnEngine_Mirror_Akamai
+ */
 class CdnEngine_Mirror_Akamai extends CdnEngine_Mirror {
 	/**
-	 * PHP5 Constructor
+	 * Initializes the CDN engine with the provided configuration.
 	 *
-	 * @param array   $config
+	 * @param array $config Configuration settings for the CDN engine.
+	 *
+	 * @return void
 	 */
-	function __construct( $config = array() ) {
-		$config = array_merge( array(
-				'username' => '',
-				'password' => '',
-				'zone' => '',
-				'action' => 'invalidate',
-				'email_notification' => array()
-			), $config );
+	public function __construct( $config = array() ) {
+		$config = array_merge(
+			array(
+				'username'           => '',
+				'password'           => '',
+				'zone'               => '',
+				'action'             => 'invalidate',
+				'email_notification' => array(),
+			),
+			$config
+		);
 
 		parent::__construct( $config );
 	}
 
 	/**
-	 * Purges remote files
+	 * Purges a list of files from the Akamai CDN.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @return boolean
+	 * @param array $files  Array of file data to purge from the CDN.
+	 * @param array $results Reference to an array where the purge results will be stored.
+	 *
+	 * @return bool True if the purge request was successful, false otherwise.
 	 */
-	function purge( $files, &$results ) {
+	public function purge( $files, &$results ) {
 		if ( empty( $this->_config['username'] ) ) {
 			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, __( 'Empty username.', 'w3-total-cache' ) );
 
@@ -52,7 +67,18 @@ class CdnEngine_Mirror_Akamai extends CdnEngine_Mirror {
 		$error = $client->getError();
 
 		if ( $error ) {
-			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, sprintf( __( 'Constructor error (%s).', 'w3-total-cache' ), $error ) );
+			$results = $this->_get_results(
+				$files,
+				W3TC_CDN_RESULT_HALT,
+				sprintf(
+					// Translators: 1 error message.
+					__(
+						'Constructor error (%1$s).',
+						'w3-total-cache'
+					),
+					$error
+				)
+			);
 
 			return false;
 		}
@@ -61,22 +87,29 @@ class CdnEngine_Mirror_Akamai extends CdnEngine_Mirror {
 
 		$expressions = array();
 		foreach ( $files as $file ) {
-			$remote_path = $file['remote_path'];
+			$remote_path   = $file['remote_path'];
 			$expressions[] = $this->_format_url( $remote_path );
 		}
 
 		$action = $this->_config['action'];
-		$email = $this->_config['email_notification'];
+		$email  = $this->_config['email_notification'];
 
-		$email = implode( ',', $email );
-		$options = array( 'action='.$action, 'domain='.$zone, 'type=arl' );
-		if ( $email )
-			$options[] = 'email-notification='.$email;
-		$params = array( $this->_config['username'],
+		$email   = implode( ',', $email );
+		$options = array(
+			'action=' . $action,
+			'domain=' . $zone,
+			'type=arl',
+		);
+		if ( $email ) {
+			$options[] = 'email-notification=' . $email;
+		}
+
+		$params = array(
+			$this->_config['username'],
 			$this->_config['password'],
 			'',
 			$options,
-			$expressions
+			$expressions,
 		);
 
 		$result = $client->call( 'purgeRequest', $params, W3TC_CDN_MIRROR_AKAMAI_NAMESPACE );
@@ -86,18 +119,40 @@ class CdnEngine_Mirror_Akamai extends CdnEngine_Mirror {
 
 			return false;
 		}
-		$result_code = $result['resultCode'];
+		$result_code    = $result['resultCode'];
 		$result_message = $result['resultMsg'];
 
 		$error = $client->getError();
 
 		if ( $error ) {
-			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, sprintf( __( 'Unable to purge (%s).', 'w3-total-cache' ), $error ) );
+			$results = $this->_get_results(
+				$files,
+				W3TC_CDN_RESULT_HALT,
+				sprintf(
+					// Translators: 1 error message.
+					__(
+						'Unable to purge (%1$s).',
+						'w3-total-cache'
+					),
+					$error
+				)
+			);
 
 			return false;
 		}
-		if ( $result_code>=300 ) {
-			$results = $this->_get_results( $files, W3TC_CDN_RESULT_HALT, sprintf( __( 'Unable to purge (%s).', 'w3-total-cache' ), $result_message ) );
+		if ( $result_code >= 300 ) {
+			$results = $this->_get_results(
+				$files,
+				W3TC_CDN_RESULT_HALT,
+				sprintf(
+					// Translators: 1 result message.
+					__(
+						'Unable to purge (%1$s).',
+						'w3-total-cache'
+					),
+					$result_message
+				)
+			);
 
 			return false;
 		}

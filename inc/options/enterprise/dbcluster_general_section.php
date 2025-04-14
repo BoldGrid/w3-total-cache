@@ -1,8 +1,9 @@
 <?php
 namespace W3TC;
 
-if ( !defined( 'W3TC' ) )
+if ( ! defined( 'W3TC' ) ) {
 	die();
+}
 
 ?>
 <tr>

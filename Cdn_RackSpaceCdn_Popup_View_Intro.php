@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_RackSpaceCdn_Popup_View_Intro.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -6,7 +12,7 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <form class="w3tc_cdn_rackspace_form" method="post" style="padding: 20px">
-	<?php Util_Ui::hidden( '', 'w3tc_action', 'cdn_rackspace_intro_done' ); ?>
+	<?php Util_Ui::hidden( 'w3tc-rackspace-action', 'w3tc_action', 'cdn_rackspace_intro_done' ); ?>
 	<?php
 	if ( isset( $details['error_message'] ) ) {
 		echo '<div class="error">' . esc_html( $details['error_message'] ) . '</div>';

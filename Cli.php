@@ -17,6 +17,27 @@ namespace W3TC;
  */
 class W3TotalCache_Command extends \WP_CLI_Command {
 	/**
+	 * Register WP-CLI commands.
+	 *
+	 * @since  X.X.X
+	 * @static
+	 *
+	 * @return void
+	 */
+	public static function register_commands() {
+		if ( \method_exists( '\WP_CLI', 'add_command' ) ) {
+			\WP_CLI::add_command( 'w3-total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
+			\WP_CLI::add_command( 'total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
+			\WP_CLI::add_command( 'w3tc', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
+		} else {
+			// Backward compatibility.
+			\WP_CLI::addCommand( 'w3-total-cache', '\W3TC\W3TotalCache_Command' );
+			\WP_CLI::addCommand( 'total-cache', '\W3TC\W3TotalCache_Command' );
+			\WP_CLI::addCommand( 'w3tc', '\W3TC\W3TotalCache_Command' );
+		}
+	}
+
+	/**
 	 * Creates missing files, writes Apache/Nginx rules.
 	 *
 	 * ## OPTIONS
@@ -27,6 +48,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
 	 */
 	public function fix_environment( array $args = array(), array $vars = array() ) {
 		$server_type = \array_shift( $args );
@@ -88,6 +111,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
 	 */
 	public function flush( array $args = array(), array $vars = array() ) {
 		$args = \array_unique( $args );
@@ -228,6 +253,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
 	 */
 	public function option( array $args = array(), array $vars = array() ) {
 		$op   = \array_shift( $args );
@@ -264,7 +291,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 					$v = $c->get_string( $name );
 					break;
 				case 'array':
-					\var_export( $c->get_array( $name ) );
+					\var_export( $c->get_array( $name ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 					echo "\n";
 					return;
 				case 'json':
@@ -289,9 +316,9 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			switch ( $type ) {
 				case 'boolean':
 				case 'bool':
-					if ( 'true' === $value || '1' == $value || 'on' === $value ) {
+					if ( 'true' === $value || '1' === $value || 'on' === $value ) {
 						$v = true;
-					} elseif ( 'false' === $value || '0' == $value || 'off' === $value ) {
+					} elseif ( 'false' === $value || '0' === $value || 'off' === $value ) {
 						$v = false;
 					} else {
 						\WP_CLI::error(
@@ -330,7 +357,6 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			} catch ( \Exception $e ) {
 				\WP_CLI::error( \__( 'Option value update failed.', 'w3-total-cache' ) );
 			}
-
 		} else {
 			\WP_CLI::error( \__( '<operation> parameter is not specified', 'w3-total-cache' ) );
 		}
@@ -348,6 +374,9 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
+	 *
 	 * @throws \Exception Exception.
 	 */
 	public function import( array $args = array(), array $vars = array() ) {
@@ -365,11 +394,19 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			$config = new Config();
 
 			if ( ! $wp_filesystem->exists( $filename ) || ! $wp_filesystem->is_readable( $filename ) ) {
-				throw new \Exception( \__( 'Cant read file: ', 'w3-total-cache' ) . $filename );
+				throw new \Exception(
+					\esc_html(
+						sprintf(
+							// Translators: 1 Filename.
+							\__( 'Cant read file: %1$s', 'w3-total-cache' ),
+							$filename
+						)
+					)
+				);
 			}
 
 			if ( ! $config->import( $filename ) ) {
-				throw new \Exception( \__( 'Import failed', 'w3-total-cache' ) );
+				throw new \Exception( \esc_html__( 'Import failed', 'w3-total-cache' ) );
 			}
 
 			$config->save();
@@ -401,6 +438,9 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
+	 *
 	 * @throws \Exception Exception.
 	 */
 	public function export( array $args = array(), array $vars = array() ) {
@@ -420,7 +460,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 			$config = new Config();
 
 			if ( ! $wp_filesystem->put_contents( $filename, $config->export( $filename ), octdec( $mode ) ) ) {
-				throw new \Exception( \__( 'Export failed', 'w3-total-cache' ) );
+				throw new \Exception( \esc_html__( 'Export failed', 'w3-total-cache' ) );
 			}
 		} catch ( \Exception $e ) {
 			\WP_CLI::error(
@@ -444,6 +484,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 	/**
 	 * Update query string for all static files.
+	 *
+	 * @return void
 	 */
 	public function querystring() {
 		try {
@@ -466,6 +508,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 * Purges URLs from CDN and varnish if enabled.
 	 *
 	 * @param array $args List of files to be purged, absolute path or relative to WordPress installation path.
+	 *
+	 * @return void
 	 */
 	public function cdn_purge( array $args = array() ) {
 		$purgeitems = array();
@@ -500,6 +544,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 	/**
 	 * Generally triggered from a cronjob, performs manual page cache Garbage collection.
+	 *
+	 * @return void
 	 */
 	public function pgcache_cleanup() {
 		try {
@@ -529,10 +575,12 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	 *
 	 * @param array $args Arguments.
 	 * @param array $vars Variables.
+	 *
+	 * @return void
 	 */
 	public function pgcache_prime( array $args = array(), array $vars = array() ) {
 		try {
-			$log_callback = function( $m ) {
+			$log_callback = function ( $m ) {
 				\WP_CLI::log( $m );
 			};
 
@@ -559,6 +607,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 	/**
 	 * Generally triggered from a cronjob, processes always cached queue.
+	 *
+	 * @return void
 	 */
 	public function alwayscached_process() {
 		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
@@ -585,6 +635,8 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 	/**
 	 * Generally triggered from a cronjob, processes AlwaysCached queue.
+	 *
+	 * @return void
 	 */
 	public function alwayscached_clear() {
 		if ( ! Extension_AlwaysCached_Plugin::is_enabled() ) {
@@ -611,13 +663,4 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 }
 
 // Register WP-CLI commands.
-if ( \method_exists( '\WP_CLI', 'add_command' ) ) {
-	\WP_CLI::add_command( 'w3-total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
-	\WP_CLI::add_command( 'total-cache', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
-	\WP_CLI::add_command( 'w3tc', '\W3TC\W3TotalCache_Command', array( 'shortdesc' => __( 'Manage W3TC settings, flush, and prime the cache.', 'w3-total-cache' ) ) );
-} else {
-	// Backward compatibility.
-	\WP_CLI::addCommand( 'w3-total-cache', '\W3TC\W3TotalCache_Command' );
-	\WP_CLI::addCommand( 'total-cache', '\W3TC\W3TotalCache_Command' );
-	\WP_CLI::addCommand( 'w3tc', '\W3TC\W3TotalCache_Command' );
-}
+add_action( 'init', array( '\W3TC\W3TotalCache_Command', 'register_commands' ), 10, 0 );

@@ -11,14 +11,16 @@ namespace W3TC;
 /**
  * Class: Cdn_BunnyCdn_Api
  *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
+ *
  * @since 2.6.0
  */
 class Cdn_BunnyCdn_Api {
 	/**
 	 * Account API Key.
 	 *
-	 * @since  2.6.0
-	 * @access private
+	 * @since 2.6.0
 	 *
 	 * @var string
 	 */
@@ -27,8 +29,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Storage API Key.
 	 *
-	 * @since  2.6.0
-	 * @access private
+	 * @since 2.6.0
 	 *
 	 * @var string
 	 */
@@ -37,8 +38,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Stream API Key.
 	 *
-	 * @since  2.6.0
-	 * @access private
+	 * @since 2.6.0
 	 *
 	 * @var string
 	 */
@@ -49,8 +49,7 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * One of: "account", "storage", "stream".
 	 *
-	 * @since  2.6.0
-	 * @access private
+	 * @since 2.6.0
 	 *
 	 * @var string
 	 */
@@ -59,19 +58,16 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Pull zone id.
 	 *
-	 * @since  2.6.0
-	 * @access private
+	 * @since 2.6.0
 	 *
 	 * @var int
 	 */
 	private $pull_zone_id;
 
 	/**
-	 * Default Edge Rules.
+	 * Default edge rules.
 	 *
-	 * @since  2.6.0
-	 * @access private
-	 * @static
+	 * @since 2.6.0
 	 *
 	 * @var array
 	 */
@@ -146,11 +142,11 @@ class Cdn_BunnyCdn_Api {
 	);
 
 	/**
-	 * Constructor.
+	 * Class constructor for initializing API keys and pull zone ID.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array $config Configuration.
+	 * @param array $config Configuration array containing API keys and pull zone ID.
 	 */
 	public function __construct( array $config ) {
 		$this->account_api_key = ! empty( $config['account_api_key'] ) ? $config['account_api_key'] : '';
@@ -160,35 +156,39 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Increase http request timeout to 60 seconds.
+	 * Filters the timeout time.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param int $time Timeout in seconds.
+	 * @param int $time The original timeout time.
+	 *
+	 * @return int The adjusted timeout time.
 	 */
 	public function filter_timeout_time( $time ) {
 		return 600;
 	}
 
 	/**
-	 * Don't check certificate, some users have limited CA list
+	 * Disables SSL verification for HTTPS requests.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param bool $verify Always false.
+	 * @param bool $verify Whether to enable SSL verification (defaults to false).
+	 *
+	 * @return bool False to disable SSL verification.
 	 */
 	public function https_ssl_verify( $verify = false ) {
 		return false;
 	}
 
 	/**
-	 * List pull zones.
+	 * Lists all pull zones.
 	 *
 	 * @since 2.6.0
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_index
 	 *
-	 * @return array
+	 * @return array|WP_Error API response or error object.
 	 */
 	public function list_pull_zones() {
 		$this->api_type = 'account';
@@ -197,14 +197,15 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Get pull zone details by pull zone id.
+	 * Gets the details of a specific pull zone.
 	 *
 	 * @since 2.6.0
 	 *
+	 * @param int $id The pull zone ID.
+	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_index2
 	 *
-	 * @param  int $id Pull zone id.
-	 * @return array
+	 * @return array|WP_Error API response or error object.
 	 */
 	public function get_pull_zone( $id ) {
 		$this->api_type = 'account';
@@ -215,23 +216,17 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Add a pull zone.
+	 * Adds a new pull zone.
 	 *
 	 * @since 2.6.0
 	 *
+	 * @param array $data Data for the new pull zone.
+	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_add
 	 *
-	 * @param  array $data {
-	 *     Data used to create the pull zone.
+	 * @return array|WP_Error API response or error object.
 	 *
-	 *     @type string $Name             The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
-	 *     @type string $OriginUrl        Origin URL or IP (with optional port number).
-	 *     @type string $OriginHostHeader Optional: The host HTTP header that will be sent to the origin.  If empty, hostname will be automatically extracted from the Origin URL.
-	 *     @type bool   $AddHostHeader    Optional: If enabled, the original host header of the request will be forwarded to the origin server.  This should be disabled in most cases.
-	 * }
-	 *
-	 * @return array
-	 * @throws \Exception Exception.
+	 * @throws \Exception If the pull zone name is invalid.
 	 */
 	public function add_pull_zone( array $data ) {
 		$this->api_type = 'account';
@@ -251,16 +246,18 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Update a pull zone.
+	 * Updates an existing pull zone.
 	 *
 	 * @since 2.6.0
 	 *
+	 * @param int   $id   The pull zone ID.
+	 * @param array $data Data for updating the pull zone.
+	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_updatepullzone
 	 *
-	 * @param  int   $id   Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
-	 * @param  array $data Data used to update the pull zone.
-	 * @return array
-	 * @throws \Exception Exception.
+	 * @return array|WP_Error API response or error object.
+	 *
+	 * @throws \Exception If the pull zone ID is invalid.
 	 */
 	public function update_pull_zone( $id, array $data ) {
 		$this->api_type = 'account';
@@ -277,15 +274,17 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Delete a pull zone.
+	 * Deletes a pull zone.
 	 *
 	 * @since 2.6.0
 	 *
+	 * @param int $id The pull zone ID.
+	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_delete
 	 *
-	 * @param  int $id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
-	 * @return array
-	 * @throws \Exception Exception.
+	 * @return array|WP_Error API response or error object.
+	 *
+	 * @throws \Exception If the pull zone ID is invalid.
 	 */
 	public function delete_pull_zone( $id ) {
 		$this->api_type = 'account';
@@ -303,16 +302,18 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Add a custom hostname to a pull zone.
+	 * Adds a custom hostname to a pull zone.
 	 *
 	 * @since 2.6.0
 	 *
+	 * @param string   $hostname The custom hostname to add.
+	 * @param int|null $pull_zone_id The pull zone ID (optional).
+	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_addhostname
 	 *
-	 * @param  string $hostname Custom hostname.
-	 * @param  int    $pull_zone_id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
 	 * @return void
-	 * @throws \Exception Exception.
+	 *
+	 * @throws \Exception If the pull zone ID or hostname is invalid.
 	 */
 	public function add_custom_hostname( $hostname, $pull_zone_id = null ) {
 		$this->api_type = 'account';
@@ -333,26 +334,27 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Get the default edge rules.
+	 * Gets the default edge rules for the pull zone.
 	 *
-	 * @since  2.6.0
-	 * @static
+	 * @since 2.6.0
 	 *
-	 * @return array
+	 * @return array Default edge rules.
 	 */
 	public static function get_default_edge_rules() {
 		return self::$default_edge_rules;
 	}
 
 	/**
-	 * Add/Update Edge Rule.
+	 * Adds an edge rule to a pull zone.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param  array $data Data.
-	 * @param  int   $pull_zone_id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
+	 * @param array    $data Data for the edge rule.
+	 * @param int|null $pull_zone_id The pull zone ID (optional).
+	 *
 	 * @return void
-	 * @throws \Exception Exception.
+	 *
+	 * @throws \Exception If any required parameters are missing or invalid.
 	 */
 	public function add_edge_rule( array $data, $pull_zone_id = null ) {
 		$this->api_type = 'account';
@@ -385,12 +387,13 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Purge.
+	 * Purges the cache.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param  array $data Data for the POST request.
-	 * @return array
+	 * @param array $data Data for the purge operation.
+	 *
+	 * @return array|WP_Error API response or error object.
 	 */
 	public function purge( array $data ) {
 		$this->api_type = 'account';
@@ -402,13 +405,15 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Purge an entire pull zone.
+	 * Purges the cache for a specific pull zone.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param  int $pull_zone_id Optional pull zone ID.  Can be specified in the constructor configuration array parameter.
+	 * @param int|null $pull_zone_id The pull zone ID (optional).
+	 *
 	 * @return void
-	 * @throws \Exception Exception.
+	 *
+	 * @throws \Exception If the pull zone ID is invalid.
 	 */
 	public function purge_pull_zone( $pull_zone_id = null ) {
 		$this->api_type = 'account';
@@ -422,15 +427,15 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Get the API key by API type.
-	 *
-	 * API type can be passed or the class property will be used.
+	 * Retrieves the appropriate API key based on the specified type.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param  string $type API type: One of "account", "storage", "stream" (optional).
-	 * @return string|null
-	 * @throws \Exception Exception.
+	 * @param string|null $type The type of API key to retrieve ('account', 'storage', or 'stream').
+	 *
+	 * @return string The API key.
+	 *
+	 * @throws \Exception If the API key type is invalid or the key is empty.
 	 */
 	private function get_api_key( $type = null ) {
 		if ( empty( $type ) ) {
@@ -449,13 +454,15 @@ class Cdn_BunnyCdn_Api {
 	}
 
 	/**
-	 * Decode response from a wp_remote_* call.
+	 * Decodes the API response.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param  array|WP_Error $result Result.
-	 * @return array
-	 * @throws \Exception Exception.
+	 * @param array|WP_Error $result The result returned from the API request.
+	 *
+	 * @return array The decoded response data.
+	 *
+	 * @throws \Exception If the response is not successful or fails to decode.
 	 */
 	private function decode_response( $result ) {
 		if ( \is_wp_error( $result ) ) {
@@ -476,17 +483,20 @@ class Cdn_BunnyCdn_Api {
 		return \is_array( $response_body ) ? $response_body : array();
 	}
 
+
 	/**
-	 * Remote GET request.
+	 * Sends a GET request to a specified URL with optional data parameters.
+	 *
+	 * This method sends a GET request using `wp_remote_get` to the specified URL, including optional query parameters.
+	 * It also adds custom headers for API authentication and content type. Timeout and SSL verification filters
+	 * are applied during the request process. The response is processed using `decode_response` method.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @link https://developer.wordpress.org/reference/functions/wp_remote_get/
-	 * @link https://developer.wordpress.org/reference/classes/wp_http/request/
+	 * @param string $url  The URL to send the GET request to.
+	 * @param array  $data Optional. An associative array of data to send as query parameters. Default is an empty array.
 	 *
-	 * @param  string $url URL address.
-	 * @param  array  $data Query string data for the GET request.
-	 * @return array
+	 * @return mixed The decoded response from the API request.
 	 */
 	private function wp_remote_get( $url, array $data = array() ) {
 		$api_key = $this->get_api_key();
@@ -510,18 +520,22 @@ class Cdn_BunnyCdn_Api {
 		return self::decode_response( $result );
 	}
 
+
 	/**
-	 * Remote POST request.
+	 * Sends a POST request to a specified URL with optional data and additional arguments.
+	 *
+	 * This method sends a POST request using `wp_remote_post` to the specified URL, including optional data in the request body
+	 * and additional arguments. Custom headers for API authentication, content type, and accept type are included in the request.
+	 * Filters for request timeout and SSL verification are applied during the request process. The response is processed using
+	 * `decode_response` method.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @link https://developer.wordpress.org/reference/functions/wp_remote_post/
-	 * @link https://developer.wordpress.org/reference/classes/wp_http/request/
+	 * @param string $url   The URL to send the POST request to.
+	 * @param array  $data  Optional. An associative array of data to send in the request body. Default is an empty array.
+	 * @param array  $args  Optional. Additional arguments to customize the POST request, such as custom headers or settings. Default is an empty array.
 	 *
-	 * @param  string $url URL address.
-	 * @param  array  $data Optional data for the POSt request.
-	 * @param  array  $args Optional additional arguments for the wp_remote_port call.
-	 * @return string
+	 * @return mixed The decoded response from the API request.
 	 */
 	private function wp_remote_post( $url, array $data = array(), array $args = array() ) {
 		$api_key = $this->get_api_key();
@@ -538,7 +552,7 @@ class Cdn_BunnyCdn_Api {
 						'Accept'       => 'application/json',
 						'Content-Type' => 'application/json',
 					),
-					'body'    => empty( $data ) ? null : \json_encode( $data ),
+					'body'    => empty( $data ) ? null : \wp_json_encode( $data ),
 				),
 				$args
 			)

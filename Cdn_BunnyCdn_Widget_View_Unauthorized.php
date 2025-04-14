@@ -15,9 +15,9 @@ defined( 'W3TC' ) || die();
 
 <div id="bunnycdn-widget" class="w3tc_bunnycdn_signup">
 	<?php
-	$cdn_engine     = $c->get_string( 'cdn.engine' );
-	$cdn_enabled    = $c->get_boolean( 'cdn.enabled' );
-	$cdn_name       = Cache::engine_name( $cdn_engine );
+	$cdn_engine  = $c->get_string( 'cdn.engine' );
+	$cdn_enabled = $c->get_boolean( 'cdn.enabled' );
+	$cdn_name    = Cache::engine_name( $cdn_engine );
 
 	$cdnfsd_engine  = $c->get_string( 'cdnfsd.engine' );
 	$cdnfsd_enabled = $c->get_boolean( 'cdnfsd.enabled' );
@@ -77,7 +77,7 @@ defined( 'W3TC' ) || die();
 		?>
 		<p class="notice notice-error">
 			<?php
-			switch (true) {
+			switch ( true ) {
 				case $cdn_enabled && ! empty( $cdn_engine ) && $cdnfsd_enabled && ! empty( $cdnfsd_engine ):
 					$cdn_label =
 						$cdn_name .
@@ -86,19 +86,19 @@ defined( 'W3TC' ) || die();
 						$cdnfsd_name .
 						' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN FSD', 'w3-total-cache' ) . '</acronym>';
 					break;
-			
+
 				case $cdn_enabled && ! empty( $cdn_engine ):
 					$cdn_label =
 						$cdn_name .
 						' <acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>';
 					break;
-			
+
 				case $cdnfsd_enabled && ! empty( $cdnfsd_engine ):
 					$cdn_label =
 						$cdnfsd_name .
 						' <acronym title="' . __( 'Content Delivery Network Full Site Delivery', 'w3-total-cache' ) . '">' . __( 'CDN FSD', 'w3-total-cache' ) . '</acronym>';
 					break;
-			
+
 				default:
 					$cdn_label =
 						__( 'Unknown', 'w3-total-cache' ) .

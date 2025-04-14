@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_GoogleDrive_Popup_AuthReturn_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -7,9 +13,9 @@ if ( ! defined( 'W3TC' ) ) {
 ?>
 <form action="admin.php?page=w3tc_cdn" method="post" style="padding: 20px">
 	<?php
-	Util_Ui::hidden( '', 'client_id', $client_id );
-	Util_Ui::hidden( '', 'access_token', $access_token );
-	Util_Ui::hidden( '', 'refresh_token', $refresh_token );
+	Util_Ui::hidden( 'w3tc-googledrive-clientid', 'client_id', $client_id );
+	Util_Ui::hidden( 'w3tc-googledrive-access-token', 'access_token', $access_token );
+	Util_Ui::hidden( 'w3tc-googledrive-refresh-token', 'refresh_token', $refresh_token );
 	echo wp_kses(
 		Util_Ui::nonce_field( 'w3tc' ),
 		array(
@@ -34,7 +40,7 @@ if ( ! defined( 'W3TC' ) ) {
 								value="<?php echo esc_attr( $folder->id ); ?>" />
 							<?php echo esc_html( $folder->title ); ?>
 						</label><br />
-					<?php endforeach ?>	
+					<?php endforeach ?>
 					<label>
 						<input name="folder" type="radio" class="w3tc-ignore-change" value="" />
 						<?php esc_html_e( 'Add new folder:', 'w3-total-cache' ); ?>

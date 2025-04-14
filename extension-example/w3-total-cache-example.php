@@ -9,7 +9,8 @@ Author URI: http://www.linkedin.com/in/fredericktownes
 Network: True
 */
 
-/*  Copyright (c) 2009 Frederick Townes <ftownes@w3-edge.com>
+/*
+  Copyright (c) 2009 Frederick Townes <ftownes@w3-edge.com>
 
 	W3 Total Cache is distributed under the GNU General Public License, Version 2,
 	June 1991. Copyright (C) 1989, 1991 Free Software Foundation, Inc., 51 Franklin
@@ -27,14 +28,14 @@ Network: True
 	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-if ( !defined( 'ABSPATH' ) ) {
+if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
 
 /**
  * Class autoloader
  *
- * @param string  $class Classname
+ * @param string $class Classname
  */
 function w3tc_example_class_autoload( $class ) {
 	if ( substr( $class, 0, 12 ) == 'W3TCExample\\' ) {
@@ -42,7 +43,7 @@ function w3tc_example_class_autoload( $class ) {
 			substr( $class, 12 ) . '.php';
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			if ( !file_exists( $filename ) ) {
+			if ( ! file_exists( $filename ) ) {
 				debug_print_backtrace();
 			}
 		}
@@ -53,7 +54,12 @@ function w3tc_example_class_autoload( $class ) {
 
 spl_autoload_register( 'w3tc_example_class_autoload' );
 
-add_action( 'w3tc_extensions', array(
+add_action(
+	'w3tc_extensions',
+	array(
 		'\W3TCExample\Extension_Example_Admin',
-		'w3tc_extensions'
-	), 10, 2 );
+		'w3tc_extensions',
+	),
+	10,
+	2
+);

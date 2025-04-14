@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Extension_CloudFlare_Popup_View_Intro.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -6,7 +12,7 @@ if ( ! defined( 'W3TC' ) ) {
 }
 ?>
 <form class="w3tc_extension_cloudflare_form" method="post" style="padding: 20px">
-	<?php Util_Ui::hidden( '', 'w3tc_action', 'extension_cloudflare_intro_done' ); ?>
+	<?php Util_Ui::hidden( 'w3tc-ext-cf-action', 'w3tc_action', 'extension_cloudflare_intro_done' ); ?>
 	<?php
 	if ( isset( $details['error_message'] ) ) {
 		echo '<div class="error">' . esc_html( $details['error_message'] ) . '</div>';

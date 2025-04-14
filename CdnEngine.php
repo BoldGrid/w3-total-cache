@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class: CdnEngine
+ *
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
  */
 class CdnEngine {
 	/**
@@ -16,6 +18,7 @@ class CdnEngine {
 	 *
 	 * @param string $engine CDN engine.
 	 * @param array  $config Configuration.
+	 *
 	 * @return CdnEngine_Base
 	 */
 	public static function instance( $engine, array $config = array() ) {
@@ -68,14 +71,6 @@ class CdnEngine {
 					$instances[ $instance_key ] = new CdnEngine_GoogleDrive( $config );
 					break;
 
-				case 'highwinds':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_Highwinds( $config );
-					break;
-
-				case 'limelight':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_LimeLight( $config );
-					break;
-
 				case 'mirror':
 					$instances[ $instance_key ] = new CdnEngine_Mirror( $config );
 					break;
@@ -96,16 +91,8 @@ class CdnEngine {
 					$instances[ $instance_key ] = new CdnEngine_S3_Compatible( $config );
 					break;
 
-				case 'stackpath':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_StackPath( $config );
-					break;
-
-				case 'stackpath2':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_StackPath2( $config );
-					break;
-
 				default:
-					empty( $engine ) || trigger_error( 'Incorrect CDN engine', E_USER_WARNING );
+					empty( $engine ) || trigger_error( 'Incorrect CDN engine', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 
 					$instances[ $instance_key ] = new CdnEngine_Base();
 					break;

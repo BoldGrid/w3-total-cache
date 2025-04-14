@@ -24,7 +24,9 @@ class Generic_AdminActions_Config {
 	private $_config = null;
 
 	/**
-	 * Constructor
+	 * Generic_AdminActions_Config constructor method.
+	 *
+	 * Initializes the configuration object.
 	 *
 	 * @return void
 	 */
@@ -33,9 +35,11 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Import config action
+	 * Imports the configuration settings from an uploaded file.
 	 *
 	 * @return void
+	 *
+	 * phpcs:disable WordPress.Security.NonceVerification.Missing
 	 */
 	public function w3tc_config_import() {
 		$error = '';
@@ -67,7 +71,9 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Export config action
+	 * Exports the current configuration settings to a file.
+	 *
+	 * Outputs the exported JSON and terminates script execution.
 	 *
 	 * @return void
 	 */
@@ -77,7 +83,7 @@ class Generic_AdminActions_Config {
 			sprintf(
 				// Translators: 1 filename.
 				__(
-					'Content-Disposition: attachment; filename=%s.json',
+					'Content-Disposition: attachment; filename=%1$s.json',
 					'w3-total-cache'
 				),
 				$filename
@@ -88,7 +94,7 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Reset config action
+	 * Resets the configuration settings to their default values.
 	 *
 	 * @return void
 	 */
@@ -114,7 +120,7 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Save preview option
+	 * Enables the preview mode by copying production settings.
 	 *
 	 * @return void
 	 */
@@ -130,7 +136,7 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Save preview option
+	 * Disables the preview mode.
 	 *
 	 * @return void
 	 */
@@ -147,7 +153,7 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Deploy preview settings action
+	 * Deploys preview settings to production.
 	 *
 	 * @return void
 	 */
@@ -163,7 +169,9 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Save dbcluster config action
+	 * Saves the database cluster configuration file.
+	 *
+	 * @throws \Exception If the file write operation fails.
 	 *
 	 * @return void
 	 */
@@ -175,15 +183,28 @@ class Generic_AdminActions_Config {
 				Util_Activation::throw_on_write_error( W3TC_FILE_DB_CLUSTER_CONFIG );
 			} catch ( \Exception $e ) {
 				$error = $e->getMessage();
-				Util_Admin::redirect_with_custom_messages( $params, array( 'dbcluster_save_failed' => $error ) );
+				Util_Admin::redirect_with_custom_messages(
+					$params,
+					array(
+						'dbcluster_save_failed' => $error,
+					)
+				);
 			}
 		}
 
-		Util_Admin::redirect_with_custom_messages( $params, null, array( 'dbcluster_save' => __( 'Database Cluster configuration file has been successfully saved', 'w3-total-cache' ) ) );
+		Util_Admin::redirect_with_custom_messages(
+			$params,
+			null,
+			array(
+				'dbcluster_save' => __( 'Database Cluster configuration file has been successfully saved', 'w3-total-cache' ),
+			)
+		);
 	}
 
 	/**
-	 * Save support us action
+	 * Saves the "Support Us" configuration settings.
+	 *
+	 * Updates settings based on user actions like tweeting or signing up.
 	 *
 	 * @return void
 	 */
@@ -208,6 +229,7 @@ class Generic_AdminActions_Config {
 			}
 
 			$email = filter_input( INPUT_POST, 'email', FILTER_SANITIZE_EMAIL );
+
 			wp_remote_post(
 				W3TC_MAILLINGLIST_SIGNUP_URL,
 				array(
@@ -228,7 +250,7 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Update upload path action
+	 * Updates the upload path option in the WordPress settings.
 	 *
 	 * @return void
 	 */
@@ -239,9 +261,9 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Config overload disable.
+	 * Disables an overloaded configuration setting by its HTTP key.
 	 *
-	 * @param string $http_key HTTP Key.
+	 * @param string $http_key The HTTP key of the setting to disable.
 	 *
 	 * @return void
 	 */
@@ -255,9 +277,9 @@ class Generic_AdminActions_Config {
 	}
 
 	/**
-	 * Config overload enable.
+	 * Enables an overloaded configuration setting by its HTTP key.
 	 *
-	 * @param string $http_key HTTP Key.
+	 * @param string $http_key The HTTP key of the setting to enable.
 	 *
 	 * @return void
 	 */

@@ -13,6 +13,7 @@ namespace W3TC;
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	/**
@@ -85,8 +86,10 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 		}
 
 		if ( $dir ) {
-			while ( ( $entry = @readdir( $dir ) ) !== false ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			$entry = @readdir( $dir );
+			while ( false !== $entry ) {
 				if ( '.' === $entry || '..' === $entry ) {
+					$entry = @readdir( $dir );
 					continue;
 				}
 
@@ -94,6 +97,7 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 
 				foreach ( $this->_exclude as $mask ) {
 					if ( fnmatch( $mask, basename( $entry ) ) ) {
+						$entry = @readdir( $dir );
 						continue 2;
 					}
 				}
@@ -103,6 +107,8 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 				} else {
 					$this->_clean_file( $entry, $full_path );
 				}
+
+				$entry = @readdir( $dir );
 			}
 
 			@closedir( $dir );
@@ -123,12 +129,12 @@ class Cache_File_Cleaner_Generic extends Cache_File_Cleaner {
 	public function _clean_file( $entry, $full_path ) {
 		if ( '_old' === substr( $entry, -4 ) ) {
 			if ( ! $this->is_old_file_valid( $full_path ) ) {
-				$this->processed_count++;
+				++$this->processed_count;
 				@unlink( $full_path );
 			}
 		} elseif ( ! $this->is_valid( $full_path ) ) {
 			$old_entry_path = $full_path . '_old';
-			$this->processed_count++;
+			++$this->processed_count;
 			if ( ! @rename( $full_path, $old_entry_path ) ) {
 				// if we can delete old entry - do second attempt to store in old-entry file.
 				if ( @unlink( $old_entry_path ) ) {

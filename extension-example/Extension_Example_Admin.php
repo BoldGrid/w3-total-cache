@@ -1,8 +1,6 @@
 <?php
 namespace W3TCExample;
 
-
-
 /**
  * Backend functionality of an extension.
  * This class is loaded only for wp-admin/ requests
@@ -11,23 +9,23 @@ class Extension_Example_Admin {
 	/**
 	 * w3tc_extensions filter handler
 	 *
-	 * @param array   $extensions array of extension descriptors to fill
-	 * @param Config  $config     w3-total-cache configuration
+	 * @param array  $extensions array of extension descriptors to fill
+	 * @param Config $config     w3-total-cache configuration
 	 * @return array
 	 */
-	static public function w3tc_extensions( $extensions, $config ) {
-		$extensions['example'] = array (
-			'name' => 'Example Extension',
-			'author' => 'W3 EDGE',
-			'description' => __( 'Example extension' ),
-			'author_uri' => 'https://www.w3-edge.com/',
-			'extension_uri' => 'https://www.w3-edge.com/',
-			'extension_id' => 'example',
+	public static function w3tc_extensions( $extensions, $config ) {
+		$extensions['example'] = array(
+			'name'            => 'Example Extension',
+			'author'          => 'W3 EDGE',
+			'description'     => __( 'Example extension' ),
+			'author_uri'      => 'https://www.w3-edge.com/',
+			'extension_uri'   => 'https://www.w3-edge.com/',
+			'extension_id'    => 'example',
 			'settings_exists' => true,
-			'version' => '1.0',
-			'enabled' => true,
-			'requirements' => '',
-			'path' => 'w3-total-cache-example/Extension_Example.php'
+			'version'         => '1.0',
+			'enabled'         => true,
+			'requirements'    => '',
+			'path'            => 'w3-total-cache-example/Extension_Example.php',
 		);
 
 		return $extensions;
@@ -41,26 +39,42 @@ class Extension_Example_Admin {
 	 */
 	public function run() {
 		// handle settings page of this extension
-		add_action( 'w3tc_extension_page_example', array(
+		add_action(
+			'w3tc_extension_page_example',
+			array(
 				$this,
-				'w3tc_extension_page'
-			) );
+				'w3tc_extension_page',
+			)
+		);
 
 		// get control when configuration is changed by user
-		add_action( 'w3tc_config_ui_save', array(
+		add_action(
+			'w3tc_config_ui_save',
+			array(
 				$this,
-				'w3tc_config_ui_save'
-			), 10, 2 );
+				'w3tc_config_ui_save',
+			),
+			10,
+			2
+		);
 
 		// Register widget on W3 Total Cache Dashboard page
-		add_action( 'w3tc_widget_setup', array(
+		add_action(
+			'w3tc_widget_setup',
+			array(
 				$this,
-				'w3tc_widget_setup'
-			) );
+				'w3tc_widget_setup',
+			)
+		);
 
 		// get control when extension is deactivated
-		add_action( 'w3tc_deactivate_extension_example', array(
-				$this, 'w3tc_deactivate_extension' ) );
+		add_action(
+			'w3tc_deactivate_extension_example',
+			array(
+				$this,
+				'w3tc_deactivate_extension',
+			)
+		);
 
 	}
 
@@ -96,8 +110,14 @@ class Extension_Example_Admin {
 	 */
 	public function w3tc_widget_setup() {
 		$screen = get_current_screen();
-		add_meta_box( 'example', 'example', array( $this, 'widget_content' ),
-			$screen, 'normal', 'core' );
+		add_meta_box(
+			'example',
+			'example',
+			array( $this, 'widget_content' ),
+			$screen,
+			'normal',
+			'core'
+		);
 	}
 
 
