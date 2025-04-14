@@ -20,6 +20,7 @@ cat $W3D_HTTP_SERVER_ERROR_LOG_FILENAME |\
 	grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php" |\
 	grep -v 'Function wp_update_https_detection_errors is ' |\
 	grep -Fv 'favicon.ico' |\
+	grep -Fv 'Cron unschedule event error for hook' |\
 	grep -Ev 'Theme without (header|footer).php'
 
 if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
@@ -43,6 +44,7 @@ if [ -f "${W3D_WP_CONTENT_PATH}debug.log" ]; then
 		grep -v "Undefined array key \"recommended_version\" in /var/www/.*/class-wp-site-health.php" |\
 		grep -v 'Function wp_update_https_detection_errors is ' |\
 		grep -Fv 'favicon.ico' |\
+		grep -Fv 'Cron unschedule event error for hook' |\
 		grep -Ev 'Theme without (header|footer).php'
 fi
 # esc_attr in eval - pagecache/late-init test

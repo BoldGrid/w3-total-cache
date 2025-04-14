@@ -184,9 +184,9 @@ abstract class Mobile_Base {
 			if ( isset( $config['enabled'] ) && $config['enabled'] ) {
 				return true;
 			}
-
-			return false;
 		}
+
+		return false;
 	}
 
 	/**
