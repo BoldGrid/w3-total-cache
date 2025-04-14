@@ -240,7 +240,7 @@ class Cdnfsd_CloudFront_Popup {
 	 * @return void
 	 */
 	private function render_zone_value_change( $details, $field ) {
-		Util_Ui::hidden( '', $field, $details[ $field ]['new'] );
+		Util_Ui::hidden( 'w3tc-cloudfront-value-' . $field, $field, $details[ $field ]['new'] );
 
 		if ( ! isset( $details[ $field ]['current'] ) || $details[ $field ]['current'] === $details[ $field ]['new'] ) {
 			echo esc_html( $details[ $field ]['new'] );
@@ -270,7 +270,7 @@ class Cdnfsd_CloudFront_Popup {
 	 * @return void
 	 */
 	private function render_zone_boolean_change( $details, $field ) {
-		Util_Ui::hidden( '', $field, $details[ $field ]['new'] );
+		Util_Ui::hidden( 'w3tc-cloudfront-boolean-' . $field, $field, $details[ $field ]['new'] );
 
 		if ( ! isset( $details[ $field ]['current'] ) ) {
 			echo 'will be set to <strong>' . esc_html( $this->render_zone_boolean( $details[ $field ]['new'] ) ) . '</strong>';

@@ -104,7 +104,7 @@ class Extension_CloudFlare_SettingsForUi {
 				continue;
 			}
 
-			if ( empty( $value ) ) {
+			if ( ! isset( $value ) ) {
 				continue;
 			}
 
