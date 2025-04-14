@@ -19,6 +19,7 @@ $is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.tota
 $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for Total CDN.
 
 $custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
+$ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded' );
 
 ?>
 <table class="form-table">
@@ -147,12 +148,20 @@ $custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
 					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
 				/>
 				<?php
-			} else {
+			} elseif ( ! $ssl_cert_loaded ) {
+				// If the SSL certificate is not loaded, show the button to load it.
 				?>
 				<input class="w3tc_cdn_totalcdn_load_free_ssl button-primary"
 					type="button"
 					value="<?php esc_attr_e( 'Load SSL Certificate', 'w3-total-cache' ); ?>"
 				/>
+				<?php
+			} elseif ( $ssl_cert_loaded && ! empty( $custom_hostname ) ) {
+				// Show a notice that the custom hostname and ssl are properly configured.
+				?>
+				<p class="notice notice-success">
+					<?php esc_html_e( 'Custom hostname and SSL certificate are properly configured.', 'w3-total-cache' ); ?>
+				</p>
 				<?php } ?>
 		</td>
 	</tr>
