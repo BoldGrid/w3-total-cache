@@ -94,15 +94,26 @@ class Cdn_Plugin {
 		}
 
 		// Start rewrite engine.
-		if ( $this->can_cdn() ) {
-			Util_Bus::add_ob_callback( 'cdn', array( $this, 'ob_callback' ) );
-		}
+		\add_action( 'init', array( $this, 'maybe_can_cdn' ), 10, 0 );
 
 		if ( is_admin() && Cdn_Util::can_purge( $cdn_engine ) ) {
 			add_filter( 'media_row_actions', array( $this, 'media_row_actions' ), 0, 2 );
 		}
 
 		add_filter( 'w3tc_minify_http2_preload_url', array( $this, 'w3tc_minify_http2_preload_url' ), 3000 );
+	}
+
+	/**
+	 * Callback: Start rewrite engine, if CDN can be used.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function maybe_can_cdn(): void {
+		if ( $this->can_cdn() ) {
+			Util_Bus::add_ob_callback( 'cdn', array( $this, 'ob_callback' ) );
+		}
 	}
 
 	/**
