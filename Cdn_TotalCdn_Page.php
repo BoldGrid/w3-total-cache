@@ -31,46 +31,6 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
-	 * Handles the action to add a custum hostname to the pull zone.
-	 *
-	 * This method listens for the `w3tc_ajax_cdn_totalcdn_add_custom_hostname` AJAX action and processes the request.
-	 * It validates the hostname, calls the Bunny CDN API to add the custom hostname, and sends a JSON response indicating success or failure.
-	 *
-	 * @since 2.6.0
-	 *
-	 * @return void
-	 */
-	public static function w3tc_ajax_cdn_totalcdn_add_custom_hostname() {
-		$hostname = Util_Request::get_string( 'custom_hostname' );
-
-		if ( empty( $hostname ) || ! filter_var( $hostname, FILTER_VALIDATE_DOMAIN ) ) {
-			\wp_send_json_error(
-				array( 'error_message' => \esc_html__( 'Invalid hostname', 'w3-total-cache' ) ),
-				400
-			);
-		}
-
-		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
-		$pull_zone_id    = $config->get_string( 'cdn.totalcdn.pull_zone_id' );
-
-		error_log( json_encode( array(
-			'account_api_key' => $account_api_key,
-			'pull_zone_id'    => $pull_zone_id,
-		) ) );
-
-		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key, 'pull_zone_id' => $pull_zone_id ) );
-
-		try {
-			$api->add_custom_hostname( $hostname );
-		} catch ( \Exception $ex ) {
-			\wp_send_json_error( array( 'error_message' => $ex->getMessage() ), 422 );
-		}
-
-		\wp_send_json_success();
-	}
-
-	/**
 	 * Checks if Total CDN is active and properly configured.
 	 *
 	 * This method verifies if Total CDN is enabled and configured correctly by checking the necessary configuration

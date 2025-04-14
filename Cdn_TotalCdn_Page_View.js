@@ -126,15 +126,45 @@ jQuery(function($) {
 		})
 
 		.on( 'click', '.w3tc_cdn_totalcdn_add_custom_hostname', function() {
-			var $custom_hostname_input = $( '#w3tc_totalcdn_custom_hostname' ),
-				custom_hostname = $custom_hostname_input.val();
+			console.log('Loading custom hostname form...');
+			W3tc_Lightbox.open({
+				id:'w3tc-overlay',
+				close: '',
+				width: 800,
+				height: 300,
+				url: ajaxurl +
+					'?action=w3tc_ajax&_wpnonce=' +
+					w3tc_nonce +
+					'&w3tc_action=cdn_totalcdn_add_custom_hostname',
+				callback: w3tc_totalcdn_resize
+			});
+		} )
 
-			console.log( 'Adding custom hostname: ' + custom_hostname );
+		.on( 'click', '.w3tc_cdn_totalcdn_load_free_ssl', function() {
+			console.log('Loading free SSL form...');
+			W3tc_Lightbox.open({
+				id:'w3tc-overlay',
+				close: '',
+				width: 800,
+				height: 300,
+				url: ajaxurl +
+					'?action=w3tc_ajax&_wpnonce=' +
+					w3tc_nonce +
+					'&w3tc_action=cdn_totalcdn_validate_dns',
+				callback: w3tc_totalcdn_resize
+			});
+		} )
 
-			// Abort if Total CDN is not authorized.
-			if ( ! W3TC_Totalcdn.is_authorized ) {
-				return;
-			}
+		.on ( 'click', '.w3tc_cdn_totalcdn_generate_and_save_ssl', function() {
+			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
+				'&w3tc_action=cdn_totalcdn_generate_and_save_ssl';
+
+			W3tc_Lightbox.load_form(url, '.w3tc_cdn_totalcdn_form', w3tc_totalcdn_resize);
+		} )
+
+		.on( 'click', '.w3tc_cdn_totalcdn_save_custom_hostname', function() {
+			console.log('Saving custom hostname...');
+			var custom_hostname = $('#w3tc-custom-hostname' ).val();
 
 			$.ajax({
 				method: 'POST',
@@ -142,7 +172,7 @@ jQuery(function($) {
 				data: {
 					_wpnonce: w3tc_nonce[0],
 					action: 'w3tc_ajax',
-					w3tc_action: 'cdn_totalcdn_add_custom_hostname',
+					w3tc_action: 'cdn_totalcdn_save_custom_hostname',
 					custom_hostname: custom_hostname
 				}
 			} ).then( function( response ) {

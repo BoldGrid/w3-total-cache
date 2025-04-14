@@ -52,6 +52,26 @@ class Cdn_TotalCdn_Popup {
 			'w3tc_ajax_cdn_totalcdn_deauthorize',
 			array( $o, 'w3tc_ajax_cdn_totalcdn_deauthorize' )
 		);
+
+		\add_action(
+			'w3tc_ajax_cdn_totalcdn_add_custom_hostname',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_add_custom_hostname' )
+		);
+
+		\add_action(
+			'w3tc_ajax_cdn_totalcdn_save_custom_hostname',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_save_custom_hostname' )
+		);
+
+		\add_action(
+			'w3tc_ajax_cdn_totalcdn_validate_dns',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_validate_dns' )
+		);
+
+		\add_action(
+			'w3tc_ajax_cdn_totalcdn_generate_and_save_ssl',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_generate_and_save_ssl' )
+		);
 	}
 
 	/**
@@ -75,6 +95,146 @@ class Cdn_TotalCdn_Popup {
 				'account_api_key' => empty( $account_api_key ) ? null : $account_api_key,
 			)
 		);
+	}
+
+	/**
+	 * Handles the AJAX request to generate a free SSL Certificate
+	 * for a custom hostname.
+	 */
+	public function w3tc_ajax_cdn_totalcdn_validate_dns() {
+		$config              = Dispatcher::config();
+		$cdn_hostname        = $config->get_string( 'cdn.totalcdn.cdn_hostname' );
+		$custom_hostname     = $config->get_string( 'cdn.totalcdn.custom_hostname' );
+		$custom_hostname_dns = dns_get_record( $custom_hostname, DNS_CNAME );
+
+		if ( false === $custom_hostname_dns || empty( $custom_hostname_dns ) ) {
+			$message = sprintf(
+				// translators: 1: Custom hostname, 2: CDN hostname.
+				\__(
+					'Your custom hostname does not have a CNAME record set. Please set a CNAME record pointing %1$s to %2$s.',
+					'w3-total-cache'
+				),
+				'<strong>' . \esc_html( $custom_hostname ) . '</strong>',
+				'<strong>' . \esc_html( $cdn_hostname ) . '</strong>'
+			);
+			$button_class = 'w3tc_cdn_totalcdn_done';
+			include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
+			\wp_die();
+		}
+
+		if ( $cdn_hostname !== $custom_hostname_dns[0]['target'] ) {
+			$message = sprintf(
+				// translators: 1: Custom hostname, 2: CDN hostname.
+				\__(
+					'Your custom hostname does not point to the CDN hostname. Please set a CNAME record pointing %1$s to %2$s.',
+					'w3-total-cache'
+				),
+				'<strong>' . \esc_html( $custom_hostname ) . '</strong>',
+				'<strong>' . \esc_html( $cdn_hostname ) . '</strong>'
+			);
+			$button_class = 'w3tc_cdn_totalcdn_done';
+			include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
+			\wp_die();
+		}
+
+		$message = \esc_html__(
+			'CNAME DNS configuration Confirmed. It may take a minute or two to generate after clicking the "OK" button.',
+			'w3-total-cache'
+		);
+		$button_class = 'w3tc_cdn_totalcdn_generate_and_save_ssl';
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
+		\wp_die();
+	}
+
+	public function w3tc_ajax_cdn_totalcdn_generate_and_save_ssl() {
+		$config          = Dispatcher::config();
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$pull_zone_id    = $config->get_string( 'cdn.totalcdn.pull_zone_id' );
+		$custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
+		$api             = new Cdn_TotalCdn_Api(
+			array(
+				'account_api_key' => $account_api_key,
+				'pull_zone_id'    => $pull_zone_id,
+			)
+		);
+
+		try {
+			$api->load_free_certificate( $custom_hostname );
+		} catch ( \Exception $ex ) {
+			error_log( 'Generate Free Certificate: ' . $ex->getMessage() );
+			$message = \esc_html__(
+				'Failed to generate SSL certificate. Please try again later.',
+				'w3-total-cache'
+			);
+			$button_class = 'w3tc_cdn_totalcdn_done';
+			include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
+			\wp_die();
+		}
+
+		$config->set( 'cdn.totalcdn.custom_hostname_ssl_loaded', true );
+		$config->save();
+
+		$message = \esc_html__(
+			'Successfully generated and loaded SSL certificate.',
+			'w3-total-cache'
+		);
+
+		$button_class = 'w3tc_cdn_totalcdn_done';
+
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
+		\wp_die();
+	}
+
+	/**
+	 * Handles the AJAX request to add a custom hostname to the pull zone.
+	 *
+	 * This method validates the custom hostname and adds it to the pull zone
+	 */
+	public function w3tc_ajax_cdn_totalcdn_add_custom_hostname() {
+		$config       = Dispatcher::config();
+		$cdn_hostname = $config->get_string( 'cdn.totalcdn.cdn_hostname' );
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Add_Custom_Hostname.php';
+		\wp_die();
+	}
+
+	/**
+	 * Handles the action to save a custum hostname to the pull zone.
+	 *
+	 * This method listens for the `w3tc_ajax_cdn_totalcdn_save_custom_hostname` AJAX action and processes the request.
+	 * It validates the hostname, calls the Bunny CDN API to add the custom hostname,
+	 * and sends a JSON response indicating success or failure.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @return void
+	 */
+	public static function w3tc_ajax_cdn_totalcdn_save_custom_hostname() {
+		$hostname = Util_Request::get_string( 'custom_hostname' );
+
+		if ( empty( $hostname ) || ! filter_var( $hostname, FILTER_VALIDATE_DOMAIN ) ) {
+			\wp_send_json_error(
+				array( 'error_message' => \esc_html__( 'Invalid hostname', 'w3-total-cache' ) ),
+				400
+			);
+		}
+
+		$config          = Dispatcher::config();
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$pull_zone_id    = $config->get_string( 'cdn.totalcdn.pull_zone_id' );
+
+		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key, 'pull_zone_id' => $pull_zone_id ) );
+
+		try {
+			$api->add_custom_hostname( $hostname );
+		} catch ( \Exception $ex ) {
+			\wp_send_json_error( array( 'error_message' => $ex->getMessage() ), 422 );
+		}
+
+		// Save the custom hostname.
+		$config->set( 'cdn.totalcdn.custom_hostname', $hostname );
+		$config->save();
+
+		\wp_send_json_success();
 	}
 
 	/**
@@ -144,12 +304,14 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_configure_pull_zone() {
-		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
-		$pull_zone_id    = Util_Request::get_integer( 'pull_zone_id' );
-		$origin_url      = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
-		$name            = Util_Request::get_string( 'name' ); // Pull zone name.
-		$cdn_hostname    = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname (system).
+		$config           = Dispatcher::config();
+		$account_api_key  = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$pull_zone_id     = Util_Request::get_integer( 'pull_zone_id' );
+		$origin_url       = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
+		$name             = Util_Request::get_string( 'name' ); // Pull zone name.
+		$cdn_hostname     = Util_Request::get_string( 'cdn_hostname' ); // Pull zone CDN hostname (system).
+		$custom_hostnames = Util_Request::get_string( 'custom_hostnames' ); // Custom hostnames.
+		$custom_hostnames = \explode( ',', $custom_hostnames );
 
 		// If not selecting a pull zone. then create a new one.
 		if ( empty( $pull_zone_id ) ) {
@@ -212,6 +374,7 @@ class Cdn_TotalCdn_Popup {
 		$config->set( 'cdn.totalcdn.name', $name );
 		$config->set( 'cdn.totalcdn.origin_url', $origin_url );
 		$config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
+		$config->set( 'cdn.totalcdn.custom_hostnames', $custom_hostnames );
 		$config->save();
 
 		// Print success view.
@@ -283,6 +446,8 @@ class Cdn_TotalCdn_Popup {
 		$config->set( 'cdn.totalcdn.name', null );
 		$config->set( 'cdn.totalcdn.origin_url', null );
 		$config->set( 'cdn.totalcdn.cdn_hostname', null );
+		$config->set( 'cdn.totalcdn.custom_hostname', null );
+		$config->set( 'cdn.totalcdn.custom_hostname_ssl_loaded', null );
 		$config->save();
 
 		// Print success view.

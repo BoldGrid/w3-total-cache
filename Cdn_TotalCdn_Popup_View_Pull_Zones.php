@@ -30,6 +30,7 @@ defined( 'W3TC' ) || die();
 <form class="w3tc_cdn_totalcdn_form" method="post">
 	<input type="hidden" name="pull_zone_id" />
 	<input type="hidden" name="cdn_hostname" />
+	<input type="hidden" name="custom_hostnames" />
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Select a pull zone', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
@@ -41,8 +42,8 @@ defined( 'W3TC' ) || die();
 				// List pull zones for selection.
 				foreach ( $details['pull_zones'] as $pull_zone ) {
 					// Get the CDN hostname and custom hostnames.
-					$cdn_hostname     = '?';
-					$custom_hostnames = array();
+					$cdn_hostname     = $pull_zone['zone_domain'];
+					$custom_hostnames = $pull_zone['custom_hostnames'] ?? array();
 
 					if ( false === strpos( $cdn_hostname, 'b-cdn.net' ) ) {
 						// CDN hostname is a BunnyCDN hostname.

@@ -347,6 +347,34 @@ class Cdn_TotalCdn_Api {
 	}
 
 	/**
+	 * Load Free SSL Certificate for a custom hostname
+	 *
+	 * @since 2.6.0
+	 *
+	 * @param string   $hostname The custom hostname to add.
+	 */
+	public function load_free_certificate( $hostname, $pull_zone_id = null ) {
+		$this->api_type = 'account';
+		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
+
+		// Convert pullzone to int if it's a string.
+		if ( \is_string( $pull_zone_id ) ) {
+			$pull_zone_id = (int) $pull_zone_id;
+		}
+
+		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
+		}
+
+		$response = $this->wp_remote_post(
+			\esc_url( $this->api_base_url . '/zone/' . $pull_zone_id . '/loadFreeCertificate' ),
+			array( 'hostname' => $hostname )
+		);
+
+		error_log( 'Response: ' . json_encode( $response ) );
+	}
+
+	/**
 	 * Gets the default edge rules for the pull zone.
 	 *
 	 * @since 2.6.0

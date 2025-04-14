@@ -18,6 +18,8 @@ $account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 $is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.totalcdn.pull_zone_id' );
 $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for Total CDN.
 
+$custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
+
 ?>
 <table class="form-table">
 	<tr>
@@ -131,42 +133,27 @@ $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.t
 			<label>
 				<?php
 				echo esc_html__(
-					'Set Custom Hostname:',
+					'Custom Hostname: ',
 					'w3-total-cache'
 				);
+				echo esc_html( $custom_hostname );
 				?>
 			</label>
 		</th>
 		<td class="w3tc_config_value_text">
-		<input id="w3tc_totalcdn_custom_hostname" type="text" name="cdn__totalcdn__custom_hostname"
-			size="100" />
-			<p class="description">
+			<?php if ( empty( $custom_hostname ) ) { ?>
+				<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary"
+					type="button"
+					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
+				/>
 				<?php
-				echo wp_kses(
-					sprintf(
-						// translators: 1: Opening HTML acronym tag, 2: Closing HTML acronym tag.
-						esc_html__(
-							'The Custom hostname is used by the %1$sCDN%2$s in media links on pages.  For example: cdn.domain.net',
-							'w3-total-cache'
-						),
-						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
-						'</acronym>'
-					),
-					array(
-						'acronym' => array(
-							'title' => array(),
-						),
-					)
-				);
+			} else {
 				?>
-			</p>
-		</td>
-		<td>
-			<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary"
-				type="button"
-				value="<?php esc_attr_e( 'Set Hostname', 'w3-total-cache' ); ?>"
-			/>
-
+				<input class="w3tc_cdn_totalcdn_load_free_ssl button-primary"
+					type="button"
+					value="<?php esc_attr_e( 'Load SSL Certificate', 'w3-total-cache' ); ?>"
+				/>
+				<?php } ?>
 		</td>
 	</tr>
 	<?php endif; ?>
