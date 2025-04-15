@@ -106,7 +106,7 @@ class Cdn_Plugin {
 	/**
 	 * Callback: Start rewrite engine, if CDN can be used.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.8
 	 *
 	 * @return void
 	 */

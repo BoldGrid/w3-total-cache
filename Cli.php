@@ -19,7 +19,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	/**
 	 * Register WP-CLI commands.
 	 *
-	 * @since  X.X.X
+	 * @since  2.8.8
 	 * @static
 	 *
 	 * @return void

@@ -55,7 +55,7 @@ class SetupGuide_Plugin_Admin {
 	/**
 	 * Set the template.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.8
 	 *
 	 * @see self::get_config()
 	 *
