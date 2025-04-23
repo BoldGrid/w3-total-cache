@@ -264,6 +264,86 @@ class _WpdbEssentials {
 	public $last_result;
 
 	/**
+	 * Is the database connection ready?
+	 *
+	 * @var    bool
+	 * @access private
+	 */
+	public $ready;
+
+	/**
+	 * Use mysqli.
+	 *
+	 * @var    bool
+	 * @access private
+	 */
+	private $use_mysqli;
+
+	/**
+	 * MySQL connection handle.
+	 *
+	 * @var    \mysqli|resource|false
+	 * @access private
+	 */
+	private $dbh;
+
+	/**
+	 * Database user.
+	 *
+	 * @var    string
+	 * @access private
+	 */
+	private $dbuser;
+
+	/**
+	 * Database password.
+	 *
+	 * @var    string
+	 * @access private
+	 */
+	private $dbpassword;
+
+	/**
+	 * Database name.
+	 *
+	 * @var    string
+	 * @access private
+	 */
+	private $dbname;
+
+	/**
+	 * Database host.
+	 *
+	 * @var    string
+	 * @access private
+	 */
+	private $dbhost;
+
+	/**
+	 * Database is connected?
+	 *
+	 * @var    bool
+	 * @access private
+	 */
+	private $has_connected;
+
+	/**
+	 * Is MySQL?
+	 *
+	 * @var    bool
+	 * @access private
+	 */
+	private $is_mysql;
+
+	/**
+	 * MySQL result.
+	 *
+	 * @var    \mysqli_result|resource|false
+	 * @access private
+	 */
+	private $result;
+
+	/**
 	 * Initializes the database connection.
 	 *
 	 * @param string $dbuser     The database username.
@@ -363,8 +443,8 @@ class _WpdbEssentials {
 	/**
 	 * Selects a database to use for the connection.
 	 *
-	 * @param string   $db  The name of the database to select.
-	 * @param resource $dbh Optional. The database connection resource. Defaults to the current connection.
+	 * @param string           $db  The name of the database to select.
+	 * @param \mysqli|resource $dbh Optional. The database connection resource. Defaults to the current connection.
 	 *
 	 * @return void
 	 */
@@ -415,7 +495,7 @@ class _WpdbEssentials {
 	 * @return void
 	 */
 	public function escape_by_ref( &$string_value ) {
-		if ( ! is_float( $string ) ) {
+		if ( ! is_float( $string_value ) ) {
 			$string = $this->_real_escape( $string_value );
 		}
 	}
@@ -495,7 +575,7 @@ class _WpdbEssentials {
 		$this->last_result = array();
 		if ( $this->use_mysqli && $this->result instanceof \mysqli_result ) {
 			$row = mysqli_fetch_object( $this->result );
-			while ( false !== $row ) {
+			while ( false !== $row && null !== $row ) {
 				$this->last_result[ $num_rows ] = $row;
 				++$num_rows;
 				$row = mysqli_fetch_object( $this->result );
