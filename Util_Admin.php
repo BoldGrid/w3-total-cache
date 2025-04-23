@@ -623,7 +623,7 @@ class Util_Admin {
 					\wp_kses_post(
 						sprintf(
 							// Translators: 1 Opening HTML strong tag, 2 Closing HTML strong tag, 3 Error message.
-							\__( '%1$sCan\'t change configuration%2$s: %3$2', 'w3-total-cache' ),
+							\__( '%1$sCan\'t change configuration%2$s: %3$s', 'w3-total-cache' ),
 							'<strong>',
 							'</strong>',
 							$ex->getMessage()
