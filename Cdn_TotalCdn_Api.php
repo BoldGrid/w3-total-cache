@@ -2,7 +2,7 @@
 /**
  * File: Cdn_BunnyCdn_Api.php
  *
- * @since   2.6.0
+ * @since   SINCEVERSION
  * @package W3TC
  */
 
@@ -13,13 +13,13 @@ namespace W3TC;
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  *
- * @since 2.6.0
+ * @since SINCEVERSION
  */
 class Cdn_TotalCdn_Api {
 	/**
 	 * Account API Key.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @var string
 	 */
@@ -28,7 +28,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Storage API Key.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @var string
 	 */
@@ -37,7 +37,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Stream API Key.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @var string
 	 */
@@ -48,7 +48,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * One of: "account", "storage", "stream".
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @var string
 	 */
@@ -57,7 +57,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Pull zone id.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @var int
 	 */
@@ -75,7 +75,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Default edge rules.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @var array
 	 */
@@ -152,7 +152,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Class constructor for initializing API keys and pull zone ID.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param array $config Configuration array containing API keys and pull zone ID.
 	 */
@@ -166,7 +166,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Filters the timeout time.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param int $time The original timeout time.
 	 *
@@ -179,7 +179,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Disables SSL verification for HTTPS requests.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param bool $verify Whether to enable SSL verification (defaults to false).
 	 *
@@ -192,7 +192,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Lists all pull zones.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_index
 	 *
@@ -207,7 +207,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Gets the details of a specific pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param int $id The pull zone ID.
 	 *
@@ -226,7 +226,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Adds a new pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param array $data Data for the new pull zone.
 	 *
@@ -256,7 +256,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Updates an existing pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param int   $id   The pull zone ID.
 	 * @param array $data Data for updating the pull zone.
@@ -284,7 +284,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Deletes a pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param int $id The pull zone ID.
 	 *
@@ -312,7 +312,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Adds a custom hostname to a pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param string   $hostname The custom hostname to add.
 	 * @param int|null $pull_zone_id The pull zone ID (optional).
@@ -349,7 +349,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Load Free SSL Certificate for a custom hostname
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param string   $hostname The custom hostname to add.
 	 */
@@ -377,7 +377,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Gets the default edge rules for the pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @return array Default edge rules.
 	 */
@@ -388,7 +388,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Adds an edge rule to a pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param array    $data Data for the edge rule.
 	 * @param int|null $pull_zone_id The pull zone ID (optional).
@@ -430,7 +430,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Purges the cache.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param array $data Data for the purge operation.
 	 *
@@ -448,7 +448,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Purges the cache for a specific pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param int|null $pull_zone_id The pull zone ID (optional).
 	 *
@@ -470,7 +470,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Retrieves the appropriate API key based on the specified type.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param string|null $type The type of API key to retrieve ('account', 'storage', or 'stream').
 	 *
@@ -497,7 +497,7 @@ class Cdn_TotalCdn_Api {
 	/**
 	 * Decodes the API response.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param array|WP_Error $result The result returned from the API request.
 	 *
@@ -532,7 +532,7 @@ class Cdn_TotalCdn_Api {
 	 * It also adds custom headers for API authentication and content type. Timeout and SSL verification filters
 	 * are applied during the request process. The response is processed using `decode_response` method.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param string $url  The URL to send the GET request to.
 	 * @param array  $data Optional. An associative array of data to send as query parameters. Default is an empty array.
@@ -570,7 +570,7 @@ class Cdn_TotalCdn_Api {
 	 * Filters for request timeout and SSL verification are applied during the request process. The response is processed using
 	 * `decode_response` method.
 	 *
-	 * @since 2.6.0
+	 * @since SINCEVERSION
 	 *
 	 * @param string $url   The URL to send the POST request to.
 	 * @param array  $data  Optional. An associative array of data to send in the request body. Default is an empty array.
