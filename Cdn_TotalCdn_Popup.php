@@ -277,8 +277,6 @@ class Cdn_TotalCdn_Popup {
 		$server_ip = ! empty( $_SERVER['SERVER_ADDR'] ) && \filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_VALIDATE_IP ) ?
 			\filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_SANITIZE_URL ) : null;
 
-		error_log( 'Pull Zones: ' . json_encode( $pull_zones ) );
-
 		$details = array(
 			'pull_zones'           => $pull_zones,
 			'suggested_origin_url' => \home_url(), // Suggested origin URL or IP.

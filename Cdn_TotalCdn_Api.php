@@ -11,8 +11,6 @@ namespace W3TC;
 /**
  * Class: Cdn_BunnyCdn_Api
  *
- * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
- *
  * @since SINCEVERSION
  */
 class Cdn_TotalCdn_Api {
