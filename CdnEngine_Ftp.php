@@ -170,15 +170,13 @@ class CdnEngine_Ftp extends CdnEngine_Base {
 
 				return false;
 			}
-		} else {
-			if ( ! @ssh2_auth_password( $this->_ftp, $this->_config['user'], $this->_config['pass'] ) ) {
-				$error = sprintf( 'Incorrect login or password (%s).', $this->_get_last_error() );
+		} elseif ( ! @ssh2_auth_password( $this->_ftp, $this->_config['user'], $this->_config['pass'] ) ) {
+			$error = sprintf( 'Incorrect login or password (%s).', $this->_get_last_error() );
 
-				$this->_restore_error_handler();
-				$this->_disconnect();
+			$this->_restore_error_handler();
+			$this->_disconnect();
 
-				return false;
-			}
+			return false;
 		}
 
 		if ( ! empty( $this->_config['path'] ) && ! @ssh2_exec( $this->_ftp, 'cd ' . $this->_config['path'] ) ) {

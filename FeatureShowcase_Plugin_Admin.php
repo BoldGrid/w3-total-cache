@@ -185,7 +185,7 @@ class FeatureShowcase_Plugin_Admin {
 		foreach ( $cards_data as $type => $cards ) {
 			foreach ( $cards as $id => $card ) {
 				if ( ! empty( $card['is_new'] ) && ! in_array( $id, $features_seen, true ) ) {
-					$unseen_count++;
+					++$unseen_count;
 				}
 			}
 		}

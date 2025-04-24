@@ -14,6 +14,7 @@ namespace W3TC;
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  * phpcs:disable WordPress.WP.AlternativeFunctions
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class ObjectCache_Environment {
 	/**
@@ -170,18 +171,20 @@ class ObjectCache_Environment {
 				$remove_url = Util_Ui::admin_url( $url . 'w3tc_default_remove_add_in=objectcache' );
 
 				throw new Util_WpFile_FilesystemOperationException(
-					sprintf(
-						// translators: 1 HTML button link to remove object-cache.php file.
-						__(
-							'The Object Cache add-in file object-cache.php is not a W3 Total Cache drop-in. Remove it or disable Object Caching. %1$s',
-							'w3-total-cache'
-						),
-						Util_Ui::button_link(
+					esc_html(
+						sprintf(
+							// translators: 1 HTML button link to remove object-cache.php file.
 							__(
-								'Yes, remove it for me',
+								'The Object Cache add-in file object-cache.php is not a W3 Total Cache drop-in. Remove it or disable Object Caching. %1$s',
 								'w3-total-cache'
 							),
-							wp_nonce_url( $remove_url, 'w3tc' )
+							Util_Ui::button_link(
+								__(
+									'Yes, remove it for me',
+									'w3-total-cache'
+								),
+								wp_nonce_url( $remove_url, 'w3tc' )
+							)
 						)
 					)
 				);

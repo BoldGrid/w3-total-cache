@@ -73,10 +73,8 @@ class Cache_Memcached_Stats {
 			if ( preg_match( '/^(END|ERROR|SERVER_ERROR|CLIENT_ERROR|NOT_FOUND|[0-9]*)/', $buffer ) ) {
 				return true;
 			}
-		} else {
-			if ( preg_match( '/^(END|DELETED|OK|ERROR|SERVER_ERROR|CLIENT_ERROR|NOT_FOUND|STORED|RESET|TOUCHED)/', $buffer ) ) {
-				return true;
-			}
+		} elseif ( preg_match( '/^(END|DELETED|OK|ERROR|SERVER_ERROR|CLIENT_ERROR|NOT_FOUND|STORED|RESET|TOUCHED)/', $buffer ) ) {
+			return true;
 		}
 
 		return false;

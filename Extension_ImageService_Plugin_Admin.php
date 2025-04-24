@@ -5,8 +5,6 @@
  * @since 2.2.0
  *
  * @package W3TC
- *
- * phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen, Squiz.PHP.EmbeddedPhp.ContentAfterEnd
  */
 
 namespace W3TC;
@@ -15,6 +13,10 @@ namespace W3TC;
  * Class: Extension_ImageService_Plugin_Admin
  *
  * @since 2.2.0
+ *
+ * phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
+ * phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_ImageService_Plugin_Admin {
 	/**
@@ -400,30 +402,30 @@ class Extension_ImageService_Plugin_Admin {
 			switch ( $status ) {
 				case 'sending':
 					$size = $this->get_attachment_filesize( $post->ID );
-					$counts['sending']++;
+					++$counts['sending'];
 					$bytes['sending'] += $size;
 					$bytes['total']   += $size;
 					break;
 				case 'processing':
 					$size = $this->get_attachment_filesize( $post->ID );
-					$counts['processing']++;
+					++$counts['processing'];
 					$bytes['processing'] += $size;
 					$bytes['total']      += $size;
 					break;
 				case 'converted':
-					$counts['converted']++;
+					++$counts['converted'];
 					$bytes['converted'] += $filesize_in - $filesize_out;
 					$bytes['total']     += $filesize_in - $filesize_out;
 					break;
 				case 'notconverted':
 					$size = $this->get_attachment_filesize( $post->ID );
-					$counts['notconverted']++;
+					++$counts['notconverted'];
 					$bytes['notconverted'] += $size;
 					$bytes['total']        += $size;
 					break;
 				case 'unconverted':
 					$size = $this->get_attachment_filesize( $post->ID );
-					$counts['unconverted']++;
+					++$counts['unconverted'];
 					$bytes['unconverted'] += $size;
 					$bytes['total']       += $size;
 					break;
@@ -1022,21 +1024,21 @@ class Extension_ImageService_Plugin_Admin {
 
 			// Skip if attachment file does not exist.
 			if ( ! $wp_filesystem->exists( $filepath ) ) {
-				$stats['skipped']++;
+				++$stats['skipped'];
 				continue;
 			}
 
 			// Submit current image.
 			$response = Extension_ImageService_Plugin::get_api()->convert( $filepath );
-			$stats['submitted']++;
+			++$stats['submitted'];
 
 			if ( isset( $response['error'] ) ) {
-				$stats['errored']++;
+				++$stats['errored'];
 				continue;
 			}
 
 			if ( empty( $response['job_id'] ) || empty( $response['signature'] ) ) {
-				$stats['invalid']++;
+				++$stats['invalid'];
 				continue;
 			}
 
@@ -1052,7 +1054,7 @@ class Extension_ImageService_Plugin_Admin {
 				)
 			);
 
-			$stats['successful']++;
+			++$stats['successful'];
 		}
 
 		return $stats;
@@ -1393,7 +1395,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		foreach ( $results->posts as $post ) {
 			if ( $this->remove_optimizations( $post->ID ) ) {
-				$revert_count++;
+				++$revert_count;
 			}
 		}
 

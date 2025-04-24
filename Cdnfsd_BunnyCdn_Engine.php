@@ -45,7 +45,7 @@ class Cdnfsd_BunnyCdn_Engine {
 	 */
 	public function flush_urls( array $urls ) {
 		if ( empty( $this->config['account_api_key'] ) ) {
-			throw new \Exception( esc_html__( 'Account API key not specified.', 'w3-total-cache' ) );
+			throw new \Exception( \esc_html__( 'Account API key not specified.', 'w3-total-cache' ) );
 		}
 
 		$api   = new Cdn_BunnyCdn_Api( $this->config );
@@ -62,7 +62,7 @@ class Cdnfsd_BunnyCdn_Engine {
 			$api->purge( array( 'items' => $items ) );
 		} catch ( \Exception $ex ) {
 			if ( 'Validation Failure: Purge url must contain one of your hostnames' === $ex->getMessage() ) {
-				throw new \Exception( esc_html__( 'CDN site is not configured correctly: Delivery Domain must match your site domain', 'w3-total-cache' ) );
+				throw new \Exception( \esc_html__( 'CDN site is not configured correctly: Delivery Domain must match your site domain', 'w3-total-cache' ) );
 			} else {
 				throw $ex;
 			}

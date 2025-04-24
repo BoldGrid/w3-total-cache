@@ -9,6 +9,8 @@ namespace W3TC;
 
 /**
  * Class: Cdn_Util
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
 class Cdn_Util {
 	/**
@@ -32,15 +34,11 @@ class Cdn_Util {
 				'edgecast',
 				'ftp',
 				'google_drive',
-				'highwinds',
-				'limelight',
 				'mirror',
 				'rscf',
 				'rackspace_cdn',
 				's3',
 				's3_compatible',
-				'stackpath',
-				'stackpath2',
 			),
 			true
 		);
@@ -64,11 +62,7 @@ class Cdn_Util {
 				'akamai',
 				'edgecast',
 				'att',
-				'highwinds',
-				'limelight',
 				'rackspace_cdn',
-				'stackpath',
-				'stackpath2',
 				'bunnycdn',
 				'totalcdn',
 			),
@@ -104,10 +98,6 @@ class Cdn_Util {
 				'cf2',
 				'cotendo',
 				'edgecast',
-				'highwinds',
-				'limelight',
-				'stackpath',
-				'stackpath2',
 			),
 			true
 		);
@@ -133,13 +123,9 @@ class Cdn_Util {
 				'cotendo',
 				'edgecast',
 				'ftp',
-				'highwinds',
-				'limelight',
 				'rscf',
 				's3',
 				's3_compatible',
-				'stackpath',
-				'stackpath2',
 			),
 			true
 		);
@@ -182,8 +168,8 @@ class Cdn_Util {
 		$dir = @opendir( $search_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		if ( $dir ) {
-			// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.PHP.NoSilencedErrors.Discouraged
-			while ( ( $entry = @readdir( $dir ) ) !== false ) {
+			$entry = @readdir( $dir ); // Initialize before the loop.
+			while ( false !== $entry ) {
 				if ( '.' !== $entry && '..' !== $entry && ! in_array( $entry, $ignore, true ) ) {
 					$path = $search_dir . '/' . $entry;
 
@@ -210,6 +196,8 @@ class Cdn_Util {
 						}
 					}
 				}
+
+				$entry = @readdir( $dir ); // Re-assign for the next iteration.
 			}
 
 			@closedir( $dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged

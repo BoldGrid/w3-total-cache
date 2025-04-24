@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Cdn_Plugin {
 	/**
@@ -93,15 +94,26 @@ class Cdn_Plugin {
 		}
 
 		// Start rewrite engine.
-		if ( $this->can_cdn() ) {
-			Util_Bus::add_ob_callback( 'cdn', array( $this, 'ob_callback' ) );
-		}
+		\add_action( 'init', array( $this, 'maybe_can_cdn' ), 10, 0 );
 
 		if ( is_admin() && Cdn_Util::can_purge( $cdn_engine ) ) {
 			add_filter( 'media_row_actions', array( $this, 'media_row_actions' ), 0, 2 );
 		}
 
 		add_filter( 'w3tc_minify_http2_preload_url', array( $this, 'w3tc_minify_http2_preload_url' ), 3000 );
+	}
+
+	/**
+	 * Callback: Start rewrite engine, if CDN can be used.
+	 *
+	 * @since 2.8.8
+	 *
+	 * @return void
+	 */
+	public function maybe_can_cdn(): void {
+		if ( $this->can_cdn() ) {
+			Util_Bus::add_ob_callback( 'cdn', array( $this, 'ob_callback' ) );
+		}
 	}
 
 	/**
@@ -1016,12 +1028,12 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 * @return string The modified `srcset` attribute value.
 	 */
 	public function _link_replace_callback( $matches ) {
-		list( $match, $quote, $url, , , , $path ) = $matches;
+		list( $matched_url, $quote, $url, , , , $path ) = $matches;
 
 		$path = ltrim( $path, '/' );
-		$r    = $this->_link_replace_callback_checks( $match, $quote, $url, $path );
+		$r    = $this->_link_replace_callback_checks( $matched_url, $quote, $url, $path );
 		if ( is_null( $r ) ) {
-			$r = $this->_link_replace_callback_ask_cdn( $match, $quote, $url, $path );
+			$r = $this->_link_replace_callback_ask_cdn( $matched_url, $quote, $url, $path );
 		}
 
 		return $r;
@@ -1035,10 +1047,10 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 * @return string|null The modified URL or null if no replacement is necessary.
 	 */
 	public function _srcset_replace_callback( $matches ) {
-		list( $match, $srcset ) = $matches;
+		list( $matched_url, $srcset ) = $matches;
 
 		if ( empty( $this->_regexps ) ) {
-			return $match;
+			return $matched_url;
 		}
 
 		$index = '%srcset-' . count( $this->_placeholders ) . '%';
@@ -1305,14 +1317,14 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 * queued, the method returns the original match without replacing it. This method is used as part of the URL
 	 * replacement process to ensure only accepted URLs are replaced.
 	 *
-	 * @param string $match The matched URL string.
-	 * @param string $quote The quote character around the matched URL.
-	 * @param string $url The original URL to be replaced.
-	 * @param string $path The path portion of the matched URL.
+	 * @param string $matched_url The matched URL string.
+	 * @param string $quote       The quote character around the matched URL.
+	 * @param string $url         The original URL to be replaced.
+	 * @param string $path        The path portion of the matched URL.
 	 *
 	 * @return string|null Returns the replaced URL if accepted; otherwise, the original match.
 	 */
-	public function _link_replace_callback_checks( $match, $quote, $url, $path ) {
+	public function _link_replace_callback_checks( $matched_url, $quote, $url, $path ) {
 		global $wpdb;
 
 		static $queue = null, $reject_files = null;
@@ -1339,7 +1351,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 				$reject_file_regexp = '~^(' . Cdn_Util::get_regexp_by_mask( $reject_file ) . ')~i';
 
 				if ( preg_match( $reject_file_regexp, $path ) ) {
-					return $match;
+					return $matched_url;
 				}
 			}
 		}
@@ -1362,7 +1374,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 		}
 
 		if ( $queue ) {
-			return $match;
+			return $matched_url;
 		}
 
 		return null;
@@ -1375,14 +1387,14 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	 * have a valid CDN replacement, it returns the original matched URL. This method is used to replace URLs with
 	 * CDN-hosted versions when such replacements are supported and valid.
 	 *
-	 * @param string $match The matched URL string.
-	 * @param string $quote The quote character around the matched URL.
-	 * @param string $url The original URL to be replaced.
-	 * @param string $path The path portion of the matched URL.
+	 * @param string $matched_url The matched URL string.
+	 * @param string $quote       The quote character around the matched URL.
+	 * @param string $url         The original URL to be replaced.
+	 * @param string $path        The path portion of the matched URL.
 	 *
 	 * @return string The replaced URL if a valid replacement is found; otherwise, the original match.
 	 */
-	public function _link_replace_callback_ask_cdn( $match, $quote, $url, $path ) {
+	public function _link_replace_callback_ask_cdn( $matched_url, $quote, $url, $path ) {
 		$common  = Dispatcher::component( 'Cdn_Core' );
 		$new_url = $common->url_to_cdn_url( $url, $path );
 		if ( ! is_null( $new_url ) ) {
@@ -1390,7 +1402,7 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 			return $quote . $new_url;
 		}
 
-		return $match;
+		return $matched_url;
 	}
 
 	/**
@@ -1407,10 +1419,10 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 	public function _minify_auto_pushcdn_link_replace_callback( $matches ) {
 		static $dispatcher = null;
 
-		list( $match, $quote, $url, , , , $path ) = $matches;
+		list( $matched_url, $quote, $url, , , , $path ) = $matches;
 
 		$path = ltrim( $path, '/' );
-		$r    = $this->_link_replace_callback_checks( $match, $quote, $url, $path );
+		$r    = $this->_link_replace_callback_checks( $matched_url, $quote, $url, $path );
 
 		// Check if we can replace that URL (for auto mode it should be uploaded).
 		if ( ! Dispatcher::is_url_cdn_uploaded( $url ) ) {
@@ -1422,11 +1434,11 @@ class _Cdn_Plugin_ContentFilter { // phpcs:ignore Generic.Classes.OpeningBraceSa
 				self::$_upload_scheduled = true;
 			}
 
-			return $match;
+			return $matched_url;
 		}
 
 		if ( is_null( $r ) ) {
-			$r = $this->_link_replace_callback_ask_cdn( $match, $quote, $url, $path );
+			$r = $this->_link_replace_callback_ask_cdn( $matched_url, $quote, $url, $path );
 		}
 		return $r;
 	}

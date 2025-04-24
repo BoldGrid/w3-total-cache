@@ -81,7 +81,7 @@ class UsageStatistics_StorageReader {
 		$history_count = count( $history );
 		while ( $history_count < $this->items_to_return ) {
 			array_unshift( $history, array() );
-			$history_count++; // Ensure count updates correctly.
+			++$history_count; // Ensure count updates correctly.
 		}
 
 		$summary['history'] = $history;

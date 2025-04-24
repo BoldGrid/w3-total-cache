@@ -221,7 +221,15 @@ class UsageStatistics_StorageWriter {
 		}
 
 		if ( 'require_db' !== $this->flush_state && 'flushing_began_by_cache' !== $this->flush_state ) {
-			throw new Exception( 'unknown usage stats state ' . $this->flush_state );
+			throw new Exception(
+				esc_html(
+					sprintf(
+						// Translators: 1 Flush state.
+						__( 'Unknown usage stats state %1$s.', 'w3-total-cache' ),
+						$this->flush_state
+					)
+				)
+			);
 		}
 
 		// check whats there in db.

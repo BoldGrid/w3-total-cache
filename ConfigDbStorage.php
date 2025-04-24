@@ -16,6 +16,7 @@ namespace W3TC;
  * phpcs:disable WordPress.DB.DirectDatabaseQuery
  * phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
  * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class ConfigDbStorage {
 	/**
@@ -263,6 +264,86 @@ class _WpdbEssentials {
 	public $last_result;
 
 	/**
+	 * Is the database connection ready?
+	 *
+	 * @var    bool
+	 * @access private
+	 */
+	public $ready;
+
+	/**
+	 * Use mysqli.
+	 *
+	 * @var    bool
+	 * @access private
+	 */
+	private $use_mysqli;
+
+	/**
+	 * MySQL connection handle.
+	 *
+	 * @var    \mysqli|resource|false
+	 * @access private
+	 */
+	private $dbh;
+
+	/**
+	 * Database user.
+	 *
+	 * @var    string
+	 * @access private
+	 */
+	private $dbuser;
+
+	/**
+	 * Database password.
+	 *
+	 * @var    string
+	 * @access private
+	 */
+	private $dbpassword;
+
+	/**
+	 * Database name.
+	 *
+	 * @var    string
+	 * @access private
+	 */
+	private $dbname;
+
+	/**
+	 * Database host.
+	 *
+	 * @var    string
+	 * @access private
+	 */
+	private $dbhost;
+
+	/**
+	 * Database is connected?
+	 *
+	 * @var    bool
+	 * @access private
+	 */
+	private $has_connected;
+
+	/**
+	 * Is MySQL?
+	 *
+	 * @var    bool
+	 * @access private
+	 */
+	private $is_mysql;
+
+	/**
+	 * MySQL result.
+	 *
+	 * @var    \mysqli_result|resource|false
+	 * @access private
+	 */
+	private $result;
+
+	/**
 	 * Initializes the database connection.
 	 *
 	 * @param string $dbuser     The database username.
@@ -344,30 +425,26 @@ class _WpdbEssentials {
 					echo esc_html( $this->last_error );
 				}
 			}
+		} elseif ( WP_DEBUG ) {
+			$this->dbh = mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
 		} else {
-			if ( WP_DEBUG ) {
-				$this->dbh = mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
-			} else {
-				$this->dbh = @mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
-			}
+			$this->dbh = @mysql_connect( $this->dbhost, $this->dbuser, $this->dbpassword, $new_link, $client_flags );
 		}
 
 		if ( $this->dbh ) {
 			$this->has_connected = true;
 			$this->ready         = true;
 			$this->select( $this->dbname, $this->dbh );
-		} else {
-			if ( WP_DEBUG ) {
-				esc_html_e( 'Failed to connect to mysql server', 'w3-total-cache' );
-			}
+		} elseif ( WP_DEBUG ) {
+			esc_html_e( 'Failed to connect to mysql server', 'w3-total-cache' );
 		}
 	}
 
 	/**
 	 * Selects a database to use for the connection.
 	 *
-	 * @param string   $db  The name of the database to select.
-	 * @param resource $dbh Optional. The database connection resource. Defaults to the current connection.
+	 * @param string           $db  The name of the database to select.
+	 * @param \mysqli|resource $dbh Optional. The database connection resource. Defaults to the current connection.
 	 *
 	 * @return void
 	 */
@@ -413,28 +490,28 @@ class _WpdbEssentials {
 	/**
 	 * Escapes a string by reference for safe usage in queries.
 	 *
-	 * @param string $string The string to be escaped.
+	 * @param string $string_value The string to be escaped.
 	 *
 	 * @return void
 	 */
-	public function escape_by_ref( &$string ) {
-		if ( ! is_float( $string ) ) {
-			$string = $this->_real_escape( $string );
+	public function escape_by_ref( &$string_value ) {
+		if ( ! is_float( $string_value ) ) {
+			$string = $this->_real_escape( $string_value );
 		}
 	}
 
 	/**
 	 * Escapes a string using the active database connection.
 	 *
-	 * @param string $string The string to be escaped.
+	 * @param string $string_value The string to be escaped.
 	 *
 	 * @return string The escaped string.
 	 */
-	private function _real_escape( $string ) {
+	private function _real_escape( $string_value ) {
 		if ( $this->use_mysqli ) {
-			return mysqli_real_escape_string( $this->dbh, $string );
+			return mysqli_real_escape_string( $this->dbh, $string_value );
 		} else {
-			return mysql_real_escape_string( $string, $this->dbh );
+			return mysql_real_escape_string( $string_value, $this->dbh );
 		}
 	}
 
@@ -481,12 +558,10 @@ class _WpdbEssentials {
 			} else {
 				$this->last_error = 'query: Unable to retrieve the error message from MySQL';
 			}
+		} elseif ( is_resource( $this->dbh ) ) {
+			$this->last_error = mysql_error( $this->dbh );
 		} else {
-			if ( is_resource( $this->dbh ) ) {
-				$this->last_error = mysql_error( $this->dbh );
-			} else {
-				$this->last_error = 'query: Unable to retrieve the error message from MySQL';
-			}
+			$this->last_error = 'query: Unable to retrieve the error message from MySQL';
 		}
 
 		if ( $this->last_error ) {
@@ -499,14 +574,18 @@ class _WpdbEssentials {
 		$num_rows          = 0;
 		$this->last_result = array();
 		if ( $this->use_mysqli && $this->result instanceof \mysqli_result ) {
-			while ( $row = mysqli_fetch_object( $this->result ) ) {
+			$row = mysqli_fetch_object( $this->result );
+			while ( false !== $row && null !== $row ) {
 				$this->last_result[ $num_rows ] = $row;
-				$num_rows++;
+				++$num_rows;
+				$row = mysqli_fetch_object( $this->result );
 			}
 		} elseif ( is_resource( $this->result ) ) {
-			while ( $row = mysql_fetch_object( $this->result ) ) {
+			$row = mysql_fetch_object( $this->result );
+			while ( false !== $row ) {
 				$this->last_result[ $num_rows ] = $row;
-				$num_rows++;
+				++$num_rows;
+				$row = mysql_fetch_object( $this->result );
 			}
 		}
 

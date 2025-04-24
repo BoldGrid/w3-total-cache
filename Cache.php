@@ -165,10 +165,6 @@ class Cache {
 				$engine_name = 'Google Drive';
 				break;
 
-			case 'highwinds':
-				$engine_name = 'Highwinds';
-				break;
-
 			case 'cf2':
 				$engine_name = 'Amazon CloudFront';
 				break;
@@ -199,10 +195,6 @@ class Cache {
 
 			case 'rackspace_cdn':
 				$engine_name = 'Rackspace';
-				break;
-
-			case 'stackpath2':
-				$engine_name = 'StackPath';
 				break;
 
 			case 'bunnycdn':

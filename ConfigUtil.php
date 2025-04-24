@@ -11,6 +11,7 @@ namespace W3TC;
  * Class ConfigUtil
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class ConfigUtil {
 	/**

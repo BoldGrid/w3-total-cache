@@ -21,6 +21,8 @@ define( 'W3TC_PLUGIN_TOTALCACHE_REGEXP_COOKIEDOMAIN', '~define\s*\(\s*[\'"]COOKI
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable WordPress.NamingConventions.ValidHookName.UseUnderscores
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Generic_AdminActions_Default {
 	/**
@@ -532,14 +534,6 @@ class Generic_AdminActions_Default {
 					$config->set( 'cdn.ftp.domain', $cdn_domains );
 					break;
 
-				case 'highwinds':
-					$config->set( 'cdn.highwinds.host.domains', $cdn_domains );
-					break;
-
-				case 'limelight':
-					$config->set( 'cdn.limelight.host.domains', $cdn_domains );
-					break;
-
 				case 'mirror':
 					$config->set( 'cdn.mirror.domain', $cdn_domains );
 					break;
@@ -555,20 +549,6 @@ class Generic_AdminActions_Default {
 				case 's3':
 				case 's3_compatible':
 					$config->set( 'cdn.s3.cname', $cdn_domains );
-					break;
-
-				case 'stackpath':
-					$v = $config->get( 'cdn.stackpath.domain' );
-					if ( isset( $v['http_default'] ) ) {
-						$cdn_domains['http_default'] = $v['http_default'];
-					}
-					if ( isset( $v['https_default'] ) ) {
-						$cdn_domains['https_default'] = $v['https_default'];
-					}
-					$config->set( 'cdn.stackpath.domain', $cdn_domains );
-					break;
-				case 'stackpath2':
-					$config->set( 'cdn.stackpath2.domain', $cdn_domains );
 					break;
 			}
 		}
@@ -629,17 +609,15 @@ class Generic_AdminActions_Default {
 							)
 						);
 					}
-				} else {
-					if ( ! $this->disable_cookie_domain() ) {
-						Util_Admin::redirect(
-							array_merge(
-								$data['response_query_string'],
-								array(
-									'w3tc_error' => 'disable_cookie_domain',
-								)
+				} elseif ( ! $this->disable_cookie_domain() ) {
+					Util_Admin::redirect(
+						array_merge(
+							$data['response_query_string'],
+							array(
+								'w3tc_error' => 'disable_cookie_domain',
 							)
-						);
-					}
+						)
+					);
 				}
 			}
 		}

@@ -68,7 +68,15 @@ class Util_DebugPurgeLog_Reader {
 
 		$h = @fopen( $log_filename, 'rb' );
 		if ( ! $h ) {
-			throw new \Exception( 'Failed to open log file' . $log_filename );
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Log filename.
+						\__( 'Failed to open log file %1$s.', 'w3-total-cache' ),
+						$log_filename
+					)
+				)
+			);
 		}
 
 		fseek( $h, 0, SEEK_END );

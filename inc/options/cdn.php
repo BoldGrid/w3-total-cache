@@ -473,12 +473,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'bunnycdn',
 					'tcdn',
 					'google_drive',
-					'highwinds',
-					'limelight',
 					'rackspace_cdn',
 					'rscf',
-					'stackpath',
-					'stackpath2',
 				);
 
 				if ( in_array( $cdn_engine, $known_engines, true ) ) {

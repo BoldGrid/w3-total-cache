@@ -298,7 +298,6 @@ class ConfigCompiler {
 				$this->_data['stats.access_log.webserver'] = 'apache';
 			}
 		}
-
 	}
 
 	/**

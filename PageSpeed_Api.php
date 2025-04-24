@@ -194,7 +194,7 @@ class PageSpeed_Api {
 
 			// Sleep for a cumulative .5 seconds each attempt.
 			usleep( $attempts * 500000 );
-		};
+		}
 
 		if ( isset( $response['response']['code'] ) && 200 !== $response['response']['code'] ) {
 			// Google PageSpeed Insights sometimes will return a 500 and message body with details so we still grab the body response.

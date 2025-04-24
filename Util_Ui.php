@@ -18,31 +18,31 @@ class Util_Ui {
 	/**
 	 * Returns button html
 	 *
-	 * @param string $text    Text.
-	 * @param string $onclick On click.
-	 * @param string $class   Class.
-	 * @param string $name    Name.
+	 * @param string $text        Text.
+	 * @param string $onclick     On click.
+	 * @param string $class_value Class.
+	 * @param string $name        Name.
 	 *
 	 * @return string
 	 */
-	public static function button( $text, $onclick = '', $class = 'button', $name = '' ) {
+	public static function button( $text, $onclick = '', $class_value = 'button', $name = '' ) {
 		$maybe_name = ( empty( $name ) ? '' : ' name="' . esc_attr( $name ) . '"' );
-		return '<input type="button"' . $maybe_name . ' class="' . esc_attr( $class ) . '" value="' .
+		return '<input type="button"' . $maybe_name . ' class="' . esc_attr( $class_value ) . '" value="' .
 			esc_attr( $text ) . '" onclick="' . esc_attr( $onclick ) . '" />';
 	}
 
 	/**
 	 * Returns button link html.
 	 *
-	 * @param string $text       Text.
-	 * @param string $url        URL.
-	 * @param bool   $new_window Open link in a new window.
-	 * @param string $class      Class.
-	 * @param string $name       Name.
+	 * @param string $text        Text.
+	 * @param string $url         URL.
+	 * @param bool   $new_window  Open link in a new window.
+	 * @param string $class_value Class.
+	 * @param string $name        Name.
 	 *
 	 * @return string
 	 */
-	public static function button_link( $text, $url, $new_window = false, $class = 'button', $name = '' ) {
+	public static function button_link( $text, $url, $new_window = false, $class_value = 'button', $name = '' ) {
 		$url = str_replace( '&amp;', '&', $url );
 
 		if ( $new_window ) {
@@ -50,14 +50,14 @@ class Util_Ui {
 		} else {
 			$onclick = '';
 
-			if ( strpos( $class, 'w3tc-button-ignore-change' ) >= 0 ) {
+			if ( strpos( $class_value, 'w3tc-button-ignore-change' ) >= 0 ) {
 				$onclick .= 'w3tc_beforeupload_unbind(); ';
 			}
 
 			$onclick .= sprintf( 'document.location.href=\'%s\';', addslashes( $url ) );
 		}
 
-		return self::button( $text, $onclick, $class, $name );
+		return self::button( $text, $onclick, $class_value, $name );
 	}
 
 	/**
@@ -100,9 +100,14 @@ class Util_Ui {
 	 *
 	 * @return string
 	 */
-	public static function button_hide_note( $text, $note, $redirect = '',
-		$admin = false, $page = '',
-		$custom_method = 'w3tc_default_hide_note' ) {
+	public static function button_hide_note(
+		$text,
+		$note,
+		$redirect = '',
+		$admin = false,
+		$page = '',
+		$custom_method = 'w3tc_default_hide_note'
+	) {
 		if ( '' === $page ) {
 			$page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
 		}
@@ -146,15 +151,15 @@ class Util_Ui {
 	/**
 	 * Action button
 	 *
-	 * @param string $action     Action.
-	 * @param string $url        URL.
-	 * @param string $class      Class.
-	 * @param bool   $new_window New window flag.
+	 * @param string $action      Action.
+	 * @param string $url         URL.
+	 * @param string $class_value Class.
+	 * @param bool   $new_window  New window flag.
 	 *
 	 * @return string
 	 */
-	public static function action_button( $action, $url, $class = '', $new_window = false ) {
-		return self::button_link( $action, $url, $new_window, $class );
+	public static function action_button( $action, $url, $class_value = '', $new_window = false ) {
+		return self::button_link( $action, $url, $new_window, $class_value );
 	}
 	/**
 	 * Returns popup button html
@@ -222,16 +227,16 @@ class Util_Ui {
 	 *
 	 * @link https://github.com/BoldGrid/w3-total-cache/issues/237
 	 *
-	 * @param string $title Title.
-	 * @param string $class Class.
-	 * @param string $id    ID.
+	 * @param string $title       Title.
+	 * @param string $class_value Class.
+	 * @param string $id          ID.
 	 *
 	 * @return void
 	 */
-	public static function postbox_header( $title, $class = '', $id = '' ) {
+	public static function postbox_header( $title, $class_value = '', $id = '' ) {
 		$id = ! empty( $id ) ? ' id="' . esc_attr( $id ) . '"' : '';
 		?>
-		<div <?php echo wp_kses( $id, self::get_allowed_html_for_wp_kses_from_content( $id ) ); ?> class="postbox <?php echo esc_attr( $class ); ?>">
+		<div <?php echo wp_kses( $id, self::get_allowed_html_for_wp_kses_from_content( $id ) ); ?> class="postbox <?php echo esc_attr( $class_value ); ?>">
 			<h3 class="postbox-title">
 				<span><?php echo wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ); ?></span>
 			</h3>
@@ -254,7 +259,7 @@ class Util_Ui {
 	 *
 	 * @param string $title        The title of the postbox.
 	 * @param string $description  Optional. Description of the postbox. Default empty.
-	 * @param string $class        Optional. Additional CSS class for styling. Default empty.
+	 * @param string $class_value  Optional. Additional CSS class for styling. Default empty.
 	 * @param string $id           Optional. HTML ID attribute. Default empty.
 	 * @param string $adv_link     Optional. URL for the "Advanced Settings" tab. Default empty.
 	 * @param string $premium_link Optional. URL for the "Premium Services" tab. Default empty.
@@ -268,7 +273,7 @@ class Util_Ui {
 	 *
 	 * @return void
 	 */
-	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $adv_link = '', $premium_link = '', $tutorials_tab = '', $extra_links = array() ) {
+	public static function postbox_header_tabs( $title, $description = '', $class_value = '', $id = '', $adv_link = '', $premium_link = '', $tutorials_tab = '', $extra_links = array() ) {
 		$display_id         = ( ! empty( $id ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
 		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="w3tc-basic-settings nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
@@ -281,7 +286,7 @@ class Util_Ui {
 			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '</a>';
 		}
 
-		echo '<div' . $display_id . ' class="postbox-tabs ' . esc_attr( $class ) . '">
+		echo '<div' . $display_id . ' class="postbox-tabs ' . esc_attr( $class_value ) . '">
 			<h3 class="postbox-title"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
 			' . $description . '
 			<h2 class="nav-tab-wrapper">' . $basic_settings_tab . $adv_settings_tab . $premium_link_tab . $tutorials_tab . $extra_link_tabs . '</h2>
@@ -316,7 +321,7 @@ class Util_Ui {
 	 * echo wp_kses_post( Util_Ui::get_tab('example_key', 'tutorials');  // Retrieves the tutorials tab for 'example_key'
 	 * ```
 	 */
-	public static function get_tab( string $key, string $tab_type ) : ?string {
+	public static function get_tab( string $key, string $tab_type ): ?string {
 
 		// If for any reason the key or tab type is empty, return an empty string.
 		if ( empty( $key ) || empty( $tab_type ) ) {
@@ -933,10 +938,9 @@ class Util_Ui {
 	 * @return void
 	 */
 	public static function textarea( $id, $name, $value, $disabled = false ) {
+		// The "textarea" element must not have padding around the value.
 		?>
-		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5" cols=25 style="width: 100%" <?php disabled( $disabled, true, true ); ?>>
-			<?php echo esc_textarea( $value ); ?>
-		</textarea>
+		<textarea class="enabled" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5" cols=25 style="width: 100%" <?php disabled( $disabled, true, true ); ?>><?php echo esc_textarea( $value ); ?></textarea>
 		<?php
 	}
 
@@ -1727,7 +1731,7 @@ class Util_Ui {
 
 		if ( ! empty( $description ) ) {
 			$d = array_map(
-				function( $e ) {
+				function ( $e ) {
 					return '<p class="description">' . wp_kses( $e, self::get_allowed_html_for_wp_kses_from_content( $e ) ) . '</p>';
 				},
 				$description
@@ -1865,12 +1869,12 @@ class Util_Ui {
 	/**
 	 * Takes seconds and converts to array('Nh ','Nm ', 'Ns ', 'Nms ') or "Nh Nm Ns Nms"
 	 *
-	 * @param unknown $input  Input.
-	 * @param bool    $string String.
+	 * @param unknown $input        Input.
+	 * @param bool    $string_value String.
 	 *
 	 * @return array|string
 	 */
-	public static function secs_to_time( $input, $string = true ) {
+	public static function secs_to_time( $input, $string_value = true ) {
 		$input   = (float) $input;
 		$time    = array();
 		$msecs   = floor( $input * 1000 % 1000 );
@@ -1895,7 +1899,7 @@ class Util_Ui {
 		if ( empty( $time ) ) {
 			$time[] = sprintf( '%dms', 0 );
 		}
-		if ( $string ) {
+		if ( $string_value ) {
 			return implode( ' ', $time );
 		}
 		return $time;

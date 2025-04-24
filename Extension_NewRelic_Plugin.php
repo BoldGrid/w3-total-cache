@@ -121,11 +121,9 @@ class Extension_NewRelic_Plugin {
 	public function ob_callback_apm( $buffer ) {
 		if ( ! $this->_can_add_tracker_script( $buffer ) ) {
 			$this->disable_auto_rum();
-		} else {
-			if ( $this->_config->get_boolean( array( 'newrelic', 'include_rum' ) ) ) {
-				$buffer = preg_replace( '~<head(\s+[^>]*)*>~Ui', '\\0' . \NewRelicWrapper::get_browser_timing_header(), $buffer, 1 );
-				$buffer = preg_replace( '~<\\/body>~', \NewRelicWrapper::get_browser_timing_footer() . '\\0', $buffer, 1 );
-			}
+		} elseif ( $this->_config->get_boolean( array( 'newrelic', 'include_rum' ) ) ) {
+			$buffer = preg_replace( '~<head(\s+[^>]*)*>~Ui', '\\0' . \NewRelicWrapper::get_browser_timing_header(), $buffer, 1 );
+			$buffer = preg_replace( '~<\\/body>~', \NewRelicWrapper::get_browser_timing_footer() . '\\0', $buffer, 1 );
 		}
 
 		$buffer = str_replace(

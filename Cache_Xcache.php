@@ -31,15 +31,15 @@ class Cache_Xcache extends Cache_Base {
 	 * the method returns false.
 	 *
 	 * @param string $key    The unique key to identify the cached item.
-	 * @param mixed  $var    The value to store in the cache (passed by reference).
+	 * @param mixed  $value  The value to store in the cache (passed by reference).
 	 * @param int    $expire The expiration time in seconds. Defaults to 0 (no expiration).
 	 * @param string $group  The group to which the key belongs. Defaults to an empty string.
 	 *
 	 * @return bool True if the item was added successfully, false if the item already exists.
 	 */
-	public function add( $key, &$var, $expire = 0, $group = '' ) {
+	public function add( $key, &$value, $expire = 0, $group = '' ) {
 		if ( false === $this->get( $key, $group ) ) {
-			return $this->set( $key, $var, $expire, $group );
+			return $this->set( $key, $value, $expire, $group );
 		}
 
 		return false;
@@ -52,20 +52,20 @@ class Cache_Xcache extends Cache_Base {
 	 * does not have a `key_version`, it is assigned the current group key version.
 	 *
 	 * @param string $key    The unique key to identify the cached item.
-	 * @param mixed  $var    The value to store in the cache.
+	 * @param mixed  $value  The value to store in the cache.
 	 * @param int    $expire The expiration time in seconds. Defaults to 0 (no expiration).
 	 * @param string $group  The group to which the key belongs. Defaults to an empty string.
 	 *
 	 * @return bool True if the value was successfully stored, false otherwise.
 	 */
-	public function set( $key, $var, $expire = 0, $group = '' ) {
-		if ( ! isset( $var['key_version'] ) ) {
-			$var['key_version'] = $this->_get_key_version( $group );
+	public function set( $key, $value, $expire = 0, $group = '' ) {
+		if ( ! isset( $value['key_version'] ) ) {
+			$value['key_version'] = $this->_get_key_version( $group );
 		}
 
 		$storage_key = $this->get_item_key( $key );
 
-		return xcache_set( $storage_key, serialize( $var ), $expire );
+		return xcache_set( $storage_key, serialize( $value ), $expire );
 	}
 
 	/**
@@ -126,15 +126,15 @@ class Cache_Xcache extends Cache_Base {
 	 * This method updates the value for a given key only if the key already exists in the cache.
 	 *
 	 * @param string $key    The unique key to identify the cached item.
-	 * @param mixed  $var    The new value to store in the cache (passed by reference).
+	 * @param mixed  $value  The new value to store in the cache (passed by reference).
 	 * @param int    $expire The expiration time in seconds. Defaults to 0 (no expiration).
 	 * @param string $group  The group to which the key belongs. Defaults to an empty string.
 	 *
 	 * @return bool True if the value was replaced successfully, false if the key does not exist.
 	 */
-	public function replace( $key, &$var, $expire = 0, $group = '' ) {
+	public function replace( $key, &$value, $expire = 0, $group = '' ) {
 		if ( $this->get( $key, $group ) !== false ) {
-			return $this->set( $key, $var, $expire, $group );
+			return $this->set( $key, $value, $expire, $group );
 		}
 
 		return false;
@@ -194,7 +194,7 @@ class Cache_Xcache extends Cache_Base {
 	 */
 	public function flush( $group = '' ) {
 		$this->_get_key_version( $group ); // initialize $this->_key_version.
-		$this->_key_version[ $group ]++;
+		++$this->_key_version[ $group ];
 		$this->_set_key_version( $this->_key_version[ $group ], $group );
 		return true;
 	}

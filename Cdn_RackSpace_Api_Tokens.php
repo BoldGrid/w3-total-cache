@@ -206,15 +206,21 @@ class Cdn_RackSpace_Api_Tokens {
 
 		$response_json = @json_decode( $result['body'], true );
 		if ( is_null( $response_json ) ) {
-			throw new \Exception( 'Failed to reach API endpoint, got unexpected response ' . $result['body'] );
+			throw new \Exception(
+				sprintf(
+					// Translators: 1 Result body.
+					\esc_html__( 'Failed to reach API endpoint, got unexpected response: %1$s', 'w3-total-cache' ),
+					\wp_kses_post( $result['body'] )
+				)
+			);
 		}
 
 		if ( isset( $response_json['unauthorized']['message'] ) ) {
-			throw new \Exception( $response_json['unauthorized']['message'] );
+			throw new \Exception( \esc_html( $response_json['unauthorized']['message'] ) );
 		}
 
 		if ( ! in_array( (int) $result['response']['code'], array( 200, 201 ), true ) ) {
-			throw new \Exception( $result['body'] );
+			throw new \Exception( \wp_kses_post( $result['body'] ) );
 		}
 
 		return $response_json;

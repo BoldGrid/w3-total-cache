@@ -185,7 +185,7 @@ class Generic_Plugin_Survey {
 	/**
 	 * Skips the exit survey and processes removing plugin data.
 	 *
-	 * @since X.X.X
+	 * @since 2.8.8
 	 *
 	 * @return void
 	 */

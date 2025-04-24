@@ -47,9 +47,22 @@ class SetupGuide_Plugin_Admin {
 			require_once W3TC_INC_DIR . '/wizard/template.php';
 
 			if ( is_null( self::$template ) ) {
-				self::$template = new Wizard\Template( $this->get_config() );
+				\add_action( 'init', array( $this, 'set_template' ), 10, 0 );
 			}
 		}
+	}
+
+	/**
+	 * Set the template.
+	 *
+	 * @since 2.8.8
+	 *
+	 * @see self::get_config()
+	 *
+	 * @return void
+	 */
+	public function set_template() {
+		self::$template = new Wizard\Template( $this->get_config() );
 	}
 
 	/**

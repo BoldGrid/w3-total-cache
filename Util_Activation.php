@@ -11,6 +11,7 @@ namespace W3TC;
  * Class Util_Activation
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Util_Activation {
 	/**
@@ -149,7 +150,7 @@ class Util_Activation {
 			);
 		}
 
-		throw new \Exception( $error );
+		throw new \Exception( \esc_html( $error ) );
 	}
 
 	/**

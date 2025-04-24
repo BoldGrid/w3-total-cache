@@ -12,6 +12,7 @@ namespace W3TC;
  *
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  * phpcs:disable WordPress.WP.AlternativeFunctions
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Util_WpFile {
 	/**
@@ -88,6 +89,8 @@ class Util_WpFile {
 	 * @uses WP_Filesystem()
 	 * @uses file_put_contents()
 	 * @uses chmod()
+	 *
+	 * phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
 	 */
 	public static function write_to_file( $filename, $content ) {
 		$chmod = 0644;
@@ -466,8 +469,7 @@ class Util_WpFile {
 	 *
 	 * @uses request_filesystem_credentials()
 	 */
-	private static function get_filesystem_credentials_form( $method = '', $url = '',
-		$context = false ) {
+	private static function get_filesystem_credentials_form( $method = '', $url = '', $context = false ) {
 		// Ensure request_filesystem_credentials() is available.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/template.php';
