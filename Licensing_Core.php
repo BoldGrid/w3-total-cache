@@ -218,6 +218,25 @@ class Licensing_Core {
 	}
 
 	/**
+	 * Generates a purchase URL for Total CDN.
+	 *
+	 * @param string $data_src  Optional data source for the URL.
+	 * @param string $renew_key Optional renewal key for the license.
+	 * @param string $client_id Optional client ID associated with the purchase.
+	 *
+	 * @return string URL for purchasing or renewing Total CDN.
+	 */
+	public static function purchase_tcdn_url( $data_src = '', $renew_key = '', $client_id = '' ) {
+		$state = Dispatcher::config_state_master();
+		return W3TC_PURCHASE_TCDN_URL .
+			( strpos( W3TC_PURCHASE_TCDN_URL, '?' ) === false ? '?' : '&' ) .
+			'install_date=' . rawurlencode( $state->get_integer( 'common.install' ) ) .
+			( empty( $data_src ) ? '' : '&data_src=' . rawurlencode( $data_src ) ) .
+			( empty( $renew_key ) ? '' : '&renew_key=' . rawurlencode( $renew_key ) ) .
+			( empty( $client_id ) ? '' : '&client_id=' . rawurlencode( $client_id ) );
+	}
+
+	/**
 	 * Retrieves the user's terms of service choice.
 	 *
 	 * @since 2.2.2

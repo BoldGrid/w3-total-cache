@@ -1366,51 +1366,47 @@ td .w3tc-control-after span {
 }
 
 
-#w3tc-footer .w3tc-bunnycdn-logo,
-#w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-logo {
+#w3tc-footer .w3tc-tcdn-logo,
+#w3tc-tcdn-ad-cdn .w3tc-tcdn-logo {
 	width: 150px;
 	height: 50px;
-	background: url('../img/w3tc_bunnycdn_logo.svg') 0 8px no-repeat;
+	background: url('../img/img/w3tc_w3tc-logo.png') 0 8px no-repeat;
 }
 
-#w3tc-bunnycdn-ad-cdn,
-#w3tc-bunnycdn-ad-general {
+#w3tc-tcdn-ad-cdn,
+#w3tc-tcdn-ad-general {
     display: flex;
 	flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
 }
 
-#w3tc-bunnycdn-ad-cdn {
+#w3tc-tcdn-ad-cdn {
 	background: linear-gradient(to bottom, #FCFDFF, #E7F1FF);
 	border: 1px solid #c3c4c7;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 }
 
-#w3tc-bunnycdn-ad-general {
+#w3tc-tcdn-ad-general {
 	background: #12193B;
 	margin-top: 10px;
 }
 
-#w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-icon-bunny-rocket {
-	padding: 5px;
-}
-
-#w3tc-bunnycdn-ad-cdn strong {
+#w3tc-tcdn-ad-cdn strong {
 	color: #3E497E;
 	font-weight: 700;
 	margin: 5px 10px;
 	padding: 5px 10px;
 }
 
-#w3tc-bunnycdn-ad-general strong {
+#w3tc-tcdn-ad-general strong {
 	color: #FFFFFF;
 	font-weight: 700;
 	margin: 5px 10px;
 	padding: 5px 10px;
 }
 
-#w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-promotion-button {
+#w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button {
 	margin: 5px 10px;
 	padding: 5px 10px;
 	color: #ffffff;
@@ -1421,12 +1417,12 @@ td .w3tc-control-after span {
 	cursor: pointer;
 }
 
-#w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-promotion-button:hover {
+#w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button:hover {
 	background-color: #4965B6;
 	border-color: #4965B6;
 }
 
-#w3tc-bunnycdn-ad-general .w3tc-bunnycdn-promotion-button {
+#w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button {
 	margin: 5px 10px;
 	padding: 5px 10px;
 	color: #12193B;
@@ -1439,27 +1435,23 @@ td .w3tc-control-after span {
 	cursor: pointer;
 }
 
-#w3tc-bunnycdn-ad-general .w3tc-bunnycdn-promotion-button:hover {
+#w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button:hover {
 	background-image: linear-gradient(to right, #FFA681, #FFE072);
 }
 
-#w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-logo {
+#w3tc-tcdn-ad-cdn .w3tc-tcdn-icon,
+#w3tc-tcdn-ad-general .w3tc-tcdn-icon {
 	margin: 5px 10px;
 	padding: 5px;
 }
 
-#w3tc-bunnycdn-ad-general .w3tc-bunnycdn-icon-white {
-	margin: 5px 10px;
-	padding: 5px;
-}
-
-#w3tc-bunnycdn-ad-cdn strong,
-#w3tc-bunnycdn-ad-general strong {
+#w3tc-tcdn-ad-cdn strong,
+#w3tc-tcdn-ad-general strong {
     margin-right: auto;
 }
 
-#w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-promotion-button,
-#w3tc-bunnycdn-ad-general .w3tc-bunnycdn-promotion-button {
+#w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button,
+#w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button {
     margin-left: auto;
 }
 
@@ -1732,28 +1724,27 @@ td .w3tc-control-after span {
 		float: unset;
 	}
 		#w3tc-footer .button-buy-plugin,
-	#w3tc-footer .w3tc-bunnycdn-logo {
+	#w3tc-footer .w3tc-tcdn-logo {
 		float: none;
 		margin: 1em auto;
 	}
 
-	#w3tc-bunnycdn-ad-cdn,
-	#w3tc-bunnycdn-ad-general {
+	#w3tc-tcdn-ad-cdn,
+	#w3tc-tcdn-ad-general {
         flex-direction: column;
     }
 
-    #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-icon-bunny-rocket,
-    #w3tc-bunnycdn-ad-cdn strong,
-    #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-promotion-button,
-    #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-logo,
-	#w3tc-bunnycdn-ad-general strong,
-    #w3tc-bunnycdn-ad-general .w3tc-bunnycdn-promotion-button,
-    #w3tc-bunnycdn-ad-general .w3tc-bunnycdn-icon-white {
+    #w3tc-tcdn-ad-cdn strong,
+    #w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button,
+    #w3tc-tcdn-ad-cdn .w3tc-tcdn-logo,
+	#w3tc-tcdn-ad-general strong,
+    #w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button,
+    #w3tc-tcdn-ad-general .w3tc-tcdn-icon {
         margin: 10px 0;
     }
 
-    #w3tc-bunnycdn-ad-cdn .w3tc-bunnycdn-promotion-button,
-	#w3tc-bunnycdn-ad-general .w3tc-bunnycdn-promotion-button {
+    #w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button,
+	#w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button {
         margin-top: 10px;
     }
 }
