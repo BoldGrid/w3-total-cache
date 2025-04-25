@@ -558,7 +558,7 @@ class CdnEngine_S3 extends CdnEngine_Base {
 			)
 		);
 
-		if ( $object['Body'] !== $key ) {
+		if ( (string) $object['Body'] !== $key ) {
 			$error = 'Objects are not equal.';
 
 			$this->api->deleteObject(
