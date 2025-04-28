@@ -53,7 +53,7 @@ class Generic_AdminActions_Config {
 		} else {
 			$imported = $config->import(
 				isset( $_FILES['config_file']['tmp_name'] ) ?
-					esc_url_raw( wp_unslash( $_FILES['config_file']['tmp_name'] ) ) : ''
+				wp_normalize_path( sanitize_text_field( $_FILES['config_file']['tmp_name'] ) ) : ''
 			);
 
 			if ( ! $imported ) {
