@@ -396,7 +396,7 @@ class CdnEngine_S3_Compatible extends CdnEngine_Base {
 			return false;
 		}
 
-		if ( $object->body !== $string ) {
+		if ( (string) $object->body !== $string ) {
 			$error = 'Objects are not equal.';
 
 			@$this->_s3->deleteObject( $this->_config['bucket'], $string );
