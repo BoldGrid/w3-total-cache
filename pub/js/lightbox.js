@@ -80,7 +80,7 @@ var W3tc_Lightbox = {
 
 	close: function() {
 		if (this.options.onClose)
-			this.options.onClose();
+			this.options.onClose( this );
 
 		this.container.remove();
 		W3tc_Overlay.hide();
@@ -521,6 +521,37 @@ function w3tc_lightbox_save_license_key(license_key, nonce, callback) {
 	}, 'json').fail(callback);
 }
 
+function w3tc_lightbox_auto_config_tcdn(nonce, data_src ) {
+	W3tc_Lightbox.open({
+		id:'w3tc-overlay',
+		close: '',
+		width: 800,
+		height: 300,
+		url: ajaxurl +
+			'?action=w3tc_ajax&_wpnonce=' +
+			nonce +
+			'&w3tc_action=cdn_totalcdn_auto_config',
+		onClose: function( o ) {
+			var $container = jQuery( o.container ),
+				success    = $container.find( 'input.result-success' ).val();
+
+				if ( 'true' === success ) {
+					window.location = window.location + '&refresh';
+				}
+		},
+		callback: function(lightbox) {
+			lightbox.resize();
+			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
+				'&w3tc_action=cdn_totalcdn_confirm_auto_config';
+
+			lightbox.load_form(url, '.w3tc_cdn_totalcdn_form', function(o) {
+				o.resize();
+
+			} );
+		}
+	});
+}
+
 function w3tc_lightbox_buy_tcdn(nonce, data_src, renew_key, client_id) {
 	if (window.w3tc_ga) {
 		client_id = w3tc_ga_cid;
@@ -628,6 +659,16 @@ jQuery(function() {
 		jQuery('#w3tc-license-instruction').show();
 		return false;
 	});
+
+	jQuery('.button-auto-tcdn').on( 'click', function() {
+		var data_src = jQuery(this).data('src');
+		var nonce    = jQuery(this).data('nonce');
+
+		if (!nonce) {
+			nonce = w3tc_nonce;
+		}
+		w3tc_lightbox_auto_config_tcdn(nonce, data_src);
+	} );
 
 	jQuery('.button-buy-tcdn').on( 'click', function() {
 		var data_src = jQuery(this).data('src');

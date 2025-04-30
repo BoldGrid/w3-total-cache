@@ -68,7 +68,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @var string
 	 */
-	private $api_base_url = 'https://cdn-api-dev-jamesros.boldgrid.com/api/v1';
+	private $api_base_url = 'https://cdn-api-dev.boldgrid.com/api/v1';
 
 	/**
 	 * Default edge rules.
@@ -199,7 +199,7 @@ class Cdn_TotalCdn_Api {
 	public function list_pull_zones() {
 		$this->api_type = 'account';
 
-		return $this->wp_remote_get( \esc_url( $this->api_base_url . '/zones' ) );
+		return $this->wp_remote_get( \esc_url( $this->api_base_url . '/pullzones' ) );
 	}
 
 	/**
@@ -246,7 +246,7 @@ class Cdn_TotalCdn_Api {
 		}
 
 		return $this->wp_remote_post(
-			$this->api_base_url . '/zone',
+			$this->api_base_url . '/pullzone',
 			$data
 		);
 	}
@@ -274,7 +274,7 @@ class Cdn_TotalCdn_Api {
 		}
 
 		return $this->wp_remote_post(
-			$this->api_base_url . '/zone/' . $id,
+			$this->api_base_url . '/pullzone/' . $id,
 			$data
 		);
 	}
@@ -301,7 +301,7 @@ class Cdn_TotalCdn_Api {
 		}
 
 		return $this->wp_remote_post(
-			\esc_url( $this->api_base_url . '/zone/' . $id ),
+			\esc_url( $this->api_base_url . '/pullzone/' . $id ),
 			array(),
 			array( 'method' => 'DELETE' )
 		);
@@ -339,7 +339,7 @@ class Cdn_TotalCdn_Api {
 		}
 
 		$this->wp_remote_post(
-			\esc_url( $this->api_base_url . '/zone/' . $pull_zone_id . '/addCustomHostname' ),
+			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/addCustomHostname' ),
 			array( 'CustomHostName' => $hostname )
 		);
 	}
@@ -365,7 +365,7 @@ class Cdn_TotalCdn_Api {
 		}
 
 		$response = $this->wp_remote_post(
-			\esc_url( $this->api_base_url . '/zone/' . $pull_zone_id . '/loadFreeCertificate' ),
+			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/loadFreeCertificate' ),
 			array( 'hostname' => $hostname )
 		);
 
@@ -420,7 +420,7 @@ class Cdn_TotalCdn_Api {
 		}
 
 		$this->wp_remote_post(
-			\esc_url( $this->api_base_url . '/zone/' . $pull_zone_id . '/edgerule' ),
+			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/edgerule' ),
 			$data
 		);
 	}

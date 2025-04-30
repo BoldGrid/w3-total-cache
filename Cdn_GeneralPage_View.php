@@ -55,12 +55,13 @@ Util_Ui::config_overloading_button(
 				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,
 				// translators: 3 HTML input for Total CDN sign up, 4 HTML img tag for Total CDN logo.
 				__(
-					'%1$sLooking for a top rated CDN Provider? Try Total CDN.%2$s%3$s%4$s',
+					'%1$sLooking for a top rated CDN Provider? Try Total CDN.%2$s%3$s%4$s%5$s',
 					'w3-total-cache'
 				),
 				'<strong>',
 				'</strong>',
 				'<input type="button" class="button-primary btn button-buy-tcdn" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Subscribe To Total CDN', 'w3-total-cache' ) . '">',
+				'<input type="button" class="button-secondary btn button-auto-tcdn" value="' . esc_attr__( 'Test Auto Config CDN', 'w3-total-cache' ) . '">',
 				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/w3tc_w3tc-logo.png', W3TC_FILE ) ) . '" alt="Total CDN Icon">'
 			),
 			array(

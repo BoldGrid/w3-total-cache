@@ -47,30 +47,84 @@ class Cdn_TotalCdn_Auto_Configure {
 	}
 
 	/**
+	 * Handles the AJAX request to confirm auto-configuration for TotalCDN.
+	 *
+	 * This method retrieves the account API key and pull zone ID from the
+	 * configuration and renders the confirmation page for TotalCDN.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_cdn_totalcdn_confirm_auto_config() {
+		$result = $this->run();
+		?>
+		<input
+			type="hidden"
+			class="cdn-totalcdn-auto-config result-success"
+			value="<?php echo esc_attr( $result['success'] ? 'true' : 'false' ); ?>" />
+		<p class="cdn-totalcdn-auto-config result-message">
+			<?php echo esc_html( $result['message'] ); ?>
+		</p>
+		<?php
+		\wp_die();
+	}
+
+	/**
+	 * Handles the AJAX request to auto-configure TotalCDN.
+	 *
+	 * This method retrieves the account API key and pull zone ID from the
+	 * configuration and renders the auto-configuration page for TotalCDN.
+	 *
+	 * @since 2.6.0
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_cdn_totalcdn_auto_config() {
+		error_log( 'w3tc_ajax_cdn_totalcdn_auto_config' );
+		?>
+		<p>Test Auto Config LightBox</p>
+		<?php
+		\wp_die();
+	}
+
+	/**
 	 * Runs the auto-configuration process.
 	 *
 	 * @since SINCEVERSION
 	 *
-	 * @return bool True on success, false on failure.
+	 * @return string Response Message.
 	 */
 	public function run() {
 		// 1. Check and verify that the Total CDN account API key is set.
-		if ( ! $this->check_api_key() ) {
-			error_log( 'Total CDN API key is not set.' );
-			return false;
+		$api_key_result = $this->check_api_key();
+		if ( false === $api_key_result['success'] ) {
+			return sprintf(
+				// translators: 1: HTML strong tag, 2: HTML closing strong tag.
+				'%1$s%2$s%3$s',
+				'<p>',
+				esc_html( $api_key_result['message'] ),
+				'</p>'
+			);
 		}
 
 		// 2. Setup Pull Zone.
-		if ( ! $this->setup_pull_zone() ) {
-			error_log( 'Failed to create pull zone.' );
-			return false;
+		$setup_pullzone_result = $this->setup_pull_zone();
+		if ( false === $setup_pullzone_result['success'] ) {
+			return $setup_pullzone_result;
 		}
 
 		// 4. Setup the Edge Rules.
-		$this->setup_edge_rules();
+		$setup_edge_rules_result = $this->setup_edge_rules();
+
+		if ( false === $setup_edge_rules_result['success'] ) {
+			return $setup_edge_rules_result;
+		}
 
 		// 5. Enable the CDN.
-		$this->enable_cdn();
+		$enable_cdn_result = $this->enable_cdn();
+
+		return $enable_cdn_result;
 	}
 
 	/**
@@ -84,12 +138,18 @@ class Cdn_TotalCdn_Auto_Configure {
 		$api_key = $this->config->get( 'cdn.totalcdn.account_api_key' );
 
 		if ( empty( $api_key ) ) {
-			return false;
+			return array(
+				'success' => false,
+				'message' => __( 'API key is not set. Please enter your Total CDN API key.', 'w3-total-cache' ),
+			);
 		}
 
 		$this->api_key = $api_key;
 
-		return true;
+		return array(
+			'success' => true,
+			'message' => __( 'API key is set.', 'w3-total-cache' ),
+		);
 	}
 
 	/**
@@ -128,19 +188,30 @@ class Cdn_TotalCdn_Auto_Configure {
 
 			$pull_zone_id = (int) $response['Id'];
 			$name         = $response['Name'];
-			$cdn_hostname = $response['ZoneDomain'];
+			$cdn_hostname = $response['ExtCdnDomain'];
 
-			$config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
-			$config->set( 'cdn.totalcdn.name', $name );
-			$config->set( 'cdn.totalcdn.origin_url', $origin_url );
-			$config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
-			$config->save();
+			$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
+			$this->config->set( 'cdn.totalcdn.name', $name );
+			$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
+			$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
+			$this->config->save();
 
-			return true;
+			return array(
+				'success' => true,
+				'message' => sprintf(
+					// translators: 1: Pull Zone ID, 2: CDN Hostname.
+					__( 'Pull zone created successfully. Pull Zone ID: %1$s, CDN Hostname: %2$s', 'w3-total-cache' ),
+					$pull_zone_id,
+					$cdn_hostname
+				),
+			);
 
 		} catch ( \Exception $ex ) {
-			error_log( 'Failed to create pull zone: ' . $ex->getMessage() );
-			return false;
+			error_log( 'Failed to create pull zone' );
+			return array(
+				'success' => false,
+				'message' => __( 'Failed to create pull zone', 'w3-total-cache' ),
+			);
 		}
 	}
 
@@ -159,7 +230,10 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		if ( empty( $pull_zone_id ) ) {
 			error_log( 'Pull zone ID is not set.' );
-			return false;
+			return array(
+				'success' => false,
+				'message' => __( 'Pull zone ID is not set. Please create a pull zone first.', 'w3-total-cache' ),
+			);
 		}
 
 		$error_messages = array();
@@ -179,17 +253,27 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		if ( ! empty( $error_messages ) ) {
 			error_log( 'Failed to add edge rules: ' . implode( ', ', $error_messages ) );
-			return false;
+			return array(
+				'success' => false,
+				'message' => sprintf(
+					// translators: 1: Error message.
+					__( 'Failed to add edge rules: %1$s', 'w3-total-cache' ),
+					implode( ', ', $error_messages )
+				),
+			);
 		}
 
-		return true;
+		return array(
+			'success' => true,
+			'message' => __( 'Edge rules set up successfully.', 'w3-total-cache' ),
+		);
 	}
 
 	/**
 	 * Enable CDN.
 	 *
 	 * Enables the CDN in the W3TC settings.
-	 * 
+	 *
 	 * @since SINCEVERSION
 	 */
 	public function enable_cdn() {
@@ -198,7 +282,10 @@ class Cdn_TotalCdn_Auto_Configure {
 		$this->config->set( 'cdn.engine', 'totalcdn' );
 		$this->config->save();
 
-		error_log( 'CDN enabled successfully.' );
+		return array(
+			'success' => true,
+			'message' => __( 'CDN enabled successfully.', 'w3-total-cache' ),
+		);
 	}
 
 }

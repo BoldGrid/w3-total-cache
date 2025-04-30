@@ -75,19 +75,11 @@ class Cdn_Plugin_Admin {
 
 		\add_action( 'w3tc_settings_general_boxarea_cdn', array( $this, 'w3tc_settings_general_boxarea_cdn' ) );
 
-		\add_action( 'w3tc_tcdn_apply', array( $this, 'auto_configure_total_cdn' ), 10, 1 );
-	}
+		$totalcdn_auto_configure = new Cdn_TotalCdn_Auto_Configure( Dispatcher::config() );
 
-	/**
-	 * Automatically configures TotalCDN settings.
-	 *
-	 * @param array $config The configuration settings.
-	 *
-	 * @return void
-	 */
-	public function auto_configure_total_cdn( $config ) {
-		$totalcdn_auto_configure = new Cdn_TotalCdn_Auto_Configure( $config );
-		$totalcdn_auto_configure->run();
+		\add_action( 'w3tc_tcdn_apply', array( $totalcdn_auto_configure, 'auto_configure_on_checkout' ), 10, 1 );
+		\add_action( 'w3tc_ajax_cdn_totalcdn_auto_config', array( $totalcdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_auto_config' ) );
+		\add_action( 'w3tc_ajax_cdn_totalcdn_confirm_auto_config', array( $totalcdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_confirm_auto_config' ) );
 	}
 
 	/**
