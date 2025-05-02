@@ -587,6 +587,10 @@ class PgCache_Environment {
 		$rules .= "    RewriteEngine On\n";
 		$rules .= '    RewriteBase ' . $rewrite_base . "\n";
 
+		// Set the original request URI in an environment variable.
+		$rules .= '    RewriteCond %{THE_REQUEST} \s([^\s?]+)' . "\n";
+		$rules .= '    RewriteRule .*   - [E=ORIG_URI:%1]' . "\n";
+
 		if ( $config->get_boolean( 'pgcache.debug' ) ) {
 			$rules .= "    RewriteRule ^(.*\\/)?w3tc_rewrite_test([0-9]+)/?$ $1?w3tc_rewrite_test=1 [L]\n";
 		}
@@ -801,7 +805,7 @@ class PgCache_Environment {
 		);
 
 		// Make final rewrites for specific files.
-		$uri_prefix = $cache_path . '/%{HTTP_HOST}/%{REQUEST_URI}/_index' . $env_W3TC_SLASH .
+		$uri_prefix = $cache_path . '/%{HTTP_HOST}/%{ENV:ORIG_URI}/_index' . $env_W3TC_SLASH .
 			$env_W3TC_UA . $env_W3TC_REF . $env_W3TC_COOKIE . $env_W3TC_SSL . $env_W3TC_PREVIEW;
 		$uri_prefix = apply_filters( 'w3tc_pagecache_rules_apache_uri_prefix', $uri_prefix );
 
