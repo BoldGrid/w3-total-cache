@@ -259,7 +259,15 @@ class Cdn_TotalCdn_Api {
 			throw new \Exception( \esc_html__( 'A pull zone name (string) is required.', 'w3-total-cache' ) );
 		}
 
-		error_log( 'Add pull zone: ' . json_encode( $data ) );
+		if ( empty( $data['AccountId'] ) ) {
+			// Get the account ID from the API by calling the get_user() method.
+			$response = $this->get_user();
+			if ( ! empty( $response['AccountId'] ) ) {
+				$data['AccountId'] = $response['AccountId'];
+			} else {
+				throw new \Exception( \esc_html__( 'Failed to retrieve account ID.', 'w3-total-cache' ) );
+			}
+		}
 
 		return $this->wp_remote_post(
 			$this->api_base_url . '/pullzone',

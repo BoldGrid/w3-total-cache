@@ -42,39 +42,39 @@ defined( 'W3TC' ) || die();
 				// List pull zones for selection.
 				foreach ( $details['pull_zones'] as $pull_zone ) {
 					// Get the CDN hostname and custom hostnames.
-					$cdn_hostname     = $pull_zone['zone_domain'];
-					$custom_hostnames = $pull_zone['custom_hostnames'] ?? array();
+					$cdn_hostname     = $pull_zone['ExtCdnDomain'];
+					$custom_hostnames = $pull_zone['CustomHostnames'] ?? array();
 
 					if ( false === strpos( $cdn_hostname, 'b-cdn.net' ) ) {
 						// CDN hostname is a BunnyCDN hostname.
-						$cdn_hostname = $pull_zone['zone_domain'];
+						$cdn_hostname = $pull_zone['ExtCdnDomain'];
 					} else {
 						// CDN hostname is not a BunnyCDN hostname.
-						$custom_hostnames[] = $pull_zone['zone_domain'];
+						$custom_hostnames[] = $pull_zone['ExtCdnDomain'];
 					}
 
 					// Determine the origin URL/IP.
 					$origin_url = empty( $pull_zone['origin_url'] ) ? $cdn_hostname : $pull_zone['origin_url'];
 
 					// Determine if the current option is selected.
-					$is_selected = isset( $details['pull_zone_id'] ) && $details['pull_zone_id'] === $pull_zone['id'];
+					$is_selected = isset( $details['pull_zone_id'] ) && $details['pull_zone_id'] === $pull_zone['Id'];
 
 					// Print the select option.
 					?>
-					<option value="<?php echo esc_attr( $pull_zone['id'] ); ?>"
+					<option value="<?php echo esc_attr( $pull_zone['Id'] ); ?>"
 						<?php echo $is_selected ? ' selected' : ''; ?>
 						data-origin="<?php echo esc_html( $origin_url ); ?>"
-						data-name="<?php echo esc_attr( $pull_zone['name'] ); ?>"
+						data-name="<?php echo esc_attr( $pull_zone['Name'] ); ?>"
 						data-cdn-hostname="<?php echo esc_attr( $cdn_hostname ); ?>"
 						data-custom-hostnames="<?php echo esc_attr( implode( ',', $custom_hostnames ) ); ?>">
-						<?php echo esc_attr( $pull_zone['name'] ); ?>
+						<?php echo esc_attr( $pull_zone['Name'] ); ?>
 						(<?php echo esc_html( $origin_url ); ?>)
 					</option>
 					<?php
 					// If selected, then get the origin URL/IP and pull zone name.
 					if ( $is_selected ) {
 						$selected_origin_url       = $origin_url;
-						$selected_name             = $pull_zone['name'];
+						$selected_name             = $pull_zone['Name'];
 						$selected_custom_hostnames = implode( "\r\n", $custom_hostnames );
 					}
 				}

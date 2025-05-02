@@ -336,7 +336,7 @@ class Cdn_TotalCdn_Popup {
 
 				$pull_zone_id = (int) $response['Id'];
 				$name         = $response['Name'];
-				$cdn_hostname = $response['ZoneDomain'];
+				$cdn_hostname = $response['ExtCdnDomain'];
 			} catch ( \Exception $ex ) {
 				// Reauthorize: Ask for a new account API key.
 				$this->render_intro(
