@@ -77,7 +77,7 @@ class Cdn_Plugin_Admin {
 
 		$totalcdn_auto_configure = new Cdn_TotalCdn_Auto_Configure( Dispatcher::config() );
 
-		// \add_action( 'w3tc_tcdn_apply', array( $totalcdn_auto_configure, 'auto_configure_on_checkout' ), 10, 1 );
+		\add_action( 'w3tc_tcdn_apply', array( $totalcdn_auto_configure, 'run' ), 10, 1 );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_auto_config', array( $totalcdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_auto_config' ) );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_confirm_auto_config', array( $totalcdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_confirm_auto_config' ) );
 	}
