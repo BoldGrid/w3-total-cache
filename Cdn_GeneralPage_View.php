@@ -60,7 +60,7 @@ Util_Ui::config_overloading_button(
 				),
 				'<strong>',
 				'</strong>',
-				'<input type="button" class="button-primary btn button-buy-tcdn" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Subscribe To Total CDN', 'w3-total-cache' ) . '">',
+				'<input type="button" class="button-primary btn button-buy-tcdn" data-license-key="' . $config->get_string( 'plugin.license_key' ) . '" data-api-key="' . $config->get_string( 'cdn.totalcdn.account_api_key' ) . '" data-account-id="' . $config->get_string( 'cdn.totalcdn.account_id' ) . '" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Subscribe To Total CDN', 'w3-total-cache' ) . '">',
 				'<input type="button" class="button-secondary btn button-auto-tcdn" value="' . esc_attr__( 'Test Auto Config CDN', 'w3-total-cache' ) . '">',
 				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/w3tc_w3tc-logo.png', W3TC_FILE ) ) . '" alt="Total CDN Icon">'
 			),
