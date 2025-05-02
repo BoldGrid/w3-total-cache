@@ -68,7 +68,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @var string
 	 */
-	private $api_base_url = 'https://cdn-api-dev.boldgrid.com/api/v1';
+	private $api_base_url = 'https://cdn-api-dev-jamesros.boldgrid.com/api/v1';
 
 	/**
 	 * Default edge rules.
@@ -203,6 +203,20 @@ class Cdn_TotalCdn_Api {
 	}
 
 	/**
+	 * Gets the current user details.
+	 *
+	 * @since SINCEVERSION
+	 *
+	 * @return array|WP_Error API response or error object.
+	 */
+	public function get_user() {
+		$this->api_type = 'account';
+
+		return $this->wp_remote_get( \esc_url( $this->api_base_url . '/user' ) );
+	}
+
+
+	/**
 	 * Gets the details of a specific pull zone.
 	 *
 	 * @since SINCEVERSION
@@ -244,6 +258,8 @@ class Cdn_TotalCdn_Api {
 		if ( \preg_match( '[^\w\d-]', $data['Name'] ) ) { // Only letters, numbers, and dashes are allowed in the Name.
 			throw new \Exception( \esc_html__( 'A pull zone name (string) is required.', 'w3-total-cache' ) );
 		}
+
+		error_log( 'Add pull zone: ' . json_encode( $data ) );
 
 		return $this->wp_remote_post(
 			$this->api_base_url . '/pullzone',

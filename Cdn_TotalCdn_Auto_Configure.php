@@ -34,6 +34,24 @@ class Cdn_TotalCdn_Auto_Configure {
 	protected $api_key = '';
 
 	/**
+	 * Api.
+	 *
+	 * @var Cdn_TotalCdn_Api
+	 *
+	 * @since SINCEVERSION
+	 */
+	protected $api;
+
+	/**
+	 * Account ID.
+	 *
+	 * @var string
+	 *
+	 * @since SINCEVERSION
+	 */
+	protected $account_id = '';
+
+	/**
 	 * Constructor.
 	 *
 	 * @since SINCEVERSION
@@ -88,7 +106,6 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_auto_config() {
-		error_log( 'w3tc_ajax_cdn_totalcdn_auto_config' );
 		?>
 		<p>Test Auto Config LightBox</p>
 		<?php
@@ -106,13 +123,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		// 1. Check and verify that the Total CDN account API key is set.
 		$api_key_result = $this->check_api_key();
 		if ( false === $api_key_result['success'] ) {
-			return sprintf(
-				// translators: 1: HTML strong tag, 2: HTML closing strong tag.
-				'%1$s%2$s%3$s',
-				'<p>',
-				esc_html( $api_key_result['message'] ),
-				'</p>'
-			);
+			return $api_key_result;
 		}
 
 		// 2. Setup Pull Zone.
@@ -153,6 +164,25 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		$this->api_key = $api_key;
 
+		$this->api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
+
+		try {
+			$response = $this->api->get_user();
+		} catch ( \Exception $ex ) {
+			return array(
+				'success' => false,
+				'message' => sprintf(
+					// translators: 1: Error message.
+					__( 'Failed to verify API key: %1$s', 'w3-total-cache' ),
+					$ex->getMessage()
+				),
+			);
+		}
+
+		$this->account_id = $response['AccountId'];
+
+		error_log( 'Account_id: ' . json_encode( $this->account_id ) );
+
 		return array(
 			'success' => true,
 			'message' => __( 'API key is set.', 'w3-total-cache' ),
@@ -170,9 +200,9 @@ class Cdn_TotalCdn_Auto_Configure {
 		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
 
 		// Origin URL is the URL of the current site.
-		$origin_url       = \home_url();
+		$origin_url = \home_url();
 		// Pull site's domain with periods turned into hyphens.
-		$name             = \str_replace( '.', '-', \parse_url( $origin_url, PHP_URL_HOST ) );
+		$name = \str_replace( '.', '-', \wp_parse_url( $origin_url, PHP_URL_HOST ) );
 
 		// Try to create a new pull zone.
 		try {
@@ -180,6 +210,7 @@ class Cdn_TotalCdn_Auto_Configure {
 				array(
 					'Name'                  => $name, // The name/hostname for the pull zone where the files will be accessible; only letters, numbers, and dashes.
 					'OriginUrl'             => $origin_url, // Origin URL or IP (with optional port number).
+					'AccountId'             => $this->account_id, // Account ID.
 					'CacheErrorResponses'   => true, // If enabled, total.net will temporarily cache error responses (304+ HTTP status codes) from your servers for 5 seconds to prevent DDoS attacks on your origin. If disabled, error responses will be set to no-cache.
 					'DisableCookies'        => false, // Determines if the Pull Zone should automatically remove cookies from the responses.
 					'EnableTLS1'            => false, // TLS 1.0 was deprecated in 2018.
@@ -190,8 +221,6 @@ class Cdn_TotalCdn_Auto_Configure {
 					'UseStaleWhileOffline'  => true, // Serve stale content if the origin is offline.
 				)
 			);
-
-			error_log( 'Pull Zone Created: ' . json_encode( $response ) ) ;
 
 			$pull_zone_id = (int) $response['Id'];
 			$name         = $response['Name'];
@@ -214,7 +243,6 @@ class Cdn_TotalCdn_Auto_Configure {
 			);
 
 		} catch ( \Exception $ex ) {
-			error_log( 'Failed to create pull zone' );
 			return array(
 				'success' => false,
 				'message' => sprintf(
@@ -240,7 +268,6 @@ class Cdn_TotalCdn_Auto_Configure {
 		$pull_zone_id = $this->config->get( 'cdn.totalcdn.pull_zone_id' );
 
 		if ( empty( $pull_zone_id ) ) {
-			error_log( 'Pull zone ID is not set.' );
 			return array(
 				'success' => false,
 				'message' => sprintf(
@@ -267,7 +294,6 @@ class Cdn_TotalCdn_Auto_Configure {
 		}
 
 		if ( ! empty( $error_messages ) ) {
-			error_log( 'Failed to add edge rules: ' . implode( ', ', $error_messages ) );
 			return array(
 				'success' => false,
 				'message' => sprintf(
@@ -302,5 +328,4 @@ class Cdn_TotalCdn_Auto_Configure {
 			'message' => __( 'CDN enabled successfully.', 'w3-total-cache' ),
 		);
 	}
-
 }
