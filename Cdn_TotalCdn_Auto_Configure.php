@@ -59,13 +59,20 @@ class Cdn_TotalCdn_Auto_Configure {
 	public function w3tc_ajax_cdn_totalcdn_confirm_auto_config() {
 		$result = $this->run();
 		?>
-		<input
-			type="hidden"
-			class="cdn-totalcdn-auto-config result-success"
-			value="<?php echo esc_attr( $result['success'] ? 'true' : 'false' ); ?>" />
-		<p class="cdn-totalcdn-auto-config result-message">
-			<?php echo esc_html( $result['message'] ); ?>
-		</p>
+		<form class="w3tc_cdn_totalcdn_form">
+			<div class="metabox-holder">
+				<?php Util_Ui::postbox_header( esc_html__( 'TotalCDN Auto-Configuration', 'w3-total-cache' ) ); ?>
+				<input
+					type="hidden"
+					class="cdn-totalcdn-auto-config result-success"
+					value="<?php echo esc_attr( $result['success'] ? 'true' : 'false' ); ?>" />
+				<div style="text-align: center">
+					<p class="cdn-totalcdn-auto-config result-message">
+						<?php echo esc_html( $result['message'] ); ?>
+					</p>
+				</div>
+			</div>
+		</form>
 		<?php
 		\wp_die();
 	}
@@ -210,7 +217,11 @@ class Cdn_TotalCdn_Auto_Configure {
 			error_log( 'Failed to create pull zone' );
 			return array(
 				'success' => false,
-				'message' => __( 'Failed to create pull zone', 'w3-total-cache' ),
+				'message' => sprintf(
+					// translators: 1: Error message.
+					__( 'Failed to create pull zone: %1$s', 'w3-total-cache' ),
+					$ex->getMessage()
+				),
 			);
 		}
 	}
@@ -232,7 +243,11 @@ class Cdn_TotalCdn_Auto_Configure {
 			error_log( 'Pull zone ID is not set.' );
 			return array(
 				'success' => false,
-				'message' => __( 'Pull zone ID is not set. Please create a pull zone first.', 'w3-total-cache' ),
+				'message' => sprintf(
+					// translators: 1: Error message.
+					__( 'Pull zone ID is not set. Please create a pull zone first.', 'w3-total-cache' ),
+					$pull_zone_id
+				),
 			);
 		}
 
