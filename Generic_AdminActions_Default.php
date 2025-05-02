@@ -114,11 +114,15 @@ class Generic_AdminActions_Default {
 	 * @throws \Exception If saving the api key or configuration fails.
 	 */
 	public function w3tc_default_save_tcdn_key() {
-		$api_key = Util_Request::get_string( 'api_key' );
+		$license_key = Util_Request::get_string( 'license_key' );
+		$api_key     = Util_Request::get_string( 'api_key' );
+		$account_id  = Util_Request::get_string( 'account_id' );
 		try {
 			$old_config = new Config();
 
+			$this->_config->set( 'plugin.license_key', $license_key );
 			$this->_config->set( 'cdn.totalcdn.account_api_key', $api_key );
+			$this->_config->set( 'cdn.totalcdn.account_id', $account_id );
 			$this->_config->save();
 
 			Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(

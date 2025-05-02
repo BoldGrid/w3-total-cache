@@ -220,19 +220,23 @@ class Licensing_Core {
 	/**
 	 * Generates a purchase URL for Total CDN.
 	 *
-	 * @param string $data_src  Optional data source for the URL.
-	 * @param string $renew_key Optional renewal key for the license.
-	 * @param string $client_id Optional client ID associated with the purchase.
+	 * @param string $data_src    Optional data source for the URL.
+	 * @param string $license_key Optional License key.
+	 * @param string $api_key     Optional CDN API key.
+	 * @param string $account_id  Optional CDN account ID.
+	 * @param string $client_id   Optional client ID associated with the purchase.
 	 *
 	 * @return string URL for purchasing or renewing Total CDN.
 	 */
-	public static function purchase_tcdn_url( $data_src = '', $renew_key = '', $client_id = '' ) {
+	public static function purchase_tcdn_url( $data_src = '', $license_key = '', $api_key = '', $account_id = '', $client_id = '' ) {
 		$state = Dispatcher::config_state_master();
-		return W3TC_PURCHASE_TCDN_URL .
-			( strpos( W3TC_PURCHASE_TCDN_URL, '?' ) === false ? '?' : '&' ) .
+		return W3TC_PURCHASE_CDN_URL .
+			( strpos( W3TC_PURCHASE_CDN_URL, '?' ) === false ? '?' : '&' ) .
 			'install_date=' . rawurlencode( $state->get_integer( 'common.install' ) ) .
 			( empty( $data_src ) ? '' : '&data_src=' . rawurlencode( $data_src ) ) .
-			( empty( $renew_key ) ? '' : '&renew_key=' . rawurlencode( $renew_key ) ) .
+			( empty( $license_key ) ? '' : '&license_key=' . rawurlencode( $license_key ) ) .
+			( empty( $api_key ) ? '' : '&api_key=' . rawurlencode( $api_key ) ) .
+			( empty( $account_id ) ? '' : '&account_id=' . rawurlencode( $account_id ) ) .
 			( empty( $client_id ) ? '' : '&client_id=' . rawurlencode( $client_id ) );
 	}
 
