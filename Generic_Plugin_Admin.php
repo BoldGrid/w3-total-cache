@@ -1299,6 +1299,66 @@ class Generic_Plugin_Admin {
 					$error // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 		}
+
+		error_log( '$_GET: ' . json_encode( $_GET ) );
+
+		if ( isset( $_GET['totalcdn_auto_config_success'] ) ) {
+			// Full URL to your logo
+			$logo_url = plugins_url( 'pub/img/totalcdn-logo-2.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
+
+			$html = sprintf(
+				'<div id="w3tc-tcdn-success" class="notice inline">
+					<div class="w3tc-success-inner">
+						<div class="w3tc-success-text">
+							<h2><img class="w3tc-success-logo" src="%1$s" alt="Total CDN Logo">%2$s 🎉</h2>
+							<p>%3$s</p>
+							<p>%4$s</p>
+							<p>%5$s<a href="admin.php?page=w3tc_cdn">%6$s</a>.</p>
+							<p>%7$s<a href="https://www.boldgrid.com/support/w3-total-cache/total-cdn-setup/">%8$s</a></p>
+						</div>
+					</div>
+				 </div>',
+				esc_url( $logo_url ),
+				esc_html__( 'CONGRATULATIONS!', 'w3-total-cache' ),
+				esc_html__(
+					'Total CDN has been automatically configured, and there are no further steps needed at this time.',
+					'w3-total-cache'
+				),
+				esc_html__(
+					'Your images, CSS, and JavaScript files, are now being served from the Total CDN network. This means faster load times and improved performance for your website.',
+					'w3-total-cache'
+				),
+				esc_html__(
+					'If you would like to configure additional settings, please visit the ',
+					'w3-total-cache'
+				),
+				esc_html__( 'CDN settings page', 'w3-total-cache' ),
+				esc_html__( 'To learn more about how everything works, you can check out our support article here: ', 'w3-total-cache' ),
+				esc_html__( 'Getting Started With Total CDN', 'w3-total-cache' )
+			);
+
+			echo wp_kses(
+				$html,
+				array(
+					'div'    => array(
+						'id'    => array(),
+						'class' => array(),
+						'style' => array(),
+					),
+					'img'    => array(
+						'src'   => array(),
+						'alt'   => array(),
+						'class' => array(),
+					),
+					'h2'     => array(),
+					'p'      => array(),
+					'a'      => array(
+						'href' => array(),
+					),
+					'strong' => array(),
+				)
+			);
+		}
 	}
 
 	/**

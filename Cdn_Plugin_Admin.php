@@ -67,10 +67,6 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
 				break;
-			default:
-				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
-				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
-				break;
 		}
 
 		\add_action( 'w3tc_settings_general_boxarea_cdn', array( $this, 'w3tc_settings_general_boxarea_cdn' ) );

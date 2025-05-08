@@ -535,8 +535,10 @@ function w3tc_lightbox_auto_config_tcdn(nonce, data_src ) {
 			var $container = jQuery( o.container ),
 				success    = $container.find( 'input.result-success' ).val();
 
+				console.log( 'purchase_success', success );
+
 				if ( 'true' === success ) {
-					window.location = window.location + '&refresh';
+					window.location = window.location + '&refresh&totalcdn_auto_config_success';
 				}
 		},
 		callback: function(lightbox) {
@@ -578,15 +580,16 @@ function w3tc_lightbox_buy_tcdn(nonce, data_src, license_key, api_key, account_i
 					return;
 
 				var data = event.data.split(' ');
-				console.log(data);
 				if (data[0] === 'api_key') {
 					// reset default timeout
 					var iframe = document.getElementById('buy_frame');
-					if (iframe.contentWindow && iframe.contentWindow.postMessage)
+					if (iframe.contentWindow && iframe.contentWindow.postMessage) {
 						iframe.contentWindow.postMessage('api_key_accepted', '*');
+					}
 
 					lightbox.options.onClose = function() {
-						window.location = window.location + '&refresh';
+						console.log( 'refresh on purchase success' );
+						window.location = window.location + '&refresh&totalcdn_auto_config_success';
 					}
 
 					w3tc_lightbox_save_tcdn_key(data[1], data[2], data[3], nonce, function() {

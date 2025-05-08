@@ -373,7 +373,10 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since SINCEVERSION
 	 *
-	 * @param string   $hostname The custom hostname to add.
+	 * @param string $hostname     The custom hostname to add.
+	 * @param string $pull_zone_id The pull zone ID (optional).
+	 *
+	 * @throws \Exception If the pull zone ID or hostname is invalid.
 	 */
 	public function load_free_certificate( $hostname, $pull_zone_id = null ) {
 		$this->api_type = 'account';
@@ -392,8 +395,6 @@ class Cdn_TotalCdn_Api {
 			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/loadFreeCertificate' ),
 			array( 'hostname' => $hostname )
 		);
-
-		error_log( 'Response: ' . json_encode( $response ) );
 	}
 
 	/**
