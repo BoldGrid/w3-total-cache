@@ -368,13 +368,59 @@ class Licensing_Plugin_Admin {
 				break;
 		}
 
-		if ( $message ) {
-			if ( ! Util_Admin::is_w3tc_admin_page() ) {
-				echo '<script src="' . esc_url( plugins_url( 'pub/js/lightbox.js', W3TC_FILE ) ) . '"></script>';
-				echo '<link rel="stylesheet" id="w3tc-lightbox-css"  href="' . esc_url( plugins_url( 'pub/css/lightbox.css', W3TC_FILE ) ) . '" type="text/css" media="all" />';
-			}
+		$messages = $message ? array( $message ) : array();
 
-			Util_Ui::error_box( '<p>' . $message . '</p>' );
+		$total_cdn_status = $state->get_string( 'totalcdn.status' );
+		$config           = Dispatcher::config();
+
+		if ( $config->get( 'cdn.enabled' ) && 'totalcdn' === $config->get( 'cdn.engine' ) ) {
+			switch ( $total_cdn_status ) {
+				case $this->_status_is( $total_cdn_status, 'active.by_rooturi' ):
+					break;
+				case $this->_status_is( $total_cdn_status, 'inactive.suspended' ):
+					$messages[] = __( 'Your Total CDN service has been suspended. Please contact Total CDN Support to resolve this.', 'w3-total-cache' );
+					break;
+				case $this->_status_is( $total_cdn_status, 'inactive.no_key' ):
+					$license_url         = admin_url( 'admin.php?page=w3tc_general#licensing' );
+					$network_license_url = network_admin_url( 'admin.php?page=w3tc_general#licensing' );
+					$messages[]          = sprintf(
+						// Translators: 1 opening HMTL a tag to license setting, 2 closing HTML a tag.
+						__(
+							'You must enter a W3 Total Cache license key to use the Total CDN Service. %1$sClick Here to Enter It%2$s.',
+							'w3-total-cache'
+						),
+						'<a href="' . ( is_network_admin() ? $network_license_url : $license_url ) . '">',
+						'</a>'
+					);
+					break;
+				case $this->_status_is( $total_cdn_status, 'inactive.invalid_key' ):
+					$license_url         = admin_url( 'admin.php?page=w3tc_general#licensing' );
+					$network_license_url = network_admin_url( 'admin.php?page=w3tc_general#licensing' );
+					$messages[]          = sprintf(
+						// Translators: 1 opening HMTL a tag to license setting, 2 closing HTML a tag.
+						__(
+							'Your W3 Total Cache license key is invalid, and is necessary to use the Total CDN Service. %1$sPlease confirm it%2$s.',
+							'w3-total-cache'
+						),
+						'<a href="' . ( is_network_admin() ? $network_license_url : $license_url ) . '">',
+						'</a>'
+					);
+					break;
+				default:
+					// Do nothing.
+					break;
+			}
+		}
+
+		foreach ( $messages as $message ) {
+			if ( $message ) {
+				if ( ! Util_Admin::is_w3tc_admin_page() ) {
+					echo '<script src="' . esc_url( plugins_url( 'pub/js/lightbox.js', W3TC_FILE ) ) . '"></script>';
+					echo '<link rel="stylesheet" id="w3tc-lightbox-css"  href="' . esc_url( plugins_url( 'pub/css/lightbox.css', W3TC_FILE ) ) . '" type="text/css" media="all" />';
+				}
+
+				Util_Ui::error_box( '<p>' . $message . '</p>' );
+			}
 		}
 
 		$license_update_messages = get_option( 'license_update_messages' );

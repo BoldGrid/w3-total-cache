@@ -125,6 +125,11 @@ class Generic_AdminActions_Default {
 			$this->_config->set( 'cdn.totalcdn.account_id', $account_id );
 			$this->_config->save();
 
+			// This applies a valid license state for the Total CDN license.
+			$config_state = Dispatcher::config_state();
+			$config_state->set( 'totalcdn.status', 'active.by_rooturi' );
+			$config_state->save();
+
 			Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(
 				$this->_config,
 				$old_config
