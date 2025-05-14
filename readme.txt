@@ -1,9 +1,9 @@
 === W3 Total Cache ===
-Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1
+Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto, vmarko, jacobd91, avonville1, jamesros161
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.8
-Stable tag: 2.8.8
+Stable tag: 2.8.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -361,6 +361,15 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.8.9 =
+* Fix: AWS S3 test
+* Fix: Gravity Forms submissions
+* Fix: Windows: Configuration import
+* Fix: Redis: Fix PHP 8 warning for incrBy value not being an integer
+* Fix: DbCache Cluster: Check for mysqli_result before using the object
+* Fix: PHP 8 warnings
+* Fix: Typos on settings pages
 
 = 2.8.8 =
 * Fix: Usage Statistics JavaScript error
