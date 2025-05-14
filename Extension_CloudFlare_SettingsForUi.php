@@ -24,7 +24,7 @@ class Extension_CloudFlare_SettingsForUi {
 				'key'                   => $c->get_string( array( 'cloudflare', 'key' ) ),
 				'zone_id'               => $c->get_string( array( 'cloudflare', 'zone_id' ) ),
 				'timelimit_api_request' => $c->get_integer(
-					array( 'cloudflare', 'timelimit.api_request' ),
+					array( 'cloudflare', 'timelimit.api_request' )
 				),
 			)
 		);

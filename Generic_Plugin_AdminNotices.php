@@ -418,7 +418,7 @@ class Generic_Plugin_AdminNotices {
 							__( 'settings', 'w3-total-cache' ) . '</a>',
 						'<a target="_blank" href="' . \esc_url( 'https://www.boldgrid.com/object-caching-changes-in-2-8-6/', null, 'link' ) .
 							'" title="' . \esc_attr__( 'Disabling Object Cache using Disk', 'w3-total-cache' ) . '">' .
-								\esc_html__( 'Learn more', 'w3-total-cache' ) . ' <span class="dashicons dashicons-external"></span></a>',
+								\esc_html__( 'Learn more', 'w3-total-cache' ) . ' <span class="dashicons dashicons-external"></span></a>'
 					) . '</p></div>',
 				'is_global' => true,
 			);
