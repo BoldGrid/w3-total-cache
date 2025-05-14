@@ -441,7 +441,7 @@ class Cache_Redis extends Cache_Base {
 			return false;
 		}
 
-		$r = $accessor->incrBy( $storage_key, $value );
+		$r = $accessor->incrBy( $storage_key, (int) $value );
 
 		if ( ! $r ) { // It doesn't initialize counter by itself.
 			$this->counter_set( $key, 0 );
