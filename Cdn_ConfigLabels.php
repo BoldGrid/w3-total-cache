@@ -61,7 +61,7 @@ class Cdn_ConfigLabels {
 							'w3-total-cache'
 						),
 						'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>',
-						'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">' . __( 'SSL', 'w3-total-cache' ) . '</acronym>',
+						'<acronym title="' . __( 'Secure Sockets Layer', 'w3-total-cache' ) . '">' . __( 'SSL', 'w3-total-cache' ) . '</acronym>'
 					),
 					array(
 						'acronym' => array(
