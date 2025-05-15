@@ -21,7 +21,7 @@ $license     = Licensing_Core::check_license( $license_key, W3TC_VERSION );
 		<td><b><?php esc_html_e( 'License:', 'w3-total-cache' ); ?></b></td>
 		<td>
 			<?php
-				echo ! empty( $license ) && in_array( $license->license_status, array( 'active.by_rooturi', 'active.by_ip' ), true )
+				echo ! empty( $license ) && 'active.by_rooturi' === $license->license_status
 					? esc_html__( 'Pro', 'w3-total-cache' )
 					: esc_html__( 'Free', 'w3-total-cache' );
 			?>
@@ -34,7 +34,6 @@ $license     = Licensing_Core::check_license( $license_key, W3TC_VERSION );
 			if ( ! empty( $license ) ) {
 				switch ( $license ) {
 					case 'active.by_rooturi' === $license->license_status:
-					case 'active.by_ip' === $license->license_status:
 						esc_html_e( 'Active', 'w3-total-cache' );
 						break;
 					case 'inactive.expired' === $license->license_status:
