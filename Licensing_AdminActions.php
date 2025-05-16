@@ -45,6 +45,23 @@ class Licensing_AdminActions {
 	}
 
 	/**
+	 * Handles the purchase of a Total CDN subscription.
+	 *
+	 * @return void
+	 */
+	public function w3tc_licensing_buy_tcdn() {
+		$data_src    = $this->param( 'data_src' );
+		$license_key = $this->param( 'license_key' );
+		$api_key     = $this->param( 'api_key' );
+		$account_id  = $this->param( 'account_id' );
+		$client_id   = $this->param( 'client_id' );
+
+		$iframe_url = Licensing_Core::purchase_tcdn_url( $data_src, $license_key, $api_key, $account_id, $client_id );
+
+		include W3TC_INC_DIR . '/lightbox/purchase.php';
+	}
+
+	/**
 	 * Retrieves and sanitizes a request parameter.
 	 *
 	 * @param string $name The name of the parameter to retrieve.
