@@ -299,7 +299,8 @@ class Cdn_TotalCdn_Api {
 
 		return $this->wp_remote_post(
 			$this->api_base_url . '/pullzone/' . $id,
-			$data
+			$data,
+			array( 'method' => 'PUT' )
 		);
 	}
 

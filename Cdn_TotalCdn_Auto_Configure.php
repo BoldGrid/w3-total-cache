@@ -328,4 +328,80 @@ class Cdn_TotalCdn_Auto_Configure {
 			'message' => __( 'CDN enabled successfully.', 'w3-total-cache' ),
 		);
 	}
+
+	/**
+	 * Admin Notices.
+	 *
+	 * Displays admin notices for CDN Auto Configuration
+	 * Issues.
+	 *
+	 * @since SINCEVERSION
+	 */
+	public static function admin_notices() {
+		$config = Dispatcher::config();
+
+		// Check if the CDN is enabled.
+		if ( ! $config->get( 'cdn.enabled' ) ) {
+			return;
+		}
+
+		// Check if the CDN engine is TotalCDN.
+		if ( 'totalcdn' !== $config->get( 'cdn.engine' ) ) {
+			return;
+		}
+
+		// Check if the current site url matches the pullzone.
+		$origin_url       = $config->get( 'cdn.totalcdn.origin_url' );
+		$current_site_url = \home_url();
+
+		if ( $origin_url !== $current_site_url ) {
+			?>
+			<div class="notice notice-error is-dismissible">
+				<p>
+					<?php
+					// Print a message indication that the pull zone and url do not match, and ask if they want to update it. Provide a Yes button and a No button.
+					echo wp_kses_post(
+						sprintf(
+							// translators: 1: Pull zone URL, 2: Current site URL. 3: Update Pullzone button button (update action).
+							__( '<p>The Total CDN pull zone URL <strong>( %1$s )</strong> does not match your current Site URL <strong>( %2$s )</strong>.</p><p><a class="button button-secondary" href="%3$s">Click here to update pull zone URL</a></p>', 'w3-total-cache' ),
+							esc_html( $origin_url ),
+							esc_html( $current_site_url ),
+							\wp_nonce_url( 'admin.php?page=w3tc_cdn&w3tc_cdn_update_tcdn_pullzone', 'w3tc' )
+						)
+					);
+					?>
+				</p>
+			</div>
+			<?php
+		}
+	}
+
+	/**
+	 * Updates the pull zone URL and Origin Host Header.
+	 *
+	 * @since SINCEVERSION
+	 */
+	public static function update_pullzone() {
+		$config = Dispatcher::config();
+
+		// Get the pull zone ID.
+		$pull_zone_id = $config->get( 'cdn.totalcdn.pull_zone_id' );
+
+		try {
+			$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $config->get( 'cdn.totalcdn.account_api_key' ) ) );
+			$api->update_pull_zone(
+				$pull_zone_id,
+				array(
+					'OriginUrl'        => \home_url(),
+					'OriginHostHeader' => \wp_parse_url( \home_url(), PHP_URL_HOST ),
+				)
+			);
+			$config->set( 'cdn.totalcdn.origin_url', \home_url() );
+			$config->set( 'cdn.totalcdn.cdn_hostname', \wp_parse_url( \home_url(), PHP_URL_HOST ) );
+			$config->save();
+			return true;
+		} catch ( \Exception $ex ) {
+			return false;
+		}
+	}
 }

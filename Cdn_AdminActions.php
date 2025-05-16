@@ -629,4 +629,29 @@ class Cdn_AdminActions {
 			return 200 === $code;
 		}
 	}
+
+	/**
+	 * Updates the Total CDN pull zone.
+	 *
+	 * When the CDN is set to Total CDN, this method updates the pull zone
+	 * configuration if the site URl has changed.
+	 *
+	 * @since SINCEVERSION
+	 */
+	public function w3tc_cdn_update_tcdn_pullzone() {
+		$config = Dispatcher::config();
+
+		$is_cdn_authorized = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
+			! empty( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) );
+		$is_cdn_enabled    = $config->get_boolean( 'cdn.enabled' );
+		$is_cdn_totalcdn   = 'totalcdn' === $config->get_string( 'cdn.engine' );
+
+		Cdn_TotalCdn_Auto_Configure::update_pullzone();
+
+		if ( Cdn_TotalCdn_Auto_Configure::update_pullzone() ) {
+			Util_Admin::redirect( array( 'w3tc_note' => 'updated_pullzone_url' ), true );
+		} else {
+			Util_Admin::redirect( array( 'w3tc_error' => 'updated_pullzone_url' ), true );
+		}
+	}
 }
