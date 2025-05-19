@@ -137,7 +137,7 @@ class Cdn_TotalCdn_Popup {
 			\wp_die();
 		}
 
-		$message = \esc_html__(
+		$message      = \esc_html__(
 			'CNAME DNS configuration Confirmed. It may take a minute or two to generate after clicking the "OK" button.',
 			'w3-total-cache'
 		);
@@ -146,6 +146,13 @@ class Cdn_TotalCdn_Popup {
 		\wp_die();
 	}
 
+	/**
+	 * Generate and Save SSL Certificate for a custom hostname.
+	 *
+	 * @return void
+	 *
+	 * @since SINCEVERSION
+	 */
 	public function w3tc_ajax_cdn_totalcdn_generate_and_save_ssl() {
 		$config          = Dispatcher::config();
 		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
@@ -161,8 +168,7 @@ class Cdn_TotalCdn_Popup {
 		try {
 			$api->load_free_certificate( $custom_hostname );
 		} catch ( \Exception $ex ) {
-			error_log( 'Generate Free Certificate: ' . $ex->getMessage() );
-			$message = \esc_html__(
+			$message      = \esc_html__(
 				'Failed to generate SSL certificate. Please try again later.',
 				'w3-total-cache'
 			);
@@ -222,7 +228,12 @@ class Cdn_TotalCdn_Popup {
 		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$pull_zone_id    = $config->get_string( 'cdn.totalcdn.pull_zone_id' );
 
-		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key, 'pull_zone_id' => $pull_zone_id ) );
+		$api = new Cdn_TotalCdn_Api(
+			array(
+				'account_api_key' => $account_api_key,
+				'pull_zone_id'    => $pull_zone_id,
+			)
+		);
 
 		try {
 			$api->add_custom_hostname( $hostname );
@@ -338,8 +349,6 @@ class Cdn_TotalCdn_Popup {
 						'UseStaleWhileOffline'  => true, // Serve stale content if the origin is offline.
 					)
 				);
-
-				error_log( 'Pull Zone Created: ' . json_encode( $response ) ) ;
 
 				$pull_zone_id = (int) $response['Id'];
 				$name         = $response['Name'];

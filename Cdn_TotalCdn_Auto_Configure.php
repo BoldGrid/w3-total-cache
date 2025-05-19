@@ -181,8 +181,6 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		$this->account_id = $response['AccountId'];
 
-		error_log( 'Account_id: ' . json_encode( $this->account_id ) );
-
 		return array(
 			'success' => true,
 			'message' => __( 'API key is set.', 'w3-total-cache' ),
@@ -347,6 +345,13 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		// Check if the CDN engine is TotalCDN.
 		if ( 'totalcdn' !== $config->get( 'cdn.engine' ) ) {
+			return;
+		}
+
+		// Check if the CDN is not authorized.
+		$cdn_core          = new Cdn_Core();
+		$is_cdn_authorized = $cdn_core->is_cdn_authorized();
+		if ( ! $is_cdn_authorized ) {
 			return;
 		}
 

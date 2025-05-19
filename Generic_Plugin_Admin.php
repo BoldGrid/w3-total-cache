@@ -1304,8 +1304,8 @@ class Generic_Plugin_Admin {
 				);
 		}
 
-		if ( isset( $_GET['totalcdn_auto_config_success'] ) ) {
-			// Full URL to your logo
+		if ( Util_Request::get_string( 'totalcdn_auto_config_success' ) ) {
+			// Full URL to your logo.
 			$logo_url = plugins_url( 'pub/img/totalcdn-logo-2.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
 
 			$html = sprintf(
