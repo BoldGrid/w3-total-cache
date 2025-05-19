@@ -284,6 +284,13 @@ class Cdn_TotalCdn_Popup {
 			'pull_zone_id'         => $config->get_integer( 'cdn.totalcdn.pull_zone_id' ),
 		);
 
+		foreach ( $details['pull_zones'] as $key => $pull_zone ) {
+			if ( $details['suggested_zone_name'] === $pull_zone['Name'] ) {
+				$details['pull_zone_id'] = $pull_zone['Id'];
+				$details['cdn_hostname'] = $pull_zone['ExtCdnDomain'];
+			}
+		}
+
 		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Pull_Zones.php';
 		\wp_die();
 	}

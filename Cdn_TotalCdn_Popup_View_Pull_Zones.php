@@ -28,8 +28,8 @@ defined( 'W3TC' ) || die();
 
 ?>
 <form class="w3tc_cdn_totalcdn_form" method="post">
-	<input type="hidden" name="pull_zone_id" />
-	<input type="hidden" name="cdn_hostname" />
+	<input type="hidden" name="pull_zone_id" value="<?php echo esc_attr( ! empty( $details['pull_zone_id'] ?? '' ) ); ?>"/>
+	<input type="hidden" name="cdn_hostname" value="<?php echo esc_attr( ! empty( $details['cdn_hostname'] ?? '' ) ); ?>"/>
 	<input type="hidden" name="custom_hostnames" />
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Select a pull zone', 'w3-total-cache' ) ); ?>
@@ -54,7 +54,7 @@ defined( 'W3TC' ) || die();
 					}
 
 					// Determine the origin URL/IP.
-					$origin_url = empty( $pull_zone['origin_url'] ) ? $cdn_hostname : $pull_zone['origin_url'];
+					$origin_url = empty( $pull_zone['OriginUrl'] ) ? $cdn_hostname : $pull_zone['OriginUrl'];
 
 					// Determine if the current option is selected.
 					$is_selected = isset( $details['pull_zone_id'] ) && $details['pull_zone_id'] === $pull_zone['Id'];
