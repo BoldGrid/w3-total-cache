@@ -28,8 +28,8 @@ defined( 'W3TC' ) || die();
 
 ?>
 <form class="w3tc_cdn_totalcdn_form" method="post">
-	<input type="hidden" name="pull_zone_id" value="<?php echo esc_attr( ! empty( $details['pull_zone_id'] ?? '' ) ); ?>"/>
-	<input type="hidden" name="cdn_hostname" value="<?php echo esc_attr( ! empty( $details['cdn_hostname'] ?? '' ) ); ?>"/>
+	<input type="hidden" name="pull_zone_id" value="<?php echo esc_attr( $details['pull_zone_id'] ?? '' ); ?>"/>
+	<input type="hidden" name="cdn_hostname" value="<?php echo esc_attr( $details['cdn_hostname'] ?? '' ); ?>"/>
 	<input type="hidden" name="custom_hostnames" />
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Select a pull zone', 'w3-total-cache' ) ); ?>
