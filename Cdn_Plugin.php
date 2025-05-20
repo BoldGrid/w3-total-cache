@@ -869,15 +869,22 @@ class Cdn_Plugin {
 		$cdn    = $common->get_cdn();
 		$via    = $cdn->get_via();
 
-		$strings[] = sprintf(
-			// translators: 1 CDN engine name, 2 rejection reason.
-			__(
-				'Content Delivery Network via %1$s%2$s',
+		if ( 'totalcdn' === Dispatcher::config()->get_string( 'cdn.engine' ) ) {
+			$strings[] = esc_html__(
+				'Content Delivery Network via TotalCDN (Powered by W3TC)',
 				'w3-total-cache'
-			),
-			( $via ? $via : 'N/A' ),
-			( empty( $this->cdn_reject_reason ) ? '' : sprintf( ' (%s)', $this->cdn_reject_reason ) )
-		);
+			);
+		} else {
+			$strings[] = sprintf(
+				// translators: 1 CDN engine name, 2 rejection reason.
+				__(
+					'Content Delivery Network via %1$s%2$s',
+					'w3-total-cache'
+				),
+				( $via ? $via : 'N/A' ),
+				( empty( $this->cdn_reject_reason ) ? '' : sprintf( ' (%s)', $this->cdn_reject_reason ) )
+			);
+		}
 
 		if ( $this->_debug ) {
 			$strings[] = '{w3tc_cdn_debug_info}';
