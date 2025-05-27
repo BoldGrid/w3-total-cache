@@ -90,7 +90,7 @@ if ( ! defined( 'W3TC' ) ) {
 	Util_Ui::config_item(
 		array(
 			'key'           => array( 'user-experience-preload-requests', 'preload-audio' ),
-			'label'         => esc_html__( 'Prelaod Audio:', 'w3-total-cache' ),
+			'label'         => esc_html__( 'Preload Audio:', 'w3-total-cache' ),
 			'control'       => 'textarea',
 			'control_after' => '<a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/preload-requests#preload' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
 			'description'   => esc_html__( 'Specify key Audio URLs that should be preloaded by browsers. Include one entry per line, e.g. (https://example.com/example.mp3, etc.)', 'w3-total-cache' ),

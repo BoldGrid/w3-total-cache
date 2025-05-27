@@ -724,9 +724,11 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 			$this->wpdb_mixin->col_info = array();
 			$col_info                   = array();
 
-			while ( $i < @mysqli_num_fields( $this->wpdb_mixin->result ) ) {
-				$col_info[ $i ] = @mysqli_fetch_field( $this->wpdb_mixin->result );
-				++$i;
+			if ( is_a( $this->wpdb_mixin->result, 'mysqli_result' ) ) {
+				while ( $i < @mysqli_num_fields( $this->wpdb_mixin->result ) ) {
+					$col_info[ $i ] = @mysqli_fetch_field( $this->wpdb_mixin->result );
+					++$i;
+				}
 			}
 
 			$this->wpdb_mixin->col_info    = $col_info;

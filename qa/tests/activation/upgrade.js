@@ -74,9 +74,9 @@ describe('', function() {
 
 		if (env.phpVersion >= 8 || parseFloat(env.wpVersion) >= 5.7) {
 			old = {
-				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.7.5.zip',
-				output: '/share/w3tc-2-7-5.zip',
-				content: "'2.7.5'"
+				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.8.8.zip',
+				output: '/share/w3tc-2-8-8.zip',
+				content: "'2.8.8'"
 			};
 		}
 

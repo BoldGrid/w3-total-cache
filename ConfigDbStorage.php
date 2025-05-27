@@ -496,7 +496,7 @@ class _WpdbEssentials {
 	 */
 	public function escape_by_ref( &$string_value ) {
 		if ( ! is_float( $string_value ) ) {
-			$string = $this->_real_escape( $string_value );
+			$string_value = $this->_real_escape( $string_value );
 		}
 	}
 

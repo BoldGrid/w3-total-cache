@@ -177,7 +177,7 @@ class Extension_FragmentCache_Plugin {
 					'interval' => $gc_interval,
 					'display'  => sprintf( '[W3TC] Fragment Cache file GC (every %d seconds)', $gc_interval ),
 				),
-			),
+			)
 		);
 	}
 
