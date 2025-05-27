@@ -72,6 +72,8 @@ class Cdn_Plugin {
 			add_filter( 'update_feedback', array( $this, 'update_feedback' ) );
 		}
 
+		add_action( 'send_headers', array( $this, 'send_headers' ) );
+
 		$default_override = Cdn_Util::get_flush_manually_default_override( $cdn_engine );
 		$flush_on_actions = ! $this->_config->get_boolean( 'cdn.flush_manually', $default_override );
 
@@ -101,6 +103,22 @@ class Cdn_Plugin {
 		}
 
 		add_filter( 'w3tc_minify_http2_preload_url', array( $this, 'w3tc_minify_http2_preload_url' ), 3000 );
+	}
+
+	/**
+	 * Send CDN Headers.
+	 *
+	 * @return void
+	 *
+	 * @since x.x.x
+	 */
+	public function send_headers() {
+		$cdn_engine     = $this->_config->get_string( 'cdn.engine' );
+		$is_cdn_enabled = $this->_config->get_boolean( 'cdn.enabled' );
+
+		if ( $is_cdn_enabled && $cdn_engine ) {
+			@header( 'X-W3TC-CDN: ' . $cdn_engine );
+		}
 	}
 
 	/**
