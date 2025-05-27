@@ -114,10 +114,7 @@ class Cdn_Plugin {
 		$cdn_engine     = $this->_config->get_string( 'cdn.engine' );
 		$is_cdn_enabled = $this->_config->get_boolean( 'cdn.enabled' );
 
-		$is_cdn_authorized = ! empty( $this->_config->get_string( "cdn.{$cdn_engine}.account_api_key" ) ) &&
-			! empty( $this->_config->get_string( "cdn.{$cdn_engine}.pull_zone_id" ) );
-
-		if ( $is_cdn_enabled && $is_cdn_authorized ) {
+		if ( $is_cdn_enabled && $cdn_engine ) {
 			@header( 'X-W3TC-CDN: ' . $cdn_engine );
 		}
 	}
