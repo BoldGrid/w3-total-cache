@@ -58,6 +58,9 @@ if ( ! defined( 'W3TC_LICENSE_API_URL' ) ) {
 if ( ! defined( 'W3TC_PURCHASE_URL' ) ) {
 	define( 'W3TC_PURCHASE_URL', 'https://www.w3-edge.com/checkout/' );
 }
+if ( ! defined( 'W3TC_PURCHASE_CDN_URL' ) ) {
+	define( 'W3TC_PURCHASE_CDN_URL', 'https://www.w3-edge.com/checkout-cdn/' );
+}
 
 // the name of your product. This should match the download name in EDD exactly.
 define( 'W3TC_PURCHASE_PRODUCT_NAME', 'W3 Total Cache Pro: Annual Subscription' );
