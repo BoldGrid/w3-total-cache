@@ -2,7 +2,7 @@
 /**
  * File: Cdn_TotalCdn_Auto_Configure.php
  *
- * @since   x.x.x
+ * @since   SINCEVERSION
  * @package W3TC
  */
 
@@ -11,7 +11,7 @@ namespace W3TC;
 /**
  * Class: Cdn_TotalCdn_Auto_Configure
  *
- * @since x.x.x
+ * @since SINCEVERSION
  */
 class Cdn_TotalCdn_Auto_Configure {
 
@@ -20,7 +20,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @var array
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	protected $config = array();
 
@@ -29,7 +29,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @var string
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	protected $api_key = '';
 
@@ -38,7 +38,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @var Cdn_TotalCdn_Api
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	protected $api;
 
@@ -47,14 +47,14 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @var string
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	protected $account_id = '';
 
 	/**
 	 * Constructor.
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 *
 	 * @param array $config Configuration.
 	 *
@@ -115,7 +115,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Runs the auto-configuration process.
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 *
 	 * @return string Response Message.
 	 */
@@ -150,7 +150,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * Checks that the API key is set in the configs.
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	public function check_api_key() {
 		$api_key = $this->config->get( 'cdn.totalcdn.account_api_key' );
@@ -192,7 +192,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * Creates a pull zone using the Total CDN API.
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	public function setup_pull_zone() {
 		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
@@ -257,7 +257,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * Sets up the edge rules for the pull zone.
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	public function setup_edge_rules() {
 		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
@@ -313,7 +313,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * Enables the CDN in the W3TC settings.
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	public function enable_cdn() {
 		// Enable CDN in W3TC settings.
@@ -333,7 +333,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * Displays admin notices for CDN Auto Configuration
 	 * Issues.
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	public static function admin_notices() {
 		$config = Dispatcher::config();
@@ -384,7 +384,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Updates the pull zone URL and Origin Host Header.
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	public static function update_pullzone() {
 		$config = Dispatcher::config();

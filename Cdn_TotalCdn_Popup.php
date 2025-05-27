@@ -151,7 +151,7 @@ class Cdn_TotalCdn_Popup {
 	 *
 	 * @return void
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	public function w3tc_ajax_cdn_totalcdn_generate_and_save_ssl() {
 		$config          = Dispatcher::config();

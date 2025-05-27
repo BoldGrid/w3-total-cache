@@ -636,7 +636,7 @@ class Cdn_AdminActions {
 	 * When the CDN is set to Total CDN, this method updates the pull zone
 	 * configuration if the site URl has changed.
 	 *
-	 * @since x.x.x
+	 * @since SINCEVERSION
 	 */
 	public function w3tc_cdn_update_tcdn_pullzone() {
 		$config = Dispatcher::config();
