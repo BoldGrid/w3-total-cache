@@ -109,6 +109,8 @@ class Cdn_Plugin {
 	 * Send CDN Headers.
 	 *
 	 * @return void
+	 *
+	 * @since x.x.x
 	 */
 	public function send_headers() {
 		$cdn_engine     = $this->_config->get_string( 'cdn.engine' );
