@@ -60,6 +60,7 @@ $license     = Licensing_Core::check_license( $license_key, W3TC_VERSION );
 </table>
 <?php
 if ( empty( $license ) || ( ! empty( $license ) && 'invalid.not_present' === $license->license_status ) ) {
+	$license_key_param = ! empty( $license_key ) ? 'data-renew-key="' . $license_key : '"';
 	?>
 	<p>
 		<?php
@@ -75,7 +76,7 @@ if ( empty( $license ) || ( ! empty( $license ) && 'invalid.not_present' === $li
 		?>
 	</p>
 	<p>
-		<input type="button" class="button-primary button-buy-plugin" data-src="account_widget" value="<?php esc_attr_e( 'Learn more about Pro', 'w3-total-cache' ); ?>" />
+		<input type="button" class="button-primary button-buy-plugin" data-src="account_widget" <?php echo esc_attr( $license_key_param ); ?> value="<?php esc_attr_e( 'Learn more about Pro', 'w3-total-cache' ); ?>" />
 	</p>
 	<?php
 }
