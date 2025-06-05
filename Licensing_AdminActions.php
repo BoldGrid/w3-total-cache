@@ -50,13 +50,11 @@ class Licensing_AdminActions {
 	 * @return void
 	 */
 	public function w3tc_licensing_buy_tcdn() {
-		$data_src    = $this->param( 'data_src' );
-		$license_key = $this->param( 'license_key' );
-		$api_key     = $this->param( 'api_key' );
-		$account_id  = $this->param( 'account_id' );
-		$client_id   = $this->param( 'client_id' );
+		$data_src  = $this->param( 'data_src' );
+		$renew_key = $this->param( 'renew_key' );
+		$client_id = $this->param( 'client_id' );
 
-		$iframe_url = Licensing_Core::purchase_tcdn_url( $data_src, $license_key, $api_key, $account_id, $client_id );
+		$iframe_url = Licensing_Core::purchase_tcdn_url( $data_src, $renew_key, $client_id );
 
 		include W3TC_INC_DIR . '/lightbox/purchase.php';
 	}

@@ -49,7 +49,8 @@ Util_Ui::config_overloading_button(
 ?>
 <div id="w3tc-tcdn-ad-general">
 	<?php
-	if ( ! $cdn_enabled ) {
+	$api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+	if ( ! $cdn_enabled && empty( $api_key ) ) {
 		echo wp_kses(
 			sprintf(
 				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,
@@ -60,7 +61,7 @@ Util_Ui::config_overloading_button(
 				),
 				'<strong>',
 				'</strong>',
-				'<input type="button" class="button-primary btn button-buy-tcdn" data-license-key="' . $config->get_string( 'plugin.license_key' ) . '" data-api-key="' . $config->get_string( 'cdn.totalcdn.account_api_key' ) . '" data-account-id="' . $config->get_string( 'cdn.totalcdn.account_id' ) . '" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Subscribe To Total CDN', 'w3-total-cache' ) . '">',
+				'<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="' . $config->get_string( 'plugin.license_key' ) . '" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Subscribe To Total CDN', 'w3-total-cache' ) . '">',
 				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/w3tc_w3tc-logo.png', W3TC_FILE ) ) . '" alt="Total CDN Icon">'
 			),
 			array(
@@ -73,11 +74,13 @@ Util_Ui::config_overloading_button(
 					'height' => array(),
 				),
 				'input'  => array(
-					'type'    => array(),
-					'name'    => array(),
-					'class'   => array(),
-					'value'   => array(),
-					'onclick' => array(),
+					'type'           => array(),
+					'name'           => array(),
+					'class'          => array(),
+					'value'          => array(),
+					'onclick'        => array(),
+					'data-renew-key' => array(),
+					'data-src'       => array(),
 				),
 			)
 		);

@@ -554,7 +554,8 @@ function w3tc_lightbox_auto_config_tcdn(nonce, data_src ) {
 	});
 }
 
-function w3tc_lightbox_buy_tcdn(nonce, data_src, license_key, api_key, account_id, client_id) {
+function w3tc_lightbox_buy_tcdn(nonce, data_src, renew_key) {
+	client_id = '';
 	if (window.w3tc_ga) {
 		client_id = w3tc_ga_cid;
 	}
@@ -570,9 +571,7 @@ function w3tc_lightbox_buy_tcdn(nonce, data_src, license_key, api_key, account_i
 		url: 'admin.php?page=w3tc_dashboard&w3tc_licensing_buy_tcdn' +
 			'&_wpnonce=' + encodeURIComponent(nonce) +
 			'&data_src=' + encodeURIComponent(data_src) +
-			(license_key ? '&license_key=' + encodeURIComponent(license_key) : '') +
-			(api_key ? '&api_key=' + encodeURIComponent(api_key) : '') +
-			(account_id ? '&account_id=' + encodeURIComponent(account_id) : '') +
+			(renew_key ? '&renew_key=' + encodeURIComponent(renew_key) : '') +
 			(client_id ? '&client_id=' + encodeURIComponent(client_id) : ''),
 		callback: function(lightbox) {
 			var w3tc_tcdn_listener = function(event) {
@@ -684,9 +683,7 @@ jQuery(function() {
 		if (!nonce) {
 			nonce = w3tc_nonce;
 		}
-		var license_key = jQuery(this).data('license-key');
-		var api_key = jQuery(this).data('api-key');
-		var account_id = jQuery(this).data('account-id');
+		var renew_key = jQuery(this).data('renew-key');
 
 		if (window.w3tc_ga) {
 			w3tc_ga(
@@ -699,7 +696,7 @@ jQuery(function() {
 			);
 		}
 
-		w3tc_lightbox_buy_tcdn(nonce, data_src, license_key, api_key, account_id);
+		w3tc_lightbox_buy_tcdn(nonce, data_src, renew_key);
 		return false;
 	});
 
