@@ -74,6 +74,7 @@ class UserExperience_Emoji_Extension {
 			return $urls;
 		}
 
+		// remove s.w.org dns-prefetch used by emojis.
 		return array_filter(
 			$urls,
 			function ( $hint ) {
