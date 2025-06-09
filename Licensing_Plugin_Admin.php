@@ -490,7 +490,7 @@ class Licensing_Plugin_Admin {
 	private function maybe_update_license_status() {
 		$state = Dispatcher::config_state();
 		if ( time() < $state->get_integer( 'license.next_check' ) ) {
-			//return;
+			return;
 		}
 
 		$check_timeout = 3600 * 24 * 5;
