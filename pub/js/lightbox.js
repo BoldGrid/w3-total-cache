@@ -588,7 +588,7 @@ function w3tc_lightbox_buy_tcdn(nonce, data_src, renew_key) {
 
 					lightbox.options.onClose = function() {
 						console.log( 'refresh on purchase success' );
-						window.location = window.location + '&refresh&totalcdn_auto_config_success';
+						window.location = window.location + '&totalcdn_auto_config_success=1';
 					}
 
 					w3tc_lightbox_save_tcdn_key(data[1], data[2], data[3], nonce, function() {
