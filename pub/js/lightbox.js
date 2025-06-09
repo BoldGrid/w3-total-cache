@@ -627,7 +627,10 @@ function w3tc_lightbox_save_tcdn_key(license_key, api_key, account_id, nonce, ca
 
 	jQuery.post('admin.php?page=w3tc_dashboard', params, function(data) {
 		callback();
-	}, 'json').fail(callback);
+	}, 'json').fail(function(response) {
+		console.log( 'Error saving license key:', response);
+		callback();
+	});
 }
 
 jQuery(function() {

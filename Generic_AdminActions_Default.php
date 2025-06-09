@@ -136,7 +136,14 @@ class Generic_AdminActions_Default {
 			);
 
 			// This should apply the default configuration for Total CDN.
-			do_action( 'w3tc_tcdn_apply' );
+			$tcdn_applied = apply_filters( 'w3tc_tcdn_auto_configured', false );
+			if ( true === $tcdn_applied ) {
+				echo wp_json_encode( array( 'result' => 'success' ) );
+				exit();
+			} else {
+				echo wp_json_encode( array( 'result' => 'failed', 'message' => __( 'Failed to auto apply Total CDN configuration.', 'w3-total-cache' ) ) );
+				exit();
+			}
 		} catch ( \Exception $ex ) {
 			echo wp_json_encode( array( 'result' => 'failed' ) );
 			exit();

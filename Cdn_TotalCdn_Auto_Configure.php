@@ -113,6 +113,32 @@ class Cdn_TotalCdn_Auto_Configure {
 	}
 
 	/**
+	 * Check and see if Total CDN is active and enabled.
+	 * If it is not, run auto configuration.
+	 *
+	 * @param bool $applied Whether the CDN is applied or not.
+	 *
+	 * @return bool True if the CDN is auto-configured, false otherwise.
+	 *
+	 * @since x.x.x
+	 */
+	public function w3tc_tcdn_auto_configured( $applied ) {
+		$config = Dispatcher::config();
+
+		// Check if the CDN is enabled.
+		if ( $config->get( 'cdn.enabled' ) && 'totalcdn' === $config->get( 'cdn.engine' ) ) {
+			return true;
+		}
+
+		$auto_configured = $this->run();
+
+		if ( ! $auto_configured['success'] ) {
+			// If auto-configuration failed, return false.
+			return false;
+		}
+	}
+
+	/**
 	 * Runs the auto-configuration process.
 	 *
 	 * @since x.x.x
