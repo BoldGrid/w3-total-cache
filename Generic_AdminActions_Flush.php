@@ -297,14 +297,23 @@ class Generic_AdminActions_Flush {
 	 * @return void
 	 */
 	public function w3tc_flush_cdn() {
-		$this->flush_cdn( array( 'ui_action' => 'flush_button' ) );
+		$result = $this->flush_cdn( array( 'ui_action' => 'flush_button' ) );
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_cdn',
-			),
-			true
-		);
+		if ( false === $result ) {
+			Util_Admin::redirect(
+				array(
+					'w3tc_error' => 'flush_cdn_failed',
+				),
+				true
+			);
+		} else {
+			Util_Admin::redirect(
+				array(
+					'w3tc_note' => 'flush_cdn',
+				),
+				true
+			);
+		}
 	}
 
 	/**
@@ -449,11 +458,11 @@ class Generic_AdminActions_Flush {
 	 *
 	 * @param array $extras Additional parameters for the cache flush operation.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	public function flush_cdn( $extras = array() ) {
 		$cacheflush = Dispatcher::component( 'CacheFlush' );
-		$cacheflush->cdn_purge_all( $extras );
+		return $cacheflush->cdn_purge_all( $extras );
 	}
 
 	/**

@@ -455,9 +455,13 @@ class Util_Ui {
 			self::get_allowed_html_for_wp_kses_from_content( $nonce_field )
 		);
 
+		// Determine if there is a CDN active, and if so, change the wording of the Empty All Caches button to say Empty All Caches Except CDN.
+		$cdn_enabled = $config->get_boolean( 'cdn.enabled' ) || $config->get_boolean( 'cdnfsd.enabled' );
+		$button_text = $cdn_enabled ? __( 'Empty All Caches Except CDN', 'w3-total-cache' ) : __( 'Empty All Caches', 'w3-total-cache' );
+
 		?>
 		<div class="btn-group w3tc-button-flush-dropdown">
-			<input id="flush_all" type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php esc_html_e( 'Empty All Caches', 'w3-total-cache' ); ?>"/>
+			<input id="flush_all" type="submit" class="btn btn-light btn-sm" name="w3tc_flush_all" value="<?php echo esc_html( $button_text ); ?>"/>
 			<button type="button" class="btn btn-light btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				<span class="sr-only">Toggle Dropdown</span>
 			</button>

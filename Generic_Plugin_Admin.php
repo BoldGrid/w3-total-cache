@@ -1118,6 +1118,14 @@ class Generic_Plugin_Admin {
 				'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
 			),
 			'pull_zone'                              => __( 'Pull Zone could not be automatically created.', 'w3-total-cache' ),
+			'flush_cdn_failed'                       => sprintf(
+				// translators: 1 HTML acronym for CDN (content delivery network).
+				__(
+					'%1$s purge failed.',
+					'w3-total-cache'
+				),
+				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
+			),
 			'updated_pullzone_url'                   => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
 		);
 
