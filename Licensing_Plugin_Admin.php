@@ -525,10 +525,12 @@ class Licensing_Plugin_Admin {
 				$this->_config->save();
 
 				$cdn_terms = isset( $license->cdn_terms ) ? $license->cdn_terms : '';
-				$state->set( 'cdn.totalcdn.terms', $status );
+				$state->set( 'cdn.totalcdn.terms', $cdn_terms );
 
 				$cdn_status = isset( $license->cdn_status ) ? $license->cdn_status : '';
-				$state->set( 'cdn.totalcdn.status', $status );
+				// This is a workaround because the CDN status is not being returned by the Licensing API server yet.
+				$cdn_status = ! empty( $cdn_api_key ) && empty( $cdn_status ) ? 'active' : $cdn_status;
+				$state->set( 'cdn.totalcdn.status', $cdn_status );
 
 				$state->save();
 			}
