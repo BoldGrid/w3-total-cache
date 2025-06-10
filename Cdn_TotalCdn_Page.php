@@ -50,12 +50,6 @@ class Cdn_TotalCdn_Page {
 		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
 		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 
-		error_log( json_encode( array(
-			'account_api_key'     => $account_api_key,
-			'cdn_engine'        => $cdn_engine,
-			'cdn_zone_id' => $cdn_zone_id,
-		) ) );
-
 		return ( $account_api_key &&
 			(
 				( $cdn_enabled && 'totalcdn' === $cdn_engine && $cdn_zone_id ) ||
