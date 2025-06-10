@@ -538,7 +538,7 @@ function w3tc_lightbox_auto_config_tcdn(nonce, data_src ) {
 				console.log( 'purchase_success', success );
 
 				if ( 'true' === success ) {
-					window.location = window.location + '&refresh&totalcdn_auto_config_success';
+					window.location = window.location + '&refresh&totalcdn_auto_config_success=1';
 				}
 		},
 		callback: function(lightbox) {
