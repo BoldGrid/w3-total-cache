@@ -1236,7 +1236,7 @@ class Generic_Plugin_Admin {
 					'</tr>' .
 					'<tr>' .
 						'<td>' . esc_html__( 'or use FTP form to allow ', 'w3-total-cache' ) .
-							'<strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong>' .
+							'<strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
 							esc_html__( 'make it automatically.', 'w3-total-cache' ) .
 						'</td>' .
 						'<td>' . Util_Ui::button( 'Update via FTP', '', 'w3tc-show-ftp-form button' ) . '</td>' .
