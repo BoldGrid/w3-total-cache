@@ -127,7 +127,7 @@ class Root_AdminActivation {
 			} catch ( \Exception $ex ) {
 				// Log the exception for debugging purposes.
 				if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					\error_log( 'W3 Total Cache exception: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					\error_log( 'W3 Total Cache exception: ' . $ex->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 			}
 		}
