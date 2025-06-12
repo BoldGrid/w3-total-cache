@@ -50,11 +50,12 @@ class Cdn_TotalCdn_Widget {
 	 * @return void
 	 */
 	public function widget_form() {
-		$c = Dispatcher::config();
+		$config = Dispatcher::config();
+		$state  = Dispatcher::config_state();
 
-		$engine             = $c->get_string( 'cdn.engine' );
-		$cdn_pullzone_id    = $c->get_integer( 'cdn.totalcdn.pull_zone_id' );
-		$cdnfsd_pullzone_id = $c->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
+		$engine             = $config->get_string( 'cdn.engine' );
+		$cdn_pullzone_id    = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
+		$cdnfsd_pullzone_id = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
 		$authorized         = 'totalcdn' === $engine &&
 			( ! empty( $cdn_pullzone_id ) || ! empty( $cdnfsd_pullzone_id ) );
 

@@ -49,8 +49,10 @@ Util_Ui::config_overloading_button(
 ?>
 <div id="w3tc-tcdn-ad-general">
 	<?php
-	$api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
-	if ( ! $cdn_enabled && empty( $api_key ) ) {
+	if (
+		( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
+		'inactive.expired' === $state->get_string( 'cdn.totalcdn.status' )
+	) {
 		echo wp_kses(
 			sprintf(
 				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,

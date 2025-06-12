@@ -15,12 +15,12 @@ defined( 'W3TC' ) || die();
 
 <div id="totalcdn-widget" class="w3tc_totalcdn_signup">
 	<?php
-	$cdn_engine  = $c->get_string( 'cdn.engine' );
-	$cdn_enabled = $c->get_boolean( 'cdn.enabled' );
+	$cdn_engine  = $config->get_string( 'cdn.engine' );
+	$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
 	$cdn_name    = Cache::engine_name( $cdn_engine );
 
-	$cdnfsd_engine  = $c->get_string( 'cdnfsd.engine' );
-	$cdnfsd_enabled = $c->get_boolean( 'cdnfsd.enabled' );
+	$cdnfsd_engine  = $config->get_string( 'cdnfsd.engine' );
+	$cdnfsd_enabled = $config->get_boolean( 'cdnfsd.enabled' );
 	$cdnfsd_name    = Cache::engine_name( $cdnfsd_engine );
 
 	// Check if Total CDN is selected but not fully configured.
@@ -28,12 +28,12 @@ defined( 'W3TC' ) || die();
 		(
 			$cdn_enabled &&
 			'totalcdn' === $cdn_engine &&
-			empty( $c->get_integer( 'cdn.totalcdn.pull_zone_id' ) )
+			empty( $config->get_integer( 'cdn.totalcdn.pull_zone_id' ) )
 		) ||
 		(
 			$cdnfsd_enabled &&
 			'totalcdn' === $cdnfsd_engine &&
-			empty( $c->get_integer( 'cdnfsd.totalcdn.pull_zone_id' ) )
+			empty( $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' ) )
 		)
 	);
 
@@ -121,6 +121,28 @@ defined( 'W3TC' ) || die();
 			?>
 		</p>
 		<?php
+	} elseif ( ! $cdn_enabled && ! $cdnfsd_enabled && ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) {
+		// Total CDN is purchased and available but no CDN enabled.
+		?>
+		<p class="notice notice-error">
+			<?php
+			echo wp_kses(
+				sprintf(
+					// translators: 1 opening HTML a tag to CDN settings page, 2 closing HTML a tag.
+					__( 'W3 Total Cache has detected that Total CDN has been purchased and is available but has yet to be enabled. Please %1$sEnable%2$s the CDN feature on the General Settings page and select Total CDN for the CDN type.', 'w3-total-cache' ),
+					'<a class="button-primary" href="' . \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ), 'w3tc' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'class' => array(),
+						'href'  => array(),
+					),
+				)
+			);
+			?>
+		</p>
+		<?php
 	} else {
 		// No CDN is configured.
 		?>
@@ -143,33 +165,39 @@ defined( 'W3TC' ) || die();
 		<?php
 	}
 
+	if (
+		( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
+		'inactive.expired' === $state->get_string( 'cdn.totalcdn.status' )
+	) {
+		?>
+		<p>
+			<?php
+			w3tc_e(
+				'cdn.totalcdn.widget.v2.header',
+				\sprintf(
+					// translators: 1 HTML acronym for Content Delivery Network (CDN).
+					\__( 'Enhance your website performance by adding our Total %1$s service to your site.', 'w3-total-cache' ),
+					'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				)
+			);
+			?>
+		</p>
+
+		<h4 class="w3tc_totalcdn_signup_h4"><?php \esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
+
+		<p>
+			<?php
+			w3tc_e(
+				'cdn.totalcdn.widget.v2.works_magically',
+				\__( 'Total CDN works magically with W3 Total Cache to speed up your site around the world for as little as $1 per month.', 'w3-total-cache' )
+			);
+			?>
+		</p>
+
+		<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="<?php echo esc_attr( $config->get_string( 'plugin.license_key' ) ); ?>" data-src="general_page_cdn_subscribe" value="<?php esc_attr_e( 'Subscribe To Total CDN', 'w3-total-cache' ); ?>">
+		<?php
+	}
 	?>
-	<p>
-		<?php
-		w3tc_e(
-			'cdn.totalcdn.widget.v2.header',
-			\sprintf(
-				// translators: 1 HTML acronym for Content Delivery Network (CDN).
-				\__( 'Enhance your website performance by adding our Total %1$s service to your site.', 'w3-total-cache' ),
-				'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
-			)
-		);
-		?>
-	</p>
-
-	<h4 class="w3tc_totalcdn_signup_h4"><?php \esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
-
-	<p>
-		<?php
-		w3tc_e(
-			'cdn.totalcdn.widget.v2.works_magically',
-			\__( 'Total CDN works magically with W3 Total Cache to speed up your site around the world for as little as $1 per month.', 'w3-total-cache' )
-		);
-		?>
-	</p>
-
-	<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="<?php echo $c->get_string( 'plugin.license_key' ); ?>" data-src="general_page_cdn_subscribe" value="<?php esc_attr_e( 'Subscribe To Total CDN', 'w3-total-cache' ); ?>">
-
 	<h4 class="w3tc_totalcdn_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
 
 	<p>

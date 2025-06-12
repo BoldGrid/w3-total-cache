@@ -85,6 +85,7 @@ class Cdn_Plugin_Admin {
 	 */
 	public function w3tc_settings_general_boxarea_cdn() {
 		$config             = Dispatcher::config();
+		$state              = Dispatcher::config_state();
 		$engine_optgroups   = array();
 		$engine_values      = array();
 		$optgroup_pull      = count( $engine_optgroups );
