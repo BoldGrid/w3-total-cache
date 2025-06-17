@@ -44,10 +44,10 @@ $LIMITED wp core install --url=$URL --title=sandbox --admin_user=admin --admin_p
 $LIMITED wp option set time_format "H:i"
 
 # Add header mark showing PHP was executed and a definition to let PHP know this is a testing environment
-sed -i -E '/^<\?php.*$/a\
+sed -i '1a\
 header("w3tc_php: executed");\
-define("W3D_TESTING", true);' \
-wp-config.php
+define("W3D_TESTING", true);
+' wp-config.php
 
 # change url structure
 echo "Change permalink structure..."
