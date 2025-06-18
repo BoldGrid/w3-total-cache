@@ -63,6 +63,7 @@ class Root_AdminActivation {
 
 		$e      = Dispatcher::component( 'Root_Environment' );
 		$config = Dispatcher::config();
+		$debug  = \defined( 'WP_DEBUG' ) && WP_DEBUG && ! \defined( 'W3D_TESTING' );
 
 		try {
 			$e->fix_in_wpadmin( $config, true );
@@ -71,13 +72,13 @@ class Root_AdminActivation {
 
 			if ( \strlen( $r['required_changes'] ) > 0 ) {
 				// Log the error for debugging purposes.
-				if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				if ( $debug ) {
 					\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 			}
 		} catch ( \Exception $e ) {
 			// Log the exception for debugging purposes.
-			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			if ( $debug ) {
 				\error_log( 'W3 Total Cache exception: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 
@@ -92,13 +93,13 @@ class Root_AdminActivation {
 
 			if ( \strlen( $r['required_changes'] ) > 0 ) {
 				// Log the error for debugging purposes.
-				if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				if ( $debug ) {
 					\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 			}
 		} catch ( \Exception $e ) {
 			// Log the exception for debugging purposes.
-			if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			if ( $debug ) {
 				\error_log( 'W3 Total Cache exception: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 
@@ -116,7 +117,7 @@ class Root_AdminActivation {
 
 				if ( \strlen( $r['required_changes'] ) > 0 ) {
 					// Log the error for debugging purposes.
-					if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					if ( $debug ) {
 						\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					}
 				}
@@ -126,7 +127,7 @@ class Root_AdminActivation {
 				Util_Admin::config_save( Dispatcher::config(), $config );
 			} catch ( \Exception $ex ) {
 				// Log the exception for debugging purposes.
-				if ( \defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				if ( $debug ) {
 					\error_log( 'W3 Total Cache exception: ' . $ex->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 			}
