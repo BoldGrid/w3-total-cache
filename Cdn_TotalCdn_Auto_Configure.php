@@ -158,13 +158,6 @@ class Cdn_TotalCdn_Auto_Configure {
 			return $setup_pullzone_result;
 		}
 
-		// 4. Setup the Edge Rules.
-		$setup_edge_rules_result = $this->setup_edge_rules();
-
-		if ( false === $setup_edge_rules_result['success'] ) {
-			return $setup_edge_rules_result;
-		}
-
 		// 5. Enable the CDN.
 		$enable_cdn_result = $this->enable_cdn();
 
@@ -228,6 +221,43 @@ class Cdn_TotalCdn_Auto_Configure {
 		// Pull site's domain with periods turned into hyphens.
 		$name = \str_replace( '.', '-', \wp_parse_url( $origin_url, PHP_URL_HOST ) );
 
+		// List all existing pull zones to check if the pull zone already exists.
+		try {
+			$pull_zones = $api->list_pull_zones();
+
+			foreach ( $pull_zones as $pull_zone ) {
+				if ( $pull_zone['Name'] === $name ) {
+						$pull_zone_id = (int) $pull_zone['Id'];
+						$name         = $pull_zone['Name'];
+						$cdn_hostname = $pull_zone['ExtCdnDomain'];
+
+						$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
+						$this->config->set( 'cdn.totalcdn.name', $name );
+						$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
+						$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
+						$this->config->save();
+					return array(
+						'success' => true,
+						'message' => sprintf(
+							// translators: 1: Pull Zone ID, 2: CDN Hostname.
+							__( 'Pull zone already exists. Pull Zone ID: %1$s, CDN Hostname: %2$s', 'w3-total-cache' ),
+							$pull_zone['Id'],
+							$pull_zone['ExtCdnDomain']
+						),
+					);
+				}
+			}
+		} catch ( \Exception $ex ) {
+			return array(
+				'success' => false,
+				'message' => sprintf(
+					// translators: 1: Error message.
+					__( 'Failed to list pull zones: %1$s', 'w3-total-cache' ),
+					$ex->getMessage()
+				),
+			);
+		}
+
 		// Try to create a new pull zone.
 		try {
 			$response = $api->add_pull_zone(
@@ -255,6 +285,12 @@ class Cdn_TotalCdn_Auto_Configure {
 			$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
 			$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
 			$this->config->save();
+
+			$setup_edge_rules_result = $this->setup_edge_rules();
+
+			if ( false === $setup_edge_rules_result['success'] ) {
+				return $setup_edge_rules_result;
+			}
 
 			return array(
 				'success' => true,
@@ -363,14 +399,19 @@ class Cdn_TotalCdn_Auto_Configure {
 	 */
 	public static function admin_notices() {
 		$config = Dispatcher::config();
+		$state  = Dispatcher::config_state();
 
-		// Check if the CDN is enabled.
-		if ( ! $config->get( 'cdn.enabled' ) ) {
+		$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
+		$cdn_engine  = $config->get_string( 'cdn.engine' );
+		$api_key     = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$tcdn_status = $state->get_string( 'cdn.totalcdn.status' );
+
+		// If CDN is not enabled or the engine is not Total CDN and the API key IS set
+		// then show a notice to the user that they need to enable the CDN.
+
+		if ( self::maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) ) {
 			return;
-		}
-
-		// Check if the CDN engine is TotalCDN.
-		if ( 'totalcdn' !== $config->get( 'cdn.engine' ) ) {
+		} elseif ( ! $cdn_enabled || 'totalcdn' !== $cdn_engine ) {
 			return;
 		}
 
@@ -405,6 +446,52 @@ class Cdn_TotalCdn_Auto_Configure {
 			</div>
 			<?php
 		}
+	}
+
+	/**
+	 * Maybe show auto config notice.
+	 *
+	 * If the CDN is not enabled, or if the engine is not set to totalcdn,
+	 * and the API key is set, then show a notice to the user that they have
+	 * an active Total CDN account and provide a button to auto-configure it.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param bool   $cdn_enabled Whether the CDN is enabled.
+	 * @param string $cdn_engine  The CDN engine.
+	 * @param string $api_key     The API key.
+	 * @param string $tcdn_status The Total CDN status.
+	 *
+	 * @return bool True if the notice was shown, false otherwise.
+	 */
+	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) {
+		// If the CDN is enabled and the engine is set to totalcdn, do not show the notice.
+		if ( $cdn_enabled && 'totalcdn' === $cdn_engine ) {
+			return false;
+		}
+
+		// If the API key is not set, do not show the notice.
+		if ( empty( $api_key ) ) {
+			return false;
+		}
+
+		// If the Total CDN status is not set, do not show the notice.
+		if ( empty( $tcdn_status ) || 'active' !== $tcdn_status ) {
+			return false;
+		}
+
+		// Show the auto-configure notice.
+		add_action(
+			'admin_notices',
+			function () {
+				echo '<div class="notice notice-warning is-dismissible">';
+				echo '<p>' . esc_html__( 'You have an active Total CDN account. Click the button below to auto-configure it.', 'w3-total-cache' ) . '</p>';
+				echo '<p><button class="button button-primary button-auto-tcdn">' . esc_html__( 'Auto-Configure Total CDN', 'w3-total-cache' ) . '</button></p>';
+				echo '</div>';
+			}
+		);
+
+		return true;
 	}
 
 	/**
