@@ -103,15 +103,6 @@ class Cdn_TotalCdn_Page {
 		$is_authorized = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
 			( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
 
-		error_log( 'Registering CDN Total CDN script' );
-		\wp_register_script(
-			'w3tc_cdn_totalcdn',
-			\plugins_url( 'Cdn_TotalCdn_Page_View.js', W3TC_FILE ),
-			array( 'jquery' ),
-			W3TC_VERSION,
-			false
-		);
-
 		\wp_localize_script(
 			'w3tc_cdn_totalcdn',
 			'W3TC_Totalcdn',
@@ -219,6 +210,7 @@ class Cdn_TotalCdn_Page {
 	 * @return void
 	 */
 	public function w3tc_totalcdn_flush_all_except_totalcdn() {
+		error_log( 'w3tc_totalcdn_flush_all_except_totalcdn called' );
 		Dispatcher::component( 'CacheFlush' )->flush_all( array( 'totalcdn' => 'skip' ) );
 		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all' ), true );
 	}

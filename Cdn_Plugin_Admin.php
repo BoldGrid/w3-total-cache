@@ -37,6 +37,7 @@ class Cdn_Plugin_Admin {
 
 		// Always show the Total CDN widget on dashboard.
 		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_TotalCdn_Widget', 'admin_init_w3tc_dashboard' ) );
+		add_filter( 'w3tc_dashboard_actions', array( $this, 'total_cdn_dashboard_actions' ) );
 
 		// Attach to actions without firing class loading at all without need.
 		switch ( $cdn_engine ) {
@@ -76,6 +77,31 @@ class Cdn_Plugin_Admin {
 		\add_filter( 'w3tc_tcdn_auto_configured', array( $totalcdn_auto_configure, 'w3tc_tcdn_auto_configured' ), 10, 1 );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_auto_config', array( $totalcdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_auto_config' ) );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_confirm_auto_config', array( $totalcdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_confirm_auto_config' ) );
+	}
+
+	/**
+	 * If Total CDN is active, adds the CDN cache purge actions to the dahsboard.
+	 *
+	 * @param array $actions The existing dashboard actions.
+	 * @return array The modified dashboard actions with CDN purge options.
+	 */
+	public function total_cdn_dashboard_actions( $actions ) {
+		if ( ! Cdn_TotalCdn_Page::is_active() ) {
+			return $actions;
+		}
+		$modules            = Dispatcher::component( 'ModuleStatus' );
+		$can_empty_memcache = $modules->can_empty_memcache();
+		$can_empty_opcode   = $modules->can_empty_opcode();
+		$can_empty_file     = $modules->can_empty_file();
+		$can_empty_varnish  = $modules->can_empty_varnish();
+
+		$actions[] = sprintf(
+			'<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush_all_except_totalcdn" value="%1$s"%2$s>',
+			esc_attr__( 'Empty All Caches Except TotalCDN', 'w3-total-cache' ),
+			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
+		);
+
+		return $actions;
 	}
 
 	/**
