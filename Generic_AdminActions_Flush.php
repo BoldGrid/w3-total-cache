@@ -46,6 +46,11 @@ class Generic_AdminActions_Flush {
 		$this->_redirect_after_flush( 'flush_all' );
 	}
 
+	public function w3tc_flush_all_except_totalcdn() {
+		Dispatcher::component( 'CacheFlush' )->flush_all( array( 'totalcdn' => 'skip' ) );
+		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all_except_totalcdn' ), true );
+	}
+
 	/**
 	 * Flushes the cache for the current page and outputs a success message.
 	 *
@@ -297,7 +302,7 @@ class Generic_AdminActions_Flush {
 	 * @return void
 	 */
 	public function w3tc_flush_cdn() {
-		$result = $this->flush_cdn( array( 'ui_action' => 'flush_button' ) );
+		$result = $this->flush_cdn( array( 'ui_action' => 'flush_cdn_button' ) );
 
 		if ( false === $result ) {
 			Util_Admin::redirect(

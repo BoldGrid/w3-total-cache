@@ -216,27 +216,11 @@ class Cdn_TotalCdn_Page {
 		$can_empty_varnish  = $modules->can_empty_varnish();
 
 		$actions[] = sprintf(
-			'<input type="submit" class="dropdown-item" name="w3tc_totalcdn_flush_all_except_totalcdn" value="%1$s"%2$s>',
+			'<input type="submit" class="dropdown-item" name="w3tc_flush_all_except_totalcdn" value="%1$s"%2$s>',
 			esc_attr__( 'Empty All Caches Except TotalCDN', 'w3-total-cache' ),
 			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
 		);
 
 		return $actions;
-	}
-
-	/**
-	 * Flushes all caches except Total CDN and redirects to the W3 Total Cache settings page.
-	 *
-	 * This method flushes all caches except for Total CDN and redirects the user to the W3 Total Cache settings page with
-	 * a success message.
-	 *
-	 * @since 2.6.0
-	 *
-	 * @return void
-	 */
-	public function w3tc_totalcdn_flush_all_except_totalcdn() {
-		error_log( 'w3tc_totalcdn_flush_all_except_totalcdn called' );
-		Dispatcher::component( 'CacheFlush' )->flush_all( array( 'totalcdn' => 'skip' ) );
-		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all' ), true );
 	}
 }

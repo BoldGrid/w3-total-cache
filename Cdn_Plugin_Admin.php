@@ -67,6 +67,7 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
 				\add_filter( 'w3tc_dashboard_actions', array( '\W3TC\Cdn_TotalCdn_Page', 'total_cdn_dashboard_actions' ) );
+				\add_action( 'w3tc_flush_all', array( $this, 'flush_cdn' ) );
 				break;
 		}
 
@@ -77,6 +78,19 @@ class Cdn_Plugin_Admin {
 		\add_filter( 'w3tc_tcdn_auto_configured', array( $totalcdn_auto_configure, 'w3tc_tcdn_auto_configured' ), 10, 1 );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_auto_config', array( $totalcdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_auto_config' ) );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_confirm_auto_config', array( $totalcdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_confirm_auto_config' ) );
+	}
+
+	/**
+	 * Flushes the CDN cache when all caches are flushed.
+	 *
+	 * @param array $extras Optional extra parameters to pass to the CDN flush.
+	 *
+	 * @return bool True on success, false on failure.
+	 * @since  x.x.x
+	 */
+	public function flush_cdn( $extras = array() ) {
+		$cacheflush = Dispatcher::component( 'CacheFlush' );
+		return $cacheflush->cdn_purge_all( $extras );
 	}
 
 	/**
