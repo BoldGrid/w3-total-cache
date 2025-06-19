@@ -200,6 +200,31 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
+	 * If Total CDN is active, adds the CDN cache purge actions to the dahsboard.
+	 *
+	 * @param array $actions The existing dashboard actions.
+	 * @return array The modified dashboard actions with CDN purge options.
+	 */
+	public static function total_cdn_dashboard_actions( $actions ) {
+		if ( ! Cdn_TotalCdn_Page::is_active() ) {
+			return $actions;
+		}
+		$modules            = Dispatcher::component( 'ModuleStatus' );
+		$can_empty_memcache = $modules->can_empty_memcache();
+		$can_empty_opcode   = $modules->can_empty_opcode();
+		$can_empty_file     = $modules->can_empty_file();
+		$can_empty_varnish  = $modules->can_empty_varnish();
+
+		$actions[] = sprintf(
+			'<input type="submit" class="dropdown-item" name="w3tc_totalcdn_flush_all_except_totalcdn" value="%1$s"%2$s>',
+			esc_attr__( 'Empty All Caches Except TotalCDN', 'w3-total-cache' ),
+			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
+		);
+
+		return $actions;
+	}
+
+	/**
 	 * Flushes all caches except Total CDN and redirects to the W3 Total Cache settings page.
 	 *
 	 * This method flushes all caches except for Total CDN and redirects the user to the W3 Total Cache settings page with
