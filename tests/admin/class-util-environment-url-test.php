@@ -39,7 +39,7 @@ class Util_Environment_Url_Test extends WP_UnitTestCase {
                 $query = Util_Environment::url_query( $params, true );
                 // Function currently joins nested parameters using the parent key
                 // as the separator.
-                $this->assertSame( 'foo[bar]=1foofoo[baz]=2', $query );
+                $this->assertSame( 'foo[bar]=1&foo[baz]=2', $query );
         }
 
        /**
