@@ -53,6 +53,12 @@ class Util_Content_Debug_Test extends WP_UnitTestCase {
     /**
      * Test debug logging creates file in defined directory.
      */
+    /**
+     * Ensure constant definition does not leak to other tests.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function test_debug_log_creates_file() {
         if ( defined( 'W3TC_DEBUG_DIR' ) ) {
             $this->markTestSkipped( 'W3TC_DEBUG_DIR already defined' );
