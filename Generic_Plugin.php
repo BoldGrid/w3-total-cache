@@ -349,7 +349,7 @@ class Generic_Plugin {
 						'parent' => 'w3tc',
 						'title'  => __( 'Purge All Caches Except Total CDN', 'w3-total-cache' ),
 						'href'   => wp_nonce_url(
-							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_totalcdn_flush_all_except_totalcdn' ),
+							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all_except_totalcdn' ),
 							'w3tc'
 						),
 					);

@@ -330,7 +330,6 @@ class CacheFlush_Locally {
 	 * @return void
 	 */
 	public function flush_group( $group, $extras ) {
-		error_log( 'W3TC: flushing group: ' . $group );
 		$do_flush = apply_filters( 'w3tc_preflush_group', true, $group, $extras );
 		if ( $do_flush ) {
 			do_action( 'w3tc_flush_group', $group, $extras );
