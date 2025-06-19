@@ -116,7 +116,7 @@ class Util_Environment {
 			if ( is_array( $value ) ) {
 				if ( count( $value ) ) {
 					$str .= ( ! empty( $str ) ? '&' : '' ) .
-						self::url_query( $value, $skip_empty, $key );
+						self::url_query( $value, $skip_empty, $separator );
 				}
 			} else {
 				$name = '';
