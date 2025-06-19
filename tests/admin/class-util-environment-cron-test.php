@@ -12,12 +12,16 @@ use W3TC\Util_Environment;
 
 /**
  * Class: Util_Environment_Cron_Test
+ *
+ * @since X.X.X
  */
 class Util_Environment_Cron_Test extends WP_UnitTestCase {
-        /**
-         * Test get_cron_schedule_time() matches expected timestamp.
-         */
-        public function test_get_cron_schedule_time() {
+       /**
+        * Test get_cron_schedule_time() matches expected timestamp.
+        *
+        * @since X.X.X
+        */
+       public function test_get_cron_schedule_time() {
                 $now = new DateTime( 'now', wp_timezone() );
                 $expected = clone $now;
                 $expected->setTime( 1, 0 );
@@ -28,10 +32,12 @@ class Util_Environment_Cron_Test extends WP_UnitTestCase {
                 $this->assertSame( $expected_ts, Util_Environment::get_cron_schedule_time( 60 ) );
         }
 
-        /**
-         * Test is_wpcron_working() success and failure via HTTP mocks.
-         */
-        public function test_is_wpcron_working() {
+       /**
+        * Test is_wpcron_working() success and failure via HTTP mocks.
+        *
+        * @since X.X.X
+        */
+       public function test_is_wpcron_working() {
                 // Successful response mock.
                 $callback = function() {
                         return array(

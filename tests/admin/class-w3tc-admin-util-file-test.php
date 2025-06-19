@@ -351,6 +351,8 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 
        /**
         * Test check_htaccess creates file and returns expected boolean.
+        *
+        * @since X.X.X
         */
        public function test_check_htaccess() {
                $dir = W3TC_CACHE_TMP_DIR . '/htaccess-test';

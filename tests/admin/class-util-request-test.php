@@ -12,6 +12,8 @@ use W3TC\Util_Request;
 
 /**
  * Class: Util_Request_Test
+ *
+ * @since X.X.X
  */
 class Util_Request_Test extends WP_UnitTestCase {
         protected function setUp(): void {
@@ -20,10 +22,12 @@ class Util_Request_Test extends WP_UnitTestCase {
                 $_POST = array();
         }
 
-        /**
-         * Test retrieving different types from request.
-         */
-        public function test_get_various_types() {
+       /**
+        * Test retrieving different types from request.
+        *
+        * @since X.X.X
+        */
+       public function test_get_various_types() {
                 $_GET['str']     = ' value ';
                 $_POST['int']    = '5';
                 $_POST['double'] = '3.14';
@@ -37,10 +41,12 @@ class Util_Request_Test extends WP_UnitTestCase {
                 $this->assertSame( array( 'one', 'two' ), Util_Request::get_array( 'array' ) );
         }
 
-        /**
-         * Test get_as_array() for prefixed parameters.
-         */
-        public function test_get_as_array() {
+       /**
+        * Test get_as_array() for prefixed parameters.
+        *
+        * @since X.X.X
+        */
+       public function test_get_as_array() {
                 $_GET['pre_one'] = '1';
                 $_GET['pre_two'] = '2';
                 $expected = array( '_one' => '1', '_two' => '2' );

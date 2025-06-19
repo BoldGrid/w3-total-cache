@@ -12,12 +12,16 @@ use W3TC\Util_Mime;
 
 /**
  * Class: Util_Mime_Test
+ *
+ * @since X.X.X
  */
 class Util_Mime_Test extends WP_UnitTestCase {
-        /**
-         * Test get_mime_type() for known and unknown extensions.
-         */
-        public function test_get_mime_type() {
+       /**
+        * Test get_mime_type() for known and unknown extensions.
+        *
+        * @since X.X.X
+        */
+       public function test_get_mime_type() {
                 $css = tempnam( sys_get_temp_dir(), 'w3tc' ) . '.css';
                 file_put_contents( $css, 'body{}' );
                 $html = tempnam( sys_get_temp_dir(), 'w3tc' ) . '.html';
@@ -35,10 +39,12 @@ class Util_Mime_Test extends WP_UnitTestCase {
                 unlink( $unknown );
         }
 
-        /**
-         * Test sections_to_mime_types_map() and mime_type_to_section().
-         */
-        public function test_sections_and_mapping() {
+       /**
+        * Test sections_to_mime_types_map() and mime_type_to_section().
+        *
+        * @since X.X.X
+        */
+       public function test_sections_and_mapping() {
                 $map = Util_Mime::sections_to_mime_types_map();
                 $this->assertArrayHasKey( 'cssjs', $map );
                 $this->assertArrayHasKey( 'html', $map );

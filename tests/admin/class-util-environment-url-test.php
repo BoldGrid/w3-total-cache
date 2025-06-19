@@ -12,20 +12,26 @@ use W3TC\Util_Environment;
 
 /**
  * Class: Util_Environment_Url_Test
+ *
+ * @since X.X.X
  */
 class Util_Environment_Url_Test extends WP_UnitTestCase {
-        /**
-         * Test url_format() with basic parameters.
-         */
-        public function test_url_format_basic() {
+       /**
+        * Test url_format() with basic parameters.
+        *
+        * @since X.X.X
+        */
+       public function test_url_format_basic() {
                 $url = Util_Environment::url_format( 'https://example.com/test.php', array( 'a' => 1, 'b' => 'two' ) );
                 $this->assertSame( 'https://example.com/test.php?a=1&b=two', $url );
         }
 
-        /**
-         * Test url_query() with nested arrays and skip empty parameters.
-         */
-        public function test_url_query_nested_skip_empty() {
+       /**
+        * Test url_query() with nested arrays and skip empty parameters.
+        *
+        * @since X.X.X
+        */
+       public function test_url_query_nested_skip_empty() {
                 $params = array(
                         'foo' => array( 'bar' => 1, 'baz' => 2 ),
                         'empty' => '',
@@ -36,18 +42,22 @@ class Util_Environment_Url_Test extends WP_UnitTestCase {
                 $this->assertSame( 'foo[bar]=1foofoo[baz]=2', $query );
         }
 
-        /**
-         * Test url_format() merges existing query parameters.
-         */
-        public function test_url_format_merges_query() {
+       /**
+        * Test url_format() merges existing query parameters.
+        *
+        * @since X.X.X
+        */
+       public function test_url_format_merges_query() {
                 $url = Util_Environment::url_format( 'https://example.com/path?foo=1', array( 'bar' => array( 'baz' => 2 ) ) );
                 $this->assertSame( 'https://example.com/path?foo=1&bar[baz]=2', $url );
         }
 
-        /**
-         * Test filename_to_url() for different locations.
-         */
-        public function test_filename_to_url_locations() {
+       /**
+        * Test filename_to_url() for different locations.
+        *
+        * @since X.X.X
+        */
+       public function test_filename_to_url_locations() {
                 // File in WP_CONTENT_DIR.
                 $file1 = tempnam( WP_CONTENT_DIR, 'w3tc' );
                 $expected1 = content_url( basename( $file1 ) );
