@@ -31,8 +31,9 @@ class Util_Mime_Test extends WP_UnitTestCase {
 
                 $this->assertSame( 'text/css', Util_Mime::get_mime_type( $css ) );
                 $this->assertSame( 'text/html', Util_Mime::get_mime_type( $html ) );
-                // Unknown extensions default to text/plain via fileinfo on this system
-                $this->assertSame( 'text/plain', Util_Mime::get_mime_type( $unknown ) );
+                // Unknown extensions may vary by system; allow multiple expected values
+                $expected_mime_types = [ 'text/plain', 'application/octet-stream' ];
+                $this->assertContains( Util_Mime::get_mime_type( $unknown ), $expected_mime_types );
 
                 unlink( $css );
                 unlink( $html );
