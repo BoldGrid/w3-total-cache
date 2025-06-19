@@ -323,7 +323,7 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 	 *
 	 * @since 2.3.1
 	 */
-	public function test_format_array_entry_as_settings_file_entry() {
+        public function test_format_array_entry_as_settings_file_entry() {
 		// One tab, string array keys.
 		$tabs = 1;
 		$this->assertEquals( "\t'bool' => true,\r\n", \W3TC\Util_File::format_array_entry_as_settings_file_entry( $tabs, 'bool', true ) );
@@ -346,6 +346,27 @@ class W3tc_Admin_Util_File_Test extends WP_UnitTestCase {
 		$this->assertEquals( "\t2 => 1,\r\n", \W3TC\Util_File::format_array_entry_as_settings_file_entry( $tabs, 2, 1 ) );
 		$this->assertEquals( "\t3 => null,\r\n", \W3TC\Util_File::format_array_entry_as_settings_file_entry( $tabs, 3, null ) );
 		$this->assertEquals( "\t4 => array(\r\n\t),\r\n", \W3TC\Util_File::format_array_entry_as_settings_file_entry( $tabs, 4, new stdClass() ) );
-		$this->assertEquals( "\t5 => 'test',\r\n", \W3TC\Util_File::format_array_entry_as_settings_file_entry( $tabs, 5, 'test' ) );
-	}
+                $this->assertEquals( "\t5 => 'test',\r\n", \W3TC\Util_File::format_array_entry_as_settings_file_entry( $tabs, 5, 'test' ) );
+        }
+
+       /**
+        * Test check_htaccess creates file and returns expected boolean.
+        */
+       public function test_check_htaccess() {
+               $dir = W3TC_CACHE_TMP_DIR . '/htaccess-test';
+               if ( file_exists( $dir ) ) {
+                       \W3TC\Util_File::rmdir( $dir );
+               }
+               mkdir( $dir, 0755, true );
+
+               // First call should create file and return true.
+               $this->assertTrue( \W3TC\Util_File::check_htaccess( $dir ) );
+               $this->assertFileExists( $dir . '/.htaccess' );
+
+               // Second call should return false since file exists.
+               $this->assertFalse( \W3TC\Util_File::check_htaccess( $dir ) );
+
+               // Cleanup.
+               \W3TC\Util_File::rmdir( $dir );
+       }
 }
