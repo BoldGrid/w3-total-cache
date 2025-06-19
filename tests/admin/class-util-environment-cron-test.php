@@ -55,8 +55,8 @@ class Util_Environment_Cron_Test extends WP_UnitTestCase {
                 $callback_error = function() {
                         return new WP_Error( 'fail', 'Error' );
                 };
-                add_filter( 'pre_http_request', $callback_error );
+                add_filter( 'pre_http_request', $callback_error, 10, 3 );
                 $this->assertFalse( Util_Environment::is_wpcron_working() );
-                remove_filter( 'pre_http_request', $callback_error );
+                remove_filter( 'pre_http_request', $callback_error, 10, 3 );
         }
 }
