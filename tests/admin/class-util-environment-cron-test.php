@@ -49,7 +49,7 @@ class Util_Environment_Cron_Test extends WP_UnitTestCase {
                 add_filter( 'pre_http_request', $callback, 10, 3 );
                 $result = Util_Environment::is_wpcron_working();
                 $this->assertIsBool( $result );
-                remove_filter( 'pre_http_request', $callback );
+                remove_filter( 'pre_http_request', $callback, 10, 3 );
 
                 // Error response mock.
                 $callback_error = function() {
