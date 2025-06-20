@@ -2,7 +2,7 @@
 /**
  * File: Cdn_BunnyCdn_Api.php
  *
- * @since   2.6.0
+ * @since   x.x.x
  * @package W3TC
  */
 
@@ -11,16 +11,13 @@ namespace W3TC;
 /**
  * Class: Cdn_BunnyCdn_Api
  *
- * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
- * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
- *
- * @since 2.6.0
+ * @since x.x.x
  */
-class Cdn_BunnyCdn_Api {
+class Cdn_TotalCdn_Api {
 	/**
 	 * Account API Key.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @var string
 	 */
@@ -29,7 +26,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Storage API Key.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @var string
 	 */
@@ -38,7 +35,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Stream API Key.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @var string
 	 */
@@ -49,7 +46,7 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * One of: "account", "storage", "stream".
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @var string
 	 */
@@ -58,16 +55,25 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Pull zone id.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @var int
 	 */
 	private $pull_zone_id;
 
 	/**
+	 * Base URL for the API.
+	 *
+	 * @since x.x.x
+	 *
+	 * @var string
+	 */
+	private $api_base_url = 'https://cdn-api-dev.boldgrid.com/api/v1';
+
+	/**
 	 * Default edge rules.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @var array
 	 */
@@ -139,12 +145,29 @@ class Cdn_BunnyCdn_Api {
 			),
 			'Description'         => 'Override Browser Cache Time if logged into WordPress',
 		),
+		array(
+			'ActionType'       => 5, // Set Response Header.
+			'ActionParameter1' => 'X-W3TC-CDN',
+			'ActionParameter2' => 'totalcdn',
+			'Triggers'         => array(
+				array(
+					'Type'                => 0, // RequestUrl.
+					'PatternMatches'      => array(
+						'*'
+					),
+					'PatternMatchingType' => 0, // MatchAny.
+				)
+			),
+			'TriggerMatchingType' => 0,
+			'Description'         => 'Add X-W3TC-CDN header',
+			'Enabled'             => true,
+		)
 	);
 
 	/**
 	 * Class constructor for initializing API keys and pull zone ID.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param array $config Configuration array containing API keys and pull zone ID.
 	 */
@@ -158,7 +181,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Filters the timeout time.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param int $time The original timeout time.
 	 *
@@ -171,7 +194,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Disables SSL verification for HTTPS requests.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param bool $verify Whether to enable SSL verification (defaults to false).
 	 *
@@ -184,7 +207,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Lists all pull zones.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_index
 	 *
@@ -193,13 +216,27 @@ class Cdn_BunnyCdn_Api {
 	public function list_pull_zones() {
 		$this->api_type = 'account';
 
-		return $this->wp_remote_get( \esc_url( 'https://api.bunny.net/pullzone' ) );
+		return $this->wp_remote_get( \esc_url( $this->api_base_url . '/pullzones' ) );
 	}
+
+	/**
+	 * Gets the current user details.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return array|WP_Error API response or error object.
+	 */
+	public function get_user() {
+		$this->api_type = 'account';
+
+		return $this->wp_remote_get( \esc_url( $this->api_base_url . '/user' ) );
+	}
+
 
 	/**
 	 * Gets the details of a specific pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param int $id The pull zone ID.
 	 *
@@ -211,14 +248,14 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 
 		return $this->wp_remote_get(
-			\esc_url( 'https://api.bunny.net/pullzone/id' . $id )
+			\esc_url( $this->api_base_url . '/pullzone/' . $id )
 		);
 	}
 
 	/**
 	 * Adds a new pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param array $data Data for the new pull zone.
 	 *
@@ -239,16 +276,26 @@ class Cdn_BunnyCdn_Api {
 			throw new \Exception( \esc_html__( 'A pull zone name (string) is required.', 'w3-total-cache' ) );
 		}
 
+		if ( empty( $data['AccountId'] ) ) {
+			// Get the account ID from the API by calling the get_user() method.
+			$response = $this->get_user();
+			if ( ! empty( $response['AccountId'] ) ) {
+				$data['AccountId'] = $response['AccountId'];
+			} else {
+				throw new \Exception( \esc_html__( 'Failed to retrieve account ID.', 'w3-total-cache' ) );
+			}
+		}
+
 		return $this->wp_remote_post(
-			'https://api.bunny.net/pullzone',
-			$data,
+			$this->api_base_url . '/pullzone',
+			$data
 		);
 	}
 
 	/**
 	 * Updates an existing pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param int   $id   The pull zone ID.
 	 * @param array $data Data for updating the pull zone.
@@ -268,15 +315,16 @@ class Cdn_BunnyCdn_Api {
 		}
 
 		return $this->wp_remote_post(
-			'https://api.bunny.net/pullzone/' . $id,
-			$data
+			$this->api_base_url . '/pullzone/' . $id,
+			$data,
+			array( 'method' => 'PUT' )
 		);
 	}
 
 	/**
 	 * Deletes a pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param int $id The pull zone ID.
 	 *
@@ -295,7 +343,7 @@ class Cdn_BunnyCdn_Api {
 		}
 
 		return $this->wp_remote_post(
-			\esc_url( 'https://api.bunny.net/pullzone/' . $id ),
+			\esc_url( $this->api_base_url . '/pullzone/' . $id ),
 			array(),
 			array( 'method' => 'DELETE' )
 		);
@@ -304,7 +352,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Adds a custom hostname to a pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param string   $hostname The custom hostname to add.
 	 * @param int|null $pull_zone_id The pull zone ID (optional).
@@ -319,6 +367,11 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
+		// Convert pullzone to int if it's a string.
+		if ( \is_string( $pull_zone_id ) ) {
+			$pull_zone_id = (int) $pull_zone_id;
+		}
+
 		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
@@ -328,15 +381,44 @@ class Cdn_BunnyCdn_Api {
 		}
 
 		$this->wp_remote_post(
-			\esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/addHostname' ),
-			array( 'Hostname' => $hostname )
+			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/addCustomHostname' ),
+			array( 'CustomHostName' => $hostname )
+		);
+	}
+
+	/**
+	 * Load Free SSL Certificate for a custom hostname
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $hostname     The custom hostname to add.
+	 * @param string $pull_zone_id The pull zone ID (optional).
+	 *
+	 * @throws \Exception If the pull zone ID or hostname is invalid.
+	 */
+	public function load_free_certificate( $hostname, $pull_zone_id = null ) {
+		$this->api_type = 'account';
+		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
+
+		// Convert pullzone to int if it's a string.
+		if ( \is_string( $pull_zone_id ) ) {
+			$pull_zone_id = (int) $pull_zone_id;
+		}
+
+		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
+		}
+
+		$response = $this->wp_remote_post(
+			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/loadFreeCertificate' ),
+			array( 'hostname' => $hostname )
 		);
 	}
 
 	/**
 	 * Gets the default edge rules for the pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @return array Default edge rules.
 	 */
@@ -347,7 +429,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Adds an edge rule to a pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param array    $data Data for the edge rule.
 	 * @param int|null $pull_zone_id The pull zone ID (optional).
@@ -381,7 +463,7 @@ class Cdn_BunnyCdn_Api {
 		}
 
 		$this->wp_remote_post(
-			\esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/edgerules/addOrUpdate' ),
+			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/edgerule' ),
 			$data
 		);
 	}
@@ -389,7 +471,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Purges the cache.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param array $data Data for the purge operation.
 	 *
@@ -399,7 +481,7 @@ class Cdn_BunnyCdn_Api {
 		$this->api_type = 'account';
 
 		return $this->wp_remote_get(
-			\esc_url( 'https://api.bunny.net/purge' ),
+			\esc_url( $this->api_base_url . '/purge' ),
 			$data
 		);
 	}
@@ -407,7 +489,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Purges the cache for a specific pull zone.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param int|null $pull_zone_id The pull zone ID (optional).
 	 *
@@ -423,13 +505,13 @@ class Cdn_BunnyCdn_Api {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
-		$this->wp_remote_post( \esc_url( 'https://api.bunny.net/pullzone/' . $pull_zone_id . '/purgeCache' ) );
+		$this->wp_remote_post( \esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/purge' ) );
 	}
 
 	/**
 	 * Retrieves the appropriate API key based on the specified type.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param string|null $type The type of API key to retrieve ('account', 'storage', or 'stream').
 	 *
@@ -456,7 +538,7 @@ class Cdn_BunnyCdn_Api {
 	/**
 	 * Decodes the API response.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param array|WP_Error $result The result returned from the API request.
 	 *
@@ -491,7 +573,7 @@ class Cdn_BunnyCdn_Api {
 	 * It also adds custom headers for API authentication and content type. Timeout and SSL verification filters
 	 * are applied during the request process. The response is processed using `decode_response` method.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param string $url  The URL to send the GET request to.
 	 * @param array  $data Optional. An associative array of data to send as query parameters. Default is an empty array.
@@ -508,8 +590,8 @@ class Cdn_BunnyCdn_Api {
 			$url . ( empty( $data ) ? '' : '?' . \http_build_query( $data ) ),
 			array(
 				'headers' => array(
-					'AccessKey' => $api_key,
-					'Accept'    => 'application/json',
+					'ApiKey' => $api_key,
+					'Accept' => 'application/json',
 				),
 			)
 		);
@@ -529,7 +611,7 @@ class Cdn_BunnyCdn_Api {
 	 * Filters for request timeout and SSL verification are applied during the request process. The response is processed using
 	 * `decode_response` method.
 	 *
-	 * @since 2.6.0
+	 * @since x.x.x
 	 *
 	 * @param string $url   The URL to send the POST request to.
 	 * @param array  $data  Optional. An associative array of data to send in the request body. Default is an empty array.
@@ -548,7 +630,7 @@ class Cdn_BunnyCdn_Api {
 			\array_merge(
 				array(
 					'headers' => array(
-						'AccessKey'    => $api_key,
+						'ApiKey'    => $api_key,
 						'Accept'       => 'application/json',
 						'Content-Type' => 'application/json',
 					),

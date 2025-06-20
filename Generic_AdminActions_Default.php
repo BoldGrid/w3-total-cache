@@ -107,6 +107,53 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
+	 * Saves the provided Total CDN API key to the configuration.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If saving the api key or configuration fails.
+	 */
+	public function w3tc_default_save_tcdn_key() {
+		$license_key = Util_Request::get_string( 'license_key' );
+		$api_key     = Util_Request::get_string( 'api_key' );
+		$account_id  = Util_Request::get_string( 'account_id' );
+		try {
+			$old_config = new Config();
+
+			$this->_config->set( 'plugin.license_key', $license_key );
+			$this->_config->set( 'cdn.totalcdn.account_api_key', $api_key );
+			$this->_config->set( 'cdn.totalcdn.account_id', $account_id );
+			$this->_config->save();
+
+			// This applies a valid license state for the Total CDN license.
+			$config_state = Dispatcher::config_state();
+			$config_state->set( 'totalcdn.status', 'active.by_rooturi' );
+			$config_state->save();
+
+			Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(
+				$this->_config,
+				$old_config
+			);
+
+			// This should apply the default configuration for Total CDN.
+			$tcdn_applied = apply_filters( 'w3tc_tcdn_auto_configured', false );
+			if ( true === $tcdn_applied ) {
+				echo wp_json_encode( array( 'result' => 'success' ) );
+				exit();
+			} else {
+				echo wp_json_encode( array( 'result' => 'failed', 'message' => __( 'Failed to auto apply Total CDN configuration.', 'w3-total-cache' ) ) );
+				exit();
+			}
+		} catch ( \Exception $ex ) {
+			echo wp_json_encode( array( 'result' => 'failed' ) );
+			exit();
+		}
+
+		echo wp_json_encode( array( 'result' => 'success' ) );
+		exit();
+	}
+
+	/**
 	 * Hides a specified admin note and updates the configuration.
 	 *
 	 * @return void
