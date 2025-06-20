@@ -17,7 +17,7 @@ class Cdn_TotalCdn_Page {
 	/**
 	 * Handles the AJAX action to purge a specific URL from Total CDN.
 	 *
-	 * This method listens for the `w3tc_ajax_cdn_totalcdn_purge_url` AJAX action and processes the URL purging request.
+	 * This method listens for the `w3tc_ajax_cdn_{W3TC_CDN_SLUG}_purge_url` AJAX action and processes the URL purging request.
 	 * It validates the URL, calls the Bunny CDN API to purge the URL, and sends a JSON response indicating success or failure.
 	 *
 	 * @since 2.6.0
@@ -27,7 +27,7 @@ class Cdn_TotalCdn_Page {
 	public static function w3tc_ajax() {
 		$o = new Cdn_BunnyCdn_Page();
 
-		\add_action( 'w3tc_ajax_cdn_totalcdn_purge_url', array( $o, 'w3tc_ajax_cdn_totalcdn_purge_url' ) );
+		\add_action( 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_purge_url', array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_purge_url' ) );
 	}
 
 	/**
@@ -44,16 +44,16 @@ class Cdn_TotalCdn_Page {
 		$config          = Dispatcher::config();
 		$cdn_enabled     = $config->get_boolean( 'cdn.enabled' );
 		$cdn_engine      = $config->get_string( 'cdn.engine' );
-		$cdn_zone_id     = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
+		$cdn_zone_id     = $config->get_integer( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' );
 		$cdnfsd_enabled  = $config->get_boolean( 'cdnfsd.enabled' );
 		$cdnfsd_engine   = $config->get_string( 'cdnfsd.engine' );
-		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
-		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.' . W3TC_CDN_SLUG . '.pull_zone_id' );
+		$account_api_key = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
 
 		return ( $account_api_key &&
 			(
-				( $cdn_enabled && 'totalcdn' === $cdn_engine && $cdn_zone_id ) ||
-				( $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine && $cdnfsd_zone_id )
+				( $cdn_enabled && W3TC_CDN_SLUG === $cdn_engine && $cdn_zone_id ) ||
+				( $cdnfsd_enabled && W3TC_CDN_SLUG === $cdnfsd_engine && $cdnfsd_zone_id )
 			)
 		);
 	}
@@ -79,7 +79,8 @@ class Cdn_TotalCdn_Page {
 			$can_empty_varnish  = $modules->can_empty_varnish();
 
 			$actions[] = sprintf(
-				'<input type="submit" class="dropdown-item" name="w3tc_totalcdn_flush_all_except_totalcdn" value="%1$s"%2$s>',
+				'<input type="submit" class="dropdown-item" name="w3tc_%1$s_flush_all_except_%1$s" value="%2$s"%3$s>',
+				esc_attr( W3TC_CDN_SLUG ),
 				esc_attr__( 'Empty All Caches Except Total CDN', 'w3-total-cache' ),
 				( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
 			);
@@ -100,20 +101,20 @@ class Cdn_TotalCdn_Page {
 	 */
 	public static function admin_print_scripts_w3tc_cdn() {
 		$config        = Dispatcher::config();
-		$is_authorized = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
-			( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
+		$is_authorized = ! empty( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) &&
+			( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' ) || $config->get_string( 'cdnfsd.' . W3TC_CDN_SLUG . '.pull_zone_id' ) );
 
 		\wp_register_script(
-			'w3tc_cdn_totalcdn',
-			\plugins_url( 'Cdn_TotalCdn_Page_View.js', W3TC_FILE ),
+			'w3tc_cdn_' . W3TC_CDN_SLUG,
+			\plugins_url( 'Cdn_' . W3TC_CDN_CLASS . '_Page_View.js', W3TC_FILE ),
 			array( 'jquery' ),
 			W3TC_VERSION,
 			false
 		);
 
 		\wp_localize_script(
-			'w3tc_cdn_totalcdn',
-			'W3TC_Totalcdn',
+			'w3tc_cdn_' . W3TC_CDN_SLUG,
+			'W3TC_' . W3TC_CDN_CLASS,
 			array(
 				'is_authorized' => $is_authorized,
 				'lang'          => array(
@@ -125,7 +126,7 @@ class Cdn_TotalCdn_Page {
 			)
 		);
 
-		\wp_enqueue_script( 'w3tc_cdn_totalcdn' );
+		\wp_enqueue_script( 'w3tc_cdn_' . W3TC_CDN_SLUG );
 	}
 
 	/**
@@ -141,7 +142,7 @@ class Cdn_TotalCdn_Page {
 	public static function w3tc_settings_cdn_boxarea_configuration() {
 		$config = Dispatcher::config();
 
-		include W3TC_DIR . '/Cdn_TotalCdn_Page_View.php';
+		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Page_View.php';
 	}
 
 	/**
@@ -157,7 +158,7 @@ class Cdn_TotalCdn_Page {
 	public static function w3tc_purge_urls_box() {
 		$config = Dispatcher::config();
 
-		include W3TC_DIR . '/Cdn_TotalCdn_Page_View_Purge_Urls.php';
+		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Page_View_Purge_Urls.php';
 	}
 
 	/**
@@ -188,9 +189,10 @@ class Cdn_TotalCdn_Page {
 		}
 
 		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$account_api_key = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
 
-		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
+		$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api       = new $api_class( array( 'account_api_key' => $account_api_key ) );
 
 		// Try to delete pull zone.
 		try {
@@ -214,7 +216,8 @@ class Cdn_TotalCdn_Page {
 	 * @return array The modified dashboard actions with CDN purge options.
 	 */
 	public static function total_cdn_dashboard_actions( $actions ) {
-		if ( ! Cdn_TotalCdn_Page::is_active() ) {
+		$page_class = 'Cdn_' . W3TC_CDN_CLASS . '_Page';
+		if ( ! $page_class::is_active() ) {
 			return $actions;
 		}
 		$modules            = Dispatcher::component( 'ModuleStatus' );
@@ -224,8 +227,9 @@ class Cdn_TotalCdn_Page {
 		$can_empty_varnish  = $modules->can_empty_varnish();
 
 		$actions[] = sprintf(
-			'<input type="submit" class="dropdown-item" name="w3tc_flush_all_except_totalcdn" value="%1$s"%2$s>',
-			esc_attr__( 'Empty All Caches Except TotalCDN', 'w3-total-cache' ),
+			'<input type="submit" class="dropdown-item" name="w3tc_flush_all_except_w3tc_cdn" value="%1$s %2$s"%3$s>',
+			esc_attr__( 'Empty All Caches Except', 'w3-total-cache' ),
+			esc_attr( W3TC_CDN_NAME ),
 			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
 		);
 

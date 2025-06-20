@@ -13,7 +13,7 @@ defined( 'W3TC' ) || die();
 
 ?>
 
-<div id="totalcdn-widget" class="w3tc_totalcdn_signup">
+<div id="<?php echo esc_attr( W3TC_CDN_SLUG ); ?>-widget" class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_signup">
 	<?php
 	$cdn_engine  = $config->get_string( 'cdn.engine' );
 	$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
@@ -24,16 +24,16 @@ defined( 'W3TC' ) || die();
 	$cdnfsd_name    = Cache::engine_name( $cdnfsd_engine );
 
 	// Check if Total CDN is selected but not fully configured.
-	$is_totalcdn_incomplete = (
+	$is_w3tc_cdn_incomplete = (
 		(
 			$cdn_enabled &&
-			'totalcdn' === $cdn_engine &&
-			empty( $config->get_integer( 'cdn.totalcdn.pull_zone_id' ) )
+			W3TC_CDN_SLUG === $cdn_engine &&
+			empty( $config->get_integer( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' ) )
 		) ||
 		(
 			$cdnfsd_enabled &&
-			'totalcdn' === $cdnfsd_engine &&
-			empty( $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' ) )
+			W3TC_CDN_SLUG === $cdnfsd_engine &&
+			empty( $config->get_integer( 'cdnfsd.' . W3TC_CDN_SLUG . '.pull_zone_id' ) )
 		)
 	);
 
@@ -42,16 +42,16 @@ defined( 'W3TC' ) || die();
 		(
 			$cdn_enabled &&
 			! empty( $cdn_engine ) &&
-			'totalcdn' !== $cdn_engine
+			W3TC_CDN_SLUG !== $cdn_engine
 		) ||
 		(
 			$cdnfsd_enabled &&
 			! empty( $cdnfsd_engine ) &&
-			'totalcdn' !== $cdnfsd_engine
+			W3TC_CDN_SLUG !== $cdnfsd_engine
 		)
 	);
 
-	if ( $is_totalcdn_incomplete ) {
+	if ( $is_w3tc_cdn_incomplete ) {
 		// Total CDN selected but not fully configured.
 		?>
 		<p class="notice notice-error">
@@ -121,7 +121,7 @@ defined( 'W3TC' ) || die();
 			?>
 		</p>
 		<?php
-	} elseif ( ! $cdn_enabled && ! $cdnfsd_enabled && ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) {
+	} elseif ( ! $cdn_enabled && ! $cdnfsd_enabled && ! empty( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) ) {
 		// Total CDN is purchased and available but no CDN enabled.
 		?>
 		<p class="notice notice-error">
@@ -166,14 +166,14 @@ defined( 'W3TC' ) || die();
 	}
 
 	if (
-		( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
-		'inactive.expired' === $state->get_string( 'cdn.totalcdn.status' )
+		( ! $cdn_enabled && empty( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) ) ||
+		'inactive.expired' === $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' )
 	) {
 		?>
 		<p>
 			<?php
 			w3tc_e(
-				'cdn.totalcdn.widget.v2.header',
+				'cdn.' . W3TC_CDN_SLUG . '.widget.v2.header',
 				\sprintf(
 					// translators: 1 HTML acronym for Content Delivery Network (CDN).
 					\__( 'Enhance your website performance by adding our Total %1$s service to your site.', 'w3-total-cache' ),
@@ -183,12 +183,12 @@ defined( 'W3TC' ) || die();
 			?>
 		</p>
 
-		<h4 class="w3tc_totalcdn_signup_h4"><?php \esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
+		<h4 class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_signup_h4"><?php \esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
 
 		<p>
 			<?php
 			w3tc_e(
-				'cdn.totalcdn.widget.v2.works_magically',
+				'cdn.' . W3TC_CDN_SLUG . '.widget.v2.works_magically',
 				\__( 'Total CDN works magically with W3 Total Cache to speed up your site around the world for as little as $1 per month.', 'w3-total-cache' )
 			);
 			?>
@@ -198,12 +198,12 @@ defined( 'W3TC' ) || die();
 		<?php
 	}
 	?>
-	<h4 class="w3tc_totalcdn_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
+	<h4 class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
 
 	<p>
 		<?php
 		w3tc_e(
-			'cdn.totalcdn.widget.v2.existing',
+			'cdn.' . W3TC_CDN_SLUG . '.widget.v2.existing',
 			\sprintf(
 				// translators: 1 HTML acronym for Content Delivery Network (CDN).
 				\__(
@@ -223,7 +223,7 @@ defined( 'W3TC' ) || die();
 			<?php \esc_html_e( 'Enable', 'w3-total-cache' ); ?>
 		</a>
 		<?php
-	} elseif ( $is_totalcdn_incomplete ) {
+	} elseif ( $is_w3tc_cdn_incomplete ) {
 		?>
 		<a class="button-primary" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ), 'w3tc' ) ); ?>">
 			<?php \esc_html_e( 'Authorize', 'w3-total-cache' ); ?>

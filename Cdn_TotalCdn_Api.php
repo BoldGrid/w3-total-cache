@@ -68,7 +68,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @var string
 	 */
-	private $api_base_url = 'https://cdn-api-dev.boldgrid.com/api/v1';
+	private $api_base_url = W3TC_CDN_API_URL;
 
 	/**
 	 * Default edge rules.
@@ -148,7 +148,7 @@ class Cdn_TotalCdn_Api {
 		array(
 			'ActionType'       => 5, // Set Response Header.
 			'ActionParameter1' => 'X-W3TC-CDN',
-			'ActionParameter2' => 'totalcdn',
+			'ActionParameter2' => W3TC_CDN_SLUG,
 			'Triggers'         => array(
 				array(
 					'Type'                => 0, // RequestUrl.

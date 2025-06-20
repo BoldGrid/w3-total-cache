@@ -27,8 +27,9 @@ class CdnEngine {
 
 		if ( ! isset( $instances[ $instance_key ] ) ) {
 			switch ( $engine ) {
-				case 'totalcdn':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_TotalCdn( $config );
+				case W3TC_CDN_SLUG:
+					$engine_class               = 'CdnEngine_Mirror_' . W3TC_CDN_CLASS;
+					$instances[ $instance_key ] = new $engine_class( $config );
 					break;
 
 				case 'akamai':
@@ -93,10 +94,6 @@ class CdnEngine {
 
 				case 's3_compatible':
 					$instances[ $instance_key ] = new CdnEngine_S3_Compatible( $config );
-					break;
-
-				case 'totalcdn':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_TotalCdn( $config );
 					break;
 
 				default:

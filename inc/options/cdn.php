@@ -18,8 +18,8 @@ $can_purge = Cdn_Util::can_purge( $cdn_engine );
 require W3TC_INC_DIR . '/options/common/header.php';
 
 if (
-	( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
-	'inactive.expired' === $state->get_string( 'cdn.totalcdn.status' )
+	( ! $cdn_enabled && empty( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) ) ||
+	'inactive.expired' === $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' )
 ) {
 	?>
 	<div id="w3tc-tcdn-ad-cdn">
@@ -478,7 +478,7 @@ if (
 			<table class="form-table">
 				<?php
 				$known_engines = array(
-					'totalcdn',
+					W3TC_CDN_SLUG,
 					'bunnycdn',
 					'tcdn',
 					'google_drive',

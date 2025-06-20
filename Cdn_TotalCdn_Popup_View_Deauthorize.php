@@ -23,7 +23,7 @@ defined( 'W3TC' ) || die;
 $is_same_zone = $cdn_pull_zone_id === $cdnfsd_pull_zone_id;
 
 ?>
-<form class="w3tc_cdn_totalcdn_form" method="post">
+<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form" method="post">
 	<input type="hidden" name="pull_zone_id" />
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( \esc_html__( 'Deauthorize pull zone', 'w3-total-cache' ) ); ?>
@@ -54,7 +54,7 @@ $is_same_zone = $cdn_pull_zone_id === $cdnfsd_pull_zone_id;
 		</table>
 
 		<p class="submit">
-			<input type="button" class="w3tc_cdn_totalcdn_deauthorize w3tc-button-save button-primary"
+			<input type="button" class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_deauthorize w3tc-button-save button-primary"
 				value="<?php \esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>

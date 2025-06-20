@@ -895,10 +895,14 @@ class Cdn_Plugin {
 		$cdn    = $common->get_cdn();
 		$via    = $cdn->get_via();
 
-		if ( 'totalcdn' === Dispatcher::config()->get_string( 'cdn.engine' ) ) {
-			$strings[] = esc_html__(
-				'Content Delivery Network via TotalCDN (Powered by W3TC)',
-				'w3-total-cache'
+		if ( W3TC_CDN_SLUG === Dispatcher::config()->get_string( 'cdn.engine' ) ) {
+			$strings[] = sprintf(
+				// translators: 1 CDN engine name.
+				esc_html__(
+					'Content Delivery Network via %1$s (Powered by W3TC)',
+					'w3-total-cache'
+				),
+				W3TC_CDN_NAME
 			);
 		} else {
 			$strings[] = sprintf(

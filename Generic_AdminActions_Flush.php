@@ -46,9 +46,9 @@ class Generic_AdminActions_Flush {
 		$this->_redirect_after_flush( 'flush_all' );
 	}
 
-	public function w3tc_flush_all_except_totalcdn() {
-		Dispatcher::component( 'CacheFlush' )->flush_all( array( 'totalcdn' => 'skip' ) );
-		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all_except_totalcdn' ), true );
+	public function w3tc_flush_all_except_w3tc_cdn() {
+		Dispatcher::component( 'CacheFlush' )->flush_all( array( W3TC_CDN_SLUG => 'skip' ) );
+		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all_except_' . W3TC_CDN_SLUG ), true );
 	}
 
 	/**

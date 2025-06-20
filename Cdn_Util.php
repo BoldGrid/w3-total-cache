@@ -64,7 +64,7 @@ class Cdn_Util {
 				'att',
 				'rackspace_cdn',
 				'bunnycdn',
-				'totalcdn',
+				W3TC_CDN_SLUG,
 			),
 			true
 		);
@@ -94,7 +94,7 @@ class Cdn_Util {
 			array(
 				'att',
 				'bunnycdn',
-				'totalcdn',
+				W3TC_CDN_SLUG,
 				'cf2',
 				'cotendo',
 				'edgecast',
