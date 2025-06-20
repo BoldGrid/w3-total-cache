@@ -208,7 +208,7 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
-	 * If Total CDN is active, adds the CDN cache purge actions to the dahsboard.
+	 * If Total CDN is active, adds the CDN cache purge actions to the dashboard.
 	 *
 	 * @param array $actions The existing dashboard actions.
 	 * @return array The modified dashboard actions with CDN purge options.
