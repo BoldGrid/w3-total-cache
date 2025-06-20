@@ -50,12 +50,6 @@ class Cdn_TotalCdn_Page {
 		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
 		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 
-		error_log( json_encode( array(
-			'account_api_key'     => $account_api_key,
-			'cdn_engine'        => $cdn_engine,
-			'cdn_zone_id' => $cdn_zone_id,
-		) ) );
-
 		return ( $account_api_key &&
 			(
 				( $cdn_enabled && 'totalcdn' === $cdn_engine && $cdn_zone_id ) ||
@@ -109,7 +103,6 @@ class Cdn_TotalCdn_Page {
 		$is_authorized = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
 			( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
 
-		error_log( 'Registering CDN Total CDN script' );
 		\wp_register_script(
 			'w3tc_cdn_totalcdn',
 			\plugins_url( 'Cdn_TotalCdn_Page_View.js', W3TC_FILE ),
@@ -215,17 +208,27 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
-	 * Flushes all caches except Total CDN and redirects to the W3 Total Cache settings page.
+	 * If Total CDN is active, adds the CDN cache purge actions to the dashboard.
 	 *
-	 * This method flushes all caches except for Total CDN and redirects the user to the W3 Total Cache settings page with
-	 * a success message.
-	 *
-	 * @since 2.6.0
-	 *
-	 * @return void
+	 * @param array $actions The existing dashboard actions.
+	 * @return array The modified dashboard actions with CDN purge options.
 	 */
-	public function w3tc_totalcdn_flush_all_except_totalcdn() {
-		Dispatcher::component( 'CacheFlush' )->flush_all( array( 'totalcdn' => 'skip' ) );
-		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all' ), true );
+	public static function total_cdn_dashboard_actions( $actions ) {
+		if ( ! Cdn_TotalCdn_Page::is_active() ) {
+			return $actions;
+		}
+		$modules            = Dispatcher::component( 'ModuleStatus' );
+		$can_empty_memcache = $modules->can_empty_memcache();
+		$can_empty_opcode   = $modules->can_empty_opcode();
+		$can_empty_file     = $modules->can_empty_file();
+		$can_empty_varnish  = $modules->can_empty_varnish();
+
+		$actions[] = sprintf(
+			'<input type="submit" class="dropdown-item" name="w3tc_flush_all_except_totalcdn" value="%1$s"%2$s>',
+			esc_attr__( 'Empty All Caches Except TotalCDN', 'w3-total-cache' ),
+			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
+		);
+
+		return $actions;
 	}
 }
