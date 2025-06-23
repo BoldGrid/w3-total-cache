@@ -171,7 +171,7 @@ defined( 'W3TC' ) || die();
 
 	if (
 		( ! $cdn_enabled && empty( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) ) ||
-		'inactive.expired' === $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' )
+		in_array( $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' ), array( 'canceled', 'inactive.expired' ), true )
 	) {
 		?>
 		<p>

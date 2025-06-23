@@ -87,6 +87,7 @@ class Generic_AdminActions_Default {
 	 */
 	public function w3tc_default_save_license_key() {
 		$license = Util_Request::get_string( 'license_key' );
+
 		try {
 			$old_config = new Config();
 

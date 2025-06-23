@@ -12,6 +12,8 @@ if ( ! defined( 'W3TC' ) ) {
 	die();
 }
 
+$config = Dispatcher::config();
+
 $licensing   = new Licensing_Plugin_Admin();
 $license_key = $licensing->get_license_key();
 $license     = Licensing_Core::check_license( $license_key, W3TC_VERSION );
@@ -59,7 +61,7 @@ $license     = Licensing_Core::check_license( $license_key, W3TC_VERSION );
 	-->
 </table>
 <?php
-if ( empty( $license ) || ( ! empty( $license ) && 'invalid.not_present' === $license->license_status ) ) {
+if ( empty( $license ) || ! Util_Environment::is_w3tc_pro( $config ) ) {
 	$license_key_param = ! empty( $license_key ) ? 'data-renew-key="' . $license_key : '"';
 	?>
 	<p>

@@ -145,11 +145,20 @@ class Licensing_Plugin_Admin {
 	 * @return void
 	 */
 	public function possible_state_change( $config, $old_config ) {
-		$changed     = false;
+		$changed = false;
+
 		$new_key     = $config->get_string( 'plugin.license_key' );
 		$new_key_set = ! empty( $new_key );
 		$old_key     = $old_config->get_string( 'plugin.license_key' );
 		$old_key_set = ! empty( $old_key );
+
+		$config_state = Dispatcher::config_state();
+
+		$old_status = $config_state->get_string( 'license.status' );
+
+		$this->maybe_update_license_status( true );
+
+		$new_status = $config_state->get_string( 'license.status' );
 
 		switch ( true ) {
 			// No new key or old key. Do nothing.
@@ -164,6 +173,7 @@ class Licensing_Plugin_Admin {
 
 			// Current key is blank but new is not, activating new.
 			case ( $new_key_set && ! $old_key_set ):
+			case ( 'free' === $old_status && strpos( $new_status, 'active' ) ):
 				$activate_result = Licensing_Core::activate_license( $new_key, W3TC_VERSION );
 				$changed         = true;
 				if ( $activate_result ) {
@@ -171,7 +181,7 @@ class Licensing_Plugin_Admin {
 				}
 				break;
 
-			// Current key is set and new different key provided. Deactivating old and activating new.
+			// Current key is set and new different key provided or keys are the same but free upgraded to pro. Deactivating old and activating new.
 			case ( $new_key_set && $old_key_set && $new_key !== $old_key ):
 				$deactivate_result = Licensing_Core::deactivate_license( $old_key );
 				$activate_result   = Licensing_Core::activate_license( $new_key, W3TC_VERSION );
@@ -253,6 +263,7 @@ class Licensing_Plugin_Admin {
 		$capability = apply_filters( 'w3tc_capability_admin_notices', 'manage_options' );
 
 		$this->maybe_update_license_status();
+		//$this->maybe_update_license_status( true );
 
 		if ( current_user_can( $capability ) ) {
 			if ( is_admin() ) {
@@ -408,6 +419,31 @@ class Licensing_Plugin_Admin {
 		$cdn_message = '';
 		$cdn_status  = $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' );
 		switch ( true ) {
+			case $this->_status_is( $cdn_status, 'active.dunning' ):
+				$cdn_message = wp_kses(
+					sprintf(
+						// Translators: 1 HTML input button to renew license.
+						__(
+							'Your Total CDN subscription payment is past due. %1$s to prevent service interruption',
+							'w3-total-cache'
+						),
+						'<input type="button" class="button button-buy-tcdn" data-nonce="' .
+							wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
+							'" data-src="cdn_dunning" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />'
+					),
+					array(
+						'input' => array(
+							'type'           => array(),
+							'class'          => array(),
+							'data-nonce'     => array(),
+							'data-renew-key' => array(),
+							'data-src'       => array(),
+							'value'          => array(),
+						),
+					)
+				);
+				break;
+			case $this->_status_is( $cdn_status, 'canceled' ):
 			case $this->_status_is( $cdn_status, 'inactive.expired' ):
 				$cdn_message = wp_kses(
 					sprintf(
@@ -523,11 +559,13 @@ class Licensing_Plugin_Admin {
 	 *
 	 * Performs a license check and updates the configuration state accordingly.
 	 *
+	 * @param bool $force Force update flag.
+	 *
 	 * @return string The updated license status.
 	 */
-	private function maybe_update_license_status() {
+	private function maybe_update_license_status( $force = false ) {
 		$state = Dispatcher::config_state();
-		if ( time() < $state->get_integer( 'license.next_check' ) ) {
+		if ( time() < $state->get_integer( 'license.next_check' ) && ! $force ) {
 			return;
 		}
 
@@ -541,13 +579,13 @@ class Licensing_Plugin_Admin {
 
 		if ( ! empty( $license_key ) || defined( 'W3TC_LICENSE_CHECK' ) ) {
 			$license = Licensing_Core::check_license( $license_key, W3TC_VERSION );
+
 			if ( $license ) {
 				$status = $license->license_status;
 				$terms  = $license->license_terms;
 				if ( $this->_status_is( $status, 'active' ) ) {
 					$plugin_type = 'pro';
-				} elseif ( $this->_status_is( $status, 'inactive.by_rooturi' ) &&
-					Util_Environment::is_w3tc_pro_dev() ) {
+				} elseif ( $this->_status_is( $status, 'inactive.by_rooturi' ) && Util_Environment::is_w3tc_pro_dev() ) {
 					$status      = 'valid';
 					$plugin_type = 'pro_dev';
 				} elseif ( $this->_status_is( $status, 'free' ) ) {
@@ -567,6 +605,9 @@ class Licensing_Plugin_Admin {
 
 				$cdn_status = isset( $license->cdn_status ) ? $license->cdn_status : '';
 				$state->set( 'cdn.' . W3TC_CDN_SLUG . '.status', $cdn_status );
+
+				// Manually set the cdn status for testing purposes.
+				$state->set( 'cdn.totalcdn.status', 'active.dunning' );
 
 				$state->save();
 			}

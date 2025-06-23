@@ -40,6 +40,10 @@ define( 'W3TC_PARTNER_CONVESIO', 'https://api.w3-edge.com/v1/redirects/partners/
 define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners/dreamhost' );
 define( 'W3TC_BOLDGRID_FORUM_API', 'https://www.boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=' );
 
+// Total CDN API endpoint.
+if ( ! defined( 'W3TC_TCDN_API' ) ) {
+	define( 'W3TC_TCDN_API', 'https://cdn-api-dev.boldgrid.com/api/v1');
+}
 // Admin notices from API.
 if ( ! defined( 'W3TC_NOTICE_FEED' ) ) {
 	define( 'W3TC_NOTICE_FEED', 'https://api2.w3-edge.com/notices' );
