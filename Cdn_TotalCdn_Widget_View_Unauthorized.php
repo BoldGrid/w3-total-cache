@@ -57,12 +57,13 @@ defined( 'W3TC' ) || die();
 		<p class="notice notice-error">
 			<?php
 			echo wp_kses(
-				sprintf(
-					// translators: 1 opening HTML a tag to CDN settings page, 2 closing HTML a tag.
-					__( 'W3 Total Cache has detected that Total CDN is selected but not fully configured. Please use the "Authorize" button on the %1$sCDN%2$s settings page to connect a pull zone.', 'w3-total-cache' ),
-					'<a href="' . esc_url_raw( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
-					'</a>'
-				),
+                               sprintf(
+                                       // translators: 1 opening HTML a tag to CDN settings page, 2 closing HTML a tag, 3: CDN name.
+                                       __( 'W3 Total Cache has detected that %3$s is selected but not fully configured. Please use the "Authorize" button on the %1$sCDN%2$s settings page to connect a pull zone.', 'w3-total-cache' ),
+                                       '<a href="' . esc_url_raw( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">',
+                                       '</a>',
+                                       esc_html( W3TC_CDN_NAME )
+                               ),
 				array(
 					'a' => array(
 						'href' => array(),
@@ -107,11 +108,12 @@ defined( 'W3TC' ) || die();
 			}
 
 			echo wp_kses(
-				sprintf(
-					// translators: 1 configured CDN/CDN FSD label.
-					__( 'W3 Total Cache has detected that you are using the %1$s, which is fully supported and compatible. For optimal performance and value, we recommend considering our Total CDN service as an alternative.', 'w3-total-cache' ),
-					$cdn_label
-				),
+                               sprintf(
+                                       // translators: 1 configured CDN/CDN FSD label, 2: CDN name.
+                                       __( 'W3 Total Cache has detected that you are using the %1$s, which is fully supported and compatible. For optimal performance and value, we recommend considering our %2$s service as an alternative.', 'w3-total-cache' ),
+                                       $cdn_label,
+                                       esc_html( W3TC_CDN_NAME )
+                               ),
 				array(
 					'acronym' => array(
 						'title' => array(),
@@ -127,12 +129,13 @@ defined( 'W3TC' ) || die();
 		<p class="notice notice-error">
 			<?php
 			echo wp_kses(
-				sprintf(
-					// translators: 1 opening HTML a tag to CDN settings page, 2 closing HTML a tag.
-					__( 'W3 Total Cache has detected that Total CDN has been purchased and is available but has yet to be enabled. Please %1$sEnable%2$s the CDN feature on the General Settings page and select Total CDN for the CDN type.', 'w3-total-cache' ),
-					'<a class="button-primary" href="' . \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ), 'w3tc' ) ) . '">',
-					'</a>'
-				),
+                               sprintf(
+                                       // translators: 1 opening HTML a tag to CDN settings page, 2 closing HTML a tag, 3: CDN name.
+                                       __( 'W3 Total Cache has detected that %3$s has been purchased and is available but has yet to be enabled. Please %1$sEnable%2$s the CDN feature on the General Settings page and select %3$s for the CDN type.', 'w3-total-cache' ),
+                                       '<a class="button-primary" href="' . \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ), 'w3tc' ) ) . '">',
+                                       '</a>',
+                                       esc_html( W3TC_CDN_NAME )
+                               ),
 				array(
 					'a' => array(
 						'class' => array(),
@@ -149,11 +152,12 @@ defined( 'W3TC' ) || die();
 		<p class="notice notice-error">
 			<?php
 			echo wp_kses(
-				sprintf(
-					// translators: 1 HTML acronym for Content Delivery Network (CDN).
-					__( 'W3 Total Cache has detected that you do not have a %1$s configured. For optimal performance and value, we recommend considering our Total CDN service.', 'w3-total-cache' ),
-					'<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>'
-				),
+                               sprintf(
+                                       // translators: 1 HTML acronym for Content Delivery Network (CDN), 2: CDN name.
+                                       __( 'W3 Total Cache has detected that you do not have a %1$s configured. For optimal performance and value, we recommend considering our %2$s service.', 'w3-total-cache' ),
+                                       '<acronym title="' . __( 'Content Delivery Network', 'w3-total-cache' ) . '">' . __( 'CDN', 'w3-total-cache' ) . '</acronym>',
+                                       esc_html( W3TC_CDN_NAME )
+                               ),
 				array(
 					'acronym' => array(
 						'title' => array(),
@@ -187,14 +191,18 @@ defined( 'W3TC' ) || die();
 
 		<p>
 			<?php
-			w3tc_e(
-				'cdn.' . W3TC_CDN_SLUG . '.widget.v2.works_magically',
-				\__( 'Total CDN works magically with W3 Total Cache to speed up your site around the world for as little as $1 per month.', 'w3-total-cache' )
-			);
+                               w3tc_e(
+                                       'cdn.' . W3TC_CDN_SLUG . '.widget.v2.works_magically',
+                                       sprintf(
+                                               // translators: 1: CDN name.
+                                               \__( '%1$s works magically with W3 Total Cache to speed up your site around the world for as little as $1 per month.', 'w3-total-cache' ),
+                                               esc_html( W3TC_CDN_NAME )
+                                       )
+                               );
 			?>
 		</p>
 
-		<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="<?php echo esc_attr( $config->get_string( 'plugin.license_key' ) ); ?>" data-src="general_page_cdn_subscribe" value="<?php esc_attr_e( 'Subscribe To Total CDN', 'w3-total-cache' ); ?>">
+               <input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="<?php echo esc_attr( $config->get_string( 'plugin.license_key' ) ); ?>" data-src="general_page_cdn_subscribe" value="<?php echo sprintf( esc_attr__( 'Subscribe To %1$s', 'w3-total-cache' ), esc_attr( W3TC_CDN_NAME ) ); ?>">
 		<?php
 	}
 	?>
@@ -204,14 +212,15 @@ defined( 'W3TC' ) || die();
 		<?php
 		w3tc_e(
 			'cdn.' . W3TC_CDN_SLUG . '.widget.v2.existing',
-			\sprintf(
-				// translators: 1 HTML acronym for Content Delivery Network (CDN).
-				\__(
-					'If you\'re an existing Total CDN customer, enable %1$s and authorize. If you need help configuring your %1$s, we also offer Premium Services to assist you.',
-					'w3-total-cache'
-				),
-				'<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>'
-			)
+                       \sprintf(
+                               // translators: 1 HTML acronym for Content Delivery Network (CDN), 2: CDN name.
+                               \__(
+                                       'If you\'re an existing %2$s customer, enable %1$s and authorize. If you need help configuring your %1$s, we also offer Premium Services to assist you.',
+                                       'w3-total-cache'
+                               ),
+                               '<acronym title="' . \__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . \__( 'CDN', 'w3-total-cache' ) . '</acronym>',
+                               esc_html( W3TC_CDN_NAME )
+                       )
 		);
 		?>
 	</p>

@@ -81,7 +81,11 @@ class Cdn_TotalCdn_Page {
 			$actions[] = sprintf(
 				'<input type="submit" class="dropdown-item" name="w3tc_%1$s_flush_all_except_%1$s" value="%2$s"%3$s>',
 				esc_attr( W3TC_CDN_SLUG ),
-				esc_attr__( 'Empty All Caches Except Total CDN', 'w3-total-cache' ),
+                               sprintf(
+                                       // translators: 1: CDN name.
+                                       esc_attr__( 'Empty All Caches Except %1$s', 'w3-total-cache' ),
+                                       esc_attr( W3TC_CDN_NAME )
+                               ),
 				( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
 			);
 		}
