@@ -18,7 +18,7 @@ defined( 'W3TC' ) || die();
 		<?php echo $error_messages; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	</div>
 <?php endif; ?>
-<form class="w3tc_cdn_<?php esc_attr( W3TC_CDN_SLUG ); ?>_form">
+<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form">
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Add a Custom Hostname', 'w3-total-cache' ) ); ?>
 			<table class="form-table">

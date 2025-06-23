@@ -77,7 +77,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	public function w3tc_ajax_cdn_w3cdn_confirm_auto_config() {
 		$result = $this->run();
 		?>
-		<form class="w3tc_cdn_<?php esc_attr( W3TC_CDN_SLUG ); ?>_form">
+		<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form">
 			<div class="metabox-holder">
 				<?php
 				Util_Ui::postbox_header(
@@ -90,10 +90,10 @@ class Cdn_TotalCdn_Auto_Configure {
 				?>
 				<input
 					type="hidden"
-					class="cdn-<?php esc_attr( W3TC_CDN_SLUG ); ?>-auto-config result-success"
+					class="cdn-<?php echo esc_attr( W3TC_CDN_SLUG ); ?>-auto-config result-success"
 					value="<?php echo esc_attr( $result['success'] ? 'true' : 'false' ); ?>" />
 				<div style="text-align: center">
-					<p class="cdn-<?php esc_attr( W3TC_CDN_SLUG ); ?>-auto-config result-message">
+					<p class="cdn-<?php echo esc_attr( W3TC_CDN_SLUG ); ?>-auto-config result-message">
 						<?php echo esc_html( $result['message'] ); ?>
 					</p>
 				</div>
@@ -130,7 +130,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @since x.x.x
 	 */
-	public function w3tc_w3cdn_auto_configured( $applied ) {
+	public function w3tc_totalcdn_auto_configured( $applied ) {
 		$config = Dispatcher::config();
 
 		// Check if the CDN is enabled.
