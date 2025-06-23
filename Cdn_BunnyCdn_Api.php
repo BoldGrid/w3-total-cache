@@ -241,7 +241,7 @@ class Cdn_BunnyCdn_Api {
 
 		return $this->wp_remote_post(
 			'https://api.bunny.net/pullzone',
-			$data
+			$data,
 		);
 	}
 
