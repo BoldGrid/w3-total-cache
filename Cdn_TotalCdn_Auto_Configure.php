@@ -532,7 +532,7 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		try {
 			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
-			$api = new $api_class( array( 'account_api_key' => $config->get( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) );
+			$api       = new $api_class( array( 'account_api_key' => $config->get( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) );
 			$api->update_pull_zone(
 				$pull_zone_id,
 				array(

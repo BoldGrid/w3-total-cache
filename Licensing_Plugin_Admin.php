@@ -363,7 +363,7 @@ class Licensing_Plugin_Admin {
 			case $this->_status_is( $license_status, 'invalid' ):
 				$license_url         = admin_url( 'admin.php?page=w3tc_general#licensing' );
 				$network_license_url = network_admin_url( 'admin.php?page=w3tc_general#licensing' );
-				$license_message             = sprintf(
+				$license_message     = sprintf(
 					// Translators: 1 opening HMTL a tag to license setting, 2 closing HTML a tag.
 					__(
 						'Your current W3 Total Cache Pro license key is not valid. %1$sPlease confirm it%2$s.',
@@ -410,17 +410,17 @@ class Licensing_Plugin_Admin {
 		switch ( true ) {
 			case $this->_status_is( $cdn_status, 'inactive.expired' ):
 				$cdn_message = wp_kses(
-                                       sprintf(
-                                               // Translators: 1 HTML input button to renew license, 2: CDN name.
-                                               __(
-                                                       'Your %2$s subscription has expired. %1$s to continue using %2$s',
-                                                       'w3-total-cache'
-                                               ),
-                                               '<input type="button" class="button button-buy-tcdn" data-nonce="' .
-                                                       wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
-                                                        '" data-src="cdn_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />',
-                                               esc_html( W3TC_CDN_NAME )
-                                        ),
+					sprintf(
+						// Translators: 1 HTML input button to renew license, 2: CDN name.
+						__(
+							'Your %2$s subscription has expired. %1$s to continue using %2$s',
+							'w3-total-cache'
+						),
+						'<input type="button" class="button button-buy-tcdn" data-nonce="' .
+							wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
+							'" data-src="cdn_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />',
+						esc_html( W3TC_CDN_NAME )
+					),
 					array(
 						'input' => array(
 							'type'           => array(),
