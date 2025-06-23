@@ -418,7 +418,32 @@ class Licensing_Plugin_Admin {
 
 		$cdn_message = '';
 		$cdn_status  = $state->get_string( 'cdn.totalcdn.status' );
+		error_log( 'CDN status: ' . $cdn_status ); // Debugging line, can be removed later.
 		switch ( true ) {
+			case $this->_status_is( $cdn_status, 'active.dunning' ):
+				$cdn_message = wp_kses(
+					sprintf(
+						// Translators: 1 HTML input button to renew license.
+						__(
+							'Your Total CDN subscription payment is past due. %1$s to prevent service interruption',
+							'w3-total-cache'
+						),
+						'<input type="button" class="button button-buy-tcdn" data-nonce="' .
+							wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
+							'" data-src="cdn_dunning" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />'
+					),
+					array(
+						'input' => array(
+							'type'           => array(),
+							'class'          => array(),
+							'data-nonce'     => array(),
+							'data-renew-key' => array(),
+							'data-src'       => array(),
+							'value'          => array(),
+						),
+					)
+				);
+				break;
 			case $this->_status_is( $cdn_status, 'canceled' ):
 			case $this->_status_is( $cdn_status, 'inactive.expired' ):
 				$cdn_message = wp_kses(
@@ -580,6 +605,9 @@ class Licensing_Plugin_Admin {
 
 				$cdn_status = isset( $license->cdn_status ) ? $license->cdn_status : '';
 				$state->set( 'cdn.totalcdn.status', $cdn_status );
+
+				// Manually set the cdn status for testing purposes.
+				$state->set( 'cdn.totalcdn.status', 'active.dunning' );
 
 				$state->save();
 			}
