@@ -28,7 +28,11 @@ defined( 'W3TC' ) || die();
 		</div>
 	<?php endif; ?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( esc_html__( 'Total CDN API Configuration', 'w3-total-cache' ) ); ?>
+               <?php Util_Ui::postbox_header( sprintf(
+                       // translators: 1: CDN name.
+                       esc_html__( '%1$s API Configuration', 'w3-total-cache' ),
+                       esc_html( W3TC_CDN_NAME )
+               ) ); ?>
 		<table class="form-table">
 			<tr>
 				<td><?php esc_html_e( 'Account API Key', 'w3-total-cache' ); ?>:</td>
