@@ -141,7 +141,11 @@ class Generic_AdminActions_Default {
 				echo wp_json_encode( array( 'result' => 'success' ) );
 				exit();
 			} else {
-				echo wp_json_encode( array( 'result' => 'failed', 'message' => __( 'Failed to auto apply Total CDN configuration.', 'w3-total-cache' ) ) );
+                               echo wp_json_encode( array( 'result' => 'failed', 'message' => sprintf(
+                                       // translators: 1: CDN name.
+                                       __( 'Failed to auto apply %1$s configuration.', 'w3-total-cache' ),
+                                       W3TC_CDN_NAME
+                               ) ) );
 				exit();
 			}
 		} catch ( \Exception $ex ) {

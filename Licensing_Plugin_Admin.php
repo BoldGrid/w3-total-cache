@@ -410,16 +410,17 @@ class Licensing_Plugin_Admin {
 		switch ( true ) {
 			case $this->_status_is( $cdn_status, 'inactive.expired' ):
 				$cdn_message = wp_kses(
-					sprintf(
-						// Translators: 1 HTML input button to renew license.
-						__(
-							'Your Total CDN subscription has expired. %1$s to continue using Total CDN',
-							'w3-total-cache'
-						),
-						'<input type="button" class="button button-buy-tcdn" data-nonce="' .
-							wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
-							'" data-src="cdn_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />'
-					),
+                                       sprintf(
+                                               // Translators: 1 HTML input button to renew license, 2: CDN name.
+                                               __(
+                                                       'Your %2$s subscription has expired. %1$s to continue using %2$s',
+                                                       'w3-total-cache'
+                                               ),
+                                               '<input type="button" class="button button-buy-tcdn" data-nonce="' .
+                                                       wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
+                                                        '" data-src="cdn_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />',
+                                               esc_html( W3TC_CDN_NAME )
+                                        ),
 					array(
 						'input' => array(
 							'type'           => array(),
