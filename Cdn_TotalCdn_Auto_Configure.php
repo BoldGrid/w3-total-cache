@@ -65,16 +65,16 @@ class Cdn_TotalCdn_Auto_Configure {
 	}
 
 	/**
-	 * Handles the AJAX request to confirm auto-configuration for TotalCDN.
+	 * Handles the AJAX request to confirm auto-configuration.
 	 *
 	 * This method retrieves the account API key and pull zone ID from the
-	 * configuration and renders the confirmation page for TotalCDN.
+	 * configuration and renders the confirmation page.
 	 *
 	 * @since 2.6.0
 	 *
 	 * @return void
 	 */
-	public function w3tc_ajax_cdn_totalcdn_confirm_auto_config() {
+	public function w3tc_ajax_cdn_w3cdn_confirm_auto_config() {
 		$result = $this->run();
 		?>
 		<form class="w3tc_cdn_<?php esc_attr( W3TC_CDN_SLUG ); ?>_form">
@@ -104,16 +104,16 @@ class Cdn_TotalCdn_Auto_Configure {
 	}
 
 	/**
-	 * Handles the AJAX request to auto-configure TotalCDN.
+	 * Handles the AJAX request to auto-configure.
 	 *
 	 * This method retrieves the account API key and pull zone ID from the
-	 * configuration and renders the auto-configuration page for TotalCDN.
+	 * configuration and renders the auto-configuration page.
 	 *
 	 * @since 2.6.0
 	 *
 	 * @return void
 	 */
-	public function w3tc_ajax_cdn_totalcdn_auto_config() {
+	public function w3tc_ajax_cdn_w3cdn_auto_config() {
 		?>
 		<p>Test Auto Config LightBox</p>
 		<?php
@@ -130,7 +130,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @since x.x.x
 	 */
-	public function w3tc_totalcdn_auto_configured( $applied ) {
+	public function w3tc_w3cdn_auto_configured( $applied ) {
 		$config = Dispatcher::config();
 
 		// Check if the CDN is enabled.
@@ -185,7 +185,11 @@ class Cdn_TotalCdn_Auto_Configure {
 		if ( empty( $api_key ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'API key is not set. Please enter your Total CDN API key.', 'w3-total-cache' ),
+				'message' => sprintf(
+					// translators: 1: CDN name.
+					__( 'API key is not set. Please enter your %1$s API key.', 'w3-total-cache' ),
+					esc_html( W3TC_CDN_NAME )
+				),
 			);
 		}
 
@@ -463,7 +467,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Maybe show auto config notice.
 	 *
-	 * If the CDN is not enabled, or if the engine is not set to totalcdn,
+	 * If the CDN is not enabled, or if the engine is not set to the W3TC provided CDN,
 	 * and the API key is set, then show a notice to the user that they have
 	 * an active Total CDN account and provide a button to auto-configure it.
 	 *
@@ -477,7 +481,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @return bool True if the notice was shown, false otherwise.
 	 */
 	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) {
-		// If the CDN is enabled and the engine is set to totalcdn, do not show the notice.
+		// If the CDN is enabled and the engine is set, do not show the notice.
 		if ( $cdn_enabled && W3TC_CDN_SLUG === $cdn_engine ) {
 			return false;
 		}

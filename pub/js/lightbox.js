@@ -530,7 +530,7 @@ function w3tc_lightbox_auto_config_tcdn(nonce, data_src ) {
 		url: ajaxurl +
 			'?action=w3tc_ajax&_wpnonce=' +
 			nonce +
-			'&w3tc_action=cdn_totalcdn_auto_config',
+			'&w3tc_action=cdn_w3cdn_auto_config',
 		onClose: function( o ) {
 			var $container = jQuery( o.container ),
 				success    = $container.find( 'input.result-success' ).val();
@@ -544,7 +544,7 @@ function w3tc_lightbox_auto_config_tcdn(nonce, data_src ) {
 		callback: function(lightbox) {
 			lightbox.resize();
 			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
-				'&w3tc_action=cdn_totalcdn_confirm_auto_config';
+				'&w3tc_action=cdn_w3cdn_confirm_auto_config';
 
 			lightbox.load_form(url, '.w3tc_cdn_totalcdn_form', function(o) {
 				o.resize();

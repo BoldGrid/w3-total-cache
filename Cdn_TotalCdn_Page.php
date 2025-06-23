@@ -25,7 +25,8 @@ class Cdn_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$o = new Cdn_TotalCdn_Page();
+		$page_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Page';
+		$o          = new $page_class();
 
 		\add_action( 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_purge_url', array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_purge_url' ) );
 	}
@@ -177,7 +178,7 @@ class Cdn_TotalCdn_Page {
 	 *
 	 * @return void
 	 */
-	public function w3tc_ajax_cdn_Totalcdn_purge_url() {
+	public function w3tc_ajax_cdn_w3cdn_purge_url() {
 		$url = Util_Request::get_string( 'url' );
 
 		// Check if URL starts with "http", starts with a valid protocol, and passes a URL validation check.
