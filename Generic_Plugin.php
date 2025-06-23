@@ -53,8 +53,6 @@ class Generic_Plugin {
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ), 5 ); // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval
 		add_action( 'w3tc_purge_all_wpcron', array( $this, 'w3tc_purgeall_wpcron' ) );
 
-		Util_Environment::define_cdn_api_constants();
-
 		/* need this to run before wp-cron to issue w3tc redirect */
 		add_action( 'init', array( $this, 'init' ), 1 );
 
@@ -338,7 +336,7 @@ class Generic_Plugin {
 				}
 
 				// Add menu item to flush all cached except Total CDN.
-				$cdn_page_class = 'Cdn_' . W3TC_CDN_CLASS . '_Page';
+				$cdn_page_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Page';
 				if (
 					$cdn_page_class::is_active() && (
 						$modules->can_empty_memcache()

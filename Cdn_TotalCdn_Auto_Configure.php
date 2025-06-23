@@ -121,7 +121,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	}
 
 	/**
-	 * Check and see if Total CDN is active and enabled.
+	 * Check and see if W3TC provided CDN is active and enabled.
 	 * If it is not, run auto configuration.
 	 *
 	 * @param bool $applied Whether the CDN is applied or not.
@@ -154,7 +154,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @return string Response Message.
 	 */
 	public function run() {
-		// 1. Check and verify that the Total CDN account API key is set.
+		// 1. Check and verify that the account API key is set.
 		$api_key_result = $this->check_api_key();
 		if ( false === $api_key_result['success'] ) {
 			return $api_key_result;
@@ -191,7 +191,7 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		$this->api_key = $api_key;
 
-		$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 		$this->api = new $api_class( array( 'account_api_key' => $this->api_key ) );
 
 		try {
@@ -223,7 +223,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @since x.x.x
 	 */
 	public function setup_pull_zone() {
-		$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 		$api       = new $api_class( array( 'account_api_key' => $this->api_key ) );
 
 		// Origin URL is the URL of the current site.
@@ -332,7 +332,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @since x.x.x
 	 */
 	public function setup_edge_rules() {
-		$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 		$api       = new $api_class( array( 'account_api_key' => $this->api_key ) );
 
 		// Get the pull zone ID.
@@ -351,7 +351,7 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		$error_messages = array();
 
-		$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 		// Add Edge Rules.
 		foreach ( $api_class::get_default_edge_rules() as $edge_rule ) {
 			try {
@@ -450,7 +450,7 @@ class Cdn_TotalCdn_Auto_Configure {
 							__( '<p>The Total CDN pull zone URL <strong>( %1$s )</strong> does not match your current Site URL <strong>( %2$s )</strong>.</p><p><a class="button button-secondary" href="%3$s">Click here to update pull zone URL</a></p>', 'w3-total-cache' ),
 							esc_html( $origin_url ),
 							esc_html( $current_site_url ),
-							\wp_nonce_url( 'admin.php?page=w3tc_cdn&w3tc_cdn_update_tcdn_pullzone', 'w3tc' )
+							\wp_nonce_url( 'admin.php?page=w3tc_cdn&w3tc_cdn_update_w3tc_cdn_pullzone', 'w3tc' )
 						)
 					);
 					?>
@@ -518,7 +518,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		$pull_zone_id = $config->get( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' );
 
 		try {
-			$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 			$api = new $api_class( array( 'account_api_key' => $config->get( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) );
 			$api->update_pull_zone(
 				$pull_zone_id,

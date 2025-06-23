@@ -26,7 +26,7 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$popup_class = 'Cdn_' . W3TC_CDN_CLASS . '_Popup';
+		$popup_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Popup';
 		$o           = new $popup_class();
 
 		\add_action(
@@ -159,7 +159,7 @@ class Cdn_TotalCdn_Popup {
 		$account_api_key = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
 		$pull_zone_id    = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' );
 		$custom_hostname = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostname' );
-		$api_class       = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api_class       = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 		$api             = new $api_class(
 			array(
 				'account_api_key' => $account_api_key,
@@ -230,7 +230,7 @@ class Cdn_TotalCdn_Popup {
 		$account_api_key = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
 		$pull_zone_id    = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' );
 
-		$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 		$api       = new $api_class(
 			array(
 				'account_api_key' => $account_api_key,
@@ -264,7 +264,7 @@ class Cdn_TotalCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_list_pull_zones() {
 		$account_api_key = Util_Request::get_string( 'account_api_key' );
-		$api_class       = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api_class       = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 		$api             = new $api_class( array( 'account_api_key' => $account_api_key ) );
 
 		// Try to retrieve pull zones.
@@ -335,7 +335,7 @@ class Cdn_TotalCdn_Popup {
 
 		// If not selecting a pull zone. then create a new one.
 		if ( empty( $pull_zone_id ) ) {
-			$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 			$api       = new $api_class( array( 'account_api_key' => $account_api_key ) );
 
 			// Try to create a new pull zone.
@@ -372,7 +372,7 @@ class Cdn_TotalCdn_Popup {
 			$error_messages = array();
 
 			// Add Edge Rules.
-			$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 			foreach ( $api_class::get_default_edge_rules() as $edge_rule ) {
 				try {
 					$api->add_edge_rule( $edge_rule, $pull_zone_id );
@@ -444,7 +444,7 @@ class Cdn_TotalCdn_Popup {
 
 		// Delete pull zone, if requested.
 		if ( 'yes' === $delete_pull_zone ) {
-			$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 			$api       = new $api_class( array( 'account_api_key' => $account_api_key ) );
 
 			// Try to delete pull zone.

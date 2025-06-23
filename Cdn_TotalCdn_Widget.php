@@ -25,7 +25,7 @@ class Cdn_TotalCdn_Widget {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$widget_class = 'Cdn_' . W3TC_CDN_CLASS . '_Widget';
+		$widget_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Widget';
 		$o            = new $widget_class();
 
 		add_action( 'admin_print_styles', array( $o, 'admin_print_styles' ) );

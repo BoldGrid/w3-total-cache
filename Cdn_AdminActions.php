@@ -631,22 +631,22 @@ class Cdn_AdminActions {
 	}
 
 	/**
-	 * Updates the Total CDN pull zone.
+	 * Updates the W3TC CDN pull zone.
 	 *
-	 * When the CDN is set to Total CDN, this method updates the pull zone
+	 * When the CDN is set to W3TC CDN, this method updates the pull zone
 	 * configuration if the site URl has changed.
 	 *
 	 * @since x.x.x
 	 */
-	public function w3tc_cdn_update_tcdn_pullzone() {
+	public function w3tc_cdn_update_w3tc_cdn_pullzone() {
 		$config = Dispatcher::config();
 
-		$page_class = 'Cdn_' . W3TC_CDN_CLASS . '_Page';
+		$page_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Page';
 		if ( ! $page_class::is_active() ) {
 			return;
 		}
 
-		$class = 'Cdn_' . W3TC_CDN_CLASS . '_Auto_Configure';
+		$class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Auto_Configure';
 
 		$class::update_pullzone();
 

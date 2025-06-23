@@ -25,7 +25,7 @@ class Cdn_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$o = new Cdn_BunnyCdn_Page();
+		$o = new Cdn_TotalCdn_Page();
 
 		\add_action( 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_purge_url', array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_purge_url' ) );
 	}
@@ -191,7 +191,7 @@ class Cdn_TotalCdn_Page {
 		$config          = Dispatcher::config();
 		$account_api_key = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
 
-		$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 		$api       = new $api_class( array( 'account_api_key' => $account_api_key ) );
 
 		// Try to delete pull zone.
@@ -216,7 +216,7 @@ class Cdn_TotalCdn_Page {
 	 * @return array The modified dashboard actions with CDN purge options.
 	 */
 	public static function total_cdn_dashboard_actions( $actions ) {
-		$page_class = 'Cdn_' . W3TC_CDN_CLASS . '_Page';
+		$page_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Page';
 		if ( ! $page_class::is_active() ) {
 			return $actions;
 		}

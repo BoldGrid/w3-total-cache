@@ -132,7 +132,7 @@ class CdnEngine_Mirror_TotalCdn extends CdnEngine_Mirror {
 		$results = array();
 
 		foreach ( $active_ids as $id ) {
-			$api_class = 'Cdn_' . W3TC_CDN_CLASS . '_Api';
+			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 			$api       = new $api_class( array_merge( $this->_config, array( 'pull_zone_id' => $id ) ) );
 
 			try {

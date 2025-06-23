@@ -35,7 +35,7 @@ class Cdn_Plugin_Admin {
 			}
 		}
 
-		// Always show the Total CDN widget on dashboard.
+		// Always show the W3TC provided CDN widget on dashboard.
 		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Widget', 'admin_init_w3tc_dashboard' ) );
 
 		// Attach to actions without firing class loading at all without need.
@@ -73,7 +73,7 @@ class Cdn_Plugin_Admin {
 
 		\add_action( 'w3tc_settings_general_boxarea_cdn', array( $this, 'w3tc_settings_general_boxarea_cdn' ) );
 
-		$class = 'W3TC\Cdn_' . W3TC_CDN_CLASS . '_Auto_Configure';
+		$class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Auto_Configure';
 
 		$w3tc_cdn_auto_configure = new $class( Dispatcher::config() );
 
