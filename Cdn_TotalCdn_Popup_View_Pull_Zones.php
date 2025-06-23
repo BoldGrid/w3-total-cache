@@ -2,7 +2,7 @@
 /**
  * File: Cdn_TotalCdn_Popup_Pull_Zones.php
  *
- * Assists with configuring Total CDN as an object storage CDN.
+ * Assists with configuring W3TC provided CDN as an object storage CDN.
  * A pull zone selection is presented along with a form to add a new pull zone.
  *
  * @since   2.6.0
@@ -11,7 +11,7 @@
  * @param string           $account_api_key Account PI key.
  * @param  Cdn_TotalCdn_Api $api             API class object.
  * @param array            $details {
- *     Total CDN API configuration details.
+ *     W3TC provided CDN API configuration details.
  *
  *     @type array  $pull_zones           Pull zones.
  *     @type string $suggested_origin_url Suggested origin URL or IP.
@@ -27,7 +27,7 @@ namespace W3TC;
 defined( 'W3TC' ) || die();
 
 ?>
-<form class="w3tc_cdn_totalcdn_form" method="post">
+<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form" method="post">
 	<input type="hidden" name="pull_zone_id" value="<?php echo esc_attr( $details['pull_zone_id'] ?? '' ); ?>"/>
 	<input type="hidden" name="cdn_hostname" value="<?php echo esc_attr( $details['cdn_hostname'] ?? '' ); ?>"/>
 	<input type="hidden" name="custom_hostnames" />
@@ -120,7 +120,7 @@ defined( 'W3TC' ) || die();
 
 		<p class="submit">
 			<input type="button"
-				class="w3tc_cdn_totalcdn_configure_pull_zone w3tc-button-save button-primary"
+				class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_configure_pull_zone w3tc-button-save button-primary"
 				value="<?php esc_attr_e( 'Apply', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>

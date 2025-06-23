@@ -417,8 +417,7 @@ class Licensing_Plugin_Admin {
 		}
 
 		$cdn_message = '';
-		$cdn_status  = $state->get_string( 'cdn.totalcdn.status' );
-		error_log( 'CDN status: ' . $cdn_status ); // Debugging line, can be removed later.
+		$cdn_status  = $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' );
 		switch ( true ) {
 			case $this->_status_is( $cdn_status, 'active.dunning' ):
 				$cdn_message = wp_kses(
@@ -448,14 +447,15 @@ class Licensing_Plugin_Admin {
 			case $this->_status_is( $cdn_status, 'inactive.expired' ):
 				$cdn_message = wp_kses(
 					sprintf(
-						// Translators: 1 HTML input button to renew license.
+						// Translators: 1 HTML input button to renew license, 2: CDN name.
 						__(
-							'Your Total CDN subscription has expired. %1$s to continue using Total CDN',
+							'Your %2$s subscription has expired. %1$s to continue using %2$s',
 							'w3-total-cache'
 						),
 						'<input type="button" class="button button-buy-tcdn" data-nonce="' .
 							wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
-							'" data-src="cdn_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />'
+							'" data-src="cdn_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />',
+						esc_html( W3TC_CDN_NAME )
 					),
 					array(
 						'input' => array(
@@ -593,18 +593,18 @@ class Licensing_Plugin_Admin {
 				}
 
 				$cdn_api_key = isset( $license->cdn_api_key ) ? $license->cdn_api_key : '';
-				$this->_config->set( 'cdn.totalcdn.account_api_key', $cdn_api_key );
+				$this->_config->set( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key', $cdn_api_key );
 
 				$cdn_account_id = isset( $license->cdn_account_id ) ? $license->cdn_account_id : '';
-				$this->_config->set( 'cdn.totalcdn.account_id', $cdn_account_id );
+				$this->_config->set( 'cdn.' . W3TC_CDN_SLUG . '.account_id', $cdn_account_id );
 
 				$this->_config->save();
 
 				$cdn_terms = isset( $license->cdn_terms ) ? $license->cdn_terms : '';
-				$state->set( 'cdn.totalcdn.terms', $cdn_terms );
+				$state->set( 'cdn.' . W3TC_CDN_SLUG . '.terms', $cdn_terms );
 
 				$cdn_status = isset( $license->cdn_status ) ? $license->cdn_status : '';
-				$state->set( 'cdn.totalcdn.status', $cdn_status );
+				$state->set( 'cdn.' . W3TC_CDN_SLUG . '.status', $cdn_status );
 
 				// Manually set the cdn status for testing purposes.
 				$state->set( 'cdn.totalcdn.status', 'active.dunning' );

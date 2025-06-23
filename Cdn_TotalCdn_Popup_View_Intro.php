@@ -2,14 +2,14 @@
 /**
  * File: Cdn_TotalCdn_Popup_View_Intro.php
  *
- * Assists with configuring Total CDN as an object storage CDN.
- * Asks to enter an account API key from the Total CDN main account.
+ * Assists with configuring W3TC provided CDN as an object storage CDN.
+ * Asks to enter an account API key from the W3TC provided CDN main account.
  *
  * @since   2.6.0
  * @package W3TC
  *
  * @param array $details {
- *     Total CDN API configuration details.
+ *     W3TC provided CDN API configuration details.
  *
  *     @type string $account_api_key Account API key.
  *     @type string $error_message   Error message (optional).  String already escaped.
@@ -21,14 +21,22 @@ namespace W3TC;
 defined( 'W3TC' ) || die();
 
 ?>
-<form class="w3tc_cdn_totalcdn_form">
+<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form">
 	<?php if ( isset( $details['error_message'] ) ) : ?>
 		<div class="error">
 			<?php echo $details['error_message']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 	<?php endif; ?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( esc_html__( 'Total CDN API Configuration', 'w3-total-cache' ) ); ?>
+		<?php
+		Util_Ui::postbox_header(
+			sprintf(
+				// translators: 1: CDN name.
+				esc_html__( '%1$s API Configuration', 'w3-total-cache' ),
+				esc_html( W3TC_CDN_NAME )
+			)
+		);
+		?>
 		<table class="form-table">
 			<tr>
 				<td><?php esc_html_e( 'Account API Key', 'w3-total-cache' ); ?>:</td>
@@ -46,7 +54,7 @@ defined( 'W3TC' ) || die();
 
 		<p class="submit">
 			<input type="button"
-				class="w3tc_cdn_totalcdn_list_pull_zones w3tc-button-save button-primary"
+				class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_list_pull_zones w3tc-button-save button-primary"
 				value="<?php esc_attr_e( 'Next', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>

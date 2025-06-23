@@ -65,27 +65,35 @@ class Cdn_TotalCdn_Auto_Configure {
 	}
 
 	/**
-	 * Handles the AJAX request to confirm auto-configuration for TotalCDN.
+	 * Handles the AJAX request to confirm auto-configuration.
 	 *
 	 * This method retrieves the account API key and pull zone ID from the
-	 * configuration and renders the confirmation page for TotalCDN.
+	 * configuration and renders the confirmation page.
 	 *
 	 * @since 2.6.0
 	 *
 	 * @return void
 	 */
-	public function w3tc_ajax_cdn_totalcdn_confirm_auto_config() {
+	public function w3tc_ajax_cdn_w3cdn_confirm_auto_config() {
 		$result = $this->run();
 		?>
-		<form class="w3tc_cdn_totalcdn_form">
+		<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form">
 			<div class="metabox-holder">
-				<?php Util_Ui::postbox_header( esc_html__( 'TotalCDN Auto-Configuration', 'w3-total-cache' ) ); ?>
+				<?php
+				Util_Ui::postbox_header(
+					sprintf(
+						'%1$s %2$s',
+						esc_attr( W3TC_CDN_NAME ),
+						esc_html__( 'Auto-Configuration', 'w3-total-cache' )
+					)
+				);
+				?>
 				<input
 					type="hidden"
-					class="cdn-totalcdn-auto-config result-success"
+					class="cdn-<?php echo esc_attr( W3TC_CDN_SLUG ); ?>-auto-config result-success"
 					value="<?php echo esc_attr( $result['success'] ? 'true' : 'false' ); ?>" />
 				<div style="text-align: center">
-					<p class="cdn-totalcdn-auto-config result-message">
+					<p class="cdn-<?php echo esc_attr( W3TC_CDN_SLUG ); ?>-auto-config result-message">
 						<?php echo esc_html( $result['message'] ); ?>
 					</p>
 				</div>
@@ -96,16 +104,16 @@ class Cdn_TotalCdn_Auto_Configure {
 	}
 
 	/**
-	 * Handles the AJAX request to auto-configure TotalCDN.
+	 * Handles the AJAX request to auto-configure.
 	 *
 	 * This method retrieves the account API key and pull zone ID from the
-	 * configuration and renders the auto-configuration page for TotalCDN.
+	 * configuration and renders the auto-configuration page.
 	 *
 	 * @since 2.6.0
 	 *
 	 * @return void
 	 */
-	public function w3tc_ajax_cdn_totalcdn_auto_config() {
+	public function w3tc_ajax_cdn_w3cdn_auto_config() {
 		?>
 		<p>Test Auto Config LightBox</p>
 		<?php
@@ -113,7 +121,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	}
 
 	/**
-	 * Check and see if Total CDN is active and enabled.
+	 * Check and see if W3TC provided CDN is active and enabled.
 	 * If it is not, run auto configuration.
 	 *
 	 * @param bool $applied Whether the CDN is applied or not.
@@ -122,11 +130,11 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @since x.x.x
 	 */
-	public function w3tc_tcdn_auto_configured( $applied ) {
+	public function w3tc_totalcdn_auto_configured( $applied ) {
 		$config = Dispatcher::config();
 
 		// Check if the CDN is enabled.
-		if ( $config->get( 'cdn.enabled' ) && 'totalcdn' === $config->get( 'cdn.engine' ) ) {
+		if ( $config->get( 'cdn.enabled' ) && W3TC_CDN_SLUG === $config->get( 'cdn.engine' ) ) {
 			return true;
 		}
 
@@ -146,7 +154,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @return string Response Message.
 	 */
 	public function run() {
-		// 1. Check and verify that the Total CDN account API key is set.
+		// 1. Check and verify that the account API key is set.
 		$api_key_result = $this->check_api_key();
 		if ( false === $api_key_result['success'] ) {
 			return $api_key_result;
@@ -172,18 +180,23 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @since x.x.x
 	 */
 	public function check_api_key() {
-		$api_key = $this->config->get( 'cdn.totalcdn.account_api_key' );
+		$api_key = $this->config->get( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
 
 		if ( empty( $api_key ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'API key is not set. Please enter your Total CDN API key.', 'w3-total-cache' ),
+				'message' => sprintf(
+					// translators: 1: CDN name.
+					__( 'API key is not set. Please enter your %1$s API key.', 'w3-total-cache' ),
+					esc_html( W3TC_CDN_NAME )
+				),
 			);
 		}
 
 		$this->api_key = $api_key;
 
-		$this->api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$this->api = new $api_class( array( 'account_api_key' => $this->api_key ) );
 
 		try {
 			$response = $this->api->get_user();
@@ -209,12 +222,13 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Setup the pull zone.
 	 *
-	 * Creates a pull zone using the Total CDN API.
+	 * Creates a pull zone using the API.
 	 *
 	 * @since x.x.x
 	 */
 	public function setup_pull_zone() {
-		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api       = new $api_class( array( 'account_api_key' => $this->api_key ) );
 
 		// Origin URL is the URL of the current site.
 		$origin_url = \home_url();
@@ -231,10 +245,10 @@ class Cdn_TotalCdn_Auto_Configure {
 						$name         = $pull_zone['Name'];
 						$cdn_hostname = $pull_zone['ExtCdnDomain'];
 
-						$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
-						$this->config->set( 'cdn.totalcdn.name', $name );
-						$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
-						$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
+						$this->config->set( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id', $pull_zone_id );
+						$this->config->set( 'cdn.' . W3TC_CDN_SLUG . '.name', $name );
+						$this->config->set( 'cdn.' . W3TC_CDN_SLUG . '.origin_url', $origin_url );
+						$this->config->set( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname', $cdn_hostname );
 						$this->config->save();
 					return array(
 						'success' => true,
@@ -280,10 +294,10 @@ class Cdn_TotalCdn_Auto_Configure {
 			$name         = $response['Name'];
 			$cdn_hostname = $response['ExtCdnDomain'];
 
-			$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
-			$this->config->set( 'cdn.totalcdn.name', $name );
-			$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
-			$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
+			$this->config->set( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id', $pull_zone_id );
+			$this->config->set( 'cdn.' . W3TC_CDN_SLUG . '.name', $name );
+			$this->config->set( 'cdn.' . W3TC_CDN_SLUG . '.origin_url', $origin_url );
+			$this->config->set( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname', $cdn_hostname );
 			$this->config->save();
 
 			$setup_edge_rules_result = $this->setup_edge_rules();
@@ -322,10 +336,11 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @since x.x.x
 	 */
 	public function setup_edge_rules() {
-		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
+		$api       = new $api_class( array( 'account_api_key' => $this->api_key ) );
 
 		// Get the pull zone ID.
-		$pull_zone_id = $this->config->get( 'cdn.totalcdn.pull_zone_id' );
+		$pull_zone_id = $this->config->get( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' );
 
 		if ( empty( $pull_zone_id ) ) {
 			return array(
@@ -340,8 +355,9 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		$error_messages = array();
 
+		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
 		// Add Edge Rules.
-		foreach ( Cdn_TotalCdn_Api::get_default_edge_rules() as $edge_rule ) {
+		foreach ( $api_class::get_default_edge_rules() as $edge_rule ) {
 			try {
 				$api->add_edge_rule( $edge_rule, $pull_zone_id );
 			} catch ( \Exception $ex ) {
@@ -380,7 +396,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	public function enable_cdn() {
 		// Enable CDN in W3TC settings.
 		$this->config->set( 'cdn.enabled', true );
-		$this->config->set( 'cdn.engine', 'totalcdn' );
+		$this->config->set( 'cdn.engine', W3TC_CDN_SLUG );
 		$this->config->save();
 
 		return array(
@@ -403,15 +419,15 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
 		$cdn_engine  = $config->get_string( 'cdn.engine' );
-		$api_key     = $config->get_string( 'cdn.totalcdn.account_api_key' );
-		$tcdn_status = $state->get_string( 'cdn.totalcdn.status' );
+		$api_key     = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
+		$tcdn_status = $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' );
 
-		// If CDN is not enabled or the engine is not Total CDN and the API key IS set
+		// If CDN is not enabled or the engine is not {W3TC_CDN_SLUG} and the API key IS set
 		// then show a notice to the user that they need to enable the CDN.
 
 		if ( self::maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) ) {
 			return;
-		} elseif ( ! $cdn_enabled || 'totalcdn' !== $cdn_engine ) {
+		} elseif ( ! $cdn_enabled || W3TC_CDN_SLUG !== $cdn_engine ) {
 			return;
 		}
 
@@ -423,7 +439,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		}
 
 		// Check if the current site url matches the pullzone.
-		$origin_url       = $config->get( 'cdn.totalcdn.origin_url' );
+		$origin_url       = $config->get( 'cdn.' . W3TC_CDN_SLUG . '.origin_url' );
 		$current_site_url = \home_url();
 
 		if ( $origin_url !== $current_site_url ) {
@@ -434,11 +450,12 @@ class Cdn_TotalCdn_Auto_Configure {
 					// Print a message indication that the pull zone and url do not match, and ask if they want to update it. Provide a Yes button and a No button.
 					echo wp_kses_post(
 						sprintf(
-							// translators: 1: Pull zone URL, 2: Current site URL. 3: Update Pullzone button button (update action).
-							__( '<p>The Total CDN pull zone URL <strong>( %1$s )</strong> does not match your current Site URL <strong>( %2$s )</strong>.</p><p><a class="button button-secondary" href="%3$s">Click here to update pull zone URL</a></p>', 'w3-total-cache' ),
+							// translators: 1: CDN name, 2: Pull zone URL, 3: Current site URL, 4: Update pull zone URL link.
+							__( '<p>The %1$s pull zone URL <strong>( %2$s )</strong> does not match your current Site URL <strong>( %3$s )</strong>.</p><p><a class="button button-secondary" href="%4$s">Click here to update pull zone URL</a></p>', 'w3-total-cache' ),
+							esc_html( W3TC_CDN_NAME ),
 							esc_html( $origin_url ),
 							esc_html( $current_site_url ),
-							\wp_nonce_url( 'admin.php?page=w3tc_cdn&w3tc_cdn_update_tcdn_pullzone', 'w3tc' )
+							\wp_nonce_url( 'admin.php?page=w3tc_cdn&w3tc_cdn_update_w3tc_cdn_pullzone', 'w3tc' )
 						)
 					);
 					?>
@@ -451,22 +468,22 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Maybe show auto config notice.
 	 *
-	 * If the CDN is not enabled, or if the engine is not set to totalcdn,
+	 * If the CDN is not enabled, or if the engine is not set to the W3TC provided CDN,
 	 * and the API key is set, then show a notice to the user that they have
-	 * an active Total CDN account and provide a button to auto-configure it.
+	 * an active W3TC provided CDN account and provide a button to auto-configure it.
 	 *
 	 * @since x.x.x
 	 *
 	 * @param bool   $cdn_enabled Whether the CDN is enabled.
 	 * @param string $cdn_engine  The CDN engine.
 	 * @param string $api_key     The API key.
-	 * @param string $tcdn_status The Total CDN status.
+	 * @param string $w3cdn_status The CDN status.
 	 *
 	 * @return bool True if the notice was shown, false otherwise.
 	 */
-	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) {
-		// If the CDN is enabled and the engine is set to totalcdn, do not show the notice.
-		if ( $cdn_enabled && 'totalcdn' === $cdn_engine ) {
+	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $w3cdn_status ) {
+		// If the CDN is enabled and the engine is set, do not show the notice.
+		if ( $cdn_enabled && W3TC_CDN_SLUG === $cdn_engine ) {
 			return false;
 		}
 
@@ -475,8 +492,8 @@ class Cdn_TotalCdn_Auto_Configure {
 			return false;
 		}
 
-		// If the Total CDN status is not set, do not show the notice.
-		if ( empty( $tcdn_status ) || 'active' !== $tcdn_status ) {
+		// If the CDN status is not set, do not show the notice.
+		if ( empty( $w3cdn_status ) || 'active' !== $w3cdn_status ) {
 			return false;
 		}
 
@@ -485,8 +502,16 @@ class Cdn_TotalCdn_Auto_Configure {
 			'admin_notices',
 			function () {
 				echo '<div class="notice notice-warning is-dismissible">';
-				echo '<p>' . esc_html__( 'You have an active Total CDN account. Click the button below to auto-configure it.', 'w3-total-cache' ) . '</p>';
-				echo '<p><button class="button button-primary button-auto-tcdn">' . esc_html__( 'Auto-Configure Total CDN', 'w3-total-cache' ) . '</button></p>';
+							echo '<p>' . sprintf(
+								// translators: 1: CDN name.
+								esc_html__( 'You have an active %1$s account. Click the button below to auto-configure it.', 'w3-total-cache' ),
+								esc_html( W3TC_CDN_NAME )
+							) . '</p>';
+							echo '<p><button class="button button-primary button-auto-tcdn">' . sprintf(
+								// translators: 1: CDN name.
+								esc_html__( 'Auto-Configure %1$s', 'w3-total-cache' ),
+								esc_html( W3TC_CDN_NAME )
+							) . '</button></p>';
 				echo '</div>';
 			}
 		);
@@ -503,10 +528,11 @@ class Cdn_TotalCdn_Auto_Configure {
 		$config = Dispatcher::config();
 
 		// Get the pull zone ID.
-		$pull_zone_id = $config->get( 'cdn.totalcdn.pull_zone_id' );
+		$pull_zone_id = $config->get( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' );
 
 		try {
-			$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $config->get( 'cdn.totalcdn.account_api_key' ) ) );
+			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
+			$api       = new $api_class( array( 'account_api_key' => $config->get( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) );
 			$api->update_pull_zone(
 				$pull_zone_id,
 				array(
@@ -514,8 +540,8 @@ class Cdn_TotalCdn_Auto_Configure {
 					'OriginHostHeader' => \wp_parse_url( \home_url(), PHP_URL_HOST ),
 				)
 			);
-			$config->set( 'cdn.totalcdn.origin_url', \home_url() );
-			$config->set( 'cdn.totalcdn.cdn_hostname', \wp_parse_url( \home_url(), PHP_URL_HOST ) );
+			$config->set( 'cdn.' . W3TC_CDN_SLUG . '.origin_url', \home_url() );
+			$config->set( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname', \wp_parse_url( \home_url(), PHP_URL_HOST ) );
 			$config->save();
 			return true;
 		} catch ( \Exception $ex ) {

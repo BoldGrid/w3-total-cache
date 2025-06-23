@@ -218,13 +218,13 @@ class Licensing_Core {
 	}
 
 	/**
-	 * Generates a purchase URL for Total CDN.
+	 * Generates a purchase URL for W3TC provided CDN.
 	 *
 	 * @param string $data_src  Optional data source for the URL.
 	 * @param string $renew_key Optional License key.
 	 * @param string $client_id Optional client ID associated with the purchase.
 	 *
-	 * @return string URL for purchasing or renewing Total CDN.
+	 * @return string URL for purchasing or renewing W3TC provided CDN.
 	 */
 	public static function purchase_tcdn_url( $data_src = '', $renew_key = '', $client_id = '' ) {
 		$state = Dispatcher::config_state_master();

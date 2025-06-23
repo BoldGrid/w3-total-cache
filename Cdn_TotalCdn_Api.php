@@ -68,7 +68,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @var string
 	 */
-	private $api_base_url = W3TC_TCDN_API;
+	private $api_base_url = W3TC_CDN_API_URL;
 
 	/**
 	 * Default edge rules.
@@ -146,22 +146,22 @@ class Cdn_TotalCdn_Api {
 			'Description'         => 'Override Browser Cache Time if logged into WordPress',
 		),
 		array(
-			'ActionType'       => 5, // Set Response Header.
-			'ActionParameter1' => 'X-W3TC-CDN',
-			'ActionParameter2' => 'totalcdn',
-			'Triggers'         => array(
+			'ActionType'          => 5, // Set Response Header.
+			'ActionParameter1'    => 'X-W3TC-CDN',
+			'ActionParameter2'    => W3TC_CDN_SLUG,
+			'Triggers'            => array(
 				array(
 					'Type'                => 0, // RequestUrl.
 					'PatternMatches'      => array(
-						'*'
+						'*',
 					),
 					'PatternMatchingType' => 0, // MatchAny.
-				)
+				),
 			),
 			'TriggerMatchingType' => 0,
 			'Description'         => 'Add X-W3TC-CDN header',
 			'Enabled'             => true,
-		)
+		),
 	);
 
 	/**

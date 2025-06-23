@@ -480,7 +480,7 @@ class Cdn_AdminActions {
 				'rackspace_cdn' === $engine ||
 				'rscf' === $engine ||
 				'bunnycdn' === $engine ||
-				'totalcdn' === $engine ||
+				W3TC_CDN_SLUG === $engine ||
 				's3_compatible' === $engine
 			) {
 				// those use already stored w3tc config.
@@ -631,24 +631,26 @@ class Cdn_AdminActions {
 	}
 
 	/**
-	 * Updates the Total CDN pull zone.
+	 * Updates the W3TC CDN pull zone.
 	 *
-	 * When the CDN is set to Total CDN, this method updates the pull zone
+	 * When the CDN is set to W3TC CDN, this method updates the pull zone
 	 * configuration if the site URl has changed.
 	 *
 	 * @since x.x.x
 	 */
-	public function w3tc_cdn_update_tcdn_pullzone() {
+	public function w3tc_cdn_update_w3tc_cdn_pullzone() {
 		$config = Dispatcher::config();
 
-		$is_cdn_authorized = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
-			! empty( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) );
-		$is_cdn_enabled    = $config->get_boolean( 'cdn.enabled' );
-		$is_cdn_totalcdn   = 'totalcdn' === $config->get_string( 'cdn.engine' );
+		$page_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Page';
+		if ( ! $page_class::is_active() ) {
+			return;
+		}
 
-		Cdn_TotalCdn_Auto_Configure::update_pullzone();
+		$class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Auto_Configure';
 
-		if ( Cdn_TotalCdn_Auto_Configure::update_pullzone() ) {
+		$class::update_pullzone();
+
+		if ( $class::update_pullzone() ) {
 			Util_Admin::redirect( array( 'w3tc_note' => 'updated_pullzone_url' ), true );
 		} else {
 			Util_Admin::redirect( array( 'w3tc_error' => 'updated_pullzone_url' ), true );
