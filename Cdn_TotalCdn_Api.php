@@ -68,7 +68,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @var string
 	 */
-	private $api_base_url = 'https://cdn-api-dev.boldgrid.com/api/v1';
+	private $api_base_url = W3TC_TCDN_API;
 
 	/**
 	 * Default edge rules.
@@ -505,7 +505,7 @@ class Cdn_TotalCdn_Api {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
-		$this->wp_remote_post( \esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/purgeCache' ) );
+		$this->wp_remote_post( \esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/purge' ) );
 	}
 
 	/**
