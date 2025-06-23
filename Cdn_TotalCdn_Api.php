@@ -68,7 +68,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @var string
 	 */
-	private $api_base_url = 'https://cdn-api-dev.boldgrid.com/api/v1';
+	private $api_base_url = W3TC_TCDN_API;
 
 	/**
 	 * Default edge rules.

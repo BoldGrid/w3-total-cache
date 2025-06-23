@@ -19,7 +19,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 if (
 	( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
-	'inactive.expired' === $state->get_string( 'cdn.totalcdn.status' )
+	in_array( $state->get_string( 'cdn.totalcdn.status' ), array( 'canceled', 'inactive.expired' ), true )
 ) {
 	?>
 	<div id="w3tc-tcdn-ad-cdn">
