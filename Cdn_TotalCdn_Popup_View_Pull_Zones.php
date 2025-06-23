@@ -2,7 +2,7 @@
 /**
  * File: Cdn_TotalCdn_Popup_Pull_Zones.php
  *
- * Assists with configuring Total CDN as an object storage CDN.
+ * Assists with configuring W3TC provided CDN as an object storage CDN.
  * A pull zone selection is presented along with a form to add a new pull zone.
  *
  * @since   2.6.0
@@ -11,7 +11,7 @@
  * @param string           $account_api_key Account PI key.
  * @param  Cdn_TotalCdn_Api $api             API class object.
  * @param array            $details {
- *     Total CDN API configuration details.
+ *     W3TC provided CDN API configuration details.
  *
  *     @type array  $pull_zones           Pull zones.
  *     @type string $suggested_origin_url Suggested origin URL or IP.

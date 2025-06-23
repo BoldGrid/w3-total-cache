@@ -201,7 +201,7 @@ jQuery(function($) {
 
 		// Sanitize the purge URL list.
 		.on('focusout', '#w3tc-purge-urls', function () {
-			// Abort if Total CDN is not authorized.
+			// Abort if not authorized.
 			if (! W3TC_TotalCdn.is_authorized) {
 				return;
 			}
@@ -220,7 +220,7 @@ jQuery(function($) {
 
 		// Purge URLs.
 		.on('click', '.w3tc_cdn_totalcdn_purge_urls', function() {
-			// Abort if Total CDN is not authorized.
+			// Abort if not authorized.
 			if (! W3TC_TotalCdn.is_authorized) {
 				return;
 			}

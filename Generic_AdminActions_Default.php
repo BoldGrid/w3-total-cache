@@ -107,7 +107,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Saves the provided Total CDN API key to the configuration.
+	 * Saves the provided W3TC provided CDN API key to the configuration.
 	 *
 	 * @return void
 	 *
@@ -125,7 +125,7 @@ class Generic_AdminActions_Default {
 			$this->_config->set( 'cdn.' . W3TC_CDN_SLUG . '.account_id', $account_id );
 			$this->_config->save();
 
-			// This applies a valid license state for the Total CDN license.
+			// This applies a valid license state for the W3TC provided CDN license.
 			$config_state = Dispatcher::config_state();
 			$config_state->set( W3TC_CDN_SLUG . '.status', 'active.by_rooturi' );
 			$config_state->save();
@@ -135,17 +135,22 @@ class Generic_AdminActions_Default {
 				$old_config
 			);
 
-			// This should apply the default configuration for Total CDN.
+			// This should apply the default configuration for W3TC provided CDN.
 			$tcdn_applied = apply_filters( 'w3tc_' . W3TC_CDN_SLUG . '_auto_configured', false );
 			if ( true === $tcdn_applied ) {
 				echo wp_json_encode( array( 'result' => 'success' ) );
 				exit();
 			} else {
-                               echo wp_json_encode( array( 'result' => 'failed', 'message' => sprintf(
-                                       // translators: 1: CDN name.
-                                       __( 'Failed to auto apply %1$s configuration.', 'w3-total-cache' ),
-                                       W3TC_CDN_NAME
-                               ) ) );
+					echo wp_json_encode(
+						array(
+							'result'  => 'failed',
+							'message' => sprintf(
+								// translators: 1: CDN name.
+								__( 'Failed to auto apply %1$s configuration.', 'w3-total-cache' ),
+								W3TC_CDN_NAME
+							),
+						)
+					);
 				exit();
 			}
 		} catch ( \Exception $ex ) {

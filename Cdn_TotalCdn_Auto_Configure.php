@@ -222,7 +222,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Setup the pull zone.
 	 *
-	 * Creates a pull zone using the Total CDN API.
+	 * Creates a pull zone using the API.
 	 *
 	 * @since x.x.x
 	 */
@@ -422,7 +422,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		$api_key     = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
 		$tcdn_status = $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' );
 
-		// If CDN is not enabled or the engine is not Total CDN and the API key IS set
+		// If CDN is not enabled or the engine is not {W3TC_CDN_SLUG} and the API key IS set
 		// then show a notice to the user that they need to enable the CDN.
 
 		if ( self::maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) ) {
@@ -450,12 +450,12 @@ class Cdn_TotalCdn_Auto_Configure {
 					// Print a message indication that the pull zone and url do not match, and ask if they want to update it. Provide a Yes button and a No button.
 					echo wp_kses_post(
 						sprintf(
-                                       // translators: 1: CDN name, 2: Pull zone URL, 3: Current site URL, 4: Update pull zone URL link.
-                                       __( '<p>The %1$s pull zone URL <strong>( %2$s )</strong> does not match your current Site URL <strong>( %3$s )</strong>.</p><p><a class="button button-secondary" href="%4$s">Click here to update pull zone URL</a></p>', 'w3-total-cache' ),
-                                       esc_html( W3TC_CDN_NAME ),
-                                       esc_html( $origin_url ),
-                                       esc_html( $current_site_url ),
-                                       \wp_nonce_url( 'admin.php?page=w3tc_cdn&w3tc_cdn_update_w3tc_cdn_pullzone', 'w3tc' )
+							// translators: 1: CDN name, 2: Pull zone URL, 3: Current site URL, 4: Update pull zone URL link.
+							__( '<p>The %1$s pull zone URL <strong>( %2$s )</strong> does not match your current Site URL <strong>( %3$s )</strong>.</p><p><a class="button button-secondary" href="%4$s">Click here to update pull zone URL</a></p>', 'w3-total-cache' ),
+							esc_html( W3TC_CDN_NAME ),
+							esc_html( $origin_url ),
+							esc_html( $current_site_url ),
+							\wp_nonce_url( 'admin.php?page=w3tc_cdn&w3tc_cdn_update_w3tc_cdn_pullzone', 'w3tc' )
 						)
 					);
 					?>
@@ -470,18 +470,18 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * If the CDN is not enabled, or if the engine is not set to the W3TC provided CDN,
 	 * and the API key is set, then show a notice to the user that they have
-	 * an active Total CDN account and provide a button to auto-configure it.
+	 * an active W3TC provided CDN account and provide a button to auto-configure it.
 	 *
 	 * @since x.x.x
 	 *
 	 * @param bool   $cdn_enabled Whether the CDN is enabled.
 	 * @param string $cdn_engine  The CDN engine.
 	 * @param string $api_key     The API key.
-	 * @param string $tcdn_status The Total CDN status.
+	 * @param string $w3cdn_status The CDN status.
 	 *
 	 * @return bool True if the notice was shown, false otherwise.
 	 */
-	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) {
+	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $w3cdn_status ) {
 		// If the CDN is enabled and the engine is set, do not show the notice.
 		if ( $cdn_enabled && W3TC_CDN_SLUG === $cdn_engine ) {
 			return false;
@@ -492,8 +492,8 @@ class Cdn_TotalCdn_Auto_Configure {
 			return false;
 		}
 
-		// If the Total CDN status is not set, do not show the notice.
-		if ( empty( $tcdn_status ) || 'active' !== $tcdn_status ) {
+		// If the CDN status is not set, do not show the notice.
+		if ( empty( $w3cdn_status ) || 'active' !== $w3cdn_status ) {
 			return false;
 		}
 
@@ -502,16 +502,16 @@ class Cdn_TotalCdn_Auto_Configure {
 			'admin_notices',
 			function () {
 				echo '<div class="notice notice-warning is-dismissible">';
-                               echo '<p>' . sprintf(
-                                       // translators: 1: CDN name.
-                                       esc_html__( 'You have an active %1$s account. Click the button below to auto-configure it.', 'w3-total-cache' ),
-                                       esc_html( W3TC_CDN_NAME )
-                               ) . '</p>';
-                               echo '<p><button class="button button-primary button-auto-tcdn">' . sprintf(
-                                       // translators: 1: CDN name.
-                                       esc_html__( 'Auto-Configure %1$s', 'w3-total-cache' ),
-                                       esc_html( W3TC_CDN_NAME )
-                               ) . '</button></p>';
+							echo '<p>' . sprintf(
+								// translators: 1: CDN name.
+								esc_html__( 'You have an active %1$s account. Click the button below to auto-configure it.', 'w3-total-cache' ),
+								esc_html( W3TC_CDN_NAME )
+							) . '</p>';
+							echo '<p><button class="button button-primary button-auto-tcdn">' . sprintf(
+								// translators: 1: CDN name.
+								esc_html__( 'Auto-Configure %1$s', 'w3-total-cache' ),
+								esc_html( W3TC_CDN_NAME )
+							) . '</button></p>';
 				echo '</div>';
 			}
 		);

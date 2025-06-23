@@ -2,14 +2,14 @@
 /**
  * File: Cdn_TotalCdn_Popup_View_Intro.php
  *
- * Assists with configuring Total CDN as an object storage CDN.
- * Asks to enter an account API key from the Total CDN main account.
+ * Assists with configuring W3TC provided CDN as an object storage CDN.
+ * Asks to enter an account API key from the W3TC provided CDN main account.
  *
  * @since   2.6.0
  * @package W3TC
  *
  * @param array $details {
- *     Total CDN API configuration details.
+ *     W3TC provided CDN API configuration details.
  *
  *     @type string $account_api_key Account API key.
  *     @type string $error_message   Error message (optional).  String already escaped.
@@ -28,11 +28,15 @@ defined( 'W3TC' ) || die();
 		</div>
 	<?php endif; ?>
 	<div class="metabox-holder">
-               <?php Util_Ui::postbox_header( sprintf(
-                       // translators: 1: CDN name.
-                       esc_html__( '%1$s API Configuration', 'w3-total-cache' ),
-                       esc_html( W3TC_CDN_NAME )
-               ) ); ?>
+		<?php
+		Util_Ui::postbox_header(
+			sprintf(
+				// translators: 1: CDN name.
+				esc_html__( '%1$s API Configuration', 'w3-total-cache' ),
+				esc_html( W3TC_CDN_NAME )
+			)
+		);
+		?>
 		<table class="form-table">
 			<tr>
 				<td><?php esc_html_e( 'Account API Key', 'w3-total-cache' ); ?>:</td>
