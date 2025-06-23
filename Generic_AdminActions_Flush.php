@@ -46,6 +46,11 @@ class Generic_AdminActions_Flush {
 		$this->_redirect_after_flush( 'flush_all' );
 	}
 
+	public function w3tc_flush_all_except_totalcdn() {
+		Dispatcher::component( 'CacheFlush' )->flush_all( array( 'totalcdn' => 'skip' ) );
+		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all_except_totalcdn' ), true );
+	}
+
 	/**
 	 * Flushes the cache for the current page and outputs a success message.
 	 *
@@ -297,14 +302,23 @@ class Generic_AdminActions_Flush {
 	 * @return void
 	 */
 	public function w3tc_flush_cdn() {
-		$this->flush_cdn( array( 'ui_action' => 'flush_button' ) );
+		$result = $this->flush_cdn( array( 'ui_action' => 'flush_cdn_button' ) );
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_cdn',
-			),
-			true
-		);
+		if ( false === $result ) {
+			Util_Admin::redirect(
+				array(
+					'w3tc_error' => 'flush_cdn_failed',
+				),
+				true
+			);
+		} else {
+			Util_Admin::redirect(
+				array(
+					'w3tc_note' => 'flush_cdn',
+				),
+				true
+			);
+		}
 	}
 
 	/**
@@ -449,11 +463,11 @@ class Generic_AdminActions_Flush {
 	 *
 	 * @param array $extras Additional parameters for the cache flush operation.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
 	public function flush_cdn( $extras = array() ) {
 		$cacheflush = Dispatcher::component( 'CacheFlush' );
-		$cacheflush->cdn_purge_all( $extras );
+		return $cacheflush->cdn_purge_all( $extras );
 	}
 
 	/**

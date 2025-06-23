@@ -198,11 +198,19 @@ class Cdn_Plugin {
 	 * @return bool Whether or not the flush should occur.
 	 */
 	public function w3tc_preflush_cdn_all( $do_flush, $extras = array() ) {
-		$default_override = Cdn_Util::get_flush_manually_default_override( $this->_config->get_string( 'cdn.engine' ) );
+		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		$default_override = Cdn_Util::get_flush_manually_default_override( $cdn_engine );
+
 		if ( $this->_config->get_boolean( 'cdn.flush_manually', $default_override ) ) {
-			if ( ! isset( $extras['ui_action'] ) ) {
+			if ( isset( $extras['ui_action'] ) && 'flush_cdn_button' === $extras['ui_action'] ) {
+				$do_flush = true;
+			} else {
 				$do_flush = false;
 			}
+		}
+
+		if ( isset( $extras[ $cdn_engine ] ) && 'skip' === $extras[ $cdn_engine ] ) {
+			$do_flush = false;
 		}
 
 		return $do_flush;
