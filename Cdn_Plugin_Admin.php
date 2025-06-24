@@ -73,9 +73,7 @@ class Cdn_Plugin_Admin {
 
 		\add_action( 'w3tc_settings_general_boxarea_cdn', array( $this, 'w3tc_settings_general_boxarea_cdn' ) );
 
-		$class = '\W3TC\Cdn_TotalCdn_Auto_Configure';
-
-		$w3tc_cdn_auto_configure = new $class( Dispatcher::config() );
+		$w3tc_cdn_auto_configure = new Cdn_TotalCdn_Auto_Configure( Dispatcher::config() );
 
 		\add_filter( 'w3tc_totalcdn_auto_configured', array( $w3tc_cdn_auto_configure, 'w3tc_totalcdn_auto_configured' ), 10, 1 );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_auto_config', array( $w3tc_cdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_auto_config' ) );
@@ -114,7 +112,7 @@ class Cdn_Plugin_Admin {
 			'label' => 'Select a provider',
 		);
 
-		$engine_values[ 'totalcdn' ] = array(
+		$engine_values['totalcdn'] = array(
 			'label'    => \__( 'TotalCDN', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);

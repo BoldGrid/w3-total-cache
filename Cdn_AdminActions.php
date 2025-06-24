@@ -641,16 +641,11 @@ class Cdn_AdminActions {
 	public function w3tc_cdn_update_w3tc_cdn_pullzone() {
 		$config = Dispatcher::config();
 
-		$page_class = '\W3TC\Cdn_TotalCdn_Page';
-		if ( ! $page_class::is_active() ) {
+		if ( ! Cdn_TotalCdn_Page::is_active() ) {
 			return;
 		}
 
-		$class = '\W3TC\Cdn_TotalCdn_Auto_Configure';
-
-		$class::update_pullzone();
-
-		if ( $class::update_pullzone() ) {
+		if ( Cdn_TotalCdn_Auto_Configure::update_pullzone() ) {
 			Util_Admin::redirect( array( 'w3tc_note' => 'updated_pullzone_url' ), true );
 		} else {
 			Util_Admin::redirect( array( 'w3tc_error' => 'updated_pullzone_url' ), true );

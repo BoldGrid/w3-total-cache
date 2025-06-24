@@ -31,9 +31,9 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 		</th>
 		<td>
 			<?php if ( $is_authorized ) : ?>
-				<input class="w3tc_cdn_<?php echo esc_attr( 'totalcdn' ); ?>_deauthorization button-primary" type="button" value="<?php esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
+				<input class="w3tc_cdn_totalcdn_deauthorization button-primary" type="button" value="<?php esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
 			<?php else : ?>
-				<input class="w3tc_cdn_<?php echo esc_attr( 'totalcdn' ); ?>_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>"
+				<input class="w3tc_cdn_totalcdn_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>"
 				<?php echo ( $is_unavailable ? 'disabled' : '' ); ?> />
 				<?php if ( $is_unavailable ) : ?>
 					<div class="notice notice-info">
@@ -124,7 +124,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 		</th>
 		<td class="w3tc_config_value_text">
 			<?php if ( empty( $custom_hostname ) ) { ?>
-				<input class="w3tc_cdn_<?php echo esc_attr( 'totalcdn' ); ?>_add_custom_hostname button-primary"
+				<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary"
 					type="button"
 					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
 				/>
@@ -132,7 +132,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 			} elseif ( ! $ssl_cert_loaded ) {
 				// If the SSL certificate is not loaded, show the button to load it.
 				?>
-				<input class="w3tc_cdn_<?php echo esc_attr( 'totalcdn' ); ?>_load_free_ssl button-primary"
+				<input class="w3tc_cdn_totalcdn_load_free_ssl button-primary"
 					type="button"
 					value="<?php esc_attr_e( 'Load SSL Certificate', 'w3-total-cache' ); ?>"
 				/>

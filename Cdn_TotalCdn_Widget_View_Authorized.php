@@ -12,10 +12,10 @@ defined( 'W3TC' ) || die();
 
 ?>
 
-<div id="<?php echo esc_attr( 'totalcdn' ); ?>-widget"
-	class="<?php echo esc_attr( 'totalcdn' ); ?>-widget-base w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_content">
-	<div class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_wrapper">
-		<div class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_tools">
+<div id="totalcdn-widget"
+	class="totalcdn-widget-base w3tc_totalcdn_content">
+	<div class="w3tc_totalcdn_wrapper">
+		<div class="w3tc_totalcdn_tools">
 			<p>
 			<?php
 			w3tc_e(
@@ -29,8 +29,8 @@ defined( 'W3TC' ) || die();
 			?>
 			</p>
 		</div>
-		<div class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_tools">
-			<ul class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_ul">
+		<div class="w3tc_totalcdn_tools">
+			<ul class="w3tc_totalcdn_ul">
 				<li><a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_cdn' ), 'w3tc' ) ); ?>"><?php \esc_html_e( 'Purge Cache', 'w3-total-cache' ); ?></a></li>
 			</ul>
 			<p>

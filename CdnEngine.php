@@ -28,8 +28,7 @@ class CdnEngine {
 		if ( ! isset( $instances[ $instance_key ] ) ) {
 			switch ( $engine ) {
 				case 'totalcdn':
-					$engine_class               = '\W3TC\CdnEngine_Mirror_' . 'TotalCdn';
-					$instances[ $instance_key ] = new $engine_class( $config );
+					$instances[ $instance_key ] = new CdnEngine_Mirror_TotalCdn( $config );
 					break;
 
 				case 'akamai':

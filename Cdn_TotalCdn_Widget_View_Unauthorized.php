@@ -13,7 +13,7 @@ defined( 'W3TC' ) || die();
 
 ?>
 
-<div id="<?php echo esc_attr( 'totalcdn' ); ?>-widget" class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_signup">
+<div id="totalcdn-widget" class="w3tc_totalcdn_signup">
 	<?php
 	$cdn_engine  = $config->get_string( 'cdn.engine' );
 	$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
@@ -187,7 +187,7 @@ defined( 'W3TC' ) || die();
 			?>
 		</p>
 
-		<h4 class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_signup_h4"><?php \esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
+		<h4 class="w3tc_totalcdn_signup_h4"><?php \esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
 
 		<p>
 			<?php
@@ -206,7 +206,7 @@ defined( 'W3TC' ) || die();
 		<?php
 	}
 	?>
-	<h4 class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
+	<h4 class="w3tc_totalcdn_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
 
 	<p>
 		<?php

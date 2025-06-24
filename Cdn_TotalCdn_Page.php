@@ -17,7 +17,7 @@ class Cdn_TotalCdn_Page {
 	/**
 	 * Handles the AJAX action to purge a specific URL from W3TC provided CDN.
 	 *
-         * This method listens for the `w3tc_ajax_cdn_totalcdn_purge_url` AJAX action and processes the URL purging request.
+	 * This method listens for the `w3tc_ajax_cdn_totalcdn_purge_url` AJAX action and processes the URL purging request.
 	 * It validates the URL, calls the Bunny CDN API to purge the URL, and sends a JSON response indicating success or failure.
 	 *
 	 * @since 2.6.0
@@ -25,8 +25,7 @@ class Cdn_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$page_class = '\W3TC\Cdn_TotalCdn_Page';
-		$o          = new $page_class();
+		$o = new Cdn_TotalCdn_Page();
 
 		\add_action( 'w3tc_ajax_cdn_totalcdn_purge_url', array( $o, 'w3tc_ajax_cdn_totalcdn_purge_url' ) );
 	}
@@ -110,7 +109,7 @@ class Cdn_TotalCdn_Page {
 			( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
 
 		\wp_register_script(
-			'w3tc_cdn_' . 'totalcdn',
+			'w3tc_cdn_totalcdn',
 			\plugins_url( 'Cdn_TotalCdn_Page_View.js', W3TC_FILE ),
 			array( 'jquery' ),
 			W3TC_VERSION,
@@ -118,8 +117,8 @@ class Cdn_TotalCdn_Page {
 		);
 
 		\wp_localize_script(
-			'w3tc_cdn_' . 'totalcdn',
-			'W3TC_' . 'TotalCdn',
+			'w3tc_cdn_totalcdn',
+			'W3TC_TotalCdn',
 			array(
 				'is_authorized' => $is_authorized,
 				'lang'          => array(
@@ -131,7 +130,7 @@ class Cdn_TotalCdn_Page {
 			)
 		);
 
-		\wp_enqueue_script( 'w3tc_cdn_' . 'totalcdn' );
+		\wp_enqueue_script( 'w3tc_cdn_totalcdn' );
 	}
 
 	/**
@@ -193,10 +192,10 @@ class Cdn_TotalCdn_Page {
 			);
 		}
 
-               $config          = Dispatcher::config();
-               $account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$config          = Dispatcher::config();
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 
-               $api       = \W3TC\Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
+		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
 
 		// Try to delete pull zone.
 		try {
