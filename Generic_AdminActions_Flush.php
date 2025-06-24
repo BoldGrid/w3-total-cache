@@ -47,7 +47,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush all Except W3TC Provided CDN.
+	 * Flush all Except Total CDN.
 	 *
 	 * @return void
 	 */

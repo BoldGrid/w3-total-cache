@@ -35,7 +35,7 @@ class Cdn_Plugin_Admin {
 			}
 		}
 
-		// Always show the W3TC provided CDN widget on dashboard.
+		// Always show the Total CDN widget on dashboard.
 		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_TotalCdn_Widget', 'admin_init_w3tc_dashboard' ) );
 
 		// Attach to actions without firing class loading at all without need.

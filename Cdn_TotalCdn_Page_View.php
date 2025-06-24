@@ -2,7 +2,7 @@
 /**
  * File: Cdn_TotalCdn_Page_View.php
  *
- * W3TC provided CDN settings page section view.
+ * Total CDN settings page section view.
  *
  * @since   2.6.0
  * @package W3TC
@@ -16,7 +16,7 @@ defined( 'W3TC' ) || die();
 
 $account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 $is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.totalcdn.pull_zone_id' );
-$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for W3TC provided CDN.
+$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for Total CDN.
 
 $custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
 $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded' );

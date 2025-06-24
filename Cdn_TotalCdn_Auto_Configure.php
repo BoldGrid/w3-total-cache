@@ -121,7 +121,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	}
 
 	/**
-	 * Check and see if W3TC provided CDN is active and enabled.
+	 * Check and see if Total CDN is active and enabled.
 	 * If it is not, run auto configuration.
 	 *
 	 * @param bool $applied Whether the CDN is applied or not.
@@ -464,9 +464,9 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Maybe show auto config notice.
 	 *
-	 * If the CDN is not enabled, or if the engine is not set to the W3TC provided CDN,
+	 * If the CDN is not enabled, or if the engine is not set to the Total CDN,
 	 * and the API key is set, then show a notice to the user that they have
-	 * an active W3TC provided CDN account and provide a button to auto-configure it.
+	 * an active Total CDN account and provide a button to auto-configure it.
 	 *
 	 * @since x.x.x
 	 *

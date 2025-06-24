@@ -335,7 +335,7 @@ class Generic_Plugin {
 					);
 				}
 
-				// Add menu item to flush all cached except W3TC provided CDN.
+				// Add menu item to flush all cached except Total CDN.
 				if (
 					Cdn_TotalCdn_Page::is_active() && (
 						$modules->can_empty_memcache()

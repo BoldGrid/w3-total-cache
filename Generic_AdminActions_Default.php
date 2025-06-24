@@ -136,7 +136,7 @@ class Generic_AdminActions_Default {
 				$old_config
 			);
 
-			// This should apply the default configuration for W3TC provided CDN.
+			// This should apply the default configuration for Total CDN.
 			$tcdn_applied = apply_filters( 'w3tc_totalcdn_auto_configured', false );
 			if ( true === $tcdn_applied ) {
 				echo wp_json_encode( array( 'result' => 'success' ) );

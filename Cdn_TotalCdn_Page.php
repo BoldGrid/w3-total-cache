@@ -15,7 +15,7 @@ namespace W3TC;
  */
 class Cdn_TotalCdn_Page {
 	/**
-	 * Handles the AJAX action to purge a specific URL from W3TC provided CDN.
+	 * Handles the AJAX action to purge a specific URL from Total CDN.
 	 *
 	 * This method listens for the `w3tc_ajax_cdn_totalcdn_purge_url` AJAX action and processes the URL purging request.
 	 * It validates the URL, calls the Bunny CDN API to purge the URL, and sends a JSON response indicating success or failure.
@@ -31,14 +31,14 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
-	 * Checks if W3TC provided CDN is active and properly configured.
+	 * Checks if Total CDN is active and properly configured.
 	 *
-	 * This method verifies if W3TC provided CDN is enabled and configured correctly by checking the necessary configuration
-	 * values, including the account API key and pull zone IDs. It returns true if W3TC provided CDN is active, and false otherwise.
+	 * This method verifies if Total CDN is enabled and configured correctly by checking the necessary configuration
+	 * values, including the account API key and pull zone IDs. It returns true if Total CDN is active, and false otherwise.
 	 *
 	 * @since 2.6.0
 	 *
-	 * @return bool True if W3TC provided CDN is active, false if not.
+	 * @return bool True if Total CDN is active, false if not.
 	 */
 	public static function is_active() {
 		$config          = Dispatcher::config();
@@ -59,16 +59,16 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
-	 * Adds actions to the W3 Total Cache dashboard if W3TC provided CDN is active.
+	 * Adds actions to the W3 Total Cache dashboard if Total CDN is active.
 	 *
-	 * This method appends a custom "Empty All Caches Except W3TC provided CDN" button to the W3 Total Cache dashboard if W3TC provided CDN
+	 * This method appends a custom "Empty All Caches Except Total CDN" button to the W3 Total Cache dashboard if Total CDN
 	 * is enabled. It also checks if other cache types can be emptied before enabling the button.
 	 *
 	 * @since 2.6.0
 	 *
 	 * @param array $actions List of existing actions in the dashboard.
 	 *
-	 * @return array Modified list of actions with the new button if W3TC provided CDN is active.
+	 * @return array Modified list of actions with the new button if Total CDN is active.
 	 */
 	public static function w3tc_dashboard_actions( array $actions ) {
 		if ( self::is_active() ) {
@@ -94,9 +94,9 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
-	 * Enqueues scripts and localizes variables for W3TC provided CDN on the admin page.
+	 * Enqueues scripts and localizes variables for Total CDN on the admin page.
 	 *
-	 * This method registers and enqueues the necessary JavaScript for W3TC provided CDN functionality in the W3 Total Cache admin
+	 * This method registers and enqueues the necessary JavaScript for Total CDN functionality in the W3 Total Cache admin
 	 * panel. It also localizes important variables like authorization status and localized strings for use in the script.
 	 *
 	 * @since 2.6.0
@@ -134,9 +134,9 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
-	 * Displays the configuration settings for W3TC provided CDN in the W3 Total Cache settings page.
+	 * Displays the configuration settings for Total CDN in the W3 Total Cache settings page.
 	 *
-	 * This method includes the view file for W3TC provided CDN configuration options, allowing users to modify the
+	 * This method includes the view file for Total CDN configuration options, allowing users to modify the
 	 * settings from the W3 Total Cache admin panel.
 	 *
 	 * @since 2.6.0
@@ -152,8 +152,8 @@ class Cdn_TotalCdn_Page {
 	/**
 	 * Displays the URL purge settings in the W3 Total Cache admin panel.
 	 *
-	 * This method includes the view file for managing the W3TC provided CDN URL purge functionality, where users can specify
-	 * URLs to purge from W3TC provided CDN.
+	 * This method includes the view file for managing the Total CDN URL purge functionality, where users can specify
+	 * URLs to purge from Total CDN.
 	 *
 	 * @since 2.6.0
 	 *
@@ -166,9 +166,9 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
-	 * Processes the AJAX request to purge a specified URL from W3TC provided CDN.
+	 * Processes the AJAX request to purge a specified URL from Total CDN.
 	 *
-	 * This method validates the provided URL, sends a purge request to the W3TC provided CDN API, and returns a JSON response
+	 * This method validates the provided URL, sends a purge request to the Total CDN API, and returns a JSON response
 	 * indicating the success or failure of the operation. If the URL is invalid or an error occurs, a failure response
 	 * is sent with the appropriate error message.
 	 *
@@ -213,7 +213,7 @@ class Cdn_TotalCdn_Page {
 	}
 
 	/**
-	 * If W3TC provided CDN is active, adds the CDN cache purge actions to the dashboard.
+	 * If Total CDN is active, adds the CDN cache purge actions to the dashboard.
 	 *
 	 * @param array $actions The existing dashboard actions.
 	 * @return array The modified dashboard actions with CDN purge options.

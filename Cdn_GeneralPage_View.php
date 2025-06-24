@@ -56,7 +56,7 @@ Util_Ui::config_overloading_button(
 		echo wp_kses(
 			sprintf(
 				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,
-				// translators: 3 HTML input for W3TC Provided CDN sign up, 4 HTML img tag for CDN logo.
+				// translators: 3 HTML input for Total CDN sign up, 4 HTML img tag for CDN logo.
 				__(
 					'%1$sLooking for a top rated CDN Provider? Try %5$s.%2$s%3$s%4$s',
 					'w3-total-cache'

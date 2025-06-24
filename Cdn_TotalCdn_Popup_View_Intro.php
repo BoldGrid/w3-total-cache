@@ -2,14 +2,14 @@
 /**
  * File: Cdn_TotalCdn_Popup_View_Intro.php
  *
- * Assists with configuring W3TC provided CDN as an object storage CDN.
- * Asks to enter an account API key from the W3TC provided CDN main account.
+ * Assists with configuring Total CDN as an object storage CDN.
+ * Asks to enter an account API key from the Total CDN main account.
  *
  * @since   2.6.0
  * @package W3TC
  *
  * @param array $details {
- *     W3TC provided CDN API configuration details.
+ *     Total CDN API configuration details.
  *
  *     @type string $account_api_key Account API key.
  *     @type string $error_message   Error message (optional).  String already escaped.
