@@ -310,6 +310,64 @@ class Licensing_Plugin_Admin {
 		$license_message = '';
 		$license_status  = $state->get_string( 'license.status' );
 		switch ( true ) {
+			case $this->_status_is( $license_status, 'active.dunning' ):
+				$license_key = $this->get_license_key();
+
+				$api_params = array(
+					'edd_action'  => 'get_recurly_hlt',
+					'license'     => $license_key,   // legacy.
+					'license_key' => $license_key,
+				);
+
+				// Call the custom API.
+				$response = wp_remote_get(
+					add_query_arg(
+						$api_params,
+						W3TC_LICENSE_API_URL
+					),
+					array(
+						'timeout'   => 15,
+						'sslverify' => false,
+					)
+				);
+
+				$billing_url = '';
+				if ( ! is_wp_error( $response ) ) {
+					$hlt_data    = json_decode( wp_remote_retrieve_body( $response ) );
+					$billing_url = W3L_RECURLY_FULL . '/account/login?ht=' . $hlt_data->hlt;
+				}
+
+				if ( ! empty( $billing_url ) ) {
+					$license_message = wp_kses(
+						sprintf(
+							// Translators:  1 Total Cache trademark name, 2 opening HTML a tag to recurly billing update, 3 closing HTML a tag.
+							__(
+								'Your %1$s Pro subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption',
+								'w3-total-cache'
+							),
+							'Total Cache'
+							'<a href="' . $billing_url . '" target="_blank">',
+							'</a>'
+						),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+							),
+						)
+					);
+				} else {
+					$license_message = sprintf(
+						// Translators: 1 Total Cache trademark name.
+						__(
+							'Your %1$s Pro subscription payment is past due. Please update your billing information or contact us to prevent service interruption',
+							'w3-total-cache'
+						),
+						'Total Cache'
+					);
+				}
+				break;
+
 			case $this->_status_is( $license_status, 'inactive.expired' ):
 				$license_message = wp_kses(
 					sprintf(
@@ -420,29 +478,63 @@ class Licensing_Plugin_Admin {
 		$cdn_status  = $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' );
 		switch ( true ) {
 			case $this->_status_is( $cdn_status, 'active.dunning' ):
-				$cdn_message = wp_kses(
-					sprintf(
-						// Translators: 1 HTML input button to renew license.
-						__(
-							'Your Total CDN subscription payment is past due. %1$s to prevent service interruption',
-							'w3-total-cache'
-						),
-						'<input type="button" class="button button-buy-tcdn" data-nonce="' .
-							wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
-							'" data-src="cdn_dunning" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />'
+				$license_key = $this->get_license_key();
+
+				$api_params = array(
+					'edd_action'  => 'get_recurly_hlt',
+					'license'     => $license_key,   // legacy.
+					'license_key' => $license_key,
+				);
+
+				// Call the custom API.
+				$response = wp_remote_get(
+					add_query_arg(
+						$api_params,
+						W3TC_LICENSE_API_URL
 					),
 					array(
-						'input' => array(
-							'type'           => array(),
-							'class'          => array(),
-							'data-nonce'     => array(),
-							'data-renew-key' => array(),
-							'data-src'       => array(),
-							'value'          => array(),
-						),
+						'timeout'   => 15,
+						'sslverify' => false,
 					)
 				);
+
+				$billing_url = '';
+				if ( ! is_wp_error( $response ) ) {
+					$hlt_data    = json_decode( wp_remote_retrieve_body( $response ) );
+					$billing_url = W3L_RECURLY_FULL . '/account/login?ht=' . $hlt_data->hlt;
+				}
+
+				if ( ! empty( $billing_url ) ) {
+					$cdn_message = wp_kses(
+						sprintf(
+							// Translators: 1 Total CDN trademark name, 2 opening HTML a tag to recurly billing update, 3 closing HTML a tag.
+							__(
+								'Your %1$s subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption',
+								'w3-total-cache'
+							),
+							'Total CDN',
+							'<a href="' . $billing_url . '" target="_blank">',
+							'</a>'
+						),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+							),
+						)
+					);
+				} else {
+					$cdn_message = sprintf(
+						// Translators: 1 Total CDN trademark name.
+						__(
+							'Your %1$s subscription payment is past due. Please update your %1$sBilling Information%2$s to prevent service interruption',
+							'w3-total-cache'
+						),
+						'Total CDN',
+					);
+				}
 				break;
+
 			case $this->_status_is( $cdn_status, 'canceled' ):
 			case $this->_status_is( $cdn_status, 'inactive.expired' ):
 				$cdn_message = wp_kses(
