@@ -132,7 +132,7 @@ class CdnEngine_Mirror_TotalCdn extends CdnEngine_Mirror {
 		$results = array();
 
 		foreach ( $active_ids as $id ) {
-				$api = new Cdn_TotalCdn_Api( array_merge( $this->_config, array( 'pull_zone_id' => $id ) ) );
+			$api = new Cdn_TotalCdn_Api( array_merge( $this->_config, array( 'pull_zone_id' => $id ) ) );
 
 			try {
 				$api->purge_pull_zone();
