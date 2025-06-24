@@ -345,7 +345,7 @@ class Licensing_Plugin_Admin {
 								'Your %1$s Pro subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption',
 								'w3-total-cache'
 							),
-							'Total Cache'
+							'Total Cache',
 							'<a href="' . $billing_url . '" target="_blank">',
 							'</a>'
 						),
@@ -501,7 +501,7 @@ class Licensing_Plugin_Admin {
 				$billing_url = '';
 				if ( ! is_wp_error( $response ) ) {
 					$hlt_data    = json_decode( wp_remote_retrieve_body( $response ) );
-					$billing_url = W3L_RECURLY_FULL . '/account/login?ht=' . $hlt_data->hlt;
+					$billing_url = W3L_RECURLY_FULL . '/account/billing_info/edit?ht=' . $hlt_data->hlt;
 				}
 
 				if ( ! empty( $billing_url ) ) {
