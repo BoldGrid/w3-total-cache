@@ -1130,21 +1130,21 @@ class Generic_Plugin_Admin {
 		);
 
 		$note_messages = array(
-			'config_save'                       => __( 'Plugin configuration successfully updated.', 'w3-total-cache' ),
-			'config_save_flush'                 => __( 'Plugin configuration successfully updated and all caches successfully emptied.', 'w3-total-cache' ),
-			'flush_all'                         => __( 'All caches successfully emptied.', 'w3-total-cache' ),
-			'flush_all_except_' . 'totalcdn' => __( 'All caches successfully emptied, except TotalCDN.', 'w3-total-cache' ),
-			'flush_memcached'                   => __( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
-			'flush_opcode'                      => __( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),
-			'flush_file'                        => __( 'Disk cache(s) successfully emptied.', 'w3-total-cache' ),
-			'flush_pgcache'                     => __( 'Page cache successfully emptied.', 'w3-total-cache' ),
-			'flush_dbcache'                     => __( 'Database cache successfully emptied.', 'w3-total-cache' ),
-			'flush_objectcache'                 => __( 'Object cache successfully emptied.', 'w3-total-cache' ),
-			'flush_fragmentcache'               => __( 'Fragment cache successfully emptied.', 'w3-total-cache' ),
-			'flush_minify'                      => __( 'Minify cache successfully emptied.', 'w3-total-cache' ),
-			'flush_browser_cache'               => __( 'Media Query string has been successfully updated.', 'w3-total-cache' ),
-			'flush_varnish'                     => __( 'Varnish servers successfully purged.', 'w3-total-cache' ),
-			'flush_cdn'                         => sprintf(
+			'config_save'               => __( 'Plugin configuration successfully updated.', 'w3-total-cache' ),
+			'config_save_flush'         => __( 'Plugin configuration successfully updated and all caches successfully emptied.', 'w3-total-cache' ),
+			'flush_all'                 => __( 'All caches successfully emptied.', 'w3-total-cache' ),
+			'flush_all_except_totalcdn' => __( 'All caches successfully emptied, except TotalCDN.', 'w3-total-cache' ),
+			'flush_memcached'           => __( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_opcode'              => __( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_file'                => __( 'Disk cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_pgcache'             => __( 'Page cache successfully emptied.', 'w3-total-cache' ),
+			'flush_dbcache'             => __( 'Database cache successfully emptied.', 'w3-total-cache' ),
+			'flush_objectcache'         => __( 'Object cache successfully emptied.', 'w3-total-cache' ),
+			'flush_fragmentcache'       => __( 'Fragment cache successfully emptied.', 'w3-total-cache' ),
+			'flush_minify'              => __( 'Minify cache successfully emptied.', 'w3-total-cache' ),
+			'flush_browser_cache'       => __( 'Media Query string has been successfully updated.', 'w3-total-cache' ),
+			'flush_varnish'             => __( 'Varnish servers successfully purged.', 'w3-total-cache' ),
+			'flush_cdn'                 => sprintf(
 				// translators: 1 HTML acronym for CDN (content delivery network).
 				__(
 					'%1$s was successfully purged.',
@@ -1313,7 +1313,7 @@ class Generic_Plugin_Admin {
 				);
 		}
 
-		if ( Util_Request::get_boolean( 'totalcdn' . '_auto_config_success' ) ) {
+		if ( Util_Request::get_boolean( 'totalcdn_auto_config_success' ) ) {
 			// Full URL to your logo.
 			$logo_url = plugins_url( 'pub/img/totalcdn-logo.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
 

@@ -25,13 +25,12 @@ class Cdn_TotalCdn_Widget {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$widget_class = '\W3TC\Cdn_TotalCdn_Widget';
-		$o            = new $widget_class();
+		$o = new Cdn_TotalCdn_Widget();
 
 		add_action( 'admin_print_styles', array( $o, 'admin_print_styles' ) );
 
 		Util_Widget::add2(
-			'w3tc_' . 'totalcdn',
+			'w3tc_totalcdn',
 			400,
 			'<div class="w3tc-widget-totalcdn-logo"></div>',
 			array( $o, 'widget_form' ),
