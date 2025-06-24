@@ -579,13 +579,13 @@ class Cdn_Core {
 					);
 					break;
 
-				case W3TC_CDN_SLUG:
+				case 'totalcdn':
 					$engine_config = array(
-						'account_api_key' => $c->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ),
-						'storage_api_key' => $c->get_string( 'cdn.' . W3TC_CDN_SLUG . '.storage_api_key' ),
-						'stream_api_key'  => $c->get_string( 'cdn.' . W3TC_CDN_SLUG . '.stream_api_key' ),
-						'pull_zone_id'    => $c->get_integer( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' ),
-						'domain'          => $c->get_string( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname' ),
+						'account_api_key' => $c->get_string( 'cdn.' . 'totalcdn' . '.account_api_key' ),
+						'storage_api_key' => $c->get_string( 'cdn.' . 'totalcdn' . '.storage_api_key' ),
+						'stream_api_key'  => $c->get_string( 'cdn.' . 'totalcdn' . '.stream_api_key' ),
+						'pull_zone_id'    => $c->get_integer( 'cdn.' . 'totalcdn' . '.pull_zone_id' ),
+						'domain'          => $c->get_string( 'cdn.' . 'totalcdn' . '.cdn_hostname' ),
 					);
 					break;
 				default:
@@ -944,9 +944,9 @@ class Cdn_Core {
 					! empty( $this->_config->get_string( 'cdn.s3.bucket.location' ) );
 				break;
 
-			case W3TC_CDN_SLUG:
-				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) &&
-					! empty( $this->_config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' ) );
+			case 'totalcdn':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.' . 'totalcdn' . '.account_api_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.' . 'totalcdn' . '.pull_zone_id' ) );
 				break;
 			default:
 				$is_cdn_authorized = false;

@@ -15,7 +15,7 @@ namespace W3TC;
 defined( 'W3TC' ) || die();
 
 ?>
-<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form">
+<form class="w3tc_cdn_<?php echo esc_attr( 'totalcdn' ); ?>_form">
 <?php if ( isset( $delete_error_message ) ) : ?>
 	<div class="error">
 		<?php
@@ -41,7 +41,7 @@ defined( 'W3TC' ) || die();
 			</div>
 		<?php endif; ?>
 		<p class="submit">
-			<input type="button" class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_done w3tc-button-save button-primary"
+			<input type="button" class="w3tc_cdn_<?php echo esc_attr( 'totalcdn' ); ?>_done w3tc-button-save button-primary"
 				value="<?php esc_html_e( 'Done', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>

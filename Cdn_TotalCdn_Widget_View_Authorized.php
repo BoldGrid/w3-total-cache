@@ -12,14 +12,14 @@ defined( 'W3TC' ) || die();
 
 ?>
 
-<div id="<?php echo esc_attr( W3TC_CDN_SLUG ); ?>-widget"
-	class="<?php echo esc_attr( W3TC_CDN_SLUG ); ?>-widget-base w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_content">
-	<div class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_wrapper">
-		<div class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_tools">
+<div id="<?php echo esc_attr( 'totalcdn' ); ?>-widget"
+	class="<?php echo esc_attr( 'totalcdn' ); ?>-widget-base w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_content">
+	<div class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_wrapper">
+		<div class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_tools">
 			<p>
 			<?php
 			w3tc_e(
-				'cdn.' . W3TC_CDN_SLUG . '.widget.v2.header',
+				'cdn.' . 'totalcdn' . '.widget.v2.header',
 				\sprintf(
 					// translators: CDN Name.
 					\__( 'Your website performance is enhanced with our %1$s service.', 'w3-total-cache' ),
@@ -29,14 +29,14 @@ defined( 'W3TC' ) || die();
 			?>
 			</p>
 		</div>
-		<div class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_tools">
-			<ul class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_ul">
+		<div class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_tools">
+			<ul class="w3tc_<?php echo esc_attr( 'totalcdn' ); ?>_ul">
 				<li><a class="button" href="<?php echo \esc_url( \wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_cdn' ), 'w3tc' ) ); ?>"><?php \esc_html_e( 'Purge Cache', 'w3-total-cache' ); ?></a></li>
 			</ul>
 			<p>
 			<?php
 			w3tc_e(
-				'cdn.' . W3TC_CDN_SLUG . '.widget.v2.existing',
+				'cdn.' . 'totalcdn' . '.widget.v2.existing',
 				\sprintf(
 					// translators: 1 HTML acronym for Content Delivery Network (CDN).
 					\__(

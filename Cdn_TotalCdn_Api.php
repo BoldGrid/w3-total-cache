@@ -148,7 +148,7 @@ class Cdn_TotalCdn_Api {
 		array(
 			'ActionType'          => 5, // Set Response Header.
 			'ActionParameter1'    => 'X-W3TC-CDN',
-			'ActionParameter2'    => W3TC_CDN_SLUG,
+			'ActionParameter2'    => 'totalcdn',
 			'Triggers'            => array(
 				array(
 					'Type'                => 0, // RequestUrl.

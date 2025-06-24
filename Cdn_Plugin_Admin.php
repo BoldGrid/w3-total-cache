@@ -36,7 +36,7 @@ class Cdn_Plugin_Admin {
 		}
 
 		// Always show the W3TC provided CDN widget on dashboard.
-		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Widget', 'admin_init_w3tc_dashboard' ) );
+		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_' . 'TotalCdn' . '_Widget', 'admin_init_w3tc_dashboard' ) );
 
 		// Attach to actions without firing class loading at all without need.
 		switch ( $cdn_engine ) {
@@ -62,24 +62,24 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
 				break;
 
-			case W3TC_CDN_SLUG:
-				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Popup', 'w3tc_ajax' ) );
-				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Page', 'w3tc_purge_urls_box' ) );
-				\add_filter( 'w3tc_dashboard_actions', array( '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Page', 'total_cdn_dashboard_actions' ) );
+			case 'totalcdn':
+				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_' . 'TotalCdn' . '_Popup', 'w3tc_ajax' ) );
+				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_' . 'TotalCdn' . '_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
+				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_' . 'TotalCdn' . '_Page', 'w3tc_purge_urls_box' ) );
+				\add_filter( 'w3tc_dashboard_actions', array( '\W3TC\Cdn_' . 'TotalCdn' . '_Page', 'total_cdn_dashboard_actions' ) );
 				\add_action( 'w3tc_flush_all', array( $this, 'flush_cdn' ) );
 				break;
 		}
 
 		\add_action( 'w3tc_settings_general_boxarea_cdn', array( $this, 'w3tc_settings_general_boxarea_cdn' ) );
 
-		$class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Auto_Configure';
+		$class = '\W3TC\Cdn_' . 'TotalCdn' . '_Auto_Configure';
 
 		$w3tc_cdn_auto_configure = new $class( Dispatcher::config() );
 
-		\add_filter( 'w3tc_' . W3TC_CDN_SLUG . '_auto_configured', array( $w3tc_cdn_auto_configure, 'w3tc_' . W3TC_CDN_SLUG . '_auto_configured' ), 10, 1 );
-		\add_action( 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_auto_config', array( $w3tc_cdn_auto_configure, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_auto_config' ) );
-		\add_action( 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_confirm_auto_config', array( $w3tc_cdn_auto_configure, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_confirm_auto_config' ) );
+		\add_filter( 'w3tc_' . 'totalcdn' . '_auto_configured', array( $w3tc_cdn_auto_configure, 'w3tc_' . 'totalcdn' . '_auto_configured' ), 10, 1 );
+		\add_action( 'w3tc_ajax_cdn_' . 'totalcdn' . '_auto_config', array( $w3tc_cdn_auto_configure, 'w3tc_ajax_cdn_' . 'totalcdn' . '_auto_config' ) );
+		\add_action( 'w3tc_ajax_cdn_' . 'totalcdn' . '_confirm_auto_config', array( $w3tc_cdn_auto_configure, 'w3tc_ajax_cdn_' . 'totalcdn' . '_confirm_auto_config' ) );
 	}
 
 	/**
@@ -114,7 +114,7 @@ class Cdn_Plugin_Admin {
 			'label' => 'Select a provider',
 		);
 
-		$engine_values[ W3TC_CDN_SLUG ] = array(
+		$engine_values[ 'totalcdn' ] = array(
 			'label'    => \__( 'TotalCDN', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);

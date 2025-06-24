@@ -13,7 +13,7 @@ namespace W3TC;
 defined( 'W3TC' ) || die();
 
 ?>
-<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form">
+<form class="w3tc_cdn_<?php echo esc_attr( 'totalcdn' ); ?>_form">
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Load free SSL Certificate', 'w3-total-cache' ) ); ?>
 		<div style="text-align: center">
