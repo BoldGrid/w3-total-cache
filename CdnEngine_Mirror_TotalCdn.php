@@ -112,8 +112,8 @@ class CdnEngine_Mirror_TotalCdn extends CdnEngine_Mirror {
 		// Purge active pull zones: CDN & CDNFSD.
 		$active_zone_ids = array();
 		$config          = Dispatcher::config();
-		$cdn_zone_id     = $config->get_integer( 'cdn.' . 'totalcdn' . '.pull_zone_id' );
-		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.' . 'totalcdn' . '.pull_zone_id' );
+		$cdn_zone_id     = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
+		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
 
 		if ( $config->get_boolean( 'cdn.enabled' ) && 'totalcdn' === $config->get_string( 'cdn.engine' ) && $cdn_zone_id ) {
 			$active_ids[] = $cdn_zone_id;
@@ -131,9 +131,8 @@ class CdnEngine_Mirror_TotalCdn extends CdnEngine_Mirror {
 
 		$results = array();
 
-		foreach ( $active_ids as $id ) {
-			$api_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Api';
-			$api       = new $api_class( array_merge( $this->_config, array( 'pull_zone_id' => $id ) ) );
+               foreach ( $active_ids as $id ) {
+                       $api = \W3TC\Cdn_TotalCdn_Api( array_merge( $this->_config, array( 'pull_zone_id' => $id ) ) );
 
 			try {
 				$api->purge_pull_zone();

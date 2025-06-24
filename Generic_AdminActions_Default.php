@@ -122,8 +122,8 @@ class Generic_AdminActions_Default {
 			$old_config = new Config();
 
 			$this->_config->set( 'plugin.license_key', $license_key );
-			$this->_config->set( 'cdn.' . 'totalcdn' . '.account_api_key', $api_key );
-			$this->_config->set( 'cdn.' . 'totalcdn' . '.account_id', $account_id );
+			$this->_config->set( 'cdn.totalcdn.account_api_key', $api_key );
+			$this->_config->set( 'cdn.totalcdn.account_id', $account_id );
 			$this->_config->save();
 
 			// This applies a valid license state for the W3TC provided CDN license.
@@ -137,7 +137,7 @@ class Generic_AdminActions_Default {
 			);
 
 			// This should apply the default configuration for W3TC provided CDN.
-			$tcdn_applied = apply_filters( 'w3tc_' . 'totalcdn' . '_auto_configured', false );
+			$tcdn_applied = apply_filters( 'w3tc_totalcdn_auto_configured', false );
 			if ( true === $tcdn_applied ) {
 				echo wp_json_encode( array( 'result' => 'success' ) );
 				exit();

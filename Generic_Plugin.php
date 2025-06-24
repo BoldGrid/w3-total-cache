@@ -336,7 +336,7 @@ class Generic_Plugin {
 				}
 
 				// Add menu item to flush all cached except W3TC provided CDN.
-				$cdn_page_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Page';
+				$cdn_page_class = '\W3TC\Cdn_TotalCdn_Page';
 				if (
 					$cdn_page_class::is_active() && (
 						$modules->can_empty_memcache()

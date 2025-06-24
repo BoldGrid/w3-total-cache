@@ -87,12 +87,12 @@ class Generic_Plugin_Admin {
 			add_action( 'network_admin_menu', array( $this, 'network_admin_menu' ) );
 			add_filter( 'network_admin_plugin_action_links_' . W3TC_FILE, array( $this, 'plugin_action_links' ) );
 			add_action( 'network_admin_notices', array( $this, 'top_nav_bar' ), 0 );
-			add_action( 'network_admin_notices', array( '\W3TC\Cdn_' . 'TotalCdn' . '_Auto_Configure', 'admin_notices' ), 0 );
+			add_action( 'network_admin_notices', array( '\W3TC\Cdn_TotalCdn_Auto_Configure', 'admin_notices' ), 0 );
 		} else {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 			add_filter( 'plugin_action_links_' . W3TC_FILE, array( $this, 'plugin_action_links' ) );
 			add_action( 'admin_notices', array( $this, 'top_nav_bar' ), 0 );
-			add_action( 'admin_notices', array( '\W3TC\Cdn_' . 'TotalCdn' . '_Auto_Configure', 'admin_notices' ), 0 );
+			add_action( 'admin_notices', array( '\W3TC\Cdn_TotalCdn_Auto_Configure', 'admin_notices' ), 0 );
 		}
 
 		add_filter( 'favorite_actions', array( $this, 'favorite_actions' ) );
@@ -308,7 +308,7 @@ class Generic_Plugin_Admin {
 				$cdn_class = '\W3TC\Cdn_BunnyCdn_Page';
 				break;
 			case 'totalcdn':
-				$cdn_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Page';
+				$cdn_class = '\W3TC\Cdn_TotalCdn_Page';
 				break;
 			case 'google_drive':
 				$cdn_class = '\W3TC\Cdn_GoogleDrive_Page';
@@ -1315,7 +1315,7 @@ class Generic_Plugin_Admin {
 
 		if ( Util_Request::get_boolean( 'totalcdn' . '_auto_config_success' ) ) {
 			// Full URL to your logo.
-			$logo_url = plugins_url( 'pub/img/' . 'totalcdn' . '-logo.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
+			$logo_url = plugins_url( 'pub/img/totalcdn-logo.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
 
 			$html = sprintf(
 				'<div id="w3tc-tcdn-success" class="notice inline">

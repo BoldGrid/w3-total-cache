@@ -25,7 +25,7 @@ class Cdn_TotalCdn_Widget {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$widget_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Widget';
+		$widget_class = '\W3TC\Cdn_TotalCdn_Widget';
 		$o            = new $widget_class();
 
 		add_action( 'admin_print_styles', array( $o, 'admin_print_styles' ) );
@@ -33,7 +33,7 @@ class Cdn_TotalCdn_Widget {
 		Util_Widget::add2(
 			'w3tc_' . 'totalcdn',
 			400,
-			'<div class="w3tc-widget-' . 'totalcdn' . '-logo"></div>',
+			'<div class="w3tc-widget-totalcdn-logo"></div>',
 			array( $o, 'widget_form' ),
 			Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ),
 			'normal'
@@ -55,15 +55,15 @@ class Cdn_TotalCdn_Widget {
 		$state  = Dispatcher::config_state();
 
 		$engine             = $config->get_string( 'cdn.engine' );
-		$cdn_pullzone_id    = $config->get_integer( 'cdn.' . 'totalcdn' . '.pull_zone_id' );
-		$cdnfsd_pullzone_id = $config->get_integer( 'cdnfsd.' . 'totalcdn' . '.pull_zone_id' );
+		$cdn_pullzone_id    = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
+		$cdnfsd_pullzone_id = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
 		$authorized         = 'totalcdn' === $engine &&
 			( ! empty( $cdn_pullzone_id ) || ! empty( $cdnfsd_pullzone_id ) );
 
 		if ( $authorized ) {
-			include __DIR__ . DIRECTORY_SEPARATOR . 'Cdn_' . 'TotalCdn' . '_Widget_View_Authorized.php';
+			include __DIR__ . DIRECTORY_SEPARATOR . 'Cdn_TotalCdn_Widget_View_Authorized.php';
 		} else {
-			include __DIR__ . DIRECTORY_SEPARATOR . 'Cdn_' . 'TotalCdn' . '_Widget_View_Unauthorized.php';
+			include __DIR__ . DIRECTORY_SEPARATOR . 'Cdn_TotalCdn_Widget_View_Unauthorized.php';
 		}
 	}
 
@@ -81,8 +81,8 @@ class Cdn_TotalCdn_Widget {
 		wp_enqueue_style( 'w3tc-widget' );
 
 		wp_enqueue_style(
-			'w3tc-' . 'totalcdn' . '-widget',
-			plugins_url( 'Cdn_' . 'TotalCdn' . '_Widget_View.css', W3TC_FILE ),
+			'w3tc-totalcdn-widget',
+			plugins_url( 'Cdn_TotalCdn_Widget_View.css', W3TC_FILE ),
 			array(),
 			W3TC_VERSION
 		);

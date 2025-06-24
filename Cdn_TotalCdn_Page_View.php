@@ -14,12 +14,12 @@ namespace W3TC;
 
 defined( 'W3TC' ) || die();
 
-$account_api_key = $config->get_string( 'cdn.' . 'totalcdn' . '.account_api_key' );
-$is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.' . 'totalcdn' . '.pull_zone_id' );
-$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.' . 'totalcdn' . '.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for W3TC provided CDN.
+$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+$is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.totalcdn.pull_zone_id' );
+$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for W3TC provided CDN.
 
-$custom_hostname = $config->get_string( 'cdn.' . 'totalcdn' . '.custom_hostname' );
-$ssl_cert_loaded = $config->get_string( 'cdn.' . 'totalcdn' . '.custom_hostname_ssl_loaded' );
+$custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
+$ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded' );
 
 ?>
 <table class="form-table">
@@ -50,7 +50,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.' . 'totalcdn' . '.custom_hostname_
 	<tr>
 		<th><label><?php esc_html_e( 'Pull zone name:', 'w3-total-cache' ); ?></label></th>
 		<td class="w3tc_config_value_text">
-			<?php echo esc_html( $config->get_string( 'cdn.' . 'totalcdn' . '.name' ) ); ?>
+			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.name' ) ); ?>
 		</td>
 	</tr>
 	<tr>
@@ -78,7 +78,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.' . 'totalcdn' . '.custom_hostname_
 			</label>
 		</th>
 		<td class="w3tc_config_value_text">
-			<?php echo esc_html( $config->get_string( 'cdn.' . 'totalcdn' . '.origin_url' ) ); ?>
+			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.origin_url' ) ); ?>
 		</td>
 	</tr>
 	<tr>
@@ -106,7 +106,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.' . 'totalcdn' . '.custom_hostname_
 		</th>
 		<td class="w3tc_config_value_text">
 			<p class="description">
-			<?php echo esc_html( $config->get_string( 'cdn.' . 'totalcdn' . '.cdn_hostname' ) ); ?>
+			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.cdn_hostname' ) ); ?>
 			</p>
 		</td>
 	</tr>

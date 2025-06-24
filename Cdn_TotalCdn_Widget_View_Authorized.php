@@ -19,7 +19,7 @@ defined( 'W3TC' ) || die();
 			<p>
 			<?php
 			w3tc_e(
-				'cdn.' . 'totalcdn' . '.widget.v2.header',
+				'cdn.totalcdn.widget.v2.header',
 				\sprintf(
 					// translators: CDN Name.
 					\__( 'Your website performance is enhanced with our %1$s service.', 'w3-total-cache' ),
@@ -36,7 +36,7 @@ defined( 'W3TC' ) || die();
 			<p>
 			<?php
 			w3tc_e(
-				'cdn.' . 'totalcdn' . '.widget.v2.existing',
+				'cdn.totalcdn.widget.v2.existing',
 				\sprintf(
 					// translators: 1 HTML acronym for Content Delivery Network (CDN).
 					\__(

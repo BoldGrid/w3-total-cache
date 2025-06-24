@@ -641,12 +641,12 @@ class Cdn_AdminActions {
 	public function w3tc_cdn_update_w3tc_cdn_pullzone() {
 		$config = Dispatcher::config();
 
-		$page_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Page';
+		$page_class = '\W3TC\Cdn_TotalCdn_Page';
 		if ( ! $page_class::is_active() ) {
 			return;
 		}
 
-		$class = '\W3TC\Cdn_' . 'TotalCdn' . '_Auto_Configure';
+		$class = '\W3TC\Cdn_TotalCdn_Auto_Configure';
 
 		$class::update_pullzone();
 

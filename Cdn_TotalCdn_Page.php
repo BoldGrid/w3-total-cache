@@ -25,10 +25,10 @@ class Cdn_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$page_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Page';
+		$page_class = '\W3TC\Cdn_TotalCdn_Page';
 		$o          = new $page_class();
 
-		\add_action( 'w3tc_ajax_cdn_' . 'totalcdn' . '_purge_url', array( $o, 'w3tc_ajax_cdn_' . 'totalcdn' . '_purge_url' ) );
+		\add_action( 'w3tc_ajax_cdn_totalcdn_purge_url', array( $o, 'w3tc_ajax_cdn_totalcdn_purge_url' ) );
 	}
 
 	/**
@@ -45,11 +45,11 @@ class Cdn_TotalCdn_Page {
 		$config          = Dispatcher::config();
 		$cdn_enabled     = $config->get_boolean( 'cdn.enabled' );
 		$cdn_engine      = $config->get_string( 'cdn.engine' );
-		$cdn_zone_id     = $config->get_integer( 'cdn.' . 'totalcdn' . '.pull_zone_id' );
+		$cdn_zone_id     = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 		$cdnfsd_enabled  = $config->get_boolean( 'cdnfsd.enabled' );
 		$cdnfsd_engine   = $config->get_string( 'cdnfsd.engine' );
-		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.' . 'totalcdn' . '.pull_zone_id' );
-		$account_api_key = $config->get_string( 'cdn.' . 'totalcdn' . '.account_api_key' );
+		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 
 		return ( $account_api_key &&
 			(
@@ -106,12 +106,12 @@ class Cdn_TotalCdn_Page {
 	 */
 	public static function admin_print_scripts_w3tc_cdn() {
 		$config        = Dispatcher::config();
-		$is_authorized = ! empty( $config->get_string( 'cdn.' . 'totalcdn' . '.account_api_key' ) ) &&
-			( $config->get_string( 'cdn.' . 'totalcdn' . '.pull_zone_id' ) || $config->get_string( 'cdnfsd.' . 'totalcdn' . '.pull_zone_id' ) );
+		$is_authorized = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
+			( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
 
 		\wp_register_script(
 			'w3tc_cdn_' . 'totalcdn',
-			\plugins_url( 'Cdn_' . 'TotalCdn' . '_Page_View.js', W3TC_FILE ),
+			\plugins_url( 'Cdn_TotalCdn_Page_View.js', W3TC_FILE ),
 			array( 'jquery' ),
 			W3TC_VERSION,
 			false
@@ -147,7 +147,7 @@ class Cdn_TotalCdn_Page {
 	public static function w3tc_settings_cdn_boxarea_configuration() {
 		$config = Dispatcher::config();
 
-		include W3TC_DIR . '/Cdn_' . 'TotalCdn' . '_Page_View.php';
+		include W3TC_DIR . '/Cdn_TotalCdn_Page_View.php';
 	}
 
 	/**
@@ -163,7 +163,7 @@ class Cdn_TotalCdn_Page {
 	public static function w3tc_purge_urls_box() {
 		$config = Dispatcher::config();
 
-		include W3TC_DIR . '/Cdn_' . 'TotalCdn' . '_Page_View_Purge_Urls.php';
+		include W3TC_DIR . '/Cdn_TotalCdn_Page_View_Purge_Urls.php';
 	}
 
 	/**
@@ -193,11 +193,10 @@ class Cdn_TotalCdn_Page {
 			);
 		}
 
-		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdn.' . 'totalcdn' . '.account_api_key' );
+               $config          = Dispatcher::config();
+               $account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 
-		$api_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Api';
-		$api       = new $api_class( array( 'account_api_key' => $account_api_key ) );
+               $api       = \W3TC\Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
 
 		// Try to delete pull zone.
 		try {
@@ -221,7 +220,7 @@ class Cdn_TotalCdn_Page {
 	 * @return array The modified dashboard actions with CDN purge options.
 	 */
 	public static function total_cdn_dashboard_actions( $actions ) {
-		$page_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Page';
+		$page_class = '\W3TC\Cdn_TotalCdn_Page';
 		if ( ! $page_class::is_active() ) {
 			return $actions;
 		}

@@ -316,7 +316,7 @@ class CdnEngine_Base {
 		$config_state = Dispatcher::config_state();
 		$config       = Dispatcher::config();
 
-		if ( 'totalcdn' === $config->get( 'cdn.engine' ) && false === strpos( $config_state->get( 'cdn.' . 'totalcdn' . '.status', 'inactive.no_key' ), 'active' ) ) {
+		if ( 'totalcdn' === $config->get( 'cdn.engine' ) && false === strpos( $config_state->get( 'cdn.totalcdn.status', 'inactive.no_key' ), 'active' ) ) {
 			return false;
 		}
 

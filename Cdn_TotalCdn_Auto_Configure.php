@@ -180,7 +180,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @since x.x.x
 	 */
 	public function check_api_key() {
-		$api_key = $this->config->get( 'cdn.' . 'totalcdn' . '.account_api_key' );
+		$api_key = $this->config->get( 'cdn.totalcdn.account_api_key' );
 
 		if ( empty( $api_key ) ) {
 			return array(
@@ -193,10 +193,9 @@ class Cdn_TotalCdn_Auto_Configure {
 			);
 		}
 
-		$this->api_key = $api_key;
+               $this->api_key = $api_key;
 
-		$api_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Api';
-		$this->api = new $api_class( array( 'account_api_key' => $this->api_key ) );
+               $this->api = \W3TC\Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
 
 		try {
 			$response = $this->api->get_user();
@@ -226,9 +225,8 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @since x.x.x
 	 */
-	public function setup_pull_zone() {
-		$api_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Api';
-		$api       = new $api_class( array( 'account_api_key' => $this->api_key ) );
+       public function setup_pull_zone() {
+               $api       = \W3TC\Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
 
 		// Origin URL is the URL of the current site.
 		$origin_url = \home_url();
@@ -245,10 +243,10 @@ class Cdn_TotalCdn_Auto_Configure {
 						$name         = $pull_zone['Name'];
 						$cdn_hostname = $pull_zone['ExtCdnDomain'];
 
-						$this->config->set( 'cdn.' . 'totalcdn' . '.pull_zone_id', $pull_zone_id );
-						$this->config->set( 'cdn.' . 'totalcdn' . '.name', $name );
-						$this->config->set( 'cdn.' . 'totalcdn' . '.origin_url', $origin_url );
-						$this->config->set( 'cdn.' . 'totalcdn' . '.cdn_hostname', $cdn_hostname );
+						$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
+						$this->config->set( 'cdn.totalcdn.name', $name );
+						$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
+						$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
 						$this->config->save();
 					return array(
 						'success' => true,
@@ -294,10 +292,10 @@ class Cdn_TotalCdn_Auto_Configure {
 			$name         = $response['Name'];
 			$cdn_hostname = $response['ExtCdnDomain'];
 
-			$this->config->set( 'cdn.' . 'totalcdn' . '.pull_zone_id', $pull_zone_id );
-			$this->config->set( 'cdn.' . 'totalcdn' . '.name', $name );
-			$this->config->set( 'cdn.' . 'totalcdn' . '.origin_url', $origin_url );
-			$this->config->set( 'cdn.' . 'totalcdn' . '.cdn_hostname', $cdn_hostname );
+			$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
+			$this->config->set( 'cdn.totalcdn.name', $name );
+			$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
+			$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
 			$this->config->save();
 
 			$setup_edge_rules_result = $this->setup_edge_rules();
@@ -335,12 +333,11 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @since x.x.x
 	 */
-	public function setup_edge_rules() {
-		$api_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Api';
-		$api       = new $api_class( array( 'account_api_key' => $this->api_key ) );
+       public function setup_edge_rules() {
+               $api       = \W3TC\Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
 
 		// Get the pull zone ID.
-		$pull_zone_id = $this->config->get( 'cdn.' . 'totalcdn' . '.pull_zone_id' );
+		$pull_zone_id = $this->config->get( 'cdn.totalcdn.pull_zone_id' );
 
 		if ( empty( $pull_zone_id ) ) {
 			return array(
@@ -355,9 +352,8 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		$error_messages = array();
 
-		$api_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Api';
-		// Add Edge Rules.
-		foreach ( $api_class::get_default_edge_rules() as $edge_rule ) {
+               // Add Edge Rules.
+               foreach ( \W3TC\Cdn_TotalCdn_Api::get_default_edge_rules() as $edge_rule ) {
 			try {
 				$api->add_edge_rule( $edge_rule, $pull_zone_id );
 			} catch ( \Exception $ex ) {
@@ -419,8 +415,8 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
 		$cdn_engine  = $config->get_string( 'cdn.engine' );
-		$api_key     = $config->get_string( 'cdn.' . 'totalcdn' . '.account_api_key' );
-		$tcdn_status = $state->get_string( 'cdn.' . 'totalcdn' . '.status' );
+		$api_key     = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$tcdn_status = $state->get_string( 'cdn.totalcdn.status' );
 
                 // If CDN is not enabled or the engine is not totalcdn and the API key IS set
 		// then show a notice to the user that they need to enable the CDN.
@@ -439,7 +435,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		}
 
 		// Check if the current site url matches the pullzone.
-		$origin_url       = $config->get( 'cdn.' . 'totalcdn' . '.origin_url' );
+		$origin_url       = $config->get( 'cdn.totalcdn.origin_url' );
 		$current_site_url = \home_url();
 
 		if ( $origin_url !== $current_site_url ) {
@@ -528,11 +524,10 @@ class Cdn_TotalCdn_Auto_Configure {
 		$config = Dispatcher::config();
 
 		// Get the pull zone ID.
-		$pull_zone_id = $config->get( 'cdn.' . 'totalcdn' . '.pull_zone_id' );
+		$pull_zone_id = $config->get( 'cdn.totalcdn.pull_zone_id' );
 
-		try {
-			$api_class = '\W3TC\Cdn_' . 'TotalCdn' . '_Api';
-			$api       = new $api_class( array( 'account_api_key' => $config->get( 'cdn.' . 'totalcdn' . '.account_api_key' ) ) );
+               try {
+                       $api       = \W3TC\Cdn_TotalCdn_Api( array( 'account_api_key' => $config->get( 'cdn.totalcdn.account_api_key' ) ) );
 			$api->update_pull_zone(
 				$pull_zone_id,
 				array(
@@ -540,8 +535,8 @@ class Cdn_TotalCdn_Auto_Configure {
 					'OriginHostHeader' => \wp_parse_url( \home_url(), PHP_URL_HOST ),
 				)
 			);
-			$config->set( 'cdn.' . 'totalcdn' . '.origin_url', \home_url() );
-			$config->set( 'cdn.' . 'totalcdn' . '.cdn_hostname', \wp_parse_url( \home_url(), PHP_URL_HOST ) );
+			$config->set( 'cdn.totalcdn.origin_url', \home_url() );
+			$config->set( 'cdn.totalcdn.cdn_hostname', \wp_parse_url( \home_url(), PHP_URL_HOST ) );
 			$config->save();
 			return true;
 		} catch ( \Exception $ex ) {
