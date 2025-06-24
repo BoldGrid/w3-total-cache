@@ -27,7 +27,7 @@ namespace W3TC;
 defined( 'W3TC' ) || die();
 
 ?>
-<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form" method="post">
+<form class="w3tc_cdn_totalcdn_form" method="post">
 	<input type="hidden" name="pull_zone_id" value="<?php echo esc_attr( $details['pull_zone_id'] ?? '' ); ?>"/>
 	<input type="hidden" name="cdn_hostname" value="<?php echo esc_attr( $details['cdn_hostname'] ?? '' ); ?>"/>
 	<input type="hidden" name="custom_hostnames" />
@@ -120,7 +120,7 @@ defined( 'W3TC' ) || die();
 
 		<p class="submit">
 			<input type="button"
-				class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_configure_pull_zone w3tc-button-save button-primary"
+				class="w3tc_cdn_totalcdn_configure_pull_zone w3tc-button-save button-primary"
 				value="<?php esc_attr_e( 'Apply', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>

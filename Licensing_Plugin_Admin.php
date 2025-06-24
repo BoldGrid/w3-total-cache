@@ -475,7 +475,7 @@ class Licensing_Plugin_Admin {
 		}
 
 		$cdn_message = '';
-		$cdn_status  = $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' );
+		$cdn_status  = $state->get_string( 'cdn.totalcdn.status' );
 		switch ( true ) {
 			case $this->_status_is( $cdn_status, 'active.dunning' ):
 				$license_key = $this->get_license_key();
@@ -685,18 +685,18 @@ class Licensing_Plugin_Admin {
 				}
 
 				$cdn_api_key = isset( $license->cdn_api_key ) ? $license->cdn_api_key : '';
-				$this->_config->set( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key', $cdn_api_key );
+				$this->_config->set( 'cdn.totalcdn.account_api_key', $cdn_api_key );
 
 				$cdn_account_id = isset( $license->cdn_account_id ) ? $license->cdn_account_id : '';
-				$this->_config->set( 'cdn.' . W3TC_CDN_SLUG . '.account_id', $cdn_account_id );
+				$this->_config->set( 'cdn.totalcdn.account_id', $cdn_account_id );
 
 				$this->_config->save();
 
 				$cdn_terms = isset( $license->cdn_terms ) ? $license->cdn_terms : '';
-				$state->set( 'cdn.' . W3TC_CDN_SLUG . '.terms', $cdn_terms );
+				$state->set( 'cdn.totalcdn.terms', $cdn_terms );
 
 				$cdn_status = isset( $license->cdn_status ) ? $license->cdn_status : '';
-				$state->set( 'cdn.' . W3TC_CDN_SLUG . '.status', $cdn_status );
+				$state->set( 'cdn.totalcdn.status', $cdn_status );
 
 				// Manually set the cdn status for testing purposes.
 				$state->set( 'cdn.totalcdn.status', 'active.dunning' );

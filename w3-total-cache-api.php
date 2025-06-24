@@ -187,16 +187,6 @@ if ( ! defined( 'W3TC_CDN_API_URL' ) ) {
 	define( 'W3TC_CDN_API_URL', 'https://cdn-api-dev.boldgrid.com/api/v1' );
 }
 
-// The slug is used to identify the CDN throughout the codebase.
-if ( ! defined( 'W3TC_CDN_SLUG' ) ) {
-	define( 'W3TC_CDN_SLUG', 'totalcdn' );
-}
-
-// This is the class name used to refer to various classes such as Cdn_TotalCdn_Api
-// where TotalCdn is the CDN class name.
-if ( ! defined( 'W3TC_CDN_CLASS' ) ) {
-	define( 'W3TC_CDN_CLASS', 'TotalCdn' );
-}
 
 // This is the name of the CDN as it will be displayed in the admin interface.
 if ( ! defined( 'W3TC_CDN_NAME' ) ) {

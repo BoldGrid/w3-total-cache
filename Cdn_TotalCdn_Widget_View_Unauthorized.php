@@ -13,7 +13,7 @@ defined( 'W3TC' ) || die();
 
 ?>
 
-<div id="<?php echo esc_attr( W3TC_CDN_SLUG ); ?>-widget" class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_signup">
+<div id="totalcdn-widget" class="w3tc_totalcdn_signup">
 	<?php
 	$cdn_engine  = $config->get_string( 'cdn.engine' );
 	$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
@@ -27,13 +27,13 @@ defined( 'W3TC' ) || die();
 	$is_w3tc_cdn_incomplete = (
 		(
 			$cdn_enabled &&
-			W3TC_CDN_SLUG === $cdn_engine &&
-			empty( $config->get_integer( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' ) )
+			'totalcdn' === $cdn_engine &&
+			empty( $config->get_integer( 'cdn.totalcdn.pull_zone_id' ) )
 		) ||
 		(
 			$cdnfsd_enabled &&
-			W3TC_CDN_SLUG === $cdnfsd_engine &&
-			empty( $config->get_integer( 'cdnfsd.' . W3TC_CDN_SLUG . '.pull_zone_id' ) )
+			'totalcdn' === $cdnfsd_engine &&
+			empty( $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' ) )
 		)
 	);
 
@@ -42,12 +42,12 @@ defined( 'W3TC' ) || die();
 		(
 			$cdn_enabled &&
 			! empty( $cdn_engine ) &&
-			W3TC_CDN_SLUG !== $cdn_engine
+			'totalcdn' !== $cdn_engine
 		) ||
 		(
 			$cdnfsd_enabled &&
 			! empty( $cdnfsd_engine ) &&
-			W3TC_CDN_SLUG !== $cdnfsd_engine
+			'totalcdn' !== $cdnfsd_engine
 		)
 	);
 
@@ -123,7 +123,7 @@ defined( 'W3TC' ) || die();
 			?>
 		</p>
 		<?php
-	} elseif ( ! $cdn_enabled && ! $cdnfsd_enabled && ! empty( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) ) {
+	} elseif ( ! $cdn_enabled && ! $cdnfsd_enabled && ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) {
 		// W3TC provided CDN is purchased and available but no CDN enabled.
 		?>
 		<p class="notice notice-error">
@@ -170,14 +170,14 @@ defined( 'W3TC' ) || die();
 	}
 
 	if (
-		( ! $cdn_enabled && empty( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) ) ) ||
-		in_array( $state->get_string( 'cdn.' . W3TC_CDN_SLUG . '.status' ), array( 'canceled', 'inactive.expired' ), true )
+		( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
+		in_array( $state->get_string( 'cdn.totalcdn.status' ), array( 'canceled', 'inactive.expired' ), true )
 	) {
 		?>
 		<p>
 			<?php
 			w3tc_e(
-				'cdn.' . W3TC_CDN_SLUG . '.widget.v2.header',
+				'cdn.totalcdn.widget.v2.header',
 				\sprintf(
 					// translators: 1 HTML acronym for Content Delivery Network (CDN).
 					\__( 'Enhance your website performance by adding our Total %1$s service to your site.', 'w3-total-cache' ),
@@ -187,12 +187,12 @@ defined( 'W3TC' ) || die();
 			?>
 		</p>
 
-		<h4 class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_signup_h4"><?php \esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
+		<h4 class="w3tc_totalcdn_signup_h4"><?php \esc_html_e( 'New customer? Sign up now to speed up your site!', 'w3-total-cache' ); ?></h4>
 
 		<p>
 			<?php
 				w3tc_e(
-					'cdn.' . W3TC_CDN_SLUG . '.widget.v2.works_magically',
+					'cdn.totalcdn.widget.v2.works_magically',
 					sprintf(
 						// translators: 1: CDN name.
 						\__( '%1$s works magically with W3 Total Cache to speed up your site around the world for as little as $1 per month.', 'w3-total-cache' ),
@@ -206,12 +206,12 @@ defined( 'W3TC' ) || die();
 		<?php
 	}
 	?>
-	<h4 class="w3tc_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
+	<h4 class="w3tc_totalcdn_signup_h4"><?php esc_html_e( 'Current customers', 'w3-total-cache' ); ?></h4>
 
 	<p>
 		<?php
 		w3tc_e(
-			'cdn.' . W3TC_CDN_SLUG . '.widget.v2.existing',
+			'cdn.totalcdn.widget.v2.existing',
 			\sprintf(
 				// translators: 1 HTML acronym for Content Delivery Network (CDN), 2: CDN name.
 				\__(

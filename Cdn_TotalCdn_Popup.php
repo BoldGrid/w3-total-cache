@@ -26,52 +26,51 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$popup_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Popup';
-		$o           = new $popup_class();
+		$o = new Cdn_TotalCdn_Popup();
 
 		\add_action(
-			'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_intro',
-			array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_intro' )
+			'w3tc_ajax_cdn_totalcdn_intro',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_intro' )
 		);
 
 		\add_action(
-			'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_list_pull_zones',
-			array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_list_pull_zones' )
+			'w3tc_ajax_cdn_totalcdn_list_pull_zones',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_list_pull_zones' )
 		);
 
 		\add_action(
-			'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_configure_pull_zone',
-			array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_configure_pull_zone' )
+			'w3tc_ajax_cdn_totalcdn_configure_pull_zone',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_configure_pull_zone' )
 		);
 
 		\add_action(
-			'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_deauthorization',
-			array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_deauthorization' )
+			'w3tc_ajax_cdn_totalcdn_deauthorization',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_deauthorization' )
 		);
 
 		\add_action(
-			'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_deauthorize',
-			array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_deauthorize' )
+			'w3tc_ajax_cdn_totalcdn_deauthorize',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_deauthorize' )
 		);
 
 		\add_action(
-			'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_add_custom_hostname',
-			array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_add_custom_hostname' )
+			'w3tc_ajax_cdn_totalcdn_add_custom_hostname',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_add_custom_hostname' )
 		);
 
 		\add_action(
-			'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_save_custom_hostname',
-			array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_save_custom_hostname' )
+			'w3tc_ajax_cdn_totalcdn_save_custom_hostname',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_save_custom_hostname' )
 		);
 
 		\add_action(
-			'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_validate_dns',
-			array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_validate_dns' )
+			'w3tc_ajax_cdn_totalcdn_validate_dns',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_validate_dns' )
 		);
 
 		\add_action(
-			'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_generate_and_save_ssl',
-			array( $o, 'w3tc_ajax_cdn_' . W3TC_CDN_SLUG . '_generate_and_save_ssl' )
+			'w3tc_ajax_cdn_totalcdn_generate_and_save_ssl',
+			array( $o, 'w3tc_ajax_cdn_totalcdn_generate_and_save_ssl' )
 		);
 	}
 
@@ -88,7 +87,7 @@ class Cdn_TotalCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_intro() {
 		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 
 		// Ask for an account API key.
 		$this->render_intro(
@@ -104,8 +103,8 @@ class Cdn_TotalCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_validate_dns() {
 		$config              = Dispatcher::config();
-		$cdn_hostname        = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname' );
-		$custom_hostname     = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostname' );
+		$cdn_hostname        = $config->get_string( 'cdn.totalcdn.cdn_hostname' );
+		$custom_hostname     = $config->get_string( 'cdn.totalcdn.custom_hostname' );
 		$custom_hostname_dns = dns_get_record( $custom_hostname, DNS_CNAME );
 
 		if ( false === $custom_hostname_dns || empty( $custom_hostname_dns ) ) {
@@ -118,8 +117,8 @@ class Cdn_TotalCdn_Popup {
 				'<strong>' . \esc_html( $custom_hostname ) . '</strong>',
 				'<strong>' . \esc_html( $cdn_hostname ) . '</strong>'
 			);
-			$button_class = 'w3tc_cdn_' . W3TC_CDN_SLUG . '_done';
-			include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Generate_SSL.php';
+			$button_class = 'w3tc_cdn_totalcdn_done';
+			include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
 			\wp_die();
 		}
 
@@ -133,8 +132,8 @@ class Cdn_TotalCdn_Popup {
 				'<strong>' . \esc_html( $custom_hostname ) . '</strong>',
 				'<strong>' . \esc_html( $cdn_hostname ) . '</strong>'
 			);
-			$button_class = 'w3tc_cdn_' . W3TC_CDN_SLUG . '_done';
-			include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Generate_SSL.php';
+			$button_class = 'w3tc_cdn_totalcdn_done';
+			include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
 			\wp_die();
 		}
 
@@ -142,8 +141,8 @@ class Cdn_TotalCdn_Popup {
 			'CNAME DNS configuration Confirmed. It may take a minute or two to generate after clicking the "OK" button.',
 			'w3-total-cache'
 		);
-		$button_class = 'w3tc_cdn_' . W3TC_CDN_SLUG . '_generate_and_save_ssl';
-		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Generate_SSL.php';
+		$button_class = 'w3tc_cdn_totalcdn_generate_and_save_ssl';
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
 		\wp_die();
 	}
 
@@ -156,11 +155,10 @@ class Cdn_TotalCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_generate_and_save_ssl() {
 		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
-		$pull_zone_id    = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' );
-		$custom_hostname = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostname' );
-		$api_class       = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
-		$api             = new $api_class(
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$pull_zone_id    = $config->get_string( 'cdn.totalcdn.pull_zone_id' );
+		$custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
+		$api             = \W3TC\Cdn_TotalCdn_Api(
 			array(
 				'account_api_key' => $account_api_key,
 				'pull_zone_id'    => $pull_zone_id,
@@ -174,12 +172,12 @@ class Cdn_TotalCdn_Popup {
 				'Failed to generate SSL certificate. Please try again later.',
 				'w3-total-cache'
 			);
-			$button_class = 'w3tc_cdn_' . W3TC_CDN_SLUG . '_done';
-			include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Generate_SSL.php';
+			$button_class = 'w3tc_cdn_totalcdn_done';
+			include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
 			\wp_die();
 		}
 
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostname_ssl_loaded', true );
+		$config->set( 'cdn.totalcdn.custom_hostname_ssl_loaded', true );
 		$config->save();
 
 		$message = \esc_html__(
@@ -187,9 +185,9 @@ class Cdn_TotalCdn_Popup {
 			'w3-total-cache'
 		);
 
-		$button_class = 'w3tc_cdn_' . W3TC_CDN_SLUG . '_done';
+		$button_class = 'w3tc_cdn_totalcdn_done';
 
-		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Generate_SSL.php';
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Generate_SSL.php';
 		\wp_die();
 	}
 
@@ -200,8 +198,8 @@ class Cdn_TotalCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_add_custom_hostname() {
 		$config       = Dispatcher::config();
-		$cdn_hostname = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname' );
-		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Add_Custom_Hostname.php';
+		$cdn_hostname = $config->get_string( 'cdn.totalcdn.cdn_hostname' );
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Add_Custom_Hostname.php';
 		\wp_die();
 	}
 
@@ -227,11 +225,10 @@ class Cdn_TotalCdn_Popup {
 		}
 
 		$config          = Dispatcher::config();
-		$account_api_key = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
-		$pull_zone_id    = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' );
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$pull_zone_id    = $config->get_string( 'cdn.totalcdn.pull_zone_id' );
 
-		$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
-		$api       = new $api_class(
+		$api = new Cdn_TotalCdn_Api(
 			array(
 				'account_api_key' => $account_api_key,
 				'pull_zone_id'    => $pull_zone_id,
@@ -245,7 +242,7 @@ class Cdn_TotalCdn_Popup {
 		}
 
 		// Save the custom hostname.
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostname', $hostname );
+		$config->set( 'cdn.totalcdn.custom_hostname', $hostname );
 		$config->save();
 
 		\wp_send_json_success();
@@ -264,8 +261,7 @@ class Cdn_TotalCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_list_pull_zones() {
 		$account_api_key = Util_Request::get_string( 'account_api_key' );
-		$api_class       = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
-		$api             = new $api_class( array( 'account_api_key' => $account_api_key ) );
+		$api             = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
 
 		// Try to retrieve pull zones.
 		try {
@@ -283,8 +279,8 @@ class Cdn_TotalCdn_Popup {
 		// Save the account API key, if added or changed.
 		$config = Dispatcher::config();
 
-		if ( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' ) !== $account_api_key ) {
-			$config->set( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key', $account_api_key );
+		if ( $config->get_string( 'cdn.totalcdn.account_api_key' ) !== $account_api_key ) {
+			$config->set( 'cdn.totalcdn.account_api_key', $account_api_key );
 			$config->save();
 		}
 
@@ -296,7 +292,7 @@ class Cdn_TotalCdn_Popup {
 			'pull_zones'           => $pull_zones,
 			'suggested_origin_url' => \home_url(), // Suggested origin URL or IP.
 			'suggested_zone_name'  => \substr( \str_replace( '.', '-', \wp_parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
-			'pull_zone_id'         => $config->get_integer( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' ),
+			'pull_zone_id'         => $config->get_integer( 'cdn.totalcdn.pull_zone_id' ),
 		);
 
 		foreach ( $details['pull_zones'] as $key => $pull_zone ) {
@@ -306,7 +302,7 @@ class Cdn_TotalCdn_Popup {
 			}
 		}
 
-		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Pull_Zones.php';
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Pull_Zones.php';
 		\wp_die();
 	}
 
@@ -319,13 +315,13 @@ class Cdn_TotalCdn_Popup {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @see Cdn_{W3TC_CDN_CLASS}_Api::get_default_edge_rules()
+	 * @see Cdn_TotalCdn_Api::get_default_edge_rules()
 	 *
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_configure_pull_zone() {
 		$config           = Dispatcher::config();
-		$account_api_key  = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
+		$account_api_key  = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$pull_zone_id     = Util_Request::get_integer( 'pull_zone_id' );
 		$origin_url       = Util_Request::get_string( 'origin_url' ); // Origin URL or IP.
 		$name             = Util_Request::get_string( 'name' ); // Pull zone name.
@@ -335,8 +331,7 @@ class Cdn_TotalCdn_Popup {
 
 		// If not selecting a pull zone. then create a new one.
 		if ( empty( $pull_zone_id ) ) {
-			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
-			$api       = new $api_class( array( 'account_api_key' => $account_api_key ) );
+			$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
 
 			// Try to create a new pull zone.
 			try {
@@ -372,8 +367,7 @@ class Cdn_TotalCdn_Popup {
 			$error_messages = array();
 
 			// Add Edge Rules.
-			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
-			foreach ( $api_class::get_default_edge_rules() as $edge_rule ) {
+			foreach ( Cdn_TotalCdn_Api::get_default_edge_rules() as $edge_rule ) {
 				try {
 					$api->add_edge_rule( $edge_rule, $pull_zone_id );
 				} catch ( \Exception $ex ) {
@@ -390,15 +384,15 @@ class Cdn_TotalCdn_Popup {
 		}
 
 		// Save configuration.
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id', $pull_zone_id );
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.name', $name );
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.origin_url', $origin_url );
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname', $cdn_hostname );
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostnames', $custom_hostnames );
+		$config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
+		$config->set( 'cdn.totalcdn.name', $name );
+		$config->set( 'cdn.totalcdn.origin_url', $origin_url );
+		$config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
+		$config->set( 'cdn.totalcdn.custom_hostnames', $custom_hostnames );
 		$config->save();
 
 		// Print success view.
-		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Configured.php';
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Configured.php';
 		\wp_die();
 	}
 
@@ -414,14 +408,14 @@ class Cdn_TotalCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_deauthorization() {
 		$config              = Dispatcher::config();
-		$origin_url          = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.origin_url' ); // Origin URL or IP.
-		$name                = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.name' ); // Pull zone name.
-		$cdn_hostname        = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname' ); // Pull zone CDN hostname.
-		$cdn_pull_zone_id    = $config->get_integer( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' ); // CDN pull zone id.
-		$cdnfsd_pull_zone_id = $config->get_integer( 'cdnfsd.' . W3TC_CDN_SLUG . '.pull_zone_id' ); // CDN FSD pull zone id.
+		$origin_url          = $config->get_string( 'cdn.totalcdn.origin_url' ); // Origin URL or IP.
+		$name                = $config->get_string( 'cdn.totalcdn.name' ); // Pull zone name.
+		$cdn_hostname        = $config->get_string( 'cdn.totalcdn.cdn_hostname' ); // Pull zone CDN hostname.
+		$cdn_pull_zone_id    = $config->get_integer( 'cdn.totalcdn.pull_zone_id' ); // CDN pull zone id.
+		$cdnfsd_pull_zone_id = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN FSD pull zone id.
 
 		// Present details and ask to deauthorize and optionally delete the pull zone.
-		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Deauthorize.php';
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Deauthorize.php';
 		\wp_die();
 	}
 
@@ -437,15 +431,14 @@ class Cdn_TotalCdn_Popup {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_deauthorize() {
 		$config              = Dispatcher::config();
-		$account_api_key     = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
-		$cdn_pull_zone_id    = $config->get_integer( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' ); // CDN pull zone id.
-		$cdnfsd_pull_zone_id = $config->get_integer( 'cdnfsd.' . W3TC_CDN_SLUG . '.pull_zone_id' ); // CDN FSD pull zone id.
+		$account_api_key     = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$cdn_pull_zone_id    = $config->get_integer( 'cdn.totalcdn.pull_zone_id' ); // CDN pull zone id.
+		$cdnfsd_pull_zone_id = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN FSD pull zone id.
 		$delete_pull_zone    = Util_Request::get_string( 'delete_pull_zone' );
 
 		// Delete pull zone, if requested.
 		if ( 'yes' === $delete_pull_zone ) {
-			$api_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Api';
-			$api       = new $api_class( array( 'account_api_key' => $account_api_key ) );
+			$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
 
 			// Try to delete pull zone.
 			try {
@@ -456,23 +449,23 @@ class Cdn_TotalCdn_Popup {
 
 			// If the same pull zone is used for FSD, then deauthorize that too.
 			if ( ! empty( $cdn_pull_zone_id ) && $cdn_pull_zone_id === $cdnfsd_pull_zone_id ) {
-				$config->set( 'cdnfsd.' . W3TC_CDN_SLUG . '.pull_zone_id', null );
-				$config->set( 'cdnfsd.' . W3TC_CDN_SLUG . '.name', null );
-				$config->set( 'cdnfsd.' . W3TC_CDN_SLUG . '.origin_url', null );
-				$config->set( 'cdnfsd.' . W3TC_CDN_SLUG . '.cdn_hostname', null );
+				$config->set( 'cdnfsd.totalcdn.pull_zone_id', null );
+				$config->set( 'cdnfsd.totalcdn.name', null );
+				$config->set( 'cdnfsd.totalcdn.origin_url', null );
+				$config->set( 'cdnfsd.totalcdn.cdn_hostname', null );
 			}
 		}
 
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id', null );
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.name', null );
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.origin_url', null );
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname', null );
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostname', null );
-		$config->set( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostname_ssl_loaded', null );
+		$config->set( 'cdn.totalcdn.pull_zone_id', null );
+		$config->set( 'cdn.totalcdn.name', null );
+		$config->set( 'cdn.totalcdn.origin_url', null );
+		$config->set( 'cdn.totalcdn.cdn_hostname', null );
+		$config->set( 'cdn.totalcdn.custom_hostname', null );
+		$config->set( 'cdn.totalcdn.custom_hostname_ssl_loaded', null );
 		$config->save();
 
 		// Print success view.
-		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Deauthorized.php';
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Deauthorized.php';
 		\wp_die();
 	}
 
@@ -489,7 +482,7 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	private function render_intro( array $details ) {
-		include W3TC_DIR . '/Cdn_' . W3TC_CDN_CLASS . '_Popup_View_Intro.php';
+		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Intro.php';
 		\wp_die();
 	}
 }

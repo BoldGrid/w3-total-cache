@@ -18,7 +18,7 @@ defined( 'W3TC' ) || die();
 		<?php echo $error_messages; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 	</div>
 <?php endif; ?>
-<form class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_form">
+<form class="w3tc_cdn_totalcdn_form">
 	<div class="metabox-holder">
 		<?php Util_Ui::postbox_header( esc_html__( 'Add a Custom Hostname', 'w3-total-cache' ) ); ?>
 			<table class="form-table">
@@ -42,7 +42,7 @@ defined( 'W3TC' ) || die();
 			</table>
 			<p class="submit">
 			<input type="button"
-				class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_save_custom_hostname w3tc-button-save button-primary"
+				class="w3tc_cdn_totalcdn_save_custom_hostname w3tc-button-save button-primary"
 				value="<?php esc_attr_e( 'Save Custom Hostname', 'w3-total-cache' ); ?>" />
 			</p>
 		<?php Util_Ui::postbox_footer(); ?>

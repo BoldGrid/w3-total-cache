@@ -480,7 +480,7 @@ class Cdn_AdminActions {
 				'rackspace_cdn' === $engine ||
 				'rscf' === $engine ||
 				'bunnycdn' === $engine ||
-				W3TC_CDN_SLUG === $engine ||
+				'totalcdn' === $engine ||
 				's3_compatible' === $engine
 			) {
 				// those use already stored w3tc config.
@@ -641,16 +641,11 @@ class Cdn_AdminActions {
 	public function w3tc_cdn_update_w3tc_cdn_pullzone() {
 		$config = Dispatcher::config();
 
-		$page_class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Page';
-		if ( ! $page_class::is_active() ) {
+		if ( ! Cdn_TotalCdn_Page::is_active() ) {
 			return;
 		}
 
-		$class = '\W3TC\Cdn_' . W3TC_CDN_CLASS . '_Auto_Configure';
-
-		$class::update_pullzone();
-
-		if ( $class::update_pullzone() ) {
+		if ( Cdn_TotalCdn_Auto_Configure::update_pullzone() ) {
 			Util_Admin::redirect( array( 'w3tc_note' => 'updated_pullzone_url' ), true );
 		} else {
 			Util_Admin::redirect( array( 'w3tc_error' => 'updated_pullzone_url' ), true );
