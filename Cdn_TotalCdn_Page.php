@@ -219,8 +219,7 @@ class Cdn_TotalCdn_Page {
 	 * @return array The modified dashboard actions with CDN purge options.
 	 */
 	public static function total_cdn_dashboard_actions( $actions ) {
-		$page_class = '\W3TC\Cdn_TotalCdn_Page';
-		if ( ! $page_class::is_active() ) {
+		if ( ! self::is_active() ) {
 			return $actions;
 		}
 		$modules            = Dispatcher::component( 'ModuleStatus' );

@@ -158,7 +158,7 @@ class Cdn_TotalCdn_Popup {
 		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$pull_zone_id    = $config->get_string( 'cdn.totalcdn.pull_zone_id' );
 		$custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
-		$api             = \W3TC\Cdn_TotalCdn_Api(
+		$api             = new Cdn_TotalCdn_Api(
 			array(
 				'account_api_key' => $account_api_key,
 				'pull_zone_id'    => $pull_zone_id,

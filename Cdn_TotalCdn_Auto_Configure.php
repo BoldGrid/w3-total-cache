@@ -221,7 +221,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Setup the pull zone.
 	 *
-	 * Creates a pull zone using the API.
+	 * Creates a pull zone using the Total CDN API.
 	 *
 	 * @since x.x.x
 	 */
@@ -418,7 +418,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		$api_key     = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$tcdn_status = $state->get_string( 'cdn.totalcdn.status' );
 
-		// If CDN is not enabled or the engine is not totalcdn and the API key IS set
+		// If CDN is not enabled or the engine is not Total CDN and the API key IS set
 		// then show a notice to the user that they need to enable the CDN.
 
 		if ( self::maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) ) {

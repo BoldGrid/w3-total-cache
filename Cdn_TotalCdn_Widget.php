@@ -15,9 +15,9 @@ namespace W3TC;
  */
 class Cdn_TotalCdn_Widget {
 	/**
-	 * Initializes the W3TC W3TC provided CDN widget in the admin dashboard.
+	 * Initializes the W3TC Total CDN widget in the admin dashboard.
 	 *
-	 * This method adds the necessary actions to initialize the W3TC provided CDN widget on the W3TC dashboard. It creates an instance
+	 * This method adds the necessary actions to initialize the Total CDN widget on the W3TC dashboard. It creates an instance
 	 * of the widget class, registers the required styles, and hooks the widget form display to the proper location on the admin page.
 	 *
 	 * @since X.X.X
@@ -40,9 +40,9 @@ class Cdn_TotalCdn_Widget {
 	}
 
 	/**
-	 * Displays the widget form for W3TC provided CDN configuration.
+	 * Displays the widget form for Total CDN configuration.
 	 *
-	 * This method checks whether the user is authorized to view the W3TC provided CDN widget. If authorized, it includes a view that
+	 * This method checks whether the user is authorized to view the Total CDN widget. If authorized, it includes a view that
 	 * shows the authorized settings. If the user is not authorized, a view indicating that they are unauthorized will be shown.
 	 *
 	 * @since X.X.X
@@ -67,9 +67,9 @@ class Cdn_TotalCdn_Widget {
 	}
 
 	/**
-	 * Enqueues the styles for the W3TC provided CDN widget in the admin area.
+	 * Enqueues the styles for the Total CDN widget in the admin area.
 	 *
-	 * This method enqueues the required CSS files for the W3TC provided CDN widget in the WordPress admin area. It ensures that the
+	 * This method enqueues the required CSS files for the Total CDN widget in the WordPress admin area. It ensures that the
 	 * widget's styles are applied correctly on the dashboard page.
 	 *
 	 * @since X.X.X

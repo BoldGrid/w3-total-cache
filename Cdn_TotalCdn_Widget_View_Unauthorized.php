@@ -23,7 +23,7 @@ defined( 'W3TC' ) || die();
 	$cdnfsd_enabled = $config->get_boolean( 'cdnfsd.enabled' );
 	$cdnfsd_name    = Cache::engine_name( $cdnfsd_engine );
 
-	// Check if W3TC provided CDN is selected but not fully configured.
+	// Check if Total CDN is selected but not fully configured.
 	$is_w3tc_cdn_incomplete = (
 		(
 			$cdn_enabled &&
@@ -37,7 +37,7 @@ defined( 'W3TC' ) || die();
 		)
 	);
 
-	// Check if a non-W3TC provided CDN is configured.
+	// Check if a non-Total CDN is configured.
 	$is_other_cdn_configured = (
 		(
 			$cdn_enabled &&
@@ -52,7 +52,7 @@ defined( 'W3TC' ) || die();
 	);
 
 	if ( $is_w3tc_cdn_incomplete ) {
-		// W3TC provided CDN selected but not fully configured.
+		// Total CDN selected but not fully configured.
 		?>
 		<p class="notice notice-error">
 			<?php
@@ -74,7 +74,7 @@ defined( 'W3TC' ) || die();
 		</p>
 		<?php
 	} elseif ( $is_other_cdn_configured ) {
-		// A CDN is configured but it is not W3TC provided CDN.
+		// A CDN is configured but it is not Total CDN.
 		?>
 		<p class="notice notice-error">
 			<?php
@@ -124,7 +124,7 @@ defined( 'W3TC' ) || die();
 		</p>
 		<?php
 	} elseif ( ! $cdn_enabled && ! $cdnfsd_enabled && ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) {
-		// W3TC provided CDN is purchased and available but no CDN enabled.
+		// Total CDN is purchased and available but no CDN enabled.
 		?>
 		<p class="notice notice-error">
 			<?php

@@ -108,7 +108,7 @@ class Generic_AdminActions_Default {
 	}
 
 	/**
-	 * Saves the provided W3TC provided CDN API key to the configuration.
+	 * Saves the provided Total CDN API key to the configuration.
 	 *
 	 * @return void
 	 *
@@ -126,9 +126,9 @@ class Generic_AdminActions_Default {
 			$this->_config->set( 'cdn.totalcdn.account_id', $account_id );
 			$this->_config->save();
 
-			// This applies a valid license state for the W3TC provided CDN license.
+			// This applies a valid license state for the Total CDN license.
 			$config_state = Dispatcher::config_state();
-			$config_state->set( 'totalcdn' . '.status', 'active.by_rooturi' );
+			$config_state->set( 'totalcdn.status', 'active.by_rooturi' );
 			$config_state->save();
 
 			Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(
