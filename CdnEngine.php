@@ -95,10 +95,6 @@ class CdnEngine {
 					$instances[ $instance_key ] = new CdnEngine_S3_Compatible( $config );
 					break;
 
-				case 'totalcdn':
-					$instances[ $instance_key ] = new CdnEngine_Mirror_TotalCdn( $config );
-					break;
-
 				default:
 					empty( $engine ) || trigger_error( 'Incorrect CDN engine', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 

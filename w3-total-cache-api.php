@@ -40,6 +40,12 @@ define( 'W3TC_PARTNER_CONVESIO', 'https://api.w3-edge.com/v1/redirects/partners/
 define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners/dreamhost' );
 define( 'W3TC_BOLDGRID_FORUM_API', 'https://www.boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=' );
 
+// Recurly.
+if ( ! defined( 'W3L_RECURLY_SUBDOMAIN' ) ) {
+	define( 'W3L_RECURLY_SUBDOMAIN', 'w3edge' );
+}
+define( 'W3L_RECURLY_FULL', 'https://' . W3L_RECURLY_SUBDOMAIN . '.recurly.com' );
+
 // Total CDN API endpoint.
 if ( ! defined( 'W3TC_TCDN_API' ) ) {
 	define( 'W3TC_TCDN_API', 'https://cdn-api-dev.boldgrid.com/api/v1');
@@ -176,6 +182,17 @@ if ( ! defined( 'W3TC_WP_JSON_URI' ) ) {
 }
 if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 	define( 'W3TC_FEED_REGEXP', '~/feed(/|$)~' );
+}
+
+// API URL used for CDN requests.
+if ( ! defined( 'W3TC_CDN_API_URL' ) ) {
+	define( 'W3TC_CDN_API_URL', 'https://cdn-api-dev.boldgrid.com/api/v1' );
+}
+
+
+// This is the name of the CDN as it will be displayed in the admin interface.
+if ( ! defined( 'W3TC_CDN_NAME' ) ) {
+	define( 'W3TC_CDN_NAME', 'Total CDN' );
 }
 
 @ini_set( 'pcre.backtrack_limit', 4194304 );
