@@ -385,7 +385,7 @@ class Licensing_Plugin_Admin {
 				);
 				break;
 
-			case ( 'no_key' === $license_status || $this->_status_is( $license_status, 'active' ) || $this->_status_is( $license_status, 'free' ) ):
+			case ( 'no_key' === $license_status || $this->_status_is( $license_status, 'active' ) || $this->_status_is( $license_status, 'free' ) || $this->_status_is( $license_status, 'canceled' ) ):
 				// License is active, do nothing.
 				break;
 
