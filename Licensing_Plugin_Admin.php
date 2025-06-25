@@ -698,9 +698,6 @@ class Licensing_Plugin_Admin {
 				$cdn_status = isset( $license->cdn_status ) ? $license->cdn_status : '';
 				$state->set( 'cdn.totalcdn.status', $cdn_status );
 
-				// Manually set the cdn status for testing purposes.
-				$state->set( 'cdn.totalcdn.status', 'active.dunning' );
-
 				$state->save();
 			}
 
