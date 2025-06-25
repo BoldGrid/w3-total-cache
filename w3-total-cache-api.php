@@ -41,7 +41,9 @@ define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners
 define( 'W3TC_BOLDGRID_FORUM_API', 'https://www.boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=' );
 
 // Recurly.
-define( 'W3L_RECURLY_SUBDOMAIN', 'w3edge' );
+if ( ! defined( 'W3L_RECURLY_SUBDOMAIN' ) ) {
+	define( 'W3L_RECURLY_SUBDOMAIN', 'w3edge' );
+}
 define( 'W3L_RECURLY_FULL', 'https://' . W3L_RECURLY_SUBDOMAIN . '.recurly.com' );
 
 // Total CDN API endpoint.
