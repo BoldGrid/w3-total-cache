@@ -2,7 +2,7 @@
 /**
  * File: Cdn_TotalCdn_Page_View.php
  *
- * W3TC provided CDN settings page section view.
+ * Total CDN settings page section view.
  *
  * @since   2.6.0
  * @package W3TC
@@ -14,12 +14,12 @@ namespace W3TC;
 
 defined( 'W3TC' ) || die();
 
-$account_api_key = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.account_api_key' );
-$is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.pull_zone_id' );
-$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.' . W3TC_CDN_SLUG . '.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for W3TC provided CDN.
+$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+$is_authorized   = ! empty( $account_api_key ) && $config->get_string( 'cdn.totalcdn.pull_zone_id' );
+$is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN is unavailable if CDN FSD is authorized for Total CDN.
 
-$custom_hostname = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostname' );
-$ssl_cert_loaded = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostname_ssl_loaded' );
+$custom_hostname = $config->get_string( 'cdn.totalcdn.custom_hostname' );
+$ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded' );
 
 ?>
 <table class="form-table">
@@ -31,9 +31,9 @@ $ssl_cert_loaded = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostna
 		</th>
 		<td>
 			<?php if ( $is_authorized ) : ?>
-				<input class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_deauthorization button-primary" type="button" value="<?php esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
+				<input class="w3tc_cdn_totalcdn_deauthorization button-primary" type="button" value="<?php esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
 			<?php else : ?>
-				<input class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>"
+				<input class="w3tc_cdn_totalcdn_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>"
 				<?php echo ( $is_unavailable ? 'disabled' : '' ); ?> />
 				<?php if ( $is_unavailable ) : ?>
 					<div class="notice notice-info">
@@ -50,7 +50,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostna
 	<tr>
 		<th><label><?php esc_html_e( 'Pull zone name:', 'w3-total-cache' ); ?></label></th>
 		<td class="w3tc_config_value_text">
-			<?php echo esc_html( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.name' ) ); ?>
+			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.name' ) ); ?>
 		</td>
 	</tr>
 	<tr>
@@ -78,7 +78,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostna
 			</label>
 		</th>
 		<td class="w3tc_config_value_text">
-			<?php echo esc_html( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.origin_url' ) ); ?>
+			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.origin_url' ) ); ?>
 		</td>
 	</tr>
 	<tr>
@@ -106,7 +106,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostna
 		</th>
 		<td class="w3tc_config_value_text">
 			<p class="description">
-			<?php echo esc_html( $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.cdn_hostname' ) ); ?>
+			<?php echo esc_html( $config->get_string( 'cdn.totalcdn.cdn_hostname' ) ); ?>
 			</p>
 		</td>
 	</tr>
@@ -124,7 +124,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostna
 		</th>
 		<td class="w3tc_config_value_text">
 			<?php if ( empty( $custom_hostname ) ) { ?>
-				<input class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_add_custom_hostname button-primary"
+				<input class="w3tc_cdn_totalcdn_add_custom_hostname button-primary"
 					type="button"
 					value="<?php esc_attr_e( 'Add Custom Hostname', 'w3-total-cache' ); ?>"
 				/>
@@ -132,7 +132,7 @@ $ssl_cert_loaded = $config->get_string( 'cdn.' . W3TC_CDN_SLUG . '.custom_hostna
 			} elseif ( ! $ssl_cert_loaded ) {
 				// If the SSL certificate is not loaded, show the button to load it.
 				?>
-				<input class="w3tc_cdn_<?php echo esc_attr( W3TC_CDN_SLUG ); ?>_load_free_ssl button-primary"
+				<input class="w3tc_cdn_totalcdn_load_free_ssl button-primary"
 					type="button"
 					value="<?php esc_attr_e( 'Load SSL Certificate', 'w3-total-cache' ); ?>"
 				/>

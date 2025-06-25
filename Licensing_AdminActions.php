@@ -45,7 +45,7 @@ class Licensing_AdminActions {
 	}
 
 	/**
-	 * Handles the purchase of a W3TC provided CDN subscription.
+	 * Handles the purchase of a Total CDN subscription.
 	 *
 	 * @return void
 	 */

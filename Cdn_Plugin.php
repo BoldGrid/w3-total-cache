@@ -895,7 +895,7 @@ class Cdn_Plugin {
 		$cdn    = $common->get_cdn();
 		$via    = $cdn->get_via();
 
-		if ( W3TC_CDN_SLUG === Dispatcher::config()->get_string( 'cdn.engine' ) ) {
+		if ( 'totalcdn' === Dispatcher::config()->get_string( 'cdn.engine' ) ) {
 			$strings[] = sprintf(
 				// translators: 1 CDN engine name.
 				esc_html__(
