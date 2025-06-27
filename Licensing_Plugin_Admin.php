@@ -481,7 +481,7 @@ class Licensing_Plugin_Admin {
 				$license_key = $this->get_license_key();
 
 				$api_params = array(
-					'edd_action'  => 'get_recurly_hlt',
+					'edd_action'  => 'get_recurly_hlt_link',
 					'license'     => $license_key,   // legacy.
 					'license_key' => $license_key,
 				);
@@ -500,8 +500,10 @@ class Licensing_Plugin_Admin {
 
 				$billing_url = '';
 				if ( ! is_wp_error( $response ) ) {
-					$hlt_data    = json_decode( wp_remote_retrieve_body( $response ) );
-					$billing_url = W3L_RECURLY_FULL . '/account/billing_info/edit?ht=' . $hlt_data->hlt;
+					$body = trim( wp_remote_retrieve_body( $response ) );
+					if ( filter_var( $body, FILTER_VALIDATE_URL ) ) {
+						$billing_url = esc_url_raw( $body );
+					}
 				}
 
 				if ( ! empty( $billing_url ) ) {
@@ -697,9 +699,6 @@ class Licensing_Plugin_Admin {
 
 				$cdn_status = isset( $license->cdn_status ) ? $license->cdn_status : '';
 				$state->set( 'cdn.totalcdn.status', $cdn_status );
-
-				// Manually set the cdn status for testing purposes.
-				$state->set( 'cdn.totalcdn.status', 'active.dunning' );
 
 				$state->save();
 			}
