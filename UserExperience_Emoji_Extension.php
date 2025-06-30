@@ -77,8 +77,19 @@ class UserExperience_Emoji_Extension {
 		// remove s.w.org dns-prefetch used by emojis.
 		return array_filter(
 			$urls,
-			function ( $v ) {
-				return ( 'https://s.w.org/' !== substr( $v, 0, 16 ) );
+			function ( $hint ) {
+				// Handle the case where each hint is an array with 'href' key.
+				if ( is_array( $hint ) && isset( $hint['href'] ) ) {
+					return strpos( $hint['href'], '//s.w.org' ) === false;
+				}
+
+				// Handle the case where hint is a simple string URL.
+				if ( is_string( $hint ) ) {
+					return strpos( $hint, '//s.w.org' ) === false;
+				}
+
+				// In any other case, keep the item.
+				return true;
 			}
 		);
 	}

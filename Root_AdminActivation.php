@@ -61,35 +61,81 @@ class Root_AdminActivation {
 			}
 		}
 
+		$e      = Dispatcher::component( 'Root_Environment' );
+		$config = Dispatcher::config();
+		$debug  = \defined( 'WP_DEBUG' ) && WP_DEBUG && ! \defined( 'W3D_TESTING' );
+
 		try {
-			$e      = Dispatcher::component( 'Root_Environment' );
-			$config = Dispatcher::config();
 			$e->fix_in_wpadmin( $config, true );
-			$e->fix_on_event( $config, 'activate' );
+		} catch ( Util_Environment_Exceptions $exs ) {
+			$r = Util_Activation::parse_environment_exceptions( $exs );
 
-			// try to save config file if needed, optional thing so exceptions hidden.
-			if ( ! ConfigUtil::is_item_exists( 0, false ) ) {
-				try {
-					// create folders.
-					$e->fix_in_wpadmin( $config );
-				} catch ( \Exception $ex ) {
-					// missing exception handle?
-				}
-
-				try {
-					Util_Admin::config_save( Dispatcher::config(), $config );
-				} catch ( \Exception $ex ) {
-					// missing exception handle?
+			if ( \strlen( $r['required_changes'] ) > 0 ) {
+				// Log the error for debugging purposes.
+				if ( $debug ) {
+					\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 			}
-
-			if ( ! get_option( 'w3tc_install_date' ) ) {
-				update_option( 'w3tc_install_date', current_time( 'mysql' ) );
-			}
-		} catch ( Util_Environment_Exceptions $e ) {
-			// missing exception handle?
 		} catch ( \Exception $e ) {
+			// Log the exception for debugging purposes.
+			if ( $debug ) {
+				\error_log( 'W3 Total Cache exception: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+
+			// Handle the exception gracefully.
 			Util_Activation::error_on_exception( $e );
+		}
+
+		try {
+			$e->fix_on_event( $config, 'activate' );
+		} catch ( Util_Environment_Exceptions $exs ) {
+			$r = Util_Activation::parse_environment_exceptions( $exs );
+
+			if ( \strlen( $r['required_changes'] ) > 0 ) {
+				// Log the error for debugging purposes.
+				if ( $debug ) {
+					\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+			}
+		} catch ( \Exception $e ) {
+			// Log the exception for debugging purposes.
+			if ( $debug ) {
+				\error_log( 'W3 Total Cache exception: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+
+			// Handle the exception gracefully.
+			Util_Activation::error_on_exception( $e );
+		}
+
+		// try to save config file if needed, optional thing so exceptions hidden.
+		if ( ! ConfigUtil::is_item_exists( 0, false ) ) {
+			try {
+				// create folders.
+				$e->fix_in_wpadmin( $config );
+			} catch ( Util_Environment_Exceptions $exs ) {
+				$r = Util_Activation::parse_environment_exceptions( $exs );
+
+				if ( \strlen( $r['required_changes'] ) > 0 ) {
+					// Log the error for debugging purposes.
+					if ( $debug ) {
+						\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					}
+				}
+			}
+
+			try {
+				Util_Admin::config_save( Dispatcher::config(), $config );
+			} catch ( \Exception $ex ) {
+				// Log the exception for debugging purposes.
+				if ( $debug ) {
+					\error_log( 'W3 Total Cache exception: ' . $ex->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+			}
+		}
+
+		// Set the installation date if it is not already set.
+		if ( ! get_option( 'w3tc_install_date' ) ) {
+			update_option( 'w3tc_install_date', current_time( 'mysql' ) );
 		}
 	}
 
