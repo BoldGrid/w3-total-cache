@@ -128,7 +128,7 @@ class Generic_AdminActions_Default {
 
 			// This applies a valid license state for the Total CDN license.
 			$config_state = Dispatcher::config_state();
-			$config_state->set( 'totalcdn.status', 'active.by_rooturi' );
+			$config_state->set( 'cdn.totalcdn.status', 'active' );
 			$config_state->save();
 
 			Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(
@@ -137,12 +137,21 @@ class Generic_AdminActions_Default {
 			);
 
 			// This should apply the default configuration for Total CDN.
-			$tcdn_applied = apply_filters( 'w3tc_tcdn_auto_configured', false );
+			$tcdn_applied = apply_filters( 'w3tc_totalcdn_auto_configured', false );
 			if ( true === $tcdn_applied ) {
 				echo wp_json_encode( array( 'result' => 'success' ) );
 				exit();
 			} else {
-				echo wp_json_encode( array( 'result' => 'failed', 'message' => __( 'Failed to auto apply Total CDN configuration.', 'w3-total-cache' ) ) );
+					echo wp_json_encode(
+						array(
+							'result'  => 'failed',
+							'message' => sprintf(
+								// translators: 1: CDN name.
+								__( 'Failed to auto apply %1$s configuration.', 'w3-total-cache' ),
+								W3TC_CDN_NAME
+							),
+						)
+					);
 				exit();
 			}
 		} catch ( \Exception $ex ) {
