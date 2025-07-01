@@ -181,7 +181,7 @@ class Cdn_TotalCdn_Page {
 	 *
 	 * @return void
 	 */
-	public function w3tc_ajax_cdn_w3cdn_purge_url() {
+	public function w3tc_ajax_cdn_totalcdn_purge_url() {
 		$url = Util_Request::get_string( 'url' );
 
 		// Check if URL starts with "http", starts with a valid protocol, and passes a URL validation check.

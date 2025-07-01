@@ -74,7 +74,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @return void
 	 */
-	public function w3tc_ajax_cdn_w3cdn_confirm_auto_config() {
+	public function w3tc_ajax_cdn_totalcdn_confirm_auto_config() {
 		$result = $this->run();
 		?>
 		<form class="w3tc_cdn_totalcdn_form">
@@ -113,7 +113,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @return void
 	 */
-	public function w3tc_ajax_cdn_w3cdn_auto_config() {
+	public function w3tc_ajax_cdn_totalcdn_auto_config() {
 		?>
 		<p>Test Auto Config LightBox</p>
 		<?php
@@ -473,11 +473,11 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @param bool   $cdn_enabled Whether the CDN is enabled.
 	 * @param string $cdn_engine  The CDN engine.
 	 * @param string $api_key     The API key.
-	 * @param string $w3cdn_status The CDN status.
+	 * @param string $cdn_status The CDN status.
 	 *
 	 * @return bool True if the notice was shown, false otherwise.
 	 */
-	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $w3cdn_status ) {
+	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $cdn_status ) {
 		// If the CDN is enabled and the engine is set, do not show the notice.
 		if ( $cdn_enabled && 'totalcdn' === $cdn_engine ) {
 			return false;
@@ -489,7 +489,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		}
 
 		// If the CDN status is not set, do not show the notice.
-		if ( empty( $w3cdn_status ) || 'active' !== $w3cdn_status ) {
+		if ( empty( $cdn_status ) || 'active' !== $cdn_status ) {
 			return false;
 		}
 

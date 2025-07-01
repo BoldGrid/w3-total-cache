@@ -1,7 +1,8 @@
 .w3tc-widget-totalcdn-logo {
 	width: 150px;
 	height: 50px;
-	background: url('pub/img/w3tc_totalcdn_logo.svg') 0 8px no-repeat;
+	background: url('pub/img/totalcdn-logo.png') 0 8px no-repeat;
+	background-size: contain;
 	float: left;
 }
 

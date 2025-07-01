@@ -258,7 +258,7 @@ jQuery(function($) {
 					data: {
 						_wpnonce: w3tc_nonce[0],
 						action: 'w3tc_ajax',
-						w3tc_action: 'cdn_w3cdn_purge_url',
+						w3tc_action: 'cdn_totalcdn_purge_url',
 						url: url
 					}
 				})
