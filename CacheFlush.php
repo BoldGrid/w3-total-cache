@@ -223,6 +223,11 @@ class CacheFlush {
 		static $flushed = false;
 		if ( ! $flushed ) {
 			$flushed = true;
+
+			if ( Util_Environment::is_elementor() ){
+				\elementor\Plugin::$instance->files_manager->clear_cache();
+			}
+
 			$this->_executor->flush_all( $extras );
 		}
 	}
