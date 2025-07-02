@@ -488,7 +488,7 @@ class Licensing_Plugin_Admin {
 			add_query_arg( $api_params, W3TC_LICENSE_API_URL ),
 			array(
 				'timeout'   => 15,
-				'sslverify' => false,
+				'sslverify' => true,
 			)
 		);
 

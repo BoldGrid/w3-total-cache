@@ -180,7 +180,7 @@ if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 
 // API URL used for CDN requests.
 if ( ! defined( 'W3TC_CDN_API_URL' ) ) {
-	define( 'W3TC_CDN_API_URL', 'https://cdn-api-dev.boldgrid.com/api/v1' );
+	define( 'W3TC_CDN_API_URL', 'https://cdn-api.boldgrid.com/api/v1' );
 }
 
 
