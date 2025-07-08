@@ -25,7 +25,7 @@ class Cdn_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_ajax() {
-		$o = new Cdn_BunnyCdn_Page();
+		$o = new Cdn_TotalCdn_Page();
 
 		\add_action( 'w3tc_ajax_cdn_totalcdn_purge_url', array( $o, 'w3tc_ajax_cdn_totalcdn_purge_url' ) );
 	}
@@ -79,8 +79,13 @@ class Cdn_TotalCdn_Page {
 			$can_empty_varnish  = $modules->can_empty_varnish();
 
 			$actions[] = sprintf(
-				'<input type="submit" class="dropdown-item" name="w3tc_totalcdn_flush_all_except_totalcdn" value="%1$s"%2$s>',
-				esc_attr__( 'Empty All Caches Except Total CDN', 'w3-total-cache' ),
+				'<input type="submit" class="dropdown-item" name="w3tc_%1$s_flush_all_except_%1$s" value="%2$s"%3$s>',
+				esc_attr( 'totalcdn' ),
+				sprintf(
+					// translators: 1: CDN name.
+					esc_attr__( 'Empty All Caches Except %1$s', 'w3-total-cache' ),
+					esc_attr( W3TC_CDN_NAME )
+				),
 				( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
 			);
 		}
@@ -113,7 +118,7 @@ class Cdn_TotalCdn_Page {
 
 		\wp_localize_script(
 			'w3tc_cdn_totalcdn',
-			'W3TC_Totalcdn',
+			'W3TC_TotalCdn',
 			array(
 				'is_authorized' => $is_authorized,
 				'lang'          => array(
@@ -131,7 +136,7 @@ class Cdn_TotalCdn_Page {
 	/**
 	 * Displays the configuration settings for Total CDN in the W3 Total Cache settings page.
 	 *
-	 * This method includes the view file for Total CDN configuration options, allowing users to modify the Total CDN
+	 * This method includes the view file for Total CDN configuration options, allowing users to modify the
 	 * settings from the W3 Total Cache admin panel.
 	 *
 	 * @since 2.6.0
@@ -176,7 +181,7 @@ class Cdn_TotalCdn_Page {
 	 *
 	 * @return void
 	 */
-	public function w3tc_ajax_cdn_Totalcdn_purge_url() {
+	public function w3tc_ajax_cdn_totalcdn_purge_url() {
 		$url = Util_Request::get_string( 'url' );
 
 		// Check if URL starts with "http", starts with a valid protocol, and passes a URL validation check.
@@ -214,7 +219,7 @@ class Cdn_TotalCdn_Page {
 	 * @return array The modified dashboard actions with CDN purge options.
 	 */
 	public static function total_cdn_dashboard_actions( $actions ) {
-		if ( ! Cdn_TotalCdn_Page::is_active() ) {
+		if ( ! self::is_active() ) {
 			return $actions;
 		}
 		$modules            = Dispatcher::component( 'ModuleStatus' );
@@ -224,8 +229,9 @@ class Cdn_TotalCdn_Page {
 		$can_empty_varnish  = $modules->can_empty_varnish();
 
 		$actions[] = sprintf(
-			'<input type="submit" class="dropdown-item" name="w3tc_flush_all_except_totalcdn" value="%1$s"%2$s>',
-			esc_attr__( 'Empty All Caches Except TotalCDN', 'w3-total-cache' ),
+			'<input type="submit" class="dropdown-item" name="w3tc_flush_all_except_w3tc_cdn" value="%1$s %2$s"%3$s>',
+			esc_attr__( 'Empty All Caches Except', 'w3-total-cache' ),
+			esc_attr( W3TC_CDN_NAME ),
 			( ! $can_empty_memcache && ! $can_empty_opcode && ! $can_empty_file && ! $can_empty_varnish ) ? ' disabled="disabled"' : ''
 		);
 

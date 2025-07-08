@@ -199,7 +199,7 @@ class Licensing_Plugin_Admin {
 			$messages = array();
 
 			// If the old key was deactivated, add a message.
-			if ( isset( $deactivate_result ) ) {
+			if ( isset( $deactivate_result ) && $deactivate_result ) {
 				$status = $deactivate_result->license_status;
 
 				switch ( true ) {
@@ -234,7 +234,7 @@ class Licensing_Plugin_Admin {
 			}
 
 			// Handle new activation status.
-			if ( isset( $activate_result ) ) {
+			if ( isset( $activate_result ) && $activate_result ) {
 				$status = $activate_result->license_status;
 
 				switch ( true ) {
@@ -263,7 +263,6 @@ class Licensing_Plugin_Admin {
 		$capability = apply_filters( 'w3tc_capability_admin_notices', 'manage_options' );
 
 		$this->maybe_update_license_status();
-		//$this->maybe_update_license_status( true );
 
 		if ( current_user_can( $capability ) ) {
 			if ( is_admin() ) {
@@ -305,155 +304,201 @@ class Licensing_Plugin_Admin {
 	 * @return void
 	 */
 	public function admin_notices() {
-		$state = Dispatcher::config_state();
-
-		$license_message = '';
+		$state           = Dispatcher::config_state();
 		$license_status  = $state->get_string( 'license.status' );
+		$cdn_status      = $state->get_string( 'cdn.totalcdn.status' );
+		$license_key     = $this->get_license_key();
+		$license_message = '';
+		$cdn_message     = '';
+
+		$license_message = $this->get_license_notice( $license_status, $license_key );
+		$cdn_message     = $this->get_cdn_notice( $cdn_status, $license_key );
+
+		if ( $license_message || $cdn_message ) {
+			if ( ! Util_Admin::is_w3tc_admin_page() ) {
+				echo '<script src="' . esc_url( plugins_url( 'pub/js/lightbox.js', W3TC_FILE ) ) . '"></script>';
+				echo '<link rel="stylesheet" id="w3tc-lightbox-css" href="' . esc_url( plugins_url( 'pub/css/lightbox.css', W3TC_FILE ) ) . '" type="text/css" media="all" />';
+			}
+		}
+
+		if ( $license_message ) {
+			Util_Ui::error_box( '<p>' . $license_message . '</p>' );
+		}
+
+		if ( $cdn_message ) {
+			Util_Ui::error_box( '<p>' . $cdn_message . '</p>' );
+		}
+
+		$license_update_messages = get_option( 'license_update_messages' );
+		if ( $license_update_messages ) {
+			foreach ( $license_update_messages as $message_data ) {
+				$box_type = ( 'error' === $message_data['type'] ) ? 'error_box' : 'e_notification_box';
+				Util_Ui::$box_type( '<p>' . $message_data['message'] . '</p>' );
+			}
+
+			delete_option( 'license_update_messages' );
+		}
+	}
+
+	/**
+	 * Generates a CDN notice based on the provided status and license key.
+	 *
+	 * @param string $status The status of the CDN service or license.
+	 * @param string $license_key The license key associated with the CDN service.
+	 *
+	 * @return string The generated CDN notice message.
+	 */
+	private function get_cdn_notice( $status, $license_key ) {
 		switch ( true ) {
-			case $this->_status_is( $license_status, 'inactive.expired' ):
-				$license_message = wp_kses(
-					sprintf(
-						// Translators: 1 HTML input button to renew license.
+			case $this->_status_is( $status, 'active.dunning' ):
+				$billing_url = $this->get_billing_url( $license_key );
+				if ( $billing_url ) {
+					return sprintf(
+						// Translators: 1 Total CDN tradmark, 2 opening HTML a tag to billing portal, 3 closing HTML a tag.
 						__(
-							'Your W3 Total Cache Pro license key has expired. %1$s to continue using the Pro features',
+							'Your %1$s subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption',
 							'w3-total-cache'
 						),
-						'<input type="button" class="button button-renew-plugin" data-nonce="' .
-							wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
-							'" data-src="licensing_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />'
-					),
-					array(
-						'input' => array(
-							'type'           => array(),
-							'class'          => array(),
-							'data-nonce'     => array(),
-							'data-renew-key' => array(),
-							'data-src'       => array(),
-							'value'          => array(),
-						),
-					)
-				);
-				break;
-
-			case $this->_status_is( $license_status, 'inactive.by_rooturi' ) || $this->_status_is( $license_status, 'inactive.by_rooturi.activations_limit_not_reached' ):
-				$license_message = wp_kses(
-					sprintf(
-						// Translators: 1 opening HTML a tag to license rest link, 2 closing HTML a tag.
-						__(
-							'Your W3 Total Cache license key is not active for this site. You can switch your license to this website following %1$sthis link%2$s',
-							'w3-total-cache'
-						),
-						'<a class="w3tc_licensing_reset_rooturi" href="' . Util_Ui::url(
-							array(
-								'page'                         => 'w3tc_general', // phpcs:ignore WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
-								'w3tc_licensing_reset_rooturi' => 'y',
-							)
-						) . '">',
+						'Total CDN',
+						'<a href="' . esc_url( $billing_url ) . '" target="_blank">',
 						'</a>'
+					);
+				}
+
+				return __( 'Your Total CDN subscription payment is past due. Please update your billing information or contact us.', 'w3-total-cache' );
+
+			case $this->_status_is( $status, 'canceled' ):
+			case $this->_status_is( $status, 'inactive.expired' ):
+				return sprintf(
+					// Translators: 1 HTML input to renew subscription, 2 Total CDN tradmark.
+					__(
+						'Your %2$s subscription has expired. %1$s to continue using %2$s',
+						'w3-total-cache'
 					),
-					array(
-						'a' => array(
-							'class' => array(),
-							'href'  => array(),
+					'<input type="button" class="button button-buy-tcdn" data-nonce="' .
+						wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $license_key ) .
+						'" data-src="cdn" value="' . esc_attr__( 'Renew Now', 'w3-total-cache' ) . '" />',
+					'Total CDN'
+				);
+
+			default:
+				return '';
+		}
+	}
+
+	/**
+	 * Generates a license notice based on the provided license status and key.
+	 *
+	 * @param string $status The current status of the license (e.g., 'active', 'expired').
+	 * @param string $license_key The license key associated with the plugin.
+	 *
+	 * @return string The formatted license notice message.
+	 */
+	private function get_license_notice( $status, $license_key ) {
+		switch ( true ) {
+			case $this->_status_is( $status, 'active.dunning' ):
+				$billing_url = $this->get_billing_url( $license_key );
+				if ( $billing_url ) {
+					return sprintf(
+						// Translators: 1 Total CDN tradmark, 2 opening HTML a tag to billing portal, 3 closing HTML a tag.
+						__(
+							'Your %1$s Pro subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption',
+							'w3-total-cache'
 						),
+						'Total Cache',
+						'<a href="' . esc_url( $billing_url ) . '" target="_blank">',
+						'</a>'
+					);
+				}
+
+				return __( 'Your Total Cache Pro subscription payment is past due. Please update your billing information or contact us to prevent service interruption', 'w3-total-cache' );
+
+			case $this->_status_is( $status, 'inactive.expired' ):
+				return sprintf(
+					// Translators: 1 HTML input to renew subscription.
+					__(
+						'Your W3 Total Cache Pro license key has expired. %1$s to continue using the Pro features',
+						'w3-total-cache'
+					),
+					'<input type="button" class="button button-renew-plugin" data-nonce="' .
+						wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $license_key ) .
+						'" data-src="licensing_expired" value="' . esc_attr__( 'Renew Now', 'w3-total-cache' ) . '" />'
+				);
+
+			case $this->_status_is( $status, 'inactive.by_rooturi' ) || $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_not_reached' ):
+				$reset_url = Util_Ui::url(
+					array(
+						'page'                         => 'w3tc_general',
+						'w3tc_licensing_reset_rooturi' => 'y',
 					)
 				);
-				break;
-
-			case $this->_status_is( $license_status, 'inactive.by_rooturi.activations_limit_reached' ):
-				$license_message = __(
-					'Your W3 Total Cache license key is not active and cannot be activated due to the license activation limit being reached.',
-					'w3-total-cache'
+				return sprintf(
+					// Translators: 1 opening HTML a tag to reset license URIs, 2 closing HTML a tag.
+					__(
+						'Your W3 Total Cache license key is not active for this site. You can switch your license to this website following %1$sthis link%2$s',
+						'w3-total-cache'
+					),
+					'<a class="w3tc_licensing_reset_rooturi" href="' . esc_url( $reset_url ) . '">',
+					'</a>'
 				);
-				break;
 
-			case $this->_status_is( $license_status, 'inactive' ):
-				$license_message = __( 'The W3 Total Cache license key is not active.', 'w3-total-cache' );
-				break;
+			case $this->_status_is( $status, 'inactive.by_rooturi.activations_limit_reached' ):
+				return __( 'Your W3 Total Cache license key is not active and cannot be activated due to the license activation limit being reached.', 'w3-total-cache' );
 
-			case $this->_status_is( $license_status, 'invalid' ):
-				$license_url         = admin_url( 'admin.php?page=w3tc_general#licensing' );
-				$network_license_url = network_admin_url( 'admin.php?page=w3tc_general#licensing' );
-				$license_message     = sprintf(
-					// Translators: 1 opening HMTL a tag to license setting, 2 closing HTML a tag.
+			case $this->_status_is( $status, 'inactive' ):
+				return __( 'The W3 Total Cache license key is not active.', 'w3-total-cache' );
+
+			case $this->_status_is( $status, 'invalid' ):
+				$url = is_network_admin()
+					? network_admin_url( 'admin.php?page=w3tc_general#licensing' )
+					: admin_url( 'admin.php?page=w3tc_general#licensing' );
+				return sprintf(
+					// Translators: 1 opening HTML a tag to license setting, 2 closing HTML a tag.
 					__(
 						'Your current W3 Total Cache Pro license key is not valid. %1$sPlease confirm it%2$s.',
 						'w3-total-cache'
 					),
-					'<a href="' . ( is_network_admin() ? $network_license_url : $license_url ) . '">',
+					'<a href="' . esc_url( $url ) . '">',
 					'</a>'
 				);
-				break;
 
-			case ( 'no_key' === $license_status || $this->_status_is( $license_status, 'active' ) || $this->_status_is( $license_status, 'free' ) || $this->_status_is( $license_status, 'canceled' ) ):
-				// License is active, do nothing.
-				break;
+			case ( 'no_key' === $status || $this->_status_is( $status, 'active' ) || $this->_status_is( $status, 'free' ) ):
+				return '';
 
 			default:
-				$license_message = __( 'The W3 Total Cache license key cannot be verified.', 'w3-total-cache' );
-				break;
+				return __( 'The W3 Total Cache license key cannot be verified.', 'w3-total-cache' );
+		}
+	}
+
+	/**
+	 * Generates the billing URL for a given license key.
+	 *
+	 * @param string $license_key The license key used to generate the billing URL.
+	 *
+	 * @return string The billing URL associated with the provided license key.
+	 */
+	private function get_billing_url( $license_key ) {
+		$api_params = array(
+			'edd_action'  => 'get_recurly_hlt_link',
+			'license'     => $license_key,
+			'license_key' => $license_key,
+		);
+
+		$response = wp_remote_get(
+			add_query_arg( $api_params, W3TC_LICENSE_API_URL ),
+			array(
+				'timeout'   => 15,
+				'sslverify' => true,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return '';
 		}
 
-		if ( $license_message ) {
-			if ( ! Util_Admin::is_w3tc_admin_page() ) {
-				echo '<script src="' . esc_url( plugins_url( 'pub/js/lightbox.js', W3TC_FILE ) ) . '"></script>';
-				echo '<link rel="stylesheet" id="w3tc-lightbox-css"  href="' . esc_url( plugins_url( 'pub/css/lightbox.css', W3TC_FILE ) ) . '" type="text/css" media="all" />';
-			}
+		$body = wp_remote_retrieve_body( $response );
 
-			Util_Ui::error_box( '<p>' . $license_message . '</p>' );
-		}
-
-		$license_update_messages = get_option( 'license_update_messages' );
-
-		if ( $license_update_messages ) {
-			foreach ( $license_update_messages as $message_data ) {
-				if ( 'error' === $message_data['type'] ) {
-					Util_Ui::error_box( '<p>' . $message_data['message'] . '</p>' );
-				} elseif ( 'info' === $message_data['type'] ) {
-					Util_Ui::e_notification_box( '<p>' . $message_data['message'] . '</p>' );
-				}
-			}
-			delete_option( 'license_update_messages' );
-		}
-
-		$cdn_message = '';
-		$cdn_status  = $state->get_string( 'cdn.totalcdn.status' );
-		switch ( true ) {
-			case $this->_status_is( $cdn_status, 'canceled' ):
-			case $this->_status_is( $cdn_status, 'inactive.expired' ):
-				$cdn_message = wp_kses(
-					sprintf(
-						// Translators: 1 HTML input button to renew license.
-						__(
-							'Your Total CDN subscription has expired. %1$s to continue using Total CDN',
-							'w3-total-cache'
-						),
-						'<input type="button" class="button button-buy-tcdn" data-nonce="' .
-							wp_create_nonce( 'w3tc' ) . '" data-renew-key="' . esc_attr( $this->get_license_key() ) .
-							'" data-src="cdn_expired" value="' . __( 'Renew Now', 'w3-total-cache' ) . '" />'
-					),
-					array(
-						'input' => array(
-							'type'           => array(),
-							'class'          => array(),
-							'data-nonce'     => array(),
-							'data-renew-key' => array(),
-							'data-src'       => array(),
-							'value'          => array(),
-						),
-					)
-				);
-				break;
-		}
-
-		if ( $cdn_message ) {
-			if ( ! Util_Admin::is_w3tc_admin_page() ) {
-				echo '<script src="' . esc_url( plugins_url( 'pub/js/lightbox.js', W3TC_FILE ) ) . '"></script>';
-				echo '<link rel="stylesheet" id="w3tc-lightbox-css"  href="' . esc_url( plugins_url( 'pub/css/lightbox.css', W3TC_FILE ) ) . '" type="text/css" media="all" />';
-			}
-
-			Util_Ui::error_box( '<p>' . $cdn_message . '</p>' );
-		}
+		return filter_var( $body, FILTER_VALIDATE_URL ) ? esc_url_raw( $body ) : '';
 	}
 
 	/**

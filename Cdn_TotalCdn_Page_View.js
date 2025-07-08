@@ -4,7 +4,7 @@
  * @since   2.6.0
  * @package W3TC
  *
- * @global W3TC_Totalcdn Localization array for info and language.
+ * @global W3TC_TotalCdn Localization array for info and language.
  */
 
 jQuery(function($) {
@@ -201,8 +201,8 @@ jQuery(function($) {
 
 		// Sanitize the purge URL list.
 		.on('focusout', '#w3tc-purge-urls', function () {
-			// Abort if Total CDN is not authorized.
-			if (! W3TC_Totalcdn.is_authorized) {
+			// Abort if not authorized.
+			if (! W3TC_TotalCdn.is_authorized) {
 				return;
 			}
 
@@ -220,8 +220,8 @@ jQuery(function($) {
 
 		// Purge URLs.
 		.on('click', '.w3tc_cdn_totalcdn_purge_urls', function() {
-			// Abort if Total CDN is not authorized.
-			if (! W3TC_Totalcdn.is_authorized) {
+			// Abort if not authorized.
+			if (! W3TC_TotalCdn.is_authorized) {
 				return;
 			}
 
@@ -243,7 +243,7 @@ jQuery(function($) {
 			if (list.length < 1) {
 				$('<div/>', {
 					class: 'error',
-					text: W3TC_Totalcdn.lang.empty_url + '.'
+					text: W3TC_TotalCdn.lang.empty_url + '.'
 				}).appendTo($messages);
 
 				$this.closest('p').removeClass('lightbox-loader');
@@ -269,20 +269,20 @@ jQuery(function($) {
 								// Successful.
 								$('<div/>', {
 									class: 'updated',
-									text: W3TC_Totalcdn.lang.success_purging + ' "' + url + '".'
+									text: W3TC_TotalCdn.lang.success_purging + ' "' + url + '".'
 								}).appendTo($messages);
 							} else {
 								// Unsucessful.
 								$('<div/>', {
 									class: 'error',
-									text: W3TC_Totalcdn.lang.error_purging + ' "' + url + '"; ' + response.data.error_message + '.'
+									text: W3TC_TotalCdn.lang.error_purging + ' "' + url + '"; ' + response.data.error_message + '.'
 								}).appendTo($messages);
 							}
 						} else {
 							// Unknown error.
 							$('<div/>', {
 								class: 'error',
-								text: W3TC_Totalcdn.lang.error_ajax + '.'
+								text: W3TC_TotalCdn.lang.error_ajax + '.'
 							}).appendTo($messages);
 						}
 					})
@@ -292,13 +292,13 @@ jQuery(function($) {
 							// An error message was passed in the response data.
 							$('<div/>', {
 								class: 'error',
-								text: W3TC_Totalcdn.lang.error_purging + ' "' + url + '"; ' + response.responseJSON.data.error_message + '.'
+								text: W3TC_TotalCdn.lang.error_purging + ' "' + url + '"; ' + response.responseJSON.data.error_message + '.'
 							}).appendTo($messages);
 						} else {
 							// Unknown error.
 							$('<div/>', {
 								class: 'error',
-								text: W3TC_Totalcdn.lang.error_ajax + '.'
+								text: W3TC_TotalCdn.lang.error_ajax + '.'
 							}).appendTo($messages);
 						}
 					})
