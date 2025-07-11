@@ -1313,7 +1313,10 @@ class Generic_Plugin_Admin {
 				);
 		}
 
-		if ( Util_Request::get_boolean( 'totalcdn_auto_config_success' ) ) {
+		if (
+			Util_Request::get_boolean( 'totalcdn_auto_config_success' ) &&
+			! empty( $this->_config->get( 'cdn.totalcdn.account_api_key' ) )
+		) {
 			// Full URL to your logo.
 			$logo_url = plugins_url( 'pub/img/totalcdn-logo-2.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
 
