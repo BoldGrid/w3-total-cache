@@ -59,7 +59,7 @@ class Util_Http {
 			$filter_set = true; // Mark the filter as set to prevent duplicate additions.
 		}
 
-		// Merge the provided arguments with default values (to be defined later in the code).
+		// Merge the provided arguments with default values defined below.
 		$args = array_merge(
 			array( 'user-agent' => W3TC_POWERED_BY ),
 			$args
