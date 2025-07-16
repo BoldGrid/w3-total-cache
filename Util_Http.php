@@ -74,7 +74,7 @@ class Util_Http {
 	 * @param string $url  URL to send the GET request to.
 	 * @param array  $args Arguments for the GET request.
 	 *
-	 * @return array|\WP_Error Returns the response data or a WP_Error object on failure.
+	 * @return array|\WP_Error Returns the response data or a \WP_Error object on failure.
 	 */
 	public static function get( $url, $args = array() ) {
 		// Merge the provided arguments with the GET method.
