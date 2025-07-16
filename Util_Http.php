@@ -106,7 +106,7 @@ class Util_Http {
 		$response = self::get( $url, $args );
 
 		// Check if the response contains an error.
-		if ( \is_wp_error( $response ) || 200 !== $response['response']['code'] || empty( $response['body'] ) ) {
+		if ( \is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
 			return false;
 		}
 
