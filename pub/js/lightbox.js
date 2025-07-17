@@ -680,13 +680,15 @@ jQuery(function() {
 		w3tc_lightbox_auto_config_tcdn(nonce, data_src);
 	} );
 
-	jQuery('.button-buy-tcdn').on( 'click', function() {
+	jQuery('.body').on( 'click', '.button-buy-tcdn', function() {
 		var data_src = jQuery(this).data('src');
 		var nonce = jQuery(this).data('nonce');
 		if (!nonce) {
 			nonce = w3tc_nonce;
 		}
 		var renew_key = jQuery(this).data('renew-key');
+
+		console.log( 'w3tc_lightbox_buy_tcdn' );
 
 		if (window.w3tc_ga) {
 			w3tc_ga(

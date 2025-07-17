@@ -86,6 +86,7 @@ class Cdn_SiteHealth {
 		if ( $enabled ) {
 			$result['status'] = 'good';
 			$result['label']  = __( 'CDN is enabled', 'w3-total-cache' );
+			$result['description'] = __( 'Your site is configured to use a Content Delivery Network (CDN).', 'w3-total-cache' );
 		} else {
 			$result['status']  = 'recommended';
 			$result['label']   = __( 'CDN is not enabled', 'w3-total-cache' );
