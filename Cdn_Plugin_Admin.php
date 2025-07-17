@@ -103,6 +103,8 @@ class Cdn_Plugin_Admin {
 		$state              = Dispatcher::config_state();
 		$engine_optgroups   = array();
 		$engine_values      = array();
+		$optgroup_rec       = count( $engine_optgroups );
+		$engine_optgroups[] = \__( 'Recommended CDN:', 'w3-total-cache' );
 		$optgroup_pull      = count( $engine_optgroups );
 		$engine_optgroups[] = \__( 'Origin Pull / Mirror:', 'w3-total-cache' );
 		$optgroup_push      = count( $engine_optgroups );
@@ -114,7 +116,7 @@ class Cdn_Plugin_Admin {
 
 		$engine_values['totalcdn'] = array(
 			'label'    => \__( 'TotalCDN', 'w3-total-cache' ),
-			'optgroup' => $optgroup_pull,
+			'optgroup' => $optgroup_rec,
 		);
 
 		$engine_values['akamai'] = array(
@@ -134,7 +136,7 @@ class Cdn_Plugin_Admin {
 		);
 
 		$engine_values['bunnycdn'] = array(
-			'label'    => \__( 'Bunny CDN (recommended)', 'w3-total-cache' ),
+			'label'    => \__( 'Bunny CDN', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);
 
