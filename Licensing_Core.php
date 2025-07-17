@@ -61,7 +61,7 @@ class Licensing_Core {
 	 *
 	 * @param string $license License key to be deactivated.
 	 *
-	 * @return bool True if the license was successfully deactivated, false otherwise.
+	 * @return bool mixed|false Decoded license data on success, false on failure.
 	 */
 	public static function deactivate_license( $license ) {
 		// data to send in our API request.
@@ -94,8 +94,7 @@ class Licensing_Core {
 		// decode the license data.
 		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
 
-		// $license_data->license will be either "deactivated" or "failed"
-		return 'deactivated' === $license_data->license;
+		return $license_data;
 	}
 
 	/**

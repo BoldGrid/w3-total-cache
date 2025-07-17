@@ -1133,7 +1133,7 @@ class Generic_Plugin_Admin {
 			'config_save'               => __( 'Plugin configuration successfully updated.', 'w3-total-cache' ),
 			'config_save_flush'         => __( 'Plugin configuration successfully updated and all caches successfully emptied.', 'w3-total-cache' ),
 			'flush_all'                 => __( 'All caches successfully emptied.', 'w3-total-cache' ),
-			'flush_all_except_totalcdn' => __( 'All caches successfully emptied, except TotalCDN.', 'w3-total-cache' ),
+			'flush_all_except_w3tc_cdn' => __( 'All caches successfully emptied, except TotalCDN.', 'w3-total-cache' ),
 			'flush_memcached'           => __( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
 			'flush_opcode'              => __( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),
 			'flush_file'                => __( 'Disk cache(s) successfully emptied.', 'w3-total-cache' ),
@@ -1318,29 +1318,31 @@ class Generic_Plugin_Admin {
 			! empty( $this->_config->get( 'cdn.totalcdn.account_api_key' ) )
 		) {
 			// Full URL to your logo.
-			$logo_url = plugins_url( 'pub/img/totalcdn-logo-2.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
+			$logo_url = plugins_url( 'pub/img/totalcdn-logo.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
 
 			$html = sprintf(
 				'<div id="w3tc-tcdn-success" class="notice inline">
 					<div class="w3tc-success-inner">
 						<div class="w3tc-success-text">
-							<h2><img class="w3tc-success-logo" src="%1$s" alt="Total CDN Logo">%2$s 🎉</h2>
-							<p>%3$s</p>
-							<p>%4$s</p>
-							<p>%5$s<a href="admin.php?page=w3tc_cdn">%6$s</a>.</p>
-							<p>%7$s<a href="https://www.boldgrid.com/support/w3-total-cache/total-cdn-setup/">%8$s</a></p>
+								<h2><img class="w3tc-success-logo" src="%1$s" alt="' . esc_attr( W3TC_CDN_NAME ) . ' Logo">%2$s 🎉</h2>
+								<p>%3$s</p>
+								<p>%4$s</p>
+								<p>%5$s<a href="admin.php?page=w3tc_cdn">%6$s</a>.</p>
+								<p>%7$s<a href="https://www.boldgrid.com/support/w3-total-cache/total-cdn-setup/">%8$s</a></p>
 						</div>
 					</div>
 				 </div>',
 				esc_url( $logo_url ),
 				esc_html__( 'CONGRATULATIONS!', 'w3-total-cache' ),
-				esc_html__(
-					'Total CDN has been automatically configured, and there are no further steps needed at this time.',
-					'w3-total-cache'
+				sprintf(
+					// translators: 1: CDN name.
+					esc_html__( '%1$s has been automatically configured, and there are no further steps needed at this time.', 'w3-total-cache' ),
+					esc_html( W3TC_CDN_NAME )
 				),
-				esc_html__(
-					'Your images, CSS, and JavaScript files, are now being served from the Total CDN network. This means faster load times and improved performance for your website.',
-					'w3-total-cache'
+				sprintf(
+					// translators: 1: CDN name.
+					esc_html__( 'Your images, CSS, and JavaScript files, are now being served from the %1$s network. This means faster load times and improved performance for your website.', 'w3-total-cache' ),
+					esc_html( W3TC_CDN_NAME )
 				),
 				esc_html__(
 					'If you would like to configure additional settings, please visit the ',
@@ -1348,7 +1350,11 @@ class Generic_Plugin_Admin {
 				),
 				esc_html__( 'CDN settings page', 'w3-total-cache' ),
 				esc_html__( 'To learn more about how everything works, you can check out our support article here: ', 'w3-total-cache' ),
-				esc_html__( 'Getting Started With Total CDN', 'w3-total-cache' )
+				sprintf(
+					// translators: 1: CDN name.
+					esc_html__( 'Getting Started With %1$s', 'w3-total-cache' ),
+					esc_html( W3TC_CDN_NAME )
+				)
 			);
 
 			echo wp_kses(

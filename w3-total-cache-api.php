@@ -178,6 +178,17 @@ if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 	define( 'W3TC_FEED_REGEXP', '~/feed(/|$)~' );
 }
 
+// API URL used for CDN requests.
+if ( ! defined( 'W3TC_CDN_API_URL' ) ) {
+	define( 'W3TC_CDN_API_URL', 'https://cdn-api.boldgrid.com/api/v1' );
+}
+
+
+// This is the name of the CDN as it will be displayed in the admin interface.
+if ( ! defined( 'W3TC_CDN_NAME' ) ) {
+	define( 'W3TC_CDN_NAME', 'Total CDN' );
+}
+
 @ini_set( 'pcre.backtrack_limit', 4194304 );
 @ini_set( 'pcre.recursion_limit', 4194304 );
 
