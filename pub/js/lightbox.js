@@ -680,7 +680,9 @@ jQuery(function() {
 		w3tc_lightbox_auto_config_tcdn(nonce, data_src);
 	} );
 
-	jQuery('.body').on( 'click', '.button-buy-tcdn', function() {
+	jQuery(document).on( 'click', '.button-buy-tcdn', function(event) {
+		event.preventDefault();
+		event.stopPropagation();
 		var data_src = jQuery(this).data('src');
 		var nonce = jQuery(this).data('nonce');
 		if (!nonce) {
