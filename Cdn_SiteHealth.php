@@ -84,13 +84,17 @@ class Cdn_SiteHealth {
 		);
 
 		if ( $enabled ) {
-			$result['status'] = 'good';
-			$result['label']  = __( 'CDN is enabled', 'w3-total-cache' );
+			$result['status']      = 'good';
+			$result['label']       = __( 'CDN is enabled', 'w3-total-cache' );
 			$result['description'] = __( 'Your site is configured to use a Content Delivery Network (CDN).', 'w3-total-cache' );
 		} else {
-			$result['status']  = 'recommended';
-			$result['label']   = __( 'CDN is not enabled', 'w3-total-cache' );
-			$result['actions'] = $this->get_actions( $config );
+			$result['status']      = 'recommended';
+			$result['label']       = __( 'CDN is not enabled', 'w3-total-cache' );
+			$result['description'] = __(
+				'Your site is not using a Content Delivery Network (CDN). Using a CDN can improve your site\'s performance by caching static files closer to your visitors.',
+				'w3-total-cache'
+			);
+			$result['actions']     = $this->get_actions( $config );
 		}
 
 		return $result;
