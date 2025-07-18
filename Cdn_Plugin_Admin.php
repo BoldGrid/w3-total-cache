@@ -35,8 +35,8 @@ class Cdn_Plugin_Admin {
 			}
 		}
 
-		// Always show the Bunny CDN widget on dashboard.
-		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
+		// Always show the Total CDN widget on dashboard.
+		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_TotalCdn_Widget', 'admin_init_w3tc_dashboard' ) );
 
 		// Attach to actions without firing class loading at all without need.
 		switch ( $cdn_engine ) {
@@ -59,17 +59,38 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
 				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
 				break;
 
-			default:
-				\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_BunnyCdn_Widget', 'admin_init_w3tc_dashboard' ) );
-				\add_action( 'w3tc_ajax_cdn_bunnycdn_widgetdata', array( '\W3TC\Cdn_BunnyCdn_Widget', 'w3tc_ajax_cdn_bunnycdn_widgetdata' ) );
+			case 'totalcdn':
+				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_TotalCdn_Popup', 'w3tc_ajax' ) );
+				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
+				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
+				\add_filter( 'w3tc_dashboard_actions', array( '\W3TC\Cdn_TotalCdn_Page', 'total_cdn_dashboard_actions' ) );
+				\add_action( 'w3tc_flush_all', array( $this, 'flush_cdn' ) );
 				break;
 		}
 
 		\add_action( 'w3tc_settings_general_boxarea_cdn', array( $this, 'w3tc_settings_general_boxarea_cdn' ) );
+
+		$w3tc_cdn_auto_configure = new Cdn_TotalCdn_Auto_Configure( Dispatcher::config() );
+
+		\add_filter( 'w3tc_totalcdn_auto_configured', array( $w3tc_cdn_auto_configure, 'w3tc_totalcdn_auto_configured' ), 10, 1 );
+		\add_action( 'w3tc_ajax_cdn_totalcdn_auto_config', array( $w3tc_cdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_auto_config' ) );
+		\add_action( 'w3tc_ajax_cdn_totalcdn_confirm_auto_config', array( $w3tc_cdn_auto_configure, 'w3tc_ajax_cdn_totalcdn_confirm_auto_config' ) );
+	}
+
+	/**
+	 * Flushes the CDN cache when all caches are flushed.
+	 *
+	 * @param array $extras Optional extra parameters to pass to the CDN flush.
+	 *
+	 * @return bool True on success, false on failure.
+	 * @since  x.x.x
+	 */
+	public function flush_cdn( $extras = array() ) {
+		$cacheflush = Dispatcher::component( 'CacheFlush' );
+		return $cacheflush->cdn_purge_all( $extras );
 	}
 
 	/**
@@ -79,8 +100,11 @@ class Cdn_Plugin_Admin {
 	 */
 	public function w3tc_settings_general_boxarea_cdn() {
 		$config             = Dispatcher::config();
+		$state              = Dispatcher::config_state();
 		$engine_optgroups   = array();
 		$engine_values      = array();
+		$optgroup_rec       = count( $engine_optgroups );
+		$engine_optgroups[] = \__( 'Recommended CDN:', 'w3-total-cache' );
 		$optgroup_pull      = count( $engine_optgroups );
 		$engine_optgroups[] = \__( 'Origin Pull / Mirror:', 'w3-total-cache' );
 		$optgroup_push      = count( $engine_optgroups );
@@ -88,6 +112,11 @@ class Cdn_Plugin_Admin {
 
 		$engine_values[''] = array(
 			'label' => 'Select a provider',
+		);
+
+		$engine_values['totalcdn'] = array(
+			'label'    => esc_html( W3TC_CDN_NAME ),
+			'optgroup' => $optgroup_rec,
 		);
 
 		$engine_values['akamai'] = array(
@@ -107,7 +136,7 @@ class Cdn_Plugin_Admin {
 		);
 
 		$engine_values['bunnycdn'] = array(
-			'label'    => \__( 'Bunny CDN (recommended)', 'w3-total-cache' ),
+			'label'    => \__( 'Bunny CDN', 'w3-total-cache' ),
 			'optgroup' => $optgroup_pull,
 		);
 
