@@ -13,12 +13,12 @@ namespace W3TC;
  * Class SiteHealth_Cdn
  */
 class SiteHealth_Cdn {
-		/**
-		 * Register hooks.
-		 *
-		 * @return void
-		 * @since  x.x.x
-		 */
+	/**
+	 * Register hooks.
+	 *
+	 * @return void
+	 * @since  x.x.x
+	 */
 	public function run() {
 		if ( is_admin() ) {
 			add_filter( 'site_status_tests', array( $this, 'add_tests' ) );
@@ -26,14 +26,14 @@ class SiteHealth_Cdn {
 		}
 	}
 
-		/**
-		 * Enqueue assets on the Site Health screen so the purchase button works.
-		 *
-		 * @param string $hook The current admin page hook.
-		 *
-		 * @return void
-		 * @since  x.x.x
-		 */
+	/**
+	 * Enqueue assets on the Site Health screen so the purchase button works.
+	 *
+	 * @param string $hook The current admin page hook.
+	 *
+	 * @return void
+	 * @since  x.x.x
+	 */
 	public function enqueue_scripts( $hook ) {
 		if ( 'site-health.php' !== $hook ) {
 			return;
@@ -49,14 +49,14 @@ class SiteHealth_Cdn {
 		}
 	}
 
-		/**
-		 * Register the CDN status test.
-		 *
-		 * @param array $tests Existing Site Health tests.
-		 *
-		 * @return array
-		 * @since  x.x.x
-		 */
+	/**
+	 * Register the CDN status test.
+	 *
+	 * @param array $tests Existing Site Health tests.
+	 *
+	 * @return array
+	 * @since  x.x.x
+	 */
 	public function add_tests( $tests ) {
 		$tests['direct']['w3tc_cdn'] = array(
 			'label' => __( 'W3 Total Cache CDN', 'w3-total-cache' ),
@@ -65,12 +65,12 @@ class SiteHealth_Cdn {
 		return $tests;
 	}
 
-		/**
-		 * Perform the CDN enabled test.
-		 *
-		 * @return array Test result.
-		 * @since  x.x.x
-		 */
+	/**
+	 * Perform the CDN enabled test.
+	 *
+	 * @return array Test result.
+	 * @since  x.x.x
+	 */
 	public function test_cdn_enabled() {
 		$config  = Dispatcher::config();
 		$enabled = $config->get_boolean( 'cdn.enabled' );
@@ -104,14 +104,14 @@ class SiteHealth_Cdn {
 		return $result;
 	}
 
-		/**
-		 * Generates the action markup when CDN is disabled.
-		 *
-		 * @param Config $config Plugin configuration.
-		 *
-		 * @return string HTML actions.
-		 * @since  x.x.x
-		 */
+	/**
+	 * Generates the action markup when CDN is disabled.
+	 *
+	 * @param Config $config Plugin configuration.
+	 *
+	 * @return string HTML actions.
+	 * @since  x.x.x
+	 */
 	private function get_actions( $config ) {
 		$api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 
