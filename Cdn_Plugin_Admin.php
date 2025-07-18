@@ -115,7 +115,7 @@ class Cdn_Plugin_Admin {
 		);
 
 		$engine_values['totalcdn'] = array(
-			'label'    => \__( 'TotalCDN', 'w3-total-cache' ),
+			'label'    => esc_html( W3TC_CDN_NAME ),
 			'optgroup' => $optgroup_rec,
 		);
 
