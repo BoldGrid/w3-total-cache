@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Cdn_SiteHealth.php
+ * File: SiteHealth_Cdn.php
  *
  * Adds a custom Site Health test for checking if the CDN is enabled.
  *
@@ -10,9 +10,9 @@
 namespace W3TC;
 
 /**
- * Class Cdn_SiteHealth
+ * Class SiteHealth_Cdn
  */
-class Cdn_SiteHealth {
+class SiteHealth_Cdn {
 		/**
 		 * Register hooks.
 		 *
@@ -125,8 +125,9 @@ class Cdn_SiteHealth {
 		$button     .= ' data-renew-key="' . esc_attr( $license_key ) . '"';
 		$button     .= ' data-src="site_health"';
 		$button     .= sprintf(
-			' value="%s" />',
-			esc_attr__( sprintf( 'Purchase %s', W3TC_CDN_NAME ), 'w3-total-cache' )
+			' value="%1$s %2$s" />',
+			esc_attr__( 'Purchase', 'w3-total-cache' ),
+			esc_attr( W3TC_CDN_NAME )
 		);
 
 		return '<p>' . $button . '</p>';
