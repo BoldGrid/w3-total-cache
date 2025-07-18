@@ -687,8 +687,6 @@ jQuery(function() {
 		}
 		var renew_key = jQuery(this).data('renew-key');
 
-		console.log( 'w3tc_lightbox_buy_tcdn' );
-
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
