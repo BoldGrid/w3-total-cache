@@ -119,7 +119,10 @@ class Cdn_SiteHealth {
 		$button      = '<input type="button" class="button-primary btn button-buy-tcdn"';
 		$button     .= ' data-renew-key="' . esc_attr( $license_key ) . '"';
 		$button     .= ' data-src="site_health"';
-		$button     .= ' value="' . esc_attr__( 'Purchase TotalCDN', 'w3-total-cache' ) . '" />';
+		$button     .= sprintf(
+			' value="%s" />',
+			esc_attr__( sprintf( 'Purchase %s', W3TC_CDN_NAME ), 'w3-total-cache' )
+		);
 
 		return '<p>' . $button . '</p>';
 	}
