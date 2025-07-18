@@ -337,13 +337,17 @@ class Generic_Plugin {
 
 				// Add menu item to flush all cached except Cloudflare.
 				if (
-					! empty( $this->_config->get_string( array( 'cloudflare', 'email' ) ) )
-					&& ! empty( $this->_config->get_string( array( 'cloudflare', 'key' ) ) )
-					&& (
-						$modules->can_empty_memcache()
-						|| $modules->can_empty_opcode()
-						|| $modules->can_empty_file()
-						|| $modules->can_empty_varnish()
+					$this->_config->get_boolean( 'cdnfsd.enabled' ) &&
+					'cloudflare' === $this->_config->get_string( 'cdnfsd.engine' ) &&
+					! empty( $this->_config->get_string( array( 'cloudflare', 'email' ) ) ) &&
+					! empty( $this->_config->get_string( array( 'cloudflare', 'key' ) ) ) &&
+					! empty( $this->_config->get_string( array( 'cloudflare', 'zone_id' ) ) ) &&
+					in_array( 'cloudflare', array_keys( Extensions_Util::get_active_extensions( $this->_config ) ), true ) &&
+					(
+						$modules->can_empty_memcache() ||
+						$modules->can_empty_opcode() ||
+						$modules->can_empty_file() ||
+						$modules->can_empty_varnish()
 					)
 				) {
 					$menu_items['10015.generic'] = array(
