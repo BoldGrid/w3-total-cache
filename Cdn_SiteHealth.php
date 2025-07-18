@@ -17,6 +17,7 @@ class Cdn_SiteHealth {
 		 * Register hooks.
 		 *
 		 * @return void
+		 * @since  x.x.x
 		 */
 	public function run() {
 		if ( is_admin() ) {
@@ -31,6 +32,7 @@ class Cdn_SiteHealth {
 		 * @param string $hook The current admin page hook.
 		 *
 		 * @return void
+		 * @since  x.x.x
 		 */
 	public function enqueue_scripts( $hook ) {
 		if ( 'site-health.php' !== $hook ) {
@@ -53,6 +55,7 @@ class Cdn_SiteHealth {
 		 * @param array $tests Existing Site Health tests.
 		 *
 		 * @return array
+		 * @since  x.x.x
 		 */
 	public function add_tests( $tests ) {
 		$tests['direct']['w3tc_cdn'] = array(
@@ -66,6 +69,7 @@ class Cdn_SiteHealth {
 		 * Perform the CDN enabled test.
 		 *
 		 * @return array Test result.
+		 * @since  x.x.x
 		 */
 	public function test_cdn_enabled() {
 		$config  = Dispatcher::config();
@@ -106,6 +110,7 @@ class Cdn_SiteHealth {
 		 * @param Config $config Plugin configuration.
 		 *
 		 * @return string HTML actions.
+		 * @since  x.x.x
 		 */
 	private function get_actions( $config ) {
 		$api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
