@@ -354,14 +354,16 @@ class Licensing_Plugin_Admin {
 				$billing_url = $this->get_billing_url( $license_key );
 				if ( $billing_url ) {
 					return sprintf(
-						// Translators: 1 Total CDN tradmark, 2 opening HTML a tag to billing portal, 3 closing HTML a tag.
+						// Translators: 1 Total CDN tradmark, 2 opening HTML a tag to billing portal
+						// Translators: 3 closing HTML a tag, 4 button to refresh license status.
 						__(
-							'Your %1$s subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption',
+							'Your %1$s subscription payment is past due. Please update your %2$sBilling Information%3$s to prevent service interruption. Once your billing information has been updated and payment is successful please manually %4$s otherwise it may take up to 1 hour to refresh on it\'s own.',
 							'w3-total-cache'
 						),
 						'Total CDN',
-						'<a href="' . esc_url( $billing_url ) . '" target="_blank">',
-						'</a>'
+						'<a class="button" href="' . esc_url( $billing_url ) . '" target="_blank">',
+						'</a>',
+						'<button type="button" class="button button-refresh-license" data-nonce="' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '" data-action="w3tc_force_license_refresh">' . esc_html__( 'Refresh License Status', 'w3-total-cache' ) . '</button>'
 					);
 				}
 
@@ -585,7 +587,24 @@ class Licensing_Plugin_Admin {
 	 */
 	private function maybe_update_license_status( $force = false ) {
 		$state = Dispatcher::config_state();
-		if ( time() < $state->get_integer( 'license.next_check' ) && ! $force ) {
+
+		$next_check = $state->get_integer( 'license.next_check' );
+
+		/**
+		 * If the license status is in dunning and the next_check interval is greatter
+		 * than an hour, we force a recheck.
+		 */
+		if (
+			(
+				$this->_status_is( $state->get_string( 'cdn.totalcdn.status' ), 'active.dunning' ) ||
+				$this->_status_is( $state->get_string( 'license.status' ), 'active.dunning' )
+			) &&
+			$next_check - time() > 3600
+		) {
+			$force = true;
+		}
+
+		if ( time() < $next_check && ! $force ) {
 			return;
 		}
 
@@ -644,6 +663,8 @@ class Licensing_Plugin_Admin {
 			// Do nothing.
 		} elseif ( $this->_status_is( $status, 'free' ) ) {
 			// Do nothing.
+		} elseif ( $this->_status_is( $status, 'active.dunning' ) ) {
+			$check_timeout = 3600;
 		} else {
 			$check_timeout = 60;
 		}

@@ -1690,6 +1690,35 @@ jQuery(function() {
 		);
 	});
 
+	// Force license refresh button on dunning resolve.
+	jQuery('.button-refresh-license').on('click', function(e) {
+		e.preventDefault();
+
+		var $btn = jQuery(this);
+		var nonce = $btn.data('nonce');
+		var action = $btn.data('action');
+
+		$btn.prop('disabled', true).text('Refreshing...');
+
+		jQuery.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'w3tc_ajax',
+				_wpnonce: nonce,
+				w3tc_action: action
+			},
+			success: function(response) {
+				console.log('License refresh complete', response);
+				window.location.reload();
+			},
+			error: function(xhr) {
+				console.error('License refresh failed', xhr);
+				alert('An error occured while attempting to refresh the license. Please try again.');
+			}
+		});
+	});
+
 	// Bootstrap dropdown hide on click away.
 	jQuery(document).mouseup(function(e) {
 		var dropdowns = jQuery('.dropdown-toggle');
