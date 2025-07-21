@@ -210,6 +210,9 @@ class PgCache_Plugin_Admin {
 			$sitemap_matches = null;
 
 			$xml = simplexml_load_string($response['body']);
+			if ($xml === false) {
+				return $urls;
+			}
 
 			if ( $xml->getName() == "sitemapindex" ) {
 				foreach ( $xml->sitemap as $sitemap ) {
