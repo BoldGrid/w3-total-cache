@@ -199,4 +199,17 @@ class Licensing_AdminActions {
 			true
 		);
 	}
+
+	/**
+	 * Forces a refresh of the licensing information for W3 Total Cache.
+	 *
+	 * This method is typically used to manually trigger a refresh of the
+	 * licensing data, ensuring that the latest licensing status is retrieved
+	 * and applied.
+	 *
+	 * @return void
+	 */
+	public function w3tc_force_license_refresh() {
+		Dispatcher::component( 'Licensing_Plugin_Admin' )->maybe_update_license_status( true );
+	}
 }
