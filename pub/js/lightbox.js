@@ -535,10 +535,8 @@ function w3tc_lightbox_auto_config_tcdn(nonce, data_src ) {
 			var $container = jQuery( o.container ),
 				success    = $container.find( 'input.result-success' ).val();
 
-				console.log( 'purchase_success', success );
-
 				if ( 'true' === success ) {
-					window.location = window.location + '&refresh=1&totalcdn_auto_config_success=1';
+					window.location = 'admin.php?page=w3tc_dashboard&refresh&totalcdn_auto_config_success=1';
 				}
 		},
 		callback: function(lightbox) {
@@ -587,8 +585,7 @@ function w3tc_lightbox_buy_tcdn(nonce, data_src, renew_key) {
 					}
 
 					lightbox.options.onClose = function() {
-						console.log( 'refresh on purchase success' );
-						window.location = window.location + '&refresh=1&totalcdn_auto_config_success=1';
+						window.location = 'admin.php?page=w3tc_dashboard&totalcdn_auto_config_success=1';
 					}
 
 					w3tc_lightbox_save_tcdn_key(data[1], data[2], data[3], nonce, function() {
@@ -680,7 +677,9 @@ jQuery(function() {
 		w3tc_lightbox_auto_config_tcdn(nonce, data_src);
 	} );
 
-	jQuery('.button-buy-tcdn').on( 'click', function() {
+	jQuery(document).on( 'click', '.button-buy-tcdn', function(event) {
+		event.preventDefault();
+		event.stopPropagation();
 		var data_src = jQuery(this).data('src');
 		var nonce = jQuery(this).data('nonce');
 		if (!nonce) {
