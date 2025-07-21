@@ -1709,7 +1709,6 @@ jQuery(function() {
 				w3tc_action: action
 			},
 			success: function(response) {
-				console.log('License refresh complete', response);
 				window.location.reload();
 			},
 			error: function(xhr) {
