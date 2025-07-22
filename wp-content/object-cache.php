@@ -100,11 +100,19 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 		 *
 		 * @return mixed
 		 */
-		function wp_cache_get( $id, $group = 'default', $force = false, &$found = null ) {
-			global $wp_object_cache;
+               function wp_cache_get( $id, $group = 'default', $force = false, &$found = null ) {
+                       global $wp_object_cache;
 
-			return $wp_object_cache->get( $id, $group, $force, $found );
-		}
+                       if ( 'options' === $group && 'notoptions' !== $id ) {
+                               $notoptions = $wp_object_cache->get( 'notoptions', 'options', $force, $n_found );
+                               if ( is_array( $notoptions ) && isset( $notoptions[ $id ] ) ) {
+                                       $found = false;
+                                       return false;
+                               }
+                       }
+
+                       return $wp_object_cache->get( $id, $group, $force, $found );
+               }
 
 		/**
 		 * Retrieves multiple values from the cache in one call.
