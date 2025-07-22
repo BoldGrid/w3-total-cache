@@ -918,8 +918,8 @@ class Cdn_Plugin {
 	 *
 	 * @return string The modified content buffer with the appended debug information.
 	 */
-        public function w3tc_footer_comment_after( $buffer, $replaced_urls ) {
-                $strings = array();
+	public function w3tc_footer_comment_after( $buffer, $replaced_urls ) {
+		$strings = array();
 
 		if ( is_array( $replaced_urls ) && count( $replaced_urls ) ) {
 			$strings[] = __( 'Replaced URLs for CDN:', 'w3-total-cache' );
@@ -935,45 +935,49 @@ class Cdn_Plugin {
 			$strings[] = '';
 		}
 
-                $buffer = str_replace( '{w3tc_cdn_debug_info}', implode( "\n", $strings ), $buffer );
+		$buffer = str_replace( '{w3tc_cdn_debug_info}', implode( "\n", $strings ), $buffer );
 
-                return $buffer;
-        }
+		return $buffer;
+	}
 
-        /**
-         * Filters REST API responses to replace media links with CDN URLs.
-         *
-         * @param \WP_HTTP_Response $response Response object.
-         * @param \WP_REST_Server   $server   Server instance.
-         * @param \WP_REST_Request  $request  Current request object.
-         *
-         * @return \WP_HTTP_Response Modified response object.
-         */
-        public function rest_post_dispatch( $response, $server, $request ) {
-                if ( ! ( $response instanceof \WP_REST_Response ) ) {
-                        return $response;
-                }
+	/**
+	 * Filters REST API responses to replace media links with CDN URLs.
+	 *
+	 * @param \WP_HTTP_Response $response Response object.
+	 * @param \WP_REST_Server   $server   Server instance.
+	 * @param \WP_REST_Request  $request  Current request object.
+	 *
+	 * @return \WP_HTTP_Response Modified response object.
+	 */
+	public function rest_post_dispatch( $response, $server, $request ) {
+		if ( ! ( $response instanceof \WP_REST_Response ) ) {
+			return $response;
+		}
 
-                $data = $response->get_data();
-                if ( isset( $data['content'] ) ) {
-                        $helper = new _Cdn_Plugin_ContentFilter();
+		$data = $response->get_data();
+		if ( ! is_array( $data ) ) {
+			return $response;
+		}
 
-                        if ( is_array( $data['content'] ) ) {
-                                if ( isset( $data['content']['raw'] ) ) {
-                                        $data['content']['raw'] = $helper->replace_all_links( $data['content']['raw'] );
-                                }
-                                if ( isset( $data['content']['rendered'] ) ) {
-                                        $data['content']['rendered'] = $helper->replace_all_links( $data['content']['rendered'] );
-                                }
-                        } elseif ( is_string( $data['content'] ) ) {
-                                $data['content'] = $helper->replace_all_links( $data['content'] );
-                        }
+		if ( isset( $data['content'] ) ) {
+			$helper = new _Cdn_Plugin_ContentFilter();
 
-                        $response->set_data( $data );
-                }
+			if ( is_array( $data['content'] ) ) {
+				if ( isset( $data['content']['raw'] ) ) {
+					$data['content']['raw'] = $helper->replace_all_links( $data['content']['raw'] );
+				}
+				if ( isset( $data['content']['rendered'] ) ) {
+					$data['content']['rendered'] = $helper->replace_all_links( $data['content']['rendered'] );
+				}
+			} elseif ( is_string( $data['content'] ) ) {
+				$data['content'] = $helper->replace_all_links( $data['content'] );
+			}
 
-                return $response;
-        }
+			$response->set_data( $data );
+		}
+
+		return $response;
+	}
 }
 
 /**
