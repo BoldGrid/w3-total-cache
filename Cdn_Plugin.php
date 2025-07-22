@@ -91,13 +91,13 @@ class Cdn_Plugin {
 			add_filter( 'w3tc_module_is_running-cdn', array( $this, 'cdn_is_running' ) );
 		}
 
-                if ( ! is_admin() || $this->_config->get_boolean( 'cdn.admin.media_library' ) ) {
-                        add_filter( 'wp_prepare_attachment_for_js', array( $this, 'wp_prepare_attachment_for_js' ), 0 );
-                }
+		if ( ! is_admin() || $this->_config->get_boolean( 'cdn.admin.media_library' ) ) {
+			add_filter( 'wp_prepare_attachment_for_js', array( $this, 'wp_prepare_attachment_for_js' ), 0 );
+		}
 
-                if ( $this->_config->get_boolean( 'cdn.admin.media_library' ) ) {
-                        add_filter( 'rest_post_dispatch', array( $this, 'rest_post_dispatch' ), 10, 3 );
-                }
+		if ( $this->_config->get_boolean( 'cdn.admin.media_library' ) ) {
+			add_filter( 'rest_post_dispatch', array( $this, 'rest_post_dispatch' ), 10, 3 );
+		}
 
 		// Start rewrite engine.
 		\add_action( 'init', array( $this, 'maybe_can_cdn' ), 10, 0 );
