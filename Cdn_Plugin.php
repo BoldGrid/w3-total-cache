@@ -44,6 +44,15 @@ class Cdn_Plugin {
 	private $_attachments_action = array();
 
 	/**
+	 * Helper for content filtering.
+	 *
+	 * @var _Cdn_Plugin_ContentFilter
+	 *
+	 * @since x.x.x
+	 */
+	private $_content_filter_helper = null;
+
+	/**
 	 * Constructor for initializing CDN plugin configuration and debug flag.
 	 *
 	 * @return void
@@ -60,6 +69,7 @@ class Cdn_Plugin {
 	 */
 	public function run() {
 		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		$this->_content_filter_helper = new _Cdn_Plugin_ContentFilter();
 
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
@@ -966,17 +976,15 @@ class Cdn_Plugin {
 		}
 
 		if ( isset( $data['content'] ) ) {
-			$helper = new _Cdn_Plugin_ContentFilter();
-
 			if ( is_array( $data['content'] ) ) {
 				if ( isset( $data['content']['raw'] ) ) {
-					$data['content']['raw'] = $helper->replace_all_links( $data['content']['raw'] );
+					$data['content']['raw'] = $this->_content_filter_helper->replace_all_links( $data['content']['raw'] );
 				}
 				if ( isset( $data['content']['rendered'] ) ) {
-					$data['content']['rendered'] = $helper->replace_all_links( $data['content']['rendered'] );
+					$data['content']['rendered'] = $this->_content_filter_helper->replace_all_links( $data['content']['rendered'] );
 				}
 			} elseif ( is_string( $data['content'] ) ) {
-				$data['content'] = $helper->replace_all_links( $data['content'] );
+				$data['content'] = $this->_content_filter_helper->replace_all_links( $data['content'] );
 			}
 
 			$response->set_data( $data );
