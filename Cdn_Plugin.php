@@ -955,6 +955,12 @@ class Cdn_Plugin {
 		}
 
 		$data = $response->get_data();
+
+		/*
+		 * The responses we want to adjust will be arrays.
+		 * But other responses may be objects, which will throw an error
+		 * if we try to access them as arrays.
+		 */
 		if ( ! is_array( $data ) ) {
 			return $response;
 		}
