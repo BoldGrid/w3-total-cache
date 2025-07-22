@@ -105,7 +105,14 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 
                        if ( 'options' === $group && 'notoptions' !== $id ) {
                                $notoptions = $wp_object_cache->get( 'notoptions', 'options', $force, $n_found );
-                               if ( is_array( $notoptions ) && isset( $notoptions[ $id ] ) ) {
+
+                               // Mirror WP 6.8's early notoptions lookup to avoid repeated external cache checks.
+                               if ( ! is_array( $notoptions ) ) {
+                                       $notoptions = array();
+                                       $wp_object_cache->set( 'notoptions', $notoptions, 'options' );
+                               }
+
+                               if ( isset( $notoptions[ $id ] ) ) {
                                        $found = false;
                                        return false;
                                }
