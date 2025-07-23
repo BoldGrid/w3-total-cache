@@ -126,6 +126,7 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 				}
 
 				if ( isset( $notoptions[ $id ] ) ) {
+					$found = false;
 					return false;
 				}
 			}
