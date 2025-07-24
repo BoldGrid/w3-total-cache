@@ -226,7 +226,7 @@ class PgCache_Plugin_Admin {
 				foreach ( $xml->url as $url ) {
 					if ( $url->loc ) {
 						$priority = isset( $url->priority ) ? (float) $url->priority : 0.5;
-						$locs[ (string) $url->loc ] = (float) $priority;
+						$locs[ (string) $url->loc ] = $priority;
 					}
 				}
 
