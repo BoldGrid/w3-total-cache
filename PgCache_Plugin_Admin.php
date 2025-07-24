@@ -210,7 +210,8 @@ class PgCache_Plugin_Admin {
 			$sitemap_matches = null;
 
 			$xml = simplexml_load_string( $response['body'] );
-			if ( $xml === false ) {
+
+			if ( false === $xml ) {
 				return $urls;
 			}
 
@@ -225,7 +226,7 @@ class PgCache_Plugin_Admin {
 
 				foreach ( $xml->url as $url ) {
 					if ( $url->loc ) {
-						$priority = isset( $url->priority ) ? (float) $url->priority : 0.5;
+						$priority                   = isset( $url->priority ) ? (float) $url->priority : 0.5;
 						$locs[ (string) $url->loc ] = $priority;
 					}
 				}
