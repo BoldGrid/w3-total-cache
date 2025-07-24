@@ -210,7 +210,7 @@ class PgCache_Plugin_Admin {
 			$sitemap_matches = null;
 
 			$xml = simplexml_load_string($response['body'], 'SimpleXMLElement', LIBXML_NOENT);
-			if ($xml === false) {
+			if ( $xml === false ) {
 				return $urls;
 			}
 
