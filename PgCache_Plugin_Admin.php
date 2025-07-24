@@ -209,34 +209,34 @@ class PgCache_Plugin_Admin {
 			$url_matches     = null;
 			$sitemap_matches = null;
 
-			$xml = simplexml_load_string($response['body'], 'SimpleXMLElement', LIBXML_NOENT);
+			$xml = simplexml_load_string( $response['body'], 'SimpleXMLElement', LIBXML_NOENT | LIBXML_NONET );
 			if ( $xml === false ) {
 				return $urls;
 			}
 
-			if ( $xml->getName() == "sitemapindex" ) {
+			if ( $xml->getName() === 'sitemapindex' ) {
 				foreach ( $xml->sitemap as $sitemap ) {
 					if ( $sitemap->loc ) {
-						$urls = array_merge( $urls, $this->parse_sitemap( (string)$sitemap->loc ) );
+						$urls = array_merge( $urls, $this->parse_sitemap( (string) $sitemap->loc ) );
 					}
 				}
-			} elseif ( $xml->getName() == "urlset" ) {
+			} elseif ( $xml->getName() === 'urlset' ) {
 				$locs = array();
 
 				foreach ( $xml->url as $url ) {
 					if ( $url->loc ) {
-						$priority = isset($url->priority) ? (float)$url->priority : 0.5;
-						$locs[ (string)$url->loc ] = (float)$priority;
+						$priority = isset( $url->priority ) ? (float) $url->priority : 0.5;
+						$locs[ (string) $url->loc ] = (float) $priority;
 					}
 				}
 
 				arsort( $locs );
 
 				$urls = array_merge( $urls, array_keys( $locs ) );
-			} elseif ( $xml->getName() == "rss" ) {
+			} elseif ( $xml->getName() === 'rss' ) {
 				foreach ( $xml->channel->item as $item ) {
 					if ( $item->link ) {
-						$urls[] = (string)$item->link;
+						$urls[] = (string) $item->link;
 					}
 				}
 			}
