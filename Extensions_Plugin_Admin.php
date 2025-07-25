@@ -79,7 +79,7 @@ class Extensions_Plugin_Admin {
 	 */
 	public function w3tc_admin_menu( $menu ) {
 		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			return;
+			return $menu;
 		}
 
 		$extension_val = Util_Request::get_string( 'extension' );

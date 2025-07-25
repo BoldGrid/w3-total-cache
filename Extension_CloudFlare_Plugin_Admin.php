@@ -203,12 +203,19 @@ class Extension_CloudFlare_Plugin_Admin {
 	 * @return array Updated admin bar menu items.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
-		$menu_items['20810.cloudflare'] = array(
-			'id'     => 'w3tc_flush_cloudflare',
-			'parent' => 'w3tc_flush',
-			'title'  => __( 'Cloudflare', 'w3-total-cache' ),
-			'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush' ), 'w3tc' ),
-		);
+		if (
+			$this->_config->get_boolean( array( 'cloudflare', 'enabled' ) ) &&
+			! empty( $this->_config->get_string( array( 'cloudflare', 'email' ) ) ) &&
+			! empty( $this->_config->get_string( array( 'cloudflare', 'key' ) ) ) &&
+			! empty( $this->_config->get_string( array( 'cloudflare', 'zone_id' ) ) )
+		) {
+			$menu_items['20810.cloudflare'] = array(
+				'id'     => 'w3tc_flush_cloudflare',
+				'parent' => 'w3tc_flush',
+				'title'  => __( 'Cloudflare', 'w3-total-cache' ),
+				'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush' ), 'w3tc' ),
+			);
+		}
 
 		return $menu_items;
 	}

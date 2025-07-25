@@ -103,6 +103,34 @@ if ( ! @is_dir( W3TC_DIR ) || ! file_exists( W3TC_DIR . '/w3-total-cache-api.php
 		function wp_cache_get( $id, $group = 'default', $force = false, &$found = null ) {
 			global $wp_object_cache;
 
+			static $wp_version;
+
+			// Detect and cache WP version for conditional logic.
+			if ( null === $wp_version ) {
+				include ABSPATH . WPINC . '/version.php';
+			}
+
+			// Apply notoptions short-circuit for affected WP versions (6.4.0–6.7.x).
+			if (
+				version_compare( $wp_version, '6.4', '>=' ) &&
+				version_compare( $wp_version, '6.8', '<' ) &&
+				'options' === $group &&
+				'notoptions' !== $id
+			) {
+				// Mirror WP 6.8's early notoptions lookup to avoid repeated external cache checks.
+				$notoptions = $wp_object_cache->get( 'notoptions', 'options', $force, $found );
+
+				if ( ! is_array( $notoptions ) ) {
+					$notoptions = array();
+					$wp_object_cache->set( 'notoptions', $notoptions, 'options' );
+				}
+
+				if ( isset( $notoptions[ $id ] ) ) {
+					$found = false;
+					return false;
+				}
+			}
+
 			return $wp_object_cache->get( $id, $group, $force, $found );
 		}
 

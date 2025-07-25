@@ -45,6 +45,21 @@ class Licensing_AdminActions {
 	}
 
 	/**
+	 * Handles the purchase of a Total CDN subscription.
+	 *
+	 * @return void
+	 */
+	public function w3tc_licensing_buy_tcdn() {
+		$data_src  = $this->param( 'data_src' );
+		$renew_key = $this->param( 'renew_key' );
+		$client_id = $this->param( 'client_id' );
+
+		$iframe_url = Licensing_Core::purchase_tcdn_url( $data_src, $renew_key, $client_id );
+
+		include W3TC_INC_DIR . '/lightbox/purchase.php';
+	}
+
+	/**
 	 * Retrieves and sanitizes a request parameter.
 	 *
 	 * @param string $name The name of the parameter to retrieve.
@@ -183,5 +198,18 @@ class Licensing_AdminActions {
 			),
 			true
 		);
+	}
+
+	/**
+	 * Forces a refresh of the licensing information for W3 Total Cache.
+	 *
+	 * This method is typically used to manually trigger a refresh of the
+	 * licensing data, ensuring that the latest licensing status is retrieved
+	 * and applied.
+	 *
+	 * @return void
+	 */
+	public function w3tc_force_license_refresh() {
+		Dispatcher::component( 'Licensing_Plugin_Admin' )->maybe_update_license_status( true );
 	}
 }

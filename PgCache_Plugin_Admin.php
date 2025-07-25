@@ -209,54 +209,35 @@ class PgCache_Plugin_Admin {
 			$url_matches     = null;
 			$sitemap_matches = null;
 
-			if ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<sitemap>(.*?)</sitemap>~is', $response['body'], $sitemap_matches ) ) {
-				$loc_matches = null;
+			$xml = simplexml_load_string( $response['body'] );
 
-				foreach ( $sitemap_matches[1] as $sitemap_match ) {
-					if ( preg_match( '~<loc>(.*?)</loc>~is', $sitemap_match, $loc_matches ) ) {
-						$loc = trim( $loc_matches[1] );
+			if ( false === $xml ) {
+				return $urls;
+			}
 
-						if ( $loc ) {
-							$urls = array_merge( $urls, $this->parse_sitemap( $loc ) );
-						}
+			if ( $xml->getName() === 'sitemapindex' ) {
+				foreach ( $xml->sitemap as $sitemap ) {
+					if ( $sitemap->loc ) {
+						$urls = array_merge( $urls, $this->parse_sitemap( (string) $sitemap->loc ) );
 					}
 				}
-			} elseif ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<url>(.*?)</url>~is', $response['body'], $url_matches ) ) {
-				$locs             = array();
-				$loc_matches      = null;
-				$priority_matches = null;
+			} elseif ( $xml->getName() === 'urlset' ) {
+				$locs = array();
 
-				foreach ( $url_matches[1] as $url_match ) {
-					$loc      = '';
-					$priority = 0.5;
-
-					if ( preg_match( '~<loc>(.*?)</loc>~is', $url_match, $loc_matches ) ) {
-						$loc = trim( $loc_matches[1] );
-					}
-
-					if ( preg_match( '~<priority>(.*?)</priority>~is', $url_match, $priority_matches ) ) {
-						$priority = (float) trim( $priority_matches[1] );
-					}
-
-					if ( $loc && $priority ) {
-						$locs[ $loc ] = $priority;
+				foreach ( $xml->url as $url ) {
+					if ( $url->loc ) {
+						$priority                   = isset( $url->priority ) ? (float) $url->priority : 0.5;
+						$locs[ (string) $url->loc ] = $priority;
 					}
 				}
 
 				arsort( $locs );
 
 				$urls = array_merge( $urls, array_keys( $locs ) );
-			} elseif ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<rss[^>]*>(.*?)</rss>~is', $response['body'], $sitemap_matches ) ) {
-				// rss feed format.
-				if ( preg_match_all( '~<link[^>]*>(.*?)</link>~is', $response['body'], $url_matches ) ) {
-					foreach ( $url_matches[1] as $url_match ) {
-						$url           = trim( $url_match );
-						$cdata_matches = null;
-						if ( preg_match( '~<!\[CDATA\[(.*)\]\]>~is', $url, $cdata_matches ) ) {
-							$url = $cdata_matches[1];
-						}
-
-						$urls[] = $url;
+			} elseif ( $xml->getName() === 'rss' ) {
+				foreach ( $xml->channel->item as $item ) {
+					if ( $item->link ) {
+						$urls[] = (string) $item->link;
 					}
 				}
 			}

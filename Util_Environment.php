@@ -367,6 +367,24 @@ class Util_Environment {
 	}
 
 	/**
+	 * Check whether Elementor is enabled.
+	 *
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function is_elementor() {
+		if ( is_plugin_active( 'Elementor\Plugin' ) ) {
+			return true;
+		} elseif ( is_plugin_active( 'elementor/elementor.php' ) ) {
+			// For backward compatibility with older versions of Elementor.
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Returns true if server is nginx.
 	 *
 	 * @static
