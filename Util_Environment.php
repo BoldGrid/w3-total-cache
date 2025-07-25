@@ -116,7 +116,7 @@ class Util_Environment {
 			if ( is_array( $value ) ) {
 				if ( count( $value ) ) {
 					$str .= ( ! empty( $str ) ? '&' : '' ) .
-						self::url_query( $value, $skip_empty, $key );
+						self::url_query( $value, $skip_empty, $separator );
 				}
 			} else {
 				$name = '';
@@ -364,6 +364,24 @@ class Util_Environment {
 	 */
 	public static function is_litespeed() {
 		return isset( $_SERVER['SERVER_SOFTWARE'] ) && stristr( htmlspecialchars( stripslashes( $_SERVER['SERVER_SOFTWARE'] ) ), 'LiteSpeed' ) !== false; // phpcs:ignore
+	}
+
+	/**
+	 * Check whether Elementor is enabled.
+	 *
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function is_elementor() {
+		if ( is_plugin_active( 'Elementor\Plugin' ) ) {
+			return true;
+		} elseif ( is_plugin_active( 'elementor/elementor.php' ) ) {
+			// For backward compatibility with older versions of Elementor.
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
