@@ -9,7 +9,7 @@
 namespace W3TC;
 
 /**
- * Class: Cdn_BunnyCdn_Api
+ * Class: Cdn_TotalCdn_Api
  *
  * @since x.x.x
  */
