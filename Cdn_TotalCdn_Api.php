@@ -1,6 +1,6 @@
 <?php
 /**
- * File: Cdn_BunnyCdn_Api.php
+ * File: Cdn_TotalCdn_Api.php
  *
  * @since   x.x.x
  * @package W3TC
