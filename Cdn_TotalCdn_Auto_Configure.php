@@ -230,8 +230,12 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		// Origin URL is the URL of the current site.
 		$origin_url = \home_url();
+
+		// Origin URL host.
+		$origin_url_host = \wp_parse_url( $origin_url, PHP_URL_HOST );
+
 		// Pull site's domain with periods turned into hyphens.
-		$name = \str_replace( '.', '-', \wp_parse_url( $origin_url, PHP_URL_HOST ) ) . '-' . hash( 'crc32b', $this->api_key );
+		$name = \str_replace( '.', '-', $origin_url_host ) . '-' . hash( 'crc32b', $origin_url_host );
 
 		// List all existing pull zones to check if the pull zone already exists.
 		try {
