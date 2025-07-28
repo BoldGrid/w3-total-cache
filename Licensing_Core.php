@@ -61,7 +61,7 @@ class Licensing_Core {
 	 *
 	 * @param string $license License key to be deactivated.
 	 *
-	 * @return bool mixed|false Decoded license data on success, false on failure.
+	 * @return object|false Decoded license data object on success, false on failure.
 	 */
 	public static function deactivate_license( $license ) {
 		// data to send in our API request.
