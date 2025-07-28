@@ -115,7 +115,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_auto_config() {
 		?>
-		<p>Test Auto Config LightBox</p>
+		<p></p>
 		<?php
 		\wp_die();
 	}
