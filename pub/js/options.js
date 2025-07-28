@@ -1713,7 +1713,7 @@ jQuery(function() {
 			},
 			error: function(xhr) {
 				console.error('License refresh failed', xhr);
-				alert('An error occured while attempting to refresh the license. Please try again.');
+				alert('An error occurred while attempting to refresh the license. Please try again.');
 			}
 		});
 	});
