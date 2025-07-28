@@ -513,7 +513,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param string|null $type The type of API key to retrieve ('account', 'storage', or 'stream').
+	 * @param string|null $type Optional, but should be specified. The type of API key to retrieve ('account', 'storage', or 'stream').
 	 *
 	 * @return string The API key.
 	 *
