@@ -481,7 +481,9 @@ function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
 						iframe.contentWindow.postMessage('v2_license_accepted', '*');
 
 					lightbox.options.onClose = function() {
-						window.location = window.location + '&refresh=1';
+						let currentUrl = new URL(window.location);
+						currentUrl.searchParams.set('refresh', '1');
+						window.location = currentUrl.toString();
 					}
 
 					w3tc_lightbox_save_license_key(data[1], nonce, function() {
