@@ -32,11 +32,13 @@ if (
 				'<strong>',
 				esc_html( W3TC_CDN_NAME ),
 				'</strong>',
-				'<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="' . $this->_config->get_string( 'plugin.license_key' ) . '" data-src="general_page_cdn_subscribe" value="' . sprintf(
-					// translators: 1: CDN name.
-					esc_attr__( 'Subscribe To %1$s', 'w3-total-cache' ),
-					esc_attr( W3TC_CDN_NAME )
-				) . '">',
+				'<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="' .
+					esc_attr( $this->_config->get_string( 'plugin.license_key' ) ) . '" data-src="general_page_cdn_subscribe" value="' .
+					sprintf(
+						// translators: 1: CDN name.
+						esc_attr__( 'Subscribe To %1$s', 'w3-total-cache' ),
+						esc_attr( W3TC_CDN_NAME )
+					) . '">',
 				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/w3tc_w3tc-logo.png', W3TC_FILE ) ) . '" alt="' . esc_attr( W3TC_CDN_NAME ) . ' Icon">'
 			),
 			array(
