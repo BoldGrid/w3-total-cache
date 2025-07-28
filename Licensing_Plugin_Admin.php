@@ -199,7 +199,7 @@ class Licensing_Plugin_Admin {
 			$messages = array();
 
 			// If the old key was deactivated, add a message.
-			if ( isset( $deactivate_result ) && $deactivate_result ) {
+			if ( ! empty( $deactivate_result->license_status ) ) {
 				$status = $deactivate_result->license_status;
 
 				switch ( true ) {
