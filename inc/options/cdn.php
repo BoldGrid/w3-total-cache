@@ -484,7 +484,6 @@ if (
 				$known_engines = array(
 					'totalcdn',
 					'bunnycdn',
-					'tcdn',
 					'google_drive',
 					'rackspace_cdn',
 					'rscf',
