@@ -240,6 +240,22 @@ class FeatureShowcase_Plugin_Admin {
 
 		return array(
 			'new' => array(
+				'totalcdn'         => array(
+					'title'      => esc_html__( 'Total CDN', 'w3-total-cache' ),
+					'icon'       => 'totalcdn',
+					'text'       => esc_html__( 'Accelerate your website with Total CDN, a high-performance content delivery network powered by Bunny.net. Designed to dramatically improve global load times and reduce server load, Total CDN is an easy-to-integrate premium service.', 'w3-total-cache' ) . '<br><br><small><strong>' . esc_html__( 'Please note: ', 'w3-total-cache' ) . '</strong>' . esc_html__( 'Total CDN requires a separate subscription and is not included with W3 Total Cache Pro.', 'w3-total-cache' ) . '</small>',
+					'button'     => empty( $c->get_string( 'cdn.totalcdn.account_api_key' ) ) || empty( $c->get_string( 'cdn.totalcdn.account_id' ) )
+						? '<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="' . $c->get_string( 'plugin.license_key' ) . '" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Subscribe To', 'w3-total-cache' ) . ' ' . W3TC_CDN_NAME . '">'
+						: ( \W3TC\Cdn_TotalCdn_Page::is_active()
+							? '<button class="button" onclick="window.location=\'' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ) ) . '\'">' . __( 'Settings', 'w3-total-cache' ) . '</button>'
+							: '<button class="button" onclick="window.location=\'' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '\'">' . __( 'Enable', 'w3-total-cache' ) . '</button>'
+						),
+					'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/getting-started-with-total-cdn/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=total-cdn' ) .
+						'">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+					'is_premium' => false,
+					'is_new'     => true,
+					'version'    => 'X.X.X',
+				),
 				'alwayscached'     => array(
 					'title'      => esc_html__( 'Always Cached', 'w3-total-cache' ),
 					'icon'       => 'dashicons-yes',
