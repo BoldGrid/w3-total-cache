@@ -81,20 +81,20 @@ class Cdn_TotalCdn_Auto_Configure {
 			<div class="metabox-holder">
 				<?php
 				Util_Ui::postbox_header(
-					sprintf(
+					\sprintf(
 						'%1$s %2$s',
-						esc_attr( W3TC_CDN_NAME ),
-						esc_html__( 'Auto-Configuration', 'w3-total-cache' )
+						\esc_attr( W3TC_CDN_NAME ),
+						\esc_html__( 'Auto-Configuration', 'w3-total-cache' )
 					)
 				);
 				?>
 				<input
 					type="hidden"
 					class="cdn-totalcdn-auto-config result-success"
-					value="<?php echo esc_attr( $result['success'] ? 'true' : 'false' ); ?>" />
+					value="<?php echo \esc_attr( $result['success'] ? 'true' : 'false' ); ?>" />
 				<div style="text-align: center">
 					<p class="cdn-totalcdn-auto-config result-message">
-						<?php echo esc_html( $result['message'] ); ?>
+						<?php echo \esc_html( $result['message'] ); ?>
 					</p>
 				</div>
 			</div>
@@ -184,10 +184,10 @@ class Cdn_TotalCdn_Auto_Configure {
 		if ( empty( $api_key ) ) {
 			return array(
 				'success' => false,
-				'message' => sprintf(
+				'message' => \sprintf(
 					// translators: 1: CDN name.
-					__( 'API key is not set. Please enter your %1$s API key.', 'w3-total-cache' ),
-					esc_html( W3TC_CDN_NAME )
+					\__( 'API key is not set. Please enter your %1$s API key.', 'w3-total-cache' ),
+					\esc_html( W3TC_CDN_NAME )
 				),
 			);
 		}
@@ -201,9 +201,9 @@ class Cdn_TotalCdn_Auto_Configure {
 		} catch ( \Exception $ex ) {
 			return array(
 				'success' => false,
-				'message' => sprintf(
+				'message' => \sprintf(
 					// translators: 1: Error message.
-					__( 'Failed to verify API key: %1$s', 'w3-total-cache' ),
+					\__( 'Failed to verify API key: %1$s', 'w3-total-cache' ),
 					$ex->getMessage()
 				),
 			);
@@ -213,7 +213,7 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		return array(
 			'success' => true,
-			'message' => __( 'API key is set.', 'w3-total-cache' ),
+			'message' => \__( 'API key is set.', 'w3-total-cache' ),
 		);
 	}
 
@@ -234,7 +234,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		$origin_url_host = \wp_parse_url( $origin_url, PHP_URL_HOST );
 
 		// Pull site's domain with periods turned into hyphens.
-		$name = \str_replace( '.', '-', $origin_url_host ) . '-' . hash( 'crc32b', $origin_url_host );
+		$name = \str_replace( '.', '-', $origin_url_host ) . '-' . \hash( 'crc32b', $origin_url_host );
 
 		// List all existing pull zones to check if the pull zone already exists.
 		try {
@@ -253,9 +253,9 @@ class Cdn_TotalCdn_Auto_Configure {
 						$this->config->save();
 					return array(
 						'success' => true,
-						'message' => sprintf(
+						'message' => \sprintf(
 							// translators: 1: Pull Zone ID, 2: CDN Hostname.
-							__( 'Pull zone already exists. Pull Zone ID: %1$s, CDN Hostname: %2$s', 'w3-total-cache' ),
+							\__( 'Pull zone already exists. Pull Zone ID: %1$s, CDN Hostname: %2$s', 'w3-total-cache' ),
 							$pull_zone['Id'],
 							$pull_zone['ExtCdnDomain']
 						),
@@ -265,9 +265,9 @@ class Cdn_TotalCdn_Auto_Configure {
 		} catch ( \Exception $ex ) {
 			return array(
 				'success' => false,
-				'message' => sprintf(
+				'message' => \sprintf(
 					// translators: 1: Error message.
-					__( 'Failed to list pull zones: %1$s', 'w3-total-cache' ),
+					\__( 'Failed to list pull zones: %1$s', 'w3-total-cache' ),
 					$ex->getMessage()
 				),
 			);
@@ -309,9 +309,9 @@ class Cdn_TotalCdn_Auto_Configure {
 
 			return array(
 				'success' => true,
-				'message' => sprintf(
+				'message' => \sprintf(
 					// translators: 1: Pull Zone ID, 2: CDN Hostname.
-					__( 'Pull zone created successfully. Pull Zone ID: %1$s, CDN Hostname: %2$s', 'w3-total-cache' ),
+					\__( 'Pull zone created successfully. Pull Zone ID: %1$s, CDN Hostname: %2$s', 'w3-total-cache' ),
 					$pull_zone_id,
 					$cdn_hostname
 				),
@@ -320,9 +320,9 @@ class Cdn_TotalCdn_Auto_Configure {
 		} catch ( \Exception $ex ) {
 			return array(
 				'success' => false,
-				'message' => sprintf(
+				'message' => \sprintf(
 					// translators: 1: Error message.
-					__( 'Failed to create pull zone: %1$s', 'w3-total-cache' ),
+					\__( 'Failed to create pull zone: %1$s', 'w3-total-cache' ),
 					$ex->getMessage()
 				),
 			);
@@ -345,9 +345,9 @@ class Cdn_TotalCdn_Auto_Configure {
 		if ( empty( $pull_zone_id ) ) {
 			return array(
 				'success' => false,
-				'message' => sprintf(
+				'message' => \sprintf(
 					// translators: 1: Error message.
-					__( 'Pull zone ID is not set. Please create a pull zone first.', 'w3-total-cache' ),
+					\__( 'Pull zone ID is not set. Please create a pull zone first.', 'w3-total-cache' ),
 					$pull_zone_id
 				),
 			);
@@ -360,7 +360,7 @@ class Cdn_TotalCdn_Auto_Configure {
 			try {
 				$api->add_edge_rule( $edge_rule, $pull_zone_id );
 			} catch ( \Exception $ex ) {
-				$error_messages[] = sprintf(
+				$error_messages[] = \sprintf(
 					// translators: 1: Edge Rule description/name.
 					\__( 'Could not add Edge Rule "%1$s".', 'w3-total-cache' ) . '; ',
 					\esc_html( $edge_rule['Description'] )
@@ -371,9 +371,9 @@ class Cdn_TotalCdn_Auto_Configure {
 		if ( ! empty( $error_messages ) ) {
 			return array(
 				'success' => false,
-				'message' => sprintf(
+				'message' => \sprintf(
 					// translators: 1: Error message.
-					__( 'Failed to add edge rules: %1$s', 'w3-total-cache' ),
+					\__( 'Failed to add edge rules: %1$s', 'w3-total-cache' ),
 					implode( ', ', $error_messages )
 				),
 			);
@@ -381,7 +381,7 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		return array(
 			'success' => true,
-			'message' => __( 'Edge rules set up successfully.', 'w3-total-cache' ),
+			'message' => \__( 'Edge rules set up successfully.', 'w3-total-cache' ),
 		);
 	}
 
@@ -400,7 +400,7 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		return array(
 			'success' => true,
-			'message' => __( 'CDN enabled successfully.', 'w3-total-cache' ),
+			'message' => \__( 'CDN enabled successfully.', 'w3-total-cache' ),
 		);
 	}
 
@@ -411,6 +411,8 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * Issues.
 	 *
 	 * @since x.x.x
+	 *
+	 * @return void
 	 */
 	public static function admin_notices() {
 		$config = Dispatcher::config();
@@ -433,6 +435,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		// Check if the CDN is not authorized.
 		$cdn_core          = new Cdn_Core();
 		$is_cdn_authorized = $cdn_core->is_cdn_authorized();
+
 		if ( ! $is_cdn_authorized ) {
 			return;
 		}
@@ -447,13 +450,13 @@ class Cdn_TotalCdn_Auto_Configure {
 				<p>
 					<?php
 					// Print a message indication that the pull zone and url do not match, and ask if they want to update it. Provide a Yes button and a No button.
-					echo wp_kses_post(
-						sprintf(
+					echo \wp_kses_post(
+						\sprintf(
 							// translators: 1: CDN name, 2: Pull zone URL, 3: Current site URL, 4: Update pull zone URL link.
-							__( '<p>The %1$s pull zone URL <strong>( %2$s )</strong> does not match your current Site URL <strong>( %3$s )</strong>.</p><p><a class="button button-secondary" href="%4$s">Click here to update pull zone URL</a></p>', 'w3-total-cache' ),
-							esc_html( W3TC_CDN_NAME ),
-							esc_html( $origin_url ),
-							esc_html( $current_site_url ),
+							\__( '<p>The %1$s pull zone URL <strong>( %2$s )</strong> does not match your current Site URL <strong>( %3$s )</strong>.</p><p><a class="button button-secondary" href="%4$s">Click here to update pull zone URL</a></p>', 'w3-total-cache' ),
+							\esc_html( W3TC_CDN_NAME ),
+							\esc_html( $origin_url ),
+							\esc_html( $current_site_url ),
 							\wp_nonce_url( 'admin.php?page=w3tc_cdn&w3tc_cdn_update_w3tc_cdn_pullzone', 'w3tc' )
 						)
 					);
@@ -501,15 +504,15 @@ class Cdn_TotalCdn_Auto_Configure {
 			'admin_notices',
 			function () {
 				echo '<div class="notice notice-warning is-dismissible">';
-							echo '<p>' . sprintf(
+							echo '<p>' . \sprintf(
 								// translators: 1: CDN name.
-								esc_html__( 'You have an active %1$s account. Click the button below to auto-configure it.', 'w3-total-cache' ),
-								esc_html( W3TC_CDN_NAME )
+								\esc_html__( 'You have an active %1$s account. Click the button below to auto-configure it.', 'w3-total-cache' ),
+								\esc_html( W3TC_CDN_NAME )
 							) . '</p>';
-							echo '<p><button class="button button-primary button-auto-tcdn">' . sprintf(
+							echo '<p><button class="button button-primary button-auto-tcdn">' . \sprintf(
 								// translators: 1: CDN name.
-								esc_html__( 'Auto-Configure %1$s', 'w3-total-cache' ),
-								esc_html( W3TC_CDN_NAME )
+								\esc_html__( 'Auto-Configure %1$s', 'w3-total-cache' ),
+								\esc_html( W3TC_CDN_NAME )
 							) . '</button></p>';
 				echo '</div>';
 			}
