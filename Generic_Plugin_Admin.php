@@ -1324,7 +1324,7 @@ class Generic_Plugin_Admin {
 				'<div id="w3tc-tcdn-success" class="notice inline">
 					<div class="w3tc-success-inner">
 						<div class="w3tc-success-text">
-								<h2><img class="w3tc-success-logo" src="%1$s" alt="' . esc_attr( W3TC_CDN_NAME ) . ' Logo">%2$s 🎉</h2>
+								<h2><img class="w3tc-success-logo" src="%1$s" alt="' . esc_attr( W3TC_CDN_NAME ) . ' Logo">%2$s &#x1F389;</h2>
 								<p>%3$s</p>
 								<p>%4$s</p>
 								<p>%5$s<a href="admin.php?page=w3tc_cdn">%6$s</a>.</p>
