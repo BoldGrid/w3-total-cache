@@ -18,11 +18,11 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Configuration.
 	 *
-	 * @var array
+	 * @var Config
 	 *
 	 * @since x.x.x
 	 */
-	protected $config = array();
+	protected $config;
 
 	/**
 	 * Api key.
@@ -56,11 +56,11 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param array $config Configuration.
+	 * @param Config $config Configuration.
 	 *
 	 * @return void
 	 */
-	public function __construct( $config ) {
+	public function __construct( Config $config ) {
 		$this->config = $config;
 	}
 
@@ -131,10 +131,8 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @since x.x.x
 	 */
 	public function w3tc_totalcdn_auto_configured( $applied ) {
-		$config = Dispatcher::config();
-
 		// Check if the CDN is enabled.
-		if ( $config->get( 'cdn.enabled' ) && 'totalcdn' === $config->get( 'cdn.engine' ) ) {
+		if ( $this->config->get( 'cdn.enabled' ) && 'totalcdn' === $this->config->get( 'cdn.engine' ) ) {
 			return true;
 		}
 
@@ -144,6 +142,9 @@ class Cdn_TotalCdn_Auto_Configure {
 			// If auto-configuration failed, return false.
 			return false;
 		}
+
+		// Return the original value.
+		return $applied;
 	}
 
 	/**
@@ -154,22 +155,20 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @return string Response Message.
 	 */
 	public function run() {
-		// 1. Check and verify that the account API key is set.
+		// Check and verify that the account API key is set.
 		$api_key_result = $this->check_api_key();
 		if ( false === $api_key_result['success'] ) {
 			return $api_key_result;
 		}
 
-		// 2. Setup Pull Zone.
+		// Setup Pull Zone.
 		$setup_pullzone_result = $this->setup_pull_zone();
 		if ( false === $setup_pullzone_result['success'] ) {
 			return $setup_pullzone_result;
 		}
 
-		// 5. Enable the CDN.
-		$enable_cdn_result = $this->enable_cdn();
-
-		return $enable_cdn_result;
+		// Enable the CDN and return the result.
+		return $this->enable_cdn();
 	}
 
 	/**
