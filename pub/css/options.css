@@ -1365,6 +1365,11 @@ td .w3tc-control-after span {
 	padding: 0 10px;
 }
 
+#w3tc-footer .w3tc-bunnycdn-logo {
+	width: 150px;
+	height: 50px;
+	background: url('../img/w3tc_bunnycdn_logo.svg') 0 8px no-repeat;
+}
 
 #w3tc-footer .w3tc-tcdn-logo,
 #w3tc-tcdn-ad-cdn .w3tc-tcdn-logo {
