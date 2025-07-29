@@ -32,6 +32,7 @@ class Cdn_Page extends Base_Page_Settings {
 	 */
 	public function view() {
 		$config               = Dispatcher::config();
+		$state                = Dispatcher::config_state();
 		$cdn_engine           = $config->get_string( 'cdn.engine' );
 		$cdn_enabled          = $config->get_boolean( 'cdn.enabled' );
 		$cdnfsd_engine        = $config->get_string( 'cdnfsd.engine' );

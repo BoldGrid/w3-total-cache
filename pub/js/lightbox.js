@@ -80,7 +80,7 @@ var W3tc_Lightbox = {
 
 	close: function() {
 		if (this.options.onClose)
-			this.options.onClose();
+			this.options.onClose( this );
 
 		this.container.remove();
 		W3tc_Overlay.hide();
@@ -481,7 +481,9 @@ function w3tc_lightbox_buy_plugin(nonce, data_src, renew_key, client_id) {
 						iframe.contentWindow.postMessage('v2_license_accepted', '*');
 
 					lightbox.options.onClose = function() {
-						window.location = window.location + '&refresh';
+						let currentUrl = new URL(window.location);
+						currentUrl.searchParams.set('refresh', '1');
+						window.location = currentUrl.toString();
 					}
 
 					w3tc_lightbox_save_license_key(data[1], nonce, function() {
@@ -521,6 +523,115 @@ function w3tc_lightbox_save_license_key(license_key, nonce, callback) {
 	}, 'json').fail(callback);
 }
 
+function w3tc_lightbox_auto_config_tcdn(nonce, data_src ) {
+	W3tc_Lightbox.open({
+		id:'w3tc-overlay',
+		close: '',
+		width: 800,
+		height: 300,
+		url: ajaxurl +
+			'?action=w3tc_ajax&_wpnonce=' +
+			nonce +
+			'&w3tc_action=cdn_totalcdn_auto_config',
+		onClose: function( o ) {
+			var $container = jQuery( o.container ),
+				success    = $container.find( 'input.result-success' ).val();
+
+				if ( 'true' === success ) {
+					window.location = 'admin.php?page=w3tc_dashboard&refresh&totalcdn_auto_config_success=1';
+				}
+		},
+		callback: function(lightbox) {
+			lightbox.resize();
+			var url = ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
+				'&w3tc_action=cdn_totalcdn_confirm_auto_config';
+
+			lightbox.load_form(url, '.w3tc_cdn_totalcdn_form', function(o) {
+				o.resize();
+
+			} );
+		}
+	});
+}
+
+function w3tc_lightbox_buy_tcdn(nonce, data_src, renew_key) {
+	client_id = '';
+	if (window.w3tc_ga) {
+		client_id = w3tc_ga_cid;
+	}
+
+	var minWidth = jQuery(window).width() - 30;
+	var minHeight = jQuery(window).height() - 30;
+
+	W3tc_Lightbox.open({
+		id: 'w3tc-overlay',
+		maxWidth: 1000,
+		minWidth: ( minWidth < 1000 ? minWidth : 1000 ),
+		minHeight: ( minHeight < 700 ? minHeight : 700 ),
+		url: 'admin.php?page=w3tc_dashboard&w3tc_licensing_buy_tcdn' +
+			'&_wpnonce=' + encodeURIComponent(nonce) +
+			'&data_src=' + encodeURIComponent(data_src) +
+			(renew_key ? '&renew_key=' + encodeURIComponent(renew_key) : '') +
+			(client_id ? '&client_id=' + encodeURIComponent(client_id) : ''),
+		callback: function(lightbox) {
+			var w3tc_tcdn_listener = function(event) {
+				if (event.origin.substr(event.origin.length - 12) !== ".w3-edge.com")
+					return;
+
+				var data = event.data.split(' ');
+				if (data[0] === 'api_key') {
+					// reset default timeout
+					var iframe = document.getElementById('buy_frame');
+					if (iframe.contentWindow && iframe.contentWindow.postMessage) {
+						iframe.contentWindow.postMessage('api_key_accepted', '*');
+					}
+
+					lightbox.options.onClose = function() {
+						window.location = 'admin.php?page=w3tc_dashboard&totalcdn_auto_config_success=1';
+					}
+
+					w3tc_lightbox_save_tcdn_key(data[1], data[2], data[3], nonce, function() {
+						jQuery('#buy_frame').attr('src', data[5]);
+					});
+				}
+			}
+
+			if (window.addEventListener) {
+				addEventListener("message", w3tc_tcdn_listener, false)
+			} else if (attachEvent) {
+				attachEvent("onmessage", w3tc_tcdn_listener);
+			}
+
+			jQuery('.button-primary', lightbox.container).on( 'click', function() {
+				lightbox.close();
+			});
+
+			// Allow for customizations of the "upgrade" overlay specifically.
+			jQuery( '.w3tc-overlay' ).addClass( 'w3tc-overlay-upgrade' );
+
+			lightbox.resize();
+		}
+	});
+}
+
+function w3tc_lightbox_save_tcdn_key(license_key, api_key, account_id, nonce, callback) {
+	jQuery('#plugin_license_key').val(api_key);
+	var params = {
+		w3tc_default_save_tcdn_key: 1,
+		license_key: license_key,
+		api_key: api_key,
+		account_id: account_id,
+		_wpnonce: ('array' === jQuery.type(nonce)) ? nonce[0] : nonce
+	};
+
+	jQuery.post('admin.php?page=w3tc_dashboard', params, function(data) {
+		callback();
+	}, 'json').fail(function(response) {
+		console.log( 'Error saving license key:', response);
+		callback();
+	});
+}
+
 jQuery(function() {
 	jQuery('.button-minify-recommendations').on( 'click', function() {
 		var nonce = jQuery(this).metadata().nonce;
@@ -555,6 +666,41 @@ jQuery(function() {
 
 		w3tc_lightbox_upgrade(nonce, data_src, renew_key);
 		jQuery('#w3tc-license-instruction').show();
+		return false;
+	});
+
+	jQuery('.button-auto-tcdn').on( 'click', function() {
+		var data_src = jQuery(this).data('src');
+		var nonce    = jQuery(this).data('nonce');
+
+		if (!nonce) {
+			nonce = w3tc_nonce;
+		}
+		w3tc_lightbox_auto_config_tcdn(nonce, data_src);
+	} );
+
+	jQuery(document).on( 'click', '.button-buy-tcdn', function(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		var data_src = jQuery(this).data('src');
+		var nonce = jQuery(this).data('nonce');
+		if (!nonce) {
+			nonce = w3tc_nonce;
+		}
+		var renew_key = jQuery(this).data('renew-key');
+
+		if (window.w3tc_ga) {
+			w3tc_ga(
+				'event',
+				'button',
+				{
+					eventCategory: 'click',
+					eventLabel: 'tcdn_subscribe_' + data_src
+				}
+			);
+		}
+
+		w3tc_lightbox_buy_tcdn(nonce, data_src, renew_key);
 		return false;
 	});
 

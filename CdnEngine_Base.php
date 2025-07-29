@@ -313,6 +313,13 @@ class CdnEngine_Base {
 	public function _format_url( $path ) {
 		$domain = $this->get_domain( $path );
 
+		$config_state = Dispatcher::config_state();
+		$config       = Dispatcher::config();
+
+		if ( 'totalcdn' === $config->get( 'cdn.engine' ) && false === strpos( $config_state->get( 'cdn.totalcdn.status', 'inactive.no_key' ), 'active' ) ) {
+			return false;
+		}
+
 		if ( $domain ) {
 			$scheme = $this->_get_scheme();
 			$url    = sprintf( '%s://%s/%s', $scheme, $domain, $path );

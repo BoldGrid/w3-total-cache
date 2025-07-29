@@ -335,6 +335,26 @@ class Generic_Plugin {
 					);
 				}
 
+				// Add menu item to flush all cached except Total CDN.
+				if (
+					Cdn_TotalCdn_Page::is_active() && (
+						$modules->can_empty_memcache()
+						|| $modules->can_empty_opcode()
+						|| $modules->can_empty_file()
+						|| $modules->can_empty_varnish()
+					)
+				) {
+					$menu_items['10012.generic'] = array(
+						'id'     => 'w3tc_flush_all_except_w3tc_cdn',
+						'parent' => 'w3tc',
+						'title'  => __( 'Purge All Caches Except', 'w3-total-cache' ) . ' ' . W3TC_CDN_NAME,
+						'href'   => wp_nonce_url(
+							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all_except_w3tc_cdn' ),
+							'w3tc'
+						),
+					);
+				}
+
 				// Add menu item to flush all cached except Cloudflare.
 				if (
 					$this->_config->get_boolean( 'cdnfsd.enabled' ) &&

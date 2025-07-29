@@ -2499,6 +2499,11 @@ class Util_Ui {
 	 * @return string
 	 */
 	public static function get_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
+		$config = Dispatcher::config();
+
+		$license_key       = $config->get_string( 'plugin.license_key' );
+		$license_key_param = ! empty( $license_key ) ? 'data-renew-key="' . $license_key : '"';
+
 		$score_block = '
 			<div class="w3tc-test-container-intro">
 				<span class="w3tc-test-score">' . $score . '</span><b>' . esc_html( $intro_label ) . '</b><span class="dashicons dashicons-arrow-down-alt2" ></span>
@@ -2511,7 +2516,7 @@ class Util_Ui {
 				<div class="w3tc-test-description">
 					<p>' . $score_description . ' <a target="_blank" href="' . esc_url( $score_link ) . '">' . esc_html__( 'Review the testing results', 'w3-total-cache' ) . '</a>' . esc_html__( ' to see how.', 'w3-total-cache' ) . '</p>
 					<br/>
-					<p><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">' . esc_html__( ' and improve your PageSpeed Scores today!', 'w3-total-cache' ) . '</p>
+					<p><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" ' . esc_attr( $license_key_param ) . ' value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">' . esc_html__( ' and improve your PageSpeed Scores today!', 'w3-total-cache' ) . '</p>
 				</div>
 			</div>';
 

@@ -214,8 +214,11 @@ do_action( 'w3tc_dashboard_top_nav_bar' );
 			</a>
 			<?php
 			if ( \user_can( \get_current_user_id(), 'manage_options' ) && ! Util_Environment::is_w3tc_pro( $config ) ) {
+				$license_key       = $config->get_string( 'plugin.license_key' );
+				$license_key_param = ! empty( $license_key ) ? 'data-renew-key="' . $license_key : '"';
+
 				echo '<input type="button" class="button-primary button-buy-plugin {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) . '\'}"
-					data-src="top_nav_bar" value="' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '" />';
+					data-src="top_nav_bar" ' . esc_attr( $license_key_param ) . ' value="' . esc_html__( 'Upgrade', 'w3-total-cache' ) . '" />';
 			}
 			?>
 		</div>
