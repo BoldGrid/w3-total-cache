@@ -98,38 +98,10 @@ class SiteHealth_Cdn {
 				'Your site is not using a Content Delivery Network (CDN). Using a CDN can improve your site\'s performance by caching static files closer to your visitors.',
 				'w3-total-cache'
 			);
-			$result['actions']     = $this->get_actions( $config );
+			$url                   = wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ), 'w3tc' );
+			$result['actions']     = '<p><a href="' . esc_url( $url ) . '" class="button button-primary">' . esc_html__( 'Enable', 'w3-total-cache' ) . '</a></p>';
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Generates the action markup when CDN is disabled.
-	 *
-	 * @param Config $config Plugin configuration.
-	 *
-	 * @return string HTML actions.
-	 * @since  x.x.x
-	 */
-	private function get_actions( $config ) {
-		$api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
-
-		if ( ! empty( $api_key ) ) {
-			$url = wp_nonce_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ), 'w3tc' );
-			return '<p><a href="' . esc_url( $url ) . '" class="button button-primary">' . esc_html__( 'Enable', 'w3-total-cache' ) . '</a></p>';
-		}
-
-		$license_key = $config->get_string( 'plugin.license_key' );
-		$button      = '<input type="button" class="button-primary btn button-buy-tcdn"';
-		$button     .= ' data-renew-key="' . esc_attr( $license_key ) . '"';
-		$button     .= ' data-src="site_health"';
-		$button     .= sprintf(
-			' value="%1$s %2$s" />',
-			esc_attr__( 'Purchase', 'w3-total-cache' ),
-			esc_attr( W3TC_CDN_NAME )
-		);
-
-		return '<p>' . $button . '</p>';
 	}
 }
