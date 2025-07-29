@@ -39,7 +39,7 @@ if (
 						esc_attr__( 'Subscribe To %1$s', 'w3-total-cache' ),
 						esc_attr( W3TC_CDN_NAME )
 					) . '">',
-				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/w3tc_w3tc-logo.png', W3TC_FILE ) ) . '" alt="' . esc_attr( W3TC_CDN_NAME ) . ' Icon">'
+				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/totalcdn-logo.png', W3TC_FILE ) ) . '" alt="' . esc_attr( W3TC_CDN_NAME ) . ' icon">'
 			),
 			array(
 				'strong' => array(),

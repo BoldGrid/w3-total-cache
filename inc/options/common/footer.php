@@ -125,8 +125,8 @@ do_action( 'w3tc-dashboard-footer' );
 			</div>
 			<div class="w3tc-footer-inner-column-50">
 				<h2><?php esc_html_e( 'Partners', 'w3-total-cache' ); ?></h2>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( W3TC_BUNNYCDN_SIGNUP_URL ); ?>" alt="Bunny CDN">
-					<div class="w3tc-bunnycdn-logo"></div>
+				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( W3TC_PURCHASE_CDN_URL ); ?>" alt="<?php echo esc_url( W3TC_CDN_NAME ); ?>">
+					<div class="w3tc-tcdn-logo"></div>
 				</a>
 			</div>
 		</div>

@@ -64,7 +64,7 @@ Util_Ui::config_overloading_button(
 				'<strong>',
 				'</strong>',
 				'<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="' . $config->get_string( 'plugin.license_key' ) . '" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Subscribe To', 'w3-total-cache' ) . ' ' . W3TC_CDN_NAME . '">',
-				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/w3tc_w3tc-logo.png', W3TC_FILE ) ) . '" alt="' . W3TC_CDN_NAME . ' Icon">',
+				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/totalcdn-logo.png', W3TC_FILE ) ) . '" alt="' . W3TC_CDN_NAME . ' icon">',
 				W3TC_CDN_NAME
 			),
 			array(
