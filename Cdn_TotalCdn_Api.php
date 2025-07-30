@@ -214,9 +214,24 @@ class Cdn_TotalCdn_Api {
 	 * @return array|WP_Error API response or error object.
 	 */
 	public function list_pull_zones() {
+			$this->api_type = 'account';
+
+			return $this->wp_remote_get( \esc_url( $this->api_base_url . '/pullzones' ) );
+	}
+
+	/**
+	 * Gets account details including product limits.
+	 *
+	 * @since x.x.x
+	 *
+	 * @link https://docs.bunny.net/reference/account_get
+	 *
+	 * @return array|WP_Error API response or error object.
+	 */
+	public function get_account() {
 		$this->api_type = 'account';
 
-		return $this->wp_remote_get( \esc_url( $this->api_base_url . '/pullzones' ) );
+		return $this->wp_remote_get( \esc_url( $this->api_base_url . '/account' ) );
 	}
 
 	/**
@@ -630,7 +645,7 @@ class Cdn_TotalCdn_Api {
 			\array_merge(
 				array(
 					'headers' => array(
-						'ApiKey'    => $api_key,
+						'ApiKey'       => $api_key,
 						'Accept'       => 'application/json',
 						'Content-Type' => 'application/json',
 					),

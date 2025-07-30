@@ -12,7 +12,6 @@
  *     Bunny CDN API configuration details.
  *
  *     @type array  $pull_zones      Pull zones.
- *     @type bool   $can_add_pull_zone Whether a new pull zone can be added.
  *     @type string $error_message   Error message (optional).
  * }
  */
@@ -29,10 +28,8 @@ defined( 'W3TC' ) || die();
 		<?php Util_Ui::postbox_header( esc_html__( 'Select a pull zone', 'w3-total-cache' ) ); ?>
 		<table class="form-table">
 			<tr>
-                               <select id="w3tc-pull-zone-id">
-                                       <?php if ( empty( $details['can_add_pull_zone'] ) || $details['can_add_pull_zone'] ) : ?>
-                                       <option value=""<?php echo empty( $details['pull_zone_id'] ) ? ' selected' : ''; ?>>Add a new pull zone</option>
-                                       <?php endif; ?>
+				<select id="w3tc-pull-zone-id">
+					<option value=""<?php echo empty( $details['pull_zone_id'] ) ? ' selected' : ''; ?>>Add a new pull zone</option>
 			<?php
 			if ( ! empty( $details['pull_zones'] ) ) {
 				// List pull zones for selection.
