@@ -22,7 +22,6 @@ jQuery(function($) {
 		// Load the authorization or subscription form.
 		.on('click', '.w3tc_cdn_totalcdn_authorize', function() {
 			if ( W3TC_TotalCdn.has_api_key ) {
-				console.log('Loading pull zone selection form...');
 				W3tc_Lightbox.open({
 					id:'w3tc-overlay',
 					close: '',
@@ -35,7 +34,6 @@ jQuery(function($) {
 					callback: w3tc_totalcdn_resize
 				});
 			} else {
-				console.log('Loading subscription form...');
 				w3tc_lightbox_buy_tcdn( w3tc_nonce, 'cdn_authorize', W3TC_TotalCdn.license_key );
 			}
 		})
