@@ -306,8 +306,6 @@ class Cdn_TotalCdn_Popup {
 			}
 		}
 
-		error_log( 'Can Add Pull Zone: ' . json_encode( $can_add_pull_zone ) );
-
 		// Determine default pull zone id.
 		$pull_zone_id = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 		if ( empty( $pull_zone_id ) ) {
