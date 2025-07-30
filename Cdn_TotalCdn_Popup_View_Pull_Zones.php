@@ -17,6 +17,7 @@
  *     @type string $suggested_origin_url Suggested origin URL or IP.
  *     @type string $suggested_zone_name  Suggested pull zone name.
  *     @type int    $pull_zone_id         Pull zone id.
+ *     @type bool   $can_add_pull_zone    Whether a new pull zone can be added.
  *     @type string $error_message        Error message (optional).
  * }
  * @param string           $server_ip       Server IP address.
@@ -36,7 +37,9 @@ defined( 'W3TC' ) || die();
 		<table class="form-table">
 			<tr>
 				<select id="w3tc-pull-zone-id">
-					<option value=""<?php echo empty( $details['pull_zone_id'] ) ? ' selected' : ''; ?>>Add a new pull zone</option>
+					<?php if ( false !== $details['can_add_pull_zone'] ) : ?>
+						<option value=""<?php echo empty( $details['pull_zone_id'] ) ? ' selected' : ''; ?>>Add a new pull zone</option>
+					<?php endif; ?>
 			<?php
 			if ( ! empty( $details['pull_zones'] ) ) {
 				// List pull zones for selection.
