@@ -325,7 +325,7 @@ class Cdn_TotalCdn_Popup {
 
 		$origin_url_host = \wp_parse_url( \home_url(), PHP_URL_HOST );
 
-		$suggested_zone_name = \str_replace( '.', '-', $origin_url_host ) . '-' . \hash( 'crc32b', $origin_url_host );
+		$suggested_zone_name = \str_replace( '.', '-', $origin_url_host ) . '-' . \hash( 'crc32b', $account_api_key );
 
 		$details = array(
 			'pull_zones'           => $pull_zones,
