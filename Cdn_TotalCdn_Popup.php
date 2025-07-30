@@ -260,7 +260,8 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_list_pull_zones() {
-		$account_api_key = Util_Request::get_string( 'account_api_key' );
+		$config          = Dispatcher::config();
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$api             = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
 
 		// Try to retrieve pull zones.
