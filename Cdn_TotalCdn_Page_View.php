@@ -36,9 +36,12 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 				<input class="w3tc_cdn_totalcdn_authorize button-primary" type="button"
 					value="
 					<?php
-						$account_api_key ? esc_attr_e( 'Authorize', 'w3-total-cache' ) :
-						// translators: %s: CDN name.
-						printf( esc_attr__( 'Subscribe to %s', 'w3-total-cache' ), esc_html( W3TC_CDN_NAME ) );
+						if ( $account_api_key ) {
+							echo esc_attr__( 'Authorize', 'w3-total-cache' );
+						} else {
+							// translators: %s: CDN name.
+							echo sprintf( esc_attr__( 'Subscribe to %s', 'w3-total-cache' ), esc_html( W3TC_CDN_NAME ) );
+						}
 					?>
 					"
 					<?php echo ( $is_unavailable ? 'disabled' : '' ); ?> />
