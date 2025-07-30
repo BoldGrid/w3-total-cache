@@ -104,11 +104,11 @@ class Cdn_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function admin_print_scripts_w3tc_cdn() {
-        $config        = Dispatcher::config();
-        $is_authorized = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
-                        ( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
-        $has_api_key   = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) );
-        $license_key   = $config->get_string( 'plugin.license_key' );
+		$config        = Dispatcher::config();
+		$is_authorized = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
+			( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
+		$has_api_key   = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) );
+		$license_key   = $config->get_string( 'plugin.license_key' );
 
 		\wp_register_script(
 			'w3tc_cdn_totalcdn',
@@ -118,21 +118,21 @@ class Cdn_TotalCdn_Page {
 			false
 		);
 
-                \wp_localize_script(
-                        'w3tc_cdn_totalcdn',
-                        'W3TC_TotalCdn',
-                        array(
-                                'is_authorized' => $is_authorized,
-                                'has_api_key'   => $has_api_key,
-                                'license_key'   => $license_key,
-                                'lang'          => array(
-                                        'empty_url'       => \esc_html__( 'No URL specified', 'w3-total-cache' ),
-                                        'success_purging' => \esc_html__( 'Successfully purged URL', 'w3-total-cache' ),
-                                        'error_purging'   => \esc_html__( 'Error purging URL', 'w3-total-cache' ),
-                                        'error_ajax'      => \esc_html__( 'Error with AJAX', 'w3-total-cache' ),
-                                ),
-                        )
-                );
+		\wp_localize_script(
+			'w3tc_cdn_totalcdn',
+			'W3TC_TotalCdn',
+			array(
+				'is_authorized' => $is_authorized,
+				'has_api_key'   => $has_api_key,
+				'license_key'   => $license_key,
+				'lang'          => array(
+					'empty_url'       => \esc_html__( 'No URL specified', 'w3-total-cache' ),
+					'success_purging' => \esc_html__( 'Successfully purged URL', 'w3-total-cache' ),
+					'error_purging'   => \esc_html__( 'Error purging URL', 'w3-total-cache' ),
+					'error_ajax'      => \esc_html__( 'Error with AJAX', 'w3-total-cache' ),
+				),
+			)
+		);
 
 		\wp_enqueue_script( 'w3tc_cdn_totalcdn' );
 	}

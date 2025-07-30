@@ -19,26 +19,26 @@ jQuery(function($) {
 
 	// Add event handlers.
 	$('body')
-                // Load the authorization or subscription form.
-                .on('click', '.w3tc_cdn_totalcdn_authorize', function() {
-                        if ( W3TC_TotalCdn.has_api_key ) {
-                                console.log('Loading pull zone selection form...');
-                                W3tc_Lightbox.open({
-                                        id:'w3tc-overlay',
-                                        close: '',
-                                        width: 800,
-                                        height: 300,
-                                        url: ajaxurl +
-                                                '?action=w3tc_ajax&_wpnonce=' +
-                                                w3tc_nonce +
-                                                '&w3tc_action=cdn_totalcdn_list_pull_zones',
-                                        callback: w3tc_totalcdn_resize
-                                });
-                        } else {
-                                console.log('Loading subscription form...');
-                                w3tc_lightbox_buy_tcdn( w3tc_nonce, 'cdn_authorize', W3TC_TotalCdn.license_key );
-                        }
-                })
+		// Load the authorization or subscription form.
+		.on('click', '.w3tc_cdn_totalcdn_authorize', function() {
+			if ( W3TC_TotalCdn.has_api_key ) {
+				console.log('Loading pull zone selection form...');
+				W3tc_Lightbox.open({
+					id:'w3tc-overlay',
+					close: '',
+					width: 800,
+					height: 300,
+					url: ajaxurl +
+							'?action=w3tc_ajax&_wpnonce=' +
+							w3tc_nonce +
+							'&w3tc_action=cdn_totalcdn_list_pull_zones',
+					callback: w3tc_totalcdn_resize
+				});
+			} else {
+				console.log('Loading subscription form...');
+				w3tc_lightbox_buy_tcdn( w3tc_nonce, 'cdn_authorize', W3TC_TotalCdn.license_key );
+			}
+		})
 
 		// Sanitize the account API key input value.
 		.on('change', '#w3tc-account-api-key', function() {
