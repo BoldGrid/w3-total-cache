@@ -293,14 +293,11 @@ class Cdn_TotalCdn_Popup {
 		// Determine if a new pull zone can be added.
 		$max_pull_zones    = 0;
 		$can_add_pull_zone = true;
-		if ( ! empty( $account_info['products'] ) && \is_array( $account_info['products'] ) ) {
-			foreach ( $account_info['products'] as $product ) {
-				if ( isset( $product['max_pull_zones'] ) ) {
-						$max_pull_zones += (int) $product['max_pull_zones'];
-						break;
-				} elseif ( isset( $product['MaxPullZones'] ) ) {
-						$max_pull_zones += (int) $product['MaxPullZones'];
-						break;
+		if ( ! empty( $account_info['Products'] ) && \is_array( $account_info['Products'] ) ) {
+			foreach ( $account_info['Products'] as $product ) {
+				if ( isset( $product['MaxPullZones'] ) ) {
+					$max_pull_zones += (int) $product['MaxPullZones'];
+					break;
 				}
 			}
 
@@ -308,6 +305,8 @@ class Cdn_TotalCdn_Popup {
 				$can_add_pull_zone = \count( $pull_zones ) < $max_pull_zones;
 			}
 		}
+
+		error_log( 'Can Add Pull Zone: ' . json_encode( $can_add_pull_zone ) );
 
 		// Determine default pull zone id.
 		$pull_zone_id = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
@@ -326,10 +325,14 @@ class Cdn_TotalCdn_Popup {
 			}
 		}
 
+		$origin_url_host = \wp_parse_url( \home_url(), PHP_URL_HOST );
+
+		$suggested_zone_name = \str_replace( '.', '-', $origin_url_host ) . '-' . \hash( 'crc32b', $origin_url_host );
+
 		$details = array(
 			'pull_zones'           => $pull_zones,
 			'suggested_origin_url' => \home_url(), // Suggested origin URL or IP.
-			'suggested_zone_name'  => \substr( \str_replace( '.', '-', \wp_parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
+			'suggested_zone_name'  => $suggested_zone_name,
 			'pull_zone_id'         => $pull_zone_id,
 			'can_add_pull_zone'    => $can_add_pull_zone,
 		);
