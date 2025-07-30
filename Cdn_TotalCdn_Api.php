@@ -214,9 +214,9 @@ class Cdn_TotalCdn_Api {
 	 * @return array|WP_Error API response or error object.
 	 */
 	public function list_pull_zones() {
-			$this->api_type = 'account';
+		$this->api_type = 'account';
 
-			return $this->wp_remote_get( \esc_url( $this->api_base_url . '/pullzones' ) );
+		return $this->wp_remote_get( \esc_url( $this->api_base_url . '/pullzones' ) );
 	}
 
 	/**
