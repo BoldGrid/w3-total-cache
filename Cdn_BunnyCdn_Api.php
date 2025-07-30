@@ -190,11 +190,26 @@ class Cdn_BunnyCdn_Api {
 	 *
 	 * @return array|WP_Error API response or error object.
 	 */
-	public function list_pull_zones() {
-		$this->api_type = 'account';
+        public function list_pull_zones() {
+                $this->api_type = 'account';
 
-		return $this->wp_remote_get( \esc_url( 'https://api.bunny.net/pullzone' ) );
-	}
+                return $this->wp_remote_get( \esc_url( 'https://api.bunny.net/pullzone' ) );
+        }
+
+       /**
+        * Gets account details including product limits.
+        *
+        * @since 2.7.0
+        *
+        * @link https://docs.bunny.net/reference/account_get
+        *
+        * @return array|WP_Error API response or error object.
+        */
+       public function get_account() {
+               $this->api_type = 'account';
+
+               return $this->wp_remote_get( \esc_url( 'https://api.bunny.net/account' ) );
+       }
 
 	/**
 	 * Gets the details of a specific pull zone.
