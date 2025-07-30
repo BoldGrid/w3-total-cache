@@ -314,7 +314,7 @@ class Cdn_TotalCdn_Popup {
 					continue;
 				}
 
-					$origin_host = \strtolower( \wp_parse_url( $pz['OriginUrl'], PHP_URL_HOST ) );
+				$origin_host = \strtolower( \wp_parse_url( $pz['OriginUrl'], PHP_URL_HOST ) );
 				if ( $origin_host === $home_host ) {
 					$pull_zone_id = $pz['Id'];
 					break;
