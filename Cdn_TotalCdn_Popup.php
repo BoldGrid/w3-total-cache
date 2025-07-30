@@ -297,7 +297,6 @@ class Cdn_TotalCdn_Popup {
 			foreach ( $account_info['Products'] as $product ) {
 				if ( isset( $product['MaxPullZones'] ) ) {
 					$max_pull_zones += (int) $product['MaxPullZones'];
-					break;
 				}
 			}
 
