@@ -56,8 +56,8 @@ class Extension_AiCrawler_Plugin_Admin {
 	 */
 	public function w3tc_admin_menu( $menu ) {
 		$menu['w3tc_aicrawler'] = array(
-			'page_title'     => __( 'AI Crawler Extension', 'w3-total-cache' ),
-			'menu_text'      => __( 'AI Crawler Extension', 'w3-total-cache' ),
+			'page_title'     => __( 'AI Crawler', 'w3-total-cache' ),
+			'menu_text'      => __( 'AI Crawler', 'w3-total-cache' ),
 			'visible_always' => false,
 			'order'          => 2000,
 		);
