@@ -50,6 +50,7 @@ class Extensions_Plugin_Admin {
 		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_Wpml_Plugin_Admin', 'w3tc_extensions_hooks' ) );
 		add_action( 'w3tc_notes_wpml', array( '\W3TC\Extension_Wpml_Plugin_Admin', 'w3tc_notes_wpml' ) );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_ImageService_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Sample_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_action( 'admin_init', array( $this, 'admin_init' ), 1 );
 		add_filter( 'pre_update_option_active_plugins', array( $this, 'pre_update_option_active_plugins' ) );
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ), 10000 );
