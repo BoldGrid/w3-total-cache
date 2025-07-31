@@ -49,6 +49,7 @@ class Extension_AiCrawler_Plugin_Admin {
 	 */
 	public function run() {
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
+		add_filter( 'w3tc_extension_plugin_links_aicrawler', array( $this, 'w3tc_extension_plugin_links' ) );
 		add_action( 'w3tc_settings_page-w3tc_aicrawler', array( $this, 'w3tc_extension_page' ) );
 	}
 
@@ -80,5 +81,20 @@ class Extension_AiCrawler_Plugin_Admin {
 	public function w3tc_extension_page() {
 		$view = new Extension_AiCrawler_Page();
 		$view->render_content();
+	}
+
+	/**
+	 * Adds custom plugin links for the New Relic extension.
+	 *
+	 * @param array $links Existing array of plugin links.
+	 *
+	 * @return array Modified array of plugin links with New Relic settings link added.
+	 */
+	public function w3tc_extension_plugin_links( $links ) {
+		$links   = array();
+		$links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_aicrawler' ) ) .
+			'">' . __( 'Settings' ) . '</a>';
+
+		return $links;
 	}
 }
