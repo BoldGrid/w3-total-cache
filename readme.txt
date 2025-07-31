@@ -369,7 +369,6 @@ Please reach out to all of these people and support their projects if you're so 
 * Fix: Menu items for non-administrators
 * Update: Lazy load library: 12.2.0 => 19.1.2
 * Enhancement: Use SimpleXMLElement to parse sitemaps and RSS feeds
-* Enhancement: Use CDN links in the block editor
 * Enhancement: Flush Elementor cache when all caches are flushed
 
 = 2.8.10 =
