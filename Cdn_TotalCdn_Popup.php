@@ -260,12 +260,14 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_list_pull_zones() {
-		$account_api_key = Util_Request::get_string( 'account_api_key' );
+		$config          = Dispatcher::config();
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$api             = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
 
-		// Try to retrieve pull zones.
+		// Try to retrieve pull zones and account details.
 		try {
-			$pull_zones = $api->list_pull_zones();
+			$pull_zones   = $api->list_pull_zones();
+			$account_info = $api->get_account();
 		} catch ( \Exception $ex ) {
 			// Reauthorize: Ask for a new account API key.
 			$this->render_intro(
@@ -288,11 +290,52 @@ class Cdn_TotalCdn_Popup {
 		$server_ip = ! empty( $_SERVER['SERVER_ADDR'] ) && \filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_VALIDATE_IP ) ?
 			\filter_var( \wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_SANITIZE_URL ) : null;
 
+		// Determine if a new pull zone can be added.
+		$max_pull_zones    = 0;
+		$can_add_pull_zone = true;
+		if ( ! empty( $account_info['Products'] ) && \is_array( $account_info['Products'] ) ) {
+			foreach ( $account_info['Products'] as $product ) {
+				if ( isset( $product['MaxPullZones'] ) ) {
+					$max_pull_zones += (int) $product['MaxPullZones'];
+				}
+			}
+
+			if ( 0 !== $max_pull_zones ) {
+				$can_add_pull_zone = \count( $pull_zones ) < $max_pull_zones;
+			}
+		}
+
+		$home_host           = \wp_parse_url( \home_url(), PHP_URL_HOST );
+		$suggested_zone_name = \str_replace( '.', '-', $home_host ) . '-' . \hash( 'crc32b', $account_api_key );
+
+		/*
+		 * This checks the existing pull zones, to see if there is one that
+		 * exists that matches the current site, by comparing the origin URL
+		 * converted to a host, with the home URL host. We don't compare the
+		 * URLs directly, in case of different ports protocols, or trailing slashes.
+		 */
+		$pull_zone_id = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
+		if ( empty( $pull_zone_id ) ) {
+			$home_host = \strtolower( $home_host );
+			foreach ( $pull_zones as $pz ) {
+				if ( empty( $pz['OriginUrl'] ) ) {
+					continue;
+				}
+
+				$origin_host = \strtolower( \wp_parse_url( $pz['OriginUrl'], PHP_URL_HOST ) );
+				if ( $origin_host === $home_host ) {
+					$pull_zone_id = $pz['Id'];
+					break;
+				}
+			}
+		}
+
 		$details = array(
 			'pull_zones'           => $pull_zones,
 			'suggested_origin_url' => \home_url(), // Suggested origin URL or IP.
-			'suggested_zone_name'  => \substr( \str_replace( '.', '-', \wp_parse_url( \home_url(), PHP_URL_HOST ) ), 0, 60 ), // Suggested pull zone name.
-			'pull_zone_id'         => $config->get_integer( 'cdn.totalcdn.pull_zone_id' ),
+			'suggested_zone_name'  => $suggested_zone_name,
+			'pull_zone_id'         => $pull_zone_id,
+			'can_add_pull_zone'    => $can_add_pull_zone,
 		);
 
 		foreach ( $details['pull_zones'] as $key => $pull_zone ) {

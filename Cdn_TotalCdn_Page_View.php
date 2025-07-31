@@ -26,15 +26,25 @@ $ssl_cert_loaded = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loaded
 	<tr>
 		<th style="width: 300px;">
 			<label>
-				<?php esc_html_e( 'Account API key authorization', 'w3-total-cache' ); ?>:
+				<?php esc_html_e( 'Initial Configuration', 'w3-total-cache' ); ?>:
 			</label>
 		</th>
 		<td>
 			<?php if ( $is_authorized ) : ?>
 				<input class="w3tc_cdn_totalcdn_deauthorization button-primary" type="button" value="<?php esc_attr_e( 'Deauthorize', 'w3-total-cache' ); ?>" />
 			<?php else : ?>
-				<input class="w3tc_cdn_totalcdn_authorize button-primary" type="button" value="<?php esc_attr_e( 'Authorize', 'w3-total-cache' ); ?>"
-				<?php echo ( $is_unavailable ? 'disabled' : '' ); ?> />
+				<input class="w3tc_cdn_totalcdn_authorize button-primary" type="button"
+					value="
+					<?php
+						if ( $account_api_key ) {
+							echo esc_attr__( 'Authorize', 'w3-total-cache' );
+						} else {
+							// translators: %s: CDN name.
+							echo sprintf( esc_attr__( 'Subscribe to %s', 'w3-total-cache' ), esc_html( W3TC_CDN_NAME ) );
+						}
+					?>
+					"
+					<?php echo ( $is_unavailable ? 'disabled' : '' ); ?> />
 				<?php if ( $is_unavailable ) : ?>
 					<div class="notice notice-info">
 						<p>

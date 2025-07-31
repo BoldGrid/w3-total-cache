@@ -131,8 +131,8 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @since x.x.x
 	 */
 	public function w3tc_totalcdn_auto_configured( $applied ) {
-		// Check if the CDN is enabled.
-		if ( $this->config->get( 'cdn.enabled' ) && 'totalcdn' === $this->config->get( 'cdn.engine' ) ) {
+		// Check if the CDN is enabled, and the pull zone is configured.
+		if ( $this->config->get( 'cdn.enabled' ) && 'totalcdn' === $this->config->get( 'cdn.engine' ) && $this->config->get( 'cdn.totalcdn.pull_zone_id' ) ) {
 			return true;
 		}
 
@@ -234,7 +234,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		$origin_url_host = \wp_parse_url( $origin_url, PHP_URL_HOST );
 
 		// Pull site's domain with periods turned into hyphens.
-		$name = \str_replace( '.', '-', $origin_url_host ) . '-' . \hash( 'crc32b', $origin_url_host );
+		$name = \str_replace( '.', '-', $origin_url_host ) . '-' . \hash( 'crc32b', $this->api_key );
 
 		// List all existing pull zones to check if the pull zone already exists.
 		try {
