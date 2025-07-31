@@ -37,7 +37,7 @@ defined( 'W3TC' ) || die();
 		<table class="form-table">
 			<tr>
 				<select id="w3tc-pull-zone-id">
-					<?php if ( false !== $details['can_add_pull_zone'] ) : ?>
+					<?php if ( ! empty( $details['can_add_pull_zone'] ) ) : ?>
 						<option value=""<?php echo empty( $details['pull_zone_id'] ) ? ' selected' : ''; ?>>Add a new pull zone</option>
 					<?php endif; ?>
 			<?php

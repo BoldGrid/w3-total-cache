@@ -305,10 +305,18 @@ class Cdn_TotalCdn_Popup {
 			}
 		}
 
-		// Determine default pull zone id.
+		$home_host           = \wp_parse_url( \home_url(), PHP_URL_HOST );
+		$suggested_zone_name = \str_replace( '.', '-', $home_host ) . '-' . \hash( 'crc32b', $account_api_key );
+
+		/*
+		 * This checks the existing pull zones, to see if there is one that
+		 * exists that matches the current site, by comparing the origin URL
+		 * converted to a host, with the home URL host. We don't compare the
+		 * URLs directly, in case of different ports protocols, or trailing slashes.
+		 */
 		$pull_zone_id = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 		if ( empty( $pull_zone_id ) ) {
-			$home_host = \strtolower( \wp_parse_url( \home_url(), PHP_URL_HOST ) );
+			$home_host = \strtolower( $home_host );
 			foreach ( $pull_zones as $pz ) {
 				if ( empty( $pz['OriginUrl'] ) ) {
 					continue;
@@ -321,10 +329,6 @@ class Cdn_TotalCdn_Popup {
 				}
 			}
 		}
-
-		$origin_url_host = \wp_parse_url( \home_url(), PHP_URL_HOST );
-
-		$suggested_zone_name = \str_replace( '.', '-', $origin_url_host ) . '-' . \hash( 'crc32b', $account_api_key );
 
 		$details = array(
 			'pull_zones'           => $pull_zones,
