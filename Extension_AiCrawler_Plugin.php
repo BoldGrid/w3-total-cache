@@ -25,10 +25,8 @@ class Extension_AiCrawler_Plugin {
 	}
 }
 
-$aicrawler_plugin = new Extension_AiCrawler_Plugin();
-$aicrawler_plugin->run();
+( new Extension_AiCrawler_Plugin() )->run();
 
 if ( is_admin() ) {
-	$admin = new Extension_AiCrawler_Plugin_Admin();
-	$admin->run();
+	( new Extension_AiCrawler_Plugin_Admin() )->run();
 }
