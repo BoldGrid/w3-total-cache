@@ -44,15 +44,6 @@ class Cdn_Plugin {
 	private $_attachments_action = array();
 
 	/**
-	 * Helper for content filtering.
-	 *
-	 * @var _Cdn_Plugin_ContentFilter
-	 *
-	 * @since x.x.x
-	 */
-	private $_content_filter_helper = null;
-
-	/**
 	 * Constructor for initializing CDN plugin configuration and debug flag.
 	 *
 	 * @return void
@@ -69,7 +60,6 @@ class Cdn_Plugin {
 	 */
 	public function run() {
 		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
-		$this->_content_filter_helper = new _Cdn_Plugin_ContentFilter();
 
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
@@ -103,10 +93,6 @@ class Cdn_Plugin {
 
 		if ( ! is_admin() || $this->_config->get_boolean( 'cdn.admin.media_library' ) ) {
 			add_filter( 'wp_prepare_attachment_for_js', array( $this, 'wp_prepare_attachment_for_js' ), 0 );
-		}
-
-		if ( $this->_config->get_boolean( 'cdn.admin.media_library' ) ) {
-			add_filter( 'rest_post_dispatch', array( $this, 'rest_post_dispatch' ), 10, 3 );
 		}
 
 		// Start rewrite engine.
@@ -967,49 +953,6 @@ class Cdn_Plugin {
 		$buffer = str_replace( '{w3tc_cdn_debug_info}', implode( "\n", $strings ), $buffer );
 
 		return $buffer;
-	}
-
-	/**
-	 * Filters REST API responses to replace media links with CDN URLs.
-	 *
-	 * @param \WP_HTTP_Response $response Response object.
-	 * @param \WP_REST_Server   $server   Server instance.
-	 * @param \WP_REST_Request  $request  Current request object.
-	 *
-	 * @return \WP_HTTP_Response Modified response object.
-	 */
-	public function rest_post_dispatch( $response, $server, $request ) {
-		if ( ! ( $response instanceof \WP_REST_Response ) ) {
-			return $response;
-		}
-
-		$data = $response->get_data();
-
-		/*
-		 * The responses we want to adjust will be arrays.
-		 * But other responses may be objects, which will throw an error
-		 * if we try to access them as arrays.
-		 */
-		if ( ! is_array( $data ) ) {
-			return $response;
-		}
-
-		if ( isset( $data['content'] ) ) {
-			if ( is_array( $data['content'] ) ) {
-				if ( isset( $data['content']['raw'] ) ) {
-					$data['content']['raw'] = $this->_content_filter_helper->replace_all_links( $data['content']['raw'] );
-				}
-				if ( isset( $data['content']['rendered'] ) ) {
-					$data['content']['rendered'] = $this->_content_filter_helper->replace_all_links( $data['content']['rendered'] );
-				}
-			} elseif ( is_string( $data['content'] ) ) {
-				$data['content'] = $this->_content_filter_helper->replace_all_links( $data['content'] );
-			}
-
-			$response->set_data( $data );
-		}
-
-		return $response;
 	}
 }
 
