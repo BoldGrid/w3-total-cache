@@ -58,6 +58,9 @@ class Extension_AiCrawler_Plugin_Admin {
 	 *
 	 * @param array $menu Existing menu entries.
 	 *
+	 * @todo Possibly add a capability check here to restrict access.
+	 *       to administrators or specific user roles.
+	 *
 	 * @return array
 	 * @since  x.x.x
 	 */
