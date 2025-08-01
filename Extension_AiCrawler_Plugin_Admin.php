@@ -82,8 +82,7 @@ class Extension_AiCrawler_Plugin_Admin {
 	 * @since  x.x.x
 	 */
 	public function w3tc_extension_page() {
-		$view = new Extension_AiCrawler_Page();
-		$view->render_content();
+		( new Extension_AiCrawler_Page_View() )->render_content();
 	}
 
 	/**
