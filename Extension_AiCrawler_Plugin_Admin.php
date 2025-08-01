@@ -28,7 +28,7 @@ class Extension_AiCrawler_Plugin_Admin {
 			'name'            => 'AI Crawler Extension',
 			'author'          => 'BoldGrid',
 			'description'     => __( 'AI Crawler extension', 'w3-total-cache' ),
-			'author_uri'      => 'https://www.boldgrid.com/w3-total-cache/',
+			'author_uri'      => 'https://www.boldgrid.com',
 			'extension_uri'   => 'https://www.boldgrid.com/w3-total-cache/',
 			'extension_id'    => 'aicrawler',
 			'settings_exists' => true,
