@@ -26,10 +26,10 @@ class Extension_AiCrawler_Plugin_Admin {
 	public static function w3tc_extensions( $extensions, $config ) {// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		$extensions['aicrawler'] = array(
 			'name'            => 'AI Crawler Extension',
-			'author'          => 'W3 EDGE',
+			'author'          => 'BoldGrid',
 			'description'     => __( 'AI Crawler extension', 'w3-total-cache' ),
-			'author_uri'      => 'https://www.w3-edge.com/',
-			'extension_uri'   => 'https://www.w3-edge.com/',
+			'author_uri'      => 'https://www.boldgrid.com/w3-total-cache/',
+			'extension_uri'   => 'https://www.boldgrid.com/w3-total-cache/',
 			'extension_id'    => 'aicrawler',
 			'settings_exists' => true,
 			'version'         => '1.0',
