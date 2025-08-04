@@ -5,6 +5,7 @@
  * Wrapper for InMotion Hosting Central API calls.
  *
  * @package W3TC
+ * @since   x.x.x
  */
 
 namespace W3TC;
@@ -13,19 +14,23 @@ namespace W3TC;
  * Class Extension_AiCrawler_Central_Api
  *
  * Provides helper for making authenticated requests to IMH Central.
+ *
+ * @since x.x.x
  */
 class Extension_AiCrawler_Central_Api {
 	/**
 	 * Base API URL.
 	 *
-	 * @var string
+	 * @var   string
+	 * @since x.x.x
 	 */
 	private static $api_url = IMH_CENTRAL_API_URL;
 
 	/**
 	 * API prefix used for crawler endpoints.
 	 *
-	 * @var string
+	 * @var   string
+	 * @since x.x.x
 	 */
 	private static $api_prefix = 'central-crawler/';
 
@@ -37,6 +42,12 @@ class Extension_AiCrawler_Central_Api {
 	 * @param array  $data     Optional data to send with the request.
 	 *
 	 * @return array Standardized response array.
+	 *               This will include 'success' (bool), 'data' (array) or 'error' (array).
+	 *               'success' will be true if the request was successful,
+	 *               and 'data' will contain the response data.
+	 *               If there was an error, 'success' will be false and 'error'
+	 *               will contain an array with 'code' and 'message'.
+	 * @since  x.x.x
 	 */
 	public static function call( $endpoint, $method = 'GET', array $data = array() ) {
 		$url = trailingslashit( self::$api_url ) . self::$api_prefix . ltrim( $endpoint, '/' );
@@ -80,6 +91,7 @@ class Extension_AiCrawler_Central_Api {
 	 * @param array $response The response from wp_remote_request.
 	 *
 	 * @return array Parsed response with status and data.
+	 * @since  x.x.x
 	 */
 	private static function parse_response( $response ) {
 		if ( '2' !== substr( (string) wp_remote_retrieve_response_code( $response ), 0, 1 ) ) {
@@ -122,6 +134,7 @@ class Extension_AiCrawler_Central_Api {
 	 * Retrieves required headers for API authentication.
 	 *
 	 * @return array
+	 * @since  x.x.x
 	 */
 	private static function get_headers() {
 		$config = Dispatcher::config();
