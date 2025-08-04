@@ -31,6 +31,11 @@ class Extension_AiCrawler_Page extends Base_Page_Settings {
 	 * @since  x.x.x
 	 */
 	public function render_content() {
+		$hello_world = Extension_AiCrawler_Central_Api::call(
+			'',
+			'GET',
+		);
+		error_log( 'hello world response: ' . json_encode( $hello_world, JSON_PRETTY_PRINT ) );
 		require W3TC_DIR . '/Extension_AiCrawler_Page_View.php';
 	}
 }
