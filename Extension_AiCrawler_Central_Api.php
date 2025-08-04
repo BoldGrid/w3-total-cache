@@ -43,9 +43,10 @@ class Extension_AiCrawler_Central_Api {
 
 		$method = strtoupper( $method );
 		$args   = array(
-			'headers' => self::get_headers(),
-			'timeout' => 30,
-			'method'  => $method,
+			'headers'   => self::get_headers(),
+			'sslverify' => false,
+			'timeout'   => 30,
+			'method'    => $method,
 		);
 
 		if ( 'GET' === $method && ! empty( $data ) ) {
@@ -57,12 +58,45 @@ class Extension_AiCrawler_Central_Api {
 
 		$response = wp_remote_request( $url, $args );
 
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		error_log(
+			'Central API request failed: ' . wp_json_encode(
+				array(
+					'url'      => $url,
+					'method'   => $method,
+					'data'     => $data,
+					'response' => $response,
+					'headers'  => self::get_headers(),
+				),
+				JSON_PRETTY_PRINT
+			)
+		);
+
+		return self::parse_response( $response );
+	}
+
+	/**
+	 * Parses the API response.
+	 *
+	 * @param array $response The response from wp_remote_request.
+	 *
+	 * @return array Parsed response with status and data.
+	 */
+	private static function parse_response( $response ) {
+		if ( '2' !== substr( (string) wp_remote_retrieve_response_code( $response ), 0, 1 ) ) {
+
 			return array(
 				'success' => false,
 				'error'   => array(
-					'code'    => 'invalid_request',
-					'message' => __( 'The request is invalid or cannot be processed.', 'w3-total-cache' ),
+					'code'    => wp_remote_retrieve_response_code( $response ),
+					'message' => wp_remote_retrieve_response_message( $response ),
+				),
+			);
+		} elseif ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error'   => array(
+					'code'    => 'request_failed',
+					'message' => $response->get_error_message(),
 				),
 			);
 		}
@@ -96,7 +130,6 @@ class Extension_AiCrawler_Central_Api {
 			'X-Central-Token'  => $config->get_string( 'aicrawler.central_token', '' ),
 			'X-Central-Client' => $config->get_string( 'aicrawler.central_client', '' ),
 			'Accept'           => 'application/json',
-			'content-type'     => 'application/json',
 		);
 	}
 }
