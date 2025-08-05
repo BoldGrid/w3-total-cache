@@ -107,28 +107,20 @@ do_action( 'w3tc-dashboard-footer' );
 				</a>
 			</div>
 		</div>
-		<div class="w3tc-footer-column-2">
-			<div class="w3tc-footer-inner-column-50">
-				<h2><?php esc_html_e( 'Follow Us', 'w3-total-cache' ); ?></h2>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/newsletter-signup/' ); ?>">
-				<span class="dashicons dashicons-email-alt"></span><?php esc_html_e( 'Newsletter Sign Up', 'w3-total-cache' ); ?>
-				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://twitter.com/w3edge' ); ?>" alt="<?php esc_attr_e( 'W3 Edge', 'w3-total-cache' ); ?>">
-					<span class="dashicons dashicons-twitter"></span><?php esc_html_e( 'W3 Edge', 'w3-total-cache' ); ?>
-				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://twitter.com/boldgrid' ); ?>" alt="<?php esc_attr_e( 'BoldGrid', 'w3-total-cache' ); ?>">
-					<span class="dashicons dashicons-twitter"></span><?php esc_html_e( 'BoldGrid', 'w3-total-cache' ); ?>
-				</a>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.facebook.com/boldgrid/' ); ?>" alt="<?php esc_attr_e( 'BoldGrid', 'w3-total-cache' ); ?>">
-					<span class="dashicons dashicons-facebook"></span><?php esc_html_e( 'BoldGrid', 'w3-total-cache' ); ?>
-				</a>
-			</div>
-			<div class="w3tc-footer-inner-column-50">
-				<h2><?php esc_html_e( 'Partners', 'w3-total-cache' ); ?></h2>
-				<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( W3TC_PURCHASE_CDN_URL ); ?>" alt="<?php echo esc_url( W3TC_CDN_NAME ); ?>">
-					<div class="w3tc-tcdn-logo"></div>
-				</a>
-			</div>
+		<div class="w3tc-footer-column-1">
+			<h2><?php esc_html_e( 'Follow Us', 'w3-total-cache' ); ?></h2>
+			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/w3-total-cache/newsletter-signup/' ); ?>">
+			<span class="dashicons dashicons-email-alt"></span><?php esc_html_e( 'Newsletter Sign Up', 'w3-total-cache' ); ?>
+			</a>
+			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://twitter.com/w3edge' ); ?>" alt="<?php esc_attr_e( 'W3 Edge', 'w3-total-cache' ); ?>">
+				<span class="dashicons dashicons-twitter"></span><?php esc_html_e( 'W3 Edge', 'w3-total-cache' ); ?>
+			</a>
+			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://twitter.com/boldgrid' ); ?>" alt="<?php esc_attr_e( 'BoldGrid', 'w3-total-cache' ); ?>">
+				<span class="dashicons dashicons-twitter"></span><?php esc_html_e( 'BoldGrid', 'w3-total-cache' ); ?>
+			</a>
+			<a class="w3tc-footer-link" target="_blank" href="<?php echo esc_url( 'https://www.facebook.com/boldgrid/' ); ?>" alt="<?php esc_attr_e( 'BoldGrid', 'w3-total-cache' ); ?>">
+				<span class="dashicons dashicons-facebook"></span><?php esc_html_e( 'BoldGrid', 'w3-total-cache' ); ?>
+			</a>
 		</div>
 	</div>
 </div>
