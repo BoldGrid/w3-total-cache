@@ -94,21 +94,21 @@ class Extension_AiCrawler_Central_Api {
 	 * @since  x.x.x
 	 */
 	private static function parse_response( $response ) {
-		if ( '2' !== substr( (string) wp_remote_retrieve_response_code( $response ), 0, 1 ) ) {
-
-			return array(
-				'success' => false,
-				'error'   => array(
-					'code'    => wp_remote_retrieve_response_code( $response ),
-					'message' => wp_remote_retrieve_response_message( $response ),
-				),
-			);
-		} elseif ( is_wp_error( $response ) ) {
+		if ( is_wp_error( $response ) ) {
+			error_log( 'Request error: ' . $response->get_error_message() );
 			return array(
 				'success' => false,
 				'error'   => array(
 					'code'    => 'request_failed',
 					'message' => $response->get_error_message(),
+				),
+			);
+		} elseif ( '2' !== substr( (string) wp_remote_retrieve_response_code( $response ), 0, 1 ) ) {
+			return array(
+				'success' => false,
+				'error'   => array(
+					'code'    => wp_remote_retrieve_response_code( $response ),
+					'message' => wp_remote_retrieve_response_message( $response ),
 				),
 			);
 		}
