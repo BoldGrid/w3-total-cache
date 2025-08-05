@@ -35,7 +35,7 @@ class Extension_AiCrawler_Plugin {
 		$config            = Dispatcher::config();
 		$extensions_active = $config->get_array( 'extensions.active' );
 
-		// TODO: Check for Central environement and add to return.
+		// TODO: Check for Central environment and add to return.
 
 		return array_key_exists( 'aicrawler', $extensions_active );
 	}

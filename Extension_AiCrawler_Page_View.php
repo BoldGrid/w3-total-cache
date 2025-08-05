@@ -17,7 +17,7 @@ $config = Dispatcher::config();
 
 ?>
 <p>
-	<?php esc_html_e( 'AI Cralwer service is currently ', 'w3-total-cache' ); ?>
+	<?php esc_html_e( 'AI Crawler service is currently ', 'w3-total-cache' ); ?>
 	<?php
 	if ( Extension_AiCrawler_Plugin::is_enabled() ) {
 		echo '<span class="w3tc-enabled">' . esc_html__( 'enabled.', 'w3-total-cache' ) . '</span>';
