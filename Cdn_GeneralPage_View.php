@@ -47,27 +47,25 @@ Util_Ui::config_overloading_button(
 	)
 );
 ?>
-<div id="w3tc-bunnycdn-ad-general">
+<div id="w3tc-tcdn-ad-general">
 	<?php
-	if ( ! $cdn_enabled ) {
+	if (
+		( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
+		in_array( $state->get_string( 'cdn.totalcdn.status' ), array( 'canceled', 'inactive.expired' ), true )
+	) {
 		echo wp_kses(
 			sprintf(
 				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,
-				// translators: 3 HTML input for Bunny CDN sign up, 4 HTML img tag for Bunny CDN white logo.
+				// translators: 3 HTML input for Total CDN sign up, 4 HTML img tag for CDN logo.
 				__(
-					'%1$sLooking for a top rated CDN Provider? Try Bunny CDN.%2$s%3$s%4$s',
+					'%1$sLooking for a top rated CDN Provider? Try %5$s.%2$s%3$s%4$s',
 					'w3-total-cache'
 				),
 				'<strong>',
 				'</strong>',
-				Util_Ui::button_link(
-					__( 'Sign up now to enjoy a special offer!', 'w3-total-cache' ),
-					esc_url( W3TC_BUNNYCDN_SIGNUP_URL ),
-					true,
-					'w3tc-bunnycdn-promotion-button',
-					'w3tc-bunnycdn-promotion-button'
-				),
-				'<img class="w3tc-bunnycdn-icon-white" src="' . esc_url( plugins_url( '/pub/img/w3tc_bunnycdn_icon_white.png', W3TC_FILE ) ) . '" alt="Bunny CDN Icon White">'
+				'<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="' . $config->get_string( 'plugin.license_key' ) . '" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Subscribe To', 'w3-total-cache' ) . ' ' . W3TC_CDN_NAME . '">',
+				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/totalcdn-logo.png', W3TC_FILE ) ) . '" alt="' . W3TC_CDN_NAME . ' icon">',
+				W3TC_CDN_NAME
 			),
 			array(
 				'strong' => array(),
@@ -79,11 +77,13 @@ Util_Ui::config_overloading_button(
 					'height' => array(),
 				),
 				'input'  => array(
-					'type'    => array(),
-					'name'    => array(),
-					'class'   => array(),
-					'value'   => array(),
-					'onclick' => array(),
+					'type'           => array(),
+					'name'           => array(),
+					'class'          => array(),
+					'value'          => array(),
+					'onclick'        => array(),
+					'data-renew-key' => array(),
+					'data-src'       => array(),
 				),
 			)
 		);

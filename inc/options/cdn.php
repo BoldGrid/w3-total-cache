@@ -17,51 +17,57 @@ $can_purge = Cdn_Util::can_purge( $cdn_engine );
 
 require W3TC_INC_DIR . '/options/common/header.php';
 
-?>
-<div id="w3tc-bunnycdn-ad-cdn">
-	<?php
-	echo wp_kses(
-		sprintf(
-			// translators: 1 HTML img tag for Bunny CDN Icon Bunny Rocket, 2 opening HTML strong tag, 3 closing HTML strong tag,
-			// translators: 4 HTML input for Bunny CDN sign up, 5 HTML div tag for Bunny CDN logo svg.
-			__(
-				'%1$s%2$sLooking for a top rated CDN Provider? Try Bunny CDN.%3$s%4$s%5$s',
-				'w3-total-cache'
-			),
-			'<img class="w3tc-bunnycdn-icon-bunny-rocket" src="' . esc_url( plugins_url( '/pub/img/w3tc_bunnycdn_bunny_rocket.png', W3TC_FILE ) ) . '" alt="Bunny CDN Icon Bunny Rocket" width="90">',
-			'<strong>',
-			'</strong>',
-			Util_Ui::button_link(
-				__( 'Sign up now to enjoy a special offer!', 'w3-total-cache' ),
-				esc_url( W3TC_BUNNYCDN_SIGNUP_URL ),
-				true,
-				'w3tc-bunnycdn-promotion-button',
-				'w3tc-bunnycdn-promotion-button'
-			),
-			'<div class="w3tc-bunnycdn-logo"></div>'
-		),
-		array(
-			'strong' => array(),
-			'img'    => array(
-				'class' => array(),
-				'src'   => array(),
-				'alt'   => array(),
-				'width' => array(),
-			),
-			'div'    => array(
-				'class' => array(),
-			),
-			'input'  => array(
-				'type'    => array(),
-				'name'    => array(),
-				'class'   => array(),
-				'value'   => array(),
-				'onclick' => array(),
-			),
-		)
-	);
+if (
+	( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
+	in_array( $state->get_string( 'cdn.totalcdn.status' ), array( 'canceled', 'inactive.expired' ), true )
+) {
 	?>
-</div>
+	<div id="w3tc-tcdn-ad-cdn">
+		<?php
+		echo wp_kses(
+			sprintf(
+				// translators: 1 opening HTML strong tag, 2 CDN name, 3 closing HTML strong tag,
+				// translators: 4 HTML input for CDN sign up, 5 HTML img tag for CDN logo.
+				__( '%1$sLooking for a top rated CDN Provider? Try %2$s.%3$s%4$s%5$s', 'w3-total-cache' ),
+				'<strong>',
+				esc_html( W3TC_CDN_NAME ),
+				'</strong>',
+				'<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="' .
+					esc_attr( $this->_config->get_string( 'plugin.license_key' ) ) . '" data-src="general_page_cdn_subscribe" value="' .
+					sprintf(
+						// translators: 1: CDN name.
+						esc_attr__( 'Subscribe To %1$s', 'w3-total-cache' ),
+						esc_attr( W3TC_CDN_NAME )
+					) . '">',
+				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/totalcdn-logo.png', W3TC_FILE ) ) . '" alt="' . esc_attr( W3TC_CDN_NAME ) . ' icon">'
+			),
+			array(
+				'strong' => array(),
+				'img'    => array(
+					'class' => array(),
+					'src'   => array(),
+					'alt'   => array(),
+					'width' => array(),
+				),
+				'div'    => array(
+					'class' => array(),
+				),
+				'input'  => array(
+					'type'           => array(),
+					'name'           => array(),
+					'class'          => array(),
+					'value'          => array(),
+					'onclick'        => array(),
+					'data-renew-key' => array(),
+					'data-src'       => array(),
+				),
+			)
+		);
+		?>
+	</div>
+	<?php
+}
+?>
 <p>
 	<?php
 	echo wp_kses(
@@ -476,11 +482,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<table class="form-table">
 				<?php
 				$known_engines = array(
+					'totalcdn',
 					'bunnycdn',
 					'google_drive',
 					'rackspace_cdn',
 					'rscf',
 				);
+
 				if ( in_array( $cdn_engine, $known_engines, true ) ) {
 					do_action( 'w3tc_settings_cdn_boxarea_configuration' );
 				} elseif ( Cdn_Util::is_engine( $cdn_engine ) ) {

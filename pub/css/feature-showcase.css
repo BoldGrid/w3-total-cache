@@ -157,6 +157,14 @@
     width: 60px;
 }
 
+.w3tc-card-icon .totalcdn {
+	width: 180px;
+	height: 60px;
+	background: url('../img/totalcdn-logo.png') 0 8px no-repeat;
+	background-size: contain;
+	background-position: center;
+}
+
 .w3tc-card-icon-inactive {
     border-top-color: #aaa;
 }

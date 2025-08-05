@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.8
-Stable tag: 2.8.10
+Stable tag: 2.8.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -361,6 +361,15 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.8.11 =
+* Fix: Avoid redundant object cache misses in WP 6.4 - 6.7
+* Fix: Admin bar: Do not show "Purge All Caches Except Cloudflare" if disabled after it was configured
+* Fix: Error handling for URL downloads
+* Fix: Menu items for non-administrators
+* Update: Lazy load library: 12.2.0 => 19.1.2
+* Enhancement: Use SimpleXMLElement to parse sitemaps and RSS feeds
+* Enhancement: Flush Elementor cache when all caches are flushed
 
 = 2.8.10 =
 * Fix: Exception handling on activation

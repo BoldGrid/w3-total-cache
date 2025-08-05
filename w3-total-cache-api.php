@@ -10,7 +10,7 @@
 defined( 'ABSPATH' ) || die;
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.8.10' );
+define( 'W3TC_VERSION', '2.8.11' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -40,6 +40,10 @@ define( 'W3TC_PARTNER_CONVESIO', 'https://api.w3-edge.com/v1/redirects/partners/
 define( 'W3TC_PARTNER_DREAMHOST', 'https://api.w3-edge.com/v1/redirects/partners/dreamhost' );
 define( 'W3TC_BOLDGRID_FORUM_API', 'https://www.boldgrid.com/support/wp-json/w3tc/v1/help_topics?tag=' );
 
+// Total CDN API endpoint.
+if ( ! defined( 'W3TC_TCDN_API' ) ) {
+	define( 'W3TC_TCDN_API', 'https://cdn-api-dev.boldgrid.com/api/v1');
+}
 // Admin notices from API.
 if ( ! defined( 'W3TC_NOTICE_FEED' ) ) {
 	define( 'W3TC_NOTICE_FEED', 'https://api2.w3-edge.com/notices' );
@@ -57,6 +61,9 @@ if ( ! defined( 'W3TC_LICENSE_API_URL' ) ) {
 }
 if ( ! defined( 'W3TC_PURCHASE_URL' ) ) {
 	define( 'W3TC_PURCHASE_URL', 'https://www.w3-edge.com/checkout/' );
+}
+if ( ! defined( 'W3TC_PURCHASE_CDN_URL' ) ) {
+	define( 'W3TC_PURCHASE_CDN_URL', 'https://www.w3-edge.com/checkout-cdn/' );
 }
 
 // the name of your product. This should match the download name in EDD exactly.
@@ -169,6 +176,17 @@ if ( ! defined( 'W3TC_WP_JSON_URI' ) ) {
 }
 if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 	define( 'W3TC_FEED_REGEXP', '~/feed(/|$)~' );
+}
+
+// API URL used for CDN requests.
+if ( ! defined( 'W3TC_CDN_API_URL' ) ) {
+	define( 'W3TC_CDN_API_URL', 'https://cdn-api.boldgrid.com/api/v1' );
+}
+
+
+// This is the name of the CDN as it will be displayed in the admin interface.
+if ( ! defined( 'W3TC_CDN_NAME' ) ) {
+	define( 'W3TC_CDN_NAME', 'Total CDN' );
 }
 
 @ini_set( 'pcre.backtrack_limit', 4194304 );
