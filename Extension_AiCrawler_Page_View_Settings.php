@@ -29,7 +29,7 @@ $config = Dispatcher::config();
 				),
 				'label'         => esc_html__( 'IMH Central Token', 'w3-total-cache' ),
 				'control'       => 'textbox',
-				'description'   => esc_html__( 'An In Motion Hosting token is required for this service to function.', 'w3-total-cache' ),
+				'description'   => esc_html__( 'An InMotion Hosting token is required for this service to function.', 'w3-total-cache' ),
 				'control_after' => '<button class="w3tc_aicrawler_test_ctoken button">' . esc_html__( 'Test', 'w3-total-cache' ) . '</button>',
 				'textbox_size'  => 40,
 			)
