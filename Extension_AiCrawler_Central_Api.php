@@ -69,19 +69,6 @@ class Extension_AiCrawler_Central_Api {
 
 		$response = wp_remote_request( $url, $args );
 
-		error_log(
-			'Central API request failed: ' . wp_json_encode(
-				array(
-					'url'      => $url,
-					'method'   => $method,
-					'data'     => $data,
-					'response' => $response,
-					'headers'  => self::get_headers(),
-				),
-				JSON_PRETTY_PRINT
-			)
-		);
-
 		return self::parse_response( $response );
 	}
 
@@ -95,7 +82,6 @@ class Extension_AiCrawler_Central_Api {
 	 */
 	private static function parse_response( $response ) {
 		if ( is_wp_error( $response ) ) {
-			error_log( 'Request error: ' . $response->get_error_message() );
 			return array(
 				'success' => false,
 				'error'   => array(
