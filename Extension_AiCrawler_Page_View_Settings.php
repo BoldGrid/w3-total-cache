@@ -1,0 +1,97 @@
+<?php
+/**
+ * File: Extension_AlwaysCached_Page_View_BoxCron.php
+ *
+ * Render the AlwaysCached settings page - cron box.
+ *
+ * @since 2.8.0
+ *
+ * @package W3TC
+ */
+
+namespace W3TC;
+
+if ( ! defined( 'W3TC' ) ) {
+	die();
+}
+
+$config = Dispatcher::config();
+?>
+<div class="metabox-holder">
+	<?php Util_Ui::postbox_header( esc_html__( 'Configuration', 'w3-total-cache' ), '', 'configuration' ); ?>
+	<table class="form-table">
+		<?php
+		Util_Ui::config_item(
+			array(
+				'key'           => array(
+					'aicrawler',
+					'imh_central_token',
+				),
+				'label'         => esc_html__( 'IMH Central Token', 'w3-total-cache' ),
+				'control'       => 'textbox',
+				'description'   => esc_html__( 'An In Motion Hosting token is reqired for this service to function.', 'w3-total-cache' ),
+				'control_after' => '<button class="w3tc_aicrawler_test_ctoken button">' . esc_html__( 'Test', 'w3-total-cache' ) . '</button>',
+				'textbox_size'  => 40,
+			)
+		);
+
+		Util_Ui::config_item(
+			array(
+				'key'            => array(
+					'aicrawler',
+					'auto_generate',
+				),
+				'label'          => esc_html__( 'Regenerate Markdown On Page/Post Update', 'w3-total-cache' ),
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'control'        => 'checkbox',
+				'description'    => esc_html__( 'Enabling this will automatically regenerate markdown files when a page/post is updated. Leaving this disabled will require manual action to regenerate the markdown files.', 'w3-total-cache' ),
+			)
+		);
+
+		Util_Ui::config_item(
+			array(
+				'key'         => array(
+					'aicrawler',
+					'exclusions',
+				),
+				'control'     => 'textarea',
+				'label'       => esc_html__( 'Excluded URLs:', 'w3-total-cache' ),
+				'description' => esc_html__( 'URLs defined here will be excluded from the AI Crawler service and will not be included in the markdown generation process. Include one entry per line.', 'w3-total-cache' ),
+			)
+		);
+
+		Util_Ui::config_item(
+			array(
+				'key'              => array(
+					'aicrawler',
+					'exclusions_pts',
+				),
+				'label'            => esc_html__( 'Excluded Post Types:', 'w3-total-cache' ),
+				'control'          => 'selectbox',
+				'selectbox_values' => array_merge(
+					array( '' => esc_html__( '-- Select Post Type --', 'w3-total-cache' ) ),
+					get_post_types(
+						array(
+							'public'   => true,
+							'_builtin' => true,
+						)
+					)
+				),
+			)
+		);
+
+		Util_Ui::config_item(
+			array(
+				'key'         => array(
+					'aicrawler',
+					'exclusions_cpts',
+				),
+				'control'     => 'textarea',
+				'label'       => esc_html__( 'Excluded Custom Post Types:', 'w3-total-cache' ),
+				'description' => esc_html__( 'Custom post type slugs defined here will be excluded from the AI Crawler service and will not be included in the markdown generation process. Include one entry per line.', 'w3-total-cache' ),
+			)
+		);
+		?>
+	</table>
+	<?php Util_Ui::postbox_footer(); ?>
+</div>

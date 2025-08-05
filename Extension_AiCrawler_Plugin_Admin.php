@@ -3,7 +3,7 @@
  * File: Extension_AiCrawler_Plugin_Admin.php
  *
  * @package W3TC
- * @since   x.x.x
+ * @since   X.X.X
  */
 
 namespace W3TC;
@@ -11,7 +11,7 @@ namespace W3TC;
 /**
  * Class Extension_AiCrawler_Plugin_Admin
  *
- * @since x.x.x
+ * @since X.X.X
  */
 class Extension_AiCrawler_Plugin_Admin {
 	/**
@@ -21,7 +21,7 @@ class Extension_AiCrawler_Plugin_Admin {
 	 * @param Config $config     Plugin configuration.
 	 *
 	 * @return array
-	 * @since  x.x.x
+	 * @since  X.X.X
 	 */
 	public static function w3tc_extensions( $extensions, $config ) {// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		$extensions['aicrawler'] = array(
@@ -45,7 +45,7 @@ class Extension_AiCrawler_Plugin_Admin {
 	 * Registers hooks for the admin environment.
 	 *
 	 * @return void
-	 * @since  x.x.x
+	 * @since  X.X.X
 	 */
 	public function run() {
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
@@ -62,7 +62,7 @@ class Extension_AiCrawler_Plugin_Admin {
 	 *       to administrators or specific user roles.
 	 *
 	 * @return array
-	 * @since  x.x.x
+	 * @since  X.X.X
 	 */
 	public function w3tc_admin_menu( $menu ) {
 		$menu['w3tc_aicrawler'] = array(
@@ -79,7 +79,7 @@ class Extension_AiCrawler_Plugin_Admin {
 	 * Displays the AI Crawler extension settings page.
 	 *
 	 * @return void
-	 * @since  x.x.x
+	 * @since  X.X.X
 	 */
 	public function w3tc_extension_page() {
 		( new Extension_AiCrawler_Page() )->render_content();

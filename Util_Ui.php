@@ -2428,6 +2428,15 @@ class Util_Ui {
 				<?php
 				break;
 
+			case 'w3tc_aicrawler':
+				?>
+				<div id="w3tc-options-menu">
+					<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
+					<a href="#tools"><?php esc_html_e( 'Tools', 'w3-total-cache' ); ?></a>
+				</div>
+				<?php
+				break;
+
 			case 'w3tc_extensions':
 				$extension = Util_Admin::get_current_extension();
 				switch ( $extension ) {
