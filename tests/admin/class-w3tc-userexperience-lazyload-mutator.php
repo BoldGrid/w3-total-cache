@@ -54,6 +54,29 @@ class W3tc_UserExperience_LazyLoad_Mutator_Test extends WP_UnitTestCase {
 		}
 
 		/**
+		 * Ensure background styles are offloaded with raw URL only containing parenthesis.
+		 *
+		 * @since X.X.X
+		 */
+		public function test_style_offload_background_strips_url_parenthesis_wrapper() {
+			$mutator = $this->get_mutator();
+			$matches = array(
+					' style="background-image:url(\'image(1).jpg\');color:red;"',
+					' ',
+					'style="',
+					'background-image:url(\'image(1).jpg\');color:red;',
+					'"'
+			);
+
+			$result = $mutator->style_offload_background( $matches );
+
+			$this->assertSame(
+					' style="color:red;" data-bg="image(1).jpg"',
+					$result
+			);
+	}
+
+		/**
 		 * Image tags are converted to lazy load placeholders and attributes.
 		 *
 		 * @since X.X.X
