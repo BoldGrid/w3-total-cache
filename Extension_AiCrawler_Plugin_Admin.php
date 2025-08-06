@@ -15,15 +15,14 @@ namespace W3TC;
  */
 class Extension_AiCrawler_Plugin_Admin {
 	/**
-	 * Adds AI Crawler extension to the extension list.
+	 * Adds AI Crawler to the extension list.
 	 *
-	 * @param array  $extensions Extensions array.
-	 * @param Config $config     Plugin configuration.
+	 * @param array $extensions Extensions array.
 	 *
 	 * @return array
 	 * @since  X.X.X
 	 */
-	public static function w3tc_extensions( $extensions, $config ) {// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	public static function w3tc_extensions( $extensions ) {
 		$extensions['aicrawler'] = array(
 			'name'            => 'AI Crawler Extension',
 			'author'          => 'BoldGrid',

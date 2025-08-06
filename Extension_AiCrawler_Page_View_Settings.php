@@ -27,9 +27,23 @@ $config = Dispatcher::config();
 					'aicrawler',
 					'imh_central_token',
 				),
-				'label'         => esc_html__( 'IMH Central Token', 'w3-total-cache' ),
+				'label'         => sprintf(
+					// translators: 1: InMotion Central brandname.
+					__(
+						'%1$s Token',
+						'w3-total-cache'
+					),
+					'IMH Central'
+				),
 				'control'       => 'textbox',
-				'description'   => esc_html__( 'An InMotion Hosting token is required for this service to function.', 'w3-total-cache' ),
+				'description'   => sprintf(
+					// translators: 1: InMotion Central brandname.
+					__(
+						'An %1$s token is required for this service to function.',
+						'w3-total-cache'
+					),
+					'InMotion Central'
+				),
 				'control_after' => '<button class="w3tc_aicrawler_test_ctoken button">' . esc_html__( 'Test', 'w3-total-cache' ) . '</button>',
 				'textbox_size'  => 40,
 			)
