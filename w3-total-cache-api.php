@@ -171,6 +171,10 @@ if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 	define( 'W3TC_FEED_REGEXP', '~/feed(/|$)~' );
 }
 
+if ( ! defined( 'IMH_CENTRAL_API_URL' ) ) {
+	define( 'IMH_CENTRAL_API_URL', 'https://api-wpc.inmotionhosting.com/' );
+}
+
 @ini_set( 'pcre.backtrack_limit', 4194304 );
 @ini_set( 'pcre.recursion_limit', 4194304 );
 
