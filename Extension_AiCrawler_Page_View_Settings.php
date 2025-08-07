@@ -76,19 +76,16 @@ $config = Dispatcher::config();
 
 		Util_Ui::config_item(
 			array(
-				'key'              => array(
+				'key'     => array(
 					'aicrawler',
 					'exclusions_pts',
 				),
-				'label'            => esc_html__( 'Excluded Post Types:', 'w3-total-cache' ),
-				'control'          => 'selectbox',
-				'selectbox_values' => array_merge(
-					array( '' => esc_html__( '-- Select Post Type --', 'w3-total-cache' ) ),
-					get_post_types(
-						array(
-							'public'   => true,
-							'_builtin' => true,
-						)
+				'label'   => esc_html__( 'Excluded Post Types:', 'w3-total-cache' ),
+				'control' => 'checkbox_group',
+				'values'  => get_post_types(
+					array(
+						'public'   => true,
+						'_builtin' => true,
 					)
 				),
 			)

@@ -970,6 +970,107 @@ class Util_Ui {
 	}
 
 	/**
+	 * Outputs a group of check-boxes.
+	 *
+	 * @param string $name     Name attribute **(with or without the trailing “[]”)**.
+	 * @param array  $options  slug ⇒ label |string |descriptor-array.
+	 * @param array  $state    Saved config – either an associative map (slug ⇒ 1/0)
+	 *                         **or** a flat list of slugs that are enabled.
+	 * @param bool   $disabled Disable the whole group.
+	 */
+	public static function checkbox_group( $name, $options, $state = array(), $disabled = false ) {
+		$c      = Dispatcher::config();
+		$is_pro = Util_Environment::is_w3tc_pro( $c );
+
+		// Normalise $state so look-ups are predictable.
+		if ( ! is_array( $state ) ) {
+			$state = array( $state );
+		}
+
+		// Make sure the HTML “name” ends with [] so PHP returns an array.
+		$name_attr = ( substr( $name, -2 ) === '[]' ) ? $name : $name . '[]';
+
+		/* ---------- 0 – marker so the field is ALWAYS submitted -------------- */
+		if ( ! $disabled ) {
+			echo '<input type="hidden" name="' . esc_attr( $name_attr ) . '" value="" />';
+		}
+
+		foreach ( $options as $val => $descriptor ) {
+			// 1 – unpack the descriptor
+			if ( ! is_array( $descriptor ) ) {
+				$descriptor = array( 'label' => $descriptor );
+			}
+
+			$label         = $descriptor['label'];
+			$item_disabled = (bool) ( $disabled || ( $descriptor['disabled']     ?? false ) );
+			$postfix       = $descriptor['postfix']       ?? '';
+			$pro_feature   = (bool) ( $descriptor['pro_feature']   ?? false );
+
+			// 2 – wrap PRO ribbon if needed
+			if ( $pro_feature ) {
+				self::pro_wrap_maybe_start();
+			}
+
+			// 3 – figure out whether this item is checked
+			$is_checked = false;
+			if ( array_key_exists( $val, $state ) ) {
+				$is_checked = (bool) $state[ $val ];
+			} elseif ( in_array( $val, $state, true ) ) {
+				$is_checked = true;
+			}
+
+			// 4 – render the checkbox
+			$id = sanitize_key( $name . '_' . $val );
+
+			echo '<label style="display:block;">';
+			echo '<input type="checkbox" class="enabled ' . esc_attr( $id ) . '" id="' . esc_attr( $id ) .
+				'" name="' . esc_attr( $name_attr ) . '" value="' . esc_attr( $val ) . '" ' .
+				checked( $is_checked, true, false ) .
+				disabled( $item_disabled, true, false ) .
+				' /> ';
+			echo wp_kses( $label, self::get_allowed_html_for_wp_kses_from_content( $label ) );
+			echo wp_kses( $postfix, self::get_allowed_html_for_wp_kses_from_content( $postfix ) );
+			echo '</label>';
+
+			// 5 – PRO-only extras (excerpt, long description, score …)
+			if ( $pro_feature ) {
+				// Short / long description.
+				if ( isset( $descriptor['pro_excerpt'], $descriptor['pro_description'] ) ) {
+					self::pro_wrap_description(
+						$descriptor['pro_excerpt'],
+						(array) $descriptor['pro_description'],
+						$id
+					);
+				}
+
+				// Score block (only visible in the free edition).
+				if ( ! $is_pro &&
+					isset(
+						$descriptor['intro_label'],
+						$descriptor['score'],
+						$descriptor['score_label'],
+						$descriptor['score_description'],
+						$descriptor['score_link']
+					)
+				) {
+					$score_block = self::get_score_block(
+						$descriptor['intro_label'],
+						$descriptor['score'],
+						$descriptor['score_label'],
+						$descriptor['score_description'],
+						$descriptor['score_link']
+					);
+					echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
+				}
+
+				// Close the wrapper.
+				$show_learn_more = $descriptor['show_learn_more'] ?? true;
+				self::pro_wrap_maybe_end( $id, $show_learn_more );
+			}
+		}
+	}
+
+	/**
 	 * Echos an element
 	 *
 	 * @param string $type     Type.
@@ -1021,6 +1122,29 @@ class Util_Ui {
 			( isset( $e['label'] ) ? $e['label'] : null )
 		);
 	}
+
+	/**
+	 * Wrapper to render a group of checkboxes via config array.
+	 *
+	 * @param array $e {
+	 *     Config.
+	 *     @type string $name      Name attribute.
+	 *     @type array  $values    Values as [value => label].
+	 *     @type array  $selected  Selected values.
+	 *     @type bool   $disabled  Optional. Disable all checkboxes.
+	 * }
+	 *
+	 * @return void
+	 */
+	public static function checkbox_group2( $e ) {
+		self::checkbox_group(
+			$e['name'],
+			$e['options'],
+			$e['state'] ?? array(),
+			$e['disabled'] ?? false
+		);
+	}
+
 
 	/**
 	 * Radio
@@ -1157,6 +1281,20 @@ class Util_Ui {
 					'value'    => $a['value'],
 					'disabled' => $a['disabled'],
 					'label'    => $a['checkbox_label'],
+				)
+			);
+		} elseif ( 'checkbox_group' === $a['control'] ) {
+			self::checkbox_group2(
+				array(
+					/**
+					 * IMPORTANT: a group name **must** end with [] so PHP
+					 * posts back an array – the     …__to_http_name()
+					 * helper returns the base key, so we append [].
+					 */
+					'name'     => $a['control_name'] . '[]',
+					'options'  => $a['values'],
+					'state'    => (array) $a['value'],
+					'disabled' => isset( $a['disabled'] ) && $a['disabled'],
 				)
 			);
 		} elseif ( 'radiogroup' === $a['control'] ) {
@@ -1594,7 +1732,7 @@ class Util_Ui {
 
 		if ( ! isset( $a['value'] ) || is_null( $a['value'] ) ) {
 			$a['value'] = $c->get( $a['key'] ) ?? '';
-			if ( is_array( $a['value'] ) ) {
+			if ( is_array( $a['value'] ) && 'checkbox_group' !== $a['control'] ) {
 				$a['value'] = implode( "\n", $a['value'] );
 			}
 		}

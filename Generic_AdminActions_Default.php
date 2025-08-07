@@ -790,17 +790,22 @@ class Generic_AdminActions_Default {
 			if ( isset( $descriptor['type'] ) ) {
 				if ( 'array' === $descriptor['type'] ) {
 					if ( is_array( $request_value ) ) {
-						// This is needed for radio inputs.
-						$request_value = implode( "\n", $request_value );
+						// 1. drop the hidden marker (and dupes), trim, sort
+						$clean = Util_Environment::clean_array( $request_value );
+
+						// 2. associative map
+						$request_value = array_fill_keys( $clean, 1 );
+					} else {
+						$request_value = Util_Environment::textarea_to_array( $request_value );
 					}
-					$request_value = Util_Environment::textarea_to_array( $request_value );
 				} elseif ( 'boolean' === $descriptor['type'] ) {
 					$request_value = ( '1' === $request_value );
 				} elseif ( 'integer' === $descriptor['type'] ) {
 					$request_value = (int) $request_value;
 				}
 			}
-
+//Util_Debug::debug('key',$key);
+//Util_Debug::debug('value',$request_value);
 			$config->set( $key, $request_value );
 		}
 	}
