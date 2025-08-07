@@ -75,7 +75,7 @@ class Extension_AiCrawler_Central_Api {
 	/**
 	 * Parses the API response.
 	 *
-	 * @param array $response The response from wp_remote_request.
+	 * @param array|\WP_Error $response The response from wp_remote_request().
 	 *
 	 * @return array Parsed response with status and data.
 	 * @since  x.x.x
