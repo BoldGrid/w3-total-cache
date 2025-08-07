@@ -21,19 +21,19 @@ $config = Dispatcher::config();
 	<table class="form-table">
 		<tr>
 			<th>
-				<label for="aicrawler___regenerate_url"><?php esc_html_e( 'Regenerate URL:', 'w3-total-cache' ); ?></label>
+				<label for="w3tc-aicrawler-regenerate-url"><?php esc_html_e( 'Regenerate URL:', 'w3-total-cache' ); ?></label>
 			</th>
 			<td>
-				<input class="aicrawler___regenerate_url" type="text" size="60" placeholder="<?php esc_attr_e( 'Specify URL to regenerate', 'w3-total-cache' ); ?>"/>
-				<button class="w3tc_aicrawler_regenerate_url button"><?php esc_html_e( 'Regenerate', 'w3-total-cache' ); ?></button>
+				<input id="w3tc-aicrawler-regenerate-url" type="text" size="60" placeholder="<?php esc_attr_e( 'Specify URL to regenerate', 'w3-total-cache' ); ?>"/>
+				<button id="w3tc-aicrawler-regenerate-url-button" class="button"><?php esc_html_e( 'Regenerate', 'w3-total-cache' ); ?></button>
 			</td>
 		</tr>
 		<tr>
 			<th>
-				<label for="aicrawler___regenerate_all"><?php esc_html_e( 'Regenerate All:', 'w3-total-cache' ); ?></label>
+				<label for="w3tc-aicrawler-regenerate-all-button"><?php esc_html_e( 'Regenerate All:', 'w3-total-cache' ); ?></label>
 			</th>
 			<td>
-				<button class="aicrawler___regenerate_all button"><?php esc_html_e( 'Regenerate', 'w3-total-cache' ); ?></button>
+				<button id="w3tc-aicrawler-regenerate-all-button" class="button"><?php esc_html_e( 'Regenerate', 'w3-total-cache' ); ?></button>
 			</td>
 		</tr>
 	</table>
