@@ -804,8 +804,7 @@ class Generic_AdminActions_Default {
 					$request_value = (int) $request_value;
 				}
 			}
-//Util_Debug::debug('key',$key);
-//Util_Debug::debug('value',$request_value);
+
 			$config->set( $key, $request_value );
 		}
 	}

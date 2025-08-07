@@ -1,8 +1,8 @@
 <?php
 /**
- * File: Extension_AiCrawler_Page_View_BoxCron.php
+ * File: Extension_AiCrawler_Page_View_Tools.php
  *
- * Render the AI Crawler settings page - cron box.
+ * Render the AI Crawler settings page - Tool box.
  *
  * @since 2.8.0
  *
