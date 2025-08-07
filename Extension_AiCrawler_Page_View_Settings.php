@@ -4,7 +4,7 @@
  *
  * Render the AI Crawler settings page - Configuration box.
  *
- * @since 2.8.0
+ * @since X.X.X
  *
  * @package W3TC
  */

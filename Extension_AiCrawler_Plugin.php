@@ -31,7 +31,7 @@ class Extension_AiCrawler_Plugin {
 	/**
 	 * Specify config key typing for fields that need it.
 	 *
-	 * @since 2.8.0
+	 * @since X.X.X
 	 *
 	 * @param mixed $descriptor Descriptor.
 	 * @param mixed $key Compound key array.
