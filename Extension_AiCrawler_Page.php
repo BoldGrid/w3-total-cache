@@ -33,7 +33,7 @@ class Extension_AiCrawler_Page extends Base_Page_Settings {
 	public function render_content() {
 		$hello_world = Extension_AiCrawler_Central_Api::call(
 			'',
-			'POST',
+			'GET',
 			array(
 				'url' => \home_url(),
 			)

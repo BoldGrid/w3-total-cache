@@ -69,6 +69,17 @@ class Extension_AiCrawler_Central_Api {
 
 		$response = wp_remote_request( $url, $args );
 
+		error_log(
+			json_encode(
+				array(
+					'url'      => $url,
+					'args'     => $args,
+					'response' => $response,
+				),
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+			)
+		);
+
 		return self::parse_response( $response );
 	}
 
