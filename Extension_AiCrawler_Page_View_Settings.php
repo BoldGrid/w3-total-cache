@@ -33,7 +33,7 @@ $config = Dispatcher::config();
 						'%1$s Token',
 						'w3-total-cache'
 					),
-					'IMH Central'
+					'InMotion Central'
 				),
 				'control'       => 'textbox',
 				'description'   => sprintf(
