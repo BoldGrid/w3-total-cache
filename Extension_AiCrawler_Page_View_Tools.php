@@ -4,9 +4,8 @@
  *
  * Render the AI Crawler settings page - Tool box.
  *
- * @since 2.8.0
- *
  * @package W3TC
+ * @since   X.X.X
  */
 
 namespace W3TC;

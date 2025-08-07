@@ -9,7 +9,7 @@
 namespace W3TC;
 
 /**
- * Class Extension_AiCrawler_Plugin_Admin
+ * Class: Extension_AiCrawler_Plugin_Admin
  *
  * @since X.X.X
  */
@@ -17,16 +17,17 @@ class Extension_AiCrawler_Plugin_Admin {
 	/**
 	 * Adds AI Crawler to the extension list.
 	 *
+	 * @since  X.X.X
+	 *
 	 * @param array $extensions Extensions array.
 	 *
 	 * @return array
-	 * @since  X.X.X
 	 */
 	public static function w3tc_extensions( $extensions ) {
 		$extensions['aicrawler'] = array(
-			'name'            => 'AI Crawler Extension',
-			'author'          => 'BoldGrid',
-			'description'     => __( 'AI Crawler extension', 'w3-total-cache' ),
+			'name'            => 'AI Crawler',
+			'author'          => 'W3 Edge',
+			'description'     => __( 'AI Crawler', 'w3-total-cache' ),
 			'author_uri'      => 'https://www.boldgrid.com/',
 			'extension_uri'   => 'https://www.boldgrid.com/w3-total-cache/',
 			'extension_id'    => 'aicrawler',
@@ -43,8 +44,9 @@ class Extension_AiCrawler_Plugin_Admin {
 	/**
 	 * Registers hooks for the admin environment.
 	 *
-	 * @return void
 	 * @since  X.X.X
+	 *
+	 * @return void
 	 */
 	public function run() {
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
@@ -55,13 +57,14 @@ class Extension_AiCrawler_Plugin_Admin {
 	/**
 	 * Adds the AI Crawler settings page to the Performance menu.
 	 *
+	 * @since  X.X.X
+	 *
 	 * @param array $menu Existing menu entries.
 	 *
 	 * @todo Possibly add a capability check here to restrict access.
 	 *       to administrators or specific user roles.
 	 *
 	 * @return array
-	 * @since  X.X.X
 	 */
 	public function w3tc_admin_menu( $menu ) {
 		$menu['w3tc_aicrawler'] = array(
@@ -75,17 +78,18 @@ class Extension_AiCrawler_Plugin_Admin {
 	}
 
 	/**
-	 * Displays the AI Crawler extension settings page.
+	 * Displays the settings page.
+	 *
+	 * @since  X.X.X
 	 *
 	 * @return void
-	 * @since  X.X.X
 	 */
 	public function w3tc_extension_page() {
 		( new Extension_AiCrawler_Page() )->render_content();
 	}
 
 	/**
-	 * Adds custom plugin links for the New Relic extension.
+	 * Adds custom plugin links.
 	 *
 	 * @param array $links Existing array of plugin links.
 	 *

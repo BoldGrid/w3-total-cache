@@ -9,7 +9,7 @@
 namespace W3TC;
 
 /**
- * Class Extension_AiCrawler_Plugin
+ * Class: Extension_AiCrawler_Plugin
  *
  * @since X.X.X
  */
@@ -17,8 +17,9 @@ class Extension_AiCrawler_Plugin {
 	/**
 	 * Initialize the extension.
 	 *
-	 * @return void
 	 * @since  X.X.X
+	 *
+	 * @return void
 	 */
 	public function run() {
 		/**

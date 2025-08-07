@@ -9,7 +9,7 @@
 namespace W3TC;
 
 /**
- * Class Extension_AiCrawler_Page
+ * Class: Extension_AiCrawler_Page
  *
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  *
@@ -19,25 +19,20 @@ class Extension_AiCrawler_Page extends Base_Page_Settings {
 	/**
 	 * Current page slug.
 	 *
+	 * @since  X.X.X
+	 *
 	 * @var   string
-	 * @since x.x.x
 	 */
 	protected $_page = 'w3tc_aicrawler';
 
 	/**
 	 * Renders the AI Crawler extension settings page.
 	 *
+	 * @since  X.X.X
+	 *
 	 * @return void
-	 * @since  x.x.x
 	 */
 	public function render_content() {
-		$hello_world = Extension_AiCrawler_Central_Api::call(
-			'',
-			'GET',
-			array(
-				'url' => \home_url(),
-			)
-		);
 		require W3TC_DIR . '/Extension_AiCrawler_Page_View.php';
 	}
 }

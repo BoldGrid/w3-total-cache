@@ -9,7 +9,7 @@
 namespace W3TC;
 
 /**
- * Class Extension_AiCrawler_Util
+ * Class: Extension_AiCrawler_Util
  *
  * @since X.X.X
  */
@@ -37,8 +37,7 @@ class Extension_AiCrawler_Util {
 	 * This helper centralizes the environment detection so support can be
 	 * expanded in the future.
 	 *
-	 * @since X.X.X
-	 *
+	 * @since  X.X.X
 	 * @static
 	 *
 	 * @return bool

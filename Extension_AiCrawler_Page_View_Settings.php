@@ -28,18 +28,18 @@ $config = Dispatcher::config();
 					'imh_central_token',
 				),
 				'label'         => sprintf(
-					// translators: 1: InMotion Central brandname.
+					// translators: 1: InMotion Central brand name.
 					__(
-						'%1$s Token',
+						'%1$s Token:',
 						'w3-total-cache'
 					),
 					'InMotion Central'
 				),
 				'control'       => 'textbox',
 				'description'   => sprintf(
-					// translators: 1: InMotion Central brandname.
+					// translators: 1: InMotion Central brand name.
 					__(
-						'An %1$s token is required for this service to function.',
+						'An %1$s token is required.',
 						'w3-total-cache'
 					),
 					'InMotion Central'
@@ -55,7 +55,7 @@ $config = Dispatcher::config();
 					'aicrawler',
 					'auto_generate',
 				),
-				'label'          => esc_html__( 'Regenerate Markdown On Page/Post Update', 'w3-total-cache' ),
+				'label'          => esc_html__( 'Regenerate Markdown On Page/Post Update:', 'w3-total-cache' ),
 				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
 				'control'        => 'checkbox',
 				'description'    => esc_html__( 'Enabling this will automatically regenerate markdown files when a page/post is updated. Leaving this disabled will require manual action to regenerate the markdown files.', 'w3-total-cache' ),
