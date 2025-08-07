@@ -15,6 +15,69 @@ namespace W3TC;
  */
 class Extension_AiCrawler_Plugin_Admin {
 	/**
+	 * Constructor.
+	 *
+	 * @since X.X.X
+	 */
+	public function __construct() {
+		// Enqueue scripts.
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+	}
+
+	/**
+	 * Enqueue scripts for the settings page.
+	 *
+	 * Runs on the "admin_enqueue_scripts" action.
+	 *
+	 * @since X.X.X
+	 */
+	public function admin_enqueue_scripts() {
+		$current_screen = get_current_screen();
+
+		// Enqueue scripts only if the current page is the settings page (wp-admin/admin.php?page=w3tc_aicrawler).
+		if ( isset( $current_screen->id ) && 'performance_page_w3tc_aicrawler' === $current_screen->id ) {
+			wp_register_script(
+				'w3tc-aicrawler-page',
+				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_AiCrawler_Page.js' ),
+				array( 'jquery' ),
+				W3TC_VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'w3tc-aicrawler-page',
+				'w3tcData',
+				array(
+					'nonces'      => array(
+						'testToken'     => wp_create_nonce( 'w3tc_aicrawler_test_token' ),
+						'regenerateUrl' => wp_create_nonce( 'w3tc_aicrawler_regenerate_url' ),
+						'regenerateAll' => wp_create_nonce( 'w3tc_aicrawler_regenerate_all' ),
+					),
+					'lang'        => array(
+						'test'                => __( 'Test', 'w3-total-cache' ),
+						'testing'             => __( 'Testing...', 'w3-total-cache' ),
+						'tokenValid'          => __( 'Token is valid', 'w3-total-cache' ),
+						'tokenInvalid'        => __( 'Token is invalid', 'w3-total-cache' ),
+						'error'               => __( 'Error', 'w3-total-cache' ),
+						'tokenError'          => __( 'An error occurred while testing the token', 'w3-total-cache' ),
+						'noUrl'               => __( 'Please specify a URL to regenerate', 'w3-total-cache' ),
+						'regenerating'        => __( 'Regenerating', 'w3-total-cache' ),
+						'regeneratedUrl'      => __( 'URL regenerated successfully', 'w3-total-cache' ),
+						'regenerateUrlFailed' => __( 'Failed to regenerate URL', 'w3-total-cache' ),
+						'regenerateUrlError'  => __( 'An error occurred while regenerating the URL', 'w3-total-cache' ),
+						'regenerate'          => __( 'Regenerate', 'w3-total-cache' ),
+						'regeneratedAll'      => __( 'All URLs regenerated successfully', 'w3-total-cache' ),
+						'regenerateAllFailed' => __( 'Failed to regenerate all URLs', 'w3-total-cache' ),
+						'regenerateAllError'  => __( 'An error occurred while regenerating all URLs', 'w3-total-cache' ),
+					),
+				)
+			);
+
+			wp_enqueue_script( 'w3tc-aicrawler-page' );
+		}
+	}
+
+	/**
 	 * Adds AI Crawler to the extension list.
 	 *
 	 * @since  X.X.X

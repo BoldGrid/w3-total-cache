@@ -44,7 +44,7 @@ $config = Dispatcher::config();
 					),
 					'InMotion Central'
 				),
-				'control_after' => '<button class="w3tc_aicrawler_test_ctoken button">' . esc_html__( 'Test', 'w3-total-cache' ) . '</button>',
+				'control_after' => '<button id="w3tc-aicrawler-test-ctoken-button" class="button">' . esc_html__( 'Test', 'w3-total-cache' ) . '</button>',
 				'textbox_size'  => 40,
 			)
 		);
