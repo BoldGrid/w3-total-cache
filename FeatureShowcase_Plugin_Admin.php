@@ -238,7 +238,7 @@ class FeatureShowcase_Plugin_Admin {
 			);
 		}
 
-		return array(
+		$cards = array(
 			'new' => array(
 				'alwayscached'     => array(
 					'title'      => esc_html__( 'Always Cached', 'w3-total-cache' ),
@@ -561,5 +561,41 @@ class FeatureShowcase_Plugin_Admin {
 				),
 			),
 		);
+
+		if ( Extension_AiCrawler_Util::is_allowed() ) {
+			$is_enabled   = Extension_AiCrawler_Util::is_enabled();
+			$button_label = $is_enabled
+				? __( 'Settings', 'w3-total-cache' )
+				: __( 'Enable', 'w3-total-cache' );
+			$button_link  = $is_enabled
+				? esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_aicrawler' ) )
+				: esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_extensions#aicrawler' ) );
+
+			$cards['new'] = array_merge(
+				array(
+					'aicrawler' => array(
+						'title'      => esc_html__( 'AI Crawler Service', 'w3-total-cache' ),
+						'icon'       => 'dashicons-schedule',
+						'text'       => esc_html__(
+							'Make your site AI-ready with the AI Crawler extension. Chatbots and AI tools are
+							more popular than ever, and they need to crawl your site to deliver users
+							up-to-date, accurate information. We make sure you\'re not left behind by scanning
+							for key files like robots.txt and llms.txt, then generating and caching markdown
+							.md versions of your pages. This makes your content easy for AI to read and boosts
+							your visibility in AI-driven searches.',
+							'w3-total-cache'
+						),
+						'button'     => '<button class="button" onclick="window.location=\'' . $button_link . '\'">' . $button_label . '</button>',
+						'link'       => '<a target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/ai-crawler/?utm_source=w3tc&utm_medium=feature_showcase&utm_campaign=ai-crawler' ) . '">' . __( 'More info', 'w3-total-cache' ) . '<span class="dashicons dashicons-external"></span></a>',
+						'is_premium' => false,
+						'is_new'     => true,
+						'version'    => 'X.X.X',
+					),
+				),
+				$cards['new']
+			);
+		}
+
+		return $cards;
 	}
 }
