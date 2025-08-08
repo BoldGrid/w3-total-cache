@@ -3,25 +3,58 @@
  * File: Extension_AiCrawler_Plugin.php
  *
  * @package W3TC
- * @since   x.x.x
+ * @since   X.X.X
  */
 
 namespace W3TC;
 
 /**
- * Class Extension_AiCrawler_Plugin
+ * Class: Extension_AiCrawler_Plugin
  *
- * @since x.x.x
+ * @since X.X.X
  */
 class Extension_AiCrawler_Plugin {
 	/**
 	 * Initialize the extension.
 	 *
+	 * @since  X.X.X
+	 *
 	 * @return void
-	 * @since  x.x.x
 	 */
 	public function run() {
-		// No frontend functionality yet.
+		/**
+		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
+		*/
+		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
+	}
+
+	/**
+	 * Specify config key typing for fields that need it.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $descriptor Descriptor.
+	 * @param mixed $key Compound key array.
+	 *
+	 * @return array
+	 */
+	public function w3tc_config_key_descriptor( $descriptor, $key ) {
+		if (
+			is_array( $key ) &&
+			in_array(
+				implode( '.', $key ),
+				array(
+					'aicrawler.exclusions',
+					'aicrawler.exclusions_pts',
+					'aicrawler.exclusions_cpts',
+				),
+				true
+			)
+		) {
+			$descriptor = array( 'type' => 'array' );
+		}
+
+		return $descriptor;
 	}
 }
 
