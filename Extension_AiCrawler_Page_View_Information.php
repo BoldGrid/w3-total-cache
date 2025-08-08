@@ -79,9 +79,12 @@ if ( isset( $_GET['aicrawler_dummy'] ) && isset( $dummy_reports[ $_GET['aicrawle
         );
 }
 
-$report = array();
+$report        = array();
+$report_failed = false;
 if ( $response['success'] && isset( $response['data']['report'] ) ) {
         $report = $response['data']['report'];
+} else {
+        $report_failed = true;
 }
 
 /**
@@ -89,33 +92,34 @@ if ( $response['success'] && isset( $response['data']['report'] ) ) {
  *
  * @param string $title  Report heading.
  * @param array  $report Report data keyed by URL.
+ * @param bool   $error  Whether the report could not be generated.
  *
  * @return void
  */
-function w3tc_aicrawler_render_report( $title, $report ) {
-        if ( empty( $report ) ) {
-                return;
-        }
+function w3tc_aicrawler_render_report( $title, $report, $error = false ) {
         ?>
         <h4 class="w3tc-aicrawler-report-heading"><?php echo esc_html( $title ); ?></h4>
-        <div class="w3tc-aicrawler-report">
-                <?php foreach ( $report as $url => $data ) :
-                        $file       = basename( parse_url( $url, PHP_URL_PATH ) );
-                        $present    = ! empty( $data['present'] );
-                        $sufficient = ! empty( $data['sufficient'] );
-                        $color      = $present && $sufficient ? 'green' : ( $present ? 'yellow' : 'red' );
-                        $icon       = $present && $sufficient ? '&#10003;' : ( $present ? '!' : '&#10005;' );
-                        ?>
-                        <div class="w3tc-aicrawler-report-item">
-                                <div class="w3tc-aicrawler-report-label"><?php echo esc_html( $file ); ?></div>
-                                <div class="w3tc-aicrawler-report-circle w3tc-aicrawler-report-circle-<?php echo esc_attr( $color ); ?>"><?php echo $icon; ?></div>
-                                <?php if ( 'green' !== $color && ! empty( $data['evaluation'] ) ) : ?>
-                                        <div class="w3tc-aicrawler-report-eval"><?php echo esc_html( $data['evaluation'] ); ?></div>
-                                <?php endif; ?>
-                        </div>
-                <?php endforeach; ?>
-        </div>
-        <?php
+        <?php if ( $error ) : ?>
+                <p class="w3tc-aicrawler-report-error"><?php echo esc_html__( 'Unable to generate report at this time', 'w3-total-cache' ); ?></p>
+        <?php elseif ( ! empty( $report ) ) : ?>
+                <div class="w3tc-aicrawler-report">
+                        <?php foreach ( $report as $url => $data ) :
+                                $file       = basename( parse_url( $url, PHP_URL_PATH ) );
+                                $present    = ! empty( $data['present'] );
+                                $sufficient = ! empty( $data['sufficient'] );
+                                $color      = $present && $sufficient ? 'green' : ( $present ? 'yellow' : 'red' );
+                                $icon       = $present && $sufficient ? '&#10003;' : ( $present ? '!' : '&#10005;' );
+                                ?>
+                                <div class="w3tc-aicrawler-report-item">
+                                        <div class="w3tc-aicrawler-report-label"><?php echo esc_html( $file ); ?></div>
+                                        <div class="w3tc-aicrawler-report-circle w3tc-aicrawler-report-circle-<?php echo esc_attr( $color ); ?>"><?php echo $icon; ?></div>
+                                        <?php if ( 'green' !== $color && ! empty( $data['evaluation'] ) ) : ?>
+                                                <div class="w3tc-aicrawler-report-eval"><?php echo esc_html( $data['evaluation'] ); ?></div>
+                                        <?php endif; ?>
+                                </div>
+                        <?php endforeach; ?>
+                </div>
+        <?php endif;
 }
 ?>
 <div class="metabox-holder">
@@ -125,11 +129,12 @@ function w3tc_aicrawler_render_report( $title, $report ) {
                 array(
                         'title' => __( 'AI Crawlability Summary', 'w3-total-cache' ),
                         'data'  => $report,
+                        'error' => $report_failed,
                 ),
         );
 
         foreach ( $reports as $r ) {
-                w3tc_aicrawler_render_report( $r['title'], $r['data'] );
+                w3tc_aicrawler_render_report( $r['title'], $r['data'], ! empty( $r['error'] ) );
         }
         ?>
         <?php Util_Ui::postbox_footer(); ?>

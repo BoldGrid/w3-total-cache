@@ -56,3 +56,8 @@
 .w3tc-aicrawler-report-eval {
         margin-top: 8px;
 }
+
+.w3tc-aicrawler-report-error {
+        text-align: center;
+        margin-bottom: 12px;
+}
