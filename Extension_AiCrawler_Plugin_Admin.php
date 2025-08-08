@@ -44,6 +44,13 @@ class Extension_AiCrawler_Plugin_Admin {
 				true
 			);
 
+			wp_register_style(
+				'w3tc-aicrawler-page',
+				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_AiCrawler_Page_View.css' ),
+				array(),
+				W3TC_VERSION
+			);
+
 			wp_localize_script(
 				'w3tc-aicrawler-page',
 				'w3tcData',
@@ -74,6 +81,7 @@ class Extension_AiCrawler_Plugin_Admin {
 			);
 
 			wp_enqueue_script( 'w3tc-aicrawler-page' );
+			wp_enqueue_style( 'w3tc-aicrawler-page' );
 		}
 	}
 

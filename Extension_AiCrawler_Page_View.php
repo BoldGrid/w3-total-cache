@@ -41,6 +41,7 @@ $config = Dispatcher::config();
 		)
 	);
 
+	require __DIR__ . '/Extension_AiCrawler_Page_View_Status.php';
 	require __DIR__ . '/Extension_AiCrawler_Page_View_Settings.php';
 	require __DIR__ . '/Extension_AiCrawler_Page_View_Tools.php';
 	?>
