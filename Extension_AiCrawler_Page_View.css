@@ -10,10 +10,16 @@
 .w3tc-aicrawler-report {
         display: flex;
         gap: 20px;
+        justify-content: center;
 }
 
 .w3tc-aicrawler-report-item {
         text-align: center;
+}
+
+.w3tc-aicrawler-report-heading {
+        text-align: center;
+        margin: 0 0 12px;
 }
 
 .w3tc-aicrawler-report-label {
@@ -27,6 +33,12 @@
         border-radius: 50%;
         margin: 0 auto;
         background-color: #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 48px;
+        font-weight: 700;
 }
 
 .w3tc-aicrawler-report-circle-green {
