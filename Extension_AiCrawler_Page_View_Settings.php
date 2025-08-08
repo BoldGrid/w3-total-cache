@@ -25,7 +25,7 @@ $config = Dispatcher::config();
 			array(
 				'key'          => array(
 					'aicrawler',
-					'imh_central_id',
+					'imh_central_client',
 				),
 				'label'        => sprintf(
 					// translators: 1: InMotion Central brand name.
