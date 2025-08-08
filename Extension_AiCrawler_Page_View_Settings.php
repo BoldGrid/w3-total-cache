@@ -51,6 +51,33 @@ $config = Dispatcher::config();
 
 		Util_Ui::config_item(
 			array(
+				'key'           => array(
+					'aicrawler',
+					'imh_central_id',
+				),
+				'label'         => sprintf(
+					// translators: 1: InMotion Central brand name.
+					__(
+						'%1$s ID:',
+						'w3-total-cache'
+					),
+					'InMotion Central'
+				),
+				'control'       => 'textbox',
+				'description'   => sprintf(
+					// translators: 1: InMotion Central brand name.
+					__(
+						'An %1$s ID is required.',
+						'w3-total-cache'
+					),
+					'InMotion Central'
+				),
+				'textbox_size'  => 40,
+			)
+		);
+
+		Util_Ui::config_item(
+			array(
 				'key'            => array(
 					'aicrawler',
 					'auto_generate',
