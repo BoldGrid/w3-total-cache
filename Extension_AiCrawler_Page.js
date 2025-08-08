@@ -14,8 +14,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	const regenerateUrlInput  = document.getElementById('w3tc-aicrawler-regenerate-url');
 	const regenerateAllButton = document.getElementById('w3tc-aicrawler-regenerate-all-button');
 
-	console.log(testTokenButton, regenerateUrlButton, regenerateUrlInput, regenerateAllButton);
-
 	if (testTokenButton) {
 		// Add a click event listener to the button.
 		testTokenButton.addEventListener('click', function (event) {
@@ -126,9 +124,9 @@ document.addEventListener('DOMContentLoaded', function () {
 				.then((data) => {
 					// Handle the response from the server.
 					if (data.success) {
-						alert(w3tcData.lang.regenerateAllFailed + '.');
+						alert(w3tcData.lang.regenerateAll + '.');
 					} else {
-						alert(w3tcData.lang.regenerateAllError + '.');
+						alert(w3tcData.lang.regenerateAllFailed + '.');
 					}
 				})
 				.catch((error) => {
