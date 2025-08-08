@@ -23,6 +23,33 @@ $config = Dispatcher::config();
 		<?php
 		Util_Ui::config_item(
 			array(
+				'key'          => array(
+					'aicrawler',
+					'imh_central_id',
+				),
+				'label'        => sprintf(
+					// translators: 1: InMotion Central brand name.
+					__(
+						'%1$s ID:',
+						'w3-total-cache'
+					),
+					'InMotion Central'
+				),
+				'control'      => 'textbox',
+				'description'  => sprintf(
+					// translators: 1: InMotion Central brand name.
+					__(
+						'An %1$s Client ID is required.',
+						'w3-total-cache'
+					),
+					'InMotion Central'
+				),
+				'textbox_size' => 40,
+			)
+		);
+
+		Util_Ui::config_item(
+			array(
 				'key'           => array(
 					'aicrawler',
 					'imh_central_token',
@@ -45,33 +72,6 @@ $config = Dispatcher::config();
 					'InMotion Central'
 				),
 				'control_after' => '<button id="w3tc-aicrawler-test-ctoken-button" class="button">' . esc_html__( 'Test', 'w3-total-cache' ) . '</button>',
-				'textbox_size'  => 40,
-			)
-		);
-
-		Util_Ui::config_item(
-			array(
-				'key'           => array(
-					'aicrawler',
-					'imh_central_id',
-				),
-				'label'         => sprintf(
-					// translators: 1: InMotion Central brand name.
-					__(
-						'%1$s ID:',
-						'w3-total-cache'
-					),
-					'InMotion Central'
-				),
-				'control'       => 'textbox',
-				'description'   => sprintf(
-					// translators: 1: InMotion Central brand name.
-					__(
-						'An %1$s ID is required.',
-						'w3-total-cache'
-					),
-					'InMotion Central'
-				),
 				'textbox_size'  => 40,
 			)
 		);
