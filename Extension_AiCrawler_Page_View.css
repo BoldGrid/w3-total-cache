@@ -1,0 +1,46 @@
+/**
+ * File: Extension_AiCrawler_Page_View.css
+ *
+ * Styles for the AI Crawler settings page.
+ *
+ * @package W3TC
+ * @since X.X.X
+ */
+
+.w3tc-aicrawler-report {
+        display: flex;
+        gap: 20px;
+}
+
+.w3tc-aicrawler-report-item {
+        text-align: center;
+}
+
+.w3tc-aicrawler-report-label {
+        margin-bottom: 8px;
+        font-weight: 600;
+}
+
+.w3tc-aicrawler-report-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto;
+        background-color: #ccc;
+}
+
+.w3tc-aicrawler-report-circle-green {
+        background-color: #46b450;
+}
+
+.w3tc-aicrawler-report-circle-yellow {
+        background-color: #ffb900;
+}
+
+.w3tc-aicrawler-report-circle-red {
+        background-color: #dc3232;
+}
+
+.w3tc-aicrawler-report-eval {
+        margin-top: 8px;
+}
