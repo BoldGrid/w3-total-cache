@@ -35,14 +35,21 @@ class Extension_AiCrawler_Plugin_Admin {
 		$current_screen = get_current_screen();
 
 		// Enqueue scripts only if the current page is the settings page (wp-admin/admin.php?page=w3tc_aicrawler).
-		if ( isset( $current_screen->id ) && 'performance_page_w3tc_aicrawler' === $current_screen->id ) {
-			wp_register_script(
-				'w3tc-aicrawler-page',
-				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_AiCrawler_Page.js' ),
-				array( 'jquery' ),
-				W3TC_VERSION,
-				true
-			);
+                if ( isset( $current_screen->id ) && 'performance_page_w3tc_aicrawler' === $current_screen->id ) {
+                        wp_register_script(
+                                'w3tc-aicrawler-page',
+                                esc_url( plugin_dir_url( __FILE__ ) . 'Extension_AiCrawler_Page.js' ),
+                                array( 'jquery' ),
+                                W3TC_VERSION,
+                                true
+                        );
+
+                        wp_register_style(
+                                'w3tc-aicrawler-page',
+                                esc_url( plugin_dir_url( __FILE__ ) . 'Extension_AiCrawler_Page_View.css' ),
+                                array(),
+                                W3TC_VERSION
+                        );
 
 			wp_localize_script(
 				'w3tc-aicrawler-page',
@@ -73,9 +80,10 @@ class Extension_AiCrawler_Plugin_Admin {
 				)
 			);
 
-			wp_enqueue_script( 'w3tc-aicrawler-page' );
-		}
-	}
+                        wp_enqueue_script( 'w3tc-aicrawler-page' );
+                        wp_enqueue_style( 'w3tc-aicrawler-page' );
+                }
+        }
 
 	/**
 	 * Adds AI Crawler to the extension list.
