@@ -10,11 +10,12 @@
 .w3tc-aicrawler-report {
         display: flex;
         gap: 20px;
-        justify-content: center;
+        justify-content: space-around;
 }
 
 .w3tc-aicrawler-report-item {
         text-align: center;
+        width: 33%;
 }
 
 .w3tc-aicrawler-report-heading {
