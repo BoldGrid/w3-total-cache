@@ -126,8 +126,8 @@ class Extension_AiCrawler_Central_Api {
 		$config = Dispatcher::config();
 
 		return array(
-			'X-Central-Token'  => $config->get_string( 'aicrawler.imh_central_token', '' ),
-			'X-Central-Client' => $config->get_string( 'aicrawler.imh_central_client', '' ),
+			'X-Central-Token'  => $config->get_string( array( 'aicrawler', 'imh_central_token' ), '' ),
+			'X-Central-Client' => $config->get_string( array( 'aicrawler', 'imh_central_client' ), '' ),
 			'Accept'           => 'application/json',
 		);
 	}
