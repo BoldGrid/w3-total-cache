@@ -255,13 +255,15 @@ class Cache_File_Generic extends Cache_File {
 	 * @return array
 	 */
 	private function _read( $path ) {
+		// Canonicalize path to avoid unexpected variants.
+		$path = realpath( $path );
+
 		if ( ! is_readable( $path ) ) {
 			return null;
 		}
 
 		// make sure reading from cache folder canonicalize to avoid unexpected variants.
 		$base_path = realpath( $this->_cache_dir );
-		$path      = realpath( $path );
 
 		if ( strlen( $base_path ) <= 0 || substr( $path, 0, strlen( $base_path ) ) !== $base_path ) {
 			return null;
