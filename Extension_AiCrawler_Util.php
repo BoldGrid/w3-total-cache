@@ -26,7 +26,6 @@ class Extension_AiCrawler_Util {
 		$extensions_active = $config->get_array( 'extensions.active' );
 
 		// @todo: Check for Central environment and add to return.
-
 		return array_key_exists( 'aicrawler', $extensions_active );
 	}
 
@@ -106,51 +105,55 @@ class Extension_AiCrawler_Util {
 	}
 
 	/**
-	 * Render AI Crawler summary report
+	 * Internal: fetch report data from API or dummy.
+	 *
+	 * Returns the same shape your render method expects:
+	 * array( 'success' => bool, 'data' => array( 'report' => ... ) )
+	 *
+	 * @param string|null $dummy Optional: 'mixed' or 'all_good'. If null, honors ?aicrawler_dummy=.
+	 * @return array
+	 */
+	public static function get_report_response( $dummy = null ) {
+		// Allow a programmatic override (e.g., tests) before reading $_GET.
+		$dummy = apply_filters( 'w3tc_aicrawler_dummy_param', $dummy );
+
+		$dummy_reports = self::get_dummy_report_data();
+
+		// Mirror render_report_summary() behavior.
+		if ( null === $dummy && isset( $_GET['aicrawler_dummy'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$dummy = sanitize_text_field( wp_unslash( $_GET['aicrawler_dummy'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+
+		if ( $dummy && isset( $dummy_reports[ $dummy ] ) ) {
+			return array(
+				'success' => true,
+				'data'    => $dummy_reports[ $dummy ],
+			);
+		}
+
+		// Live call.
+		return Extension_AiCrawler_Central_Api::call(
+			'report',
+			'POST',
+			array( 'url' => home_url() )
+		);
+	}
+
+	/**
+	 * Render AI Crawler summary report (HTML; echoes markup).
 	 *
 	 * @since X.X.X
 	 */
 	public static function render_report_summary() {
-		// Dummy responses for testing the UI when the API is unavailable.
-		// To use a dummy response, append "&aicrawler_dummy=mixed" or
-		// "&aicrawler_dummy=all_good" to the settings page URL.
-		$dummy_reports = self::get_dummy_report_data();
-
-		/*
-		* @todo: Remove this block when the API is reliable.
-		*/
-		if ( isset( $_GET['aicrawler_dummy'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$aicrawler_dummy = sanitize_text_field( wp_unslash( $_GET['aicrawler_dummy'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( isset( $dummy_reports[ $aicrawler_dummy ] ) ) {
-				$response = array(
-					'success' => true,
-					'data'    => $dummy_reports[ $aicrawler_dummy ],
-				);
-			} else {
-				$response = Extension_AiCrawler_Central_Api::call(
-					'report',
-					'POST',
-					array(
-						'url' => home_url(),
-					)
-				);
-			}
-		} else {
-			$response = Extension_AiCrawler_Central_Api::call(
-				'report',
-				'POST',
-				array(
-					'url' => home_url(),
-				)
-			);
-		}
+		$response = self::get_report_response();
 
 		$report        = array();
 		$report_failed = false;
-		if ( $response['success'] && isset( $response['data']['report'] ) ) {
-				$report = $response['data']['report'];
+
+		if ( ! empty( $response['success'] ) && isset( $response['data']['report'] ) ) {
+			$report = $response['data']['report'];
 		} else {
-				$report_failed = true;
+			$report_failed = true;
 		}
 		?>
 		<h3 class="w3tc-aicrawler-report-heading"><?php echo esc_html__( 'AI Crawler Summary', 'w3-total-cache' ); ?></h3>
@@ -170,12 +173,12 @@ class Extension_AiCrawler_Util {
 							<div class="w3tc-aicrawler-report-label"><?php echo esc_html( $file ); ?></div>
 							<div class="w3tc-aicrawler-report-circle w3tc-aicrawler-report-circle-<?php echo esc_attr( $color ); ?>"><?php echo esc_attr( $icon ); ?></div>
 							<?php if ( 'green' !== $color && ! empty( $data['evaluation'] ) ) : ?>
-									<div class="w3tc-aicrawler-report-eval"><?php echo esc_html( $data['evaluation'] ); ?></div>
+								<div class="w3tc-aicrawler-report-eval"><?php echo esc_html( $data['evaluation'] ); ?></div>
 							<?php endif; ?>
 						</div>
 				<?php endforeach; ?>
 			</div>
 			<?php
-			endif;
+		endif;
 	}
 }
