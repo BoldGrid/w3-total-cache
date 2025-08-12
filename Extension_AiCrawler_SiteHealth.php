@@ -9,7 +9,7 @@
 namespace W3TC;
 
 /**
- * Class: Extension_AiCrawler_Util
+ * Class: Extension_AiCrawler_SiteHealth
  *
  * @since X.X.X
  */
@@ -96,7 +96,7 @@ class Extension_AiCrawler_SiteHealth {
 		ob_start();
 
 		// @todo Remove true flag once API is reliable.
-		\W3TC\Extension_AiCrawler_Util::render_report_summary( true );
+		\W3TC\Extension_AiCrawler_Util::render_report_summary();
 
 		$buffered = ob_get_clean();
 
@@ -117,7 +117,7 @@ class Extension_AiCrawler_SiteHealth {
 	 *
 	 * @param string $html The HTML content to be analyzed for status classification.
 	 *
-	 * @return string The site health status classifcation of the AI crawler.
+	 * @return string The site health status classification of the AI crawler.
 	 */
 	private static function get_sitehealth_status_from_html( $html ) {
 		if (
@@ -151,7 +151,7 @@ class Extension_AiCrawler_SiteHealth {
 			'fields' => array(),
 		);
 
-		if ( 0) {//\W3TC\Extension_AiCrawler_Util::is_enabled() ) {
+		if ( \W3TC\Extension_AiCrawler_Util::is_enabled() ) {
 			$data = self::get_report_summary_struct();
 
 			if ( ! empty( $data['error'] ) ) {
