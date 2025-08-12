@@ -32,35 +32,46 @@ class Extension_AiCrawler_Plugin_Admin {
 	 * @since X.X.X
 	 */
 	public function admin_enqueue_scripts() {
-		$current_screen = get_current_screen();
+		$screen    = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$screen_id = ( $screen && isset( $screen->id ) ) ? $screen->id : '';
 
-		// Enqueue scripts only if the current page is the settings page (wp-admin/admin.php?page=w3tc_aicrawler).
-		if ( isset( $current_screen->id ) && 'performance_page_w3tc_aicrawler' === $current_screen->id ) {
-			wp_register_script(
-				'w3tc-aicrawler-page',
-				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_AiCrawler_Page.js' ),
-				array( 'jquery' ),
-				W3TC_VERSION,
-				true
-			);
+		// URLs & handles (register once; enqueue conditionally).
+		$css_handle = 'w3tc-aicrawler-page';
+		$js_handle  = 'w3tc-aicrawler-page';
+		$css_url    = plugin_dir_url( __FILE__ ) . 'Extension_AiCrawler_Page_View.css';
+		$js_url     = plugin_dir_url( __FILE__ ) . 'Extension_AiCrawler_Page.js';
 
-			wp_register_style(
-				'w3tc-aicrawler-page',
-				esc_url( plugin_dir_url( __FILE__ ) . 'Extension_AiCrawler_Page_View.css' ),
-				array(),
-				W3TC_VERSION
-			);
+		// Screens that should get the CSS (settings + Site Health variants).
+		$css_screens = apply_filters(
+			'w3tc_aicrawler_css_screens',
+			array(
+				'performance_page_w3tc_aicrawler',
+				'site-health',
+				'site-health-network',
+				'tools_page_health-check',
+			)
+		);
+
+		// Enqueue CSS where needed.
+		if ( in_array( $screen_id, $css_screens, true ) ) {
+			wp_register_style( $css_handle, $css_url, array(), W3TC_VERSION );
+			wp_enqueue_style( $css_handle );
+		}
+
+		// Settings page gets JS + localization.
+		if ( 'performance_page_w3tc_aicrawler' === $screen_id ) {
+			wp_register_script( $js_handle, $js_url, array( 'jquery' ), W3TC_VERSION, true );
 
 			wp_localize_script(
-				'w3tc-aicrawler-page',
+				$js_handle,
 				'w3tcData',
 				array(
-					'nonces'      => array(
+					'nonces' => array(
 						'testToken'     => wp_create_nonce( 'w3tc_aicrawler_test_token' ),
 						'regenerateUrl' => wp_create_nonce( 'w3tc_aicrawler_regenerate_url' ),
 						'regenerateAll' => wp_create_nonce( 'w3tc_aicrawler_regenerate_all' ),
 					),
-					'lang'        => array(
+					'lang'   => array(
 						'test'                => __( 'Test', 'w3-total-cache' ),
 						'testing'             => __( 'Testing...', 'w3-total-cache' ),
 						'tokenValid'          => __( 'Token is valid', 'w3-total-cache' ),
@@ -80,8 +91,7 @@ class Extension_AiCrawler_Plugin_Admin {
 				)
 			);
 
-			wp_enqueue_script( 'w3tc-aicrawler-page' );
-			wp_enqueue_style( 'w3tc-aicrawler-page' );
+			wp_enqueue_script( $js_handle );
 		}
 	}
 
@@ -123,6 +133,24 @@ class Extension_AiCrawler_Plugin_Admin {
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
 		add_filter( 'w3tc_extension_plugin_links_aicrawler', array( $this, 'w3tc_extension_plugin_links' ) );
 		add_action( 'w3tc_settings_page-w3tc_aicrawler', array( $this, 'w3tc_extension_page' ) );
+
+		// Site Health: STATUS card.
+		add_filter(
+			'site_status_tests',
+			array(
+				'\W3TC\Extension_AiCrawler_SiteHealth',
+				'get_sitehealth_status',
+			)
+		);
+
+		// Site Health: DEBUG INFO card.
+		add_filter(
+			'debug_information',
+			array(
+				'\W3TC\Extension_AiCrawler_SiteHealth',
+				'get_sitehealth_debug_info',
+			)
+		);
 	}
 
 	/**
