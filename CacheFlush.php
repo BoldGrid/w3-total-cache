@@ -225,7 +225,7 @@ class CacheFlush {
 			$flushed = true;
 
 			if ( Util_Environment::is_elementor() ) {
-				// FLush Elementor's file manager cache.
+				// Flush Elementor's file manager cache.
 				\elementor\Plugin::$instance->files_manager->clear_cache();
 
 				// Flush W3 Total Cache's Object Cache to ensure Elementor changes are reflected.
