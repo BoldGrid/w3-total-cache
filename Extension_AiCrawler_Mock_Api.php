@@ -76,14 +76,15 @@ class Extension_AiCrawler_Mock_Api {
 	/**
 	 * Mock handler for the /report endpoint.
 	 *
+	 * Note that the $args and $body_data parameters are not used in this mock,
+	 * but they are included for consistency with the other methods.
+	 *
 	 * @param array $args      HTTP request arguments.
 	 * @param array $body_data Decoded body data.
 	 *
 	 * @return array Mocked HTTP response.
 	 */
-	private function report( $args, $body_data ) {
-		unset( $args, $body_data );
-
+	private function report( $args, $body_data ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		$data = array(
 			'success'  => true,
 			'url'      => home_url(),
