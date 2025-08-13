@@ -15,11 +15,11 @@ namespace W3TC;
  * Class Extension_AiCrawler_Mock_Api
  */
 class Extension_AiCrawler_Mock_Api {
-		/**
-		 * Register the request interceptor.
-		 *
-		 * @return void
-		 */
+	/**
+	 * Register the request interceptor.
+	 *
+	 * @return void
+	 */
 	public function run() {
 		if ( defined( 'IMH_CENTRAL_API_MOCK' ) && IMH_CENTRAL_API_MOCK ) {
 			add_filter( 'pre_http_request', array( $this, 'intercept' ), 10, 3 );
