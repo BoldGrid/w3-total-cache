@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: W3 Total Cache 2.8.11\n"
+"Project-Id-Version: W3 Total Cache 2.8.12\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/w3-total-cache\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-30T16:43:18+00:00\n"
+"POT-Creation-Date: 2025-08-14T19:28:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: w3-total-cache\n"
@@ -2739,64 +2739,64 @@ msgid "Purge %1$sCDN%2$s completely"
 msgstr ""
 
 #. translators: 1 queue interval value.
-#: Cdn_Plugin.php:316
+#: Cdn_Plugin.php:302
 msgid "[W3TC] CDN queue process (every %1$d seconds)"
 msgstr ""
 
 #. translators: 1 queue interval value.
-#: Cdn_Plugin.php:334
+#: Cdn_Plugin.php:320
 msgid "[W3TC] CDN auto upload (every %1$d seconds)"
 msgstr ""
 
-#: Cdn_Plugin.php:589
+#: Cdn_Plugin.php:575
 #: DbCache_WpdbInjection_QueryCaching.php:869
 msgid "wp-admin"
 msgstr ""
 
-#: Cdn_Plugin.php:596
+#: Cdn_Plugin.php:582
 #: DbCache_WpdbInjection_QueryCaching.php:871
 msgid "Short init"
 msgstr ""
 
-#: Cdn_Plugin.php:603
+#: Cdn_Plugin.php:589
 msgid "user agent is rejected"
 msgstr ""
 
-#: Cdn_Plugin.php:610
+#: Cdn_Plugin.php:596
 msgid "request URI is rejected"
 msgstr ""
 
-#: Cdn_Plugin.php:617
+#: Cdn_Plugin.php:603
 msgid "SSL is rejected"
 msgstr ""
 
-#: Cdn_Plugin.php:637
+#: Cdn_Plugin.php:623
 msgid "DONOTCDN constant is defined"
 msgstr ""
 
-#: Cdn_Plugin.php:644
+#: Cdn_Plugin.php:630
 #: Extension_NewRelic_Plugin.php:199
 msgid "logged in role is rejected"
 msgstr ""
 
-#: Cdn_Plugin.php:872
+#: Cdn_Plugin.php:858
 msgid "CDN Cache"
 msgstr ""
 
-#: Cdn_Plugin.php:881
+#: Cdn_Plugin.php:867
 msgid "CDN: Manual Purge"
 msgstr ""
 
 #. translators: 1 CDN engine name, 2 rejection reason.
-#: Cdn_Plugin.php:906
+#: Cdn_Plugin.php:892
 msgid "Content Delivery Network via %1$s%2$s"
 msgstr ""
 
-#: Cdn_Plugin.php:935
+#: Cdn_Plugin.php:921
 msgid "Replaced URLs for CDN:"
 msgstr ""
 
-#: Cdn_Plugin.php:1193
+#: Cdn_Plugin.php:1136
 msgid "Cant find minification base url, make sure minification folder sits inside WP_CONTENT_DIR and DOCUMENT_ROOT is set correctly"
 msgstr ""
 
@@ -5150,15 +5150,15 @@ msgid "Settings"
 msgstr ""
 
 #. translators: 1 cache hits, 2 cache total, 3 engine name, 4 reject reason.
-#: Extension_FragmentCache_WpObjectCache.php:604
+#: Extension_FragmentCache_WpObjectCache.php:603
 msgid "Fragment Caching %1$d/%2$d fragments using %3$s%4$s"
 msgstr ""
 
-#: Extension_FragmentCache_WpObjectCache.php:613
+#: Extension_FragmentCache_WpObjectCache.php:612
 msgid "Fragment Cache debug info:"
 msgstr ""
 
-#: Extension_FragmentCache_WpObjectCache.php:619
+#: Extension_FragmentCache_WpObjectCache.php:618
 msgid "W3TC Fragment Cache info:"
 msgstr ""
 
@@ -6468,9 +6468,9 @@ msgstr ""
 #: inc/options/general.php:384
 #: ObjectCache_ConfigLabels.php:27
 #: ObjectCache_Plugin.php:147
-#: ObjectCache_Plugin.php:213
-#: ObjectCache_Plugin.php:221
-#: ObjectCache_Plugin.php:230
+#: ObjectCache_Plugin.php:212
+#: ObjectCache_Plugin.php:220
+#: ObjectCache_Plugin.php:229
 #: Root_AdminMenu.php:81
 #: Root_AdminMenu.php:82
 #: SetupGuide_Plugin_Admin.php:1165
