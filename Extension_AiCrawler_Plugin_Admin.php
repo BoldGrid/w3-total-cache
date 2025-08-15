@@ -130,10 +130,10 @@ class Extension_AiCrawler_Plugin_Admin {
 	 * @return void
 	 */
 	public function run() {
-			add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
-			add_filter( 'w3tc_extension_plugin_links_aicrawler', array( $this, 'w3tc_extension_plugin_links' ) );
-			add_action( 'w3tc_settings_page-w3tc_aicrawler', array( $this, 'w3tc_extension_page' ) );
-			add_action( 'wp_ajax_regenerate_aicrawler_url', array( $this, 'wp_ajax_regenerate_aicrawler_url' ) );
+		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
+		add_filter( 'w3tc_extension_plugin_links_aicrawler', array( $this, 'w3tc_extension_plugin_links' ) );
+		add_action( 'w3tc_settings_page-w3tc_aicrawler', array( $this, 'w3tc_extension_page' ) );
+		add_action( 'wp_ajax_regenerate_aicrawler_url', array( $this, 'wp_ajax_regenerate_aicrawler_url' ) );
 
 		// Site Health: STATUS card.
 		add_filter(
