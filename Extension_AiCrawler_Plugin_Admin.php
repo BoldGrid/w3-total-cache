@@ -130,9 +130,10 @@ class Extension_AiCrawler_Plugin_Admin {
 	 * @return void
 	 */
 	public function run() {
-		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
-		add_filter( 'w3tc_extension_plugin_links_aicrawler', array( $this, 'w3tc_extension_plugin_links' ) );
-		add_action( 'w3tc_settings_page-w3tc_aicrawler', array( $this, 'w3tc_extension_page' ) );
+			add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
+			add_filter( 'w3tc_extension_plugin_links_aicrawler', array( $this, 'w3tc_extension_plugin_links' ) );
+			add_action( 'w3tc_settings_page-w3tc_aicrawler', array( $this, 'w3tc_extension_page' ) );
+			add_action( 'wp_ajax_regenerate_aicrawler_url', array( $this, 'wp_ajax_regenerate_aicrawler_url' ) );
 
 		// Site Health: STATUS card.
 		add_filter(
@@ -195,10 +196,41 @@ class Extension_AiCrawler_Plugin_Admin {
 	 * @return array Modified array of plugin links with New Relic settings link added.
 	 */
 	public function w3tc_extension_plugin_links( $links ) {
-		$links   = array();
-		$links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_aicrawler' ) ) .
-			'">' . __( 'Settings' ) . '</a>';
+			$links   = array();
+			$links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_aicrawler' ) ) .
+					'">' . __( 'Settings' ) . '</a>';
 
-		return $links;
+			return $links;
+	}
+
+		/**
+		 * AJAX handler to queue a URL for markdown generation.
+		 *
+		 * @since X.X.X
+		 *
+		 * @return void
+		 */
+	public function wp_ajax_regenerate_aicrawler_url() {
+		if ( ! check_ajax_referer( 'w3tc_aicrawler_regenerate_url', '_wpnonce', false ) ) {
+				wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'w3-total-cache' ) ) );
+		}
+
+			$url = isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : '';
+
+		if ( empty( $url ) ) {
+				wp_send_json_error( array( 'message' => __( 'Please specify a URL to regenerate.', 'w3-total-cache' ) ) );
+		}
+
+		if ( Extension_AiCrawler_Util::is_url_excluded( $url ) ) {
+				wp_send_json_error( array( 'message' => __( 'This URL is excluded from markdown generation.', 'w3-total-cache' ) ) );
+		}
+
+			$result = Extension_AiCrawler_Markdown::generate_markdown( $url );
+
+		if ( $result ) {
+				wp_send_json_success( array( 'message' => __( 'URL added to the markdown generation queue.', 'w3-total-cache' ) ) );
+		}
+
+			wp_send_json_error( array( 'message' => __( 'Failed to add URL to the markdown generation queue.', 'w3-total-cache' ) ) );
 	}
 }

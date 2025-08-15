@@ -181,4 +181,20 @@ class Extension_AiCrawler_Util {
 			<?php
 		endif;
 	}
+
+		/**
+		 * Determine if the provided URL matches any exclusion rules.
+		 *
+		 * Placeholder for future exclusion logic.
+		 *
+		 * @since X.X.X
+		 *
+		 * @param string $url URL to check against exclusions.
+		 *
+		 * @return bool True if the URL should be excluded, otherwise false.
+		 */
+	public static function is_url_excluded( $url ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+			// @todo Implement exclusion filters.
+			return false;
+	}
 }
