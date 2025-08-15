@@ -55,19 +55,19 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	/**
 	 * Initializes the DbCache_WpdbNew object.
 	 *
-	 * @param array|null $processors List of processors for this object.
+	 * @param array $processors List of processors for this object.
 	 *
-	 * @throws Exception If processors is not an array.
+	 * @throws \Exception If processors is not an array.
 	 *
 	 * @return void
 	 */
-	public function __construct( $processors = null ) {
+	public function __construct( $processors = array() ) {
 		// required to initialize $use_mysqli which is private.
 		parent::__construct( '', '', '', '' );
 
 		// cant force empty parameter list due to wp requirements.
 		if ( ! is_array( $processors ) ) {
-			throw new Exception( esc_html__( 'Called incorrectly, use instance().', 'w3-total-cache' ) );
+			throw new \Exception( esc_html__( 'Called incorrectly, use instance().', 'w3-total-cache' ) );
 		}
 
 		$this->processors              = $processors;
@@ -101,9 +101,8 @@ class DbCache_WpdbNew extends DbCache_WpdbBase {
 	/**
 	 * Adds footer comments for W3TC.
 	 *
-	 * @param string $strings The footer strings to be modified.
-	 *
-	 * @return string Modified footer strings.
+	 * @param  array $strings The footer strings to be modified.
+	 * @return array Modified footer strings.
 	 */
 	public function w3tc_footer_comment( $strings ) {
 		foreach ( $this->processors as $processor ) {

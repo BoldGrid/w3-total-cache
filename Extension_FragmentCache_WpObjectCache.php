@@ -592,9 +592,8 @@ class Extension_FragmentCache_WpObjectCache {
 	/**
 	 * Returns debug info
 	 *
-	 * @param array $strings Strings.
-	 *
-	 * @return string
+	 * @param  array $strings Strings.
+	 * @return array
 	 */
 	public function w3tc_footer_comment( $strings ) {
 		$append = '' !== $this->cache_reject_reason ? sprintf( ' (%s)', $this->cache_reject_reason ) : '';

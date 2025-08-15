@@ -3,7 +3,7 @@ Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryj
 Tags: CDN, pagespeed, caching, performance, optimize
 Requires at least: 5.3
 Tested up to: 6.8
-Stable tag: 2.8.11
+Stable tag: 2.8.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -361,6 +361,11 @@ It's quite difficult to recall all of the innovators that have shared their thou
 Please reach out to all of these people and support their projects if you're so inclined.
 
 == Changelog ==
+
+= 2.8.12 =
+* Fix: Lazy load background-image style handing
+* Fix: Elementor: Also flush Object Cache after Page Cache is flushed
+* Fix: Canonicalize Cache read path to avoid variants
 
 = 2.8.11 =
 * Fix: Avoid redundant object cache misses in WP 6.4 - 6.7
