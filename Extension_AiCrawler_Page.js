@@ -25,14 +25,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 			// Example AJAX request to test the token.
 			fetch(ajaxurl, {
-				method: "POST",
+				method: 'POST',
 				headers: {
-				"Content-Type": "application/json",
+					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-				_wpnonce: w3tcData.nonces.testToken, // Nonce for security.
-				action: "test_aicrawler_token", // WordPress AJAX action.
-				token: document.getElementById("aicrawler___imh_central_token").value, // InMotion Central token to be tested.
+					_wpnonce: w3tcData.nonces.testToken, // Nonce for security.
+					action: 'test_aicrawler_token', // WordPress AJAX action.
+					token: document.getElementById('aicrawler___imh_central_token').value, // InMotion Central token to be tested.
 				}),
 			})
 				.then((response) => response.json())
@@ -45,8 +45,8 @@ document.addEventListener("DOMContentLoaded", function () {
 					}
 				})
 				.catch((error) => {
-					console.error(w3tcData.lang.error + ":", error);
-					alert(w3tcData.lang.tokenError + ".");
+					console.error(w3tcData.lang.error + ':', error);
+					alert(w3tcData.lang.tokenError + '.');
 				})
 				.finally(() => {
 					// Reset the button text.
@@ -57,29 +57,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// Handle the "Regenerate URL" button click.
 	if (regenerateUrlButton && regenerateUrlInput && regenerateUrlMessage) {
-		regenerateUrlButton.addEventListener("click", function (event) {
+		regenerateUrlButton.addEventListener('click', function (event) {
 			event.preventDefault(); // Prevent default button behavior.
 
 			const url = regenerateUrlInput.value.trim(); // Get the URL from the input field.
 
-			regenerateUrlMessage.textContent = "";
+			regenerateUrlMessage.textContent = '';
 			regenerateUrlMessage.classList.remove(
-				"w3tc-aicrawler-message-success",
-				"w3tc-aicrawler-message-error",
+				'w3tc-aicrawler-message-success',
+				'w3tc-aicrawler-message-error',
 			);
 
 			if (!url) {
-				regenerateUrlMessage.textContent = w3tcData.lang.noUrl + ".";
-				regenerateUrlMessage.classList.add("w3tc-aicrawler-message-error");
+				regenerateUrlMessage.textContent = w3tcData.lang.noUrl + '.';
+				regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
 				return;
 			}
 
 			// Display a loading message or spinner (optional).
-			regenerateUrlButton.textContent = w3tcData.lang.regenerating + "...";
+			regenerateUrlButton.textContent = w3tcData.lang.regenerating + '...';
 
 			// AJAX request to regenerate the specified URL.
 			fetch(ajaxurl, {
-				method: "POST",
+				method: 'POST',
 				body: JSON.stringify({
 					_wpnonce: w3tcData.nonces.regenerateUrl, // Nonce for security.
 					action: 'regenerate_aicrawler_url', // WordPress AJAX action.
@@ -89,31 +89,31 @@ document.addEventListener("DOMContentLoaded", function () {
 				.then((response) => response.json())
 				.then((data) => {
 					// Handle the response from the server.
-					regenerateUrlMessage.textContent = "";
+					regenerateUrlMessage.textContent = '';
 					regenerateUrlMessage.classList.remove(
-						"w3tc-aicrawler-message-success",
-						"w3tc-aicrawler-message-error",
+						'w3tc-aicrawler-message-success',
+						'w3tc-aicrawler-message-error',
 					);
 
 					if (data.success) {
 						regenerateUrlMessage.textContent = data.data.message;
 						regenerateUrlMessage.classList.add(
-						"w3tc-aicrawler-message-success",
+							'w3tc-aicrawler-message-success',
 						);
 					} else {
 						regenerateUrlMessage.textContent =
 						data.data && data.data.message
 							? data.data.message
-							: w3tcData.lang.regenerateUrlFailed + ".";
-						regenerateUrlMessage.classList.add("w3tc-aicrawler-message-error");
+							: w3tcData.lang.regenerateUrlFailed + '.';
+						regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
 					}
 				})
 				.catch((error) => {
-					console.error("Error:", error);
+					console.error('Error:', error);
 					regenerateUrlMessage.textContent =
-						w3tcData.lang.regenerateUrlError + ".";
-					regenerateUrlMessage.classList.add("w3tc-aicrawler-message-error");
-					})
+						w3tcData.lang.regenerateUrlError + '.';
+					regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
+				})
 				.finally(() => {
 					// Reset the button text.
 					regenerateUrlButton.textContent = w3tcData.lang.regenerate;
