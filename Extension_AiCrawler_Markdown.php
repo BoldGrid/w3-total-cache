@@ -87,12 +87,14 @@ class Extension_AiCrawler_Markdown {
 		static $scheduled = false;
 
 		if ( $scheduled ) {
-			return false;
+			return true;
 		}
 
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			$scheduled = (bool) wp_schedule_event( time(), 'ten_seconds', self::CRON_HOOK );
 		}
+
+		return $scheduled;
 	}
 
 	/**
