@@ -26,6 +26,7 @@ $config = Dispatcher::config();
 			<td>
 				<input id="w3tc-aicrawler-regenerate-url" type="text" size="60" placeholder="<?php esc_attr_e( 'Specify URL to regenerate', 'w3-total-cache' ); ?>"/>
 				<button id="w3tc-aicrawler-regenerate-url-button" class="button"><?php esc_html_e( 'Regenerate', 'w3-total-cache' ); ?></button>
+				<p id="w3tc-aicrawler-regenerate-url-message" class="w3tc-aicrawler-message"></p>
 			</td>
 		</tr>
 		<tr>

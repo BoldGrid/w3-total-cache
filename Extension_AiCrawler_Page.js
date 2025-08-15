@@ -8,11 +8,12 @@
  * @global w3tcData Object containing localized strings and settings.
  */
 
-document.addEventListener('DOMContentLoaded', function () {
-	const testTokenButton     = document.getElementById('w3tc-aicrawler-test-ctoken-button');
-	const regenerateUrlButton = document.getElementById('w3tc-aicrawler-regenerate-url-button');
-	const regenerateUrlInput  = document.getElementById('w3tc-aicrawler-regenerate-url');
-	const regenerateAllButton = document.getElementById('w3tc-aicrawler-regenerate-all-button');
+document.addEventListener("DOMContentLoaded", function () {
+	const testTokenButton      = document.getElementById('w3tc-aicrawler-test-ctoken-button');
+	const regenerateUrlButton  = document.getElementById('w3tc-aicrawler-regenerate-url-button');
+	const regenerateUrlInput   = document.getElementById('w3tc-aicrawler-regenerate-url');
+	const regenerateUrlMessage = document.getElementById('w3tc-aicrawler-regenerate-url-message');
+	const regenerateAllButton  = document.getElementById('w3tc-aicrawler-regenerate-all-button');
 
 	if (testTokenButton) {
 		// Add a click event listener to the button.
@@ -55,44 +56,62 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	// Handle the "Regenerate URL" button click.
-	if (regenerateUrlButton && regenerateUrlInput) {
+	if (regenerateUrlButton && regenerateUrlInput && regenerateUrlMessage) {
 		regenerateUrlButton.addEventListener('click', function (event) {
 			event.preventDefault(); // Prevent default button behavior.
 
 			const url = regenerateUrlInput.value.trim(); // Get the URL from the input field.
 
+			regenerateUrlMessage.textContent = '';
+			regenerateUrlMessage.classList.remove(
+				'w3tc-aicrawler-message-success',
+				'w3tc-aicrawler-message-error',
+			);
+
 			if (!url) {
-				alert(w3tcData.lang.noUrl + '.');
+				regenerateUrlMessage.textContent = w3tcData.lang.noUrl + '.';
+				regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
 				return;
 			}
 
 			// Display a loading message or spinner (optional).
 			regenerateUrlButton.textContent = w3tcData.lang.regenerating + '...';
 
-			// Example AJAX request to regenerate the specified URL.
-			fetch(ajaxurl, {
+			const params = new URLSearchParams();
+			params.append("url", url);
+
+			// AJAX request to regenerate the specified URL.
+			fetch(ajaxurl + '?action=w3tc_aicrawler_regenerate_url&_wpnonce=' + w3tcData.nonces.regenerateUrl, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					_wpnonce: w3tcData.nonces.regenerateUrl, // Nonce for security.
-					action: 'regenerate_aicrawler_url', // WordPress AJAX action.
-					url: url, // Pass the URL to the server.
-				}),
+				body: params,
 			})
 				.then((response) => response.json())
 				.then((data) => {
 					// Handle the response from the server.
+					regenerateUrlMessage.textContent = '';
+					regenerateUrlMessage.classList.remove(
+						'w3tc-aicrawler-message-success',
+						'w3tc-aicrawler-message-error',
+					);
+
 					if (data.success) {
-						alert(w3tcData.lang.regeneratedUrl + '.');
+						regenerateUrlMessage.textContent = data.data.message;
+						regenerateUrlMessage.classList.add(
+							'w3tc-aicrawler-message-success',
+						);
 					} else {
-						alert(w3tcData.lang.regenerateUrlFailed + '.');
+						regenerateUrlMessage.textContent =
+						data.data && data.data.message
+							? data.data.message
+							: w3tcData.lang.regenerateUrlFailed + '.';
+						regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
 					}
 				})
 				.catch((error) => {
 					console.error('Error:', error);
-					alert(w3tcData.lang.regenerateUrlError + '.');
+					regenerateUrlMessage.textContent =
+						w3tcData.lang.regenerateUrlError + '.';
+					regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
 				})
 				.finally(() => {
 					// Reset the button text.
