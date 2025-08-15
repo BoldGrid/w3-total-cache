@@ -62,3 +62,17 @@
         text-align: center;
         margin-bottom: 12px;
 }
+
+.w3tc-aicrawler-message {
+        margin-top: 8px;
+}
+
+.w3tc-aicrawler-message-success {
+        color: #090;
+        font-weight: 700;
+}
+
+.w3tc-aicrawler-message-error {
+        color: #dc3232;
+        font-weight: 700;
+}
