@@ -17,41 +17,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	if (testTokenButton) {
 		// Add a click event listener to the button.
-		testTokenButton.addEventListener("click", function (event) {
-		event.preventDefault(); // Prevent the default button behavior.
+		testTokenButton.addEventListener('click', function (event) {
+			event.preventDefault(); // Prevent the default button behavior.
 
-		// Display a loading message or spinner (optional).
-		testTokenButton.textContent = w3tcData.lang.testing;
+			// Display a loading message or spinner (optional).
+			testTokenButton.textContent = w3tcData.lang.testing;
 
-		// Example AJAX request to test the token.
-		fetch(ajaxurl, {
-			method: "POST",
-			headers: {
-			"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-			_wpnonce: w3tcData.nonces.testToken, // Nonce for security.
-			action: "test_aicrawler_token", // WordPress AJAX action.
-			token: document.getElementById("aicrawler___imh_central_token").value, // InMotion Central token to be tested.
-			}),
-		})
-			.then((response) => response.json())
-			.then((data) => {
-				// Handle the response from the server.
-				if (data.success) {
-					alert(w3tcData.lang.tokenValid);
-				} else {
-					alert(w3tcData.lang.tokenInvalid);
-				}
+			// Example AJAX request to test the token.
+			fetch(ajaxurl, {
+				method: "POST",
+				headers: {
+				"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+				_wpnonce: w3tcData.nonces.testToken, // Nonce for security.
+				action: "test_aicrawler_token", // WordPress AJAX action.
+				token: document.getElementById("aicrawler___imh_central_token").value, // InMotion Central token to be tested.
+				}),
 			})
-			.catch((error) => {
-				console.error(w3tcData.lang.error + ":", error);
-				alert(w3tcData.lang.tokenError + ".");
-			})
-			.finally(() => {
-				// Reset the button text.
-				testTokenButton.textContent = w3tcData.lang.test;
-			});
+				.then((response) => response.json())
+				.then((data) => {
+					// Handle the response from the server.
+					if (data.success) {
+						alert(w3tcData.lang.tokenValid);
+					} else {
+						alert(w3tcData.lang.tokenInvalid);
+					}
+				})
+				.catch((error) => {
+					console.error(w3tcData.lang.error + ":", error);
+					alert(w3tcData.lang.tokenError + ".");
+				})
+				.finally(() => {
+					// Reset the button text.
+					testTokenButton.textContent = w3tcData.lang.test;
+				});
 		});
 	}
 
