@@ -296,8 +296,8 @@ class UserExperience_LazyLoad_Mutator {
 	public function style_offload_background( $matches ) {
 		list( $match, $v1, $v2, $v, $quote ) = $matches;
 		$url_match                           = null;
-		preg_match( '~background(-image)?:\s*(url\([^>]+\))~is', $v, $url_match );
-		$v = preg_replace( '~background(-image)?:\s*url\([^>]+\)[;]?\s*~is', '', $v );
+		preg_match( '~background(?:-image)?:\s*url\(([\"\']?)(.+?)\1\)~is', $v, $url_match );
+		$v = preg_replace( '~background(?:-image)?:\s*url\(([\"\']?).+?\1\)[^;]*;?\s*~is', '', $v );
 
 		return $v1 . $v2 . $v . $quote . ' data-bg=' . $quote . ( isset( $url_match[2] ) ? $url_match[2] : '' ) . $quote;
 	}

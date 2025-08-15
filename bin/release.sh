@@ -9,7 +9,7 @@ find vendor/ -name '.git' -type d -print -exec rm -rf {} +
 
 # Cleanup development and build contents.
 rm -f codecov coverage.xml package.* phpcs.xml
-rm -rf qa
+rm -rf .github qa
 
 # Find and replace symlinks in the "vendor" directory.
 for i in $(find vendor/ -type l); do \cp -f --remove-destination $(realpath $i) $i;done
