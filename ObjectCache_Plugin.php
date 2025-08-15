@@ -154,9 +154,8 @@ class ObjectCache_Plugin {
 	/**
 	 * Adds a footer comment related to object cache to the strings.
 	 *
-	 * @param string $strings Existing footer strings.
-	 *
-	 * @return string Modified footer strings.
+	 * @param  array $strings Existing footer strings.
+	 * @return array Modified footer strings.
 	 */
 	public function w3tc_footer_comment( $strings ) {
 		$o       = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
