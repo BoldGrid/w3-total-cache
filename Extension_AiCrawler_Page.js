@@ -77,14 +77,13 @@ document.addEventListener("DOMContentLoaded", function () {
 			// Display a loading message or spinner (optional).
 			regenerateUrlButton.textContent = w3tcData.lang.regenerating + '...';
 
+			const params = new URLSearchParams();
+			params.append("url", url);
+
 			// AJAX request to regenerate the specified URL.
-			fetch(ajaxurl, {
+			fetch(ajaxurl + '?action=w3tc_aicrawler_regenerate_url&_wpnonce=' + w3tcData.nonces.regenerateUrl, {
 				method: 'POST',
-				body: JSON.stringify({
-					_wpnonce: w3tcData.nonces.regenerateUrl, // Nonce for security.
-					action: 'regenerate_aicrawler_url', // WordPress AJAX action.
-					url: url, // Pass the URL to the server.
-				}),
+				body: params,
 			})
 				.then((response) => response.json())
 				.then((data) => {
