@@ -70,7 +70,10 @@ class Extension_AiCrawler_Markdown {
 	public static function init() {
 			add_action( self::CRON_HOOK, array( __CLASS__, 'process_queue' ) );
 			add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) );
-			self::schedule_cron();
+
+		if ( self::queue_has_items() ) {
+				self::schedule_cron();
+		}
 	}
 
 		/**
@@ -83,6 +86,19 @@ class Extension_AiCrawler_Markdown {
 	private static function schedule_cron() {
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 				wp_schedule_event( time(), 'ten_seconds', self::CRON_HOOK );
+		}
+	}
+
+		/**
+		 * Remove the cron event if scheduled.
+		 *
+		 * @since X.X.X
+		 *
+		 * @return void
+		 */
+	private static function unschedule_cron() {
+		if ( wp_next_scheduled( self::CRON_HOOK ) ) {
+				wp_clear_scheduled_hook( self::CRON_HOOK );
 		}
 	}
 
@@ -152,6 +168,7 @@ class Extension_AiCrawler_Markdown {
 			);
 
 		if ( empty( $query->posts ) ) {
+				self::unschedule_cron();
 				return;
 		}
 
@@ -177,5 +194,35 @@ class Extension_AiCrawler_Markdown {
 				update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
 				update_post_meta( $post_id, self::META_STATUS, 'complete' );
 		}
+
+		if ( ! self::queue_has_items() ) {
+				self::unschedule_cron();
+		}
+	}
+
+		/**
+		 * Determine if there are queued items waiting to be processed.
+		 *
+		 * @since X.X.X
+		 *
+		 * @return bool
+		 */
+	private static function queue_has_items() {
+			$query = new \WP_Query(
+				array(
+					'post_type'      => 'any',
+					'posts_per_page' => 1,
+					'post_status'    => 'any',
+					'fields'         => 'ids',
+					'meta_query'     => array(
+						array(
+							'key'   => self::META_STATUS,
+							'value' => 'queued',
+						),
+					),
+				)
+			);
+
+			return ! empty( $query->posts );
 	}
 }
