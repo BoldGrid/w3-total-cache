@@ -79,9 +79,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 			const params = new URLSearchParams();
 			params.append("url", url);
+			params.append("_wpnonce", w3tcData.nonces.regenerateUrl); // Nonce for security.
 
 			// AJAX request to regenerate the specified URL.
-			fetch(ajaxurl + '?action=w3tc_aicrawler_regenerate_url&_wpnonce=' + w3tcData.nonces.regenerateUrl, {
+			fetch(ajaxurl + '?action=w3tc_aicrawler_regenerate_url', {
 				method: 'POST',
 				body: params,
 			})
