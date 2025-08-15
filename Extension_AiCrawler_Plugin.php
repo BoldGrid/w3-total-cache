@@ -25,11 +25,14 @@ class Extension_AiCrawler_Plugin {
 		/**
 		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
 		*/
-		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
+				add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 
-		// If the AiCrawler Mock API class exists, run it.
+				// Initialize markdown generation queue.
+				Extension_AiCrawler_Markdown::init();
+
+				// If the AiCrawler Mock API class exists, run it.
 		if ( class_exists( '\W3TC\Extension_AiCrawler_Mock_Api' ) ) {
-			( new \W3TC\Extension_AiCrawler_Mock_Api() )->run();
+				( new \W3TC\Extension_AiCrawler_Mock_Api() )->run();
 		}
 	}
 
