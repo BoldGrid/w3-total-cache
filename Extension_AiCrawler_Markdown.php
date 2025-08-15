@@ -81,11 +81,17 @@ class Extension_AiCrawler_Markdown {
 	 *
 	 * @since X.X.X
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	private static function schedule_cron() {
+		static $scheduled = false;
+
+		if ( $scheduled ) {
+			return false;
+		}
+
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			wp_schedule_event( time(), 'ten_seconds', self::CRON_HOOK );
+			$scheduled = (bool) wp_schedule_event( time(), 'ten_seconds', self::CRON_HOOK );
 		}
 	}
 
