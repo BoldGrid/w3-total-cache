@@ -68,7 +68,8 @@
 }
 
 .w3tc-aicrawler-message-success {
-        color: #46b450;
+        color: #090;
+        font-weight: 700;
 }
 
 .w3tc-aicrawler-message-error {
