@@ -221,7 +221,12 @@ class Extension_AiCrawler_Plugin_Admin {
 			wp_send_json_error( array( 'message' => __( 'Please specify a URL to regenerate.', 'w3-total-cache' ) ) );
 		}
 
-		if ( Extension_AiCrawler_Util::is_url_excluded( $url ) ) {
+		$post_id = url_to_postid( $url );
+		if ( ! $post_id ) {
+			wp_send_json_error( array( 'message' => __( 'This URL is invalid.', 'w3-total-cache' ) ) );
+		}
+
+		if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'This URL is excluded from markdown generation.', 'w3-total-cache' ) ) );
 		}
 
