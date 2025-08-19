@@ -251,9 +251,7 @@ class Extension_AiCrawler_Util {
 
 		foreach ( $items as $item ) {
 			$post_id = is_numeric( $item ) ? absint( $item ) : url_to_postid( $item );
-
-			$url = is_numeric( $item ) ? get_permalink( $post_id ) : esc_url_raw( $item );
-			$url = (string) $url;
+			$url     = is_numeric( $item ) ? (string) get_permalink( $post_id ) : (string) esc_url_raw( $item );
 
 			$exclude = false;
 
