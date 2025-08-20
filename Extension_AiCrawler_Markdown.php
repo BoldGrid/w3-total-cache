@@ -183,9 +183,10 @@ class Extension_AiCrawler_Markdown {
 				update_post_meta( $post_id, self::META_ERROR_MESSAGE, __( 'Missing URL.', 'w3-total-cache' ) );
 				continue;
 			}
-				update_post_meta( $post_id, self::META_STATUS, 'processing' );
-				delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
-				$response = Extension_AiCrawler_Central_Api::call( 'convert', 'POST', array( 'url' => $url ) );
+
+			update_post_meta( $post_id, self::META_STATUS, 'processing' );
+			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+			$response = Extension_AiCrawler_Central_Api::call( 'convert', 'POST', array( 'url' => $url ) );
 
 			if ( empty( $response['success'] ) || empty( $response['data']['markdown_content'] ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
