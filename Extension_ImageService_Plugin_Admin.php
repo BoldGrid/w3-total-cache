@@ -296,7 +296,7 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @link https://developer.wordpress.org/reference/classes/wp_query/
 	 *
-	 * @return WP_Query Post IDs (due to the "fields" argument with value "ids").
+	 * @return WP_Query WP_Query object containing post IDs in the posts property (due to the "fields" argument with value "ids").
 	 */
 	public static function get_imageservice_attachments(): \WP_Query {
 		return new \WP_Query(
