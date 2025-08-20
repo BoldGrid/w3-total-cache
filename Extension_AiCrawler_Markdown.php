@@ -178,6 +178,7 @@ class Extension_AiCrawler_Markdown {
 			$response = Extension_AiCrawler_Central_Api::call( 'convert', 'POST', array( 'url' => $url ) );
 
 			if ( empty( $response['success'] ) || empty( $response['data']['markdown_content'] ) ) {
+				error_log( 'Error Response: ' . json_encode( $response ) );
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
 				continue;
 			}
@@ -230,5 +231,42 @@ class Extension_AiCrawler_Markdown {
 		);
 
 		return ! empty( $query->posts ) ? $query->posts : array();
+	}
+
+	/**
+	 * Generate markdown when a post is saved if the option is enabled.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 * @param bool    $update  Whether this is an existing post being updated or not
+	 *
+	 * @return void
+	 */
+	public static function generate_markdown_on_save( $post_id, $post, $update ) {
+		// Avoid recursion.
+		remove_action( 'save_post', array( __CLASS__, 'generate_markdown_on_save' ), 10 );
+
+		// Don't run on autosave.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		$config = Dispatcher::config();
+
+		// Determine if Auto Generate is enabled.
+		if ( ! $config->get_boolean( array( 'aicrawler', 'auto_generate' ), false ) ) {
+			return;
+		}
+
+		// Ensure that the post is not excluded.
+		// Commented out for now, as the exclusion logic is not yet implemented.
+		// if ( ! Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+		// 	return;
+		// }
+
+		// Generate markdown for the post.
+		self::generate_markdown( get_permalink( $post_id ) );
 	}
 }
