@@ -296,18 +296,23 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @link https://developer.wordpress.org/reference/classes/wp_query/
 	 *
-	 * @return WP_Query
+	 * @return WP_Query Post IDs (due to the "fields" argument with value "ids").
 	 */
-	public static function get_imageservice_attachments() {
+	public static function get_imageservice_attachments(): \WP_Query {
 		return new \WP_Query(
 			array(
-				'post_type'           => 'attachment',
-				'post_status'         => 'inherit',
-				'post_mime_type'      => self::$mime_types,
-				'posts_per_page'      => -1,
-				'ignore_sticky_posts' => true,
-				'suppress_filters'    => true,
-				'meta_key'            => 'w3tc_imageservice', // phpcs:ignore WordPress.DB.SlowDBQuery
+				'post_type'              => 'attachment',
+				'post_status'            => 'inherit',
+				'post_mime_type'         => self::$mime_types,
+				'posts_per_page'         => -1,
+				'ignore_sticky_posts'    => true,
+				'suppress_filters'       => true,
+				'meta_key'               => 'w3tc_imageservice', // phpcs:ignore WordPress.DB.SlowDBQuery
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+				'cache_results'          => false,
 			)
 		);
 	}
@@ -320,19 +325,24 @@ class Extension_ImageService_Plugin_Admin {
 	 *
 	 * @link https://developer.wordpress.org/reference/classes/wp_query/
 	 *
-	 * @return WP_Query
+	 * @return WP_Query Post IDs (due to the "fields" argument with value "ids").
 	 */
-	public static function get_eligible_attachments() {
+	public static function get_eligible_attachments(): \WP_Query {
 		return new \WP_Query(
 			array(
-				'post_type'           => 'attachment',
-				'post_status'         => 'inherit',
-				'post_mime_type'      => self::$mime_types,
-				'posts_per_page'      => -1,
-				'ignore_sticky_posts' => true,
-				'suppress_filters'    => true,
-				'meta_key'            => 'w3tc_imageservice', // phpcs:ignore WordPress.DB.SlowDBQuery
-				'meta_compare'        => 'NOT EXISTS',
+				'post_type'              => 'attachment',
+				'post_status'            => 'inherit',
+				'post_mime_type'         => self::$mime_types,
+				'posts_per_page'         => -1,
+				'ignore_sticky_posts'    => true,
+				'suppress_filters'       => true,
+				'meta_key'               => 'w3tc_imageservice', // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_compare'           => 'NOT EXISTS',
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+				'cache_results'          => false,
 			)
 		);
 	}
@@ -391,8 +401,8 @@ class Extension_ImageService_Plugin_Admin {
 		);
 		$imageservice_posts = self::get_imageservice_attachments()->posts;
 
-		foreach ( $imageservice_posts as $post ) {
-			$imageservice_data = get_post_meta( $post->ID, 'w3tc_imageservice', true );
+		foreach ( $imageservice_posts as $post_id ) {
+			$imageservice_data = get_post_meta( $post_id, 'w3tc_imageservice', true );
 			$status            = isset( $imageservice_data['status'] ) ? $imageservice_data['status'] : null;
 			$filesize_in       = isset( $imageservice_data['download']["\0*\0data"]['x-filesize-in'] ) ?
 				$imageservice_data['download']["\0*\0data"]['x-filesize-in'] : 0;
@@ -401,13 +411,13 @@ class Extension_ImageService_Plugin_Admin {
 
 			switch ( $status ) {
 				case 'sending':
-					$size = $this->get_attachment_filesize( $post->ID );
+					$size = $this->get_attachment_filesize( $post_id );
 					++$counts['sending'];
 					$bytes['sending'] += $size;
 					$bytes['total']   += $size;
 					break;
 				case 'processing':
-					$size = $this->get_attachment_filesize( $post->ID );
+					$size = $this->get_attachment_filesize( $post_id );
 					++$counts['processing'];
 					$bytes['processing'] += $size;
 					$bytes['total']      += $size;
@@ -418,13 +428,13 @@ class Extension_ImageService_Plugin_Admin {
 					$bytes['total']     += $filesize_in - $filesize_out;
 					break;
 				case 'notconverted':
-					$size = $this->get_attachment_filesize( $post->ID );
+					$size = $this->get_attachment_filesize( $post_id );
 					++$counts['notconverted'];
 					$bytes['notconverted'] += $size;
 					$bytes['total']        += $size;
 					break;
 				case 'unconverted':
-					$size = $this->get_attachment_filesize( $post->ID );
+					$size = $this->get_attachment_filesize( $post_id );
 					++$counts['unconverted'];
 					$bytes['unconverted'] += $size;
 					$bytes['total']       += $size;
@@ -434,8 +444,8 @@ class Extension_ImageService_Plugin_Admin {
 			}
 		}
 
-		foreach ( $unconverted_posts->posts as $post ) {
-			$size = $this->get_attachment_filesize( $post->ID );
+		foreach ( $unconverted_posts->posts as $post_id ) {
+			$size = $this->get_attachment_filesize( $post_id );
 
 			if ( $size ) {
 				$bytes['unconverted'] += $size;
@@ -1181,7 +1191,7 @@ class Extension_ImageService_Plugin_Admin {
 			$this->remove_optimizations( $post->ID );
 		}
 
-		return null;
+		return $delete;
 	}
 
 	/**
@@ -1365,8 +1375,8 @@ class Extension_ImageService_Plugin_Admin {
 		ignore_user_abort( true );
 		set_time_limit( 0 );
 
-		foreach ( $results->posts as $post ) {
-			$post_ids[] = $post->ID;
+		foreach ( $results->posts as $post_id ) {
+			$post_ids[] = $post_id;
 		}
 
 		$stats = $this->submit_images( $post_ids );
@@ -1393,8 +1403,8 @@ class Extension_ImageService_Plugin_Admin {
 		ignore_user_abort( true );
 		set_time_limit( 0 );
 
-		foreach ( $results->posts as $post ) {
-			if ( $this->remove_optimizations( $post->ID ) ) {
+		foreach ( $results->posts as $post_id ) {
+			if ( $this->remove_optimizations( $post_id ) ) {
 				++$revert_count;
 			}
 		}
