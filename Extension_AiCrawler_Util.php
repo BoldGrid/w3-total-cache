@@ -14,6 +14,7 @@ namespace W3TC;
  *
  * @since X.X.X
  *
+ * Silence preg_match warnings when checking excludes in the event a value isn't a valid regex
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  */
 class Extension_AiCrawler_Util {
@@ -266,7 +267,7 @@ class Extension_AiCrawler_Util {
 			// Post type exclusions.
 			if ( ! $exclude && $post_id ) {
 				$post_type = get_post_type( $post_id );
-				if ( $post_type && in_array( $post_type, $excluded_pts, true ) ) {
+				if ( $post_type && isset( $excluded_pts[ $post_type ] ) ) {
 					$exclude = true;
 				}
 			}
