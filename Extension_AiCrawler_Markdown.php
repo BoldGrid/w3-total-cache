@@ -69,6 +69,14 @@ class Extension_AiCrawler_Markdown {
 	const META_MARKDOWN_URL = 'w3tc_aicrawler_markdown_url';
 
 	/**
+	 * Post meta key for the timestamp when the URL was queued.
+	 *
+	 * @since X.X.X
+	 * @var   string
+	 */
+	const META_TIMESTAMP = 'w3tc_aicrawler_timestamp';
+
+	/**
 	 * Initialize hooks for cron processing.
 	 *
 	 * @since X.X.X
@@ -178,6 +186,10 @@ class Extension_AiCrawler_Markdown {
 
 		foreach ( $posts as $post_id ) {
 			$url = get_post_meta( $post_id, self::META_SOURCE_URL, true );
+
+			// Update the timestamp when processing starts.
+			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
+
 			if ( empty( $url ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
 				update_post_meta( $post_id, self::META_ERROR_MESSAGE, __( 'Missing URL.', 'w3-total-cache' ) );
@@ -202,6 +214,9 @@ class Extension_AiCrawler_Markdown {
 			update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
 			update_post_meta( $post_id, self::META_STATUS, 'complete' );
 			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+
+			// Update the timestamp again when complete:
+			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 		}
 
 		if ( ! self::queue_has_items() ) {
@@ -294,15 +309,24 @@ class Extension_AiCrawler_Markdown {
 	public static function get_queue_items( $paged = 1, $per_page = 20 ) {
 		$query = new \WP_Query(
 			array(
-				'post_type'      => 'any',
-				'posts_per_page' => $per_page,
-				'post_status'    => 'any',
-				'fields'         => 'ids',
-				'paged'          => $paged,
-				'meta_key'       => self::META_STATUS,
-				'meta_compare'   => 'EXISTS',
-				'sort_order'     => 'ASC',
-				'orderby'        => 'post_id',
+				'post_type'              => 'any',
+				'post_status'            => 'any',
+				'posts_per_page'         => $per_page,
+				'paged'                  => $paged,
+
+				// Only return IDs (faster).
+				'fields'                 => 'ids',
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'ignore_sticky_posts'    => true,
+
+				// Sort by timestamp.
+				'meta_key'   => self::META_TIMESTAMP,
+				'meta_type'  => 'UNSIGNED',        // tells WP this is numeric.
+				'orderby'    => 'meta_value_num',  // use numeric compare.
+				'order'      => 'DESC',            // newest first.
+
+				'meta_compare' => 'EXISTS',
 			)
 		);
 

@@ -49,9 +49,10 @@ $queue_pages    = max( 1, ceil( $queue_total / $queue_per_page ) );
 			<?php printf( esc_html__( 'Total items: %d', 'w3-total-cache' ), intval( $counts['total'] ) ); ?>
 		</p>
 	</div>
-	<table class="widefat fixed striped">
+	<table class="widefat fixed">
 		<thead>
 			<tr>
+				<th><?php esc_html_e( 'Time', 'w3-total-cache' ); ?></th>
 				<th><?php esc_html_e( 'ID', 'w3-total-cache' ); ?></th>
 				<th><?php esc_html_e( 'Name', 'w3-total-cache' ); ?></th>
 				<th><?php esc_html_e( 'URL', 'w3-total-cache' ); ?></th>
@@ -67,8 +68,11 @@ $queue_pages    = max( 1, ceil( $queue_total / $queue_per_page ) );
 					$queue_url     = wp_make_link_relative( get_permalink( $queue_post_id ) );
 					$queue_status  = get_post_meta( $queue_post_id, Extension_AiCrawler_Markdown::META_STATUS, true );
 					$queue_message = get_post_meta( $queue_post_id, Extension_AiCrawler_Markdown::META_ERROR_MESSAGE, true );
+					$status_class  = 'w3tc-queue-status-' . ( $queue_status ? $queue_status : 'unknown' );
+					$timestamp     = get_post_meta( $queue_post_id, Extension_AiCrawler_Markdown::META_TIMESTAMP, true );
 					?>
-					<tr>
+					<tr class="<?php echo esc_attr( $status_class ); ?>">
+						<td><?php echo esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp ) ); ?></td>
 						<td><?php echo esc_html( $queue_post_id ); ?></td>
 						<td><?php echo esc_html( $queue_title ); ?></td>
 						<td><?php echo esc_html( $queue_url ); ?></td>

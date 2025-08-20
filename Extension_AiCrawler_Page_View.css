@@ -181,3 +181,9 @@
 	font-size: 14px;
 	font-weight: 600;
 }
+
+/* Make error table rows bold with a red background */
+.w3tc-queue-status-error {
+	font-weight: 700;
+	background-color: #fbc8c8;
+}
