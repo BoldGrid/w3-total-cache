@@ -55,7 +55,7 @@ class Extensions_Plugin_Admin {
 		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ), 10000 );
 		add_action( 'w3tc_settings_page-w3tc_extensions', array( $this, 'w3tc_settings_page_w3tc_extensions' ) );
 
-		if ( Extension_AiCrawler_Util::is_allowed() ) {
+		if ( Extension_AiCrawler_Util::is_allowed_env() ) {
 			add_filter( 'w3tc_extensions', array( '\W3TC\Extension_AiCrawler_Plugin_Admin', 'w3tc_extensions' ) );
 		}
 

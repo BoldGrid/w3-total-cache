@@ -41,9 +41,14 @@ class Extension_AiCrawler_Util {
 	 *
 	 * @return bool
 	 */
-	public static function is_allowed() {
-		// @todo: add checks for valid environments.
-		return true;
+	public static function is_allowed_env() {
+
+		// Check if the 'central_connect' option is exists, and is not empty.
+		if ( ! empty( get_option( 'central_connect' ) ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
