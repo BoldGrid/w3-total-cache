@@ -24,38 +24,31 @@ $queue_pages    = max( 1, ceil( $queue_total / $queue_per_page ) );
 ?>
 <div class="metabox-holder">
 	<?php Util_Ui::postbox_header( esc_html__( 'Queue', 'w3-total-cache' ), '', 'queue' ); ?>
-	<p>
-		<?php
-		/* translators: %d: total number of items. */
-		printf( esc_html__( 'Total items: %d', 'w3-total-cache' ), intval( $counts['total'] ) );
-		?>
-	</p>
-	<ul>
-		<li>
-			<?php
-			/* translators: %d: number of queued items. */
-			printf( esc_html__( 'Queued: %d', 'w3-total-cache' ), intval( $counts['queued'] ) );
-			?>
-		</li>
-		<li>
-			<?php
-			/* translators: %d: number of processing items. */
-			printf( esc_html__( 'Processing: %d', 'w3-total-cache' ), intval( $counts['processing'] ) );
-			?>
-		</li>
-		<li>
-			<?php
-			/* translators: %d: number of completed items. */
-			printf( esc_html__( 'Complete: %d', 'w3-total-cache' ), intval( $counts['complete'] ) );
-			?>
-		</li>
-		<li>
-			<?php
-			/* translators: %d: number of error items. */
-			printf( esc_html__( 'Error: %d', 'w3-total-cache' ), intval( $counts['error'] ) );
-			?>
-		</li>
-	</ul>
+		<div class="w3tc-queue-summary variant-cards" aria-label="<?php esc_attr_e( 'Queue summary', 'w3-total-cache' ); ?>">
+		<h3 class="w3tc-queue-summary__title"><?php esc_html_e( 'Summary', 'w3-total-cache' ); ?></h3>
+		<ul class="w3tc-queue-summary__stats" role="list">
+			<li class="stat is-queued"   aria-label="<?php esc_attr_e( 'Queued', 'w3-total-cache' ); ?>">
+				<span class="stat__value"><?php echo intval( $counts['queued'] ); ?></span>
+				<span class="stat__label"><?php esc_html_e( 'Queued', 'w3-total-cache' ); ?></span>
+			</li>
+			<li class="stat is-processing" aria-label="<?php esc_attr_e( 'Processing', 'w3-total-cache' ); ?>">
+				<span class="stat__value"><?php echo intval( $counts['processing'] ); ?></span>
+				<span class="stat__label"><?php esc_html_e( 'Processing', 'w3-total-cache' ); ?></span>
+			</li>
+			<li class="stat is-complete" aria-label="<?php esc_attr_e( 'Complete', 'w3-total-cache' ); ?>">
+				<span class="stat__value"><?php echo intval( $counts['complete'] ); ?></span>
+				<span class="stat__label"><?php esc_html_e( 'Complete', 'w3-total-cache' ); ?></span>
+			</li>
+			<li class="stat is-error" aria-label="<?php esc_attr_e( 'Error', 'w3-total-cache' ); ?>">
+				<span class="stat__value"><?php echo intval( $counts['error'] ); ?></span>
+				<span class="stat__label"><?php esc_html_e( 'Error', 'w3-total-cache' ); ?></span>
+			</li>
+		</ul>
+		<p class="w3tc-queue-summary__total">
+			<?php /* translators: %d: total number of items. */ ?>
+			<?php printf( esc_html__( 'Total items: %d', 'w3-total-cache' ), intval( $counts['total'] ) ); ?>
+		</p>
+	</div>
 	<table class="widefat fixed striped">
 		<thead>
 			<tr>
