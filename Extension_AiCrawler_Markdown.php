@@ -178,7 +178,6 @@ class Extension_AiCrawler_Markdown {
 			$response = Extension_AiCrawler_Central_Api::call( 'convert', 'POST', array( 'url' => $url ) );
 
 			if ( empty( $response['success'] ) || empty( $response['data']['markdown_content'] ) ) {
-				error_log( 'Error Response: ' . json_encode( $response ) );
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
 				continue;
 			}
