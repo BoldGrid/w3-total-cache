@@ -238,14 +238,17 @@ class Extension_AiCrawler_Util {
 		// Precompile matchers (regex or substring).
 		$matchers = self::compile_matchers( $excluded_urls );
 
-		$excluded_pts = array_filter(
-			array_map(
-				'trim',
-				array_merge(
-					(array) $config->get_array( array( 'aicrawler', 'exclusions_pts' ), array() ),
-					(array) $config->get_array( array( 'aicrawler', 'exclusions_cpts' ), array() )
+		$pts_array  = array_keys( (array) $config->get_array( array( 'aicrawler', 'exclusions_pts' ), array() ) );
+		$cpts_array = (array) $config->get_array( array( 'aicrawler', 'exclusions_cpts' ), array() );
+
+		$excluded_pts = array_fill_keys(
+			array_filter(
+				array_map(
+					'trim',
+					array_merge( $pts_array, $cpts_array )
 				)
-			)
+			),
+			true
 		);
 
 		$allowed = array();
