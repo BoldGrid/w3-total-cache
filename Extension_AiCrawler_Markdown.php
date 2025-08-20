@@ -6,7 +6,7 @@
  * AI Crawler API.
  *
  * @package W3TC
- * @since   X.X.X
+ * @since	X.X.X
  */
 
 namespace W3TC;
@@ -24,7 +24,7 @@ class Extension_AiCrawler_Markdown {
 	 * Cron hook name.
 	 *
 	 * @since X.X.X
-	 * @var   string
+	 * @var	  string
 	 */
 	const CRON_HOOK = 'w3tc_aicrawler_markdown_cron';
 
@@ -32,7 +32,7 @@ class Extension_AiCrawler_Markdown {
 	 * Post meta key for original URL.
 	 *
 	 * @since X.X.X
-	 * @var   string
+	 * @var	  string
 	 */
 	const META_SOURCE_URL = 'w3tc_aicrawler_source_url';
 
@@ -40,15 +40,23 @@ class Extension_AiCrawler_Markdown {
 	 * Post meta key for processing status.
 	 *
 	 * @since X.X.X
-	 * @var   string
+	 * @var	  string
 	 */
 	const META_STATUS = 'w3tc_aicrawler_status';
+
+	/**
+	 * Post meta key for error messages.
+	 *
+	 * @since X.X.X
+	 * @var	  string
+	 */
+	const META_ERROR_MESSAGE = 'w3tc_aicrawler_error_message';
 
 	/**
 	 * Post meta key where generated markdown is stored.
 	 *
 	 * @since X.X.X
-	 * @var   string
+	 * @var	  string
 	 */
 	const META_MARKDOWN = 'w3tc_aicrawler_markdown';
 
@@ -56,7 +64,7 @@ class Extension_AiCrawler_Markdown {
 	 * Post meta key for the public markdown URL.
 	 *
 	 * @since X.X.X
-	 * @var   string
+	 * @var	  string
 	 */
 	const META_MARKDOWN_URL = 'w3tc_aicrawler_markdown_url';
 
@@ -144,10 +152,11 @@ class Extension_AiCrawler_Markdown {
 			return false;
 		}
 
-		update_post_meta( $post_id, self::META_STATUS, 'queued' );
-		update_post_meta( $post_id, self::META_SOURCE_URL, esc_url_raw( $url ) );
+				update_post_meta( $post_id, self::META_STATUS, 'queued' );
+				update_post_meta( $post_id, self::META_SOURCE_URL, esc_url_raw( $url ) );
+				delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 
-		self::schedule_cron();
+				self::schedule_cron();
 
 		return true;
 	}
@@ -160,34 +169,39 @@ class Extension_AiCrawler_Markdown {
 	 * @return void
 	 */
 	public static function process_queue() {
-		$posts = self::get_queue_posts();
+				$posts = self::get_queue_posts();
 
 		if ( empty( $posts ) ) {
-			self::unschedule_cron();
-			return;
+				self::unschedule_cron();
+				return;
 		}
 
 		foreach ( $posts as $post_id ) {
-			$url = get_post_meta( $post_id, self::META_SOURCE_URL, true );
+				$url = get_post_meta( $post_id, self::META_SOURCE_URL, true );
 			if ( empty( $url ) ) {
-				update_post_meta( $post_id, self::META_STATUS, 'error' );
-				continue;
+						update_post_meta( $post_id, self::META_STATUS, 'error' );
+						update_post_meta( $post_id, self::META_ERROR_MESSAGE, __( 'Missing URL.', 'w3-total-cache' ) );
+						continue;
 			}
 
-			update_post_meta( $post_id, self::META_STATUS, 'processing' );
-			$response = Extension_AiCrawler_Central_Api::call( 'convert', 'POST', array( 'url' => $url ) );
+				update_post_meta( $post_id, self::META_STATUS, 'processing' );
+				delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+				$response = Extension_AiCrawler_Central_Api::call( 'convert', 'POST', array( 'url' => $url ) );
 
 			if ( empty( $response['success'] ) || empty( $response['data']['markdown_content'] ) ) {
-				update_post_meta( $post_id, self::META_STATUS, 'error' );
-				continue;
+							update_post_meta( $post_id, self::META_STATUS, 'error' );
+							$message = ! empty( $response['error']['message'] ) ? $response['error']['message'] : __( 'Unknown error.', 'w3-total-cache' );
+							update_post_meta( $post_id, self::META_ERROR_MESSAGE, $message );
+							continue;
 			}
 
-			$markdown     = $response['data']['markdown_content'];
-			$markdown_url = add_query_arg( array( 'w3tc_aicrawler_markdown' => $post_id ), home_url( '/' ) );
+							$markdown	  = $response['data']['markdown_content'];
+							$markdown_url = add_query_arg( array( 'w3tc_aicrawler_markdown' => $post_id ), home_url( '/' ) );
 
-			update_post_meta( $post_id, self::META_MARKDOWN, $markdown );
-			update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
-			update_post_meta( $post_id, self::META_STATUS, 'complete' );
+							update_post_meta( $post_id, self::META_MARKDOWN, $markdown );
+							update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
+							update_post_meta( $post_id, self::META_STATUS, 'complete' );
+							delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 		}
 
 		if ( ! self::queue_has_items() ) {
@@ -214,21 +228,85 @@ class Extension_AiCrawler_Markdown {
 	 * @return array Array of WP_Post objects that are queued for markdown generation.
 	 */
 	public static function get_queue_posts() {
-		$query = new \WP_Query(
-			array(
-				'post_type'      => 'any',
-				'posts_per_page' => -1,
-				'post_status'    => 'any',
-				'fields'         => 'ids',
-				'meta_query'     => array(
-					array(
-						'key'   => self::META_STATUS,
-						'value' => 'queued',
+			$query = new \WP_Query(
+				array(
+					'post_type'		 => 'any',
+					'posts_per_page' => -1,
+					'post_status'	 => 'any',
+					'fields'		 => 'ids',
+					'meta_query'	 => array(
+						array(
+							'key'	=> self::META_STATUS,
+							'value' => 'queued',
+						),
 					),
-				),
-			)
-		);
+				)
+			);
 
-		return ! empty( $query->posts ) ? $query->posts : array();
+			return ! empty( $query->posts ) ? $query->posts : array();
+	}
+
+		/**
+		 * Get counts of items by status.
+		 *
+		 * @since X.X.X
+		 *
+		 * @return array
+		 */
+	public static function get_status_counts() {
+			$statuses = array( 'queued', 'processing', 'complete', 'error' );
+			$counts	  = array();
+
+		foreach ( $statuses as $status ) {
+				$q = new \WP_Query(
+					array(
+						'post_type'		 => 'any',
+						'posts_per_page' => -1,
+						'post_status'	 => 'any',
+						'fields'		 => 'ids',
+						'meta_query'	 => array(
+							array(
+								'key'	=> self::META_STATUS,
+								'value' => $status,
+							),
+						),
+					)
+				);
+
+				$counts[ $status ] = ! empty( $q->posts ) ? count( $q->posts ) : 0;
+		}
+
+			$counts['total'] = array_sum( $counts );
+
+			return $counts;
+	}
+
+		/**
+		 * Get queue items with pagination.
+		 *
+		 * @since X.X.X
+		 *
+		 * @param int $paged	Page number.
+		 * @param int $per_page Items per page.
+		 *
+		 * @return array
+		 */
+	public static function get_queue_items( $paged = 1, $per_page = 20 ) {
+			$query = new \WP_Query(
+				array(
+					'post_type'		 => 'any',
+					'posts_per_page' => $per_page,
+					'post_status'	 => 'any',
+					'fields'		 => 'ids',
+					'paged'			 => $paged,
+					'meta_key'		 => self::META_STATUS,
+					'meta_compare'	 => 'EXISTS',
+				)
+			);
+
+			return array(
+				'items' => ! empty( $query->posts ) ? $query->posts : array(),
+				'total' => (int) $query->found_posts,
+			);
 	}
 }
