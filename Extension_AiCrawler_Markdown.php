@@ -45,6 +45,14 @@ class Extension_AiCrawler_Markdown {
 	const META_STATUS = 'w3tc_aicrawler_status';
 
 	/**
+	 * Post meta key for error messages.
+	 *
+	 * @since X.X.X
+	 * @var   string
+	 */
+	const META_ERROR_MESSAGE = 'w3tc_aicrawler_error_message';
+
+	/**
 	 * Post meta key where generated markdown is stored.
 	 *
 	 * @since X.X.X
@@ -59,6 +67,14 @@ class Extension_AiCrawler_Markdown {
 	 * @var   string
 	 */
 	const META_MARKDOWN_URL = 'w3tc_aicrawler_markdown_url';
+
+	/**
+	 * Post meta key for the timestamp when the URL was queued.
+	 *
+	 * @since X.X.X
+	 * @var   string
+	 */
+	const META_TIMESTAMP = 'w3tc_aicrawler_timestamp';
 
 	/**
 	 * Initialize hooks for cron processing.
@@ -146,6 +162,7 @@ class Extension_AiCrawler_Markdown {
 
 		update_post_meta( $post_id, self::META_STATUS, 'queued' );
 		update_post_meta( $post_id, self::META_SOURCE_URL, esc_url_raw( $url ) );
+		delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 
 		self::schedule_cron();
 
@@ -169,16 +186,24 @@ class Extension_AiCrawler_Markdown {
 
 		foreach ( $posts as $post_id ) {
 			$url = get_post_meta( $post_id, self::META_SOURCE_URL, true );
+
+			// Update the timestamp when processing starts.
+			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
+
 			if ( empty( $url ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
+				update_post_meta( $post_id, self::META_ERROR_MESSAGE, __( 'Missing URL.', 'w3-total-cache' ) );
 				continue;
 			}
 
 			update_post_meta( $post_id, self::META_STATUS, 'processing' );
+			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 			$response = Extension_AiCrawler_Central_Api::call( 'convert', 'POST', array( 'url' => $url ) );
 
 			if ( empty( $response['success'] ) || empty( $response['data']['markdown_content'] ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
+				$message = ! empty( $response['error']['message'] ) ? $response['error']['message'] : __( 'Unknown error.', 'w3-total-cache' );
+				update_post_meta( $post_id, self::META_ERROR_MESSAGE, $message );
 				continue;
 			}
 
@@ -188,6 +213,10 @@ class Extension_AiCrawler_Markdown {
 			update_post_meta( $post_id, self::META_MARKDOWN, $markdown );
 			update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
 			update_post_meta( $post_id, self::META_STATUS, 'complete' );
+			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+
+			// Update the timestamp again when complete:
+			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 		}
 
 		if ( ! self::queue_has_items() ) {
