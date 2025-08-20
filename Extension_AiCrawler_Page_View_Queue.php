@@ -21,6 +21,10 @@ $queue_items    = Extension_AiCrawler_Markdown::get_queue_items( $queue_paged, $
 $queue_posts    = $queue_items['items'];
 $queue_total    = $queue_items['total'];
 $queue_pages    = max( 1, ceil( $queue_total / $queue_per_page ) );
+
+// Get the formatted timestamp of the last run queue item, which will be the first item in the $queue_items array.
+$last_run_timestamp = ! empty( $queue_posts ) ? get_post_meta( reset( $queue_posts ), Extension_AiCrawler_Markdown::META_TIMESTAMP, true ) : 0;
+$last_run_formatted = $last_run_timestamp ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $last_run_timestamp ) : __( 'Never', 'w3-total-cache' );
 ?>
 <div class="metabox-holder">
 	<?php Util_Ui::postbox_header( esc_html__( 'Queue', 'w3-total-cache' ), '', 'queue' ); ?>
@@ -48,6 +52,9 @@ $queue_pages    = max( 1, ceil( $queue_total / $queue_per_page ) );
 			<?php /* translators: %d: total number of items. */ ?>
 			<?php printf( esc_html__( 'Total items: %d', 'w3-total-cache' ), intval( $counts['total'] ) ); ?>
 		</p>
+		<p class="w3tc-queue-summary__last-run">
+			<?php /* translators: %s: last run timestamp. */ ?>
+			<?php printf( esc_html__( 'Last run: %s', 'w3-total-cache' ), esc_html( $last_run_formatted ) ); ?>
 	</div>
 	<table class="widefat fixed">
 		<thead>

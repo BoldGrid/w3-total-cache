@@ -171,7 +171,8 @@
 .w3tc-queue-summary.variant-minimal .stat__value { color: var(--accent); }
 
 /* Total line */
-.w3tc-queue-summary__total {
+.w3tc-queue-summary__total,
+.w3tc-queue-summary__last-run {
 	display: inline-block;
 	margin: 14px 0 0;
 	padding: 6px 14px;
