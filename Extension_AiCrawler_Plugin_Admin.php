@@ -134,7 +134,6 @@ class Extension_AiCrawler_Plugin_Admin {
 		add_filter( 'w3tc_extension_plugin_links_aicrawler', array( $this, 'w3tc_extension_plugin_links' ) );
 		add_action( 'w3tc_settings_page-w3tc_aicrawler', array( $this, 'w3tc_extension_page' ) );
 		add_action( 'wp_ajax_w3tc_aicrawler_regenerate_url', array( $this, 'wp_ajax_regenerate_aicrawler_url' ) );
-		add_action( 'save_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'generate_markdown_on_save' ), 10, 3 );
 
 		// Site Health: STATUS card.
 		add_filter(

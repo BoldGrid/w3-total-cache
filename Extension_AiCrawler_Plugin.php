@@ -34,6 +34,8 @@ class Extension_AiCrawler_Plugin {
 		if ( class_exists( '\W3TC\Extension_AiCrawler_Mock_Api' ) ) {
 			( new \W3TC\Extension_AiCrawler_Mock_Api() )->run();
 		}
+
+		add_action( 'save_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'generate_markdown_on_save' ), 10, 3 );
 	}
 
 	/**
