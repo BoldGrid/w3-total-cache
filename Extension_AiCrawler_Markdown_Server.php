@@ -76,8 +76,8 @@ class Extension_AiCrawler_Markdown_Server {
 		if ( is_numeric( $flag ) ) {
 			$post_id = (int) $flag;
 		} else {
-			$path    = ltrim( (string) $flag, '/' );
-			$post_id = url_to_postid( home_url( '/' . $path ) );
+			$path = ltrim( (string) $flag, '/' ); // phpcs:ignore Generic.Formatting.MultipleStatementAlignment.NotSameWarning
+			$post_id = url_to_postid( home_url( user_trailingslashit( $path ) ) );
 		}
 
 		if ( ! $post_id ) {
