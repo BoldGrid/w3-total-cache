@@ -66,7 +66,6 @@ class Extension_AiCrawler_Markdown_Server {
 	 */
 	public static function maybe_serve_markdown() {
 		$flag = get_query_var( 'w3tc_aicrawler_markdown' );
-		error_log( 'Serving markdown for flag: ' . $flag );
 
 		$post_id = 0;
 
