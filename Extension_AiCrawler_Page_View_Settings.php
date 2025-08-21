@@ -97,7 +97,7 @@ $config = Dispatcher::config();
 				),
 				'control'     => 'textarea',
 				'label'       => esc_html__( 'Excluded URLs:', 'w3-total-cache' ),
-				'description' => esc_html__( 'URLs defined here will be excluded from the AI Crawler service and will not be included in the markdown generation process. Include one entry per line.', 'w3-total-cache' ),
+				'description' => esc_html__( 'Absolute/Relative URLs or regular expression patterns defined here will be excluded from the AI Crawler service and will not be included in the markdown generation process. Include one entry per line.', 'w3-total-cache' ),
 			)
 		);
 

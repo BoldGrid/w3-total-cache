@@ -155,8 +155,10 @@ class Extension_AiCrawler_Markdown {
 	 * @return bool True on success, false otherwise.
 	 */
 	public static function generate_markdown( $url ) {
+		$url     = esc_url_raw( $url );
 		$post_id = url_to_postid( $url );
-		if ( ! $post_id ) {
+
+		if ( ! $post_id || Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
 			return false;
 		}
 
@@ -193,6 +195,11 @@ class Extension_AiCrawler_Markdown {
 			if ( empty( $url ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
 				update_post_meta( $post_id, self::META_ERROR_MESSAGE, __( 'Missing URL.', 'w3-total-cache' ) );
+				continue;
+			}
+
+			if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+				update_post_meta( $post_id, self::META_STATUS, 'excluded' );
 				continue;
 			}
 
