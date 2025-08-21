@@ -27,7 +27,7 @@ class W3tc_Extension_AiCrawler_Markdown_Test extends WP_UnitTestCase {
                 flush_rewrite_rules();
 
                 $post_id = self::factory()->post->create();
-                $expected = trailingslashit( get_permalink( $post_id ) ) . '.md';
+                $expected = untrailingslashit( get_permalink( $post_id ) ) . '.md';
 
                 $this->assertSame( $expected, Extension_AiCrawler_Markdown_Server::get_markdown_url( $post_id ) );
         }

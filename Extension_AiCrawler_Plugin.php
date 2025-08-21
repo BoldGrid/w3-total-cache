@@ -70,12 +70,12 @@ class Extension_AiCrawler_Plugin {
 }
 
 add_action(
-	'wp_loaded',
+	'plugins_loaded',
 	function () {
-		( new Extension_AiCrawler_Plugin() )->run();
+			( new Extension_AiCrawler_Plugin() )->run();
 
 		if ( is_admin() ) {
-			( new Extension_AiCrawler_Plugin_Admin() )->run();
+				( new Extension_AiCrawler_Plugin_Admin() )->run();
 		}
 	}
 );

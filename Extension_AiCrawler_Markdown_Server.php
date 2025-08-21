@@ -54,7 +54,7 @@ class Extension_AiCrawler_Markdown_Server {
 		 * @return void
 		 */
 	public static function add_rewrite_rules() {
-			add_rewrite_rule( '^(.+?)\.md$', 'index.php?name=$matches[1]&w3tc_aicrawler_markdown=1', 'top' );
+			add_rewrite_rule( '^(.*)\.md$', 'index.php?w3tc_aicrawler_markdown=$matches[1]', 'top' );
 	}
 
 		/**
@@ -65,32 +65,40 @@ class Extension_AiCrawler_Markdown_Server {
 		 * @return void
 		 */
 	public static function maybe_serve_markdown() {
-			$flag = get_query_var( 'w3tc_aicrawler_markdown' );
+		$flag = get_query_var( 'w3tc_aicrawler_markdown' );
 
-		if ( empty( $flag ) ) {
+		if ( '' === $flag ) {
 				return;
 		}
 
-			$post_id = get_queried_object_id();
+		$post_id = 0;
 
-		if ( ! $post_id && is_numeric( $flag ) ) {
-					$post_id = (int) $flag;
+		if ( is_numeric( $flag ) ) {
+				$post_id = (int) $flag;
+		} else {
+				$path    = ltrim( (string) $flag, '/' );
+				$post_id = url_to_postid( home_url( '/' . $path ) );
 		}
 
-			$markdown = $post_id ? get_post_meta( $post_id, Extension_AiCrawler_Markdown::META_MARKDOWN, true ) : '';
-
-		if ( empty( $markdown ) ) {
-					status_header( 404 );
-					exit;
-		}
-
-				$canonical = get_permalink( $post_id );
-
-				header( 'Content-Type: text/markdown; charset=' . get_bloginfo( 'charset' ) );
-				header( 'Link: <' . esc_url_raw( $canonical ) . '>; rel="canonical"', false );
-
-				echo $markdown; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( ! $post_id ) {
+				status_header( 404 );
 				exit;
+		}
+
+		$markdown = get_post_meta( $post_id, Extension_AiCrawler_Markdown::META_MARKDOWN, true );
+
+		if ( '' === $markdown ) {
+				status_header( 404 );
+				exit;
+		}
+
+		$canonical = get_permalink( $post_id );
+
+		header( 'Content-Type: text/markdown; charset=' . get_bloginfo( 'charset' ) );
+		header( 'Link: <' . esc_url_raw( $canonical ) . '>; rel="canonical"', false );
+
+		echo $markdown; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		exit;
 	}
 
 		/**
@@ -148,7 +156,7 @@ class Extension_AiCrawler_Markdown_Server {
 		 */
 	public static function get_markdown_url( $post_id ) {
 		if ( get_option( 'permalink_structure' ) ) {
-				return trailingslashit( get_permalink( $post_id ) ) . '.md';
+						return untrailingslashit( get_permalink( $post_id ) ) . '.md';
 		}
 
 			return add_query_arg( array( 'w3tc_aicrawler_markdown' => $post_id ), home_url( '/' ) );
