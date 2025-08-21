@@ -139,13 +139,15 @@ class Extension_AiCrawler_Markdown {
 	 * @return bool True on success, false otherwise.
 	 */
 	public static function generate_markdown( $url ) {
+		$url     = esc_url_raw( $url );
 		$post_id = url_to_postid( $url );
-		if ( ! $post_id ) {
+
+		if ( ! $post_id || Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
 			return false;
 		}
 
 		update_post_meta( $post_id, self::META_STATUS, 'queued' );
-		update_post_meta( $post_id, self::META_SOURCE_URL, esc_url_raw( $url ) );
+		update_post_meta( $post_id, self::META_SOURCE_URL, $url );
 
 		self::schedule_cron();
 
@@ -171,6 +173,11 @@ class Extension_AiCrawler_Markdown {
 			$url = get_post_meta( $post_id, self::META_SOURCE_URL, true );
 			if ( empty( $url ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
+				continue;
+			}
+
+			if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+				update_post_meta( $post_id, self::META_STATUS, 'excluded' );
 				continue;
 			}
 
