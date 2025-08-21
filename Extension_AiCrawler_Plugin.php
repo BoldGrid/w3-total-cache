@@ -30,6 +30,9 @@ class Extension_AiCrawler_Plugin {
 		// Initialize markdown generation queue.
 		Extension_AiCrawler_Markdown::init();
 
+		// Set up serving and discovery of markdown content.
+		Extension_AiCrawler_Markdown_Server::init();
+
 		// If the AiCrawler Mock API class exists, run it.
 		if ( class_exists( '\W3TC\Extension_AiCrawler_Mock_Api' ) ) {
 			( new \W3TC\Extension_AiCrawler_Mock_Api() )->run();
@@ -67,7 +70,7 @@ class Extension_AiCrawler_Plugin {
 }
 
 add_action(
-	'wp_loaded',
+	'plugins_loaded',
 	function () {
 		( new Extension_AiCrawler_Plugin() )->run();
 
