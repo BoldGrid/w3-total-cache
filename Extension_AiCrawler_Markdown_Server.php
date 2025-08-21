@@ -65,9 +65,12 @@ class Extension_AiCrawler_Markdown_Server {
 	 * @return void
 	 */
 	public static function maybe_serve_markdown() {
-		$flag = get_query_var( 'w3tc_aicrawler_markdown' );
+		$flag = get_query_var( 'w3tc_aicrawler_markdown', false );
 
-		if ( ! $flag ) {
+		// If the query var is not set, do nothing.
+		// This is explicitly set because an empty string is a valid flag
+		// for serving markdown on the homepage.
+		if ( false === $flag ) {
 			return;
 		}
 
@@ -80,7 +83,7 @@ class Extension_AiCrawler_Markdown_Server {
 			$post_id = url_to_postid( home_url( '/' . $path ) );
 		}
 
-		if ( ! $post_id ) {
+		if ( ! $post_id || Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
 			status_header( 404 );
 			exit;
 		}
@@ -156,7 +159,13 @@ class Extension_AiCrawler_Markdown_Server {
 	 */
 	public static function get_markdown_url( $post_id ) {
 		if ( get_option( 'permalink_structure' ) ) {
-			return untrailingslashit( get_permalink( $post_id ) ) . '.md';
+			$permalink = get_permalink( $post_id );
+
+			if ( home_url( '/' ) === trailingslashit( $permalink ) ) {
+				return home_url( '/.md' );
+			}
+
+			return untrailingslashit( $permalink ) . '.md';
 		}
 
 		return add_query_arg( array( 'w3tc_aicrawler_markdown' => $post_id ), home_url( '/' ) );

@@ -64,7 +64,6 @@ class Extension_AiCrawler_LlmsTxt_Server {
 	 */
 	public static function maybe_serve_llms() {
 		if ( ! get_query_var( 'w3tc_llms' ) ) {
-			error_log( 'Extension_AiCrawler_LlmsTxt_Server::maybe_serve_llms called but query var is not set' );
 			return;
 		}
 
@@ -100,6 +99,9 @@ class Extension_AiCrawler_LlmsTxt_Server {
 			echo "> This file contains a list of Markdown URLs in Format: [Post Title](Markdown URL): Canonical URL\n\n";
 			echo "## List of Markdown URLs\n\n";
 			foreach ( $query->posts as $post_id ) {
+				if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+					continue;
+				}
 				$line = self::build_post_line( $post_id );
 				if ( $line ) {
 					echo esc_html( $line );
