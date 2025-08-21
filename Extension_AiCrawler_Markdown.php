@@ -295,11 +295,10 @@ class Extension_AiCrawler_Markdown {
 			return;
 		}
 
-		// Ensure that the post is not excluded.
-		// Commented out for now, as the exclusion logic is not yet implemented.
-		// if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
-		// 	return;
-		// }
+		// Check if the post is excluded.
+		if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+			return;
+		}
 
 		// Generate markdown for the post.
 		self::generate_markdown( get_permalink( $post_id ) );
