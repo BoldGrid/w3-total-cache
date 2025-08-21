@@ -222,7 +222,7 @@ class Extension_AiCrawler_Markdown {
 			update_post_meta( $post_id, self::META_STATUS, 'complete' );
 			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 
-			// Update the timestamp again when complete:
+			// Update the timestamp again when complete.
 			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 		}
 
@@ -275,7 +275,7 @@ class Extension_AiCrawler_Markdown {
 	 *
 	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post    Post object.
-	 * @param bool    $update  Whether this is an existing post being updated or not
+	 * @param bool    $update  Whether this is an existing post being updated or not.
 	 *
 	 * @return void
 	 */
