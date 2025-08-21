@@ -290,7 +290,7 @@ class Extension_AiCrawler_Markdown {
 
 		// Ensure that the post is not excluded.
 		// Commented out for now, as the exclusion logic is not yet implemented.
-		// if ( ! Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+		// if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
 		// 	return;
 		// }
 
