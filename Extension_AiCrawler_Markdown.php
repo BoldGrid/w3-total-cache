@@ -68,9 +68,9 @@ class Extension_AiCrawler_Markdown {
 	 * @return void
 	 */
 	public static function init() {
-				add_action( self::CRON_HOOK, array( __CLASS__, 'process_queue' ) );
-				add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) );
-				add_action( 'update_option_permalink_structure', array( __CLASS__, 'refresh_markdown_urls' ), 10, 0 );
+		add_action( self::CRON_HOOK, array( __CLASS__, 'process_queue' ) );
+		add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) );
+		add_action( 'update_option_permalink_structure', array( __CLASS__, 'refresh_markdown_urls' ), 10, 0 );
 
 		if ( self::queue_has_items() ) {
 			self::schedule_cron();
@@ -122,44 +122,44 @@ class Extension_AiCrawler_Markdown {
 	 */
 	public static function add_schedule( array $schedules = array() ) {
 		if ( ! isset( $schedules['ten_seconds'] ) ) {
-				$schedules['ten_seconds'] = array(
-					'interval' => 10,
-					'display'  => esc_html__( 'Every Ten Seconds', 'w3-total-cache' ),
-				);
+			$schedules['ten_seconds'] = array(
+				'interval' => 10,
+				'display'  => esc_html__( 'Every Ten Seconds', 'w3-total-cache' ),
+			);
 		}
-			return $schedules;
+		return $schedules;
 	}
 
-		/**
-		 * Regenerate stored markdown URLs when permalink structure changes.
-		 *
-		 * @since X.X.X
-		 *
-		 * @return void
-		 */
+	/**
+	 * Regenerate stored markdown URLs when permalink structure changes.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
 	public static function refresh_markdown_urls() {
-			$query = new \WP_Query(
-				array(
-					'post_type'      => 'any',
-					'post_status'    => 'any',
-					'posts_per_page' => -1,
-					'fields'         => 'ids',
-					'meta_query'     => array(
-						array(
-							'key'     => self::META_MARKDOWN_URL,
-							'compare' => 'EXISTS',
-						),
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'any',
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => array(
+					array(
+						'key'     => self::META_MARKDOWN_URL,
+						'compare' => 'EXISTS',
 					),
-				)
-			);
+				),
+			)
+		);
 
 		if ( empty( $query->posts ) ) {
-				return;
+			return;
 		}
 
 		foreach ( $query->posts as $post_id ) {
-				$markdown_url = Extension_AiCrawler_Markdown_Server::get_markdown_url( $post_id );
-				update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
+			$markdown_url = Extension_AiCrawler_Markdown_Server::get_markdown_url( $post_id );
+			update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
 		}
 	}
 
