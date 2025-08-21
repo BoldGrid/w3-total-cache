@@ -27,11 +27,11 @@ class Extension_AiCrawler_Plugin {
 		*/
 		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 
-				// Initialize markdown generation queue.
-				Extension_AiCrawler_Markdown::init();
+		// Initialize markdown generation queue.
+		Extension_AiCrawler_Markdown::init();
 
-				// Set up serving and discovery of markdown content.
-				Extension_AiCrawler_Markdown_Server::init();
+		// Set up serving and discovery of markdown content.
+		Extension_AiCrawler_Markdown_Server::init();
 
 		// If the AiCrawler Mock API class exists, run it.
 		if ( class_exists( '\W3TC\Extension_AiCrawler_Mock_Api' ) ) {
@@ -72,10 +72,10 @@ class Extension_AiCrawler_Plugin {
 add_action(
 	'plugins_loaded',
 	function () {
-			( new Extension_AiCrawler_Plugin() )->run();
+		( new Extension_AiCrawler_Plugin() )->run();
 
 		if ( is_admin() ) {
-				( new Extension_AiCrawler_Plugin_Admin() )->run();
+			( new Extension_AiCrawler_Plugin_Admin() )->run();
 		}
 	}
 );
