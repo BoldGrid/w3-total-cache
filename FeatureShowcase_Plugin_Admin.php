@@ -562,7 +562,7 @@ class FeatureShowcase_Plugin_Admin {
 			),
 		);
 
-		if ( Extension_AiCrawler_Util::is_allowed() ) {
+		if ( Extension_AiCrawler_Util::is_allowed_env() ) {
 			$is_enabled   = Extension_AiCrawler_Util::is_enabled();
 			$button_label = $is_enabled
 				? __( 'Settings', 'w3-total-cache' )
