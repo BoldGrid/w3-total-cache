@@ -66,18 +66,19 @@ class Extension_AiCrawler_Markdown_Server {
 	 */
 	public static function maybe_serve_markdown() {
 		$flag = get_query_var( 'w3tc_aicrawler_markdown' );
-
-		if ( '' === $flag ) {
-			return;
-		}
+		error_log( 'Serving markdown for flag: ' . $flag );
 
 		$post_id = 0;
 
 		if ( is_numeric( $flag ) ) {
 			$post_id = (int) $flag;
 		} else {
-			$path    = ltrim( (string) $flag, '/' );
-			$post_id = url_to_postid( home_url( '/' . $path ) );
+			// Get the current URI.
+			$current_uri = untrailingslashit( home_url( add_query_arg( array() ) ) );
+			// Remove the '.md' suffix.
+			$current_uri = preg_replace( '/\.md$/', '', $current_uri );
+			// Find the post ID by matching the permalink structure.
+			$post_id = url_to_postid( $current_uri );
 		}
 
 		if ( ! $post_id ) {

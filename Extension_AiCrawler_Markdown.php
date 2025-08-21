@@ -190,7 +190,7 @@ class Extension_AiCrawler_Markdown {
 			}
 
 			$markdown     = $response['data']['markdown_content'];
-			$markdown_url = add_query_arg( array( 'w3tc_aicrawler_markdown' => $post_id ), home_url( '/' ) );
+			$markdown_url = Extension_AiCrawler_Markdown_Server::get_markdown_url( $post_id );
 
 			update_post_meta( $post_id, self::META_MARKDOWN, $markdown );
 			update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
