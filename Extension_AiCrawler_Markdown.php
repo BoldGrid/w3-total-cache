@@ -163,7 +163,7 @@ class Extension_AiCrawler_Markdown {
 		}
 
 		update_post_meta( $post_id, self::META_STATUS, 'queued' );
-		update_post_meta( $post_id, self::META_SOURCE_URL, esc_url_raw( $url ) );
+		update_post_meta( $post_id, self::META_SOURCE_URL, $url );
 		delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 
 		self::schedule_cron();
@@ -180,11 +180,6 @@ class Extension_AiCrawler_Markdown {
 	 */
 	public static function process_queue() {
 		$posts = self::get_queue_posts();
-
-		if ( empty( $posts ) ) {
-			self::unschedule_cron();
-			return;
-		}
 
 		foreach ( $posts as $post_id ) {
 			$url = get_post_meta( $post_id, self::META_SOURCE_URL, true );
@@ -222,7 +217,7 @@ class Extension_AiCrawler_Markdown {
 			update_post_meta( $post_id, self::META_STATUS, 'complete' );
 			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 
-			// Update the timestamp again when complete:
+			// Update the timestamp again when complete.
 			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 		}
 
@@ -341,5 +336,38 @@ class Extension_AiCrawler_Markdown {
 			'items' => ! empty( $query->posts ) ? $query->posts : array(),
 			'total' => (int) $query->found_posts,
 		);
+	 * Generate markdown when a post is saved if the option is enabled.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 * @param bool    $update  Whether this is an existing post being updated or not.
+	 *
+	 * @return void
+	 */
+	public static function generate_markdown_on_save( $post_id, $post, $update ) {
+		// Avoid recursion.
+		remove_action( 'save_post', array( __CLASS__, 'generate_markdown_on_save' ), 10 );
+
+		// Don't run on autosave.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		$config = Dispatcher::config();
+
+		// Determine if Auto Generate is enabled.
+		if ( ! $config->get_boolean( array( 'aicrawler', 'auto_generate' ), false ) ) {
+			return;
+		}
+
+		// Check if the post is excluded.
+		if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+			return;
+		}
+
+		// Generate markdown for the post.
+		self::generate_markdown( get_permalink( $post_id ) );
 	}
 }

@@ -24,7 +24,7 @@ class Extension_AiCrawler_Plugin {
 	public function run() {
 		/**
 		 * This filter is documented in Generic_AdminActions_Default.php under the read_request method.
-		*/
+		 */
 		add_filter( 'w3tc_config_key_descriptor', array( $this, 'w3tc_config_key_descriptor' ), 10, 2 );
 
 		// Initialize markdown generation queue.
@@ -34,6 +34,8 @@ class Extension_AiCrawler_Plugin {
 		if ( class_exists( '\W3TC\Extension_AiCrawler_Mock_Api' ) ) {
 			( new \W3TC\Extension_AiCrawler_Mock_Api() )->run();
 		}
+
+		add_action( 'save_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'generate_markdown_on_save' ), 10, 3 );
 	}
 
 	/**
@@ -69,6 +71,11 @@ class Extension_AiCrawler_Plugin {
 add_action(
 	'wp_loaded',
 	function () {
+		// Check if the environment is allowed to run the AI Crawler extension.
+		if ( ! Extension_AiCrawler_Util::is_allowed_env() ) {
+			return;
+		}
+
 		( new Extension_AiCrawler_Plugin() )->run();
 
 		if ( is_admin() ) {
