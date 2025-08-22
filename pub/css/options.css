@@ -1397,22 +1397,8 @@ td .w3tc-control-after span {
 	background-size: contain;
 }
 
+#w3tc-tcdn-ad-general,
 #w3tc-tcdn-ad-cdn {
-    display: flex;
-	flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-}
-
-#w3tc-tcdn-ad-cdn {
-	background: linear-gradient(to bottom, #FCFDFF, #E7F1FF);
-	border: 1px solid #c3c4c7;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-}
-
-#w3tc-tcdn-ad-general {
-	background: linear-gradient(270deg, #000 11.54%, rgba(132, 132, 132, 0.00) 100%);
-    background: url(../img/upsell-darker.png) lightgray 50% / cover no-repeat;
 	background: linear-gradient(270deg, rgba(0,0,0,0.16) 0%, rgba(132, 132, 132, 0.00) 100%), url(../img/upsell-darker.png);
 	background-size: cover;
     background-position-y: 27%;
@@ -1424,16 +1410,23 @@ td .w3tc-control-after span {
     align-items: center;
 }
 
-#w3tc-tcdn-ad-cdn strong {
-	color: #3E497E;
-	font-weight: 700;
-	margin: 5px 10px;
-	padding: 5px 10px;
+#w3tc-tcdn-ad-cdn {
+	padding-bottom: 15px;
+}
+
+#w3tc-tcdn-ad-cdn p {
+	color: #FFF;
+	text-shadow: 2px 2px 4px #000;
+	font-family: Roboto;
+	font-size: 32.451px;
+	font-style: normal;
+	font-weight: 800;
+	line-height: normal;
 }
 
 #w3tc-tcdn-ad-general p {
 	color: #FFF;
-	text-shadow: 0.793px 0.793px 1.11px #000;
+	text-shadow: 2px 2px 4px #000;
 	font-family: Roboto;
 	font-size: 25.724px;
 	font-style: normal;
@@ -1447,9 +1440,15 @@ td .w3tc-control-after span {
 	flex-shrink: 0;
 }
 
-#w3tc-tcdn-ad-general input {
+#w3tc-tcdn-ad-cdn .w3tc-tcdn-icon {
+	width: 109.26px;
+	height: 57.574px;
+	flex-shrink: 0;
+}
+
+#w3tc-tcdn-ad-general input,
+#w3tc-tcdn-ad-cdn input {
 	display: flex;
-	width: 179px;
 	height: 44px;
 	padding: 4.082px 17.008px;
 	justify-content: center;
@@ -1469,11 +1468,17 @@ td .w3tc-control-after span {
 	border: 0;
     cursor: pointer;
 }
-#w3tc-tcdn-ad-general input:hover {
+
+#w3tc-tcdn-ad-cdn input {
+	font-size: 22.314px;
+}
+#w3tc-tcdn-ad-general input:hover,
+#w3tc-tcdn-ad-cdn input:hover {
 	box-shadow: 0 0 8.958px 4px rgba(255, 255, 255, 0.75);
 }
 
-#w3tc-tcdn-ad-general input:focus {
+#w3tc-tcdn-ad-general input:focus,
+#w3tc-tcdn-ad-cdn input:focus {
 	box-shadow: 0 0 8.958px 4px rgba(255, 255, 255, 0.61);
 }
 
@@ -1508,17 +1513,6 @@ td .w3tc-control-after span {
 
 #w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button:hover {
 	background-image: linear-gradient(to right, #FFA681, #FFE072);
-}
-
-#w3tc-tcdn-ad-cdn .w3tc-tcdn-icon {
-	width: 77px;
-	height: 50px;
-	margin: 5px 10px;
-}
-
-#w3tc-tcdn-ad-cdn strong,
-#w3tc-tcdn-ad-general strong {
-    margin-right: auto;
 }
 
 #w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button,
