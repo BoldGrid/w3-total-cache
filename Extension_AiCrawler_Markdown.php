@@ -165,6 +165,8 @@ class Extension_AiCrawler_Markdown {
 		update_post_meta( $post_id, self::META_STATUS, 'queued' );
 		update_post_meta( $post_id, self::META_SOURCE_URL, $url );
 		delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+		// Update the timestamp when added to the queue.
+		update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 
 		self::schedule_cron();
 
@@ -268,29 +270,20 @@ class Extension_AiCrawler_Markdown {
 	 *
 	 * @since X.X.X
 	 *
+	 * @param array $queue_items Queue item IDs.
+	 *
 	 * @return array
 	 */
-	public static function get_status_counts() {
+	public static function get_status_counts( $queue_items ) {
 		$statuses = array( 'queued', 'processing', 'complete', 'error' );
-		$counts   = array();
+		$counts   = array_fill_keys( $statuses, 0 );
 
-		foreach ( $statuses as $status ) {
-			$q = new \WP_Query(
-				array(
-					'post_type'      => 'any',
-					'posts_per_page' => -1,
-					'post_status'    => 'any',
-					'fields'         => 'ids',
-					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery
-						array(
-							'key'   => self::META_STATUS,
-							'value' => $status,
-						),
-					),
-				)
-			);
+		foreach ( $queue_items as $item_id ) {
+			$status = get_post_meta( $item_id, self::META_STATUS, true );
 
-			$counts[ $status ] = ! empty( $q->posts ) ? count( $q->posts ) : 0;
+			if ( isset( $counts[ $status ] ) ) {
+				++$counts[ $status ];
+			}
 		}
 
 		$counts['total'] = array_sum( $counts );
@@ -298,27 +291,23 @@ class Extension_AiCrawler_Markdown {
 		return $counts;
 	}
 
-		/**
-		 * Get queue items with pagination.
-		 *
-		 * @since X.X.X
-		 *
-		 * @param int $paged    Page number.
-		 * @param int $per_page Items per page.
-		 *
-		 * @return array
-		 */
-	public static function get_queue_items( $paged = 1, $per_page = 20 ) {
+	/**
+	 * Get all queue items.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
+	 */
+	public static function get_queue_items() {
 		$query = new \WP_Query(
 			array(
 				'post_type'              => 'any',
 				'post_status'            => 'any',
-				'posts_per_page'         => $per_page,
-				'paged'                  => $paged,
+				'posts_per_page'         => -1,
 
 				// Only return IDs (faster).
 				'fields'                 => 'ids',
-				'update_post_meta_cache' => false,
+				'update_post_meta_cache' => true,
 				'update_post_term_cache' => false,
 				'ignore_sticky_posts'    => true,
 
@@ -331,10 +320,7 @@ class Extension_AiCrawler_Markdown {
 			)
 		);
 
-		return array(
-			'items' => ! empty( $query->posts ) ? $query->posts : array(),
-			'total' => (int) $query->found_posts,
-		);
+		return ! empty( $query->posts ) ? $query->posts : array();
 	}
 
 	/**

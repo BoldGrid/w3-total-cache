@@ -14,16 +14,16 @@ if ( ! defined( 'W3TC' ) ) {
 		die();
 }
 
-$counts         = Extension_AiCrawler_Markdown::get_status_counts();
+$queue_items    = Extension_AiCrawler_Markdown::get_queue_items();
+$counts         = Extension_AiCrawler_Markdown::get_status_counts( $queue_items );
 $queue_paged    = isset( $_GET['queue_page'] ) ? absint( $_GET['queue_page'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-$queue_per_page = 20;
-$queue_items    = Extension_AiCrawler_Markdown::get_queue_items( $queue_paged, $queue_per_page );
-$queue_posts    = $queue_items['items'];
-$queue_total    = $queue_items['total'];
+$queue_per_page = 10;
+$queue_total    = count( $queue_items );
+$queue_posts    = array_slice( $queue_items, ( $queue_paged - 1 ) * $queue_per_page, $queue_per_page );
 $queue_pages    = max( 1, ceil( $queue_total / $queue_per_page ) );
 
 // Get the formatted timestamp of the last run queue item, which will be the first item in the $queue_items array.
-$last_run_timestamp = ! empty( $queue_posts ) ? get_post_meta( reset( $queue_posts ), Extension_AiCrawler_Markdown::META_TIMESTAMP, true ) : 0;
+$last_run_timestamp = ! empty( $queue_items ) ? get_post_meta( reset( $queue_items ), Extension_AiCrawler_Markdown::META_TIMESTAMP, true ) : 0;
 $last_run_formatted = $last_run_timestamp ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $last_run_timestamp ) : __( 'Never', 'w3-total-cache' );
 ?>
 <div class="metabox-holder">
