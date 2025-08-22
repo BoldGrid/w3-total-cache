@@ -97,22 +97,22 @@ document.addEventListener("DOMContentLoaded", function () {
 					);
 
 					if (data.success) {
-					regenerateUrlMessage.textContent = data.data.message;
-					regenerateUrlMessage.classList.add(
-						'w3tc-aicrawler-message-success',
-					);
+						regenerateUrlMessage.textContent = data.data.message;
+						regenerateUrlMessage.classList.add(
+							'w3tc-aicrawler-message-success',
+						);
 					} else {
-					regenerateUrlMessage.textContent =
-						data.data && data.data.message
-						? data.data.message
-						: w3tcData.lang.regenerateUrlFailed + '.';
-					regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
+						regenerateUrlMessage.textContent =
+							data.data && data.data.message
+							? data.data.message
+							: w3tcData.lang.regenerateUrlFailed + '.';
+						regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
 					}
 				})
 				.catch((error) => {
 					console.error('Error:', error);
 					regenerateUrlMessage.textContent =
-					w3tcData.lang.regenerateUrlError + '.';
+						w3tcData.lang.regenerateUrlError + '.';
 					regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
 				})
 				.finally(() => {
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		});
 	}
 
-	// Handle the 'Regenerate All' button click.
+	// Handle the "Regenerate All" button click.
 	if (regenerateAllButton && regenerateAllMessage) {
 		regenerateAllButton.addEventListener('click', function (event) {
 			event.preventDefault(); // Prevent default button behavior.
