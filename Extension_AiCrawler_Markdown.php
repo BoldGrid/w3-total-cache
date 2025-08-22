@@ -256,7 +256,7 @@ class Extension_AiCrawler_Markdown {
 				'posts_per_page' => -1,
 				'post_status'    => 'any',
 				'fields'         => 'ids',
-				'meta_query'    => array(
+				'meta_query'     => array(
 					array(
 						'key'   => self::META_STATUS,
 						'value' => 'queued',
