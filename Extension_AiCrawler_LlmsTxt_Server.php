@@ -96,8 +96,11 @@ class Extension_AiCrawler_LlmsTxt_Server {
 
 		// Output the list of markdown URLs and their canonical counterparts.
 		if ( ! empty( $query->posts ) ) {
-			echo "> This file contains a list of Markdown URLs in Format: [Post Title](Markdown URL): Canonical URL\n\n";
-			echo "## List of Markdown URLs\n\n";
+			echo '> ';
+			esc_html_e( 'This file contains a list of Markdown URLs in Format: [Post Title](Markdown URL): Canonical URL', 'w3-total-cache' );
+			echo "\n\n";
+			esc_html_e( '## List of Markdown URLs', 'w3-total-cache' );
+			echo "\n\n";
 			foreach ( $query->posts as $post_id ) {
 				if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
 					continue;

@@ -30,11 +30,11 @@ class Extension_AiCrawler_Plugin {
 		// Initialize markdown generation queue.
 		Extension_AiCrawler_Markdown::init();
 
-				// Set up serving and discovery of markdown content.
-				Extension_AiCrawler_Markdown_Server::init();
+		// Set up serving and discovery of markdown content.
+		Extension_AiCrawler_Markdown_Server::init();
 
-				// Serve dynamically generated llms.txt file.
-				Extension_AiCrawler_LlmsTxt_Server::init();
+		// Serve dynamically generated llms.txt file.
+		Extension_AiCrawler_LlmsTxt_Server::init();
 
 		// If the AiCrawler Mock API class exists, run it.
 		if ( class_exists( '\W3TC\Extension_AiCrawler_Mock_Api' ) ) {
