@@ -212,7 +212,7 @@ class Extension_AiCrawler_Markdown {
 					$post_id,
 					self::META_ERROR_MESSAGE,
 					sprintf(
-						// translators: 1%s$s: error code, %2$s: error message.
+						// translators: 1%$s: error code, %2$s: error message.
 						__( 'Error %1$s: %2$s', 'w3-total-cache' ),
 						esc_html( $code ),
 						esc_html( $message )
