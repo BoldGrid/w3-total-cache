@@ -36,23 +36,23 @@ document.addEventListener("DOMContentLoaded", function () {
 					token: document.getElementById('aicrawler___imh_central_token').value, // InMotion Central token to be tested.
 				}),
 			})
-			.then((response) => response.json())
-			.then((data) => {
-				// Handle the response from the server.
-				if (data.success) {
-				alert(w3tcData.lang.tokenValid);
-				} else {
-				alert(w3tcData.lang.tokenInvalid);
-				}
-			})
-			.catch((error) => {
-				console.error(w3tcData.lang.error + ':', error);
-				alert(w3tcData.lang.tokenError + '.');
-			})
-			.finally(() => {
-				// Reset the button text.
-				testTokenButton.textContent = w3tcData.lang.test;
-			});
+				.then((response) => response.json())
+				.then((data) => {
+					// Handle the response from the server.
+					if (data.success) {
+					alert(w3tcData.lang.tokenValid);
+					} else {
+					alert(w3tcData.lang.tokenInvalid);
+					}
+				})
+				.catch((error) => {
+					console.error(w3tcData.lang.error + ':', error);
+					alert(w3tcData.lang.tokenError + '.');
+				})
+				.finally(() => {
+					// Reset the button text.
+					testTokenButton.textContent = w3tcData.lang.test;
+				});
 		});
 	}
 
