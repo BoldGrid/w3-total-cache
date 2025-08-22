@@ -163,7 +163,7 @@ class Extension_AiCrawler_Markdown {
 		}
 
 		update_post_meta( $post_id, self::META_STATUS, 'queued' );
-		update_post_meta( $post_id, self::META_SOURCE_URL, esc_url_raw( $url ) );
+		update_post_meta( $post_id, self::META_SOURCE_URL, $url );
 		delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 
 		self::schedule_cron();
@@ -180,11 +180,6 @@ class Extension_AiCrawler_Markdown {
 	 */
 	public static function process_queue() {
 		$posts = self::get_queue_posts();
-
-		if ( empty( $posts ) ) {
-			self::unschedule_cron();
-			return;
-		}
 
 		foreach ( $posts as $post_id ) {
 			$url = get_post_meta( $post_id, self::META_SOURCE_URL, true );
