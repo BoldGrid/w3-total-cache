@@ -434,6 +434,13 @@ class Generic_Plugin_Admin {
 		if ( ! empty( $w3tc_message_action_val ) ) {
 			do_action( 'w3tc_message_action_' . $w3tc_message_action_val );
 		}
+
+		wp_enqueue_style(
+			'w3tc-fonts',
+			'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Exo+2:wght@400;700&display=swap',
+			array(),
+			null
+		);
 	}
 
 	/**
