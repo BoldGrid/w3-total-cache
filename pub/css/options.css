@@ -1883,13 +1883,43 @@ td .w3tc-control-after span {
 }
 
 @media ( max-width: 600px) {
-	#w3tc-top-nav-bar {
-		top: 0px;
-	}
+        #w3tc-top-nav-bar {
+                top: 0px;
+        }
 
-	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>a,
-	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>input,
-	#w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown>a {
-		padding: 0 5px;
-	}
+        #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>a,
+        #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links>input,
+        #w3tc-top-nav-bar #w3tc-top-nav-bar-content #w3tc-top-nav-bar-content-links .w3tc-top-nav-dropdown>a {
+                padding: 0 5px;
+        }
+}
+#w3tc-aicrawler-settings .tablenav {
+	display: flex;
+	justify-content: center;
+}
+/* Pagination styling */
+.tablenav-pages {
+	float: none;
+	text-align: center;
+	margin-top: 10px;
+}
+
+.tablenav-pages .page-numbers {
+	display: inline-block;
+	padding: 4px 8px;
+	margin: 0 2px;
+	border: 1px solid #ccd0d4;
+	background: #fff;
+	border-radius: 3px;
+	text-decoration: none;
+}
+
+.tablenav-pages .page-numbers:hover {
+	background: #f1f1f1;
+}
+
+.tablenav-pages .page-numbers.current {
+	background: #007cba;
+	border-color: #007cba;
+	color: #fff;
 }

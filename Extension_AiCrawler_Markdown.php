@@ -206,8 +206,18 @@ class Extension_AiCrawler_Markdown {
 
 			if ( empty( $response['success'] ) || empty( $response['data']['markdown_content'] ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
+				$code    = ! empty( $response['error']['code'] ) ? $response['error']['code'] : '';
 				$message = ! empty( $response['error']['message'] ) ? $response['error']['message'] : __( 'Unknown error.', 'w3-total-cache' );
-				update_post_meta( $post_id, self::META_ERROR_MESSAGE, $message );
+				update_post_meta(
+					$post_id,
+					self::META_ERROR_MESSAGE,
+					sprintf(
+						// translators: 1%$s: error code, %2$s: error message.
+						__( 'Error %1$s: %2$s', 'w3-total-cache' ),
+						esc_html( $code ),
+						esc_html( $message )
+					)
+				);
 				continue;
 			}
 
