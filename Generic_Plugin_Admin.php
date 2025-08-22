@@ -388,6 +388,7 @@ class Generic_Plugin_Admin {
 		wp_register_script( 'w3tc-lightbox', plugins_url( 'pub/js/lightbox.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-widget', plugins_url( 'pub/js/widget.js', W3TC_FILE ), array(), W3TC_VERSION, false );
 		wp_register_script( 'w3tc-jquery-masonry', plugins_url( 'pub/js/jquery.masonry.min.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, false );
+		wp_register_script( 'w3tc-pagination', plugins_url( 'pub/js/pagination.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
 
 		// New feature count for the Feature Showcase.
 		wp_register_script( 'w3tc-feature-counter', plugins_url( 'pub/js/feature-counter.js', W3TC_FILE ), array(), W3TC_VERSION, true );
@@ -684,6 +685,7 @@ class Generic_Plugin_Admin {
 		wp_enqueue_script( 'w3tc-metadata' );
 		wp_enqueue_script( 'w3tc-options' );
 		wp_enqueue_script( 'w3tc-lightbox' );
+		wp_enqueue_script( 'w3tc-pagination' );
 
 		if ( $this->is_w3tc_page ) {
 			wp_localize_script(
