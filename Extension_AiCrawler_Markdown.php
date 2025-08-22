@@ -85,7 +85,7 @@ class Extension_AiCrawler_Markdown {
 	 */
 	public static function init() {
 		add_action( self::CRON_HOOK, array( __CLASS__, 'process_queue' ) );
-		add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) );
+		add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) ); // phpcs:ignore WordPress.WP.CronInterval
 
 		if ( self::queue_has_items() ) {
 			self::schedule_cron();
@@ -251,7 +251,7 @@ class Extension_AiCrawler_Markdown {
 				'posts_per_page' => -1,
 				'post_status'    => 'any',
 				'fields'         => 'ids',
-				'meta_query'     => array(
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery
 					array(
 						'key'   => self::META_STATUS,
 						'value' => 'queued',
@@ -281,7 +281,7 @@ class Extension_AiCrawler_Markdown {
 					'posts_per_page' => -1,
 					'post_status'    => 'any',
 					'fields'         => 'ids',
-					'meta_query'     => array(
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery
 						array(
 							'key'   => self::META_STATUS,
 							'value' => $status,
@@ -323,12 +323,11 @@ class Extension_AiCrawler_Markdown {
 				'ignore_sticky_posts'    => true,
 
 				// Sort by timestamp.
-				'meta_key'   => self::META_TIMESTAMP,
-				'meta_type'  => 'UNSIGNED',        // tells WP this is numeric.
-				'orderby'    => 'meta_value_num',  // use numeric compare.
-				'order'      => 'DESC',            // newest first.
-
-				'meta_compare' => 'EXISTS',
+				'meta_key'               => self::META_TIMESTAMP, // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_type'              => 'UNSIGNED',        // tells WP this is numeric.
+				'orderby'                => 'meta_value_num',  // use numeric compare.
+				'order'                  => 'DESC',            // newest first.
+				'meta_compare'           => 'EXISTS',
 			)
 		);
 
@@ -336,6 +335,9 @@ class Extension_AiCrawler_Markdown {
 			'items' => ! empty( $query->posts ) ? $query->posts : array(),
 			'total' => (int) $query->found_posts,
 		);
+	}
+
+	/**
 	 * Generate markdown when a post is saved if the option is enabled.
 	 *
 	 * @since X.X.X
@@ -346,7 +348,7 @@ class Extension_AiCrawler_Markdown {
 	 *
 	 * @return void
 	 */
-	public static function generate_markdown_on_save( $post_id, $post, $update ) {
+	public static function generate_markdown_on_save( $post_id, $post, $update ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		// Avoid recursion.
 		remove_action( 'save_post', array( __CLASS__, 'generate_markdown_on_save' ), 10 );
 
