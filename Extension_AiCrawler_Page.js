@@ -26,15 +26,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
 			// Example AJAX request to test the token.
 			fetch(ajaxurl, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				_wpnonce: w3tcData.nonces.testToken, // Nonce for security.
-				action: 'test_aicrawler_token', // WordPress AJAX action.
-				token: document.getElementById('aicrawler___imh_central_token').value, // InMotion Central token to be tested.
-			}),
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					_wpnonce: w3tcData.nonces.testToken, // Nonce for security.
+					action: 'test_aicrawler_token', // WordPress AJAX action.
+					token: document.getElementById('aicrawler___imh_central_token').value, // InMotion Central token to be tested.
+				}),
 			})
 			.then((response) => response.json())
 			.then((data) => {
