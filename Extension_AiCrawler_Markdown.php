@@ -165,6 +165,8 @@ class Extension_AiCrawler_Markdown {
 		update_post_meta( $post_id, self::META_STATUS, 'queued' );
 		update_post_meta( $post_id, self::META_SOURCE_URL, $url );
 		delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+		// Update the timestamp when added to the queue.
+		update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 
 		self::schedule_cron();
 

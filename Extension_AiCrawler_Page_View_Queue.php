@@ -17,7 +17,7 @@ if ( ! defined( 'W3TC' ) ) {
 $queue_items    = Extension_AiCrawler_Markdown::get_queue_items();
 $counts         = Extension_AiCrawler_Markdown::get_status_counts( $queue_items );
 $queue_paged    = isset( $_GET['queue_page'] ) ? absint( $_GET['queue_page'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-$queue_per_page = 20;
+$queue_per_page = 10;
 $queue_total    = count( $queue_items );
 $queue_posts    = array_slice( $queue_items, ( $queue_paged - 1 ) * $queue_per_page, $queue_per_page );
 $queue_pages    = max( 1, ceil( $queue_total / $queue_per_page ) );
