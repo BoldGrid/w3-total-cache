@@ -1893,7 +1893,10 @@ td .w3tc-control-after span {
                 padding: 0 5px;
         }
 }
-
+#w3tc-aicrawler-settings .tablenav {
+	display: flex;
+	justify-content: center;
+}
 /* Pagination styling */
 .tablenav-pages {
 	float: none;
