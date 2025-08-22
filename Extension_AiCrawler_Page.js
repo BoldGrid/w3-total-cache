@@ -140,7 +140,8 @@ document.addEventListener("DOMContentLoaded", function () {
 			params.append('_wpnonce', w3tcData.nonces.regenerateAll);
 
 			// AJAX request to regenerate all URLs.
-			fetch(ajaxurl + '?action=w3tc_aicrawler_regenerate_all', {
+			params.append('action', 'w3tc_aicrawler_regenerate_all');
+			fetch(ajaxurl, {
 			method: 'POST',
 			body: params,
 			})
