@@ -45,6 +45,14 @@ class Extension_AiCrawler_Markdown {
 	const META_STATUS = 'w3tc_aicrawler_status';
 
 	/**
+	 * Post meta key for error messages.
+	 *
+	 * @since X.X.X
+	 * @var   string
+	 */
+	const META_ERROR_MESSAGE = 'w3tc_aicrawler_error_message';
+
+	/**
 	 * Post meta key where generated markdown is stored.
 	 *
 	 * @since X.X.X
@@ -59,6 +67,14 @@ class Extension_AiCrawler_Markdown {
 	 * @var   string
 	 */
 	const META_MARKDOWN_URL = 'w3tc_aicrawler_markdown_url';
+
+	/**
+	 * Post meta key for the timestamp when the URL was queued.
+	 *
+	 * @since X.X.X
+	 * @var   string
+	 */
+	const META_TIMESTAMP = 'w3tc_aicrawler_timestamp';
 
 	/**
 	 * Initialize hooks for cron processing.
@@ -182,6 +198,7 @@ class Extension_AiCrawler_Markdown {
 
 		update_post_meta( $post_id, self::META_STATUS, 'queued' );
 		update_post_meta( $post_id, self::META_SOURCE_URL, $url );
+		delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 
 		self::schedule_cron();
 
@@ -198,15 +215,15 @@ class Extension_AiCrawler_Markdown {
 	public static function process_queue() {
 		$posts = self::get_queue_posts();
 
-		if ( empty( $posts ) ) {
-			self::unschedule_cron();
-			return;
-		}
-
 		foreach ( $posts as $post_id ) {
 			$url = get_post_meta( $post_id, self::META_SOURCE_URL, true );
+
+			// Update the timestamp when processing starts.
+			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
+
 			if ( empty( $url ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
+				update_post_meta( $post_id, self::META_ERROR_MESSAGE, __( 'Missing URL.', 'w3-total-cache' ) );
 				continue;
 			}
 
@@ -216,10 +233,13 @@ class Extension_AiCrawler_Markdown {
 			}
 
 			update_post_meta( $post_id, self::META_STATUS, 'processing' );
+			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 			$response = Extension_AiCrawler_Central_Api::call( 'convert', 'POST', array( 'url' => $url ) );
 
 			if ( empty( $response['success'] ) || empty( $response['data']['markdown_content'] ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
+				$message = ! empty( $response['error']['message'] ) ? $response['error']['message'] : __( 'Unknown error.', 'w3-total-cache' );
+				update_post_meta( $post_id, self::META_ERROR_MESSAGE, $message );
 				continue;
 			}
 
@@ -229,6 +249,10 @@ class Extension_AiCrawler_Markdown {
 			update_post_meta( $post_id, self::META_MARKDOWN, $markdown );
 			update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
 			update_post_meta( $post_id, self::META_STATUS, 'complete' );
+			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+
+			// Update the timestamp again when complete.
+			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 		}
 
 		if ( ! self::queue_has_items() ) {
@@ -271,5 +295,41 @@ class Extension_AiCrawler_Markdown {
 		);
 
 		return ! empty( $query->posts ) ? $query->posts : array();
+	}
+
+	/**
+	 * Generate markdown when a post is saved if the option is enabled.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 * @param bool    $update  Whether this is an existing post being updated or not.
+	 *
+	 * @return void
+	 */
+	public static function generate_markdown_on_save( $post_id, $post, $update ) {
+		// Avoid recursion.
+		remove_action( 'save_post', array( __CLASS__, 'generate_markdown_on_save' ), 10 );
+
+		// Don't run on autosave.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		$config = Dispatcher::config();
+
+		// Determine if Auto Generate is enabled.
+		if ( ! $config->get_boolean( array( 'aicrawler', 'auto_generate' ), false ) ) {
+			return;
+		}
+
+		// Check if the post is excluded.
+		if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+			return;
+		}
+
+		// Generate markdown for the post.
+		self::generate_markdown( get_permalink( $post_id ) );
 	}
 }
