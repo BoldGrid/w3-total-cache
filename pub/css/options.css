@@ -1,20 +1,4 @@
-/* Roboto */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url('../fonts/Roboto.ttf') format('truetype');
-}
-
-/* Exo 2 */
-@font-face {
-    font-family: 'Exo 2';
-    font-style: normal;
-    font-weight: 100 900;
-    font-display: swap;
-    src: url('../fonts/Exo2.ttf') format('truetype');
-}
+@import url('https://fonts.googleapis.com/css2?family=Exo+2&family=Roboto&display=swap');
 
 #wpcontent {
 	padding-right: 20px;
