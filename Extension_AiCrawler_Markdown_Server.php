@@ -90,7 +90,7 @@ class Extension_AiCrawler_Markdown_Server {
 
 		$markdown = get_post_meta( $post_id, Extension_AiCrawler_Markdown::META_MARKDOWN, true );
 
-		if ( '' === $markdown ) {
+		if ( empty( $markdown ) ) {
 			status_header( 404 );
 			exit;
 		}
