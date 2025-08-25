@@ -15,6 +15,14 @@ namespace W3TC;
  */
 class Extension_AiCrawler_Plugin {
 	/**
+	 * Option name used to track rewrite rule flushing.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var string
+	 */
+	const OPTION_REWRITE_VERSION = 'w3tc_aicrawler_rewrite_rules_version';
+	/**
 	 * Initialize the extension.
 	 *
 	 * @since  X.X.X
@@ -41,7 +49,10 @@ class Extension_AiCrawler_Plugin {
 			( new \W3TC\Extension_AiCrawler_Mock_Api() )->run();
 		}
 
-		add_action( 'save_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'generate_markdown_on_save' ), 10, 3 );
+				add_action( 'save_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'generate_markdown_on_save' ), 10, 3 );
+
+				// Ensure rewrite rules are flushed when needed.
+				add_action( 'init', array( __CLASS__, 'maybe_flush_rewrite_rules' ), 99 );
 	}
 
 	/**
@@ -70,7 +81,23 @@ class Extension_AiCrawler_Plugin {
 			$descriptor = array( 'type' => 'array' );
 		}
 
-		return $descriptor;
+				return $descriptor;
+	}
+
+		/**
+		 * Flush rewrite rules when the plugin version changes.
+		 *
+		 * @since X.X.X
+		 *
+		 * @return void
+		 */
+	public static function maybe_flush_rewrite_rules() {
+			$version = get_option( self::OPTION_REWRITE_VERSION );
+
+		if ( W3TC_VERSION !== $version ) {
+				flush_rewrite_rules();
+				update_option( self::OPTION_REWRITE_VERSION, W3TC_VERSION );
+		}
 	}
 }
 
