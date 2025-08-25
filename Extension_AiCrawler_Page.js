@@ -14,6 +14,45 @@ document.addEventListener("DOMContentLoaded", function () {
 	const regenerateUrlInput   = document.getElementById('w3tc-aicrawler-regenerate-url');
 	const regenerateUrlMessage = document.getElementById('w3tc-aicrawler-regenerate-url-message');
 	const regenerateAllButton  = document.getElementById('w3tc-aicrawler-regenerate-all-button');
+	const queueContainer       = document.getElementById('w3tc-aicrawler-queue-content');
+
+	if (queueContainer) {
+		const fetchQueue = function (page) {
+			const params = new URLSearchParams();
+			params.append('action', 'w3tc_aicrawler_queue');
+			params.append('queue_page', page);
+			params.append('_wpnonce', w3tcData.nonces.queue);
+
+			fetch(ajaxurl, {
+				method: 'POST',
+				body: params,
+			})
+			.then((response) => response.json())
+			.then((data) => {
+				if (data.success) {
+					queueContainer.innerHTML = data.data.html;
+
+					const links = queueContainer.querySelectorAll('.tablenav-pages a');
+					links.forEach(function (link) {
+						link.addEventListener('click', function (event) {
+							event.preventDefault();
+							const url     = new URL(link.href, window.location.href);
+							const newPage = url.searchParams.get('queue_page') || 1;
+
+							fetchQueue(newPage);
+						});
+					});
+				} else {
+					queueContainer.innerHTML = '<p>' + w3tcData.lang.queueLoadError + '</p>';
+				}
+			})
+			.catch(() => {
+				queueContainer.innerHTML = '<p>' + w3tcData.lang.queueLoadError + '</p>';
+			});
+		};
+
+		fetchQueue(1);
+	}
 
 	if (testTokenButton) {
 		// Add a click event listener to the button.
