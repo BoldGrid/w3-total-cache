@@ -63,25 +63,7 @@ class Extension_AiCrawler_LlmsTxt_Server {
 	 * @return void
 	 */
 	public static function maybe_serve_llms() {
-		$serve = get_query_var( 'w3tc_llms' );
-
-		if ( ! $serve ) {
-			$permalink_structure = get_option( 'permalink_structure' );
-
-			if ( empty( $permalink_structure ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-				$home_path    = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
-				$request_path = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH );
-
-				$home_path    = untrailingslashit( $home_path );
-				$request_path = untrailingslashit( $request_path );
-
-				if ( $home_path . '/llms.txt' === $request_path ) {
-					$serve = true;
-				}
-			}
-		}
-
-		if ( ! $serve ) {
+		if ( ! get_query_var( 'w3tc_llms' ) ) {
 			return;
 		}
 
