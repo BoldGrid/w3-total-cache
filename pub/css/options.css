@@ -1,3 +1,21 @@
+/* Roboto */
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('../fonts/Roboto.ttf') format('truetype');
+}
+
+/* Exo 2 */
+@font-face {
+    font-family: 'Exo 2';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('../fonts/Exo2.ttf') format('truetype');
+}
+
 #wpcontent {
 	padding-right: 20px;
 }
@@ -1379,37 +1397,89 @@ td .w3tc-control-after span {
 	background-size: contain;
 }
 
-#w3tc-tcdn-ad-cdn,
-#w3tc-tcdn-ad-general {
-    display: flex;
+#w3tc-tcdn-ad-general,
+#w3tc-tcdn-ad-cdn {
+	background: linear-gradient(270deg, rgba(0,0,0,0.16) 0%, rgba(132, 132, 132, 0.00) 100%), url(../img/upsell-darker.png);
+	background-size: cover;
+    background-position-y: 27%;
+    margin-top: 10px;
+    height: 90px;
+	display: flex;
 	flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
 }
 
 #w3tc-tcdn-ad-cdn {
-	background: linear-gradient(to bottom, #FCFDFF, #E7F1FF);
-	border: 1px solid #c3c4c7;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	padding-bottom: 15px;
 }
 
-#w3tc-tcdn-ad-general {
-	background: #12193B;
-	margin-top: 10px;
+#w3tc-tcdn-ad-cdn p {
+	color: #FFF;
+	text-shadow: 2px 2px 4px #000;
+	font-family: Roboto;
+	font-size: 32.451px;
+	font-style: normal;
+	font-weight: 800;
+	line-height: normal;
 }
 
-#w3tc-tcdn-ad-cdn strong {
-	color: #3E497E;
-	font-weight: 700;
-	margin: 5px 10px;
-	padding: 5px 10px;
+#w3tc-tcdn-ad-general p {
+	color: #FFF;
+	text-shadow: 2px 2px 4px #000;
+	font-family: Roboto;
+	font-size: 25.724px;
+	font-style: normal;
+	font-weight: 800;
+	line-height: normal;
 }
 
-#w3tc-tcdn-ad-general strong {
-	color: #FFFFFF;
-	font-weight: 700;
-	margin: 5px 10px;
-	padding: 5px 10px;
+#w3tc-tcdn-ad-general .w3tc-tcdn-icon {
+	width: 93.27px;
+	height: 49.148px;
+	flex-shrink: 0;
+}
+
+#w3tc-tcdn-ad-cdn .w3tc-tcdn-icon {
+	width: 109.26px;
+	height: 57.574px;
+	flex-shrink: 0;
+}
+
+#w3tc-tcdn-ad-general input,
+#w3tc-tcdn-ad-cdn input {
+	display: flex;
+	height: 44px;
+	padding: 4.082px 17.008px;
+	justify-content: center;
+	align-items: center;
+	gap: 6.803px;
+	flex-shrink: 0;
+	border-radius: 2.786px;
+	background: #FFF;
+	box-shadow: 0 0 8.958px 1.585px rgba(255, 255, 255, 0.61);
+	color: rgba(12, 99, 90, 0.92);
+	text-align: center;
+	font-family: "Exo 2";
+	font-size: 17.688px;
+	font-style: normal;
+	font-weight: 600;
+	line-height: normal;
+	border: 0;
+    cursor: pointer;
+}
+
+#w3tc-tcdn-ad-cdn input {
+	font-size: 22.314px;
+}
+#w3tc-tcdn-ad-general input:hover,
+#w3tc-tcdn-ad-cdn input:hover {
+	box-shadow: 0 0 8.958px 4px rgba(255, 255, 255, 0.75);
+}
+
+#w3tc-tcdn-ad-general input:focus,
+#w3tc-tcdn-ad-cdn input:focus {
+	box-shadow: 0 0 8.958px 4px rgba(255, 255, 255, 0.61);
 }
 
 #w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button {
@@ -1443,18 +1513,6 @@ td .w3tc-control-after span {
 
 #w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button:hover {
 	background-image: linear-gradient(to right, #FFA681, #FFE072);
-}
-
-#w3tc-tcdn-ad-cdn .w3tc-tcdn-icon,
-#w3tc-tcdn-ad-general .w3tc-tcdn-icon {
-	width: 77px;
-	height: 50px;
-	margin: 5px 10px;
-}
-
-#w3tc-tcdn-ad-cdn strong,
-#w3tc-tcdn-ad-general strong {
-    margin-right: auto;
 }
 
 #w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button,

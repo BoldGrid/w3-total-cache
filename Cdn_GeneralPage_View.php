@@ -58,25 +58,24 @@ Util_Ui::config_overloading_button(
 				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,
 				// translators: 3 HTML input for Total CDN sign up, 4 HTML img tag for CDN logo.
 				__(
-					'%1$sLooking for a top rated CDN Provider? Try %5$s.%2$s%3$s%4$s',
+					'%4$s%1$sYour site. Lightning fast. Anywhere.%2$s%3$s',
 					'w3-total-cache'
 				),
-				'<strong>',
-				'</strong>',
-				'<input type="button" class="button-primary btn button-buy-tcdn" data-renew-key="' . $config->get_string( 'plugin.license_key' ) . '" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Subscribe To', 'w3-total-cache' ) . ' ' . W3TC_CDN_NAME . '">',
-				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/totalcdn-logo.png', W3TC_FILE ) ) . '" alt="' . W3TC_CDN_NAME . ' icon">',
-				W3TC_CDN_NAME
+				'<p class="w3tc-tcdn-ad-text">',
+				'</p>',
+				'<input type="button" class="button-buy-tcdn" data-renew-key="' . $config->get_string( 'plugin.license_key' ) . '" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Enable', 'w3-total-cache' ) . ' ' . W3TC_CDN_NAME . '">',
+				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/w3total-cdn-teal.svg', W3TC_FILE ) ) . '" alt="' . W3TC_CDN_NAME . ' icon">'
 			),
 			array(
-				'strong' => array(),
-				'img'    => array(
+				'p'     => array(),
+				'img'   => array(
 					'class'  => array(),
 					'src'    => array(),
 					'alt'    => array(),
 					'width'  => array(),
 					'height' => array(),
 				),
-				'input'  => array(
+				'input' => array(
 					'type'           => array(),
 					'name'           => array(),
 					'class'          => array(),
