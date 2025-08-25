@@ -35,6 +35,7 @@ $config = Dispatcher::config();
 			</th>
 			<td>
 				<button id="w3tc-aicrawler-regenerate-all-button" class="button"><?php esc_html_e( 'Regenerate', 'w3-total-cache' ); ?></button>
+				<p id="w3tc-aicrawler-regenerate-all-message" class="w3tc-aicrawler-message"></p>
 			</td>
 		</tr>
 	</table>
