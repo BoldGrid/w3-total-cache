@@ -261,7 +261,7 @@ class Extension_AiCrawler_Plugin_Admin {
 			)
 		);
 
-		$post_ids    = ! empty( $query->posts ) ? $query->posts : array();
+		$post_ids    = $query->have_posts() ? $query->posts : array();
 		$allowed_ids = Extension_AiCrawler_Util::filter_excluded( $post_ids );
 
 		$added = 0;
