@@ -85,7 +85,7 @@ class Extension_AiCrawler_Markdown {
 	 */
 	public static function init() {
 		add_action( self::CRON_HOOK, array( __CLASS__, 'process_queue' ) );
-		add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) );
+		add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) ); // phpcs:ignore WordPress.WP.CronInterval
 		add_action( 'update_option_permalink_structure', array( __CLASS__, 'refresh_markdown_urls' ), 10, 0 );
 
 		if ( self::queue_has_items() ) {
@@ -160,7 +160,7 @@ class Extension_AiCrawler_Markdown {
 				'post_status'    => 'any',
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
-				'meta_query'     => array(
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery
 					array(
 						'key'     => self::META_MARKDOWN_URL,
 						'compare' => 'EXISTS',
@@ -285,7 +285,7 @@ class Extension_AiCrawler_Markdown {
 				'posts_per_page' => -1,
 				'post_status'    => 'any',
 				'fields'         => 'ids',
-				'meta_query'     => array(
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery
 					array(
 						'key'   => self::META_STATUS,
 						'value' => 'queued',
@@ -308,7 +308,7 @@ class Extension_AiCrawler_Markdown {
 	 *
 	 * @return void
 	 */
-	public static function generate_markdown_on_save( $post_id, $post, $update ) {
+	public static function generate_markdown_on_save( $post_id, $post, $update ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		// Avoid recursion.
 		remove_action( 'save_post', array( __CLASS__, 'generate_markdown_on_save' ), 10 );
 
