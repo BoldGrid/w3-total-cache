@@ -92,24 +92,24 @@ class Extension_AiCrawler_LlmsTxt_Server {
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'meta_query'     => array( //phpcs:ignore WordPress.DB.SlowDBQuery
-				'relation' => 'AND',
-				array(
-					'key'     => Extension_AiCrawler_Markdown::META_MARKDOWN,
-					'compare' => '!=',
-					'value'   => '',
+					'relation' => 'AND',
+					array(
+						'key'     => Extension_AiCrawler_Markdown::META_MARKDOWN,
+						'compare' => '!=',
+						'value'   => '',
 					),
 					array(
-					'key'     => Extension_AiCrawler_Markdown::META_MARKDOWN,
-					'compare' => 'EXISTS',
+						'key'     => Extension_AiCrawler_Markdown::META_MARKDOWN,
+						'compare' => 'EXISTS',
 					),
 					array(
-					'key'     => Extension_AiCrawler_Markdown::META_MARKDOWN_URL,
-					'compare' => '!=',
-					'value'   => '',
+						'key'     => Extension_AiCrawler_Markdown::META_MARKDOWN_URL,
+						'compare' => '!=',
+						'value'   => '',
 					),
 					array(
-					'key'     => Extension_AiCrawler_Markdown::META_MARKDOWN_URL,
-					'compare' => 'EXISTS',
+						'key'     => Extension_AiCrawler_Markdown::META_MARKDOWN_URL,
+						'compare' => 'EXISTS',
 					),
 				),
 			)
