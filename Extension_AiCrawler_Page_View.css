@@ -188,3 +188,20 @@
 	font-weight: 700;
 	background-color: #fbc8c8;
 }
+
+/* Queue list column sizing */
+.w3tc-queue-list {
+	table-layout: auto;
+}
+
+.w3tc-queue-list .queue-item-id,
+.w3tc-queue-list .queue-item-time,
+.w3tc-queue-list .queue-item-status {
+	width: 1%;
+	white-space: nowrap;
+}
+
+.w3tc-queue-list .queue-item-name,
+.w3tc-queue-list .queue-item-url {
+	white-space: nowrap;
+}

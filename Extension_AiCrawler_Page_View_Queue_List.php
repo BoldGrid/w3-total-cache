@@ -43,7 +43,7 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php printf( esc_html__( 'Last run: %s', 'w3-total-cache' ), esc_html( $last_run_formatted ) ); ?>
 	</p>
 </div>
-<table class="widefat fixed">
+<table class="widefat w3tc-queue-list">
 	<thead>
 		<tr>
 			<th class="queue-item-time"><?php esc_html_e( 'Time', 'w3-total-cache' ); ?></th>
@@ -66,17 +66,17 @@ if ( ! defined( 'W3TC' ) ) {
 				$timestamp     = get_post_meta( $queue_post_id, Extension_AiCrawler_Markdown::META_TIMESTAMP, true );
 				?>
 				<tr class="<?php echo esc_attr( $status_class ); ?>">
-					<td><?php echo esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp ) ); ?></td>
-					<td><?php echo esc_html( $queue_post_id ); ?></td>
-					<td><?php echo esc_html( $queue_title ); ?></td>
-					<td><?php echo esc_html( $queue_url ); ?></td>
-					<td><?php echo esc_html( $queue_status ); ?></td>
-					<td><?php echo esc_html( $queue_message ); ?></td>
+					<td class="queue-item-time"><?php echo esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp ) ); ?></td>
+					<td class="queue-item-id"><?php echo esc_html( $queue_post_id ); ?></td>
+					<td class="queue-item-name"><?php echo esc_html( $queue_title ); ?></td>
+					<td class="queue-item-url"><?php echo esc_html( $queue_url ); ?></td>
+					<td class="queue-item-status"><?php echo esc_html( $queue_status ); ?></td>
+					<td class="queue-item-message"><?php echo esc_html( $queue_message ); ?></td>
 				</tr>
 			<?php endforeach; ?>
 		<?php else : ?>
 			<tr>
-				<td colspan="5"><?php esc_html_e( 'No items found.', 'w3-total-cache' ); ?></td>
+				<td colspan="6"><?php esc_html_e( 'No items found.', 'w3-total-cache' ); ?></td>
 			</tr>
 		<?php endif; ?>
 	</tbody>
