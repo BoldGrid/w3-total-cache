@@ -138,6 +138,7 @@ class Extension_AiCrawler_Plugin_Admin {
 		add_action( 'w3tc_settings_page-w3tc_aicrawler', array( $this, 'w3tc_extension_page' ) );
 		add_action( 'wp_ajax_w3tc_aicrawler_regenerate_url', array( $this, 'wp_ajax_regenerate_aicrawler_url' ) );
 		add_action( 'wp_ajax_w3tc_aicrawler_queue', array( $this, 'wp_ajax_aicrawler_queue' ) );
+		add_action( 'wp_ajax_w3tc_aicrawler_regenerate_all', array( $this, 'wp_ajax_regenerate_aicrawler_all' ) );
 
 		// Site Health: STATUS card.
 		add_filter(
@@ -331,5 +332,57 @@ class Extension_AiCrawler_Plugin_Admin {
 		$html = ob_get_clean();
 
 		wp_send_json_success( array( 'html' => $html ) );
+	}
+
+	/**
+	 * AJAX handler to queue all posts and pages for markdown generation.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_regenerate_aicrawler_all() {
+		if ( ! check_ajax_referer( 'w3tc_aicrawler_regenerate_all', '_wpnonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'w3-total-cache' ) ) );
+		}
+
+		$query = new \WP_Query(
+			array(
+				'post_type'      => array( 'post', 'page' ),
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+
+		$post_ids    = ! empty( $query->posts ) ? $query->posts : array();
+		$allowed_ids = Extension_AiCrawler_Util::filter_excluded( $post_ids );
+
+		$added = 0;
+		foreach ( $allowed_ids as $post_id ) {
+			$url = get_permalink( $post_id );
+			if ( Extension_AiCrawler_Markdown::generate_markdown( $url ) ) {
+				++$added;
+			}
+		}
+
+		if ( $added ) {
+			wp_send_json_success(
+				array(
+					'message' => sprintf(
+						/* translators: %d: Number of URLs. */
+						_n(
+							'%d item added to the markdown generation queue.',
+							'%d items added to the markdown generation queue.',
+							$added,
+							'w3-total-cache'
+						),
+						$added
+					),
+				)
+			);
+		}
+
+		wp_send_json_error( array( 'message' => __( 'No items were added to the markdown generation queue.', 'w3-total-cache' ) ) );
 	}
 }

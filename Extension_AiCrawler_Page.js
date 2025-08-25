@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	const regenerateUrlMessage = document.getElementById('w3tc-aicrawler-regenerate-url-message');
 	const regenerateAllButton  = document.getElementById('w3tc-aicrawler-regenerate-all-button');
 	const queueContainer       = document.getElementById('w3tc-aicrawler-queue-content');
+	const regenerateAllMessage = document.getElementById('w3tc-aicrawler-regenerate-all-message');
 
 	if (queueContainer) {
 		const fetchQueue = function (page) {
@@ -141,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
 						);
 					} else {
 						regenerateUrlMessage.textContent =
-						data.data && data.data.message
+							data.data && data.data.message
 							? data.data.message
 							: w3tcData.lang.regenerateUrlFailed + '.';
 						regenerateUrlMessage.classList.add('w3tc-aicrawler-message-error');
@@ -161,41 +162,60 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
 
 	// Handle the "Regenerate All" button click.
-	if (regenerateAllButton) {
+	if (regenerateAllButton && regenerateAllMessage) {
 		regenerateAllButton.addEventListener('click', function (event) {
 			event.preventDefault(); // Prevent default button behavior.
+
+			regenerateAllMessage.textContent = '';
+			regenerateAllMessage.classList.remove(
+				'w3tc-aicrawler-message-success',
+				'w3tc-aicrawler-message-error',
+			);
 
 			// Display a loading message or spinner (optional).
 			regenerateAllButton.textContent = w3tcData.lang.regenerating + '...';
 
-			// Example AJAX request to regenerate all URLs.
+			const params = new URLSearchParams();
+			params.append('_wpnonce', w3tcData.nonces.regenerateAll);
+
+			// AJAX request to regenerate all URLs.
+			params.append('action', 'w3tc_aicrawler_regenerate_all');
 			fetch(ajaxurl, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					_wpnonce: w3tcData.nonces.regenerateAll, // Nonce for security.
-					action: 'regenerate_aicrawler_all', // WordPress AJAX action.
-				}),
+			method: 'POST',
+			body: params,
 			})
-				.then((response) => response.json())
-				.then((data) => {
-					// Handle the response from the server.
-					if (data.success) {
-						alert(w3tcData.lang.regenerateAll + '.');
-					} else {
-						alert(w3tcData.lang.regenerateAllFailed + '.');
-					}
-				})
-				.catch((error) => {
-					console.error('Error:', error);
-					alert(w3tcData.lang.regenerateAllError + '.');
-				})
-				.finally(() => {
-					// Reset the button text.
-					regenerateAllButton.textContent = w3tcData.lang.regenerate;
-				});
+			.then((response) => response.json())
+			.then((data) => {
+				// Handle the response from the server.
+				regenerateAllMessage.textContent = '';
+				regenerateAllMessage.classList.remove(
+					'w3tc-aicrawler-message-success',
+					'w3tc-aicrawler-message-error',
+				);
+
+				if (data.success) {
+					regenerateAllMessage.textContent = data.data.message;
+					regenerateAllMessage.classList.add(
+						'w3tc-aicrawler-message-success',
+					);
+				} else {
+					regenerateAllMessage.textContent =
+						data.data && data.data.message
+						? data.data.message
+						: w3tcData.lang.regenerateAllFailed + '.';
+					regenerateAllMessage.classList.add('w3tc-aicrawler-message-error');
+				}
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+				regenerateAllMessage.textContent =
+				w3tcData.lang.regenerateAllError + '.';
+				regenerateAllMessage.classList.add('w3tc-aicrawler-message-error');
+			})
+			.finally(() => {
+				// Reset the button text.
+				regenerateAllButton.textContent = w3tcData.lang.regenerate;
+			});
 		});
 	}
 });
