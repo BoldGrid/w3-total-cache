@@ -169,7 +169,7 @@ class Extension_AiCrawler_Markdown {
 			)
 		);
 
-		if ( empty( $query->posts ) ) {
+		if ( ! $query->have_posts() ) {
 			return;
 		}
 
@@ -294,7 +294,7 @@ class Extension_AiCrawler_Markdown {
 			)
 		);
 
-		return ! empty( $query->posts ) ? $query->posts : array();
+		return $query->have_posts() ? $query->posts : array();
 	}
 
 	/**

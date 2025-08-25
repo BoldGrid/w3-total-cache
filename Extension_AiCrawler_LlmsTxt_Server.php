@@ -99,12 +99,9 @@ class Extension_AiCrawler_LlmsTxt_Server {
 
 		header( 'Content-Type: text/plain; charset=' . get_bloginfo( 'charset' ) );
 
+		// Output the list of markdown URLs and their canonical counterparts.
 		if ( $query->have_posts() ) {
 			echo esc_html( self::build_llms_heading() );
-		}
-
-		// Output the list of markdown URLs and their canonical counterparts.
-		if ( ! empty( $query->posts ) ) {
 			echo '> ';
 			esc_html_e( 'This file contains a list of Markdown URLs in Format: [Post Title](Markdown URL): Canonical URL', 'w3-total-cache' );
 			echo "\n\n";
