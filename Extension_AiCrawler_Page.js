@@ -18,8 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	if (queueContainer) {
 		const fetchQueue = function (page) {
-			queueContainer.innerHTML = '<p>' + w3tcData.lang.loadingQueue + '</p>';
-
 			const params = new URLSearchParams();
 			params.append('action', 'w3tc_aicrawler_queue');
 			params.append('queue_page', page);

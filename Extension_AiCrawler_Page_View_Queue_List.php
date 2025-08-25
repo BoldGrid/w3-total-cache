@@ -5,7 +5,7 @@
  * Render the AI Crawler queue list via AJAX.
  *
  * @package W3TC
- * @since	X.X.X
+ * @since   X.X.X
  */
 
 namespace W3TC;
@@ -46,12 +46,12 @@ if ( ! defined( 'W3TC' ) ) {
 <table class="widefat fixed">
 	<thead>
 		<tr>
-			<th><?php esc_html_e( 'Time', 'w3-total-cache' ); ?></th>
-			<th><?php esc_html_e( 'ID', 'w3-total-cache' ); ?></th>
-			<th><?php esc_html_e( 'Name', 'w3-total-cache' ); ?></th>
-			<th><?php esc_html_e( 'URL', 'w3-total-cache' ); ?></th>
-			<th><?php esc_html_e( 'Status', 'w3-total-cache' ); ?></th>
-			<th><?php esc_html_e( 'Message', 'w3-total-cache' ); ?></th>
+			<th class="queue-item-time"><?php esc_html_e( 'Time', 'w3-total-cache' ); ?></th>
+			<th class="queue-item-id"><?php esc_html_e( 'ID', 'w3-total-cache' ); ?></th>
+			<th class="queue-item-name"><?php esc_html_e( 'Name', 'w3-total-cache' ); ?></th>
+			<th class="queue-item-url"><?php esc_html_e( 'URL', 'w3-total-cache' ); ?></th>
+			<th class="queue-item-status"><?php esc_html_e( 'Status', 'w3-total-cache' ); ?></th>
+			<th class="queue-item-message"><?php esc_html_e( 'Message', 'w3-total-cache' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -59,11 +59,11 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php foreach ( $queue_posts as $queue_post_id ) : ?>
 				<?php
 				$queue_title   = get_the_title( $queue_post_id );
-				$queue_url	   = wp_make_link_relative( get_permalink( $queue_post_id ) );
+				$queue_url     = wp_make_link_relative( get_permalink( $queue_post_id ) );
 				$queue_status  = get_post_meta( $queue_post_id, Extension_AiCrawler_Markdown::META_STATUS, true );
 				$queue_message = get_post_meta( $queue_post_id, Extension_AiCrawler_Markdown::META_ERROR_MESSAGE, true );
 				$status_class  = 'w3tc-queue-status-' . ( $queue_status ? $queue_status : 'unknown' );
-				$timestamp	   = get_post_meta( $queue_post_id, Extension_AiCrawler_Markdown::META_TIMESTAMP, true );
+				$timestamp     = get_post_meta( $queue_post_id, Extension_AiCrawler_Markdown::META_TIMESTAMP, true );
 				?>
 				<tr class="<?php echo esc_attr( $status_class ); ?>">
 					<td><?php echo esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp ) ); ?></td>
@@ -88,10 +88,10 @@ if ( ! defined( 'W3TC' ) ) {
 			echo wp_kses_post(
 				paginate_links(
 					array(
-						'base'		=> add_query_arg( 'queue_page', '%#%' ),
-						'format'	=> '',
-						'current'	=> $queue_paged,
-						'total'		=> $queue_pages,
+						'base'      => add_query_arg( 'queue_page', '%#%' ),
+						'format'    => '',
+						'current'   => $queue_paged,
+						'total'     => $queue_pages,
 						'prev_text' => '&laquo;',
 						'next_text' => '&raquo;',
 					)
@@ -101,4 +101,3 @@ if ( ! defined( 'W3TC' ) ) {
 		</div>
 	</div>
 <?php endif; ?>
-

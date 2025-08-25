@@ -5,7 +5,7 @@
  * Render the AI Crawler queue section container.
  *
  * @package W3TC
- * @since	X.X.X
+ * @since   X.X.X
  */
 
 namespace W3TC;
