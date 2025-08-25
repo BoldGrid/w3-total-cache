@@ -134,9 +134,9 @@ class Extension_AiCrawler_LlmsTxt_Server {
 	 * @return string The heading string.
 	 */
 	public static function build_llms_heading() {
-		$site_name   = get_bloginfo( 'name' );
-		$site_url    = home_url( '/' );
-		$date        = gmdate( 'Y-m-d H:i:s' );
+		$site_name = get_bloginfo( 'name' );
+		$site_url  = home_url( '/' );
+		$date      = gmdate( 'Y-m-d H:i:s' );
 
 		return "# llms.txt for {$site_name} ({$site_url}) - generated on {$date}\n\n";
 	}
