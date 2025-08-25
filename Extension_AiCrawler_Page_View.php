@@ -44,6 +44,7 @@ $config = Dispatcher::config();
 	require __DIR__ . '/Extension_AiCrawler_Page_View_Status.php';
 	require __DIR__ . '/Extension_AiCrawler_Page_View_Settings.php';
 	require __DIR__ . '/Extension_AiCrawler_Page_View_Tools.php';
+	require __DIR__ . '/Extension_AiCrawler_Page_View_Queue.php';
 	?>
 </form>
 <?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

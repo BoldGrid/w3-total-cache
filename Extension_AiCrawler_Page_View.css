@@ -76,3 +76,132 @@
         color: #dc3232;
         font-weight: 700;
 }
+
+.w3tc-queue-summary {
+	text-align: center;
+	margin: 12px 0 20px;
+}
+.w3tc-queue-summary__title {
+	margin: 0 0 12px;
+	font-weight: 600;
+}
+
+/* Horizontal stat row */
+.w3tc-queue-summary__stats {
+	display: flex;
+	justify-content: center;
+	align-items: stretch;
+	gap: 12px;
+	list-style: none;
+	margin: 0 0 8px;
+	padding: 0;
+	flex-wrap: wrap; /* wraps nicely on narrow screens / RTL */
+}
+
+/* Base stat */
+.w3tc-queue-summary .stat {
+	display: flex;
+	flex-direction: column;           /* number ABOVE label */
+	align-items: center;
+	justify-content: center;
+	padding: 10px 14px;
+	min-width: 120px;
+	border-radius: 10px;
+	border: 1px solid rgba(0,0,0,.06);
+	box-shadow: 0 1px 0 rgba(0,0,0,.03), 0 1px 2px rgba(0,0,0,.04);
+	background: #fff;
+}
+
+/* If you prefer number BELOW label, just add this class to the UL:
+   <ul class="w3tc-queue-summary__stats number-below">… */
+.w3tc-queue-summary__stats.number-below .stat { flex-direction: column-reverse; }
+
+.w3tc-queue-summary .stat__value {
+	font-size: 22px;
+	line-height: 1;
+	font-weight: 700;
+	margin-bottom: 6px;
+}
+.w3tc-queue-summary__stats.number-below .stat__value { margin: 6px 0 0; }
+
+.w3tc-queue-summary .stat__label {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .02em;
+	opacity: .9;
+}
+
+/* Color accents (accessible contrasts) */
+.w3tc-queue-summary .is-queued    { --accent: #6c8cff; --accent-weak: #e8edff; }
+.w3tc-queue-summary .is-processing{ --accent: #f7a440; --accent-weak: #fff2de; }
+.w3tc-queue-summary .is-complete  { --accent: #2fb344; --accent-weak: #e8f7ec; }
+.w3tc-queue-summary .is-error     { --accent: #e03131; --accent-weak: #fdecec; }
+
+/* Card variant: colored ring + subtle bg */
+.w3tc-queue-summary.variant-cards .stat {
+	background: linear-gradient(#fff, #fff) padding-box,
+	            conic-gradient(var(--accent), var(--accent)) border-box;
+	border: 2px solid transparent;
+}
+.w3tc-queue-summary.variant-cards .stat__value { color: var(--accent); }
+.w3tc-queue-summary.variant-cards .stat__label {
+	background: var(--accent-weak);
+	border-radius: 999px;
+	padding: 3px 8px;
+}
+
+/* Pills variant (swap .variant-cards → .variant-pills on the container) */
+.w3tc-queue-summary.variant-pills .stat {
+	border: none;
+	box-shadow: none;
+	background: var(--accent-weak);
+}
+.w3tc-queue-summary.variant-pills .stat__value,
+.w3tc-queue-summary.variant-pills .stat__label { color: #1d2327; }
+
+/* Minimal underline variant (use .variant-minimal) */
+.w3tc-queue-summary.variant-minimal .stat {
+	border: none;
+	box-shadow: none;
+	background: #fff;
+	padding-bottom: 6px;
+	border-bottom: 3px solid var(--accent);
+}
+.w3tc-queue-summary.variant-minimal .stat__value { color: var(--accent); }
+
+/* Total line */
+.w3tc-queue-summary__total,
+.w3tc-queue-summary__last-run {
+	display: inline-block;
+	margin: 14px 0 0;
+	padding: 6px 14px;
+	border-radius: 20px;
+	background: #f0f6ff;
+	color: #1d2327;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/* Make error table rows bold with a red background */
+.w3tc-queue-status-error {
+	font-weight: 700;
+	background-color: #fbc8c8;
+}
+
+/* Queue list column sizing */
+.w3tc-queue-list {
+	table-layout: auto;
+}
+
+.w3tc-queue-list .queue-item-id,
+.w3tc-queue-list .queue-item-time,
+.w3tc-queue-list .queue-item-status {
+	width: 1%;
+	white-space: nowrap;
+}
+
+.w3tc-queue-list .queue-item-name,
+.w3tc-queue-list .queue-item-url {
+	white-space: nowrap;
+}

@@ -684,6 +684,7 @@ class Generic_Plugin_Admin {
 		wp_enqueue_script( 'w3tc-metadata' );
 		wp_enqueue_script( 'w3tc-options' );
 		wp_enqueue_script( 'w3tc-lightbox' );
+		wp_enqueue_script( 'w3tc-pagination' );
 
 		if ( $this->is_w3tc_page ) {
 			wp_localize_script(

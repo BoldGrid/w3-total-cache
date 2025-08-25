@@ -2569,8 +2569,10 @@ class Util_Ui {
 			case 'w3tc_aicrawler':
 				?>
 				<div id="w3tc-options-menu">
+					<a href="#status"><?php esc_html_e( 'Status', 'w3-total-cache' ); ?></a> |
 					<a href="#configuration"><?php esc_html_e( 'Configuration', 'w3-total-cache' ); ?></a> |
-					<a href="#tools"><?php esc_html_e( 'Tools', 'w3-total-cache' ); ?></a>
+					<a href="#tools"><?php esc_html_e( 'Tools', 'w3-total-cache' ); ?></a> |
+					<a href="#queue"><?php esc_html_e( 'Queue', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
 				break;
