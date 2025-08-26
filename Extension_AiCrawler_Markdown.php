@@ -199,6 +199,8 @@ class Extension_AiCrawler_Markdown {
 		update_post_meta( $post_id, self::META_STATUS, 'queued' );
 		update_post_meta( $post_id, self::META_SOURCE_URL, $url );
 		delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+		// Update the timestamp when added to the queue.
+		update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 
 		self::schedule_cron();
 
@@ -238,8 +240,18 @@ class Extension_AiCrawler_Markdown {
 
 			if ( empty( $response['success'] ) || empty( $response['data']['markdown_content'] ) ) {
 				update_post_meta( $post_id, self::META_STATUS, 'error' );
+				$code    = ! empty( $response['error']['code'] ) ? $response['error']['code'] : '';
 				$message = ! empty( $response['error']['message'] ) ? $response['error']['message'] : __( 'Unknown error.', 'w3-total-cache' );
-				update_post_meta( $post_id, self::META_ERROR_MESSAGE, $message );
+				update_post_meta(
+					$post_id,
+					self::META_ERROR_MESSAGE,
+					sprintf(
+						// translators: 1%$s: error code, %2$s: error message.
+						__( 'Error %1$s: %2$s', 'w3-total-cache' ),
+						esc_html( $code ),
+						esc_html( $message )
+					)
+				);
 				continue;
 			}
 
@@ -295,6 +307,64 @@ class Extension_AiCrawler_Markdown {
 		);
 
 		return $query->have_posts() ? $query->posts : array();
+	}
+
+	/**
+	 * Get counts of items by status.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $queue_items Queue item IDs.
+	 *
+	 * @return array
+	 */
+	public static function get_status_counts( $queue_items ) {
+		$statuses = array( 'queued', 'processing', 'complete', 'error' );
+		$counts   = array_fill_keys( $statuses, 0 );
+
+		foreach ( $queue_items as $item_id ) {
+			$status = get_post_meta( $item_id, self::META_STATUS, true );
+
+			if ( isset( $counts[ $status ] ) ) {
+				++$counts[ $status ];
+			}
+		}
+
+		$counts['total'] = array_sum( $counts );
+
+		return $counts;
+	}
+
+	/**
+	 * Get all queue items.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return array
+	 */
+	public static function get_queue_items() {
+		$query = new \WP_Query(
+			array(
+				'post_type'              => 'any',
+				'post_status'            => 'any',
+				'posts_per_page'         => -1,
+
+				// Only return IDs (faster).
+				'fields'                 => 'ids',
+				'update_post_meta_cache' => true,
+				'update_post_term_cache' => false,
+				'ignore_sticky_posts'    => true,
+
+				// Sort by timestamp.
+				'meta_key'               => self::META_TIMESTAMP, // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_type'              => 'UNSIGNED',        // tells WP this is numeric.
+				'orderby'                => 'meta_value_num',  // use numeric compare.
+				'order'                  => 'DESC',            // newest first.
+				'meta_compare'           => 'EXISTS',
+			)
+		);
+
+		return ! empty( $query->posts ) ? $query->posts : array();
 	}
 
 	/**

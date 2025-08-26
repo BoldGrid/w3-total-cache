@@ -70,6 +70,7 @@ class Extension_AiCrawler_Plugin_Admin {
 						'testToken'     => wp_create_nonce( 'w3tc_aicrawler_test_token' ),
 						'regenerateUrl' => wp_create_nonce( 'w3tc_aicrawler_regenerate_url' ),
 						'regenerateAll' => wp_create_nonce( 'w3tc_aicrawler_regenerate_all' ),
+						'queue'         => wp_create_nonce( 'w3tc_aicrawler_queue' ),
 					),
 					'lang'   => array(
 						'test'                => __( 'Test', 'w3-total-cache' ),
@@ -87,6 +88,8 @@ class Extension_AiCrawler_Plugin_Admin {
 						'regeneratedAll'      => __( 'All URLs regenerated successfully', 'w3-total-cache' ),
 						'regenerateAllFailed' => __( 'Failed to regenerate all URLs', 'w3-total-cache' ),
 						'regenerateAllError'  => __( 'An error occurred while regenerating all URLs', 'w3-total-cache' ),
+						'loadingQueue'        => __( 'Loading queue list...', 'w3-total-cache' ),
+						'queueLoadError'      => __( 'An error occurred while loading the queue list', 'w3-total-cache' ),
 					),
 				)
 			);
@@ -134,6 +137,7 @@ class Extension_AiCrawler_Plugin_Admin {
 		add_filter( 'w3tc_extension_plugin_links_aicrawler', array( $this, 'w3tc_extension_plugin_links' ) );
 		add_action( 'w3tc_settings_page-w3tc_aicrawler', array( $this, 'w3tc_extension_page' ) );
 		add_action( 'wp_ajax_w3tc_aicrawler_regenerate_url', array( $this, 'wp_ajax_regenerate_aicrawler_url' ) );
+		add_action( 'wp_ajax_w3tc_aicrawler_queue', array( $this, 'wp_ajax_aicrawler_queue' ) );
 		add_action( 'wp_ajax_w3tc_aicrawler_regenerate_all', array( $this, 'wp_ajax_regenerate_aicrawler_all' ) );
 
 		// Site Health: STATUS card.
@@ -237,7 +241,97 @@ class Extension_AiCrawler_Plugin_Admin {
 			wp_send_json_success( array( 'message' => __( 'URL added to the markdown generation queue.', 'w3-total-cache' ) ) );
 		}
 
-		wp_send_json_error( array( 'message' => __( 'Failed to add URL to the markdown generation queue.', 'w3-total-cache' ) ) );
+			wp_send_json_error( array( 'message' => __( 'Failed to add URL to the markdown generation queue.', 'w3-total-cache' ) ) );
+	}
+
+	/**
+	 * AJAX handler to retrieve queue list.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function wp_ajax_aicrawler_queue() {
+		if ( ! check_ajax_referer( 'w3tc_aicrawler_queue', '_wpnonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid nonce.', 'w3-total-cache' ) ) );
+		}
+
+		$queue_paged    = isset( $_POST['queue_page'] ) ? absint( $_POST['queue_page'] ) : 1;
+		$queue_per_page = 10;
+
+		$query = new \WP_Query(
+			array(
+				'post_type'              => 'any',
+				'post_status'            => 'any',
+				'posts_per_page'         => $queue_per_page,
+				'paged'                  => $queue_paged,
+				'fields'                 => 'ids',
+				'update_post_meta_cache' => true,
+				'update_post_term_cache' => false,
+				'ignore_sticky_posts'    => true,
+				'meta_key'               => Extension_AiCrawler_Markdown::META_TIMESTAMP, // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_type'              => 'UNSIGNED',
+				'orderby'                => 'meta_value_num',
+				'order'                  => 'DESC',
+				'meta_compare'           => 'EXISTS',
+				'no_found_rows'          => false,
+			)
+		);
+
+		$queue_posts = $query->posts;
+		$queue_pages = max( 1, $query->max_num_pages );
+
+		$statuses = array( 'queued', 'processing', 'complete', 'error' );
+		$counts   = array_fill_keys( $statuses, 0 );
+
+		foreach ( $statuses as $status ) {
+			$q = new \WP_Query(
+				array(
+					'post_type'      => 'any',
+					'post_status'    => 'any',
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery
+						array(
+							'key'   => Extension_AiCrawler_Markdown::META_STATUS,
+							'value' => $status,
+						),
+					),
+					'no_found_rows'  => false,
+				)
+			);
+
+			$counts[ $status ] = (int) $q->found_posts;
+		}
+
+		$counts['total'] = array_sum( $counts );
+
+		$first_query = new \WP_Query(
+			array(
+				'post_type'              => 'any',
+				'post_status'            => 'any',
+				'posts_per_page'         => 1,
+				'fields'                 => 'ids',
+				'update_post_meta_cache' => true,
+				'update_post_term_cache' => false,
+				'ignore_sticky_posts'    => true,
+				'meta_key'               => Extension_AiCrawler_Markdown::META_TIMESTAMP, // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_type'              => 'UNSIGNED',
+				'orderby'                => 'meta_value_num',
+				'order'                  => 'DESC',
+				'meta_compare'           => 'EXISTS',
+			)
+		);
+
+		$last_id            = ! empty( $first_query->posts ) ? $first_query->posts[0] : 0;
+		$last_timestamp     = $last_id ? get_post_meta( $last_id, Extension_AiCrawler_Markdown::META_TIMESTAMP, true ) : 0;
+		$last_run_formatted = $last_timestamp ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $last_timestamp ) : __( 'Never', 'w3-total-cache' );
+
+		ob_start();
+		require W3TC_DIR . '/Extension_AiCrawler_Page_View_Queue_List.php';
+		$html = ob_get_clean();
+
+		wp_send_json_success( array( 'html' => $html ) );
 	}
 
 	/**
