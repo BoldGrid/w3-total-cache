@@ -68,7 +68,7 @@ class Extension_ImageService_Cron {
 	 * @global $wp_filesystem WP_Filesystem.
 	 */
 	public static function run() {
-		// Get all images with postmeta key "w3tc_imageservice".
+		// Get all attachment post IDs with postmeta key "w3tc_imageservice".
 		$results = Extension_ImageService_Plugin_Admin::get_imageservice_attachments();
 
 		// If there are matches, then load dependencies before use.
@@ -83,8 +83,8 @@ class Extension_ImageService_Cron {
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 		}
 
-		foreach ( $results->posts as $post ) {
-			$postmeta = get_post_meta( $post->ID, 'w3tc_imageservice', true );
+		foreach ( $results->posts as $post_id ) {
+			$postmeta = empty( $post_id ) ? null : get_post_meta( $post_id, 'w3tc_imageservice', true );
 			$status   = isset( $postmeta['status'] ) ? $postmeta['status'] : null;
 
 			// Handle items with the "processing" status.
@@ -97,7 +97,7 @@ class Extension_ImageService_Cron {
 
 				// Save the status response.
 				Extension_ImageService_Plugin_Admin::update_postmeta(
-					$post->ID,
+					$post_id,
 					array( 'job_status' => $response )
 				);
 
@@ -124,7 +124,7 @@ class Extension_ImageService_Cron {
 
 					// Save the download headers or error.
 					Extension_ImageService_Plugin_Admin::update_postmeta(
-						$post->ID,
+						$post_id,
 						array(
 							'download' => $is_error ? $response['error'] : (array) $headers,
 							'status'   => $status,
@@ -142,9 +142,9 @@ class Extension_ImageService_Cron {
 					}
 
 					// Save the file.
-					$original_filepath = get_attached_file( $post->ID );
+					$original_filepath = get_attached_file( $post_id );
 					$original_size     = wp_getimagesize( $original_filepath );
-					$original_filename = basename( get_attached_file( $post->ID ) );
+					$original_filename = basename( get_attached_file( $post_id ) );
 					$original_filedir  = str_replace( '/' . $original_filename, '', $original_filepath );
 					$extension         = isset( $headers['X-Mime-Type-Out'] ) ?
 						str_replace( 'image/', '', $headers['X-Mime-Type-Out'] ) : 'webp';
@@ -158,49 +158,49 @@ class Extension_ImageService_Cron {
 					}
 
 					// Insert as attachment post.
-					$post_id = wp_insert_attachment(
+					$attachment_id = wp_insert_attachment(
 						array(
 							'guid'           => $new_filepath,
 							'post_mime_type' => $headers['x-mime-type-out'],
 							'post_title'     => preg_replace( '/\.[^.]+$/', '', $new_filename ),
 							'post_content'   => '',
 							'post_status'    => 'inherit',
-							'post_parent'    => $post->ID,
+							'post_parent'    => $post_id,
 							'comment_status' => 'closed',
 						),
 						$new_filepath,
-						$post->ID,
+						$post_id,
 						false,
 						false
 					);
 
 					// Copy postmeta data to the new attachment.
-					Extension_ImageService_Plugin_Admin::copy_postmeta( $post->ID, $post_id );
+					Extension_ImageService_Plugin_Admin::copy_postmeta( $post_id, $attachment_id );
 
 					// Save the new post id.
 					Extension_ImageService_Plugin_Admin::update_postmeta(
-						$post->ID,
-						array( 'post_child' => $post_id )
+						$post_id,
+						array( 'post_child' => $attachment_id )
 					);
 
 					// Mark the downloaded file as the converted one.
 					Extension_ImageService_Plugin_Admin::update_postmeta(
-						$post_id,
+						$attachment_id,
 						array( 'is_converted_file' => true )
 					);
 
 					// In order to filter/hide converted files in the media list, add a meta key.
-					update_post_meta( $post_id, 'w3tc_imageservice_file', $extension );
+					update_post_meta( $attachment_id, 'w3tc_imageservice_file', $extension );
 
 					// Generate the metadata for the attachment, and update the database record.
-					$attach_data           = wp_generate_attachment_metadata( $post_id, $new_filepath );
+					$attach_data           = wp_generate_attachment_metadata( $attachment_id, $new_filepath );
 					$attach_data['width']  = isset( $attach_data['width'] ) ? $attach_data['width'] : $original_size[0];
 					$attach_data['height'] = isset( $attach_data['height'] ) ? $attach_data['height'] : $original_size[1];
-					wp_update_attachment_metadata( $post_id, $attach_data );
+					wp_update_attachment_metadata( $attachment_id, $attach_data );
 				} elseif ( isset( $response['status'] ) && 'complete' === $response['status'] ) {
 					// Update the status to "error".
 					Extension_ImageService_Plugin_Admin::update_postmeta(
-						$post->ID,
+						$post_id,
 						array( 'status' => 'error' )
 					);
 				}
