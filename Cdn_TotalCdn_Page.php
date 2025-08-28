@@ -201,7 +201,7 @@ class Cdn_TotalCdn_Page {
 
 		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $account_api_key ) );
 
-		// Try to delete pull zone.
+		// Try to purge the URL.
 		try {
 			$api->purge(
 				array(
