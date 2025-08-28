@@ -973,7 +973,8 @@ class Cdn_Core {
 				break;
 
 			case 'cloudflare':
-				$is_cdnfsd_authorized = ! empty( $cloudflare_config['email'] ) &&
+				$is_cdnfsd_authorized = $this->_config->is_extension_active( 'cloudflare' ) &&
+					! empty( $cloudflare_config['email'] ) &&
 					! empty( $cloudflare_config['key'] ) &&
 					! empty( $cloudflare_config['zone_id'] ) &&
 					! empty( $cloudflare_config['zone_name'] );

@@ -21,7 +21,16 @@ defined( 'W3TC' ) || die();
 
 	$cdnfsd_engine  = $config->get_string( 'cdnfsd.engine' );
 	$cdnfsd_enabled = $config->get_boolean( 'cdnfsd.enabled' );
-	$cdnfsd_name    = Cache::engine_name( $cdnfsd_engine );
+
+	// If Cloudflare was previously configured for CDN/FSD but the extension
+	// is no longer active, treat CDN/FSD as disabled so the dashboard does
+	// not show stale configuration notices.
+	if ( 'cloudflare' === $cdnfsd_engine && ! $config->is_extension_active( 'cloudflare' ) ) {
+		$cdnfsd_enabled = false;
+		$cdnfsd_engine  = '';
+	}
+
+	$cdnfsd_name = Cache::engine_name( $cdnfsd_engine );
 
 	// Check if Total CDN is selected but not fully configured.
 	$is_w3tc_cdn_incomplete = (

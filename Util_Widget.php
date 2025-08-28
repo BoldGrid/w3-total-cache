@@ -157,8 +157,8 @@ class Util_Widget {
 				$header_text = __( 'Configure' );
 			}
 
-			$widget_name .= ' <span class="w3tc-widget-configure postbox-title-action">' .
-				'<a href="' . esc_url( $control_callback ) . '" class="edit-box open-box ' .
+			$widget_name .= ' <span class="w3tc-widget-configure postbox-title-action button">' .
+				'<a href="' . esc_url( $control_callback ) . '" class="open-box ' .
 				esc_attr( $header_class ) . '">' . $header_text . '</a></span>';
 		}
 
