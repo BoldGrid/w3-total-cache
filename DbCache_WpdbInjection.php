@@ -233,9 +233,9 @@ class DbCache_WpdbInjection {
 	/**
 	 * Adds a footer comment to the W3TC output.
 	 *
-	 * @param string $strings The current footer comment.
+	 * @param array $strings The current footer comment.
 	 *
-	 * @return string The modified footer comment.
+	 * @return array The modified footer comment.
 	 */
 	public function w3tc_footer_comment( $strings ) {
 		return $strings;
