@@ -497,7 +497,7 @@ class Cdn_TotalCdn_Api {
 
 		return $this->wp_remote_post(
 			\esc_url( $this->api_base_url . '/purge' ),
-			array( 'body' => $data )
+			$data
 		);
 	}
 
