@@ -25,7 +25,19 @@ class Cdn_TotalCdn_Widget {
 	 * @return void
 	 */
 	public static function admin_init_w3tc_dashboard() {
-		$o = new Cdn_TotalCdn_Widget();
+		$config = Dispatcher::config();
+		$o      = new Cdn_TotalCdn_Widget();
+
+		$cdn_enabled    = $config->get_boolean( 'cdn.enabled' );
+		$cdnfsd_enabled = $config->get_boolean( 'cdnfsd.enabled' );
+
+		if ( 'cloudflare' === $config->get_string( 'cdnfsd.engine' ) && ! $config->is_extension_active( 'cloudflare' ) ) {
+			$cdnfsd_enabled = false;
+		}
+
+		$configuration_link = $cdn_enabled || $cdnfsd_enabled
+			? Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' )
+			: Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' );
 
 		add_action( 'admin_print_styles', array( $o, 'admin_print_styles' ) );
 
@@ -34,7 +46,7 @@ class Cdn_TotalCdn_Widget {
 			400,
 			'<div class="w3tc-widget-totalcdn-logo"></div>',
 			array( $o, 'widget_form' ),
-			Util_Ui::admin_url( 'admin.php?page=w3tc_cdn' ),
+			$configuration_link,
 			'normal'
 		);
 	}

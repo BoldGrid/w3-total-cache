@@ -3,6 +3,7 @@
 	height: 50px;
 	background: url('pub/img/totalcdn-logo.png') 0 8px no-repeat;
 	background-size: contain;
+	background-position: initial;
 	float: left;
 }
 
