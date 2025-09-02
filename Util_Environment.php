@@ -852,13 +852,16 @@ class Util_Environment {
 		 */
 		if ( self::is_url( $uri ) ) {
 			$uri = wp_parse_url( $uri, PHP_URL_PATH );
+
+			// Remove query string arguments from the URI.
+			$uri = strtok( $uri, '?' );
 		}
 
 		if ( empty( $uri ) ) {
 			return '/';
 		}
 
-		return $uri;
+		return trailingslashit( $uri );
 	}
 
 	/**
