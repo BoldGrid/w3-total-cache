@@ -18,36 +18,36 @@ class Cdn_TotalCdn_Auto_Configure {
 	/**
 	 * Configuration.
 	 *
-	 * @var Config
-	 *
 	 * @since x.x.x
+	 *
+	 * @var Config
 	 */
 	protected $config;
 
 	/**
 	 * Api key.
 	 *
-	 * @var string
-	 *
 	 * @since x.x.x
+	 *
+	 * @var string
 	 */
 	protected $api_key = '';
 
 	/**
 	 * Api.
 	 *
-	 * @var Cdn_TotalCdn_Api
-	 *
 	 * @since x.x.x
+	 *
+	 * @var Cdn_TotalCdn_Api
 	 */
 	protected $api;
 
 	/**
 	 * Account ID.
 	 *
-	 * @var string
-	 *
 	 * @since x.x.x
+	 *
+	 * @var string
 	 */
 	protected $account_id = '';
 
@@ -124,13 +124,12 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * Check and see if Total CDN is active and enabled.
 	 * If it is not, run auto configuration.
 	 *
-	 * @param bool $applied Whether the CDN is applied or not.
-	 *
-	 * @return bool True if the CDN is auto-configured, false otherwise.
-	 *
 	 * @since x.x.x
+	 *
+	 * @param  bool $applied Whether the CDN is applied or not.
+	 * @return bool True if the CDN is auto-configured, false otherwise.
 	 */
-	public function w3tc_totalcdn_auto_configured( $applied ) {
+	public function w3tc_totalcdn_auto_configured( $applied ): bool {
 		// Check if the CDN is enabled, and the pull zone is configured.
 		if ( $this->config->get( 'cdn.enabled' ) && 'totalcdn' === $this->config->get( 'cdn.engine' ) && $this->config->get( 'cdn.totalcdn.pull_zone_id' ) ) {
 			return true;
@@ -152,17 +151,19 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @since x.x.x
 	 *
-	 * @return string Response Message.
+	 * @return array
 	 */
-	public function run() {
+	public function run(): array {
 		// Check and verify that the account API key is set.
 		$api_key_result = $this->check_api_key();
+
 		if ( false === $api_key_result['success'] ) {
 			return $api_key_result;
 		}
 
 		// Setup Pull Zone.
 		$setup_pullzone_result = $this->setup_pull_zone();
+
 		if ( false === $setup_pullzone_result['success'] ) {
 			return $setup_pullzone_result;
 		}
@@ -177,8 +178,10 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * Checks that the API key is set in the configs.
 	 *
 	 * @since x.x.x
+	 *
+	 * @return array
 	 */
-	public function check_api_key() {
+	public function check_api_key(): array {
 		$api_key = $this->config->get( 'cdn.totalcdn.account_api_key' );
 
 		if ( empty( $api_key ) ) {
@@ -223,8 +226,10 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * Creates a pull zone using the Total CDN API.
 	 *
 	 * @since x.x.x
+	 *
+	 * @return array
 	 */
-	public function setup_pull_zone() {
+	public function setup_pull_zone(): array {
 		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
 
 		// Origin URL is the URL of the current site.
@@ -335,8 +340,10 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * Sets up the edge rules for the pull zone.
 	 *
 	 * @since x.x.x
+	 *
+	 * @return array
 	 */
-	public function setup_edge_rules() {
+	public function setup_edge_rules(): array {
 		$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $this->api_key ) );
 
 		// Get the pull zone ID.
@@ -391,8 +398,10 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * Enables the CDN in the W3TC settings.
 	 *
 	 * @since x.x.x
+	 *
+	 * @return array
 	 */
-	public function enable_cdn() {
+	public function enable_cdn(): array {
 		// Enable CDN in W3TC settings.
 		$this->config->set( 'cdn.enabled', true );
 		$this->config->set( 'cdn.engine', 'totalcdn' );
@@ -423,9 +432,10 @@ class Cdn_TotalCdn_Auto_Configure {
 		$api_key     = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$tcdn_status = $state->get_string( 'cdn.totalcdn.status' );
 
-		// If CDN is not enabled or the engine is not Total CDN and the API key IS set
-		// then show a notice to the user that they need to enable the CDN.
-
+		/**
+		 * If CDN is not enabled or the engine is not Total CDN and the API key is set
+		 * then show a notice to the user that they need to enable the CDN.
+		 */
 		if ( self::maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) ) {
 			return;
 		} elseif ( ! $cdn_enabled || 'totalcdn' !== $cdn_engine ) {
@@ -476,14 +486,20 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param bool   $cdn_enabled Whether the CDN is enabled.
-	 * @param string $cdn_engine  The CDN engine.
-	 * @param string $api_key     The API key.
-	 * @param string $cdn_status The CDN status.
-	 *
+	 * @param  bool   $cdn_enabled Whether the CDN is enabled.
+	 * @param  string $cdn_engine  The CDN engine.
+	 * @param  string $api_key     The API key.
+	 * @param  string $cdn_status The CDN status.
 	 * @return bool True if the notice was shown, false otherwise.
 	 */
-	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $cdn_status ) {
+	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $cdn_status ): bool {
+		// Display notice only if on a W3TC page.
+		$page = \filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+		if ( empty( $page ) || ! \preg_match( '/^w3tc_/', $page ) ) {
+			return false;
+		}
+
 		// If the CDN is enabled and the engine is set, do not show the notice.
 		if ( $cdn_enabled && 'totalcdn' === $cdn_engine ) {
 			return false;
@@ -525,8 +541,10 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * Updates the pull zone URL and Origin Host Header.
 	 *
 	 * @since x.x.x
+	 *
+	 * @return bool
 	 */
-	public static function update_pullzone() {
+	public static function update_pullzone(): bool {
 		$config = Dispatcher::config();
 
 		// Get the pull zone ID.
