@@ -203,7 +203,7 @@ jQuery(function($) {
 		})
 
 		// Sanitize the purge URL list.
-		.on('focusout', '#w3tc-purge-urls', function () {
+		.on('focusout', '#w3tc-cdn-totalcdn-purge-urls', function () {
 			// Abort if not authorized.
 			if (! W3TC_TotalCdn.is_authorized) {
 				return;
@@ -211,18 +211,15 @@ jQuery(function($) {
 
 			// Declare vars.
 			var $this = $(this),
-				$button = $('.w3tc_cdn_totalcdn_purge_urls');
+				$button = $('#w3tc-cdn-totalcdn-purge-urls-button');
 
 			// Strip whitespace, newlines, and invalid characters.
 			$this.val( $this.val().replace(/^(\s)*(\r\n|\n|\r)/gm, '') );
 			$this.val($.trim($this.val().replace(/[^a-z0-9\.:\/\r\n*-]/g, '')));
-
-			// Enable the purge button.
-			$button.prop('disabled', false);
 		})
 
 		// Purge URLs.
-		.on('click', '.w3tc_cdn_totalcdn_purge_urls', function() {
+		.on('click', '#w3tc-cdn-totalcdn-purge-urls-button', function() {
 			// Abort if not authorized.
 			if (! W3TC_TotalCdn.is_authorized) {
 				return;
@@ -230,7 +227,7 @@ jQuery(function($) {
 
 			// Declare vars.
 			var urls_processed = 0,
-				list = $('#w3tc-purge-urls').val().split("\n").filter((v) => v != ''),
+				list = $('#w3tc-cdn-totalcdn-purge-urls').val().split("\n").filter((v) => v != ''),
 				$messages = $('#w3tc-purge-messages'),
 				$this = $(this);
 
@@ -249,7 +246,9 @@ jQuery(function($) {
 					text: W3TC_TotalCdn.lang.empty_url + '.'
 				}).appendTo($messages);
 
-				$this.closest('p').removeClass('lightbox-loader');
+				$this
+					.prop('disabled', false)
+					.closest('p').removeClass('lightbox-loader');
 
 				return;
 			}
@@ -310,7 +309,9 @@ jQuery(function($) {
 
 						// When requests are all complete, then remove the spinner.
 						if (urls_processed === array.length) {
-							$this.closest('p').removeClass('lightbox-loader');
+							$this
+								.prop('disabled', false)
+								.closest('p').removeClass('lightbox-loader');
 						}
 					});
 				});

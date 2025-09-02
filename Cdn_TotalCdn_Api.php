@@ -495,7 +495,7 @@ class Cdn_TotalCdn_Api {
 	public function purge( array $data ) {
 		$this->api_type = 'account';
 
-		return $this->wp_remote_get(
+		return $this->wp_remote_post(
 			\esc_url( $this->api_base_url . '/purge' ),
 			$data
 		);

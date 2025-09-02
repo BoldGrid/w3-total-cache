@@ -497,7 +497,7 @@ if (
 		<?php do_action( 'w3tc_settings_box_cdnfsd' ); ?>
 
 		<?php
-		if ( 'bunnycdn' === $cdn_engine || 'bunnycdn' === $cdnfsd_engine ) {
+		if ( in_array( $cdn_engine, array( 'bunnycdn', 'totalcdn' ), true ) || in_array( $cdnfsd_engine, array( 'bunnycdn', 'totalcdn' ), true ) ) {
 			Util_Ui::postbox_header( esc_html__( 'Purge', 'w3-total-cache' ), '', 'purge-urls' );
 			do_action( 'w3tc_purge_urls_box' );
 			Util_Ui::postbox_footer();

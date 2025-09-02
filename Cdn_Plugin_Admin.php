@@ -63,6 +63,7 @@ class Cdn_Plugin_Admin {
 				break;
 
 			case 'totalcdn':
+				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_TotalCdn_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
