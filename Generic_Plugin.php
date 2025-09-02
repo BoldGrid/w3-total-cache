@@ -618,7 +618,7 @@ class Generic_Plugin {
 					$strings[] = '';
 				}
 
-				$strings = apply_filters( 'w3tc_footer_comment', $strings );
+				$strings = (array) apply_filters( 'w3tc_footer_comment', $strings );
 
 				if ( count( $strings ) ) {
 					$strings[] = '';
