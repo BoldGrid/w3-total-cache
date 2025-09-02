@@ -496,7 +496,7 @@ class Cdn_TotalCdn_Auto_Configure {
 		// Display notice only if on a W3TC page.
 		$page = \filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-		if ( empty( $page ) || ! \preg_match( '/^w3tc_/', $page ) ) {
+		if ( empty( $page ) || strpos( $page, 'w3tc_' ) !== 0 ) {
 			return false;
 		}
 
