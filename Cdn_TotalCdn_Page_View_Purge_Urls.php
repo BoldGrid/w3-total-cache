@@ -17,7 +17,9 @@ defined( 'W3TC' ) || die;
 $account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 $is_authorized   = ! empty( $account_api_key ) &&
 	( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
-$placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \home_url() . '/css/*' );
+$base_url        = $config->get_string( 'cdn.totalcdn.pull_zone_id' ) ?
+	'https://' . $config->get_string( 'cdn.totalcdn.cdn_hostname' ) : \home_url();
+$placeholder     = \esc_url( $base_url . '/about-us' ) . "\r\n" . \esc_url( $base_url . '/css/*' );
 
 ?>
 <table class="form-table">
