@@ -14,12 +14,15 @@ namespace W3TC;
 
 defined( 'W3TC' ) || die;
 
-$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
-$is_authorized   = ! empty( $account_api_key ) &&
-	( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
-$base_url        = $config->get_string( 'cdn.totalcdn.pull_zone_id' ) ?
-	'https://' . $config->get_string( 'cdn.totalcdn.cdn_hostname' ) : \home_url();
-$placeholder     = \esc_url( $base_url . '/about-us' ) . "\r\n" . \esc_url( $base_url . '/css/*' );
+// Define variables for this view.
+$account_api_key  = $config->get_string( 'cdn.totalcdn.account_api_key' );
+$is_cdn_active    = ! empty( $account_api_key ) && 'totalcdn' === $config->get_string( 'cdn.engine' ) &&
+	$config->get_boolean( 'cdn.enabled' ) && $config->get_string( 'cdn.totalcdn.pull_zone_id' );
+$is_cdnfsd_active = ! empty( $account_api_key ) && 'totalcdn' === $config->get_string( 'cdnfsd.engine' ) &&
+	$config->get_boolean( 'cdnfsd.enabled' ) && $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' );
+$is_authorized    = $is_cdn_active || $is_cdnfsd_active;
+$base_url         = $is_cdn_active ? 'https://' . $config->get_string( 'cdn.totalcdn.cdn_hostname' ) : \home_url();
+$placeholder      = \esc_url( $base_url . '/about-us' ) . "\r\n" . \esc_url( $base_url . '/css/*' );
 
 ?>
 <table class="form-table">
@@ -40,7 +43,7 @@ $placeholder     = \esc_url( $base_url . '/about-us' ) . "\r\n" . \esc_url( $bas
 				</p>
 			<?php
 			if ( ! $is_authorized ) :
-				echo wp_kses(
+				echo \wp_kses(
 					\sprintf(
 						// translators: 1: Opening HTML elements, 2: Name of the CDN service, 3: Closing HTML elements.
 						\esc_html__( '%1$sPlease configure %2$s in order to purge URLs.%3$s', 'w3-total-cache' ),
