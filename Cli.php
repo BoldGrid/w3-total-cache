@@ -712,7 +712,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 		} else {
 			$message = isset( $response['Message'] ) ? $response['Message'] : \__( 'Unknown error', 'w3-total-cache' );
 			\WP_CLI::error(
-				sprintf(
+				\sprintf(
 					// translators: 1: Error message.
 					\__( 'Hostname verification failed: %1$s', 'w3-total-cache' ),
 					$message
