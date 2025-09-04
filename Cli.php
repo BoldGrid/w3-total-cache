@@ -662,7 +662,7 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Generally triggered from a cronjob, processes AlwaysCached queue.
+	 * Verify that a specified hostname points to a Total CDN provider.
 	 *
 	 * ## OPTIONS
 	 * <hostname>
