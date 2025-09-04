@@ -524,6 +524,36 @@ class Cdn_TotalCdn_Api {
 	}
 
 	/**
+	 * Verify that a specified hostname points to a Total CDN provider.
+	 *
+	 * @since X.X.X
+	 * @link  https://cdn-api-dev.boldgrid.com/docs/api#/operations/dns.verifyCdnCname
+	 *
+	 * @param  string $hostname The hostname to verify.
+	 * @return array|WP_Error API response or error object.
+	 * @throws \Exception If the pull zone name is invalid.
+	 */
+	public function verify_hostname_cdn( string $hostname ) {
+		$this->api_type = 'account';
+
+		// Validate the hostname.
+		if ( empty( $hostname ) || ! \is_string( $hostname ) ) { // A hostname string is required.
+			throw new \Exception( \esc_html__( 'A hostname (string) is required.', 'w3-total-cache' ) );
+		}
+
+		// Validate the hostname as a proper domain.
+		if ( ! \filter_var( $hostname, FILTER_VALIDATE_DOMAIN ) ) {
+			throw new \Exception( \esc_html__( 'Invalid hostname', 'w3-total-cache' ) );
+		}
+
+		// Make the API request to verify the hostname.
+		return $this->wp_remote_post(
+			$this->api_base_url . '/dns/verifyCdnCname',
+			array( 'Hostname' => $hostname )
+		);
+	}
+
+	/**
 	 * Retrieves the appropriate API key based on the specified type.
 	 *
 	 * @since x.x.x

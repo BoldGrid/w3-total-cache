@@ -20,7 +20,7 @@ class Cdn_Util {
 	 *
 	 * @return bool
 	 */
-	public static function is_engine( $engine ) {
+	public static function is_engine( $engine ): bool {
 		return in_array(
 			$engine,
 			array(
@@ -28,6 +28,7 @@ class Cdn_Util {
 				'att',
 				'azure',
 				'azuremi',
+				'bunnycdn',
 				'cf',
 				'cf2',
 				'cotendo',
@@ -39,6 +40,7 @@ class Cdn_Util {
 				'rackspace_cdn',
 				's3',
 				's3_compatible',
+				'totalcdn',
 			),
 			true
 		);
@@ -52,18 +54,18 @@ class Cdn_Util {
 	 *
 	 * @return bool
 	 */
-	public static function is_engine_mirror( $engine ) {
+	public static function is_engine_mirror( $engine ): bool {
 		return in_array(
 			$engine,
 			array(
-				'mirror',
-				'cotendo',
-				'cf2',
 				'akamai',
-				'edgecast',
 				'att',
-				'rackspace_cdn',
 				'bunnycdn',
+				'cf2',
+				'cotendo',
+				'edgecast',
+				'mirror',
+				'rackspace_cdn',
 				'totalcdn',
 			),
 			true
@@ -77,7 +79,7 @@ class Cdn_Util {
 	 *
 	 * @return bool
 	 */
-	public static function is_engine_push( $engine ) {
+	public static function is_engine_push( $engine ): bool {
 		return ! self::is_engine_mirror( $engine );
 	}
 
@@ -88,7 +90,7 @@ class Cdn_Util {
 	 *
 	 * @return bool
 	 */
-	public static function can_purge_all( $engine ) {
+	public static function can_purge_all( $engine ): bool {
 		return in_array(
 			$engine,
 			array(
@@ -110,7 +112,7 @@ class Cdn_Util {
 	 *
 	 * @return bool
 	 */
-	public static function can_purge( $engine ) {
+	public static function can_purge( $engine ): bool {
 		return in_array(
 			$engine,
 			array(
@@ -118,6 +120,7 @@ class Cdn_Util {
 				'att',
 				'azure',
 				'azuremi',
+				'bunnycdn',
 				'cf',
 				'cf2',
 				'cotendo',
@@ -126,6 +129,7 @@ class Cdn_Util {
 				'rscf',
 				's3',
 				's3_compatible',
+				'totalcdn',
 			),
 			true
 		);
@@ -138,7 +142,7 @@ class Cdn_Util {
 	 *
 	 * @return bool
 	 */
-	public static function supports_realtime_purge( $engine ) {
+	public static function supports_realtime_purge( $engine ): bool {
 		return ! in_array( $engine, array( 'cf2' ), true );
 	}
 
@@ -152,7 +156,7 @@ class Cdn_Util {
 	 *
 	 * @return array
 	 */
-	public static function search_files( $search_dir, $base_dir, $mask = '*.*', $recursive = true ) {
+	public static function search_files( $search_dir, $base_dir, $mask = '*.*', $recursive = true ): array {
 		static $stack = array();
 
 		$files  = array();
@@ -213,7 +217,7 @@ class Cdn_Util {
 	 *
 	 * @return string
 	 */
-	public static function get_regexp_by_mask( $mask ) {
+	public static function get_regexp_by_mask( $mask ): string {
 		$mask = trim( $mask );
 		$mask = Util_Environment::preg_quote( $mask );
 
@@ -253,12 +257,14 @@ class Cdn_Util {
 	 *
 	 * @return string
 	 */
-	public static function replace_folder_placeholders( $file ) {
+	public static function replace_folder_placeholders( $file ): string {
 		static $content_dir, $plugin_dir, $upload_dir;
+
 		if ( empty( $content_dir ) ) {
 			$content_dir = str_replace( Util_Environment::document_root(), '', WP_CONTENT_DIR );
 			$content_dir = substr( $content_dir, strlen( Util_Environment::site_url_uri() ) );
 			$content_dir = trim( $content_dir, '/' );
+
 			if ( defined( 'WP_PLUGIN_DIR' ) ) {
 				$plugin_dir = str_replace( Util_Environment::document_root(), '', WP_PLUGIN_DIR );
 				$plugin_dir = trim( $plugin_dir, '/' );
@@ -266,10 +272,12 @@ class Cdn_Util {
 				$plugin_dir = str_replace( Util_Environment::document_root(), '', WP_CONTENT_DIR . '/plugins' );
 				$plugin_dir = trim( $plugin_dir, '/' );
 			}
+
 			$upload_dir = Util_Environment::wp_upload_dir();
 			$upload_dir = str_replace( Util_Environment::document_root(), '', $upload_dir['basedir'] );
 			$upload_dir = trim( $upload_dir, '/' );
 		}
+
 		$file = str_replace( '{wp_content_dir}', $content_dir, $file );
 		$file = str_replace( '{plugins_dir}', $plugin_dir, $file );
 		$file = str_replace( '{uploads_dir}', $upload_dir, $file );
@@ -284,19 +292,20 @@ class Cdn_Util {
 	 *
 	 * @return string
 	 */
-	public static function replace_folder_placeholders_to_uri( $file ) {
+	public static function replace_folder_placeholders_to_uri( $file ): string {
 		static $content_uri, $plugins_uri, $uploads_uri;
 		if ( empty( $content_uri ) ) {
 			$content_uri = Util_Environment::url_to_uri( content_url() );
 			$plugins_uri = Util_Environment::url_to_uri( plugins_url() );
+			$upload_dir  = Util_Environment::wp_upload_dir();
 
-			$upload_dir = Util_Environment::wp_upload_dir();
 			if ( isset( $upload_dir['baseurl'] ) ) {
 				$uploads_uri = Util_Environment::url_to_uri( $upload_dir['baseurl'] );
 			} else {
 				$uploads_uri = '';
 			}
 		}
+
 		$file = str_replace( '{wp_content_dir}', $content_uri, $file );
 		$file = str_replace( '{plugins_dir}', $plugins_uri, $file );
 		$file = str_replace( '{uploads_dir}', $uploads_uri, $file );
@@ -311,9 +320,9 @@ class Cdn_Util {
 	 *
 	 * @param string $cdn_engine CDN engine value.
 	 *
-	 * @return boolean default value override;
+	 * @return bool
 	 */
-	public static function get_flush_manually_default_override( $cdn_engine = null ) {
+	public static function get_flush_manually_default_override( $cdn_engine = null ): bool {
 		$override_targets = array( 's3', 'cf', 'cf2' );
 		return in_array( $cdn_engine, $override_targets, true );
 	}

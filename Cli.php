@@ -660,6 +660,66 @@ class W3TotalCache_Command extends \WP_CLI_Command {
 
 		\WP_CLI::success( \__( 'Always Cached queue emptied successfully.', 'w3-total-cache' ) );
 	}
+
+	/**
+	 * Generally triggered from a cronjob, processes AlwaysCached queue.
+	 *
+	 * ## OPTIONS
+	 * <hostname>
+	 * : Hostname to verify
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $args Arguments.
+	 * @return void
+	 */
+	public function verify_hostname_w3tc_cdn( array $args = array() ) {
+		// Check if Total CDN is active.
+		if ( ! Cdn_TotalCdn_Page::is_active() ) {
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: CDN name.
+					\__( '%1$s is not active', 'w3-total-cache' ),
+					W3TC_CDN_NAME
+				)
+			);
+			return;
+		}
+
+		// Check if hostname argument is provided.
+		if ( empty( $args[0] ) ) {
+			\WP_CLI::error( \__( 'Hostname argument is not provided', 'w3-total-cache' ) );
+			return;
+		}
+
+		// Call API to verify hostname.
+		try {
+			$api      = new Cdn_TotalCdn_Api( array( 'account_api_key' => ( new Config() )->get( 'cdn.totalcdn.account_api_key' ) ) );
+			$response = $api->verify_hostname_cdn( $args[0] );
+		} catch ( \Exception $e ) {
+			\WP_CLI::error(
+				\sprintf(
+					// translators: 1: Error message.
+					\__( 'Hostname verification failed: %1$s', 'w3-total-cache' ),
+					$e->getMessage()
+				)
+			);
+		}
+
+		// Interpret result.
+		if ( isset( $response['Success'] ) && true === $response['Success'] ) {
+			\WP_CLI::success( \__( 'Hostname verified successfully.', 'w3-total-cache' ) );
+		} else {
+			$message = isset( $response['Message'] ) ? $response['Message'] : \__( 'Unknown error', 'w3-total-cache' );
+			\WP_CLI::error(
+				sprintf(
+					// translators: 1: Error message.
+					\__( 'Hostname verification failed: %1$s', 'w3-total-cache' ),
+					$message
+				)
+			);
+		}
+	}
 }
 
 // Register WP-CLI commands.
