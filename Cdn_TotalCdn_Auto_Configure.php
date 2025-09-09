@@ -247,15 +247,24 @@ class Cdn_TotalCdn_Auto_Configure {
 
 			foreach ( $pull_zones as $pull_zone ) {
 				if ( $pull_zone['Name'] === $name ) {
-						$pull_zone_id = (int) $pull_zone['Id'];
-						$name         = $pull_zone['Name'];
-						$cdn_hostname = $pull_zone['ExtCdnDomain'];
+					$pull_zone_id = (int) $pull_zone['Id'];
+					$name         = $pull_zone['Name'];
+					$cdn_hostname = $pull_zone['ExtCdnDomain'];
 
-						$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
-						$this->config->set( 'cdn.totalcdn.name', $name );
-						$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
-						$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
-						$this->config->save();
+					$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
+					$this->config->set( 'cdn.totalcdn.name', $name );
+					$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
+					$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
+					$this->config->save();
+
+					/**
+					 * Checks if the imageservice extension is active in the configuration.
+					 * If active, it triggers the Vary Cache setup for the CDN.
+					 */
+					if ( $this->config->is_extension_active( 'imageservice' ) ) {
+						Cdn_VaryCache::maybe_set_vary();
+					}
+
 					return array(
 						'success' => true,
 						'message' => \sprintf(
@@ -305,6 +314,14 @@ class Cdn_TotalCdn_Auto_Configure {
 			$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
 			$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
 			$this->config->save();
+
+			/**
+			 * Checks if the imageservice extension is active in the configuration.
+			 * If active, it triggers the Vary Cache setup for the CDN.
+			 */
+			if ( $this->config->is_extension_active( 'imageservice' ) ) {
+				Cdn_VaryCache::maybe_set_vary();
+			}
 
 			$setup_edge_rules_result = $this->setup_edge_rules();
 
