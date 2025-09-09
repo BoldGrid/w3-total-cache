@@ -30,11 +30,6 @@ class Cdn_VaryCache {
 			return;
 		}
 
-		$configured_key = 'cdn.' . $cdn_engine . '.vary_configured';
-		if ( $state->get_boolean( $configured_key ) ) {
-			//return;
-		}
-
 		$pull_zone_id = $config->get_integer( 'cdn.' . $cdn_engine . '.pull_zone_id' );
 		$api_key      = $config->get_string( 'cdn.' . $cdn_engine . '.account_api_key' );
 
