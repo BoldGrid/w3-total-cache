@@ -433,13 +433,12 @@ class Cdn_TotalCdn_Popup {
 		$config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
 		$config->set( 'cdn.totalcdn.custom_hostnames', $custom_hostnames );
 		$config->save();
-		Util_Debug::debug('iswebpactive',$config->is_extension_active( 'imageservice' ));
+
 		/**
 		 * Checks if the imageservice extension is active in the configuration.
 		 * If active, it triggers the Vary Cache setup for the CDN.
 		 */
 		if ( $config->is_extension_active( 'imageservice' ) ) {
-			Util_Debug::debug('maybevary',true);
 			Cdn_VaryCache::maybe_set_vary();
 		}
 

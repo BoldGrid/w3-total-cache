@@ -21,7 +21,7 @@ class Cdn_VaryCache {
 		$config     = Dispatcher::config();
 		$state      = Dispatcher::config_state();
 		$cdn_engine = $config->get_string( 'cdn.engine' );
-Util_Debug::debug('applyvary',true);
+
 		if ( ! in_array( $cdn_engine, array( 'bunnycdn', 'totalcdn' ), true ) ) {
 			return;
 		}
@@ -43,7 +43,6 @@ Util_Debug::debug('applyvary',true);
 		}
 
 		try {
-			Util_Debug::debug('setapi',true);
 			if ( 'bunnycdn' === $cdn_engine ) {
 				require_once W3TC_DIR . '/Cdn_BunnyCdn_Api.php';
 				$api = new Cdn_BunnyCdn_Api(
@@ -62,7 +61,6 @@ Util_Debug::debug('applyvary',true);
 				);
 			}
 
-			Util_Debug::debug('updatepullzone',true);
 			$result = $api->update_pull_zone(
 				$pull_zone_id,
 				array(
@@ -70,7 +68,7 @@ Util_Debug::debug('applyvary',true);
 					'EnableAvifVary' => true,
 				)
 			);
-			Util_Debug::debug('pullzoneresult',$result);
+
 			if ( ! is_wp_error( $result ) ) {
 				$state->set( $configured_key, true );
 				$state->save();
