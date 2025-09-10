@@ -12,11 +12,11 @@ namespace W3TC;
  * Image Service extension is active.
  */
 class Cdn_VaryCache {
-		/**
-		 * Enable Vary Cache for WebP/AVIF when possible.
-		 *
-		 * @return void
-		 */
+	/**
+	 * Enable Vary Cache for WebP/AVIF when possible.
+	 *
+	 * @return void
+	 */
 	public static function maybe_set_vary() {
 		$config     = Dispatcher::config();
 		$state      = Dispatcher::config_state();
