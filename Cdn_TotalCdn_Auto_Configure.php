@@ -247,15 +247,19 @@ class Cdn_TotalCdn_Auto_Configure {
 
 			foreach ( $pull_zones as $pull_zone ) {
 				if ( $pull_zone['Name'] === $name ) {
-						$pull_zone_id = (int) $pull_zone['Id'];
-						$name         = $pull_zone['Name'];
-						$cdn_hostname = $pull_zone['ExtCdnDomain'];
+					$pull_zone_id = (int) $pull_zone['Id'];
+					$name         = $pull_zone['Name'];
+					$cdn_hostname = $pull_zone['ExtCdnDomain'];
 
-						$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
-						$this->config->set( 'cdn.totalcdn.name', $name );
-						$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
-						$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
-						$this->config->save();
+					$this->config->set( 'cdn.totalcdn.pull_zone_id', $pull_zone_id );
+					$this->config->set( 'cdn.totalcdn.name', $name );
+					$this->config->set( 'cdn.totalcdn.origin_url', $origin_url );
+					$this->config->set( 'cdn.totalcdn.cdn_hostname', $cdn_hostname );
+					$this->config->save();
+
+					// Set the Vary Cache.
+					Cdn_VaryCache::maybe_set_vary();
+
 					return array(
 						'success' => true,
 						'message' => \sprintf(
@@ -293,6 +297,8 @@ class Cdn_TotalCdn_Auto_Configure {
 					'OriginHostHeader'      => \wp_parse_url( \home_url(), PHP_URL_HOST ), // Sets the host header that will be sent to the origin.
 					'UseStaleWhileUpdating' => true, // Serve stale content while updating.  If Stale While Updating is enabled, cache will not be refreshed if the origin responds with a non-cacheable resource.
 					'UseStaleWhileOffline'  => true, // Serve stale content if the origin is offline.
+					'EnableWebpVary'        => true, // Enable webp vary caching.
+					'EnableAvifVary'        => true, // Enable avif vary caching.
 				)
 			);
 

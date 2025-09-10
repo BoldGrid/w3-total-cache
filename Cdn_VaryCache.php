@@ -1,0 +1,83 @@
+<?php
+/**
+ * File: Cdn_VaryCache.php
+ *
+ * @package W3TC
+ */
+
+namespace W3TC;
+
+/**
+ * Ensures BunnyCDN and Total CDN pull zones vary cache by image format when the
+ * Image Service extension is active.
+ */
+class Cdn_VaryCache {
+	/**
+	 * Enable Vary Cache for WebP/AVIF when possible.
+	 *
+	 * @return void
+	 */
+	public static function maybe_set_vary() {
+		$config     = Dispatcher::config();
+		$state      = Dispatcher::config_state();
+		$cdn_engine = $config->get_string( 'cdn.engine' );
+
+		if ( ! in_array( $cdn_engine, array( 'bunnycdn', 'totalcdn' ), true ) ) {
+			return;
+		}
+
+		$pull_zone_id = $config->get_integer( 'cdn.' . $cdn_engine . '.pull_zone_id' );
+		$api_key      = $config->get_string( 'cdn.' . $cdn_engine . '.account_api_key' );
+
+		if ( ! $pull_zone_id || ! $api_key ) {
+			return;
+		}
+
+		$configured_key = 'cdn.' . $cdn_engine . '-' . $pull_zone_id . '.vary_configured';
+		if ( $state->get_boolean( $configured_key ) ) {
+			return;
+		}
+
+		try {
+			switch ( $cdn_engine ) {
+				case 'bunnycdn':
+					require_once W3TC_DIR . '/Cdn_BunnyCdn_Api.php';
+					$api = new Cdn_BunnyCdn_Api(
+						array(
+							'account_api_key' => $api_key,
+							'pull_zone_id'    => $pull_zone_id,
+						)
+					);
+					break;
+
+				case 'totalcdn':
+					require_once W3TC_DIR . '/Cdn_TotalCdn_Api.php';
+					$api = new Cdn_TotalCdn_Api(
+						array(
+							'account_api_key' => $api_key,
+							'pull_zone_id'    => $pull_zone_id,
+						)
+					);
+					break;
+
+				default:
+					return;
+			}
+
+			$result = $api->update_pull_zone(
+				$pull_zone_id,
+				array(
+					'EnableWebpVary' => true,
+					'EnableAvifVary' => true,
+				)
+			);
+
+			if ( ! is_wp_error( $result ) ) {
+				$state->set( $configured_key, true );
+				$state->save();
+			}
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Failing silently; admin notice will inform the user.
+		}
+	}
+}
