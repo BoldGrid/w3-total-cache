@@ -434,13 +434,8 @@ class Cdn_TotalCdn_Popup {
 		$config->set( 'cdn.totalcdn.custom_hostnames', $custom_hostnames );
 		$config->save();
 
-		/**
-		 * Checks if the imageservice extension is active in the configuration.
-		 * If active, it triggers the Vary Cache setup for the CDN.
-		 */
-		if ( $config->is_extension_active( 'imageservice' ) ) {
-			Cdn_VaryCache::maybe_set_vary();
-		}
+		// Set the Vary Cache.
+		Cdn_VaryCache::maybe_set_vary();
 
 		// Print success view.
 		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Configured.php';
@@ -525,6 +520,8 @@ class Cdn_TotalCdn_Popup {
 	 *
 	 * This private method is used to render the introductory page that includes
 	 * the TotalCDN setup information and the option to input the account API key.
+	 *
+	 * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.Found
 	 *
 	 * @since 2.6.0
 	 *

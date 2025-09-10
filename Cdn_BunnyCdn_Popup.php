@@ -212,13 +212,8 @@ class Cdn_BunnyCdn_Popup {
 		$config->set( 'cdn.bunnycdn.cdn_hostname', $cdn_hostname );
 		$config->save();
 
-		/**
-		 * Checks if the imageservice extension is active in the configuration.
-		 * If active, it triggers the Vary Cache setup for the CDN.
-		 */
-		if ( $config->is_extension_active( 'imageservice' ) ) {
-			Cdn_VaryCache::maybe_set_vary();
-		}
+		// Set the Vary Cache.
+		Cdn_VaryCache::maybe_set_vary();
 
 		// Print success view.
 		include W3TC_DIR . '/Cdn_BunnyCdn_Popup_View_Configured.php';

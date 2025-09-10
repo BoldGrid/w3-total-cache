@@ -26,10 +26,6 @@ class Cdn_VaryCache {
 			return;
 		}
 
-		if ( ! $config->is_extension_active( 'imageservice' ) ) {
-			return;
-		}
-
 		$pull_zone_id = $config->get_integer( 'cdn.' . $cdn_engine . '.pull_zone_id' );
 		$api_key      = $config->get_string( 'cdn.' . $cdn_engine . '.account_api_key' );
 
@@ -38,22 +34,29 @@ class Cdn_VaryCache {
 		}
 
 		try {
-			if ( 'bunnycdn' === $cdn_engine ) {
-				require_once W3TC_DIR . '/Cdn_BunnyCdn_Api.php';
-				$api = new Cdn_BunnyCdn_Api(
-					array(
-						'account_api_key' => $api_key,
-						'pull_zone_id'    => $pull_zone_id,
-					)
-				);
-			} else {
-				require_once W3TC_DIR . '/Cdn_TotalCdn_Api.php';
-				$api = new Cdn_TotalCdn_Api(
-					array(
-						'account_api_key' => $api_key,
-						'pull_zone_id'    => $pull_zone_id,
-					)
-				);
+			switch ( $cdn_engine ) {
+				case 'bunnycdn':
+					require_once W3TC_DIR . '/Cdn_BunnyCdn_Api.php';
+					$api = new Cdn_BunnyCdn_Api(
+						array(
+							'account_api_key' => $api_key,
+							'pull_zone_id'    => $pull_zone_id,
+						)
+					);
+					break;
+
+				case 'totalcdn':
+					require_once W3TC_DIR . '/Cdn_TotalCdn_Api.php';
+					$api = new Cdn_TotalCdn_Api(
+						array(
+							'account_api_key' => $api_key,
+							'pull_zone_id'    => $pull_zone_id,
+						)
+					);
+					break;
+
+				default:
+					return;
 			}
 
 			$result = $api->update_pull_zone(
