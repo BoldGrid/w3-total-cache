@@ -33,6 +33,11 @@ class Cdn_VaryCache {
 			return;
 		}
 
+		$configured_key = 'cdn.' . $cdn_engine . '-' . $pull_zone_id . '.vary_configured';
+		if ( $state->get_boolean( $configured_key ) ) {
+			return;
+		}
+
 		try {
 			switch ( $cdn_engine ) {
 				case 'bunnycdn':
