@@ -41,16 +41,20 @@ class Extension_AiCrawler_Mock_Api {
 		}
 
 		// Check that the X-Central-Token and X-Central-Client headers are present.
-		if ( empty( $args['headers']['X-Central-Token'] ) ||
-			empty( $args['headers']['X-Central-Client'] ) ) {
-			//return $this->missing_headers();
+		if (
+			empty( $args['headers']['X-Central-Token'] )
+			|| empty( $args['headers']['X-Central-Client'] )
+		) {
+			return $this->missing_headers();
 		}
 
 		// Ensure that the X-Central-Client header is set to 'boldgrid',
 		// and the X-Central-Token is not "invalid".
-		if ( 'boldgrid' !== $args['headers']['X-Central-Client'] ||
-			'invalid' === $args['headers']['X-Central-Token'] ) {
-			//return $this->invalid_token();
+		if (
+			'boldgrid' !== $args['headers']['X-Central-Client']
+			|| 'invalid' === $args['headers']['X-Central-Token']
+		) {
+			return $this->invalid_token();
 		}
 
 		$path     = wp_parse_url( $url, PHP_URL_PATH );
