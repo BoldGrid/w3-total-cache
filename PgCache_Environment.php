@@ -810,7 +810,12 @@ class PgCache_Environment {
 		$document_root = Util_Rule::apache_docroot_variable();
 
 		// write rule to rewrite to .html/.xml file.
-		$exts = array( '.html' );
+		$exts = array(
+			'.html',
+			'.txt',
+			'.md',
+		);
+
 		if ( $config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 			$exts[] = '.xml';
 		}
@@ -1229,31 +1234,33 @@ class PgCache_Environment {
 		$uri_prefix = "$cache_path/\$http_host/$env_request_uri/_index$key_postfix";
 		$uri_prefix = apply_filters( 'w3tc_pagecache_rules_nginx_uri_prefix', $uri_prefix );
 
-		if ( ! $config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
-			$env_w3tc_ext = '.html';
+		$env_w3tc_ext = '$w3tc_ext';
 
-			$rules .= 'if (!-f "$document_root' . $uri_prefix . '.html' . $env_w3tc_enc . '") {' . "\n";
-			$rules .= '  set $w3tc_rewrite 0;' . "\n";
-			$rules .= "}\n";
-		} else {
-			$env_w3tc_ext = '$w3tc_ext';
+		$rules .= 'set $w3tc_ext "";' . "\n";
+		$rules .= 'if (-f "$document_root' . $uri_prefix . '.html' . $env_w3tc_enc . '") {' . "\n";
+		$rules .= '  set $w3tc_ext .html;' . "\n";
+		$rules .= "}\n";
 
-			$rules .= 'set $w3tc_ext "";' . "\n";
-			$rules .= 'if (-f "$document_root' . $uri_prefix . '.html' . $env_w3tc_enc . '") {' . "\n";
-			$rules .= '  set $w3tc_ext .html;' . "\n";
-			$rules .= "}\n";
+		$rules .= 'if (-f "$document_root' . $uri_prefix . '.txt' . $env_w3tc_enc . '") {' . "\n";
+		$rules .= '  set $w3tc_ext .txt;' . "\n";
+		$rules .= "}\n";
 
+		$rules .= 'if (-f "$document_root' . $uri_prefix . '.md' . $env_w3tc_enc . '") {' . "\n";
+		$rules .= '  set $w3tc_ext .md;' . "\n";
+		$rules .= "}\n";
+
+		if ( $config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 			$rules .= 'if (-f "$document_root' . $uri_prefix . '.xml' . $env_w3tc_enc . '") {' . "\n";
-			$rules .= '    set $w3tc_ext .xml;' . "\n";
-			$rules .= "}\n";
-
-			$rules .= 'if ($w3tc_ext = "") {' . "\n";
-			$rules .= '    set $w3tc_rewrite 0;' . "\n";
+			$rules .= '  set $w3tc_ext .xml;' . "\n";
 			$rules .= "}\n";
 		}
 
+		$rules .= 'if ($w3tc_ext = "") {' . "\n";
+		$rules .= '  set $w3tc_rewrite 0;' . "\n";
+		$rules .= "}\n";
+
 		$rules .= 'if ($w3tc_rewrite = 1) {' . "\n";
-		$rules .= '    rewrite .* "' . $uri_prefix . $env_w3tc_ext . $env_w3tc_enc . '" last;' . "\n";
+		$rules .= '  rewrite .* "' . $uri_prefix . $env_w3tc_ext . $env_w3tc_enc . '" last;' . "\n";
 		$rules .= "}\n";
 
 		return $rules;
@@ -1285,6 +1292,7 @@ class PgCache_Environment {
 			$rules .= '  memcached_gzip_flag 65536;' . "\n";
 		}
 
+		$rules .= '  types { text/plain txt; text/markdown md; }' . "\n";
 		$rules .= '  default_type text/html;' . "\n";
 
 		$memcached_servers = $config->get_array( 'pgcache.memcached.servers' );
@@ -1396,7 +1404,7 @@ class PgCache_Environment {
 			$rules .= "Options -MultiViews\n";
 
 			// allow to read files by apache if they are blocked at some level above.
-			$rules .= "<Files ~ \"\.(html|html_gzip|html_br|xml|xml_gzip|xml_br)$\">\n";
+			$rules .= "<Files ~ \"\.(html|html_gzip|html_br|xml|xml_gzip|xml_br|txt|txt_gzip|txt_br|md|md_gzip|md_br)$\">\n";
 
 			if ( version_compare( Util_Environment::get_server_version(), '2.4', '>=' ) ) {
 				$rules .= "  Require all granted\n";
@@ -1430,10 +1438,16 @@ class PgCache_Environment {
 			$rules .= "    AddEncoding br .html_br\n";
 			$rules .= "    AddType text/xml .xml_br\n";
 			$rules .= "    AddEncoding br .xml_br\n";
+			$rules .= "    AddType text/plain .txt_br\n";
+			$rules .= "    AddEncoding br .txt_br\n";
+			$rules .= "    AddType text/markdown .md_br\n";
+			$rules .= "    AddEncoding br .md_br\n";
 			$rules .= "</IfModule>\n";
 			$rules .= "<IfModule mod_setenvif.c>\n";
 			$rules .= "    SetEnvIfNoCase Request_URI \\.html_br$ no-brotli\n";
 			$rules .= "    SetEnvIfNoCase Request_URI \\.xml_br$ no-brotli\n";
+			$rules .= "    SetEnvIfNoCase Request_URI \\.txt_br$ no-brotli\n";
+			$rules .= "    SetEnvIfNoCase Request_URI \\.md_br$ no-brotli\n";
 			$rules .= "</IfModule>\n";
 		}
 
@@ -1443,10 +1457,16 @@ class PgCache_Environment {
 			$rules .= "    AddEncoding gzip .html_gzip\n";
 			$rules .= "    AddType text/xml .xml_gzip\n";
 			$rules .= "    AddEncoding gzip .xml_gzip\n";
+			$rules .= "    AddType text/plain .txt_gzip\n";
+			$rules .= "    AddEncoding gzip .txt_gzip\n";
+			$rules .= "    AddType text/markdown .md_gzip\n";
+			$rules .= "    AddEncoding gzip .md_gzip\n";
 			$rules .= "</IfModule>\n";
 			$rules .= "<IfModule mod_setenvif.c>\n";
 			$rules .= "    SetEnvIfNoCase Request_URI \\.html_gzip$ no-gzip\n";
 			$rules .= "    SetEnvIfNoCase Request_URI \\.xml_gzip$ no-gzip\n";
+			$rules .= "    SetEnvIfNoCase Request_URI \\.txt_gzip$ no-gzip\n";
+			$rules .= "    SetEnvIfNoCase Request_URI \\.md_gzip$ no-gzip\n";
 			$rules .= "</IfModule>\n";
 		}
 
@@ -1528,6 +1548,15 @@ class PgCache_Environment {
 			}
 		}
 
+		$header_rules .= "    <FilesMatch \"llms\.txt$\">\n";
+		$header_rules .= "        Header set Content-Disposition \"inline\"\n";
+		$header_rules .= "        Header set X-Content-Type-Options \"nosniff\"\n";
+		$header_rules .= "    </FilesMatch>\n";
+		$header_rules .= "    <FilesMatch \"\.md$\">\n";
+		$header_rules .= "        Header set Content-Disposition \"inline\"\n";
+		$header_rules .= "        Header set X-Content-Type-Options \"nosniff\"\n";
+		$header_rules .= "    </FilesMatch>\n";
+
 		if ( strlen( $header_rules ) > 0 ) {
 			$rules .= "<IfModule mod_headers.c>\n";
 			$rules .= $header_rules;
@@ -1579,7 +1608,7 @@ class PgCache_Environment {
 
 			$rules .= 'location ~ ' . $cache_dir . ".*br$ {\n";
 			$rules .= "    brotli off;\n";
-			$rules .= '    types {' . $maybe_xml . "}\n";
+			$rules .= '    types {text/plain txt_br; text/markdown md_br;' . $maybe_xml . "}\n";
 			$rules .= "    default_type text/html;\n";
 			$rules .= "    add_header Content-Encoding br;\n";
 			$rules .= $common_rules;
@@ -1594,7 +1623,7 @@ class PgCache_Environment {
 
 			$rules .= 'location ~ ' . $cache_dir . ".*gzip$ {\n";
 			$rules .= "    gzip off;\n";
-			$rules .= '    types {' . $maybe_xml . "}\n";
+			$rules .= '    types {text/plain txt_gzip; text/markdown md_gzip;' . $maybe_xml . "}\n";
 			$rules .= "    default_type text/html;\n";
 			$rules .= "    add_header Content-Encoding gzip;\n";
 			$rules .= $common_rules;
