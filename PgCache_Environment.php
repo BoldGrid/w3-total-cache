@@ -1238,29 +1238,29 @@ class PgCache_Environment {
 
 		$rules .= 'set $w3tc_ext "";' . "\n";
 		$rules .= 'if (-f "$document_root' . $uri_prefix . '.html' . $env_w3tc_enc . '") {' . "\n";
-		$rules .= '  set $w3tc_ext .html;' . "\n";
+		$rules .= '    set $w3tc_ext .html;' . "\n";
 		$rules .= "}\n";
 
 		$rules .= 'if (-f "$document_root' . $uri_prefix . '.txt' . $env_w3tc_enc . '") {' . "\n";
-		$rules .= '  set $w3tc_ext .txt;' . "\n";
+		$rules .= '    set $w3tc_ext .txt;' . "\n";
 		$rules .= "}\n";
 
 		$rules .= 'if (-f "$document_root' . $uri_prefix . '.md' . $env_w3tc_enc . '") {' . "\n";
-		$rules .= '  set $w3tc_ext .md;' . "\n";
+		$rules .= '    set $w3tc_ext .md;' . "\n";
 		$rules .= "}\n";
 
 		if ( $config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 			$rules .= 'if (-f "$document_root' . $uri_prefix . '.xml' . $env_w3tc_enc . '") {' . "\n";
-			$rules .= '  set $w3tc_ext .xml;' . "\n";
+			$rules .= '    set $w3tc_ext .xml;' . "\n";
 			$rules .= "}\n";
 		}
 
 		$rules .= 'if ($w3tc_ext = "") {' . "\n";
-		$rules .= '  set $w3tc_rewrite 0;' . "\n";
+		$rules .= '    set $w3tc_rewrite 0;' . "\n";
 		$rules .= "}\n";
 
 		$rules .= 'if ($w3tc_rewrite = 1) {' . "\n";
-		$rules .= '  rewrite .* "' . $uri_prefix . $env_w3tc_ext . $env_w3tc_enc . '" last;' . "\n";
+		$rules .= '    rewrite .* "' . $uri_prefix . $env_w3tc_ext . $env_w3tc_enc . '" last;' . "\n";
 		$rules .= "}\n";
 
 		return $rules;
@@ -1629,6 +1629,17 @@ class PgCache_Environment {
 			$rules .= $common_rules;
 			$rules .= "}\n";
 		}
+
+		$rules .= 'location ~ ' . $cache_dir . ".*\.(txt|md)$ {\n";
+		$rules .= "    types {\n";
+		$rules .= "        text/markdown   md;\n";
+		$rules .= "        text/plain      txt;\n";
+		$rules .= "    }\n";
+		$rules .= "    default_type text/plain;\n";
+		$rules .= "    add_header Content-Disposition \"inline\";\n";
+		$rules .= "    add_header X-Content-Type-Options \"nosniff\";\n";
+		$rules .= $common_rules;
+		$rules .= "}\n";
 
 		$rules .= W3TC_MARKER_END_PGCACHE_CACHE . "\n";
 
