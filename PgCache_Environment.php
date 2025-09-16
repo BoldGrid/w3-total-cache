@@ -1548,7 +1548,7 @@ class PgCache_Environment {
 			}
 		}
 
-		$header_rules .= "    <FilesMatch \"llms\.txt$\">\n";
+		$header_rules .= "    <FilesMatch \"^llms\.txt$\">\n";
 		$header_rules .= "        Header set Content-Disposition \"inline\"\n";
 		$header_rules .= "        Header set X-Content-Type-Options \"nosniff\"\n";
 		$header_rules .= "    </FilesMatch>\n";
