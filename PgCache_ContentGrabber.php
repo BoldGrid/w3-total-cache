@@ -1686,7 +1686,13 @@ class PgCache_ContentGrabber {
 		$key_postfix = '';
 		if ( $this->_enhanced_mode && empty( $page_key_extension['group'] ) ) {
 			$key_postfix = '.html';
-			if ( $this->_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
+			$path        = $request_url_fragments['path'];
+
+			if ( preg_match( '~/llms\.txt$~', $path ) ) {
+				$key_postfix = '.txt';
+			} elseif ( preg_match( '~\.md$~', $path ) ) {
+				$key_postfix = '.md';
+			} elseif ( $this->_config->get_boolean( 'pgcache.cache.nginx_handle_xml' ) ) {
 				$content_type = isset( $page_key_extension['content_type'] ) ? $page_key_extension['content_type'] : '';
 
 				if (
@@ -2223,6 +2229,8 @@ class PgCache_ContentGrabber {
 				'application/atom+xml',
 				'application/rdf+xml',
 				'application/xml',
+				'text/plain',
+				'text/markdown',
 			)
 		);
 		return in_array( $content_type, $cache_headers, true );
