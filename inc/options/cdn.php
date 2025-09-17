@@ -123,9 +123,9 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
 						'</acronym>',
 						'<input id="cdn_rename_domain" class="button {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
-							'\'}" type="button" value="' . esc_attr__( 'modify attachment URLs' ) . '" />',
+							'\'}" type="button" value="' . esc_attr__( 'modify attachment URLs', 'w3-total-cache' ) . '" />',
 						'<input id="cdn_import_library" class="button {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
-							'\'}" type="button" value="' . esc_attr__( 'importing attachments into the Media Library' ) . '" />'
+							'\'}" type="button" value="' . esc_attr__( 'importing attachments into the Media Library', 'w3-total-cache' ) . '" />'
 					),
 					array(
 						'acronym' => array(
