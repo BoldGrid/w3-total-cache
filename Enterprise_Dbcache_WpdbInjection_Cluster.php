@@ -799,7 +799,8 @@ class Enterprise_Dbcache_WpdbInjection_Cluster extends DbCache_WpdbInjection {
 				sprintf(
 					// Translators: 1 WordPress version.
 					__(
-						'<strong>ERROR</strong>: WordPress %1$s requires MySQL 4.1.2 or higher'
+						'<strong>ERROR</strong>: WordPress %1$s requires MySQL 4.1.2 or higher',
+						'w3-total-cache'
 					),
 					$wp_version
 				)
