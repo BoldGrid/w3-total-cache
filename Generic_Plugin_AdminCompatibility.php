@@ -130,7 +130,7 @@ class Generic_Plugin_AdminCompatibility {
 			if ( is_network_admin() && current_user_can( 'manage_network_plugins' ) ) {
 				$temp .= ' <a class="button-secondary" href="' . network_admin_url( wp_nonce_url( 'plugins.php?action=deactivate&amp;plugin=' . $plugin . '&amp;plugin_status=all&amp;paged=1&amp;s=', 'deactivate-plugin_' . $plugin ) ) . '" title="' . esc_attr__( 'Deactivate this plugin', 'w3-total-cache' ) . '">' . __( 'Network Deactivate' ) . '</a>';
 			} else {
-				$temp .= ' <a class="button-secondary" href="' . admin_url( wp_nonce_url( 'plugins.php?action=deactivate&amp;plugin=' . $plugin . '&amp;plugin_status=all&amp;paged=1&amp;s=', 'deactivate-plugin_' . $plugin ) ) . '" title="' . esc_attr__( 'Deactivate this plugin' ) . '">' . __( 'Deactivate', 'w3-total-cache' ) . '</a>';
+				$temp .= ' <a class="button-secondary" href="' . admin_url( wp_nonce_url( 'plugins.php?action=deactivate&amp;plugin=' . $plugin . '&amp;plugin_status=all&amp;paged=1&amp;s=', 'deactivate-plugin_' . $plugin ) ) . '" title="' . esc_attr__( 'Deactivate this plugin', 'w3-total-cache' ) . '">' . __( 'Deactivate', 'w3-total-cache' ) . '</a>';
 			}
 
 			$temp .= '</li>';

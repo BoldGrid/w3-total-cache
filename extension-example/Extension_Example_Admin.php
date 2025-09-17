@@ -17,7 +17,7 @@ class Extension_Example_Admin {
 		$extensions['example'] = array(
 			'name'            => 'Example Extension',
 			'author'          => 'W3 EDGE',
-			'description'     => __( 'Example extension' ),
+			'description'     => __( 'Example extension', 'w3-total-cache' ),
 			'author_uri'      => 'https://www.w3-edge.com/',
 			'extension_uri'   => 'https://www.w3-edge.com/',
 			'extension_id'    => 'example',
