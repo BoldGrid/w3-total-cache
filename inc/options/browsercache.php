@@ -718,7 +718,7 @@ $security_session_values = array(
 						$value         = $this->_config->get_string( 'browsercache.other.cache.policy' );
 						$other_expires = $this->_config->get_string( 'browsercache.other.expires' );
 						?>
-						<option value="cache"<?php selected( $value, 'cache' ); ?>><?php esc_html_e( 'cache ("public")' ); ?></option>
+						<option value="cache"<?php selected( $value, 'cache' ); ?>><?php esc_html_e( 'cache ("public")', 'w3-total-cache' ); ?></option>
 						<option value="cache_public_maxage"<?php selected( $value, 'cache_public_maxage' ); ?><?php disabled( $is_nginx && $other_expires ); ?>><?php esc_html_e( 'cache with max-age ("public, max-age=EXPIRES_SECONDS")', 'w3-total-cache' ); ?></option>
 						<option value="cache_validation"<?php selected( $value, 'cache_validation' ); ?>><?php esc_html_e( 'cache with validation ("public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
 						<option value="cache_maxage"<?php selected( $value, 'cache_maxage' ); ?><?php disabled( $is_nginx && $other_expires ); ?>><?php esc_html_e( 'cache with max-age and validation ("max-age=EXPIRES_SECONDS, public, must-revalidate, proxy-revalidate")', 'w3-total-cache' ); ?></option>
