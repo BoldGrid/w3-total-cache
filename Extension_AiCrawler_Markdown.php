@@ -529,8 +529,26 @@ class Extension_AiCrawler_Markdown {
 			return;
 		}
 
-		self::flush_markdown_url_for_post( $post_id );
-		self::flush_llms_manifest();
+		$config = Dispatcher::config();
+
+		// Determine if Auto Generate is enabled.
+		if ( ! $config->get_boolean( array( 'aicrawler', 'auto_generate' ), false ) ) {
+			return;
+		}
+
+		// Check if the post is excluded.
+		if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+			return;
+		}
+
+		// What was the status BEFORE trash?
+		$prev_status = get_post_meta( $post_id, '_wp_trash_meta_status', true );
+
+		// Only flush/remove if it was publicly visible when trashed
+		if ( 'publish' === $prev_status ) {
+			self::flush_markdown_url_for_post( $post_id );
+			self::flush_llms_manifest();
+		}
 	}
 
 	/**
