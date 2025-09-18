@@ -84,9 +84,9 @@ class Extension_AiCrawler_Markdown {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( self::CRON_HOOK, array( __CLASS__, 'process_queue' ) );
-		add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) ); // phpcs:ignore WordPress.WP.CronInterval
-		add_action( 'update_option_permalink_structure', array( __CLASS__, 'refresh_markdown_urls' ), 10, 0 );
+		\add_action( self::CRON_HOOK, array( __CLASS__, 'process_queue' ) );
+		\add_filter( 'cron_schedules', array( __CLASS__, 'add_schedule' ) ); // phpcs:ignore WordPress.WP.CronInterval
+		\add_action( 'update_option_permalink_structure', array( __CLASS__, 'refresh_markdown_urls' ), 10, 0 );
 
 		if ( self::queue_has_items() ) {
 			self::schedule_cron();
@@ -108,7 +108,7 @@ class Extension_AiCrawler_Markdown {
 		}
 
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			$scheduled = (bool) wp_schedule_event( time(), 'ten_seconds', self::CRON_HOOK );
+			$scheduled = (bool) \wp_schedule_event( time(), 'ten_seconds', self::CRON_HOOK );
 		}
 
 		return $scheduled;
@@ -122,8 +122,8 @@ class Extension_AiCrawler_Markdown {
 	 * @return void
 	 */
 	private static function unschedule_cron() {
-		if ( wp_next_scheduled( self::CRON_HOOK ) ) {
-			wp_clear_scheduled_hook( self::CRON_HOOK );
+		if ( \wp_next_scheduled( self::CRON_HOOK ) ) {
+			\wp_clear_scheduled_hook( self::CRON_HOOK );
 		}
 	}
 
@@ -140,7 +140,7 @@ class Extension_AiCrawler_Markdown {
 		if ( ! isset( $schedules['ten_seconds'] ) ) {
 			$schedules['ten_seconds'] = array(
 				'interval' => 10,
-				'display'  => esc_html__( 'Every Ten Seconds', 'w3-total-cache' ),
+				'display'  => \esc_html__( 'Every Ten Seconds', 'w3-total-cache' ),
 			);
 		}
 		return $schedules;
@@ -175,7 +175,7 @@ class Extension_AiCrawler_Markdown {
 
 		foreach ( $query->posts as $post_id ) {
 			$markdown_url = Extension_AiCrawler_Markdown_Server::get_markdown_url( $post_id );
-			update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
+			\update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
 		}
 	}
 
@@ -189,18 +189,19 @@ class Extension_AiCrawler_Markdown {
 	 * @return bool True on success, false otherwise.
 	 */
 	public static function generate_markdown( $url ) {
-		$url     = esc_url_raw( $url );
-		$post_id = url_to_postid( $url );
+		$url     = \esc_url_raw( $url );
+		$post_id = \url_to_postid( $url );
 
 		if ( ! $post_id || Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
 			return false;
 		}
 
-		update_post_meta( $post_id, self::META_STATUS, 'queued' );
-		update_post_meta( $post_id, self::META_SOURCE_URL, $url );
-		delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+		\update_post_meta( $post_id, self::META_STATUS, 'queued' );
+		\update_post_meta( $post_id, self::META_SOURCE_URL, $url );
+		\delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+	
 		// Update the timestamp when added to the queue.
-		update_post_meta( $post_id, self::META_TIMESTAMP, time() );
+		\update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 
 		self::schedule_cron();
 
@@ -218,38 +219,38 @@ class Extension_AiCrawler_Markdown {
 		$posts = self::get_queue_posts();
 
 		foreach ( $posts as $post_id ) {
-			$url = get_post_meta( $post_id, self::META_SOURCE_URL, true );
+			$url = \get_post_meta( $post_id, self::META_SOURCE_URL, true );
 
 			// Update the timestamp when processing starts.
-			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
+			\update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 
 			if ( empty( $url ) ) {
-				update_post_meta( $post_id, self::META_STATUS, 'error' );
-				update_post_meta( $post_id, self::META_ERROR_MESSAGE, __( 'Missing URL.', 'w3-total-cache' ) );
+				\update_post_meta( $post_id, self::META_STATUS, 'error' );
+				\update_post_meta( $post_id, self::META_ERROR_MESSAGE, __( 'Missing URL.', 'w3-total-cache' ) );
 				continue;
 			}
 
 			if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
-				update_post_meta( $post_id, self::META_STATUS, 'excluded' );
+				\update_post_meta( $post_id, self::META_STATUS, 'excluded' );
 				continue;
 			}
 
-			update_post_meta( $post_id, self::META_STATUS, 'processing' );
-			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+			\update_post_meta( $post_id, self::META_STATUS, 'processing' );
+			\delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 			$response = Extension_AiCrawler_Central_Api::call( 'convert', 'POST', array( 'url' => $url ) );
 
 			if ( empty( $response['success'] ) || empty( $response['data']['markdown_content'] ) ) {
-				update_post_meta( $post_id, self::META_STATUS, 'error' );
+				\update_post_meta( $post_id, self::META_STATUS, 'error' );
 				$code    = ! empty( $response['error']['code'] ) ? $response['error']['code'] : '';
 				$message = ! empty( $response['error']['message'] ) ? $response['error']['message'] : __( 'Unknown error.', 'w3-total-cache' );
-				update_post_meta(
+				\update_post_meta(
 					$post_id,
 					self::META_ERROR_MESSAGE,
 					sprintf(
 						// translators: 1%$s: error code, %2$s: error message.
 						__( 'Error %1$s: %2$s', 'w3-total-cache' ),
-						esc_html( $code ),
-						esc_html( $message )
+						\esc_html( $code ),
+						\esc_html( $message )
 					)
 				);
 				continue;
@@ -258,13 +259,13 @@ class Extension_AiCrawler_Markdown {
 			$markdown     = $response['data']['markdown_content'];
 			$markdown_url = Extension_AiCrawler_Markdown_Server::get_markdown_url( $post_id );
 
-			update_post_meta( $post_id, self::META_MARKDOWN, $markdown );
-			update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
-			update_post_meta( $post_id, self::META_STATUS, 'complete' );
-			delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
+			\update_post_meta( $post_id, self::META_MARKDOWN, $markdown );
+			\update_post_meta( $post_id, self::META_MARKDOWN_URL, $markdown_url );
+			\update_post_meta( $post_id, self::META_STATUS, 'complete' );
+			\delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
 
 			// Update the timestamp again when complete.
-			update_post_meta( $post_id, self::META_TIMESTAMP, time() );
+			\update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 		}
 
 		if ( ! self::queue_has_items() ) {
@@ -323,7 +324,7 @@ class Extension_AiCrawler_Markdown {
 		$counts   = array_fill_keys( $statuses, 0 );
 
 		foreach ( $queue_items as $item_id ) {
-			$status = get_post_meta( $item_id, self::META_STATUS, true );
+			$status = \get_post_meta( $item_id, self::META_STATUS, true );
 
 			if ( isset( $counts[ $status ] ) ) {
 				++$counts[ $status ];
@@ -429,7 +430,7 @@ class Extension_AiCrawler_Markdown {
 	 */
 	public static function flush_markdown_on_update( $post_id, $post_after, $post_before ) {
 		// Don't run on revisions.
-		if ( wp_is_post_revision( $post_id ) ) {
+		if ( \wp_is_post_revision( $post_id ) ) {
 			return;
 		}
 
@@ -482,7 +483,7 @@ class Extension_AiCrawler_Markdown {
 		}
 
 		// Don't run on revisions.
-		if ( wp_is_post_revision( $post->ID ) ) {
+		if ( \wp_is_post_revision( $post->ID ) ) {
 			return;
 		}
 
@@ -493,7 +494,7 @@ class Extension_AiCrawler_Markdown {
 			return;
 		}
 
-		// Determine if Auto Generate is enabled.
+		// Only care about posts your crawler includes.
 		if ( Extension_AiCrawler_Util::is_excluded( $post->ID ) ) {
 			return;
 		}
@@ -542,7 +543,7 @@ class Extension_AiCrawler_Markdown {
 		}
 
 		// What was the status BEFORE trash?
-		$prev_status = get_post_meta( $post_id, '_wp_trash_meta_status', true );
+		$prev_status = \get_post_meta( $post_id, '_wp_trash_meta_status', true );
 
 		// Only flush/remove if it was publicly visible when trashed
 		if ( 'publish' === $prev_status ) {
@@ -565,7 +566,7 @@ class Extension_AiCrawler_Markdown {
 			return;
 		}
 
-		$url = get_post_meta( $post_id, Extension_AiCrawler_Markdown::META_MARKDOWN_URL, true );
+		$url = \get_post_meta( $post_id, Extension_AiCrawler_Markdown::META_MARKDOWN_URL, true );
 
 		if ( empty( $url ) ) {
 			return;
