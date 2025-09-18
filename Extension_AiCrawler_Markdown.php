@@ -368,7 +368,7 @@ class Extension_AiCrawler_Markdown {
 	}
 
 	/**
-	 * Generate markdown when a post is saved if the option is enabled.
+	 * Generate markdown when a post is saved.
 	 *
 	 * @since X.X.X
 	 *
@@ -379,8 +379,10 @@ class Extension_AiCrawler_Markdown {
 	 * @return void
 	 */
 	public static function generate_markdown_on_save( $post_id, $post, $update ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
-		// Avoid recursion.
-		remove_action( 'save_post', array( __CLASS__, 'generate_markdown_on_save' ), 10 );
+		// Don't run on revisions.
+		if ( \wp_is_post_revision( $post_id ) ) {
+			return;
+		}
 
 		// Don't run on autosave.
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -399,7 +401,173 @@ class Extension_AiCrawler_Markdown {
 			return;
 		}
 
+		// Flush llms.txt cache if the post is new.
+		if ( ! $update ) {
+			self::flush_llms_manifest();
+		}
+
+		// Flush markdown cache URL for post.
+		self::flush_markdown_url_for_post( $post_id );
+
 		// Generate markdown for the post.
 		self::generate_markdown( get_permalink( $post_id ) );
+	}
+
+	/**
+	 * Flushes the markdown cache when a post slug is updated.
+	 *
+	 * This method is triggered on the `post_updated` hook and is used to clear
+	 * the markdown cache for a specific post whenever its slug is updated.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int     $post_id     The ID of the post being updated.
+	 * @param WP_Post $post_after  The post object following the update.
+	 * @param WP_Post $post_before The post object prior to the update.
+	 *
+	 * @return void
+	 */
+	public static function flush_markdown_on_update( $post_id, $post_after, $post_before ) {
+		// Don't run on revisions.
+		if ( wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		$config = Dispatcher::config();
+
+		// Determine if Auto Generate is enabled.
+		if ( ! $config->get_boolean( array( 'aicrawler', 'auto_generate' ), false ) ) {
+			return;
+		}
+
+		// Only care about posts your crawler includes.
+		if ( Extension_AiCrawler_Util::is_excluded( $post_id ) ) {
+			return;
+		}
+
+		// If the slug changed, flush the old URL too.
+		if ( $post_before->post_name !== $post_after->post_name ) {
+			// Flush the old cache entry.
+			self::flush_markdown_url_for_post( $post_id );
+
+			// Flush the llms.txt due to a change in post URL.
+			self::flush_llms_manifest();
+		}
+	}
+
+	/**
+	 * Flushes the markdown cache when the status of a post changes to non-public.
+	 *
+	 * This method is triggered on post status transitions and is used to clear
+	 * the markdown cache for the affected post when it transitions to a non-public status.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string   $new_status The new status of the post.
+	 * @param string   $old_status The previous status of the post.
+	 * @param WP_Post  $post       The post object whose status has changed.
+	 *
+	 * @return void
+	 */
+	public static function flush_markdown_on_status_change( $new_status, $old_status, $post ) {
+		// Bail if no status change or old/new status isn't publish.
+		if (
+			$old_status == $new_status
+			|| (
+				'publish' !== $old_status
+				&& 'publish' !== $new_status
+			)
+		) {
+			return;
+		}
+
+		// Don't run on revisions.
+		if ( wp_is_post_revision( $post->ID ) ) {
+			return;
+		}
+
+		$config = Dispatcher::config();
+
+		// Determine if Auto Generate is enabled.
+		if ( ! $config->get_boolean( array( 'aicrawler', 'auto_generate' ), false ) ) {
+			return;
+		}
+
+		// Determine if Auto Generate is enabled.
+		if ( Extension_AiCrawler_Util::is_excluded( $post->ID ) ) {
+			return;
+		}
+
+		$was_public = 'publish' === $old_status;
+		$is_public  = 'publish' === $new_status;
+
+		// If visibility affecting inclusion changed, refresh cache.
+		if ( $was_public && ! $is_public ) {
+			// Flush markdown cache URL for post.
+			self::flush_markdown_url_for_post( $post->ID );
+
+			// Flush the llms.txt due to post becoming private.
+			self::flush_llms_manifest();
+		} elseif ( ! $was_public && $is_public ) {
+			// Flush the llms.txt due to post moving to published.
+			self::flush_llms_manifest();
+		}
+	}
+
+	/**
+	 * Flush cached markdown URLs when a post is deleted.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object provided by the action.
+	 *
+	 * @return void
+	 */
+	public static function flush_markdown_cache_on_delete( $post_id, $post = null ) {
+		if ( \wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		self::flush_markdown_url_for_post( $post_id );
+		self::flush_llms_manifest();
+	}
+
+	/**
+	 * Flush markdown URL for the provided post.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return void
+	 */
+	private static function flush_markdown_url_for_post( $post_id ) {
+		if ( ! function_exists( 'w3tc_flush_url' ) ) {
+			return;
+		}
+
+		$url = get_post_meta( $post_id, Extension_AiCrawler_Markdown::META_MARKDOWN_URL, true );
+
+		if ( empty( $url ) ) {
+			return;
+		}
+
+		\w3tc_flush_url( $url );
+	}
+
+	/**
+	 * Flush the cached llms.txt manifest.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	private static function flush_llms_manifest() {
+		if ( ! function_exists( 'w3tc_flush_url' ) ) {
+			return;
+		}
+
+		\w3tc_flush_url( home_url( '/llms.txt' ) );
 	}
 }
