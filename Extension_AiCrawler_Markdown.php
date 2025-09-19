@@ -199,7 +199,7 @@ class Extension_AiCrawler_Markdown {
 		\update_post_meta( $post_id, self::META_STATUS, 'queued' );
 		\update_post_meta( $post_id, self::META_SOURCE_URL, $url );
 		\delete_post_meta( $post_id, self::META_ERROR_MESSAGE );
-	
+
 		// Update the timestamp when added to the queue.
 		\update_post_meta( $post_id, self::META_TIMESTAMP, time() );
 
@@ -528,7 +528,7 @@ class Extension_AiCrawler_Markdown {
 			return;
 		}
 
-		$status = get_post_status( $post_id );
+		$status = \get_post_status( $post_id );
 
 		// Only flush/remove if it was publicly visible when trashed
 		if ( 'publish' === $status ) {
@@ -593,6 +593,6 @@ class Extension_AiCrawler_Markdown {
 			return;
 		}
 
-		\w3tc_flush_url( home_url( '/llms.txt' ) );
+		\w3tc_flush_url( \home_url( '/llms.txt' ) );
 	}
 }
