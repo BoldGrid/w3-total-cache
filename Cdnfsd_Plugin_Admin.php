@@ -59,7 +59,7 @@ class Cdnfsd_Plugin_Admin {
 		);
 
 		$cdnfsd_engine_values['totalcdn'] = array(
-			'label' => __( 'Total CDN (recommended)', 'w3-total-cache' ),
+			'label' => W3TC_CDN_NAME . ' ' . __( '(recommended)', 'w3-total-cache' ),
 		);
 
 		$cdnfsd_engine_values['bunnycdn'] = array(
