@@ -29,11 +29,11 @@ function w3tc_show_totalcdn_fsd_enable_notice(
 
 	W3tc_Lightbox.open(
 		{
-	    	id: 'w3tc-overlay',
-    		close: '',
-    		width: 800,
-    		height: 360,
-    		url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=cdn_totalcdn_fsd_enable_notice',
+			id: 'w3tc-overlay',
+			close: '',
+			width: 800,
+			height: 360,
+			url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce + '&w3tc_action=cdn_totalcdn_fsd_enable_notice',
 			callback: function ( lightbox ) {
 				function cleanup() {
 					jQuery( document ).off( 'keyup.w3tc_totalcdn_fsd_notice' );
@@ -87,9 +87,9 @@ jQuery(
 			}
 
 			var enabled = $( '#cdnfsd__enabled' ).is( ':checked' );
-    		var engine = $( '#cdnfsd__engine' ).val();
+			var engine = $( '#cdnfsd__engine' ).val();
 
-    		if ( ! enabled || 'totalcdn' !== engine ) {
+			if ( ! enabled || 'totalcdn' !== engine ) {
 				return;
 			}
 
