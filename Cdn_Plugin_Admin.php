@@ -24,6 +24,9 @@ class Cdn_Plugin_Admin {
 		$c          = Dispatcher::config();
 		$cdn_engine = $c->get_string( 'cdn.engine' );
 
+		\add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_enable_notice', array( $this, 'w3tc_ajax_cdn_totalcdn_fsd_enable_notice' ) );
+
 		if ( $c->get_boolean( 'cdn.enabled' ) ) {
 			$admin_notes = new Cdn_AdminNotes();
 			\add_filter( 'w3tc_notes', array( $admin_notes, 'w3tc_notes' ) );
@@ -95,6 +98,27 @@ class Cdn_Plugin_Admin {
 	}
 
 	/**
+	 * Enqueue admin scripts for the CDN general settings modal.
+	 *
+	 * @return void
+	 */
+	public function admin_enqueue_scripts() {
+		$page_val = Util_Request::get_string( 'page' );
+
+		if ( 'w3tc_general' !== $page_val ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'w3tc-cdn-totalcdn-fsd-enable-popup',
+			plugins_url( 'Cdn_TotalCdn_FsdEnablePopup.js', W3TC_FILE ),
+			array( 'jquery', 'w3tc-lightbox' ),
+			W3TC_VERSION,
+			false
+		);
+	}
+
+	/**
 	 * Adds configuration options for CDN settings in the general settings box area.
 	 *
 	 * @return void
@@ -115,8 +139,10 @@ class Cdn_Plugin_Admin {
 			'label' => 'Select a provider',
 		);
 
+		$tcdn_status               = $state->get_string( 'cdn.totalcdn.status' );
 		$engine_values['totalcdn'] = array(
 			'label'    => esc_html( W3TC_CDN_NAME ),
+			'disabled' => strpos( $tcdn_status, 'active' ) === 0 ? false : true,
 			'optgroup' => $optgroup_rec,
 		);
 
@@ -211,6 +237,15 @@ class Cdn_Plugin_Admin {
 		$cdn_engine  = $config->get_string( 'cdn.engine' );
 
 		include W3TC_DIR . '/Cdn_GeneralPage_View.php';
+	}
+
+	/**
+	 * Popup modal for Total CDN FSD enablement steps.
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_cdn_totalcdn_fsd_enable_notice() {
+		include W3TC_DIR . '/Cdn_TotalCdn_FsdEnablePopup_View.php';
 	}
 
 	/**

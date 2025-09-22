@@ -47,12 +47,14 @@ Util_Ui::config_overloading_button(
 	)
 );
 ?>
-<div id="w3tc-tcdn-ad-general">
-	<?php
-	if (
-		( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
-		in_array( $state->get_string( 'cdn.totalcdn.status' ), array( 'canceled', 'inactive.expired' ), true )
-	) {
+<?php
+if (
+	( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
+	in_array( $state->get_string( 'cdn.totalcdn.status' ), array( 'canceled', 'inactive.expired' ), true )
+) {
+	?>
+	<div id="w3tc-tcdn-ad-general">
+		<?php
 		echo wp_kses(
 			sprintf(
 				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,
@@ -86,9 +88,11 @@ Util_Ui::config_overloading_button(
 				),
 			)
 		);
-	}
-	?>
-</div>
+		?>
+		</div>
+	<?php
+}
+?>
 <table class="form-table">
 	<?php
 	Util_Ui::config_item(
