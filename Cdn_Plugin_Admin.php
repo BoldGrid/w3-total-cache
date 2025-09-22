@@ -140,8 +140,10 @@ class Cdn_Plugin_Admin {
 			'label' => 'Select a provider',
 		);
 
+		$tcdn_status               = $state->get_string( 'cdn.totalcdn.status' );
 		$engine_values['totalcdn'] = array(
 			'label'    => esc_html( W3TC_CDN_NAME ),
+			'disabled' => strpos( $tcdn_status, 'active' ) === 0 ? false : true,
 			'optgroup' => $optgroup_rec,
 		);
 
