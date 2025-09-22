@@ -48,6 +48,8 @@ class Cdnfsd_Plugin_Admin {
 	 */
 	public function w3tc_settings_general_boxarea_cdn_footer() {
 		$config               = Dispatcher::config();
+		$state                = Dispatcher::config_state();
+		$cdn_status           = $state->get_string( 'cdn.totalcdn.status' );
 		$cdnfsd_enabled       = $config->get_boolean( 'cdnfsd.enabled' );
 		$cdnfsd_engine        = $config->get_string( 'cdnfsd.engine' );
 		$is_pro               = Util_Environment::is_w3tc_pro( $config );
@@ -58,11 +60,10 @@ class Cdnfsd_Plugin_Admin {
 			'label' => 'Select a provider',
 		);
 
-		if ( $is_pro && Cdn_TotalCdn_Page::is_active() ) {
-			$cdnfsd_engine_values['totalcdn'] = array(
-				'label' => W3TC_CDN_NAME . ' ' . __( '(recommended)', 'w3-total-cache' ),
-			);
-		}
+		$cdnfsd_engine_values['totalcdn'] = array(
+			'label'    => W3TC_CDN_NAME . ' ' . __( '(recommended)', 'w3-total-cache' ),
+			'disabled' => strpos( $cdn_status, 'active' ) === 0 ? false : true,
+		);
 
 		$cdnfsd_engine_values['bunnycdn'] = array(
 			'label' => __( 'Bunny CDN', 'w3-total-cache' ),
