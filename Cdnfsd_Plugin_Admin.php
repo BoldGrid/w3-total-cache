@@ -58,8 +58,14 @@ class Cdnfsd_Plugin_Admin {
 			'label' => 'Select a provider',
 		);
 
+		if ( $is_pro && Cdn_TotalCdn_Page::is_active() ) {
+			$cdnfsd_engine_values['totalcdn'] = array(
+				'label' => __( 'Total CDN (recommended)', 'w3-total-cache' ),
+			);
+		}
+
 		$cdnfsd_engine_values['bunnycdn'] = array(
-			'label' => __( 'Bunny CDN (recommended)', 'w3-total-cache' ),
+			'label' => __( 'Bunny CDN', 'w3-total-cache' ),
 		);
 
 		$cdnfsd_engine_values['cloudfront'] = array(
