@@ -60,7 +60,7 @@ class Cdnfsd_Plugin_Admin {
 
 		if ( $is_pro && Cdn_TotalCdn_Page::is_active() ) {
 			$cdnfsd_engine_values['totalcdn'] = array(
-				'label' => __( 'Total CDN (recommended)', 'w3-total-cache' ),
+				'label' => W3TC_CDN_NAME . ' ' . __( '(recommended)', 'w3-total-cache' ),
 			);
 		}
 

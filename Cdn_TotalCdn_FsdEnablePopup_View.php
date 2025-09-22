@@ -15,7 +15,18 @@ if ( ! defined( 'W3TC' ) ) {
 <div class="w3tchelp_content">
 	<h3><b><?php esc_html_e( 'Full Site Delivery setup required', 'w3-total-cache' ); ?></b></h3>
 	<p>
-		<?php esc_html_e( 'You just enabled Full Site Delivery (FSD) for Total CDN. To finish the setup you need to update your DNS so traffic is routed through the CDN.', 'w3-total-cache' ); ?>
+		<?php
+		echo esc_html(
+			sprintf(
+				// Translators: 1 CDN product name.
+				__(
+					'You just enabled Full Site Delivery (FSD) for %1$s. To finish the setup you need to update your DNS so traffic is routed through the CDN.',
+					'w3-total-cache'
+				),
+				W3TC_CDN_NAME
+			)
+		);
+		?>
 	</p>
 	<p>
 		<?php
