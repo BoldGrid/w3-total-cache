@@ -556,15 +556,11 @@ class Extension_AiCrawler_Markdown {
 	 *
 	 * @since X.X.X
 	 *
-	 * @param int     $post_id Post ID.
-	 * @param WP_Post $post    Post object provided by the action.
+	 * @param int $post_id Post ID.
 	 *
 	 * @return void
 	 */
-	public static function flush_markdown_cache_on_delete( $post_id, $post = null ) {
-		if ( empty( $post_id ) ) {
-			$post_id = $post->ID;
-		}
+	public static function flush_markdown_cache_on_delete( $post_id ) {
 
 		if ( \wp_is_post_revision( $post_id ) ) {
 			return;

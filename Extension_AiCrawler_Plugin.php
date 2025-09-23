@@ -116,7 +116,7 @@ class Extension_AiCrawler_Plugin {
 		 * @param int     $post_id Post ID.
 		 * @param WP_Post $post    Post object.
 		 */
-		add_action( 'before_delete_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_cache_on_delete' ), 10, 2 );
+		add_action( 'before_delete_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_cache_on_delete' ), 10, 1 );
 
 		// Ensure rewrite rules are flushed when needed.
 		add_action( 'init', array( __CLASS__, 'maybe_flush_rewrite_rules' ), 99 );
