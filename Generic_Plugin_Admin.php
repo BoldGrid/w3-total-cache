@@ -1344,6 +1344,7 @@ class Generic_Plugin_Admin {
 			// Show success message.
 			$logo_url = plugins_url( 'pub/img/totalcdn-logo.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
 
+			// translators: 1: party logo image. 2: congratulation text. 3: auto configuration success message. 4: performance improvement message. 5: CDN settings page message. 6: CDN settings page link text. 7: support article message. 8: support article link text. 9: FSD availability message (Pro only).
 			$html = sprintf(
 				'<div id="w3tc-tcdn-success" class="notice inline">
 					<div class="w3tc-success-inner">
