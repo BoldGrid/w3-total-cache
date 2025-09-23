@@ -520,13 +520,12 @@ class Extension_AiCrawler_Markdown {
 	 *
 	 * @since X.X.X
 	 *
-	 * @param bool|null $trash           Value to short-circuit trashing (should be null|false unless another filter short-circuits).
-	 * @param WP_Post   $post            Post object being trashed.
-	 * @param string    $previous_status Previous status.
+	 * @param bool|null $trash Value to short-circuit trashing (should be null|false unless another filter short-circuits).
+	 * @param WP_Post   $post  Post object being trashed.
 	 *
 	 * @return bool|null Original $trash value (unchanged).
 	 */
-	public static function flush_markdown_cache_on_trash( $trash, $post, $previous_status ) {
+	public static function flush_markdown_cache_on_trash( $trash, $post ) {
 		// Be defensive about what we get.
 		if ( ! $post instanceof \WP_Post ) {
 			return $trash;

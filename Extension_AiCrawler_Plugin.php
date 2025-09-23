@@ -49,11 +49,73 @@ class Extension_AiCrawler_Plugin {
 			( new \W3TC\Extension_AiCrawler_Mock_Api() )->run();
 		}
 
+		/**
+		 * Fires once a post has been saved.
+		 *
+		 * @since 1.5.0
+		 *
+		 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L5110
+		 *
+		 * @param int     $post_id Post ID.
+		 * @param WP_Post $post    Post object.
+		 * @param bool    $update  Whether this is an existing post being updated.
+		 */
 		add_action( 'save_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'generate_markdown_on_save' ), 10, 3 );
 		add_action( 'save_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_on_save' ), 10, 3 );
+
+		/**
+		 * Fires once an existing post has been updated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L5079
+		 *
+		 * @param int     $post_id      Post ID.
+		 * @param WP_Post $post_after   Post object following the update.
+		 * @param WP_Post $post_before  Post object before the update.
+		 */
 		add_action( 'post_updated', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_on_update' ),   10, 3 );
+		
+		/**
+		 * Fires when a post is transitioned from one status to another.
+		 *
+		 * @since 2.3.0
+		 *
+		 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L5740
+		 *
+		 * @param string  $new_status New post status.
+		 * @param string  $old_status Old post status.
+		 * @param WP_Post $post       Post object.
+		 */
 		add_action( 'transition_post_status', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_on_status_change' ), 10, 3 );
-		add_filter( 'pre_trash_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_cache_on_trash' ), 10, 3 );
+		
+		/**
+		 * Filters whether a post trashing should take place.
+		 *
+		 * @since 4.9.0
+		 * @since 6.3.0 Added the `$previous_status` parameter.
+		 *
+		 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L3951-L3961
+		 *
+		 * @param bool|null $trash           Whether to go forward with trashing.
+		 * @param WP_Post   $post            Post object.
+		 * @param string    $previous_status The status of the post about to be trashed.
+		 */
+		add_filter( 'pre_trash_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_cache_on_trash' ), 10, 2 );
+		
+		/**
+		 * Fires before a post is deleted, at the start of wp_delete_post().
+		 *
+		 * @since 3.2.0
+		 * @since 5.5.0 Added the `$post` parameter.
+		 *
+		 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L3753
+		 *
+		 * @see wp_delete_post()
+		 *
+		 * @param int     $post_id Post ID.
+		 * @param WP_Post $post    Post object.
+		 */
 		add_action( 'before_delete_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_cache_on_delete' ), 10, 2 );
 
 		// Ensure rewrite rules are flushed when needed.
