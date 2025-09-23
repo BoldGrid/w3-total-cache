@@ -561,14 +561,13 @@ class Extension_AiCrawler_Markdown {
 	 * @return void
 	 */
 	public static function flush_markdown_cache_on_delete( $post_id ) {
-
 		if ( \wp_is_post_revision( $post_id ) ) {
 			return;
 		}
 
 		$status = \get_post_status( $post_id );
 
-		// Only flush/remove if it was publicly visible when trashed
+		// Only flush/remove if it was publicly visible when deleted.
 		if ( 'publish' === $status ) {
 			self::flush_markdown_url_for_post( $post_id );
 			self::flush_llms_manifest();
