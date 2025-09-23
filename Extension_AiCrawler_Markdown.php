@@ -538,7 +538,7 @@ class Extension_AiCrawler_Markdown {
 	}
 
 	/**
-	 * Flush cached markdown URLs when a post is deleted.
+	 * Flush cached markdown URLs when a post is restored from trash.
 	 *
 	 * @since X.X.X
 	 *
