@@ -369,11 +369,17 @@ class Extension_AiCrawler_Markdown {
 	}
 
 	/**
-	 * Flush markdown cache when a post is saved.
+	 * Callback: Flush markdown cache when a post is saved.
+	 *
+	 * This method is triggered on the `save_post` action hook and is used to generate
+	 * the markdown cache for a specific post whenever it is saved.
 	 *
 	 * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
 	 *
 	 * @since X.X.X
+	 *
+	 * @link https://developer.wordpress.org/reference/hooks/save_post/
+	 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L5110
 	 *
 	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post    Post object.
@@ -409,9 +415,15 @@ class Extension_AiCrawler_Markdown {
 	}
 
 	/**
-	 * Flushes the markdown cache file when a post is saved.
+	 * Callback: Flushes the markdown cache file when a post is saved.
+	 *
+	 * This method is triggered on the `save_post` action hook and is used to clear
+	 * the markdown cache for a specific post whenever it is saved.
 	 *
 	 * @since X.X.X
+	 *
+	 * @link https://developer.wordpress.org/reference/hooks/save_post/
+	 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L5110
 	 *
 	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post    Post object.
@@ -440,12 +452,15 @@ class Extension_AiCrawler_Markdown {
 	}
 
 	/**
-	 * Flushes the markdown cache when a post slug is updated.
+	 * Callback: Flushes the markdown cache when a post slug is updated.
 	 *
-	 * This method is triggered on the `post_updated` hook and is used to clear
+	 * This method is triggered on the `post_updated` action hook and is used to clear
 	 * the markdown cache for a specific post whenever its slug is updated.
 	 *
 	 * @since X.X.X
+	 *
+	 * @link https://developer.wordpress.org/reference/hooks/post_updated/
+	 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L5079
 	 *
 	 * @param int     $post_id     The ID of the post being updated.
 	 * @param WP_Post $post_after  The post object following the update.
@@ -467,16 +482,19 @@ class Extension_AiCrawler_Markdown {
 	}
 
 	/**
-	 * Flushes the markdown cache when the status of a post changes to non-public.
+	 * Callback: Flushes the markdown cache when the status of a post changes to non-public.
 	 *
-	 * This method is triggered on post status transitions and is used to clear
+	 * This method is triggered on the transition_post_status action hook and is used to clear
 	 * the markdown cache for the affected post when it transitions to a non-public status.
 	 *
 	 * @since X.X.X
 	 *
-	 * @param string   $new_status The new status of the post.
-	 * @param string   $old_status The previous status of the post.
-	 * @param WP_Post  $post       The post object whose status has changed.
+	 * @link https://developer.wordpress.org/reference/hooks/transition_post_status/
+	 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L5740
+	 *
+	 * @param string  $new_status The new status of the post.
+	 * @param string  $old_status The previous status of the post.
+	 * @param WP_Post $post       The post object whose status has changed.
 	 *
 	 * @return void
 	 */
@@ -514,11 +532,15 @@ class Extension_AiCrawler_Markdown {
 	}
 
 	/**
-	 * Flush cached markdown URLs when a post is moved to the trash (filter context).
+	 * Callback: Flush cached markdown URLs when a post is moved to the trash (filter context).
 	 *
-	 * Hooked to: pre_trashed_post
+	 * This method is triggered on the `pre_trash_post` filter and is used to clear
+	 * the markdown cache for a specific post whenever it is moved to the trash.
 	 *
 	 * @since X.X.X
+	 *
+	 * @link https://developer.wordpress.org/reference/hooks/pre_trash_post/
+	 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L3951-L3961
 	 *
 	 * @param bool|null $trash Value to short-circuit trashing (should be null|false unless another filter short-circuits).
 	 * @param WP_Post   $post  Post object being trashed.
@@ -554,10 +576,15 @@ class Extension_AiCrawler_Markdown {
 	/**
 	 * Flush cached markdown URLs when a post is deleted.
 	 *
+	 * This method is triggered on the `before_delete_post` action and is used to clear
+	 * the markdown cache for a specific post whenever it is deleted.
+	 *
 	 * @since X.X.X
 	 *
-	 * @param int $post_id Post ID.
+	 * @link https://developer.wordpress.org/reference/hooks/before_delete_post/
+	 * @link https://github.com/WordPress/wordpress-develop/blob/6.8.2/src/wp-includes/post.php#L3753
 	 *
+	 * @param  int $post_id Post ID.
 	 * @return void
 	 */
 	public static function flush_markdown_cache_on_delete( $post_id ) {
@@ -588,7 +615,7 @@ class Extension_AiCrawler_Markdown {
 			return;
 		}
 
-		$url = \get_post_meta( $post_id, Extension_AiCrawler_Markdown::META_MARKDOWN_URL, true );
+		$url = \get_post_meta( $post_id, self::META_MARKDOWN_URL, true );
 
 		if ( empty( $url ) ) {
 			return;
