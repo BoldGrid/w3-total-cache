@@ -68,7 +68,7 @@ class CdnEngine_Mirror_TotalCdn extends CdnEngine_Mirror {
 		}
 
 		$url_prefixes = $this->url_prefixes();
-		$api          = new Cdn_BunnyCdn_Api( $this->_config );
+		$api          = new Cdn_TotalCdn_Api( $this->_config );
 		$results      = array();
 
 		try {
