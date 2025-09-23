@@ -405,7 +405,7 @@ class Extension_AiCrawler_Markdown {
 		}
 
 		// Generate markdown for the post.
-		self::generate_markdown( get_permalink( $post_id ) );
+		self::generate_markdown( \get_permalink( $post_id ) );
 	}
 
 	/**
