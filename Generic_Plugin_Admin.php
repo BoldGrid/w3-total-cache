@@ -1328,7 +1328,7 @@ class Generic_Plugin_Admin {
 			if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
 				$fsd_html = '<p>' .
 					sprintf(
-						// translators: 1: CDN name, 2: HTML link oprn tag, 3: HTML link close tag, 4: HTML link open tag.
+						// translators: 1: CDN name, 2: HTML link open tag, 3: HTML link close tag, 4: HTML link open tag.
 						esc_html__(
 							'** As a Pro user, you can also take advantage of Full Site Delivery (FSD) with %1$s. FSD delivers visitors the lowest possible response and load times for all site content including HTML, media (e.g. images or fonts), CSS, and JavaScript. Configure it on the %2$sGeneral Settings%3$s page.  %4$sLearn more%3$s.',
 							'w3-total-cache'
