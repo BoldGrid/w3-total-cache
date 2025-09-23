@@ -53,7 +53,7 @@ class Extension_AiCrawler_Plugin {
 		add_action( 'save_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_on_save' ), 10, 3 );
 		add_action( 'post_updated', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_on_update' ),   10, 3 );
 		add_action( 'transition_post_status', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_on_status_change' ), 10, 3 );
-		add_action( 'pre_trashed_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_cache_on_delete' ), 10, 2 );
+		add_filter( 'pre_trash_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_cache_on_trash' ), 10, 3 );
 		add_action( 'before_delete_post', array( '\W3TC\Extension_AiCrawler_Markdown', 'flush_markdown_cache_on_delete' ), 10, 2 );
 
 		// Ensure rewrite rules are flushed when needed.

@@ -514,6 +514,45 @@ class Extension_AiCrawler_Markdown {
 	}
 
 	/**
+	 * Flush cached markdown URLs when a post is moved to the trash (filter context).
+	 *
+	 * Hooked to: pre_trashed_post
+	 *
+	 * @since X.X.X
+	 *
+	 * @param bool|null $trash           Value to short-circuit trashing (should be null|false unless another filter short-circuits).
+	 * @param WP_Post   $post            Post object being trashed.
+	 * @param string    $previous_status Previous status.
+	 *
+	 * @return bool|null Original $trash value (unchanged).
+	 */
+	public static function flush_markdown_cache_on_trash( $trash, $post, $previous_status ) {
+		// Be defensive about what we get.
+		if ( ! $post instanceof \WP_Post ) {
+			return $trash;
+		}
+
+		$post_id = (int) $post->ID;
+
+		// Skip revisions.
+		if ( \wp_is_post_revision( $post_id ) ) {
+			return $trash;
+		}
+
+		// Only flush/remove if it was publicly visible when being trashed.
+		// Use the post object's status when available to avoid extra lookups.
+		$status = isset( $post->post_status ) ? $post->post_status : \get_post_status( $post_id );
+
+		if ( 'publish' === $status ) {
+			self::flush_markdown_url_for_post( $post_id );
+			self::flush_llms_manifest();
+		}
+
+		// Must return the incoming $trash value for the filter chain.
+		return $trash;
+	}
+
+	/**
 	 * Flush cached markdown URLs when a post is deleted.
 	 *
 	 * @since X.X.X
@@ -524,6 +563,10 @@ class Extension_AiCrawler_Markdown {
 	 * @return void
 	 */
 	public static function flush_markdown_cache_on_delete( $post_id, $post = null ) {
+		if ( empty( $post_id ) ) {
+			$post_id = $post->ID;
+		}
+
 		if ( \wp_is_post_revision( $post_id ) ) {
 			return;
 		}
@@ -533,27 +576,6 @@ class Extension_AiCrawler_Markdown {
 		// Only flush/remove if it was publicly visible when trashed
 		if ( 'publish' === $status ) {
 			self::flush_markdown_url_for_post( $post_id );
-			self::flush_llms_manifest();
-		}
-	}
-
-	/**
-	 * Flush cached markdown URLs when a post is restored from trash.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param int    $post_id         Post ID.
-	 * @param string $previous_status Previous post status.
-	 *
-	 * @return void
-	 */
-	public static function flush_markdown_cache_on_restore( $post_id, $previous_status ) {
-		if ( \wp_is_post_revision( $post_id ) ) {
-			return;
-		}
-
-		// Only flush/remove if it was publicly visible when trashed
-		if ( 'publish' === $previous_status ) {
 			self::flush_llms_manifest();
 		}
 	}
