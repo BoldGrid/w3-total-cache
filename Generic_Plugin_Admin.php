@@ -1320,7 +1320,7 @@ class Generic_Plugin_Admin {
 				);
 		}
 
-		if (1||
+		if (
 			Util_Request::get_boolean( 'totalcdn_auto_config_success' ) &&
 			! empty( $this->_config->get( 'cdn.totalcdn.account_api_key' ) )
 		) {
