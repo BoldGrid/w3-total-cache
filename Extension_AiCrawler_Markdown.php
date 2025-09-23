@@ -369,7 +369,7 @@ class Extension_AiCrawler_Markdown {
 	}
 
 	/**
-	 * Generate markdown when a post is saved.
+	 * Flush markdown cache when a post is saved.
 	 *
 	 * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
 	 *
