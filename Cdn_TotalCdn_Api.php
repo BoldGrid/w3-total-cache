@@ -402,6 +402,41 @@ class Cdn_TotalCdn_Api {
 	}
 
 	/**
+	 * Checks the status of a custom hostname configuration for a pull zone.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string   $hostname The custom hostname to check.
+	 * @param int|null $pull_zone_id The pull zone ID (optional).
+	 *
+	 * @return array|\WP_Error API response or error object.
+	 *
+	 * @throws \Exception If the pull zone ID or hostname is invalid.
+	 */
+	public function check_custom_hostname( $hostname, $pull_zone_id = null ) {
+		$this->api_type = 'account';
+		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
+
+		// Convert pullzone to int if it's a string.
+		if ( \is_string( $pull_zone_id ) ) {
+			$pull_zone_id = (int) $pull_zone_id;
+		}
+
+		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
+		}
+
+		if ( empty( $hostname ) || ! \filter_var( $hostname, FILTER_VALIDATE_DOMAIN ) ) {
+			throw new \Exception( \esc_html__( 'Invalid hostname', 'w3-total-cache' ) . ' "' . \esc_html( $hostname ) . '".' );
+		}
+
+		return $this->wp_remote_get(
+			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/checkCustomHostname' ),
+			array( 'hostname' => $hostname )
+		);
+	}
+
+	/**
 	 * Load Free SSL Certificate for a custom hostname
 	 *
 	 * @since x.x.x
