@@ -409,6 +409,8 @@ class Cdn_TotalCdn_Api {
 	 * @param string   $hostname The custom hostname to check.
 	 * @param int|null $pull_zone_id The pull zone ID (optional).
 	 *
+	 * @link https://cdn-api.boldgrid.com/docs/api#/operations/pullzone.check_custom_hostname
+	 *
 	 * @return array|\WP_Error API response or error object.
 	 *
 	 * @throws \Exception If the pull zone ID or hostname is invalid.
