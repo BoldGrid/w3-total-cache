@@ -415,16 +415,11 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @throws \Exception If the pull zone ID or hostname is invalid.
 	 */
-	public function check_custom_hostname( $hostname, $pull_zone_id = null ) {
+	public function check_custom_hostname( string $hostname, ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
 
-		// Convert pullzone to int if it's a string.
-		if ( \is_string( $pull_zone_id ) ) {
-			$pull_zone_id = (int) $pull_zone_id;
-		}
-
-		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
+		if ( empty( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
 		}
 
