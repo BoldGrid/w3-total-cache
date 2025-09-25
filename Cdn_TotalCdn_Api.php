@@ -183,11 +183,9 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param int $time The original timeout time.
-	 *
 	 * @return int The adjusted timeout time.
 	 */
-	public function filter_timeout_time( $time ) {
+	public function filter_timeout_time() {
 		return 600;
 	}
 
@@ -196,11 +194,9 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param bool $verify Whether to enable SSL verification (defaults to false).
-	 *
 	 * @return bool False to disable SSL verification.
 	 */
-	public function https_ssl_verify( $verify = false ) {
+	public function https_ssl_verify() {
 		return false;
 	}
 
@@ -628,7 +624,7 @@ class Cdn_TotalCdn_Api {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
 		}
 
-		$response_body = @\json_decode( $result['body'], true );
+		$response_body = \json_decode( $result['body'], true );
 
 		// Throw an exception if the response code/status is not ok.
 		if ( ! \in_array( $result['response']['code'], array( 200, 201, 204 ), true ) ) {
@@ -660,8 +656,8 @@ class Cdn_TotalCdn_Api {
 	private function wp_remote_get( $url, array $data = array() ) {
 		$api_key = $this->get_api_key();
 
-		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
-		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
+		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ), 10, 0 );
+		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ), 10, 0 );
 
 		$result = \wp_remote_get(
 			$url . ( empty( $data ) ? '' : '?' . \http_build_query( $data ) ),
@@ -699,8 +695,8 @@ class Cdn_TotalCdn_Api {
 	private function wp_remote_post( $url, array $data = array(), array $args = array() ) {
 		$api_key = $this->get_api_key();
 
-		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
-		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
+		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ), 10, 0 );
+		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ), 10, 0 );
 
 		$result = \wp_remote_post(
 			$url,
