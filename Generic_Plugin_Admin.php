@@ -1324,9 +1324,27 @@ class Generic_Plugin_Admin {
 			Util_Request::get_boolean( 'totalcdn_auto_config_success' ) &&
 			! empty( $this->_config->get( 'cdn.totalcdn.account_api_key' ) )
 		) {
-			// Full URL to your logo.
+			// If is_pro, then inform about FSD availability.
+			if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
+				$fsd_html = '<p>' .
+					sprintf(
+						// translators: 1: CDN name, 2: HTML link open tag, 3: HTML link close tag, 4: HTML link open tag.
+						esc_html__(
+							'** As a Pro user, you can also take advantage of Full Site Delivery (FSD) with %1$s. FSD delivers visitors the lowest possible response and load times for all site content including HTML, media (e.g. images or fonts), CSS, and JavaScript. Configure it on the %2$sGeneral Settings%3$s page.  %4$sLearn more%3$s.',
+							'w3-total-cache'
+						),
+						esc_html( W3TC_CDN_NAME ),
+						'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
+						'</a>',
+						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/full-site-delivery/' ) . '" target="_blank" rel="noopener noreferrer">'
+					) .
+					'</p>';
+			}
+
+			// Show success message.
 			$logo_url = plugins_url( 'pub/img/totalcdn-logo.png', WP_PLUGIN_DIR . '/w3-total-cache/w3-total-cache.php' );
 
+			// translators: 1: party logo image. 2: congratulation text. 3: auto configuration success message. 4: performance improvement message. 5: CDN settings page message. 6: CDN settings page link text. 7: support article message. 8: support article link text. 9: FSD availability message (Pro only).
 			$html = sprintf(
 				'<div id="w3tc-tcdn-success" class="notice inline">
 					<div class="w3tc-success-inner">
@@ -1334,8 +1352,10 @@ class Generic_Plugin_Admin {
 								<h2><img class="w3tc-success-logo" src="%1$s" alt="' . esc_attr( W3TC_CDN_NAME ) . ' Logo">%2$s &#x1F389;</h2>
 								<p>%3$s</p>
 								<p>%4$s</p>
-								<p>%5$s<a href="admin.php?page=w3tc_cdn">%6$s</a>.</p>
-								<p>%7$s<a href="https://www.boldgrid.com/support/w3-total-cache/total-cdn-setup/">%8$s</a></p>
+								<p>%5$s<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_cdn' ) ) . '">%6$s</a>.</p>
+								<p>%7$s<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/total-cdn-setup/' ) .
+									'" target="_blank" rel="noopener noreferrer">%8$s</a></p>
+								%9$s
 						</div>
 					</div>
 				 </div>',
@@ -1361,7 +1381,8 @@ class Generic_Plugin_Admin {
 					// translators: 1: CDN name.
 					esc_html__( 'Getting Started With %1$s', 'w3-total-cache' ),
 					esc_html( W3TC_CDN_NAME )
-				)
+				),
+				isset( $fsd_html ) ? $fsd_html : ''
 			);
 
 			echo wp_kses(
@@ -1380,7 +1401,9 @@ class Generic_Plugin_Admin {
 					'h2'     => array(),
 					'p'      => array(),
 					'a'      => array(
-						'href' => array(),
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
 					),
 					'strong' => array(),
 				)
