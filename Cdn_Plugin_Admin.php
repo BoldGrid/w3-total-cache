@@ -26,6 +26,7 @@ class Cdn_Plugin_Admin {
 
 		\add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_enable_notice', array( $this, 'w3tc_ajax_cdn_totalcdn_fsd_enable_notice' ) );
+		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_disable_notice', array( $this, 'w3tc_ajax_cdn_totalcdn_fsd_disable_notice' ) );
 
 		if ( $c->get_boolean( 'cdn.enabled' ) ) {
 			$admin_notes = new Cdn_AdminNotes();
@@ -110,8 +111,8 @@ class Cdn_Plugin_Admin {
 		}
 
 		wp_enqueue_script(
-			'w3tc-cdn-totalcdn-fsd-enable-popup',
-			plugins_url( 'Cdn_TotalCdn_FsdEnablePopup.js', W3TC_FILE ),
+			'w3tc-cdn-totalcdn-fsd-popup',
+			plugins_url( 'Cdn_TotalCdn_FsdPopup.js', W3TC_FILE ),
 			array( 'jquery', 'w3tc-lightbox' ),
 			W3TC_VERSION,
 			false
@@ -242,10 +243,23 @@ class Cdn_Plugin_Admin {
 	/**
 	 * Popup modal for Total CDN FSD enablement steps.
 	 *
+	 * @since X.X.X
+	 *
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_fsd_enable_notice() {
 		include W3TC_DIR . '/Cdn_TotalCdn_FsdEnablePopup_View.php';
+	}
+
+	/**
+	 * Popup modal for Total CDN FSD disablement reminder.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function w3tc_ajax_cdn_totalcdn_fsd_disable_notice() {
+		include W3TC_DIR . '/Cdn_TotalCdn_FsdDisablePopup_View.php';
 	}
 
 	/**
