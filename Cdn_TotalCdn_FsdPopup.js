@@ -59,7 +59,7 @@ function w3tc_open_totalcdn_fsd_notice( config ) {
 					lightbox.container
 				).on(
 					'click',
-					closeHandler,
+					closeHandler
 				);
 
 				jQuery( document ).on(
@@ -116,7 +116,7 @@ jQuery(
 		var $fsdCheckbox = $( '#cdnfsd__enabled' );
 		var $engineSelect = $( '#cdnfsd__engine' );
 		var committedCheckboxState = $fsdCheckbox.is( ':checked' );
-		var committedEngine = $engineSelect.val();	
+		var committedEngine = $engineSelect.val();
 
 		function setCheckboxState( state ) {
 			$fsdCheckbox.prop( 'checked', state );
