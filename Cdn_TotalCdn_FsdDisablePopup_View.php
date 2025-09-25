@@ -2,6 +2,8 @@
 /**
  * File: Cdn_TotalCdn_FsdDisablePopup_View.php
  *
+ * @since X.X.X
+ *
  * @package W3TC
  */
 
@@ -20,7 +22,7 @@ if ( ! defined( 'W3TC' ) ) {
 			sprintf(
 				// Translators: 1 CDN product name.
 				__(
-					'You just disabled Full Site Delivery (FSD) for %1$s. If your DNS is still pointed at the FSD edge server the following will likely apply.',
+					'You just disabled Full Site Delivery (FSD) for %1$s. If your DNS is still pointed at the CDN network the following will likely apply.',
 					'w3-total-cache'
 				),
 				W3TC_CDN_NAME
@@ -29,7 +31,7 @@ if ( ! defined( 'W3TC' ) ) {
 		?>
 	</p>
 	<ul style="margin-left:15px;">
-		<li><?php esc_html_e( 'Content edits and other purge events from W3 Total Cache will not clear the FSD cache while DNS stays on the edge network.', 'w3-total-cache' ); ?></li>
+		<li><?php esc_html_e( 'Content edits and other purge events from W3 Total Cache will not clear the CDN cache.', 'w3-total-cache' ); ?></li>
 		<li><?php esc_html_e( 'If you plan to switch back to static asset delivery, update DNS to point at your origin hostname so the pull zone and DNS are in sync.', 'w3-total-cache' ); ?></li>
 	</ul>
 	<div>

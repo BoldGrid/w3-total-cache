@@ -243,6 +243,8 @@ class Cdn_Plugin_Admin {
 	/**
 	 * Popup modal for Total CDN FSD enablement steps.
 	 *
+	 * @since X.X.X
+	 *
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_fsd_enable_notice() {
@@ -251,6 +253,8 @@ class Cdn_Plugin_Admin {
 
 	/**
 	 * Popup modal for Total CDN FSD disablement reminder.
+	 *
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */

@@ -1,6 +1,8 @@
 /**
  * File: Cdn_TotalCdn_FsdPopup.js
  *
+ * @since X.X.X
+ *
  * @package W3TC
  */
 
