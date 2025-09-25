@@ -113,14 +113,9 @@ class CdnEngine_Mirror_TotalCdn extends CdnEngine_Mirror {
 		$active_zone_ids = array();
 		$config          = Dispatcher::config();
 		$cdn_zone_id     = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
-		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
 
-		if ( $config->get_boolean( 'cdn.enabled' ) && 'totalcdn' === $config->get_string( 'cdn.engine' ) && $cdn_zone_id ) {
+		if ( ! empty( $cdn_zone_id ) && ( 'totalcdn' === $config->get_string( 'cdn.engine' ) || 'totalcdn' === $config->get_string( 'cdnfsd.engine' ) ) ) {
 			$active_ids[] = $cdn_zone_id;
-		}
-
-		if ( $config->get_boolean( 'cdnfsd.enabled' ) && 'totalcdn' === $config->get_string( 'cdnfsd.engine' ) && $cdnfsd_zone_id ) {
-			$active_ids[] = $cdnfsd_zone_id;
 		}
 
 		if ( empty( $active_ids ) ) {

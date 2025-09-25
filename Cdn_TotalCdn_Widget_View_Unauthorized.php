@@ -15,10 +15,8 @@ defined( 'W3TC' ) || die();
 
 <div id="totalcdn-widget" class="w3tc_totalcdn_signup">
 	<?php
-	$cdn_engine  = $config->get_string( 'cdn.engine' );
-	$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
-	$cdn_name    = Cache::engine_name( $cdn_engine );
-
+	$cdn_enabled    = $config->get_boolean( 'cdn.enabled' );
+	$cdn_name       = Cache::engine_name( $cdn_engine );
 	$cdnfsd_engine  = $config->get_string( 'cdnfsd.engine' );
 	$cdnfsd_enabled = $config->get_boolean( 'cdnfsd.enabled' );
 
@@ -35,14 +33,10 @@ defined( 'W3TC' ) || die();
 	// Check if Total CDN is selected but not fully configured.
 	$is_w3tc_cdn_incomplete = (
 		(
-			$cdn_enabled &&
-			'totalcdn' === $cdn_engine &&
-			empty( $config->get_integer( 'cdn.totalcdn.pull_zone_id' ) )
+			$cdn_enabled && 'totalcdn' === $cdn_engine && empty( $cdn_zone_id )
 		) ||
 		(
-			$cdnfsd_enabled &&
-			'totalcdn' === $cdnfsd_engine &&
-			empty( $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' ) )
+			$cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine && empty( $cdn_zone_id )
 		)
 	);
 

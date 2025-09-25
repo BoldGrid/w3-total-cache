@@ -453,12 +453,11 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_deauthorization() {
-		$config              = Dispatcher::config();
-		$origin_url          = $config->get_string( 'cdn.totalcdn.origin_url' ); // Origin URL or IP.
-		$name                = $config->get_string( 'cdn.totalcdn.name' ); // Pull zone name.
-		$cdn_hostname        = $config->get_string( 'cdn.totalcdn.cdn_hostname' ); // Pull zone CDN hostname.
-		$cdn_pull_zone_id    = $config->get_integer( 'cdn.totalcdn.pull_zone_id' ); // CDN pull zone id.
-		$cdnfsd_pull_zone_id = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN FSD pull zone id.
+		$config       = Dispatcher::config();
+		$origin_url   = $config->get_string( 'cdn.totalcdn.origin_url' ); // Origin URL or IP.
+		$name         = $config->get_string( 'cdn.totalcdn.name' ); // Pull zone name.
+		$cdn_hostname = $config->get_string( 'cdn.totalcdn.cdn_hostname' ); // Pull zone CDN hostname.
+		$pull_zone_id = $config->get_integer( 'cdn.totalcdn.pull_zone_id' ); // CDN pull zone id.
 
 		// Present details and ask to deauthorize and optionally delete the pull zone.
 		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Deauthorize.php';
@@ -476,11 +475,10 @@ class Cdn_TotalCdn_Popup {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_deauthorize() {
-		$config              = Dispatcher::config();
-		$account_api_key     = $config->get_string( 'cdn.totalcdn.account_api_key' );
-		$cdn_pull_zone_id    = $config->get_integer( 'cdn.totalcdn.pull_zone_id' ); // CDN pull zone id.
-		$cdnfsd_pull_zone_id = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' ); // CDN FSD pull zone id.
-		$delete_pull_zone    = Util_Request::get_string( 'delete_pull_zone' );
+		$config           = Dispatcher::config();
+		$account_api_key  = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$pull_zone_id     = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
+		$delete_pull_zone = Util_Request::get_string( 'delete_pull_zone' );
 
 		// Delete pull zone, if requested.
 		if ( 'yes' === $delete_pull_zone ) {
@@ -488,17 +486,9 @@ class Cdn_TotalCdn_Popup {
 
 			// Try to delete pull zone.
 			try {
-				$api->delete_pull_zone( $cdn_pull_zone_id );
+				$api->delete_pull_zone( $pull_zone_id );
 			} catch ( \Exception $ex ) {
 				$delete_error_message = $ex->getMessage();
-			}
-
-			// If the same pull zone is used for FSD, then deauthorize that too.
-			if ( ! empty( $cdn_pull_zone_id ) && $cdn_pull_zone_id === $cdnfsd_pull_zone_id ) {
-				$config->set( 'cdnfsd.totalcdn.pull_zone_id', null );
-				$config->set( 'cdnfsd.totalcdn.name', null );
-				$config->set( 'cdnfsd.totalcdn.origin_url', null );
-				$config->set( 'cdnfsd.totalcdn.cdn_hostname', null );
 			}
 		}
 
@@ -508,6 +498,9 @@ class Cdn_TotalCdn_Popup {
 		$config->set( 'cdn.totalcdn.cdn_hostname', null );
 		$config->set( 'cdn.totalcdn.custom_hostname', null );
 		$config->set( 'cdn.totalcdn.custom_hostname_ssl_loaded', null );
+		$config->set( 'cdnfsd.totalcdn.name', null );
+		$config->set( 'cdnfsd.totalcdn.origin_url', null );
+		$config->set( 'cdnfsd.totalcdn.cdn_hostname', null );
 		$config->save();
 
 		// Print success view.

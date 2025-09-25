@@ -196,6 +196,14 @@ class Generic_Plugin_Admin {
 			wp_clear_scheduled_hook( 'w3tc_purge_all_wpcron' );
 		}
 
+		if ( Cdn_TotalCdn_CustomHostname::should_attempt_on_save( $new_config, $old_config ) ) {
+			$result = Cdn_TotalCdn_CustomHostname::ensure( $new_config );
+
+			if ( empty( $result['success'] ) && empty( $result['skipped'] ) ) {
+				$data['response_errors'][] = 'cdn_totalcdn_fsd_custom_hostname_failed';
+			}
+		}
+
 		return $data;
 	}
 
@@ -439,7 +447,7 @@ class Generic_Plugin_Admin {
 			'w3tc-fonts',
 			'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Exo+2:wght@400;700&display=swap',
 			array(),
-			null
+			W3TC_VERSION
 		);
 	}
 
@@ -1031,7 +1039,7 @@ class Generic_Plugin_Admin {
 		$cookie_domain = Util_Admin::get_cookie_domain();
 
 		$error_messages = array(
-			'fancy_permalinks_disabled_pgcache'      => sprintf(
+			'fancy_permalinks_disabled_pgcache'       => sprintf(
 				// translators: 1 enable button link.
 				__(
 					'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling enhanced disk mode.',
@@ -1039,7 +1047,7 @@ class Generic_Plugin_Admin {
 				),
 				Util_Ui::button_link( 'enable', 'options-permalink.php' )
 			),
-			'fancy_permalinks_disabled_browsercache' => sprintf(
+			'fancy_permalinks_disabled_browsercache'  => sprintf(
 				// translators: 1 enable button link.
 				__(
 					'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling the \'Do not process 404 errors for static objects with WordPress\'.',
@@ -1047,8 +1055,8 @@ class Generic_Plugin_Admin {
 				),
 				Util_Ui::button_link( 'enable', 'options-permalink.php' )
 			),
-			'support_request_type'                   => __( 'Please select request type.', 'w3-total-cache' ),
-			'support_request_url'                    => sprintf(
+			'support_request_type'                    => __( 'Please select request type.', 'w3-total-cache' ),
+			'support_request_url'                     => sprintf(
 				// translators: 1 HTML acronym URL (uniform resource locator).
 				__(
 					'Please enter the address of the site in the site %1$s field.',
@@ -1056,14 +1064,14 @@ class Generic_Plugin_Admin {
 				),
 				'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">' . esc_html__( 'URL', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request_name'                   => __( 'Please enter your name in the Name field', 'w3-total-cache' ),
-			'support_request_email'                  => __( 'Please enter valid email address in the E-Mail field.', 'w3-total-cache' ),
-			'support_request_phone'                  => __( 'Please enter your phone in the phone field.', 'w3-total-cache' ),
-			'support_request_subject'                => __( 'Please enter subject in the subject field.', 'w3-total-cache' ),
-			'support_request_description'            => __( 'Please describe the issue in the issue description field.', 'w3-total-cache' ),
-			'support_request_wp_login'               => __( 'Please enter an administrator login. Create a temporary one just for this support case if needed.', 'w3-total-cache' ),
-			'support_request_wp_password'            => __( 'Please enter WP Admin password, be sure it\'s spelled correctly.', 'w3-total-cache' ),
-			'support_request_ftp_host'               => sprintf(
+			'support_request_name'                    => __( 'Please enter your name in the Name field', 'w3-total-cache' ),
+			'support_request_email'                   => __( 'Please enter valid email address in the E-Mail field.', 'w3-total-cache' ),
+			'support_request_phone'                   => __( 'Please enter your phone in the phone field.', 'w3-total-cache' ),
+			'support_request_subject'                 => __( 'Please enter subject in the subject field.', 'w3-total-cache' ),
+			'support_request_description'             => __( 'Please describe the issue in the issue description field.', 'w3-total-cache' ),
+			'support_request_wp_login'                => __( 'Please enter an administrator login. Create a temporary one just for this support case if needed.', 'w3-total-cache' ),
+			'support_request_wp_password'             => __( 'Please enter WP Admin password, be sure it\'s spelled correctly.', 'w3-total-cache' ),
+			'support_request_ftp_host'                => sprintf(
 				// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
 				__(
 					'Please enter %1$s or %2$s host for the site.',
@@ -1072,7 +1080,7 @@ class Generic_Plugin_Admin {
 				'<acronym title="' . esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
 				'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request_ftp_login'              => sprintf(
+			'support_request_ftp_login'               => sprintf(
 				// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
 				__(
 					'Please enter %1$s or %2$s login for the server. Create a temporary one just for this support case if needed.',
@@ -1081,7 +1089,7 @@ class Generic_Plugin_Admin {
 				'<acronym title="' . esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
 				'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request_ftp_password'           => sprintf(
+			'support_request_ftp_password'            => sprintf(
 				// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
 				__(
 					'Please enter %1$s or %2$s password for the %2$s account.',
@@ -1090,11 +1098,11 @@ class Generic_Plugin_Admin {
 				'<acronym title="' . esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
 				'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request'                        => __( 'Unable to send the support request.', 'w3-total-cache' ),
-			'config_import_no_file'                  => __( 'Please select config file.', 'w3-total-cache' ),
-			'config_import_upload'                   => __( 'Unable to upload config file.', 'w3-total-cache' ),
-			'config_import_import'                   => __( 'Configuration file could not be imported.', 'w3-total-cache' ),
-			'config_reset'                           => sprintf(
+			'support_request'                         => __( 'Unable to send the support request.', 'w3-total-cache' ),
+			'config_import_no_file'                   => __( 'Please select config file.', 'w3-total-cache' ),
+			'config_import_upload'                    => __( 'Unable to upload config file.', 'w3-total-cache' ),
+			'config_import_import'                    => __( 'Configuration file could not be imported.', 'w3-total-cache' ),
+			'config_reset'                            => sprintf(
 				// translators: 1 W3TC config director path.
 				__(
 					'Default settings could not be restored. Please run %1$s to make the configuration file write-able, then try again.',
@@ -1102,9 +1110,9 @@ class Generic_Plugin_Admin {
 				),
 				'<strong>chmod 777 ' . W3TC_CONFIG_DIR . '</strong>'
 			),
-			'cdn_purge_attachment'                   => __( 'Unable to purge attachment.', 'w3-total-cache' ),
-			'pgcache_purge_post'                     => __( 'Unable to purge post.', 'w3-total-cache' ),
-			'enable_cookie_domain'                   => sprintf(
+			'cdn_purge_attachment'                    => __( 'Unable to purge attachment.', 'w3-total-cache' ),
+			'pgcache_purge_post'                      => __( 'Unable to purge post.', 'w3-total-cache' ),
+			'enable_cookie_domain'                    => sprintf(
 				// translators: 1 absolute path to wp-config.php, 2 cookie domain definition, 3 require once wp-setting.php definition.
 				__(
 					'%1$s could not be written, please edit config and add: %2$s before %3$s.',
@@ -1114,7 +1122,7 @@ class Generic_Plugin_Admin {
 				'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', \'' . addslashes( $cookie_domain ) . '\');</strong>',
 				'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
 			),
-			'disable_cookie_domain'                  => sprintf(
+			'disable_cookie_domain'                   => sprintf(
 				// translators: 1 absolute path to wp-config.php, 2 cooke domain definition, 3 require once wp-setting.php definition.
 				__(
 					'%1$s could not be written, please edit config and add:%2$s before %3$s.',
@@ -1124,8 +1132,8 @@ class Generic_Plugin_Admin {
 				'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', false);</strong>',
 				'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
 			),
-			'pull_zone'                              => __( 'Pull Zone could not be automatically created.', 'w3-total-cache' ),
-			'flush_cdn_failed'                       => sprintf(
+			'pull_zone'                               => __( 'Pull Zone could not be automatically created.', 'w3-total-cache' ),
+			'flush_cdn_failed'                        => sprintf(
 				// translators: 1 HTML acronym for CDN (content delivery network).
 				__(
 					'%1$s purge failed.',
@@ -1133,7 +1141,8 @@ class Generic_Plugin_Admin {
 				),
 				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 			),
-			'updated_pullzone_url'                   => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
+			'updated_pullzone_url'                    => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
+			'cdn_totalcdn_fsd_custom_hostname_failed' => Cdn_TotalCdn_CustomHostname::failure_message(),
 		);
 
 		$note_messages = array(
