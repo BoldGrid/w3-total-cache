@@ -1,0 +1,75 @@
+.w3tc-fsd-status-tests {
+	margin-top: 16px;
+}
+
+.w3tc-fsd-status-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	justify-content: center;
+}
+
+.w3tc-fsd-status-item {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 120px;
+	text-align: center;
+}
+
+.w3tc-fsd-status-indicator {
+	align-items: center;
+	background-color: #f6f7f7;
+	border: 2px solid #dcdcde;
+	border-radius: 50%;
+	color: #50575e;
+	display: inline-flex;
+	font-size: 20px;
+	font-weight: 600;
+	height: 48px;
+	justify-content: center;
+	width: 48px;
+}
+
+.w3tc-fsd-status-symbol {
+	line-height: 1;
+}
+
+.w3tc-fsd-status-title {
+	font-weight: 600;
+}
+
+.w3tc-fsd-status-pass .w3tc-fsd-status-indicator {
+	background-color: #edf7ed;
+	border-color: #00a32a;
+	color: #00a32a;
+}
+
+.w3tc-fsd-status-fail .w3tc-fsd-status-indicator {
+	background-color: #fbeaea;
+	border-color: #d63638;
+	color: #d63638;
+}
+
+.w3tc-fsd-status-untested .w3tc-fsd-status-indicator {
+	background-color: #f6f7f7;
+	border-color: #dcdcde;
+	color: #dcdcde;
+}
+
+.w3tc-fsd-status-actions {
+	margin: 15px 0;
+	//text-align: center;
+}
+
+.w3tc-fsd-status-actions .spinner {
+	float: unset !important;
+}
+
+.w3tc-fsd-status-notices {
+	margin: 15px 0;
+}

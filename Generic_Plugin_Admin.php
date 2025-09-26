@@ -335,6 +335,10 @@ class Generic_Plugin_Admin {
 
 		// CDNFSD.
 		switch ( $c->get_string( 'cdnfsd.engine' ) ) {
+			case 'totalcdn':
+				$cdnfsd_class = '\\W3TC\\Cdnfsd_TotalCdn_Page';
+				break;
+
 			case 'bunnycdn':
 				$cdnfsd_class = '\W3TC\Cdnfsd_BunnyCdn_Page';
 				break;
