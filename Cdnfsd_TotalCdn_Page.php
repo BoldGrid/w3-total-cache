@@ -154,7 +154,7 @@ class Cdnfsd_TotalCdn_Page {
 	 *     message: string
 	 * }
 	 */
-    protected static function execute_test( $test ) {
+	protected static function execute_test( $test ) {
 		$default_status = 'untested';
 
 		$result = '';
