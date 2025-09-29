@@ -105,88 +105,135 @@ class Cdnfsd_TotalCdn_Page {
 	public function w3tc_ajax_cdn_totalcdn_fsd_status_check() {
 		$tests   = self::get_tests();
 		$results = array();
+		$errors  = array();
 
-		$possible_statuses = array( 'pass', 'fail', 'untested' );
 		foreach ( $tests as $test ) {
-			// @todo Replace placeholder status logic with real implementation.
-			$status                 = $possible_statuses[ array_rand( $possible_statuses ) ];
-			$results[ $test['id'] ] = $status;
-		}
+			$test_result            = self::execute_test( $test );
+			$results[ $test['id'] ] = $test_result['status'];
 
-		$counts = array(
-			'pass'     => 0,
-			'fail'     => 0,
-			'untested' => 0,
-		);
-
-		foreach ( $results as $status ) {
-			if ( isset( $counts[ $status ] ) ) {
-				$counts[ $status ]++;
+			if ( 'fail' === $test_result['status'] ) {
+				$errors[] = self::format_test_error_message( $test, $test_result['message'] );
 			}
 		}
 
-		$notice_type    = 'info';
-		$notice_message = '';
-
-		if ( $counts['pass'] === count( $tests ) ) {
-			$notice_type    = 'success';
-			$notice_message = esc_html__( 'All tests passed successfully.', 'w3-total-cache' );
-		} else {
-			if ( $counts['fail'] > 0 ) {
-				$notice_type = 'error';
-			} elseif ( $counts['untested'] > 0 ) {
-				$notice_type = 'warning';
+		$notices = array();
+		if ( ! empty( $errors ) ) {
+			foreach ( $errors as $error ) {
+				$notices[] = array(
+					'type'    => 'error',
+					'message' => $error
+				);
 			}
-
-			$summary_parts = array(
-				self::format_test_count_message( $counts['pass'], 'pass' ),
-				self::format_test_count_message( $counts['fail'], 'fail' ),
-				self::format_test_count_message( $counts['untested'], 'untested' ),
-			);
-
-			$notice_message = sprintf(
-				esc_html__( '%1$s, %2$s, and %3$s.', 'w3-total-cache' ),
-				$summary_parts[0],
-				$summary_parts[1],
-				$summary_parts[2]
+		} elseif (
+			! empty( $results )
+			&& count( array_unique( $results ) ) === 1
+			&& 'untested' === reset( $results )
+		) {
+			$notices[] = array(
+				'type'    => 'warning',
+				'message' => __( 'No tests were run.', 'w3-total-cache' ),
 			);
 		}
 
 		wp_send_json_success(
 			array(
-				'notices'	  => array(
-					array(
-						'type'	  => $notice_type,
-						'message' => $notice_message,
-					),
-				),
+				'notices'      => $notices,
 				'test_results' => $results,
 			)
 		);
 	}
 
 	/**
-	 * Formats a count summary message for notices.
+	 * Executes a Total CDN FSD status test and normalizes the result.
 	 *
-	 * @param int    $count  Number of tests.
-	 * @param string $status Status key.
+	 * @param array $test Test configuration.
+	 *
+	 * @return array{
+	 *     status: string,
+	 *     message: string
+	 * }
+	 */
+    protected static function execute_test( $test ) {
+		$default_status = 'untested';
+
+		$result = '';
+		if ( ! empty( $test['filter'] ) ) {
+			$result = self::apply_test_filter( $test['filter'], $default_status, $test );
+		}
+
+		$status  = '';
+		$message = '';
+
+		if ( is_wp_error( $result ) ) {
+			$status  = 'fail';
+			$message = $result->get_error_message();
+		} elseif ( is_array( $result ) ) {
+			if ( isset( $result['status'] ) ) {
+				$status = $result['status'];
+			}
+
+			if ( isset( $result['message'] ) ) {
+				$message = $result['message'];
+			}
+		} else {
+			$status = $default_status;
+		}
+
+		return array(
+			'status'  => $status,
+			'message' => is_string( $message ) ? $message : '',
+		);
+	}
+
+	/**
+	 * Applies a test filter with WordPress or plugin fallbacks.
+	 *
+	 * @param string $filter Filter hook name.
+	 * @param mixed  $value  Default value.
+	 * @param array  $test   Test configuration.
+	 *
+	 * @return mixed
+	 */
+	protected static function apply_test_filter( $filter, $value, $test ) {
+		if ( function_exists( 'apply_filters' ) ) {
+			return apply_filters( $filter, $value, $test );
+		}
+
+		return w3tc_apply_filters( $filter, $value, $test );
+	}
+
+	/**
+	 * Generates the display message for a failed test.
+	 *
+	 * @param array  $test    Test definition.
+	 * @param string $message Failure message returned by the test.
 	 *
 	 * @return string
 	 */
-	protected static function format_test_count_message( $count, $status ) {
-		$templates = array(
-			'pass'     => _n( '%s test passed', '%s tests passed', $count, 'w3-total-cache' ),
-			'fail'     => _n( '%s test failed', '%s tests failed', $count, 'w3-total-cache' ),
-			'untested' => _n( '%s test not run', '%s tests not run', $count, 'w3-total-cache' ),
-		);
+	protected static function format_test_error_message( $test, $message ) {
+		$title = isset( $test['title'] ) ? wp_strip_all_tags( $test['title'] ) : '';
 
-		if ( ! isset( $templates[ $status ] ) ) {
-			return '';
+		if ( '' === $title && isset( $test['id'] ) ) {
+			$title = sanitize_text_field( $test['id'] );
+		}
+
+		$title = $title ? $title : esc_html__( 'Test', 'w3-total-cache' );
+
+		if ( '' !== $message ) {
+			$message = wp_strip_all_tags( $message );
+
+			return sprintf(
+				/* translators: 1: Total CDN test title. 2: Failure reason. */
+				esc_html__( '%1$s: %2$s', 'w3-total-cache' ),
+				esc_html( $title ),
+				esc_html( $message )
+			);
 		}
 
 		return sprintf(
-			esc_html( $templates[ $status ] ),
-			number_format_i18n( $count )
+			/* translators: 1: Total CDN test title. */
+			esc_html__( '%s failed.', 'w3-total-cache' ),
+			esc_html( $title )
 		);
 	}
 
@@ -200,14 +247,6 @@ class Cdnfsd_TotalCdn_Page {
 
 		if ( ! is_array( $tests ) ) {
 			return array();
-		}
-
-		foreach ( $tests as $index => $test ) {
-			if ( empty( $test['filter'] ) ) {
-				continue;
-			}
-
-			$tests[ $index ] = apply_filters( $test['filter'], $test );
 		}
 
 		return $tests;
