@@ -113,6 +113,7 @@ class Cdnfsd_TotalCdn_Page {
 
 			if ( 'fail' === $test_result['status'] ) {
 				$errors[] = self::format_test_error_message( $test, $test_result['message'] );
+				break;
 			}
 		}
 
