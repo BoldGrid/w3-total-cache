@@ -25,7 +25,7 @@ jQuery(
 					var $item = $( this );
 					var testId = $item.data( 'test-id' );
 
-					if (testId) {
+					if ( testId != null ) {
 						elements[ testId ] = $item;
 					}
 				}
