@@ -19,11 +19,11 @@ use W3TC\Dispatcher;
  */
 class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	/**
-	 * Original dispatcher instances.
+	 * Config reference.
 	 *
-	 * @var array
+	 * @var object
 	 */
-	private $original_dispatcher_instances = array();
+	private $config;
 
 	/**
 	 * Config state reference.
@@ -33,27 +33,87 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	private $config_state;
 
 	/**
-	 * Original Total CDN status value.
+	 * Backup of original config values to restore after each test.
 	 *
-	 * @var string
+	 * @var array
 	 */
-	private $original_totalcdn_status = 'inactive.no_key';
+	private $original_config = array();
 
 	/**
-	 * Sets up the test environment before each test.
+	 * Backup of original state values to restore after each test.
 	 *
-	 * This method is called before each test is executed to initialize
-	 * any necessary preconditions or configurations required for the test.
+	 * @var array
+	 */
+	private $original_state = array();
+
+	/**
+	 * Keys we touch in these tests (so we can back up / restore predictably).
+	 *
+	 * @var array
+	 */
+	private $touched_config_keys = array(
+		'cdnfsd.enabled',
+		'cdnfsd.engine',
+		'cdn.totalcdn.account_api_key',
+		'cdn.totalcdn.pull_zone_id',
+	);
+
+	/**
+	 * Keys in config_state we touch.
+	 *
+	 * @var array
+	 */
+	private $touched_state_keys = array(
+		'cdn.totalcdn.status',
+	);
+
+	/**
+	 * Sets up the test case with fresh references and backups.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+
+		$this->config       = Dispatcher::config();
+		$this->config_state = Dispatcher::config_state();
+
+		// Back up config values we might modify.
+		foreach ( $this->touched_config_keys as $key ) {
+			// Prefer typed getters if available, fall back to generic get().
+			$this->original_config[ $key ] = method_exists( $this->config, 'get' )
+				? $this->config->get( $key, null )
+				: $this->smart_get( $key );
+		}
+
+		// Back up state values we might modify.
+		foreach ( $this->touched_state_keys as $key ) {
+			$this->original_state[ $key ] = method_exists( $this->config_state, 'get' )
+				? $this->config_state->get( $key, null )
+				: null;
+		}
+	}
+
+	/**
+	 * Restore any changes made during a test.
 	 *
 	 * @since x.x.x
 	 *
 	 * @return void
 	 */
 	protected function tearDown(): void {
-		$this->restore_dispatcher_instances();
+		// Restore config.
+		foreach ( $this->original_config as $key => $value ) {
+			$this->config->set( $key, $value );
+		}
 
-		if ( $this->config_state ) {
-			$this->config_state->set( 'cdn.totalcdn.status', $this->original_totalcdn_status );
+		// Restore state.
+		foreach ( $this->original_state as $key => $value ) {
+			if ( null !== $value ) {
+				$this->config_state->set( $key, $value );
+			}
 		}
 
 		parent::tearDown();
@@ -65,12 +125,8 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 * @since x.x.x
 	 */
 	public function test_is_totalcdn_cdnfsd_enabled_returns_true_with_expected_configuration() {
-		$this->mock_dispatcher_config(
-			array(
-				'cdnfsd.enabled' => true,
-				'cdnfsd.engine'  => 'totalcdn',
-			)
-		);
+		$this->config->set( 'cdnfsd.enabled', true );
+		$this->config->set( 'cdnfsd.engine', 'totalcdn' );
 
 		$this->assertTrue( Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled() );
 	}
@@ -79,13 +135,18 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 * Ensure Total CDN FSD is reported as disabled when configuration does not match requirements.
 	 *
 	 * @since x.x.x
-	 *
 	 * @dataProvider data_provider_for_cdnfsd_disabled
 	 *
-	 * @param array $config Configuration values to mock.
+	 * @param array $overrides Configuration values to apply.
 	 */
-	public function test_is_totalcdn_cdnfsd_enabled_returns_false_when_requirements_are_not_met( $config ) {
-		$this->mock_dispatcher_config( $config );
+	public function test_is_totalcdn_cdnfsd_enabled_returns_false_when_requirements_are_not_met( $overrides ) {
+		// Start from known "disabled" baseline, then apply overrides to simulate each case.
+		$this->config->set( 'cdnfsd.enabled', false );
+		$this->config->set( 'cdnfsd.engine', '' );
+
+		foreach ( $overrides as $key => $value ) {
+			$this->config->set( $key, $value );
+		}
 
 		$this->assertFalse( Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled() );
 	}
@@ -111,7 +172,10 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 					'cdnfsd.engine'  => 'another',
 				),
 			),
-			'missing settings' => array( array() ),
+			'missing settings' => array(
+				// Simulate missing by not overriding anything; baseline leaves them "unset"/empty.
+				array(),
+			),
 		);
 	}
 
@@ -121,32 +185,20 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 * @since x.x.x
 	 */
 	public function test_is_totalcdn_cdnfsd_authorized_requires_api_key_and_pull_zone() {
-		$this->mock_dispatcher_config(
-			array(
-				'cdn.totalcdn.account_api_key' => 'key-123',
-				'cdn.totalcdn.pull_zone_id'    => 42,
-			)
-		);
+		// Both present.
+		$this->config->set( 'cdn.totalcdn.account_api_key', 'key-123' );
+		$this->config->set( 'cdn.totalcdn.pull_zone_id', 42 );
+		$this->assertTrue( Cdn_TotalCdn_Util::is_totalcdn_authorized() );
 
-		$this->assertTrue( Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_authorized() );
+		// Missing key.
+		$this->config->set( 'cdn.totalcdn.account_api_key', '' );
+		$this->config->set( 'cdn.totalcdn.pull_zone_id', 42 );
+		$this->assertFalse( Cdn_TotalCdn_Util::is_totalcdn_authorized() );
 
-		$this->mock_dispatcher_config(
-			array(
-				'cdn.totalcdn.account_api_key' => '',
-				'cdn.totalcdn.pull_zone_id'    => 42,
-			)
-		);
-
-		$this->assertFalse( Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_authorized() );
-
-		$this->mock_dispatcher_config(
-			array(
-				'cdn.totalcdn.account_api_key' => 'key-123',
-				'cdn.totalcdn.pull_zone_id'    => 0,
-			)
-		);
-
-		$this->assertFalse( Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_authorized() );
+		// Missing pull zone.
+		$this->config->set( 'cdn.totalcdn.account_api_key', 'key-123' );
+		$this->config->set( 'cdn.totalcdn.pull_zone_id', 0 );
+		$this->assertFalse( Cdn_TotalCdn_Util::is_totalcdn_authorized() );
 	}
 
 	/**
@@ -163,118 +215,26 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Retrieve Dispatcher instances via reflection.
+	 * Fallback getter when only typed getters exist on the config object.
 	 *
-	 * @since x.x.x
-	 *
-	 * @return array
+	 * @param string $key
+	 * @return mixed
 	 */
-	private function get_dispatcher_instances() {
-		$reflection = new ReflectionClass( Dispatcher::class );
-		$property   = $reflection->getProperty( 'instances' );
-		$property->setAccessible( true );
-
-		$instances = $property->getValue();
-		if ( ! is_array( $instances ) ) {
-			$instances = array();
+	private function smart_get( $key ) {
+		// Heuristics to choose a typed getter consistent with how we use the keys.
+		if ( in_array( $key, array( 'cdnfsd.enabled' ), true ) && method_exists( $this->config, 'get_boolean' ) ) {
+			return $this->config->get_boolean( $key );
 		}
 
-		return $instances;
-	}
+		if ( in_array( $key, array( 'cdnfsd.engine', 'cdn.totalcdn.account_api_key' ), true ) && method_exists( $this->config, 'get_string' ) ) {
+			return $this->config->get_string( $key );
+		}
 
-	/**
-	 * Restore original Dispatcher instances.
-	 *
-	 * @since x.x.x
-	 */
-	private function restore_dispatcher_instances() {
-		$this->set_dispatcher_instances( $this->original_dispatcher_instances );
-	}
+		if ( in_array( $key, array( 'cdn.totalcdn.pull_zone_id' ), true ) && method_exists( $this->config, 'get_integer' ) ) {
+			return $this->config->get_integer( $key );
+		}
 
-	/**
-	 * Set Dispatcher instances via reflection.
-	 *
-	 * @since x.x.x
-	 *
-	 * @param array $instances Instances to set.
-	 */
-	private function set_dispatcher_instances( $instances ) {
-		$reflection = new ReflectionClass( Dispatcher::class );
-		$property   = $reflection->getProperty( 'instances' );
-		$property->setAccessible( true );
-		$property->setValue( $instances );
-	}
-
-	/**
-	 * Mock the Dispatcher configuration component.
-	 *
-	 * @since x.x.x
-	 *
-	 * @param array $config Configuration values to provide.
-	 */
-	private function mock_dispatcher_config( array $config ) {
-		$instances            = $this->get_dispatcher_instances();
-		$instances['Config'] = new class( $config ) {
-			/**
-			 * Configuration data.
-			 *
-			 * @since x.x.x
-			 *
-			 * @var array
-			 */
-			private $config;
-
-			/**
-			 * Constructor.
-			 *
-			 * @since x.x.x
-			 *
-			 * @param array $config Configuration values.
-			 */
-			public function __construct( array $config ) {
-				$this->config = $config;
-			}
-
-			/**
-			 * Retrieve boolean configuration values.
-			 *
-			 * @since x.x.x
-			 *
-			 * @param string $key Configuration key.
-			 *
-			 * @return bool
-			 */
-			public function get_boolean( $key ) {
-				return isset( $this->config[ $key ] ) ? (bool) $this->config[ $key ] : false;
-			}
-
-			/**
-			 * Retrieve string configuration values.
-			 *
-			 * @since x.x.x
-			 *
-			 * @param string $key Configuration key.
-			 *
-			 * @return string
-			 */
-			public function get_string( $key ) {
-				return isset( $this->config[ $key ] ) ? (string) $this->config[ $key ] : '';
-			}
-
-			/**
-			 * Retrieve integer configuration values.
-			 *
-			 * @since x.x.x
-			 *
-			 * @param string $key Configuration key.
-			 *
-			 * @return int
-			 */
-			public function get_integer( $key ) {
-				return isset( $this->config[ $key ] ) ? (int) $this->config[ $key ] : 0;
-			}
-		};
-
-		$this->set_dispatcher_instances( $instances );
+		// Last resort if the concrete Config supports generic get().
+		return null;
 	}
 }
