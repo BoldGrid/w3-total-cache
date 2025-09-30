@@ -425,7 +425,7 @@ class Cdn_TotalCdn_Api {
 
 		return $this->wp_remote_get(
 			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/checkCustomHostname' ),
-			array( 'hostname' => $hostname )
+			array( 'CustomHostName' => $hostname )
 		);
 	}
 

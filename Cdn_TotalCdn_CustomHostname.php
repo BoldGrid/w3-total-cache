@@ -197,12 +197,15 @@ class Cdn_TotalCdn_CustomHostname {
 
 		$status = '';
 
+		// First, check if the hostname already exists.
 		try {
-			$response         = $api->check_custom_hostname( $hostname );
-			$status           = isset( $response['Status'] ) ? strtolower( (string) $response['Status'] ) : '';
+			$response = $api->check_custom_hostname( $hostname );
+			$exists   = array_key_exists( 'Exists', $response ) ? (bool) $response['Exists'] : false;
+			$status   = $exists ? 'exists' : '';
+
 			$result['status'] = $status;
 
-			if ( self::status_indicates_configured( $status ) ) {
+			if ( true === $exists || self::status_indicates_configured( $status ) ) {
 				$result['success'] = true;
 				self::update_config_state( $config, $hostname, $status, '', $persist );
 				self::$checked[ $cache_key ] = $result;
@@ -212,11 +215,13 @@ class Cdn_TotalCdn_CustomHostname {
 			$result['status'] = '';
 		}
 
+		// Attempt to add the hostname since it doesn't exist or isn't confirmed.
 		try {
 			$api->add_custom_hostname( $hostname );
 			$result['added']   = true;
 			$result['success'] = true;
 			$status            = ( '' === $status ) ? 'pending' : $status;
+			$result['status']  = $status;
 			self::update_config_state( $config, $hostname, $status, '', $persist );
 		} catch ( \Exception $add_exception ) {
 			$message = $add_exception->getMessage();
@@ -224,6 +229,7 @@ class Cdn_TotalCdn_CustomHostname {
 			if ( self::message_indicates_already_exists( $message ) ) {
 				$result['success'] = true;
 				$status            = ( '' === $status ) ? 'pending' : $status;
+				$result['status']  = $status;
 				self::update_config_state( $config, $hostname, $status, '', $persist );
 			} else {
 				$result['error'] = $message;
