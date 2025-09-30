@@ -55,19 +55,6 @@ class Cdn_Page extends Base_Page_Settings {
 		$browsercache_enabled         = $config->get_boolean( 'browsercache.enabled' );
 		$browsercache_update_media_qs = ( $config->get_boolean( 'browsercache.cssjs.replace' ) || $config->get_boolean( 'browsercache.other.replace' ) );
 
-		if ( $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine ) {
-			$result = Cdn_TotalCdn_CustomHostname::ensure(
-				$config,
-				array(
-					'persist' => true,
-				)
-			);
-
-			if ( empty( $result['success'] ) && empty( $result['skipped'] ) ) {
-				Cdn_TotalCdn_CustomHostname::register_runtime_error( Cdn_TotalCdn_CustomHostname::failure_message() );
-			}
-		}
-
 		// Get CDN and CDN FSD status.
 		$cdn_core             = new Cdn_Core();
 		$is_cdn_authorized    = $cdn_core->is_cdn_authorized();
