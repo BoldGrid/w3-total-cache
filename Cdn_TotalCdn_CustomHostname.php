@@ -35,49 +35,89 @@ class Cdn_TotalCdn_CustomHostname {
 	/**
 	 * Determines whether the custom hostname should be attempted during save.
 	 *
+	 * Why:
+	 * - Attempts to create or reconcile the Full Site Delivery (FSD) custom hostname
+	 *   only when it is necessary to avoid unnecessary API calls and to ensure the
+	 *   CDN configuration matches the site state. This prevents duplicate hostname
+	 *   creation attempts and avoids overwriting valid status values.
+	 *
+	 * Example:
+	 * - When a site operator enables FSD and sets a TotalCDN pull zone ID, this
+	 *   method will return true so the plugin can ensure the custom hostname exists
+	 *   for that pull zone (triggering an API call to add/check the hostname).
+	 * - When nothing relevant changed (same pull zone, same hostname, and status is
+	 *   already a valid configured state), this returns false to skip extra work.
+	 *
 	 * @since X.X.X
 	 *
 	 * @param Config      $new_config New configuration values.
 	 * @param Config|null $old_config Previous configuration values.
 	 *
-	 * @return bool
+	 * @return bool True when an attempt should be made; false to skip.
 	 */
 	public static function should_attempt_on_save( Config $new_config, ?Config $old_config = null ): bool {
+		/*
+		 * If FSD with Total CDN isn't applicable for the new config, no attempt is required.
+		 * Why: avoids triggering hostname logic when FSD is disabled or a different engine is used.
+		 */
 		if ( ! self::is_applicable( $new_config ) ) {
 			return false;
 		}
 
 		$pull_zone_id = (int) $new_config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 
+		/*
+		 * If there is no valid pull zone, there's nothing to configure on TotalCDN.
+		 * Why: TotalCDN hostname operations require a valid pull zone ID.
+		 */
 		if ( $pull_zone_id <= 0 ) {
 			return false;
 		}
 
-		// No previous config or FSD was not previously enabled with Total CDN.
+		/*
+		 * No previous config or FSD was not previously enabled with Total CDN.
+		 * Why: this is a new activation of FSD or switch to Total CDN so we must attempt
+		 * to ensure the hostname is created for the newly-enabled scenario.
+		 */
 		if ( ! $old_config || ! $old_config->get_boolean( 'cdnfsd.enabled' ) ||
 			'totalcdn' !== $old_config->get_string( 'cdnfsd.engine' ) ) {
 			return true;
 		}
 
-		// Pull zone changed.
+		/*
+		 * Pull zone changed.
+		 * Why: a different pull zone may require the hostname to be (re)associated or
+		 * validated against the new zone, so we must attempt configuration.
+		 */
 		if ( $pull_zone_id !== (int) $old_config->get_integer( 'cdn.totalcdn.pull_zone_id' ) ) {
 			return true;
 		}
 
 		$hostname = self::get_site_hostname();
 
-		// Hostname changed or status indicates not configured.
+		/*
+		 * Hostname changed or status indicates not configured.
+		 * Why: if the site hostname differs from the stored hostname, the CDN needs to be
+		 * rechecked/updated; if the status is empty or error, a retry is necessary.
+		 * Example: site domain changed from 'example.com' to 'www.example.com' — the
+		 * plugin should attempt to add or validate the new hostname.
+		 */
 		if ( $hostname && $hostname !== $new_config->get_string( 'cdnfsd.totalcdn.custom_hostname' ) ) {
 			return true;
 		}
 
 		$status = strtolower( $new_config->get_string( 'cdnfsd.totalcdn.custom_hostname_status' ) );
 
-		// Status indicates not configured or error.
+		/*
+		 * Status indicates not configured or error.
+		 * Why: an empty status or 'error' means the hostname isn't in a known-good state,
+		 * so an attempt should be made to resolve it.
+		 */
 		if ( empty( $status ) || 'error' === $status ) {
 			return true;
 		}
 
+		// No relevant changes detected; skip the attempt to avoid unnecessary API calls.
 		return false;
 	}
 
