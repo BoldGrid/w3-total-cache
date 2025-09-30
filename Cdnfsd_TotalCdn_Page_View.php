@@ -51,6 +51,7 @@ Util_Ui::postbox_header(
 							<span class="screen-reader-text">
 								<?php
 								printf(
+									// Translators: 1 test title, 2 test status.
 									esc_html__( '%1$s status: %2$s', 'w3-total-cache' ),
 									esc_html( $test['title'] ),
 									esc_html__( 'Not run', 'w3-total-cache' )
