@@ -88,7 +88,7 @@ class Cdnfsd_TotalCdn_Page {
 	public static function w3tc_settings_box_cdnfsd() {
 		$config              = Dispatcher::config();
 		$tests               = self::get_tests();
-		$is_totalcdn_enabled = self::is_total_cdn_enabled();
+		$is_totalcdn_enabled = self::is_total_cdnfsd_enabled();
 
 		include W3TC_DIR . '/Cdnfsd_TotalCdn_Page_View.php';
 	}
@@ -100,12 +100,18 @@ class Cdnfsd_TotalCdn_Page {
 	 *
 	 * @return bool
 	 */
-	public static function is_total_cdn_enabled() {
-		$config = Dispatcher::config();
+	public static function is_total_cdnfsd_enabled() {
+		$config       = Dispatcher::config();
+		$config_state = Dispatcher::config_state();
+
+		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		$status          = $config_state->get( 'cdn.totalcdn.status', 'inactive.no_key' );
 
 		return (
 			$config->get_boolean( 'cdnfsd.enabled' ) &&
-			'totalcdn' === $config->get_string( 'cdnfsd.engine' )
+			'totalcdn' === $config->get_string( 'cdnfsd.engine' ) &&
+			! empty( $account_api_key ) &&
+			true === strpos( $status, 'active' )
 		);
 	}
 
@@ -172,14 +178,10 @@ class Cdnfsd_TotalCdn_Page {
 	 */
 	protected static function execute_test( $test ) {
 		$default_status = 'untested';
+		$status         = '';
+		$message        = '';
 
-		$result = '';
-		if ( ! empty( $test['filter'] ) ) {
-			$result = self::apply_test_filter( $test['filter'], $default_status, $test );
-		}
-
-		$status  = '';
-		$message = '';
+		$result = apply_filters( $test['filter'], $default_status, $test );
 
 		if ( is_wp_error( $result ) ) {
 			$status  = 'fail';
@@ -198,27 +200,8 @@ class Cdnfsd_TotalCdn_Page {
 
 		return array(
 			'status'  => $status,
-			'message' => is_string( $message ) ? $message : '',
+			'message' => $message,
 		);
-	}
-
-	/**
-	 * Applies a test filter with WordPress or plugin fallbacks.
-	 *
-	 * @since X.X.X
-	 *
-	 * @param string $filter Filter hook name.
-	 * @param mixed  $value  Default value.
-	 * @param array  $test   Test configuration.
-	 *
-	 * @return mixed
-	 */
-	protected static function apply_test_filter( $filter, $value, $test ) {
-		if ( function_exists( 'apply_filters' ) ) {
-			return apply_filters( $filter, $value, $test );
-		}
-
-		return w3tc_apply_filters( $filter, $value, $test );
 	}
 
 	/**
@@ -232,13 +215,7 @@ class Cdnfsd_TotalCdn_Page {
 	 * @return string
 	 */
 	protected static function format_test_error_message( $test, $message ) {
-		$title = isset( $test['title'] ) ? wp_strip_all_tags( $test['title'] ) : '';
-
-		if ( '' === $title && isset( $test['id'] ) ) {
-			$title = sanitize_text_field( $test['id'] );
-		}
-
-		$title = $title ? $title : esc_html__( 'Test', 'w3-total-cache' );
+		$title = $test['title'];
 
 		if ( '' !== $message ) {
 			$message = wp_strip_all_tags( $message );
@@ -268,10 +245,6 @@ class Cdnfsd_TotalCdn_Page {
 	protected static function get_tests() {
 		$tests = include W3TC_DIR . '/Cdnfsd_TotalCdn_Status_Tests.php';
 
-		if ( ! is_array( $tests ) ) {
-			return array();
-		}
-
 		return $tests;
 	}
 
@@ -286,8 +259,8 @@ class Cdnfsd_TotalCdn_Page {
 	 */
 	protected static function prepare_test_for_js( $test ) {
 		return array(
-			'id'    => isset( $test['id'] ) ? $test['id'] : '',
-			'title' => isset( $test['title'] ) ? $test['title'] : '',
+			'id'    => $test['id'],
+			'title' => $test['title'],
 		);
 	}
 }
