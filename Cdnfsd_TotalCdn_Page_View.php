@@ -2,6 +2,8 @@
 /**
  * File: Cdnfsd_TotalCdn_Page_View.php
  *
+ * @since X.X.X
+ *
  * @package W3TC
  */
 

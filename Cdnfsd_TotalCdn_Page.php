@@ -2,6 +2,8 @@
 /**
  * File: Cdnfsd_TotalCdn_Page.php
  *
+ * @since X.X.X
+ *
  * @package W3TC
  */
 
@@ -9,10 +11,14 @@ namespace W3TC;
 
 /**
  * Class: Cdnfsd_TotalCdn_Page
+ *
+ * @since X.X.X
  */
 class Cdnfsd_TotalCdn_Page {
 	/**
 	 * Registers AJAX handlers.
+	 *
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -25,10 +31,12 @@ class Cdnfsd_TotalCdn_Page {
 	/**
 	 * Enqueue scripts for the CDN FSD metabox.
 	 *
+	 * @since X.X.X
+	 *
 	 * @return void
 	 */
 	public static function admin_print_scripts_performance_page_w3tc_cdn() {
-		$tests  = self::get_tests();
+		$tests = self::get_tests();
 
 		wp_register_style(
 			'w3tc_cdn_totalcdn_fsd_styles',
@@ -51,14 +59,14 @@ class Cdnfsd_TotalCdn_Page {
 			'w3tc_cdn_totalcdn_fsd',
 			'w3tcCdnTotalCdnFsd',
 			array(
-				'ajaxAction' => 'cdn_totalcdn_fsd_status_check',
-				'nonce'      => wp_create_nonce( 'w3tc' ),
-				'tests'      => array_values( array_map( array( __CLASS__, 'prepare_test_for_js' ), $tests ) ),
-				'button'     => array(
+				'ajaxAction'   => 'cdn_totalcdn_fsd_status_check',
+				'nonce'        => wp_create_nonce( 'w3tc' ),
+				'tests'        => array_values( array_map( array( __CLASS__, 'prepare_test_for_js' ), $tests ) ),
+				'button'       => array(
 					'default' => esc_html__( 'Check Status', 'w3-total-cache' ),
 					'testing' => esc_html__( 'Testing...', 'w3-total-cache' ),
 				),
-				'labels'     => array(
+				'labels'       => array(
 					'pass'     => esc_html__( 'Pass', 'w3-total-cache' ),
 					'fail'     => esc_html__( 'Fail', 'w3-total-cache' ),
 					'untested' => esc_html__( 'Not tested', 'w3-total-cache' ),
@@ -73,6 +81,8 @@ class Cdnfsd_TotalCdn_Page {
 	/**
 	 * Display the Total CDN FSD configuration metabox.
 	 *
+	 * @since X.X.X
+	 *
 	 * @return void
 	 */
 	public static function w3tc_settings_box_cdnfsd() {
@@ -85,6 +95,8 @@ class Cdnfsd_TotalCdn_Page {
 
 	/**
 	 * Determines if Total CDN FSD is enabled.
+	 *
+	 * @since X.X.X
 	 *
 	 * @return bool
 	 */
@@ -99,6 +111,8 @@ class Cdnfsd_TotalCdn_Page {
 
 	/**
 	 * Handles the Total CDN FSD status check AJAX request.
+	 *
+	 * @since X.X.X
 	 *
 	 * @return void
 	 */
@@ -122,7 +136,7 @@ class Cdnfsd_TotalCdn_Page {
 			foreach ( $errors as $error ) {
 				$notices[] = array(
 					'type'    => 'error',
-					'message' => $error
+					'message' => $error,
 				);
 			}
 		} elseif (
@@ -146,6 +160,8 @@ class Cdnfsd_TotalCdn_Page {
 
 	/**
 	 * Executes a Total CDN FSD status test and normalizes the result.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param array $test Test configuration.
 	 *
@@ -189,6 +205,8 @@ class Cdnfsd_TotalCdn_Page {
 	/**
 	 * Applies a test filter with WordPress or plugin fallbacks.
 	 *
+	 * @since X.X.X
+	 *
 	 * @param string $filter Filter hook name.
 	 * @param mixed  $value  Default value.
 	 * @param array  $test   Test configuration.
@@ -205,6 +223,8 @@ class Cdnfsd_TotalCdn_Page {
 
 	/**
 	 * Generates the display message for a failed test.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param array  $test    Test definition.
 	 * @param string $message Failure message returned by the test.
@@ -241,6 +261,8 @@ class Cdnfsd_TotalCdn_Page {
 	/**
 	 * Retrieves the configured Total CDN FSD status tests.
 	 *
+	 * @since X.X.X
+	 *
 	 * @return array
 	 */
 	protected static function get_tests() {
@@ -255,6 +277,8 @@ class Cdnfsd_TotalCdn_Page {
 
 	/**
 	 * Normalizes a test definition for localization.
+	 *
+	 * @since X.X.X
 	 *
 	 * @param array $test Test data.
 	 *

@@ -2,6 +2,8 @@
 /**
  * File: Cdnfsd_TotalCdn_Status_Tests.php
  *
+ * @since X.X.X
+ *
  * @package W3TC
  */
 
