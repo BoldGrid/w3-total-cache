@@ -86,33 +86,10 @@ class Cdnfsd_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_settings_box_cdnfsd() {
-		$config              = Dispatcher::config();
-		$tests               = self::get_tests();
-		$is_totalcdn_enabled = self::is_total_cdnfsd_enabled();
+		$config = Dispatcher::config();
+		$tests  = self::get_tests();
 
 		include W3TC_DIR . '/Cdnfsd_TotalCdn_Page_View.php';
-	}
-
-	/**
-	 * Determines if Total CDN FSD is enabled.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return bool
-	 */
-	public static function is_total_cdnfsd_enabled() {
-		$config       = Dispatcher::config();
-		$config_state = Dispatcher::config_state();
-
-		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
-		$status          = $config_state->get( 'cdn.totalcdn.status', 'inactive.no_key' );
-
-		return (
-			$config->get_boolean( 'cdnfsd.enabled' ) &&
-			'totalcdn' === $config->get_string( 'cdnfsd.engine' ) &&
-			! empty( $account_api_key ) &&
-			true === strpos( $status, 'active' )
-		);
 	}
 
 	/**
