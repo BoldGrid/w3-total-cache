@@ -183,10 +183,14 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @return int The adjusted timeout time.
+	 * @link https://developer.wordpress.org/reference/hooks/http_request_timeout/
+	 *
+	 * @param float $timeout_value Time in seconds until a request times out. Default 5.
+	 * @return float The adjusted timeout time.
 	 */
-	public function filter_timeout_time() {
-		return 600;
+	public function filter_timeout_time( $timeout_value ): float {
+		$timeout_value = 600;
+		return (float) $timeout_value;
 	}
 
 	/**
@@ -194,10 +198,15 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @return bool False to disable SSL verification.
+	 * @link https://developer.wordpress.org/reference/hooks/https_ssl_verify/
+	 *
+	 * @param bool|string $ssl_verify Boolean to control whether to verify the SSL connection
+	 *                                or path to an SSL certificate.
+	 * @return bool|string False to disable SSL verification.
 	 */
-	public function https_ssl_verify() {
-		return false;
+	public function https_ssl_verify( $ssl_verify ) {
+		$ssl_verify = false;
+		return $ssl_verify;
 	}
 
 	/**
@@ -656,8 +665,28 @@ class Cdn_TotalCdn_Api {
 	private function wp_remote_get( $url, array $data = array() ) {
 		$api_key = $this->get_api_key();
 
-		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ), 10, 0 );
-		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ), 10, 0 );
+		/**
+		 * Filters the timeout value for an HTTP request.
+		 *
+		 * @since 2.7.0
+		 * @since 5.1.0 The `$url` parameter was added.
+		 *
+		 * @param float  $timeout_value Time in seconds until a request times out. Default 5.
+		 * @param string $url           The request URL.
+		 */
+		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
+
+		/**
+		 * Filters whether SSL should be verified for non-local requests.
+		 *
+		 * @since 2.8.0
+		 * @since 5.1.0 The `$url` parameter was added.
+		 *
+		 * @param bool|string $ssl_verify Boolean to control whether to verify the SSL connection
+		 *                                or path to an SSL certificate.
+		 * @param string      $url        The request URL.
+		 */
+		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
 
 		$result = \wp_remote_get(
 			$url . ( empty( $data ) ? '' : '?' . \http_build_query( $data ) ),
@@ -695,8 +724,28 @@ class Cdn_TotalCdn_Api {
 	private function wp_remote_post( $url, array $data = array(), array $args = array() ) {
 		$api_key = $this->get_api_key();
 
-		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ), 10, 0 );
-		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ), 10, 0 );
+		/**
+		 * Filters the timeout value for an HTTP request.
+		 *
+		 * @since 2.7.0
+		 * @since 5.1.0 The `$url` parameter was added.
+		 *
+		 * @param float  $timeout_value Time in seconds until a request times out. Default 5.
+		 * @param string $url           The request URL.
+		 */
+		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
+
+		/**
+		 * Filters whether SSL should be verified for non-local requests.
+		 *
+		 * @since 2.8.0
+		 * @since 5.1.0 The `$url` parameter was added.
+		 *
+		 * @param bool|string $ssl_verify Boolean to control whether to verify the SSL connection
+		 *                                or path to an SSL certificate.
+		 * @param string      $url        The request URL.
+		 */
+		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
 
 		$result = \wp_remote_post(
 			$url,
