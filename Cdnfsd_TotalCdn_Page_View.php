@@ -27,7 +27,7 @@ Util_Ui::postbox_header(
 	<?php
 	if (
 		Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled()
-		&& Cdn_TotalCdn_Util::is_totalcdn_cdn_authorized()
+		&& Cdn_TotalCdn_Util::is_totalcdn_authorized()
 	) {
 		?>
 		<tr>

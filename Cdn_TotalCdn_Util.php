@@ -54,7 +54,7 @@ class Cdn_TotalCdn_Util {
 	 *
 	 * @return bool
 	 */
-	public static function is_totalcdn_cdn_authorized() {
+	public static function is_totalcdn_authorized() {
 		$config = Dispatcher::config();
 
 		return (
