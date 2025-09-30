@@ -634,6 +634,14 @@ class Cdn_TotalCdn_Api {
 		}
 
 		$response_body = \json_decode( $result['body'], true );
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			throw new \Exception(
+				\esc_html__(
+					'Failed to decode JSON response: ' . json_last_error_msg(),
+					'w3-total-cache'
+				)
+			);
+		}
 
 		// Throw an exception if the response code/status is not ok.
 		if ( ! \in_array( $result['response']['code'], array( 200, 201, 204 ), true ) ) {
