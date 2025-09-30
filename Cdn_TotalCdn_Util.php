@@ -16,6 +16,22 @@ namespace W3TC;
  */
 class Cdn_TotalCdn_Util {
 	/**
+	 * Determines if Total CDN is enabled.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool
+	 */
+	public static function is_totalcdn_cdn_enabled() {
+		$config = Dispatcher::config();
+
+		return (
+			$config->get_boolean( 'cdn.enabled' )
+			&& 'totalcdn' === $config->get_string( 'cdn.engine' )
+		);
+	}
+
+	/**
 	 * Determines if Total CDN FSD is enabled.
 	 *
 	 * @since X.X.X
@@ -32,13 +48,13 @@ class Cdn_TotalCdn_Util {
 	}
 
 	/**
-	 * Determines if Total CDN FSD is authorized.
+	 * Determines if Total CDN is authorized.
 	 *
 	 * @since X.X.X
 	 *
 	 * @return bool
 	 */
-	public static function is_totalcdn_cdnfsd_authorized() {
+	public static function is_totalcdn_cdn_authorized() {
 		$config = Dispatcher::config();
 
 		return (
