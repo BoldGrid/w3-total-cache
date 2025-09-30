@@ -94,7 +94,7 @@ class W3tc_Cdn_TotalCdn_Api_Test extends WP_UnitTestCase {
 
 		$this->assertSame( array( 'Status' => 'Valid' ), $response );
 		$this->assertSame(
-			W3TC_CDN_API_URL . '/pullzone/1/checkCustomHostname?hostname=example.com',
+			W3TC_CDN_API_URL . '/pullzone/1/checkCustomHostname?CustomHostName=example.com',
 			$requested_url
 		);
 		$this->assertArrayHasKey( 'ApiKey', $requested_headers );
