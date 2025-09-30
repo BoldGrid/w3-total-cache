@@ -497,7 +497,7 @@ class W3tc_Cdn_TotalCdn_CustomHostname_Test extends WP_UnitTestCase {
 
 		try {
 			$reflection = new \ReflectionClass( $classname );
-		} catch ( ReflectionException $e ) {
+		} catch ( \ReflectionException $e ) {
 			// Fail the test early with a clear message if the class can't be reflected.
 			$this->fail( sprintf( 'Unable to reflect class %s: %s', $classname, $e->getMessage() ) );
 			return;
