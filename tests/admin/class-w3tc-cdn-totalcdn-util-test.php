@@ -3,7 +3,9 @@
  * File: class-w3tc-cdn-totalcdn-util-test.php
  *
  * @package    W3TC
+ *
  * @subpackage W3TC/tests/admin
+ *
  * @since      x.x.x
  */
 
@@ -21,19 +23,25 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	/**
 	 * Config reference.
 	 *
-	 * @var object
+	 * @since x.x.x
+	 *
+	 * @var Config
 	 */
 	private $config;
 
 	/**
 	 * Config state reference.
 	 *
-	 * @var object
+	 * @since x.x.x
+	 *
+	 * @var ConfigState
 	 */
 	private $config_state;
 
 	/**
 	 * Backup of original config values to restore after each test.
+	 *
+	 * @since x.x.x
 	 *
 	 * @var array
 	 */
@@ -42,12 +50,16 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	/**
 	 * Backup of original state values to restore after each test.
 	 *
+	 * @since x.x.x
+	 *
 	 * @var array
 	 */
 	private $original_state = array();
 
 	/**
 	 * Keys we touch in these tests (so we can back up / restore predictably).
+	 *
+	 * @since x.x.x
 	 *
 	 * @var array
 	 */
@@ -60,6 +72,8 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 
 	/**
 	 * Keys in config_state we touch.
+	 *
+	 * @since x.x.x
 	 *
 	 * @var array
 	 */
@@ -82,17 +96,12 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 
 		// Back up config values we might modify.
 		foreach ( $this->touched_config_keys as $key ) {
-			// Prefer typed getters if available, fall back to generic get().
-			$this->original_config[ $key ] = method_exists( $this->config, 'get' )
-				? $this->config->get( $key, null )
-				: $this->smart_get( $key );
+			$this->original_config[ $key ] = $this->config->get( $key, null );
 		}
 
 		// Back up state values we might modify.
 		foreach ( $this->touched_state_keys as $key ) {
-			$this->original_state[ $key ] = method_exists( $this->config_state, 'get' )
-				? $this->config_state->get( $key, null )
-				: null;
+			$this->original_state[ $key ] = $this->config_state->get( $key, null );
 		}
 	}
 
@@ -123,6 +132,8 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 * Ensure Total CDN FSD is reported as enabled when configured correctly.
 	 *
 	 * @since x.x.x
+	 *
+	 * @return void
 	 */
 	public function test_is_totalcdn_cdnfsd_enabled_returns_true_with_expected_configuration() {
 		$this->config->set( 'cdnfsd.enabled', true );
@@ -138,6 +149,8 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 * @dataProvider data_provider_for_cdnfsd_disabled
 	 *
 	 * @param array $overrides Configuration values to apply.
+	 *
+	 * @return void
 	 */
 	public function test_is_totalcdn_cdnfsd_enabled_returns_false_when_requirements_are_not_met( $overrides ) {
 		// Start from known "disabled" baseline, then apply overrides to simulate each case.
@@ -156,7 +169,7 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 *
 	 * @since x.x.x
 	 *
-	 * @return array[]
+	 * @return array
 	 */
 	public function data_provider_for_cdnfsd_disabled() {
 		return array(
@@ -183,6 +196,8 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 * Ensure Total CDN authorization requires both API key and pull zone.
 	 *
 	 * @since x.x.x
+	 *
+	 * @return void
 	 */
 	public function test_is_totalcdn_cdnfsd_authorized_requires_api_key_and_pull_zone() {
 		// Both present.
@@ -205,6 +220,8 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 * Ensure license check respects the stored Total CDN status value.
 	 *
 	 * @since x.x.x
+	 *
+	 * @return void
 	 */
 	public function test_is_totalcdn_license_active_checks_status_prefix() {
 		$this->config_state->set( 'cdn.totalcdn.status', 'active.connected' );
@@ -212,29 +229,5 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 
 		$this->config_state->set( 'cdn.totalcdn.status', 'inactive.no_key' );
 		$this->assertFalse( Cdn_TotalCdn_Util::is_totalcdn_license_active() );
-	}
-
-	/**
-	 * Fallback getter when only typed getters exist on the config object.
-	 *
-	 * @param string $key
-	 * @return mixed
-	 */
-	private function smart_get( $key ) {
-		// Heuristics to choose a typed getter consistent with how we use the keys.
-		if ( in_array( $key, array( 'cdnfsd.enabled' ), true ) && method_exists( $this->config, 'get_boolean' ) ) {
-			return $this->config->get_boolean( $key );
-		}
-
-		if ( in_array( $key, array( 'cdnfsd.engine', 'cdn.totalcdn.account_api_key' ), true ) && method_exists( $this->config, 'get_string' ) ) {
-			return $this->config->get_string( $key );
-		}
-
-		if ( in_array( $key, array( 'cdn.totalcdn.pull_zone_id' ), true ) && method_exists( $this->config, 'get_integer' ) ) {
-			return $this->config->get_integer( $key );
-		}
-
-		// Last resort if the concrete Config supports generic get().
-		return null;
 	}
 }

@@ -36,46 +36,51 @@ class Cdnfsd_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function admin_print_scripts_performance_page_w3tc_cdn() {
-		$tests = self::get_tests();
+		if (
+			Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled()
+			&& Cdn_TotalCdn_Util::is_totalcdn_authorized()
+		) {
+			$tests = self::get_tests();
 
-		wp_register_style(
-			'w3tc_cdn_totalcdn_fsd_styles',
-			plugins_url( 'Cdnfsd_TotalCdn_Page_View.css', W3TC_FILE ),
-			array(),
-			W3TC_VERSION
-		);
+			wp_register_style(
+				'w3tc_cdn_totalcdn_fsd_styles',
+				plugins_url( 'Cdnfsd_TotalCdn_Page_View.css', W3TC_FILE ),
+				array(),
+				W3TC_VERSION
+			);
 
-		wp_enqueue_style( 'w3tc_cdn_totalcdn_fsd_styles' );
+			wp_enqueue_style( 'w3tc_cdn_totalcdn_fsd_styles' );
 
-		wp_register_script(
-			'w3tc_cdn_totalcdn_fsd',
-			plugins_url( 'Cdnfsd_TotalCdn_Page_View.js', W3TC_FILE ),
-			array( 'jquery' ),
-			W3TC_VERSION,
-			false
-		);
+			wp_register_script(
+				'w3tc_cdn_totalcdn_fsd',
+				plugins_url( 'Cdnfsd_TotalCdn_Page_View.js', W3TC_FILE ),
+				array( 'jquery' ),
+				W3TC_VERSION,
+				false
+			);
 
-		wp_localize_script(
-			'w3tc_cdn_totalcdn_fsd',
-			'w3tcCdnTotalCdnFsd',
-			array(
-				'ajaxAction'   => 'cdn_totalcdn_fsd_status_check',
-				'nonce'        => wp_create_nonce( 'w3tc' ),
-				'tests'        => array_values( array_map( array( __CLASS__, 'prepare_test_for_js' ), $tests ) ),
-				'button'       => array(
-					'default' => esc_html__( 'Check Status', 'w3-total-cache' ),
-					'testing' => esc_html__( 'Testing...', 'w3-total-cache' ),
-				),
-				'labels'       => array(
-					'pass'     => esc_html__( 'Pass', 'w3-total-cache' ),
-					'fail'     => esc_html__( 'Fail', 'w3-total-cache' ),
-					'untested' => esc_html__( 'Not tested', 'w3-total-cache' ),
-				),
-				'errorMessage' => esc_html__( 'Unable to complete the status check. Please try again.', 'w3-total-cache' ),
-			)
-		);
+			wp_localize_script(
+				'w3tc_cdn_totalcdn_fsd',
+				'w3tcCdnTotalCdnFsd',
+				array(
+					'ajaxAction'   => 'cdn_totalcdn_fsd_status_check',
+					'nonce'        => wp_create_nonce( 'w3tc_cdn_totalcdn_fsd_status_check' ),
+					'tests'        => array_values( array_map( array( __CLASS__, 'prepare_test_for_js' ), $tests ) ),
+					'button'       => array(
+						'default' => esc_html__( 'Check Status', 'w3-total-cache' ),
+						'testing' => esc_html__( 'Testing...', 'w3-total-cache' ),
+					),
+					'labels'       => array(
+						'pass'     => esc_html__( 'Pass', 'w3-total-cache' ),
+						'fail'     => esc_html__( 'Fail', 'w3-total-cache' ),
+						'untested' => esc_html__( 'Not tested', 'w3-total-cache' ),
+					),
+					'errorMessage' => esc_html__( 'Unable to complete the status check. Please try again.', 'w3-total-cache' ),
+				)
+			);
 
-		wp_enqueue_script( 'w3tc_cdn_totalcdn_fsd' );
+			wp_enqueue_script( 'w3tc_cdn_totalcdn_fsd' );
+		}
 	}
 
 	/**
@@ -87,9 +92,14 @@ class Cdnfsd_TotalCdn_Page {
 	 */
 	public static function w3tc_settings_box_cdnfsd() {
 		$config = Dispatcher::config();
-		$tests  = self::get_tests();
 
-		include W3TC_DIR . '/Cdnfsd_TotalCdn_Page_View.php';
+		if (
+			Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled()
+			&& Cdn_TotalCdn_Util::is_totalcdn_authorized()
+		) {
+			$tests  = self::get_tests();
+			include W3TC_DIR . '/Cdnfsd_TotalCdn_Page_View.php';
+		}
 	}
 
 	/**
