@@ -25,7 +25,7 @@ class Cdnfsd_TotalCdn_Page {
 	public static function w3tc_ajax() {
 		$instance = new self();
 
-		add_action( 'w3tc_ajax_cdn_totalcdn_fsd_status_check', array( $instance, 'w3tc_ajax_cdn_totalcdn_fsd_status_check' ) );
+		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_status_check', array( $instance, 'w3tc_ajax_cdn_totalcdn_fsd_status_check' ) );
 	}
 
 	/**
@@ -46,44 +46,44 @@ class Cdnfsd_TotalCdn_Page {
 		) {
 			$tests = self::get_tests();
 
-			wp_register_style(
+			\wp_register_style(
 				'w3tc_cdn_totalcdn_fsd_styles',
-				plugins_url( 'Cdnfsd_TotalCdn_Page_View.css', W3TC_FILE ),
+				\plugins_url( 'Cdnfsd_TotalCdn_Page_View.css', W3TC_FILE ),
 				array(),
 				W3TC_VERSION
 			);
 
-			wp_enqueue_style( 'w3tc_cdn_totalcdn_fsd_styles' );
+			\wp_enqueue_style( 'w3tc_cdn_totalcdn_fsd_styles' );
 
-			wp_register_script(
+			\wp_register_script(
 				'w3tc_cdn_totalcdn_fsd',
-				plugins_url( 'Cdnfsd_TotalCdn_Page_View.js', W3TC_FILE ),
+				\plugins_url( 'Cdnfsd_TotalCdn_Page_View.js', W3TC_FILE ),
 				array( 'jquery' ),
 				W3TC_VERSION,
 				false
 			);
 
-			wp_localize_script(
+			\wp_localize_script(
 				'w3tc_cdn_totalcdn_fsd',
 				'w3tcCdnTotalCdnFsd',
 				array(
 					'ajaxAction'   => 'cdn_totalcdn_fsd_status_check',
-					'nonce'        => wp_create_nonce( 'w3tc_cdn_totalcdn_fsd_status_check' ),
+					'nonce'        => \wp_create_nonce( 'w3tc_cdn_totalcdn_fsd_status_check' ),
 					'tests'        => array_values( array_map( array( __CLASS__, 'prepare_test_for_js' ), $tests ) ),
 					'button'       => array(
-						'default' => esc_html__( 'Check Status', 'w3-total-cache' ),
-						'testing' => esc_html__( 'Testing...', 'w3-total-cache' ),
+						'default' => \esc_html__( 'Check Status', 'w3-total-cache' ),
+						'testing' => \esc_html__( 'Testing...', 'w3-total-cache' ),
 					),
 					'labels'       => array(
-						'pass'     => esc_html__( 'Pass', 'w3-total-cache' ),
-						'fail'     => esc_html__( 'Fail', 'w3-total-cache' ),
-						'untested' => esc_html__( 'Not tested', 'w3-total-cache' ),
+						'pass'     => \esc_html__( 'Pass', 'w3-total-cache' ),
+						'fail'     => \esc_html__( 'Fail', 'w3-total-cache' ),
+						'untested' => \esc_html__( 'Not tested', 'w3-total-cache' ),
 					),
-					'errorMessage' => esc_html__( 'Unable to complete the status check. Please try again.', 'w3-total-cache' ),
+					'errorMessage' => \esc_html__( 'Unable to complete the status check. Please try again.', 'w3-total-cache' ),
 				)
 			);
 
-			wp_enqueue_script( 'w3tc_cdn_totalcdn_fsd' );
+			\wp_enqueue_script( 'w3tc_cdn_totalcdn_fsd' );
 		}
 	}
 
@@ -123,8 +123,8 @@ class Cdnfsd_TotalCdn_Page {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( Util_Request::get_string( 'nonce' ), 'w3tc_cdn_totalcdn_fsd_status_check' ) ) {
-			wp_send_json_error(
+		if ( ! \wp_verify_nonce( Util_Request::get_string( 'nonce' ), 'w3tc_cdn_totalcdn_fsd_status_check' ) ) {
+			\wp_send_json_error(
 				array(
 					'notices' => array(
 						array(
@@ -170,7 +170,7 @@ class Cdnfsd_TotalCdn_Page {
 			);
 		}
 
-		wp_send_json_success(
+		\wp_send_json_success(
 			array(
 				'notices'      => $notices,
 				'test_results' => $results,
@@ -195,9 +195,9 @@ class Cdnfsd_TotalCdn_Page {
 		$status         = '';
 		$message        = '';
 
-		$result = apply_filters( $test['filter'], $default_status, $test );
+		$result = \apply_filters( $test['filter'], $default_status, $test );
 
-		if ( is_wp_error( $result ) ) {
+		if ( \is_wp_error( $result ) ) {
 			$status  = 'fail';
 			$message = $result->get_error_message();
 		} elseif ( is_array( $result ) ) {
@@ -232,20 +232,20 @@ class Cdnfsd_TotalCdn_Page {
 		$title = $test['title'];
 
 		if ( '' !== $message ) {
-			$message = wp_strip_all_tags( $message );
+			$message = \wp_strip_all_tags( $message );
 
 			return sprintf(
 				/* translators: 1: Total CDN test title. 2: Failure reason. */
-				esc_html__( '%1$s: %2$s', 'w3-total-cache' ),
-				esc_html( $title ),
-				esc_html( $message )
+				\esc_html__( '%1$s: %2$s', 'w3-total-cache' ),
+				\esc_html( $title ),
+				\esc_html( $message )
 			);
 		}
 
 		return sprintf(
 			/* translators: 1: Total CDN test title. */
-			esc_html__( '%s failed.', 'w3-total-cache' ),
-			esc_html( $title )
+			\esc_html__( '%s failed.', 'w3-total-cache' ),
+			\esc_html( $title )
 		);
 	}
 
