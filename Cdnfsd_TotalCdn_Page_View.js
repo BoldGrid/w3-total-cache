@@ -154,7 +154,7 @@ jQuery(
 						data: {
 							action: 'w3tc_ajax',
 							_wpnonce: w3tc_nonce[0],
-							w3tc_action: config.ajaxAction || '',
+							w3tc_action: config.ajaxAction || ''
 						}
 					}
 				).done(

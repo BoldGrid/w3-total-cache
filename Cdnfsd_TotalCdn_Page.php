@@ -122,20 +122,6 @@ class Cdnfsd_TotalCdn_Page {
 			return;
 		}
 
-		if ( ! \wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
-			\wp_send_json_error(
-				array(
-					'notices' => array(
-						array(
-							'type'    => 'error',
-							'message' => \__( 'Security check failed.', 'w3-total-cache' ),
-						),
-					),
-				),
-				403
-			);
-		}
-
 		$tests   = self::get_tests();
 		$results = array();
 		$errors  = array();
