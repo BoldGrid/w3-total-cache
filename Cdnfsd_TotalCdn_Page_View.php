@@ -36,7 +36,7 @@ Util_Ui::postbox_header(
 			</th>
 			<td>
 				<div class="w3tc-fsd-status-actions">
-					<button type="button" class="button button-secondary w3tc-fsd-status-run" data-default-text="<?php esc_attr_e( 'Check Status', 'w3-total-cache' ); ?>" data-testing-text="<?php esc_attr_e( 'Testing...', 'w3-total-cache' ); ?>" <?php disabled( ! $is_totalcdn_enabled ); ?>>
+					<button type="button" class="button button-secondary w3tc-fsd-status-run" data-default-text="<?php esc_attr_e( 'Check Status', 'w3-total-cache' ); ?>" data-testing-text="<?php esc_attr_e( 'Testing...', 'w3-total-cache' ); ?>">
 						<?php esc_html_e( 'Check Status', 'w3-total-cache' ); ?>
 					</button>
 					<span class="spinner"></span>

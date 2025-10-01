@@ -98,8 +98,9 @@ class Cdnfsd_TotalCdn_Page {
 			&& Cdn_TotalCdn_Util::is_totalcdn_authorized()
 		) {
 			$tests = self::get_tests();
-			include W3TC_DIR . '/Cdnfsd_TotalCdn_Page_View.php';
 		}
+
+		include W3TC_DIR . '/Cdnfsd_TotalCdn_Page_View.php';
 	}
 
 	/**
