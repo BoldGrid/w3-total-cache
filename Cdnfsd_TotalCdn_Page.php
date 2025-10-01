@@ -111,6 +111,20 @@ class Cdnfsd_TotalCdn_Page {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_fsd_status_check() {
+		if ( ! wp_verify_nonce( Util_Request::get_string( 'fsd_nonce' ), 'w3tc_cdn_totalcdn_fsd_status_check' ) ) {
+			wp_send_json_error(
+				array(
+					'notices' => array(
+						array(
+							'type'    => 'error',
+							'message' => __( 'Security check failed.', 'w3-total-cache' ),
+						),
+					),
+				),
+				403
+			);
+		}
+
 		$tests   = self::get_tests();
 		$results = array();
 		$errors  = array();
