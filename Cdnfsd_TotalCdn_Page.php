@@ -36,6 +36,10 @@ class Cdnfsd_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function admin_print_scripts_performance_page_w3tc_cdn() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		if (
 			Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled()
 			&& Cdn_TotalCdn_Util::is_totalcdn_authorized()
@@ -91,6 +95,10 @@ class Cdnfsd_TotalCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_settings_box_cdnfsd() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$config = Dispatcher::config();
 
 		if (
@@ -111,7 +119,11 @@ class Cdnfsd_TotalCdn_Page {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_fsd_status_check() {
-		if ( ! wp_verify_nonce( Util_Request::get_string( 'fsd_nonce' ), 'w3tc_cdn_totalcdn_fsd_status_check' ) ) {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! wp_verify_nonce( Util_Request::get_string( 'nonce' ), 'w3tc_cdn_totalcdn_fsd_status_check' ) ) {
 			wp_send_json_error(
 				array(
 					'notices' => array(
