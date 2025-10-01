@@ -69,7 +69,7 @@ class Cdnfsd_TotalCdn_Page {
 				array(
 					'ajaxAction'   => 'cdn_totalcdn_fsd_status_check',
 					'nonce'        => \wp_create_nonce( 'w3tc_cdn_totalcdn_fsd_status_check' ),
-					'tests'        => array_values( array_map( array( __CLASS__, 'prepare_test_for_js' ), $tests ) ),
+					'tests'        => \array_values( \array_map( array( __CLASS__, 'prepare_test_for_js' ), $tests ) ),
 					'button'       => array(
 						'default' => \esc_html__( 'Check Status', 'w3-total-cache' ),
 						'testing' => \esc_html__( 'Testing...', 'w3-total-cache' ),
@@ -129,7 +129,7 @@ class Cdnfsd_TotalCdn_Page {
 					'notices' => array(
 						array(
 							'type'    => 'error',
-							'message' => __( 'Security check failed.', 'w3-total-cache' ),
+							'message' => \__( 'Security check failed.', 'w3-total-cache' ),
 						),
 					),
 				),
@@ -160,13 +160,13 @@ class Cdnfsd_TotalCdn_Page {
 				);
 			}
 		} elseif (
-			! empty( $results )
-			&& count( array_unique( $results ) ) === 1
-			&& 'untested' === reset( $results )
+			! \empty( $results )
+			&& \count( \array_unique( $results ) ) === 1
+			&& 'untested' === \reset( $results )
 		) {
 			$notices[] = array(
 				'type'    => 'warning',
-				'message' => __( 'No tests were run.', 'w3-total-cache' ),
+				'message' => \__( 'No tests were run.', 'w3-total-cache' ),
 			);
 		}
 
@@ -200,12 +200,12 @@ class Cdnfsd_TotalCdn_Page {
 		if ( \is_wp_error( $result ) ) {
 			$status  = 'fail';
 			$message = $result->get_error_message();
-		} elseif ( is_array( $result ) ) {
-			if ( isset( $result['status'] ) ) {
+		} elseif ( \is_array( $result ) ) {
+			if ( \isset( $result['status'] ) ) {
 				$status = $result['status'];
 			}
 
-			if ( isset( $result['message'] ) ) {
+			if ( \isset( $result['message'] ) ) {
 				$message = $result['message'];
 			}
 		} else {
@@ -234,7 +234,7 @@ class Cdnfsd_TotalCdn_Page {
 		if ( '' !== $message ) {
 			$message = \wp_strip_all_tags( $message );
 
-			return sprintf(
+			return \sprintf(
 				/* translators: 1: Total CDN test title. 2: Failure reason. */
 				\esc_html__( '%1$s: %2$s', 'w3-total-cache' ),
 				\esc_html( $title ),
@@ -242,7 +242,7 @@ class Cdnfsd_TotalCdn_Page {
 			);
 		}
 
-		return sprintf(
+		return \sprintf(
 			/* translators: 1: Total CDN test title. */
 			\esc_html__( '%s failed.', 'w3-total-cache' ),
 			\esc_html( $title )
@@ -257,9 +257,7 @@ class Cdnfsd_TotalCdn_Page {
 	 * @return array
 	 */
 	protected static function get_tests() {
-		$tests = include W3TC_DIR . '/Cdnfsd_TotalCdn_Status_Tests.php';
-
-		return $tests;
+		return include W3TC_DIR . '/Cdnfsd_TotalCdn_Status_Tests.php';
 	}
 
 	/**
