@@ -122,7 +122,7 @@ class Cdnfsd_TotalCdn_Page {
 			return;
 		}
 
-		if ( ! \wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_cdn_totalcdn_fsd_status_check' ) ) {
+		if ( ! \wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc' ) ) {
 			\wp_send_json_error(
 				array(
 					'notices' => array(
