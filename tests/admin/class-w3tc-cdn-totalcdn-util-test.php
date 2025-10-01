@@ -135,7 +135,7 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_is_totalcdn_cdnfsd_enabled_returns_true_with_expected_configuration() {
+	public function test_is_totalcdn_cdnfsd_enabled_returns_true_with_expected_configuration(): void {
 		$this->config->set( 'cdnfsd.enabled', true );
 		$this->config->set( 'cdnfsd.engine', 'totalcdn' );
 
@@ -152,7 +152,7 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_is_totalcdn_cdnfsd_enabled_returns_false_when_requirements_are_not_met( $overrides ) {
+	public function test_is_totalcdn_cdnfsd_enabled_returns_false_when_requirements_are_not_met( $overrides ): void {
 		// Start from known "disabled" baseline, then apply overrides to simulate each case.
 		$this->config->set( 'cdnfsd.enabled', false );
 		$this->config->set( 'cdnfsd.engine', '' );
@@ -171,7 +171,7 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function data_provider_for_cdnfsd_disabled() {
+	public function data_provider_for_cdnfsd_disabled(): array {
 		return array(
 			'not enabled'      => array(
 				array(
@@ -199,7 +199,7 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_is_totalcdn_cdnfsd_authorized_requires_api_key_and_pull_zone() {
+	public function test_is_totalcdn_cdnfsd_authorized_requires_api_key_and_pull_zone(): void {
 		// Both present.
 		$this->config->set( 'cdn.totalcdn.account_api_key', 'key-123' );
 		$this->config->set( 'cdn.totalcdn.pull_zone_id', 42 );
@@ -223,7 +223,7 @@ class W3tc_Cdn_TotalCdn_Util_Test extends WP_UnitTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_is_totalcdn_license_active_checks_status_prefix() {
+	public function test_is_totalcdn_license_active_checks_status_prefix(): void {
 		$this->config_state->set( 'cdn.totalcdn.status', 'active.connected' );
 		$this->assertTrue( Cdn_TotalCdn_Util::is_totalcdn_license_active() );
 
