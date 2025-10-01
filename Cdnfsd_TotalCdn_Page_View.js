@@ -140,16 +140,6 @@ jQuery(
 				var testingText  = $button.data( 'testing-text' ) || ( config.button && config.button.testing ) || defaultText;
 				var testElements = collectTestElements();
 
-				var requestNonce = '';
-				
-				if ( typeof window.w3tc_nonce !== 'undefined' ) {
-					if ( Array.isArray( window.w3tc_nonce ) ) {
-						requestNonce = window.w3tc_nonce[0];
-					} else if ( typeof window.w3tc_nonce === 'string' ) {
-						requestNonce = window.w3tc_nonce;
-					}
-				}
-
 				resetStatuses( testElements );
 				renderNotices( [], $notices );
 
@@ -163,7 +153,7 @@ jQuery(
 						dataType: 'json',
 						data: {
 							action: 'w3tc_ajax',
-							_wpnonce: requestNonce,
+							_wpnonce: w3tc_nonce[0],
 							w3tc_action: config.ajaxAction || '',
 							nonce: config.nonce || ''
 						}
