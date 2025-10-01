@@ -47,13 +47,12 @@ class Cdn_TotalCdn_Page {
 		$cdn_zone_id     = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 		$cdnfsd_enabled  = $config->get_boolean( 'cdnfsd.enabled' );
 		$cdnfsd_engine   = $config->get_string( 'cdnfsd.engine' );
-		$cdnfsd_zone_id  = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
 		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 
-		return ( $account_api_key &&
-			(
-				( $cdn_enabled && 'totalcdn' === $cdn_engine && $cdn_zone_id ) ||
-				( $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine && $cdnfsd_zone_id )
+		return ( $account_api_key
+			&& (
+				( $cdn_enabled && 'totalcdn' === $cdn_engine && $cdn_zone_id )
+				|| ( $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine && $cdn_zone_id )
 			)
 		);
 	}
@@ -105,9 +104,8 @@ class Cdn_TotalCdn_Page {
 	 */
 	public static function admin_print_scripts_w3tc_cdn() {
 		$config        = Dispatcher::config();
-		$is_authorized = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
-			( $config->get_string( 'cdn.totalcdn.pull_zone_id' ) || $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' ) );
 		$has_api_key   = ! empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) );
+		$is_authorized = $has_api_key && $config->get_string( 'cdn.totalcdn.pull_zone_id' );
 		$license_key   = $config->get_string( 'plugin.license_key' );
 
 		\wp_register_script(

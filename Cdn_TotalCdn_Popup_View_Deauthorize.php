@@ -7,20 +7,16 @@
  * @since   2.6.0
  * @package W3TC
  *
- * @param Config  $config              W3TC configuration.
- * @param string  $origin_url          Origin URL or IP.
- * @param string  $name                Pull zone name.
- * @param string  $cdn_hostname        CDN hostname.
- * @param string  $cdn_pull_zone_id    CDN pull zone id.
- * @param string  $cdnfsd_pull_zone_id CDN FSD pull zone id.
+ * @param Config  $config       W3TC configuration.
+ * @param string  $origin_url   Origin URL or IP.
+ * @param string  $name         Pull zone name.
+ * @param string  $cdn_hostname CDN hostname.
+ * @param string  $pull_zone_id CDN pull zone id.
  */
 
 namespace W3TC;
 
 defined( 'W3TC' ) || die;
-
-// Determine if the same pull zone is used for CDN and CDN FSD.  If so, then we'll show a message that it will deactivate both.
-$is_same_zone = $cdn_pull_zone_id === $cdnfsd_pull_zone_id;
 
 ?>
 <form class="w3tc_cdn_totalcdn_form" method="post">
@@ -44,11 +40,9 @@ $is_same_zone = $cdn_pull_zone_id === $cdnfsd_pull_zone_id;
 				<td><?php \esc_html_e( 'Delete', 'w3-total-cache' ); ?>:</td>
 				<td>
 					<input id="w3tc-delete-zone" type="checkbox" name="delete_pull_zone" value="yes" /> Delete the pull zone
-					<?php if ( $is_same_zone ) : ?>
 					<p class="notice notice-warning">
 						<?php \esc_html_e( 'This same pull zone is used for full-site delivery.  If you delete this pull zone, then full-site delivery will be deauthorized.', 'w3-total-cache' ); ?>
 					</p>
-					<?php endif; ?>
 				</td>
 			</tr>
 		</table>

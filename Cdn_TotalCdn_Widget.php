@@ -65,11 +65,9 @@ class Cdn_TotalCdn_Widget {
 		$config = Dispatcher::config();
 		$state  = Dispatcher::config_state();
 
-		$engine             = $config->get_string( 'cdn.engine' );
-		$cdn_pullzone_id    = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
-		$cdnfsd_pullzone_id = $config->get_integer( 'cdnfsd.totalcdn.pull_zone_id' );
-		$authorized         = 'totalcdn' === $engine &&
-			( ! empty( $cdn_pullzone_id ) || ! empty( $cdnfsd_pullzone_id ) );
+		$cdn_engine  = $config->get_string( 'cdn.engine' );
+		$cdn_zone_id = $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
+		$authorized  = 'totalcdn' === $cdn_engine && ! empty( $cdn_zone_id );
 
 		if ( $authorized ) {
 			include __DIR__ . DIRECTORY_SEPARATOR . 'Cdn_TotalCdn_Widget_View_Authorized.php';

@@ -27,3 +27,4 @@ This project is a WordPress plugin designed to enhance website performance throu
 - Internal work may originate from JIRA issues for internal tracking.
   - Create a JIRA issue, implement the change in a branch, and open a pull request that references the JIRA issue.
 - Ensure each pull request references its originating issue (GitHub or JIRA) and includes a clear description of the change.
+- For all new files, classes, properties, and methods, add a placeholder "@since X.X.X".  The "X.X.X" will be replaced with the release version number in our build process.

@@ -19,7 +19,7 @@ $account_api_key  = $config->get_string( 'cdn.totalcdn.account_api_key' );
 $is_cdn_active    = ! empty( $account_api_key ) && 'totalcdn' === $config->get_string( 'cdn.engine' ) &&
 	$config->get_boolean( 'cdn.enabled' ) && $config->get_string( 'cdn.totalcdn.pull_zone_id' );
 $is_cdnfsd_active = ! empty( $account_api_key ) && 'totalcdn' === $config->get_string( 'cdnfsd.engine' ) &&
-	$config->get_boolean( 'cdnfsd.enabled' ) && $config->get_string( 'cdnfsd.totalcdn.pull_zone_id' );
+	$config->get_boolean( 'cdnfsd.enabled' ) && $config->get_string( 'cdn.totalcdn.pull_zone_id' );
 $is_authorized    = $is_cdn_active || $is_cdnfsd_active;
 $base_url         = $is_cdn_active ? 'https://' . $config->get_string( 'cdn.totalcdn.cdn_hostname' ) : \home_url();
 $placeholder      = \esc_url( $base_url . '/about-us' ) . "\r\n" . \esc_url( $base_url . '/css/*' );

@@ -183,12 +183,14 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param int $time The original timeout time.
+	 * @link https://developer.wordpress.org/reference/hooks/http_request_timeout/
 	 *
-	 * @return int The adjusted timeout time.
+	 * @param float $timeout_value Time in seconds until a request times out. Default 5.
+	 * @return float The adjusted timeout time.
 	 */
-	public function filter_timeout_time( $time ) {
-		return 600;
+	public function filter_timeout_time( $timeout_value ): float {
+		$timeout_value = 600;
+		return (float) $timeout_value;
 	}
 
 	/**
@@ -196,12 +198,15 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param bool $verify Whether to enable SSL verification (defaults to false).
+	 * @link https://developer.wordpress.org/reference/hooks/https_ssl_verify/
 	 *
-	 * @return bool False to disable SSL verification.
+	 * @param bool|string $ssl_verify Boolean to control whether to verify the SSL connection
+	 *                                or path to an SSL certificate.
+	 * @return bool|string False to disable SSL verification.
 	 */
-	public function https_ssl_verify( $verify = false ) {
-		return false;
+	public function https_ssl_verify( $ssl_verify ) {
+		$ssl_verify = false;
+		return $ssl_verify;
 	}
 
 	/**
@@ -429,7 +434,7 @@ class Cdn_TotalCdn_Api {
 
 		return $this->wp_remote_get(
 			\esc_url( $this->api_base_url . '/pullzone/' . $pull_zone_id . '/checkCustomHostname' ),
-			array( 'hostname' => $hostname )
+			array( 'CustomHostName' => $hostname )
 		);
 	}
 
@@ -628,7 +633,19 @@ class Cdn_TotalCdn_Api {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
 		}
 
-		$response_body = @\json_decode( $result['body'], true );
+		$response_body = \json_decode( $result['body'], true );
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			throw new \Exception(
+				\sprintf(
+					// translators: 1: JSON error message.
+					\esc_html__(
+						'Failed to decode JSON response: %1$s',
+						'w3-total-cache'
+					),
+					esc_html( json_last_error_msg() )
+				)
+			);
+		}
 
 		// Throw an exception if the response code/status is not ok.
 		if ( ! \in_array( $result['response']['code'], array( 200, 201, 204 ), true ) ) {
@@ -660,7 +677,27 @@ class Cdn_TotalCdn_Api {
 	private function wp_remote_get( $url, array $data = array() ) {
 		$api_key = $this->get_api_key();
 
+		/**
+		 * Filters the timeout value for an HTTP request.
+		 *
+		 * @since 2.7.0
+		 * @since 5.1.0 The `$url` parameter was added.
+		 *
+		 * @param float  $timeout_value Time in seconds until a request times out. Default 5.
+		 * @param string $url           The request URL.
+		 */
 		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
+
+		/**
+		 * Filters whether SSL should be verified for non-local requests.
+		 *
+		 * @since 2.8.0
+		 * @since 5.1.0 The `$url` parameter was added.
+		 *
+		 * @param bool|string $ssl_verify Boolean to control whether to verify the SSL connection
+		 *                                or path to an SSL certificate.
+		 * @param string      $url        The request URL.
+		 */
 		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
 
 		$result = \wp_remote_get(
@@ -699,7 +736,27 @@ class Cdn_TotalCdn_Api {
 	private function wp_remote_post( $url, array $data = array(), array $args = array() ) {
 		$api_key = $this->get_api_key();
 
+		/**
+		 * Filters the timeout value for an HTTP request.
+		 *
+		 * @since 2.7.0
+		 * @since 5.1.0 The `$url` parameter was added.
+		 *
+		 * @param float  $timeout_value Time in seconds until a request times out. Default 5.
+		 * @param string $url           The request URL.
+		 */
 		\add_filter( 'http_request_timeout', array( $this, 'filter_timeout_time' ) );
+
+		/**
+		 * Filters whether SSL should be verified for non-local requests.
+		 *
+		 * @since 2.8.0
+		 * @since 5.1.0 The `$url` parameter was added.
+		 *
+		 * @param bool|string $ssl_verify Boolean to control whether to verify the SSL connection
+		 *                                or path to an SSL certificate.
+		 * @param string      $url        The request URL.
+		 */
 		\add_filter( 'https_ssl_verify', array( $this, 'https_ssl_verify' ) );
 
 		$result = \wp_remote_post(
