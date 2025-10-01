@@ -144,7 +144,7 @@ jQuery(
 				
 				if ( typeof window.w3tc_nonce !== 'undefined' ) {
 					if ( Array.isArray( window.w3tc_nonce ) ) {
-						requestNonce = window.w3tc_nonce.length ? window.w3tc_nonce[0] : '';
+						requestNonce = window.w3tc_nonce[0];
 					} else if ( typeof window.w3tc_nonce === 'string' ) {
 						requestNonce = window.w3tc_nonce;
 					}
