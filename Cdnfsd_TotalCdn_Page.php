@@ -119,10 +119,11 @@ class Cdnfsd_TotalCdn_Page {
 	 * @return void
 	 */
 	public function w3tc_ajax_cdn_totalcdn_fsd_status_check() {
+		Util_Debug::debug('here',true);
 		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
 			return;
 		}
-
+Util_Debug::debug('nonce',Util_Request::get_string( 'nonce' ));
 		if ( ! \wp_verify_nonce( Util_Request::get_string( 'nonce' ), 'w3tc_cdn_totalcdn_fsd_status_check' ) ) {
 			\wp_send_json_error(
 				array(
