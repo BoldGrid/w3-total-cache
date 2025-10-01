@@ -68,7 +68,6 @@ class Cdnfsd_TotalCdn_Page {
 				'w3tcCdnTotalCdnFsd',
 				array(
 					'ajaxAction'   => 'cdn_totalcdn_fsd_status_check',
-					'nonce'        => \wp_create_nonce( 'w3tc_cdn_totalcdn_fsd_status_check' ),
 					'tests'        => \array_values( \array_map( array( __CLASS__, 'prepare_test_for_js' ), $tests ) ),
 					'button'       => array(
 						'default' => \esc_html__( 'Check Status', 'w3-total-cache' ),
@@ -123,7 +122,7 @@ class Cdnfsd_TotalCdn_Page {
 			return;
 		}
 
-		if ( ! \wp_verify_nonce( Util_Request::get_string( 'nonce' ), 'w3tc_cdn_totalcdn_fsd_status_check' ) ) {
+		if ( ! \wp_verify_nonce( Util_Request::get_string( '_wpnonce' ), 'w3tc_cdn_totalcdn_fsd_status_check' ) ) {
 			\wp_send_json_error(
 				array(
 					'notices' => array(

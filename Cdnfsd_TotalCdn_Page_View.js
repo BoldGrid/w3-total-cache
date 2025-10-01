@@ -155,7 +155,6 @@ jQuery(
 							action: 'w3tc_ajax',
 							_wpnonce: w3tc_nonce[0],
 							w3tc_action: config.ajaxAction || '',
-							nonce: config.nonce || ''
 						}
 					}
 				).done(
