@@ -55,6 +55,14 @@ class Cdnfsd_TotalCdn_Status_Dns {
 			);
 		}
 
+		$verified = isset( $response['Success'] ) ? (bool) $response['Success'] : false;
+		if ( ! $verified ) {
+			return array(
+				'status'  => 'fail',
+				'message' => \__( 'DNS is not pointed to a CDN provider', 'w3-total-cache' ),
+			);
+		}
+
 		return array(
 			'status'  => 'pass',
 			'message' => \__( 'The custom hostname is pointed to a CDN provider.', 'w3-total-cache' ),
