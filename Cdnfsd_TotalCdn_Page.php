@@ -25,6 +25,7 @@ class Cdnfsd_TotalCdn_Page {
 	public static function w3tc_ajax() {
 		$instance = new self();
 
+		\add_filter( 'w3tc_fsd_totalcdn_hostname', array( '\W3TC\Cdnfsd_TotalCdn_Status_Hostname', 'test_hostname_status' ), 10 );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_status_check', array( $instance, 'w3tc_ajax_cdn_totalcdn_fsd_status_check' ) );
 	}
 
@@ -131,7 +132,10 @@ class Cdnfsd_TotalCdn_Page {
 			$results[ $test['id'] ] = $test_result['status'];
 
 			if ( 'fail' === $test_result['status'] ) {
-				$errors[] = self::format_test_error_message( $test, $test_result['message'] );
+				$errors[] = array(
+					'message' => self::format_test_error_message( $test, $test_result['message'] ),
+					'log'     => $test_result['log'],
+				);
 				break;
 			}
 		}
@@ -141,7 +145,8 @@ class Cdnfsd_TotalCdn_Page {
 			foreach ( $errors as $error ) {
 				$notices[] = array(
 					'type'    => 'error',
-					'message' => $error,
+					'message' => $error['message'],
+					'log'     => $error['log'],
 				);
 			}
 		} elseif (
@@ -179,6 +184,7 @@ class Cdnfsd_TotalCdn_Page {
 		$default_status = 'untested';
 		$status         = '';
 		$message        = '';
+		$log            = '';
 
 		$result = \apply_filters( $test['filter'], $default_status, $test );
 
@@ -193,6 +199,10 @@ class Cdnfsd_TotalCdn_Page {
 			if ( isset( $result['message'] ) ) {
 				$message = $result['message'];
 			}
+
+			if ( isset( $result['log'] ) ) {
+				$log = $result['log'];
+			}
 		} else {
 			$status = $default_status;
 		}
@@ -200,6 +210,7 @@ class Cdnfsd_TotalCdn_Page {
 		return array(
 			'status'  => $status,
 			'message' => $message,
+			'log'     => $log,
 		);
 	}
 
