@@ -66,8 +66,6 @@ class Cdnfsd_TotalCdn_Status_Hostname {
 		try {
 			$response = $api->add_custom_hostname( $hostname );
 		} catch ( \Exception $exception ) {
-			$message = $exception->getMessage();
-
 			return array(
 				'status'  => 'fail',
 				'message' => \__( 'Failed to add custom hostname to pull zone.', 'w3-total-cache' ),
