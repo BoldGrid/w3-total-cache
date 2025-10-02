@@ -25,6 +25,7 @@ class Cdnfsd_TotalCdn_Page {
 	public static function w3tc_ajax() {
 		$instance = new self();
 
+		\add_filter( 'w3tc_fsd_totalcdn_dns', array( '\W3TC\Cdnfsd_TotalCdn_Status_Dns', 'test_dns_status' ), 10 );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_status_check', array( $instance, 'w3tc_ajax_cdn_totalcdn_fsd_status_check' ) );
 	}
 
@@ -127,6 +128,10 @@ class Cdnfsd_TotalCdn_Page {
 		$errors  = array();
 
 		foreach ( $tests as $test ) {
+			if ( ! has_filter( $test['filter'] ) ) {
+				break;
+			}
+
 			$test_result            = self::execute_test( $test );
 			$results[ $test['id'] ] = $test_result['status'];
 
@@ -145,9 +150,7 @@ class Cdnfsd_TotalCdn_Page {
 				);
 			}
 		} elseif (
-			! empty( $results )
-			&& \count( \array_unique( $results ) ) === 1
-			&& 'untested' === \reset( $results )
+			empty( $results )
 		) {
 			$notices[] = array(
 				'type'    => 'warning',
@@ -229,7 +232,7 @@ class Cdnfsd_TotalCdn_Page {
 
 		return \sprintf(
 			/* translators: 1: Total CDN test title. */
-			\esc_html__( '%s failed.', 'w3-total-cache' ),
+			\esc_html__( '%s: status check failed.', 'w3-total-cache' ),
 			\esc_html( $title )
 		);
 	}
