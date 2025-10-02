@@ -64,7 +64,7 @@ class Cdnfsd_TotalCdn_Status_Hostname {
 		}
 
 		try {
-			$response = $api->add_custom_hostname( $hostname );
+			$api->add_custom_hostname( $hostname );
 		} catch ( \Exception $exception ) {
 			return array(
 				'status'  => 'fail',
