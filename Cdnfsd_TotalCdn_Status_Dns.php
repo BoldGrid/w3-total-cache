@@ -79,22 +79,4 @@ class Cdnfsd_TotalCdn_Status_Dns {
 			'message' => \__( 'The custom hostname is pointed to a CDN provider.', 'w3-total-cache' ),
 		);
 	}
-
-	/**
-	 * Resolves the hostname that should be configured for Total CDN FSD.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return string
-	 */
-	protected static function resolve_site_hostname() {
-		$site_url = \get_option( 'siteurl' );
-		$hostname = \is_string( $site_url ) ? \wp_parse_url( $site_url, PHP_URL_HOST ) : '';
-
-		if ( empty( $hostname ) ) {
-			$hostname = \wp_parse_url( \home_url(), PHP_URL_HOST );
-		}
-
-		return \is_string( $hostname ) ? \strtolower( trim( $hostname ) ) : '';
-	}
 }
