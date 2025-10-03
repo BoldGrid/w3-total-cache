@@ -36,7 +36,14 @@ class Cdnfsd_TotalCdn_Status_Dns {
 		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$pull_zone_id    = (int) $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 
-		$hostname = self::resolve_site_hostname();
+		$hostname = Util_Environment::get_site_hostname();
+
+		if ( empty( $hostname ) ) {
+			return array(
+				'status'  => 'fail',
+				'message' => \__( 'Unable to determine the site hostname.', 'w3-total-cache' ),
+			);
+		}
 
 		$api = new Cdn_TotalCdn_Api(
 			array(
@@ -59,7 +66,11 @@ class Cdnfsd_TotalCdn_Status_Dns {
 		if ( ! $verified ) {
 			return array(
 				'status'  => 'fail',
-				'message' => \__( 'DNS is not pointed to a CDN provider', 'w3-total-cache' ),
+				'message' => \sprintf(
+					// Translators: 1 host name.
+					\__( '%1$s is not pointed to a CDN provider', 'w3-total-cache' ),
+					$hostname
+				),
 			);
 		}
 
