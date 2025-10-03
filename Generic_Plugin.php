@@ -63,6 +63,14 @@ class Generic_Plugin {
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 150 );
 		add_action( 'admin_bar_init', array( $this, 'admin_bar_init' ) );
 
+		if ( defined( 'W3TC_DYNAMIC_SECURITY' ) && '' !== W3TC_DYNAMIC_SECURITY ) {
+			add_filter( 'rest_post_dispatch', array( $this, 'sanitize_rest_response_dynamic_tags' ), 10, 3 );
+			add_filter( 'the_content_feed', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
+			add_filter( 'the_excerpt_rss', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
+			add_filter( 'comment_text_rss', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
+			add_filter( 'preprocess_comment', array( $this, 'strip_dynamic_fragment_tags_from_comment' ) );
+		}
+
 		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) ) && stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
 			add_filter( 'template', array( $this, 'template_preview' ) );
@@ -89,6 +97,124 @@ class Generic_Plugin {
 
 		// Run tasks after updating this plugin.
 		$this->post_update_tasks();
+	}
+
+	/**
+	 * Removes dynamic fragment tags from comment content before storage.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $comment_data Comment data being processed.
+	 *
+	 * @return array
+	 */
+	public function strip_dynamic_fragment_tags_from_comment( $comment_data ) {
+		if ( isset( $comment_data['comment_content'] ) ) {
+			$comment_data['comment_content'] = $this->strip_dynamic_fragment_tags_from_string( $comment_data['comment_content'] );
+		}
+
+		return $comment_data;
+	}
+
+	/**
+	 * Removes dynamic fragment tags from RSS/feed content.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $content Content to sanitize.
+	 *
+	 * @return string
+	 */
+	public function strip_dynamic_fragment_tags_filter( $content ) {
+		return $this->strip_dynamic_fragment_tags_from_string( $content );
+	}
+
+	/**
+	 * Sanitizes REST API responses to prevent dynamic fragment leakage.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param \WP_REST_Response|mixed $result  Response data.
+	 * @param \WP_REST_Server         $server  REST server instance.
+	 * @param \WP_REST_Request        $request Current request.
+	 *
+	 * @return \WP_REST_Response|mixed
+	 */
+	public function sanitize_rest_response_dynamic_tags( $result, $server, $request ) {
+		unset( $server );
+
+		if ( $request instanceof \WP_REST_Request && 'edit' === $request->get_param( 'context' ) ) {
+			return $result;
+		}
+
+		$response = ( $result instanceof \WP_REST_Response ) ? $result : rest_ensure_response( $result );
+		$data     = $response->get_data();
+		$data     = $this->sanitize_dynamic_fragment_data( $data );
+		$response->set_data( $data );
+
+		return $response;
+	}
+
+	/**
+	 * Recursively removes dynamic fragment tags from REST data structures.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $data Response data.
+	 *
+	 * @return mixed
+	 */
+	private function sanitize_dynamic_fragment_data( $data ) {
+		if ( is_string( $data ) ) {
+			return $this->strip_dynamic_fragment_tags_from_string( $data );
+		}
+
+		if ( is_array( $data ) ) {
+			foreach ( $data as $key => $value ) {
+				$data[ $key ] = $this->sanitize_dynamic_fragment_data( $value );
+			}
+
+			return $data;
+		}
+
+		if ( is_object( $data ) ) {
+			foreach ( $data as $key => $value ) {
+				$data->{$key} = $this->sanitize_dynamic_fragment_data( $value );
+			}
+
+			return $data;
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Removes dynamic fragment tags from a text string.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $value Raw content to sanitize.
+	 *
+	 * @return string
+	 */
+	private function strip_dynamic_fragment_tags_from_string( $value ) {
+		if ( ! is_string( $value ) || ! defined( 'W3TC_DYNAMIC_SECURITY' ) || '' === W3TC_DYNAMIC_SECURITY ) {
+			return $value;
+		}
+
+		$original = $value;
+		$token    = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
+		$pattern  = array(
+			'~<!--\s*mfunc\s*' . $token . '(.*)-->(.*)<!--\s*/mfunc\s*' . $token . '\s*-->~Uis',
+			'~<!--\s*mclude\s*' . $token . '(.*)-->(.*)<!--\s*/mclude\s*' . $token . '\s*-->~Uis',
+		);
+		$value    = preg_replace( $pattern, '', $value );
+
+		if ( null === $value ) {
+			$value = $original;
+		}
+
+		return str_replace( W3TC_DYNAMIC_SECURITY, '', $value );
 	}
 
 	/**

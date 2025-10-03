@@ -21,6 +21,10 @@ This project is a WordPress plugin designed to enhance website performance throu
 - WordPress Documentation Standards for JavaScript: https://developer.wordpress.org/coding-standards/inline-documentation-standards/javascript/
 
 ## Contribution Process
+- Add `@since X.X.X` to all new doc blocks -- it's updated in our build process.
+- Do not update POT files -- it's done in our build process.
+- Do not change the `readme.txt` file -- it's done on release branches.
+- Do not increment the plugin version number -- it's done in our build process.
 - All changes must be submitted via pull requests.
 - Public-facing work may originate from GitHub issues to ensure public visibility.
   - Create a GitHub issue describing the change, implement the change in a branch, and open a pull request that references the GitHub issue.
