@@ -93,7 +93,7 @@ class Cdn_TotalCdn_CustomHostname {
 			return true;
 		}
 
-		$hostname = self::get_site_hostname();
+		$hostname = Util_Environment::get_site_hostname();
 
 		/*
 		 * Hostname changed or status indicates not configured.
@@ -163,7 +163,7 @@ class Cdn_TotalCdn_CustomHostname {
 			return $result;
 		}
 
-		$hostname = self::get_site_hostname();
+		$hostname = Util_Environment::get_site_hostname();
 
 		if ( ! $hostname ) {
 			$result['error'] = __( 'Unable to determine the site hostname required for Full Site Delivery.', 'w3-total-cache' );
@@ -298,28 +298,6 @@ class Cdn_TotalCdn_CustomHostname {
 	 */
 	private static function is_applicable( Config $config ): bool {
 		return (bool) ( $config->get_boolean( 'cdnfsd.enabled' ) && 'totalcdn' === $config->get_string( 'cdnfsd.engine' ) );
-	}
-
-	/**
-	 * Helper: resolves the current site hostname.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return string|null
-	 */
-	private static function get_site_hostname(): ?string {
-		$site_url = get_option( 'siteurl' );
-		$hostname = is_string( $site_url ) ? wp_parse_url( $site_url, PHP_URL_HOST ) : '';
-
-		if ( empty( $hostname ) ) {
-			$hostname = wp_parse_url( home_url(), PHP_URL_HOST );
-		}
-
-		if ( empty( $hostname ) ) {
-			return null;
-		}
-
-		return strtolower( trim( $hostname ) );
 	}
 
 	/**
