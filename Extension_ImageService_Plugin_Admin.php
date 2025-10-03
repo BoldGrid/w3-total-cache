@@ -1373,7 +1373,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		// Allow plenty of time to complete.
 		ignore_user_abort( true );
-		set_time_limit( 0 ); //phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+		set_time_limit( 0 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		foreach ( $results->posts as $post_id ) {
 			$post_ids[] = $post_id;
