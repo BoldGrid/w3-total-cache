@@ -347,7 +347,7 @@ class Cache_File extends Cache_Base {
 	 * @return bool Always returns true.
 	 */
 	public function flush( $group = '' ) {
-		@set_time_limit( $this->_flush_timelimit );
+		@set_time_limit( $this->_flush_timelimit ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		if ( 'sitemaps' === $group ) {
 			$config        = Dispatcher::config();

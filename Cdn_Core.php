@@ -213,7 +213,7 @@ class Cdn_Core {
 		$cdn           = $this->get_cdn();
 		$force_rewrite = $this->_config->get_boolean( 'cdn.force.rewrite' );
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) );
+		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		$engine = $this->_config->get_string( 'cdn.engine' );
 		$return = $cdn->upload( $files, $results, $force_rewrite, $timeout_time );
@@ -241,7 +241,7 @@ class Cdn_Core {
 	public function delete( $files, $queue_failed, &$results ) {
 		$cdn = $this->get_cdn();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_delete' ) );
+		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_delete' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		$return = $cdn->delete( $files, $results );
 		if ( $this->debug ) {
@@ -289,7 +289,7 @@ class Cdn_Core {
 		 */
 		$cdn = $this->get_cdn();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_purge' ) );
+		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_purge' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		$return = $cdn->purge( $files, $results );
 
@@ -314,7 +314,7 @@ class Cdn_Core {
 	public function purge_all( &$results ) {
 		$cdn = $this->get_cdn();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_purge' ) );
+		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_purge' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		return $cdn->purge_all( $results );
 	}

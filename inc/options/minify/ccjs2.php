@@ -1,4 +1,12 @@
 <?php
+/**
+ * File: ccjs2.php
+ *
+ * Options page: Minify - Closure Compiler JS
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -25,7 +33,7 @@ $compilation_level = $c->get_string( 'minify.ccjs.options.compilation_level' );
 		<input id="minify__ccjs__path__java" class="js_enabled" type="text"
 			<?php Util_Ui::sealing_disabled( 'minify.' ); ?>
 			name="minify__ccjs__path__java"
-			value="<?php esc_attr_e( $c->get_string( 'minify.ccjs.path.java' ), 'w3-total-cache' ); ?>"
+			value="<?php echo esc_attr( $c->get_string( 'minify.ccjs.path.java' ) ); ?>"
 			size="60" />
 	</td>
 </tr>
@@ -39,7 +47,7 @@ $compilation_level = $c->get_string( 'minify.ccjs.options.compilation_level' );
 		<input id="minify__ccjs__path__jar" class="js_enabled" type="text"
 			<?php Util_Ui::sealing_disabled( 'minify.' ); ?>
 			name="minify__ccjs__path__jar"
-			value="<?php esc_attr_e( $c->get_string( 'minify.ccjs.path.jar' ), 'w3-total-cache' ); ?>"
+			value="<?php echo esc_attr( $c->get_string( 'minify.ccjs.path.jar' ) ); ?>"
 			size="60" />
 	</td>
 </tr>
@@ -65,7 +73,7 @@ $compilation_level = $c->get_string( 'minify.ccjs.options.compilation_level' );
 			<?php foreach ( $compilation_levels as $compilation_level_key => $compilation_level_name ) : ?>
 				<option value="<?php echo esc_attr( $compilation_level_key ); ?>"
 					<?php selected( $compilation_level, $compilation_level_key ); ?>>
-					<?php esc_html_e( $compilation_level_name, 'w3-total-cache' ); ?>
+					<?php echo esc_html( $compilation_level_name ); ?>
 				</option>
 			<?php endforeach ?>
 		</select>

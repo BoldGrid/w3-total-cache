@@ -37,8 +37,8 @@ if ( ! defined( 'W3TC' ) ) {
 	$manage_label         = $alwayscached_enabled ? __( 'Manage the queue and settings', 'w3-total-cache' ) : __( 'To enable the extension click', 'w3-total-cache' );
 	$manage_link          = $alwayscached_enabled ? Util_Ui::admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ) : Util_Ui::admin_url( 'admin.php?page=w3tc_extensions' );
 	echo wp_kses(
-		// translators: 1 HTML span tag for feature status, 2 manage queue label, 3 HTML a tag to enable feature or manage settings.
 		sprintf(
+			// translators: 1 HTML span tag containing Always Cached extension enabled/disabled, 2 manage queue label, 3 HTML a tag to enable feature or manage settings.
 			__(
 				'Always Cached extension is currently %1$s. %2$s %3$s.',
 				'w3-total-cache'

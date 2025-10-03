@@ -1,4 +1,15 @@
-<?php if ( ! defined( 'W3TC' ) ) {
+<?php
+/**
+ * File: error.php
+ *
+ * Error page.
+ *
+ * @package W3TC
+ *
+ * phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
+ */
+
+if ( ! defined( 'W3TC' ) ) {
 	die();} ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" <?php do_action( 'admin_xml_ns' ); ?> <?php language_attributes(); ?>>

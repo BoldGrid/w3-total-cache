@@ -95,7 +95,7 @@ class Varnish_Flush {
 	 * @throws \Exception Not explicitly thrown, but errors are logged using `_log` and returned as a `WP_Error`.
 	 */
 	protected function _purge( $url ) {
-		@set_time_limit( $this->_timeout );
+		@set_time_limit( $this->_timeout ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 		$return = true;
 
 		foreach ( (array) $this->_servers as $server ) {

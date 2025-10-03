@@ -9,6 +9,7 @@ This project is a WordPress plugin designed to enhance website performance throu
 - Do not use spaces for indentation; use 4-space tabs instead.
 - Use single quotes for strings unless double quotes are necessary (e.g., when using variables inside the string).
 - Do not make coding standards changes in changed files unless it is directly related to the functionality being modified.
+- Opening parenthesis of a multi-line function call must be the last content on the line (PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket).
 
 ## References
 - WordPress Coding Standards: https://developer.wordpress.org/coding-standards/

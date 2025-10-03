@@ -1,4 +1,12 @@
 <?php
+/**
+ * File: cf.php
+ *
+ * CloudFront CDN options page.
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -172,13 +180,13 @@ if ( ! defined( 'W3TC' ) ) {
 	</td>
 </tr>
 <tr>
-	<th><label for="cdn_cf_public_objects"><?php _e( 'Set objects to publicly accessible on upload:', 'w3-total-cache' ); ?></label></th>
+	<th><label for="cdn_cf_public_objects"><?php esc_html_e( 'Set objects to publicly accessible on upload:', 'w3-total-cache' ); ?></label></th>
 	<td>
 		<select id="cdn_cf_public_objects" name="cdn__cf__public_objects" <?php Util_Ui::sealing_disabled( 'cdn.' ); ?> >
 			<option value="enabled"<?php selected( $this->_config->get_string( 'cdn.cf.public_objects' ), 'enabled' ); ?>><?php esc_html_e( 'Enabled (apply the \'public-read\' ACL)', 'w3-total-cache' ); ?></option>
 			<option value="disabled"<?php selected( $this->_config->get_string( 'cdn.cf.public_objects' ), 'disabled' ); ?>><?php esc_html_e( 'Disabled (don\'t apply an ACL)', 'w3-total-cache' ); ?></option>
 		</select>
-		<p class="description"><?php _e( 'Objects in an S3 bucket served from CloudFront do not need to be publicly accessible. Set this value to disabled to ensure that objects are not publicly accessible and can only be accessed via CloudFront or with a suitable IAM role.', 'w3-total-cache' ); ?></p>
+		<p class="description"><?php esc_html_e( 'Objects in an S3 bucket served from CloudFront do not need to be publicly accessible. Set this value to disabled to ensure that objects are not publicly accessible and can only be accessed via CloudFront or with a suitable IAM role.', 'w3-total-cache' ); ?></p>
 	</td>
 </tr>
 <tr>

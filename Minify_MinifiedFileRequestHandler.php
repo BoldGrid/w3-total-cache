@@ -872,7 +872,7 @@ class Minify_MinifiedFileRequestHandler {
 		$from_name  = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 		$to_name    = get_option( 'admin_email' );
 		$to_email   = $to_name;
-		$body       = @file_get_contents( W3TC_INC_DIR . '/email/minify_error_notification.php' );
+		$body       = @file_get_contents( W3TC_INC_DIR . '/email/minify_error_notification.html' );
 
 		$headers = array(
 			sprintf( 'From: "%s" <%s>', addslashes( $from_name ), $from_email ),
@@ -880,7 +880,7 @@ class Minify_MinifiedFileRequestHandler {
 			'Content-Type: text/html; charset=utf-8',
 		);
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.email_send' ) );
+		@set_time_limit( $this->_config->get_integer( 'timelimit.email_send' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		$result = @wp_mail( $to_email, 'W3 Total Cache Error Notification', $body, implode( "\n", $headers ) );
 

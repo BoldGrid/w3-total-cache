@@ -489,7 +489,7 @@ class Cdn_AdminActions {
 				$w3_cdn = CdnEngine::instance( $engine, $config );
 			}
 
-			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) );
+			@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_test' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 			try {
 				if ( $w3_cdn->test( $error ) ) {
@@ -553,7 +553,7 @@ class Cdn_AdminActions {
 			case 'azuremi':
 				$w3_cdn = CdnEngine::instance( $engine, $config );
 
-				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) );
+				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 				$result = false;
 

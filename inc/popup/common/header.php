@@ -1,4 +1,14 @@
 <?php
+/**
+ * File: header.php
+ *
+ * Header for popup windows.
+ *
+ * @package W3TC
+ *
+ * phpcs:disable WordPress.WP.EnqueuedResources,WordPress.WP.GlobalVariablesOverride
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {

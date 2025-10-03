@@ -306,7 +306,7 @@ class Extension_ImageService_Plugin_Admin {
 				'post_mime_type'         => self::$mime_types,
 				'posts_per_page'         => -1,
 				'ignore_sticky_posts'    => true,
-				'suppress_filters'       => true,
+				'suppress_filters'       => true, // phpcs:ignore WordPressVIPMinimum
 				'meta_key'               => 'w3tc_imageservice', // phpcs:ignore WordPress.DB.SlowDBQuery
 				'fields'                 => 'ids',
 				'no_found_rows'          => true,
@@ -335,7 +335,7 @@ class Extension_ImageService_Plugin_Admin {
 				'post_mime_type'         => self::$mime_types,
 				'posts_per_page'         => -1,
 				'ignore_sticky_posts'    => true,
-				'suppress_filters'       => true,
+				'suppress_filters'       => true, // phpcs:ignore WordPressVIPMinimum
 				'meta_key'               => 'w3tc_imageservice', // phpcs:ignore WordPress.DB.SlowDBQuery
 				'meta_compare'           => 'NOT EXISTS',
 				'fields'                 => 'ids',
@@ -1373,7 +1373,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		// Allow plenty of time to complete.
 		ignore_user_abort( true );
-		set_time_limit( 0 );
+		set_time_limit( 0 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		foreach ( $results->posts as $post_id ) {
 			$post_ids[] = $post_id;
@@ -1401,7 +1401,7 @@ class Extension_ImageService_Plugin_Admin {
 
 		// Allow plenty of time to complete.
 		ignore_user_abort( true );
-		set_time_limit( 0 );
+		set_time_limit( 0 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		foreach ( $results->posts as $post_id ) {
 			if ( $this->remove_optimizations( $post_id ) ) {
