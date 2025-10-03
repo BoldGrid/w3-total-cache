@@ -154,7 +154,7 @@ class Util_Widget {
 		// Link.
 		if ( $control_callback && current_user_can( 'edit_dashboard' ) && is_string( $control_callback ) ) {
 			if ( ! $header_text ) {
-				$header_text = __( 'Configure' );
+				$header_text = __( 'Configure', 'w3-total-cache' );
 			}
 
 			$widget_name .= ' <span class="w3tc-widget-configure postbox-title-action">' .
@@ -179,7 +179,7 @@ class Util_Widget {
 			} else {
 				list( $url )  = explode( '#', add_query_arg( 'edit', $widget_id ), 2 );
 				$widget_name .= ' <span class="postbox-title-action"><a href="' . esc_url( "$url#$widget_id" ) .
-					'" class="edit-box open-box">' . __( 'Configure' ) . '</a></span>';
+					'" class="edit-box open-box">' . __( 'Configure', 'w3-total-cache' ) . '</a></span>';
 			}
 		}
 
@@ -203,7 +203,7 @@ class Util_Widget {
 		self::trigger_widget_control( $meta_box['id'] );
 		wp_nonce_field( 'edit-dashboard-widget_' . $meta_box['id'], 'dashboard-widget-nonce' );
 		echo '<input type="hidden" name="widget_id" value="' . esc_attr( $meta_box['id'] ) . '" />';
-		submit_button( __( 'Submit' ) );
+		submit_button( __( 'Submit', 'w3-total-cache' ) );
 		echo '</form>';
 	}
 
