@@ -1051,16 +1051,16 @@ class Generic_Plugin {
 		);
 
 		// Ignore specific warnings when running the plugin check plugin.
-			add_filter(
-				'wp_plugin_check_ignored_readme_warnings',
-				static function ( array $ignored ) {
-					return array_merge(
-						$ignored,
-						array(
-							'trimmed_section_changelog',
-						)
-					);
-				}
-			);
+		add_filter(
+			'wp_plugin_check_ignored_readme_warnings',
+			static function ( array $ignored ) {
+				return array_merge(
+					$ignored,
+					array(
+						'trimmed_section_changelog',
+					)
+				);
+			}
+		);
 	}
 }
