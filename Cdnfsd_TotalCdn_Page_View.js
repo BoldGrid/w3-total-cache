@@ -102,6 +102,10 @@ jQuery(
 
 					$notice.append( $( '<p/>' ).text( notice.message ) );
 					$container.append( $notice );
+
+					if ( notice.log ) {
+						console.error( '[W3TC FSD]', notice.log );
+					}
 				}
 			);
 		}
@@ -161,6 +165,7 @@ jQuery(
 					function ( response ) {
 						if ( ! response || ! response.success || ! response.data ) {
 							showError( $notices, config.errorMessage );
+							console.error( '[W3TC FSD]', response );
 							return;
 						}
 
