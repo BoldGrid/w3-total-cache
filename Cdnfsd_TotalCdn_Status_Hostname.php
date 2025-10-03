@@ -36,7 +36,14 @@ class Cdnfsd_TotalCdn_Status_Hostname {
 		$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$pull_zone_id    = (int) $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 
-		$hostname = self::resolve_site_hostname();
+		$hostname = Util_Environment::get_site_hostname();
+
+		if ( empty( $hostname ) ) {
+			return array(
+				'status'  => 'fail',
+				'message' => \__( 'Unable to determine the site hostname.', 'w3-total-cache' ),
+			);
+		}
 
 		$api = new Cdn_TotalCdn_Api(
 			array(
@@ -77,23 +84,5 @@ class Cdnfsd_TotalCdn_Status_Hostname {
 			'status'  => 'pass',
 			'message' => \__( 'The custom hostname was added to the Total CDN pull zone.', 'w3-total-cache' ),
 		);
-	}
-
-	/**
-	 * Resolves the hostname that should be configured for Total CDN FSD.
-	 *
-	 * @since X.X.X
-	 *
-	 * @return string
-	 */
-	protected static function resolve_site_hostname() {
-		$site_url = \get_option( 'siteurl' );
-		$hostname = is_string( $site_url ) ? \wp_parse_url( $site_url, PHP_URL_HOST ) : '';
-
-		if ( empty( $hostname ) ) {
-			$hostname = \wp_parse_url( \home_url(), PHP_URL_HOST );
-		}
-
-		return is_string( $hostname ) ? strtolower( trim( $hostname ) ) : '';
 	}
 }

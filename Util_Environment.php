@@ -782,6 +782,28 @@ class Util_Environment {
 	}
 
 	/**
+	 * Helper: resolves the current site hostname.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string|null
+	 */
+	public static function get_site_hostname(): ?string {
+		$site_url = \get_option( 'siteurl' );
+		$hostname = \is_string( $site_url ) ? \wp_parse_url( $site_url, PHP_URL_HOST ) : '';
+
+		if ( empty( $hostname ) ) {
+			$hostname = \wp_parse_url( \home_url(), PHP_URL_HOST );
+		}
+
+		if ( empty( $hostname ) ) {
+			return null;
+		}
+
+		return \strtolower( \trim( $hostname ) );
+	}
+
+	/**
 	 * Returns blog path.
 	 *
 	 * Example:
