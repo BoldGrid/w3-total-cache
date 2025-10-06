@@ -25,8 +25,9 @@ class Cdnfsd_TotalCdn_Page {
 	public static function w3tc_ajax() {
 		$instance = new self();
 
-		\add_filter( 'w3tc_fsd_totalcdn_dns', array( '\W3TC\Cdnfsd_TotalCdn_Status_Dns', 'test_dns_status' ), 10 );
 		\add_filter( 'w3tc_fsd_totalcdn_hostname', array( '\W3TC\Cdnfsd_TotalCdn_Status_Hostname', 'test_hostname_status' ), 10 );
+		\add_filter( 'w3tc_fsd_totalcdn_dns', array( '\W3TC\Cdnfsd_TotalCdn_Status_Dns', 'test_dns_status' ), 10 );
+		\add_filter( 'w3tc_fsd_totalcdn_ssl', array( '\W3TC\Cdnfsd_TotalCdn_Status_Ssl', 'test_ssl_status' ), 10 );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_status_check', array( $instance, 'w3tc_ajax_cdn_totalcdn_fsd_status_check' ) );
 	}
 

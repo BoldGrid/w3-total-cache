@@ -273,6 +273,25 @@ class Cdn_TotalCdn_Api {
 	}
 
 	/**
+	 * Gets the details of a specific pull zone from the provider.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param int $id The pull zone ID.
+	 *
+	 * @link https://cdn-api-dev-joec.boldgrid.com/docs/api#/operations/pullzone.get_from_provider
+	 *
+	 * @return array|WP_Error API response or error object.
+	 */
+	public function get_pull_zone_from_provider( $id ) {
+		$this->api_type = 'account';
+
+		return $this->wp_remote_get(
+			\esc_url( $this->api_base_url . '/pullzone/' . $id . '/getFromProvider' )
+		);
+	}
+
+	/**
 	 * Adds a new pull zone.
 	 *
 	 * @since x.x.x
