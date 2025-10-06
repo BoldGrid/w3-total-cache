@@ -1282,7 +1282,7 @@ Please reach out to all of these people and support their projects if you're so 
 This is a security update.  All users are encouraged to update to this version.
 
 = 2.8.1 =
-Users with Object Cache enabled using Disk storage should upgrade to this version to ensure proper garbage collection.  A memory-based engine is recommended for database and object cache engines.  Using the Disk option can lead to a large number of cache files.  Hosting accounts with inode limits may experience issues, including downtime, if limits are reached.
+Users with Object Cache using Disk should upgrade to ensure proper garbage collection.  A memory-based engine is recommended for database and object caches.  Using Disk can lead to a large number of files.  Hosting accounts with inode limits may experience issues, including downtime.
 
 = 2.7.3 =
 Thanks for using W3 Total Cache! The minimum required PHP version has been raised to PHP 7.2.5.  We recommend using PHP 8.  StackPath CDN has cased all operations and will be removed in a future release.  We recommend switching to Bunny CDN.
@@ -1306,13 +1306,13 @@ Thanks for using W3 Total Cache! This release includes fixes for recent XSS secu
 Thanks for using W3 Total Cache! This release introduces hundreds of well-tested stability fixes since the last release as well as a new mode called "edge mode," which allows us to make releases more often containing new features that are still undergoing testing or active iteration.
 
 = 0.9.2.11 =
-Thanks for using W3 Total Cache! This release includes various fixes for MaxCDN and minify users. As always there are general stability / compatibility improvements. Make sure to test in a sandbox or staging environment and report any issues via the bug submission form available on the support tab of the plugin.
+This release includes various fixes for MaxCDN and minify users. As always there are general stability / compatibility improvements. Make sure to test in a sandbox or staging environment and report any issues via the bug submission form available on the support tab of the plugin.
 
 = 0.9.2.10 =
-Thanks for using W3 Total Cache! This release includes performance improvements for every type of caching and numerous bug fixes and stability / compatbility improvements. Make sure to keep W3TC updated to ensure optimal reliability and security.
+This release includes performance improvements for every type of caching and numerous bug fixes and stability / compatbility improvements. Make sure to keep W3TC updated to ensure optimal reliability and security.
 
 = 0.9.2.9 =
-Thanks for using W3 Total Cache! This release addresses security issues for Cloudflare users as well as users that implement fragment caching via the mfunc functionality. For those using mfunc, temporarily disable page caching to allow yourself time to check the FAQ tab for new usage instructions; if you have a staging environment, that is the most convenient way to test prior to production roll out.
+This release addresses security issues for Cloudflare users as well as users that implement fragment caching via the mfunc functionality. For those using mfunc, temporarily disable page caching to allow yourself time to check the FAQ tab for new usage instructions.
 
 = 0.9.2.8 =
-Thanks for using W3 Total Cache! The recent releases attempted to use WordPress' built in support for managing files and folders and clearly has not worked. Since W3TC is a caching plugin, file management is a critical issue that will cause lots of issues if it doesn't work perfectly. This release is hopefully the last attempt to restore file management back to the reliability of previous versions (0.9.2.4 etc). We realize that having *any* problems is not acceptable, but caching means changing server behavior, so while this plugin is still in pre-release we're trying to focus on learning.
+WordPress attempts to use built-in support for managing files had issues. File management is a critical issue that will cause lots of issues if it doesn't work perfectly. This release is an attempt to restore file management back to the reliability of previous versions.

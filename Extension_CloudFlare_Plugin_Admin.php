@@ -296,7 +296,7 @@ class Extension_CloudFlare_Plugin_Admin {
 
 			@$this->api = new Extension_CloudFlare_Api( $config );
 
-			@set_time_limit( $this->_config->get_integer( array( 'cloudflare', 'timelimit.api_request' ) ) );
+			@set_time_limit( $this->_config->get_integer( array( 'cloudflare', 'timelimit.api_request' ) ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 			$response = $this->api->api_request( $action, $value );
 
 			if ( $response ) {

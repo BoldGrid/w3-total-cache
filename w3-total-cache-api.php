@@ -171,8 +171,8 @@ if ( ! defined( 'W3TC_FEED_REGEXP' ) ) {
 	define( 'W3TC_FEED_REGEXP', '~/feed(/|$)~' );
 }
 
-@ini_set( 'pcre.backtrack_limit', 4194304 );
-@ini_set( 'pcre.recursion_limit', 4194304 );
+@ini_set( 'pcre.backtrack_limit', 4194304 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+@ini_set( 'pcre.recursion_limit', 4194304 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 global $w3_late_init;
 $w3_late_init = false;
