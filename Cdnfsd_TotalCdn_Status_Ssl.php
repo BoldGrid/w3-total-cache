@@ -84,7 +84,7 @@ class Cdnfsd_TotalCdn_Status_Ssl {
 		}
 
 		try {
-			$api->load_free_certificate( $hostname, $pull_zone_id );
+			$api->load_free_certificate( $hostname );
 		} catch ( \Exception $exception ) {
 			return array(
 				'status'  => 'fail',
