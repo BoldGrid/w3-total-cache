@@ -44,7 +44,7 @@ class Cdnfsd_TotalCdn_Status_Ssl {
 		);
 
 		try {
-			$response = $api->get_pull_zone_from_provider( $pull_zone_id );
+			$response = $api->get_pull_zone_from_provider();
 		} catch ( \Exception $exception ) {
 			return array(
 				'status'  => 'fail',
@@ -67,10 +67,10 @@ class Cdnfsd_TotalCdn_Status_Ssl {
 		$hostnames = isset( $response['Hostnames'] ) && is_array( $response['Hostnames'] ) ? $response['Hostnames'] : array();
 
 		foreach ( $hostnames as $entry ) {
-			$value = isset( $entry['Value'] ) ? strtolower( (string) $entry['Value'] ) : '';
-			$cert  = isset( $entry['HasCertificate'] ) ? (bool) $entry['HasCertificate'] : false;
+			$value = isset( $entry['Value'] ) ? strtolower( $entry['Value'] ) : '';
+			$cert  = isset( $entry['HasCertificate'] ) ? $entry['HasCertificate'] : false;
 			// Compare the hostnames in a normalized (case-insensitive) way.
-			if ( $value === $hostname && $cert ) {
+			if ( $value === $hostname && true === $cert ) {
 				$has_ssl = true;
 				break;
 			}
