@@ -204,6 +204,14 @@ class Generic_Plugin_Admin {
 			}
 		}
 
+		if ( Cdn_TotalCdn_Fsd_Origin::should_update_on_save( $new_config, $old_config ) ) {
+			$result = Cdn_TotalCdn_Fsd_Origin::ensure( $new_config );
+
+			if ( empty( $result['success'] ) && empty( $result['skipped'] ) ) {
+				$data['response_errors'][] = 'cdn_totalcdn_fsd_origin_update_failed';
+			}
+		}
+
 		return $data;
 	}
 
@@ -1146,6 +1154,7 @@ class Generic_Plugin_Admin {
 				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 			),
 			'updated_pullzone_url'                    => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
+			'cdn_totalcdn_fsd_origin_update_failed'  => __( 'Unable to update the Total CDN origin for Full Site Delivery. Please contact support for assistance.', 'w3-total-cache' ),
 			'cdn_totalcdn_fsd_custom_hostname_failed' => Cdn_TotalCdn_CustomHostname::failure_message(),
 		);
 
