@@ -28,8 +28,8 @@ return array(
 		'filter' => 'w3tc_fsd_totalcdn_ssl',
 	),
 	array(
-		'title'  => esc_html__( 'Headers', 'w3-total-cache' ),
-		'id'     => 'fsd_totalcdn_headers',
-		'filter' => 'w3tc_fsd_totalcdn_headers',
+		'title'  => esc_html__( 'CDN', 'w3-total-cache' ),
+		'id'     => 'fsd_totalcdn_cdn',
+		'filter' => 'w3tc_fsd_totalcdn_cdn',
 	),
 );
