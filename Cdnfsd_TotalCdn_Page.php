@@ -27,6 +27,7 @@ class Cdnfsd_TotalCdn_Page {
 
 		\add_filter( 'w3tc_fsd_totalcdn_dns', array( '\W3TC\Cdnfsd_TotalCdn_Status_Dns', 'test_dns_status' ), 10 );
 		\add_filter( 'w3tc_fsd_totalcdn_hostname', array( '\W3TC\Cdnfsd_TotalCdn_Status_Hostname', 'test_hostname_status' ), 10 );
+		\add_filter( 'w3tc_fsd_totalcdn_ssl', array( '\W3TC\Cdnfsd_TotalCdn_Status_Ssl', 'test_ssl_status' ) );
 		\add_filter( 'w3tc_fsd_totalcdn_origin_settings', array( '\W3TC\Cdnfsd_TotalCdn_Status_Origin_Settings', 'test_origin_settings_status' ), 10 );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_status_check', array( $instance, 'w3tc_ajax_cdn_totalcdn_fsd_status_check' ) );
 	}
@@ -122,7 +123,7 @@ class Cdnfsd_TotalCdn_Page {
 	 */
 	public function w3tc_ajax_cdn_totalcdn_fsd_status_check() {
 		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
-			//return;
+			return;
 		}
 
 		$tests   = self::get_tests();
@@ -138,7 +139,7 @@ class Cdnfsd_TotalCdn_Page {
 		 */
 		foreach ( $tests as $test ) {
 			if ( ! has_filter( $test['filter'] ) ) {
-				//break;
+				break;
 			}
 
 			$test_result            = self::execute_test( $test );

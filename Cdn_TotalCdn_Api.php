@@ -186,6 +186,7 @@ class Cdn_TotalCdn_Api {
 	 * @link https://developer.wordpress.org/reference/hooks/http_request_timeout/
 	 *
 	 * @param float $timeout_value Time in seconds until a request times out. Default 5.
+	 *
 	 * @return float The adjusted timeout time.
 	 */
 	public function filter_timeout_time( $timeout_value ): float {
@@ -274,13 +275,33 @@ class Cdn_TotalCdn_Api {
 	}
 
 	/**
+	 * Gets the details of a specific pull zone from the provider.
+	 *
+	 * @since x.x.x
+	 *
+	 * @link https://cdn-api-dev-joec.boldgrid.com/docs/api#/operations/pullzone.get_from_provider
+	 *
+	 * @param int|null $id The pull zone ID. (optional).
+	 *
+	 * @return array|WP_Error API response or error object.
+	 */
+	public function get_pull_zone_from_provider( ?int $id = null ) {
+		$this->api_type = 'account';
+		$id             = empty( $id ) ? $this->pull_zone_id : $id;
+
+		return $this->wp_remote_get(
+			\esc_url( $this->api_base_url . '/pullzone/' . $id . '/getFromProvider' )
+		);
+	}
+
+	/**
 	 * Adds a new pull zone.
 	 *
 	 * @since x.x.x
 	 *
-	 * @param array $data Data for the new pull zone.
-	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_add
+	 *
+	 * @param array $data Data for the new pull zone.
 	 *
 	 * @return array|WP_Error API response or error object.
 	 *
@@ -318,18 +339,18 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param int   $id   The pull zone ID.
-	 * @param array $data Data for updating the pull zone.
-	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_updatepullzone
+	 *
+	 * @param int|null $id The pull zone ID. (optional).
+	 * @param array    $data Data for updating the pull zone.
 	 *
 	 * @return array|WP_Error API response or error object.
 	 *
 	 * @throws \Exception If the pull zone ID is invalid.
 	 */
-	public function update_pull_zone( $id, array $data ) {
+	public function update_pull_zone( ?int $id = null, array $data ) {
 		$this->api_type = 'account';
-		$id             = empty( $this->pull_zone_id ) ? $id : $this->pull_zone_id;
+		$id             = empty( $id ) ? $this->pull_zone_id : $id;
 
 		if ( empty( $id ) || ! \is_int( $id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
@@ -347,17 +368,17 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param int $id The pull zone ID.
-	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_delete
+	 *
+	 * @param int|null $id The pull zone ID. (optional).
 	 *
 	 * @return array|WP_Error API response or error object.
 	 *
 	 * @throws \Exception If the pull zone ID is invalid.
 	 */
-	public function delete_pull_zone( $id ) {
+	public function delete_pull_zone( ?int $id = null ) {
 		$this->api_type = 'account';
-		$id             = empty( $this->pull_zone_id ) ? $id : $this->pull_zone_id;
+		$id             = empty( $id ) ? $this->pull_zone_id : $id;
 
 		if ( empty( $id ) || ! \is_int( $id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
@@ -384,9 +405,9 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @throws \Exception If the pull zone ID or hostname is invalid.
 	 */
-	public function add_custom_hostname( $hostname, $pull_zone_id = null ) {
+	public function add_custom_hostname( $hostname, ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
-		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
+		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
 
 		// Convert pullzone to int if it's a string.
 		if ( \is_string( $pull_zone_id ) ) {
@@ -423,7 +444,7 @@ class Cdn_TotalCdn_Api {
 	 */
 	public function check_custom_hostname( string $hostname, ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
-		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
+		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
 
 		if ( empty( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
@@ -444,19 +465,14 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param string $hostname     The custom hostname to add.
-	 * @param string $pull_zone_id The pull zone ID (optional).
+	 * @param string   $hostname     The custom hostname to add.
+	 * @param int|null $pull_zone_id The pull zone ID (optional).
 	 *
 	 * @throws \Exception If the pull zone ID or hostname is invalid.
 	 */
-	public function load_free_certificate( $hostname, $pull_zone_id = null ) {
+	public function load_free_certificate( $hostname, ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
-		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
-
-		// Convert pullzone to int if it's a string.
-		if ( \is_string( $pull_zone_id ) ) {
-			$pull_zone_id = (int) $pull_zone_id;
-		}
+		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
 
 		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
@@ -491,9 +507,9 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @throws \Exception If any required parameters are missing or invalid.
 	 */
-	public function add_edge_rule( array $data, $pull_zone_id = null ) {
+	public function add_edge_rule( array $data, ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
-		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
+		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
 
 		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
@@ -550,9 +566,9 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @throws \Exception If the pull zone ID is invalid.
 	 */
-	public function purge_pull_zone( $pull_zone_id = null ) {
+	public function purge_pull_zone( ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
-		$pull_zone_id   = empty( $this->pull_zone_id ) ? $pull_zone_id : $this->pull_zone_id;
+		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
 
 		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
@@ -565,10 +581,13 @@ class Cdn_TotalCdn_Api {
 	 * Verify that a specified hostname points to a Total CDN provider.
 	 *
 	 * @since X.X.X
+	 *
 	 * @link  https://cdn-api-dev.boldgrid.com/docs/api#/operations/dns.verifyCdnCname
 	 *
 	 * @param  string $hostname The hostname to verify.
+	 *
 	 * @return array|WP_Error API response or error object.
+	 *
 	 * @throws \Exception If the pull zone name is invalid.
 	 */
 	public function verify_hostname_cdn( string $hostname ) {
