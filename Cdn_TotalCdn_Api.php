@@ -616,6 +616,27 @@ class Cdn_TotalCdn_Api {
 	}
 
 	/**
+	 * Retrieves the site IP address reported by the CDN API.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string Resolved IP address.
+	 *
+	 * @throws \Exception If the API response does not contain a valid IP.
+	 */
+	public function get_origin_ip_address(): string {
+		$this->api_type = 'account';
+
+		$response = $this->wp_remote_get( $this->api_base_url . '/request/ip' );
+
+		if ( empty( $response['IpAddress'] ) || ! \is_string( $response['IpAddress'] ) ) {
+			throw new \Exception( \esc_html__( 'Unable to determine the site IP address for Full Site Delivery.', 'w3-total-cache' ) );
+		}
+
+		return $response['IpAddress'];
+	}
+
+	/**
 	 * Retrieves the appropriate API key based on the specified type.
 	 *
 	 * @since x.x.x
