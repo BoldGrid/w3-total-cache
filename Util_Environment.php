@@ -804,6 +804,27 @@ class Util_Environment {
 	}
 
 	/**
+	 * Retrieves the URL scheme (http or https) used by the current WordPress site.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return string The URL scheme ('http' or 'https') for the site.
+	 */
+	public static function get_site_scheme() {
+		$site_url = \get_option( 'siteurl' );
+		if ( ! \is_string( $site_url ) || '' === $site_url ) {
+			$site_url = \home_url();
+		}
+
+		$scheme = \wp_parse_url( $site_url, PHP_URL_SCHEME );
+		if ( empty( $scheme ) ) {
+			$scheme = \is_ssl() ? 'https' : 'http';
+		}
+
+		return $scheme;
+	}
+
+	/**
 	 * Returns blog path.
 	 *
 	 * Example:
