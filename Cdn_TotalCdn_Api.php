@@ -258,14 +258,15 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param int $id The pull zone ID.
-	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_index2
+	 *
+	 * @param int|null $id The pull zone ID. (optional).
 	 *
 	 * @return array|WP_Error API response or error object.
 	 */
-	public function get_pull_zone( $id ) {
+	public function get_pull_zone( ?int $id = null ) {
 		$this->api_type = 'account';
+		$id             = empty( $id ) ? $this->pull_zone_id : $id;
 
 		return $this->wp_remote_get(
 			\esc_url( $this->api_base_url . '/pullzone/' . $id )

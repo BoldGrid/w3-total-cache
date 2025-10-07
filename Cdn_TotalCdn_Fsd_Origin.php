@@ -131,15 +131,7 @@ class Cdn_TotalCdn_Fsd_Origin {
 			return $result;
 		}
 
-		$site_url = \get_option( 'siteurl' );
-		if ( ! \is_string( $site_url ) || '' === $site_url ) {
-			$site_url = \home_url();
-		}
-
-		$scheme = \wp_parse_url( $site_url, PHP_URL_SCHEME );
-		if ( empty( $scheme ) ) {
-			$scheme = \is_ssl() ? 'https' : 'http';
-		}
+		$scheme = Util_Environment::get_site_scheme();
 
 		$origin_url = $scheme . '://' . $ip_address;
 
