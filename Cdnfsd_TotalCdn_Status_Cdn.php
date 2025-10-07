@@ -35,7 +35,7 @@ class Cdnfsd_TotalCdn_Status_Cdn {
 
 		$cdnfsd_engine = $config->get_string( 'cdnfsd.engine' );
 
-		$response = \wp_remote_get( \home_url( '/') );
+		$response = \wp_remote_get( \home_url( '/' ) );
 
 		if ( \is_wp_error( $response ) ) {
 			return array(
