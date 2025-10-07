@@ -261,11 +261,11 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_index2
 	 *
-	 * @param int $id The pull zone ID.
+	 * @param int|null $id The pull zone ID. (optional).
 	 *
 	 * @return array|WP_Error API response or error object.
 	 */
-	public function get_pull_zone( $id ) {
+	public function get_pull_zone( ?int $id = null ) {
 		$this->api_type = 'account';
 		$id             = empty( $id ) ? $this->pull_zone_id : $id;
 
@@ -281,11 +281,11 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @link https://cdn-api-dev-joec.boldgrid.com/docs/api#/operations/pullzone.get_from_provider
 	 *
-	 * @param int $id The pull zone ID.
+	 * @param int|null $id The pull zone ID. (optional).
 	 *
 	 * @return array|WP_Error API response or error object.
 	 */
-	public function get_pull_zone_from_provider( $id ) {
+	public function get_pull_zone_from_provider( ?int $id = null ) {
 		$this->api_type = 'account';
 		$id             = empty( $id ) ? $this->pull_zone_id : $id;
 
@@ -341,14 +341,14 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_updatepullzone
 	 *
-	 * @param int   $id   The pull zone ID.
-	 * @param array $data Data for updating the pull zone.
+	 * @param int|null $id The pull zone ID. (optional).
+	 * @param array    $data Data for updating the pull zone.
 	 *
 	 * @return array|WP_Error API response or error object.
 	 *
 	 * @throws \Exception If the pull zone ID is invalid.
 	 */
-	public function update_pull_zone( $id, array $data ) {
+	public function update_pull_zone( ?int $id = null, array $data ) {
 		$this->api_type = 'account';
 		$id             = empty( $id ) ? $this->pull_zone_id : $id;
 
@@ -370,13 +370,13 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_delete
 	 *
-	 * @param int $id The pull zone ID.
+	 * @param int|null $id The pull zone ID. (optional).
 	 *
 	 * @return array|WP_Error API response or error object.
 	 *
 	 * @throws \Exception If the pull zone ID is invalid.
 	 */
-	public function delete_pull_zone( $id ) {
+	public function delete_pull_zone( ?int $id = null ) {
 		$this->api_type = 'account';
 		$id             = empty( $id ) ? $this->pull_zone_id : $id;
 
@@ -405,7 +405,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @throws \Exception If the pull zone ID or hostname is invalid.
 	 */
-	public function add_custom_hostname( $hostname, $pull_zone_id = null ) {
+	public function add_custom_hostname( $hostname, ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
 
@@ -465,19 +465,14 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @since x.x.x
 	 *
-	 * @param string $hostname     The custom hostname to add.
-	 * @param string $pull_zone_id The pull zone ID (optional).
+	 * @param string   $hostname     The custom hostname to add.
+	 * @param int|null $pull_zone_id The pull zone ID (optional).
 	 *
 	 * @throws \Exception If the pull zone ID or hostname is invalid.
 	 */
-	public function load_free_certificate( $hostname, $pull_zone_id = null ) {
+	public function load_free_certificate( $hostname, ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
-
-		// Convert pullzone to int if it's a string.
-		if ( \is_string( $pull_zone_id ) ) {
-			$pull_zone_id = (int) $pull_zone_id;
-		}
 
 		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
 			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
@@ -512,7 +507,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @throws \Exception If any required parameters are missing or invalid.
 	 */
-	public function add_edge_rule( array $data, $pull_zone_id = null ) {
+	public function add_edge_rule( array $data, ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
 
@@ -571,7 +566,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @throws \Exception If the pull zone ID is invalid.
 	 */
-	public function purge_pull_zone( $pull_zone_id = null ) {
+	public function purge_pull_zone( ?int $pull_zone_id = null ) {
 		$this->api_type = 'account';
 		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
 
