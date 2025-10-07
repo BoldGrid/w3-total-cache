@@ -67,7 +67,7 @@ class Cdnfsd_TotalCdn_Status_Origin_Settings {
 			return array(
 				'status'  => 'fail',
 				'message' => \__( 'The CDN API did not return a valid IP address for Full Site Delivery.', 'w3-total-cache' ),
-				'log'     => $exception->getMessage(),
+				'log'     => \__( 'Invalid IP address received from CDN API.', 'w3-total-cache' ) . ': ' . $ip_address,
 			);
 		}
 
