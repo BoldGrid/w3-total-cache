@@ -789,7 +789,7 @@ class Util_Environment {
 	 * @return string
 	 */
 	public static function get_site_hostname(): string {
-		return \strtolower( \trim( \wp_parse_url( \get_option( 'siteurl' ), PHP_URL_HOST ) ) );
+		return \strtolower( \trim( \wp_parse_url( \get_option( 'siteurl' ), PHP_URL_HOST ) ?? '' ) );
 	}
 
 	/**
