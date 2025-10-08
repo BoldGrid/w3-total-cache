@@ -553,21 +553,25 @@ class Cdn_TotalCdn_Auto_Configure {
 	public static function update_pullzone(): bool {
 		$config = Dispatcher::config();
 
-		// Get the pull zone ID.
-		$pull_zone_id = $config->get( 'cdn.totalcdn.pull_zone_id' );
-
 		try {
-			$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $config->get( 'cdn.totalcdn.account_api_key' ) ) );
+			$api = new Cdn_TotalCdn_Api(
+				array(
+					'account_api_key' => $config->get( 'cdn.totalcdn.account_api_key' ),
+					'pull_zone_id'    => $config->get( 'cdn.totalcdn.pull_zone_id' ),
+				)
+			);
+
 			$api->update_pull_zone(
-				$pull_zone_id,
 				array(
 					'OriginUrl'        => \home_url(),
 					'OriginHostHeader' => \wp_parse_url( \home_url(), PHP_URL_HOST ),
 				)
 			);
+
 			$config->set( 'cdn.totalcdn.origin_url', \home_url() );
 			$config->set( 'cdn.totalcdn.cdn_hostname', \wp_parse_url( \home_url(), PHP_URL_HOST ) );
 			$config->save();
+
 			return true;
 		} catch ( \Exception $ex ) {
 			return false;

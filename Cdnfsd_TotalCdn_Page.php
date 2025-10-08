@@ -25,9 +25,10 @@ class Cdnfsd_TotalCdn_Page {
 	public static function w3tc_ajax() {
 		$instance = new self();
 
-		\add_filter( 'w3tc_fsd_totalcdn_hostname', array( '\W3TC\Cdnfsd_TotalCdn_Status_Hostname', 'test_hostname_status' ) );
 		\add_filter( 'w3tc_fsd_totalcdn_dns', array( '\W3TC\Cdnfsd_TotalCdn_Status_Dns', 'test_dns_status' ) );
+		\add_filter( 'w3tc_fsd_totalcdn_hostname', array( '\W3TC\Cdnfsd_TotalCdn_Status_Hostname', 'test_hostname_status' ) );
 		\add_filter( 'w3tc_fsd_totalcdn_ssl', array( '\W3TC\Cdnfsd_TotalCdn_Status_Ssl', 'test_ssl_status' ) );
+		\add_filter( 'w3tc_fsd_totalcdn_origin_settings', array( '\W3TC\Cdnfsd_TotalCdn_Status_Origin_Settings', 'test_origin_settings_status' ) );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_status_check', array( $instance, 'w3tc_ajax_cdn_totalcdn_fsd_status_check' ) );
 	}
 
@@ -128,7 +129,14 @@ class Cdnfsd_TotalCdn_Page {
 		$tests   = self::get_tests();
 		$results = array();
 		$errors  = array();
+		$notices = array();
 
+		/**
+		 * Iterate through each test and execute it if a corresponding filter exists. The tests
+		 * are defined in the Cdnfsd_TotalCdn_Status_Tests.php file and each test has a unique
+		 * filter hook associated with it. If a filter is not found for a test, the loop breaks
+		 * early as subsequent tests are dependent on the previous ones.
+		 */
 		foreach ( $tests as $test ) {
 			if ( ! has_filter( $test['filter'] ) ) {
 				break;
@@ -146,18 +154,15 @@ class Cdnfsd_TotalCdn_Page {
 			}
 		}
 
-		$notices = array();
-		if ( ! empty( $errors ) ) {
-			foreach ( $errors as $error ) {
-				$notices[] = array(
-					'type'    => 'error',
-					'message' => $error['message'],
-					'log'     => $error['log'],
-				);
-			}
-		} elseif (
-			empty( $results )
-		) {
+		foreach ( $errors as $error ) {
+			$notices[] = array(
+				'type'    => 'error',
+				'message' => $error['message'],
+				'log'     => $error['log'],
+			);
+		}
+
+		if ( empty( $results ) ) {
 			$notices[] = array(
 				'type'    => 'warning',
 				'message' => \__( 'No tests were run.', 'w3-total-cache' ),
