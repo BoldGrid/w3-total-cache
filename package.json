@@ -1,7 +1,8 @@
 {
     "scripts": {
         "js-lint": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --list-different",
-        "js-lint-fix": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --write"
+        "js-lint-fix": "prettier-eslint **/*.js --ignore **/build/** --ignore **/vendor/** --write",
+        "upgrade:deps": "composer update --with-all-dependencies && yarn upgrade"
     },
     "devDependencies": {
         "@boldgrid/wordpress-tag-sync": "^1.3.0",
