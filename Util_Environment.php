@@ -786,21 +786,10 @@ class Util_Environment {
 	 *
 	 * @since X.X.X
 	 *
-	 * @return string|null
+	 * @return string
 	 */
-	public static function get_site_hostname(): ?string {
-		$site_url = \get_option( 'siteurl' );
-		$hostname = \is_string( $site_url ) ? \wp_parse_url( $site_url, PHP_URL_HOST ) : '';
-
-		if ( empty( $hostname ) ) {
-			$hostname = \wp_parse_url( \home_url(), PHP_URL_HOST );
-		}
-
-		if ( empty( $hostname ) ) {
-			return null;
-		}
-
-		return \strtolower( \trim( $hostname ) );
+	public static function get_site_hostname(): string {
+		return \strtolower( \trim( \wp_parse_url( \get_option( 'siteurl' ), PHP_URL_HOST ) ) );
 	}
 
 	/**
@@ -810,15 +799,18 @@ class Util_Environment {
 	 *
 	 * @return string The URL scheme ('http' or 'https') for the site.
 	 */
-	public static function get_site_scheme() {
-		$site_url = \get_option( 'siteurl' );
-		if ( ! \is_string( $site_url ) || '' === $site_url ) {
-			$site_url = \home_url();
-		}
+	public static function get_site_scheme(): string {
+		// Attempt to get the scheme from the siteurl option.
+		$scheme = \wp_parse_url( \get_option( 'siteurl' ), PHP_URL_SCHEME );
 
-		$scheme = \wp_parse_url( $site_url, PHP_URL_SCHEME );
 		if ( empty( $scheme ) ) {
-			$scheme = \is_ssl() ? 'https' : 'http';
+			// In case of load balanceers, determine scheme based on server variables.
+			if ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && 'https' === $_SERVER['HTTP_X_FORWARDED_PROTO'] ) {
+				$scheme = 'https';
+			} else {
+				// Default to is_ssl check.
+				$scheme = \is_ssl() ? 'https' : 'http';
+			}
 		}
 
 		return $scheme;
