@@ -34,6 +34,7 @@ class Cdn_VaryCache {
 		}
 
 		$configured_key = 'cdn.' . $cdn_engine . '-' . $pull_zone_id . '.vary_configured';
+
 		if ( $state->get_boolean( $configured_key ) ) {
 			return;
 		}
@@ -65,7 +66,6 @@ class Cdn_VaryCache {
 			}
 
 			$result = $api->update_pull_zone(
-				$pull_zone_id,
 				array(
 					'EnableWebpVary' => true,
 					'EnableAvifVary' => true,

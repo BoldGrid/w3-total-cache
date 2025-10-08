@@ -64,9 +64,9 @@ class Cdn_TotalCdn_Fsd_Origin {
 	 *
 	 * @param Config $config Configuration instance.
 	 * @param array  $args   {
-	 *     Optional arguments.
+	 *     Optional. Arguments.
 	 *
-	 *     @type \W3TC\Cdn_TotalCdn_Api $api Preconfigured API instance (primarily for testing).
+	 *     @type \W3TC\Cdn_TotalCdn_Api $api Optional. Preconfigured API instance (primarily for testing).
 	 * }
 	 *
 	 * @return array {
@@ -106,9 +106,9 @@ class Cdn_TotalCdn_Fsd_Origin {
 		$pull_zone_id = (int) $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
 
 		try {
-			$api = isset( $args['api'] ) && $args['api'] instanceof Cdn_TotalCdn_Api
-				? $args['api']
-				: new Cdn_TotalCdn_Api(
+			$api = isset( $args['api'] ) && $args['api'] instanceof Cdn_TotalCdn_Api ?
+				$args['api'] :
+				new Cdn_TotalCdn_Api(
 					array(
 						'account_api_key' => $config->get_string( 'cdn.totalcdn.account_api_key' ),
 						'pull_zone_id'    => $pull_zone_id,
@@ -137,7 +137,6 @@ class Cdn_TotalCdn_Fsd_Origin {
 
 		try {
 			$api->update_pull_zone(
-				$pull_zone_id,
 				array(
 					'OriginUrl'        => $origin_url,
 					'OriginHostHeader' => $host_header,
