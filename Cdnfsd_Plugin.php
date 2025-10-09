@@ -65,15 +65,10 @@ class Cdnfsd_Plugin {
 	public function send_headers() {
 		$cdnfsd_engine     = $this->_config->get_string( 'cdnfsd.engine' );
 		$is_cdnfsd_enabled = $this->_config->get_boolean( 'cdnfsd.enabled' );
-error_log( __METHOD__ . ': ' . var_export( [
-		'cdnfsd_engine'     => $cdnfsd_engine,
-		'is_cdnfsd_enabled' => $is_cdnfsd_enabled,
-], true ) );
 
 		if ( $is_cdnfsd_enabled && $cdnfsd_engine ) {
 			@header( 'X-W3TC-CDNFSD: ' . $cdnfsd_engine ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
 			@header( 'X-W3TC-HOSTNAME: ' . Util_Environment::get_site_hostname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
-error_log( __METHOD__ . ': Set headers for FSD.' );
 		}
 	}
 
