@@ -76,15 +76,14 @@ class Cdnfsd_TotalCdn_Status_Cdn {
 			);
 		}
 
-		if (
-			! isset( $request_headers['x-w3tc-cdnfsd'] )
-			|| ! isset( $request_headers['x-w3tc-hostname'] )
-			|| 'totalcdn' !== $request_headers['x-w3tc-cdnfsd']
-			|| $hostname !== $request_headers['x-w3tc-hostname']
-		) {
+		if ( ! isset( $request_headers['x-w3tc-cdn'] ) && ! isset( $request_headers['x-w3tc-cdnfsd'] ) ) {
 			return array(
 				'status'  => 'fail',
-				'message' => \__( 'The expected W3TC headers were not detected.', 'w3-total-cache' ),
+				'message' => sprintf(
+					// translators: 1: W3 Total Cache.
+					\__( 'The expected %1$s headers were not detected.', 'w3-total-cache' ),
+					W3TC_POWERED_BY
+				),
 			);
 		}
 
