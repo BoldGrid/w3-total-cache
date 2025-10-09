@@ -28,6 +28,11 @@ return array(
 		'filter' => 'w3tc_fsd_totalcdn_ssl',
 	),
 	array(
+		'title'  => esc_html__( 'Origin Settings', 'w3-total-cache' ),
+		'id'     => 'fsd_totalcdn_origin_settings',
+		'filter' => 'w3tc_fsd_totalcdn_origin_settings',
+	),
+	array(
 		'title'  => esc_html__( 'CDN', 'w3-total-cache' ),
 		'id'     => 'fsd_totalcdn_cdn',
 		'filter' => 'w3tc_fsd_totalcdn_cdn',
