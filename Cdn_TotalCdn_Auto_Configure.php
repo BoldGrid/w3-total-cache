@@ -556,17 +556,20 @@ class Cdn_TotalCdn_Auto_Configure {
 		// Get the pull zone ID.
 		$pull_zone_id = $config->get( 'cdn.totalcdn.pull_zone_id' );
 
+		$hostname   = Util_Environment::get_site_hostname();
+		$scheme     = Util_Environment::get_site_scheme();
+		$origin_url = $scheme . '://' . $hostname;
+
 		try {
 			$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $config->get( 'cdn.totalcdn.account_api_key' ) ) );
 			$api->update_pull_zone(
 				$pull_zone_id,
 				array(
-					'OriginUrl'        => \home_url(),
-					'OriginHostHeader' => \wp_parse_url( \home_url(), PHP_URL_HOST ),
+					'OriginUrl'        => $origin_url,
+					'OriginHostHeader' => $hostname,
 				)
 			);
-			$config->set( 'cdn.totalcdn.origin_url', \home_url() );
-			$config->set( 'cdn.totalcdn.cdn_hostname', \wp_parse_url( \home_url(), PHP_URL_HOST ) );
+			$config->set( 'cdn.totalcdn.origin_url', $origin_url );
 			$config->save();
 			return true;
 		} catch ( \Exception $ex ) {

@@ -45,6 +45,8 @@ class Cdnfsd_Plugin {
 
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
 
+		add_action( 'send_headers', array( $this, 'send_headers' ) );
+
 		add_action( 'w3tc_flush_all', array( '\W3TC\Cdnfsd_CacheFlush', 'w3tc_flush_all' ), 3000, 1 );
 		add_action( 'w3tc_flush_post', array( '\W3TC\Cdnfsd_CacheFlush', 'w3tc_flush_post' ), 3000, 3 );
 		add_action( 'w3tc_flushable_posts', '__return_true', 3000 );
@@ -53,6 +55,25 @@ class Cdnfsd_Plugin {
 		add_filter( 'w3tc_flush_execute_delayed_operations', array( '\W3TC\Cdnfsd_CacheFlush', 'w3tc_flush_execute_delayed_operations' ), 3000 );
 
 		Util_AttachToActions::flush_posts_on_actions();
+	}
+
+	/**
+	 * Send CDNFSD Headers.
+	 *
+	 * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+	 *
+	 * @return void
+	 *
+	 * @since x.x.x
+	 */
+	public function send_headers() {
+		$cdnfsd_engine     = $this->_config->get_string( 'cdnfsd.engine' );
+		$is_cdnfsd_enabled = $this->_config->get_boolean( 'cdnfsd.enabled' );
+
+		if ( $is_cdnfsd_enabled && $cdnfsd_engine ) {
+			@header( 'X-W3TC-CDNFSD: ' . $cdnfsd_engine );
+			@header( 'X-W3TC-HOSTNAME: ' . Util_Environment::get_site_hostname() );
+		}
 	}
 
 	/**

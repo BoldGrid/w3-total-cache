@@ -34,8 +34,17 @@ class Cdnfsd_TotalCdn_Status_Cdn {
 		$config = Dispatcher::config();
 
 		$cdnfsd_engine = $config->get_string( 'cdnfsd.engine' );
+		$cdn_hostname  = $config->get_string( 'cdn.totalcdn.cdn_hostname' );
+		$hostname      = Util_Environment::get_site_hostname();
 
-		$response = \wp_remote_get( \home_url( '/' ) );
+		// Build the CDN URL for the homepage using the CDN hostname.
+		$cdn_home_url = 'https://' . $cdn_hostname . '/';
+
+		// Request the homepage from the CDN.
+		$response = \wp_remote_get(
+			$cdn_home_url,
+			array( 'headers' => array( 'Host' => $hostname ) )
+		);
 
 		if ( \is_wp_error( $response ) ) {
 			return array(
@@ -46,6 +55,8 @@ class Cdnfsd_TotalCdn_Status_Cdn {
 		}
 
 		$request_headers = \wp_remote_retrieve_headers( $response );
+		$request_headers = \is_a( $request_headers, 'WpOrg\Requests\Utility\CaseInsensitiveDictionary' ) ? $request_headers->getAll() : $request_headers;
+		$request_headers = \array_change_key_case( $request_headers, CASE_LOWER );
 
 		// List of potential CDN response headers.
 		$cdn_headers = require W3TC_DIR . '/Cdnfsd_TotalCdn_Status_Headers.php';
@@ -61,7 +72,19 @@ class Cdnfsd_TotalCdn_Status_Cdn {
 		if ( empty( $found_headers ) ) {
 			return array(
 				'status'  => 'fail',
-				'message' => \__( 'No expected CDN response headers were detected.', 'w3-total-cache' ),
+				'message' => \__( 'No expected CDN response headers were detected. If DNS was changed recently it could take some time to propagate, please wait and try again.', 'w3-total-cache' ),
+			);
+		}
+
+		if (
+			! isset( $request_headers['x-w3tc-cdnfsd'] )
+			|| ! isset( $request_headers['x-w3tc-hostname'] )
+			|| 'totalcdn' !== $request_headers['x-w3tc-cdnfsd']
+			|| $hostname !== $request_headers['x-w3tc-hostname']
+		) {
+			return array(
+				'status'  => 'fail',
+				'message' => \__( 'The expected W3TC headers were not detected.', 'w3-total-cache' ),
 			);
 		}
 

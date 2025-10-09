@@ -108,6 +108,8 @@ class Cdn_Plugin {
 	/**
 	 * Send CDN Headers.
 	 *
+	 * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+	 *
 	 * @return void
 	 *
 	 * @since x.x.x
@@ -118,6 +120,7 @@ class Cdn_Plugin {
 
 		if ( $is_cdn_enabled && $cdn_engine ) {
 			@header( 'X-W3TC-CDN: ' . $cdn_engine );
+			@header( 'X-W3TC-HOSTNAME: ' . Util_Environment::get_site_hostname() );
 		}
 	}
 
@@ -198,7 +201,7 @@ class Cdn_Plugin {
 	 * @return bool Whether or not the flush should occur.
 	 */
 	public function w3tc_preflush_cdn_all( $do_flush, $extras = array() ) {
-		$cdn_engine = $this->_config->get_string( 'cdn.engine' );
+		$cdn_engine       = $this->_config->get_string( 'cdn.engine' );
 		$default_override = Cdn_Util::get_flush_manually_default_override( $cdn_engine );
 
 		if ( $this->_config->get_boolean( 'cdn.flush_manually', $default_override ) ) {
