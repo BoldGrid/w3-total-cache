@@ -63,6 +63,15 @@ class Cdnfsd_Core {
 					);
 					break;
 
+				case 'totalcdn':
+					$engine_object = new Cdnfsd_TotalCdn_Engine(
+						array(
+							'account_api_key' => $c->get_string( 'cdn.totalcdn.account_api_key' ),
+							'pull_zone_id'    => $c->get_integer( 'cdn.totalcdn.pull_zone_id' ),
+						)
+					);
+					break;
+
 				default:
 					throw new \Exception(
 						\esc_html(

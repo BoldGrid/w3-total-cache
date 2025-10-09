@@ -11,6 +11,10 @@ namespace W3TC;
 
 defined( 'W3TC' ) || die;
 
+$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+$is_enabled      = Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled();
+$is_authorized   = Cdn_TotalCdn_Util::is_totalcdn_authorized();
+
 Util_Ui::postbox_header(
 	esc_html__( 'Configuration: Full-Site Delivery', 'w3-total-cache' ),
 	'',
@@ -18,17 +22,95 @@ Util_Ui::postbox_header(
 );
 ?>
 <table class="form-table">
-	<tr>
-		<td>
-			<?php // @todo add missing FSD settings ?>
-			Placeholder for FSD settings
-		</td>
-	</tr>
 	<?php
-	if (
-		Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled()
-		&& Cdn_TotalCdn_Util::is_totalcdn_authorized()
-	) {
+	if ( $is_authorized ) {
+		?>
+		<tr>
+			<th><label><?php esc_html_e( 'Pull zone name:', 'w3-total-cache' ); ?></label></th>
+			<td class="w3tc_config_value_text">
+				<?php echo esc_html( $config->get_string( 'cdn.totalcdn.name' ) ); ?>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				<label>
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1: Opening HTML acronym tag, 2: Opening HTML acronym tag, 3: Closing HTML acronym tag.
+							esc_html__(
+								'Origin %1$sURL%3$s/%2$sIP%3$s address:',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Universal Resource Locator', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Internet Protocol', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
+				</label>
+			</th>
+			<td class="w3tc_config_value_text">
+				<?php echo esc_html( $config->get_string( 'cdn.totalcdn.origin_url' ) ); ?>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				<label>
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1: Opening HTML acronym tag, 2: Closing HTML acronym tag.
+							esc_html__(
+								'%1$sCDN%2$s hostname:',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
+				</label>
+			</th>
+			<td class="w3tc_config_value_text">
+				<?php echo esc_html( $config->get_string( 'cdn.totalcdn.cdn_hostname' ) ); ?>
+				<p class="description">
+					<?php
+					echo wp_kses(
+						sprintf(
+							// translators: 1: Opening HTML acronym tag, 2: Opening HTML acronym tag, 3: Closing HTML acronym tag.
+							esc_html__(
+								'The website domain %1$sCNAME%3$s must point to the %2$sCDN%3$s hostname.',
+								'w3-total-cache'
+							),
+							'<acronym title="' . esc_attr__( 'Canonical Name', 'w3-total-cache' ) . '">',
+							'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
+							'</acronym>'
+						),
+						array(
+							'acronym' => array(
+								'title' => array(),
+							),
+						)
+					);
+					?>
+				</p>
+			</td>
+		</tr>
+		<?php
+	}
+
+	if ( $is_enabled && $is_authorized ) {
 		?>
 		<tr>
 			<th style="width: 300px;">
