@@ -36,9 +36,8 @@ matrix:
 
 install:
   - composer self-update
-  - composer update -o
+  - yarn run upgrade:deps
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost
-  - yarn upgrade
 
 script:
   # PHPUnit: Run unit tests.

@@ -5,6 +5,7 @@
     "homepage": "https://www.boldgrid.com/w3-total-cache/",
     "license": "GPL-2.0-or-later",
     "require": {
+        "php": ">=7.2.5 <8.4",
         "aws/aws-sdk-php": "^3.308",
         "aws/aws-php-sns-message-validator": "^1.9",
         "symfony/deprecation-contracts": "^2.5",
@@ -34,6 +35,9 @@
             "dealerdirect/phpcodesniffer-composer-installer": true
         },
         "optimize-autoloader": true,
-        "COMPOSER_MIRROR_PATH_REPOS": true
+        "COMPOSER_MIRROR_PATH_REPOS": true,
+        "platform": {
+            "php": "7.2.5"
+        }
     }
 }
