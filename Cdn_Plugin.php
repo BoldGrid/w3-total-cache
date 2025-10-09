@@ -72,7 +72,7 @@ class Cdn_Plugin {
 			add_filter( 'update_feedback', array( $this, 'update_feedback' ) );
 		}
 
-		add_action( 'send_headers', array( $this, 'send_headers' ) );
+		add_action( 'send_headers', array( $this, 'send_headers' ), 10, 0 );
 
 		$default_override = Cdn_Util::get_flush_manually_default_override( $cdn_engine );
 		$flush_on_actions = ! $this->_config->get_boolean( 'cdn.flush_manually', $default_override );
@@ -108,19 +108,17 @@ class Cdn_Plugin {
 	/**
 	 * Send CDN Headers.
 	 *
-	 * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+	 * @since X.X.X
 	 *
 	 * @return void
-	 *
-	 * @since x.x.x
 	 */
 	public function send_headers() {
 		$cdn_engine     = $this->_config->get_string( 'cdn.engine' );
 		$is_cdn_enabled = $this->_config->get_boolean( 'cdn.enabled' );
 
 		if ( $is_cdn_enabled && $cdn_engine ) {
-			@header( 'X-W3TC-CDN: ' . $cdn_engine );
-			@header( 'X-W3TC-HOSTNAME: ' . Util_Environment::get_site_hostname() );
+			@header( 'X-W3TC-CDN: ' . $cdn_engine ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+			@header( 'X-W3TC-HOSTNAME: ' . Util_Environment::get_site_hostname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
 		}
 	}
 

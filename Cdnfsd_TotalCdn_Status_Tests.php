@@ -23,7 +23,7 @@ return array(
 		'filter' => 'w3tc_fsd_totalcdn_dns',
 	),
 	array(
-		'title'  => esc_html__( 'Certificate', 'w3-total-cache' ),
+		'title'  => esc_html__( 'SSL', 'w3-total-cache' ),
 		'id'     => 'fsd_totalcdn_ssl',
 		'filter' => 'w3tc_fsd_totalcdn_ssl',
 	),

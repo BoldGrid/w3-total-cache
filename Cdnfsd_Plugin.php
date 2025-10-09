@@ -44,9 +44,7 @@ class Cdnfsd_Plugin {
 		}
 
 		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
-
-		add_action( 'send_headers', array( $this, 'send_headers' ) );
-
+		add_action( 'send_headers', array( $this, 'send_headers' ), 10, 0 );
 		add_action( 'w3tc_flush_all', array( '\W3TC\Cdnfsd_CacheFlush', 'w3tc_flush_all' ), 3000, 1 );
 		add_action( 'w3tc_flush_post', array( '\W3TC\Cdnfsd_CacheFlush', 'w3tc_flush_post' ), 3000, 3 );
 		add_action( 'w3tc_flushable_posts', '__return_true', 3000 );
@@ -60,19 +58,22 @@ class Cdnfsd_Plugin {
 	/**
 	 * Send CDNFSD Headers.
 	 *
-	 * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+	 * @since X.X.X
 	 *
 	 * @return void
-	 *
-	 * @since x.x.x
 	 */
 	public function send_headers() {
 		$cdnfsd_engine     = $this->_config->get_string( 'cdnfsd.engine' );
 		$is_cdnfsd_enabled = $this->_config->get_boolean( 'cdnfsd.enabled' );
+error_log( __METHOD__ . ': ' . var_export( [
+		'cdnfsd_engine'     => $cdnfsd_engine,
+		'is_cdnfsd_enabled' => $is_cdnfsd_enabled,
+], true ) );
 
 		if ( $is_cdnfsd_enabled && $cdnfsd_engine ) {
-			@header( 'X-W3TC-CDNFSD: ' . $cdnfsd_engine );
-			@header( 'X-W3TC-HOSTNAME: ' . Util_Environment::get_site_hostname() );
+			@header( 'X-W3TC-CDNFSD: ' . $cdnfsd_engine ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+			@header( 'X-W3TC-HOSTNAME: ' . Util_Environment::get_site_hostname() ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+error_log( __METHOD__ . ': Set headers for FSD.' );
 		}
 	}
 
@@ -80,7 +81,6 @@ class Cdnfsd_Plugin {
 	 * Adds a footer comment with the CDN engine information.
 	 *
 	 * @param array $strings Array of strings to append the footer comment to.
-	 *
 	 * @return array Modified array of strings with the CDN footer comment.
 	 */
 	public function w3tc_footer_comment( $strings ) {

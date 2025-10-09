@@ -244,7 +244,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_index2
 	 *
-	 * @param int|null $id The pull zone ID. (optional).
+	 * @param int|null $id Optional. The pull zone ID.
 	 *
 	 * @return array|WP_Error API response or error object.
 	 */
@@ -264,7 +264,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @link https://cdn-api-dev-joec.boldgrid.com/docs/api#/operations/pullzone.get_from_provider
 	 *
-	 * @param int|null $id The pull zone ID. (optional).
+	 * @param int|null $id Optional. The pull zone ID.
 	 *
 	 * @return array|WP_Error API response or error object.
 	 */
@@ -324,14 +324,14 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_updatepullzone
 	 *
-	 * @param int|null $id The pull zone ID. (optional).
 	 * @param array    $data Data for updating the pull zone.
+	 * @param int|null $id   Optional. The pull zone ID.
 	 *
 	 * @return array|WP_Error API response or error object.
 	 *
 	 * @throws \Exception If the pull zone ID is invalid.
 	 */
-	public function update_pull_zone( ?int $id = null, array $data ) {
+	public function update_pull_zone( array $data, ?int $id = null ) {
 		$this->api_type = 'account';
 		$id             = empty( $id ) ? $this->pull_zone_id : $id;
 
@@ -353,7 +353,7 @@ class Cdn_TotalCdn_Api {
 	 *
 	 * @link https://docs.bunny.net/reference/pullzonepublic_delete
 	 *
-	 * @param int|null $id The pull zone ID. (optional).
+	 * @param int|null $id Optional. The pull zone ID.
 	 *
 	 * @return array|WP_Error API response or error object.
 	 *

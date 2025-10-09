@@ -202,7 +202,6 @@ class W3tc_Cdn_TotalCdn_Fsd_Origin_Test extends WP_UnitTestCase {
 		$api->expects( $this->once() )
 			->method( 'update_pull_zone' )
 			->with(
-				$this->equalTo( 1 ),
 				$this->callback(
 					function( $payload ) {
 						$this->assertSame( 'https://198.51.100.10', $payload['OriginUrl'] );

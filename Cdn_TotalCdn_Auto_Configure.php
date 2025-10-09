@@ -551,19 +551,19 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @return bool
 	 */
 	public static function update_pullzone(): bool {
-		$config = Dispatcher::config();
-
-		// Get the pull zone ID.
-		$pull_zone_id = $config->get( 'cdn.totalcdn.pull_zone_id' );
-
+		$config     = Dispatcher::config();
 		$hostname   = Util_Environment::get_site_hostname();
-		$scheme     = Util_Environment::get_site_scheme();
-		$origin_url = $scheme . '://' . $hostname;
+		$origin_url = Util_Environment::get_site_scheme() . '://' . $hostname;
 
 		try {
-			$api = new Cdn_TotalCdn_Api( array( 'account_api_key' => $config->get( 'cdn.totalcdn.account_api_key' ) ) );
+			$api = new Cdn_TotalCdn_Api(
+				array(
+					'account_api_key' => $config->get( 'cdn.totalcdn.account_api_key' ),
+					'pull_zone_id'    => $config->get( 'cdn.totalcdn.pull_zone_id' ),
+				)
+			);
+
 			$api->update_pull_zone(
-				$pull_zone_id,
 				array(
 					'OriginUrl'        => $origin_url,
 					'OriginHostHeader' => $hostname,
@@ -571,6 +571,7 @@ class Cdn_TotalCdn_Auto_Configure {
 			);
 			$config->set( 'cdn.totalcdn.origin_url', $origin_url );
 			$config->save();
+
 			return true;
 		} catch ( \Exception $ex ) {
 			return false;
