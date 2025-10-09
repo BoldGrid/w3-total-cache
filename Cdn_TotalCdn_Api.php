@@ -162,6 +162,23 @@ class Cdn_TotalCdn_Api {
 			'Description'         => 'Add X-W3TC-CDN header',
 			'Enabled'             => true,
 		),
+		array(
+			'ActionType'          => 5, // Set Response Header.
+			'ActionParameter1'    => 'X-W3TC-CDNFSD',
+			'ActionParameter2'    => 'totalcdn',
+			'Triggers'            => array(
+				array(
+					'Type'                => 0, // RequestUrl.
+					'PatternMatches'      => array(
+						'*',
+					),
+					'PatternMatchingType' => 0, // MatchAny.
+				),
+			),
+			'TriggerMatchingType' => 0,
+			'Description'         => 'Add X-W3TC-CDNFSD header',
+			'Enabled'             => true,
+		),
 	);
 
 	/**

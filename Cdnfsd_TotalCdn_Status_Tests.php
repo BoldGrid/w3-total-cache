@@ -33,8 +33,8 @@ return array(
 		'filter' => 'w3tc_fsd_totalcdn_origin_settings',
 	),
 	array(
-		'title'  => esc_html__( 'CDN Status', 'w3-total-cache' ),
-		'id'     => 'fsd_totalcdn_headers',
-		'filter' => 'w3tc_fsd_totalcdn_headers',
+		'title'  => esc_html__( 'CDN', 'w3-total-cache' ),
+		'id'     => 'fsd_totalcdn_cdn',
+		'filter' => 'w3tc_fsd_totalcdn_cdn',
 	),
 );

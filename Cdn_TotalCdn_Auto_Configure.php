@@ -551,7 +551,9 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @return bool
 	 */
 	public static function update_pullzone(): bool {
-		$config = Dispatcher::config();
+		$config     = Dispatcher::config();
+		$hostname   = Util_Environment::get_site_hostname();
+		$origin_url = Util_Environment::get_site_scheme() . '://' . $hostname;
 
 		try {
 			$api = new Cdn_TotalCdn_Api(
@@ -563,13 +565,11 @@ class Cdn_TotalCdn_Auto_Configure {
 
 			$api->update_pull_zone(
 				array(
-					'OriginUrl'        => \home_url(),
-					'OriginHostHeader' => \wp_parse_url( \home_url(), PHP_URL_HOST ),
+					'OriginUrl'        => $origin_url,
+					'OriginHostHeader' => $hostname,
 				)
 			);
-
-			$config->set( 'cdn.totalcdn.origin_url', \home_url() );
-			$config->set( 'cdn.totalcdn.cdn_hostname', \wp_parse_url( \home_url(), PHP_URL_HOST ) );
+			$config->set( 'cdn.totalcdn.origin_url', $origin_url );
 			$config->save();
 
 			return true;
