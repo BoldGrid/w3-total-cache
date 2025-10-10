@@ -398,7 +398,7 @@ class Cdn_BunnyCdn_Api {
 	public function purge( array $data ) {
 		$this->api_type = 'account';
 
-		return $this->wp_remote_get(
+		return $this->wp_remote_post(
 			\esc_url( 'https://api.bunny.net/purge' ),
 			$data
 		);
