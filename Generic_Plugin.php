@@ -40,9 +40,9 @@ class Generic_Plugin {
 	 *
 	 * @since X.X.X
 	 *
-	 * @var array|null
+	 * @var ?array
 	 */
-	private $frontend_notice = null;
+	private $frontend_notice;
 
 	/**
 	 * Constructor
