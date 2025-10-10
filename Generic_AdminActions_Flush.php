@@ -424,7 +424,7 @@ class Generic_AdminActions_Flush {
 			);
 		} else {
 			$message_id    = uniqid();
-			$error_context = ! empty( $error_context ) ? $error_context : __( 'purge cache', 'w3-total-cache' );
+			$error_context = empty( $error_context ) ? __( 'purge cache', 'w3-total-cache' ) : $error_context;
 
 			update_option(
 				'w3tc_message',
