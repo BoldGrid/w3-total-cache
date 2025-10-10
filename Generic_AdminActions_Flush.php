@@ -47,32 +47,6 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush all Except CDN.
-	 *
-	 * @return void
-	 */
-	public function w3tc_flush_all_except_w3tc_cdn() {
-		$cdn_engine    = $this->_config->get_string( 'cdn.engine' );
-		$cdnfsd_engine = $this->_config->get_string( 'cdnfsd.engine' );
-		$skip          = array();
-
-		if ( ! empty( $cdn_engine ) ) {
-			$skip[ $cdn_engine ] = 'skip';
-		}
-
-		if ( ! empty( $cdnfsd_engine ) ) {
-			$skip[ $cdnfsd_engine ] = 'skip';
-		}
-
-		// Ensure unique keys in $skip to avoid duplicates if cdn.engine and cdnfsd.engine are the same.
-		$skip = array_unique( $skip );
-
-		Dispatcher::component( 'CacheFlush' )->flush_all( $skip );
-
-		Util_Admin::redirect( array( 'w3tc_note' => 'flush_all_except_w3tc_cdn' ), true );
-	}
-
-	/**
 	 * Flushes the cache for the current page and outputs a success message.
 	 *
 	 * @return void
