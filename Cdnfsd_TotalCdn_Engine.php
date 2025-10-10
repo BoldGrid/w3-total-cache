@@ -55,11 +55,7 @@ class Cdnfsd_TotalCdn_Engine {
 
 		foreach ( $urls as $url ) {
 			try {
-				$result = $api->purge(
-					array(
-						'url' => $url,
-					)
-				);
+				$result = $api->purge( array( 'url' => $url ) );
 			} catch ( \Exception $ex ) {
 				if ( 'Validation Failure: Purge url must contain one of your hostnames' === $ex->getMessage() ) {
 					throw new \Exception( \esc_html__( 'CDN site is not configured correctly: Delivery Domain must match your site domain', 'w3-total-cache' ) );

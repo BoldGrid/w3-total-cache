@@ -201,11 +201,7 @@ class Cdn_TotalCdn_Page {
 
 		// Try to purge the URL.
 		try {
-			$api->purge(
-				array(
-					'url' => \esc_url( $url, array( 'http', 'https' ) ),
-				)
-			);
+			$api->purge( array( 'url' => \esc_url( $url, array( 'http', 'https' ) ) ) );
 		} catch ( \Exception $ex ) {
 			\wp_send_json_error( array( 'error_message' => $ex->getMessage() ), 422 );
 		}
