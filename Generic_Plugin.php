@@ -316,8 +316,7 @@ class Generic_Plugin {
 	public function init() {
 		// Load W3TC textdomain for translations.
 		$this->reset_l10n();
-		load_plugin_textdomain( W3TC_TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-
+		
 		if ( is_multisite() && ! is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
 			if ( $w3_current_blog_id !== $current_blog->blog_id && ! isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {
@@ -447,7 +446,32 @@ class Generic_Plugin {
 		wp_add_inline_style( 'admin-bar', $css );
 
 		if ( ! is_admin() && ! is_null( $this->frontend_notice ) ) {
-			$js = "(function(){var init=function(){var notice=document.getElementById('wp-admin-bar-w3tc_frontend_notice');if(!notice){return;}var remove=function(){if(notice&&notice.parentNode){notice.parentNode.removeChild(notice);notice=null;}};var dismiss=notice.querySelector('.w3tc-frontend-notice-dismiss');if(dismiss){dismiss.addEventListener('click',function(event){event.preventDefault();remove();});}};if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}})();";
+			$js = "(function() {
+				var init = function() {
+					var notice = document.getElementById('wp-admin-bar-w3tc_frontend_notice');
+					if (!notice) {
+						return;
+					}
+					var remove = function() {
+						if (notice && notice.parentNode) {
+							notice.parentNode.removeChild(notice);
+							notice = null;
+						}
+					};
+					var dismiss = notice.querySelector('.w3tc-frontend-notice-dismiss');
+					if (dismiss) {
+						dismiss.addEventListener('click', function(event) {
+							event.preventDefault();
+							remove();
+						});
+					}
+				};
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', init);
+				} else {
+					init();
+				}
+			})();";
 			wp_add_inline_script( 'admin-bar', $js );
 		}
 	}
