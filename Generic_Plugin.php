@@ -105,6 +105,8 @@ class Generic_Plugin {
 			ob_start( array( $this, 'ob_callback' ) );
 		}
 
+		$this->register_plugin_check_filters();
+
 		// Run tasks after updating this plugin.
 		$this->post_update_tasks();
 	}
@@ -1144,5 +1146,69 @@ class Generic_Plugin {
 			$state->set( 'tasks.generic.last_run_version', W3TC_VERSION );
 			$state->save();
 		}
+	}
+
+	/**
+	 * Registers Plugin Check filters so they run in all contexts.
+	 *
+	 * @since X.X.X
+	 *
+	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L160
+	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L180
+	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Checker/Checks/Plugin_Repo/Plugin_Readme_Check.php#L928
+	 *
+	 * @return void
+	 */
+	private function register_plugin_check_filters(): void {
+		// Ignore vendor packages and external library directories when running the plugin check plugin.
+		add_filter(
+			'wp_plugin_check_ignore_directories',
+			static function ( array $dirs_to_ignore ) {
+				return array_merge(
+					$dirs_to_ignore,
+					array(
+						'.github',
+						'bin',
+						'extension-example',
+						'lib',
+						'node_modules',
+						'tests',
+						'qa',
+						'vendor',
+					)
+				);
+			}
+		);
+
+		// Ignore specific files when running the plugin check plugin.
+		add_filter(
+			'wp_plugin_check_ignore_files',
+			static function ( array $files_to_ignore ) {
+				return array_merge(
+					$files_to_ignore,
+					array(
+						'.editorconfig',
+						'.gitattributes',
+						'.gitignore',
+						'.jshintrc',
+						'.phpunit.result.cache',
+						'.travis.yml',
+					)
+				);
+			}
+		);
+
+		// Ignore specific warnings when running the plugin check plugin.
+		add_filter(
+			'wp_plugin_check_ignored_readme_warnings',
+			static function ( array $ignored ) {
+				return array_merge(
+					$ignored,
+					array(
+						'trimmed_section_changelog',
+					)
+				);
+			}
+		);
 	}
 }

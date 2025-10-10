@@ -47,7 +47,7 @@ class Generic_AdminActions_Flush {
 	}
 
 	/**
-	 * Flush all Except Total CDN.
+	 * Flush all Except CDN.
 	 *
 	 * @return void
 	 */
@@ -273,7 +273,7 @@ class Generic_AdminActions_Flush {
 	 * @return void
 	 */
 	public function w3tc_flush_cdn() {
-		$result = $this->flush_cdn( array( 'ui_action' => 'flush_cdn_button' ) );
+		$this->flush_cdn( array( 'ui_action' => 'flush_button' ) );
 
 		$this->_redirect_after_flush( 'flush_cdn', 'purge CDN cache' );
 	}
