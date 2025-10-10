@@ -54,19 +54,18 @@ class Cdnfsd_TotalCdn_Engine {
 		$items = array();
 
 		foreach ( $urls as $url ) {
-			$items[] = array(
-				'url'       => $url,
-				'recursive' => true,
-			);
-		}
-
-		try {
-			$api->purge( array( 'items' => $items ) );
-		} catch ( \Exception $ex ) {
-			if ( 'Validation Failure: Purge url must contain one of your hostnames' === $ex->getMessage() ) {
-				throw new \Exception( \esc_html__( 'CDN site is not configured correctly: Delivery Domain must match your site domain', 'w3-total-cache' ) );
-			} else {
-				throw $ex;
+			try {
+				$result = $api->purge(
+					array(
+						'url' => $url,
+					)
+				);
+			} catch ( \Exception $ex ) {
+				if ( 'Validation Failure: Purge url must contain one of your hostnames' === $ex->getMessage() ) {
+					throw new \Exception( \esc_html__( 'CDN site is not configured correctly: Delivery Domain must match your site domain', 'w3-total-cache' ) );
+				} else {
+					throw $ex;
+				}
 			}
 		}
 	}

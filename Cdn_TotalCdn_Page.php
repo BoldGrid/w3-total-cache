@@ -203,8 +203,7 @@ class Cdn_TotalCdn_Page {
 		try {
 			$api->purge(
 				array(
-					'url'   => \esc_url( $url, array( 'http', 'https' ) ),
-					'async' => true,
+					'url' => \esc_url( $url, array( 'http', 'https' ) ),
 				)
 			);
 		} catch ( \Exception $ex ) {
