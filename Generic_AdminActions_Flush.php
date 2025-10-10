@@ -389,11 +389,11 @@ class Generic_AdminActions_Flush {
 	 *
 	 * @param array $extras Additional parameters for the cache flush operation.
 	 *
-	 * @return mixed
+	 * @return void
 	 */
 	public function flush_cdn( $extras = array() ) {
 		$cacheflush = Dispatcher::component( 'CacheFlush' );
-		return $cacheflush->cdn_purge_all( $extras );
+		$cacheflush->cdn_purge_all( $extras );
 	}
 
 	/**
