@@ -1003,7 +1003,7 @@ class PgCache_ContentGrabber {
 					}
 
 					$engine_config = array(
-						'exclude'         => array(
+						'exclude'         => array( // phpcs:ignore WordPressVIPMinimum
 							'.htaccess',
 						),
 						'expire'          => $this->_lifetime,
@@ -2128,7 +2128,7 @@ class PgCache_ContentGrabber {
 
 			try {
 				ob_start();
-				$result = eval( $code );
+				$result = eval( $code ); // phpcs:ignore Generic.PHP.ForbiddenFunctions.Found
 				$output = ob_get_contents();
 				ob_end_clean();
 			} catch ( \Exception $ex ) {

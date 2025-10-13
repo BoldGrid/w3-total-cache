@@ -10,7 +10,7 @@
 defined( 'ABSPATH' ) || die;
 
 define( 'W3TC', true );
-define( 'W3TC_VERSION', '2.8.12' );
+define( 'W3TC_VERSION', '2.8.13' );
 define( 'W3TC_POWERED_BY', 'W3 Total Cache' );
 define( 'W3TC_EMAIL', 'w3tc@w3-edge.com' );
 define( 'W3TC_TEXT_DOMAIN', 'w3-total-cache' );
@@ -42,7 +42,7 @@ define( 'W3TC_BOLDGRID_FORUM_API', 'https://www.boldgrid.com/support/wp-json/w3t
 
 // Total CDN API endpoint.
 if ( ! defined( 'W3TC_TCDN_API' ) ) {
-	define( 'W3TC_TCDN_API', 'https://cdn-api-dev.boldgrid.com/api/v1');
+	define( 'W3TC_TCDN_API', 'https://cdn-api-dev.boldgrid.com/api/v1' );
 }
 // Admin notices from API.
 if ( ! defined( 'W3TC_NOTICE_FEED' ) ) {
@@ -189,8 +189,8 @@ if ( ! defined( 'W3TC_CDN_NAME' ) ) {
 	define( 'W3TC_CDN_NAME', 'Total CDN' );
 }
 
-@ini_set( 'pcre.backtrack_limit', 4194304 );
-@ini_set( 'pcre.recursion_limit', 4194304 );
+@ini_set( 'pcre.backtrack_limit', 4194304 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
+@ini_set( 'pcre.recursion_limit', 4194304 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 global $w3_late_init;
 $w3_late_init = false;

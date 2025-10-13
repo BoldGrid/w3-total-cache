@@ -1,9 +1,17 @@
 <?php
+/**
+ * File: self_test.php
+ *
+ * Self test tab.
+ *
+ * @since   0.9.5
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+defined( 'W3TC' ) || die();
+
 ?>
 <h3><?php esc_html_e( 'Compatibility Check', 'w3-total-cache' ); ?></h3>
 
@@ -85,19 +93,42 @@ if ( ! defined( 'W3TC' ) ) {
 
 		<li>
 			Web Server:
-			<?php if ( stristr( $_SERVER['SERVER_SOFTWARE'], 'apache' ) !== false ) : ?>
-				<code>Apache</code>
-			<?php elseif ( stristr( $_SERVER['SERVER_SOFTWARE'], 'LiteSpeed' ) !== false ) : ?>
-				<code>Lite Speed</code>
-			<?php elseif ( stristr( $_SERVER['SERVER_SOFTWARE'], 'nginx' ) !== false ) : ?>
-				<code>nginx</code>
-			<?php elseif ( stristr( $_SERVER['SERVER_SOFTWARE'], 'lighttpd' ) !== false ) : ?>
-				<code>lighttpd</code>
-			<?php elseif ( stristr( $_SERVER['SERVER_SOFTWARE'], 'iis' ) !== false ) : ?>
-				<code>Microsoft IIS</code>
-			<?php else : ?>
-				<span style="padding: 0 2px;background-color: #FFFF00">Not detected</span>
-			<?php endif; ?>
+			<?php
+			$server_software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
+
+			switch ( true ) {
+				case stristr( $server_software, 'apache' ) !== false:
+					?>
+					<code>Apache</code>
+					<?php
+					break;
+				case stristr( $server_software, 'LiteSpeed' ) !== false:
+					?>
+					<code>Lite Speed</code>
+					<?php
+					break;
+				case stristr( $server_software, 'nginx' ) !== false:
+					?>
+					<code>nginx</code>
+					<?php
+					break;
+				case stristr( $server_software, 'lighttpd' ) !== false:
+					?>
+					<code>lighttpd</code>
+					<?php
+					break;
+				case stristr( $server_software, 'iis' ) !== false:
+					?>
+					<code>Microsoft IIS</code>
+					<?php
+					break;
+				default:
+					?>
+					<span style="padding: 0 2px;background-color: #FFFF00">Not detected</span>
+					<?php
+					break;
+			}
+			?>
 		</li>
 
 		<li>

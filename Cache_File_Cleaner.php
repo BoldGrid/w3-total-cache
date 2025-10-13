@@ -56,7 +56,7 @@ class Cache_File_Cleaner {
 	 * @return void
 	 */
 	public function clean() {
-		@set_time_limit( $this->_clean_timelimit );
+		@set_time_limit( $this->_clean_timelimit ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		$this->_clean( $this->_cache_dir, false );
 	}
@@ -67,7 +67,7 @@ class Cache_File_Cleaner {
 	 * @return void
 	 */
 	public function clean_before() {
-		@set_time_limit( $this->_clean_timelimit );
+		@set_time_limit( $this->_clean_timelimit ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		$this->_clean( $this->_cache_dir, false );
 	}

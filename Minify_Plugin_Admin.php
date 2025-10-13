@@ -145,7 +145,7 @@ class Minify_Plugin_Admin {
 	public function cleanup() {
 		$w3_cache_file_cleaner_generic = new Cache_File_Cleaner_Generic(
 			array(
-				'exclude'         => array(
+				'exclude'         => array( // phpcs:ignore WordPressVIPMinimum
 					'*.files',
 					'.htaccess',
 					'index.html',

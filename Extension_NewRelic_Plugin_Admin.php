@@ -135,7 +135,7 @@ class Extension_NewRelic_Plugin_Admin {
 	public function w3tc_extension_plugin_links( $links ) {
 		$links   = array();
 		$links[] = '<a class="edit" href="' . esc_attr( Util_Ui::admin_url( 'admin.php?page=w3tc_general#monitoring' ) ) .
-			'">' . __( 'Settings' ) . '</a>';
+			'">' . __( 'Settings', 'w3-total-cache' ) . '</a>';
 
 		return $links;
 	}

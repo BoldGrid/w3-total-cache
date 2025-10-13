@@ -76,17 +76,17 @@ class BrowserCache_Plugin {
 
 		$v = $this->_config->get_string( 'browsercache.security.session.cookie_httponly' );
 		if ( ! empty( $v ) ) {
-			@ini_set( 'session.cookie_httponly', 'on' === $v ? '1' : '0' );
+			@ini_set( 'session.cookie_httponly', 'on' === $v ? '1' : '0' ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 		}
 
 		$v = $this->_config->get_string( 'browsercache.security.session.cookie_secure' );
 		if ( ! empty( $v ) ) {
-			@ini_set( 'session.cookie_secure', 'on' === $v ? '1' : '0' );
+			@ini_set( 'session.cookie_secure', 'on' === $v ? '1' : '0' ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 		}
 
 		$v = $this->_config->get_string( 'browsercache.security.session.use_only_cookies' );
 		if ( ! empty( $v ) ) {
-			@ini_set( 'session.use_only_cookies', 'on' === $v ? '1' : '0' );
+			@ini_set( 'session.use_only_cookies', 'on' === $v ? '1' : '0' ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 		}
 
 		add_filter( 'w3tc_minify_http2_preload_url', array( $this, 'w3tc_minify_http2_preload_url' ), 4000 );

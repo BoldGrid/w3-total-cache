@@ -116,7 +116,7 @@ class PgCache_Plugin_Admin {
 
 				$w3_cache_file_cleaner_generic = new Cache_File_Cleaner_Generic(
 					array(
-						'exclude'         => array(
+						'exclude'         => array( // phpcs:ignore WordPressVIPMinimum
 							'.htaccess',
 						),
 						'cache_dir'       => $flush_dir,

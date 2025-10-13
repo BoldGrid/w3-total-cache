@@ -330,7 +330,7 @@ class Cdn_Core_Admin {
 		$uploads_use_yearmonth_folders = get_option( 'uploads_use_yearmonth_folders' );
 		$document_root                 = Util_Environment::document_root();
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_import' ) );
+		@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_import' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		if ( $upload_info ) {
 			/**
@@ -597,7 +597,7 @@ class Cdn_Core_Admin {
 	public function rename_domain( $names, $limit, $offset, &$count, &$total, &$results ) {
 		global $wpdb;
 
-		@set_time_limit( $this->_config->get_integer( 'timelimit.domain_rename' ) );
+		@set_time_limit( $this->_config->get_integer( 'timelimit.domain_rename' ) ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 		$count   = 0;
 		$total   = 0;
@@ -695,7 +695,7 @@ class Cdn_Core_Admin {
 				AND
 				pm2.meta_key = "_wp_attachment_metadata"
 				WHERE
-				p.post_type = "attachment" 
+				p.post_type = "attachment"
 				AND
 				(pm.meta_value IS NOT NULL OR pm2.meta_value IS NOT NULL)',
 			$wpdb->prefix,
