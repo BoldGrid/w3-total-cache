@@ -98,13 +98,15 @@ class SystemOpCache_Plugin_Admin {
 	 * @return array Updated admin bar menu items including the OPcache flush menu item.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
+		$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 		$menu_items['20910.system_opcache'] = array(
 			'id'     => 'w3tc_flush_opcache',
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Opcode Cache', 'w3-total-cache' ),
 			'href'   => Util_Ui::url(
 				array(
-					'page'               => 'w3tc_dashboard',
+					'page'               => $current_page,
 					'w3tc_opcache_flush' => '',
 				)
 			),

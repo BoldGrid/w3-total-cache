@@ -503,13 +503,15 @@ class Generic_Plugin {
 				),
 			);
 
+			$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 			if ( $modules->plugin_is_enabled() ) {
 				$menu_items['10010.generic'] = array(
 					'id'     => 'w3tc_flush_all',
 					'parent' => 'w3tc',
 					'title'  => __( 'Purge All Caches', 'w3-total-cache' ),
 					'href'   => wp_nonce_url(
-						network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ),
+						network_admin_url( 'admin.php?page=' . $current_page . '&w3tc_flush_all' ),
 						'w3tc'
 					),
 				);
