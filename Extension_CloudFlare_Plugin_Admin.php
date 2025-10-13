@@ -209,11 +209,18 @@ class Extension_CloudFlare_Plugin_Admin {
 			! empty( $this->_config->get_string( array( 'cloudflare', 'key' ) ) ) &&
 			! empty( $this->_config->get_string( array( 'cloudflare', 'zone_id' ) ) )
 		) {
+			$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 			$menu_items['20810.cloudflare'] = array(
 				'id'     => 'w3tc_flush_cloudflare',
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'Cloudflare', 'w3-total-cache' ),
-				'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush' ), 'w3tc' ),
+				'href'   => wp_nonce_url(
+					admin_url(
+						'admin.php?page=' . $current_page . '&amp;w3tc_cloudflare_flush'
+					),
+					'w3tc'
+				),
 			);
 		}
 
