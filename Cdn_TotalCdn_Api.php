@@ -446,6 +446,47 @@ class Cdn_TotalCdn_Api {
 	}
 
 	/**
+	 * Removes a custom hostname from a pull zone.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string   $hostname     The custom hostname to remove.
+	 * @param int|null $pull_zone_id The pull zone ID (optional).
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If the pull zone ID or hostname is invalid.
+	 */
+	public function remove_custom_hostname( string $hostname, ?int $pull_zone_id = null ) {
+		$this->api_type = 'account';
+		$pull_zone_id   = empty( $pull_zone_id ) ? $this->pull_zone_id : $pull_zone_id;
+
+		// Convert pull zone to int if it's a string.
+		if ( \is_string( $pull_zone_id ) ) {
+			$pull_zone_id = (int) $pull_zone_id;
+		}
+
+		if ( empty( $pull_zone_id ) || ! \is_int( $pull_zone_id ) ) {
+			throw new \Exception( \esc_html__( 'Invalid pull zone id.', 'w3-total-cache' ) );
+		}
+
+		if ( empty( $hostname ) || ! \filter_var( $hostname, FILTER_VALIDATE_DOMAIN ) ) {
+			throw new \Exception( \esc_html__( 'Invalid hostname', 'w3-total-cache' ) . ' "' . \esc_html( $hostname ) . '".' );
+		}
+
+		$url = \add_query_arg(
+			array( 'CustomHostName' => $hostname ),
+			$this->api_base_url . '/pullzone/' . $pull_zone_id . '/removeCustomHostname'
+		);
+
+		$this->wp_remote_post(
+			\esc_url( $url ),
+			array(),
+			array( 'method' => 'DELETE' )
+		);
+	}
+
+	/**
 	 * Checks the status of a custom hostname configuration for a pull zone.
 	 *
 	 * @since x.x.x
@@ -691,18 +732,23 @@ class Cdn_TotalCdn_Api {
 			throw new \Exception( \esc_html__( 'Failed to reach API endpoint', 'w3-total-cache' ) );
 		}
 
-		$response_body = \json_decode( $result['body'], true );
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			throw new \Exception(
-				\sprintf(
-					// translators: 1: JSON error message.
-					\esc_html__(
-						'Failed to decode JSON response: %1$s',
-						'w3-total-cache'
-					),
-					esc_html( json_last_error_msg() )
-				)
-			);
+		$response_body = array();
+
+		// Decode the JSON response body, if present.  HTTP 204 responses have no body.
+		if ( ! empty( $result['body'] ) ) {
+			$response_body = \json_decode( $result['body'], true );
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				throw new \Exception(
+					\sprintf(
+						// translators: 1: JSON error message.
+						\esc_html__(
+							'Failed to decode JSON response: %1$s',
+							'w3-total-cache'
+						),
+						esc_html( json_last_error_msg() )
+					)
+				);
+			}
 		}
 
 		// Throw an exception if the response code/status is not ok.

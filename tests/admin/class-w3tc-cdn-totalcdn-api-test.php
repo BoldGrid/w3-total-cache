@@ -102,4 +102,97 @@ class W3tc_Cdn_TotalCdn_Api_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'Accept', $requested_headers );
 		$this->assertSame( 'application/json', $requested_headers['Accept'] );
 	}
+
+	/**
+	 * Ensure a pull zone id is required when removing custom hostnames.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_remove_custom_hostname_requires_pull_zone_id() {
+		$api = new Cdn_TotalCdn_Api(
+			array(
+				'account_api_key' => 'account-key',
+			)
+		);
+
+		$this->expectException( \Exception::class );
+		$this->expectExceptionMessage( 'Invalid pull zone id.' );
+
+		$api->remove_custom_hostname( 'example.com' );
+	}
+
+	/**
+	 * Ensure the hostname must be valid when removing custom hostnames.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_remove_custom_hostname_requires_valid_hostname() {
+		$api = new Cdn_TotalCdn_Api(
+			array(
+				'account_api_key' => 'account-key',
+				'pull_zone_id'    => 1,
+			)
+		);
+
+		$this->expectException( \Exception::class );
+		$this->expectExceptionMessage( 'Invalid hostname "".' );
+
+		$api->remove_custom_hostname( '' );
+	}
+
+	/**
+	 * Ensure the API request is issued with the expected parameters when removing hostnames.
+	 *
+	 * @since X.X.X
+	 */
+	public function test_remove_custom_hostname_success() {
+		$api = new Cdn_TotalCdn_Api(
+			array(
+				'account_api_key' => 'account-key',
+				'pull_zone_id'    => 1,
+			)
+		);
+
+		$requested_url     = '';
+		$requested_headers = array();
+		$requested_method  = '';
+
+		$filter = function( $preempt, $args, $url ) use ( &$requested_url, &$requested_headers, &$requested_method ) {
+			if ( false === strpos( $url, '/removeCustomHostname' ) ) {
+				return $preempt;
+			}
+
+			$requested_url     = $url;
+			$requested_headers = isset( $args['headers'] ) ? $args['headers'] : array();
+			$requested_method  = isset( $args['method'] ) ? $args['method'] : '';
+
+			return array(
+				'body'     => wp_json_encode( array() ),
+				'headers'  => array(),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+			);
+		};
+
+		add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$api->remove_custom_hostname( 'example.com' );
+		} finally {
+			remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertSame(
+			W3TC_CDN_API_URL . '/pullzone/1/removeCustomHostname?CustomHostName=example.com',
+			$requested_url
+		);
+		$this->assertSame( 'DELETE', $requested_method );
+		$this->assertArrayHasKey( 'ApiKey', $requested_headers );
+		$this->assertSame( 'account-key', $requested_headers['ApiKey'] );
+		$this->assertArrayHasKey( 'Accept', $requested_headers );
+		$this->assertSame( 'application/json', $requested_headers['Accept'] );
+	}
 }
