@@ -228,9 +228,8 @@ class Generic_Plugin {
 
 		if ( 1 === (int) W3TC_DYNAMIC_SECURITY ) {
 			return $value;
-		} else {
-			return str_replace( W3TC_DYNAMIC_SECURITY, '', $value );
 		}
+		return str_replace( W3TC_DYNAMIC_SECURITY, '', $value );
 	}
 
 	/**
