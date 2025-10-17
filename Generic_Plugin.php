@@ -210,7 +210,7 @@ class Generic_Plugin {
 	 * @return string
 	 */
 	private function strip_dynamic_fragment_tags_from_string( $value ) {
-		if ( ! is_string( $value ) || ! defined( 'W3TC_DYNAMIC_SECURITY' ) || '' === W3TC_DYNAMIC_SECURITY ) {
+		if ( ! is_string( $value ) || ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) ) {
 			return $value;
 		}
 
@@ -224,6 +224,11 @@ class Generic_Plugin {
 
 		if ( null === $value ) {
 			$value = $original;
+		}
+
+		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean.
+		if ( 1 === (int) W3TC_DYNAMIC_SECURITY ) {
+			return $value;
 		}
 
 		return str_replace( W3TC_DYNAMIC_SECURITY, '', $value );
