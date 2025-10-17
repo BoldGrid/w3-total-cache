@@ -2084,6 +2084,7 @@ class PgCache_ContentGrabber {
 	 * @return string The buffer with parsed dynamic content.
 	 */
 	public function _parse_dynamic( $buffer ) {
+		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean.
 		if ( ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) || 1 === (int) W3TC_DYNAMIC_SECURITY ) {
 			return $buffer;
 		}

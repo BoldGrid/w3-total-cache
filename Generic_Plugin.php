@@ -226,9 +226,11 @@ class Generic_Plugin {
 			$value = $original;
 		}
 
+		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean.
 		if ( 1 === (int) W3TC_DYNAMIC_SECURITY ) {
 			return $value;
 		}
+
 		return str_replace( W3TC_DYNAMIC_SECURITY, '', $value );
 	}
 
