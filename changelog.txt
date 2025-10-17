@@ -1,8 +1,8 @@
 === W3 Total Cache Changelog ===
 
-Please see [readme.txt](https://raw.githubusercontent.com/BoldGrid/w3-total-cache/refs/heads/master/readme.txt) for the latest changelog entries.
-
-== Changelog ==
+= 2.8.14 =
+* Fix: Better logic for mfunc/mclude processing
+* Enhancement: More consistent purge notices
 
 = 2.8.13 =
 * Fix: Sanitize mfunc/mclude content in REST calls
