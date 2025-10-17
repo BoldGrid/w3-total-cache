@@ -68,8 +68,13 @@ class Cdnfsd_TotalCdn_Status_Dns {
 				'status'  => 'fail',
 				'message' => \sprintf(
 					// Translators: 1 host name.
-					\__( '%1$s is not pointed to a CDN provider', 'w3-total-cache' ),
-					$hostname
+					\__(
+						'%1$s is not pointed to a CDN provider.  For more information on how to configure your DNS please click %2$shere%3$s.',
+						'w3-total-cache'
+					),
+					$hostname,
+					'<a href="https://www.boldgrid.com/support/w3-total-cache/total-cdn-dns-setup/" target="_blank">',
+					'</a>'
 				),
 			);
 		}
