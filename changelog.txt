@@ -68,7 +68,7 @@
 * Fix: CDN: Amazon S3 long hostname for default region
 * Fix: WP-CLI: Error running "wp w3tc alwayscached_*" commands
 * Fix: WP-CLI: Remove HTML in output
-* Enhancement: Simplified license messsaging
+* Enhancement: Simplified license messaging
 
 = 2.8.4 =
 * Fix: Deactivation modal JS error
@@ -163,7 +163,7 @@
 * Update: Microsoft Azure Storage SDK PHP dependency updated to 1.5.4 (blob) and 1.5.2 (common)
 * Update: Several other PHP and NodeJS dependencies updated
 * Update: Made improvements to the Remove CSS/JS feature
-* Update: Removed the newsletter signup popup and added it in the footer
+* Update: Removed the newsletter sign-up popup and added it in the footer
 * Update: Added use-case proof and links to settings pages
 * Update: Changed CDN default to none and updated the StackPath EOL notice
 
@@ -544,7 +544,7 @@
 * Removed an identifying value for GDPR
 
 = 0.13.2 =
-* Fix: Dont store content of HEAD requests
+* Fix: Don't store content of HEAD requests
 * Updated informational URL on page cache static page comments
 
 = 0.13.1 =
@@ -611,7 +611,7 @@
 = 0.10.0 =
 * Improved Statistics component for pro users
 * Improved support for CloudFront distributions with multiple origins
-* Improved redirects by using safter wp_safe redirect
+* Improved redirects by using safer wp_safe redirect
 * Improved .htaccess usage when pagecache does not require it
 * Improved protection of unexpected values in global variables
 * Added more Amazon S3 regions
@@ -693,7 +693,7 @@
 * Fixed warning thrown when purge all was selected (via nigrosimone)
 * Fixed undefined offset error in fragment cache
 * Fixed MaxCDN test button failure when debug mode is enabled
-* Fixed purging of feeds when cache feeds option is enabeld
+* Fixed purging of feeds when cache feeds option is enabled
 * Improved handling of errors when full site delivery isn't set
 * Improved nginx.conf to support xml caching
 * Improved nginx.conf to support HSTS for static files
@@ -702,9 +702,9 @@
 * Improved Limelight Networks CDN integration
 * Improved FAQ, they're now hosted in the GitHub public repository
 * Improved handling for /*<![CDATA[*/ in HTML minify engine
-* Imporved garbage collection for basic disk caching
+* Improved garbage collection for basic disk caching
 * Improved HSTS support (via Dave Welsh)
-* Improved reliabilty of CSS embed options
+* Improved reliability of CSS embed options
 * Improved New Relic requirements in compatibility test
 * Added StackPath CDN integration (including full site delivery)
 * Added support for page cache priming via WP-CLI via prime function
@@ -729,11 +729,11 @@
 * Improved Full Site Delivery configuration user flow on the General and CDN settings screens
 * Improved content type matching and cache hits as a result
 * Improved minify file locking logic
-* Improved visual langage of the compatibility test (via Furniel)
+* Improved visual language of the compatibility test (via Furniel)
 * Improved configuration file management
 * Improved MaxCDN set up wizard
 * Improved page cache's accepted query string handling to handle optional values and add support for disk enhanced mode (via amiga-500, nigrosimone)
-* Improved handling of timeouts to origin push CDN proviers
+* Improved handling of timeouts to origin push CDN providers
 * Added HTTP/2 push headers for disk enhanced page caching (via nigrosimone)
 * Added X-Forwarded-Proto header for use cases like HTTPS recognition behind proxies or load balancers
 * Added multiple CDN support i.e. static file objects and pages, posts, feeds, API responses etc to use different respective CDN providers
@@ -793,7 +793,7 @@
 * Added notification for users that are still using PHP 5.2 (end of life in 2011)
 * Improved default settings
 * Improved compatibility with Yoast SEO sitemap caching
-* Improved compatability with Jetpack
+* Improved compatibility with Jetpack
 * Improved directory handling on IIS
 * Improved backwards compatibility for 3rd party implementations against legacy W3TC functions
 
@@ -808,7 +808,7 @@
 * Added support for APCu Opcode Cache
 * Added support for Redis
 * Added support for Google Drive
-* Added support for Amazon S3-compatible stroage services
+* Added support for Amazon S3-compatible storage services
 * Added support for PECL memcached
 * Added support for srcset elements
 * Added support for Rackspace CDN Origin Pull
@@ -827,12 +827,12 @@
 * Added more support for exclusions to database cache
 * Added more optionality to minifiers
 * Added WPML Performance Extension
-* Added use of [namespace](http://php.net/manual/en/language.namespaces.rationale.php) which creates mininum dependency on version PHP 5.3
+* Added use of [namespace](http://php.net/manual/en/language.namespaces.rationale.php) which creates minimum dependency on version PHP 5.3
 * Improved PHP 5.6 compatibility
 * Improved PHP 7 compatibility
 * Improved performance menu in admin bar, including purging of specific cache engines and more
 * Improved SSL interoperability
-* Improved reliablity of test buttons
+* Improved reliability of test buttons
 * Improved nomenclature of caching files for higher cache hit rates
 * Improved nginx compatibility
 * Improved WP CLI support
@@ -844,7 +844,7 @@
 * Improved compatibility of headers like ETag and content encoding
 * Improved template fragment caching
 * Improved notifications, warnings and errors
-* Improved moble user agents detection
+* Improved mobile user agents detection
 * Improved security with nonces and form elements
 * Improved security throughout the codebase
 * Improved detail of debug messages
@@ -873,7 +873,7 @@
 * Fixed missing param in APC cache method declaration
 * Fixed user roles property not begin an array
 * Fixed adding empty Vary header
-* Fixed notice on failed upgrade licencing check
+* Fixed notice on failed upgrade licensing check
 * Fixed Database Cache description text
 * Fixed duplicate bb10 agents
 * Fixed settings link in Minify Auto notification
@@ -888,7 +888,7 @@
 * Fixed issue with widget styling
 * Fixed issue with Purge All button action
 * Fixed issue with exporting of settings
-* Fixed issue with plugin interferring with preview theme
+* Fixed issue with plugin interfering with preview theme
 * Fixed issue with malformed config files
 * Added caching of list of posts pages (tags, categories etc) to Genesis extension a long with flush it checkbox
 * Added typecasting on expiration time in object cache drop-in
