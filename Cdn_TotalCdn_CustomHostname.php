@@ -122,6 +122,38 @@ class Cdn_TotalCdn_CustomHostname {
 	}
 
 	/**
+	 * Determines whether the custom hostname should be removed on save.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Config      $new_config New configuration values.
+	 * @param Config|null $old_config Previous configuration values.
+	 *
+	 * @return bool True when removal should be attempted; otherwise false.
+	 */
+	public static function should_remove_on_save( Config $new_config, ?Config $old_config = null ): bool {
+		if ( ! $old_config ) {
+			return false;
+		}
+
+		if ( ! $old_config->get_boolean( 'cdnfsd.enabled' ) || 'totalcdn' !== $old_config->get_string( 'cdnfsd.engine' ) ) {
+			return false;
+		}
+
+		if ( self::is_applicable( $new_config ) ) {
+			return false;
+		}
+
+		$hostname = \trim( $old_config->get_string( 'cdnfsd.totalcdn.custom_hostname' ) );
+
+		if ( empty( $hostname ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Ensures the custom hostname exists and returns the operation result.
 	 *
 	 * @since X.X.X
@@ -243,6 +275,91 @@ class Cdn_TotalCdn_CustomHostname {
 	}
 
 	/**
+	 * Removes the configured custom hostname from the Total CDN pull zone.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Config $config     New configuration values that will be persisted.
+	 * @param Config $old_config Previous configuration values.
+	 * @param array  $args       {
+	 *     Optional arguments.
+	 *
+	 *     @type bool     $persist  Whether to persist configuration changes immediately.
+	 *     @type callable $on_error Callback triggered on failure. Receives the error message string.
+	 * }
+	 *
+	 * @return array {
+	 *     Result details.
+	 *
+	 *     @type bool        $success  True when the hostname was removed or removal was unnecessary.
+	 *     @type bool        $skipped  True when no removal was required.
+	 *     @type string|null $hostname Hostname that was targeted.
+	 *     @type string|null $error    Error message when unsuccessful.
+	 *     @type bool        $removed  True when a remove operation was triggered.
+	 * }
+	 */
+	public static function remove( Config $config, Config $old_config, array $args = array() ): array {
+		$persist  = isset( $args['persist'] ) ? (bool) $args['persist'] : false;
+		$on_error = isset( $args['on_error'] ) ? $args['on_error'] : null;
+		$result   = array(
+			'success'  => false,
+			'skipped'  => false,
+			'hostname' => null,
+			'error'    => null,
+			'removed'  => false,
+		);
+
+		$hostname = \trim( $old_config->get_string( 'cdnfsd.totalcdn.custom_hostname' ) );
+
+		if ( empty( $hostname ) ) {
+			$result['success'] = true;
+			$result['skipped'] = true;
+			self::clear_config_state( $config, $persist );
+			return $result;
+		}
+
+		$result['hostname'] = $hostname;
+
+		$account_api_key = $old_config->get_string( 'cdn.totalcdn.account_api_key' );
+
+		if ( empty( $account_api_key ) ) {
+			$account_api_key = $config->get_string( 'cdn.totalcdn.account_api_key' );
+		}
+
+		$pull_zone_id = (int) $old_config->get_integer( 'cdn.totalcdn.pull_zone_id' );
+
+		if ( $pull_zone_id <= 0 ) {
+			$pull_zone_id = (int) $config->get_integer( 'cdn.totalcdn.pull_zone_id' );
+		}
+
+		if ( empty( $account_api_key ) || $pull_zone_id <= 0 ) {
+			$result['error'] = \__( 'Could not remove the Full Site Delivery custom hostname because the Total CDN credentials are missing.', 'w3-total-cache' );
+			self::trigger_error_callback( $on_error, $result['error'] );
+			return $result;
+		}
+
+		try {
+			$api = new Cdn_TotalCdn_Api(
+				array(
+					'account_api_key' => $account_api_key,
+					'pull_zone_id'    => $pull_zone_id,
+				)
+			);
+
+			$api->remove_custom_hostname( $hostname );
+			$result['removed'] = true;
+			$result['success'] = true;
+			self::clear_config_state( $config, $persist );
+		} catch ( \Exception $exception ) {
+			$message         = $exception->getMessage();
+			$result['error'] = $message;
+			self::trigger_error_callback( $on_error, $message );
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Registers an admin notice for runtime (non-redirect) contexts.
 	 *
 	 * @since X.X.X
@@ -271,7 +388,18 @@ class Cdn_TotalCdn_CustomHostname {
 	 * @return string
 	 */
 	public static function failure_message(): string {
-		return __( 'W3 Total Cache could not configure the Full Site Delivery custom hostname automatically. Please contact support for assistance.', 'w3-total-cache' );
+		return __( 'Could not configure the Full Site Delivery custom hostname automatically. Please contact support for assistance.', 'w3-total-cache' );
+	}
+
+	/**
+	 * Returns the user-facing removal failure message.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string
+	 */
+	public static function removal_failure_message(): string {
+		return \__( 'Could not remove the Full Site Delivery custom hostname automatically. Please contact support for assistance.', 'w3-total-cache' );
 	}
 
 	/**
@@ -334,6 +462,40 @@ class Cdn_TotalCdn_CustomHostname {
 		$message = strtolower( $message );
 
 		return false !== strpos( $message, 'already exists' ) || false !== strpos( $message, 'already configured' );
+	}
+
+	/**
+	 * Helper: clears the stored custom hostname state.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param Config $config  Configuration instance.
+	 * @param bool   $persist Whether to persist immediately.
+	 *
+	 * @return void
+	 */
+	private static function clear_config_state( Config $config, bool $persist ): void {
+		$changed = false;
+
+		foreach ( array(
+			'cdnfsd.totalcdn.custom_hostname',
+			'cdnfsd.totalcdn.custom_hostname_status',
+			'cdnfsd.totalcdn.custom_hostname_last_error',
+		) as $key ) {
+			if ( ! empty( $config->get_string( $key ) ) ) {
+				$config->set( $key, '' );
+				$changed = true;
+			}
+		}
+
+		if ( 0 !== (int) $config->get_integer( 'cdnfsd.totalcdn.custom_hostname_last_checked' ) ) {
+			$config->set( 'cdnfsd.totalcdn.custom_hostname_last_checked', 0 );
+			$changed = true;
+		}
+
+		if ( $changed && $persist ) {
+			$config->save();
+		}
 	}
 
 	/**
