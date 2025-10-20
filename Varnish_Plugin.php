@@ -97,11 +97,18 @@ class Varnish_Plugin {
 	 * @return array The modified admin bar menu items.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
+		$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 		$menu_items['20610.varnish'] = array(
 			'id'     => 'w3tc_flush_varnish',
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Varnish Cache', 'w3-total-cache' ),
-			'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_varnish' ), 'w3tc' ),
+			'href'   => wp_nonce_url(
+				admin_url(
+					'admin.php?page=' . $current_page . '&amp;w3tc_flush_varnish'
+				),
+				'w3tc'
+			),
 		);
 
 		return $menu_items;
