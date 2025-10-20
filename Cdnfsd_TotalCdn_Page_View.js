@@ -100,7 +100,7 @@ jQuery(
 						}
 					);
 
-					$notice.append( $( '<p/>' ).text( notice.message ) );
+					$notice.append( $( '<p/>' ).html( notice.message ) );
 					$container.append( $notice );
 
 					if ( notice.log ) {
@@ -122,7 +122,7 @@ jQuery(
 				{
 					'class': 'notice notice-error w3tc-fsd-status-notice'
 				}
-			).append( $( '<p/>' ).text( errorMessage ) );
+			).append( $( '<p/>' ).html( errorMessage ) );
 
 			$container.empty().append( $notice );
 		}
