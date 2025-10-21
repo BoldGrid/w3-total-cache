@@ -69,7 +69,7 @@ class Cdnfsd_TotalCdn_Status_Dns {
 				'message' => \sprintf(
 					// Translators: 1 host name.
 					\__(
-						'%1$s is not pointed to a CDN provider.  For more information on how to configure your DNS please click %2$shere%3$s.',
+						'%1$s is not pointed to a CDN provider. %2$sLearn More%3$s.',
 						'w3-total-cache'
 					),
 					$hostname,
