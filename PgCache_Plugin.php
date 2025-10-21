@@ -380,11 +380,18 @@ class PgCache_Plugin {
 	 * @return array Modified admin menu items with page cache options.
 	 */
 	public function w3tc_admin_bar_menu( $menu_items ) {
+		$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 		$menu_items['20110.pagecache'] = array(
 			'id'     => 'w3tc_flush_pgcache',
 			'parent' => 'w3tc_flush',
 			'title'  => __( 'Page Cache', 'w3-total-cache' ),
-			'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_pgcache' ), 'w3tc' ),
+			'href'   => wp_nonce_url(
+				admin_url(
+					'admin.php?page=' . $current_page . '&amp;w3tc_flush_pgcache'
+				),
+				'w3tc'
+			),
 		);
 
 		if ( Util_Environment::detect_post_id() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
@@ -394,7 +401,7 @@ class PgCache_Plugin {
 				'title'  => __( 'Page Cache: Current Page', 'w3-total-cache' ),
 				'href'   => wp_nonce_url(
 					admin_url(
-						'admin.php?page=w3tc_dashboard&amp;w3tc_flush_post&amp;post_id=' .
+						'admin.php?page=' . $current_page . '&amp;w3tc_flush_post&amp;post_id=' .
 							Util_Environment::detect_post_id() . '&amp;force=true'
 					),
 					'w3tc'

@@ -43,7 +43,7 @@ class Generic_AdminActions_Flush {
 		$state_note->set( 'common.show_note.flush_posts_needed', false );
 		$state_note->set( 'common.show_note.plugins_updated', false );
 
-		$this->_redirect_after_flush( 'flush_all' );
+		$this->_redirect_after_flush( 'flush_all', __( 'purge all caches', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -91,12 +91,7 @@ class Generic_AdminActions_Flush {
 	public function w3tc_flush_memcached() {
 		$this->flush_memcached();
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_memcached',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_memcached', __( 'purge Memcached cache', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -107,12 +102,7 @@ class Generic_AdminActions_Flush {
 	public function w3tc_flush_opcode() {
 		$this->flush_opcode();
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_opcode',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_opcode', __( 'purge Opcode cache', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -123,12 +113,7 @@ class Generic_AdminActions_Flush {
 	public function w3tc_flush_file() {
 		$this->flush_file();
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_file',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_file', __( 'purge all disk based caches', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -168,7 +153,7 @@ class Generic_AdminActions_Flush {
 		$state_note->set( 'common.show_note.flush_posts_needed', false );
 		$state_note->set( 'common.show_note.plugins_updated', false );
 
-		$this->_redirect_after_flush( 'flush_pgcache' );
+		$this->_redirect_after_flush( 'flush_pgcache', __( 'purge Page cache for posts', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -183,12 +168,7 @@ class Generic_AdminActions_Flush {
 		$state_note->set( 'common.show_note.flush_posts_needed', false );
 		$state_note->set( 'common.show_note.plugins_updated', false );
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_pgcache',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_pgcache', __( 'purge Page cache', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -199,12 +179,7 @@ class Generic_AdminActions_Flush {
 	public function w3tc_flush_dbcache() {
 		$this->flush_dbcache();
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_dbcache',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_dbcache', __( 'purge Database cache', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -218,12 +193,7 @@ class Generic_AdminActions_Flush {
 		$state_note = Dispatcher::config_state_note();
 		$state_note->set( 'objectcache.show_note.flush_needed', false );
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_objectcache',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_objectcache', __( 'purge Object cache', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -237,12 +207,7 @@ class Generic_AdminActions_Flush {
 		$this->_config->set( 'notes.need_empty_fragmentcache', false );
 		$this->_config->save();
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_fragmentcache',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_fragmentcache', __( 'purge Fragment cache', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -256,12 +221,7 @@ class Generic_AdminActions_Flush {
 		$state_note = Dispatcher::config_state_note();
 		$state_note->set( 'minify.show_note.need_flush', false );
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_minify',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_minify', __( 'purge Minify cache', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -277,12 +237,7 @@ class Generic_AdminActions_Flush {
 		$state_note->set( 'common.show_note.flush_statics_needed', false );
 		$state_note->set( 'common.show_note.flush_posts_needed', true );
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_browser_cache',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_browser_cache', __( 'purge Browser cache', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -293,12 +248,7 @@ class Generic_AdminActions_Flush {
 	public function w3tc_flush_varnish() {
 		$this->flush_varnish();
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'flush_varnish',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'flush_varnish', __( 'purge Varnish cache', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -335,12 +285,7 @@ class Generic_AdminActions_Flush {
 		$post_id = Util_Request::get_integer( 'post_id' );
 		w3tc_flush_post( $post_id, true, array( 'ui_action' => 'flush_button' ) );
 
-		Util_Admin::redirect(
-			array(
-				'w3tc_note' => 'pgcache_purge_post',
-			),
-			true
-		);
+		$this->_redirect_after_flush( 'pgcache_purge_post', __( 'purge Page cache for post', 'w3-total-cache' ) );
 	}
 
 	/**
@@ -478,11 +423,12 @@ class Generic_AdminActions_Flush {
 	/**
 	 * Redirects after a successful flush operation and handles errors.
 	 *
-	 * @param string $success_note A note to indicate the success of the flush operation.
+	 * @param string $success_note  A note to indicate the success of the flush operation.
+	 * @param string $error_context Description of what failed when an error occurs.
 	 *
 	 * @return void
 	 */
-	private function _redirect_after_flush( $success_note ) {
+	private function _redirect_after_flush( $success_note, $error_context = '' ) {
 		$flush  = Dispatcher::component( 'CacheFlush' );
 		$status = $flush->execute_delayed_operations();
 
@@ -501,11 +447,28 @@ class Generic_AdminActions_Flush {
 				true
 			);
 		} else {
-			Util_Admin::redirect_with_custom_messages2(
+			$message_id    = uniqid();
+			$error_context = empty( $error_context ) ? __( 'purge cache', 'w3-total-cache' ) : $error_context;
+
+			update_option(
+				'w3tc_message',
 				array(
-					'errors' => array(
-						'Failed to purge: ' . implode( ', ', $errors ),
+					$message_id => array(
+						'errors' => array(
+							sprintf(
+								'Failed to %1$s: %2$s',
+								$error_context,
+								implode( ', ', $errors )
+							),
+						),
 					),
+				),
+				'yes'
+			);
+
+			Util_Admin::redirect(
+				array(
+					'w3tc_message' => $message_id,
 				),
 				true
 			);

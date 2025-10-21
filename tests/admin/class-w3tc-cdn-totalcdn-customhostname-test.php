@@ -130,6 +130,45 @@ class W3tc_Cdn_TotalCdn_CustomHostname_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensures should_remove_on_save() returns false without prior configuration.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_should_remove_on_save_requires_previous_configuration() {
+		$new_config = $this->create_config_mock(
+			array(
+				'cdnfsd.enabled' => false,
+			)
+		);
+
+		$this->assertFalse( Cdn_TotalCdn_CustomHostname::should_remove_on_save( $new_config ) );
+	}
+
+	/**
+	 * Confirms should_remove_on_save() detects when FSD is disabled.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_should_remove_on_save_detects_fsd_disable() {
+		$new_config = $this->create_config_mock(
+			array(
+				'cdnfsd.enabled' => false,
+			)
+		);
+		$old_config = $this->create_config_mock(
+			array(
+				'cdnfsd.totalcdn.custom_hostname' => 'example.com',
+			)
+		);
+
+		$this->assertTrue( Cdn_TotalCdn_CustomHostname::should_remove_on_save( $new_config, $old_config ) );
+	}
+
+	/**
 	 * Ensures ensure() short-circuits when FSD TotalCDN is not active.
 	 *
 	 * @since X.X.X
@@ -254,6 +293,117 @@ class W3tc_Cdn_TotalCdn_CustomHostname_Test extends WP_UnitTestCase {
 			remove_filter( 'pre_option_home', $site_filter );
 			remove_filter( 'pre_option_siteurl', $site_filter );
 		}
+	}
+
+	/**
+	 * Ensures remove() clears stored state and issues the delete request.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_remove_clears_state_when_successful() {
+		$new_config = $this->create_config_mock(
+			array(
+				'cdnfsd.enabled'                               => false,
+				'cdnfsd.totalcdn.custom_hostname'              => 'example.com',
+				'cdnfsd.totalcdn.custom_hostname_status'       => 'exists',
+				'cdnfsd.totalcdn.custom_hostname_last_error'   => 'previous-error',
+				'cdnfsd.totalcdn.custom_hostname_last_checked' => 100,
+			)
+		);
+		$old_config = $this->create_config_mock(
+			array(
+				'cdnfsd.totalcdn.custom_hostname' => 'example.com',
+			)
+		);
+
+		$new_config->expects( $this->never() )->method( 'save' );
+		$old_config->expects( $this->never() )->method( 'save' );
+
+		$captured = array(
+			'url'    => '',
+			'method' => '',
+		);
+
+		$http_filter = function( $preempt, $args, $url ) use ( &$captured ) {
+			if ( false === strpos( $url, '/removeCustomHostname' ) ) {
+				return $preempt;
+			}
+
+			$captured['url']    = $url;
+			$captured['method'] = isset( $args['method'] ) ? $args['method'] : 'POST';
+
+			return array(
+				'body'     => wp_json_encode( array() ),
+				'headers'  => array(),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+			);
+		};
+
+		add_filter( 'pre_http_request', $http_filter, 10, 3 );
+
+		try {
+			$result = Cdn_TotalCdn_CustomHostname::remove( $new_config, $old_config );
+
+			$this->assertTrue( $result['success'] );
+			$this->assertFalse( $result['skipped'] );
+			$this->assertTrue( $result['removed'] );
+			$this->assertSame( 'example.com', $result['hostname'] );
+			$this->assertNull( $result['error'] );
+			$this->assertStringContainsString( '/removeCustomHostname', $captured['url'] );
+			$this->assertSame( 'DELETE', $captured['method'] );
+			$this->assertSame( '', $this->get_config_storage_value( $new_config, 'cdnfsd.totalcdn.custom_hostname' ) );
+			$this->assertSame( '', $this->get_config_storage_value( $new_config, 'cdnfsd.totalcdn.custom_hostname_status' ) );
+			$this->assertSame( '', $this->get_config_storage_value( $new_config, 'cdnfsd.totalcdn.custom_hostname_last_error' ) );
+			$this->assertSame( 0, $this->get_config_storage_value( $new_config, 'cdnfsd.totalcdn.custom_hostname_last_checked' ) );
+		} finally {
+			remove_filter( 'pre_http_request', $http_filter, 10 );
+		}
+	}
+
+	/**
+	 * Verifies remove() surfaces credential errors and leaves state untouched.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function test_remove_reports_error_when_credentials_missing() {
+		$new_config = $this->create_config_mock(
+			array(
+				'cdnfsd.enabled'                               => false,
+				'cdn.totalcdn.account_api_key'                 => '',
+				'cdnfsd.totalcdn.custom_hostname'              => 'example.com',
+				'cdnfsd.totalcdn.custom_hostname_status'       => 'exists',
+				'cdnfsd.totalcdn.custom_hostname_last_error'   => 'previous-error',
+				'cdnfsd.totalcdn.custom_hostname_last_checked' => 100,
+			)
+		);
+		$old_config = $this->create_config_mock(
+			array(
+				'cdnfsd.totalcdn.custom_hostname' => 'example.com',
+				'cdn.totalcdn.account_api_key'    => '',
+			)
+		);
+
+		$message = __( 'Could not remove the Full Site Delivery custom hostname because the Total CDN credentials are missing.', 'w3-total-cache' );
+
+		$result = Cdn_TotalCdn_CustomHostname::remove( $new_config, $old_config );
+
+		$this->assertFalse( $result['success'] );
+		$this->assertFalse( $result['skipped'] );
+		$this->assertFalse( $result['removed'] );
+		$this->assertSame( 'example.com', $result['hostname'] );
+		$this->assertSame( $message, $result['error'] );
+		$this->assertSame( 'example.com', $this->get_config_storage_value( $new_config, 'cdnfsd.totalcdn.custom_hostname' ) );
+		$this->assertSame( 'exists', $this->get_config_storage_value( $new_config, 'cdnfsd.totalcdn.custom_hostname_status' ) );
+		$this->assertSame( 'previous-error', $this->get_config_storage_value( $new_config, 'cdnfsd.totalcdn.custom_hostname_last_error' ) );
+		$this->assertSame( 100, $this->get_config_storage_value( $new_config, 'cdnfsd.totalcdn.custom_hostname_last_checked' ) );
 	}
 
 	/**

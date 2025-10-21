@@ -36,6 +36,15 @@ class Generic_Plugin {
 	private $_config = null;
 
 	/**
+	 * Frontend notice payload when redirecting back from admin actions.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var ?array
+	 */
+	private $frontend_notice;
+
+	/**
 	 * Constructor
 	 *
 	 * @return void
@@ -54,6 +63,7 @@ class Generic_Plugin {
 		add_action( 'w3tc_purge_all_wpcron', array( $this, 'w3tc_purgeall_wpcron' ) );
 
 		/* need this to run before wp-cron to issue w3tc redirect */
+		add_action( 'init', array( $this, 'load_frontend_message' ), 0 );
 		add_action( 'init', array( $this, 'init' ), 1 );
 
 		if ( Util_Environment::is_w3tc_pro_dev() && Util_Environment::is_w3tc_pro( $this->_config ) ) {
@@ -200,7 +210,7 @@ class Generic_Plugin {
 	 * @return string
 	 */
 	private function strip_dynamic_fragment_tags_from_string( $value ) {
-		if ( ! is_string( $value ) || ! defined( 'W3TC_DYNAMIC_SECURITY' ) || '' === W3TC_DYNAMIC_SECURITY ) {
+		if ( ! is_string( $value ) || ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) ) {
 			return $value;
 		}
 
@@ -214,6 +224,11 @@ class Generic_Plugin {
 
 		if ( null === $value ) {
 			$value = $original;
+		}
+
+		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean.
+		if ( 1 === (int) W3TC_DYNAMIC_SECURITY ) {
+			return $value;
 		}
 
 		return str_replace( W3TC_DYNAMIC_SECURITY, '', $value );
@@ -306,7 +321,7 @@ class Generic_Plugin {
 	public function init() {
 		// Load W3TC textdomain for translations.
 		$this->reset_l10n();
-
+		
 		if ( is_multisite() && ! is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
 			if ( $w3_current_blog_id !== $current_blog->blog_id && ! isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {
@@ -387,20 +402,83 @@ class Generic_Plugin {
 		$css       = "
 			@font-face {
 				font-family: 'w3tc';
-			src: url('$font_base.eot');
-			src: url('$font_base.eot?#iefix') format('embedded-opentype'),
-				 url('$font_base.woff') format('woff'),
-				 url('$font_base.ttf') format('truetype'),
-				 url('$font_base.svg#w3tc') format('svg');
-			font-weight: normal;
-			font-style: normal;
+				src: url('$font_base.eot');
+				src: url('$font_base.eot?#iefix') format('embedded-opentype'),
+					url('$font_base.woff') format('woff'),
+					url('$font_base.ttf') format('truetype'),
+					url('$font_base.svg#w3tc') format('svg');
+				font-weight: normal;
+				font-style: normal;
+			}
+			.w3tc-icon:before{
+				content:'\\0041'; top: 2px;
+				font-family: 'w3tc';
+			}";
+
+		if ( ! is_admin() && ! is_null( $this->frontend_notice ) ) {
+			$bg_color = '#2271b1';
+
+			if ( 'error' === $this->frontend_notice['type'] ) {
+				$bg_color = '#d63638';
+			} elseif ( 'note' === $this->frontend_notice['type'] ) {
+				$bg_color = '#00a32a';
+			}
+
+			$css .= "
+				#wp-admin-bar-w3tc_frontend_notice > .ab-item {
+					background: $bg_color !important;
+					color: #fff !important;
+					font-weight: 600;
+					display: flex;
+					align-items: center;
+					gap: 0.5em;
+				}
+				#wp-admin-bar-w3tc_frontend_notice .w3tc-frontend-notice-dismiss {
+					border-left: 1px solid rgba(255,255,255,0.4);
+					margin-left: 0.5em;
+					padding-left: 0.5em;
+					font-size: 18px;
+					line-height: 1;
+					font-weight: 700;
+					cursor: pointer;
+				}
+				#wp-admin-bar-w3tc_frontend_notice .w3tc-frontend-notice-dismiss:focus {
+					outline: 2px solid rgba(255,255,255,0.8);
+					outline-offset: 2px;
+				}";
 		}
-		.w3tc-icon:before{
-			content:'\\0041'; top: 2px;
-			font-family: 'w3tc';
-		}";
 
 		wp_add_inline_style( 'admin-bar', $css );
+
+		if ( ! is_admin() && ! is_null( $this->frontend_notice ) ) {
+			$js = "(function() {
+				var init = function() {
+					var notice = document.getElementById('wp-admin-bar-w3tc_frontend_notice');
+					if (!notice) {
+						return;
+					}
+					var remove = function() {
+						if (notice && notice.parentNode) {
+							notice.parentNode.removeChild(notice);
+							notice = null;
+						}
+					};
+					var dismiss = notice.querySelector('.w3tc-frontend-notice-dismiss');
+					if (dismiss) {
+						dismiss.addEventListener('click', function(event) {
+							event.preventDefault();
+							remove();
+						});
+					}
+				};
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', init);
+				} else {
+					init();
+				}
+			})();";
+			wp_add_inline_script( 'admin-bar', $js );
+		}
 	}
 
 	/**
@@ -430,13 +508,15 @@ class Generic_Plugin {
 				),
 			);
 
+			$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 			if ( $modules->plugin_is_enabled() ) {
 				$menu_items['10010.generic'] = array(
 					'id'     => 'w3tc_flush_all',
 					'parent' => 'w3tc',
 					'title'  => __( 'Purge All Caches', 'w3-total-cache' ),
 					'href'   => wp_nonce_url(
-						network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ),
+						network_admin_url( 'admin.php?page=' . $current_page . '&w3tc_flush_all' ),
 						'w3tc'
 					),
 				);
@@ -612,6 +692,105 @@ class Generic_Plugin {
 					$wp_admin_bar->add_menu( $menu_items[ $key ] );
 				}
 			}
+
+			if ( ! is_admin() && ! is_null( $this->frontend_notice ) && ! empty( $this->frontend_notice['messages'] ) ) {
+				$sanitized_messages = array_map( 'wp_strip_all_tags', $this->frontend_notice['messages'] );
+				$label              = esc_html( wp_html_excerpt( implode( ' ', $sanitized_messages ), 120, '…' ) );
+
+				if ( '' !== $label ) {
+					$wp_admin_bar->add_menu(
+						array(
+							'id'     => 'w3tc_frontend_notice',
+							'parent' => 'top-secondary',
+							'title'  => $label . '<span class="w3tc-frontend-notice-dismiss" role="button" aria-label="' . esc_attr__( 'Dismiss notice', 'w3-total-cache' ) . '">&times;</span>',
+							'href'   => false,
+							'meta'   => array(
+								'class' => 'w3tc-frontend-notice w3tc-frontend-notice-' . $this->frontend_notice['type'],
+								'title' => $label,
+							),
+						)
+					);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Loads a pending frontend message triggered during an admin redirect.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function load_frontend_message() {
+		if ( is_admin() ) {
+			return;
+		}
+
+		$message_id = Util_Request::get_string( 'w3tc_message' );
+		if ( '' !== $message_id ) {
+			$stored_messages = get_option( 'w3tc_message' );
+			if ( is_array( $stored_messages ) && isset( $stored_messages[ $message_id ] ) ) {
+				$message = $stored_messages[ $message_id ];
+				delete_option( 'w3tc_message' );
+
+				$notice_type = '';
+				$payload     = array();
+
+				if ( isset( $message['errors'] ) && is_array( $message['errors'] ) ) {
+					$payload = array_values( array_filter( $message['errors'], 'strlen' ) );
+					if ( ! empty( $payload ) ) {
+						$notice_type = 'error';
+					}
+				}
+
+				if ( '' === $notice_type && isset( $message['notes'] ) && is_array( $message['notes'] ) ) {
+					$payload = array_values( array_filter( $message['notes'], 'strlen' ) );
+					if ( ! empty( $payload ) ) {
+						$notice_type = 'note';
+					}
+				}
+
+				if ( '' !== $notice_type && ! empty( $payload ) ) {
+					$this->frontend_notice = array(
+						'type'     => $notice_type,
+						'messages' => $payload,
+					);
+				}
+			}
+
+			if ( ! is_null( $this->frontend_notice ) ) {
+				return;
+			}
+		}
+
+		$note_key = Util_Request::get_string( 'w3tc_note' );
+		if ( '' === $note_key ) {
+			return;
+		}
+
+		$note_messages = array(
+			'flush_all'                 => __( 'All caches successfully emptied.', 'w3-total-cache' ),
+			'flush_all_except_w3tc_cdn' => __( 'All caches successfully emptied except CDN.', 'w3-total-cache' ),
+			'flush_memcached'           => __( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_opcode'              => __( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_file'                => __( 'Disk cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_pgcache'             => __( 'Page cache successfully emptied.', 'w3-total-cache' ),
+			'flush_dbcache'             => __( 'Database cache successfully emptied.', 'w3-total-cache' ),
+			'flush_objectcache'         => __( 'Object cache successfully emptied.', 'w3-total-cache' ),
+			'flush_fragmentcache'       => __( 'Fragment cache successfully emptied.', 'w3-total-cache' ),
+			'flush_minify'              => __( 'Minify cache successfully emptied.', 'w3-total-cache' ),
+			'flush_browser_cache'       => __( 'Media Query string has been successfully updated.', 'w3-total-cache' ),
+			'flush_varnish'             => __( 'Varnish servers successfully purged.', 'w3-total-cache' ),
+			'flush_cdn'                 => __( 'CDN was successfully purged.', 'w3-total-cache' ),
+			'pgcache_purge_post'        => __( 'Post successfully purged.', 'w3-total-cache' ),
+		);
+
+		if ( isset( $note_messages[ $note_key ] ) ) {
+			$this->frontend_notice = array(
+				'type'     => 'note',
+				'messages' => array( $note_messages[ $note_key ] ),
+			);
 		}
 	}
 
