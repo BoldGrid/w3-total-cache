@@ -238,13 +238,28 @@ class Cdnfsd_TotalCdn_Page {
 		$title = $test['title'];
 
 		if ( '' !== $message ) {
-			$message = \wp_strip_all_tags( $message );
-
-			return \sprintf(
-				/* translators: 1: Total CDN test title. 2: Failure reason. */
-				\esc_html__( '%1$s: %2$s', 'w3-total-cache' ),
-				\esc_html( $title ),
-				\esc_html( $message )
+			return \wp_kses(
+				\sprintf(
+					/* translators: 1: Total CDN test title. 2: Failure reason. */
+					\__( '%1$s: %2$s', 'w3-total-cache' ),
+					\esc_html( $title ),
+					$message
+				),
+				array(
+					'a'      => array(
+						'id'     => array(),
+						'class'  => array(),
+						'href'   => array(),
+						'target' => array(),
+					),
+					'br'     => array(),
+					'strong' => array(),
+					'em'     => array(),
+					'p'      => array(),
+					'span'   => array(
+						'class' => array(),
+					),
+				)
 			);
 		}
 
