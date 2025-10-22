@@ -435,6 +435,10 @@ class Cdn_TotalCdn_Auto_Configure {
 
 		$cdn_enabled = $config->get_boolean( 'cdn.enabled' );
 		$cdn_engine  = $config->get_string( 'cdn.engine' );
+
+		$cdnfsd_enabled = $config->get_boolean( 'cdnfsd.enabled' );
+		$cdnfsd_engine  = $config->get_string( 'cdnfsd.engine' );
+
 		$api_key     = $config->get_string( 'cdn.totalcdn.account_api_key' );
 		$tcdn_status = $state->get_string( 'cdn.totalcdn.status' );
 
@@ -442,7 +446,9 @@ class Cdn_TotalCdn_Auto_Configure {
 		 * If CDN is not enabled or the engine is not Total CDN and the API key is set
 		 * then show a notice to the user that they need to enable the CDN.
 		 */
-		if ( self::maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) ) {
+		if ( $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine ) {
+			return;
+		} elseif ( self::maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $tcdn_status ) ) {
 			return;
 		} elseif ( ! $cdn_enabled || 'totalcdn' !== $cdn_engine ) {
 			return;
@@ -496,6 +502,7 @@ class Cdn_TotalCdn_Auto_Configure {
 	 * @param  string $cdn_engine  The CDN engine.
 	 * @param  string $api_key     The API key.
 	 * @param  string $cdn_status The CDN status.
+	 *
 	 * @return bool True if the notice was shown, false otherwise.
 	 */
 	public static function maybe_show_auto_config_notice( $cdn_enabled, $cdn_engine, $api_key, $cdn_status ): bool {
