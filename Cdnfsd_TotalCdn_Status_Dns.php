@@ -63,7 +63,7 @@ class Cdnfsd_TotalCdn_Status_Dns {
 		}
 
 		$verified = isset( $response['Success'] ) ? (bool) $response['Success'] : false;
-		if (1){//if ( ! $verified ) {
+		if ( ! $verified ) {
 			return array(
 				'status'  => 'fail',
 				'message' => \sprintf(
