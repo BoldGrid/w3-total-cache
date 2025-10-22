@@ -242,7 +242,7 @@ class Cdnfsd_TotalCdn_Page {
 				\sprintf(
 					/* translators: 1: Total CDN test title. 2: Failure reason. */
 					__( '%1$s: %2$s', 'w3-total-cache' ),
-					$title,
+					\esc_html( $title ),
 					$message
 				),
 				array(
