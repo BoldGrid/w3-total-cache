@@ -241,7 +241,7 @@ class Cdnfsd_TotalCdn_Page {
 			return \wp_kses(
 				\sprintf(
 					/* translators: 1: Total CDN test title. 2: Failure reason. */
-					__( '%1$s: %2$s', 'w3-total-cache' ),
+					\__( '%1$s: %2$s', 'w3-total-cache' ),
 					\esc_html( $title ),
 					$message
 				),
