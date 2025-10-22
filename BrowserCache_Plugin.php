@@ -450,11 +450,18 @@ class BrowserCache_Plugin {
 		);
 
 		if ( $browsercache_update_media_qs ) {
+			$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 			$menu_items['20190.browsercache'] = array(
 				'id'     => 'w3tc_flush_browsercache',
 				'parent' => 'w3tc_flush',
 				'title'  => __( 'Browser Cache', 'w3-total-cache' ),
-				'href'   => wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_browser_cache' ), 'w3tc' ),
+				'href'   => wp_nonce_url(
+					admin_url(
+						'admin.php?page=' . $current_page . '&amp;w3tc_flush_browser_cache'
+					),
+					'w3tc'
+				),
 			);
 		}
 

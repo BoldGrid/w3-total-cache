@@ -196,7 +196,13 @@ class Generic_Plugin_Admin {
 			wp_clear_scheduled_hook( 'w3tc_purge_all_wpcron' );
 		}
 
-		if ( Cdn_TotalCdn_CustomHostname::should_attempt_on_save( $new_config, $old_config ) ) {
+		if ( Cdn_TotalCdn_CustomHostname::should_remove_on_save( $new_config, $old_config ) ) {
+			$result = Cdn_TotalCdn_CustomHostname::remove( $new_config, $old_config );
+
+			if ( empty( $result['success'] ) && empty( $result['skipped'] ) ) {
+				$data['response_errors'][] = 'cdn_totalcdn_fsd_custom_hostname_remove_failed';
+			}
+		} elseif ( Cdn_TotalCdn_CustomHostname::should_attempt_on_save( $new_config, $old_config ) ) {
 			$result = Cdn_TotalCdn_CustomHostname::ensure( $new_config );
 
 			if ( empty( $result['success'] ) && empty( $result['skipped'] ) ) {
@@ -1155,6 +1161,7 @@ class Generic_Plugin_Admin {
 			),
 			'updated_pullzone_url'                    => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
 			'cdn_totalcdn_fsd_origin_update_failed'  => __( 'Unable to update the Total CDN origin for Full Site Delivery. Please contact support for assistance.', 'w3-total-cache' ),
+			'cdn_totalcdn_fsd_custom_hostname_remove_failed' => Cdn_TotalCdn_CustomHostname::removal_failure_message(),
 			'cdn_totalcdn_fsd_custom_hostname_failed' => Cdn_TotalCdn_CustomHostname::failure_message(),
 		);
 
