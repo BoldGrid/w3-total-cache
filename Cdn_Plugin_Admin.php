@@ -21,8 +21,9 @@ class Cdn_Plugin_Admin {
 		$config_labels = new Cdn_ConfigLabels();
 		\add_filter( 'w3tc_config_labels', array( $config_labels, 'config_labels' ) );
 
-		$c          = Dispatcher::config();
-		$cdn_engine = $c->get_string( 'cdn.engine' );
+		$c             = Dispatcher::config();
+		$cdn_engine    = $c->get_string( 'cdn.engine' );
+		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
 
 		\add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_enable_notice', array( $this, 'w3tc_ajax_cdn_totalcdn_fsd_enable_notice' ) );
@@ -63,16 +64,41 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
+
+				if ( $c->get_boolean( 'cdn.enabled' ) && ! \has_action( 'w3tc_purge_urls_box' ) ) {
+					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
+				}
+
 				break;
 
 			case 'totalcdn':
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_TotalCdn_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
-				\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
 				\add_filter( 'w3tc_dashboard_actions', array( '\W3TC\Cdn_TotalCdn_Page', 'total_cdn_dashboard_actions' ) );
 				\add_action( 'w3tc_flush_all', array( $this, 'flush_cdn' ) );
+
+				if ( Cdn_TotalCdn_Util::is_totalcdn_cdn_enabled() && ! \has_action( 'w3tc_purge_urls_box' ) ) {
+					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
+				}
+
+				break;
+		}
+
+		// Attach to actions without firing class loading at all without need.
+		switch ( $cdnfsd_engine ) {
+			case 'bunnycdn':
+				if ( $c->get_boolean( 'cdnfsd.enabled' ) && ! \has_action( 'w3tc_purge_urls_box' ) ) {
+					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
+				}
+
+				break;
+
+			case 'totalcdn':
+				if ( Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled() && ! \has_action( 'w3tc_purge_urls_box' ) ) {
+					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
+				}
+
 				break;
 		}
 
