@@ -63,18 +63,18 @@ class Cdnfsd_TotalCdn_Status_Dns {
 		}
 
 		$verified = isset( $response['Success'] ) ? (bool) $response['Success'] : false;
-		if ( ! $verified ) {
+		if (1){//if ( ! $verified ) {
 			return array(
 				'status'  => 'fail',
 				'message' => \sprintf(
-					// Translators: 1 host name.
+					// Translators: 1 host name. 2 opending HTML a tag to DNS document. 3 dashicon before closing HTML a tag.
 					\__(
 						'%1$s is not pointed to a CDN provider. %2$sLearn More%3$s.',
 						'w3-total-cache'
 					),
 					$hostname,
 					'<a href="https://www.boldgrid.com/support/w3-total-cache/total-cdn-dns-setup/" target="_blank">',
-					'</a>'
+					'<span class="dashicons dashicons-external"></span></a>'
 				),
 			);
 		}

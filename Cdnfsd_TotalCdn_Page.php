@@ -256,6 +256,9 @@ class Cdnfsd_TotalCdn_Page {
 					'strong' => array(),
 					'em'     => array(),
 					'p'      => array(),
+					'span'   => array(
+						'class'  => array(),
+					),
 				)
 			);
 		}
