@@ -967,6 +967,11 @@ class Cdn_Core {
 		$cloudflare_config = $this->_config->get_array( 'cloudflare' );
 
 		switch ( $this->_config->get_string( 'cdnfsd.engine' ) ) {
+			case 'totalcdn':
+				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.totalcdn.pull_zone_id' ) );
+				break;
+
 			case 'bunnycdn':
 				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdn.bunnycdn.account_api_key' ) ) &&
 					! empty( $this->_config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
