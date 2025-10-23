@@ -458,6 +458,7 @@ class Cdn_TotalCdn_Popup {
 		$name         = $config->get_string( 'cdn.totalcdn.name' ); // Pull zone name.
 		$cdn_hostname = $config->get_string( 'cdn.totalcdn.cdn_hostname' ); // Pull zone CDN hostname.
 		$pull_zone_id = $config->get_integer( 'cdn.totalcdn.pull_zone_id' ); // CDN pull zone id.
+		$is_pro       = Util_Environment::is_w3tc_pro( $config );
 
 		// Present details and ask to deauthorize and optionally delete the pull zone.
 		include W3TC_DIR . '/Cdn_TotalCdn_Popup_View_Deauthorize.php';
