@@ -24,7 +24,7 @@ $placeholder     = \esc_url( \home_url() . '/about-us' ) . "\r\n" . \esc_url( \h
 	<tr>
 		<th style="width: 300px;">
 			<label>
-				<?php \esc_html_e( 'Purge URLs', 'w3-total-cache' ); ?>:
+				<?php \esc_html_e( 'Purge URLs: (Bunny CDN)', 'w3-total-cache' ); ?>:
 			</label>
 		</th>
 		<td>

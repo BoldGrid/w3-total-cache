@@ -29,7 +29,14 @@ $placeholder      = \esc_url( $base_url . '/about-us' ) . "\r\n" . \esc_url( $ba
 	<tr>
 		<th style="width: 300px;">
 			<label>
-				<?php \esc_html_e( 'Purge URLs', 'w3-total-cache' ); ?>:
+				<?php
+				\printf(
+					// translators: 1: Purge URLs label, 2: Name of the CDN service.
+					'%1$s (%2$s)',
+					\esc_html__( 'Purge URLs', 'w3-total-cache' ),
+					esc_html( W3TC_CDN_NAME )
+				);
+				?>:
 			</label>
 		</th>
 		<td>

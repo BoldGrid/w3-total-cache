@@ -24,6 +24,7 @@ class Cdn_Plugin_Admin {
 		$c             = Dispatcher::config();
 		$cdn_engine    = $c->get_string( 'cdn.engine' );
 		$cdnfsd_engine = $c->get_string( 'cdnfsd.engine' );
+		$is_cdn_page   = 'w3tc_cdn' === Util_Request::get_string( 'page' );
 
 		\add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		\add_action( 'w3tc_ajax_cdn_totalcdn_fsd_enable_notice', array( $this, 'w3tc_ajax_cdn_totalcdn_fsd_enable_notice' ) );
@@ -43,7 +44,7 @@ class Cdn_Plugin_Admin {
 		// Always show the Total CDN widget on dashboard.
 		\add_action( 'admin_init_w3tc_dashboard', array( '\W3TC\Cdn_TotalCdn_Widget', 'admin_init_w3tc_dashboard' ) );
 
-		// Attach to actions without firing class loading at all without need.
+		// Add actions based on selected CDN engine.
 		switch ( $cdn_engine ) {
 			case 'google_drive':
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_GoogleDrive_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
@@ -65,10 +66,10 @@ class Cdn_Plugin_Admin {
 				\add_action( 'w3tc_ajax', array( '\W3TC\Cdn_BunnyCdn_Popup', 'w3tc_ajax' ) );
 				\add_action( 'w3tc_settings_cdn_boxarea_configuration', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_settings_cdn_boxarea_configuration' ) );
 
-				if ( $c->get_boolean( 'cdn.enabled' ) && ! \has_action( 'w3tc_purge_urls_box' ) ) {
+				// Add purge URLs box on the CDN Settings page for Bunny CDN if enabled.
+				if ( $is_cdn_page && $c->get_boolean( 'cdn.enabled' ) ) {
 					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
 				}
-
 				break;
 
 			case 'totalcdn':
@@ -78,27 +79,27 @@ class Cdn_Plugin_Admin {
 				\add_filter( 'w3tc_dashboard_actions', array( '\W3TC\Cdn_TotalCdn_Page', 'total_cdn_dashboard_actions' ) );
 				\add_action( 'w3tc_flush_all', array( $this, 'flush_cdn' ) );
 
-				if ( Cdn_TotalCdn_Util::is_totalcdn_cdn_enabled() && ! \has_action( 'w3tc_purge_urls_box' ) ) {
+				// Add purge URLs box on the CDN Settings page for Total CDN if enabled.
+				if ( $is_cdn_page && Cdn_TotalCdn_Util::is_totalcdn_cdn_enabled() ) {
 					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
 				}
-
 				break;
 		}
 
-		// Attach to actions without firing class loading at all without need.
+		// Add actions based on selected CDN FSD engine.
 		switch ( $cdnfsd_engine ) {
 			case 'bunnycdn':
-				if ( $c->get_boolean( 'cdnfsd.enabled' ) && ! \has_action( 'w3tc_purge_urls_box' ) ) {
+				// Add purge URLs box on the CDN Settings page for Bunny CDN FSD if enabled.
+				if ( $is_cdn_page && $c->get_boolean( 'cdnfsd.enabled' ) ) {
 					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_BunnyCdn_Page', 'w3tc_purge_urls_box' ) );
 				}
-
 				break;
 
 			case 'totalcdn':
-				if ( Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled() && ! \has_action( 'w3tc_purge_urls_box' ) ) {
+				// Add purge URLs box on the CDN Settings page for Total CDN FSD if enabled.
+				if ( $is_cdn_page && Cdn_TotalCdn_Util::is_totalcdn_cdnfsd_enabled() ) {
 					\add_action( 'w3tc_purge_urls_box', array( '\W3TC\Cdn_TotalCdn_Page', 'w3tc_purge_urls_box' ) );
 				}
-
 				break;
 		}
 
