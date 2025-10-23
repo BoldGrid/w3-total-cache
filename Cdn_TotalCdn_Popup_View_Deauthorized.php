@@ -33,7 +33,7 @@ defined( 'W3TC' ) || die();
 		?>
 
 		<div style="text-align: center">
-			<p><?php esc_html_e( 'The objects CDN has been deauthorized', 'w3-total-cache' ); ?>.</p>
+			<p><?php esc_html_e( 'The static asset CDN has been deauthorized', 'w3-total-cache' ); ?>.</p>
 		</div>
 		<?php if ( 'yes' === $delete_pull_zone && empty( $delete_error_message ) ) : ?>
 			<div style="text-align: center">

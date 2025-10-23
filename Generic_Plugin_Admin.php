@@ -764,7 +764,7 @@ class Generic_Plugin_Admin {
 						)
 					),
 					'bunnyCdnWarning'  => esc_html__(
-						'Bunny CDN should only be enabled as either a CDN for objects or full-site delivery, not both at the same time.  The CDN settings have been reverted.',
+						'Bunny CDN should only be enabled as either a CDN for static assets or full-site delivery, not both at the same time.  The CDN settings have been reverted.',
 						'w3-total-cache'
 					),
 				)

@@ -2,7 +2,7 @@
 /**
  * File: Cdnfsd_TotalCdn_Popup_Deauthorize.php
  *
- * Assists to deauthorize Total CDN as an objects CDN and optionally delete the pull zone.
+ * Assists to deauthorize Total CDN as a static asset CDN and optionally delete the pull zone.
  *
  * @since   2.6.0
  * @package W3TC
