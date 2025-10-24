@@ -58,5 +58,3 @@ if ( ! defined( 'W3TC' ) ) {
 </div>
 
 <div id="cdn_export_file_log" class="log"></div>
-
-<?php require W3TC_INC_DIR . '/popup/common/footer.php'; ?>

@@ -1,7 +1,26 @@
 <?php
+/**
+ * File: Cdn_RackSpaceCdn_Popup.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Cdn_RackSpaceCdn_Popup
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ */
 class Cdn_RackSpaceCdn_Popup {
+	/**
+	 * Handles AJAX registration for Rackspace CDN popup actions.
+	 *
+	 * Registers multiple AJAX handlers for Rackspace CDN popup interactions
+	 * using WordPress's `add_action()` for the corresponding AJAX hooks.
+	 *
+	 * @return void
+	 */
 	public static function w3tc_ajax() {
 		$o = new Cdn_RackSpaceCdn_Popup();
 
@@ -17,6 +36,14 @@ class Cdn_RackSpaceCdn_Popup {
 		add_action( 'w3tc_ajax_cdn_rackspace_configure_domains_done', array( $o, 'w3tc_ajax_cdn_rackspace_configure_domains_done' ) );
 	}
 
+	/**
+	 * Handles the introduction popup view for Rackspace CDN.
+	 *
+	 * Fetches Rackspace CDN user credentials from the configuration
+	 * and renders the introductory view.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_cdn_rackspace_intro() {
 		$c = Dispatcher::config();
 
@@ -29,15 +56,33 @@ class Cdn_RackSpaceCdn_Popup {
 		exit();
 	}
 
+	/**
+	 * Completes the introduction step and renders the Rackspace regions view.
+	 *
+	 * Processes the user credentials provided via AJAX and fetches region
+	 * data for Rackspace CDN.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_cdn_rackspace_intro_done() {
 		$this->_render_cdn_rackspace_regions(
 			array(
 				'user_name' => Util_Request::get_string( 'user_name' ),
-				'api_key' => Util_Request::get_string( 'api_key' ),
+				'api_key'   => Util_Request::get_string( 'api_key' ),
 			)
 		);
 	}
 
+	/**
+	 * Renders the list of available regions for Rackspace CDN.
+	 *
+	 * Authenticates the user with Rackspace API and fetches regions
+	 * along with the associated services.
+	 *
+	 * @param array $details Array containing user credentials and other necessary details.
+	 *
+	 * @return void
+	 */
 	private function _render_cdn_rackspace_regions( $details ) {
 		$user_name = $details['user_name'];
 		$api_key   = $details['api_key'];
@@ -66,6 +111,14 @@ class Cdn_RackSpaceCdn_Popup {
 		exit();
 	}
 
+	/**
+	 * Processes the selected region and renders available services.
+	 *
+	 * Validates the selected region and fetches services for the specified
+	 * region using the Rackspace API.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_cdn_rackspace_regions_done() {
 		$user_name          = Util_Request::get_string( 'user_name' );
 		$api_key            = Util_Request::get_string( 'api_key' );
@@ -76,8 +129,8 @@ class Cdn_RackSpaceCdn_Popup {
 			true
 		);
 
-		if ( ! isset( $region_descriptors[$region] ) ) {
-			return $this->_render_cdn_rackspace_regions(
+		if ( ! isset( $region_descriptors[ $region ] ) ) {
+			$this->_render_cdn_rackspace_regions(
 				array(
 					'user_name'     => $user_name,
 					'api_key'       => $api_key,
@@ -120,6 +173,14 @@ class Cdn_RackSpaceCdn_Popup {
 		exit();
 	}
 
+	/**
+	 * Handles the completion of service selection for Rackspace CDN.
+	 *
+	 * Processes the selected service or renders the service creation view
+	 * if no service is selected.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_cdn_rackspace_services_done() {
 		$user_name                = Util_Request::get_string( 'user_name' );
 		$api_key                  = Util_Request::get_string( 'api_key' );
@@ -128,13 +189,13 @@ class Cdn_RackSpaceCdn_Popup {
 		$region                   = Util_Request::get_string( 'region' );
 		$service                  = Util_Request::get( 'service' );
 
-		if ( !empty( $service ) ) {
+		if ( ! empty( $service ) ) {
 			$this->_render_service_actualize(
 				array(
 					'user_name'                           => $user_name,
 					'api_key'                             => $api_key,
 					'access_token'                        => $access_token,
-					'access_region_descriptor_serialized' => strtr( json_encode( $access_region_descriptor ), '"\\', '!^' ),
+					'access_region_descriptor_serialized' => strtr( wp_json_encode( $access_region_descriptor ), '"\\', '!^' ),
 					'region'                              => $region,
 					'service_id'                          => $service,
 				)
@@ -167,6 +228,14 @@ class Cdn_RackSpaceCdn_Popup {
 		exit();
 	}
 
+	/**
+	 * Creates a new service in Rackspace CDN.
+	 *
+	 * Processes the details for service creation including domain and origin settings,
+	 * and sends a request to the Rackspace API to create the service.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_cdn_rackspace_service_create_done() {
 		$user_name                = Util_Request::get_string( 'user_name' );
 		$api_key                  = Util_Request::get_string( 'api_key' );
@@ -257,7 +326,9 @@ class Cdn_RackSpaceCdn_Popup {
 	}
 
 	/**
-	 * AJAX returning json for js-script about service state.
+	 * Handles AJAX request to retrieve the state of a Rackspace service.
+	 *
+	 * @return void
 	 */
 	public function w3tc_ajax_cdn_rackspace_service_get_state() {
 		$access_token             = Util_Request::get_string( 'access_token' );
@@ -293,10 +364,22 @@ class Cdn_RackSpaceCdn_Popup {
 		echo esc_html( wp_json_encode( $response ) );
 	}
 
+	/**
+	 * Handles the completion of Rackspace service creation.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_cdn_rackspace_service_created_done() {
 		$this->_save_config();
 	}
 
+	/**
+	 * Renders the form for updating a Rackspace service with the provided details.
+	 *
+	 * @param array $details Array containing the service details.
+	 *
+	 * @return void
+	 */
 	private function _render_service_actualize( $details ) {
 		$access_region_descriptor = json_decode( strtr( $details['access_region_descriptor_serialized'], '!^', '"\\' ), true );
 
@@ -335,6 +418,11 @@ class Cdn_RackSpaceCdn_Popup {
 		exit();
 	}
 
+	/**
+	 * Handles AJAX request to finalize Rackspace service updates.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_cdn_rackspace_service_actualize_done() {
 		$user_name                = Util_Request::get_string( 'user_name' );
 		$api_key                  = Util_Request::get_string( 'api_key' );
@@ -344,7 +432,7 @@ class Cdn_RackSpaceCdn_Popup {
 		$service_id               = Util_Request::get_string( 'service_id' );
 		$api                      = new Cdn_RackSpace_Api_Cdn(
 			array(
-				'access_token' => $access_token,
+				'access_token'             => $access_token,
 				'access_region_descriptor' => $access_region_descriptor,
 				'new_access_required'      => '',
 			)
@@ -394,6 +482,11 @@ class Cdn_RackSpaceCdn_Popup {
 		$this->_save_config();
 	}
 
+	/**
+	 * Saves Rackspace CDN configuration to the plugin settings.
+	 *
+	 * @return void
+	 */
 	private function _save_config() {
 		$user_name                = Util_Request::get_string( 'user_name' );
 		$api_key                  = Util_Request::get_string( 'api_key' );
@@ -403,7 +496,7 @@ class Cdn_RackSpaceCdn_Popup {
 		$service_id               = Util_Request::get_string( 'service_id' );
 		$api                      = new Cdn_RackSpace_Api_Cdn(
 			array(
-				'access_token' => $access_token,
+				'access_token'             => $access_token,
 				'access_region_descriptor' => $access_region_descriptor,
 				'new_access_required'      => '',
 			)
@@ -448,13 +541,20 @@ class Cdn_RackSpaceCdn_Popup {
 	}
 
 	/**
-	 * CNAMEs popup
+	 * Handles AJAX request to render the form for configuring domains.
+	 *
+	 * @return void
 	 */
 	public function w3tc_ajax_cdn_rackspace_configure_domains() {
 		$this->render_configure_domains_form();
 		exit();
 	}
 
+	/**
+	 * Handles AJAX request to save domain configuration changes.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_cdn_rackspace_configure_domains_done() {
 		$details = array(
 			'cnames' => Util_Request::get_array( 'cdn_cnames' ),
@@ -485,6 +585,13 @@ class Cdn_RackSpaceCdn_Popup {
 		exit();
 	}
 
+	/**
+	 * Renders the form for configuring domains.
+	 *
+	 * @param array $details Optional. Array of details, including domain configurations. Defaults to an empty array.
+	 *
+	 * @return void
+	 */
 	private function render_configure_domains_form( $details = array() ) {
 		if ( isset( $details['cnames'] ) ) {
 			$cnames = $details['cnames'];
@@ -504,8 +611,16 @@ class Cdn_RackSpaceCdn_Popup {
 		include W3TC_DIR . '/Cdn_RackSpaceCdn_Popup_View_ConfigureDomains.php';
 	}
 
+	/**
+	 * Renders the value change summary for a specific service field.
+	 *
+	 * @param array  $details Array containing the service details.
+	 * @param string $field   Name of the field to render value changes for.
+	 *
+	 * @return void
+	 */
 	private function render_service_value_change( $details, $field ) {
-		Util_Ui::hidden( '', $field, $details[ $field ]['new'] );
+		Util_Ui::hidden( 'w3tc-rackspace-value-' . $field, $field, $details[ $field ]['new'] );
 
 		if ( ! isset( $details[ $field ]['current'] ) || $details[ $field ]['current'] === $details[ $field ]['new'] ) {
 			echo esc_html( $details[ $field ]['new'] );

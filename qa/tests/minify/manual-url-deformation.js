@@ -54,9 +54,10 @@ describe('', function() {
 		await w3tc.setOptionsMinifyAddCssEntry(adminPage, 1, valueOriginal,	'include');
 
 		log.log('click save');
+		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
-			adminPage.click('#w3tc_save_options_minify_css'),
-			adminPage.waitForNavigation({timeout: 0})
+			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
+			adminPage.waitForNavigation({timeout:  300000})
 		]);
 
 		let valueAfterSave = await adminPage.$eval(

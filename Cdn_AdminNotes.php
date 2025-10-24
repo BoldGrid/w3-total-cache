@@ -1,161 +1,190 @@
 <?php
+/**
+ * File: Cdn_AdminNotes.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-
-
+/**
+ * Class: Cdn_AdminNotes
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.DB.DirectDatabaseQuery
+ */
 class Cdn_AdminNotes {
 	/**
+	 * Adds CDN-related notes to the provided array of admin notices.
 	 *
+	 * This method checks various conditions related to the CDN configuration,
+	 * WordPress upgrades, theme changes, and other CDN settings to determine
+	 * which admin notices should be displayed.
 	 *
-	 * @param Config  $config
-	 * @return array
+	 * phpcs:disable WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
+	 *
+	 * @param array $notes Array of existing admin notices.
+	 *
+	 * @return array Updated array of admin notices.
 	 */
-	public function w3tc_notes( $notes ) {
-		$config = Dispatcher::config();
-		$state = Dispatcher::config_state();
+	public function w3tc_notes( array $notes ): array {
+		$config     = Dispatcher::config();
+		$state      = Dispatcher::config_state();
+		$cdn_engine = $config->get_string( 'cdn.engine' );
+		$page       = Util_Request::get_string( 'page' );
 
-		$page = Util_Request::get_string( 'page' );
-
-		if ( !Cdn_Util::is_engine_mirror( $config->get_string( 'cdn.engine' ) ) ) {
+		if ( ! Cdn_Util::is_engine_mirror( $cdn_engine ) ) {
 			/**
-			 * Show notification after theme change
+			 * Show notification after theme change.
 			 */
 			if ( $state->get_boolean( 'cdn.show_note_theme_changed' ) ) {
 				$notes['cdn_theme_changed'] = sprintf(
-					__( 'The active theme has changed, please %s now to ensure proper operation. %s',
-						'w3-total-cache' ),
-					Util_Ui::button_popup(
-						__( 'upload active theme files', 'w3-total-cache' ),
-						'cdn_export',
-						'cdn_export_type=theme' ),
-					Util_Ui::button_hide_note2( array(
+					// translators: 1: Button code, 2: Button code.
+					__( 'The active theme has changed, please %1$s now to ensure proper operation. %2$s', 'w3-total-cache' ),
+					Util_Ui::button_popup( __( 'upload active theme files', 'w3-total-cache' ), 'cdn_export', 'cdn_export_type=theme' ),
+					Util_Ui::button_hide_note2(
+						array(
 							'w3tc_default_config_state' => 'y',
-							'key' => 'cdn.show_note_theme_changed',
-							'value' => 'false' ) ) );
+							'key'                       => 'cdn.show_note_theme_changed',
+							'value'                     => 'false',
+						)
+					)
+				);
 			}
 
 			/**
-			 * Show notification after WP upgrade
+			 * Show notification after WP upgrade.
 			 */
 			if ( $state->get_boolean( 'cdn.show_note_wp_upgraded' ) ) {
 				$notes['cdn_wp_upgraded'] = sprintf(
-					__( 'Upgraded WordPress? Please %s files now to ensure proper operation. %s',
-						'w3-total-cache' ),
-					Util_Ui::button_popup( 'upload wp-includes', 'cdn_export',
-						'cdn_export_type=includes' ),
-					Util_Ui::button_hide_note2( array(
+					// translators: 1: Button code, 2: Button code.
+					__( 'Upgraded WordPress? Please %1$s files now to ensure proper operation. %2$s', 'w3-total-cache' ),
+					Util_Ui::button_popup( 'upload wp-includes', 'cdn_export', 'cdn_export_type=includes' ),
+					Util_Ui::button_hide_note2(
+						array(
 							'w3tc_default_config_state' => 'y',
-							'key' => 'cdn.show_note_wp_upgraded',
-							'value' => 'false' ) ) );
+							'key'                       => 'cdn.show_note_wp_upgraded',
+							'value'                     => 'false',
+						)
+					)
+				);
 			}
 
 			/**
-			 * Show notification after CDN enable
+			 * Show notification after CDN enable.
 			 */
 			if ( $state->get_boolean( 'cdn.show_note_cdn_upload' ) ||
 				$state->get_boolean( 'cdn.show_note_cdn_reupload' ) ) {
 				$cdn_upload_buttons = array();
 
 				if ( $config->get_boolean( 'cdn.includes.enable' ) ) {
-					$cdn_upload_buttons[] = Util_Ui::button_popup(
-						'wp-includes', 'cdn_export', 'cdn_export_type=includes' );
+					$cdn_upload_buttons[] = Util_Ui::button_popup( 'wp-includes', 'cdn_export', 'cdn_export_type=includes' );
 				}
 
 				if ( $config->get_boolean( 'cdn.theme.enable' ) ) {
-					$cdn_upload_buttons[] = Util_Ui::button_popup(
-						'theme files', 'cdn_export', 'cdn_export_type=theme' );
+					$cdn_upload_buttons[] = Util_Ui::button_popup( 'theme files', 'cdn_export', 'cdn_export_type=theme' );
 				}
 
-				if ( $config->get_boolean( 'minify.enabled' ) &&
+				if (
+					$config->get_boolean( 'minify.enabled' ) &&
 					$config->get_boolean( 'cdn.minify.enable' ) &&
-					!$config->get_boolean( 'minify.auto' ) ) {
-					$cdn_upload_buttons[] = Util_Ui::button_popup(
-						'minify files', 'cdn_export',
-						'cdn_export_type=minify' );
+					! $config->get_boolean( 'minify.auto' )
+				) {
+					$cdn_upload_buttons[] = Util_Ui::button_popup( 'minify files', 'cdn_export', 'cdn_export_type=minify' );
 				}
 
 				if ( $config->get_boolean( 'cdn.custom.enable' ) ) {
-					$cdn_upload_buttons[] = Util_Ui::button_popup(
-						'custom files', 'cdn_export', 'cdn_export_type=custom' );
+					$cdn_upload_buttons[] = Util_Ui::button_popup( 'custom files', 'cdn_export', 'cdn_export_type=custom' );
 				}
 
 				if ( $state->get_boolean( 'cdn.show_note_cdn_upload' ) ) {
 					$notes[] = sprintf(
-						__( 'Make sure to %s and upload the %s, files to the <acronym title="Content Delivery Network">CDN</acronym> to ensure proper operation. %s',
-							'w3-total-cache' ),
-						Util_Ui::button_popup( 'export the media library',
-							'cdn_export_library' ),
+						// translators: 1: Button code, 2: Button code, 3: Button code.
+						__(
+							'Make sure to %1$s and upload the %2$s, files to the <acronym title="Content Delivery Network">CDN</acronym> to ensure proper operation. %3$s',
+							'w3-total-cache'
+						),
+						Util_Ui::button_popup( 'export the media library', 'cdn_export_library' ),
 						implode( ', ', $cdn_upload_buttons ),
-						Util_Ui::button_hide_note2( array(
+						Util_Ui::button_hide_note2(
+							array(
 								'w3tc_default_config_state' => 'y',
-								'key' => 'cdn.show_note_cdn_upload',
-								'value' => 'false' ) ) );
+								'key'                       => 'cdn.show_note_cdn_upload',
+								'value'                     => 'false',
+							)
+						)
+					);
 				}
 
 				if ( $state->get_boolean( 'cdn.show_note_cdn_reupload' ) ) {
 					$notes[] = sprintf(
-						__( 'Settings that affect Browser Cache settings for files hosted by the CDN have been changed. To apply the new settings %s and %s. %s',
-							'w3-total-cache' ),
-						Util_Ui::button_popup(
-							__( 'export the media library', 'w3-total-cache' ),
-							'cdn_export_library' ),
+						// translators: 1: Button code, 2: Button code, 3: Button code.
+						__(
+							'Settings that affect Browser Cache settings for files hosted by the CDN have been changed. To apply the new settings %1$s and %2$s. %3$s',
+							'w3-total-cache'
+						),
+						Util_Ui::button_popup( __( 'export the media library', 'w3-total-cache' ), 'cdn_export_library' ),
 						implode( ', ', $cdn_upload_buttons ),
-						Util_Ui::button_hide_note2( array(
+						Util_Ui::button_hide_note2(
+							array(
 								'w3tc_default_config_state' => 'y',
-								'key' => 'cdn.show_note_cdn_reupload',
-								'value' => 'false' ) ) );
+								'key'                       => 'cdn.show_note_cdn_reupload',
+								'value'                     => 'false',
+							)
+						)
+					);
 				}
 			}
 		}
 
-		if ( $config->get_string( 'cdn.engine' ) == 'maxcdn' &&
-			!$state->get_boolean( 'cdn.hide_note_maxcdn_whitelist_ip' ) &&
-			$state->get_integer( 'track.maxcdn_authorize' ) == 0 &&
-			$config->get_string( 'cdn.' . $config->get_string( 'cdn.engine' ) .'.authorization_key' ) ) {
-			$notes[] = sprintf(
-				__( 'Make sure to whitelist your servers IPs. Follow the instructions on %s. The IP for this server is %s. %s', 'w3-total-cache' ),
-				'<a href="http://support.maxcdn.com/tutorials/how-to-whitelist-your-server-ip-to-use-the-api/">MaxCDN</a>',
-				isset( $_SERVER['SERVER_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_ADDR'] ) ) : '',
-				Util_Ui::button_hide_note2( array(
-						'w3tc_default_config_state' => 'y',
-						'key' => 'cdn.hide_note_maxcdn_whitelist_ip',
-						'value' => 'true' ) ) );
-		}
-
 		/**
-		 * Check CURL extension
+		 * Check CURL extension.
 		 */
-		if ( !$state->get_boolean( 'cdn.hide_note_no_curl' ) &&
-			!function_exists( 'curl_init' ) ) {
+		if ( ! $state->get_boolean( 'cdn.hide_note_no_curl' ) && ! function_exists( 'curl_init' ) ) {
 			$notes[] = sprintf(
-				__( 'The <strong>CURL PHP</strong> extension is not available. Please install it to enable S3 or CloudFront functionality. %s',
-					'w3-total-cache' ),
-				Util_Ui::button_hide_note2( array(
+				// translators: 1: Button code.
+				__( 'The <strong>CURL PHP</strong> extension is not available. Please install it to enable S3 or CloudFront functionality. %1$s', 'w3-total-cache' ),
+				Util_Ui::button_hide_note2(
+					array(
 						'w3tc_default_config_state' => 'y',
-						'key' => 'cdn.hide_note_no_curl',
-						'value' => 'true' ) ) );
+						'key'                       => 'cdn.hide_note_no_curl',
+						'value'                     => 'true',
+					)
+				)
+			);
 		}
 
 		return $notes;
 	}
 
-	function w3tc_errors( $errors ) {
-		$c = Dispatcher::config();
-		$state = Dispatcher::config_state();
+	/**
+	 * Adds CDN-related errors to the provided array of admin errors.
+	 *
+	 * This method checks for issues such as upload queue errors, configuration
+	 * inconsistencies, and missing settings. It ensures the errors array includes
+	 * relevant information for resolving CDN-related problems.
+	 *
+	 * @param array $errors Array of existing admin errors.
+	 *
+	 * @return array Updated array of admin errors.
+	 */
+	public function w3tc_errors( array $errors ): array {
+		$c          = Dispatcher::config();
+		$state      = Dispatcher::config_state();
 		$cdn_engine = $c->get_string( 'cdn.engine' );
 
 		if ( Cdn_Util::is_engine_push( $cdn_engine ) ) {
 			/**
-			 * Show notification if upload queue is not empty
+			 * Show notification if upload queue is not empty.
 			 */
 			try {
-				if ( !( $error = get_transient( 'w3tc_cdn_error' ) ) &&
-					!$this->_is_queue_empty() ) {
+				$error = get_transient( 'w3tc_cdn_error' );
+				if ( ! $error && ! $this->_is_queue_empty() ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure
 					$errors['cdn_unsuccessful_queue'] = sprintf(
-						__( 'The %s has unresolved errors. Empty the queue to restore normal operation.',
-							'w3-total-cache' ),
-						Util_Ui::button_popup(
-							__( 'unsuccessful transfer queue', 'w3-total-cache' ), 'cdn_queue' ) );
+						// translators: 1: Button code.
+						__( 'The %1$s has unresolved errors. Empty the queue to restore normal operation.', 'w3-total-cache' ),
+						Util_Ui::button_popup( __( 'unsuccessful transfer queue', 'w3-total-cache' ), 'cdn_queue' )
+					);
 				} elseif ( $error ) {
 					$errors['cdn_generic'] = $error;
 				}
@@ -165,11 +194,11 @@ class Cdn_AdminNotes {
 			}
 
 			/**
-			 * Check upload settings
+			 * Check upload settings.
 			 */
 			$upload_info = Util_Http::upload_info();
 
-			if ( !$upload_info ) {
+			if ( ! $upload_info ) {
 				$upload_path = get_option( 'upload_path' );
 				$upload_path = trim( $upload_path );
 
@@ -177,19 +206,22 @@ class Cdn_AdminNotes {
 					$upload_path = WP_CONTENT_DIR . '/uploads';
 
 					$errors['cdn_uploads_folder_empty'] = sprintf(
-						__( 'The uploads directory is not available. Default WordPress directories will be created: <strong>%s</strong>.',
-							'w3-total-cache' ),
-						$upload_path );
+						// translators: 1: Upload path.
+						__( 'The uploads directory is not available. Default WordPress directories will be created: <strong>%1$s</strong>.', 'w3-total-cache' ),
+						$upload_path
+					);
 				}
 
-				if ( !Util_Environment::is_wpmu() ) {
+				if ( ! Util_Environment::is_wpmu() ) {
 					$errors['cdn_uploads_folder_not_found'] = sprintf(
-						__( 'The uploads path found in the database (%s) is inconsistent with the actual path. Please manually adjust the upload path either in miscellaneous settings or if not using a custom path %s automatically to resolve the issue.',
-							'w3-total-cache' ),
+						// translators: 1: Upload path, 2: Button code.
+						__(
+							'The uploads path found in the database (%1$s) is inconsistent with the actual path. Please manually adjust the upload path either in miscellaneous settings or if not using a custom path %2$s automatically to resolve the issue.',
+							'w3-total-cache'
+						),
 						$upload_path,
-						Util_Ui::button_link( __( 'update the path', 'w3-total-cache' ),
-							Util_Ui::url( array(
-									'w3tc_config_update_upload_path' => 'y' ) ) ) );
+						Util_Ui::button_link( __( 'update the path', 'w3-total-cache' ), Util_Ui::url( array( 'w3tc_config_update_upload_path' => 'y' ) ) )
+					);
 				}
 			}
 		}
@@ -199,108 +231,112 @@ class Cdn_AdminNotes {
 		 */
 		$error = '';
 		switch ( true ) {
-		case ( $cdn_engine == 'ftp' && !count( $c->get_array( 'cdn.ftp.domain' ) ) ):
-			$errors['cdn_ftp_empty'] = __( 'A configuration issue prevents <acronym title="Content Delivery Network">CDN</acronym> from working:
-                                        The <strong>"Replace default hostname with"</strong>
-                                        field cannot be empty. Enter <acronym
-                                        title="Content Delivery Network">CDN</acronym>
-                                        provider hostname <a href="?page=w3tc_cdn#configuration">here</a>.
-                                        <em>(This is the hostname used in order to view objects
-                                        in a browser.)</em>', 'w3-total-cache' );
-			break;
+			case ( 'ftp' === $cdn_engine && ! count( $c->get_array( 'cdn.ftp.domain' ) ) ):
+				$errors['cdn_ftp_empty'] = __(
+					'A configuration issue prevents <acronym title="Content Delivery Network">CDN</acronym> from working: The <strong>"Replace default hostname with"</strong> field cannot be empty. Enter <acronym title="Content Delivery Network">CDN</acronym> provider hostname <a href="?page=w3tc_cdn#configuration">here</a>. <em>(This is the hostname used in order to view objects in a browser.)</em>',
+					'w3-total-cache'
+				);
+				break;
 
-		case ( $cdn_engine == 's3' && ( $c->get_string( 'cdn.s3.key' ) == '' || $c->get_string( 'cdn.s3.secret' ) == '' || $c->get_string( 'cdn.s3.bucket' ) == '' ) ):
-			$error = __( 'The <strong>"Access key", "Secret key" and "Bucket"</strong> fields cannot be empty.', 'w3-total-cache' );
-			break;
+			case ( 's3' === $cdn_engine && ( empty( $c->get_string( 'cdn.s3.key' ) ) || empty( $c->get_string( 'cdn.s3.secret' ) ) || empty( $c->get_string( 'cdn.s3.bucket' ) ) ) ):
+				$error = __( 'The <strong>"Access key", "Secret key" and "Bucket"</strong> fields cannot be empty.', 'w3-total-cache' );
+				break;
 
-		case ( $cdn_engine == 'cf' && ( $c->get_string( 'cdn.cf.key' ) == '' || $c->get_string( 'cdn.cf.secret' ) == '' || $c->get_string( 'cdn.cf.bucket' ) == '' || ( $c->get_string( 'cdn.cf.id' ) == '' && !count( $c->get_array( 'cdn.cf.cname' ) ) ) ) ):
-			$error = __( 'The <strong>"Access key", "Secret key", "Bucket" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
-			break;
+			case ( 'cf' === $cdn_engine && ( empty( $c->get_string( 'cdn.cf.key' ) ) || empty( $c->get_string( 'cdn.cf.secret' ) ) || empty( $c->get_string( 'cdn.cf.bucket' ) ) || ( empty( $c->get_string( 'cdn.cf.id' ) ) && empty( $c->get_array( 'cdn.cf.cname' ) ) ) ) ):
+				$error = __( 'The <strong>"Access key", "Secret key", "Bucket" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
+				break;
 
-		case ( $cdn_engine == 'cf2' && ( $c->get_string( 'cdn.cf2.key' ) == '' || $c->get_string( 'cdn.cf2.secret' ) == '' || ( $c->get_string( 'cdn.cf2.id' ) == '' && !count( $c->get_array( 'cdn.cf2.cname' ) ) ) ) ):
-			$error = __( 'The <strong>"Access key", "Secret key" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
-			break;
+			case ( 'cf2' === $cdn_engine && ( empty( $c->get_string( 'cdn.cf2.key' ) ) || empty( $c->get_string( 'cdn.cf2.secret' ) ) || ( empty( $c->get_string( 'cdn.cf2.id' ) ) && empty( $c->get_array( 'cdn.cf2.cname' ) ) ) ) ):
+				$error = __( 'The <strong>"Access key", "Secret key" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
+				break;
 
-		case ( $cdn_engine == 'rscf' && ( $c->get_string( 'cdn.rscf.user' ) == '' || $c->get_string( 'cdn.rscf.key' ) == '' || $c->get_string( 'cdn.rscf.container' ) == '' ) ):
-			$error = __( 'The <strong>"Username", "API key", "Container" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
-			break;
+			case ( 'rscf' === $cdn_engine && ( empty( $c->get_string( 'cdn.rscf.user' ) ) || empty( $c->get_string( 'cdn.rscf.key' ) ) || empty( $c->get_string( 'cdn.rscf.container' ) ) ) ):
+				$error = __( 'The <strong>"Username", "API key", "Container" and "Replace default hostname with"</strong> fields cannot be empty.', 'w3-total-cache' );
+				break;
 
-		case ( $cdn_engine == 'azure' && ( $c->get_string( 'cdn.azure.user' ) == '' || $c->get_string( 'cdn.azure.key' ) == '' || $c->get_string( 'cdn.azure.container' ) == '' ) ):
-			$error = __( 'The <strong>"Account name", "Account key" and "Container"</strong> fields cannot be empty.', 'w3-total-cache' );
-			break;
+			case ( 'azure' === $cdn_engine && ( empty( $c->get_string( 'cdn.azure.user' ) ) || empty( $c->get_string( 'cdn.azure.key' ) ) || empty( $c->get_string( 'cdn.azure.container' ) ) ) ):
+				$error = __( 'The <strong>"Account name", "Account key" and "Container"</strong> fields cannot be empty.', 'w3-total-cache' );
+				break;
 
-		case ( $cdn_engine == 'mirror' && !count( $c->get_array( 'cdn.mirror.domain' ) ) ):
-			$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-			break;
+			case ( 'azuremi' === $cdn_engine && empty( getenv( 'APPSETTING_WEBSITE_SITE_NAME' ) ) ):
+				$error = __( 'Microsoft Azure using Managed Identities is only available for "WordPress on App Service".', 'w3-total-cache' );
+				break;
 
-		case ( $cdn_engine == 'maxcdn' ):
-			$fields = array();
-			if ( $c->get_string( 'cdn.maxcdn.authorization_key' ) == '' )
-				$fields[] = '"' . __( 'Authorization key', 'w3-total-cache' ) . '"';
+			case ( 'azuremi' === $cdn_engine && ( empty( $c->get_string( 'cdn.azuremi.user' ) ) || empty( $c->get_string( 'cdn.azuremi.clientid' ) ) || empty( $c->get_string( 'cdn.azuremi.container' ) ) ) ):
+				$error = __( 'The <strong>"Account name", "Entra client ID" and "Container"</strong> fields cannot be empty.', 'w3-total-cache' );
+				break;
 
-			if ( !count( $c->get_array( 'cdn.maxcdn.domain' ) ) )
-				$fields[] = '"' . __( 'Replace default hostname with', 'w3-total-cache' ) . '"';
+			case ( 'mirror' === $cdn_engine && empty( $c->get_array( 'cdn.mirror.domain' ) ) ):
+				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
+				break;
 
-			if ( $fields ) {
-				$error = sprintf( __( 'The <strong>%s</strong> field(s) cannot be empty.', 'w3-total-cache' ),
-					implode( __( ' and ', 'w3-total-cache' ), $fields ) );
-			}
+			case ( 'cotendo' === $cdn_engine && empty( $c->get_array( 'cdn.cotendo.domain' ) ) ):
+				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
+				break;
 
-			if ( $c->get_string( 'cdn.maxcdn.authorization_key' ) != '' &&
-				sizeof( explode( '+', $c->get_string( 'cdn.maxcdn.authorization_key' ) ) ) != 3 )
-				$error .= __( 'The <strong>"Authorization key"</strong> is not correct.', 'w3-total-cache' );
-			elseif ( $c->get_integer( 'cdn.maxcdn.zone_id', 0 ) <= 0 )
-				$error .= __( 'You need to select / create a pull zone.', 'w3-total-cache' );
+			case ( 'edgecast' === $cdn_engine && empty( $c->get_array( 'cdn.edgecast.domain' ) ) ):
+				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
+				break;
 
-			break;
+			case ( 'att' === $cdn_engine && empty( $c->get_array( 'cdn.att.domain' ) ) ):
+				$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
+				break;
 
-		case ( $cdn_engine == 'cotendo' && !count( $c->get_array( 'cdn.cotendo.domain' ) ) ):
-			$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-			break;
-
-		case ( $cdn_engine == 'edgecast' && !count( $c->get_array( 'cdn.edgecast.domain' ) ) ):
-			$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-			break;
-
-		case ( $cdn_engine == 'att' && !count( $c->get_array( 'cdn.att.domain' ) ) ):
-			$error = __( 'The <strong>"Replace default hostname with"</strong> field cannot be empty.', 'w3-total-cache' );
-			break;
-
-		case ( $cdn_engine == 'akamai' && !count( $c->get_array( 'cdn.akamai.domain' ) ) ):
-			$error = 'The <strong>"Replace default hostname with"</strong> field cannot be empty.';
-			break;
+			case ( 'akamai' === $cdn_engine && empty( $c->get_array( 'cdn.akamai.domain' ) ) ):
+				$error = 'The <strong>"Replace default hostname with"</strong> field cannot be empty.';
+				break;
 		}
 
 		if ( $error ) {
-			$errors['cdn_not_configured'] = __( 'A configuration issue prevents <acronym title="Content Delivery Network">CDN</acronym> from working: ', 'w3-total-cache' ) . $error . __( ' <a href="?page=w3tc_cdn#configuration">Specify it here</a>.', 'w3-total-cache' );
+			$errors['cdn_not_configured'] = __( 'A configuration issue prevents <acronym title="Content Delivery Network">CDN</acronym> from working: ', 'w3-total-cache' ) .
+				$error . __( ' <a href="?page=w3tc_cdn#configuration">Specify it here</a>.', 'w3-total-cache' );
 		}
 
 		return $errors;
 	}
 
-
 	/**
-	 * Returns true if upload queue is empty
+	 * Checks if the CDN queue is empty.
 	 *
-	 * @return bool
-	 * @throws Exception
+	 * This method checks if there are any items in the CDN queue by querying the corresponding table in the database.
+	 * If the queue is empty, it returns true. If the table doesn't exist or there is another database error, an exception
+	 * is thrown with a detailed error message.
+	 *
+	 * @global wpdb $wpdb WordPress database object.
+	 *
+	 * @throws \Exception If there is a database error or the table doesn't exist.
+	 *
+	 * @return bool True if the queue is empty, false otherwise.
 	 */
-	private function _is_queue_empty() {
+	private function _is_queue_empty(): bool {
 		global $wpdb;
 		$wpdb->hide_errors();
-		$sql = sprintf( 'SELECT COUNT(*) FROM %s', $wpdb->base_prefix . W3TC_CDN_TABLE_QUEUE );
-		$result = $wpdb->get_var( $sql );
-		if ( ( $error = $wpdb->last_error ) ) {
+
+		$result = $wpdb->get_var( sprintf( 'SELECT COUNT(`id`) FROM `%s`', $wpdb->base_prefix . W3TC_CDN_TABLE_QUEUE ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		$error = $wpdb->last_error;
+		if ( $error ) {
 			if ( strpos( $error, "doesn't exist" ) !== false ) {
 				$url = is_network_admin() ? network_admin_url( 'admin.php?page=w3tc_install' ) : admin_url( 'admin.php?page=w3tc_install' );
-				throw new \Exception( sprintf(
-						__( 'Encountered issue with CDN: %s. See %s for instructions of creating correct table.', 'w3-total-cache' ),
-						$wpdb->last_error,
-						'<a href="' . $url . '">' . __( 'Install page', 'w3-total-cache' ) . '</a>' ) );
+				throw new \Exception(
+					sprintf(
+						// translators: 1: Error message, 2: Install link.
+						esc_html__( 'Encountered issue with CDN: %1$s. See %2$s for instructions of creating correct table.', 'w3-total-cache' ),
+						esc_html( $wpdb->last_error ),
+						'<a href="' . esc_url( $url ) . '">' . esc_html__( 'Install page', 'w3-total-cache' ) . '</a>'
+					)
+				);
+			} else {
+				throw new \Exception(
+					sprintf(
+						// translators: 1: Error message.
+						esc_html__( 'Encountered issue with CDN: %s.', 'w3-total-cache' ),
+						esc_html( $wpdb->last_error )
+					)
+				);
 			}
-			else
-				throw new \Exception( sprintf( __( 'Encountered issue with CDN: %s.', 'w3-total-cache' ), $wpdb->last_error ) );
 		}
-		return $result == 0;
+
+		return empty( $result );
 	}
 }

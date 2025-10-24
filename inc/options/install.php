@@ -138,7 +138,7 @@ if ( ! defined( 'W3TC' ) ) {
 					// translators: 11 opening HTML acronym tag, 12 closing HTML acronym tag,
 					// translators: 13 opening HTML acronym tag, 14 closing HTML acronym tag.
 					__(
-						'%1$sRecommended:%2$s If you already have a content delivery network (%3$sCDN%4$s) provider, proceed to the "%5$sContent Delivery Network%6$s" tab and populate the fields and set your preferences. If you do not use the Media Library, you will need to import your images etc into the default locations. Use the Media Library Import Tool on the "Content Delivery Network" tab to perform this task. If you do not have a %7$sCDN%8$s provider, you can still improve your site\'s performance using the "Self-hosted" method. On your own server, create a subdomain and matching %9$sDNS%10$s Zone record; e.g. static.domain.com and configure %11$sFTP%12$s options on the "Content Delivery Network" tab accordingly. Be sure to %13$sFTP%14$s upload the appropriate files, using the available upload buttons.',
+						'%1$sRecommended:%2$s If you already have a content delivery network (%3$sCDN%4$s) provider, proceed to the "%5$sContent Delivery Network%6$s" tab and populate the fields and set your preferences. If you do not use the Media Library, you will need to import your images etc. into the default locations. Use the Media Library Import Tool on the "Content Delivery Network" tab to perform this task. If you do not have a %7$sCDN%8$s provider, you can still improve your site\'s performance using the "Self-hosted" method. On your own server, create a subdomain and matching %9$sDNS%10$s Zone record; e.g. static.domain.com and configure %11$sFTP%12$s options on the "Content Delivery Network" tab accordingly. Be sure to %13$sFTP%14$s upload the appropriate files, using the available upload buttons.',
 						'w3-total-cache'
 					),
 					'<em>',
@@ -242,33 +242,6 @@ if ( ! defined( 'W3TC' ) ) {
 		</li>
 	</ol>
 
-	<p>
-		<?php
-		echo wp_kses(
-			sprintf(
-				// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag,
-				// translators: 3 opening HTML acronym tag, 4 closing HTML acronym tag.
-				__(
-					'Check out the %1$sFAQ%2$s for more details on %3$susage</a>.',
-					'w3-total-cache'
-				),
-				'<acronym title="' . esc_attr__( 'Frequently Asked Questions', 'w3-total-cache' ) . '">',
-				'</acronym>',
-				'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_faq' ) ) . '">',
-				'</a>'
-			),
-			array(
-				'a'       => array(
-					'href' => array(),
-				),
-				'acronym' => array(
-					'title' => array(),
-				),
-			)
-		);
-		?>
-	</p>
-
 	<hr />
 	<?php if ( count( $rewrite_rules_descriptors ) ) : ?>
 		<h3 id="rules"><?php esc_html_e( 'Rewrite Rules (based on active settings)', 'w3-total-cache' ); ?></h3>
@@ -294,7 +267,7 @@ if ( ! defined( 'W3TC' ) ) {
 			<a href="https://api.w3-edge.com/v1/redirects/faq/installation"><?php esc_html_e( 'Server Preparation', 'w3-total-cache' ); ?></a>
 		</li>
 		<li>
-			<a href="https://api.w3-edge.com/v1/redirects/faq/installation/memcached"><?php esc_html_e( 'Install Memcached Deamon', 'w3-total-cache' ); ?></a>
+			<a href="https://api.w3-edge.com/v1/redirects/faq/installation/memcached"><?php esc_html_e( 'Install Memcached Daemon', 'w3-total-cache' ); ?></a>
 		</li>
 	</ul>
 	<hr />
@@ -418,5 +391,3 @@ if ( ! defined( 'W3TC' ) ) {
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </div>
-
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

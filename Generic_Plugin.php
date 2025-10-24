@@ -1,25 +1,69 @@
 <?php
+/**
+ * File: Generic_Plugin.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * W3 Total Cache plugin
+ * Class Generic_Plugin
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class Generic_Plugin {
-	private $is_wp_die     = false;
-	private $_translations = array();
-	private $_config       = null;
+	/**
+	 * Is WP die
+	 *
+	 * @var bool
+	 */
+	private $is_wp_die = false;
 
-	function __construct() {
+	/**
+	 * Translations
+	 *
+	 * @var array
+	 */
+	private $_translations = array();
+
+	/**
+	 * Config
+	 *
+	 * @var Config
+	 */
+	private $_config = null;
+
+	/**
+	 * Frontend notice payload when redirecting back from admin actions.
+	 *
+	 * @since X.X.X
+	 *
+	 * @var ?array
+	 */
+	private $frontend_notice;
+
+	/**
+	 * Constructor
+	 *
+	 * @return void
+	 */
+	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
 	 * Runs plugin
+	 *
+	 * @return void
 	 */
-	function run() {
-		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ), 5 );
+	public function run() {
+		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ), 5 ); // phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval
+		add_action( 'w3tc_purge_all_wpcron', array( $this, 'w3tc_purgeall_wpcron' ) );
 
 		/* need this to run before wp-cron to issue w3tc redirect */
+		add_action( 'init', array( $this, 'load_frontend_message' ), 0 );
 		add_action( 'init', array( $this, 'init' ), 1 );
 
 		if ( Util_Environment::is_w3tc_pro_dev() && Util_Environment::is_w3tc_pro( $this->_config ) ) {
@@ -28,6 +72,14 @@ class Generic_Plugin {
 
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 150 );
 		add_action( 'admin_bar_init', array( $this, 'admin_bar_init' ) );
+
+		if ( defined( 'W3TC_DYNAMIC_SECURITY' ) && '' !== W3TC_DYNAMIC_SECURITY ) {
+			add_filter( 'rest_post_dispatch', array( $this, 'sanitize_rest_response_dynamic_tags' ), 10, 3 );
+			add_filter( 'the_content_feed', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
+			add_filter( 'the_excerpt_rss', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
+			add_filter( 'comment_text_rss', array( $this, 'strip_dynamic_fragment_tags_filter' ) );
+			add_filter( 'preprocess_comment', array( $this, 'strip_dynamic_fragment_tags_from_comment' ) );
+		}
 
 		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		if ( ! empty( Util_Request::get_string( 'w3tc_theme' ) ) && stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
@@ -52,11 +104,143 @@ class Generic_Plugin {
 
 			ob_start( array( $this, 'ob_callback' ) );
 		}
+
+		$this->register_plugin_check_filters();
+
+		// Run tasks after updating this plugin.
+		$this->post_update_tasks();
+	}
+
+	/**
+	 * Removes dynamic fragment tags from comment content before storage.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $comment_data Comment data being processed.
+	 *
+	 * @return array
+	 */
+	public function strip_dynamic_fragment_tags_from_comment( $comment_data ) {
+		if ( isset( $comment_data['comment_content'] ) ) {
+			$comment_data['comment_content'] = $this->strip_dynamic_fragment_tags_from_string( $comment_data['comment_content'] );
+		}
+
+		return $comment_data;
+	}
+
+	/**
+	 * Removes dynamic fragment tags from RSS/feed content.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $content Content to sanitize.
+	 *
+	 * @return string
+	 */
+	public function strip_dynamic_fragment_tags_filter( $content ) {
+		return $this->strip_dynamic_fragment_tags_from_string( $content );
+	}
+
+	/**
+	 * Sanitizes REST API responses to prevent dynamic fragment leakage.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param \WP_REST_Response|mixed $result  Response data.
+	 * @param \WP_REST_Server         $server  REST server instance.
+	 * @param \WP_REST_Request        $request Current request.
+	 *
+	 * @return \WP_REST_Response|mixed
+	 */
+	public function sanitize_rest_response_dynamic_tags( $result, $server, $request ) {
+		unset( $server );
+
+		if ( $request instanceof \WP_REST_Request && 'edit' === $request->get_param( 'context' ) ) {
+			return $result;
+		}
+
+		$response = ( $result instanceof \WP_REST_Response ) ? $result : rest_ensure_response( $result );
+		$data     = $response->get_data();
+		$data     = $this->sanitize_dynamic_fragment_data( $data );
+		$response->set_data( $data );
+
+		return $response;
+	}
+
+	/**
+	 * Recursively removes dynamic fragment tags from REST data structures.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param mixed $data Response data.
+	 *
+	 * @return mixed
+	 */
+	private function sanitize_dynamic_fragment_data( $data ) {
+		if ( is_string( $data ) ) {
+			return $this->strip_dynamic_fragment_tags_from_string( $data );
+		}
+
+		if ( is_array( $data ) ) {
+			foreach ( $data as $key => $value ) {
+				$data[ $key ] = $this->sanitize_dynamic_fragment_data( $value );
+			}
+
+			return $data;
+		}
+
+		if ( is_object( $data ) ) {
+			foreach ( $data as $key => $value ) {
+				$data->{$key} = $this->sanitize_dynamic_fragment_data( $value );
+			}
+
+			return $data;
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Removes dynamic fragment tags from a text string.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param string $value Raw content to sanitize.
+	 *
+	 * @return string
+	 */
+	private function strip_dynamic_fragment_tags_from_string( $value ) {
+		if ( ! is_string( $value ) || ! defined( 'W3TC_DYNAMIC_SECURITY' ) || empty( W3TC_DYNAMIC_SECURITY ) ) {
+			return $value;
+		}
+
+		$original = $value;
+		$token    = preg_quote( W3TC_DYNAMIC_SECURITY, '~' );
+		$pattern  = array(
+			'~<!--\s*mfunc\s*' . $token . '(.*)-->(.*)<!--\s*/mfunc\s*' . $token . '\s*-->~Uis',
+			'~<!--\s*mclude\s*' . $token . '(.*)-->(.*)<!--\s*/mclude\s*' . $token . '\s*-->~Uis',
+		);
+		$value    = preg_replace( $pattern, '', $value );
+
+		if ( null === $value ) {
+			$value = $original;
+		}
+
+		// The W3TC_DYNAMIC_SECURITY constant should be a unique string and not an int or boolean.
+		if ( 1 === (int) W3TC_DYNAMIC_SECURITY ) {
+			return $value;
+		}
+
+		return str_replace( W3TC_DYNAMIC_SECURITY, '', $value );
 	}
 
 	/**
 	 * Marks wp_die was called so response is system message
-	 **/
+	 *
+	 * @param callable $v Callback.
+	 *
+	 * @return callable
+	 */
 	public function wp_die_handler( $v ) {
 		$this->is_wp_die = true;
 		return $v;
@@ -65,16 +249,18 @@ class Generic_Plugin {
 	/**
 	 * Cron schedules filter
 	 *
-	 * @param array   $schedules
+	 * Sets default values which are overriden by apropriate plugins if they are enabled
+	 *
+	 * Absense of keys (if e.g. pgcaching became disabled, but there is cron event scheduled in db) causes PHP notices.
+	 *
+	 * @param array $schedules Schedules.
+	 *
 	 * @return array
 	 */
-	function cron_schedules( $schedules ) {
-		// Sets default values which are overriden by apropriate plugins
-		// if they are enabled
-		//
-		// absense of keys (if e.g. pgcaching became disabled, but there is
-		// cron event scheduled in db) causes PHP notices.
-		return array_merge(
+	public function cron_schedules( $schedules ) {
+		$c = $this->_config;
+
+		$schedules = array_merge(
 			$schedules,
 			array(
 				'w3_cdn_cron_queue_process' => array(
@@ -111,6 +297,20 @@ class Generic_Plugin {
 				),
 			)
 		);
+
+		return $schedules;
+	}
+
+	/**
+	 * Cron job for processing purging page cache.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	public function w3tc_purgeall_wpcron() {
+		$flusher = Dispatcher::component( 'CacheFlush' );
+		$flusher->flush_all();
 	}
 
 	/**
@@ -118,10 +318,10 @@ class Generic_Plugin {
 	 *
 	 * @return void
 	 */
-	function init() {
-		// Load plugin text domain.
-		load_plugin_textdomain( W3TC_TEXT_DOMAIN, false, plugin_basename( W3TC_DIR ) . '/languages/' );
-
+	public function init() {
+		// Load W3TC textdomain for translations.
+		$this->reset_l10n();
+		
 		if ( is_multisite() && ! is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
 			if ( $w3_current_blog_id !== $current_blog->blog_id && ! isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {
@@ -153,17 +353,15 @@ class Generic_Plugin {
 			// redirect to the same url causes "redirect loop" error in browser,
 			// so need to redirect to something a bit different.
 			if ( $do_redirect ) {
-				if ( ( defined( 'WP_CLI' ) && WP_CLI ) || php_sapi_name() === 'cli' ) {
+				if ( ( defined( 'WP_CLI' ) && WP_CLI ) || php_sapi_name() === 'cli' ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 					// command-line mode, no real requests made,
 					// try to switch context in-request.
 				} else {
 					$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 					if ( strpos( $request_uri, '?' ) === false ) {
 						Util_Environment::safe_redirect_temp( $request_uri . '?repeat=w3tc' );
-					} else {
-						if ( strpos( $request_uri, 'repeat=w3tc' ) === false ) {
-							Util_Environment::safe_redirect_temp( $request_uri . '&repeat=w3tc' );
-						}
+					} elseif ( strpos( $request_uri, 'repeat=w3tc' ) === false ) {
+						Util_Environment::safe_redirect_temp( $request_uri . '&repeat=w3tc' );
 					}
 				}
 			}
@@ -194,25 +392,93 @@ class Generic_Plugin {
 		}
 	}
 
+	/**
+	 * Admin bar init
+	 *
+	 * @return void
+	 */
 	public function admin_bar_init() {
 		$font_base = plugins_url( 'pub/fonts/w3tc', W3TC_FILE );
-		$css = "
+		$css       = "
 			@font-face {
 				font-family: 'w3tc';
-			src: url('$font_base.eot');
-			src: url('$font_base.eot?#iefix') format('embedded-opentype'),
-				 url('$font_base.woff') format('woff'),
-				 url('$font_base.ttf') format('truetype'),
-				 url('$font_base.svg#w3tc') format('svg');
-			font-weight: normal;
-			font-style: normal;
-		}
-		.w3tc-icon:before{
-			content:'\\0041'; top: 2px;
-			font-family: 'w3tc';
-		}";
+				src: url('$font_base.eot');
+				src: url('$font_base.eot?#iefix') format('embedded-opentype'),
+					url('$font_base.woff') format('woff'),
+					url('$font_base.ttf') format('truetype'),
+					url('$font_base.svg#w3tc') format('svg');
+				font-weight: normal;
+				font-style: normal;
+			}
+			.w3tc-icon:before{
+				content:'\\0041'; top: 2px;
+				font-family: 'w3tc';
+			}";
 
-		wp_add_inline_style( 'admin-bar', $css);
+		if ( ! is_admin() && ! is_null( $this->frontend_notice ) ) {
+			$bg_color = '#2271b1';
+
+			if ( 'error' === $this->frontend_notice['type'] ) {
+				$bg_color = '#d63638';
+			} elseif ( 'note' === $this->frontend_notice['type'] ) {
+				$bg_color = '#00a32a';
+			}
+
+			$css .= "
+				#wp-admin-bar-w3tc_frontend_notice > .ab-item {
+					background: $bg_color !important;
+					color: #fff !important;
+					font-weight: 600;
+					display: flex;
+					align-items: center;
+					gap: 0.5em;
+				}
+				#wp-admin-bar-w3tc_frontend_notice .w3tc-frontend-notice-dismiss {
+					border-left: 1px solid rgba(255,255,255,0.4);
+					margin-left: 0.5em;
+					padding-left: 0.5em;
+					font-size: 18px;
+					line-height: 1;
+					font-weight: 700;
+					cursor: pointer;
+				}
+				#wp-admin-bar-w3tc_frontend_notice .w3tc-frontend-notice-dismiss:focus {
+					outline: 2px solid rgba(255,255,255,0.8);
+					outline-offset: 2px;
+				}";
+		}
+
+		wp_add_inline_style( 'admin-bar', $css );
+
+		if ( ! is_admin() && ! is_null( $this->frontend_notice ) ) {
+			$js = "(function() {
+				var init = function() {
+					var notice = document.getElementById('wp-admin-bar-w3tc_frontend_notice');
+					if (!notice) {
+						return;
+					}
+					var remove = function() {
+						if (notice && notice.parentNode) {
+							notice.parentNode.removeChild(notice);
+							notice = null;
+						}
+					};
+					var dismiss = notice.querySelector('.w3tc-frontend-notice-dismiss');
+					if (dismiss) {
+						dismiss.addEventListener('click', function(event) {
+							event.preventDefault();
+							remove();
+						});
+					}
+				};
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', init);
+				} else {
+					init();
+				}
+			})();";
+			wp_add_inline_script( 'admin-bar', $js );
+		}
 	}
 
 	/**
@@ -220,7 +486,7 @@ class Generic_Plugin {
 	 *
 	 * @return void
 	 */
-	function admin_bar_menu() {
+	public function admin_bar_menu() {
 		global $wp_admin_bar;
 
 		$base_capability = apply_filters( 'w3tc_capability_admin_bar', 'manage_options' );
@@ -228,19 +494,12 @@ class Generic_Plugin {
 		if ( current_user_can( $base_capability ) ) {
 			$modules = Dispatcher::component( 'ModuleStatus' );
 
-			$menu_postfix = '';
-			if ( ! is_admin() && $this->_config->get_boolean( 'widget.pagespeed.show_in_admin_bar' ) ) {
-				$menu_postfix = ' <span id="w3tc_monitoring_score">...</span>';
-				add_action( 'wp_after_admin_bar_render', array( $this, 'wp_after_admin_bar_render' ) );
-			}
-
 			$menu_items = array();
 
 			$menu_items['00010.generic'] = array(
 				'id'    => 'w3tc',
 				'title' => sprintf(
-					'<span class="w3tc-icon ab-icon"></span><span class="ab-label">%s</span>' .
-					$menu_postfix,
+					'<span class="w3tc-icon ab-icon"></span><span class="ab-label">%s</span>',
 					__( 'Performance', 'w3-total-cache' )
 				),
 				'href'  => wp_nonce_url(
@@ -249,16 +508,65 @@ class Generic_Plugin {
 				),
 			);
 
+			$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 			if ( $modules->plugin_is_enabled() ) {
 				$menu_items['10010.generic'] = array(
 					'id'     => 'w3tc_flush_all',
 					'parent' => 'w3tc',
 					'title'  => __( 'Purge All Caches', 'w3-total-cache' ),
 					'href'   => wp_nonce_url(
-						network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ),
+						network_admin_url( 'admin.php?page=' . $current_page . '&w3tc_flush_all' ),
 						'w3tc'
 					),
 				);
+
+				// Add menu item to flush all cached except Bunny CDN.
+				if (
+					0 && // @todo Revisit this item.
+					Cdn_BunnyCdn_Page::is_active() && (
+						$modules->can_empty_memcache()
+						|| $modules->can_empty_opcode()
+						|| $modules->can_empty_file()
+						|| $modules->can_empty_varnish()
+					)
+				) {
+					$menu_items['10012.generic'] = array(
+						'id'     => 'w3tc_flush_all_except_bunnycdn',
+						'parent' => 'w3tc',
+						'title'  => __( 'Purge All Caches Except Bunny CDN', 'w3-total-cache' ),
+						'href'   => wp_nonce_url(
+							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_bunnycdn_flush_all_except_bunnycdn' ),
+							'w3tc'
+						),
+					);
+				}
+
+				// Add menu item to flush all cached except Cloudflare.
+				if (
+					$this->_config->get_boolean( 'cdnfsd.enabled' ) &&
+					'cloudflare' === $this->_config->get_string( 'cdnfsd.engine' ) &&
+					! empty( $this->_config->get_string( array( 'cloudflare', 'email' ) ) ) &&
+					! empty( $this->_config->get_string( array( 'cloudflare', 'key' ) ) ) &&
+					! empty( $this->_config->get_string( array( 'cloudflare', 'zone_id' ) ) ) &&
+					in_array( 'cloudflare', array_keys( Extensions_Util::get_active_extensions( $this->_config ) ), true ) &&
+					(
+						$modules->can_empty_memcache() ||
+						$modules->can_empty_opcode() ||
+						$modules->can_empty_file() ||
+						$modules->can_empty_varnish()
+					)
+				) {
+					$menu_items['10015.generic'] = array(
+						'id'     => 'w3tc_flush_all_except_cf',
+						'parent' => 'w3tc',
+						'title'  => __( 'Purge All Caches Except Cloudflare', 'w3-total-cache' ),
+						'href'   => wp_nonce_url(
+							network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_cloudflare_flush_all_except_cf' ),
+							'w3tc'
+						),
+					);
+				}
 
 				if ( ! is_admin() ) {
 					$menu_items['10020.generic'] = array(
@@ -266,7 +574,7 @@ class Generic_Plugin {
 						'parent' => 'w3tc',
 						'title'  => __( 'Purge Current Page', 'w3-total-cache' ),
 						'href'   => wp_nonce_url(
-							admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_post&amp;post_id=' . Util_Environment::detect_post_id() ),
+							admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_post&amp;post_id=' . Util_Environment::detect_post_id() . '&force=true' ),
 							'w3tc'
 						),
 					);
@@ -298,6 +606,19 @@ class Generic_Plugin {
 					'w3tc'
 				),
 			);
+
+			if ( Extension_AlwaysCached_Plugin::is_enabled() ) {
+				$menu_items['40015.alwayscached'] = array(
+					'id'     => 'w3tc_alwayscached',
+					'parent' => 'w3tc',
+					'title'  => __( 'Page Cache Queue', 'w3-total-cache' ),
+					'href'   => wp_nonce_url(
+						network_admin_url( 'admin.php?page=w3tc_extensions&extension=alwayscached&action=view' ),
+						'w3tc'
+					),
+				);
+			}
+
 			$menu_items['40020.generic'] = array(
 				'id'     => 'w3tc_settings_extensions',
 				'parent' => 'w3tc',
@@ -334,15 +655,6 @@ class Generic_Plugin {
 					'parent' => 'w3tc',
 					'title'  => __( 'Debug: Overlays', 'w3-total-cache' ),
 				);
-				$menu_items['90020.generic'] = array(
-					'id'     => 'w3tc_overlay_support_us',
-					'parent' => 'w3tc_debug_overlays',
-					'title'  => __( 'Support Us', 'w3-total-cache' ),
-					'href'   => wp_nonce_url(
-						network_admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_message_action=generic_support_us' ),
-						'w3tc'
-					),
-				);
 			}
 
 			$menu_items = apply_filters( 'w3tc_admin_bar_menu', $menu_items );
@@ -360,31 +672,116 @@ class Generic_Plugin {
 					$wp_admin_bar->add_menu( $menu_items[ $key ] );
 				}
 			}
+
+			if ( ! is_admin() && ! is_null( $this->frontend_notice ) && ! empty( $this->frontend_notice['messages'] ) ) {
+				$sanitized_messages = array_map( 'wp_strip_all_tags', $this->frontend_notice['messages'] );
+				$label              = esc_html( wp_html_excerpt( implode( ' ', $sanitized_messages ), 120, '…' ) );
+
+				if ( '' !== $label ) {
+					$wp_admin_bar->add_menu(
+						array(
+							'id'     => 'w3tc_frontend_notice',
+							'parent' => 'top-secondary',
+							'title'  => $label . '<span class="w3tc-frontend-notice-dismiss" role="button" aria-label="' . esc_attr__( 'Dismiss notice', 'w3-total-cache' ) . '">&times;</span>',
+							'href'   => false,
+							'meta'   => array(
+								'class' => 'w3tc-frontend-notice w3tc-frontend-notice-' . $this->frontend_notice['type'],
+								'title' => $label,
+							),
+						)
+					);
+				}
+			}
 		}
 	}
 
-	public function wp_after_admin_bar_render() {
-		$url = admin_url( 'admin-ajax.php', 'relative' ) .
-			'?action=w3tc_monitoring_score&' .
-			md5( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
+	/**
+	 * Loads a pending frontend message triggered during an admin redirect.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return void
+	 */
+	public function load_frontend_message() {
+		if ( is_admin() ) {
+			return;
+		}
 
-		?>
-		<script type= "text/javascript">
-			var w3tc_monitoring_score = document.createElement('script');
-			w3tc_monitoring_score.type = 'text/javascript';
-			w3tc_monitoring_score.src = '<?php echo esc_url( $url ); ?>';
-			document.getElementsByTagName('HEAD')[0].appendChild(w3tc_monitoring_score);
-		</script>
-		<?php
+		$message_id = Util_Request::get_string( 'w3tc_message' );
+		if ( '' !== $message_id ) {
+			$stored_messages = get_option( 'w3tc_message' );
+			if ( is_array( $stored_messages ) && isset( $stored_messages[ $message_id ] ) ) {
+				$message = $stored_messages[ $message_id ];
+				delete_option( 'w3tc_message' );
+
+				$notice_type = '';
+				$payload     = array();
+
+				if ( isset( $message['errors'] ) && is_array( $message['errors'] ) ) {
+					$payload = array_values( array_filter( $message['errors'], 'strlen' ) );
+					if ( ! empty( $payload ) ) {
+						$notice_type = 'error';
+					}
+				}
+
+				if ( '' === $notice_type && isset( $message['notes'] ) && is_array( $message['notes'] ) ) {
+					$payload = array_values( array_filter( $message['notes'], 'strlen' ) );
+					if ( ! empty( $payload ) ) {
+						$notice_type = 'note';
+					}
+				}
+
+				if ( '' !== $notice_type && ! empty( $payload ) ) {
+					$this->frontend_notice = array(
+						'type'     => $notice_type,
+						'messages' => $payload,
+					);
+				}
+			}
+
+			if ( ! is_null( $this->frontend_notice ) ) {
+				return;
+			}
+		}
+
+		$note_key = Util_Request::get_string( 'w3tc_note' );
+		if ( '' === $note_key ) {
+			return;
+		}
+
+		$note_messages = array(
+			'flush_all'                 => __( 'All caches successfully emptied.', 'w3-total-cache' ),
+			'flush_all_except_w3tc_cdn' => __( 'All caches successfully emptied except CDN.', 'w3-total-cache' ),
+			'flush_memcached'           => __( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_opcode'              => __( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_file'                => __( 'Disk cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_pgcache'             => __( 'Page cache successfully emptied.', 'w3-total-cache' ),
+			'flush_dbcache'             => __( 'Database cache successfully emptied.', 'w3-total-cache' ),
+			'flush_objectcache'         => __( 'Object cache successfully emptied.', 'w3-total-cache' ),
+			'flush_fragmentcache'       => __( 'Fragment cache successfully emptied.', 'w3-total-cache' ),
+			'flush_minify'              => __( 'Minify cache successfully emptied.', 'w3-total-cache' ),
+			'flush_browser_cache'       => __( 'Media Query string has been successfully updated.', 'w3-total-cache' ),
+			'flush_varnish'             => __( 'Varnish servers successfully purged.', 'w3-total-cache' ),
+			'flush_cdn'                 => __( 'CDN was successfully purged.', 'w3-total-cache' ),
+			'pgcache_purge_post'        => __( 'Post successfully purged.', 'w3-total-cache' ),
+		);
+
+		if ( isset( $note_messages[ $note_key ] ) ) {
+			$this->frontend_notice = array(
+				'type'     => 'note',
+				'messages' => array( $note_messages[ $note_key ] ),
+			);
+		}
 	}
 
 	/**
 	 * Template filter
 	 *
-	 * @param unknown $template
+	 * @param unknown $template Template.
+	 *
 	 * @return string
 	 */
-	function template( $template ) {
+	public function template( $template ) {
 		$w3_mobile = Dispatcher::component( 'Mobile_UserAgent' );
 
 		$mobile_template = $w3_mobile->get_template();
@@ -407,10 +804,11 @@ class Generic_Plugin {
 	/**
 	 * Stylesheet filter
 	 *
-	 * @param unknown $stylesheet
+	 * @param unknown $stylesheet Stylesheet.
+	 *
 	 * @return string
 	 */
-	function stylesheet( $stylesheet ) {
+	public function stylesheet( $stylesheet ) {
 		$w3_mobile = Dispatcher::component( 'Mobile_UserAgent' );
 
 		$mobile_stylesheet = $w3_mobile->get_stylesheet();
@@ -433,10 +831,11 @@ class Generic_Plugin {
 	/**
 	 * Template filter
 	 *
-	 * @param unknown $template
+	 * @param unknown $template Template.
+	 *
 	 * @return string
 	 */
-	function template_preview( $template ) {
+	public function template_preview( $template ) {
 		$theme_name = Util_Request::get_string( 'w3tc_theme' );
 
 		$theme = Util_Theme::get( $theme_name );
@@ -451,10 +850,11 @@ class Generic_Plugin {
 	/**
 	 * Stylesheet filter
 	 *
-	 * @param unknown $stylesheet
+	 * @param unknown $stylesheet Stylesheet.
+	 *
 	 * @return string
 	 */
-	function stylesheet_preview( $stylesheet ) {
+	public function stylesheet_preview( $stylesheet ) {
 		$theme_name = Util_Request::get_string( 'w3tc_theme' );
 
 		$theme = Util_Theme::get( $theme_name );
@@ -469,10 +869,11 @@ class Generic_Plugin {
 	/**
 	 * Output buffering callback
 	 *
-	 * @param string  $buffer
+	 * @param string $buffer Buffer.
+	 *
 	 * @return string
 	 */
-	function ob_callback( $buffer ) {
+	public function ob_callback( $buffer ) {
 		global $wpdb;
 
 		global $w3_late_caching_succeeded;
@@ -480,8 +881,8 @@ class Generic_Plugin {
 			return $buffer;
 		}
 
-		if ( $this->is_wp_die && ! apply_filters( 'w3tc_process_wp_die', false, $buffer ) ) {
-			// wp_die is dynamic output (usually fatal errors), dont process it
+		if ( $this->is_wp_die && ! apply_filters( 'w3tc_process_wp_die', false, $buffer ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+			// wp_die is dynamic output (usually fatal errors), dont process it.
 		} else {
 			$buffer = apply_filters( 'w3tc_process_content', $buffer );
 
@@ -503,7 +904,7 @@ class Generic_Plugin {
 					$strings[] = '';
 				}
 
-				$strings = apply_filters( 'w3tc_footer_comment', $strings );
+				$strings = (array) apply_filters( 'w3tc_footer_comment', $strings );
 
 				if ( count( $strings ) ) {
 					$strings[] = '';
@@ -523,16 +924,23 @@ class Generic_Plugin {
 				array(
 					'swarmify',
 					'lazyload',
+					'removecssjs',
+					'deferscripts',
 					'minify',
 					'newrelic',
 					'cdn',
 					'browsercache',
-					'pagecache',
 				),
 				$buffer
 			);
 
 			$buffer = apply_filters( 'w3tc_processed_content', $buffer );
+
+			// Apply the w3tc_processed_content filter before pagecache callback.
+			$buffer = Util_Bus::do_ob_callbacks(
+				array( 'pagecache' ),
+				$buffer
+			);
 		}
 
 		return $buffer;
@@ -543,7 +951,7 @@ class Generic_Plugin {
 	 *
 	 * @return boolean
 	 */
-	function can_ob() {
+	public function can_ob() {
 		global $w3_late_init;
 		if ( $w3_late_init ) {
 			return false;
@@ -596,11 +1004,18 @@ class Generic_Plugin {
 	}
 
 	/**
-	 * User login hook
-	 * Check if current user is not listed in pgcache.reject.* rules
+	 * User login hook. Check if current user is not listed in pgcache.reject.* rules
 	 * If so, set a role cookie so the requests wont be cached
+	 *
+	 * @param bool   $logged_in_cookie Logged in cookie flag.
+	 * @param string $expire           Expire timestamp.
+	 * @param int    $expiration       Time to expire.
+	 * @param int    $user_id          User ID.
+	 * @param string $action           Action.
+	 *
+	 * @return void
 	 */
-	function check_login_action( $logged_in_cookie = false, $expire = ' ', $expiration = 0, $user_id = 0, $action = 'logged_out' ) {
+	public function check_login_action( $logged_in_cookie = false, $expire = ' ', $expiration = 0, $user_id = 0, $action = 'logged_out' ) {
 		$current_user = wp_get_current_user();
 		if ( isset( $current_user->ID ) && ! $current_user->ID ) {
 			$user_id = new \WP_User( $user_id );
@@ -653,7 +1068,12 @@ class Generic_Plugin {
 		}
 	}
 
-	function popup_script() {
+	/**
+	 * Popup script embed
+	 *
+	 * @return void
+	 */
+	public function popup_script() {
 		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
 			return;
 		}
@@ -666,10 +1086,15 @@ class Generic_Plugin {
 		<?php
 	}
 
+	/**
+	 * Check if debugging is enabled
+	 *
+	 * @return bool
+	 */
 	private function is_debugging() {
 		$debug = $this->_config->get_boolean( 'pgcache.enabled' ) && $this->_config->get_boolean( 'pgcache.debug' );
 		$debug = $debug || ( $this->_config->get_boolean( 'dbcache.enabled' ) && $this->_config->get_boolean( 'dbcache.debug' ) );
-		$debug = $debug || ( $this->_config->get_boolean( 'objectcache.enabled' ) && $this->_config->get_boolean( 'objectcache.debug' ) );
+		$debug = $debug || ( $this->_config->getf_boolean( 'objectcache.enabled' ) && $this->_config->get_boolean( 'objectcache.debug' ) );
 		$debug = $debug || ( $this->_config->get_boolean( 'browsercache.enabled' ) && $this->_config->get_boolean( 'browsercache.debug' ) );
 		$debug = $debug || ( $this->_config->get_boolean( 'minify.enabled' ) && $this->_config->get_boolean( 'minify.debug' ) );
 		$debug = $debug || ( $this->_config->get_boolean( 'cdn.enabled' ) && $this->_config->get_boolean( 'cdn.debug' ) );
@@ -677,7 +1102,144 @@ class Generic_Plugin {
 		return $debug;
 	}
 
+	/**
+	 * Output HTML in footer if dev mode enabled
+	 *
+	 * @return void
+	 */
 	public function pro_dev_mode() {
 		echo '<!-- W3 Total Cache is currently running in Pro version Development mode. --><div style="border:2px solid red;text-align:center;font-size:1.2em;color:red"><p><strong>W3 Total Cache is currently running in Pro version Development mode.</strong></p></div>';
+	}
+
+	/**
+	 * Reset the l10n global variables for our text domain.
+	 *
+	 * @return void
+	 *
+	 * @since 2.2.8
+	 */
+	public function reset_l10n() {
+		global $l10n;
+
+		unset( $l10n['w3-total-cache'] );
+	}
+
+	/**
+	 * Run post-update generic (non-admin) tasks.
+	 *
+	 * Post-update generic (non-admin) tasks are run only once per version.
+	 *
+	 * @since 2.8.6
+	 *
+	 * @return void
+	 */
+	public function post_update_tasks(): void {
+		// Check if W3TC was updated.
+		$state            = Dispatcher::config_state();
+		$last_run_version = $state->get_string( 'tasks.generic.last_run_version' );
+
+		if ( empty( $last_run_version ) || \version_compare( W3TC_VERSION, $last_run_version, '>' ) ) {
+			$ran_versions  = get_option( 'w3tc_post_update_generic_tasks_ran_versions', array() );
+			$has_completed = false;
+
+			// Check if W3TC was updated to 2.8.6 or higher.
+			if ( \version_compare( W3TC_VERSION, '2.8.6', '>=' ) && ! in_array( '2.8.6', $ran_versions, true ) ) {
+				// Disable Object Cache if using Disk, purge the cache files, and show a notice in wp-admin.  Only for main/blog ID 1.
+				if (
+					1 === get_current_blog_id() &&
+					$this->_config->get_boolean( 'objectcache.enabled' ) &&
+					'file' === $this->_config->get_string( 'objectcache.engine' )
+				) {
+					$this->_config->set( 'objectcache.enabled', false );
+					$this->_config->save();
+
+					// Purge the Object Cache files.
+					Util_File::rmdir( Util_Environment::cache_blog_dir( 'object' ) );
+
+					// Set the flag to show the notice.
+					$state->set( 'tasks.notices.disabled_objdisk', true );
+				}
+
+				// Mark the task as ran.
+				$ran_versions[] = '2.8.6';
+				$has_completed  = true;
+
+				// Delete cached notices.
+				delete_option( 'w3tc_cached_notices' );
+			}
+
+			// Mark completed tasks as ran.
+			if ( $has_completed ) {
+				update_option( 'w3tc_post_update_generic_tasks_ran_versions', $ran_versions, false );
+			}
+
+			// Mark the task runner as ran for the current version.
+			$state->set( 'tasks.generic.last_run_version', W3TC_VERSION );
+			$state->save();
+		}
+	}
+
+	/**
+	 * Registers Plugin Check filters so they run in all contexts.
+	 *
+	 * @since X.X.X
+	 *
+	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L160
+	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Utilities/Plugin_Request_Utility.php#L180
+	 * @link https://github.com/WordPress/plugin-check/blob/1.6.0/includes/Checker/Checks/Plugin_Repo/Plugin_Readme_Check.php#L928
+	 *
+	 * @return void
+	 */
+	private function register_plugin_check_filters(): void {
+		// Ignore vendor packages and external library directories when running the plugin check plugin.
+		add_filter(
+			'wp_plugin_check_ignore_directories',
+			static function ( array $dirs_to_ignore ) {
+				return array_merge(
+					$dirs_to_ignore,
+					array(
+						'.github',
+						'bin',
+						'extension-example',
+						'lib',
+						'node_modules',
+						'tests',
+						'qa',
+						'vendor',
+					)
+				);
+			}
+		);
+
+		// Ignore specific files when running the plugin check plugin.
+		add_filter(
+			'wp_plugin_check_ignore_files',
+			static function ( array $files_to_ignore ) {
+				return array_merge(
+					$files_to_ignore,
+					array(
+						'.editorconfig',
+						'.gitattributes',
+						'.gitignore',
+						'.jshintrc',
+						'.phpunit.result.cache',
+						'.travis.yml',
+					)
+				);
+			}
+		);
+
+		// Ignore specific warnings when running the plugin check plugin.
+		add_filter(
+			'wp_plugin_check_ignored_readme_warnings',
+			static function ( array $ignored ) {
+				return array_merge(
+					$ignored,
+					array(
+						'trimmed_section_changelog',
+					)
+				);
+			}
+		);
 	}
 }

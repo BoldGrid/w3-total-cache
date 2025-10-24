@@ -1,34 +1,56 @@
 <?php
+/**
+ * File: Enterprise_SnsServer.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
+ * Class Enterprise_SnsServer
+ *
  * Purge using AmazonSNS object
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class Enterprise_SnsServer extends Enterprise_SnsBase {
-
 	/**
-	 * Processes message from SNS
+	 * Processes incoming SNS messages and handles subscription confirmation or notification actions.
 	 *
-	 * @throws Exception
+	 * @param string $message The raw SNS message to be processed.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If an error occurs while processing the message.
 	 */
-	function process_message( $message ) {
+	public function process_message( $message ) {
 		$this->_log( 'Received message' );
 
 		try {
-			$message = new \Aws\Sns\Message( $message );
+			$message   = new \Aws\Sns\Message( $message );
 			$validator = new \Aws\Sns\MessageValidator();
-			$error = '';
+			$error     = '';
 			if ( $validator->isValid( $message ) ) {
 				$topic_arn = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
 
-				if ( empty( $topic_arn ) || $topic_arn != $message['TopicArn'] )
-					throw new \Exception( 'Not my Topic. Request came from ' .
-						$message['TopicArn'] );
+				if ( empty( $topic_arn ) || $topic_arn !== $message['TopicArn'] ) {
+					throw new \Exception(
+						\esc_html(
+							sprintf(
+								// Translators: 1 Error message.
+								\__( 'Not my Topic. Request came from %1$s.', 'w3-total-cache' ),
+								$message['TopicArn']
+							)
+						)
+					);
+				}
 
-				if ( $message['Type'] == 'SubscriptionConfirmation' )
+				if ( 'SubscriptionConfirmation' === $message['Type'] ) {
 					$this->_subscription_confirmation( $message );
-				elseif ( $message['Type'] == 'Notification' )
+				} elseif ( 'Notification' === $message['Type'] ) {
 					$this->_notification( $message['Message'] );
+				}
 			} else {
 				$this->_log( 'Error processing message it was not valid.' );
 			}
@@ -39,32 +61,38 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	}
 
 	/**
-	 * Confirms subscription
+	 * Handles subscription confirmation for SNS messages.
 	 *
-	 * @param Message $message
-	 * @throws Exception
+	 * @param array $message The SNS subscription confirmation message.
+	 *
+	 * @return void
 	 */
 	private function _subscription_confirmation( $message ) {
 		$this->_log( 'Issuing confirm_subscription' );
 		$topic_arn = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
 
-		$response = $this->_get_api()->confirmSubscription( array(
-			'Token' => $message['Token'],
-			'TopicArn' => $topic_arn
-		) );
-		$this->_log( 'Subscription confirmed: ' .
-			( $response['@metadata']['statusCode'] == 200 ? 'OK' : 'Error' ) );
+		$response = $this->_get_api()->confirmSubscription(
+			array(
+				'Token'    => $message['Token'],
+				'TopicArn' => $topic_arn,
+			)
+		);
+
+		$this->_log( 'Subscription confirmed: ' . ( 200 === $response['@metadata']['statusCode'] ? 'OK' : 'Error' ) );
 	}
 
 	/**
-	 * Processes notification
+	 * Handles SNS notification actions.
 	 *
-	 * @param array   $v
+	 * @param string $v The raw SNS notification message in JSON format.
+	 *
+	 * @return void
 	 */
 	private function _notification( $v ) {
 		$m = json_decode( $v, true );
-		if ( isset( $m['hostname'] ) )
+		if ( isset( $m['hostname'] ) ) {
 			$this->_log( 'Message originated from hostname: ' . $m['hostname'] );
+		}
 
 		define( 'DOING_SNS', true );
 		$this->_log( 'Actions executing' );
@@ -72,8 +100,9 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 
 		if ( isset( $m['actions'] ) ) {
 			$actions = $m['actions'];
-			foreach ( $actions as $action )
+			foreach ( $actions as $action ) {
 				$this->_execute( $action );
+			}
 		} else {
 			$this->_execute( $m['action'] );
 		}
@@ -83,58 +112,66 @@ class Enterprise_SnsServer extends Enterprise_SnsBase {
 	}
 
 	/**
-	 * Execute action
+	 * Executes the specified action based on the SNS message.
 	 *
-	 * @param unknown $m
-	 * @throws Exception
+	 * @param array $m The action details from the SNS message.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If an unknown action is encountered.
 	 */
 	private function _execute( $m ) {
 		$action = $m['action'];
 		$this->_log( 'Executing action ' . $action );
-		//Needed for cache flushing
+		// Needed for cache flushing.
 		$executor = new CacheFlush_Locally();
-		//Needed for cache cleanup
+		// Needed for cache cleanup.
 		$pgcache_admin = Dispatcher::component( 'PgCache_Plugin_Admin' );
 
-		//See which message we got
-		if ( $action == 'dbcache_flush' )
+		// See which message we got.
+		if ( 'dbcache_flush' === $action ) {
 			$executor->dbcache_flush();
-		elseif ( $action == 'objectcache_flush' )
+		} elseif ( 'objectcache_flush' === $action ) {
 			$executor->objectcache_flush();
-		elseif ( $action == 'fragmentcache_flush' )
+		} elseif ( 'fragmentcache_flush' === $action ) {
 			$executor->fragmentcache_flush();
-		elseif ( $action == 'fragmentcache_flush_group' )
+		} elseif ( 'fragmentcache_flush_group' === $action ) {
 			$executor->fragmentcache_flush_group( $m['group'] );
-		elseif ( $action == 'minifycache_flush' )
+		} elseif ( 'minifycache_flush' === $action ) {
 			$executor->minifycache_flush();
-		elseif ( $action == 'browsercache_flush' )
+		} elseif ( 'browsercache_flush' === $action ) {
 			$executor->browsercache_flush();
-		elseif ( $action == 'cdn_purge_all' )
-			$executor->cdn_purge_all(
-				isset( $m['extras'] ) ? $m['extras'] : null );
-		elseif ( $action == 'cdn_purge_files' )
+		} elseif ( 'cdn_purge_all' === $action ) {
+			$executor->cdn_purge_all( isset( $m['extras'] ) ? $m['extras'] : null );
+		} elseif ( 'cdn_purge_files' === $action ) {
 			$executor->cdn_purge_files( $m['purgefiles'] );
-		elseif ( $action == 'pgcache_cleanup' )
+		} elseif ( 'pgcache_cleanup' === $action ) {
 			$pgcache_admin->cleanup_local();
-		elseif ( $action == 'opcache_flush' )
+		} elseif ( 'opcache_flush' === $action ) {
 			$executor->opcache_flush();
-		elseif ( $action == 'flush_all' )
-			$executor->flush_all(
-				isset( $m['extras'] ) ? $m['extras'] : null );
-		elseif ( $action == 'flush_group' )
-			$executor->flush_group(
-				isset( $m['group'] ) ? $m['group'] : null,
-				isset( $m['extras'] ) ? $m['extras'] : null );
-		elseif ( $action == 'flush_post' )
+		} elseif ( 'flush_all' === $action ) {
+			$executor->flush_all( isset( $m['extras'] ) ? $m['extras'] : null );
+		} elseif ( 'flush_group' === $action ) {
+			$executor->flush_group( isset( $m['group'] ) ? $m['group'] : null, isset( $m['extras'] ) ? $m['extras'] : null );
+		} elseif ( 'flush_post' === $action ) {
 			$executor->flush_post( $m['post_id'] );
-		elseif ( $action == 'flush_posts' )
+		} elseif ( 'flush_posts' === $action ) {
 			$executor->flush_posts();
-		elseif ( $action == 'flush_url' )
+		} elseif ( 'flush_url' === $action ) {
 			$executor->flush_url( $m['url'] );
-		elseif ( $action == 'prime_post' )
+		} elseif ( 'prime_post' === $action ) {
 			$executor->prime_post( $m['post_id'] );
-		else
-			throw new \Exception( 'Unknown action ' . $action );
+		} else {
+			throw new \Exception(
+				\esc_html(
+					sprintf(
+						// Translators: 1 Unknown action name.
+						\__( 'Unknown action %1$s.', 'w3-total-cache' ),
+						$action
+					)
+				)
+			);
+		}
 
 		$executor->execute_delayed_operations();
 

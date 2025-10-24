@@ -1,6 +1,5 @@
 jQuery(function($) {
 	function w3tc_popup_resize(o) {
-		o.options.height = jQuery('.w3tc_popup_form').height() + 30;
 		o.resize();
 	}
 
@@ -89,7 +88,7 @@ jQuery(function($) {
 
 
 
-	    .on('click', '.w3tc_cdn_maxcdn_fsd_done', function() {
+	    .on('click', '.w3tc_cdn_cloudfront_fsd_done', function() {
 			// refresh page
 	    	window.location = window.location + '&';
 	    })

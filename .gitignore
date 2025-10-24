@@ -1,6 +1,6 @@
-nbproject
-error_log
-.DS_Store
+.vscode/
+node_modules/
+vendor/
 /qa/env/000-environment
 /qa/env/200-ami-build
 /qa/env/amis/*
@@ -9,4 +9,9 @@ error_log
 /qa/env/lib/*.pyc
 /qa/env/working/*
 /qa/node_modules/*
-node_modules
+.DS_Store
+.phpunit.*
+codecov
+coverage.xml
+error_log
+nbproject

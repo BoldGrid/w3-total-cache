@@ -19,23 +19,27 @@ class Extensions_Plugin_Admin {
 	private $_config = null; // phpcs:ignore
 
 	/**
-	 * Constructor.
+	 * Constructor for initializing the configuration.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Runs plugin.
+	 * Runs the plugin, setting up various hooks and filters for extensions.
+	 *
+	 * @return void
 	 */
 	public function run() {
 		// Attach w3tc-bundled extensions.
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_CloudFlare_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
-		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_FeedBurner_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_FragmentCache_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions_hooks' ) );
 		add_filter( 'w3tc_notes_genesis_theme', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_notes_genesis_theme' ) );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_AlwaysCached_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_NewRelic_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Swarmify_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_WordPressSeo_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
@@ -65,15 +69,45 @@ class Extensions_Plugin_Admin {
 		}
 	}
 
+
 	/**
-	 * Adds menu.
+	 * Modifies the admin menu based on the active extension.
 	 *
-	 * @param array $menu Menu.
-	 * @return array
+	 * @param array $menu Existing menu array to be modified.
+	 *
+	 * @return array Modified menu array.
 	 */
 	public function w3tc_admin_menu( $menu ) {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return $menu;
+		}
+
+		$extension_val = Util_Request::get_string( 'extension' );
+		$extension     = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
+		$page_title    = '';
+
+		switch ( $extension ) {
+			case 'alwayscached':
+				$page_title = __( 'Always Cached Extension Settings', 'w3-total-cache' );
+				break;
+			case 'amp':
+				$page_title = __( 'AMP Extension Settings', 'w3-total-cache' );
+				break;
+			case 'cloudflare':
+				$page_title = __( 'Cloudflare Extension Settings', 'w3-total-cache' );
+				break;
+			case 'swarmify':
+				$page_title = __( 'Swarmify Extension Settings', 'w3-total-cache' );
+				break;
+			case 'genesis.theme':
+				$page_title = __( 'Genesis Extension Settings', 'w3-total-cache' );
+				break;
+			default:
+				$page_title = __( 'Extensions', 'w3-total-cache' );
+		}
+
 		$menu['w3tc_extensions'] = array(
-			'page_title'     => __( 'Extensions', 'w3-total-cache' ),
+			'page_title'     => $page_title,
 			'menu_text'      => __( 'Extensions', 'w3-total-cache' ),
 			'visible_always' => false,
 			'order'          => 1900,
@@ -83,7 +117,9 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Loads options page and corresponding view.
+	 * Renders the settings page for extensions.
+	 *
+	 * @return void
 	 */
 	public function w3tc_settings_page_w3tc_extensions() {
 		$o = new Extensions_Page();
@@ -91,10 +127,11 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Delete hooks option before updating active plugins option.
+	 * Pre-processes the update of the active plugins option.
 	 *
-	 * @param mixed $o Option value.
-	 * @return mixed
+	 * @param mixed $o Option value to be updated.
+	 *
+	 * @return mixed Modified option value.
 	 */
 	public function pre_update_option_active_plugins( $o ) {
 		delete_option( 'w3tc_extensions_hooks' );
@@ -103,9 +140,15 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Admin init.
+	 * Initializes settings for the admin interface (administrators only).
+	 *
+	 * @return void
 	 */
 	public function admin_init() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		// Used to load even inactive extensions if they want to.
 		$s     = get_option( 'w3tc_extensions_hooks' );
 		$hooks = @json_decode( $s, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
@@ -128,7 +171,7 @@ class Extensions_Plugin_Admin {
 				if ( is_array( $actions_to_call ) ) {
 					add_action(
 						$hook,
-						function() use ( $actions_to_call ) {
+						function () use ( $actions_to_call ) {
 							foreach ( $actions_to_call as $action ) {
 								do_action( $action );
 							}
@@ -143,7 +186,7 @@ class Extensions_Plugin_Admin {
 				if ( is_array( $filters_to_call ) ) {
 					add_filter(
 						$hook,
-						function( $v ) use ( $filters_to_call ) {
+						function ( $v ) use ( $filters_to_call ) {
 							foreach ( $filters_to_call as $filter ) {
 								$v = apply_filters( $filter, $v );
 							}
@@ -157,9 +200,15 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Alters the active state of multiple extensions.
+	 * Changes the status of selected extensions (activate/deactivate and administrators only).
+	 *
+	 * @return void
 	 */
 	public function change_extensions_status() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$message    = '';
 		$extensions = Util_Request::get_array( 'checked' );
 		$action     = Util_Request::get( 'action' );
@@ -191,9 +240,15 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Alters the active state of an extension.
+	 * Changes the status of a specific extension (activate/deactivate and administrators only).
+	 *
+	 * @return void
 	 */
 	public function change_extension_status() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$action = Util_Request::get_string( 'action' );
 
 		if ( in_array( $action, array( 'activate', 'deactivate' ), true ) ) {
@@ -212,13 +267,17 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Display admin notices.
-	 *
-	 * @since 2.2.0
+	 * Displays admin notices related to active extensions (administrators only).
 	 *
 	 * @see Extensions_Util::get_active_extensions()
+	 *
+	 * @return void
 	 */
 	public function admin_notices() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
 
 		foreach ( $extensions_active as $id => $info ) {
@@ -232,7 +291,7 @@ class Extensions_Plugin_Admin {
 
 			if ( isset( $info['notice'] ) && get_transient( $transient_name ) ) {
 				?>
-				<div class="notice notice-warning is-dismissible">
+				<div class="notice notice-warning inline is-dismissible">
 					<p>
 				<?php
 				echo wp_kses(

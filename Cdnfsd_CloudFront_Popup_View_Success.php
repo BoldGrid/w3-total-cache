@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdnfsd_CloudFront_Popup_View_Success.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -17,7 +23,7 @@ if ( ! defined( 'W3TC' ) ) {
 
 		<p class="submit">
 			<input type="button"
-				class="w3tc_cdn_maxcdn_fsd_done w3tc-button-save button-primary"
+				class="w3tc_cdn_cloudfront_fsd_done w3tc-button-save button-primary"
 				value="<?php esc_attr_e( 'Done', 'w3-total-cache' ); ?>" />
 		</p>
 		<?php Util_Ui::postbox_footer(); ?>

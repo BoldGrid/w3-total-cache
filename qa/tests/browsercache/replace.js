@@ -95,9 +95,11 @@ describe('', function() {
 	it('flush', async() => {
 		await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_dashboard',
 			{waitUntil: 'domcontentloaded'});
+
+		let flushBrowserCache = '#wp-admin-bar-w3tc_flush_browsercache a';
 		await Promise.all([
-			adminPage.click('input[name=w3tc_flush_browser_cache]'),
-			adminPage.waitForNavigation({timeout:0}),
+			adminPage.evaluate((flushBrowserCache) => document.querySelector(flushBrowserCache).click(), flushBrowserCache),
+			adminPage.waitForNavigation({timeout: 300000}),
 		]);
 	});
 

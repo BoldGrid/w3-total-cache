@@ -1,27 +1,43 @@
 <?php
+/**
+ * File: Root_AdminActions.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
- * W3 Total Cache plugin
- */
-
-/**
  * Class Root_AdminActivation
+ *
+ * W3 Total Cache plugin
+ *
+ * phpcs:disable Generic.CodeAnalysis.EmptyStatement
  */
 class Root_AdminActivation {
 	/**
-	 * Activate plugin action
+	 * Activates the plugin and performs necessary configuration tasks.
 	 *
-	 * @param bool $network_wide
+	 * @param bool $network_wide Whether the plugin is being activated network-wide in a multisite environment.
+	 *
 	 * @return void
+	 *
+	 * @throws \Exception If an error occurs during activation.
 	 */
 	public static function activate( $network_wide ) {
 		// Decline non-network activation at WPMU.
 		if ( Util_Environment::is_wpmu() ) {
 			if ( $network_wide ) {
 				// We are in network activation.
-			} else if ( Util_Request::get_string( 'action' ) == 'error_scrape' &&
-					strpos( isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', '/network/' ) !== false ) {
+			} elseif (
+				'error_scrape' === Util_Request::get_string( 'action' ) &&
+				false !== strpos(
+					isset( $_SERVER['REQUEST_URI'] ) ?
+						sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) :
+						'',
+					'/network/'
+				)
+			) {
 				// Workaround for error_scrape page called after error really we are in network activation and going to throw some error.
 			} else {
 				echo wp_kses(
@@ -45,38 +61,90 @@ class Root_AdminActivation {
 			}
 		}
 
+		$e      = Dispatcher::component( 'Root_Environment' );
+		$config = Dispatcher::config();
+		$debug  = \defined( 'WP_DEBUG' ) && WP_DEBUG && ! \defined( 'W3D_TESTING' );
+
 		try {
-			$e      = Dispatcher::component( 'Root_Environment' );
-			$config = Dispatcher::config();
 			$e->fix_in_wpadmin( $config, true );
-			$e->fix_on_event( $config, 'activate' );
+		} catch ( Util_Environment_Exceptions $exs ) {
+			$r = Util_Activation::parse_environment_exceptions( $exs );
 
-			// try to save config file if needed, optional thing so exceptions hidden.
-			if ( ! ConfigUtil::is_item_exists( 0, false ) ) {
-				try {
-					// create folders.
-					$e->fix_in_wpadmin( $config );
-				} catch ( \Exception $ex ) {
-					// missing exception handle?
-				}
-
-				try {
-					Util_Admin::config_save( Dispatcher::config(), $config );
-				} catch ( \Exception $ex ) {
-					// missing exception handle?
+			if ( \strlen( $r['required_changes'] ) > 0 ) {
+				// Log the error for debugging purposes.
+				if ( $debug ) {
+					\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				}
 			}
-		} catch ( Util_Environment_Exceptions $e ) {
-			// missing exception handle?
 		} catch ( \Exception $e ) {
+			// Log the exception for debugging purposes.
+			if ( $debug ) {
+				\error_log( 'W3 Total Cache exception: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+
+			// Handle the exception gracefully.
 			Util_Activation::error_on_exception( $e );
+		}
+
+		try {
+			$e->fix_on_event( $config, 'activate' );
+		} catch ( Util_Environment_Exceptions $exs ) {
+			$r = Util_Activation::parse_environment_exceptions( $exs );
+
+			if ( \strlen( $r['required_changes'] ) > 0 ) {
+				// Log the error for debugging purposes.
+				if ( $debug ) {
+					\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+			}
+		} catch ( \Exception $e ) {
+			// Log the exception for debugging purposes.
+			if ( $debug ) {
+				\error_log( 'W3 Total Cache exception: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+
+			// Handle the exception gracefully.
+			Util_Activation::error_on_exception( $e );
+		}
+
+		// try to save config file if needed, optional thing so exceptions hidden.
+		if ( ! ConfigUtil::is_item_exists( 0, false ) ) {
+			try {
+				// create folders.
+				$e->fix_in_wpadmin( $config );
+			} catch ( Util_Environment_Exceptions $exs ) {
+				$r = Util_Activation::parse_environment_exceptions( $exs );
+
+				if ( \strlen( $r['required_changes'] ) > 0 ) {
+					// Log the error for debugging purposes.
+					if ( $debug ) {
+						\error_log( 'W3 Total Cache environment exception: ' . $r['required_changes'] ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					}
+				}
+			}
+
+			try {
+				Util_Admin::config_save( Dispatcher::config(), $config );
+			} catch ( \Exception $ex ) {
+				// Log the exception for debugging purposes.
+				if ( $debug ) {
+					\error_log( 'W3 Total Cache exception: ' . $ex->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+			}
+		}
+
+		// Set the installation date if it is not already set.
+		if ( ! get_option( 'w3tc_install_date' ) ) {
+			update_option( 'w3tc_install_date', current_time( 'mysql' ) );
 		}
 	}
 
 	/**
-	 * Deactivate plugin action
+	 * Deactivates the plugin and cleans up necessary tasks.
 	 *
 	 * @return void
+	 *
+	 * @throws \Exception If an error occurs during deactivation.
 	 */
 	public static function deactivate() {
 		try {
@@ -135,6 +203,13 @@ class Root_AdminActivation {
 
 		// Delete cron events.
 		require_once __DIR__ . '/Extension_ImageService_Cron.php';
+
 		Extension_ImageService_Cron::delete_cron();
+
+		// Check if data cleanup is required.
+		if ( get_option( 'w3tc_remove_data' ) ) {
+			$config = Dispatcher::config();
+			Root_Environment::delete_plugin_data( $config );
+		}
 	}
 }

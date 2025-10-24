@@ -1,7 +1,23 @@
 <?php
+/**
+ * File: Extension_NewRelic_Popup.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Extension_NewRelic_Popup
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
+ */
 class Extension_NewRelic_Popup {
+	/**
+	 * Registers AJAX actions for New Relic integration.
+	 *
+	 * @return void
+	 */
 	public static function w3tc_ajax() {
 		$o = new Extension_NewRelic_Popup();
 
@@ -10,6 +26,11 @@ class Extension_NewRelic_Popup {
 		add_action( 'w3tc_ajax_newrelic_apply_configuration', array( $o, 'w3tc_ajax_newrelic_apply_configuration' ) );
 	}
 
+	/**
+	 * AJAX handler for the intro view for New Relic popup.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_newrelic_popup() {
 		$c = Dispatcher::config();
 
@@ -20,10 +41,24 @@ class Extension_NewRelic_Popup {
 		);
 	}
 
+	/**
+	 * Renders the intro view for New Relic popup.
+	 *
+	 * @param array $details New Relic details array.
+	 *
+	 * @return void
+	 */
 	private function render_intro( $details ) {
 		include W3TC_DIR . '/Extension_NewRelic_Popup_View_Intro.php';
 	}
 
+	/**
+	 * Renders the list of New Relic applications based on the provided API key.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If there is an issue with the New Relic API request.
+	 */
 	public function w3tc_ajax_newrelic_list_applications() {
 		$api_key = Util_Request::get_string( 'api_key' );
 		$c       = Dispatcher::config();
@@ -58,13 +93,18 @@ class Extension_NewRelic_Popup {
 		include W3TC_DIR . '/Extension_NewRelic_Popup_View_ListApplications.php';
 	}
 
+	/**
+	 * Applies New Relic configuration settings from the request and updates the configuration.
+	 *
+	 * @return void
+	 */
 	public function w3tc_ajax_newrelic_apply_configuration() {
 		$api_key                = Util_Request::get_string( 'api_key' );
 		$monitoring_type        = Util_Request::get_string( 'monitoring_type', 'apm' );
 		$apm_application_name   = Util_Request::get_string( 'apm_application_name' );
 		$browser_application_id = Util_Request::get_string( 'browser_application_id' );
 		$c                      = Dispatcher::config();
-		
+
 		$c->set( array( 'newrelic', 'api_key' ), $api_key );
 
 		if ( 'apm' === $monitoring_type ) {

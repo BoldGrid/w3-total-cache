@@ -96,9 +96,9 @@ class Cache_Redis extends Cache_Base {
 		$this->_verify_tls_certificates = ( isset( $config['verify_tls_certificates'] ) && $config['verify_tls_certificates'] );
 		$this->_password                = $config['password'];
 		$this->_dbid                    = $config['dbid'];
-		$this->_timeout                 = $config['timeout'];
-		$this->_retry_interval          = $config['retry_interval'];
-		$this->_read_timeout            = $config['read_timeout'];
+		$this->_timeout                 = $config['timeout'] ?? 3600000;
+		$this->_retry_interval          = $config['retry_interval'] ?? 3600000;
+		$this->_read_timeout            = $config['read_timeout'] ?? 60.0;
 
 		/**
 		 * When disabled - no extra requests are made to obtain key version,
@@ -113,13 +113,13 @@ class Cache_Redis extends Cache_Base {
 	 * Adds data.
 	 *
 	 * @param string  $key    Key.
-	 * @param mixed   $var    Var.
+	 * @param mixed   $value  Var.
 	 * @param integer $expire Expire.
 	 * @param string  $group  Used to differentiate between groups of cache values.
 	 * @return bool
 	 */
-	public function add( $key, &$var, $expire = 0, $group = '' ) {
-		return $this->set( $key, $var, $expire, $group );
+	public function add( $key, &$value, $expire = 0, $group = '' ) {
+		return $this->set( $key, $value, $expire, $group );
 	}
 
 	/**
@@ -132,7 +132,9 @@ class Cache_Redis extends Cache_Base {
 	 * @return bool
 	 */
 	public function set( $key, $value, $expire = 0, $group = '' ) {
-		$value['key_version'] = $this->_get_key_version( $group );
+		if ( ! isset( $value['key_version'] ) ) {
+			$value['key_version'] = $this->_get_key_version( $group );
+		}
 
 		$storage_key = $this->get_item_key( $key );
 		$accessor    = $this->_get_accessor( $storage_key );
@@ -178,7 +180,9 @@ class Cache_Redis extends Cache_Base {
 		}
 
 		if ( $v['key_version'] > $key_version ) {
-			$this->_set_key_version( $v['key_version'], $group );
+			if ( ! empty( $v['key_version_at_creation'] ) && $v['key_version_at_creation'] !== $key_version ) {
+				$this->_set_key_version( $v['key_version'], $group );
+			}
 			return array( $v, $has_old_data );
 		}
 
@@ -271,11 +275,42 @@ class Cache_Redis extends Cache_Base {
 	public function flush( $group = '' ) {
 		$this->_get_key_version( $group );   // Initialize $this->_key_version.
 		if ( isset( $this->_key_version[ $group ] ) ) {
-			$this->_key_version[ $group ]++;
+			++$this->_key_version[ $group ];
 			$this->_set_key_version( $this->_key_version[ $group ], $group );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Gets a key extension for "ahead generation" mode.
+	 * Used by AlwaysCached functionality to regenerate content
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
+	 * @return array
+	 */
+	public function get_ahead_generation_extension( $group ) {
+		$v = $this->_get_key_version( $group );
+		return array(
+			'key_version'             => $v + 1,
+			'key_version_at_creation' => $v,
+		);
+	}
+
+	/**
+	 * Flushes group with before condition
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param array  $extension Used to set a condition what version to flush.
+	 *
+	 * @return void
+	 */
+	public function flush_group_after_ahead_generation( $group, $extension ) {
+		$v = $this->_get_key_version( $group );
+		if ( $extension['key_version'] > $v ) {
+			$this->_set_key_version( $extension['key_version'], $group );
+		}
 	}
 
 	/**
@@ -406,7 +441,7 @@ class Cache_Redis extends Cache_Base {
 			return false;
 		}
 
-		$r = $accessor->incrBy( $storage_key, $value );
+		$r = $accessor->incrBy( $storage_key, (int) $value );
 
 		if ( ! $r ) { // It doesn't initialize counter by itself.
 			$this->counter_set( $key, 0 );
@@ -451,6 +486,49 @@ class Cache_Redis extends Cache_Base {
 	}
 
 	/**
+	 * Build Redis connection arguments based on server URI
+	 *
+	 * @param string $server Server URI to connect to.
+	 */
+	private function build_connect_args( $server ) {
+		$connect_args = array();
+
+		if ( substr( $server, 0, 5 ) === 'unix:' ) {
+			$connect_args[] = trim( substr( $server, 5 ) );
+			$connect_args[] = 0; // Port (int).  For no port, use integer 0.
+		} else {
+			list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, 0 ); // Port (int).  For no port, use integer 0.
+			$connect_args[]    = $ip;
+			$connect_args[]    = $port;
+		}
+
+		$connect_args[] = $this->_timeout;
+		$connect_args[] = $this->_persistent ? $this->_instance_id . '_' . $this->_dbid : null;
+		$connect_args[] = $this->_retry_interval;
+
+		$phpredis_version = phpversion( 'redis' );
+
+		// The read_timeout parameter was added in phpredis 3.1.3.
+		if ( version_compare( $phpredis_version, '3.1.3', '>=' ) ) {
+			$connect_args[] = $this->_read_timeout;
+		}
+
+		// Support for stream context was added in phpredis 5.3.2.
+		if ( version_compare( $phpredis_version, '5.3.2', '>=' ) ) {
+			$context = array();
+			if ( 'tls:' === substr( $server, 0, 4 ) && ! $this->_verify_tls_certificates ) {
+				$context['stream'] = array(
+					'verify_peer'      => false,
+					'verify_peer_name' => false,
+				);
+			}
+			$connect_args[] = $context;
+		}
+
+		return $connect_args;
+	}
+
+	/**
 	 * Get accessor.
 	 *
 	 * @param string $key Key.
@@ -471,52 +549,15 @@ class Cache_Redis extends Cache_Base {
 			$this->_accessors[ $index ] = null;
 		} else {
 			try {
-				$server   = $this->_servers[ $index ];
+				$server       = $this->_servers[ $index ];
+				$connect_args = $this->build_connect_args( $server );
+
 				$accessor = new \Redis();
 
-				if ( substr( $server, 0, 5 ) === 'unix:' ) {
-					if ( $this->_persistent ) {
-						$accessor->pconnect(
-							trim( substr( $server, 5 ) ),
-							null,
-							$this->_timeout,
-							$this->_instance_id . '_' . $this->_dbid,
-							$this->_retry_interval,
-							$this->_read_timeout
-						);
-					} else {
-						$accessor->connect(
-							trim( substr( $server, 5 ) ),
-							$this->_timeout,
-							null,
-							$this->_retry_interval,
-							$this->_read_timeout
-						);
-					}
+				if ( $this->_persistent ) {
+					$accessor->pconnect( ...$connect_args );
 				} else {
-					list( $ip, $port ) = Util_Content::endpoint_to_host_port( $server, null );
-
-					if ( $this->_persistent ) {
-						$accessor->pconnect(
-							$ip,
-							$port,
-							$this->_timeout,
-							$this->_instance_id . '_' . $this->_dbid,
-							$this->_retry_interval,
-							$this->_read_timeout
-						);
-					} else {
-						$accessor->connect(
-							$ip,
-							$port,
-							$this->_timeout,
-							null,
-							$this->_retry_interval,
-							$this->_read_timeout
-						);
-					}
-
-					restore_error_handler();
+					$accessor->connect( ...$connect_args );
 				}
 
 				if ( ! empty( $this->_password ) ) {
@@ -525,7 +566,7 @@ class Cache_Redis extends Cache_Base {
 
 				$accessor->select( $this->_dbid );
 			} catch ( \Exception $e ) {
-				error_log( $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( __METHOD__ . ': ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				$accessor = null;
 			}
 

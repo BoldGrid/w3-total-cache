@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: UsageStatistics_Page_View_Free.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -12,7 +18,6 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 	<div class="ustats_ad">
 		<?php require __DIR__ . '/UsageStatistics_Page_View_Ad.php'; ?>
-
 		<input type="button" class="button-primary button-buy-plugin"
 			data-src="page_stats_bottom"
 			value="<?php esc_attr_e( 'upgrade', 'w3-total-cache' ); ?>" />

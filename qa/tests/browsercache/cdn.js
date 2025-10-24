@@ -41,9 +41,11 @@ describe('', function() {
 		// set CNAME
 		await adminPage.$eval('#cdn_cnames_0',
 			(e) => e.value = 'ftp.netdna.com');
+
+		let saveSelector = 'input[name="w3tc_save_options"]';
 		await Promise.all([
-			adminPage.click('input[name=w3tc_save_options]'),
-			adminPage.waitForNavigation({timeout:0}),
+			adminPage.evaluate((saveSelector) => document.querySelector(saveSelector).click(), saveSelector),
+			adminPage.waitForNavigation({timeout: 300000}),
 		]);
 
 		await sys.afterRulesChange();

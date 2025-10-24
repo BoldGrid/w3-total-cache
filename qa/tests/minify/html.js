@@ -65,7 +65,7 @@ describe('minify html', function() {
 	it('load test page', async() => {
 		log.log('opening ' + testPageUrl);
 		await page.goto(testPageUrl, {
-			timeout: 0,
+			timeout: 300000,
 			waitUntil: 'domcontentloaded'
 		});
 
@@ -134,7 +134,8 @@ describe('minify html', function() {
 
 		let e6img = await page.$eval('#void6image', (e) => e.alt);
 		expect(e6img).equals('b/');
-		expect(testPageHtml).contains('id=void-elements6>\n<img\nid=void6image src=a/ alt=b/ >');
+
+		expect(testPageHtml).match(/id=void-elements6>\n<img\n(decoding=async )?id=void6image src=a\/ alt=b\/ >/);
 
 		let e7img = await page.$eval('#void7image', (e) => e.alt);
 		expect(e7img).equals('svg-test');

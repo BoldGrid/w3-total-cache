@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Cdn_RackSpaceCloudFiles_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -157,7 +163,7 @@ if ( ! defined( 'W3TC' ) ) {
 <tr>
 	<th colspan="2">
 		<input id="cdn_test"
-			class="button {type: 'highwinds', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
+			class="button {type: 'rscf', nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}"
 			type="button"
 			value="<?php esc_attr_e( 'Test', 'w3-total-cache' ); ?>" />
 		<span id="cdn_test_status" class="w3tc-status w3tc-process"></span>

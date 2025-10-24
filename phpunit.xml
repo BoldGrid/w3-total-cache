@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="tests/bootstrap.php" backupGlobals="false" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <testsuites>
+    <testsuite name="tests">
+      <directory suffix=".php">./tests/</directory>
+    </testsuite>
+  </testsuites>
+  <logging>
+    <log type="coverage-clover" target="coverage.xml"/>
+  </logging>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">./</directory>
+      <exclude>
+        <directory>node_modules</directory>
+        <directory>qa</directory>
+        <directory>vendor</directory>
+      </exclude>
+    </whitelist>
+  </filter>
+  <groups>
+    <exclude>
+      <group>ajax</group>
+    </exclude>
+  </groups>
+  <php>
+    <ini name="display_errors" value="true"/>
+  </php>
+</phpunit>

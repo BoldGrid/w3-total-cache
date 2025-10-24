@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: Extension_CloudFlare_Popup_View_Zones.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -8,10 +14,10 @@ if ( ! defined( 'W3TC' ) ) {
 <form action="admin.php?page=w3tc_cdn" method="post" style="padding: 20px"
 	class="w3tc_extension_cloudflare_form">
 	<?php
-	Util_Ui::hidden( '', 'w3tc_action', 'extension_cloudflare_zones_done' );
-	Util_Ui::hidden( '', 'email', $details['email'] );
-	Util_Ui::hidden( '', 'key', $details['key'] );
-	Util_Ui::hidden( '', 'page', '' );
+	Util_Ui::hidden( 'w3tc-rackspace-action', 'w3tc_action', 'extension_cloudflare_zones_done' );
+	Util_Ui::hidden( 'w3tc-rackspace-email', 'email', $details['email'] );
+	Util_Ui::hidden( 'w3tc-rackspace-key', 'key', $details['key'] );
+	Util_Ui::hidden( 'w3tc-rackspace-page', 'page', '' );
 	echo wp_kses(
 		Util_Ui::nonce_field( 'w3tc' ),
 		array(
@@ -48,11 +54,11 @@ if ( ! defined( 'W3TC' ) ) {
 				<td>
 					<?php
 					if ( $details['total_pages'] > 1 ) :
-						for ( $page = 1; $page <= $details['total_pages']; $page++ ) :
-							if ( $page === $details['page'] ) :
-								echo esc_html( $page );
+						for ( $curren_page = 1; $curren_page <= $details['total_pages']; $curren_page++ ) :
+							if ( $curren_page === $details['page'] ) :
+								echo esc_html( $curren_page );
 							else :
-								echo '<a href="#" class="w3tc_cloudflare_zone_page" data-page="' . esc_attr( $page ) . '">' . esc_html( $page ) . '</a>';
+								echo '<a href="#" class="w3tc_cloudflare_zone_page" data-page="' . esc_attr( $curren_page ) . '">' . esc_html( $curren_page ) . '</a>';
 							endif;
 							echo '&nbsp;';
 						endfor;

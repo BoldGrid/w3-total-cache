@@ -73,9 +73,10 @@ describe('', function() {
 		await page.$eval('#user_login', (e, v) => { e.value = v }, 'testuser');
 		await page.$eval('#user_pass', (e, v) => { e.value = v }, testUserPassword);
 
+		let wpSubmitButton = '#wp-submit';
 		await Promise.all([
-			page.click('#wp-submit'),
-			page.waitForNavigation({timeout:0}),
+			page.evaluate((wpSubmitButton) => document.querySelector(wpSubmitButton).click(), wpSubmitButton),
+			page.waitForNavigation({timeout: 300000}),
 		]);
 
 		expect(await page.title()).contains('Profile');

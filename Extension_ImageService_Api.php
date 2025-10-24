@@ -16,16 +16,6 @@ namespace W3TC;
  */
 class Extension_ImageService_Api {
 	/**
-	 * API Base URL.
-	 *
-	 * @since 2.2.0
-	 * @access private
-	 *
-	 * @var string
-	 */
-	private $base_url = 'https://api2.w3-edge.com';
-
-	/**
 	 * W3TC Pro license key.
 	 *
 	 * @since 2.2.0
@@ -104,6 +94,8 @@ class Extension_ImageService_Api {
 	 *
 	 * @since 2.2.0
 	 *
+	 * @see self::set_transient_data()
+	 *
 	 * @param string $filepath Image file path.
 	 * @param array  $options  Optional array of options.  Overrides settings.
 	 * @return array
@@ -135,6 +127,10 @@ class Extension_ImageService_Api {
 			'optimize'    => $options['optimize'],
 		);
 
+		if ( Util_Environment::is_pro_constant( $config ) ) {
+			$post_fields['pro_c'] = 1;
+		}
+
 		foreach ( $post_fields as $k => $v ) {
 			$body .= '--' . $boundary . "\r\n";
 			$body .= 'Content-Disposition: form-data; name="' . $k . '"' . "\r\n\r\n";
@@ -147,7 +143,7 @@ class Extension_ImageService_Api {
 
 		// Send request.
 		$response = wp_remote_request(
-			$this->get_base_url() . $this->endpoints['convert']['uri'],
+			Util_Environment::get_api_base_url() . $this->endpoints['convert']['uri'],
 			array(
 				'method'    => $this->endpoints['convert']['method'],
 				'sslverify' => false,
@@ -172,17 +168,11 @@ class Extension_ImageService_Api {
 
 		// Update usage.
 		if ( isset( $response_body['usage_hourly'] ) ) {
-			set_transient(
-				'w3tc_imageservice_usage',
-				array(
-					'updated_at'    => time(),
-					'usage_hourly'  => $response_body['usage_hourly'],
-					'usage_monthly' => isset( $response_body['usage_monthly'] ) ? $response_body['usage_monthly'] : null,
-					'limit_hourly'  => isset( $response_body['limit_hourly'] ) ? $response_body['limit_hourly'] : null,
-					'limit_monthly' => isset( $response_body['limit_monthly'] ) ? $response_body['limit_monthly'] : null,
-				),
-				DAY_IN_SECONDS
-			);
+			// Ensure that the monthly limit is represented correctly.
+			$response_body['limit_monthly'] = $response_body['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
+
+			// Update usage transient data.
+			$this->set_transient_data( $response_body );
 		}
 
 		// Handle non-200 response codes.
@@ -207,7 +197,7 @@ class Extension_ImageService_Api {
 							'</a>'
 						)
 				);
-				set_transient( 'w3tc_imageservice_limited', $result, 5 * MINUTE_IN_SECONDS );
+				set_transient( 'w3tc_imageservice_limited', $result, 30 * MINUTE_IN_SECONDS );
 			} elseif ( isset( $response_body['error']['id'] ) && 'exceeded-monthly' === $response_body['error']['id'] ) {
 				$result['message'] = sprintf(
 					// translators: 1: Monthly request limit, 2: HTML anchor open tag, 3: HTML anchor close tag.
@@ -254,7 +244,7 @@ class Extension_ImageService_Api {
 	 */
 	public function get_status( $job_id, $signature ) {
 		$response = wp_remote_request(
-			$this->get_base_url() . $this->endpoints['status']['uri'] . '/' . $job_id . '/' . $signature,
+			Util_Environment::get_api_base_url() . $this->endpoints['status']['uri'] . '/' . $job_id . '/' . $signature,
 			array(
 				'method'    => $this->endpoints['status']['method'],
 				'sslverify' => false,
@@ -295,7 +285,7 @@ class Extension_ImageService_Api {
 	 */
 	public function download( $job_id, $signature ) {
 		$response = wp_remote_request(
-			$this->get_base_url() . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature,
+			Util_Environment::get_api_base_url() . $this->endpoints['download']['uri'] . '/' . $job_id . '/' . $signature,
 			array(
 				'method'    => $this->endpoints['download']['method'],
 				'sslverify' => false,
@@ -330,20 +320,33 @@ class Extension_ImageService_Api {
 	 *
 	 * @since 2.2.0
 	 *
+	 * @see self::set_transient_data()
+	 *
+	 * @param bool $refresh Refresh the transient data.
 	 * @return array
 	 */
-	public function get_usage() {
+	public function get_usage( bool $refresh = false ): array {
+		$transient_data = get_transient( 'w3tc_imageservice_usage' );
+
+		if ( ! empty( $transient_data ) && isset( $transient_data['usage_hourly'] ) && ! $refresh ) {
+			return $transient_data;
+		}
+
 		$error_message  = __( 'Unknown', 'w3-total-cache' );
 		$error_response = array(
-			'usage_hourly'  => $error_message,
-			'usage_monthly' => $error_message,
-			'limit_hourly'  => $error_message,
-			'limit_monthly' => $error_message,
+			'usage_hourly'             => $error_message,
+			'usage_monthly'            => $error_message,
+			'limit_hourly'             => $error_message,
+			'limit_monthly'            => $error_message,
+			'limit_hourly_unlicensed'  => $error_message,
+			'limit_monthly_unlicensed' => $error_message,
+			'limit_hourly_licensed'    => $error_message,
+			'limit_monthly_licensed'   => $error_message,
 		);
 
 		$response = wp_remote_request(
 			esc_url(
-				$this->get_base_url() . $this->endpoints['usage']['uri'] .
+				Util_Environment::get_api_base_url() . $this->endpoints['usage']['uri'] .
 					'/' . rawurlencode( $this->license_key ) .
 					'/' . urlencode( $this->item_name ) . // phpcs:ignore
 					'/' . rawurlencode( $this->home_url )
@@ -363,42 +366,48 @@ class Extension_ImageService_Api {
 		}
 
 		// Convert response body to an array.
-		$response = json_decode( wp_remote_retrieve_body( $response ), true );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// If usage is not obtained, then return error response.
-		if ( ! isset( $response['usage_hourly'] ) ) {
+		if ( ! isset( $response_body['usage_hourly'] ) ) {
 			return $error_response;
 		} else {
-			// Update usage.
-			set_transient(
-				'w3tc_imageservice_usage',
-				array(
-					'updated_at'    => time(),
-					'usage_hourly'  => $response['usage_hourly'],
-					'usage_monthly' => isset( $response['usage_monthly'] ) ? $response['usage_monthly'] : null,
-					'limit_hourly'  => isset( $response['limit_hourly'] ) ? $response['limit_hourly'] : null,
-					'limit_monthly' => isset( $response['limit_monthly'] ) ? $response['limit_monthly'] : null,
-				),
-				DAY_IN_SECONDS
-			);
-
 			// Ensure that the monthly limit is represented correctly.
-			$response['limit_monthly'] = $response['limit_monthly'] ? $response['limit_monthly'] : __( 'Unlimited', 'w3-total-cache' );
+			$response_body['limit_monthly'] = $response_body['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
 
-			return $response;
+			// Update usage transient data.
+			$this->set_transient_data( $response_body );
+
+			return $response_body;
 		}
 	}
 
 	/**
-	 * Get base URL.
+	 * Update usage transient data.
 	 *
-	 * @since 2.2.0
-	 * @access private
+	 * @since 2.7.4
 	 *
-	 * @returns string
+	 * @param array $data Usage data.
 	 */
-	private function get_base_url() {
-		return defined( 'W3TC_API2_URL' ) && W3TC_API2_URL ?
-			esc_url( W3TC_API2_URL, 'https', '' ) : $this->base_url;
+	private function set_transient_data( array $data ): void {
+			// Ensure that the monthly limit is represented correctly.
+			$data['limit_monthly'] = $data['limit_monthly'] ?? \__( 'Unlimited', 'w3-total-cache' );
+
+			// Update usage transient data.
+			set_transient(
+				'w3tc_imageservice_usage',
+				array(
+					'updated_at'               => time(),
+					'usage_hourly'             => $data['usage_hourly'] ?? null,
+					'usage_monthly'            => $data['usage_monthly'] ?? null,
+					'limit_hourly'             => $data['limit_hourly'] ?? null,
+					'limit_monthly'            => $data['limit_monthly'], // Validated above.
+					'limit_hourly_unlicensed'  => $data['limit_hourly_unlicensed'] ?? null,
+					'limit_monthly_unlicensed' => $data['limit_monthly_unlicensed'] ?? null,
+					'limit_hourly_licensed'    => $data['limit_hourly_licensed'] ?? null,
+					'limit_monthly_licensed'   => $data['limit_monthly_licensed'] ?? null,
+				),
+				DAY_IN_SECONDS
+			);
 	}
 }

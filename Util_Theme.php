@@ -1,53 +1,89 @@
 <?php
+/**
+ * File: Util_Theme.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Util_Theme
+ *
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
+ */
 class Util_Theme {
-	static public function get( $themename ) {
-		$wp_themes = Util_Theme::get_themes();
+	/**
+	 * Get
+	 *
+	 * @param string $themename Theme name.
+	 *
+	 * @return array
+	 */
+	public static function get( $themename ) {
+		$wp_themes = self::get_themes();
 
-
-		if ( is_array( $wp_themes ) && array_key_exists( $themename, $wp_themes ) )
+		if ( is_array( $wp_themes ) && array_key_exists( $themename, $wp_themes ) ) {
 			return $wp_themes[ $themename ];
+		}
+
 		return array();
 	}
-	static public function get_current_theme_name() {
+
+	/**
+	 * Get current theme name
+	 *
+	 * @return string
+	 */
+	public static function get_current_theme_name() {
 		return wp_get_theme()->get( 'Name' );
 	}
 
-	static public function get_current_theme() {
+	/**
+	 * Get current theme
+	 *
+	 * @return object
+	 */
+	public static function get_current_theme() {
 		return wp_get_theme();
 	}
 
-	static public function get_themes() {
+	/**
+	 * Get themes
+	 *
+	 * @return object
+	 */
+	public static function get_themes() {
 		global $wp_themes;
-		if ( isset( $wp_themes ) )
+		if ( isset( $wp_themes ) ) {
 			return $wp_themes;
-
-		$themes = wp_get_themes();
-		$wp_themes = array();
-
-		foreach ( $themes as $theme ) {
-			$name = $theme->get( 'Name' );
-			if ( isset( $wp_themes[$name] ) )
-				$wp_themes[$name . '/' . $theme->get_stylesheet()] = $theme;
-			else
-				$wp_themes[$name] = $theme;
 		}
 
-		return $wp_themes;
+		$themes = array();
+		foreach ( wp_get_themes() as $theme ) {
+			$name = $theme->get( 'Name' );
+			if ( isset( $wp_themes[ $name ] ) ) {
+				$themes[ $name . '/' . $theme->get_stylesheet() ] = $theme;
+			} else {
+				$themes[ $name ] = $theme;
+			}
+		}
+
+		return $themes;
 	}
 
 	/**
 	 * Returns theme key
 	 *
-	 * @param string  $theme_root
-	 * @param string  $template
-	 * @param string  $stylesheet
+	 * @param string $theme_root Theme root.
+	 * @param string $template   Template.
+	 * @param string $stylesheet Stylesheet.
+	 *
 	 * @return string
 	 */
-	static public function get_theme_key( $theme_root, $template, $stylesheet ) {
-		$theme_path = ltrim( str_replace( WP_CONTENT_DIR, '',
-				Util_Environment::normalize_path( $theme_root ) ), '/' );
+	public static function get_theme_key( $theme_root, $template, $stylesheet ) {
+		$theme_path = ltrim( str_replace( WP_CONTENT_DIR, '', Util_Environment::normalize_path( $theme_root ) ), '/' );
 
 		return substr( md5( $theme_path . $template . $stylesheet ), 0, 5 );
 	}
@@ -57,13 +93,13 @@ class Util_Theme {
 	 *
 	 * @return array
 	 */
-	static public function get_themes_by_key() {
-		$themes = array();
-		$wp_themes = Util_Theme::get_themes();
+	public static function get_themes_by_key() {
+		$themes    = array();
+		$wp_themes = self::get_themes();
 
 		foreach ( $wp_themes as $wp_theme ) {
-			$theme_key = Util_Theme::get_theme_key( $wp_theme['Theme Root'], $wp_theme['Template'], $wp_theme['Stylesheet'] );
-			$themes[$theme_key] = $wp_theme['Name'];
+			$theme_key            = self::get_theme_key( $wp_theme['Theme Root'], $wp_theme['Template'], $wp_theme['Stylesheet'] );
+			$themes[ $theme_key ] = $wp_theme['Name'];
 		}
 
 		return $themes;
@@ -72,33 +108,34 @@ class Util_Theme {
 	/**
 	 * Returns minify groups
 	 *
-	 * @param string  $theme_name
+	 * @param string $theme_name Theme name.
+	 *
 	 * @return array
 	 */
-	static public function get_theme_templates( $theme_name ) {
+	public static function get_theme_templates( $theme_name ) {
 		$groups = array(
-			'default' => __( 'All Templates', 'w3-total-cache' )
+			'default' => __( 'All Templates', 'w3-total-cache' ),
 		);
 
-		$templates = Util_Theme::get_theme_files( $theme_name );
+		$templates = self::get_theme_files( $theme_name );
 
 		foreach ( $templates as $template ) {
 			$basename = basename( $template, '.php' );
 
-			$groups[$basename] = ucfirst( $basename );
+			$groups[ $basename ] = ucfirst( $basename );
 		}
 
 		return $groups;
 	}
 
-
 	/**
 	 * Returns array of theme groups
 	 *
-	 * @param string  $theme_name
+	 * @param string $theme_name Theme name.
+	 *
 	 * @return array
 	 */
-	static public function get_theme_files( $theme_name ) {
+	public static function get_theme_files( $theme_name ) {
 		$patterns = array(
 			'404',
 			'search',
@@ -116,11 +153,11 @@ class Util_Theme {
 			'date',
 			'archive',
 			'comments-popup',
-			'paged'
+			'paged',
 		);
 
 		$templates = array();
-		$theme = Util_Theme::get( $theme_name );
+		$theme     = self::get( $theme_name );
 
 		if ( $theme && isset( $theme['Template Files'] ) ) {
 			$template_files = (array) $theme['Template Files'];
@@ -156,6 +193,4 @@ class Util_Theme {
 
 		return $templates;
 	}
-
-
 }

@@ -11,6 +11,8 @@ namespace W3TC;
 
 /**
  * Class: Extension_ImageService_Environment
+ *
+ * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
  */
 class Extension_ImageService_Environment {
 	/**

@@ -1,6 +1,17 @@
 <?php
+/**
+ * File: Mobile_Base.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
+/**
+ * Class Mobile_Base
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ */
 abstract class Mobile_Base {
 	/**
 	 * Groups
@@ -8,31 +19,66 @@ abstract class Mobile_Base {
 	 * @var array
 	 */
 	private $_groups = array();
-	private $_compare_key = '';
-	private $_config_key = '';
-	private $_cacheclass = '';
 
 	/**
-	 * PHP5-style constructor
+	 * Compare key
+	 *
+	 * @var string
 	 */
-	function __construct( $config_key, $compare_key ) {
-		$config = Dispatcher::config();
-		$this->_groups = $config->get_array( $config_key );
-		$this->_config_key = $config_key;
+	private $_compare_key = '';
+
+	/**
+	 * Config key
+	 *
+	 * @var string
+	 */
+	private $_config_key = '';
+
+	/**
+	 * Cache case
+	 *
+	 * @var string
+	 */
+	private $_cachecase = '';
+
+	/**
+	 * Initializes the Mobile_Base instance with the provided configuration and comparison keys.
+	 *
+	 * @param string $config_key  The configuration key for retrieving group settings.
+	 * @param string $compare_key The comparison key for validating groups.
+	 *
+	 * @return void
+	 */
+	public function __construct( $config_key, $compare_key ) {
+		$config             = Dispatcher::config();
+		$this->_groups      = $config->get_array( $config_key );
+		$this->_config_key  = $config_key;
 		$this->_compare_key = $compare_key;
-		$this->_cachecase = substr( $config_key, 0, strpos( $config_key, '.' ) );
+		$this->_cachecase   = substr( $config_key, 0, strpos( $config_key, '.' ) );
 	}
 
-	abstract function group_verifier( $group_compare_value );
+	/**
+	 * Abstract method to verify a group based on the provided comparison value.
+	 *
+	 * @param mixed $group_compare_value The value to compare against group settings.
+	 *
+	 * @return void
+	 */
+	abstract public function group_verifier( $group_compare_value );
 
+	/**
+	 * Retrieves the active group if one exists.
+	 *
+	 * @return string|false The name of the active group or false if no group is active.
+	 */
 	public function get_group() {
 		static $group = null;
 
-		if ( $group === null ) {
+		if ( null === $group ) {
 			if ( $this->do_get_group() ) {
 				foreach ( $this->_groups as $config_group => $config ) {
-					if ( isset( $config['enabled'] ) && $config['enabled'] && isset( $config[$this->_compare_key] ) ) {
-						foreach ( (array) $config[$this->_compare_key] as $group_compare_value ) {
+					if ( isset( $config['enabled'] ) && $config['enabled'] && isset( $config[ $this->_compare_key ] ) ) {
+						foreach ( (array) $config[ $this->_compare_key ] as $group_compare_value ) {
 							if ( $group_compare_value && $this->group_verifier( $group_compare_value ) ) {
 								$group = $config_group;
 								return $group;
@@ -48,13 +94,12 @@ abstract class Mobile_Base {
 		return $group;
 	}
 
-
 	/**
-	 * Returns temaplte
+	 * Retrieves the template part of the theme associated with the active group.
 	 *
-	 * @return string
+	 * @return string|false The template name or false if no theme is associated.
 	 */
-	function get_template() {
+	public function get_template() {
 		$theme = $this->get_theme();
 
 		if ( $theme ) {
@@ -67,11 +112,11 @@ abstract class Mobile_Base {
 	}
 
 	/**
-	 * Returns stylesheet
+	 * Retrieves the stylesheet part of the theme associated with the active group.
 	 *
-	 * @return string
+	 * @return string|false The stylesheet name or false if no theme is associated.
 	 */
-	function get_stylesheet() {
+	public function get_stylesheet() {
 		$theme = $this->get_theme();
 
 		if ( $theme ) {
@@ -83,90 +128,101 @@ abstract class Mobile_Base {
 	}
 
 	/**
-	 * Returns redirect
+	 * Retrieves the redirect URL for the active group.
 	 *
-	 * @return string
+	 * @return string|false The redirect URL or false if none is defined.
 	 */
-	function get_redirect() {
+	public function get_redirect() {
 		$group = $this->get_group();
 
-		if ( isset( $this->_groups[$group]['redirect'] ) ) {
-			return $this->_groups[$group]['redirect'];
+		if ( isset( $this->_groups[ $group ]['redirect'] ) ) {
+			return $this->_groups[ $group ]['redirect'];
 		}
 
 		return false;
 	}
 
 	/**
-	 * Returns theme
+	 * Retrieves the theme associated with the active group.
 	 *
-	 * @return string
+	 * @return string|false The theme key or false if none is associated.
 	 */
-	function get_theme() {
+	public function get_theme() {
 		$group = $this->get_group();
 
-		if ( isset( $this->_groups[$group]['theme'] ) ) {
-			return $this->_groups[$group]['theme'];
+		if ( isset( $this->_groups[ $group ]['theme'] ) ) {
+			return $this->_groups[ $group ]['theme'];
 		}
 
 		return false;
 	}
 
 	/**
-	 * Return array of themes
+	 * Retrieves all available themes as a key-value array.
 	 *
-	 * @return array
+	 * @return array Associative array of themes with keys as theme identifiers and values as names.
 	 */
-	function get_themes() {
-		$themes = array();
+	public function get_themes() {
+		$themes    = array();
 		$wp_themes = Util_Theme::get_themes();
 
 		foreach ( $wp_themes as $wp_theme ) {
-			$theme_key = sprintf( '%s/%s', $wp_theme['Template'], $wp_theme['Stylesheet'] );
-			$themes[$theme_key] = $wp_theme['Name'];
+			$theme_key            = sprintf( '%s/%s', $wp_theme['Template'], $wp_theme['Stylesheet'] );
+			$themes[ $theme_key ] = $wp_theme['Name'];
 		}
 
 		return $themes;
 	}
 
-
 	/**
-	 * Checks if there are enabled referrer groups
+	 * Checks if any groups are enabled in the configuration.
 	 *
-	 * @return bool
+	 * @return bool True if at least one group is enabled, otherwise false.
 	 */
-	function has_enabled_groups() {
-		foreach ( $this->_groups as $group => $config )
-			if ( isset( $config['enabled'] ) && $config['enabled'] )
+	public function has_enabled_groups() {
+		foreach ( $this->_groups as $group => $config ) {
+			if ( isset( $config['enabled'] ) && $config['enabled'] ) {
 				return true;
-			return false;
+			}
+		}
+
+		return false;
 	}
 
-	function do_get_group() {
+	/**
+	 * Determines whether a group should be retrieved.
+	 *
+	 * @return bool Always returns true.
+	 */
+	public function do_get_group() {
 		return true;
 	}
 
 	/**
-	 * Use Util_Theme::get_themes() to get a list themenames to use with user agent groups
+	 * Saves or updates the configuration for a specific group.
 	 *
-	 * @param unknown $group
-	 * @param string  $theme    the themename default is default theme. For childtheme it should be parentthemename/childthemename
-	 * @param string  $redirect
-	 * @param array   $values   Remember to escape special characters like spaces, dots or dashes with a backslash. Regular expressions are also supported.
-	 * @param bool    $enabled
+	 * @param string $group    The name of the group to save or update.
+	 * @param string $theme    The theme associated with the group.
+	 * @param string $redirect The redirect URL for the group.
+	 * @param array  $values   The values used to compare for this group.
+	 * @param bool   $enabled  Whether the group is enabled.
+	 *
+	 * @return void
 	 */
-	function save_group( $group, $theme = 'default', $redirect = '', $values = array(), $enabled = false ) {
-		$config = Dispatcher::config();
-		$groups = $config->get_array( $this->_config_key );
-		$group_config = array();
-		$group_config['theme'] = $theme;
-		$group_config['enabled'] = $enabled;
+	public function save_group( $group, $theme = 'default', $redirect = '', $values = array(), $enabled = false ) {
+		$config                   = Dispatcher::config();
+		$groups                   = $config->get_array( $this->_config_key );
+		$group_config             = array();
+		$group_config['theme']    = $theme;
+		$group_config['enabled']  = $enabled;
 		$group_config['redirect'] = $redirect;
-		$values = array_unique( $values );
-		$values = array_map( 'strtolower', $values );
+		$values                   = array_unique( $values );
+		$values                   = array_map( 'strtolower', $values );
+
 		sort( $values );
-		$group_config[$this->_compare_key] = $values;
-		$groups[$group] = $group_config;
+
+		$group_config[ $this->_compare_key ] = $values;
+		$groups[ $group ]                    = $group_config;
 
 		$enable = false;
 		foreach ( $groups as $group => $group_config ) {
@@ -175,17 +231,24 @@ abstract class Mobile_Base {
 				break;
 			}
 		}
+
 		$config->set( $this->_cachecase . '.enabled', $enable );
 		$config->set( $this->_config_key, $groups );
 		$config->save();
 		$this->_groups = $groups;
 	}
 
-
-	function delete_group( $group ) {
+	/**
+	 * Deletes a specific group from the configuration.
+	 *
+	 * @param string $group The name of the group to delete.
+	 *
+	 * @return void
+	 */
+	public function delete_group( $group ) {
 		$config = Dispatcher::config();
 		$groups = $config->get_array( 'mobile.rgroups' );
-		unset( $groups[$group] );
+		unset( $groups[ $group ] );
 
 		$enable = false;
 		foreach ( $groups as $group => $group_config ) {
@@ -194,19 +257,33 @@ abstract class Mobile_Base {
 				break;
 			}
 		}
+
 		$config->set( $this->_cachecase . '.enabled', $enable );
 		$config->set( $this->_config_key, $groups );
 		$config->save();
 		$this->_groups = $groups;
 	}
 
-	function get_group_values( $group ) {
+	/**
+	 * Retrieves the configuration values for a specific group.
+	 *
+	 * @param string $group The name of the group whose values are retrieved.
+	 *
+	 * @return array The configuration values of the specified group.
+	 */
+	public function get_group_values( $group ) {
 		$config = Dispatcher::config();
 		$groups = $config->get_array( $this->_config_key );
-		return $groups[$group];
+
+		return $groups[ $group ];
 	}
 
-	function get_groups() {
+	/**
+	 * Retrieves all groups currently configured.
+	 *
+	 * @return array Associative array of all groups and their configurations.
+	 */
+	public function get_groups() {
 		return $this->_groups;
 	}
 }

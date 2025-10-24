@@ -59,7 +59,14 @@ describe('check that canonical headers present with pull CDN', function() {
 		log.log('checking ' + targetUrl + '/font.woff2');
 		let response2 = await sys.httpGet(targetUrl + '/font.woff2');
 		expect(response2.headers['access-control-allow-origin']).not.empty;
-		expect(response2.headers['content-type']).contains('application/');
+
+		let contentType = response2.headers['content-type'];
+		if (contentType.indexOf('application') >= 0) {
+			expect(contentType).contains('application/');
+		} else {
+			expect(contentType).contains('font/');
+		}
+
 		expectCommonHeaders(response2.headers);
 	});
 });

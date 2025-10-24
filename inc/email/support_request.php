@@ -1,7 +1,14 @@
 <?php
-if ( ! defined( 'W3TC' ) ) {
-	die();
-}
+/**
+ * File: support_request.php
+ *
+ * Support request email template.
+ *
+ * @package W3TC
+ */
+
+defined( 'W3TC' ) || die();
+
 ?>
 <html>
 	<head></head>
@@ -42,8 +49,12 @@ if ( ! defined( 'W3TC' ) ) {
 
 		<font size="-1" color="#ccc">
 			<?php
-			echo esc_html__( 'E-mail sent from IP: ', 'w3-total-cache' ) . esc_html( $_SERVER['REMOTE_ADDR'] ) . '<br />';
-			echo esc_html__( 'User Agent: ', 'w3-total-cache' ) . esc_html( $_SERVER['HTTP_USER_AGENT'] );
+			echo esc_html__( 'E-mail sent from IP: ', 'w3-total-cache' ) .
+				( isset( $_SERVER['REMOTE_ADDR'] ) ?
+				esc_html( sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) ) : esc_html__( 'Unknown', 'w3-total-cache' ) ) . '<br />';
+			echo esc_html__( 'User Agent: ', 'w3-total-cache' ) .
+				( isset( $_SERVER['HTTP_USER_AGENT'] ) ?
+				esc_html( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) : esc_html__( 'Unknown', 'w3-total-cache' ) );
 			?>
 		</font>
 	</body>

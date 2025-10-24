@@ -1,35 +1,29 @@
 <?php
+/**
+ * File: general.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
-
 require W3TC_INC_DIR . '/options/common/header.php';
-?>
 
-<p>
-	<?php
-	echo wp_kses(
-		sprintf(
-			// translators: 1 HTML span tag indicating plugin enabled/disabled.
-			__(
-				'The plugin is currently %1$s If an option is disabled it means that either your current installation is not compatible or software installation is required.',
-				'w3-total-cache'
-			),
-			'<span class="w3tc-' . ( $enabled ? 'enabled">' . esc_html__( 'enabled', 'w3-total-cache' ) : 'disabled">' . esc_html__( 'disabled', 'w3-total-cache' ) ) . '</span>.'
-		),
-		array(
-			'span' => array(
-				'class' => array(),
-			),
-		)
-	);
-	?>
-</p>
+?>
 <form id="w3tc_form" action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post">
+	<?php Util_UI::print_control_bar( 'general_form_control' ); ?>
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( esc_html__( 'General', 'w3-total-cache' ), '' ); ?>
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'General', 'w3-total-cache' ),
+			'',
+			'',
+			'general'
+		);
+		?>
 		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Preview mode:', 'w3-total-cache' ); ?></th>
@@ -47,7 +41,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					);
 					?>
 					<?php if ( $this->_config->is_preview() ) : ?>
-						<input type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>" />
+						<input id="preview-button" type="submit" name="w3tc_config_preview_disable" class="button-primary" value="<?php esc_attr_e( 'Disable', 'w3-total-cache' ); ?>" />
 						<?php
 						echo wp_kses(
 							Util_Ui::button_link(
@@ -89,22 +83,30 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							?>
 						</p>
 					<?php else : ?>
-						<input type="submit" name="w3tc_config_preview_enable" class="button-primary" value="<?php esc_attr_e( 'Enable', 'w3-total-cache' ); ?>" />
+						<input id="preview-button" type="submit" name="w3tc_config_preview_enable" class="button-primary" value="<?php esc_attr_e( 'Enable', 'w3-total-cache' ); ?>" />
 					<?php endif; ?>
 					<p class="description"><?php esc_html_e( 'Use preview mode to test configuration scenarios prior to releasing them (deploy) on the actual site. Preview mode remains active even after deploying settings until the feature is disabled.', 'w3-total-cache' ); ?></p>
 				</td>
 			</tr>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'general_general' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Page Cache', 'w3-total-cache' ), '', 'page_cache' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Page Cache', 'w3-total-cache' ),
+			esc_html__(
+				'Page cache is a technique used to speed up the performance of a website by storing a copy of the generated HTML page in the server\'s memory or disk, and then serving that copy to subsequent visitors instead of generating the page from scratch each time. This can result in significant speed improvements for websites with high traffic or dynamic content.',
+				'w3-total-cache'
+			),
+			'',
+			'page_cache',
+			Util_UI::admin_url( 'admin.php?page=w3tc_pgcache' ),
+			'w3tc_premium_services',
+			'w3tc_tutorial'
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'pgcache.configuration_overloaded' ) );
 		?>
-
-		<p><?php esc_html_e( 'Enable page caching to decrease the response time of the site.', 'w3-total-cache' ); ?></p>
 
 		<table class="form-table">
 			<?php
@@ -176,21 +178,27 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</table>
 
 		<?php
-		Util_Ui::button_config_save(
-			'general_pagecache',
-			'<input type="submit" name="w3tc_flush_pgcache" value="' .
-				esc_attr__( 'Empty cache', 'w3-total-cache' ) . '"' .
-				( $pgcache_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
+			echo wp_kses_post( Util_Ui::get_tab( 'page_cache', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'page_cache', 'premium-services' ) );
 		?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Minify', 'w3-total-cache' ), '', 'minify' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Minify', 'w3-total-cache' ),
+			esc_html__(
+				'Minification is a technique used to reduce the file size of HTML, CSS, and JavaScript files by removing unnecessary characters such as whitespace, comments, and line breaks. This process can significantly improve the load times of web pages by reducing the amount of data that needs to be downloaded by the user\'s browser.',
+				'w3-total-cache'
+			),
+			'',
+			'minify',
+			Util_UI::admin_url( 'admin.php?page=w3tc_minify' ),
+			'w3tc_premium_services',
+			'w3tc_tutorial'
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'minify.configuration_overloaded' ) );
 		?>
-		<p><?php w3tc_e( 'minify.general.header', 'Reduce load time by decreasing the size and number of <acronym title="Cascading Style Sheet">CSS</acronym> and <acronym title="JavaScript">JS</acronym> files. Automatically remove unnecessary data from <acronym title="Cascading Style Sheet">CSS</acronym>, <acronym title="JavaScript">JS</acronym>, feed, page and post <acronym title="Hypertext Markup Language">HTML</acronym>.' ); ?></p>
 
 		<table class="form-table">
 			<?php
@@ -237,11 +245,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'0' => esc_html__( 'Manual', 'w3-total-cache' ),
 					),
 					'description'       => esc_html__(
-						'Select manual mode to use fields on the minify settings tab to specify files to be minified, otherwise files will be minified automatically.',
+						'Select manual mode to use fields on the Minify settings tab to specify files to be minified, otherwise files will be minified automatically.',
 						'w3-total-cache'
 					),
 					'control_after'     => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/how-to-use-manual-minify-for-css-and-js/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=manual_minify#difference-between-auto-and-manual-minify' ) . '" title="'
-						. esc_attr__( 'How to use manual minify', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
+						. esc_attr__( 'How to use manual Minify', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
 			);
@@ -267,7 +275,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						),
 					),
 					'control_after'    => ' <a class="w3tc-control-after" target="_blank" href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/minify/html-minify-or-tidy/?utm_source=w3tc&utm_medium=learn_more_links&utm_campaign=minify_html#minify-default' ) . '" title="' .
-						esc_attr__( 'How to use minify HTML', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
+						esc_attr__( 'How to use Minify HTML', 'w3-total-cache' ) . '">' . esc_html__( 'Learn more', 'w3-total-cache' ) .
 						'<span class="dashicons dashicons-external"></span></a>',
 				)
 			);
@@ -304,25 +312,30 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		</table>
 
 		<?php
-		Util_Ui::button_config_save(
-			'general_minify',
-			'<input type="submit" name="w3tc_flush_minify" value="' .
-				esc_attr__( 'Empty cache', 'w3-total-cache' ) . '" ' .
-				( $minify_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
+			echo wp_kses_post( Util_Ui::get_tab( 'minify', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'minify', 'premium-services' ) );
 		?>
+
 		<?php Util_Ui::postbox_footer(); ?>
 
 
 		<?php do_action( 'w3tc_settings_general_boxarea_system_opcache' ); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Database Cache', 'w3-total-cache' ), '', 'database_cache' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Database Cache', 'w3-total-cache' ),
+			esc_html__(
+				'Enable this setting to utilize the power of caching your WordPress site\'s database queries. By storing frequently accessed database queries in memory, the database cache reduces the need for repetitive database interactions, resulting in faster page load times. This feature is particularly beneficial for websites with heavy database usage, improving overall performance and delivering a smoother user experience.',
+				'w3-total-cache'
+			),
+			'',
+			'database_cache',
+			Util_UI::admin_url( 'admin.php?page=w3tc_dbcache' ),
+			'w3tc_premium_services',
+			'w3tc_tutorial'
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'dbcache.configuration_overloaded' ) );
 		?>
-
-		<p><?php esc_html_e( 'Enable database caching to reduce post, page and feed creation time.', 'w3-total-cache' ); ?></p>
 
 		<table class="form-table">
 			<?php
@@ -334,87 +347,130 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					'description'    => esc_html__( 'Caching database objects decreases the response time of your site. Best used if object caching is not possible.', 'w3-total-cache' ),
 				)
 			);
+
+			?>
+			<div class="dbcache_disk_notice notice notice-warning">
+				<p><b><?php esc_html_e( 'Warning: Disk-Based Database Caching Selected', 'w3-total-cache' ); ?></b></p>
+				<p>
+					<li style="margin-left:15px;"><?php esc_html_e( 'Using disk as the cache engine for database caching is not recommended due to its potential for slow performance depending on storage device types and server configuration.', 'w3-total-cache' ); ?></li>
+					<li style="margin-left:15px;"><?php esc_html_e( 'This setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account.', 'w3-total-cache' ); ?></li>
+				</p>
+				<p>
+					<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
+					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"
+						title="<?php esc_attr_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?>">
+						<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?> <span class="dashicons dashicons-external"></span></a>
+				</p>
+			</div>
+			<?php
+
 			Util_Ui::config_item_engine( array( 'key' => 'dbcache.engine' ) );
 			?>
 
-			<?php if ( Util_Environment::is_w3tc_pro() && is_network_admin() ) : ?>
+			<?php if ( $is_pro ) : ?>
 				<?php require W3TC_INC_OPTIONS_DIR . '/enterprise/dbcluster_general_section.php'; ?>
 			<?php endif; ?>
 		</table>
 
 		<?php
-		Util_Ui::button_config_save(
-			'general_dbcache',
-			'<input type="submit" name="w3tc_flush_dbcache" value="' .
-				esc_html__( 'Empty cache', 'w3-total-cache' ) . '" ' .
-				( $dbcache_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
+			echo wp_kses_post( Util_Ui::get_tab( 'database_cache', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'database_cache', 'premium-services' ) );
 		?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Object Cache', 'w3-total-cache' ), '', 'object_cache' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Object Cache', 'w3-total-cache' ),
+			esc_html__(
+				'Enable this option to utilize an object cache mechanism, which significantly enhances the performance of your WordPress website. Object caching stores frequently accessed database queries and complex data structures in memory, reducing the need to retrieve them from the database repeatedly. By doing so, it minimizes the processing time required to generate dynamic content, resulting in faster page loading times and improved overall site speed. Enabling object cache is particularly beneficial for websites with heavy database usage or high traffic volumes, as it helps alleviate the strain on the server by efficiently serving cached data.',
+				'w3-total-cache'
+			),
+			'',
+			'object_cache',
+			Util_UI::admin_url( 'admin.php?page=w3tc_objectcache' ),
+			'w3tc_premium_services',
+			'w3tc_tutorial'
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'objectcache.configuration_overloaded' ) );
+		echo ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ? '<p class="notice notice-warning inline w3tc-postbox-notice" style="margin-top:10px !important;">' . esc_html__( 'Object Cache is disabled via filter.', 'w3-total-cache' ) . '</p>' : '' );
 		?>
-
-		<p><?php esc_html_e( 'Enable object caching to further reduce execution time for common operations.', 'w3-total-cache' ); ?></p>
 
 		<table class="form-table">
 			<?php
-			Util_Ui::config_item(
-				array(
-					'key'            => 'objectcache.enabled',
-					'control'        => 'checkbox',
-					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
-					'description'    => wp_kses(
-						sprintf(
-							// translators: 1 opening HTML a tag to WordPress codex for WP Object Cache, 2 Opening HTML acronym tag,
-							// translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
-							__(
-								'Object caching greatly increases performance for highly dynamic sites that use the %1$sObject Cache %2$sAPI%3$s%4$s.',
-								'w3-total-cache'
-							),
-							'<a href="' . esc_url( 'http://codex.wordpress.org/Class_Reference/WP_Object_Cache' ) . '" target="_blank">',
-							'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-							'</acronym>',
-							'</a>'
+			$objectcache_config_item = array(
+				'key'            => 'objectcache.enabled',
+				'control'        => 'checkbox',
+				'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+				'description'    => wp_kses(
+					sprintf(
+						// translators: 1 opening HTML a tag to WordPress codex for WP Object Cache, 2 Opening HTML acronym tag,
+						// translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
+						__(
+							'Object caching greatly increases performance for highly dynamic sites that use the %1$sObject Cache %2$sAPI%3$s%4$s.',
+							'w3-total-cache'
 						),
-						array(
-							'acronym' => array(
-								'title' => array(),
-							),
-							'a'       => array(
-								'href'   => array(),
-								'target' => array(),
-							),
-						)
+						'<a href="' . esc_url( 'http://codex.wordpress.org/Class_Reference/WP_Object_Cache' ) . '" target="_blank">',
+						'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
+						'</acronym>',
+						'</a>'
 					),
-				)
+					array(
+						'acronym' => array(
+							'title' => array(),
+						),
+						'a'       => array(
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
+				),
 			);
+			if ( ! $this->_config->getf_boolean( 'objectcache.enabled' ) && has_filter( 'w3tc_config_item_objectcache.enabled' ) ) {
+				$objectcache_config_item['disabled'] = true;
+			}
+			Util_Ui::config_item( $objectcache_config_item );
+			?>
+			<div class="objectcache_disk_notice notice notice-warning">
+				<p><b><?php esc_html_e( 'Warning: Disk-Based Object Caching Selected', 'w3-total-cache' ); ?></b></p>
+				<p>
+					<li style="margin-left:15px;"><?php esc_html_e( 'Using disk as the cache engine for object caching is not recommended due to its potential for slow performance depending on storage device types and server configuration.', 'w3-total-cache' ); ?></li>
+					<li style="margin-left:15px;"><?php esc_html_e( 'This setting can potentially create a large number of files.  Please be aware of any inode or disk space limits you may have on your hosting account.', 'w3-total-cache' ); ?></li>
+				</p>
+				<p>
+					<?php esc_html_e( 'For optimal performance, consider using a memory-based caching solution like Redis or Memcached.', 'w3-total-cache' ); ?>
+					<a target="_blank" href="<?php echo esc_url( 'https://www.boldgrid.com/comparing-disk-redis-memcached-caching/' ); ?>"
+						title="<?php esc_attr_e( 'Comparing Disk, Redis, and Memcached: Understanding Caching Solutions', 'w3-total-cache' ); ?>">
+						<?php esc_html_e( 'Learn more', 'w3-total-cache' ); ?> <span class="dashicons dashicons-external"></span></a>
+				</p>
+			</div>
+			<?php
 			Util_Ui::config_item_engine( array( 'key' => 'objectcache.engine' ) );
 			?>
 		</table>
 
 		<?php
-		Util_Ui::button_config_save(
-			'general_objectcache',
-			'<input type="submit" name="w3tc_flush_objectcache" value="' .
-				esc_attr__( 'Empty cache', 'w3-total-cache' ) . '" ' .
-				( $objectcache_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
+			echo wp_kses_post( Util_Ui::get_tab( 'object_cache', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'object_cache', 'premium-services' ) );
 		?>
 
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Browser Cache', 'w3-total-cache' ), '', 'browser_cache' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Browser Cache', 'w3-total-cache' ),
+			esc_html__(
+				'Enabling browser caching will instruct visitors\' web browsers to store static files from your WordPress website, such as images, CSS, and JavaScript files, locally on their devices. By doing so, subsequent visits to your site will retrieve these cached files from the browser\'s storage, reducing the need for repeated downloads. This results in faster page loading times and a smoother browsing experience for your visitors, ultimately improving the overall speed and performance of your WordPress website.',
+				'w3-total-cache'
+			),
+			'',
+			'browser_cache',
+			Util_UI::admin_url( 'admin.php?page=w3tc_browsercache' ),
+			'w3tc_premium_services',
+			'w3tc_tutorial'
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'browsercache.configuration_overloaded' ) );
 		?>
-
-		<p><?php esc_html_e( 'Reduce server load and decrease response time by using the cache available in site visitor\'s web browser.', 'w3-total-cache' ); ?></p>
 
 		<table class="form-table">
 			<?php
@@ -444,39 +500,106 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'general_browsercache' ); ?>
+		<?php
+			echo wp_kses_post( Util_Ui::get_tab( 'browser_cache', 'help' ) );
+			echo wp_kses_post( Util_Ui::get_tab( 'browser_cache', 'premium-services' ) );
+		?>
+
+		<?php Util_Ui::postbox_footer(); ?>
+
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Purge via WP Cron', 'w3-total-cache' ),
+			wp_kses(
+				sprintf(
+					// Translators: 1 opening HTML a tag, 2 closing HTML a tag.
+					__(
+						'Enabling this will schedule a WP-Cron event that will flush all enabled Caches via a single cron job. Each cache\'s advanced settings page features similar settings to this if you wish to schedule purges for specific caches only. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush all". If the Always Cached extension is active and enabled, page cache entries will instead be added to the queue instead of being purged from the cache. Visit %1$shere%2$s for more information.',
+						'w3-total-cache'
+					),
+					'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+				)
+			),
+			'',
+			'allcache_wp_cron'
+		);
+		?>
+		<table class="form-table">
+			<?php
+			$c           = Dispatcher::config();
+			$wp_disabled = ! $c->get_boolean( 'allcache.wp_cron' );
+
+			Util_Ui::config_item(
+				array(
+					'key'            => 'allcache.wp_cron',
+					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'control'        => 'checkbox',
+				)
+			);
+
+			$time_options = array();
+			for ( $hour = 0; $hour < 24; $hour++ ) {
+				foreach ( array( '00', '30' ) as $minute ) {
+					$time_value                  = $hour * 60 + intval( $minute );
+					$scheduled_time              = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
+					$time_label                  = $scheduled_time->format( 'g:i a' );
+					$time_options[ $time_value ] = $time_label;
+				}
+			}
+
+			Util_Ui::config_item(
+				array(
+					'key'              => 'allcache.wp_cron_time',
+					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
+					'control'          => 'selectbox',
+					'selectbox_values' => $time_options,
+					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
+					'disabled'         => $wp_disabled,
+				)
+			);
+
+			Util_Ui::config_item(
+				array(
+					'key'              => 'allcache.wp_cron_interval',
+					'label'            => esc_html__( 'Interval', 'w3-total-cache' ),
+					'control'          => 'selectbox',
+					'selectbox_values' => array(
+						'hourly'     => esc_html__( 'Hourly', 'w3-total-cache' ),
+						'twicedaily' => esc_html__( 'Twice Daily', 'w3-total-cache' ),
+						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
+						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
+					),
+					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
+					'disabled'         => $wp_disabled,
+				)
+			);
+			?>
+		</table>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php do_action( 'w3tc_settings_general_boxarea_cdn' ); ?>
 
 		<?php
-		Util_Ui::postbox_header( esc_html__( 'Reverse Proxy', 'w3-total-cache' ), '', 'reverse_proxy' );
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Reverse Proxy', 'w3-total-cache' ),
+			esc_html__(
+				'A reverse proxy is a server that sits between a client and a web server, acting as an intermediary for requests. It retrieves resources on behalf of the client from the server, and then returns the response to the client. By utilizing a reverse proxy, such as Varnish or Nginx, in conjunction with W3 Total Cache, you can significantly enhance the performance of your WordPress website by caching and serving static content directly from the reverse proxy server, reducing the load on your WordPress server and improving response times for visitors.',
+				'w3-total-cache'
+			),
+			'',
+			'reverse_proxy'
+		);
 		Util_Ui::config_overloading_button( array( 'key' => 'varnish.configuration_overloaded' ) );
 		?>
 
-		<p>
-			<?php
-			echo wp_kses(
-				sprintf(
-					// translators: 1 opening HTML a tag to W3TC Page Cache admin page, 2 closing HTML a tag,
-					// translators: 3 opening HTML a tag to W3TC Browsercache admin page, 4 closing HTML a tag.
-					__(
-						'A reverse proxy adds scale to an server by handling requests before WordPress does. Purge settings are set on the %1$sPage Cache settings%2$s page and %3$sBrowser Cache settings%4$s are set on the browser cache settings page.',
-						'w3-total-cache'
-					),
-					'<a href="' . esc_url( self_admin_url( 'admin.php?page=w3tc_pgcache' ) ) . '">',
-					'</a>',
-					'<a href="' . esc_url( self_admin_url( 'admin.php?page=w3tc_browsercache' ) ) . '">',
-					'</a>'
-				),
-				array(
-					'a' => array(
-						'href' => array(),
-					),
-				)
-			);
-			?>
-		</p>
 		<table class="form-table">
 			<tr>
 				<th colspan="2">
@@ -515,23 +638,21 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			</tr>
 		</table>
 
-		<?php
-		Util_Ui::button_config_save(
-			'general_varnish',
-			'<input type="submit" name="w3tc_flush_varnish" value="' .
-				esc_attr__( 'Purge cache', 'w3-total-cache' ) . '"' .
-				( $varnish_enabled ? '' : ' disabled="disabled" ' ) .
-				' class="button" />'
-		);
-		?>
-
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php if ( $is_pro ) : ?>
-			<?php Util_Ui::postbox_header( esc_html__( 'Message Bus', 'w3-total-cache' ), '', 'amazon_sns' ); ?>
-			<p>
-				<?php esc_html_e( 'Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then syncronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared.', 'w3-total-cache' ); ?>
-			</p>
+			<?php
+			Util_Ui::postbox_header_tabs(
+				esc_html__( 'Message Bus', 'w3-total-cache' ),
+				esc_html__(
+					'Allows policy management to be shared between a dynamic pool of servers. For example, each server in a pool to use opcode caching (which is not a shared resource) and purging is then synchronized between any number of servers in real-time; each server therefore behaves identically even though resources are not shared.',
+					'w3-total-cache'
+				),
+				'',
+				'amazon_sns'
+			);
+			?>
+
 			<table class="form-table">
 				<tr>
 					<th colspan="2">
@@ -657,17 +778,28 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</tr>
 			</table>
 
-			<?php Util_Ui::button_config_save( 'general_dbcluster' ); ?>
 			<?php Util_Ui::postbox_footer(); ?>
 		<?php endif; ?>
 
 		<?php
 		foreach ( $custom_areas as $area ) {
-			do_action( "w3tc_settings_general_boxarea_{$area['id']}" );
+			do_action( 'w3tc_settings_general_boxarea_' . $area['id'] );
 		}
 		?>
+
 		<?php if ( $licensing_visible ) : ?>
-			<?php Util_Ui::postbox_header( esc_html__( 'Licensing', 'w3-total-cache' ), '', 'licensing' ); ?>
+			<?php
+			Util_Ui::postbox_header_tabs(
+				esc_html__( 'Licensing', 'w3-total-cache' ),
+				esc_html__(
+					'The plugin license is a key that unlocks advanced features and support for the W3 Total Cache WordPress plugin. By activating the license, users gain access to enhanced caching mechanisms, optimization tools, enabling them to significantly speed up their WordPress websites and improve overall performance.',
+					'w3-total-cache'
+				),
+				'',
+				'licensing'
+			);
+			?>
+
 			<table class="form-table">
 					<tr>
 						<th>
@@ -675,13 +807,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						</th>
 						<td>
 							<input id="plugin_license_key" name="plugin__license_key" type="text" value="<?php echo esc_attr( $this->_config->get_string( 'plugin.license_key' ) ); ?>" size="45"/>
-							<input id="plugin_license_key_verify" type="button" class="button" value="<?php esc_attr_e( 'Verify license key', 'w3-total-cache' ); ?>"/>
 							<span class="w3tc_license_verification"></span>
 							<p class="description">
 								<?php
 								echo wp_kses(
 									sprintf(
-										// translators: 1 HTML a tag to trigger W3TC licence upgrade.
+										// translators: 1 HTML a tag to W3TC marketing page.
 										__(
 											'Please enter the license key provided after %1$s.',
 											'w3-total-cache'
@@ -702,76 +833,23 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					</tr>
 
 			</table>
-			<?php Util_Ui::button_config_save( 'general_licensing' ); ?>
+
 			<?php Util_Ui::postbox_footer(); ?>
-		<?php endif ?>
+		<?php endif; ?>
 
-		<?php Util_Ui::postbox_header( esc_html__( 'Miscellaneous', 'w3-total-cache' ), '', 'miscellaneous' ); ?>
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Miscellaneous', 'w3-total-cache' ),
+			esc_html__(
+				'Miscellaneous settings provide additional options and configurations to optimize and speed up your WordPress website.',
+				'w3-total-cache'
+			),
+			'',
+			'miscellaneous'
+		);
+		?>
+
 		<table class="form-table">
-			<?php
-			Util_Ui::config_item(
-				array(
-					'key'            => 'widget.pagespeed.enabled',
-					'control'        => 'checkbox',
-					'checkbox_label' => esc_html__( 'Enable Google Page Speed dashboard widget', 'w3-total-cache' ),
-					'description'    => esc_html__( 'Display Google Page Speed results on the WordPress dashboard.', 'w3-total-cache' ),
-					'label_class'    => 'w3tc_single_column',
-				)
-			);
-			?>
-			<tr>
-				<th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key' ); ?></label></th>
-				<td>
-					<input id="widget_pagespeed_key" type="text" name="widget__pagespeed__key" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key' ) ); ?>" <?php Util_Ui::sealing_disabled( 'common.' ); ?> size="60" />
-					<p class="description">
-						<?php
-						echo wp_kses(
-							sprintf(
-								// translators: 1 opening HMTL a tag to Google API Key guide, 2 opening HTML acronym tag,
-								// translators: 3 closing HTML acronym tag, 4 closing HTML a tag.
-								__(
-									'Learn more about obtaining a %1$s%2$sAPI%3$s key here%4$s.',
-									'w3-total-cache'
-								),
-								'<a href="' . esc_url( 'https://support.google.com/cloud/answer/6158862' ) . '" target="_blank">',
-								'<acronym title="' . esc_attr__( 'Application Programming Interface', 'w3-total-cache' ) . '">',
-								'</acronym>',
-								'</a>'
-							),
-							array(
-								'acronym' => array(
-									'title' => array(),
-								),
-								'a'       => array(
-									'href'   => array(),
-									'target' => array(),
-								),
-							)
-						);
-						?>
-					</p>
-				</td>
-			</tr>
-			<tr>
-				<th><label for="widget_pagespeed_key"><?php Util_Ui::e_config_label( 'widget.pagespeed.key.restrict.referrer', 'general' ); ?></label></th>
-				<td>
-					<input id="widget_pagespeed_key_restrict_referrer" type="text" name="widget__pagespeed__key__restrict__referrer" value="<?php echo esc_attr( $this->_config->get_string( 'widget.pagespeed.key.restrict.referrer' ) ); ?>" size="60" />
-					<p class="description">
-						<?php esc_html__( 'Although not required, to prevent unauthorized use and quota theft, you have the option to restrict your key using a designated HTTP referrer. If you decide to use it, you will need to set this referrer within the API Console\'s "Http Referrers (web sites)" key restriction area (under Credentials).', 'w3-total-cache' ); ?>
-					</p>
-				</td>
-			</tr>
-			<?php
-			Util_Ui::config_item(
-				array(
-					'key'            => 'widget.pagespeed.show_in_admin_bar',
-					'control'        => 'checkbox',
-					'checkbox_label' => esc_html__( 'Show page rating in admin bar', 'w3-total-cache' ),
-					'label_class'    => 'w3tc_single_column',
-				)
-			);
-			?>
-
 			<?php if ( is_network_admin() ) : ?>
 			<tr>
 				<th colspan="2">
@@ -851,7 +929,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 							sprintf(
 								// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 								__(
-									'Optimize disk enhanced page and minify disk caching for %1$sNFS%2$s',
+									'Optimize disk enhanced page and Minify disk caching for %1$sNFS%2$s',
 									'w3-total-cache'
 								),
 								'<acronym title="' . esc_attr__( 'Network File System', 'w3-total-cache' ) . '">',
@@ -895,13 +973,12 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			?>
 		</table>
 
-		<?php Util_Ui::button_config_save( 'general_misc' ); ?>
 		<?php Util_Ui::postbox_footer(); ?>
 
-		<?php Util_Ui::postbox_header( esc_html__( 'Debug', 'w3-total-cache' ), '', 'debug' ); ?>
-		<p>
-			<?php
-			echo wp_kses(
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Debug', 'w3-total-cache' ),
+			wp_kses(
 				sprintf(
 					// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 					__(
@@ -916,9 +993,11 @@ require W3TC_INC_DIR . '/options/common/header.php';
 						'title' => array(),
 					),
 				)
-			);
-			?>
-		</p>
+			),
+			'',
+			'debug'
+		);
+		?>
 
 		<table class="form-table">
 			<tr>
@@ -928,13 +1007,13 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php $this->checkbox_debug( 'minify.debug' ); ?> <?php Util_Ui::e_config_label( 'minify.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'dbcache.debug' ); ?> <?php Util_Ui::e_config_label( 'dbcache.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'objectcache.debug' ); ?> <?php Util_Ui::e_config_label( 'objectcache.debug' ); ?></label><br />
-					<?php if ( Util_Environment::is_w3tc_pro( $this->_config ) ) : ?>
+					<?php if ( $is_pro ) : ?>
 						<?php $this->checkbox_debug( array( 'fragmentcache', 'debug' ) ); ?> <?php esc_html_e( 'Fragment Cache', 'w3-total-cache' ); ?></label><br />
 					<?php endif; ?>
 					<?php $this->checkbox_debug( 'cdn.debug' ); ?> <?php Util_Ui::e_config_label( 'cdn.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'cdnfsd.debug' ); ?> <?php Util_Ui::e_config_label( 'cdnfsd.debug' ); ?></label><br />
 					<?php $this->checkbox_debug( 'varnish.debug' ); ?> <?php Util_Ui::e_config_label( 'varnish.debug' ); ?></label>
-					<?php if ( Util_Environment::is_w3tc_pro() ) : ?>
+					<?php if ( $is_pro ) : ?>
 						<br />
 						<?php $this->checkbox_debug( 'cluster.messagebus.debug' ); ?> <?php Util_Ui::e_config_label( 'cluster.messagebus.debug' ); ?></label>
 					<?php endif ?>
@@ -961,7 +1040,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 				</td>
 			</tr>
 		</table>
-		<table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">
+		<table class="form-table">
 			<tr>
 				<th><?php esc_html_e( 'Purge Logs:', 'w3-total-cache' ); ?></th>
 				<td>
@@ -970,8 +1049,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php
 					$this->checkbox_debug_pro(
 						'pgcache.debug_purge',
-						'Page Cache Purge Log',
-						' (<a href="?page=w3tc_general&view=purge_log&module=pagecache">view log</a>)'
+						__( 'Page Cache Purge Log', 'w3-total-cache' ),
+						' (<a href="?page=w3tc_general&view=purge_log&module=pagecache">' . __( 'view log', 'w3-total-cache' ) . '</a>)'
 					);
 					?>
 					<br />
@@ -979,8 +1058,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php
 					$this->checkbox_debug_pro(
 						'dbcache.debug_purge',
-						'Database Cache Purge Log',
-						' (<a href="?page=w3tc_general&view=purge_log&module=dbcache">view log</a>)'
+						__( 'Database Cache Purge Log', 'w3-total-cache' ),
+						' (<a href="?page=w3tc_general&view=purge_log&module=dbcache">' . __( 'view log', 'w3-total-cache' ) . '</a>)'
 					);
 					?>
 					<br />
@@ -988,8 +1067,8 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php
 					$this->checkbox_debug_pro(
 						'objectcache.debug_purge',
-						'Object Cache Purge Log',
-						' (<a href="?page=w3tc_general&view=purge_log&module=objectcache">view log</a>)'
+						__( 'Object Cache Purge Log', 'w3-total-cache' ),
+						' (<a href="?page=w3tc_general&view=purge_log&module=objectcache">' . __( 'view log', 'w3-total-cache' ) . '</a>)'
 					);
 					?>
 					<br />
@@ -1009,15 +1088,226 @@ require W3TC_INC_DIR . '/options/common/header.php';
 
 		</table>
 
-		<?php Util_Ui::button_config_save( 'general_debug' ); ?>
+		<?php Util_Ui::postbox_footer(); ?>
+
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'WebP Converter', 'w3-total-cache' ),
+			esc_html__(
+				'The WebP Converter tool can be used to generate WebP versions of media library images which offer superior lossless and lossy compression.',
+				'w3-total-cache'
+			),
+			'',
+			'image_service',
+			$this->_config->is_extension_active( 'imageservice' )
+				? Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' )
+				: ''
+		);
+		?>
+		<table class="form-table">
+			<?php
+			$image_service_link = $this->_config->is_extension_active( 'imageservice' )
+				? sprintf(
+					// Translators: 1 name of plugin, 2 opening HTML a tag, 3 closing HTML a tag.
+					__( 'The tool and its settings can be found on the %1$s %2$sWebP Converter%3$s page.', 'w3-total-cache' ),
+					'Total Cache',
+					'<a href="' . Util_UI::admin_url( 'upload.php?page=w3tc_extension_page_imageservice' ) . '">',
+					'</a>'
+				) : '';
+			Util_Ui::config_item_pro(
+				array(
+					'key'               => 'extension.imageservice',
+					'label'             => esc_html__( 'WebP Converter', 'w3-total-cache' ),
+					'control'           => 'checkbox',
+					'checkbox_label'    => __( 'Enable WebP Converter Extension', 'w3-total-cache' ),
+					'excerpt'           => wp_kses(
+						sprintf(
+							// translators: 1 HTML line breaks, 2 license rates for free/pro users, 3 link to image service tool.
+							__(
+								'This extension allows for optimizing media library images to WebP format.%1$s%2$s%1$s%3$s',
+								'w3-total-cache'
+							),
+							'<br/><br/>',
+							Util_Environment::is_w3tc_pro( $this->_config )
+								? sprintf(
+									// translators: 1 free hourly rate, 2 free monthly rate, 3 opening HTML a tag to documentation URL,
+									// translators: 4 closing HTML a tag.
+									__(
+										'As a Pro license holder you are granted conversion rates of %1$s/hour and %2$s/month. Conversion rates are subject to change and documentation can be found %3$shere%4$s.',
+										'w3-total-cache'
+									),
+									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
+									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
+										? esc_html__( 'unlimited', 'w3-total-cache' ) : number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
+									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/' ) . '" target="_blank">',
+									'</a>'
+								)
+								: sprintf(
+									// translators: 1 free hourly rate, 2 pro monthly rate, 3 pro hourly rate, 4 pro monthly rate,
+									// translators: 5 opening HTML a tag to documentation URL, 6 closing HTML a tag.
+									__(
+										'As a free user you are limited to conversions of %1$s/hour and %2$s/month. The Pro license increases these rates to %3$s/hour and %4$s/month. Conversion rates are subject to change and documentation can be found %5$shere%6$s.',
+										'w3-total-cache'
+									),
+									number_format_i18n( W3TC_IMAGE_SERVICE_FREE_HLIMIT, 0 ),
+									number_format_i18n( W3TC_IMAGE_SERVICE_FREE_MLIMIT, 0 ),
+									number_format_i18n( W3TC_IMAGE_SERVICE_PRO_HLIMIT, 0 ),
+									empty( W3TC_IMAGE_SERVICE_PRO_MLIMIT )
+										? esc_html__( 'unlimited', 'w3-total-cache' ) : number_format_i18n( W3TC_IMAGE_SERVICE_PRO_MLIMIT, 0 ),
+									'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/image-service/' ) . '" target="_blank">',
+									'</a>'
+								),
+							$image_service_link
+						),
+						array(
+							'a'  => array(
+								'href'   => array(),
+								'target' => array(),
+							),
+							'br' => array(),
+						)
+					),
+					'description'       => array(),
+					'label_class'       => 'w3tc_single_column',
+					'wrap_separate'     => true,
+					'intro_label'       => __( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+					'score'             => '+9',
+					'score_label'       => __( 'Points', 'w3-total-cache' ),
+					'score_description' => __( 'In one recent test, converting images to the WebP format added over 9 points to the Google PageSpeed score!', 'w3-total-cache' ),
+					'score_link'        => 'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/webp/?utm_source=w3tc&utm_medium=webp&utm_campaign=proof',
+				)
+			);
+			?>
+		</table>
+
+		<?php Util_Ui::postbox_footer(); ?>
+
+		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Google PageSpeed', 'w3-total-cache' ),
+			esc_html__(
+				'The PageSpeed Tool is a powerful feature that can be used to help optimize and enhance the performance of your WordPress website. By leveraging the insights and recommendations provided by Google\'s PageSpeed Insights API, this tool analyzes your website\'s speed and suggests improvements to boost its performance. By implementing the recommended optimizations, such as minimizing CSS and JavaScript, optimizing images, and enabling browser caching, you can significantly accelerate your WordPress site, resulting in faster loading times and an improved user experience.',
+				'w3-total-cache'
+			),
+			'',
+			'google_pagespeed',
+			'',
+			'',
+			array( esc_html__( 'PageSpeed Tool', 'w3-total-cache' ) => Util_UI::admin_url( 'admin.php?page=w3tc_pagespeed' ) )
+		);
+		?>
+		<?php
+		$access_token_json = ( ! empty( $this->_config->get_string( 'widget.pagespeed.access_token' ) ) ? $this->_config->get_string( 'widget.pagespeed.access_token' ) : '' );
+		$w3_pagespeed      = new PageSpeed_Api( $access_token_json );
+
+		$site_id            = Util_Http::generate_site_id();
+		$return_url         = Util_Ui::admin_url( 'admin.php?page=w3tc_general' );
+		$w3tc_pagespeed_key = ! empty( $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) ) ? $this->_config->get_string( 'widget.pagespeed.w3tc_pagespeed_key' ) : '';
+
+		$access_token       = Util_Request::get( 'w3tc_access_token' );
+		$w3tc_pagespeed_key = Util_Request::get( 'w3tc_pagespeed_key' );
+		$authorize_error    = Util_Request::get( 'w3tc_authorize_error' );
+		$deauthorize        = Util_Request::get( 'w3tc_deauthorize' );
+
+		if ( ! empty( $authorize_error ) ) {
+			$authorize_error = json_decode( $authorize_error );
+
+			if ( 'authorize-in-missing-site-id' === $authorize_error->error->id ) {
+				$message = __( 'Unique site ID missing for authorize request!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-missing-auth-url' === $authorize_error->error->id ) {
+				$message = __( 'Authorize URL missing for authorize request!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-missing-return-url' === $authorize_error->error->id ) {
+				$message = __( 'Return URL missing for authorize request!', 'w3-total-cache' );
+			} elseif ( 'authorize-in-failed' === $authorize_error->error->id ) {
+				$message = __( 'Failed to process authorize request!', 'w3-total-cache' );
+			}
+
+			if ( 'authorize-out-code-missing' === $authorize_error->error->id ) {
+				$message = __( 'No authorize code returned to W3-API from Google!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-w3tc-pagespeed-key-missing' === $authorize_error->error->id ) {
+				$message = __( 'No W3Key return to W3-API from Google!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-not-found' === $authorize_error->error->id ) {
+				$message = __( 'No W3-API matching record found during Google authorization return processing!', 'w3-total-cache' );
+			} elseif ( 'authorize-out-token-missing' === $authorize_error->error->id ) {
+				$message = __( 'No Google access token found during Google authorization return processing!', 'w3-total-cache' );
+			}
+
+			update_option(
+				'w3tcps_authorize_fail',
+				__( 'Google PageSpeed Insights API authorization failed.', 'w3-total-cache' )
+			);
+			update_option(
+				'w3tcps_authorize_fail_message',
+				$message
+			);
+
+			wp_safe_redirect( $return_url );
+			exit;
+		} elseif ( ! empty( $access_token ) && ! empty( $w3tc_pagespeed_key ) ) {
+			$this->_config->set( 'widget.pagespeed.access_token', $access_token );
+			$this->_config->set( 'widget.pagespeed.w3tc_pagespeed_key', $w3tc_pagespeed_key );
+			$this->_config->save();
+
+			wp_safe_redirect( $return_url );
+			exit;
+		} elseif ( $deauthorize ) {
+			$w3_pagespeed->reset();
+			update_option(
+				'w3tcps_authorize_success',
+				__( 'Google PageSpeed Insights API authorization successfully reset.', 'w3-total-cache' )
+			);
+			wp_safe_redirect( $return_url );
+			exit;
+		}
+		?>
+		<table class="form-table">
+			<?php
+			$access_token_json = ( ! empty( $w3_pagespeed->client->getAccessToken() ) ? $w3_pagespeed->client->getAccessToken() : '' );
+			if ( ! $w3_pagespeed->client->isAccessTokenExpired() && ! empty( $access_token_json ) ) {
+				?>
+				<tr>
+					<th>
+						<label for="widget_pagespeed_access_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?> <?php esc_html_e( 'Valid', 'w3-total-cache' ); ?></label>
+					</th>
+				</tr>
+				<tr>
+					<th>
+						<a id="w3tc-google-deauthorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( $return_url . '&w3tc_deauthorize=1' ); ?>"><?php esc_html_e( 'Deauthorize', 'w3-total-cache' ); ?></a>
+					</th>
+				</tr>
+				<?php
+			} else {
+				?>
+				<tr>
+					<th>
+						<label for="widget_pagespeed_token"><?php Util_Ui::e_config_label( 'widget.pagespeed.access_token', 'general' ); ?></label>
+					</th>
+					<td>
+						<a id="w3tc-google-authorize-button" class="w3tc-button-save button-primary" href="<?php echo esc_url( Util_Environment::get_api_base_url() . '/google/authorize-in/' . rawurlencode( $site_id ) . '/' . rawurlencode( $return_url ) ); ?>"><?php esc_html_e( 'Authorize', 'w3-total-cache' ); ?></a>
+						<p><?php esc_html_e( 'Allow W3 Total Cache to connect to the PageSpeed Insights API on your behalf.', 'w3-total-cache' ); ?></p>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
+		</table>
+
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
 
 <form action="admin.php?page=<?php echo esc_attr( $this->_page ); ?>" method="post" enctype="multipart/form-data">
 	<div class="metabox-holder">
-		<?php Util_Ui::postbox_header( esc_html__( 'Import / Export Settings', 'w3-total-cache' ), '', 'settings' ); ?>
 		<?php
+		Util_Ui::postbox_header_tabs(
+			esc_html__( 'Import / Export Settings', 'w3-total-cache' ),
+			esc_html__(
+				'This tool allows users to easily transfer their W3 Total Cache plugin settings between different WordPress installations by exporting the current configuration as a file and importing it on another site, ensuring consistent caching and performance optimizations across multiple websites.',
+				'w3-total-cache'
+			),
+			'',
+			'settings'
+		);
 		echo wp_kses(
 			Util_Ui::nonce_field( 'w3tc' ),
 			array(
@@ -1056,4 +1346,3 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php Util_Ui::postbox_footer(); ?>
 	</div>
 </form>
-<?php require W3TC_INC_DIR . '/options/common/footer.php'; ?>

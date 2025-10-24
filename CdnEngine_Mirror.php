@@ -1,70 +1,87 @@
 <?php
+/**
+ * File: CdnEngine_Mirror.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 /**
+ * Class CdnEngine_Mirror
+ *
  * W3 CDN Mirror Class
  */
 class CdnEngine_Mirror extends CdnEngine_Base {
 	/**
-	 * PHP5 Constructor
+	 * Constructor for the CdnEngine_Mirror class.
 	 *
-	 * @param array   $config
+	 * @param array $config Optional configuration settings for the engine.
+	 *
+	 * @return void
 	 */
-	function __construct( $config = array() ) {
-		$config = array_merge( array(
+	public function __construct( $config = array() ) {
+		$config = array_merge(
+			array(
 				'domain' => array(),
-			), $config );
+			),
+			$config
+		);
 
 		parent::__construct( $config );
 	}
 
 	/**
-	 * Uploads files stub
+	 * Uploads files to the mirror CDN.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @param boolean $force_rewrite
-	 * @return boolean
+	 * @param array $files         Array of files to upload.
+	 * @param array $results       Reference to an array for storing upload results.
+	 * @param bool  $force_rewrite Whether to force overwriting existing files.
+	 * @param int   $timeout_time  Optional timeout time in seconds.
+	 *
+	 * @return bool True on success, false otherwise.
 	 */
-	function upload( $files, &$results, $force_rewrite = false,
-		$timeout_time = NULL ) {
+	public function upload( $files, &$results, $force_rewrite = false, $timeout_time = null ) {
 		$results = $this->_get_results( $files, W3TC_CDN_RESULT_OK, 'OK' );
 
 		return true;
 	}
 
 	/**
-	 * Deletes files stub
+	 * Deletes files from the mirror CDN.
 	 *
-	 * @param array   $files
-	 * @param array   $results
-	 * @return boolean
+	 * @param array $files   Array of files to delete.
+	 * @param array $results Reference to an array for storing deletion results.
+	 *
+	 * @return bool True on success, false otherwise.
 	 */
-	function delete( $files, &$results ) {
+	public function delete( $files, &$results ) {
 		$results = $this->_get_results( $files, W3TC_CDN_RESULT_OK, 'OK' );
 
 		return true;
 	}
 
 	/**
-	 * Tests mirror
+	 * Tests the connectivity and functionality of the mirror CDN.
 	 *
-	 * @param string  $error
-	 * @return bool
+	 * @param string $error Reference to a string for storing any error message.
+	 *
+	 * @return bool True if the test succeeds, false otherwise.
 	 */
-	function test( &$error ) {
-		if ( !parent::test( $error ) ) {
+	public function test( &$error ) {
+		if ( ! parent::test( $error ) ) {
 			return false;
 		}
 
 		$results = array();
-		$files = array(
+		$files   = array(
 			array(
-				'local_path' => '',
-				'remote_path' => 'purge_test_' . time()
-			) );
+				'local_path'  => '',
+				'remote_path' => 'purge_test_' . time(),
+			),
+		);
 
-		if ( !$this->purge( $files, $results ) && isset( $results[0]['error'] ) ) {
+		if ( ! $this->purge( $files, $results ) && isset( $results[0]['error'] ) ) {
 			$error = $results[0]['error'];
 
 			return false;
@@ -74,12 +91,12 @@ class CdnEngine_Mirror extends CdnEngine_Base {
 	}
 
 	/**
-	 * Returns array of CDN domains
+	 * Retrieves the list of configured CDN domains.
 	 *
-	 * @return array
+	 * @return array List of configured domains.
 	 */
-	function get_domains() {
-		if ( !empty( $this->_config['domain'] ) ) {
+	public function get_domains() {
+		if ( ! empty( $this->_config['domain'] ) ) {
 			return (array) $this->_config['domain'];
 		}
 
@@ -87,11 +104,11 @@ class CdnEngine_Mirror extends CdnEngine_Base {
 	}
 
 	/**
-	 * How and if headers should be set
+	 * Indicates support for headers in the mirror CDN.
 	 *
-	 * @return string W3TC_CDN_HEADER_NONE, W3TC_CDN_HEADER_UPLOADABLE, W3TC_CDN_HEADER_MIRRORING
+	 * @return int Header support constant.
 	 */
-	function headers_support() {
+	public function headers_support() {
 		return W3TC_CDN_HEADER_MIRRORING;
 	}
 }

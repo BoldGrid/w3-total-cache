@@ -2,20 +2,18 @@ function requireRoot(p) {
 	return require('../../' + p);
 }
 
-const expect = require('chai').expect;
-const log = require('mocha-logger');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-
+const expect     = require('chai').expect;
+const log        = require('mocha-logger');
+const util       = require('util');
+const exec       = util.promisify(require('child_process').exec);
+const puppeteer  = require('puppeteer');
+const fs         = require('fs');
 fs.readFileAsync = util.promisify(fs.readFile);
-
-const dom = requireRoot('lib/dom');
-const env = requireRoot('lib/environment');
-const sys = requireRoot('lib/sys');
-const w3tc = requireRoot('lib/w3tc');
-const wp = requireRoot('lib/wp');
+const dom        = requireRoot('lib/dom');
+const env        = requireRoot('lib/environment');
+const sys        = requireRoot('lib/sys');
+const w3tc       = requireRoot('lib/w3tc');
+const wp         = requireRoot('lib/wp');
 
 /**environments: environments('blog') */
 
@@ -23,38 +21,51 @@ describe('', function() {
 	this.timeout(sys.suiteTimeout);
 	after(sys.after);
 
-
-
 	before(async() => {
-		global.adminPage = null;
-		global.page = null;
-		global.browser = await puppeteer.launch({
+		global.browserI  = await puppeteer.launch({
 			ignoreHTTPSErrors: true,
-			args: ['--no-sandbox']
+			args: [
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				'--disable-dev-shm-usage',
+				'--disable-accelerated-2d-canvas',
+				'--no-first-run',
+				'--no-zygote',
+				'--disable-gpu',
+				'--incognito',
+				'--ignore-certificate-errors'
+			]
+		});
+
+		global.browser  = await puppeteer.launch({
+			ignoreHTTPSErrors: true,
+			args: [
+				'--no-sandbox',
+				'--disable-setuid-sandbox',
+				'--disable-dev-shm-usage',
+				'--disable-accelerated-2d-canvas',
+				'--no-first-run',
+				'--no-zygote',
+				'--disable-gpu',
+				'--ignore-certificate-errors'
+			]
 		});
 
 		await sys.restoreStateW3tcInactive();
 
 		global.adminPage = await browser.newPage();
-		adminPage.setViewport({width: 1187, height: 1000});
+		adminPage.setViewport({width: 1900, height: 1000});
 		await wp.login(adminPage);
 
-		const context = await browser.createIncognitoBrowserContext();
-		global.page = await context.newPage();
-		page.setViewport({width: 1187, height: 1000});
+		global.page = await browserI.newPage();
+		page.setViewport({width: 1900, height: 1000});
 	});
-
-
 
 	it('copy qa files', async() => {
 		await sys.copyPhpToRoot('../../plugins/upgrade/generic.php');
 	});
 
-
-
 	it('take old w3tc', async() => {
-		log.log('Installing old w3tc...');
-
 		let old = {
 			repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.0.9.5.zip',
 		 	output: '/share/w3tc-9-5.zip',
@@ -63,11 +74,13 @@ describe('', function() {
 
 		if (env.phpVersion >= 8 || parseFloat(env.wpVersion) >= 5.7) {
 			old = {
-				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.0.1.zip',
-			 	output: '/share/w3tc-2-0-1.zip',
-				content: "'2.0.1'"
+				repo: 'https://downloads.wordpress.org/plugin/w3-total-cache.2.8.8.zip',
+				output: '/share/w3tc-2-8-8.zip',
+				content: "'2.8.8'"
 			};
 		}
+
+		log.log('Installing old W3TC (' + old.content + ')...');
 
 		const r1 = await exec('curl --silent ' + old.repo + ' --output ' + old.output);
 		const r2 = await exec('/share/scripts/w3tc-umount.sh');
@@ -77,13 +90,21 @@ describe('', function() {
 		expect(content.indexOf(old.content) > 0).true;
 	});
 
+	it('Fix DbCache_WpdbBase.php for WP >= 6.1', async() => {
+		// Prevent deprecated error on older version of W3TC in WP >= 6.1.
+		if (parseFloat(env.wpVersion) >= 6.1) {
+			log.log('Fixing DbCache_WpdbBase.php for WP >= 6.1 (' + env.wpVersion + ')...');
+			await exec('cp -pf /share/w3tc/DbCache_WpdbBase.php ' + env.wpPluginsPath + 'w3-total-cache/');
+		}
+	});
 
+	it('Mark 2.8.6 generic tasks complete', async() => {
+		await w3tc.w3tcMarkGenericTasksVersionsComplete('2.8.6');
+	});
 
 	it('activate w3tc', async() => {
 		await wp.networkActivatePlugin(adminPage, 'w3-total-cache/w3-total-cache.php');
 	});
-
-
 
 	it('set options', async() => {
 		await w3tc.setOptions(adminPage, 'w3tc_general', {
@@ -99,13 +120,9 @@ describe('', function() {
 		await sys.afterRulesChange();
 	});
 
-
-
 	it('check works', async() => {
 		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
 	});
-
-
 
  	it('upgrade w3tc to actual version', async() => {
 		const r1 = await exec('sudo /share/scripts/w3tc-mount.sh');
@@ -113,25 +130,16 @@ describe('', function() {
 		expect(fs.existsSync(env.wpPluginsPath + 'w3-total-cache/Base_Page_Settings.php'));
 	});
 
-	//helpers.httpServerErrorLogTruncate(test);
-	//helpers.restartHttpServer(test);
-
-
 	it('flush', async() => {
 		await w3tc.flushAll(adminPage);
 	});
-
-
 
 	it('check works', async() => {
 		await w3tc.gotoWithPotentialW3TCRepeat(page, env.homeUrl);
 		let content = await page.content();
 
-		expect(content).matches(new RegExp('Object Caching \\d+\\/\\d+ objects using '
-			+ 'disk'), 'Object cache is enabled');
-		expect(content).matches(new RegExp('Page Caching using disk'),
-			'Page caching is enabled');
-		expect(content).matches(new RegExp('Database Caching.+?using disk'),
-			'Database Caching is enabled');
+		expect(content).matches(new RegExp('Object Caching \\d+\\/\\d+ objects using Disk'), 'Object cache is enabled');
+		expect(content).matches(new RegExp('Page Caching using Disk'), 'Page caching is enabled');
+		expect(content).matches(new RegExp('Database Caching.+?using Disk'), 'Database Caching is enabled');
 	});
 });

@@ -1,4 +1,10 @@
 <?php
+/**
+ * File: UserExperience_LazyLoad_Page_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
@@ -8,13 +14,13 @@ if ( ! defined( 'W3TC' ) ) {
 $c      = Dispatcher::config();
 $is_pro = Util_Environment::is_w3tc_pro( $c );
 
-$plugins                 = get_option( 'active_plugins' );
-$is_wp_google_maps       = ( in_array( 'wp-google-maps/wpGoogleMaps.php', $plugins, true ) );
-$is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugin.php', $plugins, true ) );
-$is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, true ) );
+$active_plugins          = get_option( 'active_plugins' );
+$is_wp_google_maps       = ( in_array( 'wp-google-maps/wpGoogleMaps.php', $active_plugins, true ) );
+$is_wp_google_map_plugin = ( in_array( 'wp-google-map-plugin/wp-google-map-plugin.php', $active_plugins, true ) );
+$is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $active_plugins, true ) );
 
 ?>
-<?php Util_Ui::postbox_header( esc_html__( 'Lazy Loading', 'w3-total-cache' ), '', 'application' ); ?>
+<?php Util_Ui::postbox_header( esc_html__( 'Lazy Loading', 'w3-total-cache' ), '', 'lazy-loading' ); ?>
 <table class="form-table">
 	<?php
 	Util_Ui::config_item(
@@ -108,7 +114,7 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, tru
 
 	?>
 </table>
-<table class="<?php echo esc_attr( Util_Ui::table_class() ); ?>">
+<table class="form-table">
 	<tr>
 		<th><?php esc_html_e( 'Google Maps', 'w3-total-cache' ); ?></th>
 		<td>
@@ -207,12 +213,20 @@ $is_google_maps_easy     = ( in_array( 'google-maps-easy/gmp.php', $plugins, tru
 				);
 				?>
 			</div>
-			<?php Util_Ui::pro_wrap_maybe_end( 'lazyload_googlemaps' ); ?>
+			<?php
+			if ( ! $is_pro ) {
+				Util_Ui::print_score_block(
+					__( 'Potential Google PageSpeed Gain', 'w3-total-cache' ),
+					'+10',
+					__( 'Points', 'w3-total-cache' ),
+					__( 'In a recent test, using the Lazy Load Google Maps feature added 10 points to the Google PageSpeed mobile score!', 'w3-total-cache' ),
+					'https://www.boldgrid.com/support/w3-total-cache/pagespeed-tests/lazy-load-maps/?utm_source=w3tc&utm_medium=lazy-load-maps&utm_campaign=proof'
+				);
+			}
+			Util_Ui::pro_wrap_maybe_end( 'lazyload_googlemaps', false );
+			?>
 		</td>
 	</tr>
 </table>
-<p class="submit">
-	<?php Util_Ui::button_config_save( 'lazyload' ); ?>
-</p>
 
 <?php Util_Ui::postbox_footer(); ?>

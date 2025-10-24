@@ -1,4 +1,12 @@
 <?php
+/**
+ * File: ObjectCache_Plugin.php
+ *
+ * @package W3TC
+ *
+ * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
+ */
+
 namespace W3TC;
 
 /**
@@ -6,339 +14,229 @@ namespace W3TC;
  */
 class ObjectCache_Plugin {
 	/**
-	 * Config
+	 * Config.
+	 *
+	 * @var Config
 	 */
 	private $_config = null;
 
-	function __construct() {
+	/**
+	 * If the object cache has been flushed.
+	 *
+	 * @since 2.2.10
+	 *
+	 * @var boolean
+	 */
+	private static $flushed = false;
+
+	/**
+	 * Constructs the ObjectCache_Plugin class and initializes configuration.
+	 *
+	 * @return void
+	 */
+	public function __construct() {
 		$this->_config = Dispatcher::config();
 	}
 
 	/**
-	 * Runs plugin
-	 */
-	function run() {
-		add_filter( 'cron_schedules', array(
-				$this,
-				'cron_schedules'
-			) );
-
-		add_filter( 'w3tc_footer_comment', array(
-				$this,
-				'w3tc_footer_comment'
-			) );
-
-		if ( $this->_config->get_string( 'objectcache.engine' ) == 'file' ) {
-			add_action( 'w3_objectcache_cleanup', array(
-					$this,
-					'cleanup'
-				) );
-		}
-
-		if ( $this->_do_flush() ) {
-			add_action( 'clean_post_cache', array(
-					$this,
-					'on_post_change'
-				), 0, 2 );
-		}
-
-		if ( $this->_do_flush() ) {
-			add_action( 'comment_post', array(
-					$this,
-					'on_comment_change'
-				), 0 );
-
-			add_action( 'edit_comment', array(
-					$this,
-					'on_comment_change'
-				), 0 );
-
-			add_action( 'delete_comment', array(
-					$this,
-					'on_comment_change'
-				), 0 );
-
-			add_action( 'wp_set_comment_status', array(
-					$this,
-					'on_comment_status'
-				), 0, 2 );
-
-			add_action( 'trackback_post', array(
-					$this,
-					'on_comment_change'
-				), 0 );
-
-			add_action( 'pingback_post', array(
-					$this,
-					'on_comment_change'
-				), 0 );
-		}
-
-		add_action( 'switch_theme', array(
-				$this,
-				'on_change'
-			), 0 );
-
-		if ( $this->_do_flush() ) {
-			add_action( 'updated_option', array(
-					$this,
-					'on_change_option'
-				), 0, 1 );
-			add_action( 'added_option', array(
-					$this,
-					'on_change_option'
-				), 0, 1 );
-
-			add_action( 'delete_option', array(
-					$this,
-					'on_change_option'
-				), 0, 1 );
-		}
-
-		add_action( 'edit_user_profile_update', array(
-				$this,
-				'on_change_profile'
-			), 0 );
-
-		add_filter( 'w3tc_admin_bar_menu',
-			array( $this, 'w3tc_admin_bar_menu' ) );
-
-		// usage statistics handling
-		add_action( 'w3tc_usage_statistics_of_request', array(
-				$this, 'w3tc_usage_statistics_of_request' ), 10, 1 );
-		add_filter( 'w3tc_usage_statistics_metrics', array(
-				$this, 'w3tc_usage_statistics_metrics' ) );
-		add_filter( 'w3tc_usage_statistics_sources', array(
-				$this, 'w3tc_usage_statistics_sources' ) );
-
-
-		if ( Util_Environment::is_wpmu() ) {
-			add_action( 'delete_blog', array(
-					$this,
-					'on_change'
-				), 0 );
-
-			add_action( 'switch_blog', array(
-					$this,
-					'switch_blog'
-				), 0, 2 );
-		}
-	}
-
-	/**
-	 * Does disk cache cleanup
+	 * Registers necessary actions and filters for object cache functionality.
+	 *
+	 * phpcs:disable WordPress.WP.CronInterval.ChangeDetected
+	 *
+	 * @link https://developer.wordpress.org/reference/hooks/updated_option/
 	 *
 	 * @return void
 	 */
-	function cleanup() {
-		$w3_cache_file_cleaner = new Cache_File_Cleaner( array(
-				'cache_dir' => Util_Environment::cache_blog_dir( 'object' ),
-				'clean_timelimit' => $this->_config->get_integer( 'timelimit.cache_gc' )
-			) );
+	public function run() {
+		add_action( 'updated_option', array( $this, 'delete_option_cache' ), 10, 0 );
+
+		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
+		add_action( 'w3tc_objectcache_purge_wpcron', array( $this, 'w3tc_objectcache_purge_wpcron' ) );
+
+		add_filter( 'w3tc_footer_comment', array( $this, 'w3tc_footer_comment' ) );
+
+		if ( 'file' === $this->_config->get_string( 'objectcache.engine' ) ) {
+			add_action( 'w3_objectcache_cleanup', array( $this, 'cleanup' ) );
+		}
+
+		add_filter( 'w3tc_admin_bar_menu', array( $this, 'w3tc_admin_bar_menu' ) );
+
+		// usage statistics handling.
+		add_action( 'w3tc_usage_statistics_of_request', array( $this, 'w3tc_usage_statistics_of_request' ), 10, 1 );
+		add_filter( 'w3tc_usage_statistics_metrics', array( $this, 'w3tc_usage_statistics_metrics' ) );
+		add_filter( 'w3tc_usage_statistics_sources', array( $this, 'w3tc_usage_statistics_sources' ) );
+	}
+
+	/**
+	 * Deletes the cache for all options.
+	 *
+	 * @since 2.7.6
+	 *
+	 * @return bool True on successful removal, false on failure.
+	 */
+	public function delete_option_cache() {
+		return wp_cache_delete( 'alloptions', 'options' );
+	}
+
+	/**
+	 * Cleans up object cache files based on the configured time limit.
+	 *
+	 * @return void
+	 */
+	public function cleanup() {
+		$w3_cache_file_cleaner = new Cache_File_Cleaner(
+			array(
+				'cache_dir'       => Util_Environment::cache_blog_dir( 'object' ),
+				'clean_timelimit' => $this->_config->get_integer( 'timelimit.cache_gc' ),
+			)
+		);
 
 		$w3_cache_file_cleaner->clean();
 	}
 
 	/**
-	 * Cron schedules filter
+	 * Adds custom cron schedules for object cache cleanup.
 	 *
-	 * @param array   $schedules
-	 * @return array
-	 */
-	function cron_schedules( $schedules ) {
-		$gc = $this->_config->get_integer( 'objectcache.file.gc' );
-
-		return array_merge( $schedules, array(
-				'w3_objectcache_cleanup' => array(
-					'interval' => $gc,
-					'display' => sprintf( '[W3TC] Object Cache file GC (every %d seconds)', $gc )
-				)
-			) );
-	}
-
-	/**
-	 * Change action
-	 */
-	function on_change() {
-		static $flushed = false;
-
-		if ( !$flushed ) {
-			$flush = Dispatcher::component( 'CacheFlush' );
-			$flush->objectcache_flush();
-			$flushed = true;
-		}
-	}
-
-	/**
-	 * Change post action
-	 */
-	function on_post_change( $post_id = 0, $post = null ) {
-		static $flushed = false;
-
-		if ( !$flushed ) {
-			if ( is_null( $post ) )
-				$post = $post_id;
-
-			if ( $post_id> 0 && !Util_Environment::is_flushable_post(
-					$post, 'objectcache', $this->_config ) ) {
-				return;
-			}
-
-			$flush = Dispatcher::component( 'CacheFlush' );
-			$flush->objectcache_flush();
-			$flushed = true;
-		}
-	}
-
-	/**
-	 * Change action
-	 */
-	function on_change_option( $option ) {
-		static $flushed = false;
-/*
-		if ( !$flushed ) {
-			if ( $option != 'cron' ) {
-				$flush = Dispatcher::component( 'CacheFlush' );
-				$flush->objectcache_flush();
-				$flushed = true;
-			}
-		}*/
-	}
-
-	/**
-	 * Flush cache when user profile is updated
+	 * @param array $schedules Existing cron schedules.
 	 *
-	 * @param int     $user_id
+	 * @return array Modified cron schedules.
 	 */
-	function on_change_profile( $user_id ) {
-		static $flushed = false;
+	public function cron_schedules( $schedules ) {
+		$c                   = $this->_config;
+		$objectcache_enabled = $c->get_boolean( 'objectcache.enabled' );
+		$engine              = $c->get_string( 'objectcache.engine' );
 
-		if ( !$flushed ) {
-			if ( Util_Environment::is_wpmu() ) {
-				$blogs = get_blogs_of_user( $user_id, true );
-				if ( $blogs ) {
-					global $w3_multisite_blogs;
-					$w3_multisite_blogs = $blogs;
-				}
-			}
-
-			$flush = Dispatcher::component( 'CacheFlush' );
-			$flush->objectcache_flush();
-
-			$flushed = true;
+		if ( $objectcache_enabled && 'file' === $engine ) {
+			$interval                            = $c->get_integer( 'objectcache.file.gc' );
+			$schedules['w3_objectcache_cleanup'] = array(
+				'interval' => $interval,
+				'display'  => sprintf(
+					// translators: 1 interval in seconds.
+					__( '[W3TC] Object Cache file GC (every %d seconds)', 'w3-total-cache' ),
+					$interval
+				),
+			);
 		}
+
+		return $schedules;
 	}
 
 	/**
-	 * Switch blog action
-	 */
-	function switch_blog( $blog_id, $previous_blog_id ) {
-		$o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
-		$o->switch_blog( $blog_id );
-	}
-
-
-	/**
-	 * Comment change action
+	 * Purges the object cache via WP-Cron.
 	 *
-	 * @param integer $comment_id
+	 * @since 2.8.0
+	 *
+	 * @return void
 	 */
-	function on_comment_change( $comment_id ) {
-		$post_id = 0;
-
-		if ( $comment_id ) {
-			$comment = get_comment( $comment_id, ARRAY_A );
-			$post_id = ( !empty( $comment['comment_post_ID'] ) ?
-				(int) $comment['comment_post_ID'] : 0 );
-		}
-
-		$this->on_post_change( $post_id );
+	public function w3tc_objectcache_purge_wpcron() {
+		$flusher = Dispatcher::component( 'CacheFlush' );
+		$flusher->objectcache_flush();
 	}
 
 	/**
-	 * Comment status action
+	 * Adds an item to the admin bar menu for object cache flushing.
 	 *
-	 * @param integer $comment_id
-	 * @param string  $status
+	 * @param array $menu_items Existing menu items.
+	 *
+	 * @return array Modified menu items.
 	 */
-	function on_comment_status( $comment_id, $status ) {
-		if ( $status === 'approve' || $status === '1' ) {
-			$this->on_comment_change( $comment_id );
-		}
-	}
-
 	public function w3tc_admin_bar_menu( $menu_items ) {
+		$current_page = Util_Request::get_string( 'page', 'w3tc_dashboard' );
+
 		$menu_items['20410.objectcache'] = array(
-			'id' => 'w3tc_flush_objectcache',
+			'id'     => 'w3tc_flush_objectcache',
 			'parent' => 'w3tc_flush',
-			'title' => __( 'Object Cache', 'w3-total-cache' ),
-			'href' => wp_nonce_url( admin_url(
-					'admin.php?page=w3tc_dashboard&amp;w3tc_flush_objectcache' ), 'w3tc' )
+			'title'  => __( 'Object Cache', 'w3-total-cache' ),
+			'href'   => wp_nonce_url(
+				admin_url(
+					'admin.php?page=' . $current_page . '&amp;w3tc_flush_objectcache'
+				),
+				'w3tc'
+			),
 		);
 
 		return $menu_items;
 	}
 
+	/**
+	 * Adds a footer comment related to object cache to the strings.
+	 *
+	 * @param  array $strings Existing footer strings.
+	 * @return array Modified footer strings.
+	 */
 	public function w3tc_footer_comment( $strings ) {
-		$o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
+		$o       = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
 		$strings = $o->w3tc_footer_comment( $strings );
 
 		return $strings;
 	}
 
+	/**
+	 * Collects usage statistics for the object cache.
+	 *
+	 * @param mixed $storage Data storage to collect statistics.
+	 *
+	 * @return void
+	 */
 	public function w3tc_usage_statistics_of_request( $storage ) {
 		$o = Dispatcher::component( 'ObjectCache_WpObjectCache_Regular' );
 		$o->w3tc_usage_statistics_of_request( $storage );
 	}
 
+	/**
+	 * Adds object cache metrics to the usage statistics.
+	 *
+	 * @param array $metrics Existing metrics.
+	 *
+	 * @return array Modified metrics.
+	 */
 	public function w3tc_usage_statistics_metrics( $metrics ) {
-		$metrics = array_merge( $metrics, array(
-			'objectcache_get_total',
-			'objectcache_get_hits',
-			'objectcache_sets',
-			'objectcache_flushes',
-			'objectcache_time_ms'
-		) );
+		$metrics = array_merge(
+			$metrics,
+			array(
+				'objectcache_get_total',
+				'objectcache_get_hits',
+				'objectcache_sets',
+				'objectcache_flushes',
+				'objectcache_time_ms',
+			)
+		);
 
 		return $metrics;
 	}
 
-	public function w3tc_usage_statistics_sources($sources) {
+	/**
+	 * Adds object cache sources to the usage statistics.
+	 *
+	 * @param array $sources Existing sources.
+	 *
+	 * @return array Modified sources.
+	 */
+	public function w3tc_usage_statistics_sources( $sources ) {
 		$c = Dispatcher::config();
-		if ( $c->get_string( 'objectcache.engine' ) == 'apc' ) {
+		if ( 'apc' === $c->get_string( 'objectcache.engine' ) ) {
 			$sources['apc_servers']['objectcache'] = array(
-				'name' => __( 'Object Cache', 'w3-total-cache' )
+				'name' => __( 'Object Cache', 'w3-total-cache' ),
 			);
-		} elseif ( $c->get_string( 'objectcache.engine' ) == 'memcached' ) {
+		} elseif ( 'memcached' === $c->get_string( 'objectcache.engine' ) ) {
 			$sources['memcached_servers']['objectcache'] = array(
-				'servers' => $c->get_array( 'objectcache.memcached.servers' ),
-				'username' => $c->get_string( 'objectcache.memcached.username' ),
-				'password' => $c->get_string( 'objectcache.memcached.password' ),
+				'servers'         => $c->get_array( 'objectcache.memcached.servers' ),
+				'username'        => $c->get_string( 'objectcache.memcached.username' ),
+				'password'        => $c->get_string( 'objectcache.memcached.password' ),
 				'binary_protocol' => $c->get_boolean( 'objectcache.memcached.binary_protocol' ),
-				'name' => __( 'Object Cache', 'w3-total-cache' )
+				'name'            => __( 'Object Cache', 'w3-total-cache' ),
 			);
-		} elseif ( $c->get_string( 'objectcache.engine' ) == 'redis' ) {
+		} elseif ( 'redis' === $c->get_string( 'objectcache.engine' ) ) {
 			$sources['redis_servers']['objectcache'] = array(
-				'servers' => $c->get_array( 'objectcache.redis.servers' ),
-				'username' => $c->get_boolean( 'objectcache.redis.username' ),
-				'dbid' => $c->get_integer( 'objectcache.redis.dbid' ),
-				'password' => $c->get_string( 'objectcache.redis.password' ),
-				'name' => __( 'Object Cache', 'w3-total-cache' )
+				'servers'                 => $c->get_array( 'objectcache.redis.servers' ),
+				'verify_tls_certificates' => $c->get_boolean( 'objectcache.redis.verify_tls_certificates' ),
+				'username'                => $c->get_boolean( 'objectcache.redis.username' ),
+				'dbid'                    => $c->get_integer( 'objectcache.redis.dbid' ),
+				'password'                => $c->get_string( 'objectcache.redis.password' ),
+				'name'                    => __( 'Object Cache', 'w3-total-cache' ),
 			);
 		}
 
 		return $sources;
-	}
-
-	/**
-	 *
-	 *
-	 * @return bool
-	 */
-	private function _do_flush() {
-		//TODO: Requires admin flush until OC can make changes in Admin backend
-		return $this->_config->get_boolean( 'cluster.messagebus.enabled' )
-			|| $this->_config->get_boolean( 'objectcache.purge.all' )
-			|| defined( 'WP_ADMIN' );
 	}
 }

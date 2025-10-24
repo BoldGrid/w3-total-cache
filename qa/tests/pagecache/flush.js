@@ -56,9 +56,10 @@ describe('', function() {
 		} else {
 			await adminPage.goto(env.adminUrl + 'admin.php?page=w3tc_general');
 
+			let pgcacheFlushButton = 'input[name="w3tc_flush_pgcache"]';
 			await Promise.all([
-				adminPage.waitForNavigation({timeout: 0}),
-				adminPage.click('input[name="w3tc_flush_pgcache"]')
+				adminPage.waitForNavigation({timeout: 300000}),
+				adminPage.evaluate((pgcacheFlushButton) => document.querySelector(pgcacheFlushButton).click(), pgcacheFlushButton)
 			]);
 
 			expect(await adminPage.content()).contains('Page cache successfully emptied.');

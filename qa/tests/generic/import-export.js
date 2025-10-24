@@ -45,7 +45,9 @@ describe('import/export config', function() {
 		    });
 		});
 
-		await adminPage.click('input[name="w3tc_config_export"]');
+		let configExport = 'input[name="w3tc_config_export"]';
+		await adminPage.evaluate((configExport) => document.querySelector(configExport).click(), configExport);
+
 		let request = await requestPromise;
 
 		let headers = request.headers();
@@ -75,9 +77,11 @@ describe('import/export config', function() {
 		log.log('importing file');
 		let fileInput = await adminPage.$('input[name=config_file]');
 		await fileInput.uploadFile(env.wpPath + '/export-data.json');
+
+		let configImport = 'input[name=w3tc_config_import]';
 		await Promise.all([
-			adminPage.click('input[name=w3tc_config_import]'),
-			adminPage.waitForNavigation({timeout:0})
+			adminPage.evaluate((configImport) => document.querySelector(configImport).click(), configImport),
+			adminPage.waitForNavigation({timeout: 300000})
 		]);
 
 		//checking if all settings was exported

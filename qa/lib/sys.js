@@ -1,45 +1,75 @@
+/**
+ * File: sys.js
+ */
+
+/**
+ * requireRoot.
+ *
+ * @param {string} p Path to required file.
+ * @returns {require}
+ */
 function requireRoot(p) {
-  return require('../' + p);
+	return require('../' + p);
 }
 
-const expect = require('chai').expect;
-const http = require('http');
-const https = require('https');
-const log = require('mocha-logger');
+const expect    = require('chai').expect;
+const http      = require('http');
+const https     = require('https');
+const log       = require('mocha-logger');
 const puppeteer = require('puppeteer');
-const util = require('util');
+const util      = require('util');
+const exec      = util.promisify(require('child_process').exec);
+const wp        = requireRoot('lib/wp');
+const env       = requireRoot('lib/environment');
+const w3tc      = require('./w3tc');
 
-const exec = util.promisify(require('child_process').exec);
-
-const wp = requireRoot('lib/wp');
-const env = requireRoot('lib/environment');
-
-
-
-exports.suiteTimeout = 90000;
-
-
-
-exports.beforeDefault = async function() {
+/**
+* beforeDefault.
+*/
+async function beforeDefault() {
 	global.adminPage = null;
-	global.page = null;
-	global.browser = await puppeteer.launch({
+	global.page     = null;
+	global.browserI  = await puppeteer.launch({
 		ignoreHTTPSErrors: true,
-		args: ['--no-sandbox']
+		args: [
+			'--no-sandbox',
+			'--disable-setuid-sandbox',
+			'--disable-dev-shm-usage',
+			'--disable-accelerated-2d-canvas',
+			'--no-first-run',
+			'--no-zygote',
+			'--disable-gpu',
+			'--incognito',
+			'--ignore-certificate-errors'
+		]
 	});
 
-	await exports.restoreStateFinal();
-	// each test starts with settings changes and following http server restart
-	// so it's just a waste of time doing it now
-	// await exports.afterRulesChange()
+	global.browser  = await puppeteer.launch({
+		ignoreHTTPSErrors: true,
+		args: [
+			'--no-sandbox',
+			'--disable-setuid-sandbox',
+			'--disable-dev-shm-usage',
+			'--disable-accelerated-2d-canvas',
+			'--no-first-run',
+			'--no-zygote',
+			'--disable-gpu',
+			'--ignore-certificate-errors'
+		]
+	});
 
-	// clear extenal cache engine that may keep state between tests
+	await module.exports.restoreStateFinal();
+
+	// Clear extenal cache engine that may keep state between tests.
 	const r = await exec('/share/scripts/restart-http.rb');
 	expect(r.stdout).contains('restartHttpSuccess');
 
+	// Mark generic tasks complete for "2.8.6".
+	await w3tc.w3tcMarkGenericTasksVersionsComplete('2.8.6');
+
 	global.adminPage = await browser.newPage();
 
-	adminPage.setViewport({width: 1187, height: 1000});
+	adminPage.setViewport({width: 1900, height: 1000});
 	await adminPage.setCacheEnabled(false);
 	await wp.login(adminPage);
 
@@ -51,9 +81,8 @@ exports.beforeDefault = async function() {
 		}
 	});
 
-	const context = await browser.createIncognitoBrowserContext();
-	global.page = await context.newPage();
-	page.setViewport({width: 1187, height: 1000});
+	global.page   = await browserI.newPage();
+	page.setViewport({width: 1900, height: 1000});
 	await page.setCacheEnabled(false);
 
 	await page.on("dialog", async (dialog) => {
@@ -65,82 +94,104 @@ exports.beforeDefault = async function() {
 	});
 }
 
-
-
-exports.after = async function() {
-	if (global.page)
+/**
+* after.
+*
+* After all tests.
+*/
+async function after() {
+	if (global.page) {
 		await page.close();
-	if (global.adminPage)
+	}
+
+	if (global.adminPage) {
 		await adminPage.close();
-	if (global.browser)
+	}
+
+	if (global.browserI) {
+		await browserI.close();
+	}
+
+	if (global.browser) {
 		await browser.close();
+	}
 }
 
-
-
-exports.restoreStateFinal = async function() {
+/**
+* Restore plugin final state.
+*/
+async function restoreStateFinal() {
 	log.log('Restore wp state - to final');
 	const r = await exec('/share/scripts/restore-final.rb');
-	//expect(r.stdout).contains('restoreFinalSuccess');
-	await exports.afterSourceFileContentsChanges();
+	await module.exports.afterSourceFileContentsChanges();
 }
 
-
-
-
-exports.restoreStateW3tcInactive = async function() {
+/**
+* Restore plugin intactive state.
+*/
+async function restoreStateW3tcInactive() {
 	log.log('Restore wp state - to w3tc inactive');
 	const r = await exec('/share/scripts/restore-w3tc-inactive.sh');
-	//expect(r.stdout).contains('restoreFinalSuccess');
-	await exports.afterSourceFileContentsChanges();
+	await module.exports.afterSourceFileContentsChanges();
 }
 
-
-
-exports.afterRulesChange = async function() {
-	if (process.env['W3D_HTTP_SERVER'] == 'nginx' ||
-			process.env['W3D_HTTP_SERVER'] == 'lightspeed') {
+/**
+* Restart web server after rules change.
+*/
+async function afterRulesChange() {
+	if ('nginx' === process.env['W3D_HTTP_SERVER'] || 'litespeed' === process.env['W3D_HTTP_SERVER']) {
 		log.log('Restarting http server after rules change');
 		const r = await exec('/share/scripts/restart-http.rb');
 		expect(r.stdout).contains('restartHttpSuccess');
 	}
 }
 
-
-
-exports.afterSourceFileContentsChanges = async function() {
+/**
+* Restart web server after file contents changes.
+*/
+async function afterSourceFileContentsChanges() {
 	log.log('Restarting http server after source file contents change');
 	const r = await exec('/share/scripts/restart-http.rb');
 	expect(r.stdout).contains('restartHttpSuccess');
 }
 
-
-
-exports.copyPhpToRoot = async function(filename) {
+/**
+* Copy PHP files to web root.
+*
+* @param {string} filename Filename.
+*/
+async function copyPhpToRoot(filename) {
 	log.log('copying ' + filename);
 	let targetPath = env.wpPath;
 	const r = await exec('cp -f ' + filename + ' ' + targetPath);
 	expect(r.stdout).empty;
 }
 
-
-
-exports.copyPhpToPath = async function(from, to) {
+/**
+* Copy PHP files to a specific path.
+*
+* @param {string} from From.
+* @param {string} to To.
+*/
+async function copyPhpToPath(from, to) {
 	log.log('copying custom template to ' + to);
-
 	const r = await exec('mkdir -p ' + to);
 	expect(r.stdout).empty;
 	const r2 = await exec('cp -f ' + from + ' ' + to);
 	expect(r2.stdout).empty;
 }
 
-
-
-exports.httpGet = function(url) {
-	process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+/**
+* Perform an HTTP request.
+*
+* @param {string} url URL.
+* @returns {Promise}
+*/
+async function httpGet(url) {
+	process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 	let p = new Promise((resolve, reject) => {
-		let httpModule = (url.substr(0, 7) == 'http://' ? http : https);
+		let httpModule = (url.substr(0, 7) === 'http://' ? http : https);
 		httpModule.get(url, (response) => {
 			let data = '';
 			response.on('data', (chunk) => {
@@ -153,18 +204,21 @@ exports.httpGet = function(url) {
 					body: data
 				});
 			});
-
 		}).on('error', (err) => {
-			reject(err.message);
+				reject(err.message);
 		});
 	});
 
 	return p;
 }
 
-
-
-exports.repeatOnFailure = async function(pPage, operation) {
+/**
+* Repeat page operations on failure.
+*
+* @param {pPage} pPage Page.
+* @param {*} operation Operation.
+*/
+async function repeatOnFailure(pPage, operation) {
 	for (let n = 0; n < 100; n++) {
 		try {
 			await operation();
@@ -177,8 +231,28 @@ exports.repeatOnFailure = async function(pPage, operation) {
 			log.error(content.substr(0, 500) + '\n...\n' + content.substr(-500));
 		}
 
-		log.log(new Date().toISOString() + ' doing next ' +
-			(n <= 0 ? '' : ' attempt' + n));
-		await pPage.waitFor(1000);
+		log.log(new Date().toISOString() + ' doing next ' + (n <= 0 ? '' : ' attempt' + n));
+		await new Promise(r => setTimeout(r, 1000));
 	}
 }
+
+// Add functions to module.exports.
+module.exports = module.exports || {};
+module.exports = Object.assign(
+module.exports,
+	{
+		beforeDefault,
+		after,
+		restoreStateFinal,
+		restoreStateW3tcInactive,
+		afterRulesChange,
+		afterSourceFileContentsChanges,
+		copyPhpToRoot,
+		copyPhpToPath,
+		httpGet,
+		repeatOnFailure
+	}
+);
+
+// Add suiteTimeout.
+module.exports.suiteTimeout = 300000;

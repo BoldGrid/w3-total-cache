@@ -1,36 +1,53 @@
 <?php
+/**
+ * File: Enterprise_SnsBase.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
-if ( !defined( 'W3TC_SKIPLIB_AWS' ) ) {
+if ( ! defined( 'W3TC_SKIPLIB_AWS' ) ) {
 	require_once W3TC_DIR . '/vendor/autoload.php';
 }
 
-
-
 /**
+ * Class Enterprise_SnsBase
+ *
  * Base class for Sns communication
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+ * phpcs:disable WordPress.WP.AlternativeFunctions
  */
 class Enterprise_SnsBase {
 	/**
-	 * PHP5-style constructor
+	 * Class constructor for Enterprise_SnsBase.
+	 *
+	 * Initializes the configuration, region, topic ARN, API key, API secret, and debug flag.
+	 *
+	 * @return void
 	 */
-	function __construct() {
+	public function __construct() {
 		$this->_config = Dispatcher::config();
 
-		$this->_region = $this->_config->get_string( 'cluster.messagebus.sns.region' );
-		$this->_topic_arn = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
-		$this->_api_key = $this->_config->get_string( 'cluster.messagebus.sns.api_key' );
+		$this->_region     = $this->_config->get_string( 'cluster.messagebus.sns.region' );
+		$this->_topic_arn  = $this->_config->get_string( 'cluster.messagebus.sns.topic_arn' );
+		$this->_api_key    = $this->_config->get_string( 'cluster.messagebus.sns.api_key' );
 		$this->_api_secret = $this->_config->get_string( 'cluster.messagebus.sns.api_secret' );
 
 		$this->_debug = $this->_config->get_boolean( 'cluster.messagebus.debug' );
-		$this->_api = null;
+		$this->_api   = null;
 	}
 
 	/**
-	 * Returns API object
+	 * Retrieves the API client for AWS SNS.
 	 *
-	 * @throws Exception
-	 * @return AmazonSNS
+	 * Checks if the API client is initialized and if not, sets it up using the provided credentials or default provider.
+	 *
+	 * @return \Aws\Sns\SnsClient The AWS SNS client instance.
+	 *
+	 * @throws \Exception If API Key or API Secret is not configured and cannot use default credentials.
 	 */
 	protected function _get_api() {
 		if ( is_null( $this->_api ) ) {
@@ -38,41 +55,46 @@ class Enterprise_SnsBase {
 				$credentials = \Aws\Credentials\CredentialProvider::defaultProvider();
 			} else {
 				if ( empty( $this->_api_key ) ) {
-					throw new \Exception( 'API Key is not configured' );
+					throw new \Exception( \esc_html__( 'API Key is not configured.', 'w3-total-cache' ) );
 				}
 
 				if ( empty( $this->_api_secret ) ) {
-					throw new \Exception( 'API Secret is not configured' );
+					throw new \Exception( \esc_html__( 'API Secret is not configured.', 'w3-total-cache' ) );
 				}
 
-				$credentials = new \Aws\Credentials\Credentials(
-					$this->_api_key, $this->_api_secret );
+				$credentials = new \Aws\Credentials\Credentials( $this->_api_key, $this->_api_secret );
 			}
 
-			$this->_api = new \Aws\Sns\SnsClient( array(
-				'credentials' => $credentials,
-				'region' => $this->_region,
-				'version' => '2010-03-31'
-			) );
+			$this->_api = new \Aws\Sns\SnsClient(
+				array(
+					'credentials' => $credentials,
+					'region'      => $this->_region,
+					'version'     => '2010-03-31',
+				)
+			);
 		}
 
 		return $this->_api;
 	}
 
 	/**
-	 * Write log entry
+	 * Logs a message with an optional backtrace to a debug file.
 	 *
-	 * @param string  $message
-	 * @param array   $backtrace
-	 * @return bool|int
+	 * Writes a message with an optional backtrace to the log file if debugging is enabled.
+	 *
+	 * @param string $message   The message to log.
+	 * @param array  $backtrace Optional. The backtrace data to log.
+	 *
+	 * @return bool Whether the log was successfully written.
 	 */
 	protected function _log( $message, $backtrace = null ) {
-		if ( !$this->_debug )
+		if ( ! $this->_debug ) {
 			return true;
+		}
 
-		$data = sprintf( "[%s] %s\n", date( 'r' ), $message );
+		$data = sprintf( "[%s] %s\n", gmdate( 'r' ), $message );
 		if ( $backtrace ) {
-			$debug = print_r( $backtrace, true );
+			$debug = print_r( $backtrace, true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 			$data .= $debug . "\n";
 		}
 		$data = strtr( $data, '<>', '..' );

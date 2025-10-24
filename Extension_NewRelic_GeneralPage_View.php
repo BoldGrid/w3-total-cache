@@ -1,13 +1,32 @@
 <?php
+/**
+ * File: Extension_NewRelic_GeneralPage_View.php
+ *
+ * @package W3TC
+ */
+
 namespace W3TC;
 
 if ( ! defined( 'W3TC' ) ) {
 	die();
 }
-?>
-<?php
-Util_Ui::postbox_header( esc_html__( 'Monitoring', 'w3-total-cache' ), '', 'monitoring' );
+
+Util_Ui::postbox_header_tabs(
+	esc_html__( 'Monitoring', 'w3-total-cache' ),
+	esc_html__(
+		'"New Relic" is a powerful performance monitoring and analysis tool that enhance the speed and efficiency 
+			of a WordPress website. By utilizing New Relic, website owners can gain valuable insights into their 
+			site\'s performance, identifying bottlenecks, slow queries, and other performance issues. With this 
+			information, users can optimize their website\'s configuration, improve caching strategies, and make 
+			informed decisions to deliver a faster and more responsive browsing experience for their visitors.',
+		'w3-total-cache'
+	),
+	'',
+	'monitoring',
+	Util_UI::admin_url( 'admin.php?page=w3tc_monitoring' )
+);
 Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_overloaded' ) );
+
 ?>
 
 <?php if ( ! $new_relic_installed ) : ?>
@@ -15,14 +34,11 @@ Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_over
 		<?php
 		echo wp_kses(
 			sprintf(
-				w3tc_er(
-					'newrelic.general.header',
-					// translators: 1 opening HTML a tag to W3TC NewRelic Signup page, 2 closing HTML a tag,
-					// translators: 3 opening HTML a tag to NewRelic documentation for PHP, 4 closing HTML a tag.
-					__(
-						'New Relic may not be installed or not active on this server. %1$sSign up for a (free) account%2$s. Visit %3$sNew Relic%4$s for installation instructions.',
-						'w3-total-cache'
-					)
+				// translators: 1 opening HTML a tag to W3TC NewRelic Signup page, 2 closing HTML a tag,
+				// translators: 3 opening HTML a tag to NewRelic documentation for PHP, 4 closing HTML a tag.
+				__(
+					'New Relic may not be installed or not active on this server. %1$sSign up for a (free) account%2$s. Visit %3$sNew Relic%4$s for installation instructions.',
+					'w3-total-cache'
 				),
 				'<a href="' . esc_url( W3TC_NEWRELIC_SIGNUP_URL ) . '" target="_blank">',
 				'</a>',
@@ -85,5 +101,5 @@ Util_Ui::config_overloading_button( array( 'key' => 'newrelic.configuration_over
 		</td>
 	</tr>
 </table>
-<?php Util_Ui::button_config_save( 'general_newrelic' ); ?>
+
 <?php Util_Ui::postbox_footer(); ?>

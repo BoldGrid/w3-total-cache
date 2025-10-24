@@ -15,8 +15,9 @@ def run
 
 	if ENV['W3D_HTTP_SERVER'] == 'apache'
 		system_assert '/etc/init.d/apache2 restart'
-	elsif ENV['W3D_HTTP_SERVER'] == 'lightspeed'
+	elsif ENV['W3D_HTTP_SERVER'] == 'litespeed'
 		system_assert 'systemctl restart lsws'
+		system 'chmod 777 /var/www/wp-sandbox/litespeed.conf'
 	else
 		socket_filename = '/tmp/php-fpm.sock'
 		# php first, nginx next - otherwise not stable
@@ -32,6 +33,8 @@ def run
 			system_assert 'service php7.4-fpm restart'
 		elsif ENV['W3D_PHP_VERSION'] == '8.0'
 			system_assert 'service php8.0-fpm restart'
+		elsif ENV['W3D_PHP_VERSION'] == '8.1'
+			system_assert 'service php8.1-fpm restart'
 		else
 			socket_filename = '/run/php/php5.6-fpm.sock'
 			system_assert 'service php5.6-fpm restart'

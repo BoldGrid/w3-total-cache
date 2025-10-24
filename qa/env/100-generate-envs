@@ -59,11 +59,9 @@ def generate_image_descriptors
 		'apache' => {
 			'HTTP_SERVER' => 'apache',
 			'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/log/apache2/wp.sandbox_error.log'
-		}
-		# still in development
-		#,
-		#'lightspeed' => {
-		#	'HTTP_SERVER' => 'lightspeed',
+		}#,
+		#'litespeed' => {
+		#	'HTTP_SERVER' => 'litespeed',
 		#	'HTTP_SERVER_ERROR_LOG_FILENAME' => '/var/www/wp.sandbox_error.log'
 		#}
 	})
@@ -73,33 +71,51 @@ def generate_image_descriptors
 		'php80' => {
 			'PHP_VERSION' => '8.0',
 			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
-			'OS' => 'focal',
+			'OS' => 'jammy',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis'
+			'REDIS' => 'redis',
+			'_except_name_contains' => [
+				'litespeed'
+			]
 		},
+		# litespeed-specific, lighter env to keep scope tight
+		#'php80tiny' => {
+		#	'PHP_VERSION' => '8.0',
+		#	'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
+		#	'OS' => 'jammy',
+		#	'APC' => '',
+		#	'MEMCACHE' => '',
+		#	'REDIS' => '',
+		#	'_except_name_contains' => [
+		#		'apache',
+		#		'nginx',
+		#	]
+		#},
 		'php74' => {
 			'PHP_VERSION' => '7.4',
 			'PHPFPM_SOCKET_FILE' => '/tmp/php-fpm.sock',
-			'OS' => 'focal',
+			'OS' => 'jammy',
 			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
 			'MEMCACHE' => 'memcached',
 			'REDIS' => 'redis',
 			'_except_name_contains' => [
-				'lightspeed'
+				'litespeed'
 			]
-		},
-		'php56' => {
-			'PHP_VERSION' => '5.6',
-			'PHPFPM_SOCKET_FILE' => '/run/php/php5.6-fpm.sock',
-			'OS' => 'focal',
-			'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
-			'MEMCACHE' => 'memcached',
-			'REDIS' => 'redis',
-			'_except_name_contains' => [
-				'lightspeed'
-			]
-		}
+		}#,
+		#'php56' => {
+		#	'PHP_VERSION' => '5.6',
+		#	'PHPFPM_SOCKET_FILE' => '/run/php/php5.6-fpm.sock',
+		#	'OS' => 'focal',
+		#	'APC' => 'apcu',   # apcu doesnt modify php behaviour, can be by default
+		#	'MEMCACHE' => 'memcached',
+		#	'REDIS' => 'redis',
+		#	'_except_name_contains' => [
+		#		'litespeed',
+		#		'wp63', # wp6.3 requires php>=7.0
+		#		'wp64', # wp6.4 requires php>=7.0
+		#	]
+		#}
 	})
 
 	php_last = php_list.keys.sort[-1]
@@ -112,7 +128,7 @@ def generate_image_descriptors
 				'HTTP_SERVER_PORT' => '8080',
 				'WP_MAYBE_COLON_PORT' => ':8080',   # derived from HTTP_SERVER_PORT
 				'_except_name_contains' => [
-					'lightspeed'
+					'litespeed'
 				]
 			},
 			'https' => {
@@ -120,9 +136,9 @@ def generate_image_descriptors
 				'HTTP_SERVER_SCHEME' => 'https',
 				'WP_MAYBE_COLON_PORT' => '',
 				'_except_name_contains' => [
-					'lightspeed'
+					'litespeed'
 				]
-			},
+			}
 			#'varnish' => {
 			#	'HTTP_SERVER_PORT' => '8080',
 			#	'WP_MAYBE_COLON_PORT' => '',
@@ -150,72 +166,67 @@ def generate_box_descriptors(image_name)
 	}
 
 	box_descriptors = multiply(box_descriptors, {
-		#'wp47' => {
-		#	'WP_VERSION' => '4.7',
+		#'wp58' => {
+		#	'WP_VERSION' => '5.8',
 		#	'_except_name_contains' => [
-		#		'php53', 'php55', 'php56', 'php71', 'php73',   # no reason to use for all php versions
-		#		'varnish',
-		#		'https'
+		#		'litespeed'
 		#	]
 		#},
-		#'wp49' => {
-		#	'WP_VERSION' => '4.9.4',
+		#'wp59' => {
+		#	'WP_VERSION' => '5.9'
+		#},
+		#'wp60' => {
+		#	'WP_VERSION' => '6.0',
 		#	'_except_name_contains' => [
-		#		'varnish',
-		#		'php53', 'php55',
-		#		'php73', 'php80'  # cause a lot of PHP warnings
+		#		'litespeed'
 		#	]
 		#},
-		#'wp51' => {   # dont comment out - last env using PHP55 # Stopped using php55.
-		#	'WP_VERSION' => '5.1',
+		#'wp61' => {
+		#	'WP_VERSION' => '6.1',
 		#	'_except_name_contains' => [
-		#		'php80'  # not compatible, {} in script-loader fatal
+		#		'litespeed'
 		#	]
 		#},
-		#'wp52' => {
-		#	'WP_VERSION' => '5.2',
+		#'wp63' => {
+		#	'WP_VERSION' => '6.3',
 		#	'_except_name_contains' => [
-		#		'php55'   # wp5.2 requires php>=5.6
+		#		'litespeed',
+		#		'php56' # wp6.3 requires php>=7.0
 		#	]
 		#},
-		#'wp53' => {
-		#	'WP_VERSION' => '5.3',
+		#'wp64' => {
+		#	'WP_VERSION' => '6.4',
 		#	'_except_name_contains' => [
-		#		'php55'   # wp5.3 requires php>=5.6
+		#		'litespeed',
+		#		'php56' # wp6.4 requires php>=7.0
 		#	]
 		#},
-		#'wp55' => {
-		#	'WP_VERSION' => '5.5',
+		#'wp65' => {
+		#	'WP_VERSION' => '6.5',
 		#	'_except_name_contains' => [
-		#		'php55',   # wp5.5 requires php>=5.6
-		#		'php80'  # not compatible, WP_Feed_Cache::create() fatal
+		#		'litespeed',
+		#		'php56' # wp6.5 requires php>=7.0
 		#	]
 		#},
-		#'wp56' => {
-		#'WP_VERSION' => '5.6',
+		#'wp66' => {
+		#	'WP_VERSION' => '6.6',
 		#	'_except_name_contains' => [
-		#		'lightspeed'
+		#		'litespeed',
+		#		'php56' # wp6.6 requires php>=7.0
 		#	]
 		#},
-		#'wp57' => {
-		#	'WP_VERSION' => '5.7',
-		#	'_except_name_contains' => [
-		#		'lightspeed'
-		#	]
-		#},
-		'wp58' => {
-			'WP_VERSION' => '5.8',
+		'wp67' => {
+			'WP_VERSION' => '6.7',
 			'_except_name_contains' => [
-				'lightspeed'
+				'litespeed',
+				'php56' # wp6.7 requires php>=7.0
 			]
 		},
-		'wp59' => {
-			'WP_VERSION' => '5.9'
-		},
-		'wp60' => {
-			'WP_VERSION' => '6.0',
+		'wp68' => {
+			'WP_VERSION' => '6.8',
 			'_except_name_contains' => [
-				'lightspeed'
+				'litespeed',
+				'php56' # wp6.8 requires php>=7.2
 			]
 		}
 	}, image_name)
@@ -234,7 +245,7 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/moved-folders/moved-plugins/',
 				'WP_PLUGINS_URI' => '/moved-folders/moved-plugins/',
 				'_except_name_contains' => [
-					'xcache', 'lightspeed'
+					'xcache', 'litespeed'
 				]
 			},
 			# add wp in /wp/ uri, subdomains are not supported by wp in that configuration
@@ -248,14 +259,14 @@ def generate_box_descriptors(image_name)
 				'WP_PLUGINS_PATH' => '/var/www/wp-sandbox/wp/wp-content/plugins/',
 				'WP_PLUGINS_URI' => '/wp/wp-content/plugins/',
 				'_except_name_contains' => [
-					'xcache', 'lightspeed'
+					'xcache', 'litespeed'
 				]
 			},
 			# some people enter home/siteurl captialized
 			'captial' => {
 				'WP_HOST' => 'Wp.SandBox',
 				'_except_name_contains' => [
-					'xcache', 'lightspeed'
+					'xcache', 'litespeed'
 				]
 
 			}
@@ -279,7 +290,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
-				'lightspeed'
+				'litespeed'
 			]
 		},
 		'subdir' => {
@@ -296,7 +307,7 @@ def generate_box_descriptors(image_name)
 				'xcache-wp431',
 				'xcache-wp47',
 				'xcache-wp48',
-				'lightspeed'
+				'litespeed'
 			]
 		}
 	}, image_name)
@@ -318,28 +329,28 @@ def generate_box_subenvironments(image_variables, box_variables)
 	if image_variables['FILESYSTEM'] != 'no'
 		subenvironments['cache-file'] = {
 			'CACHE_ENGINE_LABEL' => 'file',
-			'CACHE_ENGINE_NAME' => 'disk'
+			'CACHE_ENGINE_NAME' => 'Disk'
 
 		}
 		subenvironments['pagecache-file'] = {
 			'CACHE_ENGINE_LABEL' => 'file',
-			'CACHE_ENGINE_NAME' => 'disk'
+			'CACHE_ENGINE_NAME' => 'Disk'
 
 		}
 		subenvironments['pagecache-file_generic'] = {
 			'CACHE_ENGINE_LABEL' => 'file_generic',
-			'CACHE_ENGINE_NAME' => 'disk: enhanced'
+			'CACHE_ENGINE_NAME' => 'Disk: Enhanced'
 		}
 	end
 
 	if image_variables['APC'] == 'apc' or image_variables['APC'] == 'apcu'
 		subenvironments['cache-apc'] = {
 			'CACHE_ENGINE_LABEL' => 'apc',
-			'CACHE_ENGINE_NAME' => 'apc'
+			'CACHE_ENGINE_NAME' => 'APC'
 		}
 		subenvironments['pagecache-apc'] = {
 			'CACHE_ENGINE_LABEL' => 'apc',
-			'CACHE_ENGINE_NAME' => 'apc'
+			'CACHE_ENGINE_NAME' => 'APC'
 		}
 	end
 
@@ -347,33 +358,33 @@ def generate_box_subenvironments(image_variables, box_variables)
 			image_variables['MEMCACHE'] == 'memcached'
 		subenvironments['cache-memcached'] = {
 			'CACHE_ENGINE_LABEL' => 'memcached',
-			'CACHE_ENGINE_NAME' => 'memcache'
+			'CACHE_ENGINE_NAME' => 'Memcache'
 		}
 		subenvironments['pagecache-memcached'] = {
 			'CACHE_ENGINE_LABEL' => 'memcached',
-			'CACHE_ENGINE_NAME' => 'memcache'
+			'CACHE_ENGINE_NAME' => 'Memcache'
 		}
 	end
 
 	if image_variables['REDIS'] == 'redis'
 		subenvironments['cache-redis'] = {
 			'CACHE_ENGINE_LABEL' => 'redis',
-			'CACHE_ENGINE_NAME' => 'redis'
+			'CACHE_ENGINE_NAME' => 'Redis'
 		}
 		subenvironments['pagecache-redis'] = {
 			'CACHE_ENGINE_LABEL' => 'redis',
-			'CACHE_ENGINE_NAME' => 'redis'
+			'CACHE_ENGINE_NAME' => 'Redis'
 		}
 	end
 
 	if image_variables['XCACHE'] == 'xcache'
 		subenvironments['cache-xcache'] = {
 			'CACHE_ENGINE_LABEL' => 'xcache',
-			'CACHE_ENGINE_NAME' => 'xcache'
+			'CACHE_ENGINE_NAME' => 'XCache'
 		}
 		subenvironments['pagecache-xcache'] = {
 			'CACHE_ENGINE_LABEL' => 'xcache',
-			'CACHE_ENGINE_NAME' => 'xcache'
+			'CACHE_ENGINE_NAME' => 'XCache'
 		}
 	end
 
@@ -506,6 +517,13 @@ end
 # adds vagrant-provider's specific variables
 def expand_image_specifics(image_descriptors)
 	vagrant_oses = {
+		'jammy' => {
+			'AWS_ZONE' => 'us-west-2',
+			'AWS_AMI' => 'ami-04aa685cc800320b3',
+			'OS_VERSION' => 'Ubuntu 22.04 LTS 64Bit',
+			'vagrant_box' => 'ubuntu/jammy64',
+			'vagrant_box_version' => '20240605.1.0'
+		},
 		'focal' => {
 			'AWS_ZONE' => 'us-west-2',
 			'AWS_AMI' => 'ami-03d5c68bab01f3496',
