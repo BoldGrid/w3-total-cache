@@ -39,7 +39,7 @@ Util_Ui::postbox_header(
 				<?php if ( $is_unavailable ) : ?>
 					<div class="notice notice-info">
 						<p>
-							<?php esc_html_e( 'Full-site delivery cannot be authorized if CDN for objects is already configured.', 'w3-total-cache' ); ?>
+							<?php esc_html_e( 'Full-site delivery cannot be authorized if CDN for static assets is already configured.', 'w3-total-cache' ); ?>
 						</p>
 					</div>
 				<?php endif; ?>

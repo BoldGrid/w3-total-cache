@@ -50,7 +50,7 @@ $ssl_cert_loaded    = $config->get_string( 'cdn.totalcdn.custom_hostname_ssl_loa
 				<?php if ( $is_fsd_unavailable ) : ?>
 					<div class="notice notice-info">
 						<p>
-							<?php esc_html_e( 'CDN for objects cannot be authorized if full-site delivery is already configured.', 'w3-total-cache' ); ?>
+							<?php esc_html_e( 'CDN for static assets cannot be authorized if full-site delivery is already configured.', 'w3-total-cache' ); ?>
 						</p>
 					</div>
 				<?php endif; ?>

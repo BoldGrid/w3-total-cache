@@ -2,7 +2,7 @@
 /**
  * File: Cdn_BunnyCdn_Popup_View_Intro.php
  *
- * Assists with configuring Bunny CDN as an object storage CDN.
+ * Assists with configuring Bunny CDN as a static asset CDN.
  * Asks to enter an account API key from the Bunny CDN main account.
  *
  * @since   2.6.0
