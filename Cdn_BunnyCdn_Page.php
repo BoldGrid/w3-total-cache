@@ -155,8 +155,17 @@ class Cdn_BunnyCdn_Page {
 	 * @return void
 	 */
 	public static function w3tc_purge_urls_box() {
+		// Only run once, to prevent duplicate output.
+		static $ran = false;
+		if ( $ran ) {
+			return;
+		}
+		$ran = true;
+
+		// Get the configuration.
 		$config = Dispatcher::config();
 
+		// Include the view file for the purge URLs box.
 		include W3TC_DIR . '/Cdn_BunnyCdn_Page_View_Purge_Urls.php';
 	}
 

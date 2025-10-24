@@ -40,9 +40,17 @@ defined( 'W3TC' ) || die;
 				<td><?php \esc_html_e( 'Delete', 'w3-total-cache' ); ?>:</td>
 				<td>
 					<input id="w3tc-delete-zone" type="checkbox" name="delete_pull_zone" value="yes" /> Delete the pull zone
+						<?php
+						if ( $is_pro ) {
+							?>
 					<p class="notice notice-warning">
-						<?php \esc_html_e( 'This same pull zone is used for full-site delivery.  If you delete this pull zone, then full-site delivery will be deauthorized.', 'w3-total-cache' ); ?>
+							<?php
+							\esc_html_e( 'This same pull zone is used for full-site delivery. If you delete this pull zone, then full-site delivery will be deauthorized.', 'w3-total-cache' );
+							?>
 					</p>
+							<?php
+						}
+						?>
 				</td>
 			</tr>
 		</table>
