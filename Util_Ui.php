@@ -2324,10 +2324,10 @@ class Util_Ui {
 				<div id="w3tc-options-menu">
 					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<?php if ( ! empty( $config->get_string( 'cdn.engine' ) ) ) : ?>
-					<a href="#configuration"><?php esc_html_e( 'Configuration (Objects)', 'w3-total-cache' ); ?></a> |
+					<a href="#configuration"><?php esc_html_e( 'Configuration: (Static Asset Delivery)', 'w3-total-cache' ); ?></a> |
 				<?php endif; ?>
 				<?php if ( ! empty( $config->get_string( 'cdnfsd.engine' ) ) ) : ?>
-					<a href="#configuration-fsd"><?php esc_html_e( 'Configuration (FSD)', 'w3-total-cache' ); ?></a> |
+					<a href="#configuration-fsd"><?php esc_html_e( 'Configuration: (Full-Site Delivery)', 'w3-total-cache' ); ?></a> |
 				<?php endif; ?>
 				<?php if ( $show_purge_link ) : ?>
 					<a href="#purge-urls"><?php esc_html_e( 'Purge', 'w3-total-cache' ); ?></a> |
