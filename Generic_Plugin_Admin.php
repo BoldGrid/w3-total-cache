@@ -764,7 +764,15 @@ class Generic_Plugin_Admin {
 						)
 					),
 					'bunnyCdnWarning'  => esc_html__(
-						'Bunny CDN should only be enabled as either a CDN for objects or full-site delivery, not both at the same time.  The CDN settings have been reverted.',
+						'Bunny CDN cannot be enabled for both CDN and Full Site Delivery.',
+						'w3-total-cache'
+					),
+					'totalCdnWarning'  => esc_html__(
+						'Total CDN cannot be enabled for both CDN and Full Site Delivery',
+						'w3-total-cache'
+					),
+					'mixedCdnWarning'  => esc_html__(
+						'Bunny CDN and Total CDN cannot be enabled across CDN and Full Site Delivery at the same time.',
 						'w3-total-cache'
 					),
 				)
@@ -1151,6 +1159,9 @@ class Generic_Plugin_Admin {
 				'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
 			),
 			'pull_zone'                               => __( 'Pull Zone could not be automatically created.', 'w3-total-cache' ),
+			'cdn_fsd_conflict_bunnycdn'               => esc_html__( 'Bunny CDN cannot be enabled for both CDN and Full Site Delivery. Please disable one and save again.', 'w3-total-cache' ),
+			'cdn_fsd_conflict_totalcdn'               => esc_html__( 'Total CDN cannot be enabled for both CDN and Full Site Delivery. Please disable one and save again.', 'w3-total-cache' ),
+			'cdn_fsd_conflict_mixed'                  => esc_html__( 'Bunny CDN and Total CDN cannot be enabled across CDN and Full Site Delivery at the same time. Please disable one and save again.', 'w3-total-cache' ),
 			'flush_cdn_failed'                        => sprintf(
 				// translators: 1 HTML acronym for CDN (content delivery network).
 				__(
@@ -1160,7 +1171,7 @@ class Generic_Plugin_Admin {
 				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 			),
 			'updated_pullzone_url'                    => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
-			'cdn_totalcdn_fsd_origin_update_failed'  => __( 'Unable to update the Total CDN origin for Full Site Delivery. Please contact support for assistance.', 'w3-total-cache' ),
+			'cdn_totalcdn_fsd_origin_update_failed'   => __( 'Unable to update the Total CDN origin for Full Site Delivery. Please contact support for assistance.', 'w3-total-cache' ),
 			'cdn_totalcdn_fsd_custom_hostname_remove_failed' => Cdn_TotalCdn_CustomHostname::removal_failure_message(),
 			'cdn_totalcdn_fsd_custom_hostname_failed' => Cdn_TotalCdn_CustomHostname::failure_message(),
 		);
