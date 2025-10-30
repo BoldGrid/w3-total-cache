@@ -196,13 +196,36 @@ class Generic_Plugin_Admin {
 			wp_clear_scheduled_hook( 'w3tc_purge_all_wpcron' );
 		}
 
-		if ( Cdn_TotalCdn_CustomHostname::should_remove_on_save( $new_config, $old_config ) ) {
+		$skip_totalcdn_fsd_operations = false;
+
+		if ( $this->should_auto_configure_totalcdn_fsd( $new_config ) ) {
+			$auto_configurator = new Cdn_TotalCdn_Auto_Configure( $new_config );
+			$auto_result       = $auto_configurator->run( false );
+
+			if ( false === $auto_result['success'] ) {
+				$data['response_errors'][]    = 'cdn_totalcdn_fsd_auto_config_failed';
+				$skip_totalcdn_fsd_operations = true;
+
+				if ( $old_config ) {
+					$new_config->set( 'cdnfsd.enabled', $old_config->get_boolean( 'cdnfsd.enabled' ) );
+					$new_config->set( 'cdnfsd.engine', $old_config->get_string( 'cdnfsd.engine' ) );
+				} else {
+					$new_config->set( 'cdnfsd.enabled', false );
+
+					if ( 'totalcdn' === $new_config->get_string( 'cdnfsd.engine' ) ) {
+						$new_config->set( 'cdnfsd.engine', '' );
+					}
+				}
+			}
+		}
+
+		if ( ! $skip_totalcdn_fsd_operations && Cdn_TotalCdn_CustomHostname::should_remove_on_save( $new_config, $old_config ) ) {
 			$result = Cdn_TotalCdn_CustomHostname::remove( $new_config, $old_config );
 
 			if ( empty( $result['success'] ) && empty( $result['skipped'] ) ) {
 				$data['response_errors'][] = 'cdn_totalcdn_fsd_custom_hostname_remove_failed';
 			}
-		} elseif ( Cdn_TotalCdn_CustomHostname::should_attempt_on_save( $new_config, $old_config ) ) {
+		} elseif ( ! $skip_totalcdn_fsd_operations && Cdn_TotalCdn_CustomHostname::should_attempt_on_save( $new_config, $old_config ) ) {
 			$result = Cdn_TotalCdn_CustomHostname::ensure( $new_config );
 
 			if ( empty( $result['success'] ) && empty( $result['skipped'] ) ) {
@@ -210,7 +233,7 @@ class Generic_Plugin_Admin {
 			}
 		}
 
-		if ( Cdn_TotalCdn_Fsd_Origin::should_update_on_save( $new_config, $old_config ) ) {
+		if ( ! $skip_totalcdn_fsd_operations && Cdn_TotalCdn_Fsd_Origin::should_update_on_save( $new_config, $old_config ) ) {
 			$result = Cdn_TotalCdn_Fsd_Origin::ensure( $new_config );
 
 			if ( empty( $result['success'] ) && empty( $result['skipped'] ) ) {
@@ -219,6 +242,31 @@ class Generic_Plugin_Admin {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Determines if Total CDN FSD should trigger auto-configuration.
+	 *
+	 * @param Config $new_config New configuration values.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return bool True when auto-configuration should be attempted.
+	 */
+	private function should_auto_configure_totalcdn_fsd( Config $new_config ): bool {
+		if ( ! $new_config->get_boolean( 'cdnfsd.enabled' ) ) {
+			return false;
+		}
+
+		if ( 'totalcdn' !== $new_config->get_string( 'cdnfsd.engine' ) ) {
+			return false;
+		}
+
+		if ( (int) $new_config->get_integer( 'cdn.totalcdn.pull_zone_id' ) > 0 ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -1160,6 +1208,7 @@ class Generic_Plugin_Admin {
 				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 			),
 			'updated_pullzone_url'                    => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
+			'cdn_totalcdn_fsd_auto_config_failed'     => __( 'Unable to provision a Total CDN pull zone for Full Site Delivery. Please verify your API key or contact support.', 'w3-total-cache' ),
 			'cdn_totalcdn_fsd_origin_update_failed'  => __( 'Unable to update the Total CDN origin for Full Site Delivery. Please contact support for assistance.', 'w3-total-cache' ),
 			'cdn_totalcdn_fsd_custom_hostname_remove_failed' => Cdn_TotalCdn_CustomHostname::removal_failure_message(),
 			'cdn_totalcdn_fsd_custom_hostname_failed' => Cdn_TotalCdn_CustomHostname::failure_message(),
