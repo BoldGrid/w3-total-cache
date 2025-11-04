@@ -494,6 +494,23 @@ if (
 			<?php Util_Ui::postbox_footer(); ?>
 		<?php endif; ?>
 
+		<?php
+		$is_cdnfsd_active       = ( $cdnfsd_enabled && $is_cdnfsd_authorized );
+		$is_w3tc_pro            = Util_Environment::is_w3tc_pro( $config );
+		$is_totalcdn_authorized = Cdn_TotalCdn_Util::is_totalcdn_authorized();
+		$is_totalcdn_static     = $cdn_enabled && 'totalcdn' === $cdn_engine && $is_totalcdn_authorized;
+		$is_totalcdn_fsd        = $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine && $is_totalcdn_authorized;
+		$license_key            = $config->get_string( 'plugin.license_key' );
+
+		if (
+			! $is_w3tc_pro
+			|| ! $is_totalcdn_authorized
+			|| ( $is_w3tc_pro && $is_totalcdn_authorized && ! $is_totalcdn_fsd )
+		) {
+			include W3TC_INC_DIR . '/options/cdn-fsd-marketing.php';
+		}
+		?>
+
 		<?php do_action( 'w3tc_settings_box_cdnfsd' ); ?>
 
 		<?php

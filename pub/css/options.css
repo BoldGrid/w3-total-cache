@@ -1382,7 +1382,8 @@ td .w3tc-control-after span {
 }
 
 #w3tc-tcdn-ad-general,
-#w3tc-tcdn-ad-cdn {
+#w3tc-tcdn-ad-cdn,
+#w3tc-tcdn-ad-fsd {
 	background: linear-gradient(270deg, rgba(0,0,0,0.16) 0%, rgba(132, 132, 132, 0.00) 100%), url(../img/upsell-darker.png);
 	background-size: cover;
     background-position-y: 27%;
@@ -1408,7 +1409,8 @@ td .w3tc-control-after span {
 	line-height: normal;
 }
 
-#w3tc-tcdn-ad-general p {
+#w3tc-tcdn-ad-general p,
+#w3tc-tcdn-ad-fsd p {
 	color: #FFF;
 	text-shadow: 2px 2px 4px #000;
 	font-family: Roboto;
@@ -1418,7 +1420,8 @@ td .w3tc-control-after span {
 	line-height: normal;
 }
 
-#w3tc-tcdn-ad-general .w3tc-tcdn-icon {
+#w3tc-tcdn-ad-general .w3tc-tcdn-icon,
+#w3tc-tcdn-ad-fsd .w3tc-tcdn-icon {
 	width: 93.27px;
 	height: 49.148px;
 	flex-shrink: 0;
@@ -1431,7 +1434,8 @@ td .w3tc-control-after span {
 }
 
 #w3tc-tcdn-ad-general input,
-#w3tc-tcdn-ad-cdn input {
+#w3tc-tcdn-ad-cdn input,
+#w3tc-tcdn-ad-fsd input {
 	display: flex;
 	height: 44px;
 	padding: 4.082px 17.008px;
@@ -1457,12 +1461,14 @@ td .w3tc-control-after span {
 	font-size: 22.314px;
 }
 #w3tc-tcdn-ad-general input:hover,
-#w3tc-tcdn-ad-cdn input:hover {
+#w3tc-tcdn-ad-cdn input:hover,
+#w3tc-tcdn-ad-fsd input:hover {
 	box-shadow: 0 0 8.958px 4px rgba(255, 255, 255, 0.75);
 }
 
 #w3tc-tcdn-ad-general input:focus,
-#w3tc-tcdn-ad-cdn input:focus {
+#w3tc-tcdn-ad-cdn input:focus,
+#w3tc-tcdn-ad-fsd input:focus {
 	box-shadow: 0 0 8.958px 4px rgba(255, 255, 255, 0.61);
 }
 
@@ -1811,7 +1817,8 @@ td .w3tc-control-after span {
 	}
 
 	#w3tc-tcdn-ad-cdn,
-	#w3tc-tcdn-ad-general {
+	#w3tc-tcdn-ad-general,
+	#w3tc-tcdn-ad-fsd {
         flex-direction: column;
     }
 
@@ -1819,12 +1826,15 @@ td .w3tc-control-after span {
     #w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button,
     #w3tc-tcdn-ad-cdn .w3tc-tcdn-logo,
 	#w3tc-tcdn-ad-general strong,
-    #w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button {
+    #w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button,
+    #w3tc-tcdn-ad-fsd strong,
+    #w3tc-tcdn-ad-fsd .w3tc-tcdn-promotion-button {
         margin: 10px 0;
     }
 
     #w3tc-tcdn-ad-cdn .w3tc-tcdn-promotion-button,
-	#w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button {
+	#w3tc-tcdn-ad-general .w3tc-tcdn-promotion-button,
+	#w3tc-tcdn-ad-fsd .w3tc-tcdn-promotion-button {
         margin-top: 10px;
     }
 }
