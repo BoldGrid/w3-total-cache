@@ -166,6 +166,7 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 	/**
 	 * Tests the CloudFront distribution connection and configuration.
 	 *
+
 	 * @param string $error Reference to a variable where error messages will be stored.
 	 *
 	 * @return bool Returns true if the test passes, otherwise false.
@@ -174,9 +175,36 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 		$this->_init();
 
 		/**
-		 * Search active CF distribution
+		 * Search all active CF distributions
 		 */
-		$dists = $this->api->listDistributions();
+		
+		$dists = [];
+		$all_dists = [];
+		$marker = null;
+		$result = null;
+
+		do {
+			
+			$params = ['MaxItems' => 100];
+			if ($marker) {
+				$params['Marker'] = $marker;
+			}
+
+			$result = $this->api->listDistributions($params);
+
+			if (isset($result['DistributionList']['Items'])) {
+				$all_dists = array_merge($all_dists, $result['DistributionList']['Items']);
+			}
+
+			$isTruncated = !empty($result['DistributionList']['IsTruncated']);
+			$marker = $isTruncated ? $result['DistributionList']['NextMarker'] : null;
+
+		} while ($isTruncated);
+
+		if (!empty($all_dists)) {
+			$dists['DistributionList']['Items'] = $all_dists;
+		}
+				
 
 		if ( ! isset( $dists['DistributionList']['Items'] ) ) {
 			$error = 'Unable to list distributions.';
@@ -377,9 +405,36 @@ class CdnEngine_Mirror_CloudFront extends CdnEngine_Mirror {
 	 * @throws \Exception If no matching distribution is found.
 	 */
 	private function _get_distribution( $dists = null ) {
+		
 		if ( is_null( $dists ) ) {
-			$dists = $this->api->listDistributions();
+			
+			//Make sure to follow pagination markers
+			//CloudFront will return a maximum of 100 results
+			$all_dists = [];
+			$marker = null;
+			$result = null;
+
+			do {
+				$params = ['MaxItems' => 100];
+				if ($marker) {
+					$params['Marker'] = $marker;
+				}
+
+				$result = $this->api->listDistributions($params);
+
+				if (isset($result['DistributionList']['Items'])) {
+					$all_dists = array_merge($all_dists, $result['DistributionList']['Items']);
+				}
+
+				$isTruncated = !empty($result['DistributionList']['IsTruncated']);
+				$marker = $isTruncated ? $result['DistributionList']['NextMarker'] : null;
+
+			} while ($isTruncated);
+
+			$dists['DistributionList']['Items'] = $all_dists;
+
 		}
+	
 
 		if ( ! isset( $dists['DistributionList']['Items'] ) || ! count( $dists['DistributionList']['Items'] ) ) {
 			throw new \Exception( \esc_html__( 'No distributions found.', 'w3-total-cache' ) );
