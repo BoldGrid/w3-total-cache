@@ -262,7 +262,7 @@ class Generic_Plugin_Admin {
 			return false;
 		}
 
-		if ( (int) $new_config->get_integer( 'cdn.totalcdn.pull_zone_id' ) > 0 ) {
+		if ( $new_config->get_integer( 'cdn.totalcdn.pull_zone_id' ) > 0 ) {
 			return false;
 		}
 
