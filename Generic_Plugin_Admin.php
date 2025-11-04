@@ -768,7 +768,7 @@ class Generic_Plugin_Admin {
 						'w3-total-cache'
 					),
 					'totalCdnWarning'  => esc_html__(
-						'Total CDN cannot be enabled for both CDN and Full Site Delivery',
+						'Total CDN cannot be enabled for both CDN and Full Site Delivery.',
 						'w3-total-cache'
 					),
 					'mixedCdnWarning'  => esc_html__(

@@ -414,7 +414,7 @@ function cdn_conflict_bind_capture(selector, eventName, changedField) {
 }
 
 /**
- * Determines whether the current admin screen is the CDN settings page.
+ * Determines whether the current admin screen is the general settings page.
  *
  * @since X.X.X
  *
@@ -438,11 +438,8 @@ function cdn_conflict_is_general_settings_page() {
  *
  * @param {string} [changed] - Which field was changed: 'cdn_enabled', 'cdn_engine', 'cdnfsd_enabled', or 'cdnfsd_engine'.
  * @param {Event} [event] - Optional event associated with the change.
+ * @param {Object} [nextState] - The predicted state after the change, used to evaluate conflicts.
  * @returns {boolean} True when a conflict was handled.
- */
-/**
- * Prevents Bunny/Total CDN conflicts between CDN and CDN FSD.
- * Reverts the field that triggered the conflict and surfaces the warning message.
  */
 function cdn_conflict_check(changed, event, nextState) {
 	// Prevents JS error for non W3TC pages.
