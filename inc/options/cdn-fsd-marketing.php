@@ -85,12 +85,12 @@ if ( ! $is_totalcdn_authorized ) {
 } elseif ( $is_w3tc_pro && ! $is_totalcdn_fsd ) {
 	?>
 	<div class="notice notice-info inline w3tc-fsd-notice">
-		<p>	
+		<p>
 			<?php
 			printf(
 				// translators: 1 CDN brand name, 2 opening a tag to CDN section on general settings page, 3 closing a tag.
 				esc_html__(
-					'You\'re %1$s account is ready for Full-Site Delivery. To enable full-site delivery - which caches HTML, media, and scripts on the same global edge for even faster performance - %2$sGo to your General Settings page%3$s and enable Full-Site Delivery (FSD).',
+					'Your %1$s account is ready for Full-Site Delivery. To enable full-site delivery - which caches HTML, media, and scripts on the same global edge for even faster performance - %2$sGo to your General Settings page%3$s and enable Full-Site Delivery (FSD).',
 					'w3-total-cache'
 				),
 				esc_html( W3TC_CDN_NAME ),
