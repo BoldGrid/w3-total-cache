@@ -151,9 +151,11 @@ class Cdn_TotalCdn_Auto_Configure {
 	 *
 	 * @since x.x.x
 	 *
+	 * @param bool $enable Whether to enable the CDN after configuration.
+	 *
 	 * @return array
 	 */
-	public function run(): array {
+	public function run( bool $enable = true ): array {
 		// Check and verify that the account API key is set.
 		$api_key_result = $this->check_api_key();
 
@@ -169,7 +171,14 @@ class Cdn_TotalCdn_Auto_Configure {
 		}
 
 		// Enable the CDN and return the result.
-		return $this->enable_cdn();
+		if ( $enable ) {
+			return $this->enable_cdn();
+		}
+
+		return array(
+			'success' => true,
+			'message' => \__( 'Pull zone created successfully.', 'w3-total-cache' ),
+		);
 	}
 
 	/**
