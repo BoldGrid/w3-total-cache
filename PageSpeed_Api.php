@@ -126,10 +126,7 @@ class PageSpeed_Api {
 			);
 		}
 
-		return array_merge_recursive(
-			PageSpeed_Data::prepare_pagespeed_data( $data ),
-			PageSpeed_Instructions::get_pagespeed_instructions()
-		);
+		return PageSpeed_Data::prepare_pagespeed_data( $data );
 	}
 
 	/**
@@ -142,6 +139,7 @@ class PageSpeed_Api {
 	 * @return array
 	 */
 	public function process_request( $query ) {
+		$this->maybe_refresh_token();
 		$access_token_json = $this->client->getAccessToken();
 
 		if ( empty( $access_token_json ) ) {
@@ -303,6 +301,9 @@ class PageSpeed_Api {
 
 		$this->config->set( 'widget.pagespeed.access_token', $access_token );
 		$this->config->save();
+		$this->client->setAccessToken( $access_token );
+
+		return $access_token;
 	}
 
 	/**
