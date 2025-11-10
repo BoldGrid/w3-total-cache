@@ -614,6 +614,40 @@ class Generic_AdminActions_Default {
 		do_action( 'w3tc_config_ui_save', $config, $this->_config );
 		do_action( "w3tc_config_ui_save-{$this->_page}", $config, $this->_config );
 
+		$conflicting_engines = array( 'bunnycdn', 'totalcdn' );
+
+		if ( $config->get_boolean( 'cdn.enabled' ) && $config->get_boolean( 'cdnfsd.enabled' ) ) {
+			$cdn_engine    = $config->get_string( 'cdn.engine' );
+			$cdnfsd_engine = $config->get_string( 'cdnfsd.engine' );
+
+			if ( $cdn_engine === $cdnfsd_engine && in_array( $cdn_engine, $conflicting_engines, true ) ) {
+				$data['response_errors'][] = 'cdn_fsd_conflict_' . $cdn_engine;
+				$data['response_notes']    = array();
+
+				return array(
+					'query_string' => $data['response_query_string'],
+					'actions'      => $data['response_actions'],
+					'errors'       => $data['response_errors'],
+					'notes'        => $data['response_notes'],
+				);
+			}
+
+			if (
+				in_array( $cdn_engine, $conflicting_engines, true ) &&
+				in_array( $cdnfsd_engine, $conflicting_engines, true )
+			) {
+				$data['response_errors'][] = 'cdn_fsd_conflict_mixed';
+				$data['response_notes']    = array();
+
+				return array(
+					'query_string' => $data['response_query_string'],
+					'actions'      => $data['response_actions'],
+					'errors'       => $data['response_errors'],
+					'notes'        => $data['response_notes'],
+				);
+			}
+		}
+
 		Util_Admin::config_save( $this->_config, $config );
 
 		if ( 'w3tc_cdn' === $this->_page ) {

@@ -815,6 +815,22 @@ class Generic_Plugin_Admin {
 						'Bunny CDN should only be enabled as either a CDN for static assets or full-site delivery, not both at the same time.  The CDN settings have been reverted.',
 						'w3-total-cache'
 					),
+					'totalCdnWarning'  => sprintf(
+						// Translators: 1: W3 Total Cache name.
+						esc_html__(
+							'%1$s cannot be enabled for both CDN and Full Site Delivery.',
+							'w3-total-cache'
+						),
+						esc_html( W3TC_CDN_NAME )
+					),
+					'mixedCdnWarning'  => sprintf(
+						// Translators: 1: W3 Total Cache name.
+						esc_html__(
+							'Bunny CDN and %1$s cannot be enabled across CDN and Full Site Delivery at the same time.',
+							'w3-total-cache'
+						),
+						esc_html( W3TC_CDN_NAME )
+					),
 				)
 			);
 		}
@@ -1105,92 +1121,92 @@ class Generic_Plugin_Admin {
 		$cookie_domain = Util_Admin::get_cookie_domain();
 
 		$error_messages = array(
-			'fancy_permalinks_disabled_pgcache'       => sprintf(
+			'fancy_permalinks_disabled_pgcache'       => \sprintf(
 				// translators: 1 enable button link.
-				__(
+				\esc_html__(
 					'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling enhanced disk mode.',
 					'w3-total-cache'
 				),
 				Util_Ui::button_link( 'enable', 'options-permalink.php' )
 			),
-			'fancy_permalinks_disabled_browsercache'  => sprintf(
+			'fancy_permalinks_disabled_browsercache'  => \sprintf(
 				// translators: 1 enable button link.
-				__(
+				\esc_html__(
 					'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling the \'Do not process 404 errors for static objects with WordPress\'.',
 					'w3-total-cache'
 				),
 				Util_Ui::button_link( 'enable', 'options-permalink.php' )
 			),
-			'support_request_type'                    => __( 'Please select request type.', 'w3-total-cache' ),
-			'support_request_url'                     => sprintf(
+			'support_request_type'                    => \esc_html__( 'Please select request type.', 'w3-total-cache' ),
+			'support_request_url'                     => \sprintf(
 				// translators: 1 HTML acronym URL (uniform resource locator).
-				__(
+				\esc_html__(
 					'Please enter the address of the site in the site %1$s field.',
 					'w3-total-cache'
 				),
-				'<acronym title="' . esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">' . esc_html__( 'URL', 'w3-total-cache' ) . '</acronym>'
+				'<acronym title="' . \esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">' . \esc_html__( 'URL', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request_name'                    => __( 'Please enter your name in the Name field', 'w3-total-cache' ),
-			'support_request_email'                   => __( 'Please enter valid email address in the E-Mail field.', 'w3-total-cache' ),
-			'support_request_phone'                   => __( 'Please enter your phone in the phone field.', 'w3-total-cache' ),
-			'support_request_subject'                 => __( 'Please enter subject in the subject field.', 'w3-total-cache' ),
-			'support_request_description'             => __( 'Please describe the issue in the issue description field.', 'w3-total-cache' ),
-			'support_request_wp_login'                => __( 'Please enter an administrator login. Create a temporary one just for this support case if needed.', 'w3-total-cache' ),
-			'support_request_wp_password'             => __( 'Please enter WP Admin password, be sure it\'s spelled correctly.', 'w3-total-cache' ),
-			'support_request_ftp_host'                => sprintf(
+			'support_request_name'                    => \esc_html__( 'Please enter your name in the Name field', 'w3-total-cache' ),
+			'support_request_email'                   => \esc_html__( 'Please enter valid email address in the E-Mail field.', 'w3-total-cache' ),
+			'support_request_phone'                   => \esc_html__( 'Please enter your phone in the phone field.', 'w3-total-cache' ),
+			'support_request_subject'                 => \esc_html__( 'Please enter subject in the subject field.', 'w3-total-cache' ),
+			'support_request_description'             => \esc_html__( 'Please describe the issue in the issue description field.', 'w3-total-cache' ),
+			'support_request_wp_login'                => \esc_html__( 'Please enter an administrator login. Create a temporary one just for this support case if needed.', 'w3-total-cache' ),
+			'support_request_wp_password'             => \esc_html__( 'Please enter WP Admin password, be sure it\'s spelled correctly.', 'w3-total-cache' ),
+			'support_request_ftp_host'                => \sprintf(
 				// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-				__(
+				\esc_html__(
 					'Please enter %1$s or %2$s host for the site.',
 					'w3-total-cache'
 				),
-				'<acronym title="' . esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
-				'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
+				'<acronym title="' . \esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . \esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
+				'<acronym title="' . \esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . \esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request_ftp_login'               => sprintf(
+			'support_request_ftp_login'               => \sprintf(
 				// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-				__(
+				\esc_html__(
 					'Please enter %1$s or %2$s login for the server. Create a temporary one just for this support case if needed.',
 					'w3-total-cache'
 				),
-				'<acronym title="' . esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
-				'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
+				'<acronym title="' . \esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . \esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
+				'<acronym title="' . \esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . \esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request_ftp_password'            => sprintf(
+			'support_request_ftp_password'            => \sprintf(
 				// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-				__(
+				\esc_html__(
 					'Please enter %1$s or %2$s password for the %2$s account.',
 					'w3-total-cache'
 				),
-				'<acronym title="' . esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
-				'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
+				'<acronym title="' . \esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . \esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
+				'<acronym title="' . \esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . \esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request'                         => __( 'Unable to send the support request.', 'w3-total-cache' ),
-			'config_import_no_file'                   => __( 'Please select config file.', 'w3-total-cache' ),
-			'config_import_upload'                    => __( 'Unable to upload config file.', 'w3-total-cache' ),
-			'config_import_import'                    => __( 'Configuration file could not be imported.', 'w3-total-cache' ),
-			'config_reset'                            => sprintf(
+			'support_request'                         => \esc_html__( 'Unable to send the support request.', 'w3-total-cache' ),
+			'config_import_no_file'                   => \esc_html__( 'Please select config file.', 'w3-total-cache' ),
+			'config_import_upload'                    => \esc_html__( 'Unable to upload config file.', 'w3-total-cache' ),
+			'config_import_import'                    => \esc_html__( 'Configuration file could not be imported.', 'w3-total-cache' ),
+			'config_reset'                            => \sprintf(
 				// translators: 1 W3TC config director path.
-				__(
+				\esc_html__(
 					'Default settings could not be restored. Please run %1$s to make the configuration file write-able, then try again.',
 					'w3-total-cache'
 				),
 				'<strong>chmod 777 ' . W3TC_CONFIG_DIR . '</strong>'
 			),
-			'cdn_purge_attachment'                    => __( 'Unable to purge attachment.', 'w3-total-cache' ),
-			'pgcache_purge_post'                      => __( 'Unable to purge post.', 'w3-total-cache' ),
-			'enable_cookie_domain'                    => sprintf(
+			'cdn_purge_attachment'                    => \esc_html__( 'Unable to purge attachment.', 'w3-total-cache' ),
+			'pgcache_purge_post'                      => \esc_html__( 'Unable to purge post.', 'w3-total-cache' ),
+			'enable_cookie_domain'                    => \sprintf(
 				// translators: 1 absolute path to wp-config.php, 2 cookie domain definition, 3 require once wp-setting.php definition.
-				__(
+				\esc_html__(
 					'%1$s could not be written, please edit config and add: %2$s before %3$s.',
 					'w3-total-cache'
 				),
 				'<strong>' . ABSPATH . 'wp-config.php</strong>',
-				'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', \'' . addslashes( $cookie_domain ) . '\');</strong>',
+				'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', \'' . \addslashes( $cookie_domain ) . '\');</strong>',
 				'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
 			),
-			'disable_cookie_domain'                   => sprintf(
+			'disable_cookie_domain'                   => \sprintf(
 				// translators: 1 absolute path to wp-config.php, 2 cooke domain definition, 3 require once wp-setting.php definition.
-				__(
+				\esc_html__(
 					'%1$s could not be written, please edit config and add:%2$s before %3$s.',
 					'w3-total-cache'
 				),
@@ -1198,14 +1214,40 @@ class Generic_Plugin_Admin {
 				'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', false);</strong>',
 				'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
 			),
-			'pull_zone'                               => __( 'Pull Zone could not be automatically created.', 'w3-total-cache' ),
-			'flush_cdn_failed'                        => sprintf(
+			'pull_zone'                               => \esc_html__( 'Pull Zone could not be automatically created.', 'w3-total-cache' ),
+			'cdn_fsd_conflict_bunnycdn'               => \esc_html__( 'Bunny CDN cannot be enabled for both CDN and Full Site Delivery. Please disable one and save again.', 'w3-total-cache' ),
+			'cdn_fsd_conflict_totalcdn'               => sprintf(
+				// Translators: 1: W3 Total Cache name.
+				\esc_html__(
+					'%1$s cannot be enabled for both CDN and Full Site Delivery. Please disable one and save again.',
+					'w3-total-cache'
+				),
+				\esc_html( W3TC_CDN_NAME )
+			),
+			'cdn_fsd_conflict_mixed'                  => \sprintf(
+				// Translators: 1: W3 Total Cache name.
+				\esc_html__(
+					'Bunny CDN and %1$s cannot be enabled across CDN and Full Site Delivery at the same time. Please disable one and save again.',
+					'w3-total-cache'
+				),
+				\esc_html( W3TC_CDN_NAME )
+			),
+			'flush_cdn_failed'                        => \sprintf(
 				// translators: 1 HTML acronym for CDN (content delivery network).
-				__(
+				\esc_html__(
 					'%1$s purge failed.',
 					'w3-total-cache'
 				),
-				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				'<acronym title="' . \esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
+			),
+			'updated_pullzone_url'                    => \esc_html__( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
+			'cdn_totalcdn_fsd_origin_update_failed'   => \sprintf(
+				// Translators: 1: W3 Total Cache name.
+				\esc_html__(
+					'Unable to update the %1$s origin for Full Site Delivery. Please contact support for assistance.',
+					'w3-total-cache'
+				),
+				\esc_html( W3TC_CDN_NAME )
 			),
 			'updated_pullzone_url'                    => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
 			'cdn_totalcdn_fsd_auto_config_failed'     => __( 'Unable to provision a Total CDN pull zone for Full Site Delivery. Please verify your API key or contact support.', 'w3-total-cache' ),
@@ -1215,42 +1257,42 @@ class Generic_Plugin_Admin {
 		);
 
 		$note_messages = array(
-			'config_save'               => __( 'Plugin configuration successfully updated.', 'w3-total-cache' ),
-			'config_save_flush'         => __( 'Plugin configuration successfully updated and all caches successfully emptied.', 'w3-total-cache' ),
-			'flush_all'                 => __( 'All caches successfully emptied.', 'w3-total-cache' ),
-			'flush_all_except_w3tc_cdn' => __( 'All caches successfully emptied, except TotalCDN.', 'w3-total-cache' ),
-			'flush_memcached'           => __( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
-			'flush_opcode'              => __( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),
-			'flush_file'                => __( 'Disk cache(s) successfully emptied.', 'w3-total-cache' ),
-			'flush_pgcache'             => __( 'Page cache successfully emptied.', 'w3-total-cache' ),
-			'flush_dbcache'             => __( 'Database cache successfully emptied.', 'w3-total-cache' ),
-			'flush_objectcache'         => __( 'Object cache successfully emptied.', 'w3-total-cache' ),
-			'flush_fragmentcache'       => __( 'Fragment cache successfully emptied.', 'w3-total-cache' ),
-			'flush_minify'              => __( 'Minify cache successfully emptied.', 'w3-total-cache' ),
-			'flush_browser_cache'       => __( 'Media Query string has been successfully updated.', 'w3-total-cache' ),
-			'flush_varnish'             => __( 'Varnish servers successfully purged.', 'w3-total-cache' ),
-			'flush_cdn'                 => sprintf(
+			'config_save'               => \esc_html__( 'Plugin configuration successfully updated.', 'w3-total-cache' ),
+			'config_save_flush'         => \esc_html__( 'Plugin configuration successfully updated and all caches successfully emptied.', 'w3-total-cache' ),
+			'flush_all'                 => \esc_html__( 'All caches successfully emptied.', 'w3-total-cache' ),
+			'flush_all_except_w3tc_cdn' => \esc_html__( 'All caches successfully emptied, except TotalCDN.', 'w3-total-cache' ),
+			'flush_memcached'           => \esc_html__( 'Memcached cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_opcode'              => \esc_html__( 'Opcode cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_file'                => \esc_html__( 'Disk cache(s) successfully emptied.', 'w3-total-cache' ),
+			'flush_pgcache'             => \esc_html__( 'Page cache successfully emptied.', 'w3-total-cache' ),
+			'flush_dbcache'             => \esc_html__( 'Database cache successfully emptied.', 'w3-total-cache' ),
+			'flush_objectcache'         => \esc_html__( 'Object cache successfully emptied.', 'w3-total-cache' ),
+			'flush_fragmentcache'       => \esc_html__( 'Fragment cache successfully emptied.', 'w3-total-cache' ),
+			'flush_minify'              => \esc_html__( 'Minify cache successfully emptied.', 'w3-total-cache' ),
+			'flush_browser_cache'       => \esc_html__( 'Media Query string has been successfully updated.', 'w3-total-cache' ),
+			'flush_varnish'             => \esc_html__( 'Varnish servers successfully purged.', 'w3-total-cache' ),
+			'flush_cdn'                 => \sprintf(
 				// translators: 1 HTML acronym for CDN (content delivery network).
-				__(
+				\esc_html__(
 					'%1$s was successfully purged.',
 					'w3-total-cache'
 				),
-				'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				'<acronym title="' . \esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request'           => __( 'The support request has been successfully sent.', 'w3-total-cache' ),
-			'config_import'             => __( 'Settings successfully imported.', 'w3-total-cache' ),
-			'config_reset'              => __( 'Settings successfully restored.', 'w3-total-cache' ),
-			'preview_enable'            => __( 'Preview mode was successfully enabled', 'w3-total-cache' ),
-			'preview_disable'           => __( 'Preview mode was successfully disabled', 'w3-total-cache' ),
-			'preview_deploy'            => __( 'Preview settings successfully deployed. Preview mode remains enabled until it\'s disabled. Continue testing new settings or disable preview mode if done.', 'w3-total-cache' ),
-			'cdn_purge_attachment'      => __( 'Attachment successfully purged.', 'w3-total-cache' ),
-			'pgcache_purge_post'        => __( 'Post successfully purged.', 'w3-total-cache' ),
-			'new_relic_save'            => __( 'New relic settings have been updated.', 'w3-total-cache' ),
-			'add_in_removed'            => __( 'The add-in has been removed.', 'w3-total-cache' ),
-			'enabled_edge'              => __( 'Edge mode has been enabled.', 'w3-total-cache' ),
-			'disabled_edge'             => __( 'Edge mode has been disabled.', 'w3-total-cache' ),
-			'pull_zone'                 => __( 'Pull Zone was automatically created.', 'w3-total-cache' ),
-			'updated_pullzone_url'      => __( 'Pull Zone URL was updated successfully.', 'w3-total-cache' ),
+			'support_request'           => \esc_html__( 'The support request has been successfully sent.', 'w3-total-cache' ),
+			'config_import'             => \esc_html__( 'Settings successfully imported.', 'w3-total-cache' ),
+			'config_reset'              => \esc_html__( 'Settings successfully restored.', 'w3-total-cache' ),
+			'preview_enable'            => \esc_html__( 'Preview mode was successfully enabled', 'w3-total-cache' ),
+			'preview_disable'           => \esc_html__( 'Preview mode was successfully disabled', 'w3-total-cache' ),
+			'preview_deploy'            => \esc_html__( 'Preview settings successfully deployed. Preview mode remains enabled until it\'s disabled. Continue testing new settings or disable preview mode if done.', 'w3-total-cache' ),
+			'cdn_purge_attachment'      => \esc_html__( 'Attachment successfully purged.', 'w3-total-cache' ),
+			'pgcache_purge_post'        => \esc_html__( 'Post successfully purged.', 'w3-total-cache' ),
+			'new_relic_save'            => \esc_html__( 'New relic settings have been updated.', 'w3-total-cache' ),
+			'add_in_removed'            => \esc_html__( 'The add-in has been removed.', 'w3-total-cache' ),
+			'enabled_edge'              => \esc_html__( 'Edge mode has been enabled.', 'w3-total-cache' ),
+			'disabled_edge'             => \esc_html__( 'Edge mode has been disabled.', 'w3-total-cache' ),
+			'pull_zone'                 => \esc_html__( 'Pull Zone was automatically created.', 'w3-total-cache' ),
+			'updated_pullzone_url'      => \esc_html__( 'Pull Zone URL was updated successfully.', 'w3-total-cache' ),
 		);
 
 		$errors                    = array();
