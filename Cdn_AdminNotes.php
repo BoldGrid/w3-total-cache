@@ -233,7 +233,7 @@ class Cdn_AdminNotes {
 		switch ( true ) {
 			case ( 'ftp' === $cdn_engine && ! count( $c->get_array( 'cdn.ftp.domain' ) ) ):
 				$errors['cdn_ftp_empty'] = __(
-					'A configuration issue prevents <acronym title="Content Delivery Network">CDN</acronym> from working: The <strong>"Replace default hostname with"</strong> field cannot be empty. Enter <acronym title="Content Delivery Network">CDN</acronym> provider hostname <a href="?page=w3tc_cdn#configuration">here</a>. <em>(This is the hostname used in order to view objects in a browser.)</em>',
+					'A configuration issue prevents <acronym title="Content Delivery Network">CDN</acronym> from working: The <strong>"Replace default hostname with"</strong> field cannot be empty. Enter <acronym title="Content Delivery Network">CDN</acronym> provider hostname <a href="?page=w3tc_cdn#configuration">here</a>. <em>(This is the hostname used in order to view static assets in a browser.)</em>',
 					'w3-total-cache'
 				);
 				break;

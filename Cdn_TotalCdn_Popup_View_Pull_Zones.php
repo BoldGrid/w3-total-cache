@@ -2,7 +2,7 @@
 /**
  * File: Cdn_TotalCdn_Popup_Pull_Zones.php
  *
- * Assists with configuring Total CDN as an object storage CDN.
+ * Assists with configuring Total CDN as a static asset CDN.
  * A pull zone selection is presented along with a form to add a new pull zone.
  *
  * @since   2.6.0

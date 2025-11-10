@@ -69,7 +69,7 @@ if (
 		sprintf(
 			// translators: 1 HTML strong tag containing CDN Engine value, 2 HTML span tag containing CDN Engine enabled/disabled value.
 			__(
-				'Content Delivery Network object support via %1$s is currently %2$s and %3$s.',
+				'Content Delivery Network static asset delivery support via %1$s is currently %2$s and %3$s.',
 				'w3-total-cache'
 			),
 			'<strong>' . Cache::engine_name( $this->_config->get_string( 'cdn.engine' ) ) . '</strong>',
@@ -149,7 +149,7 @@ if (
 					<?php
 					$cdn_purge_button        = $can_purge ?
 						'<input id="cdn_purge" class="button {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
-							'\'}" type="button" value="Purge" /> objects from the <acronym title="Content Delivery Network">CDN</acronym>' :
+							'\'}" type="button" value="Purge" /> static assets from the <acronym title="Content Delivery Network">CDN</acronym>' :
 						'';
 					$cdn_mirror_purge_button = $cdn_mirror_purge_all ?
 						( $can_purge ? ' or ' : '' ) . '<input class="button" type="submit" name="w3tc_flush_cdn" value="purge CDN completely" />' :
@@ -193,7 +193,7 @@ if (
 			);
 			?>
 			<input id="cdn_import_library" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'importing attachments into the Media Library', 'w3-total-cache' ); ?>" />.
-			Check <input id="cdn_queue" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'unsuccessful file transfers', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'if some objects appear to be missing.', 'w3-total-cache' ); ?>
+			Check <input id="cdn_queue" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'unsuccessful file transfers', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'if some static assets appear to be missing.', 'w3-total-cache' ); ?>
 
 			<?php if ( $can_purge ) : ?>
 				<input id="cdn_purge" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Purge', 'w3-total-cache' ); ?>" />
@@ -202,7 +202,7 @@ if (
 					sprintf(
 						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 						__(
-							' objects from the %1$sCDN%2$s if needed.',
+							' static assets from the %1$sCDN%2$s if needed.',
 							'w3-total-cache'
 						),
 						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
@@ -473,7 +473,7 @@ if (
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php if ( ! empty( $cdn_engine ) ) : ?>
-			<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Objects', 'w3-total-cache' ), '', 'configuration' ); ?>
+			<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Static Asset Delivery', 'w3-total-cache' ), '', 'configuration' ); ?>
 			<table class="form-table">
 				<?php
 				$known_engines = array(
