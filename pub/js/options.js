@@ -320,48 +320,229 @@ function w3tc_csp_reference() {
 	});
 }
 
+// Tracks the last known good CDN/CDNFSD combination so we can revert when conflicts are blocked.
+var cdnConflictState = null;
+// Ensures we don't create an infinite loop while restoring the previous state.
+var cdnConflictRestoring = false;
+
 /**
- * Bunny CDN check.
+ * Creates a shallow copy of a CDN conflict state object.
  *
- * Prevent enabling Bunny CDN ("bunnycdn" engine) for both CDN and CDNFSD.
+ * @since X.X.X
  *
- * @since 2.6.0
- *
- * @returns null
+ * @param {Object} state State to clone.
+ * @returns {Object} Cloned state.
  */
-function cdn_bunnycdn_check() {
-	// Prevents JS error for non W3TC pages.
-	if (typeof w3tcData === 'undefined') {
+function cdn_conflict_clone_state(state) {
+	var defaults = {
+		cdn_enabled: false,
+		cdn_engine: '',
+		cdnfsd_enabled: false,
+		cdnfsd_engine: ''
+	};
+
+	state = state || defaults;
+
+	return {
+		cdn_enabled: !!state.cdn_enabled,
+		cdn_engine: state.cdn_engine || '',
+		cdnfsd_enabled: !!state.cdnfsd_enabled,
+		cdnfsd_engine: state.cdnfsd_engine || ''
+	};
+}
+
+/**
+ * Reads the current CDN/CDNFSD state from the UI.
+ *
+ * @since X.X.X
+ *
+ * @returns {Object} Current state snapshot.
+ */
+function cdn_conflict_read_state() {
+	return {
+		cdn_enabled: jQuery('#cdn__enabled').prop('checked'),
+		cdn_engine: jQuery('#cdn__engine').val() || '',
+		cdnfsd_enabled: jQuery('#cdnfsd__enabled').prop('checked'),
+		cdnfsd_engine: jQuery('#cdnfsd__engine').val() || ''
+	};
+}
+
+/**
+ * Attach a capturing listener that checks for CDN/FSD conflicts before other handlers run.
+ *
+ * @since X.X.X
+ *
+ * @param {string} selector Element selector.
+ * @param {string} eventName Event name to listen for.
+ * @param {string} changedField Field identifier passed to cdn_conflict_check().
+ * @returns {void}
+ */
+/**
+ * Register a capture-phase event handler so we can veto conflicting changes
+ * before the TotalCDN FSD modal (or any other bubble-phase listener) executes.
+ */
+function cdn_conflict_bind_capture(selector, eventName, changedField) {
+	var element = jQuery(selector).get(0);
+
+	if (!element || typeof element.addEventListener !== 'function') {
 		return;
 	}
 
-	var $cdn_enabled = jQuery('#cdn__enabled'),
-		$cdn_engine = jQuery('#cdn__engine'),
-		$cdnfsd_enabled = jQuery('#cdnfsd__enabled'),
-		$cdnfsd_engine = jQuery('#cdnfsd__engine'),
-		cdn_enabled = $cdn_enabled.is(':checked'),
-		cdn_engine = $cdn_engine.find(':selected').val(),
-		cdnfsd_enabled = $cdnfsd_enabled.is(':checked'),
-		cdnfsd_engine = $cdnfsd_engine.find(':selected').val(),
-		$cdn_inside = jQuery('#cdn .inside');
+	element.addEventListener(eventName, function(nativeEvent) {
+		// Predict the post-change state so we can evaluate conflicts using the new value.
+		var predictedState = cdn_conflict_clone_state(cdn_conflict_read_state());
 
-	if (cdn_enabled && cdnfsd_enabled && 'bunnycdn' === cdn_engine && cdnfsd_engine === cdn_engine ) {
-		// Reset to what was last saved.
-		$cdn_enabled.prop('checked', w3tcData.cdnEnabled);
-		$cdn_engine.val(w3tcData.cdnEngine).change();
-		$cdnfsd_enabled.prop('checked', w3tcData.cdnfsdEnabled);
-		$cdnfsd_engine.val(w3tcData.cdnfsdEngine).change();
+		if (nativeEvent && nativeEvent.target) {
+			switch (changedField) {
+				case 'cdn_enabled':
+					predictedState.cdn_enabled = !!nativeEvent.target.checked;
+					break;
+				case 'cdn_engine':
+					predictedState.cdn_engine = nativeEvent.target.value || '';
+					break;
+				case 'cdnfsd_enabled':
+					predictedState.cdnfsd_enabled = !!nativeEvent.target.checked;
+					break;
+				case 'cdnfsd_engine':
+					predictedState.cdnfsd_engine = nativeEvent.target.value || '';
+					break;
+			}
+		}
+
+		cdn_conflict_check(changedField, nativeEvent, predictedState);
+	}, true);
+}
+
+/**
+ * Determines whether the current admin screen is the general settings page.
+ *
+ * @since X.X.X
+ *
+ * @returns {boolean} True when viewing the general settings page.
+ */
+function cdn_conflict_is_general_settings_page() {
+	if (!document || !document.body || !document.body.classList) {
+		return false;
+	}
+
+	return document.body.classList.contains('performance_page_w3tc_general');
+}
+
+/**
+ * CDN conflict check.
+ *
+ * Prevent enabling Bunny CDN ("bunnycdn" engine), Total CDN ("totalcdn" engine), or any combination of either for both CDN and CDNFSD.
+ * If a conflict is detected, revert only the last changed value and show a warning.
+ *
+ * @since X.X.X
+ *
+ * @param {string} [changed] - Which field was changed: 'cdn_enabled', 'cdn_engine', 'cdnfsd_enabled', or 'cdnfsd_engine'.
+ * @param {Event} [event] - Optional event associated with the change.
+ * @param {Object} [nextState] - The predicted state after the change, used to evaluate conflicts.
+ * @returns {boolean} True when a conflict was handled.
+ */
+function cdn_conflict_check(changed, event, nextState) {
+	// Prevents JS error for non W3TC pages.
+	if (typeof w3tcData === 'undefined') {
+		return false;
+	}
+
+	// Ignore recursive triggers while we are reverting to the last good state.
+	if (cdnConflictRestoring) {
+		return false;
+	}
+
+	var cdn_enabled = jQuery('#cdn__enabled'),
+		cdn_engine = jQuery('#cdn__engine'),
+		cdnfsd_enabled = jQuery('#cdnfsd__enabled'),
+		cdnfsd_engine = jQuery('#cdnfsd__engine'),
+		cdn_inside = jQuery('#cdn .inside'),
+		state = nextState ? cdn_conflict_clone_state(nextState) : cdn_conflict_read_state();
+
+	var cdn_enabled_value = state.cdn_enabled,
+		cdn_engine_value = state.cdn_engine,
+		cdnfsd_enabled_value = state.cdnfsd_enabled,
+		cdnfsd_engine_value = state.cdnfsd_engine;
+
+	// Remove any previous warning.
+	jQuery('#w3tc-cdn-conflict-warning').remove();
+
+	// Check for any conflict between CDN and FSD using bunnycdn/totalcdn in any combination.
+	var cdn_is_restricted = cdn_enabled_value && ( cdn_engine_value === 'bunnycdn' || cdn_engine_value === 'totalcdn' );
+	var fsd_is_restricted = cdnfsd_enabled_value && ( cdnfsd_engine_value === 'bunnycdn' || cdnfsd_engine_value === 'totalcdn' );
+
+	if (cdn_is_restricted && fsd_is_restricted) {
+		var warningMessage = '';
+
+		if (event) {
+			// Stop any remaining handlers (including the TotalCDN modal) from firing.
+			if (typeof event.stopImmediatePropagation === 'function') {
+				event.stopImmediatePropagation();
+			}
+			if (typeof event.stopPropagation === 'function') {
+				event.stopPropagation();
+			}
+			if (typeof event.preventDefault === 'function') {
+				event.preventDefault();
+			}
+		}
+
+		if (cdn_engine_value === 'totalcdn' && cdnfsd_engine_value === 'totalcdn') {
+			warningMessage = w3tcData.totalCdnWarning;
+		} else if (cdn_engine_value === 'bunnycdn' && cdnfsd_engine_value === 'bunnycdn') {
+			warningMessage = w3tcData.bunnyCdnWarning;
+		} else if (
+			( cdn_engine_value === 'totalcdn' && cdnfsd_engine_value === 'bunnycdn' )
+			|| ( cdn_engine_value === 'bunnycdn' && cdnfsd_engine_value === 'totalcdn' )
+		) {
+			warningMessage = w3tcData.mixedCdnWarning;
+		}
+
+		cdnConflictRestoring = true;
+
+		// Roll the UI back to the last safe selection for the control that changed.
+		switch (changed) {
+			case 'cdn_enabled':
+				cdn_enabled.prop('checked', cdnConflictState.cdn_enabled).trigger('change');
+				break;
+			case 'cdn_engine':
+				cdn_engine.val(cdnConflictState.cdn_engine).trigger('change');
+				break;
+			case 'cdnfsd_enabled':
+				cdnfsd_enabled.prop('checked', cdnConflictState.cdnfsd_enabled).trigger('change');
+				break;
+			case 'cdnfsd_engine':
+				cdnfsd_engine.val(cdnConflictState.cdnfsd_engine).trigger('change');
+				break;
+			default:
+				cdn_enabled.prop('checked', cdnConflictState.cdn_enabled).trigger('change');
+				cdn_engine.val(cdnConflictState.cdn_engine).trigger('change');
+				cdnfsd_enabled.prop('checked', cdnConflictState.cdnfsd_enabled).trigger('change');
+				cdnfsd_engine.val(cdnConflictState.cdnfsd_engine).trigger('change');
+				break;
+		}
+
+		cdnConflictRestoring = false;
 
 		// Display a warning.
-		jQuery('<div/>', {
-			class: 'notice notice-warning',
-			id: 'w3tc-bunnycdn-warning',
-			text: w3tcData.bunnyCdnWarning
-		}).prependTo($cdn_inside);
-	} else {
-		// Remove the warning.
-		jQuery('#w3tc-bunnycdn-warning').remove();
+		if (warningMessage) {
+			jQuery('<div/>', {
+				class: 'notice notice-warning',
+				id: 'w3tc-cdn-conflict-warning',
+				text: warningMessage
+			}).prependTo(cdn_inside);
+		}
+
+		return true;
 	}
+
+	if (nextState) {
+		cdnConflictState = cdn_conflict_clone_state(nextState);
+	} else {
+		cdnConflictState = cdn_conflict_clone_state(cdn_conflict_read_state());
+	}
+
+	return false;
 }
 
 /**
@@ -511,9 +692,62 @@ function toggle_fragmentcache_notice() {
 
 // On document ready.
 jQuery(function() {
-	// Global vars.
-	var $cdn_enabled = jQuery('#cdn__enabled'),
-		$cdn_engine = jQuery('#cdn__engine');
+	if (cdn_conflict_is_general_settings_page()) {
+		// Seed the initial snapshot and register capture listeners before other scripts bind bubble handlers.
+		cdnConflictState = cdn_conflict_clone_state(cdn_conflict_read_state());
+
+		cdn_conflict_bind_capture('#cdn__enabled', 'click', 'cdn_enabled');
+		cdn_conflict_bind_capture('#cdn__engine', 'change', 'cdn_engine');
+		cdn_conflict_bind_capture('#cdnfsd__enabled', 'click', 'cdnfsd_enabled');
+		cdn_conflict_bind_capture('#cdnfsd__engine', 'change', 'cdnfsd_engine');
+
+		if (typeof w3tcData !== 'undefined') {
+			// Catch an existing conflict immediately so the admin sees the warning on load.
+			cdn_conflict_check();
+		}
+
+		// Prevent enabling Bunny/Total CDN for both CDN and CDNFSD.
+		jQuery('#cdn__enabled').on('click', function(event) {
+			// Only handle synthetic events triggered via jQuery; user input is already intercepted in the capture handler.
+			if (!event || !event.isTrigger) {
+				return;
+			}
+
+			if (cdn_conflict_check('cdn_enabled', event)) {
+				return false;
+			}
+		});
+		jQuery('#cdn__engine').on('change', function(event) {
+			// Only handle synthetic events triggered via jQuery; user input is already intercepted in the capture handler.
+			if (!event || !event.isTrigger) {
+				return;
+			}
+
+			if (cdn_conflict_check('cdn_engine', event)) {
+				return false;
+			}
+		});
+		jQuery('#cdnfsd__enabled').on('click', function(event) {
+			// Only handle synthetic events triggered via jQuery; user input is already intercepted in the capture handler.
+			if (!event || !event.isTrigger) {
+				return;
+			}
+
+			if (cdn_conflict_check('cdnfsd_enabled', event)) {
+				return false;
+			}
+		});
+		jQuery('#cdnfsd__engine').on('change', function(event) {
+			// Only handle synthetic events triggered via jQuery; user input is already intercepted in the capture handler.
+			if (!event || !event.isTrigger) {
+				return;
+			}
+
+			if (cdn_conflict_check('cdnfsd_engine', event)) {
+				return false;
+			}
+		});
+	}
 
 	// Database cache disk usage warning.
 	toggle_dbcache_notice();
@@ -621,16 +855,10 @@ jQuery(function() {
 		});
 	});
 
-	// Prevent enabling Bunny CDN for both CDN and CDNFSD.
-	$cdn_enabled.on('click', cdn_bunnycdn_check);
-	$cdn_engine.on('change', cdn_bunnycdn_check);
-	jQuery('#cdnfsd__enabled').on('click', cdn_bunnycdn_check);
-	jQuery('#cdnfsd__engine').on('change', cdn_bunnycdn_check);
-
 	// When CDN is enabled as "cf" or "cf2", then display a notice about possible charges.
 	cdn_cf_check();
-	$cdn_enabled.on('click', cdn_cf_check);
-	$cdn_engine.on('change', cdn_cf_check);
+	jQuery('#cdn__enabled').on('click', cdn_cf_check);
+	jQuery('#cdn__engine').on('change', cdn_cf_check);
 
 	/**
 	 * CDN page.
