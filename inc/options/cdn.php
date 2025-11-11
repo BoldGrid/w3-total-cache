@@ -498,8 +498,8 @@ if (
 		$is_cdnfsd_active      = ( $cdnfsd_enabled && $is_cdnfsd_authorized );
 		$is_w3tc_pro           = Util_Environment::is_w3tc_pro( $config );
 		$is_totalcdn_purchased = Cdn_TotalCdn_Util::is_totalcdn_license_active();
-		$is_totalcdn_static    = $cdn_enabled && 'totalcdn' === $cdn_engine && $is_totalcdn_authorized;
-		$is_totalcdn_fsd       = $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine && $is_totalcdn_authorized;
+		$is_totalcdn_static    = $cdn_enabled && 'totalcdn' === $cdn_engine && $is_totalcdn_purchased;
+		$is_totalcdn_fsd       = $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine && $is_totalcdn_purchased;
 		$license_key           = $config->get_string( 'plugin.license_key' );
 
 		if (

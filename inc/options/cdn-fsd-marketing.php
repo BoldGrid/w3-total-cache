@@ -44,7 +44,7 @@ if ( ! $is_w3tc_pro ) {
 	<?php
 }
 
-if ( ! $is_totalcdn_authorized ) {
+if ( ! $is_totalcdn_purchased ) {
 	?>
 	<div id="w3tc-tcdn-ad-fsd">
 		<img class="w3tc-tcdn-icon" src="<?php echo esc_url( plugins_url( '/pub/img/w3total-cdn-teal.svg', W3TC_FILE ) ); ?>" alt="<?php echo esc_attr( W3TC_CDN_NAME ); ?> icon">
