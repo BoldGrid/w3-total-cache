@@ -264,7 +264,7 @@ class Util_PageSpeed {
 			}
 
 			$audit_classes = '';
-			if ( isset( $insight['type'] ) ) {
+			if ( isset( $insight['type'] ) && \is_array( $diagnostic['type'] ) ) {
 				foreach ( $insight['type'] as $type ) {
 					$audit_classes .= ' ' . $type;
 				}
@@ -865,7 +865,7 @@ class Util_PageSpeed {
 	 */
 	private static function render_subitems_table_cell( $headings, $rows ) {
 		if ( empty( $headings ) ) {
-			//return '';
+			return '';
 		}
 
 		$headings = array_values( $headings );

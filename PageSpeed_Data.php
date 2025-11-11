@@ -259,12 +259,12 @@ class PageSpeed_Data {
 			return array();
 		}
 
-		$items                 = $details['items'] ?? array();
-		$tree_section          = $items[0]['value'] ?? array();
-		$preconnected_section  = $items[1] ?? array();
-		$candidates_section    = $items[2] ?? array();
-		$chains                = $tree_section['chains'] ?? array();
-		$normalized_chains     = array();
+		$items                = $details['items'] ?? array();
+		$tree_section         = $items[0]['value'] ?? array();
+		$preconnected_section = $items[1] ?? array();
+		$candidates_section   = $items[2] ?? array();
+		$chains               = $tree_section['chains'] ?? array();
+		$normalized_chains    = array();
 
 		if ( ! empty( $chains ) && \is_array( $chains ) ) {
 			foreach ( $chains as $chain ) {
@@ -413,11 +413,11 @@ class PageSpeed_Data {
 	 *
 	 * @param mixed $score Score from the Lighthouse payload.
 	 *
-	 * @return int|null
+	 * @return int
 	 */
 	private static function normalize_score( $score ) {
 		if ( ! isset( $score ) || ! \is_numeric( $score ) ) {
-			return null;
+			return 0;
 		}
 
 		return $score * 100;

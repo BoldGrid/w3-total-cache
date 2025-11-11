@@ -139,7 +139,6 @@ class PageSpeed_Api {
 	 * @return array
 	 */
 	public function process_request( $query ) {
-		$this->maybe_refresh_token();
 		$access_token_json = $this->client->getAccessToken();
 
 		if ( empty( $access_token_json ) ) {
@@ -229,7 +228,7 @@ class PageSpeed_Api {
 	 * @param string $site_id            Site ID.
 	 * @param string $w3tc_pagespeed_key W3 API access key.
 	 *
-	 * @return string
+	 * @return void
 	 */
 	public function refresh_token( $site_id, $w3tc_pagespeed_key ) {
 		if ( empty( $site_id ) || empty( $w3tc_pagespeed_key ) ) {
@@ -302,8 +301,6 @@ class PageSpeed_Api {
 		$this->config->set( 'widget.pagespeed.access_token', $access_token );
 		$this->config->save();
 		$this->client->setAccessToken( $access_token );
-
-		return $access_token;
 	}
 
 	/**
