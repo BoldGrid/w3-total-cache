@@ -264,7 +264,7 @@ class Util_PageSpeed {
 			}
 
 			$audit_classes = '';
-			if ( isset( $insight['type'] ) && \is_array( $diagnostic['type'] ) ) {
+			if ( isset( $insight['type'] ) && \is_array( $insight['type'] ) ) {
 				foreach ( $insight['type'] as $type ) {
 					$audit_classes .= ' ' . $type;
 				}
