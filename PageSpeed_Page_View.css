@@ -113,6 +113,14 @@
     right: 35px;
 }
 
+.dashicons-yes {
+    color: green;
+}
+
+.dashicons-no {
+    color: red;
+}
+
 .w3tcps_range {
     font-family: unset;
     font-size: 14px;
@@ -172,7 +180,7 @@
     padding: 15px;
 }
 
-.opportunities .audits,
+.insights .audits,
 .diagnostics .audits,
 .passed_audits .audits {
     padding: 0 !important;
@@ -183,7 +191,7 @@
     border-bottom: 1px solid #ccd0d4;
 }
 
-.opportunities .w3tcps_range,
+.insights .w3tcps_range,
 .diagnostics .w3tcps_range,
 .passed_audits .w3tcps_range {
     padding: 15px 45px 15px 15px;
@@ -191,7 +199,7 @@
     box-sizing: border-box;
 }
 
-.opportunities .w3tcps_range:hover,
+.insights .w3tcps_range:hover,
 .diagnostics .w3tcps_range:hover,
 .passed_audits .w3tcps_range:hover {
     background-color: #FAFAFA;
@@ -325,6 +333,77 @@
     left: 3px;
     width: 37px;
     height: 37px;
+}
+
+.w3tcps_network_dependency {
+    width: 100%;
+}
+
+.w3tcps_network_dependency h4 {
+    margin: 0 0 5px 0;
+}
+
+.w3tcps_network_meta {
+    margin: 0 0 10px 0;
+    font-style: italic;
+}
+
+.w3tcps_network_chain_list {
+    list-style: none;
+    margin: 0 0 10px 0;
+    padding-left: 15px;
+}
+
+.w3tcps_network_chain_list ul {
+    list-style: none;
+    margin-top: 6px;
+    padding-left: 20px;
+}
+
+.w3tcps_network_node {
+    margin-bottom: 6px;
+}
+
+.w3tcps_network_node_header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: baseline;
+}
+
+.w3tcps_network_node_meta {
+    color: #50575e;
+    font-size: 12px;
+}
+
+.w3tcps_network_node_longest>.w3tcps_network_node_header {
+    font-weight: 600;
+}
+
+.w3tcps_network_preconnect_sections {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.w3tcps_network_preconnect {
+    flex: 1 1 240px;
+    border: 1px solid #ccd0d4;
+    padding: 10px;
+    background: #fbfbfb;
+}
+
+.w3tcps_network_preconnect ul {
+    margin: 5px 0 0 18px;
+    list-style: disc;
+}
+
+.w3tcps_status_pass {
+    color: #36a269;
+}
+
+.w3tcps_status_fail {
+    color: #c92c2c;
 }
 
 @media only screen and (max-width: 1024px) {
