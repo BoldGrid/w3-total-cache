@@ -1079,10 +1079,25 @@ class Generic_Plugin_Admin {
 				'<acronym title="' . esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
 				'<acronym title="' . esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 			),
-			'support_request'                        => __( 'Unable to send the support request.', 'w3-total-cache' ),
+			'support_request'                        => sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( 'Unable to send the support request. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			),
 			'config_import_no_file'                  => __( 'Please select config file.', 'w3-total-cache' ),
-			'config_import_upload'                   => __( 'Unable to upload config file.', 'w3-total-cache' ),
-			'config_import_import'                   => __( 'Configuration file could not be imported.', 'w3-total-cache' ),
+			'config_import_upload'                   => sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( 'Unable to upload config file. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			),
+			'config_import_import'                   => sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( 'Configuration file could not be imported. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			),
 			'config_reset'                           => sprintf(
 				// translators: 1 W3TC config director path.
 				__(
@@ -1091,8 +1106,18 @@ class Generic_Plugin_Admin {
 				),
 				'<strong>chmod 777 ' . W3TC_CONFIG_DIR . '</strong>'
 			),
-			'cdn_purge_attachment'                   => __( 'Unable to purge attachment.', 'w3-total-cache' ),
-			'pgcache_purge_post'                     => __( 'Unable to purge post.', 'w3-total-cache' ),
+			'cdn_purge_attachment'                   => sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( 'Unable to purge attachment. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			),
+			'pgcache_purge_post'                     => sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( 'Unable to purge post. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			),
 			'enable_cookie_domain'                   => sprintf(
 				// translators: 1 absolute path to wp-config.php, 2 cookie domain definition, 3 require once wp-setting.php definition.
 				__(
@@ -1113,7 +1138,12 @@ class Generic_Plugin_Admin {
 				'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', false);</strong>',
 				'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
 			),
-			'pull_zone'                              => __( 'Pull Zone could not be automatically created.', 'w3-total-cache' ),
+			'pull_zone'                              => sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( 'Pull Zone could not be automatically created. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			),
 		);
 
 		$note_messages = array(
@@ -1240,6 +1270,15 @@ class Generic_Plugin_Admin {
 							esc_html__( 'make it automatically.', 'w3-total-cache' ) .
 						'</td>' .
 						'<td>' . Util_Ui::button( 'Update via FTP', '', 'w3tc-show-ftp-form button' ) . '</td>' .
+					'</tr>' .
+					'<tr>' .
+						'<td>' . sprintf(
+							// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+							esc_html__( 'Need help? Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+							'</a>'
+						) . '</td>' .
+						'<td>' . Util_Ui::button_link( __( 'Contact Support', 'w3-total-cache' ), Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), false, 'button' ) . '</td>' .
 					'</tr>' .
 					'</table>' .
 					'<div class="w3tc-required-changes" style="' . $changes_style . '">' . $r['required_changes'] . '</div>' .
