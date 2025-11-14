@@ -300,6 +300,10 @@ class Util_Activation {
 							<td>%s</td>
 							<td>%s</td>
 						</tr>
+						<tr>
+							<td>%s</td>
+							<td>%s</td>
+						</tr>
 					</table>',
 					__( '<strong>W3 Total Cache Error:</strong> Files and directories could not be automatically deleted.', 'w3-total-cache' ),
 					__( 'Please execute commands manually', 'w3-total-cache' ),
@@ -313,7 +317,14 @@ class Util_Activation {
 						__( 'Update via FTP', 'w3-total-cache' ),
 						'',
 						'w3tc-show-ftp-form'
-					)
+					),
+					sprintf(
+						// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+						__( 'Need help? Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+						'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+						'</a>'
+					),
+					Util_Ui::button_link( __( 'Contact Support', 'w3-total-cache' ), Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), false, 'button' )
 				) . '<div class="w3tc-required-changes" style="' . $changes_style . '">' . $r['required_changes'] . '</div>' .
 					'<div class="w3tc-ftp-form" style="' . $ftp_style . '">' . $ftp_form . '</div>';
 
