@@ -1270,18 +1270,28 @@ class Generic_Plugin_Admin {
 				),
 				'<acronym title="' . \esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 			),
-			'updated_pullzone_url'                    => \esc_html__( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
+			'updated_pullzone_url'                    => sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				\esc_html__( 'Pull Zone URL could not be automatically updated. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			),
 			'cdn_totalcdn_fsd_origin_update_failed'   => \sprintf(
-				// Translators: 1: W3 Total Cache name.
+				// Translators: 1: W3 Total Cache name, 2: HTML anchor open tag, 3: HTML anchor close tag.
 				\esc_html__(
-					'Unable to update the %1$s origin for Full Site Delivery. Please contact support for assistance.',
+					'Unable to update the %1$s origin for Full Site Delivery. Please %2$scontact support%3$s for assistance.',
 					'w3-total-cache'
 				),
-				\esc_html( W3TC_CDN_NAME )
+				\esc_html( W3TC_CDN_NAME ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
 			),
-			'updated_pullzone_url'                    => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
-			'cdn_totalcdn_fsd_auto_config_failed'     => __( 'Unable to provision a Total CDN pull zone for Full Site Delivery. Please verify your API key or contact support.', 'w3-total-cache' ),
-			'cdn_totalcdn_fsd_origin_update_failed'  => __( 'Unable to update the Total CDN origin for Full Site Delivery. Please contact support for assistance.', 'w3-total-cache' ),
+			'cdn_totalcdn_fsd_auto_config_failed'     => sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( 'Unable to provision a Total CDN pull zone for Full Site Delivery. Please verify your API key or %1$scontact support%2$s.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			),
 			'cdn_totalcdn_fsd_custom_hostname_remove_failed' => Cdn_TotalCdn_CustomHostname::removal_failure_message(),
 			'cdn_totalcdn_fsd_custom_hostname_failed' => Cdn_TotalCdn_CustomHostname::failure_message(),
 		);
