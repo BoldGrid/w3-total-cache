@@ -87,6 +87,7 @@ class Generic_AdminActions_Default {
 	 */
 	public function w3tc_default_save_license_key() {
 		$license = Util_Request::get_string( 'license_key' );
+
 		try {
 			$old_config = new Config();
 
@@ -97,6 +98,62 @@ class Generic_AdminActions_Default {
 				$this->_config,
 				$old_config
 			);
+		} catch ( \Exception $ex ) {
+			echo wp_json_encode( array( 'result' => 'failed' ) );
+			exit();
+		}
+
+		echo wp_json_encode( array( 'result' => 'success' ) );
+		exit();
+	}
+
+	/**
+	 * Saves the provided Total CDN API key to the configuration.
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception If saving the api key or configuration fails.
+	 */
+	public function w3tc_default_save_tcdn_key() {
+		$license_key = Util_Request::get_string( 'license_key' );
+		$api_key     = Util_Request::get_string( 'api_key' );
+		$account_id  = Util_Request::get_string( 'account_id' );
+		try {
+			$old_config = new Config();
+
+			$this->_config->set( 'plugin.license_key', $license_key );
+			$this->_config->set( 'cdn.totalcdn.account_api_key', $api_key );
+			$this->_config->set( 'cdn.totalcdn.account_id', $account_id );
+			$this->_config->save();
+
+			// This applies a valid license state for the Total CDN license.
+			$config_state = Dispatcher::config_state();
+			$config_state->set( 'cdn.totalcdn.status', 'active' );
+			$config_state->save();
+
+			Dispatcher::component( 'Licensing_Plugin_Admin' )->possible_state_change(
+				$this->_config,
+				$old_config
+			);
+
+			// This should apply the default configuration for Total CDN.
+			$tcdn_applied = apply_filters( 'w3tc_totalcdn_auto_configured', false );
+			if ( true === $tcdn_applied ) {
+				echo wp_json_encode( array( 'result' => 'success' ) );
+				exit();
+			} else {
+					echo wp_json_encode(
+						array(
+							'result'  => 'failed',
+							'message' => sprintf(
+								// translators: 1: CDN name.
+								__( 'Failed to auto apply %1$s configuration.', 'w3-total-cache' ),
+								W3TC_CDN_NAME
+							),
+						)
+					);
+				exit();
+			}
 		} catch ( \Exception $ex ) {
 			echo wp_json_encode( array( 'result' => 'failed' ) );
 			exit();
@@ -556,6 +613,40 @@ class Generic_AdminActions_Default {
 
 		do_action( 'w3tc_config_ui_save', $config, $this->_config );
 		do_action( "w3tc_config_ui_save-{$this->_page}", $config, $this->_config );
+
+		$conflicting_engines = array( 'bunnycdn', 'totalcdn' );
+
+		if ( $config->get_boolean( 'cdn.enabled' ) && $config->get_boolean( 'cdnfsd.enabled' ) ) {
+			$cdn_engine    = $config->get_string( 'cdn.engine' );
+			$cdnfsd_engine = $config->get_string( 'cdnfsd.engine' );
+
+			if ( $cdn_engine === $cdnfsd_engine && in_array( $cdn_engine, $conflicting_engines, true ) ) {
+				$data['response_errors'][] = 'cdn_fsd_conflict_' . $cdn_engine;
+				$data['response_notes']    = array();
+
+				return array(
+					'query_string' => $data['response_query_string'],
+					'actions'      => $data['response_actions'],
+					'errors'       => $data['response_errors'],
+					'notes'        => $data['response_notes'],
+				);
+			}
+
+			if (
+				in_array( $cdn_engine, $conflicting_engines, true ) &&
+				in_array( $cdnfsd_engine, $conflicting_engines, true )
+			) {
+				$data['response_errors'][] = 'cdn_fsd_conflict_mixed';
+				$data['response_notes']    = array();
+
+				return array(
+					'query_string' => $data['response_query_string'],
+					'actions'      => $data['response_actions'],
+					'errors'       => $data['response_errors'],
+					'notes'        => $data['response_notes'],
+				);
+			}
+		}
 
 		Util_Admin::config_save( $this->_config, $config );
 

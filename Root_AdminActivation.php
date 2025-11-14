@@ -167,10 +167,10 @@ class Root_AdminActivation {
 					sprintf(
 						// translators: 1 opening HTML div tag followed by opening HTML p tag, 2 opening HTML strong tag,
 						// translators: 3 closing HTML strong tag, 4 html line break tags (x2), 5 opening HTML div tag,
-						// translators: 6 list of required changes, 7 closing HTML div tag,
-						// translators: 8 closing HTML p tag followed by closing HTML div tag.
+						// translators: 6 list of required changes, 7 closing HTML div tag, 8 HTML anchor open tag,
+						// translators: 9 HTML anchor close tag, 10 closing HTML p tag followed by closing HTML div tag.
 						__(
-							'%1$s%2$sW3 Total Cache Error:%3$s Files and directories could not be automatically removed to complete the deactivation. %4$sPlease execute commands manually:%5$s%6$s%7$s%8$s',
+							'%1$s%2$sW3 Total Cache Error:%3$s Files and directories could not be automatically removed to complete the deactivation. %4$sPlease execute commands manually:%5$s%6$s%7$s If you need help, please %8$scontact support%9$s for assistance.%10$s',
 							'w3-total-cache'
 						),
 						'<div class="' . esc_attr__( 'error', 'w3-total-cache' ) . '"><p>',
@@ -180,6 +180,8 @@ class Root_AdminActivation {
 						'<div style="' . esc_attr( $changes_style ) . '">',
 						esc_html( $r['required_changes'] ),
 						'</div>',
+						'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+						'</a>',
 						'</p></div>'
 					),
 					array(
@@ -190,6 +192,9 @@ class Root_AdminActivation {
 						'strong' => array(),
 						'br'     => array(),
 						'p'      => array(),
+						'a'      => array(
+							'href' => array(),
+						),
 					)
 				);
 			}

@@ -35,7 +35,7 @@ $is_unavailable  = ! empty( $account_api_key ) && $config->get_string( 'cdnfsd.b
 				<?php if ( $is_unavailable ) : ?>
 					<div class="notice notice-info">
 						<p>
-							<?php esc_html_e( 'CDN for objects cannot be authorized if full-site delivery is already configured.', 'w3-total-cache' ); ?>
+							<?php esc_html_e( 'CDN for static assets cannot be authorized if full-site delivery is already configured.', 'w3-total-cache' ); ?>
 						</p>
 					</div>
 				<?php endif; ?>

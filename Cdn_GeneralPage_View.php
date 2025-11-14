@@ -47,49 +47,52 @@ Util_Ui::config_overloading_button(
 	)
 );
 ?>
-<div id="w3tc-bunnycdn-ad-general">
-	<?php
-	if ( ! $cdn_enabled ) {
+<?php
+if (
+	( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
+	in_array( $state->get_string( 'cdn.totalcdn.status' ), array( 'canceled', 'inactive.expired' ), true )
+) {
+	?>
+	<div id="w3tc-tcdn-ad-general">
+		<?php
 		echo wp_kses(
 			sprintf(
 				// translators: 1 opening HTML strong tag, 2 closing HTML strong tag,
-				// translators: 3 HTML input for Bunny CDN sign up, 4 HTML img tag for Bunny CDN white logo.
+				// translators: 3 HTML input for Total CDN sign up, 4 HTML img tag for CDN logo.
 				__(
-					'%1$sLooking for a top rated CDN Provider? Try Bunny CDN.%2$s%3$s%4$s',
+					'%4$s%1$sYour site. Lightning fast. Anywhere.%2$s%3$s',
 					'w3-total-cache'
 				),
-				'<strong>',
-				'</strong>',
-				Util_Ui::button_link(
-					__( 'Sign up now to enjoy a special offer!', 'w3-total-cache' ),
-					esc_url( W3TC_BUNNYCDN_SIGNUP_URL ),
-					true,
-					'w3tc-bunnycdn-promotion-button',
-					'w3tc-bunnycdn-promotion-button'
-				),
-				'<img class="w3tc-bunnycdn-icon-white" src="' . esc_url( plugins_url( '/pub/img/w3tc_bunnycdn_icon_white.png', W3TC_FILE ) ) . '" alt="Bunny CDN Icon White">'
+				'<p class="w3tc-tcdn-ad-text">',
+				'</p>',
+				'<input type="button" class="button-buy-tcdn" data-renew-key="' . $config->get_string( 'plugin.license_key' ) . '" data-src="general_page_cdn_subscribe" value="' . esc_attr__( 'Enable', 'w3-total-cache' ) . ' ' . W3TC_CDN_NAME . '">',
+				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/w3total-cdn-teal.svg', W3TC_FILE ) ) . '" alt="' . W3TC_CDN_NAME . ' icon">'
 			),
 			array(
-				'strong' => array(),
-				'img'    => array(
+				'p'     => array(),
+				'img'   => array(
 					'class'  => array(),
 					'src'    => array(),
 					'alt'    => array(),
 					'width'  => array(),
 					'height' => array(),
 				),
-				'input'  => array(
-					'type'    => array(),
-					'name'    => array(),
-					'class'   => array(),
-					'value'   => array(),
-					'onclick' => array(),
+				'input' => array(
+					'type'           => array(),
+					'name'           => array(),
+					'class'          => array(),
+					'value'          => array(),
+					'onclick'        => array(),
+					'data-renew-key' => array(),
+					'data-src'       => array(),
 				),
 			)
 		);
-	}
-	?>
-</div>
+		?>
+		</div>
+	<?php
+}
+?>
 <table class="form-table">
 	<?php
 	Util_Ui::config_item(

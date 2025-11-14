@@ -13,7 +13,7 @@ if ( ! defined( 'W3TC' ) ) {
 		sprintf(
 			// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 			__(
-				'Remove objects from the %1$sCDN%2$s by specifying the relative path on individual lines below and clicking the "Purge" button when done. For example:',
+				'Remove static assets from the %1$sCDN%2$s by specifying the relative path on individual lines below and clicking the "Purge" button when done. For example:',
 				'w3-total-cache'
 			),
 			'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',

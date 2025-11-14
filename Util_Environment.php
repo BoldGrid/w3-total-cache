@@ -782,6 +782,41 @@ class Util_Environment {
 	}
 
 	/**
+	 * Helper: resolves the current site hostname.
+	 *
+	 * @since X.X.X
+	 *
+	 * @return string
+	 */
+	public static function get_site_hostname(): string {
+		return \strtolower( \trim( \wp_parse_url( \get_option( 'siteurl' ), PHP_URL_HOST ) ?? '' ) );
+	}
+
+	/**
+	 * Retrieves the URL scheme (http or https) used by the current WordPress site.
+	 *
+	 * @since x.x.x
+	 *
+	 * @return string The URL scheme ('http' or 'https') for the site.
+	 */
+	public static function get_site_scheme(): string {
+		// Attempt to get the scheme from the siteurl option.
+		$scheme = \wp_parse_url( \get_option( 'siteurl' ), PHP_URL_SCHEME );
+
+		if ( empty( $scheme ) ) {
+			// In case of load balanceers, determine scheme based on server variables.
+			if ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && 'https' === $_SERVER['HTTP_X_FORWARDED_PROTO'] ) {
+				$scheme = 'https';
+			} else {
+				// Default to is_ssl check.
+				$scheme = \is_ssl() ? 'https' : 'http';
+			}
+		}
+
+		return $scheme;
+	}
+
+	/**
 	 * Returns blog path.
 	 *
 	 * Example:

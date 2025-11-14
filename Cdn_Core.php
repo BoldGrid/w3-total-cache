@@ -579,6 +579,15 @@ class Cdn_Core {
 					);
 					break;
 
+				case 'totalcdn':
+					$engine_config = array(
+						'account_api_key' => $c->get_string( 'cdn.totalcdn.account_api_key' ),
+						'storage_api_key' => $c->get_string( 'cdn.totalcdn.storage_api_key' ),
+						'stream_api_key'  => $c->get_string( 'cdn.totalcdn.stream_api_key' ),
+						'pull_zone_id'    => $c->get_integer( 'cdn.totalcdn.pull_zone_id' ),
+						'domain'          => $c->get_string( 'cdn.totalcdn.cdn_hostname' ),
+					);
+					break;
 				default:
 					$engine_config = array();
 					break;
@@ -935,6 +944,10 @@ class Cdn_Core {
 					! empty( $this->_config->get_string( 'cdn.s3.bucket.location' ) );
 				break;
 
+			case 'totalcdn':
+				$is_cdn_authorized = ! empty( $this->_config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.totalcdn.pull_zone_id' ) );
+				break;
 			default:
 				$is_cdn_authorized = false;
 				break;
@@ -954,13 +967,19 @@ class Cdn_Core {
 		$cloudflare_config = $this->_config->get_array( 'cloudflare' );
 
 		switch ( $this->_config->get_string( 'cdnfsd.engine' ) ) {
+			case 'totalcdn':
+				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdn.totalcdn.account_api_key' ) ) &&
+					! empty( $this->_config->get_string( 'cdn.totalcdn.pull_zone_id' ) );
+				break;
+
 			case 'bunnycdn':
 				$is_cdnfsd_authorized = ! empty( $this->_config->get_string( 'cdn.bunnycdn.account_api_key' ) ) &&
 					! empty( $this->_config->get_string( 'cdnfsd.bunnycdn.pull_zone_id' ) );
 				break;
 
 			case 'cloudflare':
-				$is_cdnfsd_authorized = ! empty( $cloudflare_config['email'] ) &&
+				$is_cdnfsd_authorized = $this->_config->is_extension_active( 'cloudflare' ) &&
+					! empty( $cloudflare_config['email'] ) &&
 					! empty( $cloudflare_config['key'] ) &&
 					! empty( $cloudflare_config['zone_id'] ) &&
 					! empty( $cloudflare_config['zone_name'] );

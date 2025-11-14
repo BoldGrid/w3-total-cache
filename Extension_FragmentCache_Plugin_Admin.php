@@ -46,7 +46,12 @@ class Extension_FragmentCache_Plugin_Admin {
 			'pro_excerpt'     => __( 'Increase the performance of dynamic sites that cannot benefit from the caching of entire pages.', 'w3-total-cache' ),
 			'pro_description' => array(
 				__( 'Fragment caching extends the core functionality of WordPress by enabling caching policies to be set on groups of objects that are cached. This allows you to optimize various elements in themes and plugins to use caching to save resources and reduce response times. You can also use caching methods like Memcached or Redis (for example) to scale. Instructions for use are available in the FAQ available under the help menu. This feature also gives you control over the caching policies by the group as well as visibility into the configuration by extending the WordPress Object API with additional functionality.', 'w3-total-cache' ),
-				__( 'Fragment caching is a powerful, but advanced feature. If you need help, take a look at our premium support, customization and audit services.', 'w3-total-cache' ),
+				sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					__( 'Fragment caching is a powerful, but advanced feature. If you need help, %1$stake a look at our premium support, customization and audit services%2$s.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
 			),
 			'settings_exists' => true,
 			'version'         => '1.0',

@@ -2324,10 +2324,10 @@ class Util_Ui {
 				<div id="w3tc-options-menu">
 					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
 				<?php if ( ! empty( $config->get_string( 'cdn.engine' ) ) ) : ?>
-					<a href="#configuration"><?php esc_html_e( 'Configuration (Objects)', 'w3-total-cache' ); ?></a> |
+					<a href="#configuration"><?php esc_html_e( 'Configuration: (Static Asset Delivery)', 'w3-total-cache' ); ?></a> |
 				<?php endif; ?>
 				<?php if ( ! empty( $config->get_string( 'cdnfsd.engine' ) ) ) : ?>
-					<a href="#configuration-fsd"><?php esc_html_e( 'Configuration (FSD)', 'w3-total-cache' ); ?></a> |
+					<a href="#configuration-fsd"><?php esc_html_e( 'Configuration: (Full-Site Delivery)', 'w3-total-cache' ); ?></a> |
 				<?php endif; ?>
 				<?php if ( $show_purge_link ) : ?>
 					<a href="#purge-urls"><?php esc_html_e( 'Purge', 'w3-total-cache' ); ?></a> |
@@ -2368,10 +2368,10 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<a href="#initial"><?php esc_html_e( 'Initial Installation', 'w3-total-cache' ); ?></a> |
-					<?php if ( count( $rewrite_rules_descriptors ) ) : ?>
+					<?php if ( isset( $rewrite_rules_descriptors ) && count( $rewrite_rules_descriptors ) ) : ?>
 						<a href="#rules"><?php esc_html_e( 'Rewrite Rules', 'w3-total-cache' ); ?></a> |
 					<?php endif ?>
-					<?php if ( count( $other_areas ) ) : ?>
+					<?php if ( isset( $other_areas ) && count( $other_areas ) ) : ?>
 						<a href="#other"><?php esc_html_e( 'Other', 'w3-total-cache' ); ?></a> |
 					<?php endif ?>
 					<a href="#additional"><?php esc_html_e( 'Services', 'w3-total-cache' ); ?></a> |
@@ -2499,6 +2499,11 @@ class Util_Ui {
 	 * @return string
 	 */
 	public static function get_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
+		$config = Dispatcher::config();
+
+		$license_key       = $config->get_string( 'plugin.license_key' );
+		$license_key_param = ! empty( $license_key ) ? 'data-renew-key="' . $license_key : '"';
+
 		$score_block = '
 			<div class="w3tc-test-container-intro">
 				<span class="w3tc-test-score">' . $score . '</span><b>' . esc_html( $intro_label ) . '</b><span class="dashicons dashicons-arrow-down-alt2" ></span>
@@ -2511,7 +2516,7 @@ class Util_Ui {
 				<div class="w3tc-test-description">
 					<p>' . $score_description . ' <a target="_blank" href="' . esc_url( $score_link ) . '">' . esc_html__( 'Review the testing results', 'w3-total-cache' ) . '</a>' . esc_html__( ' to see how.', 'w3-total-cache' ) . '</p>
 					<br/>
-					<p><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">' . esc_html__( ' and improve your PageSpeed Scores today!', 'w3-total-cache' ) . '</p>
+					<p><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" ' . esc_attr( $license_key_param ) . ' value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">' . esc_html__( ' and improve your PageSpeed Scores today!', 'w3-total-cache' ) . '</p>
 				</div>
 			</div>';
 

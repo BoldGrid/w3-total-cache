@@ -480,6 +480,7 @@ class Cdn_AdminActions {
 				'rackspace_cdn' === $engine ||
 				'rscf' === $engine ||
 				'bunnycdn' === $engine ||
+				'totalcdn' === $engine ||
 				's3_compatible' === $engine
 			) {
 				// those use already stored w3tc config.
@@ -626,6 +627,28 @@ class Cdn_AdminActions {
 		} else {
 			$code = wp_remote_retrieve_response_code( $response );
 			return 200 === $code;
+		}
+	}
+
+	/**
+	 * Updates the W3TC CDN pull zone.
+	 *
+	 * When the CDN is set to W3TC CDN, this method updates the pull zone
+	 * configuration if the site URl has changed.
+	 *
+	 * @since x.x.x
+	 */
+	public function w3tc_cdn_update_w3tc_cdn_pullzone() {
+		$config = Dispatcher::config();
+
+		if ( ! Cdn_TotalCdn_Page::is_active() ) {
+			return;
+		}
+
+		if ( Cdn_TotalCdn_Auto_Configure::update_pullzone() ) {
+			Util_Admin::redirect( array( 'w3tc_note' => 'updated_pullzone_url' ), true );
+		} else {
+			Util_Admin::redirect( array( 'w3tc_error' => 'updated_pullzone_url' ), true );
 		}
 	}
 }

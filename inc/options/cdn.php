@@ -17,58 +17,59 @@ $can_purge = Cdn_Util::can_purge( $cdn_engine );
 
 require W3TC_INC_DIR . '/options/common/header.php';
 
-?>
-<div id="w3tc-bunnycdn-ad-cdn">
-	<?php
-	echo wp_kses(
-		sprintf(
-			// translators: 1 HTML img tag for Bunny CDN Icon Bunny Rocket, 2 opening HTML strong tag, 3 closing HTML strong tag,
-			// translators: 4 HTML input for Bunny CDN sign up, 5 HTML div tag for Bunny CDN logo svg.
-			__(
-				'%1$s%2$sLooking for a top rated CDN Provider? Try Bunny CDN.%3$s%4$s%5$s',
-				'w3-total-cache'
-			),
-			'<img class="w3tc-bunnycdn-icon-bunny-rocket" src="' . esc_url( plugins_url( '/pub/img/w3tc_bunnycdn_bunny_rocket.png', W3TC_FILE ) ) . '" alt="Bunny CDN Icon Bunny Rocket" width="90">',
-			'<strong>',
-			'</strong>',
-			Util_Ui::button_link(
-				__( 'Sign up now to enjoy a special offer!', 'w3-total-cache' ),
-				esc_url( W3TC_BUNNYCDN_SIGNUP_URL ),
-				true,
-				'w3tc-bunnycdn-promotion-button',
-				'w3tc-bunnycdn-promotion-button'
-			),
-			'<div class="w3tc-bunnycdn-logo"></div>'
-		),
-		array(
-			'strong' => array(),
-			'img'    => array(
-				'class' => array(),
-				'src'   => array(),
-				'alt'   => array(),
-				'width' => array(),
-			),
-			'div'    => array(
-				'class' => array(),
-			),
-			'input'  => array(
-				'type'    => array(),
-				'name'    => array(),
-				'class'   => array(),
-				'value'   => array(),
-				'onclick' => array(),
-			),
-		)
-	);
+if (
+	( ! $cdn_enabled && empty( $config->get_string( 'cdn.totalcdn.account_api_key' ) ) ) ||
+	in_array( $state->get_string( 'cdn.totalcdn.status' ), array( 'canceled', 'inactive.expired' ), true )
+) {
 	?>
-</div>
+	<div id="w3tc-tcdn-ad-cdn">
+		<?php
+		echo wp_kses(
+			sprintf(
+				// translators: 1 opening HTML strong tag, 2 CDN name, 3 closing HTML strong tag,
+				// translators: 4 HTML input for CDN sign up, 5 HTML img tag for CDN logo.
+				__( '%1$sSpeed up your site with our global CDN.%2$s%3$s%4$s', 'w3-total-cache' ),
+				'<p>',
+				'</p>',
+				'<input type="button" class="button-buy-tcdn" data-renew-key="' .
+					esc_attr( $this->_config->get_string( 'plugin.license_key' ) ) . '" data-src="general_page_cdn_subscribe" value="' .
+					esc_attr__( 'Get Started', 'w3-total-cache' ) . '">',
+				'<img class="w3tc-tcdn-icon" src="' . esc_url( plugins_url( '/pub/img/w3total-cdn-teal.svg', W3TC_FILE ) ) . '" alt="' . esc_attr( W3TC_CDN_NAME ) . ' icon">'
+			),
+			array(
+				'p' => array(),
+				'img'    => array(
+					'class' => array(),
+					'src'   => array(),
+					'alt'   => array(),
+					'width' => array(),
+				),
+				'div'    => array(
+					'class' => array(),
+				),
+				'input'  => array(
+					'type'           => array(),
+					'name'           => array(),
+					'class'          => array(),
+					'value'          => array(),
+					'onclick'        => array(),
+					'data-renew-key' => array(),
+					'data-src'       => array(),
+				),
+			)
+		);
+		?>
+	</div>
+	<?php
+}
+?>
 <p>
 	<?php
 	echo wp_kses(
 		sprintf(
 			// translators: 1 HTML strong tag containing CDN Engine value, 2 HTML span tag containing CDN Engine enabled/disabled value.
 			__(
-				'Content Delivery Network object support via %1$s is currently %2$s and %3$s.',
+				'Content Delivery Network static asset delivery support via %1$s is currently %2$s and %3$s.',
 				'w3-total-cache'
 			),
 			'<strong>' . Cache::engine_name( $this->_config->get_string( 'cdn.engine' ) ) . '</strong>',
@@ -148,7 +149,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					<?php
 					$cdn_purge_button        = $can_purge ?
 						'<input id="cdn_purge" class="button {nonce: \'' . esc_attr( wp_create_nonce( 'w3tc' ) ) .
-							'\'}" type="button" value="Purge" /> objects from the <acronym title="Content Delivery Network">CDN</acronym>' :
+							'\'}" type="button" value="Purge" /> static assets from the <acronym title="Content Delivery Network">CDN</acronym>' :
 						'';
 					$cdn_mirror_purge_button = $cdn_mirror_purge_all ?
 						( $can_purge ? ' or ' : '' ) . '<input class="button" type="submit" name="w3tc_flush_cdn" value="purge CDN completely" />' :
@@ -192,7 +193,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			);
 			?>
 			<input id="cdn_import_library" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'importing attachments into the Media Library', 'w3-total-cache' ); ?>" />.
-			Check <input id="cdn_queue" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'unsuccessful file transfers', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'if some objects appear to be missing.', 'w3-total-cache' ); ?>
+			Check <input id="cdn_queue" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'unsuccessful file transfers', 'w3-total-cache' ); ?>" /> <?php esc_html_e( 'if some static assets appear to be missing.', 'w3-total-cache' ); ?>
 
 			<?php if ( $can_purge ) : ?>
 				<input id="cdn_purge" class="button {nonce: '<?php echo esc_attr( wp_create_nonce( 'w3tc' ) ); ?>'}" type="button" value="<?php esc_attr_e( 'Purge', 'w3-total-cache' ); ?>" />
@@ -201,7 +202,7 @@ require W3TC_INC_DIR . '/options/common/header.php';
 					sprintf(
 						// translators: 1 opening HTML acronym tag, 2 closing HTML acronym tag.
 						__(
-							' objects from the %1$sCDN%2$s if needed.',
+							' static assets from the %1$sCDN%2$s if needed.',
 							'w3-total-cache'
 						),
 						'<acronym title="' . esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">',
@@ -472,15 +473,17 @@ require W3TC_INC_DIR . '/options/common/header.php';
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php if ( ! empty( $cdn_engine ) ) : ?>
-			<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Objects', 'w3-total-cache' ), '', 'configuration' ); ?>
+			<?php Util_Ui::postbox_header( esc_html__( 'Configuration: Static Asset Delivery', 'w3-total-cache' ), '', 'configuration' ); ?>
 			<table class="form-table">
 				<?php
 				$known_engines = array(
+					'totalcdn',
 					'bunnycdn',
 					'google_drive',
 					'rackspace_cdn',
 					'rscf',
 				);
+
 				if ( in_array( $cdn_engine, $known_engines, true ) ) {
 					do_action( 'w3tc_settings_cdn_boxarea_configuration' );
 				} elseif ( Cdn_Util::is_engine( $cdn_engine ) ) {
@@ -491,10 +494,27 @@ require W3TC_INC_DIR . '/options/common/header.php';
 			<?php Util_Ui::postbox_footer(); ?>
 		<?php endif; ?>
 
+		<?php
+		$is_cdnfsd_active      = ( $cdnfsd_enabled && $is_cdnfsd_authorized );
+		$is_w3tc_pro           = Util_Environment::is_w3tc_pro( $config );
+		$is_totalcdn_purchased = Cdn_TotalCdn_Util::is_totalcdn_license_active();
+		$is_totalcdn_static    = $cdn_enabled && 'totalcdn' === $cdn_engine && $is_totalcdn_purchased;
+		$is_totalcdn_fsd       = $cdnfsd_enabled && 'totalcdn' === $cdnfsd_engine && $is_totalcdn_purchased;
+		$license_key           = $config->get_string( 'plugin.license_key' );
+
+		if (
+			! $is_w3tc_pro
+			|| ! $is_totalcdn_purchased
+			|| ( $is_w3tc_pro && $is_totalcdn_purchased && ! $is_totalcdn_fsd )
+		) {
+			include W3TC_INC_DIR . '/options/cdn-fsd-marketing.php';
+		}
+		?>
+
 		<?php do_action( 'w3tc_settings_box_cdnfsd' ); ?>
 
 		<?php
-		if ( 'bunnycdn' === $cdn_engine || 'bunnycdn' === $cdnfsd_engine ) {
+		if ( in_array( $cdn_engine, array( 'bunnycdn', 'totalcdn' ), true ) || in_array( $cdnfsd_engine, array( 'bunnycdn', 'totalcdn' ), true ) ) {
 			Util_Ui::postbox_header( esc_html__( 'Purge', 'w3-total-cache' ), '', 'purge-urls' );
 			do_action( 'w3tc_purge_urls_box' );
 			Util_Ui::postbox_footer();

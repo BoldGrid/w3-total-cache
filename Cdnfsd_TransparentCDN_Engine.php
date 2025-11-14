@@ -283,7 +283,14 @@ class Cdnfsd_TransparentCDN_Engine {
 
 		try {
 			$result = $api->purge( $urls );
-			throw new \Exception( \esc_html__( 'Problem purging', 'w3-total-cache' ) );
+			throw new \Exception(
+				sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\esc_html__( 'Problem purging. If you need help, please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				)
+			);
 
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
