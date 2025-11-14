@@ -463,19 +463,24 @@ class Generic_AdminNotes {
 			$memcache_error = wp_kses(
 				sprintf(
 					// translators: 1: opening HTML p tag, 2: closing HTML p tag followed by opening HTML ul tag followed by memcache errors within HTML li tags,
-					// translators: 3: closing HTML p tag.
+					// translators: 3: HTML anchor open tag, 4: HTML anchor close tag, 5: closing HTML p tag.
 					__(
-						'%1$sThe following memcached servers are not responding or not running:%2$sThis message will automatically disappear once the issue is resolved.%3$s',
+						'%1$sThe following memcached servers are not responding or not running:%2$sThis message will automatically disappear once the issue is resolved. If you need help, please %3$scontact support%4$s.%5$s',
 						'w3-total-cache'
 					),
 					'<p>',
 					'</p><ul>' . $memcache_errors . '</ul><p>',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>',
 					'</p>'
 				),
 				array(
 					'p'  => array(),
 					'ul' => array(),
 					'li' => array(),
+					'a'  => array(
+						'href' => array(),
+					),
 				)
 			);
 

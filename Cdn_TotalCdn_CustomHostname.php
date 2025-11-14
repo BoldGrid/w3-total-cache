@@ -198,7 +198,12 @@ class Cdn_TotalCdn_CustomHostname {
 		$hostname = Util_Environment::get_site_hostname();
 
 		if ( ! $hostname ) {
-			$result['error'] = __( 'Unable to determine the site hostname required for Full Site Delivery.', 'w3-total-cache' );
+			$result['error'] = sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( 'Unable to determine the site hostname required for Full Site Delivery. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			);
 			self::update_config_error( $config, '', $result['error'], $persist );
 			self::trigger_error_callback( $on_error, $result['error'] );
 			return $result;

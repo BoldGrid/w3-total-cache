@@ -237,7 +237,8 @@ class Minify_Environment {
 				$minify_error .= '<li>' . $minifiers_error . '</li>';
 			}
 
-			$minify_error .= '</ul><p>This message will automatically disappear once the issue is resolved.';
+			$minify_error .= '</ul><p>This message will automatically disappear once the issue is resolved. ' .
+				'If you need help, please <a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">contact support</a>.';
 
 			$exs->push( new Util_Environment_Exception( $minify_error ) );
 		}
