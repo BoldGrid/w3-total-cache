@@ -21,6 +21,13 @@ defined( 'W3TC' ) || die();
 		<?php
 		esc_html_e( 'An error occurred trying to delete the pull zone; ', 'w3-total-cache' );
 		echo $delete_error_message . '.'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo ' '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		printf(
+			// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+			esc_html__( 'If the problem persists, please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+			'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+			'</a>'
+		);
 		?>
 	</div>
 <?php endif; ?>

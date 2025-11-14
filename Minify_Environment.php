@@ -274,7 +274,9 @@ class Minify_Environment {
 			}
 
 			$error .= '<br />Unfortunately minification will not function without custom rewrite rules. ' .
-				'Please ask your server administrator for assistance. Also refer to <a href="' .
+				'Please ask your server administrator for assistance or ' .
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">contact support</a>. ' .
+				'Also refer to <a href="' .
 				admin_url( 'admin.php?page=w3tc_install' ) . '">the install page</a>  for the rules for your server.';
 
 			throw new Util_Environment_Exception(
