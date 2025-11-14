@@ -284,7 +284,7 @@ class Minify_AutoJs {
 		);
 
 		$m = null;
-		if ( ! preg_match( '~\s+(async|defer)[> ]~is', $script_tag, $m ) ) {
+		if ( ! preg_match( '~\s+(async|defer)[>=\s]~is', $script_tag, $m ) ) {
 			$sync_type = 'sync';
 
 			// for head group - put minified file at the place of first script
