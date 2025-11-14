@@ -11,6 +11,7 @@ declare( strict_types = 1 );
 
 use W3TC\Cdn_TotalCdn_CustomHostname;
 use W3TC\Config;
+use W3TC\Util_Ui;
 
 /**
  * Class: W3tc_Cdn_TotalCdn_CustomHostname_Test
@@ -220,7 +221,12 @@ class W3tc_Cdn_TotalCdn_CustomHostname_Test extends WP_UnitTestCase {
 		try {
 			$result = Cdn_TotalCdn_CustomHostname::ensure( $config );
 
-			$message = __( 'Unable to determine the site hostname required for Full Site Delivery.', 'w3-total-cache' );
+			$message = sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				__( 'Unable to determine the site hostname required for Full Site Delivery. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			);
 
 			$this->assertFalse( $result['success'] );
 			$this->assertFalse( $result['skipped'] );
@@ -391,7 +397,12 @@ class W3tc_Cdn_TotalCdn_CustomHostname_Test extends WP_UnitTestCase {
 			)
 		);
 
-		$message = __( 'Could not remove the Full Site Delivery custom hostname because the Total CDN credentials are missing.', 'w3-total-cache' );
+		$message = sprintf(
+			// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+			__( 'Could not remove the Full Site Delivery custom hostname because the Total CDN credentials are missing. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+			'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+			'</a>'
+		);
 
 		$result = Cdn_TotalCdn_CustomHostname::remove( $new_config, $old_config );
 
