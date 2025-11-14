@@ -1200,12 +1200,14 @@ class Generic_Plugin_Admin {
 				'</a>'
 			),
 			'config_reset'                           => sprintf(
-				// translators: 1 W3TC config director path.
+				// translators: 1 W3TC config director path, 2: HTML anchor open tag, 3: HTML anchor close tag.
 				\esc_html__(
-					'Default settings could not be restored. Please run %1$s to make the configuration file write-able, then try again.',
+					'Default settings could not be restored. Please run %1$s to make the configuration file write-able, then try again. If you need help, please %2$scontact support%3$s for assistance.',
 					'w3-total-cache'
 				),
-				'<strong>chmod 777 ' . W3TC_CONFIG_DIR . '</strong>'
+				'<strong>chmod 777 ' . W3TC_CONFIG_DIR . '</strong>',
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
 			),
 			'cdn_purge_attachment'                   => sprintf(
 				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
