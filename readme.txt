@@ -321,6 +321,9 @@ You will be able to see the results instantly on each page load, but for tangibl
 Yes! Please [reach out to us](https://www.w3-edge.com/contact/) and we'll get you acclimated so you can "set it and forget it."
 
 Install the plugin to read the full FAQ on the plugins FAQ tab.
+= Where do I report security bugs found in this plugin? =
+
+Please report security bugs found in the source code of the W3 Total Cache plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/d5047161-3e39-4462-9250-1b04385021dd). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
 
 == Installation ==
 
