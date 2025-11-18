@@ -31,6 +31,6 @@ if ( ! defined( 'W3TC' ) ) {
 		<a href="<?php echo esc_url( W3TC_PARTNER_DREAMHOST ); ?>" target="_blank">Dreamhost</a>
 	</li>
 </ul>
-<p><?php esc_html_e( 'Shopping around for better hosting? Checkout our', 'w3-total-cache' ); ?> <a href="<?php echo esc_url( 'https://www.boldgrid.com/wordpress-hosting/' ); ?>" target="_blank"><?php esc_html_e( 'WordPress Hosting Recommendations', 'w3-total-cache' ); ?></a></p>
+<p><?php esc_html_e( 'Shopping around for better hosting? Checkout our', 'w3-total-cache' ); ?> <a href="<?php echo esc_url( 'https://www.boldgrid.com/wordpress-hosting/?utm_source=w3tc&utm_medium=partners_widget&utm_campaign=hosting_partners' ); ?>" target="_blank"><?php esc_html_e( 'WordPress Hosting Recommendations', 'w3-total-cache' ); ?></a></p>
 <hr>
 <p id="partner-bottom"><a href="mailto: partners@boldgrid.com"><?php esc_html_e( 'Are you a host', 'w3-total-cache' ); ?>?</a></p>
