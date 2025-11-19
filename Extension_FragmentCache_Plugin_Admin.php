@@ -57,7 +57,7 @@ class Extension_FragmentCache_Plugin_Admin {
 						'a' => array(
 							'href' => array(),
 						),
-					),
+					)
 				),
 			),
 			'settings_exists' => true,

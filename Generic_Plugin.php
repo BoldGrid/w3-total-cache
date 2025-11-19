@@ -321,7 +321,7 @@ class Generic_Plugin {
 	public function init() {
 		// Load W3TC textdomain for translations.
 		$this->reset_l10n();
-		
+
 		if ( is_multisite() && ! is_network_admin() ) {
 			global $w3_current_blog_id, $current_blog;
 			if ( $w3_current_blog_id !== $current_blog->blog_id && ! isset( $GLOBALS['w3tc_blogmap_register_new_item'] ) ) {

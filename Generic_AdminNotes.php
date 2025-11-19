@@ -88,7 +88,7 @@ class Generic_AdminNotes {
 					)
 				),
 				array(
-					'a'       => array(
+					'a'      => array(
 						'href' => array(),
 					),
 					'strong' => array(),

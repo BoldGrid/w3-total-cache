@@ -821,7 +821,7 @@ class Generic_Plugin_Admin {
 							'%1$s cannot be enabled for both CDN and Full Site Delivery.',
 							'w3-total-cache'
 						),
-							W3TC_CDN_NAME
+						W3TC_CDN_NAME
 					),
 					'mixedCdnWarning'  => \sprintf(
 						// Translators: 1: W3 Total Cache name.
@@ -1239,7 +1239,7 @@ class Generic_Plugin_Admin {
 				),
 				array(
 					'a' => array(
-						'href'   => array(),
+						'href' => array(),
 					),
 				)
 			),
@@ -1253,7 +1253,7 @@ class Generic_Plugin_Admin {
 				),
 				array(
 					'a' => array(
-						'href'   => array(),
+						'href' => array(),
 					),
 				)
 			),
@@ -1266,7 +1266,7 @@ class Generic_Plugin_Admin {
 				),
 				array(
 					'a' => array(
-						'href'   => array(),
+						'href' => array(),
 					),
 				)
 			),
@@ -1297,7 +1297,7 @@ class Generic_Plugin_Admin {
 				),
 				array(
 					'a' => array(
-						'href'   => array(),
+						'href' => array(),
 					),
 				)
 			),
@@ -1310,7 +1310,7 @@ class Generic_Plugin_Admin {
 				),
 				array(
 					'a' => array(
-						'href'   => array(),
+						'href' => array(),
 					),
 				)
 			),
@@ -1359,7 +1359,7 @@ class Generic_Plugin_Admin {
 				),
 				array(
 					'a' => array(
-						'href'   => array(),
+						'href' => array(),
 					),
 				)
 			),
@@ -1404,7 +1404,7 @@ class Generic_Plugin_Admin {
 				),
 				array(
 					'a' => array(
-						'href'   => array(),
+						'href' => array(),
 					),
 				)
 			),
@@ -1421,7 +1421,7 @@ class Generic_Plugin_Admin {
 				),
 				array(
 					'a' => array(
-						'href'   => array(),
+						'href' => array(),
 					),
 				)
 			),
@@ -1434,7 +1434,7 @@ class Generic_Plugin_Admin {
 				),
 				array(
 					'a' => array(
-						'href'   => array(),
+						'href' => array(),
 					),
 				)
 			),
