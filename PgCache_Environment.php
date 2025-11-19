@@ -273,13 +273,32 @@ class PgCache_Environment {
 
 			$error .= '<br />Unfortunately disk enhanced page caching will ' .
 				'not function without custom rewrite rules. ' .
-				'Please ask your server administrator for assistance. Also refer to <a href="' .
+				'Please ask your server administrator for assistance or ' .
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">contact support</a>. ' .
+				'Also refer to <a href="' .
 				admin_url( 'admin.php?page=w3tc_install' ) .
 				'">the install page</a>  for the rules for your server.';
 
 			throw new Util_Environment_Exception(
-				esc_html( $error ),
-				esc_html( $tech_message )
+				wp_kses(
+					$error,
+					array(
+						'strong'  => array(),
+						'acronym' => array(
+							'title' => array(),
+						),
+						'a'       => array(
+							'href' => array(),
+						),
+						'br'      => array(),
+					)
+				),
+				wp_kses(
+					$tech_message,
+					array(
+						'br' => array(),
+					)
+				)
 			);
 		}
 	}

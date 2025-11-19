@@ -198,7 +198,19 @@ class Cdn_TotalCdn_CustomHostname {
 		$hostname = Util_Environment::get_site_hostname();
 
 		if ( ! $hostname ) {
-			$result['error'] = __( 'Unable to determine the site hostname required for Full Site Delivery.', 'w3-total-cache' );
+			$result['error'] = \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Unable to determine the site hostname required for Full Site Delivery. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . \esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			);
 			self::update_config_error( $config, '', $result['error'], $persist );
 			self::trigger_error_callback( $on_error, $result['error'] );
 			return $result;
@@ -333,7 +345,19 @@ class Cdn_TotalCdn_CustomHostname {
 		}
 
 		if ( empty( $account_api_key ) || $pull_zone_id <= 0 ) {
-			$result['error'] = \__( 'Could not remove the Full Site Delivery custom hostname because the Total CDN credentials are missing.', 'w3-total-cache' );
+			$result['error'] = \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Could not remove the Full Site Delivery custom hostname because the Total CDN credentials are missing. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . \esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			);
 			self::trigger_error_callback( $on_error, $result['error'] );
 			return $result;
 		}
@@ -388,7 +412,19 @@ class Cdn_TotalCdn_CustomHostname {
 	 * @return string
 	 */
 	public static function failure_message(): string {
-		return __( 'Could not configure the Full Site Delivery custom hostname automatically. Please contact support for assistance.', 'w3-total-cache' );
+		return \wp_kses(
+			\sprintf(
+				// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+				\__( 'Could not configure the Full Site Delivery custom hostname automatically. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+				'<a href="' . \esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+				'</a>'
+			),
+			array(
+				'a' => array(
+					'href' => array(),
+				),
+			)
+		);
 	}
 
 	/**
@@ -399,7 +435,12 @@ class Cdn_TotalCdn_CustomHostname {
 	 * @return string
 	 */
 	public static function removal_failure_message(): string {
-		return \__( 'Could not remove the Full Site Delivery custom hostname automatically. Please contact support for assistance.', 'w3-total-cache' );
+		return sprintf(
+			// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+			\__( 'Could not remove the Full Site Delivery custom hostname automatically. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+			'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+			'</a>'
+		);
 	}
 
 	/**

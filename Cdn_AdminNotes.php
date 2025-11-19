@@ -319,19 +319,35 @@ class Cdn_AdminNotes {
 			if ( strpos( $error, "doesn't exist" ) !== false ) {
 				$url = is_network_admin() ? network_admin_url( 'admin.php?page=w3tc_install' ) : admin_url( 'admin.php?page=w3tc_install' );
 				throw new \Exception(
-					sprintf(
-						// translators: 1: Error message, 2: Install link.
-						esc_html__( 'Encountered issue with CDN: %1$s. See %2$s for instructions of creating correct table.', 'w3-total-cache' ),
-						esc_html( $wpdb->last_error ),
-						'<a href="' . esc_url( $url ) . '">' . esc_html__( 'Install page', 'w3-total-cache' ) . '</a>'
+					wp_kses(
+						sprintf(
+							// translators: 1: Error message, 2: Install link.
+							__( 'Encountered issue with CDN: %1$s. See %2$s for instructions of creating correct table.', 'w3-total-cache' ),
+							esc_html( $wpdb->last_error ),
+							'<a href="' . esc_url( $url ) . '">' . esc_html__( 'Install page', 'w3-total-cache' ) . '</a>'
+						),
+						array(
+							'a' => array(
+								'href' => array(),
+							),
+						)
 					)
 				);
 			} else {
 				throw new \Exception(
-					sprintf(
-						// translators: 1: Error message.
-						esc_html__( 'Encountered issue with CDN: %s.', 'w3-total-cache' ),
-						esc_html( $wpdb->last_error )
+					wp_kses(
+						sprintf(
+							// translators: 1: Error message, 2: HTML anchor open tag, 3: HTML anchor close tag.
+							__( 'Encountered issue with CDN: %1$s. If you need help, please %2$scontact support%3$s for assistance.', 'w3-total-cache' ),
+							esc_html( $wpdb->last_error ),
+							'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+							'</a>'
+						),
+						array(
+							'a' => array(
+								'href' => array(),
+							),
+						)
 					)
 				);
 			}

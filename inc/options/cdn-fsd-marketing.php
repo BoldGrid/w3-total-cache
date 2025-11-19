@@ -75,7 +75,7 @@ if ( ! $is_totalcdn_purchased ) {
 					'w3-total-cache'
 				),
 				esc_html( W3TC_CDN_NAME ),
-				'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
 				'</a>'
 			);
 			?>
@@ -94,7 +94,7 @@ if ( ! $is_totalcdn_purchased ) {
 					'w3-total-cache'
 				),
 				esc_html( W3TC_CDN_NAME ),
-				'<a target="_blank" href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
+				'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
 				'</a>'
 			);
 			?>

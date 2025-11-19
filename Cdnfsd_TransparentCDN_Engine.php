@@ -26,6 +26,7 @@ if ( ! defined( 'W3TC_CDN_TRANSPARENTCDN_AUTHORIZATION_URL' ) ) {
  * phpcs:disable PSR2.Classes.PropertyDeclaration.Underscore
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter
+ * phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
  */
 class Cdn_TransparentCDN_Api {
 	/**
@@ -75,18 +76,20 @@ class Cdn_TransparentCDN_Api {
 	 *
 	 * @param array $urls Array of URLs to purge from the CDN.
 	 *
-	 * @return bool True if purge is successful, false otherwise.
+	 * @return bool True if purge is successful, throws exception otherwise.
+	 *
+	 * @throws \Exception If required configuration parameters are missing or if the purge fails.
 	 */
 	public function purge( $urls ) {
 		if ( empty( $this->_config['company_id'] ) ) {
-			return false;
+			throw new \Exception( \esc_html__( 'Company ID not specified.', 'w3-total-cache' ) );
 		}
 
 		if ( empty( $this->_config['client_id'] ) ) {
-			return false;
+			throw new \Exception( \esc_html__( 'Client ID not specified.', 'w3-total-cache' ) );
 		}
 		if ( empty( $this->_config['client_secret'] ) ) {
-			return false;
+			throw new \Exception( \esc_html__( 'Client secret not specified.', 'w3-total-cache' ) );
 		}
 
 		// We ask for the authorization token.
@@ -105,7 +108,7 @@ class Cdn_TransparentCDN_Api {
 			$invalidation_urls[] = '';
 		}
 
-		return $this->_purge_content( $invalidation_urls, $error );
+		return $this->_purge_content( $invalidation_urls );
 	}
 
 	/**
@@ -113,14 +116,13 @@ class Cdn_TransparentCDN_Api {
 	 *
 	 * @since 0.15.0
 	 *
-	 * @param array  $files  Array of file URLs to purge.
-	 * @param string $error  Reference to a string where error messages will be stored.
+	 * @param array $files Array of file URLs to purge.
 	 *
-	 * @return bool True if content purge is successful, false otherwise.
+	 * @return bool True if content purge is successful, thorws exception otherwise.
 	 *
 	 * @throws \Exception If there is an issue with the HTTP request.
 	 */
-	public function _purge_content( $files, &$error ) {
+	public function _purge_content( $files ) {
 		$url  = sprintf( W3TC_CDN_TRANSPARENTCDN_PURGE_URL, $this->_config['company_id'] );
 		$args = array(
 			'method'     => 'POST',
@@ -137,8 +139,10 @@ class Cdn_TransparentCDN_Api {
 
 		if ( is_wp_error( $response ) ) {
 			$error = implode( '; ', $response->get_error_messages() );
-			return false;
+			throw new \Exception( \esc_html( $error ) );
 		}
+
+		$api_error_message = $this->get_api_error_message_from_response( $response );
 
 		switch ( $response['response']['code'] ) {
 			case 200:
@@ -147,8 +151,8 @@ class Cdn_TransparentCDN_Api {
 					// We have invalidated at least one URL.
 					return true;
 				} elseif ( 0 < count( $files ) && ! empty( $files[0] ) ) {
-					$error = __( 'Invalid Request URL', 'w3-total-cache' );
-					break;
+					$error = empty( $api_error_message ) ? \esc_html__( 'Invalid Request URL', 'w3-total-cache' ) : $api_error_message;
+					throw new \Exception( $error );
 				}
 
 				return true;
@@ -159,26 +163,49 @@ class Cdn_TransparentCDN_Api {
 					return true;
 				}
 
-				$error = __( 'Invalid Request Parameter', 'w3-total-cache' );
-				break;
+				$error = empty( $api_error_message ) ? \esc_html__( 'Invalid Request Parameter', 'w3-total-cache' ) : $api_error_message;
+				throw new \Exception( $error );
 
 			case 403:
-				$error = __( 'Authentication Failure or Insufficient Access Rights', 'w3-total-cache' );
-				break;
+				$error = empty( $api_error_message ) ? \esc_html__( 'Authentication Failure or Insufficient Access Rights', 'w3-total-cache' ) : $api_error_message;
+				throw new \Exception( $error );
 
 			case 404:
-				$error = __( 'Invalid Request URI', 'w3-total-cache' );
-				break;
+				$error = empty( $api_error_message ) ? \esc_html__( 'Invalid Request URI', 'w3-total-cache' ) : $api_error_message;
+				throw new \Exception( $error );
 
 			case 500:
-				$error = __( 'Server Error', 'w3-total-cache' );
-				break;
+				$error = empty( $api_error_message ) ? \esc_html__( 'Server Error', 'w3-total-cache' ) : $api_error_message;
+				throw new \Exception( $error );
 			default:
-				$error = __( 'Unknown error', 'w3-total-cache' );
-				break;
+				$error = empty( $api_error_message ) ? \esc_html__( 'Unknown error', 'w3-total-cache' ) : $api_error_message;
+				throw new \Exception( $error );
+		}
+	}
+
+	/**
+	 * Extracts an error message from the API response payload.
+	 *
+	 * @since X.X.X
+	 *
+	 * @param array $response Response array returned by wp_remote_request().
+	 *
+	 * @return string
+	 */
+	private function get_api_error_message_from_response( $response ) {
+		if ( empty( $response['body'] ) || ! is_string( $response['body'] ) ) {
+			return '';
 		}
 
-		return false;
+		$body = $response['body'];
+		$data = json_decode( $body );
+
+		if ( isset( $data->message ) && is_string( $data->message ) ) {
+			return \esc_html( $data->message );
+		}
+
+		$trimmed = trim( \wp_strip_all_tags( $body ) );
+		return empty( $trimmed ) ? '' : \esc_html( $trimmed );
 	}
 
 	/**
@@ -222,11 +249,15 @@ class Cdn_TransparentCDN_Api {
 
 		if ( is_wp_error( $response ) ) {
 			$error = implode( '; ', $response->get_error_messages() );
-			return false;
+			throw new \Exception( \esc_html( $error ) );
 		}
 
-		$body         = $response['body'];
-		$jobj         = json_decode( $body );
+		$body = $response['body'];
+		$jobj = json_decode( $body );
+		if ( ! isset( $jobj->access_token ) || empty( $jobj->access_token ) ) {
+			throw new \Exception( \esc_html__( 'Unable to retrieve access token.', 'w3-total-cache' ) );
+		}
+
 		$this->_token = $jobj->access_token;
 
 		return true;
@@ -282,9 +313,7 @@ class Cdnfsd_TransparentCDN_Engine {
 		$api = new Cdn_TransparentCDN_Api( $this->config );
 
 		try {
-			$result = $api->purge( $urls );
-			throw new \Exception( \esc_html__( 'Problem purging', 'w3-total-cache' ) );
-
+			$api->purge( $urls );
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
 				throw new \Exception(
@@ -322,7 +351,7 @@ class Cdnfsd_TransparentCDN_Engine {
 		);
 
 		try {
-			$r = $api->purge( array( 'items' => $items ) );
+			$api->purge( array( 'items' => $items ) );
 		} catch ( \Exception $ex ) {
 			if ( $ex->getMessage() === 'Validation Failure: Purge url must contain one of your hostnames' ) {
 				throw new \Exception(

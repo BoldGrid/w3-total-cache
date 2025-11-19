@@ -766,18 +766,18 @@ class Generic_Plugin_Admin {
 			return;
 		}
 
-		wp_enqueue_script( 'w3tc-metadata' );
-		wp_enqueue_script( 'w3tc-options' );
-		wp_enqueue_script( 'w3tc-lightbox' );
+		\wp_enqueue_script( 'w3tc-metadata' );
+		\wp_enqueue_script( 'w3tc-options' );
+		\wp_enqueue_script( 'w3tc-lightbox' );
 
 		if ( $this->is_w3tc_page ) {
-			wp_localize_script(
+			\wp_localize_script(
 				'w3tc-options',
 				'w3tc_nonce',
 				array( wp_create_nonce( 'w3tc' ) )
 			);
 
-			wp_localize_script(
+			\wp_localize_script(
 				'w3tc-options',
 				'w3tcData',
 				array(
@@ -789,18 +789,18 @@ class Generic_Plugin_Admin {
 					),
 					'cdnfsdEnabled'    => $this->_config->get_boolean( 'cdnfsd.enabled' ),
 					'cdnfsdEngine'     => $this->_config->get_string( 'cdnfsd.engine' ),
-					'cfWarning'        => wp_kses(
-						sprintf(
+					'cfWarning'        => \wp_kses(
+						\sprintf(
 							// translators: 1: HTML opening a tag to docs.aws.amazon.com for invalidation payments, 2: HTML closing a tag followed by HTML line break tag,
 							// translators: 4: HTML line break tag, 5: HTML opening a tag to purge CDN manually, 6: HTML closing a tag.
-							__(
+							\__(
 								'Please see %1$sAmazon\'s CloudFront documentation -- Paying for file invalidation%2$sThe first 1,000 invalidation paths that you submit per month are free; you pay for each invalidation path over 1,000 in a month.%3$sYou can disable automatic purging by enabling %4$sOnly purge CDN manually%5$s.',
 								'w3-total-cache'
 							),
 							'<a target="_blank" href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html#PayingForInvalidation">',
 							'</a>.<br/>',
 							'<br/>',
-							'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">',
+							'<a href="' . \esc_url( \admin_url( 'admin.php?page=w3tc_cdn#advanced' ) ) . '">',
 							'</a>'
 						),
 						array(
@@ -811,25 +811,25 @@ class Generic_Plugin_Admin {
 							'br' => array(),
 						)
 					),
-					'bunnyCdnWarning'  => esc_html__(
+					'bunnyCdnWarning'  => \esc_html__(
 						'Bunny CDN should only be enabled as either a CDN for static assets or full-site delivery, not both at the same time.  The CDN settings have been reverted.',
 						'w3-total-cache'
 					),
-					'totalCdnWarning'  => sprintf(
+					'totalCdnWarning'  => \sprintf(
 						// Translators: 1: W3 Total Cache name.
-						esc_html__(
+						\esc_html__(
 							'%1$s cannot be enabled for both CDN and Full Site Delivery.',
 							'w3-total-cache'
 						),
-						esc_html( W3TC_CDN_NAME )
+						W3TC_CDN_NAME
 					),
-					'mixedCdnWarning'  => sprintf(
+					'mixedCdnWarning'  => \sprintf(
 						// Translators: 1: W3 Total Cache name.
-						esc_html__(
+						\esc_html__(
 							'Bunny CDN and %1$s cannot be enabled across CDN and Full Site Delivery at the same time.',
 							'w3-total-cache'
 						),
-						esc_html( W3TC_CDN_NAME )
+						W3TC_CDN_NAME
 					),
 				)
 			);
@@ -838,9 +838,9 @@ class Generic_Plugin_Admin {
 		switch ( $this->_page ) {
 			case 'w3tc_minify':
 			case 'w3tc_cachegroups':
-				wp_enqueue_script(
+				\wp_enqueue_script(
 					'w3tc_cachegroups',
-					plugins_url( 'CacheGroups_Plugin_Admin_View.js', W3TC_FILE ),
+					\plugins_url( 'CacheGroups_Plugin_Admin_View.js', W3TC_FILE ),
 					array(
 						'jquery',
 						'jquery-ui-sortable',
@@ -851,79 +851,79 @@ class Generic_Plugin_Admin {
 				// No break.
 			case 'w3tc_userexperience':
 				if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
-					wp_register_script( 'w3tc_remove_cssjs', plugins_url( 'UserExperience_Remove_CssJs_Page_View.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
+					\wp_register_script( 'w3tc_remove_cssjs', \plugins_url( 'UserExperience_Remove_CssJs_Page_View.js', W3TC_FILE ), array( 'jquery' ), W3TC_VERSION, true );
 
-					wp_localize_script(
+					\wp_localize_script(
 						'w3tc_remove_cssjs',
 						'W3TCRemoveCssJsData',
 						array(
 							'lang' => array(
-								'singlesPathDescription' => __( 'Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry.', 'w3-total-cache' ),
-								'singlesExampleTrigger'  => __( 'View Examples', 'w3-total-cache' ),
-								'singlesExampleTriggerClose' => __( 'Hide Examples', 'w3-total-cache' ),
-								'singlesPathExampleDirLabel' => __( 'Target all CSS/JS from a plugin/theme:', 'w3-total-cache' ),
-								'singlesPathExampleDir'  => wp_kses(
+								'singlesPathDescription' => \__( 'Enter the path of the CSS/JS file to be managed. If a directory is used, all CSS/JS files within that directory will be managed with this entry.', 'w3-total-cache' ),
+								'singlesExampleTrigger'  => \__( 'View Examples', 'w3-total-cache' ),
+								'singlesExampleTriggerClose' => \__( 'Hide Examples', 'w3-total-cache' ),
+								'singlesPathExampleDirLabel' => \__( 'Target all CSS/JS from a plugin/theme:', 'w3-total-cache' ),
+								'singlesPathExampleDir'  => \wp_kses(
 									'https://example.com/wp-content/plugins/example-plugin/<br/>/wp-content/plugins/example-plugin/',
 									array(
 										'br' => array(),
 									)
 								),
-								'singlesPathExampleFileLabel' => __( 'Target a specific CSS/JS file:', 'w3-total-cache' ),
-								'singlesPathExampleFile' => wp_kses(
+								'singlesPathExampleFileLabel' => \__( 'Target a specific CSS/JS file:', 'w3-total-cache' ),
+								'singlesPathExampleFile' => \wp_kses(
 									'https://example.com/wp-content/themes/example-theme/example-script.js<br/>/wp-content/themes/example-script.js<br/>example-script.js',
 									array(
 										'br' => array(),
 									)
 								),
-								'singlesNoEntries'       => __( 'No CSS/JS entries added.', 'w3-total-cache' ),
-								'singlesExists'          => __( 'Entry already exists!', 'w3-total-cache' ),
-								'singlesPathLabel'       => __( 'Target CSS/JS:', 'w3-total-cache' ),
-								'singlesDelete'          => __( 'Delete', 'w3-total-cache' ),
-								'singlesBehaviorLabel'   => __( 'Action:', 'w3-total-cache' ),
-								'singlesBehaviorExcludeText' => __( 'Exclude', 'w3-total-cache' ),
-								'singlesBehaviorExcludeText2' => __( '(Remove the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
-								'singlesBehaviorIncludeText' => __( 'Include', 'w3-total-cache' ),
-								'singlesBehaviorIncludeText2' => __( '(Allow the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
-								'singlesBehaviorDescription' => __( 'When the above CSS/JS file is found within your markup.', 'w3-total-cache' ),
-								'singlesIncludesLabelExclude' => __( 'Exclude on URL Match:', 'w3-total-cache' ),
-								'singlesIncludesLabelInclude' => __( 'Include on URL Match:', 'w3-total-cache' ),
-								'singlesIncludesDescriptionExclude' => __( 'Specify the conditions for which the target file should be excluded based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
-								'singlesIncludesDescriptionInclude' => __( 'Specify the conditions for which the target file should be included based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
-								'singlesIncludesExample' => wp_kses(
+								'singlesNoEntries'       => \__( 'No CSS/JS entries added.', 'w3-total-cache' ),
+								'singlesExists'          => \__( 'Entry already exists!', 'w3-total-cache' ),
+								'singlesPathLabel'       => \__( 'Target CSS/JS:', 'w3-total-cache' ),
+								'singlesDelete'          => \__( 'Delete', 'w3-total-cache' ),
+								'singlesBehaviorLabel'   => \__( 'Action:', 'w3-total-cache' ),
+								'singlesBehaviorExcludeText' => \__( 'Exclude', 'w3-total-cache' ),
+								'singlesBehaviorExcludeText2' => \__( '(Remove the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
+								'singlesBehaviorIncludeText' => \__( 'Include', 'w3-total-cache' ),
+								'singlesBehaviorIncludeText2' => \__( '(Allow the script ONLY WHEN a condition below matches)', 'w3-total-cache' ),
+								'singlesBehaviorDescription' => \__( 'When the above CSS/JS file is found within your markup.', 'w3-total-cache' ),
+								'singlesIncludesLabelExclude' => \__( 'Exclude on URL Match:', 'w3-total-cache' ),
+								'singlesIncludesLabelInclude' => \__( 'Include on URL Match:', 'w3-total-cache' ),
+								'singlesIncludesDescriptionExclude' => \__( 'Specify the conditions for which the target file should be excluded based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesDescriptionInclude' => \__( 'Specify the conditions for which the target file should be included based on matching absolute/relative page URLs. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesExample' => \wp_kses(
 									'https://example.com/example-page/<br/>/example-page/<br/>example-page?arg=example-arg',
 									array(
 										'br' => array(),
 									)
 								),
-								'singlesIncludesContentLabelExclude' => __( 'Exclude on Content Match:', 'w3-total-cache' ),
-								'singlesIncludesContentLabelInclude' => __( 'Include on Content Match:', 'w3-total-cache' ),
-								'singlesIncludesContentDescriptionExclude' => __( 'Specify the conditions for which the target file should be excluded based on matching page content. Include one entry per line.', 'w3-total-cache' ),
-								'singlesIncludesContentDescriptionInclude' => __( 'Specify the conditions for which the target file should be included based on matching page content. Include one entry per line.', 'w3-total-cache' ),
-								'singlesIncludesContentExample' => wp_kses(
+								'singlesIncludesContentLabelExclude' => \__( 'Exclude on Content Match:', 'w3-total-cache' ),
+								'singlesIncludesContentLabelInclude' => \__( 'Include on Content Match:', 'w3-total-cache' ),
+								'singlesIncludesContentDescriptionExclude' => \__( 'Specify the conditions for which the target file should be excluded based on matching page content. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesContentDescriptionInclude' => \__( 'Specify the conditions for which the target file should be included based on matching page content. Include one entry per line.', 'w3-total-cache' ),
+								'singlesIncludesContentExample' => \wp_kses(
 									'&lt;div id="example-id"&gt;<br/>&lt;span class="example-class"&gt;<br/>name="example-name"',
 									array(
 										'br' => array(),
 									)
 								),
-								'singlesEmptyUrl'        => __( 'Empty match pattern!', 'w3-total-cache' ),
+								'singlesEmptyUrl'        => \__( 'Empty match pattern!', 'w3-total-cache' ),
 							),
 						)
 					);
 
-					wp_enqueue_script( 'w3tc_remove_cssjs' );
+					\wp_enqueue_script( 'w3tc_remove_cssjs' );
 				}
 				// No break.
 			case 'w3tc_cdn':
-				wp_enqueue_script( 'jquery-ui-sortable' );
+				\wp_enqueue_script( 'jquery-ui-sortable' );
 				break;
 		}
 
 		if ( 'w3tc_cdn' === $this->_page ) {
-			wp_enqueue_script( 'jquery-ui-dialog' );
+			\wp_enqueue_script( 'jquery-ui-dialog' );
 		}
 
 		if ( 'w3tc_dashboard' === $this->_page ) {
-			wp_enqueue_script( 'w3tc-jquery-masonry' );
+			\wp_enqueue_script( 'w3tc-jquery-masonry' );
 		}
 	}
 
@@ -935,7 +935,7 @@ class Generic_Plugin_Admin {
 			return;
 		}
 
-		wp_enqueue_script( 'w3tc-options' );
+		\wp_enqueue_script( 'w3tc-options' );
 	}
 
 	/**
@@ -974,7 +974,7 @@ class Generic_Plugin_Admin {
 	 * Contextual help list filter.
 	 */
 	public function add_help_tabs() {
-		$screen   = get_current_screen();
+		$screen   = \get_current_screen();
 		$sections = Generic_Faq::sections();
 		$n        = 0;
 
@@ -1004,7 +1004,7 @@ class Generic_Plugin_Admin {
 		$content = ob_get_contents();
 		ob_end_clean();
 
-		echo wp_json_encode( array( 'content' => $content ) );
+		echo \wp_json_encode( array( 'content' => $content ) );
 	}
 
 	/**
@@ -1020,7 +1020,7 @@ class Generic_Plugin_Admin {
 
 		if ( ! is_writable( WP_CONTENT_DIR ) || ! is_writable( Util_Rule::get_browsercache_rules_cache_path() ) ) {
 			$delete_link = '<a href="' .
-				wp_nonce_url( admin_url( 'plugins.php?action=w3tc_deactivate_plugin' ), 'w3tc' ) .
+				\wp_nonce_url( \admin_url( 'plugins.php?action=w3tc_deactivate_plugin' ), 'w3tc' ) .
 				'">Uninstall</a>';
 			array_unshift( $links, $delete_link );
 		}
@@ -1036,9 +1036,9 @@ class Generic_Plugin_Admin {
 	 * @return array
 	 */
 	public function favorite_actions( $actions ) {
-		$actions[ wp_nonce_url( admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc' ) ] = array(
+		$actions[ \wp_nonce_url( \admin_url( 'admin.php?page=w3tc_dashboard&amp;w3tc_flush_all' ), 'w3tc' ) ] = array(
 			__( 'Empty Caches', 'w3-total-cache' ),
-			apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' ),
+			\apply_filters( 'w3tc_capability_favorite_action_flush_all', 'manage_options' ),
 		);
 
 		return $actions;
@@ -1052,7 +1052,7 @@ class Generic_Plugin_Admin {
 	 * @return string
 	 */
 	public function pre_update_option_active_plugins( $new_value ) {
-		$old_value = (array) get_option( 'active_plugins' );
+		$old_value = (array) \get_option( 'active_plugins' );
 
 		if ( $new_value !== $old_value && in_array( W3TC_FILE, (array) $new_value, true ) && in_array( W3TC_FILE, (array) $old_value, true ) ) {
 			$state_note = Dispatcher::config_state_note();
@@ -1070,7 +1070,7 @@ class Generic_Plugin_Admin {
 	public function in_plugin_update_message() {
 		$response = Util_Http::get( W3TC_README_URL );
 
-		if ( is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
+		if ( \is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
 			return;
 		}
 
@@ -1084,7 +1084,7 @@ class Generic_Plugin_Admin {
 
 		$changelog = (array) preg_split( '~[\r\n]+~', trim( $matches[1] ) );
 
-		echo '<div style="color: #f00;">' . esc_html__( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
+		echo '<div style="color: #f00;">' . \esc_html__( 'Take a minute to update, here\'s why:', 'w3-total-cache' ) . '</div><div style="font-weight: normal;height:300px;overflow:auto">';
 		$ul = false;
 
 		foreach ( $changelog as $index => $line ) {
@@ -1121,30 +1121,59 @@ class Generic_Plugin_Admin {
 		$cookie_domain = Util_Admin::get_cookie_domain();
 
 		$error_messages = array(
-			'fancy_permalinks_disabled_pgcache'       => \sprintf(
-				// translators: 1 enable button link.
-				\esc_html__(
-					'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling enhanced disk mode.',
-					'w3-total-cache'
+			'fancy_permalinks_disabled_pgcache'       => \wp_kses(
+				\sprintf(
+					// translators: 1 enable button link.
+					\__(
+						'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling enhanced disk mode.',
+						'w3-total-cache'
+					),
+					Util_Ui::button_link( 'enable', 'options-permalink.php' )
 				),
-				Util_Ui::button_link( 'enable', 'options-permalink.php' )
+				array(
+					'input' => array(
+						'type'    => array(),
+						'class'   => array(),
+						'name'    => array(),
+						'value'   => array(),
+						'onclick' => array(),
+					),
+				)
 			),
-			'fancy_permalinks_disabled_browsercache'  => \sprintf(
-				// translators: 1 enable button link.
-				\esc_html__(
-					'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling the \'Do not process 404 errors for static objects with WordPress\'.',
-					'w3-total-cache'
+			'fancy_permalinks_disabled_browsercache'  => \wp_kses(
+				\sprintf(
+					// translators: 1 enable button link.
+					\__(
+						'Fancy permalinks are disabled. Please %1$s it first, then re-attempt to enabling the \'Do not process 404 errors for static objects with WordPress\'.',
+						'w3-total-cache'
+					),
+					Util_Ui::button_link( 'enable', 'options-permalink.php' )
 				),
-				Util_Ui::button_link( 'enable', 'options-permalink.php' )
+				array(
+					'input' => array(
+						'type'    => array(),
+						'class'   => array(),
+						'name'    => array(),
+						'value'   => array(),
+						'onclick' => array(),
+					),
+				)
 			),
 			'support_request_type'                    => \esc_html__( 'Please select request type.', 'w3-total-cache' ),
-			'support_request_url'                     => \sprintf(
-				// translators: 1 HTML acronym URL (uniform resource locator).
-				\esc_html__(
-					'Please enter the address of the site in the site %1$s field.',
-					'w3-total-cache'
+			'support_request_url'                     => \wp_kses(
+				\sprintf(
+					// translators: 1 HTML acronym URL (uniform resource locator).
+					\__(
+						'Please enter the address of the site in the site %1$s field.',
+						'w3-total-cache'
+					),
+					'<acronym title="' . \esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">' . \esc_html__( 'URL', 'w3-total-cache' ) . '</acronym>'
 				),
-				'<acronym title="' . \esc_attr__( 'Uniform Resource Locator', 'w3-total-cache' ) . '">' . \esc_html__( 'URL', 'w3-total-cache' ) . '</acronym>'
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
 			),
 			'support_request_name'                    => \esc_html__( 'Please enter your name in the Name field', 'w3-total-cache' ),
 			'support_request_email'                   => \esc_html__( 'Please enter valid email address in the E-Mail field.', 'w3-total-cache' ),
@@ -1153,76 +1182,195 @@ class Generic_Plugin_Admin {
 			'support_request_description'             => \esc_html__( 'Please describe the issue in the issue description field.', 'w3-total-cache' ),
 			'support_request_wp_login'                => \esc_html__( 'Please enter an administrator login. Create a temporary one just for this support case if needed.', 'w3-total-cache' ),
 			'support_request_wp_password'             => \esc_html__( 'Please enter WP Admin password, be sure it\'s spelled correctly.', 'w3-total-cache' ),
-			'support_request_ftp_host'                => \sprintf(
-				// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-				\esc_html__(
-					'Please enter %1$s or %2$s host for the site.',
-					'w3-total-cache'
+			'support_request_ftp_host'                => \wp_kses(
+				\sprintf(
+					// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
+					\__(
+						'Please enter %1$s or %2$s host for the site.',
+						'w3-total-cache'
+					),
+					'<acronym title="' . \esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . \esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
+					'<acronym title="' . \esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . \esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 				),
-				'<acronym title="' . \esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . \esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
-				'<acronym title="' . \esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . \esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
 			),
-			'support_request_ftp_login'               => \sprintf(
-				// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-				\esc_html__(
-					'Please enter %1$s or %2$s login for the server. Create a temporary one just for this support case if needed.',
-					'w3-total-cache'
+			'support_request_ftp_login'               => \wp_kses(
+				\sprintf(
+					// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
+					\__(
+						'Please enter %1$s or %2$s login for the server. Create a temporary one just for this support case if needed.',
+						'w3-total-cache'
+					),
+					'<acronym title="' . \esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . \esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
+					'<acronym title="' . \esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . \esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 				),
-				'<acronym title="' . \esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . \esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
-				'<acronym title="' . \esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . \esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
 			),
-			'support_request_ftp_password'            => \sprintf(
-				// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
-				\esc_html__(
-					'Please enter %1$s or %2$s password for the %2$s account.',
-					'w3-total-cache'
+			'support_request_ftp_password'            => \wp_kses(
+				\sprintf(
+					// translators: 1 HTML acronym SSH (secure shell), 2 HTML acronym FTP (file transfer protocol).
+					\__(
+						'Please enter %1$s or %2$s password for the %2$s account.',
+						'w3-total-cache'
+					),
+					'<acronym title="' . \esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . \esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
+					'<acronym title="' . \esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . \esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
 				),
-				'<acronym title="' . \esc_attr__( 'Secure Shell', 'w3-total-cache' ) . '">' . \esc_html__( 'SSH', 'w3-total-cache' ) . '</acronym>',
-				'<acronym title="' . \esc_attr__( 'File Transfer Protocol', 'w3-total-cache' ) . '">' . \esc_html__( 'FTP', 'w3-total-cache' ) . '</acronym>'
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
 			),
-			'support_request'                         => \esc_html__( 'Unable to send the support request.', 'w3-total-cache' ),
+			'support_request'                         => \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Unable to send the support request. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			),
 			'config_import_no_file'                   => \esc_html__( 'Please select config file.', 'w3-total-cache' ),
-			'config_import_upload'                    => \esc_html__( 'Unable to upload config file.', 'w3-total-cache' ),
-			'config_import_import'                    => \esc_html__( 'Configuration file could not be imported.', 'w3-total-cache' ),
-			'config_reset'                            => \sprintf(
-				// translators: 1 W3TC config director path.
-				\esc_html__(
-					'Default settings could not be restored. Please run %1$s to make the configuration file write-able, then try again.',
-					'w3-total-cache'
+			'config_import_upload'                    => \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Unable to upload config file. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
 				),
-				'<strong>chmod 777 ' . W3TC_CONFIG_DIR . '</strong>'
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
 			),
-			'cdn_purge_attachment'                    => \esc_html__( 'Unable to purge attachment.', 'w3-total-cache' ),
-			'pgcache_purge_post'                      => \esc_html__( 'Unable to purge post.', 'w3-total-cache' ),
-			'enable_cookie_domain'                    => \sprintf(
-				// translators: 1 absolute path to wp-config.php, 2 cookie domain definition, 3 require once wp-setting.php definition.
-				\esc_html__(
-					'%1$s could not be written, please edit config and add: %2$s before %3$s.',
-					'w3-total-cache'
+			'config_import_import'                    => \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Configuration file could not be imported. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
 				),
-				'<strong>' . ABSPATH . 'wp-config.php</strong>',
-				'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', \'' . \addslashes( $cookie_domain ) . '\');</strong>',
-				'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
 			),
-			'disable_cookie_domain'                   => \sprintf(
-				// translators: 1 absolute path to wp-config.php, 2 cooke domain definition, 3 require once wp-setting.php definition.
-				\esc_html__(
-					'%1$s could not be written, please edit config and add:%2$s before %3$s.',
-					'w3-total-cache'
+			'config_reset'                            => \wp_kses(
+				\sprintf(
+					// translators: 1 W3TC config director path, 2: HTML anchor open tag, 3: HTML anchor close tag.
+					\__(
+						'Default settings could not be restored. Please run %1$s to make the configuration file write-able, then try again. If you need help, please %2$scontact support%3$s for assistance.',
+						'w3-total-cache'
+					),
+					'<strong>chmod 777 ' . W3TC_CONFIG_DIR . '</strong>',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
 				),
-				'<strong>' . ABSPATH . 'wp-config.php</strong>',
-				'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', false);</strong>',
-				'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
+				array(
+					'a'      => array(
+						'href' => array(),
+					),
+					'strong' => array(),
+				)
 			),
-			'pull_zone'                               => \esc_html__( 'Pull Zone could not be automatically created.', 'w3-total-cache' ),
+			'cdn_purge_attachment'                    => \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Unable to purge attachment. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			),
+			'pgcache_purge_post'                      => \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Unable to purge post. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			),
+			'enable_cookie_domain'                    => \wp_kses(
+				\sprintf(
+					// translators: 1 absolute path to wp-config.php, 2 cookie domain definition, 3 require once wp-setting.php definition.
+					\__(
+						'%1$s could not be written, please edit config and add: %2$s before %3$s.',
+						'w3-total-cache'
+					),
+					'<strong>' . ABSPATH . 'wp-config.php</strong>',
+					'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', \'' . \addslashes( $cookie_domain ) . '\');</strong>',
+					'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
+				),
+				array(
+					'strong' => array(
+						'style' => array(),
+					),
+					'br'     => array(),
+				)
+			),
+			'disable_cookie_domain'                   => \wp_kses(
+				\sprintf(
+					// translators: 1 absolute path to wp-config.php, 2 cooke domain definition, 3 require once wp-setting.php definition.
+					\__(
+						'%1$s could not be written, please edit config and add:%2$s before %3$s.',
+						'w3-total-cache'
+					),
+					'<strong>' . ABSPATH . 'wp-config.php</strong>',
+					'<br /><strong style="color:#f00;">define(\'COOKIE_DOMAIN\', false);</strong>',
+					'<strong style="color:#f00;">require_once(ABSPATH . \'wp-settings.php\');</strong>'
+				),
+				array(
+					'strong' => array(
+						'style' => array(),
+					),
+					'br'     => array(),
+				)
+			),
+			'pull_zone'                               => \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Pull Zone could not be automatically created. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			),
 			'cdn_fsd_conflict_bunnycdn'               => \esc_html__( 'Bunny CDN cannot be enabled for both CDN and Full Site Delivery. Please disable one and save again.', 'w3-total-cache' ),
-			'cdn_fsd_conflict_totalcdn'               => sprintf(
+			'cdn_fsd_conflict_totalcdn'               => \sprintf(
 				// Translators: 1: W3 Total Cache name.
 				\esc_html__(
 					'%1$s cannot be enabled for both CDN and Full Site Delivery. Please disable one and save again.',
 					'w3-total-cache'
 				),
-				\esc_html( W3TC_CDN_NAME )
+				W3TC_CDN_NAME
 			),
 			'cdn_fsd_conflict_mixed'                  => \sprintf(
 				// Translators: 1: W3 Total Cache name.
@@ -1230,28 +1378,66 @@ class Generic_Plugin_Admin {
 					'Bunny CDN and %1$s cannot be enabled across CDN and Full Site Delivery at the same time. Please disable one and save again.',
 					'w3-total-cache'
 				),
-				\esc_html( W3TC_CDN_NAME )
+				W3TC_CDN_NAME
 			),
-			'flush_cdn_failed'                        => \sprintf(
-				// translators: 1 HTML acronym for CDN (content delivery network).
-				\esc_html__(
-					'%1$s purge failed.',
-					'w3-total-cache'
+			'flush_cdn_failed'                        => \wp_kses(
+				\sprintf(
+					// translators: 1 HTML acronym for CDN (content delivery network).
+					\__(
+						'%1$s purge failed.',
+						'w3-total-cache'
+					),
+					'<acronym title="' . \esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 				),
-				'<acronym title="' . \esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
 			),
-			'updated_pullzone_url'                    => \esc_html__( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
-			'cdn_totalcdn_fsd_origin_update_failed'   => \sprintf(
-				// Translators: 1: W3 Total Cache name.
-				\esc_html__(
-					'Unable to update the %1$s origin for Full Site Delivery. Please contact support for assistance.',
-					'w3-total-cache'
+			'updated_pullzone_url'                    => \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Pull Zone URL could not be automatically updated. Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
 				),
-				\esc_html( W3TC_CDN_NAME )
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
 			),
-			'updated_pullzone_url'                    => __( 'Pull Zone URL could not be automatically updated. Please contact support for assistance.', 'w3-total-cache' ),
-			'cdn_totalcdn_fsd_auto_config_failed'     => __( 'Unable to provision a Total CDN pull zone for Full Site Delivery. Please verify your API key or contact support.', 'w3-total-cache' ),
-			'cdn_totalcdn_fsd_origin_update_failed'  => __( 'Unable to update the Total CDN origin for Full Site Delivery. Please contact support for assistance.', 'w3-total-cache' ),
+			'cdn_totalcdn_fsd_origin_update_failed'   => \wp_kses(
+				\sprintf(
+					// Translators: 1: W3 Total Cache name, 2: HTML anchor open tag, 3: HTML anchor close tag.
+					\__(
+						'Unable to update the %1$s origin for Full Site Delivery. Please %2$scontact support%3$s for assistance.',
+						'w3-total-cache'
+					),
+					W3TC_CDN_NAME,
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			),
+			'cdn_totalcdn_fsd_auto_config_failed'     => \wp_kses(
+				\sprintf(
+					// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+					\__( 'Unable to provision a Total CDN pull zone for Full Site Delivery. Please verify your API key or %1$scontact support%2$s.', 'w3-total-cache' ),
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			),
 			'cdn_totalcdn_fsd_custom_hostname_remove_failed' => Cdn_TotalCdn_CustomHostname::removal_failure_message(),
 			'cdn_totalcdn_fsd_custom_hostname_failed' => Cdn_TotalCdn_CustomHostname::failure_message(),
 		);
@@ -1271,13 +1457,20 @@ class Generic_Plugin_Admin {
 			'flush_minify'              => \esc_html__( 'Minify cache successfully emptied.', 'w3-total-cache' ),
 			'flush_browser_cache'       => \esc_html__( 'Media Query string has been successfully updated.', 'w3-total-cache' ),
 			'flush_varnish'             => \esc_html__( 'Varnish servers successfully purged.', 'w3-total-cache' ),
-			'flush_cdn'                 => \sprintf(
-				// translators: 1 HTML acronym for CDN (content delivery network).
-				\esc_html__(
-					'%1$s was successfully purged.',
-					'w3-total-cache'
+			'flush_cdn'                 => \wp_kses(
+				\sprintf(
+					// translators: 1 HTML acronym for CDN (content delivery network).
+					\__(
+						'%1$s was successfully purged.',
+						'w3-total-cache'
+					),
+					'<acronym title="' . \esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
 				),
-				'<acronym title="' . \esc_attr__( 'Content Delivery Network', 'w3-total-cache' ) . '">' . esc_html__( 'CDN', 'w3-total-cache' ) . '</acronym>'
+				array(
+					'acronym' => array(
+						'title' => array(),
+					),
+				)
 			),
 			'support_request'           => \esc_html__( 'The support request has been successfully sent.', 'w3-total-cache' ),
 			'config_import'             => \esc_html__( 'Settings successfully imported.', 'w3-total-cache' ),
@@ -1377,11 +1570,27 @@ class Generic_Plugin_Admin {
 						'<td>' . Util_Ui::button( __( 'View required changes', 'w3-total-cache' ), '', 'w3tc-show-required-changes button' ) . '</td>' .
 					'</tr>' .
 					'<tr>' .
-						'<td>' . esc_html__( 'or use FTP form to allow ', 'w3-total-cache' ) .
-							'<strong>' . esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
-							esc_html__( 'make it automatically.', 'w3-total-cache' ) .
+						'<td>' . \esc_html__( 'or use FTP form to allow ', 'w3-total-cache' ) .
+							'<strong>' . \esc_html__( 'W3 Total Cache', 'w3-total-cache' ) . '</strong> ' .
+							\esc_html__( 'make it automatically.', 'w3-total-cache' ) .
 						'</td>' .
 						'<td>' . Util_Ui::button( 'Update via FTP', '', 'w3tc-show-ftp-form button' ) . '</td>' .
+					'</tr>' .
+					'<tr>' .
+						'<td>' . \wp_kses(
+							\sprintf(
+								// translators: 1: HTML anchor open tag, 2: HTML anchor close tag.
+								\__( 'Need help? Please %1$scontact support%2$s for assistance.', 'w3-total-cache' ),
+								'<a href="' . \esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+								'</a>'
+							),
+							array(
+								'a' => array(
+									'href' => array(),
+								),
+							)
+						) . '</td>' .
+						'<td>' . Util_Ui::button_link( __( 'Contact Support', 'w3-total-cache' ), Util_Ui::admin_url( 'admin.php?page=w3tc_support' ), false, 'button' ) . '</td>' .
 					'</tr>' .
 					'</table>' .
 					'<div class="w3tc-required-changes" style="' . $changes_style . '">' . $r['required_changes'] . '</div>' .
@@ -1404,10 +1613,10 @@ class Generic_Plugin_Admin {
 		 * Show messages.
 		 */
 		foreach ( $notes as $key => $note ) {
-			echo wp_kses(
-				sprintf(
+			echo \wp_kses(
+				\sprintf(
 					'<div class="updated w3tc_note inline" id="%1$s"><p>%2$s</p></div>',
-					esc_attr( $key ),
+					\esc_attr( $key ),
 					$note
 				),
 				array(
@@ -1433,11 +1642,11 @@ class Generic_Plugin_Admin {
 		}
 
 		foreach ( $errors as $key => $error ) {
-				printf(
-					'<div class="error w3tc_error inline" id="%1$s"><p>%2$s</p></div>',
-					esc_attr( $key ),
-					$error // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				);
+			\printf(
+				'<div class="error w3tc_error inline" id="%1$s"><p>%2$s</p></div>',
+				\esc_attr( $key ),
+				$error // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			);
 		}
 
 		if (
@@ -1447,16 +1656,25 @@ class Generic_Plugin_Admin {
 			// If is_pro, then inform about FSD availability.
 			if ( Util_Environment::is_w3tc_pro( $this->_config ) ) {
 				$fsd_html = '<p>' .
-					sprintf(
-						// translators: 1: CDN name, 2: HTML link open tag, 3: HTML link close tag, 4: HTML link open tag.
-						esc_html__(
-							'** As a Pro user, you can also take advantage of Full Site Delivery (FSD) with %1$s. FSD delivers visitors the lowest possible response and load times for all site content including HTML, media (e.g. images or fonts), CSS, and JavaScript. Configure it on the %2$sGeneral Settings%3$s page.  %4$sLearn more%3$s.',
-							'w3-total-cache'
+					\wp_kses(
+						\sprintf(
+							// translators: 1: CDN name, 2: HTML link open tag, 3: HTML link close tag, 4: HTML link open tag.
+							\__(
+								'** As a Pro user, you can also take advantage of Full Site Delivery (FSD) with %1$s. FSD delivers visitors the lowest possible response and load times for all site content including HTML, media (e.g. images or fonts), CSS, and JavaScript. Configure it on the %2$sGeneral Settings%3$s page.  %4$sLearn more%3$s.',
+								'w3-total-cache'
+							),
+							W3TC_CDN_NAME,
+							'<a href="' . \esc_url( \network_admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
+							'</a>',
+							'<a href="' . \esc_url( 'https://www.boldgrid.com/support/w3-total-cache/full-site-delivery/' ) . '" target="_blank" rel="noopener noreferrer">'
 						),
-						esc_html( W3TC_CDN_NAME ),
-						'<a href="' . esc_url( network_admin_url( 'admin.php?page=w3tc_general#cdn' ) ) . '">',
-						'</a>',
-						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/full-site-delivery/' ) . '" target="_blank" rel="noopener noreferrer">'
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+								'rel'    => array(),
+							),
+						)
 					) .
 					'</p>';
 			}

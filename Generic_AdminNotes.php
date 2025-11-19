@@ -70,13 +70,15 @@ class Generic_AdminNotes {
 		if ( ! $state_master->get_boolean( 'common.hide_note_no_zlib' ) && ! function_exists( 'gzencode' ) ) {
 			$notes['no_zlib'] = wp_kses(
 				sprintf(
-					// translators: 1: opening HTML strong tag, 2: closing HTML strong tag, 3: HTML input button for hiding message.
+					// translators: 1: opening HTML strong tag, 2: closing HTML strong tag, 3: HTML anchor open tag, 4: HTML anchor close tag, 5: HTML input button for hiding message.
 					__(
-						'Unfortunately the PHP installation is incomplete, the %1$szlib module is missing%2$s. This is a core PHP module. Notify the server administrator. %3$s',
+						'Unfortunately the PHP installation is incomplete, the %1$szlib module is missing%2$s. This is a core PHP module. Notify the server administrator or %3$scontact support%4$s. %5$s',
 						'w3-total-cache'
 					),
 					'<strong>',
 					'</strong>',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>',
 					Util_Ui::button_hide_note2(
 						array(
 							'w3tc_default_config_state_master' => 'y',
@@ -86,6 +88,9 @@ class Generic_AdminNotes {
 					)
 				),
 				array(
+					'a'      => array(
+						'href' => array(),
+					),
 					'strong' => array(),
 					'input'  => array(
 						'type'    => array(),
@@ -461,19 +466,24 @@ class Generic_AdminNotes {
 			$memcache_error = wp_kses(
 				sprintf(
 					// translators: 1: opening HTML p tag, 2: closing HTML p tag followed by opening HTML ul tag followed by memcache errors within HTML li tags,
-					// translators: 3: closing HTML p tag.
+					// translators: 3: HTML anchor open tag, 4: HTML anchor close tag, 5: closing HTML p tag.
 					__(
-						'%1$sThe following memcached servers are not responding or not running:%2$sThis message will automatically disappear once the issue is resolved.%3$s',
+						'%1$sThe following memcached servers are not responding or not running:%2$sThis message will automatically disappear once the issue is resolved. If you need help, please %3$scontact support%4$s.%5$s',
 						'w3-total-cache'
 					),
 					'<p>',
 					'</p><ul>' . $memcache_errors . '</ul><p>',
+					'<a href="' . esc_url( Util_Ui::admin_url( 'admin.php?page=w3tc_support' ) ) . '">',
+					'</a>',
 					'</p>'
 				),
 				array(
 					'p'  => array(),
 					'ul' => array(),
 					'li' => array(),
+					'a'  => array(
+						'href' => array(),
+					),
 				)
 			);
 
