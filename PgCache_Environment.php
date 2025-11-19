@@ -280,8 +280,25 @@ class PgCache_Environment {
 				'">the install page</a>  for the rules for your server.';
 
 			throw new Util_Environment_Exception(
-				esc_html( $error ),
-				esc_html( $tech_message )
+				wp_kses(
+					$error,
+					array(
+						'strong'  => array(),
+						'acronym' => array(
+							'title' => array(),
+						),
+						'a'       => array(
+							'href' => array(),
+						),
+						'br'      => array(),
+					)
+				),
+				wp_kses(
+					$tech_message,
+					array(
+						'br' => array(),
+					)
+				)
 			);
 		}
 	}

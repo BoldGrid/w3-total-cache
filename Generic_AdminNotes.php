@@ -88,6 +88,9 @@ class Generic_AdminNotes {
 					)
 				),
 				array(
+					'a'       => array(
+						'href' => array(),
+					),
 					'strong' => array(),
 					'input'  => array(
 						'type'    => array(),

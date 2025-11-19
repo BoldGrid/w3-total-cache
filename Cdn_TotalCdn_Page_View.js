@@ -243,7 +243,7 @@ jQuery(function($) {
 			if (list.length < 1) {
 				$('<div/>', {
 					class: 'error',
-					text: W3TC_TotalCdn.lang.empty_url + '.'
+					html: W3TC_TotalCdn.lang.empty_url + '.'
 				}).appendTo($messages);
 
 				$this
@@ -271,20 +271,20 @@ jQuery(function($) {
 								// Successful.
 								$('<div/>', {
 									class: 'updated',
-									text: W3TC_TotalCdn.lang.success_purging + ' "' + url + '".'
+									html: W3TC_TotalCdn.lang.success_purging + ' "' + url + '".'
 								}).appendTo($messages);
 							} else {
 								// Unsucessful.
 								$('<div/>', {
 									class: 'error',
-									text: W3TC_TotalCdn.lang.error_purging + ' "' + url + '"; ' + response.data.error_message + '.'
+									html: W3TC_TotalCdn.lang.error_purging + ' "' + url + '"; ' + response.data.error_message + '.'
 								}).appendTo($messages);
 							}
 						} else {
 							// Unknown error.
 							$('<div/>', {
 								class: 'error',
-								text: W3TC_TotalCdn.lang.error_ajax + '.'
+								html: W3TC_TotalCdn.lang.error_ajax + '.'
 							}).appendTo($messages);
 						}
 					})
@@ -294,13 +294,13 @@ jQuery(function($) {
 							// An error message was passed in the response data.
 							$('<div/>', {
 								class: 'error',
-								text: W3TC_TotalCdn.lang.error_purging + ' "' + url + '"; ' + response.responseJSON.data.error_message + '.'
+								html: W3TC_TotalCdn.lang.error_purging + ' "' + url + '"; ' + response.responseJSON.data.error_message + '.'
 							}).appendTo($messages);
 						} else {
 							// Unknown error.
 							$('<div/>', {
 								class: 'error',
-								text: W3TC_TotalCdn.lang.error_ajax + '.'
+								html: W3TC_TotalCdn.lang.error_ajax + '.'
 							}).appendTo($messages);
 						}
 					})
